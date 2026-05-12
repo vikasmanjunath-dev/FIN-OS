@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Foundation Matrix</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&family=Manrope:wght@300;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    
+    /* =========================
+       GLOBAL RESET & TOKENS
+       ========================= */
+       
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow-x: hidden; font-family: 'Inter', sans-serif; }
+
+    /* Light Theme */
+    :root[data-theme="light"] {
+        /* Add this inside BOTH :root[data-theme="light"] and :root[data-theme="dark"] */
+    --accent-quaternary: #FF9F1C; /* Amber */
+      --bg-main: #F7F8FA;
+      --bg-surface: #FFFFFF;
+      --bg-sidebar: #0E1117;
+      --text-primary: #0B0F19;
+      --text-secondary: #5B6475;
+      --accent-primary: #FF4F7C; /* Neon Pink */
+      --accent-secondary: #00F0FF; /* Cyan */
+      --accent-tertiary: #B026FF; /* Electric Purple */
+      --accent-market: #C7F000; /* Cyber Lime for Markets */
+      --border-soft: rgba(0,0,0,0.06);
+    }
+
+    /* Dark Theme */
+    :root[data-theme="dark"] {
+        /* Add this inside BOTH :root[data-theme="light"] and :root[data-theme="dark"] */
+    --accent-quaternary: #FF9F1C; /* Amber */
+      --bg-main: #07090F;
+      --bg-surface: rgba(15, 18, 30, 0.85);
+      --bg-sidebar: #0A0C14;
+      --text-primary: #F5F7FA;
+      --text-secondary: #9AA0B4;
+      --accent-primary: #FF4F7C; 
+      --accent-secondary: #00F0FF; 
+      --accent-tertiary: #B026FF;
+      --accent-market: #C7F000;
+      --border-soft: rgba(255,255,255,0.08);
+    }
+
+    body {
+      background: var(--bg-main);
+      color: var(--text-primary);
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    h1, h2, h3 { font-family: 'Manrope', sans-serif; letter-spacing: -0.4px; margin: 0; }
+    h1 { font-size: 36px; font-weight: 800; }
+    h2 { font-size: 24px; font-weight: 800; }
+
+    /* =========================
+       LAYOUT
+       ========================= */
+    .app {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      z-index: 10;
+    }
+
+    .sidebar {
+      width: 260px;
+      min-width: 260px;
+      background: var(--bg-sidebar);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      z-index: 20;
+    }
+
+    .sidebar .logo {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 32px;
+      color: #FFFFFF;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 2px;
+    }
+
+    .sidebar nav a {
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      margin-bottom: 6px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #A1A4AC;
+      text-decoration: none;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar nav a:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #FFFFFF;
+      transform: translateX(4px);
+    }
+
+    .sidebar nav a.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #FFFFFF;
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      padding: 0 48px 48px 48px;
+    }
+
+    .content-wrapper {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 40px 0;
+      border-bottom: 1px solid var(--border-soft);
+      margin-bottom: 40px;
+    }
+
+    .theme-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-soft);
+      color: var(--text-primary);
+      padding: 12px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    .theme-btn:hover { transform: rotate(15deg) scale(1.1); background: rgba(255,255,255,0.1); }
+
+    /* =========================
+       FOUNDATION PORTAL UI
+       ========================= */
+    #gridCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .badge-core {
+      display: inline-block;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 3px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .hero-sub {
+      color: var(--text-secondary);
+      margin-top: 12px;
+      font-size: 1.15rem;
+      max-width: 650px;
+      line-height: 1.6;
+    }
+
+    .portal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 30px;
+      perspective: 1200px;
+    }
+
+    /* --- THE CARDS --- */
+    .portal-card {
+      position: relative;
+      background: var(--bg-surface);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid var(--border-soft);
+      border-radius: 24px;
+      padding: 40px 30px;
+      text-decoration: none;
+      color: var(--text-primary);
+      overflow: hidden;
+      transition: border-color 0.4s ease, box-shadow 0.4s ease;
+      transform-style: preserve-3d;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .portal-card:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Background Glows */
+    .card-glow {
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .pink-glow { background: radial-gradient(circle, rgba(255, 79, 124, 0.15) 0%, transparent 60%); }
+    .cyan-glow { background: radial-gradient(circle, rgba(0, 240, 255, 0.15) 0%, transparent 60%); }
+    .purple-glow { background: radial-gradient(circle, rgba(176, 38, 255, 0.15) 0%, transparent 60%); }
+    
+    .portal-card:hover .card-glow { opacity: 1; }
+
+    /* Content wrapper for 3D pop */
+    .card-content {
+      position: relative;
+      z-index: 1;
+      transform: translateZ(40px); /* 3D pop */
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .portal-card h2 { margin-bottom: 12px; font-size: 2rem; }
+    .portal-card p {
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 30px;
+      font-size: 1rem;
+      flex-grow: 1;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-soft);
+      padding-top: 24px;
+      margin-top: auto;
+    }
+
+    .tech-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.70rem;
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.08);
+      padding: 6px 10px;
+      border-radius: 6px;
+      letter-spacing: 1.5px;
+    }
+
+    .arrow {
+      font-weight: 800;
+      font-size: 0.95rem;
+      transition: transform 0.3s ease;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .portal-card:hover .arrow { transform: translateX(8px); }
+    .portal-card.behavior:hover .arrow { color: var(--accent-primary); }
+    .portal-card.laws:hover .arrow { color: var(--accent-secondary); }
+    .portal-card.shield:hover .arrow { color: var(--accent-tertiary); }
+
+    /* =========================
+       DYNAMIC CSS ILLUSTRATIONS
+       ========================= */
+
+    /* Add this under the other card-glows (pink-glow, cyan-glow, etc.) */
+    .amber-glow { background: radial-gradient(circle, rgba(255, 159, 28, 0.15) 0%, transparent 60%); }
+    .portal-card.taxes:hover .arrow { color: var(--accent-quaternary); }
+
+    /* --- TAX SCANNER ANIMATION --- */
+    .tax-scanner { 
+      position: relative; width: 110px; height: 80px; display: flex; flex-direction: column; 
+      justify-content: space-between; padding: 14px; border: 1px solid rgba(255, 159, 28, 0.3); 
+      border-radius: 8px; background: rgba(255, 159, 28, 0.05); overflow: hidden; 
+    }
+    .scan-line { 
+      position: absolute; top: 0; left: 0; width: 100%; height: 2px; 
+      background: var(--accent-quaternary); box-shadow: 0 0 15px var(--accent-quaternary); 
+      animation: scanner 2.5s infinite linear; z-index: 2; 
+    }
+    .data-row { 
+      width: 100%; height: 6px; background: rgba(255, 159, 28, 0.2); 
+      border-radius: 3px; position: relative; overflow: hidden; 
+    }
+    .data-row::after { 
+      content: ''; position: absolute; top: 0; left: 0; height: 100%; 
+      background: var(--accent-quaternary); animation: data-fill 3s infinite alternate; 
+    }
+    .data-row:nth-child(2)::after { animation-delay: -1.5s; }
+    /* The 3rd line represents the "tax cut" taken away */
+    .data-row:nth-child(3)::after { background: #ff4757; animation: none; width: 30%; box-shadow: 0 0 10px rgba(255, 71, 87, 0.5); } 
+
+    @keyframes scanner { 
+      0% { top: -10%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 110%; opacity: 0; } 
+    }
+    @keyframes data-fill { 
+      0% { width: 20%; } 100% { width: 90%; } 
+    }
+
+    .visual-block {
+      width: 100%;
+      height: 160px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
+    }
+    [data-theme="light"] .visual-block { background: rgba(0,0,0,0.04); box-shadow: inset 0 0 20px rgba(0,0,0,0.05); }
+
+    /* Animations Omitted for Brevity (Same as previous step) */
+    .energy-engine { position: relative; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; }
+    .engine-core { width: 35px; height: 35px; background: var(--accent-primary); border-radius: 8px; transform: rotate(45deg); box-shadow: 0 0 20px var(--accent-primary); animation: core-beat 2s infinite ease-in-out alternate; z-index: 2; }
+    .energy-ring { position: absolute; width: 110px; height: 110px; border: 2px solid transparent; border-top-color: var(--accent-primary); border-bottom-color: var(--accent-primary); border-radius: 50%; animation: spin-fast 3s infinite linear; opacity: 0.7; }
+    .energy-ring::after { content: ''; position: absolute; top: -2px; left: 50%; width: 6px; height: 6px; background: #fff; border-radius: 50%; box-shadow: 0 0 10px #fff; }
+    .flow-particles { position: absolute; width: 200%; height: 2px; background: linear-gradient(90deg, transparent, var(--accent-primary), transparent); animation: flow-left 2s infinite linear; opacity: 0.5; }
+
+    .gyroscope { position: relative; width: 100px; height: 100px; transform-style: preserve-3d; animation: gyro-spin 10s infinite linear; }
+    .gyro-ring { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 2px solid var(--accent-secondary); border-radius: 50%; box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.2); }
+    .gyro-ring:nth-child(1) { transform: rotateX(75deg); }
+    .gyro-ring:nth-child(2) { transform: rotateY(75deg); }
+    .gyro-ring:nth-child(3) { transform: rotateZ(75deg); border-style: dashed; }
+    .gyro-center { position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; background: #fff; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 30px var(--accent-secondary); }
+
+    .shield-generator { position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; }
+    .hex-core { width: 35px; height: 40px; background: var(--accent-tertiary); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); box-shadow: 0 0 25px var(--accent-tertiary); z-index: 2; animation: shield-pulse 2s infinite alternate; }
+    .forcefield { position: absolute; width: 100%; height: 100%; border: 2px solid var(--accent-tertiary); border-radius: 50%; animation: forcefield-expand 3s infinite cubic-bezier(0.165, 0.84, 0.44, 1); }
+    .forcefield:nth-child(2) { animation-delay: 1.5s; }
+
+    @keyframes core-beat { 0% { transform: rotate(45deg) scale(0.8); } 100% { transform: rotate(45deg) scale(1.2); } }
+    @keyframes flow-left { 0% { transform: translateX(50%); } 100% { transform: translateX(-50%); } }
+    @keyframes gyro-spin { 0% { transform: rotateX(0deg) rotateY(0deg); } 100% { transform: rotateX(360deg) rotateY(360deg); } }
+    @keyframes spin-fast { 100% { transform: rotate(360deg); } }
+    @keyframes shield-pulse { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(1.2); opacity: 1; filter: brightness(1.5); } }
+    @keyframes forcefield-expand { 0% { transform: scale(0.3); opacity: 1; border-width: 4px; } 100% { transform: scale(1); opacity: 0; border-width: 1px; } }
+
+    .glitch-text { position: relative; display: inline-block; color: #fff; }
+    [data-theme="light"] .glitch-text { color: #000; }
+    .glitch-text::before, .glitch-text::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-main); opacity: 0; }
+    .header-flex:hover .glitch-text::before { left: 3px; text-shadow: -2px 0 var(--accent-primary); animation: glitch-anim 0.3s infinite linear alternate-reverse; opacity: 1; z-index: -1; }
+    .header-flex:hover .glitch-text::after { left: -3px; text-shadow: 2px 0 var(--accent-secondary); animation: glitch-anim 0.2s infinite linear alternate-reverse; opacity: 1; z-index: -2; }
+    @keyframes glitch-anim { 0% { clip-path: inset(20% 0 80% 0); } 50% { clip-path: inset(60% 0 10% 0); } 100% { clip-path: inset(40% 0 50% 0); } }
+
+    /* =========================
+       PHASE 2: MARKETS UNLOCK
+       ========================= */
+    .next-phase-section {
+      margin-top: 80px;
+      padding: 60px 20px;
+      text-align: center;
+      border-top: 1px solid rgba(199, 240, 0, 0.15);
+      background: radial-gradient(circle at top, rgba(199, 240, 0, 0.05), transparent 60%);
+      position: relative;
+      border-radius: 0 0 24px 24px;
+      z-index: 2;
+    }
+
+    [data-theme="light"] .next-phase-section {
+      background: radial-gradient(circle at top, rgba(199, 240, 0, 0.15), transparent 60%);
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .market-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 15px;
+      margin-top: 20px;
+      padding: 20px 48px;
+      background: rgba(11, 13, 18, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--accent-market);
+      color: var(--accent-market);
+      text-decoration: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      font-size: 1.25rem;
+      border-radius: 12px;
+      box-shadow: 0 0 25px rgba(199, 240, 0, 0.15), inset 0 0 15px rgba(199, 240, 0, 0.05);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+    }
+
+    .market-btn:hover {
+      background: var(--accent-market);
+      color: #0B0D12;
+      box-shadow: 0 15px 40px rgba(199, 240, 0, 0.4);
+      transform: translateY(-5px) scale(1.02);
+      border-color: transparent;
+    }
+
+    [data-theme="light"] .market-btn {
+      background: #FFFFFF;
+      color: #8fa800;
+      border-color: #8fa800;
+    }
+    [data-theme="light"] .market-btn:hover {
+      background: var(--accent-market);
+      color: #000;
+    }
+
+    .market-btn .arrow { transition: transform 0.3s ease; }
+    .market-btn:hover .arrow { transform: translateX(8px); }
+
+    /* Radar Sweep Animation */
+    .market-btn::before {
+       content: '';
+       position: absolute;
+       top: 0; left: -100%;
+       width: 50%; height: 100%;
+       background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+       transform: skewX(-20deg);
+       animation: scan-btn 3s infinite;
+    }
+    @keyframes scan-btn {
+       0% { left: -100%; }
+       20%, 100% { left: 200%; }
+    }
+
+    @media (max-width: 1024px) {
+      .portal-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    }
+
+    @media (max-width: 900px) {
+      .app { flex-direction: column; overflow-y: auto; }
+      .sidebar { width: 100%; height: auto; min-height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 16px; border-right: none; border-bottom: 1px solid var(--border-soft); }
+      .sidebar .logo { margin-bottom: 0; }
+      .sidebar nav { display: flex; gap: 10px; flex-wrap: wrap; width: 100%; margin-top: 16px; }
+      .sidebar nav a { margin-bottom: 0; padding: 8px 12px; font-size: 13px; }
+      .main { padding: 24px; overflow: visible; }
+      .portal-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+<body>
+
+<canvas id="gridCanvas"></canvas>
+
+<div class="app">
+   <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html" class="active">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+      
+      <header class="header-flex">
+        <div>
+          <div class="badge-core">SYSTEM CORE</div>
+          <h1 class="glitch-text" data-text="Foundation Matrix">Foundation Matrix</h1>
+          <p class="hero-sub">You cannot build wealth on a broken operating system. Unlearn the myths, rewrite your behavior, and master the immutable laws of money.</p>
+        </div>
+        <button id="themeToggle" class="theme-btn">🌙</button>
+      </header>
+
+      <section class="portal-grid">
+        
+        <a href="finance101.html" class="portal-card behavior" data-tilt>
+          <div class="card-glow pink-glow"></div>
+          <div class="card-content">
+            <div class="visual-block">
+              <div class="flow-particles"></div>
+              <div class="energy-engine">
+                <div class="energy-ring"></div>
+                <div class="engine-core"></div>
+              </div>
+            </div>
+            <h2>Personal Finance 101</h2>
+            <p>Dismantle toxic money scripts. Understand the difference between income and wealth, decode the EMI disease, and learn why your brain is hardwired to keep you poor.</p>
+            <div class="card-footer">
+              <span class="tech-tag">BEHAVIORAL_PROTOCOL</span>
+              <span class="arrow">INSTALL ➔</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="principles.html" class="portal-card laws" data-tilt>
+          <div class="card-glow cyan-glow"></div>
+          <div class="card-content">
+            <div class="visual-block">
+              <div class="gyroscope">
+                <div class="gyro-ring"></div>
+                <div class="gyro-ring"></div>
+                <div class="gyro-ring"></div>
+                <div class="gyro-center"></div>
+              </div>
+            </div>
+            <h2>Principles n Laws</h2>
+            <p>The constitution of money. Master the immutable laws of cash flow, compounding, leverage destruction, and the absolute mathematics of financial freedom.</p>
+            <div class="card-footer">
+              <span class="tech-tag">STRUCTURAL_PROTOCOL</span>
+              <span class="arrow">INSTALL ➔</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="learn-insurance.html" class="portal-card shield" data-tilt>
+          <div class="card-glow purple-glow"></div>
+          <div class="card-content">
+            <div class="visual-block">
+              <div class="shield-generator">
+                <div class="forcefield"></div>
+                <div class="forcefield"></div>
+                <div class="hex-core"></div>
+              </div>
+            </div>
+            <h2>Shield Protocol</h2>
+            <p>Stop treating insurance as an investment. Deploy the anti-wipeout layer, calculate your true term cover, and transfer catastrophic risk away from your system.</p>
+            <div class="card-footer">
+              <span class="tech-tag">PROTECTION_PROTOCOL</span>
+              <span class="arrow">INSTALL ➔</span>
+            </div>
+          </div>
+        </a>
+
+      </section>
+
+      <section class="next-phase-section">
+        <div class="badge-core" style="color: var(--accent-market); border-color: var(--accent-market);">PHASE 02 UNLOCKED</div>
+        <h2 style="font-size: 2.8rem; margin: 15px 0;">The Global Markets</h2>
+        <p class="hero-sub" style="margin: 0 auto 30px auto; max-width: 650px;">
+          Once your foundation is secure, it is time to deploy capital. Enter the Global Markets Protocol to master Equity, Crypto, Debt, ETFs, and Derivatives.
+        </p>
+        <a href="markets.html" class="market-btn">
+          ACCESS MARKETS PROTOCOL <span class="arrow">➔</span>
+        </a>
+      </section>
+
+      <a href="tax.html" class="portal-card taxes" data-tilt>
+          <div class="card-glow amber-glow"></div>
+          <div class="card-content">
+            <div class="visual-block">
+              <div class="tax-scanner">
+                <div class="scan-line"></div>
+                <div class="data-row"></div>
+                <div class="data-row"></div>
+                <div class="data-row"></div>
+              </div>
+            </div>
+            <h2>Tax Architecture</h2>
+            <p>Understand the silent partner in your wealth creation. Learn how to legally optimize your tax footprint, differentiate between tax evasion and planning, and keep more of what you earn.</p>
+            <div class="card-footer">
+              <span class="tech-tag">REVENUE_PROTOCOL</span>
+              <span class="arrow">INSTALL ➔</span>
+            </div>
+          </div>
+        </a>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    
+    // --- 1. THEME TOGGLE LOGIC ---
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const htmlElement = document.documentElement;
+
+    const savedTheme = localStorage.getItem('finos-theme') || localStorage.getItem('finos-theme') || localStorage.getItem('theme');
+    if (savedTheme) {
+      htmlElement.setAttribute('data-theme', savedTheme);
+      themeToggleBtn.innerText = savedTheme === 'dark' ? '🌙' : '☀️';
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = htmlElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      htmlElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('finos-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      themeToggleBtn.innerText = newTheme === 'dark' ? '🌙' : '☀️';
+    });
+
+    // --- 2. 3D TILT EFFECT ---
+    const cards = document.querySelectorAll('[data-tilt]');
+    
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -10; 
+        const rotateY = ((x - centerX) / centerX) * 10;
+        card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+      });
+    });
+
+    // --- 3. SYNTHWAVE PERSPECTIVE GRID CANVAS ---
+    const canvas = document.getElementById('gridCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    let width, height, time = 0;
+    
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function drawGrid() {
+      ctx.clearRect(0, 0, width, height);
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const strokeColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+      const horizon = height * 0.4;
+      
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 1;
+
+      const vanishingPointX = width / 2;
+      const vanishingPointY = horizon - 100;
+      
+      ctx.beginPath();
+      for (let i = -width; i < width * 2; i += 80) {
+        ctx.moveTo(vanishingPointX, vanishingPointY);
+        ctx.lineTo(i, height);
+      }
+      ctx.stroke();
+
+      ctx.beginPath();
+      time += 0.5;
+      for (let y = 0; y < height - horizon; y += 4) {
+        const yPos = horizon + Math.pow(y, 1.6);
+        if (yPos > height) break;
+        const offset = (time % 20) * (yPos - horizon) / 200;
+        const finalY = yPos + offset;
+        if (finalY < height) {
+          ctx.moveTo(0, finalY);
+          ctx.lineTo(width, finalY);
+        }
+      }
+      ctx.stroke();
+      
+      const gradient = ctx.createLinearGradient(0, horizon, 0, height);
+      gradient.addColorStop(0, isDark ? 'rgba(7, 9, 15, 1)' : 'rgba(247, 248, 250, 1)');
+      gradient.addColorStop(0.3, isDark ? 'rgba(7, 9, 15, 0.6)' : 'rgba(247, 248, 250, 0.6)');
+      gradient.addColorStop(1, 'transparent');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
+      requestAnimationFrame(drawGrid);
+    }
+    drawGrid();
+  });
+</script>
+
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+</body>
+</html>

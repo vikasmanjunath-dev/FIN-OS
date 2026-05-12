@@ -1,0 +1,581 @@
+{% extends 'finos/base.html' %}
+{% block title %}Psychological Profile — FIN-OS{% endblock %}
+{% block extra_head %}
+<style>
+.page{padding:2.5rem 3rem;padding-top:5.5rem;position:relative;z-index:1}
+#profBg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.2}
+.topbar{position:fixed;top:0;left:220px;right:0;height:44px;z-index:400;background:rgba(2,2,12,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,212,255,.08);display:flex;align-items:center;padding:0 2rem;gap:1.5rem;font-family:var(--fM);font-size:.64rem}
+.tb-dot{width:5px;height:5px;border-radius:50%;background:var(--c);box-shadow:0 0 6px var(--c);animation:blink 2s infinite}
+
+/* HERO */
+.p-hero{margin-bottom:2.5rem;animation:slide-up .6s ease}
+.p-badge{display:inline-flex;align-items:center;gap:.5rem;padding:4px 14px;border-radius:30px;font-family:var(--fM);font-size:.6rem;letter-spacing:3px;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.18);color:var(--c);margin-bottom:1rem}
+.p-hero h1{font-family:var(--fD);font-size:3.5rem;letter-spacing:3px;line-height:1;margin-bottom:.75rem}
+.p-hero h1 span{background:linear-gradient(90deg,var(--c),#a78bff,var(--g));background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s linear infinite}
+.p-hero p{font-size:.95rem;color:var(--mu);max-width:540px;line-height:1.7}
+
+/* PROFILE CARD */
+.profile-card{background:var(--s1);border:1px solid rgba(255,255,255,.07);border-radius:24px;padding:2.5rem;margin-bottom:2rem;display:grid;grid-template-columns:auto 1fr;gap:2rem;align-items:flex-start;position:relative;overflow:hidden;animation:slide-up .7s ease}
+.profile-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--c),#a78bff,var(--g))}
+.profile-avatar{width:88px;height:88px;border-radius:20px;background:linear-gradient(135deg,var(--v),var(--c));display:flex;align-items:center;justify-content:center;font-family:var(--fD);font-size:3rem;color:#fff;flex-shrink:0;animation:float 4s ease-in-out infinite;position:relative}
+.profile-avatar::after{content:'';position:absolute;inset:-2px;border-radius:22px;border:2px solid transparent;background:linear-gradient(135deg,var(--v),var(--c)) border-box;-webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);-webkit-mask-composite:destination-out;mask-composite:exclude}
+.p-type-badge{display:inline-flex;align-items:center;gap:.4rem;padding:3px 10px;border-radius:20px;font-family:var(--fM);font-size:.58rem;letter-spacing:2px;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.18);color:var(--c);margin-bottom:.5rem}
+.p-name{font-family:var(--fD);font-size:2.2rem;letter-spacing:1px;margin-bottom:.2rem}
+.p-arch{font-size:.88rem;color:var(--mu);margin-bottom:1rem}
+.p-scores{display:flex;gap:1.5rem;flex-wrap:wrap}
+.ps-item{text-align:center}
+.ps-num{font-family:var(--fD);font-size:1.8rem;letter-spacing:1px;line-height:1}
+.ps-lbl{font-family:var(--fM);font-size:.52rem;color:var(--mu);letter-spacing:1px;margin-top:3px}
+.p-archetype-expanded{margin-top:1.25rem;padding:1rem;background:rgba(0,0,0,.3);border-radius:12px;border:1px solid rgba(255,255,255,.06);font-size:.82rem;line-height:1.6;color:rgba(240,237,255,.75);grid-column:1/-1}
+
+/* LEVEL PROGRESSION */
+.level-card{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:2rem;margin-bottom:2rem;animation:slide-up .75s ease}
+.lc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+.lc-title{font-family:var(--fD);font-size:1.3rem;letter-spacing:1px}
+.lc-current{font-family:var(--fD);font-size:1.1rem;letter-spacing:1px;color:var(--y)}
+.levels-row{display:flex;align-items:center;gap:.4rem;overflow-x:auto;padding-bottom:.5rem;margin-bottom:1rem}
+.lv-node{flex-shrink:0;width:46px;height:46px;border-radius:50%;border:2px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-family:var(--fM);font-size:.62rem;transition:all .2s;cursor:pointer;position:relative}
+.lv-node:hover .lv-tooltip{display:block}
+.lv-tooltip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 8px;font-size:.58rem;white-space:nowrap;color:var(--txt);font-family:var(--fM);letter-spacing:1px}
+.lv-done{background:var(--v);border-color:var(--v);color:#fff}
+.lv-current{background:rgba(255,204,0,.15);border-color:var(--y);color:var(--y);animation:pulse-v .6s ease infinite alternate}
+.lv-locked{background:rgba(0,0,0,.3);color:var(--dim)}
+.lv-connector{flex-shrink:0;width:18px;height:2px;background:rgba(255,255,255,.06)}
+.lv-connector.done{background:var(--v);opacity:.6}
+.level-xp-bar{display:flex;align-items:center;gap:1rem}
+.lxb-label{font-family:var(--fM);font-size:.62rem;color:var(--mu);white-space:nowrap}
+.lxb-bar{flex:1;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.lxb-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--v),var(--c));transition:width 1.5s ease}
+.level-next-info{margin-top:1rem;padding:.75rem;background:rgba(255,204,0,.05);border:1px solid rgba(255,204,0,.12);border-radius:10px;font-size:.8rem;color:var(--y);line-height:1.5}
+
+/* ADAPTIVE CHANGES */
+.adaptive-card{background:var(--s1);border:1px solid rgba(255,204,0,.12);border-radius:20px;padding:2rem;margin-bottom:2rem;animation:slide-up .8s ease;position:relative}
+.adaptive-card::before{content:'ADAPTIVE AI ACTIVE';position:absolute;top:1rem;right:1.5rem;font-family:var(--fM);font-size:.52rem;color:var(--y);letter-spacing:2px;padding:3px 9px;background:rgba(255,204,0,.08);border:1px solid rgba(255,204,0,.15);border-radius:8px}
+.ac-title{font-family:var(--fD);font-size:1.3rem;letter-spacing:1px;margin-bottom:.4rem}
+.ac-sub{font-size:.8rem;color:var(--mu);margin-bottom:1.5rem;line-height:1.5}
+.ac-changes{display:flex;flex-direction:column;gap:.75rem}
+.ac-item{display:flex;gap:.9rem;align-items:flex-start;padding:.9rem 1rem;background:rgba(0,0,0,.25);border-radius:10px;border:1px solid rgba(255,255,255,.06)}
+.ac-icon{font-size:1.1rem;flex-shrink:0;margin-top:2px}
+.ac-text{font-size:.8rem;line-height:1.5;color:rgba(240,237,255,.8)}
+.ac-text strong{display:block;font-family:var(--fD);font-size:.82rem;letter-spacing:.5px;color:var(--y);margin-bottom:.25rem}
+.ac-trigger{margin-left:auto;font-family:var(--fM);font-size:.52rem;padding:2px 7px;background:rgba(255,204,0,.06);border:1px solid rgba(255,204,0,.12);border-radius:6px;color:var(--y);white-space:nowrap;flex-shrink:0}
+
+/* TRAITS */
+.traits-card{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:2rem;margin-bottom:2rem;animation:slide-up .85s ease}
+.traits-split{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center}
+.traits-radar-wrap{display:flex;justify-content:center}
+.traits-bars{display:flex;flex-direction:column;gap:1rem}
+.tb-row{display:flex;flex-direction:column;gap:.3rem}
+.tbr-header{display:flex;justify-content:space-between;align-items:center}
+.tbr-name{font-size:.82rem;font-weight:600;font-family:var(--fD);letter-spacing:.5px}
+.tbr-val{font-family:var(--fM);font-size:.7rem}
+.tbr-bar{height:5px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden}
+.tbr-fill{height:100%;border-radius:3px;animation:grow-bar 1.5s ease forwards}
+.trait-ai-note{margin-top:.75rem;padding:.65rem .9rem;background:rgba(0,212,255,.04);border-left:2px solid rgba(0,212,255,.3);border-radius:0 6px 6px 0;font-size:.75rem;color:var(--c);line-height:1.5;font-style:italic}
+
+/* SW */
+.sw-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem}
+.sw-card{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:1.6rem;animation:slide-up .9s ease}
+.sw-title{font-family:var(--fD);font-size:1rem;letter-spacing:1px;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.sw-list{list-style:none;display:flex;flex-direction:column;gap:.5rem}
+.sw-item{font-size:.79rem;display:flex;align-items:flex-start;gap:.5rem;color:rgba(240,237,255,.7);line-height:1.4}
+.sw-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:6px}
+
+/* AI COACH */
+.coach-card{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:2rem;margin-bottom:2rem;animation:slide-up .95s ease}
+.cc-title{font-family:var(--fD);font-size:1.3rem;letter-spacing:1px;margin-bottom:1.5rem}
+.coach-msgs{display:flex;flex-direction:column;gap:1rem}
+.cm{padding:1.1rem 1.25rem;border-radius:12px;font-size:.84rem;line-height:1.7;cursor:pointer;transition:transform .2s;position:relative}
+.cm:hover{transform:translateX(5px)}
+.cm::before{content:'🤖';position:absolute;top:-9px;left:12px;font-size:.9rem}
+.cm-warn{background:rgba(255,204,0,.06);border:1px solid rgba(255,204,0,.14);color:rgba(255,204,0,.9);padding-top:1.2rem}
+.cm-ok{background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.13);color:rgba(0,255,136,.9);padding-top:1.2rem}
+.cm-info{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.13);color:var(--c);padding-top:1.2rem}
+
+/* ACTION PLAN */
+.action-card{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:2rem;margin-bottom:2rem;animation:slide-up 1s ease}
+.action-title{font-family:var(--fD);font-size:1.3rem;letter-spacing:1px;margin-bottom:1.5rem}
+.actions-list{display:flex;flex-direction:column;gap:.8rem}
+.action-item{display:flex;gap:.9rem;align-items:flex-start;padding:1rem;background:rgba(0,0,0,.25);border-radius:12px;border:1px solid rgba(255,255,255,.06);transition:all .2s;cursor:pointer;user-select:none}
+.action-item:hover{border-color:rgba(0,212,255,.2);transform:translateX(4px)}
+.action-item.done{border-color:rgba(0,255,136,.25);background:rgba(0,255,136,.04);opacity:.75}
+.ai-num{width:28px;height:28px;border-radius:50%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;font-family:var(--fM);font-size:.65rem;color:var(--c);flex-shrink:0;transition:all .2s}
+.action-item.done .ai-num{background:var(--g);border-color:var(--g);color:#000;font-weight:700}
+.ai-body{flex:1}
+.ai-title{font-family:var(--fD);font-size:.92rem;letter-spacing:.5px;margin-bottom:.2rem;transition:color .2s}
+.action-item.done .ai-title{color:var(--g)}
+.ai-desc{font-size:.76rem;color:var(--mu);line-height:1.5}
+.ai-impact{margin-left:auto;font-family:var(--fM);font-size:.58rem;padding:2px 8px;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.12);border-radius:8px;color:var(--g);white-space:nowrap}
+
+/* TRAINING HISTORY */
+.history-card{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:2rem;margin-bottom:2rem;animation:slide-up 1.05s ease}
+.hc-title{font-family:var(--fD);font-size:1.3rem;letter-spacing:1px;margin-bottom:1.5rem}
+.history-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem}
+.h-day{aspect-ratio:1;border-radius:4px;cursor:pointer;transition:transform .15s;position:relative}
+.h-day:hover{transform:scale(1.4);z-index:2}
+.h-day .h-tip{display:none;position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px 7px;font-size:.52rem;white-space:nowrap;font-family:var(--fM);color:var(--txt);z-index:3}
+.h-day:hover .h-tip{display:block}
+.hd-0{background:rgba(255,255,255,.04)}
+.hd-1{background:rgba(0,255,136,.15)}
+.hd-2{background:rgba(0,255,136,.35)}
+.hd-3{background:rgba(0,255,136,.55)}
+.hd-4{background:rgba(0,255,136,.8)}
+.history-legend{display:flex;align-items:center;gap:.75rem;margin-top:.75rem;font-family:var(--fM);font-size:.58rem;color:var(--mu)}
+.hl-boxes{display:flex;gap:.3rem}
+.hl-box{width:12px;height:12px;border-radius:2px}
+</style>
+{% endblock %}
+
+{% block content %}
+<canvas id="profBg"></canvas>
+<div class="topbar">
+  <div class="tb-dot"></div>
+  <span style="color:var(--c)">PSYCHOLOGICAL PROFILE ENGINE</span>
+  <span style="color:var(--mu)">|</span>
+  <span style="color:var(--mu)">SESSIONS COMPLETED:</span>&nbsp;<span style="color:var(--g)" id="sessCount">12</span>
+  <span style="color:var(--mu);margin-left:auto">OVERALL MIND SCORE:</span>&nbsp;<span style="color:var(--c)" id="mindScore">58/100</span>
+</div>
+
+<div class="page">
+
+<div class="p-hero">
+  <div class="p-badge">🧬 PSYCHOLOGICAL PROFILE — DEEP DNA ANALYSIS</div>
+  <h1>YOUR <span>MONEY MIND</span> DNA</h1>
+  <p>FIN-OS has analyzed 47 trades, 23 sessions, and 156 behavioral data points to build your psychological trading profile. This is not astrology — this is behavioral science applied to your real decisions.</p>
+</div>
+
+<!-- PROFILE CARD -->
+<div class="profile-card">
+  <div class="profile-avatar" id="pAvatar">R</div>
+  <div>
+    <div class="p-type-badge" id="pTypeBadge">⚡ DUAL BRAIN USER</div>
+    <div class="p-name" id="pName" title="Double-click to edit name" style="cursor:pointer">Rahul Sharma</div>
+    <div class="p-arch" id="pArch">Impatient Growth Seeker · FOMO-Prone Trader · Disciplined SIP Investor</div>
+    <div class="p-scores">
+      <div class="ps-item"><div class="ps-num" style="color:var(--g)" id="psDisc">71</div><div class="ps-lbl">DISCIPLINE</div></div>
+      <div class="ps-item"><div class="ps-num" style="color:var(--y)" id="psPatience">48</div><div class="ps-lbl">PATIENCE</div></div>
+      <div class="ps-item"><div class="ps-num" style="color:var(--c)" id="psAnalysis">74</div><div class="ps-lbl">ANALYSIS</div></div>
+      <div class="ps-item"><div class="ps-num" style="color:var(--r)" id="psEmoCtrl">31</div><div class="ps-lbl">EMO CTRL</div></div>
+      <div class="ps-item"><div class="ps-num" style="color:var(--r)" id="psFomoRes">22</div><div class="ps-lbl">FOMO RES.</div></div>
+      <div class="ps-item"><div class="ps-num" style="color:var(--g)" id="psEdge">89</div><div class="ps-lbl">EDGE SCORE</div></div>
+    </div>
+  </div>
+  <div class="p-archetype-expanded" id="pArchExpanded">
+    <strong style="font-family:var(--fD);letter-spacing:.5px;color:var(--c);font-size:.88rem">YOUR PSYCHOLOGICAL TRADING ARCHETYPE:</strong><br>
+    You are a <strong>"Capable-But-Inconsistent"</strong> trader — you have genuine analytical skill (74/100) but emotional regulation undermines it consistently. Your RSI+Support setup has 89% win rate — professional-level edge. Yet you abandon it for FOMO trades that have 14% win rate. The gap between your potential and your results is almost entirely psychological, not strategic. You already know how to trade profitably. The training ahead is about removing the emotional interference that prevents you from doing it consistently.
+  </div>
+</div>
+
+<!-- LEVEL PROGRESSION -->
+<div class="level-card">
+  <div class="lc-header">
+    <div class="lc-title">PSYCHOLOGICAL PROGRESSION TRACK</div>
+    <div class="lc-current" id="lcCurrent">LVL 4 — STRATEGIST</div>
+  </div>
+  <div class="levels-row" id="levelsRow"></div>
+  <div class="level-xp-bar">
+    <div class="lxb-label" id="lxbFrom">LVL 4: STRATEGIST</div>
+    <div class="lxb-bar"><div class="lxb-fill" id="lxbFill" style="width:62%"></div></div>
+    <div class="lxb-label" id="lxbTo">LVL 5: ANALYST</div>
+  </div>
+  <div class="level-next-info" id="levelNextInfo">⚡ 760 XP to next level — DISCIPLINED ANALYST. Required: 30 more calm trades, complete 5 bias lessons, maintain 50+ day SIP streak. You're on track — keep training daily.</div>
+</div>
+
+<!-- ADAPTIVE AI CHANGES -->
+<div class="adaptive-card">
+  <div class="ac-title">ADAPTIVE AI — SYSTEM CHANGES BASED ON YOUR BEHAVIOR</div>
+  <div class="ac-sub">FIN-OS doesn't just track you — it adapts. Based on your psychological patterns, these rules have been automatically applied to your trading environment.</div>
+  <div class="ac-changes" id="adaptiveRules"></div>
+</div>
+<script>
+(function renderAdaptiveRules(){
+  const t = STATE.traits;
+  const rules = [];
+
+  if (STATE.fomoCount >= 3)
+    rules.push({icon:'⏱️', title:'FORCED 15-SECOND DELAY BEFORE ALL TRADES',
+      body:`You've triggered FOMO ${STATE.fomoCount} times. Every trade now has a mandatory 15-second pause before execution. This activates the prefrontal cortex and breaks impulse loops.`,
+      trigger:`FOMO × ${STATE.fomoCount}`});
+
+  if (t.emotionCtrl < 50)
+    rules.push({icon:'📏', title:'POSITION SIZE AUTO-CAPPED WHEN EMOTIONAL',
+      body:`Emotion Control at ${t.emotionCtrl}/100 — below safe threshold. When emotional score ≥ 7/10 is logged, maximum position size is automatically limited to 50% of usual allocation.`,
+      trigger:`EMOTION CTRL ${t.emotionCtrl}%`});
+
+  if (STATE.losses >= 2)
+    rules.push({icon:'🚫', title:'RED DAY SELL REQUIRES EXTRA CHECKLIST',
+      body:`${STATE.losses} panic-exit pattern${STATE.losses>1?'s':''} detected. Any sell order on a day when Nifty is down 1%+ now requires completion of an emotional checklist before executing.`,
+      trigger:`${STATE.losses} panic sells`});
+
+  if (t.fomoRes < 35)
+    rules.push({icon:'🔕', title:'WHATSAPP TIP TRADE AUTO-FLAGGED',
+      body:`FOMO Resistance at ${t.fomoRes}/100 — critically low. Any trade reason containing "tip," "group said," or "someone told me" is automatically flagged with a 30-second override delay.`,
+      trigger:`FOMO RES ${t.fomoRes}%`});
+
+  if (t.patience < 40)
+    rules.push({icon:'📅', title:'FRIDAY AFTERNOON TRADING BLOCK',
+      body:`Patience score ${t.patience}/100 combined with emotional trading history. Friday sessions after 2pm now trigger a mandatory warning + cooldown before any new entry can be placed.`,
+      trigger:`PATIENCE ${t.patience}%`});
+
+  if (t.consistency < 50)
+    rules.push({icon:'📋', title:'PRE-TRADE CHECKLIST ENFORCEMENT',
+      body:`Consistency at ${t.consistency}/100. A 3-point checklist (Setup? Stop-loss set? Position sized correctly?) must be completed before any trade entry is confirmed.`,
+      trigger:`CONSISTENCY ${t.consistency}%`});
+
+  if (rules.length === 0)
+    rules.push({icon:'✅', title:'NO ACTIVE ADAPTIVE RULES',
+      body:'Your behavioral scores are within healthy ranges. Keep trading and completing simulations — adaptive rules activate automatically when patterns emerge.',
+      trigger:'ALL CLEAR'});
+
+  const wrap = document.getElementById('adaptiveRules');
+  if (wrap) wrap.innerHTML = rules.map(r =>
+    `<div class="ac-item"><div class="ac-icon">${r.icon}</div><div class="ac-text"><strong>${r.title}</strong>${r.body}</div><div class="ac-trigger">${r.trigger}</div></div>`
+  ).join('');
+
+  window.addEventListener('traits-changed', renderAdaptiveRules);
+})();
+</script>
+
+<!-- SELF-ASSESSMENT SLIDERS -->
+<div class="traits-card" id="selfAssessCard">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+    <div style="font-family:var(--fD);font-size:1.1rem;letter-spacing:1px">SELF-ASSESSMENT — CALIBRATE YOUR TRAITS</div>
+    <button onclick="toggleSelfAssess()" id="saToggleBtn" style="font-family:var(--fM);font-size:.6rem;letter-spacing:1px;padding:.4rem 1rem;background:rgba(79,124,255,.08);border:1px solid rgba(79,124,255,.2);border-radius:8px;color:var(--c);cursor:pointer">▼ EXPAND</button>
+  </div>
+  <div id="saPanel" style="display:none">
+    <p style="font-family:var(--fM);font-size:.72rem;color:var(--mu);margin-bottom:1.5rem;line-height:1.6">Rate yourself honestly. These scores calibrate your AI rules and simulation feedback. They update automatically as you complete simulations — you can also set them manually here.</p>
+    <div id="saSliders"></div>
+    <div style="display:flex;gap:1rem;margin-top:1.5rem">
+      <button onclick="saveSelfAssess()" style="font-family:var(--fM);font-size:.65rem;letter-spacing:1px;padding:.6rem 1.5rem;background:linear-gradient(135deg,var(--g),var(--c));border:none;border-radius:10px;color:#000;cursor:pointer;font-weight:700">SAVE & APPLY</button>
+      <button onclick="resetSelfAssess()" style="font-family:var(--fM);font-size:.65rem;letter-spacing:1px;padding:.6rem 1.5rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:var(--mu);cursor:pointer">RESET TO DEFAULTS</button>
+    </div>
+  </div>
+</div>
+<script>
+const SA_TRAITS = [
+  {key:'patience',    label:'Patience',         color:'var(--y)', desc:'Can you wait days/weeks without acting?'},
+  {key:'emotionCtrl', label:'Emotion Control',  color:'var(--r)', desc:'Do you stay calm when trades go against you?'},
+  {key:'riskIQ',      label:'Risk Intelligence', color:'var(--c)', desc:'Do you always size positions correctly?'},
+  {key:'analysis',    label:'Analytical Skill',  color:'var(--c)', desc:'How deeply do you research before entering?'},
+  {key:'fomoRes',     label:'FOMO Resistance',   color:'var(--y)', desc:'Can you ignore a pumping stock you missed?'},
+  {key:'consistency', label:'Consistency',       color:'var(--g)', desc:'Do you follow your rules every single time?'},
+  {key:'vision',      label:'Long-term Vision',  color:'var(--g)', desc:'Do you think in years, not days?'}
+];
+let saTemps = {};
+function buildSASliders(){
+  const t = STATE.traits;
+  SA_TRAITS.forEach(tr => { saTemps[tr.key] = t[tr.key]; });
+  const wrap = document.getElementById('saSliders');
+  if(!wrap) return;
+  wrap.innerHTML = SA_TRAITS.map(tr => `
+    <div style="margin-bottom:1.1rem">
+      <div style="display:flex;justify-content:space-between;font-family:var(--fM);font-size:.65rem;margin-bottom:.4rem">
+        <span style="color:var(--txt)">${tr.label} <span style="color:var(--mu);font-size:.58rem">— ${tr.desc}</span></span>
+        <span style="color:${tr.color};font-weight:700" id="saVal_${tr.key}">${t[tr.key]}</span>
+      </div>
+      <input type="range" min="0" max="100" value="${t[tr.key]}"
+        style="width:100%;accent-color:${tr.color}"
+        oninput="saTemps['${tr.key}']=+this.value;document.getElementById('saVal_${tr.key}').textContent=this.value">
+    </div>`).join('');
+}
+function toggleSelfAssess(){
+  const p = document.getElementById('saPanel');
+  const btn = document.getElementById('saToggleBtn');
+  const open = p.style.display === 'none';
+  p.style.display = open ? 'block' : 'none';
+  btn.textContent = open ? '▲ COLLAPSE' : '▼ EXPAND';
+  if(open) buildSASliders();
+}
+function saveSelfAssess(){
+  const clamp = v => Math.max(0, Math.min(100, v));
+  SA_TRAITS.forEach(tr => { STATE.traits[tr.key] = clamp(saTemps[tr.key]); });
+  STATE.save();
+  loadProfileFromState();
+  window.dispatchEvent(new CustomEvent('traits-changed', {detail: STATE.traits}));
+  showToast('✅ Trait scores updated','tg');
+}
+function resetSelfAssess(){
+  const def = {patience:48,emotionCtrl:31,riskIQ:81,analysis:74,fomoRes:22,consistency:55,vision:67};
+  Object.assign(STATE.traits, def); STATE.save();
+  buildSASliders(); loadProfileFromState();
+  window.dispatchEvent(new CustomEvent('traits-changed', {detail: STATE.traits}));
+  showToast('Traits reset to defaults','ti');
+}
+</script>
+
+<!-- TRAITS RADAR -->
+<div class="traits-card">
+  <div style="font-family:var(--fD);font-size:1.3rem;letter-spacing:1px;margin-bottom:1.5rem">PSYCHOLOGICAL TRAITS BREAKDOWN — 8 DIMENSIONS</div>
+  <div class="traits-split">
+    <div class="traits-radar-wrap">
+      <svg id="radarSVG" viewBox="0 0 300 300" width="280" height="280"></svg>
+    </div>
+    <div>
+      <div class="traits-bars">
+        <div class="tb-row"><div class="tbr-header"><span class="tbr-name">Patience</span><span class="tbr-val" id="tbPatVal" style="color:var(--y)">48/100</span></div><div class="tbr-bar"><div class="tbr-fill" id="tbPatFill" style="width:48%;background:linear-gradient(90deg,var(--y),#ffd860)"></div></div></div>
+        <div class="tb-row"><div class="tbr-header"><span class="tbr-name">Discipline</span><span class="tbr-val" id="tbDiscVal" style="color:var(--g)">71/100</span></div><div class="tbr-bar"><div class="tbr-fill" id="tbDiscFill" style="width:71%;background:linear-gradient(90deg,var(--g),#34ffb8)"></div></div></div>
+        <div class="tb-row"><div class="tbr-header"><span class="tbr-name">Emotion Control</span><span class="tbr-val" id="tbEmoVal" style="color:var(--r)">31/100</span></div><div class="tbr-bar"><div class="tbr-fill" id="tbEmoFill" style="width:31%;background:linear-gradient(90deg,var(--r),#ff8ca8)"></div></div></div>
+        <div class="tb-row"><div class="tbr-header"><span class="tbr-name">Risk Intelligence</span><span class="tbr-val" id="tbRiqVal" style="color:var(--r)">81/100</span></div><div class="tbr-bar"><div class="tbr-fill" id="tbRiqFill" style="width:81%;background:linear-gradient(90deg,var(--r),var(--y))"></div></div></div>
+        <div class="tb-row"><div class="tbr-header"><span class="tbr-name">Analytical Skill</span><span class="tbr-val" id="tbAnaVal" style="color:var(--c)">74/100</span></div><div class="tbr-bar"><div class="tbr-fill" id="tbAnaFill" style="width:74%;background:linear-gradient(90deg,var(--c),#a78bff)"></div></div></div>
+        <div class="tb-row"><div class="tbr-header"><span class="tbr-name">FOMO Resistance</span><span class="tbr-val" id="tbFomVal" style="color:var(--r)">22/100</span></div><div class="tbr-bar"><div class="tbr-fill" id="tbFomFill" style="width:22%;background:linear-gradient(90deg,var(--r),#ff8ca8)"></div></div></div>
+        <div class="tb-row"><div class="tbr-header"><span class="tbr-name">Consistency</span><span class="tbr-val" id="tbConVal" style="color:var(--y)">55/100</span></div><div class="tbr-bar"><div class="tbr-fill" id="tbConFill" style="width:55%;background:linear-gradient(90deg,var(--y),#ffd860)"></div></div></div>
+        <div class="tb-row"><div class="tbr-header"><span class="tbr-name">Long-term Vision</span><span class="tbr-val" id="tbVisVal" style="color:var(--g)">67/100</span></div><div class="tbr-bar"><div class="tbr-fill" id="tbVisFill" style="width:67%;background:linear-gradient(90deg,var(--g),var(--c))"></div></div></div>
+      </div>
+      <div class="trait-ai-note">🤖 FOMO Resistance at 22% is the single biggest lever. Raising it to 60% would increase your overall win rate from 52% to an estimated 68% — with zero other changes.</div>
+    </div>
+  </div>
+</div>
+
+<!-- STRENGTHS & WEAKNESSES -->
+<div class="sw-grid">
+  <div class="sw-card">
+    <div class="sw-title" style="color:var(--g)">💪 GENUINE STRENGTHS</div>
+    <ul class="sw-list">
+      <li class="sw-item"><div class="sw-dot" style="background:var(--g)"></div>RSI + Support setup: 89% win rate — professional-level edge</li>
+      <li class="sw-item"><div class="sw-dot" style="background:var(--g)"></div>Strong analytical ability when calm and focused</li>
+      <li class="sw-item"><div class="sw-dot" style="background:var(--g)"></div><span id="sipStreakVal">${STATE.sip}</span>-day SIP streak — exceptional investor discipline</li>
+      <li class="sw-item"><div class="sw-dot" style="background:var(--g)"></div>Fast learner — adapts when shown clear data</li>
+      <li class="sw-item"><div class="sw-dot" style="background:var(--g)"></div>Post-results dip buying: 67% WR — second reliable edge</li>
+      <li class="sw-item"><div class="sw-dot" style="background:var(--g)"></div>Morning sessions (9-11am): 3x better performance</li>
+    </ul>
+  </div>
+  <div class="sw-card">
+    <div class="sw-title" style="color:var(--r)">⚠️ CRITICAL WEAKNESSES</div>
+    <ul class="sw-list">
+      <li class="sw-item"><div class="sw-dot" style="background:var(--r)"></div>FOMO resistance: 22% — leads to chasing tops</li>
+      <li class="sw-item"><div class="sw-dot" style="background:var(--r)"></div>Revenge trading after losses — 0% win rate, 3x damage</li>
+      <li class="sw-item"><div class="sw-dot" style="background:var(--r)"></div>WhatsApp tips: 0/3 win rate, still repeat the behavior</li>
+      <li class="sw-item"><div class="sw-dot" style="background:var(--r)"></div>Friday afternoon deterioration — emotional pattern</li>
+      <li class="sw-item"><div class="sw-dot" style="background:var(--r)"></div>Exits winning trades too early, holds losers too long</li>
+      <li class="sw-item"><div class="sw-dot" style="background:var(--r)"></div>Overleverage during bull runs — overconfidence cycle</li>
+    </ul>
+  </div>
+</div>
+
+<!-- AI COACH -->
+<div class="coach-card">
+  <div class="cc-title">🤖 AI COACH — CONTEXT-AWARE INSIGHTS</div>
+  <div class="coach-msgs">
+    <div class="cm cm-warn">"This month, 3 revenge trades cost you ₹26,700. Your average profitable month brings in ₹18,000. You are literally destroying more than a month's profit through a behavior you KNOW is wrong. The next time you feel revenge — close the laptop. That single habit change would make you net positive every month."</div>
+    <div class="cm cm-ok">"Your calm trades have a 74% win rate. Professional traders aim for 55-60%. You already HAVE an elite edge — in your calm state. The entire problem is the 60% of trades where you're not calm. Emotional filtering is your only job for the next 90 days. Not strategy. Not indicators. Just: only trade when calm."</div>
+    <div class="cm cm-info">"You have two verified statistical edges: RSI+Support (89% WR) and Post-Results Dip (67% WR). Most traders never find even one. The optimal strategy for next 60 days: trade ONLY these two setups. Nothing else. Watch what happens to your P&L when you stop diluting your edge with low-probability trades."</div>
+  </div>
+</div>
+
+<!-- ACTION PLAN -->
+<div class="action-card">
+  <div class="action-title">PERSONALIZED 30-DAY TRANSFORMATION PLAN</div>
+  <div class="actions-list">
+    <div class="action-item" data-id="ap1" onclick="doAction(this,30)"><div class="ai-num">01</div><div class="ai-body"><div class="ai-title">FRIDAY NO-TRADE EXPERIMENT</div><div class="ai-desc">30-day test: Zero trades on Fridays. Your data shows consistent Friday losses. If experiment confirms (it will), make it permanent. Track P&L change.</div></div><div class="ai-impact">Est. +₹14K/mo</div></div>
+    <div class="action-item" data-id="ap2" onclick="doAction(this,25)"><div class="ai-num">02</div><div class="ai-body"><div class="ai-title">WHATSAPP GROUP PERMANENT MUTE</div><div class="ai-desc">0/3 win rate means zero statistical edge. Mute all trading groups. Replace with reading: Valuepickr, Screener.in, Annual Reports. Quality over noise.</div></div><div class="ai-impact">Est. +₹8K/mo</div></div>
+    <div class="action-item" data-id="ap3" onclick="doAction(this,20)"><div class="ai-num">03</div><div class="ai-body"><div class="ai-title">3-LOSS MANDATORY SHUTDOWN RULE</div><div class="ai-desc">Three losses in any day = close laptop immediately. No exceptions. Set a phone alarm. The moment to stop is before revenge trading starts, not during.</div></div><div class="ai-impact">Est. +₹22K/mo</div></div>
+    <div class="action-item" data-id="ap4" onclick="doAction(this,20)"><div class="ai-body"><div class="ai-title">ONLY 2 SETUPS FOR 60 DAYS</div><div class="ai-desc">RSI+Support and Post-Results Dip only. Refuse all other entries regardless of how good they look. Depth of expertise beats breadth of attempts.</div></div><div class="ai-num">04</div><div class="ai-impact">Est. +₹18K/mo</div></div>
+    <div class="action-item" data-id="ap5" onclick="doAction(this,15)"><div class="ai-num">05</div><div class="ai-body"><div class="ai-title">DAILY EMOTIONAL CHECK-IN (2 MIN)</div><div class="ai-desc">Before market open: write one sentence about emotional state. After close: write one sentence about whether emotions affected trades. Build meta-awareness.</div></div><div class="ai-impact">Compounding</div></div>
+  </div>
+</div>
+
+<!-- TRAINING HISTORY HEATMAP -->
+<div class="history-card">
+  <div class="hc-title">TRAINING ACTIVITY — LAST 12 WEEKS</div>
+  <div class="history-grid" id="historyGrid"></div>
+  <div class="history-legend">
+    <span>Less</span>
+    <div class="hl-boxes">
+      <div class="hl-box hd-0"></div>
+      <div class="hl-box hd-1"></div>
+      <div class="hl-box hd-2"></div>
+      <div class="hl-box hd-3"></div>
+      <div class="hl-box hd-4"></div>
+    </div>
+    <span>More</span>
+    <span style="margin-left:auto">84 sessions in 12 weeks</span>
+  </div>
+</div>
+
+</div>
+
+<script>
+// Particle BG
+(function(){
+  const c=document.getElementById('profBg');if(!c)return;
+  const ctx=c.getContext('2d');c.width=window.innerWidth-220;c.height=window.innerHeight;
+  const pts=[];for(let i=0;i<60;i++)pts.push({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:Math.random()*1.5+.5,h:Math.random()*360});
+  function draw(){ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.h=(p.h+.5)%360;if(p.x<0||p.x>c.width)p.vx*=-1;if(p.y<0||p.y>c.height)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`hsla(${p.h},80%,60%,.4)`;ctx.fill();});
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<100){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(0,212,255,${.1*(1-d/100)})`;ctx.lineWidth=.4;ctx.stroke();}}
+    requestAnimationFrame(draw);}draw();
+})();
+
+// ── ARCHETYPE MAP ──
+const ARCH_MAP = {
+  arch1: { emoji:'🦁', name:'THE LION',      badge:'⚡ AGGRESSIVE GROWTH',    desc:'High-Conviction Investor · Concentration Risk Taker · Bold Position Sizer' },
+  arch2: { emoji:'🐢', name:'THE TORTOISE',  badge:'🐢 SYSTEMATIC COMPOUNDER', desc:'Disciplined SIP Investor · Long-term Compounder · Patience-First Trader' },
+  arch3: { emoji:'🦊', name:'THE FOX',       badge:'🦊 SMART DIVERSIFIER',     desc:'Multi-Asset Allocator · Risk-Managed Investor · Strategic Rebalancer' },
+  arch4: { emoji:'🦌', name:'THE DEER',      badge:'🦌 DISCIPLINE IN PROGRESS',desc:'Reactive Investor · Market-Anxious · Building Systematic Habits' },
+};
+
+// ── LOAD PROFILE FROM STATE ──
+function loadProfileFromState() {
+  const t = STATE.traits;
+
+  // Avatar + name
+  const av = document.getElementById('pAvatar');
+  const nm = document.getElementById('pName');
+  if (av) av.textContent = STATE.userName[0].toUpperCase();
+  if (nm) nm.textContent = STATE.userName;
+
+  // Archetype badge + description
+  const arch = ARCH_MAP[STATE.userArchetype];
+  const badge = document.getElementById('pTypeBadge');
+  const archLine = document.getElementById('pArch');
+  if (arch) {
+    if (badge) badge.textContent = arch.badge;
+    if (archLine) archLine.textContent = arch.desc;
+  } else {
+    if (badge) badge.textContent = '⚡ DUAL BRAIN USER';
+    if (archLine) archLine.textContent = 'Set your investor archetype on the Investor Mind page.';
+  }
+
+  // Score badges
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setEl('psPatience', t.patience);
+  setEl('psAnalysis', t.analysis);
+  setEl('psEmoCtrl',  t.emotionCtrl);
+  setEl('psFomoRes',  t.fomoRes);
+
+  // Trait bars
+  const setBar = (valId, fillId, val, color) => {
+    const v = document.getElementById(valId);
+    const f = document.getElementById(fillId);
+    if (v) v.textContent = val + '/100';
+    if (f) f.style.width = val + '%';
+  };
+  setBar('tbPatVal',  'tbPatFill',  t.patience,    'var(--y)');
+  setBar('tbDiscVal', 'tbDiscFill', STATE.disc,    'var(--g)');
+  setBar('tbEmoVal',  'tbEmoFill',  t.emotionCtrl, 'var(--r)');
+  setBar('tbRiqVal',  'tbRiqFill',  t.riskIQ,      'var(--r)');
+  setBar('tbAnaVal',  'tbAnaFill',  t.analysis,    'var(--c)');
+  setBar('tbFomVal',  'tbFomFill',  t.fomoRes,     'var(--r)');
+  setBar('tbConVal',  'tbConFill',  t.consistency, 'var(--y)');
+  setBar('tbVisVal',  'tbVisFill',  t.vision,      'var(--g)');
+
+  // SIP streak
+  const sip = document.getElementById('sipStreakVal');
+  if (sip) sip.textContent = STATE.sip;
+
+  // Sessions counter
+  const sc = document.getElementById('sessCount');
+  if (sc) sc.textContent = STATE.sessionsCompleted;
+}
+loadProfileFromState();
+window.addEventListener('xp-change', loadProfileFromState);
+
+// ── INLINE NAME EDITING ──
+(function(){
+  const nm = document.getElementById('pName');
+  if (!nm) return;
+  nm.addEventListener('dblclick', () => {
+    const input = document.createElement('input');
+    input.value = STATE.userName;
+    input.style.cssText = 'font-family:var(--fD);font-size:2.2rem;letter-spacing:1px;background:transparent;border:none;border-bottom:2px solid var(--c);color:var(--txt);outline:none;width:100%;';
+    nm.replaceWith(input);
+    input.focus(); input.select();
+    const save = () => {
+      const val = input.value.trim() || STATE.userName;
+      STATE.userName = val;
+      STATE.save();
+      input.outerHTML = `<div class="p-name" id="pName" title="Double-click to edit name" style="cursor:pointer">${val}</div>`;
+      // re-attach listener after DOM replacement
+      const newNm = document.getElementById('pName');
+      if (newNm) newNm.addEventListener('dblclick', arguments.callee);
+      // sync avatar
+      const av = document.getElementById('pAvatar');
+      if (av) av.textContent = val[0].toUpperCase();
+      const tbAv = document.getElementById('tbAvatar');
+      if (tbAv) { tbAv.textContent = val[0].toUpperCase(); tbAv.title = val; }
+      showToast('✅ Name updated — ' + val, 'tg');
+    };
+    input.addEventListener('blur', save);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
+  });
+})();
+
+// LEVEL TRACK
+const XP_LVS=[{x:0,n:'BEGINNER'},{x:500,n:'AWARE'},{x:1000,n:'PATTERN READER'},{x:1500,n:'STRATEGIST'},{x:2500,n:'ANALYST'},{x:4000,n:'MASTER'},{x:6000,n:'ELITE'},{x:9000,n:'APEX'},{x:13000,n:'LEGEND'}];
+function buildLevels(){
+  const xp=STATE.xp;let curLv=0;for(let i=0;i<XP_LVS.length;i++)if(xp>=XP_LVS[i].x)curLv=i;
+  const row=document.getElementById('levelsRow');row.innerHTML='';
+  XP_LVS.forEach((lv,i)=>{
+    const node=document.createElement('div');node.className='lv-node';
+    node.textContent=i+1;
+    if(i<curLv)node.classList.add('lv-done');
+    else if(i===curLv)node.classList.add('lv-current');
+    else node.classList.add('lv-locked');
+    node.innerHTML+=`<div class="lv-tooltip">${lv.n}</div>`;
+    row.appendChild(node);
+    if(i<XP_LVS.length-1){const con=document.createElement('div');con.className='lv-connector'+(i<curLv?' done':'');row.appendChild(con);}
+  });
+  const cur=XP_LVS[curLv],nxt=XP_LVS[curLv+1]||{x:99999,n:'MAX'};
+  const pct=Math.min(((xp-cur.x)/(nxt.x-cur.x))*100,100);
+  document.getElementById('lxbFill').style.width=pct+'%';
+  document.getElementById('lxbFrom').textContent=`LVL ${curLv+1}: ${cur.n}`;
+  document.getElementById('lxbTo').textContent=`LVL ${curLv+2}: ${nxt.n}`;
+  document.getElementById('lcCurrent').textContent=`LVL ${curLv+1} — ${cur.n}`;
+  document.getElementById('levelNextInfo').textContent=`⚡ ${(nxt.x-xp).toLocaleString()} XP to ${nxt.n}. Keep training: complete daily missions, log trades, and finish bias lessons.`;
+  // update mind score using live traits
+  const t=STATE.traits;
+  const ms=Math.round((STATE.disc+t.patience+t.emotionCtrl+t.analysis+t.fomoRes+t.consistency)/6);
+  document.getElementById('mindScore').textContent=ms+'/100';
+  document.getElementById('psDisc').textContent=STATE.disc;
+}
+buildLevels();
+window.addEventListener('xp-change',buildLevels);
+
+// RADAR SVG
+(function(){
+  const svg=document.getElementById('radarSVG');if(!svg)return;
+  const labels=['Patience','Discipline','Emotion','Risk IQ','Analysis','FOMO Res','Consistency','Vision'];
+  const t=STATE.traits;
+  const vals=[t.patience/100, STATE.disc/100, t.emotionCtrl/100, t.riskIQ/100, t.analysis/100, t.fomoRes/100, t.consistency/100, t.vision/100];
+  const N=labels.length,CX=150,CY=150,R=100;
+  for(let ring=1;ring<=4;ring++){const pts=[];for(let i=0;i<N;i++){const a=i*2*Math.PI/N-Math.PI/2;pts.push(`${CX+R*ring/4*Math.cos(a)},${CY+R*ring/4*Math.sin(a)}`)}svg.innerHTML+=`<polygon points="${pts.join(' ')}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="1"/>`;}
+  for(let i=0;i<N;i++){const a=i*2*Math.PI/N-Math.PI/2;svg.innerHTML+=`<line x1="${CX}" y1="${CY}" x2="${CX+R*Math.cos(a)}" y2="${CY+R*Math.sin(a)}" stroke="rgba(255,255,255,.07)" stroke-width="1"/>`;}
+  const dpts=vals.map((v,i)=>{const a=i*2*Math.PI/N-Math.PI/2;return`${CX+R*v*Math.cos(a)},${CY+R*v*Math.sin(a)}`;});
+  svg.innerHTML+=`<polygon points="${dpts.join(' ')}" fill="rgba(0,212,255,.08)" stroke="rgba(0,212,255,.5)" stroke-width="1.5"/>`;
+  vals.forEach((v,i)=>{const a=i*2*Math.PI/N-Math.PI/2,x=CX+R*v*Math.cos(a),y=CY+R*v*Math.sin(a),lx=CX+(R+18)*Math.cos(a),ly=CY+(R+18)*Math.sin(a);
+    const col=v>=.6?'rgba(0,255,136,.7)':v>=.4?'rgba(255,204,0,.7)':'rgba(255,45,107,.7)';
+    svg.innerHTML+=`<circle cx="${x}" cy="${y}" r="4" fill="${col}" opacity=".9"/><text x="${lx}" y="${ly}" fill="rgba(255,255,255,.4)" font-size="9" font-family="JetBrains Mono" text-anchor="middle" dominant-baseline="middle">${labels[i]}</text>`;
+  });
+})();
+
+// ACTION PLAN
+function doAction(el,xp){
+  if(el.classList.contains('done'))return;
+  el.classList.add('done');
+  addXP(xp,'Action plan item committed');
+  el.querySelector('.ai-num').textContent='✓';
+  const id=el.dataset.id;
+  if(id){const done=JSON.parse(localStorage.getItem('finos_action_done')||'[]');if(!done.includes(id)){done.push(id);localStorage.setItem('finos_action_done',JSON.stringify(done));}}
+}
+(function restoreActionPlan(){
+  const done=JSON.parse(localStorage.getItem('finos_action_done')||'[]');
+  done.forEach(id=>{const el=document.querySelector(`.action-item[data-id="${id}"]`);if(el){el.classList.add('done');el.querySelector('.ai-num').textContent='✓';}});
+})();
+
+// HISTORY HEATMAP
+(function(){
+  const g=document.getElementById('historyGrid');if(!g)return;
+  const acts=[0,1,2,3,4,3,2,1,0,1,2,3,4,4,3,2,1,0,0,1,2,3,2,1,0,1,2,3,4,3,2,1,0,1,2,3,4,4,3,2,1,0,1,2,3,4,3,2,1,0,1,2,3,4,4,3,2,1,0,1,2,3,2,1,0,1,2,3,4,3,2,1,0,0,1,2,3,4,4,3,2,1,0,1];
+  const tips=['No session','Completed 1 module','Completed 2 modules','Full training day','Perfect training day — all modules'];
+  acts.forEach((a,i)=>{const d=document.createElement('div');d.className=`h-day hd-${a}`;d.innerHTML=`<div class="h-tip">Day ${i+1}: ${tips[a]}</div>`;g.appendChild(d);});
+})();
+
+// Scroll animations
+const obs=new IntersectionObserver(en=>{en.forEach(e=>{if(e.isIntersecting)e.target.querySelectorAll('.tbr-fill,.lxb-fill').forEach(el=>{el.style.animation='none';void el.offsetHeight;el.style.animation='grow-bar 1.5s ease forwards'})})},{threshold:.2});
+document.querySelectorAll('.traits-card,.level-card').forEach(el=>obs.observe(el));
+
+setTimeout(()=>showToast('🧬 Profile analysis loaded — 156 data points','ti'),500);
+</script>
+{% endblock %}

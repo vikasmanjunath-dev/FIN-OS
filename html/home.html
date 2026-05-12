@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>Home | FIN-OS</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../chatbot/qft-hud.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+    <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html" class="active">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+  <div class="content-wrapper">
+
+    <!-- HEADER -->
+    <header class="header header-flex">
+      <div>
+        <h1>Welcome to FIN-OS</h1>
+        <p>Your personalized financial operating system.</p>
+      </div>
+
+      <button id="themeToggle" class="theme-btn">🌙</button>
+    </header>
+
+    <!-- HOME GRID -->
+    <section class="home-grid">
+
+        
+      <!-- LEFT : ACTION CARDS -->
+      <div class="home-actions cards grid grid-1">
+
+     <div class="card insight learning" onclick="window.location.href='start.html'" style="cursor: pointer;">
+        <div class="card-image"></div>
+        <div class="card-content">
+          <h4>Learn financial foundations</h4>
+          <p style="font-size:0.8rem; opacity:0.7; margin-top:4px;">The Zero to Mastery Path ➔</p>
+        </div>
+      </div>
+
+      <div class="card insight thinking" onclick="window.location.href='decision.html'" style="cursor: pointer;">
+        <div class="card-image"></div>
+        <div class="card-content">
+          <h4>Improve decision thinking</h4>
+          <p style="font-size:0.8rem; opacity:0.7; margin-top:4px;">Fix your mental bugs ➔</p>
+        </div>
+      </div>
+
+      <div class="card insight clarity" onclick="window.location.href='clarity.html'" style="cursor: pointer;">
+        <div class="card-image"></div>
+        <div class="card-content">
+          <h4>Understand your money clearly</h4>
+          <p style="font-size:0.8rem; opacity:0.7; margin-top:4px;">View the Wealth HUD ➔</p>
+        </div>
+      </div>
+
+      </div>
+
+      <!-- RIGHT : HERO CARD -->
+        <div class="home-hero card insight focus">
+          <div class="card-image"></div>
+          <div class="card-content">
+            <h3>Today’s Focus</h3> <p>
+              Small financial decisions compound silently.
+              Your system is tuned to help you think long-term.
+            </p> <span class="pill">Based on your Financial DNA</span>
+          </div>
+        </div>
+
+<script src="../js/home-focus.js"></script>
+
+    </section>
+     
+</section>
+    
+    <style>
+      /* ── PROTOCOL 0X HERO SECTION ── */
+      .protocol-section {
+        margin: 48px 0 40px;
+        position: relative;
+      }
+      .protocol-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .22em;
+        text-transform: uppercase;
+        color: #c7f000;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .protocol-label::before {
+        content: '';
+        display: inline-block;
+        width: 6px; height: 6px;
+        background: #c7f000;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #c7f000;
+        animation: blink-dot 1.4s ease-in-out infinite;
+      }
+      @keyframes blink-dot { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+      .protocol-hero {
+        display: block;
+        position: relative;
+        padding: 40px 44px;
+        background: #06080c;
+        border: 1px solid rgba(199,240,0,.18);
+        border-radius: 22px;
+        text-decoration: none;
+        overflow: hidden;
+        transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease, border-color .3s ease;
+      }
+      /* animated grid texture */
+      .protocol-hero::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image:
+          linear-gradient(rgba(199,240,0,.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(199,240,0,.025) 1px, transparent 1px);
+        background-size: 32px 32px;
+        pointer-events: none;
+      }
+      /* top glowing line */
+      .protocol-hero::after {
+        content: '';
+        position: absolute; top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent 0%, #c7f000 30%, #c7f000 70%, transparent 100%);
+        opacity: .6;
+        transition: opacity .3s;
+      }
+      .protocol-hero:hover {
+        border-color: rgba(199,240,0,.45);
+        transform: translateY(-4px);
+        box-shadow: 0 20px 60px rgba(199,240,0,.10), 0 0 0 1px rgba(199,240,0,.12);
+      }
+      .protocol-hero:hover::after { opacity: 1; }
+      .protocol-hero:hover .ph-scan { left: 110%; }
+      .protocol-hero:hover .ph-arrow { transform: translateX(8px); }
+
+      /* scan beam */
+      .ph-scan {
+        position: absolute; top: 0; left: -60%;
+        width: 50%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(199,240,0,.06), transparent);
+        transform: skewX(-18deg);
+        transition: left .7s ease;
+        pointer-events: none;
+      }
+
+      .ph-inner {
+        position: relative; z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+      }
+      .ph-left {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .ph-code {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .2em;
+        text-transform: uppercase;
+        color: rgba(199,240,0,.55);
+      }
+      .ph-title {
+        font-family: 'Manrope', 'Space Grotesk', sans-serif;
+        font-size: clamp(22px, 3.5vw, 34px);
+        font-weight: 800;
+        letter-spacing: -.02em;
+        line-height: 1.15;
+        color: #ffffff;
+      }
+      .ph-title em {
+        font-style: normal;
+        color: #c7f000;
+      }
+      .ph-sub {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        color: rgba(255,255,255,.28);
+        letter-spacing: .06em;
+        margin-top: 2px;
+      }
+      .ph-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 12px;
+        flex-shrink: 0;
+      }
+      .ph-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9.5px;
+        font-weight: 700;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        padding: 5px 12px;
+        border-radius: 6px;
+        background: rgba(199,240,0,.1);
+        border: 1px solid rgba(199,240,0,.25);
+        color: #c7f000;
+        white-space: nowrap;
+      }
+      .ph-arrow {
+        font-size: 28px;
+        color: #c7f000;
+        transition: transform .3s ease;
+        line-height: 1;
+        filter: drop-shadow(0 0 8px rgba(199,240,0,.4));
+      }
+
+      @media (max-width: 600px) {
+        .protocol-hero { padding: 28px 22px; }
+        .ph-right { display: none; }
+      }
+    </style>
+
+    <section class="protocol-section">
+      <div class="protocol-label">CRITICAL INSIGHT</div>
+      <a href="./system-leak.html" class="protocol-hero" aria-label="Explore Problems in Modern Society">
+        <div class="ph-scan"></div>
+        <div class="ph-inner">
+          <div class="ph-left">
+            <span class="ph-code">PROTOCOL 0X · INITIALIZE</span>
+            <h2 class="ph-title">Problems in<br><em>Modern Society</em></h2>
+            <span class="ph-sub">The silent forces eroding your wealth — decoded</span>
+          </div>
+          <div class="ph-right">
+            <span class="ph-badge">⚠ Read This First</span>
+            <span class="ph-arrow">→</span>
+          </div>
+        </div>
+      </a>
+    </section>
+
+    <style>
+      .track-portal { margin-top: 20px; margin-bottom: 40px; }
+      .track-action-btn {
+        display: flex; align-items: center; gap: 24px;
+        padding: 24px 30px;
+        background: linear-gradient(135deg, rgba(79,124,255,0.05), rgba(0,0,0,0.3));
+        border: 1px solid rgba(79,124,255,0.2);
+        border-radius: 20px; text-decoration: none;
+        transition: all 0.4s cubic-bezier(0.2,0.8,0.2,1);
+        position: relative; overflow: hidden;
+      }
+      .track-action-btn::before {
+        content:''; position:absolute; top:0; left:-100%; width:50%; height:100%;
+        background: linear-gradient(90deg, transparent, rgba(79,124,255,0.1), transparent);
+        transform: skewX(-20deg); transition: 0.5s;
+      }
+      .track-action-btn:hover::before { animation: scan-track 1.5s infinite; }
+      .track-action-btn:hover {
+        background: linear-gradient(135deg, rgba(79,124,255,0.12), rgba(0,0,0,0.5));
+        border-color: #4F7CFF; transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(79,124,255,0.15);
+      }
+      .track-icon { font-size: 3rem; filter: drop-shadow(0 0 15px rgba(79,124,255,0.4)); }
+      .track-text { display: flex; flex-direction: column; gap: 6px; flex-grow: 1; }
+      .tr-title { font-size: 1.4rem; font-weight: 800; color: #4F7CFF; letter-spacing: 0.5px; font-family: 'Manrope', sans-serif; }
+      .tr-sub { font-size: 0.95rem; color: #A1A4AC; font-family: 'JetBrains Mono', monospace; }
+      .tr-arrow { font-size: 1.8rem; color: #4F7CFF; transition: transform 0.3s ease; }
+      .track-action-btn:hover .tr-arrow { transform: translateX(10px); }
+      @keyframes scan-track { 0% { left: -100%; } 100% { left: 200%; } }
+    </style>
+
+    <section class="track-portal">
+      <a href="track-finances.html" class="track-action-btn">
+        <div class="track-icon">📊</div>
+        <div class="track-text">
+          <span class="tr-title">Track Your Finances</span>
+          <span class="tr-sub">Expense Engine · Calculator Suite · Portfolio X-Ray — all in one command center</span>
+        </div>
+        <div class="tr-arrow">➔</div>
+      </a>
+    </section>
+
+  </div>
+</main>
+
+</div>
+<script src="../js/ui.js"></script>
+
+</section>
+
+
+</div>
+
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style id="home-light-theme">
+/* Protocol 0X card — keep intentionally dark, protect all inner text from theme.css heading overrides */
+[data-theme="light"] .protocol-hero {
+  background: #0e1120 !important;
+  border-color: rgba(199,240,0,0.30) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18) !important;
+}
+[data-theme="light"] .protocol-hero .ph-title {
+  color: #ffffff !important;
+}
+[data-theme="light"] .protocol-hero .ph-title em {
+  color: #c7f000 !important;
+}
+[data-theme="light"] .protocol-hero .ph-code {
+  color: rgba(199,240,0,0.55) !important;
+}
+[data-theme="light"] .protocol-hero .ph-sub {
+  color: rgba(255,255,255,0.28) !important;
+}
+[data-theme="light"] .protocol-hero .ph-badge {
+  background: rgba(199,240,0,0.1) !important;
+  border-color: rgba(199,240,0,0.25) !important;
+  color: #c7f000 !important;
+}
+[data-theme="light"] .protocol-hero .ph-arrow {
+  color: #c7f000 !important;
+}
+/* Track Finances button */
+[data-theme="light"] .track-action-btn {
+  background: linear-gradient(135deg, rgba(79,124,255,0.08), rgba(255,255,255,0.6)) !important;
+  border-color: rgba(79,124,255,0.25) !important;
+}
+[data-theme="light"] .track-action-btn:hover {
+  background: linear-gradient(135deg, rgba(79,124,255,0.15), rgba(255,255,255,0.85)) !important;
+  border-color: #4F7CFF !important;
+}
+[data-theme="light"] .tr-sub { color: #6A7090 !important; }
+/* Home action cards */
+[data-theme="light"] .home-actions .card-content h4 { color: #0B0D12 !important; }
+[data-theme="light"] .home-actions .card-content p { color: #4A5068 !important; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+
+<style>
+  #qft-system {
+    position: fixed;
+    bottom: 1.75rem;
+    right: 1.75rem;
+    z-index: 9999;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  #qft-fab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.65rem 1.2rem;
+    background: #0B0D12;
+    border: 1px solid rgba(199,240,0,0.35);
+    border-radius: 100px;
+    color: #c7f000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(199,240,0,0.08), 0 8px 32px rgba(0,0,0,0.5);
+    transition: all 0.2s ease;
+  }
+  #qft-fab:hover {
+    border-color: #c7f000;
+    box-shadow: 0 0 28px rgba(199,240,0,0.18), 0 8px 40px rgba(0,0,0,0.6);
+    transform: translateY(-2px);
+  }
+  #qft-drawer {
+    position: fixed;
+    top: 0; right: -520px;
+    width: 480px;
+    height: 100dvh;
+    background: #09090b;
+    border-left: 1px solid rgba(199,240,0,0.15);
+    box-shadow: -12px 0 60px rgba(0,0,0,0.7);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    transition: right 0.28s cubic-bezier(0.4,0,0.2,1);
+    overflow: hidden;
+  }
+  #qft-drawer.open { right: 0; }
+  .qft-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    background: #111113;
+    flex-shrink: 0;
+  }
+  .qft-close-btn {
+    background: none;
+    border: none;
+    color: #71717a;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    line-height: 1;
+    transition: color 0.15s, background 0.15s;
+  }
+  .qft-close-btn:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
+  #qft-chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-height: 0;
+  }
+  .qft-empty-state {
+    margin: auto;
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #71717a;
+    max-width: 300px;
+  }
+  .qft-msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 92%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 0.845rem;
+    line-height: 1.65;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .qft-msg-user {
+    align-self: flex-end;
+    background: #1c1c22;
+    border: 1px solid rgba(96,165,250,0.25);
+    color: #f4f4f5;
+  }
+  .qft-msg-ai {
+    align-self: flex-start;
+    background: #111113;
+    border: 1px solid rgba(255,255,255,0.07);
+    color: #d4d4d8;
+    max-width: 98%; width: 100%;
+  }
+  .qft-msg-ai p { margin: 5px 0; }
+  .qft-msg-ai strong { color: #4ade80; }
+  .qft-msg-ai h3, .qft-msg-ai h4 { color: #f4f4f5; margin: 10px 0 4px; font-size: 0.9rem; }
+  .qft-msg-ai ul, .qft-msg-ai ol { padding-left: 16px; margin: 6px 0; }
+  .qft-msg-ai li { margin: 4px 0; }
+  .qft-msg-error {
+    background: rgba(239,68,68,0.1);
+    border-color: rgba(239,68,68,0.3) !important;
+    color: #ef4444;
+    font-size: 0.8rem;
+  }
+  .qft-typing {
+    align-self: flex-start;
+    background: #111113;
+    border: 1px solid rgba(255,255,255,0.07);
+    color: #71717a;
+    padding: 10px 16px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 0.8rem;
+    font-style: italic;
+  }
+  #qft-form {
+    padding: 0.75rem 1rem 1rem;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    background: #111113;
+    flex-shrink: 0;
+  }
+  .qft-input-wrapper {
+    position: relative;
+  }
+  #qft-input {
+    display: block;
+    width: 100%;
+    background: #18181b;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 0.65rem 2.8rem 0.65rem 0.85rem;
+    color: #f4f4f5;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.875rem;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+  }
+  #qft-input:focus { border-color: rgba(199,240,0,0.5); }
+  #qft-input::placeholder { color: #52525b; }
+  #qft-submit-btn {
+    position: absolute;
+    right: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #c7f000;
+    cursor: pointer;
+    display: flex;
+    padding: 0;
+    transition: opacity 0.15s, transform 0.15s;
+    outline: none;
+  }
+  #qft-submit-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+  #qft-submit-btn:hover:not(:disabled) { transform: translateY(-50%) translateX(2px); }
+  .qft-context-label {
+    margin: 6px 0 0;
+    font-size: 0.62rem;
+    color: #52525b;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+  @media (max-width: 520px) {
+    #qft-drawer { width: 100vw; right: -100vw; }
+    #qft-fab { bottom: 1rem; right: 1rem; }
+  }
+</style>
+
+<div id="qft-system">
+  <button id="qft-fab">
+    <span style="font-size: 1.1rem;">⚡</span> Ask QFT
+  </button>
+
+  <div id="qft-drawer">
+    <div class="qft-header">
+      <div>
+        <h2 style="margin:0; font-size:1.1rem; color:#F5F7FA; display:flex; align-items:center; gap:8px;">
+          <span style="color:#C7F000; font-size:0.8rem;">●</span> QFT Terminal
+        </h2>
+        <p style="margin:4px 0 0; font-size:0.75rem; color:#A1A8B8; font-family:monospace;">Financial Thinking Engine</p>
+      </div>
+      <button class="qft-close-btn" id="qft-close">&times;</button>
+    </div>
+
+    <div id="qft-chat-area">
+      <div class="qft-empty-state" id="qft-empty">
+        <span style="font-size:3rem; margin-bottom:1rem; display:block;">🧠</span>
+        <p>I am QFT. Challenge your biases, decode the numbers, and upgrade your financial OS.</p>
+      </div>
+    </div>
+
+    <form id="qft-form" novalidate>
+      <div class="qft-input-wrapper">
+        <input type="text" id="qft-input"
+          placeholder="Analyze my SIP... or ask about EMI traps."
+          autocomplete="off" maxlength="4000" />
+        <button type="button" id="qft-submit-btn" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+      <p class="qft-context-label">FIN-OS Context Active</p>
+    </form>
+  </div>
+</div>
+
+<script>
+(function() {
+  const QFT_API   = 'http://127.0.0.1:8000';
+  const OLLAMA    = 'http://127.0.0.1:11434/api/chat';
+  const MODEL     = 'qwen2.5:3b';
+  const USE_BACKEND = true;
+
+  const fab      = document.getElementById('qft-fab');
+  const drawer   = document.getElementById('qft-drawer');
+  const closeBtn = document.getElementById('qft-close');
+  const chatArea = document.getElementById('qft-chat-area');
+  const input    = document.getElementById('qft-input');
+  const sendBtn  = document.getElementById('qft-submit-btn');
+  const empty    = document.getElementById('qft-empty');
+
+  let isOpen = false, isTyping = false, history = [], sessionId = null;
+
+  // Toggle drawer
+  function toggleDrawer(force) {
+    isOpen = force !== undefined ? force : !isOpen;
+    drawer.classList.toggle('open', isOpen);
+    if (isOpen) setTimeout(() => input.focus(), 300);
+  }
+
+  fab.addEventListener('click', () => toggleDrawer());
+  closeBtn.addEventListener('click', () => toggleDrawer(false));
+
+  // Enable/disable send button as user types
+  input.addEventListener('input', () => {
+    sendBtn.disabled = !input.value.trim();
+  });
+
+  // Enter key sends
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
+  });
+
+  // Button click sends
+  sendBtn.addEventListener('click', send);
+
+  function send() {
+    const text = input.value.trim();
+    if (!text || isTyping) return;
+
+    input.value = '';
+    sendBtn.disabled = true;
+    input.disabled = true;
+    isTyping = true;
+
+    // Hide empty state, show user message
+    if (empty) empty.style.display = 'none';
+    appendMsg(text, 'user');
+
+    // Typing indicator
+    const typing = document.createElement('div');
+    typing.className = 'qft-typing';
+    typing.textContent = 'Analysing…';
+    chatArea.appendChild(typing);
+    scrollBottom();
+
+    history.push({ role: 'user', content: text });
+
+    if (USE_BACKEND) {
+      streamBackend(text, typing);
+    } else {
+      streamOllama(typing);
+    }
+  }
+
+  async function streamBackend(message, typing) {
+    try {
+      const resp = await fetch(`${QFT_API}/api/chat/stream`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, session_id: sessionId || undefined }),
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+      typing.remove();
+      const msgDiv = appendMsg('', 'ai');
+      let buffer = '';
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let chunk = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunk += decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+        chunk = lines.pop();
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const json = JSON.parse(line.slice(6));
+            if (json.session_id) sessionId = json.session_id;
+            if (json.token) {
+              buffer += json.token;
+              msgDiv.innerHTML = DOMPurify.sanitize(marked.parse(buffer));
+              scrollBottom();
+            }
+          } catch {}
+        }
+      }
+      history.push({ role: 'assistant', content: buffer });
+    } catch (err) {
+      typing.remove();
+      await streamOllama(null, err);
+    } finally {
+      unlock();
+    }
+  }
+
+  async function streamOllama(typing, backendErr) {
+    const systemPrompt = `You are QFT (Quantified Financial Thinking Engine) — the brutally honest financial brain of FIN-OS. 
+Give direct, data-driven financial advice for Indian professionals. Use ₹ for amounts. Reference SIP, EMI, Nifty, ELSS, PPF, NPS, FD, LIC. Zero fluff. Always quantify.`;
+
+    try {
+      const resp = await fetch(OLLAMA, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...history,
+          ],
+          stream: true,
+        }),
+      });
+      if (!resp.ok) throw new Error(`Ollama HTTP ${resp.status}`);
+
+      if (typing) typing.remove();
+      const msgDiv = appendMsg('', 'ai');
+      let buffer = '';
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let chunk = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunk += decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+        chunk = lines.pop();
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            const parsed = JSON.parse(line);
+            const token = parsed.message?.content;
+            if (token) {
+              buffer += token;
+              msgDiv.innerHTML = DOMPurify.sanitize(marked.parse(buffer));
+              scrollBottom();
+            }
+          } catch {}
+        }
+      }
+      history.push({ role: 'assistant', content: buffer });
+
+    } catch (err) {
+      if (typing) typing.remove();
+      const errDiv = appendMsg('', 'ai');
+      errDiv.classList.add('qft-msg-error');
+      errDiv.innerHTML = `⚠️ QFT offline.<br>
+        Start backend: <code>uvicorn brain:app</code><br>
+        or Ollama: <code>ollama serve</code> → <code>ollama pull ${MODEL}</code><br>
+        <small>${backendErr ? backendErr.message + ' / ' : ''}${err.message}</small>`;
+    } finally {
+      unlock();
+    }
+  }
+
+  function unlock() {
+    isTyping = false;
+    input.disabled = false;
+    sendBtn.disabled = !input.value.trim();
+    input.focus();
+  }
+
+  function appendMsg(text, role) {
+    const div = document.createElement('div');
+    div.className = `qft-msg qft-msg-${role}`;
+    if (role === 'user') {
+      div.textContent = text;
+    } else {
+      div.innerHTML = text ? DOMPurify.sanitize(marked.parse(text)) : '';
+    }
+    chatArea.appendChild(div);
+    scrollBottom();
+    return div;
+  }
+
+  function scrollBottom() {
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
+})();
+</script>
+
+</body>
+</html>

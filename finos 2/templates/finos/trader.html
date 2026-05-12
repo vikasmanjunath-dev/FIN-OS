@@ -1,0 +1,1024 @@
+{% extends 'finos/base.html' %}
+{% block title %}FIN-OS — Trader Mind{% endblock %}
+{% block extra_head %}
+<style>
+.tra-page{
+  width:min(100%,1320px);
+  padding:2rem clamp(1rem,3vw,2.5rem) 5rem;
+  margin:0 auto;
+  position:relative;
+  z-index:1
+}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,45,107,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,45,107,.018) 1px,transparent 1px);background-size:48px 48px;opacity:.5}
+
+/* PAGE HEADER */
+.tra-header{padding:2rem 0 1.75rem;border-bottom:1px solid rgba(255,45,107,.08);margin-bottom:2.5rem;display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:center}
+.tra-mode-badge{display:inline-flex;align-items:center;gap:.5rem;padding:3px 12px;border-radius:20px;font-family:var(--fM);font-size:.53rem;letter-spacing:2px;background:rgba(255,45,107,.06);color:var(--r);border:1px solid rgba(255,45,107,.2);margin-bottom:.7rem}
+.tra-title{font-family:var(--fD);font-size:clamp(2rem,4vw,3.2rem);letter-spacing:2px;color:var(--r);line-height:1.1;margin-bottom:.4rem}
+.tra-subtitle{font-size:.88rem;color:var(--mu);max-width:500px;line-height:1.65}
+.brain-quick{background:var(--s1);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:1.1rem 1.4rem;min-width:220px}
+.bq-label{font-family:var(--fM);font-size:.52rem;color:var(--mu);letter-spacing:2px;margin-bottom:.75rem}
+.bq-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.bq-side{font-family:var(--fM);font-size:.6rem;letter-spacing:1px}
+.bq-bar{flex:1;height:8px;border-radius:4px;overflow:hidden;margin:0 .6rem;background:rgba(255,255,255,.06)}
+.bq-fill-g{height:100%;background:linear-gradient(90deg,var(--g),#34ffb8);border-radius:4px;transition:width .8s ease}
+.bq-fill-r{height:100%;background:linear-gradient(90deg,#ff2d6b,#ff8ca8);border-radius:4px;transition:width .8s ease}
+.bq-score{font-family:var(--fD);font-size:.95rem;min-width:28px;text-align:right}
+.bq-state{text-align:center;font-family:var(--fM);font-size:.6rem;letter-spacing:2px;margin-top:.5rem;padding:.3rem;border-radius:6px}
+.profile-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin-bottom:2rem}
+.profile-card{background:var(--s1);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:1rem 1.1rem}
+.profile-label{font-family:var(--fM);font-size:.54rem;letter-spacing:1.5px;color:var(--mu);margin-bottom:.45rem}
+.profile-value{font-family:var(--fD);font-size:1.25rem;letter-spacing:1px;color:var(--r)}
+.profile-copy{font-size:.78rem;line-height:1.55;color:rgba(240,237,255,.68);margin-top:.3rem}
+.memory-warning{margin-bottom:1.5rem;padding:1rem 1.1rem;border-radius:14px;background:rgba(255,45,107,.05);border:1px solid rgba(255,45,107,.16)}
+.memory-warning-title{font-family:var(--fD);font-size:1.05rem;letter-spacing:1px;color:var(--r);margin-bottom:.35rem}
+.memory-warning-copy{font-size:.8rem;line-height:1.65;color:rgba(240,237,255,.74)}
+.auto-journal-card{margin-top:1rem;padding:1rem 1.1rem;border-radius:14px;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.14)}
+.auto-journal-title{font-family:var(--fD);font-size:1rem;letter-spacing:1px;color:var(--c);margin-bottom:.45rem}
+.auto-journal-copy{font-size:.8rem;line-height:1.7;color:rgba(240,237,255,.78)}
+
+/* MODE SWITCHER */
+.mode-switcher{display:flex;gap:.5rem;padding:.55rem;background:var(--s1);border:1px solid rgba(255,255,255,.07);border-radius:14px;margin-bottom:2.5rem;position:relative}
+.mode-btn{flex:1;padding:.8rem 1.5rem;border-radius:10px;font-family:var(--fD);font-size:.82rem;letter-spacing:1.5px;cursor:pointer;transition:all .28s cubic-bezier(.4,0,.2,1);border:none;background:transparent;color:var(--mu);display:flex;align-items:center;justify-content:center;gap:.6rem;position:relative;z-index:1}
+.mode-btn.learn.active{color:var(--r)}
+.mode-btn.journal.active{color:var(--c)}
+.mode-slider{position:absolute;top:.55rem;bottom:.55rem;border-radius:10px;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:0}
+.mode-slider.learn-pos{left:.55rem;right:50%;background:rgba(255,45,107,.08);border:1px solid rgba(255,45,107,.22);box-shadow:0 0 20px rgba(255,45,107,.06)}
+.mode-slider.journal-pos{left:50%;right:.55rem;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.22);box-shadow:0 0 20px rgba(0,212,255,.06)}
+.mode-badge{font-family:var(--fM);font-size:.44rem;letter-spacing:1.5px;padding:1px 6px;border-radius:4px;margin-left:.3rem}
+.learn-badge{background:rgba(255,45,107,.1);color:rgba(255,45,107,.7)}
+.journal-badge{background:rgba(0,212,255,.1);color:rgba(0,212,255,.7)}
+.mode-panel{display:none}
+.mode-panel.show{display:block;animation:slide-up .4s ease}
+.journal-intro{margin-bottom:1.75rem;padding:1.25rem 1.5rem;border-radius:16px;background:linear-gradient(135deg,rgba(255,45,107,.06),rgba(0,212,255,.04));border:1px solid rgba(0,212,255,.18);display:flex;align-items:center;gap:1.25rem}
+.ji-icon{font-size:2.2rem;flex-shrink:0}
+.ji-title{font-family:var(--fD);font-size:1.15rem;letter-spacing:1px;color:var(--c);margin-bottom:.25rem}
+.ji-sub{font-size:.78rem;color:var(--mu);line-height:1.6}
+
+/* SECTION NAV */
+.sec-nav{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:2.5rem;padding:.75rem 1rem;background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:12px}
+.snb{padding:.35rem .9rem;border-radius:8px;font-family:var(--fM);font-size:.58rem;letter-spacing:.5px;background:transparent;border:1px solid transparent;color:var(--mu);cursor:pointer;transition:all .2s;text-decoration:none;display:flex;align-items:center;gap:.35rem}
+.snb:hover,.snb.on{background:rgba(255,45,107,.08);border-color:rgba(255,45,107,.22);color:var(--r)}
+
+/* SECTION WRAPPER */
+.tra-section{margin-bottom:3.5rem;animation:slide-up .6s ease}
+.sec-hd{display:flex;align-items:center;gap:1rem;margin-bottom:1.75rem}
+.sec-num{width:38px;height:38px;border-radius:10px;background:rgba(255,45,107,.08);border:1px solid rgba(255,45,107,.22);display:flex;align-items:center;justify-content:center;font-family:var(--fD);font-size:1.05rem;color:var(--r);flex-shrink:0}
+.sec-name{font-family:var(--fD);font-size:1.55rem;letter-spacing:1.5px}
+.sec-desc{font-family:var(--fM);font-size:.56rem;color:var(--mu);letter-spacing:1px;margin-top:3px}
+.sec-xp{font-family:var(--fM);font-size:.5rem;padding:2px 8px;border-radius:6px;background:rgba(255,204,0,.08);color:var(--y);border:1px solid rgba(255,204,0,.15);margin-left:auto;flex-shrink:0}
+
+/* TRADING TYPES */
+.type-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1rem;
+  align-items:start;
+}
+.type-card{
+  background:var(--s1);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:18px;
+  padding:1.6rem;
+  cursor:pointer;
+  transition:all .3s;
+  position:relative;
+  overflow:hidden;
+  align-self:start;
+}
+.type-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;transition:opacity .3s}
+.type-card.intra::before{background:linear-gradient(90deg,var(--r),transparent)}
+.type-card.swing::before{background:linear-gradient(90deg,var(--y),transparent)}
+.type-card.fno::before{background:linear-gradient(90deg,var(--v),transparent)}
+.type-card:hover,.type-card.active{transform:translateY(-5px)}
+.type-card.intra:hover,.type-card.intra.active{border-color:rgba(255,45,107,.3);background:rgba(255,45,107,.04);box-shadow:0 16px 50px rgba(255,45,107,.08)}
+.type-card.swing:hover,.type-card.swing.active{border-color:rgba(255,204,0,.3);background:rgba(255,204,0,.04);box-shadow:0 16px 50px rgba(255,204,0,.08)}
+.type-card.fno:hover,.type-card.fno.active{border-color:rgba(124,58,255,.3);background:rgba(124,58,255,.04);box-shadow:0 16px 50px rgba(124,58,255,.08)}
+.type-emoji{font-size:2.2rem;margin-bottom:.75rem;display:block}
+.type-name{font-family:var(--fD);font-size:1.1rem;letter-spacing:1px;margin-bottom:.25rem}
+.type-card.intra .type-name{color:var(--r)}.type-card.swing .type-name{color:var(--y)}.type-card.fno .type-name{color:#a78bff}
+.type-desc{font-size:.76rem;color:var(--mu);line-height:1.6;margin-bottom:.85rem}
+.type-stats{display:flex;flex-direction:column;gap:.4rem}
+.type-stat{display:flex;justify-content:space-between;font-family:var(--fM);font-size:.56rem;padding:.3rem .5rem;background:rgba(0,0,0,.2);border-radius:5px}
+.type-stat-label{color:var(--mu)}.type-stat-val{color:var(--txt)}
+.type-detail{margin-top:1rem;padding-top:.85rem;border-top:1px solid rgba(255,255,255,.06);font-size:.76rem;color:var(--mu);line-height:1.65;display:none;animation:slide-up .3s ease}
+.type-warning{font-family:var(--fM);font-size:.58rem;padding:.35rem .6rem;border-radius:6px;margin-top:.6rem}
+.type-card.intra .type-warning{color:rgba(255,45,107,.85);background:rgba(255,45,107,.06);border:1px solid rgba(255,45,107,.12)}
+.type-card.swing .type-warning{color:rgba(255,204,0,.85);background:rgba(255,204,0,.06);border:1px solid rgba(255,204,0,.12)}
+.type-card.fno .type-warning{color:rgba(167,139,255,.85);background:rgba(124,58,255,.06);border:1px solid rgba(124,58,255,.12)}
+.type-detail-panel{
+  display:none;
+  margin-top:1.25rem;
+  padding:1.5rem 1.6rem;
+  border-radius:18px;
+  background:var(--s2);
+  border:1px solid rgba(255,255,255,.08);
+  animation:slide-up .3s ease;
+}
+.type-detail-panel.show{display:block}
+.type-detail-panel.intra{border-color:rgba(255,45,107,.22);box-shadow:0 16px 50px rgba(255,45,107,.08)}
+.type-detail-panel.swing{border-color:rgba(255,204,0,.22);box-shadow:0 16px 50px rgba(255,204,0,.08)}
+.type-detail-panel.fno{border-color:rgba(124,58,255,.22);box-shadow:0 16px 50px rgba(124,58,255,.08)}
+.tdp-head{display:flex;align-items:center;gap:.9rem;margin-bottom:1rem;padding-bottom:.9rem;border-bottom:1px solid rgba(255,255,255,.06)}
+.tdp-icon{font-size:2rem;line-height:1}
+.tdp-title{font-family:var(--fD);font-size:1.4rem;letter-spacing:1px}
+.tdp-sub{font-family:var(--fM);font-size:.54rem;letter-spacing:1px;color:var(--mu);margin-top:.1rem}
+.type-detail-panel.intra .tdp-title{color:var(--r)}
+.type-detail-panel.swing .tdp-title{color:var(--y)}
+.type-detail-panel.fno .tdp-title{color:#a78bff}
+
+/* EMOTIONAL STATE LAB */
+.emo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem;margin-bottom:1rem}
+.emo-btn{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:13px;padding:1rem;cursor:pointer;transition:all .25s;text-align:center}
+.emo-btn:hover,.emo-btn.active{transform:translateY(-3px);border-color:rgba(255,45,107,.3)}
+.emo-emoji{font-size:2rem;margin-bottom:.4rem;display:block;transition:transform .2s}
+.emo-btn:hover .emo-emoji,.emo-btn.active .emo-emoji{transform:scale(1.15)}
+.emo-label{font-family:var(--fM);font-size:.58rem;color:var(--mu);letter-spacing:1px}
+.emo-detail-panel{background:var(--s2);border-radius:16px;padding:1.75rem;display:none;animation:slide-up .3s ease;margin-bottom:1rem}
+.emo-detail-panel.show{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.edp-title{font-family:var(--fD);font-size:1.4rem;letter-spacing:1px;margin-bottom:.3rem}
+.edp-severity{display:inline-flex;padding:2px 10px;border-radius:10px;font-family:var(--fM);font-size:.5rem;letter-spacing:2px;margin-bottom:.75rem}
+.edp-desc{font-size:.82rem;color:var(--mu);line-height:1.7;margin-bottom:1rem}
+.edp-neuro{background:rgba(0,212,255,.05);border-left:3px solid rgba(0,212,255,.3);border-radius:0 8px 8px 0;padding:.85rem 1rem;font-size:.78rem;color:var(--mu);line-height:1.6;margin-bottom:1rem}
+.edp-neuro strong{color:var(--c)}
+.edp-stats{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}
+.edp-stat{background:rgba(0,0,0,.3);border-radius:8px;padding:.7rem;text-align:center;border:1px solid rgba(255,255,255,.06)}
+.edp-stat-n{font-family:var(--fD);font-size:1.3rem;letter-spacing:1px}
+.edp-stat-l{font-family:var(--fM);font-size:.46rem;color:var(--mu);margin-top:2px;letter-spacing:1px}
+.edp-action{background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.15);border-radius:12px;padding:1rem;font-size:.8rem;color:rgba(0,255,136,.85);line-height:1.65}
+.edp-action strong{color:var(--g);display:block;font-family:var(--fD);font-size:.95rem;letter-spacing:.5px;margin-bottom:.35rem}
+
+/* PRE-TRADE CHECKLIST */
+.checklist-wrap{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;overflow:hidden}
+.checklist-header{padding:1.25rem 1.75rem;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between}
+.checklist-title{font-family:var(--fD);font-size:1.2rem;letter-spacing:1px;color:var(--r)}
+.checklist-verdict{font-family:var(--fM);font-size:.6rem;padding:3px 12px;border-radius:10px;letter-spacing:2px}
+.cv-block{background:rgba(255,45,107,.1);color:var(--r);border:1px solid rgba(255,45,107,.2)}
+.cv-warn{background:rgba(255,204,0,.1);color:var(--y);border:1px solid rgba(255,204,0,.2)}
+.cv-go{background:rgba(0,255,136,.1);color:var(--g);border:1px solid rgba(0,255,136,.2)}
+.checklist-body{padding:1.5rem 1.75rem}
+.check-item{display:flex;align-items:flex-start;gap:.75rem;padding:.7rem .75rem;border-radius:10px;cursor:pointer;transition:all .2s;margin-bottom:.4rem;border:1px solid transparent}
+.check-item:hover{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.07)}
+.check-item.checked{background:rgba(0,255,136,.04);border-color:rgba(0,255,136,.12)}
+.check-item.checked .ci-box{background:var(--g);border-color:var(--g);color:var(--ink)}
+.ci-box{width:20px;height:20px;border-radius:5px;border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:.7rem;transition:all .2s}
+.ci-text{font-size:.78rem;color:var(--mu);line-height:1.5;flex:1}
+.check-item.checked .ci-text{color:var(--txt)}
+.ci-why{font-family:var(--fM);font-size:.5rem;color:var(--dim);margin-top:2px;display:block}
+.checklist-score-bar{height:4px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden;margin:1rem 0 .5rem}
+.cls-fill{height:100%;border-radius:2px;transition:width .5s ease}
+
+/* SIMULATIONS */
+.sim-card{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;overflow:hidden;margin-bottom:1.5rem}
+.sim-hdr{padding:1.4rem 1.75rem;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:.9rem}
+.sim-num{width:38px;height:38px;border-radius:10px;font-family:var(--fD);font-size:1rem;display:flex;align-items:center;justify-content:center;background:rgba(255,45,107,.1);color:var(--r);border:1px solid rgba(255,45,107,.2);flex-shrink:0}
+.sim-title{font-family:var(--fD);font-size:1.2rem;letter-spacing:.5px}
+.sim-badge{font-family:var(--fM);font-size:.5rem;padding:2px 9px;border-radius:6px;background:rgba(255,204,0,.08);color:var(--y);border:1px solid rgba(255,204,0,.15);margin-left:auto}
+.sim-body{padding:1.75rem}
+.sim-context{font-size:.86rem;color:var(--mu);line-height:1.75;margin-bottom:1.4rem;padding:1.1rem 1.25rem;background:rgba(0,0,0,.3);border-radius:12px;border-left:3px solid rgba(255,45,107,.3)}
+.sim-context strong{color:var(--txt)}
+.sim-q{font-family:var(--fD);font-size:1rem;letter-spacing:.4px;color:var(--r);margin-bottom:.9rem}
+.sim-choices{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem}
+.sim-ch{padding:.8rem 1.15rem;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);font-size:.81rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.7rem}
+.sim-ch:hover:not(.locked){background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);transform:translateX(4px)}
+.sim-ch.locked{cursor:default}
+.sim-ch.g{background:rgba(0,255,136,.07);border-color:rgba(0,255,136,.3);color:var(--g)}
+.sim-ch.r{background:rgba(255,45,107,.06);border-color:rgba(255,45,107,.25);color:var(--r)}
+.sim-ch.y{background:rgba(255,204,0,.06);border-color:rgba(255,204,0,.25);color:var(--y)}
+.sim-letter{width:24px;height:24px;border-radius:6px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-family:var(--fM);font-size:.62rem;flex-shrink:0}
+.sim-result{padding:1.1rem 1.25rem;border-radius:12px;margin-top:.75rem;display:none;animation:slide-up .3s ease}
+.sim-result.show{display:block}
+.sim-result.g{background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.2)}
+.sim-result.r{background:rgba(255,45,107,.07);border:1px solid rgba(255,45,107,.2)}
+.sim-result.y{background:rgba(255,204,0,.07);border:1px solid rgba(255,204,0,.2)}
+.sim-res-title{font-family:var(--fD);font-size:.95rem;letter-spacing:.5px;margin-bottom:.4rem}
+.sim-res-text{font-size:.79rem;line-height:1.7;opacity:.88}
+
+/* RISK CALCULATOR */
+.risk-calc{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:2rem}
+.risk-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:1.75rem}
+.rc-label{font-family:var(--fM);font-size:.56rem;color:var(--mu);letter-spacing:1px;margin-bottom:.35rem}
+.rc-val{font-family:var(--fD);font-size:1.9rem;letter-spacing:1px;color:var(--r);line-height:1;margin-bottom:.55rem}
+.rc-val span{font-size:.85rem;color:var(--mu)}
+.risk-slider{width:100%;accent-color:var(--r);cursor:pointer;height:4px}
+.risk-results{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+.rr-box{background:rgba(0,0,0,.3);border-radius:12px;padding:1rem;text-align:center;border:1px solid rgba(255,255,255,.06)}
+.rr-n{font-family:var(--fD);font-size:1.45rem;letter-spacing:1px}
+.rr-l{font-family:var(--fM);font-size:.48rem;color:var(--mu);letter-spacing:1px;margin-top:3px}
+.risk-verdict{padding:1rem 1.25rem;border-radius:12px;font-family:var(--fM);font-size:.72rem;line-height:1.65;display:flex;align-items:center;gap:.75rem}
+.rv-ok{background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.18);color:var(--g)}
+.rv-warn{background:rgba(255,204,0,.06);border:1px solid rgba(255,204,0,.18);color:var(--y)}
+.rv-danger{background:rgba(255,45,107,.06);border:1px solid rgba(255,45,107,.18);color:var(--r)}
+
+/* KILL SWITCH */
+.kill-switch-wrap{background:var(--s1);border:1px solid rgba(255,45,107,.15);border-radius:20px;padding:2rem;text-align:center;position:relative;overflow:hidden}
+.kill-switch-wrap::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(255,45,107,.06),transparent 60%);pointer-events:none}
+.ks-title{font-family:var(--fD);font-size:1.4rem;letter-spacing:2px;color:var(--r);margin-bottom:.35rem}
+.ks-sub{font-family:var(--fM);font-size:.58rem;color:var(--mu);letter-spacing:1px;margin-bottom:1.5rem}
+.ks-btn{width:120px;height:120px;border-radius:50%;background:rgba(255,45,107,.08);border:3px solid rgba(255,45,107,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 1.5rem;transition:all .3s;position:relative;font-family:var(--fD);font-size:1.4rem;letter-spacing:1px;color:var(--r)}
+.ks-btn::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(255,45,107,.15);animation:pulse-ks 2s ease infinite}
+.ks-btn::after{content:'';position:absolute;inset:-16px;border-radius:50%;border:1px solid rgba(255,45,107,.07);animation:pulse-ks 2s ease infinite .4s}
+@keyframes pulse-ks{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.05);opacity:.3}}
+.ks-btn:hover{background:rgba(255,45,107,.14);border-color:rgba(255,45,107,.5);transform:scale(1.05)}
+.ks-btn.activated{background:rgba(255,45,107,.15);border-color:var(--r);box-shadow:0 0 40px rgba(255,45,107,.3)}
+.ks-reasons{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:1rem}
+.ks-reason-btn{padding:.3rem .9rem;border-radius:8px;font-family:var(--fM);font-size:.54rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--mu);cursor:pointer;transition:all .2s}
+.ks-reason-btn:hover,.ks-reason-btn.on{background:rgba(255,45,107,.08);border-color:rgba(255,45,107,.25);color:var(--r)}
+.ks-status{font-family:var(--fM);font-size:.62rem;color:var(--mu);min-height:1.5rem;transition:all .3s}
+
+/* TRACKER */
+.tracker-wrap{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:2rem}
+.tracker-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
+.tck-item{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:1rem;display:flex;align-items:flex-start;gap:.7rem;cursor:pointer;transition:all .2s}
+.tck-item:hover{border-color:rgba(255,45,107,.2);background:rgba(255,45,107,.04)}
+.tck-item.done{border-color:rgba(0,255,136,.3);background:rgba(0,255,136,.06)}
+.tck-check{width:20px;height:20px;border-radius:6px;border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:.72rem;transition:all .2s}
+.tck-item.done .tck-check{background:var(--g);border-color:var(--g);color:var(--ink)}
+.tck-text{font-size:.77rem;line-height:1.5;color:var(--mu)}
+.tck-item.done .tck-text{color:var(--txt)}
+
+/* Win/Loss Tracker */
+.wl-tracker{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.wl-card{background:rgba(0,0,0,.25);border-radius:14px;padding:1.25rem;border:1px solid rgba(255,255,255,.06)}
+.wl-title{font-family:var(--fD);font-size:1rem;letter-spacing:1px;margin-bottom:.75rem}
+.wl-dots{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.75rem}
+.wl-dot{width:16px;height:16px;border-radius:4px;cursor:pointer;transition:all .2s;border:1px solid rgba(255,255,255,.1)}
+.wl-dot.win{background:rgba(0,255,136,.5);border-color:var(--g)}
+.wl-dot.loss{background:rgba(255,45,107,.5);border-color:var(--r)}
+.wl-actions{display:flex;gap:.5rem}
+.wl-btn{padding:.4rem .9rem;border-radius:7px;font-family:var(--fM);font-size:.56rem;cursor:pointer;transition:all .2s;border:1px solid}
+.wl-btn-w{background:rgba(0,255,136,.07);border-color:rgba(0,255,136,.25);color:var(--g)}
+.wl-btn-w:hover{background:rgba(0,255,136,.14)}
+.wl-btn-l{background:rgba(255,45,107,.07);border-color:rgba(255,45,107,.25);color:var(--r)}
+.wl-btn-l:hover{background:rgba(255,45,107,.14)}
+.wl-stats{font-family:var(--fM);font-size:.6rem;color:var(--mu);margin-top:.5rem}
+
+/* Progress buttons */
+.prog-btn-row{display:flex;gap:1rem;align-items:center;margin-top:1.5rem;flex-wrap:wrap}
+.prog-btn{padding:.9rem 2.5rem;border-radius:12px;font-family:var(--fD);font-size:1.05rem;letter-spacing:1px;cursor:pointer;transition:all .25s;border:1px solid}
+.prog-btn-main{background:rgba(255,45,107,.08);border-color:rgba(255,45,107,.25);color:var(--r)}
+.prog-btn-main:hover{background:rgba(255,45,107,.15);transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,45,107,.15)}
+.prog-btn-sec{background:rgba(0,212,255,.06);border-color:rgba(0,212,255,.2);color:var(--c)}
+.prog-btn-sec:hover{background:rgba(0,212,255,.12);transform:translateY(-2px)}
+
+/* Progress Modal */
+.prog-modal{position:fixed;inset:0;background:rgba(2,2,12,.88);z-index:3000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(10px)}
+.prog-modal.open{display:flex;animation:fade-in .3s ease}
+.pm-box{background:var(--s1);border:1px solid rgba(255,45,107,.2);border-radius:24px;padding:2.25rem;max-width:620px;width:92%;max-height:82vh;overflow-y:auto}
+.pm-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem}
+.pm-ht{font-family:var(--fD);font-size:1.7rem;letter-spacing:2px;color:var(--r)}
+.pm-close{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:var(--fM);font-size:.75rem;color:var(--mu);transition:all .2s}
+.pm-close:hover{color:var(--txt)}
+.pm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+.pm-stat{background:rgba(0,0,0,.3);border-radius:12px;padding:1rem;text-align:center;border:1px solid rgba(255,255,255,.06)}
+.pm-stat-n{font-family:var(--fD);font-size:2rem;letter-spacing:1px}
+.pm-stat-l{font-family:var(--fM);font-size:.5rem;color:var(--mu);letter-spacing:1px;margin-top:3px}
+.pm-bar-row{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.25rem}
+.pm-br-label{display:flex;justify-content:space-between;font-family:var(--fM);font-size:.58rem;color:var(--mu);margin-bottom:.3rem}
+.pm-br-bg{height:7px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden}
+.pm-br-fill{height:100%;border-radius:4px;animation:grow-bar 1.5s ease forwards;transform-origin:left}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-grid"></div>
+<div class="tra-page" style="width:min(calc(100% - 80px), 1180px); margin:0 auto;">
+
+  <!-- SIMULATION BANNER -->
+  <a href="/simulations/" style="display:flex;align-items:center;justify-content:space-between;gap:1.5rem;padding:1rem 1.5rem;margin-bottom:2rem;background:linear-gradient(135deg,rgba(255,45,107,.08),rgba(255,204,0,.04));border:1px solid rgba(255,45,107,.3);border-radius:16px;text-decoration:none;color:var(--txt);transition:all .25s" onmouseover="this.style.boxShadow='0 0 40px rgba(255,45,107,.2)';this.style.borderColor='rgba(255,45,107,.5)'" onmouseout="this.style.boxShadow='none';this.style.borderColor='rgba(255,45,107,.3)'">
+    <div style="display:flex;align-items:center;gap:1rem">
+      <div style="font-size:2rem">⚡</div>
+      <div>
+        <div style="font-family:var(--fM);font-size:.5rem;color:var(--r);letter-spacing:2px;margin-bottom:3px">NEW — HIGH PRESSURE TRAINING</div>
+        <div style="font-family:var(--fD);font-size:1.25rem;letter-spacing:.5px;color:var(--r)">NIFTY EXPIRY TRAP · REVENGE TRADE SPIRAL · YES BANK COLLAPSE</div>
+        <div style="font-size:.72rem;color:rgba(240,237,255,.5);margin-top:2px">Live F&O pressure simulations · Emotional brain tracking · Real-time decisions · Psychological debrief</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem;font-family:var(--fM);font-size:.56rem;color:var(--r);white-space:nowrap;padding:.5rem 1.1rem;background:rgba(255,45,107,.08);border:1px solid rgba(255,45,107,.25);border-radius:8px;flex-shrink:0">ENTER SIMULATIONS →</div>
+  </a>
+
+  <!-- PAGE HEADER -->
+  <div class="tra-header">
+    <div>
+      <div class="tra-mode-badge">📊 TRADER TRAINING MODE</div>
+      <div class="tra-title">TRADER MIND</div>
+      <p class="tra-subtitle">Master the psychology of active trading. Control revenge trades, FOMO entries, and the emotional decisions that silently drain your trading capital every session.</p>
+    </div>
+    <div class="brain-quick">
+      <div class="bq-label">LIVE BRAIN STATE MONITOR</div>
+      <div class="bq-row"><span class="bq-side" style="color:var(--g)">RATIONAL</span><div class="bq-bar"><div class="bq-fill-g" id="bqRatBar" style="width:62%"></div></div><span class="bq-score" style="color:var(--g)" id="bqRatScore">62</span></div>
+      <div class="bq-row"><span class="bq-side" style="color:var(--r)">EMOTIONAL</span><div class="bq-bar"><div class="bq-fill-r" id="bqEmoBar" style="width:38%"></div></div><span class="bq-score" style="color:var(--r)" id="bqEmoScore">38</span></div>
+      <div class="bq-state" id="bqState" style="background:rgba(0,255,136,.08);color:var(--g);border:1px solid rgba(0,255,136,.15)">✓ RATIONAL DOMINANT — SAFE TO TRADE</div>
+    </div>
+  </div>
+  <div class="profile-strip">
+    <div class="profile-card">
+      <div class="profile-label">CROSS-PAGE PROFILE</div>
+      <div class="profile-value" id="traProfileLabel">Loading...</div>
+      <div class="profile-copy" id="traProfileCopy">Reading your behavior memory.</div>
+    </div>
+    <div class="profile-card">
+      <div class="profile-label">RECENT SIM SIGNAL</div>
+      <div class="profile-value" id="traRecentSignal">No runs yet</div>
+      <div class="profile-copy" id="traRecentCopy">Your last simulation verdict will appear here.</div>
+    </div>
+    <div class="profile-card">
+      <div class="profile-label">RUN HISTORY</div>
+      <div class="profile-value" id="traRunHistory">0 total</div>
+      <div class="profile-copy" id="traRunCopy">No investor/trader memory recorded yet.</div>
+    </div>
+  </div>
+
+  <!-- MODE SWITCHER -->
+  <div class="mode-switcher" id="modeSwitcher">
+    <div class="mode-slider learn-pos" id="modeSlider"></div>
+    <button class="mode-btn learn active" id="learnBtn" onclick="switchMode('learn')">
+      📚 <span>LEARN</span>
+      <span class="mode-badge learn-badge">5 MODULES</span>
+    </button>
+    <button class="mode-btn journal" id="journalBtn" onclick="switchMode('journal')">
+      📓 <span>JOURNAL</span>
+      <span class="mode-badge journal-badge">TRADES + HABITS</span>
+    </button>
+  </div>
+
+  <!-- LEARN MODE PANEL -->
+  <div class="mode-panel show" id="learnPanel">
+
+  <!-- SECTION NAV -->
+  <div class="sec-nav">
+    <a href="#types" class="snb on">📋 1. Trading Types</a>
+    <a href="#emotions" class="snb">⚡ 2. Emotion Lab</a>
+    <a href="#checklist" class="snb">✅ 3. Pre-Trade Check</a>
+    <a href="#simulations" class="snb">🎮 4. Simulations</a>
+    <a href="#risk" class="snb">🧮 5. Risk Manager</a>
+  </div>
+
+  <!-- ══ SECTION 1: TRADING TYPES ══ -->
+  <div class="tra-section" id="types">
+    <div class="sec-hd">
+      <div class="sec-num">1</div>
+      <div>
+        <div class="sec-name">WHICH TYPE OF TRADER ARE YOU?</div>
+        <div class="sec-desc">UNDERSTAND YOUR STYLE — EACH HAS A DIFFERENT PSYCHOLOGICAL PROFILE AND RISK SIGNATURE</div>
+      </div>
+      <div class="sec-xp">+60 XP</div>
+    </div>
+    <div class="type-grid">
+      <div class="type-card intra" onclick="pickType(this)">
+        <span class="type-emoji">⚡</span>
+        <div class="type-name">INTRADAY TRADER</div>
+        <div class="type-desc">Opens and closes all positions within the same trading day (9:15 AM – 3:30 PM). No overnight positions. Pure technical analysis + tape reading.</div>
+        <div class="type-stats">
+          <div class="type-stat"><span class="type-stat-label">Avg Zerodha Users</span><span class="type-stat-val">2.3M active intraday/day</span></div>
+          <div class="type-stat"><span class="type-stat-label">Profitable traders</span><span class="type-stat-val">Only 11% (SEBI 2023)</span></div>
+          <div class="type-stat"><span class="type-stat-label">Primary killer</span><span class="type-stat-val">Revenge trading after loss</span></div>
+        </div>
+        <div class="type-detail">
+          <div style="font-size:.8rem;color:var(--txt);margin-bottom:.65rem">Most demanding psychologically. Requires: 1) <strong>Pre-defined max loss</strong> (e.g., max ₹3,000/day), 2) <strong>3-trade rule</strong> (stop after 3 losses), 3) <strong>No averaging</strong> on losing intraday positions. SEBI 2023 study: 89% of intraday traders lose money over 3 years.</div>
+          <div style="font-family:var(--fM);font-size:.58rem;color:rgba(255,45,107,.8);margin-bottom:.3rem">BIGGEST ENEMY</div>
+          <div style="font-size:.76rem;color:var(--mu);">After losing ₹5,000 in the morning, most traders try to "recover" by taking bigger positions in the afternoon — this is revenge trading and it's how ₹5,000 losses become ₹25,000 losses.</div>
+          <div class="type-warning">⚠ Never carry an intraday position to next day "hoping." Square off at 3:20 PM regardless.</div>
+        </div>
+      </div>
+      <div class="type-card swing" onclick="pickType(this)">
+        <span class="type-emoji">🌊</span>
+        <div class="type-name">SWING TRADER</div>
+        <div class="type-desc">Holds positions for 2–20 days. Captures medium-term price moves using charts, technical setups, and market momentum. Less screen time than intraday.</div>
+        <div class="type-stats">
+          <div class="type-stat"><span class="type-stat-label">Hold duration</span><span class="type-stat-val">2 to 20 trading days</span></div>
+          <div class="type-stat"><span class="type-stat-label">Profitable traders</span><span class="type-stat-val">~28% (estimated)</span></div>
+          <div class="type-stat"><span class="type-stat-label">Primary killer</span><span class="type-stat-val">Breaking stop-loss on gap-down</span></div>
+        </div>
+        <div class="type-detail">
+          <div style="font-size:.8rem;color:var(--txt);margin-bottom:.65rem">Requires <strong>overnight emotional control</strong>. Your position will gap-down some mornings. The discipline to honour your pre-set stop-loss is the entire game. Works best with NSE stocks having high delivery volume (not penny stocks).</div>
+          <div style="font-family:var(--fM);font-size:.58rem;color:rgba(255,204,0,.8);margin-bottom:.3rem">BIGGEST ENEMY</div>
+          <div style="font-size:.76rem;color:var(--mu);">Stock gaps down 6% at open, hitting your stop. Your impulse says "wait, it will recover today." You hold. It falls another 8%. The stop-loss exists precisely for this moment — breaking it once makes it meaningless forever.</div>
+          <div class="type-warning">⚠ Set stop-loss as a GTT order in Zerodha/Upstox. Never rely on manual discipline alone.</div>
+        </div>
+      </div>
+      <div class="type-card fno" onclick="pickType(this)">
+        <span class="type-emoji">🧨</span>
+        <div class="type-name">F&O TRADER</div>
+        <div class="type-desc">Trades Futures and Options on NSE. High leverage (up to 10–15×). Potentially unlimited gains with options buying, unlimited losses with selling/writing.</div>
+        <div class="type-stats">
+          <div class="type-stat"><span class="type-stat-label">NSE F&O turnover</span><span class="type-stat-val">₹300+ lakh crore/month</span></div>
+          <div class="type-stat"><span class="type-stat-label">Profitable traders</span><span class="type-stat-val">Only 7.2% (SEBI 2024)</span></div>
+          <div class="type-stat"><span class="type-stat-label">Primary killer</span><span class="type-stat-val">Theta decay + overleverage</span></div>
+        </div>
+        <div class="type-detail">
+          <div style="font-size:.8rem;color:var(--txt);margin-bottom:.65rem">SEBI 2024 report: 92.8% of individual F&O traders lost money. Average loss per trader: <strong>₹1.2 lakhs/year</strong>. Yet volumes are growing. Why? The illusion of a "big win" once in a while keeps bringing people back. It's structural gambling for most.</div>
+          <div style="font-family:var(--fM);font-size:.58rem;color:rgba(167,139,255,.8);margin-bottom:.3rem">BIGGEST ENEMY</div>
+          <div style="font-size:.76rem;color:var(--mu);">Buying 10 lots of NIFTY 24,500 CE at ₹80. It expires worthless. You lost ₹40,000. Next week you buy 20 lots to "recover." This cycle of doubling down is how accounts go to zero in weeks, not years.</div>
+          <div class="type-warning">⚠ Master paper trading for 90 days before touching real capital. Most people skip this — and pay for it.</div>
+        </div>
+      </div>
+    </div>
+    <div class="type-detail-panel" id="typeDetailPanel"></div>
+  </div>
+
+  <!-- ══ SECTION 2: EMOTIONAL STATE LAB ══ -->
+  <div class="tra-section" id="emotions">
+    <div class="sec-hd">
+      <div class="sec-num">2</div>
+      <div>
+        <div class="sec-name">EMOTIONAL STATE LAB</div>
+        <div class="sec-desc">SELECT YOUR CURRENT STATE — SEE ITS NEUROSCIENCE, WIN RATE IMPACT & RECOMMENDED ACTION</div>
+      </div>
+      <div class="sec-xp">+15 XP EACH</div>
+    </div>
+    <div class="emo-grid">
+      <div class="emo-btn" onclick="openEmo(this,'calm')"><span class="emo-emoji">😌</span><div class="emo-label">CALM</div></div>
+      <div class="emo-btn" onclick="openEmo(this,'confident')"><span class="emo-emoji">🎯</span><div class="emo-label">CONFIDENT</div></div>
+      <div class="emo-btn" onclick="openEmo(this,'fearful')"><span class="emo-emoji">😨</span><div class="emo-label">FEARFUL</div></div>
+      <div class="emo-btn" onclick="openEmo(this,'greedy')"><span class="emo-emoji">🤑</span><div class="emo-label">GREEDY</div></div>
+      <div class="emo-btn" onclick="openEmo(this,'angry')"><span class="emo-emoji">😤</span><div class="emo-label">ANGRY</div></div>
+      <div class="emo-btn" onclick="openEmo(this,'bored')"><span class="emo-emoji">😴</span><div class="emo-label">BORED</div></div>
+      <div class="emo-btn" onclick="openEmo(this,'uncertain')"><span class="emo-emoji">🤔</span><div class="emo-label">UNCERTAIN</div></div>
+      <div class="emo-btn" onclick="openEmo(this,'stressed')"><span class="emo-emoji">😵</span><div class="emo-label">STRESSED</div></div>
+    </div>
+    <div class="emo-detail-panel" id="emoPanel"></div>
+  </div>
+
+  <!-- ══ SECTION 3: PRE-TRADE CHECKLIST ══ -->
+  <div class="tra-section" id="checklist">
+    <div class="sec-hd">
+      <div class="sec-num">3</div>
+      <div>
+        <div class="sec-name">PRE-TRADE PSYCHOLOGICAL CHECKLIST</div>
+        <div class="sec-desc">COMPLETE ALL 10 CHECKS BEFORE EVERY TRADE — YOUR PSYCHOLOGICAL CLEARANCE</div>
+      </div>
+      <div class="sec-xp">+80 XP</div>
+    </div>
+    <div class="checklist-wrap">
+      <div class="checklist-header">
+        <div class="checklist-title">🛑 TRADE READINESS CHECK</div>
+        <div class="checklist-verdict cv-block" id="clVerdict">BLOCKED — COMPLETE CHECKLIST</div>
+      </div>
+      <div class="checklist-body">
+        <div class="checklist-score-bar"><div class="cls-fill" id="clsBar" style="width:0%;background:linear-gradient(90deg,var(--r),var(--y))"></div></div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--fM);font-size:.54rem;color:var(--mu);margin-bottom:1rem"><span>0 / 10 complete</span><span id="clCount">Score: 0%</span></div>
+        <div id="checklistItems">
+          <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box">✓</div><div class="ci-text">I have slept at least 6 hours last night<span class="ci-why">Sleep deprivation reduces prefrontal cortex function — the rational brain centre responsible for stop-loss discipline</span></div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box">✓</div><div class="ci-text">I have NOT had a significant losing day in the past 48 hours<span class="ci-why">Recent losses trigger "revenge trading" instinct — the #1 account killer for intraday traders</span></div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box">✓</div><div class="ci-text">I know my exact max loss for today (in ₹) before starting<span class="ci-why">Without a pre-committed max loss, there is no natural stopping point — losses compound endlessly</span></div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box">✓</div><div class="ci-text">I have a defined entry criteria — not entering "because it looks good"<span class="ci-why">Vague entry criteria = emotional entry. Every trade needs a specific technical or fundamental trigger</span></div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box">✓</div><div class="ci-text">My stop-loss is pre-calculated and will be placed immediately on entry<span class="ci-why">Stop-loss placed AFTER entry is set by fear, not logic. Always calculate before you enter</span></div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box">✓</div><div class="ci-text">I am NOT under financial pressure to make money today<span class="ci-why">Trading under financial pressure creates fear-of-missing-out and forces premature entries and late exits</span></div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box">✓</div><div class="ci-text">I have reviewed yesterday's trades — both wins and losses<span class="ci-why">Pattern recognition requires consistent review. Traders who don't review repeat the same mistakes</span></div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box">✓</div><div class="ci-text">My emotional state is CALM or CONFIDENT (not angry, greedy, or stressed)<span class="ci-why">Emotional states directly impact decision speed and risk appetite — trading angry is the fastest route to a bad day</span></div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box">✓</div><div class="ci-text">I have checked pre-market data: SGX NIFTY, FII/DII data, major global events<span class="ci-why">Trading without context is gambling. 3 minutes of pre-market research prevents most bad entry decisions</span></div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box">✓</div><div class="ci-text">My position size is within 2% risk rule (max loss = 2% of trading capital)<span class="ci-why">The 2% rule ensures no single trade can damage your account meaningfully. Professional traders never break this</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 4: SIMULATIONS ══ -->
+  <div class="tra-section" id="simulations">
+    <div class="sec-hd">
+      <div class="sec-num">4</div>
+      <div>
+        <div class="sec-name">LIVE MARKET SIMULATIONS</div>
+        <div class="sec-desc">REAL NSE/NIFTY SCENARIOS — MAKE YOUR DECISION — SEE THE PSYCHOLOGICAL LESSON</div>
+      </div>
+      <div class="sec-xp">+60 XP EACH</div>
+    </div>
+
+    <!-- SIM 1: INTRADAY REVERSAL -->
+    <div class="sim-card">
+      <div class="sim-hdr">
+        <div class="sim-num">S1</div>
+        <div><div class="sim-title">NIFTY INTRADAY REVERSAL — THE EXPIRY TRAP</div><div style="font-family:var(--fM);font-size:.54rem;color:var(--mu)">Thursday, F&O Expiry Day · 3:10 PM · Real scenario type</div></div>
+        <div class="sim-badge">F&O SCENARIO</div>
+      </div>
+      <div class="sim-body">
+        <div class="sim-context">It's <strong>Thursday, 3:10 PM</strong> — F&O expiry. You sold NIFTY 24,500 CE (call writing) 4 days ago at ₹120 premium. It has decayed to ₹30 — you're sitting on <strong style="color:var(--g)">+₹22,500 profit</strong> on 50 lots. Then in the last 20 minutes, NIFTY suddenly rallies <strong>180 points</strong>. Your short call explodes from ₹30 to ₹220. Your P&L flips from <strong style="color:var(--g)">+₹22,500 to −₹37,500</strong> in 12 minutes. 3:20 PM now — 10 minutes to close.</div>
+        <div class="sim-q">🤔 What do you do?</div>
+        <div class="sim-choices" id="s1ch">
+          <div class="sim-ch" onclick="doSim('s1','g','A',this)"><span class="sim-letter">A</span>Square off immediately. Accept the ₹37,500 loss and exit cleanly.</div>
+          <div class="sim-ch" onclick="doSim('s1','r','B',this)"><span class="sim-letter">B</span>Hold — expiry is in 10 min, it might reverse back. You were +₹22.5K.</div>
+          <div class="sim-ch" onclick="doSim('s1','r','C',this)"><span class="sim-letter">C</span>Buy more short calls at higher strike to average the position.</div>
+          <div class="sim-ch" onclick="doSim('s1','y','D',this)"><span class="sim-letter">D</span>Buy a protective call to hedge the position for last 10 minutes.</div>
+        </div>
+        <div class="sim-result" id="s1res"></div>
+      </div>
+    </div>
+
+    <!-- SIM 2: YES BANK INTRADAY -->
+    <div class="sim-card">
+      <div class="sim-hdr">
+        <div class="sim-num">S2</div>
+        <div><div class="sim-title">YES BANK COLLAPSE — MARCH 2020</div><div style="font-family:var(--fM);font-size:.54rem;color:var(--mu)">March 5–6, 2020 · Stock fell 85% in 2 days · Real event</div></div>
+        <div class="sim-badge">HISTORICAL CRISIS</div>
+      </div>
+      <div class="sim-body">
+        <div class="sim-context"><strong>March 5, 2020 morning</strong>. RBI places Yes Bank under moratorium at midnight. Markets open — Yes Bank opens lower circuit at ₹16.20 (previous close ₹36). You have a swing trade position: <strong>10,000 shares bought at ₹32 avg</strong>. Current value: ₹1,62,000 (was ₹3,20,000). The stock is locked in lower circuit — you <strong>cannot sell</strong> at open. On March 6, it opens at ₹5.55. Your ₹3,20,000 is now worth <strong style="color:var(--r)">₹55,500</strong>.</div>
+        <div class="sim-q">🤔 On March 6 at open (₹5.55), what do you do?</div>
+        <div class="sim-choices" id="s2ch">
+          <div class="sim-ch" onclick="doSim('s2','g','A',this)"><span class="sim-letter">A</span>Sell everything at ₹5.55 immediately. Preserve the ₹55,500 remaining.</div>
+          <div class="sim-ch" onclick="doSim('s2','r','B',this)"><span class="sim-letter">B</span>Hold — RBI will rescue it, too big to fail. It will recover to ₹30+.</div>
+          <div class="sim-ch" onclick="doSim('s2','r','C',this)"><span class="sim-letter">C</span>Buy 50,000 more shares at ₹5.55 — massive discount, guaranteed recovery.</div>
+          <div class="sim-ch" onclick="doSim('s2','y','D',this)"><span class="sim-letter">D</span>Sell 50% now at ₹5.55, hold rest hoping for SBI-led rescue recovery.</div>
+        </div>
+        <div class="sim-result" id="s2res"></div>
+      </div>
+    </div>
+
+    <!-- SIM 3: REVENGE TRADE LOOP -->
+    <div class="sim-card">
+      <div class="sim-hdr">
+        <div class="sim-num">S3</div>
+        <div><div class="sim-title">THE REVENGE TRADE LOOP — BREAKING THE CYCLE</div><div style="font-family:var(--fM);font-size:.54rem;color:var(--mu)">A typical bad intraday morning · The most common psychological trap</div></div>
+        <div class="sim-badge">PSYCHOLOGY TRAP</div>
+      </div>
+      <div class="sim-body">
+        <div class="sim-context">You started the day with <strong>₹50,000</strong> trading capital. By 11 AM you have taken 3 trades — all losses. You're at <strong style="color:var(--r)">₹44,000 (−₹6,000)</strong>. Your daily max loss was supposed to be ₹5,000 but you "let it run hoping to recover." It's 11:15 AM. You're angry at the market. The voice in your head says: <strong>"One big trade and I'll get it all back. NIFTY is clearly going up now."</strong> You have 4.25 hours of market left.</div>
+        <div class="sim-q">🤔 What is the psychologically correct action?</div>
+        <div class="sim-choices" id="s3ch">
+          <div class="sim-ch" onclick="doSim('s3','r','A',this)"><span class="sim-letter">A</span>Take a larger position now — you need to recover the ₹6,000 quickly.</div>
+          <div class="sim-ch" onclick="doSim('s3','g','B',this)"><span class="sim-letter">B</span>Close all apps, step away for 30 minutes. No trades until you're calm.</div>
+          <div class="sim-ch" onclick="doSim('s3','g','C',this)"><span class="sim-letter">C</span>Stop trading for the day. You already exceeded your max loss rule.</div>
+          <div class="sim-ch" onclick="doSim('s3','r','D',this)"><span class="sim-letter">D</span>One more trade — very small size, just to end on a winning note.</div>
+        </div>
+        <div class="sim-result" id="s3res"></div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:2rem;margin-bottom:2rem">
+    <a href="/trader/simulations/" class="prog-btn prog-btn-main" style="display:inline-block;text-decoration:none">🎮 VIEW ALL 7 SIMULATIONS →</a>
+  </div>
+
+  <!-- ══ SECTION 5: RISK CALCULATOR ══ -->
+  <div class="tra-section" id="risk">
+    <div class="sec-hd">
+      <div class="sec-num">5</div>
+      <div>
+        <div class="sec-name">RISK MANAGEMENT CALCULATOR</div>
+        <div class="sec-desc">POSITION SIZING + STOP-LOSS + KILL SWITCH — THE THREE PILLARS OF SURVIVING MARKETS</div>
+      </div>
+      <div class="sec-xp">+100 XP</div>
+    </div>
+
+    <!-- Position Sizing -->
+    <div class="risk-calc" style="margin-bottom:1.5rem">
+      <div style="font-family:var(--fD);font-size:1.3rem;letter-spacing:1px;color:var(--r);margin-bottom:.25rem">POSITION SIZE CALCULATOR</div>
+      <div style="font-family:var(--fM);font-size:.55rem;color:var(--mu);letter-spacing:1px;margin-bottom:1.5rem">BASED ON THE PROFESSIONAL 2% RISK RULE — USED BY ALL SUCCESSFUL TRADERS</div>
+      <div class="risk-controls">
+        <div><div class="rc-label">TOTAL TRADING CAPITAL</div><div class="rc-val">₹<span id="rcCapV">1,00,000</span></div><input type="range" min="10000" max="2000000" step="10000" value="100000" class="risk-slider" id="rcCap" oninput="calcRisk()"></div>
+        <div><div class="rc-label">MAX RISK PER TRADE (%)</div><div class="rc-val"><span id="rcRiskV">2</span> <span>%</span></div><input type="range" min="0.5" max="5" step="0.5" value="2" class="risk-slider" id="rcRisk" oninput="calcRisk()"></div>
+        <div><div class="rc-label">STOP-LOSS DISTANCE (%)</div><div class="rc-val"><span id="rcSlV">1.5</span> <span>%</span></div><input type="range" min="0.5" max="10" step="0.5" value="1.5" class="risk-slider" id="rcSl" oninput="calcRisk()"></div>
+      </div>
+      <div class="risk-results">
+        <div class="rr-box"><div class="rr-n" style="color:var(--r)" id="rcMaxLoss">₹2,000</div><div class="rr-l">MAX LOSS<br>PER TRADE</div></div>
+        <div class="rr-box"><div class="rr-n" style="color:var(--y)" id="rcPosSize">₹1,33,333</div><div class="rr-l">POSITION<br>SIZE ALLOWED</div></div>
+        <div class="rr-box"><div class="rr-n" style="color:var(--c)" id="rcDayLimit">₹6,000</div><div class="rr-l">DAILY MAX<br>LOSS LIMIT</div></div>
+        <div class="rr-box"><div class="rr-n" style="color:var(--g)" id="rcSurvival">150</div><div class="rr-l">TRADES TO<br>ZERO (AT 2%)</div></div>
+      </div>
+      <div class="risk-verdict rv-ok" id="rcVerdict">
+        ✅ &nbsp; Professional risk setup. At 2% max risk, you can lose 50 consecutive trades and still have capital. This is why professionals never blow up.
+      </div>
+    </div>
+
+    <!-- Kill Switch -->
+    <div class="kill-switch-wrap">
+      <div class="ks-title">🔴 EMERGENCY KILL SWITCH</div>
+      <div class="ks-sub">ACTIVATE WHEN EMOTIONALLY COMPROMISED · 10-MINUTE MANDATORY COOLDOWN</div>
+      <div class="ks-btn" id="ksBtn" onclick="activateKS()">KILL<br>SWITCH</div>
+      <div class="ks-reasons">
+        <div class="ks-reason-btn" onclick="selectKSReason(this,'Revenge trading urge')">Revenge urge</div>
+        <div class="ks-reason-btn" onclick="selectKSReason(this,'Exceeded daily loss limit')">Max loss hit</div>
+        <div class="ks-reason-btn" onclick="selectKSReason(this,'FOMO trade impulse')">FOMO impulse</div>
+        <div class="ks-reason-btn" onclick="selectKSReason(this,'Anger / frustration')">Anger / stress</div>
+        <div class="ks-reason-btn" onclick="selectKSReason(this,'3 consecutive losses')">3 losses in a row</div>
+      </div>
+      <div class="ks-status" id="ksStatus">Select a reason above → then activate the Kill Switch to start cooldown</div>
+    </div>
+  </div>
+
+
+  </div><!-- /learnPanel -->
+
+  <!-- JOURNAL MODE PANEL -->
+  <div class="mode-panel" id="journalPanel">
+
+    <!-- Journal intro banner -->
+    <div class="journal-intro">
+      <div class="ji-icon">📓</div>
+      <div>
+        <div class="ji-title">TRADER JOURNAL & HABIT TRACKER</div>
+        <div class="ji-sub">Log every trade, track daily discipline habits, review auto-generated behavioral debriefs, and monitor your psychology improvement over time.</div>
+      </div>
+    </div>
+
+    <!-- Behavior Warning -->
+    <div class="memory-warning">
+      <div class="memory-warning-title" id="traWarningTitle">Recurring warning loading...</div>
+      <div class="memory-warning-copy" id="traWarningCopy">Scanning your recent simulation behavior for repeat mistakes.</div>
+    </div>
+
+    <!-- Today's Habits -->
+    <div class="tra-section">
+      <div class="sec-hd">
+        <div class="sec-num" style="background:rgba(0,255,136,.08);border-color:rgba(0,255,136,.2)">✓</div>
+        <div>
+          <div class="sec-name">TODAY'S TRADER PRACTICES</div>
+          <div class="sec-desc">CLICK EACH TO MARK COMPLETE · EARN XP · BUILD DISCIPLINE STREAK</div>
+        </div>
+        <div class="sec-xp">+160 XP</div>
+      </div>
+      <div class="tracker-wrap" style="padding:1.5rem">
+        <div class="tracker-grid">
+          <div class="tck-item" onclick="toggleTrack(this,20)"><div class="tck-check">✓</div><div class="tck-text">✅ Completed all 10 pre-trade checklist items before first trade</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,15)"><div class="tck-check">✓</div><div class="tck-text">📊 Checked SGX NIFTY + FII/DII data before 9:15 AM</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,20)"><div class="tck-check">✓</div><div class="tck-text">🛑 Defined and honoured my daily max loss limit today</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,25)"><div class="tck-check">✓</div><div class="tck-text">📝 Wrote trade journal entry for every trade taken today</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,20)"><div class="tck-check">✓</div><div class="tck-text">🚫 Did NOT take a revenge trade after a losing position</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,15)"><div class="tck-check">✓</div><div class="tck-text">⏸ Took at least one break from screens during the session</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,20)"><div class="tck-check">✓</div><div class="tck-text">🎯 All stop-losses were placed at entry — not adjusted on loss</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,10)"><div class="tck-check">✓</div><div class="tck-text">😌 Reviewed emotional state before each trade entry</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,15)"><div class="tck-check">✓</div><div class="tck-text">📈 Reviewed yesterday's trades and identified one improvement</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Win/Loss Trade Log -->
+    <div class="tra-section">
+      <div class="sec-hd">
+        <div class="sec-num" style="background:rgba(0,255,136,.08);border-color:rgba(0,255,136,.2);color:var(--g)">📈</div>
+        <div>
+          <div class="sec-name">TODAY'S TRADE LOG</div>
+          <div class="sec-desc">LOG EACH OUTCOME · TRACK WIN RATE · IDENTIFY PATTERNS</div>
+        </div>
+      </div>
+      <div class="wl-tracker">
+        <div class="wl-card">
+          <div class="wl-title" style="color:var(--g)">📈 WINS & LOSSES</div>
+          <div class="wl-dots" id="wlDots"></div>
+          <div class="wl-actions">
+            <button class="wl-btn wl-btn-w" onclick="addTrade('win')">+ WIN</button>
+            <button class="wl-btn wl-btn-l" onclick="addTrade('loss')">+ LOSS</button>
+            <button class="wl-btn" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);color:var(--mu)" onclick="resetTrades()">RESET</button>
+          </div>
+          <div class="wl-stats" id="wlStats">Win rate: 0% · P/L: 0 · Max streak: 0</div>
+        </div>
+        <div class="wl-card" style="display:flex;flex-direction:column;gap:.75rem">
+          <div style="font-family:var(--fM);font-size:.52rem;color:var(--mu);letter-spacing:1px">LIVE SESSION STATS</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+            <div style="background:rgba(0,0,0,.3);border-radius:10px;padding:.85rem;text-align:center;border:1px solid rgba(255,255,255,.06)">
+              <div style="font-family:var(--fD);font-size:1.8rem;color:var(--g)" id="wlWinRateBig">0%</div>
+              <div style="font-family:var(--fM);font-size:.44rem;color:var(--mu);letter-spacing:1px;margin-top:2px">WIN RATE</div>
+            </div>
+            <div style="background:rgba(0,0,0,.3);border-radius:10px;padding:.85rem;text-align:center;border:1px solid rgba(255,255,255,.06)">
+              <div style="font-family:var(--fD);font-size:1.8rem;color:var(--r)" id="traSessN">12</div>
+              <div style="font-family:var(--fM);font-size:.44rem;color:var(--mu);letter-spacing:1px;margin-top:2px">SESSIONS DONE</div>
+            </div>
+          </div>
+          <div style="font-family:var(--fM);font-size:.56rem;color:var(--mu)" id="traWinRate">Session win rate: —%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Psychological Journal -->
+    <div class="tra-section">
+      <div class="sec-hd">
+        <div class="sec-num" style="background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.2);color:var(--c)">📝</div>
+        <div>
+          <div class="sec-name">PSYCHOLOGICAL TRADE JOURNAL</div>
+          <div class="sec-desc">AI DEBRIEF FROM SIMULATIONS + YOUR EMOTIONAL REFLECTION</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+        <div class="auto-journal-card" style="margin-top:0;border-color:rgba(0,212,255,.14);background:rgba(0,212,255,.04)">
+          <div class="auto-journal-title" style="color:var(--c)">🤖 AUTO-JOURNAL FROM LAST SIM</div>
+          <div class="auto-journal-copy" id="traAutoJournal">Complete a simulation and the system will draft a behavior note here.</div>
+        </div>
+        <div style="background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:1rem 1.1rem">
+          <div style="font-family:var(--fD);font-size:1rem;letter-spacing:1px;color:var(--c);margin-bottom:.45rem">✍ EMOTIONAL NOTE</div>
+          <textarea id="traderNote" style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.7rem;color:var(--txt);font-family:var(--fB);font-size:.78rem;line-height:1.6;resize:none;height:90px;box-sizing:border-box" placeholder="What triggered your best and worst decisions today? What will you do differently tomorrow?"></textarea>
+          <button class="wl-btn wl-btn-w" onclick="saveNote()" style="margin-top:.5rem;font-size:.54rem;padding:.3rem .75rem">SAVE NOTE +10 XP</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Buttons -->
+    <div class="prog-btn-row">
+      <button class="prog-btn prog-btn-main" onclick="openPM()">📊 VIEW FULL PROGRESS REPORT</button>
+      <button class="prog-btn prog-btn-sec" onclick="claimXP()">⚡ CLAIM SESSION XP (+150)</button>
+    </div>
+
+  </div><!-- /journalPanel -->
+
+</div>
+
+<!-- PROGRESS MODAL -->
+<div class="prog-modal" id="progModal" onclick="if(event.target===this)closePM()">
+  <div class="pm-box">
+    <div class="pm-hd"><div class="pm-ht">📊 TRADER PROGRESS</div><div class="pm-close" onclick="closePM()">✕</div></div>
+    <div class="pm-stats">
+      <div class="pm-stat"><div class="pm-stat-n" style="color:var(--r)" id="pmXP">1,240</div><div class="pm-stat-l">TOTAL XP</div></div>
+      <div class="pm-stat"><div class="pm-stat-n" style="color:var(--y)" id="pmDisc">71</div><div class="pm-stat-l">DISCIPLINE<br>SCORE /100</div></div>
+      <div class="pm-stat"><div class="pm-stat-n" style="color:var(--c)" id="pmSess">12</div><div class="pm-stat-l">SESSIONS<br>COMPLETED</div></div>
+    </div>
+    <div style="font-family:var(--fM);font-size:.58rem;color:var(--mu);letter-spacing:2px;margin-bottom:.75rem">TRADER SKILL BREAKDOWN</div>
+    <div class="pm-bar-row">
+      <div><div class="pm-br-label"><span>Emotional Control Under Pressure</span><span style="color:var(--r)">48%</span></div><div class="pm-br-bg"><div class="pm-br-fill" style="width:48%;background:linear-gradient(90deg,var(--r),#ff8ca8)"></div></div></div>
+      <div><div class="pm-br-label"><span>Pre-Trade Checklist Compliance</span><span style="color:var(--g)">72%</span></div><div class="pm-br-bg"><div class="pm-br-fill" style="width:72%;background:linear-gradient(90deg,var(--g),#34ffb8)"></div></div></div>
+      <div><div class="pm-br-label"><span>Stop-Loss Discipline (No Moving)</span><span style="color:var(--y)">55%</span></div><div class="pm-br-bg"><div class="pm-br-fill" style="width:55%;background:linear-gradient(90deg,var(--y),#ffd860)"></div></div></div>
+      <div><div class="pm-br-label"><span>Revenge Trade Resistance</span><span style="color:var(--c)">61%</span></div><div class="pm-br-bg"><div class="pm-br-fill" style="width:61%;background:linear-gradient(90deg,var(--c),#5ee0ff)"></div></div></div>
+      <div><div class="pm-br-label"><span>Risk Sizing Accuracy (2% Rule)</span><span style="color:var(--v)">38%</span></div><div class="pm-br-bg"><div class="pm-br-fill" style="width:38%;background:linear-gradient(90deg,var(--v),#a78bff)"></div></div></div>
+    </div>
+    <div style="background:rgba(255,45,107,.04);border:1px solid rgba(255,45,107,.15);border-radius:10px;padding:.85rem 1rem;font-size:.8rem;color:rgba(255,45,107,.85);line-height:1.65">
+      🎯 <strong>Focus area:</strong> Risk sizing accuracy is your weakest skill at 38%. Practice the position calculator daily. Traders who master position sizing statistically survive 3× longer than those who don't. +500 XP milestone at 15 sessions!
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_script %}
+<script>
+function renderTraderProfile() {
+  if (!window.FINOS_PROFILE) return;
+  const profile = window.FINOS_PROFILE.get();
+  const insights = window.FINOS_PROFILE.getInsights();
+  const warning = window.FINOS_PROFILE.getWarning('trader');
+  const recent = profile.recentRuns[0];
+
+  // ── First card: pull from user profile in STATE ──
+  const archNames = { arch1:'🦁 THE LION', arch2:'🐢 THE TORTOISE', arch3:'🦊 THE FOX', arch4:'🦌 THE DEER' };
+  document.getElementById('traProfileLabel').textContent = STATE.userName;
+  document.getElementById('traProfileCopy').textContent = STATE.userArchetype
+    ? `${archNames[STATE.userArchetype] || STATE.userArchetypeName} · Emo Ctrl ${STATE.traits.emotionCtrl}/100 · Discipline ${STATE.disc}/100`
+    : `Discipline ${STATE.disc}/100 · Emo Ctrl ${STATE.traits.emotionCtrl}/100 — Set archetype on Investor Mind ↗`;
+
+  document.getElementById('traRecentSignal').textContent = recent ? recent.verdict : 'No runs yet';
+  document.getElementById('traRecentCopy').textContent = recent ? `${recent.title} • ${recent.executionScore} execution • ${recent.pnlImpact}% impact` : 'Your last simulation verdict will appear here.';
+  document.getElementById('traRunHistory').textContent = `${profile.totalRuns} total`;
+  document.getElementById('traRunCopy').textContent = `${profile.traderRuns} trader • ${profile.investorRuns} investor`;
+  document.getElementById('traWarningTitle').textContent = `${warning.title} (${warning.count})`;
+  document.getElementById('traWarningCopy').textContent = warning.body;
+  document.getElementById('traAutoJournal').textContent = recent?.autoJournal || 'Complete a simulation and the system will draft a behavior note here.';
+}
+
+// ─── Brain State ───
+let bqRat = 62, bqEmo = 38;
+function updateBrainState(rat) {
+  bqRat = Math.round(rat); bqEmo = 100 - bqRat;
+  document.getElementById('bqRatBar').style.width = bqRat + '%';
+  document.getElementById('bqEmoBar').style.width = bqEmo + '%';
+  document.getElementById('bqRatScore').textContent = bqRat;
+  document.getElementById('bqEmoScore').textContent = bqEmo;
+  const s = document.getElementById('bqState');
+  if (bqRat >= 60) { s.style.background='rgba(0,255,136,.08)';s.style.color='var(--g)';s.style.border='1px solid rgba(0,255,136,.15)';s.textContent='✓ RATIONAL DOMINANT — SAFE TO TRADE'; }
+  else if (bqRat >= 45) { s.style.background='rgba(255,204,0,.08)';s.style.color='var(--y)';s.style.border='1px solid rgba(255,204,0,.15)';s.textContent='⚠ BORDERLINE — REDUCE POSITION SIZE'; }
+  else { s.style.background='rgba(255,45,107,.08)';s.style.color='var(--r)';s.style.border='1px solid rgba(255,45,107,.15)';s.textContent='🛑 EMOTIONAL DOMINANT — DO NOT TRADE'; }
+}
+
+// ─── Trading Types ───
+function pickType(el) {
+  const panel = document.getElementById('typeDetailPanel');
+  const wasActive = el.classList.contains('active');
+
+  document.querySelectorAll('.type-card').forEach(c => c.classList.remove('active'));
+
+  if (wasActive) {
+    panel.className = 'type-detail-panel';
+    panel.innerHTML = '';
+    return;
+  }
+
+  el.classList.add('active');
+  const icon = el.querySelector('.type-emoji')?.textContent || '';
+  const title = el.querySelector('.type-name')?.textContent || 'Trader Type';
+  const desc = el.querySelector('.type-desc')?.textContent || '';
+  const detail = el.querySelector('.type-detail')?.innerHTML || '';
+  const theme = el.classList.contains('intra') ? 'intra' : el.classList.contains('swing') ? 'swing' : 'fno';
+
+  panel.className = `type-detail-panel show ${theme}`;
+  panel.innerHTML = `
+    <div class="tdp-head">
+      <div class="tdp-icon">${icon}</div>
+      <div>
+        <div class="tdp-title">${title}</div>
+        <div class="tdp-sub">${desc}</div>
+      </div>
+    </div>
+    <div>${detail}</div>
+  `;
+
+  addXP(60, 'Trading type identified');
+}
+
+// ─── Emotional State Lab ───
+const EMOS = {
+  calm: { name:'😌 CALM', sev:'LOW RISK', sevColor:'var(--g)', desc:'Calm state is optimal for trading. Your prefrontal cortex is fully engaged, allowing rational risk assessment, disciplined stop-loss adherence, and pattern recognition without emotional distortion.', neuro:'<strong>Neuroscience:</strong> Calm state = low cortisol + balanced dopamine. Your amygdala (fear/emotion centre) is quiet. The prefrontal cortex dominates decision-making. Reaction time is appropriate, not impulsive.', wr:'74%', avgp:'+₹3,240', rec:'✅ TRADE. Full position size. Trust your system and pre-defined rules. This is the ideal state — most profitable decisions happen here.' },
+  confident: { name:'🎯 CONFIDENT', sev:'CAUTION', sevColor:'var(--y)', desc:'Healthy confidence is positive. But overconfidence (after a winning streak) is dangerous — it leads to oversizing positions, ignoring warning signals, and underestimating risk.', neuro:'<strong>Neuroscience:</strong> After wins, dopamine spikes. This creates overconfidence bias — your brain literally downplays warning signals. 3-win streaks increase risk-taking by 40% on average.', wr:'63%', avgp:'+₹1,800', rec:'⚠ Trade with reduced size (50-75% of normal). After 3+ winning trades, consciously check: "Am I being confident or overconfident?" If position size has grown — reduce it.' },
+  fearful: { name:'😨 FEARFUL', sev:'HIGH RISK', sevColor:'var(--r)', desc:'Fear prevents taking valid setups, causes premature exits of winning trades, and leads to paralysis at critical decision moments. Fear also creates "revenge avoidance" — exiting too early to avoid another loss.', neuro:'<strong>Neuroscience:</strong> Fear activates amygdala, suppresses prefrontal cortex. You literally cannot think clearly. Studies show fearful traders exit winners 40% too early and hold losers 60% longer (hoping to avoid crystallising the loss).', wr:'31%', avgp:'-₹1,200', rec:'🛑 REDUCE SIZE TO 25% or stop trading. Do 5 box breathing cycles (4-4-4-4 pattern). Fear-based trading is the #2 cause of poor trader outcomes after revenge trading.' },
+  greedy: { name:'🤑 GREEDY', sev:'CRITICAL', sevColor:'var(--r)', desc:'Greed causes position oversizing, removing stop-losses to "let winners run," and entering trades without valid setups because you "don\'t want to miss the move." The market will not accommodate greed.', neuro:'<strong>Neuroscience:</strong> Greed = dopamine overload. The reward circuits override rational thinking. Studies on trading show greedy states lead to 2.3× larger position sizes and 67% lower win rates — a catastrophic combination.', wr:'28%', avgp:'-₹4,800', rec:'🛑 DO NOT TRADE. Close all charts. The market will be there tomorrow. Greed is the emotional state with the worst risk-reward ratio — you take more risk for less return.' },
+  angry: { name:'😤 ANGRY / FRUSTRATED', sev:'CRITICAL', sevColor:'var(--r)', desc:'Anger creates the perfect storm for revenge trading — the #1 account killer. Angry traders take larger positions, ignore stop-losses, and trade impulsively to "punish the market" for losing their money.', neuro:'<strong>Neuroscience:</strong> Anger + financial loss = amygdala hijack. This is a neurological state where rational thought is temporarily offline. Cortisol is flooding your brain. This is NOT a metaphor — your decision quality is clinically impaired.', wr:'19%', avgp:'-₹8,200', rec:'🔴 MANDATORY STOP. Close trading platform. 20-minute walk or physical activity. Anger is the #1 predictor of revenge trading — the emotional state that destroys accounts fastest.' },
+  bored: { name:'😴 BORED', sev:'MODERATE RISK', sevColor:'var(--y)', desc:'Boredom is the hidden account killer. When markets are slow and no setups exist, boredom causes traders to force trades — "manufacturing" setups that don\'t actually meet their criteria just to have some action.', neuro:'<strong>Neuroscience:</strong> Boredom = dopamine deficit. Your brain seeks stimulation. Trading when bored provides artificial excitement — but boredom trades have 57% lower win rates than setup-based trades. Doing nothing is hard but necessary.', wr:'38%', avgp:'-₹600', rec:'⚠ Do NOT force trades to relieve boredom. Review your trade journal instead. If there\'s no setup that meets 100% of your criteria — there\'s no trade. Slow days are gifts.' },
+  uncertain: { name:'🤔 UNCERTAIN', sev:'MODERATE RISK', sevColor:'var(--y)', desc:'Uncertainty is the market\'s natural state. The issue is trading when YOU are uncertain — entering positions without conviction leads to premature exits when the trade goes temporarily against you.', neuro:'<strong>Neuroscience:</strong> Uncertainty activates loss aversion pathways 3× more than certainty activates reward pathways. Uncertain traders exit 45% of their trades before stop-loss due to premature discomfort.', wr:'44%', avgp:'+₹200', rec:'⚠ If uncertain about a trade: half size maximum. The rule: "If in doubt, stay out." A trade with 60% conviction is not worth taking. Wait for 85%+ conviction setups.' },
+  stressed: { name:'😵 STRESSED', sev:'HIGH RISK', sevColor:'var(--r)', desc:'External stress (family issues, financial pressure, health problems) significantly impairs trading performance. The brain cannot separate life stress from market stress — both use the same cognitive resources.', neuro:'<strong>Neuroscience:</strong> Cortisol (stress hormone) impairs working memory and cognitive flexibility — both essential for trading decisions. Studies show traders under personal stress have 41% lower win rates vs their historical baseline.', wr:'26%', avgp:'-₹3,100', rec:'🛑 DO NOT TRADE under significant external stress. Your personal life is not a separate system from your trading brain. A stressed brain cannot trade well — protect your capital by sitting out.' }
+};
+
+let activeEmoEl = null;
+function openEmo(el, id) {
+  if (activeEmoEl) activeEmoEl.classList.remove('active');
+  const panel = document.getElementById('emoPanel');
+  if (activeEmoEl === el) { panel.classList.remove('show'); activeEmoEl = null; return; }
+  const e = EMOS[id];
+  panel.className = 'emo-detail-panel show';
+  panel.style.border = `1px solid ${e.sevColor}30`;
+  panel.innerHTML = `
+    <div>
+      <div class="edp-title">${e.name}</div>
+      <div class="edp-severity" style="background:${e.sevColor}15;color:${e.sevColor};border:1px solid ${e.sevColor}30">${e.sev}</div>
+      <div class="edp-desc">${e.desc}</div>
+      <div class="edp-neuro">${e.neuro}</div>
+      <div class="edp-stats">
+        <div class="edp-stat"><div class="edp-stat-n" style="color:${e.sevColor}">${e.wr}</div><div class="edp-stat-l">HISTORICAL<br>WIN RATE</div></div>
+        <div class="edp-stat"><div class="edp-stat-n" style="color:${e.sevColor}">${e.avgp}</div><div class="edp-stat-l">AVG P&L<br>PER TRADE</div></div>
+      </div>
+    </div>
+    <div class="edp-action"><strong>🎯 RECOMMENDED ACTION</strong>${e.rec}</div>`;
+  el.classList.add('active');
+  activeEmoEl = el;
+  addXP(15, 'Emotional state analysed: ' + e.name);
+  const rat = id==='calm'?78:id==='confident'?68:id==='uncertain'?52:id==='bored'?55:100-parseInt(e.wr);
+  updateBrainState(Math.max(20,Math.min(90,rat)));
+}
+
+// ─── Pre-Trade Checklist ───
+let checkCount = 0;
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  checkCount = document.querySelectorAll('.check-item.checked').length;
+  const pct = checkCount / 10 * 100;
+  document.getElementById('clsBar').style.width = pct + '%';
+  document.getElementById('clsBar').style.background = pct < 40 ? 'var(--r)' : pct < 70 ? 'linear-gradient(90deg,var(--y),var(--g))' : 'linear-gradient(90deg,var(--g),var(--c))';
+  document.getElementById('clCount').textContent = `Score: ${Math.round(pct)}%`;
+  document.querySelector('.checklist-score-bar').nextElementSibling.firstChild.textContent = `${checkCount} / 10 complete`;
+  const v = document.getElementById('clVerdict');
+  if (pct < 60) { v.className='checklist-verdict cv-block';v.textContent='🛑 BLOCKED — COMPLETE CHECKLIST'; }
+  else if (pct < 90) { v.className='checklist-verdict cv-warn';v.textContent='⚠ WARNING — PROCEED WITH CAUTION'; }
+  else { v.className='checklist-verdict cv-go';v.textContent='✅ CLEARED — TRADE RESPONSIBLY'; addXP(80,'Pre-trade checklist completed'); }
+}
+
+// ─── Simulations ───
+const SIMS = {
+  s1: {
+    A:{cls:'g',t:'✅ PROFESSIONAL DECISION — LOSS MANAGEMENT',tx:'Correct. Accepting the ₹37,500 loss immediately is the right call. Options gamma explodes near expiry — the position could have gone to −₹1,00,000+ if held. Professional option sellers always have a max pain exit rule: if the position reverses 50% of peak profit, exit. No questions asked.'},
+    B:{cls:'r',t:'❌ HOPE IS NOT A STRATEGY',tx:'NIFTY stayed elevated through close. Your short call expired at ₹195. Loss: ₹47,500. Classic "holding hoping" — the most expensive emotional decision in F&O. When options go deep ITM near expiry, gamma acceleration is exponential. Exit immediately or hedge.'},
+    C:{cls:'r',t:'❌ ADDING TO A LOSING OPTIONS POSITION',tx:'Never add to a losing short options position near expiry — unlimited risk. You sold more calls at higher strike at ₹90. Market stayed at 24,680. Both positions expired in-the-money. Total loss exceeded ₹80,000. Doubling down on short options near expiry is a fast path to account wipeout.'},
+    D:{cls:'y',t:'⚠ HEDGING — CORRECT INSTINCT, EXPENSIVE EXECUTION',tx:'Buying protective calls at 3:10 PM near expiry costs extreme premium. The hedge likely cost ₹20,000+ which partially offset the loss. Better than B or C but not the cleanest solution. The lesson: pre-define your exit rules before entering the position, not when it\'s in crisis.'}
+  },
+  s2: {
+    A:{cls:'g',t:'✅ CAPITAL PRESERVATION — THE ONLY CORRECT ANSWER',tx:'Yes Bank partially recovered after SBI rescue to ₹12-15 by 2021 — but never returned to ₹32. Your ₹55,500 salvaged by selling at ₹5.55, reinvested in quality stocks (HDFC Bank, Infosys), would be worth ₹1,10,000+ by 2024. Preserving capital is always the priority — you can rebuild from ₹55,500, you cannot rebuild from zero.'},
+    B:{cls:'r',t:'❌ "TOO BIG TO FAIL" IS A DEADLY MYTH',tx:'Yes Bank was "too big to fail" — and then it did. Sort of. Stock peaked at ₹11 post-rescue and trades at ₹24 now (2025). But it took 5 years to get there, and at ₹5.55 your position was down 83%. Holding for "recovery" locked your capital for years at negative real returns.'},
+    C:{cls:'r',t:'❌ AVERAGING DOWN INTO A CRISIS',tx:'Yes Bank at ₹5.55 dropped to ₹2.80 before the SBI rescue was confirmed. Your 50,000 new shares lost another ₹1,37,500. Total position now in maximum pain. Averaging into banking crisis stocks is not bottom-fishing — it\'s standing in front of a falling elevator.'},
+    D:{cls:'y',t:'⚠ PARTIAL EXIT — BETTER THAN FULL HOLD',tx:'Selling 50% at ₹5.55 (₹27,750) preserved some capital. The remaining 5,000 shares recovered partially over 3 years. This is a compromise — not optimal (full exit was better) but far better than holding everything or averaging down.'}
+  },
+  s3: {
+    A:{cls:'r',t:'❌ REVENGE TRADING — THE SPIRAL BEGINS',tx:'This is the defining mistake of 89% of losing intraday traders. Taking a larger position in anger to "recover" — traders in studies who took revenge trades after a bad morning lost an average of 340% MORE than their morning losses. The "one big trade" almost always makes it worse.'},
+    B:{cls:'g',t:'🏆 PSYCHOLOGICAL MASTERY — STEP AWAY',tx:'Walking away when you\'re in a losing emotional state is the hardest and most valuable trading skill. Professional traders call this "living to fight another day." Studies show that traders who step away after hitting their daily loss limit and RETURN THE NEXT DAY perform 2.1× better over a quarter than those who continue. Your ₹44,000 capital is now protected.'},
+    C:{cls:'g',t:'🏆 CORRECT — HONOUR THE MAX LOSS RULE',tx:'You already broke your max loss rule (₹5,000 limit, now at −₹6,000). Stopping completely is the only professional response. The max loss rule exists precisely for this emotional moment — when your brain says "one more trade." The rule must be absolute, not negotiable.'},
+    D:{cls:'r',t:'❌ "JUST ONE MORE" — THE TRADER\'S ADDICTION',tx:'"Just one trade to end on a win" almost never ends with one trade. After that loss, it becomes two more, then three. Studies on loss-chasing behavior show: 78% of traders who took a "just one more" trade after hitting daily limits lost MORE than they were trying to recover. Stop. The market opens tomorrow.'}
+  }
+};
+const TRA_SIM_TAGS = {
+  s1:{ A:['discipline'], B:['hesitation'], C:['overmanage'], D:['patience'] },
+  s2:{ A:['discipline'], B:['hesitation'], C:['overmanage'], D:['patience'] },
+  s3:{ A:['revenge'],    B:['discipline','patience'], C:['discipline'], D:['revenge'] }
+};
+const TRA_SIM_PNL = { g:18, y:0, r:-22 };
+function doSim(sid, cls, key, el) {
+  const chs=document.getElementById(sid+'ch');
+  if(chs.querySelector('.locked'))return;
+  chs.querySelectorAll('.sim-ch').forEach(c=>{c.classList.add('locked');if(c.querySelector('.sim-letter').textContent===key)c.classList.add(cls);});
+  const r=document.getElementById(sid+'res'),o=SIMS[sid][key];
+  r.className=`sim-result show ${cls}`;
+  r.innerHTML=`<div class="sim-res-title">${o.t}</div><div class="sim-res-text">${o.tx}</div>`;
+  addXP(cls==='g'?60:cls==='y'?30:20,'Trading simulation completed');
+  if (window.FINOS_PROFILE) {
+    FINOS_PROFILE.recordRun({
+      mode: 'trader', simId: sid + '_' + key,
+      title: 'Trader Sim ' + sid.toUpperCase() + '-' + key,
+      verdict: cls==='g' ? 'DISCIPLINED' : cls==='y' ? 'CAUTIOUS' : 'EMOTIONAL',
+      outcome: cls,
+      tags: (TRA_SIM_TAGS[sid] || {})[key] || ['patience'],
+      pnlImpact: TRA_SIM_PNL[cls] || 0,
+      disciplineScore: cls==='g'?85:cls==='y'?55:28,
+      executionScore:  cls==='g'?82:cls==='y'?60:32,
+      clarityScore:    cls==='g'?88:cls==='y'?62:35
+    });
+    renderTraderProfile();
+  }
+}
+
+// ─── Risk Calculator ───
+function fmtINR(n){return n>=10000000?'₹'+(n/10000000).toFixed(2)+'Cr':n>=100000?'₹'+(n/100000).toFixed(1)+'L':n>=1000?'₹'+(n/1000).toFixed(1)+'K':'₹'+Math.round(n);}
+function calcRisk() {
+  const cap=+document.getElementById('rcCap').value, risk=+document.getElementById('rcRisk').value, sl=+document.getElementById('rcSl').value;
+  const maxLoss=cap*(risk/100), posSize=maxLoss/(sl/100), dayLimit=cap*.06, survival=Math.floor(100/risk);
+  document.getElementById('rcCapV').textContent=cap.toLocaleString('en-IN');
+  document.getElementById('rcRiskV').textContent=risk;
+  document.getElementById('rcSlV').textContent=sl;
+  document.getElementById('rcMaxLoss').textContent=fmtINR(maxLoss);
+  document.getElementById('rcPosSize').textContent=fmtINR(posSize);
+  document.getElementById('rcDayLimit').textContent=fmtINR(dayLimit);
+  document.getElementById('rcSurvival').textContent=survival+' trades';
+  const v=document.getElementById('rcVerdict');
+  if(risk<=2){v.className='risk-verdict rv-ok';v.innerHTML='✅ &nbsp; Professional risk setup. At '+risk+'% max risk, you can sustain '+survival+' consecutive losses and still have capital to trade. This is survivability.';}
+  else if(risk<=3){v.className='risk-verdict rv-warn';v.innerHTML='⚠ &nbsp; Moderate risk. '+risk+'% per trade is aggressive. Reduce to 1-2% for long-term survival. At this rate, 30 losses = significant account damage.';}
+  else{v.className='risk-verdict rv-danger';v.innerHTML='🛑 &nbsp; DANGEROUS. '+risk+'% risk per trade gives you only '+survival+' trades before account zero. Professionals never exceed 2%. Reduce immediately.';}
+}
+calcRisk();
+
+// ─── Kill Switch ───
+let ksReason = '', ksActive = false, ksTimer = null;
+function selectKSReason(el, reason) {
+  document.querySelectorAll('.ks-reason-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on'); ksReason = reason;
+  document.getElementById('ksStatus').textContent = `Reason: "${reason}" — Click KILL SWITCH to activate 10-min cooldown`;
+}
+function activateKS() {
+  if (!ksReason) { document.getElementById('ksStatus').textContent = '⚠ Select a reason first before activating'; return; }
+  if (ksActive) return;
+  ksActive = true;
+  const btn = document.getElementById('ksBtn');
+  btn.classList.add('activated');
+  let secs = 600;
+  addXP(50, 'Kill switch activated — preventing emotional trade');
+  ksTimer = setInterval(() => {
+    secs--;
+    const m=Math.floor(secs/60),s=secs%60;
+    document.getElementById('ksStatus').textContent = `🔴 LOCKED: ${m}:${s<10?'0'+s:s} remaining — Reason: ${ksReason}`;
+    if (secs <= 0) {
+      clearInterval(ksTimer); ksActive=false; btn.classList.remove('activated');
+      document.getElementById('ksStatus').textContent = `✅ Cooldown complete. Re-assess emotional state before trading. Duration: 10 minutes.`;
+      ksReason=''; document.querySelectorAll('.ks-reason-btn').forEach(b=>b.classList.remove('on'));
+    }
+  }, 1000);
+}
+
+// ─── Mode Switcher ───
+function switchMode(mode) {
+  const learnBtn = document.getElementById('learnBtn');
+  const journalBtn = document.getElementById('journalBtn');
+  const learnPanel = document.getElementById('learnPanel');
+  const journalPanel = document.getElementById('journalPanel');
+  const slider = document.getElementById('modeSlider');
+  if (mode === 'learn') {
+    learnBtn.classList.add('active'); journalBtn.classList.remove('active');
+    learnPanel.classList.add('show'); journalPanel.classList.remove('show');
+    slider.className = 'mode-slider learn-pos';
+  } else {
+    journalBtn.classList.add('active'); learnBtn.classList.remove('active');
+    journalPanel.classList.add('show'); learnPanel.classList.remove('show');
+    slider.className = 'mode-slider journal-pos';
+  }
+}
+
+// ─── Daily Tracker ───
+let tckCount=0;
+function toggleTrack(el,xp){
+  el.classList.toggle('done');
+  if(el.classList.contains('done')){tckCount++;addXP(xp,'Daily trader practice');}
+  else tckCount=Math.max(0,tckCount-1);
+}
+
+// ─── Win/Loss Tracker ───
+let trades=[];
+function addTrade(type){
+  trades.push(type);
+  const dots=document.getElementById('wlDots');
+  const d=document.createElement('div');
+  d.className='wl-dot '+type;
+  d.title=type.charAt(0).toUpperCase()+type.slice(1);
+  d.onclick=()=>{trades.splice(trades.indexOf(type),1);d.remove();updateWLStats();};
+  dots.appendChild(d);
+  updateWLStats();
+}
+function updateWLStats(){
+  const wins=trades.filter(t=>t==='win').length,total=trades.length;
+  const wr=total?Math.round(wins/total*100):0;
+  let maxStreak=0,cur=0;
+  trades.forEach(t=>{if(t==='win'){cur++;maxStreak=Math.max(maxStreak,cur);}else cur=0;});
+  document.getElementById('wlStats').textContent=`Win rate: ${wr}% · ${wins}W / ${total-wins}L · Max win streak: ${maxStreak}`;
+  if(document.getElementById('wlWinRateBig'))document.getElementById('wlWinRateBig').textContent=wr+'%';
+  if(document.getElementById('traWinRate'))document.getElementById('traWinRate').textContent='Session win rate: '+wr+'%';
+}
+function resetTrades(){trades=[];document.getElementById('wlDots').innerHTML='';updateWLStats();}
+function saveNote(){const n=document.getElementById('traderNote').value.trim();if(n){addXP(10,'Trade journal entry saved');showToast('📝 Journal saved!','tg');localStorage.setItem('finos_trader_note_'+Date.now(),n);}}
+
+// ─── Progress Modal ───
+function openPM(){document.getElementById('pmXP').textContent=STATE.xp.toLocaleString('en-IN');document.getElementById('pmDisc').textContent=STATE.disc;document.getElementById('pmSess').textContent=STATE.sessionsCompleted;document.getElementById('progModal').classList.add('open');}
+function closePM(){document.getElementById('progModal').classList.remove('open');}
+function claimXP(){STATE.sessionsCompleted++;STATE.save();document.getElementById('traSessN').textContent=STATE.sessionsCompleted;addXP(150,'Trader session completed');}
+
+// ─── Section nav ───
+document.querySelectorAll('.snb').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('.snb').forEach(x=>x.classList.remove('on'));this.classList.add('on');}));
+renderTraderProfile();
+window.addEventListener('behavior-profile-change', renderTraderProfile);
+</script>
+{% endblock %}

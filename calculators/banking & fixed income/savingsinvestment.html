@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bond Yield Calculator • FIN-OS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Standard Styles Reuse */
+    :root { --text-primary: #1e293b; --text-secondary: #64748b; --bg-main: #f1f5f9; --bg-surface: #ffffff; --card-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    [data-theme="dark"] { --text-primary: #f8fafc; --text-secondary: #94a3b8; --bg-main: #0f172a; --bg-surface: #1e293b; --card-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); }
+    body { color: var(--text-primary); background: var(--bg-main); font-family: sans-serif; }
+    h1, h2, h3 { color: var(--text-primary); }
+    input[type="number"] { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+    .page { flex: 1; padding: 0 48px 24px 48px; overflow-y: auto; }
+    .page-header { padding-top: 32px; margin-bottom: 40px; }
+    .page-header h1 { font-size: 42px; font-weight: 700; margin: 8px 0; }
+    .back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .back-btn:hover { color: #06b6d4; }
+    .impact-card { max-width: 1100px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 48px; border-radius: 32px; background: var(--bg-surface); box-shadow: var(--card-shadow); }
+    .impact-inputs { display: flex; flex-direction: column; gap: 24px; }
+    .input-group { display: flex; flex-direction: column; gap: 12px; }
+    .input-row { display: flex; gap: 12px; align-items: center; }
+    input[type="range"] { flex: 1; appearance: none; height: 6px; border-radius: 6px; background: linear-gradient(90deg, #06b6d4, #3b82f6); cursor: pointer; }
+    input[type="range"]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #ffffff; border: 3px solid #06b6d4; cursor: pointer; }
+    input[type="number"] { width: 140px; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); font-size: 16px; font-weight: 600; }
+    .impact-right { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+    .chart-container { width: 100%; max-width: 360px; aspect-ratio: 1; }
+    .result-grid { width: 100%; display: grid; grid-template-columns: 1fr; gap: 16px; }
+    .age-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .age-box { padding: 20px; border-radius: 16px; text-align: center; background: rgba(6,182,212,0.12); }
+    .age-box strong { font-size: 24px; display: block; margin-top: 4px; }
+    .verdict-box { padding: 24px; border-radius: 16px; text-align: center; font-weight: 700; font-size: 18px; background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(16,185,129,0.15)); color: #22c55e; }
+    @media (max-width: 900px) { .impact-card { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body class="app">
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="../../html/home.html">Home</a>
+      <a href="../../html/dashboard.html">Dashboard</a>
+      <a href="../../html/impact.html">Impact</a>
+      <a href="../../html/calculators.html" class="active">Calculators</a>
+      <a href="../../../Porfolio Analyser/portfolio-analyser-v9.html">Portfolio</a>
+      <a href="../../html/markets.html">Markets</a>
+      <a href="../../html/tax.html">Tax</a>
+      <a href="../../html/news.html">News</a>
+    </nav>
+  </aside>
+
+  <main class="page">
+    <button id="themeToggle" style="position: fixed; top: 32px; right: 32px; z-index: 100; background:none; border:none; font-size:24px; cursor:pointer;">🌙</button>
+
+    <header class="page-header">
+      <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
+      <h1>Bond Yield</h1>
+      <p>Estimate returns on fixed-income securities.</p>
+    </header>
+
+    <section class="impact-card">
+      <div class="impact-left">
+        <div class="impact-inputs">
+          <div class="input-group">
+            <label>Face Value (₹)</label>
+            <div class="input-row">
+              <input type="range" min="100" max="10000" step="100" value="1000" id="face">
+              <input type="number" value="1000" id="faceNum">
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Coupon Rate (%)</label>
+            <div class="input-row">
+              <input type="range" min="1" max="15" step="0.1" value="8" id="coupon">
+              <input type="number" value="8" id="couponNum">
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Current Market Price (₹)</label>
+            <div class="input-row">
+              <input type="range" min="500" max="1500" step="10" value="950" id="price">
+              <input type="number" value="950" id="priceNum">
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Years to Maturity</label>
+            <div class="input-row">
+              <input type="range" min="1" max="30" value="5" id="years">
+              <input type="number" value="5" id="yearsNum">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="impact-right">
+        <div class="chart-container"><canvas id="bondChart"></canvas></div>
+        <div class="result-grid">
+          <div class="age-comparison">
+            <div class="age-box"><span>Current Yield</span><strong id="currYield">0%</strong></div>
+            <div class="age-box" style="background: rgba(139,92,246,0.12)"><span>Annual Income</span><strong id="incomeVal">₹0</strong></div>
+          </div>
+          <div class="verdict-box" id="ytmVal">Approx YTM: 0%</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script>
+const root = document.documentElement;
+const toggle = document.getElementById("themeToggle");
+const savedTheme = localStorage.getItem("finos-theme");
+if (savedTheme) root.setAttribute("data-theme", savedTheme);
+toggle.textContent = root.getAttribute("data-theme") === "dark" ? "🌙" : "☀️";
+toggle.onclick = () => {
+  const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("finos-theme", next);
+  toggle.textContent = next === "dark" ? "🌙" : "☀️";
+};
+
+const els = {
+  f: document.getElementById('face'), fN: document.getElementById('faceNum'),
+  c: document.getElementById('coupon'), cN: document.getElementById('couponNum'),
+  p: document.getElementById('price'), pN: document.getElementById('priceNum'),
+  y: document.getElementById('years'), yN: document.getElementById('yearsNum')
+};
+
+['f', 'c', 'p', 'y'].forEach(k => {
+  els[k].oninput = () => els[k+'N'].value = els[k].value;
+  els[k+'N'].oninput = () => els[k].value = els[k+'N'].value;
+});
+
+const ctx = document.getElementById('bondChart');
+const chart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['Coupon Rate', 'Current Yield', 'YTM'],
+    datasets: [{
+      data: [8, 8.4, 9],
+      backgroundColor: ['#1e293b', '#06b6d4', '#22c55e'],
+      borderRadius: 8, borderWidth: 0
+    }]
+  },
+  options: {
+    scales: { y: { display:false }, x: { grid:{display:false}, ticks:{color:'#94a3b8'} } },
+    plugins: { legend: { display: false } }
+  }
+});
+
+function calculate() {
+  const F = +els.fN.value;
+  const C = +els.cN.value;
+  const P = +els.pN.value;
+  const n = +els.yN.value;
+  
+  const annualCoupon = F * (C/100);
+  
+  // 1. Current Yield = Annual Coupon / Current Price
+  const currentYield = (annualCoupon / P) * 100;
+  
+  // 2. Approx YTM Formula: [C + (F-P)/n] / [(F+P)/2]
+  const num = annualCoupon + ((F - P) / n);
+  const den = (F + P) / 2;
+  const ytm = (num / den) * 100;
+
+  document.getElementById('currYield').textContent = currentYield.toFixed(2) + "%";
+  document.getElementById('incomeVal').textContent = "₹" + annualCoupon;
+  
+  const ytmEl = document.getElementById('ytmVal');
+  ytmEl.textContent = "Approx YTM: " + ytm.toFixed(2) + "%";
+  
+  // Color coding YTM
+  if (ytm > C) ytmEl.className = "verdict-box ahead"; // Discount Bond
+  else if (ytm < C) ytmEl.className = "verdict-box behind"; // Premium Bond
+  else ytmEl.className = "verdict-box on-track"; // Par
+
+  chart.data.datasets[0].data = [C, currentYield, ytm];
+  chart.update();
+}
+
+Object.values(els).forEach(el => el.addEventListener('input', calculate));
+calculate();
+</script>
+</body>
+</html>

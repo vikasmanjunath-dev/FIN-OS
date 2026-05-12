@@ -1,0 +1,160 @@
+/* FIN-OS Simulator Guide Stylesheet */
+:root {
+    --kbg: #0a0a0f;
+    --kpanel: #141418;
+    --kborder: rgba(255, 255, 255, 0.04);
+}
+
+body {
+    background-color: var(--kbg);
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+    background: rgba(20, 20, 24, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--kborder);
+}
+
+.glow-text {
+    text-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+}
+
+/* Scrollbars */
+.nav-scroll::-webkit-scrollbar,
+.section-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+
+.nav-scroll::-webkit-scrollbar-track,
+.section-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.nav-scroll::-webkit-scrollbar-thumb,
+.section-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.nav-scroll::-webkit-scrollbar-thumb:hover,
+.section-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 130, 246, 0.5);
+}
+
+/* Sidebar Nav */
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    border-radius: 0.5rem;
+    color: #9ca3af;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #3b82f6;
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+    transform-origin: center;
+}
+
+.nav-link:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.nav-link.active {
+    color: white;
+    background: rgba(59, 130, 246, 0.1);
+    box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.05);
+}
+
+.nav-link.active::before {
+    transform: scaleY(1);
+}
+
+.nav-link.active i {
+    color: #3b82f6;
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+/* Section Transitions */
+.guide-section {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.guide-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Animated Cards */
+.anim-card {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.anim-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.anim-card:hover i {
+    color: #fbbf24;
+}
+
+/* Candle visualizer class */
+.candle-demo {
+    width: 14px;
+    position: relative;
+    margin: 0 auto;
+}
+
+.candle-demo::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+}
+
+.candle-demo .body {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 10;
+}
+
+.candle-green::before {
+    background: rgba(38, 161, 123, 0.5);
+}
+
+.candle-green .body {
+    background: #26a17b;
+    box-shadow: 0 0 10px rgba(38, 161, 123, 0.4);
+}
+
+.candle-red::before {
+    background: rgba(224, 82, 96, 0.5);
+}
+
+.candle-red .body {
+    background: #e05260;
+    box-shadow: 0 0 10px rgba(224, 82, 96, 0.4);
+}

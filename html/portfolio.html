@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Portfolio Dissector</title>
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/portfolio.css">
+  <link rel="stylesheet" href="../css/theme.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+
+      <header class="header header-flex">
+        <div>
+          <h1>Portfolio Dissector Pro</h1>
+          <p>Deep-tissue analysis of your financial health.</p>
+        </div>
+        <button id="themeToggle" class="theme-btn">🌙</button>
+      </header>
+
+      <section id="uploadSection" class="upload-universe">
+        <div class="drop-zone" id="dropZone">
+          <div class="upload-icon">📂</div>
+          <h3>Drop Portfolio File</h3>
+          <p>Zerodha, Groww, Upstox (CSV, XLSX)</p>
+          <input type="file" id="fileInput" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" hidden>
+          <button class="primary-btn" onclick="document.getElementById('fileInput').click()">Select File</button>
+        </div>
+      </section>
+
+      <div id="analysisDashboard" class="analysis-grid hidden">
+        
+        <div class="stats-row">
+          <div class="stat-card glass">
+            <span class="label">Net Worth Detected</span>
+            <h2 id="totalValue">₹0</h2>
+          </div>
+          <div class="stat-card glass">
+            <span class="label">Dominant Asset</span>
+            <h2 id="topAsset">-</h2>
+          </div>
+          <div class="stat-card glass">
+            <span class="label">Volatility Score</span>
+            <h2 id="riskScore">-</h2>
+            <div class="risk-bar"><div class="fill" id="riskFill"></div></div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-card glass">
+            <h3>🦅 The Bird's Eye (Asset Class)</h3>
+            <div class="chart-container"><canvas id="assetClassChart"></canvas></div>
+          </div>
+          <div class="chart-card glass">
+            <h3>🧢 Market Cap Split (Equity Only)</h3>
+            <div class="chart-container"><canvas id="marketCapChart"></canvas></div>
+          </div>
+        </div>
+
+        <div class="charts-row full-width">
+          <div class="chart-card glass">
+            <h3>🏭 Sectoral DNA</h3>
+            <div class="chart-container wide"><canvas id="sectorChart"></canvas></div>
+          </div>
+        </div>
+
+        <section class="insights-section">
+          <h3>🧐 Finbro Intelligence</h3>
+          <div class="insight-grid">
+            <div class="insight-card good">
+              <div class="icon">✅</div>
+              <h4>Strengths</h4>
+              <p id="goodInsight">Analyzing...</p>
+            </div>
+            <div class="insight-card bad">
+              <div class="icon">⚠️</div>
+              <h4>Weaknesses</h4>
+              <p id="badInsight">Analyzing...</p>
+            </div>
+            <div class="insight-card ugly">
+              <div class="icon">🔮</div>
+              <h4>The Verdict</h4>
+              <p id="verdictInsight">Analyzing...</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="breakdown-section glass">
+          <h3>🧬 The DNA Breakdown</h3>
+          <div id="hierarchyContainer" class="hierarchy-list">
+            </div>
+        </section>
+        
+        <button class="reset-btn" onclick="location.reload()">Upload New File</button>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+
+<script src="../js/ui.js"></script>
+<script src="../js/portfolio.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+</body>
+</html>

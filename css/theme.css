@@ -1,0 +1,527 @@
+/* =======================================================
+   FIN•OS GLOBAL THEME OVERRIDES
+   Comprehensive light/dark mode support for ALL pages
+   ======================================================= */
+
+/* ── DARK MODE BASE (default) ── */
+:root {
+  --t-bg:        #0B0D12;
+  --t-bg2:       #10131C;
+  --t-bg3:       #14181F;
+  --t-surface:   #15181F;
+  --t-text:      #E8EAF0;
+  --t-text2:     #9AA0B4;
+  --t-text3:     #3E4558;
+  --t-border:    rgba(255,255,255,0.07);
+  --t-border2:   rgba(255,255,255,0.12);
+  --t-accent:    #4F7CFF;
+  --t-shadow:    rgba(0,0,0,0.5);
+}
+
+/* ── LIGHT MODE ── */
+[data-theme="light"] {
+  --t-bg:        #F4F6FB;
+  --t-bg2:       #FFFFFF;
+  --t-bg3:       #EEF0F7;
+  --t-surface:   #FFFFFF;
+  --t-text:      #0B0D12;
+  --t-text2:     #4A5068;
+  --t-text3:     #8A92A8;
+  --t-border:    rgba(0,0,0,0.08);
+  --t-border2:   rgba(0,0,0,0.14);
+  --t-accent:    #4F7CFF;
+  --t-shadow:    rgba(0,0,0,0.08);
+}
+
+/* ═══════════════════════════════════
+   BODY & PAGE BACKGROUNDS
+   ═══════════════════════════════════ */
+[data-theme="light"] body {
+  background: var(--t-bg) !important;
+  color: var(--t-text) !important;
+}
+[data-theme="light"] .main,
+[data-theme="light"] .page,
+[data-theme="light"] .tf-page,
+[data-theme="light"] .content-wrapper > *,
+[data-theme="light"] main {
+  background: var(--t-bg) !important;
+  color: var(--t-text) !important;
+}
+
+/* ═══════════════════════════════════
+   CARDS
+   ═══════════════════════════════════ */
+[data-theme="light"] .card,
+[data-theme="light"] .suite-card,
+[data-theme="light"] .glass-panel,
+[data-theme="light"] .panel,
+[data-theme="light"] .india-card,
+[data-theme="light"] .calc-card,
+[data-theme="light"] .tool-card,
+[data-theme="light"] .feature-card,
+[data-theme="light"] .stat-card,
+[data-theme="light"] .info-card,
+[data-theme="light"] .value-card,
+[data-theme="light"] .belief-card,
+[data-theme="light"] .vision-card,
+[data-theme="light"] .timeline-card,
+[data-theme="light"] .godeep-card,
+[data-theme="light"] .tf-tool-card,
+[data-theme="light"] .deep-card,
+[data-theme="light"] .metric-card,
+[data-theme="light"] .insight-card {
+  background: var(--t-bg2) !important;
+  border-color: var(--t-border2) !important;
+  box-shadow: 0 2px 12px var(--t-shadow) !important;
+}
+
+/* ═══════════════════════════════════
+   HEADINGS & TEXT
+   ═══════════════════════════════════ */
+/* Headings — exclude elements inside intentionally dark cards */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 {
+  color: var(--t-text) !important;
+}
+/* Restore white headings inside dark-by-design containers */
+[data-theme="light"] .protocol-hero h1,
+[data-theme="light"] .protocol-hero h2,
+[data-theme="light"] .protocol-hero h3,
+[data-theme="light"] .protocol-hero h4 {
+  color: #ffffff !important;
+}
+[data-theme="light"] .protocol-hero h2 em { color: #c7f000 !important; }
+
+[data-theme="light"] p,
+[data-theme="light"] span:not(.pill):not(.badge):not(.sc-tag):not(.sc-badge):not(.status-pill):not(.tag):not(.ph-code):not(.ph-sub):not(.ph-badge):not(.ph-arrow),
+[data-theme="light"] li,
+[data-theme="light"] label {
+  color: var(--t-text2) !important;
+}
+[data-theme="light"] .sc-name,
+[data-theme="light"] .card-title,
+[data-theme="light"] .section-title,
+[data-theme="light"] .module-title {
+  color: var(--t-text) !important;
+}
+[data-theme="light"] .sc-sub,
+[data-theme="light"] .card-sub,
+[data-theme="light"] .muted,
+[data-theme="light"] .text-muted,
+[data-theme="light"] .subtitle {
+  color: var(--t-text2) !important;
+}
+
+/* ═══════════════════════════════════
+   TRACK-FINANCES SPECIFIC
+   ═══════════════════════════════════ */
+[data-theme="light"] .tf-page {
+  background: var(--t-bg) !important;
+}
+[data-theme="light"] .tf-page::before {
+  background: radial-gradient(ellipse at 50% 0%, rgba(79,124,255,.05) 0%, transparent 70%) !important;
+}
+[data-theme="light"] .suite-card {
+  background: var(--t-bg2) !important;
+  border-color: var(--t-border2) !important;
+}
+[data-theme="light"] .suite-card::before {
+  background: radial-gradient(ellipse at 20% 0%, rgba(var(--cr,79,124,255),.05) 0%, transparent 60%) !important;
+}
+[data-theme="light"] .sc-number {
+  color: #C8CEDE !important;
+}
+[data-theme="light"] .sc-arrow {
+  color: #C8CEDE !important;
+}
+[data-theme="light"] .suite-card:hover .sc-number,
+[data-theme="light"] .suite-card:hover .sc-arrow {
+  color: var(--cc, #4F7CFF) !important;
+}
+[data-theme="light"] .tf-title {
+  background: linear-gradient(135deg, #0B0D12 0%, #3A4264 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+[data-theme="light"] .tf-desc {
+  color: var(--t-text2) !important;
+}
+[data-theme="light"] .tf-eyebrow-text {
+  color: #4F7CFF !important;
+}
+[data-theme="light"] .tf-divider-label {
+  color: #B0B8D0 !important;
+}
+[data-theme="light"] .sc-icon-wrap {
+  background: #F0F2F8 !important;
+  border-color: var(--t-border2) !important;
+}
+[data-theme="light"] .sc-tag {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  color: var(--t-text2) !important;
+}
+[data-theme="light"] .suite-card:hover .sc-tag {
+  background: rgba(var(--cr,79,124,255),.08) !important;
+  border-color: rgba(var(--cr,79,124,255),.2) !important;
+  color: var(--cc, #4F7CFF) !important;
+}
+
+/* ═══════════════════════════════════
+   INPUTS & FORMS
+   ═══════════════════════════════════ */
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+  background: var(--t-bg2) !important;
+  border-color: var(--t-border2) !important;
+  color: var(--t-text) !important;
+}
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: var(--t-text3) !important;
+}
+
+/* ═══════════════════════════════════
+   TABLES
+   ═══════════════════════════════════ */
+[data-theme="light"] table {
+  background: var(--t-bg2) !important;
+}
+[data-theme="light"] th {
+  background: var(--t-bg3) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border2) !important;
+}
+[data-theme="light"] td {
+  color: var(--t-text) !important;
+  border-color: var(--t-border) !important;
+}
+[data-theme="light"] tr:nth-child(even) td {
+  background: rgba(0,0,0,0.02) !important;
+}
+
+/* ═══════════════════════════════════
+   CHARTS & CANVASES
+   (canvases stay dark for readability)
+   ═══════════════════════════════════ */
+[data-theme="light"] .chart-container {
+  background: var(--t-bg2) !important;
+  border-radius: 16px;
+}
+
+/* ═══════════════════════════════════
+   SIDEBAR (always dark - by design)
+   ═══════════════════════════════════ */
+[data-theme="light"] .sidebar {
+  background: #0E1117 !important;
+}
+[data-theme="light"] .sidebar .logo,
+[data-theme="light"] .sidebar nav a {
+  color: #A1A4AC !important;
+}
+[data-theme="light"] .sidebar nav a.active {
+  color: #4F7CFF !important;
+}
+[data-theme="light"] .sidebar nav a:hover {
+  color: #FFFFFF !important;
+  background: rgba(255,255,255,0.06) !important;
+}
+
+/* ═══════════════════════════════════
+   HEADER
+   ═══════════════════════════════════ */
+[data-theme="light"] .header h1 {
+  color: var(--t-text) !important;
+}
+[data-theme="light"] .header p {
+  color: var(--t-text2) !important;
+}
+
+/* ═══════════════════════════════════
+   PROGRESS BARS & METERS
+   ═══════════════════════════════════ */
+[data-theme="light"] .progress-track,
+[data-theme="light"] .bar-bg {
+  background: var(--t-bg3) !important;
+}
+
+/* ═══════════════════════════════════
+   DIVIDERS & BORDERS
+   ═══════════════════════════════════ */
+[data-theme="light"] hr,
+[data-theme="light"] .divider {
+  border-color: var(--t-border2) !important;
+}
+
+/* ═══════════════════════════════════
+   STAR CANVAS (keep dark)
+   ═══════════════════════════════════ */
+[data-theme="light"] #tf-stars {
+  opacity: 0.08 !important;
+}
+
+/* ═══════════════════════════════════
+   FLOATING BUTTONS (theme/back)
+   ═══════════════════════════════════ */
+[data-theme="light"] #floatThemeBtn,
+[data-theme="light"] #floatBackBtn {
+  background: rgba(0,0,0,0.06) !important;
+  border-color: rgba(0,0,0,0.12) !important;
+  color: #0B0D12 !important;
+}
+[data-theme="light"] #floatThemeBtn:hover,
+[data-theme="light"] #floatBackBtn:hover {
+  background: rgba(0,0,0,0.10) !important;
+}
+
+/* ═══════════════════════════════════
+   MOBILE NAV
+   ═══════════════════════════════════ */
+[data-theme="light"] .mob-topbar {
+  background: #0E1117 !important;
+}
+
+/* ═══════════════════════════════════
+   THEME BUTTON (standard)
+   ═══════════════════════════════════ */
+[data-theme="light"] .theme-btn {
+  background: rgba(0,0,0,0.06) !important;
+  border-color: rgba(0,0,0,0.12) !important;
+  color: #0B0D12 !important;
+}
+[data-theme="light"] .theme-btn:hover {
+  background: rgba(0,0,0,0.10) !important;
+}
+
+/* ═══════════════════════════════════
+   SCROLLBAR (light mode)
+   ═══════════════════════════════════ */
+[data-theme="light"] {
+  scrollbar-color: #C0C8D8 #F0F2F8;
+}
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #F0F2F8 !important;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #C0C8D8 !important;
+  border-color: #F0F2F8 !important;
+}
+
+/* ═══════════════════════════════════
+   DARK MODE EXPLICIT (reinforce)
+   ═══════════════════════════════════ */
+[data-theme="dark"] body,
+[data-theme="dark"] .main,
+[data-theme="dark"] .page {
+  background: var(--t-bg);
+  color: var(--t-text);
+}
+
+/* =======================================================
+   EXTENDED LIGHT MODE FIXES (Deep Audit Pass)
+   ======================================================= */
+
+/* ── Track Finances – text/icon colors ── */
+[data-theme="light"] .sc-name { color: #0B0D12 !important; }
+[data-theme="light"] .sc-sub  { color: #4A5068 !important; }
+[data-theme="light"] .sc-icon-wrap { background: #EEF0F8 !important; }
+[data-theme="light"] .tf-eyebrow-line {
+  background: linear-gradient(90deg, #4f7cff, transparent) !important;
+}
+[data-theme="light"] #tf-stars { opacity: 0.05 !important; }
+[data-theme="light"] .tf-page::before {
+  background: radial-gradient(ellipse at 50% 0%, rgba(79,124,255,.04) 0%, transparent 70%) !important;
+}
+
+/* ── Hedgefund page – hardcoded dark nav link color ── */
+[data-theme="light"] .sidebar nav a { color: #A1A4AC !important; }
+[data-theme="light"] .sidebar nav a.active { color: #C7F000 !important; }
+[data-theme="light"] .sidebar nav a:hover { color: #ffffff !important; }
+
+/* ── Principles / roadmap cards ── */
+[data-theme="light"] .c-head { color: #0B0C15 !important; }
+[data-theme="light"] .c-desc { color: #4A4C60 !important; }
+[data-theme="light"] .map-card,
+[data-theme="light"] .route-card {
+  background: #ffffff !important;
+  border-color: rgba(0,0,0,0.1) !important;
+}
+[data-theme="light"] .c-desi { color: #4A4C60 !important; }
+[data-theme="light"] .c-desi span { color: #0B0C15 !important; }
+
+/* ── Hub/sector titles (roadmaps) ── */
+[data-theme="light"] .hub-title { color: #0B0C15 !important; -webkit-text-fill-color: #0B0C15 !important; }
+[data-theme="light"] .hub-sub { color: #4A4C60 !important; }
+[data-theme="light"] .sector-title { color: #0B0C15 !important; }
+[data-theme="light"] .sector-title span { color: #0B0C15 !important; }
+
+/* ── Impact/foundation/decision text ── */
+[data-theme="light"] .page-header h1,
+[data-theme="light"] .page-title { color: #0B0D12 !important; }
+[data-theme="light"] .eyebrow { color: #4F7CFF !important; }
+
+/* ── Simulators ── */
+[data-theme="light"] .card-body h3,
+[data-theme="light"] .card-head { color: #0B0D12 !important; }
+[data-theme="light"] .card-body p,
+[data-theme="light"] .card-desc { color: #4A5068 !important; }
+
+/* ── Pills, chips, and mono labels ── */
+[data-theme="light"] .pill {
+  background: rgba(79,124,255,0.1) !important;
+  color: #4F7CFF !important;
+}
+[data-theme="light"] .nav-section { color: #8090B0 !important; }
+
+/* ── Impact/dashboard stat numbers ── */
+[data-theme="light"] .stat-num,
+[data-theme="light"] .kpi-val,
+[data-theme="light"] .metric-val { color: #0B0D12 !important; }
+[data-theme="light"] .stat-label,
+[data-theme="light"] .kpi-label,
+[data-theme="light"] .metric-label { color: #4A5068 !important; }
+
+/* ── List items ── */
+[data-theme="light"] .money-list li,
+[data-theme="light"] li { color: #2A3050 !important; }
+
+/* ── Section sub-headers ── */
+[data-theme="light"] .section-sub,
+[data-theme="light"] .section-desc { color: #4A5068 !important; }
+[data-theme="light"] .section-title { color: #0B0D12 !important; }
+
+/* ── Tabs and pills in light mode ── */
+[data-theme="light"] .tab,
+[data-theme="light"] .filter-btn {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  color: #4A5068 !important;
+}
+[data-theme="light"] .tab.active,
+[data-theme="light"] .filter-btn.active {
+  background: rgba(79,124,255,0.1) !important;
+  color: #4F7CFF !important;
+}
+
+/* ── Glassmorphism panels in light mode ── */
+[data-theme="light"] .glass-panel,
+[data-theme="light"] .glass-card {
+  background: rgba(255,255,255,0.85) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+/* ── Badge text stays readable ── */
+[data-theme="light"] .badge {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.12) !important;
+  color: #4A5068 !important;
+}
+
+/* ── Prevent white-on-white text ── */
+[data-theme="light"] [style*="color: #fff"],
+[data-theme="light"] [style*="color:#fff"],
+[data-theme="light"] [style*="color: white"] {
+  color: #0B0D12 !important;
+}
+
+/* ═══════════════════════════════════
+   SETTINGS PAGE — LIGHT MODE
+   ═══════════════════════════════════ */
+
+/* Buttons */
+[data-theme="light"] .settings-view .btn-outline {
+  background: #F0F2F8 !important;
+  border: 1px solid rgba(0,0,0,0.14) !important;
+  color: #0B0D12 !important;
+}
+[data-theme="light"] .settings-view .btn-outline:hover {
+  background: #E4E7F0 !important;
+  border-color: rgba(0,0,0,0.25) !important;
+}
+
+/* Danger button stays red */
+[data-theme="light"] .btn-danger {
+  background: rgba(212,35,78,0.08) !important;
+  border: 1px solid rgba(212,35,78,0.25) !important;
+  color: #D4234E !important;
+}
+[data-theme="light"] .btn-danger:hover {
+  background: #D4234E !important;
+  color: #fff !important;
+  box-shadow: 0 0 20px rgba(212,35,78,0.3) !important;
+}
+[data-theme="light"] .danger-text {
+  color: #D4234E !important;
+}
+[data-theme="light"] .danger-zone {
+  border: 1px dashed rgba(212,35,78,0.3) !important;
+}
+
+/* Select dropdown */
+[data-theme="light"] .settings-view select {
+  background: #F0F2F8 !important;
+  border: 1px solid rgba(0,0,0,0.14) !important;
+  color: #0B0D12 !important;
+}
+
+/* Color picker buttons */
+[data-theme="light"] .color-btn {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  border: 2px solid rgba(0,0,0,0.12) !important;
+  display: inline-block !important;
+  box-sizing: border-box !important;
+}
+.color-btn {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  display: inline-block !important;
+  box-sizing: border-box !important;
+  cursor: pointer;
+}
+.color-options {
+  display: flex !important;
+  gap: 10px !important;
+  align-items: center !important;
+}
+
+/* Setting row dividers */
+[data-theme="light"] .setting-row {
+  border-bottom-color: rgba(0,0,0,0.08) !important;
+}
+[data-theme="light"] .sign-out-row {
+  border-top-color: rgba(0,0,0,0.12) !important;
+}
+
+/* Settings cards */
+[data-theme="light"] .settings-card.glass-panel {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(0,0,0,0.10) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06) !important;
+}
+
+/* Section titles in settings */
+[data-theme="light"] .settings-card h3 {
+  color: #2A3050 !important;
+}
+
+/* Settings footer */
+[data-theme="light"] .settings-footer p {
+  color: #6A7080 !important;
+}

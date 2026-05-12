@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Money Market Protocol</title>
+  
+  <script src="../js/theme-init.js"></script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/moneydetail.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+  <button id="themeToggle" class="theme-btn fixed-theme-btn">🌙</button>
+
+  <div class="deep-wrapper">
+    
+    <aside class="toc-sidebar">
+      <div class="toc-header">PROTOCOL 06: MONEY MARKET</div>
+      <ul class="toc-list">
+        <li><a href="#hero" class="toc-link active">0. Start</a></li>
+        <li><a href="#sec1" class="toc-link">1. Concept (Waiting Room)</a></li>
+        <li><a href="#sec2" class="toc-link">2. Why It Exists</a></li>
+        <li><a href="#sec3" class="toc-link">3. Money vs Capital</a></li>
+        <li><a href="#sec4" class="toc-link">4. How It Works</a></li>
+        <li><a href="#sec5" class="toc-link">5. Instruments (The Menu)</a></li>
+        <li><a href="#sec6" class="toc-link">6. Rates & RBI</a></li>
+        <li><a href="#sec7" class="toc-link">7. Retail Access (Funds)</a></li>
+        <li><a href="#sec8" class="toc-link">8. vs Savings/FD</a></li>
+        <li><a href="#sec9" class="toc-link">9. Hidden Risks</a></li>
+        <li><a href="#sec10" class="toc-link">10. Common Mistakes</a></li>
+        <li><a href="#sec11" class="toc-link">11. Personal Finance Role</a></li>
+        <li><a href="#sec12" class="toc-link">12. vs Debt Market</a></li>
+        <li><a href="#sec13" class="toc-link">13. Crisis Behavior</a></li>
+        <li><a href="#sec14" class="toc-link">14. Mental Model</a></li>
+        <li><a href="#sec15" class="toc-link">15. Final Truth</a></li>
+      </ul>
+      <a href="markets.html" class="back-btn">← Back to Terminal</a>
+    </aside>
+
+    <main class="deep-content" id="scrollContainer">
+
+      <section class="chapter active" id="hero">
+        <h1 class="glitch-text" data-text="Money Market">Money Market</h1>
+        <p class="intro-text">
+          Not for wealth creation. For <span class="highlight">Survival & Speed</span>.<br>
+          Where cash sleeps safely overnight.
+        </p>
+        <div class="scroll-indicator">Initialize Protocol ⬇</div>
+      </section>
+
+      <section class="chapter" id="sec1">
+        <span class="chapter-badge">LEVEL 01: FIRST PRINCIPLES</span>
+        <h2>1. What Is the Money Market?</h2>
+        <p>Money Market = Short-term lending & borrowing (Overnight to 1 Year). It is the <strong>Financial Waiting Room</strong>.</p>
+        
+        <div class="concept-box glass">
+          <div class="waiting-room-visual">
+            <div class="room-sign">SAFE ZONE</div>
+            <div class="chair-container">
+              <div class="chair">💰</div>
+              <div class="chair">💰</div>
+              <div class="chair">💰</div>
+            </div>
+            <div class="clock-icon">⏱️ < 1 Year</div>
+          </div>
+          <div class="story-content">
+            <h3>The Desi Logic</h3>
+            <p>You sold a flat for ₹50 Lakhs. You need to buy a new flat in 3 months.</p>
+            <ul class="micro-list">
+              <li>❌ <strong>Equity?</strong> Too risky (Market might crash 10%).</li>
+              <li>❌ <strong>Savings Account?</strong> Too lazy (Low interest).</li>
+              <li>✅ <strong>Money Market?</strong> Perfect safety, decent return, high liquidity.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec2">
+        <span class="chapter-badge">LEVEL 02: PURPOSE</span>
+        <h2>2. Why Does It Exist? (The Lubrication)</h2>
+        <p>The economy needs cash to move <strong>daily</strong>. Without this market, the engine seizes.</p>
+        
+        <div class="visual-box glass center-text">
+          <div class="engine-visual">
+            <div class="gear-system">
+              <div class="gear big"><span>Banks</span></div>
+              <div class="gear small"><span>Corps</span></div>
+              <div class="oil-drop">💧 Money Market</div>
+            </div>
+            <p class="caption-text">It handles daily salary payments, bank mismatches, and government cash flow.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec3">
+        <span class="chapter-badge">LEVEL 03: DISTINCTION</span>
+        <h2>3. Money Market vs Capital Market</h2>
+        <div class="comparison-table">
+           <div class="comp-row header">
+             <span>Feature</span>
+             <span>Money Market</span>
+             <span>Capital Market</span>
+           </div>
+           <div class="comp-row">
+             <span>Time</span>
+             <span class="highlight">≤ 1 Year</span>
+             <span>> 1 Year</span>
+           </div>
+           <div class="comp-row">
+             <span>Purpose</span>
+             <span class="highlight">Liquidity</span>
+             <span>Growth</span>
+           </div>
+           <div class="comp-row">
+             <span>Risk</span>
+             <span class="highlight">Very Low</span>
+             <span>Medium-High</span>
+           </div>
+           <div class="comp-row">
+             <span>Instruments</span>
+             <span>T-Bills, CP, CD</span>
+             <span>Stocks, Bonds</span>
+           </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec4">
+        <span class="chapter-badge">LEVEL 04: MECHANISM</span>
+        <h2>4. How It Works (The Indian System)</h2>
+        <p>The <strong>RBI</strong> is the referee. Banks and Corporations are the players.</p>
+        <div class="visual-flow-container glass">
+          <div class="flow-step">
+            <div class="step-icon">🏛️</div>
+            <strong>RBI</strong>
+            <span>(The Boss)</span>
+          </div>
+          <div class="flow-line">
+            <div class="particle"></div>
+          </div>
+          <div class="flow-step center">
+            <div class="step-icon">🏦</div>
+            <strong>Banks</strong>
+            <span>(Lenders)</span>
+          </div>
+          <div class="flow-line">
+            <div class="particle reverse"></div>
+          </div>
+          <div class="flow-step">
+            <div class="step-icon">🏢</div>
+            <strong>Corps</strong>
+            <span>(Borrowers)</span>
+          </div>
+        </div>
+        <p class="caption-text">You (Retail Investor) participate indirectly via <strong>Liquid Funds</strong>.</p>
+      </section>
+
+      <section class="chapter" id="sec5">
+        <span class="chapter-badge">LEVEL 05: THE MENU</span>
+        <h2>5. Key Instruments (What are you buying?)</h2>
+        <p>This isn't just "Debt". It's specific paper.</p>
+        
+        <div class="grid-2-mini">
+          <div class="mini-card success">
+            <h4>1. Treasury Bills (T-Bills)</h4>
+            <p>Issued by <strong>Govt of India</strong>. Zero default risk.
+            <br><em>Maturity: 91, 182, 364 Days.</em></p>
+          </div>
+          <div class="mini-card">
+            <h4>2. Commercial Paper (CP)</h4>
+            <p>Issued by <strong>Companies</strong> for working capital.
+            <br><em>Risk: Depends on company rating. Higher return.</em></p>
+          </div>
+          <div class="mini-card">
+            <h4>3. Certificate of Deposit (CD)</h4>
+            <p>Issued by <strong>Banks</strong>. Tradable FDs essentially.
+            <br><em>Risk: Very Low (Bank backed).</em></p>
+          </div>
+          <div class="mini-card highlight">
+            <h4>4. Call Money</h4>
+            <p>Overnight lending between banks.
+            <br><em>The pulse of the banking system.</em></p>
+          </div>
+        </div>
+        
+      </section>
+
+      <section class="chapter" id="sec6">
+        <span class="chapter-badge">LEVEL 06: CORE LINK</span>
+        <h2>6. Interest Rates & RBI</h2>
+        <div class="concept-box glass">
+           <h4>The Transmission Channel</h4>
+           <p>Money market is the first to react when RBI changes the Repo Rate.</p>
+           <ul class="checklist-style">
+             <li>📈 <strong>RBI Hikes Rate:</strong> Money market returns jump immediately.</li>
+             <li>📉 <strong>RBI Cuts Rate:</strong> Money market returns drop immediately.</li>
+           </ul>
+           <p class="moral">It is the most sensitive part of the debt market.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec7">
+        <span class="chapter-badge">LEVEL 07: HOW TO BUY</span>
+        <h2>7. How You Participate (Mutual Funds)</h2>
+        <p>You don't buy CPs directly. You buy Funds that buy them.</p>
+        
+        <div class="type-grid-container">
+          <div class="type-card glass">
+            <h3>Liquid Funds</h3>
+            <p>Invests in 91-day papers. Safe. Good for 1-3 months parking.</p>
+          </div>
+          <div class="type-card glass">
+            <h3>Overnight Funds</h3>
+            <p>Invests in 1-day papers. Safest mutual fund category. Zero risk.</p>
+          </div>
+          <div class="type-card glass">
+            <h3>Ultra Short Term</h3>
+            <p>3-6 months duration. Slightly higher return, slightly higher risk.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec8">
+        <span class="chapter-badge">LEVEL 08: COMPARISON</span>
+        <h2>8. Money Market Funds vs Savings/FD</h2>
+        <div class="comparison-table">
+           <div class="comp-row header">
+             <span>Feature</span>
+             <span>Savings A/C</span>
+             <span>FD</span>
+             <span class="highlight">Liquid Fund</span>
+           </div>
+           <div class="comp-row">
+             <span>Return</span>
+             <span>2-3%</span>
+             <span>6-7%</span>
+             <span class="highlight">6.5-7.5%</span>
+           </div>
+           <div class="comp-row">
+             <span>Liquidity</span>
+             <span>Instant</span>
+             <span>Penalty</span>
+             <span class="highlight">T+1 Day</span>
+           </div>
+           <div class="comp-row">
+             <span>Risk</span>
+             <span>Zero</span>
+             <span>Zero</span>
+             <span class="highlight">Very Low</span>
+           </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec9">
+        <span class="chapter-badge">LEVEL 09: HIDDEN DANGER</span>
+        <h2>9. Risks (Yes, They Exist)</h2>
+        <div class="grid-3-cards">
+          <div class="card-box danger">
+            <div class="icon">💔</div>
+            <h4>Credit Risk</h4>
+            <p>A company issuing CP might default (e.g., IL&FS crisis).</p>
+          </div>
+          <div class="card-box danger">
+            <div class="icon">🛑</div>
+            <h4>Liquidity Freeze</h4>
+            <p>In panic, no one wants to buy corporate paper.</p>
+          </div>
+          <div class="card-box">
+            <div class="icon">📉</div>
+            <h4>Reinvestment</h4>
+            <p>If rates fall, your returns drop instantly upon maturity.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec10">
+        <span class="chapter-badge">LEVEL 10: TRAPS</span>
+        <h2>10. Why Indians Misuse It</h2>
+        <ul class="checklist-style">
+           <li>❌ <strong>Treating as Investment:</strong> Using it for 5-year goals (Inflation will beat you).</li>
+           <li>❌ <strong>Chasing Yield:</strong> Buying risky credit funds just for 1% extra return.</li>
+           <li>❌ <strong>Panic Exiting:</strong> Selling liquid funds when stock market crashes (They are uncorrelated!).</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="sec11">
+        <span class="chapter-badge">LEVEL 11: UTILITY</span>
+        <h2>11. Role in Personal Finance</h2>
+        <div class="visual-box glass center-text">
+          <div class="shock-absorber">
+            <p class="highlight" style="font-size:1.5rem; margin-bottom:15px;">Emergency Fund Parking</p>
+            <p>Keep 6 months expenses in a mix of <strong>FD + Liquid Funds</strong>.</p>
+            <p style="margin-top:20px; color:#A1A8B8;">It gives you time to think without losing value.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec12">
+        <span class="chapter-badge">LEVEL 12: SUBSET</span>
+        <h2>12. Money Market vs Debt Market</h2>
+        <p>Money market is the "Sprint" division of the broader Debt marathon.</p>
+        <div class="comparison-table">
+           <div class="comp-row header">
+             <span>Aspect</span>
+             <span>Money Market</span>
+             <span>Debt Market</span>
+           </div>
+           <div class="comp-row">
+             <span>Duration</span>
+             <span class="highlight">< 1 Year</span>
+             <span>1 - 30 Years</span>
+           </div>
+           <div class="comp-row">
+             <span>Volatility</span>
+             <span class="highlight">Negligible</span>
+             <span>Low to High</span>
+           </div>
+           <div class="comp-row">
+             <span>Purpose</span>
+             <span class="highlight">Parking</span>
+             <span>Income</span>
+           </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec13">
+        <span class="chapter-badge">LEVEL 13: THE SIGNAL</span>
+        <h2>13. The Crisis Signal</h2>
+        <div class="concept-box glass">
+           <h4>The Canary in the Coal Mine</h4>
+           <p>Before the stock market crashes, the money market usually freezes.</p>
+           <p>If banks stop lending to each other overnight (Call Money rates spike), it means <strong>Trust has broken</strong>.</p>
+           <p class="moral">Watch liquidity, not just Nifty levels.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec14">
+        <span class="chapter-badge">LEVEL 14: MINDSET</span>
+        <h2>14. The FIN-OS Mental Model</h2>
+        <div class="concept-box glass">
+           <h4>"The Optionality Fund"</h4>
+           <p>Money in the money market is not "Idle".  "Ready".</p>
+           <p class="highlight" style="margin-top:10px;">It preserves your ability to buy assets when they become cheap.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec15">
+        <div class="pro-tip god-mode">
+          <div class="god-header">
+            <h4>💎 The Final Truth</h4>
+          </div>
+          <p>
+            The Money Market will never make you rich.<br>
+            But it will save you from bad timing and emotional mistakes.
+          </p>
+          <p class="sub-text">
+            "The smartest money often waits quietly."
+          </p>
+        </div>
+      </section>
+
+      <footer class="deep-footer">
+        <h2>Protocol Complete.</h2>
+        <p>You now understand the plumbing of the financial system.</p>
+        <a href="markets.html" class="action-btn">Return to Base ➔</a>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="../js/ui.js"></script>
+  <script src="../js/moneydetail.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+</body>
+</html>

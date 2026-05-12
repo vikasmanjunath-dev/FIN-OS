@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Decision Core</title>
+  
+  <script src="../js/theme-init.js"></script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/start.css">
+  <link rel="stylesheet" href="../css/decision.css"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+<body>
+
+  <div class="app">
+      <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html" class="active">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+    <main class="main">
+      <div class="content-wrapper">
+
+        <header class="header header-flex">
+          <div>
+            <h1 class="glitch-text" data-text="Decision Core">Decision Core</h1>
+            <p class="hero-sub">Fix the <span class="highlight">Processor</span>, and the Output fixes itself.</p>
+          </div>
+          <button id="themeToggle" class="theme-btn">🌙</button>
+        </header>
+
+        <section class="brain-section">
+          <div class="brain-container">
+            <div class="brain-pulse"></div>
+            <div class="brain-core">🧠</div>
+          </div>
+          <div class="brain-text">
+            <h2>Most financial mistakes are not Math errors.</h2>
+            <p class="typewriter">They are Thinking errors.</p>
+          </div>
+        </section>
+
+        <section class="module-group" id="thinking-modes">
+          <div class="section-badge">SYSTEM 01</div>
+          <h2>The Dual Processor</h2>
+          
+          <div class="toggle-container">
+            <div class="mode-card fast active" onclick="switchMode('fast')">
+              <h3>⚡ Fast Thinking</h3>
+              <p>Emotional. Instant. Survival-based.</p>
+              <div class="status-indicator">ACTIVE</div>
+            </div>
+            <div class="mode-card slow" onclick="switchMode('slow')">
+              <h3>🐢 Slow Thinking</h3>
+              <p>Logical. Deliberate. Wealth-based.</p>
+              <div class="status-indicator">STANDBY</div>
+            </div>
+          </div>
+
+          <div class="scenario-box glass">
+            <h4 id="scenarioTitle">Scenario: Stock Market Crashes 10%</h4>
+            <div class="reaction-grid">
+              <div class="reaction" id="fastReaction">
+                <span class="emoji">😱</span>
+                <strong>Fast Brain:</strong> "Sell everything! Run! The world is ending!"
+                <div class="outcome bad">Result: Permanent Loss</div>
+              </div>
+              <div class="reaction hidden" id="slowReaction">
+                <span class="emoji">🧐</span>
+                <strong>Slow Brain:</strong> "Fundamentals are same. Price is cheap. Buy more?"
+                <div class="outcome good">Result: Wealth Creation</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="module-group">
+            <br>
+          <div class="section-badge">SYSTEM DIAGNOSTICS</div>
+          <h2>Detecting "Bugs" in Your Logic</h2>
+          
+          <div class="bug-grid">
+            
+            <div class="bug-card" data-tilt>
+              <div class="bug-icon">📉</div>
+              <h3>Loss Aversion</h3>
+              <p class="definition">"Loss hurts 2x more than gain feels good."</p>
+              <div class="desi-reality">
+                <span class="flag">🇮🇳 Reality</span>
+                <p>Holding a losing stock (Zomato/Paytm at IPO price) praying for "Break Even".</p>
+              </div>
+            </div>
+
+            <div class="bug-card" data-tilt>
+              <div class="bug-icon">🤝</div>
+              <h3>Confirmation Bias</h3>
+              <p class="definition">"Seeking only what agrees with you."</p>
+              <div class="desi-reality">
+                <span class="flag">🇮🇳 Reality</span>
+                <p>Buying a stock, then watching only YouTubers who say "It will go to the moon!"</p>
+              </div>
+            </div>
+
+            <div class="bug-card" data-tilt>
+              <div class="bug-icon">⚓</div>
+              <h3>Anchoring</h3>
+              <p class="definition">"Getting stuck on the first number."</p>
+              <div class="desi-reality">
+                <span class="flag">🇮🇳 Reality</span>
+                <p>"I bought at ₹500. I will sell only at ₹500." (Even if it's worth ₹200 now).</p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <section class="module-group">
+            <br>
+          <div class="section-badge">PATCH UPDATE</div>
+          <h2>Install: Better Thinking Tools</h2>
+
+          <div class="tool-deck">
+            
+            <div class="tool-card">
+              <div class="tool-header">
+                <h4>🎲 Probability Thinking</h4>
+              </div>
+              <div class="tool-visual">
+                <canvas id="probChart"></canvas>
+              </div>
+              <p class="tool-desc">Don't ask "Will this happen?". Ask "What are the odds?"</p>
+            </div>
+
+            <div class="tool-card checklist-card">
+              <div class="tool-header">
+                <h4>📝 The Pre-Decision Checklist</h4>
+              </div>
+              <div class="checklist">
+                <label><input type="checkbox"> Am I emotional right now?</label>
+                <label><input type="checkbox"> What is the downside?</label>
+                <label><input type="checkbox"> Can I afford to lose this?</label>
+                <label><input type="checkbox"> Will this matter in 5 years?</label>
+              </div>
+              <p class="tool-desc">If you can't tick all, <strong>STOP</strong>.</p>
+            </div>
+
+          </div>
+        </section>
+
+        <footer class="final-message glass">
+          <h2>System Message</h2>
+          <p class="terminal-text">> You don't need better predictions.</p>
+          <p class="terminal-text highlight">> You need better thinking habits.</p>
+          <a href="clarity.html" class="next-module-btn">Next: Clear Your Vision ➔</a>
+        </footer>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/ui.js"></script>
+  <script src="../js/decision.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+</body>
+</html>

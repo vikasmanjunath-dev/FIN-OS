@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Dynamic GPS</title>
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+
+  <style>
+    /* =========================
+       THEME: CYBER-GPS V2
+       ========================= */
+    :root {
+      --neon-cyan: #00f3ff;
+      --neon-purple: #bc13fe;
+      --neon-green: #0aff68;
+      --neon-red: #ff0050;
+      --neon-yellow: #f5d300;
+      --bg-void: #030305;
+      --glass: rgba(255, 255, 255, 0.03);
+      --glass-hover: rgba(255, 255, 255, 0.08);
+      --border: rgba(255, 255, 255, 0.1);
+      --font-display: 'Manrope', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      background-color: var(--bg-void) !important;
+      background-image: 
+        linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      color: #fff !important;
+      font-family: var(--font-display);
+      overflow-x: hidden;
+    }
+
+    /* Sidebar Override */
+    .sidebar { background: rgba(0,0,0,0.9); border-right: 1px solid #222; backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 200; }
+    .main { width: calc(100% - 260px); min-height: 100vh; margin-left: 260px; }
+
+    .content-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding-top: 50px;
+      padding-bottom: 100px;
+      position: relative;
+    }
+
+    /* =========================
+       PHASE 1: THE SCANNER (INPUT)
+       ========================= */
+    
+    .scanner-section {
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: all 0.5s ease;
+    }
+
+    .scanner-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .glitch-title {
+      font-size: 3.5rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+      letter-spacing: -2px;
+      margin-bottom: 10px;
+    }
+
+    /* Age Slider */
+    .age-container {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      padding: 30px;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .age-display {
+      font-size: 4rem;
+      font-weight: 800;
+      color: var(--neon-cyan);
+      font-family: var(--font-mono);
+      text-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+    }
+
+    input[type=range] {
+      width: 100%;
+      margin: 20px 0;
+      -webkit-appearance: none;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-track {
+      background: #333;
+      height: 8px;
+      border-radius: 4px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 30px; width: 30px;
+      background: var(--neon-cyan);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 15px var(--neon-cyan);
+      margin-top: -12px;
+    }
+
+    /* Question Cards */
+    .question-card {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      padding: 30px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      transition: all 0.4s ease;
+      /* Hidden initially logic handled via JS */
+    }
+
+    .question-card.active {
+      border-color: var(--neon-purple);
+      box-shadow: 0 0 20px rgba(188, 19, 254, 0.1);
+    }
+
+    .q-title { font-size: 1.2rem; margin-bottom: 20px; color: #fff; display: flex; align-items: center; gap: 10px; }
+    .q-badge { background: var(--neon-purple); color: #000; font-family: var(--font-mono); font-size: 0.8rem; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+    }
+
+    .option-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      padding: 15px;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: 0.2s;
+    }
+
+    .option-btn:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+    
+    .option-btn.selected {
+      background: rgba(0, 243, 255, 0.1);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+    }
+
+    .opt-icon { font-size: 1.5rem; margin-bottom: 5px; display: block; }
+    .opt-label { font-weight: 700; color: #fff; display: block; margin-bottom: 5px; }
+
+    /* Calculate Button */
+    .calc-btn-container { text-align: center; margin-top: 40px; display: none; }
+    
+    .calc-btn {
+      background: var(--neon-green);
+      color: #000;
+      border: none;
+      padding: 18px 50px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      border-radius: 50px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 0 20px var(--neon-green);
+      transition: 0.3s;
+    }
+    .calc-btn:hover { transform: scale(1.05); box-shadow: 0 0 40px var(--neon-green); }
+
+
+    /* =========================
+       PHASE 2: THE DYNAMIC ROADMAP (OUTPUT)
+       ========================= */
+    
+    .roadmap-section {
+      display: none;
+      animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    @keyframes slideUp { from { opacity: 0; transform: translateY(100px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* The Persona Header */
+    .persona-header {
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05), transparent 70%);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 50px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .persona-tag {
+      font-family: var(--font-mono);
+      color: var(--neon-yellow);
+      border: 1px solid var(--neon-yellow);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+
+    .persona-title {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+    }
+
+    .persona-desc {
+      font-size: 1.1rem;
+      color: #aaa;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Generated Timeline */
+    .dynamic-timeline {
+      position: relative;
+      padding-left: 30px;
+    }
+
+    .dt-line {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--neon-cyan), transparent);
+    }
+
+    .dt-step {
+      position: relative;
+      margin-bottom: 40px;
+      padding-left: 30px;
+      opacity: 0; /* Animated in via JS */
+      transform: translateX(-20px);
+      transition: 0.5s all ease;
+    }
+    .dt-step.visible { opacity: 1; transform: translateX(0); }
+
+    .dt-dot {
+      position: absolute;
+      left: -6px; top: 5px;
+      width: 14px; height: 14px;
+      background: var(--bg-void);
+      border: 2px solid var(--neon-cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--neon-cyan);
+    }
+
+    .dt-card {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 25px;
+    }
+    
+    .dt-head { font-size: 1.4rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .dt-body { color: #ccc; font-size: 0.95rem; line-height: 1.6; }
+    .dt-action { 
+        margin-top: 15px; 
+        display: inline-block; 
+        font-family: var(--font-mono); 
+        color: var(--neon-green); 
+        font-size: 0.8rem; 
+        border: 1px dashed var(--neon-green); 
+        padding: 5px 10px; 
+        border-radius: 4px;
+    }
+
+    /* Warning Box */
+    .alert-box {
+      margin-top: 30px;
+      background: rgba(255, 0, 80, 0.1);
+      border-left: 4px solid var(--neon-red);
+      padding: 20px;
+      color: #ddd;
+      font-size: 0.95rem;
+    }
+    .alert-title { color: var(--neon-red); font-weight: 800; display: block; margin-bottom: 5px; }
+
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo" style="color:var(--neon-cyan);">FIN•OS</div>
+    <nav>
+      <a href="home.html">Home</a>
+      <a href="markets.html">Markets</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="roadmap.html" class="active">GPS</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+
+      <section id="scanner" class="scanner-section">
+        
+        <div class="scanner-header">
+          <div class="glitch-title">System Calibration</div>
+          <p style="color:#666;">// CONFIGURE PARAMETERS FOR PERSONALIZED ROADMAP</p>
+        </div>
+
+        <div class="age-container">
+          <div style="font-family:var(--font-mono); color:#888; margin-bottom:10px;">PARAMETER 01: BIOLOGICAL AGE</div>
+          <div class="age-display" id="ageDisplay">25</div>
+          <input type="range" min="18" max="70" value="25" id="ageInput" oninput="updateAge()">
+          <div style="font-size:0.9rem; color:#666; margin-top:10px;" id="ageContext">Time is your biggest asset. Use it.</div>
+        </div>
+
+        <div class="question-card" id="q2">
+          <div class="q-title"><span class="q-badge">PARAM 02</span> Income Stream</div>
+          <div class="options-grid">
+            <div class="option-btn" onclick="setParam('income', 'unstable', this)">
+              <span class="opt-icon">🎢</span>
+              <span class="opt-label">Unstable / Irregular</span>
+            </div>
+            <div class="option-btn" onclick="setParam('income', 'stable', this)">
+              <span class="opt-icon">⚓</span>
+              <span class="opt-label">Stable Job</span>
+            </div>
+            <div class="option-btn" onclick="setParam('income', 'wealth', this)">
+              <span class="opt-icon">🚀</span>
+              <span class="opt-label">High / Surplus</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="question-card" id="q3">
+          <div class="q-title"><span class="q-badge">PARAM 03</span> Cash Buffer (Emergency)</div>
+          <div class="options-grid">
+            <div class="option-btn" onclick="setParam('backup', 'zero', this)">
+              <span class="opt-icon">☠️</span>
+              <span class="opt-label">Zero / Debt</span>
+            </div>
+            <div class="option-btn" onclick="setParam('backup', 'thin', this)">
+              <span class="opt-icon">☂️</span>
+              <span class="opt-label">1-2 Months</span>
+            </div>
+            <div class="option-btn" onclick="setParam('backup', 'strong', this)">
+              <span class="opt-icon">🛡️</span>
+              <span class="opt-label">6+ Months (Solid)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="question-card" id="q4">
+          <div class="q-title"><span class="q-badge">PARAM 04</span> Responsibility Load</div>
+          <div class="options-grid">
+            <div class="option-btn" onclick="setParam('deps', 'solo', this)">
+              <span class="opt-icon">🦅</span>
+              <span class="opt-label">Solo (Self Only)</span>
+            </div>
+            <div class="option-btn" onclick="setParam('deps', 'family', this)">
+              <span class="opt-icon">🏠</span>
+              <span class="opt-label">Family (1-2 Deps)</span>
+            </div>
+            <div class="option-btn" onclick="setParam('deps', 'heavy', this)">
+              <span class="opt-icon">🏗️</span>
+              <span class="opt-label">Heavy (Parents + Kids)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="calc-btn-container" id="calcContainer">
+          <button class="calc-btn" onclick="generateProtocol()">Initialize GPS ➔</button>
+        </div>
+
+      </section>
+
+
+      <section id="roadmap" class="roadmap-section">
+        
+        <div class="persona-header" id="personaCard">
+          </div>
+
+        <div class="dynamic-timeline" id="timelineList">
+          <div class="dt-line"></div>
+          </div>
+
+        <div style="text-align:center; margin-top:80px;">
+            <button onclick="location.reload()" style="background:transparent; border:1px solid #444; color:#888; padding:10px 20px; border-radius:30px; cursor:pointer;">↺ Recalibrate</button>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  // STATE MANAGEMENT
+  let userProfile = {
+    age: 25,
+    income: null,
+    backup: null,
+    deps: null
+  };
+
+  // 1. AGE SLIDER LOGIC
+  function updateAge() {
+    const val = document.getElementById('ageInput').value;
+    document.getElementById('ageDisplay').innerText = val;
+    userProfile.age = parseInt(val);
+
+    const ctx = document.getElementById('ageContext');
+    if(val < 25) ctx.innerText = "Phase: Aggressive Learning & Skilling";
+    else if(val < 35) ctx.innerText = "Phase: Aggressive Accumulation";
+    else if(val < 50) ctx.innerText = "Phase: Optimization & Stability";
+    else ctx.innerText = "Phase: Preservation & Legacy";
+  }
+
+  // 2. BUTTON SELECTION LOGIC
+  function setParam(key, value, btn) {
+    userProfile[key] = value;
+
+    // Visual selection
+    const parent = btn.closest('.options-grid');
+    parent.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+
+    // Check if all filled to show button
+    if(userProfile.income && userProfile.backup && userProfile.deps) {
+      document.getElementById('calcContainer').style.display = 'block';
+      // Smooth scroll to button
+      setTimeout(() => {
+        document.getElementById('calcContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 200);
+    }
+  }
+
+  // 3. THE CORE ENGINE (GENERATOR)
+  function generateProtocol() {
+    // Hide Input, Show Output
+    document.getElementById('scanner').style.display = 'none';
+    const resultMap = document.getElementById('roadmap');
+    resultMap.style.display = 'block';
+
+    // --- LOGIC CALCULATIONS ---
+    let title = "";
+    let desc = "";
+    let badge = "";
+    let steps = [];
+    let alertMsg = "";
+
+    // A. DETERMINE PERSONA BASED ON COMBINATIONS
+
+    // SCENARIO 1: SURVIVAL MODE (Any Age, Unstable Income OR No Backup)
+    if (userProfile.backup === 'zero' || userProfile.income === 'unstable') {
+      badge = "PROTOCOL: DEFENSE";
+      title = "The Guerrilla Survivor";
+      desc = "Your foundation is currently under threat. Do not think about 'Investing' yet. Your only goal is to build a shield so life doesn't crush you.";
+      
+      steps.push({
+        head: "Step 1: The Oxygen Mask",
+        body: "Stop all SIPs. Stop trading. Hoard cash until you have ₹50,000 liquid. You are one emergency away from debt.",
+        action: "ACTION: Build Emergency Fund"
+      });
+      steps.push({
+        head: "Step 2: Income Stabilization",
+        body: "Your income is volatile. Focus 80% energy on upskilling or finding a stable secondary income stream.",
+        action: "ACTION: Increase Cash Inflow"
+      });
+       steps.push({
+        head: "Step 3: Term Insurance",
+        body: "Since your backup is low, you cannot afford a medical crisis. Get a basic Term Plan immediately.",
+        action: "ACTION: Buy Protection"
+      });
+
+      if(userProfile.age < 25) {
+        alertMsg = "⚠️ <strong>Youth Warning:</strong> You have time but no money. Don't fall for 'Get Rich Quick' crypto/trading schemes. They prey on people in your stage.";
+      }
+    } 
+    
+    // SCENARIO 2: YOUNG & FREE (Under 30, Stable/High Income, Good Backup)
+    else if (userProfile.age < 30 && userProfile.backup !== 'zero' && userProfile.deps === 'solo') {
+      badge = "PROTOCOL: OFFENSE";
+      title = "The Rocket Launcher";
+      desc = "You have the golden trifecta: Time, Cash, and No Responsibility. You can afford to take risks that others cannot.";
+      
+      steps.push({
+        head: "Step 1: Aggressive Equity",
+        body: "Max out your equity exposure. 80-90% in Direct Stocks or Flexi-cap Funds. Volatility is your friend right now.",
+        action: "ACTION: Start Aggressive SIP"
+      });
+      steps.push({
+        head: "Step 2: Skill Acquisition",
+        body: "Your biggest asset isn't stocks, it's YOU. Spend money on courses/learning to double your salary in 2 years.",
+        action: "ACTION: Invest in Self"
+      });
+      steps.push({
+        head: "Step 3: Satellite Portfolio",
+        body: "Allocate 10-15% to high-risk bets (Crypto/Smallcaps). If it goes to zero, you don't care. If it 10x, you win big.",
+        action: "ACTION: Explore Asymmetric Bets"
+      });
+    }
+
+    // SCENARIO 3: THE FAMILY FORTRESS (30+, Family/Heavy Deps, Stable Income)
+    else if (userProfile.age >= 30 && userProfile.deps !== 'solo') {
+      badge = "PROTOCOL: STABILITY";
+      title = "The Iron Fortress";
+      desc = "People depend on you. You cannot afford to blow up. Your strategy is 'Unbreakable Growth'.";
+      
+      if(userProfile.backup === 'thin') {
+        steps.push({
+          head: "Step 1: Fortify the Walls",
+          body: "Your backup is thin. Before investing heavily, boost your Emergency Fund to 6 months of household expenses.",
+          action: "ACTION: Boost Liquidity"
+        });
+      } else {
+        steps.push({
+          head: "Step 1: Goal-Based Allocation",
+          body: "Separate money for Kids' Education and Retirement. Do not mix them.",
+          action: "ACTION: Map Goals"
+        });
+      }
+
+      steps.push({
+        head: "Step 2: Balanced Growth",
+        body: "60% Equity (Nifty 50 / Large Cap) + 40% Debt/Gold. We need growth, but with shock absorbers.",
+        action: "ACTION: Rebalance Portfolio"
+      });
+      
+      steps.push({
+        head: "Step 3: Maximum Insurance",
+        body: "Ensure your Term Plan covers 20x your annual income. Add a Super Top-up Health plan for parents.",
+        action: "ACTION: Audit Insurance"
+      });
+    }
+
+    // SCENARIO 4: THE WEALTH COMPOUNDER (Any Age, Wealth Income, Strong Backup)
+    else if (userProfile.income === 'wealth' && userProfile.backup === 'strong') {
+      badge = "PROTOCOL: MASTERY";
+      title = "The Capital Allocator";
+      desc = "You have won the survival game. Now you are playing for freedom and legacy.";
+
+      steps.push({
+        head: "Step 1: Asset Diversification",
+        body: "Don't keep everything in India. Look at US Equity (Nasdaq) or Real Estate to diversify jurisdictional risk.",
+        action: "ACTION: Go Global"
+      });
+      steps.push({
+        head: "Step 2: Time Reclamation",
+        body: "Use your wealth to buy time. Outsource tasks. Your time is now worth more than the money you save fixing a tap.",
+        action: "ACTION: Buy Time"
+      });
+      steps.push({
+        head: "Step 3: Angel / Private Bets",
+        body: "Allocate 5-10% to pre-IPO or startups. This is your 'Moonshot' bucket.",
+        action: "ACTION: Private Markets"
+      });
+    }
+
+    // FALLBACK SCENARIO (Balanced)
+    else {
+      badge = "PROTOCOL: BALANCE";
+      title = "The Steady Climber";
+      desc = "You are in a transition phase. Keep moving forward without taking lethal risks.";
+      steps.push({ head: "Step 1: Automate Everything", body: "SIPs, Bills, Savings. Remove willpower from the equation.", action: "ACTION: Automate" });
+      steps.push({ head: "Step 2: Index Funds", body: "Stick to Nifty 50 Index funds. Low cost, guaranteed market returns.", action: "ACTION: Indexing" });
+    }
+
+    // --- RENDER CONTENT ---
+    
+    // 1. Header
+    const headerHTML = `
+      <span class="persona-tag">${badge}</span>
+      <h1 class="persona-title">${title}</h1>
+      <p class="persona-desc">${desc}</p>
+    `;
+    document.getElementById('personaCard').innerHTML = headerHTML;
+
+    // 2. Timeline
+    const timelineContainer = document.getElementById('timelineList');
+    timelineContainer.innerHTML = '<div class="dt-line"></div>'; // Reset
+
+    steps.forEach((step, index) => {
+      const stepHTML = `
+        <div class="dt-step" style="transition-delay: ${index * 0.2}s">
+          <div class="dt-dot"></div>
+          <div class="dt-card">
+            <div class="dt-head">${step.head}</div>
+            <div class="dt-body">${step.body}</div>
+            <div class="dt-action">${step.action}</div>
+          </div>
+        </div>
+      `;
+      timelineContainer.innerHTML += stepHTML;
+    });
+
+    // 3. Alert (if any)
+    if(alertMsg) {
+      const alertHTML = `
+        <div class="dt-step" style="transition-delay: 0.8s">
+          <div class="alert-box">
+             <span class="alert-title">CRITICAL WARNING</span>
+             ${alertMsg}
+          </div>
+        </div>
+      `;
+      timelineContainer.innerHTML += alertHTML;
+    }
+
+    // Trigger Animations
+    setTimeout(() => {
+      document.querySelectorAll('.dt-step').forEach(el => el.classList.add('visible'));
+    }, 100);
+  }
+
+</script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+<style id="ro-light-theme">
+[data-theme="light"] body {
+  background-color: #EFF2FF !important;
+  background-image: none !important;
+  color: #0B0D12 !important;
+}
+[data-theme="light"] .main { background: #EFF2FF !important; }
+[data-theme="light"] .node-title { color: #0B0D12 !important; }
+[data-theme="light"] .node-body { color: #4A5068 !important; }
+[data-theme="light"] .dt-body { color: #4A5068 !important; }
+[data-theme="light"] .dt-title { color: #0B0D12 !important; }
+[data-theme="light"] .road-card, [data-theme="light"] .path-card {
+  background: rgba(255,255,255,0.85) !important;
+  border-color: rgba(0,243,255,0.2) !important;
+}
+[data-theme="light"] .card-header, [data-theme="light"] .road-header { color: #0B0D12 !important; }
+</style>
+</body>
+</html>

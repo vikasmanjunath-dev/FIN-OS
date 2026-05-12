@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg"><title>SIP Power | FIN-OS</title>
+  <link rel="stylesheet" href="../css/insight.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="insight-wrapper">
+  <aside class="toc-sidebar">
+    <div class="toc-header">INSIGHT: EXPLORE</div>
+    
+    <a href="dashboard.html" class="back-btn">
+      <span>❮</span> Back to Dashboard
+    </a>
+</aside>
+  <main class="insight-content">
+    <section class="insight-hero">
+      <h1>The Cost of Waiting</h1>
+      <p>"I will start investing when I earn more." — The most expensive lie.</p>
+    </section>
+
+    <section class="insight-section">
+      <div class="glass-panel">
+        <div class="visual-container">
+          <canvas id="sipDelayChart"></canvas>
+        </div>
+        <div style="margin-top:20px;">
+          <h3>The Math (₹5,000 / month @ 12%)</h3>
+          <ul>
+            <li><strong>Start at 25:</strong> You invest ₹18 Lakhs -> You get <strong>₹1.7 Crores</strong>.</li>
+            <li><strong>Start at 35:</strong> You invest ₹12 Lakhs -> You get <strong>₹48 Lakhs</strong>.</li>
+          </ul>
+          <p class="highlight" style="color:#ff4757; margin-top:10px;">Waiting 10 years cost you ₹1.2 Crores.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="../js/ui.js"></script>
+<script src="../js/insight.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+</body>
+</html>

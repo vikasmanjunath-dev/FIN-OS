@@ -1,0 +1,332 @@
+/* =========================
+   REINFORCED THEME TOKENS
+   ========================= */
+
+:root {
+  /* DARK MODE (Default) */
+  --bg-main: #0B0D12;
+  --bg-surface: rgba(255, 255, 255, 0.03);
+  --bg-panel: #12151D;
+  --text-main: #F5F7FA;
+  --text-muted: #9AA0B4;
+  --border-soft: rgba(255, 255, 255, 0.1);
+  --accent: #4F7CFF;
+}
+
+[data-theme="light"] {
+  /* LIGHT MODE (High Contrast) */
+  --bg-main: #F7F9FC;     /* Light Gray background */
+  --bg-surface: #FFFFFF;  /* Solid white for panels */
+  --bg-panel: #FFFFFF;    /* Solid white for cards */
+  --text-main: #0B0D12;   /* Dark nearly black text */
+  --text-muted: #5F677A;  /* Darker gray for subtext */
+  --border-soft: rgba(0, 0, 0, 0.1); /* Visible dark border */
+  --accent: #4F7CFF;
+}
+
+/* Force consistency across all main containers */
+.main {
+  background: var(--bg-main) !important;
+  color: var(--text-main);
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+
+/* =========================
+   SETTINGS PAGE STYLING
+   ========================= */
+
+.settings-view {
+  padding-top: 40px;
+  max-width: 800px; /* Centered narrow column for focus */
+}
+
+.settings-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.settings-card {
+  padding: 30px;
+  border-radius: 24px;
+}
+
+.settings-card h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+/* SETTING ROW */
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.setting-row:last-child {
+  border-bottom: none;
+}
+
+.label-group label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.label-group span {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+/* CONTROLS */
+select, .btn-outline {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 16px;
+  border-radius: 12px;
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+/* Color picker buttons (base) */
+.color-btn {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  border-radius: 50% !important;
+  border: 2px solid rgba(255,255,255,0.15) !important;
+  cursor: pointer !important;
+  transition: transform 0.2s, box-shadow 0.2s;
+  padding: 0 !important;
+  display: inline-block !important;
+  box-sizing: border-box !important;
+}
+.color-btn:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.color-btn.active {
+  border-color: #fff !important;
+  box-shadow: 0 0 0 3px rgba(79,124,255,0.3);
+}
+
+.color-options {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #fff;
+}
+
+.danger-zone {
+  border: 1px dashed rgba(255, 79, 79, 0.3);
+}
+
+.settings-footer {
+  margin-top: 60px;
+  text-align: center;
+  font-size: 0.8rem;
+  opacity: 0.4;
+}
+
+
+/* ACCOUNT SPECIFIC STYLES */
+.danger-text {
+  color: #FF4F4F !important;
+}
+
+.btn-danger {
+  background: rgba(255, 79, 79, 0.1) !important;
+  border: 1px solid rgba(255, 79, 79, 0.3) !important;
+  padding: 10px 20px;
+  border-radius: 12px;
+  color: #FF4F4F !important;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+  background: #FF4F4F;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(255, 79, 79, 0.4);
+}
+
+.sign-out-row {
+  margin-top: 10px;
+  padding-top: 24px;
+  border-top: 1px dashed var(--border-soft);
+  border-bottom: none !important;
+}
+
+/* Ensure glass panels remain high-contrast in Light Mode */
+[data-theme="light"] .glass-panel {
+  background: #FFFFFF;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+
+/* Glass Panel Fix for Light Mode visibility */
+.glass-panel, .settings-card, .terminal {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  backdrop-filter: blur(15px);
+  border-radius: 24px;
+  padding: 32px;
+  /* Added shadow for light mode visibility */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); 
+}
+
+/* Ensure text is visible inside inputs and buttons */
+select, button:not(.color-btn):not(.btn-danger), .dna-option {
+  color: var(--text-main) !important;
+  background: var(--bg-glass, rgba(0,0,0,0.03));
+  border: 1px solid var(--border-soft);
+}
+
+/* Labels and Subtitles Fix */
+.subtitle, .label-group span, .btn-sub {
+  color: var(--text-muted) !important;
+}
+
+h1, h2, h3, h4, label {
+  color: var(--text-main) !important;
+}
+
+
+.user-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--accent-soft);
+  border-radius: 50%;
+  margin-right: 12px;
+  font-size: 0.8rem;
+}
+
+
+/* =========================
+   SETTINGS — LIGHT MODE FIXES
+   ========================= */
+
+/* Select dropdown */
+[data-theme="light"] .settings-view select {
+  background: #F4F6FB !important;
+  border: 1px solid rgba(0,0,0,0.14) !important;
+  color: #0B0D12 !important;
+}
+[data-theme="light"] .settings-view select:hover {
+  border-color: rgba(0,0,0,0.25) !important;
+}
+[data-theme="light"] .settings-view select:focus {
+  border-color: #4F7CFF !important;
+  box-shadow: 0 0 0 3px rgba(79,124,255,0.12) !important;
+  outline: none;
+}
+
+/* Outline buttons */
+[data-theme="light"] .btn-outline {
+  background: #F4F6FB !important;
+  border: 1px solid rgba(0,0,0,0.14) !important;
+  color: #0B0D12 !important;
+}
+[data-theme="light"] .btn-outline:hover {
+  background: #E8EBF4 !important;
+  border-color: rgba(0,0,0,0.25) !important;
+}
+
+/* Danger button — must stay red, override generic theme.css rule */
+[data-theme="light"] .btn-danger {
+  background: rgba(220,40,60,0.08) !important;
+  border: 1px solid rgba(220,40,60,0.25) !important;
+  color: #D4234E !important;
+}
+[data-theme="light"] .btn-danger:hover {
+  background: #D4234E !important;
+  color: #fff !important;
+  box-shadow: 0 0 20px rgba(212,35,78,0.3) !important;
+}
+
+/* Danger text */
+[data-theme="light"] .danger-text {
+  color: #D4234E !important;
+}
+
+/* Danger zone dashed border */
+[data-theme="light"] .danger-zone {
+  border: 1px dashed rgba(212,35,78,0.3) !important;
+}
+
+/* Setting row dividers */
+[data-theme="light"] .setting-row {
+  border-bottom-color: rgba(0,0,0,0.08) !important;
+}
+[data-theme="light"] .sign-out-row {
+  border-top-color: rgba(0,0,0,0.10) !important;
+}
+
+/* Color picker buttons */
+[data-theme="light"] .color-btn {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px;
+  min-height: 32px;
+  border-radius: 50% !important;
+  border: 2px solid rgba(0,0,0,0.10) !important;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  padding: 0 !important;
+}
+[data-theme="light"] .color-btn:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+[data-theme="light"] .color-btn.active {
+  border-color: #0B0D12 !important;
+  box-shadow: 0 0 0 3px rgba(79,124,255,0.2);
+}
+
+/* Settings card section titles */
+[data-theme="light"] .settings-card h3 {
+  color: #2A3050 !important;
+  opacity: 1 !important;
+}
+
+/* Glass panel in light mode */
+[data-theme="light"] .settings-card.glass-panel {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(0,0,0,0.10) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06) !important;
+  backdrop-filter: none !important;
+}
+
+/* Footer */
+[data-theme="light"] .settings-footer {
+  color: #6A7080 !important;
+  opacity: 0.7 !important;
+}
+
+/* Color options container */
+[data-theme="light"] .color-options {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}

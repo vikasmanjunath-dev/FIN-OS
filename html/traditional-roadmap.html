@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | The Fortress</title>
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+
+  <style>
+    /* =========================
+       THEME: THE GOLDEN VAULT
+       ========================= */
+    :root {
+      --vault-gold: #FFD700;
+      --vault-bronze: #CD7F32;
+      --vault-blue: #4A90E2;
+      --vault-dark: #0f0f13;
+      --bg-deep: #050505;
+      --glass-gold: rgba(255, 215, 0, 0.05);
+      --border-gold: rgba(255, 215, 0, 0.3);
+      --font-display: 'Manrope', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      background-color: var(--bg-deep) !important;
+      background-image: 
+        linear-gradient(rgba(255, 215, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 215, 0, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      color: #fff !important;
+      font-family: var(--font-display);
+      overflow-x: hidden;
+    }
+
+    /* Sidebar Override */
+    .sidebar { background: rgba(5, 5, 5, 0.95); border-right: 1px solid #332200; backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 200; }
+    .main { width: calc(100% - 260px); min-height: 100vh; margin-left: 260px; }
+
+    .content-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding-top: 60px;
+      padding-bottom: 100px;
+      position: relative;
+    }
+
+    /* =========================
+       PHASE 1: THE HERITAGE SCANNER
+       ========================= */
+    .vault-header { text-align: center; margin-bottom: 50px; animation: fadeIn 1.5s ease; }
+    .vault-title { font-size: 3.5rem; font-weight: 700; letter-spacing: -1px; color: var(--vault-gold); margin-bottom: 10px; text-shadow: 0 0 30px rgba(255, 215, 0, 0.3); }
+    .vault-subtitle { color: #888; font-family: var(--font-mono); font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; }
+
+    .input-wrapper { display: flex; flex-direction: column; gap: 30px; max-width: 750px; margin: 0 auto; }
+
+    .q-card {
+      background: linear-gradient(145deg, rgba(20,20,20,0.8), rgba(10,10,10,0.9));
+      border: 1px solid var(--border-gold);
+      padding: 30px;
+      border-radius: 4px; /* Brick style */
+      transition: 0.4s;
+      position: relative;
+    }
+    .q-card:hover { border-color: var(--vault-gold); box-shadow: 0 0 20px rgba(255, 215, 0, 0.15); transform: translateY(-2px); }
+
+    .q-label { font-family: var(--font-mono); color: var(--vault-gold); font-size: 0.8rem; margin-bottom: 10px; display: block; opacity: 0.8; }
+    .q-text { font-size: 1.4rem; color: #fff; margin-bottom: 25px; font-weight: 600; }
+
+    .opt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+
+    .asset-btn {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: center;
+      color: #aaa;
+      transition: 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .asset-btn:hover { background: rgba(255, 215, 0, 0.05); border-color: var(--vault-bronze); color: #fff; }
+    
+    .asset-btn.selected { 
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), transparent); 
+      border-color: var(--vault-gold); 
+      color: var(--vault-gold); 
+      font-weight: 700; 
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+      transform: scale(1.02);
+    }
+    .asset-icon { font-size: 2.2rem; filter: grayscale(1); transition: 0.3s; }
+    .asset-btn.selected .asset-icon, .asset-btn:hover .asset-icon { filter: grayscale(0); }
+
+    .bridge-btn {
+      background: linear-gradient(135deg, var(--vault-bronze), var(--vault-gold));
+      color: #000;
+      border: none;
+      padding: 20px 60px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      border-radius: 2px;
+      cursor: pointer;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+      transition: 0.4s;
+      display: block;
+      margin: 60px auto;
+      opacity: 0.5; pointer-events: none;
+    }
+    .bridge-btn.active { opacity: 1; pointer-events: all; }
+    .bridge-btn:hover { transform: scale(1.02); box-shadow: 0 0 50px rgba(255, 215, 0, 0.4); }
+
+
+    /* =========================
+       PHASE 2: THE BRIDGE (OUTPUT)
+       ========================= */
+    .bridge-section { display: none; animation: heavyLift 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+    @keyframes heavyLift { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Validation Card */
+    .validation-card {
+      background: rgba(255, 215, 0, 0.05);
+      border-left: 5px solid var(--vault-gold);
+      padding: 40px;
+      margin-bottom: 50px;
+      border-radius: 0 16px 16px 0;
+      position: relative;
+    }
+    .val-header { font-family: var(--font-mono); color: var(--vault-gold); letter-spacing: 2px; font-size: 0.9rem; margin-bottom: 10px; }
+    .val-title { font-size: 2.5rem; color: #fff; margin-bottom: 15px; font-weight: 300; line-height: 1.1; }
+    .val-text { color: #ccc; font-size: 1.1rem; line-height: 1.7; max-width: 700px; }
+
+    /* Thali Visualizer */
+    .thali-container {
+      display: flex; justify-content: center; gap: 30px; margin: 50px 0; flex-wrap: wrap;
+    }
+    .thali-item {
+      width: 160px; height: 160px; border-radius: 50%;
+      border: 2px dashed #444;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; transition: 0.5s; position: relative;
+    }
+    .thali-item.filled { border-style: solid; background: rgba(255,255,255,0.03); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .t-icon { font-size: 3rem; margin-bottom: 5px; }
+    .t-name { font-weight: bold; font-size: 1rem; color: #fff; }
+    .t-role { font-size: 0.75rem; color: #888; text-transform: uppercase; margin-top: 5px; letter-spacing: 1px; }
+
+    /* Timeline */
+    .fortress-path { position: relative; padding-left: 40px; max-width: 800px; margin: 0 auto; }
+    .path-line { position: absolute; left: 19px; top: 0; bottom: 0; width: 4px; background: #333; }
+
+    .brick-step {
+      position: relative; margin-bottom: 50px;
+      background: #111; border: 1px solid #333; border-bottom: 4px solid #333;
+      border-radius: 8px; padding: 30px; transition: 0.4s;
+      opacity: 0; transform: translateY(20px);
+    }
+    .brick-step:hover { border-color: var(--vault-gold); background: rgba(255, 215, 0, 0.02); transform: translateX(5px); }
+
+    .brick-marker {
+      position: absolute; left: -44px; top: 30px; width: 26px; height: 26px;
+      background: #000; border: 4px solid #555; transform: rotate(45deg); z-index: 2; transition: 0.3s;
+    }
+    .brick-step:hover .brick-marker { border-color: var(--vault-gold); background: var(--vault-gold); }
+
+    .brick-stage { font-family: var(--font-mono); color: var(--vault-bronze); font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px; display: block; text-transform: uppercase; font-weight: bold; }
+    .brick-head { font-size: 1.5rem; color: #fff; margin-bottom: 15px; font-weight: 600; }
+    
+    .desi-analogy {
+      margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.03);
+      border-left: 3px solid var(--vault-bronze); color: #ddd; font-size: 0.95rem; font-style: italic;
+    }
+
+    /* Inflation Simulator Widget */
+    .sim-widget {
+      background: #000; border: 1px solid var(--border-gold); padding: 25px;
+      border-radius: 8px; margin-top: 20px; text-align: center;
+    }
+    .sim-bar-bg { width: 100%; height: 12px; background: #333; margin: 15px 0; border-radius: 6px; overflow: hidden; }
+    .sim-bar-fill { height: 100%; background: #e74c3c; width: 100%; transition: width 1.5s ease-in-out; }
+    .sim-stats { display: flex; justify-content: space-between; font-size: 0.85rem; color: #888; font-family: var(--font-mono); }
+
+    @media (max-width: 768px) {
+      .opt-grid { grid-template-columns: 1fr; }
+      .thali-container { flex-direction: column; align-items: center; }
+    }
+
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo" style="color:var(--vault-gold);">FIN•OS</div>
+    <nav>
+      <a href="home.html">Home</a>
+      <a href="markets.html">Markets</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="traditional-roadmap.html" class="active">Fortress</a>
+      <a href="fear-roadmap.html">Mindset</a>
+      <a href="roadmap.html">GPS</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+
+      <section id="scanner">
+        
+        <div class="vault-header">
+          <div class="vault-title">The Fortress Strategy</div>
+          <p class="vault-subtitle">// FOR THOSE WHO VALUE SAFETY ABOVE ALL</p>
+        </div>
+
+        <div class="input-wrapper">
+
+          <div class="q-card">
+            <span class="q-label">STEP 1: THE FOUNDATION</span>
+            <div class="q-text">Where is the majority of your wealth stored?</div>
+            <div class="opt-grid">
+              <div class="asset-btn" onclick="setParam('asset', 'fd', this)">
+                <span class="asset-icon">🏦</span> 
+                <strong>Fixed Deposits (FD)</strong>
+                <span style="font-size:0.8rem">Guaranteed Returns. Zero Tension.</span>
+              </div>
+              <div class="asset-btn" onclick="setParam('asset', 'gold', this)">
+                <span class="asset-icon">👑</span> 
+                <strong>Physical Gold</strong>
+                <span style="font-size:0.8rem">Real money. Survives history.</span>
+              </div>
+              <div class="asset-btn" onclick="setParam('asset', 'land', this)">
+                <span class="asset-icon">🏞️</span> 
+                <strong>Real Estate</strong>
+                <span style="font-size:0.8rem">Tangible. Permanent. Solid.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-card">
+            <span class="q-label">STEP 2: THE THREAT</span>
+            <div class="q-text">What are you most afraid of?</div>
+            <div class="opt-grid">
+              <div class="asset-btn" onclick="setParam('fear', 'crash', this)">
+                <span class="asset-icon">📉</span> 
+                <strong>Market Crashes</strong>
+                <span style="font-size:0.8rem">"I can't see my money vanish."</span>
+              </div>
+              <div class="asset-btn" onclick="setParam('fear', 'scam', this)">
+                <span class="asset-icon">🕵️</span> 
+                <strong>Scams & Fraud</strong>
+                <span style="font-size:0.8rem">"Digital money feels fake."</span>
+              </div>
+              <div class="asset-btn" onclick="setParam('fear', 'inflation', this)">
+                <span class="asset-icon">💸</span> 
+                <strong>Rising Prices</strong>
+                <span style="font-size:0.8rem">"Expenses growing faster than savings."</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <button class="bridge-btn" id="bridgeBtn" onclick="generateBridge()">Construct Roadmap ➔</button>
+
+      </section>
+
+
+      <section id="bridge" class="bridge-section">
+        
+        <div class="validation-card">
+          <span class="val-header" id="personaID">// PERSONA: THE GUARDIAN</span>
+          <h1 class="val-title" id="personaTitle">YOU ARE NOT WRONG.</h1>
+          <p class="val-text" id="personaDesc">
+            Safety is not a weakness. It is a virtue. You understand that money represents hard work.
+            We are not here to destroy your fortress. We are here to upgrade its walls against modern enemies.
+          </p>
+        </div>
+
+        <div style="text-align:center; margin-bottom:20px; font-family:var(--font-mono); color:var(--vault-gold);">THE WEALTH THALI STRATEGY</div>
+        <div class="thali-container">
+          <div class="thali-item filled" style="border-color:var(--vault-gold);">
+            <div class="t-icon" id="coreIcon">🏦</div>
+            <div class="t-name">Safety (Rice)</div>
+            <div class="t-role">Your Current Base</div>
+          </div>
+          <div class="thali-item" id="thali1">
+            <div class="t-icon">⏳</div>
+            <div class="t-name">Analysing...</div>
+          </div>
+          <div class="thali-item" id="thali2">
+            <div class="t-icon">⏳</div>
+            <div class="t-name">Analysing...</div>
+          </div>
+        </div>
+
+        <div class="fortress-path" id="pathContainer">
+          <div class="path-line"></div>
+          </div>
+
+        <div style="text-align:center; margin-top:60px;">
+            <button onclick="location.reload()" style="background:transparent; border:1px solid #444; color:#666; padding:10px 20px; border-radius:4px; cursor:pointer;">[ RE-EVALUATE PORTFOLIO ]</button>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  let p = { asset: null, fear: null };
+
+  function setParam(key, value, btn) {
+    p[key] = value;
+    const parent = btn.closest('.q-card');
+    parent.querySelectorAll('.asset-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+
+    if(p.asset && p.fear) {
+      document.getElementById('bridgeBtn').classList.add('active');
+    }
+  }
+
+  function generateBridge() {
+    document.getElementById('scanner').style.display = 'none';
+    document.getElementById('bridge').style.display = 'block';
+
+    let persona = "";
+    let personaDesc = "";
+    let missions = [];
+    let coreIcon = "";
+
+    // --- 1. PERSONA LOGIC ---
+    if (p.asset === 'fd') {
+      persona = "THE GUARDIAN";
+      coreIcon = "🏦";
+      personaDesc = "You prefer a good sleep over a high return. This is wisdom. But 'Safe' assets have a silent enemy: Inflation. Your money is safe, but its power is dying.";
+    } else if (p.asset === 'gold') {
+      persona = "THE SOVEREIGN";
+      coreIcon = "👑";
+      personaDesc = "You trust history, not paper. Gold has survived wars and empires. But Physical Gold is 'Lazy'. It sits in a locker doing nothing. We need to make it work.";
+    } else {
+      persona = "THE LANDLORD";
+      coreIcon = "🏞️";
+      personaDesc = "You believe in what you can touch. Land is solid. But Land is heavy. If you need ₹5 Lakhs for an emergency, you cannot sell just the bathroom.";
+    }
+
+    document.getElementById('personaID').innerText = `// PERSONA: ${persona}`;
+    document.getElementById('personaDesc').innerText = personaDesc;
+    document.getElementById('coreIcon').innerText = coreIcon;
+
+    // --- 2. DYNAMIC MISSION GENERATION ---
+
+    // MISSION 1: REALITY CHECK (The Trigger)
+    let m1_body = "";
+    if (p.asset === 'fd' || p.fear === 'inflation') {
+      m1_body = `
+        Your capital is safe number-wise. But value-wise?
+        <div class="sim-widget">
+           <div class="sim-stats"><span>TODAY: ₹10 Lakhs</span><span>10 YEARS: ₹6 Lakhs Value</span></div>
+           <div class="sim-bar-bg"><div class="sim-bar-fill" id="infBar"></div></div>
+           <p style="font-size:0.8rem; color:#aaa; margin-top:10px;">The Silent Erosion of Purchasing Power @ 6% Inflation</p>
+        </div>
+      `;
+      setTimeout(() => document.getElementById('infBar').style.width = '60%', 1000);
+    } else {
+      m1_body = "Safety has a cost. In Gold, you pay making charges (10-15%). In Land, you pay registration and maintenance. Calculate the 'Safety Tax' you are paying every year.";
+    }
+
+    missions.push({
+      stage: "STAGE 1: THE AUDIT",
+      head: "Calculate the 'Peace Tax'",
+      body: m1_body,
+      desi: "<strong>Desi Analogy:</strong> Storing grain in a warehouse protects it from rain, but rats (Inflation) are eating it from the inside."
+    });
+
+    // MISSION 2: OPTIMIZATION (Fixing the Current Asset)
+    let m2_head = "", m2_body = "";
+    if (p.asset === 'fd') {
+      m2_head = "Upgrade to Debt Funds";
+      m2_body = "FD interest is fully taxed. Debt Funds give similar safety but better tax efficiency if held long term. Same safety, more money in your pocket.";
+    } else if (p.asset === 'gold') {
+      m2_head = "Switch to SGB (Sovereign Gold Bonds)";
+      m2_body = "Physical gold sits idle. SGB pays you 2.5% interest EXTRA every year + Gold appreciation. It is Gold that pays rent.";
+    } else {
+      m2_head = "Liquidity Check";
+      m2_body = "Ensure you have a liquid Emergency Fund (FD/Cash) equal to 6 months expenses. You cannot eat a brick from your wall in a crisis.";
+    }
+
+    missions.push({
+      stage: "STAGE 2: OPTIMIZATION",
+      head: m2_head,
+      body: m2_body,
+      desi: "<strong>Desi Analogy:</strong> Polishing the family silver. It's the same asset, just cleaner and more valuable."
+    });
+
+    // MISSION 3: THE BRIDGE (The Thali Concept)
+    missions.push({
+      stage: "STAGE 3: THE THALI METHOD",
+      head: "Don't Replace. Complement.",
+      body: "We don't want you to sell your Land/Gold. We want you to ADD a small bowl of 'Growth' (Index Funds). Just 20% allocation.",
+      desi: "<strong>Desi Analogy:</strong> Your FD is the Rice (Safety). Index Fund is the Dal (Nutrition). You need both for a complete meal."
+    });
+
+    // MISSION 4: LOW-RISK ENTRY
+    missions.push({
+      stage: "STAGE 4: THE TOIE-DIP",
+      head: "Index Fund SIP",
+      body: "Start a SIP in Nifty 50. It buys the top 50 companies of India (Tata, Reliance, HDFC). If India grows, your money grows.",
+      desi: "<strong>Logic:</strong> You trust Tata cars and HDFC Bank services. Why not trust their business growth?"
+    });
+
+    // MISSION 5: SCAM PROTECTION (If Fear is Scam/Crash)
+    if (p.fear === 'scam' || p.fear === 'crash') {
+       missions.push({
+        stage: "STAGE 5: FORTRESS DIGITAL",
+        head: "The Regulator Shield",
+        body: "Understand SEBI and CDSL. Your shares are not held by the app (Zerodha/Groww). They are held by the Government Depository. It is as safe as a land registry.",
+        desi: "<strong>Fact:</strong> Digital shares cannot be stolen like physical jewelry."
+      });
+    } else {
+       missions.push({
+        stage: "STAGE 5: ADVANCED SECURITY",
+        head: "REITs (Real Estate Trusts)",
+        body: "Want Real Estate income without buying a whole flat? Buy REITs. It's like buying a single brick in a tech park and getting rent.",
+        desi: "<strong>Logic:</strong> Earn rent from IT parks without being a landlord."
+      });
+    }
+
+    // MISSION 6: THE REVIEW
+    missions.push({
+      stage: "STAGE 6: THE REVIEW CYCLE",
+      head: "Yearly Rebalancing",
+      body: "Once a year, check if your Growth bucket has grown too big. If yes, move profit back to FD. This locks in your gains.",
+      desi: "<strong>Desi Analogy:</strong> Harvest the crops (Profit) and store them in the silo (FD) for winter."
+    });
+
+
+    // --- 3. RENDER CONTENT ---
+    const container = document.getElementById('pathContainer');
+    container.innerHTML = '<div class="path-line"></div>';
+
+    missions.forEach((m, i) => {
+      container.innerHTML += `
+        <div class="brick-step" style="animation: brickLay 0.6s ease forwards; animation-delay: ${i*0.2}s;">
+          <div class="brick-marker"></div>
+          <span class="brick-stage">${m.stage}</span>
+          <h3 class="brick-head">${m.head}</h3>
+          <div style="color:#ccc; line-height:1.6;">${m.body}</div>
+          <div class="desi-analogy">${m.desi}</div>
+        </div>
+      `;
+    });
+
+    // UPDATE THALI VISUALS
+    setTimeout(() => {
+        const t1 = document.getElementById('thali1');
+        const t2 = document.getElementById('thali2');
+        
+        t1.classList.add('filled');
+        t1.style.borderColor = "#27ae60"; // Green
+        t1.innerHTML = `<div class="t-icon">📈</div><div class="t-name">Nifty 50</div><div class="t-role">Growth Engine</div>`;
+        
+        t2.classList.add('filled');
+        t2.style.borderColor = "#9b59b6"; // Purple
+        let t2_icon = p.asset === 'gold' ? '📄' : (p.asset === 'land' ? '🏢' : '🥇');
+        let t2_name = p.asset === 'gold' ? 'SGB Bonds' : (p.asset === 'land' ? 'REITs' : 'Gold');
+        t2.innerHTML = `<div class="t-icon">${t2_icon}</div><div class="t-name">${t2_name}</div><div class="t-role">Hedge/Income</div>`;
+    }, 1500);
+
+  }
+</script>
+
+<style>
+@keyframes brickLay { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+</style>
+
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+<style id="trad-light-theme">
+[data-theme="light"] body {
+  background-color: #FFFBEE !important;
+  background-image: none !important;
+  color: #1A1600 !important;
+}
+[data-theme="light"] .main { background: #FFFBEE !important; }
+[data-theme="light"] .node-title { color: #1A1600 !important; }
+[data-theme="light"] .node-body { color: #5A4A00 !important; }
+[data-theme="light"] .dt-body { color: #5A4A00 !important; }
+[data-theme="light"] .road-card, [data-theme="light"] .path-card {
+  background: rgba(255,255,255,0.85) !important;
+  border-color: rgba(255,215,0,0.2) !important;
+}
+</style>
+</body>
+</html>

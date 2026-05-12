@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Financial Being</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/financial-being.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&family=Manrope:wght@300;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="app">
+     <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html" class="active">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="being-container">
+      
+      <div id="loader" class="screen-center">
+        <div class="scanner-line"></div>
+        <h2 class="blink-text">SYNCING NEURAL PROFILE...</h2>
+      </div>
+
+      <section id="scanSection" class="hidden">
+        <header class="scan-header">
+          <h1 class="glitch-text" data-text="CALIBRATE THE MIRROR">CALIBRATE THE MIRROR</h1>
+          <p>To reflect your true financial soul, we need to know the <em>person</em> behind the wallet.</p>
+        </header>
+
+        <div class="wizard-container glass-panel">
+          <div id="questionBox">
+            <div class="step-header">
+              <span class="step-indicator">STEP 1</span>
+              <span class="step-category" id="qCategory">IDENTITY</span>
+            </div>
+            <h2 id="qText">...</h2>
+            <div class="options-grid" id="qOptions"></div>
+          </div>
+          
+          <div class="progress-track">
+            <div class="progress-fill" id="scanProgress"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="mirrorSection" class="hidden">
+        
+        <header class="mirror-hero">
+          <div class="hero-content">
+            <div class="badge">DIAGNOSTIC COMPLETE</div>
+            <h1 class="glitch-text" data-text="THE MIRROR">THE MIRROR</h1>
+            <p>You are not your bank balance. You are a system of habits, beliefs, and triggers.</p>
+          </div>
+          <div class="archetype-display">
+            <span class="arch-label">DETECTED ARCHETYPE</span>
+            <h2 id="heroArchetype" class="neon-flicker">LOADING...</h2>
+          </div>
+        </header>
+
+        <div class="grid-layout">
+          <div class="glass-card identity-card">
+            <div class="card-header"><span class="num">01</span><h3>IDENTITY SNAPSHOT</h3></div>
+            <div class="id-flex">
+              <div class="avatar-construct">
+                <div class="core-circle"></div>
+                <div class="orbit-ring"></div>
+              </div>
+              <div class="id-details">
+                <h2 id="dispName">...</h2>
+                <p id="dispBio" class="bio-text">...</p>
+                <div class="tag-cloud" id="identityTags"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card behavior-card">
+            <div class="card-header"><span class="num">02</span><h3>MONEY BEHAVIOR</h3></div>
+            <div class="chart-flex">
+              <div class="chart-box">
+                <canvas id="behaviorChart"></canvas>
+              </div>
+              <div class="behavior-insight">
+                <h4 id="behPattern">...</h4>
+                <p id="behDesc">...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card wide-card">
+          <div class="card-header"><span class="num">03</span><h3>BELIEF SYSTEM</h3></div>
+          <div class="mindset-matrix">
+            <div class="matrix-item">
+              <span class="matrix-label">CORE DRIVER</span>
+              <h4 id="msDriver">...</h4>
+            </div>
+            <div class="matrix-divider"></div>
+            <div class="matrix-item">
+              <span class="matrix-label">RELATIONSHIP</span>
+              <h4 id="msRel">...</h4>
+            </div>
+            <div class="matrix-divider"></div>
+            <div class="matrix-item">
+              <span class="matrix-label">LIMITING BELIEF</span>
+              <h4 id="msLimit" class="red-text">...</h4>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-layout">
+          <div class="glass-card">
+            <div class="card-header"><span class="num">04</span><h3>INCOME REALITY</h3></div>
+            <div class="resilience-meter">
+              <div class="meter-bar"><div class="fill" id="resilienceFill"></div></div>
+              <div class="meter-labels"><span>Fragile</span><span>Antifragile</span></div>
+            </div>
+            <p class="insight-text" id="incomeInsight">...</p>
+          </div>
+
+          <div class="glass-card">
+            <div class="card-header"><span class="num">05</span><h3>EXPENSE PSYCHOLOGY</h3></div>
+            <div class="expense-visual" id="expenseVisual"></div>
+            <p class="insight-text" id="expenseInsight">...</p>
+          </div>
+        </div>
+
+        <div class="glass-card wide-card">
+          <div class="card-header"><span class="num">06</span><h3>TRUE RISK TOLERANCE</h3></div>
+          <div class="gauge-wrapper">
+            <div class="gauge-arc"><div class="gauge-needle" id="riskNeedle"></div></div>
+            <div class="gauge-labels"><span>Panic</span><span>Balanced</span><span>Iron</span></div>
+          </div>
+          <div class="risk-insight">
+            <p id="riskText">...</p>
+          </div>
+        </div>
+
+        <div class="tri-grid">
+          <div class="glass-card micro-card">
+            <div class="card-header"><span class="num">07</span><h3>DECISION STYLE</h3></div>
+            <h4 id="decStyle">...</h4>
+            <p id="decDesc">...</p>
+          </div>
+          <div class="glass-card micro-card">
+            <div class="card-header"><span class="num">08</span><h3>KNOWLEDGE GAP</h3></div>
+            <h4 id="knowGap">...</h4>
+            <p id="knowDesc">...</p>
+          </div>
+          <div class="glass-card micro-card">
+            <div class="card-header"><span class="num">09</span><h3>EMOTIONAL LEAK</h3></div>
+            <h4 id="emoLeak">...</h4>
+            <p id="emoDesc">...</p>
+          </div>
+        </div>
+
+        <div class="glass-card wide-card context-card">
+          <div class="card-header"><span class="num">10</span><h3>DESI LIFE CONTEXT</h3></div>
+          <div class="timeline-viz">
+            <div class="tl-line"></div>
+            <div class="tl-point" style="left:20%">Student</div>
+            <div class="tl-point" style="left:40%">Earner</div>
+            <div class="tl-point active" id="tlActive">You</div>
+            <div class="tl-point" style="left:80%">Family</div>
+          </div>
+          <p class="context-text" id="contextText">...</p>
+        </div>
+
+        <div class="grid-layout">
+          <div class="glass-card green-border">
+            <div class="card-header"><span class="num">11</span><h3>SUPERPOWERS</h3></div>
+            <ul class="swot-list check" id="strengthList"></ul>
+          </div>
+          <div class="glass-card red-border">
+            <div class="card-header"><span class="num">11</span><h3>BLIND SPOTS</h3></div>
+            <ul class="swot-list cross" id="weaknessList"></ul>
+          </div>
+        </div>
+
+        <section class="diagnosis-section">
+          <div class="hologram-card">
+            <div class="scan-line"></div>
+            <div class="card-header center"><span class="num">12</span><h3>FINAL DIAGNOSIS</h3></div>
+            <h1 class="final-title" id="finalTitle">...</h1>
+            <p class="final-desc" id="finalDesc">...</p>
+          </div>
+        </section>
+
+        <section class="action-layer">
+          <div class="card-header"><span class="num">13</span><h3>WHAT THIS MEANS FOR YOU</h3></div>
+          <div class="action-grid" id="actionGrid"></div>
+          
+          <div class="reset-zone">
+            <p>"Awareness is the first step. Action is the second."</p>
+            <button class="ghost-btn" id="reScanBtn">RE-CALIBRATE (RESET)</button>
+          </div>
+        </section>
+
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/financial-being.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+</body>
+</html>

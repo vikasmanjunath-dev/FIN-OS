@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Zero to Master</title>
+  
+  <script src="../js/theme-init.js"></script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/start.css"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+<body>
+
+  <div class="app">
+    <aside class="sidebar">
+      <div class="logo">FIN•OS</div>
+          <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html" class="active">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+    </aside>
+
+    <main class="main">
+      <div class="content-wrapper">
+
+        <header class="header header-flex">
+          <div>
+            <h1 class="glitch-text" data-text="The Origin">The Origin</h1>
+            <p class="hero-sub">From Confusion to <span class="highlight">Clarity</span>.</p>
+          </div>
+          <button id="themeToggle" class="theme-btn">🌙</button>
+        </header>
+
+        <section class="intro-message glass">
+          <h2>🚪 "I Don't Know Where To Start"</h2>
+          <p>If you feel finance is confusing, it's not your fault. It was never taught in the right order. <br>This is not a course. This is a guided mental staircase.</p>
+        </section>
+
+        <div class="journey-container">
+          
+          <svg class="journey-line" preserveAspectRatio="none">
+            <path id="pathLine" d="M 50 0 L 50 100" fill="none" stroke="#333" stroke-width="4" />
+            <path id="pathLineFill" d="M 50 0 L 50 100" fill="none" stroke="var(--accent)" stroke-width="4" />
+          </svg>
+
+          <div class="level-node" data-level="1">
+            <div class="node-marker">01</div>
+            <div class="level-card glass">
+              <div class="card-header">
+                <span class="lvl-tag">ABSOLUTE ZERO</span>
+                <h3>What Is Money?</h3>
+              </div>
+              <p class="concept">Money is <strong>Stored Effort</strong>. It is a battery that holds your time & skill.</p>
+              <div class="desi-box">
+                <span class="flag">🇮🇳 Indian Reality</span>
+                <p>You work → Get Salary → Exchange for Roti/Rent. <br>Mistake: Thinking money <em>is</em> value. It only <em>represents</em> value.</p>
+              </div>
+              <div class="visual-mini">
+                <div class="battery-visual">
+                  <div class="charge"></div>
+                  <span class="charge-text">Your Effort</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="level-node right" data-level="2">
+            <div class="node-marker">02</div>
+            <div class="level-card glass">
+              <div class="card-header">
+                <span class="lvl-tag">FOUNDATION</span>
+                <h3>How Money Flows</h3>
+              </div>
+              <p class="concept"><strong>Cash Flow:</strong> The battle between Inflow (Salary) and Outflow (Expenses).</p>
+              <div class="desi-box">
+                <span class="flag">🇮🇳 Reality</span>
+                <p>Salary on 1st. EMIs on 5th. Zero by 20th. <br><strong>Trap:</strong> Lifestyle Inflation ("Log Kya Kahenge").</p>
+              </div>
+              <div class="visual-mini">
+                <canvas id="flowChart" height="100"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="level-node" data-level="3">
+            <div class="node-marker">03</div>
+            <div class="level-card glass">
+              <div class="card-header">
+                <span class="lvl-tag">SURVIVAL MODE</span>
+                <h3>Saving & Safety</h3>
+              </div>
+              <p class="concept">Saving is money you don't spend. But saving alone won't make you rich.</p>
+              <ul class="key-points">
+                <li><strong>Emergency Fund:</strong> 6 months expenses. (Medical/Job Loss).</li>
+                <li><strong>Insurance:</strong> Protection, NOT Investment.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="level-node right" data-level="4">
+            <div class="node-marker">04</div>
+            <div class="level-card glass warning">
+              <div class="card-header">
+                <span class="lvl-tag">THE INVISIBLE ENEMY</span>
+                <h3>Inflation</h3>
+              </div>
+              <p class="concept">The silent thief stealing your money while you sleep.</p>
+              <div class="visual-mini center-flex">
+                <div class="pacman-container">
+                  <div class="pacman"></div>
+                  <div class="dot">₹</div>
+                  <div class="dot">₹</div>
+                  <div class="dot">₹</div>
+                </div>
+                <p class="caption">Inflation eating value (7% / yr)</p>
+              </div>
+              <div class="desi-box warning">
+                <p>If Inflation = 7% and FD = 6%, you are <strong>losing</strong> money mathematically.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="level-node" data-level="5">
+            <div class="node-marker">05</div>
+            <div class="level-card glass">
+              <div class="card-header">
+                <span class="lvl-tag">GROWTH</span>
+                <h3>Investing</h3>
+              </div>
+              <p class="concept">Putting money to work so it grows faster than inflation.</p>
+              <p class="concept highlight">Risk ≠ Volatility. Risk = Not meeting your goals.</p>
+            </div>
+          </div>
+
+          <div class="level-node right" data-level="6">
+            <div class="node-marker">06</div>
+            <div class="level-card glass">
+              <div class="card-header">
+                <span class="lvl-tag">OWNERSHIP</span>
+                <h3>Stock Market</h3>
+              </div>
+              <p class="concept">A Stock is a <strong>Slice of a Company</strong>.</p>
+              <div class="visual-mini center-flex">
+                <div class="pizza-visual">
+                  <div class="slice"></div>
+                  <div class="slice"></div>
+                  <div class="slice"></div>
+                  <div class="slice highlight"></div>
+                </div>
+                <p class="caption">You own a piece.</p>
+              </div>
+              <div class="key-points">
+                <span>Large Cap (Elephant)</span>
+                <span>Mid Cap (Cheetah)</span>
+                <span>Small Cap (Rabbit)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="level-node" data-level="7">
+            <div class="node-marker">07</div>
+            <div class="level-card glass">
+              <div class="card-header">
+                <span class="lvl-tag">DELEGATION</span>
+                <h3>Mutual Funds</h3>
+              </div>
+              <p class="concept">Pooling money to hire a professional driver (Fund Manager).</p>
+              <div class="desi-box">
+                <p><strong>SIP (Systematic Investment Plan):</strong> Monthly automatic investing aligned with your salary cycle.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="level-node right" data-level="8">
+            <div class="node-marker">08</div>
+            <div class="level-card glass">
+              <div class="card-header">
+                <span class="lvl-tag">EFFICIENCY</span>
+                <h3>ETFs</h3>
+              </div>
+              <p class="concept">Buying the whole basket (Nifty 50) instead of picking fruits. Trades like a stock.</p>
+            </div>
+          </div>
+
+          <div class="level-node" data-level="9">
+            <div class="node-marker">09</div>
+            <div class="level-card glass">
+              <div class="card-header">
+                <span class="lvl-tag">STABILITY</span>
+                <h3>Debt & Fixed Income</h3>
+              </div>
+              <p class="concept">Lending money for interest. (FDs, Bonds). <br><strong>Equity = Growth. Debt = Safety.</strong></p>
+            </div>
+          </div>
+
+          <div class="level-node right" data-level="10">
+            <div class="node-marker">10</div>
+            <div class="level-card glass">
+              <div class="card-header">
+                <span class="lvl-tag">REAL ASSETS</span>
+                <h3>Commodities</h3>
+              </div>
+              <p class="concept">Physical stuff: Gold, Silver, Oil.</p>
+              <div class="desi-box">
+                <span class="flag">🇮🇳 Emotion</span>
+                <p>Gold is Safety + Culture. It fights inflation but doesn't produce earnings.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="level-node" data-level="13">
+            <div class="node-marker">13</div>
+            <div class="level-card glass warning">
+              <div class="card-header">
+                <span class="lvl-tag">THE MIND</span>
+                <h3>Why People Lose Money</h3>
+              </div>
+              <div class="grid-2-mini">
+                <div class="trait">😨 Fear</div>
+                <div class="trait">🤑 Greed</div>
+                <div class="trait">😶 No Plan</div>
+                <div class="trait">👀 Social Pressure</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="level-node center" data-level="14">
+            <div class="node-marker">14</div>
+            <div class="level-card special">
+              <h3>The Correct Order (Fin-OS Logic)</h3>
+              <div class="step-list">
+                <div class="step">1. Income</div>
+                <div class="arrow-down">⬇</div>
+                <div class="step">2. Expense Control</div>
+                <div class="arrow-down">⬇</div>
+                <div class="step">3. Emergency Fund & Insurance</div>
+                <div class="arrow-down">⬇</div>
+                <div class="step">4. Long Term Investing</div>
+              </div>
+            </div>
+          </div>
+
+        </div> <footer class="journey-footer">
+          <h2>Ready to Take the Red Pill?</h2>
+          <p>You now understand the map. Time to walk the path.</p>
+          <div class="next-steps">
+            <a href="principles.html" class="next-btn">📜 Read The Constitution</a>
+            <a href="finance101.html" class="next-btn accent">🧠 Fix Your Mindset</a>
+            <a href="markets.html" class="next-btn">🌍 Enter Markets</a>
+          </div>
+        </footer>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/ui.js"></script>
+  <script src="../js/start.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+</body>
+</html>

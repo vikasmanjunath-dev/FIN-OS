@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Money Market</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/markets-deep.css">
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+<body>
+
+  <div class="progress-container"><div class="progress-bar" id="progressBar" style="background:#546de5; box-shadow:0 0 10px #546de5;"></div></div>
+
+  <div class="deep-wrapper">
+    <aside class="toc-sidebar">
+      <div class="toc-header" style="color:#546de5;">PROTOCOL 06: CASH</div>
+      <ul class="toc-list">
+        <li><a href="#lvl1" class="toc-link active">Lvl 1: The Concept</a></li>
+        <li><a href="#lvl2" class="toc-link">Lvl 2: Instruments</a></li>
+        <li><a href="#lvl3" class="toc-link">Lvl 3: Liquid Funds</a></li>
+        <li><a href="#godmode" class="toc-link">God Mode: Arbitrage</a></li>
+      </ul>
+      <a href="moneydetail.html" class="master-btn" style="text-align: center; text-decoration: none; display: block;">
+  🏆 Master it !
+</a>
+      <a href="markets.html" class="back-btn">← Back to Terminal</a>
+    </aside>
+
+    <main class="deep-content" id="scrollContainer">
+
+      <section class="chapter active" id="hero">
+        <h1 class="glitch-text">Money Market Protocol</h1>
+        <p class="intro-text">Where money sleeps at night. Safe, boring, and absolutely critical.</p>
+      </section>
+
+      <section class="chapter" id="lvl1">
+        <span class="chapter-badge" style="color:#546de5; background:rgba(84,109,229,0.1);">LEVEL 01: NOOB</span>
+        <h2>The "Parking Lot" Theory</h2>
+        <p>You sold a house. You have ₹1 Crore. You need it in 6 months to buy a new house. Where do you put it?</p>
+        
+        <div class="concept-card" style="border-left-color:#546de5;">
+          <h4>❌ Savings Account?</h4>
+          <p>3% Interest. You lose money to inflation.</p>
+          <h4>✅ Money Market?</h4>
+          <p>7% Interest. Almost zero risk. Highly liquid.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="lvl2">
+        <span class="chapter-badge" style="color:#546de5; background:rgba(84,109,229,0.1);">LEVEL 02: MECHANIC</span>
+        <h2>The Toolbox (T-Bills & CPs)</h2>
+        <p>This market is where Banks, Governments, and Giants borrow cash for <strong>1 to 364 days</strong>.</p>
+        
+        <ul class="mech-list">
+          <li><strong>T-Bills (Treasury Bills):</strong> You lend to the Govt of India for 91, 182, or 364 days. <span style="color:#C7F000">Risk: ZERO.</span></li>
+          <li><strong>CP (Commercial Paper):</strong> You lend to Reliance/Tata for 3 months. <span style="color:#4F7CFF">Risk: Low.</span></li>
+          <li><strong>CD (Certificate of Deposit):</strong> You lend to HDFC Bank for 1 year. <span style="color:#4F7CFF">Risk: Low.</span></li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="lvl3">
+        <span class="chapter-badge" style="color:#546de5; background:rgba(84,109,229,0.1);">LEVEL 03: PRO</span>
+        <h2>Liquid Funds (The Savings Account Killer)</h2>
+        <p>A Mutual Fund that only buys 91-day bonds. The graph is a straight line going up.</p>
+        
+        <div class="visual-box">
+          <div style="text-align:center;">
+            <h3>Insta-Redemption</h3>
+            <p>Some Liquid Funds allow you to withdraw ₹50,000 <strong>instantly (24x7)</strong> to your bank account. It works exactly like a Savings Account but pays double the interest.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="godmode">
+        <div class="pro-tip" style="border-color:#546de5; background:linear-gradient(135deg, rgba(84,109,229,0.1), rgba(0,0,0,0));">
+          <h4 style="color:#546de5;">☠️ GOD MODE: Arbitrage Funds</h4>
+          <p><strong>The Tax Hack:</strong> Liquid Funds are taxed at your slab rate (30% for high earners). Arbitrage Funds are taxed as Equity (12.5% after 1 year).</p>
+          <p><strong>Strategy:</strong> Use Arbitrage Funds for parking cash > 6 months. It returns 7-8% risk-free but saves you massive tax compared to FDs.</p>
+        </div>
+      </section>
+
+      <footer style="margin-top:100px; text-align:center; opacity:0.5; font-size:0.8rem;">
+        <p>End of Money Market Protocol. <a href="markets.html" style="color:#fff;">Return to Base.</a></p>
+      </footer>
+
+    </main>
+  </div>
+  <script src="../js/markets-deep.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+</body>
+</html>

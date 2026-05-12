@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <script type="module" src="../js/guard.js"></script> <!-- 🔒 MUST BE FIRST -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>Dashboard | Financial OS</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="content-wrapper">
+
+        <!-- HEADER -->
+        <header class="header header-flex">
+          <div>
+            <h1>Welcome, <span id="userName">Loading...</span></h1> 
+            
+            <p>Financial DNA: <span id="userDNA" style="color:var(--accent);">Loading...</span></p>
+          </div>
+
+          <button id="themeToggle" class="theme-btn">
+            🌙
+          </button>
+        </header>
+
+<section class="action-portal" style="margin-bottom: 40px;">
+          <div class="foundation-portal" style="display: flex; gap: 20px; flex-wrap: nowrap; width: 100%;">
+            
+            <a href="impact.html" class="foundation-btn" style="flex: 1; max-width: none;">
+              <div class="icon-box">🦋</div>
+              <div class="text-box">
+                <span class="btn-title">Small changes, huge impact</span>
+                <span class="btn-sub">Minor decisions shape decades of outcomes</span>
+              </div>
+              <div class="arrow-box">➔</div>
+            </a>
+
+            <a href="roadmaps.html" class="foundation-btn" style="flex: 1; max-width: none;">
+              <div class="icon-box">🗺️</div>
+              <div class="text-box">
+                <span class="btn-title">Choose Your Path</span>
+                <span class="btn-sub">Explore financial roadmaps for your life stage</span>
+              </div>
+              <div class="arrow-box">➔</div>
+            </a>
+
+            <a href="../TradeJournal/index.html" class="foundation-btn" style="flex: 1; max-width: none;">
+              <div class="icon-box">📓</div>
+              <div class="text-box">
+                <span class="btn-title">Trade Journal</span>
+                <span class="btn-sub">Log and analyze your market moves</span>
+              </div>
+              <div class="arrow-box">➔</div>
+            </a>
+
+          </div>
+        </section>
+
+        <!-- DAILY 5 -->
+        <section class="daily-feed">
+          <h2>
+            Today’s 5 insights
+            <span class="pill">Personalized</span>
+          </h2>
+
+          <div class="cards">
+            <div class="cards grid grid-2">
+
+              <div class="card insight inflation" onclick="window.location.href='insight-inflation.html'"
+                style="cursor: pointer;">
+                <div class="card-image"></div>
+                <div class="card-content">
+                  <h4>Why inflation hurts your lifestyle silently</h4>
+                </div>
+              </div>
+
+              <div class="card insight sip" onclick="window.location.href='insight-sip.html'" style="cursor: pointer;">
+                <div class="card-image"></div>
+                <div class="card-content">
+                  <h4>₹500 SIP vs waiting for “more income”</h4>
+                </div>
+              </div>
+
+              <div class="card insight debt" onclick="window.location.href='insight-debt.html'"
+                style="cursor: pointer;">
+                <div class="card-image"></div>
+                <div class="card-content">
+                  <h4>Good debt vs bad debt (India reality)</h4>
+                </div>
+              </div>
+
+              <div class="card insight emi" onclick="window.location.href='insight-emi.html'" style="cursor: pointer;">
+                <div class="card-image"></div>
+                <div class="card-content">
+                  <h4>Why EMI feels normal but is dangerous</h4>
+                </div>
+              </div>
+
+              <div class="card insight policy" onclick="window.location.href='insight-rbi.html'"
+                style="cursor: pointer;">
+                <div class="card-image"></div>
+                <div class="card-content">
+                  <h4>What RBI decisions mean for YOU</h4>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/dashboard.js"></script>
+  <script src="../js/ui.js"></script>
+
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+</body>
+
+</html>

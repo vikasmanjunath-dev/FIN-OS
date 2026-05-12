@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Child Education • FIN-OS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Reuse Standard Styles */
+    :root { --text-primary: #1e293b; --text-secondary: #64748b; --bg-main: #f1f5f9; --bg-surface: #ffffff; --card-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    [data-theme="dark"] { --text-primary: #f8fafc; --text-secondary: #94a3b8; --bg-main: #0f172a; --bg-surface: #1e293b; --card-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); }
+    body { color: var(--text-primary); background: var(--bg-main); font-family: sans-serif; }
+    h1, h2, h3 { color: var(--text-primary); }
+    input[type="number"] { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+    .page { flex: 1; padding: 0 48px 24px 48px; overflow-y: auto; }
+    .page-header { padding-top: 32px; margin-bottom: 40px; }
+    .page-header h1 { font-size: 42px; font-weight: 700; margin: 8px 0; }
+    .back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .back-btn:hover { color: #06b6d4; }
+    .impact-card { max-width: 1100px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 48px; border-radius: 32px; background: var(--bg-surface); box-shadow: var(--card-shadow); }
+    .impact-inputs { display: flex; flex-direction: column; gap: 24px; }
+    .input-group { display: flex; flex-direction: column; gap: 12px; }
+    .input-row { display: flex; gap: 12px; align-items: center; }
+    input[type="range"] { flex: 1; appearance: none; height: 6px; border-radius: 6px; background: linear-gradient(90deg, #06b6d4, #3b82f6); cursor: pointer; }
+    input[type="range"]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #ffffff; border: 3px solid #06b6d4; cursor: pointer; }
+    input[type="number"] { width: 140px; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); font-size: 16px; font-weight: 600; }
+    .impact-right { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+    .chart-container { width: 100%; max-width: 360px; aspect-ratio: 1; }
+    .result-grid { width: 100%; display: grid; grid-template-columns: 1fr; gap: 16px; }
+    .age-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .age-box { padding: 20px; border-radius: 16px; text-align: center; background: rgba(6,182,212,0.12); }
+    .age-box strong { font-size: 24px; display: block; margin-top: 4px; }
+    .verdict-box { padding: 24px; border-radius: 16px; text-align: center; font-weight: 700; font-size: 18px; background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(16,185,129,0.15)); color: #22c55e; }
+    .behind { background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(245,158,11,0.15)); color: #ef4444; }
+    @media (max-width: 900px) { .impact-card { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body class="app">
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="../../html/home.html">Home</a>
+      <a href="../../html/dashboard.html">Dashboard</a>
+      <a href="../../html/impact.html">Impact</a>
+      <a href="../../html/calculators.html" class="active">Calculators</a>
+      <a href="../../../Porfolio Analyser/portfolio-analyser-v9.html">Portfolio</a>
+      <a href="../../html/markets.html">Markets</a>
+      <a href="../../html/tax.html">Tax</a>
+      <a href="../../html/news.html">News</a>
+    </nav>
+  </aside>
+
+  <main class="page">
+    <button id="themeToggle" style="position: fixed; top: 32px; right: 32px; z-index: 100; background:none; border:none; font-size:24px; cursor:pointer;">🌙</button>
+
+    <header class="page-header">
+      <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
+      <h1>Child Education Reality</h1>
+      <p>The skyrocketing cost of higher education.</p>
+    </header>
+
+    <section class="impact-card">
+      <div class="impact-left">
+        <div class="impact-inputs">
+          <div class="input-group">
+            <label>Current Cost of Degree (₹)</label>
+            <div class="input-row">
+              <input type="range" min="500000" max="10000000" step="50000" value="2500000" id="cost">
+              <input type="number" value="2500000" id="costNum">
+            </div>
+          </div>
+          
+          <div class="input-group">
+            <label>Education Inflation (%)</label>
+            <div class="input-row">
+              <input type="range" min="6" max="15" step="0.5" value="10" id="inf">
+              <input type="number" value="10" id="infNum">
+            </div>
+            <span style="font-size:12px; color:var(--text-secondary); margin-top:4px;">*Typically 10-12% in India</span>
+          </div>
+
+          <div class="input-group">
+            <label>Years until College</label>
+            <div class="input-row">
+              <input type="range" min="1" max="25" value="15" id="time">
+              <input type="number" value="15" id="timeNum">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="impact-right">
+        <div class="chart-container"><canvas id="eduChart"></canvas></div>
+        <div class="result-grid">
+          <div class="age-comparison">
+            <div class="age-box"><span>Cost Today</span><strong id="nowVal">₹25L</strong></div>
+            <div class="age-box" style="background: rgba(239,68,68,0.12)"><span>Cost Later</span><strong id="laterVal">₹1 Cr</strong></div>
+          </div>
+          <div class="verdict-box behind" id="multVal">Costs Increase 4.2x</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script>
+const root = document.documentElement;
+const toggle = document.getElementById("themeToggle");
+const savedTheme = localStorage.getItem("finos-theme");
+if (savedTheme) root.setAttribute("data-theme", savedTheme);
+toggle.textContent = root.getAttribute("data-theme") === "dark" ? "🌙" : "☀️";
+toggle.onclick = () => {
+  const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("finos-theme", next);
+  toggle.textContent = next === "dark" ? "🌙" : "☀️";
+};
+
+const els = {
+  c: document.getElementById('cost'), cN: document.getElementById('costNum'),
+  i: document.getElementById('inf'), iN: document.getElementById('infNum'),
+  t: document.getElementById('time'), tN: document.getElementById('timeNum')
+};
+
+Object.keys(els).forEach(k => {
+  els[k].oninput = () => els[k+'N'] ? els[k+'N'].value = els[k].value : els[k.slice(0,-1)].value = els[k].value;
+  if(els[k].addEventListener) els[k].addEventListener('input', calculate);
+});
+
+const ctx = document.getElementById('eduChart');
+const chart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['Today', 'Future'],
+    datasets: [{
+      label: 'Degree Cost',
+      data: [25, 100],
+      backgroundColor: ['#06b6d4', '#ef4444'],
+      borderRadius: 8, borderWidth: 0
+    }]
+  },
+  options: {
+    scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: '#94a3b8' } } },
+    plugins: { legend: { display: false } }
+  }
+});
+
+function format(num) {
+  if(num>=10000000) return "₹"+(num/10000000).toFixed(2)+" Cr";
+  if(num>=100000) return "₹"+(num/100000).toFixed(2)+" L";
+  return "₹"+Math.round(num).toLocaleString();
+}
+
+function calculate() {
+  const present = +els.cN.value;
+  const rate = +els.iN.value / 100;
+  const years = +els.tN.value;
+  
+  const future = present * Math.pow(1 + rate, years);
+  const multiple = (future / present).toFixed(1);
+
+  document.getElementById('nowVal').textContent = format(present);
+  document.getElementById('laterVal').textContent = format(future);
+  document.getElementById('multVal').textContent = "Costs Increase " + multiple + "x";
+
+  chart.data.datasets[0].data = [present, future];
+  chart.update();
+}
+
+calculate();
+</script>
+</body>
+</html>

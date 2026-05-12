@@ -1,0 +1,866 @@
+/* Pull headings upward inside sections */
+.vision-section {
+  padding-top: 0.5rem;   /* reduce from default (likely 4–6rem) */
+}
+
+
+
+
+/* ===============================
+   GEN-Z PREMIUM BACKGROUND (DARK)
+   =============================== */
+
+.bg-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      1200px 600px at 10% 10%,
+      rgba(79,124,255,0.35),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 90% 20%,
+      rgba(0,212,255,0.25),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      #05060A 0%,
+      #0B1020 50%,
+      #05060A 100%
+    );
+
+  animation: bgFlow 40s ease-in-out infinite alternate;
+}
+
+/* ===============================
+   GEN-Z PREMIUM BACKGROUND (LIGHT)
+   =============================== */
+
+[data-theme="light"] .bg-canvas {
+  background:
+    radial-gradient(
+      1000px 600px at 10% 0%,
+      rgba(79,124,255,0.22),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 500px at 90% 10%,
+      rgba(0,180,255,0.18),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      #F6F8FF 0%,
+      #EEF2FF 50%,
+      #F6F8FF 100%
+    );
+}
+
+@keyframes bgFlow {
+  0% {
+    background-position:
+      0% 0%,
+      100% 0%,
+      center;
+  }
+  100% {
+    background-position:
+      20% 10%,
+      80% 20%,
+      center;
+  }
+}
+.bg-canvas::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.03),
+      rgba(255,255,255,0.03) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+
+  opacity: 0.15;
+}
+    .landing {
+  position: relative;
+  z-index: 1;
+}
+
+
+
+/* moving gradient layer */
+/* =========================
+   THEME-AWARE BACKGROUND
+   ========================= */
+
+[data-theme="dark"] .landing::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+
+  background:
+    radial-gradient(
+      1200px 600px at var(--mx, 20%) var(--my, 10%),
+      rgba(79,124,255,0.25),
+      transparent 60%
+    ),
+    linear-gradient(180deg, #0A0D14, #0E111A);
+}
+
+[data-theme="light"] .landing::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+
+  background:
+    radial-gradient(
+      1200px 600px at 20% 0%,
+      rgba(79,124,255,0.12),
+      transparent 60%
+    ),
+    linear-gradient(180deg, #F7F9FC, #FFFFFF);
+}
+
+
+
+.glass {
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 24px;
+}
+
+
+
+/* ===== FIN-OS PREMIUM BACKGROUND ===== */
+
+html[data-theme="dark"] {
+  background:
+    radial-gradient(
+      1200px 600px at 10% -10%,
+      rgba(79, 124, 255, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 90% 10%,
+      rgba(0, 200, 180, 0.12),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      #0A0D14 0%,
+      #0E111A 50%,
+      #0A0D14 100%
+    );
+  color: #EAEAF0;
+}
+
+html[data-theme="light"] {
+  background:
+    radial-gradient(
+      1000px 500px at 10% -10%,
+      rgba(79, 124, 255, 0.12),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      #F9FAFB 0%,
+      #FFFFFF 100%
+    );
+  color: #0B0D12;
+}
+
+
+
+
+
+
+/* =========================
+   LANDING PAGE
+   ========================= */
+
+
+/* theme button placement */
+.landing-theme {
+  position: fixed;
+  top: 28px;
+  right: 32px;
+  z-index: 100;
+}
+
+/* HERO */
+.landing-hero {
+  max-width: 900px;
+}
+
+.eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+  display: inline-block;
+}
+
+.landing-hero h1 {
+  font-size: clamp(42px, 5vw, 64px);
+  line-height: 1.05;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.landing-hero h1 span {
+  color: var(--accent);
+}
+
+.hero-sub {
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+.hero-cta {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.cta-note {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* TRUST STRIP */
+.trust-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin: 96px 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* VALUES */
+.landing-values {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-bottom: 120px;
+}
+
+.value-card {
+  background: var(--bg-surface);
+  padding: 32px;
+  border-radius: 24px;
+  box-shadow: var(--card-shadow);
+}
+
+.value-card h3 {
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+.value-card p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* FINAL CTA */
+.landing-final {
+  text-align: center;
+}
+
+.landing-final h2 {
+  font-size: 28px;
+  margin-bottom: 24px;
+}
+
+/* BUTTON */
+.primary-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+}
+/* ===============================
+   MYTH vs REALITY – PREMIUM UI
+   =============================== */
+
+.landing-myths {
+  margin-top: 140px;
+}
+
+.section-title {
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+}
+
+.section-title span {
+  color: var(--accent);
+}
+
+.section-sub {
+  max-width: 720px;
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin: 14px auto 0;
+  text-align: center;
+}
+
+/* Grid */
+.myth-reality-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 40px;
+  margin-top: 64px;
+}
+
+/* Cards */
+.belief-card {
+  position: relative;
+  padding: 36px;
+  border-radius: 28px;
+  background: var(--bg-surface);
+  box-shadow: var(--card-shadow);
+  transition:
+    transform 0.6s cubic-bezier(0.16,1,0.3,1),
+    box-shadow 0.6s ease;
+  overflow: hidden;
+}
+
+/* Hover lift */
+.belief-card:hover {
+  transform: translateY(-12px);
+  box-shadow:
+    0 40px 80px rgba(0,0,0,0.12);
+}
+
+/* Label */
+.belief-card .label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  opacity: 0.6;
+}
+
+/* Headings */
+.belief-card h3 {
+  font-size: 24px;
+  margin-top: 12px;
+  letter-spacing: -0.3px;
+}
+
+/* Text */
+.belief-card p {
+  margin-top: 10px;
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+/* Myth style */
+.belief-card.myth {
+  background:
+    linear-gradient(135deg,
+      rgba(255,90,90,0.08),
+      var(--bg-surface)
+    );
+}
+
+/* Reality style */
+.belief-card.reality {
+  background:
+    linear-gradient(135deg,
+      rgba(79,124,255,0.12),
+      var(--bg-surface)
+    );
+}
+
+/* Glow edge (Apple-like) */
+.belief-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,0.08),
+    transparent
+  );
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.belief-card:hover::after {
+  opacity: 1;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .myth-reality-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+.timeline-card {
+  backdrop-filter: blur(8px);
+  overflow: hidden;      /* ✅ clips highlight */
+  position: relative;    /* ✅ required for pseudo elements */
+}
+
+
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+
+/* =========================
+   HEADING VISIBILITY FIX
+   ========================= */
+
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3 {
+  color: #0B0D12;
+}
+
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3 {
+  color: #F5F7FA;
+}
+
+
+
+/* =========================
+   FIN-OS VISION (APPLE STYLE)
+   ========================= */
+
+.vision-section {
+  padding: 140px 0;
+  position: relative;
+}
+
+.vision-header {
+  max-width: 720px;
+  margin-bottom: 72px;
+}
+
+.vision-header h2 {
+  font-size: clamp(34px, 4vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+.vision-header p {
+  margin-top: 16px;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+/* GRID */
+.vision-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 28px;
+}
+
+/* CARD */
+.vision-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border-radius: 22px;
+  padding: 30px 32px;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    0 30px 70px rgba(0,0,0,0.35);
+
+  transition:
+    transform 0.5s cubic-bezier(0.16,1,0.3,1),
+    box-shadow 0.5s ease;
+}
+
+.vision-card:hover {
+  transform: translateY(-12px) scale(1.01);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.14),
+    0 50px 120px rgba(0,0,0,0.45);
+}
+
+/* ICON */
+.vision-icon {
+  display: inline-block;
+  font-size: 28px;
+  margin-bottom: 18px;
+}
+
+/* TEXT */
+.vision-card h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.vision-card p {
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* =========================
+   PREMIUM FINAL CTA
+   ========================= */
+
+.premium-cta {
+  margin-top: 160px;
+  padding: 140px 0;
+  text-align: center;
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(79,124,255,0.15),
+      transparent 60%
+    );
+}
+
+.premium-cta h2 {
+  font-size: clamp(32px, 4vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  margin-bottom: 32px;
+}
+
+
+
+/* =========================
+   PREMIUM INTERACTION EFFECTS
+   ========================= */
+
+/* Cursor hint */
+.vision-card,
+.primary-btn {
+  cursor: pointer;
+  will-change: transform, box-shadow;
+}
+
+/* Soft 3D lift on hover */
+.vision-card:hover {
+  transform: translateY(-14px) scale(1.015);
+}
+
+/* Click / press feedback */
+.vision-card:active {
+  transform: translateY(-6px) scale(0.985);
+}
+
+/* Subtle glow (dark mode friendly) */
+[data-theme="dark"] .vision-card:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.15),
+    0 60px 140px rgba(79,124,255,0.25);
+}
+
+[data-theme="light"] .vision-card:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 40px 90px rgba(0,0,0,0.12);
+}
+
+/* Icon micro-motion */
+.vision-icon {
+  transition:
+    transform 0.6s cubic-bezier(0.16,1,0.3,1),
+    filter 0.4s ease;
+}
+
+.vision-card:hover .vision-icon {
+  transform: translateY(-4px) scale(1.1);
+  filter: drop-shadow(0 10px 20px rgba(79,124,255,0.35));
+}
+/* =========================
+   BUTTON INTERACTIONS
+   ========================= */
+
+.primary-btn {
+  position: relative;
+  overflow: hidden;
+
+  transition:
+    transform 0.3s cubic-bezier(0.16,1,0.3,1),
+    box-shadow 0.3s ease;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 20px 50px rgba(79,124,255,0.45);
+}
+
+.primary-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Ripple-like light sweep */
+.primary-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,0.35),
+    transparent
+  );
+  transform: translateX(-120%);
+  transition: transform 0.6s ease;
+}
+
+.primary-btn:hover::after {
+  transform: translateX(120%);
+}
+
+
+/* ================= BELIEF ENGINE ================= */
+
+.belief-engine {
+  text-align: center;
+  max-width: 900px;
+
+  /* FIX: reduce vertical gap */
+  margin: 40px auto 20px;
+}
+
+
+.belief-engine h2 {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.belief-engine .sub {
+  color: var(--text-secondary);
+  font-size: 18px;
+}
+
+.belief-grid {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 40px 0;
+}
+
+.belief-grid button {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--text-primary);
+
+  padding: 16px 22px;
+  border-radius: 16px;
+  font-size: 15px;
+  cursor: pointer;
+
+  transition:
+    transform 0.3s cubic-bezier(0.16,1,0.3,1),
+    background 0.3s ease;
+}
+
+.belief-grid button:hover {
+  transform: translateY(-4px);
+  background: rgba(79,124,255,0.18);
+}
+
+.belief-result {
+  margin-top: 24px;
+  font-size: 18px;
+  color: var(--text-secondary);
+}
+
+
+/* =========================
+   LANDING ROOT (FIXED)
+   ========================= */
+
+.landing {
+  position: relative;
+  padding: 120px 8vw 80px;
+  background: transparent;
+  color: var(--text-primary);
+}
+section {
+  scroll-margin-top: 120px;
+}
+
+/* ===============================
+   BELIEF ENGINE INTERACTIONS
+   =============================== */
+
+.belief-grid button {
+  transition:
+    transform 0.3s cubic-bezier(0.16,1,0.3,1),
+    background 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.belief-grid button:hover {
+  transform: translateY(-4px);
+  background: rgba(79,124,255,0.18);
+}
+
+.belief-grid button.active {
+  background: rgba(79,124,255,0.28);
+  box-shadow:
+    0 20px 40px rgba(79,124,255,0.35);
+}
+
+.belief-result {
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
+}
+
+
+/* =========================
+   SECTION SPACING (GLOBAL)
+   ========================= */
+
+.landing-section {
+  margin: 120px 0;
+}
+
+/* =========================
+   TEXT HIGHLIGHT SYSTEM v2
+   ========================= */
+
+.text-highlight {
+  position: relative;
+  display: inline;
+  font-weight: 700;
+  padding: 0 0.15em;
+  z-index: 0;
+}
+
+/* ---------- LIGHT MODE ---------- */
+[data-theme="light"] .text-highlight {
+  color: #0B0D12;
+}
+
+[data-theme="light"] .text-highlight::before {
+  content: "";
+  position: absolute;
+  left: -0.15em;
+  right: -0.15em;
+  bottom: 0.15em;
+
+  height: 0.45em;
+  background: linear-gradient(
+    90deg,
+    #C7F000,
+    #B6FF3B
+  );
+
+  border-radius: 0.35em;
+  z-index: -1;
+  opacity: 0.85;
+}
+
+/* ---------- DARK MODE ---------- */
+[data-theme="dark"] .text-highlight {
+  color: #F5F7FA;
+}
+
+[data-theme="dark"] .text-highlight::before {
+  content: "";
+  position: absolute;
+  left: -0.15em;
+  right: -0.15em;
+  bottom: 0.18em;
+
+  height: 0.42em;
+  background: linear-gradient(
+    90deg,
+    rgba(79,124,255,0.45),
+    rgba(0,212,255,0.35)
+  );
+
+  border-radius: 0.35em;
+  z-index: -1;
+  opacity: 0.75;
+}
+
+/* =========================
+   FIN-OS SECTION DIVIDER — TYPE 2 (CENTER MARK)
+   ========================= */
+
+.fin-divider {
+  margin: 2rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+/* The mark */
+.fin-divider--mark {
+  width: 88px;          /* 🔥 longer, intentional */
+  height: 3px;          /* thinner = premium */
+  border-radius: 999px;
+  opacity: 0.65;
+}
+
+/* Light mode */
+[data-theme="light"] .fin-divider--mark {
+  background: linear-gradient(90deg, #C7F000, #B6FF3B);
+}
+
+/* Dark mode */
+[data-theme="dark"] .fin-divider--mark {
+  background: linear-gradient(
+    90deg,
+    rgba(79,124,255,0.55),
+    rgba(0,212,255,0.45)
+  );
+}
+
+
+
+/* Add this to the bottom of your CSS file */
+.primary-btn {
+  width: auto !important;         /* Stop 100% width */
+  max-width: none !important;     /* Remove the 450px limit */
+  display: inline-flex;           /* Make it behave like a button, not a block */
+  justify-content: center;        /* Center text inside */
+}

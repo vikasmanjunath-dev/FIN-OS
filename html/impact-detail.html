@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>Impact Insight</title>
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+
+<body>
+<div class="app">
+
+  <!-- SIDEBAR (same as impact.html) -->
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="impact.html">← Back to Impact</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper impact-detail">
+
+      <!-- HEADER -->
+      <header class="header header-flex">
+        <div>
+          <h1 id="impactTitle"></h1>
+          <p id="impactSubtitle"></p>
+        </div>
+
+        <button id="themeToggle" class="theme-btn">🌙</button>
+      </header>
+
+      <!-- =========================
+     IMPACT FLOW SYSTEM
+     ========================= -->
+
+                        <section class="impact-flow">
+
+                        <div class="flow-step active" data-step="1">
+                            <span class="step-dot"></span>
+                            <h3>A very Indian beginning</h3>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-step" data-step="2">
+                            <span class="step-dot"></span>
+                            <h3>Time vs Money</h3>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-step" data-step="3">
+                            <span class="step-dot"></span>
+                            <h3>Pressure Cooker Analogy</h3>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-step" data-step="4">
+                            <span class="step-dot"></span>
+                            <h3>Reality Check</h3>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-step" data-step="5">
+                            <span class="step-dot"></span>
+                            <h3>The real insight</h3>
+                        </div>
+
+                        </section>
+
+                        <!-- INSIGHT REVEAL -->
+                        <section id="flowInsight" class="flow-insight"></section>
+
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/ui.js"></script>
+<script src="../js/impact-detail.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+</body>
+</html>

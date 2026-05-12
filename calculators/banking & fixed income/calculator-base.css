@@ -1,0 +1,173 @@
+/* =========================
+   CALCULATOR PAGE WRAPPER
+   ========================= */
+
+.page {
+  flex: 1;
+  padding: 56px 64px;
+  background: var(--bg-main);
+  overflow-x: hidden;
+}
+
+/* =========================
+   PAGE HEADER
+   ========================= */
+
+.page-header {
+  max-width: 1100px;
+  margin-bottom: 40px;
+}
+
+.page-header h1 {
+  font-size: 42px;
+  font-weight: 700;
+}
+
+.page-header p {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+/* =========================
+   IMPACT-STYLE CALCULATOR CARD
+   ========================= */
+
+.impact-card {
+  max-width: 1100px;
+  margin-top: 24px;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+
+  padding: 48px;
+  border-radius: 32px;
+
+  background: var(--bg-surface);
+  box-shadow: var(--card-shadow);
+}
+
+/* LEFT */
+.impact-left h2 {
+  font-size: 28px;
+  margin-top: 12px;
+}
+
+.impact-sub {
+  margin-top: 6px;
+  color: var(--text-secondary);
+}
+
+/* =========================
+   INPUTS
+   ========================= */
+
+.impact-inputs {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.impact-inputs label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.impact-inputs span {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Range Slider */
+input[type="range"] {
+  appearance: none;
+  height: 6px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #4f46e5, #22c55e);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  border: 2px solid #4f46e5;
+}
+
+/* =========================
+   RIGHT SIDE (CHART + RESULT)
+   ========================= */
+
+.impact-right {
+  position: relative;
+  height: 360px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.impact-right canvas {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.impact-result {
+  margin-top: 18px;
+  text-align: center;
+}
+
+.impact-result strong {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+/* =========================
+   THEME TOGGLE
+   ========================= */
+
+.theme-toggle {
+  position: fixed;
+  top: 24px;
+  right: 32px;
+
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+
+  background: var(--bg-surface);
+  color: var(--text-primary);
+
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: var(--card-shadow);
+
+  cursor: pointer;
+  z-index: 100;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 900px) {
+  .impact-card {
+    grid-template-columns: 1fr;
+  }
+
+  .impact-right {
+    height: 260px;
+  }
+}
+

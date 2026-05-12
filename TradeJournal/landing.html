@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TradeBook Pro — Elite Trading Terminal</title>
+  <link rel="stylesheet" href="landing.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="#" class="nav-brand">
+      <svg width="24" height="24" viewBox="0 0 32 32"><polygon points="16,2 30,28 2,28" fill="none" stroke="var(--accent)" stroke-width="3"/></svg>
+      TradeBook<span style="color:var(--text-muted)">PRO</span>
+    </a>
+    <div class="nav-links">
+      <a href="#">Features</a>
+      <a href="#">Security</a>
+      <a href="#">Pricing</a>
+    </div>
+    <a href="index.html" class="nav-btn">Launch Terminal</a>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <header class="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-content">
+      <div class="hero-badge">✨ THE NEW STANDARD FOR RETAIL ELITES</div>
+      <h1 class="hero-title reveal">Trade with<br><span class="accent-text">Absolute Precision.</span></h1>
+      <p class="hero-sub reveal">The only institutional-grade trading journal and psychology engine that runs 100% locally on your machine. Zero lag, zero tracking, total edge.</p>
+      <div class="hero-cta reveal">
+        <a href="index.html" class="btn-primary">Enter Dashboard</a>
+        <a href="#" class="btn-secondary">Watch Demo</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ANIMATED DIAGRAM SECTION -->
+  <section class="diagram-section">
+    <h2 class="section-title reveal">Your edge,<br><span style="color:var(--text-muted)">visualized.</span></h2>
+    <div class="diagram-container reveal">
+      <svg class="diagram-svg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet">
+        <!-- Connecting Lines -->
+        <path class="path-line" d="M 100 200 C 250 200, 300 100, 400 100" />
+        <path class="path-line" d="M 100 200 C 250 200, 300 300, 400 300" />
+        <path class="path-line" d="M 400 100 C 500 100, 550 200, 700 200" />
+        <path class="path-line" d="M 400 300 C 500 300, 550 200, 700 200" />
+        
+        <!-- Glowing animated flow -->
+        <path class="path-glow" d="M 100 200 C 250 200, 300 100, 400 100" />
+        <path class="path-glow" d="M 100 200 C 250 200, 300 300, 400 300" />
+        <path class="path-glow" d="M 400 100 C 500 100, 550 200, 700 200" />
+        <path class="path-glow" d="M 400 300 C 500 300, 550 200, 700 200" />
+
+        <!-- Nodes -->
+        <circle class="node-circle" cx="100" cy="200" r="30" />
+        <circle class="node-circle" cx="400" cy="100" r="40" />
+        <circle class="node-circle" cx="400" cy="300" r="40" />
+        <circle class="node-circle" cx="700" cy="200" r="50" />
+
+        <!-- Text Labels -->
+        <text x="100" y="250" fill="var(--text-muted)" font-family="var(--font-body)" font-size="14" text-anchor="middle">Raw Trades</text>
+        <text x="400" y="165" fill="var(--text-main)" font-family="var(--font-body)" font-size="14" font-weight="bold" text-anchor="middle">Analytics Engine</text>
+        <text x="400" y="365" fill="var(--text-main)" font-family="var(--font-body)" font-size="14" font-weight="bold" text-anchor="middle">Psychology Core</text>
+        <text x="700" y="275" fill="var(--accent)" font-family="var(--font-display)" font-size="20" font-weight="800" text-anchor="middle">Profit Factor</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 3D BENTO GRID -->
+  <section class="bento-section">
+    <h2 class="section-title reveal">Unreal performance.<br><span style="color:var(--text-muted)">Unmatched UI.</span></h2>
+    <div class="bento-grid">
+      <div class="bento-card bento-large reveal">
+        <div class="bento-content">
+          <div class="bento-icon">📊</div>
+          <h3>Deep Trade Analytics</h3>
+          <p>Go beyond simple win rates. Understand your R:R, EV, and drawdowns with interactive, instantly updating charts built for professional tape readers and swing traders.</p>
+        </div>
+      </div>
+      <div class="bento-card reveal">
+        <div class="bento-content">
+          <div class="bento-icon">⚡</div>
+          <h3>0ms Latency</h3>
+          <p>Everything runs directly in your browser's local storage. Zero database fetching means zero load times.</p>
+        </div>
+      </div>
+      <div class="bento-card reveal">
+        <div class="bento-content">
+          <div class="bento-icon">🛡️</div>
+          <h3>100% Private</h3>
+          <p>Your trading data is your edge. We never see it, store it, or sell it.</p>
+        </div>
+      </div>
+      <div class="bento-card bento-wide reveal">
+        <div class="bento-content">
+          <div class="bento-icon">🧠</div>
+          <h3>Psychology & Discipline Tracking</h3>
+          <p>The only journal that tracks your mental state, revenge trading triggers, and emotional capital alongside your financial capital. Build unbreakable discipline.</p>
+        </div>
+      </div>
+      <div class="bento-card reveal">
+        <div class="bento-content">
+          <div class="bento-icon">🤖</div>
+          <h3>Monte Carlo Sim</h3>
+          <p>Test your edge mathematically through 10,000+ simulated scenarios to predict future drawdown risk.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing-section">
+    <h2 class="section-title reveal">Simple pricing.<br><span style="color:var(--text-muted)">Infinite ROI.</span></h2>
+    <div class="pricing-grid">
+      <div class="price-card reveal">
+        <h3 class="price-title">Hobbyist</h3>
+        <div class="price-val">Free</div>
+        <ul class="price-features">
+          <li>Basic Analytics Dashboard</li>
+          <li>100 Trades Logged per Month</li>
+          <li>Local Storage Encryption</li>
+        </ul>
+        <a href="index.html" class="btn-secondary" style="display:block;text-align:center">Start Free</a>
+      </div>
+      <div class="price-card pro reveal">
+        <h3 class="price-title" style="color:var(--accent)">Institutional</h3>
+        <div class="price-val">₹999<span> /mo</span></div>
+        <ul class="price-features">
+          <li>Unlimited Trade Logging</li>
+          <li>Psychology & Mental Capital Core</li>
+          <li>Monte Carlo Simulator</li>
+          <li>One-Click PDF Audit Exports</li>
+        </ul>
+        <a href="index.html" class="btn-primary" style="display:block;text-align:center">Upgrade to Institutional</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer reveal">
+    <div class="footer-brand">
+      <svg width="24" height="24" viewBox="0 0 32 32" style="margin-bottom:12px"><polygon points="16,2 30,28 2,28" fill="none" stroke="var(--text-muted)" stroke-width="2"/></svg>
+      <div style="font-weight:600; color:#fff">TradeBook PRO</div>
+      <div style="font-size:12px">Designed for elite performers.</div>
+    </div>
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Support</a>
+    </div>
+  </footer>
+
+  <script src="landing.js"></script>
+</body>
+</html>

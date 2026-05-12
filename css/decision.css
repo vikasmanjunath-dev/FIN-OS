@@ -1,0 +1,279 @@
+/* =========================
+   DECISION CORE STYLES
+   ========================= */
+
+/* BRAIN VISUAL */
+.brain-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 60px 0;
+  position: relative;
+}
+
+.brain-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.brain-pulse {
+  position: absolute;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  animation: pulse-ring 2s infinite;
+  opacity: 0;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.brain-text h2 { font-size: 1.5rem; color: #fff; margin-bottom: 8px; text-align: center; }
+.typewriter {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  border-right: 2px solid var(--accent);
+  white-space: nowrap;
+  overflow: hidden;
+  animation: typing 3s steps(30, end), blink-caret .75s step-end infinite;
+}
+
+@keyframes typing { from { width: 0 } to { width: 100% } }
+@keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: var(--accent); } }
+
+/* SECTION BADGES */
+.section-badge {
+  font-family: 'JetBrains Mono';
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 4px 10px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+/* FAST VS SLOW TOGGLE */
+.toggle-container {
+  display: flex;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.mode-card {
+  flex: 1;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 24px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.mode-card:hover { transform: translateY(-5px); }
+.mode-card.active { border-color: var(--accent); background: rgba(199, 240, 0, 0.05); }
+.mode-card.active .status-indicator { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+
+.status-indicator {
+  font-family: 'JetBrains Mono';
+  font-size: 0.7rem;
+  margin-top: 15px;
+  color: #555;
+  transition: all 0.3s;
+}
+
+/* SCENARIO BOX */
+.scenario-box {
+  margin-top: 30px;
+  padding: 30px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 16px;
+  border: 1px dashed rgba(255,255,255,0.1);
+}
+
+.reaction { padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-top: 15px; }
+.reaction.hidden { display: none; }
+.outcome { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-top: 10px; font-weight: 700; }
+.outcome.bad { background: rgba(255, 71, 87, 0.2); color: #ff4757; }
+.outcome.good { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+
+/* BUG GRID */
+.bug-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 30px; }
+.bug-card {
+  background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(0,0,0,0.5));
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 24px;
+  border-radius: 20px;
+  transition: transform 0.1s; /* For JS Tilt */
+}
+.bug-icon { font-size: 2.5rem; margin-bottom: 16px; }
+.definition { font-style: italic; color: var(--text-secondary); margin-bottom: 16px; }
+
+/* TOOLS */
+.tool-deck { display: flex; gap: 30px; margin-top: 30px; }
+.tool-card { flex: 1; background: rgba(255,255,255,0.03); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+.checklist label { display: block; margin-bottom: 12px; font-size: 0.95rem; cursor: pointer; color: var(--text-secondary); }
+.checklist input { margin-right: 10px; accent-color: var(--accent); }
+
+/* TERMINAL FOOTER */
+.final-message { text-align: center; margin-top: 80px; padding: 40px; border-top: 1px solid rgba(255,255,255,0.1); }
+.terminal-text { font-family: 'JetBrains Mono'; color: var(--text-secondary); font-size: 1.1rem; }
+.terminal-text.highlight { color: var(--accent); animation: blink 1s infinite; }
+
+.next-module-btn {
+  display: inline-block;
+  margin-top: 30px;
+  padding: 16px 32px;
+  background: #fff;
+  color: #000;
+  border-radius: 100px;
+  text-decoration: none;
+  font-weight: 800;
+  transition: all 0.3s;
+}
+.next-module-btn:hover { background: var(--accent); box-shadow: 0 0 30px var(--accent); }
+
+/* MOBILE */
+@media (max-width: 900px) {
+  .toggle-container, .bug-grid, .tool-deck { flex-direction: column; grid-template-columns: 1fr; }
+}
+
+
+/* =========================
+   LIGHT MODE OVERRIDES (PREMIUM FIX)
+   ========================= */
+
+/* 1. Global Light Backgrounds & Text */
+[data-theme="light"] body {
+  background-color: #F8F9FA; /* Clean, soft grey-white */
+  color: #1A202C;
+}
+
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4 {
+  color: #0F172A; /* Deep Navy Black for headings */
+  text-shadow: none; /* Remove neon glows if any */
+}
+
+[data-theme="light"] p,
+[data-theme="light"] .hero-sub {
+  color: #475569; /* Slate Grey for readability */
+}
+
+/* 2. Fix the Brain/Hero Section */
+[data-theme="light"] .brain-text h2 {
+  color: #000;
+}
+[data-theme="light"] .typewriter {
+  color: #D93025; /* Crisp Red for the "Thinking errors" text */
+  text-shadow: none;
+}
+
+/* 3. The Dual Processor Cards (Fast/Slow Thinking) */
+[data-theme="light"] .mode-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02); /* Soft Apple-style shadow */
+}
+
+[data-theme="light"] .mode-card.active {
+  background: #EFF6FF; /* Very faint blue highlight */
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); /* Focus ring */
+}
+[data-theme="light"] .mode-card h3 { color: #1E293B; }
+[data-theme="light"] .mode-card p { color: #64748B; }
+
+/* 4. The Scenario Box (The Grey Box Fix) */
+[data-theme="light"] .scenario-box {
+  background: #FFFFFF; /* White instead of dark glass */
+  border: 1px solid #CBD5E1;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* Float effect */
+}
+
+[data-theme="light"] #scenarioTitle {
+  color: #334155;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+[data-theme="light"] .reaction {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  color: #334155;
+}
+[data-theme="light"] .reaction strong {
+  color: #0F172A;
+}
+
+/* 5. Bug Cards (Loss Aversion, etc.) */
+[data-theme="light"] .bug-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+[data-theme="light"] .bug-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 30px rgba(0,0,0,0.1);
+  border-color: #3B82F6;
+}
+[data-theme="light"] .bug-card h3 { color: #111; }
+[data-theme="light"] .definition { color: #64748B; }
+
+/* Fix the "Reality" Box inside Bug Cards */
+[data-theme="light"] .desi-reality {
+  background: #F0F9FF; /* Light Blue Tint */
+  border-left: 3px solid #0EA5E9;
+}
+[data-theme="light"] .desi-reality p { color: #334155; }
+
+/* 6. Tools Section */
+[data-theme="light"] .tool-card {
+  background: #fff;
+  border: 1px solid #E2E8F0;
+}
+[data-theme="light"] .checklist label {
+  background: #F1F5F9;
+  color: #1E293B;
+  border: 1px solid transparent;
+}
+[data-theme="light"] .checklist label:hover {
+  border-color: #CBD5E1;
+  background: #E2E8F0;
+}
+
+/* 7. Footer */
+[data-theme="light"] .final-message {
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
+}
+[data-theme="light"] .terminal-text {
+  color: #334155;
+  text-shadow: none;
+}
+
+
+.user-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--accent-soft); /* */
+  border-radius: 50%; /* Makes it a round symbol */
+  margin-right: 12px;
+  font-size: 0.8rem;
+}

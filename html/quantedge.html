@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | QuantEdge Terminal</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/quantedge.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="finance101.html">Fin-101</a>
+      <a href="quantedge.html" class="active">QuantEdge</a>
+      <a href="../Porfolio Analyser/portfolio-analyser-v9.html">Disector</a>
+      <a href="tax.html">Tax</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper quantedge">
+      
+      <header class="intel-header">
+        <div class="status-bar">
+          <span class="pulse-dot"></span>
+          <span class="status-text">QUANTUM ENGINE ONLINE // ASSET: NIFTY_50</span>
+        </div>
+        <div class="header-main">
+          <h1 class="glitch-text" data-text="QUANTEDGE MATRIX">QUANTEDGE MATRIX</h1>
+          <div class="engine-toggle">
+            <button class="mode-btn active">Alpha Intelligence</button>
+            <button class="mode-btn">Risk Vulnerability</button>
+          </div>
+        </div>
+      </header>
+
+      <div class="matrix-grid">
+        <div class="intel-card glass center-flex">
+          <div class="orb-container">
+            <div class="probability-orb" id="quantumOrb">
+              <span id="prob-percent">72%</span>
+            </div>
+            <h3>Edge Bias: NEUTRAL-BULL</h3>
+          </div>
+        </div>
+
+        <div class="intel-card glass">
+          <div class="card-label">REGIME CLASSIFIER</div>
+          <div class="regime-status">
+            <h2 id="regime-type">MEAN REVERSION</h2>
+            <p>Price is overextended from the VWAP baseline. Expect a "Ghar Wapsi" (Return to Home) move.</p>
+          </div>
+          <div class="regime-meter">
+            <div class="meter-bar" style="width: 45%;"></div>
+          </div>
+        </div>
+
+        <div class="intel-card glass">
+          <div class="card-label">INSTITUTIONAL FOOTPRINT</div>
+          <div class="analogy-box">
+             <p><strong>The "Whale in a Pond" Logic:</strong> When a whale (FII) moves, the water level changes everywhere. We don't watch the whale; we watch the water level.</p>
+          </div>
+          <div class="proxy-stats">
+             <div class="stat"><span>Accumulation</span><span class="val high">STABLE</span></div>
+             <div class="stat"><span>Slippage Risk</span><span class="val low">LOW</span></div>
+          </div>
+        </div>
+
+        <div class="intel-card glass span-2">
+          <div class="card-label">QUANT-DNA FINGERPRINT</div>
+          <div class="dna-visual">
+            <canvas id="quantDnaChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../js/ui.js"></script>
+<script src="../js/quantedge.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+</body>
+</html>

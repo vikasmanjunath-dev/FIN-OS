@@ -1,0 +1,1018 @@
+{% extends 'finos/base.html' %}
+{% block title %}FIN-OS — Investor Mind{% endblock %}
+{% block extra_head %}
+<style>
+.inv-page{
+  width:min(100%,1320px);
+  padding:2rem clamp(1rem,3vw,2.5rem) 5rem;
+  margin:0 auto;
+  position:relative;
+  z-index:1
+}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,255,136,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.02) 1px,transparent 1px);background-size:48px 48px;opacity:.5}
+
+/* PAGE HEADER */
+.inv-header{padding:2rem 0 1.75rem;border-bottom:1px solid rgba(0,255,136,.07);margin-bottom:2.5rem;display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:center}
+.inv-mode-badge{display:inline-flex;align-items:center;gap:.5rem;padding:3px 12px;border-radius:20px;font-family:var(--fM);font-size:.53rem;letter-spacing:2px;background:rgba(0,255,136,.06);color:var(--g);border:1px solid rgba(0,255,136,.2);margin-bottom:.7rem}
+.inv-title{font-family:var(--fD);font-size:clamp(2rem,4vw,3.2rem);letter-spacing:2px;color:var(--g);line-height:1.1;margin-bottom:.4rem}
+.inv-subtitle{font-size:.88rem;color:var(--mu);max-width:500px;line-height:1.65}
+.inv-progress-block{background:var(--s1);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:1.25rem 1.5rem;min-width:200px;text-align:center}
+.ipb-label{font-family:var(--fM);font-size:.52rem;color:var(--mu);letter-spacing:2px;margin-bottom:.6rem}
+.ipb-bar{height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;margin-bottom:.5rem}
+.ipb-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--c));border-radius:3px;transition:width 1.5s ease}
+.ipb-pct{font-family:var(--fD);font-size:1.4rem;letter-spacing:1px;color:var(--g)}
+.profile-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin-bottom:2rem}
+.profile-card{background:var(--s1);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:1rem 1.1rem}
+.profile-label{font-family:var(--fM);font-size:.54rem;letter-spacing:1.5px;color:var(--mu);margin-bottom:.45rem}
+.profile-value{font-family:var(--fD);font-size:1.25rem;letter-spacing:1px;color:var(--g)}
+.profile-copy{font-size:.78rem;line-height:1.55;color:rgba(240,237,255,.68);margin-top:.3rem}
+.memory-warning{margin-bottom:1.5rem;padding:1rem 1.1rem;border-radius:14px;background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.14)}
+.memory-warning-title{font-family:var(--fD);font-size:1.05rem;letter-spacing:1px;color:var(--g);margin-bottom:.35rem}
+.memory-warning-copy{font-size:.8rem;line-height:1.65;color:rgba(240,237,255,.74)}
+.auto-journal-card{margin-top:1rem;padding:1rem 1.1rem;border-radius:14px;background:rgba(124,58,255,.05);border:1px solid rgba(124,58,255,.14)}
+.auto-journal-title{font-family:var(--fD);font-size:1rem;letter-spacing:1px;color:#a78bff;margin-bottom:.45rem}
+.auto-journal-copy{font-size:.8rem;line-height:1.7;color:rgba(240,237,255,.78)}
+
+/* MODE SWITCHER */
+.mode-switcher{display:flex;gap:.5rem;padding:.55rem;background:var(--s1);border:1px solid rgba(255,255,255,.07);border-radius:14px;margin-bottom:2.5rem;position:relative}
+.mode-btn{flex:1;padding:.8rem 1.5rem;border-radius:10px;font-family:var(--fD);font-size:.82rem;letter-spacing:1.5px;cursor:pointer;transition:all .28s cubic-bezier(.4,0,.2,1);border:none;background:transparent;color:var(--mu);display:flex;align-items:center;justify-content:center;gap:.6rem;position:relative;z-index:1}
+.mode-btn.learn.active{color:#00ff88}
+.mode-btn.journal.active{color:#a78bff}
+.mode-slider{position:absolute;top:.55rem;bottom:.55rem;border-radius:10px;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:0}
+.mode-slider.learn-pos{left:.55rem;right:50%;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.22);box-shadow:0 0 20px rgba(0,255,136,.06)}
+.mode-slider.journal-pos{left:50%;right:.55rem;background:rgba(124,58,255,.1);border:1px solid rgba(124,58,255,.22);box-shadow:0 0 20px rgba(124,58,255,.06)}
+.mode-badge{font-family:var(--fM);font-size:.44rem;letter-spacing:1.5px;padding:1px 6px;border-radius:4px;margin-left:.3rem}
+.learn-badge{background:rgba(0,255,136,.1);color:rgba(0,255,136,.7)}
+.journal-badge{background:rgba(124,58,255,.1);color:rgba(167,139,255,.7)}
+.mode-panel{display:none}
+.mode-panel.show{display:block;animation:slide-up .4s ease}
+.journal-intro{margin-bottom:1.75rem;padding:1.25rem 1.5rem;border-radius:16px;background:linear-gradient(135deg,rgba(124,58,255,.07),rgba(0,212,255,.04));border:1px solid rgba(124,58,255,.18);display:flex;align-items:center;gap:1.25rem}
+.ji-icon{font-size:2.2rem;flex-shrink:0}
+.ji-title{font-family:var(--fD);font-size:1.15rem;letter-spacing:1px;color:#a78bff;margin-bottom:.25rem}
+.ji-sub{font-size:.78rem;color:var(--mu);line-height:1.6}
+
+/* SECTION NAV */
+.sec-nav{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:2.5rem;padding:.75rem 1rem;background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:12px}
+.snb{padding:.35rem .9rem;border-radius:8px;font-family:var(--fM);font-size:.58rem;letter-spacing:.5px;background:transparent;border:1px solid transparent;color:var(--mu);cursor:pointer;transition:all .2s;text-decoration:none;display:flex;align-items:center;gap:.35rem}
+.snb:hover,.snb.on{background:rgba(0,255,136,.08);border-color:rgba(0,255,136,.2);color:var(--g)}
+
+/* SECTION WRAPPER */
+.inv-section{margin-bottom:3.5rem;animation:slide-up .6s ease}
+.sec-hd{display:flex;align-items:center;gap:1rem;margin-bottom:1.75rem}
+.sec-num{width:38px;height:38px;border-radius:10px;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);display:flex;align-items:center;justify-content:center;font-family:var(--fD);font-size:1.05rem;color:var(--g);flex-shrink:0}
+.sec-name{font-family:var(--fD);font-size:1.55rem;letter-spacing:1.5px}
+.sec-desc{font-family:var(--fM);font-size:.56rem;color:var(--mu);letter-spacing:1px;margin-top:3px}
+.sec-xp{font-family:var(--fM);font-size:.5rem;padding:2px 8px;border-radius:6px;background:rgba(255,204,0,.08);color:var(--y);border:1px solid rgba(255,204,0,.15);margin-left:auto;flex-shrink:0}
+
+/* ARCHETYPES */
+.arch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.arch-card{background:var(--s1);border:2px solid rgba(255,255,255,.05);border-radius:18px;padding:1.5rem;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.arch-card:hover{transform:translateY(-5px);border-color:rgba(0,255,136,.2)}
+.arch-card.picked{border-color:var(--g);background:rgba(0,255,136,.05);box-shadow:0 0 30px rgba(0,255,136,.08)}
+.arch-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--g),transparent);opacity:0;transition:opacity .3s}
+.arch-card.picked::before{opacity:1}
+.arch-emoji{font-size:2.5rem;margin-bottom:.75rem;display:block;transition:transform .2s}
+.arch-card:hover .arch-emoji{transform:scale(1.1)}
+.arch-name{font-family:var(--fD);font-size:1rem;letter-spacing:1px;color:var(--g);margin-bottom:.3rem}
+.arch-trait{font-size:.74rem;color:var(--mu);line-height:1.55;margin-bottom:.75rem}
+.arch-tags{display:flex;flex-wrap:wrap;gap:.3rem}
+.arch-tag{font-family:var(--fM);font-size:.46rem;padding:2px 7px;border-radius:5px;background:rgba(0,255,136,.07);color:rgba(0,255,136,.8);border:1px solid rgba(0,255,136,.12)}
+.arch-detail{margin-top:1rem;padding-top:.85rem;border-top:1px solid rgba(0,255,136,.1);font-size:.76rem;color:var(--mu);line-height:1.65;display:none;animation:slide-up .3s ease}
+.arch-card.picked .arch-detail{display:block}
+.arch-strengths{display:flex;flex-direction:column;gap:.35rem;margin-top:.65rem}
+.arch-s{font-family:var(--fM);font-size:.58rem;display:flex;align-items:center;gap:.4rem}
+.arch-s::before{content:'✓';color:var(--g);font-weight:700}
+.arch-warning{font-family:var(--fM);font-size:.58rem;color:rgba(255,204,0,.8);background:rgba(255,204,0,.06);border:1px solid rgba(255,204,0,.12);border-radius:6px;padding:.35rem .6rem;margin-top:.5rem}
+
+/* BIAS SECTION */
+.bias-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem;margin-bottom:1rem}
+.bias-card{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:13px;padding:1.1rem;cursor:pointer;transition:all .25s}
+.bias-card:hover,.bias-card.open{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.04);transform:translateY(-3px)}
+.bias-icon{font-size:1.75rem;margin-bottom:.5rem}
+.bias-name{font-family:var(--fD);font-size:.95rem;letter-spacing:.5px;color:var(--c);margin-bottom:.25rem}
+.bias-short{font-size:.7rem;color:var(--mu);line-height:1.5}
+.bias-detail-panel{background:var(--s2);border:1px solid rgba(0,212,255,.15);border-radius:16px;padding:1.75rem;display:none;animation:slide-up .3s ease;margin-bottom:1rem}
+.bias-detail-panel.show{display:block}
+.bdp-title{font-family:var(--fD);font-size:1.4rem;letter-spacing:1px;color:var(--c);margin-bottom:.4rem}
+.bdp-desc{font-size:.84rem;color:var(--mu);line-height:1.72;margin-bottom:1.1rem}
+.bdp-example{background:rgba(124,58,255,.05);border-left:3px solid rgba(124,58,255,.35);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin-bottom:1rem}
+.bdp-ex-label{font-family:var(--fM);font-size:.5rem;color:#a78bff;letter-spacing:2px;margin-bottom:.35rem}
+.bdp-ex-text{font-size:.82rem;color:var(--txt);line-height:1.65}
+.bdp-fix{background:rgba(0,255,136,.04);border-left:3px solid rgba(0,255,136,.3);border-radius:0 8px 8px 0;padding:1rem 1.25rem}
+.bdp-fix-label{font-family:var(--fM);font-size:.5rem;color:var(--g);letter-spacing:2px;margin-bottom:.35rem}
+.bdp-fix-text{font-size:.82rem;color:var(--txt);line-height:1.65}
+
+/* SIMULATION */
+.sim-card{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;overflow:hidden;margin-bottom:1.5rem}
+.sim-hdr{padding:1.4rem 1.75rem;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:.9rem}
+.sim-num{width:38px;height:38px;border-radius:10px;font-family:var(--fD);font-size:1rem;display:flex;align-items:center;justify-content:center;background:rgba(255,45,107,.1);color:var(--r);border:1px solid rgba(255,45,107,.2);flex-shrink:0}
+.sim-title{font-family:var(--fD);font-size:1.2rem;letter-spacing:.5px}
+.sim-badge{font-family:var(--fM);font-size:.5rem;padding:2px 9px;border-radius:6px;background:rgba(255,204,0,.08);color:var(--y);border:1px solid rgba(255,204,0,.15);margin-left:auto}
+.sim-body{padding:1.75rem}
+.sim-context{font-size:.86rem;color:var(--mu);line-height:1.75;margin-bottom:1.4rem;padding:1.1rem 1.25rem;background:rgba(0,0,0,.3);border-radius:12px;border-left:3px solid rgba(255,204,0,.3)}
+.sim-context strong{color:var(--txt)}
+.sim-q{font-family:var(--fD);font-size:1rem;letter-spacing:.4px;color:var(--y);margin-bottom:.9rem}
+.sim-choices{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem}
+.sim-ch{padding:.8rem 1.15rem;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);font-size:.81rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.7rem}
+.sim-ch:hover:not(.locked){background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);transform:translateX(4px)}
+.sim-ch.locked{cursor:default}
+.sim-ch.g{background:rgba(0,255,136,.07);border-color:rgba(0,255,136,.3);color:var(--g)}
+.sim-ch.r{background:rgba(255,45,107,.06);border-color:rgba(255,45,107,.25);color:var(--r)}
+.sim-ch.y{background:rgba(255,204,0,.06);border-color:rgba(255,204,0,.25);color:var(--y)}
+.sim-letter{width:24px;height:24px;border-radius:6px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-family:var(--fM);font-size:.62rem;flex-shrink:0}
+.sim-result{padding:1.1rem 1.25rem;border-radius:12px;margin-top:.75rem;display:none;animation:slide-up .3s ease}
+.sim-result.show{display:block}
+.sim-result.g{background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.2)}
+.sim-result.r{background:rgba(255,45,107,.07);border:1px solid rgba(255,45,107,.2)}
+.sim-result.y{background:rgba(255,204,0,.07);border:1px solid rgba(255,204,0,.2)}
+.sim-res-title{font-family:var(--fD);font-size:.95rem;letter-spacing:.5px;margin-bottom:.4rem}
+.sim-res-text{font-size:.79rem;line-height:1.7;opacity:.88}
+
+/* SIP CALCULATOR */
+.sip-calc{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:2rem}
+.sip-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:1.75rem}
+.sip-ctrl-label{font-family:var(--fM);font-size:.56rem;color:var(--mu);letter-spacing:1px;margin-bottom:.35rem}
+.sip-ctrl-val{font-family:var(--fD);font-size:1.9rem;letter-spacing:1px;color:var(--g);line-height:1;margin-bottom:.55rem}
+.sip-ctrl-val span{font-size:.85rem;color:var(--mu)}
+.sip-slider{width:100%;accent-color:var(--g);cursor:pointer;height:4px}
+.sip-results{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+.sip-res{background:rgba(0,0,0,.3);border-radius:12px;padding:1rem;text-align:center;border:1px solid rgba(255,255,255,.06)}
+.sip-res-n{font-family:var(--fD);font-size:1.45rem;letter-spacing:1px}
+.sip-res-l{font-family:var(--fM);font-size:.48rem;color:var(--mu);letter-spacing:1px;margin-top:3px}
+.chart-container{background:rgba(0,0,0,.3);border-radius:12px;padding:1.25rem;border:1px solid rgba(255,255,255,.06)}
+
+/* ASSET ALLOCATION */
+.alloc-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.alloc-card{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:1.5rem}
+.alloc-title{font-family:var(--fD);font-size:1.1rem;letter-spacing:1px;margin-bottom:.35rem}
+.alloc-sub{font-family:var(--fM);font-size:.54rem;color:var(--mu);letter-spacing:1px;margin-bottom:1.25rem}
+.alloc-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.85rem}
+.alloc-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.alloc-name{font-family:var(--fM);font-size:.6rem;color:var(--mu);width:110px;flex-shrink:0}
+.alloc-bar-bg{flex:1;height:8px;background:rgba(255,255,255,.04);border-radius:4px;overflow:hidden}
+.alloc-bar-fill{height:100%;border-radius:4px;animation:grow-bar 1.5s ease forwards;transform-origin:left}
+.alloc-pct{font-family:var(--fM);font-size:.62rem;width:32px;text-align:right;flex-shrink:0}
+.alloc-note{font-family:var(--fM);font-size:.58rem;color:rgba(0,255,136,.7);background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.1);border-radius:8px;padding:.6rem .85rem;margin-top:1rem;line-height:1.55}
+
+/* FEAR GREED */
+.fg-meter-wrap{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:2rem;display:grid;grid-template-columns:auto 1fr;gap:2rem;align-items:start}
+.fg-val-n{font-family:var(--fD);font-size:2.5rem;letter-spacing:2px;line-height:1;text-align:center}
+.fg-val-l{font-family:var(--fM);font-size:.58rem;letter-spacing:2px;margin-top:2px;text-align:center}
+.fg-context{background:rgba(0,0,0,.3);border-radius:10px;padding:1rem;border-left:3px solid rgba(0,212,255,.3);font-size:.8rem;color:var(--mu);line-height:1.65;margin-top:1rem}
+.fg-context strong{color:var(--c)}
+
+/* TRACKER */
+.tracker-wrap{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:2rem}
+.tracker-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
+.tck-item{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:1rem;display:flex;align-items:flex-start;gap:.7rem;cursor:pointer;transition:all .2s}
+.tck-item:hover{border-color:rgba(0,255,136,.2);background:rgba(0,255,136,.04)}
+.tck-item.done{border-color:rgba(0,255,136,.3);background:rgba(0,255,136,.06)}
+.tck-check{width:20px;height:20px;border-radius:6px;border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:.72rem;transition:all .2s}
+.tck-item.done .tck-check{background:var(--g);border-color:var(--g);color:var(--ink)}
+.tck-text{font-size:.77rem;line-height:1.5;color:var(--mu)}
+.tck-item.done .tck-text{color:var(--txt)}
+
+.sip-cal-title{font-family:var(--fD);font-size:1.1rem;letter-spacing:1px;margin-bottom:1rem;display:flex;align-items:center;gap:.75rem}
+.sip-calendar{display:grid;grid-template-columns:repeat(10,1fr);gap:.35rem;margin-bottom:1.25rem}
+.cal-day{aspect-ratio:1;border-radius:5px;background:rgba(255,255,255,.04);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;font-family:var(--fM);font-size:.44rem;color:var(--mu)}
+.cal-day:hover{background:rgba(0,255,136,.15)}
+.cal-day.sip-done{background:rgba(0,255,136,.35);box-shadow:0 0 8px rgba(0,255,136,.2);color:var(--g)}
+.cal-day.sip-miss{background:rgba(255,45,107,.2);color:var(--r)}
+.cal-day.today{border:1px solid rgba(255,204,0,.5);color:var(--y)}
+
+.prog-btn-row{display:flex;gap:1rem;align-items:center;margin-top:1.5rem;flex-wrap:wrap}
+.prog-btn{padding:.9rem 2.5rem;border-radius:12px;font-family:var(--fD);font-size:1.05rem;letter-spacing:1px;cursor:pointer;transition:all .25s;border:1px solid}
+.prog-btn-main{background:rgba(0,255,136,.08);border-color:rgba(0,255,136,.25);color:var(--g)}
+.prog-btn-main:hover{background:rgba(0,255,136,.15);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,255,136,.15)}
+.prog-btn-sec{background:rgba(0,212,255,.06);border-color:rgba(0,212,255,.2);color:var(--c)}
+.prog-btn-sec:hover{background:rgba(0,212,255,.12);transform:translateY(-2px)}
+
+.prog-modal{position:fixed;inset:0;background:rgba(2,2,12,.88);z-index:3000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(10px)}
+.prog-modal.open{display:flex;animation:fade-in .3s ease}
+.pm-box{background:var(--s1);border:1px solid rgba(0,255,136,.2);border-radius:24px;padding:2.25rem;max-width:620px;width:92%;max-height:82vh;overflow-y:auto}
+.pm-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem}
+.pm-ht{font-family:var(--fD);font-size:1.7rem;letter-spacing:2px;color:var(--g)}
+.pm-close{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:var(--fM);font-size:.75rem;color:var(--mu);transition:all .2s}
+.pm-close:hover{color:var(--txt);border-color:rgba(255,255,255,.2)}
+.pm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+.pm-stat{background:rgba(0,0,0,.3);border-radius:12px;padding:1rem;text-align:center;border:1px solid rgba(255,255,255,.06)}
+.pm-stat-n{font-family:var(--fD);font-size:2rem;letter-spacing:1px}
+.pm-stat-l{font-family:var(--fM);font-size:.5rem;color:var(--mu);letter-spacing:1px;margin-top:3px}
+.pm-bar-row{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.25rem}
+.pm-br-label{display:flex;justify-content:space-between;font-family:var(--fM);font-size:.58rem;color:var(--mu);margin-bottom:.3rem}
+.pm-br-bg{height:7px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden}
+.pm-br-fill{height:100%;border-radius:4px;animation:grow-bar 1.5s ease forwards;transform-origin:left}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-grid"></div>
+<div class="inv-page" style="width:min(calc(100% - 80px), 1180px); margin:0 auto;">
+
+  <!-- SIMULATION BANNER -->
+  <a href="/simulations/" style="display:flex;align-items:center;justify-content:space-between;gap:1.5rem;padding:1rem 1.5rem;margin-bottom:2rem;background:linear-gradient(135deg,rgba(124,58,255,.1),rgba(0,212,255,.06));border:1px solid rgba(124,58,255,.3);border-radius:16px;text-decoration:none;color:var(--txt);transition:all .25s" onmouseover="this.style.boxShadow='0 0 40px rgba(124,58,255,.2)';this.style.borderColor='rgba(124,58,255,.5)'" onmouseout="this.style.boxShadow='none';this.style.borderColor='rgba(124,58,255,.3)'">
+    <div style="display:flex;align-items:center;gap:1rem">
+      <div style="font-size:2rem">🎮</div>
+      <div>
+        <div style="font-family:var(--fM);font-size:.5rem;color:#a78bff;letter-spacing:2px;margin-bottom:3px">NEW — CRISIS TRAINING</div>
+        <div style="font-family:var(--fD);font-size:1.25rem;letter-spacing:.5px;color:#a78bff">LIVE THROUGH THE COVID CRASH, ADANI CRISIS & MORE</div>
+        <div style="font-size:.72rem;color:rgba(240,237,255,.5);margin-top:2px">Interactive market simulations · Feel the panic · Make real decisions · Debrief your brain</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem;font-family:var(--fM);font-size:.56rem;color:#a78bff;white-space:nowrap;padding:.5rem 1.1rem;background:rgba(124,58,255,.12);border:1px solid rgba(124,58,255,.25);border-radius:8px;flex-shrink:0">ENTER SIMULATIONS →</div>
+  </a>
+
+  <!-- PAGE HEADER -->
+  <div class="inv-header">
+    <div>
+      <div class="inv-mode-badge">📈 INVESTOR TRAINING MODE</div>
+      <div class="inv-title">INVESTOR MIND</div>
+      <p class="inv-subtitle">Master the psychology of long-term wealth creation. Real Indian market simulations, cognitive bias training, and evidence-based habit building.</p>
+    </div>
+    <div class="inv-progress-block">
+      <div class="ipb-label">SESSION PROGRESS</div>
+      <div class="ipb-bar"><div class="ipb-fill" id="sessProgress" style="width:20%"></div></div>
+      <div class="ipb-pct" id="sessProgressPct">1 / 5 Modules</div>
+    </div>
+  </div>
+  <div class="profile-strip">
+    <div class="profile-card">
+      <div class="profile-label">CROSS-PAGE PROFILE</div>
+      <div class="profile-value" id="invProfileLabel">Loading...</div>
+      <div class="profile-copy" id="invProfileCopy">Reading your behavior memory.</div>
+    </div>
+    <div class="profile-card">
+      <div class="profile-label">RECENT SIM SIGNAL</div>
+      <div class="profile-value" id="invRecentSignal">No runs yet</div>
+      <div class="profile-copy" id="invRecentCopy">Your last simulation verdict will appear here.</div>
+    </div>
+    <div class="profile-card">
+      <div class="profile-label">RUN HISTORY</div>
+      <div class="profile-value" id="invRunHistory">0 total</div>
+      <div class="profile-copy" id="invRunCopy">No investor/trader memory recorded yet.</div>
+    </div>
+  </div>
+
+  <!-- MODE SWITCHER -->
+  <div class="mode-switcher" id="modeSwitcher">
+    <div class="mode-slider learn-pos" id="modeSlider"></div>
+    <button class="mode-btn learn active" id="learnBtn" onclick="switchMode('learn')">
+      📚 <span>LEARN</span>
+      <span class="mode-badge learn-badge">4 MODULES</span>
+    </button>
+    <button class="mode-btn journal" id="journalBtn" onclick="switchMode('journal')">
+      📓 <span>JOURNAL</span>
+      <span class="mode-badge journal-badge">TRACKER + HABITS</span>
+    </button>
+  </div>
+
+  <!-- LEARN MODE PANEL -->
+  <div class="mode-panel show" id="learnPanel">
+
+  <!-- SECTION NAV -->
+  <div class="sec-nav">
+    <a href="#archetypes" class="snb on">👤 1. Archetypes</a>
+    <a href="#biases" class="snb">🧠 2. Bias Lab</a>
+    <a href="#simulations" class="snb">🎮 3. Simulations</a>
+    <a href="#tools" class="snb">📊 4. Tools</a>
+  </div>
+
+  <!-- ══ SECTION 1: ARCHETYPES ══ -->
+  <div class="inv-section" id="archetypes">
+    <div class="sec-hd">
+      <div class="sec-num">1</div>
+      <div>
+        <div class="sec-name">WHAT KIND OF INVESTOR ARE YOU?</div>
+        <div class="sec-desc">IDENTIFY YOUR PSYCHOLOGICAL ARCHETYPE — CLICK TO REVEAL YOUR FULL PROFILE</div>
+      </div>
+      <div class="sec-xp">+60 XP</div>
+    </div>
+    <div class="arch-grid">
+      <div class="arch-card" onclick="pickArch(this,'arch1')">
+        <span class="arch-emoji">🦁</span>
+        <div class="arch-name">THE LION</div>
+        <div class="arch-trait">High conviction, concentrated bets. Buys Rakesh Jhunjhunwala style — all-in on strong ideas. Massive upsides possible, catastrophic downsides too.</div>
+        <div class="arch-tags"><span class="arch-tag">CONVICTION</span><span class="arch-tag">CONCENTRATED</span><span class="arch-tag">HIGH RISK</span></div>
+        <div class="arch-detail">
+          <div style="font-size:.8rem;color:var(--txt);margin-bottom:.5rem">Rakesh Jhunjhunwala's ₹5,000 in Titan grew to ₹7,000+ crores. But he also held Aptech and A2Z Infra which never recovered. Requires exceptional research AND emotional strength.</div>
+          <div class="arch-strengths">
+            <div class="arch-s">Strong conviction when thesis is correct</div>
+            <div class="arch-s">Can generate massive alpha over index</div>
+            <div class="arch-s">Independent, contrarian thinking</div>
+          </div>
+          <div class="arch-warning">⚠ Risk: Overconfidence can wipe portfolio. Max 3 high-conviction bets — diversify the rest in index funds.</div>
+        </div>
+      </div>
+      <div class="arch-card" onclick="pickArch(this,'arch2')">
+        <span class="arch-emoji">🐢</span>
+        <div class="arch-name">THE TORTOISE</div>
+        <div class="arch-trait">Patient, systematic SIP investor. Ignores market noise. Builds wealth slowly but surely through consistent action every month without fail.</div>
+        <div class="arch-tags"><span class="arch-tag">SIP</span><span class="arch-tag">PATIENCE</span><span class="arch-tag">DISCIPLINED</span></div>
+        <div class="arch-detail">
+          <div style="font-size:.8rem;color:var(--txt);margin-bottom:.5rem">Real example: ₹10,000/month SIP in NIFTY 50 index for 20 years (2004–2024) → ₹1.08 crore at ~13.5% CAGR. No stock-picking skill required. Just discipline.</div>
+          <div class="arch-strengths">
+            <div class="arch-s">Emotion-proof by design</div>
+            <div class="arch-s">Beats 90% of active traders long-term</div>
+            <div class="arch-s">Compounding works silently in background</div>
+          </div>
+          <div class="arch-warning">⚠ Watch out for: Impatience after slow years. Year 15–20 is where magic happens. Don't exit early.</div>
+        </div>
+      </div>
+      <div class="arch-card" onclick="pickArch(this,'arch3')">
+        <span class="arch-emoji">🦊</span>
+        <div class="arch-name">THE FOX</div>
+        <div class="arch-trait">Smart diversifier. Mixes large-caps, mid-caps, gold, and international. Portfolio is balanced but can overthink and over-rebalance unnecessarily.</div>
+        <div class="arch-tags"><span class="arch-tag">DIVERSIFIED</span><span class="arch-tag">BALANCED</span><span class="arch-tag">ANALYTICAL</span></div>
+        <div class="arch-detail">
+          <div style="font-size:.8rem;color:var(--txt);margin-bottom:.5rem">Ideal strategy: 60% equity (NIFTY 50 + Midcap 150), 20% debt, 10% gold (SGB), 10% international (US tech FOF). Rebalance annually only. Effective and tax-efficient.</div>
+          <div class="arch-strengths">
+            <div class="arch-s">Smooth ride through market volatility</div>
+            <div class="arch-s">Multiple uncorrelated return sources</div>
+            <div class="arch-s">Defensive in market downturns</div>
+          </div>
+          <div class="arch-warning">⚠ Danger: Over-diversification → diworsification. Never own more than 5–6 funds at once.</div>
+        </div>
+      </div>
+      <div class="arch-card" onclick="pickArch(this,'arch4')">
+        <span class="arch-emoji">🦌</span>
+        <div class="arch-name">THE DEER</div>
+        <div class="arch-trait">Reactive, anxious investor. Checks portfolio 10x a day. Panic-sells in corrections, buys in euphoria. Worst enemy is not the market — it's the mirror.</div>
+        <div class="arch-tags"><span class="arch-tag">ANXIOUS</span><span class="arch-tag">REACTIVE</span><span class="arch-tag">HIGH FOMO</span></div>
+        <div class="arch-detail">
+          <div style="font-size:.8rem;color:var(--txt);margin-bottom:.5rem">Common story: Invested in small-caps at peak (Jan 2018), sold in fear (Feb 2018 crash), missed the 2019–2021 bull run. Returns: -12% vs index +45% in same period.</div>
+          <div class="arch-strengths">
+            <div class="arch-s">Heightened awareness of risks</div>
+            <div class="arch-s">Learns quickly from painful experiences</div>
+            <div class="arch-s">Strong motivation to improve discipline</div>
+          </div>
+          <div class="arch-warning">⚠ This archetype needs FIN-OS most urgently. Start with Tortoise habits. Remove app from phone.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 2: BIAS LAB ══ -->
+  <div class="inv-section" id="biases">
+    <div class="sec-hd">
+      <div class="sec-num">2</div>
+      <div>
+        <div class="sec-name">COGNITIVE BIAS LAB</div>
+        <div class="sec-desc">CLICK ANY BIAS TO SEE HOW IT DESTROYED INDIAN INVESTORS — AND HOW TO FIX IT</div>
+      </div>
+      <div class="sec-xp">+15 XP EACH</div>
+    </div>
+    <div class="bias-grid">
+      <div class="bias-card" onclick="openBias(this,'loss')"><div class="bias-icon">😱</div><div class="bias-name">LOSS AVERSION</div><div class="bias-short">Pain of loss feels 2.5x stronger than equivalent gain</div></div>
+      <div class="bias-card" onclick="openBias(this,'anchor')"><div class="bias-icon">⚓</div><div class="bias-name">ANCHORING</div><div class="bias-short">Fixating on purchase price instead of current intrinsic value</div></div>
+      <div class="bias-card" onclick="openBias(this,'herd')"><div class="bias-icon">🐑</div><div class="bias-name">HERD MENTALITY</div><div class="bias-short">Buying what everyone is talking about — at its peak</div></div>
+      <div class="bias-card" onclick="openBias(this,'confirm')"><div class="bias-icon">🔍</div><div class="bias-name">CONFIRMATION BIAS</div><div class="bias-short">Seeking only news that confirms what you already believe</div></div>
+      <div class="bias-card" onclick="openBias(this,'over')"><div class="bias-icon">🦸</div><div class="bias-name">OVERCONFIDENCE</div><div class="bias-short">Believing your stock picks consistently beat the NIFTY index</div></div>
+      <div class="bias-card" onclick="openBias(this,'recency')"><div class="bias-icon">📅</div><div class="bias-name">RECENCY BIAS</div><div class="bias-short">Assuming last year's bull run will repeat forever</div></div>
+      <div class="bias-card" onclick="openBias(this,'sunk')"><div class="bias-icon">🚢</div><div class="bias-name">SUNK COST FALLACY</div><div class="bias-short">Holding terrible stocks because you've already lost too much</div></div>
+      <div class="bias-card" onclick="openBias(this,'mental')"><div class="bias-icon">🏦</div><div class="bias-name">MENTAL ACCOUNTING</div><div class="bias-short">Taking riskier bets with "bonus money" vs regular salary savings</div></div>
+    </div>
+    <div class="bias-detail-panel" id="biasPanel"></div>
+  </div>
+
+  <!-- ══ SECTION 3: SIMULATIONS ══ -->
+  <div class="inv-section" id="simulations">
+    <div class="sec-hd">
+      <div class="sec-num">3</div>
+      <div>
+        <div class="sec-name">REAL MARKET SIMULATIONS</div>
+        <div class="sec-desc">FACE ACTUAL MARKET MOMENTS — MAKE YOUR DECISION — SEE WHAT REALLY HAPPENED</div>
+      </div>
+      <div class="sec-xp">+60 XP EACH</div>
+    </div>
+
+    <div class="sim-card">
+      <div class="sim-hdr">
+        <div class="sim-num">S1</div>
+        <div><div class="sim-title">THE COVID CRASH — MARCH 2020</div><div style="font-family:var(--fM);font-size:.54rem;color:var(--mu)">NIFTY: 12,000 → 7,800 · −35% in 25 trading days</div></div>
+        <div class="sim-badge">HISTORICAL EVENT</div>
+      </div>
+      <div class="sim-body">
+        <div class="sim-context">It's <strong>March 23, 2020</strong>. COVID-19 has triggered a global lockdown. NIFTY 50 has crashed <strong>35% in 25 trading days</strong> — the fastest crash in Indian market history. Your portfolio: <strong>₹5,00,000</strong> in HDFC Bank, TCS, and Reliance now shows <strong style="color:var(--r)">₹3,25,000 (−₹1,75,000)</strong>. WhatsApp groups say "sell everything, NIFTY going to 5,000." CNBC-TV18 anchors are calling it "the end of markets." Your monthly SIP of ₹15,000 is due tomorrow.</div>
+        <div class="sim-q">🤔 What do you do?</div>
+        <div class="sim-choices" id="s1ch">
+          <div class="sim-ch" onclick="doSim('s1','r','A',this)"><span class="sim-letter">A</span>Panic sell everything now. Save what's left before it hits zero.</div>
+          <div class="sim-ch" onclick="doSim('s1','y','B',this)"><span class="sim-letter">B</span>Pause SIP for 3 months. Hold existing portfolio and wait and watch.</div>
+          <div class="sim-ch" onclick="doSim('s1','g','C',this)"><span class="sim-letter">C</span>Continue SIP + add ₹50,000 lump-sum top-up at this "sale price."</div>
+          <div class="sim-ch" onclick="doSim('s1','y','D',this)"><span class="sim-letter">D</span>Do nothing. Don't even check portfolio for next 6 months.</div>
+        </div>
+        <div class="sim-result" id="s1res"></div>
+      </div>
+    </div>
+
+    <div class="sim-card">
+      <div class="sim-hdr">
+        <div class="sim-num">S2</div>
+        <div><div class="sim-title">THE ADANI CRASH — FEBRUARY 2023</div><div style="font-family:var(--fM);font-size:.54rem;color:var(--mu)">Adani Green: ₹1,890 → ₹560 · −70% in 4 weeks</div></div>
+        <div class="sim-badge">HISTORICAL EVENT</div>
+      </div>
+      <div class="sim-body">
+        <div class="sim-context"><strong>February 2023</strong>: Hindenburg Research releases a 106-page report accusing Adani Group of "brazen stock manipulation and accounting fraud." Adani stocks crash <strong>50–80% in 4 weeks</strong>. You hold <strong>₹2,00,000</strong> in Adani Green Energy (avg price ₹1,200). Current price: <strong style="color:var(--r)">₹560 (−₹1,13,000)</strong>. Your colleague says "average down kar, recover ho jayega — government backed hai." FOMO says: "Discount mein buy karo!"</div>
+        <div class="sim-q">🤔 What do you do?</div>
+        <div class="sim-choices" id="s2ch">
+          <div class="sim-ch" onclick="doSim('s2','g','A',this)"><span class="sim-letter">A</span>Book loss immediately. Governance risk is fundamental — exit completely.</div>
+          <div class="sim-ch" onclick="doSim('s2','r','B',this)"><span class="sim-letter">B</span>Average down aggressively — buy 5,000 more shares at ₹560.</div>
+          <div class="sim-ch" onclick="doSim('s2','y','C',this)"><span class="sim-letter">C</span>Hold existing. Don't buy more. Wait for clarity on allegations.</div>
+          <div class="sim-ch" onclick="doSim('s2','r','D',this)"><span class="sim-letter">D</span>Double down — it's government-backed, it will recover 100%.</div>
+        </div>
+        <div class="sim-result" id="s2res"></div>
+      </div>
+    </div>
+
+    <div class="sim-card">
+      <div class="sim-hdr">
+        <div class="sim-num">S3</div>
+        <div><div class="sim-title">SIP vs LUMP SUM — THE 2018 DILEMMA</div><div style="font-family:var(--fM);font-size:.54rem;color:var(--mu)">Real data: January 2018 → December 2023</div></div>
+        <div class="sim-badge">WHAT-IF ANALYSIS</div>
+      </div>
+      <div class="sim-body">
+        <div class="sim-context"><strong>January 2018</strong>. You have <strong>₹6,00,000</strong> to invest. NIFTY is at 10,500. <strong>Option A:</strong> Invest all ₹6L in NIFTY 50 index fund today. <strong>Option B:</strong> Invest ₹10,000/month SIP for 5 years, rest in FD at 7%. NIFTY timeline: Crashed 20% in 2018–19 → recovered in 2020 → COVID crash to 7,800 (Mar 2020) → exploded to 18,500 by Dec 2021 → corrected 2022 → stabilised at 19,800 by Dec 2023.</div>
+        <div class="sim-q">🤔 Which strategy gave better results by December 2023?</div>
+        <div class="sim-choices" id="s3ch">
+          <div class="sim-ch" onclick="doSim('s3','y','A',this)"><span class="sim-letter">A</span>Lump sum — ₹6L all-in January 2018 outperformed SIP.</div>
+          <div class="sim-ch" onclick="doSim('s3','g','B',this)"><span class="sim-letter">B</span>SIP + FD — systematic approach gave better risk-adjusted returns.</div>
+          <div class="sim-ch" onclick="doSim('s3','y','C',this)"><span class="sim-letter">C</span>Both were roughly equal — just different emotional journeys.</div>
+        </div>
+        <div class="sim-result" id="s3res"></div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:2rem;margin-bottom:2rem">
+    <a href="/investor/simulations/" class="prog-btn prog-btn-main" style="display:inline-block;text-decoration:none">🎮 VIEW ALL 7 SIMULATIONS →</a>
+  </div>
+
+  <!-- ══ SECTION 4: TOOLS ══ -->
+  <div class="inv-section" id="tools">
+    <div class="sec-hd">
+      <div class="sec-num">4</div>
+      <div>
+        <div class="sec-name">TOOLS & VISUALIZERS</div>
+        <div class="sec-desc">INTERACTIVE CALCULATORS WITH REAL INDIAN RUPEE CONTEXT</div>
+      </div>
+      <div class="sec-xp">+80 XP</div>
+    </div>
+
+    <!-- Fear & Greed Meter -->
+    <div class="fg-meter-wrap" style="margin-bottom:1.5rem">
+      <div>
+        <canvas id="fgCanvas" width="200" height="115"></canvas>
+        <div class="fg-val-n" id="fgValN" style="color:var(--y)">50</div>
+        <div class="fg-val-l" id="fgValL" style="color:var(--mu)">NEUTRAL</div>
+        <div style="margin-top:1rem"><div style="font-family:var(--fM);font-size:.55rem;color:var(--mu);letter-spacing:1px;margin-bottom:.4rem">DRAG TO SIMULATE →</div>
+        <input type="range" min="0" max="100" value="50" class="sip-slider" id="fgSlider" oninput="updateFG(+this.value)"></div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.3rem;margin-top:.75rem">
+          <div style="text-align:center;padding:.3rem;border-radius:5px;background:rgba(255,45,107,.1);font-family:var(--fM);font-size:.4rem;color:var(--r)">0-20<br>EXTREME<br>FEAR</div>
+          <div style="text-align:center;padding:.3rem;border-radius:5px;background:rgba(255,100,50,.1);font-family:var(--fM);font-size:.4rem;color:#ff6432">21-40<br>FEAR</div>
+          <div style="text-align:center;padding:.3rem;border-radius:5px;background:rgba(255,204,0,.08);font-family:var(--fM);font-size:.4rem;color:var(--y)">41-60<br>NEUTRAL</div>
+          <div style="text-align:center;padding:.3rem;border-radius:5px;background:rgba(0,255,100,.08);font-family:var(--fM);font-size:.4rem;color:#00ff64">61-80<br>GREED</div>
+          <div style="text-align:center;padding:.3rem;border-radius:5px;background:rgba(0,255,136,.1);font-family:var(--fM);font-size:.4rem;color:var(--g)">81-100<br>EXTREME<br>GREED</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:var(--fD);font-size:1.3rem;letter-spacing:1px;color:var(--c);margin-bottom:.5rem">FEAR & GREED METER</div>
+        <div style="font-size:.82rem;color:var(--mu);line-height:1.7;margin-bottom:1rem">Buffett's rule: <strong style="color:var(--txt)">"Be fearful when others are greedy, be greedy when others are fearful."</strong> In Indian markets, extreme fear has historically been the best SIP entry point.</div>
+        <div class="fg-context" id="fgCtx"><strong>NEUTRAL (50):</strong> Mixed conditions. Neither panic nor euphoria. Continue regular SIP discipline. Most of 2023 was neutral — steady compounding.</div>
+      </div>
+    </div>
+
+    <!-- SIP Calculator -->
+    <div class="sip-calc" style="margin-bottom:1.5rem">
+      <div style="font-family:var(--fD);font-size:1.3rem;letter-spacing:1px;color:var(--g);margin-bottom:.25rem">SIP COMPOUNDING CALCULATOR</div>
+      <div style="font-family:var(--fM);font-size:.55rem;color:var(--mu);letter-spacing:1px;margin-bottom:1.5rem">BASED ON NIFTY 50 HISTORICAL AVERAGE — MOVE THE SLIDERS</div>
+      <div class="sip-controls">
+        <div><div class="sip-ctrl-label">MONTHLY SIP AMOUNT</div><div class="sip-ctrl-val">₹<span id="sipAmtV">10,000</span></div><input type="range" min="1000" max="100000" step="1000" value="10000" class="sip-slider" id="sipAmt" oninput="calcSIP()"></div>
+        <div><div class="sip-ctrl-label">INVESTMENT PERIOD</div><div class="sip-ctrl-val"><span id="sipYrV">15</span> <span>yrs</span></div><input type="range" min="1" max="40" step="1" value="15" class="sip-slider" id="sipYr" oninput="calcSIP()"></div>
+        <div><div class="sip-ctrl-label">EXPECTED ANNUAL RETURN</div><div class="sip-ctrl-val"><span id="sipRateV">12</span> <span>%</span></div><input type="range" min="6" max="24" step="0.5" value="12" class="sip-slider" id="sipRate" oninput="calcSIP()"></div>
+      </div>
+      <div class="sip-results">
+        <div class="sip-res"><div class="sip-res-n" style="color:var(--g)" id="sipTotal">—</div><div class="sip-res-l">TOTAL CORPUS</div></div>
+        <div class="sip-res"><div class="sip-res-n" style="color:var(--c)" id="sipInvested">—</div><div class="sip-res-l">AMOUNT INVESTED</div></div>
+        <div class="sip-res"><div class="sip-res-n" style="color:var(--y)" id="sipGains">—</div><div class="sip-res-l">WEALTH GAINED</div></div>
+        <div class="sip-res"><div class="sip-res-n" style="color:var(--v)" id="sipMult">—</div><div class="sip-res-l">MONEY MULTIPLIER</div></div>
+      </div>
+      <div class="chart-container">
+        <div style="display:flex;justify-content:space-between;font-family:var(--fM);font-size:.52rem;color:var(--mu);margin-bottom:.75rem">
+          <span>📈 CORPUS GROWTH OVER TIME</span><span style="color:var(--g)">█ Corpus &nbsp;</span><span style="color:var(--c)">█ Invested</span>
+        </div>
+        <canvas id="sipChart" style="width:100%;height:200px;display:block"></canvas>
+      </div>
+    </div>
+
+    <!-- Asset Allocation -->
+    <div id="allocWrap" class="alloc-wrap"></div>
+    <script>
+    (function renderAllocBars(){
+      const ALLOC = {
+        arch1: {
+          cards: [
+            { title:'LION PORTFOLIO', sub:'HIGH-CONVICTION · CONCENTRATED BETS · SIP: ₹20K+/MONTH',
+              rows:[
+                {c:'#00ff88',n:'Large Cap Conviction',pct:50,g:'var(--g),#34ffb8'},
+                {c:'#00d4ff',n:'Midcap Momentum',pct:30,g:'var(--c),#5ee0ff'},
+                {c:'#ffcc00',n:'Gold (SGB)',pct:10,g:'var(--y),#ffd860'},
+                {c:'#ff6432',n:'Cash Reserve',pct:10,g:'#ff6432,#ff9060'}
+              ],
+              note:'⚡ High conviction = high concentration. Max 5 positions. Stop-loss mandatory on every entry. XIRR target: 16–20%'
+            },
+            { title:'LION SECTOR TILT', sub:'SECTOR ROTATION · MOMENTUM PLAYS · TACTICAL',
+              rows:[
+                {c:'#00ff88',n:'IT / Pharma Sector',pct:35,g:'var(--g),#34ffb8'},
+                {c:'#00d4ff',n:'Banking / NBFC',pct:30,g:'var(--c),#5ee0ff'},
+                {c:'#7c3aff',n:'Smallcap Alpha',pct:20,g:'var(--v),#a78bff'},
+                {c:'#ffcc00',n:'Gold Hedge',pct:15,g:'var(--y),#ffd860'}
+              ],
+              note:'⚡ Rotate sectors on quarterly earnings. Use Smallcap only after fundamentals check. Risk: high drawdown possible.'
+            }
+          ]
+        },
+        arch2: {
+          cards: [
+            { title:'TORTOISE SIP PORTFOLIO', sub:'SYSTEMATIC · LONG-TERM · SIP: ₹5K-50K/MONTH',
+              rows:[
+                {c:'#00ff88',n:'NIFTY 50 Index SIP',pct:55,g:'var(--g),#34ffb8'},
+                {c:'#00d4ff',n:'Midcap 150 SIP',pct:20,g:'var(--c),#5ee0ff'},
+                {c:'#7c3aff',n:'Debt / Short Duration',pct:15,g:'var(--v),#a78bff'},
+                {c:'#ffcc00',n:'Gold SGB',pct:10,g:'var(--y),#ffd860'}
+              ],
+              note:'🐢 UTI Nifty 50 Direct + Axis Midcap Direct. Never pause SIP in corrections — that is when it compounds fastest. Target XIRR: 12–14%'
+            },
+            { title:'TORTOISE COMPOUNDER', sub:'WEALTH PRESERVATION · RETIREMENT TRACK',
+              rows:[
+                {c:'#00ff88',n:'Index Funds (Passive)',pct:50,g:'var(--g),#34ffb8'},
+                {c:'#7c3aff',n:'PPF / Debt Funds',pct:25,g:'var(--v),#a78bff'},
+                {c:'#ffcc00',n:'Gold SGB (Tax-Free)',pct:15,g:'var(--y),#ffd860'},
+                {c:'#ff6432',n:'International FOF',pct:10,g:'#ff6432,#ff9060'}
+              ],
+              note:'🐢 PPF lock-in = forced discipline. SGB matures tax-free. LTCG ₹1L/yr free. This portfolio runs itself — check quarterly only.'
+            }
+          ]
+        },
+        arch3: {
+          cards: [
+            { title:'FOX DIVERSIFIED', sub:'MULTI-ASSET · RISK-MANAGED · SIP: ₹15K-75K/MONTH',
+              rows:[
+                {c:'#00ff88',n:'Large Cap Equity',pct:40,g:'var(--g),#34ffb8'},
+                {c:'#00d4ff',n:'Mid + Small Cap',pct:20,g:'var(--c),#5ee0ff'},
+                {c:'#7c3aff',n:'Debt / Bonds',pct:20,g:'var(--v),#a78bff'},
+                {c:'#ffcc00',n:'Gold SGB',pct:10,g:'var(--y),#ffd860'},
+                {c:'#ff6432',n:'International FOF',pct:10,g:'#ff6432,#ff9060'}
+              ],
+              note:'🦊 Rebalance annually in January only — over-rebalancing destroys returns. ELSS for 80C. Target XIRR: 13–15%'
+            },
+            { title:'FOX TACTICAL OVERLAY', sub:'OPPORTUNISTIC LAYER ON TOP OF CORE',
+              rows:[
+                {c:'#00ff88',n:'Core Index (Passive)',pct:50,g:'var(--g),#34ffb8'},
+                {c:'#00d4ff',n:'Tactical Midcap',pct:20,g:'var(--c),#5ee0ff'},
+                {c:'#7c3aff',n:'Arbitrage / Liquid',pct:15,g:'var(--v),#a78bff'},
+                {c:'#ffcc00',n:'Commodities (Gold+Silver)',pct:15,g:'var(--y),#ffd860'}
+              ],
+              note:'🦊 Tactical layer activated only during extreme fear (F&G < 25). Core stays untouched. Arbitrage funds = low-tax liquid parking.'
+            }
+          ]
+        },
+        arch4: {
+          cards: [
+            { title:'DEER SAFE STARTER', sub:'STABILITY FIRST · BUILDING HABITS · SIP: ₹2K-15K/MONTH',
+              rows:[
+                {c:'#00ff88',n:'NIFTY 50 Index Only',pct:60,g:'var(--g),#34ffb8'},
+                {c:'#7c3aff',n:'Debt / FD Equivalent',pct:20,g:'var(--v),#a78bff'},
+                {c:'#ffcc00',n:'Gold SGB',pct:15,g:'var(--y),#ffd860'},
+                {c:'#ff6432',n:'Emergency Cash',pct:5,g:'#ff6432,#ff9060'}
+              ],
+              note:'🦌 No stock-picking until 12-month SIP habit is solid. Index fund removes decision anxiety. FD creates safety floor. XIRR target: 10–12%'
+            },
+            { title:'DEER DISCIPLINE BUILDER', sub:'RULES-BASED · NO DISCRETION · SYSTEM FIRST',
+              rows:[
+                {c:'#00ff88',n:'Index SIP (Auto-debit)',pct:65,g:'var(--g),#34ffb8'},
+                {c:'#7c3aff',n:'PPF (Annual Max)',pct:20,g:'var(--v),#a78bff'},
+                {c:'#ffcc00',n:'Gold ETF',pct:10,g:'var(--y),#ffd860'},
+                {c:'#ff6432',n:'Liquid Fund Buffer',pct:5,g:'#ff6432,#ff9060'}
+              ],
+              note:'🦌 Auto-debit on salary day — removes all willpower from the equation. PPF builds the long-game habit. No stock tips, no timing.'
+            }
+          ]
+        }
+      };
+      const DEFAULT = {
+        cards: [
+          { title:'BEGINNER PORTFOLIO', sub:'AGE 22-28 · AGGRESSIVE GROWTH · SIP: ₹5K-20K/MONTH',
+            rows:[
+              {c:'#00ff88',n:'NIFTY 50 Index',pct:60,g:'var(--g),#34ffb8'},
+              {c:'#00d4ff',n:'Midcap 150 Fund',pct:25,g:'var(--c),#5ee0ff'},
+              {c:'#ffcc00',n:'Gold (SGB/ETF)',pct:15,g:'var(--y),#ffd860'}
+            ],
+            note:'✓ Zerodha Coin: UTI Nifty 50 Direct · Axis Midcap Direct · HDFC Gold Fund · Annual rebalancing only · Target XIRR: 12–14%'
+          },
+          { title:'BALANCED PORTFOLIO', sub:'AGE 30-45 · GROWTH + STABILITY · SIP: ₹25K-1L/MONTH',
+            rows:[
+              {c:'#00ff88',n:'Large Cap Equity',pct:40,g:'var(--g),#34ffb8'},
+              {c:'#00d4ff',n:'Mid + Small Cap',pct:20,g:'var(--c),#5ee0ff'},
+              {c:'#7c3aff',n:'Debt / Bonds',pct:25,g:'var(--v),#a78bff'},
+              {c:'#ffcc00',n:'Gold SGB',pct:10,g:'var(--y),#ffd860'},
+              {c:'#ff6432',n:'International FOF',pct:5,g:'#ff6432,#ff9060'}
+            ],
+            note:'✓ Tax strategy: ELSS for 80C (₹1.5L) · SGB tax-free on maturity · LTCG ₹1L/yr exemption · Rebalance Jan every year only'
+          }
+        ]
+      };
+      const data = ALLOC[STATE.userArchetype] || DEFAULT;
+      const wrap = document.getElementById('allocWrap');
+      if (!wrap) return;
+      wrap.innerHTML = data.cards.map(card => `
+        <div class="alloc-card">
+          <div class="alloc-title">${card.title}</div>
+          <div class="alloc-sub">${card.sub}</div>
+          ${card.rows.map(r=>`
+          <div class="alloc-row">
+            <div class="alloc-dot" style="background:${r.c}"></div>
+            <div class="alloc-name">${r.n}</div>
+            <div class="alloc-bar-bg"><div class="alloc-bar-fill" style="width:${r.pct}%;background:linear-gradient(90deg,${r.g})"></div></div>
+            <div class="alloc-pct" style="color:${r.c}">${r.pct}%</div>
+          </div>`).join('')}
+          <div class="alloc-note">${card.note}</div>
+        </div>`).join('');
+      window.addEventListener('archetype-changed', renderAllocBars);
+    })();
+    </script>
+  </div>
+
+
+  </div><!-- /learnPanel -->
+
+  <!-- JOURNAL MODE PANEL -->
+  <div class="mode-panel" id="journalPanel">
+
+    <!-- Journal intro banner -->
+    <div class="journal-intro">
+      <div class="ji-icon">📓</div>
+      <div>
+        <div class="ji-title">INVESTOR JOURNAL & HABIT TRACKER</div>
+        <div class="ji-sub">Track daily investor practices, maintain your SIP streak, and review AI-generated behavioral notes from your simulations.</div>
+      </div>
+    </div>
+
+    <!-- Behavior Warning -->
+    <div class="memory-warning">
+      <div class="memory-warning-title" id="invWarningTitle">Recurring warning loading...</div>
+      <div class="memory-warning-copy" id="invWarningCopy">Scanning your recent simulation behavior for repeat mistakes.</div>
+    </div>
+
+    <!-- Today's Habits -->
+    <div class="inv-section">
+      <div class="sec-hd">
+        <div class="sec-num" style="background:rgba(0,255,136,.08);border-color:rgba(0,255,136,.2)">✓</div>
+        <div>
+          <div class="sec-name">TODAY'S INVESTOR PRACTICES</div>
+          <div class="sec-desc">CLICK EACH TO MARK COMPLETE · EARN XP · BUILD CONSISTENT HABITS</div>
+        </div>
+        <div class="sec-xp">+140 XP</div>
+      </div>
+      <div class="tracker-wrap" style="padding:1.5rem">
+        <div class="tracker-grid">
+          <div class="tck-item" onclick="toggleTrack(this,20)"><div class="tck-check">✓</div><div class="tck-text">📅 Confirmed SIP is active this month — no pause or cancellation</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,15)"><div class="tck-check">✓</div><div class="tck-text">📰 Read 1 business news without acting on it (observation mode)</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,15)"><div class="tck-check">✓</div><div class="tck-text">🧘 Did NOT check portfolio more than once today</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,20)"><div class="tck-check">✓</div><div class="tck-text">💰 Saved at least 20% of today's income / daily equivalent</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,25)"><div class="tck-check">✓</div><div class="tck-text">📚 Learned 1 new investing concept (ratio, bias, or strategy)</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,10)"><div class="tck-check">✓</div><div class="tck-text">🚫 Resisted a hot stock tip from WhatsApp group or friend</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,20)"><div class="tck-check">✓</div><div class="tck-text">📝 Wrote 1 sentence in investment journal about today's market</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,15)"><div class="tck-check">✓</div><div class="tck-text">🎯 Reviewed my financial goal — portfolio is still aligned</div></div>
+          <div class="tck-item" onclick="toggleTrack(this,10)"><div class="tck-check">✓</div><div class="tck-text">😌 Took 2-min breathing break before any market check today</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIP Streak Calendar -->
+    <div class="inv-section">
+      <div class="sec-hd">
+        <div class="sec-num" style="background:rgba(255,204,0,.08);border-color:rgba(255,204,0,.2);color:var(--y)">🔥</div>
+        <div>
+          <div class="sec-name">SIP STREAK CALENDAR — MAY 2025</div>
+          <div class="sec-desc">CLICK DAYS TO MARK SIP INVESTED · BUILD AN UNBROKEN DISCIPLINE CHAIN</div>
+        </div>
+        <div class="sec-xp" style="background:rgba(255,204,0,.08);color:var(--y);border-color:rgba(255,204,0,.15)"><span id="streakCount">12</span> day streak 🔥</div>
+      </div>
+      <div class="tracker-wrap" style="padding:1.5rem">
+        <div class="sip-calendar" id="sipCalendar"></div>
+      </div>
+    </div>
+
+    <!-- Behavioral Journal -->
+    <div class="inv-section">
+      <div class="sec-hd">
+        <div class="sec-num" style="background:rgba(124,58,255,.08);border-color:rgba(124,58,255,.2);color:#a78bff">📝</div>
+        <div>
+          <div class="sec-name">BEHAVIORAL JOURNAL</div>
+          <div class="sec-desc">AI-GENERATED NOTES FROM SIMULATIONS + YOUR OWN REFLECTION</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+        <div class="auto-journal-card" style="margin-top:0">
+          <div class="auto-journal-title">🤖 AUTO-JOURNAL FROM LAST SIM</div>
+          <div class="auto-journal-copy" id="invAutoJournal">Complete a simulation and the system will draft a behavior note here.</div>
+        </div>
+        <div style="background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:1rem 1.1rem">
+          <div style="font-family:var(--fD);font-size:1rem;letter-spacing:1px;color:var(--c);margin-bottom:.45rem">✍ YOUR REFLECTION</div>
+          <textarea id="invNote" style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.7rem;color:var(--txt);font-family:var(--fB);font-size:.78rem;line-height:1.6;resize:none;height:90px;box-sizing:border-box" placeholder="What did you learn today? What bias did you catch yourself falling into?"></textarea>
+          <button onclick="saveInvNote()" style="margin-top:.5rem;padding:.3rem .9rem;border-radius:7px;font-family:var(--fM);font-size:.54rem;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.2);color:var(--c);cursor:pointer">SAVE NOTE +10 XP</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Buttons -->
+    <div class="prog-btn-row">
+      <button class="prog-btn prog-btn-main" onclick="openPM()">📊 VIEW FULL PROGRESS REPORT</button>
+      <button class="prog-btn prog-btn-sec" onclick="claimXP()">⚡ CLAIM SESSION XP (+150)</button>
+      <div style="margin-left:auto;font-family:var(--fM);font-size:.6rem;color:var(--mu)">Sessions: <span id="invSessN" style="color:var(--g)">12</span> done · Next milestone: 15 sessions</div>
+    </div>
+
+  </div><!-- /journalPanel -->
+
+</div>
+{% endblock %}
+
+{% block page_script %}
+<script>
+function renderInvestorProfile() {
+  if (!window.FINOS_PROFILE) return;
+  const profile = window.FINOS_PROFILE.get();
+  const insights = window.FINOS_PROFILE.getInsights();
+  const warning = window.FINOS_PROFILE.getWarning('investor');
+  const recent = profile.recentRuns[0];
+
+  // ── First card: pull from user profile in STATE ──
+  const archMeta = ARCH_META[STATE.userArchetype];
+  document.getElementById('invProfileLabel').textContent = STATE.userName;
+  document.getElementById('invProfileCopy').textContent = archMeta
+    ? `${archMeta.emoji} ${archMeta.name} · Discipline ${STATE.disc}/100 · FOMO Res. ${STATE.traits.fomoRes}/100`
+    : `Discipline ${STATE.disc}/100 · Analysis ${STATE.traits.analysis}/100 — Set your archetype below ↓`;
+
+  document.getElementById('invRecentSignal').textContent = recent ? recent.verdict : 'No runs yet';
+  document.getElementById('invRecentCopy').textContent = recent ? `${recent.title} • ${recent.disciplineScore} discipline • ${recent.pnlImpact}% impact` : 'Your last simulation verdict will appear here.';
+  document.getElementById('invRunHistory').textContent = `${profile.totalRuns} total`;
+  document.getElementById('invRunCopy').textContent = `${profile.investorRuns} investor • ${profile.traderRuns} trader`;
+  document.getElementById('invWarningTitle').textContent = `${warning.title} (${warning.count})`;
+  document.getElementById('invWarningCopy').textContent = warning.body;
+  document.getElementById('invAutoJournal').textContent = recent?.autoJournal || 'Complete a simulation and the system will draft a behavior note here.';
+}
+
+// ── Archetype metadata (mirrors profile.html ARCH_MAP) ──
+const ARCH_META = {
+  arch1: { emoji:'🦁', name:'THE LION',      badge:'⚡ AGGRESSIVE GROWTH',     desc:'High-Conviction Investor · Concentration Risk Taker · Bold Position Sizer' },
+  arch2: { emoji:'🐢', name:'THE TORTOISE',  badge:'🐢 SYSTEMATIC COMPOUNDER',  desc:'Disciplined SIP Investor · Long-term Compounder · Patience-First Trader' },
+  arch3: { emoji:'🦊', name:'THE FOX',       badge:'🦊 SMART DIVERSIFIER',      desc:'Multi-Asset Allocator · Risk-Managed Investor · Strategic Rebalancer' },
+  arch4: { emoji:'🦌', name:'THE DEER',      badge:'🦌 DISCIPLINE IN PROGRESS', desc:'Reactive Investor · Market-Anxious · Building Systematic Habits' },
+};
+
+// ─── Archetypes ───
+let pickedArch = STATE.userArchetype || null, modsDone = 0;
+function pickArch(el, id) {
+  document.querySelectorAll('.arch-card').forEach(c => c.classList.remove('picked'));
+  if (pickedArch === id) {
+    pickedArch = null;
+    STATE.userArchetype = ''; STATE.userArchetypeName = ''; STATE.userArchetypeEmoji = '';
+    STATE.save();
+    renderInvestorProfile();
+    return;
+  }
+  el.classList.add('picked'); pickedArch = id;
+  const meta = ARCH_META[id] || {};
+  STATE.userArchetype = id;
+  STATE.userArchetypeName = meta.name || '';
+  STATE.userArchetypeEmoji = meta.emoji || '';
+  STATE.save();
+  addXP(60, 'Investor archetype identified: ' + (meta.name || id));
+  renderInvestorProfile();
+  window.dispatchEvent(new CustomEvent('archetype-changed'));
+  bumpProg();
+}
+
+// ── Restore previously saved archetype on page load ──
+(function(){
+  if (!STATE.userArchetype) return;
+  document.querySelectorAll('.arch-card').forEach(c => {
+    const onclick = c.getAttribute('onclick') || '';
+    if (onclick.includes("'" + STATE.userArchetype + "'") || onclick.includes('"' + STATE.userArchetype + '"')) {
+      c.classList.add('picked');
+    }
+  });
+})();
+
+// ─── Bias Lab ───
+const BIASES = {
+  loss: { name:'LOSS AVERSION', icon:'😱', desc:'Kahneman & Tversky proved: the pain of losing ₹1,000 feels 2.5× stronger than the pleasure of gaining ₹1,000. This makes investors sell winners too early and hold losers far too long.', ex:'Meena bought ITC at ₹280. It rose to ₹350 (+25%) — she sold fearing a reversal. ITC then rose to ₹500. She also bought Yes Bank at ₹120; it crashed to ₹15. She held, saying "recover hoga" — because selling meant admitting the loss. She lost both ways.', fix:'Set a rule: Review holdings quarterly, not daily. Use a stop-loss on individual stocks (e.g., exit if −20% from high). Mentally separate your purchase price from current intrinsic value — they are completely different numbers.' },
+  anchor: { name:'ANCHORING BIAS', icon:'⚓', desc:'Your brain fixates on the first number it sees — usually your purchase price. Every decision after is judged relative to that anchor, even if it\'s completely irrelevant to the stock\'s future earnings.', ex:'Raj bought Reliance at ₹2,400 in 2022. It fell to ₹1,980. He refuses to sell "at a loss" even though business fundamentals shifted. He also won\'t buy more because "it was ₹2,400 — not cheap anymore." The anchor blinds him both ways.', fix:'Never look at your purchase price when making a sell decision. Ask: "If I had no position today, would I buy at this price?" If no — sell. Your entry price is a sunk cost. It tells you nothing about where the stock goes next.' },
+  herd: { name:'HERD MENTALITY', icon:'🐑', desc:'Humans evolved to follow the tribe for safety. In markets, this means buying when everyone is excited (peaks) and selling when everyone is panicking (bottoms) — the exact opposite of what makes money.', ex:'2021: Everyone in your WhatsApp group is buying Paras Defence, Latent View, Sigachi IPOs. "Easy money!" You put ₹2 lakhs across 5 IPOs. By 2022, all were down 50–70%. The crowd moved before you read even one prospectus.', fix:'Use a 48-hour rule: Never invest in anything you heard about in the last 48 hours. When a stock appears on every business news channel, it\'s already fully priced. The herd bought at the top — you\'re the exit liquidity.' },
+  confirm: { name:'CONFIRMATION BIAS', icon:'🔍', desc:'Once you own a stock, your brain actively seeks news that confirms it will go up and unconsciously filters out bad news. You stop being an analyst. You become a fan with money on the line.', ex:'Ananya owns HDFC Bank. She reads 3 bullish research reports daily and dismisses the NIM compression concerns as "temporary." When the stock fell 15%, she said "short-sellers, fake news." She ignored the fundamental issue for 8 months.', fix:'Practice Red Team thinking: Every time you want to hold a stock, spend 10 minutes finding the BEST argument AGAINST it. If you can\'t find reasons to sell — you\'re not looking hard enough. Confirmation bias is strongest when you\'re most comfortable.' },
+  over: { name:'OVERCONFIDENCE', icon:'🦸', desc:'Studies show 93% of investors believe they are above-average stock pickers. Statistically impossible. In India, 70% of active mutual fund managers underperform the NIFTY 50 index over 10 years. And these are professionals.', ex:'After picking 3 multi-baggers in the 2020–21 bull run (when everything went up 70%), Vikram thinks he has a gift. Leaves job to trade full-time. First serious bear market: −60% portfolio. Bull market skills don\'t survive bear markets.', fix:'Test yourself honestly: Compare your actual returns to a simple NIFTY 50 index fund over 3 full years (including a down year). If you underperform — and most do — switch to index investing. It\'s the rational choice, not a defeat.' },
+  recency: { name:'RECENCY BIAS', icon:'📅', desc:'Your brain overweights recent events. After 2 years of bull market, you assume markets always go up. After a crash, you assume they will keep falling forever. Both assumptions destroy returns.', ex:'2021: Markets up 70% in 12 months. Investors pour money in expecting 30–40% every year. "This time it\'s different!" 2022: Market flat to negative. Investors withdraw in frustration. The correct move was to reduce in 2021 peaks and add in 2022 corrections.', fix:'Read Indian market history: NIFTY has corrected 20–50% at least 6 times since 2000 — and recovered to new highs every single time. Knowing this history prevents recency bias from making you sell at the worst possible moment.' },
+  sunk: { name:'SUNK COST FALLACY', icon:'🚢', desc:'Money already lost should never influence future decisions — it\'s gone regardless of what you do next. Yet investors hold terrible stocks for years because they\'ve "already lost so much" and can\'t accept it.', ex:'Ramesh bought Suzlon at ₹22, it went to ₹6 (−72%). He refuses to sell: "I\'ll wait till ₹22." He waits 7 years. The ₹1.5L stuck in Suzlon could have been ₹6L in a NIFTY index fund. The sunk cost cost him more than the original loss.', fix:'The Dead Cat Bounce test: If you received the cash equivalent of your losing stock today, would you reinvest it in the same stock? If no — sell now. The sunk cost doesn\'t change the forward-looking answer. Be rational, not loyal to a mistake.' },
+  mental: { name:'MENTAL ACCOUNTING', icon:'🏦', desc:'Treating money from different sources (salary, bonus, gift, tax refund) as fundamentally different, leading to irrational risk-taking with "found" money that you wouldn\'t take with your regular savings.', ex:'Priya got a ₹2L Diwali bonus. She thinks "bonus money — can take more risk." She puts it all in a single speculative small-cap. It loses 80%. ₹2 lakhs is ₹2 lakhs regardless of source — but her brain treated it as Monopoly money.', fix:'Before any investment decision with bonus money, replace the framing with: "This is money I earned through hard work." Ask: "Would I put my regular salary savings here?" If no — don\'t put the bonus there either. All money deserves equal respect.' }
+};
+
+let activeBiasEl = null;
+function openBias(el, id) {
+  const panel = document.getElementById('biasPanel');
+  if (activeBiasEl) activeBiasEl.classList.remove('open');
+  if (activeBiasEl === el) { panel.classList.remove('show'); activeBiasEl = null; return; }
+  const b = BIASES[id];
+  panel.innerHTML = `<div class="bdp-title">${b.icon} ${b.name}</div><div class="bdp-desc">${b.desc}</div><div class="bdp-example"><div class="bdp-ex-label">🇮🇳 REAL INDIAN EXAMPLE</div><div class="bdp-ex-text">${b.ex}</div></div><div class="bdp-fix"><div class="bdp-fix-label">✅ FIN-OS FIX</div><div class="bdp-fix-text">${b.fix}</div></div>`;
+  panel.classList.add('show');
+  el.classList.add('open');
+  activeBiasEl = el;
+  addXP(15, 'Bias explored: ' + b.name);
+  bumpProg();
+}
+
+// ─── Simulations ───
+const SIMS = {
+  s1: {
+    A: { cls:'r', t:'❌ EMOTIONAL EXIT — THE COSTLIEST DECISION', tx:'By December 2020, NIFTY recovered to 13,000 (+67% from your sell price of 7,800). Your ₹3.25L would have become ₹5.44L. You sold at the exact bottom. This is the most common and most costly investor mistake in every major correction. Every. Single. Time.' },
+    B: { cls:'y', t:'⚠ PAUSED BUT SURVIVED — SUBOPTIMAL', tx:'Pausing SIP was understandable but costly — you missed buying NIFTY at 7,800–9,000, the best SIP entry of the decade. Holdings held their ground. Lesson: Never pause SIPs during crashes. That\'s when every rupee buys maximum units.' },
+    C: { cls:'g', t:'🏆 MASTER INVESTOR MOVE — EXACTLY RIGHT', tx:'Your regular portfolio recovered + the ₹50,000 lump-sum at 7,800 was worth ₹1,67,000 (+234%) by March 2023. NIFTY went 7,800 → 22,000 over 4 years (+182%). This is Warren Buffett\'s and Rakesh Jhunjhunwala\'s strategy: extreme fear = extreme opportunity.' },
+    D: { cls:'y', t:'✓ GOOD DISCIPLINE — COULD DO MORE', tx:'Not checking portfolio is excellent emotional control. But continuing SIP would have been better. "Do nothing" is correct during panic — but "buy more" is the master move. You preserved capital mentally; you missed the opportunity to capitalize financially.' }
+  },
+  s2: {
+    A: { cls:'g', t:'✅ CORRECT — GOVERNANCE RISK IS FUNDAMENTAL', tx:'Adani stocks recovered partially in 2024 after government signals, but most remain 30–50% below pre-Hindenburg levels. Governance concerns in promoter-heavy Indian stocks are existential risks. Capital deployed elsewhere (NIFTY index) grew 18%+ in the same period. Right call.' },
+    B: { cls:'r', t:'❌ CAUGHT A FALLING KNIFE', tx:'Stock fell from ₹560 to ₹350 by March 2023 (−37% more). Your 5,000 new shares lost another ₹1,05,000. Total loss: ₹2,18,000 on ₹2,80,000 invested. "Averaging down" on fundamentally challenged stocks is hope dressed as strategy.' },
+    C: { cls:'y', t:'⚠ CAUTIOUS — ACCEPTABLE BUT CAPITAL LOCKED', tx:'Not adding was disciplined. Stocks partially recovered, reducing loss from −53% to −35% by late 2023. But capital was locked for 2 years. Opportunity cost: HDFC Bank and Infosys gave +20% returns in that same window.' },
+    D: { cls:'r', t:'❌ POLITICAL THESIS ≠ STOCK PRICE RECOVERY', tx:'Government backing doesn\'t guarantee stock recovery — see Vodafone Idea. Stock prices follow earnings and cash flows, not political favoritism. By doubling position, total loss exceeded ₹4 lakhs. Never confuse political connections with business fundamentals.' }
+  },
+  s3: {
+    A: { cls:'y', t:'◐ LUMP SUM WORKED — BUT THE JOURNEY WAS BRUTAL', tx:'Lump sum ₹6L in Jan 2018 → worth ₹10.9L by Dec 2023 (+82%, CAGR ~10.5%). BUT: you watched it fall to ₹4.5L in COVID March 2020. Could you have held? Studies show only 22% of lump-sum investors didn\'t sell in the 2020 crash. The math works; the psychology often doesn\'t.' },
+    B: { cls:'g', t:'🏆 SIP + FD — BETTER RISK-ADJUSTED JOURNEY', tx:'SIP ₹10,000/month × 60 months = ₹6L invested + FD interest on remaining. By Dec 2023: SIP corpus ~₹8.8L + FD ~₹2.1L = ₹10.9L. Same final amount, max drawdown only −22% vs −42% for lump sum. Smoother journey = you actually stayed invested = same returns with less emotional pain.' },
+    C: { cls:'y', t:'◐ CORRECT IN MATH — INSIGHT IN BEHAVIOUR', tx:'Right that final numbers are similar. But SIP wins on behavioral outcomes: 78% of 2018 lump-sum investors sold during COVID. Only 34% of SIP investors paused or stopped. The strategy you can actually follow through a crash is better than the optimal strategy you abandon in fear.' }
+  }
+};
+// Tag lookup: maps each investor sim+key to behavioural tags
+const INV_SIM_TAGS = {
+  s1:{ A:['panic'],                 B:['hesitation'],           C:['discipline','patience'], D:['patience'] },
+  s2:{ A:['discipline'],            B:['overmanage'],           C:['patience'],              D:['overmanage'] },
+  s3:{ A:['hesitation','patience'], B:['discipline','patience'], C:['patience'] }
+};
+const INV_SIM_PNL = { g:18, y:0, r:-22 };
+
+function doSim(simId, cls, key, el) {
+  const chs = document.getElementById(simId+'ch');
+  if (chs.querySelector('.locked')) return;
+  chs.querySelectorAll('.sim-ch').forEach(c => { c.classList.add('locked'); if(c.querySelector('.sim-letter').textContent===key) c.classList.add(cls); });
+  const r = document.getElementById(simId+'res'), o = SIMS[simId][key];
+  r.className = `sim-result show ${cls}`;
+  r.innerHTML = `<div class="sim-res-title">${o.t}</div><div class="sim-res-text">${o.tx}</div>`;
+  addXP(cls==='g'?60:cls==='y'?30:20, 'Market simulation completed');
+
+  // Record run — updates FINOS_PROFILE + nudges STATE.traits
+  if (window.FINOS_PROFILE) {
+    FINOS_PROFILE.recordRun({
+      mode: 'investor',
+      simId: simId + '_' + key,
+      title: 'Investor Sim ' + simId.toUpperCase() + '-' + key,
+      verdict: cls === 'g' ? 'DISCIPLINED' : cls === 'y' ? 'CAUTIOUS' : 'EMOTIONAL',
+      outcome: cls,
+      tags: (INV_SIM_TAGS[simId] || {})[key] || ['patience'],
+      pnlImpact: INV_SIM_PNL[cls] || 0,
+      disciplineScore: cls==='g'?85:cls==='y'?55:28,
+      executionScore:  cls==='g'?82:cls==='y'?60:32,
+      clarityScore:    cls==='g'?88:cls==='y'?62:35
+    });
+    renderInvestorProfile();
+  }
+  bumpProg();
+}
+
+// ─── Fear & Greed ───
+const fgCtx2 = document.getElementById('fgCanvas').getContext('2d');
+function drawFG(v) {
+  const c=fgCtx2, cx=100, cy=108, r=80;
+  c.clearRect(0,0,200,120);
+  c.beginPath(); c.arc(cx,cy,r,Math.PI,2*Math.PI); c.lineWidth=16;
+  c.strokeStyle='rgba(255,255,255,.05)'; c.stroke();
+  const g=c.createLinearGradient(0,0,200,0);
+  g.addColorStop(0,'#ff2d6b');g.addColorStop(.25,'#ff6432');g.addColorStop(.5,'#ffcc00');g.addColorStop(.75,'#00ff64');g.addColorStop(1,'#00ff88');
+  c.save();c.beginPath();c.rect(0,0,200,cy);c.clip();
+  c.beginPath();c.arc(cx,cy,r,Math.PI,2*Math.PI);c.lineWidth=16;c.strokeStyle=g;c.stroke();c.restore();
+  const a=Math.PI+(v/100)*Math.PI, nx=cx+(r-8)*Math.cos(a), ny=cy+(r-8)*Math.sin(a);
+  c.beginPath();c.moveTo(cx,cy);c.lineTo(nx,ny);c.lineWidth=3;c.strokeStyle='#fff';c.lineCap='round';c.stroke();
+  c.beginPath();c.arc(cx,cy,6,0,Math.PI*2);c.fillStyle='#fff';c.fill();
+}
+const FG_DATA = [
+  {color:'var(--r)', label:'EXTREME FEAR', ctx:'<strong>EXTREME FEAR (0–20) — BUY SIGNAL:</strong> Markets in panic mode. Best historical SIP entry — March 2020 had F&G at 5. NIFTY subsequently rose 180% over 3 years. This is the moment the ' + (STATE.userArchetypeName || 'Tortoise') + ' archetype thrives.'},
+  {color:'#ff6432', label:'FEAR', ctx:'<strong>FEAR (21–40) — ACCUMULATE:</strong> Pessimism dominant. Good time for SIP top-ups. Mid-2022 (rate hike fears): F&G at 28. NIFTY gave 20%+ returns over next 12 months. Start increasing SIP amounts here.'},
+  {color:'var(--y)', label:'NEUTRAL', ctx:'<strong>NEUTRAL (41–60) — STEADY STATE:</strong> Mixed conditions. Neither panic nor euphoria. Continue your regular SIP without overthinking. Most of 2023 was neutral — steady, boring compounding is ideal.'},
+  {color:'#00ff64', label:'GREED', ctx:'<strong>GREED (61–80) — CAUTION:</strong> Markets stretched. Avoid new lump sums. Continue SIPs but don\'t chase performance. Book partial profits in overweight positions. Start building your FD/debt buffer.'},
+  {color:'var(--g)', label:'EXTREME GREED', ctx:'<strong>EXTREME GREED (81–100) — REBALANCE:</strong> Euphoria, IPO frenzy, everyone is a "stock expert." Jan 2022: F&G at 87 — just before 15% correction. Trim equity, rebalance to target allocation. Don\'t buy any new ideas here.'}
+];
+function updateFG(v) {
+  drawFG(v);
+  const i=Math.min(4,Math.floor(v/20));
+  document.getElementById('fgValN').style.color=FG_DATA[i].color;
+  document.getElementById('fgValN').textContent=v;
+  document.getElementById('fgValL').style.color=FG_DATA[i].color;
+  document.getElementById('fgValL').textContent=FG_DATA[i].label;
+  document.getElementById('fgCtx').innerHTML=FG_DATA[i].ctx;
+}
+drawFG(50); updateFG(50);
+
+// ─── SIP Calculator ───
+function fmtINR(n){return n>=10000000?'₹'+(n/10000000).toFixed(2)+'Cr':n>=100000?'₹'+(n/100000).toFixed(1)+'L':'₹'+(n/1000).toFixed(1)+'K';}
+function calcSIP() {
+  const amt=+document.getElementById('sipAmt').value, yrs=+document.getElementById('sipYr').value, rate=+document.getElementById('sipRate').value/100/12, n=yrs*12;
+  const invested=amt*n, corpus=amt*((Math.pow(1+rate,n)-1)/rate)*(1+rate);
+  document.getElementById('sipAmtV').textContent=amt.toLocaleString('en-IN');
+  document.getElementById('sipYrV').textContent=yrs;
+  document.getElementById('sipRateV').textContent=document.getElementById('sipRate').value;
+  document.getElementById('sipTotal').textContent=fmtINR(corpus);
+  document.getElementById('sipInvested').textContent=fmtINR(invested);
+  document.getElementById('sipGains').textContent=fmtINR(corpus-invested);
+  document.getElementById('sipMult').textContent=(corpus/invested).toFixed(1)+'×';
+  drawChart(amt,yrs,rate);
+}
+function drawChart(amt,yrs,rate) {
+  const cv=document.getElementById('sipChart');
+  cv.width=cv.offsetWidth||800; cv.height=200;
+  const c=cv.getContext('2d'),w=cv.width,h=200,pd=30;
+  const pts=[],inv=[];
+  let mx=0;
+  for(let y=1;y<=yrs;y++){const n=y*12,corp=amt*((Math.pow(1+rate,n)-1)/rate)*(1+rate);pts.push(corp);inv.push(amt*n);if(corp>mx)mx=corp;}
+  function px(i){return pd+(i/(yrs-1||1))*(w-pd*2);}
+  function py(v){return h-pd-(v/mx)*(h-pd*2);}
+  c.clearRect(0,0,w,h);
+  [[inv,'rgba(0,212,255,.12)'],[pts,'rgba(0,255,136,.12)']].forEach(([ar,fill])=>{
+    c.beginPath();c.moveTo(px(0),h-pd);ar.forEach((v,i)=>c.lineTo(px(i),py(v)));c.lineTo(px(yrs-1),h-pd);c.closePath();c.fillStyle=fill;c.fill();
+  });
+  [[pts,'rgba(0,255,136,.8)'],[inv,'rgba(0,212,255,.6)']].forEach(([ar,col])=>{
+    c.beginPath();ar.forEach((v,i)=>i===0?c.moveTo(px(i),py(v)):c.lineTo(px(i),py(v)));c.strokeStyle=col;c.lineWidth=2;c.stroke();
+  });
+  c.fillStyle='rgba(255,255,255,.25)';c.font='9px JetBrains Mono';
+  [1,Math.round(yrs*.25),Math.round(yrs*.5),Math.round(yrs*.75),yrs].filter((v,i,a)=>a.indexOf(v)===i).forEach(y=>{
+    const i=Math.min(y-1,pts.length-1);c.fillText(y+'Y',px(i)-8,h-6);
+  });
+}
+calcSIP();
+
+// ─── Mode Switcher ───
+function switchMode(mode) {
+  const learnBtn = document.getElementById('learnBtn');
+  const journalBtn = document.getElementById('journalBtn');
+  const learnPanel = document.getElementById('learnPanel');
+  const journalPanel = document.getElementById('journalPanel');
+  const slider = document.getElementById('modeSlider');
+  if (mode === 'learn') {
+    learnBtn.classList.add('active'); journalBtn.classList.remove('active');
+    learnPanel.classList.add('show'); journalPanel.classList.remove('show');
+    slider.className = 'mode-slider learn-pos';
+  } else {
+    journalBtn.classList.add('active'); learnBtn.classList.remove('active');
+    journalPanel.classList.add('show'); learnPanel.classList.remove('show');
+    slider.className = 'mode-slider journal-pos';
+  }
+}
+
+function saveInvNote() {
+  const n = document.getElementById('invNote').value.trim();
+  if (n) { addXP(10,'Investor reflection saved'); showToast('📝 Note saved!','tg'); localStorage.setItem('finos_inv_note_'+Date.now(), n); }
+}
+
+// ─── Daily Tracker ───
+let doneCount=0;
+function toggleTrack(el,xp){
+  el.classList.toggle('done');
+  if(el.classList.contains('done')){doneCount++;addXP(xp,'Daily investor practice');}
+  else doneCount=Math.max(0,doneCount-1);
+  bumpProg();
+}
+
+// ─── SIP Calendar ───
+const calEl=document.getElementById('sipCalendar');
+const doneDays=[1,2,3,4,7,8,9,10,11,14,15,16];
+for(let d=1;d<=30;d++){
+  const el=document.createElement('div');
+  el.className='cal-day'+(doneDays.includes(d)?' sip-done':'')+(d===17?' today':'');
+  el.textContent=d;
+  el.onclick=()=>{el.classList.toggle('sip-done');el.classList.remove('sip-miss');document.getElementById('streakCount').textContent=document.querySelectorAll('.cal-day.sip-done').length;};
+  calEl.appendChild(el);
+}
+
+// ─── Progress Modal ───
+function openPM(){document.getElementById('pmXP').textContent=STATE.xp.toLocaleString('en-IN');document.getElementById('pmDisc').textContent=STATE.disc;document.getElementById('pmSess').textContent=STATE.sessionsCompleted;document.getElementById('progModal').classList.add('open');}
+function closePM(){document.getElementById('progModal').classList.remove('open');}
+function claimXP(){STATE.sessionsCompleted++;STATE.save();document.getElementById('invSessN').textContent=STATE.sessionsCompleted;addXP(150,'Investor session completed');}
+
+// ─── Progress bar ───
+function bumpProg(){
+  modsDone=Math.min(5,+(pickedArch?1:0)+(activeBiasEl?1:0)+(document.querySelector('.sim-result.show')?1:0)+(doneCount>3?1:0)+(doneCount>6?1:0));
+  const pct=(modsDone/5)*100;
+  document.getElementById('sessProgress').style.width=pct+'%';
+  document.getElementById('sessProgressPct').textContent=modsDone+' / 5 Modules';
+}
+
+// ─── Section nav ───
+document.querySelectorAll('.snb').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('.snb').forEach(x=>x.classList.remove('on'));this.classList.add('on');}));
+renderInvestorProfile();
+window.addEventListener('behavior-profile-change', renderInvestorProfile);
+</script>
+{% endblock %}

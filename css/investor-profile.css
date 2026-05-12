@@ -1,0 +1,134 @@
+/* 
+  investor-profile.css 
+*/
+
+:root {
+    --neon-pri: #4ade80;
+    --neon-sec: #166534;
+    --neon-acc: #22c55e;
+}
+
+body[data-hero="buffett"] {
+    --neon-pri: #4ade80;
+    /* green */
+    --neon-sec: #166534;
+    --neon-acc: #22c55e;
+}
+
+body[data-hero="simons"] {
+    --neon-pri: #60a5fa;
+    /* blue */
+    --neon-sec: #1e3a8a;
+    --neon-acc: #3b82f6;
+}
+
+body[data-hero="soros"] {
+    --neon-pri: #f87171;
+    /* red */
+    --neon-sec: #7f1d1d;
+    --neon-acc: #ef4444;
+}
+
+body[data-hero="burry"] {
+    --neon-pri: #fb923c;
+    /* orange */
+    --neon-sec: #7c2d12;
+    --neon-acc: #f97316;
+}
+
+/* Base Styles */
+::-webkit-scrollbar {
+    width: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--neon-sec);
+    border-radius: 4px;
+}
+
+.scroll-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scroll-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Gradients and Shadows mapped to variable */
+.text-gradient-hero {
+    background: linear-gradient(135deg, white, var(--neon-pri));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+#atmosphereGlow {
+    background: radial-gradient(circle at center, var(--neon-sec) 0%, transparent 60%);
+}
+
+.pulse-badge {
+    box-shadow: 0 0 15px var(--neon-pri);
+    animation: badgePulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes badgePulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+
+    50% {
+        box-shadow: 0 0 25px var(--neon-pri);
+    }
+}
+
+/* Diagram Global Styles */
+.svg-diagram {
+    width: 100%;
+    height: 100%;
+}
+
+.line-chart {
+    fill: none;
+    stroke-width: 4px;
+    stroke-linecap: round;
+}
+
+.glow-line {
+    filter: drop-shadow(0 0 8px var(--neon-pri));
+}
+
+.glow-line-secondary {
+    filter: drop-shadow(0 0 8px rgba(150, 150, 150, 0.5));
+}
+
+.node-dot {
+    fill: var(--neon-pri);
+    filter: drop-shadow(0 0 5px var(--neon-pri));
+    transition: all 0.3s ease;
+}
+
+/* Sliders */
+.range-styled {
+    -webkit-appearance: none;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    border-radius: 8px;
+    height: 6px;
+}
+
+.range-styled::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--neon-pri);
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--neon-pri);
+}

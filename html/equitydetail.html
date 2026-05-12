@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Equity Masterclass</title>
+  
+  <script src="../js/theme-init.js"></script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/equitydetail.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+  <button id="themeToggle" class="theme-btn fixed-theme-btn">🌙</button>
+
+  <div class="deep-wrapper">
+    
+    <aside class="toc-sidebar">
+      <div class="toc-header">PROTOCOL 02: EQUITY</div>
+      <ul class="toc-list">
+        <li><a href="#hero" class="toc-link active">0. Start</a></li>
+        <li><a href="#sec1" class="toc-link">1. The Concept</a></li>
+        <li><a href="#sec2" class="toc-link">2. Market Engine</a></li>
+        <li><a href="#sec3" class="toc-link">3. Why Prices Move</a></li>
+        <li><a href="#sec4" class="toc-link">4. Types (The Fleet)</a></li>
+        <li><a href="#sec5" class="toc-link">5. Fundamental</a></li>
+        <li><a href="#sec6" class="toc-link">6. Technical</a></li>
+        <li><a href="#sec7" class="toc-link">7. Strategy War</a></li>
+        <li><a href="#sec8" class="toc-link">8. The Traps</a></li>
+        <li><a href="#sec9" class="toc-link">9. Risk Reality</a></li>
+        <li><a href="#sec10" class="toc-link">10. Wealth Rules</a></li>
+        <li><a href="#sec12" class="toc-link">11. Final Truth</a></li>
+      </ul>
+      <a href="markets.html" class="back-btn">← Back to Terminal</a>
+    </aside>
+
+    <main class="deep-content" id="scrollContainer">
+
+      <section class="chapter active" id="hero">
+        <h1 class="glitch-text" data-text="Equity Masterclass">Equity Masterclass</h1>
+        <p class="intro-text">
+          From "Satta Bazaar" to <span class="highlight">Business Ownership</span>.<br>
+          We are not here to gamble. We are here to own the economy.
+        </p>
+        <div class="scroll-indicator">Initialize Protocol ⬇</div>
+      </section>
+
+      <section class="chapter" id="sec1">
+        <span class="chapter-badge">LEVEL 01: TRUTH</span>
+        <h2>1. What Is Equity? (The Truth)</h2>
+        <p>Equity is not a ticker code. <strong>Equity = Ownership.</strong></p>
+        
+        <div class="story-card glass">
+          <div class="story-icon">🥟</div>
+          <div class="story-content">
+            <h3>The Raju Momo Reality</h3>
+            <p>Raju makes the best momos. He wants to expand but needs <strong>₹10 Lakhs</strong>. He only has ₹5L.</p>
+            <div class="deal-box">
+              <div class="deal-side">
+                <strong>YOU</strong>
+                <p>Give ₹1 Lakh</p>
+              </div>
+              <div class="deal-arrow">🤝 PARTNERSHIP</div>
+              <div class="deal-side">
+                <strong>RAJU</strong>
+                <p>Gives 10% Share</p>
+              </div>
+            </div>
+            <p class="moral">
+              If Raju sells 1,000 plates, you get 10% profit.<br>
+              If Raju goes bankrupt, you lose your ₹1 Lakh.<br>
+              <strong>That is Equity. Now replace Raju with Reliance.</strong>
+            </p>
+          </div>
+        </div>
+
+        <div class="grid-2-mini">
+          <div class="mini-card success">
+            <h4>✅ You Own</h4>
+            <ul>
+              <li>Share in Profits (Dividends)</li>
+              <li>Voting Rights</li>
+              <li>Asset Claims</li>
+            </ul>
+          </div>
+          <div class="mini-card danger">
+            <h4>❌ You DO NOT Own</h4>
+            <ul>
+              <li>Guaranteed Returns</li>
+              <li>Capital Safety</li>
+              <li>Fixed Income</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec2">
+        <span class="chapter-badge">LEVEL 02: MECHANISM</span>
+        <h2>2. How the Indian Market Works</h2>
+        <p>The NSE/BSE are not casinos. They are <strong>Regulated Sabzi Mandis</strong>.</p>
+
+        <div class="visual-flow-container glass">
+          <div class="flow-step">
+            <div class="step-icon">📱</div>
+            <strong>YOU</strong>
+            <span>Place Order</span>
+          </div>
+          <div class="flow-line">
+            <div class="particle"></div>
+          </div>
+          <div class="flow-step center">
+            <div class="step-icon">🏛️</div>
+            <strong>NSE / BSE</strong>
+            <span>Price Match</span>
+          </div>
+          <div class="flow-line">
+            <div class="particle reverse"></div>
+          </div>
+          <div class="flow-step">
+            <div class="step-icon">👤</div>
+            <strong>SELLER</strong>
+            <span>Uncle Sharma</span>
+          </div>
+        </div>
+        <p class="caption-text">T+1 Settlement: You buy today, shares hit your Demat tomorrow.</p>
+
+        <div class="grid-2-mini">
+           <div class="mini-card">
+             <h4>Nifty 50</h4>
+             <p>The top 50 companies of India. The "Thermometer" of the economy.</p>
+           </div>
+           <div class="mini-card">
+             <h4>Sensex</h4>
+             <p>The top 30 companies on BSE. The "Old School" metric.</p>
+           </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec3">
+        <span class="chapter-badge">LEVEL 03: DRIVERS</span>
+        <h2>3. Why Prices Move?</h2>
+        <p>Markets don't react to news. They react to <strong>Surprise</strong>.</p>
+
+        <div class="chart-container glass">
+          <canvas id="expectationChart"></canvas>
+          <p class="chart-caption">"Good" results can crash a stock if the market expected "Great".</p>
+        </div>
+        
+        <ul class="checklist-style">
+           <li>📈 <strong>Earnings Growth:</strong> Is the company making more money?</li>
+           <li>💧 <strong>Liquidity:</strong> Is there money flowing into the market?</li>
+           <li>😨 <strong>Emotion:</strong> Are people scared or greedy today?</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="sec4">
+        <span class="chapter-badge">LEVEL 04: CLASSIFICATION</span>
+        <h2>4. Types of Equity (The Fleet)</h2>
+        <p>Not all stocks are the same. You need a balanced fleet.</p>
+        
+        <h3>A. By Market Cap (Size)</h3>
+        <div class="ship-visuals">
+          <div class="ship-card">
+            <div class="ship-icon">🚢</div>
+            <h4>Large Cap</h4>
+            <p><strong>The Tanker (Top 100)</strong><br>Stable, survives storms, turns slowly.<br><em>Ex: Reliance, TCS, HDFC.</em></p>
+          </div>
+          <div class="ship-card mid-cap">
+            <div class="ship-icon">🚤</div>
+            <h4>Mid Cap</h4>
+            <p><strong>The Cruiser (Next 150)</strong><br>Faster growth, moderate risk. The sweet spot.<br><em>Ex: Polycab, Trent, SRF.</em></p>
+          </div>
+          <div class="ship-card small-cap">
+            <div class="ship-icon">🛶</div>
+            <h4>Small Cap</h4>
+            <p><strong>The Speedboat (Rest)</strong><br>Insane speed, but flips in a storm. High Risk.<br><em>Ex: New Age Tech, Startups.</em></p>
+          </div>
+        </div>
+
+        <br><br>
+        <h3>B. By Nature of Business</h3>
+        <div class="grid-2-mini">
+           <div class="mini-card">
+             <h4>🔄 Cyclical</h4>
+             <p>Moves with the economy. Buy at bottom, sell at top.<br><em>(Steel, Auto, Real Estate)</em></p>
+           </div>
+           <div class="mini-card">
+             <h4>🛡️ Defensive</h4>
+             <p>People buy these even in a recession. Safe havens.<br><em>(FMCG, Pharma, IT)</em></p>
+           </div>
+           <div class="mini-card">
+             <h4>🚀 Growth</h4>
+             <p>Reinvests all profit to expand. High P/E ratios.<br><em>(New Tech, Green Energy)</em></p>
+           </div>
+           <div class="mini-card">
+             <h4>🔥 Turnaround</h4>
+             <p>Failing companies trying to revive. High risk, high reward.<br><em>(Stressed Banks, PSUs)</em></p>
+           </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec5">
+        <span class="chapter-badge">LEVEL 05: DIAGNOSTICS</span>
+        <h2>5. Fundamental Analysis (The Medical Report)</h2>
+        <p>Is the business worth owning? Check the health.</p>
+        
+        <div class="grid-3-cards">
+          <div class="card-box">
+            <div class="icon">💰</div>
+            <h4>Income Statement</h4>
+            <p class="sub">Profit vs Loss</p>
+            <p>"How much did you earn?"</p>
+          </div>
+          <div class="card-box">
+            <div class="icon">⚖️</div>
+            <h4>Balance Sheet</h4>
+            <p class="sub">Assets vs Liabilities</p>
+            <p>"What do you own vs owe?"</p>
+          </div>
+          <div class="card-box highlight">
+            <div class="icon">🩸</div>
+            <h4>Cash Flow</h4>
+            <p class="sub">Real Money</p>
+            <p>"Show me the bank balance."</p>
+          </div>
+        </div>
+
+        <div class="concept-box glass">
+          <h4>👔 Valuation: The P/E Ratio</h4>
+          <p>If a shirt earns ₹10 rent/year:</p>
+          <ul>
+            <li>Price ₹200 (PE 20) = <strong>Fair</strong>.</li>
+            <li>Price ₹1000 (PE 100) = <strong>Expensive</strong>.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec6">
+        <span class="chapter-badge">LEVEL 06: PSYCHOLOGY</span>
+        <h2>6. Technical Analysis (Crowd Behavior)</h2>
+        <p>Charts are just footprints of human Fear and Greed.</p>
+
+        <div class="visual-box">
+          <div class="candle-visual">
+            <div class="candle green">
+              <div class="wick"></div>
+              <div class="body"></div>
+              <span class="label">Buyers Won</span>
+            </div>
+            <div class="candle red">
+              <div class="wick"></div>
+              <div class="body"></div>
+              <span class="label">Sellers Panic</span>
+            </div>
+          </div>
+          <p class="caption-text">Green = Aggression. Red = Fear. Wicks = Rejection.</p>
+        </div>
+
+        <div class="grid-2-mini">
+          <div class="mini-card">
+             <h4>Trend (The River)</h4>
+             <p>Never swim upstream. If the trend is UP, buy dips.</p>
+          </div>
+          <div class="mini-card">
+             <h4>Support (The Floor)</h4>
+             <p>Where buyers usually step in to save the price.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec7">
+        <span class="chapter-badge">LEVEL 07: STRATEGY</span>
+        <h2>7. Fundamental vs Technical (The False War)</h2>
+        <p>Amateurs argue. Pros combine.</p>
+        
+        <div class="comparison-table">
+           <div class="comp-row header">
+             <span>Goal</span>
+             <span>Tool</span>
+           </div>
+           <div class="comp-row">
+             <span>What to Buy?</span>
+             <span class="highlight">Fundamental</span>
+           </div>
+           <div class="comp-row">
+             <span>When to Buy?</span>
+             <span class="highlight">Technical</span>
+           </div>
+           <div class="comp-row">
+             <span>Conviction</span>
+             <span class="highlight">Fundamental</span>
+           </div>
+           <div class="comp-row">
+             <span>Risk Control</span>
+             <span class="highlight">Technical</span>
+           </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec8">
+        <span class="chapter-badge">LEVEL 08: TRAPS</span>
+        <h2>8. How Indians Lose Money</h2>
+        <div class="grid-2-mini">
+          <div class="mini-card danger">
+            <h4>The Telegram Trap</h4>
+            <p>Buying "Tips" from strangers. Result: You are their exit liquidity.</p>
+          </div>
+          <div class="mini-card danger">
+            <h4>Averaging Down</h4>
+            <p>Buying more of a loser (e.g., Paytm at 1500, then 1000) hoping to break even.</p>
+          </div>
+          <div class="mini-card danger">
+            <h4>Overtrading</h4>
+            <p>Buying and selling daily due to boredom. Brokerage eats your capital.</p>
+          </div>
+          <div class="mini-card danger">
+            <h4>Penny Stocks</h4>
+            <p>Thinking "It's only ₹5, it can go to ₹50". It usually goes to ₹0.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec9">
+        <span class="chapter-badge">LEVEL 09: REALITY</span>
+        <h2>9. Risk & Volatility</h2>
+        <p>Volatility is the price of admission. It is not a fine.</p>
+        <div class="concept-box glass">
+           <h4>The 30% Rule</h4>
+           <p>If you cannot handle your portfolio dropping 30% temporarily, you do not deserve the 15% annual returns.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec10">
+        <span class="chapter-badge">LEVEL 10: WEALTH</span>
+        <h2>10. Long-Term Wealth Rules</h2>
+        <ul class="checklist-style">
+          <li>✅ <strong>Time in Market</strong> > Timing the Market.</li>
+          <li>✅ <strong>Business Owner</strong> Mindset > Gambler Mindset.</li>
+          <li>✅ <strong>Patience</strong> is the highest paying skill.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="sec12">
+        <div class="pro-tip god-mode">
+          <div class="god-header">
+            <h4>💎 The Final Truth</h4>
+          </div>
+          <p>The Stock Market is a device for transferring money from the <strong>Impatient</strong> to the <strong>Patient</strong>.</p>
+          <p class="sub-text">- Warren Buffett</p>
+        </div>
+      </section>
+
+      <footer class="deep-footer">
+        <h2>You are now Equity Aware.</h2>
+        <a href="markets.html" class="action-btn">Return to Base ➔</a>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="../js/ui.js"></script>
+  <script src="../js/equitydetail.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+</body>
+</html>

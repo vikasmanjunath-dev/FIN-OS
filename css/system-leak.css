@@ -1,0 +1,1102 @@
+/* ============================================================
+   FIN-OS PROTOCOL 0X: ADVANCED FORENSIC STYLING
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Manrope:wght@800&display=swap');
+
+:root {
+  --crit-red: #ff4757;
+  --neon-lime: #C7F000;
+  --elec-blue: #4F7CFF;
+  --panel-bg: rgba(8, 10, 15, 0.9);
+  --glass-stroke: rgba(255, 255, 255, 0.1);
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* --- THE DYNAMIC 3D WRAPPER --- */
+.content-wrapper {
+  perspective: 2000px;
+  overflow-x: hidden;
+}
+
+/* --- GLITCH TITLE: SOPHISTICATED NOISE --- */
+.glitch-text {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(4rem, 12vw, 8rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #fff;
+  position: relative;
+  line-height: 0.8;
+  letter-spacing: -4px;
+}
+
+.glitch-text::before, .glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+}
+
+.glitch-text::before {
+  left: 3px; text-shadow: -3px 0 var(--crit-red);
+  animation: noise-1 3s infinite linear alternate-reverse;
+  clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+}
+
+.glitch-text::after {
+  left: -3px; text-shadow: -3px 0 var(--elec-blue);
+  animation: noise-2 3s infinite linear alternate-reverse;
+  clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+}
+
+@keyframes noise-1 {
+  0% { transform: translate(0); }
+  20% { transform: translate(-5px, 2px); }
+  60% { transform: translate(5px, -2px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes noise-2 {
+  0% { transform: translate(0); }
+  20% { transform: translate(5px, -2px); }
+  60% { transform: translate(-5px, 2px); }
+  100% { transform: translate(0); }
+}
+
+/* --- FORENSIC PANELS: 3D TRANSFORM --- */
+.leak-section {
+  position: relative;
+  margin-bottom: 150px;
+  padding: 100px 60px;
+  background: var(--panel-bg);
+  border: 1px solid var(--glass-stroke);
+  border-radius: 60px;
+  backdrop-filter: blur(50px);
+  transform-style: preserve-3d;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
+  opacity: 0;
+  transform: translateY(100px) rotateX(15deg);
+}
+
+.reveal-active {
+  opacity: 1 !important;
+  transform: translateY(0) rotateX(0deg) !important;
+}
+
+/* --- THE UPI RADAR: UNREAL INTERACTIVE --- */
+.radar-container {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  border: 2px solid var(--elec-blue);
+  background: radial-gradient(circle, rgba(79, 124, 255, 0.1) 0%, transparent 80%);
+  margin: 0 auto;
+  overflow: hidden;
+  box-shadow: 0 0 50px rgba(79, 124, 255, 0.2);
+}
+
+.radar-scan {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(from 0deg, transparent 270deg, var(--elec-blue) 360deg);
+  animation: sweep 4s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--crit-red);
+  border-radius: 50%;
+  box-shadow: 0 0 15px var(--crit-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  color: #fff;
+  font-family: var(--font-mono);
+  animation: pulse-warn 1.5s infinite;
+}
+
+@keyframes pulse-warn {
+  0% { transform: scale(1); box-shadow: 0 0 10px var(--crit-red); }
+  50% { transform: scale(1.3); box-shadow: 0 0 25px var(--crit-red); }
+  100% { transform: scale(1); box-shadow: 0 0 10px var(--crit-red); }
+}
+
+/* --- DATA GAUGE: DYNAMIC BLEED --- */
+.leak-meter {
+  width: 100%;
+  height: 12px;
+  background: #11141b;
+  border-radius: 100px;
+  margin: 30px 0;
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.05);
+  overflow: hidden;
+}
+
+.leak-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--elec-blue), var(--crit-red));
+  border-radius: 100px;
+  box-shadow: 0 0 30px var(--crit-red);
+  transition: width 2.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* --- SHAKE EFFECT ON ALERT --- */
+.system-alert {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+
+
+/* ============================================================
+   FIX: SYSTEM LEAK TERMINAL VISIBILITY
+   ============================================================ */
+
+/* Ensure the wrapper allows for 3D perspective */
+.content-wrapper {
+  perspective: 2000px;
+  min-height: 100vh;
+}
+
+/* Base state for cards: Hidden until revealed */
+.leak-section {
+  position: relative;
+  margin-bottom: 100px;
+  padding: 60px;
+  background: rgba(8, 10, 15, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 40px;
+  backdrop-filter: blur(40px);
+  
+  /* Critical visibility fix */
+  opacity: 0; 
+  transform: translateY(50px) rotateX(10deg);
+  transition: opacity 0.8s ease-out, transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Active state triggered by JS */
+.leak-section.reveal-active, 
+.leak-section.terminal-active {
+  opacity: 1 !important;
+  transform: translateY(0) rotateX(0deg) !important;
+}
+
+/* Ensure leak grid is visible */
+.leak-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 40px;
+  align-items: center;
+}
+
+/* Glitch visibility */
+.glitch-text {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #fff;
+  position: relative;
+  display: inline-block;
+}
+
+/* High-risk alert shake */
+.system-alert {
+  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  30%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+
+
+/* --- PROTOCOL 01 FORMATTING FIXES --- */
+
+.leak-section {
+    max-width: 100%;
+    overflow: hidden; /* Prevent text overflow */
+    box-sizing: border-box;
+}
+
+.leak-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr; /* Maintains balance between text and chart */
+    gap: 50px;
+    align-items: start;
+}
+
+.section-title {
+    font-size: 2.8rem;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+}
+
+.forensic-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.forensic-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.forensic-list li strong {
+    color: var(--crit-red);
+}
+
+.loss-comparison {
+    display: grid;
+    gap: 10px;
+    margin: 15px 0;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+}
+
+/* Fix visibility of high-risk metrics */
+.verdict-box.danger {
+    background: rgba(255, 71, 87, 0.1);
+    border-left: 4px solid var(--crit-red);
+    padding: 20px;
+    margin-top: 25px;
+    border-radius: 0 12px 12px 0;
+}
+
+.verdict-text {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+
+/* --- PROTOCOL 01: FORENSIC STACK FIX --- */
+
+.forensic-report-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.metrics-grid {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+}
+
+.metric {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.metric span { font-size: 0.8rem; color: #888; }
+.metric strong { font-size: 1.4rem; color: var(--crit-red); }
+
+/* GRAPH CONTAINER FIX */
+.leak-visual-full {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 30px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 350px; /* Fixed height for stability */
+    width: 100%;
+}
+
+.case-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    align-items: center;
+}
+
+.verdict-box.danger {
+    background: rgba(255, 71, 87, 0.15);
+    border-left: 5px solid var(--crit-red);
+    padding: 25px;
+    margin-top: 30px;
+    box-shadow: 0 0 30px rgba(255, 71, 87, 0.1);
+}
+
+
+
+
+/* ============================================================
+   PROTOCOL 03: FIXED & REFINED STYLING
+   ============================================================ */
+
+/* --- GRID & LAYOUT FIXES --- */
+.ego-tax-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr; /* Slightly wider visual column */
+    gap: 50px;
+    margin-top: 40px;
+    align-items: start;
+}
+
+.description-lead {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #ccc;
+    margin-bottom: 30px;
+}
+
+/* --- THE HOLOGRAPHIC CONTAINER --- */
+.ego-hologram-container {
+    position: relative;
+    height: 350px;
+    border-radius: 30px;
+    border: 1px solid rgba(79, 124, 255, 0.2);
+    background: radial-gradient(circle at center, rgba(10, 14, 22, 0.8) 0%, rgba(0,0,0,0.9) 100%);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 0 50px rgba(79, 124, 255, 0.1);
+}
+
+/* Simulated Data Stream Background */
+.data-stream-bg {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: linear-gradient(0deg, transparent 24%, rgba(79, 124, 255, 0.05) 25%, rgba(79, 124, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(79, 124, 255, 0.05) 75%, rgba(79, 124, 255, 0.05) 76%, transparent 77%);
+    background-size: 50px 50px;
+    opacity: 0.5;
+}
+
+/* Hologram Rings */
+.hologram-ring-assembly {
+    position: absolute;
+    width: 280px; height: 280px;
+    display: flex; justify-content: center; align-items: center;
+}
+
+.ring-outer {
+    position: absolute; width: 100%; height: 100%;
+    border: 2px dashed var(--elec-blue);
+    border-radius: 50%;
+    opacity: 0.4;
+    animation: spin-slow 20s linear infinite;
+}
+
+.ring-inner {
+    position: absolute; width: 70%; height: 70%;
+    border: 2px dotted var(--crit-red);
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: spin-reverse 15s linear infinite;
+}
+
+/* The Central Data Overlay */
+.ego-stat-overlay {
+    position: relative; z-index: 5;
+    text-align: center;
+    background: rgba(10, 12, 18, 0.8);
+    padding: 25px 40px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.stat-label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem; color: var(--elec-blue);
+    letter-spacing: 2px; margin-bottom: 10px;
+}
+
+.stat-value.glitch-text.small {
+    font-size: 2.5rem; /* Smaller glitch text for inside cards */
+}
+
+/* --- REFINED DATA PANELS --- */
+.forensic-card.danger-glow {
+    background: linear-gradient(145deg, rgba(255, 71, 87, 0.08) 0%, rgba(10, 12, 18, 0.6) 100%);
+    border: 1px solid rgba(255, 71, 87, 0.3);
+    border-radius: 24px; padding: 30px;
+    margin-bottom: 30px;
+}
+
+.debt-metrics-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 25px;
+}
+
+.metric-box {
+    background: rgba(0,0,0,0.3);
+    padding: 15px; border-radius: 16px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.m-label { display: block; font-size: 0.7rem; color: #888; margin-bottom: 5px; font-family: 'JetBrains Mono', monospace; }
+.m-value { font-size: 1.4rem; color: #fff; font-weight: 800; }
+.m-value.critical { color: var(--crit-red); text-shadow: 0 0 10px var(--crit-red); }
+
+/* --- WARNING BOX REFINEMENT --- */
+.system-warning-box {
+    background: rgba(255, 165, 2, 0.05); /* Orange tint */
+    border: 1px solid var(--warning-orange);
+    border-radius: 24px; padding: 25px;
+}
+
+.warning-header { color: var(--warning-orange); font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;}
+
+.meter-header { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 10px; font-family: 'JetBrains Mono', monospace; }
+
+/* Animations */
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+@keyframes spin-reverse { to { transform: rotate(-360deg); } }
+
+
+
+/* ============================================================
+   PROTOCOL 04: CONVENIENCE LEAK - BLUE FORENSICS
+   ============================================================ */
+
+/* Theme Overrides */
+.ego-hologram-container.blue-theme {
+    border: 1px solid rgba(79, 124, 255, 0.3);
+    background: radial-gradient(circle at center, rgba(10, 20, 40, 0.8) 0%, rgba(0,0,0,0.95) 100%);
+    box-shadow: inset 0 0 60px rgba(79, 124, 255, 0.15);
+}
+
+.ring-outer.blue { border-color: var(--elec-blue); opacity: 0.5; }
+.ring-inner.blue { border-color: #00d2ff; opacity: 0.7; }
+
+.forensic-card.info-glow {
+    background: linear-gradient(145deg, rgba(79, 124, 255, 0.08) 0%, rgba(10, 12, 18, 0.6) 100%);
+    border: 1px solid rgba(79, 124, 255, 0.3);
+    border-radius: 24px;
+}
+
+.system-warning-box.blue-border {
+    border: 1px solid var(--elec-blue);
+    background: rgba(79, 124, 255, 0.03);
+}
+
+.leak-meter.fancy-blue .leak-fill {
+    background: linear-gradient(90deg, #00d2ff, var(--elec-blue));
+    box-shadow: 0 0 20px var(--elec-blue);
+}
+
+.forensic-footer-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: #555;
+    text-align: center;
+    margin-top: 15px;
+    letter-spacing: 1px;
+}
+
+/* Grid Reversal for Protocol 04 */
+.ego-tax-grid.reverse {
+    grid-template-columns: 0.9fr 1.1fr;
+}
+
+
+/* ============================================================
+   PROTOCOL 05: PERFECTED ORGANIC SINKHOLE & PARTICLES
+   ============================================================ */
+
+/* The stage where particles fly */
+.sinkhole-stage {
+    position: relative;
+    height: 450px;
+    width: 100%;
+    overflow: hidden; /* Clips particles outside the stage */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Subtle radial glow to focus attention */
+    background: radial-gradient(circle at center, rgba(199, 240, 0, 0.03) 0%, transparent 70%);
+    margin-bottom: -40px; /* Slight overlap with bottom panels for depth */
+    z-index: 1;
+}
+
+/* The central sinkhole container */
+.organic-sinkhole {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    z-index: 10; /* Ensure it remains on top of particles */
+}
+
+/* The core "black hole" */
+.sinkhole-core {
+    position: absolute;
+    inset: 0;
+    background: #0a0c12; /* Match panel background */
+    border: 2px solid var(--neon-lime);
+    /* Creates the organic, non-circular shape */
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* Refined glowing effect */
+    box-shadow: 0 0 40px var(--neon-lime), inset 0 0 20px rgba(199, 240, 0, 0.4);
+    backdrop-filter: blur(5px);
+    animation: organic-morph 8s ease-in-out infinite alternate;
+}
+
+/* The pulsing ring effect */
+.sinkhole-pulse {
+    position: absolute;
+    inset: -25px;
+    border: 2px solid var(--neon-lime);
+    border-radius: 50%;
+    opacity: 0;
+    animation: sinkhole-pulse 3s ease-out infinite;
+}
+
+/* Smoother morphing animation */
+@keyframes organic-morph {
+    0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+    50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+    100% { border-radius: 50% 40% 30% 70% / 40% 30% 70% 60%; }
+}
+
+@keyframes sinkhole-pulse {
+    0% { transform: scale(0.5); opacity: 0.5; }
+    100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Typography for the central counter */
+.sinkhole-core .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem; color: var(--neon-lime);
+    letter-spacing: 1px; margin-bottom: 5px;
+}
+
+.sinkhole-core .value.glitch-text.small {
+    font-size: 2.5rem;
+}
+
+/* REFINED PARTICLE STYLING */
+.expense-particle {
+    position: absolute;
+    padding: 8px 14px;
+    background: rgba(10, 12, 18, 0.9);
+    border: 1px solid var(--neon-lime);
+    border-radius: 20px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    pointer-events: none; /* Prevents interaction */
+    white-space: nowrap;
+    z-index: 5;
+    box-shadow: 0 0 15px rgba(199, 240, 0, 0.2);
+    display: flex; gap: 5px;
+    /* Smooth transition for movement and disappearance */
+    transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1.2s ease-in;
+}
+
+.expense-particle span { color: var(--neon-lime); font-weight: 700; }
+
+/* Layout for the bottom panels */
+.forensic-grid-bottom {
+    position: relative; z-index: 2;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 40px; padding: 0 20px;
+}
+
+
+
+/* ============================================================
+   PROTOCOL 06: REFINED GRAVITY UI
+   ============================================================ */
+
+/* HEADER FIX */
+.refined-header {
+    font-size: clamp(2.2rem, 6vw, 3.8rem) !important; /* Prevents overflow */
+    letter-spacing: -2px;
+    margin-bottom: 10px;
+}
+
+.gravity-arena {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 0;
+    gap: 50px;
+}
+
+/* THE HOLOGRAPHIC HOUSE */
+.anchor-visual-core {
+    position: relative;
+    width: 300px; height: 300px;
+    display: flex; justify-content: center; align-items: center;
+    perspective: 1000px;
+}
+
+.house-hologram {
+    width: 120px; height: 120px;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(-20deg) rotateY(45deg);
+    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.h-face {
+    position: absolute;
+    background: rgba(255, 71, 87, 0.05);
+    border: 1px solid var(--crit-red);
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.3), inset 0 0 10px rgba(255, 71, 87, 0.2);
+}
+
+.h-front { width: 120px; height: 120px; transform: translateZ(60px); }
+.h-top   { width: 120px; height: 120px; transform: rotateX(90deg) translateZ(60px); background: rgba(255, 71, 87, 0.15); }
+.h-side  { width: 120px; height: 120px; transform: rotateY(90deg) translateZ(60px); }
+
+/* COMPRESSION GAUGE */
+.stress-monitor {
+    width: 100%; max-width: 700px;
+    padding: 25px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 20px;
+}
+
+.compression-gauge {
+    height: 12px;
+    background: #0d0f14;
+    border-radius: 100px;
+    margin: 15px 0;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.gauge-bar {
+    height: 100%;
+    width: 100%; /* Drains to 0 on scroll */
+    background: linear-gradient(90deg, var(--crit-red) 0%, var(--elec-blue) 100%);
+    box-shadow: 0 0 20px var(--crit-red);
+    transition: width 3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* CAREER PARTICLES */
+.career-node {
+    position: absolute;
+    padding: 5px 12px;
+    font-size: 0.65rem;
+    color: var(--elec-blue);
+    border: 1px solid rgba(79, 124, 255, 0.3);
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 2s ease-in;
+}
+
+
+/* =========================
+   REFINED FORENSIC SCALING
+   ========================= */
+
+:root {
+  --text-xl: clamp(1.8rem, 4vw, 2.5rem);
+  --text-lg: clamp(1.2rem, 2vw, 1.5rem);
+  --text-base: 0.9rem;
+}
+
+.glitch-text-sm {
+  font-size: var(--text-xl);
+  font-weight: 900;
+  letter-spacing: -1px;
+  margin-bottom: 5px;
+}
+
+.hero-sub-sm {
+  font-size: var(--text-base);
+  opacity: 0.7;
+  margin-bottom: 30px;
+}
+
+/* THREE COLUMN AUDIT GRID */
+.forensic-audit-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr 240px;
+  gap: 30px;
+  align-items: center;
+}
+
+/* WEALTH CORE VIZ */
+.wealth-sphere-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.wealth-sphere {
+  width: 180px; /* Shrunk from original to prevent overflow */
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ff4757 0%, transparent 80%);
+  border: 1px solid rgba(255, 71, 87, 0.4);
+  box-shadow: 0 0 40px rgba(255, 71, 87, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.current-val {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.residual-label {
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.6);
+}
+
+/* METRIC MINI CARDS */
+.metric-mini-card {
+  background: rgba(255,255,255,0.03);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.m-num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.m-tag {
+  font-size: 0.7rem;
+  color: #888;
+  font-family: 'JetBrains Mono';
+}
+
+
+/* =========================
+   PROTOCOL 08: THE TRAPDOOR
+   ========================= */
+
+.vortex-viz {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.debt-vortex-wrapper {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.debt-core {
+    width: 100px;
+    height: 100px;
+    background: #000;
+    border: 2px solid var(--crit-red);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 10;
+    box-shadow: 0 0 30px rgba(255, 71, 87, 0.4);
+}
+
+.core-label { font-size: 0.5rem; color: #888; letter-spacing: 1px; }
+.core-val { font-size: 1.2rem; font-weight: 800; color: #fff; }
+
+.v-ring {
+    position: absolute;
+    border: 1px dashed var(--crit-red);
+    border-radius: 50%;
+    opacity: 0.2;
+    animation: rotate-vortex 10s linear infinite;
+}
+
+.vr1 { width: 160px; height: 160px; }
+.vr2 { width: 220px; height: 220px; animation-duration: 15s; }
+
+@keyframes rotate-vortex {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.time-penalty {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.t-label { font-size: 0.7rem; color: #888; font-family: var(--font-mono); }
+.t-val { 
+    display: block;
+    font-size: 1.8rem; 
+    font-weight: 900; 
+    color: var(--crit-red); 
+    text-shadow: 0 0 15px var(--crit-red);
+}
+
+/* Interest Particles */
+.interest-particle {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: var(--crit-red);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: spray-out 1.5s ease-out forwards;
+}
+
+@keyframes spray-out {
+    to { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
+
+
+/* ============================================================
+   TACTICAL RADAR: HOLOGRAPHIC UI
+   ============================================================ */
+
+.tactical-radar {
+    padding: 60px 40px;
+    background: radial-gradient(circle at center, rgba(79, 124, 255, 0.05) 0%, transparent 80%);
+}
+
+.tactical-display {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 40px;
+    margin: 40px 0;
+    align-items: center;
+}
+
+/* --- THE RADAR FACE --- */
+.radar-system {
+    position: relative;
+    width: 450px;
+    height: 450px;
+    margin: 0 auto;
+}
+
+.radar-face {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #080a0f;
+    border: 1px solid rgba(79, 124, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 50px rgba(79, 124, 255, 0.1);
+}
+
+.grid-lines {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        radial-gradient(circle, transparent 30%, rgba(79, 124, 255, 0.1) 31%, transparent 32%, transparent 60%, rgba(79, 124, 255, 0.1) 61%, transparent 62%),
+        linear-gradient(rgba(79, 124, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79, 124, 255, 0.05) 1px, transparent 1px);
+    background-size: 100% 100%, 50px 50px, 50px 50px;
+    background-position: center;
+}
+
+.scan-line {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    top: 0; right: 50%;
+    background: conic-gradient(from 0deg, transparent 270deg, rgba(79, 124, 255, 0.6) 360deg);
+    transform-origin: bottom right;
+    animation: radar-sweep 4s linear infinite;
+    z-index: 5;
+}
+
+@keyframes radar-sweep {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* --- BLIP STYLING --- */
+.blip {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--crit-red);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.2;
+    transition: opacity 0.3s, box-shadow 0.3s;
+}
+
+.blip.detected {
+    opacity: 1;
+    box-shadow: 0 0 15px var(--crit-red);
+    animation: blip-ping 1s ease-out forwards;
+}
+
+@keyframes blip-ping {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+}
+
+/* --- DATA FEED --- */
+.ticker-box {
+    height: 250px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 15px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.ticker-entry {
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: var(--neon-lime);
+}
+
+.coord-display {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--elec-blue);
+    opacity: 0.6;
+}
+
+.top-left { top: -20px; left: 0; }
+.top-right { top: -20px; right: 0; }
+.bottom-left { bottom: -20px; left: 0; }
+.bottom-right { bottom: -20px; right: 0; }
+
+
+
+/* ============================================================
+   TACTICAL RADAR: BUTTON & ACTION STYLING
+   ============================================================ */
+
+.radar-actions {
+    grid-column: 1 / -1; /* Span full width */
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* BASE HOLOGRAPHIC BUTTON STYLE */
+.footer-btn {
+    position: relative;
+    padding: 16px 32px;
+    background: rgba(10, 14, 22, 0.6);
+    border: 1px solid; /* Color defined dynamically below */
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #fff;
+    cursor: pointer;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    /* Sci-fi angled corners */
+    clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* --- PRIMARY BUTTON: "SCAN MY TRANSACTIONS" (Neon Lime Active State) --- */
+.footer-btn:not(.secondary) {
+    border-color: var(--neon-lime);
+    color: var(--neon-lime);
+    box-shadow: inset 0 0 20px rgba(199, 240, 0, 0.1);
+}
+
+/* The Energy Sweep Effect */
+.footer-btn:not(.secondary)::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -150%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(199, 240, 0, 0.4), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
+}
+
+/* Hover State for Primary */
+.footer-btn:not(.secondary):hover {
+    background: rgba(199, 240, 0, 0.1);
+    box-shadow: 0 0 30px rgba(199, 240, 0, 0.3), inset 0 0 20px rgba(199, 240, 0, 0.2);
+    text-shadow: 0 0 8px var(--neon-lime);
+    transform: translateY(-2px) scale(1.02);
+}
+
+.footer-btn:not(.secondary):hover::before {
+    left: 150%; /* Triggers the sweep */
+}
+
+/* Active/Click State */
+.footer-btn:not(.secondary):active {
+    transform: scale(0.98);
+    box-shadow: 0 0 10px rgba(199, 240, 0, 0.5);
+}
+
+
+/* --- SECONDARY BUTTON: "SYNC FUTURE LOSS" (Critical Red Warning State) --- */
+.footer-btn.secondary {
+    border-color: var(--crit-red);
+    color: rgba(255, 71, 87, 0.7);
+    background: transparent;
+}
+
+/* Hover State for Secondary */
+.footer-btn.secondary:hover {
+    color: var(--crit-red);
+    background: rgba(255, 71, 87, 0.1);
+    box-shadow: 0 0 25px rgba(255, 71, 87, 0.2);
+    text-shadow: 0 0 8px var(--crit-red);
+}
+
+

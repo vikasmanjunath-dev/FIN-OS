@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Mutual Fund Masterclass</title>
+  
+  <script src="../js/theme-init.js"></script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/mfdetail.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+  <button id="themeToggle" class="theme-btn fixed-theme-btn">🌙</button>
+
+  <div class="deep-wrapper">
+    
+    <aside class="toc-sidebar">
+      <div class="toc-header">PROTOCOL 04: MUTUAL FUNDS</div>
+      <ul class="toc-list">
+        <li><a href="#hero" class="toc-link active">0. Start</a></li>
+        <li><a href="#sec1" class="toc-link">1. The Logic (Pooling)</a></li>
+        <li><a href="#sec2" class="toc-link">2. Why They Exist</a></li>
+        <li><a href="#sec3" class="toc-link">3. The Mechanism</a></li>
+        <li><a href="#sec4" class="toc-link">4. NAV (The Myth)</a></li>
+        <li><a href="#sec5" class="toc-link">5. Types (The Menu)</a></li>
+        <li><a href="#sec6" class="toc-link">6. Active vs Passive</a></li>
+        <li><a href="#sec7" class="toc-link">7. SIP Reality</a></li>
+        <li><a href="#sec8" class="toc-link">8. Expense Ratio</a></li>
+        <li><a href="#sec10" class="toc-link">9. Risk & Mistakes</a></li>
+        <li><a href="#sec12" class="toc-link">10. Selection Logic</a></li>
+        <li><a href="#sec13" class="toc-link">11. MF vs ETF</a></li>
+        <li><a href="#sec16" class="toc-link">12. Final Truth</a></li>
+      </ul>
+      <a href="markets.html" class="back-btn">← Back to Terminal</a>
+    </aside>
+
+    <main class="deep-content" id="scrollContainer">
+
+      <section class="chapter active" id="hero">
+        <h1 class="glitch-text" data-text="Mutual Funds">Mutual Funds</h1>
+        <p class="intro-text">
+          Stop guessing. Start delegating.<br>
+          <span class="highlight">Professional wealth management for the common man.</span>
+        </p>
+        <div class="scroll-indicator">Initialize Protocol ⬇</div>
+      </section>
+
+      <section class="chapter" id="sec1">
+        <span class="chapter-badge">LEVEL 01: CONCEPT</span>
+        <h2>1. What Is a Mutual Fund? (The Apartment Analogy)</h2>
+        <p>A Mutual Fund is simply <strong>Pooled Money</strong> managed by a professional.</p>
+        
+        <div class="concept-box glass">
+          <div class="pool-visual">
+            <div class="people-group">
+              <span>👤</span><span>👤</span><span>👤</span><span>👤</span>
+              <p class="small">Residents (Investors)</p>
+            </div>
+            <div class="arrow-right">₹10 Lakhs ➔</div>
+            <div class="pool-circle">
+              <span class="pool-icon">💰</span>
+              <strong>THE POOL</strong>
+              <span>(Mutual Fund)</span>
+            </div>
+            <div class="arrow-right">Invests ➔</div>
+            <div class="market-target">
+              <span class="icon">📈</span>
+              <strong>Markets</strong>
+            </div>
+          </div>
+          <div class="text-content">
+            <h4>The Logic:</h4>
+            <p>Imagine 1,000 people in your society give ₹1,000 each. You now have <strong>₹10 Lakhs</strong>. You hire one smart CA to invest it. That is a Mutual Fund.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec2">
+        <span class="chapter-badge">LEVEL 02: PURPOSE</span>
+        <h2>2. Why Do They Exist?</h2>
+        <p>They are <strong>Convenience Products</strong>, not magic. They solve three specific problems for the Indian salaried class.</p>
+        
+        <div class="grid-3-cards">
+          <div class="card-box">
+            <div class="icon">⏳</div>
+            <h4>No Time</h4>
+            <p>You have a job. You can't track charts 9-to-3. The Fund Manager does it for you.</p>
+          </div>
+          <div class="card-box">
+            <div class="icon">🧠</div>
+            <h4>No Skill</h4>
+            <p>You don't know how to read a Balance Sheet. The Research Team does.</p>
+          </div>
+          <div class="card-box highlight">
+            <div class="icon">🎢</div>
+            <h4>No Discipline</h4>
+            <p>You panic when markets fall. An SIP system forces you to buy low automatically.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec3">
+        <span class="chapter-badge">LEVEL 03: THE ENGINE</span>
+        <h2>3. How It Works (Safety Check)</h2>
+        <p>Can the Fund Manager run away with your money? <strong>No.</strong> The structure is regulated by SEBI.</p>
+
+        <div class="visual-flow-container glass">
+          <div class="flow-step">
+            <div class="step-icon">👨‍💼</div>
+            <strong>You</strong>
+            <span>(Investor)</span>
+          </div>
+          <div class="flow-line"></div>
+          <div class="flow-step center">
+            <div class="step-icon">🏛️</div>
+            <strong>Trustee</strong>
+            <span>(Holds Money)</span>
+          </div>
+          <div class="flow-line"></div>
+          <div class="flow-step">
+            <div class="step-icon">📊</div>
+            <strong>AMC</strong>
+            <span>(Decides Where)</span>
+          </div>
+        </div>
+        <p class="caption-text">The AMC (Fund Manager) makes decisions, but the Trustee holds the actual assets. SEBI watches everything.</p>
+      </section>
+
+      <section class="chapter" id="sec4">
+        <span class="chapter-badge">LEVEL 04: THE MYTH</span>
+        <h2>4. NAV Explained (Stop Being Fooled)</h2>
+        <p><strong>NAV = Net Asset Value.</strong> It is NOT a price tag.</p>
+        
+        <div class="grid-2-mini">
+          <div class="mini-card danger">
+            <h4>❌ The Myth</h4>
+            <p>"Fund A has NAV ₹10. Fund B has NAV ₹500. Fund A is cheaper!"</p>
+            <p><strong>Wrong.</strong></p>
+          </div>
+          <div class="mini-card success">
+            <h4>✅ The Truth</h4>
+            <p>NAV is just the total value divided by units. Investing ₹10k in either fund gives you the <strong>SAME</strong> value.</p>
+            <p><em>Returns depend on % growth, not the NAV number.</em></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec5">
+        <span class="chapter-badge">LEVEL 05: THE MENU</span>
+        <h2>5. Types of Mutual Funds (Indian Context)</h2>
+        <p>There are 2,500+ schemes. You only need to understand these 4 categories.</p>
+
+        <div class="type-grid-container">
+          <div class="type-card glass">
+            <h3 style="color:#4F7CFF;">A. Equity Funds (Stocks)</h3>
+            <p>High Risk, High Return. For goals > 5 Years.</p>
+            <ul class="micro-list">
+              <li><strong>Large Cap:</strong> Top 100 Companies (Stable).</li>
+              <li><strong>Mid Cap:</strong> Next 150 Companies (Fast Growth).</li>
+              <li><strong>Small Cap:</strong> Emerging Companies (Volatile).</li>
+              <li><strong>ELSS:</strong> Tax Saving (3 Year Lock-in).</li>
+            </ul>
+          </div>
+
+          <div class="type-card glass">
+            <h3 style="color:#C7F000;">B. Debt Funds (Loans)</h3>
+            <p>Low Risk, Low Return. For goals < 3 Years.</p>
+            <ul class="micro-list">
+              <li><strong>Liquid Funds:</strong> Like a Savings Account (Safe).</li>
+              <li><strong>Corporate Bond:</strong> Lending to companies.</li>
+              <li><strong>Gilt Funds:</strong> Lending to Govt of India (Safest).</li>
+            </ul>
+          </div>
+
+          <div class="type-card glass">
+            <h3 style="color:#ff9f43;">C. Hybrid Funds (Mix)</h3>
+            <p>Balanced Risk. Best for conservative investors.</p>
+            <ul class="micro-list">
+              <li><strong>Aggressive Hybrid:</strong> 70% Equity, 30% Debt.</li>
+              <li><strong>Balanced Advantage:</strong> Auto-adjusts based on market.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec6">
+        <span class="chapter-badge">LEVEL 06: STRATEGY</span>
+        <h2>6. Active vs Passive (The Great Debate)</h2>
+        <p>Do you want to beat the market or join the market?</p>
+
+        <div class="comparison-table">
+           <div class="comp-row header">
+             <span>Feature</span>
+             <span>Active MF</span>
+             <span>Passive (Index)</span>
+           </div>
+           <div class="comp-row">
+             <span>Goal</span>
+             <span>Beat Nifty</span>
+             <span>Copy Nifty</span>
+           </div>
+           <div class="comp-row">
+             <span>Manager Role</span>
+             <span>High (Picks Stocks)</span>
+             <span>Zero (Robot)</span>
+           </div>
+           <div class="comp-row">
+             <span>Expense</span>
+             <span class="danger">High (1-2%)</span>
+             <span class="highlight">Low (0.2%)</span>
+           </div>
+           <div class="comp-row">
+             <span>Success Rate</span>
+             <span>Inconsistent</span>
+             <span>Guaranteed Market Return</span>
+           </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec7">
+        <span class="chapter-badge">LEVEL 07: DISCIPLINE</span>
+        <h2>7. SIP Explained (Behavior Corrector)</h2>
+        <p>SIP is not an investment product. It is a <strong>method</strong>.</p>
+        
+        <div class="chart-container glass">
+          <canvas id="sipChart"></canvas>
+          <p class="chart-caption">SIP vs Lump Sum (Volatility Absorption)</p>
+        </div>
+
+        <div class="checklist-style">
+           <li>✅ <strong>Rupee Cost Averaging:</strong> When market falls, your fixed amount buys MORE units.</li>
+           <li>✅ <strong>Automation:</strong> Removes "Should I buy today?" confusion.</li>
+           <li>❌ <strong>Myth:</strong> SIP guarantees profit. (No, it just reduces risk).</li>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec8">
+        <span class="chapter-badge">LEVEL 08: WEALTH KILLER</span>
+        <h2>8. Expense Ratio (The Silent Leak)</h2>
+        <p>The fee you pay the AMC every year. 1% difference costs Lakhs.</p>
+        
+        <div class="concept-box glass">
+           <div class="math-row">
+             <div class="math-item">
+               <span>Fund A (Regular)</span>
+               <strong>1.5% Expense</strong>
+               <span class="danger">Final: ₹50 Lakhs</span>
+             </div>
+             <div class="vs-badge">VS</div>
+             <div class="math-item">
+               <span>Fund B (Direct)</span>
+               <strong>0.5% Expense</strong>
+               <span class="highlight">Final: ₹65 Lakhs</span>
+             </div>
+           </div>
+           <p class="moral">Always buy <strong>"Direct Plans"</strong> (Growth), not Regular Plans.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec10">
+        <span class="chapter-badge">LEVEL 09: REALITY</span>
+        <h2>9. Risk & Indian Mistakes</h2>
+        <div class="grid-2-mini">
+          <div class="mini-card danger">
+            <h4>Overlapping</h4>
+            <p>Buying 4 different Large Cap funds. You own HDFC Bank 4 times. You are paying 4 fees for the same portfolio.</p>
+          </div>
+          <div class="mini-card danger">
+            <h4>Churning</h4>
+            <p>Stopping SIP because the market fell 10%. This is exactly when you should be buying.</p>
+          </div>
+          <div class="mini-card danger">
+            <h4>Sector Trap</h4>
+            <p>Buying "IT Fund" because IT was up 50% last year. This is "Return Chasing". Usually ends in loss.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec12">
+        <span class="chapter-badge">LEVEL 10: SELECTION</span>
+        <h2>10. The Selection Checklist</h2>
+        <ul class="checklist-style">
+           <li>✅ <strong>Category:</strong> Do I need Equity (Growth) or Debt (Safety)?</li>
+           <li>✅ <strong>Expense Ratio:</strong> Is it lower than category average?</li>
+           <li>✅ <strong>Manager:</strong> Has the fund manager been there for 5+ years?</li>
+           <li>✅ <strong>Direct Plan:</strong> Am I buying the "Direct - Growth" option?</li>
+           <li>✅ <strong>Why:</strong> "My uncle said so" is NOT a valid reason.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="sec16">
+        <div class="pro-tip god-mode">
+          <div class="god-header">
+            <h4>💎 The Final Truth</h4>
+          </div>
+          <p>
+            Mutual Funds don't protect you from losses.<br>
+            They protect you from <strong>Yourself</strong>.
+          </p>
+          <p class="sub-text">
+            "I trust a system more than my own emotions."
+          </p>
+        </div>
+      </section>
+
+      <footer class="deep-footer">
+        <h2>Protocol Complete.</h2>
+        <p>You are now smarter than 99% of mutual fund agents.</p>
+        <a href="markets.html" class="action-btn">Return to Base ➔</a>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="../js/ui.js"></script>
+  <script src="../js/mfdetail.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+</body>
+</html>

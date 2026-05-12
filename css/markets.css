@@ -1,0 +1,530 @@
+/* =========================
+   MARKETS MODULE - GEN Z STYLE
+   ========================= */
+
+/* UTILS */
+.highlight { color: var(--accent); }
+.tag { font-family: 'JetBrains Mono', monospace; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; display: block; margin-bottom: 8px; }
+.danger { color: #ff4757; }
+
+/* HERO */
+.hero-sub { color: var(--text-secondary); font-size: 1.1rem; margin-top: 8px; }
+
+/* WARNING BANNER */
+.warning-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 71, 87, 0.1);
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  padding: 20px;
+  border-radius: 16px;
+  margin-top: 30px;
+}
+.warning-banner .icon { font-size: 1.5rem; }
+.warning-banner .text { color: #ff4757; font-size: 0.95rem; line-height: 1.5; }
+
+/* NAV PILLS */
+.market-nav {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 20px 0;
+  margin-top: 20px;
+  scrollbar-width: none;
+}
+.nav-pill {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-secondary);
+  padding: 10px 24px;
+  border-radius: 100px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+.nav-pill:hover, .nav-pill.active {
+  background: var(--accent);
+  color: #000;
+  font-weight: 700;
+  border-color: var(--accent);
+}
+
+/* SECTIONS */
+.market-section {
+  margin-top: 60px;
+  padding: 40px;
+  border-radius: 32px;
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.05);
+  opacity: 0; /* Hidden initially for animation */
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.market-section.visible { opacity: 1; transform: translateY(0); }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 30px; }
+
+/* FLOW DIAGRAM (Part 1) */
+.flow-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.node { padding: 12px 20px; border-radius: 8px; font-size: 0.9rem; width: 100%; text-align: center; }
+.node.primary { background: rgba(79, 124, 255, 0.1); color: #4F7CFF; border: 1px solid #4F7CFF; }
+.node.secondary { background: rgba(199, 240, 0, 0.1); color: #C7F000; border: 1px solid #C7F000; }
+.arrow { color: var(--text-secondary); font-size: 1.2rem; }
+
+/* SCROLLING WRAPPER */
+.scrolling-wrapper {
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;
+  padding-bottom: 20px;
+  cursor: grab;
+}
+.info-card {
+  flex: 0 0 280px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 24px;
+  border-radius: 20px;
+  transition: transform 0.3s ease;
+}
+.info-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+.card-icon { font-size: 2.5rem; margin-bottom: 16px; }
+
+/* CHART CONTAINER */
+.interactive-chart-container {
+  margin-top: 40px;
+  background: rgba(0,0,0,0.2);
+  padding: 20px;
+  border-radius: 20px;
+  height: 300px;
+}
+
+/* COMPARISON TABLE (Debt) */
+.comparison-table {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255,255,255,0.02);
+  border-radius: 24px;
+  padding: 30px;
+  margin-top: 20px;
+}
+.col { flex: 1; text-align: center; }
+.col h4 { margin-bottom: 16px; font-size: 1.2rem; }
+.equity h4 { color: #4F7CFF; }
+.debt h4 { color: #C7F000; }
+.vs-badge { 
+  background: #000; 
+  color: #fff; 
+  padding: 8px; 
+  border-radius: 50%; 
+  font-weight: 800; 
+  font-size: 0.8rem;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* F&O CARDS */
+.danger-zone { border-color: rgba(255, 71, 87, 0.3); }
+.fno-card { background: rgba(255, 71, 87, 0.05); padding: 24px; border-radius: 16px; border: 1px solid rgba(255, 71, 87, 0.1); }
+.fno-card.highlight { background: rgba(255, 71, 87, 0.1); border-color: #ff4757; }
+
+/* PERSONA CARDS */
+.persona-card {
+  flex: 0 0 250px;
+  text-align: center;
+  padding: 30px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2));
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.persona-card .avatar { font-size: 4rem; margin-bottom: 16px; }
+.trait { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; margin-top: 12px; }
+
+/* FINAL TRUTH */
+.final-truth { text-align: center; margin-top: 60px; padding: 40px; border-top: 1px solid rgba(255,255,255,0.1); }
+.truth-statement.highlight {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #fff, #999);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+}
+
+/* Light Mode Overrides */
+[data-theme="light"] .market-section { background: #fff; border-color: rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+[data-theme="light"] .info-card, [data-theme="light"] .persona-card { background: #f8f9fa; border-color: rgba(0,0,0,0.05); }
+[data-theme="light"] .comparison-table { background: #f8f9fa; }
+[data-theme="light"] .truth-statement.highlight { background: linear-gradient(90deg, #4F7CFF, #1a202c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .comparison-table { flex-direction: column; gap: 20px; }
+}
+
+/* =========================
+   NEW MARKET MODULE STYLES
+   ========================= */
+
+/* MUTUAL FUNDS */
+.mf-card {
+  border-top: 4px solid #ff9f43;
+  background: linear-gradient(180deg, rgba(255, 159, 67, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+}
+
+/* MONEY MARKET VAULT VISUAL */
+.safe-vault {
+  width: 140px;
+  height: 140px;
+  border: 4px solid #546de5;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 30px rgba(84, 109, 229, 0.2);
+}
+.safe-vault .door {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #546de5;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+/* COMMODITIES */
+.gold-card { border-top: 4px solid #f1c40f; color: #f1c40f; }
+.silver-card { border-top: 4px solid #bdc3c7; color: #ecf0f1; }
+.oil-card { border-top: 4px solid #e17055; color: #fab1a0; }
+
+.gold-card .card-icon { text-shadow: 0 0 20px rgba(241, 196, 15, 0.5); }
+
+/* FOREX */
+.fx-pair {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 2.5rem;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+}
+.curr.usd { color: #2ecc71; text-shadow: 0 0 15px rgba(46, 204, 113, 0.4); }
+.curr.inr { color: #f39c12; text-shadow: 0 0 15px rgba(243, 156, 18, 0.4); }
+.vs { font-size: 1.5rem; opacity: 0.5; }
+
+/* CRYPTO ZONE */
+.crypto-zone { border-color: rgba(155, 89, 182, 0.3); }
+.tag.crypto { color: #9b59b6; background: rgba(155, 89, 182, 0.1); }
+
+.crypto-card {
+  border-top: 4px solid #9b59b6;
+  background: linear-gradient(180deg, rgba(155, 89, 182, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+}
+.crypto-card:hover {
+  box-shadow: 0 20px 50px rgba(155, 89, 182, 0.2);
+  border-color: #9b59b6;
+}
+.crypto-card.alt { border-color: #ff9ff3; }
+
+/* Light Mode Support for New Sections */
+[data-theme="light"] .mf-card { background: #fffcf5; border-color: #ff9f43; }
+[data-theme="light"] .gold-card { background: #fffff0; border-color: #f1c40f; }
+[data-theme="light"] .crypto-card { background: #fbf5ff; border-color: #9b59b6; }
+[data-theme="light"] .safe-vault { border-color: #546de5; background: rgba(84, 109, 229, 0.05); }
+
+
+
+/* =========================
+   THE FINAL CHOICE & CONCLUSION
+   ========================= */
+
+/* 1. DECISION MATRIX */
+.decision-matrix {
+  margin-top: 60px;
+  text-align: center;
+  padding: 40px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.decision-matrix h3 {
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  margin-bottom: 30px;
+}
+
+.choice-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.choice-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.choice-btn:hover {
+  background: var(--accent);
+  color: #000;
+  box-shadow: 0 0 20px rgba(79, 124, 255, 0.6);
+  transform: scale(1.05);
+  border-color: var(--accent);
+}
+
+.or {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.you-decide {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: 4px;
+  background: linear-gradient(90deg, #ff4757, #C7F000);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
+  margin-top: 20px;
+}
+
+/* 2. CINEMATIC POWER QUOTE */
+.final-quote-section {
+  margin: 100px 0;
+  text-align: center;
+  position: relative;
+  padding: 80px 20px;
+  /* Subtle Background Glow */
+  background: radial-gradient(circle at center, rgba(79, 124, 255, 0.1) 0%, rgba(0,0,0,0) 70%);
+}
+
+.power-text {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  margin-bottom: 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+.sub-quote {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Light Mode Overrides */
+[data-theme="light"] .choice-btn {
+  background: #fff;
+  color: #000;
+  border-color: rgba(0,0,0,0.1);
+}
+[data-theme="light"] .power-text {
+  color: #1a202c;
+  text-shadow: none;
+  background: linear-gradient(90deg, #4F7CFF, #1a202c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+/* =========================
+   FIXED PERSONA SECTION STYLING
+   ========================= */
+
+/* 1. THE LAYOUT CONTAINER (Fixes Vertical Stacking) */
+/* We switch from a scrolling wrapper to a clean grid for this section */
+#participants .scrolling-wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 Equal Columns */
+  gap: 30px; /* Spacing between cards */
+  margin-top: 40px;
+  padding: 10px; /* Breathing room for hover effects */
+  overflow: visible; /* Allow hover overlap */
+}
+
+/* 2. THE CARD DESIGN (Fixes Plain Look) */
+.persona-card {
+  background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(0,0,0,0.3));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  padding: 32px 24px;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+}
+
+/* 3. HOVER PHYSICS & GLOW */
+.persona-card:hover {
+  transform: translateY(-12px);
+  border-color: var(--accent);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(0,0,0,0.3));
+}
+
+/* 4. CONTENT STYLING */
+/* The Emoji Icon */
+.avatar {
+  font-size: 4.5rem;
+  margin-bottom: 24px;
+  display: inline-block;
+  /* Gives the emoji a cool radioactive glow */
+  filter: drop-shadow(0 0 15px rgba(255,255,255,0.2));
+}
+
+/* Headings */
+.persona-card h3 {
+  font-size: 1.8rem;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+/* Description Text */
+.persona-card p {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  margin-bottom: 24px;
+  min-height: 48px; /* Ensures alignment even if text length varies */
+}
+
+/* The "Superpower" Pill */
+.trait {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--accent);
+  background: rgba(199, 240, 0, 0.05); /* Subtle tint of the accent color */
+  padding: 10px 20px;
+  border-radius: 100px;
+  border: 1px solid rgba(199, 240, 0, 0.2);
+  display: inline-block;
+}
+
+/* 5. DISTINCT COLOR CODING (Optional but recommended) */
+/* Investor - Neon Green */
+.persona-card:nth-child(1) { border-top: 3px solid #C7F000; }
+.persona-card:nth-child(1) .trait { color: #C7F000; background: rgba(199, 240, 0, 0.05); border-color: rgba(199, 240, 0, 0.2); }
+
+/* Trader - Electric Blue */
+.persona-card:nth-child(2) { border-top: 3px solid #4F7CFF; }
+.persona-card:nth-child(2) .trait { color: #4F7CFF; background: rgba(79, 124, 255, 0.05); border-color: rgba(79, 124, 255, 0.2); }
+
+/* Speculator - Danger Red */
+.persona-card:nth-child(3) { border-top: 3px solid #ff4757; }
+.persona-card:nth-child(3) .trait { color: #ff4757; background: rgba(255, 71, 87, 0.05); border-color: rgba(255, 71, 87, 0.2); }
+
+
+/* 6. MOBILE RESPONSIVENESS */
+@media (max-width: 900px) {
+  #participants .scrolling-wrapper {
+    grid-template-columns: 1fr; /* Stack back to vertical on mobile */
+    gap: 24px;
+  }
+}
+
+/* =========================
+   THE DEEP DIVE PORTAL BUTTONS
+   ========================= */
+
+.dive-container {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+  border-top: 1px dashed rgba(255,255,255,0.1);
+}
+
+.deep-dive-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 380px;
+  padding: 18px;
+  
+  background: var(--accent); /* Neon Green */
+  color: #000;
+  text-decoration: none;
+  border-radius: 16px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  
+  box-shadow: 0 0 25px rgba(199, 240, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  overflow: hidden;
+}
+
+.deep-dive-btn:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 50px rgba(199, 240, 0, 0.6);
+  letter-spacing: 4px; /* Text expands */
+}
+
+/* Sub-text inside button */
+.btn-sub {
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  opacity: 0.8;
+  margin-top: 4px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* COLOR VARIANTS FOR DIFFERENT MARKETS */
+.deep-dive-btn.blue { background: #4F7CFF; box-shadow: 0 0 25px rgba(79, 124, 255, 0.3); }
+.deep-dive-btn.blue:hover { box-shadow: 0 0 50px rgba(79, 124, 255, 0.6); }
+
+.deep-dive-btn.red { background: #ff4757; box-shadow: 0 0 25px rgba(255, 71, 87, 0.3); }
+.deep-dive-btn.red:hover { box-shadow: 0 0 50px rgba(255, 71, 87, 0.6); }
+
+.deep-dive-btn.gold { background: #f1c40f; box-shadow: 0 0 25px rgba(241, 196, 15, 0.3); }
+.deep-dive-btn.gold:hover { box-shadow: 0 0 50px rgba(241, 196, 15, 0.6); }
+
+.deep-dive-btn.purple { background: #9b59b6; color: #fff; box-shadow: 0 0 25px rgba(155, 89, 182, 0.3); }
+.deep-dive-btn.purple:hover { box-shadow: 0 0 50px rgba(155, 89, 182, 0.6); }
+
+/* Glitch Animation Text */
+.glitch-text { position: relative; z-index: 2; }
+
+/* Light Mode Override */
+[data-theme="light"] .deep-dive-btn { color: #000; }
+[data-theme="light"] .deep-dive-btn.purple { color: #fff; }
+
+
+.user-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--accent-soft); /* */
+  border-radius: 50%; /* Makes it a round symbol */
+  margin-right: 12px;
+  font-size: 0.8rem;
+}

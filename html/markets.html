@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Markets Masterclass</title>
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/markets.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&family=Manrope:wght@300;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* =========================
+       PHASE 3: ANALYSIS UNLOCK
+       ========================= */
+    .next-phase-section {
+      margin-top: 80px;
+      padding: 60px 20px;
+      text-align: center;
+      border-top: 1px solid rgba(0, 243, 255, 0.15);
+      background: radial-gradient(circle at top, rgba(0, 243, 255, 0.05), transparent 60%);
+      position: relative;
+      border-radius: 0 0 24px 24px;
+      z-index: 2;
+    }
+
+    [data-theme="light"] .next-phase-section {
+      background: radial-gradient(circle at top, rgba(0, 243, 255, 0.15), transparent 60%);
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .unlock-badge {
+      color: #00f3ff;
+      border: 1px solid #00f3ff;
+      background: rgba(0, 243, 255, 0.1);
+      margin-bottom: 20px;
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+    }
+
+    .analysis-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 15px;
+      margin-top: 20px;
+      padding: 20px 48px;
+      background: rgba(11, 13, 18, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid #00f3ff;
+      color: #00f3ff;
+      text-decoration: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      font-size: 1.25rem;
+      border-radius: 12px;
+      box-shadow: 0 0 25px rgba(0, 243, 255, 0.15), inset 0 0 15px rgba(0, 243, 255, 0.05);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+    }
+
+    .analysis-btn:hover {
+      background: #00f3ff;
+      color: #0B0D12;
+      box-shadow: 0 15px 40px rgba(0, 243, 255, 0.4);
+      transform: translateY(-5px) scale(1.02);
+      border-color: transparent;
+    }
+
+    [data-theme="light"] .analysis-btn {
+      background: #FFFFFF;
+      color: #008a90;
+      border-color: #008a90;
+    }
+    [data-theme="light"] .analysis-btn:hover {
+      background: #00f3ff;
+      color: #000;
+    }
+
+    .analysis-btn .arrow { transition: transform 0.3s ease; }
+    .analysis-btn:hover .arrow { transform: translateX(8px); }
+
+    /* Radar Sweep Animation */
+    .analysis-btn::before {
+       content: '';
+       position: absolute;
+       top: 0; left: -100%;
+       width: 50%; height: 100%;
+       background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+       transform: skewX(-20deg);
+       animation: scan-btn 3s infinite;
+    }
+    @keyframes scan-btn {
+       0% { left: -100%; }
+       20%, 100% { left: 200%; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html" class="active">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+
+      <header class="header header-flex">
+        <div>
+          <h1 class="glitch-text" data-text="Global Markets">Global Markets Protocol</h1>
+          <p class="hero-sub">From Zero Awareness to <span class="highlight">God Mode</span>.</p>
+        </div>
+        <button id="themeToggle" class="theme-btn">🌙</button>
+      </header>
+
+      <section class="warning-banner glass">
+        <div class="icon">⚠️</div>
+        <div class="text">
+          <strong>WARNING:</strong> Understanding ≠ Participation. 
+          <br>Knowing how a nuclear reactor works doesn't mean you should build one in your garage.
+        </div>
+      </section>
+
+      <nav class="market-nav">
+        <button class="nav-pill active" data-target="origins">Origins</button>
+        <button class="nav-pill" data-target="equity">Equity</button>
+        <button class="nav-pill" data-target="etf">ETFs</button>
+        <button class="nav-pill" data-target="mf">Mutual Funds</button>
+        <button class="nav-pill" data-target="debt">Debt</button>
+        <button class="nav-pill" data-target="money-market">Money Mkt</button>
+        <button class="nav-pill" data-target="commodity">Commodity</button>
+        <button class="nav-pill" data-target="derivatives">F&O</button>
+        <button class="nav-pill" data-target="forex">Forex</button>
+        <button class="nav-pill" data-target="crypto">Crypto</button>
+      </nav>
+
+      <section id="origins" class="market-section glass">
+        <div class="section-header">
+          <span class="tag">Layer 01</span>
+          <h2>The Source Code</h2>
+        </div>
+        <div class="grid-2">
+          <div class="text-content">
+            <h3>Why Markets Exist</h3>
+            <p>Markets are simply a bridge. They connect people with <strong>Excess Capital</strong> (Savers) to people with <strong>Productive Ideas</strong> (Businesses).</p>
+            <div class="concept-box">
+              <h4>The Village Analog</h4>
+              <p>Uncle Sharma has ₹10L (Savings). Raju needs ₹10L for his factory. The Market connects them safely without them ever meeting.</p>
+            </div>
+          </div>
+          <div class="visual-content center-flex">
+            <div class="flow-diagram">
+              <div class="node primary">IPO (Primary Mkt)</div>
+              <div class="arrow">⬇️ Capital Creation</div>
+              <div class="node secondary">Exchange (Secondary Mkt)</div>
+              <div class="arrow">🔄 Wealth Transfer</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="equity" class="market-section glass">
+        <div class="section-header">
+          <span class="tag">Layer 02</span>
+          <h2>Equity (Stocks)</h2>
+        </div>
+        <div class="scrolling-wrapper">
+          <div class="info-card">
+            <div class="card-icon">🏢</div>
+            <h3>Ownership</h3>
+            <p>A stock is not a lottery ticket. It is a legal certificate of ownership in a real business.</p>
+          </div>
+          <div class="info-card">
+            <div class="card-icon">🐘</div>
+            <h3>Large Cap</h3>
+            <p><strong>The Elephants.</strong> Reliance, TCS. Slow, stable, hard to kill. Low risk, moderate returns.</p>
+          </div>
+          <div class="info-card">
+            <div class="card-icon">🐆</div>
+            <h3>Mid Cap</h3>
+            <p><strong>The Cheetahs.</strong> Growing fast, hungry, but can get injured easily. Higher risk.</p>
+          </div>
+          <div class="info-card warning">
+            <div class="card-icon">🐇</div>
+            <h3>Small Cap</h3>
+            <p><strong>The Rabbits.</strong> Multiply fast, die faster. High failure rate. Proceed with caution.</p>
+          </div>
+        </div>
+
+        <div class="dive-container">
+        <a href="learn-equity.html" class="deep-dive-btn">
+            <span class="glitch-text">ENTER DEEP DIVE</span>
+            <div class="btn-sub">Master EPS, PE Ratio & Valuations</div>
+        </a>
+        </div>
+
+      </section>
+
+      <section id="etf" class="market-section glass">
+        <div class="section-header">
+          <span class="tag">Layer 03</span>
+          <h2>ETFs (Systematic)</h2>
+        </div>
+        <div class="grid-2">
+          <div class="visual-content">
+            <div class="etf-visual">
+              <div class="basket">
+                <span>RIL</span><span>INFY</span><span>HDFC</span>
+                <div class="label">Nifty 50</div>
+              </div>
+              <div class="arrow">➡️</div>
+              <div class="unit">1 Unit</div>
+            </div>
+          </div>
+          <div class="text-content">
+            <h3>Buy the Haystack</h3>
+            <p>Don't look for the needle (winning stock). Buy the whole haystack (Index ETF).</p>
+            <ul class="desi-list">
+              <li><strong>Zero Bias:</strong> No fund manager guessing.</li>
+              <li><strong>Low Cost:</strong> 0.05% Expense Ratio vs 2% for Mutual Funds.</li>
+              <li><strong>Live Trading:</strong> Buy/Sell instantly like a stock.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="dive-container">
+        <a href="learn-etf.html" class="deep-dive-btn blue">
+            <span class="glitch-text">ENTER DEEP DIVE</span>
+            <div class="btn-sub">Master Index Funds & Smart Beta</div>
+        </a>
+        </div>
+
+      </section>
+
+      <section id="mf" class="market-section glass">
+        <div class="section-header">
+          <span class="tag">Layer 04</span>
+          <h2>Mutual Funds</h2>
+          <p class="sub-text">The "Passenger Seat" of Wealth</p>
+        </div>
+        <div class="scrolling-wrapper">
+          <div class="info-card mf-card">
+            <div class="card-icon">🚌</div>
+            <h3>The Concept</h3>
+            <p>You give money to a professional driver (Fund Manager). They drive the bus. You just sit and pay a ticket fee (Expense Ratio).</p>
+          </div>
+          <div class="info-card mf-card">
+            <div class="card-icon">⚡</div>
+            <h3>Active Funds</h3>
+            <p>Manager tries to beat the market. <strong>Fact:</strong> 80% fail to beat the index over 10 years.</p>
+          </div>
+          <div class="info-card mf-card">
+            <div class="card-icon">🐢</div>
+            <h3>Passive Funds</h3>
+            <p>The bus follows a fixed GPS route (Index). No brain used. Often wins in the long run.</p>
+          </div>
+        </div>
+
+        <div class="dive-container">
+        <a href="learn-mf.html" class="deep-dive-btn blue">
+            <span class="glitch-text">ENTER DEEP DIVE</span>
+            <div class="btn-sub">Active vs Passive & Direct Plans</div>
+        </a>
+        </div>
+
+      </section>
+
+      <section id="debt" class="market-section glass">
+        <div class="section-header">
+          <span class="tag">Layer 05</span>
+          <h2>Debt Market</h2>
+        </div>
+        <div class="comparison-table">
+          <div class="col equity">
+            <h4>Equity</h4>
+            <p>You are an OWNER</p>
+            <p>Returns: Volatile</p>
+            <p>Risk: High</p>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="col debt">
+            <h4>Debt</h4>
+            <p>You are a LENDER</p>
+            <p>Returns: Fixed (Interest)</p>
+            <p>Risk: Low</p>
+          </div>
+        </div>
+
+        <div class="dive-container">
+        <a href="learn-debt.html" class="deep-dive-btn blue">
+            <span class="glitch-text">ENTER DEEP DIVE</span>
+            <div class="btn-sub">Bonds, Yields & Interest Rate Risk</div>
+        </a>
+        </div>
+
+      </section>
+
+      <section id="money-market" class="market-section glass">
+        <div class="section-header">
+          <span class="tag">Layer 06</span>
+          <h2>Money Market</h2>
+          <p class="sub-text">The Parking Lot for Cash</p>
+        </div>
+        <div class="grid-2">
+          <div class="text-content">
+            <h3>Where Cash Sleeps</h3>
+            <p>This is for money you need in 1 day to 1 year. It's safe, boring, and liquid.</p>
+            <div class="concept-box">
+              <h4>Instruments</h4>
+              <ul class="desi-list">
+                <li><strong>T-Bills:</strong> Lending to Govt for 91 days. (Zero Risk)</li>
+                <li><strong>Liquid Funds:</strong> Returns of ~6-7%, usable in T+1 day.</li>
+                <li><strong>CDs/CPs:</strong> Short term loans to banks/companies.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="visual-content center-flex">
+            <div class="safe-vault">
+              <div class="door"></div>
+              <span>Safe & Liquid</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dive-container">
+        <a href="learn-money-market.html" class="deep-dive-btn blue">
+            <span class="glitch-text">ENTER DEEP DIVE</span>
+            <div class="btn-sub">Liquid Funds, T-Bills & Arbitrage</div>
+        </a>
+        </div>
+
+      </section>
+
+      <section id="commodity" class="market-section glass">
+        <div class="section-header">
+          <span class="tag">Layer 07</span>
+          <h2>Commodities</h2>
+          <p class="sub-text">The Real Stuff</p>
+        </div>
+        <div class="scrolling-wrapper">
+          <div class="info-card gold-card">
+            <div class="card-icon">🥇</div>
+            <h3>Gold</h3>
+            <p>The "Fear" Asset. People buy it when they don't trust governments. It fights inflation, doesn't build wealth.</p>
+          </div>
+          <div class="info-card silver-card">
+            <div class="card-icon">🥈</div>
+            <h3>Silver</h3>
+            <p>The "Industrial" Metal. Used in EVs, Solar, Tech. More volatile than Gold.</p>
+          </div>
+          <div class="info-card oil-card">
+            <div class="card-icon">🛢️</div>
+            <h3>Crude Oil</h3>
+            <p>The "Blood" of the Economy. Highly political. Geopolitics dictates price.</p>
+          </div>
+        </div>
+
+        <div class="dive-container">
+        <a href="learn-commodity.html" class="deep-dive-btn gold">
+            <span class="glitch-text">ENTER DEEP DIVE</span>
+            <div class="btn-sub">Gold, SGBs & Hedging Strategies</div>
+        </a>
+        </div>
+
+      </section>
+
+      <section id="derivatives" class="market-section glass danger-zone">
+        <div class="section-header">
+          <span class="tag danger">Layer 08</span>
+          <h2>Derivatives (F&O)</h2>
+          <p class="sub-text">The Casino</p>
+        </div>
+        <div class="grid-3">
+          <div class="card fno-card">
+            <h3>Futures</h3>
+            <p>Obligation to buy/sell later.</p>
+          </div>
+          <div class="card fno-card">
+            <h3>Options</h3>
+            <p>Right to buy/sell later.</p>
+          </div>
+          <div class="card fno-card highlight">
+            <h3>The Truth</h3>
+            <p>90% of retail traders lose money here. Zero sum game.</p>
+          </div>
+        </div>
+
+        <div class="dive-container">
+        <a href="learn-fno.html" class="deep-dive-btn red">
+            <span class="glitch-text">ENTER DEEP DIVE</span>
+            <div class="btn-sub">Futures, Options & Theta Decay</div>
+        </a>
+        </div>
+
+      </section>
+
+      <section id="forex" class="market-section glass">
+        <div class="section-header">
+          <span class="tag">Layer 09</span>
+          <h2>Forex (FX)</h2>
+          <p class="sub-text">The Global Battleground</p>
+        </div>
+        <div class="grid-2">
+          <div class="text-content">
+            <h3>Currency Wars</h3>
+            <p>The largest market in the world. Trading the health of one nation (USD) against another (INR, EUR, JPY).</p>
+            <p class="impact-text">Driven by Macro-Economics, Interest Rates, and Geopolitics.</p>
+          </div>
+          <div class="visual-content center-flex">
+            <div class="fx-pair">
+              <span class="curr usd">USD</span>
+              <span class="vs">⚡</span>
+              <span class="curr inr">INR</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dive-container">
+        <a href="learn-forex.html" class="deep-dive-btn">
+            <span class="glitch-text">ENTER DEEP DIVE</span>
+            <div class="btn-sub">Currency Pairs, Pips & Macro-Economics</div>
+        </a>
+        </div>
+
+      </section>
+
+      <section id="crypto" class="market-section glass crypto-zone">
+        <div class="section-header">
+          <span class="tag crypto">Layer 10</span>
+          <h2>Crypto & DeFi</h2>
+          <p class="sub-text">The Wild West</p>
+        </div>
+        <div class="scrolling-wrapper">
+          <div class="info-card crypto-card">
+            <div class="card-icon">₿</div>
+            <h3>Bitcoin</h3>
+            <p><strong>Digital Gold.</strong> Decentralized, finite supply (21M). An exit from the fiat banking system.</p>
+          </div>
+          <div class="info-card crypto-card">
+            <div class="card-icon">⟠</div>
+            <h3>Ethereum</h3>
+            <p><strong>Digital Oil.</strong> A global computer. Powering contracts, apps (dApps), and finance (DeFi).</p>
+          </div>
+          <div class="info-card crypto-card alt">
+            <div class="card-icon">🎢</div>
+            <h3>Altcoins</h3>
+            <p><strong>The Casino.</strong> 99% are scams or vaporware. High variance gambling.</p>
+          </div>
+        </div>
+
+        <div class="dive-container">
+        <a href="learn-crypto.html" class="deep-dive-btn purple">
+            <span class="glitch-text">ENTER DEEP DIVE</span>
+            <div class="btn-sub">Bitcoin, DeFi & Self-Custody</div>
+        </a>
+        </div>
+
+      </section>
+
+      <section id="participants" class="market-section glass">
+        <div class="section-header">
+          <span class="tag">Layer 10</span>
+          <h2>Who Are You?</h2>
+        </div>
+        
+        <div class="scrolling-wrapper">
+          <div class="persona-card">
+            <div class="avatar">🦁</div>
+            <h3>The Investor</h3>
+            <p>Owns businesses. Ignores daily prices. Thinks in decades.</p>
+            <p class="trait">Superpower: Patience</p>
+          </div>
+          <div class="persona-card">
+            <div class="avatar">🦊</div>
+            <h3>The Trader</h3>
+            <p>Plays probabilities. Manages risk. Thinks in hours/days.</p>
+            <p class="trait">Superpower: Discipline</p>
+          </div>
+          <div class="persona-card">
+            <div class="avatar">🤡</div>
+            <h3>The Speculator</h3>
+            <p>Gambles on tips. Chases excitement. Thinks in "Hope".</p>
+            <p class="trait">Superpower: None (Luck)</p>
+          </div>
+        </div>
+
+        <div class="decision-matrix">
+          <h3>So, who do you want to be?</h3>
+          
+          <div class="choice-container">
+            <button class="choice-btn" onclick="selectPersona('investor')">🦁 Investor</button>
+            <span class="or">OR</span>
+            <button class="choice-btn" onclick="selectPersona('trader')">🦊 Trader</button>
+          </div>
+          
+          <p class="you-decide glitch-text" data-text="YOU DECIDE">YOU DECIDE.</p>
+        </div>
+
+      </section>
+
+      <section class="final-quote-section">
+        <div class="quote-container">
+          <h1 class="power-text">"With Great Power, Comes Great Responsibility."</h1>
+          <p class="sub-quote">The Market gives you the power to build generations of wealth.<br>Your responsibility is to control your own mind.</p>
+        </div>
+      </section>
+
+      <section class="next-phase-section">
+        <div class="unlock-badge">PHASE 03 UNLOCKED</div>
+        <h2 style="font-size: 2.8rem; margin: 15px 0;">Master the Matrix</h2>
+        <p class="hero-sub" style="margin: 0 auto 30px auto; max-width: 650px;">
+          You know the instruments. Now you must learn how to read them. Choose your path: Fundamental (The Business) or Technical (The Crowd).
+        </p>
+        <a href="learn-analysis.html" class="analysis-btn">
+          ENTER ANALYSIS PROTOCOL <span class="arrow">➔</span>
+        </a>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/ui.js"></script>
+<script src="../js/markets.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+</body>
+</html>

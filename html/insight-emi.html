@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg"><title>The EMI Trap | FIN-OS</title>
+  <link rel="stylesheet" href="../css/insight.css">
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+<body>
+<div class="insight-wrapper">
+  <aside class="toc-sidebar">
+    <div class="toc-header">INSIGHT: EXPLORE</div>
+    
+    <a href="dashboard.html" class="back-btn">
+      <span>❮</span> Back to Dashboard
+    </a>
+</aside>
+  <main class="insight-content">
+    <section class="insight-hero">
+      <h1>The Front-Loading Trap</h1>
+      <p>Why you pay EMI for 5 years but your loan amount barely drops.</p>
+    </section>
+
+    <section class="insight-section">
+      <div class="glass-panel">
+        <h3>How Banks Trick Your Brain</h3>
+        <p>In the early years, 80% of your EMI is just Interest. You pay the Principal last.</p>
+        
+        <div class="visual-container" style="flex-direction:column; padding: 20px;">
+          <div class="emi-bar">
+            <div class="emi-interest" style="width:90%">Interest</div>
+            <div class="emi-principal" style="width:10%">Principal</div>
+          </div>
+          <input type="range" id="emiSlider" min="0" max="100" value="0" style="width:80%; margin-top:20px;">
+          <p id="emiYear" style="margin-top:10px; color:#fff;">Year: 1</p>
+        </div>
+        
+        <p class="moral" style="margin-top:20px;"><strong>The Fix:</strong> Pre-pay 1 extra EMI every year. You will close a 20-year loan in 12 years.</p>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="../js/ui.js"></script>
+<script src="../js/insight.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+</body>
+</html>

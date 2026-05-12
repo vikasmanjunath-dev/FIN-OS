@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Money Behavior Analyzer • FIN-OS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+  <link rel="stylesheet" href="../../css/components.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+
+              .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary); /* Uses your theme variable */
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            transition: color 0.2s ease;  
+          }
+
+        /* 1. DEFINE THE COLORS FOR LIGHT AND DARK MODES */
+                :root {
+                    --text-primary: #1e293b;   /* Dark Blue-Grey for Light Mode */
+                    --text-secondary: #64748b; /* Muted Grey */
+                    --bg-main: #f1f5f9;
+                    --bg-surface: #ffffff;
+                    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                }
+
+                [data-theme="dark"] {
+                    --text-primary: #f8fafc;   /* White/Light Grey for Dark Mode */
+                    --text-secondary: #94a3b8; /* Light Muted Grey */
+                    --bg-main: #0f172a;        /* Dark Navy Background */
+                    --bg-surface: #1e293b;     /* Slightly Lighter Navy for Cards */
+                    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+                }
+
+                /* 2. APPLY THE TEXT COLOR GLOBALLY */
+                body {
+                    color: var(--text-primary);
+                    background: var(--bg-main);
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                }
+
+                /* 3. ENSURE HEADINGS INHERIT COLOR */
+                h1, h2, h3, strong, b {
+                    color: var(--text-primary);
+                }
+
+                /* 4. UPDATE INPUT TEXT VISIBILITY */
+                input[type="number"] {
+                    color: var(--text-primary);
+                    background: rgba(255, 255, 255, 0.05); /* Semi-transparent bg works on both */
+                }
+
+    .page {
+      flex: 1;
+      padding: 0 48px 24px 48px;
+      background: var(--bg-main);
+      overflow-y: auto;
+    }
+
+    .page-header {
+      padding-top: 32px;
+      margin-bottom: 40px;
+    }
+
+    .page-header h1 {
+      font-size: 42px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+
+    .page-header p {
+      color: var(--text-secondary);
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .impact-card {
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      padding: 48px;
+      border-radius: 32px;
+      background: var(--bg-surface);
+      box-shadow: var(--card-shadow);
+    }
+
+    .impact-left h2 {
+      font-size: 28px;
+      margin: 12px 0 6px 0;
+    }
+
+    .impact-sub {
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+    }
+
+    .impact-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .input-group label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      appearance: none;
+      height: 6px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #ec4899, #8b5cf6);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #ec4899;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    input[type="number"] {
+      width: 140px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #ec4899;
+      background: rgba(236,72,153,0.1);
+    }
+
+    .impact-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .chart-container {
+      width: 100%;
+      max-width: 360px;
+      aspect-ratio: 1;
+    }
+
+    .result-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .behavior-score {
+      padding: 28px;
+      border-radius: 16px;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(236,72,153,0.15), rgba(139,92,246,0.15));
+    }
+
+    .behavior-score span {
+      display: block;
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .behavior-score strong {
+      font-size: 48px;
+      font-weight: 700;
+    }
+
+    .score-excellent { color: #22c55e !important; }
+    .score-good { color: #3b82f6 !important; }
+    .score-fair { color: #f59e0b !important; }
+    .score-poor { color: #ef4444 !important; }
+
+    .insights {
+      padding: 20px;
+      border-radius: 12px;
+      background: rgba(139,92,246,0.08);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .insight-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .insight-item:last-child {
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 900px) {
+      .impact-card {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body class="app">
+
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="../../html/home.html">Home</a>
+      <a href="../../html/dashboard.html">Dashboard</a>
+      <a href="../../html/impact.html">Impact</a>
+      <a href="../../html/calculators.html" class="active">Calculators</a>
+      <a href="../../../Porfolio Analyser/portfolio-analyser-v9.html">Portfolio</a>
+      <a href="../../html/markets.html">Markets</a>
+      <a href="../../html/tax.html">Tax</a>
+      <a href="../../html/news.html">News</a>
+    </nav>
+  </aside>
+
+  <main class="page">
+
+    <button id="themeToggle" class="theme-btn" style="position: fixed; top: 32px; right: 32px; z-index: 100;">🌙</button>
+
+    <header class="page-header">
+    <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
+      <h1>Money Behavior Analyzer</h1>
+      <p>Your financial personality decoded.</p>
+    </header>
+
+    <section class="impact-card">
+
+      <div class="impact-left">
+        <span style="font-size: 32px;">🧠</span>
+        <h2>Financial Health Check</h2>
+        <p class="impact-sub">Analyze your money habits and get a behavior score.</p>
+
+        <div class="impact-inputs">
+
+          <div class="input-group">
+            <label>Monthly Income (₹)</label>
+            <div class="input-row">
+              <input type="range" min="20000" max="500000" step="5000" value="50000" id="income">
+              <input type="number" min="20000" max="500000" step="5000" value="50000" id="incomeNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Monthly Savings (₹)</label>
+            <div class="input-row">
+              <input type="range" min="0" max="200000" step="1000" value="10000" id="savings">
+              <input type="number" min="0" max="200000" step="1000" value="10000" id="savingsNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Emergency Fund (Months covered)</label>
+            <div class="input-row">
+              <input type="range" min="0" max="12" step="1" value="3" id="emergency">
+              <input type="number" min="0" max="12" step="1" value="3" id="emergencyNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Active EMIs (Count)</label>
+            <div class="input-row">
+              <input type="range" min="0" max="10" step="1" value="2" id="emis">
+              <input type="number" min="0" max="10" step="1" value="2" id="emisNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Investment Start Age</label>
+            <div class="input-row">
+              <input type="range" min="18" max="45" step="1" value="25" id="startAge">
+              <input type="number" min="18" max="45" step="1" value="25" id="startAgeNum">
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="impact-right">
+        <div class="chart-container">
+          <canvas id="behaviorChart"></canvas>
+        </div>
+
+        <div class="result-grid">
+          <div class="behavior-score">
+            <span>Financial Behavior Score</span>
+            <strong id="score" class="score-good">75</strong>
+            <div style="margin-top: 8px; font-size: 16px; font-weight: 600;" id="rating">Good</div>
+          </div>
+
+          <div class="insights" id="insights">
+            <div class="insight-item">
+              <span>💰</span>
+              <span>Calculating your financial behavior...</span>
+            </div>
+          </div>
+
+          <div style="padding: 16px; background: rgba(236,72,153,0.08); border-radius: 12px; font-size: 13px; color: var(--text-secondary); border-left: 4px solid #ec4899;">
+            <strong>Score Range:</strong> 0-40 (Poor), 41-60 (Fair), 61-80 (Good), 81-100 (Excellent)
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+<script>
+// Theme Toggle
+const root = document.documentElement;
+const toggle = document.getElementById("themeToggle");
+const savedTheme = localStorage.getItem("finos-theme");
+if (savedTheme) root.setAttribute("data-theme", savedTheme);
+toggle.textContent = root.getAttribute("data-theme") === "dark" ? "🌙" : "☀️";
+toggle.onclick = () => {
+  const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("finos-theme", next);
+  toggle.textContent = next === "dark" ? "🌙" : "☀️";
+};
+
+// Elements
+const income = document.getElementById("income");
+const incomeNum = document.getElementById("incomeNum");
+const savings = document.getElementById("savings");
+const savingsNum = document.getElementById("savingsNum");
+const emergency = document.getElementById("emergency");
+const emergencyNum = document.getElementById("emergencyNum");
+const emis = document.getElementById("emis");
+const emisNum = document.getElementById("emisNum");
+const startAge = document.getElementById("startAge");
+const startAgeNum = document.getElementById("startAgeNum");
+
+// Sync
+income.oninput = () => incomeNum.value = income.value;
+incomeNum.oninput = () => income.value = incomeNum.value;
+savings.oninput = () => savingsNum.value = savings.value;
+savingsNum.oninput = () => savings.value = savingsNum.value;
+emergency.oninput = () => emergencyNum.value = emergency.value;
+emergencyNum.oninput = () => emergency.value = emergencyNum.value;
+emis.oninput = () => emisNum.value = emis.value;
+emisNum.oninput = () => emis.value = emisNum.value;
+startAge.oninput = () => startAgeNum.value = startAge.value;
+startAgeNum.oninput = () => startAge.value = startAgeNum.value;
+
+// Chart
+const ctx = document.getElementById("behaviorChart");
+const chart = new Chart(ctx, {
+  type: "radar",
+  data: {
+    labels: ["Savings Rate", "Emergency Fund", "Debt Health", "Early Start", "Discipline"],
+    datasets: [{
+      label: "Your Score",
+      data: [20, 20, 20, 20, 20],
+      backgroundColor: "rgba(236,72,153,0.2)",
+      borderColor: "#ec4899",
+      borderWidth: 2,
+      pointBackgroundColor: "#ec4899",
+      pointBorderColor: "#fff",
+      pointHoverBackgroundColor: "#fff",
+      pointHoverBorderColor: "#ec4899"
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        beginAtZero: true,
+        max: 25,
+        ticks: { display: false },
+        grid: { color: 'rgba(255,255,255,0.1)' },
+        pointLabels: { color: '#9CA0AB', font: { size: 11 } }
+      }
+    },
+    plugins: {
+      legend: { display: false }
+    }
+  }
+});
+
+// Calculate
+function calculate() {
+  const inc = +incomeNum.value;
+  const sav = +savingsNum.value;
+  const emerg = +emergencyNum.value;
+  const emi = +emisNum.value;
+  const age = +startAgeNum.value;
+
+  // Calculate individual scores
+  const savingsRate = (sav / inc) * 100;
+  const savingsScore = Math.min(25, savingsRate * 0.8); // Max 25
+
+  const emergencyScore = Math.min(25, (emerg / 6) * 25); // Max 25, ideal 6 months
+
+  const debtScore = Math.max(0, 25 - (emi * 3)); // Penalty for EMIs
+
+  const startScore = Math.max(0, 25 - ((age - 20) * 1.5)); // Earlier is better
+
+  const disciplineScore = savingsRate > 20 ? 25 : (savingsRate > 10 ? 20 : 15);
+
+  // Total score
+  const totalScore = Math.round(savingsScore + emergencyScore + debtScore + startScore + disciplineScore);
+
+  // Display score
+  const scoreEl = document.getElementById("score");
+  const ratingEl = document.getElementById("rating");
+  
+  scoreEl.textContent = totalScore;
+  
+  if (totalScore >= 81) {
+    scoreEl.className = "score-excellent";
+    ratingEl.textContent = "Excellent";
+  } else if (totalScore >= 61) {
+    scoreEl.className = "score-good";
+    ratingEl.textContent = "Good";
+  } else if (totalScore >= 41) {
+    scoreEl.className = "score-fair";
+    ratingEl.textContent = "Fair";
+  } else {
+    scoreEl.className = "score-poor";
+    ratingEl.textContent = "Poor";
+  }
+
+  // Insights
+  const insights = [];
+  
+  if (savingsRate < 20) insights.push({ icon: "⚠️", text: "Savings rate below 20%. Try to increase gradually." });
+  else if (savingsRate >= 30) insights.push({ icon: "✅", text: "Excellent savings discipline!" });
+  
+  if (emerg < 6) insights.push({ icon: "🚨", text: `Emergency fund only covers ${emerg} months. Build to 6 months.` });
+  else insights.push({ icon: "✅", text: "Strong emergency fund!" });
+  
+  if (emi > 2) insights.push({ icon: "⚠️", text: `${emi} active EMIs detected. Focus on debt reduction.` });
+  else if (emi === 0) insights.push({ icon: "✅", text: "Debt-free lifestyle!" });
+  
+  if (age > 30) insights.push({ icon: "⏰", text: "Late start. Increase monthly investments to catch up." });
+  else if (age <= 25) insights.push({ icon: "✅", text: "Started early - time is on your side!" });
+
+  // Display insights
+  const insightsEl = document.getElementById("insights");
+  insightsEl.innerHTML = insights.map(i => 
+    `<div class="insight-item"><span>${i.icon}</span><span>${i.text}</span></div>`
+  ).join("");
+
+  // Update chart
+  chart.data.datasets[0].data = [savingsScore, emergencyScore, debtScore, startScore, disciplineScore];
+  chart.update();
+}
+
+[income, incomeNum, savings, savingsNum, emergency, emergencyNum, emis, emisNum, startAge, startAgeNum].forEach(el => el.addEventListener("input", calculate));
+calculate();
+</script>
+
+</body>
+</html>

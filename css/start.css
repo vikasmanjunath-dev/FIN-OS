@@ -1,0 +1,293 @@
+/* =========================
+   ZERO TO MASTER - JOURNEY STYLES
+   ========================= */
+
+/* --- HERO --- */
+.intro-message {
+  margin: 40px 0 60px 0;
+  padding: 40px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(79, 124, 255, 0.1), rgba(0,0,0,0));
+  border: 1px solid rgba(79, 124, 255, 0.2);
+  text-align: center;
+}
+.intro-message h2 { font-size: 2rem; margin-bottom: 16px; color: #fff; }
+.intro-message p { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.6; }
+
+/* =========================
+   SCROLL FILL LINE ANIMATION
+   ========================= */
+
+.journey-container {
+  position: relative;
+  /* Ensure the SVG scales with the content */
+  min-height: 100vh; 
+}
+
+.journey-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Background Line (Dark Grey) */
+#pathLine {
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 4;
+}
+
+/* Filling Line (Accent Color) */
+#pathLineFill {
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  
+  /* PREPARE FOR JS ANIMATION */
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  pathLength: 1; /* Makes math easier (0 to 1) */
+  
+  /* Glow Effect */
+  filter: drop-shadow(0 0 8px var(--accent));
+  transition: stroke-dashoffset 0.1s linear; /* Smoothness */
+}
+
+/* Light Mode Support */
+[data-theme="light"] #pathLine {
+  stroke: rgba(0, 0, 0, 0.1);
+}
+/* --- LEVEL NODES --- */
+.level-node {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  z-index: 1;
+}
+
+/* Alternate Layout: Left / Right */
+.level-node { justify-content: flex-start; padding-left: 50px; }
+.level-node.right { justify-content: flex-end; padding-right: 50px; }
+.level-node.center { justify-content: center; padding: 0; }
+
+/* The Number Marker */
+.node-marker {
+  position: absolute;
+  width: 50px; height: 50px;
+  background: #000;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono'; font-weight: 800; color: var(--accent);
+  box-shadow: 0 0 20px rgba(199, 240, 0, 0.3);
+  
+  /* Positioning Logic handled by Layout, usually centered relative to path */
+  left: 50%; transform: translateX(-50%);
+}
+
+/* On Desktop, shift content away from center line */
+@media (min-width: 768px) {
+  .level-node { padding-right: 55%; padding-left: 0; }
+  .level-node.right { padding-left: 55%; padding-right: 0; }
+  .level-node.center { padding: 0; width: 60%; margin: 0 auto; }
+}
+
+/* --- CARDS --- */
+.level-card {
+  width: 100%;
+  padding: 30px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+}
+
+.level-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  background: rgba(255,255,255,0.05);
+  border-color: var(--accent);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+.level-card.warning { border-top: 4px solid #ff4757; }
+.level-card.special { border: 2px solid var(--accent); background: rgba(199, 240, 0, 0.05); }
+
+/* Card Content */
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.lvl-tag { font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--text-secondary); background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; }
+.level-card h3 { font-size: 1.5rem; margin: 8px 0 0 0; color: #fff; }
+
+.concept { font-size: 1rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; }
+.highlight { color: var(--accent); }
+
+/* Desi Box */
+.desi-box {
+  background: rgba(79, 124, 255, 0.1);
+  border-left: 3px solid #4F7CFF;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-top: 15px;
+}
+.desi-box.warning { background: rgba(255, 71, 87, 0.1); border-color: #ff4757; }
+.flag { font-size: 0.7rem; text-transform: uppercase; font-weight: 700; color: #4F7CFF; display: block; margin-bottom: 5px; }
+
+/* --- VISUALS --- */
+.visual-mini {
+  margin-top: 20px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.center-flex { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+/* Battery */
+.battery-visual { width: 60px; height: 100px; border: 3px solid #fff; border-radius: 8px; position: relative; padding: 3px; }
+.battery-visual::before { content:''; position:absolute; top:-8px; left:15px; width:24px; height:5px; background:#fff; }
+.charge { width: 100%; height: 100%; background: linear-gradient(0deg, #ff4757, #C7F000); animation: chargeUp 3s infinite; }
+@keyframes chargeUp { 0% { height: 10%; } 50% { height: 80%; } 100% { height: 10%; } }
+
+/* Pacman */
+.pacman-container { display: flex; align-items: center; gap: 10px; }
+.pacman { width: 0; height: 0; border-right: 20px solid transparent; border-top: 20px solid #f1c40f; border-left: 20px solid #f1c40f; border-bottom: 20px solid #f1c40f; border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; animation: chomp 0.3s infinite; }
+.dot { font-family: 'JetBrains Mono'; color: #fff; animation: fadeLeft 1s infinite linear; }
+@keyframes chomp { 50% { border-right: 20px solid #f1c40f; } }
+
+/* Pizza */
+.pizza-visual { position: relative; width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.1); overflow: hidden; display: flex; flex-wrap: wrap; }
+.slice { width: 50%; height: 50%; background: rgba(255,255,255,0.2); box-shadow: inset 0 0 0 1px #000; }
+.slice.highlight { background: var(--accent); }
+
+/* Key Points */
+.key-points { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+.key-points span { font-size: 0.75rem; padding: 4px 10px; background: rgba(255,255,255,0.1); border-radius: 100px; }
+
+/* Step List */
+.step-list { text-align: center; }
+.step { padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; margin: 5px 0; font-weight: 700; }
+.arrow-down { color: var(--accent); margin: 5px 0; }
+
+/* --- FOOTER --- */
+.journey-footer { text-align: center; margin-top: 100px; padding: 60px 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+.next-steps { display: flex; justify-content: center; gap: 20px; margin-top: 30px; flex-wrap: wrap; }
+.next-btn { padding: 15px 30px; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: #fff; text-decoration: none; font-weight: 700; transition: all 0.3s; }
+.next-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-5px); }
+.next-btn.accent { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 20px rgba(199, 240, 0, 0.4); }
+
+/* --- LIGHT MODE --- */
+[data-theme="light"] .level-card { background: #fff; border-color: rgba(0,0,0,0.05); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+[data-theme="light"] .level-card h3 { color: #1a202c; }
+[data-theme="light"] .concept { color: #4a5568; }
+[data-theme="light"] .desi-box { background: #eef2ff; border-color: #4F7CFF; }
+[data-theme="light"] .visual-mini { background: #f8f9fa; border: 1px solid rgba(0,0,0,0.05); }
+[data-theme="light"] .journey-footer h2 { color: #1a202c; }
+[data-theme="light"] .next-btn { color: #1a202c; border-color: rgba(0,0,0,0.1); }
+
+
+/* =========================
+   THEME BUTTON (Soft Square)
+   ========================= */
+
+.theme-btn {
+  /* 1. Define the Box (Perfect Square) */
+  width: 44px;
+  height: 44px;
+  padding: 0; /* Remove default padding to ensure centering */
+
+  /* 2. Center the Emoji/Icon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 3. Visual Style */
+  background: var(--bg-surface); /* Matches the card background */
+  border: 1px solid var(--border-soft); /* Subtle border */
+  border-radius: 12px; /* Soft rounded corners (Squircle) */
+  color: var(--text-primary);
+
+  /* 4. Text/Icon Size */
+  font-size: 1.25rem; 
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  
+  /* 5. Positioning */
+  flex-shrink: 0; /* Prevents it from getting squashed */
+  margin-left: 20px;
+}
+
+/* Hover Effect */
+.theme-btn:hover {
+  border-color: var(--accent); /* Highlight border color */
+  transform: translateY(-3px); /* Slight lift */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1); /* Soft shadow */
+}
+
+/* Click Effect */
+.theme-btn:active {
+  transform: scale(0.95);
+}
+
+/* =========================
+   HEADER LAYOUT (Flexbox)
+   ========================= */
+
+.header-flex {
+  display: flex;                  /* Enables side-by-side layout */
+  justify-content: space-between; /* Pushes Text to Left, Button to Right */
+  align-items: flex-start;        /* Aligns them to the top */
+  width: 100%;                    /* Ensures it spans the full width */
+  position: relative;             /* Stability */
+}
+
+/* =========================
+   HEADER LAYOUT ADJUSTMENTS
+   ========================= */
+
+/* Existing Flex container */
+.header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* Keeps text at the top */
+  width: 100%;
+}
+
+/* SPECIFIC FIX: Push the button down and keep it right */
+.header-flex .theme-btn {
+  flex-shrink: 0;      /* Prevent shrinking */
+  margin-left: 24px;   /* Space from the text */
+  margin-top: 10px;    /* <--- THIS MOVES IT DOWN */
+}
+
+
+/* =========================
+   LIGHT MODE FIXES (Make Text Visible)
+   ========================= */
+
+[data-theme="light"] .intro-message {
+  /* Make background a crisp, solid light blue instead of transparent */
+  background: #F0F9FF; 
+  border-color: #BAE6FD;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .intro-message h2 {
+  /* The Fix: Change White text to Dark Navy */
+  color: #0F172A !important; 
+}
+
+[data-theme="light"] .intro-message p {
+  /* Ensure subtitle is high-contrast grey */
+  color: #334155 !important;
+}
+
+/* Fix the Gradient Line in Light Mode */
+[data-theme="light"] #pathLine {
+  stroke: #CBD5E1; /* Light grey path instead of dark */
+}

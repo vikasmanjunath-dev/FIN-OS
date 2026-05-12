@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Debt Deep Dive</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/markets-deep.css">
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+<body>
+
+  <div class="progress-container"><div class="progress-bar" id="progressBar" style="background:#00b894; box-shadow:0 0 10px #00b894;"></div></div>
+
+  <div class="deep-wrapper">
+    <aside class="toc-sidebar">
+      <div class="toc-header" style="color:#00b894;">PROTOCOL 05: DEBT</div>
+      <ul class="toc-list">
+        <li><a href="#lvl1" class="toc-link active">Lvl 1: The Concept</a></li>
+        <li><a href="#lvl2" class="toc-link">Lvl 2: The Mechanism</a></li>
+        <li><a href="#lvl3" class="toc-link">Lvl 3: Yields</a></li>
+        <li><a href="#godmode" class="toc-link">God Mode: Interest Risk</a></li>
+      </ul>
+      <a href="debtdetail.html" class="master-btn" style="text-align: center; text-decoration: none; display: block;">
+  🏆 Master it !
+</a>
+      <a href="markets.html" class="back-btn">← Back to Terminal</a>
+    </aside>
+
+    <main class="deep-content" id="scrollContainer">
+
+      <section class="chapter active" id="hero">
+        <h1 class="glitch-text">Debt Protocol</h1>
+        <p class="intro-text">Equity makes you rich. Debt keeps you rich. Stop treating FDs as the only option.</p>
+      </section>
+
+      <section class="chapter" id="lvl1">
+        <span class="chapter-badge" style="color:#00b894; background:rgba(0,184,148,0.1);">LEVEL 01: NOOB</span>
+        <h2>Lending vs Owning</h2>
+        <p>When you buy a stock, you become an <strong>Owner</strong> (Risk). When you buy a Bond, you become a <strong>Lender</strong> (Safety).</p>
+        
+        <div class="concept-card" style="border-left-color:#00b894;">
+          <h4>🏦 The Indian Reality</h4>
+          <p>Most Indians keep money in Savings Accounts (3%) or FDs (6.5%).</p>
+          <p><strong>The Hack:</strong> Government Bonds (G-Secs) often pay 7.2% - 7.5% with <em>higher</em> safety than a private bank FD. Why let the bank keep the spread?</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="lvl2">
+        <span class="chapter-badge" style="color:#00b894; background:rgba(0,184,148,0.1);">LEVEL 02: MECHANIC</span>
+        <h2>What is a Bond?</h2>
+        <p>It is a loan you give to the Government or a Corporation.</p>
+        
+        <div class="visual-box">
+          <div style="display:flex; flex-direction:column; gap:10px; font-family:'JetBrains Mono'; text-align:center; width:100%;">
+            <div style="padding:15px; border:1px solid #fff; border-radius:8px;">You give ₹100 Principal</div>
+            <div>⬇️</div>
+            <div style="padding:15px; border:1px solid #00b894; color:#00b894; border-radius:8px;">They pay ₹7 Interest (Coupon) every year</div>
+            <div>⬇️</div>
+            <div style="padding:15px; border:1px solid #fff; border-radius:8px;">At End: You get ₹100 Back</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="lvl3">
+        <span class="chapter-badge" style="color:#00b894; background:rgba(0,184,148,0.1);">LEVEL 03: PRO</span>
+        <h2>The Yield Teeter-Totter</h2>
+        <p>This is the hardest concept in finance, explained simply.</p>
+        <p class="highlight">If Interest Rates go UP, Bond Prices go DOWN.</p>
+        
+        <div class="concept-card">
+          <h4>📉 Example</h4>
+          <p>You hold an old bond paying <strong>6%</strong>. RBI raises rates to <strong>8%</strong>.</p>
+          <p>Nobody wants your 6% bond anymore. To sell it, you must <strong>lower the price</strong> (Sell at a discount) until the yield matches the new 8% rate.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="godmode">
+        <div class="pro-tip" style="border-color:#00b894; background:linear-gradient(135deg, rgba(0,184,148,0.1), rgba(0,0,0,0));">
+          <h4 style="color:#00b894;">☠️ GOD MODE: Duration Risk</h4>
+          <p><strong>Long Duration Funds (10 Year+ Bonds):</strong> These are highly sensitive to interest rates. If RBI cuts rates, these funds can give 12-15% returns (Capital Gains). If RBI hikes rates, you lose capital.</p>
+          <p><strong>Strategy:</strong> Stick to Liquid Funds or Target Maturity Funds for safety.</p>
+        </div>
+      </section>
+
+      <footer style="margin-top:100px; text-align:center; opacity:0.5; font-size:0.8rem;">
+        <p>End of Debt Protocol. <a href="markets.html" style="color:#fff;">Return to Base.</a></p>
+      </footer>
+
+    </main>
+  </div>
+  <script src="../js/markets-deep.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+</body>
+</html>

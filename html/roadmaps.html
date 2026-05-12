@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Roadmap Central</title>
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+
+  <style>
+    /* =========================
+       THEME: GRAND CENTRAL
+       ========================= */
+    :root {
+      --hub-bg: #0b0c15;
+      --hub-card: rgba(255, 255, 255, 0.03);
+      --hub-border: rgba(255, 255, 255, 0.1);
+      --neon-blue: #4F7CFF;
+      --neon-green: #0aff68;
+      --neon-gold: #ffd700;
+      --neon-red: #ff0055;
+      --neon-purple: #bc13fe;
+      --font-display: 'Manrope', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      background-color: var(--hub-bg) !important;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      color: #fff !important;
+      font-family: var(--font-display);
+      overflow-x: hidden;
+    }
+
+    /* Sidebar Override */
+    .sidebar { background: rgba(11, 12, 21, 0.95); border-right: 1px solid var(--hub-border); backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 200; }
+    .main { width: calc(100% - 260px); min-height: 100vh; margin-left: 260px; }
+
+    .content-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-top: 60px;
+      padding-bottom: 100px;
+    }
+
+    /* =========================
+       HERO: THE DEPARTURE BOARD
+       ========================= */
+    .hub-header {
+      text-align: center;
+      margin-bottom: 80px;
+      position: relative;
+    }
+
+    .hub-badge {
+      font-family: var(--font-mono);
+      color: var(--neon-blue);
+      border: 1px solid var(--neon-blue);
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      background: rgba(79, 124, 255, 0.1);
+      display: inline-block;
+      margin-bottom: 20px;
+      box-shadow: 0 0 20px rgba(79, 124, 255, 0.2);
+    }
+
+    .hub-title {
+      font-size: 4rem;
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      background: linear-gradient(180deg, #fff, #888);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hub-sub {
+      color: #aaa;
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* =========================
+       SECTOR GRID
+       ========================= */
+    .sector-title {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--hub-border);
+      padding-bottom: 10px;
+      margin-top: 60px;
+    }
+    
+    .sector-title span { color: #fff; font-weight: 700; }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 30px;
+    }
+
+    /* MAP CARD */
+    .map-card {
+      background: var(--hub-card);
+      border: 1px solid var(--hub-border);
+      border-radius: 20px;
+      padding: 35px;
+      text-decoration: none;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .map-card:hover {
+      transform: translateY(-8px);
+      background: rgba(255,255,255,0.06);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    /* Card Variations */
+    .c-growth:hover { border-color: var(--neon-green); }
+    .c-growth .c-icon { color: var(--neon-green); }
+    
+    .c-origin:hover { border-color: var(--neon-gold); }
+    .c-origin .c-icon { color: var(--neon-gold); }
+
+    .c-soul:hover { border-color: var(--neon-purple); }
+    .c-soul .c-icon { color: var(--neon-purple); }
+
+    .c-alert:hover { border-color: var(--neon-red); }
+    .c-alert .c-icon { color: var(--neon-red); }
+
+    /* Card Content */
+    .c-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+    .c-icon { font-size: 2.5rem; filter: drop-shadow(0 0 15px currentColor); }
+    .c-num { font-family: var(--font-mono); font-size: 3rem; opacity: 0.1; font-weight: 900; line-height: 0.8; }
+
+    .c-head { font-size: 1.6rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .c-desc { font-size: 0.95rem; color: #aaa; line-height: 1.6; margin-bottom: 25px; flex-grow: 1; }
+
+    .c-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+    .c-tag { 
+      font-family: var(--font-mono); font-size: 0.75rem; 
+      padding: 5px 12px; border-radius: 4px; 
+      background: rgba(255,255,255,0.05); color: #ccc;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Desi Context */
+    .c-desi {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px dashed rgba(255,255,255,0.1);
+      font-size: 0.85rem;
+      color: #888;
+      font-style: italic;
+    }
+    .c-desi span { color: #fff; font-weight: bold; font-style: normal; }
+
+    @media (max-width: 768px) {
+      .hub-title { font-size: 3rem; }
+      .map-grid { grid-template-columns: 1fr; }
+    }
+
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+
+      <section class="hub-header">
+        <span class="hub-badge">GRAND CENTRAL STATION</span>
+        <h1 class="hub-title">Choose Your Path.</h1>
+        <p class="hub-sub">
+          Every investor is on a journey. FIN-OS is the map. <br>
+          Select the protocol that matches your current life reality.
+        </p>
+      </section>
+
+      <div class="sector-title"><span>SECTOR 01</span> // GROWTH PROTOCOLS</div>
+      <div class="map-grid">
+        
+        <a href="roadmap.html" class="map-card c-growth">
+          <div class="c-top">
+            <span class="c-icon">🛰️</span>
+            <span class="c-num">01</span>
+          </div>
+          <h3 class="c-head">The Investor GPS</h3>
+          <p class="c-desc">
+            For those who want wealth, not excitement. A dynamic path from Survival to Legacy based on your age and income.
+          </p>
+          <div class="c-tags">
+            <span class="c-tag">Long Term</span>
+            <span class="c-tag">Salaried</span>
+            <span class="c-tag">Family</span>
+          </div>
+          <div class="c-desi"><span>For:</span> The person who wants to sleep peacefully while money grows.</div>
+        </a>
+
+        <a href="trader-roadmap.html" class="map-card c-growth">
+          <div class="c-top">
+            <span class="c-icon">🎯</span>
+            <span class="c-num">02</span>
+          </div>
+          <h3 class="c-head">The Trader Command</h3>
+          <p class="c-desc">
+            A tactical system to protect you from self-destruction. Strict risk checks before you are allowed to fly.
+          </p>
+          <div class="c-tags">
+            <span class="c-tag">Active</span>
+            <span class="c-tag">High Risk</span>
+            <span class="c-tag">Skill Based</span>
+          </div>
+          <div class="c-desi"><span>For:</span> The aspiring trader who needs discipline, not just tips.</div>
+        </a>
+
+      </div>
+
+
+      <div class="sector-title"><span>SECTOR 02</span> // ORIGINS & BRIDGES</div>
+      <div class="map-grid">
+        
+        <a href="fear-roadmap.html" class="map-card c-origin">
+          <div class="c-top">
+            <span class="c-icon">🧘</span>
+            <span class="c-num">03</span>
+          </div>
+          <h3 class="c-head">Mindset Repair</h3>
+          <p class="c-desc">
+            For those who think the market is "Satta" (Gambling). Unlearn trauma and social conditioning safely.
+          </p>
+          <div class="c-tags">
+            <span class="c-tag">Therapy</span>
+            <span class="c-tag">Zero Risk</span>
+            <span class="c-tag">Beginner</span>
+          </div>
+          <div class="c-desi"><span>For:</span> "My uncle lost money in the market, so I stay away."</div>
+        </a>
+
+        <a href="traditional-roadmap.html" class="map-card c-origin">
+          <div class="c-top">
+            <span class="c-icon">🏰</span>
+            <span class="c-num">04</span>
+          </div>
+          <h3 class="c-head">The Fortress</h3>
+          <p class="c-desc">
+            For the believers of FD, Gold, and Land. We don't break your fortress; we upgrade its walls against inflation.
+          </p>
+          <div class="c-tags">
+            <span class="c-tag">Conservative</span>
+            <span class="c-tag">Hybrid</span>
+            <span class="c-tag">Safe</span>
+          </div>
+          <div class="c-desi"><span>For:</span> Parents who say "Property is real, Stocks are paper."</div>
+        </a>
+
+      </div>
+
+
+      <div class="sector-title"><span>SECTOR 03</span> // HUMAN OS</div>
+      <div class="map-grid">
+        
+        <a href="life-wealth.html" class="map-card c-soul" style="grid-column: span 1;">
+          <div class="c-top">
+            <span class="c-icon">✨</span>
+            <span class="c-num">05</span>
+          </div>
+          <h3 class="c-head">The Soul Protocol</h3>
+          <p class="c-desc">
+            Money is a tool, not a master. Align your wealth with health, time, and relationships.
+          </p>
+          <div class="c-tags">
+            <span class="c-tag">Philosophy</span>
+            <span class="c-tag">Balance</span>
+            <span class="c-tag">Anti-Burnout</span>
+          </div>
+          <div class="c-desi"><span>For:</span> The high earner who feels empty. "I earn, but I don't live."</div>
+        </a>
+
+      </div>
+
+
+      <div class="sector-title"><span>SECTOR 04</span> // EMERGENCY PROTOCOLS</div>
+      <div class="map-grid">
+        
+        <a href="not-money.html" class="map-card c-alert" style="border-color:var(--neon-red);">
+          <div class="c-top">
+            <span class="c-icon">🛑</span>
+            <span class="c-num">XX</span>
+          </div>
+          <h3 class="c-head" style="color:var(--neon-red);">System Intervention</h3>
+          <p class="c-desc">
+            Are you angry? Revenge trading? Feeling left out? Stop immediately. This is not a money problem.
+          </p>
+          <div class="c-tags">
+            <span class="c-tag" style="border-color:var(--neon-red); color:var(--neon-red);">URGENT</span>
+            <span class="c-tag">Emotional</span>
+            <span class="c-tag">Circuit Breaker</span>
+          </div>
+          <div class="c-desi"><span>For:</span> When you want to trade to fix a bad mood.</div>
+        </a>
+
+      </div>
+
+    </div>
+  </main>
+</div>
+
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+
+<style id="rm-light-theme">
+[data-theme="light"] body {
+  background-color: #F2F3FB !important;
+  background-image: none !important;
+  color: #0B0C15 !important;
+}
+[data-theme="light"] .main { background: #F2F3FB !important; }
+[data-theme="light"] .hub-header { background: transparent !important; }
+[data-theme="light"] .hub-title { color: #0B0C15 !important; -webkit-text-fill-color: #0B0C15 !important; background: none !important; }
+[data-theme="light"] .hub-sub { color: #4A4C60 !important; }
+[data-theme="light"] .hub-badge { background: rgba(79,124,255,0.1) !important; color: #4F7CFF !important; border-color: rgba(79,124,255,0.2) !important; }
+[data-theme="light"] .sector-title { color: #0B0C15 !important; }
+[data-theme="light"] .map-card { background: #ffffff !important; border-color: rgba(0,0,0,0.1) !important; box-shadow: 0 4px 20px rgba(0,0,0,0.06) !important; }
+[data-theme="light"] .map-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.1) !important; }
+[data-theme="light"] .c-head { color: #0B0C15 !important; }
+[data-theme="light"] .c-desc { color: #4A4C60 !important; }
+[data-theme="light"] .c-desi { color: #4A4C60 !important; border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .c-desi span { color: #0B0C15 !important; }
+[data-theme="light"] .c-meta { color: #888 !important; border-color: rgba(0,0,0,0.08) !important; }
+</style>
+
+</body>
+</html>

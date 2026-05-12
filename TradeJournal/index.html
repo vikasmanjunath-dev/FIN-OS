@@ -1,0 +1,2467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradeBook Pro — Your Trading Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- ELITE FONT STACK:
+     Plus Jakarta Sans  — premium body, geometric sans used by top fintech
+     Clash Display      — editorial display, chunky weight contrast
+     Bricolage Grotesque — expressive display for page titles
+     JetBrains Mono     — best monospace for numbers, used by trading terminals
+-->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="design.css">
+<link rel="stylesheet" href="mobile.css">
+<link rel="stylesheet" href="showcase.css">
+<link rel="stylesheet" href="features-v2.css">
+
+<script>
+/* ═══════════════════════════════════════
+   INLINE ROUTER — runs before any external
+   script so sidebar clicks always work.
+═══════════════════════════════════════ */
+var PAGE_NAMES = {
+  'dashboard':'Dashboard','journal':'Trade Journal',
+  'add-trade':'Log Trade','analytics-hub':'Analytics Hub',
+  'psych-hub':'Psychology Hub','tools-hub':'Tools Hub',
+  'institutional-hub':'Institutional','settings':'Settings'
+};
+
+function navigateTo(page) {
+  // hide all pages
+  document.querySelectorAll('.page').forEach(function(p){
+    p.classList.remove('active');
+  });
+  // show target
+  var el = document.getElementById('page-'+page);
+  if (!el) { el = document.getElementById('page-dashboard'); page='dashboard'; }
+  if (el) el.classList.add('active');
+  // sidebar active
+  document.querySelectorAll('.nav-item[data-page]').forEach(function(b){
+    b.classList.toggle('active', b.dataset.page===page);
+  });
+  // breadcrumb
+  var bc = document.getElementById('breadcrumb');
+  if (bc) bc.textContent = PAGE_NAMES[page]||page;
+  // close mobile sidebar
+  if (window.innerWidth<=768) {
+    var s=document.getElementById('sidebar');
+    var o=document.getElementById('sidebar-overlay');
+    if(s) s.classList.remove('open');
+    if(o) o.style.display='none';
+  }
+  // tell other scripts
+  try { document.dispatchEvent(new CustomEvent('tb:navigate',{detail:{page:page}})); } catch(e){}
+}
+
+function switchHubTab(hub, panel, btn) {
+  var hubEl = document.getElementById('page-'+hub);
+  if (!hubEl) return;
+  hubEl.querySelectorAll('.hub-panel').forEach(function(p){ p.classList.remove('active'); });
+  var tabsEl = document.getElementById(hub+'-tabs');
+  if (tabsEl) tabsEl.querySelectorAll('.hub-tab').forEach(function(b){ b.classList.remove('active'); });
+  var target = document.getElementById(hub+'-panel-'+panel);
+  if (target) target.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+function toggleSidebar() {
+  var s=document.getElementById('sidebar');
+  var o=document.getElementById('sidebar-overlay');
+  if (!s) return;
+  var open = s.classList.toggle('open');
+  if (o) o.style.display = open?'block':'none';
+}
+function closeSidebar() {
+  var s=document.getElementById('sidebar');
+  var o=document.getElementById('sidebar-overlay');
+  if(s) s.classList.remove('open');
+  if(o) o.style.display='none';
+}
+function openGlobalSearch() {
+  var el=document.getElementById('global-search-overlay');
+  if(el){ el.classList.add('active'); setTimeout(function(){ var i=document.getElementById('global-search-input'); if(i)i.focus(); },50); }
+}
+function closeGlobalSearch() {
+  var el=document.getElementById('global-search-overlay');
+  if(el) el.classList.remove('active');
+}
+
+// Stub out commonly called functions so missing app.js doesn't throw errors
+['updateDashboard','filterJournal','saveSettings','exportData','importData','exportCSV',
+ 'exportPDFReport','confirmClear','applyTheme','setAccent','calcKelly','runMonteCarlo',
+ 'calcVP','calcPositionSizer','runSimulation','openTagModal','openChallengeModal',
+ 'openRuleModal','saveRule','closeRuleModal','saveTag','closeTagModal','saveChallenge',
+ 'closeChallengeModal','closeTradeModal','closeWhatIfModal','closeModal','openWhatIfModal',
+ 'exportCompliancePDF','exportITR3','freezeMonthSnapshot','exportAuditCSV',
+ 'setEqView','setPerfView','mcalChangeMonth','renderHeatmap','switchHubTab'
+].forEach(function(fn){
+  if (typeof window[fn]==='undefined') {
+    window[fn] = function(){};
+  }
+});
+
+// Set today's date in header
+document.addEventListener('DOMContentLoaded', function(){
+  var d = document.getElementById('header-date');
+  if(d) d.textContent = new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+});
+</script>
+
+<style>
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg2);color:var(--text);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 20px;font-size:13px;font-weight:500;z-index:9999;transform:translateY(20px);opacity:0;transition:all .3s;pointer-events:none;max-width:320px}
+.toast-show{transform:translateY(0);opacity:1;pointer-events:auto}
+.toast-error{border-color:rgba(255,68,102,.4);color:var(--red)}
+.toast-warn{border-color:rgba(255,209,102,.4);color:var(--gold)}
+/* Journal summary bar */
+.jsb-item{display:flex;flex-direction:column;gap:2px;padding:8px 16px;border-right:1px solid var(--border)}
+.jsb-item:last-child{border-right:none}
+.jsb-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3)}
+.jsb-val{font-size:14px;font-weight:700;font-family:var(--font-mono)}
+/* Discipline toggle */
+.discipline-toggle-group{display:flex;gap:0;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border)}
+.disc-btn{flex:1;padding:9px 8px;border:none;background:var(--bg4);color:var(--text3);font-family:var(--font-body);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.disc-btn.active{background:var(--accent-dim);color:var(--accent)}
+/* Regime buttons */
+.regime-btns{display:flex;flex-wrap:wrap;gap:6px}
+.regime-btn{padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer;transition:all .15s}
+.regime-btn:hover{border-color:var(--border2)}
+.regime-btn.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
+/* Form hint */
+.form-hint{font-size:10px;color:var(--text3);margin-top:4px}
+/* Trade tags selector */
+.trade-tags-selector{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+/* Broken rules checklist */
+.broken-rules-checklist{display:flex;flex-direction:column;gap:6px}
+/* Analytics stats */
+.analytics-top-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.a-stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px}
+.a-stat-l{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.a-stat-v{font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--text)}
+.a-stat-b{font-size:10px;color:var(--text3);margin-top:2px}
+/* Heatmap stats */
+.heatmap-stats-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.hm-stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px}
+.hm-stat-l{font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase}
+.hm-stat-v{font-family:var(--font-display);font-size:18px;font-weight:800}
+.hm-stat-b{font-size:10px;color:var(--text3);margin-top:2px}
+/* Heatmap grid */
+#heatmap-grid{overflow-x:auto;padding:8px 0}
+/* COI cards */
+.coi-card{background:var(--bg4);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center}
+.coi-icon{font-size:28px;margin-bottom:8px}
+.coi-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.coi-value{font-family:var(--font-display);font-size:26px;font-weight:800}
+.coi-value.pos{color:var(--green)}
+.coi-value.neg{color:var(--red)}
+.coi-sub{font-size:11px;color:var(--text3);margin-top:4px}
+.discipline-hero{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+/* Rules list */
+.rules-list{display:flex;flex-direction:column;gap:6px}
+/* Sim controls */
+.sim-controls-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.sim-controls-title{font-family:var(--font-display);font-size:15px;font-weight:700;margin-bottom:14px}
+.sim-controls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.sim-control-group label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px}
+.sim-hint{font-size:10px;color:var(--text3);margin-top:4px}
+.sim-slider-wrap{display:flex;align-items:center;gap:8px}
+.sim-slider-wrap input[type=range]{flex:1}
+.sim-slider-val{font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--accent);min-width:32px;text-align:right}
+.sim-results-hero{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.sim-res-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 18px;flex:1;min-width:120px}
+.sim-res-card.sim-res-new{border-color:rgba(0,255,163,0.3);background:rgba(0,255,163,0.05)}
+.sim-res-label{font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px}
+.sim-res-val{font-family:var(--font-display);font-size:22px;font-weight:800}
+.sim-arrow{font-size:24px;color:var(--text3)}
+.sim-delta-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 18px}
+.sim-stats-row{display:flex;gap:10px;margin-bottom:8px}
+/* Tag grid */
+.all-tags-grid,.tag-perf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+/* Challenge grid */
+.challenges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:12px}
+/* Monthly breakdown */
+.monthly-breakdown-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+/* Pro tool cards */
+.protools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.pro-tool-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.pro-badge{font-size:9px;font-weight:800;letter-spacing:.1em;color:var(--accent);margin-bottom:6px;text-transform:uppercase}
+.pro-tool-title{font-family:var(--font-display);font-size:15px;font-weight:700;margin-bottom:6px}
+.pro-tool-sub{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6}
+.pro-form{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.pro-input-row{display:flex;align-items:center;gap:10px}
+.pro-input-row label{font-size:11px;color:var(--text3);min-width:120px;flex-shrink:0}
+.pro-input-row .form-input{flex:1}
+.pro-result{font-size:13px;color:var(--text2);padding:8px 0}
+.vp-visual{margin-top:8px}
+/* Settings */
+.settings-container{max-width:740px}
+.settings-section{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:12px}
+.settings-section-title{font-family:var(--font-display);font-size:14px;font-weight:700;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.theme-switcher{display:flex;gap:8px;flex-wrap:wrap}
+.theme-btn{padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg4);color:var(--text2);cursor:pointer;font-size:12px;font-family:var(--font-body);transition:all .15s}
+.theme-btn.active,.theme-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+/* Theme grid */
+.theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.theme-card{background:var(--bg4);border:1.5px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;font-family:var(--font-body);text-align:left;transition:all .2s;display:flex;flex-direction:column;gap:7px}
+.theme-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.3)}
+.theme-card.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-dim),0 4px 16px rgba(0,0,0,0.3)}
+.theme-preview{height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:5px}
+.tp-dot{width:9px;height:9px;border-radius:50%}
+.theme-label{font-size:11.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.theme-desc{font-size:10px;color:var(--text3)}
+.accent-picker{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.accent-label{font-size:12px;color:var(--text2)}
+.accent-options{display:flex;gap:8px}
+.accent-opt{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.accent-opt.active,.accent-opt:hover{transform:scale(1.2);border-color:#fff}
+/* Global search */
+.gs-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:flex-start;justify-content:center;padding-top:80px;backdrop-filter:blur(8px)}
+.gs-overlay.active{display:flex}
+.gs-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);width:100%;max-width:580px;overflow:hidden}
+.gs-input-wrap{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border)}
+.gs-search-icon{font-size:16px;color:var(--text3)}
+.gs-input{flex:1;background:transparent;border:none;color:var(--text);font-size:15px;outline:none;font-family:var(--font-body)}
+.gs-results{max-height:340px;overflow-y:auto}
+.gs-result-item:hover{background:var(--bg3)}
+.gs-footer{padding:10px 16px;font-size:11px;color:var(--text3);border-top:1px solid var(--border)}
+.gs-esc{background:var(--bg4);border:1px solid var(--border2);border-radius:4px;padding:2px 6px;font-size:10px;color:var(--text3);font-family:var(--font-mono)}
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:28px;max-width:560px;width:100%;position:relative;max-height:90vh;overflow-y:auto}
+.modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:4px}
+/* Mobile */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:transform .3s}
+  .sidebar.open{transform:translateX(0)}
+  .main-content{margin-left:0!important;width:100%!important}
+  .sidebar-toggle{display:flex!important}
+  .market-ticker{display:none}
+  .pages-container{padding:20px 16px 80px}
+}
+
+/* ── CHIP SELECTOR ── */
+.chip-selector { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:2px; }
+.chip {
+  padding:5px 12px; border-radius:20px; border:1px solid var(--border);
+  background:transparent; color:var(--text2); font-size:11px; font-weight:500;
+  cursor:pointer; transition:all .15s; user-select:none; line-height:1.4;
+}
+.chip:hover { border-color:var(--border2); color:var(--text); }
+.chip.chip-active {
+  border-color:var(--accent); background:var(--accent-dim);
+  color:var(--accent); font-weight:700;
+}
+/* combobox — input+datalist combo */
+input[list].form-input { background-image:none; }
+/* Sticky form actions */
+.form-actions { gap:12px; }
+/* Live ticker bar */
+#pnl-ticker-bar { overflow-x:auto; }
+/* P&L ticker value */
+#pnl-prev-val { transition:color .2s,transform .1s; }
+/* Price calc preview */
+#price-calc-preview { animation:hubFadeIn .2s ease; }
+/* Form section title icon spacing */
+.form-section-title { display:flex; align-items:center; gap:8px; }
+/* Quality score large display */
+#qs-value { display:block; line-height:1; }
+/* Toggle btn default style */
+#revenge-no.active, #impulsive-no.active { background:var(--accent-dim); color:var(--accent); }
+#revenge-yes.active, #impulsive-yes.active { background:rgba(255,68,102,.15); color:var(--red); }
+/* Datalist arrow hidden on some browsers */
+input::-webkit-calendar-picker-indicator { opacity:.4; cursor:pointer; }
+
+/* ── STATS TABLE ── */
+#stats-table-section table tr:hover td { background: var(--bg4); }
+#stats-table-section table td { transition: background .1s; }
+#top-symbols-section table tr:hover td { background: var(--bg4); cursor:pointer; }
+#long-short-day-section .chart-card { padding: 20px; }
+</style>
+</head>
+<body>
+<div id="cursor-glow"></div>
+<canvas id="particle-canvas"></canvas>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <svg width="32" height="32" viewBox="0 0 32 32"><polygon points="16,2 30,28 2,28" fill="none" stroke="#00ff88" stroke-width="2"/><polygon points="16,8 25,24 7,24" fill="rgba(0,255,136,0.15)" stroke="none"/></svg>
+    </div>
+    <span class="logo-text">TradeBook<span class="logo-pro">PRO</span></span>
+  </div>
+
+  <div class="sidebar-profile">
+    <div class="profile-avatar">
+      <span id="avatar-initials">YT</span>
+      <div class="avatar-ring"></div>
+    </div>
+    <div class="profile-info">
+      <div class="profile-name" id="sidebar-username">Your Name</div>
+      <div class="profile-tag">📈 Trader</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">MAIN</div>
+    <button class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')">
+      <span class="nav-icon">⚡</span><span>Dashboard</span>
+      <div class="nav-glow"></div>
+    </button>
+    <button class="nav-item" data-page="journal" onclick="navigateTo('journal')">
+      <span class="nav-icon">📓</span><span>Trade Journal</span>
+      <div class="nav-glow"></div>
+    </button>
+    <button class="nav-item" data-page="add-trade" onclick="navigateTo('add-trade')">
+      <span class="nav-icon">➕</span><span>Log Trade</span>
+      <div class="nav-glow"></div>
+    </button>
+
+    <div class="nav-section-label">ANALYTICS</div>
+    <button class="nav-item" data-page="analytics-hub" onclick="navigateTo('analytics-hub')">
+      <span class="nav-icon">📊</span><span>Analytics Hub</span>
+      <div class="nav-badge">3-in-1</div>
+      <div class="nav-glow"></div>
+    </button>
+    <button class="nav-item" data-page="psych-hub" onclick="navigateTo('psych-hub')">
+      <span class="nav-icon">🧬</span><span>Psychology Hub</span>
+      <div class="nav-badge">2-in-1</div>
+      <div class="nav-glow"></div>
+    </button>
+
+    <div class="nav-section-label">PRO TOOLS</div>
+    <button class="nav-item" data-page="tools-hub" onclick="navigateTo('tools-hub')">
+      <span class="nav-icon">🔬</span><span>Tools Hub</span>
+      <div class="nav-badge">5-in-1</div>
+      <div class="nav-glow"></div>
+    </button>
+    <button class="nav-item" data-page="institutional-hub" onclick="navigateTo('institutional-hub')">
+      <span class="nav-icon">🏦</span><span>Institutional</span>
+      <div class="nav-badge">4-in-1</div>
+      <div class="nav-glow"></div>
+    </button>
+
+    <div class="nav-section-label">SYSTEM</div>
+    <button class="nav-item" data-page="settings" onclick="navigateTo('settings')">
+      <span class="nav-icon">⚙️</span><span>Settings</span>
+      <div class="nav-glow"></div>
+    </button>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="weekly-target-widget">
+      <div class="wt-label">This Week's Target</div>
+      <div class="wt-bar-wrap">
+        <div class="wt-bar" id="wt-bar"></div>
+      </div>
+      <div class="wt-values">
+        <span id="wt-current">₹0</span>
+        <span id="wt-target">—</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Sidebar overlay for mobile — tap to close -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- MAIN CONTENT -->
+<main class="main-content" id="main-content">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="breadcrumb" id="breadcrumb">Dashboard</div>
+    </div>
+    <div class="topbar-right">
+      <div class="market-ticker" id="market-ticker">
+        <span class="ticker-item">NIFTY <span class="ticker-up" id="tick-nifty">—</span></span>
+        <span class="ticker-sep">|</span>
+        <span class="ticker-item">BANKNIFTY <span class="ticker-dn" id="tick-banknifty">—</span></span>
+        <span class="ticker-sep">|</span>
+        <span class="ticker-item">SENSEX <span class="ticker-up" id="tick-sensex">—</span></span>
+      </div>
+      <button class="btn-search" onclick="openGlobalSearch()" title="Search (Ctrl+K)">🔍 <kbd>⌘K</kbd></button>
+      <button class="btn-add-trade" onclick="navigateTo('add-trade')">+ Log Trade</button>
+    </div>
+  </header>
+
+  <!-- GLOBAL SEARCH OVERLAY -->
+  <div id="global-search-overlay" class="gs-overlay">
+    <div class="gs-modal">
+      <div class="gs-input-wrap">
+        <span class="gs-search-icon">🔍</span>
+        <input type="text" id="global-search-input" class="gs-input" placeholder="Search trades, symbols, strategies… (Esc to close)">
+        <kbd class="gs-esc">Esc</kbd>
+      </div>
+      <div id="global-search-results" class="gs-results"></div>
+      <div class="gs-footer">Shortcuts: <kbd>D</kbd> Dashboard · <kbd>J</kbd> Journal · <kbd>L</kbd> Log Trade · <kbd>A</kbd> Analytics Hub · <kbd>P</kbd> Psychology · <kbd>T</kbd> Tools · <kbd>I</kbd> Institutional</div>
+    </div>
+  </div>
+
+  <!-- PAGES -->
+  <div class="pages-container">
+
+    <!-- ═══════════════ DASHBOARD PAGE ═══════════════ -->
+    <section id="page-dashboard" class="page active">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-sub">Your trading performance at a glance</p>
+        </div>
+        <div class="header-date" id="header-date"></div>
+      </div>
+
+      <!-- STREAK WIDGET -->
+      <div id="streak-widget-container"></div>
+
+      <!-- HERO STATS -->
+      <div class="stats-grid" id="dash-stats">
+        <div class="stat-card glow-green" data-tippy="Net P&L after all taxes and charges">
+          <div class="stat-label">Net P&L</div>
+          <div class="stat-value" id="stat-netpnl">₹0</div>
+          <div class="stat-sub" id="stat-netpnl-sub">Loading...</div>
+          <div class="stat-sparkline" id="sparkline-pnl"></div>
+        </div>
+        <div class="stat-card glow-blue">
+          <div class="stat-label">Win Rate</div>
+          <div class="stat-value" id="stat-winrate">0%</div>
+          <div class="stat-sub" id="stat-winrate-sub">0W / 0L</div>
+          <div class="stat-ring-wrap"><canvas id="winrate-ring" width="60" height="60"></canvas></div>
+        </div>
+        <div class="stat-card glow-gold">
+          <div class="stat-label">Profit Factor</div>
+          <div class="stat-value" id="stat-pf">0</div>
+          <div class="stat-sub" id="stat-pf-sub">target &gt;2</div>
+          <div class="stat-pf-indicator" id="pf-indicator"></div>
+        </div>
+        <div class="stat-card glow-red">
+          <div class="stat-label">Max Drawdown</div>
+          <div class="stat-value" id="stat-dd">₹0</div>
+          <div class="stat-sub" id="stat-dd-sub">—</div>
+        </div>
+        <div class="stat-card glow-purple">
+          <div class="stat-label">Avg Win</div>
+          <div class="stat-value" id="stat-avgwin">₹0</div>
+          <div class="stat-sub">per winning trade</div>
+        </div>
+        <div class="stat-card glow-orange">
+          <div class="stat-label">Avg Loss</div>
+          <div class="stat-value" id="stat-avgloss">₹0</div>
+          <div class="stat-sub">per losing trade</div>
+        </div>
+        <div class="stat-card glow-teal">
+          <div class="stat-label">R:R Ratio</div>
+          <div class="stat-value" id="stat-rr">0:1</div>
+          <div class="stat-sub">target &gt;2:1</div>
+        </div>
+        <div class="stat-card glow-pink">
+          <div class="stat-label">Tax Drag</div>
+          <div class="stat-value" id="stat-taxdrag">0%</div>
+          <div class="stat-sub" id="stat-taxdrag-sub">of gross profit</div>
+        </div>
+      </div>
+
+      <!-- MONTHLY CAPITAL ALLOCATION & ROI -->
+      <div class="chart-card full-width" style="margin-top:24px" id="monthly-roi-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Monthly Capital Allocation & ROI 📅 <span class="chart-badge">NEW</span></div>
+            <div class="chart-sub" id="monthly-roi-sub">Set capital per month — see true ROI on deployed capital</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:11px;color:var(--text3)">Default Capital (₹)</span>
+              <input type="number" id="roi-capital-input" placeholder="e.g. 100000" class="form-input" style="width:130px;padding:6px 10px;font-size:12px" oninput="renderMonthlyROI()">
+            </div>
+            <button class="btn-secondary" onclick="toggleMonthlyCapitalEditor()" style="font-size:11px;padding:5px 12px" id="cap-editor-toggle">✏️ Per-Month Capital</button>
+            <div class="chart-controls">
+              <button class="chart-tab active" onclick="setROIView('bar',this)">Bar</button>
+              <button class="chart-tab" onclick="setROIView('line',this)">Line</button>
+            </div>
+          </div>
+        </div>
+        <!-- Per-month capital editor (hidden by default) -->
+        <div id="monthly-capital-editor" style="display:none;margin:10px 0 14px;padding:14px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <span style="font-size:12px;font-weight:700;color:var(--text2)">📊 Set Capital Deployed Per Month</span>
+            <div style="display:flex;gap:6px">
+              <button class="btn-secondary" onclick="applyDefaultCapitalAll()" style="font-size:10px;padding:4px 10px">Fill Default to All</button>
+              <button class="btn-primary" onclick="saveMonthlyCapitals()" style="font-size:10px;padding:4px 10px">💾 Save</button>
+            </div>
+          </div>
+          <div id="monthly-capital-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px"></div>
+        </div>
+        <div id="monthly-roi-summary" style="display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 12px"></div>
+        <div style="position:relative;height:260px"><canvas id="monthlyROIChart"></canvas></div>
+        <div id="monthly-roi-table" style="margin-top:14px;overflow-x:auto"></div>
+      </div>
+
+      <!-- EQUITY CURVE -->
+      <div class="chart-card full-width" style="margin-top:24px">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Equity Curve ₹ <span class="chart-badge">LIVE</span></div>
+            <div class="chart-sub">Your capital growth over time</div>
+          </div>
+          <div class="chart-controls">
+            <button class="chart-tab active" onclick="setEqView('all',this)">All</button>
+            <button class="chart-tab" onclick="setEqView('month',this)">Month</button>
+            <button class="chart-tab" onclick="setEqView('week',this)">Week</button>
+          </div>
+        </div>
+        <div style="position:relative;height:280px"><canvas id="equityChart"></canvas></div>
+      </div>
+
+      <!-- DESI ILLUSTRATION SECTION -->
+      <div class="desi-explainer-row">
+        <div class="desi-card" id="desi-pf-card">
+          <div class="desi-card-icon">📊</div>
+          <div class="desi-card-title">Profit Factor = Your Trading Edge</div>
+          <div class="desi-card-body">A Profit Factor above 2 means you make ₹2 for every ₹1 you lose. Your current Profit Factor is <span id="desi-pf-val" class="highlight-num">0</span> — meaning for every ₹1 lost, you gain <span id="desi-pf-val2" class="highlight-num">0</span>. <strong>2+ = Professional level</strong></div>
+          <div class="desi-meter-wrap"><div class="desi-meter-bar"><div class="desi-meter-fill" id="desi-pf-bar"></div></div><div class="desi-meter-labels"><span>Rookie</span><span>Average</span><span>Good</span><span>Elite</span></div></div>
+        </div>
+        <div class="desi-card" id="desi-wr-card">
+          <div class="desi-card-icon">🎯</div>
+          <div class="desi-card-title">Win Rate = Your Strike Rate</div>
+          <div class="desi-card-body">Of every 100 trades, you hit <span id="desi-wr-val" class="highlight-num">0</span> winners. Precision over volume — only take setups that meet your full criteria. <strong>60%+ = Sniper level</strong></div>
+          <div class="desi-archery-wrap">
+            <div class="desi-archery-target" id="archery-target">
+              <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+              <div class="bullseye" id="archery-arrow">🏹</div>
+            </div>
+          </div>
+        </div>
+        <div class="desi-card" id="desi-rr-card">
+          <div class="desi-card-icon">⚖️</div>
+          <div class="desi-card-title">Risk:Reward = Your Return Per Risk</div>
+          <div class="desi-card-body">If you risk ₹100, you make ₹<span id="desi-rr-val" class="highlight-num">0</span> on a winner. That's your R:R ratio. <strong>Aim for 2:1 or better — let winners run, cut losers fast.</strong></div>
+          <div class="rr-visual" id="rr-visual">
+            <div class="rr-risk-bar" id="rr-risk-bar">RISK ₹1</div>
+            <div class="rr-reward-bar" id="rr-reward-bar">REWARD ₹0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PERFORMANCE + MONTHLY P&L CALENDAR -->
+      <div class="dash-bottom-row">
+
+        <!-- LEFT: Performance chart -->
+        <div class="chart-card perf-card">
+          <div class="perf-header">
+            <div class="perf-title-row">
+              <span class="perf-label">↗ PERFORMANCE</span>
+              <div class="perf-tabs" id="perf-tabs">
+                <button class="perf-tab" onclick="setPerfView('1D',this)">1D</button>
+                <button class="perf-tab active" onclick="setPerfView('1W',this)">1W</button>
+                <button class="perf-tab" onclick="setPerfView('1M',this)">1M</button>
+                <button class="perf-tab" onclick="setPerfView('3M',this)">3M</button>
+                <button class="perf-tab" onclick="setPerfView('ALL',this)">ALL</button>
+              </div>
+            </div>
+            <div class="perf-big-value" id="perf-big-val">+₹0.00</div>
+          </div>
+          <div class="perf-chart-wrap">
+            <canvas id="perfChart"></canvas>
+            <div class="perf-empty" id="perf-empty">No trades taken</div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Monthly P&L calendar -->
+        <div class="chart-card monthly-cal-card">
+          <div class="monthly-cal-header">
+            <div class="monthly-cal-title">Monthly P&L</div>
+            <div class="monthly-cal-controls">
+              <span class="monthly-cal-pnl" id="mcal-monthly-total">Monthly: +₹0.00</span>
+              <button class="mcal-nav" onclick="mcalChangeMonth(-1)">‹</button>
+              <span class="mcal-month-label" id="mcal-month-label">March 2026</span>
+              <button class="mcal-nav" onclick="mcalChangeMonth(1)">›</button>
+            </div>
+          </div>
+          <div class="mcal-grid-wrap">
+            <div class="mcal-dow-headers">
+              <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span><span class="mcal-weekly-hdr">Weekly</span>
+            </div>
+            <div class="mcal-grid" id="mcal-grid"></div>
+          </div>
+          <div class="mcal-legend">
+            <span class="mcal-dot mcal-dot-profit"></span> Profit
+            <span class="mcal-dot mcal-dot-loss" style="margin-left:12px"></span> Loss
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════ JOURNAL PAGE ═══════════════ -->
+    <section id="page-journal" class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Trade Journal</h1>
+          <p class="page-sub">Every trade logged — click any row to edit</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input type="text" class="search-input" id="journal-search" placeholder="🔍 Search trades..." oninput="filterJournal()">
+          <select class="filter-select" id="journal-filter" onchange="filterJournal()">
+            <option value="all">All Trades</option>
+            <option value="win">Wins Only</option>
+            <option value="loss">Losses Only</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="journal-summary-bar" id="journal-summary-bar"></div>
+
+      <div class="journal-table-wrap">
+        <table class="journal-table" id="journal-table">
+          <thead>
+            <tr>
+              <th>Date</th><th>Symbol</th><th>Dir</th><th>Strategy</th>
+              <th>Gross P&L</th><th>Tax</th><th>Net P&L</th>
+              <th>Status</th><th>Emotion</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="journal-tbody"></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="journal-empty" style="display:none">
+        <div class="empty-icon">📓</div>
+        <div class="empty-title">No trades found!</div>
+        <div class="empty-sub">Log a trade to see it here.</div>
+        <button class="btn-primary" onclick="navigateTo('add-trade')">+ Log First Trade</button>
+      </div>
+    </section>
+
+    <!-- ═══════════════ ADD/EDIT TRADE PAGE ═══════════════ -->
+    <section id="page-add-trade" class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title" id="add-trade-title">Log Trade <span class="title-accent">Record</span></h1>
+          <p class="page-sub">Every data point you fill = better insights. All fields optional except Date & Symbol.</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn-secondary" onclick="clearTradeForm()" style="font-size:12px;padding:7px 14px">Clear Form</button>
+          <button class="btn-primary btn-save" id="save-btn-top" onclick="saveTrade()"><span>💾</span> Save Trade</button>
+        </div>
+      </div>
+
+      <div class="trade-form-container" style="max-width:100%">
+        <input type="hidden" id="edit-trade-id">
+
+        <!-- ── LIVE P&L TICKER ── -->
+        <div id="pnl-ticker-bar" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px 24px;margin-bottom:20px;display:flex;align-items:center;gap:28px;flex-wrap:wrap">
+          <div style="text-align:center">
+            <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px">Net P&L</div>
+            <div class="pnl-prev-value" id="pnl-prev-val" style="font-size:28px;font-weight:800;font-family:var(--font-display)">₹0</div>
+          </div>
+          <div style="flex:1;display:flex;gap:20px;flex-wrap:wrap">
+            <div style="text-align:center"><div style="font-size:9px;color:var(--text3);margin-bottom:2px">GROSS</div><div id="ticker-gross" style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--text2)">—</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:var(--text3);margin-bottom:2px">R:R</div><div id="ticker-rr" style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--blue)">—</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:var(--text3);margin-bottom:2px">% MOVE</div><div id="ticker-pctmove" style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--purple)">—</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:var(--text3);margin-bottom:2px">POINTS</div><div id="ticker-points" style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--gold)">—</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:var(--text3);margin-bottom:2px">HOLD TIME</div><div id="ticker-holdtime" style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--teal)">—</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:var(--text3);margin-bottom:2px">VS SL</div><div id="ticker-vssl" style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--orange)">—</div></div>
+          </div>
+          <div id="pnl-prev-sub" style="font-size:11px;color:var(--text3);align-self:center">Fill entry · exit · qty to calculate</div>
+        </div>
+
+        <div class="form-grid" style="gap:16px">
+
+          <!-- ══ SECTION 1: CORE TRADE DETAILS ══ -->
+          <div class="form-section">
+            <div class="form-section-title">📅 Core Trade Details</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Date <span style="color:var(--red)">*</span></label>
+                <input type="date" id="f-date" class="form-input" oninput="updateFormCalc()">
+              </div>
+              <div class="form-group">
+                <label>Entry Time</label>
+                <input type="time" id="f-entry-time" class="form-input" oninput="updateFormCalc()" placeholder="09:30">
+              </div>
+              <div class="form-group">
+                <label>Exit Time</label>
+                <input type="time" id="f-exit-time" class="form-input" oninput="updateFormCalc()" placeholder="10:15">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Symbol / Instrument <span style="color:var(--red)">*</span></label>
+                <input type="text" id="f-symbol" class="form-input" list="symbol-list" placeholder="NIFTY, RELIANCE, BANKNIFTY..." oninput="this.value=this.value.toUpperCase()">
+                <datalist id="symbol-list">
+                  <option>NIFTY</option><option>BANKNIFTY</option><option>FINNIFTY</option>
+                  <option>SENSEX</option><option>MIDCPNIFTY</option>
+                  <option>RELIANCE</option><option>TCS</option><option>HDFCBANK</option>
+                  <option>INFY</option><option>ICICIBANK</option><option>SBIN</option>
+                  <option>BAJFINANCE</option><option>AXISBANK</option><option>KOTAKBANK</option>
+                  <option>LT</option><option>ITC</option><option>HINDUNILVR</option>
+                  <option>TATAMOTORS</option><option>WIPRO</option><option>ADANIENT</option>
+                  <option>USDINR</option><option>EURINR</option><option>GOLD</option><option>CRUDEOIL</option>
+                </datalist>
+              </div>
+              <div class="form-group">
+                <label>Instrument Type</label>
+                <select class="form-input" id="f-instrument-type" oninput="updateFormCalc()">
+                  <option value="">— Select —</option>
+                  <option value="Futures">Futures</option>
+                  <option value="CE">Options CE (Call)</option>
+                  <option value="PE">Options PE (Put)</option>
+                  <option value="Equity">Equity / Cash</option>
+                  <option value="Currency">Currency</option>
+                  <option value="Commodity">Commodity</option>
+                  <option value="ETF">ETF / MF</option>
+                  <option value="Crypto">Crypto</option>
+                </select>
+              </div>
+              <div class="form-group" id="expiry-group">
+                <label>Expiry Date <span style="font-size:10px;color:var(--text3)">(Options/Futures)</span></label>
+                <input type="date" id="f-expiry" class="form-input">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Strike Price <span style="font-size:10px;color:var(--text3)">(Options)</span></label>
+                <input type="number" id="f-strike" class="form-input" placeholder="e.g. 22500" oninput="updateFormCalc()">
+              </div>
+              <div class="form-group">
+                <label>Timeframe / Chart</label>
+                <select class="form-input" id="f-timeframe">
+                  <option value="">— Select —</option>
+                  <option>1 min</option><option>3 min</option><option>5 min</option>
+                  <option>15 min</option><option>30 min</option><option>1 hour</option>
+                  <option>4 hour</option><option>Daily</option><option>Weekly</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Direction</label>
+                <div class="toggle-group" style="height:42px">
+                  <button class="toggle-btn active" id="dir-long" onclick="setDir('Long')">🟢 LONG</button>
+                  <button class="toggle-btn" id="dir-short" onclick="setDir('Short')">🔴 SHORT</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ SECTION 2: PRICE & POSITION ══ -->
+          <div class="form-section">
+            <div class="form-section-title">💹 Price & Position</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Entry Price (₹)</label>
+                <input type="number" id="f-entry" class="form-input" placeholder="e.g. 22450.50" step="0.05" oninput="updateFormCalc()">
+              </div>
+              <div class="form-group">
+                <label>Exit Price (₹)</label>
+                <input type="number" id="f-exit" class="form-input" placeholder="e.g. 22600.25" step="0.05" oninput="updateFormCalc()">
+              </div>
+              <div class="form-group">
+                <label>Stop-Loss (₹)</label>
+                <input type="number" id="f-sl" class="form-input" placeholder="e.g. 22380" step="0.05" oninput="updateFormCalc()">
+              </div>
+              <div class="form-group">
+                <label>Target (₹)</label>
+                <input type="number" id="f-target" class="form-input" placeholder="e.g. 22650" step="0.05" oninput="updateFormCalc()">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Quantity / Lots</label>
+                <input type="number" id="f-qty" class="form-input" placeholder="e.g. 50 (1 lot Nifty)" min="0" oninput="updateFormCalc()">
+              </div>
+              <div class="form-group">
+                <label>Lot Size</label>
+                <input type="number" id="f-lotsize" class="form-input" list="lotsize-list" placeholder="e.g. 50" oninput="updateFormCalc()">
+                <datalist id="lotsize-list">
+                  <option value="50">NIFTY — 50</option>
+                  <option value="15">BANKNIFTY — 15</option>
+                  <option value="40">FINNIFTY — 40</option>
+                  <option value="75">MIDCPNIFTY — 75</option>
+                  <option value="10">SENSEX — 10</option>
+                  <option value="1">Equity — 1</option>
+                </datalist>
+              </div>
+              <div class="form-group">
+                <label>Capital Deployed (₹)</label>
+                <input type="number" id="f-capital-deployed" class="form-input" placeholder="Auto-calc or enter" oninput="updateFormCalc()">
+              </div>
+            </div>
+            <!-- Live P&L breakdown -->
+            <div id="price-calc-preview" style="background:var(--bg4);border-radius:var(--radius-sm);border:1px solid var(--border);padding:14px;margin-top:8px;display:none">
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px">
+                <div><div style="font-size:9px;color:var(--text3);text-transform:uppercase">Points</div><div id="calc-points" style="font-family:var(--font-mono);font-size:14px;font-weight:700">—</div></div>
+                <div><div style="font-size:9px;color:var(--text3);text-transform:uppercase">% Move</div><div id="calc-pctmove" style="font-family:var(--font-mono);font-size:14px;font-weight:700">—</div></div>
+                <div><div style="font-size:9px;color:var(--text3);text-transform:uppercase">Planned R:R</div><div id="calc-planned-rr" style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--blue)">—</div></div>
+                <div><div style="font-size:9px;color:var(--text3);text-transform:uppercase">Actual R:R</div><div id="calc-actual-rr" style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--blue)">—</div></div>
+                <div><div style="font-size:9px;color:var(--text3);text-transform:uppercase">Max Risk (SL)</div><div id="calc-maxrisk" style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--red)">—</div></div>
+                <div><div style="font-size:9px;color:var(--text3);text-transform:uppercase">vs SL hit?</div><div id="calc-vssl" style="font-family:var(--font-mono);font-size:14px;font-weight:700">—</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ SECTION 3: P&L & CHARGES ══ -->
+          <div class="form-section">
+            <div class="form-section-title">💰 P&L & Charges</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Gross P&L (₹)</label>
+                <input type="number" id="f-gross" class="form-input" placeholder="Auto-calculated" oninput="updateNetPnl()" step="0.01">
+              </div>
+              <div class="form-group">
+                <label>Brokerage (₹)</label>
+                <input type="number" id="f-brokerage" class="form-input" placeholder="e.g. 40" oninput="updateNetPnl()" step="0.01">
+              </div>
+              <div class="form-group">
+                <label>STT (₹)</label>
+                <input type="number" id="f-stt" class="form-input" placeholder="e.g. 85" oninput="updateNetPnl()" step="0.01">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Exchange Charges (₹)</label>
+                <input type="number" id="f-exchange-charges" class="form-input" placeholder="e.g. 12" oninput="updateNetPnl()" step="0.01">
+              </div>
+              <div class="form-group">
+                <label>SEBI Charges (₹)</label>
+                <input type="number" id="f-sebi" class="form-input" placeholder="e.g. 2" oninput="updateNetPnl()" step="0.01">
+              </div>
+              <div class="form-group">
+                <label>GST (₹)</label>
+                <input type="number" id="f-gst" class="form-input" placeholder="e.g. 10" oninput="updateNetPnl()" step="0.01">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Slippage (₹) <span style="font-size:10px;color:var(--text3)">vs planned entry</span></label>
+                <input type="number" id="f-slippage" class="form-input" placeholder="e.g. 5" oninput="updateNetPnl()" step="0.01">
+              </div>
+              <div class="form-group">
+                <label>Other Charges (₹)</label>
+                <input type="number" id="f-other-charges" class="form-input" placeholder="e.g. 3" oninput="updateNetPnl()" step="0.01">
+              </div>
+              <div class="form-group">
+                <label>Total Tax & Charges (auto)</label>
+                <input type="text" id="f-tax" class="form-input" readonly style="opacity:0.7;background:var(--bg5)">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="flex:2">
+                <label>Net P&L (₹) — Final</label>
+                <input type="text" id="f-net" class="form-input" readonly style="font-size:18px;font-weight:800;opacity:0.9;background:var(--bg5)">
+              </div>
+              <div class="form-group">
+                <label>Return % on Capital</label>
+                <input type="text" id="f-return-pct" class="form-input" readonly style="opacity:0.7;background:var(--bg5)">
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ SECTION 4: STRATEGY & SETUP ══ -->
+          <div class="form-section">
+            <div class="form-section-title">🎯 Strategy & Setup</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Strategy</label>
+                <input type="text" id="f-strategy" class="form-input" list="strategy-list" placeholder="Type or pick — e.g. ORB, RSI Reversal...">
+                <datalist id="strategy-list">
+                  <option>Momentum Long</option><option>Momentum Short</option>
+                  <option>ORB (Opening Range Breakout)</option><option>BB Breakout</option>
+                  <option>RSI Reversal</option><option>Trend Follow</option>
+                  <option>Scalp</option><option>Gap & Go</option>
+                  <option>VWAP Bounce</option><option>EMA Crossover</option>
+                  <option>Support Bounce</option><option>Resistance Rejection</option>
+                  <option>Breakout Retest</option><option>Inside Bar</option>
+                  <option>Flag Pattern</option><option>Cup & Handle</option>
+                  <option>Head & Shoulders</option><option>Double Bottom</option>
+                  <option>Pin Bar Reversal</option><option>News Play</option>
+                  <option>Earnings Play</option><option>Index Arbitrage</option>
+                </datalist>
+              </div>
+              <div class="form-group">
+                <label>Setup Grade</label>
+                <select class="form-input" id="f-setup-grade">
+                  <option value="">— Grade —</option>
+                  <option value="A+">A+ (Perfect setup)</option>
+                  <option value="A">A (Strong setup)</option>
+                  <option value="B">B (Good setup)</option>
+                  <option value="C">C (Mediocre)</option>
+                  <option value="D">D (Forced/FOMO)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Trade Type</label>
+                <select class="form-input" id="f-trade-type">
+                  <option value="">— Type —</option>
+                  <option value="Intraday">Intraday (MIS)</option>
+                  <option value="BTST">BTST / STBT</option>
+                  <option value="Swing">Swing (2–5 days)</option>
+                  <option value="Positional">Positional (weeks)</option>
+                  <option value="Investment">Investment (months+)</option>
+                  <option value="Hedged">Hedged Position</option>
+                  <option value="Spread">Options Spread</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="flex:1">
+                <label>Key Indicators / Confluence <span style="font-size:10px;color:var(--text3)">(what confirmed the setup)</span></label>
+                <div class="chip-selector" id="f-indicators-chips">
+                  <span class="chip" onclick="toggleChip(this,'f-indicators')">RSI</span>
+                  <span class="chip" onclick="toggleChip(this,'f-indicators')">MACD</span>
+                  <span class="chip" onclick="toggleChip(this,'f-indicators')">EMA</span>
+                  <span class="chip" onclick="toggleChip(this,'f-indicators')">VWAP</span>
+                  <span class="chip" onclick="toggleChip(this,'f-indicators')">BB</span>
+                  <span class="chip" onclick="toggleChip(this,'f-indicators')">Volume Spike</span>
+                  <span class="chip" onclick="toggleChip(this,'f-indicators')">S/R Level</span>
+                  <span class="chip" onclick="toggleChip(this,'f-indicators')">Trendline</span>
+                  <span class="chip" onclick="toggleChip(this,'f-indicators')">Pivot</span>
+                  <span class="chip" onclick="toggleChip(this,'f-indicators')">Price Action</span>
+                  <span class="chip" onclick="toggleChip(this,'f-indicators')">OI Data</span>
+                  <span class="chip" onclick="toggleChip(this,'f-indicators')">PCR</span>
+                  <span class="chip" onclick="toggleChip(this,'f-indicators')">COT / FII</span>
+                  <span class="chip" onclick="toggleChip(this,'f-indicators')">News</span>
+                </div>
+                <input type="text" id="f-indicators-custom" class="form-input" placeholder="Or type custom: ATR, Supertrend, Ichimoku..." style="margin-top:6px">
+                <input type="hidden" id="f-indicators" value="">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="flex:1">
+                <label>Market Regime</label>
+                <div class="regime-btns" id="f-regime-btns">
+                  <button class="regime-btn" data-val="Trending Up" onclick="setRegime(this)">📈 Trending Up</button>
+                  <button class="regime-btn" data-val="Trending Down" onclick="setRegime(this)">📉 Trending Down</button>
+                  <button class="regime-btn" data-val="Range Bound" onclick="setRegime(this)">↔️ Range Bound</button>
+                  <button class="regime-btn" data-val="High Volatility" onclick="setRegime(this)">⚡ High Volatility</button>
+                  <button class="regime-btn" data-val="Low Volatility" onclick="setRegime(this)">😴 Low Volatility</button>
+                  <button class="regime-btn" data-val="Breakout" onclick="setRegime(this)">🚀 Breakout</button>
+                  <button class="regime-btn" data-val="Pre-Expiry" onclick="setRegime(this)">📅 Pre-Expiry</button>
+                  <button class="regime-btn" data-val="Event Day" onclick="setRegime(this)">🗓️ Event Day</button>
+                </div>
+                <input type="text" id="f-regime-custom" class="form-input" placeholder="Custom regime / context..." style="margin-top:6px">
+                <input type="hidden" id="f-regime" value="">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="flex:1">
+                <label>Market Context / News</label>
+                <input type="text" id="f-market-context" class="form-input" placeholder="e.g. RBI policy, Budget day, Global selloff, Expiry week...">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="flex:1">
+                <label>Setup / Reason for Entry</label>
+                <textarea id="f-reason" class="form-input form-textarea" style="min-height:80px" placeholder="Describe your setup: What pattern did you see? Which levels? What triggered the entry? What was the thesis?"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ SECTION 5: EXECUTION ══ -->
+          <div class="form-section">
+            <div class="form-section-title">⚡ Execution Quality</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Entry Type</label>
+                <select class="form-input" id="f-entry-type">
+                  <option value="">— Entry —</option>
+                  <option value="Market">Market Order</option>
+                  <option value="Limit">Limit Order</option>
+                  <option value="SL-M">SL-Market (Breakout)</option>
+                  <option value="SL-Limit">SL-Limit</option>
+                  <option value="Scale-In">Scale-In (multiple entries)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Exit Type</label>
+                <select class="form-input" id="f-exit-type">
+                  <option value="">— Exit —</option>
+                  <option value="Target Hit">Target Hit ✅</option>
+                  <option value="SL Hit">Stop-Loss Hit ❌</option>
+                  <option value="Manual">Manual Exit</option>
+                  <option value="Trailing SL">Trailing SL</option>
+                  <option value="Time-based">Time-based Exit</option>
+                  <option value="Partial">Partial Exit</option>
+                  <option value="Forced">Forced (Margin/Expiry)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Exit Reason <span style="font-size:10px;color:var(--text3)">(why you exited)</span></label>
+                <input type="text" id="f-exit-reason" class="form-input" placeholder="e.g. Target hit, broke support, news spike...">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Did you follow your plan?</label>
+                <select class="form-input" id="f-plan-adherence">
+                  <option value="">— Select —</option>
+                  <option value="fully">✅ Fully followed the plan</option>
+                  <option value="mostly">⚠️ Mostly followed</option>
+                  <option value="modified">🔄 Modified mid-trade</option>
+                  <option value="deviated">❌ Deviated from plan</option>
+                  <option value="no-plan">🚫 Had no plan</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Max Adverse Excursion (₹) <span style="font-size:10px;color:var(--text3)">deepest drawdown</span></label>
+                <input type="number" id="f-mae" class="form-input" placeholder="e.g. -1200 (worst point)" step="0.01">
+              </div>
+              <div class="form-group">
+                <label>Max Favourable Excursion (₹) <span style="font-size:10px;color:var(--text3)">best peak</span></label>
+                <input type="number" id="f-mfe" class="form-input" placeholder="e.g. +2800 (best point)" step="0.01">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="flex:1">
+                <label>What went wrong / Mistakes</label>
+                <textarea id="f-mistakes" class="form-input form-textarea" style="min-height:70px" placeholder="Late entry? Oversized? Moved SL? Exited too early? Held too long? What would you do differently?"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ SECTION 6: PSYCHOLOGY ══ -->
+          <div class="form-section">
+            <div class="form-section-title">🧠 Psychology & Mindset</div>
+            <div class="form-row">
+              <div class="form-group" style="flex:1">
+                <label>Pre-trade Emotion</label>
+                <div class="chip-selector" id="pre-emotion-chips">
+                  <span class="chip" onclick="setChipSingle(this,'f-pre-emotion','pre-emotion-chips')">😌 Calm</span>
+                  <span class="chip" onclick="setChipSingle(this,'f-pre-emotion','pre-emotion-chips')">💪 Confident</span>
+                  <span class="chip" onclick="setChipSingle(this,'f-pre-emotion','pre-emotion-chips')">😰 Anxious</span>
+                  <span class="chip" onclick="setChipSingle(this,'f-pre-emotion','pre-emotion-chips')">🤑 Greedy</span>
+                  <span class="chip" onclick="setChipSingle(this,'f-pre-emotion','pre-emotion-chips')">😱 FOMO</span>
+                  <span class="chip" onclick="setChipSingle(this,'f-pre-emotion','pre-emotion-chips')">🎯 Focused</span>
+                  <span class="chip" onclick="setChipSingle(this,'f-pre-emotion','pre-emotion-chips')">😤 Frustrated</span>
+                  <span class="chip" onclick="setChipSingle(this,'f-pre-emotion','pre-emotion-chips')">😴 Tired</span>
+                  <span class="chip" onclick="setChipSingle(this,'f-pre-emotion','pre-emotion-chips')">🔥 Overconfident</span>
+                </div>
+                <input type="text" id="f-pre-emotion-custom" class="form-input" placeholder="Custom emotion..." style="margin-top:6px">
+                <input type="hidden" id="f-pre-emotion" value="">
+              </div>
+              <div class="form-group" style="flex:1">
+                <label>During-trade Emotion</label>
+                <div class="emotion-selector" id="emotion-selector">
+                  <button class="emotion-btn" data-val="Calm" onclick="setEmotion(this)">😌 Calm</button>
+                  <button class="emotion-btn" data-val="Confident" onclick="setEmotion(this)">💪 Confident</button>
+                  <button class="emotion-btn" data-val="Anxious" onclick="setEmotion(this)">😰 Anxious</button>
+                  <button class="emotion-btn" data-val="Greedy" onclick="setEmotion(this)">🤑 Greedy</button>
+                  <button class="emotion-btn" data-val="FOMO" onclick="setEmotion(this)">😱 FOMO</button>
+                  <button class="emotion-btn" data-val="Disciplined" onclick="setEmotion(this)">🎯 Disciplined</button>
+                  <button class="emotion-btn" data-val="Scared" onclick="setEmotion(this)">😨 Scared</button>
+                  <button class="emotion-btn" data-val="Revenge" onclick="setEmotion(this)">😤 Revenge</button>
+                </div>
+                <input type="text" id="f-emotion-custom" class="form-input" placeholder="Custom emotion..." style="margin-top:6px">
+                <input type="hidden" id="f-emotion" value="">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Confidence Level (1–10)</label>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <input type="range" id="f-confidence" min="1" max="10" value="5" style="flex:1" oninput="document.getElementById('f-confidence-v').textContent=this.value">
+                  <span id="f-confidence-v" style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--accent);min-width:16px">5</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Stress Level (1–10)</label>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <input type="range" id="f-stress" min="1" max="10" value="3" style="flex:1" oninput="document.getElementById('f-stress-v').textContent=this.value">
+                  <span id="f-stress-v" style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--red);min-width:16px">3</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Energy Level</label>
+                <select class="form-input" id="f-energy">
+                  <option value="">— Energy —</option>
+                  <option>🔋 100% — Fresh</option>
+                  <option>🔋 75% — Good</option>
+                  <option>🔋 50% — Average</option>
+                  <option>🔋 25% — Tired</option>
+                  <option>💀 Exhausted</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Was this a Revenge Trade?</label>
+                <div class="toggle-group" style="height:38px">
+                  <button class="toggle-btn" id="revenge-no" onclick="setRevenge(false)">No</button>
+                  <button class="toggle-btn" id="revenge-yes" onclick="setRevenge(true)">Yes — Revenge</button>
+                </div>
+                <input type="hidden" id="f-revenge" value="false">
+              </div>
+              <div class="form-group">
+                <label>Was this an Impulsive Trade?</label>
+                <div class="toggle-group" style="height:38px">
+                  <button class="toggle-btn" id="impulsive-no" onclick="setImpulsive(false)">No</button>
+                  <button class="toggle-btn" id="impulsive-yes" onclick="setImpulsive(true)">Yes — Impulsive</button>
+                </div>
+                <input type="hidden" id="f-impulsive" value="false">
+              </div>
+              <div class="form-group">
+                <label>Trades taken today (before this)</label>
+                <input type="number" id="f-trades-today" class="form-input" placeholder="e.g. 2" min="0">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="flex:1">
+                <label>Pre-trade Plan / Hypothesis</label>
+                <textarea id="f-plan" class="form-input form-textarea" style="min-height:70px" placeholder="What was your thesis before entering? What needed to happen for you to enter?"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ SECTION 7: DISCIPLINE ══ -->
+          <div class="form-section">
+            <div class="form-section-title">🎭 Discipline & Rules</div>
+            <div class="form-row">
+              <div class="form-group" style="flex:1">
+                <label>Overall Discipline Status</label>
+                <div class="discipline-toggle-group">
+                  <button class="disc-btn" id="disc-followed" onclick="setDiscipline('followed')">✅ Followed All Rules</button>
+                  <button class="disc-btn" id="disc-partial" onclick="setDiscipline('partial')">⚠️ Partially Followed</button>
+                  <button class="disc-btn" id="disc-broken" onclick="setDiscipline('broken')">❌ Broke Rules</button>
+                </div>
+                <input type="hidden" id="f-discipline" value="">
+              </div>
+            </div>
+            <div class="form-row" id="broken-rules-row" style="display:none">
+              <div class="form-group" style="flex:1">
+                <label>Which rules were broken?</label>
+                <div id="f-broken-rules-list" class="broken-rules-checklist"></div>
+                <input type="text" id="f-rule-notes" class="form-input" placeholder="Describe what happened..." style="margin-top:8px">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="flex:1">
+                <label>Trade Tags</label>
+                <div id="f-tags-selector" class="trade-tags-selector"></div>
+                <div class="form-hint">Click tags to toggle · Create tags in Tools Hub</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ SECTION 8: QUALITY RATING ══ -->
+          <div class="form-section">
+            <div class="form-section-title">⭐ Trade Quality Rating</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div>
+                <div class="quality-sliders">
+                  <div class="quality-row"><label>Setup Clarity</label><input type="range" id="q-setup" min="1" max="10" value="5" oninput="updateQuality()"><span id="q-setup-v">5</span></div>
+                  <div class="quality-row"><label>Entry Timing</label><input type="range" id="q-entry" min="1" max="10" value="5" oninput="updateQuality()"><span id="q-entry-v">5</span></div>
+                  <div class="quality-row"><label>Exit Discipline</label><input type="range" id="q-exit" min="1" max="10" value="5" oninput="updateQuality()"><span id="q-exit-v">5</span></div>
+                  <div class="quality-row"><label>Risk Sizing</label><input type="range" id="q-risk" min="1" max="10" value="5" oninput="updateQuality()"><span id="q-risk-v">5</span></div>
+                  <div class="quality-row"><label>Emotional Control</label><input type="range" id="q-emo" min="1" max="10" value="5" oninput="updateQuality()"><span id="q-emo-v">5</span></div>
+                  <div class="quality-row"><label>Plan Adherence</label><input type="range" id="q-plan" min="1" max="10" value="5" oninput="updateQuality()"><span id="q-plan-v">5</span></div>
+                  <div class="quality-row"><label>Post-trade Review</label><input type="range" id="q-review" min="1" max="10" value="5" oninput="updateQuality()"><span id="q-review-v">5</span></div>
+                </div>
+              </div>
+              <div>
+                <div class="quality-score-display" style="height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+                  <div class="qs-label" style="margin-bottom:8px">Trade Quality Score</div>
+                  <div class="qs-value" id="qs-value" style="font-size:56px;line-height:1">50</div>
+                  <div class="qs-bar-wrap" style="width:100%;margin:12px 0"><div class="qs-bar" id="qs-bar" style="width:50%"></div></div>
+                  <div class="qs-grade" id="qs-grade" style="font-size:15px">Average</div>
+                  <div id="qs-tips" style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.5">Rate all sliders for full score</div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row" style="margin-top:12px">
+              <div class="form-group" style="flex:1">
+                <label>Key Lesson / What I will do differently next time</label>
+                <textarea id="f-lesson" class="form-input form-textarea" style="min-height:70px" placeholder="The most important takeaway from this trade..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ SECTION 9: CHART & SCREENSHOT ══ -->
+          <div class="form-section">
+            <div class="form-section-title">📸 Chart & Reference</div>
+            <div class="form-row">
+              <div class="form-group" style="flex:1">
+                <label>Chart Screenshot URL <span style="font-size:10px;color:var(--text3)">(TradingView link, image URL, or drive link)</span></label>
+                <input type="url" id="f-chart-url" class="form-input" placeholder="https://www.tradingview.com/x/... or paste image URL">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="flex:1">
+                <label>Trade Reference / Broker ID</label>
+                <input type="text" id="f-trade-ref" class="form-input" placeholder="e.g. Zerodha order ID, broker ref number">
+              </div>
+              <div class="form-group" style="flex:1">
+                <label>Account / Book</label>
+                <input type="text" id="f-account" class="form-input" list="account-list" placeholder="e.g. Main, Prop, Paper">
+                <datalist id="account-list">
+                  <option>Main Account</option>
+                  <option>Prop Firm</option>
+                  <option>Paper Trading</option>
+                  <option>Learning Account</option>
+                  <option>Hedging Book</option>
+                </datalist>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="flex:1">
+                <label>Additional Notes</label>
+                <textarea id="f-notes" class="form-input form-textarea" style="min-height:60px" placeholder="Any other observations, market conditions, thoughts for future reference..."></textarea>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- end form-grid -->
+
+        <div class="form-actions" style="position:sticky;bottom:0;background:var(--bg);padding:16px 0;border-top:1px solid var(--border);margin-top:20px;z-index:10">
+          <button class="btn-primary btn-save" id="save-btn" style="padding:12px 32px;font-size:14px">
+            <span class="btn-icon">💾</span> Save Trade
+          </button>
+          <button class="btn-secondary" onclick="clearTradeForm()">🗑 Clear All</button>
+          <button class="btn-danger" id="delete-btn" onclick="deleteTrade()" style="display:none">Delete Trade</button>
+          <div id="save-feedback" style="font-size:13px;font-weight:600;color:var(--green)"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ ANALYTICS HUB PAGE ═══════════════ -->
+    <section id="page-analytics-hub" class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Analytics Hub</h1>
+          <p class="page-sub">Analytics · Insights · Deep Analytics — all in one place</p>
+        </div>
+      </div>
+      <div class="hub-tabs" id="analytics-hub-tabs">
+        <button class="hub-tab active" onclick="switchHubTab('analytics-hub','overview',this)">📊 Overview</button>
+        <button class="hub-tab" onclick="switchHubTab('analytics-hub','insights',this)">🧠 Insights</button>
+        <button class="hub-tab" onclick="switchHubTab('analytics-hub','deep',this)">🔭 Deep Dive</button>
+        <button class="hub-tab" onclick="switchHubTab('analytics-hub','patterns',this)">🔍 Patterns</button>
+        <button class="hub-tab" onclick="switchHubTab('analytics-hub','timeanalysis',this)">⏰ Time & Price</button>
+        <button class="hub-tab" onclick="switchHubTab('analytics-hub','regimes',this)">🌊 Regimes</button>
+        <button class="hub-tab" onclick="switchHubTab('analytics-hub','probability',this)">🎲 Probability</button>
+        <button class="hub-tab" onclick="switchHubTab('analytics-hub','advanced',this)">🚀 Advanced</button>
+      </div>
+
+      <!-- TAB: OVERVIEW -->
+      <div class="hub-panel active" id="analytics-hub-panel-overview">
+      <div class="analytics-top-stats" id="analytics-top-stats">
+        <div class="a-stat"><div class="a-stat-l">Sharpe Ratio</div><div class="a-stat-v" id="a-sharpe">—</div><div class="a-stat-b">Risk-adjusted return</div></div>
+        <div class="a-stat"><div class="a-stat-l">Expectancy</div><div class="a-stat-v" id="a-expect">—</div><div class="a-stat-b">Per trade avg</div></div>
+        <div class="a-stat"><div class="a-stat-l">Calmar Ratio</div><div class="a-stat-v" id="a-calmar">—</div><div class="a-stat-b">Return/Drawdown</div></div>
+        <div class="a-stat"><div class="a-stat-l">Total Trades</div><div class="a-stat-v" id="a-total">0</div><div class="a-stat-b">All time</div></div>
+        <div class="a-stat"><div class="a-stat-l">Gross P&L</div><div class="a-stat-v" id="a-gross">₹0</div><div class="a-stat-b">Before charges</div></div>
+        <div class="a-stat"><div class="a-stat-l">Total Tax Paid</div><div class="a-stat-v" id="a-tax">₹0</div><div class="a-stat-b">STT + charges</div></div>
+      </div>
+      <div class="charts-grid-2">
+        <div class="chart-card"><div class="chart-header"><div class="chart-title">Day-of-Week P&L 📅</div></div><div style="position:relative;height:220px"><canvas id="dayChart"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><div class="chart-title">Strategy Performance 🎯</div></div><div style="position:relative;height:220px"><canvas id="stratChart"></canvas></div></div>
+      </div>
+      <div class="charts-grid-2" style="margin-top:16px">
+        <div class="chart-card"><div class="chart-header"><div class="chart-title">Monthly P&L 📆</div></div><div style="position:relative;height:220px"><canvas id="monthChart"></canvas></div></div>
+        <div class="chart-card"><div class="chart-header"><div class="chart-title">Emotion vs P&L 🧠</div></div><div style="position:relative;height:220px"><canvas id="emoChart"></canvas></div></div>
+      </div>
+      <div class="chart-card full-width" style="margin-top:16px">
+        <div class="chart-header"><div class="chart-title">Strategy × Month Heatmap 🗺️</div><div class="chart-sub">P&L by strategy across months</div></div>
+        <div id="strat-heatmap-container"></div>
+      </div>
+      <div class="chart-card full-width" style="margin-top:16px">
+        <div class="chart-header"><div class="chart-title">Advanced Risk Metrics 📐</div></div>
+        <div id="adv-risk-container"></div>
+      </div>
+      <div class="chart-card full-width" style="margin-top:16px">
+        <div class="chart-header"><div class="chart-title">Tax Drag Analysis 💸</div></div>
+        <div class="tax-visual" id="tax-visual"></div>
+      </div>
+      <div class="charts-grid-2" style="margin-top:16px">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Win Rate Trend 📈</div><div class="chart-sub">Rolling 10-trade win rate — are you improving?</div></div>
+          <div style="position:relative;height:200px"><canvas id="wrTrendChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Profit Factor Over Time 💎</div><div class="chart-sub">Rolling 20-trade PF — track your edge</div></div>
+          <div style="position:relative;height:200px"><canvas id="pfTrendChart"></canvas></div>
+        </div>
+      </div>
+      <div class="charts-grid-2" style="margin-top:16px">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Timeframe Performance 🕐</div><div class="chart-sub">Win rate & P&L by chart timeframe</div></div>
+          <div style="position:relative;height:200px"><canvas id="timeframeChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Setup Grade ROI 🎯</div><div class="chart-sub">Do A+ setups actually outperform C setups?</div></div>
+          <div style="position:relative;height:200px"><canvas id="setupGradeChart"></canvas></div>
+        </div>
+      </div>
+      <div class="chart-card full-width" style="margin-top:16px">
+        <div class="chart-header"><div class="chart-title">Hour-of-Day P&L Heatmap ⏰</div><div class="chart-sub">15-min slots — find your golden hours and dead zones</div></div>
+        <div id="hour-heatmap-container"></div>
+      </div>
+      <div class="chart-card full-width" style="margin-top:16px">
+        <div class="chart-header"><div class="chart-title">Account Performance Comparison 🏦</div><div class="chart-sub">Main vs Prop vs Paper — performance side-by-side</div></div>
+        <div id="account-compare-container"></div>
+      </div>
+      </div><!-- end panel-overview -->
+
+      <!-- TAB: INSIGHTS -->
+      <div class="hub-panel" id="analytics-hub-panel-insights">
+        <div id="insights-container"></div>
+        <div class="chart-card full-width" style="margin-top:20px">
+          <div class="chart-header"><div class="chart-title">Your Equity vs NIFTY Benchmark 📈</div><div class="chart-sub">How does your active trading compare to passive buy-and-hold?</div></div>
+          <div style="position:relative;height:260px"><canvas id="benchmark-chart"></canvas></div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div class="chart-title">Emotion Performance Heatmap 🧠</div><div class="chart-sub">Which emotional state is costing you money?</div></div>
+          <div id="emotion-heatmap-container"></div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div class="chart-title">Backtesting Sandbox 🔬</div><div class="chart-sub">Simulate how your P&L would look under different discipline scenarios</div></div>
+          <div id="backtest-container"></div>
+        </div>
+      </div><!-- end panel-insights -->
+
+      <!-- TAB: DEEP DIVE -->
+      <div class="hub-panel" id="analytics-hub-panel-deep">
+        <div class="charts-grid-2">
+          <div class="chart-card">
+            <div class="chart-header"><div><div class="chart-title">Regime Radar 🌊</div><div class="chart-sub">6-axis performance across market regimes</div></div></div>
+            <div id="regime-radar-empty" class="da-empty-msg" style="display:none">Tag trades with market regimes to see radar.</div>
+            <div style="position:relative;height:320px"><canvas id="regime-radar-chart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header"><div><div class="chart-title">Drawdown Waterfall 📉</div><div class="chart-sub">Equity curve vs drawdown depth</div></div></div>
+            <div id="waterfall-empty" class="da-empty-msg" style="display:none">Log more trades to see drawdown analysis.</div>
+            <div style="position:relative;height:320px"><canvas id="drawdown-waterfall"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div><div class="chart-title">Rolling Expectancy Curve 📐</div><div class="chart-sub">20-trade rolling window showing how your edge evolves.</div></div></div>
+          <div id="expectancy-empty" class="da-empty-msg" style="display:none">Need at least 20 trades.</div>
+          <div style="position:relative;height:280px"><canvas id="expectancy-curve"></canvas></div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div><div class="chart-title">Symbol Correlation Matrix 🔗</div><div class="chart-sub">Pearson correlation of daily returns between your top symbols.</div></div></div>
+          <div id="correlation-matrix"></div>
+        </div>
+      </div><!-- end panel-deep -->
+      <!-- TAB: PATTERNS -->
+      <div class="hub-panel" id="analytics-hub-panel-patterns">
+        <div class="charts-grid-2">
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">MAE / MFE Scatter 🎯</div><div class="chart-sub">Max adverse vs favourable excursion — are you exiting too early?</div></div>
+            <div style="position:relative;height:300px"><canvas id="maeMfeChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Entry Quality vs Outcome 📐</div><div class="chart-sub">Does a better entry score actually produce more profit?</div></div>
+            <div style="position:relative;height:300px"><canvas id="entryQualityChart"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div class="chart-title">Revenge Trade Deep Analysis 😤</div><div class="chart-sub">Frequency, total cost, trigger sizes — the full cost of revenge trading</div></div>
+          <div id="revenge-deep-container"></div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div class="chart-title">Indicator Confluence Score 🔗</div><div class="chart-sub">More indicators = better results? Find your optimal confluence count</div></div>
+          <div id="confluence-container"></div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div class="chart-title">Slippage Impact Report 💸</div><div class="chart-sub">Total cost of slippage and what you'd have made without it</div></div>
+          <div id="slippage-report-container"></div>
+        </div>
+      </div><!-- end panel-patterns -->
+
+      <!-- TAB: TIME & PRICE -->
+      <div class="hub-panel" id="analytics-hub-panel-timeanalysis">
+        <div class="chart-card full-width">
+          <div class="chart-header"><div class="chart-title">Trade Duration vs P&L 🕐</div><div class="chart-sub">Hold time scatter — find your optimal holding period</div></div>
+          <div style="position:relative;height:300px"><canvas id="durationScatter"></canvas></div>
+        </div>
+        <div class="charts-grid-2" style="margin-top:16px">
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Entry Time Win Rate ⏰</div><div class="chart-sub">Win rate by hour of entry</div></div>
+            <div style="position:relative;height:240px"><canvas id="entryTimeWrChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Capital Efficiency 💰</div><div class="chart-sub">Return % on capital deployed — best use of your money</div></div>
+            <div style="position:relative;height:240px"><canvas id="capitalEffChart"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div class="chart-title">Symbol Deep-Dive 🔍</div><div class="chart-sub">Select any symbol to see full performance breakdown</div></div>
+          <div style="margin-bottom:12px;display:flex;gap:10px;align-items:center">
+            <select id="symbol-dive-select" class="form-input" style="max-width:200px" onchange="renderSymbolDive()"><option value="">— Select Symbol —</option></select>
+            <button class="btn-secondary" style="font-size:12px;padding:7px 14px" onclick="renderSymbolDive()">Analyse</button>
+          </div>
+          <div id="symbol-dive-container"></div>
+        </div>
+      </div><!-- end panel-timeanalysis -->
+
+      <!-- TAB: REGIMES -->
+      <div class="hub-panel" id="analytics-hub-panel-regimes">
+        <div class="chart-card full-width">
+          <div class="chart-header"><div class="chart-title">Market Regime Performance Matrix 🌊</div><div class="chart-sub">P&L, win rate, Sharpe — and best strategy per regime</div></div>
+          <div id="regime-matrix-container"></div>
+        </div>
+        <div class="charts-grid-2" style="margin-top:16px">
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Regime Win Rate Radar 🕸️</div><div class="chart-sub">Your performance across all market conditions</div></div>
+            <div style="position:relative;height:300px"><canvas id="regime-wr-radar"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Strategy × Regime Heatmap 🗺️</div><div class="chart-sub">Which strategy wins in each regime?</div></div>
+            <div id="strat-regime-heatmap"></div>
+          </div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div class="chart-title">Regime Timeline 📅</div><div class="chart-sub">Your equity curve coloured by market regime</div></div>
+          <div style="position:relative;height:250px"><canvas id="regime-timeline-chart"></canvas></div>
+        </div>
+      </div><!-- end panel-regimes -->
+
+      <!-- TAB: PROBABILITY -->
+      <div class="hub-panel" id="analytics-hub-panel-probability">
+        <div id="probability-dashboard"></div>
+        <div class="charts-grid-2" style="margin-top:16px">
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">P&L Distribution Histogram 📊</div><div class="chart-sub">Shape of your returns — skew and fat tails</div></div>
+            <div style="position:relative;height:260px"><canvas id="pnlHistChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Consecutive Loss Probability Table 🎲</div><div class="chart-sub">Statistical likelihood of loss streaks at your win rate</div></div>
+            <div id="consec-loss-container"></div>
+          </div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div class="chart-title">Forward Simulation — Next 50 Trades 🚀</div><div class="chart-sub">Monte Carlo: 1000 paths using your historical edge</div></div>
+          <div id="forward-sim-container"></div>
+          <div style="position:relative;height:220px;margin-top:12px"><canvas id="simPathChart"></canvas></div>
+        </div>
+      </div><!-- end panel-probability -->
+
+      <!-- TAB: ADVANCED (V2) -->
+      <div class="hub-panel" id="analytics-hub-panel-advanced">
+        <!-- Equity Curve Comparison -->
+        <div class="chart-card full-width eq-compare-section">
+          <div class="chart-header">
+            <div><div class="chart-title">Equity Curve Comparison 📈 <span class="chart-badge">NEW</span></div><div class="chart-sub">Overlay multiple strategy equity curves side-by-side</div></div>
+          </div>
+          <div id="eq-compare-controls" class="eq-compare-controls"></div>
+          <div style="position:relative;height:280px"><canvas id="eqCompareChart"></canvas></div>
+        </div>
+
+        <!-- Drawdown Recovery Tracker -->
+        <div class="chart-card full-width dd-recovery-section" style="margin-top:16px">
+          <div class="chart-header">
+            <div><div class="chart-title">Drawdown Recovery Tracker 🔻 <span class="chart-badge">NEW</span></div><div class="chart-sub">Visualize drawdown episodes and recovery time</div></div>
+          </div>
+          <div id="dd-recovery-chart-wrap" style="position:relative;height:200px"><canvas id="ddRecoveryChart"></canvas></div>
+          <div id="dd-recovery-container"></div>
+        </div>
+
+        <!-- Rolling Sharpe/Sortino -->
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header">
+            <div><div class="chart-title">Rolling Risk Metrics 📐 <span class="chart-badge">NEW</span></div><div class="chart-sub">Sharpe & Sortino ratios over rolling windows</div></div>
+          </div>
+          <div class="rolling-controls">
+            <button class="rolling-btn active" onclick="window._setRollingWindow(30,this)">30d</button>
+            <button class="rolling-btn" onclick="window._setRollingWindow(60,this)">60d</button>
+            <button class="rolling-btn" onclick="window._setRollingWindow(90,this)">90d</button>
+          </div>
+          <div style="position:relative;height:240px"><canvas id="rollingMetricsChart"></canvas></div>
+          <div id="rolling-stats" class="rolling-stats-row"></div>
+        </div>
+
+        <!-- Sector Heatmap -->
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header">
+            <div><div class="chart-title">Sector P&L Heatmap 🏭 <span class="chart-badge">NEW</span></div><div class="chart-sub">P&L grouped by sector — Banking, IT, Pharma, and more</div></div>
+          </div>
+          <div id="sector-heatmap-container"></div>
+        </div>
+
+        <!-- Market Correlation Overlay -->
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header">
+            <div><div class="chart-title">Trade Entries on Equity Curve 🗺️ <span class="chart-badge">NEW</span></div><div class="chart-sub">Your equity curve with win/loss day markers overlaid</div></div>
+          </div>
+          <div style="position:relative;height:280px"><canvas id="marketCorrChart"></canvas></div>
+          <div class="trade-marker-legend"><span>🟢 Win Day</span><span>🔴 Loss Day</span><span>📈 Equity Curve</span></div>
+          <div id="market-corr-container"></div>
+        </div>
+      </div><!-- end panel-advanced -->
+    </section><!-- end analytics-hub -->
+
+    <!-- ═══════════════ TOOLS HUB PAGE ═══════════════ -->
+    <section id="page-tools-hub" class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Tools Hub</h1>
+          <p class="page-sub">Pro Tools · Simulator · Tags · Challenges · Heatmap · Quests · Risk</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center" id="tools-hub-header-actions">
+          <button class="btn-primary tools-hub-action" id="tools-hub-btn-tag" onclick="openTagModal()" style="display:none">+ Create Tag</button>
+          <button class="btn-primary tools-hub-action" id="tools-hub-btn-challenge" onclick="openChallengeModal()" style="display:none">+ Create Challenge</button>
+          <select id="heatmap-year" class="filter-select tools-hub-action" onchange="renderHeatmap()" style="display:none"></select>
+        </div>
+      </div>
+      <div class="hub-tabs" id="tools-hub-tabs">
+        <button class="hub-tab active" onclick="switchHubTab('tools-hub','protools',this)">🔬 Pro Tools</button>
+        <button class="hub-tab" onclick="switchHubTab('tools-hub','simulator',this)">🧪 Simulator</button>
+        <button class="hub-tab" onclick="switchHubTab('tools-hub','tags',this)">🏷️ Tags</button>
+        <button class="hub-tab" onclick="switchHubTab('tools-hub','challenges',this)">🏆 Challenges</button>
+        <button class="hub-tab" onclick="switchHubTab('tools-hub','heatmap',this)">📉 Heatmap</button>
+        <button class="hub-tab" onclick="switchHubTab('tools-hub','gamification',this)">🎮 Quests</button>
+        <button class="hub-tab" onclick="switchHubTab('tools-hub','risk',this)">🛡️ Risk Mgmt</button>
+      </div>
+      <!-- TAB: PRO TOOLS -->
+      <div class="hub-panel active" id="tools-hub-panel-protools">
+
+      <div class="protools-grid">
+
+        <div class="pro-tool-card">
+          <div class="pro-badge">KELLY CRITERION</div>
+          <div class="pro-tool-title">Position Size Calculator</div>
+          <div class="pro-tool-sub">How much should you risk per trade? The same formula used by prop desks and professional fund managers.</div>
+          <div class="pro-form">
+            <div class="pro-input-row"><label>Capital (₹)</label><input type="number" id="k-cap" placeholder="Auto from settings" oninput="calcKelly()" class="form-input"></div>
+            <div class="pro-input-row"><label>Win Rate (%)</label><input type="number" id="k-wr" placeholder="Auto from trades" min="1" max="99" oninput="calcKelly()" class="form-input"></div>
+            <div class="pro-input-row"><label>Avg Win (₹)</label><input type="number" id="k-aw" placeholder="Auto from trades" oninput="calcKelly()" class="form-input"></div>
+            <div class="pro-input-row"><label>Avg Loss (₹)</label><input type="number" id="k-al" placeholder="Auto from trades" oninput="calcKelly()" class="form-input"></div>
+          </div>
+          <div class="pro-result" id="kelly-result">—</div>
+        </div>
+
+        <div class="pro-tool-card">
+          <div class="pro-badge">MONTE CARLO</div>
+          <div class="pro-tool-title">Drawdown Simulator</div>
+          <div class="pro-tool-sub">What's the worst case scenario? Simulate 1,000 random paths of your trading strategy.</div>
+          <div class="pro-form">
+            <div class="pro-input-row"><label>Num Trades</label><input type="number" id="sim-n" value="30" min="10" max="200" class="form-input"></div>
+            <div class="pro-input-row"><label>Win Rate (%)</label><input type="number" id="sim-wr" placeholder="Auto from trades" min="1" max="99" class="form-input"></div>
+            <div class="pro-input-row"><label>Avg Win (₹)</label><input type="number" id="sim-aw" placeholder="Auto from trades" class="form-input"></div>
+            <div class="pro-input-row"><label>Avg Loss (₹)</label><input type="number" id="sim-al" placeholder="Auto from trades" class="form-input"></div>
+          </div>
+          <button class="btn-primary" onclick="runMonteCarlo()" style="margin-bottom:10px">🎲 Run Simulation</button>
+          <div style="position:relative;height:180px;display:none" id="mc-chart-wrap"><canvas id="mcChart"></canvas></div>
+          <div class="pro-result" id="mc-result">Click to simulate</div>
+        </div>
+
+        <div class="pro-tool-card">
+          <div class="pro-badge">VOLUME PROFILE</div>
+          <div class="pro-tool-title">POC Confluence Checker</div>
+          <div class="pro-tool-sub">Enter today's Volume Profile levels — institutional desks live by these zones.</div>
+          <div class="pro-form">
+            <div class="pro-input-row"><label>POC (Point of Control)</label><input type="number" id="vp-poc" placeholder="e.g. 22450" class="form-input" oninput="calcVP()"></div>
+            <div class="pro-input-row"><label>VAH (Value Area High)</label><input type="number" id="vp-vah" placeholder="e.g. 22550" class="form-input" oninput="calcVP()"></div>
+            <div class="pro-input-row"><label>VAL (Value Area Low)</label><input type="number" id="vp-val" placeholder="e.g. 22350" class="form-input" oninput="calcVP()"></div>
+            <div class="pro-input-row"><label>Your Entry Price</label><input type="number" id="vp-entry" placeholder="e.g. 22470" class="form-input" oninput="calcVP()"></div>
+          </div>
+          <div class="vp-visual" id="vp-visual"></div>
+          <div class="pro-result" id="vp-result">Enter levels above</div>
+        </div>
+
+        <div class="pro-tool-card">
+          <div class="pro-badge">STREAK TRACKER</div>
+          <div class="pro-tool-title">Win/Loss Streak Analysis</div>
+          <div class="pro-tool-sub">Consecutive wins can breed overconfidence. Track your streaks and spot emotional patterns before they cost you.</div>
+          <div id="streak-display"></div>
+        </div>
+        <div class="pro-tool-card">
+          <div class="pro-badge">POSITION SIZER</div>
+          <div class="pro-tool-title">Smart Position Size Engine</div>
+          <div class="pro-tool-sub">Auto-calculates quantity based on your capital, risk %, entry, SL, and your historical Kelly edge.</div>
+          <div class="pro-form">
+            <div class="pro-input-row"><label>Capital (₹)</label><input type="number" id="ps-capital" placeholder="Auto from settings" oninput="calcPositionSizer()" class="form-input"></div>
+            <div class="pro-input-row"><label>Risk per Trade (%)</label><input type="number" id="ps-risk-pct" value="1" step="0.5" oninput="calcPositionSizer()" class="form-input"></div>
+            <div class="pro-input-row"><label>Entry Price (₹)</label><input type="number" id="ps-entry" placeholder="e.g. 22450" oninput="calcPositionSizer()" class="form-input"></div>
+            <div class="pro-input-row"><label>Stop-Loss Price (₹)</label><input type="number" id="ps-sl" placeholder="e.g. 22380" oninput="calcPositionSizer()" class="form-input"></div>
+            <div class="pro-input-row"><label>Target Price (₹) <span style="color:var(--text3);font-size:11px">optional</span></label><input type="number" id="ps-target" placeholder="e.g. 22600" oninput="calcPositionSizer()" class="form-input"></div>
+          </div>
+          <div class="pro-result" id="ps-result" style="padding-top:0">Fill fields above</div>
+        </div>
+
+        <div class="pro-tool-card" style="grid-column:1/-1">
+          <div class="pro-badge">REVENGE TRADE DETECTOR</div>
+          <div class="pro-tool-title">Emotional Pattern Scanner</div>
+          <div class="pro-tool-sub">Flags trades placed within 45 minutes of a loss on the same day — the revenge trade window.</div>
+          <div id="revenge-trades-container"><div style="color:var(--text3);font-size:13px">Loading…</div></div>
+        </div>
+
+      </div>
+
+      <!-- GAMIFICATION — FULL WIDTH -->
+      <div class="chart-card full-width" style="margin-top:16px">
+        <div class="chart-header"><div class="chart-title">Trader Level & Achievements 🏆</div><div class="chart-sub">XP earned from trading activity, consistency, and performance metrics</div></div>
+        <div id="gamification-container"></div>
+      </div>
+      </div><!-- end panel-protools -->
+
+      <!-- TAB: SIMULATOR -->
+      <div class="hub-panel" id="tools-hub-panel-simulator">
+        <div class="sim-controls-card">
+          <div class="sim-controls-title">⚙️ Simulation Parameters</div>
+          <div class="sim-controls-grid">
+            <div class="sim-control-group"><label>Stop-Loss Adjustment</label><div class="sim-slider-wrap"><input type="range" id="sim-sl-pct" min="-80" max="80" value="0" step="5" oninput="runSimulation()"><span id="sim-sl-val" class="sim-slider-val">0%</span></div><div class="sim-hint">Negative = tighter SL, Positive = wider SL</div></div>
+            <div class="sim-control-group"><label>Take-Profit Adjustment</label><div class="sim-slider-wrap"><input type="range" id="sim-tp-pct" min="-80" max="200" value="0" step="5" oninput="runSimulation()"><span id="sim-tp-val" class="sim-slider-val">0%</span></div><div class="sim-hint">Negative = earlier exit, Positive = let it run more</div></div>
+            <div class="sim-control-group"><label>Position Size Multiplier</label><div class="sim-slider-wrap"><input type="range" id="sim-size-mult" min="0.25" max="3" value="1" step="0.25" oninput="runSimulation()"><span id="sim-size-val" class="sim-slider-val">1x</span></div><div class="sim-hint">Scale position size up or down</div></div>
+            <div class="sim-control-group"><label>Filter: Strategy</label><select id="sim-strat-filter" class="form-input" onchange="runSimulation()"><option value="all">All Strategies</option></select></div>
+          </div>
+        </div>
+        <div class="sim-results-hero" id="sim-results-hero">
+          <div class="sim-res-card"><div class="sim-res-label">Original Net P&L</div><div class="sim-res-val" id="sim-orig-pnl">₹0</div></div>
+          <div class="sim-arrow">→</div>
+          <div class="sim-res-card sim-res-new"><div class="sim-res-label">Simulated Net P&L</div><div class="sim-res-val" id="sim-new-pnl">₹0</div></div>
+          <div class="sim-delta-card" id="sim-delta-card"><div class="sim-res-label">Difference</div><div class="sim-res-val" id="sim-delta">₹0</div></div>
+        </div>
+        <div class="sim-stats-row" id="sim-stats-row"></div>
+        <div class="chart-card full-width" style="margin-top:16px"><div class="chart-header"><div class="chart-title">Equity Curve Comparison</div></div><div style="position:relative;height:280px"><canvas id="simEquityChart"></canvas></div></div>
+        <div style="margin-top:20px"><div class="section-title">Trade-by-Trade Simulation</div><div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>Date</th><th>Symbol</th><th>Original P&L</th><th>Simulated P&L</th><th>Difference</th><th>Impact</th></tr></thead><tbody id="sim-tbody"></tbody></table></div></div>
+      </div><!-- end panel-simulator -->
+
+      <!-- TAB: TAGS -->
+      <div class="hub-panel" id="tools-hub-panel-tags">
+        <div class="tag-performance-section"><div class="section-title">Tag Performance</div><div id="tag-perf-grid" class="tag-perf-grid"></div></div>
+        <div style="margin-top:24px"><div class="section-title">Market Regime Analysis 🌊</div><div class="regime-grid" id="regime-grid"></div></div>
+        <div style="margin-top:24px"><div class="chart-card"><div class="chart-header"><div><div class="chart-title">Tag Combination Filter</div><div class="chart-sub">Select tags to isolate your edge</div></div></div><div class="tag-filter-bar" id="tag-filter-bar"></div><div id="tag-filter-results" style="margin-top:16px"></div></div></div>
+        <div class="chart-card full-width" style="margin-top:16px"><div class="chart-header"><div class="chart-title">Tag Win Rate Bubble Map 🫧</div></div><div style="position:relative;height:300px"><canvas id="tagBubbleChart"></canvas></div></div>
+        <div style="margin-top:20px"><div class="section-title">Manage Tags</div><div id="all-tags-grid" class="all-tags-grid"></div></div>
+      </div><!-- end panel-tags -->
+
+      <!-- TAB: CHALLENGES -->
+      <div class="hub-panel" id="tools-hub-panel-challenges">
+        <div class="section-title">Active Challenges 🔥</div>
+        <div id="active-challenges" class="challenges-grid"></div>
+        <div class="empty-state" id="challenges-empty" style="display:none;padding:40px 0"><div class="empty-icon">🏆</div><div class="empty-title">No active challenges!</div><div class="empty-sub">Create a challenge to start building discipline streaks</div><button class="btn-primary" onclick="openChallengeModal()" style="margin-top:12px">+ Start a Challenge</button></div>
+        <div style="margin-top:28px"><div class="section-title">Completed Challenges 🎖️</div><div id="completed-challenges" class="challenges-grid"></div><div id="no-completed" style="color:var(--text3);font-size:13px;padding:10px 0">No completed challenges yet</div></div>
+        <div style="margin-top:28px"><div class="chart-card"><div class="chart-header"><div class="chart-title">Discipline Streak Calendar 📅</div><div class="chart-sub">Green = disciplined day, Red = rule broken</div></div><div id="discipline-cal" class="discipline-cal"></div></div></div>
+      </div><!-- end panel-challenges -->
+
+      <!-- TAB: HEATMAP -->
+      <div class="hub-panel" id="tools-hub-panel-heatmap">
+        <div class="heatmap-stats-row" id="heatmap-stats"></div>
+        <div class="hm-legend-row"><span class="hm-legend-label">Loss</span><div class="hm-legend-cell" style="background:var(--hm-r3)"></div><div class="hm-legend-cell" style="background:var(--hm-r2)"></div><div class="hm-legend-cell" style="background:var(--hm-r1)"></div><div class="hm-legend-cell" style="background:var(--hm-empty)"></div><div class="hm-legend-cell" style="background:var(--hm-zero)"></div><div class="hm-legend-cell" style="background:var(--hm-g1)"></div><div class="hm-legend-cell" style="background:var(--hm-g2)"></div><div class="hm-legend-cell" style="background:var(--hm-g3)"></div><span class="hm-legend-label">Gain</span></div>
+        <div class="heatmap-card"><div id="heatmap-grid"></div></div>
+        <div style="margin-top:24px"><div class="section-title">Monthly Breakdown</div><div class="monthly-breakdown-grid" id="monthly-breakdown"></div></div>
+        <div class="charts-grid-2" style="margin-top:20px"><div class="chart-card"><div class="chart-title" style="margin-bottom:14px">🟢 Best Trading Days</div><div id="best-days-list"></div></div><div class="chart-card"><div class="chart-title" style="margin-bottom:14px">🔴 Worst Trading Days</div><div id="worst-days-list"></div></div></div>
+      </div><!-- end panel-heatmap -->
+
+      <!-- TAB: GAMIFICATION (V2) -->
+      <div class="hub-panel" id="tools-hub-panel-gamification">
+        <div class="quests-section">
+          <div class="quests-header">
+            <div class="quests-title">🎮 Daily & Weekly Quests</div>
+            <div class="quests-xp-bar" id="quests-xp-display"></div>
+          </div>
+          <div class="quests-grid" id="quests-container"></div>
+        </div>
+
+        <div class="skill-tree-section">
+          <div class="skill-tree-header">
+            <div class="skill-tree-title">🌳 Skill Tree — Trading Milestones</div>
+            <div id="skill-tree-level" class="skill-tree-level"></div>
+          </div>
+          <div class="skill-tree-grid" id="skill-tree-container"></div>
+        </div>
+      </div><!-- end panel-gamification -->
+
+      <!-- TAB: RISK MANAGEMENT (V2) -->
+      <div class="hub-panel" id="tools-hub-panel-risk">
+        <!-- Live Position Sizer -->
+        <div class="risk-live-sizer">
+          <div class="risk-sizer-title">📐 Position Size Calculator <span id="ltp-status"><span class="ltp-status manual">Manual entry</span></span></div>
+          <div class="risk-sizer-grid">
+            <div class="form-group"><label style="font-size:11px;color:var(--text3)">Symbol</label><input type="text" id="rps-symbol" class="form-input" placeholder="e.g. RELIANCE" style="font-size:12px"></div>
+            <div class="form-group"><label style="font-size:11px;color:var(--text3)">Capital (₹)</label><input type="number" id="rps-capital" class="form-input" placeholder="100000" style="font-size:12px"></div>
+            <div class="form-group"><label style="font-size:11px;color:var(--text3)">Risk %</label><input type="number" id="rps-risk-pct" class="form-input" value="1" step="0.1" min="0.1" max="10" style="font-size:12px"></div>
+            <div class="form-group"><label style="font-size:11px;color:var(--text3)">Entry Price (₹)</label><input type="number" id="rps-entry" class="form-input" placeholder="Entry" style="font-size:12px" oninput="calcLivePositionSize()"></div>
+            <div class="form-group"><label style="font-size:11px;color:var(--text3)">Stop Loss (₹)</label><input type="number" id="rps-sl" class="form-input" placeholder="SL" style="font-size:12px" oninput="calcLivePositionSize()"></div>
+            <div class="form-group"><label style="font-size:11px;color:var(--text3)">Target (₹)</label><input type="number" id="rps-target" class="form-input" placeholder="Target (optional)" style="font-size:12px" oninput="calcLivePositionSize()"></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <button class="btn-primary" onclick="calcLivePositionSize()" style="font-size:12px">📐 Calculate</button>
+            <button class="btn-secondary" onclick="fetchLTP()" style="font-size:12px">📡 Fetch LTP</button>
+          </div>
+          <div class="risk-sizer-result" id="rps-result"></div>
+        </div>
+
+        <!-- Correlation Warning -->
+        <div class="correlation-panel" style="margin-top:16px">
+          <div class="corr-title">🔗 Sector Correlation Scanner</div>
+          <div id="correlation-container"></div>
+        </div>
+
+        <!-- Max Positions Limiter -->
+        <div class="max-pos-panel" style="margin-top:16px">
+          <div class="max-pos-title">🚦 Max Open Positions Limiter</div>
+          <div id="max-pos-container"></div>
+        </div>
+      </div><!-- end panel-risk -->
+
+    </section><!-- end tools-hub -->
+
+    <!-- ═══════════════ PSYCHOLOGY HUB PAGE ═══════════════ -->
+    <section id="page-psych-hub" class="page">
+      <div class="page-header">
+        <div><h1 class="page-title">Psychology Hub</h1><p class="page-sub">Psych Lab · Discipline Tracker</p></div>
+        <button class="btn-primary" id="psych-hub-btn-rule" onclick="openRuleModal()" style="display:none">+ Add Trading Rule</button>
+      </div>
+      <div class="hub-tabs" id="psych-hub-tabs">
+        <button class="hub-tab active" onclick="switchHubTab('psych-hub','psych',this)">🧬 Psych Lab</button>
+        <button class="hub-tab" onclick="switchHubTab('psych-hub','discipline',this)">🎭 Discipline</button>
+        <button class="hub-tab" onclick="switchHubTab('psych-hub','biases',this)">🧠 Bias Scanner</button>
+        <button class="hub-tab" onclick="switchHubTab('psych-hub','emotions',this)">❤️ Emotion Stats</button>
+        <button class="hub-tab" onclick="switchHubTab('psych-hub','report',this)">📋 Psych Report</button>
+        <button class="hub-tab" onclick="switchHubTab('psych-hub','meditation',this)">🧘 Meditation</button>
+        <button class="hub-tab" onclick="switchHubTab('psych-hub','prompts',this)">📝 Prompts</button>
+        <button class="hub-tab" onclick="switchHubTab('psych-hub','peers',this)">👥 Peers</button>
+      </div>
+      <!-- TAB: PSYCH LAB -->
+      <div class="hub-panel active" id="psych-hub-panel-psych">
+        <div class="chart-card full-width" style="margin-bottom:20px"><div class="chart-header"><div><div class="chart-title">Burnout & Overconfidence Predictor 🧬</div><div class="chart-sub">Multi-signal analysis</div></div></div><div id="burnout-predictor"></div></div>
+        <div class="charts-grid-2" style="gap:16px">
+          <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Daily Mood Journal 📓</div><div class="chart-sub">Track your mental state</div></div></div><div id="mood-journal-container"></div></div>
+          <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Rule Violation Cost Simulator 💸</div><div class="chart-sub">What if you had followed this rule every time?</div></div></div><div id="rule-violation-simulator"></div></div>
+        </div>
+        <div class="charts-grid-2" style="margin-top:16px">
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Emotional Momentum Index 📈</div><div class="chart-sub">Rolling emotional health — are you improving?</div></div>
+            <div style="position:relative;height:200px"><canvas id="emoMomentumChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Confidence vs Outcome 💪</div><div class="chart-sub">Does high confidence predict wins or overconfidence?</div></div>
+            <div style="position:relative;height:200px"><canvas id="confidenceChart"></canvas></div>
+          </div>
+        </div>
+        <div class="charts-grid-2" style="margin-top:16px">
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Stress Level Impact 😰</div><div class="chart-sub">High stress = lower win rate? The data reveals the truth</div></div>
+            <div style="position:relative;height:200px"><canvas id="stressChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Energy Level Performance 🔋</div><div class="chart-sub">Do you trade worse when tired?</div></div>
+            <div style="position:relative;height:200px"><canvas id="energyChart"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div class="chart-title">Tilt Detection 🚨</div><div class="chart-sub">Real-time composite tilt score using 8 signals</div></div>
+          <div id="tilt-container"></div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div class="chart-title">Impulse vs Planned Trades 🧨</div><div class="chart-sub">Exact cost of impulsive trading in ₹</div></div>
+          <div id="impulse-container"></div>
+        </div>
+      </div><!-- end panel-psych -->
+      <!-- TAB: DISCIPLINE -->
+      <div class="hub-panel" id="psych-hub-panel-discipline">
+        <div class="discipline-hero">
+          <div class="coi-card"><div class="coi-icon">💸</div><div class="coi-label">Cost of Indiscipline</div><div class="coi-value" id="coi-value">₹0</div><div class="coi-sub" id="coi-sub">Money lost by breaking rules</div></div>
+          <div class="coi-card coi-good"><div class="coi-icon">🎯</div><div class="coi-label">Disciplined P&L</div><div class="coi-value pos" id="disc-pnl">₹0</div><div class="coi-sub" id="disc-sub">When you follow the plan</div></div>
+          <div class="coi-card"><div class="coi-icon">😤</div><div class="coi-label">Undisciplined P&L</div><div class="coi-value neg" id="undisc-pnl">₹0</div><div class="coi-sub" id="undisc-sub">When you break rules</div></div>
+          <div class="coi-card"><div class="coi-icon">📊</div><div class="coi-label">Discipline Score</div><div class="coi-value" id="disc-score">0%</div><div class="coi-sub">% of disciplined trades</div></div>
+        </div>
+        <div class="charts-grid-2" style="margin-top:20px">
+          <div class="chart-card"><div class="chart-header"><div class="chart-title">Disciplined vs Undisciplined P&L 📊</div></div><div style="position:relative;height:240px"><canvas id="discCompChart"></canvas></div></div>
+          <div class="chart-card"><div class="chart-header"><div class="chart-title">Rule Break Frequency 🔴</div></div><div style="position:relative;height:240px"><canvas id="ruleBreakChart"></canvas></div></div>
+        </div>
+        <div class="rules-section" style="margin-top:20px"><div class="section-title">My Trading Rules</div><div id="rules-list" class="rules-list"></div><div class="empty-state" id="rules-empty" style="display:none;padding:30px 0"><div class="empty-icon">📋</div><div class="empty-title">No rules added yet</div></div></div>
+        <div style="margin-top:24px"><div class="section-title">Trade Discipline Log</div><div class="journal-table-wrap"><table class="journal-table"><thead><tr><th>Date</th><th>Symbol</th><th>Net P&L</th><th>Rules Followed</th><th>Rules Broken</th><th>Discipline</th></tr></thead><tbody id="disc-tbody"></tbody></table></div><div class="empty-state" id="disc-table-empty" style="display:none;padding:20px 0"><div class="empty-sub">Log trades with discipline tags to see analysis</div></div></div>
+      </div><!-- end panel-discipline -->
+      <!-- TAB: BIAS SCANNER -->
+      <div class="hub-panel" id="psych-hub-panel-biases">
+        <div id="bias-scanner-container"></div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div class="chart-title">Loss Aversion Analysis 📉</div><div class="chart-sub">Do you hold losers longer than winners? The data shows.</div></div>
+          <div id="loss-aversion-container"></div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div class="chart-title">Recency Bias Detector 🔄</div><div class="chart-sub">Does your WR change after win/loss streaks? Recency bias exposed.</div></div>
+          <div style="position:relative;height:240px"><canvas id="recencyBiasChart"></canvas></div>
+        </div>
+      </div><!-- end panel-biases -->
+
+      <!-- TAB: EMOTION STATS -->
+      <div class="hub-panel" id="psych-hub-panel-emotions">
+        <div class="chart-card full-width">
+          <div class="chart-header"><div class="chart-title">Pre-Trade vs During-Trade Emotion Matrix 🧬</div><div class="chart-sub">Best emotional combination for maximum performance</div></div>
+          <div id="emotion-matrix-container"></div>
+        </div>
+        <div class="charts-grid-2" style="margin-top:16px">
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Emotion Win Rate Radar 🕸️</div><div class="chart-sub">Which state makes you most money?</div></div>
+            <div style="position:relative;height:280px"><canvas id="emoWrRadar"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Emotion Volatility 📊</div><div class="chart-sub">Which emotional state has the most erratic P&L?</div></div>
+            <div style="position:relative;height:280px"><canvas id="emoVolChart"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div class="chart-title">Post-Trade Emotional Carry-Over 🔗</div><div class="chart-sub">Does your win/loss affect your next trade? PTSD effect quantified.</div></div>
+          <div id="ptsd-container"></div>
+        </div>
+      </div><!-- end panel-emotions -->
+
+      <!-- TAB: PSYCH REPORT -->
+      <div class="hub-panel" id="psych-hub-panel-report">
+        <div class="chart-card full-width">
+          <div class="chart-header">
+            <div class="chart-title">Psychological Profile Report 📋</div>
+            <div class="chart-sub">Auto-generated from your trading data — strengths, weaknesses, recommendations</div>
+          </div>
+          <div id="psych-report-container"></div>
+        </div>
+        <div class="charts-grid-2" style="margin-top:16px">
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Rule Streak Tracker 🔥</div><div class="chart-sub">Consecutive disciplined trades — your longest streak</div></div>
+            <div id="rule-streak-container"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Rule ROI Calculator 💡</div><div class="chart-sub">Which new rules would save you the most money?</div></div>
+            <div id="rule-roi-container"></div>
+          </div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:16px">
+          <div class="chart-header"><div class="chart-title">Weekly Psychology Scorecard 📅</div><div class="chart-sub">A–F grade for each week based on discipline, emotion control, planning</div></div>
+          <div id="weekly-psych-scorecard"></div>
+        </div>
+      </div><!-- end panel-report -->
+
+      <!-- TAB: MEDITATION (V2) -->
+      <div class="hub-panel" id="psych-hub-panel-meditation">
+        <div class="meditation-section">
+          <div class="meditation-card">
+            <div style="font-family:var(--font-display);font-size:16px;font-weight:800;margin-bottom:4px">🧘 Pre-Trade Breathing Timer</div>
+            <div style="font-size:12px;color:var(--text3);margin-bottom:16px">Calm your mind before entering the market. Box breathing: inhale → hold → exhale → hold.</div>
+            <div class="meditation-ring">
+              <svg width="180" height="180" viewBox="0 0 180 180">
+                <circle class="meditation-ring-bg" cx="90" cy="90" r="80"/>
+                <circle class="meditation-ring-progress" id="med-ring-progress" cx="90" cy="90" r="80" style="stroke-dasharray:502.65;stroke-dashoffset:502.65"/>
+              </svg>
+              <div class="meditation-timer-inner">
+                <div class="meditation-timer-display" id="med-timer-display">2:00</div>
+                <div class="breathing-guide" id="breathing-guide"></div>
+              </div>
+            </div>
+            <div class="meditation-presets">
+              <button class="meditation-preset" onclick="window._setMedDuration(60,this)">1 min</button>
+              <button class="meditation-preset active" onclick="window._setMedDuration(120,this)">2 min</button>
+              <button class="meditation-preset" onclick="window._setMedDuration(180,this)">3 min</button>
+              <button class="meditation-preset" onclick="window._setMedDuration(300,this)">5 min</button>
+            </div>
+            <div class="meditation-controls">
+              <button class="meditation-btn primary" onclick="window._startMeditation()">▶ Start</button>
+              <button class="meditation-btn" onclick="window._pauseMeditation()">⏸ Pause</button>
+              <button class="meditation-btn" onclick="window._resetMeditation()">↺ Reset</button>
+            </div>
+            <div style="margin-top:14px;font-size:11px;color:var(--text3)">Sessions completed: <strong id="med-count-display" style="color:var(--accent)">0</strong></div>
+          </div>
+        </div>
+      </div><!-- end panel-meditation -->
+
+      <!-- TAB: JOURNALING PROMPTS (V2) -->
+      <div class="hub-panel" id="psych-hub-panel-prompts">
+        <div id="journal-prompt-container"></div>
+      </div><!-- end panel-prompts -->
+
+      <!-- TAB: PEER ACCOUNTABILITY (V2) -->
+      <div class="hub-panel" id="psych-hub-panel-peers">
+        <div id="peer-container"></div>
+      </div><!-- end panel-peers -->
+
+    </section><!-- end psych-hub -->
+
+    <!-- ═══════════════ INSTITUTIONAL HUB PAGE ═══════════════ -->
+    <section id="page-institutional-hub" class="page">
+      <div class="page-header">
+        <div><h1 class="page-title">Institutional Hub</h1><p class="page-sub">Risk Engine · Attribution · Execution Lab · Desk</p></div>
+      </div>
+      <div class="hub-tabs" id="institutional-hub-tabs">
+        <button class="hub-tab active" onclick="switchHubTab('institutional-hub','risk',this)">🛡️ Risk Engine</button>
+        <button class="hub-tab" onclick="switchHubTab('institutional-hub','attribution',this)">📊 Attribution</button>
+        <button class="hub-tab" onclick="switchHubTab('institutional-hub','execution',this)">⚡ Execution Lab</button>
+        <button class="hub-tab" onclick="switchHubTab('institutional-hub','desk',this)">🏦 Desk</button>
+        <button class="hub-tab" onclick="switchHubTab('institutional-hub','perfReport',this)">📄 Performance Report</button>
+      </div>
+      <!-- TAB: RISK -->
+      <div class="hub-panel active" id="institutional-hub-panel-risk">
+        <div class="chart-card full-width" style="margin-bottom:16px"><div class="chart-header"><div><div class="chart-title">Portfolio VaR &amp; Stress Tests 📊</div><div class="chart-sub">Parametric, Historical &amp; Monte Carlo VaR</div></div></div><div id="portfolio-var-container"></div></div>
+        <div class="chart-card full-width" style="margin-bottom:16px"><div class="chart-header"><div><div class="chart-title">Dynamic Position Limits 🎯</div><div class="chart-sub">Kelly-adjusted max quantity per symbol</div></div></div><div id="position-limits-container"></div></div>
+        <div class="chart-card full-width"><div class="chart-header"><div><div class="chart-title">F&amp;O Margin Monitor 🏦</div><div class="chart-sub">SPAN + Exposure margin calculator</div></div></div>
+          <div class="pro-form" style="max-width:600px;margin-bottom:14px">
+            <div class="pro-input-row"><label>Symbol</label><input type="text" id="fo-symbol" value="NIFTY" class="form-input" oninput="calcFOMargin()"></div>
+            <div class="pro-input-row"><label>Lot Size</label><input type="number" id="fo-lot" value="50" class="form-input" oninput="calcFOMargin()"></div>
+            <div class="pro-input-row"><label>Number of Lots</label><input type="number" id="fo-lots" value="1" class="form-input" oninput="calcFOMargin()"></div>
+            <div class="pro-input-row"><label>Price (₹)</label><input type="number" id="fo-price" placeholder="e.g. 22400" class="form-input" oninput="calcFOMargin()"></div>
+            <div class="pro-input-row"><label>Type</label><select id="fo-type" class="form-input" onchange="calcFOMargin()"><option value="FUT">Futures</option><option value="OPT">Options</option></select></div>
+            <div class="pro-input-row"><label>Your Capital (₹)</label><input type="number" id="fo-capital" placeholder="Auto from settings" class="form-input" oninput="calcFOMargin()"></div>
+          </div>
+          <div id="fo-result" class="pro-result">Enter price above to calculate</div>
+        </div>
+      </div><!-- end panel-risk -->
+      <!-- TAB: ATTRIBUTION -->
+      <div class="hub-panel" id="institutional-hub-panel-attribution">
+        <div class="chart-card full-width" style="margin-bottom:16px"><div class="chart-header"><div><div class="chart-title">P&amp;L Attribution Waterfall 🌊</div><div class="chart-sub">How much does each strategy contribute?</div></div></div><div style="position:relative;height:280px"><canvas id="attribution-chart"></canvas></div><div id="attribution-table" style="margin-top:16px"></div></div>
+        <div class="chart-card full-width" style="margin-bottom:16px"><div class="chart-header"><div><div class="chart-title">Rolling Sharpe &amp; Calmar Ratios 📐</div><div class="chart-sub">20-trade rolling window</div></div></div><div style="position:relative;height:260px"><canvas id="rolling-metrics-chart"></canvas></div></div>
+        <div class="chart-card full-width"><div class="chart-header"><div><div class="chart-title">Alpha &amp; Beta vs NIFTY 📈</div><div class="chart-sub">Skill vs market exposure</div></div></div><div id="alpha-beta-container"></div></div>
+      </div><!-- end panel-attribution -->
+      <!-- TAB: EXECUTION -->
+      <div class="hub-panel" id="institutional-hub-panel-execution">
+        <div class="charts-grid-2" style="gap:16px">
+          <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Slippage Impact Simulator 📉</div><div class="chart-sub">What does realistic slippage do to your P&amp;L?</div></div></div><div id="slippage-container"></div></div>
+          <div class="chart-card"><div class="chart-header"><div><div class="chart-title">Execution Quality Score ⚡</div><div class="chart-sub">Composite score from quality + discipline + win rate</div></div></div><div id="execution-score-container"></div></div>
+        </div>
+      </div><!-- end panel-execution -->
+      <!-- TAB: DESK -->
+      <div class="hub-panel" id="institutional-hub-panel-desk">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+          <button class="btn-primary" onclick="exportCompliancePDF()">📋 Export Compliance PDF</button>
+          <button class="btn-secondary" onclick="exportITR3()">🧾 ITR-3 Tax Summary</button>
+          <button class="btn-secondary" onclick="freezeMonthSnapshot()">📸 Freeze Month Snapshot</button>
+          <button class="btn-secondary" onclick="exportAuditCSV()">📥 Export Audit Log</button>
+          <button class="btn-secondary" onclick="exportPDFReport()">📄 Full Performance Report</button>
+        </div>
+        <div class="chart-card full-width" style="margin-bottom:16px"><div class="chart-header"><div><div class="chart-title">Monthly Performance Snapshots 📸</div><div class="chart-sub">Frozen checkpoints</div></div><button class="btn-secondary" onclick="freezeMonthSnapshot()" style="font-size:11px;padding:5px 12px">+ Freeze Now</button></div><div id="snapshots-container"></div></div>
+        <div class="chart-card full-width"><div class="chart-header"><div><div class="chart-title">Full Audit Trail 🔍</div><div class="chart-sub">Every trade add, edit, and delete timestamped</div></div></div><div id="audit-trail-container"></div></div>
+      </div><!-- end panel-desk -->
+      <!-- TAB: PERFORMANCE REPORT -->
+      <div class="hub-panel" id="institutional-hub-panel-perfReport">
+        <div class="chart-card full-width" style="margin-bottom:16px">
+          <div class="chart-header">
+            <div><div class="chart-title">📄 Full Performance Report</div><div class="chart-sub">Institutional-grade analysis of your trading performance</div></div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn-secondary" onclick="toggleReportRangePicker()" style="font-size:11px;padding:6px 12px" id="report-range-btn">📆 Date Range</button>
+              <button class="btn-primary" onclick="exportPDFReport()" style="font-size:12px;padding:7px 14px">🖨️ Print / Export PDF</button>
+            </div>
+          </div>
+          <!-- Date Range Picker -->
+          <div id="report-range-picker" style="display:none;margin:12px 0;padding:14px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm)">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:6px">
+                <label style="font-size:11px;color:var(--text3);font-weight:600;white-space:nowrap">RANGE TYPE</label>
+                <select id="report-range-type" class="form-input" style="width:130px;padding:5px 8px;font-size:12px" onchange="updateReportRangeUI()">
+                  <option value="all">All Time</option>
+                  <option value="day">Specific Day</option>
+                  <option value="month">Specific Month</option>
+                  <option value="range">Date Range</option>
+                </select>
+              </div>
+              <div id="report-range-day" style="display:none;align-items:center;gap:6px">
+                <label style="font-size:11px;color:var(--text3);font-weight:600">DAY</label>
+                <input type="date" id="report-day-input" class="form-input" style="width:160px;padding:5px 8px;font-size:12px">
+              </div>
+              <div id="report-range-month" style="display:none;align-items:center;gap:6px">
+                <label style="font-size:11px;color:var(--text3);font-weight:600">MONTH</label>
+                <input type="month" id="report-month-input" class="form-input" style="width:160px;padding:5px 8px;font-size:12px">
+              </div>
+              <div id="report-range-dates" style="display:none;align-items:center;gap:6px">
+                <label style="font-size:11px;color:var(--text3);font-weight:600">FROM</label>
+                <input type="date" id="report-date-from" class="form-input" style="width:145px;padding:5px 8px;font-size:12px">
+                <label style="font-size:11px;color:var(--text3);font-weight:600">TO</label>
+                <input type="date" id="report-date-to" class="form-input" style="width:145px;padding:5px 8px;font-size:12px">
+              </div>
+              <button class="btn-primary" onclick="applyReportRange()" style="font-size:11px;padding:5px 14px">Apply & Generate</button>
+              <button class="btn-secondary" onclick="resetReportRange()" style="font-size:11px;padding:5px 14px">Reset</button>
+            </div>
+            <div id="report-range-info" style="margin-top:8px;font-size:11px;color:var(--text3)"></div>
+          </div>
+          <div id="perf-report-container"><p style="color:var(--text3);font-size:13px">Loading report…</p></div>
+        </div>
+      </div><!-- end panel-perfReport -->
+    </section><!-- end institutional-hub -->
+
+    <!-- ═══════════════ SETTINGS PAGE ═══════════════ -->
+    <section id="page-settings" class="page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Settings</h1>
+        </div>
+      </div>
+      <div class="settings-container">
+        <div class="settings-section">
+          <div class="settings-section-title">👤 Profile</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Your Name</label>
+              <input type="text" id="s-name" class="form-input" placeholder="Your name">
+            </div>
+            <div class="form-group">
+              <label>Trading Style</label>
+              <select id="s-style" class="form-input">
+                <option>Intraday</option><option>Swing</option><option>Positional</option><option>Options</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-section-title">🎯 Targets</div>
+          <div class="form-row">
+            <div class="form-group"><label>Trading Capital (₹)</label><input type="number" id="s-capital" class="form-input" placeholder="e.g. 100000"></div>
+            <div class="form-group"><label>Weekly Target (₹)</label><input type="number" id="s-wt" class="form-input" value="1000"></div>
+            <div class="form-group"><label>Monthly Target (₹)</label><input type="number" id="s-mt" class="form-input" value="4000"></div>
+            <div class="form-group"><label>Max Loss/Day (₹)</label><input type="number" id="s-mld" class="form-input" value="500"></div>
+          </div>
+        </div>
+                <div class="settings-section">
+          <div class="settings-section-title">🌗 Theme</div>
+          <div class="theme-grid">
+            <button class="theme-card active" data-theme="dark" onclick="applyTheme('dark')">
+              <div class="theme-preview" style="background:linear-gradient(135deg,#0b0e14,#151a23);border:1px solid rgba(255,255,255,0.06)">
+                <div class="tp-dot" style="background:#10b981"></div><div class="tp-dot" style="background:#3b82f6"></div><div class="tp-dot" style="background:#ef4444"></div>
+              </div>
+              <div class="theme-label">🌑 Dark</div>
+              <div class="theme-desc">Default</div>
+            </button>
+            <button class="theme-card" data-theme="oled" onclick="applyTheme('oled')">
+              <div class="theme-preview" style="background:#000;border:1px solid rgba(0,255,136,0.2)">
+                <div class="tp-dot" style="background:#00ff88"></div><div class="tp-dot" style="background:#00cc6a"></div><div class="tp-dot" style="background:#ff3b5c"></div>
+              </div>
+              <div class="theme-label">⚫ OLED Black</div>
+              <div class="theme-desc">Pure black</div>
+            </button>
+            <button class="theme-card" data-theme="obsidian" onclick="applyTheme('obsidian')">
+              <div class="theme-preview" style="background:linear-gradient(135deg,#0c0c0c,#1c1c1c);border:1px solid rgba(0,200,150,0.15)">
+                <div class="tp-dot" style="background:#00c896"></div><div class="tp-dot" style="background:#00a87a"></div><div class="tp-dot" style="background:#ff4757"></div>
+              </div>
+              <div class="theme-label">🪨 Obsidian</div>
+              <div class="theme-desc">Deep charcoal</div>
+            </button>
+            <button class="theme-card" data-theme="midnight" onclick="applyTheme('midnight')">
+              <div class="theme-preview" style="background:linear-gradient(135deg,#050b14,#192947);border:1px solid rgba(59,130,246,0.2)">
+                <div class="tp-dot" style="background:#3b82f6"></div><div class="tp-dot" style="background:#60a5fa"></div><div class="tp-dot" style="background:#ef4444"></div>
+              </div>
+              <div class="theme-label">🌌 Midnight</div>
+              <div class="theme-desc">Deep blue</div>
+            </button>
+            <button class="theme-card" data-theme="bloomberg" onclick="applyTheme('bloomberg')">
+              <div class="theme-preview" style="background:#000;border:1px solid rgba(245,158,11,0.25)">
+                <div class="tp-dot" style="background:#f59e0b"></div><div class="tp-dot" style="background:#d97706"></div><div class="tp-dot" style="background:#ef4444"></div>
+              </div>
+              <div class="theme-label">📊 Bloomberg</div>
+              <div class="theme-desc">Amber terminal</div>
+            </button>
+            <button class="theme-card" data-theme="slate" onclick="applyTheme('slate')">
+              <div class="theme-preview" style="background:linear-gradient(135deg,#0d1117,#21262d);border:1px solid rgba(99,110,123,0.3)">
+                <div class="tp-dot" style="background:#58a6ff"></div><div class="tp-dot" style="background:#1f6feb"></div><div class="tp-dot" style="background:#f85149"></div>
+              </div>
+              <div class="theme-label">🔷 Slate Pro</div>
+              <div class="theme-desc">GitHub dark</div>
+            </button>
+            <button class="theme-card" data-theme="dracula" onclick="applyTheme('dracula')">
+              <div class="theme-preview" style="background:linear-gradient(135deg,#191a24,#282a36);border:1px solid rgba(189,147,249,0.2)">
+                <div class="tp-dot" style="background:#bd93f9"></div><div class="tp-dot" style="background:#ff79c6"></div><div class="tp-dot" style="background:#ff5555"></div>
+              </div>
+              <div class="theme-label">🧛 Dracula</div>
+              <div class="theme-desc">Purple night</div>
+            </button>
+            <button class="theme-card" data-theme="nord" onclick="applyTheme('nord')">
+              <div class="theme-preview" style="background:linear-gradient(135deg,#1a1f29,#2e3440);border:1px solid rgba(136,192,208,0.2)">
+                <div class="tp-dot" style="background:#88c0d0"></div><div class="tp-dot" style="background:#5e81ac"></div><div class="tp-dot" style="background:#bf616a"></div>
+              </div>
+              <div class="theme-label">❄️ Nord</div>
+              <div class="theme-desc">Arctic cool</div>
+            </button>
+            <button class="theme-card" data-theme="cyberpunk" onclick="applyTheme('cyberpunk')">
+              <div class="theme-preview" style="background:linear-gradient(135deg,#080812,#181835);border:1px solid rgba(255,240,0,0.2)">
+                <div class="tp-dot" style="background:#ffe600"></div><div class="tp-dot" style="background:#00e5ff"></div><div class="tp-dot" style="background:#ff003c"></div>
+              </div>
+              <div class="theme-label">⚡ Cyberpunk</div>
+              <div class="theme-desc">Neon future</div>
+            </button>
+            <button class="theme-card" data-theme="rosegold" onclick="applyTheme('rosegold')">
+              <div class="theme-preview" style="background:linear-gradient(135deg,#0f0a0c,#2a1820);border:1px solid rgba(244,160,181,0.2)">
+                <div class="tp-dot" style="background:#f4a0b5"></div><div class="tp-dot" style="background:#e87fa0"></div><div class="tp-dot" style="background:#e57373"></div>
+              </div>
+              <div class="theme-label">🌸 Rose Gold</div>
+              <div class="theme-desc">Elegant pink</div>
+            </button>
+            <button class="theme-card" data-theme="matrix" onclick="applyTheme('matrix')">
+              <div class="theme-preview" style="background:linear-gradient(135deg,#000,#0a1a0a);border:1px solid rgba(0,255,0,0.2)">
+                <div class="tp-dot" style="background:#00ff00"></div><div class="tp-dot" style="background:#00cc00"></div><div class="tp-dot" style="background:#ff0000"></div>
+              </div>
+              <div class="theme-label">💚 Matrix</div>
+              <div class="theme-desc">Hacker green</div>
+            </button>
+            <button class="theme-card" data-theme="light" onclick="applyTheme('light')">
+              <div class="theme-preview" style="background:linear-gradient(135deg,#f8fafc,#e2e8f0);border:1px solid rgba(0,0,0,0.1)">
+                <div class="tp-dot" style="background:#10b981"></div><div class="tp-dot" style="background:#3b82f6"></div><div class="tp-dot" style="background:#ef4444"></div>
+              </div>
+              <div class="theme-label">☀️ Light</div>
+              <div class="theme-desc">Clean white</div>
+            </button>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-section-title">🎨 Accent Color</div>
+          <div class="accent-picker">
+            <div class="accent-label">Accent Color</div>
+            <div class="accent-options">
+              <div class="accent-opt active" data-color="#00ff88" onclick="setAccent('#00ff88',this)" style="background:#00ff88"></div>
+              <div class="accent-opt" data-color="#00d4ff" onclick="setAccent('#00d4ff',this)" style="background:#00d4ff"></div>
+              <div class="accent-opt" data-color="#ff6b35" onclick="setAccent('#ff6b35',this)" style="background:#ff6b35"></div>
+              <div class="accent-opt" data-color="#f7b731" onclick="setAccent('#f7b731',this)" style="background:#f7b731"></div>
+              <div class="accent-opt" data-color="#a29bfe" onclick="setAccent('#a29bfe',this)" style="background:#a29bfe"></div>
+            </div>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-section-title">💾 Data Management</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+            <button class="btn-primary" onclick="exportData()">📤 Export JSON</button>
+            <button class="btn-secondary" onclick="document.getElementById('import-file').click()">📥 Import JSON</button>
+            <input type="file" id="import-file" accept=".json" onchange="importData(event)" style="display:none">
+            <button class="btn-secondary" onclick="exportCSV()">📊 Export CSV</button>
+            <button class="btn-secondary" onclick="exportPDFReport()">📄 Export PDF Report</button>
+            <button class="btn-danger" onclick="confirmClear()">🗑 Clear All Data</button>
+          </div>
+          <div style="padding:12px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm)">
+            <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px">📆 Export Report by Date Range</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <select id="settings-export-type" class="form-input" style="width:130px;padding:5px 8px;font-size:12px" onchange="updateSettingsExportUI()">
+                <option value="all">All Time</option>
+                <option value="day">Specific Day</option>
+                <option value="month">Specific Month</option>
+                <option value="range">Date Range</option>
+              </select>
+              <div id="settings-export-day" style="display:none"><input type="date" id="settings-day-input" class="form-input" style="width:155px;padding:5px 8px;font-size:12px"></div>
+              <div id="settings-export-month" style="display:none"><input type="month" id="settings-month-input" class="form-input" style="width:155px;padding:5px 8px;font-size:12px"></div>
+              <div id="settings-export-range" style="display:none;gap:4px;align-items:center">
+                <input type="date" id="settings-date-from" class="form-input" style="width:140px;padding:5px 8px;font-size:12px">
+                <span style="color:var(--text3);font-size:11px">to</span>
+                <input type="date" id="settings-date-to" class="form-input" style="width:140px;padding:5px 8px;font-size:12px">
+              </div>
+              <button class="btn-primary" onclick="exportPDFReportFiltered('settings')" style="font-size:11px;padding:5px 12px">📄 Export PDF</button>
+              <button class="btn-secondary" onclick="exportCSVFiltered('settings')" style="font-size:11px;padding:5px 12px">📊 Export CSV</button>
+            </div>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="saveSettings()" style="margin-top:20px">Save Settings</button>
+        <div class="save-feedback" id="settings-feedback"></div>
+      </div>
+    </section>
+
+
+
+  </div><!-- end pages-container -->
+</main>
+
+<!-- RULE MODAL -->
+<div class="modal-overlay" id="rule-modal" onclick="if(event.target===this)closeRuleModal()">
+  <div class="modal-box" style="max-width:480px">
+    <button class="modal-close" onclick="closeRuleModal()">✕</button>
+    <div style="font-family:var(--font-display);font-size:20px;font-weight:800;margin-bottom:20px">📋 Trading Rule</div>
+    <input type="hidden" id="rule-edit-id">
+    <div class="form-group" style="margin-bottom:14px">
+      <label>Rule Name</label>
+      <input type="text" id="rule-name" class="form-input" placeholder="e.g. Never trade first 5 minutes, Only A+ setups...">
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label>Category</label>
+      <select id="rule-cat" class="form-input">
+        <option>Entry Rules</option><option>Exit Rules</option><option>Risk Management</option>
+        <option>Psychology</option><option>Position Sizing</option><option>Setup Filter</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:20px">
+      <label>Why is this rule important?</label>
+      <textarea id="rule-why" class="form-input form-textarea" style="min-height:60px" placeholder="What does backtesting show? Past mistake? What did you learn?"></textarea>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn-primary" onclick="saveRule()" style="flex:1">Save Rule</button>
+      <button class="btn-secondary" onclick="closeRuleModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAG MODAL -->
+<div class="modal-overlay" id="tag-modal" onclick="if(event.target===this)closeTagModal()">
+  <div class="modal-box" style="max-width:460px">
+    <button class="modal-close" onclick="closeTagModal()">✕</button>
+    <div style="font-family:var(--font-display);font-size:20px;font-weight:800;margin-bottom:20px">🏷️ Create Tag</div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label>Tag Name</label>
+      <input type="text" id="tag-name" class="form-input" placeholder="e.g. High Volatility, Gap Up, Pre-earnings...">
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label>Tag Type</label>
+      <select id="tag-type" class="form-input">
+        <option value="market_regime">Market Regime</option>
+        <option value="setup">Setup Type</option>
+        <option value="condition">Market Condition</option>
+        <option value="custom">Custom</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:20px">
+      <label>Color</label>
+      <div class="tag-color-picker" id="tag-color-picker">
+        <div class="tag-color-opt active" data-color="#00ff88" style="background:#00ff88" onclick="selectTagColor('#00ff88',this)"></div>
+        <div class="tag-color-opt" data-color="#00d4ff" style="background:#00d4ff" onclick="selectTagColor('#00d4ff',this)"></div>
+        <div class="tag-color-opt" data-color="#f7b731" style="background:#f7b731" onclick="selectTagColor('#f7b731',this)"></div>
+        <div class="tag-color-opt" data-color="#ff4d6d" style="background:#ff4d6d" onclick="selectTagColor('#ff4d6d',this)"></div>
+        <div class="tag-color-opt" data-color="#a29bfe" style="background:#a29bfe" onclick="selectTagColor('#a29bfe',this)"></div>
+        <div class="tag-color-opt" data-color="#ff9f43" style="background:#ff9f43" onclick="selectTagColor('#ff9f43',this)"></div>
+        <div class="tag-color-opt" data-color="#ff6b9d" style="background:#ff6b9d" onclick="selectTagColor('#ff6b9d',this)"></div>
+        <div class="tag-color-opt" data-color="#26de81" style="background:#26de81" onclick="selectTagColor('#26de81',this)"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn-primary" onclick="saveTag()" style="flex:1">Create Tag</button>
+      <button class="btn-secondary" onclick="closeTagModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHALLENGE MODAL -->
+<div class="modal-overlay" id="challenge-modal" onclick="if(event.target===this)closeChallengeModal()">
+  <div class="modal-box" style="max-width:500px">
+    <button class="modal-close" onclick="closeChallengeModal()">✕</button>
+    <div style="font-family:var(--font-display);font-size:20px;font-weight:800;margin-bottom:20px">🏆 New Challenge</div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label>Challenge Name</label>
+      <input type="text" id="ch-name" class="form-input" placeholder="e.g. 30 Days No Revenge Trade...">
+    </div>
+    <div class="form-row" style="margin-bottom:14px">
+      <div class="form-group">
+        <label>Duration (days)</label>
+        <input type="number" id="ch-days" class="form-input" value="30" min="1" max="365">
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <select id="ch-type" class="form-input">
+          <option value="discipline">Discipline (no rule breaks)</option>
+          <option value="profit">Profit Target</option>
+          <option value="trades">Trade Count</option>
+          <option value="winrate">Win Rate</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label>Target / Description</label>
+      <textarea id="ch-desc" class="form-input form-textarea" style="min-height:60px" placeholder="What do you want to achieve? What are the rules?"></textarea>
+    </div>
+    <div class="form-group" style="margin-bottom:20px">
+      <label>Reward if you complete it 🎁</label>
+      <input type="text" id="ch-reward" class="form-input" placeholder="e.g. Naya laptop, Short trip, Rest day...">
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn-primary" onclick="saveChallenge()" style="flex:1">🚀 Start Challenge</button>
+      <button class="btn-secondary" onclick="closeChallengeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TRADE DETAIL MODAL -->
+<div class="modal-overlay" id="trade-modal" onclick="closeModal(event)">
+  <div class="modal-box" id="modal-box" style="max-width:680px;width:96vw;max-height:92vh;overflow-y:auto;overflow-x:hidden;padding:22px 24px;scrollbar-width:thin;">
+    <button class="modal-close" onclick="closeTradeModal()" style="position:sticky;top:0;float:right;z-index:20;margin-bottom:-28px">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="sync.js"></script>
+<script src="dynamic.js"></script>
+<script src="app.js?v=2"></script>
+<script src="insights.js"></script>
+<script src="hub_upgrades.js"></script>
+<script src="stats.js"></script>
+<script src="deep-analytics.js"></script>
+<script src="insights.js"></script>
+
+<!-- WHAT-IF SIMULATOR MODAL -->
+<div class="modal-overlay" id="whatif-modal" onclick="if(event.target===this)closeWhatIfModal()">
+  <div class="modal-box" style="max-width:580px">
+    <button class="modal-close" onclick="closeWhatIfModal()">✕</button>
+    <div id="whatif-content"></div>
+  </div>
+</div>
+
+<script src="insights.js" onerror="0"></script>
+<script src="deepanalytics.js" onerror="0"></script>
+<script src="institutional.js" onerror="0"></script>
+<script src="router.js" onerror="0"></script>
+<script src="fixes.js"></script>
+<script src="hub_fix.js"></script>
+<script src="showcase.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   PERFORMANCE CHART + MONTHLY P&L CALENDAR
+   ═══════════════════════════════════════════════════════════ */
+(function() {
+  'use strict';
+
+  let perfChart = null;
+  let mcalYear  = new Date().getFullYear();
+  let mcalMonth = new Date().getMonth();
+  let _perfView = '1W';
+
+  function getTrades() {
+    if (window.trades && Array.isArray(window.trades)) return window.trades;
+    try { return JSON.parse(localStorage.getItem('tradebook_trades') || '[]'); }
+    catch(e) { return []; }
+  }
+
+  function fmtAmt(val) {
+    const abs = Math.abs(val);
+    if (abs >= 100000) return '₹' + (Math.abs(val)/100000).toFixed(1) + 'L';
+    if (abs >= 1000)   return '₹' + (Math.abs(val)/1000).toFixed(1) + 'K';
+    return '₹' + Math.abs(val).toFixed(0);
+  }
+  function fmtSigned(val) { return (val >= 0 ? '+' : '-') + fmtAmt(val); }
+  function tradeNet(t)    { return parseFloat(t.net) || 0; }
+
+  /* ── Performance Chart ── */
+  window.setPerfView = function(view, btn) {
+    _perfView = view;
+    document.querySelectorAll('.perf-tab').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderPerfChart();
+  };
+
+  function renderPerfChart() {
+    const canvas  = document.getElementById('perfChart');
+    const valEl   = document.getElementById('perf-big-val');
+    const emptyEl = document.getElementById('perf-empty');
+    if (!canvas) return;
+
+    const now = new Date();
+    let cutoff = new Date(0);
+    if      (_perfView === '1D') cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    else if (_perfView === '1W') cutoff = new Date(now - 7  * 86400000);
+    else if (_perfView === '1M') cutoff = new Date(now - 30 * 86400000);
+    else if (_perfView === '3M') cutoff = new Date(now - 90 * 86400000);
+
+    const filtered = getTrades()
+      .filter(t => _perfView === 'ALL' || new Date(t.date + 'T00:00:00') >= cutoff)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    const total = filtered.reduce((s, t) => s + tradeNet(t), 0);
+    if (valEl) { valEl.textContent = fmtSigned(total); valEl.className = 'perf-big-value' + (total < 0 ? ' neg' : ''); }
+
+    let running = 0;
+    const points = filtered.map(t => { running += tradeNet(t); return { date: t.date, y: running }; });
+    if (emptyEl) emptyEl.style.display = points.length === 0 ? 'flex' : 'none';
+    if (points.length < 2) { if (perfChart) { perfChart.destroy(); perfChart = null; } return; }
+
+    const labels = points.map(p => new Date(p.date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'}));
+    const data   = points.map(p => p.y);
+    const isPos  = data[data.length-1] >= 0;
+    const color  = isPos ? '#00ff88' : '#ff4d6d';
+
+    if (perfChart) { perfChart.destroy(); perfChart = null; }
+    const ctx  = canvas.getContext('2d');
+    const grad = ctx.createLinearGradient(0, 0, 0, 230);
+    grad.addColorStop(0, isPos ? 'rgba(0,255,136,0.22)' : 'rgba(255,77,109,0.22)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+
+    perfChart = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets: [{ data, borderColor: color, backgroundColor: grad, borderWidth: 2, pointRadius: points.length > 40 ? 0 : 3, pointBackgroundColor: color, fill: true, tension: 0.35 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmtSigned(c.parsed.y) } } },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#666', font: { size: 10 }, maxTicksLimit: 8 } },
+          y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#666', font: { size: 10 }, callback: v => fmtAmt(v) } }
+        }
+      }
+    });
+  }
+
+  /* ── Monthly P&L Calendar ── */
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  window.mcalChangeMonth = function(delta) {
+    mcalMonth += delta;
+    if (mcalMonth < 0)  { mcalMonth = 11; mcalYear--; }
+    if (mcalMonth > 11) { mcalMonth = 0;  mcalYear++; }
+    renderMcal();
+  };
+
+  function renderMcal() {
+    const grid    = document.getElementById('mcal-grid');
+    const labelEl = document.getElementById('mcal-month-label');
+    const totalEl = document.getElementById('mcal-monthly-total');
+    if (!grid) return;
+
+    if (labelEl) labelEl.textContent = MONTHS[mcalMonth] + ' ' + mcalYear;
+
+    const dayMap = {}, countMap = {};
+    getTrades().forEach(t => {
+      const d = new Date(t.date + 'T00:00:00');
+      if (d.getFullYear() === mcalYear && d.getMonth() === mcalMonth) {
+        const k = d.getDate();
+        dayMap[k]   = (dayMap[k]   || 0) + tradeNet(t);
+        countMap[k] = (countMap[k] || 0) + 1;
+      }
+    });
+
+    const monthTotal = Object.values(dayMap).reduce((a,b) => a+b, 0);
+    if (totalEl) { totalEl.textContent = 'Monthly: ' + fmtSigned(monthTotal); totalEl.className = 'monthly-cal-pnl' + (monthTotal < 0 ? ' neg' : ''); }
+
+    const daysInMonth = new Date(mcalYear, mcalMonth+1, 0).getDate();
+    const firstDow    = (new Date(mcalYear, mcalMonth, 1).getDay() + 6) % 7; // Mon=0
+
+    grid.innerHTML = '';
+    let cursor = firstDow, weekPnl = 0, weekCount = 0;
+
+    for (let i = 0; i < firstDow; i++) {
+      const e = document.createElement('div'); e.className = 'mcal-cell mcal-empty'; grid.appendChild(e);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const pnl = dayMap[day], hasPnl = pnl !== undefined;
+      const pos = hasPnl ? (pnl >= 0 ? ' mcal-profit' : ' mcal-loss') : '';
+      const cell = document.createElement('div');
+      cell.className = 'mcal-cell' + pos;
+      let inner = `<div class="mcal-day-num">${day}</div>`;
+      if (hasPnl) {
+        const cls = pnl >= 0 ? 'profit' : 'loss';
+        inner += `<div class="mcal-day-pnl ${cls}">${fmtSigned(pnl)}</div><div class="mcal-dot-strip ${cls}"></div>`;
+        weekPnl += pnl; weekCount += countMap[day] || 0;
+      }
+      cell.innerHTML = inner;
+      grid.appendChild(cell);
+      cursor++;
+
+      const isLastDay = day === daysInMonth;
+      if (cursor % 7 === 0 || isLastDay) {
+        if (isLastDay && cursor % 7 !== 0) {
+          const trailing = 7 - (cursor % 7);
+          for (let e = 0; e < trailing; e++) { const em = document.createElement('div'); em.className = 'mcal-cell mcal-empty'; grid.appendChild(em); }
+        }
+        const wCls = weekPnl >= 0 ? 'profit' : 'loss';
+        const wk = document.createElement('div');
+        wk.className = 'mcal-weekly-cell';
+        wk.innerHTML = `<div class="mcal-weekly-label">WEEKLY</div><div class="mcal-weekly-pnl ${wCls}">${fmtSigned(weekPnl)}</div><div class="mcal-weekly-trades">Traded: ${weekCount}</div>`;
+        grid.appendChild(wk);
+        weekPnl = 0; weekCount = 0;
+      }
+    }
+  }
+
+  /* ── Hook into dashboard updates ── */
+  const _origUpdate = window.updateDashboard;
+  window.updateDashboard = function() {
+    if (_origUpdate) _origUpdate.apply(this, arguments);
+    renderPerfChart();
+    renderMcal();
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() { renderPerfChart(); renderMcal(); }, 700);
+  });
+
+})();
+</script>
+<script src="features-v2.js"></script>
+</body>
+</html>

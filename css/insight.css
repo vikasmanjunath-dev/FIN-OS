@@ -1,0 +1,165 @@
+/* =========================
+   FIN-OS INSIGHT ENGINE (FIXED)
+   ========================= */
+@import 'base.css';
+
+/* --- LAYOUT --- */
+.insight-wrapper {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+  background: var(--bg-main);
+  
+  /* 🚨 CRITICAL FIX: Forces Text Color to White in Dark Mode */
+  color: var(--text-primary); 
+}
+
+.insight-content {
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* --- HERO SECTION --- */
+.insight-hero {
+  padding: 60px 40px;
+  border-radius: 24px;
+  margin-bottom: 40px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: radial-gradient(circle at top right, rgba(255,255,255,0.05), transparent 70%);
+}
+.insight-hero h1 { font-size: 3rem; margin-bottom: 10px; color: #fff; }
+.insight-hero p { font-size: 1.2rem; color: var(--text-secondary); max-width: 600px; }
+
+/* --- MODULE CARDS --- */
+.insight-section { margin-bottom: 60px; }
+.section-title { 
+  font-size: 1.5rem; 
+  color: var(--accent); 
+  margin-bottom: 20px; 
+  font-family: 'JetBrains Mono'; 
+  text-transform: uppercase; 
+  letter-spacing: 1px; 
+}
+
+.glass-panel {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 20px;
+  padding: 30px;
+  /* Text Fixes */
+  color: var(--text-primary);
+}
+
+/* --- COMPARISON GRIDS --- */
+.comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.comp-card { padding: 30px; border-radius: 16px; position: relative; }
+.comp-card h3 { font-size: 1.4rem; margin-bottom: 10px; }
+.comp-card p { color: var(--text-secondary); margin-bottom: 8px; } /* Grey text for lists */
+.comp-card strong { color: var(--text-primary); } /* White text for bold */
+
+.comp-card.good { background: rgba(46, 204, 113, 0.05); border: 1px solid #2ecc71; }
+.comp-card.good h3 { color: #2ecc71; }
+.comp-card.bad { background: rgba(255, 71, 87, 0.05); border: 1px solid #ff4757; }
+.comp-card.bad h3 { color: #ff4757; }
+
+/* --- VISUALIZATIONS --- */
+.visual-container {
+  height: 300px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  margin-top: 20px;
+}
+
+/* --- SIDEBAR & BACK BUTTON --- */
+.toc-sidebar {
+  padding: 30px;
+  border-right: 1px solid var(--border-soft);
+  display: flex; 
+  flex-direction: column;
+}
+
+.toc-header {
+  font-family: 'JetBrains Mono';
+  color: var(--accent);
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  font-size: 0.8rem;
+}
+
+/* STYLISH BACK BUTTON */
+.back-btn {
+  margin-top: auto; /* Pushes to bottom */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px;
+  
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.back-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: var(--accent);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.back-btn:active {
+  transform: scale(0.98);
+}
+
+/* --- ANIMATIONS & COMPONENTS --- */
+.emi-bar { width: 80%; height: 40px; background: #333; border-radius: 20px; overflow: hidden; display: flex; }
+.emi-interest { background: #ff4757; height: 100%; transition: width 1s; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 0.8rem; }
+.emi-principal { background: #2ecc71; height: 100%; transition: width 1s; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; font-size: 0.8rem; }
+
+.gear-system { position: relative; width: 200px; height: 150px; }
+.gear {
+  position: absolute; border: 4px dashed rgba(255,255,255,0.2); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff;
+}
+.gear.rbi { width: 100px; height: 100px; left: 0; border-color: #4F7CFF; animation: spin 10s linear infinite; }
+.gear.bank { width: 80px; height: 80px; right: 0; top: 40px; border-color: #C7F000; animation: spin 10s linear infinite reverse; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+.pacman-track { display: flex; gap: 20px; align-items: center; font-size: 2rem; color: #fff; }
+.money-bag { transition: transform 0.5s; }
+.money-bag.shrink { transform: scale(0.6); opacity: 0.7; }
+
+/* --- LIGHT MODE OVERRIDES --- */
+[data-theme="light"] .insight-hero h1 { color: #000; }
+[data-theme="light"] .glass-panel { background: #fff; border-color: rgba(0,0,0,0.1); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+[data-theme="light"] .visual-container { background: #f8f9fa; border: 1px solid #e2e8f0; }
+[data-theme="light"] .gear { border-color: rgba(0,0,0,0.2); color: #000; }
+[data-theme="light"] .back-btn { background: #fff; border-color: rgba(0,0,0,0.1); color: #333; }
+[data-theme="light"] .back-btn:hover { border-color: var(--accent); background: #F0F4FF; color: var(--accent); }
+
+
+.user-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--accent-soft); /* */
+  border-radius: 50%; /* Makes it a round symbol */
+  margin-right: 12px;
+  font-size: 0.8rem;
+}

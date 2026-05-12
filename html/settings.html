@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>Settings | FIN•OS</title>
+  
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/settings.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Manrope:wght@600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="app">
+   <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html" class="active">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper settings-view">
+      
+      <header class="header header-flex">
+        <div>
+          <h1 class="glitch-text">System Settings</h1>
+          <p class="subtitle">Global controls for your FIN•OS experience.</p>
+        </div>
+        <button id="themeToggle" class="theme-btn" onclick="toggleAppTheme()">🌙</button>
+      </header>
+
+      <div class="settings-stack">
+        
+        <section class="settings-card glass-panel">
+          <h3>🔐 Account & Security</h3>
+          
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Email Address</label>
+              <span>Current: <strong id="currentEmail">user@fin-os.com</strong></span>
+            </div>
+            <div class="control">
+              <button class="btn-outline" onclick="window.updateEmail()">Update</button>
+            </div>
+          </div>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Password</label>
+              <span>Last changed: 3 months ago.</span>
+            </div>
+            <div class="control">
+              <button class="btn-outline" onclick="window.changePassword()">Change</button>
+            </div>
+          </div>
+
+          <div class="setting-row sign-out-row">
+            <div class="label-group">
+              <label class="danger-text">Terminate Session</label>
+              <span>Securely log out of this device.</span>
+            </div>
+            <div class="control">
+              <button class="btn-danger" onclick="window.signOut()">Sign Out</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-card glass-panel">
+          <h3>🎨 Appearance</h3>
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Interface Theme</label>
+              <span>Switch between Light and Dark mode.</span>
+            </div>
+            <div class="control">
+              <select id="themeSelect" onchange="window.updateTheme(this.value)">
+                <option value="dark">Dark Mode</option>
+                <option value="light">Light Mode</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Accent Glow</label>
+              <span>UI highlights and neon accents.</span>
+            </div>
+            <div class="color-options">
+              <button class="color-btn" style="background:#4F7CFF;" onclick="window.updateAccent('#4F7CFF')"></button>
+              <button class="color-btn" style="background:#C7F000;" onclick="window.updateAccent('#C7F000')"></button>
+              <button class="color-btn" style="background:#FF4F9A;" onclick="window.updateAccent('#FF4F9A')"></button>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-card glass-panel danger-zone">
+          <h3>⚙️ System Defaults</h3>
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Soft Reset</label>
+              <span>Clear local cache and DNA data.</span>
+            </div>
+            <div class="control">
+              <button class="btn-outline" onclick="window.clearSystemCache()">Clear Cache</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <footer class="settings-footer">
+        <p>FIN•OS Version 2.06.84 | Built for financial clarity.</p>
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/ui.js"></script>
+<script src="../js/settings.js?v=2"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+</body>
+</html>

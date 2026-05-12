@@ -1,0 +1,302 @@
+/* 
+  investor-mindset.css 
+  Custom styling for FIN-OS Investor Mindset Experience
+/* Custom styling for FIN-OS Investor Mindset Experience */
+
+:root {
+    --neon-blue: #00d2ff;
+    --neon-purple: #8a2be2;
+    --neon-teal: #00f2fe;
+}
+
+body[data-theme="buffett"] {
+    --neon-blue: #4ade80;
+    --neon-purple: #166534;
+    --neon-teal: #22c55e;
+}
+
+body[data-theme="simons"] {
+    --neon-blue: #60a5fa;
+    --neon-purple: #1e3a8a;
+    --neon-teal: #3b82f6;
+}
+
+body[data-theme="soros"] {
+    --neon-blue: #f87171;
+    --neon-purple: #7f1d1d;
+    --neon-teal: #ef4444;
+}
+
+body[data-theme="burry"] {
+    --neon-blue: #fb923c;
+    --neon-purple: #7c2d12;
+    --neon-teal: #f97316;
+}
+
+body[data-theme="lynch"] {
+    --neon-blue: #facc15;
+    --neon-purple: #854d0e;
+    --neon-teal: #fef08a;
+}
+
+body[data-theme="dalio"] {
+    --neon-blue: #a855f7;
+    --neon-purple: #581c87;
+    --neon-teal: #e9d5ff;
+}
+
+body[data-theme="livermore"] {
+    --neon-blue: #06b6d4;
+    --neon-purple: #164e63;
+    --neon-teal: #67e8f9;
+}
+
+body[data-theme="munger"] {
+    --neon-blue: #f59e0b;
+    --neon-purple: #78350f;
+    --neon-teal: #fde68a;
+}
+
+body[data-theme="naval"] {
+    --neon-blue: #b45309;
+    --neon-purple: #451a03;
+    --neon-teal: #fbbf24;
+}
+
+body[data-theme="graham"] {
+    --neon-blue: #16a34a;
+    --neon-purple: #14532d;
+    --neon-teal: #4ade80;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 210, 255, 0.2);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 210, 255, 0.5);
+}
+
+.scroll-container {
+    scroll-behavior: smooth;
+    /* Hide scrollbar for layout cleanliness but keep functionality */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.scroll-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Base Utility Animations */
+.animate-spin-slow {
+    animation: spin 8s linear infinite;
+}
+
+.animate-pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .5;
+    }
+}
+
+/* Interactive Text Glows */
+.glow-text-green {
+    text-shadow: 0 0 10px rgba(74, 222, 128, 0.6), 0 0 20px rgba(74, 222, 128, 0.2);
+}
+
+.glow-text-red {
+    text-shadow: 0 0 10px rgba(248, 113, 113, 0.6), 0 0 20px rgba(248, 113, 113, 0.2);
+}
+
+.shine-effect {
+    background-size: 200% auto;
+    animation: shine 4s linear infinite;
+}
+
+@keyframes shine {
+    to {
+        background-position: 200% center;
+    }
+}
+
+/* Border Glow Buttons */
+.border-glow {
+    position: relative;
+}
+
+.border-glow::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple), var(--neon-teal), var(--neon-blue));
+    background-size: 400%;
+    z-index: -1;
+    border-radius: inherit;
+    filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: borderGlowBg 10s linear infinite;
+}
+
+.border-glow:hover::before {
+    opacity: 0.7;
+}
+
+@keyframes borderGlowBg {
+    0% {
+        background-position: 0% 0%;
+    }
+
+    100% {
+        background-position: 400% 0%;
+    }
+}
+
+/* Interactive Range Slider overrides */
+.range-styled::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #00f2fe;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+    transition: transform 0.1s;
+}
+
+.range-styled::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+/* Graph Bars Custom Styling */
+.chart-bar {
+    width: 100%;
+    background: linear-gradient(to top, rgba(74, 222, 128, 0.2), rgba(74, 222, 128, 0.8));
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+}
+
+.chart-bar.ruin {
+    background: linear-gradient(to top, rgba(248, 113, 113, 0.2), rgba(248, 113, 113, 0.8));
+}
+
+/* Custom Shock Animation */
+@keyframes shake {
+    0% {
+        transform: translate(1px, 1px) rotate(0deg);
+    }
+
+    10% {
+        transform: translate(-1px, -2px) rotate(-1deg);
+    }
+
+    20% {
+        transform: translate(-3px, 0px) rotate(1deg);
+    }
+
+    30% {
+        transform: translate(3px, 2px) rotate(0deg);
+    }
+
+    40% {
+        transform: translate(1px, -1px) rotate(1deg);
+    }
+
+    50% {
+        transform: translate(-1px, 2px) rotate(-1deg);
+    }
+
+    60% {
+        transform: translate(-3px, 1px) rotate(0deg);
+    }
+
+    70% {
+        transform: translate(3px, 1px) rotate(-1deg);
+    }
+
+    80% {
+        transform: translate(-1px, -1px) rotate(1deg);
+    }
+
+    90% {
+        transform: translate(1px, 2px) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(1px, -2px) rotate(-1deg);
+    }
+}
+
+.market-shock {
+    animation: shake 0.5s;
+    animation-iteration-count: 1;
+}
+
+/* Floating animation for Decision nodes */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.floating-node {
+    animation: float 4s ease-in-out infinite;
+}
+
+/* Modal styling */
+.modal-enter {
+    animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalSlideUp {
+    0% {
+        transform: translateY(50px) scale(0.95);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}

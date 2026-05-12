@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Mindset Repair</title>
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+
+  <style>
+    /* =========================
+       THEME: SANCTUARY (HEALING)
+       ========================= */
+    :root {
+      --heal-cyan: #00fff2;
+      --heal-blue: #00a8ff;
+      --heal-green: #00ff88;
+      --heal-purple: #9d00ff;
+      --heal-white: #f0faff;
+      --bg-deep: #020b14; /* Deep calming blue-black */
+      --glass: rgba(0, 255, 242, 0.03);
+      --glass-border: rgba(0, 255, 242, 0.1);
+      --font-display: 'Manrope', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      background-color: var(--bg-deep) !important;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(0, 168, 255, 0.08) 0%, transparent 60%),
+        linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px), 
+        linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px);
+      background-size: 100% 100%, 60px 60px, 60px 60px;
+      color: #fff !important;
+      font-family: var(--font-display);
+      overflow-x: hidden;
+    }
+
+    /* Sidebar Override */
+    .sidebar { background: rgba(2, 11, 20, 0.95); border-right: 1px solid rgba(0, 168, 255, 0.1); backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 200; }
+    .main { width: calc(100% - 260px); min-height: 100vh; margin-left: 260px; }
+
+    .content-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding-top: 60px;
+      padding-bottom: 100px;
+      position: relative;
+    }
+
+    /* =========================
+       PHASE 1: THE SCANNER (DIAGNOSIS)
+       ========================= */
+    
+    .scanner-header { text-align: center; margin-bottom: 50px; animation: fadeIn 1s ease; }
+    .zen-title { font-size: 3.5rem; font-weight: 300; letter-spacing: -1px; color: var(--heal-white); margin-bottom: 10px; text-shadow: 0 0 20px rgba(0, 168, 255, 0.3); }
+    .zen-subtitle { color: var(--heal-cyan); font-family: var(--font-mono); font-size: 0.9rem; letter-spacing: 2px; opacity: 0.8; }
+
+    .input-wrapper {
+      display: flex; flex-direction: column; gap: 30px; max-width: 700px; margin: 0 auto;
+    }
+
+    .q-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      padding: 30px;
+      border-radius: 20px;
+      transition: 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+    .q-card:hover { border-color: var(--heal-blue); box-shadow: 0 0 30px rgba(0, 168, 255, 0.1); transform: translateY(-2px); }
+
+    .q-text { font-size: 1.2rem; color: #fff; margin-bottom: 25px; font-weight: 500; border-left: 3px solid var(--heal-cyan); padding-left: 15px; }
+
+    .opt-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+
+    .zen-btn {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 16px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: left;
+      color: #ccc;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 0.95rem;
+    }
+    .zen-btn:hover { background: rgba(0, 168, 255, 0.08); border-color: var(--heal-blue); color: #fff; padding-left: 25px; }
+    
+    .zen-btn.selected { 
+      background: rgba(0, 255, 242, 0.1); 
+      border-color: var(--heal-cyan); 
+      color: #fff; 
+      font-weight: 600; 
+      box-shadow: 0 0 15px rgba(0, 255, 242, 0.1);
+    }
+    .zen-btn span { font-size: 1.4rem; filter: grayscale(1); transition: 0.3s; }
+    .zen-btn.selected span, .zen-btn:hover span { filter: grayscale(0); transform: scale(1.2); }
+
+    .heal-btn {
+      background: linear-gradient(135deg, var(--heal-blue), var(--heal-cyan));
+      color: #000;
+      border: none;
+      padding: 20px 60px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      border-radius: 50px;
+      cursor: pointer;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      box-shadow: 0 0 30px rgba(0, 255, 242, 0.2);
+      transition: 0.4s;
+      display: block;
+      margin: 60px auto;
+      opacity: 0.5; pointer-events: none;
+      transform: translateY(20px);
+    }
+    .heal-btn.active { opacity: 1; pointer-events: all; transform: translateY(0); }
+    .heal-btn:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(0, 255, 242, 0.4); }
+
+
+    /* =========================
+       PHASE 2: THE HEALING PATH (OUTPUT)
+       ========================= */
+    
+    .therapy-section { display: none; animation: slowRise 1s ease forwards; }
+    @keyframes slowRise { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Diagnosis Card */
+    .diagnosis-card {
+      background: radial-gradient(circle at 50% 0%, rgba(0, 168, 255, 0.15) 0%, transparent 80%);
+      border: 1px solid var(--heal-blue);
+      border-radius: 24px;
+      padding: 50px 40px;
+      text-align: center;
+      margin-bottom: 60px;
+      position: relative;
+      box-shadow: 0 0 40px rgba(0,0,0,0.5);
+    }
+
+    .diag-icon { font-size: 4rem; margin-bottom: 20px; display: block; animation: float 4s infinite ease-in-out; }
+    @keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0); } }
+
+    .diag-label { font-family: var(--font-mono); color: var(--heal-cyan); letter-spacing: 2px; font-size: 0.9rem; margin-bottom: 10px; display: block; }
+    .diag-title { font-size: 2.8rem; color: #fff; margin-bottom: 15px; font-weight: 300; line-height: 1.1; }
+    .diag-desc { color: #ccc; font-size: 1.1rem; max-width: 650px; margin: 0 auto; line-height: 1.7; }
+
+    /* The Timeline */
+    .healing-path {
+      position: relative;
+      padding-left: 50px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .path-line {
+      position: absolute; left: 24px; top: 0; bottom: 0; width: 2px;
+      background: linear-gradient(to bottom, var(--heal-cyan), var(--heal-green), transparent);
+      opacity: 0.3;
+    }
+
+    .step-card {
+      position: relative;
+      margin-bottom: 50px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 30px;
+      transition: 0.4s;
+      opacity: 0; /* Animated in via JS */
+      transform: translateX(-20px);
+    }
+    .step-card:hover { 
+      border-color: var(--heal-green); 
+      background: rgba(0, 255, 136, 0.03); 
+      transform: translateX(5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .step-marker {
+      position: absolute; left: -59px; top: 30px;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--bg-deep);
+      border: 2px solid var(--heal-cyan);
+      box-shadow: 0 0 15px var(--heal-cyan);
+      z-index: 2;
+      transition: 0.3s;
+    }
+    .step-card:hover .step-marker { background: var(--heal-green); border-color: var(--heal-green); transform: scale(1.2); }
+
+    .step-stage { font-family: var(--font-mono); color: var(--heal-cyan); font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 8px; display: block; text-transform: uppercase; }
+    .step-head { font-size: 1.4rem; color: #fff; margin-bottom: 15px; font-weight: 600; }
+    
+    .reality-check {
+      background: rgba(0,0,0,0.2);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 0.95rem;
+      color: #bbb;
+      line-height: 1.6;
+      border-left: 2px solid #333;
+    }
+    .reality-check strong { color: #fff; font-weight: 600; }
+
+    .desi-pill {
+      display: inline-flex; align-items: flex-start; gap: 12px;
+      background: rgba(0, 255, 136, 0.08);
+      border: 1px dashed var(--heal-green);
+      padding: 12px 20px;
+      border-radius: 12px;
+      color: var(--heal-green);
+      font-size: 0.9rem;
+      font-style: italic;
+      line-height: 1.5;
+      margin-top: 15px;
+    }
+
+    /* Safety Lock */
+    .safety-msg {
+      text-align: center;
+      margin-top: 60px;
+      font-family: var(--font-mono);
+      color: #555;
+      font-size: 0.8rem;
+      border-top: 1px solid #222;
+      padding-top: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .diag-title { font-size: 2rem; }
+      .healing-path { padding-left: 20px; }
+      .path-line { left: 9px; }
+      .step-marker { left: -39px; }
+    }
+
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo" style="color:var(--heal-cyan);">FIN•OS</div>
+    <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+
+      <section id="scanner">
+        
+        <div class="scanner-header">
+          <div class="zen-title">Unlearn Fear</div>
+          <p class="zen-subtitle">// IDENTIFYING ROOT CAUSE OF RESISTANCE...</p>
+        </div>
+
+        <div class="input-wrapper">
+
+          <div class="q-card">
+            <div class="q-text">1. What is your instant reaction when you hear "Stock Market"?</div>
+            <div class="opt-grid">
+              <div class="zen-btn" onclick="setParam('source', 'social', this)">
+                <span>🎲</span> <div><strong>"It is Gambling (Satta)"</strong><br><small>I believe good people don't speculate.</small></div>
+              </div>
+              <div class="zen-btn" onclick="setParam('source', 'trauma', this)">
+                <span>📉</span> <div><strong>"I saw someone lose everything"</strong><br><small>My uncle/friend got destroyed.</small></div>
+              </div>
+              <div class="zen-btn" onclick="setParam('source', 'control', this)">
+                <span>🌫️</span> <div><strong>"It's too unpredictable"</strong><br><small>I prefer fixed returns (FD/Salary).</small></div>
+              </div>
+              <div class="zen-btn" onclick="setParam('source', 'shame', this)">
+                <span>🧠</span> <div><strong>"I feel dumb"</strong><br><small>Everyone understands it except me.</small></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-card">
+            <div class="q-text">2. Where is your money hiding right now?</div>
+            <div class="opt-grid">
+              <div class="zen-btn" onclick="setParam('action', 'idle', this)">
+                <span>🏦</span> <div><strong>Bank Savings / FD</strong><br><small>Safe, but losing to inflation.</small></div>
+              </div>
+              <div class="zen-btn" onclick="setParam('action', 'gold', this)">
+                <span>🥇</span> <div><strong>Gold / Physical Assets</strong><br><small>Tangible things I can touch.</small></div>
+              </div>
+              <div class="zen-btn" onclick="setParam('action', 'scared', this)">
+                <span>👀</span> <div><strong>Watching but paralyzed</strong><br><small>I have an account but never buy.</small></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="q-card">
+            <div class="q-text">3. What would make you sleep better?</div>
+            <div class="opt-grid">
+              <div class="zen-btn" onclick="setParam('goal', 'safety', this)">
+                <span>🛡️</span> <div><strong>Absolute Safety</strong><br><small>I don't care about high returns.</small></div>
+              </div>
+              <div class="zen-btn" onclick="setParam('goal', 'curious', this)">
+                <span>🤔</span> <div><strong>Understanding</strong><br><small>I want to know how it works, risk-free.</small></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <button class="heal-btn" id="healBtn" onclick="generateTherapy()">Generate Repair Path ➔</button>
+
+      </section>
+
+
+      <section id="therapy" class="therapy-section">
+        
+        <div class="diagnosis-card">
+          <span class="diag-icon" id="diagIcon">🧩</span>
+          <span class="diag-label">// CLINICAL ASSESSMENT</span>
+          <h1 class="diag-title" id="diagTitle">THE DIAGNOSIS</h1>
+          <p class="diag-desc" id="diagDesc">Your fear is not stupidity. It is a protective mechanism based on past data.</p>
+        </div>
+
+        <div class="healing-path" id="pathContainer">
+          <div class="path-line"></div>
+          </div>
+
+        <div class="safety-msg">
+          [ SYSTEM NOTE: THIS PROTOCOL USES 0% REAL CAPITAL INITIALLY ]
+        </div>
+
+        <div style="text-align:center; margin-top:60px;">
+            <button onclick="location.reload()" style="background:transparent; border:1px solid #444; color:#666; padding:10px 20px; border-radius:30px; cursor:pointer;">↺ Restart Session</button>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  let p = { source: null, action: null, goal: null };
+
+  function setParam(key, value, btn) {
+    p[key] = value;
+    const parent = btn.closest('.q-card');
+    parent.querySelectorAll('.zen-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+
+    if(Object.values(p).every(v => v)) {
+      document.getElementById('healBtn').classList.add('active');
+    }
+  }
+
+  function generateTherapy() {
+    document.getElementById('scanner').style.display = 'none';
+    document.getElementById('therapy').style.display = 'block';
+
+    let title, desc, icon, analogy;
+    let missions = [];
+
+    // --- 1. DIAGNOSIS LOGIC ---
+    if (p.source === 'social') {
+      title = "THE CONDITIONED SKEPTIC";
+      icon = "📻";
+      desc = "You aren't scared of markets; you are scared of the 'Gambling' label. You've been taught that 'Good people don't speculate'. We need to break this moral conditioning.";
+      analogy = {
+        icon: "🌊",
+        text: "Think of Swimming: It looks dangerous (drowning) to non-swimmers. But for a swimmer, it's just technique. Markets are just water. You just need to learn to float."
+      };
+    } 
+    else if (p.source === 'trauma') {
+      title = "THE TRAUMA SURVIVOR";
+      icon = "❤️‍🩹";
+      desc = "You saw someone get hurt. Your brain linked 'Market' with 'Pain'. You are trying to protect yourself. We need to unlink the pain from the mechanism.";
+      analogy = {
+        icon: "🔥",
+        text: "Think of Electricity: It can burn your house down, or light it up. The difference is wiring (Risk Management). Your uncle got burnt because of bad wiring, not because electricity is evil."
+      };
+    }
+    else if (p.source === 'control') {
+      title = "THE SAFETY SEEKER";
+      icon = "🧱";
+      desc = "You love your salary because it's predictable. Markets feel like chaos. You fear losing control over your hard work. We need to show you how to control the chaos.";
+      analogy = {
+        icon: "🚦",
+        text: "Think of Driving: You can't control other cars (The Market), but you can control your steering and brakes (Your Risk). If you drive defensively, you are safe."
+      };
+    }
+    else {
+      title = "THE SILENT OBSERVER";
+      icon = "😶";
+      desc = "You feel everyone else is smarter. You stay away to avoid looking foolish. This is 'Imposter Syndrome', not financial ignorance. We need to simplify the beast.";
+      analogy = {
+        icon: "🍲",
+        text: "Think of a Pressure Cooker: It was scary the first time you used it. Now it's just a tool. Markets are just tools you haven't touched yet."
+      };
+    }
+
+    // --- 2. MISSION GENERATION (100% DYNAMIC) ---
+    
+    // MISSION 1: REFRAMING (Based on Source)
+    missions.push({
+      stage: "STAGE 1: DETOX",
+      head: "Detach the Danger Narrative",
+      body: "Stop looking at P&L screenshots. Stop reading 'Multibagger' news. Stop listening to the uncle who lost money.",
+      desi: analogy
+    });
+
+    // MISSION 2: OBSERVATION (Based on current Action)
+    if(p.action === 'idle') {
+      missions.push({
+        stage: "STAGE 2: PASSIVE WATCH",
+        head: "The Grocery Store Method",
+        body: "Pick 1 product you use daily (e.g., Colgate, Britannia Biscuits). Just check its stock price on Google once a week. Don't buy. Just watch it move.",
+        desi: { icon: "🛒", text: "You check vegetable prices daily. Checking stock prices is the same. It's just data." }
+      });
+    } else if (p.action === 'scared') {
+       missions.push({
+        stage: "STAGE 2: SIMULATION",
+        head: "The Ghost Trade",
+        body: "Use a Paper Trading app. Buy ₹1,00,000 worth of shares with fake money. Watch it fluctuate. Feel the emotions without the risk.",
+        desi: { icon: "🎮", text: "Like playing GTA. You can crash the car, but you don't die." }
+      });
+    }
+
+    // MISSION 3: THE EXPERIMENT (Universal)
+    missions.push({
+      stage: "STAGE 3: THE VACCINE SHOT",
+      head: "The ₹100 Experiment",
+      body: "Buy 1 share of an ETF (e.g., NiftyBees) for approx ₹250. If the market crashes 10%, you lose ₹25. Can you survive a ₹25 loss? Yes.",
+      desi: { icon: "💉", text: "It's like a vaccine. A tiny amount of the virus (risk) is injected to build immunity." }
+    });
+
+    // MISSION 4: LOGIC INJECTION (Based on Goal)
+    if(p.goal === 'safety') {
+      missions.push({
+        stage: "STAGE 4: THE SAFETY NET",
+        head: "Understand the Floor",
+        body: "Learn what 'Stop Loss' means. It means you can decide BEFOREHAND how much you are willing to lose.",
+        desi: { icon: "🪂", text: "It's a parachute. You don't jump without it." }
+      });
+    } else {
+      missions.push({
+        stage: "STAGE 4: THE ENGINE ROOM",
+        head: "Why Prices Move?",
+        body: "Understand that prices move due to earnings, not magic. If a company sells more soap, stock goes up.",
+        desi: { icon: "⚙️", text: "It's simple business logic, not a casino wheel." }
+      });
+    }
+
+    // MISSION 5: NORMALIZATION
+    missions.push({
+      stage: "STAGE 5: NORMALIZATION",
+      head: "Make it Boring",
+      body: "Once the fear of the ₹250 trade is gone, automate a small SIP (₹500). Then delete the app. Check it after 6 months.",
+      desi: { icon: "🌱", text: "Like planting a seed. You don't dig it up everyday to check roots. You let it grow." }
+    });
+
+    // MISSION 6: IDENTITY SHIFT
+    missions.push({
+      stage: "STAGE 6: ACCEPTANCE",
+      head: "The Shift",
+      body: "Realize that volatility is the fee you pay for growth. It is not a bug; it is a feature.",
+      desi: { icon: "🌧️", text: "Rain causes mud (messy), but rain brings crops (wealth). You accept the mud for the crops." }
+    });
+
+
+    // --- RENDER CONTENT ---
+    document.getElementById('diagTitle').innerText = title;
+    document.getElementById('diagDesc').innerText = desc;
+    document.getElementById('diagIcon').innerText = icon;
+
+    const container = document.getElementById('pathContainer');
+    container.innerHTML = '<div class="path-line"></div>';
+
+    missions.forEach((m, i) => {
+      container.innerHTML += `
+        <div class="step-card" style="animation: slideIn 0.6s ease forwards; animation-delay: ${i*0.15}s; opacity:0;">
+          <div class="step-marker"></div>
+          <span class="step-stage">${m.stage}</span>
+          <h3 class="step-head">${m.head}</h3>
+          <div class="reality-check">
+            ${m.body}
+          </div>
+          <div class="desi-pill">
+            <span>${m.desi.icon}</span> ${m.desi.text}
+          </div>
+        </div>
+      `;
+    });
+  }
+
+</script>
+
+<style>
+@keyframes slideIn { from { opacity:0; transform:translateX(-20px); } to { opacity:1; transform:translateX(0); } }
+</style>
+
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+
+<style id="fr-light-theme">
+[data-theme="light"] body {
+  background-color: #EBF4FF !important;
+  background-image: none !important;
+  color: #0A1A2E !important;
+}
+[data-theme="light"] .main { background: #EBF4FF !important; }
+[data-theme="light"] .scanner-header { background: transparent !important; }
+[data-theme="light"] .zen-title { color: #0A1A2E !important; text-shadow: none !important; -webkit-text-fill-color: #0A1A2E !important; }
+[data-theme="light"] .zen-subtitle { color: #0060A0 !important; opacity: 1 !important; }
+[data-theme="light"] .q-card { background: rgba(255,255,255,0.8) !important; border-color: rgba(0,168,255,0.2) !important; }
+[data-theme="light"] .q-card:hover { border-color: rgba(0,168,255,0.5) !important; box-shadow: 0 0 20px rgba(0,168,255,0.08) !important; }
+[data-theme="light"] .q-text { color: #0A1A2E !important; }
+[data-theme="light"] .zen-btn { color: #0A1A2E !important; background: rgba(255,255,255,0.7) !important; border-color: rgba(0,168,255,0.2) !important; }
+[data-theme="light"] .zen-btn:hover { color: #0060A0 !important; background: rgba(0,168,255,0.08) !important; }
+[data-theme="light"] .zen-btn.selected { background: rgba(0,168,255,0.12) !important; color: #0060A0 !important; }
+[data-theme="light"] .heal-btn { background: rgba(0,255,242,0.1) !important; border-color: rgba(0,168,255,0.3) !important; }
+[data-theme="light"] .healing-path { background: transparent !important; }
+[data-theme="light"] .path-node { background: rgba(255,255,255,0.8) !important; border-color: rgba(0,168,255,0.2) !important; }
+[data-theme="light"] .path-node h3 { color: #0A1A2E !important; }
+[data-theme="light"] .path-node p { color: #2A4060 !important; }
+</style>
+
+</body>
+</html>

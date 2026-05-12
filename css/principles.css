@@ -1,0 +1,194 @@
+/* =========================
+   FIN-PRINCIPLES & RULES STYLING
+   ========================= */
+
+/* --- LAYOUT & SWITCHER --- */
+.mode-switcher {
+  display: flex;
+  gap: 20px;
+  margin: 40px 0;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.mode-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text-secondary);
+  padding: 12px 32px;
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.mode-btn:hover { border-color: var(--accent); color: #fff; }
+
+.mode-btn.active {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(199, 240, 0, 0.3);
+}
+
+.view-container { display: none; animation: fadeIn 0.5s ease; }
+.view-container.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- SECTION GROUPING --- */
+.principle-group { margin-bottom: 80px; }
+
+.group-title {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.group-title span {
+  font-family: 'JetBrains Mono';
+  font-size: 1rem;
+  background: rgba(255,255,255,0.1);
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: var(--accent);
+}
+
+/* --- THE LAW CARD --- */
+.law-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 30px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.law-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.law-card.special { border-top: 4px solid var(--accent); }
+.law-card.warning { border-top: 4px solid #ff4757; }
+
+.badge {
+  font-family: 'JetBrains Mono';
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  opacity: 0.7;
+}
+
+.law-card h3 {
+  font-size: 1.4rem;
+  color: #fff;
+  margin-bottom: 16px;
+  line-height: 1.3;
+}
+
+.definition { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 20px; font-weight: 500; }
+.why { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 16px; }
+
+/* --- DESI REALITY BOX --- */
+.desi-reality {
+  background: rgba(255,255,255,0.05);
+  border-left: 3px solid #4F7CFF;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: auto;
+}
+.desi-reality.warning { border-left-color: #ff4757; background: rgba(255, 71, 87, 0.05); }
+
+.desi-reality .flag { font-size: 0.75rem; text-transform: uppercase; color: #4F7CFF; font-weight: 700; display: block; margin-bottom: 6px; }
+.desi-reality p { font-size: 0.9rem; margin: 0; color: var(--text-secondary); }
+
+/* --- INTERACTIVE LABS --- */
+.interactive-lab {
+  margin-top: 24px;
+  padding: 20px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+  border: 1px dashed rgba(255,255,255,0.1);
+}
+
+.interactive-lab h4 { font-size: 0.9rem; color: var(--accent); margin-bottom: 15px; text-transform: uppercase; }
+
+.input-row { display: flex; gap: 10px; margin-bottom: 15px; }
+input, select {
+  width: 100%;
+  padding: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+}
+
+.result-box {
+  background: rgba(199, 240, 0, 0.1);
+  color: var(--accent);
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+.result-box strong { font-weight: 800; font-size: 1.1rem; }
+.result-box.large strong { font-size: 1.5rem; }
+
+/* Allocator Bar */
+.allocation-bar {
+  display: flex;
+  height: 30px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 15px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #000;
+  text-align: center;
+  line-height: 30px;
+}
+.alloc-segment.equity { background: var(--accent); width: 70%; transition: width 0.3s; }
+.alloc-segment.debt { background: #4F7CFF; width: 30%; color: #fff; transition: width 0.3s; }
+
+/* --- GRIDS --- */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+/* --- LIGHT MODE --- */
+[data-theme="light"] .law-card { background: #fff; border-color: rgba(0,0,0,0.06); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+[data-theme="light"] .law-card h3 { color: #1a202c; }
+[data-theme="light"] .definition { color: #2d3748; }
+[data-theme="light"] .group-title { color: #1a202c; }
+[data-theme="light"] .group-title span { background: rgba(0,0,0,0.05); }
+[data-theme="light"] .desi-reality { background: #F7F9FC; }
+[data-theme="light"] input, [data-theme="light"] select { background: #fff; border-color: rgba(0,0,0,0.1); color: #000; }
+[data-theme="light"] .interactive-lab { background: #F7F9FC; border-color: rgba(0,0,0,0.1); }
+[data-theme="light"] .mode-btn { color: #4a5568; border-color: rgba(0,0,0,0.1); }
+[data-theme="light"] .mode-btn.active { color: #000; }
+
+@media (max-width: 900px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+
+
+.user-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--accent-soft); /* */
+  border-radius: 50%; /* Makes it a round symbol */
+  margin-right: 12px;
+  font-size: 0.8rem;
+}
