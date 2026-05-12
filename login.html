@@ -642,7 +642,9 @@ html[data-theme="dark"] .icon-moon { opacity: 1; transform: scale(1) rotate(0); 
     const supabaseUrl = 'https://oeapcyucnduhwpgxfknb.supabase.co'; 
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-    const buildAppUrl = (page) => new URL(page, window.location.href).href;
+    const buildAppUrl = (page) => {
+  return `${window.location.origin}/html/${page}`;
+   };
 
     // --- LOGIN HANDLER ---
     const loginForm = document.getElementById("identityForm");
@@ -660,7 +662,7 @@ html[data-theme="dark"] .icon-moon { opacity: 1; transform: scale(1) rotate(0); 
             alert(error.message);
             btn.innerText = "INITIALIZE SESSION";
         } else {
-            window.location.href = "profile.html";
+            window.location.href = "/html/profile.html";
         }
       });
     }
