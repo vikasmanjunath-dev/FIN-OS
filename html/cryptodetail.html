@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Crypto Protocol</title>
+  
+  <script src="../js/theme-init.js"></script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/cryptodetail.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+  <button id="themeToggle" class="theme-btn fixed-theme-btn">🌙</button>
+
+  <div class="deep-wrapper">
+    
+    <aside class="toc-sidebar">
+      <div class="toc-header">PROTOCOL 10: CRYPTO</div>
+      <ul class="toc-list">
+        <li><a href="#hero" class="toc-link active">0. Warning</a></li>
+        <li><a href="#sec1" class="toc-link">1. Concept (The Notebook)</a></li>
+        <li><a href="#sec2" class="toc-link">2. Origin Story</a></li>
+        <li><a href="#sec3" class="toc-link">3. Blockchain Logic</a></li>
+        <li><a href="#sec4" class="toc-link">4. Types (BTC vs Alts)</a></li>
+        <li><a href="#sec5" class="toc-link">5. Market Reality</a></li>
+        <li><a href="#sec6" class="toc-link">6. India Context (Tax)</a></li>
+        <li><a href="#sec7" class="toc-link">7. Value Source</a></li>
+        <li><a href="#sec8" class="toc-link">8. Asset Comparison</a></li>
+        <li><a href="#sec10" class="toc-link">9. The Cycles</a></li>
+        <li><a href="#sec11" class="toc-link">10. Web3 & DeFi</a></li>
+        <li><a href="#sec12" class="toc-link">11. Risks (Brutal)</a></li>
+        <li><a href="#sec13" class="toc-link">12. Why Retail Loses</a></li>
+        <li><a href="#sec15" class="toc-link">13. Portfolio Role</a></li>
+        <li><a href="#sec16" class="toc-link">14. Mental Model</a></li>
+        <li><a href="#sec18" class="toc-link">15. Final Truth</a></li>
+      </ul>
+      <a href="markets.html" class="back-btn">← Back to Terminal</a>
+    </aside>
+
+    <main class="deep-content" id="scrollContainer">
+
+      <section class="chapter active" id="hero">
+        <h1 class="glitch-text" data-text="Crypto Protocol">Crypto Protocol</h1>
+        <div class="warning-banner">
+          <span class="warn-icon">⚠️</span>
+          <p><strong>READ SLOWLY:</strong> Crypto is not magic money. It is raw, volatile technology mixed with human greed.</p>
+        </div>
+        <p class="intro-text">
+          Trust in Math, not Institutions.<br>
+          <span class="highlight">The separation of Money and State.</span>
+        </p>
+        <div class="scroll-indicator">Initialize Protocol ⬇</div>
+      </section>
+
+      <section class="chapter" id="sec1">
+        <span class="chapter-badge">LEVEL 01: FIRST PRINCIPLES</span>
+        <h2>1. What Is Crypto?</h2>
+        <p>Crypto is digital money built on <strong>Cryptography</strong>. No banks. No borders.</p>
+        
+        <div class="concept-box glass">
+          <div class="notebook-visual">
+            <div class="book">
+              <div class="page">
+                <div class="line">Tx: A sent 5 to B</div>
+                <div class="line">Tx: B sent 2 to C</div>
+                <div class="line locked">🔒 Verified</div>
+              </div>
+            </div>
+            <div class="network">
+              <span class="node n1">💻</span>
+              <span class="node n2">💻</span>
+              <span class="node n3">💻</span>
+            </div>
+          </div>
+          <div class="story-content">
+            <h3>The Public Notebook Analogy</h3>
+            <p>Imagine a notebook that everyone can see, but no one can erase.</p>
+            <ul class="micro-list">
+              <li>✅ <strong>Blockchain:</strong> The Notebook.</li>
+              <li>✅ <strong>Transactions:</strong> The Entries.</li>
+              <li>✅ <strong>Miners:</strong> The Accountants verifying the ink.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec2">
+        <span class="chapter-badge">LEVEL 02: ORIGIN</span>
+        <h2>2. Why Was It Created?</h2>
+        <p>It wasn't for "Lambos". It was born from the <strong>2008 Financial Crisis</strong>.</p>
+        <div class="visual-box glass center-text">
+          <h3 class="highlight">"Trust is Broken."</h3>
+          <p>Banks failed. Governments printed money. Bitcoin was the answer.</p>
+          <p class="caption-text">Goal: A system that doesn't rely on human honesty.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec3">
+        <span class="chapter-badge">LEVEL 03: THE TECH</span>
+        <h2>3. What Is Blockchain?</h2>
+        <div class="visual-flow-container glass">
+          <div class="flow-step">
+            <div class="step-icon">📦</div>
+            <strong>Block</strong>
+            <span>(Data)</span>
+          </div>
+          <div class="flow-line"></div>
+          <div class="flow-step center">
+            <div class="step-icon">🔗</div>
+            <strong>Chain</strong>
+            <span>(History)</span>
+          </div>
+          <div class="flow-line"></div>
+          <div class="flow-step">
+            <div class="step-icon">🌍</div>
+            <strong>Network</strong>
+            <span>(Consensus)</span>
+          </div>
+        </div>
+        <p class="caption-text">Distributed. Immutable. Transparent.</p>
+      </section>
+
+      <section class="chapter" id="sec4">
+        <span class="chapter-badge">LEVEL 04: CLASSIFICATION</span>
+        <h2>4. Types of Crypto Assets</h2>
+        <div class="grid-2-mini">
+          <div class="mini-card highlight">
+            <h4>1. Bitcoin (BTC)</h4>
+            <p><strong>Digital Gold.</strong> Hard money. Fixed supply (21M). The king.</p>
+          </div>
+          <div class="mini-card">
+            <h4>2. Smart Platforms</h4>
+            <p><strong>Ethereum (ETH).</strong> The "App Store" of crypto. Enables DeFi & NFTs.</p>
+          </div>
+          <div class="mini-card danger">
+            <h4>3. Altcoins</h4>
+            <p><strong>Experiments.</strong> 99% will fail. High risk, high reward (gambling).</p>
+          </div>
+          <div class="mini-card">
+            <h4>4. Stablecoins</h4>
+            <p><strong>USDT/USDC.</strong> Digital Dollar. Boring but useful for trading.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec6">
+        <span class="chapter-badge">LEVEL 05: INDIA REALITY</span>
+        <h2>6. How Indians Access Crypto</h2>
+        <div class="legal-card banned">
+           <div class="icon">🏛️</div>
+           <h3>The Tax Reality (Flat 30%)</h3>
+           <p>Crypto profits are taxed at <strong>30% Flat</strong> + 1% TDS on trades.</p>
+           <p style="margin-top:10px;"><strong>Losses cannot be offset against profits.</strong> This changes the math completely.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec8">
+        <span class="chapter-badge">LEVEL 06: COMPARISON</span>
+        <h2>8. Crypto vs The World</h2>
+        <div class="comparison-table">
+           <div class="comp-row header">
+             <span>Asset</span>
+             <span>Cash Flow</span>
+             <span>Volatility</span>
+           </div>
+           <div class="comp-row">
+             <span>Equity</span>
+             <span class="success">Yes (Dividends)</span>
+             <span>Medium</span>
+           </div>
+           <div class="comp-row">
+             <span>Gold</span>
+             <span class="danger">No</span>
+             <span>Low</span>
+           </div>
+           <div class="comp-row">
+             <span>Crypto</span>
+             <span class="danger">No</span>
+             <span class="highlight">Extreme</span>
+           </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec10">
+        <span class="chapter-badge">LEVEL 07: THE CYCLE</span>
+        <h2>10. The Boom-Bust Cycle</h2>
+        <p>Crypto moves in violent 4-year cycles (Halving). It is not a straight line.</p>
+        
+        <div class="chart-container glass">
+          <canvas id="cycleChart"></canvas>
+          <p class="chart-caption">Price vs Psychology (The Emotional Rollercoaster)</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec12">
+        <span class="chapter-badge">LEVEL 08: DANGER</span>
+        <h2>12. Risks (Read Carefully)</h2>
+        <div class="grid-2-mini">
+          <div class="mini-card danger">
+            <h4>Drawdowns</h4>
+            <p>Bitcoin drops 80% regularly. Altcoins drop 99%. Can you stomach that?</p>
+          </div>
+          <div class="mini-card danger">
+            <h4>Custody Risk</h4>
+            <p>If you lose your private keys (password), the money is gone forever. No "Forgot Password" button.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec15">
+        <span class="chapter-badge">LEVEL 09: STRATEGY</span>
+        <h2>13. Role in Portfolio (The Satellite)</h2>
+        <p>Crypto should never be the core. It is an asymmetric bet.</p>
+        
+        <div class="orbit-visual">
+          <div class="core-planet">
+            <span>EQUITY<br>Core</span>
+          </div>
+          <div class="satellite sat-1"><span>Crypto<br>(1-5%)</span></div>
+        </div>
+        
+        <div class="concept-box glass">
+           <p class="moral"><strong>Allocation Rule:</strong> Only invest money you can afford to set on fire.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec16">
+        <span class="chapter-badge">LEVEL 10: MINDSET</span>
+        <h2>14. The Mental Model</h2>
+        <div class="concept-box glass">
+           <h4>"Technology Option"</h4>
+           <p>Think of Crypto as buying a Call Option on the future of the internet/money.</p>
+           <p class="highlight">It might expire worthless. Or it might pay 100x.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec18">
+        <div class="pro-tip god-mode">
+          <div class="god-header">
+            <h4>💎 The Final Truth</h4>
+          </div>
+          <p>
+            Crypto is neither evil nor divine.<br>
+            It is raw technology mixed with human greed.
+          </p>
+          <p class="sub-text">
+            If you don't understand it, don't touch it.<br>
+            If you do, respect it, limit it, and never worship it.
+          </p>
+        </div>
+      </section>
+
+      <footer class="deep-footer">
+        <h2>Protocol Complete.</h2>
+        <p>You have decoded the noise.</p>
+        <a href="markets.html" class="action-btn">Return to Base ➔</a>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="../js/ui.js"></script>
+  <script src="../js/cryptodetail.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+</body>
+</html>

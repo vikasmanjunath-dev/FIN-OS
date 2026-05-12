@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Tax Protocol</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/tax.css?v=3">
+  <link rel="stylesheet" href="../css/theme.css">
+  
+  <style>
+    /* Fix for theme button and light mode text alignments/visibility */
+    :root[data-theme="light"] {
+      --bg-color: #f4f6f8;
+      --text-color: #1a1a24;
+      --text-muted: #555;
+      --panel-bg: #ffffff;
+      --border-color: #e0e0e0;
+    }
+    
+    [data-theme="light"] body,[data-theme="light"] .app,
+    [data-theme="light"] .main {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }[data-theme="light"] .glass-panel,[data-theme="light"] .card,[data-theme="light"] .mini-card,[data-theme="light"] .auth-card,[data-theme="light"] .interactive-card,
+    [data-theme="light"] .shield-item,
+    [data-theme="light"] .salary-breakdown {
+      background: var(--panel-bg);
+      border-color: var(--border-color);
+      color: var(--text-color);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    
+    [data-theme="light"] .subtitle,
+    [data-theme="light"] .auth-detail,[data-theme="light"] p {
+      color: var(--text-muted);
+    }
+    
+    [data-theme="light"] h1,
+    [data-theme="light"] h2,[data-theme="light"] h3,
+    [data-theme="light"] h4,[data-theme="light"] h5 {
+      color: #000;
+    }[data-theme="light"] .glitch-text {
+      color: #111;
+      text-shadow: none;
+    }
+
+    [data-theme="light"] .desi-box {
+      background: #fff8e1;
+      border-left: 4px solid #ffb300;
+      color: #333;
+    }
+    
+    [data-theme="light"] .desi-box p {
+      color: #333;
+    }
+    
+    [data-theme="light"] .matrix-header {
+      background: #e0e0e0;
+      color: #111;
+      font-weight: bold;
+    }
+    
+    [data-theme="light"] .matrix-row {
+      border-bottom: 1px solid #ddd;
+    }[data-theme="light"] .matrix-row:hover {
+      background: #f9f9f9;
+    }
+
+    [data-theme="light"] .theme-btn {
+      background: #fff;
+      border: 1px solid #ccc;
+      color: #333;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    [data-theme="light"] .tax-nav a {
+      color: #333;
+      background: #e0e0e0;
+    }[data-theme="light"] .tax-nav a:hover,
+    [data-theme="light"] .tax-nav a.active {
+      background: #007bff;
+      color: #fff;
+    }
+    
+    [data-theme="light"] .math-box {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+    }[data-theme="light"] .text-block, 
+    [data-theme="light"] .check-list li,
+    [data-theme="light"] .neon-list li,[data-theme="light"] .mini-list li {
+      color: #333;
+    }
+
+    .theme-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.2rem;
+    }
+
+    /* ----- NEW LAYOUT FIXES FOR ALIGNMENT AND SQUISHED CARDS ----- */
+    /* Stacks grid items vertically instead of trying to squish them side-by-side */
+    .grid-stacked {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 24px !important;
+        width: 100% !important;
+    }
+
+    /* Enforce a strict vertical flow inside interactive cards to stop horizontal squishing */
+    .card.interactive-card, .interactive-card {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+        gap: 16px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .card.interactive-card > * {
+        width: 100% !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        text-align: left !important;
+    }
+
+    .card.interactive-card .card-icon {
+        font-size: 2.5rem !important;
+        margin-bottom: 4px !important;
+        width: auto !important;
+    }
+
+    .card.interactive-card .separator {
+        margin: 8px 0 !important;
+        height: 1px !important;
+        background: rgba(120, 120, 120, 0.3) !important;
+    }[data-theme="light"] .card.interactive-card .separator {
+        background: #e0e0e0 !important;
+    }
+
+    .card.interactive-card .desi-box {
+        margin-top: 16px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Ensure lists display properly and text wraps cleanly */
+    ul.check-list, ul.mini-list, ul.neon-list {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        padding-left: 20px !important;
+        list-style-position: outside !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+    }
+    
+    ul.check-list li, ul.mini-list li, ul.neon-list li {
+        text-align: left !important;
+        display: list-item !important;
+        width: 100% !important;
+        line-height: 1.5 !important;
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+    <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html" class="active">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+  <main class="main">
+
+    <div class="scroll-progress"></div>
+
+    <div class="content-wrapper">
+
+      <header class="header header-flex">
+        <div>
+          <h1 class="glitch-text" data-text="TAX PROTOCOL">TAX PROTOCOL</h1>
+          <p class="hero-sub">The Complete Operating Manual for the Indian Tax System — Every Slab, Every Rule, Every Market.</p>
+        </div>
+        <button id="themeToggle" class="theme-btn" title="Toggle Theme">🌙</button>
+      </header>
+
+      <!-- NAV STRIP -->
+      <nav class="tax-nav">
+        <a href="#basics">Basics</a>
+        <a href="#structure">Structure</a>
+        <a href="#slabs">Slabs</a>
+        <a href="#deductions">Deductions</a>
+        <a href="#capitalgains">Capital Gains</a>
+        <a href="#equity">Equity</a>
+        <a href="#mf">Mutual Funds</a>
+        <a href="#realestate">Real Estate</a>
+        <a href="#gold">Gold</a>
+        <a href="#crypto">Crypto & F&O</a>
+        <a href="#freelancer">Freelancers</a>
+        <a href="#gst">GST</a>
+        <a href="#tds">TDS</a>
+        <a href="#itr">ITR Filing</a>
+        <a href="#nri">NRI</a>
+        <a href="#strategies">Strategies</a>
+      </nav>
+
+      <!-- ═══════════════════════════════════════ -->
+      <!--  PART 1: FOUNDATIONS                    -->
+      <!-- ═══════════════════════════════════════ -->
+
+      <div class="part-divider"><span>PART 1</span> FOUNDATIONS</div>
+
+      <section class="tax-section glass-panel" id="basics">
+        <div class="section-header">
+          <span class="section-number">01</span>
+          <h2>First Principles: What is Tax?</h2>
+        </div>
+
+        <div class="split-layout">
+          <div class="text-block">
+            <p>Tax is not theft. Tax is the <strong>Subscription Fee</strong> for living in India.</p>
+            <p>Just like you pay Netflix to watch movies, you pay the Government to access:</p>
+            <ul class="neon-list">
+              <li>🛣️ <strong>Infrastructure</strong> — Roads, Bridges, Metro, Railways</li>
+              <li>🛡️ <strong>Defence</strong> — Army, Navy, Air Force, Border Security</li>
+              <li>🏥 <strong>Healthcare</strong> — AIIMS, Government Hospitals, Ayushman Bharat</li>
+              <li>🎓 <strong>Education</strong> — IITs, IIMs, Public Schools, Mid-day Meals</li>
+              <li>⚖️ <strong>Law & Order</strong> — Police, Courts, Justice System</li>
+              <li>💰 <strong>Welfare</strong> — PM-KISAN, MGNREGA, Subsidies</li>
+            </ul>
+
+            <div class="desi-box">
+              <span class="emoji">🇮🇳</span>
+              <p><strong>Desi Reality:</strong> You don't pay tax because you earn money. You pay tax because you <em>participate</em> in the economy. Even a beggar buying a ₹5 Parle-G pays tax (GST). Only ~7% of Indians pay Income Tax directly — but 100% pay Indirect Taxes.</p>
+            </div>
+          </div>
+
+          <div class="visual-block center-flex">
+            <div class="cycle-diagram">
+              <div class="node you">YOU</div>
+              <div class="arrow-right">Money ➔</div>
+              <div class="node govt">GOVT</div>
+              <div class="arrow-down">Funds ➔</div>
+              <div class="node society">SOCIETY</div>
+              <div class="arrow-left">Services ➔</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tax-section" id="structure">
+        <div class="section-header">
+          <span class="section-number">02</span>
+          <h2>The Structure: Two Engines of Taxation</h2>
+          <p>The Indian Tax System has two fundamental engines. Every tax you'll ever pay falls into one of these.</p>
+        </div>
+
+        <div class="grid-stacked">
+          <div class="card interactive-card direct-tax">
+            <div class="card-icon">🎯</div>
+            <h3>1. Direct Taxes</h3>
+            <p class="subtitle">"The Slap on the Face"</p>
+            <p>Paid <strong>directly</strong> by you to the government. It hurts more because you see the money leaving your bank account.</p>
+            <div class="separator"></div>
+            <ul class="check-list">
+              <li><strong>Income Tax</strong> — On Salary, Business, Profession</li>
+              <li><strong>Capital Gains Tax</strong> — On Profit from selling Stocks, Property, Gold</li>
+              <li><strong>Corporate Tax</strong> — On Company Profits (22-25%)</li>
+              <li><strong>Securities Transaction Tax (STT)</strong> — On Stock Market Trades</li>
+              <li><strong>Dividend Distribution Tax</strong> — Abolished, now taxed in your hands</li>
+            </ul>
+            <div class="desi-box">
+              <p><strong>Controlled by:</strong> CBDT (Central Board of Direct Taxes) under Ministry of Finance</p>
+            </div>
+          </div>
+
+          <div class="card interactive-card indirect-tax">
+            <div class="card-icon">🍔</div>
+            <h3>2. Indirect Taxes</h3>
+            <p class="subtitle">"The Silent Pinch"</p>
+            <p>Collected from you, but paid by the seller. You pay this every time you consume something. Hidden in the price.</p>
+            <div class="separator"></div>
+            <ul class="check-list">
+              <li><strong>GST</strong> — Goods & Services Tax (Replaced VAT, Service Tax, Excise)</li>
+              <li><strong>Customs Duty</strong> — On Imported Goods (Why iPhones are expensive)</li>
+              <li><strong>Excise Duty</strong> — On Petroleum & Liquor (State revenue)</li>
+              <li><strong>Stamp Duty</strong> — On Property Registration (5-7%)</li>
+              <li><strong>Road Tax / Toll</strong> — On Vehicle Registration & Highway Usage</li>
+            </ul>
+            <div class="desi-box">
+              <p><strong>Controlled by:</strong> CBIC (Central Board of Indirect Taxes & Customs)</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tax-section glass-panel" id="authorities">
+        <div class="section-header">
+          <span class="section-number">03</span>
+          <h2>Who Controls Your Money?</h2>
+          <p>These are the institutions that design, enforce, and collect taxes in India.</p>
+        </div>
+
+        <div class="grid-4">
+          <div class="auth-card">
+            <h4>CBDT</h4>
+            <p><strong>Central Board of Direct Taxes</strong></p>
+            <span class="pill">Income Tax, Capital Gains</span>
+            <p class="auth-detail">Frames policy for direct taxes. Reports to Ministry of Finance.</p>
+          </div>
+          <div class="auth-card">
+            <h4>CBIC</h4>
+            <p><strong>Central Board of Indirect Taxes & Customs</strong></p>
+            <span class="pill">GST, Customs, Excise</span>
+            <p class="auth-detail">Manages all indirect tax collection across India.</p>
+          </div>
+          <div class="auth-card">
+            <h4>IT Department</h4>
+            <p><strong>Income Tax Department</strong></p>
+            <span class="pill">Assessments, Notices, Refunds</span>
+            <p class="auth-detail">The enforcement arm. Issues PAN, processes ITR, conducts raids.</p>
+          </div>
+          <div class="auth-card">
+            <h4>SEBI</h4>
+            <p><strong>Securities & Exchange Board</strong></p>
+            <span class="pill">STT, Market Regulations</span>
+            <p class="auth-detail">Regulates stock markets. STT is collected through exchanges.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════ -->
+      <!--  PART 2: INCOME TAX DEEP DIVE           -->
+      <!-- ═══════════════════════════════════════ -->
+
+      <div class="part-divider"><span>PART 2</span> INCOME TAX DEEP DIVE</div>
+
+      <section class="tax-section" id="incometax">
+        <div class="section-header">
+          <span class="section-number">04</span>
+          <h2>Income Tax: The 5 Heads</h2>
+          <p>The government doesn't just see "Money". It classifies your income into 5 specific buckets. Your income <strong>must</strong> fit into one of these.</p>
+        </div>
+
+        <div class="pentagon-wrapper">
+          <div class="pentagon-node" data-head="salary">
+            <div class="icon">💼</div>
+            <h4>1. Salary</h4>
+            <p>Basic Pay, HRA, LTA, Bonus, Gratuity, Leave Encashment. The main source for most salaried Indians.</p>
+          </div>
+          <div class="pentagon-node" data-head="house">
+            <div class="icon">🏠</div>
+            <h4>2. House Property</h4>
+            <p>Rental income from property you own. Even if the house is empty, "deemed rent" may apply.</p>
+          </div>
+          <div class="pentagon-node" data-head="business">
+            <div class="icon">🏭</div>
+            <h4>3. PGBP</h4>
+            <p>Profits & Gains from Business or Profession — Freelancers, Shopkeepers, Consultants, F&O Traders.</p>
+          </div>
+          <div class="pentagon-node" data-head="capital">
+            <div class="icon">📈</div>
+            <h4>4. Capital Gains</h4>
+            <p>Profit from selling capital assets — Stocks, Mutual Funds, Property, Gold, Bonds, Crypto.</p>
+          </div>
+          <div class="pentagon-node" data-head="other">
+            <div class="icon">🎁</div>
+            <h4>5. Other Sources</h4>
+            <p>FD Interest, Dividends, Lottery Winnings, Gifts &gt; ₹50k, Family Pension, Savings Account Interest.</p>
+          </div>
+        </div>
+
+        <div class="salary-breakdown glass-panel mt-40">
+          <h3>🧠 Deep Dive: Salary Income Breakdown</h3>
+          <p>For most Indians, salary is the primary income source. Understanding its components helps you optimize tax.</p>
+          <div class="grid-3" style="margin-top:20px">
+            <div class="mini-card">
+              <h5>Allowances</h5>
+              <ul class="mini-list">
+                <li><strong>HRA</strong> — House Rent Allowance (Partly exempt if you pay rent)</li>
+                <li><strong>LTA</strong> — Leave Travel Allowance (Exempt for domestic travel, 2x in 4 years)</li>
+                <li><strong>DA</strong> — Dearness Allowance (Inflation adjustment)</li>
+                <li><strong>Special Allowance</strong> — Fully taxable</li>
+              </ul>
+            </div>
+            <div class="mini-card">
+              <h5>Perquisites (Taxable)</h5>
+              <ul class="mini-list">
+                <li>Company Car for personal use</li>
+                <li>ESOPs (Taxed when exercised + when sold)</li>
+                <li>Rent-free accommodation</li>
+                <li>Club memberships paid by employer</li>
+                <li>Interest-free loans from employer</li>
+              </ul>
+            </div>
+            <div class="mini-card">
+              <h5>Deductions from Salary</h5>
+              <ul class="mini-list">
+                <li><strong>Standard Deduction</strong> — Flat ₹75,000 (FY 2025-26)</li>
+                <li><strong>Professional Tax</strong> — Max ₹2,500/year (state-level)</li>
+                <li><strong>Entertainment Allowance</strong> — Only for Govt employees</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tax-section glass-panel" id="slabs">
+        <div class="section-header">
+          <span class="section-number">05</span>
+          <h2>Tax Slabs: Old vs New Regime (FY 2025-26)</h2>
+          <p>India gives you a choice — pick the regime that saves you more tax. The New Regime is the <strong>default</strong> from FY 2023-24.</p>
+        </div>
+
+        <div class="toggle-container">
+          <div class="switch-box">
+            <input type="checkbox" id="regimeToggle" class="toggle-input">
+            <label for="regimeToggle" class="toggle-label">
+              <span class="toggle-text left">Legacy Mode (OLD)</span>
+              <span class="toggle-handle"></span>
+              <span class="toggle-text right">Streamlined (NEW)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="regime-display" id="regimeContent"></div>
+
+        <div class="desi-box" style="margin-top:30px">
+          <span class="emoji">💡</span>
+          <p><strong>Which should you pick?</strong> If you claim HRA, have a home loan, invest ₹1.5L in 80C, and pay health insurance — Old Regime likely saves more. If you have no deductions or investments, New Regime's lower slabs win. <strong>Calculate both before filing.</strong></p>
+        </div>
+      </section>
+
+      <section class="tax-section" id="surcharge">
+        <div class="section-header">
+          <span class="section-number">06</span>
+          <h2>Surcharge & Cess: The Tax on Tax</h2>
+          <p>Your tax liability doesn't end at slab rates. The government adds two extra layers.</p>
+        </div>
+
+        <div class="grid-stacked">
+          <div class="card interactive-card">
+            <div class="card-icon">📊</div>
+            <h3>Surcharge</h3>
+            <p>A "super tax" on high earners, calculated as a percentage of your income tax.</p>
+            <div class="separator"></div>
+            <ul class="check-list">
+              <li>Income ₹50L–₹1Cr → <strong>10%</strong> surcharge</li>
+              <li>Income ₹1Cr–₹2Cr → <strong>15%</strong> surcharge</li>
+              <li>Income ₹2Cr–₹5Cr → <strong>25%</strong> surcharge</li>
+              <li>Income &gt; ₹5Cr → <strong>37%</strong> surcharge (Old) / <strong>25%</strong> (New, capped)</li>
+            </ul>
+          </div>
+          <div class="card interactive-card">
+            <div class="card-icon">🏥</div>
+            <h3>Health & Education Cess</h3>
+            <p>A <strong>flat 4%</strong> charged on (Income Tax + Surcharge). Goes to healthcare and education funds.</p>
+            <div class="separator"></div>
+            <div class="math-box">
+              <div class="row"><span>Income Tax (Example):</span> <span>₹15,00,000</span></div>
+              <div class="row"><span>Surcharge (10%):</span> <span>₹1,50,000</span></div>
+              <div class="row op"><span>Cess (4% on Tax+SC):</span> <span class="red">₹66,000</span></div>
+              <div class="row total"><span>Total Tax:</span> <span class="green">₹17,16,000</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tax-section glass-panel" id="deductions">
+        <div class="section-header">
+          <span class="section-number">07</span>
+          <h2>Section 80: The Tax Shields</h2>
+          <p>These deductions reduce your taxable income. <strong>Only applicable in the Old Regime</strong> (except 80CCD(2) for employer NPS contribution).</p>
+        </div>
+
+        <div class="shield-grid">
+          <div class="shield-item">
+            <div class="shield-icon">🛡️</div>
+            <h4>Section 80C</h4>
+            <span class="limit">Limit: ₹1.5 Lakh</span>
+            <ul class="mini-list">
+              <li>EPF / PPF (Retirement Savings)</li>
+              <li>ELSS Mutual Funds (3-year lock-in)</li>
+              <li>LIC Premium Payments</li>
+              <li>Home Loan Principal Repayment</li>
+              <li>NSC (National Savings Certificates)</li>
+              <li>Sukanya Samriddhi (Daughter's account)</li>
+              <li>5-Year Tax-Saving FD</li>
+              <li>Tuition Fees (Max 2 children)</li>
+            </ul>
+          </div>
+          <div class="shield-item">
+            <div class="shield-icon">🏥</div>
+            <h4>Section 80D</h4>
+            <span class="limit">Limit: ₹25k – ₹1L</span>
+            <ul class="mini-list">
+              <li>Self & Family: ₹25,000</li>
+              <li>Parents (below 60): ₹25,000</li>
+              <li>Parents (above 60): ₹50,000</li>
+              <li>Preventive Health Check: ₹5,000 (within limit)</li>
+              <li><strong>Max: ₹1,00,000</strong> (if both self & parents are senior citizens)</li>
+            </ul>
+          </div>
+          <div class="shield-item">
+            <div class="shield-icon">🎓</div>
+            <h4>Section 80E</h4>
+            <span class="limit">No Upper Limit</span>
+            <p>Interest on Education Loan — for self, spouse, or children. Available for 8 years from the year of first repayment. Only interest, not principal.</p>
+          </div>
+          <div class="shield-item">
+            <div class="shield-icon">🤝</div>
+            <h4>Section 80G</h4>
+            <span class="limit">50% or 100%</span>
+            <p>Donations to approved charities. PM Relief Fund & CM Relief Fund get 100% deduction. Others get 50%. Cash donations &gt; ₹2,000 not allowed.</p>
+          </div>
+          <div class="shield-item">
+            <div class="shield-icon">👴</div>
+            <h4>Section 80CCD</h4>
+            <span class="limit">Extra ₹50,000</span>
+            <ul class="mini-list">
+              <li>80CCD(1): NPS contribution (within 80C limit)</li>
+              <li>80CCD(1B): Additional ₹50,000 for NPS (above 80C)</li>
+              <li>80CCD(2): Employer NPS contribution (14% of salary, no limit) — <strong>Available in BOTH regimes!</strong></li>
+            </ul>
+          </div>
+          <div class="shield-item">
+            <div class="shield-icon">🏠</div>
+            <h4>Section 24(b)</h4>
+            <span class="limit">Limit: ₹2 Lakh</span>
+            <p>Home Loan Interest deduction. Self-occupied property: ₹2L max. Let-out property: No limit on interest deduction. This is separate from 80C principal.</p>
+          </div>
+        </div>
+
+        <div class="desi-box" style="margin-top:30px">
+          <span class="emoji">🧮</span>
+          <p><strong>Section 10 Exemptions</strong> (separate from 80C): HRA Exemption, LTA (Actual domestic travel cost exempt), Gratuity (₹20L exempt), Leave Encashment (₹25L on retirement), Children Education Allowance (₹100/month/child), Agricultural Income (fully exempt).</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════ -->
+      <!--  PART 3: INVESTMENT TAXATION             -->
+      <!-- ═══════════════════════════════════════ -->
+
+      <div class="part-divider"><span>PART 3</span> INVESTMENT TAXATION</div>
+
+      <section class="tax-section glass-panel" id="capitalgains">
+        <div class="section-header">
+          <span class="section-number">08</span>
+          <h2>Capital Gains: The Master Matrix</h2>
+          <p>When you sell any asset for a profit, the government wants a share. The tax rate depends on <strong>what you sold</strong> and <strong>how long you held it</strong>.</p>
+        </div>
+
+        <div class="matrix-container">
+          <div class="matrix-header">
+            <div>Asset Class</div>
+            <div>Holding Period</div>
+            <div>Short Term (STCG)</div>
+            <div>Long Term (LTCG)</div>
+          </div>
+
+          <div class="matrix-row">
+            <div class="asset-name">
+              <strong>Listed Equity</strong><br>
+              <span class="sub">Stocks on NSE/BSE</span>
+            </div>
+            <div class="period">12 months</div>
+            <div class="tax-rate bad">20% <br><span>Flat rate</span></div>
+            <div class="tax-rate good">12.5% <br><span>Above ₹1.25L exemption</span></div>
+          </div>
+
+          <div class="matrix-row">
+            <div class="asset-name">
+              <strong>Equity Mutual Funds</strong><br>
+              <span class="sub">&gt;65% equity allocation</span>
+            </div>
+            <div class="period">12 months</div>
+            <div class="tax-rate bad">20% <br><span>Flat rate</span></div>
+            <div class="tax-rate good">12.5% <br><span>Above ₹1.25L exemption</span></div>
+          </div>
+
+          <div class="matrix-row">
+            <div class="asset-name">
+              <strong>Debt Mutual Funds</strong><br>
+              <span class="sub">Purchased after Apr 2023</span>
+            </div>
+            <div class="period">N/A</div>
+            <div class="tax-rate ugly">Slab Rate <br><span>Always taxed at slab</span></div>
+            <div class="tax-rate ugly">Slab Rate <br><span>No LTCG benefit</span></div>
+          </div>
+
+          <div class="matrix-row">
+            <div class="asset-name">
+              <strong>Gold (Physical/ETF)</strong><br>
+              <span class="sub">Jewelry, Coins, Gold ETF</span>
+            </div>
+            <div class="period">24 months</div>
+            <div class="tax-rate ugly">Slab Rate <br><span>Added to income</span></div>
+            <div class="tax-rate good">12.5% <br><span>No indexation</span></div>
+          </div>
+
+          <div class="matrix-row">
+            <div class="asset-name">
+              <strong>Sovereign Gold Bonds</strong><br>
+              <span class="sub">RBI SGBs (held to maturity)</span>
+            </div>
+            <div class="period">8 years</div>
+            <div class="tax-rate ugly">Slab Rate <br><span>If sold early</span></div>
+            <div class="tax-rate good" style="color:#00ff88">TAX FREE <br><span>If held to maturity!</span></div>
+          </div>
+
+          <div class="matrix-row">
+            <div class="asset-name">
+              <strong>Real Estate</strong><br>
+              <span class="sub">Property, Land, House</span>
+            </div>
+            <div class="period">24 months</div>
+            <div class="tax-rate ugly">Slab Rate <br><span>Sold within 2 years</span></div>
+            <div class="tax-rate good">12.5% <br><span>No indexation benefit</span></div>
+          </div>
+
+          <div class="matrix-row">
+            <div class="asset-name">
+              <strong>Unlisted Shares</strong><br>
+              <span class="sub">Startup equity, Private Co.</span>
+            </div>
+            <div class="period">24 months</div>
+            <div class="tax-rate ugly">Slab Rate <br><span>Added to income</span></div>
+            <div class="tax-rate good">12.5% <br><span>Without indexation</span></div>
+          </div>
+
+          <div class="matrix-row">
+            <div class="asset-name">
+              <strong>Crypto (VDA)</strong><br>
+              <span class="sub">Bitcoin, Ethereum, NFTs</span>
+            </div>
+            <div class="period">N/A</div>
+            <div class="tax-rate critical">30% FLAT <br><span>No slab benefit</span></div>
+            <div class="tax-rate critical">30% FLAT <br><span>No slab benefit</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tax-section" id="equity">
+        <div class="section-header">
+          <span class="section-number">09</span>
+          <h2>Equity & Stock Market Taxation</h2>
+          <p>If you trade or invest in stocks, you're dealing with multiple taxes simultaneously.</p>
+        </div>
+
+        <div class="grid-stacked">
+          <div class="card interactive-card">
+            <div class="card-icon">📊</div>
+            <h3>Securities Transaction Tax (STT)</h3>
+            <p>A tax collected at the <strong>time of every transaction</strong> — not on profit, but on turnover.</p>
+            <div class="separator"></div>
+            <ul class="check-list">
+              <li>Equity Delivery Buy: <strong>0.1%</strong> of value</li>
+              <li>Equity Delivery Sell: <strong>0.1%</strong> of value</li>
+              <li>Intraday Sell: <strong>0.025%</strong> of value</li>
+              <li>Futures Sell: <strong>0.0125%</strong> of value</li>
+              <li>Options Sell (on exercise): <strong>0.0625%</strong> of value</li>
+            </ul>
+            <div class="desi-box">
+              <p>STT is automatically deducted by your broker. It's <strong>not deductible</strong> from capital gains but shows in your contract notes.</p>
+            </div>
+          </div>
+
+          <div class="card interactive-card">
+            <div class="card-icon">💰</div>
+            <h3>Dividend Taxation</h3>
+            <p>Since April 2020, dividends are <strong>taxed in your hands</strong> at your slab rate.</p>
+            <div class="separator"></div>
+            <ul class="check-list">
+              <li>Added to your total income → taxed at your slab rate</li>
+              <li>TDS of <strong>10%</strong> if dividend &gt; ₹5,000/year from a company</li>
+              <li>Section 80M: Deduction for inter-corporate dividends</li>
+              <li>Expense deduction: Interest on loan taken to buy shares (max 20% of dividend)</li>
+            </ul>
+            <div class="desi-box">
+              <p><strong>Example:</strong> You receive ₹80,000 dividend. It gets added to your salary income and taxed at your slab (say 30%). Tax = ₹24,000. TDS of ₹8,000 already cut → you pay ₹16,000 more.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="salary-breakdown glass-panel mt-40">
+          <h3>📉 Intraday & Short-Term Trading</h3>
+          <div class="grid-2-equal" style="margin-top:15px">
+            <div>
+              <h4>Intraday Trading</h4>
+              <ul class="mini-list">
+                <li>Classified as <strong>Speculative Business Income</strong></li>
+                <li>Taxed at your slab rate</li>
+                <li>Speculative losses can ONLY offset speculative profits</li>
+                <li>Losses can be carried forward for 4 years</li>
+                <li>No audit required just for intraday</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Delivery-Based (Short Term)</h4>
+              <ul class="mini-list">
+                <li>Held &lt; 12 months = Short Term Capital Gain</li>
+                <li>Taxed at <strong>flat 20%</strong></li>
+                <li>STCG losses can offset ANY capital gains (short or long term)</li>
+                <li>Losses can be carried forward for 8 years</li>
+                <li>Must file ITR to carry forward losses</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tax-section glass-panel" id="mf">
+        <div class="section-header">
+          <span class="section-number">10</span>
+          <h2>Mutual Fund Taxation: The Complete Guide</h2>
+          <p>Mutual funds are taxed based on their <strong>equity allocation</strong>, not their name.</p>
+        </div>
+
+        <div class="grid-stacked">
+          <div class="card interactive-card">
+            <div class="card-icon">📈</div>
+            <h3>Equity MFs (&gt;65% equity)</h3>
+            <p class="subtitle">Index Funds, Large Cap, Small Cap, ELSS</p>
+            <ul class="mini-list">
+              <li>STCG (&lt; 1 year): <strong>20%</strong></li>
+              <li>LTCG (&gt; 1 year): <strong>12.5%</strong> above ₹1.25L</li>
+              <li>SIP each installment has its own holding period</li>
+              <li>ELSS: 3-year lock-in, but qualifies for 80C</li>
+            </ul>
+          </div>
+
+          <div class="card interactive-card">
+            <div class="card-icon">🏦</div>
+            <h3>Debt MFs (&lt;35% equity)</h3>
+            <p class="subtitle">Liquid, Gilt, Corporate Bond, Money Market</p>
+            <ul class="mini-list">
+              <li>Purchased after Apr 2023: <strong>Always slab rate</strong></li>
+              <li>No LTCG benefit anymore</li>
+              <li>No indexation benefit</li>
+              <li>Treated as "Other Sources" income</li>
+            </ul>
+          </div>
+
+          <div class="card interactive-card">
+            <div class="card-icon">⚖️</div>
+            <h3>Hybrid / Others (35-65% equity)</h3>
+            <p class="subtitle">Balanced Advantage, Multi-Asset, Gold ETF</p>
+            <ul class="mini-list">
+              <li>STCG (&lt; 24 months): <strong>Slab rate</strong></li>
+              <li>LTCG (&gt; 24 months): <strong>12.5%</strong> without indexation</li>
+              <li>Holding period: 24 months for LTCG</li>
+              <li>Gold ETFs follow this category</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="desi-box" style="margin-top:30px">
+          <span class="emoji">⚠️</span>
+          <p><strong>SIP Tax Trap:</strong> Each SIP installment is a separate purchase. If you invest ₹10,000/month for 2 years and redeem all at once, only the first 12 installments qualify as LTCG. The rest are STCG. Plan your redemptions carefully!</p>
+        </div>
+      </section>
+
+      <section class="tax-section" id="realestate">
+        <div class="section-header">
+          <span class="section-number">11</span>
+          <h2>Real Estate Taxation</h2>
+          <p>Property transactions are heavily taxed — but there are powerful exemptions if you know the rules.</p>
+        </div>
+
+        <div class="grid-2-equal">
+          <div class="text-block">
+            <h3>Buying Property</h3>
+            <ul class="neon-list">
+              <li>💰 <strong>Stamp Duty</strong> — 5-7% of property value (varies by state)</li>
+              <li>📋 <strong>Registration Charges</strong> — 1% additional</li>
+              <li>🏠 <strong>GST</strong> — 5% on under-construction (no ITC), 1% for affordable housing</li>
+              <li>📊 <strong>TDS</strong> — 1% if property value &gt; ₹50 Lakhs (buyer deducts)</li>
+            </ul>
+
+            <h3 style="margin-top:25px">Selling Property</h3>
+            <ul class="neon-list">
+              <li>📅 Held &lt; 2 years → <strong>STCG at slab rate</strong></li>
+              <li>📅 Held &gt; 2 years → <strong>LTCG at 12.5%</strong> (without indexation from FY24-25)</li>
+            </ul>
+          </div>
+          <div class="text-block">
+            <h3>Exemptions (Save LTCG Tax)</h3>
+            <div class="mini-card" style="margin-bottom:15px">
+              <h5>Section 54</h5>
+              <p>Reinvest LTCG in a <strong>new residential house</strong> within 2 years (purchase) or 3 years (construction). Entire LTCG is exempt.</p>
+            </div>
+            <div class="mini-card" style="margin-bottom:15px">
+              <h5>Section 54EC</h5>
+              <p>Invest LTCG in <strong>specified bonds</strong> (NHAI, REC) within 6 months. Max ₹50 Lakhs. 5-year lock-in.</p>
+            </div>
+            <div class="mini-card">
+              <h5>Section 54F</h5>
+              <p>For non-residential assets (gold, stocks). Reinvest <strong>full sale proceeds</strong> (not just LTCG) in a residential house for full exemption.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tax-section glass-panel" id="gold">
+        <div class="section-header">
+          <span class="section-number">12</span>
+          <h2>Gold Taxation: Every Form</h2>
+          <p>Gold is India's favorite asset — but taxation varies wildly based on how you hold it.</p>
+        </div>
+
+        <div class="grid-stacked">
+          <div class="card interactive-card">
+            <h3>🪙 Physical Gold / Gold ETF / Gold MF</h3>
+            <ul class="check-list">
+              <li>Holding period for LTCG: <strong>24 months</strong></li>
+              <li>STCG (&lt; 24 months): <strong>Slab rate</strong></li>
+              <li>LTCG (&gt; 24 months): <strong>12.5%</strong> without indexation</li>
+              <li>Wealth tax: Abolished since 2015</li>
+              <li>Making charges: Not tax deductible</li>
+              <li>Customs duty: 6% on imported gold</li>
+            </ul>
+          </div>
+          <div class="card interactive-card">
+            <h3>🏛️ Sovereign Gold Bonds (SGBs)</h3>
+            <ul class="check-list">
+              <li>Interest: <strong>2.5% p.a.</strong> — taxed at slab rate</li>
+              <li>LTCG on maturity (8 years): <strong>FULLY TAX FREE</strong> 🎉</li>
+              <li>Early redemption (after 5 years): <strong>12.5%</strong> LTCG</li>
+              <li>Sold on exchange before maturity: Capital gains apply</li>
+              <li><strong>Best tax-efficient way to hold gold in India</strong></li>
+            </ul>
+            <div class="desi-box">
+              <p><strong>Pro Tip:</strong> SGBs give you 2.5% interest + gold price appreciation. On maturity, capital gains are ZERO tax. This is the only asset in India with completely tax-free capital gains.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tax-section" id="crypto">
+        <div class="section-header">
+          <span class="section-number">13</span>
+          <h2>Crypto & F&O: The "Sin" Taxes</h2>
+          <p>The government treats these as high-risk activities and taxes them aggressively.</p>
+        </div>
+
+        <div class="grid-stacked">
+          <div class="card interactive-card">
+            <div class="card-icon">₿</div>
+            <h3>Crypto / Virtual Digital Assets (VDA)</h3>
+            <p class="critical-text">FLAT 30% TAX — THE HARSHEST IN THE WORLD</p>
+            <ul class="check-list">
+              <li>Flat 30% on ALL profits — no slab benefit</li>
+              <li>No distinction between short-term and long-term</li>
+              <li>Cannot set off losses (Bitcoin loss cannot reduce Ethereum profit)</li>
+              <li>Cannot set off crypto losses against ANY other income</li>
+              <li><strong>1% TDS</strong> on every transaction (Section 194S)</li>
+              <li>No deduction allowed except cost of acquisition</li>
+              <li>Gifts of crypto &gt; ₹50,000 are taxable for the receiver</li>
+              <li>Mining income: Taxed at 30% on fair market value</li>
+            </ul>
+          </div>
+
+          <div class="card interactive-card">
+            <div class="card-icon">📉</div>
+            <h3>F&O (Futures & Options) Trading</h3>
+            <p class="warning-text">TREATED AS BUSINESS INCOME</p>
+            <ul class="check-list">
+              <li>Classified as <strong>Non-Speculative Business Income</strong></li>
+              <li>Taxed at your slab rate (can be up to 30%+)</li>
+              <li>Losses can offset other business income</li>
+              <li>Losses carried forward for 8 years</li>
+              <li><strong>Tax Audit mandatory</strong> if:
+                <ul style="margin-left:15px;margin-top:5px">
+                  <li>Turnover &gt; ₹10 Crore (digital transactions)</li>
+                  <li>Declaring losses (even ₹1 loss)</li>
+                  <li>Profit &lt; 6% of turnover &amp; income &gt; basic exemption</li>
+                </ul>
+              </li>
+              <li>STT paid is NOT deductible from profits</li>
+              <li>Turnover calculation: Absolute sum of all P&L per trade</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════ -->
+      <!--  PART 4: BUSINESS & GST                 -->
+      <!-- ═══════════════════════════════════════ -->
+
+      <div class="part-divider"><span>PART 4</span> BUSINESS & GST</div>
+
+      <section class="tax-section glass-panel" id="freelancer">
+        <div class="section-header">
+          <span class="section-number">14</span>
+          <h2>Freelancers & Business Owners</h2>
+          <p>If you earn outside of a salary — consulting, freelancing, running a business — this section is for you.</p>
+        </div>
+
+        <div class="split-layout">
+          <div class="text-block">
+            <h3>Presumptive Taxation</h3>
+            <p>The government knows freelancers hate accounting. So they gave a "Cheat Code":</p>
+
+            <div class="mini-card" style="margin:15px 0">
+              <h5>Section 44ADA — Professionals</h5>
+              <p>Doctors, Lawyers, Architects, Engineers, Accountants, Consultants, Content Creators earning up to <strong>₹75 Lakhs</strong> can declare <strong>50% as profit</strong>. No expense books needed.</p>
+            </div>
+
+            <div class="mini-card" style="margin:15px 0">
+              <h5>Section 44AD — Small Business</h5>
+              <p>Businesses with turnover up to <strong>₹3 Crores</strong> (if 95% digital) can declare <strong>8% as profit</strong> (6% for digital receipts). No audit.</p>
+            </div>
+
+            <div class="desi-box">
+              <span class="emoji">⚠️</span>
+              <p><strong>Trap:</strong> If you opt for presumptive and declare LOWER than 50%/8%, you MUST get a tax audit done. And you cannot use presumptive for next 5 years.</p>
+            </div>
+          </div>
+          <div class="visual-block">
+             <div class="math-box">
+               <div class="row"><span>Freelance Revenue:</span> <span>₹20,00,000</span></div>
+               <div class="row op"><span>Presumed Expense (50%):</span> <span class="red">- ₹10,00,000</span></div>
+               <div class="row total"><span>Taxable Income:</span> <span class="green">₹10,00,000</span></div>
+             </div>
+
+             <div class="math-box" style="margin-top:20px">
+               <h4 style="margin-bottom:10px">Business Owner (Digital)</h4>
+               <div class="row"><span>Business Revenue:</span> <span>₹50,00,000</span></div>
+               <div class="row op"><span>Presumed Expense (94%):</span> <span class="red">- ₹47,00,000</span></div>
+               <div class="row total"><span>Taxable Income:</span> <span class="green">₹3,00,000</span></div>
+             </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tax-section" id="gst">
+        <div class="section-header">
+          <span class="section-number">15</span>
+          <h2>GST: The Unified Indirect Tax</h2>
+          <p>Introduced in 2017, GST replaced 17 different taxes with one. Every item/service you buy has GST embedded.</p>
+        </div>
+
+        <div class="gst-visualizer">
+          <div class="burger-stack">
+            <div class="layer bun-top">Total Price: ₹118</div>
+            <div class="layer cheese">SGST (9%) — To State Govt</div>
+            <div class="layer meat">CGST (9%) — To Central Govt</div>
+            <div class="layer bun-bottom">Base Value: ₹100</div>
+          </div>
+          <div class="gst-info">
+            <h3>The 4 GST Slabs</h3>
+            <ul class="slab-list">
+              <li><span class="slab-badge green">0%</span> <strong>Essentials</strong> — Milk, Bread, Fresh Vegetables, Grains, Salt</li>
+              <li><span class="slab-badge yellow">5%</span> <strong>Common</strong> — Oil, Sugar, Tea, Coffee, Coal, Medicines, Economy flight</li>
+              <li><span class="slab-badge orange">12-18%</span> <strong>Standard</strong> — Electronics, Clothing &gt; ₹1000, Services, Business class flight, Restaurant food</li>
+              <li><span class="slab-badge red">28%</span> <strong>Luxury + Sin</strong> — Cars, ACs, Tobacco, Aerated drinks, Cement, Movie tickets &gt; ₹100</li>
+            </ul>
+
+            <h3 style="margin-top:20px">GST Types</h3>
+            <ul class="check-list">
+              <li><strong>CGST</strong> — Central GST (goes to Centre)</li>
+              <li><strong>SGST</strong> — State GST (goes to State)</li>
+              <li><strong>IGST</strong> — Integrated GST (inter-state, distributed later)</li>
+              <li><strong>UTGST</strong> — Union Territory GST</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="desi-box" style="margin-top:30px">
+          <span class="emoji">🧾</span>
+          <p><strong>GST Registration:</strong> Mandatory if annual turnover exceeds ₹40 Lakhs (goods) or ₹20 Lakhs (services). Composition scheme available for small businesses (turnover &lt; ₹1.5 Crore) — pay flat 1-5% GST, no ITC claim.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════ -->
+      <!--  PART 5: COMPLIANCE                     -->
+      <!-- ═══════════════════════════════════════ -->
+
+      <div class="part-divider"><span>PART 5</span> COMPLIANCE & FILING</div>
+
+      <section class="tax-section glass-panel" id="tds">
+        <div class="section-header">
+          <span class="section-number">16</span>
+          <h2>TDS & Advance Tax</h2>
+          <p>The government doesn't wait for you to pay. It collects tax <em>before</em> you even see the money.</p>
+        </div>
+
+        <div class="grid-2-equal">
+          <div class="text-block">
+            <h3>TDS (Tax Deducted at Source)</h3>
+            <p>Your employer, bank, or client cuts tax before paying you.</p>
+            <ul class="check-list">
+              <li><strong>Salary</strong> — Employer deducts based on declared investments</li>
+              <li><strong>FD Interest</strong> — 10% TDS if interest &gt; ₹40,000 (₹50,000 for seniors)</li>
+              <li><strong>Rent</strong> — 10% TDS if rent &gt; ₹50,000/month</li>
+              <li><strong>Freelance Payment</strong> — 10% TDS under Section 194J</li>
+              <li><strong>Property Sale</strong> — 1% TDS if value &gt; ₹50 Lakhs</li>
+              <li><strong>Crypto</strong> — 1% TDS on every transaction</li>
+              <li><strong>Dividend</strong> — 10% TDS if &gt; ₹5,000/year</li>
+            </ul>
+            <div class="desi-box" style="margin-top:15px">
+              <p><strong>Check your TDS:</strong> Log into incometax.gov.in → View Form 26AS or Annual Information Statement (AIS). All TDS credits appear there.</p>
+            </div>
+          </div>
+
+          <div class="text-block">
+            <h3>Advance Tax (Quarterly EMI of Tax)</h3>
+            <p>If your annual tax liability exceeds <strong>₹10,000</strong>, you must pay tax in installments — don't wait till March.</p>
+            <div class="dates-grid" style="margin:20px 0">
+              <span>15 June — <strong>15%</strong> of annual tax</span>
+              <span>15 Sept — <strong>45%</strong> cumulative</span>
+              <span>15 Dec — <strong>75%</strong> cumulative</span>
+              <span>15 Mar — <strong>100%</strong> cumulative</span>
+            </div>
+            <div class="mini-card">
+              <h5>Penalty for Non-Payment</h5>
+              <ul class="mini-list">
+                <li>Section 234B: <strong>1% per month</strong> interest if advance tax paid &lt; 90%</li>
+                <li>Section 234C: <strong>1% per month</strong> for each quarter of deferment</li>
+                <li>Senior citizens without business income: Exempt from advance tax</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tax-section" id="itr">
+        <div class="section-header">
+          <span class="section-number">17</span>
+          <h2>ITR Filing: Forms, Deadlines & Process</h2>
+          <p>Filing your Income Tax Return (ITR) is mandatory, even if you owe zero tax in many cases.</p>
+        </div>
+
+        <div class="grid-2-equal">
+          <div class="text-block">
+            <h3>Which ITR Form?</h3>
+            <ul class="check-list">
+              <li><strong>ITR-1 (Sahaj)</strong> — Salary + 1 House + Other Sources. Income up to ₹50L. Most common.</li>
+              <li><strong>ITR-2</strong> — Salary + Capital Gains + Multiple Properties + Foreign Assets. No business.</li>
+              <li><strong>ITR-3</strong> — Business/Profession income (includes F&O traders).</li>
+              <li><strong>ITR-4 (Sugam)</strong> — Presumptive income under 44AD/44ADA.</li>
+              <li><strong>ITR-5</strong> — Firms, LLPs, AOPs.</li>
+              <li><strong>ITR-6</strong> — Companies (except Section 11).</li>
+              <li><strong>ITR-7</strong> — Trusts, Political parties.</li>
+            </ul>
+          </div>
+
+          <div class="text-block">
+            <h3>Key Deadlines</h3>
+            <div class="dates-grid">
+              <span><strong>31 July</strong> — ITR filing for individuals (non-audit)</span>
+              <span><strong>31 Oct</strong> — ITR filing for audit cases</span>
+              <span><strong>31 Dec</strong> — Belated / Revised return deadline</span>
+              <span><strong>31 March</strong> — Updated return (ITR-U) with extra tax</span>
+            </div>
+
+            <h3 style="margin-top:25px">Important Forms & Documents</h3>
+            <ul class="check-list">
+              <li><strong>Form 16</strong> — Salary TDS certificate from employer</li>
+              <li><strong>Form 26AS</strong> — All TDS/TCS credits consolidated</li>
+              <li><strong>AIS</strong> — Annual Information Statement (all financial transactions)</li>
+              <li><strong>TIS</strong> — Taxpayer Information Summary</li>
+              <li><strong>Form 16A</strong> — TDS on non-salary income (FD, rent)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="salary-breakdown glass-panel mt-40">
+          <h3>🚨 Why You MUST File ITR (Even with Zero Tax)</h3>
+          <div class="grid-2-equal" style="margin-top:15px">
+            <ul class="neon-list">
+              <li>✅ Mandatory if income &gt; ₹2.5L (Old) / ₹3L (New)</li>
+              <li>✅ Required for Visa applications (US, UK, Schengen)</li>
+              <li>✅ Required for Loan approvals (Home, Car, Personal)</li>
+              <li>✅ To claim TDS refunds (excess tax deducted)</li>
+            </ul>
+            <ul class="neon-list">
+              <li>✅ To carry forward capital losses (stock market losses)</li>
+              <li>✅ Required for credit card applications &gt; ₹5L limit</li>
+              <li>✅ Proof of income for insurance claims</li>
+              <li>✅ High-value transactions trigger scrutiny if no ITR filed</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="tax-section glass-panel" id="penalties">
+        <div class="section-header">
+          <span class="section-number">18</span>
+          <h2>Penalties & Consequences</h2>
+          <p>The IT Department doesn't play nice with defaulters. Here's what you risk.</p>
+        </div>
+
+        <div class="grid-3">
+          <div class="mini-card">
+            <h5>Late Filing</h5>
+            <p>Income &gt; ₹5L: <strong>₹5,000</strong> penalty. Income &lt; ₹5L: ₹1,000. After 31 Dec: Cannot file (only ITR-U with extra tax).</p>
+          </div>
+          <div class="mini-card">
+            <h5>Non-Filing</h5>
+            <p>Up to <strong>₹10,000</strong> penalty + prosecution. Cannot carry forward losses. May receive IT notice under Section 142(1).</p>
+          </div>
+          <div class="mini-card">
+            <h5>Under-Reporting</h5>
+            <p><strong>50%</strong> of tax on under-reported income. If misreporting (fraud): <strong>200%</strong> penalty.</p>
+          </div>
+          <div class="mini-card">
+            <h5>Tax Evasion</h5>
+            <p>Criminal prosecution. <strong>3-7 years imprisonment</strong> for willful evasion. Plus 100-300% of tax as penalty.</p>
+          </div>
+          <div class="mini-card">
+            <h5>Cash Transactions</h5>
+            <p>Cash payment &gt; ₹10,000 to one person per day: <strong>100% penalty</strong>. Cash &gt; ₹2L for property: Penalized.</p>
+          </div>
+          <div class="mini-card">
+            <h5>Interest on Late Tax</h5>
+            <p>Section 234A/B/C: <strong>1% per month</strong> simple interest on unpaid tax from due date.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════ -->
+      <!--  PART 6: ADVANCED                       -->
+      <!-- ═══════════════════════════════════════ -->
+
+      <div class="part-divider"><span>PART 6</span> ADVANCED TOPICS</div>
+
+      <section class="tax-section" id="nri">
+        <div class="section-header">
+          <span class="section-number">19</span>
+          <h2>NRI Taxation Basics</h2>
+          <p>If you're a Non-Resident Indian, your tax obligations depend on your residential status and where your income originates.</p>
+        </div>
+
+        <div class="grid-stacked">
+          <div class="card interactive-card">
+            <h3>Who is an NRI?</h3>
+            <ul class="check-list">
+              <li>Stayed in India <strong>&lt; 182 days</strong> in a financial year</li>
+              <li>Or stayed &lt; 60 days in the current year AND &lt; 365 days in preceding 4 years</li>
+              <li>Indian citizens going abroad for employment: 182-day rule applies (60-day rule doesn't)</li>
+            </ul>
+          </div>
+          <div class="card interactive-card">
+            <h3>What's Taxable for NRIs?</h3>
+            <ul class="check-list">
+              <li><strong>Only Indian-sourced income</strong> is taxable</li>
+              <li>Salary received in India: Taxable</li>
+              <li>Rent from Indian property: Taxable (30% TDS)</li>
+              <li>Capital gains from Indian assets: Taxable</li>
+              <li>Interest on NRO account: Taxable</li>
+              <li>Interest on NRE/FCNR account: <strong>Tax-free</strong></li>
+              <li>Foreign income: NOT taxable in India</li>
+              <li><strong>DTAA</strong> (Double Taxation Avoidance) prevents paying tax twice</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="tax-section glass-panel" id="hidden">
+        <div class="section-header">
+          <span class="section-number">20</span>
+          <h2>The "Hidden" Taxes You're Already Paying</h2>
+          <p>Beyond income tax and GST, there are taxes embedded everywhere in your daily life.</p>
+        </div>
+
+        <div class="grid-4">
+          <div class="mini-card">
+            <h5>Property Tax</h5>
+            <p>Paid annually to Municipality. Based on property area, location & type. Ranges from ₹2,000 to ₹50,000+.</p>
+          </div>
+          <div class="mini-card">
+            <h5>Stamp Duty</h5>
+            <p>5-7% of property value paid at registration. Maharashtra: 6%, Karnataka: 5%, Delhi: 6%. A HUGE hidden cost.</p>
+          </div>
+          <div class="mini-card">
+            <h5>Customs Duty</h5>
+            <p>10-100% on imports. Why iPhones cost more. Gold: 6%. Electronics: 10-20%. Luxury goods: up to 100%.</p>
+          </div>
+          <div class="mini-card">
+            <h5>Professional Tax</h5>
+            <p>State-level, deducted from salary. Max ₹2,500/year. Maharashtra, Karnataka charge it. Some states don't.</p>
+          </div>
+          <div class="mini-card">
+            <h5>Fuel Taxes</h5>
+            <p>Petrol price: ~50% is tax (Excise + VAT). ₹100 petrol = ₹50 tax. Varies by state. Not under GST.</p>
+          </div>
+          <div class="mini-card">
+            <h5>TCS (Tax Collected at Source)</h5>
+            <p>5% TCS on foreign remittance &gt; ₹7L (travel, education). 20% on non-education foreign spending &gt; ₹7L.</p>
+          </div>
+          <div class="mini-card">
+            <h5>Angel Tax</h5>
+            <p>Tax on startup funding received above "fair market value". Relaxed for DPIIT-recognized startups.</p>
+          </div>
+          <div class="mini-card">
+            <h5>Equalisation Levy</h5>
+            <p>2% "Google Tax" on foreign digital companies earning from India. Paid by them but passed to you as cost.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="tax-section" id="strategies">
+        <div class="section-header">
+          <span class="section-number">21</span>
+          <h2>Tax-Saving Strategies (Legal)</h2>
+          <p>Smart tax planning can save you lakhs every year. Here are the strategies the pros use.</p>
+        </div>
+
+        <div class="grid-2-equal">
+          <div class="text-block">
+            <h3>For Salaried Individuals</h3>
+            <ul class="neon-list">
+              <li>🏠 <strong>Restructure Salary</strong> — Ask employer to increase HRA, add food coupons (₹26,400 exempt), NPS contribution</li>
+              <li>💰 <strong>Max 80C</strong> — EPF + PPF + ELSS = ₹1.5L saved. Add 80CCD(1B) NPS for ₹50k more</li>
+              <li>🏥 <strong>Health Insurance</strong> — 80D saves up to ₹1L. Cover parents too</li>
+              <li>🏠 <strong>Home Loan</strong> — ₹2L interest (24b) + ₹1.5L principal (80C) = ₹3.5L deductions</li>
+              <li>📱 <strong>Leave Encashment</strong> — Plan retirement to maximize ₹25L exemption</li>
+            </ul>
+          </div>
+          <div class="text-block">
+            <h3>For Investors</h3>
+            <ul class="neon-list">
+              <li>📉 <strong>Tax Loss Harvesting</strong> — Sell losing stocks before March 31 to offset capital gains. Re-buy after 30 days</li>
+              <li>📊 <strong>₹1.25L LTCG Free</strong> — Book equity profits up to ₹1.25L every year tax-free</li>
+              <li>🪙 <strong>Hold SGBs to Maturity</strong> — Zero tax on capital gains. Best gold strategy</li>
+              <li>📈 <strong>Hold Equity &gt; 12 months</strong> — LTCG (12.5%) vs STCG (20%). Holding saves 7.5%</li>
+              <li>🔄 <strong>Step-Up SIP Redemption</strong> — Redeem oldest SIPs first (FIFO) to maximize LTCG</li>
+              <li>🏠 <strong>Section 54/54F</strong> — Reinvest property/asset gains in a house to save LTCG entirely</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="salary-breakdown glass-panel mt-40">
+          <h3>⚖️ Tax Planning vs Tax Evasion</h3>
+          <div class="grid-2-equal" style="margin-top:15px">
+            <div class="compare-box" style="border-left:4px solid #2ecc71; padding:15px">
+              <h4 style="color:#2ecc71">✅ Tax Planning (Legal)</h4>
+              <ul class="mini-list">
+                <li>Using 80C, 80D, HRA exemptions</li>
+                <li>Salary restructuring with employer</li>
+                <li>Tax loss harvesting in stock market</li>
+                <li>Choosing Old vs New regime wisely</li>
+                <li>NPS for additional ₹50k deduction</li>
+              </ul>
+            </div>
+            <div class="compare-box" style="border-left:4px solid #ff4757; padding:15px">
+              <h4 style="color:#ff4757">🚫 Tax Evasion (Illegal)</h4>
+              <ul class="mini-list">
+                <li>Hiding income / taking cash payments</li>
+                <li>Fake rent receipts for HRA claims</li>
+                <li>Inflating business expenses</li>
+                <li>Not reporting foreign assets</li>
+                <li>Penalty: Up to 200% of tax + Jail (3-7 years)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════ -->
+      <!--  FOOTER                                 -->
+      <!-- ═══════════════════════════════════════ -->
+
+      <footer class="final-truth">
+        <h2>The FIN-OS Mental Model</h2>
+        <p class="truth-statement">"Tax is the cost of participation in a stable society. The wise don't avoid it — they optimize it."</p>
+        <div class="glow-separator"></div>
+        <div class="grid-2-equal" style="margin-top:40px; text-align:left;">
+          <div>
+            <h4 style="color:#ff4757">🚫 The Amateur</h4>
+            <p>Ignores tax all year. Panics in March. Pays penalties. Lives in fear of IT notices. Doesn't file ITR. Can't get loans or visas.</p>
+          </div>
+          <div>
+            <h4 style="color:#2ecc71">✅ The Pro</h4>
+            <p>Plans in April. Uses every legal shield. Pays Advance Tax quarterly. Harvests tax losses. Files ITR on Day 1. Sleeps peacefully.</p>
+          </div>
+        </div>
+        <p class="copyright">© 2025 FIN•OS Tax Protocol — Updated for FY 2025-26 (AY 2026-27)</p>
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/ui.js"></script>
+<script src="../js/tax.js?v=3"></script>
+<script src="../js/mobile-nav.js"></script>
+<script src="../js/pwa-init.js"></script>
+<script>
+  // Theme button toggle fix
+  document.addEventListener('DOMContentLoaded', () => {
+    const themeBtn = document.getElementById('themeToggle');
+    if(themeBtn) {
+      const updateBtnIcon = () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        themeBtn.textContent = currentTheme === 'light' ? '☀️' : '🌙';
+      };
+      updateBtnIcon();
+      
+      themeBtn.addEventListener('click', () => {
+        setTimeout(updateBtnIcon, 50);
+      });
+    }
+  });
+</script>
+</body>
+</html>

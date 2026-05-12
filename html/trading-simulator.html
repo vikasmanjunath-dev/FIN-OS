@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+    <title>FIN-OS Trading Simulator | India's First Thinking Trading OS</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Space Grotesk', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] }, colors: { kbg: '#060608', kcard: 'rgba(18,18,24,0.95)', kborder: 'rgba(255,255,255,0.07)', kgreen: '#26a17b', kred: '#e05260', kblue: '#3b82f6', kgold: '#f59e0b' } } } }</script>
+    <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+    <link rel="stylesheet" href="../css/trading-simulator.css">
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+
+<body class="bg-[#060608] text-white font-sans overflow-hidden h-screen flex flex-col select-none">
+
+    <!-- ═══════════════════════ TOP NAV BAR ═══════════════════════ -->
+    <header class="bg-[#0d0d12] border-b border-[#ffffff0a] flex items-center px-4 gap-3 shrink-0 z-50 h-auto py-1.5">
+
+        <!-- Logo -->
+        <div class="flex items-center gap-2 mr-2 shrink-0">
+            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-kgreen to-kblue flex items-center justify-center">
+                <i class="fa-solid fa-chart-line text-xs text-white"></i>
+            </div>
+            <div>
+                <p class="font-display font-bold text-xs tracking-tight leading-none">FIN<span
+                        class="text-kgreen">-OS</span> <span class="text-gray-500 font-normal">Sim</span></p>
+                <p class="explain-text">Virtual trading OS</p>
+            </div>
+        </div>
+
+        <!-- Scenario Selector -->
+        <div class="flex flex-col shrink-0">
+            <div class="flex items-center gap-1 bg-[#141418] border border-[#ffffff0a] rounded-lg px-2 py-1">
+                <i class="fa-solid fa-film text-kgold text-[10px] mr-1"></i>
+                <select id="scenarioSelect"
+                    class="bg-transparent text-[11px] text-gray-300 outline-none cursor-pointer">
+                    <option value="breakout">📈 Opening Breakout</option>
+                    <option value="trend">📊 Trend Day</option>
+                    <option value="reversal">🔄 Reversal Day</option>
+                    <option value="news">📰 News Volatility (RBI)</option>
+                    <option value="crash">💥 Market Crash</option>
+                </select>
+            </div>
+            <p class="explain-text mt-0.5">Pre-built market situations to practice in</p>
+        </div>
+
+        <!-- Speed Control -->
+        <div class="flex flex-col shrink-0">
+            <div class="flex items-center gap-0 bg-[#141418] border border-[#ffffff0a] rounded-lg overflow-hidden">
+                <button class="speed-btn active px-2.5 py-1 text-[10px] font-mono" data-speed="1">1×</button>
+                <button class="speed-btn px-2.5 py-1 text-[10px] font-mono" data-speed="5">5×</button>
+                <button class="speed-btn px-2.5 py-1 text-[10px] font-mono" data-speed="10">10×</button>
+            </div>
+            <p class="explain-text mt-0.5">How fast candles replay</p>
+        </div>
+
+        <!-- Play / Pause -->
+        <div class="flex flex-col shrink-0">
+            <button id="playBtn"
+                class="flex items-center gap-1.5 px-3 py-1 bg-kgreen/20 border border-kgreen/40 text-kgreen rounded-lg text-[10px] font-bold hover:bg-kgreen/30 transition-all">
+                <i class="fa-solid fa-play" id="playIcon"></i> <span id="playLabel">PLAY</span>
+            </button>
+            <p class="explain-text mt-0.5">Start or pause the simulation</p>
+        </div>
+
+        <!-- Separator -->
+        <div class="h-6 w-px bg-[#ffffff08] mx-1 shrink-0"></div>
+
+        <!-- OHLC bar (moved to nav for space) -->
+        <div class="flex items-center gap-3 text-[10px] font-mono text-gray-500 shrink-0">
+            <div class="flex flex-col items-center">
+                <span>O:<span id="ohlcO" class="text-gray-300 ml-0.5">2,830</span></span>
+                <p class="explain-text leading-none">Open price</p>
+            </div>
+            <div class="flex flex-col items-center">
+                <span>H:<span id="ohlcH" class="text-kgreen ml-0.5">2,862</span></span>
+                <p class="explain-text leading-none">Day's high</p>
+            </div>
+            <div class="flex flex-col items-center">
+                <span>L:<span id="ohlcL" class="text-kred ml-0.5">2,818</span></span>
+                <p class="explain-text leading-none">Day's low</p>
+            </div>
+            <div class="flex flex-col items-center">
+                <span>C:<span id="ohlcC" class="text-gray-300 ml-0.5">2,847</span></span>
+                <p class="explain-text leading-none">Current close</p>
+            </div>
+            <div class="flex flex-col items-center">
+                <span>V:<span id="ohlcV" class="text-gray-300 ml-0.5">2.4M</span></span>
+                <p class="explain-text leading-none">Shares traded</p>
+            </div>
+        </div>
+
+        <!-- Virtual Capital -->
+        <div class="ml-auto flex items-center gap-4">
+            <div class="text-right">
+                <p class="text-[9px] text-gray-500 uppercase tracking-widest">Portfolio Value</p>
+                <p id="portfolioVal" class="text-sm font-display font-bold text-white">₹1,00,000</p>
+                <p class="explain-text">Virtual money to practice with</p>
+            </div>
+            <div class="text-right">
+                <p class="text-[9px] text-gray-500 uppercase tracking-widest">Today's P&L</p>
+                <p id="todayPnl" class="text-sm font-display font-bold text-kgreen">+₹0</p>
+                <p class="explain-text">Profit &amp; Loss so far today</p>
+            </div>
+        </div>
+
+        <!-- WHY MODE Toggle -->
+        <div class="flex flex-col items-end ml-3 shrink-0">
+            <div class="flex items-center gap-2 bg-[#141418] border border-[#ffffff0a] rounded-lg px-2.5 py-1 cursor-pointer"
+                id="whyToggle">
+                <i class="fa-solid fa-lightbulb text-[10px] text-gray-500" id="whyIcon"></i>
+                <span class="text-[10px] font-bold text-gray-400">WHY MODE</span>
+                <div class="w-7 h-3.5 rounded-full bg-gray-700 relative transition-all duration-300" id="whyTrack">
+                    <div class="w-2.5 h-2.5 rounded-full bg-gray-400 absolute top-0.5 left-0.5 transition-all duration-300"
+                        id="whyThumb"></div>
+                </div>
+            </div>
+            <p class="explain-text mt-0.5">Toggle deep explanations on hover</p>
+        </div>
+
+        <!-- Beginner Safety Mode -->
+        <div class="flex flex-col items-end ml-2 shrink-0">
+            <div class="flex items-center gap-1.5 bg-[#141418] border border-[#ffffff0a] rounded-lg px-2.5 py-1 cursor-pointer"
+                id="safetyToggle">
+                <i class="fa-solid fa-shield-halved text-[10px] text-kgold"></i>
+                <span class="text-[10px] font-bold text-kgold">SAFETY</span>
+                <div class="w-7 h-3.5 rounded-full bg-kgold relative transition-all duration-300" id="safetyTrack">
+                    <div class="w-2.5 h-2.5 rounded-full bg-white absolute top-0.5 right-0.5 transition-all duration-300"
+                        id="safetyThumb"></div>
+                </div>
+            </div>
+            <p class="explain-text mt-0.5">Forced SL + 3 trades/day limit</p>
+        </div>
+    </header>
+
+    <!-- SCENARIO STORY BANNER -->
+    <div id="storyBanner"
+        class="shrink-0 bg-[#0d0d12] border-b border-[#ffffff07] px-4 py-1.5 flex items-center gap-4 overflow-hidden">
+        <div class="flex items-center gap-2 shrink-0">
+            <div class="w-1.5 h-1.5 rounded-full bg-kgold animate-pulse"></div>
+            <span class="text-[9px] font-bold text-kgold uppercase tracking-widest">LIVE STORY</span>
+        </div>
+        <p id="storyText" class="text-[10px] text-gray-400 font-mono">📢 Today: Reliance reacting to global oil rally.
+            Watch for volatility near the opening range. Smart money is watching ₹2,820 closely.</p>
+        <div class="ml-auto flex items-center gap-3 shrink-0">
+            <span class="text-[9px] text-gray-600">Market Phase:</span>
+            <span id="marketPhase"
+                class="text-[9px] font-bold text-kgold border border-kgold/30 bg-kgold/10 px-2 py-0.5 rounded-full">📊
+                TRENDING</span>
+            <span id="capitalUsed" class="text-[9px] font-bold text-gray-500">Capital Used: <span
+                    class="text-white">0%</span></span>
+        </div>
+    </div>
+
+    <!-- ╔═══════════════════════════════════════════════════╗ -->
+    <!-- ║     XP + LEVEL PROGRESS BAR                     ║ -->
+    <!-- ╚═══════════════════════════════════════════════════╝ -->
+    <div id="xpBar" class="shrink-0 bg-[#08080e] border-b border-[#ffffff06] px-4 py-1.5 flex items-center gap-4">
+        <div class="flex items-center gap-2 shrink-0">
+            <span id="levelBadge"
+                class="text-[9px] font-black bg-kblue/20 text-kblue border border-kblue/30 px-2 py-0.5 rounded-full">LVL
+                1</span>
+            <span id="levelName" class="text-[9px] text-gray-500">Curious Beginner</span>
+        </div>
+        <div class="flex-1 max-w-xs">
+            <div class="h-1.5 bg-[#ffffff08] rounded-full overflow-hidden">
+                <div id="xpFill"
+                    class="h-full bg-gradient-to-r from-kblue to-purple-500 rounded-full transition-all duration-700"
+                    style="width:5%"></div>
+            </div>
+        </div>
+        <span id="xpLabel" class="text-[9px] text-gray-600 font-mono shrink-0">5 / 100 XP</span>
+        <!-- Discipline Score -->
+        <div class="flex items-center gap-1.5 ml-2 shrink-0">
+            <i class="fa-solid fa-brain text-purple-400 text-[9px]"></i>
+            <span class="text-[9px] text-gray-500">Discipline:</span>
+            <span id="disciplineScore" class="text-[9px] font-bold text-purple-400 font-mono">100</span>
+        </div>
+        <!-- Streak -->
+        <div class="flex items-center gap-1 shrink-0">
+            <span class="text-[9px]">🔥</span>
+            <span id="streakCount" class="text-[9px] font-bold text-kgold font-mono">0</span>
+            <span class="text-[9px] text-gray-600">streak</span>
+        </div>
+        <!-- Reset Button -->
+        <button id="resetCapitalBtn"
+            class="ml-2 text-[9px] text-gray-600 border border-[#ffffff08] px-2 py-0.5 rounded-lg hover:border-kblue/40 hover:text-kblue transition-all shrink-0"
+            title="Reset to ₹1,00,000 and start fresh">
+            ↺ Reset Capital
+        </button>
+    </div>
+
+    <!-- ╔═══════════════════════════════════════════════════╗ -->
+    <!-- ║     GUIDED FIRST TRADE STRIP                    ║ -->
+    <!-- ╚═══════════════════════════════════════════════════╝ -->
+    <div id="guidedStrip"
+        class="shrink-0 bg-gradient-to-r from-[#0d0d1a] to-[#0a0d12] border-b border-kblue/20 px-4 py-2 flex items-center gap-4">
+        <div class="flex items-center gap-2 shrink-0">
+            <div
+                class="w-5 h-5 rounded-full bg-kblue/20 border border-kblue/40 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-map text-kblue text-[8px]"></i>
+            </div>
+            <span class="text-[9px] font-bold text-kblue uppercase tracking-widest">FIRST TRADE GUIDE</span>
+        </div>
+        <!-- Step indicators -->
+        <div class="flex items-center gap-0" id="guideSteps">
+            <div class="guide-step active" data-step="1">① Press PLAY</div>
+            <div class="guide-step-arrow">→</div>
+            <div class="guide-step" data-step="2">② Watch 5 candles</div>
+            <div class="guide-step-arrow">→</div>
+            <div class="guide-step" data-step="3">③ Select strategy</div>
+            <div class="guide-step-arrow">→</div>
+            <div class="guide-step" data-step="4">④ Set Stop Loss</div>
+            <div class="guide-step-arrow">→</div>
+            <div class="guide-step" data-step="5">⑤ Place Order</div>
+            <div class="guide-step-arrow">→</div>
+            <div class="guide-step" data-step="6">⑥ Watch &amp; Exit</div>
+        </div>
+        <!-- Current instruction -->
+        <div class="ml-auto shrink-0 flex items-center gap-2">
+            <div class="w-1 h-1 rounded-full bg-kblue animate-pulse"></div>
+            <p id="guideHint" class="text-[9px] text-kblue/80 italic max-w-[200px]">Click PLAY ▶ to start your first
+                simulation</p>
+        </div>
+        <!-- Dismiss -->
+        <button id="guideDismiss" class="text-gray-700 hover:text-gray-400 text-xs ml-2 shrink-0">✕</button>
+    </div>
+
+    <!-- ╔═══════════════════════════════════════════════════╗ -->
+    <!-- ║     DAILY MISSION BANNER                        ║ -->
+    <!-- ╚═══════════════════════════════════════════════════╝ -->
+    <div id="missionBanner" class="shrink-0 bg-[#0a0d08] border-b border-kgreen/15 px-4 py-1.5 flex items-center gap-3">
+        <div
+            class="w-4 h-4 rounded-full bg-kgreen/20 border border-kgreen/30 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-trophy text-kgreen text-[7px]"></i>
+        </div>
+        <span class="text-[9px] font-bold text-kgreen uppercase tracking-widest shrink-0">TODAY'S MISSION</span>
+        <div class="flex items-center gap-2 flex-1">
+            <p id="missionText" class="text-[10px] text-gray-300">Place 1 trade with a Stop Loss set → Earn <span
+                    class="text-kgold font-bold">+30 XP</span></p>
+            <div class="flex items-center gap-1.5 ml-3 shrink-0">
+                <div class="h-1.5 w-20 bg-[#ffffff08] rounded-full overflow-hidden">
+                    <div id="missionFill" class="h-full bg-kgreen rounded-full transition-all duration-500"
+                        style="width:0%"></div>
+                </div>
+                <span id="missionProgress" class="text-[9px] text-gray-600 font-mono">0/1</span>
+            </div>
+        </div>
+        <span id="missionReward" class="text-[9px] text-gray-600 shrink-0">Complete to unlock: <span
+                class="text-kgold">Candle Analysis Mode</span></span>
+        <button id="missionDismiss" class="text-gray-700 hover:text-gray-400 text-[10px] ml-1 shrink-0">✕</button>
+    </div>
+
+    <!-- ╔═══════════════════════════════════════════════════╗ -->
+    <!-- ║     QUICK GLOSSARY FLYOUT                       ║ -->
+    <!-- ╚═══════════════════════════════════════════════════╝ -->
+    <div id="glossaryPanel"
+        class="fixed right-64 top-1/2 -translate-y-1/2 z-[80] w-64 bg-[#0d0d12] border border-[#ffffff12] rounded-2xl shadow-2xl hidden">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-[#ffffff07]">
+            <span class="text-[10px] font-bold text-kgold uppercase tracking-widest">📖 Quick Glossary</span>
+            <button id="glossaryClose" class="text-gray-600 hover:text-white text-xs">✕</button>
+        </div>
+        <div id="glossaryBody" class="p-4 space-y-3 text-[10px] max-h-80 overflow-y-auto"></div>
+        <div class="px-4 pb-3 border-t border-[#ffffff07] pt-2">
+            <p class="text-[8px] text-gray-600 italic">💡 Tap any highlighted term in the UI to look it up here</p>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════ MAIN LAYOUT ═══════════════════════ -->
+    <div class="flex flex-1 overflow-hidden">
+
+
+        <!-- ─── LEFT: WATCHLIST ─── -->
+        <aside class="w-52 bg-[#0a0a0f] border-r border-[#ffffff07] flex flex-col shrink-0">
+            <div class="px-3 py-1.5 border-b border-[#ffffff07] flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Watchlist</span>
+                    <p class="explain-text">Stocks you are monitoring</p>
+                </div>
+                <i class="fa-solid fa-plus text-gray-500 text-xs cursor-pointer hover:text-kgreen transition-colors"
+                    title="Add stock"></i>
+            </div>
+            <!-- Search -->
+            <div class="px-2 py-1.5 border-b border-[#ffffff05]">
+                <div class="flex items-center gap-2 bg-[#141418] rounded-lg px-2 py-1">
+                    <i class="fa-solid fa-magnifying-glass text-gray-600 text-[10px]"></i>
+                    <input type="text" placeholder="Search Nifty 50 stocks..."
+                        class="bg-transparent text-[10px] text-gray-300 outline-none placeholder-gray-600 w-full">
+                </div>
+                <p class="explain-text mt-0.5 px-1">Find any NSE stock by name or ticker</p>
+            </div>
+            <!-- Stock List -->
+            <div class="flex-1 overflow-y-auto watchlist-scroll" id="watchlistBody"></div>
+            <!-- Sector Heatmap -->
+            <div class="p-2 border-t border-[#ffffff05]">
+                <div class="flex items-center justify-between mb-1">
+                    <p class="text-[9px] text-gray-600 uppercase font-bold">Sector Heat</p>
+                </div>
+                <p class="explain-text mb-1">Green = sector rising, Red = falling</p>
+                <div id="miniHeatmap" class="grid grid-cols-4 gap-0.5"></div>
+            </div>
+        </aside>
+
+        <!-- ─── CENTER: CHART AREA ─── -->
+        <main class="flex-1 flex flex-col min-w-0">
+            <!-- Chart Top Bar -->
+            <div class="h-9 bg-[#0a0a0f] border-b border-[#ffffff07] flex items-center px-4 gap-3 shrink-0">
+                <div class="flex items-center gap-2">
+                    <span id="activeSymbol" class="font-display font-bold text-sm text-white">RELIANCE</span>
+                    <span id="activeLtp" class="text-sm font-mono text-kgreen">₹2,847.50</span>
+                    <span id="activeChange" class="text-[10px] text-kgreen">+1.24%</span>
+                    <span class="text-[9px] text-gray-600 ml-1">← LTP = Last Traded Price</span>
+                </div>
+                <!-- Timeframes -->
+                <div class="ml-auto flex items-center gap-1">
+                    <p class="text-[8px] text-gray-600 mr-1">CANDLE SIZE →</p>
+                    <div class="flex gap-0.5 bg-[#141418] rounded-lg p-0.5">
+                        <button class="tf-btn active px-2 py-0.5 rounded text-[10px]" data-tf="1"
+                            title="1 minute per candle">1m</button>
+                        <button class="tf-btn px-2 py-0.5 rounded text-[10px]" data-tf="5"
+                            title="5 minutes per candle">5m</button>
+                        <button class="tf-btn px-2 py-0.5 rounded text-[10px]" data-tf="15"
+                            title="15 minutes per candle">15m</button>
+                        <button class="tf-btn px-2 py-0.5 rounded text-[10px]" data-tf="60"
+                            title="1 hour per candle">1H</button>
+                        <button class="tf-btn px-2 py-0.5 rounded text-[10px]" data-tf="D"
+                            title="1 day per candle">D</button>
+                    </div>
+                    <button id="indBtn"
+                        class="ml-1 px-2 py-0.5 bg-[#141418] border border-[#ffffff07] rounded text-[10px] text-gray-400 hover:text-white transition-colors"
+                        title="Add RSI, MACD, VWAP overlays">
+                        <i class="fa-solid fa-wave-square mr-1"></i>Indicators
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chart Canvas -->
+            <div id="chartContainer" class="flex-1 relative bg-[#07070c] overflow-hidden">
+                <div id="tvChart" class="w-full h-full cursor-crosshair relative">
+                    <!-- TV Chart Canvas injected here -->
+                    <!-- On-Chart Interactive Trading Overlays -->
+                    <div id="onChartTradingContainer" class="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+                        <!-- Dynamic drag lines will be injected here via JS -->
+                    </div>
+                </div>
+
+                <!-- Chart Legend -->
+                <div class="absolute top-2 left-2 flex items-center gap-3 z-10 pointer-events-none">
+                    <div class="flex items-center gap-1">
+                        <div class="w-3 h-3 rounded-sm bg-kgreen/40 border border-kgreen/60"></div>
+                        <span class="text-[9px] text-gray-500">Bullish candle (price closed higher)</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <div class="w-3 h-3 rounded-sm bg-kred/40 border border-kred/60"></div>
+                        <span class="text-[9px] text-gray-500">Bearish candle (price closed lower)</span>
+                    </div>
+                </div>
+
+                <!-- AI Mentor Overlay -->
+                <div id="aiMentorOverlay" class="absolute bottom-4 left-4 right-4 hidden">
+                    <div
+                        class="ai-mentor-card bg-[#0d1117] border border-kblue/30 rounded-xl p-4 backdrop-blur-xl flex items-start gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-kblue/20 border border-kblue/40 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-robot text-kblue text-xs"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <p class="text-[10px] text-kblue font-bold uppercase tracking-widest">AI MENTOR</p>
+                                <p class="text-[9px] text-gray-600">— Analyzes your trades in real-time and guides
+                                    better decisions</p>
+                            </div>
+                            <p id="aiMentorText" class="text-xs text-gray-300 leading-relaxed">"Welcome to FIN-OS
+                                Simulator. Press PLAY to start the scenario. Observe price movement before placing any
+                                trade."</p>
+                        </div>
+                        <button id="dismissMentor" class="text-gray-600 hover:text-gray-400 text-xs"><i
+                                class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+
+                <!-- WHY Tooltip -->
+                <div id="whyTooltip"
+                    class="why-tooltip hidden absolute z-50 bg-[#0d1117] border border-kgold/30 rounded-xl p-4 max-w-xs shadow-2xl backdrop-blur-xl">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fa-solid fa-lightbulb text-kgold text-xs"></i>
+                        <span class="text-[10px] font-bold text-kgold uppercase tracking-widest">WHY THIS?</span>
+                    </div>
+                    <p id="whyTitle" class="text-sm font-bold text-white mb-1"></p>
+                    <div id="whyBody" class="space-y-1.5 text-[11px] text-gray-400"></div>
+                </div>
+            </div>
+
+            <!-- BOTTOM TABS -->
+            <div class="h-44 bg-[#0a0a0f] border-t border-[#ffffff07] flex flex-col shrink-0">
+                <div class="flex items-center border-b border-[#ffffff07] px-4 gap-1">
+                    <button class="btab-btn active text-[11px] py-2" data-tab="orders">Orders <span
+                            class="tab-sub">placed trades</span></button>
+                    <button class="btab-btn text-[11px] py-2" data-tab="positions">Positions <span class="tab-sub">open
+                            trades</span></button>
+                    <button class="btab-btn text-[11px] py-2" data-tab="holdings">Holdings <span
+                            class="tab-sub">long-term</span></button>
+                    <button class="btab-btn text-[11px] py-2" data-tab="journal">Journal <span class="tab-sub">trade
+                            history</span></button>
+                    <button class="btab-btn text-[11px] py-2" data-tab="analytics">Analytics <span class="tab-sub">win
+                            rate, P&L</span></button>
+                    <button class="btab-btn text-[11px] py-2 text-kred/70" data-tab="mistakes">⚠ Mistakes <span
+                            class="tab-sub">bad habits</span></button>
+                    <button class="btab-btn text-[11px] py-2 text-kblue/70" data-tab="insights">💡 Insights <span
+                            class="tab-sub">AI lessons</span></button>
+                    <div class="ml-auto flex items-center gap-3 text-[10px]">
+                        <span class="text-gray-600">P&L:</span>
+                        <span id="totalPnl" class="font-mono font-bold text-kgreen">+₹0.00</span>
+                        <span class="text-gray-600 ml-2">R:R:</span>
+                        <span id="globalRR" class="font-mono font-bold text-kgold">—</span>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto px-4 py-2" id="bottomTabContent"></div>
+            </div>
+        </main>
+
+        <!-- ─── RIGHT: ORDER PANEL ─── -->
+        <aside class="w-64 bg-[#0a0a0f] border-l border-[#ffffff07] flex flex-col shrink-0">
+
+            <!-- BUY / SELL Header -->
+            <div class="flex border-b border-[#ffffff07] shrink-0">
+                <div class="flex flex-col flex-1">
+                    <button
+                        class="order-side-btn py-2 text-xs font-bold text-kgreen border-b-2 border-kgreen bg-kgreen/5"
+                        data-side="BUY" id="buyTab">BUY</button>
+                    <p class="explain-text text-center pb-0.5">Entering a long position</p>
+                </div>
+                <div class="flex flex-col flex-1">
+                    <button
+                        class="order-side-btn py-2 text-xs font-bold text-gray-500 hover:text-kred transition-colors"
+                        data-side="SELL" id="sellTab">SELL</button>
+                    <p class="explain-text text-center pb-0.5">Exiting or shorting</p>
+                </div>
+            </div>
+
+            <!-- Smart Chart Insights bar -->
+            <div id="chartInsightBar"
+                class="px-3 py-1.5 border-b border-[#ffffff07] bg-[#0d0d12] flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles text-kblue text-[9px]"></i>
+                <p id="chartInsightText" class="text-[9px] text-kblue font-mono">Analyzing price structure...</p>
+            </div>
+
+            <div class="flex-1 p-3 space-y-3 overflow-y-auto order-panel-scroll">
+
+                <!-- Product Type -->
+                <div>
+                    <label class="field-label why-trigger" data-why="product">PRODUCT TYPE</label>
+                    <div class="flex gap-1 mt-1">
+                        <div class="flex flex-col flex-1 items-center">
+                            <button class="ptype-btn active w-full py-1.5 text-[10px] rounded-lg font-bold"
+                                data-type="MIS">MIS</button>
+                            <p class="explain-text mt-0.5">Intraday only</p>
+                        </div>
+                        <div class="flex flex-col flex-1 items-center">
+                            <button class="ptype-btn w-full py-1.5 text-[10px] rounded-lg font-bold"
+                                data-type="CNC">CNC</button>
+                            <p class="explain-text mt-0.5">Delivery / hold</p>
+                        </div>
+                        <div class="flex flex-col flex-1 items-center">
+                            <button class="ptype-btn w-full py-1.5 text-[10px] rounded-lg font-bold"
+                                data-type="NRML">NRML</button>
+                            <p class="explain-text mt-0.5">F&amp;O overnight</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Type -->
+                <div>
+                    <label class="field-label why-trigger" data-why="ordertype">ORDER TYPE</label>
+                    <select id="orderTypeSelect"
+                        class="w-full bg-[#141418] border border-[#ffffff0a] rounded-lg px-2 py-1.5 text-[11px] text-gray-300 mt-1 outline-none">
+                        <option value="MARKET">Market — Execute now at any price</option>
+                        <option value="LIMIT">Limit — Execute only at my price</option>
+                        <option value="SL">Stop Loss — Exit on bad price</option>
+                        <option value="SLM">SL-Market — Fast SL exit</option>
+                    </select>
+                    <p class="explain-text mt-1">How &amp; when your order executes in the market</p>
+                </div>
+
+                <!-- Quantity -->
+                <div>
+                    <div class="flex items-center justify-between">
+                        <label class="field-label why-trigger" data-why="qty">QTY (SHARES)</label>
+                        <span class="text-[9px] text-gray-600">Rule: Risk max 2% of capital</span>
+                    </div>
+                    <div class="flex items-center gap-1 mt-1">
+                        <button class="qty-ctrl" id="qtyMinus">−</button>
+                        <input type="number" id="qtyInput" value="1" min="1"
+                            class="flex-1 bg-[#141418] border border-[#ffffff0a] rounded-lg px-2 py-1.5 text-[11px] text-center text-white outline-none font-mono">
+                        <button class="qty-ctrl" id="qtyPlus">+</button>
+                    </div>
+                    <p class="explain-text mt-1">Number of shares to buy or sell</p>
+                </div>
+
+                <!-- Price -->
+                <div id="priceField">
+                    <label class="field-label why-trigger" data-why="price">PRICE (₹) — LIMIT ONLY</label>
+                    <input type="number" id="priceInput" placeholder="Leave blank for Market order"
+                        class="w-full bg-[#141418] border border-[#ffffff0a] rounded-lg px-2 py-1.5 text-[11px] text-white mt-1 outline-none font-mono">
+                    <p class="explain-text mt-1">Max price you're willing to pay (Limit orders only)</p>
+                </div>
+
+                <!-- Stop Loss -->
+                <div id="slField">
+                    <div class="flex items-center justify-between">
+                        <label class="field-label why-trigger" data-why="sl" style="color:#e05260">STOP LOSS (₹)</label>
+                        <span
+                            class="text-[8px] text-kgold font-bold bg-kgold/10 border border-kgold/30 px-1.5 py-0.5 rounded">REQUIRED</span>
+                    </div>
+                    <input type="number" id="slInput" placeholder="₹ price to auto-exit if wrong"
+                        class="w-full bg-[#141418] border border-kred/30 rounded-lg px-2 py-1.5 text-[11px] text-white mt-1 outline-none font-mono">
+                    <p class="explain-text mt-1" style="color:#e05260aa">Auto-exits to limit your loss. <strong
+                            style="color:#e05260">Never skip this.</strong></p>
+                </div>
+
+                <!-- Target -->
+                <div id="tpField">
+                    <div class="flex items-center justify-between mt-3">
+                        <label class="field-label why-trigger" data-why="target" style="color:#26a17b">TARGET
+                            (₹)</label>
+                        <span
+                            class="text-[8px] text-kgreen font-bold bg-kgreen/10 border border-kgreen/30 px-1.5 py-0.5 rounded">OPTIONAL</span>
+                    </div>
+                    <input type="number" id="targetInput" placeholder="₹ price to take profit"
+                        class="w-full bg-[#141418] border border-kgreen/30 rounded-lg px-2 py-1.5 text-[11px] text-white mt-1 outline-none font-mono">
+                    <p class="explain-text mt-1" style="color:#26a17b">Limits order to exit in profit.</p>
+                </div>
+
+                <!-- Order Summary Card -->
+                <div class="bg-[#141418] rounded-xl p-3 space-y-1.5 text-[10px]">
+                    <p class="text-[9px] text-gray-600 uppercase font-bold tracking-widest mb-2">ORDER SUMMARY</p>
+                    <div class="flex justify-between items-start">
+                        <div><span class="text-gray-500">Est. Value</span>
+                            <p class="explain-text">Qty × price</p>
+                        </div>
+                        <span id="estValue" class="font-mono text-white">₹2,847.50</span>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div><span class="text-gray-500">Margin Req.</span>
+                            <p class="explain-text">Capital locked</p>
+                        </div>
+                        <span id="marginReq" class="font-mono text-kgold">₹2,847.50</span>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div><span class="text-gray-500">Brokerage</span>
+                            <p class="explain-text">₹20 flat fee (Zerodha)</p>
+                        </div>
+                        <span class="font-mono text-gray-400">₹20.00</span>
+                    </div>
+                    <div class="flex justify-between items-start border-t border-[#ffffff07] pt-1.5">
+                        <div><span class="text-gray-400 font-bold">Max Loss</span>
+                            <p class="explain-text">If SL gets hit</p>
+                        </div>
+                        <span id="riskDisplay" class="font-mono text-kred">~₹0</span>
+                    </div>
+                </div>
+
+                <!-- PRE-TRADE INTELLIGENCE PANEL -->
+                <div id="preTradePanel" class="bg-[#0d1117] border border-[#ffffff08] rounded-xl p-3 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">PRE-TRADE
+                            INTELLIGENCE</span>
+                        <span id="setupGrade" class="text-sm font-display font-black text-kgold">B+</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1.5 text-[9px]">
+                        <div class="bg-black/30 rounded-lg p-2">
+                            <p class="text-gray-600 mb-0.5">Trend</p>
+                            <p id="trendLabel" class="font-bold text-yellow-400">Weak Uptrend</p>
+                        </div>
+                        <div class="bg-black/30 rounded-lg p-2">
+                            <p class="text-gray-600 mb-0.5">Signal</p>
+                            <p id="signalLabel" class="font-bold text-kblue">Breakout?</p>
+                        </div>
+                        <div class="bg-black/30 rounded-lg p-2">
+                            <p class="text-gray-600 mb-0.5">R:R Ratio</p>
+                            <p id="rrRatio" class="font-bold font-mono text-kgreen">—</p>
+                        </div>
+                        <div class="bg-black/30 rounded-lg p-2">
+                            <p class="text-gray-600 mb-0.5">Pro Would</p>
+                            <p id="proWould" class="font-bold text-purple-400">WAIT</p>
+                        </div>
+                    </div>
+                    <p id="setupInsight" class="text-[9px] text-gray-500 italic leading-relaxed">Price near resistance.
+                        Volume low. Breakout possible but confirmation missing.</p>
+                </div>
+
+                <!-- WHY THIS TRADE SELECTOR -->
+                <div>
+                    <label class="field-label" style="color:#f59e0b">WHY THIS TRADE? <span
+                            class="text-[8px] text-gray-600 font-normal normal-case">required before
+                            executing</span></label>
+                    <div class="grid grid-cols-2 gap-1 mt-1" id="whyTradeGrid">
+                        <button class="why-trade-btn" data-reason="breakout">📈 Breakout</button>
+                        <button class="why-trade-btn" data-reason="support">🔄 Support bounce</button>
+                        <button class="why-trade-btn" data-reason="trend">📊 Trend follow</button>
+                        <button class="why-trade-btn danger" data-reason="guess">🎲 Guess / FOMO</button>
+                    </div>
+                    <p id="whyTradeWarn" class="hidden text-[9px] text-kred mt-1 font-bold">⚠ This is gambling, not
+                        trading. Select a real strategy.</p>
+                    <p class="explain-text mt-1">Forces you to think before clicking BUY — the most important habit</p>
+                </div>
+
+                <!-- Place Order Button -->
+                <div>
+                    <button id="placeOrderBtn"
+                        class="w-full py-3 rounded-xl text-sm font-display font-bold text-white bg-gradient-to-r from-kgreen to-emerald-600 hover:opacity-90 transition-all shadow-lg shadow-kgreen/20">
+                        BUY RELIANCE
+                    </button>
+                    <p class="explain-text text-center mt-1">Simulates with ₹20 brokerage + slippage</p>
+                </div>
+                </p>
+            </div>
+
+            <!-- No SL Warning -->
+            <div id="noSlWarning" class="hidden p-2 bg-kred/10 border border-kred/30 rounded-lg text-[10px] text-kred">
+                <i class="fa-solid fa-triangle-exclamation mr-1"></i> No Stop Loss set. <strong>90% of retail losses
+                    come from this mistake.</strong>
+            </div>
+    </div>
+
+    <!-- AI Risk Assessment -->
+    <div class="p-3 border-t border-[#ffffff07] shrink-0">
+        <div class="flex items-center justify-between mb-1">
+            <p class="text-[9px] text-gray-600 uppercase tracking-widest font-bold">AI RISK ASSESSMENT</p>
+            <span class="text-[8px] text-gray-600">Auto-calculates trade risk</span>
+        </div>
+        <div id="aiRiskBar" class="h-1.5 w-full rounded-full bg-gray-800 mb-1.5">
+            <div id="aiRiskFill" class="h-full rounded-full bg-kgreen transition-all duration-500" style="width:20%">
+            </div>
+        </div>
+        <p id="aiRiskLabel" class="text-[10px] text-kgreen font-mono">LOW RISK — Good setup</p>
+        <p class="explain-text mt-0.5">Green=safe (≤1% capital at risk), Red=dangerous (&gt;5%)</p>
+    </div>
+    </aside>
+    </div>
+
+    <!-- ═══════════════════════ MODALS ═══════════════════════ -->
+
+    <!-- Scenario Story Card -->
+    <div id="scenarioCard"
+        class="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
+        <div class="bg-[#0d0d12] border border-[#ffffff10] rounded-2xl p-8 max-w-lg w-full mx-4 relative">
+            <div class="w-12 h-12 rounded-2xl bg-kgold/20 flex items-center justify-center mb-4">
+                <i id="scenarioIcon" class="fa-solid fa-chart-line text-kgold text-xl"></i>
+            </div>
+            <span class="text-[10px] font-bold text-kgold uppercase tracking-widest">SCENARIO — Real Indian market
+                situation to practice on</span>
+            <h2 id="scenarioTitle" class="text-2xl font-display font-bold mt-1 mb-3">Opening Breakout</h2>
+            <p id="scenarioDesc" class="text-sm text-gray-400 leading-relaxed mb-6"></p>
+            <div id="scenarioContext" class="bg-[#141418] rounded-xl p-4 mb-6 text-xs text-gray-400 space-y-1.5"></div>
+            <div class="flex gap-3">
+                <button id="scenarioStart"
+                    class="flex-1 py-3 bg-kgreen/20 border border-kgreen/40 text-kgreen font-bold rounded-xl text-sm hover:bg-kgreen/30 transition-all">
+                    <i class="fa-solid fa-play mr-2"></i>Start Scenario
+                </button>
+                <button id="scenarioClose"
+                    class="px-6 py-3 border border-[#ffffff10] text-gray-400 font-bold rounded-xl text-sm hover:border-white/20 transition-all">Skip</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mistake Detector Alert -->
+    <div id="mistakeAlert" class="fixed bottom-48 right-4 z-40 hidden max-w-xs">
+        <div class="bg-[#1a0a0a] border border-kred/40 rounded-xl p-4 shadow-2xl">
+            <div class="flex items-start gap-3">
+                <div class="w-7 h-7 rounded-full bg-kred/20 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-triangle-exclamation text-kred text-xs"></i>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-kred uppercase tracking-widest mb-1">⚠ MISTAKE DETECTED — AI
+                        caught a bad habit</p>
+                    <p id="mistakeText" class="text-xs text-gray-300"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trade Feedback Modal -->
+    <div id="feedbackModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden">
+        <div class="bg-[#0d0d12] border border-[#ffffff10] rounded-2xl p-6 max-w-sm w-full mx-4">
+            <div class="text-center mb-4">
+                <div id="feedbackIcon"
+                    class="w-12 h-12 rounded-full bg-kgreen/20 flex items-center justify-center mx-auto mb-3">
+                    <i class="fa-solid fa-check text-kgreen text-lg"></i>
+                </div>
+                <h3 id="feedbackTitle" class="font-display font-bold text-lg">Trade Analysis</h3>
+                <p class="text-[10px] text-gray-500 mt-1">AI reviews every closed trade to teach you what went right or
+                    wrong</p>
+            </div>
+            <div id="feedbackBody" class="space-y-2 text-xs text-gray-400 mb-4"></div>
+            <button id="feedbackClose"
+                class="w-full py-3 bg-[#141418] border border-[#ffffff10] rounded-xl text-sm text-gray-300 font-bold hover:border-white/20 transition-all">Continue
+                Trading</button>
+        </div>
+    </div>
+
+    <!-- Onboarding Overlay -->
+    <div id="onboardOverlay" class="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex items-center justify-center">
+        <div class="max-w-lg w-full mx-4">
+            <div id="onboardStep" class="text-center"></div>
+        </div>
+    </div>
+
+    <script src="../js/trading-simulator.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+</body>
+
+</html>

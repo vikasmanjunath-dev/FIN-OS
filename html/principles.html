@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | The Constitution</title>
+  
+  <script src="../js/theme-init.js"></script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/principles.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="app">
+      <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html" class="active">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+    <main class="main">
+      <div class="content-wrapper">
+
+        <header class="header header-flex">
+          <div>
+            <h1 class="glitch-text" data-text="Principles n Laws">Principles n Laws</h1>
+            <p class="hero-sub">Money follows <span class="highlight">Principles</span>, not opinions.</p>
+          </div>
+          <button id="themeToggle" class="theme-btn">🌙</button>
+        </header>
+
+        <div class="mode-switcher">
+          <button class="mode-btn active" data-target="principles">🧭 FIN-PRINCIPLES</button>
+          <button class="mode-btn" data-target="rules">📐 FIN-RULES</button>
+        </div>
+
+        <div id="principles-view" class="view-container active">
+          
+          <section class="principle-group">
+            <h2 class="group-title"><span>01</span> Core Foundation</h2>
+            
+            <div class="grid-2">
+              <div class="law-card special">
+                <div class="badge">LAW 1</div>
+                <h3>Effort Conversion</h3>
+                <p class="definition">Money is stored human effort, time, and skill.</p>
+                <div class="interactive-lab">
+                  <h4>🧪 Lab: The Price of Life</h4>
+                  <div class="input-row">
+                    <input type="number" id="monthlySalary" placeholder="Salary (₹)" value="30000">
+                    <input type="number" id="itemPrice" placeholder="Item Price (₹)" value="3000">
+                  </div>
+                  <div class="result-box" id="effortResult">
+                    Cost: <strong>22 Hours</strong> of life.
+                  </div>
+                </div>
+              </div>
+
+              <div class="law-card">
+                <div class="badge">LAW 2</div>
+                <h3>Finite Income</h3>
+                <p class="why"><strong>Why:</strong> Income is limited; desires are not.</p>
+                <div class="desi-reality">
+                  <span class="flag">🇮🇳 Reality</span>
+                  <p>Salary: ₹60k. EMI+Rent: ₹55k. One swipe away from disaster.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-1" style="margin-top: 24px;">
+              <div class="law-card">
+                <div class="badge">LAW 3</div>
+                <h3>Cash Flow Supremacy</h3>
+                <p class="definition">Cash flow matters more than total income.</p>
+                <div class="desi-reality">
+                  <p>Earning ₹1.5L but spending ₹1.45L is poverty. Earning ₹50k and spending ₹30k is wealth.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="principle-group">
+            <h2 class="group-title"><span>02</span> Psychology of Money</h2>
+            <div class="grid-3">
+              <div class="law-card">
+                <div class="badge">LAW 4</div>
+                <h3>Emotional Dominance</h3>
+                <p class="definition">Money decisions are emotional first, logical later.</p>
+                <div class="desi-reality">
+                  <p>Panic selling in crashes vs FOMO buying at tops.</p>
+                </div>
+              </div>
+              <div class="law-card">
+                <div class="badge">LAW 5</div>
+                <h3>Social Comparison</h3>
+                <p class="definition">We measure success relative to others.</p>
+                <div class="desi-reality">
+                  <p>You didn't need a car until your cousin bought one.</p>
+                </div>
+              </div>
+              <div class="law-card">
+                <div class="badge">LAW 6</div>
+                <h3>Scarcity Memory</h3>
+                <p class="definition">Past pain shapes future behavior.</p>
+                <div class="desi-reality">
+                  <p>Parents hoard cash in FDs because they remember 1990s scarcity.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="principle-group">
+            <h2 class="group-title"><span>03</span> Personal Finance</h2>
+            <div class="grid-3">
+              <div class="law-card">
+                <div class="badge">LAW 7</div>
+                <h3>Survival First</h3>
+                <p class="definition">Protection precedes growth.</p>
+                <div class="desi-reality">
+                  <p>No emergency fund + Hospital bill = Years of debt.</p>
+                </div>
+              </div>
+              <div class="law-card">
+                <div class="badge">LAW 8</div>
+                <h3>Goal-Based Money</h3>
+                <p class="definition">Money without purpose gets wasted.</p>
+                <div class="desi-reality">
+                  <p>"Saving for future" fails. "Saving for House in 5 years" works.</p>
+                </div>
+              </div>
+              <div class="law-card warning">
+                <div class="badge">LAW 9</div>
+                <h3>Inflation Reality</h3>
+                <p class="definition">If growth < inflation, you are getting poorer.</p>
+                <div class="desi-reality warning">
+                  <p>FD gives 6%, Education cost rises 10%. You lost value.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="principle-group">
+            <h2 class="group-title"><span>04</span> Market Laws</h2>
+            <div class="grid-2">
+              <div class="law-card">
+                <div class="badge">LAW 10</div>
+                <h3>Ownership</h3>
+                <p class="definition">Buying stock = Owning a business.</p>
+                <div class="desi-reality">
+                  <p>You own Reliance's pipelines, not just a ticker symbol.</p>
+                </div>
+              </div>
+              <div class="law-card">
+                <div class="badge">LAW 11</div>
+                <h3>Risk-Reward Balance</h3>
+                <p class="definition">Higher return ALWAYS demands higher risk.</p>
+                <div class="desi-reality">
+                  <p>"Safe high returns" is a scam description.</p>
+                </div>
+              </div>
+            </div>
+            <div class="grid-2" style="margin-top:24px;">
+              <div class="law-card">
+                <div class="badge">LAW 12</div>
+                <h3>Market Cycles</h3>
+                <p class="definition">Markets move in cycles, not straight lines.</p>
+                <div class="desi-reality">
+                  <p>2008 Crash ➔ Recovery ➔ 2020 Crash ➔ Recovery.</p>
+                </div>
+              </div>
+              <div class="law-card">
+                <div class="badge">LAW 13</div>
+                <h3>Valuation Gravity</h3>
+                <p class="definition">Price always returns to value eventually.</p>
+                <div class="desi-reality">
+                  <p>Overhyped IPOs eventually crash to reality (Paytm/Zomato).</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="principle-group">
+            <h2 class="group-title"><span>05</span> Advanced Laws</h2>
+            <div class="grid-2">
+              <div class="law-card warning">
+                <div class="badge">LAW 14</div>
+                <h3>Leverage Destruction</h3>
+                <p class="definition">Leverage kills faster than intelligence saves.</p>
+                <div class="desi-reality warning">
+                  <p>One wrong F&O trade wipes 6 months of savings.</p>
+                </div>
+              </div>
+              <div class="law-card">
+                <div class="badge">LAW 15</div>
+                <h3>Probability</h3>
+                <p class="definition">Markets reward probability, not prediction.</p>
+                <div class="desi-reality">
+                  <p>One lucky trade ≠ Skill. Consistency = Edge.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="final-truth">
+            <h2>♾️ The Master Law</h2>
+            <p class="truth-statement highlight">Behavioural Supremacy</p>
+            <p>Your behaviour matters more than your knowledge. A disciplined fool beats an impulsive genius.</p>
+          </div>
+
+        </div>
+
+        <div id="rules-view" class="view-container">
+          
+          <section class="principle-group">
+            <h2 class="group-title"><span>A</span> Structure & Allocation</h2>
+            
+            <div class="grid-2">
+              <div class="law-card special">
+                <div class="badge">RULE 1</div>
+                <h3>The 100 - Age Rule</h3>
+                <p class="definition">Equity % = 100 - Your Age.</p>
+                <div class="interactive-lab">
+                  <div class="slider-container">
+                    <label>Age: <span id="ageVal">30</span></label>
+                    <input type="range" id="ageSlider" min="18" max="80" value="30">
+                  </div>
+                  <div class="allocation-bar">
+                    <div id="equityBar" class="alloc-segment equity">Equity: 70%</div>
+                    <div id="debtBar" class="alloc-segment debt">Debt: 30%</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="law-card">
+                <div class="badge">RULE 2</div>
+                <h3>Core-Satellite</h3>
+                <p class="definition">80% Boring (Core) + 20% Risky (Satellite).</p>
+                <div class="desi-reality">
+                  <p>Index Funds are main meal. Crypto/Small caps are pickle.</p>
+                </div>
+              </div>
+            </div>
+            <div class="grid-1" style="margin-top:24px;">
+              <div class="law-card">
+                <div class="badge">RULE 3</div>
+                <h3>One Goal = One Bucket</h3>
+                <p class="definition">Never mix retirement money with wedding funds.</p>
+                <div class="desi-reality">
+                  <p>Pulling PF for a wedding is financial suicide.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="principle-group">
+            <h2 class="group-title"><span>B</span> Time & Math</h2>
+            <div class="grid-2">
+              <div class="law-card special">
+                <div class="badge">RULE 4</div>
+                <h3>Rule of 72</h3>
+                <p class="definition">Years to Double = 72 ÷ Interest Rate.</p>
+                <div class="interactive-lab">
+                  <div class="input-row">
+                    <select id="returnRate">
+                      <option value="4">Savings (4%)</option>
+                      <option value="6">FD (6%)</option>
+                      <option value="12">Equity (12%)</option>
+                      <option value="24">Biz (24%)</option>
+                    </select>
+                  </div>
+                  <div class="result-box large" id="doublingResult">
+                    Doubles in: <strong>18 Years</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="law-card">
+                <div class="badge">RULE 5</div>
+                <h3>Time in Market</h3>
+                <p class="definition">Time in market > Timing the market.</p>
+                <div class="desi-reality">
+                  <p>Waiting for the "crash" often costs more than the crash itself.</p>
+                </div>
+              </div>
+            </div>
+            <div class="grid-1" style="margin-top:24px;">
+              <div class="law-card">
+                <div class="badge">RULE 6</div>
+                <h3>Early Years Multiplier</h3>
+                <p class="definition">Money invested early works 10x harder.</p>
+                <div class="desi-reality">
+                  <p>₹5k at age 22 beats ₹15k at age 35.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="principle-group">
+            <h2 class="group-title"><span>C</span> Survival Rules</h2>
+            <div class="grid-3">
+              <div class="law-card">
+                <div class="badge">RULE 7</div>
+                <h3>Emergency Fund</h3>
+                <p class="definition">6-12 Months expenses in Liquid Cash.</p>
+              </div>
+              <div class="law-card">
+                <div class="badge">RULE 8</div>
+                <h3>Insurance First</h3>
+                <p class="definition">Health & Term Insurance BEFORE investing.</p>
+              </div>
+              <div class="law-card">
+                <div class="badge">RULE 9</div>
+                <h3>Single Asset Rule</h3>
+                <p class="definition">Never let one asset be >50% of net worth.</p>
+                <div class="desi-reality">
+                  <p>90% wealth in one flat = Danger.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="principle-group">
+            <h2 class="group-title"><span>D</span> Market Participation</h2>
+            <div class="grid-3">
+              <div class="law-card">
+                <div class="badge">RULE 10</div>
+                <h3>Position Sizing</h3>
+                <p class="definition">Max 5-10% capital in one idea.</p>
+              </div>
+              <div class="law-card">
+                <div class="badge">RULE 11</div>
+                <h3>5-Year Rule</h3>
+                <p class="definition">Can't hold for 5 years? Don't buy.</p>
+              </div>
+              <div class="law-card">
+                <div class="badge">RULE 12</div>
+                <h3>Downside First</h3>
+                <p class="definition">Ask "What can I lose?" before "What can I make?".</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="principle-group">
+            <h2 class="group-title"><span>E</span> Behavioural Rules</h2>
+            <div class="grid-3">
+              <div class="law-card">
+                <div class="badge">RULE 13</div>
+                <h3>Lifestyle Ceiling</h3>
+                <p class="definition">Fix lifestyle cost even as income grows.</p>
+              </div>
+              <div class="law-card warning">
+                <div class="badge">RULE 14</div>
+                <h3>One Bad Year</h3>
+                <p class="definition">Assume one financial disaster per decade.</p>
+              </div>
+              <div class="law-card special">
+                <div class="badge">RULE 15</div>
+                <h3>Sleep Test</h3>
+                <p class="definition">If portfolio disturbs sleep, it's too risky.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="principle-group">
+            <h2 class="group-title"><span>F</span> Income & Career</h2>
+            <div class="grid-3">
+              <div class="law-card">
+                <div class="badge">RULE 16</div>
+                <h3>Human Capital</h3>
+                <p class="definition">Skills > Assets (Early Life).</p>
+              </div>
+              <div class="law-card">
+                <div class="badge">RULE 17</div>
+                <h3>Diversification</h3>
+                <p class="definition">Never rely on a single salary source.</p>
+              </div>
+              <div class="law-card">
+                <div class="badge">RULE 18</div>
+                <h3>Skill > Saving</h3>
+                <p class="definition">Spending on upskilling > Saving in FD (in 20s).</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="principle-group">
+            <h2 class="group-title"><span>G</span> Debt & Credit</h2>
+            <div class="grid-3">
+              <div class="law-card warning">
+                <div class="badge">RULE 19</div>
+                <h3>Debt Limit</h3>
+                <p class="definition">Total EMI < 30% of Income.</p>
+              </div>
+              <div class="law-card">
+                <div class="badge">RULE 20</div>
+                <h3>Asset Borrowing</h3>
+                <p class="definition">Borrow only for assets that appreciate.</p>
+              </div>
+              <div class="law-card warning">
+                <div class="badge">RULE 21</div>
+                <h3>Full Payment</h3>
+                <p class="definition">Can't pay full bill? Can't afford it.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="principle-group">
+            <h2 class="group-title"><span>H</span> Investing Discipline</h2>
+            <div class="grid-3">
+              <div class="law-card">
+                <div class="badge">RULE 22</div>
+                <h3>Rebalancing</h3>
+                <p class="definition">Reset asset allocation once a year.</p>
+              </div>
+              <div class="law-card">
+                <div class="badge">RULE 23</div>
+                <h3>Fewer Decisions</h3>
+                <p class="definition">Automation (SIP) > Active decisions.</p>
+              </div>
+              <div class="law-card">
+                <div class="badge">RULE 24</div>
+                <h3>Know What You Own</h3>
+                <p class="definition">Don't buy what you can't explain.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="principle-group">
+            <h2 class="group-title"><span>I</span> Market Reality</h2>
+            <div class="grid-3">
+              <div class="law-card">
+                <div class="badge">RULE 25</div>
+                <h3>Not a Salary</h3>
+                <p class="definition">Markets do not owe you monthly income.</p>
+              </div>
+              <div class="law-card">
+                <div class="badge">RULE 26</div>
+                <h3>No Prediction</h3>
+                <p class="definition">No one predicts consistently. Stick to systems.</p>
+              </div>
+              <div class="law-card">
+                <div class="badge">RULE 27</div>
+                <h3>Losing is Normal</h3>
+                <p class="definition">Small losses are the cost of doing business.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="principle-group">
+            <h2 class="group-title"><span>J</span> Life & Longevity</h2>
+            <div class="grid-3">
+              <div class="law-card">
+                <div class="badge">RULE 28</div>
+                <h3>Health > Wealth</h3>
+                <p class="definition">No plan survives poor health.</p>
+              </div>
+              <div class="law-card">
+                <div class="badge">RULE 29</div>
+                <h3>Longevity</h3>
+                <p class="definition">Plan for 30 years of retirement, not 10.</p>
+              </div>
+              <div class="law-card">
+                <div class="badge">RULE 30</div>
+                <h3>Simplicity</h3>
+                <p class="definition">Simple plans outperform complex ones.</p>
+              </div>
+            </div>
+          </section>
+
+          <div class="final-truth">
+            <h2>♾️ The Master Rule</h2>
+            <p class="truth-statement highlight">Self-Awareness</p>
+            <p>The best financial strategy is the one you can actually stick to.</p>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/theme-init.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/principles.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+</body>
+</html>

@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#02020c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Mind + Market Hub</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── TOKENS ──────────────────────────────────────────────── */
+    :root {
+      --ink: #02020c; --s1: #07071a; --s2: #0d0d24; --s3: #13132e;
+      --g: #00ff88; --r: #ff2d6b; --y: #ffcc00; --c: #00d4ff; --v: #7c3aff;
+      --txt: #f0edff; --dim: #3a3464; --mu: #504a7a;
+      --fD: 'Bebas Neue', sans-serif;
+      --fB: 'DM Sans', sans-serif;
+      --fM: 'JetBrains Mono', monospace;
+      --nav-h: 104px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--ink); color: var(--txt);
+      font-family: var(--fB); min-height: 100vh; overflow-x: hidden;
+    }
+
+    /* ── CUSTOM CURSOR ───────────────────────────────────────── */
+    #cur {
+      position: fixed; width: 10px; height: 10px; border-radius: 50%;
+      background: var(--g); pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%); transition: width .15s, height .15s, background .2s;
+      mix-blend-mode: screen;
+    }
+    #curR {
+      position: fixed; width: 32px; height: 32px; border: 1px solid rgba(0,255,136,.35);
+      border-radius: 50%; pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+    }
+
+    /* ── TOP TICKER BAR ─────────────────────────────────────── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; height: 48px; z-index: 600;
+      background: rgba(2,2,12,.96); backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(0,255,136,.06);
+      display: flex; align-items: center; padding: 0 1.75rem; gap: 1rem;
+    }
+    .tb-logo {
+      font-family: var(--fD); font-size: 1.45rem; letter-spacing: 3px;
+      background: linear-gradient(135deg,var(--g),var(--c));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      flex-shrink: 0; text-decoration: none;
+    }
+    .tb-div { width: 1px; height: 24px; background: rgba(255,255,255,.07); flex-shrink: 0; }
+    .tb-live-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--g);
+      box-shadow: 0 0 6px var(--g); animation: blink 1.8s infinite; flex-shrink: 0;
+    }
+    .tb-ticker-wrap {
+      flex: 1; overflow: hidden; position: relative;
+    }
+    .tb-ticker-wrap::before, .tb-ticker-wrap::after {
+      content: ''; position: absolute; top: 0; bottom: 0; width: 40px; z-index: 2; pointer-events: none;
+    }
+    .tb-ticker-wrap::before { left: 0; background: linear-gradient(to right, rgba(2,2,12,.96), transparent); }
+    .tb-ticker-wrap::after  { right: 0; background: linear-gradient(to left,  rgba(2,2,12,.96), transparent); }
+    .tb-ticker {
+      display: flex; gap: 2rem; white-space: nowrap;
+      animation: ticker-move 40s linear infinite;
+      font-family: var(--fM); font-size: .6rem;
+    }
+    .tb-ticker span { display: inline-flex; align-items: center; gap: .3rem; color: var(--mu); }
+    .tb-ticker .up { color: var(--g); }
+    .tb-ticker .dn { color: var(--r); }
+    .tb-xp {
+      display: flex; align-items: center; gap: .6rem; padding: .28rem .7rem;
+      background: rgba(255,204,0,.04); border: 1px solid rgba(255,204,0,.1); border-radius: 7px; flex-shrink: 0;
+    }
+    .tb-lv { font-family: var(--fD); font-size: .88rem; letter-spacing: 1px; color: var(--y); }
+    .tb-xp-bar-wrap { width: 44px; height: 3px; background: rgba(255,255,255,.06); border-radius: 2px; overflow: hidden; }
+    .tb-xp-bar-fill { height: 100%; background: linear-gradient(90deg,var(--g),var(--c)); border-radius: 2px; transition: width 1.2s; }
+    .tb-xp-pts { font-family: var(--fM); font-size: .46rem; color: var(--mu); white-space: nowrap; }
+    .tb-avatar {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: linear-gradient(135deg,var(--v),var(--c));
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--fD); font-size: .95rem; flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,.1); transition: transform .2s;
+    }
+    .tb-avatar:hover { transform: scale(1.08); }
+
+    /* ── PAGE NAV ───────────────────────────────────────────── */
+    .pagenav {
+      position: fixed; top: 48px; left: 0; right: 0; height: 56px; z-index: 599;
+      background: rgba(7,7,26,.96); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      display: flex; align-items: center; padding: 0 2rem; gap: .5rem;
+    }
+    .pn-link {
+      display: flex; align-items: center; gap: .45rem;
+      padding: .38rem .9rem; border-radius: 8px;
+      font-family: var(--fM); font-size: .6rem; letter-spacing: .5px;
+      text-decoration: none; color: var(--mu);
+      border: 1px solid transparent; transition: all .2s; white-space: nowrap;
+    }
+    .pn-link:hover { color: var(--txt); background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.07); }
+    .pn-link.on-g, .pn-link:hover.on-g { color: var(--g); background: rgba(0,255,136,.06); border-color: rgba(0,255,136,.15); }
+    .pn-link.on-r, .pn-link:hover.on-r { color: var(--r); background: rgba(255,45,107,.06); border-color: rgba(255,45,107,.15); }
+    .pn-link.on-v, .pn-link:hover.on-v { color: #a78bff; background: rgba(124,58,255,.06); border-color: rgba(124,58,255,.15); }
+    .pn-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .7; }
+    .pn-sep { width: 1px; height: 20px; background: rgba(255,255,255,.06); margin: 0 .25rem; }
+    .pn-right { margin-left: auto; display: flex; align-items: center; gap: .5rem; }
+    .pn-disc {
+      font-family: var(--fM); font-size: .56rem; padding: .28rem .7rem;
+      background: rgba(0,255,136,.04); border: 1px solid rgba(0,255,136,.1); border-radius: 6px; color: var(--g);
+    }
+
+    /* ── MAIN WRAPPER ───────────────────────────────────────── */
+    .main { padding-top: var(--nav-h); }
+
+    /* ── HERO ───────────────────────────────────────────────── */
+    .hero {
+      min-height: calc(100vh - var(--nav-h));
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,255,136,.07), transparent),
+        radial-gradient(ellipse 50% 50% at 80% 80%, rgba(0,212,255,.05), transparent),
+        var(--ink);
+      padding: 4rem 2rem 3rem;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,255,136,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,136,.03) 1px, transparent 1px);
+      background-size: 56px 56px; pointer-events: none;
+    }
+    .hero-orb { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(80px); }
+    .ho1 { width: 500px; height: 500px; background: rgba(0,255,136,.06); top: -100px; right: -100px; }
+    .ho2 { width: 400px; height: 400px; background: rgba(0,212,255,.05); bottom: -80px; left: -60px; }
+    .ho3 { width: 300px; height: 300px; background: rgba(124,58,255,.04); top: 30%; left: 30%; }
+
+    .hero-inner { position: relative; z-index: 2; text-align: center; max-width: 900px; margin: 0 auto; }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .55rem;
+      padding: 5px 18px; border-radius: 30px; margin-bottom: 2rem;
+      background: rgba(0,255,136,.06); border: 1px solid rgba(0,255,136,.2);
+      font-family: var(--fM); font-size: .58rem; color: var(--g); letter-spacing: 2px;
+    }
+    .hbdot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--g);
+      box-shadow: 0 0 10px var(--g); animation: pulse 1.8s infinite;
+    }
+
+    .hero-h1 {
+      font-family: var(--fD); font-size: clamp(3rem, 8vw, 7.5rem);
+      letter-spacing: 4px; line-height: 1; color: var(--txt); margin-bottom: .35rem;
+    }
+    .hero-h2 {
+      font-family: var(--fD); font-size: clamp(2.2rem, 6vw, 5.5rem);
+      letter-spacing: 3px; line-height: 1.05;
+      background: linear-gradient(90deg, var(--g) 0%, var(--c) 40%, var(--g) 80%);
+      background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: shimmer 3.5s linear infinite; margin-bottom: 1.75rem;
+    }
+    .hero-sub {
+      font-size: 1.05rem; color: rgba(240,237,255,.65); max-width: 600px;
+      margin: 0 auto 2.5rem; line-height: 1.8;
+    }
+    .hero-sub strong { color: var(--txt); }
+
+    .hero-stats { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem; }
+    .hs {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .55rem 1.25rem; background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08); border-radius: 30px;
+    }
+    .hs-n { font-family: var(--fD); font-size: 1.5rem; letter-spacing: 1px; }
+    .hs-l { font-family: var(--fM); font-size: .5rem; color: var(--mu); letter-spacing: 1px; line-height: 1.3; }
+
+    .hero-ctas { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .hcta {
+      display: inline-flex; align-items: center; gap: .6rem;
+      padding: .9rem 2rem; border-radius: 12px;
+      font-family: var(--fD); font-size: 1.15rem; letter-spacing: .5px;
+      text-decoration: none; transition: all .25s; cursor: pointer; border: none;
+    }
+    .hcta-g {
+      background: linear-gradient(135deg, rgba(0,255,136,.15), rgba(0,255,136,.05));
+      border: 1px solid rgba(0,255,136,.4); color: var(--g);
+    }
+    .hcta-g:hover { background: rgba(0,255,136,.2); box-shadow: 0 0 30px rgba(0,255,136,.2); transform: translateY(-2px); }
+    .hcta-r {
+      background: linear-gradient(135deg, rgba(255,45,107,.15), rgba(255,45,107,.05));
+      border: 1px solid rgba(255,45,107,.4); color: var(--r);
+    }
+    .hcta-r:hover { background: rgba(255,45,107,.2); box-shadow: 0 0 30px rgba(255,45,107,.2); transform: translateY(-2px); }
+    .hcta-v {
+      background: linear-gradient(135deg, rgba(124,58,255,.15), rgba(0,212,255,.05));
+      border: 1px solid rgba(124,58,255,.35); color: #a78bff;
+    }
+    .hcta-v:hover { background: rgba(124,58,255,.2); box-shadow: 0 0 30px rgba(124,58,255,.2); transform: translateY(-2px); }
+
+    .hero-scroll {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: .4rem;
+      font-family: var(--fM); font-size: .5rem; color: var(--mu); letter-spacing: 2px;
+      animation: bob 2s ease-in-out infinite;
+    }
+    .hero-scroll-line { width: 1px; height: 32px; background: linear-gradient(to bottom, rgba(0,255,136,.4), transparent); }
+
+    /* ── PROFILE BAND ────────────────────────────────────────── */
+    .profile-band {
+      background: var(--s1); border-top: 1px solid rgba(255,255,255,.05);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      padding: 1.25rem 3rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+    }
+    .pb-av {
+      width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--v), var(--c));
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--fD); font-size: 1.4rem;
+    }
+    .pb-name { font-family: var(--fD); font-size: 1.1rem; letter-spacing: .5px; }
+    .pb-sub { font-family: var(--fM); font-size: .5rem; color: var(--mu); letter-spacing: 1px; margin-top: 2px; }
+    .pb-sep { width: 1px; height: 36px; background: rgba(255,255,255,.07); flex-shrink: 0; }
+    .pb-metric { text-align: center; }
+    .pb-mval { font-family: var(--fD); font-size: 1.55rem; letter-spacing: 1px; line-height: 1; }
+    .pb-mlbl { font-family: var(--fM); font-size: .46rem; color: var(--mu); letter-spacing: 1px; margin-top: 2px; }
+    .pb-right { margin-left: auto; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+    .pb-badge {
+      font-family: var(--fM); font-size: .5rem; padding: .35rem .75rem;
+      border-radius: 20px; letter-spacing: 1.5px;
+    }
+    .pb-badge-g { background: rgba(0,255,136,.08); color: var(--g); border: 1px solid rgba(0,255,136,.2); }
+    .pb-badge-y { background: rgba(255,204,0,.08); color: var(--y); border: 1px solid rgba(255,204,0,.2); }
+
+    /* ── SECTION SHELL ───────────────────────────────────────── */
+    .ls { padding: 4rem 3rem; }
+    .ls-label {
+      font-family: var(--fM); font-size: .58rem; letter-spacing: 4px;
+      margin-bottom: .4rem; display: flex; align-items: center; gap: .8rem;
+    }
+    .ls-label::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.06); }
+    .ls-title { font-family: var(--fD); font-size: 2.5rem; letter-spacing: 2px; margin-bottom: 2.5rem; }
+
+    /* ── PATH CARDS ──────────────────────────────────────────── */
+    .paths-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 900px) { .paths-grid { grid-template-columns: 1fr; } }
+
+    .pcard {
+      border-radius: 24px; overflow: hidden; text-decoration: none; color: var(--txt);
+      background: var(--s1); border: 1px solid rgba(255,255,255,.07);
+      display: flex; flex-direction: column; position: relative;
+      transition: transform .35s cubic-bezier(.34,1.1,.64,1), box-shadow .35s, border-color .35s;
+      min-height: 520px;
+    }
+    .pcard:hover { transform: translateY(-10px); }
+    .pc-g:hover { box-shadow: 0 30px 80px rgba(0,255,136,.15); border-color: rgba(0,255,136,.35); }
+    .pc-v:hover { box-shadow: 0 30px 80px rgba(124,58,255,.15); border-color: rgba(124,58,255,.35); }
+
+    .pc-bar { height: 4px; }
+    .pc-g .pc-bar { background: linear-gradient(90deg, var(--g), var(--c)); }
+    .pc-v .pc-bar { background: linear-gradient(90deg, var(--v), var(--c)); }
+
+    .pc-glow { position: absolute; inset: 0; opacity: 0; transition: opacity .4s; pointer-events: none; border-radius: 24px; }
+    .pc-g .pc-glow { background: radial-gradient(ellipse at 30% 20%, rgba(0,255,136,.08), transparent 65%); }
+    .pc-v .pc-glow { background: radial-gradient(ellipse at 30% 20%, rgba(124,58,255,.08), transparent 65%); }
+    .pcard:hover .pc-glow { opacity: 1; }
+
+    .pc-body { padding: 2rem; flex: 1; display: flex; flex-direction: column; position: relative; z-index: 1; }
+
+    .pc-lozenge {
+      display: inline-block; font-family: var(--fM); font-size: .46rem;
+      padding: 2px 9px; border-radius: 6px; letter-spacing: 1.5px; margin-bottom: 1.25rem;
+    }
+    .pc-g .pc-lozenge { background: rgba(0,255,136,.08); color: var(--g); border: 1px solid rgba(0,255,136,.18); }
+    .pc-v .pc-lozenge { background: rgba(124,58,255,.08); color: #a78bff; border: 1px solid rgba(124,58,255,.2); }
+
+    .pc-icon {
+      width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center;
+      justify-content: center; font-size: 2rem; margin-bottom: 1.25rem; transition: transform .3s;
+    }
+    .pcard:hover .pc-icon { transform: scale(1.1) rotate(4deg); }
+    .pc-g .pc-icon { background: rgba(0,255,136,.08); border: 1px solid rgba(0,255,136,.15); }
+    .pc-v .pc-icon { background: rgba(124,58,255,.1); border: 1px solid rgba(124,58,255,.2); }
+
+    .pc-title { font-family: var(--fD); font-size: 2.2rem; letter-spacing: 1px; margin-bottom: .3rem; }
+    .pc-g .pc-title { color: var(--g); }
+    .pc-v .pc-title { color: #a78bff; }
+
+    .pc-desc { font-size: .82rem; color: rgba(240,237,255,.6); line-height: 1.7; margin-bottom: 1.4rem; }
+
+    .pc-feats { list-style: none; display: flex; flex-direction: column; gap: .4rem; margin-bottom: auto; }
+    .pc-feats li {
+      display: flex; align-items: center; gap: .55rem; font-size: .75rem;
+      color: rgba(240,237,255,.7); padding: .35rem .55rem;
+      border-radius: 7px; background: rgba(255,255,255,.025); border: 1px solid rgba(255,255,255,.04);
+    }
+    .pcard:hover .pc-feats li { color: rgba(240,237,255,.9); }
+
+    .pc-cta {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .85rem 1.1rem; border-radius: 11px;
+      font-family: var(--fD); font-size: 1rem; letter-spacing: .5px; margin-top: 1.5rem;
+      transition: all .25s;
+    }
+    .pc-g .pc-cta { background: rgba(0,255,136,.07); border: 1px solid rgba(0,255,136,.2); color: var(--g); }
+    .pc-v .pc-cta { background: rgba(124,58,255,.08); border: 1px solid rgba(124,58,255,.2); color: #a78bff; }
+    .pc-g:hover .pc-cta { background: rgba(0,255,136,.13); transform: translateX(4px); }
+    .pc-v:hover .pc-cta { background: rgba(124,58,255,.14); transform: translateX(4px); }
+    .cta-arr { font-size: 1.15rem; transition: transform .25s; }
+    .pcard:hover .cta-arr { transform: translateX(5px); }
+
+    /* ── MINDSET CHAPTERS PREVIEW ───────────────────────────── */
+    .chapters-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.5rem; }
+    @media (max-width: 900px) { .chapters-grid { grid-template-columns: repeat(2, 1fr); } }
+    .chap {
+      background: var(--s2); border: 1px solid rgba(255,255,255,.05);
+      border-radius: 16px; padding: 1.25rem; position: relative; overflow: hidden;
+      transition: transform .25s, border-color .25s;
+    }
+    .chap:hover { transform: translateY(-4px); border-color: rgba(0,255,136,.2); }
+    .chap-lvl { font-family: var(--fM); font-size: .5rem; color: var(--mu); letter-spacing: 2px; margin-bottom: .5rem; }
+    .chap-title { font-family: var(--fD); font-size: 1.1rem; letter-spacing: .5px; margin-bottom: .4rem; }
+    .chap-desc { font-size: .72rem; color: rgba(240,237,255,.55); line-height: 1.6; }
+    .chap-badge {
+      position: absolute; top: .75rem; right: .75rem;
+      font-family: var(--fM); font-size: .44rem; padding: 2px 7px;
+      border-radius: 4px; letter-spacing: 1px;
+    }
+    .cb-red { background: rgba(255,45,107,.1); color: var(--r); border: 1px solid rgba(255,45,107,.2); }
+    .cb-ora { background: rgba(255,140,0,.1); color: #ff8c00; border: 1px solid rgba(255,140,0,.2); }
+    .cb-pur { background: rgba(124,58,255,.1); color: #a78bff; border: 1px solid rgba(124,58,255,.2); }
+    .cb-gld { background: rgba(255,204,0,.1); color: var(--y); border: 1px solid rgba(255,204,0,.2); }
+
+    /* ── SIMULATOR PREVIEW ──────────────────────────────────── */
+    .sim-preview {
+      background: linear-gradient(135deg, rgba(124,58,255,.08), rgba(0,212,255,.04));
+      border: 1px solid rgba(124,58,255,.2);
+      border-radius: 24px; padding: 3rem;
+      display: flex; align-items: center; gap: 3rem;
+      position: relative; overflow: hidden;
+    }
+    .sim-preview::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 70% 50%, rgba(124,58,255,.08), transparent 60%);
+      pointer-events: none;
+    }
+    .sp-left { flex: 1; position: relative; z-index: 1; }
+    .sp-tag {
+      font-family: var(--fM); font-size: .55rem; color: #a78bff; letter-spacing: 2px;
+      margin-bottom: .75rem; display: flex; align-items: center; gap: .5rem;
+    }
+    .sp-tag::before { content: ''; width: 20px; height: 1px; background: #a78bff; }
+    .sp-title { font-family: var(--fD); font-size: 2.8rem; letter-spacing: 2px; margin-bottom: .75rem; }
+    .sp-desc { font-size: .85rem; color: rgba(240,237,255,.65); line-height: 1.75; margin-bottom: 1.75rem; max-width: 480px; }
+    .sp-scenarios { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 2rem; }
+    .sp-tag-pill {
+      font-family: var(--fM); font-size: .5rem; padding: 3px 10px; border-radius: 6px; letter-spacing: 1px;
+      background: rgba(124,58,255,.1); color: #a78bff; border: 1px solid rgba(124,58,255,.2);
+    }
+    .sp-btn {
+      display: inline-flex; align-items: center; gap: .7rem;
+      padding: 1rem 2.25rem; border-radius: 12px; text-decoration: none;
+      background: linear-gradient(135deg, rgba(124,58,255,.25), rgba(0,212,255,.1));
+      border: 1px solid rgba(124,58,255,.4); color: #a78bff;
+      font-family: var(--fD); font-size: 1.2rem; letter-spacing: .5px; transition: all .25s;
+    }
+    .sp-btn:hover { background: rgba(124,58,255,.3); box-shadow: 0 0 40px rgba(124,58,255,.3); transform: translateY(-2px); color: #c4a8ff; }
+    .sp-right { flex-shrink: 0; position: relative; z-index: 1; }
+    .sim-vis { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; width: 280px; }
+    @media (max-width: 900px) { .sim-preview { flex-direction: column; } .sim-vis { width: 100%; } }
+    .sv {
+      background: rgba(7,7,26,.9); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px; padding: 1rem; text-align: center;
+    }
+    .sv-n { font-family: var(--fD); font-size: 1.8rem; letter-spacing: 1px; }
+    .sv-l { font-family: var(--fM); font-size: .44rem; color: var(--mu); margin-top: 3px; letter-spacing: 1px; }
+
+    /* ── DESI REALITY CHECK ──────────────────────────────────── */
+    .reality-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+    @media (max-width: 900px) { .reality-grid { grid-template-columns: 1fr; } }
+    .rc {
+      background: var(--s1); border: 1px solid rgba(255,255,255,.07);
+      border-radius: 20px; padding: 1.6rem; position: relative; overflow: hidden;
+      transition: transform .25s, border-color .25s, box-shadow .25s;
+    }
+    .rc::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .rc-r::before { background: linear-gradient(90deg, var(--r), transparent); }
+    .rc-y::before { background: linear-gradient(90deg, var(--y), transparent); }
+    .rc-g::before { background: linear-gradient(90deg, var(--g), transparent); }
+    .rc:hover { transform: translateY(-5px); border-color: rgba(255,255,255,.12); box-shadow: 0 16px 50px rgba(0,0,0,.3); }
+    .rc-emoji { font-size: 2.4rem; display: block; margin-bottom: .85rem; }
+    .rc-title { font-family: var(--fD); font-size: 1.1rem; letter-spacing: .5px; margin-bottom: .5rem; }
+    .rc-body { font-size: .75rem; color: rgba(240,237,255,.6); line-height: 1.7; margin-bottom: .75rem; }
+    .rc-lesson {
+      font-size: .7rem; padding: .5rem .75rem;
+      background: rgba(124,58,255,.06); border-left: 2px solid rgba(124,58,255,.3);
+      border-radius: 0 8px 8px 0; color: rgba(167,139,255,.9); line-height: 1.6; font-style: italic;
+    }
+
+    /* ── EMOTIONAL P&L ───────────────────────────────────────── */
+    .epnl { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 900px) { .epnl { grid-template-columns: 1fr; } }
+    .epnl-card { background: var(--s1); border: 1px solid rgba(255,255,255,.07); border-radius: 20px; padding: 1.75rem; }
+    .epnl-head { font-family: var(--fM); font-size: .56rem; color: var(--mu); letter-spacing: 2px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: .4rem; }
+    .epnl-row { display: grid; grid-template-columns: 90px 1fr 55px; gap: .75rem; align-items: center; margin-bottom: .8rem; }
+    .epnl-emo { font-size: .72rem; color: rgba(240,237,255,.65); display: flex; align-items: center; gap: .3rem; }
+    .epnl-bar-bg { height: 6px; background: rgba(255,255,255,.04); border-radius: 4px; overflow: hidden; }
+    .epnl-fill { height: 100%; border-radius: 4px; animation: grow-bar 2s ease forwards; transform-origin: left; }
+    .fg { background: linear-gradient(90deg, var(--g), #34ffb8); }
+    .fr { background: linear-gradient(90deg, var(--r), #ff8ca8); }
+    .fy { background: linear-gradient(90deg, var(--y), #ffd860); }
+    .fc { background: linear-gradient(90deg, var(--c), #5ee0ff); }
+    .epnl-val { font-family: var(--fM); font-size: .7rem; text-align: right; }
+    .vg { color: var(--g); } .vr { color: var(--r); } .vmu { color: var(--mu); }
+    .sc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-top: .5rem; }
+    .sc { padding: .9rem; background: rgba(0,0,0,.25); border-radius: 12px; border: 1px solid rgba(255,255,255,.06); }
+    .sc-n { font-family: var(--fD); font-size: 1.65rem; letter-spacing: 1px; }
+    .sc-l { font-family: var(--fM); font-size: .5rem; color: var(--mu); margin-top: 3px; letter-spacing: 1px; }
+
+    /* ── ANIMATIONS ──────────────────────────────────────────── */
+    @keyframes blink    { 0%,100%{opacity:1}50%{opacity:.2} }
+    @keyframes pulse    { 0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6} }
+    @keyframes shimmer  { from{background-position:0% center}to{background-position:200% center} }
+    @keyframes ticker-move { from{transform:translateX(0)}to{transform:translateX(-50%)} }
+    @keyframes bob      { 0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)} }
+    @keyframes grow-bar { from{transform:scaleX(0)}to{transform:scaleX(1)} }
+    @keyframes fade-up  { from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)} }
+
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--ink); }
+    ::-webkit-scrollbar-thumb { background: rgba(0,255,136,.4); border-radius: 2px; }
+  </style>
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div id="cur"></div>
+<div id="curR"></div>
+
+<!-- ── TOPBAR ─────────────────────────────────────────────── -->
+<header class="topbar">
+  <a href="../index.html" class="tb-logo">FIN•OS</a>
+  <div class="tb-div"></div>
+  <div class="tb-live-dot"></div>
+  <div class="tb-ticker-wrap">
+    <div class="tb-ticker" id="ticker">
+      <span>🧠 EMOTIONAL STATE <strong style="color:var(--g)">CALM</strong></span>
+      <span>HDFC BANK <strong class="up">▲ 1,724 (+0.6%)</strong></span>
+      <span>⚡ FOMO ALERTS: <strong class="dn">312</strong></span>
+      <span>INFY <strong class="dn">▼ 1,521 (-0.4%)</strong></span>
+      <span>🎯 CALM WIN RATE: <strong style="color:var(--g)">74%</strong></span>
+      <span>RELIANCE <strong class="up">▲ 2,847 (+1.1%)</strong></span>
+      <span>NIFTY 50 <strong class="up">▲ 24,213 (+0.8%)</strong></span>
+      <span>📉 PANIC SELLS TODAY: <strong class="dn">1,847</strong></span>
+      <span>TCS <strong class="up">▲ 3,941 (+0.4%)</strong></span>
+      <span>SENSEX <strong class="up">▲ 79,802 (+0.7%)</strong></span>
+      <!-- duplicate for seamless loop -->
+      <span>🧠 EMOTIONAL STATE <strong style="color:var(--g)">CALM</strong></span>
+      <span>HDFC BANK <strong class="up">▲ 1,724 (+0.6%)</strong></span>
+      <span>⚡ FOMO ALERTS: <strong class="dn">312</strong></span>
+      <span>INFY <strong class="dn">▼ 1,521 (-0.4%)</strong></span>
+      <span>🎯 CALM WIN RATE: <strong style="color:var(--g)">74%</strong></span>
+      <span>RELIANCE <strong class="up">▲ 2,847 (+1.1%)</strong></span>
+      <span>NIFTY 50 <strong class="up">▲ 24,213 (+0.8%)</strong></span>
+      <span>📉 PANIC SELLS TODAY: <strong class="dn">1,847</strong></span>
+      <span>TCS <strong class="up">▲ 3,941 (+0.4%)</strong></span>
+      <span>SENSEX <strong class="up">▲ 79,802 (+0.7%)</strong></span>
+    </div>
+  </div>
+  <div class="tb-xp">
+    <div class="tb-lv" id="xpLv">LVL 4</div>
+    <div class="tb-xp-bar-wrap"><div class="tb-xp-bar-fill" id="xpFill" style="width:62%"></div></div>
+    <div class="tb-xp-pts" id="xpPts">STRATEGIST</div>
+  </div>
+  <div class="tb-avatar" id="tbAvatar">R</div>
+</header>
+
+<!-- ── PAGE NAV ───────────────────────────────────────────── -->
+<nav class="pagenav">
+  <a href="simulator-landing.html" class="pn-link on-g"><span class="pn-dot"></span>MINDSET PROTOCOL</a>
+  <div class="pn-sep"></div>
+  <a href="investor-mindset.html" class="pn-link"><span class="pn-dot"></span>INVESTOR MIND</a>
+  <a href="trading-simulator.html" class="pn-link on-v"><span class="pn-dot"></span>TRADING SIMULATOR</a>
+  <a href="clarity.html" class="pn-link"><span class="pn-dot"></span>CLARITY</a>
+  <div class="pn-right">
+    <div class="pn-disc">DISC: <span id="discScore">71</span>/100</div>
+  </div>
+</nav>
+
+<div class="main">
+
+  <!-- ── HERO ───────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-orb ho1"></div>
+    <div class="hero-orb ho2"></div>
+    <div class="hero-orb ho3"></div>
+    <div class="hero-inner">
+      <div class="hero-badge">
+        <span class="hbdot"></span>
+        INDIA'S FIRST FINANCIAL PSYCHOLOGY TRAINING OS
+      </div>
+      <h1 class="hero-h1">PAISA TOH SABKA HAI</h1>
+      <h2 class="hero-h2">DIMAAG KAUN LAGATA HAI?</h2>
+      <p class="hero-sub">
+        <strong>80% of financial outcomes</strong> are determined by mindset — not market knowledge.
+        Train your investor brain. Then test it live in real market simulations.
+      </p>
+      <div class="hero-stats">
+        <div class="hs">
+          <div class="hs-n" style="color:var(--g)">80%</div>
+          <div class="hs-l">INVESTING<br>IS PSYCHOLOGY</div>
+        </div>
+        <div class="hs">
+          <div class="hs-n" style="color:var(--r)">92%</div>
+          <div class="hs-l">F&O TRADERS<br>LOSE MONEY</div>
+        </div>
+        <div class="hs">
+          <div class="hs-n" style="color:var(--y)">₹2.3L</div>
+          <div class="hs-l">AVG PANIC<br>LOSS / YEAR</div>
+        </div>
+        <div class="hs">
+          <div class="hs-n" style="color:var(--c)">74%</div>
+          <div class="hs-l">CALM TRADER<br>WIN RATE</div>
+        </div>
+      </div>
+      <div class="hero-ctas">
+        <a href="simulator-landing.html" class="hcta hcta-g">🧠 TRAIN MINDSET →</a>
+        <a href="trading-simulator.html" class="hcta hcta-v">📊 LAUNCH SIMULATOR →</a>
+        <a href="investor-mindset.html" class="hcta hcta-r">📈 INVESTOR MIND →</a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="hero-scroll-line"></div>
+      SCROLL
+    </div>
+  </section>
+
+  <!-- ── PROFILE BAND ─────────────────────────────────────── -->
+  <div class="profile-band">
+    <div class="pb-av" id="pbAv">R</div>
+    <div>
+      <div class="pb-name" id="pbName">Rahul Sharma</div>
+      <div class="pb-sub"><span id="pbArchLabel">DUAL BRAIN USER</span> · <span id="pbSess">12</span> SESSIONS · TOP 18% OF ALL USERS</div>
+    </div>
+    <div class="pb-sep"></div>
+    <div class="pb-metric">
+      <div class="pb-mval" style="color:var(--y)" id="pbXP">1,240</div>
+      <div class="pb-mlbl">TOTAL XP</div>
+    </div>
+    <div class="pb-sep"></div>
+    <div class="pb-metric">
+      <div class="pb-mval" style="color:var(--g)" id="pbDisc">71</div>
+      <div class="pb-mlbl">DISCIPLINE / 100</div>
+    </div>
+    <div class="pb-sep"></div>
+    <div class="pb-metric">
+      <div class="pb-mval" style="color:var(--c)">LVL 4</div>
+      <div class="pb-mlbl">STRATEGIST</div>
+    </div>
+    <div class="pb-right">
+      <div class="pb-badge pb-badge-g">MIND ENGINE ACTIVE</div>
+      <div class="pb-badge pb-badge-y" id="streakBadge">STREAK: 7 DAYS</div>
+    </div>
+  </div>
+
+  <!-- ── TRAINING PATHS ────────────────────────────────────── -->
+  <section class="ls">
+    <div class="ls-label" style="color:var(--g)">CHOOSE YOUR PATH</div>
+    <div class="ls-title">TRAIN FIRST. THEN TRADE.</div>
+    <div class="paths-grid">
+
+      <!-- MINDSET PROTOCOL -->
+      <a href="simulator-landing.html" class="pcard pc-g" style="animation:fade-up .6s ease both">
+        <div class="pc-bar"></div>
+        <div class="pc-glow"></div>
+        <div class="pc-body">
+          <div class="pc-lozenge">BEHAVIORAL FINANCE</div>
+          <div class="pc-icon">🧠</div>
+          <div class="pc-title">MINDSET PROTOCOL</div>
+          <p class="pc-desc">The market doesn't beat you — your brain does. Learn the psychology behind every bad trade you've ever made. Four brutal levels of behavioral finance training.</p>
+          <ul class="pc-feats">
+            <li>🎯 Level 1: You Are the Weakest Link — Why instinct fails</li>
+            <li>📉 Level 2: Three Deadly Biases — Loss aversion, FOMO, Revenge</li>
+            <li>🛡 Level 3: Math of Survival — Risk management science</li>
+            <li>☠️ God Mode: Automation — Remove the human from the loop</li>
+            <li>🏆 Personalised weakness detection from your DNA profile</li>
+          </ul>
+          <div class="pc-cta">
+            <span>ENTER MINDSET PROTOCOL</span>
+            <span class="cta-arr">→</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- TRADING SIMULATOR -->
+      <a href="trading-simulator.html" class="pcard pc-v" style="animation:fade-up .6s .15s ease both">
+        <div class="pc-bar"></div>
+        <div class="pc-glow"></div>
+        <div class="pc-body">
+          <div class="pc-lozenge">LIVE MARKET SIMULATION</div>
+          <div class="pc-icon">📊</div>
+          <div class="pc-title">TRADING SIMULATOR</div>
+          <p class="pc-desc">Theory is useless without execution. Replay India's real market scenarios on live OHLC charts. Make buy/sell decisions under actual pressure — and see how your emotions respond.</p>
+          <ul class="pc-feats">
+            <li>📈 Opening Breakout — First 15 minutes decide the day</li>
+            <li>🔄 Trend Day & Reversal Day scenarios</li>
+            <li>📰 RBI News Volatility — Interest rate shock training</li>
+            <li>💥 Market Crash mode — NIFTY circuit breaker experience</li>
+            <li>⚡ Adjustable speed: 1× / 5× / 10× candle replay</li>
+          </ul>
+          <div class="pc-cta">
+            <span>LAUNCH TRADING SIMULATOR</span>
+            <span class="cta-arr">→</span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Mindset chapter preview -->
+    <div style="margin-top:2rem">
+      <div style="font-family:var(--fM);font-size:.56rem;color:var(--mu);letter-spacing:2px;margin-bottom:1rem">MINDSET PROTOCOL — 4 CHAPTERS</div>
+      <div class="chapters-grid">
+        <div class="chap">
+          <span class="chap-badge cb-red">NOOB</span>
+          <div class="chap-lvl">LEVEL 01</div>
+          <div class="chap-title">You Are the Weakest Link</div>
+          <div class="chap-desc">Why your amygdala is the most expensive part of your portfolio.</div>
+        </div>
+        <div class="chap">
+          <span class="chap-badge cb-ora">MECHANIC</span>
+          <div class="chap-lvl">LEVEL 02</div>
+          <div class="chap-title">Three Deadly Biases</div>
+          <div class="chap-desc">Loss aversion, herd mentality, and revenge trading — all explained with ₹ examples.</div>
+        </div>
+        <div class="chap">
+          <span class="chap-badge cb-pur">PRO</span>
+          <div class="chap-lvl">LEVEL 03</div>
+          <div class="chap-title">Math of Survival</div>
+          <div class="chap-desc">Lose 50%? You need 100% to recover. The asymmetry that destroys most traders.</div>
+        </div>
+        <div class="chap">
+          <span class="chap-badge cb-gld">GOD MODE</span>
+          <div class="chap-lvl">LEVEL 04</div>
+          <div class="chap-title">Automation Zen</div>
+          <div class="chap-desc">Boredom is the ultimate indicator of a flawless financial system.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SIMULATOR DEEP DIVE ───────────────────────────────── -->
+  <section class="ls" style="padding-top:0">
+    <div class="ls-label" style="color:#a78bff">SIMULATOR INTEL</div>
+    <div class="ls-title">5 SCENARIOS. ZERO REAL MONEY. REAL EMOTION.</div>
+    <div class="sim-preview">
+      <div class="sp-left">
+        <div class="sp-tag">ADVANCED MARKET PSYCHOLOGY TRAINING</div>
+        <div class="sp-title">LIVE ON OHLC CHARTS</div>
+        <p class="sp-desc">
+          Candle by candle, replayed in real time. Your P&L swings. Your positions go red.
+          A news event drops. What do you do? The simulator doesn't just test knowledge — it tests your nervous system.
+        </p>
+        <div class="sp-scenarios">
+          <span class="sp-tag-pill">📈 Opening Breakout</span>
+          <span class="sp-tag-pill">📊 Trend Day</span>
+          <span class="sp-tag-pill">🔄 Reversal Day</span>
+          <span class="sp-tag-pill">📰 RBI Volatility</span>
+          <span class="sp-tag-pill">💥 Market Crash</span>
+        </div>
+        <a href="trading-simulator.html" class="sp-btn">Launch Simulator ➔</a>
+      </div>
+      <div class="sp-right">
+        <div class="sim-vis">
+          <div class="sv">
+            <div class="sv-n" style="color:var(--g)">5</div>
+            <div class="sv-l">SCENARIOS</div>
+          </div>
+          <div class="sv">
+            <div class="sv-n" style="color:var(--y)">3</div>
+            <div class="sv-l">SPEEDS</div>
+          </div>
+          <div class="sv">
+            <div class="sv-n" style="color:var(--c)">∞</div>
+            <div class="sv-l">REPLAYS</div>
+          </div>
+          <div class="sv">
+            <div class="sv-n" style="color:var(--r)">0</div>
+            <div class="sv-l">REAL MONEY</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── DESI REALITY CHECK ────────────────────────────────── -->
+  <section class="ls" style="padding-top:0">
+    <div class="ls-label" style="color:var(--r)">DESI REALITY CHECK</div>
+    <div class="ls-title">YE GALTIYAN TOH TUM BHI KARTE HO</div>
+    <div class="reality-grid">
+      <div class="rc rc-r">
+        <span class="rc-emoji">😱</span>
+        <div class="rc-title">THE PANIC SELL — MARCH 2020</div>
+        <div class="rc-body">NIFTY crashes 40% in 25 days. Ravi sells his entire portfolio at 7,800 fearing permanent collapse. By December, NIFTY hits 13,000. <strong style="color:var(--r)">Lost: ₹4.2 lakhs.</strong></div>
+        <div class="rc-lesson">"FIN-OS Calm Protocol: Panic Index 94/100 — EXIT BLOCKED. Historical data shows 100% recovery post corrections."</div>
+      </div>
+      <div class="rc rc-y">
+        <span class="rc-emoji">🤑</span>
+        <div class="rc-title">THE FOMO TRADE — ADANI 2023</div>
+        <div class="rc-body">Post-Hindenburg, Adani falls 60%. Priya "bottom-fishes" ₹3 lakhs without research. Stock falls another 40%. <strong style="color:var(--y)">Total loss: ₹1.2 lakhs in 3 weeks.</strong></div>
+        <div class="rc-lesson">"FIN-OS FOMO Score: 91/100 — TRADE BLOCKED. Governance risk active, no fundamental support."</div>
+      </div>
+      <div class="rc rc-g">
+        <span class="rc-emoji">🎯</span>
+        <div class="rc-title">THE CALM INVESTOR — 2020–2023</div>
+        <div class="rc-body">Same crash, same fear. Amit continued ₹50K/month SIP through the crash, added ₹20K top-up. By 2023: <strong style="color:var(--g)">₹28 lakhs, 22% XIRR.</strong></div>
+        <div class="rc-lesson">"Discipline Score: 94/100 — ELITE STATUS. Market fear was not a threat. It was an invitation."</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EMOTIONAL P&L ─────────────────────────────────────── -->
+  <section class="ls" style="padding-top:0">
+    <div class="ls-label" style="color:var(--c)">EMOTIONAL ANALYTICS</div>
+    <div class="ls-title">YOUR EMOTIONS HAVE A WIN RATE</div>
+    <div class="epnl">
+      <div class="epnl-card">
+        <div class="epnl-head">📊 WIN RATE BY EMOTIONAL STATE</div>
+        <div class="epnl-row">
+          <div class="epnl-emo">😌 Calm</div>
+          <div class="epnl-bar-bg"><div class="epnl-fill fg" style="width:74%"></div></div>
+          <div class="epnl-val vg">+18%</div>
+        </div>
+        <div class="epnl-row">
+          <div class="epnl-emo">🎯 Confident</div>
+          <div class="epnl-bar-bg"><div class="epnl-fill fc" style="width:65%"></div></div>
+          <div class="epnl-val vg">+11%</div>
+        </div>
+        <div class="epnl-row">
+          <div class="epnl-emo">🤔 Uncertain</div>
+          <div class="epnl-bar-bg"><div class="epnl-fill fy" style="width:47%"></div></div>
+          <div class="epnl-val vmu">-2%</div>
+        </div>
+        <div class="epnl-row">
+          <div class="epnl-emo">😰 Anxious</div>
+          <div class="epnl-bar-bg"><div class="epnl-fill fr" style="width:28%"></div></div>
+          <div class="epnl-val vr">-14%</div>
+        </div>
+        <div class="epnl-row">
+          <div class="epnl-emo">😤 Revenge</div>
+          <div class="epnl-bar-bg"><div class="epnl-fill fr" style="width:12%"></div></div>
+          <div class="epnl-val vr">-31%</div>
+        </div>
+      </div>
+      <div class="epnl-card">
+        <div class="epnl-head">🧠 YOUR MIND STATS</div>
+        <div class="sc-grid">
+          <div class="sc">
+            <div class="sc-n" style="color:var(--g)" id="statXP">1,240</div>
+            <div class="sc-l">TOTAL XP EARNED</div>
+          </div>
+          <div class="sc">
+            <div class="sc-n" style="color:var(--y)" id="statDisc">71</div>
+            <div class="sc-l">DISCIPLINE SCORE</div>
+          </div>
+          <div class="sc">
+            <div class="sc-n" style="color:var(--c)" id="statSess">12</div>
+            <div class="sc-l">SESSIONS DONE</div>
+          </div>
+          <div class="sc">
+            <div class="sc-n" style="color:var(--r)" id="statFomo">3</div>
+            <div class="sc-l">FOMO BLOCKED</div>
+          </div>
+        </div>
+        <div style="margin-top:1.25rem;padding:1rem;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.12);border-radius:12px">
+          <div style="font-family:var(--fM);font-size:.52rem;color:var(--mu);letter-spacing:1.5px;margin-bottom:.4rem">YOUR BRAIN STATE RIGHT NOW</div>
+          <div style="font-family:var(--fD);font-size:1.5rem;color:var(--g)" id="brainState">STRATEGIST MODE</div>
+          <div style="font-size:.72rem;color:rgba(240,237,255,.55);margin-top:.25rem">Rational circuits dominant. Good time to review your portfolio.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ─────────────────────────────────────────────── -->
+  <footer style="padding:3rem;text-align:center;border-top:1px solid rgba(255,255,255,.05)">
+    <div style="font-family:var(--fD);font-size:1.8rem;letter-spacing:3px;background:linear-gradient(135deg,var(--g),var(--c));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem">FIN•OS MIND ENGINE</div>
+    <div style="font-family:var(--fM);font-size:.6rem;color:var(--mu);letter-spacing:2px;margin-bottom:2rem">BUILT FOR INDIA. ENGINEERED FOR DISCIPLINE. DESIGNED FOR LONGEVITY.</div>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <a href="simulator-landing.html" style="font-family:var(--fM);font-size:.6rem;color:var(--g);text-decoration:none;padding:.4rem .8rem;border:1px solid rgba(0,255,136,.2);border-radius:6px">MINDSET PROTOCOL</a>
+      <a href="trading-simulator.html" style="font-family:var(--fM);font-size:.6rem;color:#a78bff;text-decoration:none;padding:.4rem .8rem;border:1px solid rgba(124,58,255,.2);border-radius:6px">TRADING SIMULATOR</a>
+      <a href="investor-mindset.html" style="font-family:var(--fM);font-size:.6rem;color:var(--c);text-decoration:none;padding:.4rem .8rem;border:1px solid rgba(0,212,255,.2);border-radius:6px">INVESTOR MIND</a>
+      <a href="clarity.html" style="font-family:var(--fM);font-size:.6rem;color:var(--y);text-decoration:none;padding:.4rem .8rem;border:1px solid rgba(255,204,0,.2);border-radius:6px">CLARITY</a>
+      <a href="../index.html" style="font-family:var(--fM);font-size:.6rem;color:var(--mu);text-decoration:none;padding:.4rem .8rem;border:1px solid rgba(255,255,255,.08);border-radius:6px">← MAIN APP</a>
+    </div>
+  </footer>
+
+</div><!-- end .main -->
+
+<script>
+  /* ── Custom cursor ─────────────────────────────── */
+  const cur = document.getElementById('cur');
+  const curR = document.getElementById('curR');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  (function loop() {
+    rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+    cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+    curR.style.left = rx + 'px'; curR.style.top = ry + 'px';
+    requestAnimationFrame(loop);
+  })();
+  document.querySelectorAll('a, button, .pcard').forEach(el => {
+    el.addEventListener('mouseenter', () => { cur.style.width = '20px'; cur.style.height = '20px'; cur.style.background = 'var(--c)'; });
+    el.addEventListener('mouseleave', () => { cur.style.width = '10px'; cur.style.height = '10px'; cur.style.background = 'var(--g)'; });
+  });
+
+  /* ── Load state from localStorage ─────────────── */
+  const STATE = {
+    xp:   +localStorage.getItem('finos_xp')       || 1240,
+    disc: +localStorage.getItem('finos_disc')      || 71,
+    fomo: +localStorage.getItem('finos_fomo')      || 3,
+    sess: +localStorage.getItem('finos_sessions')  || 12,
+    name:  localStorage.getItem('finos_user_name') || 'Rahul Sharma',
+    arch:  localStorage.getItem('finos_user_archetype_name') || '',
+  };
+
+  /* XP level table */
+  const XP_LEVELS = [
+    [0,'NOVICE'],[500,'APPRENTICE'],[1000,'ANALYST'],[1500,'STRATEGIST'],
+    [2500,'OPERATOR'],[4000,'EXPERT'],[6000,'MASTER'],[9000,'ELITE'],[13000,'LEGEND']
+  ];
+  function getLvl(xp) {
+    let lv = 0;
+    for (let i = 0; i < XP_LEVELS.length; i++) if (xp >= XP_LEVELS[i][0]) lv = i;
+    const cur = XP_LEVELS[lv][0], nxt = XP_LEVELS[Math.min(lv+1, XP_LEVELS.length-1)][0];
+    return { num: lv+1, name: XP_LEVELS[lv][1], pct: Math.min(((xp-cur)/(nxt-cur))*100, 100) };
+  }
+
+  /* ── Populate UI ───────────────────────────────── */
+  const lvInfo = getLvl(STATE.xp);
+  document.getElementById('xpLv').textContent    = 'LVL ' + lvInfo.num;
+  document.getElementById('xpFill').style.width  = lvInfo.pct + '%';
+  document.getElementById('xpPts').textContent   = lvInfo.name;
+  document.getElementById('tbAvatar').textContent = STATE.name[0].toUpperCase();
+  document.getElementById('discScore').textContent = STATE.disc;
+
+  /* Profile band */
+  document.getElementById('pbAv').textContent   = STATE.name[0].toUpperCase();
+  document.getElementById('pbName').textContent  = STATE.name;
+  document.getElementById('pbXP').textContent    = STATE.xp.toLocaleString('en-IN');
+  document.getElementById('pbDisc').textContent  = STATE.disc;
+  document.getElementById('pbSess').textContent  = STATE.sess;
+  if (STATE.arch) document.getElementById('pbArchLabel').textContent = STATE.arch;
+
+  /* Stats section */
+  document.getElementById('statXP').textContent   = STATE.xp.toLocaleString('en-IN');
+  document.getElementById('statDisc').textContent = STATE.disc;
+  document.getElementById('statSess').textContent = STATE.sess;
+  document.getElementById('statFomo').textContent = STATE.fomo;
+
+  /* Brain state based on discipline */
+  const brainEl = document.getElementById('brainState');
+  if (STATE.disc >= 80)      brainEl.textContent = 'ELITE ZONE';
+  else if (STATE.disc >= 65) brainEl.textContent = 'STRATEGIST MODE';
+  else if (STATE.disc >= 45) brainEl.textContent = 'ANALYST MODE';
+  else                        brainEl.textContent = 'LEARNING MODE';
+
+  /* Streak badge (check localStorage) */
+  const streak = +localStorage.getItem('finos_streak') || 7;
+  document.getElementById('streakBadge').textContent = 'STREAK: ' + streak + ' DAYS';
+</script>
+
+<script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+<style id="msh-light-theme">
+[data-theme="light"] body {
+  background-color: #F0EFF8 !important;
+  background-image: none !important;
+  color: #1A1830 !important;
+}
+[data-theme="light"] .main { background: #F0EFF8 !important; }
+[data-theme="light"] .pc-title { color: #1A1830 !important; }
+[data-theme="light"] .pc-sub { color: #4A4868 !important; }
+[data-theme="light"] .pc-body { color: #1A1830 !important; }
+[data-theme="light"] .sim-card { background: rgba(255,255,255,0.85) !important; border-color: rgba(123,111,255,0.2) !important; }
+[data-theme="light"] .sim-title { color: #1A1830 !important; }
+[data-theme="light"] .sim-desc { color: #4A4868 !important; }
+[data-theme="light"] .topbar { background: rgba(255,255,255,0.9) !important; border-color: rgba(0,0,0,0.1) !important; }
+[data-theme="light"] .cursor-dot, [data-theme="light"] .cursor-ring { border-color: #7B6FFF !important; background: #7B6FFF !important; }
+</style>
+</body>
+</html>

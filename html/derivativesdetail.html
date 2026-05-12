@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Derivatives Masterclass</title>
+  
+  <script src="../js/theme-init.js"></script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/derivativesdetail.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+  <button id="themeToggle" class="theme-btn fixed-theme-btn">🌙</button>
+
+  <div class="deep-wrapper">
+    
+    <aside class="toc-sidebar">
+      <div class="toc-header">PROTOCOL 08: F&O</div>
+      <ul class="toc-list">
+        <li><a href="#hero" class="toc-link active">0. Warning</a></li>
+        <li><a href="#sec1" class="toc-link">1. Concept (Onion Logic)</a></li>
+        <li><a href="#sec2" class="toc-link">2. Why It Exists</a></li>
+        <li><a href="#sec3" class="toc-link">3. Futures vs Options</a></li>
+        <li><a href="#sec5" class="toc-link">4. Futures (Leverage)</a></li>
+        <li><a href="#sec6" class="toc-link">5. Options (Call/Put)</a></li>
+        <li><a href="#sec7" class="toc-link">6. The Silent Killer</a></li>
+        <li><a href="#sec8" class="toc-link">7. Time Decay (Theta)</a></li>
+        <li><a href="#sec9" class="toc-link">8. The Greeks</a></li>
+        <li><a href="#sec11" class="toc-link">9. Why 90% Lose</a></li>
+        <li><a href="#sec12" class="toc-link">10. Investing vs F&O</a></li>
+        <li><a href="#sec14" class="toc-link">11. Risk Management</a></li>
+        <li><a href="#sec15" class="toc-link">12. Psychology Trap</a></li>
+        <li><a href="#sec17" class="toc-link">13. Mental Model</a></li>
+        <li><a href="#sec18" class="toc-link">14. Final Truth</a></li>
+      </ul>
+      <a href="markets.html" class="back-btn">← Back to Terminal</a>
+    </aside>
+
+    <main class="deep-content" id="scrollContainer">
+
+      <section class="chapter active" id="hero">
+        <h1 class="glitch-text" data-text="Derivatives (F&O)">Derivatives (F&O)</h1>
+        <div class="warning-banner">
+          <span class="warn-icon">⚠️</span>
+          <p><strong>WARNING:</strong> This is not a path to quick riches. This is a "Power Tool". Misuse will result in financial injury.</p>
+        </div>
+        <p class="intro-text">
+          Derivatives don't create wealth. They <span class="highlight">Transfer Risk</span>.
+        </p>
+        <div class="scroll-indicator">Initialize Protocol ⬇</div>
+      </section>
+
+      <section class="chapter" id="sec1">
+        <span class="chapter-badge">LEVEL 01: FIRST PRINCIPLES</span>
+        <h2>1. What Are Derivatives?</h2>
+        <p>A derivative is a contract. You are not buying the asset. You are betting on its price movement.</p>
+        
+        <div class="concept-box glass">
+          <div class="onion-story">
+            <div class="icon-group">
+              <div class="icon-item">
+                <span>🧅</span>
+                <p>Onion (Asset)</p>
+              </div>
+              <div class="arrow">➡️</div>
+              <div class="icon-item">
+                <span>📄</span>
+                <p>Promise (Derivative)</p>
+              </div>
+            </div>
+            <div class="story-text">
+              <h3>The Desi Analogy</h3>
+              <p>You promise a farmer: "I will buy onions at <strong>₹30/kg</strong> after 3 months."</p>
+              <ul>
+                <li>If Onion Price hits <strong>₹50</strong>, your promise is valuable (Profit).</li>
+                <li>If Onion Price hits <strong>₹10</strong>, your promise is a burden (Loss).</li>
+              </ul>
+              <p class="moral">You traded the <strong>Promise</strong>, not the Onion.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec2">
+        <span class="chapter-badge">LEVEL 02: PURPOSE</span>
+        <h2>2. Why Do They Exist?</h2>
+        <p>They were created to <strong>Hedge Risk</strong> (Protection), not for gambling.</p>
+        <div class="grid-2-mini">
+          <div class="mini-card success">
+            <h4>🛡️ Hedging</h4>
+            <p>A farmer locks the price to protect against price crashes.</p>
+          </div>
+          <div class="mini-card highlight">
+            <h4>🎲 Speculation</h4>
+            <p>Traders bet on price direction to make profit from risk.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec3">
+        <span class="chapter-badge">LEVEL 03: DISTINCTION</span>
+        <h2>3. Futures vs Options</h2>
+        <div class="comparison-table">
+           <div class="comp-row header">
+             <span>Feature</span>
+             <span>Futures</span>
+             <span>Options</span>
+           </div>
+           <div class="comp-row">
+             <span>Obligation</span>
+             <span class="danger">Mandatory</span>
+             <span class="success">Optional</span>
+           </div>
+           <div class="comp-row">
+             <span>Cost</span>
+             <span>Margin (High)</span>
+             <span>Premium (Low)</span>
+           </div>
+           <div class="comp-row">
+             <span>Risk</span>
+             <span class="danger">Unlimited</span>
+             <span>Limited (for Buyer)</span>
+           </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec5">
+        <span class="chapter-badge">LEVEL 04: FUTURES</span>
+        <h2>4. Futures Contracts Explained</h2>
+        <p>An agreement to buy/sell at a fixed price. Profit/Loss is linear.</p>
+        <div class="visual-box glass">
+           <div class="leverage-visual">
+             <div class="small-box">₹1 Lakh (Margin)</div>
+             <div class="lever-arm"></div>
+             <div class="big-box">₹10 Lakh (Exposure)</div>
+             <div class="pivot">▲</div>
+           </div>
+           <p class="caption-text"><strong>Leverage:</strong> You control ₹10L worth of Nifty with just ₹1L. A 10% move can double your money OR wipe you out.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec6">
+        <span class="chapter-badge">LEVEL 05: OPTIONS</span>
+        <h2>5. Options (The Right, Not Obligation)</h2>
+        <div class="grid-2-mini">
+          <div class="card-box">
+            <div class="icon">📈</div>
+            <h4>Call Option (CE)</h4>
+            <p>Right to <strong>BUY</strong>.</p>
+            <p class="sub">Use when you think market will go UP.</p>
+          </div>
+          <div class="card-box">
+            <div class="icon">📉</div>
+            <h4>Put Option (PE)</h4>
+            <p>Right to <strong>SELL</strong>.</p>
+            <p class="sub">Use when you think market will go DOWN.</p>
+          </div>
+        </div>
+        
+        <br>
+        <h3>Buyer vs Seller</h3>
+        <div class="comparison-table">
+           <div class="comp-row header">
+             <span>Role</span>
+             <span>Risk</span>
+             <span>Reward</span>
+           </div>
+           <div class="comp-row">
+             <span>Option Buyer</span>
+             <span class="success">Limited (Premium)</span>
+             <span class="highlight">Unlimited</span>
+           </div>
+           <div class="comp-row">
+             <span>Option Seller</span>
+             <span class="danger">Unlimited</span>
+             <span class="highlight">Limited (Premium)</span>
+           </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec7">
+        <span class="chapter-badge">LEVEL 06: DANGER</span>
+        <h2>6. Leverage: The Silent Killer</h2>
+        <p>Leverage accelerates gains, but it destroys accounts faster.</p>
+        <div class="concept-box glass danger-border">
+           <p class="highlight">"In F&O, you can be right on direction but still lose money if your timing is wrong or leverage is too high."</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec8">
+        <span class="chapter-badge">LEVEL 07: THETA</span>
+        <h2>7. Time Decay (The Melting Ice)</h2>
+        <p>Options lose value every second, even if the price doesn't move.</p>
+        
+        <div class="visual-box glass center-text">
+          <div class="ice-visual">
+            <div class="ice-cube">🧊</div>
+            <div class="water-drip">💧</div>
+          </div>
+          <div class="chart-container-mini">
+            <canvas id="decayChart"></canvas>
+          </div>
+          <p class="caption-text">As expiry approaches, value drops to zero.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec9">
+        <span class="chapter-badge">LEVEL 08: ADVANCED</span>
+        <h2>8. The Option Greeks</h2>
+        <p>Ignoring Greeks = Flying a plane blind.</p>
+        <div class="grid-3-cards">
+          <div class="card-box">
+            <h4>Δ Delta</h4>
+            <p>Price Sensitivity. How much option moves vs stock.</p>
+          </div>
+          <div class="card-box highlight">
+            <h4>θ Theta</h4>
+            <p>Time Decay. The enemy of the buyer.</p>
+          </div>
+          <div class="card-box">
+            <h4>ν Vega</h4>
+            <p>Volatility. Impact of fear/greed.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec11">
+        <span class="chapter-badge">LEVEL 09: REALITY CHECK</span>
+        <h2>9. Why 90% Traders Lose Money</h2>
+        <ul class="checklist-style">
+           <li>❌ <strong>No Edge:</strong> Gambling on "gut feeling".</li>
+           <li>❌ <strong>Revenge Trading:</strong> Trying to recover losses immediately.</li>
+           <li>❌ <strong>Zero Risk Mgmt:</strong> Betting 50% of capital on one trade.</li>
+           <li>❌ <strong>Telegram Tips:</strong> Becoming exit liquidity for scammers.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="sec12">
+        <span class="chapter-badge">LEVEL 10: CLARITY</span>
+        <h2>10. Investing vs F&O Trading</h2>
+        <div class="comparison-table">
+           <div class="comp-row header">
+             <span>Aspect</span>
+             <span>Investing</span>
+             <span>F&O Trading</span>
+           </div>
+           <div class="comp-row">
+             <span>Ownership</span>
+             <span class="success">Asset</span>
+             <span>Contract</span>
+           </div>
+           <div class="comp-row">
+             <span>Time</span>
+             <span>Years</span>
+             <span>Minutes/Days</span>
+           </div>
+           <div class="comp-row">
+             <span>Outcome</span>
+             <span>Wealth Creation</span>
+             <span>Income Generation</span>
+           </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec14">
+        <span class="chapter-badge">LEVEL 11: SURVIVAL</span>
+        <h2>11. Risk Management Rules</h2>
+        <div class="concept-box glass">
+           <h4>The Golden Rules</h4>
+           <ul class="checklist-style">
+             <li>✅ <strong>Stop Loss:</strong> Define it BEFORE entering the trade.</li>
+             <li>✅ <strong>Position Size:</strong> Never risk more than 2% of capital on one trade.</li>
+             <li>✅ <strong>Accept Loss:</strong> The market owes you nothing.</li>
+           </ul>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec15">
+        <span class="chapter-badge">LEVEL 12: BRAIN BUGS</span>
+        <h2>12. F&O and Dopamine</h2>
+        <p>F&O attacks your brain's reward system like a casino.</p>
+        <div class="visual-box glass center-text">
+           <h3 class="highlight">Intelligence ≠ Discipline</h3>
+           <p>Many smart people lose money because they cannot control their ego.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec17">
+        <span class="chapter-badge">LEVEL 13: MINDSET</span>
+        <h2>13. The FIN-OS Mental Model</h2>
+        <div class="concept-box glass">
+           <h4>"The Power Tool"</h4>
+           <p>Think of Derivatives as a chainsaw.</p>
+           <p>In trained hands, it cuts trees efficiently (Hedging).<br>
+           In untrained hands, it cuts off your leg (Bankruptcy).</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec18">
+        <div class="pro-tip god-mode">
+          <div class="god-header">
+            <h4>💎 The Final Truth</h4>
+          </div>
+          <p>
+            Derivatives don't create wealth. They <strong>transfer</strong> wealth.<br>
+            From the Impatient to the Disciplined.
+          </p>
+          <p class="sub-text">
+            "There is no shame in not trading F&O. There is wisdom in restraint."
+          </p>
+        </div>
+      </section>
+
+      <footer class="deep-footer">
+        <h2>Protocol Complete.</h2>
+        <p>You have seen the matrix.</p>
+        <a href="markets.html" class="action-btn">Return to Base ➔</a>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="../js/ui.js"></script>
+  <script src="../js/derivativesdetail.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+</body>
+</html>

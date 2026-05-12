@@ -1,0 +1,413 @@
+/* =========================
+   GEN Z CYBER-PROFILE STYLES (THEME CORRECTED)
+   ========================= */
+
+:root {
+  --neon-blue: #4F7CFF;
+  --neon-lime: #C7F000;
+  --neon-purple: #9b59b6;
+  /* Dynamic colors based on base.css variables */
+  --profile-text: var(--text-primary);
+  --profile-subtext: var(--text-secondary);
+  --input-bg: rgba(0, 0, 0, 0.05);
+}
+
+/* Dark Mode overrides for internal elements */
+[data-theme="dark"] {
+  --input-bg: rgba(255, 255, 255, 0.05);
+}
+
+.profile-container {
+  padding: 40px 0 100px 0; /* Improved top spacing */
+  animation: fadeIn 0.8s ease-out;
+}
+
+/* Activation Cards - Spacing & Visibility */
+.activation-card {
+  margin-bottom: 40px; /* Increased spacing between sections */
+  padding: 50px 40px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 32px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.activation-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+}
+
+/* Section Tags */
+.section-tag {
+  position: absolute;
+  top: 0;
+  left: 40px;
+  background: var(--neon-blue);
+  color: #FFFFFF; /* Keep white for contrast on blue */
+  padding: 6px 16px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  border-radius: 0 0 12px 12px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Labels and Text */
+label {
+  display: block;
+  color: var(--profile-text);
+  font-weight: 700;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.subtitle, .desi-context, .micro-text {
+  color: var(--profile-subtext);
+  margin-top: 8px;
+}
+
+/* Cyber Inputs & Selects */
+.cyber-input, .cyber-select {
+  width: 100%;
+  background: var(--input-bg);
+  border: 2px solid var(--border-soft);
+  padding: 16px;
+  border-radius: 16px;
+  color: var(--profile-text);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.cyber-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.cyber-input:focus {
+  border-color: var(--neon-blue);
+  outline: none;
+  background: var(--bg-main);
+}
+
+/* Grid Spacing */
+.grid-2, .grid-3 {
+  display: grid;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+/* Interactive Radar Box */
+.viz-box {
+  background: var(--bg-main);
+  border-radius: 24px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+/* Chips Visibility */
+.chip {
+  padding: 12px 24px;
+  border-radius: 14px;
+  background: var(--bg-main);
+  border: 1px solid var(--border-soft);
+  color: var(--profile-text);
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.chip:hover {
+  border-color: var(--neon-purple);
+}
+
+/* Terminal Adjustments for Light Mode */
+.terminal-style {
+  background: #12151D !important; /* Keep terminal dark even in light mode for "unreal" feel */
+}
+.terminal-body label { color: #888; }
+
+/* IQ Meter */
+.iq-meter {
+  width: 100%;
+  height: 8px;
+  background: var(--border-soft);
+  border-radius: 10px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+.iq-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-blue), var(--neon-lime));
+  transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+
+
+/* =========================
+   SELECT & DROPDOWN HOTFIX
+   ========================= */
+
+.cyber-select {
+  appearance: none; /* Removes default browser styling */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234F7CFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+  padding-right: 2.5rem;
+  cursor: pointer;
+  background-color: var(--input-bg); /* Use dynamic variable */
+  color: var(--text-primary); /* */
+  border: 2px solid var(--border-soft); /* */
+}
+
+/* This forces the dropdown list to use the app's theme colors */
+.cyber-select option {
+  background-color: var(--bg-surface); /* Matches card background */
+  color: var(--text-primary); /* Matches main text color */
+  padding: 12px;
+}
+
+/* Hover/Focus state */
+.cyber-select:focus {
+  border-color: var(--neon-blue); /* */
+  outline: none;
+}
+
+
+
+/* Update the chip container to a dynamic grid */
+.chip-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Responsive columns */
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  background: var(--bg-main); /* */
+  border: 1px solid var(--border-soft); /* */
+  border-radius: 12px;
+  color: var(--text-primary); /* */
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.chip.active {
+  background: var(--neon-purple); /* */
+  color: #FFFFFF;
+  border-color: #FFFFFF;
+  box-shadow: 0 0 15px rgba(155, 89, 182, 0.3);
+}
+
+
+/* =========================
+   SELECT & DROPDOWN HOTFIX
+   ========================= */
+
+.cyber-select {
+  appearance: none; /* Removes default browser arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234F7CFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+  padding-right: 2.5rem;
+  cursor: pointer;
+  background-color: var(--input-bg); /* */
+  color: var(--text-primary); /* */
+}
+
+/* Force dropdown options to be visible in all themes */
+.cyber-select option {
+  background-color: var(--bg-surface); /* */
+  color: var(--text-primary); /* */
+  padding: 10px;
+}
+
+
+
+.chip-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Responsive grid */
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: var(--bg-main); /* */
+  border: 1px solid var(--border-soft); /* */
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chip.active {
+  background: var(--neon-purple); /* */
+  border-color: #fff;
+  color: #fff;
+  box-shadow: 0 0 15px rgba(155, 89, 182, 0.4);
+}
+
+
+
+
+/* Fix visibility of Monthly Fuel and Life Stage dropdowns */
+.cyber-select {
+  appearance: none; /* Removes default browser styling */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234F7CFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+  padding-right: 2.5rem;
+  cursor: pointer;
+  background-color: var(--input-bg); /* */
+  color: var(--text-primary); /* */
+  border: 2px solid var(--border-soft); /* */
+}
+
+/* Force dropdown options to be visible in all themes */
+.cyber-select option {
+  background-color: var(--bg-surface); /* */
+  color: var(--text-primary); /* */
+  padding: 12px;
+}
+
+.chip-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* High-density grid */
+  gap: 12px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  background: var(--bg-main); /* */
+  border: 1px solid var(--border-soft); /* */
+  border-radius: 12px;
+  color: var(--text-primary); /* */
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.chip.active {
+  background: var(--neon-purple); /* */
+  color: #FFFFFF;
+  border-color: #FFFFFF;
+  box-shadow: 0 0 15px rgba(155, 89, 182, 0.4);
+}
+
+
+
+.terminal-style {
+  background: #0D1117 !important; /* Fixed dark terminal background */
+  border: 1px solid #30363D;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.t-input {
+  width: 100% !important; /* Force full width */
+  min-height: 120px; 
+  background: transparent;
+  border: none;
+  color: #C7F000; /* Neon Lime */
+  font-family: 'JetBrains Mono', monospace;
+  padding: 24px;
+  resize: none;
+  outline: none;
+  font-size: 1.1rem;
+}
+
+/* Custom terminal scrollbar */
+.t-input::-webkit-scrollbar {
+  width: 8px;
+}
+.t-input::-webkit-scrollbar-thumb {
+  background: rgba(199, 240, 0, 0.2);
+  border-radius: 4px;
+}
+
+
+/* =========================
+   GEN Z FOOTER & MEGA BUTTON
+   ========================= */
+
+.activation-footer {
+  margin-top: 80px;
+  padding-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Professional Gen Z left-alignment */
+  gap: 24px;
+}
+
+/* Designing an "Out of the World" Mega Button */
+.mega-btn {
+  background: var(--accent-secondary); /* Neon Lime */
+  color: #000000 !important; /* Force black for maximum contrast on neon */
+  padding: 18px 36px;
+  border-radius: 14px;
+  border: none;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 30px rgba(199, 240, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mega-btn:hover {
+  transform: scale(1.05) translateY(-5px);
+  box-shadow: 0 20px 50px rgba(199, 240, 0, 0.4);
+  background: #d4ff00; /* Slightly brighter on hover */
+}
+
+/* Correcting the "white-on-white" footer text */
+.final-note {
+  color: var(--text-primary); /* Uses theme-aware variable */
+  font-size: 1.2rem;
+  font-weight: 600;
+  opacity: 0.9;
+  letter-spacing: -0.2px;
+  border-left: 3px solid var(--accent-primary); /* Electric Blue accent */
+  padding-left: 15px;
+}
+
+
+
+.user-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--accent-soft); /* */
+  border-radius: 50%; /* Makes it a round symbol */
+  margin-right: 12px;
+  font-size: 0.8rem;
+}

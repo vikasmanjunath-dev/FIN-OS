@@ -1,0 +1,304 @@
+/* =========================
+   MARKET INTELLIGENCE THEME
+   ========================= */
+
+:root {
+  --neon-green: #C7F000;
+  --neon-blue: #4F7CFF;
+  --neon-red: #ff4757;
+  --neon-purple: #9b59b6;
+  --glass-bg: rgba(20, 24, 40, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --font-mono: 'Courier New', Courier, monospace;
+}
+
+/* Base Layout */
+.intel-grid {
+  display: grid;
+  grid-template-columns: 350px 1fr; /* Sidebar for analogies, Main for charts */
+  grid-template-rows: auto auto auto;
+  gap: 24px;
+  margin-top: 30px;
+}
+
+/* Glass Panels */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-panel:hover {
+  border-color: rgba(255,255,255,0.2);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+
+/* 1. STATUS BAR (Top) */
+.status-bar {
+  grid-column: 1 / -1; /* Spans full width */
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: rgba(0,0,0,0.3);
+}
+
+.status-item {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.status-item .label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.status-item .value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  text-shadow: 0 0 10px rgba(255,255,255,0.1);
+}
+
+.status-item .micro-desc {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  font-style: italic;
+  color: #fff;
+}
+
+/* Neon Text Colors */
+.neon-green { color: var(--neon-green); text-shadow: 0 0 15px rgba(199,240,0,0.4); }
+.neon-red { color: var(--neon-red); text-shadow: 0 0 15px rgba(255,71,87,0.4); }
+.neon-blue { color: var(--neon-blue); text-shadow: 0 0 15px rgba(79,124,255,0.4); }
+
+/* 2. ANALOGY ENGINE (Left) */
+.analogy-engine {
+  grid-row: span 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.analogy-card {
+  margin-top: 20px;
+  background: rgba(255,255,255,0.03);
+  padding: 20px;
+  border-radius: 16px;
+  border-left: 4px solid var(--neon-purple);
+  flex-grow: 1;
+  transition: all 0.3s ease;
+}
+
+.analogy-card .icon-box {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.analogy-card h4 {
+  font-size: 1.2rem;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.analogy-card p {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.analogy-card strong { color: var(--neon-purple); }
+
+.analogy-controls {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.control-btn {
+  background: transparent;
+  border: 1px solid var(--text-secondary);
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.control-btn:hover {
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+  box-shadow: 0 0 10px rgba(199,240,0,0.2);
+}
+
+/* 3. MAIN CHART (Right) */
+.main-chart-box {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.live-indicator {
+  font-size: 0.8rem;
+  color: var(--neon-red);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.blink {
+  width: 8px;
+  height: 8px;
+  background: var(--neon-red);
+  border-radius: 50%;
+  animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker { 50% { opacity: 0; } }
+
+.canvas-container {
+  flex-grow: 1;
+  position: relative;
+  width: 100%;
+}
+
+.chart-insight {
+  margin-top: 15px;
+  padding: 10px;
+  background: rgba(255, 71, 87, 0.1);
+  border: 1px dashed var(--neon-red);
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+/* 4. METRIC ROW (Bottom) */
+.metric-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.metric-card {
+  text-align: center;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.badge {
+  font-size: 0.7rem;
+  background: var(--neon-blue);
+  color: #000;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 800;
+}
+
+.gauge-visual {
+  height: 10px;
+  background: #333;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.bar-container { display: flex; height: 100%; }
+.bar-fill { height: 100%; font-size: 0; }
+.green { background: var(--neon-green); }
+.red { background: var(--neon-red); }
+
+.number-display {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #fff;
+  font-family: var(--font-mono);
+  margin: 10px 0;
+}
+
+.sector-list {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+}
+
+.sector-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.up { color: var(--neon-green); }
+.down { color: var(--neon-red); }
+
+/* Glitch Header Animation */
+.glitch-text {
+  position: relative;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch-text::before {
+  left: 2px;
+  text-shadow: -1px 0 red;
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch-text::after {
+  left: -2px;
+  text-shadow: -1px 0 blue;
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim2 5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+  0% { clip: rect(12px, 9999px, 32px, 0); }
+  5% { clip: rect(65px, 9999px, 80px, 0); }
+  10% { clip: rect(10px, 9999px, 20px, 0); }
+  100% { clip: rect(40px, 9999px, 70px, 0); }
+}
+
+@keyframes glitch-anim2 {
+  0% { clip: rect(80px, 9999px, 95px, 0); }
+  20% { clip: rect(20px, 9999px, 35px, 0); }
+  100% { clip: rect(10px, 9999px, 15px, 0); }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .intel-grid { grid-template-columns: 1fr; }
+  .analogy-engine { grid-row: auto; }
+  .metric-row { grid-template-columns: 1fr; }
+}

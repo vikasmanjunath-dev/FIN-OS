@@ -1,0 +1,3003 @@
+{% extends 'finos/base.html' %}
+{% block title %}FIN-OS — Market Crisis Simulator{% endblock %}
+{% block extra_head %}
+<style>
+/* Replace old .mode-btn classes with this */
+.mode-toggle-group {
+  display: flex; gap: 1rem; justify-content: center; margin-top: 2.5rem; padding: 0.5rem;
+  background: rgba(0,0,0,0.4); border-radius: 16px; width: fit-content; margin-inline: auto;
+  border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px);
+}
+.mode-btn {
+  display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.8rem 1.8rem;
+  border-radius: 12px; font-family: var(--fM); font-size: 0.85rem; font-weight: 600;
+  letter-spacing: 1px; cursor: pointer; border: 1px solid transparent; background: transparent;
+  color: var(--mu); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); outline: none;
+}
+.mode-btn:hover { color: var(--txt); background: rgba(255,255,255,0.05); }
+.mode-btn.on-inv { background: rgba(0,255,136,0.15); border-color: rgba(0,255,136,0.5); color: var(--g); box-shadow: 0 0 25px rgba(0,255,136,0.15); }
+.mode-btn.on-tra { background: rgba(255,45,107,0.15); border-color: rgba(255,45,107,0.5); color: var(--r); box-shadow: 0 0 25px rgba(255,45,107,0.15); }
+.mode-btn.on-all { background: rgba(124,58,255,0.15); border-color: rgba(124,58,255,0.5); color: #a78bff; box-shadow: 0 0 25px rgba(124,58,255,0.15); }
+.tra-sim-page{
+  padding:clamp(1.25rem,2.5vw,2.5rem) clamp(1.5rem,5vw,5.5rem) clamp(3rem,6vw,5rem);
+  position:relative;
+  z-index:1;
+}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(124,58,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,255,.018) 1px,transparent 1px);background-size:48px 48px;opacity:.5}
+
+/* HEADER */
+.sim-header{padding:2rem 0 1.75rem;border-bottom:1px solid rgba(124,58,255,.08);margin-bottom:3rem;text-align:center}
+.sim-eyebrow{font-family:var(--fM);font-size:.6rem;color:#a78bff;letter-spacing:3px;margin-bottom:.75rem;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.sim-eyebrow::before,.sim-eyebrow::after{content:'';width:30px;height:1px;background:#a78bff}
+.sim-title{font-family:var(--fD);font-size:clamp(2.5rem,5vw,4rem);letter-spacing:2px;background:linear-gradient(135deg,#a78bff,#00d4ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.75rem}
+.sim-subtitle{font-size:1rem;color:var(--mu);max-width:700px;margin:0 auto;line-height:1.8}
+.sim-memory-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;max-width:1200px;margin:1.5rem auto 0}
+.sim-memory-card{background:rgba(7,7,26,.8);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:1rem 1.1rem;text-align:left}
+.smc-label{font-family:var(--fM);font-size:.56rem;letter-spacing:1.5px;color:var(--mu);margin-bottom:.45rem}
+.smc-value{font-family:var(--fD);font-size:1.35rem;letter-spacing:1px;color:var(--txt)}
+.smc-copy{font-size:.82rem;line-height:1.55;color:rgba(240,237,255,.68);margin-top:.35rem}
+
+/* SIM GRID */
+.sim-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(380px,1fr));
+  gap:1.75rem;
+  margin:0 auto 3rem;
+  padding-inline:clamp(0.5rem,1.6vw,1.5rem);
+  max-width:1500px;
+}
+.sim-card{background:var(--s1);border:1px solid rgba(255,255,255,.07);border-radius:24px;padding:2rem;cursor:pointer;transition:all .4s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden}
+.sim-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#a78bff,var(--y));opacity:0;transition:opacity .3s}
+.sim-card:hover{transform:translateY(-8px);border-color:rgba(124,58,255,.3);box-shadow:0 25px 70px rgba(124,58,255,.15)}
+.sim-card:hover::before{opacity:1}
+.sim-icon{font-size:3rem;margin-bottom:1.25rem;display:block;transition:transform .3s}
+.sim-card:hover .sim-icon{transform:scale(1.15) rotate(5deg)}
+.sim-name{font-size:1.6rem;margin-bottom:.5rem;letter-spacing:.5px;font-family:var(--fD)}
+.sim-desc{color:rgba(240,237,255,.65);font-size:.95rem;line-height:1.7;margin-bottom:1.25rem}
+.sim-tags{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem}
+.tag{font-family:var(--fM);font-size:.65rem;padding:.35rem .85rem;border-radius:8px;letter-spacing:1px}
+.tag-extreme{background:rgba(124,58,255,.1);color:#a78bff;border:1px solid rgba(124,58,255,.2)}
+.tag-high{background:rgba(255,204,0,.1);color:var(--y);border:1px solid rgba(255,204,0,.2)}
+.tag-speed{background:rgba(124,58,255,.1);color:#a78bff;border:1px solid rgba(124,58,255,.2)}
+.sim-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem}
+.stat{text-align:center;padding:.65rem;background:rgba(0,0,0,.3);border-radius:10px}
+.stat-value{font-family:var(--fD);font-size:1.2rem;letter-spacing:.5px;margin-bottom:.15rem}
+.stat-label{font-family:var(--fM);font-size:.58rem;color:var(--mu);letter-spacing:.5px}
+
+/* MODAL - same structure as investor but red theme */
+.modal{position:fixed;inset:0;background:rgba(2,2,12,.98);backdrop-filter:blur(30px);z-index:1000;display:none;overflow-y:auto}
+.modal.active{display:block}
+.modal-content{
+  max-width:1380px;
+  margin:0 auto;
+  padding:clamp(1rem,2.5vw,2rem) clamp(1.5rem,4vw,3rem);
+  position:relative;
+}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(124,58,255,.1)}
+.modal-title-wrap h2{font-family:var(--fD);font-size:2.2rem;letter-spacing:1px;margin-bottom:.5rem}
+.modal-subtitle{font-size:.95rem;color:var(--mu)}
+.close-btn{width:44px;height:44px;border-radius:12px;background:rgba(124,58,255,.1);border:1px solid rgba(124,58,255,.2);color:#a78bff;font-size:1.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.close-btn:hover{background:rgba(124,58,255,.2);transform:rotate(90deg)}
+
+.sim-interface{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 380px;
+  gap:clamp(1.25rem,2vw,2rem);
+  align-items:start;
+}
+.main-panel{
+  background:var(--s1);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:20px;
+  padding:clamp(1.25rem,3vw,2.5rem);
+  min-height:650px;
+  display:flex;
+  flex-direction:column;
+}
+.phase-indicator{font-family:var(--fM);font-size:.7rem;letter-spacing:2px;padding:.5rem 1.2rem;border-radius:10px;margin-bottom:2rem;width:fit-content;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.phase-setup{background:rgba(0,212,255,.1);color:var(--c);border:1px solid rgba(0,212,255,.2)}
+.phase-trade{background:rgba(124,58,255,.1);color:#a78bff;border:1px solid rgba(124,58,255,.2)}
+.phase-emotion{background:rgba(124,58,255,.1);color:#a78bff;border:1px solid rgba(124,58,255,.2)}
+.phase-exit{background:rgba(255,204,0,.1);color:var(--y);border:1px solid rgba(255,204,0,.2)}
+.phase-result{background:rgba(0,255,136,.1);color:var(--g);border:1px solid rgba(0,255,136,.2)}
+
+.scenario-text{font-size:1.05rem;line-height:1.95;color:rgba(240,237,255,.88);flex:1;margin-bottom:2rem}
+.scenario-text.typing::after{content:'▊';animation:blink .7s infinite;margin-left:2px}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+.scenario-text strong{color:var(--txt);font-weight:600}
+.scenario-text em{color:#a78bff;font-style:normal}
+
+/* LIVE CHART */
+.chart-container{background:rgba(0,0,0,.3);border-radius:16px;padding:1.5rem;margin-bottom:2rem;height:280px;position:relative}
+#liveChart{width:100%;height:100%}
+.chart-price{position:absolute;top:1.5rem;left:1.5rem;font-family:var(--fM);font-size:1.8rem;font-weight:700;letter-spacing:1px}
+.chart-change{font-size:1rem;margin-top:.25rem}
+
+/* QUESTIONS */
+.question-container{opacity:0;pointer-events:none;transition:opacity .5s}
+.question-container.active{opacity:1;pointer-events:all}
+.question-prompt{font-size:1.25rem;font-weight:600;margin-bottom:1.5rem;color:#a78bff;font-family:var(--fD);letter-spacing:.5px}
+.question-timer{font-family:var(--fM);font-size:2rem;color:var(--y);text-align:center;margin-bottom:1.5rem;font-weight:700}
+.question-options{display:flex;flex-direction:column;gap:1rem}
+.option-btn{background:var(--s2);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:1.5rem;cursor:pointer;transition:all .3s;text-align:left;display:flex;align-items:flex-start;gap:1rem;position:relative}
+.option-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:#a78bff;transform:scaleY(0);transition:transform .3s;border-radius:14px 0 0 14px}
+.option-btn:hover::before{transform:scaleY(1)}
+.option-btn:hover{transform:translateX(8px);border-color:rgba(124,58,255,.3);box-shadow:0 10px 40px rgba(124,58,255,.1)}
+.option-letter{width:32px;height:32px;border-radius:8px;background:rgba(124,58,255,.1);color:#a78bff;display:flex;align-items:center;justify-content:center;font-family:var(--fM);font-size:.9rem;font-weight:700;flex-shrink:0}
+.option-text{flex:1}
+.option-label{font-size:1.05rem;font-weight:600;margin-bottom:.4rem}
+.option-desc{font-size:.88rem;color:var(--mu);line-height:1.6}
+
+/* METRICS PANEL */
+.metrics-panel{display:flex;flex-direction:column;gap:1.5rem}
+.metric-card{
+  background:var(--s1);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:16px;
+  padding:clamp(1rem,2vw,1.5rem);
+}
+.metric-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.metric-title{font-family:var(--fM);font-size:.68rem;letter-spacing:1.5px;color:var(--mu)}
+.metric-value{font-size:1.9rem;font-weight:700;letter-spacing:.5px}
+.metric-bar{height:12px;background:rgba(255,255,255,.05);border-radius:6px;overflow:hidden;margin-top:.75rem}
+.metric-fill{height:100%;border-radius:6px;transition:width .8s cubic-bezier(.34,1.56,.64,1);background:linear-gradient(90deg,#a78bff,var(--y),var(--g))}
+
+/* POSITION DISPLAY */
+.position-display{
+  background:linear-gradient(135deg,rgba(124,58,255,.05),rgba(255,204,0,.05));
+  border:1px solid rgba(124,58,255,.2);
+  border-radius:16px;
+  padding:clamp(1rem,2vw,1.5rem);
+}
+.portfolio-display{
+  background:linear-gradient(135deg,rgba(0,255,136,.05),rgba(0,212,255,.05));
+  border:1px solid rgba(0,255,136,.2);
+  border-radius:16px;
+  padding:clamp(1rem,2vw,1.5rem);
+}
+.position-label{font-family:var(--fM);font-size:.65rem;color:var(--mu);letter-spacing:2px;margin-bottom:.35rem}
+.position-value{font-size:1.4rem;font-weight:700;letter-spacing:.5px;margin-bottom:.15rem}
+.position-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1rem}
+.position-item{text-align:center;padding:.65rem;background:rgba(0,0,0,.3);border-radius:8px}
+.position-item-value{font-family:var(--fD);font-size:1.1rem;letter-spacing:.5px;margin-bottom:.15rem}
+.position-item-label{font-family:var(--fM);font-size:.6rem;color:var(--mu);letter-spacing:.5px}
+
+/* EMOTION TRACKER */
+.emotion-tracker{background:var(--s2);border-radius:12px;padding:1rem}
+.emotion-item{display:flex;justify-content:space-between;align-items:center;padding:.7rem 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.emotion-item:last-child{border-bottom:none}
+.emotion-label{font-size:.85rem;color:rgba(240,237,255,.7)}
+.emotion-level{font-family:var(--fM);font-size:.72rem;padding:.3rem .8rem;border-radius:6px}
+.level-low{background:rgba(0,255,136,.1);color:var(--g)}
+.level-medium{background:rgba(255,204,0,.1);color:var(--y)}
+.level-high{background:rgba(124,58,255,.1);color:#a78bff}
+
+/* TRADE LOG */
+.trade-log{background:var(--s2);border-radius:12px;padding:1.25rem;max-height:250px;overflow-y:auto}
+.log-item{font-family:var(--fM);font-size:.75rem;padding:.5rem;margin-bottom:.4rem;border-radius:6px;background:rgba(0,0,0,.2);line-height:1.5}
+.log-time{color:var(--mu);margin-right:.5rem}
+.log-action{color:var(--txt)}
+
+/* RESULT */
+.result-container{opacity:0;pointer-events:none;transition:opacity .5s}
+.result-container.active{opacity:1;pointer-events:all}
+.result-header{text-align:center;margin-bottom:2.5rem}
+.result-verdict{font-size:3.5rem;margin-bottom:1rem}
+.result-title{font-size:2.2rem;margin-bottom:.5rem;letter-spacing:1px;font-family:var(--fD)}
+.result-subtitle{font-size:1.1rem;color:var(--mu)}
+.result-sections{display:grid;gap:1.75rem}
+.result-section{background:var(--s2);border-radius:16px;padding:2rem;border-left:4px solid #a78bff}
+.result-section-title{font-size:1.3rem;margin-bottom:1rem;display:flex;align-items:center;gap:.75rem;font-family:var(--fD);letter-spacing:.5px}
+.result-section-icon{font-size:1.5rem}
+.result-section-text{font-size:1rem;line-height:1.95;color:rgba(240,237,255,.85)}
+.result-section-text strong{color:var(--txt);font-weight:600}
+.result-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1.25rem;margin-top:2rem}
+.result-metric{text-align:center;padding:1.5rem;background:rgba(0,0,0,.3);border-radius:12px;border:1px solid rgba(255,255,255,.06)}
+.result-metric-value{font-size:2.5rem;font-weight:700;margin-bottom:.5rem}
+.result-metric-label{font-family:var(--fM);font-size:.68rem;color:var(--mu);letter-spacing:1px}
+.decision-audit{display:grid;gap:.75rem}
+.audit-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:.8rem;align-items:start;padding:.95rem 1rem;border-radius:12px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.05)}
+.audit-copy{font-size:.86rem;line-height:1.65;color:rgba(240,237,255,.84)}
+.audit-tag,.audit-score{font-family:var(--fM);font-size:.58rem;letter-spacing:1px;padding:.32rem .65rem;border-radius:999px;white-space:nowrap}
+.audit-tag{background:rgba(124,58,255,.12);color:#bca6ff;border:1px solid rgba(124,58,255,.2)}
+.audit-score.good{background:rgba(0,255,136,.1);color:var(--g);border:1px solid rgba(0,255,136,.18)}
+.audit-score.bad{background:rgba(255,45,107,.1);color:var(--r);border:1px solid rgba(255,45,107,.18)}
+.audit-score.flat{background:rgba(255,204,0,.08);color:var(--y);border:1px solid rgba(255,204,0,.18)}
+.compare-box{padding:1.2rem 1.25rem;border-radius:14px;background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.06)}
+.compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-top:.9rem}
+.compare-stat{padding:.8rem .9rem;border-radius:10px;background:rgba(255,255,255,.03);text-align:center}
+.compare-stat strong{display:block;font-family:var(--fD);font-size:1.35rem;letter-spacing:1px}
+.compare-stat span{display:block;font-family:var(--fM);font-size:.55rem;letter-spacing:1px;color:var(--mu);margin-top:.15rem}
+.result-actions{display:flex;gap:.9rem;flex-wrap:wrap;justify-content:center;margin-top:1.75rem}
+.result-action-btn{padding:.85rem 1.3rem;border-radius:12px;background:rgba(124,58,255,.08);border:1px solid rgba(124,58,255,.24);color:var(--txt);cursor:pointer;font-family:var(--fM);font-size:.72rem;letter-spacing:1px}
+.result-action-btn:hover{background:rgba(124,58,255,.14)}
+
+.loading{display:flex;align-items:center;justify-content:center;gap:1rem;padding:2.5rem}
+.spinner{width:44px;height:44px;border:3px solid rgba(124,58,255,.2);border-top-color:#a78bff;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-family:var(--fM);font-size:.9rem;color:var(--mu);letter-spacing:1px}
+
+.hidden{display:none!important}
+.text-green{color:var(--g)}
+.text-red{color:var(--r)}
+.text-yellow{color:var(--y)}
+
+/* --- PROCEED BUTTON --- */
+/* --- PROCEED BUTTON & FIX BLANK SPACE --- */
+.proceed-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--g); color: #000; padding: 12px 28px;
+    border-radius: 12px; font-family: var(--fM); font-weight: 800;
+    font-size: 1rem; cursor: pointer; border: none; outline: none;
+    box-shadow: 0 0 20px rgba(0,255,136,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 1.5rem;
+}
+.proceed-btn:hover { 
+    transform: translateX(5px); 
+    box-shadow: 0 0 30px rgba(0,255,136,0.6); 
+}
+/* Trader mode button color */
+body.mode-trader .proceed-btn { 
+    background: var(--r); color: #fff; box-shadow: 0 0 20px rgba(255,45,107,0.4); 
+}
+body.mode-trader .proceed-btn:hover { box-shadow: 0 0 30px rgba(255,45,107,0.6); }
+
+
+/* --- FIX DARK TEXT ON OPTIONS --- */
+.option-label { color: #ffffff !important; font-size: 1.15rem; font-weight: bold; margin-bottom: 0.4rem; }
+.option-desc { color: rgba(255, 255, 255, 0.7) !important; font-size: 0.9rem; line-height: 1.6; }
+
+/* --- PROCEED BUTTON STYLES --- */
+.proceed-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--g); color: #000; padding: 12px 28px;
+    border-radius: 12px; font-family: var(--fM); font-weight: 800;
+    font-size: 1rem; cursor: pointer; border: none; outline: none;
+    box-shadow: 0 0 20px rgba(0,255,136,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 1.5rem;
+}
+.proceed-btn:hover { 
+    transform: translateX(5px); 
+    box-shadow: 0 0 30px rgba(0,255,136,0.6); 
+}
+
+/* Center loading screen and give fallback background */
+.loading-outer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  width: 100%;
+  background: #18162b;
+  z-index: 10000;
+}
+
+@media (max-width: 1100px) {
+  .sim-interface {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-panel {
+    width: 100%;
+  }
+
+  .sim-memory-strip,
+  .compare-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .tra-sim-page {
+    padding: 1rem 1.1rem 2.5rem;
+  }
+
+  .sim-header {
+    padding: 1.25rem 0 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .sim-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding-inline: 0;
+  }
+
+  .sim-card {
+    padding: 1.25rem;
+  }
+
+  .modal-content {
+    padding: 0.8rem 1rem;
+  }
+
+  .modal-header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+  }
+
+  .main-panel,
+  .metric-card,
+  .position-display,
+  .portfolio-display {
+    padding: 1rem;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tra-sim-page">
+<div class="bg-grid"></div>
+
+<div class="sim-header" style="text-align:center;padding:2rem 0 1.75rem;border-bottom:1px solid rgba(124,58,255,.08);margin-bottom:3rem">
+  <div class="sim-eyebrow">THE MIND GYM</div>
+  <h1 class="sim-title">MARKET CRISIS<br>SIMULATOR</h1>
+  <p class="sim-subtitle">Live through India's biggest financial crises. Feel the panic, make real decisions under pressure, and discover what your brain actually does when money is on the line.</p>
+  <div style="display:flex;gap:.75rem;justify-content:center;margin-top:1.5rem">
+    <button class="mode-btn on-inv" id="modInv" onclick="setMode('inv')" style="background:#051a0f;border:1px solid rgba(0,255,136,.4);color:#00ff88">📈 INVESTOR BRAIN</button>
+    <button class="mode-btn" id="modTra" onclick="setMode('tra')" style="background:#0d0d24;border:1px solid rgba(255,255,255,.12);color:rgba(200,196,230,.6)">📊 TRADER BRAIN</button>
+    <button class="mode-btn" id="modBoth" onclick="setMode('both')" style="background:#0d0d24;border:1px solid rgba(255,255,255,.12);color:rgba(200,196,230,.6)">🧠 ALL SIMS</button>
+  </div>
+  <div class="sim-memory-strip">
+    <div class="sim-memory-card">
+      <div class="smc-label">BEHAVIOR PROFILE</div>
+      <div class="smc-value" id="simProfileLabel">Loading...</div>
+      <div class="smc-copy" id="simProfileCopy">Building your recurring emotional fingerprint.</div>
+    </div>
+    <div class="sim-memory-card">
+      <div class="smc-label">MOST RECENT PATTERN</div>
+      <div class="smc-value" id="simRecentPattern">None yet</div>
+      <div class="smc-copy" id="simRecentCopy">Finish one sim and we will call out your most repeated mistake.</div>
+    </div>
+    <div class="sim-memory-card">
+      <div class="smc-label">RUN HISTORY</div>
+      <div class="smc-value" id="simRunCount">0 runs</div>
+      <div class="smc-copy" id="simRunCopy">No cross-simulation memory yet.</div>
+    </div>
+  </div>
+</div>
+
+<div class="sim-grid" id="simGrid">
+    <div class="sim-card sc-inv" onclick="startSimulation('marketCrash')">
+      <span class="sim-icon">📉</span>
+      <h3 class="sim-name">Market Crash Survival</h3>
+      <p class="sim-desc">
+        Your portfolio drops 35% in a month. Panic everywhere. Friends selling. 
+        Media screaming crisis. Can you stay disciplined?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-hard">EXTREME PRESSURE</span>
+        <span class="tag tag-multi">5 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">18min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">95%</div><div class="stat-label">STRESS</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card sc-inv" onclick="startSimulation('bubbleTemptation')">
+      <span class="sim-icon">🎈</span>
+      <h3 class="sim-name">Bubble Temptation</h3>
+      <p class="sim-desc">
+        Stock you own is up 300%. Everyone says it'll go to the moon. 
+        Greed overwhelming. Do you sell or hold for more?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-hard">HIGH GREED</span>
+        <span class="tag tag-multi">4 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">15min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">88%</div><div class="stat-label">TEMPTATION</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card sc-inv" onclick="startSimulation('valueDiscover')">
+      <span class="sim-icon">💎</span>
+      <h3 class="sim-name">Value Discovery</h3>
+      <p class="sim-desc">
+        Found a fundamentally strong stock hated by everyone. Down 60%, bad news daily. 
+        Is it value or value trap?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-med">MEDIUM</span>
+        <span class="tag tag-multi">6 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">20min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">72%</div><div class="stat-label">DOUBT</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card sc-inv" onclick="startSimulation('sipDiscipline')">
+      <span class="sim-icon">📆</span>
+      <h3 class="sim-name">SIP Discipline Test</h3>
+      <p class="sim-desc">
+        Your SIP has been running for 3 years. Market volatile. Some months hurt. 
+        Should you continue, pause, or increase?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-med">MEDIUM</span>
+        <span class="tag tag-multi">5 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">16min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">65%</div><div class="stat-label">ANXIETY</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card sc-inv" onclick="startSimulation('economicShock')">
+      <span class="sim-icon">⚡</span>
+      <h3 class="sim-name">Economic Shock Response</h3>
+      <p class="sim-desc">
+        Sudden global crisis. Markets circuit breaker triggered. Portfolio down 25% in hours. 
+        What's your move?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-hard">CATASTROPHIC</span>
+        <span class="tag tag-multi">4 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">14min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">98%</div><div class="stat-label">PANIC</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card sc-inv" onclick="startSimulation('dividendCut')">
+      <span class="sim-icon">💸</span>
+      <h3 class="sim-name">Dividend Cut Crisis</h3>
+      <p class="sim-desc">
+        Your dividend stock (20% of portfolio) just cut dividends by 75%. 
+        Stock down 40%. Retirement plan impacted. React how?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-hard">HIGH STRESS</span>
+        <span class="tag tag-multi">5 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">17min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">82%</div><div class="stat-label">FEAR</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card sc-inv" onclick="startSimulation('rebalanceDecision')">
+      <span class="sim-icon">⚖️</span>
+      <h3 class="sim-name">Rebalancing Dilemma</h3>
+      <p class="sim-desc">
+        One stock is now 45% of your portfolio (was 15%). Up 200%. 
+        Rebalance and sell winners or let it ride?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-med">STRATEGIC</span>
+        <span class="tag tag-multi">6 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">19min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">70%</div><div class="stat-label">CONFLICT</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+    <div class="sim-card sc-tra" onclick="startSimulation('stopLossTest')">
+      <span class="sim-icon">🛑</span>
+      <h3 class="sim-name">Stop Loss Discipline</h3>
+      <p class="sim-desc">
+        Stock hits your stop loss. Down 3%. But news says 'temporary dip.' 
+        Your brain screams: give it more room! Can you stick to the plan?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-extreme">EXTREME DISCIPLINE</span>
+        <span class="tag tag-speed">6 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">12min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">92%</div><div class="stat-label">EGO TEST</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card sc-tra" onclick="startSimulation('revengeTrade')">
+      <span class="sim-icon">😤</span>
+      <h3 class="sim-name">Revenge Trading Trap</h3>
+      <p class="sim-desc">
+        3 losses in a row. Down ₹15k. Your ego is bruised. One winning trade will fix everything. 
+        You spot a setup. Should you trade or step away?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-extreme">EMOTIONAL WARFARE</span>
+        <span class="tag tag-speed">5 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">10min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">95%</div><div class="stat-label">EGO THREAT</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card sc-tra" onclick="startSimulation('breakoutFakeout')">
+      <span class="sim-icon">📈</span>
+      <h3 class="sim-name">Breakout or Fakeout</h3>
+      <p class="sim-desc">
+        Stock breaking resistance. Volume surging. Perfect setup. You're in at ₹485. 
+        It reverses to ₹478. Fakeout? Or buy more?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-high">HIGH PRESSURE</span>
+        <span class="tag tag-speed">7 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">15min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">85%</div><div class="stat-label">CONFUSION</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card sc-tra" onclick="startSimulation('gapTrading')">
+      <span class="sim-icon">⚡</span>
+      <h3 class="sim-name">Gap Up Chaos</h3>
+      <p class="sim-desc">
+        Stock gaps up 8% on earnings. Your position from yesterday now in profit. 
+        Book it fast or wait for more? 9:20 AM. You have 10 minutes to decide.
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-extreme">SPEED CRITICAL</span>
+        <span class="tag tag-speed">4 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">8min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">90%</div><div class="stat-label">URGENCY</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card sc-tra" onclick="startSimulation('overtrading')">
+      <span class="sim-icon">🎰</span>
+      <h3 class="sim-name">Overtrading Addiction</h3>
+      <p class="sim-desc">
+        You're up ₹8k by 11 AM. Daily target hit. But markets are moving. FOMO kicking in. 
+        Pack up or keep trading? Can you walk away from easy money?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-extreme">GREED TEST</span>
+        <span class="tag tag-speed">5 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">14min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">88%</div><div class="stat-label">TEMPTATION</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card sc-tra" onclick="startSimulation('newsWhipsaw')">
+      <span class="sim-icon">📰</span>
+      <h3 class="sim-name">News Whipsaw</h3>
+      <p class="sim-desc">
+        In a swing trade. Sudden negative news breaks. Stock tanks 6%. Panic everywhere. 
+        Cut loss or trust your analysis? 60 seconds to decide.
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-extreme">CRISIS MODE</span>
+        <span class="tag tag-speed">4 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">11min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">96%</div><div class="stat-label">PANIC</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card sc-tra" onclick="startSimulation('partialProfit')">
+      <span class="sim-icon">💰</span>
+      <h3 class="sim-name">Profit Booking Timing</h3>
+      <p class="sim-desc">
+        Up 4% on your trade. Target was 5%. Stock consolidating. Book partial profits now 
+        or wait for full target? Greed vs discipline battle.
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-high">STRATEGIC</span>
+        <span class="tag tag-speed">6 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">13min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">75%</div><div class="stat-label">GREED</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- SIMULATION MODAL -->
+<div id="simModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <h2 id="modalTitle">Loading Simulation...</h2>
+        <p class="modal-subtitle" id="modalSubtitle">Get ready</p>
+      </div>
+      <button class="close-btn" onclick="closeModal()">×</button>
+    </div>
+    <div class="sim-interface">
+      <div class="main-panel">
+        <div id="phaseIndicator" class="phase-indicator phase-setup">🎯 LOADING</div>
+        <div id="chartSection" class="hidden">
+          <div class="chart-container">
+            <canvas id="liveChart"></canvas>
+            <div class="chart-price" id="chartPrice">
+              <div id="currentPrice">₹485.50</div>
+              <div class="chart-change" id="currentChange">+0.0%</div>
+            </div>
+          </div>
+        </div>
+        <div id="scenarioText" class="scenario-text"></div>
+        <div id="questionContainer" class="question-container"></div>
+        <div id="resultContainer" class="result-container"></div>
+      </div>
+      <div class="metrics-panel">
+        <div class="position-display" id="traderPanel">
+          <div class="position-label">CURRENT POSITION</div>
+          <div id="positionStatus" class="position-value">NO POSITION</div>
+          <div class="position-grid">
+            <div class="position-item"><div id="entryPrice" class="position-item-value">--</div><div class="position-item-label">ENTRY</div></div>
+            <div class="position-item"><div id="stopLoss" class="position-item-value">--</div><div class="position-item-label">STOP LOSS</div></div>
+            <div class="position-item"><div id="currentPnL" class="position-item-value">₹0</div><div class="position-item-label">P&L</div></div>
+            <div class="position-item"><div id="riskReward" class="position-item-value">--</div><div class="position-item-label">R:R</div></div>
+          </div>
+        </div>
+        <div class="portfolio-display hidden" id="investorPanel">
+          <div class="portfolio-label" style="font-family:var(--fM);font-size:.65rem;color:var(--mu);letter-spacing:2px;margin-bottom:.35rem">PORTFOLIO VALUE</div>
+          <div id="portfolioValue" style="font-size:1.4rem;font-weight:700;letter-spacing:.5px;margin-bottom:.15rem">₹50,00,000</div>
+          <div id="portfolioChange" class="text-green" style="font-size:.9rem">+0.0%</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-header">
+            <div class="metric-title">EXECUTION CLARITY</div>
+            <div id="clarityValue" class="metric-value">100%</div>
+          </div>
+          <div class="metric-bar"><div id="clarityBar" class="metric-fill" style="width:100%"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-header">
+            <div class="metric-title">LIVE SCORE SNAPSHOT</div>
+            <div id="liveOutcomeLabel" class="metric-value" style="font-size:1.2rem">0%</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem">
+            <div style="padding:.8rem;border-radius:10px;background:rgba(255,255,255,.03);text-align:center">
+              <div id="liveDisciplineScore" style="font-family:var(--fD);font-size:1.35rem">72</div>
+              <div style="font-family:var(--fM);font-size:.55rem;letter-spacing:1px;color:var(--mu);margin-top:.2rem">DISCIPLINE</div>
+            </div>
+            <div style="padding:.8rem;border-radius:10px;background:rgba(255,255,255,.03);text-align:center">
+              <div id="liveExecutionScore" style="font-family:var(--fD);font-size:1.35rem">74</div>
+              <div style="font-family:var(--fM);font-size:.55rem;letter-spacing:1px;color:var(--mu);margin-top:.2rem">EXECUTION</div>
+            </div>
+            <div style="padding:.8rem;border-radius:10px;background:rgba(255,255,255,.03);text-align:center">
+              <div id="liveClarityScore" style="font-family:var(--fD);font-size:1.35rem">76</div>
+              <div style="font-family:var(--fM);font-size:.55rem;letter-spacing:1px;color:var(--mu);margin-top:.2rem">CLARITY</div>
+            </div>
+          </div>
+          <div id="liveRouteCopy" style="font-size:.76rem;line-height:1.6;color:rgba(240,237,255,.68);margin-top:.9rem">
+            Route memory will start reacting after your first real choice.
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-header"><div class="metric-title">EMOTIONAL STATE</div></div>
+          <div class="emotion-tracker">
+            <div class="emotion-item"><span class="emotion-label">Fear</span><span id="fearLevel" class="emotion-level level-low">LOW</span></div>
+            <div class="emotion-item"><span class="emotion-label">Greed</span><span id="greedLevel" class="emotion-level level-low">LOW</span></div>
+            <div class="emotion-item"><span class="emotion-label">Revenge/Panic</span><span id="revengeLevel" class="emotion-level level-low">LOW</span></div>
+            <div class="emotion-item"><span class="emotion-label">Discipline</span><span id="disciplineLevel" class="emotion-level level-medium">MEDIUM</span></div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title" style="margin-bottom:1rem">DECISION LOG</div>
+          <div class="trade-log" id="tradeLog">
+            <div class="log-item"><span class="log-time">--:--</span><span class="log-action">Simulation starting...</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+{% endblock %}
+
+{% block page_script %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function setMode(m){
+  const inv = document.getElementById('modInv');
+  const tra = document.getElementById('modTra');
+  const both = document.getElementById('modBoth');
+
+  // Reset all
+  [inv,tra,both].forEach(b=>{
+    b.className='mode-btn';
+    b.style.cssText='background:#0d0d24;border:1px solid rgba(255,255,255,.12);color:rgba(200,196,230,.6)';
+  });
+
+  if(m==='inv'){
+    inv.className='mode-btn on-inv';
+    inv.style.cssText='background:#051a0f;border:1px solid rgba(0,255,136,.4);color:#00ff88';
+  } else if(m==='tra'){
+    tra.className='mode-btn on-tra';
+    tra.style.cssText='background:#1a0508;border:1px solid rgba(255,45,107,.4);color:#ff2d6b';
+  } else {
+    both.className='mode-btn on-inv';
+    both.style.cssText='background:#051a0f;border:1px solid rgba(0,255,136,.4);color:#00ff88';
+  }
+
+  document.querySelectorAll('.sim-card').forEach(c=>{
+    if(m==='both') c.style.display='';
+    else if(m==='inv') c.style.display=c.classList.contains('sc-inv')?'':'none';
+    else c.style.display=c.classList.contains('sc-tra')||c.classList.contains('sc-both')?'':'none';
+  });
+}
+
+const SIMULATIONS = {
+  marketCrash: {
+    title: "Market Crash Survival",
+    subtitle: "Your discipline will be tested",
+    initialValue: 5000000,
+    steps: [
+      {
+        phase: "📖 SCENARIO",
+        text: "It's March 2024. You've been investing systematically for 3 years. Portfolio value: ₹50 lakhs. Allocation: 60% equity funds, 30% bluechip stocks, 10% debt. Returns so far: +18% CAGR. You're comfortable, confident, and on track for your 10-year goal of ₹2 crores.\n\nThen it happens.\n\nGlobal banking crisis. Major bank defaults in the US. Contagion spreading. Nifty opens -8%. Your portfolio: <strong>-12% in one day</strong>. WhatsApp groups exploding. Friends panic-selling. Media: 'WORST CRASH SINCE 2008.' Your dad calls: <em>'Get everything out NOW!'</em>",
+        type: "scenario"
+      },
+      {
+        phase: "❓ DECISION POINT 1",
+        question: "Day 1 Evening: Portfolio down ₹6 lakhs. What's your immediate reaction?",
+        options: [
+          {letter: "A", label: "Sell everything immediately", desc: "Preserve remaining capital. This could get much worse."},
+          {letter: "B", label: "Sell 50% to feel safer", desc: "Compromise position. Reduce risk but stay partially invested."},
+          {letter: "C", label: "Do absolutely nothing", desc: "Stick to the plan. Don't react to one bad day."},
+          {letter: "D", label: "Add ₹2 lakhs more", desc: "This is opportunity. Buy when others panic."}
+        ],
+        type: "decision",
+        emotionImpact: {fear: 15, patience: -10}
+      },
+      {
+        phase: "📖 SCENARIO CONTINUES",
+        text: "Week 1: Market continues bleeding. Nifty down 18% from peak. Your portfolio: <strong>-22%</strong>. You're now at ₹39 lakhs. Every morning, you wake up to more red. Your mutual fund statements look brutal. That SIP of ₹50k/month now feels scary - you're buying in a falling market.\n\nYour wife is worried. 'Maybe we should pause the SIPs? This money could be useful if things get worse.' Your friend who sold on Day 1 keeps texting: 'Glad I'm out. This is going to zero.'",
+        type: "scenario",
+        branches: [
+          {
+            dependsOnStep: 1,
+            choices: [0],
+            patch: {
+              text: "Week 1: You panic-sold on Day 1 and moved to cash. The market keeps falling anyway, so at first you feel clever. But now the harder part begins: every lower print makes buying back in feel more dangerous, not less.\n\nNifty is down 18% from peak. Your old portfolio would have been ₹39 lakhs. Your capital is safer on paper, but your process is broken. Your friend praises you for 'escaping early' while your brain becomes more and more incapable of re-entering rationally."
+            }
+          },
+          {
+            dependsOnStep: 1,
+            choices: [3],
+            patch: {
+              text: "Week 1: You added ₹2 lakhs on Day 1 and the market still kept falling. Nifty is now down 18% from peak. Your portfolio looks worse mark-to-market, and your bold move has not been rewarded yet.\n\nThis is where shallow conviction dies. You acted aggressively and got immediate pain. If your process was real, you stay coherent. If it was emotional heroism, you start doubting every rupee you deployed."
+            }
+          }
+        ]
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "Be honest: What are you feeling right now?",
+        options: [
+          {letter: "A", label: "Pure terror", desc: "Can't sleep. Constantly checking portfolio. Regret everywhere."},
+          {letter: "B", label: "Anxious but holding on", desc: "Uncomfortable but trying to stay rational. Fighting the urge to sell."},
+          {letter: "C", label: "Concerned but analytical", desc: "This is bad, but I'm looking at fundamentals, not prices."},
+          {letter: "D", label: "Excited opportunity", desc: "This is exactly when wealth is built. Time to be greedy."}
+        ],
+        type: "emotion",
+        emotionImpact: {fear: 10, discipline: 5}
+      },
+      {
+        phase: "❓ DECISION POINT 2",
+        question: "Week 2: Down 28% total. Your ₹50k SIP is due tomorrow. What do you do?",
+        options: [
+          {letter: "A", label: "Stop all SIPs immediately", desc: "No point averaging down in a crash. Preserve cash."},
+          {letter: "B", label: "Continue as planned", desc: "SIPs are meant for times like this. Stay disciplined."},
+          {letter: "C", label: "Double the SIP to ₹1L", desc: "Averaging down aggressively. Prices are too good."},
+          {letter: "D", label: "Pause for 3 months", desc: "Wait for stabilization. Resume when clarity emerges."}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 15, patience: 10}
+      },
+      {
+        phase: "📖 SCENARIO CONTINUES",
+        text: "Month 2: Markets find a bottom. Nifty down 35% from peak. Your portfolio: <strong>-31%</strong>, now ₹34.5 lakhs. But the bleeding has stopped. News becomes less apocalyptic. Some analysts calling this 'maximum pessimism.'\n\nYou get a bonus at work: ₹5 lakhs. Perfect timing? Or should you keep it safe in FD? The market could still fall another 20%.",
+        type: "scenario"
+      },
+      {
+        phase: "❓ DECISION POINT 3",
+        question: "You have ₹5L bonus. Markets still down 35%. What do you do?",
+        options: [
+          {letter: "A", label: "Put it all in FD", desc: "Safe 7% return. Don't throw good money after bad."},
+          {letter: "B", label: "Invest ₹3L, save ₹2L", desc: "Balanced approach. Some opportunity, some safety."},
+          {letter: "C", label: "Invest entire ₹5L", desc: "Prices this low won't last. Maximum opportunity."},
+          {letter: "D", label: "Wait 6 months", desc: "Keep powder dry. Market might fall more."}
+        ],
+        type: "decision",
+        emotionImpact: {greed: 10, patience: -5}
+      },
+      {
+        phase: "📖 FINAL SCENARIO",
+        text: "Month 6: Recovery begins. Markets up 25% from bottom. Your portfolio recovering: Now ₹42 lakhs (still -16% from peak).\n\nMonth 12: Bull run. Markets hit new highs. Your portfolio: <strong>₹58 lakhs</strong> (+16% from original ₹50L).\n\nYour friend who sold? Still in FD, missed entire recovery. Your colleague who doubled down at bottom? Up 45%.",
+        type: "scenario",
+        branches: [
+          {
+            dependsOnStep: 4,
+            choices: [0, 3],
+            patch: {
+              text: "Month 6: Recovery begins, but your fear-based SIP decisions are now costing you real money. By cutting or pausing contributions near peak pessimism, you bought fewer units exactly when future returns were highest.\n\nMonth 12: Bull run. Markets hit new highs. Your portfolio recovered, but it is clearly behind the disciplined path. You survived the crash financially, but failed the process test behaviorally."
+            }
+          },
+          {
+            dependsOnStep: 6,
+            choices: [2],
+            patch: {
+              text: "Month 6: Recovery begins. The full ₹5L bonus deployment at deep pessimism now starts compounding aggressively.\n\nMonth 12: Bull run. Markets hit new highs. Your portfolio is materially ahead of the average recovery path because you added serious capital when fear was highest. This was emotionally expensive and financially elite."
+            }
+          }
+        ]
+      },
+      {
+        phase: "⚡ FINAL DECISION",
+        question: "Looking back, what was the key to handling this crisis?",
+        options: [
+          {letter: "A", label: "Ignoring emotions entirely", desc: "Feelings don't matter in investing."},
+          {letter: "B", label: "Following a pre-set plan", desc: "The plan existed for times like this."},
+          {letter: "C", label: "Being contrarian", desc: "Going against the crowd created wealth."},
+          {letter: "D", label: "Luck and timing", desc: "Honestly, it was mostly luck."}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 20}
+      }
+    ]
+  },
+  // Additional simulations would follow the same pattern...
+  // For brevity, I'll add abbreviated versions
+  bubbleTemptation: {
+    title: "Bubble Temptation",
+    subtitle: "Greed is a powerful drug",
+    initialValue: 5000000,
+    steps: [
+      {
+        phase: "📖 THE EUPHORIA",
+        text: "You invested ₹5,00,000 into 'FutureTech' a year ago. It was a speculative play.\n\nToday, the stock is up 400%. Your ₹5L is now ₹25 Lakhs.\nEvery day it hits a 5% upper circuit. Your Twitter feed is full of people saying 'FutureTech to ₹10,000!'. Analysts are raising targets constantly.\n\nYour portfolio looks amazing. You feel like a genius.",
+        type: "scenario"
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "Your highly speculative stock has 5x'd in a year. How are you processing this?",
+        options: [
+          {letter: "A", label: "Pure Greed", desc: "This is a multi-bagger. I'm holding until I can buy a house.", effects: {setFlags: ["bubble_greed"], routeLabels: ["Greed took control"], consequenceScore: 1, outcomeShift: -2}},
+          {letter: "B", label: "Invincibility", desc: "I clearly have a gift for picking stocks. I should quit my job.", effects: {setFlags: ["bubble_invincible"], routeLabels: ["Ego inflated"], consequenceScore: 2, outcomeShift: -4}},
+          {letter: "C", label: "Anxiety", desc: "It's gone up too fast. When does the music stop?", effects: {setFlags: ["bubble_anxious"], routeLabels: ["Fear under the euphoria"]}},
+          {letter: "D", label: "Rationality", desc: "The valuation is completely disconnected from reality now.", effects: {setFlags: ["bubble_rational"], routeLabels: ["Valuation discipline active"], consequenceScore: -1, outcomeShift: 2}}
+        ],
+        type: "emotion",
+        emotionImpact: {greed: 40, fear: -10}
+      },
+      {
+        phase: "❓ DECISION POINT 1",
+        question: "The stock opens with another 5% gap up. The P/E ratio is now 150. What is your move?",
+        options: [
+          {letter: "A", label: "Hold completely", desc: "Don't interrupt compounding. Let winners run.", effects: {setFlags: ["bubble_held"], routeLabels: ["Refused to de-risk"], consequenceScore: 1, outcomeShift: -3}},
+          {letter: "B", label: "Book initial capital", desc: "Sell ₹5L. Let the remaining ₹20L ride risk-free.", effects: {setFlags: ["bubble_de_risked"], routeLabels: ["Recovered principal"], consequenceScore: -1, outcomeShift: 5}},
+          {letter: "C", label: "Sell 100%", desc: "This is a bubble. Take the ₹25L and walk away.", effects: {setFlags: ["bubble_exited"], routeLabels: ["Exited the mania"], consequenceScore: -2, outcomeShift: 8, endingKey: "bubble_exit_clean"}},
+          {letter: "D", label: "Buy more", desc: "Momentum is too strong. Averaging up!", effects: {setFlags: ["bubble_doubled"], routeLabels: ["Averaged up into mania"], consequenceScore: 3, outcomeShift: -8}}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 15, greed: 20}
+      },
+      {
+        phase: "⚡ THE CRACK",
+        text: "Two weeks later. You wake up to news that the CEO of FutureTech is under investigation for accounting fraud.\n\nThe stock opens at a 10% lower circuit. You cannot sell. \nDay 2: Another 10% lower circuit.\nDay 3: Another 10% lower circuit.\n\nYour ₹25 Lakhs is now back down to ₹18 Lakhs. The panic on Twitter is deafening.",
+        type: "scenario",
+        branches: [
+          {
+            flagsAll: ["bubble_exited"],
+            patch: {
+              text: "Two weeks later the fraud headlines hit, but you are already out. You watch the lower circuits from cash.\n\nThe harder part is emotional, not financial: the crowd still insists this is 'temporary' and your old greedy self wants back in. But your capital is intact, and that changes everything."
+            }
+          },
+          {
+            flagsAll: ["bubble_doubled"],
+            patch: {
+              text: "Two weeks later. The fraud story breaks after you averaged up into the mania. The stock locks in repeated lower circuits.\n\nBecause you added near the top, the drawdown is now grotesque. Your mark-to-market damage is not just lost profit anymore. It is real principal destruction fueled by ego."
+            }
+          },
+          {
+            flagsAll: ["bubble_de_risked"],
+            patch: {
+              text: "Two weeks later the fraud story detonates. The stock locks lower for days, but you already removed your initial capital.\n\nYour remaining position hurts, yet the damage is contained. The earlier de-risking decision now buys you clarity instead of panic."
+            }
+          }
+        ]
+      },
+      {
+        phase: "❓ DECISION POINT 2",
+        question: "Day 4: The stock finally opens for trading, down another 15% today. It's at ₹15 Lakhs. Do you sell?",
+        options: [
+          {letter: "A", label: "Market Sell everything", desc: "Get out at any price before it goes to zero.", effects: {setFlags: ["bubble_panic_sell"], routeLabels: ["Accepted the broken thesis"], outcomeShift: 2}},
+          {letter: "B", label: "Hold and Pray", desc: "It's just panic. It will bounce back soon.", effects: {setFlags: ["bubble_pray"], routeLabels: ["Hope replaced process"], consequenceScore: 2, outcomeShift: -5, endingKey: "bubble_frozen"}},
+          {letter: "C", label: "Buy the dip", desc: "The investigation will turn up nothing. Big opportunity.", effects: {setFlags: ["bubble_double_dip"], routeLabels: ["Doubled into fraud"], consequenceScore: 3, outcomeShift: -9, endingKey: "bubble_disaster"}},
+          {letter: "D", label: "Sell 50%", desc: "Salvage some profit, hope the rest recovers.", effects: {setFlags: ["bubble_salvage"], routeLabels: ["Partial salvage"], outcomeShift: 1}}
+        ],
+        type: "decision",
+        emotionImpact: {fear: 40, greed: -20}
+      },
+      {
+        phase: "📉 FINAL OUTCOME",
+        text: "The fraud is confirmed. The company goes bankrupt.\n\nIf you sold early (Decision 1): You walked away with life-changing money.\nIf you held: You watched ₹25 Lakhs turn into ₹0. The pain of watching it evaporate day by day destroys your confidence for years.\n\nGreed blinded you to the massive valuation risk.",
+        type: "scenario",
+        branches: [
+          {
+            flagsAll: ["bubble_exited"],
+            patch: {
+              text: "The fraud is confirmed. The company goes bankrupt.\n\nBecause you exited during euphoria, the route ends with elite risk management. You protected a life-changing gain before the narrative collapsed.\n\nThis ending was not about predicting fraud. It was about respecting valuation and refusing to let greed write the final chapter."
+            }
+          },
+          {
+            flagsAll: ["bubble_de_risked", "bubble_salvage"],
+            patch: {
+              text: "The fraud is confirmed. The company goes bankrupt.\n\nYou did not nail the top, but you repeatedly reduced exposure before total destruction. The ending is scar tissue, not catastrophe: meaningful profit survived because you de-risked twice.\n\nPartial discipline beats perfect hindsight."
+            }
+          },
+          {
+            flagsAny: ["bubble_pray", "bubble_double_dip", "bubble_doubled"],
+            patch: {
+              text: "The fraud is confirmed. The company goes bankrupt.\n\nThis route became a greed spiral. First you let valuation insanity feel normal, then you negotiated with obvious danger, and finally you asked a broken story to heal your ego.\n\nThe ending is not just financial damage. It is a confidence crater created by refusing to de-risk when the market was still paying you."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  valueDiscover: {
+    title: "Value Trap / Falling Knife",
+    subtitle: "Averaging Down to Zero",
+    initialValue: 5000000,
+    steps: [
+      {
+        phase: "📖 THE 'BARGAIN'",
+        text: "A well-known blue-chip stock, 'GlobalBank', crashes 30% after a bad earnings report. \n\nYou've always wanted to own this stock. It's now trading at a multi-year low. Analysts say it's an 'overreaction'. \n\nYou invest ₹5,00,000. 'Buy when there is blood in the streets,' you tell yourself.",
+        type: "scenario"
+      },
+      {
+        phase: "📉 THE DROP",
+        text: "One month later. GlobalBank drops another 20%. \nRumors are circulating about hidden bad loans. \n\nYour ₹5L investment is now worth ₹4L. \nHowever, the stock is now trading below its book value. 'It's incredibly cheap,' you think.",
+        type: "scenario"
+      },
+      {
+        phase: "❓ DECISION POINT 1",
+        question: "Your investment is down 20%. The stock keeps making lower lows. What do you do?",
+        options: [
+          {letter: "A", label: "Average Down", desc: "Buy another ₹5L. Lower the average cost.", effects: {setFlags: ["value_average"], routeLabels: ["Averaged into weakness"], consequenceScore: 2, outcomeShift: -6}},
+          {letter: "B", label: "Hold", desc: "Give it time. Value investing requires patience.", effects: {setFlags: ["value_hold"], routeLabels: ["Stayed exposed"], consequenceScore: 1, outcomeShift: -2}},
+          {letter: "C", label: "Exit (Cut Loss)", desc: "The thesis might be wrong. Cut the 20% loss.", effects: {setFlags: ["value_exit"], routeLabels: ["Protected against thesis drift"], consequenceScore: -2, outcomeShift: 6, endingKey: "value_exit_clean"}},
+          {letter: "D", label: "Sell everything else, go all in", desc: "This is the opportunity of a decade.", effects: {setFlags: ["value_all_in"], routeLabels: ["Concentrated into a falling knife"], consequenceScore: 4, outcomeShift: -12, endingKey: "value_trap_max"}}
+        ],
+        type: "decision",
+        emotionImpact: {greed: 15, patience: 10}
+      },
+      {
+        phase: "⚡ THE NIGHTMARE",
+        text: "Three months later. \nThe RBI steps in. GlobalBank has massively understated its bad loans. The bank is put under prompt corrective action.\n\nThe stock crashes 50% in a single day. \n\nIf you averaged down, you are now holding a massive position that has lost 70% of its value.",
+        type: "scenario",
+        branches: [
+          {
+            flagsAll: ["value_exit"],
+            patch: {
+              text: "Three months later the RBI steps in and exposes hidden loan rot. The stock crashes 50% in a single day.\n\nBecause you respected thesis risk early, you are a spectator, not a victim. The loss hurt when you took it, but the avoided disaster is now obvious."
+            }
+          },
+          {
+            flagsAny: ["value_average", "value_all_in"],
+            patch: {
+              text: "Three months later the RBI steps in. Hidden loan rot is real. The stock gaps into oblivion.\n\nBecause you added aggressively into weakness, this is no longer a paper drawdown. Your cost basis, confidence, and position size are now all working against you at once."
+            }
+          }
+        ]
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "Your 'value pick' is becoming a penny stock. The fundamentals you trusted were fake. How do you feel?",
+        options: [
+          {letter: "A", label: "Sunk Cost Fallacy", desc: "I've lost too much to sell now. I have to hold forever.", effects: {setFlags: ["value_frozen"], routeLabels: ["Trapped by sunk cost"], consequenceScore: 2, outcomeShift: -4}},
+          {letter: "B", label: "Betrayal", desc: "The management lied to me. The system is rigged.", effects: {setFlags: ["value_external_blame"], routeLabels: ["Blame replaced process"]}},
+          {letter: "C", label: "Despair", desc: "I am a terrible investor. I should stick to index funds.", effects: {setFlags: ["value_identity_hit"], routeLabels: ["Confidence collapse"]}},
+          {letter: "D", label: "Acceptance", desc: "I caught a falling knife. I need to accept the mistake.", effects: {setFlags: ["value_acceptance"], routeLabels: ["Accepted thesis failure"], outcomeShift: 2}}
+        ],
+        type: "emotion",
+        emotionImpact: {fear: 30, discipline: 10}
+      },
+      {
+        phase: "📉 FINAL OUTCOME",
+        text: "The bank is eventually bought out by a larger rival at a fraction of its previous value. Equity shareholders are wiped out.\n\nIf you cut your losses early: You lost a bit, but protected your core portfolio.\nIf you averaged down: You suffered catastrophic wealth destruction.\n\nA stock is never 'too cheap to fall further'.",
+        type: "scenario",
+        branches: [
+          {
+            flagsAll: ["value_exit"],
+            patch: {
+              text: "The bank is eventually bought out at a fraction of its previous value. Equity holders are wiped out.\n\nThis route ends with a small wound instead of portfolio trauma because you allowed the thesis to die before your identity got tied to it.\n\nCutting early looked foolish for a few weeks. In hindsight it was institutional-grade risk control."
+            }
+          },
+          {
+            flagsAny: ["value_average", "value_all_in", "value_frozen"],
+            patch: {
+              text: "The bank is eventually bought out at a fraction of its previous value. Equity holders are wiped out.\n\nThis route became a classic value trap because one bad thesis was allowed to recruit more and more capital after the evidence worsened.\n\nThe final loss came from persistence without proof, not from bad luck alone."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  economicShock: {
+    title: "Economic Shock Response",
+    subtitle: "When the Unthinkable Happens",
+    initialValue: 5000000,
+    steps: [
+      {
+        phase: "📖 SCENARIO",
+        text: "It is 10:00 AM on a regular Tuesday. The market is trading normally. Suddenly, news breaks out: A massive geo-political conflict has started unexpectedly. \n\nWithin 5 minutes, Nifty crashes 6%. Your portfolio, which was at ₹50 Lakhs, instantly drops to ₹47 Lakhs.\n\nYour broker app is glitching due to high traffic. WhatsApp groups are purely panic: 'Liquidate everything!', 'World War 3!', 'Cash is king!'",
+        type: "scenario"
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "Your life savings just dropped ₹3 Lakhs in 5 minutes. The world feels unstable. How do you feel?",
+        options: [
+          {letter: "A", label: "Pure Panic", desc: "I need to get my money out NOW before the market closes.", effects: {setFlags: ["shock_panic"], routeLabels: ["Panic seized the wheel"], consequenceScore: 2, outcomeShift: -5}},
+          {letter: "B", label: "Paralysis", desc: "I am frozen. I can't process this right now.", effects: {setFlags: ["shock_frozen"], routeLabels: ["Decision paralysis"]}},
+          {letter: "C", label: "Analytical", desc: "Let me check the actual impact of the news on my specific companies.", effects: {setFlags: ["shock_analytic"], routeLabels: ["Business-level analysis"], consequenceScore: -1, outcomeShift: 3}},
+          {letter: "D", label: "Opportunistic", desc: "Great, everything is on sale. Let me buy the dip.", effects: {setFlags: ["shock_aggressive"], routeLabels: ["Aggressive dip-buy bias"], outcomeShift: 1}}
+        ],
+        type: "emotion",
+        emotionImpact: {fear: 40, discipline: -10}
+      },
+      {
+        phase: "❓ DECISION POINT 1",
+        question: "The market hits a lower circuit (Trading halted for 45 mins). It will reopen soon. What is your plan?",
+        options: [
+          {letter: "A", label: "Place Market Sell Orders", desc: "As soon as it opens, I want out. Preserve capital.", effects: {setFlags: ["shock_liquidate"], routeLabels: ["Prepared to dump quality"], consequenceScore: 2, outcomeShift: -7, endingKey: "shock_sold_bottom"}},
+          {letter: "B", label: "Wait and Watch", desc: "Do nothing for the next 48 hours. Let the dust settle.", effects: {setFlags: ["shock_hold"], routeLabels: ["Chose patience"], consequenceScore: -1, outcomeShift: 4}},
+          {letter: "C", label: "Deploy Emergency Cash", desc: "Place buy orders 10% lower. Catch the falling knife.", effects: {setFlags: ["shock_cash_deployed"], routeLabels: ["Prepared opportunistic bids"], consequenceScore: -1, outcomeShift: 6}},
+          {letter: "D", label: "Sell Winners, Keep Losers", desc: "Take profit on whatever is still green to feel safe.", effects: {setFlags: ["shock_rotate_badly"], routeLabels: ["Rotated into weakness"], consequenceScore: 2, outcomeShift: -4}}
+        ],
+        type: "decision",
+        emotionImpact: {fear: 20, patience: 15}
+      },
+      {
+        phase: "📖 SCENARIO CONTINUES",
+        text: "The market reopens and drops another 4%. You are now down ₹5 Lakhs (10%). \n\nThe news on TV is terrifying. Experts say 'The global supply chain will collapse.' \n\nHowever, you hold fundamentally strong, debt-free domestic businesses that don't rely heavily on global supply chains.",
+        type: "scenario",
+        branches: [
+          {
+            flagsAll: ["shock_liquidate"],
+            patch: {
+              text: "The market reopens and gaps lower into your market-sell plan. You exit quality businesses into chaos and lock in a fast ₹5L drawdown.\n\nTen minutes later, you start noticing that most of your holdings are domestic, debt-free, and far less exposed than the headlines implied. Now the emotional problem shifts from fear to regret."
+            }
+          },
+          {
+            flagsAll: ["shock_cash_deployed"],
+            patch: {
+              text: "The market reopens and tags your staggered emergency bids. You are now more exposed while the screen still looks horrific.\n\nObjectively the businesses remain strong. Subjectively it feels insane to be buying while everyone else is screaming."
+            }
+          }
+        ]
+      },
+      {
+        phase: "❓ DECISION POINT 2",
+        question: "Your fundamentally strong companies are down 15% purely due to index panic. What now?",
+        options: [
+          {letter: "A", label: "Sell them anyway", desc: "In a crash, everything goes to zero. Fundamentals don't matter now.", effects: {setFlags: ["shock_capitulate"], routeLabels: ["Capitulated into narrative"], consequenceScore: 2, outcomeShift: -6}},
+          {letter: "B", label: "Hold them tight", desc: "They are domestic businesses. They will survive and recover.", effects: {setFlags: ["shock_business_hold"], routeLabels: ["Held through thesis"], consequenceScore: -1, outcomeShift: 4}},
+          {letter: "C", label: "Average down heavily", desc: "Use up all my remaining cash to buy more of these gems.", effects: {setFlags: ["shock_press_advantage"], routeLabels: ["Pressed edge into panic"], consequenceScore: -1, outcomeShift: 7, endingKey: "shock_alpha"}},
+          {letter: "D", label: "Switch to Gold", desc: "Sell the stocks and buy safe-haven assets.", effects: {setFlags: ["shock_flight_to_safety"], routeLabels: ["Ran to safety"], consequenceScore: 1, outcomeShift: -3}}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 25, fear: -10}
+      },
+      {
+        phase: "⚡ FINAL OUTCOME",
+        text: "Fast forward 6 months. \n\nThe initial conflict stabilized. It wasn't the end of the world. \nThe market recovered all its losses. Your domestic businesses gained massive market share and are up 30% from the bottom.\n\nIf you panicked and sold: You locked in a ₹5L+ loss and watched from the sidelines as the market rallied.\nIf you held: Your portfolio is now ₹55 Lakhs.\nIf you bought the dip: Your portfolio is ₹60 Lakhs.",
+        type: "scenario",
+        branches: [
+          {
+            flagsAny: ["shock_liquidate", "shock_capitulate"],
+            patch: {
+              text: "Six months later the crisis has stabilized. It was not the end of the world.\n\nThis route ends with a painful lesson in narrative-driven selling: you liquidated businesses that were fundamentally intact, then watched the recovery happen without you.\n\nThe loss was not the crash. The loss was abandoning your framework."
+            }
+          },
+          {
+            flagsAll: ["shock_hold", "shock_business_hold"],
+            patch: {
+              text: "Six months later the crisis has stabilized. Your domestic businesses have recovered strongly and the portfolio is above its pre-shock level.\n\nThis route did not look heroic in real time. It looked boring and emotionally difficult. That is exactly why it worked."
+            }
+          },
+          {
+            flagsAny: ["shock_cash_deployed", "shock_press_advantage"],
+            patch: {
+              text: "Six months later the crisis has stabilized. The capital you deployed into high-quality businesses during peak fear is now compounding aggressively.\n\nThis route earns the strongest ending because you combined business analysis with controlled aggression instead of panicked activity."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  sipDiscipline: {
+    title: "SIP Discipline Test",
+    subtitle: "The Boredom of Bear Markets",
+    initialValue: 1000000,
+    steps: [
+      {
+        phase: "📖 THE SCENARIO",
+        text: "You started an SIP of ₹50,000 per month into an index fund 2 years ago. \n\nFor the first 6 months, the market was up. But for the last 18 months, the market has been completely flat, chopping up and down.\n\nYou have invested ₹12,00,000 so far. Your portfolio value is ₹11,90,000. \nAfter 2 years of strict saving, you have made ZERO returns.",
+        type: "scenario"
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "24 months of discipline and you have zero profit. Your friends are making money in real estate. How do you feel?",
+        options: [
+          {letter: "A", label: "Doubt", desc: "Maybe equity investing is a scam. It's not working for me."},
+          {letter: "B", label: "Boredom", desc: "This is painfully slow. I want action."},
+          {letter: "C", label: "Conviction", desc: "This is the accumulation phase. I am buying more units at cheap prices."},
+          {letter: "D", label: "Frustration", desc: "I could have just put this in a Fixed Deposit and made 7% guaranteed."}
+        ],
+        type: "emotion",
+        emotionImpact: {patience: -20, discipline: 10}
+      },
+      {
+        phase: "❓ DECISION POINT",
+        question: "The market drops another 5% this month. Your portfolio is now solidly in the red. What do you do with your SIP?",
+        options: [
+          {letter: "A", label: "Stop the SIP", desc: "I'll pause it and wait for the market to start going up again."},
+          {letter: "B", label: "Withdraw Everything", desc: "Get out now before it drops further. Move to FD."},
+          {letter: "C", label: "Continue SIP unchanged", desc: "Stay the course. Don't look at the portfolio."},
+          {letter: "D", label: "Double the SIP amount", desc: "The market is down 5%! I'm buying more units on sale."}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 30, fear: -10}
+      },
+      {
+        phase: "⚡ THE OUTCOME",
+        text: "Year 3: The consolidation ends. The index breaks out and rallies 40% in a massive bull run.\n\nIf you stopped or withdrew: You locked in losses or missed the entire rally, rendering your 2 years of saving useless.\nIf you continued or doubled down: Your accumulated units exploded in value. Your ₹12 Lakhs is now worth ₹18 Lakhs.\n\nThe real money is made during the boring, flat markets.",
+        type: "scenario"
+      }
+    ]
+  },
+  dividendCut: {
+    title: "Dividend Cut Crisis",
+    subtitle: "When the 'Safe' Bet Fails",
+    initialValue: 5000000,
+    steps: [
+      {
+        phase: "📖 THE SCENARIO",
+        text: "You are heavily invested in 'PowerGen', a utility stock that pays a reliable 6% dividend yield. It forms 25% of your portfolio.\n\nYou rely on this dividend to pay for annual expenses. The stock is considered incredibly safe, practically a bond proxy.",
+        type: "scenario"
+      },
+      {
+        phase: "⚡ THE SHOCK",
+        text: "Morning News: PowerGen has announced a surprise 75% CUT to its dividend due to massive debt restructuring.\n\nWithin seconds of the market opening, the stock crashes 35%. \nYour portfolio instantly drops by ₹4.3 Lakhs.",
+        type: "scenario"
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "Your 'safe' income stream is gone, and the capital has crashed. What's your immediate reaction?",
+        options: [
+          {letter: "A", label: "Betrayed", desc: "They lied to investors. I hate this company."},
+          {letter: "B", label: "Panic", desc: "My income is gone! I need to sell everything else to compensate."},
+          {letter: "C", label: "Denial", desc: "They will surely reinstate the dividend next quarter."},
+          {letter: "D", label: "Analytical", desc: "The investment thesis is broken. I need to re-evaluate without emotion."}
+        ],
+        type: "emotion",
+        emotionImpact: {fear: 40, patience: -10}
+      },
+      {
+        phase: "❓ DECISION POINT",
+        question: "The stock is down 35%. The thesis (dividend yield) is broken. What do you do?",
+        options: [
+          {letter: "A", label: "Market Sell everything", desc: "The thesis is dead. Cut the loss immediately and move on."},
+          {letter: "B", label: "Hold and Wait", desc: "It's down 35%. If I sell now, I lock in the loss. Wait for a bounce."},
+          {letter: "C", label: "Average down", desc: "The stock is dirt cheap now! Load up!"},
+          {letter: "D", label: "Write angry emails", desc: "Complain to the investor relations department."}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 20}
+      },
+      {
+        phase: "📉 CONSEQUENCE",
+        text: "The company's debt issues worsen. The stock drifts lower for the next 3 years.\n\nIf you sold immediately: You took a painful 35% hit on that position, but freed up capital to invest in better opportunities that recovered your portfolio.\nIf you held or averaged down: Your capital remained trapped in a dead asset for years with no income.\n\nLesson: When the core thesis breaks, you must exit, regardless of the price.",
+        type: "scenario"
+      }
+    ]
+  },
+  rebalanceDecision: {
+    title: "Rebalancing Dilemma",
+    subtitle: "Let Winners Run vs Risk Management",
+    initialValue: 5000000,
+    steps: [
+      {
+        phase: "🎯 THE SCENARIO",
+        text: "Five years ago, you bought a small-cap IT stock. It was 5% of your portfolio.\n\nToday, that stock has gone up 15x. Because it grew so much while the rest of your portfolio grew normally, this single stock now makes up <strong>45%</strong> of your entire net worth.\n\nIt keeps going up every month. Analysts love it.",
+        type: "scenario"
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "One stock is carrying your entire portfolio. How do you feel about this concentration?",
+        options: [
+          {letter: "A", label: "Genius", desc: "I found the next Apple. I'm never selling."},
+          {letter: "B", label: "Terrified", desc: "If this one stock crashes, my retirement is ruined."},
+          {letter: "C", label: "Greed", desc: "Let winners run! Selling now would be cutting the flowers to water the weeds."},
+          {letter: "D", label: "Conflicted", desc: "I know I should rebalance, but I don't want to pay taxes or miss out on more gains."}
+        ],
+        type: "emotion",
+        emotionImpact: {greed: 25, fear: 15}
+      },
+      {
+        phase: "❓ DECISION POINT",
+        question: "The stock hits an all-time high. It is clearly overvalued but has massive momentum. Do you rebalance?",
+        options: [
+          {letter: "A", label: "Do Nothing", desc: "Let winners run. Period. Concentration builds wealth."},
+          {letter: "B", label: "Rebalance to 10%", desc: "Sell massive chunks and buy safe index funds. Risk management first."},
+          {letter: "C", label: "Trim slightly to 35%", desc: "Take a little profit off the table but keep the heavy exposure."},
+          {letter: "D", label: "Buy MORE", desc: "It's a winner, why would I buy losers? Add to the winner!"}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 20}
+      },
+      {
+        phase: "📉 CONSEQUENCE",
+        text: "Six months later, a global tech slowdown occurs. The stock drops 50% from its peak.\n\nIf you did nothing: Your overall net worth dropped by a catastrophic 22% just from one stock's correction.\nIf you rebalanced: You locked in life-changing gains and protected your wealth. The 50% drop barely affected your total portfolio.\n\nConcentration builds wealth. Diversification preserves it.",
+        type: "scenario"
+      }
+    ]
+  }
+,
+  stopLossTest: {
+    title: "Stop Loss Discipline Test",
+    subtitle: "Your biggest enemy: yourself",
+    initialCapital: 100000,
+    steps: [
+      {
+        phase: "🎯 TRADE SETUP",
+        text: "9:25 AM. You've done your homework. TechStock has a perfect setup:\n\n• Clean breakout above ₹482\n• Volume confirming\n• Risk:Reward = 1:3\n• <strong>Entry: ₹485</strong>\n• <strong>Stop Loss: ₹472 (2.7% risk)</strong>\n• <strong>Target: ₹512 (5.6% reward)</strong>\n• <strong>Position Size: 200 shares</strong>\n\nYou enter at ₹485.50. Initial capital: ₹97,100. Position value: ₹97,100. Clean execution. You feel confident. This is a textbook trade.",
+        type: "setup",
+        chartData: {entry: 485, stop: 472, target: 512, current: 485}
+      },
+      {
+        phase: "⚡ TRADE EXECUTION",
+        text: "9:45 AM: Stock moves to ₹488. <em>+0.5% profit.</em> Nice! Your analysis was right.\n\n10:15 AM: Consolidating at ₹486. Healthy pullback.\n\n10:35 AM: Dropping. ₹483... ₹481... ₹478. <strong>Your stop loss of ₹472 is getting closer.</strong>\n\n10:50 AM: <strong>₹473</strong>. One rupee above your stop loss. Your P&L: <em>-₹2,500 (-2.6%)</em>. Heart racing. This wasn't supposed to happen. You check news: 'Temporary sector weakness. Fundamentals unchanged.'",
+        type: "scenario",
+        chartData: {current: 473}
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "Stock at ₹473. One rupee from stop loss. What are you feeling?",
+        options: [
+          {letter: "A", label: "Panic and regret", desc: "Why did I take this trade? I should exit NOW."},
+          {letter: "B", label: "Defensive rationalization", desc: "News says it's temporary. My analysis is still valid. Give it room."},
+          {letter: "C", label: "Calm acceptance", desc: "Setup failed. Stop loss exists for this exact situation."},
+          {letter: "D", label: "Anger at market", desc: "This is manipulation! Stop loss hunting! They want my shares!"}
+        ],
+        type: "emotion",
+        emotionImpact: {fear: 15, discipline: -10}
+      },
+      {
+        phase: "❓ CRITICAL DECISION 1",
+        question: "Stock hits ₹472. Your exact stop loss. What do you do?",
+        timer: 30,
+        options: [
+          {letter: "A", label: "Exit immediately as planned", desc: "Rule is rule. Stop loss means EXIT. No questions."},
+          {letter: "B", label: "Move stop to ₹468", desc: "Give it ₹4 more room. News says temporary. Just a bit more."},
+          {letter: "C", label: "Remove stop loss entirely", desc: "This is clearly manipulation. I'll wait for recovery."},
+          {letter: "D", label: "Average down - buy 100 more", desc: "Lower my average. This is opportunity, not risk."}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 20, revenge: 10}
+      },
+      {
+        phase: "📉 CONSEQUENCE",
+        text: "11:10 AM: Stock drops to ₹467. If you moved your stop loss or held, you're now down <strong>₹3,700 (-3.8%)</strong>. The 'temporary dip' continues.\n\n11:30 AM: ₹461. Down <strong>₹4,900 (-5.1%)</strong>. Your original risk was ₹2,600. You're now risking almost double.\n\n12:00 PM: News breaks: 'Major client cancellation rumors.' Stock at ₹455. Down <strong>₹6,100 (-6.3%)</strong>.\n\nIf you exited at ₹472? You lost ₹2,600 as planned. If you held or averaged? The pain intensifies.",
+        type: "scenario",
+        chartData: {current: 455},
+        branches: [
+          {
+            dependsOnStep: 3,
+            choices: [0],
+            patch: {
+              text: "11:10 AM: You executed the stop exactly at ₹472. The stock keeps falling without you.\n\n11:30 AM: ₹461. 12:00 PM: ₹455 after cancellation-rumor headlines. Your loss stayed near the planned ₹2,600 while traders who negotiated with their stop are now in serious damage.\n\nThis is the psychological sting of good execution: you are safe, flat, and now tempted to prove you were smarter than the stop."
+            }
+          }
+        ]
+      },
+      {
+        phase: "❓ CRITICAL DECISION 2",
+        question: "Stock now at ₹455. Your position is bleeding. What now?",
+        timer: 45,
+        options: [
+          {letter: "A", label: "Exit everything NOW", desc: "Stop the bleeding. Damage control. Get out."},
+          {letter: "B", label: "Hold and pray", desc: "Already down too much. Selling now = locking losses. Wait for bounce."},
+          {letter: "C", label: "Double down again", desc: "This IS the bottom. One big average will save everything."},
+          {letter: "D", label: "Partial exit - sell 100 shares", desc: "Reduce risk but keep some exposure for recovery."}
+        ],
+        type: "decision",
+        emotionImpact: {fear: 25, revenge: 15},
+        branches: [
+          {
+            dependsOnStep: 3,
+            choices: [0],
+            patch: {
+              question: "You are out of the trade and the stock is now at ₹455. What do you do next?",
+              options: [
+                {letter: "A", label: "Do nothing. Trade is finished.", desc: "The stop executed. I move on."},
+                {letter: "B", label: "Re-enter long for the bounce", desc: "It is oversold now. Easy reclaim trade."},
+                {letter: "C", label: "Short it aggressively", desc: "Now I can make the stop-loss back fast."},
+                {letter: "D", label: "Watch every tick and second-guess myself", desc: "I need to know whether the exit was stupid."}
+              ]
+            }
+          }
+        ]
+      },
+      {
+        phase: "📊 AFTERMATH",
+        text: "1:00 PM: Stock recovers slightly to ₹462. False hope?\n\n2:00 PM: Drops again to ₹448. <strong>-7.7% from entry.</strong>\n\n3:00 PM: Closes at ₹453. <strong>-6.7% from entry.</strong>\n\nNext day: Opens at ₹445. Rumors confirmed. Stock in free fall. Hits ₹425 by afternoon.\n\n<strong>If you followed your stop loss at ₹472:</strong> Lost ₹2,600. Moved on. Traded again.\n\n<strong>If you held or averaged:</strong> Now down ₹12,000+. Capital destroyed. Confidence shattered. Revenge trading urges high.",
+        type: "scenario",
+        branches: [
+          {
+            dependsOnStep: 3,
+            choices: [0],
+            patch: {
+              text: "1:00 PM: The stock bounces slightly to ₹462. 2:00 PM: It breaks lower again to ₹448. 3:00 PM: Closes at ₹453.\n\nNext day: Opens at ₹445. Rumors confirmed. Hits ₹425 by afternoon.\n\nIf you stayed out after your stop, you took a clean professional loss and protected both capital and mental energy.\n\nIf you re-entered, revenge-shortened, or obsessed over every tick, then the stop-loss was only mechanically correct, not psychologically complete."
+            }
+          }
+        ]
+      },
+      {
+        phase: "⚡ REFLECTION",
+        question: "Looking back, what was the real enemy in this trade?",
+        options: [
+          {letter: "A", label: "Bad luck", desc: "Setup was good. Market was unpredictable. Just unlucky."},
+          {letter: "B", label: "Ego and hope", desc: "Couldn't accept being wrong. Hope paralyzed execution."},
+          {letter: "C", label: "Lack of discipline", desc: "Had a plan but didn't follow it. Self-sabotage."},
+          {letter: "D", label: "The market makers", desc: "They hunt stop losses. This was manipulation."}
+        ],
+        type: "decision"
+      }
+    ]
+  },
+  revengeTrade: {
+    title: "Revenge Trading Trap",
+    subtitle: "Ego vs Capital Preservation",
+    initialCapital: 100000,
+    steps: [
+      {
+        phase: "📖 MORNING SESSION",
+        text: "It's 11:30 AM. You started the day with ₹100,000. \n\nTrade 1: Stopped out (-₹2,000).\nTrade 2: Fakeout, stopped out (-₹3,500).\nTrade 3: Slipped on entry, panicked, sold at market (-₹4,500).\n\nYou are now down <strong>₹10,000 (-10%)</strong>. You feel a burning sensation in your chest. The market feels like it's specifically targeting you. You just need ONE good trade to make it back and 'break even' for the day.",
+        type: "scenario"
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "Down ₹10,000. 3 straight losses. What is your dominant feeling right now?",
+        options: [
+          {letter: "A", label: "Anger & Betrayal", desc: "The market is rigged today. Stop hunting is real."},
+          {letter: "B", label: "Desperation", desc: "I can't end the day red. I must recover this."},
+          {letter: "C", label: "Numbness", desc: "I don't even care anymore, let's just gamble."},
+          {letter: "D", label: "Acceptance", desc: "It's a bad day. My edge isn't working today."}
+        ],
+        type: "emotion",
+        emotionImpact: {revenge: 25, discipline: -15, fear: 10}
+      },
+      {
+        phase: "⚡ THE SETUP",
+        text: "11:45 AM: You spot BankNifty consolidating. It's not your usual A+ setup, it's more of a B- setup. It looks 'okay'. \n\nBut if you buy 500 quantities (heavy size) and it moves just 20 points, you make your ₹10,000 back immediately. \n\nYour hand hovers over the BUY button. Your heart rate is elevated.",
+        type: "setup",
+        chartData: {entry: 42500, stop: 42450, target: 42600, current: 42500}
+      },
+      {
+        phase: "❓ CRITICAL DECISION 1",
+        question: "Mediocre setup. High volume needed to recover losses. Do you take it?",
+        timer: 15,
+        options: [
+          {letter: "A", label: "MAX QUANTITY. BUY.", desc: "Go big or go home. I need my money back.", effects: {setFlags: ["revenge_max"], routeLabels: ["Ego sized up"], consequenceScore: 3, outcomeShift: -10, priceShift: {current: -15}, endingKey: "revenge_blowup"}},
+          {letter: "B", label: "Standard quantity. BUY.", desc: "Take the trade, but follow normal risk. Recovery will take time.", effects: {setFlags: ["revenge_trade_taken"], routeLabels: ["Still forced a trade"], consequenceScore: 1, outcomeShift: -4}},
+          {letter: "C", label: "Close the laptop.", desc: "Walk away. The day is done. Protect the remaining capital.", effects: {setFlags: ["revenge_walkaway"], routeLabels: ["Walked away"], consequenceScore: -2, outcomeShift: 8, endingKey: "revenge_saved"}},
+          {letter: "D", label: "Wait for a better setup.", desc: "Keep watching the screen but don't take this one.", effects: {setFlags: ["revenge_linger"], routeLabels: ["Stayed emotionally plugged in"], outcomeShift: -2}}
+        ],
+        type: "decision",
+        emotionImpact: {revenge: 20, greed: 15}
+      },
+      {
+        phase: "📉 CONSEQUENCE",
+        text: "If you walked away: You saved your account from further damage. You live to trade tomorrow.\n\nIf you traded: You bought. Immediately, BankNifty drops 30 points. You are now down another ₹15,000. Total daily loss: <strong>-₹25,000 (-25%)</strong>. \n\nYou are frozen. You haven't placed a stop loss because 'it will bounce'.",
+        type: "scenario",
+        chartData: {current: 42470},
+        branches: [
+          {
+            flagsAll: ["revenge_walkaway"],
+            patch: {
+              text: "You close the laptop and physically leave the screen. Fifteen minutes later BankNifty flushes hard without you.\n\nFor the first time all day, not trading becomes the winning decision. The market keeps moving, but your account stops bleeding and your nervous system begins to reset."
+            }
+          },
+          {
+            flagsAll: ["revenge_max"],
+            patch: {
+              text: "You hit max size and the market immediately punishes the desperation. BankNifty drops 30 points almost at once.\n\nBecause you oversized the trade to recover emotionally, the loss is now structurally harder to accept. This is where traders convert a bad morning into an account event."
+            }
+          }
+        ]
+      },
+      {
+        phase: "❓ CRITICAL DECISION 2",
+        question: "Down ₹25,000 now. BankNifty is still dropping. No stop loss placed.",
+        timer: 10,
+        options: [
+          {letter: "A", label: "MARKET SELL. GET OUT.", desc: "Accept the massive loss. Stop the bleeding.", effects: {setFlags: ["revenge_cut"], routeLabels: ["Finally stopped the bleeding"], outcomeShift: 2}},
+          {letter: "B", label: "Average down.", desc: "Buy more at the bottom. The bounce will be huge.", effects: {setFlags: ["revenge_average"], routeLabels: ["Doubled into anger"], consequenceScore: 3, outcomeShift: -8}},
+          {letter: "C", label: "Hold and pray.", desc: "Just close my eyes. It has to come back.", effects: {setFlags: ["revenge_pray"], routeLabels: ["Hope replaced exits"], consequenceScore: 2, outcomeShift: -6}},
+          {letter: "D", label: "Switch to options buying.", desc: "Buy deep OTM calls for a lottery ticket recovery.", effects: {setFlags: ["revenge_lottery"], routeLabels: ["Turned trading into gambling"], consequenceScore: 4, outcomeShift: -10, endingKey: "revenge_gamble"}}
+        ],
+        type: "decision",
+        emotionImpact: {fear: 30, revenge: 10},
+        branches: [
+          {
+            flagsAll: ["revenge_walkaway"],
+            patch: {
+              question: "You walked away, but now a friend messages: 'Massive bounce coming, you can still make it back.' What do you do?",
+              options: [
+                {letter: "A", label: "Ignore it. Day is over.", desc: "Protect the walk-away decision.", effects: {setFlags: ["revenge_stayed_out"], routeLabels: ["Protected the walk-away"], outcomeShift: 4}},
+                {letter: "B", label: "Re-open the platform and buy.", desc: "This is the comeback trade.", effects: {setFlags: ["revenge_reopened"], routeLabels: ["Re-opened the wound"], consequenceScore: 2, outcomeShift: -6}},
+                {letter: "C", label: "Check charts for 'just one minute'.", desc: "I only want information.", effects: {setFlags: ["revenge_reengaged"], routeLabels: ["Stayed mentally hooked"], outcomeShift: -3}},
+                {letter: "D", label: "Journal the loss and step out.", desc: "Turn the urge into process.", effects: {setFlags: ["revenge_journaled"], routeLabels: ["Converted emotion into review"], consequenceScore: -1, outcomeShift: 5}}
+              ]
+            }
+          }
+        ]
+      },
+      {
+        phase: "📊 AFTERMATH",
+        text: "The drop continues. By 12:30 PM, the market crashes further. \n\nIf you held or averaged: Your account is blown. Down 60%. Margin call. You feel sick to your stomach. You can't sleep tonight.\n\nIf you walked away earlier: You are having a peaceful lunch, accepting the -10% drawdown, ready for tomorrow.",
+        type: "scenario",
+        branches: [
+          {
+            flagsAny: ["revenge_walkaway", "revenge_stayed_out", "revenge_journaled"],
+            patch: {
+              text: "The market keeps whipping around through lunch, but you are no longer participating.\n\nThis ending feels anticlimactic, which is exactly the point. You preserved tomorrow by refusing to let one bad morning decide the rest of your week."
+            }
+          },
+          {
+            flagsAny: ["revenge_average", "revenge_lottery", "revenge_max"],
+            patch: {
+              text: "The drop continues and your emotional trade mutates into a capital event.\n\nBecause size, revenge, and no hard stop stacked together, this route ends in account-level damage. The real catastrophe began the moment recovery became more important than process."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  newsWhipsaw: {
+    title: "News Whipsaw",
+    subtitle: "Panic under Extreme Pressure",
+    initialCapital: 100000,
+    steps: [
+      {
+        phase: "🎯 THE POSITION",
+        text: "1:15 PM. You are Long 500 shares of a Midcap stock at ₹800. Position size: ₹400,000 (using leverage). \nStop loss: ₹785.\nTarget: ₹830.\nCurrently trading at ₹810. You are up ₹5,000. \nEverything is peaceful. You are confident.",
+        type: "setup",
+        chartData: {entry: 800, stop: 785, target: 830, current: 810}
+      },
+      {
+        phase: "⚡ FLASH CRASH",
+        text: "1:22 PM: A sudden red candle appears. \n810... 805... 798... 790...\n\nIn 5 seconds, the stock drops ₹20. \nYour profit vanishes. You are now down ₹5,000. \n\nCNBC flashes: 'REGULATORY INVESTIGATION LAUNCHED.'",
+        type: "scenario",
+        chartData: {current: 790}
+      },
+      {
+        phase: "❓ CRITICAL DECISION",
+        question: "Stock freefalling. Approaching your ₹785 stop loss fast. Volumes are massive.",
+        timer: 8,
+        options: [
+          {letter: "A", label: "Wait for the Stop Loss to hit.", desc: "Trust the system. If it hits ₹785, it hits."},
+          {letter: "B", label: "Market Sell NOW.", desc: "News is bad. Don't wait for ₹785, get out at ₹790."},
+          {letter: "C", label: "Cancel Stop Loss.", desc: "It's just panic selling, it will V-shape recover. Give it room."},
+          {letter: "D", label: "Short it.", desc: "Sell long position and instantly go short."}
+        ],
+        type: "decision",
+        emotionImpact: {fear: 40, discipline: -10}
+      },
+      {
+        phase: "📉 CONSEQUENCE",
+        text: "1:24 PM: Stock hits ₹782, triggering stop losses across the board, dropping instantly to ₹760.\n\nIf you waited or sold early: You exited between ₹785-790. Loss: ₹5,000 to ₹7,500.\nIf you cancelled your stop: You are now holding at ₹760. Loss: <strong>₹20,000</strong>.\n\n1:30 PM: A clarification is issued by the company. 'News is fake.' Stock rockets back to ₹815.",
+        type: "scenario",
+        chartData: {current: 815}
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "You got stopped out, took a loss, and now it's back in profit without you. How do you feel?",
+        options: [
+          {letter: "A", label: "Extreme FOMO & Anger", desc: "I need to buy back in instantly! I was right!"},
+          {letter: "B", label: "Relief", desc: "I followed my risk management during a black swan event. Proud of myself."},
+          {letter: "C", label: "Devastation", desc: "I can't handle this market. It's rigged."},
+          {letter: "D", label: "Revenge", desc: "I'm going to short it again out of spite."}
+        ],
+        type: "emotion",
+        emotionImpact: {revenge: 15, fear: 10}
+      }
+    ]
+  },
+  overtrading: {
+    title: "Overtrading Addiction",
+    subtitle: "The 'Give It All Back' Trap",
+    initialCapital: 100000,
+    steps: [
+      {
+        phase: "🎯 THE SETUP",
+        text: "It's 10:30 AM. You've had a fantastic morning. Two perfect trades.\n\nYou are up <strong>₹15,000 (+15%)</strong> for the day. Your daily target was ₹10,000. \n\nYou should close the laptop and enjoy the day. But the market is still moving. You decide to stay and 'just watch'.",
+        type: "scenario"
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "You've hit your target early. Why are you still watching the charts?",
+        options: [
+          {letter: "A", label: "Greed", desc: "If I made ₹15k in one hour, I can make ₹50k by 3 PM."},
+          {letter: "B", label: "Boredom", desc: "Trading is exciting. I have nothing else to do today."},
+          {letter: "C", label: "FOMO", desc: "The market is trending strongly. I don't want to miss a massive move."},
+          {letter: "D", label: "Learning", desc: "I am genuinely just observing price action without intent to trade."}
+        ],
+        type: "emotion",
+        emotionImpact: {greed: 30, discipline: -10}
+      },
+      {
+        phase: "⚡ THE TEMPTATION",
+        text: "11:15 AM: You've been staring at the screen for 45 minutes doing nothing. \nYou see a minor setup. It's a low-probability scalp, but you feel the urge to press buttons. \n\n'I'll just use a small size. Even if I lose ₹2,000, I'm still up ₹13,000 for the day.'",
+        type: "setup",
+        chartData: {entry: 42500, stop: 42480, target: 42540, current: 42500}
+      },
+      {
+        phase: "❓ CRITICAL DECISION",
+        question: "Do you take the bored scalp trade?",
+        timer: 10,
+        options: [
+          {letter: "A", label: "Yes, small size.", desc: "It's low risk. I'm playing with market money.", effects: {setFlags: ["overtrade_small"], routeLabels: ["Took the boredom trade"], outcomeShift: -3}},
+          {letter: "B", label: "Yes, full size.", desc: "Let's compound these gains fast.", effects: {setFlags: ["overtrade_full"], routeLabels: ["Pressed greed after target"], consequenceScore: 3, outcomeShift: -8, endingKey: "overtrade_full_tilt"}},
+          {letter: "C", label: "No. Close the laptop.", desc: "I hit my target. I am walking away right now.", effects: {setFlags: ["overtrade_done"], routeLabels: ["Closed the platform"], consequenceScore: -2, outcomeShift: 8, endingKey: "overtrade_professional"}},
+          {letter: "D", label: "No, but keep watching.", desc: "I'll keep staring at the screen.", effects: {setFlags: ["overtrade_watch"], routeLabels: ["Stayed exposed to temptation"], outcomeShift: -2}}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 20}
+      },
+      {
+        phase: "📉 CONSEQUENCE",
+        text: "If you closed the laptop: You secured a ₹15,000 green day. You win.\n\nIf you stayed: You took the trade. It instantly hits your stop loss. You are now up only ₹13,000. \n\nYour brain refuses to accept this. 'I was at 15k! I need to get back to 15k so I can close the screen.'\nYou take another trade. It loses. Up ₹8,000.\nYou double size to recover. It loses. \n\n1:00 PM: You are now <strong>DOWN ₹10,000</strong> for the day.",
+        type: "scenario",
+        chartData: {current: 42350},
+        branches: [
+          {
+            flagsAll: ["overtrade_done"],
+            patch: {
+              text: "You shut the laptop right after hitting target. The market keeps moving without you.\n\nBy 1:00 PM the same bored setups have chopped apart impatient traders, but your day is still +₹15,000. This is what professional greed control looks like in practice."
+            }
+          },
+          {
+            flagsAll: ["overtrade_watch"],
+            patch: {
+              text: "You did not trade immediately, but you kept watching. That 'harmless' screen time slowly reactivated the urge to earn more.\n\nBy 1:00 PM you have eventually pressed buttons anyway and turned a finished green day into a red spiral. The extra damage came from lingering, not from one bad setup alone."
+            }
+          }
+        ]
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "You gave back all your profits and are now red. How does your chest feel?",
+        options: [
+          {letter: "A", label: "Sick to my stomach", desc: "I hate myself. Why didn't I just walk away at 10:30?", effects: {setFlags: ["overtrade_regret"], routeLabels: ["Pain finally registered"]}},
+          {letter: "B", label: "Revenge Mode", desc: "I WILL NOT END THIS DAY RED. I'm going all in.", effects: {setFlags: ["overtrade_revenge"], routeLabels: ["Turned greed into revenge"], consequenceScore: 3, outcomeShift: -8}},
+          {letter: "C", label: "Denial", desc: "This isn't happening. The market owes me.", effects: {setFlags: ["overtrade_denial"], routeLabels: ["Refused to own the slip"], consequenceScore: 2, outcomeShift: -5}},
+          {letter: "D", label: "Acceptance", desc: "I broke my rules. I deserve this loss. I'm done for today.", effects: {setFlags: ["overtrade_acceptance"], routeLabels: ["Accepted the rule-break"], outcomeShift: 3}}
+        ],
+        type: "emotion",
+        emotionImpact: {revenge: 40, fear: 20},
+        branches: [
+          {
+            flagsAll: ["overtrade_done"],
+            patch: {
+              question: "You protected the green day. What was the real edge?",
+              options: [
+                {letter: "A", label: "Stopping while ahead", desc: "My edge ended when the A+ setups ended.", effects: {setFlags: ["overtrade_reflect_stop"], routeLabels: ["Understood session closure"], outcomeShift: 2}},
+                {letter: "B", label: "Willpower alone", desc: "I just fought the urge harder than usual.", effects: {setFlags: ["overtrade_willpower_story"], routeLabels: ["Overestimated willpower"]}},
+                {letter: "C", label: "Luck", desc: "I could have missed a massive move by leaving.", effects: {setFlags: ["overtrade_second_guess"], routeLabels: ["Second-guessed the good habit"], outcomeShift: -1}},
+                {letter: "D", label: "Daily target discipline", desc: "The plan was to stop. I respected it.", effects: {setFlags: ["overtrade_process"], routeLabels: ["Respected session plan"], outcomeShift: 3}}
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  breakoutFakeout: {
+    title: "Breakout or Fakeout",
+    subtitle: "The Bull Trap",
+    initialCapital: 100000,
+    steps: [
+      {
+        phase: "🎯 THE SETUP",
+        text: "1:45 PM: A stock has been consolidating at a massive resistance level (₹1000) for weeks. \nSuddenly, heavy volume spikes. It breaks out to ₹1005! \n\nIt's a textbook breakout. Every indicator screams BUY. \nYou buy 500 shares at ₹1005. \nStop loss is ₹995 (₹5,000 risk). Target is ₹1050.",
+        type: "setup",
+        chartData: {entry: 1005, stop: 995, target: 1050, current: 1005}
+      },
+      {
+        phase: "⚡ THE FAKEOUT",
+        text: "1:46 PM: The moment your order fills, the buying completely vanishes. \nA massive sell order hits the tape. \n\nIn 30 seconds, a giant red engulfing candle forms. \n₹1005... ₹1000... ₹996.\n\nYou are down ₹4,500 instantly. Your stop loss is ₹995.",
+        type: "scenario",
+        chartData: {current: 996}
+      },
+      {
+        phase: "❓ CRITICAL DECISION",
+        question: "Price is at ₹996. One rupee away from your stop loss. It looks like a pure fakeout. What do you do?",
+        timer: 10,
+        options: [
+          {letter: "A", label: "Exit instantly", desc: "The breakout failed. The thesis is dead. Get out before it gets worse."},
+          {letter: "B", label: "Wait for the exact stop at ₹995", desc: "Follow the plan exactly, no exceptions."},
+          {letter: "C", label: "Move stop to ₹990", desc: "It's just a retest of the breakout. Give it breathing room."},
+          {letter: "D", label: "Average down", desc: "Buy more here, it's a discount on a breakout stock!"}
+        ],
+        type: "decision",
+        emotionImpact: {fear: 30, discipline: 15}
+      },
+      {
+        phase: "📉 CONSEQUENCE",
+        text: "1:48 PM: The stock slices through ₹995 like butter and plummets to ₹970. \n\nIf you exited at ₹996 or ₹995: You took a planned ₹4,500 - ₹5,000 loss. You protected your capital.\nIf you moved your stop or averaged down: You are now down <strong>₹17,500+</strong>. You are trapped in a massive bull trap.",
+        type: "scenario",
+        chartData: {current: 970}
+      }
+    ]
+  },
+  gapTrading: {
+    title: "Gap Up Chaos",
+    subtitle: "Trading the Morning Panic",
+    initialCapital: 100000,
+    steps: [
+      {
+        phase: "🎯 THE SETUP",
+        text: "You bought 1000 shares of AlphaCorp yesterday at ₹100 for a swing trade. \n\nAt 9:00 AM today, pre-market shows the stock gapping up 8% to ₹108 due to strong global cues! \nYou are up ₹8,000 before the market even opens. Your target was ₹110.",
+        type: "scenario"
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "Market opens in 5 minutes. You have a massive unrealized profit. What is your dominant emotion?",
+        options: [
+          {letter: "A", label: "Greed", desc: "It gapped up 8%, it will definitely hit 10% today. I'm holding.", effects: {setFlags: ["gap_greedy"], routeLabels: ["Wanted the perfect exit"], outcomeShift: -2}},
+          {letter: "B", label: "Anxiety", desc: "What if it crashes right at the open? I need to sell immediately.", effects: {setFlags: ["gap_anxious"], routeLabels: ["Focused on protecting open profit"]}},
+          {letter: "C", label: "Calculation", desc: "I will watch the first 5-minute candle to decide.", effects: {setFlags: ["gap_calculated"], routeLabels: ["Waited for tape confirmation"], outcomeShift: 1}},
+          {letter: "D", label: "Euphoria", desc: "I am a genius. This is so easy.", effects: {setFlags: ["gap_euphoria"], routeLabels: ["Overconfidence at the open"], consequenceScore: 2, outcomeShift: -4}}
+        ],
+        type: "emotion",
+        emotionImpact: {greed: 30, fear: 10}
+      },
+      {
+        phase: "⚡ THE OPEN",
+        text: "9:15 AM: The bell rings. The stock opens at ₹108. \n\nInstantly, heavy selling pressure hits. Profit-takers are dumping shares. \nIn the first 30 seconds, it drops to ₹106. \n1 minute later: ₹104. \n\nYour ₹8,000 profit is now only ₹4,000. It's falling fast.",
+        type: "scenario",
+        chartData: {entry: 100, stop: 95, target: 110, current: 104}
+      },
+      {
+        phase: "❓ CRITICAL DECISION",
+        question: "The gap is filling rapidly. You are losing profit by the second. What do you do?",
+        timer: 8,
+        options: [
+          {letter: "A", label: "Market Sell everything", desc: "Take the ₹4,000 before it goes to zero profit.", effects: {setFlags: ["gap_banked"], routeLabels: ["Paid yourself into strength"], consequenceScore: -1, outcomeShift: 5, endingKey: "gap_paid"}},
+          {letter: "B", label: "Hold for ₹110", desc: "It's just morning volatility. It will bounce.", effects: {setFlags: ["gap_hold_hope"], routeLabels: ["Held for perfect target"], consequenceScore: 2, outcomeShift: -5}},
+          {letter: "C", label: "Buy the dip", desc: "Add more at ₹104. Average up!", effects: {setFlags: ["gap_add"], routeLabels: ["Added into gap fill"], consequenceScore: 3, outcomeShift: -8, endingKey: "gap_disaster"}},
+          {letter: "D", label: "Set stop at break-even (₹100)", desc: "Worst case, a scratch trade.", effects: {setFlags: ["gap_breakeven"], routeLabels: ["Protected open profit"], consequenceScore: -1, outcomeShift: 2}}
+        ],
+        type: "decision",
+        emotionImpact: {fear: 40, discipline: 10}
+      },
+      {
+        phase: "📉 CONSEQUENCE",
+        text: "9:20 AM: The stock completely fills the gap, hitting ₹100, before crashing further to ₹92. \n\nIf you sold at ₹104: You secured a ₹4,000 profit. Good execution.\nIf you set a break-even stop: You walked away with ₹0, but protected capital.\nIf you held or bought the dip: You turned an ₹8,000 winning trade into a massive ₹8,000+ loss.",
+        type: "scenario",
+        chartData: {current: 92},
+        branches: [
+          {
+            flagsAll: ["gap_banked"],
+            patch: {
+              text: "9:20 AM: The stock completely fills the gap, hits ₹100, and then flushes to ₹92.\n\nBecause you paid yourself into strength, the route ends with clean execution: you converted overnight risk into realized profit before the open chaos could rewrite the trade."
+            }
+          },
+          {
+            flagsAll: ["gap_breakeven"],
+            patch: {
+              text: "9:20 AM: The stock fills the gap to ₹100 and trips your break-even protection before sliding to ₹92.\n\nThis route is not glamorous, but it is professional. You refused to let a gifted open turn into a forced loss."
+            }
+          },
+          {
+            flagsAny: ["gap_hold_hope", "gap_add"],
+            patch: {
+              text: "9:20 AM: The stock completely fills the gap, hits ₹100, and then crashes to ₹92.\n\nThis route turned a gifted open into self-inflicted damage because you tried to force the perfect exit instead of managing the actual tape in front of you."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  partialProfit: {
+    title: "Profit Booking Timing",
+    subtitle: "The Greed Dilemma",
+    initialCapital: 100000,
+    steps: [
+      {
+        phase: "🎯 THE SETUP",
+        text: "You are long 2000 shares of BetaMotors at ₹50. \nStop loss is ₹48 (Risk: ₹4,000). Target is ₹55 (Reward: ₹10,000). \n\n11:00 AM: The stock is flying! It hits ₹54. You are up ₹8,000.",
+        type: "setup",
+        chartData: {entry: 50, stop: 48, target: 55, current: 54}
+      },
+      {
+        phase: "⚡ THE STALL",
+        text: "11:15 AM: The stock hits strong resistance at ₹54.20. \nIt has tried to break it three times and failed. \nVolume is dropping. A bearish divergence is forming on the RSI.",
+        type: "scenario",
+        chartData: {current: 54.2}
+      },
+      {
+        phase: "❓ CRITICAL DECISION",
+        question: "You are ₹1 away from your target. The momentum is dying. What do you do?",
+        timer: 15,
+        options: [
+          {letter: "A", label: "Hold strictly for ₹55", desc: "The plan was ₹55. I don't break my rules."},
+          {letter: "B", label: "Book 50% profit", desc: "Lock in ₹4,000. Let the rest ride with a trail stop."},
+          {letter: "C", label: "Sell 100%", desc: "The chart says it's over. Take the ₹8,400."},
+          {letter: "D", label: "Move stop to entry (₹50)", desc: "Risk-free trade. Let's see what happens."}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 30, greed: -10}
+      },
+      {
+        phase: "📉 CONSEQUENCE",
+        text: "11:30 AM: The resistance holds. A major seller steps in, and the stock reverses sharply, crashing back to ₹49. \n\nIf you booked 50% or 100%: You walked away green. \nIf you held for ₹55 without trailing your stop: You watched an ₹8,400 profit turn into a ₹2,000 loss.",
+        type: "scenario",
+        chartData: {current: 49}
+      }
+    ]
+  }
+
+};
+
+let currentSim = null;
+let currentSimId = null;
+let currentStep = 0;
+let currentResolvedStep = null;
+let userChoices = [];
+let emotionalState = {fear: 0, greed: 0, revenge: 0, patience: 0, discipline: 50};
+let position = {entry: 0, stop: 0, target: 0, quantity: 0, current: 0};
+let capital = 100000;
+let chartInterval = null;
+let branchState = null;
+
+function formatTagLabel(tag) {
+  const labels = {
+    panic: 'Panic',
+    revenge: 'Revenge',
+    hesitation: 'Hesitation',
+    overmanage: 'Over-managing',
+    discipline: 'Discipline',
+    patience: 'Patience'
+  };
+  return labels[tag] || tag;
+}
+
+function updateSimulationProfileStrip() {
+  if (!window.FINOS_PROFILE) return;
+  const profile = window.FINOS_PROFILE.get();
+  const insights = window.FINOS_PROFILE.getInsights();
+  const recent = profile.recentRuns[0];
+
+  const labelEl = document.getElementById('simProfileLabel');
+  const copyEl = document.getElementById('simProfileCopy');
+  const recentPatternEl = document.getElementById('simRecentPattern');
+  const recentCopyEl = document.getElementById('simRecentCopy');
+  const runCountEl = document.getElementById('simRunCount');
+  const runCopyEl = document.getElementById('simRunCopy');
+
+  if (labelEl) labelEl.textContent = insights.label;
+  if (copyEl) copyEl.textContent = `Top tendency: ${formatTagLabel(insights.topTag)} (${insights.topValue} triggers recorded).`;
+  if (recentPatternEl) recentPatternEl.textContent = recent ? recent.verdict : 'None yet';
+  if (recentCopyEl) recentCopyEl.textContent = recent ? `${recent.title} • ${recent.mode === 'trader' ? 'Trader' : 'Investor'} sim • ${recent.disciplineScore} discipline` : 'Finish one sim and we will call out your most repeated mistake.';
+  if (runCountEl) runCountEl.textContent = `${profile.totalRuns} runs`;
+  if (runCopyEl) runCopyEl.textContent = `${profile.traderRuns} trader • ${profile.investorRuns} investor`;
+}
+
+function getChoiceForStep(stepIndex) {
+  return userChoices.find(choice => choice.step === stepIndex) || null;
+}
+
+function createBranchState() {
+  return {
+    flags: {},
+    route: [],
+    routeLabels: [],
+    consequenceScore: 0,
+    outcomeShift: 0,
+    priceShift: {},
+    endingKey: null
+  };
+}
+
+function matchesBranchCondition(branch) {
+  if (!branch) return true;
+
+  if (typeof branch.dependsOnStep === 'number') {
+    const prior = getChoiceForStep(branch.dependsOnStep);
+    if (!prior) return false;
+    if (branch.choices && !branch.choices.includes(prior.choice)) return false;
+  }
+
+  if (Array.isArray(branch.allOf)) {
+    const allMatch = branch.allOf.every(condition => matchesBranchCondition(condition));
+    if (!allMatch) return false;
+  }
+
+  if (Array.isArray(branch.anyOf)) {
+    const anyMatch = branch.anyOf.some(condition => matchesBranchCondition(condition));
+    if (!anyMatch) return false;
+  }
+
+  if (Array.isArray(branch.flagsAll) && !branch.flagsAll.every(flag => branchState.flags[flag])) return false;
+  if (Array.isArray(branch.flagsAny) && !branch.flagsAny.some(flag => branchState.flags[flag])) return false;
+  if (Array.isArray(branch.notFlags) && branch.notFlags.some(flag => branchState.flags[flag])) return false;
+
+  return true;
+}
+
+function mergeBranchState(update) {
+  if (!update || !branchState) return;
+
+  if (Array.isArray(update.routeLabels)) {
+    update.routeLabels.forEach(label => {
+      if (!branchState.routeLabels.includes(label)) branchState.routeLabels.push(label);
+    });
+  }
+
+  if (Array.isArray(update.setFlags)) {
+    update.setFlags.forEach(flag => {
+      branchState.flags[flag] = true;
+      if (!branchState.route.includes(flag)) branchState.route.push(flag);
+    });
+  }
+
+  if (Array.isArray(update.clearFlags)) {
+    update.clearFlags.forEach(flag => {
+      delete branchState.flags[flag];
+    });
+  }
+
+  if (typeof update.consequenceScore === 'number') branchState.consequenceScore += update.consequenceScore;
+  if (typeof update.outcomeShift === 'number') branchState.outcomeShift += update.outcomeShift;
+
+  if (update.priceShift) {
+    Object.keys(update.priceShift).forEach(key => {
+      branchState.priceShift[key] = (branchState.priceShift[key] || 0) + update.priceShift[key];
+    });
+  }
+
+  if (update.endingKey) branchState.endingKey = update.endingKey;
+}
+
+function applyBranchSelectionEffects(step, choiceIndex) {
+  if (!step || !Array.isArray(step.branches)) return;
+
+  step.branches.forEach(branch => {
+    const trigger = branch.trigger || 'onResolve';
+    if (trigger !== 'onSelect') return;
+    if (Array.isArray(branch.choices) && !branch.choices.includes(choiceIndex)) return;
+    if (!matchesBranchCondition(branch)) return;
+    mergeBranchState(branch.state);
+  });
+}
+
+function resolveStep(step, stepIndex) {
+  if (!step) return step;
+  let resolved = {
+    ...step,
+    chartData: step.chartData ? {...step.chartData} : step.chartData,
+    options: step.options ? step.options.map(option => ({...option})) : step.options
+  };
+
+  if (Array.isArray(step.branches)) {
+    step.branches.forEach(branch => {
+      const trigger = branch.trigger || 'onResolve';
+      if (trigger !== 'onResolve') return;
+      if (!matchesBranchCondition(branch)) return;
+      const patch = branch.patch || {};
+      resolved = {
+        ...resolved,
+        ...patch,
+        chartData: patch.chartData ? {...(resolved.chartData || {}), ...patch.chartData} : resolved.chartData,
+        options: patch.options ? patch.options.map(option => ({...option})) : resolved.options
+      };
+      mergeBranchState(branch.state);
+    });
+  }
+
+  if (resolved.chartData && branchState && branchState.priceShift) {
+    const shiftedChart = {...resolved.chartData};
+    Object.keys(shiftedChart).forEach(key => {
+      if (typeof shiftedChart[key] === 'number' && typeof branchState.priceShift[key] === 'number') {
+        shiftedChart[key] += branchState.priceShift[key];
+      }
+    });
+    resolved.chartData = shiftedChart;
+  }
+
+  return resolved;
+}
+
+function inferBiasFromOption(step, option, timedOut = false) {
+  if (timedOut) return 'Analysis Paralysis';
+  const text = `${step && step.question ? step.question : ''} ${option && option.label ? option.label : ''} ${option && option.desc ? option.desc : ''}`.toLowerCase();
+
+  if (text.includes('revenge')) return 'Revenge Trading';
+  if (text.includes('sunk cost')) return 'Sunk Cost Fallacy';
+  if (text.includes('panic') || text.includes('terror') || text.includes('market sell') || text.includes('sell everything immediately')) return 'Panic';
+  if (text.includes('loss') || text.includes('feel safer') || text.includes('break-even')) return 'Loss Aversion';
+  if (text.includes('hold and pray') || text.includes('temporary') || text.includes('v-shape')) return 'Endowment Effect';
+  if (text.includes('average down') || text.includes('buy more') || text.includes('double down')) return 'Anchoring';
+  if (text.includes('friends') || text.includes('crowd') || text.includes('whatsapp')) return 'Herd Mentality';
+  if (text.includes('do something') || text.includes('keep watching') || text.includes('wait 6 months')) return 'Action Bias';
+  if (text.includes('sell into') || text.includes('exit now') || text.includes('get out') || text.includes('stop all sips')) return 'Panic Execution';
+  if (text.includes('hold forever') || text.includes('never selling')) return 'Capitulation';
+  return '';
+}
+
+function calculateTraderPnlPercent() {
+  let pnlPercent = 0;
+
+  userChoices.forEach(choice => {
+    const label = (choice.label || '').toLowerCase();
+    if (choice.timedOut) pnlPercent -= 6;
+    if (label.includes('exit immediately as planned') || label.includes('exit instantly') || label.includes('close the laptop')) pnlPercent += 4;
+    if (label.includes('wait for the stop loss to hit') || label.includes('standard quantity')) pnlPercent += 2;
+    if (label.includes('partial exit') || label.includes('book 50% profit') || label.includes('set stop at break-even')) pnlPercent += 1;
+    if (label.includes('hold and pray') || label.includes('move stop') || label.includes('cancel stop') || label.includes('remove stop')) pnlPercent -= 5;
+    if (label.includes('average down') || label.includes('double down') || label.includes('buy more') || label.includes('full size')) pnlPercent -= 7;
+    if (label.includes('market sell everything') || label.includes('market sell. get out.')) pnlPercent -= 2;
+    if (label.includes('hold strictly for')) pnlPercent += 3;
+  });
+
+  pnlPercent += Math.round(((emotionalState.discipline || 50) - 50) / 8);
+  pnlPercent -= Math.round((emotionalState.revenge || 0) / 18);
+  pnlPercent -= Math.round((emotionalState.fear || 0) / 25);
+  pnlPercent += branchState ? branchState.outcomeShift : 0;
+
+  return Math.max(-25, Math.min(15, pnlPercent));
+}
+
+function calculateInvestorOutcome() {
+  const initialVal = currentSim.initialValue || 5000000;
+  let pnlPercent = 0;
+
+  userChoices.forEach(choice => {
+    const label = (choice.label || '').toLowerCase();
+    if (choice.timedOut) pnlPercent -= 4;
+    if (label.includes('do absolutely nothing') || label.includes('continue as planned') || label.includes('continue sip unchanged') || label.includes('wait and watch') || label.includes('hold them tight') || label.includes('analytical') || label.includes('acceptance')) pnlPercent += 4;
+    if (label.includes('add ₹2 lakhs more') || label.includes('double the sip') || label.includes('deploy emergency cash') || label.includes('invest entire ₹5l') || label.includes('book initial capital') || label.includes('rebalance to 10%') || label.includes('trim slightly to 35%')) pnlPercent += 7;
+    if (label.includes('sell everything immediately') || label.includes('stop all sips immediately') || label.includes('withdraw everything') || label.includes('market sell everything') || label.includes('place market sell orders') || label.includes('put it all in fd')) pnlPercent -= 10;
+    if (label.includes('sell 50%') || label.includes('pause for 3 months') || label.includes('wait 6 months') || label.includes('sell winners, keep losers')) pnlPercent -= 4;
+    if (label.includes('average down') || label.includes('buy more') || label.includes('sell everything else, go all in')) pnlPercent -= 6;
+    if (label.includes('hold and pray') || label.includes('denial')) pnlPercent -= 7;
+  });
+
+  pnlPercent += Math.round(((emotionalState.discipline || 50) - 50) / 6);
+  pnlPercent += Math.round((emotionalState.patience || 0) / 20);
+  pnlPercent -= Math.round((emotionalState.fear || 0) / 16);
+  pnlPercent -= Math.round((emotionalState.greed || 0) / 20);
+  pnlPercent += branchState ? branchState.outcomeShift : 0;
+
+  pnlPercent = Math.max(-35, Math.min(25, pnlPercent));
+
+  const ghostPercent = 8;
+  const activeVal = Math.round(initialVal * (1 + pnlPercent / 100));
+  const ghostVal = Math.round(initialVal * (1 + ghostPercent / 100));
+
+  return { initialVal, activeVal, ghostVal, pnlPercent };
+}
+
+function buildRouteCopy() {
+  if (!branchState) return 'Route memory will start reacting after your first real choice.';
+  if (!branchState.routeLabels.length) return 'Route memory will start reacting after your first real choice.';
+
+  const recent = branchState.routeLabels.slice(-2).join(' -> ');
+  const pressure = branchState.consequenceScore >= 3
+    ? 'Compounding damage route active.'
+    : branchState.consequenceScore <= -1
+      ? 'Stabilizing route active.'
+      : 'Mixed route active.';
+
+  return `${pressure} Latest route: ${recent}.`;
+}
+
+function updateLiveSnapshot() {
+  const scores = calculateStrictScores();
+  const outcomeLabel = document.getElementById('liveOutcomeLabel');
+  const disciplineEl = document.getElementById('liveDisciplineScore');
+  const executionEl = document.getElementById('liveExecutionScore');
+  const clarityEl = document.getElementById('liveClarityScore');
+  const routeEl = document.getElementById('liveRouteCopy');
+
+  if (disciplineEl) disciplineEl.textContent = scores.disciplineScore;
+  if (executionEl) executionEl.textContent = scores.executionScore;
+  if (clarityEl) clarityEl.textContent = scores.clarityScore;
+  if (routeEl) routeEl.textContent = buildRouteCopy();
+
+  if (outcomeLabel) {
+    const projected = currentSim && currentSim.initialValue !== undefined
+      ? calculateInvestorOutcome().pnlPercent
+      : calculateTraderPnlPercent();
+    outcomeLabel.textContent = `${projected >= 0 ? '+' : ''}${projected}%`;
+    outcomeLabel.className = `metric-value ${projected >= 0 ? 'text-green' : 'text-red'}`;
+    outcomeLabel.style.fontSize = '1.2rem';
+  }
+}
+
+function getChoiceSeverity(choice) {
+  const label = (choice.label || '').toLowerCase();
+  let disciplineDelta = 0;
+  let executionDelta = 0;
+  let clarityDelta = 0;
+  let recklessness = 0;
+
+  if (choice.timedOut) {
+    disciplineDelta -= 18;
+    executionDelta -= 22;
+    clarityDelta -= 25;
+    recklessness += 2;
+  }
+
+  if (label.includes('exit immediately as planned') || label.includes('close the laptop') || label.includes('continue sip unchanged') || label.includes('continue as planned') || label.includes('do absolutely nothing') || label.includes('rebalance to 10%')) {
+    disciplineDelta += 10;
+    executionDelta += 8;
+    clarityDelta += 8;
+  }
+
+  if (label.includes('wait for the stop loss to hit') || label.includes('book initial capital') || label.includes('trim slightly to 35%') || label.includes('set stop at break-even') || label.includes('hold them tight') || label.includes('wait and watch') || label.includes('analytical') || label.includes('acceptance')) {
+    disciplineDelta += 5;
+    executionDelta += 4;
+    clarityDelta += 5;
+  }
+
+  if (label.includes('sell 50%') || label.includes('pause for 3 months') || label.includes('partial exit') || label.includes('hold strictly for') || label.includes('book 50% profit') || label.includes('standard quantity')) {
+    disciplineDelta -= 2;
+    executionDelta -= 1;
+    clarityDelta -= 2;
+  }
+
+  if (label.includes('hold and pray') || label.includes('move stop') || label.includes('remove stop') || label.includes('cancel stop') || label.includes('wait 6 months') || label.includes('keep watching') || label.includes('denial')) {
+    disciplineDelta -= 14;
+    executionDelta -= 16;
+    clarityDelta -= 15;
+    recklessness += 1;
+  }
+
+  if (label.includes('sell everything immediately') || label.includes('market sell everything') || label.includes('place market sell orders') || label.includes('stop all sips immediately') || label.includes('withdraw everything') || label.includes('put it all in fd') || label.includes('market sell. get out.')) {
+    disciplineDelta -= 12;
+    executionDelta -= 14;
+    clarityDelta -= 13;
+    recklessness += 1;
+  }
+
+  if (label.includes('average down') || label.includes('double down') || label.includes('buy more') || label.includes('deploy emergency cash') || label.includes('sell everything else, go all in') || label.includes('full size')) {
+    disciplineDelta -= 22;
+    executionDelta -= 24;
+    clarityDelta -= 22;
+    recklessness += 3;
+  }
+
+  if (label.includes('revenge') || label.includes('max quantity') || label.includes('switch to options buying') || label.includes('buy more at') || label.includes('go all in')) {
+    disciplineDelta -= 28;
+    executionDelta -= 30;
+    clarityDelta -= 28;
+    recklessness += 4;
+  }
+
+  return { disciplineDelta, executionDelta, clarityDelta, recklessness };
+}
+
+function calculateStrictScores() {
+  let disciplineScore = 72;
+  let executionScore = 74;
+  let clarityScore = 76;
+  let recklessness = 0;
+
+  userChoices.forEach(choice => {
+    const impact = getChoiceSeverity(choice);
+    disciplineScore += impact.disciplineDelta;
+    executionScore += impact.executionDelta;
+    clarityScore += impact.clarityDelta;
+    recklessness += impact.recklessness;
+  });
+
+  disciplineScore += Math.round(((emotionalState.discipline || 50) - 50) * 0.35);
+  disciplineScore -= Math.round((emotionalState.revenge || 0) * 0.35);
+  disciplineScore -= Math.round((emotionalState.fear || 0) * 0.2);
+
+  executionScore += Math.round(((emotionalState.discipline || 50) - 50) * 0.25);
+  executionScore -= Math.round((emotionalState.revenge || 0) * 0.4);
+  executionScore -= Math.round((emotionalState.fear || 0) * 0.25);
+  executionScore -= Math.round((emotionalState.greed || 0) * 0.2);
+
+  clarityScore += Math.round(((emotionalState.patience || 0)) * 0.2);
+  clarityScore -= Math.round((emotionalState.fear || 0) * 0.35);
+  clarityScore -= Math.round((emotionalState.revenge || 0) * 0.45);
+  clarityScore -= Math.round((emotionalState.greed || 0) * 0.2);
+  clarityScore -= recklessness * 4;
+
+  if (branchState) {
+    disciplineScore -= branchState.consequenceScore * 4;
+    executionScore -= branchState.consequenceScore * 3;
+    clarityScore -= branchState.consequenceScore * 3;
+  }
+
+  return {
+    disciplineScore: Math.max(0, Math.min(100, disciplineScore)),
+    executionScore: Math.max(0, Math.min(100, executionScore)),
+    clarityScore: Math.max(0, Math.min(100, clarityScore)),
+    recklessness
+  };
+}
+
+function getRunTags(scores, biases) {
+  const tags = new Set();
+  biases.forEach(bias => {
+    if (['Panic', 'Panic Execution', 'Loss Aversion', 'Capitulation'].includes(bias)) tags.add('panic');
+    if (['Revenge Trading'].includes(bias)) tags.add('revenge');
+    if (['Action Bias', 'Anchoring', 'Endowment Effect', 'Sunk Cost Fallacy'].includes(bias)) tags.add('overmanage');
+    if (['Analysis Paralysis'].includes(bias)) tags.add('hesitation');
+  });
+  if (scores.disciplineScore >= 72) tags.add('discipline');
+  if (scores.clarityScore >= 72) tags.add('patience');
+  return Array.from(tags);
+}
+
+function buildDecisionAudit() {
+  return userChoices.map((choice, index) => {
+    const impact = getChoiceSeverity(choice);
+    const total = impact.disciplineDelta + impact.executionDelta + impact.clarityDelta;
+    let scoreClass = 'flat';
+    if (total >= 8) scoreClass = 'good';
+    if (total <= -8) scoreClass = 'bad';
+    return {
+      step: index + 1,
+      label: choice.label,
+      bias: choice.bias || 'Neutral',
+      scoreClass,
+      scoreText: total > 0 ? `+${total}` : `${total}`
+    };
+  });
+}
+
+function buildRouteSummary() {
+  if (!branchState || !branchState.routeLabels.length) return '';
+  const route = branchState.routeLabels.join(' -> ');
+
+  if (branchState.endingKey && branchState.endingKey.includes('professional')) {
+    return `Route ending: ${route}. You protected process before the environment could force a bigger mistake.`;
+  }
+  if (branchState.endingKey && (branchState.endingKey.includes('disaster') || branchState.endingKey.includes('blowup') || branchState.endingKey.includes('gamble'))) {
+    return `Route ending: ${route}. The later damage was amplified by the earlier choice architecture, not just the final click.`;
+  }
+  return `Route ending: ${route}. Later scenes were altered by this behavioral chain, so the outcome reflects the full route rather than a single isolated mistake.`;
+}
+
+function buildRunSummary(analysis, scores, biases) {
+  const previous = window.FINOS_PROFILE ? window.FINOS_PROFILE.get().lastRunBySim[currentSimId] : null;
+  return {
+    simId: currentSimId,
+    title: currentSim ? currentSim.title : '',
+    mode: currentSim && currentSim.initialValue !== undefined ? 'investor' : 'trader',
+    verdict: analysis.verdict,
+    disciplineScore: analysis.disciplineScore,
+    executionScore: analysis.executionScore,
+    clarityScore: scores.clarityScore,
+    pnlImpact: analysis.pnlImpact,
+    tags: getRunTags(scores, biases),
+    routeLabels: branchState ? [...branchState.routeLabels] : [],
+    endingKey: branchState ? branchState.endingKey : null,
+    timestamp: Date.now(),
+    previous
+  };
+}
+
+function getStrictAdvice(analysis, scores) {
+  if (scores.executionScore <= 20 || scores.disciplineScore <= 20) {
+    return "This was amateur-hour risk behavior. Cut size drastically, automate exits, and earn the right to trade larger only after repeated rule-following.";
+  }
+  if (scores.clarityScore <= 25) {
+    return "Your mind was too noisy to be trusted with capital. If your thinking is this contaminated, your only professional move is to stop and protect cash.";
+  }
+  if (analysis.pnlImpact < 0) {
+    return "Your process leaked edge because your behavior was undisciplined. Professionals review the exact moment they broke rules and design a system that makes repeating it harder.";
+  }
+  return "You were paid because your process was stronger than your impulses. The standard now is ruthless consistency, not occasional brilliance.";
+}
+
+function getStrictPositive(analysis, scores) {
+  if (scores.disciplineScore >= 85 && scores.executionScore >= 85 && scores.clarityScore >= 85) {
+    return "You behaved like a professional. No emotional leaking, no self-negotiation, no unnecessary drama.";
+  }
+  if (analysis.pnlImpact > 0 && scores.disciplineScore >= 60) {
+    return "You did at least one thing most people fail to do: you kept enough structure to avoid total self-sabotage.";
+  }
+  if (scores.disciplineScore < 35 || scores.executionScore < 35) {
+    return "Very little. The main win is that this damage happened in a simulation instead of with real money.";
+  }
+  return "You showed flashes of structure, but not enough consistency to call this professional-grade.";
+}
+
+function startSimulation(simId) {
+  currentSim = SIMULATIONS[simId];
+  currentSimId = simId;
+  if (!currentSim) {
+    showToast('Simulation coming soon! Building 6 more scenarios...', 'tx');
+    return;
+  }
+  
+  currentStep = 0;
+  userChoices = [];
+  capital = currentSim.initialCapital || currentSim.initialValue || 100000;
+  emotionalState = {fear: 0, greed: 0, revenge: 0, patience: 0, discipline: 50};
+  position = {entry: 0, stop: 0, target: 0, quantity: 0, current: 0};
+  branchState = createBranchState();
+  
+  document.getElementById('simModal').classList.add('active');
+  document.getElementById('modalTitle').textContent = currentSim.title;
+  document.getElementById('modalSubtitle').textContent = currentSim.subtitle;
+  
+  updatePosition();
+  updateEmotions();
+  updateLiveSnapshot();
+  addLog('Simulation started');
+  
+  setTimeout(() => processStep(), 500);
+}
+
+function closeModal() {
+  const modal = document.getElementById('simModal');
+  if (!modal) return;
+
+  if (activeTimer) {
+    clearInterval(activeTimer);
+    activeTimer = null;
+  }
+  if (chartInterval) {
+    clearInterval(chartInterval);
+    chartInterval = null;
+  }
+  if (typeof engineInterval !== 'undefined' && engineInterval) {
+    clearInterval(engineInterval);
+    engineInterval = null;
+  }
+
+  modal.classList.remove('active');
+
+  currentSim = null;
+  currentSimId = null;
+  currentStep = 0;
+  userChoices = [];
+  emotionalState = {fear: 0, greed: 0, revenge: 0, patience: 0, discipline: 50};
+  position = {entry: 0, stop: 0, target: 0, quantity: 0, current: 0};
+  branchState = null;
+
+  const scenarioText = document.getElementById('scenarioText');
+  const questionContainer = document.getElementById('questionContainer');
+  const resultContainer = document.getElementById('resultContainer');
+  const phaseIndicator = document.getElementById('phaseIndicator');
+  const chartSection = document.getElementById('chartSection');
+
+  if (scenarioText) {
+    scenarioText.innerHTML = '';
+    scenarioText.style.display = 'block';
+  }
+  if (questionContainer) {
+    questionContainer.innerHTML = '';
+    questionContainer.style.display = 'none';
+    questionContainer.classList.remove('active');
+  }
+  if (resultContainer) {
+    resultContainer.innerHTML = '';
+    resultContainer.classList.remove('active');
+  }
+  if (phaseIndicator) {
+    phaseIndicator.style.display = 'block';
+    phaseIndicator.textContent = '🎯 LOADING';
+    phaseIndicator.className = 'phase-indicator phase-setup';
+  }
+  if (chartSection) chartSection.classList.add('hidden');
+
+  document.getElementById('modalTitle').textContent = 'Loading Simulation...';
+  document.getElementById('modalSubtitle').textContent = 'Get ready';
+  document.getElementById('currentPrice').textContent = '₹485.50';
+  document.getElementById('currentChange').textContent = '+0.0%';
+  document.getElementById('currentPnL').textContent = '₹0';
+  document.getElementById('entryPrice').textContent = '--';
+  document.getElementById('stopLoss').textContent = '--';
+  document.getElementById('riskReward').textContent = '--';
+  document.getElementById('portfolioValue').textContent = '₹50,00,000';
+  document.getElementById('portfolioChange').textContent = '+0.0%';
+  document.getElementById('clarityValue').textContent = '100%';
+  document.getElementById('clarityBar').style.width = '100%';
+  document.getElementById('liveDisciplineScore').textContent = '72';
+  document.getElementById('liveExecutionScore').textContent = '74';
+  document.getElementById('liveClarityScore').textContent = '76';
+  document.getElementById('liveOutcomeLabel').textContent = '0%';
+  document.getElementById('liveOutcomeLabel').className = 'metric-value';
+  document.getElementById('liveOutcomeLabel').style.fontSize = '1.2rem';
+  document.getElementById('liveRouteCopy').textContent = 'Route memory will start reacting after your first real choice.';
+  document.getElementById('tradeLog').innerHTML = '<div class="log-item"><span class="log-time">--:--</span><span class="log-action">Simulation starting...</span></div>';
+
+  updatePosition();
+  updateEmotions();
+  updateLiveSnapshot();
+}
+
+function replaySimulation() {
+  if (!currentSimId) return;
+  startSimulation(currentSimId);
+}
+
+function processStep() {
+  if (currentStep >= currentSim.steps.length) {
+    analyzePerformance();
+    return;
+  }
+  
+  const step = resolveStep(currentSim.steps[currentStep], currentStep);
+  currentResolvedStep = step;
+  const indicator = document.getElementById('phaseIndicator');
+  indicator.textContent = step.phase;
+  indicator.className = 'phase-indicator phase-' + step.type;
+  
+  document.getElementById('questionContainer').classList.remove('active');
+  document.getElementById('resultContainer').classList.remove('active');
+  
+  if (step.type === 'setup' || step.type === 'scenario') {
+    if (step.chartData) {
+      showChart(step.chartData);
+    }
+    showScenario(step.text);
+  } else if (step.type === 'decision' || step.type === 'emotion') {
+    showQuestion(step);
+  }
+}
+
+function showChart(data) {
+  document.getElementById('chartSection').classList.remove('hidden');
+  
+  if (data.entry) {
+    position.entry = data.entry;
+    position.stop = data.stop;
+    position.target = data.target;
+    position.quantity = 200;
+    document.getElementById('entryPrice').textContent = '₹' + data.entry;
+    document.getElementById('stopLoss').textContent = '₹' + data.stop;
+    document.getElementById('riskReward').textContent = '1:3';
+  }
+  
+  position.current = data.current || data.entry;
+  animateChart();
+}
+
+function animateChart() {
+  const canvas = document.getElementById('liveChart');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  
+  let dataPoints = [];
+  const basePrice = position.entry || 485;
+  const currentPrice = position.current || basePrice;
+  
+  // Generate price movement
+  let price = basePrice;
+  for (let i = 0; i < 60; i++) {
+    const targetDiff = currentPrice - basePrice;
+    const progress = i / 59;
+    const noise = (Math.random() - 0.5) * 3;
+    price = basePrice + (targetDiff * progress) + noise;
+    dataPoints.push(price);
+  }
+  
+  let displayedPoints = 0;
+  
+  if (chartInterval) clearInterval(chartInterval);
+  chartInterval = setInterval(() => {
+    if (displayedPoints >= dataPoints.length) {
+      clearInterval(chartInterval);
+      return;
+    }
+    
+    displayedPoints++;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 5; i++) {
+      const y = (canvas.height / 4) * i;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+    
+    // Price line
+    const points = dataPoints.slice(0, displayedPoints);
+    const minPrice = Math.min(...dataPoints) * 0.998;
+    const maxPrice = Math.max(...dataPoints) * 1.002;
+    const priceRange = maxPrice - minPrice;
+    
+    ctx.beginPath();
+    ctx.strokeStyle = points[points.length - 1] >= basePrice ? '#00ff88' : '#ff2d6b';
+    ctx.lineWidth = 2;
+    
+    points.forEach((p, i) => {
+      const x = (i / (dataPoints.length - 1)) * canvas.width;
+      const y = canvas.height - ((p - minPrice) / priceRange * canvas.height);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    
+    ctx.stroke();
+    
+    // Update price display
+    const curr = points[points.length - 1];
+    const change = ((curr - basePrice) / basePrice) * 100;
+    document.getElementById('currentPrice').textContent = '₹' + curr.toFixed(2);
+    document.getElementById('currentChange').textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+    document.getElementById('currentChange').className = 'chart-change ' + (change >= 0 ? 'text-green' : 'text-red');
+    
+    if (position.entry > 0) {
+      const pnl = (curr - position.entry) * position.quantity;
+      document.getElementById('currentPnL').textContent = (pnl >= 0 ? '+₹' : '₹') + pnl.toFixed(0);
+      document.getElementById('currentPnL').style.color = pnl >= 0 ? 'var(--g)' : 'var(--r)';
+    }
+  }, 50);
+}
+
+function showScenario(text) {
+  const el = document.getElementById('scenarioText');
+  el.style.display = 'block'; // Ensure it's visible
+  document.getElementById('questionContainer').style.display = 'none'; // Collapse questions
+  document.getElementById('phaseIndicator').style.display = 'block';
+  
+  el.className = 'scenario-text typing';
+  el.innerHTML = '';
+  
+  let index = 0;
+  const interval = setInterval(() => {
+    if (index < text.length) {
+      if (text[index] === '<') {
+        const closeIndex = text.indexOf('>', index);
+        el.innerHTML += text.substring(index, closeIndex + 1);
+        index = closeIndex + 1;
+      } else {
+        el.innerHTML += text[index];
+        index++;
+      }
+    } else {
+      clearInterval(interval);
+      el.classList.remove('typing');
+      
+      // Inject the manual PROCEED button
+      const btnContainer = document.createElement('div');
+      const btn = document.createElement('button');
+      btn.className = 'proceed-btn';
+      btn.innerHTML = 'PROCEED ➔';
+      
+      btn.onclick = () => {
+        btnContainer.remove();
+        currentStep++;
+        if(typeof updateProgress === 'function') updateProgress();
+        processStep();
+      };
+      
+      btnContainer.appendChild(btn);
+      el.appendChild(btnContainer);
+    }
+  }, 15);
+}
+
+function showQuestion(step) {
+  document.getElementById('scenarioText').innerHTML = '';
+  document.getElementById('scenarioText').style.display = 'none'; // Collapse text to prevent gaps
+  
+  const container = document.getElementById('questionContainer');
+  container.style.display = 'block'; // Make questions visible
+  
+  let timerHTML = '';
+  if (step.timer) {
+    timerHTML = `<div class="question-timer" id="questionTimer">${step.timer}s</div>`;
+    startTimer(step.timer);
+  }
+  
+  container.innerHTML = `
+    <div class="question-prompt">${step.question}</div>
+    ${timerHTML}
+    <div class="question-options">
+      ${step.options.map((opt, i) => `
+        <button class="option-btn" onclick="selectOption(${i})">
+          <div class="option-letter">${opt.letter}</div>
+          <div class="option-text">
+            <div class="option-label">${opt.label}</div>
+            <div class="option-desc">${opt.desc}</div>
+          </div>
+        </button>
+      `).join('')}
+    </div>
+  `;
+  container.classList.add('active');
+}
+
+let activeTimer = null;
+function startTimer(seconds) {
+  let remaining = seconds;
+  const timerEl = document.getElementById('questionTimer');
+  
+  if(activeTimer) clearInterval(activeTimer);
+  activeTimer = setInterval(() => {
+    remaining--;
+    if (timerEl) timerEl.textContent = remaining + 's';
+    
+    if (remaining <= 0) {
+      clearInterval(activeTimer);
+      if (userChoices.filter(c => c.step === currentStep).length === 0) {
+        selectOption(1, true); 
+      }
+    }
+  }, 1000);
+}
+
+function selectOption(index, timedOut = false) {
+  if(activeTimer) clearInterval(activeTimer);
+  const step = currentResolvedStep || resolveStep(currentSim.steps[currentStep], currentStep);
+  const option = step.options[index];
+  const label = timedOut ? `${option.label} [TIMEOUT]` : option.label;
+  userChoices.push({
+    step: currentStep,
+    choice: index,
+    type: step.type,
+    label: label,
+    timedOut: timedOut,
+    bias: inferBiasFromOption(step, option, timedOut)
+  });
+
+  mergeBranchState(option.effects);
+  applyBranchSelectionEffects(step, index);
+  
+  if (step.emotionImpact) {
+    Object.keys(step.emotionImpact).forEach(key => {
+      emotionalState[key] = Math.max(0, Math.min(100, (emotionalState[key] || 0) + step.emotionImpact[key]));
+    });
+    updateEmotions();
+  }
+  
+  updateLiveSnapshot();
+  addLog(label);
+  
+  currentStep++;
+  if(typeof updateProgress === 'function') updateProgress();
+  setTimeout(() => processStep(), 500);
+}
+
+function updatePosition() {
+  if (position.entry > 0) {
+    document.getElementById('positionStatus').textContent = 'LONG ' + position.quantity + ' SHARES';
+  } else {
+    document.getElementById('positionStatus').textContent = 'NO POSITION';
+  }
+}
+
+function updateEmotions() {
+  const getLevel = (v) => v >= 60 ? 'HIGH' : v >= 30 ? 'MEDIUM' : 'LOW';
+  const getClass = (v) => v >= 60 ? 'level-high' : v >= 30 ? 'level-medium' : 'level-low';
+  
+  ['fear', 'greed', 'revenge', 'discipline', 'patience'].forEach(emotion => {
+    const el = document.getElementById(emotion + 'Level');
+    if (el) {
+      const val = emotionalState[emotion] || 0;
+      el.textContent = getLevel(val);
+      el.className = 'emotion-level ' + getClass(val);
+    }
+  });
+  
+  const clarityEl = document.getElementById('clarityValue');
+  if(clarityEl) {
+    const scores = calculateStrictScores();
+    const clarity = scores.clarityScore;
+    clarityEl.textContent = Math.round(clarity) + '%';
+    document.getElementById('clarityBar').style.width = clarity + '%';
+  }
+
+  updateLiveSnapshot();
+}
+
+function addLog(message) {
+  const log = document.getElementById('tradeLog');
+  if(!log) return;
+  const time = new Date().toLocaleTimeString('en-IN', {hour: '2-digit', minute: '2-digit'});
+  const item = document.createElement('div');
+  item.className = 'log-item';
+  item.innerHTML = `<span class="log-time">${time}</span><span class="log-action">${message}</span>`;
+  log.insertBefore(item, log.firstChild);
+}
+
+// ==========================================================================
+// ADVANCED MULTI-VARIATE HEURISTIC EVALUATION ENGINE
+// ==========================================================================
+function analyzePerformance() {
+  // 1. Setup secure loading screen and hide previous UI
+  const scenarioTextEl = document.getElementById('scenarioText');
+  scenarioTextEl.removeAttribute('style'); // Reset any previous styles
+  scenarioTextEl.innerHTML = `
+    <div class="loading-outer">
+      <div class="loading" style="flex-direction:column; align-items:center; justify-content:center; width:100%; padding:4rem 0; min-height:320px;">
+        <div class="spinner" style="width:60px; height:60px; margin-bottom:2rem;"></div>
+        <div class="loading-text" style="margin-top:0; font-family:var(--fD); font-size:1.5rem; letter-spacing:2px; color:#a78bff; text-align:center;">MIND ENGINE PROCESSING PROBABILISTIC OUTCOMES...</div>
+        <div style="color:#a78bff; font-family:var(--fM); font-size:1.1rem; margin-top:1.2rem; opacity:0.5; text-align:center;">Analyzing cognitive bias triggers and execution latency.</div>
+      </div>
+    </div>
+  `;
+  
+  // Hide other elements to prevent visual gaps
+  document.getElementById('questionContainer').innerHTML = '';
+  document.getElementById('questionContainer').style.display = 'none';
+  const pi = document.getElementById('phaseIndicator');
+  if(pi) pi.style.display = 'none';
+  if(typeof engineInterval !== 'undefined' && engineInterval) clearInterval(engineInterval);
+  
+  // 2. Process exact user path and probabilities
+    setTimeout(() => {
+    try {
+      const isInvestor = typeof currentSim.initialValue !== 'undefined';
+      const scores = calculateStrictScores();
+      
+      let verdict = "UNKNOWN";
+      let emoji = "⚠️";
+      let pnl = 0;
+      let execAnalysis = "";
+      let emotionText = "";
+      let keyMistake = "None";
+      let whatTheyDidRight = "None";
+      let lessons = [];
+
+      // Extract precise Biases and Behaviors
+      const biases = userChoices.map(c => c.bias).filter(b => b && b !== 'undefined' && b !== '');
+      const hasTimeout = userChoices.some(c => c.label && c.label.includes('TIMEOUT'));
+      
+      // ==========================================
+      // TRADER PROBABILISTIC OUTCOMES
+      // ==========================================
+      if (!isInvestor) {
+        // Calculate PnL Percentage impact
+        pnl = calculateTraderPnlPercent();
+        position.pnl = (currentSim.initialCapital || 0) * (pnl / 100);
+          
+        if (hasTimeout || biases.includes("Analysis Paralysis")) {
+          verdict = "ANALYSIS PARALYSIS"; emoji = "🥶";
+          execAnalysis = "You froze under pressure. In high-speed trading, hesitation is a decision to lose money. The time-bleed engine punished your lack of conviction severely.";
+          emotionText = "Fear overwhelmed your executive function. You watched the screen but couldn't press the button to execute your plan.";
+          keyMistake = "Failure to execute your predetermined plan due to anxiety.";
+          whatTheyDidRight = "Very little. You avoided full-blown self-destruction, but paralysis is not discipline.";
+          lessons = ["Hesitation kills traders.", "A bad plan executed flawlessly is better than a perfect plan never executed."];
+        } else if (biases.includes("Sunk Cost Fallacy") || biases.includes("Revenge Trading") || biases.includes("Herd Mentality")) {
+          verdict = "EGO-DRIVEN DESTRUCTION"; emoji = "💀";
+          execAnalysis = "You refused to take a small loss, turning it into a catastrophic one. You added to a losing position, violating the absolute #1 rule of capital preservation.";
+          emotionText = "Your ego could not accept being wrong. The greed to 'break even' caused massive capital impairment. Hope hijacked your logic.";
+          keyMistake = "Averaging down on a losing day trade.";
+          whatTheyDidRight = "You exposed the flaw honestly: when stressed, you become dangerous to your own capital.";
+          lessons = ["Never average down a losing day trade.", "The market does not know or care what your entry price is."];
+        } else if (biases.includes("Panic Execution") || biases.includes("Loss Aversion")) {
+          verdict = "SHAKEN OUT"; emoji = "🍂";
+          execAnalysis = "You let the flashing orderbook and fake news hijack your thesis. You hit the 'Sell' button exactly when liquidity providers wanted you to.";
+          emotionText = "Panic completely overrode your logic. The moment volatility spiked, your discipline vanished and survival instincts took over.";
+          keyMistake = "Selling into a flash crash instead of waiting for your hard stop.";
+          whatTheyDidRight = "You noticed danger quickly, but your response quality collapsed under pressure.";
+          lessons = ["Stop losses are there for a reason. Let them do their job.", "Do not stare at the L2 orderbook during news events."];
+        } else if (pnl > 0 && biases.length === 0) {
+          verdict = "MECHANICAL PERFECTION"; emoji = "🎯";
+          execAnalysis = "Flawless execution. You identified the setup, took the trade, and managed the risk mechanically. Zero hesitation.";
+          emotionText = "Ice in your veins. You kept Fear and Greed completely neutralized despite the simulated market manipulation.";
+          keyMistake = "None detected. A mathematically perfect session.";
+          whatTheyDidRight = "Followed the rules despite market noise.";
+          lessons = ["Boring trading is profitable trading.", "Discipline scales. If you can do this with 1 Lakh, you can do it with 10 Crore."];
+        } else {
+          verdict = "SLOPPY SURVIVAL"; emoji = "🩹";
+          execAnalysis = "You survived, but your execution was messy. You eventually took the loss or secured a minor win, but the emotional drag was heavy.";
+          emotionText = "You fought a war in your head. You did the right thing eventually, but the stress cost was far too high.";
+          keyMistake = "Letting the P&L dictate your heart rate.";
+          whatTheyDidRight = "You eventually made the correct mechanical choice.";
+          lessons = ["Reduce your position size until your heart rate stays flat.", "Trust the math, not the adrenaline."];
+        }
+      } 
+      // ==========================================
+      // INVESTOR PROBABILISTIC OUTCOMES
+      // ==========================================
+      else {
+        const { initialVal, activeVal, ghostVal, pnlPercent } = calculateInvestorOutcome();
+        const diff = activeVal - ghostVal;
+        pnl = pnlPercent;
+          
+        if (biases.includes("Loss Aversion") || biases.includes("Capitulation") || biases.includes("Panic")) {
+          verdict = "WEALTH TRANSFERRED"; emoji = "📉";
+          execAnalysis = "You sold your high-quality assets near the absolute bottom. You permanently transferred your wealth to institutional investors who bought your panic.";
+          emotionText = "The media noise completely hacked your amygdala. You sold out of pure terror just to make the psychological pain stop.";
+          keyMistake = "Selling long-term assets based on short-term news.";
+          whatTheyDidRight = "You relieved short-term emotional pain. Financially, that was an expensive act of surrender.";
+          lessons = ["Cash is a guaranteed loss against inflation.", "The stock market is the only store where customers run away when there is a 30% discount."];
+        } else if (biases.includes("Action Bias") || biases.includes("Anchoring")) {
+          verdict = "CHOPPED TO PIECES"; emoji = "🔪";
+          execAnalysis = "You suffered from the illusion of control. You felt that 'doing something' was safer than doing nothing. The passive Ghost Portfolio destroyed your returns.";
+          emotionText = "You couldn't sit on your hands. The anxiety of inaction forced you to make sub-optimal portfolio adjustments.";
+          keyMistake = "Over-tinkering with a long-term portfolio.";
+          whatTheyDidRight = "You stayed engaged, but activity without edge is just polished self-harm.";
+          lessons = ["In investing, laziness is a superpower.", "Your portfolio is like a bar of soap. The more you handle it, the smaller it gets."];
+        } else if (biases.includes("Sunk Cost Fallacy") || biases.includes("Endowment Effect")) {
+          verdict = "THE VALUE TRAP"; emoji = "🕳️";
+          execAnalysis = "You caught a falling knife. You confused a dying, fundamentally broken company with a 'bargain' and threw good money after bad.";
+          emotionText = "Your ego refused to admit the original thesis was broken. You averaged down to defend your pride, not your capital.";
+          keyMistake = "Averaging down on a fundamental loser instead of cutting it.";
+          whatTheyDidRight = "You showed courage, but without judgment courage becomes liability.";
+          lessons = ["Never average down on a single stock; only average down on the Index.", "Price is what you pay, value is what you get. Sometimes price drops because value is permanently gone."];
+        } else if (diff > 5000) {
+          verdict = "GENERATIONAL ALPHA"; emoji = "👑";
+          execAnalysis = "A masterclass in behavioral finance. You leaned into the fear, bought the blood in the streets, and significantly outperformed the passive index.";
+          emotionText = "You successfully disconnected your emotions from the market chaos. When others panicked, you deployed capital. When others were euphoric, you managed risk.";
+          keyMistake = "You took on significant psychological burden to achieve this, which causes burnout if sustained.";
+          whatTheyDidRight = "Contrarian accumulation at maximum pessimism.";
+          lessons = ["Fortunes are built in bear markets; they are only collected in bull markets.", "Be greedy when others are fearful."];
+        } else {
+          verdict = "PASSIVE ZEN"; emoji = "🧘";
+          execAnalysis = "You essentially matched the Ghost Portfolio. You didn't do anything catastrophic, but you didn't generate massive alpha either. A perfectly acceptable result for wealth preservation.";
+          emotionText = "You successfully ignored the noise. Your patience level was elite.";
+          keyMistake = "Missed the opportunity to deploy excess cash aggressively during the crash.";
+          whatTheyDidRight = "You sat on your hands and let compounding work uninterrupted.";
+          lessons = ["Doing nothing is often the most profitable decision you can make.", "Ignore the financial news completely."];
+        }
+
+        const portfolioValueEl = document.getElementById('portfolioValue');
+        const portfolioChangeEl = document.getElementById('portfolioChange');
+        if (portfolioValueEl) portfolioValueEl.textContent = '₹' + (activeVal / 100000).toFixed(1) + 'L';
+        if (portfolioChangeEl) {
+          portfolioChangeEl.textContent = (pnl >= 0 ? '+' : '') + pnl.toFixed(1) + '%';
+          portfolioChangeEl.className = pnl >= 0 ? 'text-green' : 'text-red';
+        }
+      }
+
+      // 3. Construct Final Output Payload
+      whatTheyDidRight = getStrictPositive({ pnlImpact: pnl }, scores);
+
+      const analysis = {
+      verdict: verdict,
+      verdictEmoji: emoji,
+      title: "Advanced AI Post-Mortem",
+      executionAnalysis: execAnalysis,
+      emotionalControl: emotionText,
+      keyMistake: keyMistake,
+      whatTheyDidRight: whatTheyDidRight,
+      professionalAdvice: getStrictAdvice({ pnlImpact: pnl }, scores),
+      lessons: lessons,
+      disciplineScore: scores.disciplineScore,
+      executionScore: scores.executionScore,
+      clarityScore: scores.clarityScore,
+      pnlImpact: parseFloat(pnl.toFixed(1)),
+      routeSummary: buildRouteSummary(),
+      decisionAudit: buildDecisionAudit()
+      };
+
+      const runSummary = buildRunSummary(analysis, scores, biases);
+      if (runSummary.previous) {
+        analysis.compare = {
+          disciplineDelta: analysis.disciplineScore - (runSummary.previous.disciplineScore || 0),
+          executionDelta: analysis.executionScore - (runSummary.previous.executionScore || 0),
+          pnlDelta: parseFloat((analysis.pnlImpact - (runSummary.previous.pnlImpact || 0)).toFixed(1)),
+          previousVerdict: runSummary.previous.verdict || 'N/A'
+        };
+      }
+      analysis.runSummary = runSummary;
+
+      // 4. Send to display
+      showResults(analysis);
+    } catch (err) {
+      console.error('Simulation analysis error:', err);
+      showResults({
+      verdict: 'ERROR',
+      verdictEmoji: '❌',
+      title: 'Analysis Error',
+      executionAnalysis: '',
+      emotionalControl: '',
+      keyMistake: '',
+      whatTheyDidRight: '',
+      professionalAdvice: '',
+      lessons: ['An error occurred during simulation analysis. Please try again or contact support.', err && err.message ? err.message : String(err)],
+      disciplineScore: 0,
+      executionScore: 0,
+      clarityScore: 0,
+      decisionAudit: [],
+      pnlImpact: 0
+      });
+    }
+    }, 2000);
+}
+
+
+function showResults(analysis) {
+  // FINAL GAP CLEANUP
+  document.getElementById('scenarioText').style.display = 'none';
+  document.getElementById('scenarioText').innerHTML = '';
+  document.getElementById('questionContainer').style.display = 'none';
+  document.getElementById('questionContainer').innerHTML = '';
+  document.getElementById('phaseIndicator').style.display = 'none';
+  
+  const chartSec = document.getElementById('chartSection');
+  if (chartSec) chartSec.classList.add('hidden');
+
+  if (analysis.runSummary && window.FINOS_PROFILE) {
+    window.FINOS_PROFILE.recordRun(analysis.runSummary);
+    updateSimulationProfileStrip();
+  }
+
+  const compareBlock = analysis.compare ? `
+      <div class="result-section">
+        <div class="result-section-title"><span class="result-section-icon">📊</span> Replay Compare</div>
+        <div class="compare-box">
+          Last run verdict: <strong>${analysis.compare.previousVerdict}</strong>
+          <div class="compare-grid">
+            <div class="compare-stat">
+              <strong class="${analysis.compare.disciplineDelta >= 0 ? 'text-green' : 'text-red'}">${analysis.compare.disciplineDelta >= 0 ? '+' : ''}${analysis.compare.disciplineDelta}</strong>
+              <span>DISCIPLINE VS LAST RUN</span>
+            </div>
+            <div class="compare-stat">
+              <strong class="${analysis.compare.executionDelta >= 0 ? 'text-green' : 'text-red'}">${analysis.compare.executionDelta >= 0 ? '+' : ''}${analysis.compare.executionDelta}</strong>
+              <span>EXECUTION VS LAST RUN</span>
+            </div>
+            <div class="compare-stat">
+              <strong class="${analysis.compare.pnlDelta >= 0 ? 'text-green' : 'text-red'}">${analysis.compare.pnlDelta >= 0 ? '+' : ''}${analysis.compare.pnlDelta}%</strong>
+              <span>P&L IMPACT DELTA</span>
+            </div>
+          </div>
+        </div>
+      </div>` : '';
+
+  const auditRows = (analysis.decisionAudit || []).map(row => `
+            <div class="audit-row">
+              <div class="audit-copy"><strong>Step ${row.step}:</strong> ${row.label}</div>
+              <div class="audit-tag">${row.bias}</div>
+              <div class="audit-score ${row.scoreClass}">${row.scoreText}</div>
+            </div>
+          `).join('');
+  const routeBlock = analysis.routeSummary ? `
+      <div class="result-section">
+        <div class="result-section-title"><span class="result-section-icon">🧭</span> Branch Route</div>
+        <div class="result-section-text">${analysis.routeSummary}</div>
+      </div>` : '';
+  const autoJournalBlock = analysis.runSummary?.autoJournal ? `
+      <div class="result-section">
+        <div class="result-section-title"><span class="result-section-icon">📝</span> Auto Journal</div>
+        <div class="result-section-text">${analysis.runSummary.autoJournal}</div>
+      </div>` : '';
+  
+  const container = document.getElementById('resultContainer');
+  container.innerHTML = `
+    <div class="result-header">
+      <div class="result-verdict">${analysis.verdictEmoji}</div>
+      <div class="result-title">${analysis.verdict}</div>
+      <div class="result-subtitle">${analysis.title}</div>
+    </div>
+    
+    <div class="result-sections">
+      <div class="result-section">
+        <div class="result-section-title"><span class="result-section-icon">⚡</span> Execution Analysis</div>
+        <div class="result-section-text">${analysis.executionAnalysis}</div>
+      </div>
+      <div class="result-section">
+        <div class="result-section-title"><span class="result-section-icon">🧠</span> Emotional Control</div>
+        <div class="result-section-text">${analysis.emotionalControl}</div>
+      </div>
+      <div class="result-section">
+        <div class="result-section-title"><span class="result-section-icon">❌</span> Key Mistake</div>
+        <div class="result-section-text">${analysis.keyMistake}</div>
+      </div>
+      <div class="result-section">
+        <div class="result-section-title"><span class="result-section-icon">✅</span> What You Did Right</div>
+        <div class="result-section-text">${analysis.whatTheyDidRight}</div>
+      </div>
+      <div class="result-section">
+        <div class="result-section-title"><span class="result-section-icon">🎓</span> Professional Advice</div>
+        <div class="result-section-text">${analysis.professionalAdvice}</div>
+      </div>
+      <div class="result-section">
+        <div class="result-section-title"><span class="result-section-icon">💡</span> Key Lessons</div>
+        <div class="result-section-text">
+          ${analysis.lessons.map((l, i) => `<strong>${i + 1}.</strong> ${l}<br>`).join('')}
+        </div>
+      </div>
+      <div class="result-section">
+        <div class="result-section-title"><span class="result-section-icon">🧾</span> Decision Audit</div>
+        <div class="decision-audit">
+          ${auditRows}
+        </div>
+      </div>
+      ${routeBlock}
+      ${autoJournalBlock}
+      ${compareBlock}
+    </div>
+    
+    <div class="result-metrics">
+      <div class="result-metric">
+        <div class="result-metric-value ${analysis.pnlImpact >= 0 ? 'text-green' : 'text-red'}">
+          ${analysis.pnlImpact >= 0 ? '+' : ''}${analysis.pnlImpact}%
+        </div>
+        <div class="result-metric-label">P&L IMPACT</div>
+      </div>
+      <div class="result-metric">
+        <div class="result-metric-value text-yellow">${analysis.disciplineScore}</div>
+        <div class="result-metric-label">DISCIPLINE</div>
+      </div>
+      <div class="result-metric">
+        <div class="result-metric-value text-red">${analysis.executionScore}</div>
+        <div class="result-metric-label">EXECUTION</div>
+      </div>
+      <div class="result-metric">
+        <div class="result-metric-value text-green">${analysis.clarityScore}</div>
+        <div class="result-metric-label">CLARITY</div>
+      </div>
+    </div>
+    <div class="result-actions">
+      <button class="result-action-btn" onclick="replaySimulation()">REPLAY SAME SIM</button>
+      <button class="result-action-btn" onclick="closeModal()">CLOSE DEBRIEF</button>
+    </div>
+  `;
+  
+  container.classList.add('active');
+  if (typeof addXP === 'function') addXP(analysis.disciplineScore + analysis.executionScore, currentSim.title);
+}
+
+// Patch: show/hide investor vs trader panel based on sim type
+const _origStart = startSimulation;
+startSimulation = function(simId) {
+  const sim = SIMULATIONS[simId];
+  if (!sim) { console.warn('Sim not found:', simId); return; }
+  const isInvestor = sim.initialValue !== undefined;
+  document.getElementById('traderPanel').classList.toggle('hidden', isInvestor);
+  document.getElementById('investorPanel').classList.toggle('hidden', !isInvestor);
+  if (isInvestor) {
+    // investor sims use portfolioValue display
+    const pv = sim.initialValue || 5000000;
+    document.getElementById('portfolioValue').textContent = '₹' + (pv/100000).toFixed(1) + 'L';
+    document.getElementById('portfolioChange').textContent = '+0.0%';
+  }
+  _origStart(simId);
+};
+
+document.getElementById('simModal').addEventListener('click', (event) => {
+  if (event.target.id === 'simModal') closeModal();
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && document.getElementById('simModal').classList.contains('active')) {
+    closeModal();
+  }
+});
+
+updateSimulationProfileStrip();
+window.addEventListener('behavior-profile-change', updateSimulationProfileStrip);
+</script>
+{% endblock %}

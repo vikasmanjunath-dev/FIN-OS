@@ -1,0 +1,774 @@
+import React, { useState, useMemo } from 'react';
+import { Home, Globe, User } from 'lucide-react';
+import { useIntelFeed } from './hooks/useIntelFeed';
+import Header from './components/Header';
+import TickerTape from './components/TickerTape';
+import FilterDock, { Category, TimeRange } from './components/FilterDock';
+import NewsGrid from './components/NewsGrid';
+import AlertToast from './components/AlertToast';
+import './index.css';
+
+const App = () => {
+  const { items, markets, status, loading, newImpactAlerts, removeAlert, manualRefresh } = useIntelFeed();
+  
+  const [activeCat, setActiveCat] = useState<Category>('all');
+  const [activeImpact, setActiveImpact] = useState(false);
+  const [activeTime, setActiveTime] = useState<TimeRange>('all');
+
+  const filteredItems = useMemo(() => {
+    const currentTimeSecs = Date.now() / 1000;
+    
+    return items.filter(item => {
+      if (activeCat !== 'all' && item.type !== activeCat) return false;
+      if (activeImpact && !item.high_impact) return false;
+      
+      if (activeTime !== 'all') {
+        const hoursAgo = (currentTimeSecs - item.timestamp) / 3600;
+        if (hoursAgo > parseInt(activeTime)) return false;
+      }
+      
+      return true;
+    });
+  }, [items, activeCat, activeImpact, activeTime]);
+
+  return (
+    <div className="flex min-h-screen bg-[var(--bg-void)] text-white overflow-x-hidden">
+      <div className="fixed top-0 left-0 w-screen h-screen z-0 cyber-grid pointer-events-none opacity-40"></div>
+      
+      <aside className="w-[260px] bg-[#0a0e17]/80 backdrop-blur-xl border-r border-[var(--glass-border)] p-8 flex flex-col sticky top-0 h-screen z-10 shrink-0">
+        <div className="font-mono font-bold text-2xl tracking-[2px] text-[#00f3ff] mb-10">FIN•OS</div>
+        <nav className="flex flex-col gap-2">
+          <NavItem icon={<User size={18} />} label="Profile" />
+          <NavItem icon={<Home size={18} />} label="Home" />
+          <NavItem icon={<Globe size={18} />} label="News" active />
+        </nav>
+      </aside>
+
+      <main className="flex-1 relative z-10 px-10 flex flex-col">
+        <Header status={status} onRefresh={manualRefresh} />
+        <TickerTape markets={markets} />
+        
+        <div className="flex-1 relative">
+          <NewsGrid items={filteredItems} loading={loading} />
+        </div>
+
+        <FilterDock 
+          activeCat={activeCat} setActiveCat={setActiveCat}
+          activeImpact={activeImpact} setActiveImpact={setActiveImpact}
+          activeTime={activeTime} setActiveTime={setActiveTime}
+        />
+      </main>
+
+      <AlertToast alerts={newImpactAlerts} onRemove={removeAlert} />
+    </div>
+  );
+};
+
+const NavItem = ({ icon, label, active = false }: { icon: React.ReactNode, label: string, active?: boolean }) => {
+  return (
+    <a href="#" className={`flex items-center gap-3 px-4 py-3 rounded-lg font-mono text-sm transition-all duration-300 ${active ? 'bg-[#00f3ff]/10 text-[#00f3ff] pl-6' : 'text-gray-400 hover:bg-[#00f3ff]/5 hover:text-[#00f3ff] hover:pl-6'}`}>
+      {icon}
+      {label}
+    </a>
+  );
+};
+
+export default App;
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App';
+import './index.css';
+
+const rootElement = document.getElementById('root');
+if (!rootElement) throw new Error('Failed to find the root element');
+
+const root = createRoot(rootElement);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIN•OS | Neural Intel Stream</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Manrope:wght@300;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>
+@import "tailwindcss";
+
+:root[data-theme="dark"] {
+  --bg-void: #030508;
+  --grid-color: rgba(0, 243, 255, 0.04);
+  --accent-cyan: #00F3FF;
+  --accent-lime: #C7F000;
+  --accent-purple: #B026FF;
+  --accent-red: #ff4757;
+  --glass-bg: rgba(10, 14, 23, 0.6);
+  --glass-border: rgba(0, 243, 255, 0.15);
+  --text-main: #FFFFFF;
+  --text-muted: #888888;
+}
+
+:root[data-theme="light"] {
+  --bg-void: #F2F4F8;
+  --grid-color: rgba(0, 138, 144, 0.06);
+  --accent-cyan: #008A90;
+  --accent-lime: #8FA800;
+  --accent-purple: #8E44AD;
+  --accent-red: #d63031;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --text-main: #0B0D12;
+  --text-muted: #555555;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-void);
+  color: var(--text-main);
+  overflow-x: hidden;
+}
+
+/* Background Grid */
+.cyber-grid {
+  background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 50px 50px;
+  transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+  animation: grid-move 20s linear infinite;
+}
+
+@keyframes grid-move {
+  100% {
+    transform: perspective(500px) rotateX(60deg) translateY(100px) translateZ(-200px);
+  }
+}
+
+.glitch-text {
+  font-family: 'Manrope', sans-serif;
+  letter-spacing: -1px;
+}
+
+.ticker-wrap {
+  background: rgba(0, 243, 255, 0.03);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.ticker {
+  animation: ticker-scroll 30s linear infinite;
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.animate-blink {
+  animation: blink 1.5s infinite;
+}
+
+.animate-pulse-fast {
+  animation: pulse-fast 1s infinite alternate;
+}
+
+@keyframes pulse-fast {
+  to {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+import React, { useState, useEffect } from 'react';
+import { Moon, Sun, RefreshCw } from 'lucide-react';
+import Radar from './Radar';
+
+interface HeaderProps {
+  status: string;
+  onRefresh: () => void;
+}
+
+const Header = ({ status, onRefresh }: HeaderProps) => {
+  const [theme, setTheme] = useState(localStorage.getItem('finos-theme') || 'dark');
+  const [isSpinning, setIsSpinning] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('finos-theme', theme);
+  }, [theme]);
+
+  const handleThemeToggle = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
+  const handleRefresh = () => {
+    setIsSpinning(true);
+    onRefresh();
+    setTimeout(() => setIsSpinning(false), 1000);
+  };
+
+  const getStatusColor = () => {
+    if (status.includes('SECURE')) return '#00F3FF';
+    if (status.includes('INTERRUPTED')) return '#ff4757';
+    return '#888888';
+  };
+
+  return (
+    <header className="relative z-10 flex justify-between items-end border-b border-[#00f3ff]/15 pb-8 mb-0 pt-10">
+      <div>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="inline-flex items-center gap-2 bg-[#00f3ff]/5 border border-[#00f3ff] px-3 py-1.5 rounded-full font-mono text-xs text-[#00f3ff]">
+            <div 
+              className="w-2 h-2 rounded-full animate-pulse-fast"
+              style={{ backgroundColor: getStatusColor(), boxShadow: `0 0 10px ${getStatusColor()}` }}
+            ></div>
+            <span>{status}</span>
+          </div>
+          <button 
+            onClick={handleRefresh}
+            className={`flex items-center justify-center w-8 h-8 rounded-lg bg-[#00f3ff]/5 border border-[#00f3ff]/20 text-[#00f3ff] hover:bg-[#00f3ff]/15 hover:border-[#00f3ff] transition-all ${isSpinning ? 'animate-spin' : ''}`}
+            title="Manual Resync"
+          >
+            <RefreshCw size={14} />
+          </button>
+        </div>
+        <h1 className="glitch-text text-4xl font-extrabold m-0 text-white">GLOBAL INTEL MATRIX</h1>
+        <p className="text-[#888888] font-mono text-sm mt-1">Multi-variable live data shards decrypted from local Node.js server.</p>
+      </div>
+      
+      <button 
+        onClick={handleThemeToggle} 
+        className="relative z-[5] bg-transparent border border-[#00f3ff]/15 text-white p-2 rounded-lg cursor-pointer text-xl hover:bg-white/5 transition-colors"
+      >
+        {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
+      </button>
+
+      <Radar />
+    </header>
+  );
+};
+
+export default Header;
+import React, { useEffect, useRef } from 'react';
+
+const Radar = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = 150;
+    canvas.height = 150;
+
+    let angle = 0;
+    let animationId: number;
+
+    const drawRadar = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const cx = canvas.width / 2, cy = canvas.height / 2, r = cx - 2;
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      
+      ctx.strokeStyle = `rgba(${isDark ? '0, 243, 255' : '0, 138, 144'}, 0.3)`;
+      ctx.lineWidth = 1;
+      
+      [0.3, 0.6, 1].forEach(scale => { 
+        ctx.beginPath(); 
+        ctx.arc(cx, cy, r * scale, 0, Math.PI * 2); 
+        ctx.stroke(); 
+      });
+      
+      ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy); ctx.stroke();
+      
+      ctx.save(); 
+      ctx.translate(cx, cy); 
+      ctx.rotate(angle);
+      ctx.beginPath(); 
+      ctx.moveTo(0, 0); 
+      ctx.arc(0, 0, r, 0, Math.PI / 3); 
+      ctx.lineTo(0, 0);
+      
+      const grad = ctx.createRadialGradient(0,0,0, 0,0,r);
+      grad.addColorStop(0, `rgba(${isDark ? '0, 243, 255' : '0, 138, 144'}, 0.6)`);
+      grad.addColorStop(1, "transparent");
+      
+      ctx.fillStyle = grad; 
+      ctx.fill(); 
+      ctx.restore();
+      
+      angle += 0.04; 
+      animationId = requestAnimationFrame(drawRadar);
+    };
+
+    drawRadar();
+
+    return () => {
+      cancelAnimationFrame(animationId);
+    };
+  }, []);
+
+  return (
+    <canvas 
+      ref={canvasRef} 
+      className="absolute right-10 top-2 w-[150px] h-[150px] opacity-60 pointer-events-none"
+    />
+  );
+};
+
+export default Radar;
+import React from 'react';
+import { motion } from 'framer-motion';
+
+export type Category = 'all' | 'crypto' | 'stocks' | 'macro';
+export type TimeRange = 'all' | '4' | '12' | '24';
+
+interface FilterDockProps {
+  activeCat: Category;
+  setActiveCat: (c: Category) => void;
+  activeImpact: boolean;
+  setActiveImpact: (i: boolean) => void;
+  activeTime: TimeRange;
+  setActiveTime: (t: TimeRange) => void;
+}
+
+const FilterDock = ({ activeCat, setActiveCat, activeImpact, setActiveImpact, activeTime, setActiveTime }: FilterDockProps) => {
+  return (
+    <motion.div 
+      initial={{ y: 100, opacity: 0, x: '-50%' }}
+      animate={{ y: 0, opacity: 1, x: '-50%' }}
+      transition={{ type: 'spring', damping: 20, stiffness: 100 }}
+      className="fixed bottom-8 left-1/2 bg-[#0a0e17]/85 backdrop-blur-[25px] border border-white/10 rounded-2xl p-3 flex flex-col gap-2.5 z-50 shadow-[0_20px_50px_rgba(0,0,0,0.7),inset_0_0_0_1px_rgba(255,255,255,0.05)] w-max"
+    >
+      <div className="flex gap-2.5 items-center justify-center">
+        {(['all', 'crypto', 'stocks', 'macro'] as Category[]).map(cat => (
+          <button
+            key={cat}
+            onClick={() => setActiveCat(cat)}
+            className={`bg-transparent border-none font-mono text-xs font-bold tracking-[1px] px-5 py-2.5 rounded-lg cursor-pointer transition-all duration-300 ${activeCat === cat ? 'bg-white text-[#030508] shadow-[0_0_15px_rgba(255,255,255,0.2)]' : 'text-[#888888] hover:bg-white/5 hover:text-white'}`}
+          >
+            {cat === 'stocks' ? 'EQUITY' : cat === 'all' ? 'ALL SHARDS' : cat.toUpperCase()}
+          </button>
+        ))}
+      </div>
+      
+      <div className="flex gap-2.5 items-center justify-center bg-black/20 p-1.5 rounded-xl border border-white/5">
+        <button
+          onClick={() => setActiveImpact(!activeImpact)}
+          className={`bg-transparent border border-transparent font-mono text-xs font-bold tracking-[1px] px-5 py-2.5 rounded-lg cursor-pointer transition-all duration-300 ${activeImpact ? 'bg-[#ff4757]/15 border-[#ff4757] text-[#ff4757]' : 'text-[#888888] hover:bg-white/5 hover:text-white'}`}
+        >
+          🔥 HIGH IMPACT
+        </button>
+        
+        <div className="w-[1px] h-5 bg-[#00f3ff]/15 mx-1"></div>
+        
+        <select 
+          value={activeTime}
+          onChange={(e) => setActiveTime(e.target.value as TimeRange)}
+          className="bg-white/5 text-white border border-[#00f3ff]/15 px-4 py-2 rounded-lg font-mono text-xs cursor-pointer outline-none hover:bg-white/10 transition-colors"
+        >
+          <option value="all">🕒 ANY TIME</option>
+          <option value="4">🕒 LAST 4 HOURS</option>
+          <option value="12">🕒 LAST 12 HOURS</option>
+          <option value="24">🕒 LAST 24 HOURS</option>
+        </select>
+      </div>
+    </motion.div>
+  );
+};
+
+export default FilterDock;
+import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { IntelItem } from '../hooks/useIntelFeed';
+import NewsCard from './NewsCard';
+
+interface NewsGridProps {
+  items: IntelItem[];
+  loading: boolean;
+}
+
+const NewsGrid = ({ items, loading }: NewsGridProps) => {
+  if (loading) {
+    return (
+      <div className="text-center py-[100px] w-full">
+        <div className="font-mono text-xl text-[#00f3ff] tracking-[3px] animate-blink">
+          DECRYPTING INCOMING PACKETS...
+        </div>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-[100px] w-full">
+        <div className="font-mono text-xl text-[#888888] tracking-[3px]">
+          NO ACTIVE SHARDS FOUND.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative z-[1] columns-1 lg:columns-2 gap-8 pb-[150px] min-h-[50vh]">
+      <AnimatePresence>
+        {items.map((item) => (
+          <div key={item.id} className="break-inside-avoid">
+            <NewsCard item={item} />
+          </div>
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default NewsGrid;
+import React from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { IntelItem } from '../hooks/useIntelFeed';
+import { ArrowRight } from 'lucide-react';
+
+interface NewsCardProps {
+  item: IntelItem;
+}
+
+const timeAgo = (timestamp: number) => {
+  const seconds = Math.floor((Date.now() / 1000) - timestamp);
+  const hrs = Math.floor(seconds / 3600);
+  if (hrs > 24) return Math.floor(hrs / 24) + "d ago";
+  if (hrs > 0) return hrs + "h ago";
+  const mins = Math.floor(seconds / 60);
+  if (mins > 0) return mins + "m ago";
+  return "Just now";
+};
+
+const NewsCard = ({ item }: NewsCardProps) => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 30 });
+  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 30 });
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["12deg", "-12deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-12deg", "12deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  const typeColorClass = {
+    crypto: 'bg-[#B026FF] shadow-[0_0_15px_#B026FF]',
+    stocks: 'bg-[#00F3FF] shadow-[0_0_15px_#00F3FF]',
+    macro: 'bg-[#C7F000] shadow-[0_0_15px_#C7F000]'
+  }[item.type] || 'bg-gray-500';
+
+  const tagBorderColorClass = {
+    crypto: 'border-[#B026FF]/30 text-[#B026FF]',
+    stocks: 'border-[#00F3FF]/30 text-[#00F3FF]',
+    macro: 'border-[#C7F000]/30 text-[#C7F000]'
+  }[item.type] || 'border-gray-500 text-gray-400';
+
+  return (
+    <motion.a
+      href={item.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group relative block bg-[#0a0e17]/60 backdrop-blur-xl border border-[#00f3ff]/15 rounded-2xl p-6 mb-8 no-underline text-white preserve-3d"
+      style={{
+        rotateX,
+        rotateY,
+        transformPerspective: 1000,
+      }}
+      whileHover={{ scale: 1.02 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      initial={{ opacity: 0, y: 50, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
+      layout
+    >
+      <div className={`absolute top-0 left-0 w-1 h-full rounded-l-2xl transition-all duration-300 ${typeColorClass}`}></div>
+      
+      <div className="flex justify-between items-center font-mono text-xs text-[#888888] mb-4">
+        <div className="flex gap-2 items-center">
+          <span className={`px-2.5 py-1 rounded bg-white/5 border tracking-[1px] uppercase ${tagBorderColorClass}`}>
+            {item.type}
+          </span>
+          {item.high_impact && (
+            <span className="bg-[#ff4757]/10 text-[#ff4757] border border-[#ff4757]/40 px-2 py-1 rounded font-extrabold animate-pulse">
+              🔥 HIGH IMPACT
+            </span>
+          )}
+        </div>
+        <span>{timeAgo(item.timestamp)}</span>
+      </div>
+
+      <h3 className="text-xl leading-relaxed font-bold m-0 mb-5 font-manrope">
+        {item.title}
+      </h3>
+
+      <div className="flex justify-between items-center border-t border-dashed border-[#00f3ff]/15 pt-4">
+        <span className="font-extrabold text-xs text-[#888888] uppercase">{item.source}</span>
+        <span className="font-mono font-extrabold text-white transition-transform duration-300 group-hover:translate-x-2 flex items-center gap-2">
+          DECRYPT <ArrowRight size={14} />
+        </span>
+      </div>
+    </motion.a>
+  );
+};
+
+export default NewsCard;
+import React from 'react';
+import { MarketItem } from '../hooks/useIntelFeed';
+
+interface TickerTapeProps {
+  markets: MarketItem[];
+}
+
+const TickerTape = ({ markets }: TickerTapeProps) => {
+  if (!markets || markets.length === 0) return null;
+
+  const content = markets.map((m, idx) => (
+    <span key={idx} className="mr-10">
+      <span className="text-white font-bold">{m.name}</span>{' '}
+      <span className={m.trend === 'up' ? 'text-[#C7F000]' : 'text-[#ff4757]'}>
+        {m.trend === 'up' ? '▲' : '▼'} {m.value}
+      </span>
+    </span>
+  ));
+
+  return (
+    <div className="relative z-[1] w-full bg-[#00f3ff]/5 border-b border-[#00f3ff]/15 overflow-hidden py-2.5 mb-10">
+      <div className="ticker inline-block whitespace-nowrap font-mono text-xs text-[#888888]">
+        <div className="inline-block">{content}</div>
+        <div className="inline-block">{content}</div>
+      </div>
+    </div>
+  );
+};
+
+export default TickerTape;
+import React, { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { IntelItem } from '../hooks/useIntelFeed';
+import { X } from 'lucide-react';
+
+interface AlertToastProps {
+  alerts: IntelItem[];
+  onRemove: (id: string) => void;
+}
+
+const AlertToast: React.FC<AlertToastProps> = ({ alerts, onRemove }) => {
+  return (
+    <div className="fixed top-6 right-6 z-[1000] flex flex-col gap-3 pointer-events-none">
+      <AnimatePresence>
+        {alerts.map((alert) => (
+          <ToastItem key={alert.id} alert={alert} onRemove={onRemove} />
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+interface ToastItemProps {
+  alert: IntelItem;
+  onRemove: (id: string) => void;
+}
+
+const ToastItem: React.FC<ToastItemProps> = ({ alert, onRemove }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onRemove(alert.id);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, [alert.id, onRemove]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 400 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 400, scale: 0.9 }}
+      transition={{ type: "spring", damping: 25, stiffness: 200 }}
+      className="pointer-events-auto bg-[#0a0e17]/95 backdrop-blur-md border border-[#ff4757] shadow-[0_10px_40px_rgba(255,71,87,0.2)] p-4 rounded-xl w-[320px] flex flex-col gap-2"
+    >
+      <div className="flex justify-between items-center">
+        <div className="font-mono text-[0.65rem] font-extrabold text-[#ff4757] uppercase tracking-[2px] flex items-center gap-1.5">
+          <div className="w-1.5 h-1.5 bg-[#ff4757] rounded-full animate-blink"></div>
+          High Impact Alert
+        </div>
+        <button 
+          onClick={() => onRemove(alert.id)}
+          className="bg-transparent border-none text-[#888888] hover:text-white cursor-pointer transition-colors"
+        >
+          <X size={16} />
+        </button>
+      </div>
+      <h4 className="font-manrope font-bold text-sm leading-tight text-white m-0">
+        {alert.title}
+      </h4>
+      <div className="flex justify-between items-center mt-1">
+        <span className="font-mono text-[0.7rem] text-[#888888]">{alert.source}</span>
+      </div>
+    </motion.div>
+  );
+};
+
+export default AlertToast;
+import { useState, useEffect, useRef } from 'react';
+
+export interface IntelItem {
+  id: string;
+  title: string;
+  link: string;
+  source: string;
+  type: 'crypto' | 'stocks' | 'macro';
+  high_impact: boolean;
+  region: string;
+  timestamp: number;
+}
+
+export interface MarketItem {
+  name: string;
+  value: string;
+  trend: 'up' | 'down';
+}
+
+export const useIntelFeed = () => {
+  const [items, setItems] = useState<IntelItem[]>([]);
+  const [markets, setMarkets] = useState<MarketItem[]>([]);
+  const [status, setStatus] = useState<'ESTABLISHING UPLINK...' | 'LIVE UPLINK SECURE' | 'UPLINK INTERRUPTED. RETRYING...' | 'SYNCING DATA...'>('ESTABLISHING UPLINK...');
+  const [loading, setLoading] = useState(true);
+  const [newImpactAlerts, setNewImpactAlerts] = useState<IntelItem[]>([]);
+  
+  const seenItems = useRef(new Set<string>());
+  const lastAlertTime = useRef(0);
+  const ALERT_COOLDOWN = 10000; // 10s cooldown
+
+  const playAlertSound = () => {
+    const now = Date.now();
+    if (now - lastAlertTime.current < ALERT_COOLDOWN) return;
+    lastAlertTime.current = now;
+
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); 
+      oscillator.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.5); 
+
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.1);
+      gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.5);
+    } catch(e) {
+      console.warn("AudioContext not supported or allowed yet");
+    }
+  };
+
+  const fetchIntel = async (isInitial = false) => {
+    if (!isInitial) setStatus('SYNCING DATA...');
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+
+    try {
+      const res = await fetch('http://localhost:3000/api/intel', { signal: controller.signal });
+      clearTimeout(timeout);
+      const data = await res.json();
+
+      if (data.status === 'online') {
+        if (data.items) {
+          const fetchedItems = data.items as IntelItem[];
+          setItems(fetchedItems);
+          
+          if (!isInitial) {
+            const newAlerts = fetchedItems.filter(item => !seenItems.current.has(item.id) && item.high_impact);
+            if (newAlerts.length > 0) {
+              playAlertSound();
+              setNewImpactAlerts(prev => [...prev, ...newAlerts]);
+            }
+          }
+
+          fetchedItems.forEach(item => seenItems.current.add(item.id));
+        }
+
+        if (data.markets) {
+          setMarkets(data.markets);
+        }
+        
+        setStatus('LIVE UPLINK SECURE');
+      } else {
+        throw new Error('Offline');
+      }
+    } catch (err) {
+      clearTimeout(timeout);
+      setStatus('UPLINK INTERRUPTED. RETRYING...');
+      if (isInitial) {
+        // Deploy ghost protocol (mock data) if initial fails
+        const now = Date.now() / 1000;
+        setItems([
+          { id: '1', title: "Nifty hits record high amid strong global cues and FII inflows", type: "stocks", source: "Mint", link: "https://www.livemint.com/market", timestamp: now - 3600, high_impact: true, region: 'India' },
+          { id: '2', title: "RBI maintains repo rate, signals strict focus on inflation control", type: "macro", source: "MoneyControl", link: "https://www.moneycontrol.com/news/business/markets/", timestamp: now - 7200, high_impact: true, region: 'India' },
+          { id: '3', title: "Bitcoin surges past key resistance level ahead of structural halving", type: "crypto", source: "Reuters", link: "https://www.reuters.com/technology/crypto/", timestamp: now - 18000, high_impact: false, region: 'Global' },
+          { id: '4', title: "Tech stocks lead rally as US inflation data cools significantly", type: "stocks", source: "Bloomberg", link: "https://www.bloomberg.com/markets", timestamp: now - 50000, high_impact: false, region: 'Global' }
+        ]);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchIntel(true);
+    const interval = setInterval(() => {
+      fetchIntel(false);
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const removeAlert = (id: string) => {
+    setNewImpactAlerts(prev => prev.filter(a => a.id !== id));
+  };
+
+  const manualRefresh = () => fetchIntel(false);
+
+  return { items, markets, status, loading, newImpactAlerts, removeAlert, manualRefresh };
+};

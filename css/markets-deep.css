@@ -1,0 +1,326 @@
+/* =========================
+   DEEP DIVE MASTER STYLES (COLOR FIXED)
+   ========================= */
+
+/* =========================
+   🚨 CRITICAL PAGE FIX
+   ========================= */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #0B0D12 !important; /* Force Dark Background */
+  overflow-x: hidden; /* Stop horizontal scrolling */
+}
+
+/* Ensure Light Mode flips back to white */
+[data-theme="light"] body {
+  background-color: #FFFFFF !important;
+}
+
+/* --- 1. LAYOUT & SCROLL --- */
+.deep-wrapper {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px;
+  height: 100vh;
+  overflow: hidden;
+  transition: background 0.3s ease;
+  /* Uses base.css variable or falls back */
+  background: var(--bg-main, #0B0C10);
+}
+
+/* Scrollbar hiding */
+.deep-content {
+  overflow-y: auto;
+  padding-right: 20px;
+  scroll-behavior: smooth;
+}
+.deep-content::-webkit-scrollbar { width: 6px; }
+.deep-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+/* --- 2. PROGRESS BAR --- */
+.progress-container {
+  position: fixed; top: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.1); z-index: 1000;
+}
+.progress-bar {
+  height: 100%; background: var(--accent); width: 0%; transition: width 0.1s ease; box-shadow: 0 0 10px var(--accent);
+}
+
+/* --- 3. SIDEBAR (TOC) --- */
+.toc-sidebar {
+  padding: 30px;
+  background: rgba(18, 22, 34, 0.8);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 24px;
+  height: calc(100vh - 80px);
+  position: sticky; top: 40px;
+  display: flex; flex-direction: column;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.toc-header {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary); /* Dynamic */
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+
+.toc-list {
+  list-style: none; padding: 0; display: flex; flex-direction: column; gap: 12px; overflow-y: auto;
+}
+
+/* TOC Links - Default Dark Mode */
+.toc-link {
+  color: var(--text-secondary, #9CA0AB); /* Dynamic Variable */
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding: 10px 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border-left: 2px solid transparent;
+  font-weight: 500;
+}
+
+.toc-link:hover, .toc-link.active {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-primary, #fff); /* Highlight */
+  border-left-color: var(--accent);
+}
+
+.back-btn {
+  margin-top: auto; padding: 12px; text-align: center;
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+  color: var(--text-primary, #fff);
+  text-decoration: none; font-weight: 600;
+  transition: all 0.3s ease;
+}
+.back-btn:hover { background: rgba(255,255,255,0.1); }
+
+/* --- 4. CONTENT TYPOGRAPHY (ADAPTIVE) --- */
+.chapter {
+  margin-bottom: 100px;
+  opacity: 0.3; /* Focus Mode */
+  transition: opacity 0.5s ease;
+}
+.chapter.active { opacity: 1; }
+
+.chapter-badge {
+  display: inline-block;
+  background: rgba(79, 124, 255, 0.1);
+  color: #4F7CFF;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono';
+  font-size: 0.8rem;
+  margin-bottom: 16px;
+}
+
+/* Headings use variable or fallback */
+.chapter h1 { 
+  font-size: 3rem; margin-bottom: 30px; line-height: 1.1; 
+  color: var(--text-primary, #fff); 
+}
+.chapter h2 { 
+  font-size: 2rem; margin-top: 40px; margin-bottom: 20px; 
+  color: var(--text-primary, #fff); 
+}
+.chapter h3 { 
+  font-size: 1.5rem; margin-top: 30px; 
+  color: var(--text-primary, #e2e8f0); 
+}
+
+/* Body Text */
+.deep-content p, .deep-content li {
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: var(--text-secondary, #9CA0AB);
+  margin-bottom: 24px;
+}
+
+.deep-content strong { color: var(--text-primary, #fff); }
+
+/* --- 5. CARDS & VISUALS --- */
+.concept-card {
+  background: rgba(255,255,255,0.03);
+  border-left: 4px solid var(--accent);
+  padding: 32px;
+  border-radius: 16px;
+  margin: 40px 0;
+  transition: background 0.3s ease;
+}
+.concept-card h4 { 
+  font-size: 1.2rem; 
+  color: var(--text-primary, #fff); 
+  margin-bottom: 12px; 
+}
+.concept-card .highlight { color: var(--accent); font-weight: 700; }
+
+/* Visual Box */
+.visual-box {
+  background: rgba(0,0,0,0.3);
+  border: 1px dashed rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 40px;
+  margin: 40px 0;
+  display: flex;
+  justify-content: center;
+  color: var(--text-primary, #fff); /* Ensures diagram text follows theme */
+}
+
+/* Pro Tip */
+.pro-tip {
+  background: linear-gradient(135deg, rgba(255, 71, 87, 0.1), rgba(0,0,0,0));
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  padding: 30px;
+  border-radius: 16px;
+}
+.pro-tip h4 { color: #ff4757; }
+
+
+/* =========================================
+   🚨 LIGHT MODE FIXES (THE IMPORTANT PART)
+   ========================================= */
+
+/* Override layout backgrounds */
+[data-theme="light"] .deep-wrapper {
+  background: #ffffff;
+}
+
+/* Sidebar Styling */
+[data-theme="light"] .toc-sidebar {
+  background: #F7F9FC; /* Light Grey */
+  border-color: rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .toc-header {
+  color: #64748b; /* Medium Grey */
+}
+
+[data-theme="light"] .toc-link {
+  color: #64748b; /* Readable Grey */
+}
+
+[data-theme="light"] .toc-link:hover, 
+[data-theme="light"] .toc-link.active {
+  background: rgba(0,0,0,0.05);
+  color: #000000; /* Black active state */
+}
+
+[data-theme="light"] .back-btn {
+  color: #1a202c;
+  border-color: rgba(0,0,0,0.15);
+}
+[data-theme="light"] .back-btn:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+/* Content Typography (Force Dark Colors) */
+[data-theme="light"] .chapter h1,
+[data-theme="light"] .chapter h2,
+[data-theme="light"] .chapter h3,
+[data-theme="light"] .concept-card h4 {
+  color: #1a202c !important; /* Solid Black/Grey */
+}
+
+[data-theme="light"] .deep-content p,
+[data-theme="light"] .deep-content li {
+  color: #4a5568 !important; /* Dark Grey for body text */
+}
+
+[data-theme="light"] .deep-content strong {
+  color: #000 !important; /* Pure black for emphasis */
+}
+
+/* Cards & Visuals */
+[data-theme="light"] .concept-card {
+  background: #F7F9FC; /* Light surface */
+  border: 1px solid rgba(0,0,0,0.05);
+  border-left: 4px solid var(--accent);
+}
+
+[data-theme="light"] .visual-box {
+  background: #F7F9FC;
+  border-color: rgba(0,0,0,0.1);
+  color: #1a202c !important; /* Diagram text */
+}
+
+/* Scrollbar Visibility in Light Mode */
+[data-theme="light"] .deep-content::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.1);
+}
+
+[data-theme="light"] .progress-container {
+  background: rgba(0,0,0,0.05);
+}   
+
+
+/* =========================
+   MASTER IT BUTTON STYLES
+   ========================= */
+
+.master-btn {
+  /* Positioning: Pushes everything above it up, sits at bottom */
+  margin-top: auto; 
+  margin-bottom: 12px; /* Space between this and Back button */
+  
+  /* Visuals */
+  width: 100%;
+  padding: 14px;
+  background: var(--accent, #4F7CFF); /* Uses your page's main accent color */
+  color: #000; /* Black text for high contrast */
+  border: none;
+  border-radius: 12px;
+  
+  /* Typography */
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+  
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover Effect: Glow & Lift */
+.master-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 20px var(--accent, #4F7CFF);
+  color: #fff; /* Optional: Text turns white on hover */
+}
+
+/* Active/Click Effect */
+.master-btn:active {
+  transform: scale(0.95);
+}
+
+/* IMPORTANT: Fix the Back Button Spacing */
+.back-btn {
+  margin-top: 0 !important; /* Remove auto margin so it sits right below Master button */
+}
+
+/* --- LIGHT MODE FIX --- */
+[data-theme="light"] .master-btn {
+  color: #fff; /* White text on accent background */
+}
+
+/* =========================
+   🚨 TIMELINE OVERLAP FIX
+   ========================= */
+
+.timeline-content {
+  /* This pushes the text container to the right, 
+     clearing the width of the icon plus some spacing */
+  padding-left: 70px !important; 
+}

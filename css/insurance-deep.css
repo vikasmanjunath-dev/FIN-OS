@@ -1,0 +1,321 @@
+/* =========================
+   SANCTUM CORE STYLING
+   ========================= */
+
+.visual-engine {
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle, var(--shield-glow) 0%, transparent 80%);
+}
+
+.sanctum-core {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.core-node {
+  z-index: 10;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 900;
+  color: #fff;
+  background: var(--accent-primary);
+  padding: 15px 25px;
+  border-radius: 50px;
+  box-shadow: 0 0 50px var(--accent-primary);
+}
+
+/* HIGH DENSITY ORBITALS */
+.line-density {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid var(--accent-primary);
+  opacity: 0.3;
+}
+
+.l1 { width: 100%; height: 100%; border-width: 8px; border-style: double; animation: rotate 20s linear infinite; }
+.l2 { width: 85%; height: 85%; border-width: 4px; border-style: dashed; animation: rotate 15s linear infinite reverse; }
+.l3 { width: 70%; height: 70%; border-width: 15px; border-color: rgba(199, 240, 0, 0.1); animation: rotate 10s ease-in-out infinite; }
+.l4 { width: 55%; height: 55%; border: 2px solid #C7F000; animation: rotate 5s linear infinite; }
+
+@keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* GRID ARCHITECTURE */
+.sanctum-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+  margin-top: -50px;
+}
+
+.sanctum-card {
+  padding: 40px;
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.01);
+  backdrop-filter: blur(20px);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.sanctum-card:hover {
+  transform: translateY(-15px) scale(1.02);
+  border-color: var(--accent-primary);
+  background: rgba(79, 124, 255, 0.05);
+}
+
+.layer-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--accent-secondary);
+  letter-spacing: 5px;
+}
+
+.deep-metrics {
+  margin: 20px 0;
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.metric {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+
+.desi-reality {
+  margin-top: 25px;
+  padding: 18px;
+  background: rgba(199, 240, 0, 0.05); /* Soft Neon Lime Tint */
+  border-radius: 16px;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  border: 1px solid rgba(199, 240, 0, 0.2);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.desi-reality strong {
+  color: #C7F000; /* Neon Lime */
+  display: block;
+  margin-bottom: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.sanctum-card:hover .desi-reality {
+  background: rgba(199, 240, 0, 0.1);
+  transform: scale(1.02);
+  box-shadow: 0 5px 20px rgba(199, 240, 0, 0.05);
+}
+
+[data-theme="light"] .desi-reality {
+  background: #fafff0;
+  border-color: rgba(45, 91, 255, 0.1);
+  color: #2D3748;
+}
+
+[data-theme="light"] .desi-reality strong {
+  color: #2D5BFF;
+}
+
+
+/* =========================
+   COMMAND CENTER FOOTER
+   ========================= */
+
+.fin-footer {
+  margin-top: 120px;
+  padding: 60px 40px 40px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: linear-gradient(to top, rgba(79, 124, 255, 0.03), transparent);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* SYSTEM STATUS BADGE */
+.footer-top {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.system-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 20px;
+  background: rgba(199, 240, 0, 0.1);
+  border: 1px solid rgba(199, 240, 0, 0.3);
+  border-radius: 50px;
+}
+
+.status-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #C7F000;
+  letter-spacing: 2px;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: #C7F000;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #C7F000;
+  animation: pulse-glow 2s infinite;
+}
+
+/* COPYRIGHT MODULE */
+.footer-core {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+.copyright-module {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand { font-weight: 900; color: var(--text-primary); }
+.divider { opacity: 0.3; padding: 0 10px; }
+.system-msg { font-style: italic; opacity: 0.7; }
+
+/* THE UNREAL COMMAND BUTTON */
+.command-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 15px;
+  padding: 18px 40px;
+  background: #4F7CFF;
+  border-radius: 16px;
+  text-decoration: none;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-text {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.1rem;
+  z-index: 2;
+}
+
+.btn-arrow { color: #fff; z-index: 2; transition: transform 0.3s ease; }
+
+.command-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(79, 124, 255, 0.4);
+}
+
+.command-btn:hover .btn-arrow { transform: translateX(5px); }
+
+/* LIGHT MODE ADAPTATION */
+[data-theme="light"] .fin-footer {
+  background: linear-gradient(to top, rgba(45, 91, 255, 0.05), transparent);
+}
+
+[data-theme="light"] .system-status {
+  background: rgba(5, 150, 105, 0.1);
+  border-color: rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .status-badge { color: #059669; }
+[data-theme="light"] .pulse-dot { background: #059669; box-shadow: 0 0 10px #059669; }
+
+@keyframes pulse-glow {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+
+
+/* =========================
+   HYPER-STYLISH THEME BUTTON
+   ========================= */
+
+.theme-control {
+  perspective: 1000px;
+}
+
+.theme-btn-sanctum {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Icon Switching Animation */
+.btn-icon-wrapper {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon {
+  position: absolute;
+  font-size: 1.4rem;
+  transition: all 0.5s ease;
+}
+
+/* Default Dark Mode State */
+[data-theme="dark"] .sun { transform: translateY(40px); opacity: 0; }
+[data-theme="dark"] .moon { transform: translateY(0); opacity: 1; }
+
+/* Light Mode State */
+[data-theme="light"] .moon { transform: translateY(-40px); opacity: 0; }
+[data-theme="light"] .sun { transform: translateY(0); opacity: 1; }
+
+/* Interactive Glow Layer */
+.btn-glow-layer {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), 
+              rgba(79, 124, 255, 0.3) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.theme-btn-sanctum:hover {
+  transform: scale(1.1) rotate(5deg);
+  border-color: #4F7CFF;
+  box-shadow: 0 0 20px rgba(79, 124, 255, 0.3);
+}
+
+.theme-btn-sanctum:hover .btn-glow-layer { opacity: 1; }
+
+/* Light Mode Consistency */
+[data-theme="light"] .theme-btn-sanctum {
+  background: #FFFFFF;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Live Tracker</title>
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/tracker.css"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html" class="active">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper tracker-wrapper">
+
+      <header class="header header-flex">
+        <div>
+          <h1 class="glitch-header" data-text="MARKET PULSE">MARKET PULSE</h1>
+          <p class="hero-sub">Real-time noise vs. Long-term signal.</p>
+        </div>
+        <button id="themeToggle" class="theme-btn">🌙</button>
+      </header>
+
+      <div class="ticker-wrap">
+        <div class="ticker">
+          <div class="ticker__item">NIFTY 50 <span class="up">▲ 0.45%</span></div>
+          <div class="ticker__item">SENSEX <span class="down">▼ 0.12%</span></div>
+          <div class="ticker__item">BANKNIFTY <span class="up">▲ 1.20%</span></div>
+          <div class="ticker__item">VIX <span class="down">▼ 5.4%</span></div>
+          <div class="ticker__item">GOLD <span class="up">▲ 0.05%</span></div>
+          <div class="ticker__item">USD/INR <span class="flat">0.00%</span></div>
+          <div class="ticker__item">NIFTY 50 <span class="up">▲ 0.45%</span></div>
+          <div class="ticker__item">SENSEX <span class="down">▼ 0.12%</span></div>
+          <div class="ticker__item">BANKNIFTY <span class="up">▲ 1.20%</span></div>
+        </div>
+      </div>
+
+      <section class="hologram-grid">
+        
+        <div class="holo-card nifty-card">
+          <div class="holo-header">
+            <h3>NIFTY 50</h3>
+            <span class="badge live-badge">LIVE</span>
+          </div>
+          <div class="holo-body">
+            <h2 id="niftyPrice">24,850.55</h2>
+            <p class="analogy-text">"The Class Average"</p>
+            <p class="desc-text">
+              Imagine a classroom of 50 students (Top 50 companies). If the topper (HDFC) scores less, the class average drops. You are betting on the <strong>school</strong>, not the student.
+            </p>
+          </div>
+          <div class="holo-visual">
+            <canvas id="niftyChart"></canvas>
+          </div>
+        </div>
+
+        <div class="holo-card sensex-card">
+          <div class="holo-header">
+            <h3>SENSEX</h3>
+            <span class="badge live-badge">LIVE</span>
+          </div>
+          <div class="holo-body">
+            <h2 id="sensexPrice">81,400.20</h2>
+            <p class="analogy-text">"The Old Guard"</p>
+            <p class="desc-text">
+              The oldest 30 companies in India. Like the "Wise Council" of the village. They move slower but carry more weight.
+            </p>
+          </div>
+          <div class="holo-visual">
+            <canvas id="sensexChart"></canvas>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="portal-section">
+        <div class="portal-container">
+          <div class="portal-ring"></div>
+          <div class="portal-content">
+            <h2 class="neon-text">GOD MODE: ANALYTICS</h2>
+            <p>Ready to leave the matrix? Access raw data, algorithmic predictions, and deep-dive heatmaps.</p>
+            
+            <a href="https://vkmindices.streamlit.app/" target="_blank" class="warp-btn">
+              <span class="btn-text">LAUNCH TRACKER ENGINE</span>
+              <span class="btn-icon">🚀</span>
+              <div class="btn-glitch"></div>
+            </a>
+            
+            <p class="warning-text">⚠️ Warning: High Information Density</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="info-grid">
+        
+        <div class="info-card glass">
+          <div class="icon-box">🎢</div>
+          <h3>Volatility (VIX)</h3>
+          <p class="desi-analogy"><strong>The "Dhak Dhak" Index</strong></p>
+          <p>This measures fear. If VIX is high (>20), the market is like an auto-rickshaw driver in peak traffic—unpredictable and scary. If low (<12), it's a smooth highway drive.</p>
+        </div>
+
+        <div class="info-card glass">
+          <div class="icon-box">🐂</div>
+          <h3>Bull vs Bear</h3>
+          <p class="desi-analogy"><strong>Shaadi vs Mourning</strong></p>
+          <p><strong>Bull Market:</strong> Everyone is dancing, sweets are distributed (Profits).<br><strong>Bear Market:</strong> Everyone is crying, blaming the government (Losses).</p>
+        </div>
+
+        <div class="info-card glass">
+          <div class="icon-box">📊</div>
+          <h3>Indices</h3>
+          <p class="desi-analogy"><strong>The Thali System</strong></p>
+          <p>You don't buy vegetables individually; you buy the whole Thali. An Index track the price of the entire Thali, so you don't worry if the <em>Bhindi</em> is expensive today.</p>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/ui.js"></script>
+<script src="../js/tracker.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+</body>
+</html>

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | The Soul (Ultimate)</title>
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* =========================
+       THEME: COSMIC BIRYANI (Deep & Rich)
+       ========================= */
+    :root {
+      --soul-bg: #030005;
+      --soul-primary: #e0c3fc; /* Lavender */
+      --soul-accent: #8ec5fc; /* Sky */
+      --soul-rose: #ff9a9e; /* Rose */
+      --soul-gold: #ffd700; /* Wisdom */
+      --glass-panel: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --font-display: 'Manrope', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      background-color: var(--soul-bg) !important;
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(142, 197, 252, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(255, 154, 158, 0.05) 0%, transparent 40%);
+      color: #fff !important;
+      font-family: var(--font-display);
+      overflow-x: hidden;
+    }
+
+    /* Sidebar Override */
+    .sidebar { background: rgba(3, 0, 5, 0.95); border-right: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(20px); position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 200; }
+    .main { width: calc(100% - 260px); min-height: 100vh; margin-left: 260px; }
+
+    .content-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding-top: 80px;
+      padding-bottom: 150px;
+      position: relative;
+    }
+
+    /* =========================
+       HERO: THE ORIGIN
+       ========================= */
+    .soul-header {
+      text-align: center;
+      margin-bottom: 100px;
+      position: relative;
+      padding: 0 20px;
+    }
+
+    .orb-container {
+      width: 150px; height: 150px; margin: 0 auto 40px;
+      background: radial-gradient(circle, var(--soul-primary), transparent 60%);
+      border-radius: 50%;
+      filter: blur(30px);
+      animation: pulseSoul 6s infinite ease-in-out;
+    }
+    @keyframes pulseSoul { 0% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.3); opacity: 0.8; } 100% { transform: scale(1); opacity: 0.5; } }
+
+    .soul-title {
+      font-size: 4rem; font-weight: 200; letter-spacing: -2px;
+      background: linear-gradient(180deg, #fff, #888);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+      line-height: 1.1;
+    }
+
+    .soul-subtitle {
+      font-family: var(--font-mono); color: var(--soul-accent); letter-spacing: 3px; font-size: 0.9rem; text-transform: uppercase;
+      border: 1px solid var(--soul-accent); padding: 8px 16px; border-radius: 50px; display: inline-block;
+    }
+
+    /* =========================
+       SECTION 1: THE REALITY SIMULATOR (Duality Engine)
+       ========================= */
+    .duality-wrapper {
+      background: #08050a;
+      border: 1px solid var(--glass-border);
+      border-radius: 30px;
+      overflow: hidden;
+      margin-bottom: 120px;
+      position: relative;
+      min-height: 700px;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+    }
+
+    /* Scenario Menu */
+    .scenario-menu {
+      background: rgba(255,255,255,0.02);
+      border-right: 1px solid var(--glass-border);
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .menu-title { font-family: var(--font-mono); color: #666; font-size: 0.8rem; margin-bottom: 20px; letter-spacing: 1px; }
+    
+    .scenario-btn {
+      padding: 15px; border-radius: 12px; cursor: pointer; text-align: left;
+      color: #aaa; transition: 0.3s; font-size: 0.95rem; display: flex; align-items: center; gap: 10px;
+      border: 1px solid transparent;
+    }
+    .scenario-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
+    .scenario-btn.active { 
+      background: linear-gradient(90deg, rgba(224, 195, 252, 0.1), transparent); 
+      border-color: var(--soul-primary); color: #fff; font-weight: 600; 
+    }
+
+    /* The Stage */
+    .duality-stage {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* Left Side: MONEY (Cold/Metallic) */
+    .side-money {
+      padding: 50px;
+      border-right: 1px solid var(--glass-border);
+      background: radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.05), transparent 50%);
+      transition: 0.5s;
+    }
+    .side-head-money { font-family: var(--font-mono); color: var(--soul-accent); margin-bottom: 20px; display: block; font-size: 0.9rem; }
+    .money-content h2 { font-size: 2.2rem; margin-bottom: 15px; color: #fff; }
+    .money-list li { margin-bottom: 15px; font-size: 1rem; color: #ccc; display: flex; align-items: center; gap: 10px; }
+    .money-icon { font-size: 1.5rem; filter: drop-shadow(0 0 10px var(--soul-accent)); }
+
+    /* Right Side: SOUL (Warm/Organic) */
+    .side-soul {
+      padding: 50px;
+      background: radial-gradient(circle at 100% 100%, rgba(255, 154, 158, 0.05), transparent 50%);
+      transition: 0.5s;
+      position: relative;
+    }
+    .side-head-soul { font-family: var(--font-mono); color: var(--soul-rose); margin-bottom: 20px; display: block; font-size: 0.9rem; }
+    .soul-content h2 { font-size: 2.2rem; margin-bottom: 15px; color: #fff; }
+    .soul-content p { font-size: 1.1rem; line-height: 1.6; color: #ccc; margin-bottom: 20px; }
+    
+    .deep-truth-box {
+      background: rgba(255, 154, 158, 0.05);
+      border-left: 4px solid var(--soul-rose);
+      padding: 20px;
+      font-style: italic;
+      color: #ddd;
+      margin-top: 30px;
+      font-size: 1rem;
+      animation: fadeIn 1s ease;
+    }
+
+    /* Center Divider */
+    /* FIX: High Visibility & Stacking Order for VS Badge */
+    .center-divider {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      
+      /* Theme Matching Background */
+      background: var(--soul-bg); 
+      
+      /* High Contrast Text & Border */
+      color: var(--soul-gold); 
+      border: 1px solid var(--soul-gold);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+      
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-family: var(--font-mono);
+      font-weight: bold;
+      font-size: 0.9rem;
+      
+      /* Ensure it sits ON TOP of the side panels */
+      z-index: 100; 
+    }
+
+    /* =========================
+       SECTION 2: THE 5 DIMENSIONS (Expanded Radar)
+       ========================= */
+    .radar-section {
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.01) 0%, transparent 80%);
+      border: 1px solid var(--glass-border);
+      border-radius: 30px;
+      padding: 60px;
+      margin-bottom: 120px;
+      text-align: center;
+    }
+
+    .radar-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; align-items: center; }
+    .chart-box { height: 450px; width: 100%; position: relative; }
+    
+    .radar-text { text-align: left; }
+    .radar-text h3 { color: var(--soul-accent); margin-bottom: 15px; font-size: 1.8rem; }
+    .radar-text p { color: #aaa; margin-bottom: 20px; line-height: 1.7; }
+    
+    .dim-card { background: rgba(255,255,255,0.05); padding: 15px; margin-bottom: 10px; border-radius: 8px; font-size: 0.9rem; color: #ccc; border-left: 2px solid #555; transition:0.3s; }
+    .dim-card:hover { border-left-color: var(--soul-primary); transform: translateX(5px); background: rgba(255,255,255,0.08); }
+
+    /* =========================
+       SECTION 3: THE TIME MACHINE (Desi Life Scroll)
+       ========================= */
+    .time-section { margin-bottom: 120px; position: relative; }
+    
+    .timeline-track {
+      position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #333; transform: translateX(-50%);
+    }
+    
+    .time-node {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 80px; position: relative;
+    }
+    .time-node:nth-child(even) { flex-direction: row-reverse; }
+    
+    .time-content { width: 45%; background: var(--glass-panel); padding: 30px; border-radius: 16px; border: 1px solid var(--glass-border); position: relative; transition: 0.4s; }
+    .time-node:hover .time-content { border-color: var(--soul-gold); box-shadow: 0 0 30px rgba(255, 215, 0, 0.1); }
+
+    .time-marker {
+      width: 40px; height: 40px; background: #000; border: 2px solid var(--soul-gold); border-radius: 50%;
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2;
+      display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; color: var(--soul-gold);
+    }
+
+    .t-age { font-family: var(--font-mono); color: var(--soul-gold); font-size: 0.9rem; margin-bottom: 10px; display: block; }
+    .t-head { font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; color: #fff; }
+    .t-desc { color: #ccc; line-height: 1.6; font-size: 0.95rem; }
+
+    /* =========================
+       SECTION 4: THE SUKOON BALANCE SHEET
+       ========================= */
+    .sukoon-section {
+      margin-bottom: 120px;
+      padding: 60px;
+      background: linear-gradient(145deg, rgba(20,20,30,0.8), rgba(10,10,10,0.9));
+      border: 1px solid var(--glass-border);
+      border-radius: 30px;
+    }
+
+    .sukoon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px; }
+    
+    .sheet-col { background: rgba(0,0,0,0.3); padding: 30px; border-radius: 16px; }
+    .sheet-head { font-family: var(--font-mono); font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid #444; padding-bottom: 10px; display: flex; justify-content: space-between; }
+    
+    .sheet-item { display: flex; justify-content: space-between; margin-bottom: 15px; color: #bbb; padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+    .sheet-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+    
+    .asset-val { color: var(--soul-green); font-weight: bold; }
+    .liab-val { color: var(--soul-rose); font-weight: bold; }
+
+    /* =========================
+       SECTION 5: SHARMAJI KA BETA (Comparison Trap)
+       ========================= */
+    .trap-section { text-align: center; margin-bottom: 120px; }
+    
+    .trap-visualizer {
+      margin-top: 40px;
+      height: 200px;
+      background: #111;
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .runner {
+      position: absolute; bottom: 20px; font-size: 3rem; transition: left 2s ease;
+    }
+    .finish-line {
+      position: absolute; right: 0; top: 0; bottom: 0; width: 5px; background: repeating-linear-gradient(45deg, #fff, #fff 10px, #000 10px, #000 20px);
+      transition: right 2s ease;
+    }
+
+    /* =========================
+       SECTION 6: REGRET CARDS (Flip)
+       ========================= */
+    .regret-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-top: 60px;
+    }
+
+    .flip-card {
+      background-color: transparent;
+      height: 300px;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+
+    .flip-inner {
+      position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.8s; transform-style: preserve-3d;
+    }
+    .flip-card:hover .flip-inner { transform: rotateY(180deg); }
+
+    .flip-front, .flip-back {
+      position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden;
+      border-radius: 20px; padding: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+      border: 1px solid var(--glass-border);
+    }
+
+    .flip-front { background: var(--glass-panel); }
+    .flip-back { background: var(--soul-primary); color: #000; transform: rotateY(180deg); }
+
+    /* Footer */
+    .soul-footer {
+      text-align: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 60px;
+    }
+    .final-quote { font-size: 2rem; font-weight: 300; color: #fff; margin-bottom: 20px; line-height: 1.4; }
+
+    @media (max-width: 900px) {
+      .duality-wrapper { grid-template-columns: 1fr; min-height: auto; }
+      .scenario-menu { flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--glass-border); }
+      .duality-stage { grid-template-columns: 1fr; }
+      .side-money { border-right: none; border-bottom: 1px solid var(--glass-border); }
+      .center-divider { display: none; }
+      
+      .radar-grid, .sukoon-grid { grid-template-columns: 1fr; }
+      .timeline-track { left: 20px; }
+      .time-node { flex-direction: column; align-items: flex-start; margin-left: 50px; }
+      .time-node:nth-child(even) { flex-direction: column; }
+      .time-content { width: 100%; }
+      .time-marker { left: -30px; transform: translateY(-50%); }
+    }
+
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html" class="active">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+
+      <header class="soul-header">
+        <div class="orb-container"></div>
+        <h1 class="soul-title">Money is a Tool.<br>Not a Master.</h1>
+        <div class="soul-subtitle">PROTOCOL: HUMAN RESTORATION</div>
+      </header>
+
+      <section class="duality-wrapper">
+        
+        <div class="scenario-menu">
+          <div class="menu-title">SELECT SCENARIO</div>
+          <div class="scenario-btn active" onclick="loadScenario('hospital', this)"><span>🏥</span> The Hospital</div>
+          <div class="scenario-btn" onclick="loadScenario('wedding', this)"><span>💍</span> The Wedding</div>
+          <div class="scenario-btn" onclick="loadScenario('home', this)"><span>🏠</span> The Dream Home</div>
+          <div class="scenario-btn" onclick="loadScenario('career', this)"><span>💼</span> The Promotion</div>
+          <div class="scenario-btn" onclick="loadScenario('retirement', this)"><span>🌅</span> The Retirement</div>
+        </div>
+
+        <div class="duality-stage" id="dualityStage">
+          <div class="center-divider">VS</div>
+          
+          <div class="side-money">
+            <span class="side-head-money">WHAT MONEY CAN BUY</span>
+            <div class="money-content" id="leftContent">
+              </div>
+          </div>
+
+          <div class="side-soul">
+            <span class="side-head-soul">WHAT IT CANNOT BUY</span>
+            <div class="soul-content" id="rightContent">
+              </div>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="radar-section">
+        <div class="radar-grid">
+          <div class="chart-box">
+            <canvas id="wealthRadar"></canvas>
+          </div>
+          <div class="radar-text">
+            <h3>True Wealth is 5-Dimensional</h3>
+            <p>Most Indians optimize for only ONE dimension (Financial). The other 4 collapse, leading to a "Rich but Miserable" life.</p>
+            
+            <div class="dim-card">🧠 <strong>Mental Wealth:</strong> Can you sleep without pills?</div>
+            <div class="dim-card">❤️ <strong>Emotional Wealth:</strong> Does anyone actually know you?</div>
+            <div class="dim-card">🕰️ <strong>Time Wealth:</strong> Do you own your morning?</div>
+            <div class="dim-card">🏃 <strong>Physical Wealth:</strong> Can you climb 4 floors?</div>
+            
+            <button class="toggle-btn" style="margin-top:20px; border-color:var(--soul-primary); color:var(--soul-primary);" onclick="expandView()">👁️ Reveal the Imbalance</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="time-section">
+        <h2 style="text-align:center; margin-bottom:60px; font-weight:300;">The "I'll Live Later" Trap</h2>
+        <div class="timeline-track"></div>
+
+        <div class="time-node">
+          <div class="time-content">
+            <span class="t-age">AGE 25</span>
+            <h3 class="t-head">The Hustle Begins</h3>
+            <p class="t-desc">"Let me work hard now. I'll travel later." You skip family functions. You eat at your desk. You trade health for a promotion.</p>
+          </div>
+          <div class="time-marker">25</div>
+        </div>
+
+        <div class="time-node">
+          <div class="time-content">
+            <span class="t-age">AGE 35</span>
+            <h3 class="t-head">The Golden Handcuffs</h3>
+            <p class="t-desc">You have the money now. But now you have EMIs. And kids. And stress. "Let me pay off the house, then I'll relax."</p>
+          </div>
+          <div class="time-marker">35</div>
+        </div>
+
+        <div class="time-node">
+          <div class="time-content">
+            <span class="t-age">AGE 50</span>
+            <h3 class="t-head">The Wake Up Call</h3>
+            <p class="t-desc">Parents are gone. Kids are busy. Health gives the first warning shot (BP/Sugar). "I wish I spent more time when they were around."</p>
+          </div>
+          <div class="time-marker">50</div>
+        </div>
+
+      </section>
+
+      <section class="sukoon-section">
+        <h2 style="text-align:center; font-weight:300; margin-bottom:10px;">The Sukoon (Peace) Balance Sheet</h2>
+        <p style="text-align:center; color:#888;">Your accountant tracks money. Who tracks your soul?</p>
+
+        <div class="sukoon-grid">
+          <div class="sheet-col">
+            <div class="sheet-head"><span>ASSETS (Peace Sources)</span> <span style="color:var(--soul-green);">VALUE</span></div>
+            <div class="sheet-item"><span>Deep Sleep (7hrs)</span> <span class="asset-val">High</span></div>
+            <div class="sheet-item"><span>Evening Tea w/ Family</span> <span class="asset-val">Priceless</span></div>
+            <div class="sheet-item"><span>No EMI Stress</span> <span class="asset-val">Critical</span></div>
+            <div class="sheet-item"><span>A Hobby (Just for fun)</span> <span class="asset-val">High</span></div>
+          </div>
+
+          <div class="sheet-col">
+            <div class="sheet-head"><span>LIABILITIES (Soul Drainers)</span> <span style="color:var(--soul-rose);">COST</span></div>
+            <div class="sheet-item"><span>Toxic Boss</span> <span class="liab-val">-50% Peace</span></div>
+            <div class="sheet-item"><span>Checking Portfolio Daily</span> <span class="liab-val">-20% Focus</span></div>
+            <div class="sheet-item"><span>Comparing w/ Sharmaji</span> <span class="liab-val">-80% Joy</span></div>
+            <div class="sheet-item"><span>"Log Kya Kahenge"</span> <span class="liab-val">Bankruptcy</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="trap-section">
+        <h2 style="font-weight:300;">The Comparison Paradox</h2>
+        <p style="color:#aaa; max-width:600px; margin:0 auto;">The finish line moves every time you get close to it.</p>
+        
+        <div class="trap-visualizer" id="raceTrack">
+          <div class="runner" id="youRunner">🏃‍♂️</div>
+          <div class="finish-line" id="finishLine"></div>
+        </div>
+        <button class="toggle-btn" style="margin-top:20px;" onclick="runRace()">Run the Race</button>
+        <p id="raceMsg" style="margin-top:15px; color:var(--soul-rose); opacity:0;">You ran faster. But the line moved further.</p>
+      </section>
+
+      <section>
+        <h2 style="text-align:center; font-weight:300;">Words from the End</h2>
+        <div class="regret-grid">
+          
+          <div class="flip-card">
+            <div class="flip-inner">
+              <div class="flip-front">
+                <span style="font-size:3rem;">🕰️</span>
+                <h3>The Busy Executive</h3>
+                <p style="color:#888;">(Click to reveal)</p>
+              </div>
+              <div class="flip-back">
+                <h3>"I wish I hadn't worked so hard."</h3>
+                <p>I missed my children's childhood for a promotion nobody remembers now.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flip-card">
+            <div class="flip-inner">
+              <div class="flip-front">
+                <span style="font-size:3rem;">🎭</span>
+                <h3>The People Pleaser</h3>
+                <p style="color:#888;">(Click to reveal)</p>
+              </div>
+              <div class="flip-back">
+                <h3>"I wish I lived for myself."</h3>
+                <p>I bought a big house to impress relatives who didn't even like me.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flip-card">
+            <div class="flip-inner">
+              <div class="flip-front">
+                <span style="font-size:3rem;">😊</span>
+                <h3>The Worrier</h3>
+                <p style="color:#888;">(Click to reveal)</p>
+              </div>
+              <div class="flip-back">
+                <h3>"I wish I let myself be happier."</h3>
+                <p>I saved joy for 'later'. Later never came the way I imagined.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <footer class="soul-footer">
+        <p class="final-quote">
+          "If a decision gives you more money, but less peace, less connection, and less health...<br>
+          <span style="color:var(--soul-rose);">It is a bad trade.</span>"
+        </p>
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  // 1. DATA SOURCE
+  const scenarios = {
+    hospital: {
+        left: {
+            title: "VIP Care",
+            items: ["Single AC Private Room", "Top Specialist Doctors", "Imported Medicines", "Zero Waiting Time"]
+        },
+        right: {
+            title: "The Will to Live",
+            text: "Money buys the ventilator, but it cannot buy the breath. It buys the bed, but not sleep. It buys the nurse, but not the hand of a loved one holding yours in the final moment.",
+            quote: "Wealth stops at the hospital reception."
+        }
+    },
+    wedding: {
+        left: {
+            title: "The Grand Event",
+            items: ["Sabyasachi Lehenga", "5-Star Venue", "1000 Guests", "Exotic Buffet"]
+        },
+        right: {
+            title: "The Happy Marriage",
+            text: "Money buys the applause of relatives who won't even remember the food next week. It cannot buy the laughter in the bedroom, the patience during fights, or the loyalty in tough times.",
+            quote: "A wedding is a day. Marriage is a lifetime."
+        }
+    },
+    home: {
+        left: {
+            title: "The Luxury 4BHK",
+            items: ["Italian Marble Flooring", "Gated Community", "Sea Facing View", "Home Automation"]
+        },
+        right: {
+            title: "The Home",
+            text: "Money buys the address. It cannot buy the warmth at the dinner table. A 4000 sqft house feels like a prison if the people inside it don't talk to each other.",
+            quote: "Peace does not require square footage."
+        }
+    },
+    career: {
+        left: {
+            title: "The CEO Title",
+            items: ["Corner Office", "Business Class Travel", "Power & Status", "Huge Salary"]
+        },
+        right: {
+            title: "The Purpose",
+            text: "Money buys the envy of your peers. It cannot buy the feeling of meaning when you wake up. It cannot fix the anxiety of imposter syndrome or the loneliness at the top.",
+            quote: "Your resume is not your eulogy."
+        }
+    },
+    retirement: {
+        left: {
+            title: "The 10 Crore Corpus",
+            items: ["Foreign Trips", "Farmhouse", "Golf Membership", "Passive Income"]
+        },
+        right: {
+            title: "The Vitality",
+            text: "Money buys the ticket to Europe. It cannot buy the knees to walk the streets of Paris. It buys the best food, but not the digestion to enjoy it.",
+            quote: "Don't save joy for a time when you can't digest it."
+        }
+    }
+  };
+
+  // 2. RENDER FUNCTION
+  function loadScenario(type, btn) {
+    // Active State
+    document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Data
+    const data = scenarios[type];
+    const leftBox = document.getElementById('leftContent');
+    const rightBox = document.getElementById('rightContent');
+
+    // Fade Out
+    leftBox.style.opacity = 0;
+    rightBox.style.opacity = 0;
+
+    setTimeout(() => {
+        // Inject Left
+        let listHTML = "";
+        data.left.items.forEach(i => listHTML += `<li><span class="money-icon">✨</span> ${i}</li>`);
+        leftBox.innerHTML = `<h2>${data.left.title}</h2><ul class="money-list">${listHTML}</ul>`;
+
+        // Inject Right
+        rightBox.innerHTML = `
+            <h2>${data.right.title}</h2>
+            <p>${data.right.text}</p>
+            <div class="deep-truth-box">"${data.right.quote}"</div>
+        `;
+
+        // Fade In
+        leftBox.style.opacity = 1;
+        rightBox.style.opacity = 1;
+    }, 300);
+  }
+
+  // Load default
+  window.onload = function() {
+    loadScenario('hospital', document.querySelector('.scenario-btn'));
+  };
+
+  // 3. RADAR CHART
+  const ctx = document.getElementById('wealthRadar').getContext('2d');
+  const radarData = {
+    labels: ['Financial', 'Mental', 'Physical', 'Time', 'Relational'],
+    datasets: [{
+      label: 'The Trap (Typical)',
+      data: [95, 20, 30, 10, 40],
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+      borderColor: '#666',
+      borderWidth: 1
+    }, {
+      label: 'True Wealth (Goal)',
+      data: [70, 85, 80, 75, 90],
+      backgroundColor: 'rgba(224, 195, 252, 0.2)',
+      borderColor: '#e0c3fc',
+      pointBackgroundColor: '#e0c3fc',
+      borderWidth: 2,
+      hidden: true
+    }]
+  };
+
+  let myRadar = new Chart(ctx, {
+    type: 'radar',
+    data: radarData,
+    options: {
+      scales: {
+        r: {
+          angleLines: { color: 'rgba(255,255,255,0.1)' },
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          pointLabels: { color: '#fff', font: { size: 12, family: 'Manrope' } },
+          ticks: { display: false }
+        }
+      },
+      plugins: { legend: { labels: { color: '#ccc' } } }
+    }
+  });
+
+  function expandView() {
+    myRadar.data.datasets[1].hidden = false;
+    myRadar.update();
+  }
+
+  // 4. COMPARISON RACE
+  function runRace() {
+    const runner = document.getElementById('youRunner');
+    const line = document.getElementById('finishLine');
+    const msg = document.getElementById('raceMsg');
+
+    runner.style.left = "70%";
+    
+    setTimeout(() => {
+        line.style.right = "-50px"; // Moves away
+        msg.style.opacity = "1";
+    }, 1000);
+  }
+
+</script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+
+<style id="lw-light-theme">
+[data-theme="light"] body {
+  background-color: #F5F0FF !important;
+  background-image: none !important;
+  color: #1A0A2E !important;
+}
+[data-theme="light"] .main { background: #F5F0FF !important; }
+[data-theme="light"] .soul-header { background: transparent !important; }
+[data-theme="light"] .soul-title { color: #2D1457 !important; background: none !important; -webkit-text-fill-color: #2D1457 !important; }
+[data-theme="light"] .soul-subtitle { color: #6B3A9E !important; }
+[data-theme="light"] .orb-container { filter: blur(30px) opacity(0.3) !important; }
+[data-theme="light"] .scenario-menu { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.1) !important; }
+[data-theme="light"] .scenario-btn { color: #2D1457 !important; background: rgba(255,255,255,0.6) !important; border-color: rgba(0,0,0,0.1) !important; }
+[data-theme="light"] .scenario-btn:hover, [data-theme="light"] .scenario-btn.active { background: rgba(79,124,255,0.15) !important; color: #2D1457 !important; }
+[data-theme="light"] .duality-stage { background: transparent !important; }
+[data-theme="light"] .side-money { background: rgba(255,255,255,0.7) !important; border-color: rgba(142,197,252,0.3) !important; }
+[data-theme="light"] .side-soul  { background: rgba(255,255,255,0.7) !important; border-color: rgba(255,154,158,0.3) !important; }
+[data-theme="light"] .side-head-money { color: #4A7AB5 !important; }
+[data-theme="light"] .side-head-soul  { color: #B05060 !important; }
+[data-theme="light"] .money-content h2, [data-theme="light"] .soul-content h2 { color: #1A0A2E !important; }
+[data-theme="light"] .money-list li, [data-theme="light"] .soul-content p { color: #3A2060 !important; }
+[data-theme="light"] .center-divider { color: #999 !important; border-color: rgba(0,0,0,0.1) !important; }
+[data-theme="light"] .radar-section { background: rgba(255,255,255,0.6) !important; border-color: rgba(0,0,0,0.1) !important; }
+[data-theme="light"] .radar-text h3 { color: #4A7AB5 !important; }
+[data-theme="light"] .radar-text p { color: #3A2060 !important; }
+[data-theme="light"] .time-content { background: rgba(255,255,255,0.7) !important; border-color: rgba(0,0,0,0.1) !important; }
+[data-theme="light"] .time-year, [data-theme="light"] .time-title { color: #1A0A2E !important; }
+[data-theme="light"] .time-body { color: #3A2060 !important; }
+</style>
+
+</body>
+</html>

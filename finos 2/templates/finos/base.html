@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}FIN-OS Mind Engine{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#02020c;--s1:#07071a;--s2:#0d0d24;--s3:#13132e;
+  --g:#00ff88;--r:#ff2d6b;--y:#ffcc00;--c:#00d4ff;--v:#7c3aff;
+  --txt:#f0edff;--dim:#3a3464;--mu:#504a7a;
+  --fD:'Bebas Neue',sans-serif;--fB:'DM Sans',sans-serif;--fM:'JetBrains Mono',monospace;
+  --nav-h:104px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--txt);font-family:var(--fB);min-height:100vh;overflow-x:hidden;cursor:none}
+#cur{position:fixed;width:10px;height:10px;border-radius:50%;background:var(--g);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .15s,height .15s,background .2s;mix-blend-mode:screen}
+#curR{position:fixed;width:32px;height:32px;border:1px solid rgba(0,255,136,.35);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%)}
+
+/* ─── FIN-OS UPGRADES: VIEW TRANSITIONS & ZEN MODE ─── */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.4s; }
+
+body.zen-mode .topbar, body.zen-mode .pagenav { 
+  transform: translateY(-100%); 
+  opacity: 0; 
+  pointer-events: none; 
+}
+body.zen-mode .main { 
+  padding-top: 2rem !important; 
+}
+body.zen-mode .content-wrapper { 
+  max-width: 900px; 
+  margin: 0 auto; 
+}
+.topbar, .pagenav, .main, .content-wrapper { 
+  transition: all 0.4s cubic-bezier(.34,1.56,.64,1); 
+}
+
+/* ─── FIN-OS UPGRADES: STRESS INDUCERS ─── */
+@keyframes panic-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px) rotate(-1deg); }
+  20%, 40%, 60%, 80% { transform: translateX(4px) rotate(1deg); }
+}
+.trigger-panic {
+  animation: panic-shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+  box-shadow: inset 0 0 100px rgba(255, 45, 107, 0.25);
+}
+
+.interactive-toggle {
+  background: var(--s2);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  transition: all 0.3s;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+.interactive-toggle:hover {
+  border-color: var(--c);
+  box-shadow: 0 10px 40px rgba(0,212,255,0.15);
+}
+
+/* ─── TOP BAR (ticker + logo + user) ─── */
+.topbar{
+  position:fixed;top:0;left:0;right:0;height:48px;z-index:600;
+  background:rgba(2,2,12,.96);backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(0,255,136,.06);
+  display:flex;align-items:center;padding:0 1.75rem;gap:1rem;
+}
+.tb-logo{font-family:var(--fD);font-size:1.45rem;letter-spacing:3px;background:linear-gradient(135deg,var(--g),var(--c));-webkit-background-clip:text;-webkit-text-fill-color:transparent;flex-shrink:0;text-decoration:none}
+.tb-div{width:1px;height:24px;background:rgba(255,255,255,.07);flex-shrink:0}
+.tb-live-dot{width:6px;height:6px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g);animation:blink 1.8s infinite;flex-shrink:0}
+.tb-ticker-wrap{flex:1;overflow:hidden;position:relative}
+.tb-ticker-wrap::before{content:'';position:absolute;left:0;top:0;bottom:0;width:40px;background:linear-gradient(to right,rgba(2,2,12,.96),transparent);z-index:2;pointer-events:none}
+.tb-ticker-wrap::after{content:'';position:absolute;right:0;top:0;bottom:0;width:40px;background:linear-gradient(to left,rgba(2,2,12,.96),transparent);z-index:2;pointer-events:none}
+.tb-ticker{display:flex;gap:2rem;white-space:nowrap;animation:ticker-move 40s linear infinite;font-family:var(--fM);font-size:.6rem}
+.tb-ticker span{display:inline-flex;align-items:center;gap:.3rem;color:var(--mu)}
+.tb-ticker .up{color:var(--g)}.tb-ticker .dn{color:var(--r)}
+@keyframes ticker-move{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.tb-xp{display:flex;align-items:center;gap:.6rem;padding:.28rem .7rem;background:rgba(255,204,0,.04);border:1px solid rgba(255,204,0,.1);border-radius:7px;flex-shrink:0}
+.tb-lv{font-family:var(--fD);font-size:.88rem;letter-spacing:1px;color:var(--y);line-height:1}
+.tb-xp-bar-wrap{width:44px;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.tb-xp-bar-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--c));border-radius:2px;transition:width 1.2s cubic-bezier(.34,1.56,.64,1);width:62%}
+.tb-xp-pts{font-family:var(--fM);font-size:.46rem;color:var(--mu);white-space:nowrap}
+.tb-avatar{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--v),var(--c));display:flex;align-items:center;justify-content:center;font-family:var(--fD);font-size:.95rem;flex-shrink:0;cursor:pointer;border:1px solid rgba(255,255,255,.1);transition:transform .2s}
+.tb-avatar:hover{transform:scale(1.08)}
+
+/* ─── PAGE NAV ─── */
+.pagenav{
+  position:fixed;top:48px;left:0;right:0;height:56px;z-index:599;
+  background:rgba(7,7,26,.96);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,.04);
+  display:flex;align-items:center;padding:0 2rem;gap:.5rem;
+}
+.pagenav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,255,136,.12),rgba(0,212,255,.08),transparent);pointer-events:none}
+.pn-link{
+  display:flex;align-items:center;gap:.45rem;
+  padding:.38rem .9rem;border-radius:8px;
+  font-family:var(--fM);font-size:.6rem;letter-spacing:.5px;
+  text-decoration:none;color:var(--mu);
+  border:1px solid transparent;
+  transition:all .2s;white-space:nowrap;
+}
+.pn-link:hover{color:var(--txt);background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.07)}
+.pn-link.inv-l:hover,.pn-link.inv-l.on{color:var(--g);background:rgba(0,255,136,.06);border-color:rgba(0,255,136,.15)}
+.pn-link.tra-l:hover,.pn-link.tra-l.on{color:var(--r);background:rgba(255,45,107,.06);border-color:rgba(255,45,107,.15)}
+.pn-link.dna-l:hover,.pn-link.dna-l.on{color:#a78bff;background:rgba(124,58,255,.06);border-color:rgba(124,58,255,.15)}
+.pn-link.cmd-l:hover,.pn-link.cmd-l.on{color:var(--c);background:rgba(0,212,255,.06);border-color:rgba(0,212,255,.15)}
+.pn-dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.7}
+.pn-sep{width:1px;height:20px;background:rgba(255,255,255,.06);margin:0 .25rem}
+.pn-right{margin-left:auto;display:flex;align-items:center;gap:.5rem}
+.pn-disc{font-family:var(--fM);font-size:.56rem;padding:.28rem .7rem;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.1);border-radius:6px;color:var(--g)}
+
+/* ─── MAIN ─── */
+.main{padding-top:var(--nav-h);min-height:100vh}
+
+/* ─── TOASTS ─── */
+.toasts{position:fixed;top:5.5rem;right:1rem;z-index:8000;display:flex;flex-direction:column;gap:.4rem;pointer-events:none}
+.toast{padding:.65rem 1rem;border-radius:8px;font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:.5rem;backdrop-filter:blur(20px);pointer-events:all;animation:t-in .4s cubic-bezier(.34,1.56,.64,1);border:1px solid}
+.tx{background:rgba(255,204,0,.08);border-color:rgba(255,204,0,.25);color:var(--y)}
+.tw{background:rgba(255,45,107,.08);border-color:rgba(255,45,107,.25);color:var(--r)}
+.tg{background:rgba(0,255,136,.08);border-color:rgba(0,255,136,.25);color:var(--g)}
+.ti{background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.25);color:var(--c)}
+
+.xpf{position:fixed;pointer-events:none;z-index:7999;font-family:var(--fD);font-size:1.3rem;letter-spacing:1px;animation:xpfl 1.4s ease forwards}
+
+@keyframes t-in{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes t-out{from{opacity:1}to{opacity:0;transform:translateX(30px)}}
+@keyframes xpfl{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-70px)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--ink)}::-webkit-scrollbar-thumb{background:rgba(0,255,136,.4);border-radius:2px}
+
+{% block extra_head %}{% endblock %}
+</style>
+</head>
+<body>
+<div id="cur"></div>
+<div id="curR"></div>
+<div class="toasts" id="toastBox"></div>
+
+<header class="topbar">
+  <a href="/" class="tb-logo">FIN-OS</a>
+  <div class="tb-div"></div>
+  <div class="tb-live-dot"></div>
+  <div class="tb-ticker-wrap">
+    <div class="tb-ticker">
+      <span>MARKETS LIVE</span>
+      <span>SENSEX <strong class="up" id="tbSensex">▲ 81,247</strong></span>
+      <span>NIFTY <strong class="dn" id="tbNifty">▼ 24,626</strong></span>
+      <span>₹/USD <span id="tbInr">83.42</span></span>
+      <span>TCS <strong class="up">▲ 4,132 (+0.8%)</strong></span>
+      <span>🧠 EMOTIONAL STATE <strong style="color:var(--g)">CALM</strong></span>
+      <span>HDFC BANK <strong class="up">▲ 1,724 (+0.6%)</strong></span>
+      <span>⚡ FOMO ALERTS: <strong class="dn">312</strong></span>
+      <span>INFY <strong class="dn">▼ 1,521 (-0.4%)</strong></span>
+      <span>🎯 CALM WIN RATE: <strong style="color:var(--g)">74%</strong></span>
+      <span>RELIANCE <strong class="up">▲ 2,847 (+1.1%)</strong></span>
+      <span>😤 REVENGE TRADES BLOCKED: <strong style="color:var(--g)">47</strong></span>
+      <span>SBI <strong class="up">▲ 752 (+0.9%)</strong></span>
+      <span>📓 JOURNALS TODAY: <strong style="color:#a78bff">847</strong></span>
+      <span>MARKETS LIVE</span>
+      <span>SENSEX <strong class="up">▲ 81,247</strong></span>
+      <span>NIFTY <strong class="dn">▼ 24,626</strong></span>
+      <span>₹/USD <span>83.42</span></span>
+      <span>TCS <strong class="up">▲ 4,132 (+0.8%)</strong></span>
+      <span>🧠 EMOTIONAL STATE <strong style="color:var(--g)">CALM</strong></span>
+      <span>HDFC BANK <strong class="up">▲ 1,724 (+0.6%)</strong></span>
+      <span>⚡ FOMO ALERTS: <strong class="dn">312</strong></span>
+      <span>INFY <strong class="dn">▼ 1,521 (-0.4%)</strong></span>
+      <span>🎯 CALM WIN RATE: <strong style="color:var(--g)">74%</strong></span>
+      <span>RELIANCE <strong class="up">▲ 2,847 (+1.1%)</strong></span>
+      <span>😤 REVENGE TRADES BLOCKED: <strong style="color:var(--g)">47</strong></span>
+    </div>
+  </div>
+  <div class="tb-div"></div>
+  <div class="tb-xp">
+    <div>
+      <div class="tb-lv" id="xpLv">LVL 4</div>
+      <div class="tb-xp-pts" id="xpPts">STRATEGIST</div>
+    </div>
+    <div class="tb-xp-bar-wrap"><div class="tb-xp-bar-fill" id="xpFill"></div></div>
+  </div>
+  <div class="tb-avatar" id="tbAvatar" title="Rahul Sharma">R</div>
+</header>
+
+<nav class="pagenav">
+  <a href="/" class="pn-link cmd-l {% if request.resolver_match.url_name == 'landing' %}on{% endif %}">
+    <span class="pn-dot"></span>Command Center
+  </a>
+  <div class="pn-sep"></div>
+  <a href="/investor/" class="pn-link inv-l {% if request.resolver_match.url_name == 'investor' %}on{% endif %}">
+    <span class="pn-dot"></span>📈 Investor Mind
+  </a>
+  <a href="/trader/" class="pn-link tra-l {% if request.resolver_match.url_name == 'trader' %}on{% endif %}">
+    <span class="pn-dot"></span>📊 Trader Mind
+  </a>
+  <div class="pn-sep"></div>
+  <a href="/simulations/" class="pn-link dna-l {% if request.resolver_match.url_name == 'simulations' %}on{% endif %}">
+    <span class="pn-dot"></span>🎮 Simulations
+  </a>
+  <div class="pn-right">
+    <div class="pn-disc">DISC <span id="discScore">71</span>/100</div>
+    <div style="font-family:var(--fM);font-size:.52rem;padding:.28rem .7rem;background:rgba(124,58,255,.06);border:1px solid rgba(124,58,255,.15);border-radius:6px;color:#a78bff">MIND ENGINE ACTIVE</div>
+  </div>
+</nav>
+
+<main class="main">
+{% block content %}{% endblock %}
+</main>
+
+<script>
+// ── CURSOR ──
+const _cur=document.getElementById('cur'),_curR=document.getElementById('curR');
+let _mx=0,_my=0,_rx=0,_ry=0;
+document.addEventListener('mousemove',e=>{_mx=e.clientX;_my=e.clientY;_cur.style.left=_mx+'px';_cur.style.top=_my+'px'});
+(function _rl(){_rx+=(_mx-_rx)*.1;_ry+=(_my-_ry)*.1;_curR.style.left=_rx+'px';_curR.style.top=_ry+'px';requestAnimationFrame(_rl)})();
+
+// ── ZEN MODE (FOCUS READING) ──
+document.addEventListener('keydown', (e) => {
+    // Press 'F' to toggle focus mode, ignore if typing in input
+    if (e.key.toLowerCase() === 'f' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        document.body.classList.toggle('zen-mode');
+        showToast(document.body.classList.contains('zen-mode') ? 'Zen Mode: ON' : 'Zen Mode: OFF', 'ti');
+    }
+});
+
+// ── IMMERSION AUDIO/HAPTIC ENGINE (GLOBAL) ──
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+window.playHeartbeat = function() {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(45, audioCtx.currentTime); // Deep bass thump
+    osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.4);
+    gain.gain.setValueAtTime(1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.4);
+    
+    // Haptic Vibrate for mobile
+    if (navigator.vibrate) navigator.vibrate(50);
+};
+
+window.triggerCrashEffect = function() {
+    // 1. Screen Shake & Red Flash
+    document.body.classList.add('trigger-panic');
+    setTimeout(() => document.body.classList.remove('trigger-panic'), 400);
+
+    // 2. Harsh Glitch Audio
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.3);
+
+    // 3. Heavy Haptic Sequence
+    if (navigator.vibrate) navigator.vibrate([100, 50, 200]);
+};
+
+// Unlock audio context on first user interaction so sounds play automatically later
+document.addEventListener('click', () => { if(audioCtx.state === 'suspended') audioCtx.resume(); }, {once:true});
+
+
+// ── GLOBAL STATE & XP ──
+const STATE={
+  xp:+localStorage.getItem('finos_xp')||1240,
+  disc:+localStorage.getItem('finos_disc')||71,
+  sip:+localStorage.getItem('finos_sip')||47,
+  losses:+localStorage.getItem('finos_losses')||1,
+  fomoCount:+localStorage.getItem('finos_fomo')||3,
+  sessionsCompleted:+localStorage.getItem('finos_sessions')||12,
+  // ── User Profile ──
+  userName: localStorage.getItem('finos_user_name') || 'Rahul Sharma',
+  userArchetype: localStorage.getItem('finos_user_archetype') || '',
+  userArchetypeName: localStorage.getItem('finos_user_archetype_name') || '',
+  userArchetypeEmoji: localStorage.getItem('finos_user_archetype_emoji') || '',
+  traits: JSON.parse(localStorage.getItem('finos_traits') || 'null') || {
+    patience:48, emotionCtrl:31, riskIQ:81, analysis:74, fomoRes:22, consistency:55, vision:67
+  },
+  save(){
+    localStorage.setItem('finos_xp',this.xp);
+    localStorage.setItem('finos_disc',this.disc);
+    localStorage.setItem('finos_sip',this.sip);
+    localStorage.setItem('finos_losses',this.losses);
+    localStorage.setItem('finos_fomo',this.fomoCount);
+    localStorage.setItem('finos_sessions',this.sessionsCompleted);
+    localStorage.setItem('finos_user_name',this.userName);
+    localStorage.setItem('finos_user_archetype',this.userArchetype);
+    localStorage.setItem('finos_user_archetype_name',this.userArchetypeName);
+    localStorage.setItem('finos_user_archetype_emoji',this.userArchetypeEmoji);
+    localStorage.setItem('finos_traits',JSON.stringify(this.traits));
+  }
+};
+
+const PROFILE_KEY='finos_behavior_profile_v1';
+
+function getDefaultBehaviorProfile(){
+  return {
+    totalRuns: 0,
+    traderRuns: 0,
+    investorRuns: 0,
+    tags: {
+      panic: 0,
+      revenge: 0,
+      hesitation: 0,
+      overmanage: 0,
+      discipline: 0,
+      patience: 0
+    },
+    recentRuns: [],
+    lastRunBySim: {}
+  };
+}
+
+function loadBehaviorProfile(){
+  try {
+    const raw = localStorage.getItem(PROFILE_KEY);
+    if (!raw) return getDefaultBehaviorProfile();
+    const parsed = JSON.parse(raw);
+    return {
+      ...getDefaultBehaviorProfile(),
+      ...parsed,
+      tags: {...getDefaultBehaviorProfile().tags, ...(parsed.tags || {})},
+      recentRuns: Array.isArray(parsed.recentRuns) ? parsed.recentRuns : [],
+      lastRunBySim: parsed.lastRunBySim || {}
+    };
+  } catch (err) {
+    return getDefaultBehaviorProfile();
+  }
+}
+
+function saveBehaviorProfile(profile){
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+}
+
+function getBehaviorLabel(tags){
+  const pairs = Object.entries(tags).sort((a,b)=>b[1]-a[1]);
+  const top = pairs[0]?.[0] || 'discipline';
+  const labels = {
+    panic: 'Panic-reactive',
+    revenge: 'Revenge-prone',
+    hesitation: 'Hesitation-heavy',
+    overmanage: 'Over-managing',
+    discipline: 'Process-led',
+    patience: 'Patient operator'
+  };
+  return labels[top] || 'Mixed profile';
+}
+
+function getBehaviorInsights(profile){
+  const tags = profile.tags || {};
+  const sorted = Object.entries(tags).sort((a,b)=>b[1]-a[1]);
+  const top = sorted[0] || ['discipline', 0];
+  const second = sorted[1] || ['patience', 0];
+  return {
+    label: getBehaviorLabel(tags),
+    topTag: top[0],
+    topValue: top[1],
+    secondTag: second[0],
+    secondValue: second[1]
+  };
+}
+
+function getRecurringWarning(profile, mode='all'){
+  const tags = profile.tags || {};
+  const scoped = {
+    panic: tags.panic || 0,
+    revenge: mode === 'investor' ? 0 : (tags.revenge || 0),
+    hesitation: tags.hesitation || 0,
+    overmanage: tags.overmanage || 0,
+    discipline: tags.discipline || 0,
+    patience: tags.patience || 0
+  };
+  const top = Object.entries(scoped).sort((a,b)=>b[1]-a[1])[0] || ['discipline', 0];
+  const map = {
+    panic: {
+      title: 'Recurring panic response',
+      body: 'You repeatedly react to stress by trying to escape discomfort fast. That usually improves emotions briefly and damages outcomes for much longer.'
+    },
+    revenge: {
+      title: 'Recurring revenge tendency',
+      body: 'Losses are pushing you toward recovery behavior instead of process behavior. This is the pattern that destroys otherwise survivable sessions.'
+    },
+    hesitation: {
+      title: 'Recurring hesitation pattern',
+      body: 'You keep delaying clean action at decisive moments. Hesitation feels safe, but in markets it often becomes a slow form of damage.'
+    },
+    overmanage: {
+      title: 'Recurring over-management',
+      body: 'You keep interfering when patience or rule-following would likely do better. Activity is becoming a substitute for edge.'
+    },
+    discipline: {
+      title: 'Recurring discipline strength',
+      body: 'Your strongest repeated signal is process adherence. Protect that identity and do not let one emotional session contaminate it.'
+    },
+    patience: {
+      title: 'Recurring patience strength',
+      body: 'You show above-average willingness to wait. That is a real edge, but only if paired with selective aggression when opportunity is real.'
+    }
+  };
+  return { key: top[0], count: top[1], ...(map[top[0]] || map.discipline) };
+}
+
+function generateAutoJournal(run){
+  const tags = run.tags || [];
+  const tagLine = tags.length ? tags.join(', ') : 'no dominant tags';
+  const pnlLine = run.pnlImpact >= 0 ? `Result improved capital by ${run.pnlImpact}%.` : `Result damaged capital by ${Math.abs(run.pnlImpact)}%.`;
+  const disciplineLine = `Discipline ${run.disciplineScore}, execution ${run.executionScore}, clarity ${run.clarityScore}.`;
+  return `${run.title}: ${run.verdict}. ${pnlLine} Detected pattern: ${tagLine}. ${disciplineLine} Main lesson: repeat the process that raised discipline, and remove the decision that caused the largest emotional leak.`;
+}
+
+window.FINOS_PROFILE = {
+  get(){
+    return loadBehaviorProfile();
+  },
+  save(profile){
+    saveBehaviorProfile(profile);
+    window.dispatchEvent(new CustomEvent('behavior-profile-change', {detail: profile}));
+  },
+  recordRun(run){
+    const profile = loadBehaviorProfile();
+    run.autoJournal = generateAutoJournal(run);
+    profile.totalRuns += 1;
+    if (run.mode === 'trader') profile.traderRuns += 1;
+    if (run.mode === 'investor') profile.investorRuns += 1;
+    (run.tags || []).forEach(tag => {
+      if (profile.tags[tag] !== undefined) profile.tags[tag] += 1;
+    });
+    profile.recentRuns.unshift(run);
+    profile.recentRuns = profile.recentRuns.slice(0, 8);
+    if (run.simId) profile.lastRunBySim[run.simId] = run;
+    saveBehaviorProfile(profile);
+
+    // ── Nudge STATE.traits based on simulation outcome ──
+    // Good outcome = green (cls:'g'), bad = red (cls:'r'), neutral = yellow (cls:'y')
+    const t = STATE.traits;
+    const outcome = run.outcome || 'y'; // 'g'|'y'|'r'
+    const tags = run.tags || [];
+    const clamp = (v) => Math.max(0, Math.min(100, v));
+    if (outcome === 'g') {
+      // Positive outcome: reward discipline + consistency
+      t.consistency = clamp(t.consistency + 2);
+      STATE.disc = clamp(STATE.disc + 1);
+      if (tags.includes('discipline')) { t.consistency = clamp(t.consistency + 2); STATE.disc = clamp(STATE.disc + 2); }
+      if (tags.includes('patience'))   { t.patience    = clamp(t.patience + 3); }
+    } else if (outcome === 'r') {
+      // Bad outcome: penalise based on detected tags
+      if (tags.includes('panic'))       { t.emotionCtrl = clamp(t.emotionCtrl - 3); t.fomoRes = clamp(t.fomoRes - 2); }
+      if (tags.includes('revenge'))     { t.emotionCtrl = clamp(t.emotionCtrl - 4); t.consistency = clamp(t.consistency - 2); }
+      if (tags.includes('hesitation')) { t.patience    = clamp(t.patience - 2); }
+      if (tags.includes('overmanage')) { t.riskIQ      = clamp(t.riskIQ - 2); }
+      t.consistency = clamp(t.consistency - 1);
+    } else {
+      // Neutral: small discipline bonus for completing
+      t.analysis = clamp(t.analysis + 1);
+    }
+    STATE.save();
+    window.dispatchEvent(new CustomEvent('traits-changed', { detail: STATE.traits }));
+    window.dispatchEvent(new CustomEvent('behavior-profile-change', {detail: profile}));
+    return profile;
+  },
+  getInsights(){
+    return getBehaviorInsights(loadBehaviorProfile());
+  },
+  getWarning(mode='all'){
+    return getRecurringWarning(loadBehaviorProfile(), mode);
+  }
+};
+
+const XP_LEVELS=[
+  [0,'EMOTIONAL BEGINNER'],[500,'AWARENESS SEEKER'],[1000,'PATTERN READER'],
+  [1500,'STRATEGIST'],[2500,'DISCIPLINED ANALYST'],[4000,'MIND MASTER'],
+  [6000,'ELITE INVESTOR'],[9000,'APEX TRADER'],[13000,'DUAL BRAIN LEGEND']
+];
+
+function getLevelInfo(xp){
+  let lv=0;
+  for(let i=0;i<XP_LEVELS.length;i++)if(xp>=XP_LEVELS[i][0])lv=i;
+  const cur=XP_LEVELS[lv][0],nxt=XP_LEVELS[lv+1]?XP_LEVELS[lv+1][0]:99999;
+  const pct=Math.min(((xp-cur)/(nxt-cur))*100,100);
+  return{lv:lv+1,name:XP_LEVELS[lv][1],pct,remaining:nxt-xp};
+}
+
+function updateTopnav(){
+  const li=getLevelInfo(STATE.xp);
+  const xl=document.getElementById('xpLv'),xf=document.getElementById('xpFill'),xp=document.getElementById('xpPts');
+  const ds=document.getElementById('discScore');
+  if(xl)xl.textContent=`LVL ${li.lv}`;
+  if(xf)xf.style.width=li.pct+'%';
+  if(xp)xp.textContent=li.name;
+  if(ds)ds.textContent=STATE.disc;
+}
+const updateSidebar=updateTopnav;
+updateTopnav();
+
+// ── Sync avatar with profile name ──
+(function(){
+  const av=document.getElementById('tbAvatar');
+  if(av){av.textContent=STATE.userName[0].toUpperCase();av.title=STATE.userName;}
+})();
+
+function addXP(amount,reason){
+  STATE.xp+=amount;
+  if(amount>0)STATE.disc=Math.min(100,STATE.disc+Math.floor(amount/5));
+  else STATE.disc=Math.max(0,STATE.disc+Math.ceil(amount/5));
+  STATE.save();updateTopnav();
+  showToast((amount>0?`⚡ +${amount} XP`:`💔 ${amount} XP`)+` — ${reason}`,amount>0?'tx':'tw');
+  spawnXPPop(amount);
+  window.dispatchEvent(new CustomEvent('xp-change',{detail:{amount,reason,xp:STATE.xp}}));
+}
+
+function showToast(msg,type='ti',dur=3500){
+  const box=document.getElementById('toastBox');if(!box)return;
+  const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;
+  box.appendChild(t);
+  setTimeout(()=>{t.style.animation='t-out .4s ease forwards';setTimeout(()=>t.remove(),400)},dur);
+}
+
+function spawnXPPop(n){
+  const el=document.createElement('div');el.className='xpf';
+  el.textContent=(n>0?'+':'')+n+' XP';
+  el.style.cssText=`right:110px;top:${65+Math.random()*20}px;color:${n>0?'#ffcc00':'#ff2d6b'}`;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1400);
+}
+</script>
+{% block page_script %}{% endblock %}
+
+<div id="osCommandPalette" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(15px); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:var(--s2); width:100%; max-width:600px; border-radius:16px; border:1px solid rgba(0,255,136,0.3); box-shadow:0 20px 50px rgba(0,0,0,0.5); overflow:hidden; transform:translateY(-20px); animation:slideDown 0.2s forwards;">
+        <input type="text" id="cmdInput" placeholder="Where do you want to jump? (e.g., 'Crypto', 'Crash Sim')" style="width:100%; padding:1.5rem; background:transparent; border:none; border-bottom:1px solid rgba(255,255,255,0.1); color:var(--txt); font-size:1.2rem; font-family:var(--fM); outline:none;">
+        <div id="cmdResults" style="max-height:300px; overflow-y:auto; padding:1rem; display:flex; flex-direction:column; gap:0.5rem;">
+            </div>
+    </div>
+</div>
+
+<style>
+@keyframes slideDown { to { transform:translateY(0); } }
+.cmd-item { padding:1rem; border-radius:10px; color:var(--mu); text-decoration:none; display:flex; justify-content:space-between; align-items:center; transition:all 0.2s; font-family:var(--fM); font-size:0.9rem; }
+.cmd-item:hover, .cmd-item.active { background:rgba(0,255,136,0.1); color:var(--g); padding-left:1.5rem; }
+</style>
+
+<script>
+// --- GLOBAL MEMORY SYSTEM ---
+// Save current page to memory automatically
+if (window.location.pathname.includes('.html')) {
+    localStorage.setItem('finos_last_location', window.location.pathname);
+    localStorage.setItem('finos_last_title', document.title.split('|')[1]?.trim() || document.title);
+}
+
+// --- COMMAND PALETTE (CTRL+K) ---
+const routes = [
+    { name: "Terminal Dashboard", path: "home.html", tag: "SYSTEM" },
+    { name: "Personal Finance 101", path: "finance101.html", tag: "LEARN" },
+    { name: "Protocol 02: Equity", path: "learn-equity.html", tag: "LEARN" },
+    { name: "Protocol 03: ETFs", path: "learn-etf.html", tag: "LEARN" },
+    { name: "Protocol 10: Crypto", path: "learn-crypto.html", tag: "LEARN" },
+    { name: "Market Crash Simulator", path: "investor_simulations.html", tag: "SIM" },
+    { name: "Execution Mastery (Trader)", path: "trader_simulations.html", tag: "SIM" },
+    { name: "Reality Calculators", path: "calculators.html", tag: "TOOL" }
+];
+
+document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const palette = document.getElementById('osCommandPalette');
+        const input = document.getElementById('cmdInput');
+        if (palette.style.display === 'none') {
+            palette.style.display = 'flex';
+            input.value = '';
+            renderCmdResults('');
+            setTimeout(() => input.focus(), 10);
+        } else {
+            palette.style.display = 'none';
+        }
+    }
+    if (e.key === 'Escape') document.getElementById('osCommandPalette').style.display = 'none';
+});
+
+document.getElementById('cmdInput').addEventListener('input', (e) => renderCmdResults(e.target.value));
+
+function renderCmdResults(query) {
+    const resContainer = document.getElementById('cmdResults');
+    const filtered = routes.filter(r => r.name.toLowerCase().includes(query.toLowerCase()) || r.tag.toLowerCase().includes(query.toLowerCase()));
+    
+    resContainer.innerHTML = filtered.map(r => `
+        <a href="${r.path}" class="cmd-item">
+            <span>${r.name}</span>
+            <span style="font-size:0.6rem; padding:0.2rem 0.5rem; background:rgba(255,255,255,0.05); border-radius:4px;">${r.tag}</span>
+        </a>
+    `).join('') || '<div style="color:var(--r); padding:1rem; text-align:center;">No protocols found.</div>';
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Opportunity Cost • FIN-OS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+  <link rel="stylesheet" href="../../css/components.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+
+                          .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary); /* Uses your theme variable */
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            transition: color 0.2s ease;  
+          }
+
+        /* 1. DEFINE THE COLORS FOR LIGHT AND DARK MODES */
+                :root {
+                    --text-primary: #1e293b;   /* Dark Blue-Grey for Light Mode */
+                    --text-secondary: #64748b; /* Muted Grey */
+                    --bg-main: #f1f5f9;
+                    --bg-surface: #ffffff;
+                    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                }
+
+                [data-theme="dark"] {
+                    --text-primary: #f8fafc;   /* White/Light Grey for Dark Mode */
+                    --text-secondary: #94a3b8; /* Light Muted Grey */
+                    --bg-main: #0f172a;        /* Dark Navy Background */
+                    --bg-surface: #1e293b;     /* Slightly Lighter Navy for Cards */
+                    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+                }
+
+                /* 2. APPLY THE TEXT COLOR GLOBALLY */
+                body {
+                    color: var(--text-primary);
+                    background: var(--bg-main);
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                }
+
+                /* 3. ENSURE HEADINGS INHERIT COLOR */
+                h1, h2, h3, strong, b {
+                    color: var(--text-primary);
+                }
+
+                /* 4. UPDATE INPUT TEXT VISIBILITY */
+                input[type="number"] {
+                    color: var(--text-primary);
+                    background: rgba(255, 255, 255, 0.05); /* Semi-transparent bg works on both */
+                }
+
+    .page {
+      flex: 1;
+      padding: 0 48px 24px 48px;
+      background: var(--bg-main);
+      overflow-y: auto;
+    }
+
+    .page-header {
+      padding-top: 32px;
+      margin-bottom: 40px;
+    }
+
+    .page-header h1 {
+      font-size: 42px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+
+    .page-header p {
+      color: var(--text-secondary);
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .impact-card {
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      padding: 48px;
+      border-radius: 32px;
+      background: var(--bg-surface);
+      box-shadow: var(--card-shadow);
+    }
+
+    .impact-left h2 {
+      font-size: 28px;
+      margin: 12px 0 6px 0;
+    }
+
+    .impact-sub {
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+    }
+
+    .impact-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .input-group label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      appearance: none;
+      height: 6px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #f59e0b, #ef4444);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #f59e0b;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    input[type="number"] {
+      width: 140px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #f59e0b;
+      background: rgba(245,158,11,0.1);
+    }
+
+    .impact-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .chart-container {
+      width: 100%;
+      max-width: 360px;
+      aspect-ratio: 1;
+    }
+
+    .result-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .result-box {
+      text-align: center;
+      padding: 24px;
+      border-radius: 16px;
+    }
+
+    .result-box span {
+      display: block;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .result-box strong {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .comparison {
+      display: flex;
+      gap: 12px;
+    }
+
+    .option {
+      flex: 1;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .option-a {
+      background: rgba(239,68,68,0.12);
+    }
+
+    .option-b {
+      background: rgba(34,197,94,0.12);
+    }
+
+    @media (max-width: 900px) {
+      .impact-card {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body class="app">
+
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="../../html/home.html">Home</a>
+      <a href="../../html/dashboard.html">Dashboard</a>
+      <a href="../../html/impact.html">Impact</a>
+      <a href="../../html/calculators.html" class="active">Calculators</a>
+      <a href="../../../Porfolio Analyser/portfolio-analyser-v9.html">Portfolio</a>
+      <a href="../../html/markets.html">Markets</a>
+      <a href="../../html/tax.html">Tax</a>
+      <a href="../../html/news.html">News</a>
+    </nav>
+  </aside>
+
+  <main class="page">
+
+    <button id="themeToggle" class="theme-btn" style="position: fixed; top: 32px; right: 32px; z-index: 100;">🌙</button>
+
+    <header class="page-header">
+    <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
+      <h1>Opportunity Cost</h1>
+      <p>What you gave up to get what you have.</p>
+    </header>
+
+    <section class="impact-card">
+
+      <div class="impact-left">
+        <span style="font-size: 32px;">⚖️</span>
+        <h2>The Hidden Cost</h2>
+        <p class="impact-sub">Every purchase has a cost you never see.</p>
+
+        <div class="impact-inputs">
+
+          <div class="input-group">
+            <label>Amount Spent (₹)</label>
+            <div class="input-row">
+              <input type="range" min="1000" max="500000" step="1000" value="50000" id="spent">
+              <input type="number" min="1000" max="500000" step="1000" value="50000" id="spentNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Potential Returns if Invested (%)</label>
+            <div class="input-row">
+              <input type="range" min="1" max="20" step="0.5" value="12" id="returns">
+              <input type="number" min="1" max="20" step="0.5" value="12" id="returnsNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Time Period (Years)</label>
+            <div class="input-row">
+              <input type="range" min="1" max="30" value="10" id="years">
+              <input type="number" min="1" max="30" value="10" id="yearsNum">
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="impact-right">
+        <div class="chart-container">
+          <canvas id="costChart"></canvas>
+        </div>
+
+        <div class="result-grid">
+          <div class="result-box" style="background: rgba(239,68,68,0.12);">
+            <span>True Cost of Your Purchase</span>
+            <strong id="trueCost">₹0</strong>
+          </div>
+
+          <div class="comparison">
+            <div class="option option-a">
+              <div style="font-size: 12px; color: var(--text-secondary);">You Spent</div>
+              <div style="font-size: 22px; font-weight: 700; margin-top: 4px;" id="spent">₹50,000</div>
+            </div>
+            <div class="option option-b">
+              <div style="font-size: 12px; color: var(--text-secondary);">Could Have Been</div>
+              <div style="font-size: 22px; font-weight: 700; margin-top: 4px; color: #22c55e;" id="couldBe">₹0</div>
+            </div>
+          </div>
+
+          <div class="result-box" style="background: rgba(245,158,11,0.08);">
+            <span>Opportunity Cost</span>
+            <strong id="oppCost" style="font-size: 28px; color: #f59e0b;">₹0</strong>
+          </div>
+
+          <div style="padding: 16px; background: rgba(239,68,68,0.08); border-radius: 12px; font-size: 13px; color: var(--text-secondary); border-left: 4px solid #ef4444;">
+            <strong>Reality:</strong> Every rupee you spend today is hundreds of rupees you won't have tomorrow.
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+<script>
+// Theme Toggle
+const root = document.documentElement;
+const toggle = document.getElementById("themeToggle");
+const savedTheme = localStorage.getItem("finos-theme");
+if (savedTheme) root.setAttribute("data-theme", savedTheme);
+toggle.textContent = root.getAttribute("data-theme") === "dark" ? "🌙" : "☀️";
+toggle.onclick = () => {
+  const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("finos-theme", next);
+  toggle.textContent = next === "dark" ? "🌙" : "☀️";
+};
+
+// Elements
+const spent = document.getElementById("spent");
+const spentNum = document.getElementById("spentNum");
+const returns = document.getElementById("returns");
+const returnsNum = document.getElementById("returnsNum");
+const years = document.getElementById("years");
+const yearsNum = document.getElementById("yearsNum");
+
+// Sync
+spent.oninput = () => spentNum.value = spent.value;
+spentNum.oninput = () => spent.value = spentNum.value;
+returns.oninput = () => returnsNum.value = returns.value;
+returnsNum.oninput = () => returns.value = returnsNum.value;
+years.oninput = () => yearsNum.value = years.value;
+yearsNum.oninput = () => years.value = yearsNum.value;
+
+// Chart
+const ctx = document.getElementById("costChart");
+const chart = new Chart(ctx, {
+  type: "doughnut",
+  data: {
+    labels: ["Amount Spent", "Opportunity Cost"],
+    datasets: [{
+      data: [50000, 100000],
+      backgroundColor: ["#ef4444", "#f59e0b"],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    cutout: "70%",
+    plugins: {
+      legend: { 
+        display: true,
+        position: 'bottom',
+        labels: { color: '#9CA0AB', font: { size: 13 } }
+      }
+    }
+  }
+});
+
+// Calculate
+function calculate() {
+  const amount = +spentNum.value;
+  const rate = +returnsNum.value / 100;
+  const time = +yearsNum.value;
+
+  // Future value if invested
+  const futureValue = Math.round(amount * Math.pow(1 + rate, time));
+  
+  // Opportunity cost
+  const opportunityCost = futureValue - amount;
+
+  document.getElementById("trueCost").textContent = `₹${futureValue.toLocaleString()}`;
+  document.getElementById("couldBe").textContent = `₹${futureValue.toLocaleString()}`;
+  document.getElementById("oppCost").textContent = `₹${opportunityCost.toLocaleString()}`;
+
+  chart.data.datasets[0].data = [amount, opportunityCost];
+  chart.update();
+}
+
+[spent, spentNum, returns, returnsNum, years, yearsNum].forEach(el => el.addEventListener("input", calculate));
+calculate();
+</script>
+
+</body>
+</html>

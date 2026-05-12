@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <!-- THEME GUARD (shared across app) -->
+  <script src="../js/ui.js"></script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>FIN-OS | Financial Operating System</title>
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/landing.css">
+  
+</head>
+
+<body>
+                  <!-- FIN-OS LOGO (TOP LEFT) -->
+                  <a href="index.html" class="finos-logo">FIN-OS  </a>
+
+                  <!-- PREMIUM BACKGROUND CANVAS -->
+                  <div class="bg-canvas"></div>
+
+
+<!-- THEME TOGGLE (SAME BUTTON, SAME LOGIC) -->
+  <button id="themeToggle" class="theme-btn landing-theme">🌙</button>
+
+<div class="landing">
+
+  <!-- ================= HERO ================= -->
+  <section class="landing-hero">
+    <span class="eyebrow">Introducing FIN-OS</span>
+
+    <h1>
+      India doesn’t have a money problem.<br/>
+      <span class="text-highlight gradient-highlight">
+      <span class="gradient-text">It has a thinking problem.</span>
+    </span>
+
+    </h1>
+
+    <p class="hero-sub">
+      FIN-OS is a financial operating system built for Indians —
+      to replace confusion, myths, and noise with clarity and
+      long-term thinking.
+    </p>
+
+    <div class="hero-cta">
+      <button class="primary-btn" id="loginBtn">Enter FIN-OS</button>
+      
+    </div>
+  </section>
+
+  <div class="fin-divider fin-divider--mark"></div>
+
+<div class="fin-divider fin-divider--label"></div>
+
+
+<section class="money-brain-section">
+
+  <h2 class="section-title">
+    <span class="text-highlight">What Is Money, Really?</span>
+  </h2>
+
+  <p class="section-sub">
+    Money is not paper. Not numbers. It is stored time, energy, and choices —
+    moving through life.
+  </p>
+
+  <!-- ENERGY STREAM -->
+  <div class="money-energy">
+    <div class="energy-core">LIFE ENERGY</div>
+    <div class="energy-stream salary">Salary</div>
+    <div class="energy-stream business">Business</div>
+    <div class="energy-stream capital">Capital</div>
+    <div class="energy-stream emi">EMI</div>
+    <div class="energy-stream marriage">Marriage</div>
+    <div class="energy-stream home-loan">Home Loan</div>
+    <div class="energy-stream liabilities">Liabilities</div>
+    <div class="energy-stream obligations">Obligations</div>
+  </div>
+
+  <p class="section-sub subtle">
+    Everyone earns money differently. What changes everything is how they see it.
+  </p>
+
+  <!-- THREE INDIAS -->
+  <div class="india-realities">
+
+    <!-- INDIA 3 -->
+    <div class="india-card india-3">
+      <h3>India 3</h3>
+      <p class="mindset">Money = Survival</p>
+
+      <ul>
+        <li>Earn: Daily wages / unstable income</li>
+        <li>Spend: Immediately</li>
+        <li>Save: Rarely</li>
+        <li>Invest: Never</li>
+      </ul>
+
+      <div class="life-end">Ends with: Stress + Dependence</div>
+    </div>
+
+    <!-- INDIA 2 -->
+    <div class="india-card india-2">
+      <h3>India 2</h3>
+      <p class="mindset">Money = Lifestyle</p>
+
+      <ul>
+        <li>Earn: Salary / profession</li>
+        <li>Spend: EMIs + status</li>
+        <li>Save: Whatever is left</li>
+        <li>Invest: Late</li>
+      </ul>
+
+      <div class="life-end">Ends with: Working longer than needed</div>
+    </div>
+
+    <!-- INDIA 1 -->
+    <div class="india-card india-1">
+      <h3>India 1</h3>
+      <p class="mindset">Money = Tool</p>
+
+      <ul>
+        <li>Earn: Salary / business / capital</li>
+        <li>Save: Before spending</li>
+        <li>Invest: From day one</li>
+        <li>Let time work</li>
+      </ul>
+
+      <div class="life-end">Ends with: Freedom + Choice</div>
+    </div>
+
+  </div>
+
+  <!-- QUESTION -->
+  <div class="choice-question">
+    <p>Same country. Same time. Different thinking.</p>
+    <h3>Where do <span class="text-highlight">you</span> want to end up?</h3>
+  </div>
+
+</section>
+
+<div class="fin-divider fin-divider--mark"></div>
+
+<!-- ================= LIFE–LONG MONEY MAP (OLD vs NEW THINKING) ================= -->
+<section class="money-life-section">
+
+  <h2 class="section-title">
+    <span class="text-highlight">How Money Really Works — From Birth to Death</span>
+  </h2>
+
+  <p class="section-sub">
+    Money is not income. It’s stored time, energy, and future choices.
+  </p>
+
+  <div class="life-simulator">
+
+    <!-- OLD CYCLE -->
+    <div class="life-column old-life">
+      <h3>Traditional Indian Money Cycle</h3>
+
+      <div class="life-track">
+        <div class="life-node">Birth</div>
+        <div class="life-line"></div>
+        <div class="life-node">Education</div>
+        <div class="life-line"></div>
+        <div class="life-node">Job</div>
+        <div class="life-line"></div>
+        <div class="life-node">EMIs</div>
+        <div class="life-line"></div>
+        <div class="life-node">Family</div>
+        <div class="life-line"></div>
+        <div class="life-node end">₹0 Retirement</div>
+      </div>
+
+      <p class="life-note">
+        Money flows in → disappears → repeats.<br>
+        No system. No memory. No future leverage.
+      </p>
+    </div>
+
+    <!-- DIVIDER -->
+    <div class="life-divider">⇄</div>
+
+    <!-- NEW CYCLE -->
+    <div class="life-column new-life">
+      <h3>FIN-OS Life-First Money System</h3>
+
+      <div class="life-track">
+        <div class="life-node">Birth</div>
+        <div class="life-line grow"></div>
+        <div class="life-node">Early Learn</div>
+        <div class="life-line grow"></div>
+        <div class="life-node">Invest Small</div>
+        <div class="life-line grow"></div>
+        <div class="life-node">Compound</div>
+        <div class="life-line grow"></div>
+        <div class="life-node">Freedom</div>
+        <div class="life-line grow"></div>
+        <div class="life-node end">₹3.2 Cr+ Corpus</div>
+      </div>
+
+      <p class="life-note">
+        Money remembers every decision.<br>
+        Life is funded before it’s lived.
+      </p>
+    </div>
+
+  </div>
+
+  <button class="primary-btn" id="runLifeSim">
+    Play the full life
+  </button>
+
+  <div class="life-message" id="lifeMessage">
+    Same life. Same income.<br>
+    One system creates freedom. The other creates stress.
+  </div>
+
+</section>
+
+<div class="fin-divider fin-divider--mark"></div>
+
+
+<section class="desi-money-universe">
+
+  <h2 class="section-title">
+    <span class="text-highlight">Money Is Not Meant to Be Hoarded</span>
+  </h2>
+
+  <p class="section-sub">
+    It’s meant to cook today’s roti, add ghee to life,
+    and quietly keep the fire alive for tomorrow.
+  </p>
+
+  <div class="chulha">
+
+    <!-- FIRE (FUTURE) -->
+    <div class="fire-core" id="fireCore">
+      FUTURE
+    </div>
+
+    <!-- ROTI (DAILY LIFE) -->
+    <div class="orbit roti">
+      ROTI<br>
+      <small>Life today</small>
+    </div>
+
+    <!-- GHEE (JOY) -->
+    <div class="orbit ghee">
+      GHEE<br>
+      <small>Enjoyment</small>
+    </div>
+
+  </div>
+
+  <p class="desi-note">
+    Most people burn all the fuel cooking today’s roti.<br>
+    FIN-OS teaches how to cook, enjoy ghee —
+    <strong>without killing the fire.</strong>
+  </p>
+
+  <button class="primary-btn" id="igniteLife">
+    Show me the balanced life
+  </button>
+
+  <div class="desi-message" id="desiMessage">
+    You didn’t stop living.<br>
+    You stopped fearing the future.
+  </div>
+
+</section>
+
+<div class="fin-divider fin-divider--mark"></div>   
+
+<!-- ================= FINANCIAL LITERACY & MISCONCEPTION SECTION ================= -->
+<section class="literacy-section">
+
+  <h2 class="section-title">
+    <span class="text-highlight">The Financial Literacy Gap in India</span>
+  </h2>
+
+  <p class="section-sub">
+    Most money mistakes aren’t personal failures — they’re inherited thinking.
+  </p>
+
+  <div class="literacy-simulator">
+
+    <!-- CURRENT REALITY -->
+    <div class="literacy-column">
+      <h3>What Most People Are Taught</h3>
+
+      <div class="literacy-bar">
+        <div class="literacy-fill misconception-fill"></div>
+      </div>
+
+      <ul class="literacy-list">
+        <li>Save whatever is left</li>
+        <li>Gold & real estate = safety</li>
+        <li>EMIs are normal life</li>
+        <li>Markets are gambling</li>
+      </ul>
+    </div>
+
+    <!-- ARROW -->
+    <div class="literacy-arrow">→</div>
+
+    <!-- FIN-OS THINKING -->
+    <div class="literacy-column">
+      <h3>What Actually Works</h3>
+
+      <div class="literacy-bar">
+        <div class="literacy-fill literacy-fill-correct"></div>
+        <div class="literacy-fill literacy-fill-invest"></div>
+      </div>
+
+      <ul class="literacy-list">
+        <li>Pay yourself first</li>
+        <li>Invest systematically</li>
+        <li>Debt is a tool, not lifestyle</li>
+        <li>Time beats timing</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <button class="primary-btn" id="runLiteracy">
+    Break the inherited cycle
+  </button>
+
+  <div class="literacy-message" id="literacyMessage">
+    When one generation learns correctly,<br>
+    the next starts ahead — not from zero.
+  </div>
+
+</section>
+
+
+<div class="fin-divider fin-divider--mark"></div>
+
+<section class="paycheck-section">
+
+  <h2 class="section-title">
+    <span class="text-highlight">The Paycheck-to-Paycheck Trap</span>
+  </h2>
+
+  <p class="section-sub">
+    Most Indian households earn well — but end every month with nothing left.
+  </p>
+
+  <div class="paycheck-simulator">
+
+    <div class="income-bar">
+      <span>Monthly Income</span>
+      <div class="bar">
+        <div class="fill income-fill"></div>
+      </div>
+      <strong>₹50,000</strong>
+    </div>
+
+    <div class="expenses">
+
+      <div class="expense" data-cut="20">🏠 Rent</div>
+      <div class="expense" data-cut="15">🍲 Groceries</div>
+      <div class="expense" data-cut="25">💳 EMIs</div>
+      <div class="expense" data-cut="10">🚗 Transport</div>
+      <div class="expense" data-cut="10">📱 Misc</div>
+
+    </div>
+
+    <div class="balance">
+      Balance Left: <span id="balanceAmount">₹50,000</span>
+    </div>
+
+    <button class="primary-btn" id="runPaycheck">
+      Run the month
+    </button>
+
+    <div class="paycheck-message" id="paycheckMessage">
+      Nothing left. Again.
+    </div>
+
+  </div>
+</section>
+
+<div class="fin-divider fin-divider--mark"></div>
+
+<!-- ================= SOLUTION: BREAK THE PAYCHECK CYCLE ================= -->
+<section class="paycheck-solution">
+
+  <h2 class="section-title">
+    <span class="text-highlight">How the Cycle Is Broken</span>
+  </h2>
+
+  <p class="section-sub">
+    The solution isn’t earning more. It’s redirecting money before it disappears.
+  </p>
+
+  <div class="solution-simulator">
+
+    <!-- BEFORE -->
+    <div class="solution-column">
+      <h3>Before (Default)</h3>
+
+      <div class="solution-bar">
+        <div class="solution-fill before-fill"></div>
+      </div>
+
+      <ul class="solution-list">
+        <li>Income → Expenses → ₹0</li>
+        <li>No savings by design</li>
+        <li>Repeats every month</li>
+      </ul>
+    </div>
+
+    <!-- ARROW -->
+    <div class="solution-arrow">→</div>
+
+    <!-- AFTER -->
+    <div class="solution-column">
+      <h3>After (FIN-OS Thinking)</h3>
+
+      <div class="solution-bar">
+        <div class="solution-fill after-fill"></div>
+      </div>
+
+      <ul class="solution-list">
+        <li>Income → Save First</li>
+        <li>Expenses adapt automatically</li>
+        <li>Wealth compounds quietly</li>
+      </ul>
+    </div>
+  </div>
+
+  <button class="primary-btn" id="runSolution">
+    Apply one small change
+  </button>
+
+  <div class="solution-message" id="solutionMessage">
+    ₹2,000 redirected before spending.<br>
+    ₹24,000 saved in one year.<br>
+    Time starts working for you.
+  </div>
+
+</section>
+
+<div class="fin-divider fin-divider--mark"></div>
+
+<section class="landing-section">
+  <h2 class="section-title">
+    <span class="text-highlight">The money you never see yourself losing</span>
+
+  </h2>
+ 
+
+  <div class="landing-values">
+    <div class="value-card glass">
+      <h3>Inflation</h3>
+      <p>Quietly reduces purchasing power every year you stay idle.</p>
+    </div>
+
+    <div class="value-card glass">
+      <h3>EMIs</h3>
+      <p>Steal future flexibility while feeling “normal” today.</p>
+    </div>
+
+    <div class="value-card glass">
+      <h3>Delay</h3>
+      <p>Time lost can never be recovered — even with higher income.</p>
+    </div>
+  </div>
+
+  
+</section>
+
+  <!-- ================= TRUST STRIP ================= -->
+  <section class="trust-strip">
+    <div>Education before action</div>
+    <div>Designed for Indian realities</div>
+    <div>Long-term over short-term</div>
+    <div>Personalized financial thinking</div>
+  </section>
+
+
+  <div class="fin-divider fin-divider--mark"></div>
+
+        <section class="timeline-section">
+              <div class="timeline-header">
+                <h2>
+                      <span class="text-highlight">Your Money, Over Time ...</span>
+
+                    </h2>
+
+                <p>
+                  Most people don’t lose money by bad decisions —
+                  they lose it by repeating small ones.
+                </p>
+              </div>
+
+              <div class="timeline-track">
+
+                <div class="timeline-card">
+                  <span class="year">Age 25</span>
+                  <h4>₹0 Invested</h4>
+                  <p><span class="highlight">Waiting for more income</span></p>
+
+                </div>
+
+                <div class="timeline-card highlight">
+                  <span class="year">Age 35</span>
+                  <h4>₹7.5 Lakhs</h4>
+                  <p>₹500/month started early</p>
+                </div>
+
+                <div class="timeline-card">
+                  <span class="year">Age 45</span>
+                  <h4>₹38 Lakhs</h4>
+                  <p>Consistency beats intensity</p>
+                </div>
+
+                <div class="timeline-card glow">
+                  <span class="year">Age 60</span>
+                  <h4>₹1.2 Crore</h4>
+                  <p>Time did the heavy lifting</p>
+                </div>
+
+              </div>
+
+            </section>
+
+
+
+<div class="fin-divider fin-divider--mark"></div>
+           
+ <section class="landing-section">
+  <h2 class="section-title">
+    <span class="text-highlight">One decision. Two futures.</span>
+
+  </h2>
+
+
+  <div class="landing-values">
+    <div class="value-card glass">
+      <h3>Start investing early</h3>
+      <p>Freedom, flexibility, and compounding on your side.</p>
+    </div>
+
+    <div class="value-card glass">
+      <h3>Wait for perfect income</h3>
+      <p>Higher salary, but less time and fewer options.</p>
+    </div>
+  </div>
+</section>
+
+
+<div class="fin-divider fin-divider--mark"></div>
+
+<section class="landing-section">
+  <h2 class="section-title">
+    Why most financial advice <span class="text-highlight">fails ?</span>
+
+  </h2>
+
+  <div class="landing-values">
+    <div class="value-card glass">
+      <h3>Generic</h3>
+      <p>One-size-fits-all advice ignores your life stage.</p>
+    </div>
+
+    <div class="value-card glass">
+      <h3>Product-driven</h3>
+      <p>Optimized for selling, not thinking.</p>
+    </div>
+
+    <div class="value-card glass">
+      <h3>Unrealistic</h3>
+      <p>Assumes perfect discipline — humans don’t work that way.</p>
+    </div>
+  </div>
+</section>
+
+
+<div class="fin-divider fin-divider--mark"></div>
+
+  <!-- ================= MYTHS vs FACTS ================= -->
+  <section class="landing-myths">
+  <h2 class="section-title">
+    What Indians Are <span class="text-highlight">Told</span> vs What <span class="text-highlight">Actually Works</span>
+
+  </h2>
+
+  <p class="section-sub">
+    Most financial mistakes don’t come from lack of money —
+    they come from inherited beliefs.
+  </p>
+
+  <div class="myth-reality-grid">
+
+    <!-- ITEM 1 -->
+    <div class="belief-card myth">
+      <span class="label">MYTH</span>
+      <h3>Earn more, then invest</h3>
+      <p>
+        People delay investing for years waiting for the “right salary”.
+      </p>
+    </div>
+
+    <div class="belief-card reality">
+      <span class="label">REALITY</span>
+      <h3>Time matters more than income</h3>
+      <p>
+        ₹500 started early beats ₹5,000 started late.
+      </p>
+    </div>
+
+    <!-- ITEM 2 -->
+    <div class="belief-card myth">
+      <span class="label">MYTH</span>
+      <h3>Buying a home means success</h3>
+      <p>
+        EMIs are normalized without understanding opportunity cost.
+      </p>
+    </div>
+
+    <div class="belief-card reality">
+      <span class="label">REALITY</span>
+      <h3>Flexibility creates freedom</h3>
+      <p>
+        Cash flow and optionality matter more than ownership.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+
+
+<div class="fin-divider fin-divider--mark"></div>
+
+<section class="landing-section">
+  <h2 class="section-title">
+    <span class="text-highlight">Money decisions</span> across a <span class="text-highlight">lifetime</span>
+
+  </h2>
+
+  <div class="landing-values">
+    <div class="value-card glass">
+      <h3>20s</h3>
+      <p>Habits form. Compounding begins quietly.</p>
+    </div>
+
+    <div class="value-card glass">
+      <h3>30s</h3>
+      <p>EMIs rise. Decisions become heavier.</p>
+    </div>
+
+    <div class="value-card glass">
+      <h3>40s+</h3>
+      <p>The gap between early and late choices becomes visible.</p>
+    </div>
+  </div>
+</section>
+
+
+<br>
+<br>
+<br>
+
+<div class="fin-divider fin-divider--mark"></div>
+<section class="belief-engine">
+  <h2>Your <span class="text-highlight">Beliefs</span>, Over Time</h2>
+
+  <p class="sub">
+    Most outcomes are decided long before money is involved.
+  </p>
+
+  <div class="belief-grid">
+    <button data-outcome="delay">
+      I’ll start investing when I earn more
+    </button>
+    <button data-outcome="emi">
+      EMIs are normal, everyone has them
+    </button>
+    <button data-outcome="early">
+      I’ll start small, but early
+    </button>
+  </div>
+
+  <div class="belief-result" id="beliefResult">
+    Select a belief to see where it leads.
+  </div>
+</section>
+
+
+<div class="fin-divider fin-divider--mark"></div>
+
+<section class="landing-section">
+  <h2 class="section-title">
+    What FIN-OS will <span class="text-highlight">never</span> do
+
+  </h2>
+
+  <div class="landing-values">
+    <div class="value-card glass">
+      <h3>No tips</h3>
+      <p>We don’t chase excitement.</p>
+    </div>
+
+    <div class="value-card glass">
+      <h3>No promises</h3>
+      <p>Returns are never guaranteed — thinking is.</p>
+    </div>
+
+    <div class="value-card glass">
+      <h3>No noise</h3>
+      <p>Clarity beats constant information.</p>
+    </div>
+  </div>
+</section>
+
+
+<div class="fin-divider fin-divider--mark"></div>
+
+  <!-- ================= FIN-OS INDIA VISION ================= -->
+<section class="vision-section">
+  <header class="vision-header">
+    <h2><span class="text-highlight">What FIN-OS Is Building for India</span>
+    </h2>
+
+    <p>
+      A financial operating system designed for real Indian life —
+      not sales funnels or market noise.
+    </p>
+  </header>
+
+  <div class="vision-grid">
+
+    <div class="vision-card">
+      <span class="vision-icon">🧠</span>
+      <h4>Decision-First Finance</h4>
+      <p>
+        We fix how you think about money before touching
+        calculators, products, or tips.
+      </p>
+    </div>
+
+    <div class="vision-card">
+      <span class="vision-icon">🇮🇳</span>
+      <h4>Built for Indian Life</h4>
+      <p>
+        EMIs, parents, inflation, taxes, uncertainty —
+        FIN-OS speaks your reality.
+      </p>
+    </div>
+
+    <div class="vision-card">
+      <span class="vision-icon">📈</span>
+      <h4>Compounding Clarity</h4>
+      <p>
+        Small choices repeated over decades
+        matter more than one big decision.
+      </p>
+    </div>
+
+    <div class="vision-card">
+      <span class="vision-icon">🧬</span>
+      <h4>Financial DNA</h4>
+      <p>
+        Your content adapts to your age,
+        income stage, and risk mindset.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+
+
+
+<div class="fin-divider fin-divider--mark"></div>
+
+<section class="landing-section">
+  <h2 class="section-title">
+    <span class="text-highlight">Built for a certain kind of mind</span>
+
+
+  </h2>
+
+  <div class="landing-values">
+    <div class="value-card glass">
+      <h3>This is for you if</h3>
+      <p>
+        You want clarity, long-term thinking,
+        and fewer but better decisions.
+      </p>
+    </div>
+
+    <div class="value-card glass">
+      <h3>Not for you if</h3>
+      <p>
+        You want shortcuts, hype,
+        or daily stock excitement.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<section class="landing-final">
+  <h2>
+  <span class="text-highlight">
+    Where do you want to be financially <br>
+    in 20 years — and are today’s decisions aligned?
+  </span>
+</h2>
+
+
+  <button class="primary-btn" id="loginBtnFinal">
+    Start with clarity
+  </button>
+</section>
+
+<!-- AUTH / ROUTING -->
+<script src="../js/auth.js"></script>
+<script src="../js/landing.js"></script>
+
+<script>
+  document.getElementById("loginBtn")?.addEventListener("click", () => {
+    localStorage.setItem("finos_logged_in", "true");
+    window.location.href = "home.html";
+  });
+
+document.getElementById("loginBtn")?.addEventListener("click", () => {
+  window.location.href = "login.html";
+
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Margin Calculator • FIN-OS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Reuse Styles */
+    :root { --text-primary: #1e293b; --text-secondary: #64748b; --bg-main: #f1f5f9; --bg-surface: #ffffff; --card-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    [data-theme="dark"] { --text-primary: #f8fafc; --text-secondary: #94a3b8; --bg-main: #0f172a; --bg-surface: #1e293b; --card-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); }
+    body { color: var(--text-primary); background: var(--bg-main); font-family: sans-serif; }
+    h1, h2, h3 { color: var(--text-primary); }
+    input[type="number"] { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+    .page { flex: 1; padding: 0 48px 24px 48px; overflow-y: auto; }
+    .page-header { padding-top: 32px; margin-bottom: 40px; }
+    .page-header h1 { font-size: 42px; font-weight: 700; margin: 8px 0; }
+    .back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .back-btn:hover { color: #06b6d4; }
+    .impact-card { max-width: 1100px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 48px; border-radius: 32px; background: var(--bg-surface); box-shadow: var(--card-shadow); }
+    .impact-inputs { display: flex; flex-direction: column; gap: 24px; }
+    .input-group { display: flex; flex-direction: column; gap: 12px; }
+    .input-row { display: flex; gap: 12px; align-items: center; }
+    input[type="range"] { flex: 1; appearance: none; height: 6px; border-radius: 6px; background: linear-gradient(90deg, #06b6d4, #3b82f6); cursor: pointer; }
+    input[type="range"]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #ffffff; border: 3px solid #06b6d4; cursor: pointer; }
+    input[type="number"] { width: 140px; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); font-size: 16px; font-weight: 600; }
+    .impact-right { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+    .chart-container { width: 100%; max-width: 360px; aspect-ratio: 1; }
+    .result-grid { width: 100%; display: grid; grid-template-columns: 1fr; gap: 16px; }
+    .age-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .age-box { padding: 20px; border-radius: 16px; text-align: center; background: rgba(6,182,212,0.12); }
+    .age-box strong { font-size: 24px; display: block; margin-top: 4px; }
+    .verdict-box { padding: 24px; border-radius: 16px; text-align: center; font-weight: 700; font-size: 18px; background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(16,185,129,0.15)); color: #22c55e; }
+    @media (max-width: 900px) { .impact-card { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body class="app">
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="../../html/home.html">Home</a>
+      <a href="../../html/dashboard.html">Dashboard</a>
+      <a href="../../html/impact.html">Impact</a>
+      <a href="../../html/calculators.html" class="active">Calculators</a>
+      <a href="../../../Porfolio Analyser/portfolio-analyser-v9.html">Portfolio</a>
+      <a href="../../html/markets.html">Markets</a>
+      <a href="../../html/tax.html">Tax</a>
+      <a href="../../html/news.html">News</a>
+    </nav>
+  </aside>
+
+  <main class="page">
+    <button id="themeToggle" style="position: fixed; top: 32px; right: 32px; z-index: 100; background:none; border:none; font-size:24px; cursor:pointer;">🌙</button>
+
+    <header class="page-header">
+      <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
+      <h1>Margin Calculator</h1>
+      <p>Estimate margin requirements for futures.</p>
+    </header>
+
+    <section class="impact-card">
+      <div class="impact-left">
+        <div class="impact-inputs">
+          <div class="input-group">
+            <label>Price per Unit (₹)</label>
+            <div class="input-row"><input type="number" value="24000" id="price"></div>
+          </div>
+          <div class="input-group">
+            <label>Lot Size</label>
+            <div class="input-row"><input type="number" value="25" id="lot"></div>
+          </div>
+          <div class="input-group">
+            <label>Span Margin % (Volatility Risk)</label>
+            <div class="input-row">
+              <input type="range" min="5" max="20" step="0.5" value="10" id="span">
+              <input type="number" value="10" id="spanNum">
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Exposure Margin % (Extra Risk)</label>
+            <div class="input-row">
+              <input type="range" min="1" max="5" step="0.1" value="2" id="exp">
+              <input type="number" value="2" id="expNum">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="impact-right">
+        <div class="chart-container"><canvas id="marginChart"></canvas></div>
+        <div class="result-grid">
+          <div class="age-comparison">
+            <div class="age-box"><span>Contract Value</span><strong id="contractVal">₹6L</strong></div>
+            <div class="age-box" style="background: rgba(239,68,68,0.12)"><span>Blocked Margin</span><strong id="marginVal">₹72K</strong></div>
+          </div>
+          <div class="verdict-box behind" id="leverageVal">8x Leverage</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script>
+// Theme Logic
+const root = document.documentElement;
+const toggle = document.getElementById("themeToggle");
+toggle.onclick = () => { root.setAttribute("data-theme", root.getAttribute("data-theme")==="dark"?"light":"dark"); };
+
+const els = {
+  p: document.getElementById('price'),
+  l: document.getElementById('lot'),
+  s: document.getElementById('span'), sN: document.getElementById('spanNum'),
+  e: document.getElementById('exp'), eN: document.getElementById('expNum')
+};
+
+['s', 'e'].forEach(k => {
+  els[k].oninput = () => { els[k+'N'].value = els[k].value; calculate(); }
+  els[k+'N'].oninput = () => { els[k].value = els[k+'N'].value; calculate(); }
+});
+els.p.oninput = calculate; els.l.oninput = calculate;
+
+const ctx = document.getElementById('marginChart');
+const chart = new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Margin', 'Leverage (Loan)'],
+    datasets: [{ data: [12, 88], backgroundColor: ['#ef4444', '#334155'], borderWidth: 0 }]
+  },
+  options: { cutout: '70%', plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } } }
+});
+
+function format(num) { return "₹" + Math.round(num).toLocaleString(); }
+
+function calculate() {
+  const price = +els.p.value;
+  const lot = +els.l.value;
+  const spanPct = +els.sN.value / 100;
+  const expPct = +els.eN.value / 100;
+
+  const contractVal = price * lot;
+  const totalMarginPct = spanPct + expPct;
+  const marginRequired = contractVal * totalMarginPct;
+  const leverage = contractVal / marginRequired;
+
+  document.getElementById('contractVal').textContent = format(contractVal);
+  document.getElementById('marginVal').textContent = format(marginRequired);
+  document.getElementById('leverageVal').textContent = leverage.toFixed(1) + "x Leverage";
+
+  chart.data.datasets[0].data = [marginRequired, contractVal - marginRequired];
+  chart.update();
+}
+
+calculate();
+</script>
+</body>
+</html>

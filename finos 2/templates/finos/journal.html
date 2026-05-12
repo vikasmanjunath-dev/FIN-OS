@@ -1,0 +1,458 @@
+{% extends 'finos/base.html' %}
+{% block title %}Deep Journal — FIN-OS{% endblock %}
+{% block extra_head %}
+<style>
+.page{padding:2.5rem 3rem;padding-top:5.5rem;position:relative;z-index:1;max-width:1100px}
+#jBg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.25}
+
+/* TOPBAR */
+.topbar{position:fixed;top:0;left:220px;right:0;height:44px;z-index:400;background:rgba(2,2,12,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(124,58,255,.08);display:flex;align-items:center;padding:0 2rem;gap:1.5rem;font-family:var(--fM);font-size:.64rem}
+.tb-dot{width:5px;height:5px;border-radius:50%;background:#a78bff;box-shadow:0 0 6px #a78bff;animation:blink 2s infinite}
+
+/* HERO */
+.j-hero{margin-bottom:2.5rem;animation:slide-up .6s ease}
+.j-badge{display:inline-flex;align-items:center;gap:.5rem;padding:4px 14px;border-radius:30px;font-family:var(--fM);font-size:.6rem;letter-spacing:3px;background:rgba(124,58,255,.08);border:1px solid rgba(124,58,255,.2);color:#a78bff;margin-bottom:1rem}
+.j-hero h1{font-family:var(--fD);font-size:3.5rem;letter-spacing:3px;line-height:1;margin-bottom:.75rem}
+.j-hero h1 span{background:linear-gradient(90deg,#a78bff,var(--c),#a78bff);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s linear infinite}
+.j-hero p{font-size:.95rem;color:var(--mu);max-width:520px;line-height:1.7}
+
+/* AI INSIGHT PANEL */
+.ai-panel{background:var(--s1);border:1px solid rgba(124,58,255,.15);border-radius:20px;padding:2rem;margin-bottom:2rem;animation:slide-up .7s ease;position:relative;overflow:hidden}
+.ai-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--v),var(--c))}
+.ai-panel-title{font-family:var(--fD);font-size:1.3rem;letter-spacing:1px;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
+.ai-insights-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.25rem}
+.ai-insight-card{padding:1rem;background:rgba(0,0,0,.3);border-radius:12px;border:1px solid rgba(255,255,255,.06);text-align:center;cursor:pointer;transition:all .2s}
+.ai-insight-card:hover{border-color:rgba(124,58,255,.3);background:rgba(124,58,255,.04)}
+.aic-num{font-family:var(--fD);font-size:1.8rem;letter-spacing:1px;margin-bottom:2px}
+.aic-lbl{font-family:var(--fM);font-size:.55rem;color:var(--mu);letter-spacing:1px}
+.ai-key-insight{padding:1rem;background:rgba(124,58,255,.06);border-left:2px solid var(--v);border-radius:0 8px 8px 0;font-size:.84rem;color:#c4b5fd;line-height:1.6;font-style:italic}
+
+/* PATTERNS HEATMAP */
+.patterns-card{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:2rem;margin-bottom:2rem;animation:slide-up .75s ease}
+.pc-title{font-family:var(--fD);font-size:1.3rem;letter-spacing:1px;margin-bottom:1.5rem}
+.patterns-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.pattern-col{display:flex;flex-direction:column;gap:.75rem}
+.pat-row{display:flex;align-items:center;gap:.85rem;padding:.85rem 1rem;background:rgba(0,0,0,.25);border-radius:10px;border:1px solid rgba(255,255,255,.05);transition:border-color .2s}
+.pat-row:hover{border-color:rgba(124,58,255,.2)}
+.pat-emoji{font-size:1.4rem;flex-shrink:0}
+.pat-body{flex:1}
+.pat-title{font-size:.82rem;font-weight:600;margin-bottom:.2rem}
+.pat-stat{font-family:var(--fM);font-size:.62rem;color:var(--mu)}
+.pat-bar-wrap{width:80px;flex-shrink:0}
+.pat-bar-bg{height:5px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden}
+.pat-bar-fill{height:100%;border-radius:3px;animation:grow-bar 1.5s ease forwards}
+.pat-val{font-family:var(--fD);font-size:.9rem;letter-spacing:.5px;text-align:right;margin-bottom:2px}
+
+/* DEEP LOG FORM */
+.log-card{background:var(--s1);border:1px solid rgba(124,58,255,.12);border-radius:20px;overflow:hidden;margin-bottom:2rem;animation:slide-up .8s ease}
+.lc-head{padding:1.75rem 2rem;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between}
+.lc-title{font-family:var(--fD);font-size:1.3rem;letter-spacing:1px}
+.lc-badge{font-family:var(--fM);font-size:.58rem;padding:3px 10px;border-radius:10px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.15);color:var(--c)}
+.lc-body{padding:2rem}
+.lc-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem}
+.lc-group{display:flex;flex-direction:column;gap:.4rem}
+.lc-lbl{font-family:var(--fM);font-size:.58rem;color:var(--mu);letter-spacing:2px;text-transform:uppercase}
+.lc-inp{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.7rem 1rem;color:var(--txt);font-family:var(--fD);font-size:1.1rem;letter-spacing:.5px;outline:none;transition:border-color .2s;width:100%}
+.lc-inp:focus{border-color:rgba(124,58,255,.4);box-shadow:0 0 0 2px rgba(124,58,255,.08)}
+.lc-select{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.7rem 1rem;color:var(--txt);font-family:var(--fB);font-size:.87rem;outline:none;width:100%}
+.lc-textarea{width:100%;min-height:90px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.85rem 1rem;color:var(--txt);font-family:var(--fB);font-size:.87rem;outline:none;resize:vertical;line-height:1.6;transition:border-color .2s}
+.lc-textarea:focus{border-color:rgba(124,58,255,.4)}
+
+/* EMOTION SLIDERS */
+.emo-sliders{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;margin-bottom:1.25rem}
+.es-item{display:flex;flex-direction:column;gap:.4rem}
+.es-lbl{display:flex;justify-content:space-between;font-family:var(--fM);font-size:.58rem;color:var(--mu)}
+.es-range{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:rgba(255,255,255,.08);outline:none}
+.es-range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;cursor:pointer;box-shadow:0 0 8px currentColor;transition:transform .2s}
+.es-range::-webkit-slider-thumb:hover{transform:scale(1.3)}
+.er-calm::-webkit-slider-thumb{background:var(--g)}
+.er-fomo::-webkit-slider-thumb{background:var(--y)}
+.er-conf::-webkit-slider-thumb{background:var(--c)}
+.er-fear::-webkit-slider-thumb{background:var(--r)}
+.er-stress::-webkit-slider-thumb{background:var(--r)}
+.er-clarity::-webkit-slider-thumb{background:#a78bff}
+
+.lc-submit{padding:.75rem 2rem;border-radius:30px;background:linear-gradient(135deg,var(--v),var(--c));border:none;color:#fff;font-family:var(--fD);font-size:1rem;letter-spacing:1px;cursor:pointer;transition:all .25s;margin-top:1rem}
+.lc-submit:hover{transform:translateY(-2px);box-shadow:0 12px 35px rgba(124,58,255,.35)}
+
+/* AI RESPONSE */
+.ai-resp{margin-top:1.5rem;display:none;animation:slide-up .4s ease}
+.ai-resp.show{display:block}
+.ai-resp-box{padding:1.5rem;background:rgba(124,58,255,.05);border:1px solid rgba(124,58,255,.15);border-radius:14px;font-size:.87rem;line-height:1.8;color:#c4b5fd}
+.air-title{font-family:var(--fD);font-size:1rem;letter-spacing:1px;margin-bottom:.75rem;color:#a78bff;display:flex;align-items:center;gap:.5rem}
+.air-sections{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
+.air-sec{padding:.85rem;background:rgba(0,0,0,.3);border-radius:10px;border:1px solid rgba(255,255,255,.06)}
+.airs-lbl{font-family:var(--fM);font-size:.55rem;letter-spacing:2px;color:var(--mu);margin-bottom:.4rem}
+.airs-body{font-size:.78rem;line-height:1.5;color:rgba(240,237,255,.75)}
+
+/* ENTRY CARDS */
+.entries-section{animation:slide-up .9s ease}
+.es-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+.es-title{font-family:var(--fD);font-size:1.3rem;letter-spacing:1px}
+.es-filter{display:flex;gap:.5rem}
+.esf-btn{padding:.35rem .9rem;border-radius:20px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.3);color:var(--mu);font-size:.72rem;cursor:pointer;transition:all .2s;font-family:var(--fM)}
+.esf-btn:hover,.esf-btn.on{border-color:rgba(124,58,255,.3);color:#a78bff;background:rgba(124,58,255,.06)}
+.entries-list{display:flex;flex-direction:column;gap:1.1rem}
+.entry{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:1.6rem;transition:all .25s;position:relative;overflow:hidden}
+.entry:hover{border-color:rgba(124,58,255,.2);transform:translateY(-2px)}
+.entry::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px}
+.entry-win::before{background:var(--g)}.entry-loss::before{background:var(--r)}.entry-neutral::before{background:var(--mu)}
+.entry-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.85rem}
+.entry-stock{font-family:var(--fD);font-size:1.3rem;letter-spacing:1px}
+.entry-meta{display:flex;flex-direction:column;align-items:flex-end;gap:.3rem}
+.entry-date{font-family:var(--fM);font-size:.6rem;color:var(--mu)}
+.entry-pnl{font-family:var(--fD);font-size:1.1rem;letter-spacing:.5px}
+.entry-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.75rem}
+.tag{display:inline-flex;align-items:center;gap:3px;padding:2px 9px;border-radius:20px;font-size:.6rem;font-family:var(--fM);border:1px solid}
+.tg{color:var(--g);border-color:rgba(0,255,136,.2);background:rgba(0,255,136,.07)}
+.tr{color:var(--r);border-color:rgba(255,45,107,.2);background:rgba(255,45,107,.07)}
+.tv{color:#a78bff;border-color:rgba(124,58,255,.2);background:rgba(124,58,255,.07)}
+.ty{color:var(--y);border-color:rgba(255,204,0,.2);background:rgba(255,204,0,.07)}
+.tc{color:var(--c);border-color:rgba(0,212,255,.2);background:rgba(0,212,255,.07)}
+.entry-why{font-size:.82rem;color:rgba(240,237,255,.7);line-height:1.5;margin-bottom:.85rem}
+.entry-emo-bars{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.85rem}
+.eb-item{display:flex;flex-direction:column;gap:.2rem}
+.eb-lbl{font-family:var(--fM);font-size:.52rem;color:var(--mu);display:flex;justify-content:space-between}
+.eb-bar{height:3px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden}
+.eb-fill{height:100%;border-radius:2px;animation:grow-bar 1.2s ease forwards}
+.entry-ai{padding:.6rem .85rem;font-size:.76rem;color:#a78bff;background:rgba(124,58,255,.06);border-left:2px solid rgba(124,58,255,.4);border-radius:0 6px 6px 0;line-height:1.5;font-style:italic}
+
+/* PSYCHOLOGICAL PATTERNS */
+.psych-patterns{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:2rem;margin-bottom:2rem;animation:slide-up 1s ease}
+.pp-title{font-family:var(--fD);font-size:1.3rem;letter-spacing:1px;margin-bottom:1.5rem}
+.pp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+.pp-card{padding:1.25rem;background:rgba(0,0,0,.25);border-radius:14px;border:1px solid rgba(255,255,255,.06)}
+.ppc-title{font-family:var(--fD);font-size:.95rem;letter-spacing:.5px;margin-bottom:.5rem}
+.ppc-body{font-size:.78rem;color:var(--mu);line-height:1.5;margin-bottom:.75rem}
+.ppc-action{font-size:.74rem;color:var(--c);padding:.5rem .75rem;background:rgba(0,212,255,.04);border-left:2px solid rgba(0,212,255,.3);border-radius:0 5px 5px 0}
+</style>
+{% endblock %}
+
+{% block content %}
+<canvas id="jBg"></canvas>
+<div class="topbar">
+  <div class="tb-dot"></div>
+  <span style="color:#a78bff">DEEP JOURNAL — AI PSYCHOLOGY ENGINE</span>
+  <span style="color:var(--mu)">|</span>
+  <span style="color:var(--mu)" id="jUserLabel">TRADER:</span>&nbsp;<span style="color:var(--c)" id="jUserName">Rahul</span>
+  <span style="color:var(--mu)">|</span>
+  <span style="color:var(--mu)">ENTRIES LOGGED:</span>&nbsp;<span style="color:var(--c)" id="entryCount">47</span>
+  <span style="color:var(--mu);margin-left:auto">FOMO RES:</span>&nbsp;<span id="jFomoRes" style="color:var(--y)">22%</span>
+</div>
+
+<div class="page">
+
+<!-- HERO -->
+<div class="j-hero">
+  <div class="j-badge">📓 AI-POWERED PSYCHOLOGICAL TRADING JOURNAL</div>
+  <h1>YOUR <span>TRADER'S MIND</span> JOURNAL</h1>
+  <p>Every trade tells a psychological story. Your journal is where patterns become visible — and visible patterns become controllable. This is your most powerful training tool.</p>
+</div>
+
+<!-- AI INSIGHT PANEL -->
+<div class="ai-panel">
+  <div class="ai-panel-title">🤖 AI Pattern Analysis — This Month</div>
+  <div class="ai-insights-grid">
+    <div class="ai-insight-card" onclick="addXP(5,'Insight reviewed')">
+      <div class="aic-num" style="color:var(--g)">74%</div>
+      <div class="aic-lbl">WIN RATE WHEN CALM</div>
+    </div>
+    <div class="ai-insight-card" onclick="addXP(5,'Insight reviewed')">
+      <div class="aic-num" style="color:var(--r)">14%</div>
+      <div class="aic-lbl">WIN RATE WHEN EMOTIONAL</div>
+    </div>
+    <div class="ai-insight-card" onclick="addXP(5,'Insight reviewed')">
+      <div class="aic-num" style="color:var(--y)">11am</div>
+      <div class="aic-lbl">BEST TRADING HOUR</div>
+    </div>
+    <div class="ai-insight-card" onclick="addXP(5,'Insight reviewed')">
+      <div class="aic-num" style="color:var(--r)">Fri 3pm</div>
+      <div class="aic-lbl">WORST TIME TO TRADE</div>
+    </div>
+    <div class="ai-insight-card" onclick="addXP(5,'Insight reviewed')">
+      <div class="aic-num" style="color:var(--c)">RSI+Support</div>
+      <div class="aic-lbl">YOUR BEST SETUP (67% WR)</div>
+    </div>
+    <div class="ai-insight-card" onclick="addXP(5,'Insight reviewed')">
+      <div class="aic-num" style="color:var(--r)">WhatsApp</div>
+      <div class="aic-lbl">WORST SIGNAL SOURCE (0/3)</div>
+    </div>
+  </div>
+  <div class="ai-key-insight">🤖 <strong>Critical Pattern:</strong> Tu Fridays pe consistently emotional trades karta hai. Last 4 Fridays mein 8 trades — 7 losses. Experiment: Next 30 days, Friday ko zero trades. Data predict karta hai: ₹14,000+ saved per month.</div>
+</div>
+
+<!-- PATTERNS DEEP DIVE -->
+<div class="patterns-card">
+  <div class="pc-title">DEEP PSYCHOLOGICAL PATTERNS — 47 TRADES ANALYZED</div>
+  <div class="patterns-grid">
+    <div class="pattern-col">
+      <div class="pat-row">
+        <div class="pat-emoji">😌</div>
+        <div class="pat-body"><div class="pat-title">Calm State Trades</div><div class="pat-stat">12 trades · avg +₹2,840</div></div>
+        <div class="pat-bar-wrap"><div class="pat-val" style="color:var(--g)">74%</div><div class="pat-bar-bg"><div class="pat-bar-fill" style="width:74%;background:linear-gradient(90deg,var(--g),#34ffb8)"></div></div></div>
+      </div>
+      <div class="pat-row">
+        <div class="pat-emoji">⚡</div>
+        <div class="pat-body"><div class="pat-title">FOMO Trades</div><div class="pat-stat">11 trades · avg -₹3,200</div></div>
+        <div class="pat-bar-wrap"><div class="pat-val" style="color:var(--r)">18%</div><div class="pat-bar-bg"><div class="pat-bar-fill" style="width:18%;background:linear-gradient(90deg,var(--r),#ff8ca8)"></div></div></div>
+      </div>
+      <div class="pat-row">
+        <div class="pat-emoji">😤</div>
+        <div class="pat-body"><div class="pat-title">Revenge Trades</div><div class="pat-stat">3 trades · avg -₹8,900</div></div>
+        <div class="pat-bar-wrap"><div class="pat-val" style="color:var(--r)">0%</div><div class="pat-bar-bg"><div class="pat-bar-fill" style="width:0%;background:var(--r)"></div></div></div>
+      </div>
+      <div class="pat-row">
+        <div class="pat-emoji">📱</div>
+        <div class="pat-body"><div class="pat-title">WhatsApp Tips</div><div class="pat-stat">3 trades · all losses</div></div>
+        <div class="pat-bar-wrap"><div class="pat-val" style="color:var(--r)">0%</div><div class="pat-bar-bg"><div class="pat-bar-fill" style="width:0%;background:var(--r)"></div></div></div>
+      </div>
+    </div>
+    <div class="pattern-col">
+      <div class="pat-row">
+        <div class="pat-emoji">🌅</div>
+        <div class="pat-body"><div class="pat-title">Morning Trades (9-11am)</div><div class="pat-stat">18 trades · avg +₹1,920</div></div>
+        <div class="pat-bar-wrap"><div class="pat-val" style="color:var(--g)">67%</div><div class="pat-bar-bg"><div class="pat-bar-fill" style="width:67%;background:linear-gradient(90deg,var(--g),var(--c))"></div></div></div>
+      </div>
+      <div class="pat-row">
+        <div class="pat-emoji">🌆</div>
+        <div class="pat-body"><div class="pat-title">Afternoon Trades (2-4pm)</div><div class="pat-stat">14 trades · avg -₹1,100</div></div>
+        <div class="pat-bar-wrap"><div class="pat-val" style="color:var(--r)">29%</div><div class="pat-bar-bg"><div class="pat-bar-fill" style="width:29%;background:linear-gradient(90deg,var(--r),var(--y))"></div></div></div>
+      </div>
+      <div class="pat-row">
+        <div class="pat-emoji">📊</div>
+        <div class="pat-body"><div class="pat-title">RSI + Support Setup</div><div class="pat-stat">9 trades · best edge</div></div>
+        <div class="pat-bar-wrap"><div class="pat-val" style="color:var(--g)">89%</div><div class="pat-bar-bg"><div class="pat-bar-fill" style="width:89%;background:linear-gradient(90deg,var(--g),#34ffb8)"></div></div></div>
+      </div>
+      <div class="pat-row">
+        <div class="pat-emoji">📅</div>
+        <div class="pat-body"><div class="pat-title">Friday Trades</div><div class="pat-stat">8 trades · consistent losses</div></div>
+        <div class="pat-bar-wrap"><div class="pat-val" style="color:var(--r)">12%</div><div class="pat-bar-bg"><div class="pat-bar-fill" style="width:12%;background:var(--r)"></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DEEP LOG FORM -->
+<div class="log-card">
+  <div class="lc-head">
+    <div class="lc-title">LOG A TRADE — WITH PSYCHOLOGICAL DEPTH</div>
+    <div class="lc-badge">AI ANALYSIS INCLUDED</div>
+  </div>
+  <div class="lc-body">
+    <div class="lc-grid">
+      <div class="lc-group"><label class="lc-lbl">Instrument</label><input class="lc-inp" id="jStock" placeholder="NIFTY50, RELIANCE..."></div>
+      <div class="lc-group"><label class="lc-lbl">Action</label>
+        <select class="lc-select" id="jAction"><option>📈 LONG (BUY)</option><option>📉 SHORT (SELL)</option><option>🔄 OPTIONS (CE/PE)</option></select>
+      </div>
+      <div class="lc-group"><label class="lc-lbl">P&L (₹)</label><input class="lc-inp" id="jPnl" type="number" placeholder="+5000 or -2000"></div>
+      <div class="lc-group"><label class="lc-lbl">Setup Type</label>
+        <select class="lc-select" id="jSetup"><option>RSI + Support</option><option>Breakout</option><option>News/Event</option><option>WhatsApp Tip</option><option>Gut Feel</option><option>FOMO Chase</option><option>Revenge Trade</option><option>Other</option></select>
+      </div>
+    </div>
+    <div class="lc-group" style="margin-bottom:1rem">
+      <label class="lc-lbl">TRADE THESIS — WHY DID YOU ENTER?</label>
+      <textarea class="lc-textarea" id="jWhy" placeholder="Describe your reasoning. Be honest — no one is judging. What did the chart show? What did you feel?"></textarea>
+    </div>
+    <div class="lc-group" style="margin-bottom:1.25rem">
+      <label class="lc-lbl">POST-TRADE REFLECTION — WHAT HAPPENED INSIDE YOUR HEAD?</label>
+      <textarea class="lc-textarea" id="jReflect" placeholder="Did you follow your plan? Where did emotions override logic? What would you do differently?"></textarea>
+    </div>
+    <!-- EMOTIONAL SLIDERS -->
+    <label class="lc-lbl" style="margin-bottom:.75rem;display:block">EMOTIONAL STATE DURING TRADE (0–10)</label>
+    <div class="emo-sliders">
+      <div class="es-item"><div class="es-lbl"><span>😌 Calm</span><span id="sv-calm">5</span></div><input type="range" class="es-range er-calm" min="0" max="10" value="5" oninput="document.getElementById('sv-calm').textContent=this.value"></div>
+      <div class="es-item"><div class="es-lbl"><span>⚡ FOMO</span><span id="sv-fomo">3</span></div><input type="range" class="es-range er-fomo" min="0" max="10" value="3" oninput="document.getElementById('sv-fomo').textContent=this.value"></div>
+      <div class="es-item"><div class="es-lbl"><span>😎 Confidence</span><span id="sv-conf">6</span></div><input type="range" class="es-range er-conf" min="0" max="10" value="6" oninput="document.getElementById('sv-conf').textContent=this.value"></div>
+      <div class="es-item"><div class="es-lbl"><span>😨 Fear</span><span id="sv-fear">2</span></div><input type="range" class="es-range er-fear" min="0" max="10" value="2" oninput="document.getElementById('sv-fear').textContent=this.value"></div>
+      <div class="es-item"><div class="es-lbl"><span>😰 Stress</span><span id="sv-stress">3</span></div><input type="range" class="es-range er-stress" min="0" max="10" value="3" oninput="document.getElementById('sv-stress').textContent=this.value"></div>
+      <div class="es-item"><div class="es-lbl"><span>🧠 Clarity</span><span id="sv-clarity">7</span></div><input type="range" class="es-range er-clarity" min="0" max="10" value="7" oninput="document.getElementById('sv-clarity').textContent=this.value"></div>
+    </div>
+    <button class="lc-submit" onclick="logTrade()">🤖 ANALYZE MY TRADE PSYCHOLOGY</button>
+    <div class="ai-resp" id="aiResp">
+      <div class="ai-resp-box">
+        <div class="air-title">🤖 AI Psychological Analysis</div>
+        <div id="airMain"></div>
+        <div class="air-sections">
+          <div class="air-sec"><div class="airs-lbl">PATTERN DETECTED</div><div class="airs-body" id="airPattern"></div></div>
+          <div class="air-sec"><div class="airs-lbl">ACTION TO TAKE</div><div class="airs-body" id="airAction"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PSYCHOLOGICAL PATTERNS INSIGHT -->
+<div class="psych-patterns">
+  <div class="pp-title">YOUR PSYCHOLOGICAL TRADING PATTERNS — AI IDENTIFIED</div>
+  <div class="pp-grid">
+    <div class="pp-card">
+      <div class="ppc-title" style="color:var(--r)">🔴 Friday Emotional Deterioration</div>
+      <div class="ppc-body">Every Friday afternoon, emotional trading spikes 340%. Pattern: week-end anxiety creates loss aversion, leading to revenge trades and FOMO chasing. This has cost ₹42,000 in 3 months.</div>
+      <div class="ppc-action">Action: Implement Friday no-trade rule for 30 days. Measure the difference.</div>
+    </div>
+    <div class="pp-card">
+      <div class="ppc-title" style="color:var(--g)">🟢 Morning Edge Phenomenon</div>
+      <div class="ppc-body">9am-11am trades are 3x more profitable. Cortisol peaks in morning create heightened risk awareness — you're more careful, more logical. This is your biological trading window.</div>
+      <div class="ppc-action">Action: Restrict all trades to 9:15am-11:30am for next 20 sessions. Track results.</div>
+    </div>
+    <div class="pp-card">
+      <div class="ppc-title" style="color:var(--r)">🔴 Post-Loss Revenge Spiral</div>
+      <div class="ppc-body">After any loss over ₹5,000, probability of taking a second trade within 30 minutes is 78%. That second trade has 87% loss rate. You are literally rage-trading your account.</div>
+      <div class="ppc-action">Action: 30-minute mandatory break after any loss exceeding ₹3,000. Kill switch automation.</div>
+    </div>
+    <div class="pp-card">
+      <div class="ppc-title" style="color:var(--g)">🟢 RSI + Support Superpower</div>
+      <div class="ppc-body">When you trade RSI oversold + confirmed support level setups, win rate is 89% — exceptional for any strategy. This is a genuine statistical edge. You are abandoning it for lower-quality setups.</div>
+      <div class="ppc-action">Action: Only trade RSI+Support setups for 60 days. Refuse all other entries. Watch returns multiply.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ENTRIES -->
+<div class="entries-section">
+  <div class="es-header">
+    <div class="es-title">RECENT JOURNAL ENTRIES</div>
+    <div class="es-filter">
+      <div class="esf-btn on" onclick="filterEntries('all',this)">ALL</div>
+      <div class="esf-btn" onclick="filterEntries('win',this)">WINS</div>
+      <div class="esf-btn" onclick="filterEntries('loss',this)">LOSSES</div>
+      <div class="esf-btn" onclick="filterEntries('emotional',this)">EMOTIONAL</div>
+    </div>
+  </div>
+  <div class="entries-list" id="entriesList">
+
+    <div class="entry entry-win">
+      <div class="entry-top">
+        <div class="entry-stock">NIFTY 24500 CE</div>
+        <div class="entry-meta"><div class="entry-date">TODAY · 11:23 AM</div><div class="entry-pnl" style="color:var(--g)">+₹4,200</div></div>
+      </div>
+      <div class="entry-tags"><span class="tag tg">LONG</span><span class="tag tc">RSI+SUPPORT</span><span class="tag tg">CALM STATE</span><span class="tag tg">PLAN FOLLOWED</span></div>
+      <div class="entry-why">"Nifty support pe tha, RSI oversold at 28. Volume confirmation. 1:2.5 risk-reward. Clear entry trigger. Followed plan exactly — no emotion."</div>
+      <div class="entry-emo-bars">
+        <div class="eb-item"><div class="eb-lbl"><span>😌 Calm</span><span style="color:var(--g)">8/10</span></div><div class="eb-bar"><div class="eb-fill" style="width:80%;background:var(--g)"></div></div></div>
+        <div class="eb-item"><div class="eb-lbl"><span>⚡ FOMO</span><span style="color:var(--g)">1/10</span></div><div class="eb-bar"><div class="eb-fill" style="width:10%;background:var(--y)"></div></div></div>
+        <div class="eb-item"><div class="eb-lbl"><span>🧠 Clarity</span><span style="color:var(--g)">9/10</span></div><div class="eb-bar"><div class="eb-fill" style="width:90%;background:var(--c)"></div></div></div>
+      </div>
+      <div class="entry-ai">🤖 AI: This is your best trade pattern — RSI + support + calm state = 89% historical win rate for you. Entry was textbook. Note: you held the full target without exiting early for once. +15 XP behavior change detected.</div>
+    </div>
+
+    <div class="entry entry-loss">
+      <div class="entry-top">
+        <div class="entry-stock">ADANI PORTS</div>
+        <div class="entry-meta"><div class="entry-date">YESTERDAY · 2:47 PM</div><div class="entry-pnl" style="color:var(--r)">-₹2,800</div></div>
+      </div>
+      <div class="entry-tags"><span class="tag tr">LONG</span><span class="tag ty">WHATSAPP TIP</span><span class="tag tr">FOMO STATE</span><span class="tag tr">PLAN BROKEN</span></div>
+      <div class="entry-why">"WhatsApp group ne bola 'Adani big move aane wala hai.' Bina chart dekhe enter kar gaya. No stop-loss set. Hoping it would work."</div>
+      <div class="entry-emo-bars">
+        <div class="eb-item"><div class="eb-lbl"><span>😌 Calm</span><span style="color:var(--r)">2/10</span></div><div class="eb-bar"><div class="eb-fill" style="width:20%;background:var(--r)"></div></div></div>
+        <div class="eb-item"><div class="eb-lbl"><span>⚡ FOMO</span><span style="color:var(--r)">9/10</span></div><div class="eb-bar"><div class="eb-fill" style="width:90%;background:var(--r)"></div></div></div>
+        <div class="eb-item"><div class="eb-lbl"><span>🧠 Clarity</span><span style="color:var(--r)">1/10</span></div><div class="eb-bar"><div class="eb-fill" style="width:10%;background:var(--mu)"></div></div></div>
+      </div>
+      <div class="entry-ai">🤖 AI: 3rd WhatsApp-triggered trade this month. Win rate on these: 0/3. You are systematically donating money to whoever sends you tips. Total cost of trusting this source: -₹7,800. MUTE THE GROUP.</div>
+    </div>
+
+    <div class="entry entry-win">
+      <div class="entry-top">
+        <div class="entry-stock">HDFC BANK</div>
+        <div class="entry-meta"><div class="entry-date">2 DAYS AGO · 9:45 AM</div><div class="entry-pnl" style="color:var(--g)">+₹1,600</div></div>
+      </div>
+      <div class="entry-tags"><span class="tag tg">LONG</span><span class="tag tc">POST-RESULTS DIP</span><span class="tag tg">CALM STATE</span><span class="tag tg">THESIS-DRIVEN</span></div>
+      <div class="entry-why">"Results ke baad 3% dip. Fundamentals strong — NIM expanding, NPAs reducing. Short-term noise. Bought with conviction, not hope."</div>
+      <div class="entry-emo-bars">
+        <div class="eb-item"><div class="eb-lbl"><span>😌 Calm</span><span style="color:var(--g)">7/10</span></div><div class="eb-bar"><div class="eb-fill" style="width:70%;background:var(--g)"></div></div></div>
+        <div class="eb-item"><div class="eb-lbl"><span>⚡ FOMO</span><span style="color:var(--g)">0/10</span></div><div class="eb-bar"><div class="eb-fill" style="width:0%;background:var(--mu)"></div></div></div>
+        <div class="eb-item"><div class="eb-lbl"><span>🧠 Clarity</span><span style="color:var(--g)">8/10</span></div><div class="eb-bar"><div class="eb-fill" style="width:80%;background:var(--c)"></div></div></div>
+      </div>
+      <div class="entry-ai">🤖 AI: Post-results dip buying — your second best pattern (67% win rate). Note: you held for 2 days vs usual 4 hours. Extending hold time on thesis-driven trades is improving your returns. Keep developing this.</div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<script>
+// Neural particle background
+(function(){
+  const c=document.getElementById('jBg');if(!c)return;
+  const ctx=c.getContext('2d');c.width=window.innerWidth-220;c.height=window.innerHeight;
+  const pts=[];for(let i=0;i<50;i++)pts.push({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.5+.5});
+  function draw(){ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>c.width)p.vx*=-1;if(p.y<0||p.y>c.height)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(167,139,255,.4)';ctx.fill();});
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<120){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(124,58,255,${.12*(1-d/120)})`;ctx.lineWidth=.5;ctx.stroke();}}
+    requestAnimationFrame(draw);}draw();
+})();
+
+// Wire profile from STATE
+(function(){
+  const nm = document.getElementById('jUserName');
+  const fr = document.getElementById('jFomoRes');
+  if (nm) nm.textContent = STATE.userName.split(' ')[0];
+  if (fr) {
+    const val = STATE.traits.fomoRes;
+    fr.textContent = val + '%';
+    fr.style.color = val < 35 ? 'var(--r)' : val < 55 ? 'var(--y)' : 'var(--g)';
+  }
+})();
+
+const AI_RESPONSES={
+  calm:{main:"Strong psychological state detected. Calm state is your highest-performing emotional condition — 74% win rate historically. This trade was entered logically.",pattern:"Calm + planned entry = your edge. You are operating at peak psychological performance. This is what disciplined trading looks like.",action:"Continue. If this trade has a clear stop-loss and target, let it run. Avoid over-monitoring — your work is done at entry.",xp:15},
+  fomo:{main:"FOMO signature detected in emotional profile. High FOMO + low calm = historically your worst trade category. This trade has high probability of being entered at the wrong time.",pattern:"You're chasing price. FOMO trades tend to enter after the move has largely happened, maximizing risk while minimizing reward. This is a statistical fact from your journal.",action:"Review: Was there a setup before FOMO hit, or did the FOMO create the 'setup'? If FOMO came first — this trade likely shouldn't have happened.",xp:-5},
+  revenge:{main:"CRITICAL: Post-loss revenge pattern detected. Stress is high, calm is low. You are in the highest-risk emotional state a trader can be in. Statistically: 0% win rate on revenge trades in your history.",pattern:"Three revenge trades in your journal — all losses. The pattern is 100% consistent. Your brain is trying to recover money through action, but the action is making it worse.",action:"EXIT THIS TRADE if you're still in it. Accept the original loss. Revenge trading has never worked for anyone — not you, not professionals. The market cannot be beaten through anger.",xp:-20},
+  neutral:{main:"Mixed emotional state. Some calm present but also stress markers. This is a borderline trade psychologically — proceed with caution.",pattern:"Neutral states have 45% win rate for you — below your average. The uncertainty in your emotional state often reflects uncertainty in the trade setup itself.",action:"Reduce position size by 50%. If the trade is real, it still works at smaller size. If reducing size makes you not want to take the trade — that's your answer.",xp:5}
+};
+
+function logTrade(){
+  const stock=document.getElementById('jStock').value.trim();
+  if(!stock){showToast('Stock name enter karo pehle','tw');return;}
+  const pnl=parseFloat(document.getElementById('jPnl').value)||0;
+  const setup=document.getElementById('jSetup').value;
+  const calm=parseInt(document.querySelector('.er-calm').value);
+  const fomo=parseInt(document.querySelector('.er-fomo').value);
+  const stress=parseInt(document.querySelector('.er-stress').value);
+  let respType='neutral';
+  if(calm>=7&&fomo<=3)respType='calm';
+  else if(fomo>=7)respType='fomo';
+  else if(stress>=7&&calm<=3)respType='revenge';
+  const resp=AI_RESPONSES[respType];
+  const el=document.getElementById('aiResp');
+  document.getElementById('airMain').textContent=resp.main;
+  document.getElementById('airPattern').textContent=resp.pattern;
+  document.getElementById('airAction').textContent=resp.action;
+  el.className='ai-resp show';
+  addXP(resp.xp+(pnl>0?10:0),'Trade logged with AI analysis');
+  document.getElementById('entryCount').textContent=parseInt(document.getElementById('entryCount').textContent)+1;
+  // add entry to list
+  const list=document.getElementById('entriesList');
+  const cls=pnl>0?'entry-win':pnl<0?'entry-loss':'entry-neutral';
+  const card=document.createElement('div');card.className=`entry ${cls}`;card.style.animation='slide-up .4s ease';
+  const isFomoTrade = fomo >= 7;
+  const fomoVulnerable = STATE.traits.fomoRes < 40;
+  const fomoWarning = isFomoTrade && fomoVulnerable
+    ? `<div style="margin-top:.6rem;padding:.5rem .85rem;font-size:.74rem;color:var(--r);background:rgba(255,59,59,.06);border:1px solid rgba(255,59,59,.2);border-radius:8px">⚠ FOMO VULNERABILITY ALERT — Your FOMO Resistance is ${STATE.traits.fomoRes}/100. This trade was entered in a high-FOMO state. Statistically your worst entry condition. Review before sizing up.</div>`
+    : '';
+  card.innerHTML=`<div class="entry-top"><div class="entry-stock">${stock.toUpperCase()}</div><div class="entry-meta"><div class="entry-date">NOW · Just logged</div><div class="entry-pnl" style="color:${pnl>0?'var(--g)':'var(--r)'}">${pnl>0?'+':''}₹${Math.abs(pnl).toLocaleString()}</div></div></div>
+  <div class="entry-tags"><span class="tag ${pnl>0?'tg':'tr'}">${pnl>0?'WIN':'LOSS'}</span><span class="tag tc">${setup}</span><span class="tag ${calm>=7?'tg':'tr'}">${calm>=7?'CALM STATE':'EMOTIONAL STATE'}</span>${isFomoTrade?'<span class="tag tr">FOMO FLAG</span>':''}</div>
+  <div class="entry-why">"${document.getElementById('jWhy').value||'No thesis noted.'}"</div>
+  <div class="entry-ai">🤖 AI: ${resp.main.substring(0,120)}...</div>${fomoWarning}`;
+  list.insertBefore(card,list.firstChild);
+  showToast('📓 Trade logged + AI analysis complete','tg');
+}
+
+function filterEntries(type,btn){
+  document.querySelectorAll('.esf-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  document.querySelectorAll('.entry').forEach(e=>{
+    if(type==='all')e.style.display='block';
+    else if(type==='win')e.style.display=e.classList.contains('entry-win')?'block':'none';
+    else if(type==='loss')e.style.display=e.classList.contains('entry-loss')?'block':'none';
+    else if(type==='emotional')e.style.display=e.querySelector('.entry-tags span.tr')?'block':'none';
+  });
+}
+
+const obs=new IntersectionObserver(en=>{en.forEach(e=>{if(e.isIntersecting)e.target.querySelectorAll('.pat-bar-fill,.eb-fill').forEach(el=>{el.style.animation='none';void el.offsetHeight;el.style.animation='grow-bar 1.5s ease forwards'})})},{threshold:.2});
+document.querySelectorAll('.patterns-card,.entry').forEach(el=>obs.observe(el));
+setTimeout(()=>showToast('📓 Journal loaded — 47 trades analyzed','ti'),500);
+</script>
+{% endblock %}

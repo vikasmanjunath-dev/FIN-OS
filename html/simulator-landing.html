@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#02020c">
+  <title>FIN•OS | Simulator Hub</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --ink: #02020c; --s1: #07071a; --s2: #0d0d24;
+      --g: #00ff88; --r: #ff2d6b; --y: #ffcc00; --c: #00d4ff; --v: #7c3aff;
+      --txt: #f0edff; --dim: #3a3464; --mu: #504a7a;
+      --fD: 'Bebas Neue', sans-serif;
+      --fB: 'DM Sans', sans-serif;
+      --fM: 'JetBrains Mono', monospace;
+      --nav-h: 48px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--ink); color: var(--txt);
+      font-family: var(--fB); min-height: 100vh; overflow-x: hidden;
+    }
+
+    /* ── CURSOR ── */
+    #cur  { position: fixed; width: 10px; height: 10px; border-radius: 50%; background: var(--g); pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: width .15s, height .15s, background .2s; mix-blend-mode: screen; }
+    #curR { position: fixed; width: 32px; height: 32px; border: 1px solid rgba(0,255,136,.35); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: left .08s, top .08s; }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); z-index: 600;
+      background: rgba(2,2,12,.96); backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(0,255,136,.06);
+      display: flex; align-items: center; padding: 0 2rem; gap: 1rem;
+    }
+    .tb-logo {
+      font-family: var(--fD); font-size: 1.45rem; letter-spacing: 3px;
+      background: linear-gradient(135deg, var(--g), var(--c));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-decoration: none; flex-shrink: 0;
+    }
+    .tb-div { width: 1px; height: 24px; background: rgba(255,255,255,.07); flex-shrink: 0; }
+    .tb-live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--g); box-shadow: 0 0 6px var(--g); animation: blink 1.8s infinite; flex-shrink: 0; }
+    .tb-ticker-wrap { flex: 1; overflow: hidden; position: relative; }
+    .tb-ticker-wrap::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 40px; z-index: 2; background: linear-gradient(to right, rgba(2,2,12,.96), transparent); }
+    .tb-ticker-wrap::after  { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 40px; z-index: 2; background: linear-gradient(to left,  rgba(2,2,12,.96), transparent); }
+    .tb-ticker {
+      display: flex; gap: 2rem; white-space: nowrap;
+      animation: ticker-move 40s linear infinite;
+      font-family: var(--fM); font-size: .6rem;
+    }
+    .tb-ticker span { display: inline-flex; align-items: center; gap: .3rem; color: var(--mu); }
+    .tb-ticker .up { color: var(--g); } .tb-ticker .dn { color: var(--r); }
+    .tb-back {
+      font-family: var(--fM); font-size: .56rem; padding: .3rem .75rem;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 6px; color: var(--mu); text-decoration: none;
+      transition: all .2s; flex-shrink: 0;
+    }
+    .tb-back:hover { color: var(--txt); border-color: rgba(255,255,255,.15); }
+
+    /* ── PAGE WRAPPER ── */
+    .page { padding-top: var(--nav-h); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── HERO AREA ── */
+    .hero {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+      padding: 5rem 2rem 4rem;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(124,58,255,.08), transparent),
+        radial-gradient(ellipse 50% 60% at 20% 80%, rgba(0,255,136,.05), transparent),
+        radial-gradient(ellipse 40% 40% at 80% 30%, rgba(0,212,255,.04), transparent),
+        var(--ink);
+    }
+
+    /* Grid overlay */
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,255,136,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,136,.025) 1px, transparent 1px);
+      background-size: 60px 60px; pointer-events: none;
+    }
+
+    /* Scanlines */
+    .hero::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.04) 2px, rgba(0,0,0,.04) 4px);
+    }
+
+    .orb { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(90px); }
+    .o1 { width: 600px; height: 600px; background: rgba(124,58,255,.07); top: -150px; right: -150px; animation: drift1 14s ease-in-out infinite; }
+    .o2 { width: 450px; height: 450px; background: rgba(0,255,136,.05); bottom: -100px; left: -80px; animation: drift2 18s ease-in-out infinite; }
+    .o3 { width: 350px; height: 350px; background: rgba(0,212,255,.04); top: 40%; left: 40%; animation: drift1 22s ease-in-out infinite reverse; }
+
+    /* ── BADGE ── */
+    .badge {
+      display: inline-flex; align-items: center; gap: .55rem;
+      padding: 5px 18px; border-radius: 30px; margin-bottom: 2.5rem;
+      background: rgba(124,58,255,.08); border: 1px solid rgba(124,58,255,.25);
+      font-family: var(--fM); font-size: .58rem; color: #a78bff; letter-spacing: 2px;
+      position: relative; z-index: 2;
+      animation: fade-up .6s ease both;
+    }
+    .bdot { width: 7px; height: 7px; border-radius: 50%; background: #a78bff; box-shadow: 0 0 8px #a78bff; animation: pulse 1.8s infinite; }
+
+    /* ── HEADLINE ── */
+    .hl-wrap { text-align: center; position: relative; z-index: 2; margin-bottom: 1.25rem; animation: fade-up .6s .1s ease both; }
+    .hl1 { font-family: var(--fD); font-size: clamp(2.8rem, 7vw, 6.5rem); letter-spacing: 4px; line-height: 1; color: var(--txt); }
+    .hl2 {
+      font-family: var(--fD); font-size: clamp(2rem, 5vw, 4.5rem);
+      letter-spacing: 3px; line-height: 1.1;
+      background: linear-gradient(90deg, var(--v) 0%, var(--c) 40%, var(--g) 80%);
+      background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: shimmer 4s linear infinite;
+    }
+
+    .sub {
+      font-size: 1rem; color: rgba(240,237,255,.55); max-width: 520px;
+      text-align: center; line-height: 1.8; margin-bottom: 4rem;
+      position: relative; z-index: 2; animation: fade-up .6s .2s ease both;
+    }
+
+    /* ── CARDS GRID ── */
+    .cards {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.75rem;
+      width: 100%; max-width: 1280px;
+      position: relative; z-index: 2;
+      animation: fade-up .6s .3s ease both;
+    }
+    @media (max-width: 960px) { .cards { grid-template-columns: 1fr 1fr; max-width: 860px; } }
+    @media (max-width: 680px) { .cards { grid-template-columns: 1fr; max-width: 420px; } }
+
+    .card {
+      border-radius: 24px; overflow: hidden; text-decoration: none; color: var(--txt);
+      background: var(--s1); border: 1px solid rgba(255,255,255,.07);
+      display: flex; flex-direction: column; position: relative;
+      transition: transform .4s cubic-bezier(.34,1.1,.64,1), box-shadow .4s, border-color .4s;
+      min-height: 440px;
+    }
+    .card:hover { transform: translateY(-12px); }
+
+    /* top accent bar */
+    .card-bar { height: 3px; flex-shrink: 0; }
+    .card-sim  .card-bar { background: linear-gradient(90deg, var(--v), var(--c)); }
+    .card-guide .card-bar { background: linear-gradient(90deg, var(--g), var(--c)); }
+    .card-hub   .card-bar { background: linear-gradient(90deg, var(--y), #ff8800); }
+
+    /* hover glow */
+    .card-glow { position: absolute; inset: 0; opacity: 0; transition: opacity .45s; pointer-events: none; border-radius: 24px; }
+    .card-sim   .card-glow { background: radial-gradient(ellipse at 35% 25%, rgba(124,58,255,.1), transparent 65%); }
+    .card-guide .card-glow { background: radial-gradient(ellipse at 35% 25%, rgba(0,255,136,.08), transparent 65%); }
+    .card-hub   .card-glow { background: radial-gradient(ellipse at 35% 25%, rgba(255,204,0,.08), transparent 65%); }
+    .card:hover .card-glow { opacity: 1; }
+
+    /* hover border */
+    .card-sim:hover  { border-color: rgba(124,58,255,.4); box-shadow: 0 32px 80px rgba(124,58,255,.18); }
+    .card-guide:hover { border-color: rgba(0,255,136,.35); box-shadow: 0 32px 80px rgba(0,255,136,.14); }
+    .card-hub:hover   { border-color: rgba(255,204,0,.4); box-shadow: 0 32px 80px rgba(255,204,0,.15); }
+
+    .card-body { padding: 2.25rem; flex: 1; display: flex; flex-direction: column; position: relative; z-index: 1; }
+
+    .card-chip {
+      display: inline-block; font-family: var(--fM); font-size: .46rem;
+      padding: 2px 10px; border-radius: 6px; letter-spacing: 1.5px; margin-bottom: 1.5rem;
+    }
+    .card-sim   .card-chip { background: rgba(124,58,255,.1); color: #a78bff; border: 1px solid rgba(124,58,255,.22); }
+    .card-guide .card-chip { background: rgba(0,255,136,.07); color: var(--g); border: 1px solid rgba(0,255,136,.2); }
+    .card-hub   .card-chip { background: rgba(255,204,0,.07); color: var(--y); border: 1px solid rgba(255,204,0,.2); }
+
+    .card-icon {
+      width: 68px; height: 68px; border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem; margin-bottom: 1.5rem;
+      transition: transform .35s;
+    }
+    .card:hover .card-icon { transform: scale(1.12) rotate(5deg); }
+    .card-sim   .card-icon { background: rgba(124,58,255,.1); border: 1px solid rgba(124,58,255,.2); }
+    .card-guide .card-icon { background: rgba(0,255,136,.07); border: 1px solid rgba(0,255,136,.16); }
+    .card-hub   .card-icon { background: rgba(255,204,0,.07); border: 1px solid rgba(255,204,0,.16); }
+
+    .card-title { font-family: var(--fD); font-size: 2.4rem; letter-spacing: 1px; margin-bottom: .4rem; }
+    .card-sim   .card-title { color: #a78bff; }
+    .card-guide .card-title { color: var(--g); }
+    .card-hub   .card-title { color: var(--y); }
+
+    .card-desc { font-size: .8rem; color: rgba(240,237,255,.58); line-height: 1.75; margin-bottom: 1.5rem; }
+
+    .card-list { list-style: none; display: flex; flex-direction: column; gap: .4rem; margin-bottom: auto; }
+    .card-list li {
+      display: flex; align-items: center; gap: .55rem;
+      font-size: .73rem; color: rgba(240,237,255,.68);
+      padding: .32rem .55rem; border-radius: 7px;
+      background: rgba(255,255,255,.025); border: 1px solid rgba(255,255,255,.04);
+      transition: color .2s;
+    }
+    .card:hover .card-list li { color: rgba(240,237,255,.88); }
+
+    .card-cta {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .9rem 1.15rem; border-radius: 12px;
+      font-family: var(--fD); font-size: 1.05rem; letter-spacing: .5px;
+      margin-top: 1.75rem; transition: all .25s;
+    }
+    .card-sim   .card-cta { background: rgba(124,58,255,.08); border: 1px solid rgba(124,58,255,.22); color: #a78bff; }
+    .card-guide .card-cta { background: rgba(0,255,136,.06); border: 1px solid rgba(0,255,136,.2);  color: var(--g); }
+    .card-hub   .card-cta { background: rgba(255,204,0,.06); border: 1px solid rgba(255,204,0,.2);  color: var(--y); }
+    .card-sim:hover   .card-cta { background: rgba(124,58,255,.16); }
+    .card-guide:hover .card-cta { background: rgba(0,255,136,.12); }
+    .card-hub:hover   .card-cta { background: rgba(255,204,0,.12); }
+    .arr { transition: transform .25s; }
+    .card:hover .arr { transform: translateX(6px); }
+
+    /* ── BOTTOM NOTE ── */
+    .bottom-note {
+      text-align: center; margin-top: 3rem; margin-bottom: 2rem;
+      font-family: var(--fM); font-size: .54rem; color: var(--mu);
+      letter-spacing: 2px; position: relative; z-index: 2;
+      animation: fade-up .6s .45s ease both;
+    }
+    .bottom-note a { color: rgba(167,139,255,.6); text-decoration: none; transition: color .2s; }
+    .bottom-note a:hover { color: #a78bff; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes blink       { 0%,100%{opacity:1} 50%{opacity:.2} }
+    @keyframes pulse       { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:.6} }
+    @keyframes shimmer     { from{background-position:0% center} to{background-position:200% center} }
+    @keyframes ticker-move { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    @keyframes fade-up     { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes drift1      { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,20px)} }
+    @keyframes drift2      { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,-25px)} }
+
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--ink); }
+    ::-webkit-scrollbar-thumb { background: rgba(0,255,136,.4); border-radius: 2px; }
+  </style>
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="curR"></div>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <a href="../index.html" class="tb-logo">FIN•OS</a>
+  <div class="tb-div"></div>
+  <div class="tb-live-dot"></div>
+  <div class="tb-ticker-wrap">
+    <div class="tb-ticker" id="ticker">
+      <span>🧠 EMOTIONAL STATE <strong style="color:var(--g)">CALM</strong></span>
+      <span>NIFTY 50 <strong class="up">▲ 24,213 (+0.8%)</strong></span>
+      <span>⚡ FOMO ALERTS: <strong class="dn">312</strong></span>
+      <span>HDFC BANK <strong class="up">▲ 1,724 (+0.6%)</strong></span>
+      <span>🎯 CALM WIN RATE: <strong style="color:var(--g)">74%</strong></span>
+      <span>RELIANCE <strong class="up">▲ 2,847 (+1.1%)</strong></span>
+      <span>SENSEX <strong class="up">▲ 79,802 (+0.7%)</strong></span>
+      <span>📉 PANIC SELLS TODAY: <strong class="dn">1,847</strong></span>
+      <span>TCS <strong class="up">▲ 3,941 (+0.4%)</strong></span>
+      <span>INFY <strong class="dn">▼ 1,521 (-0.4%)</strong></span>
+      <!-- duplicate for loop -->
+      <span>🧠 EMOTIONAL STATE <strong style="color:var(--g)">CALM</strong></span>
+      <span>NIFTY 50 <strong class="up">▲ 24,213 (+0.8%)</strong></span>
+      <span>⚡ FOMO ALERTS: <strong class="dn">312</strong></span>
+      <span>HDFC BANK <strong class="up">▲ 1,724 (+0.6%)</strong></span>
+      <span>🎯 CALM WIN RATE: <strong style="color:var(--g)">74%</strong></span>
+      <span>RELIANCE <strong class="up">▲ 2,847 (+1.1%)</strong></span>
+      <span>SENSEX <strong class="up">▲ 79,802 (+0.7%)</strong></span>
+      <span>📉 PANIC SELLS TODAY: <strong class="dn">1,847</strong></span>
+      <span>TCS <strong class="up">▲ 3,941 (+0.4%)</strong></span>
+      <span>INFY <strong class="dn">▼ 1,521 (-0.4%)</strong></span>
+    </div>
+  </div>
+  <a href="mindset-sim-hub.html" class="tb-back">← HUB</a>
+</header>
+
+<!-- PAGE -->
+<div class="page">
+  <section class="hero">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+
+    <div class="badge"><span class="bdot"></span>SIMULATOR ZONE — CHOOSE YOUR ENTRY POINT</div>
+
+    <div class="hl-wrap">
+      <div class="hl1">READY TO FLY THE</div>
+      <div class="hl2">COCKPIT?</div>
+    </div>
+
+    <p class="sub">
+      Jump straight into the <strong style="color:#a78bff">live simulator</strong> — or study the
+      <strong style="color:var(--g)">flight manual</strong> first. Either way, zero real money. Real emotion.
+    </p>
+
+    <!-- TWO DESTINATION CARDS -->
+    <div class="cards">
+
+      <!-- CARD 1: TRADING SIMULATOR -->
+      <a href="trading-simulator.html" class="card card-sim">
+        <div class="card-bar"></div>
+        <div class="card-glow"></div>
+        <div class="card-body">
+          <div class="card-chip">LIVE SIMULATION</div>
+          <div class="card-icon">📊</div>
+          <div class="card-title">TRADING SIMULATOR</div>
+          <p class="card-desc">Candle by candle. Real OHLC charts. Buy, sell, and feel your P&L swing — with zero real money on the line.</p>
+          <ul class="card-list">
+            <li>📈 Opening Breakout scenario</li>
+            <li>🔄 Trend Day &amp; Reversal Day</li>
+            <li>📰 RBI Volatility shock training</li>
+            <li>💥 Market Crash circuit breaker</li>
+            <li>⚡ 1× / 5× / 10× speed replay</li>
+          </ul>
+          <div class="card-cta">
+            <span>LAUNCH SIMULATOR</span>
+            <span class="arr">→</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- CARD 2: SIMULATOR GUIDE -->
+      <a href="simulator-guide.html" class="card card-guide">
+        <div class="card-bar"></div>
+        <div class="card-glow"></div>
+        <div class="card-body">
+          <div class="card-chip">FLIGHT MANUAL</div>
+          <div class="card-icon">🗺️</div>
+          <div class="card-title">SIMULATOR GUIDE</div>
+          <p class="card-desc">New to the cockpit? Read the full breakdown — every button, chart, and module explained before you trade a single candle.</p>
+          <ul class="card-list">
+            <li>🖥️ Top Control Bar decoded</li>
+            <li>⚡ XP &amp; Progression system</li>
+            <li>📊 Main Chart &amp; Candlestick logic</li>
+            <li>🧠 Strategy Insight &amp; Order Panel</li>
+            <li>🛡 Risk, Flow &amp; Trade Analytics</li>
+          </ul>
+          <div class="card-cta">
+            <span>OPEN FLIGHT MANUAL</span>
+            <span class="arr">→</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- CARD 3: SIMULATOR HUB (Django Landing) -->
+      <a href="http://localhost:8000/" class="card card-hub">
+        <div class="card-bar"></div>
+        <div class="card-glow"></div>
+        <div class="card-body">
+          <div class="card-chip">COMMAND CENTER</div>
+          <div class="card-icon">🚀</div>
+          <div class="card-title">SIMULATOR HUB</div>
+          <p class="card-desc">The full-stack cockpit — live Django-powered simulator hub with real-time routing, dynamic scenarios, and persistent progress tracking.</p>
+          <ul class="card-list">
+            <li>🌐 Live Django-powered platform</li>
+            <li>🔄 Dynamic scenario routing</li>
+            <li>👤 Investor &amp; Trader profiles</li>
+            <li>📒 Integrated Trade Journal</li>
+            <li>📊 Persistent simulation history</li>
+          </ul>
+          <div class="card-cta">
+            <span>ENTER SIMULATOR HUB</span>
+            <span class="arr">→</span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+
+    <div class="bottom-note">
+      NOT SURE WHERE TO START? &nbsp;·&nbsp; READ THE GUIDE FIRST, THEN SIMULATE &nbsp;·&nbsp;
+      <a href="mindset-sim-hub.html">← BACK TO HUB</a>
+    </div>
+  </section>
+</div>
+
+<script>
+  /* Custom cursor */
+  const cur = document.getElementById('cur');
+  const curR = document.getElementById('curR');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  (function loop() {
+    rx += (mx - rx) * .12; ry += (my - ry) * .12;
+    cur.style.left  = mx + 'px'; cur.style.top  = my + 'px';
+    curR.style.left = rx + 'px'; curR.style.top = ry + 'px';
+    requestAnimationFrame(loop);
+  })();
+  document.querySelectorAll('a, .card').forEach(el => {
+    el.addEventListener('mouseenter', () => { cur.style.width = '20px'; cur.style.height = '20px'; cur.style.background = 'var(--c)'; });
+    el.addEventListener('mouseleave', () => { cur.style.width = '10px'; cur.style.height = '10px'; cur.style.background = 'var(--g)'; });
+  });
+</script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+
+<style id="sl-light-theme">
+/* ── BASE ── */
+[data-theme="light"] body { background: #F0EFF8 !important; color: #1A1830 !important; }
+[data-theme="light"] .page { background: #F0EFF8 !important; }
+
+/* ── TOPBAR ── */
+[data-theme="light"] .topbar { background: rgba(240,239,248,0.97) !important; border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .tb-logo { background: linear-gradient(135deg, #5000c0, #00a0b0) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; }
+[data-theme="light"] .tb-div { background: rgba(0,0,0,0.10) !important; }
+[data-theme="light"] .tb-live-dot { background: #00b86e !important; box-shadow: 0 0 6px #00b86e !important; }
+[data-theme="light"] .tb-ticker span { color: #6060A0 !important; }
+[data-theme="light"] .tb-ticker .up { color: #00885a !important; }
+[data-theme="light"] .tb-ticker .dn { color: #d4234e !important; }
+[data-theme="light"] .tb-ticker strong[style*="color:var(--g)"] { color: #00885a !important; }
+[data-theme="light"] .tb-ticker-wrap::before { background: linear-gradient(to right, rgba(240,239,248,0.97), transparent) !important; }
+[data-theme="light"] .tb-ticker-wrap::after  { background: linear-gradient(to left,  rgba(240,239,248,0.97), transparent) !important; }
+[data-theme="light"] .tb-back { background: rgba(0,0,0,0.05) !important; border-color: rgba(0,0,0,0.12) !important; color: #5A5890 !important; }
+[data-theme="light"] .tb-back:hover { color: #1A1830 !important; border-color: rgba(0,0,0,0.22) !important; }
+
+/* ── HERO ── */
+[data-theme="light"] .hero { background: #F0EFF8 !important; }
+[data-theme="light"] .hero::before { background-image: linear-gradient(rgba(100,80,160,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(100,80,160,.06) 1px, transparent 1px) !important; }
+[data-theme="light"] .hero::after { background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.015) 2px, rgba(0,0,0,.015) 4px) !important; }
+[data-theme="light"] .orb { opacity: 0.5 !important; }
+
+/* ── BADGE ── */
+[data-theme="light"] .badge { background: rgba(100,70,180,0.08) !important; border-color: rgba(100,70,180,0.22) !important; color: #5C3DBF !important; }
+[data-theme="light"] .bdot { background: #5C3DBF !important; box-shadow: 0 0 8px rgba(92,61,191,0.5) !important; }
+
+/* ── HEADLINES ── */
+[data-theme="light"] .hl1 { color: #1A1830 !important; -webkit-text-fill-color: #1A1830 !important; }
+[data-theme="light"] .hl2 { background: linear-gradient(90deg, #5C3DBF 0%, #0080A0 40%, #008866 80%) !important; background-size: 200% !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; }
+[data-theme="light"] .sub { color: rgba(26,24,48,0.6) !important; }
+[data-theme="light"] .sub strong[style*="color:#a78bff"] { color: #5C3DBF !important; }
+[data-theme="light"] .sub strong[style*="color:var(--g)"] { color: #008866 !important; }
+
+/* ── CARDS ── */
+[data-theme="light"] .card { background: #ffffff !important; border-color: rgba(0,0,0,0.10) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.07) !important; }
+[data-theme="light"] .card:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.12) !important; }
+
+/* card hover borders */
+[data-theme="light"] .card-sim:hover  { border-color: rgba(92,61,191,0.35) !important; box-shadow: 0 20px 60px rgba(92,61,191,0.12) !important; }
+[data-theme="light"] .card-guide:hover { border-color: rgba(0,136,102,0.35) !important; box-shadow: 0 20px 60px rgba(0,136,102,0.10) !important; }
+[data-theme="light"] .card-hub:hover   { border-color: rgba(200,150,0,0.40) !important; box-shadow: 0 20px 60px rgba(200,150,0,0.10) !important; }
+
+/* card glow */
+[data-theme="light"] .card-sim   .card-glow { background: radial-gradient(ellipse at 35% 25%, rgba(92,61,191,.06), transparent 65%) !important; }
+[data-theme="light"] .card-guide .card-glow { background: radial-gradient(ellipse at 35% 25%, rgba(0,136,102,.05), transparent 65%) !important; }
+[data-theme="light"] .card-hub   .card-glow { background: radial-gradient(ellipse at 35% 25%, rgba(200,150,0,.05), transparent 65%) !important; }
+
+/* card chips */
+[data-theme="light"] .card-sim   .card-chip { background: rgba(92,61,191,0.08) !important; color: #5C3DBF !important; border-color: rgba(92,61,191,0.20) !important; }
+[data-theme="light"] .card-guide .card-chip { background: rgba(0,136,102,0.07) !important; color: #008866 !important; border-color: rgba(0,136,102,0.18) !important; }
+[data-theme="light"] .card-hub   .card-chip { background: rgba(180,130,0,0.07) !important; color: #9A7400 !important; border-color: rgba(180,130,0,0.18) !important; }
+
+/* card icons */
+[data-theme="light"] .card-sim   .card-icon { background: rgba(92,61,191,0.07) !important; border-color: rgba(92,61,191,0.16) !important; }
+[data-theme="light"] .card-guide .card-icon { background: rgba(0,136,102,0.06) !important; border-color: rgba(0,136,102,0.14) !important; }
+[data-theme="light"] .card-hub   .card-icon { background: rgba(180,130,0,0.06) !important; border-color: rgba(180,130,0,0.14) !important; }
+
+/* card titles */
+[data-theme="light"] .card-sim   .card-title { color: #5C3DBF !important; }
+[data-theme="light"] .card-guide .card-title { color: #008866 !important; }
+[data-theme="light"] .card-hub   .card-title { color: #9A7400 !important; }
+
+/* card descriptions */
+[data-theme="light"] .card-desc { color: #4A4870 !important; }
+
+/* card list items */
+[data-theme="light"] .card-list li { color: #3A3860 !important; background: rgba(0,0,0,0.025) !important; border-color: rgba(0,0,0,0.06) !important; }
+[data-theme="light"] .card:hover .card-list li { color: #1A1830 !important; }
+
+/* card CTAs */
+[data-theme="light"] .card-sim   .card-cta { background: rgba(92,61,191,0.06) !important; border-color: rgba(92,61,191,0.18) !important; color: #5C3DBF !important; }
+[data-theme="light"] .card-guide .card-cta { background: rgba(0,136,102,0.05) !important; border-color: rgba(0,136,102,0.16) !important; color: #008866 !important; }
+[data-theme="light"] .card-hub   .card-cta { background: rgba(180,130,0,0.05) !important; border-color: rgba(180,130,0,0.16) !important; color: #9A7400 !important; }
+[data-theme="light"] .card-sim:hover   .card-cta { background: rgba(92,61,191,0.12) !important; }
+[data-theme="light"] .card-guide:hover .card-cta { background: rgba(0,136,102,0.10) !important; }
+[data-theme="light"] .card-hub:hover   .card-cta { background: rgba(180,130,0,0.10) !important; }
+
+/* ── BOTTOM NOTE ── */
+[data-theme="light"] .bottom-note { color: #6A6890 !important; }
+[data-theme="light"] .bottom-note a { color: #5C3DBF !important; }
+[data-theme="light"] .bottom-note a:hover { color: #3D1FA0 !important; }
+
+/* ── CURSOR ── */
+[data-theme="light"] #cur { background: #5C3DBF !important; }
+[data-theme="light"] #curR { border-color: rgba(92,61,191,0.4) !important; }
+
+/* ── FLOATING BUTTONS ── */
+[data-theme="light"] #floatThemeBtn { background: rgba(0,0,0,0.05) !important; border-color: rgba(0,0,0,0.10) !important; color: #1A1830 !important; }
+[data-theme="light"] #floatThemeBtn:hover { background: rgba(0,0,0,0.09) !important; }
+[data-theme="light"] #floatBackBtn { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.10) !important; color: #5A5890 !important; }
+[data-theme="light"] #floatBackBtn:hover { background: rgba(0,0,0,0.08) !important; color: #1A1830 !important; }
+
+/* ── SCROLLBAR ── */
+[data-theme="light"] ::-webkit-scrollbar-track { background: #F0EFF8 !important; }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(100,80,160,0.3) !important; }
+</style>
+
+</body>
+</html>

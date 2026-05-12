@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Compounding Visualizer • FIN-OS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+  <link rel="stylesheet" href="../../css/components.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+
+                          .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary); /* Uses your theme variable */
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            transition: color 0.2s ease;  
+          }
+
+    /* 1. DEFINE THE COLORS FOR LIGHT AND DARK MODES */
+                :root {
+                    --text-primary: #1e293b;   /* Dark Blue-Grey for Light Mode */
+                    --text-secondary: #64748b; /* Muted Grey */
+                    --bg-main: #f1f5f9;
+                    --bg-surface: #ffffff;
+                    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                }
+
+                [data-theme="dark"] {
+                    --text-primary: #f8fafc;   /* White/Light Grey for Dark Mode */
+                    --text-secondary: #94a3b8; /* Light Muted Grey */
+                    --bg-main: #0f172a;        /* Dark Navy Background */
+                    --bg-surface: #1e293b;     /* Slightly Lighter Navy for Cards */
+                    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+                }
+
+                /* 2. APPLY THE TEXT COLOR GLOBALLY */
+                body {
+                    color: var(--text-primary);
+                    background: var(--bg-main);
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                }
+
+                /* 3. ENSURE HEADINGS INHERIT COLOR */
+                h1, h2, h3, strong, b {
+                    color: var(--text-primary);
+                }
+
+                /* 4. UPDATE INPUT TEXT VISIBILITY */
+                input[type="number"] {
+                    color: var(--text-primary);
+                    background: rgba(255, 255, 255, 0.05); /* Semi-transparent bg works on both */
+                }
+
+
+    .page {
+      flex: 1;
+      padding: 0 48px 24px 48px;
+      background: var(--bg-main);
+      overflow-y: auto;
+    }
+
+    .page-header {
+      padding-top: 32px;
+      margin-bottom: 40px;
+    }
+
+    .page-header h1 {
+      font-size: 42px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+
+    .page-header p {
+      color: var(--text-secondary);
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .impact-card {
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      padding: 48px;
+      border-radius: 32px;
+      background: var(--bg-surface);
+      box-shadow: var(--card-shadow);
+    }
+
+    .impact-left h2 {
+      font-size: 28px;
+      margin: 12px 0 6px 0;
+    }
+
+    .impact-sub {
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+    }
+
+    .impact-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .input-group label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      appearance: none;
+      height: 6px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #22c55e, #10b981);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #22c55e;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    input[type="number"] {
+      width: 140px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #22c55e;
+      background: rgba(34,197,94,0.1);
+    }
+
+    .impact-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .chart-container {
+      width: 100%;
+      max-width: 400px;
+      height: 320px;
+    }
+
+    .result-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .result-box {
+      text-align: center;
+      padding: 24px;
+      border-radius: 16px;
+      background: rgba(34,197,94,0.08);
+    }
+
+    .result-box span {
+      display: block;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .result-box strong {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .multiplier {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      padding: 20px;
+      background: rgba(34,197,94,0.12);
+      border-radius: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .impact-card {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body class="app">
+
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="../../html/home.html">Home</a>
+      <a href="../../html/dashboard.html">Dashboard</a>
+      <a href="../../html/impact.html">Impact</a>
+      <a href="../../html/calculators.html" class="active">Calculators</a>
+      <a href="../../../Porfolio Analyser/portfolio-analyser-v9.html">Portfolio</a>
+      <a href="../../html/markets.html">Markets</a>
+      <a href="../../html/tax.html">Tax</a>
+      <a href="../../html/news.html">News</a>
+    </nav>
+  </aside>
+
+  <main class="page">
+
+    <button id="themeToggle" class="theme-btn" style="position: fixed; top: 32px; right: 32px; z-index: 100;">🌙</button>
+
+    <header class="page-header">
+    <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
+      <h1>Compounding Visualizer</h1>
+      <p>Einstein called it the 8th wonder of the world.</p>
+    </header>
+
+    <section class="impact-card">
+
+      <div class="impact-left">
+        <span style="font-size: 32px;">🚀</span>
+        <h2>The Magic of Compounding</h2>
+        <p class="impact-sub">Watch small amounts grow into life-changing wealth.</p>
+
+        <div class="impact-inputs">
+
+          <div class="input-group">
+            <label>Starting Amount (₹)</label>
+            <div class="input-row">
+              <input type="range" min="1000" max="1000000" step="1000" value="10000" id="principal">
+              <input type="number" min="1000" max="1000000" step="1000" value="10000" id="principalNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Monthly Addition (₹)</label>
+            <div class="input-row">
+              <input type="range" min="0" max="50000" step="500" value="5000" id="monthly">
+              <input type="number" min="0" max="50000" step="500" value="5000" id="monthlyNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Annual Return (%)</label>
+            <div class="input-row">
+              <input type="range" min="1" max="20" step="0.5" value="12" id="rate">
+              <input type="number" min="1" max="20" step="0.5" value="12" id="rateNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Time Period (Years)</label>
+            <div class="input-row">
+              <input type="range" min="1" max="40" value="20" id="years">
+              <input type="number" min="1" max="40" value="20" id="yearsNum">
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="impact-right">
+        <div class="chart-container">
+          <canvas id="compoundChart"></canvas>
+        </div>
+
+        <div class="result-grid">
+          <div class="result-box" style="background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(16,185,129,0.15));">
+            <span>Final Wealth</span>
+            <strong id="finalWealth">₹0</strong>
+          </div>
+
+          <div class="multiplier">
+            <div style="text-align: center;">
+              <div style="font-size: 12px; color: var(--text-secondary);">Money Multiplied By</div>
+              <div style="font-size: 28px; font-weight: 700; color: #22c55e; margin-top: 4px;" id="multiplier">0x</div>
+            </div>
+            <div style="font-size: 32px; opacity: 0.3;">📈</div>
+          </div>
+
+          <div class="result-box">
+            <span>Total Contributed</span>
+            <strong id="contributed" style="font-size: 24px;">₹0</strong>
+          </div>
+
+          <div style="padding: 16px; background: rgba(34,197,94,0.08); border-radius: 12px; font-size: 13px; color: var(--text-secondary); border-left: 4px solid #22c55e;">
+            <strong>Power of Time:</strong> The longer you stay invested, the more compounding works its magic.
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+<script>
+// Theme Toggle
+const root = document.documentElement;
+const toggle = document.getElementById("themeToggle");
+const savedTheme = localStorage.getItem("finos-theme");
+if (savedTheme) root.setAttribute("data-theme", savedTheme);
+toggle.textContent = root.getAttribute("data-theme") === "dark" ? "🌙" : "☀️";
+toggle.onclick = () => {
+  const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("finos-theme", next);
+  toggle.textContent = next === "dark" ? "🌙" : "☀️";
+};
+
+// Elements
+const principal = document.getElementById("principal");
+const principalNum = document.getElementById("principalNum");
+const monthly = document.getElementById("monthly");
+const monthlyNum = document.getElementById("monthlyNum");
+const rate = document.getElementById("rate");
+const rateNum = document.getElementById("rateNum");
+const years = document.getElementById("years");
+const yearsNum = document.getElementById("yearsNum");
+
+// Sync
+principal.oninput = () => principalNum.value = principal.value;
+principalNum.oninput = () => principal.value = principalNum.value;
+monthly.oninput = () => monthlyNum.value = monthly.value;
+monthlyNum.oninput = () => monthly.value = monthlyNum.value;
+rate.oninput = () => rateNum.value = rate.value;
+rateNum.oninput = () => rate.value = rateNum.value;
+years.oninput = () => yearsNum.value = years.value;
+yearsNum.oninput = () => years.value = yearsNum.value;
+
+// Chart
+const ctx = document.getElementById("compoundChart");
+const chart = new Chart(ctx, {
+  type: "line",
+  data: {
+    labels: [],
+    datasets: [{
+      label: "Portfolio Value",
+      data: [],
+      borderColor: "#22c55e",
+      backgroundColor: "rgba(34,197,94,0.1)",
+      fill: true,
+      tension: 0.4,
+      pointRadius: 3,
+      pointHoverRadius: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { color: '#9CA0AB' },
+        grid: { color: 'rgba(255,255,255,0.05)' }
+      },
+      x: {
+        ticks: { color: '#9CA0AB' },
+        grid: { color: 'rgba(255,255,255,0.05)' }
+      }
+    }
+  }
+});
+
+// Calculate
+function calculate() {
+  const p = +principalNum.value;
+  const m = +monthlyNum.value;
+  const r = +rateNum.value / 100 / 12;
+  const t = +yearsNum.value;
+  const n = t * 12;
+
+  // Future value of lump sum
+  const fvLump = p * Math.pow(1 + r, n);
+  
+  // Future value of monthly SIP
+  const fvSIP = m > 0 ? m * (((Math.pow(1 + r, n) - 1) / r) * (1 + r)) : 0;
+  
+  const totalValue = fvLump + fvSIP;
+  const totalContributed = p + (m * n);
+  const multiplier = (totalValue / totalContributed).toFixed(2);
+
+  document.getElementById("finalWealth").textContent = `₹${(totalValue/10000000).toFixed(2)} Cr`;
+  document.getElementById("contributed").textContent = `₹${(totalContributed/100000).toFixed(2)}L`;
+  document.getElementById("multiplier").textContent = `${multiplier}x`;
+
+  // Update chart
+  const labels = [];
+  const data = [];
+  
+  for (let year = 0; year <= t; year++) {
+    labels.push(`Year ${year}`);
+    const months = year * 12;
+    const lump = p * Math.pow(1 + r, months);
+    const sip = m > 0 && months > 0 ? m * (((Math.pow(1 + r, months) - 1) / r) * (1 + r)) : 0;
+    data.push(Math.round(lump + sip));
+  }
+  
+  chart.data.labels = labels;
+  chart.data.datasets[0].data = data;
+  chart.update();
+}
+
+[principal, principalNum, monthly, monthlyNum, rate, rateNum, years, yearsNum].forEach(el => el.addEventListener("input", calculate));
+calculate();
+</script>
+
+</body>
+</html> 

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <title>FIN•OS | MARKET INTEL</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* GEN Z / CYBERPUNK THEME */
+    :root {
+      --bg: #050505; --panel: #0E0E10; --border: rgba(255, 255, 255, 0.1);
+      --neon-lime: #CCFF00; --neon-blue: #00F0FF; --neon-red: #FF2A6D;
+    }
+
+    body { background: var(--bg); color: #fff; font-family: 'Manrope', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+    
+    /* SIDEBAR */
+    .sidebar { width: 260px; background: var(--panel); border-right: 1px solid var(--border); padding: 30px; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; }
+    .logo { font-family: 'JetBrains Mono'; font-weight: 800; font-size: 24px; margin-bottom: 40px; }
+    .nav-item { display: block; padding: 12px 0; color: #666; text-decoration: none; font-weight: 600; }
+    .nav-item.active { color: var(--neon-lime); }
+
+    /* MAIN */
+    .main { margin-left: 260px; width: calc(100% - 260px); min-height: 100vh; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
+    
+    /* HEADER */
+    .header { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 30px; }
+    h1 { font-family: 'JetBrains Mono'; font-size: 32px; font-weight: 800; text-transform: uppercase; margin: 0; }
+    .sub { color: #666; font-size: 14px; margin-top: 5px; }
+
+    /* SEARCH & CONTROLS */
+    .control-panel { background: #0A0A0A; border: 1px solid var(--border); border-radius: 12px; padding: 25px; margin-bottom: 30px; }
+    
+    .input-group { display: flex; gap: 15px; margin-bottom: 25px; }
+    input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 15px; color: #fff; font-family: 'JetBrains Mono'; border-radius: 8px; outline: none; }
+    input:focus { border-color: var(--neon-blue); }
+    
+    /* SELECTION TOGGLES */
+    .toggle-group { display: flex; gap: 10px; margin-bottom: 15px; }
+    .toggle-btn { 
+        flex: 1; padding: 12px; border: 1px solid var(--border); background: transparent; 
+        color: #666; font-family: 'JetBrains Mono'; font-weight: 700; cursor: pointer; 
+        border-radius: 6px; transition: 0.2s;
+    }
+    .toggle-btn.active { background: rgba(204, 255, 0, 0.1); border-color: var(--neon-lime); color: var(--neon-lime); }
+    
+    .sub-options { display: none; gap: 10px; animation: fadeIn 0.3s ease; }
+    .sub-options.visible { display: flex; }
+    
+    .sub-btn { 
+        flex: 1; padding: 10px; border: 1px solid var(--border); background: transparent; 
+        color: #666; font-family: 'JetBrains Mono'; font-size: 12px; cursor: pointer; 
+        border-radius: 6px; 
+    }
+    .sub-btn.active { background: rgba(0, 240, 255, 0.1); border-color: var(--neon-blue); color: var(--neon-blue); }
+
+    .scan-btn { 
+        width: 100%; padding: 15px; background: var(--neon-lime); color: #000; font-weight: 800; 
+        border: none; border-radius: 8px; font-family: 'JetBrains Mono'; cursor: pointer; margin-top: 15px;
+    }
+    .scan-btn:hover { transform: scale(1.02); }
+
+    /* TERMINAL OUTPUT */
+    .terminal-window { 
+        flex: 1; background: #000; border: 1px solid #333; border-radius: 12px; padding: 20px; 
+        font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #ccc; overflow-y: auto; 
+        line-height: 1.5; white-space: pre-wrap; /* Keeps formatting */
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    }
+    
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: #12161d; }
+    ::-webkit-scrollbar-thumb { background: #545b66; border-radius: 999px; border: 2px solid #12161d; }
+    ::-webkit-scrollbar-thumb:hover { background: #6a7380; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="market-intel.html" class="nav-item active">Market Intel</a>
+      <a href="dashboard.html" class="nav-item">Dashboard</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <h1>Market Intelligence</h1>
+      <div class="sub">PROTOCOL SELECTOR: TECHNICAL vs FUNDAMENTAL</div>
+    </div>
+
+    <div class="control-panel">
+      <div class="input-group">
+        <input type="text" id="ticker" placeholder="ENTER SYMBOL (e.g. RELIANCE, TCS)">
+      </div>
+
+      <div class="toggle-group">
+        <button class="toggle-btn active" onclick="setCategory('technical')">TECHNICAL ANALYSIS</button>
+        <button class="toggle-btn" onclick="setCategory('fundamental')">FUNDAMENTAL ANALYSIS</button>
+      </div>
+
+      <div class="sub-options visible" id="techOptions">
+        <button class="sub-btn active" onclick="setMode('intraday')">INTRADAY INSIGHT</button>
+        <button class="sub-btn" onclick="setMode('swing')">SWING ANALYSIS</button>
+        <button class="sub-btn" onclick="setMode('long')">LONG TERM INSIGHT</button>
+      </div>
+
+      <button class="scan-btn" onclick="runAnalysis()">INITIATE SCAN</button>
+    </div>
+        <button class="scan-btn" style="background:transparent; border:1px solid var(--neon-blue); color:var(--neon-blue); margin-top:10px;" onclick="openVisualizer()">
+          👁️ VISUALIZE & EXPLAIN (DEEP DIVE)
+        </button>
+
+        <script>
+          // Add this function to your existing script in market-intel.html
+          function openVisualizer() {
+            const symbol = document.getElementById('ticker').value;
+            if(!symbol) return alert("ENTER SYMBOL FIRST");
+            
+            // Redirect to the new page with params
+            window.location.href = `market-visualizer.html?symbol=${symbol}&mode=${currentMode}`;
+          }
+        </script>
+
+    <div class="terminal-window" id="outputConsole">
+      <span style="color:#666">// SYSTEM READY.<br>// WAITING FOR TARGET SELECTION...</span>
+    </div>
+
+  </main>
+
+  <script>
+    let currentCategory = 'technical';
+    let currentMode = 'intraday';
+
+    function setCategory(cat) {
+      currentCategory = cat;
+      
+      // Update Buttons
+      document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Show/Hide Sub Options
+      const sub = document.getElementById('techOptions');
+      if(cat === 'technical') {
+        sub.classList.add('visible');
+        setMode('intraday'); // Reset to default
+      } else {
+        sub.classList.remove('visible');
+        currentMode = 'fundamental';
+      }
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      // UI Update
+      document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+      if(event && event.target) event.target.classList.add('active');
+      else document.querySelector(`.sub-btn[onclick="setMode('${mode}')"]`).classList.add('active');
+    }
+
+    async function runAnalysis() {
+      const symbol = document.getElementById('ticker').value;
+      if(!symbol) return alert("ENTER SYMBOL");
+
+      const consoleDiv = document.getElementById('outputConsole');
+      consoleDiv.innerHTML = `<span style="color:var(--neon-blue)">// ESTABLISHING LINK TO CORE...<br>// EXECUTING PROTOCOL: ${currentMode.toUpperCase()}<br>...</span>`;
+
+      try {
+        const res = await fetch(`http://127.0.0.1:5000/analyze?symbol=${symbol}&mode=${currentMode}`);
+        const data = await res.json();
+
+        if(data.status === 'success') {
+          // Display the HTML we generated in Python
+          consoleDiv.innerHTML = data.html;
+        } else {
+          consoleDiv.innerHTML = `<span style="color:var(--neon-red)">ERROR: ${data.message}</span>`;
+        }
+      } catch(e) {
+        consoleDiv.innerHTML = `<span style="color:var(--neon-red)">CONNECTION FAILED: Ensure app.py is running.</span>`;
+      }
+    }
+  </script>
+
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+<style id="mi-light-theme">
+[data-theme="light"] body {
+  background-color: #F4F5FB !important;
+  background-image: none !important;
+  color: #0B0D12 !important;
+}
+[data-theme="light"] .main { background: #F4F5FB !important; }
+[data-theme="light"] .panel { background: rgba(255,255,255,0.9) !important; border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .panel-title { color: #0B0D12 !important; }
+[data-theme="light"] .metric-label { color: #4A5068 !important; }
+[data-theme="light"] .metric-val { color: #0B0D12 !important; }
+</style>
+</body>
+</html>

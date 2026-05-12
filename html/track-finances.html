@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Track Finances</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <style>
+    /* ── BASE ── */
+    .tf-page {
+      background: #06080e;
+      position: relative;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    #tf-stars {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── RADIAL GLOW BG ── */
+    .tf-page::before {
+      content: '';
+      position: fixed;
+      top: -20vh; left: 50%;
+      transform: translateX(-50%);
+      width: 900px; height: 600px;
+      background: radial-gradient(ellipse at 50% 0%, rgba(79,124,255,.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .tf-wrap {
+      position: relative; z-index: 1;
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 72px 40px 100px;
+    }
+
+    /* ── EYEBROW ── */
+    .tf-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeUp .6s .1s ease forwards;
+    }
+    .tf-eyebrow-line {
+      width: 28px; height: 1.5px;
+      background: linear-gradient(90deg, #4f7cff, transparent);
+      border-radius: 2px;
+    }
+    .tf-eyebrow-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #4f7cff;
+    }
+
+    /* ── HERO HEADER ── */
+    .tf-hero {
+      margin-bottom: 64px;
+      opacity: 0;
+      animation: fadeUp .6s .2s ease forwards;
+    }
+    .tf-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 800;
+      letter-spacing: -.02em;
+      line-height: 1.12;
+      margin: 0 0 16px;
+      background: linear-gradient(135deg, #ffffff 0%, #a0aac0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .tf-title span {
+      background: linear-gradient(135deg, #4f7cff 0%, #9b5de5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .tf-desc {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px; font-weight: 400;
+      color: #3e4a6a;
+      max-width: 500px;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ── DIVIDER ── */
+    .tf-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 36px;
+      opacity: 0;
+      animation: fadeUp .6s .3s ease forwards;
+    }
+    .tf-divider-line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, rgba(79,124,255,.25), transparent);
+    }
+    .tf-divider-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; font-weight: 500;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: #252b3d;
+    }
+
+    /* ── GRID ── */
+    .suite-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    /* ── CARD ── */
+    .suite-card {
+      display: flex;
+      flex-direction: column;
+      padding: 28px 26px 24px;
+      background: linear-gradient(145deg, #0d1020, #0a0d18);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 20px;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease, border-color .3s ease;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .suite-card:nth-child(1) { animation: fadeUp .6s .35s ease forwards; }
+    .suite-card:nth-child(2) { animation: fadeUp .6s .45s ease forwards; }
+    .suite-card:nth-child(3) { animation: fadeUp .6s .55s ease forwards; }
+    .suite-card:nth-child(4) { animation: fadeUp .6s .65s ease forwards; }
+
+    /* glow layer */
+    .suite-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 20% 0%, rgba(var(--cr,79,124,255),.08) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity .35s ease;
+      pointer-events: none;
+    }
+    /* top border glow */
+    .suite-card::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(var(--cr,79,124,255),.5), transparent);
+      opacity: 0;
+      transition: opacity .35s ease;
+    }
+
+    .suite-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(var(--cr,79,124,255),.28);
+      box-shadow: 0 16px 48px rgba(0,0,0,.5), 0 0 0 1px rgba(var(--cr,79,124,255),.1);
+    }
+    .suite-card:hover::before { opacity: 1; }
+    .suite-card:hover::after  { opacity: 1; }
+    .suite-card:hover .sc-icon-wrap {
+      border-color: rgba(var(--cr,79,124,255),.35);
+      box-shadow: 0 0 20px rgba(var(--cr,79,124,255),.18);
+    }
+    .suite-card:hover .sc-icon-bg {
+      opacity: .12;
+    }
+    .suite-card:hover .sc-arrow {
+      opacity: 1;
+      transform: translateX(4px);
+      color: var(--cc, #4f7cff);
+    }
+    .suite-card:hover .sc-tag {
+      background: rgba(var(--cr,79,124,255),.1);
+      border-color: rgba(var(--cr,79,124,255),.25);
+      color: var(--cc, #4f7cff);
+    }
+    .suite-card:hover .sc-number {
+      color: var(--cc, #4f7cff);
+    }
+
+    /* ── CARD TOP ROW ── */
+    .sc-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .sc-icon-wrap {
+      position: relative;
+      width: 56px; height: 56px;
+      border-radius: 15px;
+      border: 1px solid rgba(255,255,255,.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+      transition: border-color .3s, box-shadow .3s;
+      overflow: hidden;
+    }
+    .sc-icon-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(var(--cr,79,124,255),1), transparent 70%);
+      opacity: .06;
+      transition: opacity .3s;
+    }
+
+    /* number + arrow */
+    .sc-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    .sc-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      color: #1e2438;
+      letter-spacing: .08em;
+      transition: color .3s;
+    }
+    .sc-arrow {
+      font-size: 18px;
+      color: #1e2438;
+      opacity: .6;
+      transition: opacity .3s, transform .3s, color .3s;
+      line-height: 1;
+    }
+
+    /* ── BADGE ── */
+    .sc-badge {
+      align-self: flex-start;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 20px;
+      margin-bottom: 10px;
+    }
+    .badge-pro {
+      background: rgba(155,93,229,.12);
+      color: #9b5de5;
+      border: 1px solid rgba(155,93,229,.25);
+    }
+
+    /* ── TEXT ── */
+    .sc-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 19px; font-weight: 700;
+      color: #cdd3e0;
+      margin-bottom: 8px;
+      letter-spacing: -.01em;
+    }
+    .sc-sub {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13.5px; font-weight: 400;
+      color: #2e3650;
+      line-height: 1.55;
+      margin-bottom: 22px;
+      flex: 1;
+    }
+
+    /* ── TAGS ── */
+    .sc-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .sc-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 500;
+      letter-spacing: .05em;
+      padding: 5px 10px;
+      border-radius: 7px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.07);
+      color: #2e3650;
+      transition: background .25s, border-color .25s, color .25s;
+      white-space: nowrap;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 680px) {
+      .suite-grid { grid-template-columns: 1fr; }
+      .tf-wrap { padding: 44px 20px 64px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html" class="active">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main tf-page">
+    <canvas id="tf-stars"></canvas>
+
+    <div class="tf-wrap">
+
+      <!-- EYEBROW -->
+      <div class="tf-eyebrow">
+        <div class="tf-eyebrow-line"></div>
+        <span class="tf-eyebrow-text">Financial Command Center</span>
+      </div>
+
+      <!-- HERO -->
+      <div class="tf-hero">
+        <h1 class="tf-title">Track Every<br><span>Dimension</span> of Your Money</h1>
+        <p class="tf-desc">Four precision-built tools that give you complete visibility — from daily spending to portfolio depth.</p>
+      </div>
+
+      <!-- DIVIDER -->
+      <div class="tf-divider">
+        <div class="tf-divider-line"></div>
+        <span class="tf-divider-label">4 Core Instruments</span>
+        <div class="tf-divider-line" style="background:linear-gradient(270deg, rgba(79,124,255,.25), transparent)"></div>
+      </div>
+
+      <!-- CARDS -->
+      <div class="suite-grid">
+
+        <!-- EXPENSE ENGINE -->
+        <a class="suite-card" href="../ExpenseTracker/finos-budget/index.html"
+           style="--cc:#c7f000;--cr:199,240,0">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              📊
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">01</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Expense Engine</div>
+          <div class="sc-sub">Full-featured budget tracker with category breakdowns, monthly history, and visual spending pattern reports.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Budget Tracking</span>
+            <span class="sc-tag">Category Breakdown</span>
+            <span class="sc-tag">Monthly Reports</span>
+            <span class="sc-tag">Savings Rate</span>
+          </div>
+        </a>
+
+        <!-- CALCULATOR SUITE -->
+        <a class="suite-card" href="calculators.html"
+           style="--cc:#4f7cff;--cr:79,124,255">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🧮
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">02</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Calculator Suite</div>
+          <div class="sc-sub">15+ precision calculators for loans, SIP projections, tax planning, HRA, and retirement goal mapping.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">EMI &amp; Loans</span>
+            <span class="sc-tag">SIP Returns</span>
+            <span class="sc-tag">Tax Planning</span>
+            <span class="sc-tag">Retirement</span>
+          </div>
+        </a>
+
+        <!-- PORTFOLIO X-RAY -->
+        <a class="suite-card" href="../Porfolio Analyser/portfolio-analyser-v9.html"
+           style="--cc:#9b5de5;--cr:155,93,229">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🔬
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">03</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Portfolio X-Ray</div>
+          <div class="sc-sub">Deep-dive analysis revealing hidden overlaps, risk concentration, sector exposure, and rebalancing signals.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Overlap Analysis</span>
+            <span class="sc-tag">Risk Attribution</span>
+            <span class="sc-tag">Sector Exposure</span>
+            <span class="sc-tag">Rebalancing</span>
+          </div>
+        </a>
+
+        <!-- TRADE JOURNAL -->
+        <a class="suite-card" href="../TradeJournal/index.html"
+           style="--cc:#ffb800;--cr:255,184,0">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              📓
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">04</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <span class="sc-badge badge-pro">PRO</span>
+          <div class="sc-name">Trade Journal</div>
+          <div class="sc-sub">Professional trading log with psychology tracking, cognitive bias detection, and performance attribution analytics.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Trade Log</span>
+            <span class="sc-tag">Psychology Hub</span>
+            <span class="sc-tag">Bias Scanner</span>
+            <span class="sc-tag">Analytics</span>
+          </div>
+        </a>
+
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const c = document.getElementById('tf-stars');
+  const ctx = c.getContext('2d');
+  let W, H, pts = [];
+
+  function resize(){ W = c.width = window.innerWidth; H = c.height = window.innerHeight; }
+
+  class Star {
+    constructor(init){
+      this.x = Math.random() * W;
+      this.y = init ? Math.random() * H : -4;
+      this.r = Math.random() * 1.0 + .15;
+      this.vx = (Math.random() - .5) * .08;
+      this.vy = Math.random() * .12 + .03;
+      this.a = Math.random() * .28 + .05;
+    }
+    tick(){
+      this.x += this.vx; this.y += this.vy;
+      if(this.y > H + 4){ this.y = -4; this.x = Math.random() * W; }
+    }
+    draw(){
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200,215,255,${this.a})`;
+      ctx.fill();
+    }
+  }
+
+  function init(){ resize(); pts = Array.from({length: 120}, (_, i) => new Star(true)); }
+
+  function frame(){
+    ctx.clearRect(0, 0, W, H);
+    for(let i = 0; i < pts.length; i++){
+      for(let j = i + 1; j < pts.length; j++){
+        const d = Math.hypot(pts[i].x - pts[j].x, pts[i].y - pts[j].y);
+        if(d < 90){
+          ctx.beginPath();
+          ctx.moveTo(pts[i].x, pts[i].y);
+          ctx.lineTo(pts[j].x, pts[j].y);
+          ctx.strokeStyle = `rgba(79,124,255,${.04 * (1 - d/90)})`;
+          ctx.lineWidth = .4;
+          ctx.stroke();
+        }
+      }
+      pts[i].tick(); pts[i].draw();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  window.addEventListener('resize', resize);
+  init(); frame();
+})();
+</script>
+<script src="../js/mobile-nav.js"></script>
+<script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style id="tf-light-theme">
+[data-theme="light"] .tf-page { background: #F4F6FB !important; }
+[data-theme="light"] .suite-card { background: #ffffff !important; border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .sc-name { color: #0B0D12 !important; }
+[data-theme="light"] .sc-sub  { color: #4A5068 !important; }
+[data-theme="light"] .sc-number { color: #C0C8DC !important; }
+[data-theme="light"] .sc-arrow { color: #C0C8DC !important; }
+[data-theme="light"] .suite-card:hover .sc-number,
+[data-theme="light"] .suite-card:hover .sc-arrow { color: var(--cc,#4F7CFF) !important; }
+[data-theme="light"] .sc-tag { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.09) !important; color: #6A7090 !important; }
+[data-theme="light"] .sc-icon-wrap { background: #EEF0F8 !important; border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .tf-title {
+  background: linear-gradient(135deg, #0B0D12 0%, #3A4264 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+[data-theme="light"] .tf-desc { color: #4A5068 !important; }
+[data-theme="light"] .tf-divider-label { color: #B0B8D0 !important; }
+[data-theme="light"] .tf-eyebrow-text { color: #4F7CFF !important; }
+[data-theme="light"] #tf-stars { opacity: 0.04 !important; }
+</style>
+
+</body>
+</html>

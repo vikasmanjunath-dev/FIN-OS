@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Forex Masterclass</title>
+  
+  <script src="../js/theme-init.js"></script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/forexdetail.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+  <button id="themeToggle" class="theme-btn fixed-theme-btn">🌙</button>
+
+  <div class="deep-wrapper">
+    
+    <aside class="toc-sidebar">
+      <div class="toc-header">PROTOCOL 09: FOREX</div>
+      <ul class="toc-list">
+        <li><a href="#hero" class="toc-link active">0. Warning</a></li>
+        <li><a href="#sec1" class="toc-link">1. Concept (Dubai Trip)</a></li>
+        <li><a href="#sec2" class="toc-link">2. Why It Exists</a></li>
+        <li><a href="#sec3" class="toc-link">3. The $7T Scale</a></li>
+        <li><a href="#sec4" class="toc-link">4. Currency Pairs</a></li>
+        <li><a href="#sec6" class="toc-link">5. How It Works</a></li>
+        <li><a href="#sec7" class="toc-link">6. Legality in India</a></li>
+        <li><a href="#sec8" class="toc-link">7. Price Drivers</a></li>
+        <li><a href="#sec9" class="toc-link">8. Interest Rates</a></li>
+        <li><a href="#sec12" class="toc-link">9. The Leverage Trap</a></li>
+        <li><a href="#sec13" class="toc-link">10. Why Retail Loses</a></li>
+        <li><a href="#sec17" class="toc-link">11. Scams (Red Alert)</a></li>
+        <li><a href="#sec18" class="toc-link">12. Mental Model</a></li>
+        <li><a href="#sec19" class="toc-link">13. Final Truth</a></li>
+      </ul>
+      <a href="markets.html" class="back-btn">← Back to Terminal</a>
+    </aside>
+
+    <main class="deep-content" id="scrollContainer">
+
+      <section class="chapter active" id="hero">
+        <h1 class="glitch-text" data-text="Forex Protocol">Forex Protocol</h1>
+        <div class="warning-banner">
+          <span class="warn-icon">⚠️</span>
+          <p><strong>CRITICAL:</strong> Forex is not a "Work from Home" income scheme. It is a professional battlefield.</p>
+        </div>
+        <p class="intro-text">
+          The circulatory system of the global economy.<br>
+          <span class="highlight">7 Trillion Dollars. Every Single Day.</span>
+        </p>
+        <div class="scroll-indicator">Initialize Protocol ⬇</div>
+      </section>
+
+      <section class="chapter" id="sec1">
+        <span class="chapter-badge">LEVEL 01: FIRST PRINCIPLES</span>
+        <h2>1. What Is Forex? (The Exchange)</h2>
+        <p>Forex = <strong>For</strong>eign <strong>Ex</strong>change. It is the act of swapping one currency for another.</p>
+        
+        <div class="concept-box glass">
+          <div class="travel-visual">
+            <div class="ticket-stub">
+              <div class="stub-header">EXCHANGE RECEIPT</div>
+              <div class="exchange-row">
+                <span class="curr-in">₹ 8,300 (INR)</span>
+                <span class="arrow">➔</span>
+                <span class="curr-out">$ 100 (USD)</span>
+              </div>
+              <div class="stamp">PAID</div>
+            </div>
+            <div class="story-content">
+              <h3>The Dubai Trip Analogy</h3>
+              <p>When you land in Dubai, you give Rupees and take Dirhams. You just participated in the Forex market.</p>
+              <p class="moral">Now imagine this happening between Apple, Samsung, and The Reserve Bank of India—in Trillions.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec2">
+        <span class="chapter-badge">LEVEL 02: PURPOSE</span>
+        <h2>2. Why Does It Exist?</h2>
+        <p>It exists to enable global trade, not for you to gamble on an app.</p>
+        <div class="grid-3-cards">
+          <div class="card-box">
+            <div class="icon">🚢</div>
+            <h4>Trade</h4>
+            <p>India needs Oil (pay in USD). USA needs Textiles (pay in INR).</p>
+          </div>
+          <div class="card-box">
+            <div class="icon">🛡️</div>
+            <h4>Hedging</h4>
+            <p>Infosys earns in USD but pays salaries in INR. They lock rates to be safe.</p>
+          </div>
+          <div class="card-box">
+            <div class="icon">🏦</div>
+            <h4>Policy</h4>
+            <p>RBI buys/sells dollars to keep the Rupee stable against shocks.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec3">
+        <span class="chapter-badge">LEVEL 03: SCALE</span>
+        <h2>3. The Scale of Giants</h2>
+        <p>The Stock Market is a pond. Forex is the Ocean.</p>
+        
+        <div class="chart-container glass">
+          <canvas id="scaleChart"></canvas>
+          <p class="chart-caption">Daily Volume: NYSE vs Forex ($ Billions)</p>
+        </div>
+        <p class="caption-text">You are a microscopic plankton in this ocean. Institutions are the Whales.</p>
+      </section>
+
+      <section class="chapter" id="sec4">
+        <span class="chapter-badge">LEVEL 04: MECHANISM</span>
+        <h2>4. Currency Pairs Explained</h2>
+        <p>Currencies trade in pairs. You buy one, you sell the other.</p>
+        <div class="visual-box glass center-text">
+          <div class="pair-visual">
+            <div class="currency base">
+              <span>EUR</span>
+              <p>Base (1 Unit)</p>
+            </div>
+            <div class="divider">/</div>
+            <div class="currency quote">
+              <span>USD</span>
+              <p>Quote (Price)</p>
+            </div>
+          </div>
+          <p class="highlight" style="margin-top:20px;">Price: 1.10</p>
+          <p>Means: 1 Euro costs 1.10 Dollars.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec7">
+        <span class="chapter-badge">LEVEL 05: INDIA CONTEXT</span>
+        <h2>6. Legality in India (Don't Go to Jail)</h2>
+        <p>This is the most important section for Indians.</p>
+        
+        <div class="legal-grid">
+          <div class="legal-card allowed">
+            <div class="icon">✅</div>
+            <h3>LEGAL</h3>
+            <p>Trading <strong>INR Pairs</strong> (USDINR, EURINR) on NSE/BSE via SEBI registered brokers (Zerodha, Groww).</p>
+          </div>
+          <div class="legal-card banned">
+            <div class="icon">❌</div>
+            <h3>ILLEGAL</h3>
+            <p>Trading Non-INR pairs (EURUSD) on foreign apps (OctaFX, Exness) using Indian Bank Accounts. <br><strong>Penalty: FEMA Violation.</strong></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec8">
+        <span class="chapter-badge">LEVEL 06: DRIVERS</span>
+        <h2>8. What Moves Prices?</h2>
+        <p>Charts don't move Forex. <strong>Nations move Forex.</strong></p>
+        <ul class="checklist-style">
+           <li>🏦 <strong>Interest Rates:</strong> Money flows to countries giving higher returns.</li>
+           <li>📈 <strong>GDP Growth:</strong> Strong economy = Strong currency.</li>
+           <li>⚖️ <strong>Stability:</strong> Political chaos kills currency value.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="sec9">
+        <span class="chapter-badge">LEVEL 07: THE MAGNET</span>
+        <h2>9. The Interest Rate Magnet</h2>
+        <div class="concept-box glass">
+           <div class="magnet-visual">
+             <div class="country usa">
+               <h4>🇺🇸 USA</h4>
+               <p>Rate: 5.5%</p>
+             </div>
+             <div class="flow-arrow">💸 Money Flows Here</div>
+             <div class="country japan">
+               <h4>🇯🇵 Japan</h4>
+               <p>Rate: 0%</p>
+             </div>
+           </div>
+           <p class="moral">Investors sell Yen to buy Dollars to earn that 5.5%. This makes USD stronger.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec12">
+        <span class="chapter-badge">LEVEL 08: THE TRAP</span>
+        <h2>10. Leverage: The Casino Feature</h2>
+        <p>Forex brokers offer 100x leverage. This is not a gift. It is a weapon against you.</p>
+        
+        <div class="visual-box glass">
+           <div class="leverage-bomb">
+             <div class="capital">₹10k Capital</div>
+             <div class="multiplier">x100</div>
+             <div class="exposure">₹10 Lakh Trade</div>
+           </div>
+           <p class="caption-text danger-text">If the currency moves <strong>1% against you</strong>, your ₹10k is gone. Instantly.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec13">
+        <span class="chapter-badge">LEVEL 09: REALITY</span>
+        <h2>11. Why 95% Retail Traders Lose</h2>
+        <div class="grid-2-mini">
+          <div class="mini-card danger">
+            <h4>Over-Leverage</h4>
+            <p>Trading too big positions. One bad news wipes the account.</p>
+          </div>
+          <div class="mini-card danger">
+            <h4>Broker Manipulation</h4>
+            <p>Unregulated brokers hunt your stop-losses (Stop Hunting).</p>
+          </div>
+          <div class="mini-card danger">
+            <h4>No Macro Edge</h4>
+            <p>Fighting against Central Banks using simple chart patterns.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec17">
+        <span class="chapter-badge">LEVEL 10: SCAM ALERT</span>
+        <h2>12. Common Indian Forex Scams</h2>
+        <div class="scrolling-wrapper">
+          <div class="scrolling-card glass">
+            <h3>"Account Handling"</h3>
+            <p class="desc">"Give me your login, I will double money in 1 week."<br><strong>Result:</strong> Money stolen.</p>
+          </div>
+          <div class="scrolling-card glass">
+            <h3>"Copy Trading"</h3>
+            <p class="desc">Copying a "Pro" on a suspicious app.<br><strong>Result:</strong> The Pro is a bot designed to lose eventually.</p>
+          </div>
+          <div class="scrolling-card glass">
+            <h3>"Signals Group"</h3>
+            <p class="desc">Telegram groups selling Buy/Sell calls.<br><strong>Result:</strong> You are their exit liquidity.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec18">
+        <span class="chapter-badge">LEVEL 11: MINDSET</span>
+        <h2>13. The FIN-OS Mental Model</h2>
+        <div class="concept-box glass">
+           <h4>"Global Power Dynamics"</h4>
+           <p>Don't think of Forex as a chart.</p>
+           <p class="highlight">Think of it as a scoreboard of National Strength.</p>
+           <p>When you trade, you are betting on one country beating another.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec19">
+        <div class="pro-tip god-mode">
+          <div class="god-header">
+            <h4>💎 The Final Truth</h4>
+          </div>
+          <p>
+            Forex does not care about your confidence or your charts.<br>
+            It reflects economic reality.
+          </p>
+          <p class="sub-text">
+            Trading Forex without mastery is like fighting a war without training.<br>
+            <strong>Observe it. Respect it. But stick to Equity for wealth.</strong>
+          </p>
+        </div>
+      </section>
+
+      <footer class="deep-footer">
+        <h2>Protocol Complete.</h2>
+        <p>You now see the global machine clearly.</p>
+        <a href="markets.html" class="action-btn">Return to Base ➔</a>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="../js/ui.js"></script>
+  <script src="../js/forexdetail.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+</body>
+</html>

@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Quantum Stock Engine — NSE/BSE Live Platform</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;700;800&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/stock-platform.css">
+  <link rel="stylesheet" href="../css/theme.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.2.1/dist/chartjs-chart-financial.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
+</head>
+
+<body>
+<div class="app">
+
+  <!-- ========== SIDEBAR ========== -->
+    <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html" class="active">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <!-- ========== MAIN ========== -->
+  <main class="main qs-main">
+    <div class="content-wrapper">
+
+      <!-- ========== HERO ========== -->
+      <section class="qs-hero">
+        <div class="qs-hero-grid"></div>
+        <div class="qs-hero-orbs">
+          <div class="orb orb-1"></div>
+          <div class="orb orb-2"></div>
+          <div class="orb orb-3"></div>
+        </div>
+
+        <div class="qs-hero-inner">
+          <div class="qs-badge-row">
+            <span class="qs-pill live"><span class="dot"></span> LIVE • NSE / BSE</span>
+            <span class="qs-pill">yfinance · FastAPI · React</span>
+            <span class="qs-pill accent">v1.0 Initial Deployment</span>
+          </div>
+
+          <h1 class="qs-title">
+            <span class="qs-glitch" data-text="Quantum">Quantum</span>
+            <span class="qs-grad">Stock Engine</span>
+          </h1>
+          <p class="qs-sub">
+            A <b>Bloomberg-grade</b> retail platform for Indian markets — real-time-like prices,
+            advanced charts, deep fundamentals, and an AI insights core that thinks in <b>RSI, MACD &amp; volume DNA</b>.
+          </p>
+
+          <div class="qs-hero-stats">
+            <div class="qs-stat">
+              <div class="qs-stat-num" data-counter="2147">0</div>
+              <div class="qs-stat-label">NSE tickers</div>
+            </div>
+            <div class="qs-stat">
+              <div class="qs-stat-num" data-counter="35">0</div>
+              <div class="qs-stat-label">Indicators</div>
+            </div>
+            <div class="qs-stat">
+              <div class="qs-stat-num" data-counter="3">0</div>
+              <div class="qs-stat-label">sec poll cycle</div>
+            </div>
+            <div class="qs-stat">
+              <div class="qs-stat-num" data-counter="12">0</div>
+              <div class="qs-stat-label">API endpoints</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== ARCHITECTURE INTERACTIVE ========== -->
+      <section class="qs-section">
+        <div class="qs-section-head">
+          <span class="qs-tag">SYSTEM // 01</span>
+          <h2>The Architecture, animated</h2>
+          <p>Click any node — watch a real packet of market data ripple through the stack.</p>
+        </div>
+
+        <div class="qs-arch-card">
+          <div class="qs-arch-grid"></div>
+          <svg class="qs-arch-svg" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <linearGradient id="wire1" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#4F7CFF" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#C7F000" stop-opacity="0.6"/>
+              </linearGradient>
+              <linearGradient id="wire2" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#C7F000" stop-opacity="0.6"/>
+                <stop offset="100%" stop-color="#4F7CFF" stop-opacity="0.15"/>
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="3" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+
+            <!-- wires -->
+            <path id="wireA" d="M 180 130 C 320 130, 380 260, 580 260" fill="none" stroke="url(#wire1)" stroke-width="2"/>
+            <path id="wireB" d="M 180 260 C 320 260, 380 260, 580 260" fill="none" stroke="url(#wire1)" stroke-width="2"/>
+            <path id="wireC" d="M 180 390 C 320 390, 380 260, 580 260" fill="none" stroke="url(#wire1)" stroke-width="2"/>
+            <path id="wireD" d="M 620 260 C 760 260, 820 130, 1020 130" fill="none" stroke="url(#wire2)" stroke-width="2"/>
+            <path id="wireE" d="M 620 260 C 760 260, 820 260, 1020 260" fill="none" stroke="url(#wire2)" stroke-width="2"/>
+            <path id="wireF" d="M 620 260 C 760 260, 820 390, 1020 390" fill="none" stroke="url(#wire2)" stroke-width="2"/>
+
+            <!-- traveling packets -->
+            <circle r="6" fill="#C7F000" filter="url(#glow)">
+              <animateMotion dur="3.5s" repeatCount="indefinite"><mpath href="#wireA"/></animateMotion>
+            </circle>
+            <circle r="6" fill="#4F7CFF" filter="url(#glow)">
+              <animateMotion dur="4.2s" repeatCount="indefinite" begin="0.8s"><mpath href="#wireB"/></animateMotion>
+            </circle>
+            <circle r="6" fill="#C7F000" filter="url(#glow)">
+              <animateMotion dur="3.8s" repeatCount="indefinite" begin="1.4s"><mpath href="#wireC"/></animateMotion>
+            </circle>
+            <circle r="6" fill="#4F7CFF" filter="url(#glow)">
+              <animateMotion dur="3.2s" repeatCount="indefinite" begin="0.4s"><mpath href="#wireD"/></animateMotion>
+            </circle>
+            <circle r="6" fill="#C7F000" filter="url(#glow)">
+              <animateMotion dur="3.0s" repeatCount="indefinite" begin="1.1s"><mpath href="#wireE"/></animateMotion>
+            </circle>
+            <circle r="6" fill="#4F7CFF" filter="url(#glow)">
+              <animateMotion dur="3.6s" repeatCount="indefinite" begin="1.8s"><mpath href="#wireF"/></animateMotion>
+            </circle>
+          </svg>
+
+          <div class="qs-arch-nodes">
+            <!-- Sources -->
+            <div class="qs-node src" style="top:14%;left:4%;" data-info="yfinance fetches delayed (15-min) NSE/BSE quotes via Yahoo Finance public endpoint. Format: RELIANCE.NS, TCS.BO.">
+              <div class="qs-node-ic">📡</div>
+              <div class="qs-node-name">yfinance</div>
+              <div class="qs-node-tag">Source</div>
+            </div>
+            <div class="qs-node src" style="top:46%;left:4%;" data-info="NSE/BSE direct REST endpoints used as a fallback when yfinance is rate-limited. Cached aggressively.">
+              <div class="qs-node-ic">🏛️</div>
+              <div class="qs-node-name">NSE/BSE</div>
+              <div class="qs-node-tag">Source</div>
+            </div>
+            <div class="qs-node src" style="top:78%;left:4%;" data-info="WebSocket simulator emits a tick every 3-5s in a realistic random walk so the UI feels live without market data subscriptions.">
+              <div class="qs-node-ic">🔁</div>
+              <div class="qs-node-name">Tick Sim</div>
+              <div class="qs-node-tag">Source</div>
+            </div>
+
+            <!-- Backend Core -->
+            <div class="qs-node core" style="top:46%;left:46%;" data-info="FastAPI core with Redis cache, indicator engine (RSI/MACD/MA), and the rule-based AI insight generator. Endpoints: /stock, /history, /indicators, /insights.">
+              <div class="qs-node-ic">⚡</div>
+              <div class="qs-node-name">FastAPI Core</div>
+              <div class="qs-node-tag">Backend</div>
+              <div class="qs-node-pulse"></div>
+            </div>
+
+            <!-- Frontend -->
+            <div class="qs-node ui" style="top:14%;left:84%;" data-info="React + Tailwind dashboard. Lightweight Charts for candlesticks, Recharts for sparklines, Zustand for state.">
+              <div class="qs-node-ic">⚛️</div>
+              <div class="qs-node-name">React UI</div>
+              <div class="qs-node-tag">Frontend</div>
+            </div>
+            <div class="qs-node ui" style="top:46%;left:84%;" data-info="The Smart Insights panel: RSI bands, MACD crosses, 52-week proximity, volume Z-score, trend regime.">
+              <div class="qs-node-ic">🧠</div>
+              <div class="qs-node-name">AI Insights</div>
+              <div class="qs-node-tag">Layer</div>
+            </div>
+            <div class="qs-node ui" style="top:78%;left:84%;" data-info="Local-storage persisted watchlist + sector heatmap. Color encodes daily % change.">
+              <div class="qs-node-ic">⭐</div>
+              <div class="qs-node-name">Watchlist</div>
+              <div class="qs-node-tag">Layer</div>
+            </div>
+          </div>
+
+          <div class="qs-arch-info" id="archInfo">
+            <span class="qs-arch-info-label">SYSTEM TRACE</span>
+            <p>Hover any node to inspect its role. Packets along the wires are <b>real animation paths</b> — same flow, just visualised.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== LIVE DASHBOARD ========== -->
+      <section class="qs-section">
+        <div class="qs-section-head">
+          <span class="qs-tag">TERMINAL // 02</span>
+          <h2>Live Trading Floor</h2>
+          <p>Search any NSE ticker. The chart, indicators, depth & insights all wire up in real time.</p>
+        </div>
+
+        <!-- Search Row -->
+        <div class="qs-search-row">
+          <div class="qs-search">
+            <span class="qs-search-ic">⌕</span>
+            <input id="qsSearch" type="text" placeholder="Search NSE stocks — try RELIANCE, TCS, INFY, HDFCBANK..." autocomplete="off"/>
+            <kbd>⌘ K</kbd>
+            <div class="qs-suggest" id="qsSuggest"></div>
+          </div>
+          <div class="qs-quick">
+            <button class="qs-chip active" data-symbol="RELIANCE.NS">RELIANCE</button>
+            <button class="qs-chip" data-symbol="TCS.NS">TCS</button>
+            <button class="qs-chip" data-symbol="INFY.NS">INFY</button>
+            <button class="qs-chip" data-symbol="HDFCBANK.NS">HDFCBANK</button>
+            <button class="qs-chip" data-symbol="ICICIBANK.NS">ICICIBANK</button>
+            <button class="qs-chip" data-symbol="ADANIENT.NS">ADANIENT</button>
+          </div>
+        </div>
+
+        <!-- Terminal Grid -->
+        <div class="qs-terminal">
+          <!-- LEFT: Watchlist -->
+          <div class="qs-panel qs-watch">
+            <div class="qs-panel-head">
+              <h3>⭐ Watchlist</h3>
+              <button id="qsAddWatch" class="qs-mini">+ ADD</button>
+            </div>
+            <div id="qsWatchlist" class="qs-watch-list"></div>
+            <div class="qs-watch-foot">
+              <span class="qs-tiny">Saved locally · synced to backend in prod</span>
+            </div>
+          </div>
+
+          <!-- CENTER: Chart + Price -->
+          <div class="qs-panel qs-chart-panel">
+            <div class="qs-stock-head">
+              <div class="qs-stock-id">
+                <div class="qs-stock-ic" id="qsStockIc">R</div>
+                <div>
+                  <div class="qs-stock-name" id="qsStockName">Reliance Industries</div>
+                  <div class="qs-stock-sym" id="qsStockSym">RELIANCE.NS · NSE</div>
+                </div>
+              </div>
+              <div class="qs-stock-price">
+                <div class="qs-price" id="qsPrice">₹ 0.00</div>
+                <div class="qs-change" id="qsChange">+ 0.00 (0.00%)</div>
+              </div>
+            </div>
+
+            <div class="qs-tf-row">
+              <div class="qs-tf-pills" id="qsTfPills">
+                <button class="qs-tf" data-tf="1D">1D</button>
+                <button class="qs-tf active" data-tf="1W">1W</button>
+                <button class="qs-tf" data-tf="1M">1M</button>
+                <button class="qs-tf" data-tf="6M">6M</button>
+                <button class="qs-tf" data-tf="1Y">1Y</button>
+                <button class="qs-tf" data-tf="5Y">5Y</button>
+              </div>
+              <div class="qs-tf-overlays">
+                <label class="qs-toggle"><input type="checkbox" id="qsMA20" checked> <span>MA 20</span></label>
+                <label class="qs-toggle"><input type="checkbox" id="qsMA50" checked> <span>MA 50</span></label>
+                <label class="qs-toggle"><input type="checkbox" id="qsMA200"> <span>MA 200</span></label>
+                <label class="qs-toggle"><input type="checkbox" id="qsBB"> <span>Bollinger</span></label>
+              </div>
+            </div>
+
+            <div class="qs-chart-wrap">
+              <canvas id="qsMainChart"></canvas>
+            </div>
+
+            <div class="qs-indicators">
+              <div class="qs-indi">
+                <div class="qs-indi-head">
+                  <span class="qs-indi-name">RSI (14)</span>
+                  <span class="qs-indi-val" id="qsRsiVal">--</span>
+                </div>
+                <canvas id="qsRsiChart" height="80"></canvas>
+              </div>
+              <div class="qs-indi">
+                <div class="qs-indi-head">
+                  <span class="qs-indi-name">MACD (12,26,9)</span>
+                  <span class="qs-indi-val" id="qsMacdVal">--</span>
+                </div>
+                <canvas id="qsMacdChart" height="80"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Insights + Depth + Fundamentals -->
+          <div class="qs-panel qs-side">
+            <div class="qs-insights">
+              <div class="qs-panel-head">
+                <h3>🧠 AI Insights</h3>
+                <span class="qs-tiny pulse">live</span>
+              </div>
+              <div id="qsInsights" class="qs-insights-list"></div>
+            </div>
+
+            <div class="qs-depth">
+              <div class="qs-panel-head"><h3>📈 Market Depth</h3></div>
+              <div class="qs-depth-grid">
+                <div class="qs-depth-col bid">
+                  <div class="qs-depth-head"><span>Bid</span><span>Qty</span></div>
+                  <div id="qsBids"></div>
+                </div>
+                <div class="qs-depth-col ask">
+                  <div class="qs-depth-head"><span>Ask</span><span>Qty</span></div>
+                  <div id="qsAsks"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="qs-fund">
+              <div class="qs-panel-head"><h3>📊 Fundamentals</h3></div>
+              <div class="qs-fund-grid" id="qsFund"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== INTELLIGENCE ENGINE ========== -->
+      <section class="qs-section">
+        <div class="qs-section-head">
+          <span class="qs-tag">INTELLIGENCE // 03</span>
+          <h2>The Brain — Rule Engine, visualised</h2>
+          <p>The Smart Insights aren't black-magic ML. Every signal is a transparent, auditable rule.</p>
+        </div>
+
+        <div class="qs-rules">
+          <div class="qs-rule">
+            <div class="qs-rule-head"><span class="qs-rule-tag">RSI</span> Overbought / Oversold</div>
+            <div class="qs-rule-body">
+              <div class="qs-rule-meter">
+                <div class="qs-rule-bar"></div>
+                <div class="qs-rule-fill" style="--p:62%"></div>
+                <div class="qs-rule-zones">
+                  <span class="z os">0–30 oversold</span>
+                  <span class="z mid">30–70 neutral</span>
+                  <span class="z ob">70–100 overbought</span>
+                </div>
+              </div>
+              <code>if rsi &gt; 70 → "Overbought, fade strength"</code>
+              <code>if rsi &lt; 30 → "Oversold, watch for reversal"</code>
+            </div>
+          </div>
+
+          <div class="qs-rule">
+            <div class="qs-rule-head"><span class="qs-rule-tag">MA</span> Trend Regime</div>
+            <div class="qs-rule-body">
+              <div class="qs-trend-viz">
+                <div class="qs-trend-line"></div>
+                <div class="qs-trend-pt p1"></div>
+                <div class="qs-trend-pt p2"></div>
+                <div class="qs-trend-pt p3"></div>
+              </div>
+              <code>if price &gt; MA200 and MA50 &gt; MA200 → "Strong uptrend"</code>
+              <code>if price &lt; MA200 and MA50 &lt; MA200 → "Bearish regime"</code>
+            </div>
+          </div>
+
+          <div class="qs-rule">
+            <div class="qs-rule-head"><span class="qs-rule-tag">VOL</span> Unusual Volume</div>
+            <div class="qs-rule-body">
+              <div class="qs-vol-viz">
+                <div class="qs-vol-bar" style="--h:30%"></div>
+                <div class="qs-vol-bar" style="--h:42%"></div>
+                <div class="qs-vol-bar" style="--h:38%"></div>
+                <div class="qs-vol-bar" style="--h:55%"></div>
+                <div class="qs-vol-bar spike" style="--h:95%"></div>
+                <div class="qs-vol-bar" style="--h:48%"></div>
+              </div>
+              <code>z = (vol - mean20) / std20</code>
+              <code>if z &gt; 2 → "Volume spike — institutional flow?"</code>
+            </div>
+          </div>
+
+          <div class="qs-rule">
+            <div class="qs-rule-head"><span class="qs-rule-tag">52W</span> Range Proximity</div>
+            <div class="qs-rule-body">
+              <div class="qs-range-viz">
+                <div class="qs-range-track"></div>
+                <div class="qs-range-marker" style="left:88%"></div>
+                <div class="qs-range-labels"><span>52W Low</span><span>52W High</span></div>
+              </div>
+              <code>pct = (price - low52) / (high52 - low52)</code>
+              <code>if pct &gt; 0.95 → "Trading near 52-week high"</code>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== SECTOR HEATMAP ========== -->
+      <section class="qs-section">
+        <div class="qs-section-head">
+          <span class="qs-tag">PULSE // 04</span>
+          <h2>Sector Heatmap</h2>
+          <p>Where the money is flowing across NSE today. Hover for details.</p>
+        </div>
+
+        <div class="qs-heatmap" id="qsHeatmap"></div>
+      </section>
+
+      <!-- ========== API ENDPOINTS ========== -->
+      <section class="qs-section">
+        <div class="qs-section-head">
+          <span class="qs-tag">API // 05</span>
+          <h2>Public Contract</h2>
+          <p>Twelve clean endpoints. Fully typed. CORS-ready. Click to copy curl.</p>
+        </div>
+
+        <div class="qs-api-grid">
+          <div class="qs-api" data-curl="curl http://localhost:8000/api/stock/RELIANCE.NS">
+            <span class="m get">GET</span>
+            <code>/api/stock/{symbol}</code>
+            <p>Spot quote + market cap, PE, 52W, volume.</p>
+          </div>
+          <div class="qs-api" data-curl="curl 'http://localhost:8000/api/history/RELIANCE.NS?interval=1d&range=1y'">
+            <span class="m get">GET</span>
+            <code>/api/history/{symbol}</code>
+            <p>OHLCV. Intervals: 1m → 1mo. Range: 1d → max.</p>
+          </div>
+          <div class="qs-api" data-curl="curl http://localhost:8000/api/indicators/RELIANCE.NS">
+            <span class="m get">GET</span>
+            <code>/api/indicators/{symbol}</code>
+            <p>RSI, MACD, MA20/50/200, Bollinger, ATR.</p>
+          </div>
+          <div class="qs-api" data-curl="curl http://localhost:8000/api/insights/RELIANCE.NS">
+            <span class="m get">GET</span>
+            <code>/api/insights/{symbol}</code>
+            <p>Rule-engine signals + plain-English narrative.</p>
+          </div>
+          <div class="qs-api" data-curl="curl http://localhost:8000/api/depth/RELIANCE.NS">
+            <span class="m get">GET</span>
+            <code>/api/depth/{symbol}</code>
+            <p>Simulated 5-level bid/ask book.</p>
+          </div>
+          <div class="qs-api" data-curl="curl http://localhost:8000/api/fundamentals/RELIANCE.NS">
+            <span class="m get">GET</span>
+            <code>/api/fundamentals/{symbol}</code>
+            <p>EPS, P/E, P/B, ROE, debt, margins.</p>
+          </div>
+          <div class="qs-api" data-curl="curl http://localhost:8000/api/sectors">
+            <span class="m get">GET</span>
+            <code>/api/sectors</code>
+            <p>NSE sector indices for the heatmap.</p>
+          </div>
+          <div class="qs-api" data-curl="curl http://localhost:8000/api/search?q=reliance">
+            <span class="m get">GET</span>
+            <code>/api/search?q=</code>
+            <p>Fuzzy ticker autocomplete.</p>
+          </div>
+          <div class="qs-api" data-curl="wscat -c ws://localhost:8000/ws/ticks">
+            <span class="m ws">WS</span>
+            <code>/ws/ticks</code>
+            <p>WebSocket — live tick stream (3-5s).</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== TECH STACK ========== -->
+      <section class="qs-section">
+        <div class="qs-section-head">
+          <span class="qs-tag">STACK // 06</span>
+          <h2>Built with serious tools</h2>
+          <p>No toy stack. Production-grade choices end-to-end.</p>
+        </div>
+        <div class="qs-stack">
+          <div class="qs-stack-card"><span>⚛️</span><b>React 18</b><i>Vite + TS</i></div>
+          <div class="qs-stack-card"><span>🌬️</span><b>Tailwind</b><i>Design system</i></div>
+          <div class="qs-stack-card"><span>📈</span><b>Lightweight Charts</b><i>TradingView</i></div>
+          <div class="qs-stack-card"><span>⚡</span><b>FastAPI</b><i>Async Python</i></div>
+          <div class="qs-stack-card"><span>📡</span><b>yfinance</b><i>NSE/BSE quotes</i></div>
+          <div class="qs-stack-card"><span>🧮</span><b>pandas + numpy</b><i>Indicator math</i></div>
+          <div class="qs-stack-card"><span>🚀</span><b>Redis</b><i>Hot cache</i></div>
+          <div class="qs-stack-card"><span>🔌</span><b>WebSockets</b><i>Live ticks</i></div>
+        </div>
+      </section>
+
+      <!-- ========== DEPLOY ========== -->
+      <section class="qs-section qs-deploy">
+        <div class="qs-deploy-card">
+          <div>
+            <span class="qs-tag">DEPLOY // 07</span>
+            <h2>Ship it.</h2>
+            <p>Backend + React scaffold are already written into <code>Initial Deployment/stock-engine/</code>. Boot in two commands.</p>
+            <div class="qs-cmd"><span>$</span> uvicorn app.main:app --reload --port 8000</div>
+            <div class="qs-cmd"><span>$</span> npm run dev</div>
+          </div>
+          <div class="qs-deploy-art">
+            <div class="art-ring"></div>
+            <div class="art-ring r2"></div>
+            <div class="art-core">⚡</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/theme-init.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/stock-platform.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+</body>
+</html>

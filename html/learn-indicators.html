@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Technical Toolkit (Full)</title>
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+
+  <style>
+    /* =========================
+       THEME: COCKPIT HUD
+       ========================= */
+    :root {
+      --hud-cyan: #00f3ff;
+      --hud-green: #0aff68;
+      --hud-orange: #ff9e00;
+      --hud-red: #ff0050;
+      --hud-purple: #bc13fe;
+      --bg-void: #020202;
+      --glass: rgba(255, 255, 255, 0.03);
+      --border: rgba(255, 255, 255, 0.1);
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-display: 'Manrope', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-void) !important;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(0, 243, 255, 0.05) 0%, transparent 60%),
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), 
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 50px 50px, 50px 50px;
+      color: #fff !important;
+      font-family: var(--font-display);
+      overflow-x: hidden;
+    }
+
+    /* Sidebar Override */
+    .sidebar { background: rgba(0,0,0,0.9); border-right: 1px solid #222; backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 200; }
+    .main { width: calc(100% - 260px); min-height: 100vh; margin-left: 260px; }
+
+    /* =========================
+       UI COMPONENTS
+       ========================= */
+
+    /* Scroll Scanner */
+    .scan-line {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: var(--hud-orange);
+      box-shadow: 0 0 15px var(--hud-orange);
+      z-index: 9999; width: 0%;
+    }
+
+    /* Content Wrapper */
+    .content-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding-top: 50px;
+    }
+
+    /* Header */
+    .cockpit-header {
+      text-align: center;
+      margin-bottom: 50px;
+      position: relative;
+    }
+
+    .glitch-title {
+      font-size: 4rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -2px;
+      text-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+      line-height: 1;
+    }
+
+    .sys-status {
+      font-family: var(--font-mono);
+      color: var(--hud-green);
+      font-size: 0.9rem;
+      border: 1px solid var(--hud-green);
+      padding: 5px 12px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 20px;
+      background: rgba(10, 255, 104, 0.1);
+    }
+
+    /* =========================
+       THE SENSOR ARRAY (NAVIGATION)
+       ========================= */
+    .sensor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-bottom: 80px;
+    }
+
+    .sensor-btn {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sensor-btn:hover {
+      background: rgba(255,255,255,0.08);
+      transform: translateY(-5px);
+      border-color: var(--hud-cyan);
+    }
+
+    .sensor-btn.active {
+      border-color: var(--hud-orange);
+      background: rgba(255, 158, 0, 0.1);
+      box-shadow: 0 0 20px rgba(255, 158, 0, 0.2);
+    }
+
+    .s-icon { font-size: 2rem; display: block; margin-bottom: 10px; }
+    .s-label { font-family: var(--font-mono); font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px;}
+
+    /* =========================
+       MODULE CARDS (THE CONTENT)
+       ========================= */
+    .module-section {
+      margin-bottom: 100px;
+      scroll-margin-top: 100px;
+      opacity: 0.5;
+      transition: opacity 0.5s;
+    }
+
+    .module-section.active-module {
+      opacity: 1;
+    }
+
+    .module-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 15px;
+    }
+
+    .mod-badge {
+      background: var(--hud-cyan); color: #000;
+      font-weight: 800; font-family: var(--font-mono);
+      padding: 5px 10px; border-radius: 4px; font-size: 0.8rem;
+    }
+
+    .mod-title { font-size: 2rem; color: #fff; margin: 0; }
+
+    /* The Tool Cards */
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+    }
+
+    .tool-card {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 25px;
+      transition: 0.3s;
+    }
+
+    .tool-card:hover {
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .t-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .t-name { color: var(--hud-cyan); font-weight: 700; font-size: 1.2rem; }
+    .t-icon { font-size: 1.5rem; }
+
+    .t-desc { color: #ccc; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; }
+
+    /* Desi Analogy Box */
+    .desi-logic {
+      background: rgba(0,0,0,0.3);
+      border-left: 3px solid var(--hud-orange);
+      padding: 15px;
+      border-radius: 0 8px 8px 0;
+    }
+    .desi-tag { color: var(--hud-orange); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 5px; }
+    .desi-text { color: #aaa; font-size: 0.9rem; font-style: italic; }
+
+    /* =========================
+       INTERACTIVE TOYS
+       ========================= */
+    
+    /* 1. Biryani Meter (RSI) */
+    .biryani-container {
+      background: #111; border: 1px solid #333; padding: 20px; border-radius: 12px; margin-top: 20px; text-align: center;
+    }
+    .biryani-slider { width: 100%; margin: 20px 0; cursor: pointer; }
+    .biryani-status { font-family: var(--font-mono); font-size: 1.2rem; min-height: 30px; font-weight: bold; }
+
+    /* 2. Volume Toggle */
+    .vol-toggle-box {
+      display: flex; gap: 10px; margin-top: 20px; background: #111; padding: 10px; border-radius: 12px;
+    }
+    .vol-btn { flex: 1; padding: 10px; border: 1px solid #333; background: transparent; color: #666; cursor: pointer; border-radius: 8px; font-family: var(--font-mono); font-size: 0.8rem; }
+    .vol-btn.active { background: var(--hud-green); color: #000; font-weight: 800; }
+
+    @media (max-width: 768px) {
+      .glitch-title { font-size: 2.5rem; }
+      .sensor-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <div class="scan-line" id="scanLine"></div>
+
+  <aside class="sidebar">
+    <div class="logo" style="color:var(--hud-cyan);">FIN•OS</div>
+    <nav>
+      <a href="home.html">Home</a>
+      <a href="markets.html" class="active">Markets</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="dashboard.html">Dashboard</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+
+      <header class="cockpit-header">
+        <span class="sys-status">SYSTEM STATUS: FULL CAPACITY</span>
+        <h1 class="glitch-title">Market<br>Sensors</h1>
+        <p style="color:#888; margin-top: 20px; max-width: 600px; margin-left: auto; margin-right: auto;">
+          The complete flight control deck. Every indicator in the world. <br>
+          <span style="color:var(--hud-orange);">// CALIBRATE YOUR INSTRUMENTS</span>
+        </p>
+      </header>
+
+      <div class="sensor-grid">
+        <div class="sensor-btn" onclick="scrollToMod('trend')">
+          <span class="s-icon">🧭</span>
+          <span class="s-label">Trend</span>
+        </div>
+        <div class="sensor-btn" onclick="scrollToMod('momentum')">
+          <span class="s-icon">🏎️</span>
+          <span class="s-label">Momentum</span>
+        </div>
+        <div class="sensor-btn" onclick="scrollToMod('volume')">
+          <span class="s-icon">📊</span>
+          <span class="s-label">Volume</span>
+        </div>
+        <div class="sensor-btn" onclick="scrollToMod('snr')">
+          <span class="s-icon">🧱</span>
+          <span class="s-label">Support</span>
+        </div>
+        <div class="sensor-btn" onclick="scrollToMod('patterns')">
+          <span class="s-icon">🧩</span>
+          <span class="s-label">Patterns</span>
+        </div>
+        <div class="sensor-btn" onclick="scrollToMod('volatility')">
+          <span class="s-icon">🌊</span>
+          <span class="s-label">Volatility</span>
+        </div>
+        <div class="sensor-btn" onclick="scrollToMod('price')">
+          <span class="s-icon">🕯️</span>
+          <span class="s-label">Action</span>
+        </div>
+        <div class="sensor-btn" onclick="scrollToMod('time')">
+          <span class="s-icon">⏳</span>
+          <span class="s-label">Time</span>
+        </div>
+      </div>
+
+
+      <section id="trend" class="module-section">
+        <div class="module-header">
+          <span class="mod-badge">SEC-01</span>
+          <h2 class="mod-title">Trend Indicators</h2>
+        </div>
+        
+        <div class="tool-grid">
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Trend Lines</span> <span class="t-icon">📏</span></div>
+            <p class="t-desc">Visual lines connecting highs or lows. They simplify chaos into a direction.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Highway Logic</span>
+              <p class="desi-text">Uphill road = Effort required. Trend line shows the slope of the hill.</p>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Simple Moving Average (SMA)</span> <span class="t-icon">〰️</span></div>
+            <p class="t-desc">The average price over X days. Smooths out daily noise to show the path.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Crowd Logic</span>
+              <p class="desi-text">A drunk man walks erratically (Price). His sober friend walks straight (SMA). Follow the friend.</p>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Exponential MA (EMA)</span> <span class="t-icon">⚡</span></div>
+            <p class="t-desc">Gives more weight to recent prices. Reacts faster than SMA.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">News Logic</span>
+              <p class="desi-text">Today's newspaper is more important than last month's. EMA cares about Today.</p>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">ADX</span> <span class="t-icon">💪</span></div>
+            <p class="t-desc">Average Directional Index. Measures the STRENGTH of a trend, not direction.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Speedometer</span>
+              <p class="desi-text">It shows 100kmph. It doesn't care if you are going North or South, just that you are Fast.</p>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Ichimoku Cloud</span> <span class="t-icon">☁️</span></div>
+            <p class="t-desc">Japanese "One Glance" chart. Shows support, resistance, and trend all at once.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Weather Forecast</span>
+              <p class="desi-text">If Price is above the Cloud, it is a Sunny Day (Buy). Below Cloud = Rainy Day (Sell).</p>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Parabolic SAR</span> <span class="t-icon">✨</span></div>
+            <p class="t-desc">Stop and Reverse. Dots below candle = Bullish. Dots above = Bearish.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Chasing Dog</span>
+              <p class="desi-text">The dots chase the price. If price stops or turns, the dots catch up and flip signal.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section id="momentum" class="module-section">
+        <div class="module-header">
+          <span class="mod-badge">SEC-02</span>
+          <h2 class="mod-title">Momentum</h2>
+        </div>
+
+        <div class="tool-grid">
+          <div class="tool-card" style="border-color:var(--hud-cyan);">
+            <div class="t-head"><span class="t-name">RSI</span> <span class="t-icon">⚡</span></div>
+            <p class="t-desc">Relative Strength Index. Speed of price change. Overbought (>70) vs Oversold (<30).</p>
+            
+            <div class="biryani-container">
+              <span style="font-size:0.8rem; color:#888; text-transform:uppercase;">Simulation: The Biryani Limit</span>
+              <input type="range" min="0" max="100" value="50" class="biryani-slider" id="rsiSlider" oninput="updateRSI()">
+              <div class="biryani-status" id="rsiStatus" style="color:var(--hud-cyan);">Status: BALANCED (Eat More)</div>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">MACD</span> <span class="t-icon">🏎️</span></div>
+            <p class="t-desc">Moving Average Convergence Divergence. Detects trend reversals early.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Gear Shift</span>
+              <p class="desi-text">You feel the engine rev (MACD) before the car actually speeds up.</p>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Stochastic Oscillator</span> <span class="t-icon">🎢</span></div>
+            <p class="t-desc">Compares closing price to price range. Very sensitive.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Rocket Fuel</span>
+              <p class="desi-text">A rocket slows down at the top before falling. Stochastic spots that slowdown.</p>
+            </div>
+          </div>
+
+           <div class="tool-card">
+            <div class="t-head"><span class="t-name">CCI</span> <span class="t-icon">🌡️</span></div>
+            <p class="t-desc">Commodity Channel Index. Measures deviation from statistical average.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Fever Check</span>
+              <p class="desi-text">Normal body temp is 37°C. If CCI hits +100, the market has a fever (Overheated).</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section id="volume" class="module-section">
+        <div class="module-header">
+          <span class="mod-badge">SEC-03</span>
+          <h2 class="mod-title">Volume</h2>
+        </div>
+
+        <div class="tool-grid">
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Volume Bars</span> <span class="t-icon">📶</span></div>
+            <p class="t-desc">Shows participation. Price moving without volume is a trap.</p>
+            
+            <div class="vol-toggle-box">
+              <button class="vol-btn" id="volLow" onclick="setVolume('low')">Empty Hall</button>
+              <button class="vol-btn active" id="volHigh" onclick="setVolume('high')">Stadium</button>
+            </div>
+            <div style="margin-top:15px; font-size:0.9rem; color:#aaa; font-style:italic;" id="volText">
+              "Clapping in a stadium. The sound is REAL. The move is trusted."
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">VWAP</span> <span class="t-icon">⚖️</span></div>
+            <p class="t-desc">Volume Weighted Average Price. Used by Institutions. The "Fair Price" of the day.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Wholesale Rate</span>
+              <p class="desi-text">Big dealers (FIIs) only buy near VWAP. They don't pay Retail MRP.</p>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">On-Balance Volume (OBV)</span> <span class="t-icon">💧</span></div>
+            <p class="t-desc">Cumulative volume flow. Helps spot smart money accumulation.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Water Tank</span>
+              <p class="desi-text">If water (volume) keeps filling the tank, pressure (price) will eventually burst up.</p>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Money Flow Index (MFI)</span> <span class="t-icon">💸</span></div>
+            <p class="t-desc">Like RSI, but includes Volume. Known as Volume-weighted RSI.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Cash Count</span>
+              <p class="desi-text">Are people putting money IN or taking money OUT? MFI tracks the cash.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section id="snr" class="module-section">
+        <div class="module-header">
+          <span class="mod-badge">SEC-04</span>
+          <h2 class="mod-title">Support & Resistance</h2>
+        </div>
+        
+        <div class="tool-grid">
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Support & Resistance</span> <span class="t-icon">🪜</span></div>
+            <p class="t-desc">Price floors (Support) and ceilings (Resistance) based on history.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Psychology</span>
+              <p class="desi-text">Support = "Cheap, Buy Now". Resistance = "Expensive, Sell Now".</p>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Fibonacci Retracement</span> <span class="t-icon">🌀</span></div>
+            <p class="t-desc">Mathematical ratios (38%, 50%, 61%) where price naturally pulls back.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Rubber Band</span>
+              <p class="desi-text">Stretch a rubber band and let go slightly. It snaps back to a natural point (50%).</p>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Pivot Points</span> <span class="t-icon">📍</span></div>
+            <p class="t-desc">Calculated levels based on yesterday's High, Low, and Close.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Building Floors</span>
+              <p class="desi-text">Price moves from Floor 1 (R1) to Floor 2 (R2). Pivots are the concrete slabs.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section id="patterns" class="module-section">
+        <div class="module-header">
+          <span class="mod-badge">SEC-05</span>
+          <h2 class="mod-title">Patterns</h2>
+        </div>
+        
+        <div class="tool-grid">
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Reversal Patterns</span> <span class="t-icon">↩️</span></div>
+            <p class="t-desc">Head & Shoulders, Double Top. Signals a U-Turn in trend.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">U-Turn</span>
+              <p class="desi-text">Like a car slowing down, turning wheels, and reversing.</p>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Continuation Patterns</span> <span class="t-icon">⏯️</span></div>
+            <p class="t-desc">Flags, Pennants. Signals a pause before continuing same direction.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Chai Break</span>
+              <p class="desi-text">Workers stop for 10 mins (Flag), then resume working (Trend continues).</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section id="volatility" class="module-section">
+        <div class="module-header">
+          <span class="mod-badge">SEC-06</span>
+          <h2 class="mod-title">Volatility</h2>
+        </div>
+        
+        <div class="tool-grid">
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Bollinger Bands</span> <span class="t-icon">🌊</span></div>
+            <p class="t-desc">Bands expand when wild, contract when quiet. Price stays inside 95% of time.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">River Width</span>
+              <p class="desi-text">Narrow river = Calm. Wide river = Flood. Don't swim during a flood.</p>
+            </div>
+          </div>
+          
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">ATR</span> <span class="t-icon">📏</span></div>
+            <p class="t-desc">Average True Range. Measures the average daily move size.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Road Conditions</span>
+              <p class="desi-text">Highway (High ATR) vs Gully (Low ATR). Determines your Stop Loss size.</p>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Donchian Channels</span> <span class="t-icon">🛣️</span></div>
+            <p class="t-desc">Plots the Highest High and Lowest Low over X days. Breakout indicator.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">The Box</span>
+              <p class="desi-text">Price is trapped in a box. When it breaks the lid (Upper Channel), it flies.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="price" class="module-section">
+        <div class="module-header">
+          <span class="mod-badge">SEC-07</span>
+          <h2 class="mod-title">Price Action</h2>
+        </div>
+        
+        <div class="tool-grid">
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Candlesticks</span> <span class="t-icon">🕯️</span></div>
+            <p class="t-desc">Doji, Hammer, Engulfing. Visual representation of buyer/seller war.</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Boxing Match</span>
+              <p class="desi-text">Big Green Candle = Knockout punch by Buyer. Small Candle = Just a jab.</p>
+            </div>
+          </div>
+          
+          <div class="tool-card">
+            <div class="t-head"><span class="t-name">Market Structure</span> <span class="t-icon">📈</span></div>
+            <p class="t-desc">Higher Highs (Uptrend) vs Lower Lows (Downtrend).</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Staircase</span>
+              <p class="desi-text">As long as you are stepping UP, you are going to the roof.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+       <section id="time" class="module-section">
+        <div class="module-header">
+          <span class="mod-badge">SEC-08</span>
+          <h2 class="mod-title">Time Frames</h2>
+        </div>
+        
+        <div class="tool-grid">
+          <div class="tool-card" style="grid-column: span 1;">
+            <div class="t-head"><span class="t-name">Context Zoom</span> <span class="t-icon">🔍</span></div>
+            <p class="t-desc">Monthly (Trend) > Daily (Setup) > 15-min (Entry).</p>
+            <div class="desi-logic">
+              <span class="desi-tag">Google Maps</span>
+              <p class="desi-text">Zoom Out = City View (Direction). Zoom In = Street View (Potholes). You need both.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <footer style="margin-bottom: 100px; text-align: center; border-top: 1px solid var(--border); padding-top: 50px;">
+        <h2 style="color: #fff;">Sensors Calibrated.</h2>
+        <p style="color: #666; font-family:var(--font-mono);">[ READY FOR FLIGHT ]</p>
+        <br>
+        <button onclick="window.location.href='dashboard.html'" 
+        style="padding: 16px 40px; background: transparent; border: 1px solid var(--hud-orange); color: var(--hud-orange); border-radius: 4px; font-weight: 800; cursor: pointer; font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s;">
+          Return to Base
+        </button>
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  // 1. SCROLL SCANNER
+  window.addEventListener('scroll', () => {
+    const totalHeight = document.body.scrollHeight - window.innerHeight;
+    const progress = (window.pageYOffset / totalHeight) * 100;
+    document.getElementById('scanLine').style.width = progress + '%';
+  });
+
+  // 2. SMOOTH SCROLL TO MODULE
+  function scrollToMod(id) {
+    const el = document.getElementById(id);
+    const btns = document.querySelectorAll('.sensor-btn');
+    
+    // Highlight Grid Button
+    btns.forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    // Scroll
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    // Highlight Section
+    document.querySelectorAll('.module-section').forEach(s => s.classList.remove('active-module'));
+    el.classList.add('active-module');
+  }
+
+  // 3. RSI BIRYANI METER LOGIC
+  function updateRSI() {
+    const val = document.getElementById('rsiSlider').value;
+    const status = document.getElementById('rsiStatus');
+    
+    if (val > 70) {
+      status.innerText = `RSI: ${val} // OVERBOUGHT (Stomach Full - Bursting)`;
+      status.style.color = "var(--hud-red)";
+    } else if (val < 30) {
+      status.innerText = `RSI: ${val} // OVERSOLD (Starving - Will Eat)`;
+      status.style.color = "var(--hud-green)";
+    } else {
+      status.innerText = `RSI: ${val} // NEUTRAL (Eating Slowly)`;
+      status.style.color = "var(--hud-cyan)";
+    }
+  }
+
+  // 4. VOLUME TOGGLE LOGIC
+  function setVolume(type) {
+    const text = document.getElementById('volText');
+    document.getElementById('volLow').classList.remove('active');
+    document.getElementById('volHigh').classList.remove('active');
+    
+    if (type === 'low') {
+      document.getElementById('volLow').classList.add('active');
+      text.innerText = "Whispering in an empty hall. No one cares. The move is FAKE.";
+      text.style.color = "#666";
+    } else {
+      document.getElementById('volHigh').classList.add('active');
+      text.innerText = "Clapping in a stadium. The sound is REAL. The move is TRUSTED.";
+      text.style.color = "var(--hud-green)";
+    }
+  }
+
+</script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+<style id="li-light-theme">
+[data-theme="light"] body {
+  background-color: #EFF2FF !important;
+  background-image: none !important;
+  color: #0B0D12 !important;
+}
+[data-theme="light"] .main { background: #EFF2FF !important; }
+[data-theme="light"] .lesson-title { color: #0B0D12 !important; }
+[data-theme="light"] .lesson-body { color: #4A5068 !important; }
+[data-theme="light"] .lesson-card { background: rgba(255,255,255,0.85) !important; border-color: rgba(0,0,0,0.08) !important; }
+</style>
+</body>
+</html>

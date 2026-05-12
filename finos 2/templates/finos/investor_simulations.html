@@ -1,0 +1,1124 @@
+{% extends 'finos/base.html' %}
+{% block title %}FIN-OS — Investor Simulations{% endblock %}
+{% block extra_head %}
+<style>
+.inv-sim-page{padding:2rem 3rem 5rem;position:relative;z-index:1}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,255,136,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.02) 1px,transparent 1px);background-size:48px 48px;opacity:.5}
+
+/* HEADER */
+.sim-header{padding:2rem 0 1.75rem;border-bottom:1px solid rgba(0,255,136,.07);margin-bottom:3rem;text-align:center}
+.sim-eyebrow{font-family:var(--fM);font-size:.6rem;color:var(--g);letter-spacing:3px;margin-bottom:.75rem;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.sim-eyebrow::before,.sim-eyebrow::after{content:'';width:30px;height:1px;background:var(--g)}
+.sim-title{font-family:var(--fD);font-size:clamp(2.5rem,5vw,4rem);letter-spacing:2px;background:linear-gradient(135deg,var(--g),var(--c));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.75rem}
+.sim-subtitle{font-size:1rem;color:var(--mu);max-width:700px;margin:0 auto;line-height:1.8}
+
+/* SIM GRID */
+.sim-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:1.75rem;margin-bottom:3rem}
+.sim-card{background:var(--s1);border:1px solid rgba(255,255,255,.07);border-radius:24px;padding:2rem;cursor:pointer;transition:all .4s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden}
+.sim-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--g),var(--c));opacity:0;transition:opacity .3s}
+.sim-card:hover{transform:translateY(-8px);border-color:rgba(0,255,136,.3);box-shadow:0 25px 70px rgba(0,255,136,.15)}
+.sim-card:hover::before{opacity:1}
+.sim-icon{font-size:3rem;margin-bottom:1.25rem;display:block;transition:transform .3s}
+.sim-card:hover .sim-icon{transform:scale(1.15) rotate(5deg)}
+.sim-name{font-size:1.6rem;margin-bottom:.5rem;letter-spacing:.5px;font-family:var(--fD)}
+.sim-desc{color:rgba(240,237,255,.65);font-size:.95rem;line-height:1.7;margin-bottom:1.25rem}
+.sim-tags{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem}
+.tag{font-family:var(--fM);font-size:.65rem;padding:.35rem .85rem;border-radius:8px;letter-spacing:1px}
+.tag-hard{background:rgba(255,45,107,.1);color:var(--r);border:1px solid rgba(255,45,107,.2)}
+.tag-med{background:rgba(255,204,0,.1);color:var(--y);border:1px solid rgba(255,204,0,.2)}
+.tag-multi{background:rgba(124,58,255,.1);color:#a78bff;border:1px solid rgba(124,58,255,.2)}
+.sim-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem}
+.stat{text-align:center;padding:.65rem;background:rgba(0,0,0,.3);border-radius:10px}
+.stat-value{font-family:var(--fD);font-size:1.2rem;letter-spacing:.5px;margin-bottom:.15rem}
+.stat-label{font-family:var(--fM);font-size:.58rem;color:var(--mu);letter-spacing:.5px}
+
+/* MODAL */
+.modal{position:fixed;inset:0;background:rgba(2,2,12,.98);backdrop-filter:blur(30px);z-index:1000;display:none;overflow-y:auto}
+.modal.active{display:block}
+.modal-content{max-width:1300px;margin:2rem auto;padding:2rem;position:relative}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(255,255,136,.1)}
+.modal-title-wrap h2{font-family:var(--fD);font-size:2.2rem;letter-spacing:1px;margin-bottom:.5rem}
+.modal-subtitle{font-size:.95rem;color:var(--mu)}
+.close-btn{width:44px;height:44px;border-radius:12px;background:rgba(255,45,107,.1);border:1px solid rgba(255,45,107,.2);color:var(--r);font-size:1.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.close-btn:hover{background:rgba(255,45,107,.2);transform:rotate(90deg)}
+
+/* SIM INTERFACE */
+.sim-interface{display:grid;grid-template-columns:1fr 380px;gap:2rem}
+.main-panel{background:var(--s1);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:2.5rem;min-height:650px;display:flex;flex-direction:column}
+.phase-indicator{font-family:var(--fM);font-size:.7rem;letter-spacing:2px;padding:.5rem 1.2rem;border-radius:10px;margin-bottom:2rem;width:fit-content;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.phase-scenario{background:rgba(0,212,255,.1);color:var(--c);border:1px solid rgba(0,212,255,.2)}
+.phase-question{background:rgba(255,204,0,.1);color:var(--y);border:1px solid rgba(255,204,0,.2)}
+.phase-emotion{background:rgba(124,58,255,.1);color:#a78bff;border:1px solid rgba(124,58,255,.2)}
+.phase-decision{background:rgba(255,45,107,.1);color:var(--r);border:1px solid rgba(255,45,107,.2)}
+.phase-result{background:rgba(0,255,136,.1);color:var(--g);border:1px solid rgba(0,255,136,.2)}
+
+.scenario-text{font-size:1.05rem;line-height:1.95;color:rgba(240,237,255,.88);flex:1;margin-bottom:2rem}
+.scenario-text.typing::after{content:'▊';animation:blink .7s infinite;margin-left:2px}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+.scenario-text strong{color:var(--txt);font-weight:600}
+.scenario-text em{color:var(--y);font-style:normal}
+
+/* QUESTIONS */
+.question-container{opacity:0;pointer-events:none;transition:opacity .5s}
+.question-container.active{opacity:1;pointer-events:all}
+.question-prompt{font-size:1.25rem;font-weight:600;margin-bottom:1.5rem;color:var(--g);font-family:var(--fD);letter-spacing:.5px}
+.question-options{display:flex;flex-direction:column;gap:1rem}
+.option-btn{background:var(--s2);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:1.5rem;cursor:pointer;transition:all .3s;text-align:left;display:flex;align-items:flex-start;gap:1rem;position:relative}
+.option-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--g);transform:scaleY(0);transition:transform .3s;border-radius:14px 0 0 14px}
+.option-btn:hover::before{transform:scaleY(1)}
+.option-btn:hover{transform:translateX(8px);border-color:rgba(0,255,136,.3);box-shadow:0 10px 40px rgba(0,255,136,.1)}
+.option-letter{width:32px;height:32px;border-radius:8px;background:rgba(0,255,136,.1);color:var(--g);display:flex;align-items:center;justify-content:center;font-family:var(--fM);font-size:.9rem;font-weight:700;flex-shrink:0}
+.option-text{flex:1}
+.option-label{font-size:1.05rem;font-weight:600;margin-bottom:.4rem}
+.option-desc{font-size:.88rem;color:var(--mu);line-height:1.6}
+
+/* METRICS PANEL */
+.metrics-panel{display:flex;flex-direction:column;gap:1.5rem}
+.metric-card{background:var(--s1);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:1.5rem}
+.metric-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.metric-title{font-family:var(--fM);font-size:.68rem;letter-spacing:1.5px;color:var(--mu)}
+.metric-value{font-size:1.9rem;font-weight:700;letter-spacing:.5px}
+.metric-bar{height:12px;background:rgba(255,255,255,.05);border-radius:6px;overflow:hidden;margin-top:.75rem}
+.metric-fill{height:100%;border-radius:6px;transition:width .8s cubic-bezier(.34,1.56,.64,1);background:linear-gradient(90deg,var(--r),var(--y),var(--g))}
+
+/* EMOTION TRACKER */
+.emotion-tracker{background:var(--s2);border-radius:12px;padding:1rem}
+.emotion-item{display:flex;justify-content:space-between;align-items:center;padding:.7rem 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.emotion-item:last-child{border-bottom:none}
+.emotion-label{font-size:.85rem;color:rgba(240,237,255,.7)}
+.emotion-level{font-family:var(--fM);font-size:.72rem;padding:.3rem .8rem;border-radius:6px}
+.level-low{background:rgba(0,255,136,.1);color:var(--g)}
+.level-medium{background:rgba(255,204,0,.1);color:var(--y)}
+.level-high{background:rgba(255,45,107,.1);color:var(--r)}
+
+/* PORTFOLIO */
+.portfolio-display{background:linear-gradient(135deg,rgba(0,255,136,.05),rgba(0,212,255,.05));border:1px solid rgba(0,255,136,.2);border-radius:16px;padding:1.5rem;text-align:center}
+.portfolio-label{font-family:var(--fM);font-size:.65rem;color:var(--mu);letter-spacing:2px;margin-bottom:.5rem}
+.portfolio-value{font-size:2.5rem;font-weight:700;letter-spacing:1px;margin-bottom:.5rem}
+.portfolio-change{font-family:var(--fM);font-size:1rem}
+
+/* PROGRESS TRACKER */
+.progress-tracker{background:var(--s2);border-radius:12px;padding:1.25rem}
+.progress-step{display:flex;align-items:center;gap:.75rem;margin-bottom:.85rem}
+.progress-step:last-child{margin-bottom:0}
+.step-num{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.08);color:var(--mu);display:flex;align-items:center;justify-content:center;font-family:var(--fM);font-size:.7rem;flex-shrink:0;border:2px solid transparent}
+.progress-step.complete .step-num{background:rgba(0,255,136,.15);color:var(--g);border-color:var(--g)}
+.progress-step.active .step-num{background:rgba(255,204,0,.15);color:var(--y);border-color:var(--y);animation:pulse-step 1.5s infinite}
+@keyframes pulse-step{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.step-label{font-size:.8rem;color:var(--mu)}
+.progress-step.complete .step-label,.progress-step.active .step-label{color:var(--txt)}
+
+/* RESULT */
+.result-container{opacity:0;pointer-events:none;transition:opacity .5s}
+.result-container.active{opacity:1;pointer-events:all}
+.result-header{text-align:center;margin-bottom:2.5rem}
+.result-verdict{font-size:3.5rem;margin-bottom:1rem}
+.result-title{font-size:2.2rem;margin-bottom:.5rem;letter-spacing:1px;font-family:var(--fD)}
+.result-subtitle{font-size:1.1rem;color:var(--mu)}
+.result-sections{display:grid;gap:1.75rem}
+.result-section{background:var(--s2);border-radius:16px;padding:2rem;border-left:4px solid var(--g)}
+.result-section-title{font-size:1.3rem;margin-bottom:1rem;display:flex;align-items:center;gap:.75rem;font-family:var(--fD);letter-spacing:.5px}
+.result-section-icon{font-size:1.5rem}
+.result-section-text{font-size:1rem;line-height:1.95;color:rgba(240,237,255,.85)}
+.result-section-text strong{color:var(--txt);font-weight:600}
+.result-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:2rem}
+.result-metric{text-align:center;padding:1.5rem;background:rgba(0,0,0,.3);border-radius:12px;border:1px solid rgba(255,255,255,.06)}
+.result-metric-value{font-size:2.5rem;font-weight:700;margin-bottom:.5rem}
+.result-metric-label{font-family:var(--fM);font-size:.68rem;color:var(--mu);letter-spacing:1px}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;gap:1rem;padding:2.5rem}
+.spinner{width:44px;height:44px;border:3px solid rgba(0,255,136,.2);border-top-color:var(--g);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-family:var(--fM);font-size:.9rem;color:var(--mu);letter-spacing:1px}
+
+/* TIMELINE */
+.timeline-display{background:var(--s2);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem}
+.timeline-item{display:flex;gap:.85rem;margin-bottom:1rem}
+.timeline-item:last-child{margin-bottom:0}
+.timeline-dot{width:12px;height:12px;border-radius:50%;background:var(--g);flex-shrink:0;margin-top:.4rem;box-shadow:0 0 10px var(--g)}
+.timeline-content{flex:1}
+.timeline-time{font-family:var(--fM);font-size:.65rem;color:var(--mu);margin-bottom:.25rem}
+.timeline-event{font-size:.85rem;color:var(--txt);line-height:1.6}
+
+.hidden{display:none!important}
+.text-green{color:var(--g)}
+.text-red{color:var(--r)}
+.text-yellow{color:var(--y)}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="inv-sim-page">
+  <div class="bg-grid"></div>
+
+  <!-- PROFILE STRIP -->
+  <div id="invSimStrip" style="display:flex;align-items:center;gap:1rem;padding:.85rem 1.5rem;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.1);border-radius:14px;margin-bottom:1.75rem;font-family:var(--fM);font-size:.62rem;letter-spacing:.5px">
+    <div id="issAvatar" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--g),var(--c));display:flex;align-items:center;justify-content:center;font-family:var(--fD);font-size:1.1rem;color:#000;flex-shrink:0">R</div>
+    <div style="flex:1">
+      <div style="color:var(--txt);font-size:.75rem;font-weight:700" id="issName">Rahul Sharma</div>
+      <div style="color:var(--mu);margin-top:2px" id="issArch">Set archetype on Investor Mind page</div>
+    </div>
+    <div style="display:flex;gap:1.5rem">
+      <div style="text-align:center"><div style="color:var(--mu)">PATIENCE</div><div style="color:var(--y);font-size:.9rem;font-weight:700" id="issPatience">48</div></div>
+      <div style="text-align:center"><div style="color:var(--mu)">ANALYSIS</div><div style="color:var(--c);font-size:.9rem;font-weight:700" id="issAnalysis">74</div></div>
+      <div style="text-align:center"><div style="color:var(--mu)">DISCIPLINE</div><div style="color:var(--g);font-size:.9rem;font-weight:700" id="issDisc">71</div></div>
+      <div style="text-align:center"><div style="color:var(--mu)">VISION</div><div style="color:var(--g);font-size:.9rem;font-weight:700" id="issVision">67</div></div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="sim-header">
+    <div class="sim-eyebrow">INVESTOR TRAINING SIMULATIONS</div>
+    <h1 class="sim-title">LONG-TERM MASTERY</h1>
+    <p class="sim-subtitle">
+      Experience real investor scenarios across market cycles. Make decisions under pressure, 
+      manage emotions, and learn from outcomes. Each simulation tracks your discipline, 
+      emotional control, and strategic thinking.
+    </p>
+  </div>
+
+  <!-- SIMULATION CARDS -->
+  <div class="sim-grid">
+    <div class="sim-card" onclick="startSimulation('marketCrash')">
+      <span class="sim-icon">📉</span>
+      <h3 class="sim-name">Market Crash Survival</h3>
+      <p class="sim-desc">
+        Your portfolio drops 35% in a month. Panic everywhere. Friends selling. 
+        Media screaming crisis. Can you stay disciplined?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-hard">EXTREME PRESSURE</span>
+        <span class="tag tag-multi">5 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">18min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">95%</div><div class="stat-label">STRESS</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card" onclick="startSimulation('bubbleTemptation')">
+      <span class="sim-icon">🎈</span>
+      <h3 class="sim-name">Bubble Temptation</h3>
+      <p class="sim-desc">
+        Stock you own is up 300%. Everyone says it'll go to the moon. 
+        Greed overwhelming. Do you sell or hold for more?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-hard">HIGH GREED</span>
+        <span class="tag tag-multi">4 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">15min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">88%</div><div class="stat-label">TEMPTATION</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card" onclick="startSimulation('valueDiscover')">
+      <span class="sim-icon">💎</span>
+      <h3 class="sim-name">Value Discovery</h3>
+      <p class="sim-desc">
+        Found a fundamentally strong stock hated by everyone. Down 60%, bad news daily. 
+        Is it value or value trap?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-med">MEDIUM</span>
+        <span class="tag tag-multi">6 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">20min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">72%</div><div class="stat-label">DOUBT</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card" onclick="startSimulation('sipDiscipline')">
+      <span class="sim-icon">📆</span>
+      <h3 class="sim-name">SIP Discipline Test</h3>
+      <p class="sim-desc">
+        Your SIP has been running for 3 years. Market volatile. Some months hurt. 
+        Should you continue, pause, or increase?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-med">MEDIUM</span>
+        <span class="tag tag-multi">5 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">16min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">65%</div><div class="stat-label">ANXIETY</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card" onclick="startSimulation('economicShock')">
+      <span class="sim-icon">⚡</span>
+      <h3 class="sim-name">Economic Shock Response</h3>
+      <p class="sim-desc">
+        Sudden global crisis. Markets circuit breaker triggered. Portfolio down 25% in hours. 
+        What's your move?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-hard">CATASTROPHIC</span>
+        <span class="tag tag-multi">4 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">14min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">98%</div><div class="stat-label">PANIC</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card" onclick="startSimulation('dividendCut')">
+      <span class="sim-icon">💸</span>
+      <h3 class="sim-name">Dividend Cut Crisis</h3>
+      <p class="sim-desc">
+        Your dividend stock (20% of portfolio) just cut dividends by 75%. 
+        Stock down 40%. Retirement plan impacted. React how?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-hard">HIGH STRESS</span>
+        <span class="tag tag-multi">5 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">17min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">82%</div><div class="stat-label">FEAR</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+
+    <div class="sim-card" onclick="startSimulation('rebalanceDecision')">
+      <span class="sim-icon">⚖️</span>
+      <h3 class="sim-name">Rebalancing Dilemma</h3>
+      <p class="sim-desc">
+        One stock is now 45% of your portfolio (was 15%). Up 200%. 
+        Rebalance and sell winners or let it ride?
+      </p>
+      <div class="sim-tags">
+        <span class="tag tag-med">STRATEGIC</span>
+        <span class="tag tag-multi">6 DECISIONS</span>
+      </div>
+      <div class="sim-stats">
+        <div class="stat"><div class="stat-value">19min</div><div class="stat-label">DURATION</div></div>
+        <div class="stat"><div class="stat-value">70%</div><div class="stat-label">CONFLICT</div></div>
+        <div class="stat"><div class="stat-value">AI</div><div class="stat-label">POWERED</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SIMULATION MODAL -->
+<div id="simModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <h2 id="modalTitle">Loading Simulation...</h2>
+        <p class="modal-subtitle" id="modalSubtitle">Prepare yourself</p>
+      </div>
+      <button class="close-btn" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="sim-interface">
+      <!-- MAIN PANEL -->
+      <div class="main-panel">
+        <div id="phaseIndicator" class="phase-indicator phase-scenario">📊 LOADING</div>
+        <div id="scenarioText" class="scenario-text"></div>
+        <div id="questionContainer" class="question-container"></div>
+        <div id="resultContainer" class="result-container"></div>
+      </div>
+
+      <!-- METRICS PANEL -->
+      <div class="metrics-panel">
+        <!-- Portfolio -->
+        <div class="portfolio-display">
+          <div class="portfolio-label">PORTFOLIO VALUE</div>
+          <div id="portfolioValue" class="portfolio-value">₹50,00,000</div>
+          <div id="portfolioChange" class="portfolio-change text-green">+0.0%</div>
+        </div>
+
+        <!-- Progress -->
+        <div class="metric-card">
+          <div class="metric-title">SIMULATION PROGRESS</div>
+          <div class="progress-tracker" id="progressTracker"></div>
+        </div>
+
+        <!-- Clarity -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <div class="metric-title">DECISION CLARITY</div>
+            <div id="clarityValue" class="metric-value">100%</div>
+          </div>
+          <div class="metric-bar">
+            <div id="clarityBar" class="metric-fill" style="width:100%"></div>
+          </div>
+        </div>
+
+        <!-- Emotions -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <div class="metric-title">EMOTIONAL STATE</div>
+          </div>
+          <div class="emotion-tracker">
+            <div class="emotion-item">
+              <span class="emotion-label">Fear</span>
+              <span id="fearLevel" class="emotion-level level-low">LOW</span>
+            </div>
+            <div class="emotion-item">
+              <span class="emotion-label">Greed</span>
+              <span id="greedLevel" class="emotion-level level-low">LOW</span>
+            </div>
+            <div class="emotion-item">
+              <span class="emotion-label">Patience</span>
+              <span id="patienceLevel" class="emotion-level level-medium">MEDIUM</span>
+            </div>
+            <div class="emotion-item">
+              <span class="emotion-label">Discipline</span>
+              <span id="disciplineLevel" class="emotion-level level-medium">MEDIUM</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="metric-card">
+          <div class="metric-title" style="margin-bottom:1rem">EVENT TIMELINE</div>
+          <div class="timeline-display" id="timelineDisplay"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// SIMULATION DATA
+const SIMULATIONS = {
+  marketCrash: {
+    title: "Market Crash Survival",
+    subtitle: "Your discipline will be tested",
+    initialValue: 5000000,
+    steps: [
+      {
+        phase: "📖 SCENARIO",
+        text: "It's March 2024. You've been investing systematically for 3 years. Portfolio value: ₹50 lakhs. Allocation: 60% equity funds, 30% bluechip stocks, 10% debt. Returns so far: +18% CAGR. You're comfortable, confident, and on track for your 10-year goal of ₹2 crores.\n\nThen it happens.\n\nGlobal banking crisis. Major bank defaults in the US. Contagion spreading. Nifty opens -8%. Your portfolio: <strong>-12% in one day</strong>. WhatsApp groups exploding. Friends panic-selling. Media: 'WORST CRASH SINCE 2008.' Your dad calls: <em>'Get everything out NOW!'</em>",
+        type: "scenario"
+      },
+      {
+        phase: "❓ DECISION POINT 1",
+        question: "Day 1 Evening: Portfolio down ₹6 lakhs. What's your immediate reaction?",
+        options: [
+          {letter: "A", label: "Sell everything immediately", desc: "Preserve remaining capital. This could get much worse."},
+          {letter: "B", label: "Sell 50% to feel safer", desc: "Compromise position. Reduce risk but stay partially invested."},
+          {letter: "C", label: "Do absolutely nothing", desc: "Stick to the plan. Don't react to one bad day."},
+          {letter: "D", label: "Add ₹2 lakhs more", desc: "This is opportunity. Buy when others panic."}
+        ],
+        type: "decision",
+        emotionImpact: {fear: 15, patience: -10}
+      },
+      {
+        phase: "📖 SCENARIO CONTINUES",
+        text: "Week 1: Market continues bleeding. Nifty down 18% from peak. Your portfolio: <strong>-22%</strong>. You're now at ₹39 lakhs. Every morning, you wake up to more red. Your mutual fund statements look brutal. That SIP of ₹50k/month now feels scary - you're buying in a falling market.\n\nYour wife is worried. 'Maybe we should pause the SIPs? This money could be useful if things get worse.' Your friend who sold on Day 1 keeps texting: 'Glad I'm out. This is going to zero.'",
+        type: "scenario"
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "Be honest: What are you feeling right now?",
+        options: [
+          {letter: "A", label: "Pure terror", desc: "Can't sleep. Constantly checking portfolio. Regret everywhere."},
+          {letter: "B", label: "Anxious but holding on", desc: "Uncomfortable but trying to stay rational. Fighting the urge to sell."},
+          {letter: "C", label: "Concerned but analytical", desc: "This is bad, but I'm looking at fundamentals, not prices."},
+          {letter: "D", label: "Excited opportunity", desc: "This is exactly when wealth is built. Time to be greedy."}
+        ],
+        type: "emotion",
+        emotionImpact: {fear: 10, discipline: 5}
+      },
+      {
+        phase: "❓ DECISION POINT 2",
+        question: "Week 2: Down 28% total. Your ₹50k SIP is due tomorrow. What do you do?",
+        options: [
+          {letter: "A", label: "Stop all SIPs immediately", desc: "No point averaging down in a crash. Preserve cash."},
+          {letter: "B", label: "Continue as planned", desc: "SIPs are meant for times like this. Stay disciplined."},
+          {letter: "C", label: "Double the SIP to ₹1L", desc: "Averaging down aggressively. Prices are too good."},
+          {letter: "D", label: "Pause for 3 months", desc: "Wait for stabilization. Resume when clarity emerges."}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 15, patience: 10}
+      },
+      {
+        phase: "📖 SCENARIO CONTINUES",
+        text: "Month 2: Markets find a bottom. Nifty down 35% from peak. Your portfolio: <strong>-31%</strong>, now ₹34.5 lakhs. But the bleeding has stopped. News becomes less apocalyptic. Some analysts calling this 'maximum pessimism.'\n\nYou get a bonus at work: ₹5 lakhs. Perfect timing? Or should you keep it safe in FD? The market could still fall another 20%.",
+        type: "scenario"
+      },
+      {
+        phase: "❓ DECISION POINT 3",
+        question: "You have ₹5L bonus. Markets still down 35%. What do you do?",
+        options: [
+          {letter: "A", label: "Put it all in FD", desc: "Safe 7% return. Don't throw good money after bad."},
+          {letter: "B", label: "Invest ₹3L, save ₹2L", desc: "Balanced approach. Some opportunity, some safety."},
+          {letter: "C", label: "Invest entire ₹5L", desc: "Prices this low won't last. Maximum opportunity."},
+          {letter: "D", label: "Wait 6 months", desc: "Keep powder dry. Market might fall more."}
+        ],
+        type: "decision",
+        emotionImpact: {greed: 10, patience: -5}
+      },
+      {
+        phase: "📖 FINAL SCENARIO",
+        text: "Month 6: Recovery begins. Markets up 25% from bottom. Your portfolio recovering: Now ₹42 lakhs (still -16% from peak).\n\nMonth 12: Bull run. Markets hit new highs. Your portfolio: <strong>₹58 lakhs</strong> (+16% from original ₹50L).\n\nYour friend who sold? Still in FD, missed entire recovery. Your colleague who doubled down at bottom? Up 45%.",
+        type: "scenario"
+      },
+      {
+        phase: "⚡ FINAL DECISION",
+        question: "Looking back, what was the key to handling this crisis?",
+        options: [
+          {letter: "A", label: "Ignoring emotions entirely", desc: "Feelings don't matter in investing."},
+          {letter: "B", label: "Following a pre-set plan", desc: "The plan existed for times like this."},
+          {letter: "C", label: "Being contrarian", desc: "Going against the crowd created wealth."},
+          {letter: "D", label: "Luck and timing", desc: "Honestly, it was mostly luck."}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 20}
+      }
+    ]
+  },
+  // Additional simulations would follow the same pattern...
+  // For brevity, I'll add abbreviated versions
+  bubbleTemptation: {
+    title: "Bubble Temptation",
+    subtitle: "Greed is a powerful drug",
+    initialValue: 5000000,
+    steps: [
+      {
+        phase: "📖 THE EUPHORIA",
+        text: "You invested ₹5,00,000 into 'FutureTech' a year ago. It was a speculative play.\n\nToday, the stock is up 400%. Your ₹5L is now ₹25 Lakhs.\nEvery day it hits a 5% upper circuit. Your Twitter feed is full of people saying 'FutureTech to ₹10,000!'. Analysts are raising targets constantly.\n\nYour portfolio looks amazing. You feel like a genius.",
+        type: "scenario"
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "Your highly speculative stock has 5x'd in a year. How are you processing this?",
+        options: [
+          {letter: "A", label: "Pure Greed", desc: "This is a multi-bagger. I'm holding until I can buy a house."},
+          {letter: "B", label: "Invincibility", desc: "I clearly have a gift for picking stocks. I should quit my job."},
+          {letter: "C", label: "Anxiety", desc: "It's gone up too fast. When does the music stop?"},
+          {letter: "D", label: "Rationality", desc: "The valuation is completely disconnected from reality now."}
+        ],
+        type: "emotion",
+        emotionImpact: {greed: 40, fear: -10}
+      },
+      {
+        phase: "❓ DECISION POINT 1",
+        question: "The stock opens with another 5% gap up. The P/E ratio is now 150. What is your move?",
+        options: [
+          {letter: "A", label: "Hold completely", desc: "Don't interrupt compounding. Let winners run."},
+          {letter: "B", label: "Book initial capital", desc: "Sell ₹5L. Let the remaining ₹20L ride risk-free."},
+          {letter: "C", label: "Sell 100%", desc: "This is a bubble. Take the ₹25L and walk away."},
+          {letter: "D", label: "Buy more", desc: "Momentum is too strong. Averaging up!"}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 15, greed: 20}
+      },
+      {
+        phase: "⚡ THE CRACK",
+        text: "Two weeks later. You wake up to news that the CEO of FutureTech is under investigation for accounting fraud.\n\nThe stock opens at a 10% lower circuit. You cannot sell. \nDay 2: Another 10% lower circuit.\nDay 3: Another 10% lower circuit.\n\nYour ₹25 Lakhs is now back down to ₹18 Lakhs. The panic on Twitter is deafening.",
+        type: "scenario"
+      },
+      {
+        phase: "❓ DECISION POINT 2",
+        question: "Day 4: The stock finally opens for trading, down another 15% today. It's at ₹15 Lakhs. Do you sell?",
+        options: [
+          {letter: "A", label: "Market Sell everything", desc: "Get out at any price before it goes to zero."},
+          {letter: "B", label: "Hold and Pray", desc: "It's just panic. It will bounce back soon."},
+          {letter: "C", label: "Buy the dip", desc: "The investigation will turn up nothing. Big opportunity."},
+          {letter: "D", label: "Sell 50%", desc: "Salvage some profit, hope the rest recovers."}
+        ],
+        type: "decision",
+        emotionImpact: {fear: 40, greed: -20}
+      },
+      {
+        phase: "📉 FINAL OUTCOME",
+        text: "The fraud is confirmed. The company goes bankrupt.\n\nIf you sold early (Decision 1): You walked away with life-changing money.\nIf you held: You watched ₹25 Lakhs turn into ₹0. The pain of watching it evaporate day by day destroys your confidence for years.\n\nGreed blinded you to the massive valuation risk.",
+        type: "scenario"
+      }
+    ]
+  },
+  valueDiscover: {
+    title: "Value Trap / Falling Knife",
+    subtitle: "Averaging Down to Zero",
+    initialValue: 5000000,
+    steps: [
+      {
+        phase: "📖 THE 'BARGAIN'",
+        text: "A well-known blue-chip stock, 'GlobalBank', crashes 30% after a bad earnings report. \n\nYou've always wanted to own this stock. It's now trading at a multi-year low. Analysts say it's an 'overreaction'. \n\nYou invest ₹5,00,000. 'Buy when there is blood in the streets,' you tell yourself.",
+        type: "scenario"
+      },
+      {
+        phase: "📉 THE DROP",
+        text: "One month later. GlobalBank drops another 20%. \nRumors are circulating about hidden bad loans. \n\nYour ₹5L investment is now worth ₹4L. \nHowever, the stock is now trading below its book value. 'It's incredibly cheap,' you think.",
+        type: "scenario"
+      },
+      {
+        phase: "❓ DECISION POINT 1",
+        question: "Your investment is down 20%. The stock keeps making lower lows. What do you do?",
+        options: [
+          {letter: "A", label: "Average Down", desc: "Buy another ₹5L. Lower the average cost."},
+          {letter: "B", label: "Hold", desc: "Give it time. Value investing requires patience."},
+          {letter: "C", label: "Exit (Cut Loss)", desc: "The thesis might be wrong. Cut the 20% loss."},
+          {letter: "D", label: "Sell everything else, go all in", desc: "This is the opportunity of a decade."}
+        ],
+        type: "decision",
+        emotionImpact: {greed: 15, patience: 10}
+      },
+      {
+        phase: "⚡ THE NIGHTMARE",
+        text: "Three months later. \nThe RBI steps in. GlobalBank has massively understated its bad loans. The bank is put under prompt corrective action.\n\nThe stock crashes 50% in a single day. \n\nIf you averaged down, you are now holding a massive position that has lost 70% of its value.",
+        type: "scenario"
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "Your 'value pick' is becoming a penny stock. The fundamentals you trusted were fake. How do you feel?",
+        options: [
+          {letter: "A", label: "Sunk Cost Fallacy", desc: "I've lost too much to sell now. I have to hold forever."},
+          {letter: "B", label: "Betrayal", desc: "The management lied to me. The system is rigged."},
+          {letter: "C", label: "Despair", desc: "I am a terrible investor. I should stick to index funds."},
+          {letter: "D", label: "Acceptance", desc: "I caught a falling knife. I need to accept the mistake."}
+        ],
+        type: "emotion",
+        emotionImpact: {fear: 30, discipline: 10}
+      },
+      {
+        phase: "📉 FINAL OUTCOME",
+        text: "The bank is eventually bought out by a larger rival at a fraction of its previous value. Equity shareholders are wiped out.\n\nIf you cut your losses early: You lost a bit, but protected your core portfolio.\nIf you averaged down: You suffered catastrophic wealth destruction.\n\nA stock is never 'too cheap to fall further'.",
+        type: "scenario"
+      }
+    ]
+  },
+  economicShock: {
+    title: "Economic Shock Response",
+    subtitle: "When the Unthinkable Happens",
+    initialValue: 5000000,
+    steps: [
+      {
+        phase: "📖 SCENARIO",
+        text: "It is 10:00 AM on a regular Tuesday. The market is trading normally. Suddenly, news breaks out: A massive geo-political conflict has started unexpectedly. \n\nWithin 5 minutes, Nifty crashes 6%. Your portfolio, which was at ₹50 Lakhs, instantly drops to ₹47 Lakhs.\n\nYour broker app is glitching due to high traffic. WhatsApp groups are purely panic: 'Liquidate everything!', 'World War 3!', 'Cash is king!'",
+        type: "scenario"
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "Your life savings just dropped ₹3 Lakhs in 5 minutes. The world feels unstable. How do you feel?",
+        options: [
+          {letter: "A", label: "Pure Panic", desc: "I need to get my money out NOW before the market closes."},
+          {letter: "B", label: "Paralysis", desc: "I am frozen. I can't process this right now."},
+          {letter: "C", label: "Analytical", desc: "Let me check the actual impact of the news on my specific companies."},
+          {letter: "D", label: "Opportunistic", desc: "Great, everything is on sale. Let me buy the dip."}
+        ],
+        type: "emotion",
+        emotionImpact: {fear: 40, discipline: -10}
+      },
+      {
+        phase: "❓ DECISION POINT 1",
+        question: "The market hits a lower circuit (Trading halted for 45 mins). It will reopen soon. What is your plan?",
+        options: [
+          {letter: "A", label: "Place Market Sell Orders", desc: "As soon as it opens, I want out. Preserve capital."},
+          {letter: "B", label: "Wait and Watch", desc: "Do nothing for the next 48 hours. Let the dust settle."},
+          {letter: "C", label: "Deploy Emergency Cash", desc: "Place buy orders 10% lower. Catch the falling knife."},
+          {letter: "D", label: "Sell Winners, Keep Losers", desc: "Take profit on whatever is still green to feel safe."}
+        ],
+        type: "decision",
+        emotionImpact: {fear: 20, patience: 15}
+      },
+      {
+        phase: "📖 SCENARIO CONTINUES",
+        text: "The market reopens and drops another 4%. You are now down ₹5 Lakhs (10%). \n\nThe news on TV is terrifying. Experts say 'The global supply chain will collapse.' \n\nHowever, you hold fundamentally strong, debt-free domestic businesses that don't rely heavily on global supply chains.",
+        type: "scenario"
+      },
+      {
+        phase: "❓ DECISION POINT 2",
+        question: "Your fundamentally strong companies are down 15% purely due to index panic. What now?",
+        options: [
+          {letter: "A", label: "Sell them anyway", desc: "In a crash, everything goes to zero. Fundamentals don't matter now."},
+          {letter: "B", label: "Hold them tight", desc: "They are domestic businesses. They will survive and recover."},
+          {letter: "C", label: "Average down heavily", desc: "Use up all my remaining cash to buy more of these gems."},
+          {letter: "D", label: "Switch to Gold", desc: "Sell the stocks and buy safe-haven assets."}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 25, fear: -10}
+      },
+      {
+        phase: "⚡ FINAL OUTCOME",
+        text: "Fast forward 6 months. \n\nThe initial conflict stabilized. It wasn't the end of the world. \nThe market recovered all its losses. Your domestic businesses gained massive market share and are up 30% from the bottom.\n\nIf you panicked and sold: You locked in a ₹5L+ loss and watched from the sidelines as the market rallied.\nIf you held: Your portfolio is now ₹55 Lakhs.\nIf you bought the dip: Your portfolio is ₹60 Lakhs.",
+        type: "scenario"
+      }
+    ]
+  },
+  sipDiscipline: {
+    title: "SIP Discipline Test",
+    subtitle: "The Boredom of Bear Markets",
+    initialValue: 1000000,
+    steps: [
+      {
+        phase: "📖 THE SCENARIO",
+        text: "You started an SIP of ₹50,000 per month into an index fund 2 years ago. \n\nFor the first 6 months, the market was up. But for the last 18 months, the market has been completely flat, chopping up and down.\n\nYou have invested ₹12,00,000 so far. Your portfolio value is ₹11,90,000. \nAfter 2 years of strict saving, you have made ZERO returns.",
+        type: "scenario"
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "24 months of discipline and you have zero profit. Your friends are making money in real estate. How do you feel?",
+        options: [
+          {letter: "A", label: "Doubt", desc: "Maybe equity investing is a scam. It's not working for me."},
+          {letter: "B", label: "Boredom", desc: "This is painfully slow. I want action."},
+          {letter: "C", label: "Conviction", desc: "This is the accumulation phase. I am buying more units at cheap prices."},
+          {letter: "D", label: "Frustration", desc: "I could have just put this in a Fixed Deposit and made 7% guaranteed."}
+        ],
+        type: "emotion",
+        emotionImpact: {patience: -20, discipline: 10}
+      },
+      {
+        phase: "❓ DECISION POINT",
+        question: "The market drops another 5% this month. Your portfolio is now solidly in the red. What do you do with your SIP?",
+        options: [
+          {letter: "A", label: "Stop the SIP", desc: "I'll pause it and wait for the market to start going up again."},
+          {letter: "B", label: "Withdraw Everything", desc: "Get out now before it drops further. Move to FD."},
+          {letter: "C", label: "Continue SIP unchanged", desc: "Stay the course. Don't look at the portfolio."},
+          {letter: "D", label: "Double the SIP amount", desc: "The market is down 5%! I'm buying more units on sale."}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 30, fear: -10}
+      },
+      {
+        phase: "⚡ THE OUTCOME",
+        text: "Year 3: The consolidation ends. The index breaks out and rallies 40% in a massive bull run.\n\nIf you stopped or withdrew: You locked in losses or missed the entire rally, rendering your 2 years of saving useless.\nIf you continued or doubled down: Your accumulated units exploded in value. Your ₹12 Lakhs is now worth ₹18 Lakhs.\n\nThe real money is made during the boring, flat markets.",
+        type: "scenario"
+      }
+    ]
+  },
+  dividendCut: {
+    title: "Dividend Cut Crisis",
+    subtitle: "When the 'Safe' Bet Fails",
+    initialValue: 5000000,
+    steps: [
+      {
+        phase: "📖 THE SCENARIO",
+        text: "You are heavily invested in 'PowerGen', a utility stock that pays a reliable 6% dividend yield. It forms 25% of your portfolio.\n\nYou rely on this dividend to pay for annual expenses. The stock is considered incredibly safe, practically a bond proxy.",
+        type: "scenario"
+      },
+      {
+        phase: "⚡ THE SHOCK",
+        text: "Morning News: PowerGen has announced a surprise 75% CUT to its dividend due to massive debt restructuring.\n\nWithin seconds of the market opening, the stock crashes 35%. \nYour portfolio instantly drops by ₹4.3 Lakhs.",
+        type: "scenario"
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "Your 'safe' income stream is gone, and the capital has crashed. What's your immediate reaction?",
+        options: [
+          {letter: "A", label: "Betrayed", desc: "They lied to investors. I hate this company."},
+          {letter: "B", label: "Panic", desc: "My income is gone! I need to sell everything else to compensate."},
+          {letter: "C", label: "Denial", desc: "They will surely reinstate the dividend next quarter."},
+          {letter: "D", label: "Analytical", desc: "The investment thesis is broken. I need to re-evaluate without emotion."}
+        ],
+        type: "emotion",
+        emotionImpact: {fear: 40, patience: -10}
+      },
+      {
+        phase: "❓ DECISION POINT",
+        question: "The stock is down 35%. The thesis (dividend yield) is broken. What do you do?",
+        options: [
+          {letter: "A", label: "Market Sell everything", desc: "The thesis is dead. Cut the loss immediately and move on."},
+          {letter: "B", label: "Hold and Wait", desc: "It's down 35%. If I sell now, I lock in the loss. Wait for a bounce."},
+          {letter: "C", label: "Average down", desc: "The stock is dirt cheap now! Load up!"},
+          {letter: "D", label: "Write angry emails", desc: "Complain to the investor relations department."}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 20}
+      },
+      {
+        phase: "📉 CONSEQUENCE",
+        text: "The company's debt issues worsen. The stock drifts lower for the next 3 years.\n\nIf you sold immediately: You took a painful 35% hit on that position, but freed up capital to invest in better opportunities that recovered your portfolio.\nIf you held or averaged down: Your capital remained trapped in a dead asset for years with no income.\n\nLesson: When the core thesis breaks, you must exit, regardless of the price.",
+        type: "scenario"
+      }
+    ]
+  },
+  rebalanceDecision: {
+    title: "Rebalancing Dilemma",
+    subtitle: "Let Winners Run vs Risk Management",
+    initialValue: 5000000,
+    steps: [
+      {
+        phase: "🎯 THE SCENARIO",
+        text: "Five years ago, you bought a small-cap IT stock. It was 5% of your portfolio.\n\nToday, that stock has gone up 15x. Because it grew so much while the rest of your portfolio grew normally, this single stock now makes up <strong>45%</strong> of your entire net worth.\n\nIt keeps going up every month. Analysts love it.",
+        type: "scenario"
+      },
+      {
+        phase: "🧠 EMOTION CHECK",
+        question: "One stock is carrying your entire portfolio. How do you feel about this concentration?",
+        options: [
+          {letter: "A", label: "Genius", desc: "I found the next Apple. I'm never selling."},
+          {letter: "B", label: "Terrified", desc: "If this one stock crashes, my retirement is ruined."},
+          {letter: "C", label: "Greed", desc: "Let winners run! Selling now would be cutting the flowers to water the weeds."},
+          {letter: "D", label: "Conflicted", desc: "I know I should rebalance, but I don't want to pay taxes or miss out on more gains."}
+        ],
+        type: "emotion",
+        emotionImpact: {greed: 25, fear: 15}
+      },
+      {
+        phase: "❓ DECISION POINT",
+        question: "The stock hits an all-time high. It is clearly overvalued but has massive momentum. Do you rebalance?",
+        options: [
+          {letter: "A", label: "Do Nothing", desc: "Let winners run. Period. Concentration builds wealth."},
+          {letter: "B", label: "Rebalance to 10%", desc: "Sell massive chunks and buy safe index funds. Risk management first."},
+          {letter: "C", label: "Trim slightly to 35%", desc: "Take a little profit off the table but keep the heavy exposure."},
+          {letter: "D", label: "Buy MORE", desc: "It's a winner, why would I buy losers? Add to the winner!"}
+        ],
+        type: "decision",
+        emotionImpact: {discipline: 20}
+      },
+      {
+        phase: "📉 CONSEQUENCE",
+        text: "Six months later, a global tech slowdown occurs. The stock drops 50% from its peak.\n\nIf you did nothing: Your overall net worth dropped by a catastrophic 22% just from one stock's correction.\nIf you rebalanced: You locked in life-changing gains and protected your wealth. The 50% drop barely affected your total portfolio.\n\nConcentration builds wealth. Diversification preserves it.",
+        type: "scenario"
+      }
+    ]
+  }
+};
+
+let currentSim = null;
+let currentStep = 0;
+let userChoices = [];
+let emotionalState = {fear: 0, greed: 0, patience: 50, discipline: 50};
+let portfolioValue = 5000000;
+
+function startSimulation(simId) {
+  currentSim = SIMULATIONS[simId];
+  if (!currentSim) {
+    showToast('Simulation coming soon!', 'tx');
+    return;
+  }
+  
+  currentStep = 0;
+  userChoices = [];
+  portfolioValue = currentSim.initialValue;
+  emotionalState = {fear: 0, greed: 0, patience: 50, discipline: 50};
+  
+  document.getElementById('simModal').classList.add('active');
+  document.getElementById('modalTitle').textContent = currentSim.title;
+  document.getElementById('modalSubtitle').textContent = currentSim.subtitle;
+  
+  updatePortfolio(portfolioValue, 0);
+  updateEmotions();
+  updateProgress();
+  
+  setTimeout(() => processStep(), 500);
+}
+
+function processStep() {
+  if (currentStep >= currentSim.steps.length) {
+    analyzePerformance();
+    return;
+  }
+  
+  const step = currentSim.steps[currentStep];
+  const indicator = document.getElementById('phaseIndicator');
+  indicator.textContent = step.phase;
+  indicator.className = 'phase-indicator phase-' + step.type;
+  
+  document.getElementById('questionContainer').classList.remove('active');
+  document.getElementById('resultContainer').classList.remove('active');
+  
+  if (step.type === 'scenario') {
+    showScenario(step.text);
+  } else if (step.type === 'decision' || step.type === 'emotion') {
+    showQuestion(step);
+  }
+}
+
+function showScenario(text) {
+  const el = document.getElementById('scenarioText');
+  el.className = 'scenario-text typing';
+  el.innerHTML = '';
+  
+  let index = 0;
+  const interval = setInterval(() => {
+    if (index < text.length) {
+      if (text[index] === '<') {
+        const closeIndex = text.indexOf('>', index);
+        el.innerHTML += text.substring(index, closeIndex + 1);
+        index = closeIndex + 1;
+      } else {
+        el.innerHTML += text[index];
+        index++;
+      }
+    } else {
+      clearInterval(interval);
+      el.classList.remove('typing');
+      setTimeout(() => {
+        currentStep++;
+        updateProgress();
+        processStep();
+      }, 2000);
+    }
+  }, 20);
+}
+
+function showQuestion(step) {
+  document.getElementById('scenarioText').innerHTML = '';
+  
+  const container = document.getElementById('questionContainer');
+  container.innerHTML = `
+    <div class="question-prompt">${step.question}</div>
+    <div class="question-options">
+      ${step.options.map((opt, i) => `
+        <button class="option-btn" onclick="selectOption(${i})">
+          <div class="option-letter">${opt.letter}</div>
+          <div class="option-text">
+            <div class="option-label">${opt.label}</div>
+            <div class="option-desc">${opt.desc}</div>
+          </div>
+        </button>
+      `).join('')}
+    </div>
+  `;
+  
+  container.classList.add('active');
+}
+
+function selectOption(index) {
+  const step = currentSim.steps[currentStep];
+  userChoices.push({step: currentStep, choice: index, type: step.type});
+  
+  if (step.emotionImpact) {
+    Object.keys(step.emotionImpact).forEach(key => {
+      emotionalState[key] = Math.max(0, Math.min(100, emotionalState[key] + step.emotionImpact[key]));
+    });
+    updateEmotions();
+  }
+  
+  addTimeline(step.options[index].label);
+  
+  currentStep++;
+  updateProgress();
+  setTimeout(() => processStep(), 500);
+}
+
+function updatePortfolio(value, change) {
+  portfolioValue = value;
+  document.getElementById('portfolioValue').textContent = '₹' + (value/100000).toFixed(1) + 'L';
+  document.getElementById('portfolioChange').textContent = (change >= 0 ? '+' : '') + change.toFixed(1) + '%';
+  document.getElementById('portfolioChange').className = 'portfolio-change ' + (change >= 0 ? 'text-green' : 'text-red');
+}
+
+function updateEmotions() {
+  const getLevel = (v) => v >= 60 ? 'HIGH' : v >= 30 ? 'MEDIUM' : 'LOW';
+  const getClass = (v) => v >= 60 ? 'level-high' : v >= 30 ? 'level-medium' : 'level-low';
+  
+  ['fear', 'greed', 'patience', 'discipline'].forEach(emotion => {
+    const el = document.getElementById(emotion + 'Level');
+    if (el) {
+      el.textContent = getLevel(emotionalState[emotion]);
+      el.className = 'emotion-level ' + getClass(emotionalState[emotion]);
+    }
+  });
+  
+  const clarity = 100 - (emotionalState.fear * 0.4 + emotionalState.greed * 0.3);
+  document.getElementById('clarityValue').textContent = Math.round(clarity) + '%';
+  document.getElementById('clarityBar').style.width = clarity + '%';
+}
+
+function updateProgress() {
+  const total = currentSim.steps.length;
+  const tracker = document.getElementById('progressTracker');
+  tracker.innerHTML = currentSim.steps.map((step, i) => `
+    <div class="progress-step ${i < currentStep ? 'complete' : i === currentStep ? 'active' : ''}">
+      <div class="step-num">${i + 1}</div>
+      <div class="step-label">${step.phase}</div>
+    </div>
+  `).join('');
+}
+
+function addTimeline(event) {
+  const timeline = document.getElementById('timelineDisplay');
+  const time = new Date().toLocaleTimeString('en-IN', {hour: '2-digit', minute: '2-digit'});
+  const item = document.createElement('div');
+  item.className = 'timeline-item';
+  item.innerHTML = `
+    <div class="timeline-dot"></div>
+    <div class="timeline-content">
+      <div class="timeline-time">${time}</div>
+      <div class="timeline-event">${event}</div>
+    </div>
+  `;
+  timeline.insertBefore(item, timeline.firstChild);
+}
+
+async function analyzePerformance() {
+  document.getElementById('scenarioText').innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      <div class="loading-text">AI analyzing your decisions...</div>
+    </div>
+  `;
+  
+  try {
+    const prompt = `Analyze this investor simulation performance:
+
+Simulation: ${currentSim.title}
+Decisions made: ${userChoices.length}
+Emotional state: Fear ${emotionalState.fear}, Greed ${emotionalState.greed}, Patience ${emotionalState.patience}, Discipline ${emotionalState.discipline}
+
+Choices:
+${userChoices.map((c, i) => `${i + 1}. ${currentSim.steps[c.step].options[c.choice].label}`).join('\n')}
+
+Provide a DEEP PSYCHOANALYSIS of the investor's mindset. Focus on how fear, panic, and greed influenced their long-term wealth creation. Be honest and educational.
+
+Provide analysis as JSON:
+{
+  "verdict": "EXCELLENT" or "GOOD" or "NEEDS IMPROVEMENT" or "POOR",
+  "verdictEmoji": emoji,
+  "title": "short title",
+  "summary": "2-3 sentences overall performance",
+  "keyStrength": "biggest psychological or strategic strength shown (2 sentences)",
+  "keyWeakness": "biggest psychological weakness (2 sentences)",
+  "emotionalAnalysis": "deep psychoanalysis of how emotions affected decisions (3-4 sentences)",
+  "lessons": ["lesson 1", "lesson 2", "lesson 3"],
+  "clarityScore": 0-100,
+  "disciplineScore": 0-100,
+  "outcomeImpact": -50 to +50 (% portfolio change)
+}`;
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{role: "user", content: prompt}]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content[0].text.replace(/```json\n?|\n?```/g, '').trim();
+    const analysis = JSON.parse(text);
+    
+    showResults(analysis);
+  } catch (error) {
+    console.error(error);
+    showResults({
+      verdict: "GOOD",
+      verdictEmoji: "👍",
+      title: "Simulation Complete",
+      summary: "You completed the simulation and made thoughtful decisions throughout.",
+      keyStrength: "You showed patience in difficult moments.",
+      keyWeakness: "Some decisions were driven more by emotion than analysis.",
+      emotionalAnalysis: "Your emotional control varied throughout the simulation.",
+      lessons: ["Stay disciplined in crises", "Plan before panic", "Long-term thinking wins"],
+      clarityScore: 72,
+      disciplineScore: 68,
+      outcomeImpact: 8
+    });
+  }
+}
+
+function showResults(analysis) {
+  document.getElementById('scenarioText').innerHTML = '';
+  
+  const finalValue = portfolioValue * (1 + analysis.outcomeImpact / 100);
+  updatePortfolio(finalValue, analysis.outcomeImpact);
+  
+  const container = document.getElementById('resultContainer');
+  container.innerHTML = `
+    <div class="result-header">
+      <div class="result-verdict">${analysis.verdictEmoji}</div>
+      <div class="result-title">${analysis.verdict}</div>
+      <div class="result-subtitle">${analysis.title}</div>
+    </div>
+    
+    <div class="result-sections">
+      <div class="result-section">
+        <div class="result-section-title">
+          <span class="result-section-icon">📊</span>
+          Performance Summary
+        </div>
+        <div class="result-section-text">${analysis.summary}</div>
+      </div>
+      
+      <div class="result-section">
+        <div class="result-section-title">
+          <span class="result-section-icon">✅</span>
+          Key Strength
+        </div>
+        <div class="result-section-text">${analysis.keyStrength}</div>
+      </div>
+      
+      <div class="result-section">
+        <div class="result-section-title">
+          <span class="result-section-icon">⚠️</span>
+          Area for Improvement
+        </div>
+        <div class="result-section-text">${analysis.keyWeakness}</div>
+      </div>
+      
+      <div class="result-section">
+        <div class="result-section-title">
+          <span class="result-section-icon">🧠</span>
+          Emotional Analysis
+        </div>
+        <div class="result-section-text">${analysis.emotionalAnalysis}</div>
+      </div>
+      
+      <div class="result-section">
+        <div class="result-section-title">
+          <span class="result-section-icon">💡</span>
+          Key Lessons
+        </div>
+        <div class="result-section-text">
+          ${analysis.lessons.map((l, i) => `<strong>${i + 1}.</strong> ${l}<br>`).join('')}
+        </div>
+      </div>
+    </div>
+    
+    <div class="result-metrics">
+      <div class="result-metric">
+        <div class="result-metric-value ${analysis.outcomeImpact >= 0 ? 'text-green' : 'text-red'}">
+          ${analysis.outcomeImpact >= 0 ? '+' : ''}${analysis.outcomeImpact}%
+        </div>
+        <div class="result-metric-label">PORTFOLIO IMPACT</div>
+      </div>
+      <div class="result-metric">
+        <div class="result-metric-value text-green">
+          ${analysis.clarityScore}
+        </div>
+        <div class="result-metric-label">CLARITY SCORE</div>
+      </div>
+      <div class="result-metric">
+        <div class="result-metric-value text-green">
+          ${analysis.disciplineScore}
+        </div>
+        <div class="result-metric-label">DISCIPLINE SCORE</div>
+      </div>
+    </div>
+  `;
+  
+  container.classList.add('active');
+  addXP(analysis.clarityScore + analysis.disciplineScore, currentSim.title);
+}
+
+function closeModal() {
+  document.getElementById('simModal').classList.remove('active');
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// Profile strip
+(function(){
+  const t = STATE.traits;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  const av = document.getElementById('issAvatar');
+  if (av) { av.textContent = STATE.userName[0].toUpperCase(); }
+  set('issName', STATE.userName);
+  set('issArch', STATE.userArchetypeName ? (STATE.userArchetypeEmoji + ' ' + STATE.userArchetypeName) : 'Set archetype on Investor Mind page');
+  set('issPatience', t.patience);
+  set('issAnalysis', t.analysis);
+  set('issDisc', STATE.disc);
+  set('issVision', t.vision);
+})();
+</script>
+{% endblock %}

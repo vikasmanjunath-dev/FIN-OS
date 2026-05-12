@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wealth vs Income Gap • FIN-OS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+  <link rel="stylesheet" href="../../css/components.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+
+          .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary); /* Uses your theme variable */
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            transition: color 0.2s ease;  
+          }
+
+        /* 1. DEFINE THE COLORS FOR LIGHT AND DARK MODES */
+                :root {
+                    --text-primary: #1e293b;   /* Dark Blue-Grey for Light Mode */
+                    --text-secondary: #64748b; /* Muted Grey */
+                    --bg-main: #f1f5f9;
+                    --bg-surface: #ffffff;
+                    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                }
+
+                [data-theme="dark"] {
+                    --text-primary: #f8fafc;   /* White/Light Grey for Dark Mode */
+                    --text-secondary: #94a3b8; /* Light Muted Grey */
+                    --bg-main: #0f172a;        /* Dark Navy Background */
+                    --bg-surface: #1e293b;     /* Slightly Lighter Navy for Cards */
+                    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+                }
+
+                /* 2. APPLY THE TEXT COLOR GLOBALLY */
+                body {
+                    color: var(--text-primary);
+                    background: var(--bg-main);
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                }
+
+                /* 3. ENSURE HEADINGS INHERIT COLOR */
+                h1, h2, h3, strong, b {
+                    color: var(--text-primary);
+                }
+
+                /* 4. UPDATE INPUT TEXT VISIBILITY */
+                input[type="number"] {
+                    color: var(--text-primary);
+                    background: rgba(255, 255, 255, 0.05); /* Semi-transparent bg works on both */
+                }
+
+    .page {
+      flex: 1;
+      padding: 0 48px 24px 48px;
+      background: var(--bg-main);
+      overflow-y: auto;
+    }
+
+    .page-header {
+      padding-top: 32px;
+      margin-bottom: 40px;
+    }
+
+    .page-header h1 {
+      font-size: 42px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+
+    .page-header p {
+      color: var(--text-secondary);
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .impact-card {
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      padding: 48px;
+      border-radius: 32px;
+      background: var(--bg-surface);
+      box-shadow: var(--card-shadow);
+    }
+
+    .impact-left h2 {
+      font-size: 28px;
+      margin: 12px 0 6px 0;
+    }
+
+    .impact-sub {
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+    }
+
+    .impact-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .input-group label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      appearance: none;
+      height: 6px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #3b82f6;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    input[type="number"] {
+      width: 140px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: rgba(59,130,246,0.1);
+    }
+
+    .impact-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .chart-container {
+      width: 100%;
+      max-width: 360px;
+      aspect-ratio: 1;
+    }
+
+    .result-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .person-comparison {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .person-box {
+      padding: 20px;
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    .person-a {
+      background: rgba(245,158,11,0.12);
+    }
+
+    .person-b {
+      background: rgba(34,197,94,0.12);
+    }
+
+    .person-box span {
+      display: block;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .person-box strong {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .winner-box {
+      padding: 24px;
+      border-radius: 16px;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(16,185,129,0.15));
+    }
+
+    .winner-box strong {
+      font-size: 28px;
+      font-weight: 700;
+      color: #22c55e;
+    }
+
+    @media (max-width: 900px) {
+      .impact-card {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body class="app">
+
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="../../html/home.html">Home</a>
+      <a href="../../html/dashboard.html">Dashboard</a>
+      <a href="../../html/impact.html">Impact</a>
+      <a href="../../html/calculators.html" class="active">Calculators</a>
+      <a href="../../../Porfolio Analyser/portfolio-analyser-v9.html">Portfolio</a>
+      <a href="../../html/markets.html">Markets</a>
+      <a href="../../html/tax.html">Tax</a>
+      <a href="../../html/news.html">News</a>
+    </nav>
+  </aside>
+
+  <main class="page">
+
+    <button id="themeToggle" class="theme-btn" style="position: fixed; top: 32px; right: 32px; z-index: 100;">🌙</button>
+
+    <header class="page-header">
+    <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
+      <h1>Wealth vs Income Gap</h1>
+      <p>High salary ≠ Rich. Low expenses = Freedom.</p>
+    </header>
+
+    <section class="impact-card">
+
+      <div class="impact-left">
+        <span style="font-size: 32px;">💼</span>
+        <h2>The Real Wealth Formula</h2>
+        <p class="impact-sub">Compare high earner vs smart saver over 20 years.</p>
+
+        <div class="impact-inputs">
+
+          <div style="font-weight: 600; margin-bottom: -12px; color: var(--text-primary);">Person A: High Earner</div>
+          
+          <div class="input-group">
+            <label>Monthly Income (₹)</label>
+            <div class="input-row">
+              <input type="range" min="50000" max="500000" step="10000" value="150000" id="incomeA">
+              <input type="number" min="50000" max="500000" step="10000" value="150000" id="incomeANum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Savings Rate (%)</label>
+            <div class="input-row">
+              <input type="range" min="0" max="50" step="5" value="10" id="savingsA">
+              <input type="number" min="0" max="50" step="5" value="10" id="savingsANum">
+            </div>
+          </div>
+
+          <div style="font-weight: 600; margin-top: 12px; margin-bottom: -12px; color: var(--text-primary);">Person B: Smart Saver</div>
+
+          <div class="input-group">
+            <label>Monthly Income (₹)</label>
+            <div class="input-row">
+              <input type="range" min="30000" max="300000" step="5000" value="60000" id="incomeB">
+              <input type="number" min="30000" max="300000" step="5000" value="60000" id="incomeBNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Savings Rate (%)</label>
+            <div class="input-row">
+              <input type="range" min="0" max="70" step="5" value="40" id="savingsB">
+              <input type="number" min="0" max="70" step="5" value="40" id="savingsBNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Investment Return (%)</label>
+            <div class="input-row">
+              <input type="range" min="6" max="18" step="0.5" value="12" id="returns">
+              <input type="number" min="6" max="18" step="0.5" value="12" id="returnsNum">
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="impact-right">
+        <div class="chart-container">
+          <canvas id="gapChart"></canvas>
+        </div>
+
+        <div class="result-grid">
+          <div class="person-comparison">
+            <div class="person-box person-a">
+              <span>Person A Wealth</span>
+              <strong id="wealthA">₹0</strong>
+            </div>
+            <div class="person-box person-b">
+              <span>Person B Wealth</span>
+              <strong id="wealthB">₹0</strong>
+            </div>
+          </div>
+
+          <div class="winner-box">
+            <span style="font-size: 14px; color: var(--text-secondary); display: block; margin-bottom: 8px;">After 20 Years</span>
+            <strong id="winner">Person B wins!</strong>
+            <div style="margin-top: 8px; font-size: 14px; color: var(--text-secondary);" id="difference">Difference: ₹0</div>
+          </div>
+
+          <div style="padding: 16px; background: rgba(59,130,246,0.08); border-radius: 12px; font-size: 13px; color: var(--text-secondary); border-left: 4px solid #3b82f6;">
+            <strong>Truth:</strong> Wealth = What you keep × Time. Not what you earn.
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+<script>
+// Theme Toggle
+const root = document.documentElement;
+const toggle = document.getElementById("themeToggle");
+const savedTheme = localStorage.getItem("finos-theme");
+if (savedTheme) root.setAttribute("data-theme", savedTheme);
+toggle.textContent = root.getAttribute("data-theme") === "dark" ? "🌙" : "☀️";
+toggle.onclick = () => {
+  const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("finos-theme", next);
+  toggle.textContent = next === "dark" ? "🌙" : "☀️";
+};
+
+// Elements
+const incomeA = document.getElementById("incomeA");
+const incomeANum = document.getElementById("incomeANum");
+const savingsA = document.getElementById("savingsA");
+const savingsANum = document.getElementById("savingsANum");
+const incomeB = document.getElementById("incomeB");
+const incomeBNum = document.getElementById("incomeBNum");
+const savingsB = document.getElementById("savingsB");
+const savingsBNum = document.getElementById("savingsBNum");
+const returns = document.getElementById("returns");
+const returnsNum = document.getElementById("returnsNum");
+
+// Sync
+incomeA.oninput = () => incomeANum.value = incomeA.value;
+incomeANum.oninput = () => incomeA.value = incomeANum.value;
+savingsA.oninput = () => savingsANum.value = savingsA.value;
+savingsANum.oninput = () => savingsA.value = savingsANum.value;
+incomeB.oninput = () => incomeBNum.value = incomeB.value;
+incomeBNum.oninput = () => incomeB.value = incomeBNum.value;
+savingsB.oninput = () => savingsBNum.value = savingsB.value;
+savingsBNum.oninput = () => savingsB.value = savingsBNum.value;
+returns.oninput = () => returnsNum.value = returns.value;
+returnsNum.oninput = () => returns.value = returnsNum.value;
+
+// Chart
+const ctx = document.getElementById("gapChart");
+const chart = new Chart(ctx, {
+  type: "bar",
+  data: {
+    labels: ["Person A", "Person B"],
+    datasets: [{
+      label: "Wealth After 20 Years",
+      data: [0, 0],
+      backgroundColor: ["#f59e0b", "#22c55e"],
+      borderRadius: 12
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { color: '#9CA0AB' },
+        grid: { color: 'rgba(255,255,255,0.05)' }
+      },
+      x: {
+        ticks: { color: '#9CA0AB' },
+        grid: { display: false }
+      }
+    }
+  }
+});
+
+// Calculate
+function calculate() {
+  const incA = +incomeANum.value;
+  const saveA = +savingsANum.value / 100;
+  const incB = +incomeBNum.value;
+  const saveB = +savingsBNum.value / 100;
+  const rate = +returnsNum.value / 100 / 12;
+  const years = 20;
+  const months = years * 12;
+
+  // Monthly savings
+  const monthlyA = incA * saveA;
+  const monthlyB = incB * saveB;
+
+  // SIP formula
+  const wealthA = Math.round(monthlyA * (((Math.pow(1 + rate, months) - 1) / rate) * (1 + rate)));
+  const wealthB = Math.round(monthlyB * (((Math.pow(1 + rate, months) - 1) / rate) * (1 + rate)));
+
+  document.getElementById("wealthA").textContent = `₹${(wealthA/10000000).toFixed(2)}Cr`;
+  document.getElementById("wealthB").textContent = `₹${(wealthB/10000000).toFixed(2)}Cr`;
+
+  const difference = Math.abs(wealthA - wealthB);
+  const winner = document.getElementById("winner");
+  
+  if (wealthB > wealthA) {
+    winner.textContent = "Person B wins!";
+    winner.style.color = "#22c55e";
+  } else {
+    winner.textContent = "Person A wins!";
+    winner.style.color = "#f59e0b";
+  }
+  
+  document.getElementById("difference").textContent = `Difference: ₹${(difference/10000000).toFixed(2)}Cr`;
+
+  chart.data.datasets[0].data = [wealthA, wealthB];
+  chart.update();
+}
+
+[incomeA, incomeANum, savingsA, savingsANum, incomeB, incomeBNum, savingsB, savingsBNum, returns, returnsNum].forEach(el => el.addEventListener("input", calculate));
+calculate();
+</script>
+
+</body>
+</html>

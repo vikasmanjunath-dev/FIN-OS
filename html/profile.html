@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Profile Activation</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/profile.css">
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html" class="active"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper profile-container">
+
+      <header class="header-flex">
+        <div class="glitch-container">
+          <h1 class="glitch-text" data-text="User Activation">User Activation</h1>
+          <p class="subtitle">Sync your biological intent with the financial engine.</p>
+        </div>
+        <button id="themeToggle" class="theme-btn">🌙</button>
+      </header>
+
+      <section class="activation-card glass neon-border-blue">
+        <div class="section-tag">Phase 01: Identity</div>
+        <div class="grid-2">
+          <div class="input-group">
+            <label>The Human Tag (Name)</label>
+            <input type="text" id="profName" placeholder="Loading..." class="cyber-input">
+          </div>
+          <div class="input-group">
+            <label>Neural Address (Email)</label>
+            <input type="email" id="profEmail" placeholder="Loading..." class="cyber-input" readonly style="opacity:0.6; cursor:not-allowed;">
+          </div>
+          <div class="input-group">
+            <label>Comm-Link (Phone)</label>
+            <input type="tel" id="profPhone" placeholder="+91 XXXXX XXXXX" class="cyber-input">
+          </div>
+      </section>
+
+      <section class="activation-card glass neon-border-lime">
+        <div class="section-tag">Phase 02: Mindset Radar</div>
+        <div class="grid-2-alt">
+          <div class="viz-box" style="position: relative; height:200px; width:100%;">
+             <canvas id="mindsetChart"></canvas>
+          </div>
+          <div class="q-content">
+            <h3>How do you view Money?</h3>
+            <p class="desi-context">Is it Security or Freedom?</p>
+            
+            <div class="radio-stack">
+              <label class="glow-radio">
+                <input type="radio" name="mindset" value="freedom">
+                <span class="radio-label">"Money gives me Freedom" 🕊️</span>
+              </label>
+              <label class="glow-radio">
+                <input type="radio" name="mindset" value="security">
+                <span class="radio-label">"Money is a Safety Shield" 🛡️</span>
+              </label>
+              <label class="glow-radio">
+                <input type="radio" name="mindset" value="stress">
+                <span class="radio-label">"Money causes me anxiety" ⚠️</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+     <section class="activation-card glass">
+        <div class="section-tag">Phase 03: Engine Specs</div>
+        <div class="grid-3">
+          <div class="stat-select">
+            <label>Current Life Stage</label>
+            <select class="cyber-select" id="profStage">
+              <option value="Rookie">The Rookie (0-5 Yrs Exp)</option>
+              <option value="Grinder">The Grinder (5-15 Yrs Exp)</option>
+              <option value="Captain">The Captain (15+ Yrs Exp)</option>
+              <option value="Student">Student / Skill Building</option>
+            </select>
+          </div>
+          <div class="stat-select">
+            <label>Monthly Fuel (Income Range)</label>
+            <select class="cyber-select" id="profIncome">
+              <option value="0-25k">₹0 - ₹25k</option>
+              <option value="25k-1L">₹25k - ₹1L</option>
+              <option value="1L-2.5L">₹1L - ₹2.5L</option>
+              <option value="2.5L+">₹2.5L+</option>
+            </select>
+            <p class="micro-text">Ranges only. No judgement, just math.</p>
+          </div>
+          <div class="stat-select">
+             <label>Financial IQ</label>
+             <div class="iq-meter">
+                <div class="iq-fill" style="width: 40%;"></div>
+             </div>
+             <p class="micro-text">Novice -> Master</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="activation-card glass neon-border-purple">
+        <div class="section-tag">Phase 04: Cognitive Interests</div>
+        <p>Select your curiosity nodes:</p>
+        <div class="chip-container">
+          <div class="chip" data-val="stocks">Stock Markets</div>
+          <div class="chip" data-val="real_estate">Real Estate</div>
+          <div class="chip" data-val="crypto">Crypto / Web3</div>
+          <div class="chip" data-val="tax">Tax Hacking</div>
+          <div class="chip" data-val="startups">Startup Investing</div>
+          <div class="chip" data-val="growth">Personal Growth</div>
+          <div class="chip" data-val="desi">The "Desi" Hustle</div>
+        </div>
+      </section>
+
+      <section class="activation-card terminal-style">
+        <div class="terminal-header">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="t-title">CURIOSITY_QUERY_v1.0</span>
+        </div>
+        <div class="terminal-body">
+            <br>
+          <label>What is your brain most curious about right now?</label>
+          <textarea id="profQuery" placeholder="e.g. How do I quit my job in 5 years? or Why is inflation eating my savings?" class="t-input"></textarea>
+        </div>
+      </section>
+
+      <footer class="activation-footer">
+        <button id="saveProfileBtn" class="mega-btn">
+          BUILD MY FINANCIAL DNA 
+          <span style="font-size: 1.4rem;">➔</span>
+        </button>
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/ui.js"></script>
+<script src="../js/profile.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+</body>
+</html>

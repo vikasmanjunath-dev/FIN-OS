@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Neural Intel Stream</title>
+  
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Manrope:wght@300;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root[data-theme="dark"] {
+      --bg-void: #030508;
+      --grid-color: rgba(0, 243, 255, 0.04);
+      --accent-cyan: #00F3FF;
+      --accent-lime: #C7F000;
+      --accent-purple: #B026FF;
+      --accent-red: #ff4757;
+      --glass-bg: rgba(10, 14, 23, 0.6);
+      --glass-border: rgba(0, 243, 255, 0.15);
+      --text-main: #FFFFFF;
+      --text-muted: #888888;
+    }
+
+    :root[data-theme="light"] {
+      --bg-void: #F2F4F8;
+      --grid-color: rgba(0, 138, 144, 0.06);
+      --accent-cyan: #008A90;
+      --accent-lime: #8FA800;
+      --accent-purple: #8E44AD;
+      --accent-red: #d63031;
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(0, 0, 0, 0.1);
+      --text-main: #0B0D12;
+      --text-muted: #555555;
+    }
+
+    .main { background-color: var(--bg-void) !important; position: relative; }
+
+    /* Background Grid */
+    .cyber-grid {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0;
+      background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 50px 50px;
+      transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+      animation: grid-move 20s linear infinite; pointer-events: none;
+    }
+    @keyframes grid-move { 100% { transform: perspective(500px) rotateX(60deg) translateY(100px) translateZ(-200px); } }
+
+    /* Header */
+    .terminal-header {
+      position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-end;
+      border-bottom: 1px solid var(--glass-border); padding: 40px 0 30px 0; margin-bottom: 0;
+    }
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 8px; background: rgba(0, 243, 255, 0.05); border: 1px solid var(--accent-cyan);
+      padding: 6px 12px; border-radius: 50px; font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--accent-cyan); margin-bottom: 15px;
+    }
+    .status-pill .dot { width: 8px; height: 8px; background: var(--accent-cyan); border-radius: 50%; box-shadow: 0 0 10px var(--accent-cyan); animation: pulse 1s infinite alternate; }
+    @keyframes pulse { to { opacity: 0.3; transform: scale(0.8); } }
+    .subtitle { color: var(--text-muted); font-family: 'JetBrains Mono'; font-size: 0.9rem; margin-top: 5px; }
+
+    .radar-container { position: absolute; right: 40px; top: 10px; width: 150px; height: 150px; opacity: 0.6; pointer-events: none; }
+
+    /* Ticker Tape */
+    .ticker-wrap {
+      position: relative; z-index: 1; width: 100%; background: rgba(0, 243, 255, 0.03);
+      border-bottom: 1px solid var(--glass-border); overflow: hidden; padding: 10px 0; margin-bottom: 40px;
+    }
+    .ticker { display: inline-block; white-space: nowrap; font-family: 'JetBrains Mono'; font-size: 0.8rem; color: var(--text-muted); animation: ticker-scroll 30s linear infinite; }
+    .ticker-item { margin-right: 40px; }
+    .ticker-item span { color: var(--text-main); font-weight: 700; }
+    .ticker-item.up span { color: var(--accent-lime); }
+    .ticker-item.down span { color: var(--accent-red); }
+    @keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+    /* Data Stream */
+    .data-stream { position: relative; z-index: 1; column-count: 2; column-gap: 30px; padding-bottom: 150px; min-height: 50vh; }
+    @media (max-width: 1100px) { .data-stream { column-count: 1; } }
+
+    .data-shard {
+      break-inside: avoid; background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border); border-radius: 20px; padding: 24px; margin-bottom: 30px; cursor: pointer;
+      text-decoration: none; color: var(--text-main); display: block; transform-style: preserve-3d; transition: all 0.4s ease;
+      position: relative; opacity: 0; transform: translateY(50px) scale(0.95);
+    }
+    .data-shard.visible { animation: decode-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+    @keyframes decode-in { to { opacity: 1; transform: translateY(0) scale(1); } }
+    
+    .data-shard::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; transition: 0.3s; }
+    .data-shard.crypto::before { background: var(--accent-purple); box-shadow: 0 0 15px var(--accent-purple); }
+    .data-shard.stocks::before { background: var(--accent-cyan); box-shadow: 0 0 15px var(--accent-cyan); }
+    .data-shard.macro::before { background: var(--accent-lime); box-shadow: 0 0 15px var(--accent-lime); }
+    
+    .data-shard:hover { border-color: rgba(255, 255, 255, 0.3); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); }
+    [data-theme="light"] .data-shard:hover { border-color: rgba(0,0,0,0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+
+    .shard-meta { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 16px; transform: translateZ(20px); }
+    
+    .tag-container { display: flex; gap: 8px; align-items: center;}
+    .shard-tag { padding: 4px 10px; border-radius: 4px; background: rgba(128,128,128,0.1); border: 1px solid var(--glass-border); letter-spacing: 1px; }
+    .crypto .shard-tag { color: var(--accent-purple); border-color: rgba(176, 38, 255, 0.3); }
+    .stocks .shard-tag { color: var(--accent-cyan); border-color: rgba(0, 243, 255, 0.3); }
+    .macro .shard-tag { color: var(--accent-lime); border-color: rgba(199, 240, 0, 0.3); }
+    
+    .impact-badge { background: rgba(255, 71, 87, 0.1); color: var(--accent-red); border: 1px solid rgba(255, 71, 87, 0.4); padding: 4px 8px; border-radius: 4px; font-weight: 800; display: none; }
+    .data-shard.is-impact .impact-badge { display: inline-block; animation: blink 2s infinite; }
+
+    .data-shard h3 { font-size: 1.25rem; line-height: 1.5; font-weight: 700; margin: 0 0 20px 0; transform: translateZ(30px); font-family: 'Manrope', sans-serif; }
+    .shard-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--glass-border); padding-top: 16px; transform: translateZ(10px); }
+    .shard-source { font-weight: 800; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
+    .read-arrow { font-family: 'JetBrains Mono'; font-weight: 800; color: var(--text-main); transition: transform 0.3s; }
+    .data-shard:hover .read-arrow { transform: translateX(8px); }
+
+    /* ADVANCED FILTER DOCK */
+    .smart-dock-wrapper {
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+      background: rgba(10, 14, 23, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px;
+      padding: 10px 15px; display: flex; flex-direction: column; gap: 10px; z-index: 100;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      width: max-content;
+    }
+    [data-theme="light"] .smart-dock-wrapper { background: rgba(255, 255, 255, 0.95); border-color: rgba(0,0,0,0.1); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1); }
+
+    .dock-row { display: flex; gap: 10px; align-items: center; justify-content: center; }
+    
+    .dock-btn {
+      background: transparent; border: none; color: var(--text-muted);
+      font-family: 'JetBrains Mono'; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 1px; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s;
+    }
+    .dock-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
+    .dock-btn.active.cat-btn { background: var(--text-main); color: var(--bg-void); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+    [data-theme="light"] .dock-btn.active.cat-btn { background: #0B0D12; color: #fff; }
+
+    /* Impact Toggle */
+    .impact-btn { border: 1px solid transparent; }
+    .impact-btn.active { background: rgba(255, 71, 87, 0.15); border-color: var(--accent-red); color: var(--accent-red); box-shadow: 0 0 15px rgba(255, 71, 87, 0.2); }
+
+    /* Time Select Dropdown */
+    .time-select {
+      background: rgba(255,255,255,0.05); color: var(--text-main);
+      border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 8px;
+      font-family: 'JetBrains Mono'; font-size: 0.75rem; cursor: pointer; outline: none;
+    }
+    [data-theme="light"] .time-select { background: rgba(0,0,0,0.05); color: #000; }
+    .time-select:focus { border-color: var(--accent-cyan); }
+    
+    .divider { width: 1px; height: 20px; background: var(--glass-border); margin: 0 5px; }
+
+    .loader-matrix { text-align: center; padding: 100px 20px; position: absolute; width: 100%; top: 0; left: 0; z-index: 2; }
+    .loader-text { font-family: 'JetBrains Mono'; font-size: 1.2rem; color: var(--accent-cyan); letter-spacing: 3px; animation: blink 1.5s infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html" class="active">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="cyber-grid"></div>
+
+    <div class="content-wrapper" style="position: relative; z-index: 1;">
+
+      <header class="terminal-header">
+        <div>
+          <div class="status-pill" id="statusPill">
+            <div class="dot" id="statusDot"></div> <span id="serverStatus">ESTABLISHING UPLINK...</span>
+          </div>
+          <h1 class="glitch-text" data-text="GLOBAL INTEL MATRIX">GLOBAL INTEL MATRIX</h1>
+          <p class="subtitle">Multi-variable live data shards decrypted from local Python node.</p>
+        </div>
+        <button id="themeToggle" class="theme-btn" style="position:relative; z-index:5;">🌙</button>
+        <canvas id="radarCanvas" class="radar-container"></canvas>
+      </header>
+
+      <div class="ticker-wrap">
+        <div class="ticker">
+          <div style="display:inline-block;">
+            <span class="ticker-item up">NIFTY 50 <span>▲ +0.8%</span></span>
+            <span class="ticker-item down">BANKNIFTY <span>▼ -0.2%</span></span>
+            <span class="ticker-item up">BTC/USD <span>▲ +2.5%</span></span>
+            <span class="ticker-item down">ETH/USD <span>▼ -1.1%</span></span>
+            <span class="ticker-item up">S&P 500 <span>▲ +1.1%</span></span>
+            <span class="ticker-item up">GOLD / OZ <span>▲ +0.4%</span></span>
+          </div>
+          <div style="display:inline-block;">
+            <span class="ticker-item up">NIFTY 50 <span>▲ +0.8%</span></span>
+            <span class="ticker-item down">BANKNIFTY <span>▼ -0.2%</span></span>
+            <span class="ticker-item up">BTC/USD <span>▲ +2.5%</span></span>
+            <span class="ticker-item down">ETH/USD <span>▼ -1.1%</span></span>
+            <span class="ticker-item up">S&P 500 <span>▲ +1.1%</span></span>
+            <span class="ticker-item up">GOLD / OZ <span>▲ +0.4%</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div style="position: relative;">
+        <div class="loader-matrix" id="loader">
+          <div class="loader-text">DECRYPTING INCOMING PACKETS...</div>
+        </div>
+        <div class="data-stream" id="streamContainer"></div>
+      </div>
+
+    </div>
+
+    <div class="smart-dock-wrapper">
+      <div class="dock-row">
+        <button class="dock-btn cat-btn active" data-cat="all">ALL SHARDS</button>
+        <button class="dock-btn cat-btn" data-cat="crypto">CRYPTO</button>
+        <button class="dock-btn cat-btn" data-cat="stocks">EQUITY</button>
+        <button class="dock-btn cat-btn" data-cat="macro">MACRO</button>
+      </div>
+      
+      <div class="dock-row" style="background: rgba(0,0,0,0.2); padding: 5px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+        <button class="dock-btn impact-btn" id="impactToggle">🔥 HIGH IMPACT</button>
+        <div class="divider"></div>
+        <select class="time-select" id="timeFilter">
+          <option value="all">🕒 ANY TIME</option>
+          <option value="4">🕒 LAST 4 HOURS</option>
+          <option value="12">🕒 LAST 12 HOURS</option>
+          <option value="24">🕒 LAST 24 HOURS</option>
+        </select>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // --- 1. THEME & RADAR LOGIC ---
+  const themeToggleBtn = document.getElementById('themeToggle');
+  const htmlElement = document.documentElement;
+  const savedTheme = localStorage.getItem('finos-theme') || localStorage.getItem('finos-theme') || localStorage.getItem('theme');
+  if (savedTheme) {
+    htmlElement.setAttribute('data-theme', savedTheme);
+    themeToggleBtn.innerText = savedTheme === 'dark' ? '🌙' : '☀️';
+  }
+  themeToggleBtn.addEventListener('click', () => {
+    const currentTheme = htmlElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    htmlElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('finos-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    themeToggleBtn.innerText = newTheme === 'dark' ? '🌙' : '☀️';
+  });
+
+  const canvas = document.getElementById('radarCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 150; canvas.height = 150;
+  let angle = 0;
+  function drawRadar() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const cx = canvas.width / 2, cy = canvas.height / 2, r = cx - 2;
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    ctx.strokeStyle = `rgba(${isDark ? '0, 243, 255' : '0, 138, 144'}, 0.3)`;
+    ctx.lineWidth = 1;
+    [0.3, 0.6, 1].forEach(scale => { ctx.beginPath(); ctx.arc(cx, cy, r * scale, 0, Math.PI * 2); ctx.stroke(); });
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy); ctx.stroke();
+    ctx.save(); ctx.translate(cx, cy); ctx.rotate(angle);
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, r, 0, Math.PI / 3); ctx.lineTo(0, 0);
+    const grad = ctx.createRadialGradient(0,0,0, 0,0,r);
+    grad.addColorStop(0, `rgba(${isDark ? '0, 243, 255' : '0, 138, 144'}, 0.6)`);
+    grad.addColorStop(1, "transparent");
+    ctx.fillStyle = grad; ctx.fill(); ctx.restore();
+    angle += 0.04; requestAnimationFrame(drawRadar);
+  }
+  drawRadar();
+
+  // --- 2. MULTI-VARIABLE FILTER ENGINE ---
+  let activeCat = 'all';
+  let activeImpact = false;
+  let activeTime = 'all'; // hours
+
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      activeCat = e.target.getAttribute('data-cat');
+      applyFilters();
+    });
+  });
+
+  document.getElementById('impactToggle').addEventListener('click', (e) => {
+    e.target.classList.toggle('active');
+    activeImpact = e.target.classList.contains('active');
+    applyFilters();
+  });
+
+  document.getElementById('timeFilter').addEventListener('change', (e) => {
+    activeTime = e.target.value;
+    applyFilters();
+  });
+
+  function applyFilters() {
+    const shards = document.querySelectorAll('.data-shard');
+    const currentTimeSecs = Date.now() / 1000;
+
+    shards.forEach(shard => {
+      let show = true;
+
+      // 1. Category Filter
+      if (activeCat !== 'all' && !shard.classList.contains(activeCat)) show = false;
+
+      // 2. Impact Filter
+      if (activeImpact && shard.getAttribute('data-impact') !== 'true') show = false;
+
+      // 3. Time Filter
+      if (activeTime !== 'all') {
+        const shardTime = parseFloat(shard.getAttribute('data-time'));
+        const hoursAgo = (currentTimeSecs - shardTime) / 3600;
+        if (hoursAgo > parseInt(activeTime)) show = false;
+      }
+
+      if (show) {
+        shard.style.display = 'block';
+        shard.classList.remove('visible');
+        setTimeout(() => shard.classList.add('visible'), 10);
+      } else {
+        shard.style.display = 'none';
+      }
+    });
+  }
+
+// --- 3. FETCH FROM LOCAL PYTHON BACKEND (WITH KILL-SWITCH) ---
+  document.addEventListener('DOMContentLoaded', () => {
+    initFetch();
+  });
+
+  async function initFetch() {
+    // HYPER-SPEED CUTOFF: 3 Seconds.
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000); 
+
+    try {
+      // Connects to your Flask server, but will abort if it takes > 3s
+      const response = await fetch('http://localhost:5000/api/intel', {
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeout); // Clear the kill-switch if we succeed in time
+      const data = await response.json();
+
+      if (data.status === "online" && data.items.length > 0) {
+        renderShards(data.items);
+        updateStatus(`LIVE UPLINK SECURE`, "#00F3FF");
+      } else {
+        throw new Error("Empty Feed from Python");
+      }
+    } catch (err) {
+      clearTimeout(timeout);
+      console.warn("Python API Timeout or Offline. Deploying Ghost Protocol...", err);
+      deployGhostProtocol();
+      updateStatus("LIVE FEED OFFLINE. USING GHOST DATA.", "#ff4757");
+    } finally {
+      document.getElementById('loader').style.display = 'none';
+      init3D();
+    }
+  }
+
+  function timeAgo(timestamp) {
+    const seconds = Math.floor((Date.now() / 1000) - timestamp);
+    const hrs = Math.floor(seconds / 3600);
+    if (hrs > 24) return Math.floor(hrs/24) + "d ago";
+    if (hrs > 0) return hrs + "h ago";
+    const mins = Math.floor(seconds / 60);
+    if (mins > 0) return mins + "m ago";
+    return "Just now";
+  }
+
+// --- 4. RENDERER (STRICT LINK FIX) ---
+  function renderShards(items) {
+    const container = document.getElementById('streamContainer');
+    container.innerHTML = '';
+    
+    items.forEach((item, index) => {
+      // 1. The ENTIRE card is the master link
+      const shard = document.createElement('a');
+      shard.href = item.link;         // The strict URL
+      shard.target = "_blank";        // Opens in a new tab
+      shard.rel = "noopener noreferrer"; // Security best practice
+      shard.style.textDecoration = "none";
+      shard.style.display = "block";  // Ensures the link covers the whole block
+      
+      const isHighImpact = item.high_impact === true;
+      shard.className = `data-shard ${item.type} ${isHighImpact ? 'is-impact' : ''}`;
+      shard.setAttribute('data-impact', isHighImpact);
+      shard.setAttribute('data-time', item.timestamp);
+      
+      const timeStr = item.timestamp ? timeAgo(item.timestamp) : "Recently";
+
+      // 2. NO OTHER LINKS (<a href>) INSIDE THIS INNER HTML!
+      shard.innerHTML = `
+        <div class="shard-meta">
+          <div class="tag-container">
+             <span class="shard-tag">${item.type.toUpperCase()}</span>
+             <span class="impact-badge">🔥 HIGH IMPACT</span>
+          </div>
+          <span>${timeStr}</span>
+        </div>
+        <h3>${item.title}</h3>
+        <div class="shard-footer">
+          <span class="shard-source">${item.source}</span>
+          <span class="read-arrow">DECRYPT ➔</span> </div>
+      `;
+      container.appendChild(shard);
+      
+      setTimeout(() => shard.classList.add('visible'), index * 60);
+
+      // 3D Tilt Effect
+      shard.addEventListener('mousemove', (e) => {
+        const rect = shard.getBoundingClientRect();
+        const x = e.clientX - rect.left, y = e.clientY - rect.top;
+        const rotateX = ((y - rect.height/2) / rect.height) * -12;
+        const rotateY = ((x - rect.width/2) / rect.width) * 12;
+        shard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+      });
+      shard.addEventListener('mouseleave', () => { 
+        shard.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`; 
+      });
+    });
+  }
+
+  // --- 7. GHOST PROTOCOL (FIXED REAL URLS) ---
+  function deployGhostProtocol() {
+    const now = Date.now() / 1000;
+    
+    // FIX: Added real, working URLs to all the fallback data
+    const mock = [
+      { title: "Nifty hits record high amid strong global cues and FII inflows", type: "stocks", source: "Mint", link: "https://www.livemint.com/market", timestamp: now - 3600, high_impact: true },
+      { title: "RBI maintains repo rate, signals strict focus on inflation control", type: "macro", source: "MoneyControl", link: "https://www.moneycontrol.com/news/business/markets/", timestamp: now - 7200, high_impact: true },
+      { title: "Bitcoin surges past key resistance level ahead of structural halving", type: "crypto", source: "Reuters", link: "https://www.reuters.com/technology/crypto/", timestamp: now - 18000, high_impact: false },
+      { title: "Tech stocks lead rally as US inflation data cools significantly", type: "stocks", source: "Bloomberg", link: "https://www.bloomberg.com/markets", timestamp: now - 50000, high_impact: false },
+      { title: "Ethereum gas fees drop to yearly lows amid network upgrades", type: "crypto", source: "CryptoNews", link: "https://cryptonews.com/", timestamp: now - 90000, high_impact: false },
+      { title: "Global supply chains brace for new oceanic shipping delays", type: "macro", source: "WSJ", link: "https://www.wsj.com/finance", timestamp: now - 100000, high_impact: false },
+      { title: "New IPOs line up in Indian markets for the next growth quarter", type: "stocks", source: "Economic Times", link: "https://economictimes.indiatimes.com/markets/ipo", timestamp: now - 120000, high_impact: false },
+      { title: "Gold prices stabilize as government bond yields fluctuate", type: "macro", source: "Financial Times", link: "https://www.ft.com/markets", timestamp: now - 150000, high_impact: false }
+    ];
+    renderShards(mock);
+  }
+</script>
+
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+</body>
+</html>

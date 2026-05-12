@@ -1,0 +1,1138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+    <title>Investor Mindset Guide | FIN-OS</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Tailwind CSS (CDN for rapid styling, can be replaced with Django Tailwind build) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        finosBg: '#050505',
+                        finosCard: 'rgba(20, 20, 25, 0.7)',
+                        neonBlue: 'var(--neon-blue)',
+                        neonPurple: 'var(--neon-purple)',
+                        neonTeal: 'var(--neon-teal)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../css/investor-mindset.css">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+
+<body class="bg-finosBg text-white antialiased font-sans flex overflow-hidden">
+
+    <!-- Fixed Sidebar -->
+    <aside
+        class="w-20 md:w-64 h-screen fixed top-0 left-0 border-r border-[#222] bg-[#050505] z-50 flex flex-col items-center md:items-start pt-8 pb-4 transition-all duration-300">
+        <div class="px-6 mb-12 hidden md:block">
+            <h1
+                class="text-2xl font-display font-bold bg-clip-text text-transparent bg-gradient-to-r from-neonBlue to-neonTeal">
+                FIN-OS</h1>
+            <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">Mindset Engine</p>
+        </div>
+        <div class="mb-12 md:hidden">
+            <h1 class="text-xl font-display font-bold text-neonTeal">FO</h1>
+        </div>
+
+        <nav class="flex-1 w-full px-2 md:px-4 space-y-2">
+            <a href="#hero"
+                class="nav-item flex items-center p-3 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white group">
+                <i class="fa-solid fa-bolt text-lg md:mr-3 group-hover:text-neonTeal md:w-5 text-center"></i>
+                <span class="hidden md:inline font-medium font-display text-sm">Initialization</span>
+            </a>
+            <a href="#mindset"
+                class="nav-item flex items-center p-3 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white group">
+                <i class="fa-solid fa-brain text-lg md:mr-3 group-hover:text-neonPurple md:w-5 text-center"></i>
+                <span class="hidden md:inline font-medium font-display text-sm">Investor Mindset</span>
+            </a>
+            <a href="#decision"
+                class="nav-item flex items-center p-3 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white group">
+                <i class="fa-solid fa-network-wired text-lg md:mr-3 group-hover:text-neonBlue md:w-5 text-center"></i>
+                <span class="hidden md:inline font-medium font-display text-sm">Decision Engine</span>
+            </a>
+            <a href="#risk"
+                class="nav-item flex items-center p-3 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white group">
+                <i class="fa-solid fa-shield-halved text-lg md:mr-3 group-hover:text-red-400 md:w-5 text-center"></i>
+                <span class="hidden md:inline font-medium font-display text-sm">Risk Protection</span>
+            </a>
+            <a href="#opportunity"
+                class="nav-item flex items-center p-3 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white group">
+                <i class="fa-solid fa-crosshairs text-lg md:mr-3 group-hover:text-green-400 md:w-5 text-center"></i>
+                <span class="hidden md:inline font-medium font-display text-sm">Opportunity Radar</span>
+            </a>
+        </nav>
+
+        <div class="mt-auto px-4 w-full">
+            <div
+                class="user-profile flex items-center p-2 bg-gradient-to-r from-[#1a1a24] to-[#0f0f13] rounded-xl border border-white/10">
+                <div
+                    class="w-10 h-10 rounded-full bg-neonPurple flex items-center justify-center font-bold text-white shadow-[0_0_15px_rgba(138,43,226,0.5)]">
+                    U
+                </div>
+                <div class="hidden md:block ml-3">
+                    <p class="text-xs font-semibold">User Level</p>
+                    <p class="text-xs text-neonTeal">Beginner</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main
+        class="ml-20 md:ml-64 w-[calc(100%-5rem)] md:w-[calc(100%-16rem)] h-screen overflow-y-auto scroll-container scroll-smooth">
+
+        <!-- 1. HERO / INITIALIZATION SECTION -->
+        <section id="hero"
+            class="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden shrink-0 py-20 px-4">
+            <!-- ThreeJS Canvas Background -->
+            <canvas id="heroCanvas" class="absolute inset-0 w-full h-full z-0 opacity-60"></canvas>
+
+            <div class="relative z-10 w-full max-w-5xl flex flex-col items-center gap-16">
+                <!-- Boot Headline -->
+                <div class="text-center">
+                    <div
+                        class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-neonTeal/30 bg-neonTeal/5 backdrop-blur-md mb-6 animate-pulse-slow">
+                        <span class="w-2 h-2 rounded-full bg-neonTeal animate-ping inline-block"></span>
+                        <span class="text-xs font-semibold tracking-wider uppercase text-neonTeal">SYSTEM INITIALIZING —
+                            FIN-OS v2.0</span>
+                    </div>
+                    <h1 class="text-5xl md:text-7xl font-display font-bold leading-tight mb-4">
+                        Think Like The <br />
+                        <span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-neonBlue via-neonPurple to-neonTeal shine-effect">Smartest
+                            Money</span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-light">
+                        This is not learning. This is <span class="text-white font-medium">transformation</span>. Enter
+                        the neural pathways of history's greatest market operators.
+                    </p>
+                </div>
+
+                <!-- Investor DNA Generator -->
+                <div class="w-full grid lg:grid-cols-3 gap-6">
+                    <!-- Column 1: Identity Questions -->
+                    <div class="lg:col-span-1 bg-finosCard border border-white/10 rounded-2xl p-6 backdrop-blur-lg">
+                        <h3
+                            class="text-sm uppercase tracking-widest text-gray-500 font-bold mb-5 flex items-center gap-2">
+                            <i class="fa-solid fa-bolt text-neonTeal"></i> IDENTITY INIT
+                        </h3>
+                        <div class="space-y-5">
+                            <div>
+                                <label class="text-xs text-gray-400 uppercase tracking-wider block mb-2">Time
+                                    Horizon</label>
+                                <div class="grid grid-cols-3 gap-2" id="horizonBtns">
+                                    <button onclick="setDNA('horizon','short')"
+                                        class="dna-btn text-[10px] py-2 border border-white/10 rounded-lg text-gray-400 hover:border-neonTeal hover:text-neonTeal transition-all"
+                                        data-key="horizon" data-val="short">SHORT<br><span
+                                            class="text-gray-600">&lt;1yr</span></button>
+                                    <button onclick="setDNA('horizon','mid')"
+                                        class="dna-btn text-[10px] py-2 border border-white/10 rounded-lg text-gray-400 hover:border-neonTeal hover:text-neonTeal transition-all"
+                                        data-key="horizon" data-val="mid">MID<br><span
+                                            class="text-gray-600">1-5yr</span></button>
+                                    <button onclick="setDNA('horizon','long')"
+                                        class="dna-btn text-[10px] py-2 border border-neonTeal/40 rounded-lg text-neonTeal bg-neonTeal/5"
+                                        data-key="horizon" data-val="long">LONG<br><span
+                                            class="text-neonTeal/60">5yr+</span></button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 uppercase tracking-wider block mb-2">Risk
+                                    Tolerance</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button onclick="setDNA('risk','low')"
+                                        class="dna-btn text-[10px] py-2 border border-white/10 rounded-lg text-gray-400 hover:border-green-500 hover:text-green-400 transition-all"
+                                        data-key="risk" data-val="low">LOW<br><span
+                                            class="text-gray-600">Defensive</span></button>
+                                    <button onclick="setDNA('risk','med')"
+                                        class="dna-btn text-[10px] py-2 border border-yellow-500/40 rounded-lg text-yellow-400 bg-yellow-500/5"
+                                        data-key="risk" data-val="med">MED<br><span
+                                            class="text-yellow-600">Balanced</span></button>
+                                    <button onclick="setDNA('risk','high')"
+                                        class="dna-btn text-[10px] py-2 border border-white/10 rounded-lg text-gray-400 hover:border-red-500 hover:text-red-400 transition-all"
+                                        data-key="risk" data-val="high">HIGH<br><span
+                                            class="text-gray-600">Aggressive</span></button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 uppercase tracking-wider block mb-2">Investor
+                                    Goal</label>
+                                <div class="grid grid-cols-1 gap-2">
+                                    <button onclick="setDNA('goal','wealth')"
+                                        class="dna-btn text-[10px] py-2 border border-neonBlue/40 rounded-lg text-neonBlue bg-neonBlue/5 text-left px-3"
+                                        data-key="goal" data-val="wealth">🏗 Build Long-Term Wealth</button>
+                                    <button onclick="setDNA('goal','trade')"
+                                        class="dna-btn text-[10px] py-2 border border-white/10 rounded-lg text-gray-400 hover:border-neonBlue transition-all text-left px-3"
+                                        data-key="goal" data-val="trade">⚡ Active Trading Income</button>
+                                    <button onclick="setDNA('goal','hybrid')"
+                                        class="dna-btn text-[10px] py-2 border border-white/10 rounded-lg text-gray-400 hover:border-neonBlue transition-all text-left px-3"
+                                        data-key="goal" data-val="hybrid">🔀 Hybrid Strategy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: DNA Result Output -->
+                    <div
+                        class="lg:col-span-1 bg-finosCard border border-white/10 rounded-2xl p-6 backdrop-blur-lg flex flex-col items-center justify-center text-center relative overflow-hidden">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-neonPurple/10 to-transparent pointer-events-none">
+                        </div>
+                        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-3">Investor DNA</p>
+                        <div id="dnaOutput"
+                            class="text-3xl md:text-4xl font-display font-black mb-3 bg-clip-text text-transparent bg-gradient-to-r from-neonBlue to-neonPurple">
+                            HYBRID</div>
+                        <div id="dnaSubtitle" class="text-xs text-gray-400 mb-6">Buffett Core + Livermore Timing</div>
+                        <div
+                            class="w-24 h-24 rounded-full border-2 border-dashed border-neonPurple/40 flex items-center justify-center animate-spin-slow mb-4">
+                            <i id="dnaIcon" class="fa-solid fa-dna text-3xl text-neonPurple"></i>
+                        </div>
+                        <div id="dnaRules" class="space-y-2 w-full text-left mt-2">
+                            <div class="text-[10px] bg-white/5 border border-white/10 rounded px-3 py-2 text-gray-300">✅
+                                Compounding first, trading second</div>
+                            <div class="text-[10px] bg-white/5 border border-white/10 rounded px-3 py-2 text-gray-300">✅
+                                Max 20% capital in active trades</div>
+                            <div class="text-[10px] bg-white/5 border border-white/10 rounded px-3 py-2 text-gray-300">⛔
+                                No leveraged overnight positions</div>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: 5-Layer OS Map -->
+                    <div class="lg:col-span-1 bg-finosCard border border-white/10 rounded-2xl p-6 backdrop-blur-lg">
+                        <h3
+                            class="text-sm uppercase tracking-widest text-gray-500 font-bold mb-5 flex items-center gap-2">
+                            <i class="fa-solid fa-sitemap text-neonBlue"></i> COGNITIVE OS
+                        </h3>
+                        <div class="space-y-3">
+                            <a href="#hero"
+                                class="flex items-center gap-3 p-3 rounded-xl bg-neonTeal/10 border border-neonTeal/30 group cursor-pointer">
+                                <span class="text-neonTeal font-mono text-xs font-bold">01</span>
+                                <div>
+                                    <p class="text-xs font-bold text-neonTeal">INITIALIZATION</p>
+                                    <p class="text-[10px] text-gray-500">Who are you as an investor?</p>
+                                </div>
+                            </a>
+                            <a href="#mindset"
+                                class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 border border-white/5 group cursor-pointer transition-all">
+                                <span class="text-gray-500 font-mono text-xs font-bold">02</span>
+                                <div>
+                                    <p class="text-xs font-bold text-gray-300">INVESTOR MINDSET</p>
+                                    <p class="text-[10px] text-gray-500">How do you think?</p>
+                                </div>
+                            </a>
+                            <a href="#decision"
+                                class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 border border-white/5 group cursor-pointer transition-all">
+                                <span class="text-gray-500 font-mono text-xs font-bold">03</span>
+                                <div>
+                                    <p class="text-xs font-bold text-gray-300">DECISION ENGINE</p>
+                                    <p class="text-[10px] text-gray-500">What do you do?</p>
+                                </div>
+                            </a>
+                            <a href="#risk"
+                                class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 border border-white/5 group cursor-pointer transition-all">
+                                <span class="text-gray-500 font-mono text-xs font-bold">04</span>
+                                <div>
+                                    <p class="text-xs font-bold text-gray-300">RISK PROTECTION</p>
+                                    <p class="text-[10px] text-gray-500">How do you survive?</p>
+                                </div>
+                            </a>
+                            <a href="#opportunity"
+                                class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 border border-white/5 group cursor-pointer transition-all">
+                                <span class="text-gray-500 font-mono text-xs font-bold">05</span>
+                                <div>
+                                    <p class="text-xs font-bold text-gray-300">OPPORTUNITY RADAR</p>
+                                    <p class="text-[10px] text-gray-500">Where do you act?</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA -->
+                <a href="#mindset"
+                    class="hero-cta relative inline-flex group items-center justify-center px-8 py-4 font-bold text-white transition-all duration-300 bg-white/5 border border-white/20 rounded-full hover:bg-white/10 focus:outline-none border-glow">
+                    <span class="mr-2">Enter Investor Mode</span>
+                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+        </section>
+
+        <!-- 2. INVESTOR MINDSET (Interactive Cards) -->
+        <section id="mindset"
+            class="relative w-full min-h-screen flex flex-col items-center justify-center py-20 px-8 lg:px-16 relative bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]">
+            <div class="absolute inset-0 bg-gradient-to-b from-[#050505] via-[#0a0a0f] to-[#050505] z-0 opacity-90">
+            </div>
+
+            <div class="relative z-10 w-full max-w-6xl">
+                <div class="text-center mb-16 sec-header">
+                    <h2 class="text-4xl md:text-5xl font-display font-bold mb-4">Architectures of <span
+                            class="text-neonPurple">Wealth</span></h2>
+                    <p class="text-gray-400 max-w-2xl mx-auto text-sm md:text-base">Toggle between the market's apex
+                        predators. Observe how their cognitive frameworks process identical information differently.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <!-- Buffett -->
+                    <div class="investor-card group relative p-[1px] rounded-2xl overflow-hidden cursor-pointer"
+                        data-investor="buffett">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-green-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0">
+                        </div>
+                        <div
+                            class="relative h-full bg-finosCard backdrop-blur-xl border border-white/10 p-6 rounded-2xl flex flex-col transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-[1.02] z-10">
+                            <div
+                                class="w-10 h-10 rounded-full border border-green-500/50 flex items-center justify-center mb-4 text-green-400 bg-green-500/10">
+                                <i class="fa-solid fa-tree"></i>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-display font-bold mb-1">Warren Buffett</h3>
+                            <p class="text-[10px] md:text-xs text-green-400 mb-4 font-mono">Value & Patience</p>
+                            <p class="text-xs md:text-sm text-gray-400 flex-1">Focuses on intrinsic value, moats, and
+                                extreme
+                                long-term compounding over daily noise.</p>
+                            <div class="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-gray-500">View
+                                    Node</span>
+                                <i
+                                    class="fa-solid fa-arrow-right text-gray-600 group-hover:text-green-400 transition-colors"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Simons -->
+                    <div class="investor-card group relative p-[1px] rounded-2xl overflow-hidden cursor-pointer"
+                        data-investor="simons">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-blue-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0">
+                        </div>
+                        <div
+                            class="relative h-full bg-finosCard backdrop-blur-xl border border-white/10 p-6 rounded-2xl flex flex-col transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-[1.02] z-10">
+                            <div
+                                class="w-10 h-10 rounded-full border border-blue-500/50 flex items-center justify-center mb-4 text-blue-400 bg-blue-500/10 shadow-[0_0_15px_rgba(0,0,255,0.2)]">
+                                <i class="fa-solid fa-square-root-variable"></i>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-display font-bold mb-1">Jim Simons</h3>
+                            <p class="text-[10px] md:text-xs text-blue-400 mb-4 font-mono">Data & Systems</p>
+                            <p class="text-xs md:text-sm text-gray-400 flex-1">Eliminates emotion entirely. Computes
+                                massive
+                                datasets to identify obscure behavioral anomalies.</p>
+                            <div class="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-gray-500">View
+                                    Node</span>
+                                <i
+                                    class="fa-solid fa-arrow-right text-gray-600 group-hover:text-blue-400 transition-colors"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Soros -->
+                    <div class="investor-card group relative p-[1px] rounded-2xl overflow-hidden cursor-pointer"
+                        data-investor="soros">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-red-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0">
+                        </div>
+                        <div
+                            class="relative h-full bg-finosCard backdrop-blur-xl border border-white/10 p-6 rounded-2xl flex flex-col transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-[1.02] z-10">
+                            <div
+                                class="w-10 h-10 rounded-full border border-red-500/50 flex items-center justify-center mb-4 text-red-400 bg-red-500/10">
+                                <i class="fa-solid fa-globe"></i>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-display font-bold mb-1">George Soros</h3>
+                            <p class="text-[10px] md:text-xs text-red-500 mb-4 font-mono">Macro Reflexivity</p>
+                            <p class="text-xs md:text-sm text-gray-400 flex-1">Identifies structural flaws in global
+                                markets and
+                                bets heavily when chaos creates asymmetry.</p>
+                            <div class="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-gray-500">View
+                                    Node</span>
+                                <i
+                                    class="fa-solid fa-arrow-right text-gray-600 group-hover:text-red-400 transition-colors"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Burry -->
+                    <div class="investor-card group relative p-[1px] rounded-2xl overflow-hidden cursor-pointer"
+                        data-investor="burry">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-orange-400/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0">
+                        </div>
+                        <div
+                            class="relative h-full bg-finosCard backdrop-blur-xl border border-white/10 p-5 rounded-2xl flex flex-col transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-[1.02] z-10">
+                            <div
+                                class="w-10 h-10 rounded-full border border-orange-500/50 flex items-center justify-center mb-4 text-orange-400 bg-orange-500/10">
+                                <i class="fa-solid fa-microscope"></i>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-display font-bold mb-1">Michael Burry</h3>
+                            <p class="text-[10px] md:text-xs text-orange-400 mb-4 font-mono">Contrarian Research</p>
+                            <p class="text-xs md:text-sm text-gray-400 flex-1">Reads the data nobody else will. Bets
+                                against
+                                immense crowds based on raw, uncovered reality.</p>
+                            <div class="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-gray-500">View
+                                    Node</span>
+                                <i
+                                    class="fa-solid fa-arrow-right text-gray-600 group-hover:text-orange-400 transition-colors"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lynch -->
+                    <div class="investor-card group relative p-[1px] rounded-2xl overflow-hidden cursor-pointer"
+                        data-investor="lynch">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-yellow-400/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0">
+                        </div>
+                        <div
+                            class="relative h-full bg-finosCard backdrop-blur-xl border border-white/10 p-5 rounded-2xl flex flex-col transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-[1.02] z-10">
+                            <div
+                                class="w-10 h-10 rounded-full border border-yellow-500/50 flex items-center justify-center mb-4 text-yellow-400 bg-yellow-500/10">
+                                <i class="fa-solid fa-binoculars"></i>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-display font-bold mb-1">Peter Lynch</h3>
+                            <p class="text-[10px] md:text-xs text-yellow-400 mb-4 font-mono">Ground Reality</p>
+                            <p class="text-xs md:text-sm text-gray-400 flex-1">Your daily life is a research lab. Spots
+                                emerging demand before the institutions even notice.</p>
+                            <div class="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-gray-500">View
+                                    Node</span>
+                                <i
+                                    class="fa-solid fa-arrow-right text-gray-600 group-hover:text-yellow-400 transition-colors"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dalio -->
+                    <div class="investor-card group relative p-[1px] rounded-2xl overflow-hidden cursor-pointer"
+                        data-investor="dalio">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-purple-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0">
+                        </div>
+                        <div
+                            class="relative h-full bg-finosCard backdrop-blur-xl border border-white/10 p-5 rounded-2xl flex flex-col transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-[1.02] z-10">
+                            <div
+                                class="w-10 h-10 rounded-full border border-purple-500/50 flex items-center justify-center mb-4 text-purple-400 bg-purple-500/10">
+                                <i class="fa-solid fa-gears"></i>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-display font-bold mb-1">Ray Dalio</h3>
+                            <p class="text-[10px] md:text-xs text-purple-400 mb-4 font-mono">Economic Machine</p>
+                            <p class="text-xs md:text-sm text-gray-400 flex-1">Trades the vast, invisible flows of
+                                credit and liquidity rather than analyzing individual stocks.</p>
+                            <div class="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-gray-500">View
+                                    Node</span>
+                                <i
+                                    class="fa-solid fa-arrow-right text-gray-600 group-hover:text-purple-400 transition-colors"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Livermore -->
+                    <div class="investor-card group relative p-[1px] rounded-2xl overflow-hidden cursor-pointer"
+                        data-investor="livermore">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-cyan-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0">
+                        </div>
+                        <div
+                            class="relative h-full bg-finosCard backdrop-blur-xl border border-white/10 p-5 rounded-2xl flex flex-col transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-[1.02] z-10">
+                            <div
+                                class="w-10 h-10 rounded-full border border-cyan-500/50 flex items-center justify-center mb-4 text-cyan-400 bg-cyan-500/10">
+                                <i class="fa-solid fa-water"></i>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-display font-bold mb-1">Jesse Livermore</h3>
+                            <p class="text-[10px] md:text-xs text-cyan-400 mb-4 font-mono">Trend & Timing</p>
+                            <p class="text-xs md:text-sm text-gray-400 flex-1">Raw market behavior. Avoids prediction
+                                and instead flows with the price action trend and volume breakouts.</p>
+                            <div class="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-gray-500">View
+                                    Node</span>
+                                <i
+                                    class="fa-solid fa-arrow-right text-gray-600 group-hover:text-cyan-400 transition-colors"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Munger -->
+                    <div class="investor-card group relative p-[1px] rounded-2xl overflow-hidden cursor-pointer"
+                        data-investor="munger">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-amber-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0">
+                        </div>
+                        <div
+                            class="relative h-full bg-finosCard backdrop-blur-xl border border-white/10 p-5 rounded-2xl flex flex-col transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-[1.02] z-10">
+                            <div
+                                class="w-10 h-10 rounded-full border border-amber-500/50 flex items-center justify-center mb-4 text-amber-400 bg-amber-500/10">
+                                <i class="fa-solid fa-brain"></i>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-display font-bold mb-1">Charlie Munger</h3>
+                            <p class="text-[10px] md:text-xs text-amber-400 mb-4 font-mono">Mental Models</p>
+                            <p class="text-xs md:text-sm text-gray-400 flex-1">A lattice of mental models from multiple
+                                disciplines weaponized against cognitive biases and irrational markets.</p>
+                            <div class="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-gray-500">View
+                                    Node</span>
+                                <i
+                                    class="fa-solid fa-arrow-right text-gray-600 group-hover:text-amber-400 transition-colors"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Naval -->
+                    <div class="investor-card group relative p-[1px] rounded-2xl overflow-hidden cursor-pointer"
+                        data-investor="naval">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-amber-800/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0">
+                        </div>
+                        <div
+                            class="relative h-full bg-finosCard backdrop-blur-xl border border-white/10 p-5 rounded-2xl flex flex-col transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-[1.02] z-10">
+                            <div
+                                class="w-10 h-10 rounded-full border border-amber-700/50 flex items-center justify-center mb-4 text-amber-600 bg-amber-700/10">
+                                <i class="fa-solid fa-infinity"></i>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-display font-bold mb-1">Naval Ravikant</h3>
+                            <p class="text-[10px] md:text-xs text-amber-600 mb-4 font-mono">Wealth Creation</p>
+                            <p class="text-xs md:text-sm text-gray-400 flex-1">Trading generates capital. Ownership
+                                builds wealth. Deploys Code & Media leverage to create systems that earn while sleeping.
+                            </p>
+                            <div class="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-gray-500">View
+                                    Node</span>
+                                <i
+                                    class="fa-solid fa-arrow-right text-gray-600 group-hover:text-amber-600 transition-colors"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Graham -->
+                    <div class="investor-card group relative p-[1px] rounded-2xl overflow-hidden cursor-pointer"
+                        data-investor="graham">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-green-700/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0">
+                        </div>
+                        <div
+                            class="relative h-full bg-finosCard backdrop-blur-xl border border-white/10 p-5 rounded-2xl flex flex-col transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-[1.02] z-10">
+                            <div
+                                class="w-10 h-10 rounded-full border border-green-700/50 flex items-center justify-center mb-4 text-green-500 bg-green-700/10">
+                                <i class="fa-solid fa-scale-balanced"></i>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-display font-bold mb-1">Benjamin Graham</h3>
+                            <p class="text-[10px] md:text-xs text-green-500 mb-4 font-mono">Value Foundation</p>
+                            <p class="text-xs md:text-sm text-gray-400 flex-1">The original blueprint. Price ≠ Value.
+                                Exploit the gap between Mr. Market's mood and actual business reality with a rigid
+                                Margin of Safety.</p>
+                            <div class="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-gray-500">View
+                                    Node</span>
+                                <i
+                                    class="fa-solid fa-arrow-right text-gray-600 group-hover:text-green-500 transition-colors"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hidden Modal (Toggled via JS) -->
+            <div id="investorModal"
+                class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-4 md:p-8">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- 3. DECISION ENGINE -->
+        <!-- 3. DECISION ENGINE — REALITY → ACTION ENGINE -->
+        <section id="decision"
+            class="relative w-full min-h-screen flex flex-col items-center py-20 px-4 md:px-16 bg-[#07070a]">
+            <!-- Grid background -->
+            <div class="absolute inset-0 pointer-events-none"
+                style="background-image: linear-gradient(to right, #ffffff08 1px, transparent 1px), linear-gradient(to bottom, #ffffff08 1px, transparent 1px); background-size: 40px 40px;">
+            </div>
+
+            <div class="relative z-10 w-full max-w-6xl sec-header">
+                <!-- Header -->
+                <div class="text-center mb-10">
+                    <span
+                        class="text-neonBlue text-sm font-mono tracking-widest inline-block mb-3 border border-neonBlue/30 bg-neonBlue/10 px-3 py-1 rounded-full"><i
+                            class="fa-solid fa-code-branch mr-2"></i>LAYER 3 — REALITY → ACTION ENGINE</span>
+                    <h2 class="text-4xl md:text-5xl font-display font-bold">The <span
+                            class="bg-clip-text text-transparent bg-gradient-to-r from-neonBlue to-neonTeal">Decision</span>
+                        Engine</h2>
+                    <p class="text-gray-400 mt-3 max-w-xl mx-auto text-sm">Decision Quality = Clarity × Discipline ×
+                        Edge. Stop guessing. Let the system decide.</p>
+                </div>
+
+                <!-- LAYER 1 — Market Context Top Bar -->
+                <div
+                    class="w-full bg-black/60 border border-white/10 rounded-2xl p-4 mb-6 flex flex-wrap gap-4 items-center justify-between backdrop-blur-lg">
+                    <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold shrink-0">LAYER 1 — MARKET
+                        CONTEXT</p>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center gap-2 px-4 py-2 rounded-xl border border-green-500/30 bg-green-500/10"
+                            id="moodBadge">
+                            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                            <span class="text-xs font-bold text-green-400" id="moodText">BULLISH</span>
+                        </div>
+                        <div class="flex items-center gap-2 px-4 py-2 rounded-xl border border-blue-500/30 bg-blue-500/10"
+                            id="liquidityBadge">
+                            <i class="fa-solid fa-droplet text-blue-400 text-xs"></i>
+                            <span class="text-xs font-bold text-blue-400" id="liquidityText">HIGH LIQUIDITY</span>
+                        </div>
+                        <div class="flex items-center gap-2 px-4 py-2 rounded-xl border border-yellow-500/30 bg-yellow-500/10"
+                            id="volatilityBadge">
+                            <i class="fa-solid fa-bolt text-yellow-400 text-xs"></i>
+                            <span class="text-xs font-bold text-yellow-400" id="volatilityText">CALM</span>
+                        </div>
+                    </div>
+                    <div class="hidden md:block text-right">
+                        <p class="text-[10px] text-gray-600 font-mono">KINK #1: WAIT IS PROFIT</p>
+                        <p class="text-[10px] text-gray-500">Most trades should NOT happen</p>
+                    </div>
+                </div>
+
+                <!-- LAYER 2 + 3 — Intelligence + Decision Core -->
+                <div class="grid lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Inputs Panel (Layer 2) -->
+                    <div
+                        class="lg:col-span-1 space-y-4 bg-finosCard border border-white/5 p-6 rounded-2xl backdrop-blur-lg decision-module">
+                        <h3
+                            class="text-sm uppercase tracking-widest text-gray-500 font-bold flex items-center gap-2 mb-4">
+                            <i class="fa-solid fa-sliders text-neonBlue"></i> STOCK INTELLIGENCE
+                        </h3>
+
+                        <div>
+                            <label
+                                class="flex justify-between text-xs text-gray-400 mb-2 font-mono"><span>Sentiment</span><span
+                                    id="sentVal" class="text-white font-bold">Fearful</span></label>
+                            <input type="range" id="sentimentSlider" min="0" max="100" value="20"
+                                class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer range-styled">
+                        </div>
+                        <div>
+                            <label class="flex justify-between text-xs text-gray-400 mb-2 font-mono"><span>Volume
+                                    Breakout</span><span id="volVal" class="text-white font-bold">Low</span></label>
+                            <div id="volumePulse"
+                                class="h-8 w-full rounded-lg bg-black/40 border border-white/5 flex items-center px-2 gap-1 overflow-hidden mb-1">
+                                <!-- Animated bars injected by JS -->
+                            </div>
+                            <input type="range" id="volumeSlider" min="0" max="100" value="30"
+                                class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer range-styled">
+                        </div>
+                        <div>
+                            <label class="flex justify-between text-xs text-gray-400 mb-2 font-mono"><span>Price
+                                    Trend</span><span id="priceVal"
+                                    class="text-white font-bold">Downtrend</span></label>
+                            <input type="range" id="priceSlider" min="0" max="100" value="20"
+                                class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer range-styled">
+                        </div>
+
+                        <div class="pt-2 border-t border-white/5 space-y-2">
+                            <div class="flex justify-between text-xs"><span class="text-gray-500">Trend
+                                    Strength</span><span id="trendStr"
+                                    class="font-mono text-neonBlue font-bold">28/100</span></div>
+                            <div class="w-full h-1.5 bg-gray-800 rounded-full">
+                                <div id="trendBar" class="h-full bg-neonBlue rounded-full transition-all duration-500"
+                                    style="width:28%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Processing Core (mid) -->
+                    <div
+                        class="lg:col-span-1 flex flex-col items-center justify-center relative min-h-[280px] bg-finosCard border border-white/5 rounded-2xl backdrop-blur-lg overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+                            <svg class="w-full h-full" id="nodeCanvas"></svg>
+                        </div>
+                        <div id="processingCore"
+                            class="relative z-10 w-28 h-28 rounded-full border-2 border-dashed border-neonBlue/40 flex items-center justify-center animate-spin-slow bg-black/50 backdrop-blur-sm shadow-[0_0_40px_rgba(0,200,255,0.15)] mb-4">
+                            <i class="fa-solid fa-microchip text-4xl text-neonBlue animate-pulse"></i>
+                        </div>
+                        <p class="text-xs text-gray-500 font-mono uppercase tracking-widest">Processing System</p>
+                        <p id="systemThought" class="text-[10px] text-gray-600 mt-1 px-6 text-center">Analyzing market
+                            variables...</p>
+                    </div>
+
+                    <!-- Decision Output (Layer 3) -->
+                    <div
+                        class="lg:col-span-1 bg-finosCard border border-white/5 p-6 rounded-2xl backdrop-blur-lg flex flex-col justify-between decision-module relative overflow-hidden">
+                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-neonTeal/10 rounded-full blur-3xl"
+                            id="outputGlow"></div>
+                        <div>
+                            <h3
+                                class="text-sm uppercase tracking-widest text-gray-500 font-bold flex items-center gap-2 mb-4">
+                                <i class="fa-solid fa-terminal text-neonTeal"></i> DECISION CORE
+                            </h3>
+
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">System Verdict</p>
+                            <div id="actionOutput"
+                                class="text-4xl font-display font-black text-green-400 glow-text-green mb-3">ACCUMULATE
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <div class="bg-black/40 rounded-lg p-3 border border-white/5">
+                                    <p class="text-[10px] text-gray-500 uppercase">Conviction</p>
+                                    <p id="convictionLevel" class="text-xl font-bold font-mono">84%</p>
+                                    <div class="w-full bg-gray-800 h-1 mt-2 rounded">
+                                        <div id="convictionBar"
+                                            class="bg-green-400 h-1 rounded transition-all duration-500 w-[84%]"></div>
+                                    </div>
+                                </div>
+                                <div class="bg-black/40 rounded-lg p-3 border border-white/5">
+                                    <p class="text-[10px] text-gray-500 uppercase">Risk Level</p>
+                                    <p id="riskScore" class="text-xl font-bold font-mono text-yellow-500">Med-Low</p>
+                                </div>
+                            </div>
+
+                            <!-- Reasoning Tree -->
+                            <div id="reasoningTree" class="space-y-1.5 text-[10px] font-mono mb-4">
+                                <div class="flex items-center gap-2 text-green-400"><i
+                                        class="fa-solid fa-check-circle"></i> Extreme fear = buying opportunity</div>
+                                <div class="flex items-center gap-2 text-yellow-400"><i
+                                        class="fa-solid fa-exclamation-circle"></i> Volume low — wait for confirmation
+                                </div>
+                                <div class="flex items-center gap-2 text-red-400"><i
+                                        class="fa-solid fa-xmark-circle"></i> Price trend still downward</div>
+                            </div>
+                        </div>
+
+                        <!-- AI Narrator -->
+                        <div class="p-3 bg-blue-900/20 border border-blue-500/20 rounded-lg">
+                            <p class="text-xs text-blue-300 flex items-start gap-2">
+                                <i class="fa-solid fa-robot mt-0.5 shrink-0"></i>
+                                <span id="aiReasoning">"Extreme fear paired with high intrinsic value historically
+                                    yields asymmetric upside. Wait for volume confirmation."</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Challenge the System -->
+                <div
+                    class="w-full bg-black/40 border border-orange-500/20 rounded-2xl p-5 flex flex-col md:flex-row items-center gap-4">
+                    <div>
+                        <p class="text-xs font-bold text-orange-400 uppercase tracking-widest mb-1"><i
+                                class="fa-solid fa-gamepad mr-1"></i> CHALLENGE THE SYSTEM</p>
+                        <p class="text-xs text-gray-400">Think you know better? Override the system and see the historic
+                            probability of your trade succeeding.</p>
+                    </div>
+                    <button id="challengeBtn"
+                        class="ml-auto shrink-0 px-6 py-3 border border-orange-500/40 bg-orange-500/10 text-orange-400 font-bold text-xs rounded-xl hover:bg-orange-500/20 transition-all">
+                        I Want to Buy Anyway →
+                    </button>
+                    <div id="challengeResult"
+                        class="hidden w-full mt-3 p-3 border border-red-500/30 bg-red-500/10 rounded-xl text-xs text-red-300 font-mono">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. RISK PROTECTION — SURVIVAL ENGINE -->
+        <section id="risk"
+            class="relative w-full min-h-screen flex flex-col items-center py-20 px-4 overflow-hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-red-900/20 via-[#050505] to-[#050505]">
+            <div class="relative z-10 w-full max-w-6xl sec-header">
+                <!-- Header -->
+                <div class="text-center mb-10">
+                    <span
+                        class="text-red-500 text-sm font-mono tracking-widest inline-block mb-3 border border-red-500/30 bg-red-500/10 px-3 py-1 rounded-full"><i
+                            class="fa-solid fa-shield-halved mr-2"></i>LAYER 4 — SURVIVAL ENGINE</span>
+                    <h2 class="text-4xl md:text-5xl font-display font-bold">The Math of <span
+                            class="text-red-500">Survival</span></h2>
+                    <p class="text-gray-400 mt-3 max-w-xl mx-auto text-sm">Survival = Capital × Risk Control.
+                        Professionals focus on downside. Amateurs focus on upside.</p>
+                </div>
+
+                <!-- LAYER 1 — Account Health Bar -->
+                <div
+                    class="w-full bg-black/60 border border-white/10 rounded-2xl p-4 mb-6 flex flex-wrap items-center gap-4 backdrop-blur-lg">
+                    <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">LAYER 1 — ACCOUNT HEALTH
+                    </p>
+                    <div class="flex-1 flex gap-2 items-center">
+                        <div
+                            class="flex-1 h-3 rounded-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-600 relative overflow-hidden">
+                            <div id="healthIndicator"
+                                class="absolute top-0 bottom-0 w-1 bg-white rounded-full shadow-[0_0_8px_white] transition-all duration-500"
+                                style="left:10%"></div>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 text-[10px] font-bold">
+                        <span class="text-green-400">🟢 SAFE ZONE</span>
+                        <span class="text-yellow-400">🟡 STRESS ZONE</span>
+                        <span class="text-red-400">🔴 DANGER ZONE</span>
+                    </div>
+                    <div id="accountHealthLabel"
+                        class="ml-auto px-3 py-1.5 border border-green-500/30 bg-green-500/10 text-green-400 font-bold text-xs rounded-xl">
+                        ✅ ACCOUNT SAFE</div>
+                </div>
+
+                <!-- Main 2-col Grid -->
+                <div class="grid lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Blow-Up Simulator -->
+                    <div class="bg-finosCard border border-white/5 p-6 rounded-2xl relative overflow-hidden">
+                        <h3
+                            class="text-sm uppercase tracking-widest text-gray-500 font-bold flex items-center gap-2 mb-4">
+                            <i class="fa-solid fa-chart-area text-red-400"></i> BLOW-UP SIMULATOR</h3>
+                        <p class="text-[10px] text-gray-500 mb-3 font-mono">What if you lose 5 trades in a row?</p>
+                        <div
+                            class="bg-black/40 border border-white/5 rounded-xl p-4 h-48 relative flex items-end gap-1 overflow-hidden">
+                            <div
+                                class="absolute top-3 w-[90%] left-[5%] border-b border-red-700/50 border-dashed text-[9px] text-red-500/70">
+                                Danger Line (50% drawdown)</div>
+                            <div class="flex justify-between items-end w-full h-[80%] px-2 gap-2 z-10"
+                                id="drawdownChart">
+                                <!-- Injected bars -->
+                            </div>
+                        </div>
+                        <div class="mt-3 grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-black/40 rounded-lg p-2 border border-white/5">
+                                <p class="text-[9px] text-gray-500 uppercase">Start Capital</p>
+                                <p class="text-sm font-bold font-mono text-white">₹1,00,000</p>
+                            </div>
+                            <div class="bg-black/40 rounded-lg p-2 border border-white/5">
+                                <p class="text-[9px] text-gray-500 uppercase">After 5 Losses</p>
+                                <p id="capitalAfter" class="text-sm font-bold font-mono text-red-400">₹90,392</p>
+                            </div>
+                            <div class="bg-black/40 rounded-lg p-2 border border-white/5">
+                                <p class="text-[9px] text-gray-500 uppercase">Ruin Probability</p>
+                                <p id="ruinProb" class="text-sm font-bold font-mono text-green-400">0.01%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LAYER 2+3: Trade Risk Calculator + Discipline Score -->
+                    <div class="space-y-4">
+                        <!-- Trade Risk Calculator -->
+                        <div class="bg-finosCard border border-white/5 p-6 rounded-2xl">
+                            <h3
+                                class="text-sm uppercase tracking-widest text-gray-500 font-bold flex items-center gap-2 mb-4">
+                                <i class="fa-solid fa-calculator text-orange-400"></i> LAYER 2 — TRADE RISK CALCULATOR
+                            </h3>
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <div>
+                                    <label class="text-[10px] text-gray-500 uppercase block mb-1">Entry Price
+                                        (₹)</label>
+                                    <input id="entryPrice" type="number" value="500"
+                                        class="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-neonBlue/50">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-gray-500 uppercase block mb-1">Stop Loss (₹)</label>
+                                    <input id="stopLoss" type="number" value="470"
+                                        class="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-red-500/50">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                <div class="bg-red-500/5 border border-red-500/20 rounded-lg p-2">
+                                    <p class="text-[9px] text-gray-500 uppercase">₹ Risk/Trade</p>
+                                    <p id="rupeeRisk" class="text-sm font-bold font-mono text-red-400">₹3,000</p>
+                                </div>
+                                <div class="bg-red-500/5 border border-red-500/20 rounded-lg p-2">
+                                    <p class="text-[9px] text-gray-500 uppercase">% Risk</p>
+                                    <p id="pctRisk" class="text-sm font-bold font-mono text-orange-400">6.0%</p>
+                                </div>
+                                <div class="bg-red-500/5 border border-red-500/20 rounded-lg p-2">
+                                    <p class="text-[9px] text-gray-500 uppercase">Account Impact</p>
+                                    <p id="accImpact" class="text-sm font-bold font-mono text-yellow-400">-3.0%</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Risk Slider + Blowup Meter -->
+                        <div class="bg-finosCard border border-white/5 p-6 rounded-2xl">
+                            <div class="flex justify-between mb-2">
+                                <label class="text-sm font-semibold tracking-wide">Risk Per Trade (%)</label>
+                                <span id="riskPerTradeVal" class="text-red-400 font-bold font-mono">2.0%</span>
+                            </div>
+                            <input type="range" id="riskPerTrade" min="0.5" max="20" step="0.5" value="2.0"
+                                class="w-full h-2 rounded-lg appearance-none cursor-pointer bg-gradient-to-r from-green-500 via-yellow-500 to-red-600 mb-4">
+
+                            <div
+                                class="flex items-center justify-between p-4 bg-black/50 border border-white/10 rounded-xl">
+                                <div>
+                                    <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Discipline Score
+                                    </p>
+                                    <p id="disciplineScore" class="text-3xl font-display font-bold text-green-400">A+
+                                    </p>
+                                    <p id="disciplineMsg" class="text-[10px] text-green-500 mt-1">Professional level
+                                        risk control</p>
+                                </div>
+                                <div class="w-16 h-16 rounded-full bg-gray-900 flex items-center justify-center border border-white/10 transition-colors duration-300"
+                                    id="ruinIconContainer">
+                                    <i class="fa-solid fa-shield text-2xl text-green-500 transition-colors"
+                                        id="ruinIcon"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Market Crash Simulator -->
+                <div class="flex gap-4 flex-col md:flex-row">
+                    <button id="shockBtn"
+                        class="flex-1 py-4 rounded-xl border border-red-500/50 bg-red-500/10 hover:bg-red-500/20 text-red-100 font-bold tracking-wider transition-all cta-shock">
+                        <i class="fa-solid fa-bolt mr-2"></i>SIMULATE MARKET CRASH
+                    </button>
+                    <div class="flex-1 p-4 bg-black/40 border border-orange-500/20 rounded-xl flex items-center gap-4">
+                        <i class="fa-solid fa-brain text-orange-400 text-xl"></i>
+                        <div>
+                            <p class="text-[10px] text-orange-400 uppercase font-bold tracking-widest">KINK #2 — SEEING
+                                LOSS CHANGES BEHAVIOR</p>
+                            <p class="text-[10px] text-gray-500">When users visualize capital decline in real-time,
+                                revenge trading drops 73%.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. OPPORTUNITY RADAR -->
+        <section id="opportunity"
+            class="relative w-full min-h-screen flex flex-col items-center justify-center py-20 px-4 shrink-0 overflow-hidden bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-green-900/15 via-[#050505] to-[#050505]">
+
+            <div class="relative z-10 w-full max-w-5xl sec-header">
+                <!-- Header -->
+                <div class="text-center mb-16">
+                    <span
+                        class="text-green-400 text-sm font-mono tracking-widest inline-block mb-3 border border-green-400/30 bg-green-400/10 px-3 py-1 rounded-full"><i
+                            class="fa-solid fa-crosshairs mr-2"></i>LAYER 5 — OPPORTUNITY RADAR</span>
+                    <h2 class="text-4xl md:text-5xl font-display font-bold">Paisa Kaha Ban <span
+                            class="text-green-400">Raha Hai?</span></h2>
+                    <p class="text-gray-400 mt-4 max-w-xl mx-auto">Markets move where attention + liquidity flows. Track
+                        the signal before the crowd arrives.</p>
+                </div>
+
+                <!-- Kink Banner -->
+                <div
+                    class="w-full bg-black/40 border border-green-500/20 rounded-2xl p-5 mb-10 flex flex-col md:flex-row items-center gap-4 md:gap-8">
+                    <div class="text-green-400 text-3xl shrink-0"><i class="fa-solid fa-eye"></i></div>
+                    <div>
+                        <p class="text-xs uppercase tracking-widest text-green-500 font-bold mb-1">KINK — "ATTENTION =
+                            MONEY"</p>
+                        <p class="text-sm text-gray-300">Where retail attention goes, money follows — usually 2-4 weeks
+                            after the smart money. <b class="text-white">Your edge: spot the attention before it
+                                peaks.</b></p>
+                    </div>
+                    <div class="ml-auto shrink-0 text-right hidden md:block">
+                        <p class="text-[10px] text-gray-500 uppercase tracking-widest">Core Equation</p>
+                        <p class="font-mono text-green-400 text-sm font-bold">Volume + News + Price → Score</p>
+                    </div>
+                </div>
+
+                <!-- 3-Panel Radar -->
+                <div class="grid lg:grid-cols-3 gap-6 mb-10">
+                    <!-- Signal Types -->
+                    <div class="bg-finosCard border border-white/10 rounded-2xl p-6 backdrop-blur-lg">
+                        <h3
+                            class="text-sm uppercase tracking-widest text-gray-500 font-bold mb-5 flex items-center gap-2">
+                            <i class="fa-solid fa-satellite-dish text-green-400"></i> SIGNAL TYPES
+                        </h3>
+                        <div class="space-y-3">
+                            <div
+                                class="flex items-start gap-3 p-3 rounded-xl bg-green-500/5 border border-green-500/20">
+                                <span class="text-green-400 text-lg shrink-0"><i
+                                        class="fa-solid fa-chart-line"></i></span>
+                                <div>
+                                    <p class="text-xs font-bold text-green-300">TREND SIGNAL</p>
+                                    <p class="text-[10px] text-gray-500 mt-0.5">Sustained price + volume breakout above
+                                        resistance. PSU rally, sector rotation.</p>
+                                </div>
+                            </div>
+                            <div
+                                class="flex items-start gap-3 p-3 rounded-xl bg-yellow-500/5 border border-yellow-500/20">
+                                <span class="text-yellow-400 text-lg shrink-0"><i class="fa-solid fa-rotate"></i></span>
+                                <div>
+                                    <p class="text-xs font-bold text-yellow-300">REVERSAL SIGNAL</p>
+                                    <p class="text-[10px] text-gray-500 mt-0.5">Extreme fear + oversold + value gap.
+                                        Post-budget correction or rate panic.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 p-3 rounded-xl bg-red-500/5 border border-red-500/20">
+                                <span class="text-red-400 text-lg shrink-0"><i
+                                        class="fa-solid fa-skull-crossbones"></i></span>
+                                <div>
+                                    <p class="text-xs font-bold text-red-300">TRAP SIGNAL</p>
+                                    <p class="text-[10px] text-gray-500 mt-0.5">Hype + thin volume + narrative without
+                                        fundamentals. SME IPO pump.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Heatmap Sim -->
+                    <div class="bg-finosCard border border-white/10 rounded-2xl p-6 backdrop-blur-lg">
+                        <h3
+                            class="text-sm uppercase tracking-widest text-gray-500 font-bold mb-5 flex items-center gap-2">
+                            <i class="fa-solid fa-fire text-orange-400"></i> SIGNAL HEATMAP
+                        </h3>
+                        <div class="grid grid-cols-3 gap-2" id="heatmapGrid">
+                            <!-- Injected via JS -->
+                        </div>
+                        <p class="text-[10px] text-gray-600 text-center mt-3 font-mono">Simulated sector momentum scores
+                        </p>
+                    </div>
+
+                    <!-- Narrative Tracker -->
+                    <div class="bg-finosCard border border-white/10 rounded-2xl p-6 backdrop-blur-lg">
+                        <h3
+                            class="text-sm uppercase tracking-widest text-gray-500 font-bold mb-5 flex items-center gap-2">
+                            <i class="fa-solid fa-newspaper text-blue-400"></i> NARRATIVE TRACKER
+                        </h3>
+                        <div class="space-y-3" id="narrativeList">
+                            <div class="flex items-center gap-3 p-2 border border-white/5 rounded-lg">
+                                <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0"></span>
+                                <div>
+                                    <p class="text-xs font-bold text-green-300">Defense + PSU</p>
+                                    <p class="text-[10px] text-gray-500">Government capex narrative. FII buying.</p>
+                                </div>
+                                <span class="ml-auto text-[10px] font-bold text-green-400">🔥 HOT</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-2 border border-white/5 rounded-lg">
+                                <span class="w-2 h-2 rounded-full bg-yellow-400 shrink-0"></span>
+                                <div>
+                                    <p class="text-xs font-bold text-yellow-300">EV / Battery</p>
+                                    <p class="text-[10px] text-gray-500">Policy push, early institutional positioning.
+                                    </p>
+                                </div>
+                                <span class="ml-auto text-[10px] font-bold text-yellow-400">👀 WATCH</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-2 border border-white/5 rounded-lg">
+                                <span class="w-2 h-2 rounded-full bg-blue-400 shrink-0"></span>
+                                <div>
+                                    <p class="text-xs font-bold text-blue-300">IT / AI Exports</p>
+                                    <p class="text-[10px] text-gray-500">USD tailwind. Global AI demand.</p>
+                                </div>
+                                <span class="ml-auto text-[10px] font-bold text-blue-400">📡 BUILDING</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-2 border border-white/5 rounded-lg">
+                                <span class="w-2 h-2 rounded-full bg-red-400 shrink-0"></span>
+                                <div>
+                                    <p class="text-xs font-bold text-red-300">FMCG / Rural</p>
+                                    <p class="text-[10px] text-gray-500">Volume pressure. Rural demand weak.</p>
+                                </div>
+                                <span class="ml-auto text-[10px] font-bold text-red-400">🚫 AVOID</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Momentum Scanner -->
+                <div class="bg-finosCard border border-white/10 rounded-2xl p-6 backdrop-blur-lg">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-sm uppercase tracking-widest text-gray-500 font-bold flex items-center gap-2"><i
+                                class="fa-solid fa-radar text-green-400"></i> MOMENTUM SCANNER</h3>
+                        <button id="scanBtn"
+                            class="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest border border-green-500/30 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-all">
+                            <i class="fa-solid fa-bolt mr-1"></i> RUN SCAN
+                        </button>
+                    </div>
+                    <div id="scanResults" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div
+                            class="scan-card bg-black/40 border border-white/5 rounded-xl p-4 text-center transition-all hover:border-green-500/30">
+                            <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Nifty 50</p>
+                            <p class="text-xl font-display font-bold text-green-400">72</p>
+                            <p class="text-[10px] text-green-500">Bullish Trend</p>
+                        </div>
+                        <div
+                            class="scan-card bg-black/40 border border-white/5 rounded-xl p-4 text-center transition-all hover:border-yellow-500/30">
+                            <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Bank Nifty</p>
+                            <p class="text-xl font-display font-bold text-yellow-400">48</p>
+                            <p class="text-[10px] text-yellow-500">Consolidating</p>
+                        </div>
+                        <div
+                            class="scan-card bg-black/40 border border-white/5 rounded-xl p-4 text-center transition-all hover:border-green-500/30">
+                            <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">PSU Index</p>
+                            <p class="text-xl font-display font-bold text-green-400">81</p>
+                            <p class="text-[10px] text-green-500">Strong Momentum</p>
+                        </div>
+                        <div
+                            class="scan-card bg-black/40 border border-white/5 rounded-xl p-4 text-center transition-all hover:border-red-500/30">
+                            <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">FMCG Index</p>
+                            <p class="text-xl font-display font-bold text-red-400">29</p>
+                            <p class="text-[10px] text-red-500">Weak / Avoid</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ThreeJS, GSAP, and Custom Main script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="../js/investor-mindset.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+</body>
+
+</html>

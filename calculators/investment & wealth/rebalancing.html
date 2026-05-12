@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rebalancing Calculator • FIN-OS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* THEME VARIABLES */
+    :root {
+      --text-primary: #1e293b; --text-secondary: #64748b;
+      --bg-main: #f1f5f9; --bg-surface: #ffffff;
+      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    [data-theme="dark"] {
+      --text-primary: #f8fafc; --text-secondary: #94a3b8;
+      --bg-main: #0f172a; --bg-surface: #1e293b;
+      --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    }
+    body { color: var(--text-primary); background: var(--bg-main); font-family: sans-serif; }
+    h1, h2, h3, strong, b { color: var(--text-primary); }
+    input[type="number"] { color: var(--text-primary); background: rgba(255, 255, 255, 0.05); }
+
+    /* LAYOUT & COMPONENT STYLES */
+    .page { flex: 1; padding: 0 48px 24px 48px; overflow-y: auto; }
+    .page-header { padding-top: 32px; margin-bottom: 40px; }
+    .page-header h1 { font-size: 42px; font-weight: 700; margin: 8px 0; }
+    
+    .back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .back-btn:hover { color: #06b6d4; }
+
+    .impact-card { max-width: 1100px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 48px; border-radius: 32px; background: var(--bg-surface); box-shadow: var(--card-shadow); }
+    .impact-inputs { display: flex; flex-direction: column; gap: 24px; }
+    .input-group { display: flex; flex-direction: column; gap: 12px; }
+    .input-row { display: flex; gap: 12px; align-items: center; }
+    
+    input[type="range"] { flex: 1; appearance: none; height: 6px; border-radius: 6px; background: linear-gradient(90deg, #06b6d4, #3b82f6); cursor: pointer; }
+    input[type="range"]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #ffffff; border: 3px solid #06b6d4; cursor: pointer; }
+    input[type="number"] { width: 140px; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); font-size: 16px; font-weight: 600; }
+
+    .impact-right { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+    .chart-container { width: 100%; max-width: 360px; aspect-ratio: 1; }
+    .result-grid { width: 100%; display: grid; grid-template-columns: 1fr; gap: 16px; }
+    .age-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .age-box { padding: 20px; border-radius: 16px; text-align: center; background: rgba(6,182,212,0.12); }
+    .age-box strong { font-size: 24px; display: block; margin-top: 4px; }
+    .verdict-box { padding: 24px; border-radius: 16px; text-align: center; font-weight: 700; font-size: 18px; background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(16,185,129,0.15)); color: #22c55e; }
+    
+    @media (max-width: 900px) { .impact-card { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body class="app">
+
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="../../html/home.html">Home</a>
+      <a href="../../html/dashboard.html">Dashboard</a>
+      <a href="../../html/impact.html">Impact</a>
+      <a href="../../html/calculators.html" class="active">Calculators</a>
+      <a href="../../../Porfolio Analyser/portfolio-analyser-v9.html">Portfolio</a>
+      <a href="../../html/markets.html">Markets</a>
+      <a href="../../html/tax.html">Tax</a>
+      <a href="../../html/news.html">News</a>
+    </nav>
+  </aside>
+
+  <main class="page">
+    <button id="themeToggle" style="position: fixed; top: 32px; right: 32px; z-index: 100; background:none; border:none; font-size:24px; cursor:pointer;">🌙</button>
+
+    <header class="page-header">
+      <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
+      <h1>Rebalancing Tool</h1>
+      <p>Reset your risk by realigning your portfolio.</p>
+    </header>
+
+    <section class="impact-card">
+      <div class="impact-left">
+        <div class="impact-inputs">
+          
+          <div class="input-group">
+            <label>Current Equity Value (₹)</label>
+            <div class="input-row">
+              <input type="range" min="0" max="10000000" step="10000" value="600000" id="currEq">
+              <input type="number" value="600000" id="currEqNum">
+            </div>
+          </div>
+          
+          <div class="input-group">
+            <label>Current Debt Value (₹)</label>
+            <div class="input-row">
+              <input type="range" min="0" max="10000000" step="10000" value="400000" id="currDebt">
+              <input type="number" value="400000" id="currDebtNum">
+            </div>
+          </div>
+          
+          <div class="input-group">
+            <label>Target Equity Allocation (%)</label>
+            <div class="input-row">
+              <input type="range" min="0" max="100" value="50" id="target">
+              <input type="number" value="50" id="targetNum">
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="impact-right">
+        <div class="chart-container"><canvas id="rebChart"></canvas></div>
+        <div class="result-grid">
+          <div class="age-comparison">
+            <div class="age-box">
+              <span>Action: Equity</span>
+              <strong id="actionEq">Hold</strong>
+            </div>
+            <div class="age-box" style="background: rgba(139,92,246,0.12)">
+              <span>Action: Debt</span>
+              <strong id="actionDebt">Hold</strong>
+            </div>
+          </div>
+          <div class="verdict-box" id="summary">Perfectly Balanced</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script>
+// Theme Toggle & Sync
+const root = document.documentElement;
+const toggle = document.getElementById("themeToggle");
+const savedTheme = localStorage.getItem("finos-theme");
+if (savedTheme) root.setAttribute("data-theme", savedTheme);
+toggle.textContent = root.getAttribute("data-theme") === "dark" ? "🌙" : "☀️";
+toggle.onclick = () => {
+  const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("finos-theme", next);
+  toggle.textContent = next === "dark" ? "🌙" : "☀️";
+};
+
+const els = {
+  ce: document.getElementById('currEq'), ceN: document.getElementById('currEqNum'),
+  cd: document.getElementById('currDebt'), cdN: document.getElementById('currDebtNum'),
+  tg: document.getElementById('target'), tgN: document.getElementById('targetNum')
+};
+
+['ce', 'cd', 'tg'].forEach(k => {
+  els[k].oninput = () => els[k+'N'].value = els[k].value;
+  els[k+'N'].oninput = () => els[k].value = els[k+'N'].value;
+});
+
+const ctx = document.getElementById('rebChart');
+const chart = new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Current Equity', 'Target Equity Gap'], // Simplified visual
+    datasets: [{
+      data: [60, 40],
+      backgroundColor: ['#06b6d4', '#334155'], 
+      borderWidth: 0
+    }]
+  },
+  options: {
+    cutout: '70%',
+    plugins: { legend: { display: false } }
+  }
+});
+
+function format(num) {
+  if(num>=10000000) return "₹"+(num/10000000).toFixed(2)+" Cr";
+  if(num>=100000) return "₹"+(num/100000).toFixed(2)+" L";
+  return "₹"+Math.abs(num).toLocaleString();
+}
+
+function calculate() {
+  const eq = +els.ceN.value;
+  const debt = +els.cdN.value;
+  const targetPct = +els.tgN.value;
+  const total = eq + debt;
+
+  if (total === 0) return;
+
+  const targetEqVal = total * (targetPct / 100);
+  const diff = targetEqVal - eq; // Positive = Buy Equity, Negative = Sell Equity
+
+  const eqActionEl = document.getElementById('actionEq');
+  const debtActionEl = document.getElementById('actionDebt');
+  const summaryEl = document.getElementById('summary');
+
+  if (Math.abs(diff) < 1000) {
+      eqActionEl.textContent = "Hold";
+      debtActionEl.textContent = "Hold";
+      summaryEl.textContent = "Balanced ✅";
+      summaryEl.className = "verdict-box on-track"; // Blue
+  } else if (diff > 0) {
+      // Need more Equity -> Buy Equity, Sell Debt
+      eqActionEl.textContent = "Buy " + format(diff);
+      debtActionEl.textContent = "Sell " + format(diff);
+      summaryEl.textContent = "Rebalance Required ⚠️";
+      summaryEl.className = "verdict-box behind"; // Orange/Red warning
+  } else {
+      // Need less Equity -> Sell Equity, Buy Debt
+      eqActionEl.textContent = "Sell " + format(diff);
+      debtActionEl.textContent = "Buy " + format(diff);
+      summaryEl.textContent = "Rebalance Required ⚠️";
+      summaryEl.className = "verdict-box behind";
+  }
+
+  // Visualizing deviation
+  const currentPct = (eq / total) * 100;
+  chart.data.datasets[0].data = [currentPct, 100 - currentPct];
+  chart.data.datasets[0].backgroundColor = diff > 0 ? ['#ef4444', '#334155'] : ['#22c55e', '#334155'];
+  chart.update();
+}
+
+Object.values(els).forEach(el => el.addEventListener('input', calculate));
+calculate();
+</script>
+</body>
+</html>

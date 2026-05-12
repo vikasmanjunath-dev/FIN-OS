@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | ETF Masterclass</title>
+  
+  <script src="../js/theme-init.js"></script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/etfdetail.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+  <button id="themeToggle" class="theme-btn fixed-theme-btn">🌙</button>
+
+  <div class="deep-wrapper">
+    
+    <aside class="toc-sidebar">
+      <div class="toc-header">PROTOCOL 03: ETFs</div>
+      <ul class="toc-list">
+        <li><a href="#hero" class="toc-link active">0. Start</a></li>
+        <li><a href="#sec1" class="toc-link">1. The Thali Concept</a></li>
+        <li><a href="#sec2" class="toc-link">2. ETF vs Stock vs MF</a></li>
+        <li><a href="#sec3" class="toc-link">3. The Mechanism</a></li>
+        <li><a href="#sec4" class="toc-link">4. Types (The Menu)</a></li>
+        <li><a href="#sec5" class="toc-link">5. The Cost Advantage</a></li>
+        <li><a href="#sec6" class="toc-link">6. Risks (Real Talk)</a></li>
+        <li><a href="#sec7" class="toc-link">7. Selection Checklist</a></li>
+        <li><a href="#sec8" class="toc-link">8. ETF vs Mutual Fund</a></li>
+        <li><a href="#sec9" class="toc-link">9. Strategy (Core-Sat)</a></li>
+        <li><a href="#sec10" class="toc-link">10. SIP vs Lump Sum</a></li>
+        <li><a href="#sec11" class="toc-link">11. Persona Match</a></li>
+        <li><a href="#sec12" class="toc-link">12. Myths Busted</a></li>
+        <li><a href="#sec13" class="toc-link">13. vs Direct Stocks</a></li>
+        <li><a href="#sec14" class="toc-link">14. Mental Model</a></li>
+        <li><a href="#sec15" class="toc-link">15. Final Truth</a></li>
+      </ul>
+      <a href="markets.html" class="back-btn">← Back to Terminal</a>
+    </aside>
+
+    <main class="deep-content" id="scrollContainer">
+
+      <section class="chapter active" id="hero">
+        <h1 class="glitch-text" data-text="ETF Masterclass">ETF Masterclass</h1>
+        <p class="intro-text">
+          Don't look for the needle in the haystack.<br>
+          <span class="highlight">Buy the haystack.</span>
+        </p>
+        <div class="scroll-indicator">Initialize Protocol ⬇</div>
+      </section>
+
+      <section class="chapter" id="sec1">
+        <span class="chapter-badge">LEVEL 01: CONCEPT</span>
+        <h2>1. What Is an ETF? (The Thali Analogy)</h2>
+        <p>Buying stocks individually (Reliance, TCS, HDFC) is like ordering <strong>A La Carte</strong>. It's expensive, requires research, and if the Dal is bad, your dinner is ruined.</p>
+        
+        <div class="concept-box glass">
+          <div class="thali-visual">
+            <div class="plate">
+              <div class="bowl n50">Nifty 50</div>
+              <div class="bowl bank">Bank</div>
+              <div class="bowl it">IT</div>
+              <div class="bowl gold">Gold</div>
+            </div>
+            <div class="label-box">
+              <h4>🍱 The ETF Thali</h4>
+              <p>You buy 1 Unit. You get a small spoon of everything.</p>
+            </div>
+          </div>
+          <p class="moral">
+            <strong>ETF = Exchange Traded Fund.</strong><br>
+            It is a ready-made portfolio that trades live on the stock exchange like a single share. You get diversification in one click.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec2">
+        <span class="chapter-badge">LEVEL 02: COMPARISON</span>
+        <h2>2. ETF vs Stock vs Mutual Fund</h2>
+        <p>Why choose one over the other? Here is the reality table.</p>
+
+        <div class="comparison-table">
+           <div class="comp-row header">
+             <span>Feature</span>
+             <span>Stock</span>
+             <span>Mutual Fund</span>
+             <span class="highlight">ETF</span>
+           </div>
+           <div class="comp-row">
+             <span>Ownership</span>
+             <span>Single Co.</span>
+             <span>Basket</span>
+             <span class="highlight">Basket</span>
+           </div>
+           <div class="comp-row">
+             <span>Trading</span>
+             <span>Live</span>
+             <span>End of Day</span>
+             <span class="highlight">Live</span>
+           </div>
+           <div class="comp-row">
+             <span>Control</span>
+             <span>High</span>
+             <span>Low</span>
+             <span class="highlight">High</span>
+           </div>
+           <div class="comp-row">
+             <span>Cost</span>
+             <span>Zero</span>
+             <span>High (1-2%)</span>
+             <span class="highlight">Low (~0.05%)</span>
+           </div>
+           <div class="comp-row">
+             <span>Effort</span>
+             <span>Extreme</span>
+             <span>None</span>
+             <span class="highlight">Low</span>
+           </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec3">
+        <span class="chapter-badge">LEVEL 03: MECHANISM</span>
+        <h2>3. How ETFs Work (The Fair Price Logic)</h2>
+        <p>If everyone sells the ETF, shouldn't the price crash below the actual value? No. The mechanism is self-healing.</p>
+
+        <div class="visual-flow-container glass">
+          <div class="flow-step">
+            <div class="step-icon">🏛️</div>
+            <strong>Fund House</strong>
+            <span>(Nippon/SBI)</span>
+          </div>
+          <div class="flow-line">
+            <div class="particle"></div>
+          </div>
+          <div class="flow-step center">
+            <div class="step-icon">⚖️</div>
+            <strong>Market Maker</strong>
+            <span>(The Balancer)</span>
+          </div>
+          <div class="flow-line">
+            <div class="particle reverse"></div>
+          </div>
+          <div class="flow-step">
+            <div class="step-icon">📈</div>
+            <strong>Exchange</strong>
+            <span>(NSE/BSE)</span>
+          </div>
+        </div>
+        <p class="caption-text">
+          <strong>Creation/Redemption Mechanism:</strong> If ETF price > Actual Value, Market Makers create new units to bring price down. If Price < Value, they destroy units. This keeps the price fair.
+        </p>
+      </section>
+
+      <section class="chapter" id="sec4">
+        <span class="chapter-badge">LEVEL 04: THE MENU</span>
+        <h2>4. Types of ETFs (Know Your Options)</h2>
+        <p>Not all ETFs are the same. Here are the 5 main categories in India.</p>
+        
+        <div class="grid-3-cards">
+          <div class="card-box">
+            <div class="icon">🇮🇳</div>
+            <h4>1. Index ETFs</h4>
+            <p class="sub">Nifty 50, Sensex, Next 50</p>
+            <p><strong>The Foundation.</strong> These track the main market indices exactly. If Nifty goes up, your money goes up. Core wealth builder.</p>
+          </div>
+          <div class="card-box">
+            <div class="icon">🏦</div>
+            <h4>2. Sectoral ETFs</h4>
+            <p class="sub">BankBees, ITBees, Pharma</p>
+            <p><strong>Focused Bet.</strong> You buy the entire banking sector or IT sector. Higher return potential, but if that sector fails, you lose.</p>
+          </div>
+          <div class="card-box highlight">
+            <div class="icon">🥇</div>
+            <h4>3. Gold ETFs</h4>
+            <p class="sub">GoldBees</p>
+            <p><strong>Digital Gold.</strong> Tracks domestic gold prices. No locker fees, no making charges, no theft risk. High liquidity.</p>
+          </div>
+          <div class="card-box">
+            <div class="icon">🌎</div>
+            <h4>4. International ETFs</h4>
+            <p class="sub">Nasdaq 100, S&P 500</p>
+            <p><strong>Global Growth.</strong> Own Apple, Microsoft, and Google using Indian Rupees. Also acts as a dollar hedge.</p>
+          </div>
+          <div class="card-box">
+            <div class="icon">🌱</div>
+            <h4>5. Thematic ETFs</h4>
+            <p class="sub">ESG, Consumption, PSU</p>
+            <p><strong>Story Based.</strong> Investing in a theme (e.g., "India Consumption"). Warning: Themes die faster than indices.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec5">
+        <span class="chapter-badge">LEVEL 05: COMPOUNDING</span>
+        <h2>5. The Silent Wealth Killer: Costs</h2>
+        <p>ETF Expense ratios are ~0.05%. Mutual Funds are ~1-2%. This tiny difference destroys wealth over decades.</p>
+
+        <div class="chart-container glass">
+          <canvas id="costChart"></canvas>
+          <p class="chart-caption">Impact of Expense Ratio on ₹10L over 20 Years</p>
+        </div>
+        <div class="concept-box">
+           <p><strong>Result:</strong> Over 25 years, an ETF investor can end up with <strong>Lakhs more</strong> just by saving on fees.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec6">
+        <span class="chapter-badge">LEVEL 06: RISKS</span>
+        <h2>6. ETF Risks (Yes, They Exist)</h2>
+        <div class="grid-2-mini">
+          <div class="mini-card danger">
+            <h4>1. Market Risk</h4>
+            <p>There is no protection. If Nifty falls 50%, your ETF falls 50%. You are fully exposed to the market.</p>
+          </div>
+          <div class="mini-card danger">
+            <h4>2. Liquidity Risk</h4>
+            <p>Some niche ETFs have low volume. If you want to sell 10,000 units, there might be no buyers, forcing you to sell at a loss (Slippage).</p>
+          </div>
+          <div class="mini-card danger">
+            <h4>3. Tracking Error</h4>
+            <p>The ETF might return 9.8% when Nifty gave 10%. The difference is lost to friction, cash holdings, and expenses.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec7">
+        <span class="chapter-badge">LEVEL 07: DECISION LOGIC</span>
+        <h2>7. How to Choose the Right ETF</h2>
+        <p>Don't just buy the cheapest one. Use this checklist.</p>
+        <ul class="checklist-style">
+           <li>✅ <strong>Volume:</strong> Is the daily trading volume high? (Avoid illiquid ETFs).</li>
+           <li>✅ <strong>AUM Size:</strong> Is the fund size substantial? (Avoid tiny funds).</li>
+           <li>✅ <strong>Tracking Error:</strong> Is it historically low? (Lower is better).</li>
+           <li>✅ <strong>Expense Ratio:</strong> Is it competitive? (~0.05% for Index).</li>
+           <li>✅ <strong>Index:</strong> Do you understand what it tracks?</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="sec8">
+        <span class="chapter-badge">LEVEL 08: THE SWITCH</span>
+        <h2>8. ETF vs Mutual Fund (Indian Reality)</h2>
+        <div class="grid-2-mini">
+           <div class="mini-card">
+             <h4>Mutual Funds</h4>
+             <p><strong>Good For:</strong> Beginners who want SIP automation and don't want to open a Demat account.</p>
+             <p class="sub">Cons: High cost, NAV transparency only at day end.</p>
+           </div>
+           <div class="mini-card">
+             <h4>ETFs</h4>
+             <p><strong>Good For:</strong> Investors who want control, lower costs, and can place buy orders themselves.</p>
+             <p class="sub">Pros: Real-time price, ultra-low cost.</p>
+           </div>
+        </div>
+        <p class="concept-box" style="margin-top:20px;"><strong>Trend:</strong> Advanced investors often migrate from MFs to ETFs once their capital grows to save on commission.</p>
+      </section>
+
+      <section class="chapter" id="sec9">
+        <span class="chapter-badge">LEVEL 09: PORTFOLIO</span>
+        <h2>9. The Core-Satellite Strategy</h2>
+        <p>How to actually build a portfolio. Don't buy random things.</p>
+
+        <div class="orbit-visual">
+          <div class="core-planet">
+            <span>CORE<br>70%</span>
+            <div class="core-desc">Nifty 50 / Index</div>
+          </div>
+          <div class="satellite sat-1"><span>Gold</span></div>
+          <div class="satellite sat-2"><span>Sector</span></div>
+          <div class="satellite sat-3"><span>Global</span></div>
+        </div>
+        
+        <ul class="checklist-style">
+           <li>🪐 <strong>Core (70-80%):</strong> Boring Index ETFs (NiftyBees, Nifty Next 50). This provides stability.</li>
+           <li>🚀 <strong>Satellite (20-30%):</strong> High Growth (Midcap/Sector) or Hedge (Gold/US). This provides the "Alpha".</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="sec10">
+        <span class="chapter-badge">LEVEL 10: TIMING</span>
+        <h2>10. SIP vs Lump Sum in ETFs</h2>
+        <div class="concept-box glass">
+           <h4>Strategy: The Hybrid Approach</h4>
+           <p><strong>SIP (Manual):</strong> Buy ETFs consistently on the 1st of every month regardless of price. This averages your cost.</p>
+           <p><strong>Lump Sum (Sniper):</strong> Keep cash ready. When the market falls 5-10%, deploy bulk cash into your Core ETFs.</p>
+           <p class="highlight">Note: Most brokers now offer "SIP in ETF" features automatically.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec11">
+        <span class="chapter-badge">LEVEL 11: PERSONA MATCH</span>
+        <h2>11. ETFs for Your Personality</h2>
+        <div class="grid-2-mini">
+           <div class="mini-card">
+             <h4>🧘 The Conservative</h4>
+             <p><strong>Buy:</strong> Nifty 50 ETF + Gold ETF.</p>
+             <p><strong>Goal:</strong> Beat inflation, sleep peacefully.</p>
+           </div>
+           <div class="mini-card">
+             <h4>🏎️ The Aggressive</h4>
+             <p><strong>Buy:</strong> Nifty Next 50 + Midcap ETF.</p>
+             <p><strong>Goal:</strong> Maximize growth, willing to see volatility.</p>
+           </div>
+           <div class="mini-card">
+             <h4>👔 The Busy Pro</h4>
+             <p><strong>Buy:</strong> 1 single Index ETF.</p>
+             <p><strong>Goal:</strong> Zero maintenance wealth.</p>
+           </div>
+           <div class="mini-card">
+             <h4>😰 The Anxious</h4>
+             <p><strong>Buy:</strong> Low Volatility ETF.</p>
+             <p><strong>Goal:</strong> Reduce market swings.</p>
+           </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec12">
+        <span class="chapter-badge">LEVEL 12: MYTH BUSTING</span>
+        <h2>12. Common ETF Myths</h2>
+        <div class="scrolling-wrapper">
+          <div class="scrolling-card glass">
+            <h3>"ETFs are Boring"</h3>
+            <p class="answer yes">TRUE</p>
+            <p class="desc">And that is good. Excitement belongs in casinos, not portfolios.</p>
+          </div>
+          <div class="scrolling-card glass">
+            <h3>"Low Returns"</h3>
+            <p class="answer no">FALSE</p>
+            <p class="desc">ETFs beat 80% of active fund managers over a 10-year period.</p>
+          </div>
+          <div class="scrolling-card glass">
+            <h3>"Only for Beginners"</h3>
+            <p class="answer no">FALSE</p>
+            <p class="desc">Global institutions and pension funds are the biggest buyers of ETFs.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec13">
+        <span class="chapter-badge">LEVEL 13: HARD TRUTH</span>
+        <h2>13. ETFs vs Direct Stocks</h2>
+        <div class="comparison-table">
+           <div class="comp-row header">
+             <span>Metric</span>
+             <span>Direct Stocks</span>
+             <span>ETFs</span>
+           </div>
+           <div class="comp-row">
+             <span>Upside</span>
+             <span>Unlimited</span>
+             <span>Market Avg</span>
+           </div>
+           <div class="comp-row">
+             <span>Mistake Cost</span>
+             <span>Total Loss (0)</span>
+             <span>Low (Market Dip)</span>
+           </div>
+           <div class="comp-row">
+             <span>Skill Needed</span>
+             <span>Expert</span>
+             <span>Basic</span>
+           </div>
+        </div>
+        <p class="concept-box"><strong>Verdict:</strong> Most Indians should start with ETFs. Only pick stocks if you can read a balance sheet better than a CA.</p>
+      </section>
+
+      <section class="chapter" id="sec14">
+        <span class="chapter-badge">LEVEL 14: MINDSET</span>
+        <h2>14. The FIN-OS Mental Model</h2>
+        <div class="concept-box glass">
+           <h4>Humility-Based Investing</h4>
+           <p>Think of ETFs as saying:</p>
+           <p class="highlight" style="font-size:1.2rem; margin:15px 0;">"I don't know which specific company will win, but I know India as a country will grow."</p>
+           <p>This mindset removes the ego of "Stock Picking" and focuses on the certainty of "Economic Growth".</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec15">
+        <div class="pro-tip god-mode">
+          <div class="god-header">
+            <h4>💎 The Final Truth</h4>
+          </div>
+          <p>
+            ETFs don't create heroes. They don't excite Telegram groups.<br>
+            But they quietly create <strong>Freedom</strong>.
+          </p>
+          <p class="sub-text">
+            If stocks test your intelligence, ETFs test your patience.<br>
+            And in the market, patience pays more than intelligence.
+          </p>
+        </div>
+      </section>
+
+      <footer class="deep-footer">
+        <h2>Protocol Complete.</h2>
+        <p>You now understand ETFs better than 90% of investors.</p>
+        <a href="markets.html" class="action-btn">Return to Base ➔</a>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="../js/ui.js"></script>
+  <script src="../js/etfdetail.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+</body>
+</html>

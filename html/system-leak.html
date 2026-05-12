@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+    <title>FIN•OS | THE SYSTEM LEAK [FORENSIC AUDIT]</title>
+    
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/system-leak.css">
+  <link rel="stylesheet" href="../css/theme.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+        <div class="logo">FIN•OS</div>
+        <div class="terminal-status">
+            <span class="pulse-dot"></span> SYSTEM: ACTIVE
+        </div>
+    <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html" class="active">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+    <main class="main">
+        <div class="content-wrapper">
+
+            <header class="header header-flex">
+                <div class="hero-box">
+                    <h1 class="glitch-text" data-text="THE SYSTEM LEAK">THE SYSTEM LEAK</h1>
+                    <p class="hero-sub">Investigating the systemic destruction of Indian Middle-Class wealth.</p>
+                </div>
+                <div class="header-controls">
+                    <div class="risk-indicator">
+                        <span class="label">LEAK RISK:</span>
+                        <span class="value high">CRITICAL</span>
+                    </div>
+                    <button id="themeToggle" class="theme-btn">🌙</button>
+                </div>
+            </header>
+
+            <div class="scanline"></div>
+
+<section class="leak-section glass" id="inflation-audit">
+    <div class="leak-header">
+        <span class="badge red">PROTOCOL 01: EROSION</span>
+        <h2 class="section-title">Inflation — Why Cupboard Savings Destroy Indian Wealth</h2>
+    </div>
+    
+    <div class="forensic-report-layout">
+        <div class="data-block">
+            <p class="description">While official CPI inflation sits at <span class="highlight">5–6%</span>, the reality of a middle-class household is a silent fire.</p>
+            <div class="metrics-grid">
+                <div class="metric"><span>Real Household Inflation</span> <strong>8–9%</strong></div>
+                <div class="metric"><span>Education Inflation</span> <strong>10–12%</strong></div>
+                <div class="metric"><span>Healthcare Inflation</span> <strong>12–14%</strong></div>
+            </div>
+        </div>
+
+        <div class="leak-visual-full">
+            <div class="chart-wrapper">
+                                <canvas id="inflationGapChart"></canvas>
+            </div>
+            <div class="insight-tag">REALITY GAP: 4.5% ANNUAL WEALTH DRAIN</div>
+        </div>
+
+        <div class="desi-case forensic">
+            <h3 class="case-header">🧺 CASE STUDY: Sharma Ji Tragedy</h3>
+            <div class="case-split">
+                <p>Sharma ji saved <strong>₹2,000/month</strong> for 20 years, totaling <strong>₹4.8 lakh</strong> in cash.</p>
+                <div class="loss-comparison">
+                    <div class="item">School Fees: <span class="old">₹8k</span> ⮕ <span class="new">₹60k</span></div>
+                    <div class="item">Doctor Visit: <span class="old">₹200</span> ⮕ <span class="new">₹800</span></div>
+                    <div class="item">LPG Cylinder: <span class="old">₹350</span> ⮕ <span class="new">₹1,100</span></div>
+                </div>
+            </div>
+            <div class="verdict-box danger">
+                <p class="verdict-text">REAL PURCHASING POWER LOST: ~55%</p>
+                <p class="truth-sub">Money kept idle in India loses half its power every 9–10 years.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+            <section class="leak-section glass" id="lifestyle-audit">
+                <div class="leak-grid reverse">
+                    <div class="leak-info">
+                        <span class="badge neon">PROTOCOL 02: ADDICTION</span>
+                        <h2>Lifestyle Inflation — Salary Badhi, Zindagi Mehengi</h2>
+                        <p>A high salary is often a "Golden Handcuff." As income grows at <span class="highlight">~7%</span>, expenses explode at <span class="highlight">12–15%</span>.</p>
+                        
+                        <div class="desi-case forensic">
+                            <h3>🧑‍💻 CASE STUDY: IT Employee (Bangalore)</h3>
+                            <div class="table-container">
+                                <table class="forensic-table">
+                                    <thead>
+                                        <tr>
+                                            <th>YEAR</th>
+                                            <th>SALARY</th>
+                                            <th>EXPENSES</th>
+                                            <th>SAVINGS %</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2014</td>
+                                            <td>₹30,000</td>
+                                            <td>₹18,000</td>
+                                            <td class="good">40%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026</td>
+                                            <td>₹1,10,000</td>
+                                            <td>₹95,000</td>
+                                            <td class="bad">14%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="summary-note">💣 Despite a 3.6× salary growth, savings fell and financial stress increased.</p>
+                        </div>
+                    </div>
+                    <div class="leak-visual">
+                        <div class="visual-card">
+                            <div class="leak-meter-group">
+                                <p>Subscription Economy Growth (India): <strong>>20% CAGR</strong></p>
+                                <div class="leak-meter"><div class="leak-fill" data-level="85%"></div></div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+<section class="leak-section glass" id="protocol-03">
+    <div class="forensic-header-stack">
+        <span class="badge warning-glow">PROTOCOL 03: THE EGO TAX</span>
+        <h2 class="section-title glitch-text" data-text="LOG KYA KAHENGE">LOG KYA KAHENGE</h2>
+    </div>
+
+    <div class="ego-tax-grid">
+        <div class="ego-visual-panel">
+            <p class="description-lead">Society operates as a wealth-redistribution mechanism that moves capital from your retirement fund into the pockets of caterers to satisfy other people's opinions.</p>
+            
+            <div class="ego-hologram-container">
+                <div class="data-stream-bg"></div> <div class="hologram-ring-assembly">
+                    <div class="ring-outer"></div>
+                    <div class="ring-inner"></div>
+                </div>
+                <div class="ego-stat-overlay">
+                    <span class="stat-label">EST. WEDDING COST (2026)</span>
+                    <span class="stat-value glitch-text small" data-text="₹20–30 LAKH">₹20–30 LAKH</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ego-data-panel">
+            <div class="forensic-card danger-glow">
+                <h3 class="card-header">🧠 BEHAVIOURAL TRAP: The Father's Sacrifice</h3>
+                <p class="card-body">A father earning ₹60k/month spends ₹25L on a wedding.</p>
+                <div class="debt-metrics-grid">
+                    <div class="metric-box">
+                        <span class="m-label">EMI BONDAGE</span>
+                        <strong class="m-value">7 YEARS</strong>
+                    </div>
+                    <div class="metric-box">
+                        <span class="m-label">RETIREMENT CORPUS</span>
+                        <strong class="m-value critical">ZERO</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="system-warning-box">
+                <div class="warning-header">
+                    <span class="alert-icon">⚠️</span> SYSTEM ALERT
+                </div>
+                <p><strong>70%</strong> of Indian weddings are now funded via gold sales, high-interest personal loans, or credit cards.</p>
+                
+                <div class="leak-meter-container">
+                    <div class="meter-header">
+                        <span>DEBT PENETRATION LEVEL</span>
+                        <span class="critical">CRITICAL</span>
+                    </div>
+                    <div class="leak-meter fancy">
+                        <div class="leak-fill" data-level="70%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="leak-section glass" id="protocol-04">
+    <div class="forensic-header-stack">
+        <span class="badge blue-glow">PROTOCOL 04: FRICTIONLESS LOSS</span>
+        <h2 class="section-title glitch-text" data-text="CONVENIENCE LEAK">CONVENIENCE LEAK</h2>
+    </div>
+
+    <div class="ego-tax-grid reverse">
+        <div class="ego-data-panel">
+            <div class="forensic-card info-glow">
+                <h3 class="card-header">🛒 THE IMPULSE BUG: Quick Commerce</h3>
+                <p class="card-body">Convenience is the most expensive subscription you never explicitly signed up for.</p>
+                <div class="debt-metrics-grid">
+                    <div class="metric-box">
+                        <span class="m-label">ORDERS / MONTH</span>
+                        <strong class="m-value">12–18</strong>
+                    </div>
+                    <div class="metric-box">
+                        <span class="m-label">IMPULSE OVERHEAD</span>
+                        <strong class="m-value critical">35–40%</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="system-warning-box blue-border">
+                <div class="warning-header">
+                    <span class="alert-icon">🌀</span> FLOW ANALYSIS
+                </div>
+                <p>Average spending increases by <strong>25–30%</strong> compared to offline shopping due to impulse triggers and "dark patterns" in app UI.</p>
+                
+                <div class="leak-meter-container">
+                    <div class="meter-header">
+                        <span>CONVENIENCE ADDICTION LEVEL</span>
+                        <span class="info">HIGH</span>
+                    </div>
+                    <div class="leak-meter fancy-blue">
+                        <div class="leak-fill" data-level="82%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ego-visual-panel">
+            <p class="description-lead">We are trading 10 minutes of instant comfort today for 10 years of financial freedom in our 50s.</p>
+            
+            <div class="ego-hologram-container blue-theme">
+                <div class="data-stream-bg"></div>
+                <div class="hologram-ring-assembly">
+                    <div class="ring-outer blue"></div>
+                    <div class="ring-inner blue"></div>
+                </div>
+                <div class="ego-stat-overlay">
+                    <span class="stat-label">20-YEAR OPPORTUNITY COST</span>
+                    <span class="stat-value glitch-text small" data-text="₹49.0 LAKH">₹49.0 LAKH</span>
+                </div>
+            </div>
+            <div class="forensic-footer-tag">
+                *Based on ₹4,500/month leakage invested @12% CAGR
+            </div>
+        </div>
+    </div>
+</section>
+
+         <section class="leak-section glass" id="protocol-05">
+    <div class="forensic-header-stack centered">
+        <span class="badge neon-glow">PROTOCOL 05: THE DIGITAL ACCELERATOR</span>
+        <h2 class="section-title glitch-text" data-text="UPI SINKHOLE">UPI SINKHOLE</h2>
+        <p class="hero-sub">Analyzing the velocity of frictionless wealth erosion.</p>
+    </div>
+
+    <div class="sinkhole-stage" id="sinkholeStage">
+        <div class="organic-sinkhole">
+            <div class="sinkhole-pulse"></div>
+            <div class="sinkhole-core">
+                <span class="label">MONTHLY LEAK</span>
+                <span class="value glitch-text small" data-text="₹0" id="live-leak-counter">₹0</span>
+            </div>
+        </div>
+        </div>
+
+    <div class="forensic-grid-bottom">
+        <div class="forensic-card neon-border">
+            <h3 class="card-header">🧠 THE PAIN GAP</h3>
+            <p class="card-body">UPI removes the "physical pain" of payment, accelerating spending by <strong>18–25%</strong> compared to cash.</p>
+            <div class="visual-placeholder">
+                
+            </div>
+        </div>
+
+        <div class="forensic-card neon-border">
+            <h3 class="card-header">🧾 THE "MICRO-BLEED"</h3>
+            <p class="card-body">Small transactions feel free. "₹120 Chai, ₹180 Snack" becomes a <strong>₹12,000/month</strong> invisible drain.</p>
+            
+            <div class="leak-meter-container">
+                <div class="meter-header">
+                    <span>LEAK VELOCITY</span>
+                    <span class="neon">EXTREME</span>
+                </div>
+                <div class="leak-meter fancy-neon">
+                    <div class="leak-fill" data-level="92%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="leak-section glass" id="protocol-06">
+    <div class="forensic-header-stack">
+        <span class="badge red-glow">PROTOCOL 06: DEBT BONDAGE</span>
+        <h2 class="glitch-text refined-header" data-text="THE GRAVITY ANCHOR">THE GRAVITY ANCHOR</h2>
+        <p class="hero-sub">Forensic Audit: The structural collapse of career mobility.</p>
+    </div>
+
+    <div class="gravity-arena">
+        <div class="anchor-visual-core">
+            <div class="gravity-vortex"></div>
+            <div class="house-hologram" id="anchorHouse">
+                <div class="h-face h-front"></div>
+                <div class="h-face h-top"></div>
+                <div class="h-face h-side"></div>
+                <div class="mass-reading">MASS: 15× ANNUAL INCOME</div>
+            </div>
+            <div id="careerPathField"></div>
+        </div>
+
+        <div class="stress-monitor">
+            <div class="monitor-header">
+                <span class="label">FREEDOM STATUS:</span>
+                <span class="status critical" id="freedomStatus">BONDAGE DETECTED</span>
+            </div>
+            <div class="compression-gauge">
+                <div class="gauge-bar" id="riskFill"></div>
+                <div class="gauge-markings"></div>
+            </div>
+            <div class="gauge-labels">
+                <span>0% (SLAVERY)</span>
+                <span>RISK CAPACITY</span>
+                <span>100% (FREEDOM)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="forensic-grid-bottom">
+        <div class="forensic-card danger-glow">
+            <h3>🏠 THE FLAT TRAP</h3>
+            <p>Average price-to-income ratio jumped from <strong>4.5×</strong> (2000) to <strong>15×</strong> (2026).</p>
+            <div class="data-row">
+                <span class="l">EMI:</span> <span class="v">₹75,000</span>
+            </div>
+            <div class="data-row">
+                <span class="l">SALARY:</span> <span class="v">₹1,20,000</span>
+            </div>
+            <p class="impact-txt">Outcome: You are a debt-servicing utility for the next 30 years.</p>
+        </div>
+
+        <div class="forensic-card danger-glow">
+            <h3>⛓️ JOB-LOCK EFFECT</h3>
+            <p>When 60%+ of income is locked in a mortgage, your ability to quit a toxic job or start a business is <strong>killed</strong>.</p>
+            <div class="leak-meter fancy-red">
+                <div class="leak-fill" data-level="100%"></div>
+            </div>
+            <p class="sub-note">*System Status: Life-Hours Owned by Bank.</p>
+        </div>
+    </div>
+</section>
+
+            <section class="leak-section glass" id="protocol-07">
+    <div class="forensic-header-stack">
+        <span class="badge warning-glow">PROTOCOL 07: THE ACTUAL MATH</span>
+        <h2 class="glitch-text-sm" data-text="CORROSIVE DECAY">CORROSIVE DECAY</h2>
+        <p class="hero-sub-sm">Forensic Audit: Breakdown of ₹10 Lakhs (2019–2026).</p>
+    </div>
+
+    <div class="forensic-audit-grid">
+        <div class="audit-col beams">
+            <div class="beam-stat"><span>FOOD</span> <strong>8%</strong></div>
+            <div class="beam-track"><div class="beam-fill food"></div></div>
+            
+            <div class="beam-stat"><span>FUEL</span> <strong>9%</strong></div>
+            <div class="beam-track"><div class="beam-fill fuel"></div></div>
+            
+            <div class="beam-stat"><span>EDUCATION</span> <strong>11%</strong></div>
+            <div class="beam-track"><div class="beam-fill edu"></div></div>
+            
+            <div class="beam-stat"><span>HEALTH</span> <strong>13%</strong></div>
+            <div class="beam-track"><div class="beam-fill health"></div></div>
+        </div>
+
+        <div class="audit-col core-viz">
+            <div class="wealth-sphere-wrapper">
+                <div class="wealth-sphere">
+                   <span class="residual-label">RESIDUAL VALUE</span>
+                   <span class="current-val">₹6.6L</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="audit-col metrics">
+            <div class="metric-mini-card">
+                <span class="m-tag">WEIGHTED INFLATION</span>
+                <div class="m-num">8.5%</div>
+                <p>The Real Desi Burn Rate</p>
+            </div>
+            <div class="metric-mini-card critical">
+                <span class="m-tag">PURCHASING LOSS</span>
+                <div class="m-num">34%</div>
+                <p>Systemic Wealth Erosion</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+ <section class="leak-section glass" id="protocol-08">
+    <div class="forensic-header-stack centered">
+        <span class="badge red-glow">PROTOCOL 08: SYSTEM FAILURE</span>
+        <h2 class="glitch-text-sm" data-text="THE TRAPDOOR">THE TRAPDOOR</h2>
+        <p class="hero-sub-sm">Audit of the 42% interest-compounding trap.</p>
+    </div>
+
+    <div class="forensic-audit-grid">
+        <div class="audit-col v-stack">
+            <div class="metric-mini-card critical">
+                <span class="m-tag">ANNUAL PERCENTAGE RATE</span>
+                <div class="m-num">42%</div>
+                <p>Compounding Wealth Destroyer</p>
+            </div>
+            <div class="metric-mini-card">
+                <span class="m-tag">REPAYMENT MULTIPLIER</span>
+                <div class="m-num">2.4×</div>
+                <p>₹1L turns into ₹2.4L</p>
+            </div>
+        </div>
+
+        <div class="audit-col vortex-viz">
+            <div class="debt-vortex-wrapper">
+                <div class="vortex-rings">
+                    <div class="v-ring vr1"></div>
+                    <div class="v-ring vr2"></div>
+                </div>
+                <div class="debt-core">
+                    <span class="core-label">UNPAID BALANCE</span>
+                    <span class="core-val">₹1.0L</span>
+                </div>
+                <div id="interestSpray"></div>
+            </div>
+            <div class="time-penalty">
+                <span class="t-label">TIME PENALTY:</span>
+                <span class="t-val" id="timePenalty">8 YEARS</span>
+            </div>
+        </div>
+
+        <div class="audit-col metrics">
+            <div class="forensic-card danger-glow sm-text">
+                <h3>⚠️ THE "MINIMUM" ILLUSION</h3>
+                <p>Paying only the "Minimum Due" ensures you pay the maximum interest.</p>
+                <div class="data-row">
+                    <span>Principal:</span> <strong>₹1.0L</strong>
+                </div>
+                <div class="data-row">
+                    <span>Interest:</span> <strong class="critical">₹1.4L</strong>
+                </div>
+                <p class="impact-txt">Outcome: 96 Months of Financial Bondage.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="leak-section glass tactical-radar" id="radar-module">
+    <div class="forensic-header-stack centered">
+        <span class="badge neon-glow">UPI LEAKAGE RADAR</span>
+        <h2 class="glitch-text-sm" data-text="SINKHOLE DETECTION">SINKHOLE DETECTION</h2>
+        <p class="hero-sub-sm">Scanning digital frequency for frictionless wealth erosion.</p>
+    </div>
+
+    <div class="tactical-display">
+        <div class="radar-system">
+            <div class="radar-face">
+                <div class="grid-lines"></div>
+                <div class="crosshairs"></div>
+                <div class="scan-line"></div>
+                <div id="radar-blip-field"></div>
+            </div>
+            
+            <div class="coord-display top-left">LAT: 12.9716° N</div>
+            <div class="coord-display top-right">LON: 77.5946° E</div>
+            <div class="coord-display bottom-left">OS: QFT_2026</div>
+            <div class="coord-display bottom-right" id="scan-status">SCANNING...</div>
+        </div>
+
+        <div class="data-feed">
+            <div class="feed-header">LIVE FREQUENCY LOG</div>
+            <div id="ticker-stream" class="ticker-box">
+                </div>
+            <div class="aggregate-box">
+                <span class="label">EST. MONTHLY DRAIN</span>
+                <span class="val" id="radar-total-leak">₹0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="radar-actions">
+        <button class="footer-btn action-scan" onclick="startForensicScan()">Initialize Deep Scan</button>
+        <button class="footer-btn secondary" onclick="syncLossData()">Sync Future Loss</button>
+    </div>
+</section>
+
+            <footer class="fin-footer glass">
+                <div class="footer-badge">INVESTIGATION CONCLUDED</div>
+                <h2>The Reality: Your pain is systemic, not personal.</h2>
+                <p>Root Causes: Inflation ignorance, Social pressure, Debt normalization.</p>
+                
+                <div class="next-steps">
+                    <h3>PROPOSED FIXES:</h3>
+                    <div class="fix-grid">
+                        <div class="fix-card">Your Money Leak Report</div>
+                        <div class="fix-card">UPI Leakage Calculator</div>
+                        <div class="fix-card">Lifestyle Inflation Simulator</div>
+                    </div>
+                </div>
+<br>
+<br>
+                <div class="footer-actions">
+                    <a href="dashboard.html" class="footer-btn">Return to Base <span>➔</span></a>
+                </div>
+                <br>
+                <p class="copyright">© 2026 FIN•OS Forensic Division</p>
+            </footer>
+
+        </div>
+    </main>
+</div>
+
+<script src="../js/ui.js"></script>
+<script src="../js/system-leak.js"></script>
+
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+<style id="sl-light-theme">
+/* ═══ BODY & PAGE SHELL ═══ */
+[data-theme="light"] body { background-color: #F2F4FB !important; background-image: none !important; color: #0B0D12 !important; }
+[data-theme="light"] .main { background: #F2F4FB !important; }
+[data-theme="light"] .content-wrapper { background: transparent !important; }
+[data-theme="light"] .scanline { display: none !important; }
+
+/* ═══ FORENSIC PANEL CARDS ═══ */
+[data-theme="light"] .leak-section {
+  background: rgba(255,255,255,0.92) !important;
+  border-color: rgba(0,0,0,0.07) !important;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.07) !important;
+  backdrop-filter: blur(20px) !important;
+}
+[data-theme="light"] .leak-section.glass { background: rgba(255,255,255,0.92) !important; }
+
+/* ═══ GLITCH TEXT ═══ */
+[data-theme="light"] .glitch-text,
+[data-theme="light"] .glitch-text-sm,
+[data-theme="light"] .refined-header { color: #0B0D12 !important; }
+[data-theme="light"] .glitch-text::before { text-shadow: -3px 0 rgba(255,71,87,0.5) !important; }
+[data-theme="light"] .glitch-text::after  { text-shadow: -3px 0 rgba(79,124,255,0.5) !important; }
+
+/* ═══ HEADER / BADGE / TEXT ═══ */
+[data-theme="light"] .section-title { color: #0B0D12 !important; }
+[data-theme="light"] .description-lead { color: #4A5068 !important; }
+[data-theme="light"] .hero-sub,
+[data-theme="light"] .hero-sub-sm { color: #4A5068 !important; }
+[data-theme="light"] .card-header { color: #0B0D12 !important; }
+[data-theme="light"] .card-body { color: #4A5068 !important; }
+[data-theme="light"] .impact-txt,
+[data-theme="light"] .sub-note,
+[data-theme="light"] .summary-note,
+[data-theme="light"] .truth-sub { color: #4A5068 !important; }
+[data-theme="light"] .insight-tag { color: #4A5068 !important; }
+[data-theme="light"] .highlight { color: #4F7CFF !important; }
+
+/* ═══ PROTOCOL 01 — INFLATION ═══ */
+[data-theme="light"] .metrics-grid { background: rgba(0,0,0,0.04) !important; border-radius: 16px; }
+[data-theme="light"] .leak-visual-full { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.07) !important; }
+[data-theme="light"] .loss-comparison { background: rgba(0,0,0,0.04) !important; }
+[data-theme="light"] .verdict-box.danger { background: rgba(255,71,87,0.07) !important; }
+[data-theme="light"] .verdict-text { color: #0B0D12 !important; }
+
+/* ═══ PROTOCOL 02 — FORENSIC TABLE ═══ */
+[data-theme="light"] .visual-card { background: rgba(255,255,255,0.7) !important; border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .forensic-table { background: transparent !important; }
+[data-theme="light"] .forensic-table th { background: rgba(0,0,0,0.05) !important; color: #0B0D12 !important; border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .forensic-table td { color: #0B0D12 !important; border-color: rgba(0,0,0,0.05) !important; }
+[data-theme="light"] .forensic-table tr:hover td { background: rgba(0,0,0,0.03) !important; }
+[data-theme="light"] .forensic-list li { color: #0B0D12 !important; border-bottom-color: rgba(0,0,0,0.07) !important; }
+
+/* ═══ LEAK METER ═══ */
+[data-theme="light"] .leak-meter { background: rgba(0,0,0,0.1) !important; border-color: rgba(0,0,0,0.07) !important; }
+[data-theme="light"] .meter-header { color: #4A5068 !important; }
+
+/* ═══ PROTOCOLS 03 & 04 — FORENSIC CARDS ═══ */
+[data-theme="light"] .forensic-card { background: rgba(255,255,255,0.85) !important; border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .forensic-card.danger-glow { background: linear-gradient(145deg, rgba(255,71,87,0.05), rgba(255,255,255,0.92)) !important; border-color: rgba(255,71,87,0.2) !important; }
+[data-theme="light"] .forensic-card.info-glow   { background: linear-gradient(145deg, rgba(79,124,255,0.05), rgba(255,255,255,0.92)) !important; border-color: rgba(79,124,255,0.2) !important; }
+[data-theme="light"] .forensic-card.neon-border { background: rgba(255,255,255,0.85) !important; border-color: rgba(199,240,0,0.3) !important; }
+[data-theme="light"] .forensic-card h3 { color: #0B0D12 !important; }
+[data-theme="light"] .forensic-card p  { color: #4A5068 !important; }
+
+/* ── Metric boxes ── */
+[data-theme="light"] .metric-box { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.07) !important; }
+[data-theme="light"] .m-value { color: #0B0D12 !important; }
+[data-theme="light"] .m-value.critical { color: #ff4757 !important; }
+
+/* ── Warning box ── */
+[data-theme="light"] .system-warning-box { background: rgba(255,165,2,0.06) !important; border-color: rgba(255,165,2,0.3) !important; }
+[data-theme="light"] .system-warning-box.blue-border { background: rgba(79,124,255,0.05) !important; border-color: rgba(79,124,255,0.25) !important; }
+[data-theme="light"] .system-warning-box p { color: #4A5068 !important; }
+
+/* ═══ DARK INTENTIONAL VISUALS — KEEP DARK (restore text inside) ═══ */
+[data-theme="light"] .ego-hologram-container,
+[data-theme="light"] .ego-stat-overlay { background: unset !important; }
+
+/* Restore white text inside dark overlays (beat the theme.css span rule) */
+html[data-theme="light"] .ego-stat-overlay span,
+html[data-theme="light"] .ego-stat-overlay .stat-label,
+html[data-theme="light"] .ego-stat-overlay .stat-value,
+html[data-theme="light"] .sinkhole-core span,
+html[data-theme="light"] .sinkhole-core .label,
+html[data-theme="light"] .sinkhole-core .value,
+html[data-theme="light"] .debt-core span,
+html[data-theme="light"] .debt-core .core-label,
+html[data-theme="light"] .debt-core .core-val { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+
+html[data-theme="light"] .ego-stat-overlay .stat-label { color: #4F7CFF !important; -webkit-text-fill-color: #4F7CFF !important; }
+html[data-theme="light"] .sinkhole-core .label { color: #C7F000 !important; -webkit-text-fill-color: #C7F000 !important; }
+html[data-theme="light"] .debt-core .core-label { color: #888 !important; -webkit-text-fill-color: #888 !important; }
+
+/* Glitch text inside dark cards stays white */
+html[data-theme="light"] .ego-stat-overlay .glitch-text,
+html[data-theme="light"] .sinkhole-core .glitch-text { color: #ffffff !important; }
+
+/* ═══ PROTOCOL 05 — UPI SINKHOLE ═══ */
+[data-theme="light"] .sinkhole-stage { background: radial-gradient(circle at center, rgba(199,240,0,0.05) 0%, transparent 70%) !important; }
+[data-theme="light"] .forensic-grid-bottom { background: transparent !important; }
+
+/* ═══ PROTOCOL 06 — GRAVITY ANCHOR ═══ */
+[data-theme="light"] .stress-monitor { background: rgba(0,0,0,0.05) !important; border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .compression-gauge { background: rgba(0,0,0,0.08) !important; border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .monitor-header .label { color: #4A5068 !important; }
+[data-theme="light"] .data-row { color: #4A5068 !important; }
+[data-theme="light"] .data-row .l { color: #888 !important; }
+[data-theme="light"] .data-row .v { color: #0B0D12 !important; }
+[data-theme="light"] .forensic-footer-tag { color: #888 !important; }
+
+/* ═══ PROTOCOL 07 — CORROSIVE DECAY ═══ */
+[data-theme="light"] .metric-mini-card { background: rgba(255,255,255,0.85) !important; border-color: rgba(0,0,0,0.07) !important; }
+[data-theme="light"] .metric-mini-card p { color: #4A5068 !important; }
+[data-theme="light"] .m-num { color: #0B0D12 !important; }
+[data-theme="light"] .metric-mini-card.critical .m-num { color: #ff4757 !important; }
+[data-theme="light"] .wealth-sphere { background: radial-gradient(circle, rgba(255,71,87,0.5) 0%, rgba(255,71,87,0.1) 60%, transparent 80%) !important; border-color: rgba(255,71,87,0.3) !important; }
+[data-theme="light"] .current-val { color: #0B0D12 !important; }
+[data-theme="light"] .residual-label { color: rgba(0,0,0,0.5) !important; }
+[data-theme="light"] .beam-stat span { color: #4A5068 !important; }
+[data-theme="light"] .beam-stat strong { color: #0B0D12 !important; }
+[data-theme="light"] .beam-track { background: rgba(0,0,0,0.08) !important; }
+
+/* ═══ PROTOCOL 08 — TRAPDOOR ═══ */
+[data-theme="light"] .time-penalty .t-label { color: #4A5068 !important; }
+
+/* ═══ RADAR MODULE ═══ */
+[data-theme="light"] .ticker-box { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.07) !important; }
+[data-theme="light"] .ticker-entry { color: #4F7CFF !important; border-bottom-color: rgba(0,0,0,0.04) !important; }
+[data-theme="light"] .feed-header { color: #0B0D12 !important; }
+[data-theme="light"] .aggregate-box { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.07) !important; }
+[data-theme="light"] .aggregate-box .label { color: #4A5068 !important; }
+[data-theme="light"] .aggregate-box .val { color: #0B0D12 !important; }
+[data-theme="light"] .radar-actions { border-top-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .footer-btn { background: rgba(0,0,0,0.04) !important; color: #0B0D12 !important; border-color: rgba(0,0,0,0.12) !important; }
+[data-theme="light"] .footer-btn:not(.secondary) { color: #4F7CFF !important; border-color: #4F7CFF !important; background: rgba(79,124,255,0.05) !important; }
+[data-theme="light"] .footer-btn.secondary { color: #ff4757 !important; border-color: #ff4757 !important; background: rgba(255,71,87,0.04) !important; }
+[data-theme="light"] .coord-display { color: #4F7CFF !important; }
+
+/* ═══ FOOTER ═══ */
+[data-theme="light"] .fin-footer { background: rgba(255,255,255,0.9) !important; border-color: rgba(0,0,0,0.07) !important; }
+[data-theme="light"] .fin-footer h2 { color: #0B0D12 !important; }
+[data-theme="light"] .fin-footer p { color: #4A5068 !important; }
+[data-theme="light"] .footer-badge { color: #4F7CFF !important; }
+[data-theme="light"] .fix-card { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.08) !important; color: #0B0D12 !important; }
+[data-theme="light"] .copyright { color: #888 !important; }
+
+/* ═══ FLOAT BACK BUTTON ═══ */
+[data-theme="light"] #floatBackBtn { background: rgba(0,0,0,0.06) !important; border-color: rgba(0,0,0,0.12) !important; color: rgba(0,0,0,0.55) !important; }
+[data-theme="light"] #floatBackBtn:hover { background: rgba(0,0,0,0.10) !important; color: #0B0D12 !important; }
+</style>
+
+</body>
+</html>

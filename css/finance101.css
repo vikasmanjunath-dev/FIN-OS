@@ -1,0 +1,720 @@
+/* =========================
+   FINANCE 101 - GEN Z AESTHETIC
+   ========================= */
+
+/* UTILS */
+.highlight { color: var(--accent-secondary); }
+.pill-red { background: rgba(255, 71, 87, 0.2); color: #ff4757; padding: 4px 12px; border-radius: 12px; font-size: 12px; }
+.pill-green { background: rgba(199, 240, 0, 0.2); color: #C7F000; padding: 4px 12px; border-radius: 12px; font-size: 12px; }
+
+/* HERO */
+.hero-sub {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+.intro-card {
+  margin-top: 40px;
+  background: linear-gradient(135deg, rgba(79, 124, 255, 0.1), rgba(11, 13, 18, 0.9));
+  border: 1px solid var(--accent);
+  padding: 40px;
+  border-radius: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.intro-content h2 { font-size: 2rem; margin-bottom: 16px; }
+.intro-content p { font-size: 1.1rem; line-height: 1.6; color: var(--text-secondary); }
+.intro-content strong { color: var(--text-primary); }
+
+/* Pulse Animation */
+.pulse-circle {
+  width: 100px;
+  height: 100px;
+  background: var(--accent-secondary);
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(199, 240, 0, 0.7);
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(199, 240, 0, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(199, 240, 0, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(199, 240, 0, 0); }
+}
+
+/* MODULES */
+.module {
+  margin-top: 60px;
+  padding: 40px;
+  border-radius: 32px;
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.module:hover {
+  border-color: rgba(79, 124, 255, 0.3);
+  transform: translateY(-5px);
+}
+
+.module-header { margin-bottom: 32px; }
+.module-tag {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.module h2 { font-size: 2.5rem; margin-top: 8px; }
+
+/* CONTENT BOXES */
+.concept-box {
+  background: rgba(255,255,255,0.03);
+  padding: 24px;
+  border-radius: 16px;
+  margin-top: 24px;
+  border-left: 4px solid var(--accent);
+}
+
+.concept-box.danger { border-left-color: #ff4757; background: rgba(255, 71, 87, 0.05); }
+
+.concept-box h4 { font-size: 1.2rem; margin-bottom: 12px; color: var(--text-primary); }
+.impact-text { color: var(--accent-secondary); font-weight: 700; margin-top: 12px; }
+
+/* GRIDS & LISTS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 24px; }
+
+.desi-list { list-style: none; padding: 0; margin-top: 20px; }
+.desi-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: var(--text-secondary);
+}
+
+/* CARDS */
+.card.bad-debt, .card.good-debt, .card.ugly-debt {
+  text-align: center;
+  padding: 30px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.card .icon { font-size: 3rem; margin-bottom: 16px; }
+
+/* VISUALS & CHARTS */
+.visual-content {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+.chart-caption {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 10px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* PSYCHOLOGY */
+.mindset-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.mindset-card {
+  padding: 32px;
+  border-radius: 20px;
+  background: rgba(255, 71, 87, 0.05);
+  border: 1px solid rgba(255, 71, 87, 0.2);
+}
+
+.mindset-card.highlight {
+  background: rgba(199, 240, 0, 0.05);
+  border: 1px solid rgba(199, 240, 0, 0.2);
+}
+
+.mindset-card h4 { font-size: 1.4rem; margin-bottom: 16px; }
+.result { font-weight: 700; margin-top: 16px; opacity: 0.8; }
+
+/* FINAL TRUTH */
+.final-truth {
+  margin: 80px 0;
+  text-align: center;
+  padding: 60px;
+  border: 1px solid var(--border-soft);
+}
+
+.truth-statement { font-size: 1.5rem; color: var(--text-secondary); }
+.truth-statement.highlight {
+  font-size: 2.5rem;
+  color: var(--text-primary);
+  font-weight: 800;
+  background: linear-gradient(90deg, #fff, #888);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .mindset-grid { grid-template-columns: 1fr; }
+  .order-2-mobile { order: 2; }
+}
+
+
+/* =========================
+   HORIZONTAL SCROLL SYSTEM
+   ========================= */
+
+.scrolling-wrapper {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 24px;
+  padding: 20px 4px 40px 4px; /* Bottom padding for scrollbar or shadow */
+  
+  /* The Magic of Smoothness */
+  -webkit-overflow-scrolling: touch; 
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  
+  /* Hide Scrollbar but keep functionality */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrolling-wrapper::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* SCROLLING CARD */
+.scrolling-card {
+  flex: 0 0 300px; /* Fixed width prevents shrinking */
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  padding: 32px;
+  scroll-snap-align: start; /* Snaps to start of container */
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+}
+
+.scrolling-card:hover {
+  background: rgba(255,255,255,0.06);
+  transform: translateY(-8px) scale(1.02);
+  border-color: var(--accent);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.card-icon { font-size: 3rem; margin-bottom: 16px; }
+
+/* TRUTH REVEAL STYLES */
+.truth { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+.answer { font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; }
+.answer.no { color: #ff4757; }
+.answer.yes { color: #C7F000; }
+.answer.mixed { color: #ffa502; }
+
+.desc { font-size: 0.95rem; line-height: 1.6; color: var(--text-secondary); }
+
+/* PHASE CARD STYLES */
+.phase-card {
+  border-top: 4px solid var(--accent);
+}
+.phase-badge {
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.phase-card ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 16px;
+}
+.phase-card li {
+  font-size: 0.9rem;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: var(--text-secondary);
+}
+
+/* TANK VISUAL (Module 4) */
+.center-flex { display: flex; align-items: center; justify-content: center; height: 100%; }
+.tank-visual {
+  width: 140px;
+  height: 200px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  background: rgba(0,0,0,0.2);
+}
+.liquid-level {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 60%; /* 6 months full */
+  background: linear-gradient(0deg, #4F7CFF, #00C6FF);
+  animation: liquid-rise 2s ease-out;
+  opacity: 0.8;
+}
+.tank-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-weight: 700;
+  z-index: 2;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+}
+
+@keyframes liquid-rise {
+  from { height: 0%; }
+  to { height: 60%; }
+}
+
+
+
+/* =========================================
+   LIGHT MODE: THE "CLEAN TECH" THEME
+   ========================================= */
+
+[data-theme="light"] .module,
+[data-theme="light"] .scrolling-card,
+[data-theme="light"] .mindset-card,
+[data-theme="light"] .final-truth {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+}
+
+/* 1. Intro Card (Soft Blue Gradient instead of Dark) */
+[data-theme="light"] .intro-card {
+  background: linear-gradient(135deg, #eef2ff, #ffffff);
+  border-color: rgba(79, 124, 255, 0.3);
+  box-shadow: 0 10px 40px rgba(79, 124, 255, 0.1);
+}
+
+[data-theme="light"] .intro-content strong {
+  color: #4F7CFF; /* Electric Blue for emphasis */
+}
+
+/* 2. Concept Boxes & Lists */
+[data-theme="light"] .concept-box {
+  background: #F7F9FC; /* Light Grey Surface */
+  border-left-width: 5px;
+}
+
+[data-theme="light"] .desi-list li {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+  color: #4a5568;
+}
+
+/* 3. Debt Cards */
+[data-theme="light"] .card.bad-debt, 
+[data-theme="light"] .card.good-debt, 
+[data-theme="light"] .card.ugly-debt {
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+/* 4. Scrolling Cards (Hover Effect) */
+[data-theme="light"] .scrolling-card:hover {
+  background: #FFFFFF;
+  border-color: #4F7CFF;
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(79, 124, 255, 0.15);
+}
+
+[data-theme="light"] .truth {
+  color: #718096;
+  font-weight: 600;
+}
+
+/* 5. Phase Badges */
+[data-theme="light"] .phase-card {
+  border-top: 4px solid #4F7CFF;
+}
+
+[data-theme="light"] .phase-badge {
+  background: rgba(79, 124, 255, 0.1);
+  color: #4F7CFF;
+}
+
+/* 6. Typography Fixes */
+[data-theme="light"] .module h2 {
+  color: #1a202c;
+}
+
+[data-theme="light"] .truth-statement.highlight {
+  /* Darker gradient for visibility on white */
+  background: linear-gradient(90deg, #4F7CFF, #2d3436);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 7. Tank Visual */
+[data-theme="light"] .tank-visual {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.1);
+}
+[data-theme="light"] .tank-label {
+  color: #1a202c;
+  text-shadow: none; /* Remove shadow for cleaner look */
+}
+
+
+/* =========================
+   LAYOUT FIX: PINNED SIDEBAR
+   ========================= */
+
+/* 1. Lock the Screen Height */
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* Stop the whole browser from scrolling */
+}
+
+/* 2. The App Shell */
+.app {
+  width: 100%;
+  height: 100vh; /* Full viewport height */
+  overflow-x: hidden;
+}
+
+/* 3. The Sidebar (Fixed Anchor) */
+.sidebar {
+  width: 260px;
+  height: 100vh; /* Full height */
+  overflow-y: auto; /* Scroll inside sidebar if menu is long */
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+
+/* 4. The Content Area (The Scrollable Zone) */
+.main {
+  width: calc(100% - 260px);
+  min-height: 100vh;
+  height: 100vh;
+  margin-left: 260px;
+  overflow-y: auto; /* ONLY this part scrolls */
+  overflow-x: hidden;
+  position: relative;
+  scroll-behavior: smooth;
+}
+
+/* 5. Fix for Sliding Cards (Prevent Vertical Stacking) */
+.scrolling-wrapper {
+  display: flex; /* Force Horizontal */
+  flex-wrap: nowrap !important; /* STRICTLY No Wrapping */
+  overflow-x: auto;
+  width: 100%;
+  max-width: 100%;
+  padding-bottom: 20px; /* Space for scrollbar/shadow */
+  
+  /* UX Improvements */
+  -webkit-overflow-scrolling: touch;
+  cursor: grab; /* Show grab hand */
+}
+
+.scrolling-wrapper:active {
+  cursor: grabbing; /* Show grabbing hand when clicking */
+}
+
+/* Ensure cards have fixed width and don't shrink */
+.scrolling-card {
+  flex: 0 0 300px;
+  min-width: 300px;
+  /* Ensure they don't break layout */
+  box-sizing: border-box; 
+}
+
+
+/* =========================================
+   🚨 RADAR CHART STABILIZER (FIX INFINITE MOVE)
+   ========================================= */
+
+/* 1. Lock the Chart Container */
+#mod2 .visual-content,
+.gauge-container {
+  /* Stop Movement */
+  transform: none !important;
+  animation: none !important;
+  transition: none !important;
+  
+  /* Stop Resizing Loop */
+  height: 300px !important; /* Force fixed height */
+  min-height: 300px !important;
+  max-height: 300px !important;
+  overflow: hidden !important; /* Cut off anything growing outside */
+  
+  /* Fix Position */
+  position: relative !important;
+  display: block !important;
+}
+
+/* 2. Lock the Canvas Element itself */
+#needsWantsChart {
+  max-height: 100% !important;
+  max-width: 100% !important;
+}
+/* =========================================
+   🚨 RADAR CHART STABILIZER (CRITICAL FIX)
+   ========================================= */
+
+/* 1. Lock the parent container of the chart */
+#mod2 .visual-content, 
+.gauge-container {
+  height: 320px !important;       /* Force fixed height */
+  min-height: 320px !important;   /* Prevent shrinking */
+  max-height: 320px !important;   /* Prevent growing (Stops the loop) */
+  overflow: hidden !important;    /* Cut off any overflow */
+  position: relative !important;  /* Keep it in flow */
+  transform: none !important;     /* Stop any floating animations */
+}
+
+/* 2. Constrain the canvas itself */
+#needsWantsChart {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 300px !important;
+}
+
+
+/* =========================
+   DEBT CARD STYLES (SLIDER)
+   ========================= */
+
+.debt-card.bad {
+  border-top: 4px solid #ff4757;
+  background: linear-gradient(180deg, rgba(255, 71, 87, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+
+.debt-card.good {
+  border-top: 4px solid #C7F000;
+  background: linear-gradient(180deg, rgba(199, 240, 0, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+
+.debt-card.ugly {
+  border-top: 4px solid #a29bfe;
+  background: linear-gradient(180deg, rgba(162, 155, 254, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+
+.debt-examples {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.debt-examples span {
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-secondary);
+}
+
+/* Light Mode Adjustments */
+[data-theme="light"] .debt-card.bad { border-color: #ff4757; background: #fff5f5; }
+[data-theme="light"] .debt-card.good { border-color: #C7F000; background: #fafff0; }
+[data-theme="light"] .debt-card.ugly { border-color: #a29bfe; background: #f8f7ff; }
+[data-theme="light"] .debt-examples span { background: #fff; border-color: rgba(0,0,0,0.1); color: #555; }
+
+
+
+/* =========================================
+   🎯 FINAL TRUTH SECTION (DESIGN FIX)
+   ========================================= */
+
+.fin-footer {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 800px; /* Limits width for better readability */
+  margin: 120px auto 60px auto; /* Centered with breathing room */
+  
+  padding: 60px 40px;
+  text-align: center;
+  
+  /* The Premium Glass Look */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(11, 13, 18, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 32px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  
+  /* Layout Stability */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+}
+
+/* The Badge */
+.footer-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #000;
+  background: var(--accent); /* Neon Green */
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 800;
+  box-shadow: 0 0 20px rgba(199, 240, 0, 0.4);
+}
+
+/* Typography */
+.fin-footer h2 {
+  font-size: 1.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin: 0;
+}
+
+.truth-box {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 32px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  width: 100%;
+}
+
+.truth-statement {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.truth-statement.highlight {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-top: 12px;
+  
+  /* Gradient Text */
+  background: linear-gradient(90deg, #FFFFFF, #9CA0AB);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Button Styling */
+.footer-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.footer-actions p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.footer-btn {
+  background: var(--accent-secondary); /* Electric Blue */
+  color: #fff;
+  padding: 16px 48px;
+  border-radius: 100px;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(79, 124, 255, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(79, 124, 255, 0.5);
+}
+
+/* Copyright */
+.copyright {
+  margin-top: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  opacity: 0.3;
+}
+
+/* LIGHT MODE OVERRIDES */
+[data-theme="light"] .fin-footer {
+  background: #FFFFFF;
+  border-color: rgba(0,0,0,0.06);
+  box-shadow: 0 20px 60px rgba(79, 124, 255, 0.1);
+}
+
+[data-theme="light"] .truth-statement.highlight {
+  background: linear-gradient(90deg, #4F7CFF, #1a202c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* =========================================
+   🚨 CHART STABILIZER (FIX INFINITE GROWTH)
+   ========================================= */
+
+/* 1. Lock the Container Height */
+#mod2 .visual-content,
+.gauge-container {
+  /* Force a fixed height so it cannot grow */
+  height: 320px !important;
+  min-height: 320px !important;
+  max-height: 320px !important;
+  
+  /* Cut off any overflowing content */
+  overflow: hidden !important;
+  
+  /* Ensure it stays in the document flow */
+  position: relative !important;
+  display: block !important;
+  
+  /* Stop any animations that might be moving it */
+  transform: none !important;
+  transition: none !important;
+}
+
+/* 2. Lock the Canvas Element */
+#needsWantsChart {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 300px !important;
+  display: block !important;
+}
+
+
+.user-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--accent-soft); /* */
+  border-radius: 50%; /* Makes it a round symbol */
+  margin-right: 12px;
+  font-size: 0.8rem;
+}

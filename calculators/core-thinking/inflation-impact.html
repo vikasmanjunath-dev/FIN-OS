@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Inflation Impact • FIN-OS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+  <link rel="stylesheet" href="../../css/components.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+        
+              .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary); /* Uses your theme variable */
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            transition: color 0.2s ease;  
+          }
+
+                /* 1. DEFINE THE COLORS FOR LIGHT AND DARK MODES */
+                :root {
+                    --text-primary: #1e293b;   /* Dark Blue-Grey for Light Mode */
+                    --text-secondary: #64748b; /* Muted Grey */
+                    --bg-main: #f1f5f9;
+                    --bg-surface: #ffffff;
+                    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                }
+
+                [data-theme="dark"] {
+                    --text-primary: #f8fafc;   /* White/Light Grey for Dark Mode */
+                    --text-secondary: #94a3b8; /* Light Muted Grey */
+                    --bg-main: #0f172a;        /* Dark Navy Background */
+                    --bg-surface: #1e293b;     /* Slightly Lighter Navy for Cards */
+                    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+                }
+
+                /* 2. APPLY THE TEXT COLOR GLOBALLY */
+                body {
+                    color: var(--text-primary);
+                    background: var(--bg-main);
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                }
+
+                /* 3. ENSURE HEADINGS INHERIT COLOR */
+                h1, h2, h3, strong, b {
+                    color: var(--text-primary);
+                }
+
+                /* 4. UPDATE INPUT TEXT VISIBILITY */
+                input[type="number"] {
+                    color: var(--text-primary);
+                    background: rgba(255, 255, 255, 0.05); /* Semi-transparent bg works on both */
+                }
+
+  /* --- EXISTING STYLES BELOW --- */
+    /* Reuse exact styles from Financial Age Calculator */
+    .page { flex: 1; padding: 0 48px 24px 48px; background: var(--bg-main); overflow-y: auto; }
+    .page-header { padding-top: 32px; margin-bottom: 40px; }
+    .page-header h1 { font-size: 42px; font-weight: 700; margin: 0 0 8px 0; }
+    .page-header p { color: var(--text-secondary); font-size: 16px; margin: 0; }
+    
+    .impact-card {
+      max-width: 1100px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+      padding: 48px; border-radius: 32px; background: var(--bg-surface);
+      box-shadow: var(--card-shadow);
+    }
+
+    .impact-left h2 { font-size: 28px; margin: 12px 0 6px 0; }
+    .impact-sub { color: var(--text-secondary); margin-bottom: 28px; }
+    .impact-inputs { display: flex; flex-direction: column; gap: 24px; }
+    
+    .input-group { display: flex; flex-direction: column; gap: 12px; }
+    .input-group label { font-size: 14px; color: var(--text-secondary); }
+    .input-row { display: flex; gap: 12px; align-items: center; }
+
+    input[type="range"] {
+      flex: 1; appearance: none; height: 6px; border-radius: 6px;
+      background: linear-gradient(90deg, #ef4444, #f59e0b); /* Red to Orange for Warning feel */
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none; width: 20px; height: 20px; border-radius: 50%;
+      background: #ffffff; border: 3px solid #ef4444; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    input[type="number"] {
+      width: 140px; padding: 10px 14px; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05);
+      color: var(--text-primary); font-size: 16px; font-weight: 600;
+    }
+    input[type="number"]:focus { outline: none; border-color: #ef4444; background: rgba(239,68,68,0.1); }
+
+    .impact-right { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
+    .chart-container { width: 100%; max-width: 360px; aspect-ratio: 1; }
+    .result-grid { width: 100%; display: grid; grid-template-columns: 1fr; gap: 16px; }
+    
+    .age-comparison { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px; }
+    .age-box { padding: 20px; border-radius: 16px; text-align: center; }
+    
+    .actual-age { background: rgba(6,182,212,0.12); }
+    .financial-age { background: rgba(239,68,68,0.12); }
+    
+    .age-box span { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+    .age-box strong { font-size: 24px; font-weight: 700; }
+
+    .verdict-box { padding: 24px; border-radius: 16px; text-align: center; font-weight: 700; font-size: 18px; }
+    .behind { background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(245,158,11,0.15)); color: #ef4444; }
+
+    @media (max-width: 900px) { .impact-card { grid-template-columns: 1fr; } }
+  </style>
+</head>
+
+<body class="app">
+
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="../../html/home.html">Home</a>
+      <a href="../../html/dashboard.html">Dashboard</a>
+      <a href="../../html/impact.html">Impact</a>
+      <a href="../../html/calculators.html" class="active">Calculators</a>
+      <a href="../../../Porfolio Analyser/portfolio-analyser-v9.html">Portfolio</a>
+      <a href="../../html/markets.html">Markets</a>
+      <a href="../../html/tax.html">Tax</a>
+      <a href="../../html/news.html">News</a>
+    </nav>
+  </aside>
+
+  <main class="page">
+    <button id="themeToggle" class="theme-btn" style="position: fixed; top: 32px; right: 32px; z-index: 100;">🌙</button>
+
+    <header class="page-header">
+    <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
+      <h1>Inflation Impact</h1>
+      <p>Calculate the silent killer of wealth.</p>
+    </header>
+
+    <section class="impact-card">
+
+      <div class="impact-left">
+        <span style="font-size: 32px;">🔥</span>
+        <h2>Future Cost Calculator</h2>
+        <p class="impact-sub">Find out how much today's lifestyle will cost you in the future.</p>
+
+        <div class="impact-inputs">
+
+          <div class="input-group">
+            <label>Current Expense (₹)</label>
+            <div class="input-row">
+              <input type="range" min="1000" max="500000" step="1000" value="50000" id="currentCost">
+              <input type="number" min="1000" max="500000" step="1000" value="50000" id="currentCostNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Inflation Rate (%)</label>
+            <div class="input-row">
+              <input type="range" min="1" max="15" step="0.5" value="6" id="inflation">
+              <input type="number" min="1" max="15" step="0.5" value="6" id="inflationNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Time Period (Years)</label>
+            <div class="input-row">
+              <input type="range" min="1" max="50" value="20" id="time">
+              <input type="number" min="1" max="50" value="20" id="timeNum">
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="impact-right">
+        <div class="chart-container">
+          <canvas id="infChart"></canvas>
+        </div>
+
+        <div class="result-grid">
+          <div class="age-comparison">
+            <div class="age-box actual-age">
+              <span>Cost Today</span>
+              <strong id="costToday">₹50K</strong>
+            </div>
+            <div class="age-box financial-age">
+              <span>Cost in Future</span>
+              <strong id="costFuture">₹0</strong>
+            </div>
+          </div>
+
+          <div class="verdict-box behind" id="verdict">
+            Calculating...
+          </div>
+
+          <div style="padding: 16px; background: rgba(239,68,68,0.08); border-radius: 12px; font-size: 13px; color: var(--text-secondary); border-left: 4px solid #ef4444;" id="message">
+            <strong>Reality Check:</strong> Loading...
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+<script>
+// Theme Toggle
+const root = document.documentElement;
+const toggle = document.getElementById("themeToggle");
+const savedTheme = localStorage.getItem("finos-theme");
+if (savedTheme) root.setAttribute("data-theme", savedTheme);
+toggle.textContent = root.getAttribute("data-theme") === "dark" ? "🌙" : "☀️";
+toggle.onclick = () => {
+  const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("finos-theme", next);
+  toggle.textContent = next === "dark" ? "🌙" : "☀️";
+};
+
+// Elements
+const currentCost = document.getElementById("currentCost");
+const currentCostNum = document.getElementById("currentCostNum");
+const inflation = document.getElementById("inflation");
+const inflationNum = document.getElementById("inflationNum");
+const time = document.getElementById("time");
+const timeNum = document.getElementById("timeNum");
+
+// Sync
+currentCost.oninput = () => currentCostNum.value = currentCost.value;
+currentCostNum.oninput = () => currentCost.value = currentCostNum.value;
+inflation.oninput = () => inflationNum.value = inflation.value;
+inflationNum.oninput = () => inflation.value = inflationNum.value;
+time.oninput = () => timeNum.value = time.value;
+timeNum.oninput = () => time.value = timeNum.value;
+
+// Chart
+const ctx = document.getElementById("infChart");
+const chart = new Chart(ctx, {
+  type: "bar",
+  data: {
+    labels: ["Today", "Future"],
+    datasets: [{
+      label: 'Cost',
+      data: [50000, 100000],
+      backgroundColor: ["#06b6d4", "#ef4444"], 
+      borderRadius: 8,
+      borderWidth: 0
+    }]
+  },
+  options: {
+    plugins: {
+      legend: { display: false }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        ticks: { color: '#94a3b8' }
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: '#94a3b8' }
+      }
+    }
+  }
+});
+
+function formatCurrency(num) {
+    if (num >= 10000000) return "₹" + (num / 10000000).toFixed(2) + " Cr";
+    if (num >= 100000) return "₹" + (num / 100000).toFixed(2) + " L";
+    return "₹" + num.toLocaleString("en-IN");
+}
+
+function calculate() {
+  const c = +currentCostNum.value;
+  const i = +inflationNum.value;
+  const t = +timeNum.value;
+
+  // Inflation Formula: Future = Current * (1 + i/100)^t
+  const future = c * Math.pow((1 + i / 100), t);
+  const diff = future - c;
+  const multiplier = (future / c).toFixed(1);
+
+  document.getElementById("costToday").textContent = formatCurrency(c);
+  document.getElementById("costFuture").textContent = formatCurrency(Math.round(future));
+
+  const verdictEl = document.getElementById("verdict");
+  const messageEl = document.getElementById("message");
+
+  verdictEl.textContent = `Cost increases ${multiplier}x 😱`;
+  messageEl.innerHTML = `<strong>Purchasing Power Erosion:</strong> To maintain your current lifestyle in ${t} years, you will need to spend <b>${formatCurrency(Math.round(diff))} more</b> per month than you do today.`;
+
+  // Update chart
+  chart.data.datasets[0].data = [c, future];
+  chart.update();
+}
+
+[currentCost, currentCostNum, inflation, inflationNum, time, timeNum].forEach(el => el.addEventListener("input", calculate));
+calculate();
+</script>
+</body>
+</html>

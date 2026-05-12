@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Personal Loan Calculator • FIN-OS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Standard Styles Reuse */
+    :root { --text-primary: #1e293b; --text-secondary: #64748b; --bg-main: #f1f5f9; --bg-surface: #ffffff; --card-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    [data-theme="dark"] { --text-primary: #f8fafc; --text-secondary: #94a3b8; --bg-main: #0f172a; --bg-surface: #1e293b; --card-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); }
+    body { color: var(--text-primary); background: var(--bg-main); font-family: sans-serif; }
+    h1, h2, h3 { color: var(--text-primary); }
+    input[type="number"] { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+    .page { flex: 1; padding: 0 48px 24px 48px; overflow-y: auto; }
+    .page-header { padding-top: 32px; margin-bottom: 40px; }
+    .page-header h1 { font-size: 42px; font-weight: 700; margin: 8px 0; }
+    .back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .back-btn:hover { color: #06b6d4; }
+    .impact-card { max-width: 1100px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 48px; border-radius: 32px; background: var(--bg-surface); box-shadow: var(--card-shadow); }
+    .impact-inputs { display: flex; flex-direction: column; gap: 24px; }
+    .input-group { display: flex; flex-direction: column; gap: 12px; }
+    .input-row { display: flex; gap: 12px; align-items: center; }
+    input[type="range"] { flex: 1; appearance: none; height: 6px; border-radius: 6px; background: linear-gradient(90deg, #06b6d4, #3b82f6); cursor: pointer; }
+    input[type="range"]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #ffffff; border: 3px solid #06b6d4; cursor: pointer; }
+    input[type="number"] { width: 140px; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); font-size: 16px; font-weight: 600; }
+    .impact-right { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+    .chart-container { width: 100%; max-width: 360px; aspect-ratio: 1; }
+    .result-grid { width: 100%; display: grid; grid-template-columns: 1fr; gap: 16px; }
+    .age-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .age-box { padding: 20px; border-radius: 16px; text-align: center; background: rgba(6,182,212,0.12); }
+    .age-box strong { font-size: 24px; display: block; margin-top: 4px; }
+    .verdict-box { padding: 24px; border-radius: 16px; text-align: center; font-weight: 700; font-size: 18px; background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(16,185,129,0.15)); color: #22c55e; }
+    @media (max-width: 900px) { .impact-card { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body class="app">
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="../../html/home.html">Home</a>
+      <a href="../../html/dashboard.html">Dashboard</a>
+      <a href="../../html/impact.html">Impact</a>
+      <a href="../../html/calculators.html" class="active">Calculators</a>
+      <a href="../../../Porfolio Analyser/portfolio-analyser-v9.html">Portfolio</a>
+      <a href="../../html/markets.html">Markets</a>
+      <a href="../../html/tax.html">Tax</a>
+      <a href="../../html/news.html">News</a>
+    </nav>
+  </aside>
+
+  <main class="page">
+    <button id="themeToggle" style="position: fixed; top: 32px; right: 32px; z-index: 100; background:none; border:none; font-size:24px; cursor:pointer;">🌙</button>
+
+    <header class="page-header">
+      <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
+      <h1>Personal Loan Calculator</h1>
+      <p>Quick cash, clear repayment terms.</p>
+    </header>
+
+    <section class="impact-card">
+      <div class="impact-left">
+        <div class="impact-inputs">
+          <div class="input-group">
+            <label>Loan Amount (₹)</label>
+            <div class="input-row">
+              <input type="range" min="10000" max="2500000" step="10000" value="500000" id="loan">
+              <input type="number" value="500000" id="loanNum">
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Interest Rate (% p.a)</label>
+            <div class="input-row">
+              <input type="range" min="9" max="24" step="0.1" value="11" id="rate">
+              <input type="number" value="11" id="rateNum">
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Tenure (Years)</label>
+            <div class="input-row">
+              <input type="range" min="1" max="5" value="3" id="time">
+              <input type="number" value="3" id="timeNum">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="impact-right">
+        <div class="chart-container"><canvas id="plChart"></canvas></div>
+        <div class="result-grid">
+          <div class="age-comparison">
+            <div class="age-box"><span>Principal</span><strong id="principalVal">₹5L</strong></div>
+            <div class="age-box" style="background: rgba(139,92,246,0.12)"><span>Interest</span><strong id="interestVal">₹0</strong></div>
+          </div>
+          <div class="verdict-box" id="emiVal">EMI: ₹0</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script>
+const root = document.documentElement;
+const toggle = document.getElementById("themeToggle");
+const savedTheme = localStorage.getItem("finos-theme");
+if (savedTheme) root.setAttribute("data-theme", savedTheme);
+toggle.textContent = root.getAttribute("data-theme") === "dark" ? "🌙" : "☀️";
+toggle.onclick = () => {
+  const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("finos-theme", next);
+  toggle.textContent = next === "dark" ? "🌙" : "☀️";
+};
+
+const els = {
+  l: document.getElementById('loan'), lN: document.getElementById('loanNum'),
+  r: document.getElementById('rate'), rN: document.getElementById('rateNum'),
+  t: document.getElementById('time'), tN: document.getElementById('timeNum')
+};
+
+['l', 'r', 't'].forEach(k => {
+  els[k].oninput = () => els[k+'N'].value = els[k].value;
+  els[k+'N'].oninput = () => els[k].value = els[k+'N'].value;
+});
+
+const ctx = document.getElementById('plChart');
+const chart = new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Principal', 'Interest'],
+    datasets: [{ data: [70, 30], backgroundColor: ['#1e293b', '#ef4444'], borderWidth: 0 }]
+  },
+  options: { cutout: '70%', plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } } }
+});
+
+function format(num) {
+  if(num>=10000000) return "₹"+(num/10000000).toFixed(2)+" Cr";
+  if(num>=100000) return "₹"+(num/100000).toFixed(2)+" L";
+  return "₹"+Math.round(num).toLocaleString();
+}
+
+function calculate() {
+  const P = +els.lN.value;
+  const r = +els.rN.value / 12 / 100;
+  const n = +els.tN.value * 12;
+
+  const emi = P * r * (Math.pow(1+r, n) / (Math.pow(1+r, n) - 1));
+  const totalPay = emi * n;
+  const interest = totalPay - P;
+
+  document.getElementById('principalVal').textContent = format(P);
+  document.getElementById('interestVal').textContent = format(interest);
+  document.getElementById('emiVal').textContent = "Monthly EMI: " + format(Math.round(emi));
+
+  chart.data.datasets[0].data = [P, interest];
+  chart.update();
+}
+
+Object.values(els).forEach(el => el.addEventListener('input', calculate));
+calculate();
+</script>
+</body>
+</html>

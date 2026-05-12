@@ -1,0 +1,288 @@
+/* =========================
+   TRACKER PAGE - GEN Z AESTHETIC
+   ========================= */
+
+/* --- GLITCH HEADER --- */
+.glitch-header {
+  font-size: 3rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  position: relative;
+  color: var(--text-primary);
+  letter-spacing: -2px;
+}
+
+.glitch-header::before,
+.glitch-header::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-main);
+}
+
+.glitch-header::before {
+  left: 2px;
+  text-shadow: -1px 0 #ff00c1;
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch-header::after {
+  left: -2px;
+  text-shadow: -1px 0 #00fff9;
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim2 5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+  0% { clip: rect(30px, 9999px, 10px, 0); }
+  20% { clip: rect(80px, 9999px, 90px, 0); }
+  40% { clip: rect(10px, 9999px, 50px, 0); }
+  60% { clip: rect(40px, 9999px, 20px, 0); }
+  80% { clip: rect(90px, 9999px, 60px, 0); }
+  100% { clip: rect(20px, 9999px, 80px, 0); }
+}
+
+@keyframes glitch-anim2 {
+  0% { clip: rect(10px, 9999px, 80px, 0); }
+  20% { clip: rect(60px, 9999px, 10px, 0); }
+  40% { clip: rect(20px, 9999px, 50px, 0); }
+  60% { clip: rect(90px, 9999px, 10px, 0); }
+  80% { clip: rect(50px, 9999px, 20px, 0); }
+  100% { clip: rect(10px, 9999px, 40px, 0); }
+}
+
+/* --- TICKER MARQUEE --- */
+.ticker-wrap {
+  width: 100%;
+  overflow: hidden;
+  background: #000;
+  border-top: 1px solid var(--accent);
+  border-bottom: 1px solid var(--accent);
+  margin-bottom: 40px;
+  white-space: nowrap;
+  box-shadow: 0 0 15px rgba(79, 124, 255, 0.2);
+}
+
+.ticker {
+  display: inline-block;
+  animation: marquee 20s linear infinite;
+}
+
+.ticker__item {
+  display: inline-block;
+  padding: 10px 30px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.up { color: #C7F000; }
+.down { color: #ff4757; }
+.flat { color: #ccc; }
+
+@keyframes marquee {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+/* --- HOLOGRAM GRID --- */
+.hologram-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 30px;
+  margin-bottom: 60px;
+}
+
+.holo-card {
+  background: rgba(10, 10, 10, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.holo-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 30px var(--accent-soft);
+  transform: translateY(-5px);
+}
+
+/* Holographic Scanline Effect */
+.holo-card::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  z-index: 2;
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+}
+
+.holo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  z-index: 3;
+  position: relative;
+}
+
+.live-badge {
+  background: #ff0055;
+  color: #fff;
+  padding: 4px 12px;
+  font-size: 0.7rem;
+  border-radius: 50px;
+  box-shadow: 0 0 10px #ff0055;
+  animation: pulse-red 2s infinite;
+}
+
+.holo-body h2 {
+  font-size: 3rem;
+  font-family: 'JetBrains Mono', monospace;
+  margin: 0;
+  color: #fff;
+}
+
+.analogy-text {
+  color: var(--accent-secondary); /* Neon Lime */
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.desc-text {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.holo-visual {
+  margin-top: 20px;
+  height: 150px;
+  width: 100%;
+  z-index: 3;
+  position: relative;
+}
+
+/* --- PORTAL SECTION --- */
+.portal-section {
+  text-align: center;
+  padding: 80px 20px;
+  position: relative;
+  background: radial-gradient(circle at center, rgba(79, 124, 255, 0.1) 0%, transparent 70%);
+}
+
+.neon-text {
+  color: #fff;
+  text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--accent), 0 0 35px var(--accent);
+  margin-bottom: 10px;
+}
+
+.portal-content p {
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* WARP BUTTON */
+.warp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 20px 50px;
+  background: #000;
+  color: #fff;
+  border: 1px solid var(--accent-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(199, 240, 0, 0.2);
+}
+
+.warp-btn:hover {
+  background: var(--accent-secondary);
+  color: #000;
+  box-shadow: 0 0 50px var(--accent-secondary);
+  transform: scale(1.05);
+}
+
+.warp-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+  transition: 0.5s;
+}
+
+.warp-btn:hover::before {
+  left: 100%;
+}
+
+.warning-text {
+  margin-top: 20px;
+  font-size: 0.8rem;
+  color: #ff4757;
+  opacity: 0.8;
+}
+
+/* --- INFO GRID --- */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 60px;
+}
+
+.info-card {
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-surface);
+  transition: transform 0.3s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+}
+
+.desi-analogy {
+  color: var(--accent);
+  font-weight: 600;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.icon-box {
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 0, 85, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0); }
+}

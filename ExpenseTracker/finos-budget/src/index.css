@@ -1,0 +1,10 @@
+/* index.css — base reset only, all design tokens live in App.css */
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}

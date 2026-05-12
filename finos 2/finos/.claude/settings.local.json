@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python manage.py runserver 8000)",
+      "Bash(curl -s http://127.0.0.1:8000/)",
+      "Bash(curl -s http://127.0.0.1:8000/trader/)",
+      "Bash(curl -s http://127.0.0.1:8000/investor/)",
+      "Bash(pkill -f \"manage.py runserver\")",
+      "Bash(curl -s http://127.0.0.1:8000/simulations/)",
+      "Bash(curl -s http://127.0.0.1:8000__TRACKED_VAR__)",
+      "Read(//c/Users/vikas/Desktop//**)",
+      "Bash(dir \"C:\\\\Users\\\\vikas\\\\Desktop\\\\finos\")"
+    ]
+  }
+}

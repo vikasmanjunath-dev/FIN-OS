@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Financial Age Calculator • FIN-OS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+  <link rel="stylesheet" href="../../css/components.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+
+                  .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary); /* Uses your theme variable */
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            transition: color 0.2s ease;  
+          }
+
+    /* 1. DEFINE THE COLORS FOR LIGHT AND DARK MODES */
+                :root {
+                    --text-primary: #1e293b;   /* Dark Blue-Grey for Light Mode */
+                    --text-secondary: #64748b; /* Muted Grey */
+                    --bg-main: #f1f5f9;
+                    --bg-surface: #ffffff;
+                    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                }
+
+                [data-theme="dark"] {
+                    --text-primary: #f8fafc;   /* White/Light Grey for Dark Mode */
+                    --text-secondary: #94a3b8; /* Light Muted Grey */
+                    --bg-main: #0f172a;        /* Dark Navy Background */
+                    --bg-surface: #1e293b;     /* Slightly Lighter Navy for Cards */
+                    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+                }
+
+                /* 2. APPLY THE TEXT COLOR GLOBALLY */
+                body {
+                    color: var(--text-primary);
+                    background: var(--bg-main);
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                }
+
+                /* 3. ENSURE HEADINGS INHERIT COLOR */
+                h1, h2, h3, strong, b {
+                    color: var(--text-primary);
+                }
+
+                /* 4. UPDATE INPUT TEXT VISIBILITY */
+                input[type="number"] {
+                    color: var(--text-primary);
+                    background: rgba(255, 255, 255, 0.05); /* Semi-transparent bg works on both */
+                }
+
+    .page {
+      flex: 1;
+      padding: 0 48px 24px 48px;
+      background: var(--bg-main);
+      overflow-y: auto;
+    }
+
+    .page-header {
+      padding-top: 32px;
+      margin-bottom: 40px;
+    }
+
+    .page-header h1 {
+      font-size: 42px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+
+    .page-header p {
+      color: var(--text-secondary);
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .impact-card {
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      padding: 48px;
+      border-radius: 32px;
+      background: var(--bg-surface);
+      box-shadow: var(--card-shadow);
+    }
+
+    .impact-left h2 {
+      font-size: 28px;
+      margin: 12px 0 6px 0;
+    }
+
+    .impact-sub {
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+    }
+
+    .impact-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .input-group label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      appearance: none;
+      height: 6px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #06b6d4, #3b82f6);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #06b6d4;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    input[type="number"] {
+      width: 140px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #06b6d4;
+      background: rgba(6,182,212,0.1);
+    }
+
+    .impact-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .chart-container {
+      width: 100%;
+      max-width: 360px;
+      aspect-ratio: 1;
+    }
+
+    .result-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .age-comparison {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .age-box {
+      padding: 20px;
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    .actual-age {
+      background: rgba(6,182,212,0.12);
+    }
+
+    .financial-age {
+      background: rgba(139,92,246,0.12);
+    }
+
+    .age-box span {
+      display: block;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .age-box strong {
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .verdict-box {
+      padding: 24px;
+      border-radius: 16px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .ahead {
+      background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(16,185,129,0.15));
+      color: #22c55e;
+    }
+
+    .behind {
+      background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(245,158,11,0.15));
+      color: #ef4444;
+    }
+
+    .on-track {
+      background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15));
+      color: #3b82f6;
+    }
+
+    @media (max-width: 900px) {
+      .impact-card {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body class="app">
+
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="../../html/home.html">Home</a>
+      <a href="../../html/dashboard.html">Dashboard</a>
+      <a href="../../html/impact.html">Impact</a>
+      <a href="../../html/calculators.html" class="active">Calculators</a>
+      <a href="../../../Porfolio Analyser/portfolio-analyser-v9.html">Portfolio</a>
+      <a href="../../html/markets.html">Markets</a>
+      <a href="../../html/tax.html">Tax</a>
+      <a href="../../html/news.html">News</a>
+    </nav>
+  </aside>
+
+  <main class="page">
+
+    <button id="themeToggle" class="theme-btn" style="position: fixed; top: 32px; right: 32px; z-index: 100;">🌙</button>
+
+    <header class="page-header">
+    <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
+      <h1>Financial Age Calculator</h1>
+      <p>Are you ahead or behind your age?</p>
+    </header>
+
+    <section class="impact-card">
+
+      <div class="impact-left">
+        <span style="font-size: 32px;">🎂</span>
+        <h2>Your Financial Maturity</h2>
+        <p class="impact-sub">See if your wealth matches your age or if you're living beyond your means.</p>
+
+        <div class="impact-inputs">
+
+          <div class="input-group">
+            <label>Your Actual Age (Years)</label>
+            <div class="input-row">
+              <input type="range" min="18" max="65" value="30" id="age">
+              <input type="number" min="18" max="65" value="30" id="ageNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Net Worth (₹ Lakhs)</label>
+            <div class="input-row">
+              <input type="range" min="0" max="500" step="5" value="10" id="netWorth">
+              <input type="number" min="0" max="500" step="5" value="10" id="netWorthNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Monthly Income (₹)</label>
+            <div class="input-row">
+              <input type="range" min="20000" max="500000" step="5000" value="50000" id="income">
+              <input type="number" min="20000" max="500000" step="5000" value="50000" id="incomeNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Monthly Debt/EMI (₹)</label>
+            <div class="input-row">
+              <input type="range" min="0" max="200000" step="5000" value="10000" id="debt">
+              <input type="number" min="0" max="200000" step="5000" value="10000" id="debtNum">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Years Investing</label>
+            <div class="input-row">
+              <input type="range" min="0" max="30" value="5" id="investing">
+              <input type="number" min="0" max="30" value="5" id="investingNum">
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="impact-right">
+        <div class="chart-container">
+          <canvas id="ageChart"></canvas>
+        </div>
+
+        <div class="result-grid">
+          <div class="age-comparison">
+            <div class="age-box actual-age">
+              <span>Actual Age</span>
+              <strong id="actualAge">30</strong>
+            </div>
+            <div class="age-box financial-age">
+              <span>Financial Age</span>
+              <strong id="finAge">0</strong>
+            </div>
+          </div>
+
+          <div class="verdict-box on-track" id="verdict">
+            Calculating...
+          </div>
+
+          <div style="padding: 16px; background: rgba(6,182,212,0.08); border-radius: 12px; font-size: 13px; color: var(--text-secondary); border-left: 4px solid #06b6d4;" id="message">
+            <strong>Analysis:</strong> Loading...
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+<script>
+// Theme Toggle
+const root = document.documentElement;
+const toggle = document.getElementById("themeToggle");
+const savedTheme = localStorage.getItem("finos-theme");
+if (savedTheme) root.setAttribute("data-theme", savedTheme);
+toggle.textContent = root.getAttribute("data-theme") === "dark" ? "🌙" : "☀️";
+toggle.onclick = () => {
+  const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("finos-theme", next);
+  toggle.textContent = next === "dark" ? "🌙" : "☀️";
+};
+
+// Elements
+const age = document.getElementById("age");
+const ageNum = document.getElementById("ageNum");
+const netWorth = document.getElementById("netWorth");
+const netWorthNum = document.getElementById("netWorthNum");
+const income = document.getElementById("income");
+const incomeNum = document.getElementById("incomeNum");
+const debt = document.getElementById("debt");
+const debtNum = document.getElementById("debtNum");
+const investing = document.getElementById("investing");
+const investingNum = document.getElementById("investingNum");
+
+// Sync
+age.oninput = () => ageNum.value = age.value;
+ageNum.oninput = () => age.value = ageNum.value;
+netWorth.oninput = () => netWorthNum.value = netWorth.value;
+netWorthNum.oninput = () => netWorth.value = netWorthNum.value;
+income.oninput = () => incomeNum.value = income.value;
+incomeNum.oninput = () => income.value = incomeNum.value;
+debt.oninput = () => debtNum.value = debt.value;
+debtNum.oninput = () => debt.value = debtNum.value;
+investing.oninput = () => investingNum.value = investing.value;
+investingNum.oninput = () => investing.value = investingNum.value;
+
+// Chart
+const ctx = document.getElementById("ageChart");
+const chart = new Chart(ctx, {
+  type: "doughnut",
+  data: {
+    labels: ["Financial Maturity", "Gap"],
+    datasets: [{
+      data: [30, 0],
+      backgroundColor: ["#06b6d4", "#1e293b"],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    cutout: "75%",
+    plugins: {
+      legend: { display: false }
+    }
+  }
+});
+
+// Calculate
+function calculate() {
+  const actualAge = +ageNum.value;
+  const nw = +netWorthNum.value * 100000; // Convert lakhs to rupees
+  const inc = +incomeNum.value;
+  const dbt = +debtNum.value;
+  const inv = +investingNum.value;
+
+  // Expected net worth formula (rough benchmark)
+  // Rule: By age 30, you should have 1x your annual salary saved
+  const annualIncome = inc * 12;
+  const expectedNW = annualIncome * ((actualAge - 20) / 10);
+
+  // Calculate financial age based on multiple factors
+  let finAge = 20; // Base
+
+  // Net worth factor (40% weight)
+  const nwRatio = nw / expectedNW;
+  finAge += (nwRatio * (actualAge - 20) * 0.4);
+
+  // Debt factor (20% weight) - debt reduces financial age
+  const debtToIncome = (dbt * 12) / annualIncome;
+  finAge -= (debtToIncome * 10 * 0.2);
+
+  // Investment years factor (40% weight)
+  const expectedInvYears = Math.max(0, actualAge - 22);
+  const invRatio = expectedInvYears > 0 ? inv / expectedInvYears : 0;
+  finAge += (invRatio * (actualAge - 20) * 0.4);
+
+  finAge = Math.max(18, Math.round(finAge));
+
+  // Display
+  document.getElementById("actualAge").textContent = actualAge;
+  document.getElementById("finAge").textContent = finAge;
+
+  const diff = finAge - actualAge;
+  const verdictEl = document.getElementById("verdict");
+  const messageEl = document.getElementById("message");
+
+  if (diff >= 5) {
+    verdictEl.className = "verdict-box ahead";
+    verdictEl.textContent = `${diff} years ahead! 🎉`;
+    messageEl.innerHTML = `<strong>Excellent!</strong> Your financial maturity is ${diff} years ahead of your actual age. You're building wealth faster than your peers.`;
+  } else if (diff <= -5) {
+    verdictEl.className = "verdict-box behind";
+    verdictEl.textContent = `${Math.abs(diff)} years behind ⚠️`;
+    messageEl.innerHTML = `<strong>Wake-up call:</strong> You're ${Math.abs(diff)} years behind financially. Focus on reducing debt and increasing savings rate.`;
+  } else {
+    verdictEl.className = "verdict-box on-track";
+    verdictEl.textContent = "On track! ✓";
+    messageEl.innerHTML = `<strong>Good progress:</strong> Your financial age matches your actual age. Keep building consistently.`;
+  }
+
+  // Update chart
+  chart.data.datasets[0].data = [finAge, Math.max(0, 60 - finAge)];
+  chart.update();
+}
+
+[age, ageNum, netWorth, netWorthNum, income, incomeNum, debt, debtNum, investing, investingNum].forEach(el => el.addEventListener("input", calculate));
+calculate();
+</script>
+
+</body>
+</html>

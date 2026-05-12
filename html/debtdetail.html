@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Debt Market Protocol</title>
+  
+  <script src="../js/theme-init.js"></script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/debtdetail.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+  <button id="themeToggle" class="theme-btn fixed-theme-btn">🌙</button>
+
+  <div class="deep-wrapper">
+    
+    <aside class="toc-sidebar">
+      <div class="toc-header">PROTOCOL 05: DEBT</div>
+      <ul class="toc-list">
+        <li><a href="#hero" class="toc-link active">0. Start</a></li>
+        <li><a href="#sec1" class="toc-link">1. Concept (Cousin Loan)</a></li>
+        <li><a href="#sec2" class="toc-link">2. Debt vs Equity</a></li>
+        <li><a href="#sec3" class="toc-link">3. Why It Exists</a></li>
+        <li><a href="#sec4" class="toc-link">4. How It Works</a></li>
+        <li><a href="#sec5" class="toc-link">5. Types (The Menu)</a></li>
+        <li><a href="#sec6" class="toc-link">6. Rate vs Price (Seesaw)</a></li>
+        <li><a href="#sec7" class="toc-link">7. Yield Explained</a></li>
+        <li><a href="#sec8" class="toc-link">8. Credit Risk</a></li>
+        <li><a href="#sec9" class="toc-link">9. Debt Mutual Funds</a></li>
+        <li><a href="#sec10" class="toc-link">10. Duration Risk</a></li>
+        <li><a href="#sec11" class="toc-link">11. Common Myths</a></li>
+        <li><a href="#sec12" class="toc-link">12. The Inflation Trap</a></li>
+        <li><a href="#sec13" class="toc-link">13. Role (Shock Absorber)</a></li>
+        <li><a href="#sec14" class="toc-link">14. Life Stage</a></li>
+        <li><a href="#sec15" class="toc-link">15. Debt vs FD</a></li>
+        <li><a href="#sec16" class="toc-link">16. Mental Model</a></li>
+        <li><a href="#sec17" class="toc-link">17. Final Truth</a></li>
+      </ul>
+      <a href="markets.html" class="back-btn">← Back to Terminal</a>
+    </aside>
+
+    <main class="deep-content" id="scrollContainer">
+
+      <section class="chapter active" id="hero">
+        <h1 class="glitch-text" data-text="Debt Protocol">Debt Protocol</h1>
+        <p class="intro-text">
+          Equity builds wealth. Debt protects it.<br>
+          <span class="highlight">The skeleton of the financial system.</span>
+        </p>
+        <div class="scroll-indicator">Initialize Protocol ⬇</div>
+      </section>
+
+      <section class="chapter" id="sec1">
+        <span class="chapter-badge">LEVEL 01: FIRST PRINCIPLES</span>
+        <h2>1. What Is the Debt Market?</h2>
+        <p>Debt = Lending money for interest. You are a <strong>Lender</strong>, not an owner.</p>
+        
+        <div class="concept-box glass">
+          <div class="story-card">
+            <div class="story-icon">🤝</div>
+            <div class="story-content">
+              <h3>The "Cousin Loan" Analogy</h3>
+              <p>You lend <strong>₹1 Lakh</strong> to your cousin for 1 year at <strong>10% interest</strong>.</p>
+              <div class="deal-box">
+                <div class="deal-side">
+                  <strong>YOU</strong>
+                  <p>Give ₹1 Lakh</p>
+                </div>
+                <div class="deal-arrow">LOAN AGREEMENT</div>
+                <div class="deal-side">
+                  <strong>COUSIN</strong>
+                  <p>Pays ₹10k Interest + Principal</p>
+                </div>
+              </div>
+              <p class="moral">
+                Now replace "Cousin" with <strong>Government of India</strong> or <strong>HDFC</strong>.<br>
+                That piece of paper is a <strong>Bond</strong>. That is the Debt Market.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec2">
+        <span class="chapter-badge">LEVEL 02: COMPARISON</span>
+        <h2>2. Debt vs Equity (Mindset Shift)</h2>
+        <p>Why choose stability over growth?</p>
+
+        <div class="comparison-table">
+           <div class="comp-row header">
+             <span>Aspect</span>
+             <span>Debt</span>
+             <span>Equity</span>
+           </div>
+           <div class="comp-row">
+             <span>Role</span>
+             <span class="highlight">Lender</span>
+             <span>Owner</span>
+           </div>
+           <div class="comp-row">
+             <span>Returns</span>
+             <span class="highlight">Fixed/Limited</span>
+             <span>Unlimited</span>
+           </div>
+           <div class="comp-row">
+             <span>Risk</span>
+             <span class="highlight">Lower</span>
+             <span>Higher</span>
+           </div>
+           <div class="comp-row">
+             <span>Priority</span>
+             <span class="highlight">Paid First</span>
+             <span>Paid Last</span>
+           </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec3">
+        <span class="chapter-badge">LEVEL 03: PURPOSE</span>
+        <h2>3. Why Does It Exist? (The Skeleton)</h2>
+        <p>Without debt, the economy collapses. It funds infrastructure, governments, and daily operations.</p>
+        <div class="visual-box glass center-text">
+          <div class="skeleton-visual">
+            <span style="font-size:3rem;">🦴</span>
+            <h4>The Skeleton of Economy</h4>
+            <p>Equity is the muscle (growth). Debt is the bone (structure).</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec4">
+        <span class="chapter-badge">LEVEL 04: MECHANISM</span>
+        <h2>4. How the Indian Debt Market Works</h2>
+        <div class="visual-flow-container glass">
+          <div class="flow-step">
+            <div class="step-icon">🏦</div>
+            <strong>Borrower</strong>
+            <span>(Govt/Corp)</span>
+          </div>
+          <div class="flow-line">
+            <div class="particle"></div>
+          </div>
+          <div class="flow-step center">
+            <div class="step-icon">📜</div>
+            <strong>Bond</strong>
+            <span>(The Promise)</span>
+          </div>
+          <div class="flow-line">
+            <div class="particle reverse"></div>
+          </div>
+          <div class="flow-step">
+            <div class="step-icon">👨‍💼</div>
+            <strong>Lender</strong>
+            <span>(You/Banks)</span>
+          </div>
+        </div>
+        <p class="caption-text">Regulated by <strong>RBI</strong> (Money Supply) and <strong>SEBI</strong> (Market Rules).</p>
+      </section>
+
+      <section class="chapter" id="sec5">
+        <span class="chapter-badge">LEVEL 05: THE MENU</span>
+        <h2>5. Types of Instruments (Indian Context)</h2>
+        <div class="grid-2-mini">
+          <div class="mini-card success">
+            <h4>1. G-Secs (Sovereign)</h4>
+            <p>Issued by Govt of India. <strong>Risk: Zero.</strong> Returns: Moderate. The safest place for money.</p>
+          </div>
+          <div class="mini-card">
+            <h4>2. Corporate Bonds</h4>
+            <p>Issued by companies (Reliance, Tata). <strong>Risk: Low to High.</strong> Returns: Higher than Govt.</p>
+          </div>
+          <div class="mini-card">
+            <h4>3. Fixed Deposits (FD)</h4>
+            <p>Issued by Banks. Safe but tax-inefficient. Comfort food, not superfood.</p>
+          </div>
+          <div class="mini-card danger">
+            <h4>4. NCDs / Debentures</h4>
+            <p>High interest corporate debt. Watch out for credit rating.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec6">
+        <span class="chapter-badge">LEVEL 06: THE GOLDEN RULE</span>
+        <h2>6. Interest Rates & Bond Prices</h2>
+        <p>This is the most critical concept. They move in <strong>opposite directions</strong>.</p>
+        
+        <div class="concept-box glass">
+          <div class="seesaw-container">
+            <div class="seesaw-plank">
+              <div class="side left">
+                <span>📉 Interest Rates</span>
+              </div>
+              <div class="side right">
+                <span>📈 Bond Prices</span>
+              </div>
+            </div>
+            <div class="fulcrum">▲</div>
+          </div>
+          <div class="text-center" style="margin-top:20px;">
+            <p><strong>Logic:</strong> If new bonds offer 10%, your old 8% bond is useless, so its price falls.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec7">
+        <span class="chapter-badge">LEVEL 07: RETURNS</span>
+        <h2>7. Yield Explained</h2>
+        <p><strong>Coupon</strong> is what the bond says (Fixed). <strong>Yield</strong> is what you actually get (Variable based on price).</p>
+        <ul class="checklist-style">
+          <li>✅ Buy Bond Cheap -> Yield Goes UP.</li>
+          <li>✅ Buy Bond Expensive -> Yield Goes DOWN.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="sec8">
+        <span class="chapter-badge">LEVEL 08: DANGER</span>
+        <h2>8. Credit Risk (The Silent Killer)</h2>
+        <p>Will the borrower run away? That is Credit Risk.</p>
+        <div class="grid-3-cards">
+          <div class="card-box">
+            <h4>AAA</h4>
+            <p class="sub">Safest</p>
+            <p>HDFC, Govt, TCS. Lowest risk, lower return.</p>
+          </div>
+          <div class="card-box highlight">
+            <h4>AA / A</h4>
+            <p class="sub">Moderate</p>
+            <p>Good companies, slight risk. Better returns.</p>
+          </div>
+          <div class="card-box">
+            <h4>D (Default)</h4>
+            <p class="sub">Danger</p>
+            <p>Companies that failed to pay back (e.g. DHFL, IL&FS).</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec9">
+        <span class="chapter-badge">LEVEL 09: DELEGATION</span>
+        <h2>9. Debt Mutual Funds</h2>
+        <p>Don't buy bonds directly? Let a fund manager do it.</p>
+        <ul class="checklist-style">
+          <li>💧 <strong>Liquid Funds:</strong> Like Savings Account. Very safe.</li>
+          <li>🏛️ <strong>Gilt Funds:</strong> Only Govt bonds. No default risk.</li>
+          <li>🏭 <strong>Corporate Bond Funds:</strong> High quality company debt.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="sec10">
+        <span class="chapter-badge">LEVEL 10: ADVANCED</span>
+        <h2>10. Duration Risk</h2>
+        <div class="concept-box glass">
+          <p>How sensitive is the bond to interest rate changes?</p>
+          <div class="comp-row">
+            <span>Long Duration (10yr+)</span>
+            <span class="danger">Highly Volatile</span>
+          </div>
+          <div class="comp-row">
+            <span>Short Duration (1yr)</span>
+            <span class="highlight">Stable</span>
+          </div>
+          <p class="moral">If rates are rising, stick to Short Duration.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec11">
+        <span class="chapter-badge">LEVEL 11: MYTH BUSTING</span>
+        <h2>11. How Indians Misunderstand Debt</h2>
+        <div class="scrolling-wrapper">
+          <div class="scrolling-card glass">
+            <h3>"Debt is Risk Free"</h3>
+            <p class="answer no">FALSE</p>
+            <p class="desc">Companies default. Rates change. Debt funds can give negative returns in short term.</p>
+          </div>
+          <div class="scrolling-card glass">
+            <h3>"FD is Always Safe"</h3>
+            <p class="answer no">FALSE</p>
+            <p class="desc">FDs are safe from market loss, but safe from Inflation? No. You lose purchasing power.</p>
+          </div>
+          <div class="scrolling-card glass">
+            <h3>"Higher Interest = Better"</h3>
+            <p class="answer no">FALSE</p>
+            <p class="desc">High interest usually means the company is desperate for money. High risk of default.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec12">
+        <span class="chapter-badge">LEVEL 12: THE SILENT THIEF</span>
+        <h2>12. The Inflation Reality Check</h2>
+        <p>If your Debt Return < Inflation, you are becoming poorer.</p>
+        
+        <div class="concept-box glass">
+           <div class="math-row">
+             <div class="math-item">
+               <span>FD Return</span>
+               <strong style="color:#C7F000;">6.0%</strong>
+             </div>
+             <div class="math-item">
+               <span>Inflation</span>
+               <strong style="color:#ff4757;">7.0%</strong>
+             </div>
+             <div class="math-item">
+               <span>Real Return</span>
+               <strong style="color:#ff4757;">-1.0%</strong>
+             </div>
+           </div>
+           <p class="moral">Debt protects capital value, but not always purchasing power. That's why you need Equity.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec13">
+        <span class="chapter-badge">LEVEL 13: STRATEGY</span>
+        <h2>13. Role of Debt: The Shock Absorber</h2>
+        <p>Debt doesn't make you rich. It stops you from becoming poor during a crash.</p>
+        
+        <div class="visual-box glass center-text">
+          <div class="shock-absorber">
+            <div class="spring">Running on Potholes (Market Crash)</div>
+            <p>Your Equity Portfolio shakes.</p>
+            <p class="highlight">Your Debt Portfolio stays steady.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec14">
+        <span class="chapter-badge">LEVEL 14: ALLOCATION</span>
+        <h2>14. Debt Allocation by Life Stage</h2>
+        <div class="grid-3-cards">
+          <div class="card-box">
+            <h4>Young (20-30)</h4>
+            <p class="sub">10-20% Debt</p>
+            <p>Focus on growth. Debt is just for emergencies.</p>
+          </div>
+          <div class="card-box">
+            <h4>Family (30-50)</h4>
+            <p class="sub">30-40% Debt</p>
+            <p>Need stability for kids' fees and loans.</p>
+          </div>
+          <div class="card-box highlight">
+            <h4>Retired (60+)</h4>
+            <p class="sub">60-80% Debt</p>
+            <p>Capital protection is priority #1. Income focus.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec15">
+        <span class="chapter-badge">LEVEL 15: REALITY</span>
+        <h2>15. Debt Funds vs FD</h2>
+        <div class="comparison-table">
+           <div class="comp-row header">
+             <span>Feature</span>
+             <span>Fixed Deposit (FD)</span>
+             <span>Debt Fund</span>
+           </div>
+           <div class="comp-row">
+             <span>Returns</span>
+             <span>Fixed</span>
+             <span class="highlight">Market Linked</span>
+           </div>
+           <div class="comp-row">
+             <span>Taxation</span>
+             <span>Taxed per slab</span>
+             <span>Taxed per slab (But deferred)</span>
+           </div>
+           <div class="comp-row">
+             <span>Liquidity</span>
+             <span>Penalty</span>
+             <span class="highlight">High (T+1)</span>
+           </div>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec16">
+        <span class="chapter-badge">LEVEL 16: MINDSET</span>
+        <h2>16. The FIN-OS Mental Model</h2>
+        <div class="concept-box glass">
+           <h4>The Airbag Philosophy</h4>
+           <p>You don't buy an airbag expecting to crash. You buy it so you survive <strong>IF</strong> you crash.</p>
+           <p class="highlight" style="margin-top:10px;">"Debt is the price you pay for sleeping well at night."</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="sec17">
+        <div class="pro-tip god-mode">
+          <div class="god-header">
+            <h4>💎 The Final Truth</h4>
+          </div>
+          <p>
+            Debt market is quiet, complex, and powerful.<br>
+            People who ignore debt panic during crashes.<br>
+            People who understand debt <strong>rebalance and win</strong>.
+          </p>
+          <p class="sub-text">
+            Debt doesn't build dreams. It protects them.
+          </p>
+        </div>
+      </section>
+
+      <footer class="deep-footer">
+        <h2>Protocol Complete.</h2>
+        <p>You have now completed the Capital Structure Triad: Equity, Debt, and Funds.</p>
+        <a href="markets.html" class="action-btn">Return to Base ➔</a>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="../js/ui.js"></script>
+  <script src="../js/debtdetail.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+</body>
+</html>

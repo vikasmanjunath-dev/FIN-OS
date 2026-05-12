@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Personal Finance 101</title>
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/finance101.css"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+
+<body>
+<div class="app">
+
+ <div class="app">
+    <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html" class="active">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+
+      <header class="header header-flex">
+        <div>
+          <h1 class="glitch-text" data-text="Personal Finance 101">Personal Finance 101</h1>
+          <p class="hero-sub">Before money becomes numbers, it becomes <span class="highlight">behavior</span>.</p>
+        </div>
+        <button id="themeToggle" class="theme-btn">🌙</button>
+      </header>
+
+      <section class="intro-card glass">
+        <div class="intro-content">
+          <h2>⚠️ The Reality Check</h2>
+          <p>If your salary comes on the 1st and vanishes by the 15th, this page is for you.</p>
+          <p>We are not here to sell you insurance. We are here to fix the <strong>operating system</strong> in your head.</p>
+        </div>
+        <div class="intro-visual">
+          <div class="pulse-circle"></div>
+        </div>
+      </section>
+
+      <section class="module glass" id="mod1">
+        <div class="module-header">
+          <span class="module-tag">Module 01</span>
+          <h2>What is Money?</h2>
+        </div>
+        <div class="grid-2">
+          <div class="text-content">
+            <h3>🚫 The Lie</h3>
+            <p>"Paisa haath ka mail hai" (Money is dirt). <br>Yet, everyone panics when it's gone.</p>
+            <h3>✅ The FIN-OS Truth</h3>
+            <p>Money is <strong>Stored Energy</strong>. It is your time and effort frozen into a number. If you waste money, you are burning your own life hours.</p>
+            
+            <div class="concept-box">
+              <h4>Income vs Wealth</h4>
+              <p><strong>Income:</strong> The river (Salary, Rent).</p>
+              <p><strong>Wealth:</strong> The Dam (Assets, FD, Stocks).</p>
+              <p class="impact-text">High Salary + Zero Assets = Poor with an iPhone.</p>
+            </div>
+          </div>
+          <div class="visual-content">
+            <canvas id="incomeWealthChart"></canvas>
+            <p class="chart-caption">Visualizing the "Salary Trap"</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="module glass" id="mod2">
+        <div class="module-header">
+          <span class="module-tag">Module 02</span>
+          <h2>Spending: The Silent Killer</h2>
+        </div>
+        <div class="grid-2">
+          <div class="visual-content order-2-mobile">
+            <div class="gauge-container">
+              <div class="gauge-label">Needs vs Wants Radar</div>
+              <canvas id="needsWantsChart"></canvas>
+            </div>
+          </div>
+          <div class="text-content">
+            <h3>The "Log Kya Kahenge" Tax</h3>
+            <p>Society rewards appearance, not stability. You buy things to impress people you don't even like.</p>
+            
+            <ul class="desi-list">
+              <li>🍔 <strong>Needs:</strong> Roti, Kapda, Makaan, Wifi.</li>
+              <li>🚗 <strong>Wants (Disguised):</strong> "Car is required for status", "New phone for work", "Grand wedding for parents".</li>
+            </ul>
+
+            <div class="concept-box danger">
+              <h4>💀 The EMI Disease</h4>
+              <p>EMI isn't affordability. It is <strong>future income spent today</strong>.</p>
+              <p>Buying a sofa on EMI? You just sold your freedom for foam.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="module glass" id="mod3">
+        <div class="module-header">
+          <span class="module-tag">Module 03</span>
+          <h2>Debt: The Good, The Bad, The Ugly</h2>
+          <p class="sub-text">Swipe to judge your loans ⮕</p>
+        </div>
+
+        <div class="scrolling-wrapper">
+          
+          <div class="scrolling-card debt-card bad">
+            <div class="card-icon">🧨</div>
+            <h3>Bad Debt</h3>
+            <p class="truth">The Definition</p>
+            <p class="answer no">Wealth Destroyer</p>
+            <p class="desc">Any loan taken for a depreciating asset or lifestyle. It steals from your future.</p>
+            <div class="debt-examples">
+              <span>🚗 Car Loan</span>
+              <span>📱 iPhone EMI</span>
+              <span>💍 Personal Loan</span>
+            </div>
+          </div>
+
+          <div class="scrolling-card debt-card good">
+            <div class="card-icon">🚀</div>
+            <h3>Good Debt</h3>
+            <p class="truth">The Definition</p>
+            <p class="answer yes">Leverage</p>
+            <p class="desc">A loan that increases your income or net worth over time. Ideally, someone else pays it off.</p>
+            <div class="debt-examples">
+              <span>🎓 Education Loan</span>
+              <span>🏭 Business Loan</span>
+              <span>🏠 Rental Property</span>
+            </div>
+          </div>
+
+          <div class="scrolling-card debt-card ugly">
+            <div class="card-icon">☠️</div>
+            <h3>The Ugly Trap</h3>
+            <p class="truth">The Killer</p>
+            <p class="answer no">"Minimum Due"</p>
+            <p class="desc">Paying only the minimum due on Credit Cards. Interest is <strong>42% per year</strong>.</p>
+            <div class="debt-examples">
+              <span>💳 Revolving Credit</span>
+              <span>🎰 BNPL (Buy Now Pay Later)</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+        <section class="module glass" id="mod4">
+        <div class="module-header">
+          <span class="module-tag">Module 04</span>
+          <h2>Saving: The Financial Airbag</h2>
+        </div>
+        <div class="grid-2">
+          <div class="text-content">
+            <h3>Why Indians Save Emotionally</h3>
+            <p>We save for <strong>Marriages</strong> and <strong>Gold</strong> (Emotion), but ignore <strong>Inflation</strong> and <strong>Emergencies</strong> (Logic).</p>
+            
+            <div class="concept-box">
+              <h4>🛡️ The Emergency Fund Rule</h4>
+              <p>This is not "Savings". This is <strong>Survival Money</strong>.</p>
+              <ul class="desi-list">
+                <li><strong>Amount:</strong> 6 Months of Expenses (Rent + Food + EMI).</li>
+                <li><strong>Location:</strong> Liquid Fund or Separate Bank Account.</li>
+                <li><strong>Rule:</strong> Do not touch unless you lose your job or land in a hospital.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="visual-content center-flex">
+            <div class="tank-visual">
+              <div class="liquid-level"></div>
+              <span class="tank-label">Emergency Fund<br>(6 Months)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="module glass" id="mod6">
+        <div class="module-header">
+          <span class="module-tag">Module 06</span>
+          <h2>Investing: Assets vs Liabilities</h2>
+          <p class="sub-text">Swipe to reveal the truth about your "Assets" ⮕</p>
+        </div>
+        
+        <div class="scrolling-wrapper">
+          
+          <div class="scrolling-card glass">
+            <div class="card-icon">🏠</div>
+            <h3>The House</h3>
+            <p class="truth">Is it an Asset?</p>
+            <p class="answer no">NO (Mostly)</p>
+            <p class="desc">If you live in it, it takes money out of your pocket (Maintenance, Tax, EMI). It's a <strong>Liability</strong>.</p>
+          </div>
+
+          <div class="scrolling-card glass">
+            <div class="card-icon">🚗</div>
+            <h3>The Car</h3>
+            <p class="truth">Is it an Asset?</p>
+            <p class="answer no">NEVER</p>
+            <p class="desc">It loses 20% value the moment you drive it out. It is a <strong>Depreciating Utility</strong>.</p>
+          </div>
+
+          <div class="scrolling-card glass">
+            <div class="card-icon">👑</div>
+            <h3>Gold Jewelry</h3>
+            <p class="truth">Is it an Asset?</p>
+            <p class="answer mixed">EMOTIONAL</p>
+            <p class="desc">Making charges (20%) eat your profit. <strong>SGB (Digital Gold)</strong> is an asset. Jewelry is fashion.</p>
+          </div>
+
+          <div class="scrolling-card glass">
+            <div class="card-icon">📈</div>
+            <h3>Stocks / Mutual Funds</h3>
+            <p class="truth">Is it an Asset?</p>
+            <p class="answer yes">YES</p>
+            <p class="desc">It puts money IN your pocket while you sleep. This is the only true wealth builder.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="module glass" id="mod8">
+        <div class="module-header">
+          <span class="module-tag">Module 07</span>
+          <h2>Life Stages: The Roadmap</h2>
+        </div>
+
+        <div class="scrolling-wrapper">
+          
+          <div class="scrolling-card phase-card">
+            <div class="phase-badge">Age 20-25</div>
+            <h3>The Rookie</h3>
+            <ul>
+              <li>🚫 Don't buy a car yet.</li>
+              <li>✅ Build Skills > Savings.</li>
+              <li>✅ Start a small SIP (Habit building).</li>
+            </ul>
+          </div>
+
+          <div class="scrolling-card phase-card">
+            <div class="phase-badge">Age 26-35</div>
+            <h3>The Grinder</h3>
+            <ul>
+              <li>🚫 Avoid "Lifestyle Inflation".</li>
+              <li>✅ Buy Term Insurance (Before it gets expensive).</li>
+              <li>✅ Maximize EPF/PPF (Tax free growth).</li>
+            </ul>
+          </div>
+
+          <div class="scrolling-card phase-card">
+            <div class="phase-badge">Age 36-45</div>
+            <h3>The Family Anchor</h3>
+            <ul>
+              <li>🚫 Don't raid retirement funds for kids' education.</li>
+              <li>✅ Clear bad debts (Credit cards/Personal loans).</li>
+              <li>✅ Increase Health Cover.</li>
+            </ul>
+          </div>
+
+          <div class="scrolling-card phase-card">
+            <div class="phase-badge">Age 46+</div>
+            <h3>The Monk</h3>
+            <ul>
+              <li>🚫 No risky bets (Crypto/F&O).</li>
+              <li>✅ Shift Equity to Debt (Protect capital).</li>
+              <li>✅ Plan Estate/Will.</li>
+            </ul>
+          </div>
+
+        </div>
+      </section>
+
+
+      <section class="module glass" id="mod5">
+        <div class="module-header">
+          <span class="module-tag">Module 08</span>
+          <h2>Inflation: The Invisible Thief</h2>
+        </div>
+        <div class="grid-2">
+          <div class="text-content">
+            <h3>Your Salary grows 8%. Expenses grow 12%.</h3>
+            <p>You are getting poorer silently. This is called <strong>Lifestyle Inflation</strong>.</p>
+            <p>Government inflation is 6%. But <em>Desi</em> inflation (School fees, Medical, Milk) is 10%+.</p>
+            <div class="thought-exercise">
+              <p>💭 <strong>Think:</strong> What did a Samosa cost 10 years ago? What does it cost now?</p>
+            </div>
+          </div>
+          <div class="visual-content">
+            <canvas id="inflationChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section class="module glass" id="mod7">
+        <div class="module-header">
+          <span class="module-tag">Module 09</span>
+          <h2>Psychology: The Core DNA</h2>
+          <p class="sub-text">Swipe to see why smart people do stupid things ⮕</p>
+        </div>
+
+        <div class="scrolling-wrapper">
+          
+          <div class="scrolling-card psych-card">
+            <div class="card-icon">🧠</div>
+            <h3>The Poor Mindset</h3>
+            <p class="truth">The Belief</p>
+            <p class="answer no">"If I earn more, I will save more."</p>
+            <p class="desc"><strong>Reality:</strong> Parkinson’s Law. As income rises, your expenses will rise to match it immediately. You stay broke at a higher level.</p>
+          </div>
+
+          <div class="scrolling-card psych-card">
+            <div class="card-icon">🦁</div>
+            <h3>The Rich Mindset</h3>
+            <p class="truth">The Habit</p>
+            <p class="answer yes">"Pay Yourself First"</p>
+            <p class="desc"><strong>Reality:</strong> Invest 20% the moment salary hits. Spend whatever is left. Wealth is what you <em>don't</em> see (Investments), not what you show (Gadgets).</p>
+          </div>
+
+          <div class="scrolling-card psych-card">
+            <div class="card-icon">👀</div>
+            <h3>The "Sharmaji" Trap</h3>
+            <p class="truth">The Trigger</p>
+            <p class="answer mixed">Social Comparison</p>
+            <p class="desc"><strong>Reality:</strong> You buy things you don't need, with money you don't have, to impress people you don't even like. Status games have no winners.</p>
+          </div>
+
+          <div class="scrolling-card psych-card">
+            <div class="card-icon">🎢</div>
+            <h3>The FOMO Disease</h3>
+            <p class="truth">The Trigger</p>
+            <p class="answer no">"Everyone is buying Crypto/Options"</p>
+            <p class="desc"><strong>Reality:</strong> You only hear about their wins, never their losses. Investing based on excitement is gambling. Boring is profitable.</p>
+          </div>
+
+          <div class="scrolling-card psych-card">
+            <div class="card-icon">🛍️</div>
+            <h3>Retail Therapy</h3>
+            <p class="truth">The Trigger</p>
+            <p class="answer no">Instant Gratification</p>
+            <p class="desc"><strong>Reality:</strong> The happiness of a new purchase lasts 48 hours. The pain of the EMI lasts 12 months. Choose your pain wisely.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <footer class="fin-footer glass">
+        
+        <div class="footer-badge">FIN•OS COMPLETED</div>
+        
+        <h2>🎯 The Final Reality</h2>
+        
+        <div class="truth-box">
+          <p class="truth-statement">Personal finance is not about being rich.</p>
+          <p class="truth-statement highlight">It is about not being helpless.</p>
+        </div>
+
+        <div class="footer-actions">
+          <p>Does this truth make you uncomfortable?</p>
+          <a href="dashboard.html" class="footer-btn">
+            Go to Dashboard <span>➔</span>
+          </a>
+        </div>
+        
+        <p class="copyright">© 2025 FIN•OS Mental Operating System</p>
+
+      </footer>
+
+    </div> </main>
+</div>
+
+    </div> </main>
+</div> ```
+
+### **3. Stabilize the CSS (`css/finance101.css`)**
+Add this to ensure the footer doesn't float and the layout is rigid.
+
+```css
+/* =========================
+   STABILITY FIXES
+   ========================= */
+
+/* Stop any rogue animations */
+.module, .intro-card, .fin-footer {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+  animation: none !important; /* Kills any infinite looping animations */
+}
+
+/* Ensure Footer is grounded */
+.fin-footer {
+  margin-top: 80px;
+  margin-bottom: 40px;
+  padding: 60px 40px;
+  background: var(--bg-surface); /* Solid surface instead of gradient */
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 32px;
+  text-align: center;
+  position: relative; /* Ensures it stays in flow */
+  z-index: 1;
+  box-shadow: none; /* Remove shadow if it looks like it's floating */
+}
+
+/* Fix Pulse if that was the "infinite" thing */
+.pulse-circle {
+  animation: none; /* Stops the pulsing if it was annoying */
+  box-shadow: 0 0 0 10px rgba(199, 240, 0, 0.1); /* Static glow */
+}
+    </div>
+  </main>
+</div>
+
+<script src="../js/ui.js"></script>
+<script src="../js/finance101.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+</body>
+</html>

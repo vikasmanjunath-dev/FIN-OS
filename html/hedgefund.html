@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+<title>FIN•OS | Decision Engine — Hedge Fund Metrics + Behavioral OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* ═══════════════════════════ TOKENS ═══════════════════════════ */
+:root{
+  --bg:#060810;--bg2:#0B0E1C;--bg3:#111526;--bg4:#181C2E;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
+  --lime:#C7F000;--blue:#4F7CFF;--pink:#FF4ECD;
+  --red:#FF3B3B;--amber:#FFB800;--teal:#00E5CC;--purple:#9B5CFF;--orange:#FF6B35;
+  --text:#EDF0FF;--muted:#3E4560;--muted2:#808AAA;
+  --sw:220px;--r:16px;
+  --font-display:'Bebas Neue',sans-serif;--font-body:'Syne',sans-serif;--font-mono:'DM Mono',monospace;
+}
+[data-theme="light"]{
+  --bg:#F0F3FA;--bg2:#FFFFFF;--bg3:#E8ECF5;--bg4:#DDE2EE;
+  --border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.12);
+  --text:#0A0C18;--muted:#9099B8;--muted2:#555E7A;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow-x:hidden;scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);display:flex;}
+::-webkit-scrollbar{width:10px;}
+::-webkit-scrollbar-track{background:#12161d;}
+::-webkit-scrollbar-thumb{background:#545b66;border-radius:999px;border:2px solid #12161d;}
+::-webkit-scrollbar-thumb:hover{background:#6a7380;}
+
+/* ═══════════════════════════ SIDEBAR ═══════════════════════════ */
+.sidebar{width:var(--sw);min-height:100vh;background:#03050C;border-right:1px solid var(--border);
+  position:fixed;top:0;left:0;z-index:200;display:flex;flex-direction:column;overflow-y:auto;}
+[data-theme="light"] .sidebar{background:#09101E;}
+.logo{font-family:var(--font-display);font-size:1.9rem;letter-spacing:.15em;color:var(--lime);
+  padding:24px 22px 20px;border-bottom:1px solid var(--border);
+  text-shadow:0 0 24px rgba(199,240,0,.5);flex-shrink:0;}
+.sidebar nav{display:flex;flex-direction:column;padding:10px 0;gap:1px;}
+.sidebar nav a{padding:8px 22px;font-size:.72rem;letter-spacing:.03em;color:#2E3450;
+  text-decoration:none;border-left:2px solid transparent;transition:all .15s;}
+.sidebar nav a:hover{color:var(--muted2);background:rgba(255,255,255,.02);}
+.sidebar nav a.active{color:var(--lime);border-left-color:var(--lime);background:rgba(199,240,0,.04);}
+.nav-section{padding:12px 22px 4px;font-family:var(--font-mono);font-size:.58rem;
+  letter-spacing:.2em;color:var(--muted);text-transform:uppercase;}
+
+/* ═══════════════════════════ MAIN ═══════════════════════════ */
+.main{margin-left:var(--sw);width:calc(100% - var(--sw));flex:1;min-height:100vh;background:var(--bg);}
+.content{max-width:1100px;margin:0 auto;padding:48px 38px 140px;}
+
+/* ═══════════════════════════ UTILITY ═══════════════════════════ */
+.mono{font-family:var(--font-mono);}
+.lime{color:var(--lime);}.blue{color:var(--blue);}.red{color:var(--red);}
+.amber{color:var(--amber);}.pink{color:var(--pink);}.teal{color:var(--teal);}.purple{color:var(--purple);}
+
+.badge{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:.62rem;
+  letter-spacing:.18em;color:var(--muted2);border:1px solid var(--border);padding:4px 11px;
+  border-radius:3px;margin-bottom:12px;}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--lime);
+  box-shadow:0 0 7px var(--lime);animation:dot-pulse 2s ease-in-out infinite;}
+@keyframes dot-pulse{0%,100%{opacity:.4}50%{opacity:1;box-shadow:0 0 12px var(--lime);}}
+
+.section-title{font-family:var(--font-display);font-size:clamp(1.9rem,4vw,2.9rem);
+  letter-spacing:.06em;line-height:1;margin-bottom:6px;}
+.section-sub{color:var(--muted2);font-size:.87rem;line-height:1.72;margin-bottom:28px;max-width:720px;}
+
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:24px;}
+[data-theme="light"] .card{box-shadow:0 3px 18px rgba(0,0,0,.06);}
+.divider{border:none;border-top:1px solid var(--border);margin:52px 0;}
+.section{margin-bottom:68px;}
+
+.tag{display:inline-block;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.1em;padding:3px 10px;border-radius:20px;}
+.tag-lime{background:rgba(199,240,0,.1);color:var(--lime);}
+.tag-blue{background:rgba(79,124,255,.1);color:var(--blue);}
+.tag-red{background:rgba(255,59,59,.1);color:var(--red);}
+.tag-amber{background:rgba(255,184,0,.1);color:var(--amber);}
+.tag-pink{background:rgba(255,78,205,.1);color:var(--pink);}
+.tag-purple{background:rgba(155,92,255,.1);color:var(--purple);}
+.tag-teal{background:rgba(0,229,204,.1);color:var(--teal);}
+.tag-orange{background:rgba(255,107,53,.1);color:var(--orange);}
+
+/* ═══════════════════════════ LAYOUTS ═══════════════════════════ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.four-col{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+
+/* ═══════════════════════════ PAGE HEADER ═══════════════════════════ */
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:42px;}
+.eyebrow{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.22em;color:var(--lime);margin-bottom:12px;}
+.page-title{font-family:var(--font-display);font-size:clamp(3.2rem,7.5vw,5.8rem);line-height:.87;
+  letter-spacing:.05em;background:linear-gradient(128deg,#fff 25%,var(--lime) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+[data-theme="light"] .page-title{background:linear-gradient(128deg,#08091A 25%,#2A5500 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.page-sub{color:var(--muted2);font-size:.95rem;line-height:1.72;margin-top:14px;max-width:540px;}
+.theme-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text);
+  padding:9px 18px;border-radius:50px;cursor:pointer;transition:all .22s;
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.06em;flex-shrink:0;}
+.theme-btn:hover{border-color:var(--lime);color:var(--lime);}
+
+/* ═══════════════════════════ TICKER ═══════════════════════════ */
+.ticker-wrap{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:8px 0;overflow:hidden;margin-bottom:48px;}
+.ticker-inner{display:flex;gap:52px;animation:ticker 28s linear infinite;white-space:nowrap;}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tick{display:inline-flex;gap:8px;align-items:center;font-family:var(--font-mono);font-size:.68rem;}
+.tick-sym{color:var(--muted2);}.tick-up{color:var(--lime);}.tick-down{color:var(--red);}
+[data-theme="light"] .ticker-wrap{background:#E8ECF5;}
+
+/* ═══════════════════════════ INFO BOXES ═══════════════════════════ */
+.insight-box{background:rgba(199,240,0,.05);border:1px solid rgba(199,240,0,.14);border-radius:13px;padding:16px 20px;margin-top:13px;}
+.ib-label{font-family:var(--font-mono);font-size:.61rem;letter-spacing:.16em;color:var(--lime);margin-bottom:5px;}
+.insight-box p{font-size:.81rem;color:var(--muted2);line-height:1.65;}
+.warn-box{background:rgba(255,184,0,.05);border:1px solid rgba(255,184,0,.17);border-radius:13px;padding:16px 20px;margin-top:13px;}
+.wb-label{font-family:var(--font-mono);font-size:.61rem;letter-spacing:.16em;color:var(--amber);margin-bottom:5px;}
+.warn-box p{font-size:.81rem;color:var(--muted2);line-height:1.65;}
+.danger-box{background:rgba(255,59,59,.05);border:1px solid rgba(255,59,59,.17);border-radius:13px;padding:16px 20px;margin-top:13px;}
+.db-label{font-family:var(--font-mono);font-size:.61rem;letter-spacing:.16em;color:var(--red);margin-bottom:5px;}
+.danger-box p{font-size:.81rem;color:var(--muted2);line-height:1.65;}
+.blue-box{background:rgba(79,124,255,.05);border:1px solid rgba(79,124,255,.17);border-radius:13px;padding:16px 20px;margin-top:13px;}
+.bb-label{font-family:var(--font-mono);font-size:.61rem;letter-spacing:.16em;color:var(--blue);margin-bottom:5px;}
+.blue-box p{font-size:.81rem;color:var(--muted2);line-height:1.65;}
+.purple-box{background:rgba(155,92,255,.05);border:1px solid rgba(155,92,255,.17);border-radius:13px;padding:16px 20px;margin-top:13px;}
+.pb-label{font-family:var(--font-mono);font-size:.61rem;letter-spacing:.16em;color:var(--purple);margin-bottom:5px;}
+.purple-box p{font-size:.81rem;color:var(--muted2);line-height:1.65;}
+
+/* ═══════════════════════════ DESI STORY ═══════════════════════════ */
+.desi-story{background:var(--bg3);border-radius:13px;padding:20px 22px;border-left:3px solid var(--blue);margin-top:15px;}
+.ds-flag{font-size:1.3rem;margin-bottom:5px;}
+.ds-label{font-family:var(--font-mono);font-size:.61rem;letter-spacing:.14em;color:var(--blue);margin-bottom:7px;}
+.desi-story p{font-size:.83rem;color:var(--muted2);line-height:1.78;}
+.desi-story p strong{color:var(--text);}
+.ds-moral{margin-top:11px;font-family:var(--font-mono);font-size:.75rem;color:var(--lime);
+  padding:9px 13px;background:rgba(199,240,0,.06);border-radius:8px;border:1px solid rgba(199,240,0,.14);}
+
+/* ═══════════════════════════ FORMULA ═══════════════════════════ */
+.formula-display{background:var(--bg);border:1px solid var(--border2);border-radius:11px;padding:16px 20px;margin:13px 0;}
+.fd-title{font-family:var(--font-mono);font-size:.61rem;letter-spacing:.16em;color:var(--muted2);margin-bottom:9px;}
+.fd-eq{font-family:var(--font-mono);font-size:.94rem;color:var(--lime);line-height:1.9;}
+.fd-eq span{color:var(--muted2);font-size:.74rem;display:block;margin-top:2px;}
+[data-theme="light"] .formula-display{background:#EAECF5;border-color:rgba(0,0,0,.09);}
+
+/* ═══════════════════════════ METRIC HERO ═══════════════════════════ */
+.metric-hero{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  padding:24px;margin-bottom:20px;position:relative;overflow:hidden;}
+.metric-hero::before{content:attr(data-bg);position:absolute;right:14px;top:-8px;
+  font-family:var(--font-display);font-size:6rem;letter-spacing:.08em;
+  color:rgba(255,255,255,.018);pointer-events:none;line-height:1;}
+.mh-top{display:flex;align-items:flex-start;gap:16px;margin-bottom:14px;}
+.mh-icon{font-size:2.1rem;flex-shrink:0;}
+.mh-head h3{font-family:var(--font-display);font-size:1.45rem;letter-spacing:.06em;margin-bottom:5px;}
+.mh-head p{font-size:.83rem;color:var(--muted2);line-height:1.68;max-width:600px;}
+.mh-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+
+/* ═══════════════════════════ SLIDERS ═══════════════════════════ */
+.slider-group{margin-bottom:15px;}
+.slider-label{display:flex;justify-content:space-between;font-size:.76rem;color:var(--muted2);margin-bottom:5px;}
+.slider-label strong{color:var(--text);font-family:var(--font-mono);font-size:.79rem;}
+input[type=range]{width:100%;-webkit-appearance:none;height:3px;border-radius:2px;background:var(--border2);outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--lime);cursor:pointer;box-shadow:0 0 9px rgba(199,240,0,.55);}
+[data-theme="light"] input[type=range]{background:rgba(0,0,0,.12);}
+
+/* ═══════════════════════════ RESULT BOX ═══════════════════════════ */
+.result-box{background:var(--bg3);border-radius:11px;padding:16px;text-align:center;margin-top:13px;border:1px solid var(--border);}
+.result-val{font-family:var(--font-display);font-size:2.5rem;line-height:1;color:var(--lime);margin-bottom:4px;}
+.result-verdict{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.08em;padding:3px 12px;border-radius:20px;display:inline-block;margin-top:3px;}
+.rv-good{background:rgba(199,240,0,.12);color:var(--lime);}
+.rv-warn{background:rgba(255,184,0,.12);color:var(--amber);}
+.rv-bad{background:rgba(255,59,59,.12);color:var(--red);}
+
+/* ═══════════════════════════ STAT ITEMS ═══════════════════════════ */
+.stat-item{background:var(--bg3);border-radius:11px;padding:14px;text-align:center;border:1px solid var(--border);}
+.si-val{font-family:var(--font-display);font-size:1.8rem;line-height:1;margin-bottom:3px;}
+.si-label{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;color:var(--muted2);}
+
+/* ═══════════════════════════ COMPARE TABLE ═══════════════════════════ */
+.compare-table{width:100%;border-collapse:collapse;}
+.compare-table th{font-family:var(--font-mono);font-size:.63rem;letter-spacing:.1em;color:var(--muted2);border-bottom:1px solid var(--border);padding:9px 12px;text-align:left;}
+.compare-table td{padding:10px 12px;font-size:.81rem;border-bottom:1px solid var(--border);color:var(--text);}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-table tr:hover td{background:rgba(255,255,255,.02);}
+.compare-table td:first-child{font-family:var(--font-mono);font-size:.75rem;color:var(--muted2);}
+
+/* ═══════════════════════════ METRIC CARD GRID ═══════════════════════════ */
+.metrics-master-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px;}
+.metric-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:22px;
+  position:relative;overflow:hidden;cursor:pointer;transition:transform .25s,border-color .25s;
+  border-top:3px solid var(--mc);}
+.metric-card:hover{transform:translateY(-4px);border-color:var(--mc);}
+.metric-card::before{content:attr(data-short);position:absolute;right:10px;top:-6px;
+  font-family:var(--font-display);font-size:5rem;color:rgba(255,255,255,.02);pointer-events:none;}
+.mc-category{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.16em;color:var(--mc);margin-bottom:8px;}
+.mc-name{font-family:var(--font-display);font-size:1.5rem;letter-spacing:.06em;margin-bottom:3px;}
+.mc-full{font-size:.75rem;color:var(--muted2);margin-bottom:12px;}
+.mc-formula{font-family:var(--font-mono);font-size:.72rem;color:var(--lime);background:rgba(199,240,0,.05);
+  border:1px solid rgba(199,240,0,.1);padding:7px 10px;border-radius:7px;margin-bottom:12px;line-height:1.6;}
+.mc-what{font-size:.8rem;color:var(--muted2);line-height:1.62;margin-bottom:10px;}
+.mc-benchmark{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.mc-bench-item{font-family:var(--font-mono);font-size:.62rem;padding:3px 8px;border-radius:5px;}
+.mc-bench-item.good{background:rgba(199,240,0,.1);color:var(--lime);}
+.mc-bench-item.warn{background:rgba(255,184,0,.1);color:var(--amber);}
+.mc-bench-item.bad{background:rgba(255,59,59,.1);color:var(--red);}
+.mc-desi{background:var(--bg3);border-radius:9px;padding:10px 12px;font-size:.77rem;color:var(--muted2);line-height:1.6;border-left:2px solid var(--blue);}
+.mc-desi strong{color:var(--text);}
+.mc-trap{background:rgba(255,59,59,.05);border:1px solid rgba(255,59,59,.12);border-radius:7px;
+  padding:8px 10px;font-family:var(--font-mono);font-size:.68rem;color:var(--red);margin-top:8px;}
+.mc-live-val{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.mc-live-num{font-family:var(--font-display);font-size:2.2rem;line-height:1;color:var(--mc);}
+.mc-live-label{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;color:var(--muted2);}
+
+/* ═══════════════════════════ INTERACTIVE SLIDERS FOR METRICS ═══════════════════════════ */
+.metric-sim{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:16px;margin-top:12px;}
+.metric-sim-title{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.12em;color:var(--muted2);margin-bottom:12px;}
+
+/* ═══════════════════════════ BEHAVIORAL SYSTEM COMPONENTS ═══════════════════════════ */
+.permission-shell{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.permission-header{padding:18px 24px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);}
+.permission-header.blocked{background:rgba(255,59,59,.06);border-bottom-color:rgba(255,59,59,.14);}
+.permission-header.allowed{background:rgba(199,240,0,.05);border-bottom-color:rgba(199,240,0,.12);}
+.permission-header.caution{background:rgba(255,184,0,.05);border-bottom-color:rgba(255,184,0,.12);}
+.ph-icon{font-size:1.5rem;}
+.ph-status{font-family:var(--font-display);font-size:1.5rem;letter-spacing:.1em;}
+.ph-status.blocked{color:var(--red);}.ph-status.allowed{color:var(--lime);}.ph-status.caution{color:var(--amber);}
+.ph-sub{font-family:var(--font-mono);font-size:.66rem;color:var(--muted2);}
+.permission-body{padding:22px 24px;}
+.reason-list{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
+.reason-item{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:9px;font-size:.8rem;}
+.reason-item.fail{background:rgba(255,59,59,.07);border:1px solid rgba(255,59,59,.13);color:var(--red);}
+.reason-item.pass{background:rgba(199,240,0,.05);border:1px solid rgba(199,240,0,.11);color:var(--lime);}
+.reason-item.warn{background:rgba(255,184,0,.07);border:1px solid rgba(255,184,0,.13);color:var(--amber);}
+.reason-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.reason-item.fail .reason-dot{background:var(--red);}
+.reason-item.pass .reason-dot{background:var(--lime);}
+.reason-item.warn .reason-dot{background:var(--amber);}
+.override-btn{background:transparent;border:1px solid var(--border2);color:var(--muted2);
+  padding:8px 16px;border-radius:50px;font-family:var(--font-mono);font-size:.7rem;cursor:pointer;
+  transition:all .22s;letter-spacing:.06em;}
+.override-btn:hover{border-color:var(--red);color:var(--red);}
+
+/* ═══════════════════════════ CONSEQUENCE CARDS ═══════════════════════════ */
+.consequence-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px;}
+.scenario-card{border-radius:13px;padding:18px;border:1px solid var(--border);cursor:pointer;transition:transform .22s;}
+.scenario-card:hover{transform:translateY(-3px);}
+.scenario-card.win{background:rgba(199,240,0,.04);border-color:rgba(199,240,0,.16);}
+.scenario-card.lose{background:rgba(255,59,59,.04);border-color:rgba(255,59,59,.16);}
+.scenario-card.spiral{background:rgba(155,92,255,.04);border-color:rgba(155,92,255,.16);}
+.sc-label{font-family:var(--font-mono);font-size:.63rem;letter-spacing:.13em;margin-bottom:7px;}
+.scenario-card.win .sc-label{color:var(--lime);}
+.scenario-card.lose .sc-label{color:var(--red);}
+.scenario-card.spiral .sc-label{color:var(--purple);}
+.sc-title{font-family:var(--font-display);font-size:1.15rem;letter-spacing:.06em;margin-bottom:9px;}
+.sc-body{font-size:.77rem;color:var(--muted2);line-height:1.65;}
+.sc-body strong{color:var(--text);}
+.sc-prob-bar{margin-top:11px;height:3px;border-radius:2px;background:var(--border);}
+.sc-prob-fill{height:100%;border-radius:2px;transition:width 1s ease;}
+.scenario-card.win .sc-prob-fill{background:var(--lime);}
+.scenario-card.lose .sc-prob-fill{background:var(--red);}
+.scenario-card.spiral .sc-prob-fill{background:var(--purple);}
+.sc-pct-txt{font-family:var(--font-mono);font-size:.66rem;color:var(--muted2);margin-top:4px;}
+
+/* ═══════════════════════════ BIAS DETECTOR ═══════════════════════════ */
+.bias-meters{display:flex;flex-direction:column;gap:11px;}
+.bm-row{display:flex;align-items:center;gap:12px;}
+.bm-name{font-family:var(--font-mono);font-size:.68rem;color:var(--muted2);width:125px;flex-shrink:0;}
+.bm-bar-wrap{flex:1;height:22px;background:var(--bg3);border-radius:6px;overflow:hidden;}
+.bm-bar{height:100%;border-radius:6px;transition:width 1.1s ease;display:flex;align-items:center;padding-left:9px;}
+.bm-bar span{font-family:var(--font-mono);font-size:.64rem;font-weight:500;}
+.bm-pct{font-family:var(--font-display);font-size:1.15rem;width:36px;text-align:right;flex-shrink:0;}
+
+/* ═══════════════════════════ PAIN VISUALIZER ═══════════════════════════ */
+.pain-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0;}
+.pain-card{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:14px;text-align:center;}
+.pain-icon{font-size:1.6rem;margin-bottom:6px;}
+.pain-amount{font-family:var(--font-display);font-size:1.4rem;line-height:1;color:var(--red);margin-bottom:2px;}
+.pain-label{font-family:var(--font-mono);font-size:.59rem;letter-spacing:.07em;color:var(--muted2);}
+
+/* ═══════════════════════════ DO NOTHING ═══════════════════════════ */
+.do-nothing-card{background:linear-gradient(135deg,rgba(199,240,0,.04),rgba(0,0,0,0));
+  border:1px solid rgba(199,240,0,.13);border-radius:18px;padding:30px;text-align:center;
+  position:relative;overflow:hidden;}
+.do-nothing-card::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(199,240,0,.06) 0%,transparent 65%);pointer-events:none;}
+.dn-icon{font-size:2.8rem;display:block;margin-bottom:14px;}
+.dn-title{font-family:var(--font-display);font-size:2rem;letter-spacing:.1em;color:var(--lime);margin-bottom:9px;}
+.dn-sub{font-size:.86rem;color:var(--muted2);line-height:1.7;max-width:520px;margin:0 auto 18px;}
+.dn-reasons{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.dn-reason{background:rgba(199,240,0,.08);border:1px solid rgba(199,240,0,.16);border-radius:50px;
+  padding:5px 13px;font-family:var(--font-mono);font-size:.68rem;color:var(--lime);}
+
+/* ═══════════════════════════ REGIME ═══════════════════════════ */
+.regime-current{display:flex;align-items:center;gap:14px;padding:16px;background:var(--bg3);
+  border-radius:13px;border:1px solid var(--border);margin-bottom:16px;}
+.rc-icon{font-size:1.9rem;}
+.rc-name{font-family:var(--font-display);font-size:1.7rem;letter-spacing:.08em;}
+.rc-sub{font-family:var(--font-mono);font-size:.66rem;color:var(--muted2);}
+
+/* ═══════════════════════════ QUALITY SCORE ═══════════════════════════ */
+.qt-select{background:var(--bg);border:1px solid var(--border2);color:var(--text);
+  padding:8px 11px;border-radius:8px;font-family:var(--font-mono);font-size:.74rem;
+  width:100%;cursor:pointer;outline:none;}
+[data-theme="light"] .qt-select{background:#fff;}
+
+/* ═══════════════════════════ KELLY BARS ═══════════════════════════ */
+.kelly-bars{display:flex;flex-direction:column;gap:8px;margin:13px 0;}
+.kb-row{display:flex;align-items:center;gap:11px;}
+.kb-label{font-family:var(--font-mono);font-size:.68rem;color:var(--muted2);width:86px;text-align:right;flex-shrink:0;}
+.kb-bar-wrap{flex:1;height:24px;background:var(--bg3);border-radius:5px;overflow:hidden;}
+.kb-bar-fill{height:100%;border-radius:5px;display:flex;align-items:center;padding-left:9px;transition:width .8s ease;}
+.kb-bar-fill span{font-family:var(--font-mono);font-size:.67rem;font-weight:500;}
+
+/* ═══════════════════════════ AUTOPSY ═══════════════════════════ */
+.autopsy-shell{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.autopsy-header{background:var(--bg3);padding:18px 24px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;}
+.ah-title{font-family:var(--font-display);font-size:1.4rem;letter-spacing:.08em;}
+.autopsy-body{padding:22px 24px;}
+.autopsy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+.ag-item{background:var(--bg3);border-radius:11px;padding:14px;border:1px solid var(--border);}
+.ag-label{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.12em;color:var(--muted2);margin-bottom:5px;}
+.ag-val{font-family:var(--font-display);font-size:1.5rem;line-height:1;}
+.ag-sub{font-size:.72rem;color:var(--muted2);margin-top:2px;}
+
+/* ═══════════════════════════ TIME HEATMAP ═══════════════════════════ */
+.time-heatmap{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:14px 0;}
+.th-cell{height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:.6rem;color:rgba(255,255,255,.5);cursor:pointer;transition:transform .18s;}
+.th-cell:hover{transform:scale(1.08);}
+.th-cell.danger-zone{animation:throb .9s ease-in-out infinite alternate;}
+@keyframes throb{from{filter:brightness(1)}to{filter:brightness(1.35)}}
+
+/* ═══════════════════════════ ENGINE SCORE ═══════════════════════════ */
+.engine-shell{background:var(--bg2);border:1px solid var(--border);border-radius:20px;
+  padding:36px;text-align:center;position:relative;overflow:hidden;}
+.engine-shell::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--lime),var(--blue),var(--pink),transparent);
+  animation:escan 5s ease-in-out infinite;}
+@keyframes escan{0%,100%{opacity:.3}50%{opacity:1}}
+.engine-inputs-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
+.ei{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:15px;text-align:left;}
+.ei-label{font-family:var(--font-mono);font-size:.59rem;letter-spacing:.12em;color:var(--muted2);margin-bottom:6px;}
+.ei-val{font-family:var(--font-display);font-size:1.85rem;line-height:1;}
+.ei-sub{font-size:.69rem;color:var(--muted2);margin-top:3px;}
+.score-ring-wrap{position:relative;width:170px;height:170px;margin:0 auto 22px;}
+.score-ring-wrap canvas{position:absolute;top:0;left:0;}
+.score-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.score-big{font-family:var(--font-display);font-size:3.4rem;color:var(--lime);line-height:1;}
+.score-sub{font-family:var(--font-mono);font-size:.59rem;letter-spacing:.1em;color:var(--muted2);}
+.verdict-pill{font-family:var(--font-display);font-size:1.15rem;letter-spacing:.12em;
+  padding:10px 28px;border-radius:50px;display:inline-block;margin-bottom:16px;}
+.vp-trade{background:rgba(199,240,0,.12);color:var(--lime);border:1px solid rgba(199,240,0,.27);}
+.vp-caution{background:rgba(255,184,0,.12);color:var(--amber);border:1px solid rgba(255,184,0,.27);}
+.vp-stop{background:rgba(255,59,59,.12);color:var(--red);border:1px solid rgba(255,59,59,.27);}
+.recalc-btn{background:var(--lime);color:#000;border:none;padding:11px 30px;border-radius:50px;
+  font-family:var(--font-display);font-size:1rem;letter-spacing:.12em;cursor:pointer;
+  transition:all .28s;box-shadow:0 0 26px rgba(199,240,0,.22);}
+.recalc-btn:hover{transform:scale(1.05);box-shadow:0 0 46px rgba(199,240,0,.42);}
+
+/* ═══════════════════════════ BIAS CARDS ═══════════════════════════ */
+.bias-grid-6{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px;}
+.bias-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;
+  transition:transform .22s,border-color .22s;}
+.bias-card:hover{transform:translateY(-4px);border-color:var(--border2);}
+.bc-icon{font-size:1.7rem;margin-bottom:11px;}
+.bc-name{font-family:var(--font-display);font-size:1.3rem;letter-spacing:.06em;margin-bottom:3px;}
+.bc-def{font-size:.77rem;font-style:italic;color:var(--muted2);margin-bottom:11px;line-height:1.5;}
+.bc-desi{background:var(--bg3);border-radius:9px;padding:10px 11px;font-size:.76rem;color:var(--muted2);line-height:1.6;}
+.bc-desi strong{color:var(--text);}
+.bc-fix{margin-top:8px;font-size:.72rem;color:var(--lime);font-family:var(--font-mono);}
+
+/* ═══════════════════════════ CHECKLIST ═══════════════════════════ */
+.ci-item{display:flex;align-items:flex-start;gap:12px;background:var(--bg3);
+  border:1px solid var(--border);border-radius:9px;padding:12px 14px;
+  cursor:pointer;transition:all .18s;user-select:none;margin-bottom:7px;}
+.ci-item:hover{border-color:var(--border2);}
+.ci-item.checked{background:rgba(199,240,0,.05);border-color:rgba(199,240,0,.2);}
+.ci-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .18s;font-size:.7rem;}
+.ci-item.checked .ci-box{background:var(--lime);border-color:var(--lime);color:#000;}
+.ci-text{font-size:.83rem;flex:1;font-weight:600;}
+.ci-item.checked .ci-text{color:var(--lime);}
+.ci-why{font-size:.72rem;color:var(--muted2);margin-top:3px;display:none;line-height:1.5;}
+.ci-item.checked .ci-why{display:block;}
+.cp-bar-wrap{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.cp-bar{height:100%;background:var(--lime);border-radius:3px;transition:width .4s ease;box-shadow:0 0 7px rgba(199,240,0,.4);}
+
+/* ═══════════════════════════ STEPS ═══════════════════════════ */
+.step{display:flex;gap:13px;align-items:flex-start;background:var(--bg3);border-radius:11px;padding:13px;}
+.step-num{font-family:var(--font-display);font-size:1.45rem;line-height:1;color:var(--lime);flex-shrink:0;width:24px;text-align:center;}
+.step-body h5{font-size:.84rem;font-weight:700;margin-bottom:3px;}
+.step-body p{font-size:.77rem;color:var(--muted2);line-height:1.58;}
+
+/* ═══════════════════════════ ANIMATIONS ═══════════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fadeUp .5s ease both;}
+.d1{animation-delay:.1s;}.d2{animation-delay:.2s;}.d3{animation-delay:.3s;}
+
+/* ═══════════════════════════ MOBILE ═══════════════════════════ */
+@media(max-width:920px){
+  .sidebar{display:none;}.main{margin-left:0;}.content{padding:20px 14px 80px;}
+  .two-col,.three-col,.four-col,.metrics-master-grid,.bias-grid-6,
+  .consequence-grid,.pain-grid,.autopsy-grid,.engine-inputs-row{grid-template-columns:1fr!important;}
+}
+
+/* ═══════════════════════════ LIGHT PATCHES ═══════════════════════════ */
+[data-theme="light"] .card,[data-theme="light"] .metric-hero,[data-theme="light"] .engine-shell,
+[data-theme="light"] .permission-shell,[data-theme="light"] .autopsy-shell,
+[data-theme="light"] .metric-card{background:#fff;border-color:rgba(0,0,0,.08);}
+[data-theme="light"] .step,[data-theme="light"] .ei,[data-theme="light"] .result-box,
+[data-theme="light"] .stat-item,[data-theme="light"] .ci-item,[data-theme="light"] .bc-desi,
+[data-theme="light"] .desi-story,[data-theme="light"] .kb-bar-wrap,[data-theme="light"] .regime-current,
+[data-theme="light"] .metric-sim,[data-theme="light"] .ag-item,[data-theme="light"] .autopsy-header,
+[data-theme="light"] .pain-card,[data-theme="light"] .th-cell,[data-theme="light"] .bm-bar-wrap{background:#EAEDF5;}
+[data-theme="light"] .mc-formula{background:rgba(199,240,0,.08);}
+[data-theme="light"] .mc-desi{background:#E8ECF5;}
+</style>
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+<body>
+<aside class="sidebar">
+  <div class="logo">FIN•OS</div>
+  <nav>
+    <div class="nav-section">Navigation</div>
+    <a href="#">👤 Profile</a><a href="#">Home</a><a href="#">Dashboard</a>
+    <div class="nav-section">Learn</div>
+    <a href="#">Shield (Insurance)</a><a href="#">Financial X-Ray</a>
+    <a href="#">Financial Well-Being</a><a href="#">Fin-101</a>
+    <a href="#">Principles &amp; Laws</a><a href="#">Impact</a><a href="#">Roadmaps</a>
+    <div class="nav-section">Tools</div>
+    <a href="#">Calculators</a>
+    <a href="#">Learn Analysis</a><a href="#">Markets</a><a href="#">Live Tracker</a>
+    <a href="#">Tax</a><a href="#">News</a>
+    <a href="#" class="active">⚡ Decision Engine</a>
+    <a href="#">Settings</a>
+  </nav>
+</aside>
+<main class="main">
+<div class="content">
+
+<!-- ═══════════════════ HERO HEADER ═══════════════════ -->
+<header class="page-header fade">
+  <div>
+    <div class="eyebrow">BEHAVIORAL CONTROL SYSTEM — HEDGE FUND METRICS DECODED</div>
+    <h1 class="page-title">DECISION<br>ENGINE</h1>
+    <p class="page-sub">Every metric used by Bridgewater, Renaissance, Citadel and Two Sigma — decoded in plain English, with Indian examples, live interactive calculators, and a behavioral control layer that predicts your mistakes before you make them.</p>
+  </div>
+  <button class="theme-btn" id="themeBtn">☀️ LIGHT</button>
+</header>
+
+<!-- INTRO CARDS -->
+<div class="three-col fade d1" style="margin-bottom:46px">
+  <div class="card"><div style="font-family:var(--font-display);font-size:2.6rem;color:var(--border2);line-height:1;margin-bottom:9px">01</div><h4 style="font-size:.86rem;font-weight:700;margin-bottom:5px">15 Hedge Fund Metrics</h4><p style="font-size:.78rem;color:var(--muted2);line-height:1.62">Every ratio and metric that professional quant funds use — each with formula, desi example, live calculator, and benchmarks.</p></div>
+  <div class="card"><div style="font-family:var(--font-display);font-size:2.6rem;color:var(--border2);line-height:1;margin-bottom:9px">02</div><h4 style="font-size:.86rem;font-weight:700;margin-bottom:5px">Behavioral Control Layer</h4><p style="font-size:.78rem;color:var(--muted2);line-height:1.62">Trade Permission System, Bias Detector, Consequence Simulator and Pain Visualizer — predicting mistakes before they happen.</p></div>
+  <div class="card"><div style="font-family:var(--font-display);font-size:2.6rem;color:var(--border2);line-height:1;margin-bottom:9px">03</div><h4 style="font-size:.86rem;font-weight:700;margin-bottom:5px">Master Decision Score</h4><p style="font-size:.78rem;color:var(--muted2);line-height:1.62">All metrics fused into one weighted score: TRADE / CAUTION / BLOCKED. The final word before any financial decision.</p></div>
+</div>
+
+<div class="ticker-wrap"><div class="ticker-inner" id="ticker"></div></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PART ONE: ALL 15 HEDGE FUND METRICS
+═══════════════════════════════════════════════════════ -->
+<section class="section" id="metrics-all">
+  <div class="badge">HEDGE FUND ARSENAL — ALL 15 METRICS</div>
+  <h2 class="section-title">THE COMPLETE METRICS LIBRARY</h2>
+  <p class="section-sub">These are the exact numbers that Renaissance Technologies, Bridgewater Associates, Citadel, and Two Sigma use to evaluate every position, every strategy, and every trader. Below you will find every metric — what it is, the formula, what it actually tells you, industry benchmarks, a desi Indian example, and the hidden trap that destroys retail traders who misuse it.</p>
+
+  <!-- METRIC 1: EXPECTANCY -->
+  <div class="metric-hero" data-bg="EXPECTANCY" style="border-top:3px solid var(--lime)">
+    <div class="mh-top">
+      <div class="mh-icon">🎯</div>
+      <div class="mh-head">
+        <h3>EXPECTANCY — The Foundation of All Trading</h3>
+        <p><strong>The single most important number in trading.</strong> It answers: "If I execute this exact strategy over 1,000 trades, what is my average profit or loss per trade?" Positive expectancy = statistically inevitable profit. Negative expectancy = statistically inevitable ruin — no matter how lucky you get short-term.</p>
+        <div class="mh-meta"><span class="tag tag-lime">EDGE METRIC</span><span class="tag tag-blue">CATEGORY: FOUNDATION</span><span class="tag tag-amber">USED BY: ALL HEDGE FUNDS</span></div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="formula-display">
+          <div class="fd-title">// FORMULA</div>
+          <div class="fd-eq">E = (Win Rate × Avg Win) − (Loss Rate × Avg Loss)<span>Win Rate + Loss Rate = 100% | Example: 40% win rate → 60% loss rate</span></div>
+        </div>
+        <div class="blue-box" style="margin-top:10px">
+          <div class="bb-label">// WHAT IT ACTUALLY TELLS YOU</div>
+          <p>A 30% win rate system can be massively profitable if average wins are 5× larger than average losses. An 80% win rate system can slowly bleed you to death if every loss is 10× larger than wins. The win rate alone is <strong>meaningless without expectancy</strong>. This is the most common misunderstanding in Indian retail trading.</p>
+        </div>
+        <div class="desi-story">
+          <div class="ds-flag">🇮🇳</div>
+          <div class="ds-label">// RAHUL BHAI'S "LOSING" SYSTEM THAT ACTUALLY PRINTS MONEY</div>
+          <p>Rahul bhai wins only <strong>4 out of 10 Nifty options trades</strong>. His friends mock him constantly — "Tu toh hamesha lose karta hai!"<br><br>But: Each win = <strong>₹4,000</strong>. Each loss = <strong>₹900</strong>.<br>E = (40% × ₹4,000) − (60% × ₹900) = ₹1,600 − ₹540 = <strong style="color:var(--lime)">₹1,060 per trade</strong><br>100 trades/year → <strong style="color:var(--lime)">₹1,06,000 annual edge</strong>. His friends with 70% win rates are losing money.</p>
+          <div class="ds-moral">🧠 MORAL: Win rate is vanity. Expectancy is reality. Calculate it before trading any strategy — ever.</div>
+        </div>
+        <div class="danger-box">
+          <div class="db-label">// THE HIDDEN TRAP</div>
+          <p>Expectancy requires a large sample (100+ trades) to be statistically valid. A 20-trade sample can show positive expectancy by pure luck. Many traders backtest 20 trades, declare a profitable system, and blow up their account. Minimum 200 trades for reliable expectancy data.</p>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="metric-sim-title">// LIVE EXPECTANCY CALCULATOR</div>
+          <div class="slider-group"><div class="slider-label">Win Rate <strong id="wr-v">40%</strong></div><input type="range" min="10" max="90" value="40" id="wr" oninput="calcExp()"></div>
+          <div class="slider-group"><div class="slider-label">Avg Win (₹) <strong id="aw-v">₹4,000</strong></div><input type="range" min="500" max="20000" step="250" value="4000" id="aw" oninput="calcExp()"></div>
+          <div class="slider-group"><div class="slider-label">Avg Loss (₹) <strong id="al-v">₹900</strong></div><input type="range" min="200" max="10000" step="100" value="900" id="al" oninput="calcExp()"></div>
+          <div class="result-box"><div style="font-family:var(--font-mono);font-size:.61rem;letter-spacing:.1em;color:var(--muted2);margin-bottom:3px">PER TRADE EXPECTANCY</div><div class="result-val" id="exp-val">₹1,060</div><div id="exp-verdict" class="result-verdict rv-good">✅ PROFITABLE SYSTEM</div></div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">
+            <div class="stat-item"><div class="si-val lime" id="exp-annual">₹1.06L</div><div class="si-label">100 TRADES/YR</div></div>
+            <div class="stat-item"><div class="si-val blue" id="exp-rr">4.4:1</div><div class="si-label">REWARD:RISK</div></div>
+            <div class="stat-item"><div class="si-val" id="exp-status" style="color:var(--lime)">TRADE</div><div class="si-label">FIN-OS STATUS</div></div>
+          </div>
+          <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">
+            <div style="background:rgba(199,240,0,.07);border:1px solid rgba(199,240,0,.15);padding:9px 12px;border-radius:8px;font-family:var(--font-mono);font-size:.71rem;color:var(--lime)">E &gt; ₹500 → ✅ Trade full ¼ Kelly size</div>
+            <div style="background:rgba(255,184,0,.07);border:1px solid rgba(255,184,0,.15);padding:9px 12px;border-radius:8px;font-family:var(--font-mono);font-size:.71rem;color:var(--amber)">E = ₹0 to ₹500 → ⚠️ Trade half size, optimize</div>
+            <div style="background:rgba(255,59,59,.07);border:1px solid rgba(255,59,59,.15);padding:9px 12px;border-radius:8px;font-family:var(--font-mono);font-size:.71rem;color:var(--red)">E &lt; ₹0 → ❌ Stop. System is a wealth destroyer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- METRIC 2: MAX DRAWDOWN -->
+  <div class="metric-hero" data-bg="DRAWDOWN" style="border-top:3px solid var(--red)">
+    <div class="mh-top">
+      <div class="mh-icon">📉</div>
+      <div class="mh-head">
+        <h3>MAX DRAWDOWN — The Survival Metric</h3>
+        <p>The largest peak-to-trough decline before a new high is reached. Hedge funds treat this as their #1 risk metric because <strong>investors don't leave due to low returns — they leave due to pain.</strong> A fund that earns 30% per year but drops 60% in the middle will lose all investors during the drawdown, even if it eventually recovers.</p>
+        <div class="mh-meta"><span class="tag tag-red">RISK METRIC</span><span class="tag tag-blue">CATEGORY: SURVIVAL</span><span class="tag tag-amber">USED BY: ALL HEDGE FUNDS</span></div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="formula-display">
+          <div class="fd-title">// FORMULA</div>
+          <div class="fd-eq">Max DD = (Trough Value − Peak Value) ÷ Peak Value × 100<span>Example: Portfolio goes ₹10L → ₹6.2L → 12L. Max DD = (6.2 − 10) ÷ 10 = −38%</span></div>
+        </div>
+        <div class="blue-box" style="margin-top:10px">
+          <div class="bb-label">// THE ASYMMETRIC MATH THAT DESTROYS PORTFOLIOS</div>
+          <p>Recovery math is brutally asymmetric: lose 10% → need 11.1% to recover. Lose 30% → need 42.9%. Lose 50% → need 100%. Lose 70% → need 233%. This is why <strong>avoiding large drawdowns is more valuable than chasing large returns</strong>.</p>
+        </div>
+        <table class="compare-table card" style="margin-top:12px">
+          <thead><tr><th>LOSS</th><th>RECOVERY NEEDED</th><th>DIFFICULTY</th><th>FIN-OS ACTION</th></tr></thead>
+          <tbody>
+            <tr><td>10%</td><td style="color:var(--lime)">11.1%</td><td>Easy</td><td>Reduce size 20%</td></tr>
+            <tr><td>25%</td><td style="color:var(--amber)">33.3%</td><td>Hard</td><td>Stop. Review system</td></tr>
+            <tr><td>50%</td><td style="color:var(--red)">100%</td><td>Very Hard</td><td>STOP. Full reset</td></tr>
+            <tr><td>75%</td><td style="color:var(--red)">300%</td><td>Near Impossible</td><td>Start over</td></tr>
+          </tbody>
+        </table>
+        <div class="desi-story">
+          <div class="ds-flag">🇮🇳</div>
+          <div class="ds-label">// COVID MARCH 2020 — TWO INVESTORS, ONE STORY</div>
+          <p>Nifty fell <strong>38% in 40 days</strong>. ₹10L → ₹6.2L. <strong>Sharma ji sold at ₹6.2L</strong> — no drawdown plan, panic exit, permanent loss locked in. <strong>Meera didi held</strong> — had a written 40% drawdown plan, bought more HDFC and SBI at the bottom. By Dec 2020: Meera had ₹14.2L. Sharma ji had ₹6.2L in FD.</p>
+          <div class="ds-moral">🧠 MORAL: Drawdown is a scheduled event. Plan for it BEFORE it happens. Unplanned drawdown = panic. Planned drawdown = opportunity.</div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="metric-sim-title">// DRAWDOWN IMPACT SIMULATOR</div>
+          <div class="slider-group"><div class="slider-label">Current Drawdown % <strong id="dd-v">10%</strong></div><input type="range" min="1" max="50" value="10" id="ddRange" oninput="updateDD(this.value)"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0">
+            <div class="stat-item"><div class="si-val red" id="dd-port">₹9.0L</div><div class="si-label">FROM ₹10L</div></div>
+            <div class="stat-item"><div class="si-val amber" id="dd-rec">11.1%</div><div class="si-label">TO RECOVER</div></div>
+          </div>
+          <div id="dd-action-box" class="insight-box">
+            <div class="ib-label">// FIN-OS PROTOCOL</div>
+            <p id="dd-action-text">✅ 0–5%: Normal variance. System healthy.</p>
+          </div>
+          <div style="margin-top:14px">
+            <div class="metric-sim-title">// PORTFOLIO vs BENCHMARK (SIMULATED)</div>
+            <canvas id="ddChart" height="130"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- METRICS CARD GRID — 3 through 15 -->
+  <div class="metrics-master-grid" id="metricsGrid">
+    <!-- Cards injected by JS -->
+  </div>
+
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════════════════════════
+     PART TWO: BEHAVIORAL CONTROL SYSTEM
+═══════════════════════════════════════════════════════ -->
+<section class="section" id="behavioral">
+  <div class="badge">BEHAVIORAL CONTROL SYSTEM</div>
+  <h2 class="section-title">THE BRAIN LAYER</h2>
+  <p class="section-sub">Metrics alone aren't enough. 90% of retail traders lose money because of psychology, not lack of knowledge. This layer detects cognitive biases live, simulates future consequences of your decisions, locks trading when conditions aren't right, and shows you what your mistakes actually cost in real human terms.</p>
+
+  <!-- TRADE PERMISSION -->
+  <div style="margin-bottom:22px">
+    <div class="badge">BEHAVIORAL LAYER 01</div>
+    <h3 style="font-family:var(--font-display);font-size:1.8rem;letter-spacing:.06em;margin-bottom:8px">TRADE PERMISSION SYSTEM</h3>
+    <p style="font-size:.85rem;color:var(--muted2);line-height:1.7;margin-bottom:18px;max-width:680px">Before every trade: the system evaluates emotional state, drawdown level, checklist completion, and expectancy quality. It issues BLOCKED, CAUTION, or APPROVED. The override cost tracker makes the price of impulsivity undeniably visible.</p>
+    <div class="two-col">
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="metric-sim-title">// SIMULATE YOUR CURRENT STATE</div>
+          <div class="slider-group"><div class="slider-label">Expectancy Score <strong id="ps-exp-v">78</strong></div><input type="range" min="0" max="100" value="78" id="ps-exp" oninput="updatePermission()"></div>
+          <div class="slider-group"><div class="slider-label">Emotional State (0=panic, 100=calm) <strong id="ps-emo-v">45</strong></div><input type="range" min="0" max="100" value="45" id="ps-emo" oninput="updatePermission()"></div>
+          <div class="slider-group"><div class="slider-label">Current Drawdown % <strong id="ps-dd-v">7%</strong></div><input type="range" min="0" max="30" value="7" id="ps-dd" oninput="updatePermission()"></div>
+          <div class="slider-group"><div class="slider-label">Checklist Completion <strong id="ps-chk-v">60%</strong></div><input type="range" min="0" max="100" value="60" id="ps-chk" oninput="updatePermission()"></div>
+        </div>
+        <div class="card">
+          <div class="metric-sim-title">// OVERRIDE COST TRACKER</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:11px">
+            <div class="stat-item"><div class="si-val red">₹38,200</div><div class="si-label">OVERRIDE LOSSES/MTH</div></div>
+            <div class="stat-item"><div class="si-val amber">7</div><div class="si-label">OVERRIDES THIS MONTH</div></div>
+            <div class="stat-item"><div class="si-val" style="color:var(--muted2)">₹5,457</div><div class="si-label">AVG OVERRIDE LOSS</div></div>
+          </div>
+          <div class="danger-box" style="margin-top:0"><div class="db-label">// SYSTEM INSIGHT</div><p>You override the system 7× per month averaging ₹5,457 loss each time. If you had respected every block signal this month, you'd have <strong>₹38,200 more</strong> right now.</p></div>
+        </div>
+      </div>
+      <div class="permission-shell" id="permCard">
+        <div class="permission-header blocked" id="permHeader">
+          <div class="ph-icon">🔒</div>
+          <div><div class="ph-status blocked" id="permStatus">TRADE BLOCKED</div><div class="ph-sub">3 conditions failed</div></div>
+        </div>
+        <div class="permission-body">
+          <div class="metric-sim-title">// CONDITION ANALYSIS</div>
+          <div class="reason-list" id="permReasons"></div>
+          <div style="display:flex;gap:11px;align-items:center;margin-top:14px">
+            <button class="override-btn" onclick="logOverride()">⚠️ OVERRIDE ANYWAY</button>
+            <span style="font-family:var(--font-mono);font-size:.68rem;color:var(--muted2)">Cost logged: <strong style="color:var(--red)">₹38,200/month</strong></span>
+          </div>
+          <div id="overrideMsg" style="display:none;margin-top:10px;background:rgba(255,59,59,.08);border:1px solid rgba(255,59,59,.18);border-radius:9px;padding:10px;font-family:var(--font-mono);font-size:.72rem;color:var(--red)">
+            ⚠️ Override logged at <span id="overrideTime"></span> — added to monthly cost tracker.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="desi-story" style="margin-top:14px">
+      <div class="ds-flag">🇮🇳</div>
+      <div class="ds-label">// RAVI'S OVERRIDE HABIT COST HIM ₹52,000</div>
+      <p>Ravi Kumar (software engineer, Pune) had a profitable system — 60% win rate, ₹800 expectancy. But kept overriding his own rules during volatility: "I feel the signal is strong." 9 overrides in one month. <strong>7 of those trades lost</strong>. Override losses: ₹52,000. His unmodified system that month would have made ₹18,000.</p>
+      <div class="ds-moral">🧠 MORAL: Your system is smarter than your emotions in the moment. The override tracker makes the real cost undeniably visible.</div>
+    </div>
+  </div>
+
+  <!-- CONSEQUENCE SIMULATOR -->
+  <div style="margin-bottom:22px">
+    <div class="badge">BEHAVIORAL LAYER 02</div>
+    <h3 style="font-family:var(--font-display);font-size:1.8rem;letter-spacing:.06em;margin-bottom:8px">FUTURE CONSEQUENCE SIMULATOR</h3>
+    <p style="font-size:.85rem;color:var(--muted2);line-height:1.7;margin-bottom:18px;max-width:680px">Before you click trade — see all three possible futures. Not just win/loss, but the behavioral spiral that follows a loss. 80% of account blowups happen not from the first loss, but from the revenge trade that follows.</p>
+    <div class="two-col">
+      <div class="card">
+        <div class="metric-sim-title">// TRADE PARAMETERS</div>
+        <div class="slider-group"><div class="slider-label">Trade Size <strong id="cs-size-v">₹25,000</strong></div><input type="range" min="5000" max="200000" step="5000" value="25000" id="cs-size" oninput="updateConsequence()"></div>
+        <div class="slider-group"><div class="slider-label">System Win Rate <strong id="cs-wr-v">45%</strong></div><input type="range" min="20" max="80" value="45" id="cs-wr" oninput="updateConsequence()"></div>
+        <div class="slider-group"><div class="slider-label">Reward:Risk Ratio <strong id="cs-rr-v">2.2×</strong></div><input type="range" min="0.5" max="5" step="0.1" value="2.2" id="cs-rr" oninput="updateConsequence()"></div>
+        <div class="slider-group"><div class="slider-label">Revenge Trade Tendency (0=none, 100=always) <strong id="cs-rev-v">68</strong></div><input type="range" min="0" max="100" value="68" id="cs-rev" oninput="updateConsequence()"></div>
+        <div class="result-box">
+          <div style="font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;color:var(--muted2);margin-bottom:3px">EXPECTED VALUE THIS TRADE</div>
+          <div class="result-val" id="cs-ev">₹990</div>
+          <div class="result-verdict rv-good" id="cs-verdict">✅ POSITIVE EXPECTANCY</div>
+        </div>
+      </div>
+      <div>
+        <div class="consequence-grid">
+          <div class="scenario-card win"><div class="sc-label">SCENARIO A — WIN</div><div class="sc-title">Trade Succeeds</div><div class="sc-body">Profit: <strong id="sc-win-amt">₹55,000</strong><br><br>System confirms edge. Confidence stable. Next trade: normal sizing.</div><div class="sc-prob-bar"><div class="sc-prob-fill" id="sc-win-bar" style="width:45%"></div></div><div class="sc-pct-txt" id="sc-win-pct">Probability: 45%</div></div>
+          <div class="scenario-card lose"><div class="sc-label">SCENARIO B — LOSS</div><div class="sc-title">Trade Fails</div><div class="sc-body">Loss: <strong id="sc-lose-amt">₹25,000</strong><br><br>Within system. Review entry quality. Wait for next setup.</div><div class="sc-prob-bar"><div class="sc-prob-fill" id="sc-lose-bar" style="width:55%"></div></div><div class="sc-pct-txt" id="sc-lose-pct">Probability: 55%</div></div>
+          <div class="scenario-card spiral"><div class="sc-label">⚠️ THE SPIRAL</div><div class="sc-title">Loss + Revenge</div><div class="sc-body">Based on your <strong id="sc-revpct">68%</strong> revenge tendency → immediate revenge trade → additional loss: <strong id="sc-rev-loss">₹17K</strong><br>Total real risk: <strong id="sc-total-risk" style="color:var(--purple)">₹42K</strong></div><div class="sc-prob-bar"><div class="sc-prob-fill" id="sc-spiral-bar" style="width:37%"></div></div><div class="sc-pct-txt" id="sc-spiral-pct">Spiral probability: 37%</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIAS DETECTOR -->
+  <div style="margin-bottom:22px">
+    <div class="badge">BEHAVIORAL LAYER 03</div>
+    <h3 style="font-family:var(--font-display);font-size:1.8rem;letter-spacing:.06em;margin-bottom:8px">LIVE COGNITIVE BIAS DETECTOR</h3>
+    <p style="font-size:.85rem;color:var(--muted2);line-height:1.7;margin-bottom:18px;max-width:680px">Biases are measurable behavioral patterns — not just concepts. These meters show activation levels based on trading behavior signals. In a live system, this reads from your actual trade log to detect dangerous states in real-time.</p>
+    <div class="two-col">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+          <div style="font-family:var(--font-display);font-size:1.2rem;letter-spacing:.08em">BIAS ACTIVATION METERS</div>
+          <div style="display:flex;align-items:center;gap:7px">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 9px var(--amber);animation:dot-pulse 1.5s infinite" id="bd-dot"></div>
+            <span style="font-family:var(--font-mono);font-size:.68rem;color:var(--muted2)" id="bd-lbl">2 BIASES ELEVATED</span>
+          </div>
+        </div>
+        <div class="bias-meters" id="biasMeters">
+          <div class="bm-row"><div class="bm-name">Loss Aversion</div><div class="bm-bar-wrap"><div class="bm-bar" id="bm-loss" style="width:72%;background:rgba(255,59,59,.7)"><span style="color:#fff">HIGH</span></div></div><div class="bm-pct red" id="bmp-loss">72</div></div>
+          <div class="bm-row"><div class="bm-name">FOMO / Herd</div><div class="bm-bar-wrap"><div class="bm-bar" id="bm-fomo" style="width:45%;background:rgba(255,184,0,.7)"><span style="color:#000">MED</span></div></div><div class="bm-pct amber" id="bmp-fomo">45</div></div>
+          <div class="bm-row"><div class="bm-name">Overconfidence</div><div class="bm-bar-wrap"><div class="bm-bar" id="bm-over" style="width:28%;background:rgba(199,240,0,.7)"><span style="color:#000">LOW</span></div></div><div class="bm-pct lime" id="bmp-over">28</div></div>
+          <div class="bm-row"><div class="bm-name">Anchoring</div><div class="bm-bar-wrap"><div class="bm-bar" id="bm-anch" style="width:61%;background:rgba(255,184,0,.7)"><span style="color:#000">MED</span></div></div><div class="bm-pct amber" id="bmp-anch">61</div></div>
+          <div class="bm-row"><div class="bm-name">Recency Bias</div><div class="bm-bar-wrap"><div class="bm-bar" id="bm-rec" style="width:33%;background:rgba(199,240,0,.7)"><span style="color:#000">LOW</span></div></div><div class="bm-pct lime" id="bmp-rec">33</div></div>
+          <div class="bm-row"><div class="bm-name">Revenge Trade</div><div class="bm-bar-wrap"><div class="bm-bar" id="bm-rev" style="width:82%;background:rgba(255,59,59,.7)"><span style="color:#fff">CRITICAL</span></div></div><div class="bm-pct red" id="bmp-rev">82</div></div>
+        </div>
+        <div id="biasAlert" class="danger-box" style="margin-top:12px"><div class="db-label">// ACTIVE ALERT</div><p id="biasAlertText"><strong>Revenge Trade CRITICAL (82%)</strong> — Detected pattern: trade frequency spiked 3× after last loss. You are in revenge mode. Mandatory 2-hour cooling period. Do not open Zerodha.</p></div>
+        <button onclick="randomizeBiases()" style="margin-top:11px;background:var(--bg3);border:1px solid var(--border2);color:var(--muted2);padding:7px 14px;border-radius:8px;font-family:var(--font-mono);font-size:.67rem;cursor:pointer;letter-spacing:.06em;transition:all .2s;width:100%">⟳ SIMULATE NEW SESSION STATE</button>
+      </div>
+      <div>
+        <!-- DNA PANEL -->
+        <div class="card" style="border:1px solid rgba(79,124,255,.2);margin-bottom:14px">
+          <div style="font-family:var(--font-mono);font-size:.67rem;letter-spacing:.1em;color:var(--blue);margin-bottom:4px">// YOUR TRADING DNA — PATTERNS FROM YOUR HISTORY</div>
+          <div style="display:flex;flex-direction:column;gap:9px;margin-top:12px">
+            <div style="background:var(--bg3);border-radius:11px;padding:13px;display:flex;gap:11px;align-items:flex-start;border-left:3px solid var(--blue)">
+              <div style="font-size:1rem;flex-shrink:0">🔴</div>
+              <div style="font-size:.8rem;color:var(--muted2);line-height:1.65"><strong style="color:var(--text)">You don't lose on bad trades.</strong> You lose after 2 consecutive losses — position size increases 40% on 3rd trade automatically.<br><span style="font-family:var(--font-mono);font-size:.7rem;color:var(--lime);display:block;margin-top:4px">→ FIX: Hard cap — size can ONLY decrease after losses.</span></div>
+            </div>
+            <div style="background:var(--bg3);border-radius:11px;padding:13px;display:flex;gap:11px;align-items:flex-start;border-left:3px solid var(--amber)">
+              <div style="font-size:1rem;flex-shrink:0">🟡</div>
+              <div style="font-size:.8rem;color:var(--muted2);line-height:1.65"><strong style="color:var(--text)">You exit winners 35% too early.</strong> Avg winner closes at ₹1,800 but system signal triggers at ₹2,800.<br><span style="font-family:var(--font-mono);font-size:.7rem;color:var(--lime);display:block;margin-top:4px">→ FIX: Use trailing stops. Never exit manually.</span></div>
+            </div>
+            <div style="background:var(--bg3);border-radius:11px;padding:13px;display:flex;gap:11px;align-items:flex-start;border-left:3px solid var(--lime)">
+              <div style="font-size:1rem;flex-shrink:0">🟢</div>
+              <div style="font-size:.8rem;color:var(--muted2);line-height:1.65"><strong style="color:var(--text)">Best trades: Tues &amp; Thurs.</strong> Monday morning win rate 38% lower — weekend news overreaction.<br><span style="font-family:var(--font-mono);font-size:.7rem;color:var(--lime);display:block;margin-top:4px">→ EDGE: Reduce Monday sizing 50%. Add Tues/Thurs.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BIAS EDUCATION GRID -->
+    <div class="bias-grid-6" style="margin-top:18px">
+      <div class="bias-card"><div class="bc-icon">📉</div><div class="bc-name">LOSS AVERSION</div><div class="bc-def">"Losses hurt 2.5× more than equivalent gains feel good." — Kahneman &amp; Tversky, Nobel Prize</div><div class="bc-desi"><strong>🇮🇳 Signal:</strong> Bought Zomato at ₹76 IPO. Now ₹58. Won't sell. Waiting for "break-even" for 2 years. Capital locked in a loser while market rallied elsewhere.</div><div class="bc-fix">✅ FIX: Define stop loss BEFORE entry. Follow mechanically. No exceptions.</div></div>
+      <div class="bias-card"><div class="bc-icon">🤝</div><div class="bc-name">CONFIRMATION BIAS</div><div class="bc-def">"We seek only information that confirms our existing position — ignoring contradicting data."</div><div class="bc-desi"><strong>🇮🇳 Signal:</strong> Bought midcap stock. Now only follow bullish YouTubers about it. Left Telegram groups with bearish views. Classic self-constructed bubble.</div><div class="bc-fix">✅ FIX: Before any buy, write 3 reasons it could FAIL. If you can't — more research needed.</div></div>
+      <div class="bias-card"><div class="bc-icon">⚓</div><div class="bc-name">ANCHORING BIAS</div><div class="bc-def">"Over-relying on the first number seen — even if irrelevant to current decision."</div><div class="bc-desi"><strong>🇮🇳 Signal:</strong> "I bought at ₹500, won't sell below ₹500." Stock now at ₹220 with deteriorating fundamentals. The market doesn't care what you paid.</div><div class="bc-fix">✅ FIX: Ask "Would I BUY this TODAY at ₹220?" If no — sell immediately.</div></div>
+      <div class="bias-card"><div class="bc-icon">🐑</div><div class="bc-name">HERD MENTALITY</div><div class="bc-def">"Following crowd decisions over independent analysis — because social proof feels safer."</div><div class="bc-desi"><strong>🇮🇳 Signal:</strong> Every uncle, chacha, barber buying Adani after 400% run. When the barber gives tips, smart money has already quietly exited.</div><div class="bc-fix">✅ FIX: When everyone is excited → be cautious. When everyone is fearful → research.</div></div>
+      <div class="bias-card"><div class="bc-icon">🏆</div><div class="bc-name">OVERCONFIDENCE</div><div class="bc-def">"Overestimating skill, accuracy of predictions and control over outcomes."</div><div class="bc-desi"><strong>🇮🇳 Signal:</strong> Made 80% in 2021 bull run. Concluded you're a trading genius. Same strategies lost 55% in 2022. You confused Beta (market riding) with Alpha (skill).</div><div class="bc-fix">✅ FIX: Track Alpha vs Beta separately. Most 2021 "genius" returns were pure market beta.</div></div>
+      <div class="bias-card"><div class="bc-icon">📅</div><div class="bc-name">RECENCY BIAS</div><div class="bc-def">"Recent events receive disproportionate weight — assuming current trends last forever."</div><div class="bc-desi"><strong>🇮🇳 Signal:</strong> After 5 years of 15%+ Nifty returns, treating equity like FD. Forgot: 2008 (−52%), 2011 (−25%), 2020 (−38%). History is the teacher you're ignoring.</div><div class="bc-fix">✅ FIX: Study worst historical drawdowns before ANY investment. Make it a rule.</div></div>
+    </div>
+  </div>
+
+  <!-- PAIN VISUALIZER -->
+  <div style="margin-bottom:22px">
+    <div class="badge">BEHAVIORAL LAYER 04</div>
+    <h3 style="font-family:var(--font-display);font-size:1.8rem;letter-spacing:.06em;margin-bottom:8px">PAIN VISUALIZER</h3>
+    <p style="font-size:.85rem;color:var(--muted2);line-height:1.7;margin-bottom:18px;max-width:680px">Numbers are abstract. "₹1,20,000 loss" doesn't activate the brain the way "3 months of salary" does. Translating losses into visceral human reality is the only language that reliably changes behavior before it's too late.</p>
+    <div class="two-col">
+      <div class="card">
+        <div class="metric-sim-title">// YOUR CONTEXT</div>
+        <div class="slider-group"><div class="slider-label">Monthly Take-Home Salary <strong id="pv-sal-v">₹60,000</strong></div><input type="range" min="15000" max="500000" step="5000" value="60000" id="pv-sal" oninput="updatePain()"></div>
+        <div class="slider-group"><div class="slider-label">Monthly SIP Amount <strong id="pv-sip-v">₹5,000</strong></div><input type="range" min="500" max="50000" step="500" value="5000" id="pv-sip" oninput="updatePain()"></div>
+        <div class="slider-group"><div class="slider-label">Loss / Drawdown Amount <strong id="pv-loss-v">₹1,20,000</strong></div><input type="range" min="5000" max="1000000" step="5000" value="120000" id="pv-loss" oninput="updatePain()"></div>
+        <div class="danger-box" style="margin-top:12px"><div class="db-label">// THE REAL COST</div><p id="pain-verdict"></p></div>
+      </div>
+      <div class="pain-grid" id="painGrid">
+        <div class="pain-card"><div class="pain-icon">💼</div><div class="pain-amount" id="pain-sal">2.0 mo</div><div class="pain-label">MONTHS SALARY</div></div>
+        <div class="pain-card"><div class="pain-icon">📈</div><div class="pain-amount" id="pain-sip">24 mo</div><div class="pain-label">MONTHS OF SIP</div></div>
+        <div class="pain-card"><div class="pain-icon">📱</div><div class="pain-amount" id="pain-iphone">1.5×</div><div class="pain-label">iPHONE 15 PROS</div></div>
+        <div class="pain-card"><div class="pain-icon">✈️</div><div class="pain-amount" id="pain-trip">4 trips</div><div class="pain-label">GOA TRIPS (₹30K)</div></div>
+        <div class="pain-card"><div class="pain-icon">⏰</div><div class="pain-amount" id="pain-hrs">2,000 hrs</div><div class="pain-label">WORK HOURS LOST</div></div>
+        <div class="pain-card"><div class="pain-icon">🏠</div><div class="pain-amount" id="pain-emi">2.0×</div><div class="pain-label">MONTHLY EMIs</div></div>
+        <div class="pain-card"><div class="pain-icon">🎓</div><div class="pain-amount" id="pain-sav">~1.4 yrs</div><div class="pain-label">10% SAVINGS RATE</div></div>
+        <div class="pain-card"><div class="pain-icon">📊</div><div class="pain-amount" id="pain-grow">₹3.1L</div><div class="pain-label">10YR SIP VALUE LOST</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DO NOTHING SIGNAL -->
+  <div style="margin-bottom:22px">
+    <div class="badge">BEHAVIORAL LAYER 05</div>
+    <h3 style="font-family:var(--font-display);font-size:1.8rem;letter-spacing:.06em;margin-bottom:8px">THE "DO NOTHING" SIGNAL</h3>
+    <div class="do-nothing-card" style="margin-bottom:16px">
+      <span class="dn-icon">🛑</span>
+      <div class="dn-title">BEST TRADE TODAY: NO TRADE</div>
+      <div class="dn-sub">The system found no setup with sufficient edge to justify trading. Cash is a position. Patience is a strategy. The top 10% of profitable traders average 2–3 trades per week. The bottom 10% average 15+.</div>
+      <div class="dn-reasons"><div class="dn-reason">Low Volatility</div><div class="dn-reason">No Trend Direction</div><div class="dn-reason">Weak Expectancy</div><div class="dn-reason">Post-Holiday Liquidity</div><div class="dn-reason">VIX Too Low For Options</div></div>
+    </div>
+    <div class="three-col">
+      <div class="card"><div class="tag tag-lime" style="margin-bottom:10px">THE MATH</div><p style="font-size:.8rem;color:var(--muted2);line-height:1.65">If your strategy has 60% win rate on high-quality setups but only 38% on forced trades, 5 extra forced trades/week × 50 weeks = <strong style="color:var(--red)">250 losing trades per year</strong> that didn't need to happen.</p></div>
+      <div class="card"><div class="tag tag-amber" style="margin-bottom:10px">THE ENEMY</div><p style="font-size:.8rem;color:var(--muted2);line-height:1.65">Zerodha open. Candles moving. Telegram pinging. This is dopamine addiction — same brain circuit as slot machines. The <strong>action</strong> itself is the addiction, not the profit. Most traders are trading for stimulation, not returns.</p></div>
+      <div class="card"><div class="tag tag-blue" style="margin-bottom:10px">BUFFETT'S PUNCH CARD</div><p style="font-size:.8rem;color:var(--muted2);line-height:1.65">Imagine 20 punches for your entire investing life. You'd only use each on your highest conviction idea. Most Indian F&amp;O traders take 20 trades per WEEK. Ask: <strong>"Is this worth one of my 20 lifetime punches?"</strong></p></div>
+    </div>
+  </div>
+
+  <!-- TIME DISTORTION -->
+  <div style="margin-bottom:22px">
+    <div class="badge">BEHAVIORAL LAYER 06</div>
+    <h3 style="font-family:var(--font-display);font-size:1.8rem;letter-spacing:.06em;margin-bottom:8px">TIME DISTORTION ALERT</h3>
+    <p style="font-size:.85rem;color:var(--muted2);line-height:1.7;margin-bottom:18px;max-width:680px">Your losses are not evenly distributed across the trading day. 60–80% of retail losses occur in two windows: the first 30 minutes (news panic + gap trades) and the last 30 minutes (forced position squaring + FOMO closes).</p>
+    <div class="two-col">
+      <div class="card">
+        <div class="metric-sim-title">// HOURLY LOSS DISTRIBUTION HEATMAP</div>
+        <div class="time-heatmap" id="timeHeatmap"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px"><span style="font-family:var(--font-mono);font-size:.6rem;color:var(--muted2)">9:15 AM</span><span style="font-family:var(--font-mono);font-size:.6rem;color:var(--muted2)">12:30</span><span style="font-family:var(--font-mono);font-size:.6rem;color:var(--muted2)">3:30 PM</span></div>
+        <div class="danger-box" style="margin-top:11px"><div class="db-label">// TIME ALERT</div><p>72% of your losses occur between <strong>9:15–9:45 AM</strong> and <strong>3:00–3:30 PM</strong>. Set phone restrictions. Your brain is least rational during these high-stress fast-moving periods.</p></div>
+      </div>
+      <div class="card">
+        <div class="metric-sim-title">// WIN RATE BY TIME WINDOW</div>
+        <canvas id="timeChart" height="160"></canvas>
+        <div class="desi-story" style="margin-top:12px"><div class="ds-flag">🇮🇳</div><div class="ds-label">// THE OPENING BELL TRAP</div><p>NSE data: 9:15–9:30 AM has highest volume, widest spreads, most false breakouts. <strong>Institutions use this window to shake out weak hands</strong> before the real move. Professionals wait until 10–11 AM when price has found direction. Your win rate will improve measurably within 1 month of waiting 30 minutes.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUALITY SCORE -->
+  <div style="margin-bottom:22px">
+    <div class="badge">BEHAVIORAL LAYER 07</div>
+    <h3 style="font-family:var(--font-display);font-size:1.8rem;letter-spacing:.06em;margin-bottom:8px">DECISION QUALITY SCORE</h3>
+    <p style="font-size:.85rem;color:var(--muted2);line-height:1.7;margin-bottom:18px;max-width:680px">Judge the DECISION, not the outcome. A trade that follows all rules and loses is a GOOD TRADE. A trade that breaks all rules and wins is a BAD TRADE. This distinction separates professionals from gamblers.</p>
+    <div class="card">
+      <div class="metric-sim-title">// POST-TRADE QUALITY AUDIT</div>
+      <div class="four-col" style="margin-bottom:16px">
+        <div style="background:var(--bg3);border-radius:10px;padding:14px"><label style="font-family:var(--font-mono);font-size:.61rem;letter-spacing:.12em;color:var(--muted2);display:block;margin-bottom:7px">ENTRY TIMING</label><select class="qt-select" id="qt-entry" onchange="calcQuality()"><option value="perfect">Perfect — at signal</option><option value="early">Early — before signal</option><option value="fomo">FOMO — chased move</option><option value="forced">Forced — no signal</option></select></div>
+        <div style="background:var(--bg3);border-radius:10px;padding:14px"><label style="font-family:var(--font-mono);font-size:.61rem;letter-spacing:.12em;color:var(--muted2);display:block;margin-bottom:7px">EXIT BEHAVIOR</label><select class="qt-select" id="qt-exit" onchange="calcQuality()"><option value="plan">Followed exit plan</option><option value="early">Exited early — fear</option><option value="late">Held too long — greed</option><option value="panic">Panic sold</option></select></div>
+        <div style="background:var(--bg3);border-radius:10px;padding:14px"><label style="font-family:var(--font-mono);font-size:.61rem;letter-spacing:.12em;color:var(--muted2);display:block;margin-bottom:7px">POSITION SIZE</label><select class="qt-select" id="qt-size" onchange="calcQuality()"><option value="correct">Within ¼ Kelly limit</option><option value="over">Oversized</option><option value="revenge">Revenge sized</option><option value="under">Fear-based small</option></select></div>
+        <div style="background:var(--bg3);border-radius:10px;padding:14px"><label style="font-family:var(--font-mono);font-size:.61rem;letter-spacing:.12em;color:var(--muted2);display:block;margin-bottom:7px">EMOTIONAL STATE</label><select class="qt-select" id="qt-emo" onchange="calcQuality()"><option value="calm">Calm and systematic</option><option value="excited">Overconfident</option><option value="fear">Fearful / anxious</option><option value="revenge">Angry / revenge</option></select></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:22px;background:var(--bg3);border-radius:12px;padding:18px;border:1px solid var(--border)">
+        <div style="text-align:center;flex-shrink:0"><div style="font-family:var(--font-display);font-size:3.8rem;color:var(--lime);line-height:1" id="qr-score">88</div><div style="font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;color:var(--muted2)">QUALITY SCORE</div></div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span style="font-size:.79rem;color:var(--muted2)">Entry Discipline</span><span style="font-family:var(--font-mono);font-size:.79rem;color:var(--lime)" id="qr-entry">100/100</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span style="font-size:.79rem;color:var(--muted2)">Exit Discipline</span><span style="font-family:var(--font-mono);font-size:.79rem;color:var(--lime)" id="qr-exit">100/100</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span style="font-size:.79rem;color:var(--muted2)">Position Sizing</span><span style="font-family:var(--font-mono);font-size:.79rem;color:var(--lime)" id="qr-size">100/100</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0"><span style="font-size:.79rem;color:var(--muted2)">Overall Verdict</span><span style="font-family:var(--font-mono);font-size:.79rem;color:var(--lime)" id="qr-verdict">EXCELLENT TRADE</span></div>
+        </div>
+      </div>
+      <div id="quality-insight" class="insight-box" style="margin-top:11px"><div class="ib-label">// QUALITY INSIGHT</div><p id="quality-insight-text">Outstanding process. Even if this trade lost money, you made the right decision.</p></div>
+    </div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div>
+    <div class="badge">EXECUTION TOOL</div>
+    <h3 style="font-family:var(--font-display);font-size:1.8rem;letter-spacing:.06em;margin-bottom:8px">PRE-DECISION CHECKLIST</h3>
+    <p style="font-size:.85rem;color:var(--muted2);line-height:1.7;margin-bottom:18px;max-width:680px">Your mandatory pre-flight check before every significant financial decision. Pilots use this not because they're forgetful, but because systematic verification catches errors expert intuition misses. Atul Gawande's research: surgical checklists reduced deaths by 47%.</p>
+    <div class="two-col">
+      <div>
+        <div class="ci-item" onclick="toggleCI(this)"><div class="ci-box">✓</div><div><div class="ci-text">Am I in an emotional state right now?</div><div class="ci-why">Fear, FOMO, revenge, excitement — all disable rational analysis. Wait 24 hours minimum if you feel any of these. Non-negotiable.</div></div></div>
+        <div class="ci-item" onclick="toggleCI(this)"><div class="ci-box">✓</div><div><div class="ci-text">Have I calculated exact downside in rupees?</div><div class="ci-why">Not "the stock could fall" but "my maximum loss on this position is exactly ₹X." If you can't state a specific number — you haven't done homework.</div></div></div>
+        <div class="ci-item" onclick="toggleCI(this)"><div class="ci-box">✓</div><div><div class="ci-text">Can I afford to lose this 100%?</div><div class="ci-why">Never risk EMI money, medical emergency funds, or children's education. The market is not obligated to time its recovery to your needs.</div></div></div>
+        <div class="ci-item" onclick="toggleCI(this)"><div class="ci-box">✓</div><div><div class="ci-text">Does this setup have documented positive expectancy?</div><div class="ci-why">Have you backtested 100+ trades of this exact setup? If no historical data exists — it's a hypothesis, not a strategy. Don't risk real money on hypotheses.</div></div></div>
+        <div class="ci-item" onclick="toggleCI(this)"><div class="ci-box">✓</div><div><div class="ci-text">Is position size within ¼ Kelly limits?</div><div class="ci-why">If this single trade going wrong would affect your monthly lifestyle or sleep — it's too large. Period. No argument.</div></div></div>
+        <div class="ci-item" onclick="toggleCI(this)"><div class="ci-box">✓</div><div><div class="ci-text">Have I actively read the bear case?</div><div class="ci-why">Find content arguing AGAINST your position. If you can refute their arguments with facts — proceed. If you cannot — reconsider. This defeats confirmation bias systematically.</div></div></div>
+        <div class="ci-item" onclick="toggleCI(this)"><div class="ci-box">✓</div><div><div class="ci-text">Will this investment thesis hold for 5 years?</div><div class="ci-why">Long-term: is the business fundamentally sound for 5+ years? Trader: does this setup have documented edge over 200+ historical occurrences?</div></div></div>
+        <div style="display:flex;gap:11px;align-items:center;margin-top:12px">
+          <span style="font-family:var(--font-mono);font-size:.68rem;color:var(--muted2)" id="ci-count">0/7</span>
+          <div class="cp-bar-wrap"><div class="cp-bar" id="ci-bar"></div></div>
+          <span style="font-family:var(--font-mono);font-size:.68rem;color:var(--muted2)" id="ci-pct">0%</span>
+        </div>
+        <div id="ci-verdict" class="warn-box" style="margin-top:11px"><div class="wb-label">// VERDICT</div><p>Work through each item honestly. Each unchecked item is a real reason why this trade might lose money.</p></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:13px">
+        <div class="card">
+          <div class="metric-sim-title">// WHY CHECKLISTS WORK</div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <div class="step"><div class="step-num">1</div><div class="step-body"><h5>Forces Slow Thinking (System 2)</h5><p>Written checklist forces your deliberate rational brain to activate. Inserts a pause between emotional impulse ("BUY NOW!") and action.</p></div></div>
+            <div class="step"><div class="step-num">2</div><div class="step-body"><h5>Creates Learnable Failure Records</h5><p>When trade goes wrong, you can review: which checklist item did I skip? Converts every loss into structured learning instead of frustration.</p></div></div>
+            <div class="step"><div class="step-num">3</div><div class="step-body"><h5>Eliminates FOMO Trades</h5><p>FOMO trades almost always fail Question 4 (documented expectancy) and Question 6 (bear case). The checklist catches them before they become expensive.</p></div></div>
+          </div>
+        </div>
+        <div class="insight-box"><div class="ib-label">// REAL-WORLD VALIDATION</div><p>Atul Gawande: surgical checklists cut deaths by 47%. Ray Dalio's Bridgewater: every investment decision needs a written decision log. Warren Buffett: strict criteria checklist before any investment considered. The principle: <strong>systematic verification beats expert intuition in high-stakes irreversible decisions.</strong></p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════════════════════════
+     MASTER DECISION ENGINE SCORE
+═══════════════════════════════════════════════════════ -->
+<section class="section" id="engine">
+  <div class="badge">MASTER SYSTEM</div>
+  <h2 class="section-title">THE DECISION ENGINE SCORE</h2>
+  <p class="section-sub">All 15 metrics + all behavioral layers fused into one weighted score. The final word before any trade. Expectancy weighted highest at 35% — edge quality is the fundamental driver of long-term outcome above everything else.</p>
+
+  <div class="engine-shell">
+    <div class="engine-inputs-row">
+      <div class="ei"><div class="ei-label">// EXPECTANCY (35%)</div><div class="ei-val lime" id="e-s">82</div><div class="ei-sub">₹1,060/trade edge</div></div>
+      <div class="ei"><div class="ei-label">// RISK METRICS (30%)</div><div class="ei-val blue" id="r-s">74</div><div class="ei-sub">DD 5% · Sharpe 1.8</div></div>
+      <div class="ei"><div class="ei-label">// EFFICIENCY (25%)</div><div class="ei-val pink" id="ef-s">79</div><div class="ei-sub">Sortino 2.4 · Alpha +4%</div></div>
+      <div class="ei"><div class="ei-label">// BEHAVIOR (10%)</div><div class="ei-val amber" id="ex-s">68</div><div class="ei-sub">Bias OK · No override</div></div>
+    </div>
+    <div class="score-ring-wrap">
+      <canvas id="scoreChart" width="170" height="170"></canvas>
+      <div class="score-center"><div class="score-big" id="final-score">76</div><div class="score-sub">DECISION<br>SCORE</div></div>
+    </div>
+    <div class="verdict-pill vp-trade" id="verdict-pill">✅ TRADE — SYSTEM APPROVED</div>
+    <div style="font-family:var(--font-mono);font-size:.72rem;color:var(--muted2);margin-bottom:16px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.8">Score = (E×0.35) + (Risk×0.30) + (Efficiency×0.25) + (Behavior×0.10)</div>
+    <button class="recalc-btn" onclick="recalcEngine()">⚡ SIMULATE NEW PORTFOLIO STATE</button>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:26px;text-align:left">
+      <div class="insight-box"><div class="ib-label">SCORE &gt; 80 — FULL TRADE</div><p>All systems aligned. Trade full ¼ Kelly size. Execute without hesitation or second-guessing.</p></div>
+      <div class="warn-box" style="margin-top:0"><div class="wb-label">SCORE 60–80 — HALF SIZE</div><p>One layer degraded. Trade half size. Identify the weak layer and fix before scaling back up.</p></div>
+      <div class="danger-box" style="margin-top:0"><div class="db-label">SCORE &lt; 60 — BLOCKED</div><p>Multiple systems degraded. Do not trade. Capital preservation is the entire priority right now.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer style="text-align:center;padding:50px 0 20px;border-top:1px solid var(--border)">
+  <div style="font-family:var(--font-mono);font-size:.67rem;letter-spacing:.18em;color:var(--muted2);margin-bottom:13px">// SYSTEM FINAL MESSAGE</div>
+  <div style="font-family:var(--font-display);font-size:1.9rem;letter-spacing:.08em;margin-bottom:4px">Markets reward discipline over intelligence.</div>
+  <div style="font-family:var(--font-display);font-size:1.9rem;letter-spacing:.08em;color:var(--lime)">Systems over feelings. Process over outcomes.</div>
+  <p style="color:var(--muted2);font-size:.84rem;margin-top:12px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.75">The difference between a hedge fund manager and a retail trader is not capital or intelligence. It is systematic, documented, emotionless decision-making. You now have the system.</p>
+  <a href="../Porfolio Analyser/portfolio-analyser-v9.html" style="display:inline-block;margin-top:24px;padding:12px 32px;background:var(--lime);color:#000;border-radius:50px;text-decoration:none;font-family:var(--font-display);font-size:1rem;letter-spacing:.12em;transition:transform .25s;box-shadow:0 0 22px rgba(199,240,0,.2)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">NEXT: PORTFOLIO DISSECTOR ➔</a>
+</footer>
+
+</div>
+</main>
+<script>
+/* ═══════════════════════════════════════════════════════
+   THEME
+═══════════════════════════════════════════════════════ */
+document.getElementById('themeBtn').addEventListener('click',()=>{
+  const d=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',d?'light':'dark');
+  document.getElementById('themeBtn').textContent=d?'🌙 DARK':'☀️ LIGHT';
+  setTimeout(initAllCharts,80);
+});
+
+/* ═══════════════════════════════════════════════════════
+   TICKER
+═══════════════════════════════════════════════════════ */
+const ticks=[['NIFTY50','22,643','▲0.82%',true],['SENSEX','74,902','▲0.64%',true],['RELIANCE','2,847','▼0.3%',false],
+  ['TCS','3,542','▲1.2%',true],['HDFC BK','1,621','▲0.9%',true],['INFY','1,453','▼0.5%',false],
+  ['ADANI','2,890','▲2.1%',true],['WIPRO','421','▼0.7%',false],['BAJAJ FIN','6,912','▲1.4%',true],
+  ['NIFTY BK','48,221','▲0.3%',true],['ICICI BK','1,084','▲1.1%',true],['SBI','812','▼0.2%',false],
+  ['KOTAK','1,742','▲0.6%',true],['AXISBANK','1,012','▼0.4%',false],['L&T','3,284','▲1.8%',true]];
+document.getElementById('ticker').innerHTML=[...ticks,...ticks].map(([s,p,c,u])=>
+  `<div class="tick"><span class="tick-sym">${s}</span><span>${p}</span><span class="${u?'tick-up':'tick-down'}">${c}</span></div>`).join('');
+
+/* ═══════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════ */
+const isDark=()=>document.documentElement.getAttribute('data-theme')==='dark';
+const gc=()=>isDark()?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.04)';
+const tc=()=>isDark()?'#3E4560':'#8090B0';
+const fmt=n=>Math.abs(Math.round(n)).toLocaleString('en-IN');
+
+/* ═══════════════════════════════════════════════════════
+   METRICS GRID — ALL 13 REMAINING CARDS (metrics 3–15)
+═══════════════════════════════════════════════════════ */
+const METRICS = [
+  {
+    short:'SHARPE',color:'#4F7CFF',category:'EFFICIENCY METRIC',
+    name:'SHARPE RATIO',full:'Return Per Unit of Total Volatility',
+    formula:'Sharpe = (Portfolio Return − Risk-Free Rate) ÷ Standard Deviation',
+    formulaNote:'Risk-free rate ≈ 7% in India (10yr G-Sec). Std Dev = how much returns bounce around.',
+    what:'Measures if you are being compensated for the volatility you endure. A Sharpe of 1.0 means you earn 1% above FD returns for every 1% of volatility risk. Used to compare any two strategies or funds on equal footing.',
+    benchmarks:[{label:'> 1.5 = Strong',cls:'good'},{label:'1.0–1.5 = OK',cls:'warn'},{label:'< 1.0 = Weak',cls:'bad'}],
+    desi:'🇮🇳 Your FD gives you 7% with zero volatility (Sharpe = ∞ in theory). A Nifty SIP gives 14% returns but with 18% annual volatility → Sharpe of (14−7)÷18 = 0.39. A well-managed portfolio with 18% returns and 10% volatility → Sharpe of 1.1. Same returns, better Sharpe = smoother ride.',
+    trap:'⚠️ TRAP: Sharpe can be manipulated by smoothing monthly returns. Madoff showed perfect Sharpe ratios for 20 years — complete fraud. Never trust Sharpe alone without checking the underlying trade log.',
+    id:'sharpe',live:true,liveVal:1.8,liveColor:'#4F7CFF'
+  },
+  {
+    short:'SORTINO',color:'#FF4ECD',category:'REALISTIC RISK METRIC',
+    name:'SORTINO RATIO',full:'Return Per Unit of Downside Risk Only',
+    formula:'Sortino = (Portfolio Return − Risk-Free Rate) ÷ Downside Deviation',
+    formulaNote:'Downside Deviation = standard deviation of NEGATIVE returns only. Upside volatility is NOT penalized.',
+    what:'The smarter version of Sharpe. Going UP a lot is not a problem — going DOWN a lot is the actual risk. Sortino correctly rewards strategies with big wins but punishes those with big losses, unlike Sharpe which treats both equally.',
+    benchmarks:[{label:'> 2.0 = Excellent',cls:'good'},{label:'1.0–2.0 = Good',cls:'warn'},{label:'< 1.0 = Risky',cls:'bad'}],
+    desi:'🇮🇳 HIGH Sharpe + LOW Sortino = the strategy has occasional catastrophic losses hidden by overall smoothness. Like a CA who looks perfect on paper but has occasional massive audit failures. HIGH Sharpe + HIGH Sortino = the gold standard. This is what Bridgewater systematically targets.',
+    trap:'⚠️ TRAP: A fund can show Sortino = 3.0 by simply not trading during volatile periods. Always verify Sortino against the full time period including crashes.',
+    id:'sortino',live:true,liveVal:2.4,liveColor:'#FF4ECD'
+  },
+  {
+    short:'VAR',color:'#FFB800',category:'DAILY RISK METRIC',
+    name:'VALUE AT RISK',full:'Maximum Expected Loss at Confidence Level',
+    formula:'95% VaR = The 5th worst loss in your last 100 trading days',
+    formulaNote:'Example: Sort 100 days by P&L. 5th worst day was −₹28,500. Your 95% VaR = ₹28,500 (2.85% of ₹10L).',
+    what:'On 95 out of 100 trading days, I will NOT lose more than this amount. Used by all institutional funds as a daily risk limit. SEBI requires mutual funds to report VaR. What VaR does NOT tell you: what happens on those 5 bad days.',
+    benchmarks:[{label:'< 2% daily = Conservative',cls:'good'},{label:'2–4% daily = Moderate',cls:'warn'},{label:'> 5% daily = Aggressive',cls:'bad'}],
+    desi:'🇮🇳 Think of VaR like your car insurance: "99% of the time claims will be under ₹2 lakh." Useful. But when the Mumbai–Pune expressway pile-up happens during a cyclone — every claim is ₹18L+. VaR was right 99% of the time and completely useless for the 1% that actually destroyed you.',
+    trap:'⚠️ TRAP: VaR assumes normal distribution. Real markets have fat tails — extreme events happen far more often than VaR predicts. 2008 banks had perfect VaR models. CVaR was 10× larger than VaR predicted.',
+    id:'var',live:true,liveVal:'₹28,500',liveColor:'#FFB800'
+  },
+  {
+    short:'CVaR',color:'#FF3B3B',category:'TAIL RISK METRIC',
+    name:'CVaR / EXPECTED SHORTFALL',full:'Average Loss When Disaster Strikes',
+    formula:'CVaR = Average of all losses beyond the VaR threshold',
+    formulaNote:'Take your worst 5 days out of 100. Average those losses. That is CVaR. Always worse than VaR. That is the point.',
+    what:'Answers the question VaR refuses to ask: "On those 5 catastrophic days — what is my AVERAGE loss?" CVaR is the metric that would have warned about 2008. Hedge funds use CVaR as their primary tail risk monitor because VaR is silent exactly when you need it most.',
+    benchmarks:[{label:'CVaR/VaR < 1.5× = Controlled',cls:'good'},{label:'1.5–2.5× = Monitor closely',cls:'warn'},{label:'> 2.5× = Dangerous tail',cls:'bad'}],
+    desi:'🇮🇳 For your ₹10L portfolio: VaR = ₹28,500 (the "normal bad day"). CVaR = ₹67,000 (average of truly terrible days). The ratio is 2.35×. This means your tail losses are 2.35× worse than your typical bad day — a sign of fat-tail risk. COVID March 2020 and Oct 2008 were pure CVaR events.',
+    trap:'⚠️ TRAP: CVaR requires enough historical data including at least one crisis period to be meaningful. A 6-month backtest during a bull market will show falsely low CVaR.',
+    id:'cvar',live:true,liveVal:'₹67,000',liveColor:'#FF3B3B'
+  },
+  {
+    short:'KELLY',color:'#C7F000',category:'POSITION SIZING',
+    name:'KELLY CRITERION',full:'Optimal Capital Allocation Per Trade',
+    formula:'Kelly % = Win% − (Loss% ÷ Win:Loss Ratio)',
+    formulaNote:'Example: 55% win rate, 2:1 ratio = 0.55 − (0.45÷2) = 32.5% of capital. NEVER use full Kelly.',
+    what:'Created by Bell Labs mathematician John Kelly in 1956. First applied to BlackJack (Ed Thorp won millions), then to Wall Street. Computes the exact fraction of capital that maximizes long-term growth while avoiding ruin. The problem: it requires perfectly known probabilities which no trader ever has.',
+    benchmarks:[{label:'Use ¼ Kelly = Safe',cls:'good'},{label:'½ Kelly = Aggressive',cls:'warn'},{label:'Full Kelly = Account destruction',cls:'bad'}],
+    desi:'🇮🇳 Sharma ji had 60% win rate, 2:1 ratio. Kelly said: bet 30% per trade. He went 100% (YOLO). First 3 trades: 2 wins, 1 loss → ₹9L. Told everyone at dinner. Next 4 trades: 3 losses in row → ₹0. Edge was real. Position size was fatal. ¼ Kelly (7.5%) would have built a fortune with the same strategy.',
+    trap:'⚠️ TRAP: Kelly is exquisitely sensitive to probability estimation errors. Overestimate win rate by 5% and full Kelly will eventually bankrupt you. This is called "edge uncertainty" — why professionals cap at ¼ Kelly maximum.',
+    id:'kelly',live:false
+  },
+  {
+    short:'ALPHA',color:'#00E5CC',category:'SKILL DETECTION',
+    name:'ALPHA',full:'Skill-Based Return Above Benchmark',
+    formula:'Alpha = Portfolio Return − (Beta × Benchmark Return)',
+    formulaNote:'Example: Portfolio +18%, Nifty +15%, Beta 0.9. Alpha = 18 − (0.9 × 15) = 18 − 13.5 = +4.5%',
+    what:'Alpha is the return that cannot be explained by market movement. It is pure skill. A fund with Alpha +4% means: even after accounting for how much the market rose, the manager added 4% through superior decision-making. 80% of mutual fund managers in India have NEGATIVE Alpha after fees.',
+    benchmarks:[{label:'Alpha > +3% = Genuine edge',cls:'good'},{label:'Alpha 0–3% = Marginal',cls:'warn'},{label:'Alpha < 0 = Market rider',cls:'bad'}],
+    desi:'🇮🇳 In 2021, Nifty rose 24%. Most retail traders made 22–28%. They thought they were geniuses. But Beta = 1.1 accounts for 26.4% of that return. Alpha = 22 − 26.4 = NEGATIVE −4.4%. They underperformed the index while taking more risk. Real skill shows POSITIVE Alpha even when Nifty is flat or negative.',
+    trap:'⚠️ TRAP: Alpha is period-dependent. A strategy that shows Alpha +8% in a bull market may have Alpha −5% in a bear market. Calculate Alpha across multiple market regimes (bull + bear + sideways) for a true picture.',
+    id:'alpha',live:true,liveVal:'+4.2%',liveColor:'#00E5CC'
+  },
+  {
+    short:'BETA',color:'#9B5CFF',category:'MARKET EXPOSURE',
+    name:'BETA',full:'Portfolio Sensitivity to Market Movement',
+    formula:'Beta = Covariance(Portfolio, Market) ÷ Variance(Market)',
+    formulaNote:'Beta 1.0 = moves exactly with market. Beta 1.5 = moves 1.5× market. Beta 0.5 = half the market movement.',
+    what:'Measures how much your portfolio moves relative to the benchmark (Nifty/Sensex). High beta means amplified market exposure — both up and down. Hedge funds often hedge their beta to zero, so returns are pure alpha (skill), not market riding.',
+    benchmarks:[{label:'Beta < 0.8 = Defensive',cls:'good'},{label:'Beta 0.8–1.2 = Market-like',cls:'warn'},{label:'Beta > 1.5 = Highly leveraged',cls:'bad'}],
+    desi:'🇮🇳 A pure Nifty ETF has Beta = 1.0 by definition. A small-cap portfolio might have Beta = 1.6 — in a 10% Nifty rally it might rise 16%, but in a 10% crash it falls 16%. If you have Beta 1.6 and made 20% while Nifty made 15%, your Alpha = 20 − (1.6×15) = 20−24 = NEGATIVE −4%. You took more risk for less reward.',
+    trap:'⚠️ TRAP: Beta is calculated over a historical period. Beta changes over market cycles. A low-beta portfolio during normal times may become high-beta during a crisis when correlations converge toward 1.0.',
+    id:'beta',live:true,liveVal:'0.84',liveColor:'#9B5CFF'
+  },
+  {
+    short:'CALMAR',color:'#FF6B35',category:'RISK-ADJUSTED RETURN',
+    name:'CALMAR RATIO',full:'Annualised Return ÷ Maximum Drawdown',
+    formula:'Calmar = Annualised Return (%) ÷ |Maximum Drawdown (%)|',
+    formulaNote:'Example: 24% annual return, −16% max drawdown. Calmar = 24 ÷ 16 = 1.5',
+    what:'The Calmar Ratio directly links returns to the worst pain experienced. It answers: "For each 1% of maximum drawdown I endured, how much annual return did I receive?" A higher Calmar means you are being compensated more generously for the emotional and financial worst-case scenario.',
+    benchmarks:[{label:'Calmar > 1.5 = Excellent',cls:'good'},{label:'0.5–1.5 = Acceptable',cls:'warn'},{label:'< 0.5 = Poor risk/reward',cls:'bad'}],
+    desi:'🇮🇳 Fund A: +18% annual return, −28% max drawdown. Calmar = 0.64. Fund B: +15% annual return, −9% max drawdown. Calmar = 1.67. Which would you invest in? Most Indian investors would say Fund A (higher return). Professionals choose Fund B — higher Calmar means much better return per unit of pain.',
+    trap:'⚠️ TRAP: Calmar only looks at the MAXIMUM drawdown across the entire history. A fund that had one exceptional crash years ago looks worse than a fund that had moderate but more frequent drawdowns. Use Calmar alongside average drawdown for a complete picture.',
+    id:'calmar',live:true,liveVal:'1.5',liveColor:'#FF6B35'
+  },
+  {
+    short:'OMEGA',color:'#00E5CC',category:'COMPLETE RETURN DIST.',
+    name:'OMEGA RATIO',full:'Probability-Weighted Gains vs Losses',
+    formula:'Omega = Sum of gains above threshold ÷ Sum of losses below threshold',
+    formulaNote:'Threshold typically = 0% or risk-free rate. Omega > 1 = more weighted gain than loss. Omega = 1 = break-even.',
+    what:'Unlike Sharpe and Sortino which only use mean and variance, Omega uses the ENTIRE return distribution. It captures skewness and kurtosis — the asymmetric and fat-tailed nature of real returns. A true complete picture of whether a strategy delivers more weighted upside than downside.',
+    benchmarks:[{label:'Omega > 1.5 = Strong',cls:'good'},{label:'Omega 1.0–1.5 = Marginal',cls:'warn'},{label:'Omega < 1.0 = Losing strategy',cls:'bad'}],
+    desi:'🇮🇳 Consider two Nifty Options strategies: Strategy A has occasional huge wins (+₹20K) and frequent small losses (−₹2K each). Strategy B has consistent small wins (+₹2K) and rare huge losses (−₹25K). Both might show identical Sharpe and Sortino. Omega separates them — Strategy A will have Omega > 2.0 while Strategy B may have Omega < 0.8.',
+    trap:'⚠️ TRAP: Omega is highly sensitive to the choice of threshold. Changing the threshold from 0% to 2% can dramatically change Omega values. Always specify the threshold when comparing Omega across strategies.',
+    id:'omega',live:true,liveVal:'1.82',liveColor:'#00E5CC'
+  },
+  {
+    short:'PROFIT FACTOR',color:'#C7F000',category:'SYSTEM QUALITY',
+    name:'PROFIT FACTOR',full:'Gross Profit ÷ Gross Loss',
+    formula:'Profit Factor = Sum of all winning trades ÷ Sum of all losing trades',
+    formulaNote:'Example: Total wins = ₹1,20,000. Total losses = ₹60,000. Profit Factor = 2.0',
+    what:'The simplest and most intuitive measure of system quality. For every rupee you lose, how many rupees do you make? A Profit Factor of 2.0 means you make ₹2 for every ₹1 lost. Below 1.0 means you lose more than you make — guaranteed path to ruin regardless of win rate.',
+    benchmarks:[{label:'PF > 2.0 = Excellent',cls:'good'},{label:'PF 1.3–2.0 = Good',cls:'warn'},{label:'PF < 1.3 = Marginal',cls:'bad'}],
+    desi:'🇮🇳 Most Indian retail F&O traders have a Profit Factor below 1.0 — they lose ₹1.20 for every ₹1.00 they make. After brokerage (₹20/order), STT, and slippage, a system with PF = 1.05 might actually be PF = 0.85 in reality. Always calculate Profit Factor AFTER all transaction costs.',
+    trap:'⚠️ TRAP: Profit Factor can look excellent over a short sample. A system with PF = 3.0 over 10 trades is statistically meaningless. Minimum 200 completed trades for reliable Profit Factor calculation.',
+    id:'pf',live:true,liveVal:'2.14',liveColor:'#C7F000'
+  },
+  {
+    short:'INFORMATION RATIO',color:'#4F7CFF',category:'MANAGER SKILL',
+    name:'INFORMATION RATIO',full:'Active Return ÷ Tracking Error',
+    formula:'IR = (Portfolio Return − Benchmark Return) ÷ Tracking Error',
+    formulaNote:'Tracking Error = standard deviation of the difference between portfolio and benchmark returns.',
+    what:'The most important metric for evaluating active fund managers. It measures how consistently a manager generates alpha relative to their benchmark. A high IR means the manager consistently beats the benchmark — not just occasionally. Used by institutional investors (pension funds, endowments) to evaluate fund managers.',
+    benchmarks:[{label:'IR > 0.5 = Exceptional',cls:'good'},{label:'IR 0.0–0.5 = Acceptable',cls:'warn'},{label:'IR < 0.0 = Destroys value',cls:'bad'}],
+    desi:'🇮🇳 Fund Manager A beats Nifty by 6% in Year 1, underperforms by 2% in Year 2, beats by 5% in Year 3. Average excess return = 3%, but high tracking error = low IR ≈ 0.5. Fund Manager B consistently beats by exactly 2% every year — IR = 2.0 ÷ very low tracking error = very high. Consistency is more valuable than occasional brilliance.',
+    trap:'⚠️ TRAP: IR rewards consistent small alpha over occasional large alpha. A hedge fund with occasional huge wins and years of small underperformance will have poor IR despite potentially superior long-term returns. Context matters.',
+    id:'ir',live:true,liveVal:'0.68',liveColor:'#4F7CFF'
+  },
+  {
+    short:'ULCER INDEX',color:'#FF4ECD',category:'STRESS METRIC',
+    name:'ULCER INDEX',full:'Depth and Duration of Drawdowns',
+    formula:'Ulcer Index = √(Average of squared drawdowns over period)',
+    formulaNote:'Unlike Max Drawdown (single worst event), Ulcer Index captures ALL drawdown periods — their depth AND duration.',
+    what:'Created by Peter Martin because standard deviation does not capture the "ulcer-causing" nature of prolonged drawdowns. The Ulcer Index penalizes strategies that stay in drawdown for extended periods — because sustained pain is more psychologically damaging than a sharp but brief drop.',
+    benchmarks:[{label:'UI < 5 = Low stress',cls:'good'},{label:'UI 5–15 = Moderate',cls:'warn'},{label:'UI > 15 = High stress',cls:'bad'}],
+    desi:'🇮🇳 Portfolio A: drops 30% sharply but recovers within 2 months. Ulcer Index ≈ 8. Portfolio B: slowly erodes 15% over 18 months, never fully recovering. Ulcer Index ≈ 14. By Max Drawdown, Portfolio A looks riskier. By Ulcer Index, Portfolio B is more psychologically destructive — because the pain lasts 9× longer. Real portfolios feel like Portfolio B.',
+    trap:'⚠️ TRAP: Ulcer Index is less commonly reported, so benchmarks are harder to find. Always compare UI within the same asset class and time period, not across different markets.',
+    id:'ulcer',live:true,liveVal:'7.2',liveColor:'#FF4ECD'
+  },
+  {
+    short:'SLIPPAGE',color:'#FF6B35',category:'EXECUTION QUALITY',
+    name:'SLIPPAGE & MARKET IMPACT',full:'Expected vs Actual Execution Price Gap',
+    formula:'Slippage = (Actual Fill Price − Expected Price) ÷ Expected Price × 100',
+    formulaNote:'For large orders: Market Impact = slippage caused by your own order moving the price.',
+    what:'A strategy with positive expectancy can still lose money if execution quality is poor. Slippage is the silent killer — the difference between your backtest price and what you actually get. In Indian F&O markets, average retail slippage on near-the-money options is 0.3–0.8% per trade. At 200 trades/year this is 60–160% annual drag.',
+    benchmarks:[{label:'< 0.1% per trade = Excellent',cls:'good'},{label:'0.1–0.3% = Acceptable',cls:'warn'},{label:'> 0.5% = Strategy killer',cls:'bad'}],
+    desi:'🇮🇳 A Nifty options strategy shows ₹1,200 expectancy in backtest. But average slippage in live trading = 0.4% on ₹25,000 position = ₹100 per entry + ₹100 per exit = ₹200 per trade. At 200 trades/year = ₹40,000 annual slippage drag. Backtest expectancy ₹1,200 → live expectancy ₹1,000. Still profitable but 17% lower than expected.',
+    trap:'⚠️ TRAP: Backtests almost always underestimate slippage. They assume you get the price you see. Live trading: by the time your order reaches the exchange, price has moved. Always add 0.2% buffer to all backtest expectations.',
+    id:'slip',live:true,liveVal:'0.28%',liveColor:'#FF6B35'
+  }
+];
+
+function buildMetricsGrid(){
+  const grid=document.getElementById('metricsGrid');
+  grid.innerHTML='';
+  METRICS.forEach((m,i)=>{
+    const card=document.createElement('div');
+    card.className='metric-card';
+    card.style.setProperty('--mc',m.color);
+    card.setAttribute('data-short',m.short);
+    card.innerHTML=`
+      <div class="mc-category">${m.category}</div>
+      <div class="mc-name">${m.name}</div>
+      <div class="mc-full">${m.full}</div>
+      ${m.live?`<div class="mc-live-val"><div class="mc-live-num" style="color:${m.liveColor}">${m.liveVal}</div><div class="mc-live-label">CURRENT<br>READING</div></div>`:''}
+      <div class="mc-formula">${m.formula}</div>
+      <div class="mc-what">${m.what}</div>
+      <div class="mc-benchmark">${m.benchmarks.map(b=>`<span class="mc-bench-item ${b.cls}">${b.label}</span>`).join('')}</div>
+      <div class="mc-desi">${m.desi}</div>
+      <div class="mc-trap">${m.trap}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   EXPECTANCY CALCULATOR
+═══════════════════════════════════════════════════════ */
+function calcExp(){
+  const wr=+document.getElementById('wr').value/100;
+  const aw=+document.getElementById('aw').value;
+  const al=+document.getElementById('al').value;
+  document.getElementById('wr-v').textContent=Math.round(wr*100)+'%';
+  document.getElementById('aw-v').textContent='₹'+aw.toLocaleString('en-IN');
+  document.getElementById('al-v').textContent='₹'+al.toLocaleString('en-IN');
+  const exp=(wr*aw)-((1-wr)*al);
+  const ev=document.getElementById('exp-val');
+  ev.textContent=(exp>=0?'₹':'−₹')+fmt(exp);
+  ev.style.color=exp>0?'var(--lime)':'var(--red)';
+  document.getElementById('exp-annual').textContent=(exp>=0?'':'−')+'₹'+Math.abs(exp*100/100000).toFixed(2)+'L';
+  document.getElementById('exp-annual').style.color=exp>0?'var(--lime)':'var(--red)';
+  document.getElementById('exp-rr').textContent=(aw/al).toFixed(1)+':1';
+  const v=document.getElementById('exp-verdict');
+  const s=document.getElementById('exp-status');
+  if(exp>500){v.textContent='✅ PROFITABLE SYSTEM';v.className='result-verdict rv-good';s.textContent='TRADE';s.style.color='var(--lime)';}
+  else if(exp>0){v.textContent='⚠️ WEAK EDGE';v.className='result-verdict rv-warn';s.textContent='REDUCE';s.style.color='var(--amber)';}
+  else{v.textContent='❌ NEGATIVE EXPECTANCY';v.className='result-verdict rv-bad';s.textContent='BLOCK';s.style.color='var(--red)';}
+}
+
+/* ═══════════════════════════════════════════════════════
+   DRAWDOWN
+═══════════════════════════════════════════════════════ */
+function updateDD(v){
+  v=+v;
+  document.getElementById('dd-v').textContent=v+'%';
+  document.getElementById('dd-port').textContent='₹'+(10*(1-v/100)).toFixed(2)+'L';
+  const rec=((v/(100-v))*100).toFixed(1);
+  document.getElementById('dd-rec').textContent=rec+'%';
+  document.getElementById('dd-rec').style.color=v<=10?'var(--amber)':v<=25?'var(--red)':'#ff1111';
+  const ab=document.getElementById('dd-action-box');
+  const at=document.getElementById('dd-action-text');
+  const l=document.getElementById('dd-action-box').querySelector('.ib-label,.wb-label,.db-label');
+  if(v<=5){ab.className='insight-box';ab.innerHTML='<div class="ib-label">// FIN-OS PROTOCOL</div><p>✅ 0–5%: Normal variance. System healthy. Continue trading normally.</p>';}
+  else if(v<=10){ab.className='warn-box';ab.innerHTML='<div class="wb-label">// FIN-OS PROTOCOL</div><p>⚠️ 5–10%: Caution zone. Reduce all position sizes by 30%. Pause adding new strategies.</p>';}
+  else if(v<=20){ab.className='danger-box';ab.innerHTML='<div class="db-label">// FIN-OS PROTOCOL</div><p>❌ 10–20%: Danger. Reduce risk by 60%. Review all open positions. Consider partial exits.</p>';}
+  else{ab.className='danger-box';ab.innerHTML='<div class="db-label">// FIN-OS PROTOCOL</div><p>🛑 20%+: CRITICAL. Stop all new trading. Manage only existing positions. Full system review required.</p>';}
+}
+
+/* ═══════════════════════════════════════════════════════
+   TRADE PERMISSION
+═══════════════════════════════════════════════════════ */
+function updatePermission(){
+  const exp=+document.getElementById('ps-exp').value;
+  const emo=+document.getElementById('ps-emo').value;
+  const dd=+document.getElementById('ps-dd').value;
+  const chk=+document.getElementById('ps-chk').value;
+  document.getElementById('ps-exp-v').textContent=exp;
+  document.getElementById('ps-emo-v').textContent=emo;
+  document.getElementById('ps-dd-v').textContent=dd+'%';
+  document.getElementById('ps-chk-v').textContent=chk+'%';
+  const fails=[],warns=[],passes=[];
+  if(emo<60)fails.push(`Emotional state unstable — ${emo}/100 (threshold: 60)`);
+  else passes.push(`Emotional state stable — ${emo}/100 ✓`);
+  if(chk<80)fails.push(`Checklist incomplete — only ${chk}% verified`);
+  else passes.push(`Checklist complete — ${chk}% ✓`);
+  if(exp<50)fails.push(`Expectancy weak — score ${exp} (need 50+)`);
+  else passes.push(`Expectancy positive — ${exp} score ✓`);
+  if(dd>10)fails.push(`Drawdown critical — ${dd}% (danger zone)`);
+  else if(dd>5)warns.push(`Drawdown elevated — ${dd}% (caution zone)`);
+  else passes.push(`Drawdown normal — ${dd}% ✓`);
+  let html='';
+  fails.forEach(r=>html+=`<div class="reason-item fail"><div class="reason-dot"></div>${r}</div>`);
+  warns.forEach(r=>html+=`<div class="reason-item warn"><div class="reason-dot"></div>${r}</div>`);
+  passes.forEach(r=>html+=`<div class="reason-item pass"><div class="reason-dot"></div>${r}</div>`);
+  document.getElementById('permReasons').innerHTML=html;
+  const hdr=document.getElementById('permHeader');
+  const st=document.getElementById('permStatus');
+  if(fails.length>0){hdr.className='permission-header blocked';st.className='ph-status blocked';st.textContent='TRADE BLOCKED';}
+  else if(warns.length>0){hdr.className='permission-header caution';st.className='ph-status caution';st.textContent='CAUTION — REDUCE SIZE';}
+  else{hdr.className='permission-header allowed';st.className='ph-status allowed';st.textContent='TRADE APPROVED';}
+}
+function logOverride(){
+  const t=new Date().toLocaleTimeString('en-IN');
+  document.getElementById('overrideTime').textContent=t;
+  document.getElementById('overrideMsg').style.display='block';
+  setTimeout(()=>document.getElementById('overrideMsg').style.display='none',5000);
+}
+
+/* ═══════════════════════════════════════════════════════
+   CONSEQUENCE SIMULATOR
+═══════════════════════════════════════════════════════ */
+function updateConsequence(){
+  const size=+document.getElementById('cs-size').value;
+  const wr=+document.getElementById('cs-wr').value/100;
+  const rr=+document.getElementById('cs-rr').value;
+  const rev=+document.getElementById('cs-rev').value/100;
+  document.getElementById('cs-size-v').textContent='₹'+size.toLocaleString('en-IN');
+  document.getElementById('cs-wr-v').textContent=Math.round(wr*100)+'%';
+  document.getElementById('cs-rr-v').textContent=rr.toFixed(1)+'×';
+  document.getElementById('cs-rev-v').textContent=Math.round(rev*100);
+  const winAmt=size*rr; const loseAmt=size;
+  const ev=(wr*winAmt)-((1-wr)*loseAmt);
+  document.getElementById('cs-ev').textContent=(ev>=0?'₹':'−₹')+fmt(ev);
+  document.getElementById('cs-ev').style.color=ev>=0?'var(--lime)':'var(--red)';
+  document.getElementById('cs-verdict').textContent=ev>=0?'✅ POSITIVE EXPECTANCY':'❌ NEGATIVE — DO NOT TRADE';
+  document.getElementById('cs-verdict').className=ev>=0?'result-verdict rv-good':'result-verdict rv-bad';
+  document.getElementById('sc-win-amt').textContent='₹'+fmt(winAmt);
+  document.getElementById('sc-lose-amt').textContent='₹'+fmt(loseAmt);
+  document.getElementById('sc-win-bar').style.width=Math.round(wr*100)+'%';
+  document.getElementById('sc-lose-bar').style.width=Math.round((1-wr)*100)+'%';
+  document.getElementById('sc-win-pct').textContent='Probability: '+Math.round(wr*100)+'%';
+  document.getElementById('sc-lose-pct').textContent='Probability: '+Math.round((1-wr)*100)+'%';
+  const revLoss=Math.round(loseAmt*0.68);
+  const totalRisk=Math.round(loseAmt+loseAmt*rev*0.68);
+  const spiralProb=Math.round((1-wr)*rev*100);
+  document.getElementById('sc-revpct').textContent=Math.round(rev*100)+'%';
+  document.getElementById('sc-rev-loss').textContent='₹'+fmt(revLoss);
+  document.getElementById('sc-total-risk').textContent='₹'+fmt(totalRisk);
+  document.getElementById('sc-spiral-bar').style.width=Math.min(spiralProb,100)+'%';
+  document.getElementById('sc-spiral-pct').textContent='Spiral probability: '+spiralProb+'%';
+}
+
+/* ═══════════════════════════════════════════════════════
+   BIAS RANDOMIZER
+═══════════════════════════════════════════════════════ */
+function randomizeBiases(){
+  const ids=['loss','fomo','over','anch','rec','rev'];
+  let elevated=0;
+  ids.forEach(id=>{
+    const v=Math.round(Math.random()*90+5);
+    const bar=document.getElementById('bm-'+id);
+    const pct=document.getElementById('bmp-'+id);
+    bar.style.width=v+'%';
+    pct.textContent=v;
+    const lvl=v>75?'critical':v>55?'high':v>35?'med':'low';
+    const bgs={critical:'rgba(255,59,59,.7)',high:'rgba(255,59,59,.7)',med:'rgba(255,184,0,.7)',low:'rgba(199,240,0,.7)'};
+    const txts={critical:'CRITICAL',high:'HIGH',med:'MED',low:'LOW'};
+    const tcs2={critical:'#fff',high:'#fff',med:'#000',low:'#000'};
+    const pcs={critical:'var(--red)',high:'var(--red)',med:'var(--amber)',low:'var(--lime)'};
+    bar.style.background=bgs[lvl];
+    bar.querySelector('span').textContent=txts[lvl];
+    bar.querySelector('span').style.color=tcs2[lvl];
+    pct.style.color=pcs[lvl];
+    if(v>55)elevated++;
+  });
+  const dot=document.getElementById('bd-dot');
+  const lbl=document.getElementById('bd-lbl');
+  const alerts={0:'ALL BIASES NORMAL — CLEAR TO TRADE',1:'1 BIAS ELEVATED — MONITOR'};
+  if(elevated===0){dot.style.background='var(--lime)';dot.style.boxShadow='0 0 9px var(--lime)';lbl.textContent='ALL BIASES NORMAL';}
+  else if(elevated<=2){dot.style.background='var(--amber)';dot.style.boxShadow='0 0 9px var(--amber)';lbl.textContent=elevated+' BIAS'+( elevated>1?'ES':'')+' ELEVATED';}
+  else{dot.style.background='var(--red)';dot.style.boxShadow='0 0 9px var(--red)';lbl.textContent=elevated+' BIASES — HIGH RISK';}
+  const names=['Loss Aversion','FOMO/Herd','Overconfidence','Anchoring','Recency','Revenge Trade'];
+  const highBias=ids.map((id,i)=>({id,i,v:+document.getElementById('bm-'+id).style.width.replace('%','')})).filter(x=>x.v>75);
+  if(highBias.length>0){
+    const top=highBias.sort((a,b)=>b.v-a.v)[0];
+    document.getElementById('biasAlert').className='danger-box';
+    document.getElementById('biasAlertText').innerHTML=`<strong>${names[top.i]} CRITICAL (${top.v}%)</strong> — This bias is actively distorting your decision-making. Mandatory: review your last 3 trades and ask if this bias influenced any of them.`;
+  } else {
+    document.getElementById('biasAlert').className='insight-box';
+    document.getElementById('biasAlertText').innerHTML='All bias levels within normal range. Your current mental state is suitable for systematic decision-making. Proceed with normal process.';
+    document.getElementById('biasAlert').querySelector('[class$="-label"]').className='ib-label';
+    document.getElementById('biasAlert').querySelector('.ib-label').textContent='// SYSTEM STATUS';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   PAIN VISUALIZER
+═══════════════════════════════════════════════════════ */
+function updatePain(){
+  const sal=+document.getElementById('pv-sal').value;
+  const sip=+document.getElementById('pv-sip').value;
+  const loss=+document.getElementById('pv-loss').value;
+  document.getElementById('pv-sal-v').textContent='₹'+sal.toLocaleString('en-IN');
+  document.getElementById('pv-sip-v').textContent='₹'+sip.toLocaleString('en-IN');
+  document.getElementById('pv-loss-v').textContent='₹'+loss.toLocaleString('en-IN');
+  document.getElementById('pain-sal').textContent=(loss/sal).toFixed(1)+' mo';
+  document.getElementById('pain-sip').textContent=Math.round(loss/sip)+' mo';
+  document.getElementById('pain-iphone').textContent=(loss/89900).toFixed(1)+'×';
+  document.getElementById('pain-trip').textContent=(loss/30000).toFixed(1)+' trips';
+  document.getElementById('pain-hrs').textContent=Math.round(loss/(sal/160)).toLocaleString('en-IN')+' hrs';
+  document.getElementById('pain-emi').textContent=(loss/sal).toFixed(1)+'×';
+  document.getElementById('pain-sav').textContent='~'+(loss/(sal*0.1*12)).toFixed(1)+' yrs';
+  document.getElementById('pain-grow').textContent='₹'+Math.round(loss*2.5/100000).toFixed(1)+'L';
+  document.getElementById('pain-verdict').textContent=`₹${loss.toLocaleString('en-IN')} = ${(loss/sal).toFixed(1)} months of work, ${Math.round(loss/sip)} months of SIP contributions, and could have compounded to ₹${Math.round(loss*2.5/100000).toFixed(1)}L in 10 years. Is your trade setup worth this real human cost?`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   QUALITY SCORE
+═══════════════════════════════════════════════════════ */
+function calcQuality(){
+  const entry={perfect:100,early:50,fomo:20,forced:0};
+  const exit={plan:100,early:55,late:60,panic:10};
+  const size={correct:100,over:20,revenge:0,under:70};
+  const emo={calm:100,excited:55,fear:40,revenge:0};
+  const es=entry[document.getElementById('qt-entry').value];
+  const xs=exit[document.getElementById('qt-exit').value];
+  const ss=size[document.getElementById('qt-size').value];
+  const ems=emo[document.getElementById('qt-emo').value];
+  const total=Math.round((es*.28)+(xs*.22)+(ss*.28)+(ems*.22));
+  const c=total>=80?'var(--lime)':total>=60?'var(--amber)':'var(--red)';
+  document.getElementById('qr-score').textContent=total;
+  document.getElementById('qr-score').style.color=c;
+  document.getElementById('qr-entry').textContent=es+'/100';
+  document.getElementById('qr-entry').style.color=es>=80?'var(--lime)':es>=50?'var(--amber)':'var(--red)';
+  document.getElementById('qr-exit').textContent=xs+'/100';
+  document.getElementById('qr-exit').style.color=xs>=80?'var(--lime)':xs>=50?'var(--amber)':'var(--red)';
+  document.getElementById('qr-size').textContent=ss+'/100';
+  document.getElementById('qr-size').style.color=ss>=80?'var(--lime)':ss>=50?'var(--amber)':'var(--red)';
+  const vdict=total>=80?'EXCELLENT TRADE':total>=60?'ACCEPTABLE — IMPROVE':' POOR PROCESS';
+  document.getElementById('qr-verdict').textContent=vdict;
+  document.getElementById('qr-verdict').style.color=c;
+  const qi=document.getElementById('quality-insight');
+  const qt=document.getElementById('quality-insight-text');
+  if(total>=80){qi.className='insight-box';qi.querySelector('[class$="-label"]').className='ib-label';qi.querySelector('.ib-label').textContent='// QUALITY INSIGHT';qt.textContent='Outstanding process. Even if this trade lost money, you made the right decision. These high-quality decisions accumulate into consistent profitability over time.';}
+  else if(total>=60){qi.className='warn-box';qi.querySelector('[class$="-label"]').className='wb-label';qi.querySelector('.wb-label').textContent='// QUALITY INSIGHT';qt.textContent='Decent process with some gaps. Identify the lowest-scoring dimension and focus improvement there first. Consistent 70+ quality builds long-term edge.';}
+  else{qi.className='danger-box';qi.querySelector('[class$="-label"]').className='db-label';qi.querySelector('.db-label').textContent='// QUALITY INSIGHT';qt.textContent='This was a low-quality decision regardless of outcome. If it won, it was lucky. Review which rules were violated and commit to fixing them one at a time.';}
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHECKLIST
+═══════════════════════════════════════════════════════ */
+function toggleCI(el){
+  el.classList.toggle('checked');
+  const all=document.querySelectorAll('.ci-item');
+  const done=document.querySelectorAll('.ci-item.checked').length;
+  const pct=Math.round(done/all.length*100);
+  document.getElementById('ci-bar').style.width=pct+'%';
+  document.getElementById('ci-count').textContent=done+'/'+all.length;
+  document.getElementById('ci-pct').textContent=pct+'%';
+  const cv=document.getElementById('ci-verdict');
+  if(pct===100){cv.className='insight-box';cv.innerHTML='<div class="ib-label">// VERDICT</div><p>✅ All checks passed. You are thinking systematically. Proceed with your analysis.</p>';}
+  else if(pct>=71){cv.className='insight-box';cv.innerHTML='<div class="ib-label">// VERDICT</div><p>⚠️ Almost ready. Unchecked items are your current blind spots. Address before committing capital.</p>';}
+  else if(pct>=43){cv.className='warn-box';cv.innerHTML='<div class="wb-label">// VERDICT</div><p>⚠️ Not ready. Multiple conditions unverified. Work through each item honestly.</p>';}
+  else{cv.className='danger-box';cv.innerHTML='<div class="db-label">// VERDICT</div><p>❌ Do NOT make this decision yet. Too many unverified conditions. This is protection, not judgment.</p>';}
+}
+
+/* ═══════════════════════════════════════════════════════
+   TIME HEATMAP
+═══════════════════════════════════════════════════════ */
+function buildTimeHeatmap(){
+  const hm=document.getElementById('timeHeatmap');
+  const slots=[['9:15',85],['9:45',20],['10:30',18],['11:30',15],['12:30',10],['1:30',12],['2:30',25],['3:00',78]];
+  hm.innerHTML=slots.map(([t,v])=>`<div class="th-cell${v>60?' danger-zone':''}" style="background:rgba(${v>60?'255,59,59':v>30?'255,184,0':'79,124,255'},${0.15+(v/100)*0.75})" title="${v}% loss concentration">${t}</div>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   ENGINE SCORE
+═══════════════════════════════════════════════════════ */
+let scChart;
+function recalcEngine(){
+  const s=[Math.round(50+Math.random()*46),Math.round(44+Math.random()*52),Math.round(46+Math.random()*48),Math.round(38+Math.random()*56)];
+  ['e-s','r-s','ef-s','ex-s'].forEach((id,i)=>document.getElementById(id).textContent=s[i]);
+  const final=Math.round(s[0]*.35+s[1]*.30+s[2]*.25+s[3]*.10);
+  document.getElementById('final-score').textContent=final;
+  const vp=document.getElementById('verdict-pill');
+  if(final>80){vp.textContent='✅ TRADE — SYSTEM APPROVED';vp.className='verdict-pill vp-trade';}
+  else if(final>60){vp.textContent='⚠️ CAUTION — REDUCE POSITION SIZE';vp.className='verdict-pill vp-caution';}
+  else{vp.textContent='❌ STAND ASIDE — DO NOT TRADE';vp.className='verdict-pill vp-stop';}
+  updateScoreChart(final);
+}
+function updateScoreChart(val){
+  if(scChart)scChart.destroy();
+  const ctx=document.getElementById('scoreChart').getContext('2d');
+  const col=val>80?'#C7F000':val>60?'#FFB800':'#FF3B3B';
+  document.getElementById('final-score').style.color=col;
+  scChart=new Chart(ctx,{type:'doughnut',data:{datasets:[{data:[val,100-val],backgroundColor:[col,'rgba(255,255,255,0.04)'],borderWidth:0,circumference:270,rotation:225}]},options:{responsive:false,cutout:'84%',plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHARTS
+═══════════════════════════════════════════════════════ */
+let ddC,timeC;
+function initDDChart(){
+  if(ddC)ddC.destroy();
+  const ctx=document.getElementById('ddChart').getContext('2d');
+  ddC=new Chart(ctx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{label:'Portfolio',data:[100,108,103,92,78,85,96,104,112,108,118,126],borderColor:'#C7F000',backgroundColor:'rgba(199,240,0,0.05)',tension:.4,borderWidth:2,pointRadius:2,fill:true},{label:'NIFTY',data:[100,104,101,90,82,88,94,101,107,104,112,119],borderColor:'rgba(255,255,255,0.2)',backgroundColor:'transparent',tension:.4,borderWidth:1.5,borderDash:[4,4],pointRadius:0}]},options:{responsive:true,plugins:{legend:{labels:{color:tc(),font:{family:'DM Mono',size:9}}}},scales:{x:{grid:{color:gc()},ticks:{color:tc(),font:{family:'DM Mono',size:9}}},y:{grid:{color:gc()},ticks:{color:tc(),font:{family:'DM Mono',size:9}}}}}});
+}
+function initTimeChart(){
+  if(timeC)timeC.destroy();
+  const ctx=document.getElementById('timeChart').getContext('2d');
+  timeC=new Chart(ctx,{type:'bar',data:{labels:['9:15–9:45','9:45–10:30','10:30–12:00','12:00–2:00','2:00–3:00','3:00–3:30'],datasets:[{label:'Win Rate %',data:[24,58,63,59,47,22],backgroundColor:['rgba(255,59,59,.7)','rgba(199,240,0,.5)','rgba(199,240,0,.6)','rgba(199,240,0,.55)','rgba(255,184,0,.5)','rgba(255,59,59,.7)'],borderRadius:5}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc()},ticks:{color:tc(),font:{family:'DM Mono',size:8}}},y:{grid:{color:gc()},ticks:{callback:v=>v+'%',color:tc(),font:{family:'DM Mono',size:9}},min:0,max:80}}}});
+}
+function initAllCharts(){initDDChart();initTimeChart();updateScoreChart(76);}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded',()=>{
+  buildMetricsGrid();
+  calcExp(); updateDD(10); updatePermission(); updateConsequence(); updatePain(); calcQuality();
+  buildTimeHeatmap(); initAllCharts();
+});
+</script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+<style id="hf-light-theme">
+[data-theme="light"] body {
+  background-color: #F4F5FB !important;
+  background-image: none !important;
+  color: #0B0D12 !important;
+}
+[data-theme="light"] .main { background: #F4F5FB !important; }
+[data-theme="light"] .sidebar { background: #0E1117 !important; }
+[data-theme="light"] .card { background: rgba(255,255,255,0.9) !important; border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .card-title { color: #0B0D12 !important; }
+[data-theme="light"] .card-body { color: #4A5068 !important; }
+[data-theme="light"] .formula-display { background: #fff !important; }
+</style>
+</body>
+</html>

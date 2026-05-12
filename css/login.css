@@ -1,0 +1,211 @@
+/* =========================
+   GENESIS PORTAL SYSTEM
+   ========================= */
+
+.os-portal {
+  background: #0B0D12;
+  margin: 0;
+  overflow: hidden;
+  color: white;
+  font-family: 'Inter', sans-serif;
+}
+
+/* SIDEBAR FIX: Proper spacing for icons */
+.sidebar-fixed {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: 80px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 0;
+  z-index: 1000;
+  gap: 40px; /* Space between logo, nav, and toggle */
+}
+
+.nav-icons {
+  display: flex;
+  flex-direction: column;
+  gap: 30px; /* Fixes squashed icons in your image */
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* VIEWPORT & GRID: Centers content and prevents left-drift */
+.main-viewport {
+  margin-left: 80px;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.portal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 100px;
+  max-width: 1200px;
+  width: 90%;
+  align-items: center;
+}
+
+/* MANIFESTO STYLING */
+.text-reveal {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 2rem;
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, #C7F000, #4F7CFF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.analogy-vault {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.desi-card {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+}
+
+/* AUTH GLASS: The Neural Interface */
+.auth-glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 40px;
+  padding: 3rem;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+}
+
+.mode-tabs {
+  display: flex;
+  background: rgba(0,0,0,0.2);
+  padding: 5px;
+  border-radius: 15px;
+  margin-bottom: 2rem;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: 0.3s;
+}
+
+.mode-btn.active {
+  background: white;
+  color: black;
+}
+
+/* INPUTS & BUTTONS */
+.input-group {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 1.2rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 15px;
+  color: white;
+}
+
+.glow-btn {
+  width: 100%;
+  padding: 1.2rem;
+  border-radius: 15px;
+  border: none;
+  background: #C7F000;
+  color: black;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(199, 240, 0, 0.3);
+  transition: 0.3s;
+}
+
+.auth-form {
+  display: none;
+}
+
+.auth-form.active {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 16px 0;
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.auth-divider:not(:empty)::before { margin-right: 1.5rem; }
+.auth-divider:not(:empty)::after { margin-left: 1.5rem; }
+
+.btn-google-neo {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.3s;
+}
+
+.btn-google-neo:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.g-icon {
+  background: white;
+  color: black;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.8rem;
+}

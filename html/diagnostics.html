@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Diagnostic Portal</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&family=Manrope:wght@300;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    /* =========================
+       GLOBAL RESET & TOKENS
+       ========================= */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow-x: hidden; font-family: 'Inter', sans-serif; }
+
+    /* Light Theme */
+    :root[data-theme="light"] {
+      --bg-main: #F7F8FA;
+      --bg-surface: #FFFFFF;
+      --bg-sidebar: #0E1117;
+      --text-primary: #0B0F19;
+      --text-secondary: #5B6475;
+      --accent-primary: #4F7CFF;
+      --accent-secondary: #C7F000;
+      --border-soft: rgba(0,0,0,0.06);
+    }
+
+    /* Dark Theme */
+    :root[data-theme="dark"] {
+      --bg-main: #0B0D12;
+      --bg-surface: rgba(20,24,40,0.9);
+      --bg-sidebar: #0E1117;
+      --text-primary: #F5F7FA;
+      --text-secondary: #9AA0B4;
+      --accent-primary: #4F7CFF;
+      --accent-secondary: #C7F000;
+      --border-soft: rgba(255,255,255,0.08);
+    }
+
+    body {
+      background: var(--bg-main);
+      color: var(--text-primary);
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    h1, h2, h3 { font-family: 'Manrope', sans-serif; letter-spacing: -0.4px; margin: 0; }
+    h1 { font-size: 34px; font-weight: 800; }
+    h2 { font-size: 24px; font-weight: 600; }
+
+    /* =========================
+       LAYOUT (SIDEBAR + MAIN)
+       ========================= */
+    .app {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      z-index: 10;
+    }
+
+    .sidebar {
+      width: 260px;
+      min-width: 260px;
+      background: var(--bg-sidebar);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .sidebar .logo {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 32px;
+      color: #FFFFFF;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 1px;
+    }
+
+    .sidebar nav a {
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      margin-bottom: 6px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #A1A4AC;
+      text-decoration: none;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar nav a:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #FFFFFF;
+      transform: translateX(4px);
+    }
+
+    .sidebar nav a.active {
+      background: rgba(79, 124, 255, 0.15);
+      color: #4F7CFF;
+    }
+
+    .sidebar nav a::before {
+      content: '';
+      position: absolute;
+      left: -10px;
+      top: 50%;
+      width: 4px;
+      height: 60%;
+      background: #4F7CFF;
+      border-radius: 4px;
+      transform: translateY(-50%) scaleY(0);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar nav a.active::before {
+      opacity: 1;
+      transform: translateY(-50%) scaleY(1);
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      padding: 0 48px 48px 48px;
+    }
+
+    .content-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 40px 0;
+      border-bottom: 1px solid var(--border-soft);
+      margin-bottom: 40px;
+    }
+
+    .theme-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-soft);
+      color: var(--text-primary);
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+    }
+    .theme-btn:hover { transform: rotate(15deg) scale(1.1); }
+
+    /* =========================
+       DIAGNOSTICS PORTAL UI
+       ========================= */
+    #neuralCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .neon-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      background: rgba(199, 240, 0, 0.1);
+      color: var(--accent-secondary);
+      border: 1px solid rgba(199, 240, 0, 0.3);
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .hero-sub {
+      color: var(--text-secondary);
+      margin-top: 10px;
+      font-size: 1.1rem;
+      max-width: 600px;
+      line-height: 1.6;
+    }
+
+    .portal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      gap: 40px;
+      perspective: 1000px;
+    }
+
+    /* --- THE CARDS --- */
+    .portal-card {
+      position: relative;
+      background: var(--bg-surface);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-soft);
+      border-radius: 24px;
+      padding: 40px;
+      text-decoration: none;
+      color: var(--text-primary);
+      overflow: hidden;
+      transition: border-color 0.4s ease, box-shadow 0.4s ease;
+      transform-style: preserve-3d;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .portal-card:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Background Glows */
+    .card-glow {
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .blue-glow { background: radial-gradient(circle, rgba(79, 124, 255, 0.15) 0%, transparent 60%); }
+    .lime-glow { background: radial-gradient(circle, rgba(199, 240, 0, 0.15) 0%, transparent 60%); }
+    .portal-card:hover .card-glow { opacity: 1; }
+
+    /* Content wrapper for 3D pop */
+    .card-content {
+      position: relative;
+      z-index: 1;
+      transform: translateZ(40px); /* Pushes content out in 3D space */
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .portal-card h2 { margin-bottom: 12px; font-size: 2rem; }
+    .portal-card p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 30px;
+      flex-grow: 1;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-soft);
+      padding-top: 24px;
+      margin-top: auto;
+    }
+
+    .tech-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      background: rgba(255,255,255,0.05);
+      padding: 6px 10px;
+      border-radius: 6px;
+      letter-spacing: 1px;
+    }
+
+    .arrow {
+      font-weight: 800;
+      font-size: 0.9rem;
+      transition: transform 0.3s ease;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .portal-card:hover .arrow { transform: translateX(10px); }
+    .portal-card.xray:hover .arrow { color: var(--accent-primary); }
+    .portal-card.mind:hover .arrow { color: var(--accent-secondary); }
+
+    /* =========================
+       DYNAMIC CSS ILLUSTRATIONS
+       ========================= */
+    .visual-block {
+      width: 100%;
+      height: 160px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    [data-theme="light"] .visual-block { background: rgba(0,0,0,0.03); }
+
+    /* 1. X-Ray Data Scanner */
+    .data-scanner {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 80px;
+    }
+    .bar {
+      width: 12px;
+      background: var(--accent-primary);
+      border-radius: 4px;
+      animation: scan 1.5s infinite ease-in-out alternate;
+      box-shadow: 0 0 10px rgba(79, 124, 255, 0.5);
+    }
+    .bar:nth-child(1) { animation-delay: 0.1s; height: 30%; }
+    .bar:nth-child(2) { animation-delay: 0.3s; height: 60%; }
+    .bar:nth-child(3) { animation-delay: 0.5s; height: 100%; background: #fff; }
+    .bar:nth-child(4) { animation-delay: 0.2s; height: 40%; }
+    .bar:nth-child(5) { animation-delay: 0.4s; height: 80%; }
+    .bar:nth-child(6) { animation-delay: 0.6s; height: 50%; }
+    
+    @keyframes scan {
+      0% { transform: scaleY(0.3); opacity: 0.5; }
+      100% { transform: scaleY(1); opacity: 1; }
+    }
+
+    .scan-line {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 2px;
+      background: var(--accent-primary);
+      box-shadow: 0 0 15px var(--accent-primary);
+      animation: sweep 3s infinite linear;
+      opacity: 0.7;
+    }
+    @keyframes sweep {
+      0% { top: -10%; }
+      100% { top: 110%; }
+    }
+
+    /* 2. Neural Mind Core */
+    .neural-core {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .core-center {
+      width: 30px;
+      height: 30px;
+      background: var(--accent-secondary);
+      border-radius: 50%;
+      box-shadow: 0 0 20px var(--accent-secondary);
+      animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+      z-index: 2;
+    }
+    .orbit {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 1px dashed rgba(199, 240, 0, 0.4);
+      border-radius: 50%;
+      animation: spin 8s infinite linear;
+    }
+    .orbit::before {
+      content: '';
+      position: absolute;
+      top: -5px; left: 50%;
+      width: 10px; height: 10px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #fff;
+    }
+    .orbit-2 {
+      width: 160%; height: 160%;
+      border: 1px solid rgba(255,255,255,0.1);
+      animation: spin 12s infinite linear reverse;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.7; }
+    }
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Glitch Text Effect */
+    .glitch-text {
+      position: relative;
+      display: inline-block;
+    }
+    .glitch-text::before, .glitch-text::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: var(--bg-main);
+      opacity: 0;
+    }
+    .header-flex:hover .glitch-text::before {
+      left: 2px;
+      text-shadow: -1px 0 red;
+      animation: glitch-anim-1 2s infinite linear alternate-reverse;
+      opacity: 1;
+    }
+    .header-flex:hover .glitch-text::after {
+      left: -2px;
+      text-shadow: 1px 0 blue;
+      animation: glitch-anim-2 3s infinite linear alternate-reverse;
+      opacity: 1;
+    }
+    @keyframes glitch-anim-1 {
+      0% { clip-path: inset(20% 0 80% 0); }
+      20% { clip-path: inset(60% 0 10% 0); }
+      40% { clip-path: inset(40% 0 50% 0); }
+      60% { clip-path: inset(80% 0 5% 0); }
+      80% { clip-path: inset(10% 0 70% 0); }
+      100% { clip-path: inset(30% 0 20% 0); }
+    }
+    @keyframes glitch-anim-2 {
+      0% { clip-path: inset(10% 0 60% 0); }
+      20% { clip-path: inset(30% 0 20% 0); }
+      40% { clip-path: inset(70% 0 10% 0); }
+      60% { clip-path: inset(20% 0 50% 0); }
+      80% { clip-path: inset(50% 0 30% 0); }
+      100% { clip-path: inset(5% 0 80% 0); }
+    }
+
+    @media (max-width: 900px) {
+      .app { flex-direction: column; overflow-y: auto; }
+      .sidebar { width: 100%; height: auto; min-height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 16px; border-right: none; border-bottom: 1px solid var(--border-soft); }
+      .sidebar .logo { margin-bottom: 0; }
+      .sidebar nav { display: flex; gap: 10px; flex-wrap: wrap; width: 100%; margin-top: 16px; }
+      .sidebar nav a { margin-bottom: 0; padding: 8px 12px; font-size: 13px; }
+      .main { padding: 24px; overflow: visible; }
+      .portal-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+<body>
+
+<canvas id="neuralCanvas"></canvas>
+
+<div class="app">
+    <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html" class="active">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+      
+      <header class="header-flex">
+        <div>
+          <div class="neon-badge">SYSTEM DIAGNOSTICS</div>
+          <h1 class="glitch-text" data-text="Choose Your Uplink">Choose Your Uplink</h1>
+          <p class="hero-sub">Before we fix the system, we must map the system. Select a protocol to begin your analysis.</p>
+        </div>
+        <button id="themeToggle" class="theme-btn">🌙</button>
+      </header>
+
+      <section class="portal-grid">
+        
+        <a href="know-your-finances.html" class="portal-card xray" data-tilt>
+          <div class="card-glow blue-glow"></div>
+          
+          <div class="card-content">
+            <div class="visual-block">
+              <div class="scan-line"></div>
+              <div class="data-scanner">
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+              </div>
+            </div>
+
+            <h2>Financial X-Ray</h2>
+            <p>Digitize your net reality. Map your cashflow, detect leaks, calculate your true burn rate, and measure your survival runway in hard numbers.</p>
+            
+            <div class="card-footer">
+              <span class="tech-tag">QUANTITATIVE</span>
+              <span class="arrow">INITIATE ➔</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="financial-being.html" class="portal-card mind" data-tilt>
+          <div class="card-glow lime-glow"></div>
+          
+          <div class="card-content">
+            <div class="visual-block">
+              <div class="neural-core">
+                <div class="core-center"></div>
+                <div class="orbit"></div>
+                <div class="orbit orbit-2"></div>
+              </div>
+            </div>
+
+            <h2>Financial Being</h2>
+            <p>Calibrate the mirror. Uncover your hidden money scripts, emotional triggers, and behavioral archetypes that silently drive your financial decisions.</p>
+            
+            <div class="card-footer">
+              <span class="tech-tag">QUALITATIVE</span>
+              <span class="arrow">INITIATE ➔</span>
+            </div>
+          </div>
+        </a>
+
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    
+    // --- 1. THEME TOGGLE LOGIC ---
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const htmlElement = document.documentElement;
+
+    // Check saved theme
+    const savedTheme = localStorage.getItem('finos-theme') || localStorage.getItem('theme');
+    if (savedTheme) {
+      htmlElement.setAttribute('data-theme', savedTheme);
+      themeToggleBtn.innerText = savedTheme === 'dark' ? '🌙' : '☀️';
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = htmlElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      htmlElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('finos-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      themeToggleBtn.innerText = newTheme === 'dark' ? '🌙' : '☀️';
+    });
+
+    // --- 2. 3D TILT EFFECT ---
+    const cards = document.querySelectorAll('[data-tilt]');
+    
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        // Calculate rotation degrees (max 12 degrees)
+        const rotateX = ((y - centerY) / centerY) * -12; 
+        const rotateY = ((x - centerX) / centerX) * 12;
+        
+        // Apply 3D transform
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        // Reset smoothly
+        card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+      });
+    });
+
+    // --- 3. NEURAL NETWORK CANVAS BACKGROUND ---
+    const canvas = document.getElementById('neuralCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    let width, height;
+    let particles = [];
+    
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.vx = (Math.random() - 0.5) * 0.8;
+        this.vy = (Math.random() - 0.5) * 0.8;
+        this.radius = Math.random() * 1.5 + 0.5;
+      }
+      
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        
+        // Bounce off walls
+        if (this.x < 0 || this.x > width) this.vx *= -1;
+        if (this.y < 0 || this.y > height) this.vy *= -1;
+      }
+      
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        
+        // Base color on theme
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.3)';
+        ctx.fill();
+      }
+    }
+
+    // Initialize particles
+    for (let i = 0; i < 70; i++) {
+      particles.push(new Particle());
+    }
+
+    // Animation Loop
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const rgb = isDark ? '255, 255, 255' : '79, 124, 255';
+      
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      
+      // Draw lines between nearby particles
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(${rgb}, ${0.3 * (1 - dist/120)})`;
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+    
+    animate();
+  });
+</script>
+
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+</body>
+</html>

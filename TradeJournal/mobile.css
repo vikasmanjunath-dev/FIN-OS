@@ -1,0 +1,1085 @@
+/* ═══════════════════════════════════════════════════════════════
+   TRADEBOOK PRO — MOBILE FIRST RESPONSIVE OVERRIDES
+   Covers every page, component and interaction for phones/tablets.
+   Loaded AFTER style.css and design.css — safe cascade overrides.
+   Breakpoints:
+     ≤ 900px  — tablet landscape + small laptops
+     ≤ 768px  — tablet portrait + large phones (main mobile breakpoint)
+     ≤ 480px  — phone portrait (small screens, most common)
+     ≤ 360px  — very small phones
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────
+   0. GLOBAL FOUNDATION
+────────────────────────────────────────── */
+html, body {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
+/* Disable cursor glow + particle canvas on mobile (perf) */
+@media (max-width: 768px) {
+  #cursor-glow   { display: none !important; }
+  #particle-canvas { display: none !important; }
+  body::after    { display: none; } /* animated grid */
+}
+
+/* ─────────────────────────────────────────
+   1. SIDEBAR & OVERLAY
+────────────────────────────────────────── */
+@media (max-width: 900px) {
+  /* Hide sidebar off-screen by default */
+  .sidebar {
+    transform: translateX(-264px) !important;
+    z-index: 300 !important;
+    box-shadow: none;
+  }
+  .sidebar.open {
+    transform: translateX(0) !important;
+    box-shadow: 4px 0 40px rgba(0,0,0,0.7) !important;
+  }
+
+  /* Full-screen dim overlay when sidebar open */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(2px);
+    z-index: 299;
+  }
+  .sidebar.open ~ .sidebar-overlay,
+  .sidebar-overlay.open {
+    display: block;
+  }
+
+  /* Main content full width */
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Show hamburger */
+  .sidebar-toggle {
+    display: flex !important;
+  }
+}
+
+/* ─────────────────────────────────────────
+   2. TOPBAR
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .topbar {
+    padding: 0 14px !important;
+    height: 52px !important;
+    gap: 8px;
+  }
+
+  .topbar-left  { gap: 10px; }
+  .topbar-right { gap: 8px; }
+
+  /* Hide market ticker */
+  .market-ticker { display: none !important; }
+
+  /* Hide search kbd shortcut hint */
+  .btn-search kbd { display: none; }
+
+  /* Shrink search button */
+  .btn-search { padding: 5px 10px; font-size: 12px; }
+
+  /* Compact "Log Trade" button */
+  .btn-add-trade {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .breadcrumb { font-size: 13px; }
+  .breadcrumb::before { content: none; }
+}
+
+@media (max-width: 480px) {
+  /* On very small screens show only icon for add-trade */
+  .btn-add-trade {
+    font-size: 0;         /* hide text */
+    padding: 0;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .btn-add-trade::before {
+    content: '+';
+    font-size: 20px;
+    font-weight: 900;
+    color: #000;
+  }
+
+  .btn-search { padding: 5px 8px; }
+}
+
+/* ─────────────────────────────────────────
+   3. PAGES CONTAINER
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .pages-container {
+    padding: 18px 14px 80px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .pages-container {
+    padding: 14px 12px 80px !important;
+  }
+}
+
+/* ─────────────────────────────────────────
+   4. PAGE HEADERS
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    margin-bottom: 18px !important;
+  }
+
+  .page-title {
+    font-size: 26px !important;
+    letter-spacing: -0.03em;
+  }
+
+  .title-accent {
+    font-size: 14px;
+    margin-left: 6px;
+  }
+
+  .page-sub { font-size: 12px; }
+
+  .header-date {
+    font-size: 10px;
+    padding: 4px 10px;
+  }
+
+  /* Header action buttons row — wrap and shrink */
+  .page-header > div:last-child {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title { font-size: 22px !important; }
+}
+
+/* ─────────────────────────────────────────
+   5. STAT CARDS / DASHBOARD GRID
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  .stat-card {
+    padding: 14px 16px !important;
+  }
+
+  .stat-value {
+    font-size: 22px !important;
+  }
+
+  .stat-label { font-size: 9px !important; }
+  .stat-sub   { font-size: 10px !important; }
+}
+
+@media (max-width: 360px) {
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ─────────────────────────────────────────
+   6. CHART CARDS & GRID
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .charts-grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .chart-card {
+    padding: 16px 16px !important;
+  }
+
+  .chart-header {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .chart-controls {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .chart-tab {
+    padding: 4px 9px;
+    font-size: 11px;
+  }
+
+  /* Ensure canvas charts scale down */
+  .chart-card canvas {
+    max-width: 100% !important;
+  }
+}
+
+/* ─────────────────────────────────────────
+   7. DASHBOARD BOTTOM ROW (Perf + Calendar)
+────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .dash-bottom-row {
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .perf-chart-wrap { height: 180px !important; }
+  .perf-big-value  { font-size: 26px !important; }
+
+  .monthly-cal-card { padding: 14px 12px !important; }
+
+  /* Calendar cells shrink on small screens */
+  .mcal-grid,
+  .mcal-dow-headers {
+    grid-template-columns: repeat(7, 1fr) 56px !important;
+    gap: 2px !important;
+  }
+
+  .mcal-cell,
+  .mcal-weekly-cell { min-height: 40px !important; padding: 4px 4px !important; }
+
+  .mcal-day-pnl { font-size: 9px !important; }
+  .mcal-day-num { font-size: 9px !important; }
+  .mcal-weekly-pnl { font-size: 10px !important; }
+}
+
+@media (max-width: 480px) {
+  .mcal-grid,
+  .mcal-dow-headers {
+    grid-template-columns: repeat(7, 1fr) !important; /* hide weekly col */
+  }
+
+  /* Hide weekly summary column on tiny phones */
+  .mcal-weekly-cell,
+  .mcal-weekly-hdr { display: none !important; }
+
+  .mcal-cell { min-height: 36px !important; }
+}
+
+/* ─────────────────────────────────────────
+   8. DESI EXPLAINER CARDS
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .desi-explainer-row {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .desi-card { padding: 16px !important; }
+}
+
+/* ─────────────────────────────────────────
+   9. WEEKLY TARGETS
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .weekly-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px;
+  }
+
+  .week-card { padding: 12px !important; }
+  .week-pnl  { font-size: 17px !important; }
+}
+
+@media (max-width: 480px) {
+  .weekly-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* ─────────────────────────────────────────
+   10. JOURNAL PAGE
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Controls row: stack filters */
+  .journal-controls {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .journal-search-wrap { min-width: 0 !important; }
+
+  .search-input,
+  .journal-search {
+    width: 100% !important;
+    font-size: 14px !important; /* prevents iOS zoom on focus */
+  }
+
+  .filter-select { width: 100%; font-size: 14px !important; }
+
+  /* Summary bar: scroll horizontally */
+  .journal-summary-bar {
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    padding-bottom: 4px;
+  }
+
+  .jsb-item { white-space: nowrap; flex-shrink: 0; font-size: 11px; padding: 6px 10px; }
+
+  /* Table: horizontal scroll */
+  .journal-table-wrap,
+  .table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 10px;
+  }
+
+  .journal-table {
+    min-width: 620px; /* force horizontal scroll instead of wrapping */
+  }
+
+  .journal-table th,
+  .journal-table td {
+    padding: 10px 10px !important;
+    font-size: 12px !important;
+  }
+
+  /* Hide less critical columns on mobile */
+  .journal-table th:nth-child(4),   /* Strategy */
+  .journal-table td:nth-child(4),
+  .journal-table th:nth-child(9),   /* Emotion */
+  .journal-table td:nth-child(9) {
+    display: none;
+  }
+
+  .tbl-actions { gap: 4px; }
+  .tbl-btn {
+    padding: 5px 8px !important;
+    font-size: 11px !important;
+  }
+}
+
+/* ─────────────────────────────────────────
+   11. TRADE FORM (ADD/EDIT TRADE)
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .trade-form-container { max-width: 100% !important; }
+
+  /* Two-column form grid collapses to single */
+  .trade-form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+  }
+
+  .form-grid { gap: 14px; }
+
+  .form-section { padding: 16px !important; }
+
+  .form-section-title {
+    font-size: 11px;
+    margin-bottom: 14px;
+  }
+
+  /* All form rows go single-column */
+  .form-row {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+
+  /* Inputs: font-size 16px prevents iOS auto-zoom */
+  .form-input {
+    font-size: 16px !important;
+    padding: 11px 13px !important;
+  }
+
+  .form-textarea { min-height: 80px !important; }
+
+  /* Direction toggle */
+  .toggle-group { width: 100%; }
+  .toggle-btn { padding: 10px 8px !important; font-size: 13px !important; }
+
+  /* Direction buttons */
+  .dir-btns, .dir-btn { font-size: 13px !important; }
+
+  /* Emotion chips: smaller */
+  .emotion-selector,
+  .emotion-group { gap: 6px !important; }
+
+  .emotion-btn {
+    padding: 7px 11px !important;
+    font-size: 12px !important;
+  }
+
+  /* Quality sliders */
+  .quality-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .quality-sliders { gap: 10px; }
+  .quality-row     { gap: 8px; }
+  .quality-row label {
+    width: 110px !important;
+    font-size: 11px;
+  }
+
+  /* Quality score display */
+  .quality-score-display { padding: 12px; }
+  .qs-value { font-size: 32px !important; }
+
+  /* PnL preview */
+  .pnl-preview { padding: 14px; }
+  .pnl-prev-value { font-size: 30px !important; }
+
+  /* Form actions */
+  .form-actions {
+    flex-direction: column !important;
+    gap: 10px;
+  }
+
+  .form-actions .btn-primary,
+  .form-actions .btn-secondary,
+  .form-actions .btn-danger {
+    width: 100%;
+    justify-content: center;
+    padding: 13px 20px !important;
+    font-size: 14px !important;
+  }
+
+  /* Regime buttons */
+  .regime-btns { gap: 6px; }
+  .regime-btn  { font-size: 12px; padding: 6px 11px; }
+
+  /* Trade tags */
+  .trade-tags-selector { gap: 6px; }
+  .trade-tag-chip { font-size: 12px; }
+
+  /* Broken rules checklist */
+  .broken-rules-checklist { gap: 6px; }
+  .rule-check-item { font-size: 12px; }
+
+  /* Discipline buttons */
+  .discipline-toggle-group { width: 100%; }
+  .disc-btn { font-size: 11px !important; padding: 9px 6px !important; }
+
+  /* Pro-input rows: stack label + input */
+  .pro-input-row {
+    grid-template-columns: 1fr !important;
+    gap: 4px;
+  }
+  .pro-input-row label {
+    width: auto !important;
+    font-size: 10px;
+  }
+  .pro-input-row .form-input { max-width: 100% !important; }
+}
+
+/* ─────────────────────────────────────────
+   12. ANALYTICS HUB
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .analytics-top-stats {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  .a-stat { padding: 12px 14px !important; }
+  .a-stat-v { font-size: 18px !important; }
+
+  /* Advanced risk metrics */
+  .adv-risk-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px;
+  }
+
+  .adv-risk-val { font-size: 18px !important; }
+
+  /* Strategy heatmap table: scroll */
+  .hm-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Backtesting sandbox */
+  .bt-grid { grid-template-columns: 1fr !important; }
+
+  /* Emotion heatmap */
+  .emo-hm-grid { grid-template-columns: 1fr 1fr !important; }
+
+  /* Tax visual */
+  .tax-visual {
+    flex-direction: column !important;
+    gap: 10px;
+  }
+
+  .tax-vis-item {
+    align-items: center;
+    text-align: left;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .tax-vis-label { min-width: 140px; }
+  .tax-vis-bar   { flex: 1; min-width: 60px; }
+
+  /* Rolling metrics / benchmark overlay charts */
+  canvas { max-width: 100% !important; }
+}
+
+/* ─────────────────────────────────────────
+   13. INSIGHTS HUB
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .ins-header {
+    flex-direction: column !important;
+    gap: 10px;
+  }
+
+  .ins-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+    gap: 2px;
+  }
+
+  .ins-tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 7px 10px !important;
+    font-size: 11px !important;
+  }
+
+  .ins-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .ins-card { padding: 14px !important; }
+
+  /* What-if modal */
+  .wi-compare { flex-direction: column !important; }
+  .wi-arrow   { transform: rotate(90deg); align-self: center; }
+
+  /* Weekly digest */
+  .wi-digest-stats {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px;
+  }
+}
+
+/* ─────────────────────────────────────────
+   14. PSYCHOLOGY HUB
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Burnout gauge + info: stack */
+  .burnout-gauge-wrap {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 16px;
+  }
+
+  .burnout-score-info { min-width: 0 !important; width: 100%; }
+
+  /* Mood history */
+  .mood-history-row {
+    grid-template-columns: 80px 50px 1fr !important;
+    gap: 6px;
+    font-size: 11px;
+  }
+
+  .mood-hist-ndpnl { display: none !important; }
+
+  /* Rule violation simulator */
+  .rvs-header,
+  .rvs-row {
+    grid-template-columns: 1fr 50px 80px !important;
+    font-size: 11px;
+  }
+
+  .rvs-header span:nth-child(n+4),
+  .rvs-row span:nth-child(n+4),
+  .rvs-row button { display: none !important; }
+
+  .rvs-rule-name { font-size: 12px; }
+}
+
+/* Discipline hero stats */
+@media (max-width: 900px) {
+  .discipline-hero,
+  .coi-card + .coi-card,
+  .disc-hero-stats {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .coi-value { font-size: 22px !important; }
+}
+
+/* Discipline calendar */
+@media (max-width: 768px) {
+  .discipline-cal {
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 3px;
+  }
+}
+
+/* ─────────────────────────────────────────
+   15. TOOLS HUB
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .protools-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+  }
+
+  .pro-tool-card { padding: 18px !important; }
+  .pro-tool-title { font-size: 15px !important; }
+
+  /* SL/TP Simulator */
+  .sim-controls-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+  }
+
+  .sim-results-hero {
+    flex-direction: column !important;
+    gap: 8px;
+  }
+
+  .sim-arrow { transform: rotate(90deg); align-self: center; }
+
+  .sim-res-card { min-width: 0 !important; width: 100%; }
+
+  .sim-stats-row { flex-wrap: wrap; gap: 8px; }
+
+  .sim-stat-pill { flex: 1; min-width: 120px; }
+
+  /* Challenges grid */
+  .challenges-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  /* P&L Heatmap */
+  .heatmap-card { padding: 14px 12px !important; }
+
+  .heatmap-meta {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px;
+  }
+
+  .heatmap-stats-row { gap: 8px; }
+  .heatmap-stat { padding: 8px 12px; font-size: 11px; }
+  .hm-stat-val  { font-size: 14px !important; }
+
+  /* Heatmap cells: slightly smaller on mobile */
+  .hm-cell {
+    width:  11px !important;
+    height: 11px !important;
+    min-width:  11px !important;
+    min-height: 11px !important;
+    max-width:  11px !important;
+    max-height: 11px !important;
+    border-radius: 2px;
+  }
+
+  .hm-day-lbl  { font-size: 9px; }
+  .hm-month-lbl { font-size: 9px; }
+
+  .monthly-breakdown-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px;
+  }
+
+  .month-break-card { padding: 10px 12px !important; }
+  .month-break-pnl  { font-size: 14px !important; }
+
+  /* Tags page */
+  .tag-perf-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px;
+  }
+
+  .tag-filter-bar { gap: 6px; }
+
+  /* Regime grid */
+  .regime-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px;
+  }
+
+  /* Gamification */
+  .gami-badges-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px;
+  }
+
+  .gami-badge { padding: 12px 8px !important; }
+  .gami-badge-icon { font-size: 20px !important; }
+  .gami-level-num  { font-size: 40px !important; }
+
+  /* Kelly / streak */
+  #streak-display { gap: 5px; }
+  .streak-dot { width: 28px; height: 28px; }
+}
+
+/* ─────────────────────────────────────────
+   16. INSTITUTIONAL HUB
+────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .var-grid { grid-template-columns: 1fr 1fr !important; gap: 10px; }
+
+  .pl-header,
+  .pl-row {
+    grid-template-columns: 90px 70px 65px 90px !important;
+    white-space: nowrap;
+  }
+
+  .pl-header span:nth-child(n+5),
+  .pl-row   span:nth-child(n+5) { display: none !important; }
+
+  .stress-header,
+  .stress-row {
+    grid-template-columns: 1.5fr 60px 1fr !important;
+  }
+
+  .stress-row .stress-bar-wrap { display: none !important; }
+
+  .audit-row { grid-template-columns: 130px 90px 1fr !important; }
+}
+
+@media (max-width: 768px) {
+  .attr-table-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+
+  /* Alpha/beta grid */
+  .ab-grid { grid-template-columns: 1fr 1fr !important; gap: 10px; }
+  .ab-val  { font-size: 20px !important; }
+
+  /* F&O margin result */
+  .fo-result-grid { grid-template-columns: 1fr 1fr !important; gap: 8px; }
+
+  /* Slippage compare */
+  .slip-compare { flex-direction: column !important; gap: 10px; }
+  .slip-col { min-width: 0 !important; }
+
+  /* Execution score */
+  .exec-score-wrap { flex-direction: column !important; align-items: center; }
+  .exec-breakdown  { min-width: 0 !important; width: 100%; }
+
+  /* Snapshots */
+  .snap-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px; }
+  .snap-pnl  { font-size: 14px !important; }
+
+  /* Audit trail */
+  .audit-list { max-height: 300px; }
+  .audit-row  { grid-template-columns: 1fr 80px !important; gap: 6px; }
+  .audit-ts   { display: none !important; }
+}
+
+@media (max-width: 480px) {
+  .var-grid   { grid-template-columns: 1fr !important; }
+  .ab-grid    { grid-template-columns: 1fr 1fr !important; }
+  .snap-grid  { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* ─────────────────────────────────────────
+   17. HUB TABS
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hub-tabs {
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none;
+    gap: 3px;
+    padding: 4px !important;
+  }
+
+  .hub-tabs::-webkit-scrollbar { display: none; }
+
+  .hub-tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 7px 11px !important;
+    font-size: 12px !important;
+  }
+
+  .hub-panel { animation: none; } /* less animation on mobile for perf */
+}
+
+/* ─────────────────────────────────────────
+   18. GLOBAL SEARCH OVERLAY
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .gs-overlay {
+    padding-top: 0 !important;
+    align-items: flex-end !important; /* slides up from bottom — more natural on mobile */
+  }
+
+  .gs-modal {
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    border-bottom: none !important;
+    margin: 0 !important;
+    max-height: 80vh;
+    animation: gsSlideUp 0.22s cubic-bezier(0.4,0,0.2,1) !important;
+  }
+
+  @keyframes gsSlideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+
+  .gs-input { font-size: 16px !important; } /* prevents iOS zoom */
+  .gs-results { max-height: 50vh; }
+  .gs-footer { display: none; } /* keyboard shortcut hints irrelevant on mobile */
+}
+
+/* ─────────────────────────────────────────
+   19. MODALS (trade detail / what-if etc)
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 0 !important;
+    align-items: flex-end !important; /* bottom sheet */
+  }
+
+  .modal-box {
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 88vh !important;
+    padding: 22px 18px !important;
+    animation: modalSlideUp 0.25s cubic-bezier(0.34,1.56,0.64,1) !important;
+  }
+
+  @keyframes modalSlideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .modal-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+  .modal-symbol { font-size: 20px !important; }
+
+  /* Close button: larger tap target */
+  .modal-close {
+    width: 34px !important; height: 34px !important;
+    font-size: 15px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ─────────────────────────────────────────
+   20. TOAST
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .toast {
+    bottom: 80px; /* above bottom nav space */
+    width: calc(100% - 32px);
+    left: 16px;
+    transform: translateX(0) translateY(100px);
+    border-radius: 14px;
+    text-align: center;
+    white-space: normal;
+    font-size: 13px;
+  }
+  .toast.show {
+    transform: translateX(0) translateY(0);
+  }
+}
+
+/* ─────────────────────────────────────────
+   21. SETTINGS PAGE
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .settings-container { max-width: 100% !important; }
+
+  .settings-section { padding: 18px !important; }
+
+  .accent-picker { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+  .accent-options { flex-wrap: wrap; gap: 12px; }
+  .accent-opt { width: 34px !important; height: 34px !important; }
+
+  .theme-switcher { gap: 6px; }
+  .theme-btn { padding: 8px 12px; font-size: 12px; }
+
+  /* Data management buttons */
+  .form-actions.settings-actions {
+    flex-direction: column !important;
+    gap: 10px;
+  }
+}
+
+/* ─────────────────────────────────────────
+   22. DEEP ANALYTICS
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Correlation matrix: scroll */
+  .corr-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Position sizer result */
+  .ps-result-grid { grid-template-columns: 1fr 1fr !important; gap: 8px; }
+
+  /* Rolling metrics chart */
+  .rolling-chart-wrap canvas { max-width: 100% !important; }
+}
+
+/* ─────────────────────────────────────────
+   23. SIDEBAR NAVIGATION — Touch optimization
+────────────────────────────────────────── */
+@media (max-width: 900px) {
+  /* Bigger tap targets for nav items */
+  .nav-item {
+    padding: 12px 14px !important;
+    font-size: 14px !important;
+    min-height: 44px; /* Apple HIG minimum */
+  }
+
+  .sidebar-nav { padding: 10px 8px !important; }
+
+  /* Larger bottom widget */
+  .sidebar-bottom { padding: 14px 12px !important; }
+}
+
+/* ─────────────────────────────────────────
+   24. FORMS — iOS INPUT FIX (no zoom)
+   All inputs need font-size ≥ 16px on iOS
+   to prevent auto-zoom on focus
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  input[type="email"],
+  input[type="password"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* ─────────────────────────────────────────
+   25. BUTTONS — minimum tap target
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  button, .btn-primary, .btn-secondary, .btn-danger,
+  .tbl-btn, .chart-tab, .hub-tab, .ins-tab {
+    min-height: 36px;
+  }
+
+  /* Extra breathing room for primary actions */
+  .btn-primary, .btn-secondary, .btn-danger {
+    min-height: 44px;
+  }
+}
+
+/* ─────────────────────────────────────────
+   26. SCROLLABLE OVERFLOW CONTAINERS
+   (-webkit-overflow-scrolling: touch for iOS momentum scroll)
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .journal-table-wrap,
+  .table-wrap,
+  .heatmap-card,
+  .gs-results,
+  .audit-list,
+  .pl-table,
+  .corr-wrap,
+  .sidebar-nav {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ─────────────────────────────────────────
+   27. MISC SMALL FIXES
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Hide section count badges text on small screens to save space */
+  .nav-badge { display: none; }
+
+  /* Section titles */
+  .section-title { font-size: 15px !important; margin-bottom: 10px !important; }
+
+  /* Insight blocks: no horizontal shift on hover (bad on touch) */
+  .insight-block:hover { transform: none; }
+  .stat-card:hover     { transform: none; }
+  .a-stat:hover        { transform: none; }
+  .week-card:hover     { transform: none; }
+  .desi-card:hover     { transform: none; }
+  .tag-perf-card:hover { transform: none; }
+  .pro-tool-card:hover { transform: none; }
+
+  /* Pro result blocks */
+  .pro-result { font-size: 12px !important; }
+
+  /* Empty states */
+  .empty-state { padding: 40px 16px !important; }
+  .empty-icon  { font-size: 36px !important; }
+  .empty-title { font-size: 18px !important; }
+
+  /* Discipline calendar */
+  .disc-cal-cell:hover { transform: none; }
+
+  /* Heatmap cell: no enlarge on touch (confusing) */
+  .hm-cell:hover { transform: none; }
+  .heatmap-cell:hover { transform: none; }
+}
+
+/* ─────────────────────────────────────────
+   28. VERY SMALL PHONES (≤ 360px)
+────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .pages-container { padding: 12px 10px 80px !important; }
+  .page-title { font-size: 20px !important; }
+  .stat-value { font-size: 18px !important; }
+  .stats-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+  .hub-tab    { padding: 6px 9px !important; font-size: 11px !important; }
+  .form-section { padding: 12px !important; }
+  .chart-card { padding: 12px !important; }
+}
+
+/* ─────────────────────────────────────────
+   29. LANDSCAPE PHONE OVERRIDES
+────────────────────────────────────────── */
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+  .topbar      { height: 46px !important; }
+  .pages-container { padding: 12px 16px 60px !important; }
+  .page-title  { font-size: 20px !important; }
+  .stats-grid  { grid-template-columns: repeat(4, 1fr) !important; }
+  .modal-box   { max-height: 94vh !important; }
+  .perf-chart-wrap { height: 140px !important; }
+}
+
+/* ─────────────────────────────────────────
+   30. PRINT — hide nav chrome
+────────────────────────────────────────── */
+@media print {
+  .sidebar, .topbar, .sidebar-toggle,
+  .btn-add-trade, .btn-search,
+  #cursor-glow, #particle-canvas,
+  .form-actions, .tbl-actions { display: none !important; }
+
+  .main-content { margin-left: 0 !important; width: 100% !important; }
+  .pages-container { padding: 10px !important; }
+  .page { display: block !important; }
+}

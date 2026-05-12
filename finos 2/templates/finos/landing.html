@@ -1,0 +1,517 @@
+{% extends "finos/base.html" %}
+{% load static %}
+
+{% block title %}FIN-OS | Command Center{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ── LANDING PAGE ── */
+  .cmd-page {
+    width: min(100%, 1320px);
+    padding: 2rem clamp(1rem, 3vw, 2.5rem) 5rem;
+    margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(0,212,255,.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,.015) 1px, transparent 1px);
+    background-size: 48px 48px; opacity: .5;
+  }
+
+  /* ── HERO ── */
+  .cmd-hero {
+    text-align: center;
+    padding: 3rem 0 2.5rem;
+    border-bottom: 1px solid rgba(0,212,255,.07);
+    margin-bottom: 3rem;
+    position: relative;
+  }
+  .cmd-eyebrow {
+    font-family: var(--fM); font-size: .6rem; color: var(--c);
+    letter-spacing: 3px; margin-bottom: 1rem;
+    display: flex; align-items: center; justify-content: center; gap: .5rem;
+  }
+  .cmd-eyebrow::before, .cmd-eyebrow::after {
+    content: ''; width: 30px; height: 1px; background: var(--c);
+  }
+  .cmd-title {
+    font-family: var(--fD); font-size: clamp(2.5rem, 6vw, 4.5rem);
+    letter-spacing: 3px; line-height: 1;
+    background: linear-gradient(135deg, var(--c), var(--g));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: .75rem;
+  }
+  .cmd-subtitle {
+    font-size: 1rem; color: var(--mu); max-width: 600px;
+    margin: 0 auto; line-height: 1.8;
+  }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1rem; margin-bottom: 3rem;
+  }
+  .stat-pill {
+    background: var(--s1); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 14px; padding: 1rem 1.2rem; text-align: center;
+    transition: all .3s;
+  }
+  .stat-pill:hover { border-color: rgba(0,212,255,.2); transform: translateY(-3px); }
+  .sp-val {
+    font-family: var(--fD); font-size: 1.6rem; letter-spacing: 1px;
+    margin-bottom: .2rem;
+  }
+  .sp-label {
+    font-family: var(--fM); font-size: .5rem; color: var(--mu);
+    letter-spacing: 2px;
+  }
+
+  /* ── DUAL MIND CARDS ── */
+  .mind-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 2rem; margin-bottom: 3rem;
+  }
+  @media (max-width: 768px) { .mind-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) { .stat-strip { grid-template-columns: 1fr 1fr; } }
+
+  .mind-card {
+    background: var(--s1); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 24px; overflow: hidden; position: relative;
+    transition: all .45s cubic-bezier(.34, 1.1, .64, 1);
+    display: flex; flex-direction: column;
+  }
+  .mind-card:hover { transform: translateY(-10px); }
+
+  .mind-card-inv:hover {
+    border-color: rgba(0,255,136,.35);
+    box-shadow: 0 30px 80px rgba(0,255,136,.12);
+  }
+  .mind-card-tra:hover {
+    border-color: rgba(255,45,107,.35);
+    box-shadow: 0 30px 80px rgba(255,45,107,.12);
+  }
+
+  .mc-bar { height: 3px; flex-shrink: 0; }
+  .mind-card-inv .mc-bar { background: linear-gradient(90deg, var(--g), var(--c)); }
+  .mind-card-tra .mc-bar { background: linear-gradient(90deg, var(--r), var(--y)); }
+
+  .mc-glow {
+    position: absolute; inset: 0; opacity: 0;
+    transition: opacity .45s; pointer-events: none; border-radius: 24px;
+  }
+  .mind-card-inv .mc-glow { background: radial-gradient(ellipse at 30% 20%, rgba(0,255,136,.08), transparent 65%); }
+  .mind-card-tra .mc-glow { background: radial-gradient(ellipse at 30% 20%, rgba(255,45,107,.08), transparent 65%); }
+  .mind-card:hover .mc-glow { opacity: 1; }
+
+  .mc-body {
+    padding: 2.5rem; flex: 1;
+    display: flex; flex-direction: column;
+    position: relative; z-index: 1;
+  }
+
+  .mc-badge {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: 3px 12px; border-radius: 20px;
+    font-family: var(--fM); font-size: .48rem; letter-spacing: 2px;
+    margin-bottom: 1.5rem; width: fit-content;
+  }
+  .mind-card-inv .mc-badge { background: rgba(0,255,136,.06); color: var(--g); border: 1px solid rgba(0,255,136,.2); }
+  .mind-card-tra .mc-badge { background: rgba(255,45,107,.06); color: var(--r); border: 1px solid rgba(255,45,107,.2); }
+  .mc-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+  .mc-icon {
+    width: 72px; height: 72px; border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.4rem; margin-bottom: 1.5rem; transition: transform .35s;
+  }
+  .mind-card:hover .mc-icon { transform: scale(1.12) rotate(5deg); }
+  .mind-card-inv .mc-icon { background: rgba(0,255,136,.08); border: 1px solid rgba(0,255,136,.18); }
+  .mind-card-tra .mc-icon { background: rgba(255,45,107,.08); border: 1px solid rgba(255,45,107,.18); }
+
+  .mc-title {
+    font-family: var(--fD); font-size: 2.4rem;
+    letter-spacing: 1.5px; margin-bottom: .5rem;
+  }
+  .mind-card-inv .mc-title { color: var(--g); }
+  .mind-card-tra .mc-title { color: var(--r); }
+
+  .mc-desc {
+    font-size: .85rem; color: rgba(240,237,255,.55);
+    line-height: 1.75; margin-bottom: 1.5rem;
+  }
+
+  .mc-features {
+    list-style: none; display: flex; flex-direction: column;
+    gap: .45rem; margin-bottom: auto;
+  }
+  .mc-features li {
+    display: flex; align-items: center; gap: .55rem;
+    font-size: .75rem; color: rgba(240,237,255,.65);
+    padding: .35rem .6rem; border-radius: 8px;
+    background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.04);
+    transition: all .2s;
+  }
+  .mind-card:hover .mc-features li { color: rgba(240,237,255,.88); }
+  .mind-card-inv:hover .mc-features li { border-color: rgba(0,255,136,.1); }
+  .mind-card-tra:hover .mc-features li { border-color: rgba(255,45,107,.1); }
+
+  .mc-actions {
+    display: flex; gap: .75rem; margin-top: 2rem;
+  }
+  .mc-btn {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: .5rem;
+    padding: .85rem 1rem; border-radius: 12px;
+    font-family: var(--fD); font-size: .9rem; letter-spacing: .5px;
+    text-decoration: none; transition: all .25s;
+  }
+  .mc-btn-primary {
+    color: var(--ink); font-weight: 600;
+  }
+  .mind-card-inv .mc-btn-primary { background: var(--g); }
+  .mind-card-tra .mc-btn-primary { background: var(--r); }
+  .mc-btn-primary:hover { filter: brightness(1.15); transform: scale(1.03); }
+
+  .mc-btn-secondary {
+    border: 1px solid rgba(255,255,255,.12);
+    color: var(--mu);
+  }
+  .mc-btn-secondary:hover { border-color: rgba(255,255,255,.25); color: var(--txt); background: rgba(255,255,255,.04); }
+
+  .mc-arr { transition: transform .25s; }
+  .mind-card:hover .mc-arr { transform: translateX(4px); }
+
+  /* ── SIMULATIONS ROW ── */
+  .sim-section { margin-bottom: 3rem; }
+  .sim-section-hd {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .sim-section-icon {
+    width: 42px; height: 42px; border-radius: 12px;
+    background: rgba(124,58,255,.08); border: 1px solid rgba(124,58,255,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+  }
+  .sim-section-title {
+    font-family: var(--fD); font-size: 1.6rem; letter-spacing: 1.5px;
+    color: #a78bff;
+  }
+  .sim-section-sub {
+    font-family: var(--fM); font-size: .54rem; color: var(--mu);
+    letter-spacing: 1px; margin-top: 2px;
+  }
+
+  .sim-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.25rem;
+  }
+  @media (max-width: 768px) { .sim-row { grid-template-columns: 1fr; } }
+
+  .sim-tile {
+    background: var(--s1); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 18px; padding: 1.5rem; text-decoration: none;
+    color: var(--txt); transition: all .35s; position: relative; overflow: hidden;
+  }
+  .sim-tile::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; opacity: 0; transition: opacity .3s;
+  }
+  .sim-tile:hover::before { opacity: 1; }
+  .sim-tile:hover { transform: translateY(-6px); }
+
+  .sim-tile-inv::before { background: linear-gradient(90deg, var(--g), var(--c)); }
+  .sim-tile-inv:hover { border-color: rgba(0,255,136,.25); box-shadow: 0 20px 50px rgba(0,255,136,.08); }
+
+  .sim-tile-tra::before { background: linear-gradient(90deg, var(--r), var(--y)); }
+  .sim-tile-tra:hover { border-color: rgba(255,45,107,.25); box-shadow: 0 20px 50px rgba(255,45,107,.08); }
+
+  .sim-tile-all::before { background: linear-gradient(90deg, #a78bff, var(--c)); }
+  .sim-tile-all:hover { border-color: rgba(124,58,255,.25); box-shadow: 0 20px 50px rgba(124,58,255,.08); }
+
+  .st-icon { font-size: 2rem; margin-bottom: .75rem; display: block; transition: transform .3s; }
+  .sim-tile:hover .st-icon { transform: scale(1.12) rotate(5deg); }
+  .st-name { font-family: var(--fD); font-size: 1.15rem; letter-spacing: 1px; margin-bottom: .3rem; }
+  .sim-tile-inv .st-name { color: var(--g); }
+  .sim-tile-tra .st-name { color: var(--r); }
+  .sim-tile-all .st-name { color: #a78bff; }
+  .st-desc { font-size: .76rem; color: var(--mu); line-height: 1.6; margin-bottom: .75rem; }
+  .st-cta {
+    font-family: var(--fM); font-size: .52rem; letter-spacing: 1.5px;
+    color: var(--mu); display: flex; align-items: center; gap: .4rem;
+    transition: color .2s;
+  }
+  .sim-tile:hover .st-cta { color: var(--txt); }
+
+  /* ── TRAIT RADAR ── */
+  .traits-section { margin-bottom: 3rem; }
+  .traits-hd {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .traits-icon {
+    width: 42px; height: 42px; border-radius: 12px;
+    background: rgba(255,204,0,.06); border: 1px solid rgba(255,204,0,.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+  }
+  .traits-title {
+    font-family: var(--fD); font-size: 1.6rem; letter-spacing: 1.5px;
+    color: var(--y);
+  }
+  .traits-sub {
+    font-family: var(--fM); font-size: .54rem; color: var(--mu);
+    letter-spacing: 1px; margin-top: 2px;
+  }
+
+  .trait-bars {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: .75rem 2rem;
+  }
+  @media (max-width: 600px) { .trait-bars { grid-template-columns: 1fr; } }
+
+  .trait-row {
+    display: flex; align-items: center; gap: .75rem;
+    padding: .65rem .85rem; border-radius: 10px;
+    background: var(--s1); border: 1px solid rgba(255,255,255,.05);
+  }
+  .tr-label {
+    font-family: var(--fM); font-size: .6rem; letter-spacing: 1px;
+    color: var(--mu); min-width: 100px;
+  }
+  .tr-bar-wrap {
+    flex: 1; height: 6px; background: rgba(255,255,255,.05);
+    border-radius: 3px; overflow: hidden;
+  }
+  .tr-bar-fill {
+    height: 100%; border-radius: 3px;
+    transition: width 1.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .tr-pct {
+    font-family: var(--fD); font-size: .9rem; letter-spacing: .5px;
+    min-width: 32px; text-align: right;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes slide-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  .anim-up { animation: slide-up .6s ease both; }
+  .anim-d1 { animation-delay: .1s; }
+  .anim-d2 { animation-delay: .2s; }
+  .anim-d3 { animation-delay: .3s; }
+  .anim-d4 { animation-delay: .4s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-grid"></div>
+
+<div class="cmd-page">
+
+  <!-- ── HERO ── -->
+  <div class="cmd-hero anim-up">
+    <div class="cmd-eyebrow">COMMAND CENTER</div>
+    <div class="cmd-title">MIND ENGINE</div>
+    <p class="cmd-subtitle">
+      Two minds. One edge. Train your <strong style="color:var(--g)">investor brain</strong> for
+      patience and conviction &mdash; or sharpen your <strong style="color:var(--r)">trader brain</strong>
+      for speed and discipline. Your call.
+    </p>
+  </div>
+
+  <!-- ── STAT STRIP ── -->
+  <div class="stat-strip anim-up anim-d1">
+    <div class="stat-pill">
+      <div class="sp-val" style="color:var(--g)" id="cmdXp">1,240</div>
+      <div class="sp-label">TOTAL XP</div>
+    </div>
+    <div class="stat-pill">
+      <div class="sp-val" style="color:var(--c)" id="cmdDisc">71</div>
+      <div class="sp-label">DISCIPLINE</div>
+    </div>
+    <div class="stat-pill">
+      <div class="sp-val" style="color:var(--y)" id="cmdSessions">12</div>
+      <div class="sp-label">SESSIONS</div>
+    </div>
+    <div class="stat-pill">
+      <div class="sp-val" style="color:#a78bff" id="cmdLevel">LVL 4</div>
+      <div class="sp-label">RANK</div>
+    </div>
+  </div>
+
+  <!-- ── DUAL MIND CARDS ── -->
+  <div class="mind-grid anim-up anim-d2">
+
+    <!-- INVESTOR MIND -->
+    <div class="mind-card mind-card-inv">
+      <div class="mc-bar"></div>
+      <div class="mc-glow"></div>
+      <div class="mc-body">
+        <div class="mc-badge"><span class="mc-badge-dot"></span>LONG-TERM BRAIN</div>
+        <div class="mc-icon">📈</div>
+        <div class="mc-title">INVESTOR MIND</div>
+        <p class="mc-desc">
+          Build the psychology of patience. Learn to hold through fear,
+          resist FOMO, and think in decades &mdash; not days.
+        </p>
+        <ul class="mc-features">
+          <li>🧬 Investor archetype profiling</li>
+          <li>🧠 12 cognitive bias deep-dives</li>
+          <li>📊 SIP vs lumpsum emotional training</li>
+          <li>💎 Diamond-hand conviction drills</li>
+          <li>📓 Auto-journal with pattern memory</li>
+        </ul>
+        <div class="mc-actions">
+          <a href="{% url 'finos:investor' %}" class="mc-btn mc-btn-primary">
+            ENTER <span class="mc-arr">&rarr;</span>
+          </a>
+          <a href="{% url 'finos:investor_simulations' %}" class="mc-btn mc-btn-secondary">
+            SIMULATIONS
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRADER MIND -->
+    <div class="mind-card mind-card-tra">
+      <div class="mc-bar"></div>
+      <div class="mc-glow"></div>
+      <div class="mc-body">
+        <div class="mc-badge"><span class="mc-badge-dot"></span>SHORT-TERM BRAIN</div>
+        <div class="mc-icon">📊</div>
+        <div class="mc-title">TRADER MIND</div>
+        <p class="mc-desc">
+          Train the instinct of execution. Master entries, exits, and the
+          emotional warfare of fast-moving markets.
+        </p>
+        <ul class="mc-features">
+          <li>⚡ Intraday, Swing &amp; F&amp;O breakdowns</li>
+          <li>🎯 Entry/exit psychology training</li>
+          <li>😤 Revenge trade pattern detection</li>
+          <li>🧊 Cool-down protocols under pressure</li>
+          <li>📓 Auto-journal with behavior tagging</li>
+        </ul>
+        <div class="mc-actions">
+          <a href="{% url 'finos:trader' %}" class="mc-btn mc-btn-primary">
+            ENTER <span class="mc-arr">&rarr;</span>
+          </a>
+          <a href="{% url 'finos:trader_simulations' %}" class="mc-btn mc-btn-secondary">
+            SIMULATIONS
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── SIMULATIONS QUICK-ACCESS ── -->
+  <div class="sim-section anim-up anim-d3">
+    <div class="sim-section-hd">
+      <div class="sim-section-icon">🎮</div>
+      <div>
+        <div class="sim-section-title">SIMULATIONS</div>
+        <div class="sim-section-sub">CRISIS SCENARIOS &middot; ZERO REAL MONEY &middot; REAL EMOTION</div>
+      </div>
+    </div>
+    <div class="sim-row">
+      <a href="{% url 'finos:investor_simulations' %}" class="sim-tile sim-tile-inv">
+        <span class="st-icon">🛡</span>
+        <div class="st-name">INVESTOR SCENARIOS</div>
+        <p class="st-desc">Market crashes, SIP panic, portfolio drawdowns &mdash; hold or fold?</p>
+        <div class="st-cta">LAUNCH &rarr;</div>
+      </a>
+      <a href="{% url 'finos:trader_simulations' %}" class="sim-tile sim-tile-tra">
+        <span class="st-icon">⚡</span>
+        <div class="st-name">TRADER SCENARIOS</div>
+        <p class="st-desc">Breakout fakes, revenge spirals, RBI shocks &mdash; execute or freeze?</p>
+        <div class="st-cta">LAUNCH &rarr;</div>
+      </a>
+      <a href="{% url 'finos:simulations' %}" class="sim-tile sim-tile-all">
+        <span class="st-icon">🧠</span>
+        <div class="st-name">ALL SIMULATIONS</div>
+        <p class="st-desc">The full crisis library &mdash; every scenario, both minds, one arena.</p>
+        <div class="st-cta">BROWSE ALL &rarr;</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── TRAIT RADAR ── -->
+  <div class="traits-section anim-up anim-d4">
+    <div class="traits-hd">
+      <div class="traits-icon">🧬</div>
+      <div>
+        <div class="traits-title">YOUR DNA</div>
+        <div class="traits-sub">BEHAVIORAL TRAIT SNAPSHOT &middot; UPDATED AFTER EVERY SIMULATION</div>
+      </div>
+    </div>
+    <div class="trait-bars" id="traitBars">
+      <!-- Filled by JS -->
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block page_script %}
+<script>
+(function(){
+  /* ── Populate stats from global STATE ── */
+  const xpEl  = document.getElementById('cmdXp');
+  const discEl= document.getElementById('cmdDisc');
+  const sessEl= document.getElementById('cmdSessions');
+  const lvlEl = document.getElementById('cmdLevel');
+  if(xpEl)   xpEl.textContent   = STATE.xp.toLocaleString();
+  if(discEl) discEl.textContent  = STATE.disc;
+  if(sessEl) sessEl.textContent  = STATE.sessionsCompleted;
+  const li = getLevelInfo(STATE.xp);
+  if(lvlEl) lvlEl.textContent = 'LVL ' + li.lv;
+
+  /* ── Trait bars ── */
+  const traits = STATE.traits;
+  const traitMeta = [
+    { key:'patience',     label:'PATIENCE',       color:'var(--g)' },
+    { key:'emotionCtrl',  label:'EMOTION CTRL',   color:'var(--c)' },
+    { key:'riskIQ',       label:'RISK IQ',        color:'var(--y)' },
+    { key:'analysis',     label:'ANALYSIS',       color:'#a78bff' },
+    { key:'fomoRes',      label:'FOMO RESIST',    color:'var(--r)' },
+    { key:'consistency',  label:'CONSISTENCY',     color:'var(--g)' },
+    { key:'vision',       label:'VISION',          color:'var(--c)' },
+  ];
+  const barsEl = document.getElementById('traitBars');
+  if(barsEl){
+    barsEl.innerHTML = traitMeta.map(t => {
+      const val = traits[t.key] || 0;
+      return `
+        <div class="trait-row">
+          <div class="tr-label">${t.label}</div>
+          <div class="tr-bar-wrap">
+            <div class="tr-bar-fill" style="width:${val}%;background:${t.color}"></div>
+          </div>
+          <div class="tr-pct" style="color:${t.color}">${val}</div>
+        </div>`;
+    }).join('');
+  }
+
+  /* ── Listen for trait changes ── */
+  window.addEventListener('traits-changed', () => {
+    const t = STATE.traits;
+    traitMeta.forEach(m => {
+      const row = barsEl?.querySelector(`.tr-label:contains('${m.label}')`);
+    });
+    if(barsEl){
+      barsEl.innerHTML = traitMeta.map(t2 => {
+        const val = STATE.traits[t2.key] || 0;
+        return `
+          <div class="trait-row">
+            <div class="tr-label">${t2.label}</div>
+            <div class="tr-bar-wrap">
+              <div class="tr-bar-fill" style="width:${val}%;background:${t2.color}"></div>
+            </div>
+            <div class="tr-pct" style="color:${t2.color}">${val}</div>
+          </div>`;
+      }).join('');
+    }
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockOS — Live Market Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ═══ PARTICLE CANVAS (background) ═══ -->
+<canvas id="particleCanvas"></canvas>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="10" fill="url(#logoGrad)"/>
+        <polyline points="6,24 12,16 18,20 24,10 30,14" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="logoGrad" x1="0" y1="0" x2="36" y2="36">
+            <stop offset="0%" stop-color="#7C3AED"/>
+            <stop offset="100%" stop-color="#06B6D4"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <span class="logo-text">StockOS</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="nav-item active" data-page="dashboard" onclick="navigate('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/></svg>
+      <span>Dashboard</span>
+    </a>
+    <a class="nav-item" data-page="watchlist" onclick="navigate('watchlist')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      <span>Watchlist</span>
+    </a>
+    <a class="nav-item" data-page="compare" onclick="navigate('compare')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 17l5-5 4 4 9-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 7h4M3 12h4M3 17h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".5"/></svg>
+      <span>Compare</span>
+    </a>
+    <a class="nav-item" data-page="markets" onclick="navigate('markets')">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M2 12h20M12 2c-3 3-4.5 6-4.5 10S9 19 12 22M12 2c3 3 4.5 6 4.5 10S15 19 12 22" stroke="currentColor" stroke-width="1.5"/></svg>
+      <span>Markets</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-market-status" id="sidebarStatus">
+    <div class="status-dot" id="statusDot"></div>
+    <div>
+      <div class="status-label" id="statusLabel">Checking...</div>
+      <div class="status-exchange" id="statusExchange">NSE / NYSE</div>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="refresh-indicator">
+      <div class="refresh-ring" id="refreshRing"></div>
+      <span id="refreshCountdown">Auto-refresh: 10s</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<main class="main-content" id="mainContent">
+
+  <!-- ── TOP BAR ── -->
+  <header class="topbar">
+    <div class="search-container" id="searchContainer">
+      <div class="search-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M20 20l-3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="Search ticker or company name…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <div class="search-kbd"><kbd>⌘K</kbd></div>
+      </div>
+      <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
+    </div>
+
+    <div class="topbar-right">
+      <div class="clock" id="liveClock"></div>
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="1.8"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════
+       PAGE: DASHBOARD
+  ══════════════════════════════════ -->
+  <section class="page active" id="page-dashboard">
+
+    <!-- Skeleton / Default State -->
+    <div class="hero-empty" id="heroEmpty">
+      <div class="hero-glow"></div>
+      <div class="hero-icon">📈</div>
+      <h2 class="hero-title">Search any stock to get started</h2>
+      <p class="hero-sub">Real-time prices, charts, and insights — all in one place</p>
+      <div class="quick-picks">
+        <span class="pick-label">Quick picks:</span>
+        <button class="quick-btn" onclick="quickSearch('RELIANCE.NS')">RELIANCE.NS</button>
+        <button class="quick-btn" onclick="quickSearch('AAPL')">AAPL</button>
+        <button class="quick-btn" onclick="quickSearch('TSLA')">TSLA</button>
+        <button class="quick-btn" onclick="quickSearch('INFY.NS')">INFY.NS</button>
+        <button class="quick-btn" onclick="quickSearch('NVDA')">NVDA</button>
+      </div>
+    </div>
+
+    <!-- Stock Data Panel (shown after search) -->
+    <div class="stock-panel hidden" id="stockPanel">
+
+      <!-- Price Hero Card -->
+      <div class="price-hero glass-card" id="priceHero">
+        <div class="price-hero-left">
+          <div class="ticker-row">
+            <span class="ticker-badge" id="tickerBadge">—</span>
+            <span class="market-status-badge" id="marketStatusBadge">—</span>
+            <button class="watchlist-btn" id="watchlistBtn" onclick="toggleWatchlist()" title="Add to watchlist">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div class="company-name" id="companyName">—</div>
+          <div class="price-row">
+            <span class="current-price" id="currentPrice">—</span>
+            <div class="price-change" id="priceChange">
+              <span class="change-arrow" id="changeArrow"></span>
+              <span class="change-val" id="changeVal">—</span>
+              <span class="change-pct" id="changePct">—</span>
+            </div>
+          </div>
+        </div>
+        <div class="price-hero-right">
+          <div class="metric-grid">
+            <div class="metric-item">
+              <span class="metric-label">OPEN</span>
+              <span class="metric-value" id="metOpen">—</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">PREV CLOSE</span>
+              <span class="metric-value" id="metPrevClose">—</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">DAY HIGH</span>
+              <span class="metric-value" id="metHigh">—</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">DAY LOW</span>
+              <span class="metric-value" id="metLow">—</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">VOLUME</span>
+              <span class="metric-value" id="metVolume">—</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">MKT CAP</span>
+              <span class="metric-value" id="metMktCap">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced metrics row -->
+      <div class="adv-metrics glass-card" id="advMetrics">
+        <div class="adv-metric">
+          <span class="adv-label">52W HIGH</span>
+          <span class="adv-value" id="adv52H">—</span>
+        </div>
+        <div class="adv-separator"></div>
+        <div class="adv-metric">
+          <span class="adv-label">52W LOW</span>
+          <span class="adv-value" id="adv52L">—</span>
+        </div>
+        <div class="adv-separator"></div>
+        <div class="adv-metric">
+          <span class="adv-label">P/E RATIO</span>
+          <span class="adv-value" id="advPE">—</span>
+        </div>
+        <div class="adv-separator"></div>
+        <div class="adv-metric">
+          <span class="adv-label">EXCHANGE</span>
+          <span class="adv-value" id="advExchange">—</span>
+        </div>
+        <div class="adv-separator"></div>
+        <div class="adv-metric">
+          <span class="adv-label">CURRENCY</span>
+          <span class="adv-value" id="advCurrency">—</span>
+        </div>
+        <div class="adv-separator"></div>
+        <div class="adv-metric">
+          <span class="adv-label">LAST UPDATED</span>
+          <span class="adv-value mono" id="advUpdated">—</span>
+        </div>
+      </div>
+
+      <!-- 52-week range bar -->
+      <div class="range-bar-card glass-card">
+        <div class="range-labels">
+          <span id="rangeL">52W Low</span>
+          <span class="range-title">52-WEEK PRICE RANGE</span>
+          <span id="rangeH">52W High</span>
+        </div>
+        <div class="range-track">
+          <div class="range-fill" id="rangeFill"></div>
+          <div class="range-thumb" id="rangeThumb"></div>
+        </div>
+      </div>
+
+      <!-- Chart Section -->
+      <div class="chart-card glass-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Price History</h3>
+          <div class="timeframe-pills" id="timeframePills">
+            <button class="pill active" data-tf="1D" onclick="setTimeframe('1D')">1D</button>
+            <button class="pill" data-tf="5D" onclick="setTimeframe('5D')">5D</button>
+            <button class="pill" data-tf="1M" onclick="setTimeframe('1M')">1M</button>
+            <button class="pill" data-tf="3M" onclick="setTimeframe('3M')">3M</button>
+            <button class="pill" data-tf="1Y" onclick="setTimeframe('1Y')">1Y</button>
+          </div>
+        </div>
+        <div class="chart-container">
+          <div class="chart-skeleton" id="chartSkeleton">
+            <div class="sk-line"></div><div class="sk-line"></div>
+            <div class="sk-line"></div><div class="sk-line"></div>
+          </div>
+          <canvas id="priceChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Insight Panel -->
+      <div class="insight-card glass-card" id="insightCard">
+        <div class="insight-header">
+          <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="currentColor" opacity=".8"/></svg>
+          <span>AI Financial Insight</span>
+        </div>
+        <div class="insight-body" id="insightBody">
+          <div class="insight-item">📊 Load a stock to see insights</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay hidden" id="loadingOverlay">
+      <div class="loader-content">
+        <div class="loader-ring"></div>
+        <div class="loader-text">Fetching live data…</div>
+        <div class="loader-sub" id="loaderTicker"></div>
+      </div>
+    </div>
+
+    <!-- Error Card -->
+    <div class="error-card hidden glass-card" id="errorCard">
+      <div class="error-icon">⚠️</div>
+      <div class="error-title" id="errorTitle">Invalid Ticker</div>
+      <div class="error-msg" id="errorMsg">Could not find data for this symbol.</div>
+      <button class="retry-btn" onclick="retryFetch()">Retry</button>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════════════════
+       PAGE: WATCHLIST
+  ══════════════════════════════════ -->
+  <section class="page" id="page-watchlist">
+    <div class="page-header">
+      <h1 class="page-title">⭐ Watchlist</h1>
+      <button class="clear-btn" onclick="clearWatchlist()">Clear all</button>
+    </div>
+    <div class="watchlist-grid" id="watchlistGrid">
+      <div class="watchlist-empty" id="watchlistEmpty">
+        <div class="empty-icon">🔭</div>
+        <p>No stocks in watchlist yet.</p>
+        <p class="empty-sub">Search a stock and click ⭐ to track it here.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       PAGE: COMPARE
+  ══════════════════════════════════ -->
+  <section class="page" id="page-compare">
+    <div class="page-header">
+      <h1 class="page-title">📊 Compare Stocks</h1>
+    </div>
+    <div class="compare-controls glass-card">
+      <div class="compare-inputs" id="compareInputs">
+        <input class="compare-input" id="cmpInput1" placeholder="AAPL" />
+        <input class="compare-input" id="cmpInput2" placeholder="MSFT" />
+        <input class="compare-input" id="cmpInput3" placeholder="TSLA (optional)" />
+      </div>
+      <div class="compare-period-row">
+        <div class="timeframe-pills">
+          <button class="pill active" data-tf="1M" onclick="setCmpPeriod('1M', this)">1M</button>
+          <button class="pill" data-tf="3M" onclick="setCmpPeriod('3M', this)">3M</button>
+          <button class="pill" data-tf="1Y" onclick="setCmpPeriod('1Y', this)">1Y</button>
+        </div>
+        <button class="compare-run-btn" onclick="runComparison()">
+          <svg viewBox="0 0 24 24" fill="none" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Compare
+        </button>
+      </div>
+    </div>
+    <div class="compare-chart-card glass-card hidden" id="compareChartCard">
+      <div class="chart-container" style="height:340px">
+        <canvas id="compareChart"></canvas>
+      </div>
+      <div class="compare-legend" id="compareLegend"></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       PAGE: MARKETS
+  ══════════════════════════════════ -->
+  <section class="page" id="page-markets">
+    <div class="page-header">
+      <h1 class="page-title">🌍 Global Markets</h1>
+    </div>
+    <div class="markets-grid" id="marketsGrid">
+      <!-- Populated by JS -->
+    </div>
+  </section>
+
+</main>
+
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

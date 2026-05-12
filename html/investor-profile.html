@@ -1,0 +1,493 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+    <title>Apex Cognitive Architectures | Deep Dive</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Tailwind CSS (CDN for Django ease) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
+                    },
+                    colors: {
+                        finosBg: '#050505',
+                        finosCard: 'rgba(20, 20, 25, 0.7)',
+                        neonPri: 'var(--neon-pri)',
+                        neonSec: 'var(--neon-sec)',
+                        neonAcc: 'var(--neon-acc)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../css/investor-profile.css">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+
+<body
+    class="bg-finosBg text-white antialiased font-sans flex overflow-hidden loading-state transition-colors duration-1000"
+    data-hero="buffett">
+
+    <!-- Glowing Background Atmosphere -->
+    <div class="fixed inset-0 z-0 pointer-events-none opacity-40 mix-blend-screen transition-all duration-1000"
+        id="atmosphereGlow"></div>
+    <div
+        class="fixed inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 pointer-events-none">
+    </div>
+
+    <!-- Grid Overlay for that Finance/Data feel -->
+    <div class="fixed inset-0 z-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none"
+        style="mask-image: radial-gradient(circle at center, black, transparent 80%);"></div>
+
+    <!-- Fixed Sidebar -->
+    <aside
+        class="w-20 md:w-64 h-screen fixed top-0 left-0 border-r border-white/10 bg-black/60 backdrop-blur-xl z-50 flex flex-col items-center md:items-start pt-8 pb-4 transition-all duration-300 shadow-2xl">
+        <a href="investor-mindset.html" class="px-6 mb-12 hidden md:block hover:opacity-80 transition-opacity">
+            <div
+                class="flex items-center text-gray-500 mb-2 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors">
+                <i class="fa-solid fa-arrow-left mr-2"></i> Guide Matrix
+            </div>
+            <h1 class="text-2xl font-display font-bold text-neonPri drop-shadow-[0_0_10px_var(--neon-pri)]">Deep Frame
+            </h1>
+        </a>
+        <div class="mb-12 md:hidden">
+            <h1 class="text-xl font-display font-bold text-neonPri">DF</h1>
+        </div>
+
+        <nav class="flex-1 w-full px-2 md:px-4 space-y-2 pointer-events-auto" id="sidebarNav">
+            <!-- Dynamically populated to switch between investors -->
+            <button
+                class="nav-item w-full flex items-center p-3 rounded-xl hover:bg-white/5 transition-all text-white group bg-white/10 border border-white/10"
+                data-target="buffett">
+                <i class="fa-solid fa-tree text-lg md:mr-3 text-green-400 md:w-5 text-center transition-all"></i>
+                <span class="hidden md:inline font-medium font-display text-sm tracking-wide">Warren Buffett</span>
+            </button>
+            <button
+                class="nav-item w-full flex items-center p-3 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white group"
+                data-target="simons">
+                <i
+                    class="fa-solid fa-square-root-variable text-lg md:mr-3 group-hover:text-blue-400 md:w-5 text-center transition-all"></i>
+                <span class="hidden md:inline font-medium font-display text-sm tracking-wide">Jim Simons</span>
+            </button>
+            <button
+                class="nav-item w-full flex items-center p-3 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white group"
+                data-target="soros">
+                <i
+                    class="fa-solid fa-globe text-lg md:mr-3 group-hover:text-red-500 md:w-5 text-center transition-all"></i>
+                <span class="hidden md:inline font-medium font-display text-sm tracking-wide">George Soros</span>
+            </button>
+            <button
+                class="nav-item w-full flex items-center p-3 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white group"
+                data-target="burry">
+                <i
+                    class="fa-solid fa-microscope text-lg md:mr-3 group-hover:text-orange-400 md:w-5 text-center transition-all"></i>
+                <span class="hidden md:inline font-medium font-display text-sm tracking-wide">Michael Burry</span>
+            </button>
+            <button
+                class="nav-item w-full flex items-center p-3 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white group"
+                data-target="lynch">
+                <i
+                    class="fa-solid fa-binoculars text-lg md:mr-3 group-hover:text-yellow-400 md:w-5 text-center transition-all"></i>
+                <span class="hidden md:inline font-medium font-display text-sm tracking-wide">Peter Lynch</span>
+            </button>
+            <button
+                class="nav-item w-full flex items-center p-3 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white group"
+                data-target="dalio">
+                <i
+                    class="fa-solid fa-gears text-lg md:mr-3 group-hover:text-purple-400 md:w-5 text-center transition-all"></i>
+                <span class="hidden md:inline font-medium font-display text-sm tracking-wide">Ray Dalio</span>
+            </button>
+            <button
+                class="nav-item w-full flex items-center p-3 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white group"
+                data-target="livermore">
+                <i
+                    class="fa-solid fa-water text-lg md:mr-3 group-hover:text-cyan-400 md:w-5 text-center transition-all"></i>
+                <span class="hidden md:inline font-medium font-display text-sm tracking-wide">Jesse Livermore</span>
+            </button>
+            <button
+                class="nav-item w-full flex items-center p-3 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white group"
+                data-target="munger">
+                <i
+                    class="fa-solid fa-brain text-lg md:mr-3 group-hover:text-amber-400 md:w-5 text-center transition-all"></i>
+                <span class="hidden md:inline font-medium font-display text-sm tracking-wide">Charlie Munger</span>
+            </button>
+            <button
+                class="nav-item w-full flex items-center p-3 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white group"
+                data-target="naval">
+                <i
+                    class="fa-solid fa-infinity text-lg md:mr-3 group-hover:text-amber-600 md:w-5 text-center transition-all"></i>
+                <span class="hidden md:inline font-medium font-display text-sm tracking-wide">Naval Ravikant</span>
+            </button>
+            <button
+                class="nav-item w-full flex items-center p-3 rounded-xl hover:bg-white/5 transition-all text-gray-400 hover:text-white group"
+                data-target="graham">
+                <i
+                    class="fa-solid fa-scale-balanced text-lg md:mr-3 group-hover:text-green-500 md:w-5 text-center transition-all"></i>
+                <span class="hidden md:inline font-medium font-display text-sm tracking-wide">Benjamin Graham</span>
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main
+        class="ml-20 md:ml-64 w-[calc(100%-5rem)] md:w-[calc(100%-16rem)] h-screen overflow-y-auto scroll-container relative z-10">
+
+        <!-- Container for full scroll length -->
+        <div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 pt-24 pb-32 space-y-32">
+
+            <!-- ====== SECTION 1: THE HERO & THE BEGINNER ANALOGY ====== -->
+            <section id="section-hero" class="relative">
+                <div id="heroHeader" class="transform-gpu relative z-20 mb-16">
+                    <div
+                        class="inline-block px-4 py-1.5 rounded-full border border-neonPri/30 bg-neonPri/10 backdrop-blur-md mb-6 pulse-badge">
+                        <span class="text-xs font-semibold tracking-widest uppercase text-neonPri flex items-center">
+                            <i class="fa-solid fa-graduation-cap mr-2"></i> Masterclass Initialized
+                        </span>
+                    </div>
+                    <h1 class="text-6xl md:text-8xl font-display font-bold leading-none tracking-tight mb-6 text-gradient-hero drop-shadow-2xl"
+                        id="heroName">Warren Buffett</h1>
+                    <p class="text-2xl md:text-4xl text-gray-200 font-light tracking-wide max-w-3xl leading-snug"
+                        id="heroSubtitle">The Architecture of Patience & Value</p>
+                    <div class="w-32 h-1.5 bg-neonPri mt-10 rounded-full shadow-[0_0_20px_var(--neon-pri)]"></div>
+                </div>
+
+                <!-- Beginner Analogy Box (Very detailed, very visual) -->
+                <div
+                    class="bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-3xl p-8 md:p-12 backdrop-blur-lg relative overflow-hidden group">
+                    <div
+                        class="absolute -right-20 -top-20 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity duration-1000">
+                        <i id="analogyIcon" class="fa-solid fa-chess-rook text-[300px] text-neonPri"></i>
+                    </div>
+
+                    <h3 class="text-sm tracking-widest uppercase text-neonPri font-bold mb-4 flex items-center">
+                        <i class="fa-solid fa-book-open mr-3"></i> The Beginner's Analogy
+                    </h3>
+                    <h2 class="text-3xl md:text-5xl font-display font-bold text-white mb-6" id="analogyTitle">Buying the
+                        Castle, not the Moat.</h2>
+
+                    <div class="prose prose-invert prose-lg max-w-4xl text-gray-300 font-light leading-relaxed"
+                        id="analogyText">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====== SECTION 1.5: THE DESI REALITY (INDIAN CONTEXT) ====== -->
+            <section id="section-desi" class="relative">
+                <div class="mb-10 text-center flex flex-col items-center">
+                    <div
+                        class="inline-block px-3 py-1 bg-orange-500/10 border border-orange-500/30 rounded text-orange-400 text-xs font-bold uppercase tracking-widest mb-4">
+                        <i class="fa-solid fa-location-dot mr-2"></i> Indian Market Translation
+                    </div>
+                    <h2 class="text-4xl font-display font-bold text-white tracking-tight mb-4" id="desiTitle">The Indian
+                        Compounding Machine</h2>
+                    <p class="text-gray-400 font-light max-w-2xl text-lg relative z-10" id="desiSubtitle">Translating
+                        the operator's mindset to Dalal Street realities.</p>
+                </div>
+
+                <div class="grid lg:grid-cols-3 gap-6">
+                    <!-- Column 1: Core Reality & Examples -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <div
+                            class="bg-gradient-to-b from-white/10 to-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur-md">
+                            <h3 class="text-sm font-bold uppercase tracking-widest text-[#4ade80] mb-4 flex items-center"
+                                id="desiCoreHeader"><i class="fa-solid fa-brain mr-2"></i> Core Reality</h3>
+                            <div id="desiCoreText" class="text-gray-300 space-y-4 text-sm leading-relaxed">
+                                <!-- JS injected -->
+                            </div>
+                        </div>
+                        <div
+                            class="bg-gradient-to-b from-neonPri/10 to-transparent border border-neonPri/20 p-6 rounded-2xl backdrop-blur-md">
+                            <h3 class="text-sm font-bold uppercase tracking-widest text-white mb-4 flex items-center"><i
+                                    class="fa-solid fa-fire text-orange-500 mr-2"></i> Psychological Kink</h3>
+                            <div id="desiKink" class="text-gray-300 space-y-2 text-sm leading-relaxed">
+                                <!-- JS injected -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Decision Engine -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-[#0a0a0c] border border-white/10 p-6 rounded-2xl backdrop-blur-md h-full">
+                            <h3
+                                class="text-sm font-bold uppercase tracking-widest text-gray-400 mb-6 flex items-center">
+                                <i class="fa-solid fa-gears mr-2 text-gray-500"></i> Desi Decision Engine
+                            </h3>
+                            <div id="desiEngineList" class="relative pl-6 border-l-2 border-white/10 space-y-6">
+                                <!-- JS injected steps -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: The Mistakes & Implementation -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="bg-red-500/5 border border-red-500/20 p-6 rounded-2xl backdrop-blur-md">
+                            <h3 class="text-sm font-bold uppercase tracking-widest text-red-400 mb-4 flex items-center">
+                                <i class="fa-solid fa-triangle-exclamation mr-2"></i> Indian Retail Mistakes
+                            </h3>
+                            <ul id="desiMistakes" class="space-y-3 text-red-200/80 text-sm">
+                                <!-- JS injected -->
+                            </ul>
+                        </div>
+                        <div
+                            class="bg-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur-md flex flex-col justify-center items-center text-center">
+                            <h3 class="text-xs font-mono tracking-widest text-gray-500 mb-2">FIN-OS Integration</h3>
+                            <p class="text-xl font-display font-bold text-neonPri mb-4" id="finosImplTitle">Desi Value
+                                Engine</p>
+                            <div class="w-full flex space-x-2 justify-center" id="finosImplTags">
+                                <!-- JS injected tags -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====== SECTION 2: THE DEEP MECHANICS VISUALIZER ====== -->
+            <section id="section-visualizer" class="relative">
+                <div class="mb-10 text-center flex flex-col items-center">
+                    <span class="text-neonPri text-4xl mb-4"><i class="fa-solid fa-chart-network"></i></span>
+                    <h2 class="text-4xl font-display font-bold text-white tracking-tight mb-4">The Mechanics</h2>
+                    <p class="text-gray-400 font-light max-w-2xl text-lg relative z-10" id="diagramDesc">Visual
+                        demonstration of the framework.</p>
+                </div>
+
+                <!-- Huge Central Interactive Graphic Container -->
+                <div
+                    class="w-full bg-finosCard border border-neonPri/20 shadow-[0_0_60px_rgba(0,0,0,0.5)] rounded-3xl p-6 md:p-12 backdrop-blur-xl relative overflow-hidden h-[70vh] flex flex-col z-20 transition-colors duration-500 hover:border-neonPri/40">
+
+                    <div class="absolute top-6 left-6 z-30">
+                        <h3 class="text-xs tracking-widest uppercase text-gray-500 font-bold mb-1">Live Representation
+                            Model</h3>
+                        <p class="text-neonPri font-mono text-lg font-bold" id="diagramTitle">Dynamic Model</p>
+                    </div>
+
+                    <!-- The Actual Diagram Node (D3/Canvas/SVG injected here) -->
+                    <div id="interactiveCanvas"
+                        class="flex-1 w-full h-full relative z-10 flex items-center justify-center">
+                        <!-- SVG/Graphics loaded dynamically by JS -->
+                    </div>
+
+                    <!-- Dynamic Controls specific to the graph -->
+                    <div class="absolute bottom-6 right-6 z-30 flex flex-col gap-3 pointer-events-auto min-w-[250px] bg-black/60 backdrop-blur-xl border border-white/10 p-5 rounded-2xl shadow-2xl"
+                        id="diagramControls">
+                        <!-- Controls injected via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====== SECTION 3: THE MINDSET SANDBOX (Interactive Scenario Tester) ====== -->
+            <section id="section-sandbox" class="relative">
+                <div class="mb-10 flex items-center justify-between border-b border-white/10 pb-6">
+                    <div>
+                        <h2 class="text-4xl font-display font-bold text-white tracking-tight flex items-center">
+                            <i class="fa-solid fa-flask text-neonPri mr-4"></i> The Sandbox Simulator
+                        </h2>
+                        <p class="text-gray-400 font-light mt-2 text-lg">Test real-world scenarios against this
+                            investor's exact mental model.</p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Scenario Inputs -->
+                    <div class="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-md">
+                        <h3 class="text-sm font-bold uppercase text-gray-400 tracking-widest mb-6">Select Market
+                            Scenario</h3>
+                        <div class="space-y-4" id="scenarioList">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Investor AI Response -->
+                    <div
+                        class="bg-[#0a0a0c] border border-neonPri/30 rounded-3xl p-8 backdrop-blur-md relative overflow-hidden min-h-[300px] flex flex-col justify-center">
+                        <!-- Glow effect -->
+                        <div
+                            class="absolute -top-20 -left-20 w-48 h-48 bg-neonPri opacity-10 blur-3xl rounded-full pointer-events-none">
+                        </div>
+
+                        <h3 class="text-xs font-mono text-neonPri mb-6 flex items-center tracking-widest uppercase">
+                            <span class="w-2 h-2 rounded-full bg-neonPri animate-pulse mr-2"></span> AI Response Matrix
+                        </h3>
+
+                        <div id="sandboxResponse" class="font-display">
+                            <p class="text-gray-500 text-lg italic font-light text-center w-full">Select a scenario on
+                                the left to see how <span id="sbName">the investor</span> would react...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====== SECTION 4: THE ULTIMATE MINDSET SWITCHER ====== -->
+            <section id="section-switcher" class="relative mt-20 pt-20 border-t border-white/10">
+                <div class="text-center mb-16">
+                    <h2 class="text-5xl font-display font-bold text-white tracking-tight mb-4">The Mindset Switcher</h2>
+                    <p class="text-neonPri font-mono">1 Stock &rarr; 4 Different Realities</p>
+                    <p class="text-gray-400 max-w-2xl mx-auto mt-4 text-sm font-light">Toggle between the four cognitive
+                        models to see how their unique architectures evaluate the exact same asset.</p>
+                </div>
+
+                <div
+                    class="bg-finosCard border border-white/10 shadow-2xl rounded-3xl overflow-hidden backdrop-blur-2xl grid md:grid-cols-4">
+
+                    <!-- Switcher Sidebar -->
+                    <div class="col-span-1 bg-black/40 border-r border-white/10 p-6 flex flex-col justify-center space-y-3"
+                        id="switcherNav">
+                        <button
+                            class="switcher-btn w-full text-left p-4 rounded-xl font-display font-bold tracking-widest uppercase transition-all bg-green-500/20 text-green-400 border border-green-500/40"
+                            data-view="buffett">Buffett</button>
+                        <button
+                            class="switcher-btn w-full text-left p-4 rounded-xl font-display font-bold tracking-widest text-gray-500 uppercase transition-all hover:bg-white/5"
+                            data-view="simons">Simons</button>
+                        <button
+                            class="switcher-btn w-full text-left p-4 rounded-xl font-display font-bold tracking-widest text-gray-500 uppercase transition-all hover:bg-white/5"
+                            data-view="soros">Soros</button>
+                        <button
+                            class="switcher-btn w-full text-left p-4 rounded-xl font-display font-bold tracking-widest text-gray-500 uppercase transition-all hover:bg-white/5"
+                            data-view="burry">Burry</button>
+                        <button
+                            class="switcher-btn w-full text-left p-4 rounded-xl font-display font-bold tracking-widest text-gray-500 uppercase transition-all hover:bg-white/5"
+                            data-view="lynch">Lynch</button>
+                        <button
+                            class="switcher-btn w-full text-left p-4 rounded-xl font-display font-bold tracking-widest text-gray-500 uppercase transition-all hover:bg-white/5"
+                            data-view="dalio">Dalio</button>
+                        <button
+                            class="switcher-btn w-full text-left p-4 rounded-xl font-display font-bold tracking-widest text-gray-500 uppercase transition-all hover:bg-white/5"
+                            data-view="livermore">Livermore</button>
+                        <button
+                            class="switcher-btn w-full text-left p-4 rounded-xl font-display font-bold tracking-widest text-gray-500 uppercase transition-all hover:bg-white/5"
+                            data-view="munger">Munger</button>
+                        <button
+                            class="switcher-btn w-full text-left p-4 rounded-xl font-display font-bold tracking-widest text-gray-500 uppercase transition-all hover:bg-white/5"
+                            data-view="naval">Naval</button>
+                        <button
+                            class="switcher-btn w-full text-left p-4 rounded-xl font-display font-bold tracking-widest text-gray-500 uppercase transition-all hover:bg-white/5"
+                            data-view="graham">Graham</button>
+                    </div>
+
+                    <!-- Switcher Display -->
+                    <div class="col-span-3 p-8 md:p-12 relative min-h-[400px] flex flex-col justify-center">
+                        <div class="absolute inset-0 z-0 opacity-10 blur-2xl transition-colors duration-1000 bg-green-500"
+                            id="switcherGlow"></div>
+
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-8">
+                                <div>
+                                    <h3 class="text-3xl font-display font-bold text-white mb-2" id="switcherAsset">HDFC
+                                        Bank</h3>
+                                    <p class="text-sm font-mono text-gray-500 uppercase tracking-widest"
+                                        id="switcherSector">Banking / Financial Services</p>
+                                </div>
+                                <div class="px-4 py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md">
+                                    <p class="text-xs font-bold uppercase tracking-widest text-green-400"
+                                        id="switcherAction">Value Buy</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-8 mb-8">
+                                <div>
+                                    <p class="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">What they
+                                        see</p>
+                                    <p class="text-gray-300 text-lg leading-relaxed font-light" id="switcherSight">
+                                        Consistent ROE, deep distribution moat, and long-term compounding stability.</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">FIN-OS
+                                        Engine Mode</p>
+                                    <p class="text-xl font-bold font-mono text-white mb-1" id="switcherModeName">Value
+                                        Engine</p>
+                                    <p class="text-sm text-gray-500" id="switcherModeFocus">Input: Fundamentals &rarr;
+                                        Output: Intrinsic Value</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Bottom spacing -->
+            <div class="h-32"></div>
+        </div>
+
+    </main>
+
+    <!-- Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Use relative path to ensure local testing works without Django -->
+    <script src="../js/investor-profile.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+</body>
+
+</html>

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Metric Armory (Full)</title>
+
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+
+  <style>
+    /* =========================
+       THEME: NEON ARMORY
+       ========================= */
+    :root {
+      --neon-cyan: #00f3ff;
+      --neon-purple: #bc13fe;
+      --neon-green: #0aff68;
+      --neon-red: #ff0050;
+      --neon-yellow: #f5d300;
+      --bg-deep: #050505;
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-display: 'Manrope', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-deep) !important;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(188, 19, 254, 0.1) 0%, transparent 50%),
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), 
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 40px 40px, 40px 40px;
+      color: #fff !important;
+      font-family: var(--font-display);
+      overflow-x: hidden;
+    }
+
+    /* Sidebar Override */
+    .sidebar { background: rgba(0,0,0,0.9); border-right: 1px solid #222; backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 200; }
+    .main { width: calc(100% - 260px); min-height: 100vh; margin-left: 260px; }
+
+    /* =========================
+       UI COMPONENTS
+       ========================= */
+
+    /* Hero Section */
+    .armory-header {
+      text-align: center;
+      padding: 60px 20px;
+      position: relative;
+    }
+
+    .cyber-glitch {
+      font-size: 3.5rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -2px;
+      text-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+      margin-bottom: 10px;
+    }
+
+    .sub-text {
+      font-family: var(--font-mono);
+      color: var(--neon-cyan);
+      letter-spacing: 2px;
+      font-size: 0.9rem;
+    }
+
+    /* Navigation Tabs (The Sector Selector) */
+    .sector-nav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 40px;
+      padding: 0 20px;
+      position: sticky;
+      top: 20px;
+      z-index: 100;
+    }
+
+    .sector-btn {
+      padding: 10px 20px;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid var(--card-border);
+      color: #888;
+      border-radius: 30px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+
+    .sector-btn:hover { border-color: #fff; color: #fff; }
+    
+    .sector-btn.active {
+      background: var(--neon-purple);
+      border-color: var(--neon-purple);
+      color: #000;
+      font-weight: 800;
+      box-shadow: 0 0 20px rgba(188, 19, 254, 0.4);
+    }
+
+    /* The Grid Layout */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      padding-bottom: 100px;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .metrics-grid.fading { opacity: 0; }
+
+    /* =========================
+       THE METRIC CARD (DATA CRYSTAL)
+       ========================= */
+    .metric-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 30px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      border-color: rgba(255,255,255,0.3);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+
+    /* Card Glow Line */
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 4px; height: 100%;
+      background: var(--neon-cyan); /* Default color */
+    }
+
+    /* Coloring based on Category */
+    .cat-business::before { background: var(--neon-cyan); }
+    .cat-profit::before { background: var(--neon-green); }
+    .cat-strength::before { background: var(--neon-yellow); }
+    .cat-mgmt::before { background: var(--neon-purple); }
+    .cat-risk::before { background: var(--neon-red); }
+    .cat-val::before { background: #ff00ff; } /* New: Magenta for Valuation */
+
+    /* Typography inside card */
+    .m-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: #fff;
+    }
+
+    .m-tag {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      opacity: 0.7;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .m-desc {
+      color: #aaa;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+
+    /* The Desi Context Box */
+    .desi-box {
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      padding: 15px;
+      border-left: 3px solid #fff;
+      margin-top: auto;
+    }
+
+    .desi-label {
+      font-size: 0.7rem;
+      color: var(--neon-yellow);
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .desi-text {
+      font-size: 0.9rem;
+      color: #ddd;
+      font-style: italic;
+    }
+
+    .m-icon {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 1.5rem;
+      opacity: 0.2;
+    }
+
+    @media (max-width: 768px) {
+      .cyber-glitch { font-size: 2.2rem; }
+      .sector-nav { top: 10px; padding: 0 10px; }
+      .sector-btn { padding: 8px 15px; font-size: 0.7rem; }
+    }
+
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo" style="color:var(--neon-cyan);">FIN•OS</div>
+    <nav>
+      <a href="home.html">Home</a>
+      <a href="markets.html" class="active">Markets</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="dashboard.html">Dashboard</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+
+      <header class="armory-header">
+        <span class="sub-text">// SYSTEM ACCESS: LEVEL 100</span>
+        <h1 class="cyber-glitch">God Mode Armory</h1>
+        <p style="color:#888; max-width: 600px; margin: 0 auto;">
+          The complete diagnostic toolkit. Every metric used by institutional investors, decoded.
+        </p>
+      </header>
+
+      <nav class="sector-nav">
+        <button class="sector-btn active" onclick="filterMetrics('all', this)">ALL</button>
+        <button class="sector-btn" onclick="filterMetrics('business', this)">INCOME</button>
+        <button class="sector-btn" onclick="filterMetrics('profit', this)">EFFICIENCY</button>
+        <button class="sector-btn" onclick="filterMetrics('strength', this)">SURVIVAL</button>
+        <button class="sector-btn" onclick="filterMetrics('val', this)">VALUATION</button>
+        <button class="sector-btn" onclick="filterMetrics('mgmt', this)">MGMT</button>
+        <button class="sector-btn" onclick="filterMetrics('risk', this)">RISK</button>
+      </nav>
+
+      <div class="metrics-grid" id="grid">
+
+        <div class="metric-card cat-business" data-cat="business">
+          <span class="m-icon">💰</span>
+          <h3 class="m-title">Revenue (Sales)</h3>
+          <span class="m-tag" style="color:var(--neon-cyan);">// Top Line</span>
+          <p class="m-desc">The raw money a company receives from selling goods. It is the fuel. No revenue = No business.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">The "Galla" (Cashbox). A Kirana shop earning ₹1 Lakh vs ₹5 Lakh. More sales = More activity.</p>
+          </div>
+        </div>
+
+        <div class="metric-card cat-business" data-cat="business">
+          <span class="m-icon">⚙️</span>
+          <h3 class="m-title">Operating Income (EBIT)</h3>
+          <span class="m-tag" style="color:var(--neon-cyan);">// Core Profit</span>
+          <p class="m-desc">Earnings Before Interest & Tax. Shows if the actual business model is profitable before paying bankers or government.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">Restaurant earnings minus vegetables & chef salary. If this is zero, shut the shop.</p>
+          </div>
+        </div>
+
+        <div class="metric-card cat-business" data-cat="business">
+          <span class="m-icon">💎</span>
+          <h3 class="m-title">Net Profit (PAT)</h3>
+          <span class="m-tag" style="color:var(--neon-cyan);">// Bottom Line</span>
+          <p class="m-desc">The final money left after paying EVERYONE (Staff, Govt, Bank). This is what shareholders own.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">"Haath mein kitna aaya?" Huge sales mean nothing if rent and interest eat everything.</p>
+          </div>
+        </div>
+
+        <div class="metric-card cat-business" data-cat="business">
+          <span class="m-icon">📊</span>
+          <h3 class="m-title">EPS (Earning Per Share)</h3>
+          <span class="m-tag" style="color:var(--neon-cyan);">// Your Share</span>
+          <p class="m-desc">Total Profit divided by total number of shares. It tells you how much profit *your* one share earned.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">If family profit is ₹100 and there are 4 brothers, EPS is ₹25. If EPS grows, you grow.</p>
+          </div>
+        </div>
+
+        <div class="metric-card cat-profit" data-cat="profit">
+          <span class="m-icon">🚀</span>
+          <h3 class="m-title">ROE (Return on Equity)</h3>
+          <span class="m-tag" style="color:var(--neon-green);">// The Gold Standard</span>
+          <p class="m-desc">Measures how efficiently the company uses shareholders' money. >15% is excellent. <10% is poor.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">FD gives 7%. If a business takes your money and generates only 6%, why invest? Look for 15%+.</p>
+          </div>
+        </div>
+
+        <div class="metric-card cat-profit" data-cat="profit">
+          <span class="m-icon">🏭</span>
+          <h3 class="m-title">ROCE</h3>
+          <span class="m-tag" style="color:var(--neon-green);">// Total Efficiency</span>
+          <p class="m-desc">Return on Capital Employed. It considers both Equity AND Debt. Crucial for heavy industries (Factories, Telecom).</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">If you borrow money at 10% interest but your business only earns 8% ROCE, you are destroying wealth.</p>
+          </div>
+        </div>
+
+        <div class="metric-card cat-profit" data-cat="profit">
+          <span class="m-icon">📉</span>
+          <h3 class="m-title">Operating Margin</h3>
+          <span class="m-tag" style="color:var(--neon-green);">// Pricing Power</span>
+          <p class="m-desc">Percentage of revenue left after covering operating costs. High margin = Moat.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">Selling water for ₹20 (cost ₹2) vs selling wheat for ₹20 (cost ₹18). High margin is safer.</p>
+          </div>
+        </div>
+        
+        <div class="metric-card cat-profit" data-cat="profit">
+          <span class="m-icon">📦</span>
+          <h3 class="m-title">Inventory Turnover</h3>
+          <span class="m-tag" style="color:var(--neon-green);">// Sales Speed</span>
+          <p class="m-desc">How many times a company sells its stock in a year. Higher is better.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">Fresh Samosas sold every hour vs Stale bread sitting for a week. Fast movement = Fresh Cash.</p>
+          </div>
+        </div>
+
+        <div class="metric-card cat-profit" data-cat="profit">
+          <span class="m-icon">🧾</span>
+          <h3 class="m-title">Receivable Days (DSO)</h3>
+          <span class="m-tag" style="color:var(--neon-green);">// Collection Power</span>
+          <p class="m-desc">How many days it takes to collect money from customers. Rising days = Bad.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">"Udhaari". If customers pay after 90 days, your cash is stuck. If they pay in 0 days (Cash), you win.</p>
+          </div>
+        </div>
+
+
+        <div class="metric-card cat-strength" data-cat="strength">
+          <span class="m-icon">💣</span>
+          <h3 class="m-title">Debt-to-Equity</h3>
+          <span class="m-tag" style="color:var(--neon-yellow);">// Leverage</span>
+          <p class="m-desc">Ratio of total debt to shareholder equity. >2 is dangerous. <0.5 is safe.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">Buying a house with 90% loan vs 10% loan. In a crisis, the guy with 90% loan loses the house.</p>
+          </div>
+        </div>
+
+        <div class="metric-card cat-strength" data-cat="strength">
+          <span class="m-icon">⏱️</span>
+          <h3 class="m-title">Current Ratio</h3>
+          <span class="m-tag" style="color:var(--neon-yellow);">// Short Term Safety</span>
+          <p class="m-desc">Current Assets / Current Liabilities. Can the company pay bills due in 12 months?</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">Pocket money vs Immediate Bills. You have ₹500, bill is ₹400 (Safe). Bill is ₹600 (Danger).</p>
+          </div>
+        </div>
+
+        <div class="metric-card cat-strength" data-cat="strength">
+          <span class="m-icon">🛡️</span>
+          <h3 class="m-title">Interest Coverage</h3>
+          <span class="m-tag" style="color:var(--neon-yellow);">// EMI Capacity</span>
+          <p class="m-desc">Operating Profit / Interest Expense. Should be > 3.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">If salary is ₹50k and EMI is ₹45k, you are dead. If EMI is ₹10k, you are alive.</p>
+          </div>
+        </div>
+
+        <div class="metric-card cat-strength" data-cat="strength">
+          <span class="m-icon">💧</span>
+          <h3 class="m-title">Free Cash Flow (FCF)</h3>
+          <span class="m-tag" style="color:var(--neon-yellow);">// Real Money</span>
+          <p class="m-desc">Operating Cash Flow minus Capex (Factory maintenance). The cash actually available to owners.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">Profit on paper is vanity. Cash in bank is sanity.</p>
+          </div>
+        </div>
+
+
+        <div class="metric-card cat-val" data-cat="val">
+          <span class="m-icon">⚖️</span>
+          <h3 class="m-title">P/E Ratio</h3>
+          <span class="m-tag" style="color:#ff00ff;">// Popularity Meter</span>
+          <p class="m-desc">Price to Earnings. Price you pay for ₹1 of profit. High P/E = High Expectation.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">Buying a shirt at ₹999 vs same shirt at ₹499 during Sale. Low P/E (usually) means Sale.</p>
+          </div>
+        </div>
+
+        <div class="metric-card cat-val" data-cat="val">
+          <span class="m-icon">📘</span>
+          <h3 class="m-title">P/B Ratio</h3>
+          <span class="m-tag" style="color:#ff00ff;">// Scrap Value</span>
+          <p class="m-desc">Price to Book Value. Crucial for Banks & Finance companies. <1 means cheaper than assets.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">If you close the shop and sell all furniture, what do you get? That is Book Value.</p>
+          </div>
+        </div>
+
+        <div class="metric-card cat-val" data-cat="val">
+          <span class="m-icon">🌱</span>
+          <h3 class="m-title">PEG Ratio</h3>
+          <span class="m-tag" style="color:#ff00ff;">// Growth Adjusted</span>
+          <p class="m-desc">P/E divided by Growth Rate. <1 is undervalued. >2 is overvalued.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">Paying ₹1000 for a ticket is fine if it's a Flight (High Speed). Bad if it's a Bullock Cart (Low Speed).</p>
+          </div>
+        </div>
+        
+        <div class="metric-card cat-val" data-cat="val">
+          <span class="m-icon">🍇</span>
+          <h3 class="m-title">Dividend Yield</h3>
+          <span class="m-tag" style="color:#ff00ff;">// Rent Income</span>
+          <p class="m-desc">Dividend per share / Stock Price. The % return you get just by holding.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">Like rent from a house. Even if house price doesn't go up, you get monthly cash.</p>
+          </div>
+        </div>
+        
+        <div class="metric-card cat-val" data-cat="val">
+          <span class="m-icon">🏢</span>
+          <h3 class="m-title">EV / EBITDA</h3>
+          <span class="m-tag" style="color:#ff00ff;">// Takeover Price</span>
+          <p class="m-desc">Enterprise Value / Earnings. Better than P/E for debt-heavy companies. It includes Debt in price.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">Buying a house for ₹50L looks cheap, until you realize it comes with a ₹2 Cr unpaid loan.</p>
+          </div>
+        </div>
+
+
+        <div class="metric-card cat-mgmt" data-cat="mgmt">
+          <span class="m-icon">🤝</span>
+          <h3 class="m-title">Promoter Holding</h3>
+          <span class="m-tag" style="color:var(--neon-purple);">// Skin in Game</span>
+          <p class="m-desc">Percentage owned by founders. High is good (>50%). Decreasing is bad.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">Would you eat at a restaurant where the owner refuses to eat? Same logic.</p>
+          </div>
+        </div>
+
+        <div class="metric-card cat-mgmt" data-cat="mgmt">
+          <span class="m-icon">🚩</span>
+          <h3 class="m-title">Pledged Shares</h3>
+          <span class="m-tag" style="color:var(--neon-purple);">// Danger Signal</span>
+          <p class="m-desc">% of promoter shares mortgaged to take loans. High pledging is a ticking time bomb.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">The owner has mortgaged his own jewelry (shares) to survive. One crash, and he loses everything.</p>
+          </div>
+        </div>
+
+        <div class="metric-card cat-mgmt" data-cat="mgmt">
+          <span class="m-icon">🕵️</span>
+          <h3 class="m-title">Contingent Liability</h3>
+          <span class="m-tag" style="color:var(--neon-purple);">// Hidden Bombs</span>
+          <p class="m-desc">Potential debt not on balance sheet (e.g., pending court cases). If they lose, they pay.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">You look rich, but you have a court case worth ₹10 Cr pending. You are risky.</p>
+          </div>
+        </div>
+
+
+        <div class="metric-card cat-risk" data-cat="risk">
+          <span class="m-icon">⚠️</span>
+          <h3 class="m-title">Client Concentration</h3>
+          <span class="m-tag" style="color:var(--neon-red);">// Fragility</span>
+          <p class="m-desc">Does 80% revenue come from 1 client? If yes, high risk.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">A tailor who stitches uniforms for only ONE school. If school changes tailor, he is finished.</p>
+          </div>
+        </div>
+
+        <div class="metric-card cat-risk" data-cat="risk">
+          <span class="m-icon">🏛️</span>
+          <h3 class="m-title">Regulatory Risk</h3>
+          <span class="m-tag" style="color:var(--neon-red);">// Govt Mood</span>
+          <p class="m-desc">Can one law kill the business? (Alcohol, Mining, Gaming).</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">Plastic ban killed plastic bag factories overnight. Don't fight the Government.</p>
+          </div>
+        </div>
+        
+        <div class="metric-card cat-risk" data-cat="risk">
+          <span class="m-icon">💸</span>
+          <h3 class="m-title">Forex Risk</h3>
+          <span class="m-tag" style="color:var(--neon-red);">// Currency Swing</span>
+          <p class="m-desc">For export/import companies. If Dollar moves 5%, profit can vanish.</p>
+          <div class="desi-box">
+            <span class="desi-label">Desi Logic</span>
+            <p class="desi-text">You earn in Rupees but pay loan in Dollars. If Rupee falls, your loan amount increases automatically.</p>
+          </div>
+        </div>
+
+      </div> 
+      </div>
+  </main>
+</div>
+
+<script>
+  function filterMetrics(category, btn) {
+    // 1. Update Buttons
+    document.querySelectorAll('.sector-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // 2. Filter Grid
+    const grid = document.getElementById('grid');
+    const cards = document.querySelectorAll('.metric-card');
+
+    // Animate Fade Out
+    grid.classList.add('fading');
+
+    setTimeout(() => {
+      cards.forEach(card => {
+        if (category === 'all' || card.dataset.cat === category) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      // Animate Fade In
+      grid.classList.remove('fading');
+    }, 300);
+  }
+</script>
+
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+<style id="lm-light-theme">
+[data-theme="light"] body {
+  background-color: #FFFBEE !important;
+  background-image: none !important;
+  color: #1A1600 !important;
+}
+[data-theme="light"] .main { background: #FFFBEE !important; }
+[data-theme="light"] .lesson-title { color: #1A1600 !important; }
+[data-theme="light"] .lesson-body { color: #5A4A00 !important; }
+[data-theme="light"] .lesson-card { background: rgba(255,255,255,0.85) !important; border-color: rgba(0,0,0,0.08) !important; }
+</style>
+</body>
+</html>

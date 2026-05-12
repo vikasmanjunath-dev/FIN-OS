@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Genesis Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+
+
+    /* =========================
+   FIXED THEME TOGGLE (OS CORE)
+   ========================= */
+
+.login-theme-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-surface);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: auto; /* Pushes to bottom of sidebar */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.login-theme-btn span {
+  position: absolute;
+  font-size: 1.2rem;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* THEME ICON LOGIC */
+/* When in Light Mode: Show Sun, Hide Moon */
+html[data-theme="light"] .icon-sun { opacity: 1; transform: scale(1) rotate(0); }
+html[data-theme="light"] .icon-moon { opacity: 0; transform: scale(0.5) rotate(-45deg); }
+
+/* When in Dark Mode: Hide Sun, Show Moon */
+html[data-theme="dark"] .icon-sun { opacity: 0; transform: scale(0.5) rotate(45deg); }
+html[data-theme="dark"] .icon-moon { opacity: 1; transform: scale(1) rotate(0); }
+
+.login-theme-btn:hover {
+  transform: scale(1.1);
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 20px var(--glow-secondary);
+}
+
+
+      /* =========================
+   GOOGLE NEURAL LINK STYLING
+   ========================= */
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-divider:not(:empty)::before { margin-right: 1.5rem; }
+.auth-divider:not(:empty)::after { margin-left: 1.5rem; }
+
+.btn-google-neo {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03); /* Glass effect */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-google-neo:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #c5f000; /* Neon Lime glow on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(197, 240, 0, 0.15);
+}
+
+.g-logo {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  color: black;
+  border-radius: 4px;
+  font-weight: 900;
+  font-size: 0.75rem;
+}
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0e1a;
+      color: white;
+      overflow-x: hidden;
+      height: auto; /* Allow the page to grow with content */
+        min-height: 100vh;
+    }
+
+    /* SIDEBAR */
+    .sidebar-fixed {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 80px;
+      background: rgba(0,0,0,0.8);
+      border-right: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 0;
+      z-index: 1000;
+      gap: 50px;
+    }
+
+    .logo-glitch {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: white;
+      letter-spacing: 1px;
+    }
+
+    .nav-icons {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      flex: 1;
+      padding-top: 40px;
+    }
+
+    .nav-item {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0.4;
+      transition: all 0.3s;
+      font-size: 1.3rem;
+    }
+
+    .nav-item:hover {
+      opacity: 1;
+    }
+
+    .nav-item.active {
+      opacity: 1;
+    }
+
+    .neo-toggle {
+      width: 40px;
+      height: 20px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s;
+      margin-top: auto;
+    }
+
+.main-viewport {
+  margin-left: 80px; /* Essential: Stay clear of the fixed sidebar */
+  min-height: 100vh;
+  display: flex;
+  align-items: center; /* Vertically center the grid */
+  justify-content: center; /* Horizontally center the grid */
+  
+  /* ADD THESE: Prevent top/bottom clipping */
+  padding: 80px 60px; 
+  position: relative;
+  overflow-y: visible; /* Fixes scroll issues from image_15778a.png */
+}
+
+.portal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 100px; /* Breathable space between Manifesto and Auth */
+  max-width: 1400px;
+  width: 100%;
+  align-items: center; /* Keep left and right perfectly aligned */
+  margin: 0 auto;
+}
+
+/* Fix for Manifesto content spacing */
+.manifesto {
+  padding-bottom: 40px; /* Extra room for the Desi cards */
+}
+
+
+    .text-reveal::after {
+      content: '';
+      display: block;
+      width: 100px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      margin-top: 40px;
+    }
+
+    .text-reveal {
+      font-size: 4.5rem;
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin: 0;
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #c5f000 0%, #7fb800 15%, #5a9e8a 35%, #4a8c9e 50%, #3d7ab3 65%, #4169e1 85%, #5a7de8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline;
+      position: relative;
+    }
+
+    .gradient-text::after {
+      content: '';
+      position: absolute;
+      bottom: -30px;
+      left: 0;
+      width: 100px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.3);
+      display: block;
+      border-radius: 2px;
+    }
+
+    .analogy-vault {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .desi-card {
+      display: flex;
+      gap: 24px;
+      padding: 32px;
+      background: rgba(20, 25, 40, 0.5);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .desi-card:hover {
+      background: rgba(20, 25, 40, 0.8);
+      border-color: rgba(255,255,255,0.15);
+      transform: translateX(8px);
+    }
+
+    .desi-card .icon {
+      font-size: 2.5rem;
+      line-height: 1;
+    }
+
+    .desi-card h4 {
+      color: white;
+      margin-bottom: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .desi-card p {
+      color: rgba(255,255,255,0.6);
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+
+    /* AUTH GLASS */
+    .auth-glass {
+      background: rgba(15, 20, 30, 0.6);
+      backdrop-filter: blur(40px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 48px;
+      padding: 48px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      margin-top: 40px;
+    }
+
+    .mode-tabs {
+      display: flex;
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+      margin-bottom: 40px;
+      gap: 16px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 16px 32px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.4);
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 16px;
+      transition: all 0.3s;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+    }
+
+    .mode-btn.active {
+      background: white;
+      color: black;
+    }
+
+    .mode-btn:hover:not(.active) {
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* FORMS */
+    .forms-container {
+      position: relative;
+      min-height: 380px;
+    }
+
+    .auth-form {
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .auth-form.active {
+      display: flex;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 12px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 18px 20px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      color: white;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(0,0,0,0.5);
+    }
+
+    .input-group input::placeholder {
+      color: rgba(255,255,255,0.3);
+    }
+
+    .strength-meter {
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    .strength-meter .fill {
+      height: 100%;
+      width: 0%;
+      background: #ff4757;
+      transition: all 0.3s;
+      border-radius: 2px;
+    }
+
+    .glow-btn {
+      width: 100%;
+      padding: 18px;
+      margin-top: 8px;
+      border-radius: 16px;
+      border: none;
+      background: #c5f000;
+      color: black;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+      transition: all 0.3s;
+    }
+
+    .glow-btn:hover {
+      background: #b3d900;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(197, 240, 0, 0.3);
+    }
+
+    .glow-btn:active {
+      transform: translateY(0);
+    }
+
+    /* FLOATING ORB */
+    .floating-orb {
+      position: fixed;
+      bottom: 60px;
+      right: 60px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+      cursor: pointer;
+      z-index: 1000;
+      animation: float 3s ease-in-out infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1400px) {
+      .portal-grid {
+        gap: 80px;
+      }
+
+      .text-reveal {
+        font-size: 3.5rem;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .portal-grid {
+        grid-template-columns: 1fr;
+        gap: 60px;
+      }
+
+      .main-viewport {
+        padding: 40px;
+      }
+
+      .text-reveal {
+        font-size: 3rem;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+<body>
+
+  <aside class="sidebar-fixed">
+    <div class="logo-glitch">F•OS</div>
+    <nav class="nav-icons">
+      <div class="nav-item active">🌌</div>
+      <div class="nav-item">🧪</div>
+      <div class="nav-item">📊</div>
+    </nav>
+    <button id="themeToggle" class="neo-toggle"></button> 
+
+  </aside>
+
+  <main class="main-viewport">
+    <div class="portal-grid">
+      <section class="manifesto">
+        <h1 class="text-reveal">
+          STOP SCROLLING.<br><span class="gradient-text">START COMPOUNDING.</span>
+          <br>
+        </h1>
+        <br>
+        
+        <div class="analogy-vault">
+          <div class="desi-card">
+            <span class="icon">🏏</span>
+            <div>
+              <h4>Gully Cricket Protocol</h4>
+              <p>In investing, "Wicket Bachao" is priority #1. Don't hit a six on a yorker; stay on the pitch to win.</p>
+            </div>
+          </div>
+          <div class="desi-card">
+            <span class="icon">🛵</span>
+            <div>
+              <h4>The Spare Petrol Rule</h4>
+              <p>Your Emergency Fund is the extra fuel in your scooter's dicky. It's for survival, not for the ride.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="auth-center">
+        <div class="auth-glass">
+          <div class="mode-tabs">
+            <button class="mode-btn active" data-target="identity">IDENTITY</button>
+            <button class="mode-btn" data-target="genesis">GENESIS</button>
+          </div>
+
+          <div class="forms-container">
+            <form id="identityForm" class="auth-form active">
+              <div class="input-group">
+                <label>Comm-Link (Email)</label>
+                <input type="email" id="loginEmail" required>
+              </div>
+              <div class="input-group">
+                <label>Access Key</label>
+                <input type="password" id="loginPass" required>
+              </div>
+              <button type="submit" class="glow-btn">INITIALIZE SESSION</button>
+                          <div class="auth-divider"><span>OR</span></div>
+              <button type="button" class="btn-google-neo" id="googleAuthLogin">
+                <span class="g-icon">G</span> CONTINUE WITH GOOGLE CORE
+              </button>
+            </form>
+
+            <form id="genesisForm" class="auth-form">
+              <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="regName" required>
+              </div>
+              <div class="input-group">
+                <label>Comm-Link</label>
+                <input type="email" id="regEmail" required>
+              </div>
+              <div class="input-group">
+                <label>Access Key</label>
+                <input type="password" id="regPass" required>
+                <div class="strength-meter"><div class="fill"></div></div>
+              </div>
+              <button type="submit" class="glow-btn">CREATE GENESIS BLOCK</button>
+              <div class="auth-divider"><span>OR</span></div>
+                <button type="button" class="btn-google-neo" id="googleAuthSignup">
+                  <span class="g-icon">G</span> SYNC WITH GOOGLE CORE
+                </button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="floating-orb">🧠</div>
+  
+<script>
+  // ==========================================
+  // 1. UI LOGIC (TABS) - RUNS IMMEDIATELY
+  // ==========================================
+  document.addEventListener("DOMContentLoaded", () => {
+    
+    // Select elements
+    const tabs = document.querySelectorAll(".mode-btn");
+    const identityForm = document.getElementById("identityForm");
+    const genesisForm = document.getElementById("genesisForm");
+
+    console.log("UI Loaded. Found tabs:", tabs.length); // Debugging
+
+    tabs.forEach(tab => {
+      tab.addEventListener("click", (e) => {
+        e.preventDefault(); // Stop any default button behavior
+        
+        // 1. Get the target ('identity' or 'genesis')
+        const target = tab.dataset.target;
+        console.log("Clicked tab:", target);
+
+        // 2. Reset ALL tabs to inactive
+        tabs.forEach(t => t.classList.remove("active"));
+        // 3. Set THIS tab to active
+        tab.classList.add("active");
+
+        // 4. Switch Forms based on target
+        if (target === "identity") {
+          identityForm.classList.add("active");
+          genesisForm.classList.remove("active");
+        } 
+        else if (target === "genesis") {
+          identityForm.classList.remove("active");
+          genesisForm.classList.add("active");
+        }
+      });
+    });
+  });
+
+  // ==========================================
+  // 2. BACKEND LOGIC (SUPABASE)
+  // ==========================================
+  // We wrap this in a try-catch so it doesn't break the UI if keys are missing
+  try {
+    const supabaseUrl = 'https://oeapcyucnduhwpgxfknb.supabase.co'; 
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    const buildAppUrl = (page) => new URL(page, window.location.href).href;
+
+    // --- LOGIN HANDLER ---
+    const loginForm = document.getElementById("identityForm");
+    if(loginForm) {
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPass").value;
+        const btn = loginForm.querySelector("button[type=submit]");
+
+        btn.innerText = "AUTHENTICATING...";
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        
+        if (error) {
+            alert(error.message);
+            btn.innerText = "INITIALIZE SESSION";
+        } else {
+            window.location.href = "profile.html";
+        }
+      });
+    }
+
+    // --- SIGNUP HANDLER ---
+    const signupForm = document.getElementById("genesisForm");
+    if(signupForm) {
+      signupForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = document.getElementById("regName").value;
+        const email = document.getElementById("regEmail").value;
+        const password = document.getElementById("regPass").value;
+        const btn = signupForm.querySelector("button[type=submit]");
+
+        btn.innerText = "CREATING BLOCK...";
+        const { error } = await supabase.auth.signUp({
+                email: email, 
+                password: password,
+                options: { 
+                    data: { full_name: name },
+                    // This tells the email link where to go when clicked
+                    emailRedirectTo: buildAppUrl('profile.html') 
+                }
+            });
+
+        if (error) {
+            alert(error.message);
+        } else {
+            alert("Success! Check your email to confirm.");
+        }
+        btn.innerText = "CREATE GENESIS BLOCK";
+      });
+    }
+
+// --- GOOGLE AUTH HANDLER (LOUD VERSION) ---
+    async function handleGoogle() {
+      console.log("Google Button Clicked..."); // 1. Verify click happens
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { 
+            // This ensures we go to the right place
+            redirectTo: buildAppUrl('dashboard.html') 
+        }
+      });
+
+      // 2. If there is an error, ALERT IT so we can see it
+      if (error) {
+          console.error("Google Error:", error);
+          alert("LOGIN FAILED: " + error.message);
+      }
+    }
+
+    const gLogin = document.getElementById("googleAuthLogin");
+    const gSignup = document.getElementById("googleAuthSignup");
+    
+    // 3. Add listeners and verify they attached
+    if(gLogin) {
+        gLogin.addEventListener("click", (e) => {
+            e.preventDefault(); 
+            handleGoogle();
+        });
+    } else {
+        console.error("Login Button Not Found!");
+    }
+
+    if(gSignup) {
+        gSignup.addEventListener("click", (e) => {
+            e.preventDefault();
+            handleGoogle();
+        });
+    }
+
+  } catch (err) {
+    console.error("Supabase Error:", err);
+  }
+</script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+<style id="login-light-theme">
+[data-theme="light"] body {
+  background: #F0F2FF !important;
+  color: #0B0D12 !important;
+}
+[data-theme="light"] .main-viewport {
+  background: #F0F2FF !important;
+}
+/* Auth glass card */
+[data-theme="light"] .auth-glass {
+  background: rgba(255,255,255,0.92) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.1) !important;
+}
+/* Mode tabs */
+[data-theme="light"] .mode-btn {
+  color: rgba(0,0,0,0.4) !important;
+}
+[data-theme="light"] .mode-btn.active {
+  background: #0B0D12 !important;
+  color: #fff !important;
+}
+[data-theme="light"] .mode-btn:hover:not(.active) {
+  color: rgba(0,0,0,0.7) !important;
+}
+/* Form inputs */
+[data-theme="light"] .input-group label {
+  color: #4A5068 !important;
+}
+[data-theme="light"] .input-group input {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.12) !important;
+  color: #0B0D12 !important;
+}
+[data-theme="light"] .input-group input:focus {
+  border-color: rgba(0,0,0,0.3) !important;
+  background: rgba(0,0,0,0.06) !important;
+}
+[data-theme="light"] .input-group input::placeholder {
+  color: rgba(0,0,0,0.3) !important;
+}
+/* Desi analogy cards */
+[data-theme="light"] .desi-card {
+  background: rgba(255,255,255,0.7) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+[data-theme="light"] .desi-card:hover {
+  background: rgba(255,255,255,0.95) !important;
+  border-color: rgba(0,0,0,0.15) !important;
+}
+[data-theme="light"] .desi-card h4 {
+  color: #0B0D12 !important;
+}
+[data-theme="light"] .desi-card p {
+  color: rgba(0,0,0,0.6) !important;
+}
+/* Main heading */
+[data-theme="light"] .text-reveal {
+  color: #0B0D12 !important;
+}
+[data-theme="light"] .text-reveal::after {
+  background: rgba(0,0,0,0.15) !important;
+}
+/* Auth divider */
+[data-theme="light"] .auth-divider {
+  color: rgba(0,0,0,0.4) !important;
+}
+[data-theme="light"] .auth-divider::before,
+[data-theme="light"] .auth-divider::after {
+  border-color: rgba(0,0,0,0.12) !important;
+  background: rgba(0,0,0,0.12) !important;
+}
+/* Google button */
+[data-theme="light"] .btn-google-neo {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.12) !important;
+  color: #0B0D12 !important;
+}
+/* Strength meter track */
+[data-theme="light"] .strength-meter {
+  background: rgba(0,0,0,0.1) !important;
+}
+/* Sidebar stays dark */
+[data-theme="light"] .sidebar-fixed {
+  background: #0E1117 !important;
+}
+</style>
+</body>
+</html>

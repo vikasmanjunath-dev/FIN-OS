@@ -1,0 +1,438 @@
+/* =========================
+   GLOBAL RESET (CRITICAL)
+   ========================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+
+
+
+
+/* =========================
+   FIN-OS LOGO — TOP LEFT (NON-STICKY)
+   ========================= */
+body {
+  position: relative;
+}
+
+.finos-logo {
+  position: absolute !important;
+  top: 1.5rem;
+  left: 1.75rem;
+  z-index: 10;
+
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-size: 1rem;
+  text-decoration: none;
+
+  transition: opacity 0.25s ease;
+}
+
+
+/* Light mode */
+[data-theme="light"] .finos-logo {
+  color: #0B0D12;
+}
+
+/* Dark mode */
+[data-theme="dark"] .finos-logo {
+  color: #F5F7FA;
+}
+
+.finos-logo:hover {
+  opacity: 0.7;
+}
+
+
+
+
+:root[data-theme="light"] {
+  --text-primary: #0B0D12;
+  --text-secondary: #5F677A;
+  --bg-main: #FFFFFF;
+  --bg-surface: #FFFFFF;
+}
+
+:root[data-theme="dark"] {
+  --text-primary: #F5F7FA;
+  --text-secondary: #A1A8B8;
+  --bg-main: #0B0D12;
+  --bg-surface: #12151D;
+}
+
+
+
+/* =========================
+   COLOR SYSTEM — LIGHT MODE
+   ========================= */
+
+:root {
+  /* Backgrounds */
+  --bg-main: #F7F8FA;
+  --bg-surface: #FFFFFF;
+  --bg-sidebar: #0E1117;
+
+  /* Text */
+  --text-primary: #0B0F19;
+  --text-secondary: #5B6475;
+
+  /* Accent */
+  --accent: #4F7CFF;
+  --accent-soft: #E9EEFF;
+
+  /* Cards & UI */
+  --card-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.06),
+    0 4px 12px rgba(0, 0, 0, 0.04);
+
+  /* Borders */
+  --border-soft: rgba(0, 0, 0, 0.06);
+}
+
+/* =========================
+   COLOR SYSTEM — LIGHT MODE
+   ========================= */
+
+:root {
+  /* Backgrounds */
+  --bg-main: #F7F8FA;
+  --bg-surface: #FFFFFF;
+  --bg-sidebar: #0E1117;
+
+  /* Text */
+  --text-primary: #0B0F19;
+  --text-secondary: #5B6475;
+
+  /* Accent */
+  --accent: #4F7CFF;
+  --accent-soft: #E9EEFF;
+
+  /* Cards & UI */
+  --card-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.06),
+    0 4px 12px rgba(0, 0, 0, 0.04);
+
+  /* Borders */
+  --border-soft: rgba(0, 0, 0, 0.06);
+}
+
+
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--text-main);
+  /* Was #111 */
+}
+
+h1,
+h2 {
+  font-family: 'Manrope', sans-serif;
+  letter-spacing: -0.4px;
+}
+
+h1 {
+  font-size: 34px;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+:root {
+  --radius-xl: 20px;
+  --radius-lg: 14px;
+}
+
+
+/* RESET DEFAULT BROWSER SPACING */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+
+
+
+
+/* =========================
+   DESIGN TOKENS – LIGHT MODE
+   ========================= */
+:root {
+  --bg-main: #F7F8FA;
+  --bg-surface: #FFFFFF;
+  --bg-sidebar: #0E0F12;
+
+  --text-primary: #0B0C10;
+  --text-secondary: #6B7280;
+
+  --accent: #4F7CFF;
+  --accent-soft: rgba(79, 124, 255, 0.15);
+
+  --card-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+/* =========================
+   DESIGN TOKENS – DARK MODE
+   ========================= */
+[data-theme="dark"] {
+  --bg-main: #0B0C10;
+  --bg-surface: #15171D;
+  --bg-sidebar: #000000;
+
+  --text-primary: #F5F6FA;
+  --text-secondary: #9CA0AB;
+
+  --accent: #6F8CFF;
+  --accent-soft: rgba(111, 140, 255, 0.18);
+
+  --card-shadow:
+    0 15px 35px rgba(0, 0, 0, 0.6),
+    0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+html {
+  scrollbar-color: #545b66 #12161d;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #12161d;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #545b66;
+  border-radius: 999px;
+  border: 2px solid #12161d;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6a7380;
+}
+
+
+
+
+/* =========================
+   FIN-OS COLOR SYSTEM
+   ========================= */
+
+/* ---------- LIGHT MODE ---------- */
+[data-theme="light"] {
+  --bg-main: #F7F9FC;
+  --bg-surface: rgba(255, 255, 255, 0.9);
+  --bg-glass: rgba(255, 255, 255, 0.65);
+
+  --text-main: #0B0D12;
+  --text-muted: #5E6475;
+
+  --accent-primary: #4F7CFF;
+  /* Electric Blue */
+  --accent-secondary: #C7F000;
+  /* Neon Lime */
+
+  --border-soft: rgba(11, 13, 18, 0.12);
+  --glow-primary: rgba(79, 124, 255, 0.35);
+  --glow-secondary: rgba(199, 240, 0, 0.35);
+}
+
+/* ---------- DARK MODE ---------- */
+[data-theme="dark"] {
+  --bg-main: #0B0D12;
+  --bg-surface: rgba(20, 24, 40, 0.9);
+  --bg-glass: rgba(255, 255, 255, 0.06);
+
+  --text-main: #F5F7FA;
+  --text-muted: #9AA0B4;
+
+  --accent-primary: #4F7CFF;
+  --accent-secondary: #C7F000;
+
+  --border-soft: rgba(255, 255, 255, 0.18);
+  --glow-primary: rgba(79, 124, 255, 0.55);
+  --glow-secondary: rgba(199, 240, 0, 0.45);
+}
+
+
+/* =========================
+   FOUNDATION PORTAL BUTTON
+   ========================= */
+
+.foundation-portal {
+  margin-top: 30px;
+  display: flex;
+  justify-content: flex-start;
+  /* Or 'center' if you want it centered */
+}
+
+.foundation-btn {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 24px;
+
+  /* Glassmorphism Surface */
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  text-decoration: none;
+
+  /* Initial State */
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 450px;
+}
+
+/* Hover State: The "Active" Look */
+.foundation-btn:hover {
+  background: rgba(199, 240, 0, 0.1);
+  /* Neon Green Tint */
+  border-color: var(--accent);
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 0 10px 40px rgba(199, 240, 0, 0.15);
+}
+
+/* Icon Box */
+.icon-box {
+  font-size: 2rem;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+}
+
+/* Text Styling */
+.text-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+}
+
+.btn-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.btn-sub {
+  font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+/* Arrow Animation */
+.arrow-box {
+  font-size: 1.2rem;
+  color: var(--accent);
+  transition: transform 0.3s ease;
+}
+
+.foundation-btn:hover .arrow-box {
+  transform: translateX(5px);
+}
+
+/* Light Mode Support */
+[data-theme="light"] .foundation-btn {
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .btn-title {
+  color: #000;
+}
+
+[data-theme="light"] .foundation-btn:hover {
+  border-color: var(--accent);
+  background: #fafff0;
+}
+
+
+
+/* =========================
+   REINFORCED THEME VARIABLES
+   ========================= */
+
+:root {
+  /* DARK MODE */
+  --bg-main: #0B0D12;
+  --bg-surface: #12151D;
+  --text-main: #F5F7FA;
+  --text-muted: #9AA0B4;
+  --border-soft: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] {
+  /* LIGHT MODE (Fixes invisible elements) */
+  --bg-main: #F7F9FC;
+  /* Light gray background */
+  --bg-surface: #FFFFFF;
+  /* Solid white panels */
+  --text-main: #0B0D12;
+  /* Near-black text */
+  --text-muted: #5F677A;
+  /* Deep gray for secondary text */
+  --border-soft: rgba(0, 0, 0, 0.1);
+  /* Visible dark border */
+}
+
+/* Ensure all pages follow these rules */
+.main {
+  background: var(--bg-main) !important;
+  color: var(--text-main);
+}
+
+.glass-panel,
+.settings-card,
+.terminal {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  /* Adds depth in light mode */
+}
+
+
+.user-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--accent-soft); /* */
+  border-radius: 50%; /* Makes it a round symbol */
+  margin-right: 12px;
+  font-size: 0.8rem;
+}

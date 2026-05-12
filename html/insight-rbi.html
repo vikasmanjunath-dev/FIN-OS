@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg"><title>RBI & You | FIN-OS</title>
+  <link rel="stylesheet" href="../css/insight.css">
+  <link rel="stylesheet" href="../css/theme.css">
+</head>
+<body>
+<div class="insight-wrapper">
+  <aside class="toc-sidebar">
+    <div class="toc-header">INSIGHT: EXPLORE</div>
+    
+    <a href="dashboard.html" class="back-btn">
+      <span>❮</span> Back to Dashboard
+    </a>
+</aside>
+  <main class="insight-content">
+    <section class="insight-hero">
+      <h1>The Puppet Master</h1>
+      <p>When the RBI Governor speaks, your EMI moves.</p>
+    </section>
+
+    <section class="insight-section">
+      <div class="glass-panel">
+        <div class="visual-container">
+          <div class="gear-system">
+            <div class="gear rbi">RBI</div>
+            <div class="gear bank">You</div>
+          </div>
+        </div>
+        <div style="margin-top:30px;">
+          <h3>The Chain Reaction</h3>
+          <ol style="line-height:2; color:#ccc;">
+            <li><strong>Inflation rises</strong> (Milk/Fuel gets expensive).</li>
+            <li>RBI increases <strong>Repo Rate</strong> to suck money out of the system.</li>
+            <li>Banks increase <strong>Loan Rates</strong> to match RBI.</li>
+            <li><strong>Your Home Loan Tenure</strong> increases silently from 20 years to 25 years.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="../js/ui.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+</body>
+</html>

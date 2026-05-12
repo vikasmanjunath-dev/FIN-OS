@@ -1,0 +1,190 @@
+/* ═══════════════════════════════════════════════
+   TRADEBOOK PRO — UPGRADES.CSS
+   Styles for all feature upgrades
+   ═══════════════════════════════════════════════ */
+
+/* ── TOAST VARIANTS ──────────────────────────── */
+.toast { position:fixed; bottom:24px; right:24px; background:var(--bg2); color:var(--text); border:1px solid var(--border2); border-radius:var(--radius-sm); padding:12px 20px; font-size:13px; font-weight:500; z-index:9999; transform:translateY(20px); opacity:0; transition:all .3s cubic-bezier(.4,0,.2,1); pointer-events:none; max-width:340px; box-shadow:0 8px 32px rgba(0,0,0,.4); }
+.toast-show { transform:translateY(0); opacity:1; pointer-events:auto; }
+.toast-error { border-color:rgba(255,77,109,.4); background:rgba(255,77,109,.15); color:var(--red); }
+.toast-warn { border-color:rgba(247,183,49,.4); background:rgba(247,183,49,.1); color:var(--gold); }
+
+/* ── MOBILE BOTTOM NAV ───────────────────────── */
+#mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  z-index: 200;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 4px;
+  backdrop-filter: blur(20px);
+}
+.mbn-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text3);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 4px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+.mbn-item.active { color: var(--accent); }
+.mbn-item:hover { color: var(--text); }
+.mbn-icon { font-size: 18px; }
+.mbn-center { position: relative; }
+.mbn-center .mbn-icon {
+  background: var(--accent);
+  color: #000;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(0,255,136,.35);
+}
+
+@media (max-width: 768px) {
+  #mobile-bottom-nav { display: flex; }
+  .main-content { padding-bottom: 64px; }
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0 !important; }
+}
+
+/* ── THEME: LIGHT MODE ───────────────────────── */
+[data-theme="light"] body { background: var(--bg); }
+[data-theme="light"] .sidebar { box-shadow: 2px 0 20px rgba(0,0,0,.08); }
+[data-theme="light"] .topbar { background: rgba(240,244,248,.97); }
+[data-theme="light"] .stat-card,
+[data-theme="light"] .chart-card,
+[data-theme="light"] .form-section,
+[data-theme="light"] .desi-card,
+[data-theme="light"] .week-card { box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+[data-theme="light"] .modal-box { box-shadow: 0 20px 60px rgba(0,0,0,.15); }
+
+/* ── DAILY LOSS BANNER ───────────────────────── */
+#daily-loss-banner + * { margin-top: 44px; }
+
+/* ── ONBOARDING ──────────────────────────────── */
+#onboarding-overlay * { box-sizing: border-box; }
+
+/* ── SHARE BUTTON ────────────────────────────── */
+#tb-share-btn {
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 16px;
+}
+
+/* ── MODAL BOX scroll fix ────────────────────── */
+.modal-box { max-height: 90vh; overflow-y: auto; }
+
+/* ── SESSION TIMELINE ────────────────────────── */
+#session-timeline-container canvas { display: block; }
+
+/* ── PROP FIRM GAUGES ────────────────────────── */
+#prop-firm-container .prop-gauge-warn { animation: propWarn 1.5s ease-in-out infinite; }
+@keyframes propWarn { 0%,100% { box-shadow: 0 0 0 0 rgba(255,77,109,0); } 50% { box-shadow: 0 0 16px 4px rgba(255,77,109,.25); } }
+
+/* ── OPTIONS GREEKS ─────────────────────────── */
+#options-greeks-container input { font-family: var(--font-mono); }
+
+/* ── INTRADAY HEATMAP ────────────────────────── */
+#intraday-heatmap-container > div > div:first-child > div:hover { transform: scale(1.08); z-index: 10; }
+
+/* ── STRATEGY COMPARISON ─────────────────────── */
+#strategy-comparison-container { animation: hubFadeIn .3s ease; }
+
+/* ── SNAPSHOT MANAGER ────────────────────────── */
+#snapshot-manager-container .tbl-btn { font-size: 11px; padding: 4px 10px; }
+
+/* ── CSV IMPORT ──────────────────────────────── */
+#csv-paste-area { tab-size: 2; }
+
+/* ── WEEKLY REVIEW ───────────────────────────── */
+#weekly-review-text::placeholder { color: var(--text3); }
+
+/* ── PIN INPUT ───────────────────────────────── */
+#pin-new, #pin-confirm { font-size: 24px !important; letter-spacing: .5em; text-align: center; }
+
+/* ── SHARE VAULT MODAL ───────────────────────── */
+#share-vault-modal .share-link-input { font-size: 10px; word-break: break-all; }
+
+/* ── MONTHLY REPORT CARD BTN ─────────────────── */
+#monthly-report-btn { margin-left: 8px; }
+
+/* ── HUB TAB NEW ─────────────────────────────── */
+#tools-hub-tab-propfirm { white-space: nowrap; }
+
+/* ── TEMPLATES DROPDOWN ──────────────────────── */
+#trade-templates-dropdown { animation: hubFadeIn .15s ease; }
+#trade-templates-dropdown > div:last-child { border-bottom: none !important; }
+
+/* ── SYMBOL DEEP DIVE ────────────────────────── */
+#symbol-dd-chart { display: block; }
+
+/* ── STREAK FREEZE TOKENS ────────────────────── */
+#streak-freeze-container { transition: all .3s; }
+
+/* ── RESPONSIVE FIXES ────────────────────────── */
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr 1fr !important; }
+  .desi-explainer-row { grid-template-columns: 1fr !important; }
+  .charts-grid-2 { grid-template-columns: 1fr !important; }
+  .dash-bottom-row { grid-template-columns: 1fr !important; }
+  #options-greeks-container { grid-template-columns: 1fr 1fr !important; }
+  .journal-summary-bar { flex-wrap: wrap; }
+  #csv-import-btn, #export-btn { font-size: 11px; padding: 6px 10px; }
+}
+
+/* ── KEYBOARD SHORTCUT MODAL ─────────────────── */
+#kb-shortcuts-modal .modal-box { max-width: 380px; }
+#kb-shortcuts-modal kbd {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* ── TICKER QUICK ADD HINT ───────────────────── */
+.market-ticker { cursor: default; }
+.ticker-item { transition: color .15s; cursor: pointer; }
+.ticker-item:hover { color: var(--accent) !important; }
+
+/* ── CHART CARD ANIMATIONS ON INJECT ─────────── */
+#risk-metrics-card,
+#strategy-compare-card,
+#intraday-hm-card,
+#session-timeline-card,
+#streak-freeze-card,
+#options-greeks-card {
+  animation: pageFade .4s ease;
+}
+
+/* ── EXPORT MODAL ────────────────────────────── */
+#export-modal .modal-box { min-width: 360px; }
+
+/* ── PROP FIRM PASS BADGE ────────────────────── */
+.pf-passed {
+  background: rgba(0,255,136,.15);
+  color: var(--green);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+}

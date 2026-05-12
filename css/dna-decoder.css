@@ -1,0 +1,206 @@
+/* =========================
+   GEN-Z NEON TERMINAL FIX
+   ========================= */
+
+:root {
+  --neon-blue: #4F7CFF;
+  --neon-lime: #C7F000;
+  --bg-dark: #0B0D12;
+  --glass: rgba(255, 255, 255, 0.02);
+  --border: rgba(255, 255, 255, 0.1);
+}
+
+/* Force dark theme and prevent overflow */
+.main {
+  background: var(--bg-dark) !important;
+  color: #fff;
+  overflow: hidden; 
+  height: 100vh;
+}
+
+.dna-terminal-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+/* HEADER GLITCH EFFECT */
+.glitch {
+  font-family: 'Manrope', sans-serif;
+  font-size: 2.5rem;
+  position: relative;
+  text-shadow: 0.05em 0 0 rgba(255,0,81,0.75), -0.025em -0.05em 0 rgba(0,255,225,0.75);
+  animation: glitch-anim 0.5s infinite;
+}
+
+/* FIXED GRID: 2 Columns */
+.dna-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 24px;
+  margin-top: 20px;
+  height: calc(100vh - 200px); /* Keeps everything on one screen */
+}
+
+/* Glass Panels to prevent "White Box" default */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Internal scrolling only */
+}
+
+/* INTERACTIVE BUTTONS */
+.dna-option {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.dna-option:hover {
+  background: rgba(79, 124, 255, 0.1);
+  border-color: var(--neon-blue);
+  transform: translateX(10px);
+  box-shadow: -10px 0 30px rgba(79, 124, 255, 0.2);
+}
+
+/* PROGRESS BAR */
+.progress-wrap {
+  margin-top: auto;
+  height: 4px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--neon-blue);
+  width: 0%;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 15px var(--neon-blue);
+}
+
+@keyframes glitch-anim {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+
+
+/* =========================
+   DNA PAGE LIGHT MODE CONTRAST FIX
+   ========================= */
+
+:root {
+  /* Default Dark Mode Variables */
+  --bg-main: #0B0D12;
+  --bg-surface: rgba(255, 255, 255, 0.03);
+  --border-soft: rgba(255, 255, 255, 0.1);
+  --text-main: #F5F7FA;
+  --accent: #4F7CFF;
+}
+
+[data-theme="light"] {
+  /* Light Mode Variables for High Visibility */
+  --bg-main: #F7F9FC; /* Light gray background like Profile page */
+  --bg-surface: #FFFFFF; /* Solid white for panels to create depth */
+  --border-soft: rgba(0, 0, 0, 0.1); /* Darker borders for contrast */
+  --text-main: #0B0D12; /* Dark text */
+}
+
+.main {
+  background: var(--bg-main) !important;
+  color: var(--text-main);
+  transition: background 0.4s ease;
+}
+
+/* Fix for the "Invisible" Panels */
+.glass-panel {
+  background: var(--bg-surface);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--border-soft);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); /* Soft shadow for light mode */
+}
+
+.dna-option {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  color: var(--text-main);
+  padding: 18px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+[data-theme="light"] .dna-option:hover {
+  background: rgba(79, 124, 255, 0.05); /* Light blue hover */
+  border-color: var(--accent);
+}
+
+/* THEME BUTTON SHAPE: Right-side, rounded square like Profile */
+.header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.theme-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0;
+  margin-left: auto;
+}
+
+
+.user-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--accent-soft); /* */
+  border-radius: 50%; /* Makes it a round symbol */
+  margin-right: 12px;
+  font-size: 0.8rem;
+}
+
+
+/* =========================
+   GLOBAL RESET (CRITICAL)
+   ========================= */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  
+  /* THE FIX: Force body to match the theme color */
+  background-color: var(--bg-main);
+  
+  /* Prevent horizontal scroll */
+  overflow-x: hidden; 
+}

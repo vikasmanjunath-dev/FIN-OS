@@ -1,0 +1,242 @@
+/* ═══════════════════════════════════════════════════════════════
+   TRADEBOOK PRO — FEATURES V2 CSS
+   Gamification, Risk Management, Advanced Analytics, Psychology
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ────────────────────────────────────────
+   GAMIFICATION — Quests
+──────────────────────────────────────── */
+.quests-section { margin-bottom: 24px; }
+.quests-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.quests-title { font-family: var(--font-display); font-size: 16px; font-weight: 800; }
+.quests-xp-bar { display: flex; align-items: center; gap: 10px; }
+.xp-label { font-size: 11px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.xp-bar-wrap { width: 140px; height: 8px; background: var(--bg4); border-radius: 4px; overflow: hidden; }
+.xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 4px; transition: width .6s ease; }
+.xp-value { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--accent); }
+.quests-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.quest-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; position: relative; overflow: hidden; transition: all .2s; }
+.quest-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+.quest-card.quest-completed { border-color: rgba(0,255,163,.3); background: rgba(0,255,163,.03); }
+.quest-type-badge { font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-bottom: 8px; }
+.quest-type-badge.daily { background: rgba(59,130,246,.15); color: #3b82f6; }
+.quest-type-badge.weekly { background: rgba(245,158,11,.15); color: #f59e0b; }
+.quest-type-badge.monthly { background: rgba(168,85,247,.15); color: #a855f7; }
+.quest-name { font-family: var(--font-display); font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.quest-desc { font-size: 12px; color: var(--text2); margin-bottom: 10px; line-height: 1.5; }
+.quest-progress-bar { height: 6px; background: var(--bg5); border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+.quest-progress-fill { height: 100%; border-radius: 3px; transition: width .4s ease; }
+.quest-progress-fill.active { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.quest-progress-fill.done { background: var(--green); }
+.quest-footer { display: flex; justify-content: space-between; align-items: center; }
+.quest-progress-text { font-size: 11px; color: var(--text3); font-family: var(--font-mono); }
+.quest-xp-reward { font-size: 11px; font-weight: 700; color: var(--gold, #f59e0b); }
+.quest-check { position: absolute; top: 12px; right: 12px; font-size: 18px; }
+
+/* ────────────────────────────────────────
+   GAMIFICATION — Skill Tree
+──────────────────────────────────────── */
+.skill-tree-section { margin-top: 20px; }
+.skill-tree-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.skill-tree-title { font-family: var(--font-display); font-size: 16px; font-weight: 800; }
+.skill-tree-level { font-size: 12px; color: var(--accent); font-weight: 700; }
+.skill-tree-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.skill-node { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; position: relative; transition: all .2s; }
+.skill-node.unlocked { border-color: rgba(0,255,163,.3); background: rgba(0,255,163,.04); }
+.skill-node.locked { opacity: .5; filter: grayscale(.5); }
+.skill-node:hover { border-color: var(--border2); }
+.skill-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+.skill-name { font-family: var(--font-display); font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.skill-req { font-size: 10px; color: var(--text3); margin-bottom: 6px; }
+.skill-progress-mini { height: 4px; background: var(--bg5); border-radius: 2px; overflow: hidden; }
+.skill-progress-mini-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .4s; }
+.skill-lock-icon { position: absolute; top: 8px; right: 8px; font-size: 12px; }
+.skill-unlocked-badge { font-size: 9px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: .08em; margin-top: 6px; }
+
+/* ────────────────────────────────────────
+   GAMIFICATION — Streak Widget (Dashboard)
+──────────────────────────────────────── */
+.streak-widget { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; }
+.streak-fire { font-size: 36px; line-height: 1; }
+.streak-info { flex: 1; }
+.streak-count { font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--accent); }
+.streak-label { font-size: 12px; color: var(--text2); }
+.streak-best { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.streak-days { display: flex; gap: 4px; }
+.streak-dot { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; border: 1px solid var(--border); background: var(--bg4); color: var(--text3); }
+.streak-dot.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.streak-dot.today { box-shadow: 0 0 8px var(--accent-glow, rgba(0,255,136,.3)); }
+.streak-freeze-btn { padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: rgba(59,130,246,.1); color: #3b82f6; font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s; }
+.streak-freeze-btn:hover { background: rgba(59,130,246,.2); }
+
+/* ────────────────────────────────────────
+   RISK MANAGEMENT — Position Sizer (Live)
+──────────────────────────────────────── */
+.risk-live-sizer { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+.risk-sizer-title { font-family: var(--font-display); font-size: 15px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.risk-sizer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 14px; }
+.risk-sizer-result { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; padding: 14px; background: var(--bg4); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.risk-res-item { text-align: center; }
+.risk-res-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.risk-res-value { font-family: var(--font-display); font-size: 20px; font-weight: 800; }
+.ltp-status { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+.ltp-status.live { background: rgba(0,255,163,.1); color: var(--green); }
+.ltp-status.manual { background: rgba(255,209,102,.1); color: var(--gold, #f59e0b); }
+
+/* ────────────────────────────────────────
+   RISK MANAGEMENT — Correlation Warning
+──────────────────────────────────────── */
+.correlation-panel { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-top: 14px; }
+.corr-title { font-family: var(--font-display); font-size: 15px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.corr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.corr-group { background: var(--bg4); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; }
+.corr-group-title { font-size: 12px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.corr-symbols { display: flex; flex-wrap: wrap; gap: 4px; }
+.corr-chip { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; background: var(--bg5); color: var(--text2); }
+.corr-warning { margin-top: 10px; padding: 10px 14px; background: rgba(255,68,102,.08); border: 1px solid rgba(255,68,102,.2); border-radius: var(--radius-sm); font-size: 12px; color: var(--red); display: flex; align-items: flex-start; gap: 8px; }
+
+/* ────────────────────────────────────────
+   RISK MANAGEMENT — Max Positions
+──────────────────────────────────────── */
+.max-pos-panel { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-top: 14px; }
+.max-pos-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.max-pos-title { font-family: var(--font-display); font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.pos-counter { display: flex; align-items: center; gap: 12px; }
+.pos-count-display { font-family: var(--font-display); font-size: 28px; font-weight: 800; }
+.pos-count-display.warning { color: var(--gold, #f59e0b); }
+.pos-count-display.danger { color: var(--red); }
+.pos-limit-bar { height: 10px; background: var(--bg5); border-radius: 5px; overflow: hidden; flex: 1; min-width: 120px; }
+.pos-limit-fill { height: 100%; border-radius: 5px; transition: width .3s, background .3s; }
+.pos-override-log { margin-top: 12px; max-height: 160px; overflow-y: auto; }
+.pos-log-entry { display: flex; align-items: center; gap: 8px; padding: 6px 10px; font-size: 11px; border-bottom: 1px solid var(--border); }
+.pos-log-entry:last-child { border-bottom: none; }
+.pos-log-time { color: var(--text3); font-family: var(--font-mono); min-width: 80px; }
+.pos-log-msg { color: var(--text2); }
+
+/* ────────────────────────────────────────
+   ANALYTICS — Equity Curve Comparison
+──────────────────────────────────────── */
+.eq-compare-section { margin-bottom: 20px; }
+.eq-compare-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.eq-strat-chip { padding: 5px 12px; border-radius: 16px; border: 1px solid var(--border); background: transparent; color: var(--text2); font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 6px; }
+.eq-strat-chip.active { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+.eq-strat-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+/* ────────────────────────────────────────
+   ANALYTICS — Drawdown Recovery Tracker
+──────────────────────────────────────── */
+.dd-recovery-section { margin-top: 20px; }
+.dd-episodes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 12px; }
+.dd-episode { background: var(--bg4); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; }
+.dd-episode-num { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+.dd-episode-val { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--red); margin-bottom: 4px; }
+.dd-episode-days { font-size: 12px; color: var(--text2); }
+.dd-episode-status { font-size: 11px; font-weight: 600; margin-top: 6px; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+.dd-episode-status.recovered { background: rgba(0,255,163,.1); color: var(--green); }
+.dd-episode-status.active { background: rgba(255,68,102,.1); color: var(--red); }
+.dd-alert { margin-top: 12px; padding: 12px 16px; background: rgba(255,68,102,.08); border: 1px solid rgba(255,68,102,.25); border-radius: var(--radius-sm); font-size: 12px; color: var(--red); display: flex; align-items: center; gap: 8px; }
+
+/* ────────────────────────────────────────
+   ANALYTICS — Rolling Sharpe/Sortino
+──────────────────────────────────────── */
+.rolling-controls { display: flex; gap: 6px; margin-bottom: 12px; }
+.rolling-btn { padding: 5px 14px; border-radius: 16px; border: 1px solid var(--border); background: transparent; color: var(--text2); font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s; }
+.rolling-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+.rolling-stats-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.rolling-stat { background: var(--bg4); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; }
+.rolling-stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; margin-bottom: 4px; }
+.rolling-stat-val { font-family: var(--font-display); font-size: 16px; font-weight: 800; }
+
+/* ────────────────────────────────────────
+   ANALYTICS — Sector Heatmap
+──────────────────────────────────────── */
+.sector-heatmap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.sector-cell { border-radius: var(--radius-sm); padding: 14px 12px; text-align: center; transition: all .2s; cursor: default; border: 1px solid transparent; }
+.sector-cell:hover { transform: scale(1.03); border-color: var(--border2); }
+.sector-name { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.sector-pnl { font-family: var(--font-display); font-size: 18px; font-weight: 800; }
+.sector-trades { font-size: 10px; opacity: .7; margin-top: 2px; }
+
+/* ────────────────────────────────────────
+   ANALYTICS — Market Correlation Overlay
+──────────────────────────────────────── */
+.market-overlay-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+.market-overlay-btn { padding: 5px 14px; border-radius: 16px; border: 1px solid var(--border); background: transparent; color: var(--text2); font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s; }
+.market-overlay-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+.trade-marker-legend { display: flex; gap: 12px; margin-top: 8px; }
+.trade-marker-legend span { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 4px; }
+
+/* ────────────────────────────────────────
+   PSYCHOLOGY — Meditation Timer
+──────────────────────────────────────── */
+.meditation-section { margin-bottom: 20px; }
+.meditation-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; text-align: center; position: relative; overflow: hidden; }
+.meditation-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(0,255,163,.04) 0%, transparent 70%); pointer-events: none; }
+.meditation-timer-display { font-family: var(--font-display); font-size: 56px; font-weight: 800; color: var(--text); letter-spacing: 2px; margin: 16px 0; }
+.meditation-ring { width: 180px; height: 180px; margin: 0 auto; position: relative; }
+.meditation-ring svg { transform: rotate(-90deg); }
+.meditation-ring-bg { fill: none; stroke: var(--bg5); stroke-width: 6; }
+.meditation-ring-progress { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset .5s ease; }
+.meditation-timer-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.meditation-controls { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
+.meditation-btn { padding: 10px 24px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg4); color: var(--text); font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
+.meditation-btn:hover { border-color: var(--accent); color: var(--accent); }
+.meditation-btn.primary { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.meditation-presets { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+.meditation-preset { padding: 4px 12px; border-radius: 12px; border: 1px solid var(--border); background: transparent; color: var(--text3); font-size: 11px; cursor: pointer; transition: all .15s; }
+.meditation-preset.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.breathing-guide { font-size: 14px; color: var(--accent); font-weight: 600; margin-top: 8px; min-height: 22px; }
+
+/* ────────────────────────────────────────
+   PSYCHOLOGY — Journaling Prompts
+──────────────────────────────────────── */
+.journal-prompt-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+.journal-prompt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.journal-prompt-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.journal-prompt-text { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.5; margin-bottom: 12px; padding: 14px 16px; background: var(--bg4); border-radius: var(--radius-sm); border-left: 3px solid var(--accent); }
+.journal-prompt-textarea { width: 100%; min-height: 80px; background: var(--bg4); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: var(--font-body); font-size: 13px; padding: 12px; resize: vertical; outline: none; transition: border-color .15s; }
+.journal-prompt-textarea:focus { border-color: var(--accent); }
+.journal-prompt-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+.prompt-history-btn { font-size: 11px; color: var(--text3); background: none; border: none; cursor: pointer; text-decoration: underline; }
+.prompt-history-btn:hover { color: var(--text2); }
+
+/* ────────────────────────────────────────
+   PSYCHOLOGY — Peer Accountability
+──────────────────────────────────────── */
+.peer-section { margin-top: 20px; }
+.peer-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+.peer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.peer-title { font-family: var(--font-display); font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.peer-leaderboard { width: 100%; }
+.peer-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--border); transition: background .1s; }
+.peer-row:last-child { border-bottom: none; }
+.peer-row:hover { background: var(--bg4); }
+.peer-rank { font-family: var(--font-display); font-size: 16px; font-weight: 800; color: var(--text3); min-width: 28px; }
+.peer-rank.gold { color: #f59e0b; }
+.peer-rank.silver { color: #94a3b8; }
+.peer-rank.bronze { color: #cd7f32; }
+.peer-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--bg5); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.peer-info { flex: 1; }
+.peer-name { font-size: 13px; font-weight: 600; }
+.peer-streak-info { font-size: 11px; color: var(--text3); }
+.peer-score { font-family: var(--font-display); font-size: 18px; font-weight: 800; }
+.peer-invite-section { margin-top: 14px; padding: 14px; background: var(--bg4); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.peer-invite-row { display: flex; gap: 8px; align-items: center; }
+.peer-invite-row .form-input { flex: 1; }
+.peer-buddy-card { background: var(--bg4); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; margin-top: 12px; display: flex; align-items: center; gap: 12px; }
+
+/* ────────────────────────────────────────
+   RESPONSIVE
+──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .quests-grid { grid-template-columns: 1fr; }
+  .skill-tree-grid { grid-template-columns: repeat(2, 1fr); }
+  .streak-widget { flex-wrap: wrap; }
+  .streak-days { flex-wrap: wrap; }
+  .meditation-timer-display { font-size: 40px; }
+  .meditation-ring { width: 140px; height: 140px; }
+  .sector-heatmap-grid { grid-template-columns: repeat(2, 1fr); }
+  .dd-episodes-grid { grid-template-columns: 1fr; }
+  .risk-sizer-grid { grid-template-columns: 1fr; }
+  .corr-grid { grid-template-columns: 1fr; }
+}

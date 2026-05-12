@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+:root[data-theme="dark"] {
+  --bg-void: #030508;
+  --grid-color: rgba(0, 243, 255, 0.04);
+  --accent-cyan: #00F3FF;
+  --accent-lime: #C7F000;
+  --accent-purple: #B026FF;
+  --accent-red: #ff4757;
+  --glass-bg: rgba(10, 14, 23, 0.6);
+  --glass-border: rgba(0, 243, 255, 0.15);
+  --text-main: #FFFFFF;
+  --text-muted: #888888;
+}
+
+:root[data-theme="light"] {
+  --bg-void: #F2F4F8;
+  --grid-color: rgba(0, 138, 144, 0.06);
+  --accent-cyan: #008A90;
+  --accent-lime: #8FA800;
+  --accent-purple: #8E44AD;
+  --accent-red: #d63031;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --text-main: #0B0D12;
+  --text-muted: #555555;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-void);
+  color: var(--text-main);
+  overflow-x: hidden;
+}
+
+/* Background Grid */
+.cyber-grid {
+  background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 50px 50px;
+  transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+  animation: grid-move 20s linear infinite;
+}
+
+@keyframes grid-move {
+  100% {
+    transform: perspective(500px) rotateX(60deg) translateY(100px) translateZ(-200px);
+  }
+}
+
+.glitch-text {
+  font-family: 'Manrope', sans-serif;
+  letter-spacing: -1px;
+}
+
+.ticker-wrap {
+  background: rgba(0, 243, 255, 0.03);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.ticker {
+  animation: ticker-scroll 30s linear infinite;
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.animate-blink {
+  animation: blink 1.5s infinite;
+}
+
+.animate-pulse-fast {
+  animation: pulse-fast 1s infinite alternate;
+}
+
+@keyframes pulse-fast {
+  to {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 8px; /* Required for horizontal scrollbar visibility */
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 243, 255, 0.2);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 243, 255, 0.5);
+}

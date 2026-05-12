@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIN•OS">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <title>FIN•OS | Financial X-Ray (Deep Scan)</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/finances.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;800&family=Manrope:wght@300;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="app">
+     <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+        <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html" class="active">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="tax.html">Tax</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="fin-container">
+      
+      <div id="loader" class="screen-center">
+        <div class="data-stream"></div>
+        <div class="loader-text">
+            <h2 class="blink-text">INITIALIZING SECURE HANDSHAKE...</h2>
+            <p id="loaderStatus" style="font-size:0.8rem; color:#666; margin-top:10px;">Connecting to Neural Core...</p>
+        </div>
+      </div>
+
+      <section id="inputSection" class="hidden">
+        <header class="wizard-header">
+          <div class="glitch-wrapper">
+            <h1 class="glitch-text" data-text="FINANCIAL X-RAY">FINANCIAL X-RAY</h1>
+          </div>
+          <p class="subtitle">The numbers don't lie. We are about to digitize your entire financial reality.</p>
+        </header>
+
+        <div class="terminal-window">
+          <div class="terminal-bar">
+            <div class="dots">
+                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            </div>
+            <span class="term-title">INPUT_PROTOCOL_V2.0 [SECURE]</span>
+            <span class="term-status">REC: ON</span>
+          </div>
+          
+          <div class="wizard-content" id="wizardForm">
+            </div>
+
+          <div class="wizard-controls">
+            <button class="stylish-button" id="prevBtn" disabled>← PREVIOUS SECTOR</button>
+            <div class="progress-bar-container">
+                <div class="progress-text" id="progressText">SECTOR 1/16</div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="wizProgress"></div>
+                </div>
+            </div>
+            <button class="stylish-button" id="nextBtn">NEXT SECTOR →</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="reportSection" class="hidden">
+        
+        <header class="report-hero">
+          <div class="hero-left">
+            <div class="live-badge">● SYSTEM ONLINE</div>
+            <h1>NET MONTHLY REALITY</h1>
+            <p>Your financial vital signs, decoded.</p>
+          </div>
+          <div class="hero-right">
+            <div class="net-reality-box">
+              <span class="label">MONTHLY SURPLUS / DEFICIT</span>
+              <h2 id="netRealityValue" class="neon-text">CALCULATING...</h2>
+            </div>
+          </div>
+        </header>
+
+        <div class="grid-layout">
+          <div class="glass-card wide-card flow-card">
+            <div class="card-head"><span>01</span> CASHFLOW X-RAY</div>
+            <div class="sankey-mock">
+              <div class="flow-col source">
+                <div class="flow-node income">INCOME</div>
+              </div>
+              <div class="flow-col connector">
+                  <div class="line"></div><div class="line"></div><div class="line"></div>
+              </div>
+              <div class="flow-col sink">
+                <div class="flow-node needs" style="height: 50%">NEEDS (FIXED)</div>
+                <div class="flow-node wants" style="height: 30%">WANTS (LIFESTYLE)</div>
+                <div class="flow-node invest" style="height: 20%">GROWTH (ASSETS)</div>
+              </div>
+            </div>
+            
+            <div class="stat-row">
+              <div class="stat">
+                <label>TOTAL MONTHLY IN</label>
+                <h4 id="repTotalIncome">...</h4>
+              </div>
+              <div class="stat">
+                <label>FIXED SURVIVAL COST</label>
+                <h4 id="repFixed">...</h4>
+              </div>
+              <div class="stat">
+                <label>TOTAL MONTHLY BURN</label>
+                <h4 id="repBurn">...</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-layout">
+          <div class="glass-card health-card">
+            <div class="card-head"><span>02</span> HEALTH SIGNALS</div>
+            <div class="signal-grid" id="healthGrid">
+              </div>
+          </div>
+
+          <div class="glass-card leak-card">
+            <div class="card-head"><span>03</span> LEAK DETECTION SYSTEM</div>
+            <div class="leak-list" id="leakList">
+              </div>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="glass-card">
+            <div class="card-head"><span>04</span> HABIT ROI</div>
+            <div class="chart-wrapper">
+                <canvas id="habitChart"></canvas>
+            </div>
+            <p class="micro-insight" id="habitText">Analyzing habits...</p>
+          </div>
+          <div class="glass-card">
+            <div class="card-head"><span>05</span> DEBT LOAD</div>
+            <div class="debt-visual" id="debtVisual"></div>
+            <p class="micro-insight" id="debtText">Scanning liabilities...</p>
+          </div>
+          <div class="glass-card">
+            <div class="card-head"><span>06</span> SUBSCRIPTION AUDIT</div>
+            <ul class="sub-list" id="subList"></ul>
+          </div>
+        </div>
+
+        <div class="verdict-section">
+          <div class="hologram-border">
+            <h3>WHAT THIS MEANS FOR YOU</h3>
+            <div class="verdict-grid" id="verdictGrid"></div>
+            
+            <div class="action-bar">
+                <button class="stylish-button" id="editDataBtn">
+                  UPDATE FINANCIAL DATA ↺
+                </button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/finances.js"></script>
+  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/pwa-init.js"></script>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+
+<style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+</style>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+
+</body>
+</html>
