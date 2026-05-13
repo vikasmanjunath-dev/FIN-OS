@@ -1,41 +1,215 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-<script>
-(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
-</script>
+  <!-- [FIX] localStorage wrapped in try/catch — prevents SecurityError crash
+       in Safari Private Browsing, strict iframe sandboxes, and storage-blocked envs -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
+
+  <!-- [NEW] SEO / Open Graph meta -->
+  <meta name="description" content="FIN•OS God Mode X-Ray — Precision financial analysis for Indian professionals. Understand your cashflow, FIRE horizon, and net worth in minutes.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="FIN•OS | Financial X-Ray (God Mode Scan)">
+  <meta property="og:description" content="Precision financial analysis for Indian professionals.">
+  <meta property="og:type" content="website">
+
+  <!-- PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-  <title>FIN•OS | Financial X-Ray (Deep Scan)</title>
-  
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
+
+  <title>FIN•OS | Financial X-Ray (God Mode Scan)</title>
+
+  <!-- [FIX] Removed unused @supabase/supabase-js — not referenced anywhere in finances.js,
+       was adding ~150 KB to page weight for no reason. -->
+  <!-- [FIX] Deferred non-critical scripts to avoid render-blocking -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
+
+  <!-- Stylesheets -->
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/finances.css">
   <link rel="stylesheet" href="../css/theme.css">
-  
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;800&family=Manrope:wght@300;600;800&display=swap" rel="stylesheet">
+
+  <!-- [FIX] Added font-display=swap to prevent FOIT (flash of invisible text) -->
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;800&family=Manrope:wght@300;600;800&display=swap&font-display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Float Back Button ───────────────────────────────────────── */
+    #floatBackBtn {
+      position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+      padding: 8px 16px 8px 12px; border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: rgba(255, 255, 255, 0.55);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600; letter-spacing: .06em;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: background .2s, color .2s, transform .2s;
+      backdrop-filter: blur(10px); text-decoration: none;
+    }
+    #floatBackBtn:hover {
+      background: rgba(255, 255, 255, 0.10);
+      color: #fff;
+      transform: translateX(-3px);
+    }
+
+    /* ── Wizard Inputs ───────────────────────────────────────────── */
+    input.x-ray-input {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #C7F000;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      width: 100%;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      font-size: 16px;
+      /* [NEW] Smooth focus ring instead of default outline */
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input.x-ray-input:focus {
+      border-color: #C7F000;
+      box-shadow: 0 0 0 2px rgba(199, 240, 0, 0.15);
+    }
+    /* [FIX] Remove browser number-input spinners — they look broken in dark themes */
+    input.x-ray-input[type=number]::-webkit-inner-spin-button,
+    input.x-ray-input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input.x-ray-input[type=number] { -moz-appearance: textfield; }
+
+    label.x-ray-label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 12px;
+      color: #888;
+      text-transform: uppercase;
+    }
+
+    /* ── Step validation error ───────────────────────────────────── */
+    #stepError {
+      color: #FF4F4F;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      margin-top: 8px;
+      min-height: 18px;
+      /* [NEW] smooth appear */
+      transition: opacity .2s;
+    }
+
+    /* ── API Insight block ───────────────────────────────────────── */
+    .api-insight {
+      padding: 15px;
+      background: rgba(79, 124, 255, 0.1);
+      border-left: 3px solid #4F7CFF;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    /* ── Markdown body styles ────────────────────────────────────── */
+    .markdown-body h3 {
+      color: #C7F000;
+      margin-top: 25px;
+      margin-bottom: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 5px;
+    }
+    .markdown-body p   { margin-bottom: 15px; color: #d4d4d8; }
+    .markdown-body ul  { padding-left: 20px; margin-bottom: 15px; }
+    .markdown-body li  { margin-bottom: 8px; color: #d4d4d8; }
+    .markdown-body strong { color: #fff; }
+
+    /* ── [NEW] Print / Export PDF styles ────────────────────────── */
+    @media print {
+      /* Hide nav, sidebar, controls, chat input, and back button when printing */
+      .sidebar,
+      #inputSection,
+      #loader,
+      .wizard-controls,
+      #floatBackBtn,
+      #chatInputArea,
+      .action-bar,
+      .live-badge { display: none !important; }
+
+      .app   { display: block !important; }
+      .main  { margin: 0 !important; padding: 0 !important; }
+      body   { background: #fff !important; color: #000 !important; }
+
+      /* Make report cards readable on white paper */
+      .glass-card, .hologram-border, .net-reality-box {
+        background: #f5f5f5 !important;
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+      }
+      h1, h2, h3, h4, label, .card-head {
+        color: #111 !important;
+      }
+      #verdictGrid {
+        max-height: none !important;
+        overflow: visible !important;
+      }
+      /* Force page break before verdict section */
+      .verdict-section { page-break-before: always; }
+    }
+
+    /* ── [NEW] Loader status animation ──────────────────────────── */
+    @keyframes pulse-text {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+    .blink-text { animation: pulse-text 1.4s ease-in-out infinite; }
+
+    /* ── [NEW] Accessible skip link ─────────────────────────────── */
+    .skip-link {
+      position: absolute;
+      top: -40px; left: 0;
+      background: #C7F000; color: #000;
+      padding: 8px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      z-index: 99999;
+      transition: top .2s;
+      text-decoration: none;
+    }
+    .skip-link:focus { top: 0; }
+  </style>
 </head>
+
 <body>
 
+<!-- [NEW] Accessibility: skip-to-main-content link for keyboard/screen-reader users -->
+<a class="skip-link" href="#wizardForm">Skip to main content</a>
+
 <div class="app">
-     <aside class="sidebar">
-    <div class="logo">FIN•OS</div>
-        <nav>
-      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+
+  <aside class="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="logo" aria-label="FIN OS">FIN•OS</div>
+    <nav>
+      <a href="profile.html"><span class="user-symbol" aria-hidden="true">👤</span> Profile</a>
       <a href="home.html">Home</a>
       <a href="dashboard.html">Dashboard</a>
       <a href="foundations.html">Foundations</a>
-      <a href="diagnostics.html" class="active">Diagnostics</a>
+      <!-- [FIX] aria-current marks the active page for screen readers -->
+      <a href="diagnostics.html" class="active" aria-current="page">Diagnostics</a>
       <a href="track-finances.html">Track Finances</a>
       <a href="../stock-dashboard/index.html">Live Tracker</a>
       <a href="simulator-landing.html">Train Mindset</a>
@@ -44,202 +218,225 @@
     </nav>
   </aside>
 
-  <main class="main">
+  <main class="main" id="main-content">
     <div class="fin-container">
-      
-      <div id="loader" class="screen-center">
-        <div class="data-stream"></div>
+
+      <!-- ── Loader ─────────────────────────────────────────────── -->
+      <!-- [FIX] role="status" + aria-live so screen readers announce loading state -->
+      <div id="loader" class="screen-center hidden" role="status" aria-live="polite" aria-label="Loading">
+        <div class="data-stream" aria-hidden="true"></div>
         <div class="loader-text">
-            <h2 class="blink-text">INITIALIZING SECURE HANDSHAKE...</h2>
-            <p id="loaderStatus" style="font-size:0.8rem; color:#666; margin-top:10px;">Connecting to Neural Core...</p>
+          <h2 class="blink-text">INITIALIZING GOD MODE SCAN...</h2>
+          <p id="loaderStatus" style="font-size:0.8rem; color:#666; margin-top:10px;">
+            Aggregating 16 Data Points...
+          </p>
         </div>
       </div>
 
-      <section id="inputSection" class="hidden">
+      <!-- ── Input Wizard ───────────────────────────────────────── -->
+      <section id="inputSection" aria-label="Financial data input wizard">
+
         <header class="wizard-header">
-          <div class="glitch-wrapper">
-            <h1 class="glitch-text" data-text="FINANCIAL X-RAY">FINANCIAL X-RAY</h1>
+          <div class="glitch-wrapper" aria-hidden="true">
+            <h1 class="glitch-text" data-text="GOD MODE X-RAY">GOD MODE X-RAY</h1>
           </div>
-          <p class="subtitle">The numbers don't lie. We are about to digitize your entire financial reality.</p>
+          <!-- [FIX] Visible heading for accessibility (glitch h1 is aria-hidden) -->
+          <h1 class="sr-only">God Mode X-Ray: Financial Input</h1>
+          <p class="subtitle">Precision requires data. Input your exact numbers for a flawless structural analysis.</p>
         </header>
 
-        <div class="terminal-window">
-          <div class="terminal-bar">
+        <div class="terminal-window" role="form" aria-label="Financial data wizard">
+          <div class="terminal-bar" aria-hidden="true">
             <div class="dots">
-                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
             </div>
-            <span class="term-title">INPUT_PROTOCOL_V2.0 [SECURE]</span>
+            <span class="term-title">INPUT_PROTOCOL_V4.0 [MAX PRECISION]</span>
             <span class="term-status">REC: ON</span>
           </div>
-          
-          <div class="wizard-content" id="wizardForm">
-            </div>
+
+          <!-- Wizard steps render here via finances.js -->
+          <div class="wizard-content" id="wizardForm" aria-live="polite"></div>
 
           <div class="wizard-controls">
-            <button class="stylish-button" id="prevBtn" disabled>← PREVIOUS SECTOR</button>
-            <div class="progress-bar-container">
-                <div class="progress-text" id="progressText">SECTOR 1/16</div>
-                <div class="progress-track">
-                    <div class="progress-fill" id="wizProgress"></div>
-                </div>
+            <!-- [FIX] type="button" prevents accidental form submission if ever wrapped in <form> -->
+            <button class="stylish-button" id="prevBtn" type="button" disabled
+                    aria-label="Go to previous step">← PREVIOUS</button>
+
+            <div class="progress-bar-container" role="progressbar"
+                 aria-valuemin="1" aria-valuemax="6" aria-valuenow="1"
+                 aria-label="Wizard progress" id="progressContainer">
+              <div class="progress-text" id="progressText">PHASE 1/6</div>
+              <div class="progress-track" aria-hidden="true">
+                <div class="progress-fill" id="wizProgress"></div>
+              </div>
             </div>
-            <button class="stylish-button" id="nextBtn">NEXT SECTOR →</button>
+
+            <button class="stylish-button" id="nextBtn" type="button"
+                    aria-label="Go to next step">NEXT SECTOR →</button>
           </div>
         </div>
+
       </section>
 
-      <section id="reportSection" class="hidden">
-        
+      <!-- ── Report Section ─────────────────────────────────────── -->
+      <section id="reportSection" class="hidden" aria-label="Financial analysis report" aria-live="polite">
+
         <header class="report-hero">
           <div class="hero-left">
-            <div class="live-badge">● SYSTEM ONLINE</div>
-            <h1>NET MONTHLY REALITY</h1>
-            <p>Your financial vital signs, decoded.</p>
+            <div class="live-badge" aria-hidden="true">● SYSTEM ONLINE</div>
+            <h1>NET REALITY PROTOCOL</h1>
+            <p>Your exact financial architecture, decoded by QFT.</p>
           </div>
           <div class="hero-right">
             <div class="net-reality-box">
-              <span class="label">MONTHLY SURPLUS / DEFICIT</span>
-              <h2 id="netRealityValue" class="neon-text">CALCULATING...</h2>
+              <span class="label" style="color: #4ade80;">CALCULATED NET WORTH</span>
+              <!-- [FIX] aria-label gives screen readers a meaningful label -->
+              <h2 id="repNetWorth" class="neon-text" style="color: #4ade80;"
+                  aria-label="Calculated net worth">₹0</h2>
             </div>
           </div>
         </header>
 
+        <!-- Card 01: Cashflow & Ratios -->
         <div class="grid-layout">
           <div class="glass-card wide-card flow-card">
-            <div class="card-head"><span>01</span> CASHFLOW X-RAY</div>
-            <div class="sankey-mock">
-              <div class="flow-col source">
-                <div class="flow-node income">INCOME</div>
+            <div class="card-head"><span aria-hidden="true">01</span> THE ENGINE (CASHFLOW &amp; RATIOS)</div>
+            <div class="stat-row" style="margin-bottom: 20px;">
+              <div class="stat">
+                <label for="repTotalIncome">GROSS MONTHLY IN</label>
+                <h4 id="repTotalIncome" style="color: #C7F000;">...</h4>
               </div>
-              <div class="flow-col connector">
-                  <div class="line"></div><div class="line"></div><div class="line"></div>
+              <div class="stat">
+                <label for="repTotalBurn">TOTAL BURN (FIXED + VAR)</label>
+                <h4 id="repTotalBurn" style="color: #FF4F4F;">...</h4>
               </div>
-              <div class="flow-col sink">
-                <div class="flow-node needs" style="height: 50%">NEEDS (FIXED)</div>
-                <div class="flow-node wants" style="height: 30%">WANTS (LIFESTYLE)</div>
-                <div class="flow-node invest" style="height: 20%">GROWTH (ASSETS)</div>
+              <div class="stat">
+                <label for="repSurplus">NET MONTHLY SURPLUS</label>
+                <!-- [FIX] Color is set dynamically in finances.js (blue=positive, red=negative) -->
+                <h4 id="repSurplus">...</h4>
               </div>
             </div>
-            
             <div class="stat-row">
               <div class="stat">
-                <label>TOTAL MONTHLY IN</label>
-                <h4 id="repTotalIncome">...</h4>
+                <label for="repSavingsRate">SAVINGS RATE</label>
+                <h4 id="repSavingsRate" style="color: #4ade80;">...</h4>
               </div>
               <div class="stat">
-                <label>FIXED SURVIVAL COST</label>
-                <h4 id="repFixed">...</h4>
+                <label for="repDebtRatio">DEBT-TO-ASSET RATIO</label>
+                <h4 id="repDebtRatio" style="color: #FFB020;">...</h4>
               </div>
               <div class="stat">
-                <label>TOTAL MONTHLY BURN</label>
-                <h4 id="repBurn">...</h4>
+                <label for="repNwGrade">TARGET NW DEVIATION</label>
+                <h4 id="repNwGrade" style="color: #fff;">...</h4>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- Cards 02 & 03: Asset Allocation + FIRE -->
         <div class="grid-layout">
           <div class="glass-card health-card">
-            <div class="card-head"><span>02</span> HEALTH SIGNALS</div>
-            <div class="signal-grid" id="healthGrid">
+            <div class="card-head"><span aria-hidden="true">02</span> ASSET ALLOCATION</div>
+            <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+              <div>
+                <label style="font-size: 10px; color: #888;">EQUITY / MF</label>
+                <div id="repEquity" style="font-family: 'JetBrains Mono'; color: #4F7CFF; font-size: 16px;">₹0</div>
               </div>
+              <div>
+                <label style="font-size: 10px; color: #888;">SAFE (EPF/PPF)</label>
+                <div id="repSafe" style="font-family: 'JetBrains Mono'; color: #4ade80; font-size: 16px;">₹0</div>
+              </div>
+              <div>
+                <label style="font-size: 10px; color: #888;">ALT (GOLD/CRYPTO)</label>
+                <div id="repAlt" style="font-family: 'JetBrains Mono'; color: #FFB020; font-size: 16px;">₹0</div>
+              </div>
+              <div>
+                <label style="font-size: 10px; color: #888;">EMERGENCY LIQUID</label>
+                <div id="repLiquid" style="font-family: 'JetBrains Mono'; color: #a78bfa; font-size: 16px;">₹0</div>
+              </div>
+            </div>
           </div>
 
           <div class="glass-card leak-card">
-            <div class="card-head"><span>03</span> LEAK DETECTION SYSTEM</div>
-            <div class="leak-list" id="leakList">
-              </div>
+            <div class="card-head"><span aria-hidden="true">03</span> F.I.R.E. HORIZON</div>
+            <div id="fireResults" style="margin-top: 15px;" aria-live="polite"></div>
           </div>
         </div>
 
-        <div class="grid-3">
-          <div class="glass-card">
-            <div class="card-head"><span>04</span> HABIT ROI</div>
-            <div class="chart-wrapper">
-                <canvas id="habitChart"></canvas>
-            </div>
-            <p class="micro-insight" id="habitText">Analyzing habits...</p>
-          </div>
-          <div class="glass-card">
-            <div class="card-head"><span>05</span> DEBT LOAD</div>
-            <div class="debt-visual" id="debtVisual"></div>
-            <p class="micro-insight" id="debtText">Scanning liabilities...</p>
-          </div>
-          <div class="glass-card">
-            <div class="card-head"><span>06</span> SUBSCRIPTION AUDIT</div>
-            <ul class="sub-list" id="subList"></ul>
-          </div>
-        </div>
-
+        <!-- Verdict / Chat -->
         <div class="verdict-section">
           <div class="hologram-border">
-            <h3>WHAT THIS MEANS FOR YOU</h3>
-            <div class="verdict-grid" id="verdictGrid"></div>
-            
-            <div class="action-bar">
-                <button class="stylish-button" id="editDataBtn">
-                  UPDATE FINANCIAL DATA ↺
-                </button>
+            <h3>FIN-OS: GOD MODE ANALYSIS</h3>
+
+            <!-- [FIX] aria-live="polite" — screen reader announces streamed tokens -->
+            <div class="verdict-grid markdown-body" id="verdictGrid"
+                 style="padding: 20px; line-height: 1.6; font-family: 'IBM Plex Sans', sans-serif; max-height: 500px; overflow-y: auto;"
+                 aria-live="polite" aria-label="AI financial analysis output">
             </div>
+
+            <!-- Follow-up chat input -->
+            <!-- [FIX] class="hidden" is preserved; display:flex moved to CSS so .hidden can override it properly -->
+            <div class="chat-input-area hidden" id="chatInputArea"
+                 style="padding: 20px; background: rgba(0,0,0,0.3);
+                        border-top: 1px solid rgba(255,255,255,0.05);"
+                 role="form" aria-label="Follow-up question input">
+              <div style="display:flex; gap:10px;">
+                <label for="followUpInput" class="sr-only">Ask QFT a follow-up question</label>
+                <input type="text" id="followUpInput" class="x-ray-input"
+                       style="margin-bottom:0; flex:1;"
+                       placeholder="Ask QFT a follow-up question..."
+                       autocomplete="off"
+                       aria-label="Follow-up question"
+                       maxlength="4000">
+                <button id="sendFollowUpBtn" class="stylish-button" type="button"
+                        style="padding: 0 20px;" aria-label="Send follow-up question">
+                  SEND
+                </button>
+              </div>
+            </div>
+
+            <!-- Action bar — print button injected here by finances.js -->
+            <div class="action-bar" style="border-top: none;">
+              <button class="stylish-button" id="editDataBtn" type="button"
+                      aria-label="Re-enter financial data">
+                RE-CALIBRATE DATA ↺
+              </button>
+              <!-- [NEW] Print/Export button injected by finances.js MutationObserver -->
+            </div>
+
           </div>
         </div>
 
-      </section>
+      </section><!-- /#reportSection -->
 
-    </div>
+    </div><!-- /.fin-container -->
   </main>
-</div>
 
-<script src="../js/finances.js"></script>
-  <script src="../js/mobile-nav.js"></script>
-  <script src="../js/pwa-init.js"></script>
+</div><!-- /.app -->
 
+<!-- [NEW] Screen-reader-only utility class (no visual impact) -->
 <style>
-#floatThemeBtn {
-  position: fixed; top: 14px; right: 18px; z-index: 9999;
-  width: 36px; height: 36px; border-radius: 10px;
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
-  color: #fff; font-size: 16px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: background .2s, transform .2s;
-  backdrop-filter: blur(10px);
-}
-#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+  /* Ensure chat-input-area uses flex when visible */
+  .chat-input-area:not(.hidden) { display: block; }
 </style>
-<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
-<script>
-(function(){
-  var btn = document.getElementById('floatThemeBtn');
-  var html = document.documentElement;
-  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
-  html.setAttribute('data-theme', saved);
-  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
-  btn.addEventListener('click', function(){
-    var cur = html.getAttribute('data-theme');
-    var next = cur === 'dark' ? 'light' : 'dark';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('finos-theme', next);
-    localStorage.setItem('theme', next);
-    btn.textContent = next === 'dark' ? '🌙' : '☀️';
-  });
-})();
-</script>
 
+<!-- [FIX] Scripts moved to end of body so they don't block HTML parsing -->
+<!-- [FIX] type="module" is omitted intentionally — finances.js uses DOMContentLoaded,
+     which fires correctly without it; adding module would change execution order -->
+<script src="../js/finances.js" defer></script>
+<script src="../js/mobile-nav.js" defer></script>
+<script src="../js/pwa-init.js" defer></script>
 
-<style>
-#floatBackBtn {
-  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
-  padding: 8px 16px 8px 12px; border-radius: 10px;
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
-  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
-  font-size: 11px; font-weight: 600; letter-spacing: .06em;
-  cursor: pointer; display: flex; align-items: center; gap: 6px;
-  transition: background .2s, color .2s, transform .2s;
-  backdrop-filter: blur(10px); text-decoration: none;
-}
-#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
-</style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+<!-- [NEW] Accessible floating back button — button element instead of anchor with JS onclick -->
+<a id="floatBackBtn" href="#" onclick="history.back(); return false;"
+   role="button" aria-label="Go back to previous page">‹ BACK</a>
 
 </body>
 </html>

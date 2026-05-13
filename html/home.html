@@ -25,8 +25,7 @@
 
 <div class="app">
 
-  <!-- SIDEBAR -->
-    <aside class="sidebar">
+  <aside class="sidebar">
     <div class="logo">FIN•OS</div>
         <nav>
       <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
@@ -42,11 +41,9 @@
     </nav>
   </aside>
 
-  <!-- MAIN -->
   <main class="main">
   <div class="content-wrapper">
 
-    <!-- HEADER -->
     <header class="header header-flex">
       <div>
         <h1>Welcome to FIN-OS</h1>
@@ -56,11 +53,9 @@
       <button id="themeToggle" class="theme-btn">🌙</button>
     </header>
 
-    <!-- HOME GRID -->
     <section class="home-grid">
 
         
-      <!-- LEFT : ACTION CARDS -->
       <div class="home-actions cards grid grid-1">
 
      <div class="card insight learning" onclick="window.location.href='start.html'" style="cursor: pointer;">
@@ -89,8 +84,7 @@
 
       </div>
 
-      <!-- RIGHT : HERO CARD -->
-        <div class="home-hero card insight focus">
+      <div class="home-hero card insight focus">
           <div class="card-image"></div>
           <div class="card-content">
             <h3>Today’s Focus</h3> <p>
@@ -601,7 +595,7 @@
 (function() {
   const QFT_API   = 'http://127.0.0.1:8000';
   const OLLAMA    = 'http://127.0.0.1:11434/api/chat';
-  const MODEL     = 'qwen2.5:3b';
+  const MODEL     = 'llama3.1'; // Updated to your brain.py model
   const USE_BACKEND = true;
 
   const fab      = document.getElementById('qft-fab');
@@ -613,6 +607,33 @@
   const empty    = document.getElementById('qft-empty');
 
   let isOpen = false, isTyping = false, history = [], sessionId = null;
+
+  // Context Extractor: Gathers DNA and X-Ray data from previous steps
+  function getFinosContext() {
+    let contextStr = "";
+    
+    // Grab DNA Scores
+    const dnaRaw = localStorage.getItem('FINOS_CORE_DNA');
+    if (dnaRaw) {
+      try {
+        const dna = JSON.parse(dnaRaw);
+        if (dna.scores && dna.scores.length >= 5) {
+          contextStr += `User Neural Profile (Out of 100) -> Risk: ${dna.scores[0]}, Security: ${dna.scores[1]}, Status: ${dna.scores[2]}, Discipline: ${dna.scores[3]}, Growth: ${dna.scores[4]}\n`;
+        }
+      } catch(e) { console.error("Could not parse DNA:", e); }
+    }
+
+    // Grab Financial X-Ray Data
+    const xrayRaw = localStorage.getItem('FINOS_XRAY_DATA');
+    if (xrayRaw) {
+      try {
+        const xray = JSON.parse(xrayRaw);
+        contextStr += `User Financial Reality -> Income: ₹${xray.income}/mo, Investment Rate: ${xray.investRate}%, FIRE Corpus Target: ₹${xray.fireTarget} Cr\n`;
+      } catch(e) { console.error("Could not parse X-Ray:", e); }
+    }
+
+    return contextStr;
+  }
 
   // Toggle drawer
   function toggleDrawer(force) {
@@ -663,60 +684,50 @@
     history.push({ role: 'user', content: text });
 
     if (USE_BACKEND) {
-      streamBackend(text, typing);
+      callBackend(text, typing);
     } else {
       streamOllama(typing);
     }
   }
 
-  async function streamBackend(message, typing) {
+  // Calls the FastAPI endpoint we built in brain.py
+  async function callBackend(message, typing) {
     try {
-      const resp = await fetch(`${QFT_API}/api/chat/stream`, {
+      const resp = await fetch(`${QFT_API}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, session_id: sessionId || undefined }),
+        body: JSON.stringify({ 
+          message: message, 
+          context: getFinosContext(), 
+          session_id: sessionId || undefined 
+        }),
       });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
 
+      const data = await resp.json();
       typing.remove();
+      
+      if (data.session_id) sessionId = data.session_id;
+
       const msgDiv = appendMsg('', 'ai');
-      let buffer = '';
+      msgDiv.innerHTML = DOMPurify.sanitize(marked.parse(data.response));
+      scrollBottom();
+      
+      history.push({ role: 'assistant', content: data.response });
 
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let chunk = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        chunk += decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
-        chunk = lines.pop();
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          try {
-            const json = JSON.parse(line.slice(6));
-            if (json.session_id) sessionId = json.session_id;
-            if (json.token) {
-              buffer += json.token;
-              msgDiv.innerHTML = DOMPurify.sanitize(marked.parse(buffer));
-              scrollBottom();
-            }
-          } catch {}
-        }
-      }
-      history.push({ role: 'assistant', content: buffer });
     } catch (err) {
       typing.remove();
-      await streamOllama(null, err);
+      await streamOllama(null, err); // Fallback to direct Ollama if FastAPI is down
     } finally {
       unlock();
     }
   }
 
+  // Fallback direct to Ollama
   async function streamOllama(typing, backendErr) {
     const systemPrompt = `You are QFT (Quantified Financial Thinking Engine) — the brutally honest financial brain of FIN-OS. 
-Give direct, data-driven financial advice for Indian professionals. Use ₹ for amounts. Reference SIP, EMI, Nifty, ELSS, PPF, NPS, FD, LIC. Zero fluff. Always quantify.`;
+Give direct, data-driven financial advice for Indian professionals. Use ₹ for amounts. Reference SIP, EMI, Nifty, ELSS. Zero fluff. Always quantify.
+\n[USER CONTEXT]\n${getFinosContext()}`;
 
     try {
       const resp = await fetch(OLLAMA, {
@@ -767,8 +778,8 @@ Give direct, data-driven financial advice for Indian professionals. Use ₹ for 
       const errDiv = appendMsg('', 'ai');
       errDiv.classList.add('qft-msg-error');
       errDiv.innerHTML = `⚠️ QFT offline.<br>
-        Start backend: <code>uvicorn brain:app</code><br>
-        or Ollama: <code>ollama serve</code> → <code>ollama pull ${MODEL}</code><br>
+        Start backend: <code>uvicorn brain:app --host 0.0.0.0 --port 8000</code><br>
+        or check Ollama.<br>
         <small>${backendErr ? backendErr.message + ' / ' : ''}${err.message}</small>`;
     } finally {
       unlock();
