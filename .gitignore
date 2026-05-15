@@ -1,0 +1,14 @@
+# Python
+venv/
+.venv/
+__pycache__/
+
+# Voice models / binaries
+voiceagent/piper/
+*.onnx
+*.ort
+*.bin
+*.model
+
+# macOS
+.DS_Store
