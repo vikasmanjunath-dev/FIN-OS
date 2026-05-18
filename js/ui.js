@@ -1,5 +1,67 @@
 // js/ui.js
 
+/* ─── GLOBAL SETTINGS PROPAGATOR ─────────────────────────────────
+   Runs immediately on every page that includes ui.js.
+   Applies: accent color · font scale · reduce-motion · high-contrast
+   · compact-ui — sourced from FINOS_SYS_SETTINGS in localStorage.
+   Theme is handled inline in each page's <head> IIFE for zero-flash.
+─────────────────────────────────────────────────────────────────── */
+(function () {
+  try {
+    var s = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}');
+    var root = document.documentElement;
+    if (s.accent)       root.style.setProperty('--accent', s.accent);
+    if (s.fontSize)     root.setAttribute('data-font-size', s.fontSize);
+    if (s.reduceMotion) root.classList.add('reduce-motion');
+    if (s.highContrast) root.classList.add('high-contrast');
+    if (s.compactUI)    root.classList.add('compact-ui');
+  } catch (e) { /* localStorage may be blocked in some contexts */ }
+})();
+
+/* ─── GLOBAL FORMAT UTILITY ──────────────────────────────────────
+   window.FINOS.fmt(amount)       → "₹1,23,45,678"  (honours user's
+   window.FINOS.fmtShort(amount)  → "₹12.35 Cr"       numberFormat
+   Available on every page via ui.js; settings.js overrides if loaded.
+─────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.FINOS && window.FINOS.fmt) return; // settings.js already loaded
+  window.FINOS = window.FINOS || {};
+  window.FINOS.fmt = function (amount, currencyOverride) {
+    var cfg;
+    try { cfg = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}'); } catch (e) { cfg = {}; }
+    var numFmt  = cfg.numberFormat || 'indian';
+    var curr    = currencyOverride || cfg.currency || 'inr';
+    var SYMBOLS = { inr: '₹', usd: '$', eur: '€', gbp: '£' };
+    var sym     = SYMBOLS[curr] || '₹';
+    var n       = Number(amount);
+    if (isNaN(n)) return sym + '—';
+    if (numFmt === 'indian') {
+      var abs = Math.abs(Math.round(n));
+      var str = String(abs);
+      var result = '';
+      if (str.length <= 3) {
+        result = str;
+      } else {
+        result = str.slice(-3);
+        var rem = str.slice(0, -3);
+        while (rem.length > 2) { result = rem.slice(-2) + ',' + result; rem = rem.slice(0, -2); }
+        if (rem.length) result = rem + ',' + result;
+      }
+      return sym + (n < 0 ? '-' : '') + result;
+    }
+    return sym + Math.abs(Math.round(n)).toLocaleString('en-US') + (n < 0 ? ' (-)' : '');
+  };
+  window.FINOS.fmtShort = function (amount) {
+    var n = Number(amount);
+    if (isNaN(n)) return '—';
+    var abs = Math.abs(n);
+    if (abs >= 1e7)  return (n / 1e7).toFixed(2) + ' Cr';
+    if (abs >= 1e5)  return (n / 1e5).toFixed(2) + ' L';
+    if (abs >= 1e3)  return (n / 1e3).toFixed(1) + 'K';
+    return String(Math.round(n));
+  };
+})();
+
 document.addEventListener("DOMContentLoaded", () => {
 
   /* =========================

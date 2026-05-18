@@ -68,7 +68,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   border-bottom:1px solid var(--border);
   backdrop-filter:blur(16px);
 }
-.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;letter-spacing:.15em;text-transform:uppercase;color:var(--a1)}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;letter-spacing:.15em;text-transform:uppercase;color:var(--a1);flex-shrink:0}
 .logo-sq{
   width:30px;height:30px;border-radius:7px;
   background:linear-gradient(135deg,var(--a1),var(--a2));
@@ -76,14 +76,20 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   font-family:var(--mono);font-size:.65rem;font-weight:600;color:#fff;
   box-shadow:var(--glow1);
 }
-.topbar-r{display:flex;align-items:center;gap:12px}
+.topbar-r{display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden}
 .chip{
   font-family:var(--mono);font-size:.6rem;letter-spacing:.06em;
   padding:3px 10px;border-radius:20px;border:1px solid var(--border2);
   background:var(--s1);color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;
+  flex-shrink:1;
 }
-.chip.live{border-color:var(--a4);color:var(--a4)}
+.chip.live{border-color:var(--a4);color:var(--a4);flex-shrink:0} /* status chip never shrinks */
 .chip.model{border-color:var(--a2);color:var(--a2)}
+#chip-ws{max-width:130px} /* ws URL chip: shrinks first */
+/* Hide WS chip text, keep just a dot indicator at very narrow widths */
+@media (max-width:600px){#chip-ws{display:none}}
+@media (max-width:420px){#chip-model{display:none}}
 #dot{width:8px;height:8px;border-radius:50%;background:var(--muted);transition:all .3s}
 #dot.on{background:var(--a4);box-shadow:0 0 8px var(--a4)}
 #dot.err{background:var(--danger)}
@@ -206,8 +212,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   grid-column:3;grid-row:2;
   background:var(--s0);border-left:1px solid var(--border);
   display:flex;flex-direction:column;align-items:center;
-  overflow:hidden;padding:12px;gap:10px;
+  overflow-y:auto;overflow-x:hidden;padding:12px;gap:10px;
 }
+#panel-right::-webkit-scrollbar{width:3px}
+#panel-right::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
 /* Central orb */
 #orb-wrap{display:flex;justify-content:center;padding:4px 0}
@@ -260,6 +268,19 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 }
 #tts-toggle.on{border-color:var(--a4);color:var(--a4)}
 #tts-toggle:hover{border-color:var(--a1);color:var(--a1)}
+
+/* language selector */
+#lang-select{
+  width:100%;background:var(--s1);border:1px solid var(--border);
+  color:var(--text);font-family:var(--mono);font-size:.6rem;
+  padding:7px 9px;border-radius:var(--r);outline:none;cursor:pointer;
+  transition:border-color .2s;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233a5878'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 9px center;
+  padding-right:28px;
+}
+#lang-select:hover,#lang-select:focus{border-color:var(--a1)}
+#lang-select option{background:var(--s1);color:var(--text)}
 
 /* ══════════════════════════════════════════════════════════
    BOTTOM BAR
@@ -330,9 +351,75 @@ input[type=range]::-webkit-slider-thumb{
 }
 
 /* ══════════════════════════════════════════════════════════
+   QUICK-START CHIPS
+══════════════════════════════════════════════════════════ */
+.qchip{
+  background:var(--s1);
+  border:1px solid var(--border2);
+  color:var(--text);
+  font-family:var(--font);
+  font-size:.75rem;
+  padding:6px 12px;
+  border-radius:20px;
+  cursor:pointer;
+  transition:border-color .2s, background .2s, color .2s, transform .12s;
+  white-space:nowrap;
+  line-height:1.3;
+}
+.qchip:hover{
+  border-color:var(--a1);
+  background:color-mix(in srgb, var(--a1) 10%, var(--s1));
+  color:#fff;
+  transform:translateY(-1px);
+}
+.qchip:active{ transform:scale(.95); }
+/* Hide chip tray after first question is asked */
+#quick-chips.used{ display:none!important; }
+
+/* Profile card key–value rows */
+.pc-row{display:flex;gap:6px;align-items:baseline;margin-bottom:2px}
+.pc-key{color:var(--muted);min-width:60px;flex-shrink:0;font-size:.57rem;text-transform:uppercase;letter-spacing:.06em}
+.pc-val{color:var(--a4);font-weight:600;font-size:.62rem;line-height:1.5}
+
+/* ══════════════════════════════════════════════════════════
    SCROLLBAR GLOBAL
 ══════════════════════════════════════════════════════════ */
 *{scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE — fits inside the popup iframe at any width
+══════════════════════════════════════════════════════════ */
+@media (max-width: 720px) {
+  #app {
+    grid-template-columns: 180px 1fr 180px;
+  }
+}
+
+@media (max-width: 580px) {
+  /* Collapse to chat + status only, hide memory panel */
+  #app {
+    grid-template-columns: 1fr 170px;
+    grid-template-rows: 54px 1fr 110px;
+  }
+  #panel-left { display: none; }
+  #panel-mid  { grid-column: 1; grid-row: 2; }
+  #panel-right{ grid-column: 2; grid-row: 2; }
+  #bar        { grid-column: 1 / -1; }
+  .bubble { max-width: 100%; }
+}
+
+@media (max-width: 420px) {
+  /* Single-column: hide status panel too, full-width chat */
+  #app {
+    grid-template-columns: 1fr;
+    grid-template-rows: 54px 1fr 110px;
+  }
+  #panel-left  { display: none; }
+  #panel-right { display: none; }
+  #panel-mid   { grid-column: 1; grid-row: 2; }
+  #bar         { grid-column: 1; }
+  #topbar      { grid-column: 1; }
+}
 </style>
 </head>
 <body>
@@ -344,10 +431,10 @@ input[type=range]::-webkit-slider-thumb{
 <header id="topbar">
   <div class="logo">
     <div class="logo-sq">FO</div>
-    FIN-OS&nbsp;<span style="color:var(--muted);font-weight:300">DESI&nbsp;AI</span>
+    FIN-OS&nbsp;<span style="color:var(--muted);font-weight:300">DESI&nbsp;AI&nbsp;v10</span>
   </div>
   <div class="topbar-r">
-    <div class="chip model" id="chip-model">llama3.1</div>
+    <div class="chip model" id="chip-model">qwen2.5:3b</div>
     <div class="chip" id="chip-ws">ws://localhost:8765</div>
     <div class="chip live" id="chip-status">OFFLINE</div>
     <div id="dot"></div>
@@ -357,23 +444,54 @@ input[type=range]::-webkit-slider-thumb{
 <!-- ═══════════════ LEFT — MEMORY ═══════════════ -->
 <aside id="panel-left">
   <div class="phead">
-    Memory&nbsp;/&nbsp;<em id="mc">0</em>&nbsp;yaadein
+    Yaadein&nbsp;/&nbsp;<em id="mc">0</em>&nbsp;turns
     <button onclick="clearMem()" style="background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:.55rem;padding:2px 7px;border-radius:5px;cursor:pointer;letter-spacing:.05em">CLR</button>
   </div>
-  <div id="mem-list"><div class="sysnote" style="margin-top:20px">Abhi koi yaad nahi 🧠</div></div>
+  <div id="mem-list"><div class="sysnote" style="margin-top:20px;padding:0 12px;font-size:.75rem;line-height:1.6;color:var(--muted)">Abhi koi yaad nahi 🧠<br/><br/>Baat karo — main yaad rakh-ta/ti hoon tumhara naam, income, aur goals.</div></div>
+
+  <!-- Pending alerts panel — populated from alert engine on connect -->
+  <div id="alerts-panel" style="display:none;margin:12px 12px 0;padding:10px;background:rgba(240,68,68,.07);border:1px solid rgba(240,68,68,.25);border-radius:10px;">
+    <div style="color:#f04444;font-family:var(--mono);font-weight:700;font-size:.57rem;letter-spacing:.08em;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+      <span>🔔 PENDING ALERTS</span>
+      <span id="alert-count" style="background:rgba(240,68,68,.2);padding:1px 6px;border-radius:10px;font-size:.55rem"></span>
+    </div>
+    <div id="alert-list" style="display:flex;flex-direction:column;gap:4px"></div>
+    <button onclick="readAlertsAloud()" style="width:100%;margin-top:8px;background:rgba(240,68,68,.15);border:1px solid rgba(240,68,68,.3);color:#f04444;font-family:var(--mono);font-size:.57rem;padding:5px;border-radius:6px;cursor:pointer;letter-spacing:.04em">▶ ALERTS SUNO</button>
+  </div>
+
+  <!-- Profile card — fills as conversation progresses -->
+  <div id="profile-card" style="display:none;margin:12px;padding:12px;background:var(--s1);border:1px solid var(--border2);border-radius:10px;font-family:var(--mono);font-size:.62rem;line-height:1.8;color:var(--text)">
+    <div style="color:var(--a4);font-weight:700;letter-spacing:.08em;margin-bottom:6px;font-size:.58rem">TUMHARA PROFILE</div>
+    <div id="pc-content"></div>
+  </div>
 </aside>
 
 <!-- ═══════════════ CENTER — CHAT ═══════════════ -->
 <main id="panel-mid">
   <div id="chat">
-    <div class="row a">
+    <!-- Welcome message -->
+    <div class="row a" id="welcome-row">
       <div class="av a">FO</div>
-      <div class="bubble">
-        <strong>Arre yaar, aa gaye!</strong> 🎉 Main hoon <strong>FIN-OS</strong> — tera desi AI dost!<br/><br/>
-        Sab kuch seedha tere device pe chal raha hai — <strong>Llama 3.1</strong> via Ollama. Internet nahi chahiye, privacy full on!<br/><br/>
-        Puch kuch bhi — finance, coding, analysis — main yahan hoon. <strong>Bol bhai, kya scene hai?</strong> 🚀
-        <button class="speak-btn" onclick="speakText(this)">▶ speak</button>
+      <div class="bubble" id="welcome-bubble">
+        <strong>Namaste! Main hoon FIN-OS</strong> — tumhara desi personal finance dost. 🇮🇳<br/><br/>
+        Ek IIM-padha, fund-mein-kaam-kiya, lekin <em>real baat karna jaanta</em> wala dost — bas yahi hun main.<br/><br/>
+        SIP se le kar LIC ke jhaansey tak, EMI ke traps se le kar retirement corpus tak — <strong>seedha jawab dunga, textbook jaisi bakwaas nahi.</strong><br/><br/>
+        <span style="color:var(--a3)">Bolo — kya poochna hai? 👇</span>
+        <button class="speak-btn" onclick="speakText(this)">▶ sun</button>
       </div>
+    </div>
+
+    <!-- Quick-start topic chips -->
+    <div id="quick-chips" style="padding:4px 8px 16px;display:flex;flex-wrap:wrap;gap:8px">
+      <div style="width:100%;font-family:var(--mono);font-size:.58rem;color:var(--muted);letter-spacing:.08em;margin-bottom:2px">SEEDHA POOCHO →</div>
+      <button class="qchip" onclick="quickAsk(this)">💀 Meri LIC sahi hai ya nahi?</button>
+      <button class="qchip" onclick="quickAsk(this)">📈 SIP kahan se shuru karun?</button>
+      <button class="qchip" onclick="quickAsk(this)">🏠 Ghar khareedun ya rent pe rahun?</button>
+      <button class="qchip" onclick="quickAsk(this)">💰 Bonus mila — kya karun?</button>
+      <button class="qchip" onclick="quickAsk(this)">📊 Tax kaise bachaaun?</button>
+      <button class="qchip" onclick="quickAsk(this)">🚗 Car EMI lena theek hai?</button>
+      <button class="qchip" onclick="quickAsk(this)">🔥 FIRE possible hai mere liye?</button>
+      <button class="qchip" onclick="quickAsk(this)">😱 Sharmaji F&O mein kamat raha hai...</button>
     </div>
   </div>
 </main>
@@ -392,13 +510,30 @@ input[type=range]::-webkit-slider-thumb{
 
   <canvas id="wave-canvas" width="200" height="70"></canvas>
 
+  <!-- User context sync badge — shown once context arrives -->
+  <div id="ctx-badge" style="display:none;width:100%;background:color-mix(in srgb,var(--a4) 10%,var(--s1));border:1px solid color-mix(in srgb,var(--a4) 30%,transparent);border-radius:8px;padding:7px 10px;font-family:var(--mono);font-size:.57rem;line-height:1.7;">
+    <div style="color:var(--a4);font-weight:700;letter-spacing:.07em;margin-bottom:3px">✅ PROFILE SYNCED</div>
+    <div id="ctx-name"  style="color:var(--text)"></div>
+    <div id="ctx-extra" style="color:var(--muted)"></div>
+  </div>
+
   <div class="stat-grid">
-    <div class="stat"><span class="sk">STT</span><span class="sv g">faster-whisper</span></div>
-    <div class="stat"><span class="sk">LLM</span><span class="sv" id="sv-llm">llama3.1</span></div>
-    <div class="stat"><span class="sk">TTS</span><span class="sv y" id="sv-tts">Web Speech</span></div>
-    <div class="stat"><span class="sk">MEM</span><span class="sv">ChromaDB</span></div>
+    <div class="stat"><span class="sk">USER</span><span class="sv g" id="sv-user">—</span></div>
+    <div class="stat"><span class="sk">SYNC</span><span class="sv" id="sv-sync" style="color:var(--muted)">waiting...</span></div>
+    <div class="stat"><span class="sk">MEM</span><span class="sv" id="sv-mem" style="color:var(--muted)">—</span></div>
+    <div class="stat"><span class="sk">PAGE</span><span class="sv" id="sv-page" style="color:var(--muted)">—</span></div>
+    <div class="stat"><span class="sk">STT</span><span class="sv g" id="sv-stt">whisper</span></div>
+    <div class="stat"><span class="sk">LLM</span><span class="sv" id="sv-llm">qwen2.5:3b</span></div>
+    <div class="stat"><span class="sk">TTS</span><span class="sv y" id="sv-tts">Edge Neural</span></div>
+    <div class="stat"><span class="sk">LANG</span><span class="sv y" id="sv-lang">auto</span></div>
     <div class="stat"><span class="sk">TURNS</span><span class="sv" id="sv-turns">0</span></div>
     <div class="stat"><span class="sk">LATENCY</span><span class="sv" id="sv-lat">—</span></div>
+  </div>
+
+  <!-- Memory restored banner — shown after Supabase memory loads -->
+  <div id="mem-banner" style="display:none;width:100%;background:color-mix(in srgb,var(--a2) 12%,var(--s1));border:1px solid color-mix(in srgb,var(--a2) 35%,transparent);border-radius:8px;padding:7px 10px;font-family:var(--mono);font-size:.57rem;line-height:1.7;margin-top:6px;">
+    <div style="color:var(--a2);font-weight:700;letter-spacing:.07em;margin-bottom:2px">🧠 MEMORY RESTORED</div>
+    <div id="mem-banner-detail" style="color:var(--muted)"></div>
   </div>
 
   <div class="speed-row">
@@ -407,6 +542,15 @@ input[type=range]::-webkit-slider-thumb{
   </div>
 
   <button id="tts-toggle" class="on" onclick="toggleTTS()">🔊 BOLEGA ZAROOR</button>
+
+  <div class="speed-row">
+    <div class="speed-label"><span>TTS LANGUAGE</span></div>
+    <select id="lang-select" onchange="setTTSLang(this.value)">
+      <option value="auto" selected>English (default)</option>
+      <option value="hinglish">Hinglish — हिंग्लिश</option>
+      <option value="hindi">हिंदी — Hindi</option>
+    </select>
+  </div>
 
 </aside>
 
@@ -443,9 +587,82 @@ let ttsNative    = false;
 let currentSpeech= null;
 let streamTarget = null;   // the live .row element being typed into
 let streamBuffer = "";     // full text accumulated so far
-let speakQueue   = [];     // sentences waiting to be spoken
-let isSpeaking   = false;  // TTS busy flag
+let speakQueue   = [];     // sentences waiting to be spoken (Web Speech fallback)
+let isSpeaking   = false;  // Web Speech busy flag
 let speakBubble  = null;   // bubble currently being spoken into
+
+// ── Sequenced audio queue (Edge Neural TTS) ──────────────────────────────────
+// Each sentence arrives as audio_seq{seq, data, format}. We buffer by seq
+// number and play them strictly in order so the speech is always coherent.
+let seqQueue     = {};     // {seq: blobURL}  — buffered, waiting to play
+let nextPlaySeq  = 0;      // next seq index to play
+let totalSeqs    = -1;     // set when audio_seq_done arrives; -1 = unknown
+let playedSeqs   = 0;      // how many seqs have finished playing
+let isPlayingSeq = false;  // true while an Audio element is active
+let currentAudio = null;   // the currently playing Audio element
+
+function resetSeqQueue() {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  Object.values(seqQueue).forEach(url => URL.revokeObjectURL(url));
+  seqQueue     = {};
+  nextPlaySeq  = 0;
+  totalSeqs    = -1;
+  playedSeqs   = 0;
+  isPlayingSeq = false;
+}
+
+function onSeqAudio(data, format, seq) {
+  if (!autoSpeak) return;
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  speakQueue = []; isSpeaking = false;
+
+  const mime = format === 'wav' ? 'audio/wav' : 'audio/mpeg';
+  const bytes = Uint8Array.from(atob(data), c => c.charCodeAt(0));
+  seqQueue[seq] = URL.createObjectURL(new Blob([bytes], {type: mime}));
+  pumpSeqQueue();
+}
+
+function pumpSeqQueue() {
+  if (isPlayingSeq) return;
+  if (!(nextPlaySeq in seqQueue)) return;   // not arrived yet — wait
+
+  isPlayingSeq = true;
+  const seq = nextPlaySeq;
+  const url = seqQueue[seq];
+  delete seqQueue[seq];
+  nextPlaySeq++;
+
+  applyState('speaking');
+  waveTarget = .85;
+
+  const audio = new Audio(url);
+  currentAudio = audio;
+  audio.playbackRate = voiceSpeed;
+  audio.play().catch(e => {
+    console.error('[FIN-OS] seq audio error:', e);
+    URL.revokeObjectURL(url);
+    currentAudio = null;
+    isPlayingSeq = false;
+    playedSeqs++;
+    checkSeqDone();
+    pumpSeqQueue();
+  });
+  audio.onended = () => {
+    URL.revokeObjectURL(url);
+    currentAudio = null;
+    isPlayingSeq = false;
+    playedSeqs++;
+    checkSeqDone();
+    pumpSeqQueue();   // play the next sentence immediately
+  };
+}
+
+function checkSeqDone() {
+  if (totalSeqs !== -1 && playedSeqs >= totalSeqs) {
+    applyState('idle');
+    waveTarget = 0;
+  }
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    ANIMATED BACKGROUND WAVE CANVAS
@@ -518,20 +735,37 @@ drawOrbRing();
 /* ═══════════════════════════════════════════════════════════════════
    WEBSOCKET
 ═══════════════════════════════════════════════════════════════════ */
-function wsConnect(){
-  try{ ws = new WebSocket('ws://localhost:8765'); }
-  catch(e){ setTimeout(wsConnect,3000); return; }
-
-  ws.onopen = ()=>{
-    setConn(true);
-    clearTimeout(wsRec);
-  };
-  ws.onclose = ()=>{ setConn(false); setTimeout(wsConnect,3000); };
-  ws.onerror = ()=>{ setConn(false,'err'); };
-  ws.onmessage = e => onMsg(JSON.parse(e.data));
-}
-
 let wsRec = null;
+function wsConnect(){
+  // Guard: never open a second socket while one is already live
+  if(ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
+  clearTimeout(wsRec);
+
+  let sock;
+  try { sock = new WebSocket('ws://localhost:8765'); }
+  catch(e) { wsRec = setTimeout(wsConnect, 3000); return; }
+  // NOTE: do NOT set ws = sock here yet — wait for onopen to confirm the server accepted it.
+  // If the server rejects this socket, onclose fires but ws !== sock so no reconnect loop.
+
+  sock.onopen = () => {
+    ws = sock;          // only NOW is this the authoritative live socket
+    setConn(true);
+  };
+  sock.onclose = () => {
+    if (ws !== sock) return;   // rejected / superseded socket — ignore completely
+    ws = null;
+    setConn(false);
+    wsRec = setTimeout(wsConnect, 3000);
+  };
+  sock.onerror = () => {
+    if (ws !== sock) return;
+    setConn(false, 'err');
+  };
+  sock.onmessage = e => {
+    if (ws !== sock) return;
+    onMsg(JSON.parse(e.data));
+  };
+}
 function send(obj){
   if(ws && ws.readyState===1){ ws.send(JSON.stringify(obj)); return true; }
   return false;
@@ -555,13 +789,55 @@ function onMsg(m){
     case 'ready':
       document.getElementById('chip-model').textContent = m.model;
       document.getElementById('sv-llm').textContent     = m.model;
+      document.getElementById('sv-stt').textContent     = m.stt_engine || ('whisper ' + (m.whisper || 'large-v3'));
       ttsNative = m.tts_native;
-      if(ttsNative) document.getElementById('sv-tts').textContent = 'Piper';
+      document.getElementById('sv-tts').textContent     = m.tts_engine || 'Edge Neural';
+      { const sarvamEl = document.getElementById('sv-sarvam');
+        if(m.sarvam){
+          sarvamEl.textContent = 'ACTIVE';
+          sarvamEl.style.color = 'var(--a4)';
+        } else {
+          sarvamEl.textContent = 'no key set';
+          sarvamEl.style.color = 'var(--muted)';
+        }
+      }
+      if(m.tts_lang){
+        activeLang = m.tts_lang;
+        document.getElementById('sv-lang').textContent = m.tts_lang;
+        document.getElementById('lang-select').value   = m.tts_lang;
+      }
+      break;
+
+    case 'tts_lang_changed':
+      // Server confirmed language change — 'auto' means reset to auto-detect mode
+      if(m.lang === 'auto'){
+        activeLang = 'english';
+        document.getElementById('sv-lang').textContent = 'auto';
+        document.getElementById('lang-select').value   = 'auto';
+      } else {
+        activeLang = m.lang;
+        delete _voiceCache[m.lang];
+        document.getElementById('sv-lang').textContent = m.lang;
+        document.getElementById('lang-select').value   = m.lang;
+      }
+      break;
+
+    case 'detected_lang':
+      if(m.lang){
+        const prevLang = activeLang;
+        activeLang = m.lang;
+        delete _voiceCache[m.lang];
+        document.getElementById('sv-lang').textContent = m.lang;
+        if(document.getElementById('lang-select').value === 'auto')
+          document.getElementById('lang-select').value = m.lang;
+        const langLabels = {hindi:'Hindi', english:'English', hinglish:'Hinglish 🔀'};
+        if(m.lang !== prevLang)
+          sysNote('🎙 Detected: ' + (langLabels[m.lang] || m.lang) + ' — voice switched');
+      }
       break;
 
     case 'user_transcript':
       // Only add bubble for voice input — text input already adds it locally
-      // Check if last user bubble already has this text
       { const rows = document.querySelectorAll('.row.u');
         const last = rows.length ? rows[rows.length-1] : null;
         const lastTxt = last ? (last.querySelector('.bubble')?.textContent||'').trim() : '';
@@ -576,26 +852,108 @@ function onMsg(m){
       applyState(m.state);
       break;
 
+    case 'pipeline_start':
+      // New response starting — reset audio queue, cancel any ongoing speech
+      resetSeqQueue();
+      if('speechSynthesis' in window) window.speechSynthesis.cancel();
+      speakQueue = []; isSpeaking = false;
+      break;
+
     case 'token':
       onToken(m.text);
       break;
 
     case 'reply_done':
-      onReplyDone(m.text);
+      onReplyDone(m.text, m.display);
+      break;
+
+    case 'audio_seq':
+      // A single synthesised sentence arrives — buffer it and play in order
+      onSeqAudio(m.data, m.format || 'mp3', m.seq);
+      break;
+
+    case 'audio_seq_done':
+      // Server tells us how many sentences were synthesised in total
+      totalSeqs = m.total;
+      checkSeqDone();   // handle case where all audio already played
+      if(totalSeqs === 0) { applyState('idle'); waveTarget = 0; }
       break;
 
     case 'tts_fallback':
-      // reply_done triggers TTS; tts_fallback is a safety net if pipeline skips tokens
-      if(autoSpeak && !isSpeaking && speakQueue.length === 0) speakNextSentence(m.text);
+      // Fallback: Edge TTS unavailable — use Web Speech API instead
+      if(m.lang && m.lang !== activeLang){
+        activeLang = m.lang;
+        delete _voiceCache[m.lang];
+        document.getElementById('sv-lang').textContent = m.lang;
+        document.getElementById('lang-select').value   = m.lang;
+      }
+      if(autoSpeak && !isSpeaking && speakQueue.length === 0){
+        const cleaned = cleanTextForTTS(m.text);
+        const parts = cleaned.match(/[^.!?\n]+[.!?\n]*/g) || [cleaned];
+        speakQueue = parts.map(s=>s.trim()).filter(Boolean);
+        pumpSpeakQueue();
+      }
       break;
 
     case 'audio_response':
-      // Piper WAV response
-      playWav(m.data, m.format);
+      // Legacy single-chunk audio — kept for backward compatibility
+      playAudio(m.data, m.format || 'mp3');
+      break;
+
+    case 'context_ack':
+      // Backend confirmed it received and accepted the user context
+      { const svSync = document.getElementById('sv-sync');
+        if (m.phase === 'rejected') {
+          if (svSync) { svSync.textContent = '⛔ rejected'; svSync.style.color='var(--danger)'; }
+          sysNote('⛔ Context rejected by backend — security check failed.');
+        } else {
+          if (svSync) { svSync.textContent = '✅ ' + (m.phase || 'synced'); svSync.style.color='var(--a4)'; }
+          if (m.name) {
+            const svUser = document.getElementById('sv-user');
+            if (svUser) svUser.textContent = m.name;
+          }
+          // No chat note for refresh syncs — only first time
+          if (!_ctxSent) sysNote(`✅ Profile loaded — ${m.name || 'user'} · ${m.phase} sync`);
+          _ctxSent = true;
+        }
+      }
       break;
 
     case 'memories':
       renderMem(m.data);
+      // Show prior session summary chip if it came back with memories
+      if (m.prior_summary) {
+        const svMem = document.getElementById('sv-mem');
+        if (svMem) { svMem.textContent = 'restored'; svMem.style.color = 'var(--a2)'; }
+      }
+      break;
+
+    case 'memory_restored':
+      // Supabase persistent memory loaded for this user
+      { const svMem    = document.getElementById('sv-mem');
+        const banner   = document.getElementById('mem-banner');
+        const detail   = document.getElementById('mem-banner-detail');
+        if (m.restored) {
+          if (svMem)  { svMem.textContent = '✅ cloud'; svMem.style.color = 'var(--a2)'; }
+          if (banner) banner.style.display = 'block';
+          if (detail) {
+            const parts = [];
+            if (m.profile_keys > 0) parts.push(`${m.profile_keys} facts`);
+            if (m.mem_items > 0)    parts.push(`${m.mem_items} turns`);
+            detail.textContent = parts.length ? parts.join(' · ') + ' loaded' : 'profile loaded';
+          }
+          // Show summary snippet in chat if available
+          if (m.summary) {
+            sysNote(`🧠 Yaad hai — ${m.summary}`);
+          } else {
+            sysNote('🧠 Tujhe yaad hai mujhe — previous session se memory restore ho gayi!');
+          }
+          // Auto-hide banner after 8s
+          setTimeout(() => { if (banner) banner.style.display = 'none'; }, 8000);
+        } else {
+          if (svMem) { svMem.textContent = 'new'; svMem.style.color = 'var(--muted)'; }
+        }
+      }
       break;
 
     case 'status':
@@ -689,51 +1047,55 @@ function sysNote(t){
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   SIMULTANEOUS TYPE + TALK ENGINE
-   Tokens stream in → typed character-by-character into bubble
-   Sentences are queued → spoken as soon as they complete
-   Word-by-word highlight syncs text ↔ voice perfectly
+   TYPE + TALK ENGINE
+   Primary path: server synthesises each sentence via Edge Neural TTS
+   and sends audio_seq messages → pumpSeqQueue plays them in order.
+   Fallback: Web Speech API used only when Edge TTS is unavailable.
+   drainSentences / speakQueue are fallback-only.
 ═══════════════════════════════════════════════════════════════════ */
 
-// Sentence boundary regex
-const SENT_RE = /([^.!?\n]+[.!?\n]+)/g;
-
 function onToken(tok){
-  // ── Create bubble on first token ──────────────────────────────────
+  // Create bubble on first token of a new response
   if(!streamTarget){
     streamTarget  = appendMsg('a', '', false);
     streamBuffer  = '';
     speakQueue    = [];
     speakBubble   = streamTarget;
-    // Add typing cursor
     const bub = streamTarget.querySelector('.bubble');
     bub.innerHTML = '<span class="cursor"></span><button class="speak-btn" onclick="speakText(this)">▶ speak</button>';
   }
 
   streamBuffer += tok;
 
-  // ── Append token text before cursor ───────────────────────────────
+  // Append token text before the blinking cursor
   const bub    = streamTarget.querySelector('.bubble');
   const cursor = bub.querySelector('.cursor');
-  const sb     = bub.querySelector('.speak-btn');
-  // insert each char of tok as a text node
   bub.insertBefore(document.createTextNode(tok), cursor);
   document.getElementById('chat').scrollTop = 9999;
 
-  // ── Drain complete sentences into speak queue ──────────────────────
-  if(autoSpeak) drainSentences(false);
+  // Web Speech fallback only — Edge Neural TTS handles audio via audio_seq
+  if(autoSpeak && !ttsNative) drainSentences(false);
 }
 
-function onReplyDone(fullText){
-  // Remove typing cursor
+function onReplyDone(fullText, displayText){
   if(streamTarget){
     const bub    = streamTarget.querySelector('.bubble');
     const cursor = bub.querySelector('.cursor');
     if(cursor) cursor.remove();
+
+    // Replace streamed bubble content with server-cleaned display text.
+    // This strips any parenthetical translations / English leak the LLM snuck in.
+    const clean = displayText || fullText;
+    if(clean && clean !== fullText){
+      bub.innerHTML = esc(clean).replace(/\n/g,'<br>')
+        + '<button class="speak-btn" onclick="speakText(this)">▶ speak</button>';
+    }
   }
 
-  // Speak any remaining text
-  if(autoSpeak) drainSentences(true);
+  // Web Speech fallback — only if Edge Neural TTS produced nothing
+  if(autoSpeak && totalSeqs === -1 && nextPlaySeq === 0){
+    drainSentences(true);
+  }
 
   streamTarget = null;
   turns++;
@@ -742,38 +1104,108 @@ function onReplyDone(fullText){
   send({type:'get_memories'});
 }
 
-// Extract complete sentences from streamBuffer and push to queue
+// Extract complete sentences from streamBuffer and push to Web Speech queue.
+// Splits on English AND Indian punctuation (। ॥).
+// Called only as Web Speech fallback when Edge Neural TTS is unavailable.
 function drainSentences(flush){
   let match;
   let lastEnd = 0;
-  const re = /([^.!?\n]*[.!?\n]+)/g;
+  const re = /([^.!?\n।॥]*[.!?\n।॥]+)/g;
   while((match = re.exec(streamBuffer)) !== null){
-    const sent = match[1].trim();
-    if(sent) speakQueue.push(sent);
+    const sent = cleanTextForTTS(match[1].trim());
+    if(sent && sent.length > 2) speakQueue.push(sent);
     lastEnd = re.lastIndex;
   }
-  // Trim processed text from buffer
   if(lastEnd > 0) streamBuffer = streamBuffer.slice(lastEnd);
 
-  // On flush (reply done), speak whatever remains
   if(flush && streamBuffer.trim()){
-    speakQueue.push(streamBuffer.trim());
+    const flushed = cleanTextForTTS(streamBuffer.trim());
+    if(flushed && flushed.length > 2) speakQueue.push(flushed);
     streamBuffer = '';
   }
 
   if(!isSpeaking) pumpSpeakQueue();
 }
 
-// Pick best English voice (cached after first call)
-let _bestVoice = null;
-function getBestVoice(){
-  if(_bestVoice) return _bestVoice;
+// BCP-47 lang codes for each supported language
+const LANG_CONFIG = {
+  hindi:    { bcp: 'hi-IN', prefix: 'hi', fallbackBcp: 'en-IN' },
+  hinglish: { bcp: 'en-IN', prefix: 'en', fallbackBcp: 'en-US' },  // Hinglish TTS = Indian-accent English
+  tamil:    { bcp: 'ta-IN', prefix: 'ta', fallbackBcp: 'en-IN' },
+  telugu:   { bcp: 'te-IN', prefix: 'te', fallbackBcp: 'en-IN' },
+  kannada:  { bcp: 'kn-IN', prefix: 'kn', fallbackBcp: 'en-IN' },
+  english:  { bcp: 'en-IN', prefix: 'en', fallbackBcp: 'en-US' },  // en-IN preferred even for English
+};
+
+// Active language key — synced with the dropdown
+let activeLang = 'english';
+
+// Per-language voice cache; null means uncached
+const _voiceCache = {};
+
+/**
+ * Strip non-Latin/non-ASCII scripts from text so TTS engines don't choke or
+ * switch phoneme sets mid-utterance. Keeps Roman-script content intact.
+ * Also normalises bracketed translations like "(Exactly! Hello)" to just the
+ * content inside, since the LLM sometimes adds them.
+ */
+function cleanTextForTTS(text){
+  // Strip parenthetical content — catches "(translation)" and "(meaning)" patterns
+  // Use a loop to catch nested or consecutive parens
+  let prev = '';
+  while(prev !== text){
+    prev = text;
+    text = text.replace(/\([^)]{0,150}\)/g, '');
+  }
+  // Strip square bracket annotations [like this]
+  text = text.replace(/\[[^\]]{0,150}\]/g, '');
+  // Strip markdown formatting
+  text = text.replace(/[*_#`~>|\\]/g, '');
+  // Strip URLs
+  text = text.replace(/https?:\/\/\S+/g, '');
+  // Strip CJK and Arabic/Hebrew (NOT Indic — Edge Neural handles those natively)
+  text = text.replace(/[一-鿿぀-ヿ؀-ۿ֐-׿]/g, '');
+  // Normalise whitespace
+  text = text.replace(/[\s\n\r]+/g, ' ').trim();
+  return text;
+}
+
+function getBestVoice(langKey){
+  langKey = langKey || activeLang;
+  if(_voiceCache[langKey] !== undefined) return _voiceCache[langKey];
+
+  const cfg    = LANG_CONFIG[langKey] || LANG_CONFIG.english;
   const voices = window.speechSynthesis.getVoices();
-  _bestVoice = voices.find(v=>v.lang.startsWith('en') && /natural|enhanced|premium|neural|google/i.test(v.name))
-            || voices.find(v=>v.lang==='en-US')
-            || voices.find(v=>v.lang.startsWith('en'))
-            || null;
-  return _bestVoice;
+  let v = null;
+
+  // Priority ladder for each language:
+  // 1. Exact BCP-47 + premium/neural/enhanced/Google label
+  // 2. Exact BCP-47 match (any voice)
+  // 3. Same language prefix (e.g. hi-*)
+  // 4. en-IN (Indian accent reads Indic romanisation better than en-US)
+  // 5. Any English voice as last resort
+  const isPremium = n => /natural|enhanced|premium|neural|google|wavenet|siri/i.test(n);
+
+  if(langKey === 'english'){
+    v = voices.find(x => x.lang==='en-IN' && isPremium(x.name));
+    if(!v) v = voices.find(x => x.lang==='en-IN');
+    if(!v) v = voices.find(x => /en-US|en-GB/.test(x.lang) && isPremium(x.name));
+    if(!v) v = voices.find(x => x.lang==='en-US');
+    if(!v) v = voices.find(x => x.lang.startsWith('en'));
+  } else {
+    v = voices.find(x => x.lang===cfg.bcp && isPremium(x.name));
+    if(!v) v = voices.find(x => x.lang===cfg.bcp);
+    if(!v) v = voices.find(x => x.lang.startsWith(cfg.prefix+'-'));
+    if(!v) v = voices.find(x => x.lang===cfg.prefix);
+    // Indian-accent English as fallback for Indian language text
+    if(!v) v = voices.find(x => x.lang==='en-IN' && isPremium(x.name));
+    if(!v) v = voices.find(x => x.lang==='en-IN');
+    if(!v) v = voices.find(x => x.lang.startsWith('en'));
+  }
+
+  _voiceCache[langKey] = v || null;
+  console.log('[FIN-OS] voice for', langKey, '→', v ? v.name+'('+v.lang+')' : 'none (browser default)');
+  return _voiceCache[langKey];
 }
 
 // Dequeue and speak one sentence at a time
@@ -813,15 +1245,17 @@ function speakSentence(sentence, onDone){
     const sentStart = fullText.indexOf(sentence.trim().slice(0,20));
 
     // Wrap matching words in highlight spans (only this sentence's words)
-    // Strategy: find each word in text nodes and wrap with span
     wordSpans = wrapWordsInBubble(bub, words, sentStart >= 0 ? sentStart : 0);
   }
 
-  const utt = new SpeechSynthesisUtterance(sentence);
+  const utt  = new SpeechSynthesisUtterance(cleanTextForTTS(sentence));
   utt.rate   = voiceSpeed;
   utt.pitch  = 1.0;
   utt.volume = 1.0;
-  const v = getBestVoice();
+  // Set the BCP-47 lang so the browser engine attempts the right phoneme set
+  const cfg = LANG_CONFIG[activeLang] || LANG_CONFIG.english;
+  utt.lang  = cfg.bcp;
+  const v   = getBestVoice(activeLang);
   if(v) utt.voice = v;
 
   utt.onboundary = (e)=>{
@@ -889,7 +1323,6 @@ function wrapWordsInBubble(bub, words, startHint){
     const txt = tn.textContent;
     const frag = document.createDocumentFragment();
     let remaining = txt;
-    let offset = 0;
 
     while(wordIdx < words.length && remaining){
       const w = words[wordIdx];
@@ -935,25 +1368,36 @@ function speakText(btn){
       el.remove();
     }
   });
-  const text = clone.textContent.trim();
+  const text = cleanTextForTTS(clone.textContent.trim());
   if(!text) return;
 
-  // Split into sentences and queue all
-  const parts = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
-  speakQueue = parts.map(s=>s.trim()).filter(Boolean);
+  // Split on English and Indian sentence-end characters (। ॥)
+  const parts = text.match(/[^.!?\n।॥]+[.!?\n।॥]*/g) || [text];
+  speakQueue = parts.map(s=>s.trim()).filter(s => s.length > 2);
   pumpSpeakQueue();
 }
 
-function playWav(b64){
-  const bytes = Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-  const blob  = new Blob([bytes],{type:'audio/wav'});
+function playAudio(b64, format){
+  // Edge Neural MP3 response — kill any Web Speech that may have leaked through
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  speakQueue = [];
+  isSpeaking = false;
+
+  const mime  = (format === 'wav') ? 'audio/wav' : 'audio/mpeg';
+  const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  const blob  = new Blob([bytes], {type: mime});
   const url   = URL.createObjectURL(blob);
   const audio = new Audio(url);
   applyState('speaking');
   waveTarget = .85;
   audio.playbackRate = voiceSpeed;
-  audio.play();
-  audio.onended = ()=>{ applyState('idle'); waveTarget=0; URL.revokeObjectURL(url); };
+  audio.play().catch(e => {
+    console.error('[FIN-OS] Audio play error:', e);
+    applyState('idle');
+    waveTarget = 0;
+  });
+  audio.onended = () => { applyState('idle'); waveTarget = 0; URL.revokeObjectURL(url); };
+  audio.onerror = () => { applyState('idle'); waveTarget = 0; URL.revokeObjectURL(url); };
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -1140,14 +1584,496 @@ function updateSpeed(v){
   document.getElementById('speed-val').textContent = voiceSpeed.toFixed(1)+'×';
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   TTS LANGUAGE SWITCHER
+═══════════════════════════════════════════════════════════════════ */
+function setTTSLang(lang){
+  activeLang = (lang === 'auto') ? 'english' : lang;
+  delete _voiceCache[activeLang];
+  send({ type: 'set_language', lang });
+  const labels = {
+    auto:     'English (default)',
+    english:  'English',
+    hindi:    'हिंदी',
+    hinglish: 'Hinglish 🔀',
+  };
+  const displayLang = lang === 'auto' ? 'auto' : lang;
+  document.getElementById('sv-lang').textContent = displayLang;
+  sysNote(`🗣 TTS language → ${labels[lang] || lang}`);
+}
+
 // Preload voices on page load (Chrome needs this)
 if('speechSynthesis' in window){
   window.speechSynthesis.getVoices();
-  window.speechSynthesis.onvoiceschanged = ()=>{ window.speechSynthesis.getVoices(); };
+  window.speechSynthesis.onvoiceschanged = ()=>{
+    Object.keys(_voiceCache).forEach(k => delete _voiceCache[k]);
+    window.speechSynthesis.getVoices();
+  };
 }
 
 // Periodic memory refresh
 setInterval(()=>{ send({type:'get_memories'}); }, 10000);
+
+/* ═══════════════════════════════════════════════════════════════════
+   QUICK-START CHIPS
+   Clicking a chip fills the input and sends immediately.
+   The chip tray hides itself after first use so it doesn't clutter.
+═══════════════════════════════════════════════════════════════════ */
+function quickAsk(btn){
+  // Get the chip text without leading emoji — keep the full string for context
+  const text = btn.textContent.trim();
+  const inp  = document.getElementById('inp');
+  inp.value  = text;
+  // Hide the chip tray so chat stays clean
+  document.getElementById('quick-chips').classList.add('used');
+  // Send immediately
+  sendText();
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PROFILE CARD
+   Automatically parses memory items for profile signals and renders
+   a "Tumhara Profile" card in the left panel as the AI learns more.
+═══════════════════════════════════════════════════════════════════ */
+const _profile = {};  // mutable profile snapshot built from conversation
+
+// Profile signal patterns — unique key per signal so multi-value fields work
+// displayKey maps key → label shown in the profile card
+const _profPat = [
+  // Name (first match wins)
+  { key:'name',         label:'Name',   re:/my name is ([A-Z][a-z]+(?: [A-Z][a-z]+)?)/i,              fmt: v=>'👤 '+v },
+  { key:'name',         label:'Name',   re:/(?:call me|i'?m|i am) ([A-Z][a-z]+(?: [A-Z][a-z]+)?)/i,   fmt: v=>'👤 '+v },
+  // Age
+  { key:'age',          label:'Age',    re:/(?:i am|i'm|main) (\d{2}) (?:years|saal)/i,                fmt: v=>'🎂 '+v+' yrs' },
+  { key:'age',          label:'Age',    re:/age (?:is )? *(\d{2})/i,                                   fmt: v=>'🎂 '+v+' yrs' },
+  // Income
+  { key:'income',       label:'Income', re:/(?:earn|salary|income)[^\d]*₹? *(\d[\d,.]+(?: ?[lk](?:akh|lac)?)?)/i, fmt: v=>'💰 ₹'+v+'/mo' },
+  { key:'income',       label:'Income', re:/(\d[\d,.]+) (?:lakh|lac) (?:per|p\.?a\.?|annual)/i,        fmt: v=>'💰 ₹'+v+'L p.a.' },
+  // City
+  { key:'city',         label:'City',   re:/(?:live|stay|based|from) (?:in )?([A-Z][a-z]{2,}(?:abad|pur|nagar|bad|ai|ore|hi|ua)?)/i, fmt: v=>'🏙 '+v },
+  // Goals — each gets its own unique key so all can be stored
+  { key:'goal_home',    label:'Goal',   re:/want(?:ing)? to (?:buy|purchase) (?:a )?(?:house|flat|home)/i, fmt:()=>'🏠 Home buyer' },
+  { key:'goal_fire',    label:'Goal',   re:/retire(?:ment)? (?:by|at|before) (\d{2})/i,                    fmt:v=>'🏖 FIRE @ '+v   },
+  { key:'goal_biz',     label:'Goal',   re:/(?:start(?:ing)?|open(?:ing)?) (?:a )?(?:business|startup)/i,  fmt:()=>'🚀 Business'  },
+  { key:'goal_abroad',  label:'Goal',   re:/(?:move|settle|go) (?:to )?abroad/i,                           fmt:()=>'✈ Abroad plan' },
+  // Debts — unique keys per loan type
+  { key:'debt_home',    label:'Loan',   re:/home loan/i,      fmt:()=>'🏦 Home loan'     },
+  { key:'debt_car',     label:'Loan',   re:/car loan/i,       fmt:()=>'🚗 Car loan'      },
+  { key:'debt_pl',      label:'Loan',   re:/personal loan/i,  fmt:()=>'💳 Personal loan' },
+  { key:'debt_cc',      label:'Loan',   re:/credit card/i,    fmt:()=>'💳 CC debt'       },
+  // Family
+  { key:'married',      label:'Family', re:/(?:married|my wife|my husband)/i,   fmt:()=>'💑 Married'        },
+  { key:'kids',         label:'Family', re:/(?:kid|child|baby|son|daughter)/i,  fmt:()=>'👶 Has kids'       },
+  { key:'dep_parents',  label:'Family', re:/dependent parents/i,                fmt:()=>'👨‍👩‍👦 Dep. parents' },
+];
+
+function extractProfile(memItems){
+  const joined = memItems.join(' ');
+  let changed = false;
+  _profPat.forEach(p=>{
+    if(_profile[p.key]) return;     // already extracted this key
+    const m = joined.match(p.re);
+    if(m){
+      _profile[p.key] = p.fmt(m[1]||'');
+      changed = true;
+    }
+  });
+  return changed;
+}
+
+function renderProfileCard(){
+  const keys = Object.keys(_profile);
+  const card = document.getElementById('profile-card');
+  const cont = document.getElementById('pc-content');
+  if(!keys.length){ card.style.display='none'; return; }
+
+  card.style.display = '';
+
+  // Render in pattern order; deduplicate by key
+  const rows = [];
+  const seen = {};
+  _profPat.forEach(p=>{
+    if(seen[p.key] || !_profile[p.key]) return;
+    seen[p.key] = 1;
+    rows.push(`<div class="pc-row"><span class="pc-key">${p.label}</span><span class="pc-val">${_profile[p.key]}</span></div>`);
+  });
+  cont.innerHTML = rows.join('');
+}
+
+// Override renderMem to also update profile card
+const _origRenderMem = renderMem;
+renderMem = function(docs){
+  _origRenderMem(docs);
+  if(docs && docs.length){
+    const changed = extractProfile(docs);
+    if(changed) renderProfileCard();
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   FINOS SETTINGS SYNC
+   Reads aiVoiceSpeed + aiLang from FINOS_SYS_SETTINGS (set via
+   Settings page) and applies them immediately.
+═══════════════════════════════════════════════════════════════════ */
+function applyFinosSettings(cfg) {
+  if (!cfg) return;
+
+  // Voice speed
+  if (cfg.aiVoiceSpeed != null) {
+    const spd = parseFloat(cfg.aiVoiceSpeed);
+    if (!isNaN(spd) && spd !== voiceSpeed) {
+      voiceSpeed = spd;
+      const slider = document.getElementById('speed-slider');
+      const label  = document.getElementById('speed-val');
+      if (slider) slider.value = spd;
+      if (label)  label.textContent = spd.toFixed(1) + '×';
+    }
+  }
+
+  // Language
+  if (cfg.aiLang) {
+    // Map settings lang keys to the dropdown values we have
+    const langMap = { hinglish: 'hinglish', english: 'auto', hindi: 'hindi', tamil: 'auto' };
+    const ttsLang = langMap[cfg.aiLang] || 'auto';
+    const sel = document.getElementById('lang-select');
+    if (sel && sel.value !== ttsLang) {
+      sel.value = ttsLang;
+      setTTSLang(ttsLang);
+    }
+  }
+
+  // Show persona + lang combo in the LANG stat chip
+  if (cfg.aiPersona || cfg.aiLang) {
+    const personaLabel = { bhai:'Bhai 🤝', mentor:'Mentor 🎓', analyst:'Analyst 📊', strict:'Strict 📋' };
+    const langLabel    = { hinglish:'Hinglish 🔀', english:'English', hindi:'Hindi', tamil:'Tamil-EN' };
+    const stLabel = document.getElementById('sv-lang');
+    if (stLabel) {
+      const pPart = cfg.aiPersona ? (personaLabel[cfg.aiPersona] || cfg.aiPersona) : '';
+      const lPart = cfg.aiLang    ? (langLabel[cfg.aiLang]    || cfg.aiLang)    : '';
+      stLabel.textContent = [pPart, lPart].filter(Boolean).join(' · ') || stLabel.textContent;
+    }
+  }
+}
+
+// Apply on boot
+(function () {
+  try {
+    const s = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}');
+    applyFinosSettings(s);
+  } catch {}
+})();
+
+// Live-update when settings change in another tab/the settings page
+window.addEventListener('storage', e => {
+  if (e.key === 'FINOS_SYS_SETTINGS') {
+    try { applyFinosSettings(JSON.parse(e.newValue || '{}')); } catch {}
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════════
+   USER CONTEXT ENGINE
+   ─────────────────────────────────────────────────────────────────
+   Receives full user context from the parent page (sent via
+   postMessage by finos-widget.js after finos-context.js collects it).
+   Forwards to the backend over WebSocket so the LLM knows everything
+   about the currently logged-in user.
+
+   SECURITY:
+   • Only processes messages where e.source === window.parent
+   • Context is forwarded to localhost:8765 only (local voice agent)
+   • The backend binds context to a session ID so user data never
+     leaks between different users' sessions
+   • On WebSocket reconnect we request fresh context from parent
+═══════════════════════════════════════════════════════════════════ */
+let _userCtx     = null;   // the last received context object
+let _ctxSent     = false;  // did we already send it to the backend this session?
+
+/** Pretty-format the context into stats shown in the right panel */
+function applyCtxToUI(ctx) {
+  if (!ctx) return;
+  const identity = ctx.identity || {};
+  const settings = ctx.settings || {};
+  const fin      = ctx.financial || {};
+
+  /* User name chip */
+  const name = identity.name || identity.email?.split('@')[0] || null;
+  const svUser = document.getElementById('sv-user');
+  if (svUser) svUser.textContent = name || (ctx._user_id ? '✅ logged in' : 'guest');
+
+  /* Sync status chip */
+  const svSync = document.getElementById('sv-sync');
+  if (svSync) {
+    svSync.textContent  = ctx._sync_phase === 'full' ? '✅ full' : '⏳ partial';
+    svSync.style.color  = ctx._sync_phase === 'full' ? 'var(--a4)' : 'var(--a3)';
+  }
+
+  /* Current page module */
+  const svPage = document.getElementById('sv-page');
+  if (svPage) svPage.textContent = ctx._page_module || ctx.page?.module || '—';
+
+  /* Big sync badge (top of right panel) */
+  const badge   = document.getElementById('ctx-badge');
+  const ctxName = document.getElementById('ctx-name');
+  const ctxExtra= document.getElementById('ctx-extra');
+
+  if (badge && (name || ctx._user_id)) {
+    badge.style.display = '';
+    if (ctxName)  ctxName.textContent  = name ? `👤 ${name}` : '👤 Logged in';
+
+    const extras = [];
+    if (identity.life_stage)   extras.push(identity.life_stage.replace(/_/g,' '));
+    if (identity.income_range) extras.push('₹' + identity.income_range);
+    if (identity.financial_dna)extras.push(identity.financial_dna);
+    if (identity.mindset)      extras.push(identity.mindset);
+    if (fin.portfolio?.total_value) extras.push('Portfolio ₹' + fin.portfolio.total_value.toLocaleString('en-IN'));
+    if (ctxExtra) ctxExtra.textContent = extras.slice(0, 3).join(' · ') || '';
+  }
+
+  /* Apply language / persona from settings */
+  if (settings.language) {
+    const langMap = { hinglish:'hinglish', english:'auto', hindi:'hindi', tamil:'auto' };
+    const ttsLang = langMap[settings.language] || 'auto';
+    const sel = document.getElementById('lang-select');
+    if (sel && sel.value !== ttsLang) {
+      sel.value = ttsLang;
+      setTTSLang(ttsLang);
+    }
+  }
+  if (settings.persona || settings.language) {
+    const personaLabel = { bhai:'Bhai 🤝', mentor:'Mentor 🎓', analyst:'Analyst 📊', strict:'Strict 📋' };
+    const langLabel    = { hinglish:'Hinglish 🔀', english:'English', hindi:'Hindi' };
+    const svLang = document.getElementById('sv-lang');
+    if (svLang) {
+      const parts = [];
+      if (settings.persona)  parts.push(personaLabel[settings.persona] || settings.persona);
+      if (settings.language) parts.push(langLabel[settings.language]   || settings.language);
+      if (parts.length) svLang.textContent = parts.join(' · ');
+    }
+  }
+
+  /* Announce to user in chat if this is a fresh context (not a refresh) */
+  if (!_ctxSent && name) {
+    sysNote(`🔗 Profile synced — ${name}${identity.life_stage ? ' · ' + identity.life_stage.replace(/_/g,' ') : ''}`);
+  }
+}
+
+/** Send context to backend over WebSocket */
+function sendContextToBackend(ctx) {
+  if (!ctx) return;
+  /* Strip any huge arrays / raw DB dumps to keep WS message under 50KB */
+  const safe = {
+    type:         'user_context',
+    version:      ctx._version,
+    user_id:      ctx._user_id,
+    sync_phase:   ctx._sync_phase,
+    page_module:  ctx._page_module,
+    identity:     ctx.identity,
+    profile:      ctx.profile ? {
+      full_name:    ctx.profile.full_name,
+      life_stage:   ctx.profile.life_stage,
+      income_range: ctx.profile.income_range,
+      mindset:      ctx.profile.mindset,
+      financial_dna:ctx.profile.financial_dna,
+      interests:    ctx.profile.interests,
+      city:         ctx.profile.city,
+      phone:        ctx.profile.phone,
+      curiosity:    ctx.profile.curiosity_query,
+    } : null,
+    onboarding:   ctx.onboarding,
+    dna:          ctx.dna,
+    settings:     ctx.settings,
+    financial:    ctx.financial ? {
+      portfolio:    ctx.financial.portfolio,
+      goals:        ctx.financial.goals,
+      transactions: ctx.financial.transactions ? {
+        count:          ctx.financial.transactions.count,
+        total_income:   ctx.financial.transactions.total_income,
+        total_expense:  ctx.financial.transactions.total_expense,
+        net:            ctx.financial.transactions.net,
+        top_categories: ctx.financial.transactions.top_categories,
+      } : null,
+      budget:       ctx.financial.budget,
+      tax:          ctx.financial.tax,
+    } : null,
+    watchlist:    ctx.watchlist?.slice(0, 15),
+    page: {
+      url:    ctx.page?.url,
+      title:  ctx.page?.title,
+      module: ctx.page?.module || ctx._page_module,
+    },
+  };
+
+  const ok = send(safe);
+  if (ok) {
+    _ctxSent = true;
+    console.debug('[FIN-OS] Context sent to backend —', ctx._sync_phase, 'phase');
+  }
+}
+
+/** Handle incoming context (from postMessage or direct localStorage read) */
+function handleUserContext(ctx) {
+  if (!ctx || typeof ctx !== 'object') return;
+
+  /* SECURITY: if we already have a user bound, reject mismatched user IDs */
+  if (_userCtx?._user_id && ctx._user_id && ctx._user_id !== _userCtx._user_id) {
+    console.warn('[FIN-OS] Context rejected — user ID mismatch');
+    return;
+  }
+
+  /* Accept only if newer or same user */
+  const isNewer = !_userCtx || (ctx._collected_at || 0) >= (_userCtx._collected_at || 0);
+  const isRicher = ctx._sync_phase === 'full' && _userCtx?._sync_phase !== 'full';
+
+  if (!isNewer && !isRicher) return;
+
+  _userCtx = ctx;
+  applyCtxToUI(ctx);
+  sendContextToBackend(ctx);
+}
+
+/* ── Listen for context pushed from parent page (finos-widget.js) ───────── */
+window.addEventListener('message', function(e) {
+  /* Only accept messages from the parent frame — not from random iframes */
+  if (e.source !== window.parent) return;
+  if (e.data?.type === 'finos_user_context') {
+    handleUserContext(e.data.payload);
+  }
+});
+
+/* ── On WS connect/reconnect: request fresh context from parent ─────────── */
+const _origSetConn = setConn;
+setConn = function(ok, err) {
+  _origSetConn(ok, err);
+  if (ok) {
+    /* Re-send cached context immediately on reconnect */
+    if (_userCtx) {
+      setTimeout(() => sendContextToBackend(_userCtx), 500);
+    }
+    /* Also ask parent for the latest (in case page globals changed) */
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'finos_request_context' }, '*');
+      }
+    } catch {}
+
+    /* Fallback: try to read from sessionStorage directly (same-origin) */
+    if (!_userCtx) {
+      try {
+        const cached = JSON.parse(sessionStorage.getItem('FINOS_USER_CONTEXT') || 'null');
+        if (cached) handleUserContext(cached);
+      } catch {}
+    }
+  }
+};
+
+/* ── Boot-time: try to read context from sessionStorage directly ─────────── */
+(function bootstrapContext() {
+  try {
+    const raw = sessionStorage.getItem('FINOS_USER_CONTEXT')
+             || sessionStorage.getItem('FINOS_USER_CONTEXT');
+    if (raw) {
+      const ctx = JSON.parse(raw);
+      if (ctx) handleUserContext(ctx);
+    }
+  } catch {}
+  /* Also request from parent (widget bridge) after short delay */
+  setTimeout(() => {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'finos_request_context' }, '*');
+      }
+    } catch {}
+  }, 1200);
+})();
+
+/* ═══════════════════════════════════════════════════════════════════
+   ALERT ENGINE INTEGRATION
+   Fetches pending alerts from alert-engine.py (port 8001) and:
+   1. Renders them in the left panel
+   2. Reads them aloud via TTS on connect if there are critical ones
+   3. Sends a summary to the LLM as context for the first question
+═══════════════════════════════════════════════════════════════════ */
+const ALERT_API = 'http://localhost:8001';
+let _pendingAlerts = [];
+
+async function fetchPendingAlerts(userId) {
+  if (!userId) return;
+  try {
+    const r = await fetch(`${ALERT_API}/alerts/${userId}?unread_only=true&limit=10`);
+    if (!r.ok) return;
+    const data = await r.json();
+    _pendingAlerts = data.alerts || [];
+    renderAlertPanel(_pendingAlerts);
+
+    // Auto-read critical alerts aloud
+    const critical = _pendingAlerts.filter(a => a.priority === 'critical');
+    if (critical.length > 0 && autoSpeak) {
+      setTimeout(() => readAlertsAloud(critical), 1500);
+    } else if (_pendingAlerts.length > 0) {
+      sysNote(`🔔 ${_pendingAlerts.length} pending alert${_pendingAlerts.length > 1 ? 's' : ''} — "ALERTS SUNO" dabao`);
+    }
+  } catch (e) {
+    console.debug('[FIN-OS] Alert fetch failed (engine offline?):', e.message);
+  }
+}
+
+function renderAlertPanel(alerts) {
+  const panel    = document.getElementById('alerts-panel');
+  const list     = document.getElementById('alert-list');
+  const countEl  = document.getElementById('alert-count');
+  if (!panel || !list) return;
+
+  if (!alerts.length) {
+    panel.style.display = 'none';
+    return;
+  }
+
+  panel.style.display = '';
+  if (countEl) countEl.textContent = alerts.length;
+
+  const priorityIcon = { critical:'🚨', warning:'⚠️', info:'💡', celebration:'🎉' };
+  list.innerHTML = alerts.slice(0, 5).map(a => `
+    <div style="background:rgba(255,255,255,.04);border-radius:6px;padding:5px 7px;font-family:var(--mono);font-size:.57rem;line-height:1.5">
+      <span style="margin-right:4px">${priorityIcon[a.priority] || '🔔'}</span>
+      <strong style="color:var(--text)">${a.title}</strong>
+      <div style="color:var(--muted);font-size:.54rem;margin-top:2px">${a.message.slice(0,80)}${a.message.length>80?'…':''}</div>
+    </div>
+  `).join('');
+}
+
+function readAlertsAloud(alerts) {
+  const toRead = alerts || _pendingAlerts;
+  if (!toRead.length) {
+    sysNote('Koi pending alerts nahi hain ✅');
+    return;
+  }
+
+  // Build a summary message for the AI to speak
+  const summaryText = toRead.length === 1
+    ? `Ek important alert hai: ${toRead[0].message}`
+    : `${toRead.length} pending alerts hain. Sabse zaroori: ${toRead.map(a => a.title).join(', ')}.`;
+
+  // Send to voice pipeline so AI can respond contextually
+  appendMsg('u', '(Alerts padh ke bata)');
+  tStart = Date.now();
+  applyState('thinking');
+  send({
+    type: 'text_input',
+    text: `I have ${toRead.length} pending financial alerts. Please read and explain them: ${JSON.stringify(toRead.map(a => ({ title: a.title, message: a.message, priority: a.priority })))}`,
+  });
+}
+
+/* Fetch alerts when user context arrives with a valid user_id */
+const _origHandleUserContext = handleUserContext;
+handleUserContext = function(ctx) {
+  _origHandleUserContext(ctx);
+  if (ctx?._user_id && ctx._sync_phase === 'full') {
+    fetchPendingAlerts(ctx._user_id);
+  }
+};
+
+/* Also handle alert_count from backend (future extension) */
+// In onMsg, add: case 'alert_count': renderAlertCount(m.count); break;
 
 /* ═══════════════════════════════════════════════════════════════════
    BOOT

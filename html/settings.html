@@ -2,7 +2,17 @@
 <html lang="en" data-theme="dark">
 <head>
 <script>
-(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+(function(){
+  var s=JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS')||'{}');
+  var t=s.theme||localStorage.getItem('finos-theme')||'dark';
+  var resolved=t==='system'?(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'):t;
+  document.documentElement.setAttribute('data-theme',resolved);
+  if(s.accent)document.documentElement.style.setProperty('--accent',s.accent);
+  if(s.reduceMotion)document.documentElement.classList.add('reduce-motion');
+  if(s.highContrast)document.documentElement.classList.add('high-contrast');
+  if(s.compactUI)document.documentElement.classList.add('compact-ui');
+  if(s.fontSize)document.documentElement.setAttribute('data-font-size',s.fontSize);
+})();
 </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,23 +21,23 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
   <title>Settings | FIN•OS</title>
-  
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/settings.css">
   <link rel="stylesheet" href="../css/theme.css">
-  
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Manrope:wght@600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <div class="app">
-   <aside class="sidebar">
+  <aside class="sidebar">
     <div class="logo">FIN•OS</div>
-        <nav>
+    <nav>
       <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
       <a href="home.html">Home</a>
       <a href="dashboard.html">Dashboard</a>
@@ -43,105 +53,473 @@
 
   <main class="main">
     <div class="content-wrapper settings-view">
-      
+
+      <!-- ── HEADER ── -->
       <header class="header header-flex">
-        <div>
-          <h1 class="glitch-text">System Settings</h1>
-          <p class="subtitle">Global controls for your FIN•OS experience.</p>
+        <div class="settings-header-left">
+          <div class="user-avatar-ring">
+            <div class="user-avatar" id="userAvatar">?</div>
+          </div>
+          <div>
+            <h1 class="glitch-text">System Settings</h1>
+            <p class="subtitle" id="currentEmail">Loading…</p>
+          </div>
         </div>
-        <button id="themeToggle" class="theme-btn" onclick="toggleAppTheme()">🌙</button>
+        <button id="themeToggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
       </header>
 
       <div class="settings-stack">
-        
+
+        <!-- ══════════════════════════════════════════
+             SECTION 1 — ACCOUNT & SECURITY
+        ══════════════════════════════════════════ -->
         <section class="settings-card glass-panel">
-          <h3>🔐 Account & Security</h3>
-          
-          <div class="setting-row">
+          <h3><span class="s-icon">🔐</span> Account &amp; Security</h3>
+
+          <div class="setting-row auth-required">
             <div class="label-group">
               <label>Email Address</label>
-              <span>Current: <strong id="currentEmail">user@fin-os.com</strong></span>
+              <span>Update the email tied to your account.</span>
             </div>
-            <div class="control">
-              <button class="btn-outline" onclick="window.updateEmail()">Update</button>
+            <button class="btn-outline" onclick="openModal('emailModal')">Change Email</button>
+          </div>
+
+          <div class="setting-row auth-required">
+            <div class="label-group">
+              <label>Password</label>
+              <span>Send a secure reset link to your inbox.</span>
             </div>
+            <button class="btn-outline" id="resetPassBtn" onclick="doResetPassword()">Send Reset Link</button>
+          </div>
+
+          <div class="setting-row guest-only" style="display:none">
+            <div class="label-group">
+              <label>Not signed in</label>
+              <span>Log in to manage your account.</span>
+            </div>
+            <a href="login.html" class="btn-outline">Sign In</a>
+          </div>
+
+          <div class="setting-row sign-out-row auth-required">
+            <div class="label-group">
+              <label class="danger-text">Terminate Session</label>
+              <span>Securely sign out from this device.</span>
+            </div>
+            <button class="btn-danger" onclick="doSignOut()">Sign Out</button>
+          </div>
+
+          <div class="setting-row auth-required">
+            <div class="label-group">
+              <label class="danger-text">Delete Account</label>
+              <span>Permanently wipe all your data. Cannot be undone.</span>
+            </div>
+            <button class="btn-danger btn-danger--ghost" onclick="openModal('deleteModal')">Delete Account</button>
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+             SECTION 2 — APPEARANCE
+        ══════════════════════════════════════════ -->
+        <section class="settings-card glass-panel">
+          <h3><span class="s-icon">🎨</span> Appearance</h3>
+
+          <!-- Theme -->
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Interface Theme</label>
+              <span>Controls colors across every page.</span>
+            </div>
+            <select id="themeSelect" onchange="setTheme(this.value)">
+              <option value="dark">Dark Mode</option>
+              <option value="light">Light Mode</option>
+              <option value="system">Follow System</option>
+            </select>
+          </div>
+
+          <!-- Accent -->
+          <div class="setting-row setting-row--col">
+            <div class="label-group">
+              <label>Accent Color</label>
+              <span>UI highlights, buttons, and neon glows.</span>
+            </div>
+            <div class="accent-controls">
+              <div class="swatch-grid">
+                <button class="color-swatch" data-color="#4F7CFF" style="background:#4F7CFF" onclick="setAccent('#4F7CFF')" title="Electric Blue"></button>
+                <button class="color-swatch" data-color="#C7F000" style="background:#C7F000" onclick="setAccent('#C7F000')" title="Acid Green"></button>
+                <button class="color-swatch" data-color="#FF4F9A" style="background:#FF4F9A" onclick="setAccent('#FF4F9A')" title="Cyber Pink"></button>
+                <button class="color-swatch" data-color="#F59E0B" style="background:#F59E0B" onclick="setAccent('#F59E0B')" title="Amber Gold"></button>
+                <button class="color-swatch" data-color="#00D4FF" style="background:#00D4FF" onclick="setAccent('#00D4FF')" title="Cyan"></button>
+                <button class="color-swatch" data-color="#A78BFA" style="background:#A78BFA" onclick="setAccent('#A78BFA')" title="Violet"></button>
+                <button class="color-swatch" data-color="#34D399" style="background:#34D399" onclick="setAccent('#34D399')" title="Emerald"></button>
+                <button class="color-swatch swatch-custom" title="Custom color">
+                  <input type="color" id="accentPicker" value="#4F7CFF" oninput="onAccentPicker(this.value)" title="Pick custom color">
+                  <span>+</span>
+                </button>
+              </div>
+              <div class="accent-preview-row">
+                <div class="accent-preview" id="accentPreview"></div>
+                <span class="accent-preview-label">Live preview</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Font Size -->
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Font Size</label>
+              <span>Scales text across the entire app.</span>
+            </div>
+            <div class="font-size-group">
+              <button class="font-size-btn" data-size="small"  onclick="setFontSize('small')">S</button>
+              <button class="font-size-btn active" data-size="normal" onclick="setFontSize('normal')">M</button>
+              <button class="font-size-btn" data-size="large"  onclick="setFontSize('large')">L</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+             SECTION 3 — AI SYSTEM
+        ══════════════════════════════════════════ -->
+        <section class="settings-card glass-panel">
+          <h3><span class="s-icon">🤖</span> AI System</h3>
+
+          <!-- Language -->
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Response Language</label>
+              <span>How the AI communicates with you.</span>
+            </div>
+            <select id="aiLangSelect" onchange="setAILang(this.value)">
+              <option value="hinglish">Hinglish (Default)</option>
+              <option value="english">Pure English</option>
+              <option value="hindi">Pure Hindi</option>
+            </select>
+          </div>
+
+          <!-- Persona -->
+          <div class="setting-row setting-row--col">
+            <div class="label-group">
+              <label>AI Persona</label>
+              <span>Pick your financial advisor's personality.</span>
+            </div>
+            <div class="persona-grid">
+              <button class="persona-card" data-persona="bhai" onclick="setAIPersona('bhai')">
+                <span class="persona-emoji">🤙</span>
+                <span class="persona-name">Bhai</span>
+                <span class="persona-desc">Casual, Hinglish, no-BS</span>
+              </button>
+              <button class="persona-card" data-persona="ca_sahab" onclick="setAIPersona('ca_sahab')">
+                <span class="persona-emoji">📋</span>
+                <span class="persona-name">CA Sahab</span>
+                <span class="persona-desc">Formal, precise, tax-sharp</span>
+              </button>
+              <button class="persona-card" data-persona="trader_bro" onclick="setAIPersona('trader_bro')">
+                <span class="persona-emoji">📈</span>
+                <span class="persona-name">Trader Bro</span>
+                <span class="persona-desc">Charts, F&amp;O, technical</span>
+              </button>
+              <button class="persona-card" data-persona="retirement_uncle" onclick="setAIPersona('retirement_uncle')">
+                <span class="persona-emoji">🧘</span>
+                <span class="persona-name">Retirement Uncle</span>
+                <span class="persona-desc">Patient, conservative, long-term</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Voice Speed -->
+          <div class="setting-row setting-row--col">
+            <div class="label-group">
+              <label>Voice Speed</label>
+              <span>Controls the AI voice agent playback rate.</span>
+            </div>
+            <div class="slider-row">
+              <span class="slider-label">0.6×</span>
+              <input type="range" id="voiceSpeedSlider" min="0.6" max="2.0" step="0.1" value="1.0"
+                     oninput="setAIVoiceSpeed(this.value)">
+              <span class="slider-label">2.0×</span>
+              <span class="slider-value" id="voiceSpeedVal">1.0×</span>
+            </div>
+          </div>
+
+          <!-- Memory -->
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Conversation Memory</label>
+              <span>AI remembers context between sessions.</span>
+            </div>
+            <label class="toggle-wrap">
+              <input type="checkbox" id="aiMemoryToggle" onchange="setAIMemory(this.checked)">
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+             SECTION 4 — DISPLAY PREFERENCES
+        ══════════════════════════════════════════ -->
+        <section class="settings-card glass-panel">
+          <h3><span class="s-icon">🌐</span> Display Preferences</h3>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Number Format</label>
+              <span>Indian: 1,00,000 &nbsp;|&nbsp; Western: 100,000</span>
+            </div>
+            <select id="numberFormatSelect" onchange="setNumberFormat(this.value)">
+              <option value="indian">Indian (Lakhs / Crores)</option>
+              <option value="western">Western (Millions / Billions)</option>
+            </select>
           </div>
 
           <div class="setting-row">
             <div class="label-group">
-              <label>Password</label>
-              <span>Last changed: 3 months ago.</span>
+              <label>Currency Display</label>
+              <span>How amounts are labeled across calculators.</span>
             </div>
-            <div class="control">
-              <button class="btn-outline" onclick="window.changePassword()">Change</button>
+            <select id="currencySelect" onchange="setCurrency(this.value)">
+              <option value="inr">₹ Indian Rupee</option>
+              <option value="usd">$ US Dollar</option>
+              <option value="both">Both (₹ / $)</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Date Format</label>
+              <span>How dates appear in reports and insights.</span>
             </div>
+            <select id="dateFormatSelect" onchange="setDateFormat(this.value)">
+              <option value="dmy">DD/MM/YYYY</option>
+              <option value="mdy">MM/DD/YYYY</option>
+              <option value="ymd">YYYY-MM-DD</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+             SECTION 5 — ACCESSIBILITY
+        ══════════════════════════════════════════ -->
+        <section class="settings-card glass-panel">
+          <h3><span class="s-icon">♿</span> Accessibility</h3>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Reduce Motion</label>
+              <span>Disables animations and transitions site-wide.</span>
+            </div>
+            <label class="toggle-wrap">
+              <input type="checkbox" id="reduceMotionToggle" onchange="toggleReduceMotion(this.checked)">
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>High Contrast</label>
+              <span>Increases text contrast for readability.</span>
+            </div>
+            <label class="toggle-wrap">
+              <input type="checkbox" id="highContrastToggle" onchange="toggleHighContrast(this.checked)">
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Compact UI</label>
+              <span>Tightens spacing for more information density.</span>
+            </div>
+            <label class="toggle-wrap">
+              <input type="checkbox" id="compactUIToggle" onchange="toggleCompactUI(this.checked)">
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+             SECTION 6 — NOTIFICATIONS
+        ══════════════════════════════════════════ -->
+        <section class="settings-card glass-panel">
+          <h3><span class="s-icon">🔔</span> Notifications</h3>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Daily Brief</label>
+              <span>Morning summary of your PULSE score &amp; market moves.</span>
+            </div>
+            <label class="toggle-wrap">
+              <input type="checkbox" id="notifDailyToggle" onchange="toggleNotifDailyBrief(this.checked)">
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Market Alerts</label>
+              <span>Notify when watchlist stocks move significantly.</span>
+            </div>
+            <label class="toggle-wrap">
+              <input type="checkbox" id="notifMarketToggle" onchange="toggleNotifMarket(this.checked)">
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Goal Nudges</label>
+              <span>Weekly check-in on your savings &amp; investment goals.</span>
+            </div>
+            <label class="toggle-wrap">
+              <input type="checkbox" id="notifGoalToggle" onchange="toggleNotifGoal(this.checked)">
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+             SECTION 7 — DATA & PRIVACY
+        ══════════════════════════════════════════ -->
+        <section class="settings-card glass-panel danger-zone">
+          <h3><span class="s-icon">🗄️</span> Data &amp; Privacy</h3>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Export My Data</label>
+              <span>Download all your FIN•OS data as a JSON file.</span>
+            </div>
+            <button class="btn-outline" onclick="exportData()">Export JSON</button>
+          </div>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Clear Financial DNA</label>
+              <span>Resets your DNA profile &amp; diagnostic scores.</span>
+            </div>
+            <button class="btn-outline" onclick="openModal('clearDNAModal')">Clear DNA</button>
           </div>
 
           <div class="setting-row sign-out-row">
             <div class="label-group">
-              <label class="danger-text">Terminate Session</label>
-              <span>Securely log out of this device.</span>
+              <label class="danger-text">Clear All Cache</label>
+              <span>Wipes all local data. Your UI settings are preserved.</span>
             </div>
-            <div class="control">
-              <button class="btn-danger" onclick="window.signOut()">Sign Out</button>
-            </div>
+            <button class="btn-danger btn-danger--ghost" onclick="openModal('clearCacheModal')">Clear Cache</button>
           </div>
         </section>
 
+        <!-- ══════════════════════════════════════════
+             SECTION 8 — ABOUT
+        ══════════════════════════════════════════ -->
         <section class="settings-card glass-panel">
-          <h3>🎨 Appearance</h3>
-          <div class="setting-row">
-            <div class="label-group">
-              <label>Interface Theme</label>
-              <span>Switch between Light and Dark mode.</span>
+          <h3><span class="s-icon">ℹ️</span> About FIN•OS</h3>
+          <div class="about-grid">
+            <div class="about-item">
+              <span class="about-label">Version</span>
+              <span class="about-val accent-text">3.0.0</span>
             </div>
-            <div class="control">
-              <select id="themeSelect" onchange="window.updateTheme(this.value)">
-                <option value="dark">Dark Mode</option>
-                <option value="light">Light Mode</option>
-              </select>
+            <div class="about-item">
+              <span class="about-label">Build</span>
+              <span class="about-val">2026-05-18</span>
             </div>
-          </div>
-          
-          <div class="setting-row">
-            <div class="label-group">
-              <label>Accent Glow</label>
-              <span>UI highlights and neon accents.</span>
+            <div class="about-item">
+              <span class="about-label">Calculators</span>
+              <span class="about-val accent-text">70+</span>
             </div>
-            <div class="color-options">
-              <button class="color-btn" style="background:#4F7CFF;" onclick="window.updateAccent('#4F7CFF')"></button>
-              <button class="color-btn" style="background:#C7F000;" onclick="window.updateAccent('#C7F000')"></button>
-              <button class="color-btn" style="background:#FF4F9A;" onclick="window.updateAccent('#FF4F9A')"></button>
+            <div class="about-item">
+              <span class="about-label">AI Engine</span>
+              <span class="about-val">Ollama / QFT v2</span>
             </div>
-          </div>
-        </section>
-
-        <section class="settings-card glass-panel danger-zone">
-          <h3>⚙️ System Defaults</h3>
-          <div class="setting-row">
-            <div class="label-group">
-              <label>Soft Reset</label>
-              <span>Clear local cache and DNA data.</span>
+            <div class="about-item">
+              <span class="about-label">Stack</span>
+              <span class="about-val">HTML · JS · Python · Supabase</span>
             </div>
-            <div class="control">
-              <button class="btn-outline" onclick="window.clearSystemCache()">Clear Cache</button>
+            <div class="about-item">
+              <span class="about-label">Mission</span>
+              <span class="about-val">Financial clarity for every Indian.</span>
             </div>
           </div>
         </section>
 
-      </div>
+      </div><!-- /settings-stack -->
 
       <footer class="settings-footer">
-        <p>FIN•OS Version 2.06.84 | Built for financial clarity.</p>
+        <p>FIN•OS v3.0 &nbsp;·&nbsp; Built for financial clarity &nbsp;·&nbsp; India 🇮🇳</p>
       </footer>
 
-    </div>
+    </div><!-- /content-wrapper -->
   </main>
+</div><!-- /app -->
+
+
+<!-- ══════════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════════ -->
+
+<!-- Email Change Modal -->
+<div id="emailModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('emailModal')" aria-label="Close">✕</button>
+    <h4 id="emailModalTitle">Change Email Address</h4>
+    <p class="modal-sub">Enter your new email. We'll send a confirmation link.</p>
+    <div class="modal-field">
+      <label>New Email</label>
+      <input type="email" id="newEmailInput" placeholder="new@email.com" class="modal-input">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeModal('emailModal')">Cancel</button>
+      <button class="btn-primary" id="confirmEmailBtn" onclick="doUpdateEmail()">Confirm</button>
+    </div>
+  </div>
 </div>
 
+<!-- Clear DNA Modal -->
+<div id="clearDNAModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="clearDNATitle">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('clearDNAModal')" aria-label="Close">✕</button>
+    <h4 id="clearDNATitle">Clear Financial DNA?</h4>
+    <p class="modal-sub">This resets your diagnostic profile, mindset scores, and DNA data. Your settings and account are untouched.</p>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeModal('clearDNAModal')">Cancel</button>
+      <button class="btn-danger" onclick="clearDNA()">Yes, Clear DNA</button>
+    </div>
+  </div>
+</div>
+
+<!-- Clear Cache Modal -->
+<div id="clearCacheModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="clearCacheTitle">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('clearCacheModal')" aria-label="Close">✕</button>
+    <h4 id="clearCacheTitle">Clear All Local Cache?</h4>
+    <p class="modal-sub">Removes all locally stored app data — portfolios, chat history, goals, and more. Your UI settings and account are preserved.</p>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeModal('clearCacheModal')">Cancel</button>
+      <button class="btn-danger" onclick="clearAllCache()">Yes, Clear Cache</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div id="deleteModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+  <div class="modal-box modal-box--danger">
+    <button class="modal-close" onclick="closeModal('deleteModal')" aria-label="Close">✕</button>
+    <h4 id="deleteModalTitle">⚠ Delete Account</h4>
+    <p class="modal-sub">This is permanent. All your data will be wiped and cannot be recovered. Type <strong>DELETE</strong> to confirm.</p>
+    <div class="modal-field">
+      <input type="text" id="deleteConfirmInput" placeholder="Type DELETE" class="modal-input modal-input--danger">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeModal('deleteModal')">Cancel</button>
+      <button class="btn-danger" onclick="doDeleteAccount()">Delete Forever</button>
+    </div>
+  </div>
+</div>
+
+
 <script src="../js/ui.js"></script>
-<script src="../js/settings.js?v=2"></script>
-  <script src="../js/mobile-nav.js"></script>
-  <script src="../js/pwa-init.js"></script>
+<script src="../js/settings.js"></script>
+<script src="../js/mobile-nav.js"></script>
+<script src="../js/pwa-init.js"></script>
+<script src="../js/finos-widget.js"></script>
+<script src="../js/finos-search.js"></script>
 </body>
 </html>

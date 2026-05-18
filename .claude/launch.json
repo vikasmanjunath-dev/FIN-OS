@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "finos",
+      "name": "finos-site",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "4200"],
-      "port": 4200
+      "runtimeArgs": ["-m", "http.server", "3000", "--directory", "/Users/vkm/Desktop/Finos/Initial Deployment"],
+      "port": 3000
     }
   ]
 }

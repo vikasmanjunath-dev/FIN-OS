@@ -1,0 +1,76 @@
+2026-05-18 01:22:25,349 [INFO] fin-os: Loading Whisper tiny…
+2026-05-18 01:22:25,877 [INFO] fin-os: Whisper tiny ready
+2026-05-18 01:22:25,877 [INFO] fin-os: FIN-OS v9  ws://0.0.0.0:8765  LLM=qwen2.5:3b  STT=Whisper-tiny
+2026-05-18 01:22:26,667 [INFO] fin-os: TTS warmed up
+2026-05-18 01:22:27,291 [INFO] fin-os: Ollama warmed up (qwen2.5:3b)
+2026-05-18 01:22:27,291 [INFO] fin-os: Ready — http://localhost:8080
+2026-05-18 01:22:27,309 [INFO] websockets.server: server listening on 0.0.0.0:8765
+2026-05-18 01:22:31,829 [INFO] websockets.server: connection open
+2026-05-18 01:22:31,829 [INFO] fin-os: Connected (1)
+2026-05-18 01:22:37,070 [INFO] fin-os: Disconnected (0)
+2026-05-18 01:22:40,739 [INFO] websockets.server: connection open
+2026-05-18 01:22:40,739 [INFO] fin-os: Connected (1)
+2026-05-18 01:22:46,266 [INFO] fin-os: STT: english (35%)  'Hi bro whats up.'
+2026-05-18 01:22:47,792 [INFO] fin-os: 1.5s | 95 chars | 2 TTS
+2026-05-18 01:22:59,388 [INFO] fin-os: STT: english (33%)  "Namura, I am sleepy, let's meet tomorrow. Thank you."
+2026-05-18 01:22:59,893 [INFO] fin-os: 0.5s | 64 chars | 4 TTS
+2026-05-18 01:24:23,369 [INFO] fin-os: Disconnected (0)
+2026-05-18 01:24:26,642 [INFO] websockets.server: connection open
+2026-05-18 01:24:26,642 [INFO] fin-os: Connected (1)
+2026-05-18 01:24:48,574 [INFO] fin-os: Disconnected (0)
+2026-05-18 01:24:52,059 [INFO] websockets.server: connection open
+2026-05-18 01:24:52,059 [INFO] fin-os: Connected (1)
+2026-05-18 12:16:37,491 [INFO] fin-os: Disconnected (0)
+2026-05-18 12:16:39,638 [INFO] websockets.server: connection open
+2026-05-18 12:16:39,638 [INFO] fin-os: Connected (1)
+2026-05-18 12:18:13,552 [INFO] fin-os: Disconnected (0)
+2026-05-18 12:19:11,060 [INFO] websockets.server: connection open
+2026-05-18 12:19:11,061 [INFO] fin-os: Connected (1)
+2026-05-18 12:19:20,270 [INFO] fin-os: Disconnected (0)
+2026-05-18 12:19:21,990 [INFO] websockets.server: connection open
+2026-05-18 12:19:21,990 [INFO] fin-os: Connected (1)
+2026-05-18 12:19:24,912 [INFO] fin-os: Disconnected (0)
+2026-05-18 12:19:28,458 [INFO] websockets.server: connection open
+2026-05-18 12:19:28,458 [INFO] fin-os: Connected (1)
+2026-05-18 12:23:26,971 [INFO] fin-os: Disconnected (0)
+2026-05-18 12:24:41,521 [INFO] websockets.server: connection open
+2026-05-18 12:24:41,521 [INFO] fin-os: Connected (1)
+2026-05-18 12:24:45,877 [INFO] fin-os: Disconnected (0)
+2026-05-18 12:25:02,437 [INFO] websockets.server: connection open
+2026-05-18 12:25:02,437 [INFO] fin-os: Connected (1)
+2026-05-18 12:36:25,361 [INFO] fin-os: Disconnected (0)
+2026-05-18 12:45:24,997 [INFO] websockets.server: connection open
+2026-05-18 12:45:24,997 [INFO] fin-os: Connected (1)
+2026-05-18 12:45:31,214 [INFO] fin-os: STT: english (43%)  'Hi bro, how are you doing?'
+2026-05-18 12:45:34,088 [INFO] fin-os: 2.9s | 59 chars | 2 TTS
+2026-05-18 12:46:04,753 [INFO] fin-os: STT: hindi (35%)  'Can you speak Hindi?'
+2026-05-18 12:46:05,922 [INFO] fin-os: 1.2s | 35 chars | 1 TTS
+2026-05-18 12:46:20,979 [INFO] fin-os: STT: hindi (35%)  'Hindi mein baat karte hain.'
+2026-05-18 12:46:22,325 [INFO] fin-os: 1.3s | 64 chars | 1 TTS
+2026-05-18 12:46:37,161 [INFO] fin-os: STT: english (36%)  'Personal finance explain.'
+2026-05-18 12:46:40,488 [INFO] fin-os: 3.3s | 156 chars | 1 TTS
+2026-05-18 12:47:09,190 [INFO] fin-os: STT: hindi (88%)  'Hindi aur English mein baat karte hain.'
+2026-05-18 12:47:13,866 [INFO] fin-os: 4.7s | 156 chars | 1 TTS
+2026-05-18 12:47:37,082 [INFO] fin-os: STT: english (37%)  'Personal finance in the main detail may explain.'
+2026-05-18 12:47:40,497 [INFO] fin-os: 3.4s | 102 chars | 1 TTS
+2026-05-18 12:48:08,091 [INFO] fin-os: STT: english (80%)  'Okay, explain me personal finance and detail with context of'
+2026-05-18 12:48:11,657 [INFO] fin-os: 3.6s | 520 chars | 6 TTS
+2026-05-18 12:48:39,113 [INFO] fin-os: STT: english (26%)  ''
+2026-05-18 12:48:52,230 [INFO] fin-os: STT: english (60%)  'Analyze the Indian stock market and tell me what actions to '
+2026-05-18 12:48:54,992 [INFO] fin-os: 2.8s | 304 chars | 5 TTS
+2026-05-18 12:49:27,198 [INFO] fin-os: STT: english (86%)  'Give me the exact figure is of the stock market.'
+2026-05-18 12:49:29,091 [INFO] fin-os: 1.9s | 325 chars | 3 TTS
+2026-05-18 12:51:48,199 [INFO] fin-os: Disconnected (0)
+2026-05-18 13:10:34,436 [INFO] websockets.server: connection open
+2026-05-18 13:10:34,436 [INFO] fin-os: Connected (1)
+2026-05-18 13:10:39,543 [INFO] fin-os: STT: english (55%)  'Hi, bro. How are you?'
+2026-05-18 13:10:42,114 [INFO] fin-os: 2.6s | 73 chars | 3 TTS
+2026-05-18 13:10:58,878 [INFO] fin-os: STT: english (96%)  "Can you explain me in detail for the water's personal financ"
+2026-05-18 13:11:02,300 [INFO] fin-os: 3.4s | 722 chars | 9 TTS
+2026-05-18 13:17:39,915 [INFO] fin-os: Disconnected (0)
+2026-05-18 13:27:22,223 [INFO] websockets.server: connection open
+2026-05-18 13:27:22,224 [INFO] fin-os: Connected (1)
+2026-05-18 13:27:41,615 [INFO] fin-os: 3.6s | 297 chars | 5 TTS
+2026-05-18 13:28:07,040 [INFO] fin-os: Disconnected (0)
+/opt/homebrew/Cellar/python@3.11/3.11.15_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

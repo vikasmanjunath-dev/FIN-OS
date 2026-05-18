@@ -188,6 +188,24 @@
     color:       var(--qft-text-dim);
 }
 
+/* ── Persona badge ─────────────────────────────────────────────── */
+.qft-persona-badge {
+    --persona-colour: #4F7CFF;
+    font-family:  var(--qft-font-mono);
+    font-size:    0.58rem;
+    font-weight:  600;
+    letter-spacing: 0.04em;
+    padding:      2px 8px;
+    border-radius: 20px;
+    border:       1px solid var(--persona-colour);
+    color:        var(--persona-colour);
+    background:   color-mix(in srgb, var(--persona-colour) 12%, transparent);
+    white-space:  nowrap;
+    cursor:       default;
+    transition:   color 0.3s, border-color 0.3s, background 0.3s;
+    user-select:  none;
+}
+
 .qft-icon-btn {
     width:       30px;
     height:      30px;

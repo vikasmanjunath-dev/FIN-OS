@@ -39,19 +39,44 @@ const QFT_CONFIG = {
     SOUND_KEY:         'qft_sound',
 };
 
-// ─── INTENT CLASSIFIER ────────────────────────────────────────────────────────
+// ─── INTENT CLASSIFIER (v2 — 20 categories) ──────────────────────────────────
 const INTENT_PATTERNS = {
-    CALCULATION: /(\d[\d,.]*\s*(lakh|cr|k|rs|₹|%|emi|sip|salary|income|loan|rent|invest|return|profit|loss|tax|ctc|inhand|savings|corpus|fd|rd|ppf|nps|epf))/i,
-    COMPARISON:  /(vs|versus|better|compare|difference|should i|which one|option)/i,
-    MISTAKE:     /(mistake|wrong|bad|trap|scam|avoid|don't|dont|never|worst|loss|regret)/i,
-    EMERGENCY:   /(urgent|emergency|job loss|fired|laid off|debt|broke|bankrupt|crisis)/i,
-    BEGINNER:    /(start|begin|new|first time|don't know|confused|lost|what is|explain|how does)/i,
-    PSYCHOLOGY:  /(feel|emotion|fear|fomo|pressure|society|parents|wife|husband|friend|sharmaji|jealous|anxious|stress)/i,
-    GOAL:        /(goal|dream|target|retire|house|car|wedding|abroad|freedom|fire|financial independence)/i,
-    AUDIT:       /(portfolio|review|check|audit|look at|what do you think|is this good|advice on)/i,
-    SIP_TOOL:    /\b(sip calculator|calculate sip|how much sip|sip for|monthly sip)\b/i,
-    EMI_TOOL:    /\b(emi calculator|check emi|emi danger|debt score|loan danger)\b/i,
-    RATIO_TOOL:  /\b(health score|financial health|net worth check|ratio check)\b/i,
+    // ── Tools (highest priority — exact tool requests)
+    SIP_TOOL:       /\b(sip calculator|calculate sip|how much sip|sip for|monthly sip|step.?up sip)\b/i,
+    EMI_TOOL:       /\b(emi calculator|check emi|emi danger|debt score|loan danger)\b/i,
+    RATIO_TOOL:     /\b(health score|financial health|net worth check|ratio check|finos health)\b/i,
+    FIRE_TOOL:      /\b(fire number|retire early|financial independence|fire corpus|how much to retire)\b/i,
+    RENT_BUY_TOOL:  /\b(rent vs buy|buy or rent|renting vs buying|should i buy house)\b/i,
+
+    // ── High-signal Indian scenarios
+    LIC_TRAP:       /(lic|jeevan|ulip|money.back|endowment|whole.life|insurance.invest|agent.said)/i,
+    SHARMAJI:       /(sharmaji|colleague|friend.made|neighbor.made|everyone.is.buying|fomo|f&o win|crypto win|made lakhs)/i,
+    SALARY_SLAB:    /(\bctc\b|\bin.hand\b|\btake.home\b|\bsalary\b.*\b(lakh|lac|l\b)|\bhike\b|\bpackage\b)/i,
+    TAX_SAVING:     /(80c|80d|80ccd|hra|tax.sav|reduce.tax|less.tax|itr|form.16|new.regime|old.regime)/i,
+    BONUS_WINDFALL: /(bonus|windfall|lump.sum|got money|received|settlement|pf.withdrawal|gratuity)/i,
+    HOME_LOAN:      /(home.loan|housing.loan|prepay|part.payment|emi.vs.invest|property)/i,
+    CAR_LOAN:       /(\bcar\b.*(emi|loan|buy|afford)|(loan|emi).*\bcar\b)/i,
+    PARENTS_MONEY:  /(parent|mother|father|mummy|papa|retired|senior.citizen|fd.parent|family.money)/i,
+    MARRIAGE_COST:  /(wedding|marriage|shaadi|engagement|honeymoon|marriage.loan)/i,
+    EMERGENCY:      /(urgent|emergency|job.loss|fired|laid.off|debt.trap|broke|bankrupt|crisis|help)/i,
+
+    // ── Investment & planning
+    CALCULATION:    /(\d[\d,.]*\s*(lakh|lac|cr|crore|k\b|rs\b|₹|%|emi|sip|salary|income|loan|return|corpus|fd|rd|ppf|nps|epf))/i,
+    COMPARISON:     /(vs\b|versus|better|compare|difference|should.i|which.one|option|or\b.*\b(invest|buy|take))/i,
+    BEGINNER:       /(start|begin|new|first.time|don.t.know|confused|lost|what.is|explain|how.does|basics|101)/i,
+    PSYCHOLOGY:     /(feel|emotion|fear|fomo|anxiety|pressure|society|parents.pressure|jealous|stress|overwhelm)/i,
+    GOAL:           /(goal|dream|target|retire|abroad|freedom|house.goal|wealth|corpus.for|saving.for)/i,
+    AUDIT:          /(portfolio|review|check|audit|advice.on|is.this.good|what.do.you.think|analyse|look.at)/i,
+    MISTAKE:        /(mistake|wrong|bad.decision|trap|scam|avoid|never|worst|lost.money|regret|blunder)/i,
+};
+
+const INTENT_DISPLAY = {
+    SIP_TOOL:'SIP Calc', EMI_TOOL:'EMI Check', RATIO_TOOL:'Health', FIRE_TOOL:'FIRE',
+    RENT_BUY_TOOL:'Rent vs Buy', LIC_TRAP:'LIC Trap', SHARMAJI:'Survivorship Bias',
+    SALARY_SLAB:'Salary', TAX_SAVING:'Tax', BONUS_WINDFALL:'Windfall', HOME_LOAN:'Home Loan',
+    CAR_LOAN:'Car EMI', PARENTS_MONEY:'Parents', MARRIAGE_COST:'Wedding', EMERGENCY:'URGENT',
+    CALCULATION:'Math', COMPARISON:'Compare', BEGINNER:'Basics', PSYCHOLOGY:'Mindset',
+    GOAL:'Goal', AUDIT:'Audit', MISTAKE:'Trap', GENERAL:'General',
 };
 
 function classifyIntent(text) {
@@ -61,16 +86,53 @@ function classifyIntent(text) {
     return 'GENERAL';
 }
 
-// ─── SMART SUGGESTIONS ────────────────────────────────────────────────────────
+function getIntentLabel(intent) {
+    return INTENT_DISPLAY[intent] || intent;
+}
+
+// ─── SMART SUGGESTIONS (v2 — desi, specific, intent-triggering) ──────────────
 function getSmartSuggestions() {
     const path  = window.location.pathname.toLowerCase();
     const title = document.title.toLowerCase();
     const map = {
-        investing:  ["Should I start with Nifty50 or midcap funds?", "I have ₹5L in FD. What should I do?", "SIP vs lump sum — which beats the other?"],
-        debt:       ["I have a ₹30L home loan at 8.5%. Prepay or invest?", "My EMI is ₹35K and salary ₹90K. Is this okay?", "How do I get out of credit card debt fast?"],
-        tax:        ["I'm in the 30% bracket. How do I legally pay less?", "New regime vs old — which saves me more?", "What's the smartest way to use my 80C limit?"],
-        insurance:  ["How much term insurance do I actually need?", "LIC policy vs ELSS for tax saving — compare.", "My company gives health insurance. Do I need more?"],
-        default:    ["I earn ₹80K/month and spend ₹70K. Fix me.", "LIC or term insurance — what should I pick?", "I want to retire at 45. What's my number?"],
+        // Page-specific suggestions
+        investing:   [
+            "I have ₹5L in FD sitting idle. What should I actually do with it?",
+            "Nifty 50 index vs midcap fund — what should a 28-year-old choose?",
+            "SIP ₹10K/month for 20 years — what corpus do I build?",
+        ],
+        debt:        [
+            "Home loan ₹40L at 8.5%, 15yr remaining. Prepay or invest in Nifty?",
+            "My EMIs are ₹45K and salary is ₹1L. Am I in a debt trap?",
+            "Credit card outstanding ₹80K at 42% interest. What's my escape plan?",
+        ],
+        tax:         [
+            "CTC ₹18L — new regime or old regime, which saves more this year?",
+            "I'm in 30% slab. Give me every legal way to reduce my tax.",
+            "NPS vs ELSS vs PPF for tax saving — rank them for me.",
+        ],
+        insurance:   [
+            "My LIC agent says Jeevan Anand is better than term + MF. Is he right?",
+            "How much term insurance do I actually need? Salary ₹15L.",
+            "Company gives ₹3L health cover. Is that enough or should I buy more?",
+        ],
+        trading:     [
+            "My colleague made ₹2L in F&O last month. Should I try it?",
+            "I have ₹50K to trade. What's the actual risk I'm taking?",
+            "Options buying vs selling — which side should a beginner be on?",
+        ],
+        market:      [
+            "Market is at all-time high. Should I wait to invest?",
+            "Which sector funds make sense to add right now?",
+            "How do I build a simple market-tracking portfolio from scratch?",
+        ],
+        // Default — highest-signal, widest appeal
+        default:     [
+            "I earn ₹90K/month, spend ₹75K, and have ₹0 saved. Fix me.",
+            "My father wants me to buy LIC Jeevan Anand. Should I?",
+            "I got ₹5L bonus. What's the smartest thing to do with it?",
+            "I want to retire at 45. What corpus do I need and how?",
+        ],
     };
     for (const [key, items] of Object.entries(map)) {
         if (key !== 'default' && (path.includes(key) || title.includes(key))) return items;
@@ -315,6 +377,7 @@ class QFTEngine {
                         <div class="qft-header-meta">
                             <span class="qft-session-timer" id="qft-session-timer">00:00</span>
                             <span class="qft-msg-counter" id="qft-msg-counter">0 msgs</span>
+                            <span class="qft-persona-badge" id="qft-persona-badge" title="AI Persona — change in Settings">BHAI</span>
                         </div>
                     </div>
                     <div class="qft-header-right">
@@ -436,11 +499,11 @@ class QFTEngine {
             // Auto-resize textarea
             e.target.style.height = 'auto';
             e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
-            // Live intent badge
+            // Live intent badge (human-readable labels)
             if (val.trim().length > 10) {
                 const intent = classifyIntent(val);
                 if (intent !== 'GENERAL') {
-                    this.dom.intentBadge.textContent = intent;
+                    this.dom.intentBadge.textContent = getIntentLabel(intent);
                     this.dom.intentBadge.dataset.intent = intent;
                     this.dom.intentBadge.style.opacity = '1';
                 } else {
@@ -487,6 +550,32 @@ class QFTEngine {
         this.dom.soundBtn.addEventListener('click',  () => this._toggleSound());
         this.dom.exportBtn.addEventListener('click', () => this._exportChat());
         this.dom.clearBtn.addEventListener('click',  () => this._clearSession());
+
+        // Live-sync persona badge when settings change (same tab or Settings page)
+        window.addEventListener('storage', e => {
+            if (e.key === 'FINOS_SYS_SETTINGS') this._syncPersonaBadge();
+        });
+        // Also respond to same-tab saves (storage event doesn't fire for the writing tab)
+        window.addEventListener('finos-settings-updated', () => this._syncPersonaBadge());
+        this._syncPersonaBadge();
+    }
+
+    // ── Persona badge sync ──────────────────────────────────────────────────
+    _syncPersonaBadge() {
+        const cfg = this._getPersonaSettings();
+        const badge = document.getElementById('qft-persona-badge');
+        if (!badge) return;
+
+        const PERSONA_LABELS = { bhai: 'BHAI 🤝', mentor: 'MENTOR 🎓', analyst: 'ANALYST 📊', strict: 'STRICT 💪' };
+        const LANG_LABELS    = { hinglish: 'HG', english: 'EN', hindi: 'HI', tamil: 'TA' };
+
+        const persona = cfg.aiPersona || 'bhai';
+        const lang    = cfg.aiLang    || 'hinglish';
+        badge.textContent = `${PERSONA_LABELS[persona] || persona.toUpperCase()} · ${LANG_LABELS[lang] || lang.toUpperCase()}`;
+
+        // Colour-code by persona
+        const COLOURS = { bhai: '#4F7CFF', mentor: '#22d3a6', analyst: '#f0a500', strict: '#f04444' };
+        badge.style.setProperty('--persona-colour', COLOURS[persona] || '#4F7CFF');
     }
 
     // ── Send dispatcher ─────────────────────────────────────────────────────
@@ -745,8 +834,12 @@ class QFTEngine {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message,
-                    context: `[INTENT: ${intent}]\n${context}`,
-                    session_id: this.state.sessionId || undefined,
+                    context,
+                    session_id:    this.state.sessionId || undefined,
+                    intent,
+                    persona:       this._getPersonaSettings().aiPersona || 'bhai',
+                    language:      this._getPersonaSettings().aiLang    || 'hinglish',
+                    system_prompt: this._buildSystemPrompt(),
                 }),
             });
 
@@ -945,13 +1038,106 @@ class QFTEngine {
         this.dom.inputField.focus();
     }
 
+    _getPersonaSettings() {
+        try {
+            return JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}');
+        } catch { return {}; }
+    }
+
     _buildSystemPrompt() {
-        return `You are QFT (Quantum Financial Thinking Engine) — the unfiltered, data-driven financial brain of FIN-OS, built for Indian professionals aged 22-45.
-RULES: ZERO FLUFF. BULLET-FIRST. ALWAYS QUANTIFY in ₹ (lakhs/crores). NAME THE TRAP. INDIAN CONTEXT MANDATORY (SIP, EMI, Nifty, ELSS, PPF, NPS, FD, LIC, ULIP, ITR, 80C, HRA). END WITH AN ACTION TASK.
-NEVER invent stock prices, NAVs, or index levels. If you don't have live data, say so and direct to moneycontrol.com or NSE India.
-Tax rules (AY 2025-26): Equity LTCG 12.5% above ₹1.25L. STCG 20%. Debt funds at slab rate. 80C limit ₹1.5L. NPS extra ₹50K under 80CCD(1B).
-Benchmarks for projections: Nifty 50 ~12% CAGR (15yr), FD ~6.5-7%, PPF 7.1%, Inflation ~5-6%.
-Structure every response with: 🔍 Reality Check, 📐 The Math, 🧠 Psychology Trap, ⚠️ Where People Fail, ✅ The FIN-OS Fix.`;
+        const cfg     = this._getPersonaSettings();
+        const persona = cfg.aiPersona || 'bhai';
+        const lang    = cfg.aiLang    || 'hinglish';
+
+        // ── CORE IDENTITY ──────────────────────────────────────────────────────
+        const CORE = `You are QFT (Quantum Financial Thinking Engine) — the ruthlessly precise, deeply Indian financial brain of FIN-OS. Built for Indian professionals aged 22–45.
+
+━━━ THE 12 FIN-OS LAWS (NON-NEGOTIABLE) ━━━
+1. Money = stored life energy. Every rupee wasted = life hours burned.
+2. EMI ≠ affordability. EMI = mortgaging future income. Always calculate TOTAL COST, not monthly.
+3. Your primary home and car are LIABILITIES. They consume cash flow. Call them what they are.
+4. LIC endowment / ULIP / money-back = wealth destroyers disguised as love. Term + MF always wins.
+5. Direct MF beats Regular MF by 1–1.5%/yr. On ₹1Cr over 20yr = ₹50L extra. Always go Direct.
+6. F&O trading destroys 90%+ of retail accounts (SEBI data). Crypto gambling = digital wealth cremation.
+7. Tax saving ≠ investing. Don't buy ELSS just for 80C — buy it because equity compounds.
+8. Inflation at 6% = ₹1L today is only ₹55K in 10yr. Every decision must beat inflation.
+9. Insurance ≠ investment. Term cover = 15–20× annual income. Health cover ≥ ₹10L/person minimum.
+10. EPF is your bond allocation. Count it before adding more debt funds.
+11. The first ₹10L corpus is the hardest. After that, compounding does the heavy lifting.
+12. Financial freedom = passive income > monthly expenses. It's a ratio, not a fixed number.
+
+━━━ ALWAYS APPLY ━━━
+• QUANTIFY everything in ₹ lakhs / crores. Never say "a lot" or "significant".
+• BULLET-FIRST: give the answer, then the reasoning. Never bury the lede.
+• NAME THE TRAP before solving it. "The trap here is called Lifestyle Inflation."
+• NEVER invent stock prices / NAV / index levels. Say "Check NSE India or Moneycontrol" and calculate instead.
+• END every deep response with: 🎯 ONE specific action to do THIS WEEK, with the exact app/platform.
+
+━━━ INDIAN TAX GROUND TRUTH (AY 2025-26) ━━━
+New Regime slabs: ₹0–3L→0% | ₹3–7L→5% | ₹7–10L→10% | ₹10–12L→15% | ₹12–15L→20% | >₹15L→30%
+87A Rebate: NIL tax up to ₹7L net income.
+Equity LTCG (>1yr): 12.5% above ₹1.25L/yr. Equity STCG (<1yr): 20%. Debt MF: slab rate.
+Real estate LTCG (>2yr): 12.5% (no indexation) or 20% (with indexation) — choose better.
+80C: ₹1.5L | 80D: ₹25K (₹50K if parents 60+) | 80CCD(1B): ₹50K NPS extra | HRA formula: min of [actual, 50%/40% basic, rent–10% basic]
+Benchmarks: Nifty 50 ~12% CAGR (15yr) | Midcap 150 ~15% | FD ~6.5–7.5% | PPF 7.1% | EPF 8.25% | Gold ~8–9% | Inflation ~5–6% | Real estate metro ~5–6%
+
+━━━ DESI SCENARIO LIBRARY (know these cold) ━━━
+LIC PRESSURE → Compare: ₹50K/yr for 20yr LIC endowment = ₹10L in, ₹18L out at 4-5%. Same ₹50K in ELSS = ₹55L at 12%. Difference = ₹37L lost. Buy ₹1Cr term (₹10K/yr) + invest rest.
+SHARMAJI'S F&O WINS → SEBI data: 90% of F&O traders lose money. For every 1 winner, 9 lost quietly. Survivorship bias. The losers never post on WhatsApp.
+HOME BUYING PRESSURE → ₹80L flat, 20% down = ₹16L gone. EMI ₹55K/month at 8.5% for 20yr = ₹1.3Cr paid for ₹80L flat. Same ₹16L in Nifty 50 for 20yr = ₹1.6Cr. Show the actual math.
+BONUS WATERFALL → (1) Emergency fund 6mo (2) Clear highest-interest debt (3) Top PPF to ₹1.5L (4) NPS ₹50K for 80CCD (5) Rest → index fund via STP over 3-6mo.
+CAR EMI → ₹10L car on 7yr loan at 9% = EMI ₹16K = ₹13.4L total for ₹10L asset. Insurance+fuel+maintenance = ₹8–10K/mo more. FIN-OS rule: car price ≤ 50% of annual take-home.
+PREPAY vs INVEST → Loan rate >9.5% → prepay. Loan rate <8.5% + 10yr horizon → invest. Middle zone → split 50/50. Peace of mind has value too.
+PARENTS FD → FD at 7% = 2.1L/yr before tax. After 30% slab = ₹1.47L/yr. CPI eats it. Better: SCSS 8.2% (government, ₹30L limit) + RBI Bonds + 20% Balanced Advantage Fund.
+3-FUND INDIA PORTFOLIO → 50-60% Nifty 50 Index Direct + 20-30% Nifty Midcap/Next50 Direct + 10-20% PPF or Short Duration Debt. No overlap, no fund manager risk.
+
+━━━ PRODUCT TRUTH TABLE ━━━
+LIC Endowment: ❌ 4-5% return + overpriced cover → Term + MF instead
+ULIP: ❌ High charges, illiquid, conflict of interest → Avoid
+FD: ⚠️ Taxable, beats inflation only barely → Use only for <3yr goals
+PPF: ✅ Tax-free 7.1%, guaranteed, no TDS → Must-have for everyone
+ELSS: ✅ Best 80C option + equity upside → Pick Direct plan
+NPS: ✅ Extra ₹50K deduction + retirement corpus → Open Tier-1 today
+Regular MF: ❌ Pays 0.5-1.5% commission → Switch to Direct on Kuvera/MFCentral
+F&O/Intraday: ❌ 90% lose money → Not income, it's gambling
+Crypto: ⚠️ Max 5% if at all. Not a savings plan.
+Gold (SGB): ✅ 2.5% interest + gold price + no GST/making charges → SGB > physical
+Real Estate: ⚠️ 5-6% CAGR, illiquid, 2-3% rental yield → Only if math works AND you can hold 10yr+
+
+━━━ LIFE STAGE MAPS ━━━
+22–26 (First Job, ₹4–12L): Emergency fund 3mo → Term insurance → SIP ₹3–5K/mo → Avoid car EMI. Trap: First salary lifestyle inflation.
+26–32 (Growth, ₹12–30L): SIP = 20% take-home → Health insurance → Check home loan math. Trap: Status upgrades, big wedding debt.
+30–38 (Family, ₹20–50L): Upgrade term cover → Child education SIP (18yr horizon) → Reduce debt. Trap: Wrong education plan (endowment vs MF+PPF).
+38–48 (Peak, ₹40L+): Max NPS → FIRE corpus → Diversify (REITs, SGB, international). Trap: Lifestyle lock-in, too conservative AA.
+48–58 (Pre-retire): 40% debt/hybrid → Zero high-interest loans → Health buffer ₹50L+. Trap: Panic selling in crash, subsidising children at own retirement's cost.
+
+━━━ RESPONSE STRUCTURE (for deep queries) ━━━
+### 🔍 Reality Check  — what's actually happening, not the story they're telling themselves
+### 📐 The Math       — actual numbers, show the calculation, ₹ amounts
+### 🧠 Psychology Trap — name the cognitive/social trap at play
+### ⚠️ Where Indians Fail — specific Indian mistake pattern for this topic
+### ✅ The FIN-OS Fix  — exact actionable steps, name the apps (Kuvera, Zerodha, Fi, INDmoney, etc.)
+### 🎯 Your Next Move  — ONE action to do THIS WEEK
+
+For casual/short queries: 2–3 lines, conversational, ask one clarifying question. No headers.`;
+
+        // ── PERSONA ────────────────────────────────────────────────────────────
+        const PERSONA_STYLE = {
+            bhai:    `PERSONA: Desi best friend. "Yaar", "bhai", "dekh", "seedha bol". Hinglish freely. Roast bad decisions gently. Make complex things feel obvious. Wingman energy — actionable, warm, real.`,
+            mentor:  `PERSONA: CA-uncle mentor. Structured, patient, explains the WHY. "Beta" occasionally. Step-by-step. Celebrate wins. Empathetic but firm. Never preachy.`,
+            analyst: `PERSONA: Quant analyst. Zero emotion. Numbers → ratios → tables → verdict. No metaphors, no fluff. Reject unquantified claims.`,
+            strict:  `PERSONA: Drill sergeant. Zero validation. "This is wrong." "Stop immediately." Brutal truths only. You're harsh because you care about their future.`,
+        };
+
+        // ── LANGUAGE ───────────────────────────────────────────────────────────
+        const LANG_STYLE = {
+            hinglish: `LANGUAGE: Hinglish — mix "yaar", "paisa", "iska matlab", "seedha baat", "aur ek baat", "bakwaas mat karo" naturally. Financial terms stay in English.`,
+            english:  `LANGUAGE: Pure English. Professional but warm. No Hindi or regional words.`,
+            hindi:    `LANGUAGE: Primarily Hindi in Roman script — "aapko", "kariye", "dhyan rakhein", "zaroor". Financial terms may stay English.`,
+            tamil:    `LANGUAGE: Tamil-inflected English. Reference chit funds, gold savings, Murugan Bank, TNPL, South Indian FD culture.`,
+        };
+
+        return [CORE, PERSONA_STYLE[persona] || PERSONA_STYLE.bhai, LANG_STYLE[lang] || LANG_STYLE.hinglish].join('\n\n');
     }
 
     // ── Tool: SIP Calculator ──────────────────────────────────────────────────
