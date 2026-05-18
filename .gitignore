@@ -1,16 +1,33 @@
 # Python
-venv/
 .venv/
 __pycache__/
+*.pyc
 
-# Voice models / binaries
-voiceagent/piper/
-*.onnx
-*.ort
+# Env
+.env
+
+# AI Models
+models/
+voiceagent/models/
 *.bin
-*.model
+*.pt
+*.onnx
+*.safetensors
 
-# macOS
-.DS_Storevoiceagent/models/
+# Logs
+*.log
+
+# Mac
 .DS_Store
-voiceagent/*.log
+
+# Cache
+.cache/
+.pytest_cache/
+
+# Audio
+*.wav
+*.mp3
+*.pcm
+
+# VSCode
+.vscode/
