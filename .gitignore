@@ -12,3 +12,5 @@ voiceagent/piper/
 
 # macOS
 .DS_Storevoiceagent/models/
+.DS_Store
+voiceagent/*.log
