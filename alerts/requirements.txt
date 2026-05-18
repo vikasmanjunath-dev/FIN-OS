@@ -1,0 +1,10 @@
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+apscheduler>=3.10.4
+supabase>=2.4.0
+pywebpush>=2.0.0
+py-vapid>=1.9.1
+yfinance>=0.2.38
+python-dotenv>=1.0.1
+httpx>=0.27.0
+pydantic>=2.0.0

@@ -196,6 +196,86 @@ function networkFirstHTML(req) {
     });
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   PUSH NOTIFICATIONS — FIN-OS Alert Engine
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Receive push from alert-engine.py via pywebpush */
+self.addEventListener('push', function (event) {
+  if (!event.data) return;
+
+  let payload = {};
+  try { payload = event.data.json(); } catch (e) {
+    payload = { title: 'FIN-OS Alert', body: event.data.text() };
+  }
+
+  const title   = payload.title   || 'FIN-OS';
+  const options = {
+    body:    payload.body    || '',
+    icon:    '/assets/icons/icon-192.svg',
+    badge:   '/assets/icons/icon-72.svg',
+    tag:     payload.tag     || 'finos-alert',
+    data:    payload.data    || {},
+    vibrate: [150, 50, 150],
+    actions: payload.data?.url ? [
+      { action: 'open',    title: '📊 Open',    icon: '/assets/icons/icon-72.svg' },
+      { action: 'dismiss', title: '✕ Dismiss' },
+    ] : [],
+    requireInteraction: payload.requireInteraction || false,
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+/* Handle notification click */
+self.addEventListener('notificationclick', function (event) {
+  event.notification.close();
+
+  if (event.action === 'dismiss') return;
+
+  const targetUrl = event.notification.data?.url || '/html/dashboard.html';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(function (windowClients) {
+        /* Focus existing FIN-OS tab if one is open */
+        for (const client of windowClients) {
+          if (client.url.includes(self.location.origin) && 'focus' in client) {
+            client.navigate(targetUrl);
+            return client.focus();
+          }
+        }
+        /* Otherwise open a new tab */
+        if (clients.openWindow) {
+          return clients.openWindow(targetUrl);
+        }
+      })
+  );
+});
+
+/* Handle push subscription change (browser rotates subscription) */
+self.addEventListener('pushsubscriptionchange', function (event) {
+  event.waitUntil(
+    self.registration.pushManager.subscribe(
+      event.oldSubscription.options
+    ).then(function (subscription) {
+      /* Re-register the new subscription with our backend */
+      return fetch('http://localhost:8001/alerts/subscribe', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          endpoint: subscription.endpoint,
+          p256dh:   subscription.toJSON().keys.p256dh,
+          auth_key: subscription.toJSON().keys.auth,
+          user_id:  '',   // backend will match by endpoint
+        }),
+      });
+    })
+  );
+});
+
 /* ── Strategy: Cache-first (static assets) ─────────────────────── */
 function cacheFirstStatic(req) {
   return caches.match(req).then(function (cached) {
