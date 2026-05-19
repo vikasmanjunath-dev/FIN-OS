@@ -279,19 +279,85 @@
     .fad-settings-link:hover { color: rgba(0,212,255,.7); }
     .fad-push-status { font-size: 11px; color: rgba(255,255,255,.25); }
 
-    /* Light mode */
+    /* ── Light mode — comprehensive overrides ── */
     [data-theme="light"] #finos-alert-bell {
-      background: rgba(0,150,180,.08);
-      border-color: rgba(0,150,180,.25);
+      background: rgba(0,120,180,.08);
+      border-color: rgba(0,120,180,.25);
     }
-    [data-theme="light"] #finos-alert-bell svg { fill: #0097b2; }
+    [data-theme="light"] #finos-alert-bell:hover {
+      border-color: rgba(0,120,180,.55);
+      background: rgba(0,120,180,.14);
+    }
+    [data-theme="light"] #finos-alert-bell svg { fill: #0078b4; }
+
+    /* Drawer surface */
     [data-theme="light"] #finos-alert-drawer {
       background: #f4f7fb;
-      border-color: rgba(0,150,180,.2);
+      border-left-color: rgba(0,100,180,.18);
+      box-shadow: -12px 0 40px rgba(0,0,0,.12);
     }
-    [data-theme="light"] .fad-card-title { color: #1a2b3c; }
-    [data-theme="light"] .fad-card-msg { color: rgba(30,50,70,.75); }
-    [data-theme="light"] .fad-title { color: #0097b2; }
+
+    /* Drawer header */
+    [data-theme="light"] .fad-header {
+      background: rgba(0,100,180,.04);
+      border-bottom-color: rgba(0,100,180,.1);
+    }
+    [data-theme="light"] .fad-title  { color: #0078b4; }
+    [data-theme="light"] .fad-subtitle { color: rgba(0,0,0,.45); }
+    [data-theme="light"] .fad-mark-all { color: rgba(0,100,200,.75); }
+    [data-theme="light"] .fad-mark-all:hover {
+      color: #0064c8;
+      background: rgba(0,100,200,.07);
+    }
+    [data-theme="light"] .fad-close {
+      border-color: rgba(0,0,0,.12);
+      background: rgba(0,0,0,.05);
+      color: rgba(0,0,0,.5);
+    }
+    [data-theme="light"] .fad-close:hover {
+      background: rgba(0,0,0,.1);
+      color: #0b0d12;
+    }
+
+    /* Filter tabs */
+    [data-theme="light"] .fad-tab {
+      border-color: rgba(0,0,0,.12);
+      color: rgba(0,0,0,.5);
+      background: transparent;
+    }
+    [data-theme="light"] .fad-tab:hover {
+      background: rgba(0,100,200,.06);
+      border-color: rgba(0,100,200,.3);
+      color: #0064c8;
+    }
+    [data-theme="light"] .fad-tab.active {
+      background: rgba(0,100,200,.1);
+      border-color: rgba(0,100,200,.4);
+      color: #0064c8;
+    }
+
+    /* Alert cards */
+    [data-theme="light"] .fad-card-title { color: #0b1c30; }
+    [data-theme="light"] .fad-card-msg   { color: rgba(20,40,65,.72); }
+    [data-theme="light"] .fad-card-time  { color: rgba(0,0,0,.35); }
+    [data-theme="light"] .fad-unread-dot { background: #0078b4; }
+
+    /* Empty state */
+    [data-theme="light"] .fad-empty       { color: rgba(0,0,0,.4); }
+    [data-theme="light"] .fad-empty-icon  { opacity: .7; }
+
+    /* Scrollbar */
+    [data-theme="light"] .fad-list::-webkit-scrollbar-thumb {
+      background: rgba(0,100,200,.18);
+    }
+
+    /* Footer */
+    [data-theme="light"] .fad-footer {
+      border-top-color: rgba(0,0,0,.08);
+    }
+    [data-theme="light"] .fad-settings-link { color: rgba(0,0,0,.38); }
+    [data-theme="light"] .fad-settings-link:hover { color: #0064c8; }
+    [data-theme="light"] .fad-push-status { color: rgba(0,0,0,.28); }
 
     @media (max-width: 480px) {
       #finos-alert-drawer { width: 100vw; }
@@ -345,44 +411,65 @@
 
     <div class="fad-footer">
       <a class="fad-settings-link" href="../html/settings.html">⚙️ Alert Settings</a>
-      <span class="fad-push-status" id="fad-push-status">Push: —</span>
+      <span class="fad-push-status" id="fad-push-status"></span>
     </div>
   `;
 
   document.body.appendChild(backdrop);
   document.body.appendChild(drawer);
 
-  /* ── Inject bell into nav ──────────────────────────────────────────────── */
+  /* ── Inject bell into header ──────────────────────────────────────────────── */
   function injectBell() {
-    const selectors = [
-      '#themeToggle',
+    // 1. Standard pages: bundle search + bell + theme in one right-side group
+    const toggle = document.getElementById('themeToggle');
+    if (toggle && toggle.parentNode) {
+      let group = document.getElementById('finos-header-actions');
+      if (!group) {
+        group = document.createElement('div');
+        group.id = 'finos-header-actions';
+        group.style.cssText = 'display:flex;align-items:center;gap:8px;flex-shrink:0;';
+        toggle.parentNode.insertBefore(group, toggle);
+        group.appendChild(toggle);
+      }
+      // Bell goes just before themeToggle (to the left of it, right of search)
+      group.insertBefore(bell, toggle);
+      return;
+    }
+
+    // 2. Pages with a floating fixed theme button (#floatThemeBtn):
+    //    create / reuse a shared controls bar to the left of it
+    const floatBtn = document.getElementById('floatThemeBtn');
+    if (floatBtn) {
+      let bar = document.getElementById('finos-fixed-controls');
+      if (!bar) {
+        bar = document.createElement('div');
+        bar.id = 'finos-fixed-controls';
+        bar.style.cssText = 'position:fixed;top:14px;right:62px;z-index:9900;display:flex;align-items:center;gap:8px;';
+        document.body.appendChild(bar);
+      }
+      bar.appendChild(bell);  // bell goes after search (rightmost in bar)
+      return;
+    }
+
+    // 3. Safe named containers only (nav & bare header excluded)
+    const containerSelectors = [
       '.nav-actions',
       '.header-flex',
       '.nav-right',
       '.topbar-r',
       '.navbar-right',
-      'header .flex',
-      'header nav',
-      'header',
-      'nav',
     ];
-    let inserted = false;
-    for (const sel of selectors) {
+    for (const sel of containerSelectors) {
       const target = document.querySelector(sel);
       if (target) {
-        // Insert before the first child so bell is near the start of the actions area
-        target.insertBefore(bell, target.firstChild);
-        inserted = true;
-        break;
+        target.appendChild(bell);
+        return;
       }
     }
-    if (!inserted) {
-      // Fixed-position fallback: top-right
-      bell.style.cssText = `
-        position:fixed;top:16px;right:70px;z-index:99985;
-      `;
-      document.body.appendChild(bell);
-    }
+
+    // 4. Fixed-position fallback: top-right corner
+    bell.style.cssText = 'position:fixed;top:14px;right:70px;z-index:99985;';
+    document.body.appendChild(bell);
   }
 
   /* ── Time formatter ─────────────────────────────────────────────────────── */

@@ -393,87 +393,128 @@
 
   /* ══════════════════════════════════════════════════════════
      LIGHT MODE OVERRIDES
-     Triggered by  [data-theme="light"]  on <html>
+     Dual selectors: [data-theme="light"] (FIN-OS global system)
+     AND body.light-theme (stock-dashboard / legacy pages)
+     Both trigger from !important rules so order doesn't matter.
   ══════════════════════════════════════════════════════════ */
-  [data-theme="light"] #fs-toggle {
-    background: rgba(0,0,0,.06);
-    border-color: rgba(0,0,0,.18);
-    color: rgba(0,0,0,.65);
+
+  /* ── Search toggle button ── */
+  [data-theme="light"] #fs-toggle,
+  body.light-theme #fs-toggle {
+    background: rgba(0,0,0,.07) !important;
+    border: 1px solid rgba(0,0,0,.20) !important;
+    color: #0B0D12 !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08) !important;
   }
-  [data-theme="light"] #fs-toggle:hover {
-    background: rgba(0,100,255,.10);
-    border-color: rgba(0,100,255,.40);
-    color: #0050ff;
+  [data-theme="light"] #fs-toggle:hover,
+  body.light-theme #fs-toggle:hover {
+    background: rgba(79,124,255,.12) !important;
+    border-color: rgba(79,124,255,.45) !important;
+    color: #4F7CFF !important;
+    box-shadow: 0 2px 8px rgba(79,124,255,.15) !important;
+  }
+  [data-theme="light"] #fs-toggle svg path,
+  body.light-theme #fs-toggle svg path {
+    stroke: currentColor !important;
   }
 
-  [data-theme="light"] #fs-bar {
-    background: #ffffff;
-    border-color: rgba(0,100,255,.40);
-    box-shadow: 0 4px 24px rgba(0,0,0,.12), 0 0 0 1px rgba(0,100,255,.08);
-    color: #0050ff; /* inherited by #fs-bar-icon stroke */
+  /* ── Expanded search bar ── */
+  [data-theme="light"] #fs-bar,
+  body.light-theme #fs-bar {
+    background: #ffffff !important;
+    border-color: rgba(0,100,255,.40) !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,.12), 0 0 0 1px rgba(0,100,255,.08) !important;
+    color: #0050ff !important;
   }
-  [data-theme="light"] #fs-input {
-    color: #111827;
-    caret-color: #0050ff;
+  [data-theme="light"] #fs-input,
+  body.light-theme #fs-input {
+    background: transparent !important;
+    border: none !important;
+    color: #111827 !important;
+    caret-color: #0050ff !important;
+    box-shadow: none !important;
   }
-  [data-theme="light"] #fs-input::placeholder {
-    color: rgba(0,0,0,.35);
+  [data-theme="light"] #fs-input::placeholder,
+  body.light-theme #fs-input::placeholder {
+    color: rgba(0,0,0,.35) !important;
   }
-  [data-theme="light"] #fs-bar svg path {
-    stroke: #0050ff;
+  [data-theme="light"] #fs-bar svg path,
+  body.light-theme #fs-bar svg path {
+    stroke: #0050ff !important;
   }
-  [data-theme="light"] #fs-clear {
-    color: rgba(0,0,0,.35);
+  [data-theme="light"] #fs-clear,
+  body.light-theme #fs-clear {
+    color: rgba(0,0,0,.35) !important;
   }
-  [data-theme="light"] #fs-clear:hover {
-    color: rgba(0,0,0,.75);
+  [data-theme="light"] #fs-clear:hover,
+  body.light-theme #fs-clear:hover {
+    color: rgba(0,0,0,.75) !important;
   }
 
-  [data-theme="light"] #fs-dropdown {
-    background: #ffffff;
-    border-color: rgba(0,0,0,.10);
-    box-shadow: 0 20px 60px rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.06);
+  /* ── Results dropdown ── */
+  [data-theme="light"] #fs-dropdown,
+  body.light-theme #fs-dropdown {
+    background: #ffffff !important;
+    border-color: rgba(0,0,0,.10) !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.06) !important;
   }
-  [data-theme="light"] #fs-dropdown::-webkit-scrollbar-thumb {
+  [data-theme="light"] #fs-dropdown::-webkit-scrollbar-thumb,
+  body.light-theme #fs-dropdown::-webkit-scrollbar-thumb {
     background: rgba(0,100,255,.2);
   }
-  [data-theme="light"] .fs-empty {
+  [data-theme="light"] .fs-empty,
+  body.light-theme .fs-empty {
     color: rgba(0,0,0,.40);
   }
-  [data-theme="light"] .fs-cat-label {
+  [data-theme="light"] .fs-cat-label,
+  body.light-theme .fs-cat-label {
     color: rgba(0,80,200,.7);
   }
-  [data-theme="light"] .fs-item {
+  [data-theme="light"] .fs-item,
+  body.light-theme .fs-item {
     border-bottom-color: rgba(0,0,0,.05);
   }
   [data-theme="light"] .fs-item:hover,
-  [data-theme="light"] .fs-item.focused {
+  [data-theme="light"] .fs-item.focused,
+  body.light-theme .fs-item:hover,
+  body.light-theme .fs-item.focused {
     background: rgba(0,100,255,.06);
   }
-  [data-theme="light"] .cat-Pages       .fs-item-icon { background: rgba(123,47,247,.12); }
-  [data-theme="light"] .cat-Calculators .fs-item-icon { background: rgba(0,100,255,.10); }
-  [data-theme="light"] .cat-Learning    .fs-item-icon { background: rgba(0,160,80,.10);  }
-  [data-theme="light"] .fs-item-title {
+  [data-theme="light"] .cat-Pages       .fs-item-icon,
+  body.light-theme    .cat-Pages        .fs-item-icon { background: rgba(123,47,247,.12); }
+  [data-theme="light"] .cat-Calculators .fs-item-icon,
+  body.light-theme    .cat-Calculators  .fs-item-icon { background: rgba(0,100,255,.10); }
+  [data-theme="light"] .cat-Learning    .fs-item-icon,
+  body.light-theme    .cat-Learning     .fs-item-icon { background: rgba(0,160,80,.10);  }
+  [data-theme="light"] .fs-item-title,
+  body.light-theme .fs-item-title {
     color: #111827;
   }
-  [data-theme="light"] .fs-item-desc {
+  [data-theme="light"] .fs-item-desc,
+  body.light-theme .fs-item-desc {
     color: rgba(0,0,0,.45);
   }
-  [data-theme="light"] .fs-item-arrow {
+  [data-theme="light"] .fs-item-arrow,
+  body.light-theme .fs-item-arrow {
     color: rgba(0,0,0,.22);
   }
   [data-theme="light"] .fs-item:hover .fs-item-arrow,
-  [data-theme="light"] .fs-item.focused .fs-item-arrow {
+  [data-theme="light"] .fs-item.focused .fs-item-arrow,
+  body.light-theme .fs-item:hover .fs-item-arrow,
+  body.light-theme .fs-item.focused .fs-item-arrow {
     color: #0050ff;
   }
-  [data-theme="light"] .fs-highlight {
+  [data-theme="light"] .fs-highlight,
+  body.light-theme .fs-highlight {
     color: #0050ff;
   }
-  [data-theme="light"] .fs-footer {
+  [data-theme="light"] .fs-footer,
+  body.light-theme .fs-footer {
     border-top-color: rgba(0,0,0,.08);
     color: rgba(0,0,0,.30);
   }
-  [data-theme="light"] .fs-footer kbd {
+  [data-theme="light"] .fs-footer kbd,
+  body.light-theme .fs-footer kbd {
     background: rgba(0,0,0,.06);
     border-color: rgba(0,0,0,.12);
     color: rgba(0,0,0,.45);
@@ -505,39 +546,61 @@
   /* ───────────────────────────────────────────────────────────
      INJECT — smart multi-selector placement
      Priority order:
-       1. Right before #themeToggle (most pages)
-       2. At end of .header-flex / .nav-actions / .topbar-r
-       3. At end of first <header> / <nav>
-       4. Fallback: fixed top-right
+       1. #themeToggle found → wrap it + search + bell in #finos-header-actions
+          group so they stay RIGHT-ALIGNED together (prevents middle-floating
+          caused by justify-content:space-between on .header-flex).
+       2. #floatThemeBtn found → shared #finos-fixed-controls fixed bar to its left.
+       3. Known safe flex containers (no nav, no bare header — avoids sidebar
+          and ticker-topbar injection).
+       4. Fixed top-right fallback.
   ─────────────────────────────────────────────────────────── */
   function inject() {
-    // 1. Preferred: insert just before #themeToggle
+    // 1. Standard pages: bundle search + bell + theme in one right-side group
     const toggle = document.getElementById('themeToggle');
     if (toggle && toggle.parentNode) {
-      toggle.parentNode.insertBefore(wrap, toggle);
+      let group = document.getElementById('finos-header-actions');
+      if (!group) {
+        group = document.createElement('div');
+        group.id = 'finos-header-actions';
+        group.style.cssText = 'display:flex;align-items:center;gap:8px;flex-shrink:0;';
+        // Replace themeToggle's slot with the group, move toggle inside
+        toggle.parentNode.insertBefore(group, toggle);
+        group.appendChild(toggle);
+      }
+      group.prepend(wrap);  // search goes leftmost inside the group
       return;
     }
 
-    // 2. Append inside known nav containers (right-aligned flex rows)
+    // 2. Pages with a floating fixed theme button (#floatThemeBtn):
+    //    create / reuse a shared controls bar to the left of it
+    const floatBtn = document.getElementById('floatThemeBtn');
+    if (floatBtn) {
+      let bar = document.getElementById('finos-fixed-controls');
+      if (!bar) {
+        bar = document.createElement('div');
+        bar.id = 'finos-fixed-controls';
+        bar.style.cssText = 'position:fixed;top:14px;right:62px;z-index:9900;display:flex;align-items:center;gap:8px;';
+        document.body.appendChild(bar);
+      }
+      bar.prepend(wrap);  // search goes leftmost
+      return;
+    }
+
+    // 3. Safe named containers only (nav & bare header excluded)
     const containerSelectors = [
       '.header-flex',
       '.nav-actions',
       '.nav-right',
       '.topbar-r',
       '.navbar-right',
-      'header .flex',
-      'header',
-      'nav',
     ];
     for (const sel of containerSelectors) {
       const el = document.querySelector(sel);
       if (el) {
-        // Ensure the container is flex so the button aligns properly
         const cs = window.getComputedStyle(el);
         if (cs.display === 'flex' || cs.display === 'inline-flex') {
           el.appendChild(wrap);
         } else {
-          // Wrap it in a right-aligned absolute so it doesn't break layout
           wrap.style.cssText = 'position:absolute;top:50%;right:16px;transform:translateY(-50%);z-index:9000;';
           el.style.position = el.style.position || 'relative';
           el.appendChild(wrap);
@@ -546,7 +609,7 @@
       }
     }
 
-    // 3. Final fallback: fixed top-right corner
+    // 4. Final fallback: fixed top-right corner
     wrap.style.cssText = 'position:fixed;top:14px;right:16px;z-index:9900;';
     document.body.appendChild(wrap);
   }
