@@ -38,3 +38,18 @@
 2026-05-19 21:52:25,991 [INFO] fin-os: Session memory saved for user e8dab5b2
 2026-05-19 22:06:30,484 [INFO] websockets.server: connection open
 2026-05-19 22:06:30,485 [INFO] fin-os: Connected (1)
+2026-05-19 22:10:11,411 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
+2026-05-19 22:10:14,877 [INFO] websockets.server: connection open
+2026-05-19 22:10:14,877 [INFO] fin-os: Connected (1)
+2026-05-19 23:34:47,679 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
+2026-05-19 23:34:49,779 [INFO] websockets.server: connection open
+2026-05-19 23:34:49,779 [INFO] fin-os: Connected (1)
+2026-05-19 23:34:49,808 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-05-19 23:34:49,808 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-05-19 23:34:50,166 [INFO] fin-os.memory: No saved memory for user e8dab5b2 — fresh session
+2026-05-19 23:34:50,576 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-05-19 23:34:50,576 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-05-19 23:34:50,917 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-05-19 23:34:50,917 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+/opt/homebrew/Cellar/python@3.11/3.11.15_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
