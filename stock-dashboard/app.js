@@ -870,7 +870,11 @@ function retryFetch() {
 // ═══════════════════════════════════════════════════════════════
 $('themeToggle').addEventListener('click', () => {
   document.body.classList.toggle('light-theme');
-  localStorage.setItem('stockos_theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+  const isLight = document.body.classList.contains('light-theme');
+  // Keep data-theme attribute in sync so injected widgets (search, alerts, health-score)
+  // pick up the correct light-mode CSS via [data-theme="light"] selectors
+  document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+  localStorage.setItem('stockos_theme', isLight ? 'light' : 'dark');
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -905,9 +909,14 @@ function fmtMarketCap(cap) {
 // INIT
 // ═══════════════════════════════════════════════════════════════
 function init() {
-  // Restore theme
+  // Restore theme — also set data-theme attribute so injected widgets work
   const savedTheme = localStorage.getItem('stockos_theme');
-  if (savedTheme === 'light') document.body.classList.add('light-theme');
+  if (savedTheme === 'light') {
+    document.body.classList.add('light-theme');
+    document.documentElement.setAttribute('data-theme', 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
 
   // Start particles
   initParticles();

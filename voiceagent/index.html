@@ -382,6 +382,74 @@ input[type=range]::-webkit-slider-thumb{
 .pc-val{color:var(--a4);font-weight:600;font-size:.62rem;line-height:1.5}
 
 /* ══════════════════════════════════════════════════════════
+   CALCULATOR RESULT CARDS
+══════════════════════════════════════════════════════════ */
+.calc-card{
+  max-width:460px;border-radius:var(--r);overflow:hidden;
+  border:1px solid var(--border2);background:var(--s1);
+  animation:msgIn .35s cubic-bezier(.22,1,.36,1);font-family:var(--mono);
+}
+.calc-head{
+  padding:9px 14px;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid var(--border2);
+}
+.calc-body{padding:14px;display:flex;flex-direction:column;gap:8px}
+.calc-hero{text-align:center;padding:10px 0 6px}
+.calc-hero-val{
+  font-size:1.55rem;font-weight:800;font-family:var(--font);
+  letter-spacing:-.02em;line-height:1;
+  animation:heroIn .5s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes heroIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+.calc-hero-sub{font-size:.58rem;color:var(--muted);margin-top:4px;letter-spacing:.06em;text-transform:uppercase}
+.calc-row{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:.6rem;padding:5px 0;border-bottom:1px solid var(--border);
+}
+.calc-row:last-child{border-bottom:none}
+.calc-row-k{color:var(--muted)}
+.calc-row-v{font-weight:600;color:var(--text)}
+.calc-row-v.hi{color:var(--a4)}
+
+/* Bar chart */
+.calc-bars{display:flex;flex-direction:column;gap:6px;margin:4px 0}
+.calc-bar-row{display:flex;align-items:center;gap:8px;font-size:.57rem}
+.calc-bar-lbl{width:64px;color:var(--muted);flex-shrink:0}
+.calc-bar-trk{flex:1;height:7px;background:var(--s2);border-radius:4px;overflow:hidden}
+.calc-bar-fill{height:100%;border-radius:4px;width:0;transition:width 1.1s cubic-bezier(.22,1,.36,1)}
+.calc-bar-amt{width:66px;text-align:right;font-weight:600;flex-shrink:0}
+.calc-note{font-size:.53rem;color:var(--muted);opacity:.7;text-align:center;margin-top:2px;font-style:italic}
+
+/* SIP */
+.calc-card.sip .calc-head {background:linear-gradient(90deg,rgba(0,212,255,.1),rgba(34,211,166,.06));color:var(--a1)}
+.calc-card.sip .calc-hero-val{color:var(--a1)}
+.calc-card.sip .invested{background:var(--a2)}
+.calc-card.sip .returns  {background:var(--a4)}
+/* EMI */
+.calc-card.emi .calc-head {background:linear-gradient(90deg,rgba(240,165,0,.1),rgba(240,68,68,.06));color:var(--a3)}
+.calc-card.emi .calc-hero-val{color:var(--a3)}
+.calc-card.emi .principal{background:var(--a1)}
+.calc-card.emi .interest {background:var(--danger)}
+/* Tax */
+.calc-card.tax .calc-head {background:linear-gradient(90deg,rgba(34,211,166,.1),rgba(0,212,255,.05));color:var(--a4)}
+.calc-card.tax .calc-hero-val{color:var(--a4)}
+.calc-card.tax .old-r{background:var(--danger)}
+.calc-card.tax .new-r{background:var(--a4)}
+/* Lumpsum / FD */
+.calc-card.lumpsum .calc-head,
+.calc-card.fd      .calc-head {background:linear-gradient(90deg,rgba(124,58,237,.1),rgba(0,212,255,.05));color:var(--a2)}
+.calc-card.lumpsum .calc-hero-val,
+.calc-card.fd      .calc-hero-val{color:var(--a2)}
+.calc-card.lumpsum .invested,.calc-card.fd .invested{background:var(--a2)}
+.calc-card.lumpsum .returns, .calc-card.fd .returns {background:var(--a1)}
+/* Goal SIP */
+.calc-card.goal_sip .calc-head {background:linear-gradient(90deg,rgba(240,165,0,.1),rgba(34,211,166,.05));color:var(--a3)}
+.calc-card.goal_sip .calc-hero-val{color:var(--a3)}
+.calc-card.goal_sip .invested{background:var(--a3)}
+.calc-card.goal_sip .returns {background:var(--a4)}
+
+/* ══════════════════════════════════════════════════════════
    SCROLLBAR GLOBAL
 ══════════════════════════════════════════════════════════ */
 *{scrollbar-width:thin;scrollbar-color:var(--border) transparent}
@@ -492,6 +560,16 @@ input[type=range]::-webkit-slider-thumb{
       <button class="qchip" onclick="quickAsk(this)">🚗 Car EMI lena theek hai?</button>
       <button class="qchip" onclick="quickAsk(this)">🔥 FIRE possible hai mere liye?</button>
       <button class="qchip" onclick="quickAsk(this)">😱 Sharmaji F&O mein kamat raha hai...</button>
+      <div style="width:100%;font-family:var(--mono);font-size:.55rem;color:var(--a3);letter-spacing:.08em;margin:4px 0 2px">🔢 CALCULATOR →</div>
+      <button class="qchip" onclick="quickAsk(this)" style="border-color:rgba(0,212,255,.3)">📈 15K SIP 20 saal mein kitna banega?</button>
+      <button class="qchip" onclick="quickAsk(this)" style="border-color:rgba(240,165,0,.3)">🏦 50L home loan 8.5% pe 20 saal EMI?</button>
+      <button class="qchip" onclick="quickAsk(this)" style="border-color:rgba(34,211,166,.3)">🧾 1.5L ELSS mein daalun — kitna tax bachega?</button>
+      <div style="width:100%;font-family:var(--mono);font-size:.55rem;color:var(--a5);letter-spacing:.08em;margin:4px 0 2px">💼 MERA DATA →</div>
+      <button class="qchip" onclick="quickAsk(this)" style="border-color:rgba(168,85,247,.3)">💰 Meri budget health kaisi hai? Kahan kharcha kam karun?</button>
+      <button class="qchip" onclick="quickAsk(this)" style="border-color:rgba(168,85,247,.3)">🔥 Mera FIRE number kya hai — kab retire ho sakta hun?</button>
+      <button class="qchip" onclick="quickAsk(this)" style="border-color:rgba(34,211,166,.3)">📊 Meri trading performance analyze karo — win rate, P&L sab</button>
+      <button class="qchip" onclick="quickAsk(this)" style="border-color:rgba(34,211,166,.3)">📉 Mera worst symbol kaun sa hai aur kyun loss ho raha hai?</button>
+      <button class="qchip" onclick="quickAsk(this)" style="border-color:rgba(240,165,0,.3)">💳 Mere subscriptions mein ghost spending kitna hai?</button>
     </div>
   </div>
 </main>
@@ -954,6 +1032,11 @@ function onMsg(m){
           if (svMem) { svMem.textContent = 'new'; svMem.style.color = 'var(--muted)'; }
         }
       }
+      break;
+
+    case 'calc_result':
+      // Structured calculator result → render rich card in chat
+      appendCalcCard(m.data);
       break;
 
     case 'status':
@@ -1896,6 +1979,55 @@ function sendContextToBackend(ctx) {
       tax:          ctx.financial.tax,
     } : null,
     watchlist:    ctx.watchlist?.slice(0, 15),
+
+    /* ── Budget Tracker (finos-budget React app) ─────────────────── */
+    budget_tracker: ctx.budget_tracker ? {
+      income_monthly:     ctx.budget_tracker.income_monthly,
+      spent_total:        ctx.budget_tracker.spent_total,
+      needs:              ctx.budget_tracker.needs,
+      wants:              ctx.budget_tracker.wants,
+      saves:              ctx.budget_tracker.saves,
+      savings_rate:       ctx.budget_tracker.savings_rate,
+      budget_health:      ctx.budget_tracker.budget_health,
+      top_categories:     (ctx.budget_tracker.top_categories || []).slice(0, 6),
+      goals:              (ctx.budget_tracker.goals || []).slice(0, 6),
+      debts:              (ctx.budget_tracker.debts || []).slice(0, 5),
+      total_debt:         ctx.budget_tracker.total_debt,
+      subscription_drain: ctx.budget_tracker.subscription_drain,
+      subscription_count: ctx.budget_tracker.subscription_count,
+      subscriptions:      (ctx.budget_tracker.subscriptions || []).slice(0, 8),
+      fire_number:        ctx.budget_tracker.fire_number,
+      fire_years_estimate:ctx.budget_tracker.fire_years_estimate,
+      tx_count:           ctx.budget_tracker.tx_count,
+    } : null,
+
+    /* ── Trade Journal (TradeBook Pro) ───────────────────────────── */
+    trade_journal: ctx.trade_journal ? {
+      total_trades:   ctx.trade_journal.total_trades,
+      total_pnl:      ctx.trade_journal.total_pnl,
+      win_rate:       ctx.trade_journal.win_rate,
+      avg_win:        ctx.trade_journal.avg_win,
+      avg_loss:       ctx.trade_journal.avg_loss,
+      profit_factor:  ctx.trade_journal.profit_factor,
+      max_drawdown:   ctx.trade_journal.max_drawdown,
+      best_symbol:    ctx.trade_journal.best_symbol,
+      worst_symbol:   ctx.trade_journal.worst_symbol,
+      top_symbols:    (ctx.trade_journal.top_symbols || []).slice(0, 5),
+      current_streak: ctx.trade_journal.current_streak,
+      recent_trades:  (ctx.trade_journal.recent_trades || []).slice(0, 5),
+      capital:        ctx.trade_journal.capital,
+      weekly_target:  ctx.trade_journal.weekly_target,
+    } : null,
+
+    /* ── Market / News ───────────────────────────────────────────── */
+    market: ctx.market ? {
+      nifty50:        ctx.market.nifty50,
+      sensex:         ctx.market.sensex,
+      india_vix:      ctx.market.india_vix,
+      news_headlines: (ctx.market.news_headlines || []).slice(0, 5),
+      market_mood:    ctx.market.market_mood,
+    } : null,
+
     page: {
       url:    ctx.page?.url,
       title:  ctx.page?.title,
@@ -2074,6 +2206,176 @@ handleUserContext = function(ctx) {
 
 /* Also handle alert_count from backend (future extension) */
 // In onMsg, add: case 'alert_count': renderAlertCount(m.count); break;
+
+/* ═══════════════════════════════════════════════════════════════════
+   CALCULATOR RESULT CARDS
+   Renders a rich visual card when the backend detects a calc intent.
+   Appears as an assistant bubble in the chat stream, before the voice
+   response, so user sees the numbers as the AI starts speaking them.
+═══════════════════════════════════════════════════════════════════ */
+
+/** Format a number as ₹15K / ₹1.5L / ₹1.2Cr */
+function fmtInr(amount, short=true) {
+  amount = Math.round(amount);
+  if (!short) return '₹' + amount.toLocaleString('en-IN');
+  if (amount >= 1e7)  return '₹' + (amount/1e7).toFixed(2).replace(/\.?0+$/, '') + 'Cr';
+  if (amount >= 1e5)  return '₹' + (amount/1e5).toFixed(2).replace(/\.?0+$/, '') + 'L';
+  if (amount >= 1e3)  return '₹' + (amount/1e3).toFixed(1).replace(/\.?0+$/, '') + 'K';
+  return '₹' + amount.toLocaleString('en-IN');
+}
+function fmtPct(p) { return (p >= 0 ? '+' : '') + p.toFixed(1) + '%'; }
+
+/** Build the bar-chart section HTML */
+function _barsHtml(bars) {
+  const maxV = Math.max(...bars.map(b => b.val), 1);
+  return '<div class="calc-bars">' + bars.map(b => `
+    <div class="calc-bar-row">
+      <span class="calc-bar-lbl">${b.label}</span>
+      <div class="calc-bar-trk">
+        <div class="calc-bar-fill ${b.cls}" data-pct="${(b.val/maxV*100).toFixed(1)}"></div>
+      </div>
+      <span class="calc-bar-amt" style="color:${b.color}">${fmtInr(b.val)}</span>
+    </div>`).join('') + '</div>';
+}
+
+/** Build key-value rows HTML */
+function _rowsHtml(rows) {
+  return rows.map(r =>
+    `<div class="calc-row">
+       <span class="calc-row-k">${r.k}</span>
+       <span class="calc-row-v${r.hi?' hi':''}">${r.v}</span>
+     </div>`
+  ).join('');
+}
+
+/** Main renderer — returns a .calc-card DOM element */
+function renderCalcCard(d) {
+  let icon='', title='', heroVal='', heroSub='', rows=[], bars=[], note='';
+  const t = d.type;
+
+  if (t === 'sip') {
+    icon='📈'; title='SIP Calculator'; heroVal=fmtInr(d.maturity); heroSub='Maturity Value';
+    rows = [
+      {k:'Monthly SIP',    v:fmtInr(d.monthly)},
+      {k:'Duration',       v:d.years+' years'},
+      {k:'Rate (assumed)', v:d.rate+'% p.a.'},
+      {k:'Total Invested', v:fmtInr(d.invested)},
+      {k:'Est. Returns',   v:fmtInr(d.returns),   hi:true},
+      {k:'Total Gain',     v:fmtPct(d.gain_pct),  hi:true},
+    ];
+    bars = [
+      {label:'Invested', cls:'invested', val:d.invested, color:'var(--a2)'},
+      {label:'Returns',  cls:'returns',  val:d.returns,  color:'var(--a4)'},
+    ];
+    note = '* ' + d.rate + '% p.a. assumed · Nifty 50 historical CAGR ~12%';
+  }
+  else if (t === 'emi') {
+    icon='🏦'; title='EMI Calculator'; heroVal=fmtInr(d.emi); heroSub='Monthly EMI';
+    rows = [
+      {k:'Loan Amount',    v:fmtInr(d.principal)},
+      {k:'Interest Rate',  v:d.rate+'% p.a.'},
+      {k:'Tenure',         v:d.years+' years'},
+      {k:'Total Paid',     v:fmtInr(d.total_paid)},
+      {k:'Total Interest', v:fmtInr(d.total_interest), hi:true},
+      {k:'Extra Paid',     v:'+'+d.interest_pct+'%',   hi:true},
+    ];
+    bars = [
+      {label:'Principal', cls:'principal', val:d.principal,       color:'var(--a1)'},
+      {label:'Interest',  cls:'interest',  val:d.total_interest,  color:'var(--danger)'},
+    ];
+    note = '* Reducing balance method · Rate '+d.rate+'%';
+  }
+  else if (t === 'tax') {
+    icon='🧾'; title='Tax Savings'; heroVal=fmtInr(d.tax_saved_80c); heroSub='Tax Saved via 80C';
+    const better = d.better_regime === 'new' ? '✅ New Regime' : '✅ Old Regime';
+    rows = [
+      {k:'Gross Income',       v:fmtInr(d.income)},
+      {k:'80C Investment',     v:fmtInr(d.investment)},
+      {k:'Tax (Old, no 80C)',  v:fmtInr(d.tax_old_without)},
+      {k:'Tax (Old + 80C)',    v:fmtInr(d.tax_old_with)},
+      {k:'Tax (New Regime)',   v:fmtInr(d.tax_new)},
+      {k:'Best Option',        v:better,             hi:true},
+      {k:'You Pay Only',       v:fmtInr(d.best_tax), hi:true},
+    ];
+    bars = [
+      {label:'Old Regime', cls:'old-r', val:d.tax_old_with, color:'var(--danger)'},
+      {label:'New Regime', cls:'new-r', val:d.tax_new,      color:'var(--a4)'},
+    ];
+    note = '* AY 2025-26 slabs · Surcharge excluded · 87A rebate applied';
+  }
+  else if (t === 'lumpsum' || t === 'fd') {
+    icon = t==='fd' ? '🏧' : '💰';
+    title= t==='fd' ? 'FD Calculator' : 'Lumpsum Calculator';
+    heroVal=fmtInr(d.maturity); heroSub='Maturity Value';
+    rows = [
+      {k:'Investment',  v:fmtInr(d.invested)},
+      {k:'Duration',    v:d.years+' years'},
+      {k:'Rate',        v:d.rate+'% p.a.'},
+      {k:'Returns',     v:fmtInr(d.returns),  hi:true},
+      {k:'Gain',        v:fmtPct(d.gain_pct), hi:true},
+    ];
+    bars = [
+      {label:'Invested', cls:'invested', val:d.invested, color:'var(--a2)'},
+      {label:'Returns',  cls:'returns',  val:d.returns,  color:'var(--a1)'},
+    ];
+    note = t==='fd' ? '* Quarterly compounding assumed' : '* Returns not guaranteed · Illustration only';
+  }
+  else if (t === 'goal_sip') {
+    icon='🎯'; title='Goal-based SIP'; heroVal=fmtInr(d.monthly); heroSub='Monthly SIP Required';
+    rows = [
+      {k:'Target Corpus', v:fmtInr(d.target)},
+      {k:'Time Horizon',  v:d.years+' years'},
+      {k:'Rate (assumed)',v:d.rate+'% p.a.'},
+      {k:'Total Invested',v:fmtInr(d.total_invested)},
+      {k:'From Returns',  v:fmtInr(d.returns), hi:true},
+    ];
+    bars = [
+      {label:'You Invest', cls:'invested', val:d.total_invested, color:'var(--a3)'},
+      {label:'Returns',    cls:'returns',  val:d.returns,         color:'var(--a4)'},
+    ];
+    note = '* Start early — 1 yr delay increases required SIP by ~10%';
+  }
+
+  const card = document.createElement('div');
+  card.className = `calc-card ${t}`;
+  card.innerHTML = `
+    <div class="calc-head">${icon}&nbsp;${title}</div>
+    <div class="calc-body">
+      <div class="calc-hero">
+        <div class="calc-hero-val">${heroVal}</div>
+        <div class="calc-hero-sub">${heroSub}</div>
+      </div>
+      ${bars.length ? _barsHtml(bars) : ''}
+      ${_rowsHtml(rows)}
+      ${note ? `<div class="calc-note">${note}</div>` : ''}
+    </div>`;
+  return card;
+}
+
+/** Insert calc card as an assistant row in the chat */
+function appendCalcCard(data) {
+  const chatEl = document.getElementById('chat');
+  const row    = document.createElement('div');
+  row.className = 'row a';
+
+  const av = document.createElement('div');
+  av.className  = 'av a';
+  av.textContent= 'FO';
+
+  row.appendChild(av);
+  row.appendChild(renderCalcCard(data));
+  chatEl.appendChild(row);
+  chatEl.scrollTop = chatEl.scrollHeight;
+
+  // Trigger bar animations after DOM paint
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      row.querySelectorAll('.calc-bar-fill').forEach(el => {
+        el.style.width = (parseFloat(el.dataset.pct) || 0) + '%';
+      });
+    }, 80);
+  });
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    BOOT

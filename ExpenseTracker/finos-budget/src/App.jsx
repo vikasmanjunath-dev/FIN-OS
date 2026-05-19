@@ -12,6 +12,7 @@ import ReportsPage from "./pages/ReportsPage";
 import DebtDestroyer from "./pages/DebtDestroyer";
 import SubscriptionManager from "./pages/SubscriptionManager";
 import Sidebar from "./components/Sidebar";
+import TopBar from "./components/TopBar";
 import ParticleField from "./components/ParticleField";
 import PageTransition from "./components/PageTransition";
 import { calcTotals } from "./utils/constants";
@@ -70,6 +71,11 @@ export default function App() {
       <ParticleField health={health} />
       <Sidebar activePage={page} setPage={setPage} />
       <main className="main-content">
+        <TopBar
+          theme={theme}
+          setTheme={setTheme}
+          transactions={transactions}
+        />
         <PageTransition pageKey={page}>
           {page === "wealth" && (
             <WealthInterface

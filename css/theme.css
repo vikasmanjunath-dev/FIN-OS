@@ -525,3 +525,138 @@
 [data-theme="light"] .settings-footer p {
   color: #6A7080 !important;
 }
+
+/* ═══════════════════════════════════
+   SEARCH BUTTON — light mode
+   #fs-toggle is injected by finos-search.js.
+   Its base CSS uses white colours designed
+   for dark backgrounds — override them here
+   with !important so every page works.
+   ═══════════════════════════════════ */
+
+[data-theme="light"] #fs-toggle {
+  background: rgba(0,0,0,.07) !important;
+  border: 1px solid rgba(0,0,0,.20) !important;
+  color: #0B0D12 !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08) !important;
+}
+[data-theme="light"] #fs-toggle:hover {
+  background: rgba(79,124,255,.12) !important;
+  border-color: rgba(79,124,255,.45) !important;
+  color: #4F7CFF !important;
+  box-shadow: 0 2px 8px rgba(79,124,255,.15) !important;
+}
+/* SVG stroke inherits currentColor — reinforce it explicitly */
+[data-theme="light"] #fs-toggle svg {
+  color: inherit !important;
+}
+[data-theme="light"] #fs-toggle svg path {
+  stroke: currentColor !important;
+}
+
+/* ── Expanded search bar (active state) ── */
+[data-theme="light"] #fs-bar {
+  background: #ffffff !important;
+  border-color: rgba(0,100,255,.40) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,.12), 0 0 0 1px rgba(0,100,255,.08) !important;
+  color: #0050ff !important;
+}
+[data-theme="light"] #fs-input {
+  background: transparent !important;
+  border: none !important;
+  color: #111827 !important;
+  caret-color: #0050ff !important;
+  box-shadow: none !important;
+}
+[data-theme="light"] #fs-input::placeholder {
+  color: rgba(0,0,0,.35) !important;
+}
+[data-theme="light"] #fs-bar svg path {
+  stroke: #0050ff !important;
+}
+[data-theme="light"] #fs-clear {
+  color: rgba(0,0,0,.35) !important;
+}
+
+/* ── Results dropdown ── */
+[data-theme="light"] #fs-dropdown {
+  background: #ffffff !important;
+  border-color: rgba(0,0,0,.10) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,.12) !important;
+}
+[data-theme="light"] .fs-item-title { color: #111827 !important; }
+[data-theme="light"] .fs-item-desc  { color: rgba(0,0,0,.45) !important; }
+[data-theme="light"] .fs-highlight  { color: #4F7CFF !important; }
+[data-theme="light"] .fs-item:hover,
+[data-theme="light"] .fs-item.focused { background: rgba(0,100,255,.06) !important; }
+
+/* ═══════════════════════════════════
+   HEADER ACTIONS BAR — global fix
+   Keeps search + bell + theme toggle
+   grouped on the right side of any
+   header-flex, regardless of child count
+   ═══════════════════════════════════ */
+
+/* Push the search wrapper (injected by finos-search.js) to the right */
+.header-flex #fs-wrap {
+  margin-left: auto;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+/* Align bell + theme toggle correctly in the flex row */
+.header-flex #finos-alert-bell,
+.header-flex #themeToggle,
+.header-flex .theme-btn {
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* Add a small gap between the action buttons */
+.header-flex #finos-alert-bell  { margin-left: 4px; }
+.header-flex #themeToggle       { margin-left: 4px; }
+.header-flex .theme-btn         { margin-left: 4px; }
+
+/* Light mode — theme-btn already themed above; reinforce bell in header */
+[data-theme="light"] .header-flex #finos-alert-bell {
+  background: rgba(0,100,180,.07) !important;
+  border-color: rgba(0,100,180,.22) !important;
+}
+[data-theme="light"] .header-flex #finos-alert-bell svg {
+  fill: #0078b4 !important;
+}
+
+/* ═══════════════════════════════════
+   PORTAL CARDS (diagnostics & other
+   pages that use .portal-card)
+   ═══════════════════════════════════ */
+[data-theme="light"] .portal-card {
+  background: #ffffff !important;
+  border-color: rgba(0,0,0,.09) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,.06) !important;
+}
+[data-theme="light"] .portal-card:hover {
+  border-color: rgba(79,124,255,.35) !important;
+  box-shadow: 0 16px 48px rgba(0,0,0,.11) !important;
+}
+[data-theme="light"] .tech-tag {
+  background: rgba(0,0,0,.05) !important;
+  border: 1px solid rgba(0,0,0,.09) !important;
+  color: #4A5068 !important;
+}
+[data-theme="light"] .card-footer {
+  border-top-color: rgba(0,0,0,.07) !important;
+}
+[data-theme="light"] .neon-badge {
+  background: rgba(100,140,0,.09) !important;
+  border-color: rgba(100,140,0,.3) !important;
+  color: #5a7a00 !important;
+}
+
+/* ═══════════════════════════════════
+   TOAST NOTIFICATIONS — light mode
+   ═══════════════════════════════════ */
+[data-theme="light"] .finos-toast {
+  background: #ffffff !important;
+  color: #0b0d12 !important;
+}

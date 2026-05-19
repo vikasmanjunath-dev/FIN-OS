@@ -14,6 +14,41 @@ success() { echo -e "${GRN}[OK]${NC}   $*"; }
 warn()    { echo -e "${YLW}[WARN]${NC} $*"; }
 error()   { echo -e "${RED}[ERR]${NC}  $*"; exit 1; }
 
+repair_python_metadata() {
+  local site_packages
+  site_packages="$("$VENV_DIR/bin/python3" -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')"
+  if [[ ! -d "$site_packages" ]]; then
+    return 0
+  fi
+
+  local repaired=0
+  while IFS= read -r dist_info; do
+    [[ -z "$dist_info" ]] && continue
+    if [[ ! -f "$dist_info/METADATA" ]]; then
+      warn "Removing broken Python metadata: $(basename "$dist_info")"
+      rm -rf "$dist_info"
+      repaired=1
+    fi
+  done < <(find "$site_packages" -maxdepth 1 -type d \( -name 'tokenizers-*.dist-info' -o -name 'transformers-*.dist-info' \))
+
+  if [[ "$repaired" -eq 1 ]]; then
+    info "Python metadata repaired"
+  fi
+}
+
+verify_python_stack() {
+  "$VENV_DIR/bin/python3" -c "
+from importlib import metadata
+import faster_whisper
+import tokenizers
+import transformers
+
+print('faster-whisper', metadata.version('faster-whisper'))
+print('tokenizers', metadata.version('tokenizers'))
+print('transformers', metadata.version('transformers'))
+"
+}
+
 # ── Kill anything on our ports + any stale agent/server process ───────────────
 stop() {
   info "Stopping FIN-OS..."
@@ -44,6 +79,8 @@ setup_venv() {
   source "$VENV_DIR/bin/activate"
   pip install --upgrade pip -q
   pip install -r "$SCRIPT_DIR/requirements.txt" -q
+  repair_python_metadata
+  verify_python_stack >/dev/null
   success "Python environment ready"
 }
 
@@ -67,6 +104,9 @@ start() {
   else
     error "Virtual env not found. Run: ./run.sh setup"
   fi
+
+  repair_python_metadata
+  verify_python_stack >/dev/null || error "Python speech stack is broken. Run: ./run.sh setup"
 
   # Make sure Ollama is running
   if ! pgrep -x ollama >/dev/null 2>&1; then
