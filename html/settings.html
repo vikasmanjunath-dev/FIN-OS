@@ -46,6 +46,7 @@
       <a href="track-finances.html">Track Finances</a>
       <a href="../stock-dashboard/index.html">Live Tracker</a>
       <a href="simulator-landing.html">Train Mindset</a>
+      <a href="trade-journal.html">Trade Journal</a>
       <a href="news.html">News</a>
       <a href="settings.html" class="active">Settings</a>
     </nav>
@@ -65,7 +66,7 @@
             <p class="subtitle" id="currentEmail">Loading…</p>
           </div>
         </div>
-        <button id="themeToggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
+        <button id="themeToggle" class="theme-btn" aria-label="Toggle theme"></button>
       </header>
 
       <div class="settings-stack">
@@ -144,14 +145,14 @@
             </div>
             <div class="accent-controls">
               <div class="swatch-grid">
-                <button class="color-swatch" data-color="#4F7CFF" style="background:#4F7CFF" onclick="setAccent('#4F7CFF')" title="Electric Blue"></button>
-                <button class="color-swatch" data-color="#C7F000" style="background:#C7F000" onclick="setAccent('#C7F000')" title="Acid Green"></button>
-                <button class="color-swatch" data-color="#FF4F9A" style="background:#FF4F9A" onclick="setAccent('#FF4F9A')" title="Cyber Pink"></button>
-                <button class="color-swatch" data-color="#F59E0B" style="background:#F59E0B" onclick="setAccent('#F59E0B')" title="Amber Gold"></button>
-                <button class="color-swatch" data-color="#00D4FF" style="background:#00D4FF" onclick="setAccent('#00D4FF')" title="Cyan"></button>
-                <button class="color-swatch" data-color="#A78BFA" style="background:#A78BFA" onclick="setAccent('#A78BFA')" title="Violet"></button>
-                <button class="color-swatch" data-color="#34D399" style="background:#34D399" onclick="setAccent('#34D399')" title="Emerald"></button>
-                <button class="color-swatch swatch-custom" title="Custom color">
+                <button class="color-swatch" data-color="#4F7CFF" style="background:#4F7CFF" onclick="setAccent('#4F7CFF')" title="Electric Blue" aria-label="Accent: Electric Blue"></button>
+                <button class="color-swatch" data-color="#C7F000" style="background:#C7F000" onclick="setAccent('#C7F000')" title="Acid Green" aria-label="Accent: Acid Green"></button>
+                <button class="color-swatch" data-color="#FF4F9A" style="background:#FF4F9A" onclick="setAccent('#FF4F9A')" title="Cyber Pink" aria-label="Accent: Cyber Pink"></button>
+                <button class="color-swatch" data-color="#F59E0B" style="background:#F59E0B" onclick="setAccent('#F59E0B')" title="Amber Gold" aria-label="Accent: Amber Gold"></button>
+                <button class="color-swatch" data-color="#00D4FF" style="background:#00D4FF" onclick="setAccent('#00D4FF')" title="Cyan" aria-label="Accent: Cyan"></button>
+                <button class="color-swatch" data-color="#A78BFA" style="background:#A78BFA" onclick="setAccent('#A78BFA')" title="Violet" aria-label="Accent: Violet"></button>
+                <button class="color-swatch" data-color="#34D399" style="background:#34D399" onclick="setAccent('#34D399')" title="Emerald" aria-label="Accent: Emerald"></button>
+                <button class="color-swatch swatch-custom" title="Custom color" aria-label="Accent: Custom color">
                   <input type="color" id="accentPicker" value="#4F7CFF" oninput="onAccentPicker(this.value)" title="Pick custom color">
                   <span>+</span>
                 </button>
@@ -171,7 +172,7 @@
             </div>
             <div class="font-size-group">
               <button class="font-size-btn" data-size="small"  onclick="setFontSize('small')">S</button>
-              <button class="font-size-btn active" data-size="normal" onclick="setFontSize('normal')">M</button>
+              <button class="font-size-btn" data-size="normal" onclick="setFontSize('normal')">M</button>
               <button class="font-size-btn" data-size="large"  onclick="setFontSize('large')">L</button>
             </div>
           </div>
@@ -234,8 +235,7 @@
             </div>
             <div class="slider-row">
               <span class="slider-label">0.6×</span>
-              <input type="range" id="voiceSpeedSlider" min="0.6" max="2.0" step="0.1" value="1.0"
-                     oninput="setAIVoiceSpeed(this.value)">
+              <input type="range" id="voiceSpeedSlider" min="0.6" max="2.0" step="0.1" value="1.0">
               <span class="slider-label">2.0×</span>
               <span class="slider-value" id="voiceSpeedVal">1.0×</span>
             </div>
@@ -519,7 +519,7 @@
 <script src="../js/settings.js"></script>
 <script src="../js/mobile-nav.js"></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js"></script>
-<script src="../js/finos-search.js"></script>
+<script src="../js/finos-widget.js?v=2"></script>
+<script src="../js/finos-search.js?v=2"></script>
 </body>
 </html>
