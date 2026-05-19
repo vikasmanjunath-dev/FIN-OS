@@ -401,7 +401,9 @@
     const scripts = document.querySelectorAll('script[src]');
     for (const s of scripts) {
       if (s.src.includes('finos-widget')) {
-        return s.src.replace('finos-widget.js', '');
+        // Strip query-string (?v=2 etc.) before extracting the directory path
+        const cleanSrc = s.src.split('?')[0];
+        return cleanSrc.replace('finos-widget.js', '');
       }
     }
     return './js/';  // fallback
@@ -411,7 +413,7 @@
      Makes the widget self-sufficient: drop one <script> tag, everything runs. */
   if (typeof window.FINOS_USER_CONTEXT === 'undefined') {
     const ctxScript = document.createElement('script');
-    ctxScript.src   = _widgetBasePath() + 'finos-context.js';
+    ctxScript.src   = _widgetBasePath() + 'finos-context.js?v=2';
     ctxScript.async = true;
     document.head.appendChild(ctxScript);
   }
@@ -421,7 +423,7 @@
   if (!window._finosAlertsLoaded) {
     window._finosAlertsLoaded = true;   // guard against double-inject
     const alertScript = document.createElement('script');
-    alertScript.src   = _widgetBasePath() + 'finos-alerts.js';
+    alertScript.src   = _widgetBasePath() + 'finos-alerts.js?v=2';
     alertScript.async = true;
     document.head.appendChild(alertScript);
   }
@@ -431,7 +433,7 @@
   if (!window._finosHealthScoreLoaded) {
     window._finosHealthScoreLoaded = true;
     const hsScript = document.createElement('script');
-    hsScript.src   = _widgetBasePath() + 'finos-health-score.js';
+    hsScript.src   = _widgetBasePath() + 'finos-health-score.js?v=2';
     hsScript.async = true;
     document.head.appendChild(hsScript);
   }
