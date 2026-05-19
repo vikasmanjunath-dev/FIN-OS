@@ -471,6 +471,33 @@ select:focus  { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-
 
 .persona-card.active .persona-name { color: var(--accent); }
 
+/* Active-state checkmark indicator on persona cards */
+.persona-card {
+  position: relative;
+}
+
+.persona-card.active::after {
+  content: '✓';
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+
+/* Keyboard focus styles */
+.persona-card:focus-visible,
+.font-size-btn:focus-visible,
+.color-swatch:focus-visible,
+.btn-outline:focus-visible,
+.btn-primary:focus-visible,
+.btn-danger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* ─── SLIDER ────────────────────────────────────────────────────── */
 .slider-row {
   display: flex;
@@ -517,6 +544,24 @@ input[type="range"]::-webkit-slider-thumb {
 
 input[type="range"]::-webkit-slider-thumb:hover {
   transform: scale(1.2);
+}
+
+/* Firefox range */
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  background: var(--border-soft);
+  border-radius: 4px;
+  border: none;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 8px var(--accent-dim);
 }
 
 /* ─── TOGGLE SWITCH ─────────────────────────────────────────────── */
@@ -654,6 +699,26 @@ input[type="range"]::-webkit-slider-thumb:hover {
   to   { transform: translateY(0) scale(1); opacity: 1; }
 }
 
+/* Close animation — JS adds .closing, removes .open after 200ms */
+@keyframes modalFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes modalSlideDown {
+  from { transform: translateY(0) scale(1); opacity: 1; }
+  to   { transform: translateY(16px) scale(0.97); opacity: 0; }
+}
+
+.modal-overlay.closing {
+  animation: modalFadeOut 0.2s ease-out forwards;
+  pointer-events: none;
+}
+
+.modal-overlay.closing .modal-box {
+  animation: modalSlideDown 0.2s cubic-bezier(0.4,0,1,1) forwards;
+}
+
 .modal-box--danger {
   border-color: rgba(255,79,79,0.3);
 }
@@ -736,6 +801,12 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 body.modal-open { overflow: hidden; }
+
+/* Prevent double-border: hide the bottom border of the row that
+   sits directly above a .sign-out-row separator */
+.setting-row:has(+ .sign-out-row) {
+  border-bottom: none;
+}
 
 /* ─── TOAST SYSTEM ──────────────────────────────────────────────── */
 #finos-toasts {
@@ -822,6 +893,9 @@ body.modal-open { overflow: hidden; }
   background: #F4F6FB !important;
   border-color: rgba(0,0,0,0.12) !important;
   color: #0B0D12 !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235F677A'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
 }
 
 [data-theme="light"] select:focus {

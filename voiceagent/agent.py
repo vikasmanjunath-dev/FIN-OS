@@ -65,7 +65,7 @@ WHISPER_SIZE    = "tiny"
 WHISPER_THREADS = 8
 WHISPER_DIR     = "./models"
 
-WS_HOST = "0.0.0.0"
+WS_HOST = "127.0.0.1"
 WS_PORT = 8765
 
 HISTORY_TURNS      = 10          # deeper memory — more personalization
@@ -237,6 +237,106 @@ def clean_display(text: str) -> str:
     text = _RE_SP_INLINE.sub(' ', text)
     return _RE_NL.sub('\n', text).strip()
 
+def _num(value, default: float = 0.0) -> float:
+    if value is None:
+        return default
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+def _cat_name(item: dict) -> str:
+    return str(
+        item.get("category")
+        or item.get("cat")
+        or item.get("label")
+        or item.get("name")
+        or "Other"
+    )
+
+def _cat_amount(item: dict) -> float:
+    return _num(item.get("amount", item.get("amt", 0)), 0.0)
+
+def _symbol_name(item) -> str:
+    if isinstance(item, dict):
+        return str(
+            item.get("symbol")
+            or item.get("sym")
+            or item.get("ticker")
+            or item.get("name")
+            or "?"
+        )
+    return str(item or "?")
+
+def _goal_progress(item: dict) -> float:
+    return _num(item.get("progress_pct", item.get("progress", 0)), 0.0)
+
+def _streak_parts(trade_journal: dict) -> tuple[int, str | None]:
+    count = int(_num(trade_journal.get("streak_count", 0), 0))
+    kind = trade_journal.get("streak_type")
+    raw = trade_journal.get("current_streak")
+    if count > 0 and kind:
+        return count, str(kind)
+    if isinstance(raw, str):
+        m = re.search(r'(\d+)\s+(win|wins|loss|losses)', raw, re.I)
+        if m:
+            return int(m.group(1)), m.group(2).lower()
+    if isinstance(raw, (int, float)) and raw:
+        return abs(int(raw)), "wins" if raw > 0 else "losses"
+    return 0, None
+
+def _normalize_context_payload(data: dict) -> dict:
+    if not isinstance(data, dict):
+        return data
+
+    bt = data.get("budget_tracker")
+    if isinstance(bt, dict):
+        top_categories = []
+        for c in bt.get("top_categories") or []:
+            if isinstance(c, dict):
+                norm = dict(c)
+                norm.setdefault("category", _cat_name(c))
+                norm.setdefault("amount", _cat_amount(c))
+                top_categories.append(norm)
+        if top_categories:
+            bt["top_categories"] = top_categories
+
+        goals = []
+        for g in bt.get("goals") or []:
+            if isinstance(g, dict):
+                norm = dict(g)
+                norm.setdefault("progress_pct", _goal_progress(g))
+                goals.append(norm)
+        if goals:
+            bt["goals"] = goals
+
+    tj = data.get("trade_journal")
+    if isinstance(tj, dict):
+        for key in ("best_symbol", "worst_symbol"):
+            item = tj.get(key)
+            if isinstance(item, dict):
+                norm = dict(item)
+                norm.setdefault("symbol", _symbol_name(item))
+                norm["pnl"] = _num(norm.get("pnl"), 0.0)
+                tj[key] = norm
+
+        recent = []
+        for trade in tj.get("recent_trades") or []:
+            if isinstance(trade, dict):
+                norm = dict(trade)
+                norm.setdefault("symbol", _symbol_name(trade))
+                norm["net"] = _num(norm.get("net", norm.get("pnl")), 0.0)
+                recent.append(norm)
+        if recent:
+            tj["recent_trades"] = recent
+
+        count, kind = _streak_parts(tj)
+        if count and kind:
+            tj["streak_count"] = count
+            tj["streak_type"] = kind
+
+    return data
+
 # ══════════════════════════════════════════════════════════════════════════════
 # USER CONTEXT  —  structured data from the browser (all pages + DB)
 # ══════════════════════════════════════════════════════════════════════════════
@@ -274,7 +374,7 @@ class UserContext:
         if incoming_uid:
             self.user_id = incoming_uid
 
-        self._raw   = data
+        self._raw   = _normalize_context_payload(data)
         self._phase = data.get("sync_phase", "partial")
         log.info("UserContext: ingested %s phase for user %s",
                  self._phase, (self.user_id or "guest")[:12])
@@ -432,9 +532,9 @@ class UserContext:
 
             port = fin.get("portfolio")
             if port:
-                pval = port.get("total_value", 0)
-                pnl  = port.get("pnl", 0)
-                ppct = port.get("pnl_pct", 0)
+                pval = _num(port.get("total_value"), 0)
+                pnl  = _num(port.get("pnl"), 0)
+                ppct = _num(port.get("pnl_pct"), 0)
                 lines.append(f"  Portfolio: ₹{pval:,.0f}  |  P&L: ₹{pnl:+,.0f} ({ppct:+.1f}%)")
                 holdings = port.get("holdings") or []
                 if holdings:
@@ -449,10 +549,10 @@ class UserContext:
                 goal_strs = []
                 for g in goals[:4]:
                     nm  = g.get("name") or "Goal"
-                    tgt = g.get("target") or 0
+                    tgt = _num(g.get("target"), 0)
                     prg = g.get("progress")
                     if prg is not None:
-                        goal_strs.append(f"{nm} ({prg}% of ₹{tgt:,.0f})")
+                        goal_strs.append(f"{nm} ({_num(prg, 0):.0f}% of ₹{tgt:,.0f})")
                     else:
                         goal_strs.append(f"{nm} (₹{tgt:,.0f})")
                 if goal_strs:
@@ -462,14 +562,14 @@ class UserContext:
             if txs:
                 lines.append(
                     f"  Cashflow (last {txs.get('count','?')} txns): "
-                    f"In ₹{txs.get('total_income',0):,.0f} / "
-                    f"Out ₹{txs.get('total_expense',0):,.0f} / "
-                    f"Net ₹{txs.get('net',0):+,.0f}"
+                    f"In ₹{_num(txs.get('total_income'),0):,.0f} / "
+                    f"Out ₹{_num(txs.get('total_expense'),0):,.0f} / "
+                    f"Net ₹{_num(txs.get('net'),0):+,.0f}"
                 )
                 top_cats = txs.get("top_categories") or []
                 if top_cats:
                     cat_str = ", ".join(
-                        f"{c['cat']} ₹{c['amt']:,.0f}" for c in top_cats[:3]
+                        f"{_cat_name(c)} ₹{_cat_amount(c):,.0f}" for c in top_cats[:3]
                     )
                     lines.append(f"  Top spend: {cat_str}")
 
@@ -493,13 +593,121 @@ class UserContext:
                 if tips:
                     lines.append("  Priority actions: " + " | ".join(tips[:2]))
 
+        # ── Budget Tracker (React finos-budget app) ────────────────────────
+        bt = self._raw.get("budget_tracker")
+        if bt and isinstance(bt, dict) and _num(bt.get("tx_count"), 0) > 0:
+            lines.append("")
+            lines.append("BUDGET TRACKER  (finos-budget app — live data)")
+            inc  = _num(bt.get("income_monthly"), 0)
+            spent= _num(bt.get("spent_total"), 0)
+            sr   = _num(bt.get("savings_rate"), 0)
+            bh_raw = bt.get("budget_health")
+            bh   = _num(bh_raw, 0)
+            bh_label = f"{bh:.0f}/100" if bh_raw not in (None, "") else "—"
+            lines.append(
+                f"  Income: ₹{inc:,.0f}/mo  |  Spent: ₹{spent:,.0f}  |  "
+                f"Savings rate: {sr:.1f}%  |  Health score: {bh_label}"
+            )
+            needs = _num(bt.get("needs"), 0); wants = _num(bt.get("wants"), 0); saves = _num(bt.get("saves"), 0)
+            lines.append(
+                f"  Needs: ₹{needs:,.0f}  |  Wants: ₹{wants:,.0f}  |  Saves/Invest: ₹{saves:,.0f}"
+            )
+            top_cats = bt.get("top_categories") or []
+            if top_cats:
+                cat_str = ", ".join(
+                    f"{_cat_name(c)} ₹{_cat_amount(c):,.0f}" for c in top_cats[:5]
+                )
+                lines.append(f"  Top categories: {cat_str}")
+            goals = bt.get("goals") or []
+            if goals:
+                g_parts = []
+                for g in goals[:4]:
+                    pct = _goal_progress(g)
+                    g_parts.append(f"{g.get('name','?')} {pct:.0f}%")
+                lines.append(f"  Goals progress: {' | '.join(g_parts)}")
+            debts = bt.get("debts") or []
+            if debts:
+                d_parts = []
+                for d in debts[:3]:
+                    d_parts.append(
+                        f"{d.get('name','?')} ₹{_num(d.get('remaining', d.get('amount', d.get('balance', 0))), 0):,.0f}"
+                        + (f" @{d['rate']}%" if d.get('rate') else "")
+                    )
+                lines.append(f"  Debts: {' | '.join(d_parts)}")
+            sub_drain = _num(bt.get("subscription_drain"), 0)
+            sub_count = int(_num(bt.get("subscription_count"), 0))
+            if sub_drain:
+                lines.append(f"  Subscription drain: ₹{sub_drain:,.0f}/mo across {sub_count} subscriptions")
+            fire_num = _num(bt.get("fire_number"), 0)
+            fire_yrs = _num(bt.get("fire_years_estimate"), 0)
+            if fire_num:
+                fire_str = f"  FIRE number: ₹{fire_num:,.0f}"
+                if fire_yrs > 0:
+                    fire_str += f"  (est. {fire_yrs:.1f} yrs away at current savings rate)"
+                lines.append(fire_str)
+
+        # ── Trade Journal (TradeBook Pro) ───────────────────────────────────
+        tj = self._raw.get("trade_journal")
+        if tj and isinstance(tj, dict) and _num(tj.get("total_trades"), 0) > 0:
+            lines.append("")
+            lines.append("TRADE JOURNAL  (TradeBook Pro — live data)")
+            pnl  = _num(tj.get("total_pnl"), 0)
+            wr   = _num(tj.get("win_rate"), 0)
+            pf_raw = tj.get("profit_factor")
+            pf   = _num(pf_raw, 0)
+            pf_label = f"{pf:.2f}" if pf_raw not in (None, "") else "—"
+            total= int(_num(tj.get("total_trades"), 0))
+            lines.append(
+                f"  Total P&L: ₹{pnl:+,.0f}  |  Trades: {total}  |  "
+                f"Win rate: {wr:.1f}%  |  Profit factor: {pf_label}"
+            )
+            avg_w = _num(tj.get("avg_win"), 0); avg_l = _num(tj.get("avg_loss"), 0)
+            mdd   = _num(tj.get("max_drawdown"), 0)
+            if avg_w or avg_l:
+                rr = abs(avg_w / avg_l) if avg_l else 0
+                lines.append(
+                    f"  Avg win: ₹{avg_w:,.0f}  |  Avg loss: ₹{avg_l:,.0f}  |  "
+                    f"R:R ratio: {rr:.2f}  |  Max drawdown: ₹{mdd:,.0f}"
+                )
+            best  = tj.get("best_symbol"); worst = tj.get("worst_symbol")
+            if best or worst:
+                sym_parts = []
+                if best:  sym_parts.append(f"Best: {_symbol_name(best)} ₹{_num(best.get('pnl'), 0):+,.0f}")
+                if worst: sym_parts.append(f"Worst: {_symbol_name(worst)} ₹{_num(worst.get('pnl'), 0):+,.0f}")
+                lines.append(f"  Symbols — {' | '.join(sym_parts)}")
+            streak_count, streak_kind = _streak_parts(tj)
+            if streak_count and streak_kind:
+                s_word = "winning" if "win" in streak_kind else "losing"
+                lines.append(f"  Current streak: {streak_count} {s_word} trades")
+            recent = tj.get("recent_trades") or []
+            if recent:
+                r_parts = []
+                for t in recent[:3]:
+                    r_parts.append(
+                        f"{_symbol_name(t)} {str(t.get('type','')).upper()} "
+                        f"₹{_num(t.get('net', t.get('pnl', 0)), 0):+,.0f}"
+                    )
+                lines.append(f"  Recent: {' | '.join(r_parts)}")
+            cap = _num(tj.get("capital"), 0); wt = _num(tj.get("weekly_target"), 0)
+            if cap:
+                lines.append(f"  Capital: ₹{cap:,.0f}" + (f"  |  Weekly target: ₹{wt:,.0f}" if wt else ""))
+
         # ── Watchlist ──────────────────────────────────────────────────────
         wl = self.watchlist
         if wl:
-            wl_str = ", ".join(str(w.get("symbol", w) if isinstance(w, dict) else w)
-                               for w in wl[:8])
+            wl_str = ", ".join(_symbol_name(w) for w in wl[:8])
             lines.append("")
             lines.append(f"WATCHLIST: {wl_str}")
+
+        # ── Market / News ───────────────────────────────────────────────────
+        mkt = self._raw.get("market") or {}
+        headlines = mkt.get("news_headlines") or []
+        if headlines:
+            lines.append("")
+            lines.append("LIVE MARKET NEWS  (high-impact today)")
+            for h in headlines[:4]:
+                src = h.get("source", "")
+                lines.append(f"  • {h.get('title', '')}  [{src}]")
 
         # ── App preferences ────────────────────────────────────────────────
         s = self.settings
@@ -1080,6 +1288,314 @@ class Brain:
             return ""
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+# CALCULATOR ENGINE  —  pure Python, zero extra dependencies
+# ══════════════════════════════════════════════════════════════════════════════
+class CalcEngine:
+    """
+    Accurate Indian financial calculators.
+    SIP · EMI · Lumpsum · Tax (AY 2025-26) · Goal SIP · FD
+    All formulas: standard reducing-balance / compound-interest methodology.
+    """
+
+    # ── Indian number formatter ─────────────────────────────────────────────
+    @staticmethod
+    def fmt_inr(amount: float) -> str:
+        a = round(amount)
+        if a >= 1_00_00_000:
+            v = a / 1_00_00_000
+            return f"₹{v:.2f}Cr".rstrip('0').rstrip('.')
+        if a >= 1_00_000:
+            v = a / 1_00_000
+            return f"₹{v:.2f}L".rstrip('0').rstrip('.')
+        if a >= 1_000:
+            v = a / 1_000
+            return f"₹{v:.1f}K".rstrip('0').rstrip('.')
+        return f"₹{a:,}"
+
+    # ── SIP ─────────────────────────────────────────────────────────────────
+    @staticmethod
+    def sip(monthly: float, annual_rate: float, years: int) -> dict:
+        r = annual_rate / 100 / 12
+        n = int(years * 12)
+        maturity = monthly * ((((1 + r) ** n) - 1) / r) * (1 + r) if r > 1e-9 else monthly * n
+        invested = monthly * n
+        returns  = maturity - invested
+        return {
+            "type":     "sip",
+            "monthly":  round(monthly),
+            "rate":     annual_rate,
+            "years":    years,
+            "invested": round(invested),
+            "returns":  round(returns),
+            "maturity": round(maturity),
+            "gain_pct": round(returns / invested * 100, 1) if invested else 0,
+        }
+
+    # ── EMI ─────────────────────────────────────────────────────────────────
+    @staticmethod
+    def emi(principal: float, annual_rate: float, years: int) -> dict:
+        r = annual_rate / 100 / 12
+        n = int(years * 12)
+        emi_val = (principal * r * (1 + r) ** n / ((1 + r) ** n - 1)) if r > 1e-9 else principal / n
+        total   = emi_val * n
+        interest= total - principal
+        return {
+            "type":           "emi",
+            "principal":      round(principal),
+            "rate":           annual_rate,
+            "years":          years,
+            "emi":            round(emi_val),
+            "total_paid":     round(total),
+            "total_interest": round(interest),
+            "interest_pct":   round(interest / principal * 100, 1) if principal else 0,
+        }
+
+    # ── Lumpsum ─────────────────────────────────────────────────────────────
+    @staticmethod
+    def lumpsum(amount: float, annual_rate: float, years: int) -> dict:
+        maturity = amount * ((1 + annual_rate / 100) ** years)
+        returns  = maturity - amount
+        return {
+            "type":     "lumpsum",
+            "amount":   round(amount),
+            "invested": round(amount),
+            "rate":     annual_rate,
+            "years":    years,
+            "returns":  round(returns),
+            "maturity": round(maturity),
+            "gain_pct": round(returns / amount * 100, 1) if amount else 0,
+        }
+
+    # ── Tax savings (AY 2025-26) ────────────────────────────────────────────
+    @staticmethod
+    def tax_savings(gross_income: float, investment: float) -> dict:
+        def _new(inc: float) -> float:
+            slabs = [(300000, .00), (400000, .05), (300000, .10),
+                     (300000, .15), (300000, .20), (float('inf'), .30)]
+            tax, rem = 0.0, max(0.0, inc)
+            for cap, rate in slabs:
+                if rem <= 0: break
+                chunk = min(rem, cap); tax += chunk * rate; rem -= chunk
+            return 0.0 if inc <= 700000 else tax   # 87A rebate
+
+        def _old(inc: float, ded: float) -> float:
+            taxable = max(0.0, inc - 250000 - min(ded, 150000))
+            slabs   = [(250000, .05), (500000, .20), (float('inf'), .30)]
+            tax     = 0.0
+            for cap, rate in slabs:
+                if taxable <= 0: break
+                chunk = min(taxable, cap); tax += chunk * rate; taxable -= chunk
+            return 0.0 if inc <= 500000 else tax   # 87A rebate
+
+        old_without = _old(gross_income, 0)
+        old_with    = _old(gross_income, investment)
+        new_val     = _new(gross_income)
+        saved_80c   = old_without - old_with
+        best        = min(old_with, new_val)
+        return {
+            "type":            "tax",
+            "income":          round(gross_income),
+            "investment":      round(investment),
+            "tax_old_without": round(old_without),
+            "tax_old_with":    round(old_with),
+            "tax_new":         round(new_val),
+            "tax_saved_80c":   round(saved_80c),
+            "best_tax":        round(best),
+            "better_regime":   "new" if new_val <= old_with else "old",
+        }
+
+    # ── Goal-based SIP ──────────────────────────────────────────────────────
+    @staticmethod
+    def goal_sip(target: float, annual_rate: float, years: int) -> dict:
+        r = annual_rate / 100 / 12
+        n = int(years * 12)
+        monthly  = target * r / (((1 + r) ** n - 1) * (1 + r)) if r > 1e-9 else target / n
+        invested = monthly * n
+        return {
+            "type":           "goal_sip",
+            "target":         round(target),
+            "rate":           annual_rate,
+            "years":          years,
+            "monthly":        round(monthly),
+            "total_invested": round(invested),
+            "returns":        round(target - invested),
+        }
+
+    # ── Fixed Deposit ───────────────────────────────────────────────────────
+    @staticmethod
+    def fd(principal: float, annual_rate: float, years: int) -> dict:
+        maturity = principal * ((1 + annual_rate / 100 / 4) ** (4 * years))
+        interest = maturity - principal
+        return {
+            "type":      "fd",
+            "principal": round(principal),
+            "invested":  round(principal),
+            "rate":      annual_rate,
+            "years":     years,
+            "maturity":  round(maturity),
+            "interest":  round(interest),
+            "returns":   round(interest),
+            "gain_pct":  round(interest / principal * 100, 1) if principal else 0,
+        }
+
+    # ── Dispatch ────────────────────────────────────────────────────────────
+    @classmethod
+    def compute(cls, intent: dict) -> dict | None:
+        try:
+            t = intent.get("intent")
+            if t == "sip":
+                return cls.sip(intent["monthly"], intent.get("rate", 12.0), intent.get("years", 15))
+            if t == "emi":
+                return cls.emi(intent["principal"], intent.get("rate", 8.5), intent.get("years", 20))
+            if t == "lumpsum":
+                return cls.lumpsum(intent["amount"], intent.get("rate", 12.0), intent.get("years", 10))
+            if t == "tax":
+                return cls.tax_savings(intent["income"], intent.get("investment", 150000))
+            if t == "goal_sip":
+                return cls.goal_sip(intent["target"], intent.get("rate", 12.0), intent.get("years", 10))
+            if t == "fd":
+                return cls.fd(intent["principal"], intent.get("rate", 7.0), intent.get("years", 5))
+        except Exception as e:
+            log.warning("CalcEngine.compute failed: %s", e)
+        return None
+
+    # ── LLM context string ──────────────────────────────────────────────────
+    @classmethod
+    def format_for_llm(cls, r: dict) -> str:
+        f  = cls.fmt_inr
+        t  = r.get("type")
+        if t == "sip":
+            return (
+                f"SIP {f(r['monthly'])}/month × {r['years']} yrs @ {r['rate']}% → "
+                f"Invested {f(r['invested'])} | Returns {f(r['returns'])} | "
+                f"Maturity {f(r['maturity'])} ({r['gain_pct']}% gain)"
+            )
+        if t == "emi":
+            return (
+                f"Loan {f(r['principal'])} @ {r['rate']}% × {r['years']} yrs → "
+                f"EMI {f(r['emi'])}/month | Total paid {f(r['total_paid'])} | "
+                f"Interest {f(r['total_interest'])} ({r['interest_pct']}% extra)"
+            )
+        if t == "lumpsum":
+            return (
+                f"Lumpsum {f(r['amount'])} @ {r['rate']}% × {r['years']} yrs → "
+                f"Maturity {f(r['maturity'])} | Returns {f(r['returns'])} ({r['gain_pct']}% gain)"
+            )
+        if t == "tax":
+            return (
+                f"Income {f(r['income'])} | 80C investment {f(r['investment'])} → "
+                f"Old regime tax {f(r['tax_old_with'])} | New regime tax {f(r['tax_new'])} | "
+                f"Tax saved via 80C: {f(r['tax_saved_80c'])} | "
+                f"Better: {r['better_regime'].upper()} regime (best tax {f(r['best_tax'])})"
+            )
+        if t == "goal_sip":
+            return (
+                f"Goal {f(r['target'])} in {r['years']} yrs @ {r['rate']}% → "
+                f"Monthly SIP needed: {f(r['monthly'])} | Total invested: {f(r['total_invested'])} | "
+                f"From returns: {f(r['returns'])}"
+            )
+        if t == "fd":
+            return (
+                f"FD {f(r['principal'])} @ {r['rate']}% × {r['years']} yrs → "
+                f"Maturity {f(r['maturity'])} | Interest {f(r['interest'])} ({r['gain_pct']}% gain)"
+            )
+        return str(r)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# CALCULATOR INTENT DETECTOR
+# ══════════════════════════════════════════════════════════════════════════════
+_NUM_RE  = re.compile(r'(\d[\d,.]*)[ \t]*(k(?:hazar)?|l(?:ac|akh)?|cr(?:ore)?|thousand)?', re.I)
+_PCT_RE  = re.compile(r'(\d+(?:\.\d+)?)\s*(?:%|percent|pa\b)', re.I)
+_YEAR_RE = re.compile(r'(\d+)\s*(?:saal|years?|yr|yrs?)', re.I)
+
+
+def _parse_inr(raw: str, unit: str | None) -> float:
+    try:
+        val = float(raw.replace(',', ''))
+    except ValueError:
+        return 0.0
+    u = (unit or '').strip().lower()
+    if u.startswith('k') or u == 'thousand': return val * 1_000
+    if u.startswith('l'):                    return val * 1_00_000
+    if u.startswith('cr'):                   return val * 1_00_00_000
+    return val
+
+
+def _all_nums(text: str) -> list[float]:
+    return [_parse_inr(m.group(1), m.group(2)) for m in _NUM_RE.finditer(text)]
+
+
+def detect_calc_intent(text: str, mem_profile: dict | None = None) -> dict | None:
+    """
+    Detect a calculator intent from user text.
+    Returns {intent, <params>} or None.
+    Handles Indian formats: 15K / 50L / 1.5Cr / saal / lakh etc.
+    """
+    tl   = text.lower()
+    nums = [n for n in _all_nums(tl) if n > 0]
+    if not nums:
+        return None
+
+    def rate()  -> float: m = _PCT_RE.search(tl);  return float(m.group(1)) if m else None
+    def years() -> int:   m = _YEAR_RE.search(tl); return int(m.group(1))   if m else None
+
+    # ── SIP ─────────────────────────────────────────────────────────────────
+    if re.search(r'\b(sip|systematic\s*invest|monthly\s*(?:invest|sip)|har\s*mahine|sip\s*karna)\b', tl):
+        monthly = next((n for n in nums if 500 <= n <= 500_000), None)
+        if monthly:
+            return {"intent": "sip", "monthly": monthly,
+                    "rate": rate() or 12.0, "years": years() or 15}
+
+    # ── EMI / Loan ───────────────────────────────────────────────────────────
+    if re.search(r'\b(emi|home\s*loan|car\s*loan|personal\s*loan|ghar\s*ka\s*loan|house\s*loan|housing\s*loan|loan\s*ki\s*emi)\b', tl):
+        principal = next((n for n in sorted(nums, reverse=True) if n >= 50_000), None)
+        if principal:
+            return {"intent": "emi", "principal": principal,
+                    "rate": rate() or 8.5, "years": years() or 20}
+
+    # ── Tax savings ──────────────────────────────────────────────────────────
+    if re.search(r'\b(80c|80d|elss|tax\s*bac|tax\s*sav|tax\s*de|kitna\s*tax|ppf\s*invest|nps\s*invest|elss\s*invest|tax\s*bachega)\b', tl):
+        invest  = next((n for n in nums if 1_000 <= n <= 1_500_000), None) or 150_000
+        income  = None
+        if mem_profile:
+            raw_inc = mem_profile.get("income", "")
+            m = re.search(r'[\d.]+', raw_inc.replace('₹', '').replace(',', ''))
+            if m:
+                try:
+                    v = float(m.group())
+                    income = v * 1_00_000 if v < 1000 else v
+                except ValueError:
+                    pass
+        if not income:
+            income = next((n for n in sorted(nums, reverse=True) if n >= 3_00_000), 10_00_000)
+        return {"intent": "tax", "income": income, "investment": invest}
+
+    # ── Lumpsum ──────────────────────────────────────────────────────────────
+    if re.search(r'\b(lumpsum|lump\s*sum|ek\s*baar|one\s*time|ekmushtam|single\s*invest)\b', tl):
+        amount = next((n for n in sorted(nums, reverse=True) if n >= 1_000), None)
+        if amount:
+            return {"intent": "lumpsum", "amount": amount,
+                    "rate": rate() or 12.0, "years": years() or 10}
+
+    # ── Goal SIP ─────────────────────────────────────────────────────────────
+    if re.search(r'\b(chahiye|target\s*hai|corpus\s*chahiye|goal\s*ke\s*liye|kitna\s*sip|how\s*much\s*sip|achieve\s*karna)\b', tl):
+        target = next((n for n in sorted(nums, reverse=True) if n >= 10_000), None)
+        if target:
+            return {"intent": "goal_sip", "target": target,
+                    "rate": rate() or 12.0, "years": years() or 10}
+
+    # ── FD ───────────────────────────────────────────────────────────────────
+    if re.search(r'\b(fd|fixed\s*deposit|fd\s*(?:karna|invest|mein)|bank\s*fd)\b', tl):
+        principal = next((n for n in sorted(nums, reverse=True) if n >= 1_000), None)
+        if principal:
+            return {"intent": "fd", "principal": principal,
+                    "rate": rate() or 7.0, "years": years() or 5}
+
+    return None
+
+
 def _sync_ollama_warm():
     try:
         for _ in ollama.chat(
@@ -1324,13 +1840,39 @@ class Server:
         await self._send({"type": "user_transcript", "text": user_text})
         await self._send({"type": "state", "state": "thinking"})
 
+        # ── Calculator intent detection ────────────────────────────────────
+        llm_user_text = user_text   # may be augmented with exact calc numbers
+        try:
+            intent = detect_calc_intent(user_text, self.mem.profile)
+            if intent:
+                calc_res = CalcEngine.compute(intent)
+                if calc_res:
+                    # Send card to frontend immediately — before LLM starts streaming
+                    await self._send({"type": "calc_result", "data": calc_res})
+                    # Inject exact numbers into the LLM prompt so it speaks them correctly
+                    llm_user_text = (
+                        user_text
+                        + "\n\n[CALCULATOR RESULT — use these EXACT numbers, do NOT recalculate]:\n"
+                        + CalcEngine.format_for_llm(calc_res)
+                        + "\nSpeak the key result first, then briefly explain. Keep it 2–3 sentences."
+                    )
+                    log.info("CalcEngine: %s intent → key figure %s",
+                             intent["intent"],
+                             CalcEngine.fmt_inr(
+                                 calc_res.get("maturity") or calc_res.get("emi") or
+                                 calc_res.get("best_tax") or calc_res.get("monthly") or 0
+                             ))
+        except Exception as _ce:
+            log.warning("CalcEngine: %s", _ce)
+        # ──────────────────────────────────────────────────────────────────
+
         try:
             _DONE = object()
             q: asyncio.Queue = asyncio.Queue()
 
             def _produce():
                 try:
-                    for tok, full in self.brain.stream(user_text, lang, user_ctx):
+                    for tok, full in self.brain.stream(llm_user_text, lang, user_ctx):
                         loop.call_soon_threadsafe(q.put_nowait, (tok, full))
                 except Exception as e:
                     loop.call_soon_threadsafe(q.put_nowait, e)
@@ -1409,8 +1951,11 @@ class Server:
                                   "text": clean_tts(full), "lang": lang})
 
         except Exception as e:
-            log.error("Pipeline: %s", e)
-            await self._send({"type": "status", "text": f"Error: {e}"})
+            log.exception("Pipeline failed")
+            await self._send({
+                "type": "status",
+                "text": "Backend pipeline error. Please retry once; if it repeats, check agent.log.",
+            })
         finally:
             await self._send({"type": "state", "state": "idle"})
 
@@ -1492,9 +2037,9 @@ class Server:
             asyncio.get_event_loop().run_in_executor(None, _sync_ollama_warm),
             self.tts.warmup(),
         )
-        log.info("Ready — http://localhost:8080")
         async with websockets.serve(self.handler, WS_HOST, WS_PORT,
                                     max_size=50_000_000):
+            log.info("Ready — http://localhost:8080")
             await asyncio.Future()
 
 if __name__ == "__main__":

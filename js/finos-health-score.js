@@ -249,6 +249,49 @@
       #finos-hs-panel { right: 0; left: 0; bottom: 0; width: 100%; border-radius: 18px 18px 0 0; }
       #finos-hs-trigger { bottom: 95px; right: 16px; }
     }
+
+    /* ── Light mode overrides ── */
+    [data-theme="light"] #finos-hs-trigger {
+      background: #ffffff;
+      border-color: rgba(0,100,180,.22);
+      box-shadow: 0 4px 16px rgba(0,0,0,.1);
+    }
+    [data-theme="light"] #finos-hs-trigger:hover {
+      box-shadow: 0 6px 24px rgba(0,0,0,.14);
+    }
+    [data-theme="light"] #finos-hs-trigger .hs-label {
+      color: rgba(0,0,0,.45);
+    }
+    [data-theme="light"] #finos-hs-panel {
+      background: #f4f7fb;
+      border-color: rgba(0,100,180,.18);
+      box-shadow: 0 20px 60px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.8);
+    }
+    [data-theme="light"] .hs-hdr-title { color: rgba(0,0,0,.5); }
+    [data-theme="light"] .hs-close {
+      border-color: rgba(0,0,0,.12);
+      background: rgba(0,0,0,.05);
+      color: rgba(0,0,0,.5);
+    }
+    [data-theme="light"] .hs-close:hover { background: rgba(0,0,0,.1); color: #0b0d12; }
+    [data-theme="light"] .hs-ring-headline { color: rgba(0,0,0,.5); }
+    [data-theme="light"] .hs-pillar {
+      background: rgba(0,0,0,.03);
+      border-color: rgba(0,0,0,.08);
+    }
+    [data-theme="light"] .hs-pillar-name { color: #2a3a50; }
+    [data-theme="light"] .hs-pillar-score { color: rgba(0,0,0,.4); }
+    [data-theme="light"] .hs-bar-track { background: rgba(0,0,0,.06); }
+    [data-theme="light"] .hs-pillar-headline { color: rgba(0,0,0,.45); }
+    [data-theme="light"] .hs-tip {
+      color: #b87800;
+      background: rgba(240,165,0,.1);
+    }
+    [data-theme="light"] .hs-loading { color: rgba(0,0,0,.4); }
+    [data-theme="light"] .hs-loading .hs-spinner { border-color: rgba(0,100,200,.15); border-top-color: #0078b4; }
+    [data-theme="light"] .hs-updated { color: rgba(0,0,0,.3); }
+    [data-theme="light"] .hs-refresh { color: rgba(0,100,200,.75); }
+    [data-theme="light"] .hs-refresh:hover { background: rgba(0,100,200,.08); color: #0064c8; }
   `;
 
   /* ── Colour helpers ──────────────────────────────────────────────────────── */

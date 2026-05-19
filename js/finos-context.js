@@ -50,6 +50,197 @@
     return 'home';
   }
 
+  /* ── Budget Tracker Collector (React finos-budget app) ─────────────────── */
+  function collectBudgetTracker() {
+    try {
+      const txns   = safeJson('finos_transactions', []) || [];
+      const income = safeJson('finos_income',  0)       || 0;
+      const goals  = safeJson('finos_goals',   [])      || [];
+      const debts  = safeJson('finos_debts',   [])      || [];
+      const subs   = safeJson('finos_subscriptions', []) || [];
+      if (!txns.length && !income) return null;
+
+      // Behaviour-based spending buckets
+      const needs = txns.filter(t => (t.category||'').startsWith('need'))
+                        .reduce((s,t) => s+(t.amount||0), 0);
+      const wants = txns.filter(t => (t.category||'').startsWith('want')
+                                  || (t.category||'').startsWith('debt'))
+                        .reduce((s,t) => s+(t.amount||0), 0);
+      const saves = txns.filter(t => (t.category||'').startsWith('save'))
+                        .reduce((s,t) => s+(t.amount||0), 0);
+      const total        = needs + wants + saves;
+      const savings_rate = income > 0 ? +((income - total) / income * 100).toFixed(1) : 0;
+
+      // Top spend categories
+      const catMap = {};
+      txns.forEach(t => {
+        const k = t.type || t.label || t.category || 'Other';
+        catMap[k] = (catMap[k] || 0) + (t.amount || 0);
+      });
+      const top_categories = Object.entries(catMap)
+        .sort((a,b) => b[1]-a[1]).slice(0,5)
+        .map(([cat,amt]) => ({
+          cat,
+          amt: Math.round(amt),
+          category: cat,
+          amount: Math.round(amt),
+        }));
+
+      // Goals with progress
+      const goals_summary = goals.slice(0,6).map(g => ({
+        name:            g.name,
+        emoji:           g.emoji || null,
+        target:          g.target,
+        current:         g.current,
+        progress:        g.target > 0 ? Math.round(g.current/g.target*100) : 0,
+        progress_pct:    g.target > 0 ? Math.round(g.current/g.target*100) : 0,
+        deadline_months: g.deadlineMonths || null,
+        priority:        g.priority || null,
+      }));
+
+      // Debts
+      const debts_summary = debts.slice(0,6).map(d => ({
+        name:        d.name || d.label || d.type || 'Debt',
+        amount:      d.amount || d.balance || 0,
+        rate:        d.rate   || d.interest_rate || null,
+        min_payment: d.minPayment || null,
+      }));
+
+      // Subscription ghost taxes
+      const sub_drain = subs.reduce((s,x) => s+(x.amount||x.cost||0), 0);
+
+      // Budget health (from constants.js formula)
+      const health = Math.max(0, Math.min(100,
+        100
+        - Math.max(0, Math.round(total/income*100) - 80)
+        - Math.max(0, Math.round(wants/income*100) - 30)
+      ));
+
+      // FIRE number from this data
+      const monthly_expenses = total;
+      const monthly_savings  = Math.max(0, income - total);
+      const fire_number      = monthly_expenses * 12 * 25; // 4% SWR
+      const fire_years       = monthly_savings > 0
+        ? +((Math.log(fire_number / (monthly_savings * 12) + 1)
+             / Math.log(1.12)).toFixed(1))
+        : null;
+
+      return {
+        income_monthly:      income,
+        spent_total:         Math.round(total),
+        needs:               Math.round(needs),
+        wants:               Math.round(wants),
+        saves:               Math.round(saves),
+        savings_rate,
+        top_categories,
+        goals:               goals_summary,
+        debts:               debts_summary,
+        total_debt:          Math.round(debts.reduce((s,d)=>s+(d.amount||d.balance||0),0)),
+        subscription_drain:  Math.round(sub_drain),
+        subscription_count:  subs.length,
+        subscriptions:       subs.slice(0,8).map(s=>({
+                               name:   s.name||s.label,
+                               amount: s.amount||s.cost||0,
+                             })),
+        budget_health:       income > 0 ? health : null,
+        tx_count:            txns.length,
+        fire_number:         fire_number > 0 ? Math.round(fire_number) : null,
+        fire_years_estimate: fire_years,
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /* ── Trade Journal Collector (TradeBook Pro) ─────────────────────────── */
+  function collectTradeJournal() {
+    try {
+      const trades   = safeJson('tradebook_trades',   []) || [];
+      const settings = safeJson('tradebook_settings', {}) || {};
+      if (!trades.length) return null;
+
+      const net      = t => parseFloat(t.net) || 0;
+      const totalPnl = trades.reduce((s,t) => s+net(t), 0);
+      const wins     = trades.filter(t => net(t) > 0);
+      const losses   = trades.filter(t => net(t) < 0);
+      const winRate  = trades.length
+        ? +(wins.length/trades.length*100).toFixed(1) : 0;
+      const avgWin   = wins.length
+        ? Math.round(wins.reduce((s,t)=>s+net(t),0)/wins.length) : 0;
+      const avgLoss  = losses.length
+        ? Math.round(Math.abs(losses.reduce((s,t)=>s+net(t),0))/losses.length) : 0;
+      const grossW   = wins.reduce((s,t)=>s+net(t),0);
+      const grossL   = Math.abs(losses.reduce((s,t)=>s+net(t),0));
+      const pf       = grossL > 0 ? +(grossW/grossL).toFixed(2) : null;
+
+      // Per-symbol breakdown
+      const symMap = {};
+      trades.forEach(t => {
+        if (!t.symbol) return;
+        symMap[t.symbol] = (symMap[t.symbol]||0) + net(t);
+      });
+      const top_symbols = Object.entries(symMap)
+        .sort((a,b) => b[1]-a[1]).slice(0,5)
+        .map(([sym,pnl]) => ({ sym, symbol: sym, pnl: Math.round(pnl) }));
+
+      // Max drawdown
+      let equity=0, peak=0, maxDD=0;
+      [...trades].sort((a,b)=>(a.date||'').localeCompare(b.date||''))
+        .forEach(t => { equity+=net(t); peak=Math.max(peak,equity); maxDD=Math.max(maxDD,peak-equity); });
+
+      // Current streak
+      const recent = [...trades].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+      let streak=0, streakType='';
+      for (const t of recent) {
+        const sign = net(t)>0?'W': net(t)<0?'L': null;
+        if (!sign) break;
+        if (!streakType) { streakType=sign; streak=1; }
+        else if (sign===streakType) streak++;
+        else break;
+      }
+
+      // Best/worst symbol
+      const sorted_syms = Object.entries(symMap).sort((a,b)=>b[1]-a[1]);
+      const best_symbol  = sorted_syms[0]   ? { sym: sorted_syms[0][0],   pnl: Math.round(sorted_syms[0][1])   } : null;
+      const worst_symbol = sorted_syms.slice(-1)[0] ? { sym: sorted_syms.slice(-1)[0][0], pnl: Math.round(sorted_syms.slice(-1)[0][1]) } : null;
+      const normalizeSymbol = item => item ? {
+        sym: item.sym,
+        symbol: item.sym,
+        pnl: item.pnl,
+      } : null;
+
+      // Recent 5 trades
+      const recent5 = recent.slice(0,5).map(t => ({
+        date:    t.date,
+        symbol:  t.symbol,
+        type:    t.type,
+        net:     Math.round(net(t)),
+        setup:   t.strategy || t.setup || null,
+      }));
+
+      return {
+        total_trades:   trades.length,
+        total_pnl:      Math.round(totalPnl),
+        win_rate:       winRate,
+        avg_win:        avgWin,
+        avg_loss:       avgLoss,
+        profit_factor:  pf,
+        max_drawdown:   Math.round(maxDD),
+        best_symbol:    normalizeSymbol(best_symbol),
+        worst_symbol:   normalizeSymbol(worst_symbol),
+        top_symbols,
+        current_streak: streak ? `${streak} ${streakType==='W'?'wins':'losses'}` : null,
+        streak_count:   streak || 0,
+        streak_type:    streakType === 'W' ? 'wins' : streakType === 'L' ? 'losses' : null,
+        recent_trades:  recent5,
+        capital:        settings.capital       || null,
+        weekly_target:  settings.weeklyTarget  || null,
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
   /* ── Phase 1 — Synchronous (instant, no network) ─────────────────────── */
   function collectSync() {
     const settings   = safeJson('FINOS_SYS_SETTINGS', {});
@@ -136,6 +327,10 @@
       /* ── Other signals ── */
       watchlist:    watchlist && watchlist.length ? watchlist.slice(0, 20) : null,
       focus_history: focusHistory.length ? focusHistory : null,
+
+      /* ── Cross-app data (budget tracker + trade journal) ── */
+      budget_tracker: collectBudgetTracker(),
+      trade_journal:  collectTradeJournal(),
     };
 
     /* Restore identity from previous full sync stored in sessionStorage */
@@ -216,6 +411,9 @@
 
       /* Fetch Financial Health Score summary from alert engine */
       await _fetchHealthScore(user.id, ctx).catch(() => {});
+
+      /* Fetch top news headlines (high-impact only) */
+      await _fetchNewsHeadlines(ctx).catch(() => {});
 
     } catch (err) {
       // Non-fatal — page may not have Supabase loaded
@@ -303,6 +501,27 @@
         worst_pillar: d.worst_pillar || null,
       };
     } catch (_) {}  // alert engine may not be running — non-fatal
+  }
+
+  /* ── Fetch top News Intel headlines ──────────────────────────────────── */
+  async function _fetchNewsHeadlines(ctx) {
+    try {
+      const controller = new AbortController();
+      const tid = setTimeout(() => controller.abort(), 2000);
+      const r = await fetch('http://localhost:5000/api/intel', { signal: controller.signal });
+      clearTimeout(tid);
+      if (!r.ok) return;
+      const d = await r.json();
+      const items = (d.items || []).filter(i => i.high_impact).slice(0, 5);
+      if (items.length) {
+        if (!ctx.market) ctx.market = {};
+        ctx.market.news_headlines = items.map(i => ({
+          title:  i.title,
+          source: i.source,
+          type:   i.type,
+        }));
+      }
+    } catch {}
   }
 
   /* ── Publish context ─────────────────────────────────────────────────── */
