@@ -447,6 +447,68 @@
       .main { padding: 24px; overflow: visible; }
       .portal-grid { grid-template-columns: 1fr; }
     }
+
+    /* =========================
+       LIGHT MODE FIXES
+       ========================= */
+    [data-theme="light"] .main {
+      background: var(--bg-main);
+    }
+    [data-theme="light"] .header-flex {
+      border-bottom-color: rgba(0,0,0,.08);
+    }
+    [data-theme="light"] .neon-badge {
+      background: rgba(120,160,0,.10);
+      border-color: rgba(120,160,0,.35);
+      color: #6a8c00;
+    }
+    [data-theme="light"] h1 { color: var(--text-primary); }
+    [data-theme="light"] .hero-sub { color: var(--text-secondary); }
+
+    [data-theme="light"] .portal-card {
+      background: var(--bg-surface);
+      border-color: rgba(0,0,0,.1);
+      box-shadow: 0 4px 20px rgba(0,0,0,.06);
+    }
+    [data-theme="light"] .portal-card:hover {
+      border-color: rgba(79,124,255,.4);
+      box-shadow: 0 16px 48px rgba(0,0,0,.12);
+    }
+    [data-theme="light"] .portal-card h2 { color: var(--text-primary); }
+    [data-theme="light"] .portal-card p  { color: var(--text-secondary); }
+
+    [data-theme="light"] .tech-tag {
+      background: rgba(0,0,0,.05);
+      border: 1px solid rgba(0,0,0,.10);
+      color: var(--text-secondary);
+    }
+    [data-theme="light"] .arrow { color: var(--text-secondary); }
+    [data-theme="light"] .portal-card.xray:hover .arrow { color: var(--accent-primary); }
+    [data-theme="light"] .portal-card.mind:hover .arrow { color: #6a8c00; }
+
+    [data-theme="light"] .card-footer {
+      border-top-color: rgba(0,0,0,.08);
+    }
+    [data-theme="light"] .visual-block {
+      background: rgba(0,0,0,.04);
+      border-color: rgba(0,0,0,.08);
+    }
+
+    /* Theme toggle in light mode */
+    [data-theme="light"] .theme-btn {
+      background: rgba(0,0,0,.05);
+      border-color: rgba(0,0,0,.12);
+      color: var(--text-primary);
+    }
+    [data-theme="light"] .theme-btn:hover {
+      background: rgba(0,0,0,.09);
+    }
+
+    /* glitch text on light */
+    [data-theme="light"] .glitch-text::before,
+    [data-theme="light"] .glitch-text::after {
+      background: var(--bg-main);
+    }
   </style>
   <link rel="stylesheet" href="../css/theme.css">
 </head>
@@ -673,7 +735,7 @@
 
   <script src="../js/mobile-nav.js"></script>
   <script src="../js/pwa-init.js"></script>
-  <script src="../js/finos-widget.js"></script>
-  <script src="../js/finos-search.js"></script>
+  <script src="../js/finos-widget.js?v=2"></script>
+  <script src="../js/finos-search.js?v=2"></script>
 </body>
 </html>
