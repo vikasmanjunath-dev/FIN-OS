@@ -36,3 +36,5 @@
 2026-05-19 21:52:23,270 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
 2026-05-19 21:52:25,991 [INFO] fin-os.memory: Memory saved for user e8dab5b2 — 3 keys, 4 turns, session #1  [FAILED]
 2026-05-19 21:52:25,991 [INFO] fin-os: Session memory saved for user e8dab5b2
+2026-05-19 22:06:30,484 [INFO] websockets.server: connection open
+2026-05-19 22:06:30,485 [INFO] fin-os: Connected (1)
