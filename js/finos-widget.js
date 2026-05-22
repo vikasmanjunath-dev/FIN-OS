@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  const AGENT_URL = 'http://localhost:8080';
+  const AGENT_URL = '/voiceagent/index.html';
 
   /* ── Inject CSS ─────────────────────────────────────────────────────────── */
   const css = `
