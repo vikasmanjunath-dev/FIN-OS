@@ -1,4 +1,9 @@
-document.addEventListener("DOMContentLoaded", () => {
+(function run() {
+if (document.readyState === 'loading') {
+  document.addEventListener("DOMContentLoaded", run);
+  return;
+}
+(()=>{
 
   const calculatorCategories = [
 
@@ -33,11 +38,11 @@ document.addEventListener("DOMContentLoaded", () => {
       id: "investment",
       title: "💰 Investment & Wealth",
       subtitle: "Grow money with clarity",
-      folder: "calculators/Investment & Wealth",
+      folder: "calculators/investment & wealth",
       calculators: [
         { name: "SIP Calculator", file: "sip.html" },
         { name: "Step-Up SIP", file: "stepup.html" },
-        { name: "Lumpsum Calculator", file: "lumpsum.html" },
+        { name: "Lumpsum Calculator", file: "lupsum.html" },
         { name: "Mutual Fund Returns", file: "mutualfunds.html" },
         { name: "Portfolio Growth", file: "portfolio.html" },
         { name: "Asset Allocation", file: "assetalloc.html" },
@@ -61,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
       id: "banking",
       title: "🏦 Banking & Fixed Income",
       subtitle: "Indian saving instruments",
-      folder: "calculators/Banking & Fixed Income",
+      folder: "calculators/banking & fixed income",
       calculators: [
         { name: "FD Calculator", file: "fd.html" },
         { name: "RD Calculator", file: "rd.html" },
@@ -84,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
       id: "loans",
       title: "🏠 Loans, Debt & EMI",
       subtitle: "Where most Indians bleed money",
-      folder: "calculators/Loans, Debt & EMI",
+      folder: "calculators/loans, debt & emi",
       calculators: [
         { name: "EMI Calculator", file: "emi.html" },
         { name: "Home Loan Calculator", file: "home.html" },
@@ -108,13 +113,13 @@ document.addEventListener("DOMContentLoaded", () => {
       id: "tax",
       title: "🧾 Tax & Salary",
       subtitle: "Indian tax reality",
-      folder: "calculators/Tax & Salary",
+      folder: "calculators/tax & salary",
       calculators: [
         { name: "Old vs New Regime", file: "oldnew.html" },
         { name: "Income Tax Calculator", file: "income.html" },
         { name: "HRA Exemption", file: "hra.html" },
         { name: "80C Optimizer", file: "80c.html" },
-        { name: "Capital Gains Tax", file: "capitalgains.html" },
+        { name: "Capital Gains Tax", file: "captalgains.html" },
         { name: "STCG vs LTCG", file: "shortlong.html" },
         { name: "Gratuity Calculator", file: "gratuity.html" },
         { name: "Leave Encashment", file: "leave.html" },
@@ -131,13 +136,13 @@ document.addEventListener("DOMContentLoaded", () => {
       id: "retirement",
       title: "👵 Retirement & Life",
       subtitle: "Longevity matters",
-      folder: "calculators/Retirement & Life Planning",
+      folder: "calculators/retirement & life planning",
       calculators: [
         { name: "Retirement Corpus", file: "retirement.html" },
         { name: "Pension Gap", file: "pensiongap.html" },
         { name: "Post-Retirement Income", file: "postretirement.html" },
         { name: "Annuity Comparison", file: "annuity.html" },
-        { name: "Life Expectancy Risk", file: "lifeexpectancy.html" },
+        { name: "Life Expectancy Risk", file: "lifeexpentancy.html" },
         { name: "Healthcare Inflation", file: "healthcare.html" },
         { name: "Longevity Risk", file: "longevity.html" }
       ]
@@ -151,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
       id: "trading",
       title: "📈 Trading & Markets",
       subtitle: "Advanced tools",
-      folder: "calculators/Trading & Markets",
+      folder: "calculators/trading & markets",
       calculators: [
         { name: "Position Size", file: "positionsize.html" },
         { name: "Risk Per Trade", file: "riskper.html" },
@@ -172,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
       id: "health",
       title: "📊 Financial Health",
       subtitle: "Overall money fitness",
-      folder: "calculators/Financial Health",
+      folder: "calculators/financial health",
       calculators: [
         { name: "Net Worth Calculator", file: "networth.html" },
         { name: "Expense Ratio", file: "expenseratio.html" },
@@ -191,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
       id: "desi",
       title: "🔥 Desi Reality Check",
       subtitle: "What Indians actually struggle with",
-      folder: "calculators/Desi Reality Check",
+      folder: "calculators/desi reality check",
       calculators: [
         { name: "EMI Lifestyle Disease", file: "emidiease.html" },
         { name: "Shaadi Cost vs Wealth", file: "shaadicost.html" },
@@ -232,4 +237,5 @@ document.addEventListener("DOMContentLoaded", () => {
     container.appendChild(section);
   });
 
-});
+})();
+})();

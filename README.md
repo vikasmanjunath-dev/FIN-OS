@@ -5,6 +5,32 @@
 
 ---
 
+## Documentation
+
+**Product & Process**
+
+| Doc | What it covers |
+|---|---|
+| [PRD.md](docs/PRD.md) | Product requirements — goals, user personas, feature list, milestones |
+| [FRD.md](docs/FRD.md) | Functional requirements — every module's behaviour, acceptance criteria |
+| [TRD.md](docs/TRD.md) | Technical requirements — stack specs, performance budgets, security, integrations |
+| [SOP.md](docs/SOP.md) | Standard operating procedures — deploy, debug, incidents, onboarding |
+
+**Engineering Reference**
+
+| Doc | What it covers |
+|---|---|
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System map, AI pipeline, data flows, security model |
+| [SETUP.md](docs/SETUP.md) | Local dev setup — prerequisites, voice agent, all services |
+| [VOICE_AGENT.md](docs/VOICE_AGENT.md) | Voice agent config, profile extraction, intent rules, extending |
+| [DATABASE.md](docs/DATABASE.md) | All Supabase tables, RLS policies, migrations, env vars |
+| [DEPLOYMENT.md](docs/DEPLOYMENT.md) | Vercel deployment, checklist, rollback |
+| [API_REFERENCE.md](docs/API_REFERENCE.md) | All backend endpoints (Flask, FastAPI, Django) |
+| [WEBSOCKET_PROTOCOL.md](docs/WEBSOCKET_PROTOCOL.md) | Full WS message schema between browser and agent.py |
+| [CONTRIBUTING.md](docs/CONTRIBUTING.md) | Adding calculators, pages, alert rules, voice intents |
+
+---
+
 ## What Is FIN•OS
 
 FIN•OS is a full-stack personal finance operating system built for Indian users. It is not a single app — it is an entire ecosystem of interconnected tools, education modules, market dashboards, AI assistants, and financial calculators running under one roof.
@@ -279,7 +305,7 @@ A fully local, personalised desi voice AI. Runs 100% on your machine — no paid
      ↓
 faster-whisper tiny   (STT — CPU int8, 8 threads, VAD filter)
      ↓
-qwen2.5:3b via Ollama (LLM — fully local, ~2GB RAM)
+qwen3:14b via Ollama  (LLM — fully local, ~9GB RAM)
      ↓   ← User context + health score + persistent memory injected here
 edge-tts Neural TTS   (en-IN-PrabhatNeural / hi-IN-MadhurNeural)
      ↓
@@ -348,7 +374,7 @@ cd voiceagent
 pip install -r requirements.txt
 cp .env.example .env        # add SUPABASE_SERVICE_KEY
 
-ollama pull qwen2.5:3b
+ollama pull qwen3:14b
 ollama serve                # terminal 1
 
 python agent.py             # terminal 2 — WS server on :8765

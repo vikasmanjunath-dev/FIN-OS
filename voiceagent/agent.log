@@ -1,55 +1,29 @@
-2026-05-19 21:39:18,474 [INFO] fin-os.memory: Persistent memory: ENABLED  (Supabase https://oeapcyucnduhwpgxfknb.supabase.co)
-2026-05-19 21:39:18,475 [INFO] fin-os: Loading Whisper tiny…
-2026-05-19 21:39:20,090 [INFO] fin-os: Whisper tiny ready
-2026-05-19 21:39:20,095 [INFO] fin-os: FIN-OS v9  ws://127.0.0.1:8765  LLM=qwen2.5:3b  STT=Whisper-tiny
-2026-05-19 21:39:21,003 [INFO] fin-os: TTS warmed up
-2026-05-19 21:39:22,599 [INFO] fin-os: Ollama warmed up (qwen2.5:3b)
-2026-05-19 21:39:22,620 [INFO] websockets.server: server listening on 127.0.0.1:8765
-2026-05-19 21:39:22,620 [INFO] fin-os: Ready — http://localhost:8080
-2026-05-19 21:39:30,693 [INFO] websockets.server: connection open
-2026-05-19 21:39:30,694 [INFO] fin-os: Connected (1)
-2026-05-19 21:39:30,730 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-19 21:39:30,730 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-19 21:39:31,493 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-19 21:39:31,493 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-19 21:39:31,830 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-19 21:39:31,830 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-19 21:39:49,654 [INFO] fin-os: STT: hindi (61%)  'Explain me personal finance in Hindi detail.'
-2026-05-19 21:39:58,100 [INFO] fin-os: 8.4s | 212 chars | 1 TTS
-2026-05-19 21:40:27,963 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-19 21:40:27,963 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-19 21:40:43,807 [INFO] fin-os: 6.3s | 551 chars | 4 TTS
-2026-05-19 21:41:00,698 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-19 21:41:00,698 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-19 21:41:27,963 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-19 21:41:27,964 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-19 21:42:11,083 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
-2026-05-19 21:52:17,891 [INFO] websockets.server: connection open
-2026-05-19 21:52:17,891 [INFO] fin-os: Connected (1)
-2026-05-19 21:52:17,899 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
-2026-05-19 21:52:17,899 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
-2026-05-19 21:52:18,060 [INFO] fin-os.memory: No saved memory for user e8dab5b2 — fresh session
-2026-05-19 21:52:18,688 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
-2026-05-19 21:52:18,689 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
-2026-05-19 21:52:19,035 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
-2026-05-19 21:52:19,035 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
-2026-05-19 21:52:23,270 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
-2026-05-19 21:52:25,991 [INFO] fin-os.memory: Memory saved for user e8dab5b2 — 3 keys, 4 turns, session #1  [FAILED]
-2026-05-19 21:52:25,991 [INFO] fin-os: Session memory saved for user e8dab5b2
-2026-05-19 22:06:30,484 [INFO] websockets.server: connection open
-2026-05-19 22:06:30,485 [INFO] fin-os: Connected (1)
-2026-05-19 22:10:11,411 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
-2026-05-19 22:10:14,877 [INFO] websockets.server: connection open
-2026-05-19 22:10:14,877 [INFO] fin-os: Connected (1)
-2026-05-19 23:34:47,679 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
-2026-05-19 23:34:49,779 [INFO] websockets.server: connection open
-2026-05-19 23:34:49,779 [INFO] fin-os: Connected (1)
-2026-05-19 23:34:49,808 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
-2026-05-19 23:34:49,808 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
-2026-05-19 23:34:50,166 [INFO] fin-os.memory: No saved memory for user e8dab5b2 — fresh session
-2026-05-19 23:34:50,576 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
-2026-05-19 23:34:50,576 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
-2026-05-19 23:34:50,917 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
-2026-05-19 23:34:50,917 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
-/opt/homebrew/Cellar/python@3.11/3.11.15_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
-  warnings.warn('resource_tracker: There appear to be %d '
+2026-05-23 03:05:19,083 [INFO] fin-os.memory: Persistent memory: ENABLED  (Supabase https://oeapcyucnduhwpgxfknb.supabase.co)
+2026-05-23 03:05:19,084 [INFO] fin-os: Loading Whisper tiny…
+2026-05-23 03:05:20,035 [INFO] fin-os: Whisper tiny ready
+2026-05-23 03:05:20,038 [INFO] fin-os: FIN-OS v9  ws://127.0.0.1:8765  LLM=qwen3:14b  STT=Whisper-tiny
+2026-05-23 03:05:20,838 [INFO] fin-os: TTS warmed up
+2026-05-23 03:05:22,954 [INFO] fin-os: Ollama warmed up (qwen3:14b)
+2026-05-23 03:05:22,985 [INFO] websockets.server: server listening on 127.0.0.1:8765
+2026-05-23 03:05:22,985 [INFO] fin-os: Ready — http://localhost:8080
+2026-05-23 03:05:38,492 [INFO] websockets.server: connection open
+2026-05-23 03:05:38,492 [INFO] fin-os: Connected (1)
+2026-05-23 03:05:38,497 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-05-23 03:05:38,497 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-05-23 03:05:38,624 [INFO] fin-os.memory: No saved memory for user e8dab5b2 — fresh session
+2026-05-23 03:05:38,998 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-05-23 03:05:38,998 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-05-23 03:05:39,295 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-05-23 03:05:39,295 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-05-23 03:05:39,646 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-05-23 03:05:39,646 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-05-23 03:05:46,630 [INFO] fin-os: STT: english (27%)  'Hi bro how are you doing?'
+2026-05-23 03:06:07,741 [INFO] fin-os: 21.1s | 286 chars | 4 TTS
+2026-05-23 03:06:36,603 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-05-23 03:06:36,604 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-05-23 03:06:39,144 [INFO] fin-os: STT: english (50%)  'Well, great you see my profile and please give me a sidepeep'
+2026-05-23 03:07:03,126 [INFO] fin-os: 24.0s | 1046 chars | 19 TTS
+2026-05-23 03:07:04,014 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-05-23 03:07:04,014 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-05-23 03:07:08,495 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-05-23 03:07:08,495 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full

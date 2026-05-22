@@ -78,14 +78,17 @@ OLLAMA_OPTIONS = {
     "top_p":          0.92,
     "top_k":          40,
     "repeat_penalty": 1.10,
-    "num_ctx":        4096,
-    "num_predict":    400,        # enough for detailed spoken answers
+    "num_ctx":        8192,       # 4096 was too small — system prompt + context fills it
+    "num_predict":    600,        # raised: qwen3 think tokens eat into budget
     "num_thread":     WHISPER_THREADS,
     "num_keep":       12,
     "mirostat":       0,
 }
 # think=False must be top-level (not in options) for qwen3 models
 OLLAMA_THINK = False
+
+# How long to wait for first LLM token before giving up (seconds)
+LLM_FIRST_TOKEN_TIMEOUT = 90
 
 TTS_RATE  = "+12%"               # slightly natural pace (was +18% = too fast)
 TTS_PITCH = "-3Hz"               # natural male register
@@ -1372,7 +1375,7 @@ class Brain:
 
         # Detect if the user wants a detailed answer and boost token budget
         wants_detail = bool(self._DETAIL_RE.search(user_text))
-        opts = {**OLLAMA_OPTIONS, "num_predict": 1200} if wants_detail else OLLAMA_OPTIONS
+        opts = {**OLLAMA_OPTIONS, "num_predict": 1500} if wants_detail else OLLAMA_OPTIONS
 
         system = SYSTEM_PROMPT + profile_ctx
 
@@ -2063,6 +2066,7 @@ class Server:
             seq       = 0
             in_think  = False
             think_buf = ""
+            last_tok_at = time.monotonic()
             sem   = asyncio.Semaphore(MAX_TTS_CONCURRENT)
             tasks: list[asyncio.Task] = []
 
@@ -2087,11 +2091,22 @@ class Server:
                 seq += 1
 
             while True:
-                item = await q.get()
+                # Timeout: if no token arrives within LLM_FIRST_TOKEN_TIMEOUT seconds, give up
+                try:
+                    item = await asyncio.wait_for(q.get(), timeout=LLM_FIRST_TOKEN_TIMEOUT)
+                except asyncio.TimeoutError:
+                    log.warning("LLM stream timeout — no token in %ds", LLM_FIRST_TOKEN_TIMEOUT)
+                    await self._send({"type": "status",
+                                      "text": "Thoda slow chal raha hai — ek baar phir try karo."})
+                    break
+
                 if item is _DONE: break
                 if isinstance(item, Exception): raise item
                 tok, full = item
+                last_tok_at = time.monotonic()
 
+                # ── Think-block filter ─────────────────────────────────────
+                # Works for both single-token <think> and split-token cases
                 if in_think:
                     think_buf += tok
                     if "</think>" in think_buf.lower():
@@ -2101,8 +2116,16 @@ class Server:
                         think_buf = ""; tok = after
                     else:
                         continue
-                elif "<think>" in tok.lower():
-                    in_think = True; think_buf = tok; continue
+                else:
+                    # Accumulate into a sliding window to catch split <think> tags
+                    _probe = (buf[-20:] + tok).lower() if buf else tok.lower()
+                    if "<think>" in _probe and not in_think:
+                        in_think = True
+                        # Split on <think> — keep content before it
+                        before_think = re.split(r'<think>', _probe, maxsplit=1,
+                                                flags=re.IGNORECASE)[0]
+                        tok = before_think
+                        think_buf = ""
 
                 buf += tok
                 if tok:
@@ -2112,7 +2135,17 @@ class Server:
                     if len(s) >= MIN_SENTENCE_CHARS:
                         _flush(s); buf = ""
 
-            if buf.strip(): _flush(buf)
+            # Flush any remaining buffered text
+            if buf.strip():
+                _flush(buf)
+
+            # If full response was all think-block (nothing displayed), give a fallback
+            display_text = _RE_THINK.sub("", full).strip()
+            if not display_text and full:
+                log.warning("LLM response was pure think-block — sending fallback")
+                display_text = "Ek second, dobara try karo."
+                full = display_text
+                _flush(display_text)
 
             await self._send({"type": "reply_done", "text": full,
                                "display": clean_display(full)})
