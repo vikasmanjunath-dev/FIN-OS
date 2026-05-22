@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       <div class="category-content">
         ${cat.calculators.map(c => `
-          <a href="${cat.folder}/${c.file}" class="calc-card">
+          <a href="../${cat.folder}/${c.file}" class="calc-card">
             ${c.name}
           </a>
         `).join("")}

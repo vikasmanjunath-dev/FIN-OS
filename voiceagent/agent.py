@@ -553,17 +553,60 @@ class UserContext:
 
             port = fin.get("portfolio")
             if port:
-                pval = _num(port.get("total_value"), 0)
-                pnl  = _num(port.get("pnl"), 0)
-                ppct = _num(port.get("pnl_pct"), 0)
-                lines.append(f"  Portfolio: ₹{pval:,.0f}  |  P&L: ₹{pnl:+,.0f} ({ppct:+.1f}%)")
-                holdings = port.get("holdings") or []
-                if holdings:
-                    top = ", ".join(
-                        f"{h.get('symbol','?')} ({h.get('quantity','?')} units)"
-                        for h in holdings[:5]
+                pval  = _num(port.get("total_value"), 0)
+                pcost = _num(port.get("total_cost"),  0)
+                pnl   = _num(port.get("pnl"),         0)
+                ppct  = _num(port.get("pnl_pct"),     0)
+                n_eq  = _num(port.get("stocks_count"), 0)
+                n_etf = _num(port.get("etf_count"),    0)
+                n_mf  = _num(port.get("mf_count"),     0)
+                lines.append(
+                    f"  Portfolio value: ₹{pval:,.0f}  |  Invested: ₹{pcost:,.0f}  |"
+                    f"  P&L: ₹{pnl:+,.0f} ({ppct:+.1f}%)  |"
+                    f"  Holdings: {int(n_eq)} stocks, {int(n_etf)} ETFs, {int(n_mf)} MFs"
+                )
+                # Top holdings by value
+                top_h = port.get("top_holdings") or port.get("holdings") or []
+                if top_h:
+                    h_lines = []
+                    for h in top_h[:10]:
+                        sym  = h.get("symbol") or h.get("sym", "?")
+                        qty  = h.get("qty") or h.get("quantity", "?")
+                        cmp  = _num(h.get("cmp") or h.get("current_price"), 0)
+                        avg  = _num(h.get("avg_price") or h.get("avg"), 0)
+                        pp   = _num(h.get("pnl_pct"), 0)
+                        sec  = h.get("sector", "")
+                        h_lines.append(
+                            f"{sym} qty={qty} avg=₹{avg:,.0f} cmp=₹{cmp:,.0f} P&L={pp:+.1f}%"
+                            + (f" [{sec}]" if sec else "")
+                        )
+                    lines.append("  Holdings detail:")
+                    for hl in h_lines:
+                        lines.append(f"    {hl}")
+                # Gainers / Losers
+                gainers = port.get("top_gainers") or []
+                losers  = port.get("top_losers")  or []
+                if gainers:
+                    g_str = ", ".join(f"{g.get('symbol')} ({g.get('pnl_pct',0):+.1f}%)" for g in gainers[:3])
+                    lines.append(f"  Top gainers: {g_str}")
+                if losers:
+                    l_str = ", ".join(f"{l.get('symbol')} ({l.get('pnl_pct',0):+.1f}%)" for l in losers[:3])
+                    lines.append(f"  Top losers:  {l_str}")
+                # Sector breakdown
+                sectors = port.get("sector_breakdown") or []
+                if sectors:
+                    s_str = ", ".join(
+                        f"{s.get('sector')} {s.get('pct',0):.0f}%" for s in sectors[:5]
                     )
-                    lines.append(f"  Top holdings: {top}")
+                    lines.append(f"  Sector mix: {s_str}")
+                # MF holdings
+                mf_list = port.get("mf_holdings") or []
+                if mf_list:
+                    mf_str = ", ".join(
+                        f"{m.get('name','?')} ({m.get('category','MF')}) P&L={_num(m.get('pnl_pct'),0):+.1f}%"
+                        for m in mf_list[:5]
+                    )
+                    lines.append(f"  Mutual funds: {mf_str}")
 
             goals = fin.get("goals")
             if goals:
@@ -1290,8 +1333,8 @@ class Brain:
          "INTENT: Windfall/bonus question. Use the waterfall: emergency fund → debt → PPF → NPS → index STP."),
         (re.compile(r"\b(start|begin|first|new|fresher|confused|don.t know|kahan se)\b", re.I),
          "INTENT: Beginner question. Start with the basics. Emergency fund → term insurance → SIP. Keep it simple."),
-        (re.compile(r"\b(portfolio|holding|stock|share|equity|nifty|sensex|return|xirr|cagr)\b", re.I),
-         "INTENT: Portfolio question. Use the user's actual holdings and P&L from context. Give specific stock-level feedback if data is available."),
+        (re.compile(r"\b(portfolio|holding|stock|share|equity|nifty|sensex|return|xirr|cagr|analyse|review|check.*stock|worst|best.*stock|gainer|loser|sector|diversif)\b", re.I),
+         "INTENT: Portfolio question. IMPORTANT — the user has uploaded their Zerodha holdings. Use their EXACT holdings data from the context: stock symbols, quantities, avg price, CMP, sector, P&L%. Give stock-specific, personalised feedback. Name their actual stocks. Point out their best/worst performers by name. Do NOT give generic advice when their real data is available."),
         (re.compile(r"\b(budget|kharcha|spend|expense|subscript|saving rate|50.30.20|3.fund)\b", re.I),
          "INTENT: Budget question. Use the user's actual income, spending categories, and savings rate from context. Be specific with their numbers."),
         (re.compile(r"\b(trade|trading|win rate|profit factor|drawdown|journal|p.?n.?l|position)\b", re.I),

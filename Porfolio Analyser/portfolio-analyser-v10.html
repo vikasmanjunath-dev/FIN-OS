@@ -14698,6 +14698,121 @@ document.addEventListener('visibilitychange', () => {
     }
   }
 });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FIN-OS VOICE AGENT — PORTFOLIO CONTEXT BRIDGE
+// Exposes EQ + MF holdings as window.FINOS_PORTFOLIO_DATA so the voice agent
+// can answer questions about the user's actual holdings.
+// ══════════════════════════════════════════════════════════════════════════════
+function _buildVoicePortfolioCtx() {
+  if (!EQ.length && !MF.length) return;
+
+  const allEQ  = [...EQ];
+  const allMF  = [...MF];
+
+  // ── Summary totals ──
+  let totalValue = 0, totalCost = 0;
+  allEQ.forEach(h => { totalValue += h.currVal || 0; totalCost += h.invested || 0; });
+  allMF.forEach(h => { totalValue += h.currVal || 0; totalCost += h.invested || 0; });
+  const totalPnl    = totalValue - totalCost;
+  const totalPnlPct = totalCost > 0 ? +((totalPnl / totalCost) * 100).toFixed(2) : 0;
+
+  // ── Top holdings by current value (max 15) ──
+  const sortedByVal = [...allEQ].sort((a,b) => (b.currVal||0) - (a.currVal||0));
+  const topHoldings = sortedByVal.slice(0, 15).map(h => ({
+    symbol:   h.sym,
+    type:     h.type,
+    sector:   h.sector,
+    qty:      h.qty,
+    avg_price: +h.avg.toFixed(2),
+    cmp:      +h.cmp.toFixed(2),
+    invested: Math.round(h.invested),
+    curr_val: Math.round(h.currVal),
+    pnl:      Math.round(h.pnl),
+    pnl_pct:  +h.pnlPct.toFixed(2),
+  }));
+
+  // ── Top 5 gainers / losers (stocks only, not ETFs) ──
+  const stocks = allEQ.filter(h => h.type === 'Stock' && h.invested > 0);
+  const gainers = [...stocks].sort((a,b) => b.pnlPct - a.pnlPct).slice(0, 5)
+    .map(h => ({ symbol: h.sym, pnl_pct: +h.pnlPct.toFixed(1), pnl: Math.round(h.pnl) }));
+  const losers  = [...stocks].sort((a,b) => a.pnlPct - b.pnlPct).slice(0, 5)
+    .map(h => ({ symbol: h.sym, pnl_pct: +h.pnlPct.toFixed(1), pnl: Math.round(h.pnl) }));
+
+  // ── Sector breakdown ──
+  const sectorMap = {};
+  allEQ.forEach(h => {
+    const s = h.sector || 'Unknown';
+    if (!sectorMap[s]) sectorMap[s] = { value: 0, pnl: 0, count: 0 };
+    sectorMap[s].value += h.currVal || 0;
+    sectorMap[s].pnl   += h.pnl    || 0;
+    sectorMap[s].count++;
+  });
+  const sectorBreakdown = Object.entries(sectorMap)
+    .sort((a,b) => b[1].value - a[1].value)
+    .slice(0, 8)
+    .map(([name, d]) => ({
+      sector:   name,
+      value:    Math.round(d.value),
+      pct:      totalValue > 0 ? +((d.value / totalValue) * 100).toFixed(1) : 0,
+      pnl:      Math.round(d.pnl),
+      holdings: d.count,
+    }));
+
+  // ── MF holdings ──
+  const mfHoldings = allMF.slice(0, 10).map(h => ({
+    name:     h.sym,
+    category: h.inst || 'MF',
+    units:    h.qty,
+    avg_nav:  +h.avg.toFixed(2),
+    curr_nav: +h.cmp.toFixed(2),
+    invested: Math.round(h.invested),
+    curr_val: Math.round(h.currVal),
+    pnl:      Math.round(h.pnl),
+    pnl_pct:  +h.pnlPct.toFixed(2),
+  }));
+
+  window.FINOS_PORTFOLIO_DATA = {
+    total_value:      Math.round(totalValue),
+    total_cost:       Math.round(totalCost),
+    pnl:              Math.round(totalPnl),
+    pnl_pct:          totalPnlPct,
+    holdings_count:   allEQ.length + allMF.length,
+    stocks_count:     stocks.length,
+    etf_count:        allEQ.filter(h => h.type === 'ETF').length,
+    mf_count:         allMF.length,
+    top_holdings:     topHoldings,
+    top_gainers:      gainers,
+    top_losers:       losers,
+    sector_breakdown: sectorBreakdown,
+    mf_holdings:      mfHoldings,
+  };
+
+  // Also expose as FINOS_PAGE_DATA for full context pipeline
+  window.FINOS_PAGE_DATA = {
+    module:    'portfolio_analyser',
+    portfolio: window.FINOS_PORTFOLIO_DATA,
+  };
+
+  // Nudge finos-context to re-collect with fresh data
+  if (typeof window._finosRequestContext === 'function') {
+    window._finosRequestContext();
+  }
+}
+
+// Hook into buildAll so context refreshes after every data update
+const _origBuildAll = typeof buildAll === 'function' ? buildAll : null;
+if (_origBuildAll) {
+  buildAll = function() {
+    _origBuildAll.apply(this, arguments);
+    _buildVoicePortfolioCtx();
+  };
+}
 </script>
+
+<!-- FIN-OS Context Collector -->
+<script src="../js/finos-context.js?v=4"></script>
+<!-- FIN-OS Voice Agent Widget -->
+<script src="../js/finos-widget.js?v=4"></script>
 </body>
 </html>
