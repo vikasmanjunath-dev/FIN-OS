@@ -1,0 +1,536 @@
+/* ═══════════════════════════════════════════════════════
+   SCAN-TRADE MODAL — Screenshot OCR UI
+   Inherits TradeJournal CSS variables from style.css
+═══════════════════════════════════════════════════════ */
+
+/* ── Trigger button ──────────────────────────────────── */
+.btn-scan {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: rgba(0, 212, 255, 0.1);
+  color: var(--blue);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.btn-scan:hover {
+  background: rgba(0, 212, 255, 0.18);
+  border-color: rgba(0, 212, 255, 0.55);
+  box-shadow: 0 0 14px rgba(0, 212, 255, 0.2);
+}
+.btn-scan .scan-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* ── Backdrop ────────────────────────────────────────── */
+#scan-trade-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(8, 12, 20, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+#scan-trade-modal.scan-open {
+  display: flex;
+}
+
+/* ── Modal panel ─────────────────────────────────────── */
+.scan-panel {
+  position: relative;
+  width: 100%;
+  max-width: 660px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0,212,255,0.08);
+  display: flex;
+  flex-direction: column;
+  animation: scanPanelIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes scanPanelIn {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+
+/* ── Header ──────────────────────────────────────────── */
+.scan-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.scan-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.scan-title-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(0, 212, 255, 0.12);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+.scan-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+}
+.scan-subtitle {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 1px;
+}
+.scan-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.scan-close-btn:hover {
+  background: var(--bg4);
+  color: var(--text);
+  border-color: var(--border2);
+}
+
+/* ── Body ────────────────────────────────────────────── */
+.scan-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Dropzone ────────────────────────────────────────── */
+.scan-dropzone {
+  position: relative;
+  border: 2px dashed rgba(0, 212, 255, 0.3);
+  border-radius: var(--radius);
+  padding: 36px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  background: rgba(0, 212, 255, 0.03);
+  min-height: 150px;
+}
+.scan-dropzone:hover,
+.scan-dropzone.drag-over {
+  border-color: rgba(0, 212, 255, 0.65);
+  background: rgba(0, 212, 255, 0.08);
+}
+.scan-dropzone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.scan-dz-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+.scan-dz-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.scan-dz-sub {
+  font-size: 11px;
+  color: var(--text3);
+  line-height: 1.6;
+}
+.scan-dz-sub b {
+  color: var(--blue);
+  font-weight: 600;
+}
+
+/* ── Image preview thumbnail ─────────────────────────── */
+.scan-thumb-wrap {
+  display: none;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+}
+.scan-thumb-wrap.visible {
+  display: flex;
+}
+.scan-thumb {
+  width: 72px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  flex-shrink: 0;
+}
+.scan-thumb-info {
+  flex: 1;
+  min-width: 0;
+}
+.scan-thumb-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.scan-thumb-size {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+.scan-thumb-remove {
+  background: none;
+  border: none;
+  color: var(--text3);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.scan-thumb-remove:hover {
+  background: rgba(255, 77, 109, 0.12);
+  color: var(--red);
+}
+
+/* ── Run button ──────────────────────────────────────── */
+.scan-run-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--blue), #0099cc);
+  color: #000;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.scan-run-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: var(--bg4);
+  color: var(--text3);
+}
+.scan-run-btn:not(:disabled):hover {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+/* ── Progress ────────────────────────────────────────── */
+.scan-progress-wrap {
+  display: none;
+}
+.scan-progress-wrap.visible {
+  display: block;
+}
+.scan-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+.scan-progress-label span:last-child {
+  font-family: var(--font-mono);
+  color: var(--blue);
+}
+.scan-progress-bar-bg {
+  height: 4px;
+  background: var(--bg4);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.scan-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--blue), var(--accent));
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* ── Status message ──────────────────────────────────── */
+.scan-status {
+  font-size: 12px;
+  color: var(--text3);
+  text-align: center;
+  min-height: 18px;
+  font-style: italic;
+}
+.scan-status.err {
+  color: var(--red);
+  font-style: normal;
+  font-weight: 600;
+}
+.scan-status.ok {
+  color: var(--accent);
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* ── Results preview table ───────────────────────────── */
+.scan-results {
+  display: none;
+}
+.scan-results.visible {
+  display: block;
+}
+.scan-results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.scan-results-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.scan-broker-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: rgba(0, 255, 136, 0.12);
+  color: var(--accent);
+  border: 1px solid rgba(0, 255, 136, 0.25);
+  text-transform: uppercase;
+}
+.scan-raw-toggle {
+  font-size: 11px;
+  color: var(--text3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: var(--transition);
+}
+.scan-raw-toggle:hover {
+  background: var(--bg4);
+  color: var(--text2);
+}
+
+/* ── Preview table ───────────────────────────────────── */
+.scan-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.scan-preview-table thead tr {
+  background: var(--bg4);
+}
+.scan-preview-table th {
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+.scan-preview-table tbody tr {
+  border-top: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.scan-preview-table tbody tr:hover {
+  background: var(--bg3);
+}
+.scan-field-label {
+  padding: 9px 12px;
+  color: var(--text3);
+  font-weight: 600;
+  width: 38%;
+}
+.scan-value {
+  padding: 9px 12px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+}
+.scan-value[contenteditable="true"] {
+  outline: none;
+  border-radius: 4px;
+  cursor: text;
+}
+.scan-value[contenteditable="true"]:focus {
+  background: rgba(0, 212, 255, 0.08);
+  box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.4);
+}
+.scan-value.pos { color: var(--green); }
+.scan-value.neg { color: var(--red); }
+.scan-value.empty { color: var(--text3); font-style: italic; font-family: var(--font-body); font-size: 11px; }
+
+/* Charge sub-section */
+.scan-section-row {
+  background: var(--bg3) !important;
+}
+.scan-section-row td {
+  padding: 6px 12px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+
+/* ── Raw OCR text ────────────────────────────────────── */
+.scan-raw-text {
+  display: none;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text3);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+.scan-raw-text.visible {
+  display: block;
+}
+
+/* ── Footer / action buttons ─────────────────────────── */
+.scan-footer {
+  display: none;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  gap: 10px;
+  flex-shrink: 0;
+}
+.scan-footer.visible {
+  display: flex;
+}
+.scan-fill-btn {
+  flex: 1;
+  padding: 11px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--accent), #00cc6a);
+  color: #000;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.scan-fill-btn:hover {
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.35);
+  transform: translateY(-1px);
+}
+.scan-cancel-btn {
+  padding: 11px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text2);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.scan-cancel-btn:hover {
+  background: var(--bg4);
+  border-color: var(--border2);
+  color: var(--text);
+}
+
+/* ── Edit hint ───────────────────────────────────────── */
+.scan-edit-hint {
+  font-size: 10px;
+  color: var(--text3);
+  text-align: center;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* ── Mobile ──────────────────────────────────────────── */
+@media (max-width: 500px) {
+  .scan-panel {
+    max-height: 95vh;
+    border-radius: 16px 16px 0 0;
+    margin-top: auto;
+  }
+  #scan-trade-modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .scan-header {
+    padding: 16px 18px 12px;
+  }
+  .scan-body {
+    padding: 16px 18px;
+  }
+  .scan-footer {
+    padding: 14px 18px;
+    flex-direction: column;
+  }
+  .scan-dropzone {
+    padding: 24px 16px;
+  }
+}

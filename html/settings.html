@@ -3,7 +3,10 @@
 <head>
 <script>
 (function(){
-  var s=JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS')||'{}');
+  /* Fix [H3]: wrap JSON.parse in try-catch — corrupted storage must not
+     crash theme initialization and leave the page with no theme applied. */
+  var s;
+  try { s=JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS')||'{}'); } catch(e){ s={}; }
   var t=s.theme||localStorage.getItem('finos-theme')||'dark';
   var resolved=t==='system'?(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'):t;
   document.documentElement.setAttribute('data-theme',resolved);
@@ -98,7 +101,8 @@
               <label>Not signed in</label>
               <span>Log in to manage your account.</span>
             </div>
-            <a href="login.html" class="btn-outline">Sign In</a>
+            <!-- Fix [H4]: login.html from html/ resolved to html/login.html (404). Correct path is ../login.html -->
+            <a href="../login.html" class="btn-outline">Sign In</a>
           </div>
 
           <div class="setting-row sign-out-row auth-required">
@@ -106,7 +110,8 @@
               <label class="danger-text">Terminate Session</label>
               <span>Securely sign out from this device.</span>
             </div>
-            <button class="btn-danger" onclick="doSignOut()">Sign Out</button>
+            <!-- id added so doSignOut() can disable it during async operation -->
+            <button class="btn-danger" id="signOutBtn" onclick="doSignOut()">Sign Out</button>
           </div>
 
           <div class="setting-row auth-required">
@@ -235,7 +240,8 @@
             </div>
             <div class="slider-row">
               <span class="slider-label">0.6×</span>
-              <input type="range" id="voiceSpeedSlider" min="0.6" max="2.0" step="0.1" value="1.0">
+              <!-- Fix [L1]: aria-label + aria-valuetext added — screen readers need unit context -->
+              <input type="range" id="voiceSpeedSlider" min="0.6" max="2.0" step="0.1" value="1.0" aria-label="Voice Speed" aria-valuetext="1.0×">
               <span class="slider-label">2.0×</span>
               <span class="slider-value" id="voiceSpeedVal">1.0×</span>
             </div>
@@ -442,6 +448,12 @@
 
       </div><!-- /settings-stack -->
 
+      <!-- ── SAVE BAR ── -->
+      <div class="settings-save-bar">
+        <span class="save-hint">💾 Changes apply instantly — Save re-syncs all UI controls.</span>
+        <button id="saveAllBtn" class="btn-primary" onclick="saveAllSettings()">Save All Settings</button>
+      </div>
+
       <footer class="settings-footer">
         <p>FIN•OS v3.0 &nbsp;·&nbsp; Built for financial clarity &nbsp;·&nbsp; India 🇮🇳</p>
       </footer>
@@ -456,7 +468,7 @@
 ══════════════════════════════════════════════ -->
 
 <!-- Email Change Modal -->
-<div id="emailModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle">
+<div id="emailModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle" style="display:none">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('emailModal')" aria-label="Close">✕</button>
     <h4 id="emailModalTitle">Change Email Address</h4>
@@ -473,7 +485,7 @@
 </div>
 
 <!-- Clear DNA Modal -->
-<div id="clearDNAModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="clearDNATitle">
+<div id="clearDNAModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="clearDNATitle" style="display:none">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('clearDNAModal')" aria-label="Close">✕</button>
     <h4 id="clearDNATitle">Clear Financial DNA?</h4>
@@ -486,7 +498,7 @@
 </div>
 
 <!-- Clear Cache Modal -->
-<div id="clearCacheModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="clearCacheTitle">
+<div id="clearCacheModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="clearCacheTitle" style="display:none">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('clearCacheModal')" aria-label="Close">✕</button>
     <h4 id="clearCacheTitle">Clear All Local Cache?</h4>
@@ -499,7 +511,7 @@
 </div>
 
 <!-- Delete Account Modal -->
-<div id="deleteModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+<div id="deleteModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle" style="display:none">
   <div class="modal-box modal-box--danger">
     <button class="modal-close" onclick="closeModal('deleteModal')" aria-label="Close">✕</button>
     <h4 id="deleteModalTitle">⚠ Delete Account</h4>
@@ -509,14 +521,15 @@
     </div>
     <div class="modal-actions">
       <button class="btn-outline" onclick="closeModal('deleteModal')">Cancel</button>
-      <button class="btn-danger" onclick="doDeleteAccount()">Delete Forever</button>
+      <!-- Fix [M4]: stable ID so doDeleteAccount() doesn't rely on fragile :last-child selector -->
+      <button class="btn-danger" id="deleteForeverBtn" onclick="doDeleteAccount()">Delete Forever</button>
     </div>
   </div>
 </div>
 
 
-<script src="../js/ui.js"></script>
-<script src="../js/settings.js"></script>
+<script src="../js/ui.js?v=2"></script>
+<script src="../js/settings.js?v=3"></script>
 <script src="../js/mobile-nav.js"></script>
 <script src="../js/pwa-init.js"></script>
 <script src="../js/finos-widget.js?v=3"></script>

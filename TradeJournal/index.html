@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="mobile.css">
 <link rel="stylesheet" href="showcase.css">
 <link rel="stylesheet" href="features-v2.css">
+<link rel="stylesheet" href="scan-trade.css">
 
 <script>
 /* ═══════════════════════════════════════
@@ -648,6 +649,7 @@ input::-webkit-calendar-picker-indicator { opacity:.4; cursor:pointer; }
           <p class="page-sub">Every data point you fill = better insights. All fields optional except Date & Symbol.</p>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn-scan" onclick="ScanTrade.open()"><span class="scan-icon">📸</span> Scan Screenshot</button>
           <button class="btn-secondary" onclick="clearTradeForm()" style="font-size:12px;padding:7px 14px">Clear Form</button>
           <button class="btn-primary btn-save" id="save-btn-top" onclick="saveTrade()"><span>💾</span> Save Trade</button>
         </div>
@@ -2463,5 +2465,106 @@ input::-webkit-calendar-picker-indicator { opacity:.4; cursor:pointer; }
 })();
 </script>
 <script src="features-v2.js"></script>
+
+<!-- ══════════════════════════════════════════════════════
+     SCAN-TRADE MODAL — Screenshot OCR
+     Opened via ScanTrade.open() from the "📸 Scan Screenshot" button
+════════════════════════════════════════════════════════ -->
+<div id="scan-trade-modal" role="dialog" aria-modal="true" aria-labelledby="scan-modal-title">
+  <div class="scan-panel">
+
+    <!-- Header -->
+    <div class="scan-header">
+      <div class="scan-title-wrap">
+        <div class="scan-title-icon">📸</div>
+        <div>
+          <div class="scan-title" id="scan-modal-title">Scan Trade Screenshot</div>
+          <div class="scan-subtitle">Zerodha · Groww · Upstox · Angel One · Generic</div>
+        </div>
+      </div>
+      <button class="scan-close-btn" onclick="ScanTrade.close()" aria-label="Close scanner">✕</button>
+    </div>
+
+    <!-- Body -->
+    <div class="scan-body">
+
+      <!-- Dropzone -->
+      <div class="scan-dropzone" id="scan-dropzone" aria-label="Drop screenshot here or click to browse">
+        <input type="file" id="scan-file-input" accept="image/*" aria-label="Choose screenshot file">
+        <div class="scan-dz-icon">🖼️</div>
+        <div class="scan-dz-title">Drop your broker screenshot here</div>
+        <div class="scan-dz-sub">
+          or <b>click to browse</b> · also accepts <b>Ctrl+V</b> paste from clipboard<br>
+          PNG, JPG, WebP — Zerodha, Groww, Upstox, Angel One
+        </div>
+      </div>
+
+      <!-- Image thumbnail -->
+      <div class="scan-thumb-wrap" id="scan-thumb-wrap">
+        <img id="scan-thumb" class="scan-thumb" src="" alt="Preview">
+        <div class="scan-thumb-info">
+          <div class="scan-thumb-name" id="scan-thumb-name">—</div>
+          <div class="scan-thumb-size" id="scan-thumb-size">—</div>
+        </div>
+        <button class="scan-thumb-remove" onclick="ScanTrade._removeFile()" aria-label="Remove image">✕</button>
+      </div>
+
+      <!-- Run OCR button -->
+      <button class="scan-run-btn" id="scan-run-btn" onclick="ScanTrade._run()" disabled>
+        <span>🔍</span> Analyse Screenshot
+      </button>
+
+      <!-- Progress -->
+      <div class="scan-progress-wrap" id="scan-progress-wrap">
+        <div class="scan-progress-label">
+          <span id="scan-progress-status">Initialising OCR…</span>
+          <span id="scan-progress-pct">0%</span>
+        </div>
+        <div class="scan-progress-bar-bg">
+          <div class="scan-progress-bar" id="scan-progress-bar"></div>
+        </div>
+      </div>
+
+      <!-- Status message -->
+      <div class="scan-status" id="scan-status"></div>
+
+      <!-- Results preview -->
+      <div class="scan-results" id="scan-results">
+        <div class="scan-results-header">
+          <div class="scan-results-title">
+            Extracted Values
+            <span class="scan-broker-badge" id="scan-broker-badge">—</span>
+          </div>
+          <button class="scan-raw-toggle" id="scan-raw-toggle" onclick="ScanTrade.showRaw()">Show raw OCR</button>
+        </div>
+
+        <table class="scan-preview-table">
+          <thead>
+            <tr><th>Field</th><th>Extracted Value</th></tr>
+          </thead>
+          <tbody id="scan-preview-body">
+            <!-- Populated by scan-trade.js renderPreview() -->
+          </tbody>
+        </table>
+
+        <div class="scan-edit-hint">✏️ Click any value to correct OCR errors before filling</div>
+        <div class="scan-raw-text" id="scan-raw-text"></div>
+      </div>
+
+    </div><!-- /scan-body -->
+
+    <!-- Footer -->
+    <div class="scan-footer" id="scan-footer">
+      <button class="scan-cancel-btn" onclick="ScanTrade.close()">Cancel</button>
+      <button class="scan-fill-btn" onclick="ScanTrade.fill()">
+        <span>✅</span> Fill Trade Form
+      </button>
+    </div>
+
+  </div><!-- /scan-panel -->
+</div><!-- /scan-trade-modal -->
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+<script src="scan-trade.js"></script>
 </body>
 </html>

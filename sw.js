@@ -262,7 +262,9 @@ self.addEventListener('pushsubscriptionchange', function (event) {
       event.oldSubscription.options
     ).then(function (subscription) {
       /* Re-register the new subscription with our backend */
-      return fetch('http://localhost:8001/alerts/subscribe', {
+      // Fix [13]: Hardcoded localhost fails in every non-local environment.
+      // Use a relative URL so it resolves against the SW's own origin.
+      return fetch('/alerts/subscribe', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({
@@ -290,8 +292,9 @@ function cacheFirstStatic(req) {
       }
       return response;
     }).catch(function () {
-      // Asset failed to load — return empty 204
-      return new Response('', { status: 204 });
+      // Fix [12]: 204 told the browser the asset loaded successfully (empty).
+      // That silently broke CSS/JS. Return 503 so the browser handles it correctly.
+      return new Response('Resource unavailable offline', { status: 503 });
     });
   });
 }

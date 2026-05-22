@@ -659,9 +659,55 @@ input[type="range"]::-moz-range-thumb {
   padding-bottom: 32px;
 }
 
+/* ─── SAVE BAR ───────────────────────────────────────────────────── */
+.settings-save-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius);
+  margin-top: 8px;
+  position: sticky;
+  bottom: 16px;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+}
+.save-hint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.settings-save-bar .btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: opacity 0.18s, transform 0.18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.settings-save-bar .btn-primary:hover  { opacity: 0.88; transform: translateY(-1px); }
+.settings-save-bar .btn-primary:active { transform: translateY(0); }
+.settings-save-bar .btn-primary:disabled { opacity: 0.55; cursor: default; transform: none; }
+
+[data-theme="light"] .settings-save-bar {
+  background: #FFFFFF !important;
+  border-color: rgba(0,0,0,0.12) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.10) !important;
+}
+[data-theme="light"] .save-hint { color: #5F677A !important; }
+
 /* ─── MODAL SYSTEM ──────────────────────────────────────────────── */
 .modal-overlay {
-  display: none;
+  display: none !important; /* !important prevents any other rule from leaking modals into page flow */
   position: fixed;
   inset: 0;
   z-index: 10001;
@@ -672,8 +718,9 @@ input[type="range"]::-moz-range-thumb {
   padding: 20px;
 }
 
+/* JS sets style.display='flex' first, then adds .open for animation */
 .modal-overlay.open {
-  display: flex;
+  display: flex !important;
   animation: modalFadeIn 0.2s ease-out;
 }
 
