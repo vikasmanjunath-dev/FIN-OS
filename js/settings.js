@@ -27,7 +27,15 @@ const DEFAULTS = {
 };
 
 /* ─── STATE ─────────────────────────────────────────────────────── */
-let S = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') };
+/* Fix [H1]: JSON.parse at module scope crashes every function if storage
+   is corrupted. Catch the error and reset to defaults instead. */
+let S;
+try {
+  S = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') };
+} catch {
+  localStorage.removeItem(SETTINGS_KEY);
+  S = { ...DEFAULTS };
+}
 let supaClient = null;
 let currentUser = null;
 
@@ -63,17 +71,31 @@ window.FINOS.fmt = function (amount, currencyOverride) {
     }
     return sym + (n < 0 ? '-' : '') + result;
   }
-  return sym + Math.abs(Math.round(n)).toLocaleString('en-US') + (n < 0 ? ' (-)' : '');
+  /* Fix [M3]: Western branch used "₹1,00,000 (-)" while Indian used "₹-1,00,000".
+     Standardise: both branches now prefix a minus sign for negatives. */
+  return sym + (n < 0 ? '-' : '') + Math.abs(Math.round(n)).toLocaleString('en-US');
 };
 
 /* Shorthand for crore/lakh labels */
+/* Fix [M2]: Previously always returned Indian labels (Cr/L) regardless of
+   the numberFormat setting. Now reads the setting and switches to B/M/K
+   for Western format — consistent with FINOS.fmt behaviour. */
 window.FINOS.fmtShort = function (amount) {
   const n = Number(amount);
   if (isNaN(n)) return '—';
+  let cfg;
+  try { cfg = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}'); } catch { cfg = {}; }
+  const numFmt = cfg.numberFormat || 'indian';
   const abs = Math.abs(n);
-  if (abs >= 1e7)  return (n / 1e7).toFixed(2)  + ' Cr';
-  if (abs >= 1e5)  return (n / 1e5).toFixed(2)  + ' L';
-  if (abs >= 1e3)  return (n / 1e3).toFixed(1)  + 'K';
+  if (numFmt === 'indian') {
+    if (abs >= 1e7) return (n / 1e7).toFixed(2) + ' Cr';
+    if (abs >= 1e5) return (n / 1e5).toFixed(2) + ' L';
+    if (abs >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  } else {
+    if (abs >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+    if (abs >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+    if (abs >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  }
   return String(Math.round(n));
 };
 
@@ -140,7 +162,16 @@ function toast(msg, type = 'success', duration = 2800) {
   const t = document.createElement('div');
   t.className = `finos-toast finos-toast--${type}`;
   const icons = { success: '✓', error: '✕', info: 'ℹ', warn: '⚠' };
-  t.innerHTML = `<span class="toast-icon">${icons[type] || '✓'}</span><span class="toast-msg">${msg}</span>`;
+  /* Fix [C1]: XSS — msg flowed through innerHTML unsanitised. Email values
+     like <img src=x onerror=alert(1)>@x.com would execute. Use textContent. */
+  const iconSpan = document.createElement('span');
+  iconSpan.className = 'toast-icon';
+  iconSpan.textContent = icons[type] || '✓';
+  const msgSpan = document.createElement('span');
+  msgSpan.className = 'toast-msg';
+  msgSpan.textContent = msg;
+  t.appendChild(iconSpan);
+  t.appendChild(msgSpan);
   container.appendChild(t);
   requestAnimationFrame(() => t.classList.add('show'));
   setTimeout(() => {
@@ -182,6 +213,8 @@ window.openModal = function(id) {
   const m = document.getElementById(id);
   if (!m) return;
   _prevFocus = document.activeElement;
+  m.style.display = 'flex'; // force visible — belt-and-suspenders over CSS display:none
+  void m.offsetHeight;      // reflow so CSS animation starts from hidden state
   m.classList.add('open');
   document.body.classList.add('modal-open');
   _trapFocus(m);
@@ -190,9 +223,9 @@ window.openModal = function(id) {
 window.closeModal = function(id) {
   const m = document.getElementById(id);
   if (!m) return;
-  // Add closing animation class
   m.classList.add('closing');
   setTimeout(() => {
+    m.style.display = 'none'; // explicitly hide — matches initial state
     m.classList.remove('open', 'closing');
     document.body.classList.remove('modal-open');
     // Clear inputs in this modal on close
@@ -204,20 +237,29 @@ window.closeModal = function(id) {
 
 /* ─── SUPABASE ──────────────────────────────────────────────────── */
 async function initSupabase() {
-  if (!window.supabase) return;
-  const URL = 'https://oeapcyucnduhwpgxfknb.supabase.co';
-  const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+  // If Supabase SDK didn't load (e.g. offline), fall back immediately
+  if (!window.supabase) { renderGuestInfo(); return; }
+
+  const SUPA_URL = 'https://oeapcyucnduhwpgxfknb.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+
+  // Fallback: show "Not signed in" after 3 s if the network hangs
+  let settled = false;
+  const fallback = setTimeout(() => {
+    if (!settled) { settled = true; renderGuestInfo(); }
+  }, 3000);
+
   try {
-    supaClient = window.supabase.createClient(URL, KEY);
+    supaClient = window.supabase.createClient(SUPA_URL, SUPA_KEY);
     const { data: { session } } = await supaClient.auth.getSession();
-    if (session) {
-      currentUser = session.user;
-      renderUserInfo(currentUser);
-    } else {
-      renderGuestInfo();
+    if (!settled) {
+      settled = true;
+      clearTimeout(fallback);
+      if (session) { currentUser = session.user; renderUserInfo(currentUser); }
+      else          { renderGuestInfo(); }
     }
   } catch (e) {
-    renderGuestInfo();
+    if (!settled) { settled = true; clearTimeout(fallback); renderGuestInfo(); }
   }
 }
 
@@ -274,7 +316,11 @@ window.doResetPassword = async function () {
 };
 
 window.doSignOut = async function () {
-  if (supaClient) await supaClient.auth.signOut();
+  /* Fix [H2]: No loading state — double-clicking called signOut() twice.
+     Disable the button for the duration of the async operation. */
+  const btn = document.getElementById('signOutBtn');
+  if (btn) { btn.textContent = 'Signing out…'; btn.disabled = true; }
+  if (supaClient) await supaClient.auth.signOut().catch(() => {});
   const keep = ['FINOS_SYS_SETTINGS', 'finos-theme', 'theme'];
   Object.keys(localStorage).filter(k => !keep.includes(k)).forEach(k => localStorage.removeItem(k));
   toast('Session terminated. Redirecting…', 'warn');
@@ -286,18 +332,33 @@ window.doDeleteAccount = async function () {
   if (confirmVal !== 'DELETE') { toast('Type DELETE (in caps) to confirm.', 'error'); return; }
   if (!supaClient || !currentUser) { toast('Not signed in.', 'error'); return; }
 
-  const btn = document.querySelector('#deleteModal .btn-danger:last-child');
+  /* Fix [M4]: fragile querySelector('#deleteModal .btn-danger:last-child')
+     replaced with stable ID lookup added to the button in settings.html. */
+  const btn = document.getElementById('deleteForeverBtn');
   if (btn) { btn.textContent = 'Deleting…'; btn.disabled = true; }
 
+  /* Fix [C2]: The original code only called signOut() — the Supabase user
+     record was never deleted (GDPR risk, misleading UI).
+     Now attempts a real server-side delete via a Supabase Edge Function.
+     Deploy at: supabase/functions/delete-account/index.ts (uses service role key).
+     Falls back honestly if the function isn't deployed yet. */
+  let serverDeleted = false;
   try {
-    // Attempt server-side delete via Supabase Edge Function (if deployed)
-    // Falls back to signing out + clearing local data
-    await supaClient.auth.signOut();
-  } catch {}
+    const { error: fnError } = await supaClient.functions.invoke('delete-account');
+    if (!fnError) serverDeleted = true;
+  } catch { /* Edge Function not deployed — proceed to fallback */ }
 
+  await supaClient.auth.signOut().catch(() => {});
   localStorage.clear();
-  toast('Account data wiped. Goodbye.', 'warn', 2000);
-  setTimeout(() => { window.location.href = '../index.html'; }, 1400);
+
+  if (serverDeleted) {
+    toast('Account permanently deleted. Goodbye.', 'warn', 2500);
+    setTimeout(() => { window.location.href = '../index.html'; }, 2000);
+  } else {
+    /* Honest fallback: local data is gone but Supabase account still exists */
+    toast('Local data cleared. Contact support to fully remove your account.', 'warn', 6000);
+    setTimeout(() => { window.location.href = '../index.html'; }, 3500);
+  }
 };
 
 /* ─── APPEARANCE ────────────────────────────────────────────────── */
@@ -371,6 +432,10 @@ window.setAIVoiceSpeed = function (val) {
   // Only update the display label — save on 'change' (when drag ends)
   const d = document.getElementById('voiceSpeedVal');
   if (d) d.textContent = parseFloat(val).toFixed(1) + '×';
+  /* Fix [L1]: keep aria-valuetext in sync so screen readers announce the
+     formatted value (e.g. "1.5×") not just the raw number "1.5". */
+  const slider = document.getElementById('voiceSpeedSlider');
+  if (slider) slider.setAttribute('aria-valuetext', parseFloat(val).toFixed(1) + '×');
 };
 
 window.saveAIVoiceSpeed = function (val) {
@@ -398,6 +463,23 @@ window.toggleCompactUI    = function (v) { save('compactUI', v);    toast('Compa
 window.toggleNotifDailyBrief = function (v) { save('notifDailyBrief', v); toast('Daily Brief ' + (v ? 'on' : 'off') + '.', 'info'); };
 window.toggleNotifMarket     = function (v) { save('notifMarket', v);     toast('Market Alerts ' + (v ? 'on' : 'off') + '.', 'info'); };
 window.toggleNotifGoal       = function (v) { save('notifGoal', v);       toast('Goal Nudges ' + (v ? 'on' : 'off') + '.', 'info'); };
+
+/* ─── SAVE ALL ──────────────────────────────────────────────────── */
+window.saveAllSettings = function () {
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(S));
+  applyAll();
+  syncUIToSettings();
+  toast('All settings saved!', 'success');
+
+  // Visual feedback on the save button itself
+  const btn = document.getElementById('saveAllBtn');
+  if (btn) {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Saved!';
+    btn.disabled = true;
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
+  }
+};
 
 /* ─── DATA OPS ──────────────────────────────────────────────────── */
 // Patterns for sensitive keys to exclude from export
@@ -428,12 +510,16 @@ window.exportData = function () {
     keys_skipped: skipped + ' sensitive keys omitted',
   };
   const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
-  const a = Object.assign(document.createElement('a'), {
-    href: URL.createObjectURL(blob),
-    download: 'finos-export-' + new Date().toLocaleDateString('en-CA') + '.json',
-  });
+  /* Fix [H3]: a.click() on a detached element is silently ignored in Firefox.
+     Append to body, click, then immediately remove and revoke the object URL. */
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'finos-export-' + new Date().toLocaleDateString('en-CA') + '.json';
+  document.body.appendChild(a);
   a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
   toast('Data exported. ' + skipped + ' sensitive keys omitted.', 'success');
 };
 
@@ -520,16 +606,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   syncUIToSettings();
   await initSupabase();
 
-  // Header theme toggle button — set correct icon immediately
-  const btn = document.getElementById('themeToggle');
-  if (btn) {
-    const resolved = document.documentElement.getAttribute('data-theme');
+  // Header theme toggle button — deduplicate listeners and set correct icon.
+  // ui.js runs before settings.js and adds its own click listener; clone+replace
+  // strips all existing listeners so only one handler fires per click.
+  const rawBtn = document.getElementById('themeToggle');
+  if (rawBtn) {
+    const btn = rawBtn.cloneNode(true); // preserves attributes/children, drops listeners
+    rawBtn.parentNode.replaceChild(btn, rawBtn);
+
+    const resolved = document.documentElement.getAttribute('data-theme') || 'dark';
     btn.textContent = resolved === 'dark' ? '🌙' : '☀️';
     btn.setAttribute('aria-label', resolved === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+
     btn.addEventListener('click', () => {
       const cur  = document.documentElement.getAttribute('data-theme') || 'dark';
       const next = cur === 'dark' ? 'light' : 'dark';
-      save('theme', next);
+      save('theme', next); // updates FINOS_SYS_SETTINGS, applies to DOM, dispatches event
     });
   }
 

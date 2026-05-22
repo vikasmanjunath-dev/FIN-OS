@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
 import { fmt, calcTotals, ICONS, CATEGORY_COLORS, TRANSACTION_TYPES, BEHAVIOR_TYPES, calcRegret, calcLifeHours } from "../utils/constants";
+import ScanUPI from "../components/ScanUPI";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -465,9 +466,12 @@ export default function WealthInterface({ transactions, addTransaction, removeTr
         
         {/* INJECTOR */}
         <div style={{ background: "rgba(20,24,40,0.4)", padding: "32px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(12px)", height: "fit-content" }}>
-          <h3 style={{ color: "#fff", margin: "0 0 24px 0", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "16px", display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "16px" }}>
+            <h3 style={{ color: "#fff", margin: 0, display: "flex", alignItems: "center", gap: "12px" }}>
               <span style={{ color: "#4F7CFF" }}>⚡</span> Execute Transaction
-          </h3>
+            </h3>
+            <ScanUPI addTransaction={addTransaction} />
+          </div>
           <InjectForm addTransaction={addTransaction} INCOME={INCOME} />
         </div>
         

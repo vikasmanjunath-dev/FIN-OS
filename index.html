@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <!-- THEME GUARD (shared across app) -->
-  <script src="../js/ui.js"></script>
-
+  <!-- Fix [15]: charset must appear before any script to avoid encoding bugs -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- Fix [16]: manifest link added so landing page can trigger PWA install -->
+  <link rel="manifest" href="../manifest.json">
+  <!-- THEME GUARD (shared across app) -->
+  <script src="../js/ui.js"></script>
 
   <title>FIN-OS | Financial Operating System</title>
 
@@ -829,16 +831,15 @@
 <script src="../js/landing.js"></script>
 
 <script>
-  document.getElementById("loginBtn")?.addEventListener("click", () => {
-    localStorage.setItem("finos_logged_in", "true");
-    window.location.href = "home.html";
+  // Fix [02]: Removed duplicate conflicting loginBtn handlers.
+  // The first handler set localStorage("finos_logged_in","true") without
+  // real authentication — an auth bypass. The second conflicted with it.
+  // auth.js now owns the single loginBtn handler (navigates to login.html).
+
+  // Fix [14]: loginBtnFinal had no event listener — bottom CTA did nothing.
+  document.getElementById("loginBtnFinal")?.addEventListener("click", () => {
+    window.location.href = "login.html";
   });
-
-document.getElementById("loginBtn")?.addEventListener("click", () => {
-  window.location.href = "login.html";
-
-});
-
 </script>
 
 </body>

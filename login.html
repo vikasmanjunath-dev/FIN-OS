@@ -563,7 +563,7 @@ html[data-theme="dark"] .icon-moon { opacity: 1; transform: scale(1) rotate(0); 
               <button type="submit" class="glow-btn">INITIALIZE SESSION</button>
                           <div class="auth-divider"><span>OR</span></div>
               <button type="button" class="btn-google-neo" id="googleAuthLogin">
-                <span class="g-icon">G</span> CONTINUE WITH GOOGLE CORE
+                <span class="g-logo">G</span> CONTINUE WITH GOOGLE CORE
               </button>
             </form>
 
@@ -584,7 +584,7 @@ html[data-theme="dark"] .icon-moon { opacity: 1; transform: scale(1) rotate(0); 
               <button type="submit" class="glow-btn">CREATE GENESIS BLOCK</button>
               <div class="auth-divider"><span>OR</span></div>
                 <button type="button" class="btn-google-neo" id="googleAuthSignup">
-                  <span class="g-icon">G</span> SYNC WITH GOOGLE CORE
+                  <span class="g-logo">G</span> SYNC WITH GOOGLE CORE
                 </button>
             </form>
           </div>
@@ -606,7 +606,6 @@ html[data-theme="dark"] .icon-moon { opacity: 1; transform: scale(1) rotate(0); 
     const identityForm = document.getElementById("identityForm");
     const genesisForm = document.getElementById("genesisForm");
 
-    console.log("UI Loaded. Found tabs:", tabs.length); // Debugging
 
     tabs.forEach(tab => {
       tab.addEventListener("click", (e) => {
@@ -614,7 +613,6 @@ html[data-theme="dark"] .icon-moon { opacity: 1; transform: scale(1) rotate(0); 
         
         // 1. Get the target ('identity' or 'genesis')
         const target = tab.dataset.target;
-        console.log("Clicked tab:", target);
 
         // 2. Reset ALL tabs to inactive
         tabs.forEach(t => t.classList.remove("active"));
@@ -699,7 +697,6 @@ html[data-theme="dark"] .icon-moon { opacity: 1; transform: scale(1) rotate(0); 
 
 // --- GOOGLE AUTH HANDLER (LOUD VERSION) ---
     async function handleGoogle() {
-      console.log("Google Button Clicked..."); // 1. Verify click happens
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -725,8 +722,6 @@ html[data-theme="dark"] .icon-moon { opacity: 1; transform: scale(1) rotate(0); 
             e.preventDefault(); 
             handleGoogle();
         });
-    } else {
-        console.error("Login Button Not Found!");
     }
 
     if(gSignup) {
