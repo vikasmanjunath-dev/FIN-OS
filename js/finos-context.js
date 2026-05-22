@@ -571,4 +571,16 @@
     publish(fresh);
   }, REFRESH_MS);
 
+  // Allow other scripts (e.g. portfolio analyser) to trigger an immediate re-collect
+  window._finosRequestContext = function() {
+    const fresh = collectSync();
+    if (window.FINOS_USER_CONTEXT?._user_id) {
+      fresh._user_id    = window.FINOS_USER_CONTEXT._user_id;
+      fresh.identity    = { ...window.FINOS_USER_CONTEXT.identity, ...fresh.identity };
+      fresh.profile     = window.FINOS_USER_CONTEXT.profile;
+      fresh._sync_phase = window.FINOS_USER_CONTEXT._sync_phase;
+    }
+    publish(fresh);
+  };
+
 })();
