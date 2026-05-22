@@ -1,0 +1,31 @@
+# Python backends and ML models — not needed for static frontend
+voiceagent/models/
+voiceagent/piper/
+voiceagent/chroma_db/
+voiceagent/__pycache__/
+voiceagent/output/
+voiceagent/ref_audio/
+voiceagent/*.py
+voiceagent/*.env
+
+# node_modules in sub-projects
+node_modules/
+News1/node_modules/
+ExpenseTracker/finos-budget/node_modules/
+
+# Django / Python backends
+ExpenseTracker/finos_backend/
+finos 2/
+market intelligence/
+stock-engine/
+alerts/__pycache__/
+
+# Python cache and env files
+__pycache__/
+*.pyc
+.env
+*.env
+
+# Source files that are already built/deployed via dist/
+News1/src/
+ExpenseTracker/finos-budget/src/

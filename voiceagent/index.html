@@ -648,6 +648,16 @@ input[type=range]::-webkit-slider-thumb{
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════
+   WEBSOCKET URL — configurable via ?ws= param, defaults to localhost
+═══════════════════════════════════════════════════════════════════ */
+const WS_URL = (function() {
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('ws')) return p.get('ws');
+  return 'ws://localhost:8765';
+})();
+document.getElementById('chip-ws').textContent = WS_URL;
+
+/* ═══════════════════════════════════════════════════════════════════
    STATE
 ═══════════════════════════════════════════════════════════════════ */
 let ws           = null;
@@ -820,7 +830,7 @@ function wsConnect(){
   clearTimeout(wsRec);
 
   let sock;
-  try { sock = new WebSocket('ws://localhost:8765'); }
+  try { sock = new WebSocket(WS_URL); }
   catch(e) { wsRec = setTimeout(wsConnect, 3000); return; }
   // NOTE: do NOT set ws = sock here yet — wait for onopen to confirm the server accepted it.
   // If the server rejects this socket, onclose fires but ws !== sock so no reconnect loop.
@@ -1722,18 +1732,21 @@ const _profile = {};  // mutable profile snapshot built from conversation
 
 // Profile signal patterns — unique key per signal so multi-value fields work
 // displayKey maps key → label shown in the profile card
+const _NONNAME = /^(doing|feeling|fine|good|well|okay|ok|great|sure|here|there|just|also|not|the|a|an|in|on|at|from|with|by|for|to|of|and|but|or|if|is|are|was|were|be|been|being|have|has|had|do|did|does|will|would|should|could|can|may|might|must|shall|that|this|these|those|it|its|they|them|their|we|our|us|you|your|he|him|his|she|her|i|my|myself|yourself|himself|herself|itself|themselves|ourselves|yourselves)$/i;
+
 const _profPat = [
-  // Name (first match wins)
-  { key:'name',         label:'Name',   re:/my name is ([A-Z][a-z]+(?: [A-Z][a-z]+)?)/i,              fmt: v=>'👤 '+v },
-  { key:'name',         label:'Name',   re:/(?:call me|i'?m|i am) ([A-Z][a-z]+(?: [A-Z][a-z]+)?)/i,   fmt: v=>'👤 '+v },
-  // Age
-  { key:'age',          label:'Age',    re:/(?:i am|i'm|main) (\d{2}) (?:years|saal)/i,                fmt: v=>'🎂 '+v+' yrs' },
-  { key:'age',          label:'Age',    re:/age (?:is )? *(\d{2})/i,                                   fmt: v=>'🎂 '+v+' yrs' },
+  // Name — only unambiguous phrases (no "i am / i'm" which catch any verb phrase)
+  { key:'name',         label:'Name',   re:/my name is ([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+)?)/,          fmt: v=>'👤 '+v },
+  { key:'name',         label:'Name',   re:/(?:call me|you can call me) ([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+)?)/, fmt: v=>'👤 '+v },
+  // Age — not extracted from conversation (too many false positives);
+  // populated only from applyCtxToUI via Supabase profile
+  { key:'age', label:'Age', re:/(?!x)x/, fmt: v=>v },
   // Income
   { key:'income',       label:'Income', re:/(?:earn|salary|income)[^\d]*₹? *(\d[\d,.]+(?: ?[lk](?:akh|lac)?)?)/i, fmt: v=>'💰 ₹'+v+'/mo' },
   { key:'income',       label:'Income', re:/(\d[\d,.]+) (?:lakh|lac) (?:per|p\.?a\.?|annual)/i,        fmt: v=>'💰 ₹'+v+'L p.a.' },
-  // City
-  { key:'city',         label:'City',   re:/(?:live|stay|based|from) (?:in )?([A-Z][a-z]{2,}(?:abad|pur|nagar|bad|ai|ore|hi|ua)?)/i, fmt: v=>'🏙 '+v },
+  // City — require "in CityName" or specific city suffixes; no bare "from X"
+  { key:'city',         label:'City',   re:/(?:live|stay|based) (?:in )([A-Z][a-zA-Z]{3,})/,           fmt: v=>'🏙 '+v },
+  { key:'city',         label:'City',   re:/from ([A-Z][a-zA-Z]{3,}(?:abad|pur|nagar|bad|ore|bai|lhi|kot|una))/,  fmt: v=>'🏙 '+v },
   // Goals — each gets its own unique key so all can be stored
   { key:'goal_home',    label:'Goal',   re:/want(?:ing)? to (?:buy|purchase) (?:a )?(?:house|flat|home)/i, fmt:()=>'🏠 Home buyer' },
   { key:'goal_fire',    label:'Goal',   re:/retire(?:ment)? (?:by|at|before) (\d{2})/i,                    fmt:v=>'🏖 FIRE @ '+v   },
@@ -1744,20 +1757,30 @@ const _profPat = [
   { key:'debt_car',     label:'Loan',   re:/car loan/i,       fmt:()=>'🚗 Car loan'      },
   { key:'debt_pl',      label:'Loan',   re:/personal loan/i,  fmt:()=>'💳 Personal loan' },
   { key:'debt_cc',      label:'Loan',   re:/credit card/i,    fmt:()=>'💳 CC debt'       },
-  // Family
-  { key:'married',      label:'Family', re:/(?:married|my wife|my husband)/i,   fmt:()=>'💑 Married'        },
-  { key:'kids',         label:'Family', re:/(?:kid|child|baby|son|daughter)/i,  fmt:()=>'👶 Has kids'       },
-  { key:'dep_parents',  label:'Family', re:/dependent parents/i,                fmt:()=>'👨‍👩‍👦 Dep. parents' },
+  // Family — require possessive/first-person phrases; bare topic mentions like
+  // "child education planning" or "should I get married" must NOT fire
+  { key:'married',     label:'Family', re:/\b(?:i(?:'m| am) married|my (?:wife|husband|spouse))\b/i,                                              fmt:()=>'💑 Married'        },
+  { key:'kids',        label:'Family', re:/\b(?:my (?:kid|child|son|daughter|baby)|i have (?:a |(?:\d+ )?(?:kid|child)))\b/i,                     fmt:()=>'👶 Has kids'       },
+  { key:'dep_parents', label:'Family', re:/\bmy (?:parents? are dependent|dependent parents?)\b|\bparent(?:s)? support kar(?:ta|ti|te)\b/i,       fmt:()=>'👨‍👩‍👦 Dep. parents' },
+  // Context-sourced fields (no regex — populated directly from identity)
+  { key:'life_stage',   label:'Stage',  re:/(?!x)x/, fmt: v=>v },
+  { key:'dna',          label:'DNA',    re:/(?!x)x/, fmt: v=>v },
+  { key:'mindset',      label:'Mindset',re:/(?!x)x/, fmt: v=>v },
 ];
 
 function extractProfile(memItems){
-  const joined = memItems.join(' ');
+  // Only scan [user] turns — agent responses mention family/age/debt as
+  // financial-advice examples, causing false profile card entries
+  const userItems = memItems.filter(m => m.startsWith('[user]'));
+  const joined = (userItems.length ? userItems : memItems).join(' ');
   let changed = false;
   _profPat.forEach(p=>{
-    if(_profile[p.key]) return;     // already extracted this key
+    if(_profile[p.key]) return;
     const m = joined.match(p.re);
     if(m){
-      _profile[p.key] = p.fmt(m[1]||'');
+      const val = m[1] || '';
+      if((p.key === 'name' || p.key === 'city') && _NONNAME.test(val)) return;
+      _profile[p.key] = p.fmt(val);
       changed = true;
     }
   });
@@ -1938,6 +1961,18 @@ function applyCtxToUI(ctx) {
   if (!_ctxSent && name) {
     sysNote(`🔗 Profile synced — ${name}${identity.life_stage ? ' · ' + identity.life_stage.replace(/_/g,' ') : ''}`);
   }
+
+  /* Populate profile card from real context data (overrides regex guesses) */
+  let profileChanged = false;
+  const prof = ctx.profile || {};
+  if (name)                            { _profile['name']       = '👤 ' + name;                                     profileChanged = true; }
+  if (prof.age   && +prof.age > 10)    { _profile['age']        = '🎂 ' + prof.age + ' yrs';                       profileChanged = true; }
+  if (identity.city)                   { _profile['city']       = '🏙 ' + identity.city;                            profileChanged = true; }
+  if (identity.income_range)           { _profile['income']     = '💰 ₹' + identity.income_range;                  profileChanged = true; }
+  if (identity.life_stage)             { _profile['life_stage'] = '📊 ' + identity.life_stage.replace(/_/g,' ');   profileChanged = true; }
+  if (identity.financial_dna)          { _profile['dna']        = '🧬 ' + identity.financial_dna;                  profileChanged = true; }
+  if (identity.mindset)                { _profile['mindset']    = '🧠 ' + identity.mindset.replace(/_/g,' ');      profileChanged = true; }
+  if (profileChanged) renderProfileCard();
 }
 
 /** Send context to backend over WebSocket */

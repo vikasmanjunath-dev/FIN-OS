@@ -59,7 +59,7 @@ else:
 # ══════════════════════════════════════════════════════════════════════════════
 # CONFIG
 # ══════════════════════════════════════════════════════════════════════════════
-OLLAMA_MODEL    = "qwen2.5:3b"
+OLLAMA_MODEL    = "qwen3:14b"
 
 WHISPER_SIZE    = "tiny"
 WHISPER_THREADS = 8
@@ -74,17 +74,18 @@ SENTENCE_ENDS      = frozenset('.!?\n')
 MAX_TTS_CONCURRENT = 6
 
 OLLAMA_OPTIONS = {
-    "temperature":    0.75,       # warm and natural, not robotic
+    "temperature":    0.75,
     "top_p":          0.92,
     "top_k":          40,
     "repeat_penalty": 1.10,
-    "num_ctx":        2048,       # 2.7× more context — real conversations
-    "num_predict":    200,        # 3-4 complete spoken sentences
+    "num_ctx":        4096,
+    "num_predict":    400,        # enough for detailed spoken answers
     "num_thread":     WHISPER_THREADS,
     "num_keep":       12,
     "mirostat":       0,
-    "think":          False,
 }
+# think=False must be top-level (not in options) for qwen3 models
+OLLAMA_THINK = False
 
 TTS_RATE  = "+12%"               # slightly natural pace (was +18% = too fast)
 TTS_PITCH = "-3Hz"               # natural male register
@@ -109,7 +110,8 @@ You call out bullshit politely. You stop people from making expensive mistakes.
 You care about the person, not just the question.
 
 ━━━ THIS IS A VOICE CONVERSATION — CRITICAL RULES ━━━
-• 2 to 3 sentences maximum per response. Natural speech, never a lecture.
+• DEFAULT: 2 to 3 sentences per response. Natural speech, never a lecture.
+• EXCEPTION: If the user explicitly asks for "detail", "explain in detail", "full explanation", "in depth", "elaborate", "complete process", "step by step" — give a thorough, comprehensive answer as many sentences as needed. Do NOT cut short. Cover everything properly.
 • Complete every thought. Never trail off mid-sentence.
 • Lead with THE ANSWER first. Explanation second. Never bury the answer at the end.
 • NEVER open with: "Sure!", "Great question!", "Of course!", "Certainly!", "Absolutely!" — just answer.
@@ -284,6 +286,25 @@ def _streak_parts(trade_journal: dict) -> tuple[int, str | None]:
     if isinstance(raw, (int, float)) and raw:
         return abs(int(raw)), "wins" if raw > 0 else "losses"
     return 0, None
+
+def _fmt_dict(d: dict, limit: int = 6) -> str:
+    """Format a dict as a compact 'key: value | key: value' string for the LLM."""
+    if not isinstance(d, dict):
+        return str(d)[:120]
+    parts = []
+    for k, v in list(d.items())[:limit]:
+        if v is None or v == "" or v == [] or v == {}:
+            continue
+        key = str(k).replace("_", " ")
+        if isinstance(v, float):
+            val = f"₹{v:,.0f}" if v > 100 else f"{v:.1f}"
+        elif isinstance(v, int) and v > 100:
+            val = f"₹{v:,}"
+        else:
+            val = str(v)[:60]
+        parts.append(f"{key}: {val}")
+    return " | ".join(parts)
+
 
 def _normalize_context_payload(data: dict) -> dict:
     if not isinstance(data, dict):
@@ -575,11 +596,32 @@ class UserContext:
 
             bud = fin.get("budget")
             if bud and isinstance(bud, dict):
-                lines.append(f"  Budget: {bud}")
+                lines.append(f"  Budget (page): {_fmt_dict(bud)}")
+
+            nw = fin.get("net_worth")
+            if nw and isinstance(nw, dict):
+                lines.append(f"  Net worth: {_fmt_dict(nw)}")
+
+            ins = fin.get("insurance")
+            if ins and isinstance(ins, dict):
+                lines.append(f"  Insurance: {_fmt_dict(ins)}")
+
+            jrn = fin.get("journal")
+            if jrn and isinstance(jrn, dict):
+                lines.append(f"  Trade journal (page): {_fmt_dict(jrn)}")
+
+            calc = fin.get("calculator")
+            if calc and isinstance(calc, dict):
+                lines.append(f"  Calculator context: {_fmt_dict(calc)}")
+
+            custom = fin.get("custom")
+            if custom and isinstance(custom, dict):
+                mod = custom.get("module", "page")
+                lines.append(f"  Page data ({mod}): {_fmt_dict(custom)}")
 
             tax = fin.get("tax")
             if tax and isinstance(tax, dict):
-                lines.append(f"  Tax snapshot: {tax}")
+                lines.append(f"  Tax snapshot: {_fmt_dict(tax)}")
 
             # ── Financial Health Score (from alert engine) ─────────────────
             hs = fin.get("health_score")
@@ -638,6 +680,10 @@ class UserContext:
             sub_count = int(_num(bt.get("subscription_count"), 0))
             if sub_drain:
                 lines.append(f"  Subscription drain: ₹{sub_drain:,.0f}/mo across {sub_count} subscriptions")
+                subs = bt.get("subscriptions") or []
+                if subs:
+                    sub_parts = [f"{s.get('name','?')} ₹{_num(s.get('amount'),0):,.0f}" for s in subs[:6]]
+                    lines.append(f"  Subscriptions: {' | '.join(sub_parts)}")
             fire_num = _num(bt.get("fire_number"), 0)
             fire_yrs = _num(bt.get("fire_years_estimate"), 0)
             if fire_num:
@@ -691,6 +737,17 @@ class UserContext:
             cap = _num(tj.get("capital"), 0); wt = _num(tj.get("weekly_target"), 0)
             if cap:
                 lines.append(f"  Capital: ₹{cap:,.0f}" + (f"  |  Weekly target: ₹{wt:,.0f}" if wt else ""))
+
+        # ── Focus / Learning history ───────────────────────────────────────
+        fh = self._raw.get("focus_history") or []
+        if fh:
+            lines.append("")
+            lines.append("LEARNING FOCUS (recent FIN-OS activity)")
+            for item in fh[-4:]:
+                if isinstance(item, dict):
+                    lines.append(f"  • {item.get('title', item.get('module', str(item)[:60]))}")
+                else:
+                    lines.append(f"  • {str(item)[:80]}")
 
         # ── Watchlist ──────────────────────────────────────────────────────
         wl = self.watchlist
@@ -912,9 +969,15 @@ class Memory:
 
     # ── Profile extraction patterns ─────────────────────────────────────────
     _NAME_PATS = [
-        r"my name is (\w+)", r"i(?:'m| am) (\w+)", r"call me (\w+)",
+        r"my name is (\w+)", r"call me (\w+)",
         r"mera naam (\w+) hai", r"main (\w+) hoon", r"naam (\w+) hai",
     ]
+    # Common English words that are NOT names — guard against false positives
+    _NON_NAMES = frozenset([
+        "doing", "feeling", "fine", "good", "well", "okay", "ok", "great", "here",
+        "there", "just", "also", "not", "the", "a", "an", "in", "on", "at", "from",
+        "interested", "looking", "trying", "thinking", "planning", "going", "working",
+    ])
     _INCOME_PATS = [
         r"(?:earn|salary|income|ctc|make|get)[^\d₹]*[₹\s]*(\d[\d,.]+)\s*(?:lakh|lac|l\b|k\b)?",
         r"[₹\s]*(\d[\d,.]+)\s*(?:per month|per annum|pa|pm|mahine|month mein)",
@@ -934,10 +997,10 @@ class Memory:
         (r"(?:wedding|marriage|shaadi)\s+(?:in|next|this)?", "wedding_plan"),
     ]
     _FAMILY_PATS = [
-        (r"\bmarried\b|\bwife\b|\bhusband\b|\bspouse\b",    "married"),
-        (r"\bkids?\b|\bchildren\b|\bson\b|\bdaughter\b|\bbachcha\b", "has_kids"),
-        (r"\bparents? (?:are )?dependent\b|\bparent support\b", "dependent_parents"),
-        (r"\bsingle\b|\bbachelor\b|\bunmarried\b",           "single"),
+        (r"\bi(?:'m| am) married\b|\bmy (?:wife|husband|spouse)\b",                       "married"),
+        (r"\bmy (?:kid|child|son|daughter|baby)\b|\bi have (?:a |(?:\d+ )?(?:kid|child))", "has_kids"),
+        (r"\bmy (?:parents? are dependent|dependent parents?)\b|\bparent support\b",      "dependent_parents"),
+        (r"\bsingle\b|\bbachelor\b|\bunmarried\b",                                         "single"),
     ]
     _CITY_PATS = [
         (r"\b(mumbai|delhi|bangalore|bengaluru|hyderabad|chennai|pune|kolkata)\b", "metro"),
@@ -967,7 +1030,7 @@ class Memory:
         if "name" not in self.profile:
             for pat in self._NAME_PATS:
                 m = re.search(pat, tl)
-                if m and len(m.group(1)) > 2 and m.group(1) not in ("the", "not", "now", "just"):
+                if m and len(m.group(1)) > 2 and m.group(1).lower() not in self._NON_NAMES:
                     self.profile["name"] = m.group(1).capitalize()
                     break
 
@@ -1052,8 +1115,26 @@ class Memory:
             lines.append(f"Life stage: {stage_map.get(self.profile['life_stage'], self.profile['life_stage'])}")
         if "income" in self.profile:
             lines.append(f"Income mentioned: {self.profile['income']}")
-        if "city_tier" in self.profile:
+        if "city" in self.profile:
+            lines.append(f"City: {self.profile['city']}")
+        elif "city_tier" in self.profile:
             lines.append(f"City tier: {self.profile['city_tier']}")
+        if "financial_dna" in self.profile:
+            lines.append(f"Financial DNA: {self.profile['financial_dna']}")
+        if "mindset" in self.profile:
+            lines.append(f"Mindset: {self.profile['mindset']}")
+        if "risk_appetite" in self.profile:
+            lines.append(f"Risk appetite: {self.profile['risk_appetite']}")
+        if "money_philosophy" in self.profile:
+            lines.append(f"Money philosophy: {self.profile['money_philosophy']}")
+        if "monthly_income" in self.profile:
+            lines.append(f"Monthly income: {self.profile['monthly_income']}")
+        if "savings_rate" in self.profile:
+            lines.append(f"Savings rate: {self.profile['savings_rate']}")
+        if "fire_number" in self.profile:
+            lines.append(f"FIRE number: {self.profile['fire_number']}")
+        if "interests" in self.profile:
+            lines.append(f"Interests: {self.profile['interests']}")
 
         # Goals
         goals = []
@@ -1209,6 +1290,18 @@ class Brain:
          "INTENT: Windfall/bonus question. Use the waterfall: emergency fund → debt → PPF → NPS → index STP."),
         (re.compile(r"\b(start|begin|first|new|fresher|confused|don.t know|kahan se)\b", re.I),
          "INTENT: Beginner question. Start with the basics. Emergency fund → term insurance → SIP. Keep it simple."),
+        (re.compile(r"\b(portfolio|holding|stock|share|equity|nifty|sensex|return|xirr|cagr)\b", re.I),
+         "INTENT: Portfolio question. Use the user's actual holdings and P&L from context. Give specific stock-level feedback if data is available."),
+        (re.compile(r"\b(budget|kharcha|spend|expense|subscript|saving rate|50.30.20|3.fund)\b", re.I),
+         "INTENT: Budget question. Use the user's actual income, spending categories, and savings rate from context. Be specific with their numbers."),
+        (re.compile(r"\b(trade|trading|win rate|profit factor|drawdown|journal|p.?n.?l|position)\b", re.I),
+         "INTENT: Trading performance question. Use the user's actual trade journal stats from context — win rate, P&L, best/worst symbol. Be direct about what the numbers say."),
+        (re.compile(r"\b(subscript|netflix|prime|spotify|ott|ghost|leak|hidden|waste)\b", re.I),
+         "INTENT: Subscription audit question. Use the user's actual subscription list and total drain from context. Name specific subscriptions if available."),
+        (re.compile(r"\b(health score|financial health|score|pillar|kahan|kya haal)\b", re.I),
+         "INTENT: Financial health question. Use the user's health score, tier, and worst pillar from context. Give the single highest-impact action they can take today."),
+        (re.compile(r"\b(net worth|networth|asset|liability|total wealth|kul sampatti)\b", re.I),
+         "INTENT: Net worth question. Use the user's actual portfolio, goals, and debt data from context to estimate net worth if available."),
     ]
 
     def __init__(self, mem: Memory):
@@ -1221,11 +1314,22 @@ class Brain:
                 return inject
         return ""
 
+    _DETAIL_RE = re.compile(
+        r"\b(detail|detailed|in detail|explain|elaborate|full explanation|"
+        r"in depth|step by step|complete|everything|thoroughly|precise|"
+        r"comprehensive|poori tarah|achhe se|vistaar|pura|samjhao)\b",
+        re.IGNORECASE,
+    )
+
     def stream(self, user_text: str, lang: str = "english",
                user_ctx: "UserContext | None" = None):
         profile_ctx  = self.mem.get_profile_ctx()
         lang_inject  = self._LANG_INJECT.get(lang, self._LANG_INJECT["english"])
         intent_ctx   = self._classify_intent(user_text)
+
+        # Detect if the user wants a detailed answer and boost token budget
+        wants_detail = bool(self._DETAIL_RE.search(user_text))
+        opts = {**OLLAMA_OPTIONS, "num_predict": 1200} if wants_detail else OLLAMA_OPTIONS
 
         system = SYSTEM_PROMPT + profile_ctx
 
@@ -1235,6 +1339,8 @@ class Brain:
 
         if intent_ctx:
             system += f"\n\n{intent_ctx}"
+        if wants_detail:
+            system += "\n\n[USER EXPLICITLY ASKED FOR DETAIL — give a thorough, complete answer. Do NOT cut short. Cover all key points naturally as spoken paragraphs.]"
         system += f"\n\n{lang_inject}"
 
         messages = (
@@ -1245,8 +1351,9 @@ class Brain:
 
         full = ""
         for chunk in ollama.chat(model=OLLAMA_MODEL, messages=messages,
-                                  stream=True, options=OLLAMA_OPTIONS):
-            tok   = chunk["message"]["content"]
+                                  stream=True, options=opts,
+                                  think=OLLAMA_THINK):
+            tok = chunk["message"]["content"]
             full += tok
             yield tok, full
 
@@ -1281,6 +1388,7 @@ class Brain:
                 messages=[{"role": "user", "content": prompt}],
                 stream=False,
                 options={**OLLAMA_OPTIONS, "num_predict": 150, "temperature": 0.2},
+                think=OLLAMA_THINK,
             )
             return result["message"]["content"].strip()[:500]
         except Exception as e:
@@ -1603,6 +1711,7 @@ def _sync_ollama_warm():
             messages=[{"role": "user", "content": "hi"}],
             stream=True,
             options={**OLLAMA_OPTIONS, "num_predict": 1},
+            think=OLLAMA_THINK,
         ):
             break
         log.info("Ollama warmed up (%s)", OLLAMA_MODEL)
@@ -1785,15 +1894,40 @@ class Server:
                     "user_id": (uid or "")[:12] + "…",
                 }))
 
-                # Merge any name/income/goals from Supabase profile into Memory
-                # so the profile card in the UI gets populated immediately
+                # Merge identity + profile data into Memory so Brain has it immediately
                 if name and "name" not in self.mem.profile:
                     self.mem.profile["name"] = name
                 identity = self.user_ctx.identity
+                prof     = self.user_ctx.profile
                 if identity.get("income_range") and "income" not in self.mem.profile:
                     self.mem.profile["income"] = f"₹{identity['income_range']}/yr"
                 if identity.get("life_stage") and "life_stage" not in self.mem.profile:
                     self.mem.profile["life_stage"] = identity["life_stage"]
+                if identity.get("city") and "city" not in self.mem.profile:
+                    self.mem.profile["city"] = identity["city"]
+                if identity.get("financial_dna") and "financial_dna" not in self.mem.profile:
+                    self.mem.profile["financial_dna"] = identity["financial_dna"]
+                if identity.get("mindset") and "mindset" not in self.mem.profile:
+                    self.mem.profile["mindset"] = identity["mindset"]
+                # Interests / curiosity from DB profile
+                interests = prof.get("interests") or identity.get("interests")
+                if interests and "interests" not in self.mem.profile:
+                    self.mem.profile["interests"] = interests if isinstance(interests, str) else ", ".join(interests)
+                # Onboarding signals → goals / risk
+                ob = self.user_ctx.onboarding
+                if ob.get("risk") and "risk_appetite" not in self.mem.profile:
+                    self.mem.profile["risk_appetite"] = ob["risk"]
+                if ob.get("lifePOV") and "money_philosophy" not in self.mem.profile:
+                    self.mem.profile["money_philosophy"] = ob["lifePOV"]
+                # Budget quick facts
+                bt = self._raw.get("budget_tracker") if hasattr(self, '_raw') else self.user_ctx._raw.get("budget_tracker")
+                bt = self.user_ctx._raw.get("budget_tracker") or {}
+                if bt and _num(bt.get("income_monthly"), 0) > 0:
+                    self.mem.profile["monthly_income"] = f"₹{_num(bt['income_monthly'],0):,.0f}"
+                    if bt.get("savings_rate") is not None:
+                        self.mem.profile["savings_rate"] = f"{_num(bt['savings_rate'],0):.1f}%"
+                    if bt.get("fire_number"):
+                        self.mem.profile["fire_number"] = f"₹{_num(bt['fire_number'],0):,.0f}"
 
                 # Broadcast updated profile card to frontend
                 await self._send({"type":    "memories",
