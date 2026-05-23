@@ -164,36 +164,69 @@
 
     /* ── Contract note parsing ────────────────────────────────── */
     if (isContract) {
-      const buyM = flat.match(
-        /Qty[.\s]+(\d+)[^\n]*?Avg[.\s]+([\d.]+)[^\n]*?(\d{2}:\d{2})(?::\d{2})?\s+(NSE|BSE|MCX|NFO)\s+BUY/i
-      );
-      if (buyM) {
-        out.qty       = parseInt(buyM[1], 10);
-        out.entry     = parseFloat(buyM[2]);
-        out.entryTime = buyM[3];
-        out.exchange  = buyM[4];
+      /* ── Trade lines ────────────────────────────────────────────────
+         Format: "Qty. 500  Avg. 192.25  [icon] 10:58:06  NSE  SELL"
+         The icon (⊙, ©, @) before the time is optional — `(?:\S+\s+)?`
+         Captures full HH:MM:SS time, not just HH:MM.
+         BUY/SELL may be unreadable when inside colored boxes → fallback
+         to price comparison (lower avg = BUY/entry, higher avg = SELL/exit).
+      ─────────────────────────────────────────────────────────────── */
+      const TRADE_RE = /Qty\.?\s+(\d+)\s+Avg\.?\s+([\d.]+)\s+(?:\S+\s+)?(\d{2}:\d{2}(?::\d{2})?)\s+(NSE|BSE|MCX|NFO|NFO)\s+(BUY|SELL)/gi;
+      const tradeHits = [...flat.matchAll(TRADE_RE)];
+
+      const buyHit  = tradeHits.find(m => /BUY/i.test(m[5]));
+      const sellHit = tradeHits.find(m => /SELL/i.test(m[5]));
+
+      if (buyHit) {
+        out.qty       = parseInt(buyHit[1],  10);
+        out.entry     = parseFloat(buyHit[2]);
+        out.entryTime = buyHit[3];
+        out.exchange  = buyHit[4];
+      }
+      if (sellHit) {
+        if (!out.qty) out.qty = parseInt(sellHit[1], 10);
+        out.exit     = parseFloat(sellHit[2]);
+        out.exitTime = sellHit[3];
+        if (!out.exchange) out.exchange = sellHit[4];
       }
 
-      const sellM = flat.match(
-        /Qty[.\s]+(\d+)[^\n]*?Avg[.\s]+([\d.]+)[^\n]*?(\d{2}:\d{2})(?::\d{2})?\s+(NSE|BSE|MCX|NFO)\s+SELL/i
-      );
-      if (sellM) {
-        if (!out.qty) out.qty = parseInt(sellM[1], 10);
-        out.exit     = parseFloat(sellM[2]);
-        out.exitTime = sellM[3];
-        if (!out.exchange) out.exchange = sellM[4];
+      /* Fallback: BUY/SELL labels unreadable (colored boxes after binarise).
+         Use the TWO Qty/Avg/Time lines — lower avg price = entry (BUY),
+         higher avg price = exit (SELL). Works for long trades. */
+      if (!buyHit && !sellHit) {
+        // Try without BUY/SELL at end
+        const TRADE_RE2 = /Qty\.?\s+(\d+)\s+Avg\.?\s+([\d.]+)\s+(?:\S+\s+)?(\d{2}:\d{2}(?::\d{2})?)\s+(NSE|BSE|MCX|NFO)/gi;
+        const hits2 = [...flat.matchAll(TRADE_RE2)];
+        if (hits2.length >= 2) {
+          const [a, b] = hits2;
+          const [entry, exit] = parseFloat(a[2]) <= parseFloat(b[2]) ? [a, b] : [b, a];
+          out.qty       = parseInt(entry[1], 10);
+          out.entry     = parseFloat(entry[2]);
+          out.entryTime = entry[3];
+          out.exchange  = entry[4];
+          out.exit      = parseFloat(exit[2]);
+          out.exitTime  = exit[3];
+        } else if (hits2.length === 1) {
+          out.qty       = parseInt(hits2[0][1], 10);
+          out.entry     = parseFloat(hits2[0][2]);
+          out.entryTime = hits2[0][3];
+          out.exchange  = hits2[0][4];
+        }
       }
 
+      /* ── Charges — handle ₹ misread as ¥ or % by OCR ─────────── */
+      const CUR = '[₹¥%]?';  // currency prefix pattern
       out.charges = {
-        brokerage:      extractCharge(flat, /Brokerage\s+[₹]?([\d,]+\.\d{2})/),
-        stt:            extractCharge(flat, /\bSTT\b\s+[₹]?([\d,]+\.\d{2})/),
-        stampDuty:      extractCharge(flat, /Stamp\s*duty\s+[₹]?([\d,]+\.\d{2})/i),
-        exchangeCharge: extractCharge(flat, /Exchange\s+turnover\s+charge\s+[₹]?([\d,]+\.\d{2})/i),
-        sebiCharge:     extractCharge(flat, /SEBI\s+turnover\s+charge\s+[₹]?([\d,]+\.\d{2})/i),
-        gst:            extractCharge(flat, /\bGST\b\s+[₹]?([\d,]+\.\d{2})/),
+        brokerage:      extractCharge(flat, new RegExp(`Brokerage\\s+${CUR}([\\d,]+\\.\\d{2})`)),
+        stt:            extractCharge(flat, new RegExp(`\\bSTT\\b\\s+${CUR}([\\d,]+\\.\\d{2})`)),
+        stampDuty:      extractCharge(flat, new RegExp(`Stamp\\s*duty\\s+${CUR}([\\d,]+\\.\\d{2})`, 'i')),
+        exchangeCharge: extractCharge(flat, new RegExp(`Exchange\\s+turnover\\s+charge\\s+${CUR}([\\d,]+\\.\\d{2})`, 'i')),
+        sebiCharge:     extractCharge(flat, new RegExp(`SEBI\\s+turnover\\s+charge\\s+${CUR}([\\d,]+\\.\\d{2})`, 'i')),
+        gst:            extractCharge(flat, new RegExp(`\\bGST\\b\\s+${CUR}([\\d,]+\\.\\d{2})`)),
       };
 
-      const totM = flat.match(/\bTotal\b\s+[₹]?([\d,]+\.\d{2})/);
+      /* Total charges line — also handle ₹ misread */
+      const totM = flat.match(/\bTotal\b\s+[₹¥%]?([\d,]+\.\d{2})/);
       out.charges.totalCharges = totM
         ? parseMoney(totM[1])
         : Object.values(out.charges).reduce((a, b) => a + (b || 0), 0);
@@ -338,9 +371,9 @@
       }
     }
     // Pass 2: symbol at the START of a line followed by a price or instrument tag.
-    // Zerodha Positions shows "SHADOWFAX +625.00" on one OCR line.
+    // Handles "SHADOWFAX +625.00" (positions) and "SHADOWFAX ₹51.23" (contract note).
     for (const line of lines) {
-      const m = line.match(/^([A-Z][A-Z0-9&\-]{2,19})\s+(?:[+\-]?\d|EQ\b|FUT\b|CE\b|PE\b)/);
+      const m = line.match(/^([A-Z][A-Z0-9&\-]{2,19})\s+(?:[+\-₹¥%]?\d|EQ\b|FUT\b|CE\b|PE\b)/);
       if (m && !SYMBOL_BLOCKLIST.has(m[1])) return m[1];
     }
     return undefined;
