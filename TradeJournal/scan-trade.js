@@ -165,54 +165,60 @@
     /* ── Contract note parsing ────────────────────────────────── */
     if (isContract) {
       /* ── Trade line matching ─────────────────────────────────────────
-         Zerodha virtual contract note has TWO possible label positions:
+         Three OCR layouts for Zerodha virtual contract notes:
 
-           LABEL-AT-START:  "SELL Qty. 500  Avg. 192.25  ⊙ 10:58:06  NSE"
-           LABEL-AT-END:    "Qty. 500  Avg. 192.25  ⊙ 10:58:06  NSE  SELL"
+         FORMAT A – table data row (no "Qty."/"Avg." labels):
+           "SELL  500  192.25  96,125.00  10:58:06  NSE"
+           "BUY   500  191.00  95,500.00  09:17:02  NSE"
 
-         Between avg price and time there can be:
-           • nothing          "192.25  10:58:06"
-           • a clock icon     "192.25  ⊙  10:58:06"  or  "192.25  ⊙10:58:06"
-           • a trade value    "192.25  96,125.00  10:58:06"
-           • value + icon     "192.25  96,125.00  ⊙  10:58:06"
+         FORMAT B – inline labels, direction at start:
+           "SELL Qty. 500  Avg. 192.25  ⊙ 10:58:06  NSE"
 
-         Pattern:  \s*(?:\S+\s+)?[^\d\n]*?  handles all four cases:
-           \s*           – zero or more whitespace after avg price
-           (?:\S+\s+)?   – optionally consume ONE token (trade value or icon)
-           [^\d\n]*?     – lazily consume remaining non-digit non-newline
-                           chars (handles icon attached directly to time)
+         FORMAT C – inline labels, direction at end:
+           "Qty. 500  Avg. 192.25  ⊙ 10:58:06  NSE  SELL"
+
+         For format A the pattern is:
+           (BUY|SELL)  qty  price  [turnover]  HH:MM:SS  exchange
+         The turnover (e.g. 96,125.00) sits between price and time but is
+         optional — handled by (?:[\d,]+\.\d{2}\s+)?
       ────────────────────────────────────────────────────────────────── */
-      const BODY = String.raw`Qty\.?\s+(\d+)\s+Avg\.?\s+([\d.]+)\s*(?:\S+\s+)?[^\d\n]*?(\d{2}:\d{2}(?::\d{2})?)\s+(NSE|BSE|MCX|NFO)`;
 
-      /* Label at END: "Qty. 500 Avg. 192.25 … NSE SELL" */
-      const TRADE_END   = new RegExp(BODY + String.raw`\s+(BUY|SELL)`, 'gi');
-      /* Label at START: "SELL Qty. 500 Avg. 192.25 … NSE" */
-      const TRADE_START = new RegExp(String.raw`(BUY|SELL)\s+` + BODY, 'gi');
-      /* No label – use price comparison for direction */
-      const TRADE_NOLBL = new RegExp(BODY, 'gi');
+      /* ── FORMAT A: labeled table data row (highest priority) ───────── */
+      const DATA_LBL = /(?:^|\n)(BUY|SELL)\s+(\d{1,6})\s+([\d.,]+\.\d{2})\s+(?:[\d,]+\.\d{2}\s+)?(\d{2}:\d{2}:\d{2})\s+(NSE|BSE|MCX|NFO)/gi;
+      /* FORMAT A no-label: same but without BUY/SELL (use price compare) */
+      const DATA_NOLBL = /(?:^|\n)(\d{1,6})\s+([\d.,]+\.\d{2})\s+(?:[\d,]+\.\d{2}\s+)?(\d{2}:\d{2}:\d{2})\s+(NSE|BSE|MCX|NFO)/gi;
 
-      /* Normalize every match into a plain object */
+      /* ── FORMATS B & C: lines that have "Qty." and "Avg." labels ───── */
+      const QA_BODY    = String.raw`Qty\.?\s+(\d+)\s+Avg\.?\s+([\d.]+)\s*(?:\S+\s+)?[^\d\n]*?(\d{2}:\d{2}(?::\d{2})?)\s+(NSE|BSE|MCX|NFO)`;
+      const TRADE_END  = new RegExp(QA_BODY + String.raw`\s+(BUY|SELL)`, 'gi');
+      const TRADE_START= new RegExp(String.raw`(BUY|SELL)\s+` + QA_BODY,  'gi');
+      const TRADE_QA   = new RegExp(QA_BODY, 'gi');
+
+      /* Normalise a regex match to {dir, qty, avg, time, exchange} */
       const norm = (m, dir, qi, ai, ti, ei) =>
-        ({ dir, qty: +m[qi], avg: parseFloat(m[ai]), time: m[ti], exchange: m[ei] });
+        ({ dir, qty: +m[qi], avg: parseFloat(String(m[ai]).replace(/,/g,'')), time: m[ti], exchange: m[ei] });
 
-      const endHits   = [...flat.matchAll(TRADE_END  )].map(m => norm(m, m[5].toUpperCase(), 1, 2, 3, 4));
-      const startHits = [...flat.matchAll(TRADE_START)].map(m => norm(m, m[1].toUpperCase(), 2, 3, 4, 5));
-      const noLblHits = [...flat.matchAll(TRADE_NOLBL)].map(m => norm(m, '',                1, 2, 3, 4));
+      /* Collect all hits from each pattern */
+      const rowLbl  = [...flat.matchAll(DATA_LBL   )].map(m => norm(m, m[1].toUpperCase(), 2, 3, 4, 5));
+      const rowNolbl= [...flat.matchAll(DATA_NOLBL  )].map(m => norm(m, '',                1, 2, 3, 4));
+      const endHits = [...flat.matchAll(TRADE_END   )].map(m => norm(m, m[5].toUpperCase(), 1, 2, 3, 4));
+      const stHits  = [...flat.matchAll(TRADE_START )].map(m => norm(m, m[1].toUpperCase(), 2, 3, 4, 5));
+      const qaHits  = [...flat.matchAll(TRADE_QA    )].map(m => norm(m, '',                1, 2, 3, 4));
 
-      /* Labeled trades from either format */
-      const labeled = [...endHits, ...startHits];
+      /* Labeled: FORMAT A rows first, then B/C */
+      const labeled = [...rowLbl, ...endHits, ...stHits];
       const buyHit  = labeled.find(t => t.dir === 'BUY');
       const sellHit = labeled.find(t => t.dir === 'SELL');
 
-      /* Unlabeled fallback: sort by price; lower avg = entry (BUY), higher = exit (SELL) */
-      const sorted2 = [...noLblHits].sort((a, b) => a.avg - b.avg);
-      const entryFb = sorted2[0]                            || null;
-      const exitFb  = sorted2[sorted2.length - 1] || null;
-      /* Guard against same-price ambiguity (both prices identical due to OCR) */
-      const exitFbDistinct = (exitFb && entryFb && exitFb !== entryFb) ? exitFb : null;
+      /* Unlabeled fallback: dedupe by time, sort by avg price */
+      const allNolbl = [...rowNolbl, ...qaHits]
+        .filter((h, i, arr) => arr.findIndex(x => x.time === h.time) === i); // dedupe by time
+      const sorted2  = [...allNolbl].sort((a, b) => a.avg - b.avg);
+      const entryFb  = sorted2[0] || null;
+      const exitFb   = sorted2.length >= 2 ? sorted2[sorted2.length - 1] : null;
 
-      /* ── Populate entry ────────────────────────────────────────────── */
-      const eSource = buyHit || entryFb;
+      /* ── Populate entry ──────────────────────────────────────────────── */
+      const eSource = buyHit  || entryFb;
       if (eSource) {
         out.qty       = eSource.qty;
         out.entry     = eSource.avg;
@@ -220,8 +226,8 @@
         out.exchange  = eSource.exchange;
       }
 
-      /* ── Populate exit ─────────────────────────────────────────────── */
-      const xSource = sellHit || exitFbDistinct;
+      /* ── Populate exit ───────────────────────────────────────────────── */
+      const xSource = sellHit || exitFb;
       if (xSource) {
         if (!out.qty) out.qty = xSource.qty;
         out.exit     = xSource.avg;
@@ -229,16 +235,16 @@
         if (!out.exchange) out.exchange = xSource.exchange;
       }
 
-      /* ── Cross-validate: if labeled price is ≥10× from fallback,
-            OCR mangled the number — prefer the unlabeled fallback ──── */
-      if (buyHit && entryFb && entryFb.avg > 0) {
-        const ratio = buyHit.avg / entryFb.avg;
-        if (ratio >= 5 || ratio <= 0.2) { out.entry = entryFb.avg; out.entryTime = entryFb.time; }
-      }
-      if (sellHit && exitFbDistinct && exitFbDistinct.avg > 0) {
-        const ratio = sellHit.avg / exitFbDistinct.avg;
-        if (ratio >= 5 || ratio <= 0.2) { out.exit = exitFbDistinct.avg; out.exitTime = exitFbDistinct.time; }
-      }
+      /* ── Cross-validate: if labeled price is ≥5× from no-label fallback,
+            the labeled line was misread — prefer the unlabeled value ─── */
+      const crossCheck = (hit, fb, setFn) => {
+        if (hit && fb && fb.avg > 0) {
+          const r = hit.avg / fb.avg;
+          if (r >= 5 || r <= 0.2) setFn(fb.avg, fb.time);
+        }
+      };
+      crossCheck(buyHit,  entryFb, (v,t) => { out.entry = v; out.entryTime = t; });
+      crossCheck(sellHit, exitFb,  (v,t) => { out.exit  = v; out.exitTime  = t; });
 
       /* ── Charges — handle ₹ misread as ¥, % or the digit 3 by OCR ──
          Tesseract frequently OCR-reads the ₹ glyph as:
