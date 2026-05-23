@@ -104,8 +104,11 @@ const CREDIT_RE = /^(Received\s+from|Money\s+received(?:\s+from)?|Refund\s+from|
 const DEBIT_INLINE  = /\b(paid\s+to|sent\s+to|payment\s+to|transferred?\s+to|debited)\b/i;
 const CREDIT_INLINE = /\b(received\s+from|refund\s+from|credited\s+from|cashback\s+from)\b/i;
 
-const AMOUNT_RE  = /[+\-]?\s*[₹Rs.]+\s*([\d,]+(?:\.\d{1,2})?)/;
-const AMOUNT_LINE_RE = /[₹₨Rs.]+\s*([\d,]+(?:\.\d{1,2})?)/;   // looser: for amount-anchored pass
+// Amount regexes — handle: ₹350, Rs.350, RS 350, and OCR artifacts like "3 350.00"
+const AMOUNT_RE      = /[+\-]?\s*(?:[₹₨]|[Rr][Ss]?\.?\s?)\s*([\d,]{1,8}(?:\.\d{1,2})?)/;
+const AMOUNT_LINE_RE = /(?:[₹₨]|[Rr][Ss]?\.?\s?)\s*([\d,]{1,8}(?:\.\d{1,2})?)/;
+// Pass 3: bare number on its own line (OCR dropped ₹ symbol entirely)
+const NUMBER_ONLY_RE = /^[+\-]?\s*(\d{1,6}(?:[,\s]\d{2,3})*(?:\.\d{1,2})?)\s*$/;
 const FAILED_RE  = /\b(Failed|Declined|Expired|Cancelled|Reversed|Failure|Pending)\b/i;
 const DATE_RE    = /\b(\d{1,2}\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)(\s+\d{2,4})?|Today|Yesterday|\d+\s+days?\s+ago|\d+\s+hours?\s+ago|\d+\s+min\w*\s+ago|\d{1,2}\/\d{1,2}(?:\/\d{2,4})?|\d{1,2}-\d{1,2}-\d{2,4})\b/i;
 const SKIP_RE    = /^(MAY|JAN|FEB|MAR|APR|JUN|JUL|AUG|SEP|OCT|NOV|DEC|History|Search|My\s+Statements|Home|Transactions|Rewards|Refer|Pay|Bills|Scan|UPI|GPay|PhonePe|Paytm|January|February|March|April|June|July|August|September|October|November|December|\d{1,2}:\d{2}|APRIL|MARCH|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER|Bank\s+Transfer|UPI\s+Transfer|Transaction\s+ID|UTR|Ref\.?\s+No|Ref\s+ID|Status|Amount|Date|Time|Details|View\s+Details|More\s+Details)$/i;
@@ -308,6 +311,71 @@ function parseUPI(text) {
       const isCredit = direction === 'credit';
       const { type, cat } = autoCategory(name, isCredit);
       txns.push({ _id: Date.now() + Math.random(), name, amount, isCredit, date: date || fmtDate(new Date()), type, category: cat, selected: true });
+    }
+  }
+
+  /* ════════════════════════════════════════════════════════════════════
+     PASS 3 — Bare-number fallback
+     OCR sometimes drops the ₹ symbol entirely, leaving lines like:
+       "Amazon Pay"  "Sent"  "350.00"  "23 May"
+     We look for pure-number lines that sit near a direction keyword.
+     Only fires when Passes 1 & 2 found nothing (to avoid noise).
+     ════════════════════════════════════════════════════════════════════ */
+  if (txns.length === 0) {
+    for (let ai = 0; ai < lines.length; ai++) {
+      const numMatch = lines[ai].match(NUMBER_ONLY_RE);
+      if (!numMatch) continue;
+
+      // Remove commas/spaces used as thousands separators, then parse
+      const rawNum = numMatch[1].replace(/[,\s]/g, '');
+      const amount = parseFloat(rawNum);
+      if (isNaN(amount) || amount < 1 || amount > 9_999_999) continue;
+
+      const win_start = Math.max(0, ai - 6);
+      const win_end   = Math.min(lines.length - 1, ai + 4);
+
+      let name = null, direction = null, date = null, failed = false, hasDir = false;
+
+      // Prefer lines ABOVE the amount for merchant name (most UPI layouts)
+      // First pass: look above
+      for (let k = ai - 1; k >= win_start; k--) {
+        const kl = lines[k];
+        if (FAILED_RE.test(kl)) { failed = true; break; }
+        if (!direction) {
+          if (DEBIT_RE.test(kl) || DEBIT_INLINE.test(kl))   { direction = 'debit';  hasDir = true; }
+          if (CREDIT_RE.test(kl) || CREDIT_INLINE.test(kl)) { direction = 'credit'; hasDir = true; }
+        }
+        if (!date) { const dm = kl.match(DATE_RE); if (dm) date = parseDate(dm[0]); }
+        if (!name && !isJunkLine(kl) && !NUMBER_ONLY_RE.test(kl) && !AMOUNT_LINE_RE.test(kl)) {
+          name = kl;
+        }
+      }
+
+      // Second pass: look below (for date / confirm direction)
+      if (!failed) {
+        for (let k = ai + 1; k <= win_end; k++) {
+          const kl = lines[k];
+          if (FAILED_RE.test(kl)) { failed = true; break; }
+          if (!direction) {
+            if (DEBIT_RE.test(kl) || DEBIT_INLINE.test(kl))   { direction = 'debit';  hasDir = true; }
+            if (CREDIT_RE.test(kl) || CREDIT_INLINE.test(kl)) { direction = 'credit'; hasDir = true; }
+          }
+          if (!date) { const dm = kl.match(DATE_RE); if (dm) date = parseDate(dm[0]); }
+          // Only use below-lines for name if above produced nothing
+          if (!name && !isJunkLine(kl) && !NUMBER_ONLY_RE.test(kl) && !AMOUNT_LINE_RE.test(kl)) {
+            name = kl;
+          }
+        }
+      }
+
+      if (failed || !hasDir) continue; // require at least one direction keyword
+
+      name = cleanName(name || 'Unknown');
+      if (amount > 0 && !isDuplicate(txns, name, amount)) {
+        const isCredit = direction === 'credit';
+        const { type, cat } = autoCategory(name, isCredit);
+        txns.push({ _id: Date.now() + Math.random(), name, amount, isCredit, date: date || fmtDate(new Date()), type, category: cat, selected: true });
+      }
     }
   }
 
@@ -548,7 +616,13 @@ export default function ScanUPI({ addTransaction }) {
       step(18, 'Running OCR…');
       const { data: { text } } = await window.Tesseract.recognize(
         target, 'eng',
-        { logger: m => { if (m.status === 'recognizing text') step(18 + Math.round(m.progress * 55), `OCR ${Math.round(m.progress * 100)}%`); } }
+        {
+          logger: m => { if (m.status === 'recognizing text') step(18 + Math.round(m.progress * 55), `OCR ${Math.round(m.progress * 100)}%`); },
+          // PSM 4 = single column of variable-size text — best for UPI transaction lists
+          tessedit_pageseg_mode: '4',
+          // Preserve inter-word spacing so "Amazon Pay" stays on one line
+          preserve_interword_spaces: '1',
+        }
       );
 
       setRawOCR(text);
@@ -688,6 +762,27 @@ export default function ScanUPI({ addTransaction }) {
           {statusMsg && (
             <div style={{ fontSize:12, color: status === 'error' ? '#FF6B6B' : (status === 'done' && txns.length === 0) ? '#F59E0B' : '#00ff88', fontWeight: status !== 'running' ? 600 : 400, textAlign:'center', fontStyle: status === 'running' ? 'italic' : 'normal' }}>
               {status === 'done' && txns.length > 0 ? '✅ ' : ''}{statusMsg}
+            </div>
+          )}
+
+          {/* Raw OCR — always visible when scan finished with no results */}
+          {status === 'done' && txns.length === 0 && rawOCR && (
+            <div>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6 }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'#F59E0B' }}>📋 What OCR read from your screenshot:</div>
+                <button
+                  onClick={() => navigator.clipboard?.writeText(rawOCR)}
+                  style={{ fontSize:10, color:'#4F7CFF', background:'none', border:'none', cursor:'pointer', padding:'2px 6px', fontFamily:'inherit' }}
+                >
+                  Copy text
+                </button>
+              </div>
+              <div style={{ background:'rgba(0,0,0,0.45)', border:'1px solid rgba(245,158,11,0.25)', borderRadius:10, padding:10, fontFamily:'monospace', fontSize:10, color:'#c8c8d0', whiteSpace:'pre-wrap', wordBreak:'break-all', maxHeight:220, overflowY:'auto', lineHeight:1.7 }}>
+                {rawOCR.trim() || '(empty — Tesseract returned no text. Try a sharper, lighter screenshot.)'}
+              </div>
+              <div style={{ fontSize:10, color:'#9AA0B4', marginTop:6, lineHeight:1.6 }}>
+                ↑ Share this text in support so we can improve detection for your screenshot format.
+              </div>
             </div>
           )}
 
