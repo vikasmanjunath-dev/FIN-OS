@@ -52,11 +52,25 @@
         const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const d = imgData.data;
         for (let i = 0; i < d.length; i += 4) {
+          // Invert ALL pixels, then binarize at threshold 80 (NOT 140).
+          //
+          // Why threshold 80?
+          //   Zerodha Kite uses a dark theme — text is white (255,255,255) and
+          //   backgrounds vary:
+          //     • main rows : dark ~(20,20,25)      → after invert gray ≈ 234 > 80 ✓
+          //     • SELL badge: light-red ~(255,100,100) → after invert gray ≈ 108 > 80 ✓
+          //     • BUY  badge: dark-green ~(20,60,20)  → after invert gray ≈ 211 > 80 ✓
+          //   White text → after invert → gray 0, always < 80 → BLACK ✓
+          //
+          //   With the old threshold of 140 the SELL badge background landed at
+          //   gray ≈ 108 < 140 → BLACK, making both background AND text black
+          //   (invisible to OCR).  Lowering to 80 gives all coloured backgrounds
+          //   enough headroom while keeping text solidly black.
           const r = 255 - d[i];
           const g = 255 - d[i + 1];
           const b = 255 - d[i + 2];
           const gray  = 0.299 * r + 0.587 * g + 0.114 * b;
-          const sharp = gray > 140 ? 255 : 0;
+          const sharp = gray > 80 ? 255 : 0;
           d[i] = d[i + 1] = d[i + 2] = sharp;
         }
         ctx.putImageData(imgData, 0, 0);
