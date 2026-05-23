@@ -104,9 +104,10 @@ const CREDIT_RE = /^(Received\s+from|Money\s+received(?:\s+from)?|Refund\s+from|
 const DEBIT_INLINE  = /\b(paid\s+to|sent\s+to|payment\s+to|transferred?\s+to|debited)\b/i;
 const CREDIT_INLINE = /\b(received\s+from|refund\s+from|credited\s+from|cashback\s+from)\b/i;
 
-// Amount regexes — handle: ₹350, Rs.350, RS 350, and OCR artifacts like "3 350.00"
-const AMOUNT_RE      = /[+\-]?\s*(?:[₹₨]|[Rr][Ss]?\.?\s?)\s*([\d,]{1,8}(?:\.\d{1,2})?)/;
-const AMOUNT_LINE_RE = /(?:[₹₨]|[Rr][Ss]?\.?\s?)\s*([\d,]{1,8}(?:\.\d{1,2})?)/;
+// Amount regexes — handle: ₹350, Rs.350, RS 350
+// CRITICAL: OCR commonly misreads ₹ as ¥ (yen) or % (percent) — both included
+const AMOUNT_RE      = /[+\-]?\s*(?:[₹₨¥%]|[Rr][Ss]?\.?\s?)\s*([\d,]{1,8}(?:\.\d{1,2})?)/;
+const AMOUNT_LINE_RE = /(?:[₹₨¥%]|[Rr][Ss]?\.?\s?)\s*([\d,]{1,8}(?:\.\d{1,2})?)/;
 // Pass 3: bare number on its own line (OCR dropped ₹ symbol entirely)
 const NUMBER_ONLY_RE = /^[+\-]?\s*(\d{1,6}(?:[,\s]\d{2,3})*(?:\.\d{1,2})?)\s*$/;
 const FAILED_RE  = /\b(Failed|Declined|Expired|Cancelled|Reversed|Failure|Pending)\b/i;
@@ -117,6 +118,18 @@ const SKIP_RE    = /^(MAY|JAN|FEB|MAR|APR|JUN|JUL|AUG|SEP|OCT|NOV|DEC|History|Se
 function isJunkLine(line) {
   return !line || line.length < 2 || DEBIT_RE.test(line) || CREDIT_RE.test(line) ||
          AMOUNT_RE.test(line) || FAILED_RE.test(line) || DATE_RE.test(line) || SKIP_RE.test(line);
+}
+
+/* Rejects account numbers / transaction IDs that leak in as "names" */
+function isValidName(name) {
+  if (!name || name.length < 2) return false;
+  if (isJunkLine(name)) return false;
+  if (/X{3,}/i.test(name)) return false;           // masked account: XXXXX0554
+  if (/^[.\s*_|]+/.test(name)) return false;        // starts with . * _ | (OCR artefacts)
+  if (/^\d{6,}/.test(name)) return false;           // starts with long digit run (phone/txn ID)
+  if (/^[A-Z0-9]{14,}$/.test(name)) return false;  // pure uppercase+digits ≥14 = transaction ID
+  if (/@\w+/.test(name)) return false;              // UPI VPA like 9902920686@okbizaxis
+  return true;
 }
 
 function parseDate(str) {
@@ -225,23 +238,46 @@ function parseUPI(text) {
       .trim();
 
     let j = i + 1;
+    let amount = null; // may be set early if name+amount on same line
 
     if (!name) {
       // Scan forward for merchant name
       while (j < Math.min(i + 4, lines.length)) {
         const nl = lines[j];
-        if (AMOUNT_RE.test(nl) || FAILED_RE.test(nl) || DATE_RE.test(nl) || SKIP_RE.test(nl)) break;
-        if (!name) name = nl; else name += ' ' + nl;
+        if (FAILED_RE.test(nl) || DATE_RE.test(nl) || SKIP_RE.test(nl)) break;
+
+        // ── Inline name+amount: "TEA STALL ¥63" ─────────────────────
+        // OCR misreads ₹ as ¥ or %, putting amount on the SAME line as name.
+        const amIdx = nl.search(AMOUNT_LINE_RE);
+        if (amIdx >= 0) {
+          const beforeAmt = nl.slice(0, amIdx).trim();
+          const amMatch   = nl.match(AMOUNT_LINE_RE);
+          if (beforeAmt && isValidName(beforeAmt)) {
+            // "TEA STALL" + "¥63" → name + amount from same line
+            if (!name) name = beforeAmt;
+            if (amount === null && amMatch) amount = parseMoney(amMatch[1]);
+          } else if (amount === null && amMatch) {
+            // Pure amount line like "₹350" or "¥63" — capture amount, stop scan
+            amount = parseMoney(amMatch[1]);
+          }
+          j++;
+          break; // done after hitting an amount line
+        }
+
+        // Pure name line
+        if (isValidName(nl)) {
+          if (!name) name = nl; else name += ' ' + nl;
+        }
         j++;
       }
       // Backward lookup — GPay puts name BEFORE the direction keyword
       if (!name && i > 0) {
         const prev = lines[i - 1];
-        if (!isJunkLine(prev)) name = prev;
+        if (isValidName(prev)) name = prev;
       }
     }
 
-    let amount = null, date = null, failed = false;
+    let date = null, failed = false;
     for (let k = j; k < Math.min(j + 8, lines.length); k++) {
       const kl = lines[k];
       if (FAILED_RE.test(kl)) { failed = true; break; }
@@ -249,8 +285,8 @@ function parseUPI(text) {
       if (!date)           { const dm = kl.match(DATE_RE);   if (dm) date   = parseDate(dm[0]); }
     }
 
-    name = cleanName(name);
-    if (name && amount !== null && amount > 0 && !failed && !isDuplicate(txns, name, amount)) {
+    name = cleanName(name || '');
+    if (isValidName(name) && amount !== null && amount > 0 && !failed && !isDuplicate(txns, name, amount)) {
       const isCredit = direction === 'credit';
       const { type, cat } = autoCategory(name, isCredit);
       txns.push({ _id: Date.now() + Math.random(), name, amount, isCredit, date: date || fmtDate(new Date()), type, category: cat, selected: true });
@@ -292,9 +328,8 @@ function parseUPI(text) {
       // Date
       if (!date) { const dm = kl.match(DATE_RE); if (dm) date = parseDate(dm[0]); }
 
-      // Name — prefer line closest to the amount that isn't junk
-      if (!name && !isJunkLine(kl) && !AMOUNT_LINE_RE.test(kl) &&
-          !DEBIT_RE.test(kl) && !CREDIT_RE.test(kl)) {
+      // Name — prefer line closest to the amount that is a valid merchant name
+      if (!name && isValidName(kl) && !AMOUNT_LINE_RE.test(kl)) {
         name = kl;
       }
     }
@@ -307,7 +342,7 @@ function parseUPI(text) {
     }
 
     name = cleanName(name || 'Unknown');
-    if (name && amount > 0 && !isDuplicate(txns, name, amount)) {
+    if (isValidName(name) && amount > 0 && !isDuplicate(txns, name, amount)) {
       const isCredit = direction === 'credit';
       const { type, cat } = autoCategory(name, isCredit);
       txns.push({ _id: Date.now() + Math.random(), name, amount, isCredit, date: date || fmtDate(new Date()), type, category: cat, selected: true });
