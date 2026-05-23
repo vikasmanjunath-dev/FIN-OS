@@ -5,16 +5,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <!-- Fix [16]: manifest link added so landing page can trigger PWA install -->
-  <link rel="manifest" href="../manifest.json">
+  <link rel="manifest" href="manifest.json">
   <!-- THEME GUARD (shared across app) -->
-  <script src="../js/ui.js"></script>
+  <script src="js/ui.js"></script>
 
   <title>FIN-OS | Financial Operating System</title>
 
-  <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/components.css">
-  <link rel="stylesheet" href="../css/animations.css">
-  <link rel="stylesheet" href="../css/landing.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/landing.css">
   
 </head>
 
@@ -827,19 +827,22 @@
 </section>
 
 <!-- AUTH / ROUTING -->
-<script src="../js/auth.js"></script>
-<script src="../js/landing.js"></script>
+<script src="js/landing.js"></script>
 
 <script>
-  // Fix [02]: Removed duplicate conflicting loginBtn handlers.
-  // The first handler set localStorage("finos_logged_in","true") without
-  // real authentication — an auth bypass. The second conflicted with it.
-  // auth.js now owns the single loginBtn handler (navigates to login.html).
+  // index.html lives at ROOT — paths must NOT use ../
+  // auth.js is NOT loaded here (it uses ../login.html which breaks from root).
+  // All login buttons are wired directly below.
 
-  // Fix [14]: loginBtnFinal had no event listener — bottom CTA did nothing.
-  document.getElementById("loginBtnFinal")?.addEventListener("click", () => {
+  function goToLogin() {
     window.location.href = "login.html";
-  });
+  }
+
+  // "Enter FIN-OS" hero button
+  document.getElementById("loginBtn")?.addEventListener("click", goToLogin);
+
+  // Bottom CTA button
+  document.getElementById("loginBtnFinal")?.addEventListener("click", goToLogin);
 </script>
 
 </body>
