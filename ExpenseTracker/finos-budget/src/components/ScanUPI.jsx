@@ -35,6 +35,7 @@ function preprocessImage(file) {
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
+      // Scale up for better OCR — cap at 2400px on longest side
       const scale = Math.min(3, 2400 / Math.max(img.naturalWidth, img.naturalHeight));
       const canvas = document.createElement('canvas');
       canvas.width  = Math.round(img.naturalWidth  * scale);
@@ -46,25 +47,40 @@ function preprocessImage(file) {
       const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const d = imgData.data;
 
-      /* Sample average brightness to decide whether to invert */
+      // Sample average brightness to decide whether to invert (dark-mode screenshots)
       let bright = 0, samples = 0;
       for (let i = 0; i < d.length; i += 4 * 20) {
         bright += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
         samples++;
       }
-      const isDark = (bright / samples) < 128;
+      const avgBright = bright / samples;
+      const isDark = avgBright < 128;
 
+      // Invert dark screenshots so text is dark-on-light (Tesseract prefers this)
       if (isDark) {
         for (let i = 0; i < d.length; i += 4) {
           d[i] = 255 - d[i]; d[i + 1] = 255 - d[i + 1]; d[i + 2] = 255 - d[i + 2];
         }
       }
 
-      /* Light binarisation for sharper edges */
+      // Convert to grayscale + gentle contrast stretch (NOT hard binarise)
+      // Hard binarise at 145 wiped medium-gray text common in UPI screenshots.
+      // Adaptive soft threshold: anything above (mean - 30) → white, else scale.
+      let sum = 0;
+      const grays = new Float32Array(canvas.width * canvas.height);
       for (let i = 0; i < d.length; i += 4) {
-        const gray  = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-        const sharp = gray > 145 ? 255 : 0;
-        d[i] = d[i + 1] = d[i + 2] = sharp;
+        const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        grays[i >> 2] = g;
+        sum += g;
+      }
+      const mean = sum / grays.length;
+      // Soft adaptive threshold: pixels clearly lighter than mean → white, rest → enhance
+      const thresh = Math.max(80, mean - 25);
+      for (let i = 0; i < d.length; i += 4) {
+        const g = grays[i >> 2];
+        // Stretch contrast: darken text, whiten background
+        const out = g > thresh ? Math.min(255, g + (255 - g) * 0.6) : Math.max(0, g * 0.5);
+        d[i] = d[i + 1] = d[i + 2] = Math.round(out);
       }
 
       ctx.putImageData(imgData, 0, 0);
@@ -77,12 +93,22 @@ function preprocessImage(file) {
 }
 
 /* ── UPI parser ───────────────────────────────────────────────────── */
-const DEBIT_RE   = /^(Payment\s+to|Paid\s+to|Sent\s+to|Transferred\s+to|Transfer\s+to|Debited\s+(?:from\s+)?|Auto\s+debit)/i;
-const CREDIT_RE  = /^(Received\s+from|Money\s+received(?:\s+from)?|Refund\s+from|Credited\s+from|Cashback(?:\s+from)?)/i;
+
+// DEBIT: expanded to catch single-word indicators (GPay: "Sent", PhonePe: "Paid", Paytm: "Debited")
+const DEBIT_RE = /^(Payment\s+to|Paid\s+to|Sent\s+to|Transferred\s+to|Transfer\s+to|Debited(?:\s+from)?|Auto\s+debit|You\s+paid|Money\s+sent|Amount\s+debited|Outgoing|Paid|Sent|Debit)[\s:–\-]*$/i;
+
+// CREDIT: expanded to catch single-word indicators
+const CREDIT_RE = /^(Received\s+from|Money\s+received(?:\s+from)?|Refund\s+from|Credited(?:\s+from)?|Cashback(?:\s+from)?|You\s+received|Amount\s+credited|Incoming|Refund|Received|Credited|Credit)[\s:–\-]*$/i;
+
+// Also match inline direction when it appears with a merchant name on same line
+const DEBIT_INLINE  = /\b(paid\s+to|sent\s+to|payment\s+to|transferred?\s+to|debited)\b/i;
+const CREDIT_INLINE = /\b(received\s+from|refund\s+from|credited\s+from|cashback\s+from)\b/i;
+
 const AMOUNT_RE  = /[+\-]?\s*[₹Rs.]+\s*([\d,]+(?:\.\d{1,2})?)/;
-const FAILED_RE  = /\b(Failed|Declined|Expired|Cancelled|Reversed|Failure)\b/i;
-const DATE_RE    = /\b(\d{1,2}\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)(\s+\d{4})?|Today|Yesterday|\d+\s+day[s]?\s+ago|\d+\s+hour[s]?\s+ago|\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)\b/i;
-const SKIP_RE    = /^(MAY|JAN|FEB|MAR|APR|JUN|JUL|AUG|SEP|OCT|NOV|DEC|History|Search|My\s+Statements|Home|Transactions|Rewards|Refer|Pay|Bills|Scan|UPI|GPay|PhonePe|Paytm|January|February|March|April|June|July|August|September|October|November|December|\d{1,2}:\d{2}|APRIL|MARCH|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)$/i;
+const AMOUNT_LINE_RE = /[₹₨Rs.]+\s*([\d,]+(?:\.\d{1,2})?)/;   // looser: for amount-anchored pass
+const FAILED_RE  = /\b(Failed|Declined|Expired|Cancelled|Reversed|Failure|Pending)\b/i;
+const DATE_RE    = /\b(\d{1,2}\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)(\s+\d{2,4})?|Today|Yesterday|\d+\s+days?\s+ago|\d+\s+hours?\s+ago|\d+\s+min\w*\s+ago|\d{1,2}\/\d{1,2}(?:\/\d{2,4})?|\d{1,2}-\d{1,2}-\d{2,4})\b/i;
+const SKIP_RE    = /^(MAY|JAN|FEB|MAR|APR|JUN|JUL|AUG|SEP|OCT|NOV|DEC|History|Search|My\s+Statements|Home|Transactions|Rewards|Refer|Pay|Bills|Scan|UPI|GPay|PhonePe|Paytm|January|February|March|April|June|July|August|September|October|November|December|\d{1,2}:\d{2}|APRIL|MARCH|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER|Bank\s+Transfer|UPI\s+Transfer|Transaction\s+ID|UTR|Ref\.?\s+No|Ref\s+ID|Status|Amount|Date|Time|Details|View\s+Details|More\s+Details)$/i;
 
 /* Lines that should never be used as a merchant name */
 function isJunkLine(line) {
@@ -158,89 +184,133 @@ function autoCategory(name, isCredit) {
   return { type: 'Other', cat: 'want_impulse' };
 }
 
+/* ── Dedup helper ─────────────────────────────────────────────────── */
+function isDuplicate(txns, name, amount) {
+  return txns.some(t =>
+    Math.abs(t.amount - amount) < 0.01 &&
+    t.name.toLowerCase().slice(0, 12) === name.toLowerCase().slice(0, 12)
+  );
+}
+
 /* ── Main UPI parser — returns array of transaction objects ───────── */
 function parseUPI(text) {
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
   const txns  = [];
-  let i = 0;
 
+  /* ════════════════════════════════════════════════════════════════════
+     PASS 1 — Direction-anchored (classic approach)
+     Works well for Paytm / Razorpay / older GPay formats that show
+     "Payment to Swiggy", "Received from Rahul" etc.
+     ════════════════════════════════════════════════════════════════════ */
+  let i = 0;
   while (i < lines.length) {
     const line = lines[i];
     let direction = null;
 
-    if (DEBIT_RE.test(line))  direction = 'debit';
-    if (CREDIT_RE.test(line)) direction = 'credit';
+    if (DEBIT_RE.test(line))        direction = 'debit';
+    if (CREDIT_RE.test(line))       direction = 'credit';
+    if (DEBIT_INLINE.test(line))    direction = 'debit';
+    if (CREDIT_INLINE.test(line))   direction = 'credit';
 
     if (!direction) { i++; continue; }
 
-    /* ── Step 1: Try to extract name from the direction line itself ──
-       e.g. "Payment to Swiggy" → name = "Swiggy"
-            "Received from Vishwas*DSATM" → name = "Vishwas*DSATM"    */
+    // Try to pull merchant name from the direction line itself
+    // e.g. "Payment to Swiggy" → "Swiggy"
     let name = line
-      .replace(DEBIT_RE, '')
-      .replace(CREDIT_RE, '')
-      .replace(AMOUNT_RE, '')   // strip any amount that crept in
+      .replace(/^(Payment\s+to|Paid\s+to|Sent\s+to|Transferred?\s+to|Received\s+from|Money\s+received\s+from|Refund\s+from|Credited\s+from|Cashback\s+from)/i, '')
+      .replace(AMOUNT_RE, '')
       .trim();
 
     let j = i + 1;
 
-    if (name) {
-      /* Inline name found — skip over any repeated-name lines below  */
-      while (j < Math.min(i + 3, lines.length)) {
-        const nl = lines[j];
-        if (AMOUNT_RE.test(nl) || FAILED_RE.test(nl) || DATE_RE.test(nl) || SKIP_RE.test(nl)) break;
-        j++;
-      }
-    } else {
-      /* ── Step 2: Scan forward for name on following lines ─────────
-         e.g. "Payment to\n[Merchant]\n₹200"                          */
+    if (!name) {
+      // Scan forward for merchant name
       while (j < Math.min(i + 4, lines.length)) {
         const nl = lines[j];
         if (AMOUNT_RE.test(nl) || FAILED_RE.test(nl) || DATE_RE.test(nl) || SKIP_RE.test(nl)) break;
         if (!name) name = nl; else name += ' ' + nl;
         j++;
       }
-
-      /* ── Step 3: Backward lookup — GPay puts name BEFORE keyword ──
-         e.g. "Madhu STM\nMoney received\n+₹20"                       */
+      // Backward lookup — GPay puts name BEFORE the direction keyword
       if (!name && i > 0) {
         const prev = lines[i - 1];
         if (!isJunkLine(prev)) name = prev;
       }
     }
 
-    /* ── Scan forward for amount, date, and failed status ──────────── */
     let amount = null, date = null, failed = false;
-    for (let k = j; k < Math.min(j + 7, lines.length); k++) {
+    for (let k = j; k < Math.min(j + 8, lines.length); k++) {
       const kl = lines[k];
       if (FAILED_RE.test(kl)) { failed = true; break; }
-      if (amount === null) {
-        const am = kl.match(AMOUNT_RE);
-        if (am) amount = parseMoney(am[1]);
-      }
-      if (!date) {
-        const dm = kl.match(DATE_RE);
-        if (dm) date = parseDate(dm[0]);
-      }
+      if (amount === null) { const am = kl.match(AMOUNT_RE); if (am) amount = parseMoney(am[1]); }
+      if (!date)           { const dm = kl.match(DATE_RE);   if (dm) date   = parseDate(dm[0]); }
     }
 
     name = cleanName(name);
-    if (name && amount !== null && amount > 0 && !failed) {
+    if (name && amount !== null && amount > 0 && !failed && !isDuplicate(txns, name, amount)) {
       const isCredit = direction === 'credit';
       const { type, cat } = autoCategory(name, isCredit);
-      txns.push({
-        _id:      Date.now() + Math.random(),
-        name,
-        amount,
-        isCredit,
-        date:     date || fmtDate(new Date()),
-        type,
-        category: cat,
-        selected: true,
-      });
+      txns.push({ _id: Date.now() + Math.random(), name, amount, isCredit, date: date || fmtDate(new Date()), type, category: cat, selected: true });
     }
     i = j + 1;
   }
+
+  /* ════════════════════════════════════════════════════════════════════
+     PASS 2 — Amount-anchored (catches GPay / PhonePe new-style formats)
+     e.g.  "Amazon Pay\nSent\n₹350\n23 May"
+     In these apps the direction keyword ("Sent"/"Received") is a
+     standalone line — it doesn't match the old compound-phrase patterns.
+     We find every ₹-amount line, then search ±5 lines for context.
+     ════════════════════════════════════════════════════════════════════ */
+  for (let ai = 0; ai < lines.length; ai++) {
+    const amLine = lines[ai];
+    const amMatch = amLine.match(AMOUNT_LINE_RE);
+    if (!amMatch) continue;
+
+    const amount = parseMoney(amMatch[1]);
+    if (!amount || amount <= 0 || amount > 10_000_000) continue;
+
+    let name = null, direction = null, date = null, failed = false;
+    const win_start = Math.max(0, ai - 5);
+    const win_end   = Math.min(lines.length - 1, ai + 5);
+
+    for (let k = win_start; k <= win_end; k++) {
+      const kl = lines[k];
+      if (k === ai) continue;
+
+      if (FAILED_RE.test(kl)) { failed = true; break; }
+
+      // Direction
+      if (!direction) {
+        if (DEBIT_RE.test(kl) || DEBIT_INLINE.test(kl))   direction = 'debit';
+        if (CREDIT_RE.test(kl) || CREDIT_INLINE.test(kl)) direction = 'credit';
+      }
+
+      // Date
+      if (!date) { const dm = kl.match(DATE_RE); if (dm) date = parseDate(dm[0]); }
+
+      // Name — prefer line closest to the amount that isn't junk
+      if (!name && !isJunkLine(kl) && !AMOUNT_LINE_RE.test(kl) &&
+          !DEBIT_RE.test(kl) && !CREDIT_RE.test(kl)) {
+        name = kl;
+      }
+    }
+
+    if (failed) continue;
+
+    // If still no direction, lean on amount sign or default to debit
+    if (!direction) {
+      direction = amLine.trim().startsWith('+') ? 'credit' : 'debit';
+    }
+
+    name = cleanName(name || 'Unknown');
+    if (name && amount > 0 && !isDuplicate(txns, name, amount)) {
+      const isCredit = direction === 'credit';
+      const { type, cat } = autoCategory(name, isCredit);
+      txns.push({ _id: Date.now() + Math.random(), name, amount, isCredit, date: date || fmtDate(new Date()), type, category: cat, selected: true });
+    }
+  }
+
   return txns;
 }
 
