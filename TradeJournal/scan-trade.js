@@ -246,6 +246,52 @@
       crossCheck(buyHit,  entryFb, (v,t) => { out.entry = v; out.entryTime = t; });
       crossCheck(sellHit, exitFb,  (v,t) => { out.exit  = v; out.exitTime  = t; });
 
+      /* ── TURNOVER-DERIVED PRICE OVERRIDE ────────────────────────────────
+         Zerodha contract notes show a "Trade Value" (turnover) column:
+           e.g.  BUY  500  191.00  95,500.00  09:17:02  NSE
+                              ↑                 ↑
+                          avg price          turnover = qty × price
+
+         Problem: OCR reliably misreads small 3-digit prices like "191.00"
+         as "1900" (decimal dropped / digit inserted), but NEVER misreads
+         large 5-digit numbers like "95,500.00".
+
+         Solution: find every HH:MM:SS timestamp in the doc, look backward
+         for the nearest large turnover, divide by qty → get exact price.
+
+         Only overrides when both prices are found AND they differ
+         (same value = no useful information, don't override). ────────── */
+      const allTimesInDoc = [...flat.matchAll(/\b(\d{2}:\d{2}:\d{2})\b/g)];
+      if (out.qty && out.qty > 0 && allTimesInDoc.length >= 1) {
+        const derived = allTimesInDoc.map(tm => {
+          const pre = flat.slice(Math.max(0, tm.index - 400), tm.index);
+          /* Turnover: last large number (≥5 digits before decimal) before this time */
+          const bigNums = [...pre.matchAll(/([\d,]{5,}\.\d{2})/g)]
+            .map(m => parseFloat(m[1].replace(/,/g, '')))
+            .filter(v => v > 1000);
+          if (!bigNums.length) return null;
+          const price = round2(bigNums[bigNums.length - 1] / out.qty);
+          if (price < 0.5 || price > 999999) return null;
+          return { time: tm[1], price };
+        }).filter(Boolean);
+
+        /* Remove duplicates (same time appearing twice in OCR) */
+        const uniq = derived.filter((d, i, a) => a.findIndex(x => x.time === d.time) === i);
+        uniq.sort((a, b) => a.price - b.price);
+
+        if (uniq.length >= 2 && uniq[uniq.length - 1].price > uniq[0].price) {
+          /* Two distinct prices found — lower = BUY/entry, higher = SELL/exit */
+          out.entry     = uniq[0].price;
+          out.entryTime = uniq[0].time;
+          out.exit      = uniq[uniq.length - 1].price;
+          out.exitTime  = uniq[uniq.length - 1].time;
+        } else if (uniq.length === 1) {
+          /* Only one timestamp found — use its derived price for whichever is missing */
+          if (out.entry == null || Math.abs(out.entry - uniq[0].price) > 1)
+            { out.entry = uniq[0].price; out.entryTime = uniq[0].time; }
+        }
+      }
+
       /* ── Charges — handle ₹ misread as ¥, % or the digit 3 by OCR ──
          Tesseract frequently OCR-reads the ₹ glyph as:
            ¥  (yen)     → handled by [₹¥%]
