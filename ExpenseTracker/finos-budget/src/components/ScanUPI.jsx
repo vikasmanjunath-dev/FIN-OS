@@ -114,21 +114,27 @@ const FAILED_RE  = /\b(Failed|Declined|Expired|Cancelled|Reversed|Failure|Pendin
 const DATE_RE    = /\b(\d{1,2}\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)(\s+\d{2,4})?|Today|Yesterday|\d+\s+days?\s+ago|\d+\s+hours?\s+ago|\d+\s+min\w*\s+ago|\d{1,2}\/\d{1,2}(?:\/\d{2,4})?|\d{1,2}-\d{1,2}-\d{2,4})\b/i;
 const SKIP_RE    = /^(MAY|JAN|FEB|MAR|APR|JUN|JUL|AUG|SEP|OCT|NOV|DEC|History|Search|My\s+Statements|Home|Transactions|Rewards|Refer|Pay|Bills|Scan|UPI|GPay|PhonePe|Paytm|January|February|March|April|June|July|August|September|October|November|December|\d{1,2}:\d{2}|APRIL|MARCH|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER|Bank\s+Transfer|UPI\s+Transfer|Transaction\s+ID|UTR|Ref\.?\s+No|Ref\s+ID|Status|Amount|Date|Time|Details|View\s+Details|More\s+Details)$/i;
 
+// Section headers / UI chrome that appear in PhonePe / GPay receipts.
+// Matched with ^...\b so trailing OCR noise ("Transfer Details A") is also caught.
+const SECTION_HEADER_RE = /^(Transfer\s+Details|PhonePe\s+Transaction|Transaction\s+Successful|Pay\s+securely|Activate\s+Now|Powered\s+by|View\s+History|Split\s+Expense|Share\s+Receipt|Contact\s+\w+\s+Support|UTR:|T\d{12,}|Transaction\s+ID)\b/i;
+
 /* Lines that should never be used as a merchant name */
 function isJunkLine(line) {
   return !line || line.length < 2 || DEBIT_RE.test(line) || CREDIT_RE.test(line) ||
-         AMOUNT_RE.test(line) || FAILED_RE.test(line) || DATE_RE.test(line) || SKIP_RE.test(line);
+         AMOUNT_RE.test(line) || FAILED_RE.test(line) || DATE_RE.test(line) ||
+         SKIP_RE.test(line) || SECTION_HEADER_RE.test(line);
 }
 
-/* Rejects account numbers / transaction IDs that leak in as "names" */
+/* Rejects account numbers / transaction IDs / garbled OCR from being merchant names */
 function isValidName(name) {
   if (!name || name.length < 2) return false;
   if (isJunkLine(name)) return false;
-  if (/X{3,}/i.test(name)) return false;           // masked account: XXXXX0554
-  if (/^[.\s*_|]+/.test(name)) return false;        // starts with . * _ | (OCR artefacts)
-  if (/^\d{6,}/.test(name)) return false;           // starts with long digit run (phone/txn ID)
-  if (/^[A-Z0-9]{14,}$/.test(name)) return false;  // pure uppercase+digits ≥14 = transaction ID
-  if (/@\w+/.test(name)) return false;              // UPI VPA like 9902920686@okbizaxis
+  if (/X{3,}/i.test(name)) return false;                             // masked account: XXXXX0554
+  if (/^[.\s*_|[\]©]+/.test(name)) return false;                    // starts with OCR artefacts
+  if (/^\d{6,}/.test(name)) return false;                           // long digit run = phone/txn ID
+  if (/^[A-Z0-9]{14,}$/.test(name)) return false;                  // pure CAPS+digits ≥14 = txn ID
+  if (/@\w+/.test(name)) return false;                              // UPI VPA: 9902920686@okbizaxis
+  if ((name.match(/[a-zA-Z]/g) || []).length < 3) return false;    // "C k4" has only 2 letters
   return true;
 }
 
@@ -336,9 +342,12 @@ function parseUPI(text) {
 
     if (failed) continue;
 
-    // If still no direction, lean on amount sign or default to debit
+    // No direction keyword found in window → this is likely UI noise or ad text
+    // (e.g., "Pay securely up to ₹5,000") — skip it entirely.
+    // Exception: if the amount line itself starts with + treat as credit.
     if (!direction) {
-      direction = amLine.trim().startsWith('+') ? 'credit' : 'debit';
+      if (amLine.trim().startsWith('+')) direction = 'credit';
+      else continue; // no direction = noise, don't create a fake transaction
     }
 
     name = cleanName(name || 'Unknown');
