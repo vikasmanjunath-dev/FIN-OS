@@ -52,25 +52,27 @@
         const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const d = imgData.data;
         for (let i = 0; i < d.length; i += 4) {
-          // Invert ALL pixels, then binarize at threshold 80 (NOT 140).
+          // Invert ALL pixels, then binarize at threshold 140 using the
+          // MINIMUM channel (not weighted-average grayscale).
           //
-          // Why threshold 80?
-          //   Zerodha Kite uses a dark theme — text is white (255,255,255) and
-          //   backgrounds vary:
-          //     • main rows : dark ~(20,20,25)      → after invert gray ≈ 234 > 80 ✓
-          //     • SELL badge: light-red ~(255,100,100) → after invert gray ≈ 108 > 80 ✓
-          //     • BUY  badge: dark-green ~(20,60,20)  → after invert gray ≈ 211 > 80 ✓
-          //   White text → after invert → gray 0, always < 80 → BLACK ✓
+          // Why min(R,G,B)?
+          //   For achromatic (neutral) pixels R=G=B, so min = weighted avg —
+          //   behaviour is IDENTICAL to the old approach for the main dark-mode
+          //   content (headers, charges, BUY rows, etc.).
           //
-          //   With the old threshold of 140 the SELL badge background landed at
-          //   gray ≈ 108 < 140 → BLACK, making both background AND text black
-          //   (invisible to OCR).  Lowering to 80 gives all coloured backgrounds
-          //   enough headroom while keeping text solidly black.
-          const r = 255 - d[i];
-          const g = 255 - d[i + 1];
-          const b = 255 - d[i + 2];
-          const gray  = 0.299 * r + 0.587 * g + 0.114 * b;
-          const sharp = gray > 80 ? 255 : 0;
+          //   For SATURATED coloured pixels the minimum channel is much lower
+          //   than the weighted average, so after inversion it clears 140:
+          //     • SELL badge ~(255,100,100): min=100 → inverted 155 > 140 → WHITE ✓
+          //       (weighted avg ≈147 → inverted 108 < 140 → BLACK — the old bug)
+          //     • BUY  badge ~(20, 60, 20):  min=20  → inverted 235 > 140 → WHITE ✓
+          //     • main  bg   ~(20, 20, 25):  min=20  → inverted 235 > 140 → WHITE ✓
+          //     • white text (255,255,255):  min=255 → inverted   0 < 140 → BLACK ✓
+          //
+          //   Result: coloured row badges become white background with black text
+          //   instead of invisible black-on-black, with zero regression elsewhere.
+          const origMin = Math.min(d[i], d[i + 1], d[i + 2]);
+          const gray    = 255 - origMin;   // invert the minimum channel
+          const sharp   = gray > 140 ? 255 : 0;
           d[i] = d[i + 1] = d[i + 2] = sharp;
         }
         ctx.putImageData(imgData, 0, 0);
