@@ -40,11 +40,14 @@
       const url = URL.createObjectURL(file);
 
       img.onload = () => {
-        const canvas  = document.createElement('canvas');
-        canvas.width  = img.naturalWidth;
-        canvas.height = img.naturalHeight;
-        const ctx     = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
+        // Scale up mobile screenshots (Zerodha, GPay, etc.) for much better OCR accuracy
+        const scale  = Math.min(3, 2400 / Math.max(img.naturalWidth, img.naturalHeight));
+        const canvas = document.createElement('canvas');
+        canvas.width  = Math.round(img.naturalWidth  * scale);
+        canvas.height = Math.round(img.naturalHeight * scale);
+        const ctx    = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
         const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const d = imgData.data;
@@ -133,7 +136,8 @@
     for (const fn of [parseZerodha, parseGroww, parseUpstox, parseAngelOne]) {
       try {
         const r = fn(lines, flat);
-        if (r && r.symbol) return r;
+        // Accept result if it found a symbol OR any meaningful trading data
+        if (r && (r.symbol || r.net != null || r.pnl != null || r.gross != null)) return r;
       } catch { /* try next */ }
     }
     return parseGeneric(lines, flat);
@@ -142,10 +146,14 @@
   /* ── Zerodha Kite ──────────────────────────────────────────────── */
   function parseZerodha(lines, flat) {
     const isContract  = /Virtual contract note|contract note/i.test(flat);
-    const isPositions = /Total P.{0,3}L|Positions|MIS|CNC/i.test(flat);
+    const isPositions = /Total\s+P.{0,3}L|Positions|MIS|CNC/i.test(flat);
     if (!isContract && !isPositions) return null;
 
     const out = { _broker: 'Zerodha' };
+
+    /* ── Symbol extraction ────────────────────────────────────────
+       Zerodha Positions shows "SHADOWFAX +625.00" on one line.
+       Pass 1: standalone symbol.  Pass 2: symbol + value on same line. */
     out.symbol = extractSymbol(lines);
 
     const instM = flat.match(/\b(EQ|FUT|CE|PE)\b/);
@@ -154,6 +162,7 @@
     const typeM = flat.match(/\b(MIS|CNC|NRML)\b/);
     if (typeM) out.tradeType = typeM[1];
 
+    /* ── Contract note parsing ────────────────────────────────── */
     if (isContract) {
       const buyM = flat.match(
         /Qty[.\s]+(\d+)[^\n]*?Avg[.\s]+([\d.]+)[^\n]*?(\d{2}:\d{2})(?::\d{2})?\s+(NSE|BSE|MCX|NFO)\s+BUY/i
@@ -192,10 +201,27 @@
       out.tax = out.charges.totalCharges || undefined;
     }
 
-    const pnlM = flat.match(/Total\s+P.{0,3}L\s*\n?\s*([+-][\d,]+\.\d{2})/i)
-              || flat.match(/([+-][\d,]+\.\d{2})\s*\n.*(?:EQ|FUT|CE|PE|MIS|CNC)/i);
+    /* ── Positions page: "Total P&L\n+625.00" or "Total P&L +625.00" ──
+       Use [\s\S]{0,30}? so OCR noise between label and value is tolerated.
+       Explicitly exclude NIFTY/SENSEX index lines to avoid picking up
+       index changes like "-76.15" as the trade P&L. */
+    const flatNoIndex = flat
+      .split('\n')
+      .filter(l => !/\b(NIFTY|SENSEX|BANKNIFTY|FINNIFTY|MIDCPNIFTY)\b/i.test(l))
+      .join('\n');
+
+    const pnlM = flatNoIndex.match(/Total\s+P.{0,3}L[\s\S]{0,30}?([+-][\d,]+\.\d{2})/i)
+              || flatNoIndex.match(/([+-][\d,]+\.\d{2})\s*\n[^\n]*(?:EQ|FUT|CE|PE|MIS|CNC)/i);
     if (pnlM) out.pnl = parseMoney(pnlM[1]);
 
+    /* ── Positions page: "Qty. N  Avg. X.XX  MIS/CNC" ─────────── */
+    const posQtyM = flatNoIndex.match(/Qty\.?\s+(\d+)\s+Avg\.?\s+[\d.,]+\s+(MIS|CNC|NRML)/i);
+    if (posQtyM) {
+      out.qty = parseInt(posQtyM[1], 10);
+      if (!out.tradeType) out.tradeType = posQtyM[2];
+    }
+
+    /* ── Final gross/net calculation ──────────────────────────── */
     if (out.entry != null && out.exit != null && out.qty) {
       out.gross = round2((out.exit - out.entry) * out.qty);
     }
@@ -305,10 +331,17 @@
      HELPERS
   ════════════════════════════════════════════════════════════════════ */
   function extractSymbol(lines) {
+    // Pass 1: standalone symbol on its own line
     for (const line of lines) {
       if (/^[A-Z][A-Z0-9&\-]{1,19}$/.test(line) && !SYMBOL_BLOCKLIST.has(line)) {
         return line;
       }
+    }
+    // Pass 2: symbol at the START of a line followed by a price or instrument tag.
+    // Zerodha Positions shows "SHADOWFAX +625.00" on one OCR line.
+    for (const line of lines) {
+      const m = line.match(/^([A-Z][A-Z0-9&\-]{2,19})\s+(?:[+\-]?\d|EQ\b|FUT\b|CE\b|PE\b)/);
+      if (m && !SYMBOL_BLOCKLIST.has(m[1])) return m[1];
     }
     return undefined;
   }
