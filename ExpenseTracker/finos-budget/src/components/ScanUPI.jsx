@@ -350,7 +350,7 @@ function parseUPI(text) {
       else continue; // no direction = noise, don't create a fake transaction
     }
 
-    name = cleanName(name || 'Unknown');
+    name = cleanName(name || '');
     if (isValidName(name) && amount > 0 && !isDuplicate(txns, name, amount)) {
       const isCredit = direction === 'credit';
       const { type, cat } = autoCategory(name, isCredit);
@@ -414,7 +414,7 @@ function parseUPI(text) {
 
       if (failed || !hasDir) continue; // require at least one direction keyword
 
-      name = cleanName(name || 'Unknown');
+      name = cleanName(name || '');
       if (amount > 0 && !isDuplicate(txns, name, amount)) {
         const isCredit = direction === 'credit';
         const { type, cat } = autoCategory(name, isCredit);
