@@ -171,62 +171,119 @@
          BUY/SELL may be unreadable when inside colored boxes → fallback
          to price comparison (lower avg = BUY/entry, higher avg = SELL/exit).
       ─────────────────────────────────────────────────────────────── */
-      const TRADE_RE = /Qty\.?\s+(\d+)\s+Avg\.?\s+([\d.]+)\s+(?:\S+\s+)?(\d{2}:\d{2}(?::\d{2})?)\s+(NSE|BSE|MCX|NFO|NFO)\s+(BUY|SELL)/gi;
+      /* TRADE_RE: labeled hits with BUY/SELL.
+         [^\d\n]*? handles clock icon (⊙) whether or not there's a space:
+           "192.25 ⊙ 10:58:06"  → [^\d\n]*? consumes "⊙ "
+           "192.25 ⊙10:58:06"   → [^\d\n]*? consumes "⊙"
+           "192.25 10:58:06"    → [^\d\n]*? consumes ""  (lazy, zero chars) */
+      const TRADE_RE = /Qty\.?\s+(\d+)\s+Avg\.?\s+([\d.]+)\s+[^\d\n]*?(\d{2}:\d{2}(?::\d{2})?)\s+(NSE|BSE|MCX|NFO)\s+(BUY|SELL)/gi;
       const tradeHits = [...flat.matchAll(TRADE_RE)];
-
       const buyHit  = tradeHits.find(m => /BUY/i.test(m[5]));
       const sellHit = tradeHits.find(m => /SELL/i.test(m[5]));
 
+      /* TRADE_RE2: always run — no BUY/SELL needed.
+         Lower avg price → entry (BUY), higher → exit (SELL).
+         Used to fill any value not found by the labeled regex AND to
+         cross-validate prices (if labeled price is 3× off, use fallback). */
+      const TRADE_RE2 = /Qty\.?\s+(\d+)\s+Avg\.?\s+([\d.]+)\s+[^\d\n]*?(\d{2}:\d{2}(?::\d{2})?)\s+(NSE|BSE|MCX|NFO)/gi;
+      const hits2 = [...flat.matchAll(TRADE_RE2)];
+      let entryHit2 = null, exitHit2 = null;
+      if (hits2.length >= 2) {
+        const [ei, xi] = parseFloat(hits2[0][2]) <= parseFloat(hits2[1][2]) ? [0, 1] : [1, 0];
+        entryHit2 = hits2[ei];
+        exitHit2  = hits2[xi];
+      } else if (hits2.length === 1) {
+        entryHit2 = hits2[0];
+      }
+
+      /* Populate from labeled hits first, then fill gaps from fallback */
       if (buyHit) {
         out.qty       = parseInt(buyHit[1],  10);
         out.entry     = parseFloat(buyHit[2]);
         out.entryTime = buyHit[3];
         out.exchange  = buyHit[4];
+      } else if (entryHit2) {
+        out.qty       = parseInt(entryHit2[1], 10);
+        out.entry     = parseFloat(entryHit2[2]);
+        out.entryTime = entryHit2[3];
+        out.exchange  = entryHit2[4];
       }
       if (sellHit) {
         if (!out.qty) out.qty = parseInt(sellHit[1], 10);
         out.exit     = parseFloat(sellHit[2]);
         out.exitTime = sellHit[3];
         if (!out.exchange) out.exchange = sellHit[4];
+      } else if (exitHit2) {
+        if (!out.qty) out.qty = parseInt(exitHit2[1], 10);
+        out.exit     = parseFloat(exitHit2[2]);
+        out.exitTime = exitHit2[3];
+        if (!out.exchange) out.exchange = exitHit2[4];
       }
 
-      /* Fallback: BUY/SELL labels unreadable (colored boxes after binarise).
-         Use the TWO Qty/Avg/Time lines — lower avg price = entry (BUY),
-         higher avg price = exit (SELL). Works for long trades. */
-      if (!buyHit && !sellHit) {
-        // Try without BUY/SELL at end
-        const TRADE_RE2 = /Qty\.?\s+(\d+)\s+Avg\.?\s+([\d.]+)\s+(?:\S+\s+)?(\d{2}:\d{2}(?::\d{2})?)\s+(NSE|BSE|MCX|NFO)/gi;
-        const hits2 = [...flat.matchAll(TRADE_RE2)];
-        if (hits2.length >= 2) {
-          const [a, b] = hits2;
-          const [entry, exit] = parseFloat(a[2]) <= parseFloat(b[2]) ? [a, b] : [b, a];
-          out.qty       = parseInt(entry[1], 10);
-          out.entry     = parseFloat(entry[2]);
-          out.entryTime = entry[3];
-          out.exchange  = entry[4];
-          out.exit      = parseFloat(exit[2]);
-          out.exitTime  = exit[3];
-        } else if (hits2.length === 1) {
-          out.qty       = parseInt(hits2[0][1], 10);
-          out.entry     = parseFloat(hits2[0][2]);
-          out.entryTime = hits2[0][3];
-          out.exchange  = hits2[0][4];
+      /* Cross-validate: if labeled price is 3× away from price-comparison
+         fallback, OCR mangled the labeled line — prefer fallback price. */
+      if (buyHit && entryHit2) {
+        const lp = parseFloat(buyHit[2]), fp = parseFloat(entryHit2[2]);
+        if (fp > 0 && (lp > fp * 3 || lp < fp / 3)) {
+          out.entry     = fp;
+          out.entryTime = entryHit2[3];
+        }
+      }
+      if (sellHit && exitHit2) {
+        const lp = parseFloat(sellHit[2]), fp = parseFloat(exitHit2[2]);
+        if (fp > 0 && (lp > fp * 3 || lp < fp / 3)) {
+          out.exit     = fp;
+          out.exitTime = exitHit2[3];
         }
       }
 
-      /* ── Charges — handle ₹ misread as ¥ or % by OCR ─────────── */
-      const CUR = '[₹¥%]?';  // currency prefix pattern
-      out.charges = {
-        brokerage:      extractCharge(flat, new RegExp(`Brokerage\\s+${CUR}([\\d,]+\\.\\d{2})`)),
-        stt:            extractCharge(flat, new RegExp(`\\bSTT\\b\\s+${CUR}([\\d,]+\\.\\d{2})`)),
-        stampDuty:      extractCharge(flat, new RegExp(`Stamp\\s*duty\\s+${CUR}([\\d,]+\\.\\d{2})`, 'i')),
-        exchangeCharge: extractCharge(flat, new RegExp(`Exchange\\s+turnover\\s+charge\\s+${CUR}([\\d,]+\\.\\d{2})`, 'i')),
-        sebiCharge:     extractCharge(flat, new RegExp(`SEBI\\s+turnover\\s+charge\\s+${CUR}([\\d,]+\\.\\d{2})`, 'i')),
-        gst:            extractCharge(flat, new RegExp(`\\bGST\\b\\s+${CUR}([\\d,]+\\.\\d{2})`)),
+      /* ── Charges — handle ₹ misread as ¥, % or the digit 3 by OCR ──
+         Tesseract frequently OCR-reads the ₹ glyph as:
+           ¥  (yen)     → handled by [₹¥%]
+           %  (percent) → handled by [₹¥%]
+           3  (digit)   → "₹40.00" becomes "340.00"
+                          Treat leading "3" as a currency prefix ONLY when
+                          it is followed by a digit 1-9 (so genuine "3.00"
+                          isn't accidentally stripped). ─────────────────── */
+      const CUR = '(?:[₹¥%]|3(?=[1-9]))';   // currency prefix (optional via ?)
+
+      /* Helper: try multiple label variants, return first non-null match */
+      const tryCharge = (...patterns) => {
+        for (const p of patterns) {
+          const v = extractCharge(flat, p);
+          if (v != null) return v;
+        }
+        return null;
       };
 
-      /* Total charges line — also handle ₹ misread */
-      const totM = flat.match(/\bTotal\b\s+[₹¥%]?([\d,]+\.\d{2})/);
+      out.charges = {
+        brokerage: tryCharge(
+          new RegExp(`Brokerage\\s+${CUR}?([\\d,]+\\.\\d{2})`),
+        ),
+        stt: tryCharge(
+          // Zerodha labels: "STT", "STT/CTT", "Securities Transaction Tax"
+          new RegExp(`\\bSTT\\b[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`),
+          new RegExp(`Securities\\s+Transaction\\s+Tax[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+        ),
+        stampDuty: tryCharge(
+          new RegExp(`Stamp\\s*(?:duty|charges?)[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+        ),
+        exchangeCharge: tryCharge(
+          new RegExp(`Exchange\\s+(?:turnover|transaction)\\s+charge[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+          new RegExp(`Exchange\\s+charge[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+        ),
+        sebiCharge: tryCharge(
+          new RegExp(`SEBI\\s+(?:turnover|transaction)?\\s*charge[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+          new RegExp(`\\bSEBI\\b[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`),
+        ),
+        gst: tryCharge(
+          new RegExp(`\\bGST\\b[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`),
+          new RegExp(`Goods\\s+and\\s+Services\\s+Tax[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+        ),
+      };
+
+      /* Total charges line — also handle ₹ misread (including ₹→3) */
+      const totM = flat.match(new RegExp(`\\bTotal\\b\\s+${CUR}?([\\d,]+\\.\\d{2})`));
       out.charges.totalCharges = totM
         ? parseMoney(totM[1])
         : Object.values(out.charges).reduce((a, b) => a + (b || 0), 0);
