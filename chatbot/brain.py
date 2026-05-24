@@ -36,11 +36,12 @@ logger = logging.getLogger("fin-os")
 # ──────────────────────────────────────────────
 OLLAMA_URL       = os.getenv("OLLAMA_URL",       "http://localhost:11434")
 OLLAMA_MODEL     = os.getenv("OLLAMA_MODEL",     "llama3.1")
-# Portfolio AI uses a smarter model for richer reasoning — override with PORTFOLIO_MODEL env var
-PORTFOLIO_MODEL  = os.getenv("PORTFOLIO_MODEL",  "qwen3:14b")
+# Portfolio model — defaults to llama3.1 (fast, already warm).
+# Override: PORTFOLIO_MODEL=qwen3:14b python brain.py  (slower but smarter)
+PORTFOLIO_MODEL  = os.getenv("PORTFOLIO_MODEL",  "llama3.1")
 ALLOWED_ORIGINS  = os.getenv("ALLOWED_ORIGINS",  "*").split(",")
 MAX_HISTORY      = int(os.getenv("MAX_HISTORY",   "20"))
-OLLAMA_TIMEOUT   = int(os.getenv("OLLAMA_TIMEOUT","180"))   # longer for portfolio analysis
+OLLAMA_TIMEOUT   = int(os.getenv("OLLAMA_TIMEOUT","120"))
 MAX_SESSIONS     = int(os.getenv("MAX_SESSIONS",  "1000"))
 
 _app_start_time = time.time()
@@ -470,21 +471,24 @@ async def call_ollama_stream(messages: list[dict]) -> AsyncGenerator[str, None]:
                     yield line
 
 
-async def call_portfolio_stream(messages: list[dict]) -> AsyncGenerator[str, None]:
-    """Higher-quality stream for portfolio analysis — uses PORTFOLIO_MODEL with larger context."""
+async def call_portfolio_stream(messages: list[dict], model: str = None) -> AsyncGenerator[str, None]:
+    """Portfolio-tuned stream — model defaults to PORTFOLIO_MODEL, can be overridden per-request."""
+    chosen  = (model or PORTFOLIO_MODEL).strip() or OLLAMA_MODEL
     url     = f"{OLLAMA_URL}/api/chat"
-    payload = {
-        "model":      PORTFOLIO_MODEL,
+    # Scale context window based on model size for best perf/quality balance
+    is_small = any(x in chosen for x in ("3b", "2b", "1b"))
+    num_ctx  = 4096 if is_small else 8192
+    payload  = {
+        "model":      chosen,
         "messages":   messages,
         "stream":     True,
         "keep_alive": -1,
         "options": {
-            "num_ctx":        8192,   # large enough for full portfolio context
-            "num_predict":    2500,   # richer, longer analytical responses
-            "temperature":    0.12,   # more precise / deterministic
-            "top_p":          0.85,
-            "repeat_penalty": 1.15,
-            "stop":           [],
+            "num_ctx":        num_ctx,
+            "num_predict":    1800,
+            "temperature":    0.15,
+            "top_p":          0.9,
+            "repeat_penalty": 1.1,
         }
     }
     async with httpx.AsyncClient(timeout=OLLAMA_TIMEOUT) as client:
@@ -946,11 +950,13 @@ class PortfolioChatRequest(BaseModel):
     portfolio:  PortfolioSnapshot
     session_id: Optional[str] = None
     language:   Optional[str] = "english"
+    model:      Optional[str] = None   # overrides PORTFOLIO_MODEL if set
 
 
 class PortfolioActionRequest(BaseModel):
     portfolio:  PortfolioSnapshot
     language:   Optional[str] = "english"
+    model:      Optional[str] = None   # overrides PORTFOLIO_MODEL if set
 
 
 # ── The core identity — injected at the top of every portfolio prompt ───────
@@ -1087,11 +1093,11 @@ def build_portfolio_ctx(portfolio: PortfolioSnapshot) -> str:
     return "\n".join(l for l in lines if l is not None)
 
 
-async def _portfolio_sse(messages: list[dict]):
-    """Shared SSE generator using PORTFOLIO_MODEL."""
+async def _portfolio_sse(messages: list[dict], model: str = None):
+    """Shared SSE generator — passes model override to call_portfolio_stream."""
     async def gen():
         try:
-            async for line in call_portfolio_stream(messages):
+            async for line in call_portfolio_stream(messages, model=model):
                 try:
                     chunk = json.loads(line)
                     if token := chunk.get("message", {}).get("content", ""):
@@ -1121,12 +1127,13 @@ async def portfolio_chat_stream(request: Request, body: PortfolioChatRequest):
     if len(history) > MAX_HISTORY:
         history[:] = history[-MAX_HISTORY:]
 
-    messages = [{"role": "system", "content": system}] + history
+    messages   = [{"role": "system", "content": system}] + history
+    use_model  = body.model or PORTFOLIO_MODEL
 
     async def event_stream():
         full_reply = []
         try:
-            async for line in call_portfolio_stream(messages):
+            async for line in call_portfolio_stream(messages, model=use_model):
                 try:
                     chunk = json.loads(line)
                     if token := chunk.get("message", {}).get("content", ""):
@@ -1174,7 +1181,7 @@ async def portfolio_briefing_stream(request: Request, body: PortfolioActionReque
         {"role": "system", "content": system},
         {"role": "user",   "content": BRIEFING_PROMPT},
     ]
-    return await _portfolio_sse(messages)
+    return await _portfolio_sse(messages, model=body.model)
 
 
 # ── 3. Portfolio Doctor  ──────────────────────────────────────────────────
@@ -1222,7 +1229,7 @@ async def portfolio_doctor_stream(request: Request, body: PortfolioActionRequest
         {"role": "system", "content": system},
         {"role": "user",   "content": DOCTOR_PROMPT},
     ]
-    return await _portfolio_sse(messages)
+    return await _portfolio_sse(messages, model=body.model)
 
 
 # ── 4. Behavioural Finance Coach  ─────────────────────────────────────────
@@ -1262,7 +1269,7 @@ async def portfolio_behavioral_stream(request: Request, body: PortfolioActionReq
         {"role": "system", "content": system},
         {"role": "user",   "content": BEHAVIORAL_PROMPT},
     ]
-    return await _portfolio_sse(messages)
+    return await _portfolio_sse(messages, model=body.model)
 
 
 if __name__ == "__main__":

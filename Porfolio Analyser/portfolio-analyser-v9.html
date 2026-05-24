@@ -15329,6 +15329,15 @@ let   _aiActiveTab   = 'chat';
 let   _aiChatSession = null;
 let   _aiChatBusy    = false;
 
+// Available models with speed labels  (updated from /health after connect)
+const AI_MODELS = [
+  { id: 'qwen2.5:3b',       label: '⚡ Fast',     desc: 'qwen2.5:3b — ~3s',  speed: 1 },
+  { id: 'llama3.1:latest',  label: '⚖️ Balanced', desc: 'llama3.1 — ~8s',    speed: 2 },
+  { id: 'gemma3:12b-it-qat',label: '🔬 Smart',    desc: 'gemma3:12b — ~20s', speed: 3 },
+  { id: 'qwen3:14b',        label: '🧠 Max',      desc: 'qwen3:14b — ~35s',  speed: 4 },
+];
+let _aiSelectedModel = 'llama3.1:latest';  // default — fast, already loaded
+
 // ── brain.py health check ──────────────────────────────────────────────────
 let _aiPortfolioModel = 'qwen3:14b';
 async function checkBrainHealth() {
@@ -15597,10 +15606,22 @@ async function streamAI(url, payload, outputEl) {
     let   full    = '';
 
     // Thinking indicator
-    outputEl.innerHTML = `<div class="ai-thinking-block">
+    const modelName = (_aiSelectedModel||'llama3.1').replace(':latest','');
+    outputEl.innerHTML = `<div class="ai-thinking-block" id="ai-think-indicator">
       <span class="ai-think-dot"></span><span class="ai-think-dot"></span><span class="ai-think-dot"></span>
-      <span style="font-size:12px;color:var(--dim);margin-left:8px">AI is analysing your portfolio…</span>
+      <span style="font-size:12px;color:var(--dim);margin-left:8px">Analysing with <strong>${modelName}</strong>…</span>
     </div>`;
+
+    // Timeout warning — if no token after 12s, the model may be loading
+    const slowTimer = setTimeout(() => {
+      const ind = document.getElementById('ai-think-indicator');
+      if (ind) ind.innerHTML = `
+        <span class="ai-think-dot"></span><span class="ai-think-dot"></span><span class="ai-think-dot"></span>
+        <span style="font-size:11.5px;color:var(--warn);margin-left:8px">
+          <strong>${modelName}</strong> is loading into memory (~${modelName.includes('14b')?'35':modelName.includes('12b')?'20':'10'}s first run)…
+          <br><span style="font-size:10px;opacity:.7">Switch to ⚡ Fast for instant responses</span>
+        </span>`;
+    }, 12000);
 
     let firstToken = true;
 
@@ -15616,7 +15637,7 @@ async function streamAI(url, payload, outputEl) {
         try {
           const d = JSON.parse(line.slice(6));
           if (d.token) {
-            if (firstToken) { outputEl.innerHTML = ''; firstToken = false; }
+            if (firstToken) { clearTimeout(slowTimer); outputEl.innerHTML = ''; firstToken = false; }
             full += d.token;
             outputEl.innerHTML = aiMd(full) + '<span class="ai-cursor"></span>';
             outputEl.parentElement.scrollTop = outputEl.parentElement.scrollHeight;
@@ -15681,7 +15702,7 @@ async function runBriefing() {
 
   await streamAI(
     `${AI_BRAIN_BASE}/api/portfolio/briefing/stream`,
-    { portfolio: buildPortfolioPayload(), language: 'english' },
+    { portfolio: buildPortfolioPayload(), language: 'english', model: _aiSelectedModel },
     output
   );
 
@@ -15705,7 +15726,7 @@ async function runDoctor() {
 
   await streamAI(
     `${AI_BRAIN_BASE}/api/portfolio/doctor/stream`,
-    { portfolio: buildPortfolioPayload(), language: 'english' },
+    { portfolio: buildPortfolioPayload(), language: 'english', model: _aiSelectedModel },
     output
   );
 
@@ -15729,7 +15750,7 @@ async function runBehavioral() {
 
   await streamAI(
     `${AI_BRAIN_BASE}/api/portfolio/behavioral/stream`,
-    { portfolio: buildPortfolioPayload(), language: 'english' },
+    { portfolio: buildPortfolioPayload(), language: 'english', model: _aiSelectedModel },
     output
   );
 
@@ -15771,13 +15792,25 @@ async function sendAIChat() {
   _aiChatBusy = true;
   sendBtn.disabled = true;
 
-  // "Thinking…" indicator
+  // "Thinking…" indicator with model name
+  const _mn = (_aiSelectedModel||'llama3.1').replace(':latest','');
   const thinkEl = document.createElement('div');
   thinkEl.className = 'ai-thinking';
-  thinkEl.innerHTML = `<span class="ai-think-dot"></span><span class="ai-think-dot"></span><span class="ai-think-dot"></span><span style="font-size:11px;color:var(--dim);margin-left:6px">Analysing your portfolio…</span>`;
+  thinkEl.innerHTML = `<span class="ai-think-dot"></span><span class="ai-think-dot"></span><span class="ai-think-dot"></span><span style="font-size:11px;color:var(--dim);margin-left:6px">${_mn} is thinking…</span>`;
   msgsEl.querySelector('.ai-placeholder')?.remove();
   msgsEl.appendChild(thinkEl);
   msgsEl.scrollTop = msgsEl.scrollHeight;
+
+  // Slow-model timeout warning in chat
+  const _chatSlowTimer = setTimeout(() => {
+    if (thinkEl.isConnected) {
+      thinkEl.innerHTML = `<span class="ai-think-dot"></span><span class="ai-think-dot"></span><span class="ai-think-dot"></span>
+        <span style="font-size:11px;color:var(--warn);margin-left:6px">
+          <strong>${_mn}</strong> loading (~${_mn.includes('14b')?'35':_mn.includes('12b')?'20':'10'}s)…
+          Switch to ⚡ Fast for instant replies
+        </span>`;
+    }
+  }, 12000);
 
   // Bot bubble (populated once first token arrives)
   let botEl = null;
@@ -15792,9 +15825,11 @@ async function sendAIChat() {
         portfolio:  buildPortfolioPayload(),
         session_id: _aiChatSession,
         language:   'english',
+        model:      _aiSelectedModel,
       }),
     });
 
+    clearTimeout(_chatSlowTimer);
     thinkEl.remove();
 
     if (!resp.ok) {
@@ -15838,6 +15873,7 @@ async function sendAIChat() {
       }
     }
   } catch(err) {
+    clearTimeout(_chatSlowTimer);
     thinkEl.remove();
     if (!botEl) { botEl = document.createElement('div'); botEl.className = 'ai-msg bot'; msgsEl.appendChild(botEl); }
     botEl.innerHTML = '🤖 Connection lost. Is brain.py running on port 8000?';
@@ -15898,6 +15934,13 @@ setTimeout(checkBrainHealth, 4000);
   <!-- Header -->
   <div class="ai-panel-head">
     <div class="ai-panel-title">🤖 AI Portfolio Assistant</div>
+    <select id="ai-model-select" onchange="_aiSelectedModel=this.value;_aiChatSession=null;" title="Select AI model — faster models respond in ~3s, smarter ones take ~20-35s"
+      style="background:var(--ink3);border:1px solid var(--rim);border-radius:8px;color:var(--dim2);font-size:10px;padding:3px 6px;cursor:pointer;outline:none;max-width:110px;">
+      <option value="qwen2.5:3b">⚡ Fast ~3s</option>
+      <option value="llama3.1:latest" selected>⚖️ Balanced ~8s</option>
+      <option value="gemma3:12b-it-qat">🔬 Smart ~20s</option>
+      <option value="qwen3:14b">🧠 Max ~35s</option>
+    </select>
     <div id="ai-brain-status">checking...</div>
     <button class="ai-panel-close" onclick="closeAIPanel()" title="Close (Esc)">×</button>
   </div>
