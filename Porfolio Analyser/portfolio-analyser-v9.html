@@ -8,6 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+/* ── DARK THEME (default) ── */
 :root{
   --ink:#04050f;--ink2:#080a1a;--ink3:#0d0f22;
   --card:#0a0c1e;--card2:#0e1025;
@@ -17,9 +18,38 @@
   --txt:#f0f4ff;--dim:#8892b0;--dim2:#aab4cf;
   --sb:230px;
 }
+
+/* ── LIGHT THEME ── */
+[data-theme="light"]{
+  --ink:#f4f5ff;--ink2:#eaecf8;--ink3:#e0e3f3;
+  --card:#ffffff;--card2:#f0f2fc;
+  --rim:rgba(99,88,255,0.15);--rim2:rgba(0,0,0,0.07);
+  --v:#4f46e5;--v2:#7c3aed;--v3:#0891b2;--v4:#e11d48;
+  --go:#059669;--stop:#dc2626;--warn:#d97706;--oj:#ea580c;
+  --txt:#0f1133;--dim:#4a5270;--dim2:#2d3460;
+}
+[data-theme="light"] aside{background:rgba(255,255,255,0.97);}
+[data-theme="light"] #particles{display:none;}
+[data-theme="light"] .nav-btn.on{background:linear-gradient(135deg,rgba(79,70,229,0.12),rgba(8,145,178,0.06));border-color:rgba(79,70,229,0.3);}
+[data-theme="light"] .live-chip{background:rgba(5,150,105,0.07);border-color:rgba(5,150,105,0.25);}
+[data-theme="light"] .export-btn{border-color:rgba(79,70,229,0.2);background:rgba(79,70,229,0.05);color:var(--dim2);}
+[data-theme="light"] tr:nth-child(even) td{background:rgba(79,70,229,0.03);}
+[data-theme="light"] tr:hover td{background:rgba(79,70,229,0.06)!important;}
+[data-theme="light"] th{background:rgba(79,70,229,0.07)!important;color:var(--dim2)!important;}
+[data-theme="light"] .sc-glow{opacity:.08;}
+[data-theme="light"] .sc:hover{box-shadow:0 4px 24px rgba(79,70,229,0.1);}
+[data-theme="light"] .logo-name{background:linear-gradient(135deg,#4f46e5,#0891b2 60%,#059669);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+[data-theme="light"] input[type=text],[data-theme="light"] input[type=number],[data-theme="light"] select,[data-theme="light"] textarea{background:var(--card)!important;color:var(--txt)!important;border-color:var(--rim)!important;}
+[data-theme="light"] ::-webkit-scrollbar-track{background:var(--ink2);}
+[data-theme="light"] ::-webkit-scrollbar-thumb{background:rgba(79,70,229,0.25);}
+
+/* ── THEME TOGGLE BUTTON ── */
+.theme-toggle-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:7px 10px;margin-top:8px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:600;border:1px solid var(--rim);background:rgba(99,88,255,0.06);color:var(--dim2);transition:all 0.18s;letter-spacing:.3px;}
+.theme-toggle-btn:hover{background:rgba(99,88,255,0.13);border-color:var(--v);color:var(--txt);}
+
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;font-size:14px;}
-body{font-family:'Outfit',sans-serif;background:var(--ink);color:var(--txt);overflow-x:hidden;min-height:100vh;}
+body{font-family:'Outfit',sans-serif;background:var(--ink);color:var(--txt);overflow-x:hidden;min-height:100vh;transition:background .25s,color .25s;}
 
 /* ── PARTICLES ── */
 #particles{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
@@ -2383,6 +2413,9 @@ input[type=range]{accent-color:#ffb932;}
       <button class="export-btn" onclick="window.print()" style="flex:1;justify-content:center">🖨️ Print Report</button>
       <button class="export-btn" onclick="if(confirm('Clear portfolio and upload a new file?')){localStorage.removeItem('portfolioai_eq');localStorage.removeItem('portfolioai_mf');localStorage.removeItem('portfolioai_ts');location.reload();}" style="flex:1;justify-content:center;background:rgba(244,63,94,0.08);border-color:rgba(244,63,94,0.25);color:#f43f5e" title="Upload a different file">🗑️ Clear</button>
     </div>
+    <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Switch between dark and light mode">
+      <span id="theme-icon">☀️</span> <span id="theme-label">Light Mode</span>
+    </button>
   </div>
 </aside>
 
@@ -4061,6 +4094,28 @@ input[type=range]{accent-color:#ffb932;}
 
 <!-- ═══════════════════ SCRIPT ═══════════════════ -->
 <script>
+// ── THEME TOGGLE ──
+(function(){
+  const saved = localStorage.getItem('portfolioai_theme');
+  if (saved === 'light') document.documentElement.setAttribute('data-theme','light');
+})();
+function toggleTheme(){
+  const html = document.documentElement;
+  const isLight = html.getAttribute('data-theme') === 'light';
+  isLight ? html.removeAttribute('data-theme') : html.setAttribute('data-theme','light');
+  localStorage.setItem('portfolioai_theme', isLight ? 'dark' : 'light');
+  _updateThemeBtn(!isLight);
+}
+function _updateThemeBtn(isLight){
+  const icon = document.getElementById('theme-icon');
+  const lbl  = document.getElementById('theme-label');
+  if(icon) icon.textContent  = isLight ? '🌙' : '☀️';
+  if(lbl)  lbl.textContent   = isLight ? 'Dark Mode' : 'Light Mode';
+}
+document.addEventListener('DOMContentLoaded',function(){
+  _updateThemeBtn(document.documentElement.getAttribute('data-theme')==='light');
+});
+
 // ── PARTICLES ──
 (function(){
   const c=document.getElementById('particles');
