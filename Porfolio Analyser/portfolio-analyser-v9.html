@@ -2560,6 +2560,75 @@ input[type=range]{accent-color:#ffb932;}
   font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--v2);
 }
 
+/* ── Quick chips ── */
+.ai-chip{
+  padding:5px 11px;border-radius:20px;font-size:11px;font-weight:600;
+  border:1px solid rgba(99,88,255,.25);
+  background:rgba(99,88,255,.07);color:var(--dim2);
+  cursor:pointer;white-space:nowrap;transition:all .15s;
+}
+.ai-chip:hover{
+  background:rgba(99,88,255,.16);border-color:var(--v);color:var(--txt);
+  transform:translateY(-1px);
+}
+
+/* ── Thinking indicator ── */
+.ai-thinking{
+  display:flex;align-items:center;padding:10px 14px;
+  align-self:flex-start;
+}
+.ai-thinking-block{
+  display:flex;align-items:center;padding:16px 0 8px;
+}
+.ai-think-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--v2);
+  margin:0 3px;animation:ai-think-bounce .8s ease-in-out infinite;
+}
+.ai-think-dot:nth-child(2){animation-delay:.15s;}
+.ai-think-dot:nth-child(3){animation-delay:.3s;}
+@keyframes ai-think-bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
+
+/* ── AI output — rich markdown ── */
+.ai-output h2{
+  font-family:'Clash Display',sans-serif;font-size:13.5px;font-weight:700;
+  color:var(--v2);margin:18px 0 6px;padding-bottom:5px;border-bottom:1px solid var(--rim);
+}
+.ai-output h3{font-size:12.5px;font-weight:700;color:var(--v2);margin:14px 0 4px;}
+.ai-output .ai-list-item{
+  display:flex;gap:8px;margin:4px 0;line-height:1.6;
+}
+.ai-output .ai-list-n{
+  width:18px;height:18px;border-radius:50%;flex-shrink:0;margin-top:2px;
+  background:rgba(99,88,255,.18);color:var(--v2);
+  font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;
+}
+.ai-output .ai-bullet{margin:3px 0;padding-left:4px;line-height:1.6;}
+.ai-output .ai-code{
+  background:var(--ink3);border:1px solid var(--rim);border-radius:8px;
+  padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;
+  overflow-x:auto;margin:8px 0;white-space:pre;
+}
+.ai-inline-code{
+  background:rgba(99,88,255,.12);padding:1px 5px;border-radius:4px;
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--v2);
+}
+
+/* ── Copy button ── */
+.ai-copy-btn{
+  display:block;margin-top:10px;padding:4px 10px;
+  border-radius:6px;font-size:11px;font-weight:600;
+  border:1px solid var(--rim);background:transparent;
+  color:var(--dim);cursor:pointer;transition:all .15s;
+}
+.ai-copy-btn:hover{background:rgba(99,88,255,.1);border-color:var(--v);color:var(--v2);}
+
+/* Bot message rich content */
+.ai-msg.bot .ai-list-item{display:flex;gap:6px;margin:3px 0;}
+.ai-msg.bot .ai-list-n{width:16px;height:16px;border-radius:50%;flex-shrink:0;margin-top:2px;background:rgba(99,88,255,.18);color:var(--v2);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.ai-msg.bot .ai-bullet{margin:2px 0;padding-left:2px;}
+.ai-msg.bot h2{font-size:12px;font-weight:700;color:var(--v2);margin:10px 0 4px;border-bottom:1px solid var(--rim);padding-bottom:3px;}
+.ai-msg.bot h3{font-size:11.5px;font-weight:700;color:var(--v2);margin:8px 0 3px;}
+
 /* ── CHAT TAB ── */
 .ai-chat-messages{
   flex:1;overflow-y:auto;padding:14px 16px;
@@ -15261,6 +15330,7 @@ let   _aiChatSession = null;
 let   _aiChatBusy    = false;
 
 // ── brain.py health check ──────────────────────────────────────────────────
+let _aiPortfolioModel = 'qwen3:14b';
 async function checkBrainHealth() {
   const statusEl = document.getElementById('ai-brain-status');
   const pulseEl  = document.getElementById('ai-pulse-dot');
@@ -15270,59 +15340,126 @@ async function checkBrainHealth() {
     });
     if (r.ok) {
       const h = await r.json();
-      _aiBrainOnline = true;
-      const model = (h.model || 'llama3.1').replace(':latest','');
-      if (statusEl) { statusEl.textContent = `${model} ● online`; statusEl.style.color = 'var(--go)'; }
+      _aiBrainOnline   = true;
+      _aiPortfolioModel = h.portfolio_model || h.model || 'qwen3:14b';
+      const dispModel   = _aiPortfolioModel.replace(':latest','').replace(':instruct','');
+      if (statusEl) { statusEl.textContent = `${dispModel} ● online`; statusEl.style.color = 'var(--go)'; }
       if (pulseEl)  { pulseEl.style.background = '#34d399'; }
+      const badge = document.getElementById('ai-model-badge');
+      if (badge) badge.textContent = dispModel;
       return true;
     }
   } catch(e) {}
   _aiBrainOnline = false;
   if (statusEl) { statusEl.textContent = 'brain.py offline'; statusEl.style.color = 'var(--warn)'; }
-  if (pulseEl)  { pulseEl.style.background = 'var(--warn)'; }
+  if (pulseEl)  { pulseEl.style.background = 'var(--warn)'; pulseEl.style.animation = 'none'; }
   return false;
 }
 
-// ── Build portfolio payload from live EQ/MF arrays ─────────────────────────
+// ── Build a richly pre-computed portfolio payload ──────────────────────────
 function buildPortfolioPayload() {
   const holdings = [];
 
   const addHolding = (h, fallbackSector) => {
-    const live        = window.LIVE_DATA?.[h.sym] || {};
-    const cmp         = h.cmp  || live.price || h.avg || 0;
-    const qty         = h.qty  || 0;
-    const invested    = h.invested || (h.avg * qty) || 0;
-    const currVal     = h.currVal  || (cmp  * qty) || 0;
-    const pnl         = currVal - invested;
-    const pnlPct      = invested > 0 ? (pnl / invested * 100) : 0;
-    const dayChangePct = live.changePct || 0;
+    const live         = window.LIVE_DATA?.[h.sym] || {};
+    const cmp          = h.cmp  || live.price || h.avg || 0;
+    const qty          = h.qty  || 0;
+    const invested     = h.invested   || (h.avg * qty) || 0;
+    const currVal      = h.currVal    || (cmp * qty)   || 0;
+    const pnl          = currVal - invested;
+    const pnlPct       = invested > 0 ? (pnl / invested * 100) : 0;
+    const dayChangePct = live.changePct || h.dayChangePct || 0;
     holdings.push({
-      sym: h.sym || '',
-      name: h.name || h.sym || '',
-      qty,
-      avg:          h.avg || 0,
-      cmp,
-      invested,
-      currVal,
-      pnl,
-      pnlPct,
+      sym: h.sym || '', name: h.name || h.sym || '',
+      qty, avg: h.avg || 0, cmp, invested, currVal, pnl, pnlPct,
       dayChangePct,
       sector: h.sector || fallbackSector || '',
-      weight: 0,   // computed below
+      weight: 0,
     });
   };
 
   if (typeof EQ !== 'undefined' && EQ) EQ.forEach(h => addHolding(h, h.sector || ''));
   if (typeof MF !== 'undefined' && MF) MF.forEach(h => addHolding(h, 'Mutual Fund'));
 
-  const totalValue    = holdings.reduce((s, h) => s + h.currVal,   0);
-  const totalInvested = holdings.reduce((s, h) => s + h.invested,  0);
+  const totalValue    = holdings.reduce((s, h) => s + h.currVal,  0);
+  const totalInvested = holdings.reduce((s, h) => s + h.invested, 0);
   const totalDayChg   = holdings.reduce((s, h) => s + h.currVal * h.dayChangePct / 100, 0);
   const dayChangePct  = totalValue > 0 ? (totalDayChg / totalValue * 100) : 0;
-
   holdings.forEach(h => { h.weight = totalValue > 0 ? (h.currVal / totalValue * 100) : 0; });
 
-  return { totalValue, totalInvested, dayChange: totalDayChg, dayChangePct, holdings };
+  // ── Pre-computed analytics the AI uses directly ──
+  const sortedW     = [...holdings].sort((a,b) => b.weight - a.weight);
+  const top5Weight  = sortedW.slice(0,5).reduce((s,h) => s + h.weight, 0);
+  const winners     = holdings.filter(h => h.pnlPct > 0);
+  const winRate     = holdings.length ? (winners.length / holdings.length * 100) : 0;
+  const bigGainers  = holdings.filter(h => h.pnlPct > 50).map(h => h.sym);
+  const bigLosers   = holdings.filter(h => h.pnlPct < -25).map(h => h.sym);
+
+  // Sector breakdown
+  const sectorBreakdown = {};
+  holdings.forEach(h => {
+    const s = h.sector || 'Unknown';
+    sectorBreakdown[s] = (sectorBreakdown[s] || 0) + h.weight;
+  });
+
+  // Herfindahl concentration score (0-100)
+  const hhi = holdings.reduce((s,h) => s + (h.weight/100)**2, 0);
+  const concentrationScore = Math.min(100, Math.round(hhi * 1000));
+
+  return {
+    totalValue, totalInvested,
+    dayChange: totalDayChg, dayChangePct,
+    holdings,
+    sectorBreakdown,
+    concentrationScore,
+    top5Weight,
+    winRate,
+    bigGainers,
+    bigLosers,
+  };
+}
+
+// ── Generate contextual quick-prompt chips from the actual portfolio ────────
+function buildQuickChips() {
+  if (!(EQ && EQ.length) && !(MF && MF.length)) return [];
+
+  const payload  = buildPortfolioPayload();
+  const { holdings, sectorBreakdown, top5Weight, bigGainers, bigLosers } = payload;
+  if (!holdings.length) return [];
+
+  const chips = [];
+  const sortedW  = [...holdings].sort((a,b) => b.weight - a.weight);
+  const topSec   = Object.entries(sectorBreakdown).sort((a,b) => b[1]-a[1])[0];
+  const bigLoss  = [...holdings].sort((a,b) => a.pnlPct - b.pnlPct)[0];
+  const bigGain  = [...holdings].sort((a,b) => b.pnlPct - a.pnlPct)[0];
+  const topPos   = sortedW[0];
+
+  // Always-present contextual chips
+  chips.push({ icon:'🎯', label:'Biggest risk',    q:'What is my single biggest portfolio risk right now?' });
+  chips.push({ icon:'📊', label:'vs Nifty',        q:'How is my portfolio performing compared to Nifty 50? Am I beating the index?' });
+
+  // Dynamic chips based on portfolio data
+  if (topPos && topPos.weight > 10)
+    chips.push({ icon:'⚠️', label:`${topPos.sym} weight`, q:`${topPos.sym} is my largest position at ${topPos.weight.toFixed(1)}% of my portfolio. Is this too much? Should I trim it?` });
+
+  if (bigGainers.length > 0)
+    chips.push({ icon:'💰', label:'Book profits?', q:`My top gainers — ${bigGainers.slice(0,3).join(', ')} — are up significantly. Should I book partial profits? What % should I keep?` });
+
+  if (bigLosers.length > 0)
+    chips.push({ icon:'🚨', label:'Cut losses?',   q:`I'm holding ${bigLosers.slice(0,3).join(', ')} with large losses. Should I cut these, average down, or hold?` });
+
+  if (topSec && topSec[1] > 28)
+    chips.push({ icon:'🏭', label:`${topSec[0]} overweight?`, q:`${topSec[0]} is ${topSec[1].toFixed(1)}% of my portfolio. Is that too concentrated? What's the risk?` });
+
+  if (bigLoss)
+    chips.push({ icon:'📉', label:`${bigLoss.sym} thesis`,    q:`${bigLoss.sym} is down ${Math.abs(bigLoss.pnlPct).toFixed(1)}%. Is my investment thesis still valid or should I exit?` });
+
+  if (bigGain)
+    chips.push({ icon:'🎯', label:'Tax planning',  q:`Which of my holdings have the biggest gains? What's my LTCG/STCG tax exposure if I sell now?` });
+
+  chips.push({ icon:'⚖️', label:'Rebalance?',    q:'Does my portfolio need rebalancing? Which sectors/positions should I reduce and which should I add to?' });
+
+  return chips.slice(0, 6); // max 6 chips
 }
 
 // ── Open / Close panel ─────────────────────────────────────────────────────
@@ -15341,6 +15478,9 @@ function openAIPanel(tab) {
   if (tab) switchAITab(tab, null);
   checkBrainHealth();
 
+  // Render context-aware quick chips
+  _renderQuickChips();
+
   // Auto-check portfolio availability
   const noPortfolio = !(EQ && EQ.length) && !(MF && MF.length);
   if (noPortfolio) {
@@ -15352,6 +15492,28 @@ function openAIPanel(tab) {
   document.querySelector('aside')?.classList.remove('open');
   const sbOverlay = document.getElementById('sb-overlay');
   if (sbOverlay) sbOverlay.style.display = 'none';
+}
+
+function _renderQuickChips() {
+  const container = document.getElementById('ai-quick-chips');
+  if (!container) return;
+  const chips = buildQuickChips();
+  if (!chips.length) { container.style.display = 'none'; return; }
+  container.style.display = 'flex';
+  container.innerHTML = chips.map(c =>
+    `<button class="ai-chip" onclick="useQuickChip(${JSON.stringify(c.q).replace(/'/g,'&#39;')})">${c.icon} ${c.label}</button>`
+  ).join('');
+}
+
+function useQuickChip(q) {
+  const inputEl = document.getElementById('ai-chat-input');
+  if (!inputEl) return;
+  inputEl.value = q;
+  inputEl.style.height = 'auto';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 100) + 'px';
+  inputEl.focus();
+  // Smooth UX: auto-send after a short delay so user can see what was set
+  sendAIChat();
 }
 
 function closeAIPanel() {
@@ -15380,20 +15542,40 @@ function switchAITab(tab, clickedBtn) {
   if (panelEl) panelEl.classList.add('active');
 }
 
-// ── Minimal Markdown → HTML renderer ──────────────────────────────────────
-function aiMd(text) {
-  return text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')   // escape HTML first
-    .replace(/^## (.+)$/gm,  '<h2>$1</h2>')
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g,    '<em>$1</em>')
-    .replace(/`(.+?)`/g,      '<code>$1</code>')
-    .replace(/^---+$/gm,      '<hr>')
-    .replace(/\n/g, '<br>');
+// ── Markdown → HTML renderer (improved) ───────────────────────────────────
+function aiMd(raw) {
+  // Don't escape — the AI sometimes uses ₹ and other unicode that should render
+  let t = raw;
+
+  // Code blocks first (before other replacements)
+  t = t.replace(/```[\w]*\n?([\s\S]*?)```/g, '<pre class="ai-code">$1</pre>');
+  t = t.replace(/`([^`]+)`/g, '<code class="ai-inline-code">$1</code>');
+
+  // Headers
+  t = t.replace(/^## (.+)$/gm,  '<h2>$1</h2>');
+  t = t.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+
+  // Bold / italic
+  t = t.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  t = t.replace(/\*\*(.+?)\*\*/g,     '<strong>$1</strong>');
+  t = t.replace(/\*([^*\n]+?)\*/g,    '<em>$1</em>');
+
+  // Numbered lists
+  t = t.replace(/^(\d+)\. (.+)$/gm, '<div class="ai-list-item"><span class="ai-list-n">$1</span><span>$2</span></div>');
+
+  // Bullet lists
+  t = t.replace(/^[-•] (.+)$/gm, '<div class="ai-bullet">• $1</div>');
+
+  // Horizontal rule
+  t = t.replace(/^-{3,}$/gm, '<hr>');
+
+  // Line breaks (preserve double newlines as paragraph breaks)
+  t = t.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+
+  return t;
 }
 
-// ── Generic SSE streamer ───────────────────────────────────────────────────
+// ── Generic SSE streamer (for Briefing / Doctor / Coach) ──────────────────
 async function streamAI(url, payload, outputEl) {
   try {
     const resp = await fetch(url, {
@@ -15413,7 +15595,14 @@ async function streamAI(url, payload, outputEl) {
     const decoder = new TextDecoder();
     let   buffer  = '';
     let   full    = '';
-    outputEl.innerHTML = '<span class="ai-cursor"></span>';
+
+    // Thinking indicator
+    outputEl.innerHTML = `<div class="ai-thinking-block">
+      <span class="ai-think-dot"></span><span class="ai-think-dot"></span><span class="ai-think-dot"></span>
+      <span style="font-size:12px;color:var(--dim);margin-left:8px">AI is analysing your portfolio…</span>
+    </div>`;
+
+    let firstToken = true;
 
     while (true) {
       const { done, value } = await reader.read();
@@ -15427,12 +15616,17 @@ async function streamAI(url, payload, outputEl) {
         try {
           const d = JSON.parse(line.slice(6));
           if (d.token) {
+            if (firstToken) { outputEl.innerHTML = ''; firstToken = false; }
             full += d.token;
             outputEl.innerHTML = aiMd(full) + '<span class="ai-cursor"></span>';
             outputEl.parentElement.scrollTop = outputEl.parentElement.scrollHeight;
           }
-          if (d.done)  { outputEl.innerHTML = aiMd(full); }
-          if (d.error) { outputEl.innerHTML = `<div class="ai-offline-msg">⚠️ ${d.error}</div>`; }
+          if (d.done) {
+            outputEl.innerHTML = aiMd(full) + _copyBtn(full);
+          }
+          if (d.error) {
+            outputEl.innerHTML = `<div class="ai-offline-msg">⚠️ ${d.error}</div>`;
+          }
         } catch(e) {}
       }
     }
@@ -15567,21 +15761,27 @@ async function sendAIChat() {
     return;
   }
 
+  // Hide quick chips after first message
+  const chipsEl = document.getElementById('ai-quick-chips');
+  if (chipsEl) chipsEl.style.display = 'none';
+
   _appendChatMsg(msgsEl, 'user', message);
   inputEl.value = '';
   inputEl.style.height = 'auto';
-
   _aiChatBusy = true;
   sendBtn.disabled = true;
 
-  // Bot bubble with streaming cursor
-  const botEl = document.createElement('div');
-  botEl.className = 'ai-msg bot';
-  botEl.innerHTML = '<span class="ai-cursor"></span>';
-  // Remove placeholder
+  // "Thinking…" indicator
+  const thinkEl = document.createElement('div');
+  thinkEl.className = 'ai-thinking';
+  thinkEl.innerHTML = `<span class="ai-think-dot"></span><span class="ai-think-dot"></span><span class="ai-think-dot"></span><span style="font-size:11px;color:var(--dim);margin-left:6px">Analysing your portfolio…</span>`;
   msgsEl.querySelector('.ai-placeholder')?.remove();
-  msgsEl.appendChild(botEl);
+  msgsEl.appendChild(thinkEl);
   msgsEl.scrollTop = msgsEl.scrollHeight;
+
+  // Bot bubble (populated once first token arrives)
+  let botEl = null;
+  let full   = '';
 
   try {
     const resp = await fetch(`${AI_BRAIN_BASE}/api/portfolio/chat/stream`, {
@@ -15591,18 +15791,18 @@ async function sendAIChat() {
         message,
         portfolio:  buildPortfolioPayload(),
         session_id: _aiChatSession,
-        persona:    'analyst',
         language:   'english',
       }),
     });
 
+    thinkEl.remove();
+
     if (!resp.ok) {
-      botEl.innerHTML = `⚠️ Error ${resp.status}: ${resp.statusText}`;
+      _appendChatMsg(msgsEl, 'bot', `⚠️ Error ${resp.status}: ${resp.statusText}`);
     } else {
       const reader  = resp.body.getReader();
       const decoder = new TextDecoder();
       let   buffer  = '';
-      let   full    = '';
 
       while (true) {
         const { done, value } = await reader.read();
@@ -15617,17 +15817,29 @@ async function sendAIChat() {
             const d = JSON.parse(line.slice(6));
             if (d.token) {
               full += d.token;
+              if (!botEl) {
+                botEl = document.createElement('div');
+                botEl.className = 'ai-msg bot';
+                msgsEl.appendChild(botEl);
+              }
               botEl.innerHTML = aiMd(full) + '<span class="ai-cursor"></span>';
               msgsEl.scrollTop = msgsEl.scrollHeight;
             }
             if (d.session_id) _aiChatSession = d.session_id;
-            if (d.done)  { botEl.innerHTML = aiMd(full); }
-            if (d.error) { botEl.innerHTML = `⚠️ ${d.error}`; }
+            if (d.done && botEl)  {
+              botEl.innerHTML = aiMd(full) + _copyBtn(full);
+            }
+            if (d.error) {
+              if (!botEl) { botEl = document.createElement('div'); botEl.className = 'ai-msg bot'; msgsEl.appendChild(botEl); }
+              botEl.innerHTML = `⚠️ ${d.error}`;
+            }
           } catch(e) {}
         }
       }
     }
   } catch(err) {
+    thinkEl.remove();
+    if (!botEl) { botEl = document.createElement('div'); botEl.className = 'ai-msg bot'; msgsEl.appendChild(botEl); }
     botEl.innerHTML = '🤖 Connection lost. Is brain.py running on port 8000?';
   }
 
@@ -15636,13 +15848,32 @@ async function sendAIChat() {
   msgsEl.scrollTop = msgsEl.scrollHeight;
 }
 
+function _copyBtn(text) {
+  const safe = text.replace(/`/g,'\\`').replace(/\$/g,'\\$');
+  return `<button class="ai-copy-btn" onclick="navigator.clipboard.writeText(\`${safe}\`).then(()=>{this.textContent='✓ Copied';setTimeout(()=>{this.textContent='⎘ Copy'},1500)})" title="Copy response">⎘ Copy</button>`;
+}
+
 function _appendChatMsg(container, role, html) {
   container.querySelector('.ai-placeholder')?.remove();
+  container.querySelector('.ai-thinking')?.remove();
   const el = document.createElement('div');
   el.className = `ai-msg ${role}`;
   el.innerHTML = html;
   container.appendChild(el);
   container.scrollTop = container.scrollHeight;
+}
+
+// Clear chat
+function clearAIChat() {
+  const msgsEl = document.getElementById('ai-chat-messages');
+  if (!msgsEl) return;
+  _aiChatSession = null;
+  msgsEl.innerHTML = `<div class="ai-placeholder">
+    <div class="ai-placeholder-icon">💬</div>
+    <strong>Chat cleared</strong>
+    <p>Ask anything about your ${(EQ&&EQ.length||0)+(MF&&MF.length||0)} holdings.</p>
+  </div>`;
+  _renderQuickChips();
 }
 
 // ── Keyboard shortcuts ─────────────────────────────────────────────────────
@@ -15677,6 +15908,7 @@ setTimeout(checkBrainHealth, 4000);
     <button class="ai-tab" onclick="switchAITab('briefing',this)">🌅 Briefing</button>
     <button class="ai-tab" onclick="switchAITab('doctor',this)">🏥 Doctor</button>
     <button class="ai-tab" onclick="switchAITab('coach',this)">🧠 Coach</button>
+    <button class="ai-tab" style="margin-left:auto;font-size:10px;padding:4px 8px;opacity:.6" onclick="clearAIChat()" title="Clear chat history">🗑</button>
   </div>
 
   <!-- Tab panels -->
@@ -15687,13 +15919,15 @@ setTimeout(checkBrainHealth, 4000);
       <div class="ai-chat-messages" id="ai-chat-messages">
         <div class="ai-placeholder">
           <div class="ai-placeholder-icon">💬</div>
-          <strong>Talk to your portfolio</strong>
-          <p>Ask anything — "What's my biggest risk?", "Which sector am I overweight in?", "Should I book some profits in RELIANCE?"</p>
+          <strong>Ask anything about your portfolio</strong>
+          <p>Powered by <span id="ai-model-badge" style="color:var(--v2);font-weight:600">qwen3:14b</span> — your personal portfolio analyst</p>
         </div>
       </div>
+      <!-- Quick chips — dynamically generated from actual portfolio data -->
+      <div id="ai-quick-chips" style="display:none;flex-wrap:wrap;gap:6px;padding:8px 14px;border-top:1px solid var(--rim);"></div>
       <div class="ai-chat-input-wrap">
         <textarea class="ai-chat-input" id="ai-chat-input"
-          placeholder="Ask about your portfolio…"
+          placeholder="What's my biggest risk? Which sector am I overweight in? Should I book profits?"
           rows="1"
           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIChat();}
                      this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px';">
