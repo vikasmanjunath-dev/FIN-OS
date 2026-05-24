@@ -1,7 +1,7 @@
 {
   "rewrites": [
-    { "source": "/portfolio-analyser", "destination": "/Porfolio Analyser/portfolio-analyser-v10.html" },
-    { "source": "/portfolio",          "destination": "/Porfolio Analyser/portfolio-analyser-v10.html" },
+    { "source": "/portfolio-analyser", "destination": "/Porfolio Analyser/portfolio-analyser-v9.html" },
+    { "source": "/portfolio",          "destination": "/Porfolio Analyser/portfolio-analyser-v9.html" },
     { "source": "/trade-journal",      "destination": "/TradeJournal/index.html" },
     { "source": "/trades",             "destination": "/TradeJournal/index.html" },
     { "source": "/expense-tracker",    "destination": "/ExpenseTracker/finos-budget/index.html" },

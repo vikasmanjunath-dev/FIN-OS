@@ -528,7 +528,7 @@ def merge_quote(nse: dict, yf_d: dict, scr: dict) -> dict:
         "200dma":      yf_d.get("200dma"),
         # ── Provenance ──
         "_sources": {
-            "price":        nse.get("source", "none"),
+            "price":        nse.get("source") or (yf_d.get("source") if yf_d.get("price") else "none"),
             "fundamentals": yf_d.get("source", "none"),
             "extras":       scr.get("source_scr", "none"),
         },
@@ -549,11 +549,16 @@ async def get_full_quote(symbol: str, force_refresh: bool = False) -> dict:
     cached_price = price_cache.get(sym)
     cached_fund  = fund_cache.get(sym)
 
-    # Cache hit
+    # Full cache hit — both price (60s) and fundamentals (6h) are fresh
     if not force_refresh and cached_price and cached_fund:
         result = merge_quote(cached_price, cached_fund, {})
         result.setdefault("_freshness", {})["cached"] = True
         return result
+
+    # Partial hit — fundamentals cached but price expired → refresh price only
+    if not force_refresh and cached_fund and not cached_price:
+        log.debug(f"{sym}: price cache miss, fund cache hit — refreshing price only")
+        # Fall through to fetch; yfinance price will be re-fetched and re-cached below
 
     # Run all 3 sources concurrently
     loop = asyncio.get_running_loop()
@@ -571,12 +576,34 @@ async def get_full_quote(symbol: str, force_refresh: bool = False) -> dict:
     screener_data = screener_data if isinstance(screener_data, dict) else {}
     yf_data       = yf_data       if isinstance(yf_data, dict)       else {}
 
+    # ── Populate price_cache (60s TTL) ──────────────────────────────────────
+    # NSE wins; when NSE is blocked (403) yfinance provides the price —
+    # cache it the same way so subsequent calls within 60s avoid re-fetching.
     if nse_data:
         price_cache[sym] = nse_data
+    elif yf_data.get("price"):
+        # Store a minimal price snapshot in price_cache so the 60s TTL applies
+        price_cache[sym] = {
+            "price":     yf_data["price"],
+            "open":      yf_data.get("open"),
+            "high":      yf_data.get("high"),
+            "low":       yf_data.get("low"),
+            "prevClose": yf_data.get("prevClose"),
+            "change":    yf_data.get("change"),
+            "changePct": yf_data.get("changePct"),
+            "volume":    yf_data.get("volume"),
+            "weekHigh52":yf_data.get("weekHigh52"),
+            "weekLow52": yf_data.get("weekLow52"),
+            "source":    "Yahoo Finance",
+            "_ts":       time.time(),
+        }
+
+    # ── Populate fund_cache (6h TTL) — fundamentals only ────────────────────
     if yf_data:
         fund_cache[sym] = yf_data
 
-    return merge_quote(nse_data, yf_data, screener_data)
+    return merge_quote(nse_data if nse_data else price_cache.get(sym, {}),
+                       yf_data, screener_data)
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
