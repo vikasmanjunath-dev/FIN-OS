@@ -4764,7 +4764,7 @@ async function fetchAllLivePrices(timeoutMs = 15000) {
   // Fire all batches in parallel (for most portfolios this is just 1 request)
   const results = await Promise.allSettled(
     batches.map(batch =>
-      fetch(`http://localhost:8765/bulk?symbols=${batch.join(',')}`, {
+      fetch(`http://localhost:8766/bulk?symbols=${batch.join(',')}`, {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
         signal: AbortSignal.timeout(timeoutMs),
@@ -9194,7 +9194,7 @@ function buildAnalytics(){
 // ════ QUANT INTELLIGENCE ENGINE ════
 // ── Smart Claude API router ──────────────────────────────────────────────────
 // Priority 1: claude.ai artifact sandbox  → direct browser call (no key needed)
-// Priority 2: local server.py proxy       → forward via localhost:8765/claude
+// Priority 2: local server.py proxy       → forward via localhost:8766/claude
 // Priority 3: user-supplied API key       → direct call with key in header
 let _AI_KEY = '';           // user-pasted key (memory only)
 let _proxyOk = null;        // null=untested, true/false after health check
@@ -9207,14 +9207,14 @@ async function claudeFetch(body) {
   // ── Detect environment once ───────────────────────────────────────────────
   if (_proxyOk === null) {
     try {
-      const h = await fetch('http://localhost:8765/health', { signal: AbortSignal.timeout(1200) });
+      const h = await fetch('http://localhost:8766/health', { signal: AbortSignal.timeout(1200) });
       _proxyOk = h.ok;
     } catch(e) { _proxyOk = false; }
   }
 
   // Route 1: local server.py proxy (API key lives server-side)
   if (_proxyOk) {
-    return fetch('http://localhost:8765/claude', {
+    return fetch('http://localhost:8766/claude', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -14487,7 +14487,7 @@ function piBuildBehavioral(){
 // LIVE FUNDAMENTALS ENGINE v3 — Clean, Simple, Guaranteed-to-work
 // ══════════════════════════════════════════════════════════════════════════════
 
-const LIVE_API_BASE = 'http://localhost:8765';
+const LIVE_API_BASE = 'http://localhost:8766';
 const _liveQuoteCache = {};
 const _livePendingReqs = {};
 let _backendOnline = false;
