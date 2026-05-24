@@ -2375,6 +2375,238 @@ input[type=range]{accent-color:#ffb932;}
   .piof-grid{grid-template-columns:1fr;}
 }
 
+
+/* ══════════════════════════════════════════════════════════
+   AI ASSISTANT PANEL — Portfolio.AI × Ollama
+   ══════════════════════════════════════════════════════════ */
+
+/* Sidebar trigger button */
+.ai-brain-btn{
+  display:flex;align-items:center;gap:8px;
+  width:100%;padding:9px 12px;margin-top:2px;border-radius:10px;
+  cursor:pointer;font-size:12px;font-weight:600;letter-spacing:.2px;
+  border:1px solid rgba(167,139,250,0.28);
+  background:linear-gradient(135deg,rgba(99,88,255,0.09),rgba(56,189,248,0.04));
+  color:var(--v2);transition:all .18s;text-align:left;font-family:'Outfit',sans-serif;
+}
+.ai-brain-btn:hover{
+  background:linear-gradient(135deg,rgba(99,88,255,0.18),rgba(56,189,248,0.1));
+  border-color:rgba(99,88,255,0.55);transform:translateX(2px);color:var(--txt);
+}
+.ai-brain-ic{
+  width:24px;height:24px;border-radius:8px;
+  background:linear-gradient(135deg,#6358ff,#38bdf8);
+  display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;
+}
+.ai-brain-pulse{
+  width:7px;height:7px;border-radius:50%;background:#34d399;margin-left:auto;flex-shrink:0;
+  animation:ai-pulse 2s ease-in-out infinite;
+}
+@keyframes ai-pulse{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,.45);}50%{box-shadow:0 0 0 5px rgba(52,211,153,0);}}
+
+/* Floating AI button — bottom-left, hides on desktop when sidebar visible */
+#ai-fab{
+  position:fixed;bottom:24px;left:calc(var(--sb) + 16px);
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,#6358ff,#38bdf8);
+  border:2px solid rgba(255,255,255,0.15);
+  box-shadow:0 4px 20px rgba(99,88,255,.5);
+  color:#fff;font-size:22px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  z-index:600;transition:transform .2s,box-shadow .2s;
+  /* hidden on desktop since sidebar is always visible */
+  opacity:0;pointer-events:none;
+}
+#ai-fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(99,88,255,.7);}
+#ai-fab-pulse{
+  position:absolute;top:2px;right:2px;
+  width:10px;height:10px;border-radius:50%;background:#34d399;
+  border:2px solid var(--ink);
+  animation:ai-pulse 2s ease-in-out infinite;
+}
+/* Show FAB only on mobile (sidebar hidden) */
+@media(max-width:768px){
+  #ai-fab{opacity:1;pointer-events:all;left:16px;}
+}
+
+/* Panel overlay + slide-in */
+#ai-panel-overlay{
+  position:fixed;inset:0;z-index:900;
+  background:rgba(0,0,0,0);transition:background .25s;
+  pointer-events:none;
+}
+#ai-panel-overlay.open{background:rgba(0,0,0,.55);pointer-events:all;}
+
+#ai-panel{
+  position:fixed;right:0;top:0;bottom:0;
+  width:min(580px,100vw);
+  background:var(--card);border-left:1px solid var(--rim);
+  z-index:901;display:flex;flex-direction:column;
+  transform:translateX(100%);
+  transition:transform .3s cubic-bezier(.16,1,.3,1);
+  box-shadow:-8px 0 40px rgba(0,0,0,.4);
+}
+#ai-panel.open{transform:translateX(0);}
+
+/* Panel header */
+.ai-panel-head{
+  display:flex;align-items:center;gap:10px;
+  padding:16px 20px;border-bottom:1px solid var(--rim);flex-shrink:0;
+}
+.ai-panel-title{
+  font-family:'Clash Display',sans-serif;font-size:17px;font-weight:700;
+  background:linear-gradient(135deg,#a78bfa,#38bdf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;flex:1;
+}
+#ai-brain-status{
+  font-size:10px;color:var(--dim);
+  font-family:'JetBrains Mono',monospace;flex-shrink:0;
+}
+.ai-panel-close{
+  width:30px;height:30px;border-radius:50%;flex-shrink:0;
+  background:rgba(99,88,255,0.08);border:1px solid var(--rim);
+  color:var(--dim2);cursor:pointer;font-size:17px;
+  display:flex;align-items:center;justify-content:center;transition:all .18s;
+}
+.ai-panel-close:hover{background:rgba(244,63,94,.15);border-color:rgba(244,63,94,.35);color:#f43f5e;}
+
+/* Tab bar */
+.ai-tabs{
+  display:flex;gap:5px;padding:10px 14px;
+  border-bottom:1px solid var(--rim);flex-shrink:0;overflow-x:auto;
+}
+.ai-tabs::-webkit-scrollbar{display:none;}
+.ai-tab{
+  padding:6px 13px;border-radius:20px;font-size:11.5px;font-weight:600;
+  border:1px solid var(--rim);background:transparent;color:var(--dim2);
+  cursor:pointer;white-space:nowrap;transition:all .15s;
+}
+.ai-tab:hover{background:rgba(99,88,255,.08);color:var(--txt);}
+.ai-tab.active{
+  background:linear-gradient(135deg,rgba(99,88,255,.2),rgba(56,189,248,.1));
+  border-color:var(--v);color:var(--txt);
+}
+
+/* Tab panel container */
+.ai-tab-panels{flex:1;overflow:hidden;position:relative;}
+.ai-tab-panel{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;transition:opacity .15s;
+}
+.ai-tab-panel.active{opacity:1;pointer-events:all;}
+
+/* Action bar (for non-chat tabs) */
+.ai-action-bar{
+  padding:10px 14px;border-bottom:1px solid var(--rim);flex-shrink:0;
+  display:flex;gap:8px;align-items:center;
+}
+.ai-run-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 15px;border-radius:20px;font-size:12px;font-weight:600;
+  border:1px solid rgba(99,88,255,.4);
+  background:linear-gradient(135deg,rgba(99,88,255,.14),rgba(56,189,248,.07));
+  color:var(--v2);cursor:pointer;transition:all .18s;white-space:nowrap;
+}
+.ai-run-btn:hover{
+  background:linear-gradient(135deg,rgba(99,88,255,.26),rgba(56,189,248,.14));
+  transform:translateY(-1px);box-shadow:0 4px 16px rgba(99,88,255,.2);
+}
+.ai-run-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
+.ai-run-btn .spin{display:inline-block;animation:ai-spin 1s linear infinite;}
+@keyframes ai-spin{to{transform:rotate(360deg);}}
+
+/* Scrollable output area */
+.ai-output-wrap{
+  flex:1;overflow-y:auto;padding:18px 20px;
+}
+.ai-output-wrap::-webkit-scrollbar{width:4px;}
+.ai-output-wrap::-webkit-scrollbar-track{background:transparent;}
+.ai-output-wrap::-webkit-scrollbar-thumb{background:rgba(99,88,255,.2);border-radius:2px;}
+
+/* Rendered AI output */
+.ai-output{font-size:13.5px;line-height:1.75;color:var(--txt);}
+.ai-output h2{
+  font-family:'Clash Display',sans-serif;font-size:14px;font-weight:700;
+  color:var(--v2);margin:18px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--rim);
+}
+.ai-output h3{font-size:13px;font-weight:700;color:var(--v2);margin:14px 0 4px;}
+.ai-output strong{color:var(--txt);font-weight:600;}
+.ai-output em{color:var(--dim2);}
+.ai-output hr{border:none;border-top:1px solid var(--rim);margin:14px 0;}
+
+/* Streaming cursor */
+.ai-cursor{
+  display:inline-block;width:2px;height:14px;background:var(--v2);
+  margin-left:2px;vertical-align:middle;
+  animation:ai-blink .65s ease-in-out infinite;
+}
+@keyframes ai-blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+/* Placeholder card */
+.ai-placeholder{
+  text-align:center;padding:40px 20px 30px;color:var(--dim);
+}
+.ai-placeholder-icon{font-size:38px;margin-bottom:12px;line-height:1;}
+.ai-placeholder strong{color:var(--dim2);font-size:14px;}
+.ai-placeholder p{font-size:12.5px;margin-top:8px;line-height:1.6;max-width:340px;margin-left:auto;margin-right:auto;}
+
+/* Offline message */
+.ai-offline-msg{
+  text-align:center;padding:30px 22px;color:var(--dim);font-size:12.5px;line-height:1.7;
+}
+.ai-offline-msg code{
+  background:var(--ink3);padding:3px 8px;border-radius:6px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--v2);
+}
+
+/* ── CHAT TAB ── */
+.ai-chat-messages{
+  flex:1;overflow-y:auto;padding:14px 16px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.ai-chat-messages::-webkit-scrollbar{width:4px;}
+.ai-chat-messages::-webkit-scrollbar-track{background:transparent;}
+.ai-chat-messages::-webkit-scrollbar-thumb{background:rgba(99,88,255,.2);}
+
+.ai-msg{
+  max-width:88%;padding:10px 14px;border-radius:14px;
+  font-size:13px;line-height:1.65;
+}
+.ai-msg.user{
+  align-self:flex-end;
+  background:linear-gradient(135deg,rgba(99,88,255,.22),rgba(56,189,248,.12));
+  border:1px solid rgba(99,88,255,.3);color:var(--txt);
+  border-bottom-right-radius:4px;
+}
+.ai-msg.bot{
+  align-self:flex-start;
+  background:var(--card2);border:1px solid var(--rim);color:var(--txt);
+  border-bottom-left-radius:4px;white-space:pre-wrap;word-break:break-word;
+}
+.ai-msg.bot h2{font-size:12.5px;font-weight:700;color:var(--v2);margin:10px 0 4px;border:none;padding:0;}
+.ai-msg.bot strong{color:var(--txt);}
+
+.ai-chat-input-wrap{
+  padding:11px 14px;border-top:1px solid var(--rim);flex-shrink:0;
+  display:flex;gap:8px;align-items:flex-end;
+}
+.ai-chat-input{
+  flex:1;resize:none;min-height:36px;max-height:100px;overflow-y:auto;
+  background:var(--ink3);border:1px solid var(--rim);border-radius:10px;
+  padding:8px 12px;color:var(--txt);font-size:13px;font-family:'Outfit',sans-serif;
+  outline:none;transition:border-color .18s;line-height:1.5;
+}
+.ai-chat-input:focus{border-color:var(--v);}
+.ai-chat-input::placeholder{color:var(--dim);}
+.ai-send-btn{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--v),var(--v3));
+  border:none;color:#fff;cursor:pointer;font-size:15px;
+  display:flex;align-items:center;justify-content:center;transition:transform .18s,opacity .18s;
+}
+.ai-send-btn:hover{transform:scale(1.08);}
+.ai-send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
 </style>
 </head>
 <body>
@@ -2404,7 +2636,16 @@ input[type=range]{accent-color:#ffb932;}
     <button class="nav-btn" onclick="go('research')" id="nb-research"><span class="nav-ic">🔬</span>Research & Insights</button>
   </nav>
   <div class="sb-foot">
-    <div class="live-chip" id="sb-live-chip">
+    <!-- AI ASSISTANT — always visible in sidebar footer -->
+    <button class="ai-brain-btn" onclick="openAIPanel('chat')" title="AI Portfolio Assistant — Chat, Briefing, Doctor, Coach (Alt+A)">
+      <span class="ai-brain-ic">🤖</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:700">AI Assistant</div>
+        <div style="font-size:10px;opacity:.7;margin-top:1px">Chat · Briefing · Doctor · Coach</div>
+      </div>
+      <span class="ai-brain-pulse" id="ai-pulse-dot"></span>
+    </button>
+    <div class="live-chip" id="sb-live-chip" style="margin-top:8px">
       <div class="dot" id="sb-live-dot"></div>
       <div style="flex:1"><div class="live-txt" id="sb-live-txt">NSE · BSE</div><div class="live-sub" id="liveDate">Checking backend...</div></div>
       <button onclick="globalRefresh()" title="Refresh all prices now" style="background:rgba(99,88,255,0.15);border:1px solid rgba(99,88,255,0.3);border-radius:6px;color:#a78bfa;cursor:pointer;padding:3px 7px;font-size:12px;line-height:1;flex-shrink:0" id="sb-refresh-btn">⟳</button>
@@ -2421,6 +2662,12 @@ input[type=range]{accent-color:#ffb932;}
 
 <!-- HAMBURGER (mobile) -->
 <button class="hamburger" onclick="document.querySelector('aside').classList.toggle('open')">☰</button>
+
+<!-- AI FLOATING ACTION BUTTON (visible when sidebar is off-screen / mobile) -->
+<button id="ai-fab" onclick="openAIPanel('chat')" title="AI Portfolio Assistant (Alt+A)">
+  🤖
+  <span id="ai-fab-pulse"></span>
+</button>
 
 <!-- GLOBAL ALERT BANNER -->
 <div id="crit-banner" class="hidden">
@@ -15000,6 +15247,514 @@ document.addEventListener('visibilitychange', () => {
     }
   }
 });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AI ASSISTANT  —  brain.py / Ollama integration
+// Features: ① Talk to Portfolio  ② Morning Briefing  ③ Portfolio Doctor  ④ Behavioural Coach
+// ══════════════════════════════════════════════════════════════════════════════
+
+const AI_BRAIN_BASE  = 'http://localhost:8000';
+let   _aiBrainOnline = false;
+let   _aiPanelOpen   = false;
+let   _aiActiveTab   = 'chat';
+let   _aiChatSession = null;
+let   _aiChatBusy    = false;
+
+// ── brain.py health check ──────────────────────────────────────────────────
+async function checkBrainHealth() {
+  const statusEl = document.getElementById('ai-brain-status');
+  const pulseEl  = document.getElementById('ai-pulse-dot');
+  try {
+    const r = await fetch(`${AI_BRAIN_BASE}/health`, {
+      signal: AbortSignal.timeout(3000), cache: 'no-store'
+    });
+    if (r.ok) {
+      const h = await r.json();
+      _aiBrainOnline = true;
+      const model = (h.model || 'llama3.1').replace(':latest','');
+      if (statusEl) { statusEl.textContent = `${model} ● online`; statusEl.style.color = 'var(--go)'; }
+      if (pulseEl)  { pulseEl.style.background = '#34d399'; }
+      return true;
+    }
+  } catch(e) {}
+  _aiBrainOnline = false;
+  if (statusEl) { statusEl.textContent = 'brain.py offline'; statusEl.style.color = 'var(--warn)'; }
+  if (pulseEl)  { pulseEl.style.background = 'var(--warn)'; }
+  return false;
+}
+
+// ── Build portfolio payload from live EQ/MF arrays ─────────────────────────
+function buildPortfolioPayload() {
+  const holdings = [];
+
+  const addHolding = (h, fallbackSector) => {
+    const live        = window.LIVE_DATA?.[h.sym] || {};
+    const cmp         = h.cmp  || live.price || h.avg || 0;
+    const qty         = h.qty  || 0;
+    const invested    = h.invested || (h.avg * qty) || 0;
+    const currVal     = h.currVal  || (cmp  * qty) || 0;
+    const pnl         = currVal - invested;
+    const pnlPct      = invested > 0 ? (pnl / invested * 100) : 0;
+    const dayChangePct = live.changePct || 0;
+    holdings.push({
+      sym: h.sym || '',
+      name: h.name || h.sym || '',
+      qty,
+      avg:          h.avg || 0,
+      cmp,
+      invested,
+      currVal,
+      pnl,
+      pnlPct,
+      dayChangePct,
+      sector: h.sector || fallbackSector || '',
+      weight: 0,   // computed below
+    });
+  };
+
+  if (typeof EQ !== 'undefined' && EQ) EQ.forEach(h => addHolding(h, h.sector || ''));
+  if (typeof MF !== 'undefined' && MF) MF.forEach(h => addHolding(h, 'Mutual Fund'));
+
+  const totalValue    = holdings.reduce((s, h) => s + h.currVal,   0);
+  const totalInvested = holdings.reduce((s, h) => s + h.invested,  0);
+  const totalDayChg   = holdings.reduce((s, h) => s + h.currVal * h.dayChangePct / 100, 0);
+  const dayChangePct  = totalValue > 0 ? (totalDayChg / totalValue * 100) : 0;
+
+  holdings.forEach(h => { h.weight = totalValue > 0 ? (h.currVal / totalValue * 100) : 0; });
+
+  return { totalValue, totalInvested, dayChange: totalDayChg, dayChangePct, holdings };
+}
+
+// ── Open / Close panel ─────────────────────────────────────────────────────
+function openAIPanel(tab) {
+  const overlay = document.getElementById('ai-panel-overlay');
+  const panel   = document.getElementById('ai-panel');
+  if (!overlay || !panel) return;
+
+  overlay.style.display = 'block';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    overlay.classList.add('open');
+    panel.classList.add('open');
+  }));
+  _aiPanelOpen = true;
+
+  if (tab) switchAITab(tab, null);
+  checkBrainHealth();
+
+  // Auto-check portfolio availability
+  const noPortfolio = (!window.EQ || !EQ.length) && (!window.MF || !MF.length);
+  if (noPortfolio) {
+    const statusEl = document.getElementById('ai-brain-status');
+    if (statusEl) { statusEl.textContent = 'upload portfolio first'; statusEl.style.color = 'var(--warn)'; }
+  }
+
+  // Close mobile sidebar
+  document.querySelector('aside')?.classList.remove('open');
+  const sbOverlay = document.getElementById('sb-overlay');
+  if (sbOverlay) sbOverlay.style.display = 'none';
+}
+
+function closeAIPanel() {
+  const overlay = document.getElementById('ai-panel-overlay');
+  const panel   = document.getElementById('ai-panel');
+  if (!overlay || !panel) return;
+  overlay.classList.remove('open');
+  panel.classList.remove('open');
+  setTimeout(() => { overlay.style.display = ''; }, 310);
+  _aiPanelOpen = false;
+}
+
+// ── Tab switching ──────────────────────────────────────────────────────────
+function switchAITab(tab, clickedBtn) {
+  _aiActiveTab = tab;
+  document.querySelectorAll('.ai-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.ai-tab-panel').forEach(p => p.classList.remove('active'));
+  if (clickedBtn) {
+    clickedBtn.classList.add('active');
+  } else {
+    const idx = ['chat','briefing','doctor','coach'].indexOf(tab);
+    const tabs = document.querySelectorAll('.ai-tab');
+    if (tabs[idx]) tabs[idx].classList.add('active');
+  }
+  const panelEl = document.getElementById(`ai-panel-${tab}`);
+  if (panelEl) panelEl.classList.add('active');
+}
+
+// ── Minimal Markdown → HTML renderer ──────────────────────────────────────
+function aiMd(text) {
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')   // escape HTML first
+    .replace(/^## (.+)$/gm,  '<h2>$1</h2>')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,    '<em>$1</em>')
+    .replace(/`(.+?)`/g,      '<code>$1</code>')
+    .replace(/^---+$/gm,      '<hr>')
+    .replace(/\n/g, '<br>');
+}
+
+// ── Generic SSE streamer ───────────────────────────────────────────────────
+async function streamAI(url, payload, outputEl) {
+  try {
+    const resp = await fetch(url, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+
+    if (!resp.ok) {
+      let detail = resp.statusText;
+      try { const j = await resp.json(); detail = j.detail || detail; } catch(e) {}
+      outputEl.innerHTML = `<div class="ai-offline-msg">⚠️ ${detail}</div>`;
+      return;
+    }
+
+    const reader  = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let   buffer  = '';
+    let   full    = '';
+    outputEl.innerHTML = '<span class="ai-cursor"></span>';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const d = JSON.parse(line.slice(6));
+          if (d.token) {
+            full += d.token;
+            outputEl.innerHTML = aiMd(full) + '<span class="ai-cursor"></span>';
+            outputEl.parentElement.scrollTop = outputEl.parentElement.scrollHeight;
+          }
+          if (d.done)  { outputEl.innerHTML = aiMd(full); }
+          if (d.error) { outputEl.innerHTML = `<div class="ai-offline-msg">⚠️ ${d.error}</div>`; }
+        } catch(e) {}
+      }
+    }
+  } catch(err) {
+    if (err.name !== 'AbortError') outputEl.innerHTML = _aiBrainOfflineHTML();
+  }
+}
+
+function _aiBrainOfflineHTML() {
+  return `<div class="ai-offline-msg">
+    <div style="font-size:30px;margin-bottom:10px">🤖</div>
+    <div><strong>AI Brain Offline</strong></div>
+    <div style="margin-top:8px">Start brain.py to use AI features:</div>
+    <div style="margin-top:8px"><code>cd chatbot &amp;&amp; python brain.py</code></div>
+    <div style="margin-top:10px;font-size:11px;color:var(--dim)">Runs on localhost:8000 · Requires Ollama</div>
+  </div>`;
+}
+
+// ── Shared guard: check brain + portfolio ──────────────────────────────────
+async function _aiGuard(wrapId) {
+  const wrap = document.getElementById(wrapId);
+  if (!wrap) return false;
+  if (!_aiBrainOnline) {
+    const alive = await checkBrainHealth();
+    if (!alive) { wrap.innerHTML = _aiBrainOfflineHTML(); return false; }
+  }
+  const noPortfolio = (!window.EQ || !EQ.length) && (!window.MF || !MF.length);
+  if (noPortfolio) {
+    wrap.innerHTML = `<div class="ai-offline-msg">
+      <div style="font-size:30px;margin-bottom:10px">📂</div>
+      <div><strong>No portfolio loaded</strong></div>
+      <div style="margin-top:8px">Upload a Zerodha Holdings file first, then come back.</div>
+    </div>`;
+    return false;
+  }
+  return true;
+}
+
+// ── ① Morning Briefing ────────────────────────────────────────────────────
+async function runBriefing() {
+  const btn  = document.getElementById('ai-briefing-btn');
+  const wrap = document.getElementById('ai-briefing-output-wrap');
+  if (!(await _aiGuard('ai-briefing-output-wrap'))) return;
+
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spin">⟳</span>&nbsp;Generating…`;
+
+  const output = document.createElement('div');
+  output.className = 'ai-output';
+  wrap.innerHTML = '';
+  wrap.appendChild(output);
+
+  await streamAI(
+    `${AI_BRAIN_BASE}/api/portfolio/briefing/stream`,
+    { portfolio: buildPortfolioPayload(), language: 'english' },
+    output
+  );
+
+  btn.disabled = false;
+  btn.innerHTML = `🌅 Regenerate`;
+}
+
+// ── ② Portfolio Doctor ────────────────────────────────────────────────────
+async function runDoctor() {
+  const btn  = document.getElementById('ai-doctor-btn');
+  const wrap = document.getElementById('ai-doctor-output-wrap');
+  if (!(await _aiGuard('ai-doctor-output-wrap'))) return;
+
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spin">⟳</span>&nbsp;Diagnosing…`;
+
+  const output = document.createElement('div');
+  output.className = 'ai-output';
+  wrap.innerHTML = '';
+  wrap.appendChild(output);
+
+  await streamAI(
+    `${AI_BRAIN_BASE}/api/portfolio/doctor/stream`,
+    { portfolio: buildPortfolioPayload(), language: 'english' },
+    output
+  );
+
+  btn.disabled = false;
+  btn.innerHTML = `🏥 Re-Diagnose`;
+}
+
+// ── ③ Behavioural Coach ───────────────────────────────────────────────────
+async function runBehavioral() {
+  const btn  = document.getElementById('ai-coach-btn');
+  const wrap = document.getElementById('ai-coach-output-wrap');
+  if (!(await _aiGuard('ai-coach-output-wrap'))) return;
+
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spin">⟳</span>&nbsp;Analysing…`;
+
+  const output = document.createElement('div');
+  output.className = 'ai-output';
+  wrap.innerHTML = '';
+  wrap.appendChild(output);
+
+  await streamAI(
+    `${AI_BRAIN_BASE}/api/portfolio/behavioral/stream`,
+    { portfolio: buildPortfolioPayload(), language: 'english' },
+    output
+  );
+
+  btn.disabled = false;
+  btn.innerHTML = `🧠 Re-Analyse`;
+}
+
+// ── ④ Talk to Portfolio (Chat) ─────────────────────────────────────────────
+async function sendAIChat() {
+  if (_aiChatBusy) return;
+
+  const inputEl  = document.getElementById('ai-chat-input');
+  const sendBtn  = document.getElementById('ai-send-btn');
+  const msgsEl   = document.getElementById('ai-chat-messages');
+  const message  = (inputEl?.value || '').trim();
+  if (!message) return;
+
+  if (!_aiBrainOnline) {
+    const alive = await checkBrainHealth();
+    if (!alive) {
+      _appendChatMsg(msgsEl, 'bot', '🤖 AI brain is offline. Run <code>python brain.py</code> in the chatbot folder.');
+      return;
+    }
+  }
+
+  const noPortfolio = (!window.EQ || !EQ.length) && (!window.MF || !MF.length);
+  if (noPortfolio) {
+    _appendChatMsg(msgsEl, 'bot', '📂 Please upload a portfolio file first — then I can answer questions about your holdings.');
+    return;
+  }
+
+  _appendChatMsg(msgsEl, 'user', message);
+  inputEl.value = '';
+  inputEl.style.height = 'auto';
+
+  _aiChatBusy = true;
+  sendBtn.disabled = true;
+
+  // Bot bubble with streaming cursor
+  const botEl = document.createElement('div');
+  botEl.className = 'ai-msg bot';
+  botEl.innerHTML = '<span class="ai-cursor"></span>';
+  // Remove placeholder
+  msgsEl.querySelector('.ai-placeholder')?.remove();
+  msgsEl.appendChild(botEl);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+
+  try {
+    const resp = await fetch(`${AI_BRAIN_BASE}/api/portfolio/chat/stream`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        message,
+        portfolio:  buildPortfolioPayload(),
+        session_id: _aiChatSession,
+        persona:    'analyst',
+        language:   'english',
+      }),
+    });
+
+    if (!resp.ok) {
+      botEl.innerHTML = `⚠️ Error ${resp.status}: ${resp.statusText}`;
+    } else {
+      const reader  = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let   buffer  = '';
+      let   full    = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const d = JSON.parse(line.slice(6));
+            if (d.token) {
+              full += d.token;
+              botEl.innerHTML = aiMd(full) + '<span class="ai-cursor"></span>';
+              msgsEl.scrollTop = msgsEl.scrollHeight;
+            }
+            if (d.session_id) _aiChatSession = d.session_id;
+            if (d.done)  { botEl.innerHTML = aiMd(full); }
+            if (d.error) { botEl.innerHTML = `⚠️ ${d.error}`; }
+          } catch(e) {}
+        }
+      }
+    }
+  } catch(err) {
+    botEl.innerHTML = '🤖 Connection lost. Is brain.py running on port 8000?';
+  }
+
+  _aiChatBusy = false;
+  sendBtn.disabled = false;
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+}
+
+function _appendChatMsg(container, role, html) {
+  container.querySelector('.ai-placeholder')?.remove();
+  const el = document.createElement('div');
+  el.className = `ai-msg ${role}`;
+  el.innerHTML = html;
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+}
+
+// ── Keyboard shortcuts ─────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.altKey && (e.key === 'a' || e.key === 'A')) {
+    e.preventDefault();
+    _aiPanelOpen ? closeAIPanel() : openAIPanel('chat');
+  }
+  if (e.key === 'Escape' && _aiPanelOpen) closeAIPanel();
+});
+
+// Initial brain health check (deferred so it doesn't slow down page load)
+setTimeout(checkBrainHealth, 4000);
 </script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     AI ASSISTANT PANEL  (brain.py / Ollama)
+     ═══════════════════════════════════════════════════════════ -->
+<div id="ai-panel-overlay" onclick="if(event.target===this)closeAIPanel()"></div>
+
+<div id="ai-panel">
+  <!-- Header -->
+  <div class="ai-panel-head">
+    <div class="ai-panel-title">🤖 AI Portfolio Assistant</div>
+    <div id="ai-brain-status">checking...</div>
+    <button class="ai-panel-close" onclick="closeAIPanel()" title="Close (Esc)">×</button>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="ai-tabs">
+    <button class="ai-tab active" onclick="switchAITab('chat',this)">💬 Chat</button>
+    <button class="ai-tab" onclick="switchAITab('briefing',this)">🌅 Briefing</button>
+    <button class="ai-tab" onclick="switchAITab('doctor',this)">🏥 Doctor</button>
+    <button class="ai-tab" onclick="switchAITab('coach',this)">🧠 Coach</button>
+  </div>
+
+  <!-- Tab panels -->
+  <div class="ai-tab-panels">
+
+    <!-- ① CHAT -->
+    <div class="ai-tab-panel active" id="ai-panel-chat">
+      <div class="ai-chat-messages" id="ai-chat-messages">
+        <div class="ai-placeholder">
+          <div class="ai-placeholder-icon">💬</div>
+          <strong>Talk to your portfolio</strong>
+          <p>Ask anything — "What's my biggest risk?", "Which sector am I overweight in?", "Should I book some profits in RELIANCE?"</p>
+        </div>
+      </div>
+      <div class="ai-chat-input-wrap">
+        <textarea class="ai-chat-input" id="ai-chat-input"
+          placeholder="Ask about your portfolio…"
+          rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIChat();}
+                     this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px';">
+        </textarea>
+        <button class="ai-send-btn" id="ai-send-btn" onclick="sendAIChat()" title="Send (Enter)">➤</button>
+      </div>
+    </div>
+
+    <!-- ② BRIEFING -->
+    <div class="ai-tab-panel" id="ai-panel-briefing">
+      <div class="ai-action-bar">
+        <button class="ai-run-btn" id="ai-briefing-btn" onclick="runBriefing()">
+          🌅 Generate Morning Briefing
+        </button>
+        <span style="font-size:11px;color:var(--dim)">Portfolio summary in ~15s</span>
+      </div>
+      <div class="ai-output-wrap" id="ai-briefing-output-wrap">
+        <div class="ai-placeholder">
+          <div class="ai-placeholder-icon">🌅</div>
+          <strong>AI Morning Briefing</strong>
+          <p>One click to get: current value & P&L, today's movers, stocks on watch, and one concrete action item — all from your live portfolio.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ DOCTOR -->
+    <div class="ai-tab-panel" id="ai-panel-doctor">
+      <div class="ai-action-bar">
+        <button class="ai-run-btn" id="ai-doctor-btn" onclick="runDoctor()">
+          🏥 Run Portfolio Diagnosis
+        </button>
+        <span style="font-size:11px;color:var(--dim)">Full health check + action plan</span>
+      </div>
+      <div class="ai-output-wrap" id="ai-doctor-output-wrap">
+        <div class="ai-placeholder">
+          <div class="ai-placeholder-icon">🏥</div>
+          <strong>Portfolio Doctor</strong>
+          <p>Deep diagnosis: health score (X/10), concentration risks, sector balance, P&L flags, red flags — and 5 specific action items for your actual holdings.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ④ COACH -->
+    <div class="ai-tab-panel" id="ai-panel-coach">
+      <div class="ai-action-bar">
+        <button class="ai-run-btn" id="ai-coach-btn" onclick="runBehavioral()">
+          🧠 Analyse My Behaviour
+        </button>
+        <span style="font-size:11px;color:var(--dim)">Cognitive bias detection</span>
+      </div>
+      <div class="ai-output-wrap" id="ai-coach-output-wrap">
+        <div class="ai-placeholder">
+          <div class="ai-placeholder-icon">🧠</div>
+          <strong>Behavioural Finance Coach</strong>
+          <p>Detect disposition effect, concentration bias, and recency bias in your actual holdings — with personalised coaching rules and a weekly experiment.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /ai-tab-panels -->
+</div><!-- /ai-panel -->
+
 </body>
 </html>
