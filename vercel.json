@@ -1,4 +1,30 @@
 {
+  "rewrites": [
+    { "source": "/portfolio-analyser", "destination": "/Porfolio Analyser/portfolio-analyser-v10.html" },
+    { "source": "/portfolio",          "destination": "/Porfolio Analyser/portfolio-analyser-v10.html" },
+    { "source": "/trade-journal",      "destination": "/TradeJournal/index.html" },
+    { "source": "/trades",             "destination": "/TradeJournal/index.html" },
+    { "source": "/expense-tracker",    "destination": "/ExpenseTracker/finos-budget/index.html" },
+    { "source": "/budget",             "destination": "/ExpenseTracker/finos-budget/index.html" },
+    { "source": "/news",               "destination": "/News1/index.html" },
+    { "source": "/chatbot",            "destination": "/chatbot/index.html" },
+    { "source": "/voice",              "destination": "/voiceagent/index.html" },
+    { "source": "/markets",            "destination": "/html/markets.html" },
+    { "source": "/dashboard",          "destination": "/html/dashboard.html" },
+    { "source": "/track",              "destination": "/html/track-finances.html" }
+  ],
+  "redirects": [
+    {
+      "source": "/Porfolio%20Analyser/portfolio-analyser-v9.html",
+      "destination": "/portfolio-analyser",
+      "permanent": true
+    },
+    {
+      "source": "/Porfolio%20Analyser/portfolio-analyser-v10.html",
+      "destination": "/portfolio-analyser",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*\\.html)",
