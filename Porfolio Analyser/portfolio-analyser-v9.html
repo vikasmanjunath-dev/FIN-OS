@@ -4651,7 +4651,9 @@ async function fetchLiveFundamentalsAsync(callback) {
     if(liveEl) liveEl.textContent = liveCount + '/' + totalHoldings;
     updateAllTimestamps(liveCount, totalHoldings, ts);
     console.log(`[LiveData] ✅ ${liveCount}/${EQ.length} got real live prices (${Object.keys(data).length} symbols responded)`);
-    console.warn('[LiveData]', err.message);
+  } catch(err) {
+    console.warn('[LiveData] fetch failed:', err.message);
+    const totalHoldings = (EQ ? EQ.length : 0) + (MF ? MF.length : 0);
     updateAllTimestamps(0, totalHoldings, '—');
   } finally {
     if(callback) callback();
@@ -4773,9 +4775,12 @@ async function globalRefresh(silent = false) {
 
 function updateAllTimestamps(liveCount, totalHoldings, ts) {
   const isLive = liveCount > 0;
+  const offlineMsg = _backendOnline
+    ? `<span class="lu-stale">🕐 Market closed</span><br>Last known prices`
+    : `<span class="lu-stale">📦 Offline data</span><br>Run server.py`;
   const html = isLive
     ? `<span class="lu-live">⚡ ${liveCount}/${totalHoldings} live</span><br>Updated ${ts}`
-    : `<span class="lu-stale">📋 Static data</span>`;
+    : offlineMsg;
 
   ['overview','equity','sectors','insights','tax','rebalance','analytics','quant'].forEach(id => {
     const el = document.getElementById('lu-'+id);
