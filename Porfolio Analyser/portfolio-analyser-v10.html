@@ -4764,7 +4764,7 @@ async function fetchAllLivePrices(timeoutMs = 15000) {
   // Fire all batches in parallel (for most portfolios this is just 1 request)
   const results = await Promise.allSettled(
     batches.map(batch =>
-      fetch(`http://localhost:8766/bulk?symbols=${batch.join(',')}`, {
+      fetch(`${LIVE_API_BASE}/bulk?symbols=${batch.join(',')}`, {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
         signal: AbortSignal.timeout(timeoutMs),
@@ -9207,14 +9207,14 @@ async function claudeFetch(body) {
   // ── Detect environment once ───────────────────────────────────────────────
   if (_proxyOk === null) {
     try {
-      const h = await fetch('http://localhost:8766/health', { signal: AbortSignal.timeout(1200) });
+      const h = await fetch(`${LIVE_API_BASE}/health`, { signal: AbortSignal.timeout(1200) });
       _proxyOk = h.ok;
     } catch(e) { _proxyOk = false; }
   }
 
   // Route 1: local server.py proxy (API key lives server-side)
   if (_proxyOk) {
-    return fetch('http://localhost:8766/claude', {
+    return fetch(`${LIVE_API_BASE}/claude`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -14736,21 +14736,63 @@ function updateSidebarLiveChip(online) {
   }
 }
 
-(async function checkBackendHealth() {
+// ── BACKEND HEALTH POLLING ─────────────────────────────
+// Runs once immediately, then retries with exponential back-off
+// (3 s → 6 s → 12 s → 30 s cap) while offline, and polls every
+// 30 s when online.  When the server comes back after being
+// offline it automatically triggers a full data refresh.
+let _healthCheckTimer = null;
+let _healthRetryDelay = 3000;   // starts at 3 s, doubles on each miss
+
+async function checkBackendHealth(isRetry) {
+  isRetry = !!isRetry;
+  const controller = new AbortController();
+  const killSwitch  = setTimeout(() => controller.abort(), 5000); // 5 s hard timeout
   try {
-    const r = await fetch(`${LIVE_API_BASE}/health`, { signal: AbortSignal.timeout(2500) });
+    const r = await fetch(`${LIVE_API_BASE}/health`, {
+      signal: controller.signal,
+      cache:  'no-store'
+    });
+    clearTimeout(killSwitch);
+
     if (r.ok) {
       const h = await r.json();
-      _backendOnline = true;
+      const wasOffline = !_backendOnline;
+      _backendOnline      = true;
+      _healthRetryDelay   = 30000;  // settled: poll every 30 s
+
       updateSidebarLiveChip(true);
-      updateLiveDataBanner('ok', `🐍 Backend online — cache: ${h.price_cache||0} prices · ${h.fund_cache||0} fundamentals`);
+      updateLiveDataBanner('ok',
+        `🐍 Backend online — cache: ${h.price_cache||0} prices · ${h.fund_cache||0} fundamentals`);
+
+      // If we just came back online while a portfolio is already loaded,
+      // kick off a fresh live-price fetch automatically.
+      if (wasOffline && isRetry && typeof EQ !== 'undefined' && EQ && EQ.length > 0) {
+        setTimeout(() => { try { globalRefresh(true); } catch(e){} }, 600);
+      }
+    } else {
+      throw new Error(`HTTP ${r.status}`);
     }
-  } catch {
-    _backendOnline = false;
+  } catch (err) {
+    clearTimeout(killSwitch);
+    _backendOnline    = false;
+    _healthRetryDelay = Math.min((_healthRetryDelay || 3000) * 2, 30000);
+
     updateSidebarLiveChip(false);
-    updateLiveDataBanner('warn', `⚠️ Python backend offline — showing static Q4-2025 data. Run <code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px">python server.py</code> for live data.`);
+    updateLiveDataBanner('warn',
+      `⚠️ Python backend offline — showing static data. ` +
+      `Run <code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px">python server.py</code> ` +
+      `&nbsp;<button onclick="checkBackendHealth(true)" ` +
+      `style="margin-left:6px;padding:2px 10px;border-radius:6px;border:1px solid rgba(251,191,36,0.5);` +
+      `background:rgba(251,191,36,0.12);color:#fbbf24;cursor:pointer;font-size:0.78rem">↻ Retry</button>`);
   }
-})();
+
+  // Schedule the next check
+  if (_healthCheckTimer) clearTimeout(_healthCheckTimer);
+  _healthCheckTimer = setTimeout(() => checkBackendHealth(true), _healthRetryDelay);
+}
+
+checkBackendHealth(false);
 
 
 // ── MOBILE SIDEBAR ──
