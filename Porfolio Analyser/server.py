@@ -124,10 +124,17 @@ _YF_OVERRIDES = {
 
 def to_yf_ticker(symbol: str) -> str:
     s = symbol.upper().strip().replace("-EQ", "").replace("-BE", "")
-    return _YF_OVERRIDES.get(s, f"{s}.NS")
+    if s in _YF_OVERRIDES:
+        return _YF_OVERRIDES[s]
+    # Index tickers (^NSEI, ^BSESN, etc.) must not get the .NS suffix
+    if s.startswith("^"):
+        return s
+    return f"{s}.NS"
 
 def clean_sym(symbol: str) -> str:
-    return symbol.upper().strip().replace("-EQ", "").replace("-BE", "")
+    s = symbol.upper().strip().replace("-EQ", "").replace("-BE", "")
+    # Preserve index prefix (^) — don't normalise away leading caret
+    return s
 
 # ── NSE live price ────────────────────────────────────────────────────────────
 async def fetch_nse_price(symbol: str, client: httpx.AsyncClient) -> dict:
