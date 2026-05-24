@@ -80,9 +80,27 @@ app = FastAPI(title="Portfolio.AI Live API", version="2.1.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["Access-Control-Allow-Private-Network"],
 )
+
+# Chrome's Private Network Access policy requires this header when a public
+# (or HTTPS) page tries to fetch from localhost.  Returning it here means the
+# browser's preflight succeeds even when the app is loaded from Vercel/HTTPS.
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request as StarletteRequest
+from starlette.responses import Response as StarletteResponse
+
+class PrivateNetworkMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: StarletteRequest, call_next):
+        response = await call_next(request)
+        if request.headers.get("Access-Control-Request-Private-Network") == "true" \
+                or request.method == "OPTIONS":
+            response.headers["Access-Control-Allow-Private-Network"] = "true"
+        return response
+
+app.add_middleware(PrivateNetworkMiddleware)
 
 price_cache = TTLCache(maxsize=500, ttl=PRICE_TTL)
 fund_cache  = TTLCache(maxsize=500, ttl=FUND_TTL)
