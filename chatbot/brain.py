@@ -34,12 +34,14 @@ logger = logging.getLogger("fin-os")
 # ──────────────────────────────────────────────
 # Config
 # ──────────────────────────────────────────────
-OLLAMA_URL      = os.getenv("OLLAMA_URL",      "http://localhost:11434")
-OLLAMA_MODEL    = os.getenv("OLLAMA_MODEL",    "llama3.1")
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
-MAX_HISTORY     = int(os.getenv("MAX_HISTORY",  "20"))
-OLLAMA_TIMEOUT  = int(os.getenv("OLLAMA_TIMEOUT", "120"))
-MAX_SESSIONS    = int(os.getenv("MAX_SESSIONS",   "1000"))
+OLLAMA_URL       = os.getenv("OLLAMA_URL",       "http://localhost:11434")
+OLLAMA_MODEL     = os.getenv("OLLAMA_MODEL",     "llama3.1")
+# Portfolio AI uses a smarter model for richer reasoning — override with PORTFOLIO_MODEL env var
+PORTFOLIO_MODEL  = os.getenv("PORTFOLIO_MODEL",  "qwen3:14b")
+ALLOWED_ORIGINS  = os.getenv("ALLOWED_ORIGINS",  "*").split(",")
+MAX_HISTORY      = int(os.getenv("MAX_HISTORY",   "20"))
+OLLAMA_TIMEOUT   = int(os.getenv("OLLAMA_TIMEOUT","180"))   # longer for portfolio analysis
+MAX_SESSIONS     = int(os.getenv("MAX_SESSIONS",  "1000"))
 
 _app_start_time = time.time()
 
@@ -454,13 +456,37 @@ async def call_ollama_stream(messages: list[dict]) -> AsyncGenerator[str, None]:
         "keep_alive": -1,
         "options": {
             "num_ctx":     4096,
-            "num_predict": 1200,   # Full analytical responses
+            "num_predict": 1200,
             "temperature": 0.18,
             "top_p":       0.9,
             "repeat_penalty": 1.1,
         }
     }
+    async with httpx.AsyncClient(timeout=OLLAMA_TIMEOUT) as client:
+        async with client.stream("POST", url, json=payload) as resp:
+            resp.raise_for_status()
+            async for line in resp.aiter_lines():
+                if line:
+                    yield line
 
+
+async def call_portfolio_stream(messages: list[dict]) -> AsyncGenerator[str, None]:
+    """Higher-quality stream for portfolio analysis — uses PORTFOLIO_MODEL with larger context."""
+    url     = f"{OLLAMA_URL}/api/chat"
+    payload = {
+        "model":      PORTFOLIO_MODEL,
+        "messages":   messages,
+        "stream":     True,
+        "keep_alive": -1,
+        "options": {
+            "num_ctx":        8192,   # large enough for full portfolio context
+            "num_predict":    2500,   # richer, longer analytical responses
+            "temperature":    0.12,   # more precise / deterministic
+            "top_p":          0.85,
+            "repeat_penalty": 1.15,
+            "stop":           [],
+        }
+    }
     async with httpx.AsyncClient(timeout=OLLAMA_TIMEOUT) as client:
         async with client.stream("POST", url, json=payload) as resp:
             resp.raise_for_status()
@@ -475,12 +501,13 @@ async def call_ollama_stream(messages: list[dict]) -> AsyncGenerator[str, None]:
 @app.get("/health")
 async def health():
     return {
-        "status":          "ok",
-        "version":         app.version,
-        "uptime_seconds":  round(time.time() - _app_start_time, 1),
-        "active_sessions": len(sessions),
-        "ollama_url":      OLLAMA_URL,
-        "model":           OLLAMA_MODEL,
+        "status":           "ok",
+        "version":          app.version,
+        "uptime_seconds":   round(time.time() - _app_start_time, 1),
+        "active_sessions":  len(sessions),
+        "ollama_url":       OLLAMA_URL,
+        "model":            OLLAMA_MODEL,
+        "portfolio_model":  PORTFOLIO_MODEL,
     }
 
 
@@ -879,9 +906,10 @@ async def financial_ratios(req: RatioRequest):
     }
 
 
-# ──────────────────────────────────────────────
-# Endpoints — Portfolio AI (Talk · Briefing · Doctor · Coach)
-# ──────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# PORTFOLIO AI ENGINE — Talk · Briefing · Doctor · Behavioural Coach
+# Uses PORTFOLIO_MODEL (default: qwen3:14b) for higher reasoning quality
+# ══════════════════════════════════════════════════════════════════════════════
 
 class PortfolioHolding(BaseModel):
     sym:          str   = ""
@@ -904,13 +932,19 @@ class PortfolioSnapshot(BaseModel):
     dayChange:     float = 0
     dayChangePct:  float = 0
     holdings:      list[PortfolioHolding] = Field(default_factory=list)
+    # pre-computed analytics sent from frontend
+    sectorBreakdown: dict = Field(default_factory=dict)  # {"IT": 28.4, "Banking": 22.1, ...}
+    concentrationScore: float = 0    # 0-100, higher = more concentrated
+    top5Weight:    float = 0         # % of portfolio in top 5 holdings
+    winRate:       float = 0         # % of holdings in profit
+    bigGainers:    list[str] = Field(default_factory=list)  # syms with >50% gain
+    bigLosers:     list[str] = Field(default_factory=list)  # syms with >-25% loss
 
 
 class PortfolioChatRequest(BaseModel):
-    message:    str            = Field(..., min_length=1, max_length=2000)
+    message:    str            = Field(..., min_length=1, max_length=3000)
     portfolio:  PortfolioSnapshot
     session_id: Optional[str] = None
-    persona:    Optional[str] = "analyst"
     language:   Optional[str] = "english"
 
 
@@ -919,61 +953,145 @@ class PortfolioActionRequest(BaseModel):
     language:   Optional[str] = "english"
 
 
-PORTFOLIO_ANALYST_SYSTEM = """You are Portfolio.AI — a precision-grade portfolio analyst for Indian retail investors using Zerodha.
+# ── The core identity — injected at the top of every portfolio prompt ───────
+PORTFOLIO_ANALYST_SYSTEM = """You are Portfolio.AI — a senior equity analyst and certified financial planner with 20 years of experience in Indian markets (NSE/BSE).
 
-You have been given the investor's LIVE portfolio data. Ground ALL analysis in this exact data.
-- Always reference specific stock symbols and ₹ amounts from the provided data
-- Never invent prices, ratios, or figures not in the data
-- Indian context: Nifty 50 ≈ -4.6% past 1Y, STCG = <1 year holding, LTCG = >1 year for equity
-- LTCG tax = 12.5% on gains above ₹1.25L/year; STCG = 20%
-- Risk-free rate = 6.5% (India 10Y G-Sec)
-- Be direct, specific, and quantified. No disclaimers. No hedging. No "as an AI..." preamble.
+You are speaking directly with an investor about THEIR ACTUAL portfolio. The full live data is below.
+
+━━━ ABSOLUTE RULES — NEVER BREAK THESE ━━━
+1. EVERY response must name at least 2-3 SPECIFIC stock/MF symbols with real numbers from the data
+2. NEVER say "I don't have enough information" — all data is provided; use it
+3. NEVER say "as an AI", "I cannot provide financial advice", or any disclaimer preamble
+4. Lead with the most important insight — zero warm-up sentences
+5. ALL ₹ amounts and % figures must come from the actual portfolio data or standard Indian benchmarks
+6. When a question is about one stock, always frame it relative to the portfolio (weight, sector peers, relative performance)
+7. End EVERY response with one specific, actionable next step with a number or deadline
+
+━━━ INDIAN MARKET GROUND TRUTH (May 2026) ━━━
+- Nifty 50 1Y return: -4.6% (if portfolio beats this, it's outperforming)
+- STCG on equity: 20% (holding < 1 year from buy date)
+- LTCG on equity: 12.5% on gains above ₹1.25L/year (holding ≥ 1 year)
+- Risk-free rate: 6.5% (India 10Y G-Sec, RBI repo 6.25%)
+- Ideal Sharpe ratio: >1.0 excellent, >0.5 acceptable, <0.3 poor
+- Sector concentration danger zone: any single sector >35% of portfolio
+- Single stock danger zone: any position >12-15% of portfolio
+- Healthy portfolio: top 5 holdings <45% of total value
+
+━━━ RESPONSE FORMAT RULES ━━━
+- For short factual questions: 3-5 sentences, cite real data, no headers
+- For analysis questions: use ## headers (emoji + title), bullet points where helpful
+- For comparison questions: state the number, then judge it ("X% vs Nifty -4.6% → you're outperforming by Y%")
+- Amounts in ₹ lakhs (L) for values >₹1L: "₹2.4L" not "₹240,000"
 """
 
 
 def build_portfolio_ctx(portfolio: PortfolioSnapshot) -> str:
-    h_list = portfolio.holdings
-    tv     = portfolio.totalValue
-    ti     = portfolio.totalInvested
-    pnl    = tv - ti
-    pnl_pct = (pnl / ti * 100) if ti > 0 else 0
+    """Build a richly pre-computed portfolio context for the AI."""
+    h = portfolio.holdings
+    if not h:
+        return "⚠️ No holdings data available."
+
+    tv  = portfolio.totalValue
+    ti  = portfolio.totalInvested
+    pnl = tv - ti
+    pnl_pct  = (pnl / ti * 100) if ti > 0 else 0
+    nifty_1y = -4.6
+    alpha    = pnl_pct - nifty_1y
+
+    winners = [x for x in h if x.pnlPct > 0]
+    losers  = [x for x in h if x.pnlPct < 0]
+    win_rate = len(winners) / len(h) * 100 if h else 0
+
+    sorted_w  = sorted(h, key=lambda x: x.weight, reverse=True)
+    top5_w    = sum(x.weight for x in sorted_w[:5])
+    max_pos   = sorted_w[0] if sorted_w else None
+
+    # Sector breakdown from holdings (fallback if not pre-computed)
+    sector_map: dict[str, float] = {}
+    for hh in h:
+        sec = hh.sector or "Unknown"
+        sector_map[sec] = sector_map.get(sec, 0) + hh.weight
+    if portfolio.sectorBreakdown:
+        sector_map = portfolio.sectorBreakdown
+
+    top_sector     = max(sector_map, key=sector_map.get) if sector_map else "—"
+    top_sector_pct = sector_map.get(top_sector, 0)
+
+    big_gainers = portfolio.bigGainers or [x.sym for x in h if x.pnlPct > 50]
+    big_losers  = portfolio.bigLosers  or [x.sym for x in h if x.pnlPct < -25]
+
+    # Day's movers
+    day_top3 = sorted(h, key=lambda x: x.dayChangePct, reverse=True)[:3]
+    day_bot3 = sorted(h, key=lambda x: x.dayChangePct)[:3]
 
     lines = [
-        "━━━━━━━━━━━━ LIVE PORTFOLIO DATA ━━━━━━━━━━━━",
-        f"Total Value    : ₹{tv:,.0f}",
-        f"Total Invested : ₹{ti:,.0f}",
-        f"Total P&L      : ₹{pnl:+,.0f}  ({pnl_pct:+.1f}%)",
-        f"Today's Change : ₹{portfolio.dayChange:+,.0f}  ({portfolio.dayChangePct:+.2f}%)",
-        f"Holdings Count : {len(h_list)}",
+        "╔══════════════════════════════════════════════════════════════╗",
+        "  PORTFOLIO INTELLIGENCE BRIEF  —  Live Data",
+        "╚══════════════════════════════════════════════════════════════╝",
         "",
-        f"{'SYMBOL':<14}{'AVG BUY':>10}{'CMP':>10}{'P&L%':>8}{'WEIGHT':>8}  SECTOR",
-        "─" * 75,
+        "▌ PORTFOLIO SCORECARD",
+        f"  Current Value   : ₹{tv/100_000:,.2f}L  (₹{tv:,.0f})",
+        f"  Cost Basis      : ₹{ti/100_000:,.2f}L  (₹{ti:,.0f})",
+        f"  Unrealised P&L  : ₹{pnl/100_000:+.2f}L  ({pnl_pct:+.1f}%)",
+        f"  vs Nifty 50     : {pnl_pct:+.1f}% vs Nifty {nifty_1y:+.1f}% → Alpha {alpha:+.1f}%  {'✅ outperforming' if alpha > 0 else '⚠️ underperforming'}",
+        f"  Today's Move    : ₹{portfolio.dayChange/100_000:+.2f}L  ({portfolio.dayChangePct:+.2f}%)",
+        f"  Holdings        : {len(h)} total  ({len(winners)} profitable · {len(losers)} at loss · win rate {win_rate:.0f}%)",
+        "",
+        "▌ CONCENTRATION & RISK",
+        f"  Top 5 Weight    : {top5_w:.1f}%  {'🔴 HIGH RISK' if top5_w > 60 else '🟡 MODERATE' if top5_w > 40 else '🟢 HEALTHY'}",
+        f"  Largest Position: {max_pos.sym} at {max_pos.weight:.1f}%  {'🔴 oversized' if max_pos.weight > 15 else '🟡 watch' if max_pos.weight > 10 else '🟢 ok'}" if max_pos else "",
+        f"  Dominant Sector : {top_sector} at {top_sector_pct:.1f}%  {'🔴 too concentrated' if top_sector_pct > 40 else '🟡 watch' if top_sector_pct > 28 else '🟢 balanced'}",
+        "",
+        "▌ SECTOR BREAKDOWN  (by portfolio weight)",
     ]
 
-    sorted_h = sorted(h_list, key=lambda x: x.currVal, reverse=True)
-    for hh in sorted_h[:25]:
+    for sec, pct in sorted(sector_map.items(), key=lambda x: -x[1]):
+        bar = "█" * int(pct / 3) + "░" * max(0, int(34 / 3) - int(pct / 3))
+        lines.append(f"  {sec:<28} {pct:>5.1f}%  {bar}")
+
+    lines += [
+        "",
+        "▌ ALL HOLDINGS  (sorted by portfolio weight)",
+        f"  {'SYMBOL':<13} {'WEIGHT':>7} {'AVG':>9} {'CMP':>9} {'P&L%':>8} {'TODAY%':>8}  SECTOR",
+        "  " + "─" * 72,
+    ]
+
+    for hh in sorted_w:
+        icon = "▲" if hh.pnlPct >= 0 else "▼"
+        flag = " ⭐" if hh.pnlPct > 50 else " 🚨" if hh.pnlPct < -25 else ""
         lines.append(
-            f"{hh.sym:<14}{hh.avg:>10,.1f}{hh.cmp:>10,.1f}"
-            f"{hh.pnlPct:>+7.1f}%{hh.weight:>7.1f}%  {hh.sector}"
+            f"  {hh.sym:<13} {hh.weight:>6.1f}%  {hh.avg:>9,.0f}  {hh.cmp:>9,.0f}  "
+            f"{icon}{abs(hh.pnlPct):>5.1f}%  {hh.dayChangePct:>+6.1f}%  {hh.sector}{flag}"
         )
 
-    if h_list:
-        top3 = sorted(h_list, key=lambda x: x.pnlPct, reverse=True)[:3]
-        bot3 = sorted(h_list, key=lambda x: x.pnlPct)[:3]
-        lines += [
-            "",
-            "TOP GAINERS: " + "  |  ".join(f"{x.sym} {x.pnlPct:+.1f}%" for x in top3),
-            "TOP LOSERS:  " + "  |  ".join(f"{x.sym} {x.pnlPct:+.1f}%" for x in bot3),
-        ]
+    lines += [
+        "",
+        "▌ PERFORMANCE FLAGS",
+        f"  ⭐ Strong gainers (>50%): {', '.join(big_gainers) if big_gainers else 'none'}",
+        f"  🚨 Big losers (< -25%):  {', '.join(big_losers)  if big_losers  else 'none'}",
+        "",
+        "▌ TODAY'S TOP MOVERS",
+        f"  📈 Up today  : {' | '.join(f'{x.sym} {x.dayChangePct:+.2f}%' for x in day_top3 if x.dayChangePct > 0) or 'no gainers today'}",
+        f"  📉 Down today: {' | '.join(f'{x.sym} {x.dayChangePct:+.2f}%' for x in day_bot3 if x.dayChangePct < 0) or 'no losers today'}",
+        "",
+        "▌ TOP 5 GAINERS (all time)",
+    ]
 
-    return "\n".join(lines)
+    for x in sorted(h, key=lambda x: x.pnlPct, reverse=True)[:5]:
+        lines.append(f"  {x.sym:<13} {x.pnlPct:>+7.1f}%  (invested ₹{x.invested/100_000:.2f}L → now ₹{x.currVal/100_000:.2f}L)")
+
+    lines.append("▌ TOP 5 LOSERS (all time)")
+    for x in sorted(h, key=lambda x: x.pnlPct)[:5]:
+        lines.append(f"  {x.sym:<13} {x.pnlPct:>+7.1f}%  (invested ₹{x.invested/100_000:.2f}L → now ₹{x.currVal/100_000:.2f}L)")
+
+    return "\n".join(l for l in lines if l is not None)
 
 
 async def _portfolio_sse(messages: list[dict]):
-    """Shared SSE generator for all portfolio AI action endpoints."""
+    """Shared SSE generator using PORTFOLIO_MODEL."""
     async def gen():
         try:
-            async for line in call_ollama_stream(messages):
+            async for line in call_portfolio_stream(messages):
                 try:
                     chunk = json.loads(line)
                     if token := chunk.get("message", {}).get("content", ""):
@@ -988,7 +1106,7 @@ async def _portfolio_sse(messages: list[dict]):
     return StreamingResponse(gen(), media_type="text/event-stream")
 
 
-# ── 1. Talk to Portfolio (streaming chat with portfolio context) ────────────
+# ── 1. Talk to Portfolio  ─────────────────────────────────────────────────
 @app.post("/api/portfolio/chat/stream")
 @limiter.limit("20/minute")
 async def portfolio_chat_stream(request: Request, body: PortfolioChatRequest):
@@ -996,13 +1114,8 @@ async def portfolio_chat_stream(request: Request, body: PortfolioChatRequest):
     history    = get_or_create_session(session_id)
 
     portfolio_ctx = build_portfolio_ctx(body.portfolio)
-    system = (
-        PORTFOLIO_ANALYST_SYSTEM
-        + f"\n\n{portfolio_ctx}\n\n"
-        + PERSONA_ADDONS.get(body.persona or "analyst", PERSONA_ADDONS["analyst"])
-        + "\n"
-        + LANG_ADDONS.get(body.language or "english", LANG_ADDONS["english"])
-    )
+    lang_text     = LANG_ADDONS.get(body.language or "english", LANG_ADDONS["english"])
+    system        = PORTFOLIO_ANALYST_SYSTEM + f"\n\n{portfolio_ctx}\n\n{lang_text}"
 
     history.append({"role": "user", "content": body.message})
     if len(history) > MAX_HISTORY:
@@ -1013,7 +1126,7 @@ async def portfolio_chat_stream(request: Request, body: PortfolioChatRequest):
     async def event_stream():
         full_reply = []
         try:
-            async for line in call_ollama_stream(messages):
+            async for line in call_portfolio_stream(messages):
                 try:
                     chunk = json.loads(line)
                     if token := chunk.get("message", {}).get("content", ""):
@@ -1030,125 +1143,122 @@ async def portfolio_chat_stream(request: Request, body: PortfolioChatRequest):
     return StreamingResponse(event_stream(), media_type="text/event-stream")
 
 
-# ── 2. Morning Briefing ────────────────────────────────────────────────────
-BRIEFING_PROMPT = """Write a crisp AI Morning Briefing based on the live portfolio data above.
-
-Structure EXACTLY as:
+# ── 2. Morning Briefing  ──────────────────────────────────────────────────
+BRIEFING_PROMPT = """Generate an AI Morning Briefing for this investor. Be their trusted analyst who has studied their portfolio overnight.
 
 ## 📊 Portfolio at a Glance
-[Current value, overall P&L%, today's move — use actual numbers]
+State the current value (₹L), total P&L (₹L and %), today's move (₹L and %), and how the portfolio is performing vs Nifty 50. Use the exact numbers from the data.
 
-## 🏆 Stars of the Day
-[Top 3 performers — actual symbols and percentages from the data]
+## 🏆 Best Performers
+Name the top 3 holdings by absolute P&L% with their exact figures. Explain in one line why each is notable.
 
-## ⚠️ On Watch
-[Stocks down >10% or flagged for concentration — use actual data]
+## ⚠️ On Watch Right Now
+Flag any holdings that need attention today: biggest losers, stocks near their 52W low territory (inferred from large drawdown), or positions that are oversized. Use actual names and numbers.
 
-## 💡 Key Insight
-[The single sharpest observation about this portfolio right now]
+## 💡 The One Thing You Need to Know Today
+One insight that changes how the investor should think about their portfolio today. Make it specific to their actual holdings — not generic market commentary.
 
-## 🎯 Today's Action
-[ONE specific, actionable step — tied to actual portfolio positions]
+## 🎯 Action for Today
+One concrete, specific action with a stock name, a number, and a reason. Something they can actually do today.
 
-Under 280 words. Be direct. Use actual stock symbols from the data. No preamble."""
+Rules: Under 320 words total. Zero preamble. Every number must come from the portfolio data. Write as if you've been tracking this portfolio for months."""
 
 
 @app.post("/api/portfolio/briefing/stream")
 @limiter.limit("10/minute")
 async def portfolio_briefing_stream(request: Request, body: PortfolioActionRequest):
     portfolio_ctx = build_portfolio_ctx(body.portfolio)
-    system = (
-        PORTFOLIO_ANALYST_SYSTEM
-        + f"\n\n{portfolio_ctx}\n\n"
-        + LANG_ADDONS.get(body.language or "english", LANG_ADDONS["english"])
-    )
-    messages = [
+    lang_text     = LANG_ADDONS.get(body.language or "english", LANG_ADDONS["english"])
+    system        = PORTFOLIO_ANALYST_SYSTEM + f"\n\n{portfolio_ctx}\n\n{lang_text}"
+    messages      = [
         {"role": "system", "content": system},
         {"role": "user",   "content": BRIEFING_PROMPT},
     ]
     return await _portfolio_sse(messages)
 
 
-# ── 3. Portfolio Doctor ────────────────────────────────────────────────────
-DOCTOR_PROMPT = """Perform a Portfolio Health Diagnosis using the live data above.
+# ── 3. Portfolio Doctor  ──────────────────────────────────────────────────
+DOCTOR_PROMPT = """You are a portfolio doctor conducting a clinical diagnosis. This is not financial advice — this is a data-driven analysis of portfolio construction quality. Be honest, even if uncomfortable.
 
-## 🏥 Health Score: X/10
-[One-sentence verdict on the portfolio's overall health]
+## 🏥 Health Score: [X]/10
+Give a score and a one-sentence diagnosis. Base it on: diversification, concentration, win rate, and alpha vs Nifty.
 
-## 🎯 Concentration Risk
-[Any position >10% weight? What's the top-5 concentration? Is this dangerous?]
+## 🎯 Concentration Diagnosis
+- List any single holding >10% weight (name it, give the exact %)
+- State the top-5 concentration % — is it dangerous?
+- What's the single biggest idiosyncratic risk from this concentration?
 
-## 🏭 Sector Balance
-[Which sectors dominate? What's missing? Any dangerous single-sector bet?]
+## 🏭 Sector Imbalance
+- Which sector is overweight and by how much vs a typical diversified Indian portfolio?
+- Which sectors are completely absent that create a blind spot?
+- Name 1 specific risk this imbalance creates right now
 
-## 💰 P&L Flag Check
-[Stocks up >100%? Stocks down >-30%? Name them — what should the investor do?]
+## 💰 P&L Health Check
+- For stocks with >50% gain: should the investor be booking partial profits? Name them.
+- For stocks with >-25% loss: has the investment thesis likely broken? Name them.
+- What is the ratio of unrealised gains to unrealised losses?
 
-## ⚠️ Red Flags
-[Liquidity issues, debt-heavy sectors, correlated holdings, negative momentum]
+## ⚠️ 3 Red Flags
+Name exactly 3 specific red flags from the actual portfolio data (not generic ones).
 
-## ✅ Prescription — 5 Action Items
-1. [Specific with actual symbol]
-2. [Specific with actual symbol]
-3. [Specific with actual symbol]
-4. [Specific with actual symbol]
-5. [Specific with actual symbol]
+## ✅ The 5-Point Prescription
+Write 5 concrete actions. Each must name a specific stock or sector, give a number, and explain why.
+1.
+2.
+3.
+4.
+5.
 
-Use real stock symbols from the data. Be a doctor giving an honest diagnosis — not comforting."""
+Rules: Don't soften harsh findings. Use exact stock symbols. Write like a doctor giving a diagnosis, not a financial advisor giving a sales pitch."""
 
 
 @app.post("/api/portfolio/doctor/stream")
 @limiter.limit("10/minute")
 async def portfolio_doctor_stream(request: Request, body: PortfolioActionRequest):
     portfolio_ctx = build_portfolio_ctx(body.portfolio)
-    system = (
-        PORTFOLIO_ANALYST_SYSTEM
-        + f"\n\n{portfolio_ctx}\n\n"
-        + LANG_ADDONS.get(body.language or "english", LANG_ADDONS["english"])
-    )
-    messages = [
+    lang_text     = LANG_ADDONS.get(body.language or "english", LANG_ADDONS["english"])
+    system        = PORTFOLIO_ANALYST_SYSTEM + f"\n\n{portfolio_ctx}\n\n{lang_text}"
+    messages      = [
         {"role": "system", "content": system},
         {"role": "user",   "content": DOCTOR_PROMPT},
     ]
     return await _portfolio_sse(messages)
 
 
-# ── 4. Behavioural Finance Coach ───────────────────────────────────────────
-BEHAVIORAL_PROMPT = """Act as a Behavioural Finance Coach. Analyse the patterns in this portfolio.
+# ── 4. Behavioural Finance Coach  ─────────────────────────────────────────
+BEHAVIORAL_PROMPT = """You are a behavioural finance coach who has just finished a deep review of this investor's portfolio. You're now giving them a frank, personalised coaching session. Reference their actual holdings throughout.
 
-## 🧠 Dominant Bias
-[What is the single most visible cognitive bias in their holding pattern? Name it precisely.]
+## 🧠 Your Behavioural Signature
+Based on the portfolio composition — the sectors chosen, the concentration, the mix of winners and losers still held — identify the ONE dominant behavioural bias shaping this investor's decisions. Name it precisely (e.g., "Loss Aversion + Disposition Effect", "Recency Bias + Thematic Overconcentration", etc.) and explain exactly how it shows up in their holdings.
 
-## 📉 Disposition Effect Check
-[Are they holding heavy losers they should have cut? Name them. Or did they cut losses well?]
+## 📉 Disposition Effect Analysis
+Look at the current losers. Are they holding losses that a rational investor would have cut? Name the specific stocks with >-20% loss and frame the question: "If you were buying fresh today, would you buy [STOCK] at this price? If no, why are you still holding?"
 
-## 🎲 Concentration Bias
-[Over-betting on 1-2 sectors or themes? What implicit market thesis is in this portfolio?]
+## 🎲 Your Hidden Thesis
+Every portfolio has an implicit market bet embedded in it. Based on the sector breakdown and stock selection, what theme or thesis is this investor unknowingly or knowingly betting on? Is this thesis still valid in May 2026?
 
-## 🔄 Recency & Momentum Check
-[Does this portfolio reflect a theme popular 1-2 years ago? Any evidence of peak-buying?]
+## 🔄 Peak-Buying Evidence
+Using the avg buy price vs current price, identify stocks where the investor likely bought near a recent peak (large negative drawdown from cost basis). Name them. What does this pattern reveal about their buy timing?
 
-## 💡 3 Personal Rules for This Investor
-1. [Tailored to their actual holding pattern — not generic advice]
-2. [Tailored to their actual holding pattern — not generic advice]
-3. [Tailored to their actual holding pattern — not generic advice]
+## 💡 3 Personalised Rules — Written For This Investor
+These are NOT generic rules. They must reference specific patterns, specific stocks, and specific numbers from this portfolio.
+**Rule 1**: [tailored rule about their biggest bias, with specific stock example]
+**Rule 2**: [tailored rule about their sector/concentration pattern]
+**Rule 3**: [tailored rule about their selling/holding behaviour pattern]
 
-## 🎯 This Week's Experiment
-[One concrete behavioural exercise to improve their decision-making — tied to actual holdings]
+## 🎯 This Week's Behavioural Experiment
+Give one specific, actionable, 15-minute exercise they can do this week that will directly confront their dominant bias. Name the specific holdings involved.
 
-Reference actual stocks and patterns from the data. Coach who studied the file, not a generic lecture."""
+Rules: Every paragraph must reference at least one actual stock symbol. Be a coach who has studied their file for weeks — not a textbook reciting theory."""
 
 
 @app.post("/api/portfolio/behavioral/stream")
 @limiter.limit("10/minute")
 async def portfolio_behavioral_stream(request: Request, body: PortfolioActionRequest):
     portfolio_ctx = build_portfolio_ctx(body.portfolio)
-    system = (
-        PORTFOLIO_ANALYST_SYSTEM
-        + f"\n\n{portfolio_ctx}\n\n"
-        + LANG_ADDONS.get(body.language or "english", LANG_ADDONS["english"])
-    )
-    messages = [
+    lang_text     = LANG_ADDONS.get(body.language or "english", LANG_ADDONS["english"])
+    system        = PORTFOLIO_ANALYST_SYSTEM + f"\n\n{portfolio_ctx}\n\n{lang_text}"
+    messages      = [
         {"role": "system", "content": system},
         {"role": "user",   "content": BEHAVIORAL_PROMPT},
     ]
