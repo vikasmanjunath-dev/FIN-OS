@@ -15342,7 +15342,7 @@ function openAIPanel(tab) {
   checkBrainHealth();
 
   // Auto-check portfolio availability
-  const noPortfolio = (!window.EQ || !EQ.length) && (!window.MF || !MF.length);
+  const noPortfolio = !(EQ && EQ.length) && !(MF && MF.length);
   if (noPortfolio) {
     const statusEl = document.getElementById('ai-brain-status');
     if (statusEl) { statusEl.textContent = 'upload portfolio first'; statusEl.style.color = 'var(--warn)'; }
@@ -15459,7 +15459,7 @@ async function _aiGuard(wrapId) {
     const alive = await checkBrainHealth();
     if (!alive) { wrap.innerHTML = _aiBrainOfflineHTML(); return false; }
   }
-  const noPortfolio = (!window.EQ || !EQ.length) && (!window.MF || !MF.length);
+  const noPortfolio = !(EQ && EQ.length) && !(MF && MF.length);
   if (noPortfolio) {
     wrap.innerHTML = `<div class="ai-offline-msg">
       <div style="font-size:30px;margin-bottom:10px">📂</div>
@@ -15561,7 +15561,7 @@ async function sendAIChat() {
     }
   }
 
-  const noPortfolio = (!window.EQ || !EQ.length) && (!window.MF || !MF.length);
+  const noPortfolio = !(EQ && EQ.length) && !(MF && MF.length);
   if (noPortfolio) {
     _appendChatMsg(msgsEl, 'bot', '📂 Please upload a portfolio file first — then I can answer questions about your holdings.');
     return;
