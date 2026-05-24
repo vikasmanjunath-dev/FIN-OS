@@ -50,15 +50,29 @@ PORT           = 8766
 
 NSE_HEADERS = {
     "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/124.0.0.0 Safari/537.36"
     ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-IN,en-GB;q=0.9,en;q=0.8",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Cache-Control": "max-age=0",
+}
+NSE_API_HEADERS = {
+    **NSE_HEADERS,
     "Accept": "application/json, text/plain, */*",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Referer": "https://www.nseindia.com/",
+    "Referer": "https://www.nseindia.com/get-quotes/equity",
     "X-Requested-With": "XMLHttpRequest",
-    "DNT": "1",
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-origin",
 }
 
 # ── App + caches ──────────────────────────────────────────────────────────────
@@ -101,23 +115,36 @@ def clean_sym(symbol: str) -> str:
 async def fetch_nse_price(symbol: str, client: httpx.AsyncClient) -> dict:
     """
     Fetches real-time price from NSE's official equity quote API.
-    NSE requires a session cookie obtained from the homepage first.
+    NSE requires a full browser-like session (cookies + proper headers).
+    Falls back silently — yfinance covers price if NSE blocks.
     """
     sym = clean_sym(symbol)
     try:
-        # Cookie dance — NSE rejects requests without a prior homepage hit
-        await client.get(
+        # Step 1 — hit the main page to pick up cookies (NSE bot-detection)
+        home = await client.get(
             "https://www.nseindia.com/",
-            headers=NSE_HEADERS,
-            timeout=5.0,
-        )
-        r = await client.get(
-            f"https://www.nseindia.com/api/quote-equity?symbol={sym}",
             headers=NSE_HEADERS,
             timeout=6.0,
         )
+        if home.status_code == 403:
+            log.debug(f"NSE homepage 403 for {sym} — skipping NSE, using YF price only")
+            return {}
+
+        # Step 2 — hit the equity-quote page to refresh session
+        await client.get(
+            f"https://www.nseindia.com/get-quotes/equity?symbol={sym}",
+            headers={**NSE_HEADERS, "Referer": "https://www.nseindia.com/"},
+            timeout=5.0,
+        )
+
+        # Step 3 — actual API call
+        r = await client.get(
+            f"https://www.nseindia.com/api/quote-equity?symbol={sym}",
+            headers=NSE_API_HEADERS,
+            timeout=8.0,
+        )
         if r.status_code != 200:
-            log.debug(f"NSE {sym}: HTTP {r.status_code}")
+            log.debug(f"NSE API {sym}: HTTP {r.status_code}")
             return {}
 
         d    = r.json()
@@ -127,11 +154,16 @@ async def fetch_nse_price(symbol: str, client: httpx.AsyncClient) -> dict:
         whl  = pi.get("weekHighLow", {})
         idhl = pi.get("intraDayHighLow", {})
 
+        price = pi.get("lastPrice") or pi.get("close")
+        if not price:
+            log.debug(f"NSE {sym}: API returned no price")
+            return {}
+
         return {
-            "price":       pi.get("lastPrice"),
+            "price":       price,
             "open":        pi.get("open"),
-            "high":        idhl.get("max"),
-            "low":         idhl.get("min"),
+            "high":        idhl.get("max") or pi.get("dayHigh"),
+            "low":         idhl.get("min")  or pi.get("dayLow"),
             "prevClose":   pi.get("previousClose"),
             "change":      pi.get("change"),
             "changePct":   pi.get("pChange"),
@@ -150,7 +182,7 @@ async def fetch_nse_price(symbol: str, client: httpx.AsyncClient) -> dict:
             "_ts":         time.time(),
         }
     except Exception as e:
-        log.warning(f"NSE price failed for {sym}: {e}")
+        log.debug(f"NSE price failed for {sym}: {e}")
         return {}
 
 # ── Yahoo Finance fundamentals ────────────────────────────────────────────────
@@ -266,16 +298,16 @@ def fetch_yf_fundamentals(symbol: str) -> dict:
             "source": "Yahoo Finance", "_ts": time.time(),
         }
 
-    # Run .NS with 15s timeout
+    # Run .NS with 20s timeout (increased — YF can be slow)
     result = {}
     def _run_ns():
         try: result.update(_fetch_ticker(yft))
         except Exception as e: log.debug(f"{sym} .NS failed: {e}")
     t = threading.Thread(target=_run_ns, daemon=True)
     t.start()
-    t.join(timeout=15)
+    t.join(timeout=20)
 
-    # If no price from .NS, try .BO (BSE) with 8s timeout
+    # If no price from .NS, try .BO (BSE) with 10s timeout
     if not result.get("price"):
         bse = sym + ".BO"
         if bse != yft:
@@ -285,18 +317,34 @@ def fetch_yf_fundamentals(symbol: str) -> dict:
                 except Exception as e: log.debug(f"{sym} .BO failed: {e}")
             t2 = threading.Thread(target=_run_bo, daemon=True)
             t2.start()
-            t2.join(timeout=8)
+            t2.join(timeout=10)
             if bo_result.get("price"):
                 log.info(f"{sym}: .NS no price, .BO got {bo_result['price']}")
-                # .BO price fills the gap; keep .NS fundamentals if available
                 for k, v in bo_result.items():
                     if v is not None and not result.get(k):
                         result[k] = v
 
-    if result:
+    # Last-resort: use .history() to get the most recent close price
+    # Reliable even when .info and .fast_info are rate-limited or return None
+    if not result.get("price"):
+        try:
+            hist_df = yf.Ticker(yft).history(period="5d", interval="1d")
+            if not hist_df.empty:
+                last_close = float(hist_df["Close"].iloc[-1])
+                if last_close > 0:
+                    result["price"] = round(last_close, 2)
+                    result.setdefault("prevClose",
+                        round(float(hist_df["Close"].iloc[-2]), 2) if len(hist_df) >= 2 else None)
+                    result.setdefault("source", "Yahoo Finance (history)")
+                    result.setdefault("_ts", time.time())
+                    log.info(f"{sym}: history fallback price={last_close:.2f}")
+        except Exception as e:
+            log.debug(f"{sym} history fallback failed: {e}")
+
+    if result.get("price"):
         log.info(f"{sym}: price={result.get('price')} pe={result.get('pe')} roe={result.get('roe')}")
     else:
-        log.warning(f"YF: no data at all for {sym} ({yft})")
+        log.warning(f"YF: no price for {sym} ({yft}) — all sources failed")
     return result
 
 
