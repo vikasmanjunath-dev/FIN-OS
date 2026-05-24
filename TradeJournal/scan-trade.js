@@ -180,79 +180,121 @@
 
     /* ── Contract note parsing ────────────────────────────────── */
     if (isContract) {
-      /* ── Trade line matching ─────────────────────────────────────────
-         Three OCR layouts for Zerodha virtual contract notes:
+      /* ═══════════════════════════════════════════════════════════════
+         TRADE LINE EXTRACTION — multi-format, multi-pass
 
-         FORMAT A – table data row (no "Qty."/"Avg." labels):
-           "SELL  500  192.25  96,125.00  10:58:06  NSE"
-           "BUY   500  191.00  95,500.00  09:17:02  NSE"
+         The Zerodha Virtual Contract Note table can be OCR'd in various
+         column orderings.  We try formats in priority order and accept
+         the first hit for each direction (BUY / SELL).
 
-         FORMAT B – inline labels, direction at start:
-           "SELL Qty. 500  Avg. 192.25  ⊙ 10:58:06  NSE"
+         FORMAT A  BUY/SELL starts the row (most common):
+           "BUY  500  191.00  95,500.00  09:17:02  NSE"
+         FORMAT B  Timestamp comes first in the row:
+           "09:17:02  SHADOWFAX  BUY  500  191.00  95,500.00  NSE"
+         FORMAT C  BUY/SELL anywhere on the line, time also on same line
+         FORMAT D  Inline Qty./Avg. labels (positions-style)
+         FORMAT E  No BUY/SELL label — use price comparison
+         FORMAT F  Line-by-line scan (last resort, any column order)
+      ═══════════════════════════════════════════════════════════════ */
 
-         FORMAT C – inline labels, direction at end:
-           "Qty. 500  Avg. 192.25  ⊙ 10:58:06  NSE  SELL"
+      const norm = (m, dir, qi, ai, ti, ei) => ({
+        dir,
+        qty:      +m[qi],
+        avg:      parseFloat(String(m[ai]).replace(/,/g,'')),
+        time:     m[ti] || '',
+        exchange: m[ei] || '',
+      });
 
-         For format A the pattern is:
-           (BUY|SELL)  qty  price  [turnover]  HH:MM:SS  exchange
-         The turnover (e.g. 96,125.00) sits between price and time but is
-         optional — handled by (?:[\d,]+\.\d{2}\s+)?
-      ────────────────────────────────────────────────────────────────── */
+      /* FORMAT A: BUY/SELL at/near line-start, price before time */
+      const FMT_A = /(BUY|SELL)\s+(\d{1,6})\s+([\d.,]+\.\d{2})\s+(?:[\d,]+\.\d{2}\s+)?(\d{2}:\d{2}:\d{2})\s+(NSE|BSE|MCX|NFO)/gi;
 
-      /* ── FORMAT A: labeled table data row (highest priority) ───────── */
-      const DATA_LBL = /(?:^|\n)(BUY|SELL)\s+(\d{1,6})\s+([\d.,]+\.\d{2})\s+(?:[\d,]+\.\d{2}\s+)?(\d{2}:\d{2}:\d{2})\s+(NSE|BSE|MCX|NFO)/gi;
-      /* FORMAT A no-label: same but without BUY/SELL (use price compare) */
-      const DATA_NOLBL = /(?:^|\n)(\d{1,6})\s+([\d.,]+\.\d{2})\s+(?:[\d,]+\.\d{2}\s+)?(\d{2}:\d{2}:\d{2})\s+(NSE|BSE|MCX|NFO)/gi;
+      /* FORMAT B: timestamp first, BUY/SELL follows */
+      const FMT_B = /(\d{2}:\d{2}:\d{2})[^\n]{0,60}?(BUY|SELL)\s+(\d{1,6})\s+([\d.,]+\.\d{2})[^\n]{0,60}?(NSE|BSE|MCX|NFO)/gi;
 
-      /* ── FORMATS B & C: lines that have "Qty." and "Avg." labels ───── */
+      /* FORMAT C: BUY/SELL anywhere, time follows price */
+      const FMT_C = /\b(BUY|SELL)\b[^\n]{0,30}?\b(\d{1,4})\b\s+([\d.,]+\.\d{2})\b[^\n]{0,80}(\d{2}:\d{2}:\d{2})/gi;
+
+      /* FORMAT D: inline Qty./Avg. labels */
       const QA_BODY    = String.raw`Qty\.?\s+(\d+)\s+Avg\.?\s+([\d.]+)\s*(?:\S+\s+)?[^\d\n]*?(\d{2}:\d{2}(?::\d{2})?)\s+(NSE|BSE|MCX|NFO)`;
       const TRADE_END  = new RegExp(QA_BODY + String.raw`\s+(BUY|SELL)`, 'gi');
-      const TRADE_START= new RegExp(String.raw`(BUY|SELL)\s+` + QA_BODY,  'gi');
+      const TRADE_START= new RegExp(String.raw`(BUY|SELL)\s+` + QA_BODY, 'gi');
       const TRADE_QA   = new RegExp(QA_BODY, 'gi');
 
-      /* Normalise a regex match to {dir, qty, avg, time, exchange} */
-      const norm = (m, dir, qi, ai, ti, ei) =>
-        ({ dir, qty: +m[qi], avg: parseFloat(String(m[ai]).replace(/,/g,'')), time: m[ti], exchange: m[ei] });
+      /* FORMAT E: no BUY/SELL label */
+      const FMT_E = /(?:^|\n)(\d{1,6})\s+([\d.,]+\.\d{2})\s+(?:[\d,]+\.\d{2}\s+)?(\d{2}:\d{2}:\d{2})\s+(NSE|BSE|MCX|NFO)/gi;
 
-      /* Collect all hits from each pattern */
-      const rowLbl  = [...flat.matchAll(DATA_LBL   )].map(m => norm(m, m[1].toUpperCase(), 2, 3, 4, 5));
-      const rowNolbl= [...flat.matchAll(DATA_NOLBL  )].map(m => norm(m, '',                1, 2, 3, 4));
-      const endHits = [...flat.matchAll(TRADE_END   )].map(m => norm(m, m[5].toUpperCase(), 1, 2, 3, 4));
-      const stHits  = [...flat.matchAll(TRADE_START )].map(m => norm(m, m[1].toUpperCase(), 2, 3, 4, 5));
-      const qaHits  = [...flat.matchAll(TRADE_QA    )].map(m => norm(m, '',                1, 2, 3, 4));
+      const fmtA  = [...flat.matchAll(FMT_A    )].map(m => norm(m, m[1].toUpperCase(), 2, 3, 4, 5));
+      const fmtB  = [...flat.matchAll(FMT_B    )].map(m => norm(m, m[2].toUpperCase(), 3, 4, 1, 5));
+      const fmtC  = [...flat.matchAll(FMT_C    )].map(m => ({
+        dir: m[1].toUpperCase(), qty: +m[2],
+        avg: parseFloat(String(m[3]).replace(/,/g,'')), time: m[4], exchange: '',
+      }));
+      const endH  = [...flat.matchAll(TRADE_END  )].map(m => norm(m, m[5].toUpperCase(), 1, 2, 3, 4));
+      const stH   = [...flat.matchAll(TRADE_START)].map(m => norm(m, m[1].toUpperCase(), 2, 3, 4, 5));
+      const qaH   = [...flat.matchAll(TRADE_QA   )].map(m => norm(m, '', 1, 2, 3, 4));
+      const fmtE  = [...flat.matchAll(FMT_E      )].map(m => norm(m, '', 1, 2, 3, 4));
 
-      /* Labeled: FORMAT A rows first, then B/C */
-      const labeled = [...rowLbl, ...endHits, ...stHits];
-      const buyHit  = labeled.find(t => t.dir === 'BUY');
-      const sellHit = labeled.find(t => t.dir === 'SELL');
+      const labeled = [...fmtA, ...fmtB, ...fmtC, ...endH, ...stH];
+      let   buyHit  = labeled.find(t => t.dir === 'BUY');
+      let   sellHit = labeled.find(t => t.dir === 'SELL');
 
-      /* Unlabeled fallback: dedupe by time, sort by avg price */
-      const allNolbl = [...rowNolbl, ...qaHits]
-        .filter((h, i, arr) => arr.findIndex(x => x.time === h.time) === i); // dedupe by time
+      /* FORMAT F: line-by-line scan — handles any column ordering.
+         For each line that contains BUY or SELL, extract whatever
+         data appears on that same line.                              */
+      if (!buyHit || !sellHit) {
+        for (const ln of flat.split('\n')) {
+          const u = ln.toUpperCase();
+          const hasBuy = /\bBUY\b/.test(u), hasSell = /\bSELL\b/.test(u);
+          if (!hasBuy && !hasSell) continue;
+          const dir = hasSell ? 'SELL' : 'BUY';
+          if (dir === 'BUY' && buyHit)  continue;
+          if (dir === 'SELL' && sellHit) continue;
+
+          const timeM = ln.match(/\b(\d{2}:\d{2}:\d{2})\b/);
+          const exchM = ln.match(/\b(NSE|BSE|MCX|NFO)\b/);
+          /* Strip timestamp before hunting integers (prevents 09/17/02 false-matches) */
+          const noT   = ln.replace(/\d{2}:\d{2}:\d{2}/g, '');
+          /* Standalone integer not followed by decimal separator */
+          const qtyV  = [...noT.matchAll(/\b(\d{1,4})\b(?!\.\d)/g)]
+                          .map(m => +m[1]).find(n => n >= 1 && n <= 9999);
+          /* Decimal amounts ≤₹100 000 (plausible per-share price) */
+          const prcs  = [...noT.matchAll(/\b([\d,]+\.\d{2})\b/g)]
+                          .map(m => parseFloat(m[1].replace(/,/g,'')))
+                          .filter(n => n >= 0.5 && n < 100000);
+
+          if (!qtyV && !timeM && !prcs.length) continue;
+          const hit = { dir, qty: qtyV || 0, avg: prcs[0] || 0,
+                        time: timeM?.[1] || '', exchange: exchM?.[1] || '' };
+          if (dir === 'BUY')  buyHit  = hit;
+          else                sellHit = hit;
+        }
+      }
+
+      /* Unlabeled fallback: dedupe by time, sort by price */
+      const allNolbl = [...fmtE, ...qaH]
+        .filter((h, i, arr) => arr.findIndex(x => x.time === h.time) === i);
       const sorted2  = [...allNolbl].sort((a, b) => a.avg - b.avg);
       const entryFb  = sorted2[0] || null;
       const exitFb   = sorted2.length >= 2 ? sorted2[sorted2.length - 1] : null;
 
-      /* ── Populate entry ──────────────────────────────────────────────── */
+      /* ── Populate entry / exit ──────────────────────────────── */
       const eSource = buyHit  || entryFb;
       if (eSource) {
-        out.qty       = eSource.qty;
-        out.entry     = eSource.avg;
-        out.entryTime = eSource.time;
-        out.exchange  = eSource.exchange;
+        out.qty       = eSource.qty  || out.qty;
+        out.entry     = eSource.avg  || undefined;
+        out.entryTime = eSource.time || undefined;
+        if (eSource.exchange) out.exchange = eSource.exchange;
       }
-
-      /* ── Populate exit ───────────────────────────────────────────────── */
       const xSource = sellHit || exitFb;
       if (xSource) {
         if (!out.qty) out.qty = xSource.qty;
-        out.exit     = xSource.avg;
-        out.exitTime = xSource.time;
-        if (!out.exchange) out.exchange = xSource.exchange;
+        out.exit     = xSource.avg  || undefined;
+        out.exitTime = xSource.time || undefined;
+        if (!out.exchange && xSource.exchange) out.exchange = xSource.exchange;
       }
 
-      /* ── Cross-validate: if labeled price is ≥5× from no-label fallback,
-            the labeled line was misread — prefer the unlabeled value ─── */
+      /* Cross-validate: if labeled price is ≥5× off from no-label,
+         the labeled read was garbled — prefer unlabeled value.      */
       const crossCheck = (hit, fb, setFn) => {
         if (hit && fb && fb.avg > 0) {
           const r = hit.avg / fb.avg;
@@ -262,27 +304,71 @@
       crossCheck(buyHit,  entryFb, (v,t) => { out.entry = v; out.entryTime = t; });
       crossCheck(sellHit, exitFb,  (v,t) => { out.exit  = v; out.exitTime  = t; });
 
-      /* ── TURNOVER-DERIVED PRICE OVERRIDE ────────────────────────────────
-         Zerodha contract notes show a "Trade Value" (turnover) column:
-           e.g.  BUY  500  191.00  95,500.00  09:17:02  NSE
-                              ↑                 ↑
-                          avg price          turnover = qty × price
+      /* ── Exchange/Instrument/Type: search anywhere in document ── */
+      if (!out.exchange)       { const m = flat.match(/\b(NSE|BSE|MCX|NFO)\b/);   if (m) out.exchange       = m[1]; }
+      if (!out.instrumentType) { const m = flat.match(/\b(EQ|FUT|CE|PE)\b/);      if (m) out.instrumentType = m[1]; }
+      if (!out.tradeType)      { const m = flat.match(/\b(MIS|CNC|NRML)\b/);      if (m) out.tradeType      = m[1]; }
 
-         Problem: OCR reliably misreads small 3-digit prices like "191.00"
-         as "1900" (decimal dropped / digit inserted), but NEVER misreads
-         large 5-digit numbers like "95,500.00".
+      /* ══════════════════════════════════════════════════════════════
+         QTY RECOVERY
+         If the trade-line patterns couldn't set qty, derive it:
+           1. Quick: look for "BUY/SELL <number>" or "Qty <number>"
+           2. Math:  find large turnover amounts (trade-value column),
+              compute GCD×20 (ensures price is a multiple of ₹0.05),
+              pick the divisor that appears as a token in OCR text.
+      ══════════════════════════════════════════════════════════════ */
+      if (!out.qty || out.qty <= 0) {
+        const qm = flat.match(/\b(?:BUY|SELL)\s+(\d{1,6})\b/i) ||
+                   flat.match(/\bQty\.?\s+(\d{1,6})\b/i);
+        if (qm) {
+          out.qty = parseInt(qm[1], 10);
+        } else {
+          /* GCD approach — requires ≥1 large turnover amount in the text */
+          const bigA = [...flat.matchAll(/((?:\d{1,3},)?\d{1,3},\d{3}\.\d{2}|\d{5,}\.\d{2})/g)]
+            .map(m => Math.round(parseFloat(m[1].replace(/,/g,'')) * 100))
+            .filter((v, i, arr) => v > 500000 && arr.indexOf(v) === i); // unique, >₹5000
 
-         Solution: find every HH:MM:SS timestamp in the doc, look backward
-         for the nearest large turnover, divide by qty → get exact price.
+          if (bigA.length >= 1) {
+            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+            const g20 = bigA.map(v => v * 20).reduce(gcd); // ×20 so price⟂0.05
+            const divs = [];
+            for (let i = 1; i * i <= g20; i++) {
+              if (g20 % i === 0) {
+                if (i <= 9999) divs.push(i);
+                const j = g20 / i;
+                if (j !== i && j <= 9999) divs.push(j);
+              }
+            }
+            divs.sort((a, b) => a - b);
+            /* Prefer divisors that actually appear as tokens in the text */
+            const tok = new Set(
+              [...flat.matchAll(/\b(\d{1,4})\b(?!\.\d)/g)].map(m => +m[1]).filter(n => n > 0)
+            );
+            const cands = (divs.filter(q => tok.has(q)).length
+              ? divs.filter(q => tok.has(q)) : divs).filter(q => q >= 1);
+            /* Highest priority: largest multiple of 100, else 50, else 10 */
+            out.qty = cands.reduce((best, q) => {
+              const s = q % 100 === 0 ? 3 : q % 50 === 0 ? 2 : q % 10 === 0 ? 1 : 0;
+              const b = best % 100 === 0 ? 3 : best % 50 === 0 ? 2 : best % 10 === 0 ? 1 : 0;
+              return s > b ? q : best;
+            }, cands[0]);
+          }
+        }
+      }
 
-         Only overrides when both prices are found AND they differ
-         (same value = no useful information, don't override). ────────── */
+      /* ══════════════════════════════════════════════════════════════
+         TURNOVER-DERIVED PRICE OVERRIDE
+         Zerodha shows a Trade Value (= qty × price) column.
+         OCR reliably misreads small prices ("191.00" → "1900") but
+         NEVER misreads large 5-digit turnovers ("95,500.00").
+         For each HH:MM:SS timestamp: search 600 chars before + 100
+         after for the last large number, divide by qty → exact price.
+      ══════════════════════════════════════════════════════════════ */
       const allTimesInDoc = [...flat.matchAll(/\b(\d{2}:\d{2}:\d{2})\b/g)];
       if (out.qty && out.qty > 0 && allTimesInDoc.length >= 1) {
         const derived = allTimesInDoc.map(tm => {
-          const pre = flat.slice(Math.max(0, tm.index - 400), tm.index);
-          /* Turnover: last large number (≥5 digits before decimal) before this time */
-          const bigNums = [...pre.matchAll(/([\d,]{5,}\.\d{2})/g)]
+          const win = flat.slice(Math.max(0, tm.index - 600), tm.index + 100);
+          const bigNums = [...win.matchAll(/([\d,]{5,}\.\d{2})/g)]
             .map(m => parseFloat(m[1].replace(/,/g, '')))
             .filter(v => v > 1000);
           if (!bigNums.length) return null;
@@ -291,74 +377,73 @@
           return { time: tm[1], price };
         }).filter(Boolean);
 
-        /* Remove duplicates (same time appearing twice in OCR) */
         const uniq = derived.filter((d, i, a) => a.findIndex(x => x.time === d.time) === i);
         uniq.sort((a, b) => a.price - b.price);
 
         if (uniq.length >= 2 && uniq[uniq.length - 1].price > uniq[0].price) {
-          /* Two distinct prices found — lower = BUY/entry, higher = SELL/exit */
-          out.entry     = uniq[0].price;
-          out.entryTime = uniq[0].time;
-          out.exit      = uniq[uniq.length - 1].price;
-          out.exitTime  = uniq[uniq.length - 1].time;
+          out.entry = uniq[0].price;  out.entryTime = uniq[0].time;
+          out.exit  = uniq[uniq.length - 1].price;  out.exitTime = uniq[uniq.length - 1].time;
         } else if (uniq.length === 1) {
-          /* Only one timestamp found — use its derived price for whichever is missing */
           if (out.entry == null || Math.abs(out.entry - uniq[0].price) > 1)
             { out.entry = uniq[0].price; out.entryTime = uniq[0].time; }
         }
       }
 
-      /* ── Charges — handle ₹ misread as ¥, % or the digit 3 by OCR ──
-         Tesseract frequently OCR-reads the ₹ glyph as:
-           ¥  (yen)     → handled by [₹¥%]
-           %  (percent) → handled by [₹¥%]
-           3  (digit)   → "₹40.00" becomes "340.00"
-                          Treat leading "3" as a currency prefix ONLY when
-                          it is followed by a digit 1-9 (so genuine "3.00"
-                          isn't accidentally stripped). ─────────────────── */
-      const CUR = '(?:[₹¥%]|3(?=[1-9]))';   // currency prefix (optional via ?)
+      /* ══════════════════════════════════════════════════════════════
+         CHARGES
+         KEY BUG FIX: extractCharge() used to return 0 on no-match,
+         making tryCharge() always return on the FIRST pattern and
+         never try alternatives.  We inline the match here and check
+         for a TRUTHY (> 0) value so every alternative is tried.
 
-      /* Helper: try multiple label variants, return first non-null match */
+         Also: patterns now use [\s\S]{0,30} (not [^\d\n]) so they
+         can span a line-break between the label and the amount.
+      ══════════════════════════════════════════════════════════════ */
+      const CUR = '(?:[₹¥%]|3(?=[1-9]))';  // ₹ misread as ¥, %, or digit 3
+
       const tryCharge = (...patterns) => {
         for (const p of patterns) {
-          const v = extractCharge(flat, p);
-          if (v != null) return v;
+          const m = flat.match(p);
+          if (m) { const v = parseMoney(m[1]); if (v > 0) return v; }
         }
         return null;
       };
 
       out.charges = {
         brokerage: tryCharge(
-          new RegExp(`Brokerage\\s+${CUR}?([\\d,]+\\.\\d{2})`),
+          new RegExp(`Brokerage[\\s\\S]{0,20}?${CUR}?([\\d,]+\\.\\d{2})`),
         ),
         stt: tryCharge(
-          // Zerodha labels: "STT", "STT/CTT", "Securities Transaction Tax"
-          new RegExp(`\\bSTT\\b[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`),
-          new RegExp(`Securities\\s+Transaction\\s+Tax[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+          new RegExp(`\\bSTT\\b[\\s\\S]{0,30}?${CUR}?([\\d,]+\\.\\d{2})`),
+          new RegExp(`STT\\s*/\\s*CTT[\\s\\S]{0,30}?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+          new RegExp(`Securities\\s+Transaction\\s+Tax[\\s\\S]{0,30}?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+          new RegExp(`Transaction\\s+Tax[\\s\\S]{0,30}?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
         ),
         stampDuty: tryCharge(
-          new RegExp(`Stamp\\s*(?:duty|charges?)[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+          new RegExp(`Stamp\\s*(?:duty|charges?)[\\s\\S]{0,30}?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+          new RegExp(`\\bStamp\\b[\\s\\S]{0,20}?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
         ),
         exchangeCharge: tryCharge(
-          new RegExp(`Exchange\\s+(?:turnover|transaction)\\s+charge[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
-          new RegExp(`Exchange\\s+charge[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+          new RegExp(`Exchange\\s+(?:turnover|transaction)\\s+charge[\\s\\S]{0,30}?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+          new RegExp(`Exchange\\s+charge[\\s\\S]{0,30}?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+          new RegExp(`Exchange\\s+fee[\\s\\S]{0,20}?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
         ),
         sebiCharge: tryCharge(
-          new RegExp(`SEBI\\s+(?:turnover|transaction)?\\s*charge[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
-          new RegExp(`\\bSEBI\\b[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`),
+          new RegExp(`SEBI\\s+(?:turnover|transaction)?\\s*charge[\\s\\S]{0,30}?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+          new RegExp(`\\bSEBI\\b[\\s\\S]{0,30}?${CUR}?([\\d,]+\\.\\d{2})`),
+          new RegExp(`Regulatory\\s+(?:fee|charge)[\\s\\S]{0,30}?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
         ),
         gst: tryCharge(
-          new RegExp(`\\bGST\\b[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`),
-          new RegExp(`Goods\\s+and\\s+Services\\s+Tax[^\\d\\n]*?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
+          new RegExp(`\\bGST\\b[\\s\\S]{0,30}?${CUR}?([\\d,]+\\.\\d{2})`),
+          new RegExp(`Goods\\s+and\\s+Services\\s+Tax[\\s\\S]{0,30}?${CUR}?([\\d,]+\\.\\d{2})`, 'i'),
         ),
       };
 
-      /* Total charges line — also handle ₹ misread (including ₹→3) */
-      const totM = flat.match(new RegExp(`\\bTotal\\b\\s+${CUR}?([\\d,]+\\.\\d{2})`));
+      /* Total charges: try labelled total first, else sum parts */
+      const totM = flat.match(new RegExp(`\\bTotal\\b[^\\d\\n]{0,20}${CUR}?([\\d,]+\\.\\d{2})`));
       out.charges.totalCharges = totM
         ? parseMoney(totM[1])
         : Object.values(out.charges).reduce((a, b) => a + (b || 0), 0);
-
       out.tax = out.charges.totalCharges || undefined;
     }
 
