@@ -52,27 +52,42 @@
         const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const d = imgData.data;
         for (let i = 0; i < d.length; i += 4) {
-          // Invert ALL pixels, then binarize at threshold 140 using the
-          // MINIMUM channel (not weighted-average grayscale).
+          // ── Saturation-aware hybrid binarisation ─────────────────────
+          // Zerodha dark-mode screenshots have THREE pixel classes:
           //
-          // Why min(R,G,B)?
-          //   For achromatic (neutral) pixels R=G=B, so min = weighted avg —
-          //   behaviour is IDENTICAL to the old approach for the main dark-mode
-          //   content (headers, charges, BUY rows, etc.).
+          //   CLASS A — achromatic (dark bg, white text):
+          //     R≈G≈B → saturation ≈ 0
+          //     Use luminance inversion so dark bg → WHITE, white text → BLACK.
           //
-          //   For SATURATED coloured pixels the minimum channel is much lower
-          //   than the weighted average, so after inversion it clears 140:
-          //     • SELL badge ~(255,100,100): min=100 → inverted 155 > 140 → WHITE ✓
-          //       (weighted avg ≈147 → inverted 108 < 140 → BLACK — the old bug)
-          //     • BUY  badge ~(20, 60, 20):  min=20  → inverted 235 > 140 → WHITE ✓
-          //     • main  bg   ~(20, 20, 25):  min=20  → inverted 235 > 140 → WHITE ✓
-          //     • white text (255,255,255):  min=255 → inverted   0 < 140 → BLACK ✓
+          //   CLASS B — saturated colored TEXT (green profit "+625.00",
+          //             orange "MIS", red loss "-76.15"):
+          //     High saturation, low brightness on dark background.
+          //     Use (255 - maxChannel) so the TEXT pixel becomes BLACK.
+          //     min-channel approach gave 255-min≈215 → WHITE → invisible ✗
+          //     max-channel gives 255-max≈55  → BLACK → readable         ✓
           //
-          //   Result: coloured row badges become white background with black text
-          //   instead of invisible black-on-black, with zero regression elsewhere.
-          const origMin = Math.min(d[i], d[i + 1], d[i + 2]);
-          const gray    = 255 - origMin;   // invert the minimum channel
-          const sharp   = gray > 140 ? 255 : 0;
+          //   CLASS C — saturated colored BADGE bg (SELL chip ~255,100,100):
+          //     Also high saturation. max-channel → 255-255=0 → BLACK.
+          //     Badge bg becomes black (same as text = invisible badge), but
+          //     "SELL"/"BUY" keyword also appears as white text in the data
+          //     row *outside* the badge → still parseable via Formats A–F.
+          //
+          // Saturation (HSV): S = (max - min) / max
+          const r = d[i], g = d[i + 1], b = d[i + 2];
+          const maxC = Math.max(r, g, b);
+          const minC = Math.min(r, g, b);
+          const sat  = maxC > 0 ? (maxC - minC) / maxC : 0;
+
+          let lum;
+          if (sat > 0.35) {
+            // Saturated pixel → use max-channel so colored text becomes BLACK
+            lum = 255 - maxC;
+          } else {
+            // Achromatic pixel → standard luminance inversion
+            lum = 255 - (0.299 * r + 0.587 * g + 0.114 * b);
+          }
+
+          const sharp = lum > 140 ? 255 : 0;
           d[i] = d[i + 1] = d[i + 2] = sharp;
         }
         ctx.putImageData(imgData, 0, 0);
@@ -162,7 +177,7 @@
   /* ── Zerodha Kite ──────────────────────────────────────────────── */
   function parseZerodha(lines, flat) {
     const isContract  = /Virtual contract note|contract note/i.test(flat);
-    const isPositions = /Total\s+P.{0,3}L|Positions|MIS|CNC/i.test(flat);
+    const isPositions = /Total\s+P.{0,4}L|Positions|Holdings|\bMIS\b|\bCNC\b|\bLTP\b/i.test(flat);
     if (!isContract && !isPositions) return null;
 
     const out = { _broker: 'Zerodha' };
@@ -449,22 +464,53 @@
 
     /* ── Positions page: "Total P&L\n+625.00" or "Total P&L +625.00" ──
        Use [\s\S]{0,30}? so OCR noise between label and value is tolerated.
-       Explicitly exclude NIFTY/SENSEX index lines to avoid picking up
-       index changes like "-76.15" as the trade P&L. */
+       Explicitly exclude NIFTY/SENSEX/index lines to avoid picking up
+       index changes like "-76.15" as the trade P&L.
+       Also exclude lines that look like index tickers (number% changes). */
     const flatNoIndex = flat
       .split('\n')
-      .filter(l => !/\b(NIFTY|SENSEX|BANKNIFTY|FINNIFTY|MIDCPNIFTY)\b/i.test(l))
+      .filter(l => !/\b(NIFTY|SENSEX|BANKNIFTY|FINNIFTY|MIDCPNIFTY|NIFTY50)\b/i.test(l))
+      .filter(l => !/\(\d+\.\d+%\)/.test(l))   // strip "(-0.32%)" index-change lines
       .join('\n');
 
-    const pnlM = flatNoIndex.match(/Total\s+P.{0,3}L[\s\S]{0,30}?([+-][\d,]+\.\d{2})/i)
-              || flatNoIndex.match(/([+-][\d,]+\.\d{2})\s*\n[^\n]*(?:EQ|FUT|CE|PE|MIS|CNC)/i);
-    if (pnlM) out.pnl = parseMoney(pnlM[1]);
+    const pnlM =
+      /* Pattern 1: "Total P&L …<gap>… +625.00" — signed decimal required */
+      flatNoIndex.match(/Total\s+P.{0,4}L[\s\S]{0,40}?([+-][\d,]+\.\d{2})/i) ||
+      /* Pattern 2: "+625.00" on a line followed by EQ/FUT/MIS/CNC on next */
+      flatNoIndex.match(/([+-][\d,]+\.\d{2})\s*\n[^\n]*(?:EQ|FUT|CE|PE|MIS|CNC)/i) ||
+      /* Pattern 3: total P&L block where OCR dropped the + sign */
+      flatNoIndex.match(/Total\s+P.{0,4}L[\s\S]{0,40}?(\d{2,6}\.\d{2})/i) ||
+      /* Pattern 4: any standalone signed decimal near "P&L" or "Profit" label */
+      flatNoIndex.match(/(?:P.{0,3}L|Profit|Return)[\s\S]{0,25}?([+-]\d{1,6}\.\d{2})/i) ||
+      /* Pattern 5: symbol name immediately followed by the P&L value */
+      (out.symbol
+        ? flatNoIndex.match(new RegExp(out.symbol + '[^\\n]{0,20}?([+-]?\\d{2,6}\\.\\d{2})'))
+        : null);
+
+    if (pnlM) {
+      const raw = pnlM[1];
+      // If sign was captured or present, use as-is; else default to positive
+      // (negative losses would have OCR'd the '-' before the digits)
+      out.pnl = parseMoney(raw);
+      // Reject tiny values that are likely OCR artifacts (e.g. "0.32" from -0.32%)
+      if (Math.abs(out.pnl) < 0.5) out.pnl = undefined;
+    }
 
     /* ── Positions page: "Qty. N  Avg. X.XX  MIS/CNC" ─────────── */
-    const posQtyM = flatNoIndex.match(/Qty\.?\s+(\d+)\s+Avg\.?\s+[\d.,]+\s+(MIS|CNC|NRML)/i);
+    /* MIS/CNC may be optional in case OCR missed the trade-type label */
+    const posQtyM =
+      flatNoIndex.match(/Qty\.?\s+(\d+)\s+Avg\.?\s+[\d.,]+\s+(MIS|CNC|NRML)/i) ||
+      flatNoIndex.match(/Qty\.?\s+(\d+)\s+Avg\.?\s+[\d.,]+/i);
     if (posQtyM) {
       out.qty = parseInt(posQtyM[1], 10);
-      if (!out.tradeType) out.tradeType = posQtyM[2];
+      if (posQtyM[2] && !out.tradeType) out.tradeType = posQtyM[2];
+    }
+
+    /* ── LTP (Last Traded Price) — available on positions page ─── */
+    if (!out.exit) {
+      const ltpM = flatNoIndex.match(/\bLTP\s+([\d,]+\.\d{2})/i) ||
+                   flatNoIndex.match(/LTP\s*[:\-]?\s*([\d,]+\.\d{2})/i);
+      if (ltpM) out.ltp = parseMoney(ltpM[1]);
     }
 
     /* ── Final gross/net calculation ──────────────────────────── */
