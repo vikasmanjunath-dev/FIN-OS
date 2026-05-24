@@ -4860,7 +4860,7 @@ function buildOverview(){
       <div class="ov-emoji">💼</div>
       <div class="ov-info">
         <h2>Combined Portfolio — ${EQ.length+MF.length} Holdings</h2>
-        <p>Equity: <strong>${EQ.length} holdings</strong> &nbsp;·&nbsp; Mutual Funds: <strong>${MF.length} funds</strong> &nbsp;·&nbsp; Statement Date: <strong>01 Mar 2026</strong></p>
+        <p>Equity: <strong>${EQ.length} holdings</strong> &nbsp;·&nbsp; Mutual Funds: <strong>${MF.length} funds</strong> &nbsp;·&nbsp; As of: <strong>${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</strong></p>
         <div class="pnl-pill ${totPnl>=0?'up':'dn'}">
           ${totPnl>=0?'▲':'▼'} ${fmtINR(Math.abs(totPnl),true)} &nbsp; (${totPnlP.toFixed(2)}%) Total P&L
         </div>
@@ -4992,21 +4992,23 @@ function buildOverview(){
   const stdDev=Math.sqrt(variance);
   const maxLoser=[...EQ].sort((a,b)=>a.pnlPct-b.pnlPct)[0];
   const maxWinner=[...EQ].sort((a,b)=>b.pnlPct-a.pnlPct)[0];
-  const sharpeProxy=(meanR/stdDev).toFixed(2);
+  // Risk-free rate: India 10Y G-Sec ≈ 6.5% p.a.  Sharpe = (portfolioReturn − Rf) / σ
+  const RF_RATE = 6.5;
+  const sharpeProxy = stdDev > 0 ? ((meanR - RF_RATE) / stdDev).toFixed(2) : '—';
   const winRate=(EQ.filter(d=>d.pnl>=0).length/(EQ.length||1)*100).toFixed(0);
   const riskEl=document.getElementById('ov-risk-box');
   if(riskEl) riskEl.innerHTML=`
     <div style="font-family:'Clash Display',sans-serif;font-size:20px;font-weight:600;margin-bottom:14px;color:var(--dim2);letter-spacing:0.5px">📊 Risk & Performance Metrics</div>
     <div class="risk-grid">
       <div class="risk-tile">
-        <div class="risk-lbl">Return Volatility</div>
+        <div class="risk-lbl">Return Dispersion (σ)</div>
         <div class="risk-val" style="color:${stdDev>25?'var(--stop)':stdDev>15?'var(--warn)':'var(--go)'}">${stdDev.toFixed(1)}%</div>
-        <div class="risk-sub">σ of individual stock P&L %<br>${stdDev>25?'🔴 High risk spread':stdDev>15?'🟡 Moderate spread':'🟢 Low spread'}</div>
+        <div class="risk-sub">Cross-sectional σ of P&L%<br>${stdDev>25?'🔴 High spread':stdDev>15?'🟡 Moderate spread':'🟢 Tight spread'}</div>
       </div>
       <div class="risk-tile">
-        <div class="risk-lbl">Sharpe Proxy</div>
+        <div class="risk-lbl">Sharpe (RF=6.5%)</div>
         <div class="risk-val" style="color:${parseFloat(sharpeProxy)>1?'var(--go)':parseFloat(sharpeProxy)>0?'var(--warn)':'var(--stop)'}">${sharpeProxy}</div>
-        <div class="risk-sub">Return/Risk ratio<br>${parseFloat(sharpeProxy)>1?'Good risk-adj return':parseFloat(sharpeProxy)>0?'Moderate return':'Below par'}</div>
+        <div class="risk-sub">(P&L − 6.5%) ÷ σ<br>${parseFloat(sharpeProxy)>1?'🟢 Good risk-adj return':parseFloat(sharpeProxy)>0?'🟡 Moderate return':'🔴 Below risk-free'}</div>
       </div>
       <div class="risk-tile">
         <div class="risk-lbl">Win Rate</div>
@@ -5056,29 +5058,55 @@ function buildOverview(){
       </div>
     </div>`;
 
-  // ═ PORTFOLIO vs NIFTY COMPARISON (new) ═
+  // ═ PORTFOLIO vs NIFTY COMPARISON — live fetch ═
   const totPnlP2=totPnl/totInv*100;
-  const nifty1y=16.3, nifty3y=14.8, sensex1y=15.1;
   const compEl=document.getElementById('ov-comp-box');
-  if(compEl) compEl.innerHTML=`
-    <div style="font-family:'Clash Display',sans-serif;font-size:20px;font-weight:600;margin-bottom:14px;color:var(--dim2);letter-spacing:0.5px">📊 Portfolio vs Benchmark (Indicative)</div>
-    <div class="comp-grid" style="margin-bottom:22px">
-      <div class="comp-card">
-        <div class="comp-label">Your Portfolio</div>
-        <div class="comp-val" style="color:${totPnlP2>=0?'var(--go)':'var(--stop)'}">${totPnlP2>=0?'+':''}${totPnlP2.toFixed(1)}%</div>
-        <div class="comp-sub">Unrealized P&L on invested capital</div>
-      </div>
-      <div class="comp-card">
-        <div class="comp-label">NIFTY 50 (1Y Avg)</div>
-        <div class="comp-val" style="color:var(--v3)">+${nifty1y}%</div>
-        <div class="comp-sub">Historical 1-year average return</div>
-      </div>
-      <div class="comp-card">
-        <div class="comp-label">Outperformance</div>
-        <div class="comp-val" style="color:${totPnlP2-nifty1y>=0?'var(--go)':'var(--stop)'}">${(totPnlP2-nifty1y)>=0?'+':''}${(totPnlP2-nifty1y).toFixed(1)}%</div>
-        <div class="comp-sub">${totPnlP2-nifty1y>=0?'🚀 Beating Nifty!':'🟡 Lagging Nifty'} — unrealized only</div>
-      </div>
-    </div>`;
+  if(compEl){
+    // Render immediately with loading state, then update with live data
+    const renderComp=(nifty1y,sensex1y,src)=>{
+      const outperf=totPnlP2-nifty1y;
+      compEl.innerHTML=`
+        <div style="font-family:'Clash Display',sans-serif;font-size:20px;font-weight:600;margin-bottom:14px;color:var(--dim2);letter-spacing:0.5px">📊 Portfolio vs Benchmark <span style="font-size:11px;color:var(--dim);font-weight:400">(${src})</span></div>
+        <div class="comp-grid" style="margin-bottom:22px">
+          <div class="comp-card">
+            <div class="comp-label">Your Portfolio</div>
+            <div class="comp-val" style="color:${totPnlP2>=0?'var(--go)':'var(--stop)'}">${totPnlP2>=0?'+':''}${totPnlP2.toFixed(1)}%</div>
+            <div class="comp-sub">Unrealized P&L on invested capital</div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-label">NIFTY 50 (1Y)</div>
+            <div class="comp-val" style="color:${nifty1y>=0?'var(--go)':'var(--stop)'}">${nifty1y>=0?'+':''}${nifty1y.toFixed(1)}%</div>
+            <div class="comp-sub">^NSEI actual 1-year price return</div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-label">BSE Sensex (1Y)</div>
+            <div class="comp-val" style="color:${sensex1y>=0?'var(--go)':'var(--stop)'}">${sensex1y>=0?'+':''}${sensex1y.toFixed(1)}%</div>
+            <div class="comp-sub">^BSESN actual 1-year price return</div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-label">Alpha vs Nifty</div>
+            <div class="comp-val" style="color:${outperf>=0?'var(--go)':'var(--stop)'}">${outperf>=0?'+':''}${outperf.toFixed(1)}%</div>
+            <div class="comp-sub">${outperf>=0?'🚀 Beating Nifty 50!':'📉 Lagging Nifty 50'}</div>
+          </div>
+        </div>`;
+    };
+    renderComp(16.3,15.1,'loading live data…');
+    // Fetch live Nifty + Sensex 1Y returns
+    if(_backendOnline){
+      Promise.all([
+        fetch(`${LIVE_API_BASE}/history/%5ENSEI?period=1y&interval=1wk`,{cache:'no-store'}).then(r=>r.json()),
+        fetch(`${LIVE_API_BASE}/history/%5EBSESN?period=1y&interval=1wk`,{cache:'no-store'}).then(r=>r.json())
+      ]).then(([nsei,bsesn])=>{
+        const calc=d=>{
+          const rows=(d&&d.rows)||[];
+          if(rows.length<2) return null;
+          return (rows[rows.length-1].close - rows[0].close)/rows[0].close*100;
+        };
+        const n=calc(nsei), b=calc(bsesn);
+        if(n!==null) renderComp(n, b??15.1, 'live ^NSEI / ^BSESN');
+      }).catch(()=>{});
+    }
+  }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -13700,18 +13728,27 @@ function piBuildBenchmarking(){
   const totalCurr= EQ.reduce((s,d)=>s+d.currVal,0);
   const portRet  = totalInv>0?(totalCurr-totalInv)/totalInv:0;
 
-  // Estimate annualised returns from P&L assuming avg 2Y holding
-  const est1y  = portRet*0.55;   // proxy
-  const est3y  = portRet*0.38;
-  const est5y  = portRet*0.26;
+  // Annualise total return assuming ~2Y average holding period
+  // CAGR = (1 + totalReturn)^(1/holdYrs) − 1  — correct compound formula
+  const HOLD_YRS = 2;
+  const cagr = portRet > -1 ? (Math.pow(1 + portRet, 1 / HOLD_YRS) - 1) : -1;
+  // Use same annualised rate for all horizon estimates (best estimate without dated cash flows)
+  const est1y = cagr, est3y = cagr, est5y = cagr;
+
+  // Nifty benchmarks from BENCH_RETS constant (historical averages — updated when live fetch completes)
+  const n50  = (BENCH_RETS['Nifty 50']  || {ret1y:0.142,ret3y:0.168}).ret1y;
+  const n500 = (BENCH_RETS['Nifty 500'] || {ret1y:0.168,ret3y:0.188}).ret1y;
+  // Overwrite with live values if available
+  const liveN50Ret  = window._liveNifty50Ret  ?? n50;
+  const liveN500Ret = window._liveNifty500Ret ?? n500;
 
   // KPI row
   const kpiEl = document.getElementById('pi-bench-kpi');
   const kpis = [
-    {label:'Portfolio Total Return',val:`${portRet>=0?'+':''}${(portRet*100).toFixed(1)}%`,col:portRet>=0?'var(--go)':'var(--stop)',sub:'Since inception'},
-    {label:'Est. 1Y CAGR',val:`${est1y>=0?'+':''}${(est1y*100).toFixed(1)}%`,col:est1y>=0?'var(--go)':'var(--stop)',sub:'vs Nifty 50: +14.2%'},
-    {label:'vs Nifty 50',val:`${(est1y-0.142)*100>=0?'+':''}${((est1y-0.142)*100).toFixed(1)}%`,col:(est1y-0.142)>=0?'var(--go)':'var(--stop)',sub:'1Y excess return (alpha)'},
-    {label:'vs Nifty 500',val:`${(est1y-0.168)*100>=0?'+':''}${((est1y-0.168)*100).toFixed(1)}%`,col:(est1y-0.168)>=0?'var(--go)':'var(--stop)',sub:'1Y vs broader index'},
+    {label:'Portfolio Total Return',val:`${portRet>=0?'+':''}${(portRet*100).toFixed(1)}%`,col:portRet>=0?'var(--go)':'var(--stop)',sub:`${HOLD_YRS}Y holding assumption`},
+    {label:'Est. CAGR (Ann.)',val:`${cagr>=0?'+':''}${(cagr*100).toFixed(1)}%`,col:cagr>=0?'var(--go)':'var(--stop)',sub:`vs Nifty 50: ${liveN50Ret>=0?'+':''}${(liveN50Ret*100).toFixed(1)}%`},
+    {label:'Alpha vs Nifty 50',val:`${(cagr-liveN50Ret)*100>=0?'+':''}${((cagr-liveN50Ret)*100).toFixed(1)}%`,col:(cagr-liveN50Ret)>=0?'var(--go)':'var(--stop)',sub:'Ann. excess return'},
+    {label:'Alpha vs Nifty 500',val:`${(cagr-liveN500Ret)*100>=0?'+':''}${((cagr-liveN500Ret)*100).toFixed(1)}%`,col:(cagr-liveN500Ret)>=0?'var(--go)':'var(--stop)',sub:'vs broader market'},
   ];
   if(kpiEl) kpiEl.innerHTML = kpis.map(k=>`
     <div style="background:rgba(255,255,255,0.02);border:1px solid var(--rim2);border-radius:12px;padding:16px 20px">
@@ -13721,8 +13758,9 @@ function piBuildBenchmarking(){
     </div>`).join('');
 
   // Rolling return comparison chart
+  // All three periods show the same annualised CAGR — best estimate without dated cash-flows
   const benchLabels=['1 Year','3 Year','5 Year','10 Year'];
-  const portData = [est1y*100,est3y*100,est5y*100,(portRet*0.18)*100];
+  const portData = [cagr*100, cagr*100, cagr*100, cagr*100];
   const benchData = Object.entries(BENCH_RETS).map(([name,d])=>{
     if(!d) return null;
     return {label:name,data:[d.ret1y*100,d.ret3y*100,d.ret5y*100,d.ret10y*100],color:d.color};
@@ -13756,16 +13794,17 @@ function piBuildBenchmarking(){
     }
   });
 
-  // Benchmark comparison table
+  // Benchmark comparison table — BENCH_RETS.ret1y is overwritten with live value when available
   const tblEl=document.getElementById('pi-bench-tbl');
   if(tblEl){
+    const liveSrc = window._liveNifty50Ret !== null ? '🟢 Live ^NSEI' : '🟡 Historical avg';
     tblEl.innerHTML=`<div class="tbl-wrap"><table>
-      <thead><tr><th>Benchmark</th><th>1Y</th><th>3Y CAGR</th><th>5Y CAGR</th><th>10Y CAGR</th><th>Volatility</th><th>Your Alpha (1Y)</th></tr></thead>
+      <thead><tr><th>Benchmark</th><th>1Y <span style="font-size:9px;color:var(--dim)">(${liveSrc})</span></th><th>3Y CAGR</th><th>5Y CAGR</th><th>10Y CAGR</th><th>Ann. Vol.</th><th>Your Alpha (1Y)</th></tr></thead>
       <tbody>
-      <tr style="background:rgba(99,88,255,0.08)"><td><strong>Your Portfolio</strong></td><td style="color:${est1y>=0?'var(--go)':'var(--stop)'}">${(est1y*100).toFixed(1)}%</td><td>${(est3y*100).toFixed(1)}%</td><td>${(est5y*100).toFixed(1)}%</td><td>—</td><td>—</td><td>Baseline</td></tr>
+      <tr style="background:rgba(99,88,255,0.08)"><td><strong>Your Portfolio</strong></td><td style="color:${cagr>=0?'var(--go)':'var(--stop)'}">${(cagr*100).toFixed(1)}%</td><td>${(cagr*100).toFixed(1)}%</td><td>${(cagr*100).toFixed(1)}%</td><td>—</td><td>—</td><td>Baseline</td></tr>
       ${Object.entries(BENCH_RETS).filter(([,d])=>d).map(([name,d])=>{
-        const alpha=est1y-d.ret1y;
-        return `<tr><td>${name}</td><td>${(d.ret1y*100).toFixed(1)}%</td><td>${(d.ret3y*100).toFixed(1)}%</td><td>${(d.ret5y*100).toFixed(1)}%</td><td>${(d.ret10y*100).toFixed(1)}%</td><td>${(d.stdDev*100).toFixed(1)}%</td><td style="color:${alpha>=0?'var(--go)':'var(--stop)'}"><strong>${alpha>=0?'+':''}${(alpha*100).toFixed(1)}%</strong></td></tr>`;
+        const alpha=cagr-d.ret1y;
+        return `<tr><td>${name}</td><td>${(d.ret1y*100).toFixed(1)}%</td><td>${(d.ret3y*100).toFixed(1)}%</td><td>${(d.ret5y*100).toFixed(1)}%</td><td>${(d.ret10y*100).toFixed(1)}%</td><td>${d.stdDev?(d.stdDev*100).toFixed(1)+'%':'—'}</td><td style="color:${alpha>=0?'var(--go)':'var(--stop)'}"><strong>${alpha>=0?'+':''}${(alpha*100).toFixed(1)}%</strong></td></tr>`;
       }).join('')}
       </tbody></table></div>`;
   }
@@ -13913,7 +13952,19 @@ function piBuildRisk(){
   // Liquidity analysis
   const liqEl=document.getElementById('pi-liquidity');
   if(liqEl){
-    const withLiq=stocks.map(d=>({...d,liq:STOCK_LIQUIDITY[d.sym]||3})).sort((a,b)=>b.liq-a.liq);
+    // Liquidity tier: prefer live 3-month avg volume from server, fallback to static table
+    const liveLiq=sym=>{
+      const vol=window.LIVE_DATA?.[sym]?.volume;
+      if(vol&&vol>0){
+        if(vol>15000000) return 1;  // Very Liquid  >15M shares/day
+        if(vol>5000000)  return 2;  // Liquid        5–15M
+        if(vol>1000000)  return 3;  // Moderate      1–5M
+        if(vol>200000)   return 4;  // Low liquidity 200K–1M
+        return 5;                   // Illiquid      <200K
+      }
+      return STOCK_LIQUIDITY[sym]||3;
+    };
+    const withLiq=stocks.map(d=>({...d,liq:liveLiq(d.sym)})).sort((a,b)=>b.liq-a.liq);
     const tiers=['','Very Liquid','Liquid','Moderate','Low Liquidity','Illiquid'];
     const tierColors=['','var(--go)','var(--go)','var(--warn)','var(--stop)','var(--stop)'];
     liqEl.innerHTML=`
@@ -13938,7 +13989,15 @@ function piBuildRisk(){
   const rfEl=document.getElementById('pi-risk-flags');
   if(rfEl){
     const pledgeStocks=stocks.filter(d=>PLEDGE_RISK[d.sym]);
-    const debtStocks=stocks.filter(d=>HIGH_DE[d.sym]!=null&&HIGH_DE[d.sym]>1.0);
+    // D/E: prefer live server data, fall back to static HIGH_DE table
+    const getDE=sym=>{
+      const liveDE=window.LIVE_DATA?.[sym]?.de;
+      if(liveDE!==null&&liveDE!==undefined) return {de:liveDE,src:'live'};
+      const st=HIGH_DE[sym];
+      if(st!==undefined) return {de:st,src:'static'};
+      return {de:null,src:null};
+    };
+    const debtStocks=stocks.map(d=>({...d,...getDE(d.sym)})).filter(d=>d.de!==null&&d.de>1.0);
     rfEl.innerHTML=(pledgeStocks.length?`
       <div style="margin-bottom:12px">
         <div style="font-size:11px;font-weight:700;color:var(--stop);margin-bottom:6px">🚩 Promoter Pledge Risk</div>
@@ -13950,7 +14009,8 @@ function piBuildRisk(){
       <div>
         <div style="font-size:11px;font-weight:700;color:var(--warn);margin-bottom:6px">⚠️ High Debt Stocks (D/E &gt;1×)</div>
         ${debtStocks.map(d=>`<div style="padding:6px 0;border-bottom:1px solid var(--rim2);font-size:12px">
-          <strong>${d.sym}</strong> <span style="color:var(--dim)">D/E: ${HIGH_DE[d.sym]?HIGH_DE[d.sym].toFixed(2)+'×':'N/A (Bank)'}</span>
+          <strong>${d.sym}</strong> <span style="color:var(--dim)">D/E: ${d.de?d.de.toFixed(2)+'×':'N/A (Bank)'}</span>
+          <span style="font-size:9px;color:var(--dim);margin-left:4px">(${d.src})</span>
           <span style="float:right;color:var(--warn)">${fmtINR(d.currVal,true)}</span></div>`).join('')}
       </div>`:'<div style="color:var(--go);font-size:12px">✅ No high-debt stocks detected.</div>');
   }
@@ -14824,6 +14884,36 @@ async function checkBackendHealth(isRetry) {
 }
 
 checkBackendHealth(false);
+
+// ── LIVE INDEX FETCH — Nifty 50 & Sensex actual 1Y returns ────────────────
+// Runs once after page loads; populates window._liveNifty50Ret / _liveNifty500Ret
+// so piBuildBenchmarking() and buildOverview() use real numbers, not hardcoded ones.
+window._liveNifty50Ret  = null;
+window._liveNifty500Ret = null;
+(async function fetchLiveIndexReturns(){
+  if(!_backendOnline) return;   // skip if server not up
+  try {
+    const [r1, r2] = await Promise.all([
+      fetch(`${LIVE_API_BASE}/history/%5ENSEI?period=1y&interval=1wk`,  {cache:'no-store'}),
+      fetch(`${LIVE_API_BASE}/history/%5EBSESN?period=1y&interval=1wk`, {cache:'no-store'})
+    ]);
+    const calc = async res => {
+      const d = await res.json();
+      const rows = d.rows || [];
+      if(rows.length < 2) return null;
+      return (rows[rows.length-1].close - rows[0].close) / rows[0].close;
+    };
+    const [n50, bse] = await Promise.all([calc(r1), calc(r2)]);
+    if(n50 !== null) {
+      window._liveNifty50Ret  = n50;
+      window._liveNifty500Ret = bse ?? n50 * 1.02; // Nifty500 ≈ slightly higher
+      // Update BENCH_RETS so Quant/PI tabs also see live values
+      if(BENCH_RETS['Nifty 50'])   BENCH_RETS['Nifty 50'].ret1y   = n50;
+      if(BENCH_RETS['BSE 500'] && bse) BENCH_RETS['BSE 500'].ret1y = bse;
+      console.log(`[IndexData] Nifty50 1Y: ${(n50*100).toFixed(1)}%  Sensex 1Y: ${(bse*100).toFixed(1)}%`);
+    }
+  } catch(e) { console.debug('[IndexData] live index fetch failed:', e.message); }
+})();
 
 
 // ── MOBILE SIDEBAR ──
