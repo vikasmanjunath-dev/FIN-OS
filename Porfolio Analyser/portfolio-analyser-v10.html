@@ -8,6 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+/* ── DARK THEME (default) ── */
 :root{
   --ink:#04050f;--ink2:#080a1a;--ink3:#0d0f22;
   --card:#0a0c1e;--card2:#0e1025;
@@ -16,10 +17,109 @@
   --go:#34d399;--stop:#f43f5e;--warn:#fbbf24;--oj:#f97316;
   --txt:#f0f4ff;--dim:#8892b0;--dim2:#aab4cf;
   --sb:230px;
+  --theme-icon:"☀️";
 }
+
+/* ── LIGHT THEME ── */
+[data-theme="light"]{
+  --ink:#f4f5ff;--ink2:#eaecf8;--ink3:#e0e3f3;
+  --card:#ffffff;--card2:#f0f2fc;
+  --rim:rgba(99,88,255,0.15);--rim2:rgba(0,0,0,0.07);
+  --v:#4f46e5;--v2:#7c3aed;--v3:#0891b2;--v4:#e11d48;
+  --go:#059669;--stop:#dc2626;--warn:#d97706;--oj:#ea580c;
+  --txt:#0f1133;--dim:#4a5270;--dim2:#2d3460;
+  --theme-icon:"🌙";
+}
+
+/* Light mode — sidebar */
+[data-theme="light"] aside{
+  background:rgba(255,255,255,0.97);
+}
+/* Light mode — cards and table cells */
+[data-theme="light"] .page,
+[data-theme="light"] main{
+  background:var(--ink);
+}
+/* Light mode — particles invisible (looks better on white) */
+[data-theme="light"] #particles{display:none;}
+/* Light mode — nav buttons */
+[data-theme="light"] .nav-btn.on{
+  background:linear-gradient(135deg,rgba(79,70,229,0.12),rgba(8,145,178,0.06));
+  border-color:rgba(79,70,229,0.3);
+}
+/* Light mode — live chip */
+[data-theme="light"] .live-chip{
+  background:rgba(5,150,105,0.07);
+  border-color:rgba(5,150,105,0.25);
+}
+/* Light mode — export button */
+[data-theme="light"] .export-btn{
+  border-color:rgba(79,70,229,0.2);
+  background:rgba(79,70,229,0.05);
+  color:var(--dim2);
+}
+/* Light mode — scrollbar */
+[data-theme="light"] *::-webkit-scrollbar-thumb{background:rgba(79,70,229,0.2);}
+
+/* Light mode — table rows */
+[data-theme="light"] tr:nth-child(even) td{ background:rgba(79,70,229,0.03); }
+[data-theme="light"] tr:hover td{ background:rgba(79,70,229,0.06)!important; }
+[data-theme="light"] th{ background:rgba(79,70,229,0.07)!important; color:var(--dim2)!important; }
+
+/* Light mode — stat cards glow fix */
+[data-theme="light"] .sc-glow{ opacity:.08; }
+[data-theme="light"] .sc:hover{ box-shadow:0 4px 24px rgba(79,70,229,0.1); }
+
+/* Light mode — gradient text fix (dark backgrounds cause invisible text) */
+[data-theme="light"] .logo-name{
+  background:linear-gradient(135deg,#4f46e5,#0891b2 60%,#059669);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+
+/* Light mode — modal/dropdown backgrounds */
+[data-theme="light"] .harvest-modal-body,
+[data-theme="light"] .tax-config-panel,
+[data-theme="light"] [class*="-modal"],
+[data-theme="light"] [class*="-dropdown"]{
+  background:var(--card)!important;
+  border-color:var(--rim)!important;
+}
+
+/* Light mode — input fields */
+[data-theme="light"] input[type=text],
+[data-theme="light"] input[type=number],
+[data-theme="light"] select,
+[data-theme="light"] textarea{
+  background:var(--card)!important;
+  color:var(--txt)!important;
+  border-color:var(--rim)!important;
+}
+
+/* Light mode — tooltip backgrounds */
+[data-theme="light"] [class*="-tip"],
+[data-theme="light"] [class*="tooltip"]{
+  background:#1a1d2e!important;
+  color:#e2e8f0!important;
+}
+
+/* Light mode — scrollbar */
+[data-theme="light"] ::-webkit-scrollbar-track{ background:var(--ink2); }
+[data-theme="light"] ::-webkit-scrollbar-thumb{ background:rgba(79,70,229,0.25); }
+
+/* Theme toggle button */
+.theme-toggle-btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  width:100%;padding:7px 10px;margin-top:8px;
+  border-radius:8px;cursor:pointer;font-size:11px;font-weight:600;
+  border:1px solid var(--rim);background:rgba(99,88,255,0.06);
+  color:var(--dim2);transition:all 0.18s;
+  letter-spacing:.3px;
+}
+.theme-toggle-btn:hover{background:rgba(99,88,255,0.13);border-color:var(--v);color:var(--txt);}
+
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;font-size:14px;}
-body{font-family:'Outfit',sans-serif;background:var(--ink);color:var(--txt);overflow-x:hidden;min-height:100vh;}
+body{font-family:'Outfit',sans-serif;background:var(--ink);color:var(--txt);overflow-x:hidden;min-height:100vh;transition:background .25s,color .25s;}
 
 /* ── PARTICLES ── */
 #particles{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
@@ -2383,6 +2483,9 @@ input[type=range]{accent-color:#ffb932;}
       <button class="export-btn" onclick="window.print()" style="flex:1;justify-content:center">🖨️ Print Report</button>
       <button class="export-btn" onclick="if(confirm('Clear portfolio and upload a new file?')){localStorage.removeItem('portfolioai_eq');localStorage.removeItem('portfolioai_mf');localStorage.removeItem('portfolioai_ts');location.reload();}" style="flex:1;justify-content:center;background:rgba(244,63,94,0.08);border-color:rgba(244,63,94,0.25);color:#f43f5e" title="Upload a different file">🗑️ Clear</button>
     </div>
+    <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Switch between dark and light mode">
+      <span id="theme-icon">☀️</span> <span id="theme-label">Light Mode</span>
+    </button>
   </div>
 </aside>
 
@@ -4062,6 +4165,42 @@ input[type=range]{accent-color:#ffb932;}
 
 <!-- ═══════════════════ SCRIPT ═══════════════════ -->
 <script>
+// ── THEME TOGGLE ──
+(function(){
+  // Restore saved theme preference on page load
+  const saved = localStorage.getItem('portfolioai_theme');
+  if (saved === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+})();
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const isLight = html.getAttribute('data-theme') === 'light';
+  const nextTheme = isLight ? 'dark' : 'light';
+
+  if (nextTheme === 'light') {
+    html.setAttribute('data-theme', 'light');
+  } else {
+    html.removeAttribute('data-theme');
+  }
+  localStorage.setItem('portfolioai_theme', nextTheme);
+  _updateThemeBtn(nextTheme === 'light');
+}
+
+function _updateThemeBtn(isLight) {
+  const icon  = document.getElementById('theme-icon');
+  const label = document.getElementById('theme-label');
+  if (icon)  icon.textContent  = isLight ? '🌙' : '☀️';
+  if (label) label.textContent = isLight ? 'Dark Mode' : 'Light Mode';
+}
+
+// Apply button state on load
+document.addEventListener('DOMContentLoaded', function(){
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  _updateThemeBtn(isLight);
+});
+
 // ── PARTICLES ──
 (function(){
   const c=document.getElementById('particles');

@@ -38,6 +38,7 @@ import yfinance as yf
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse, HTMLResponse
 from cachetools import TTLCache
 
 # ── Config ────────────────────────────────────────────────────────────────────
@@ -512,6 +513,95 @@ async def get_full_quote(symbol: str, force_refresh: bool = False) -> dict:
     return merge_quote(nse_data, yf_data, screener_data)
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
+
+@app.get("/", include_in_schema=False)
+def root():
+    """
+    Root landing page — shows API status and available endpoints.
+    Visiting localhost:8766 redirects here instead of 404.
+    """
+    html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio.AI API</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         background: #0f1117; color: #e2e8f0; min-height: 100vh;
+         display: flex; align-items: center; justify-content: center; }
+  .card { background: #1a1d2e; border: 1px solid #2d3748; border-radius: 16px;
+          padding: 40px 48px; max-width: 640px; width: 100%; }
+  .badge { display: inline-block; background: #10b981; color: #fff;
+           font-size: 11px; font-weight: 700; padding: 3px 10px;
+           border-radius: 20px; text-transform: uppercase; letter-spacing: .5px;
+           margin-left: 10px; vertical-align: middle; }
+  h1 { font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .sub { color: #718096; font-size: 14px; margin-bottom: 32px; }
+  .endpoints { list-style: none; border: 1px solid #2d3748; border-radius: 10px; overflow: hidden; }
+  .endpoints li { display: flex; align-items: baseline; gap: 12px;
+                  padding: 12px 16px; border-bottom: 1px solid #2d3748; }
+  .endpoints li:last-child { border-bottom: none; }
+  .method { background: #2d6a4f; color: #74c69d; font-size: 11px; font-weight: 700;
+            padding: 2px 8px; border-radius: 4px; font-family: monospace; min-width: 36px;
+            text-align: center; }
+  .path { font-family: monospace; font-size: 13px; color: #a0aec0; }
+  .path a { color: #63b3ed; text-decoration: none; }
+  .path a:hover { text-decoration: underline; }
+  .desc { color: #718096; font-size: 12px; margin-left: auto; }
+  .actions { margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 10px 20px; border-radius: 8px;
+         font-size: 13px; font-weight: 600; text-decoration: none; transition: opacity .15s; }
+  .btn:hover { opacity: .85; }
+  .btn-primary { background: #4f46e5; color: #fff; }
+  .btn-secondary { background: #2d3748; color: #a0aec0; }
+  .note { margin-top: 20px; font-size: 12px; color: #4a5568; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Portfolio.AI Live API <span class="badge">● Running</span></h1>
+  <p class="sub">Real-time NSE market data + fundamentals backend &nbsp;·&nbsp; v2.1</p>
+  <ul class="endpoints">
+    <li>
+      <span class="method">GET</span>
+      <span class="path"><a href="/health">/health</a></span>
+      <span class="desc">Server status &amp; cache stats</span>
+    </li>
+    <li>
+      <span class="method">GET</span>
+      <span class="path"><a href="/quote/RELIANCE">/quote/{symbol}</a></span>
+      <span class="desc">Live price + fundamentals</span>
+    </li>
+    <li>
+      <span class="method">GET</span>
+      <span class="path"><a href="/bulk?symbols=RELIANCE,TCS,INFY">/bulk?symbols=A,B,C</a></span>
+      <span class="desc">Batch up to 200 symbols</span>
+    </li>
+    <li>
+      <span class="method">GET</span>
+      <span class="path"><a href="/history/RELIANCE?period=1y&interval=1d">/history/{symbol}</a></span>
+      <span class="desc">OHLCV price history</span>
+    </li>
+    <li>
+      <span class="method">GET</span>
+      <span class="path"><a href="/docs">/docs</a></span>
+      <span class="desc">Interactive API explorer</span>
+    </li>
+  </ul>
+  <div class="actions">
+    <a href="/docs" class="btn btn-primary">Open API Docs</a>
+    <a href="/health" class="btn btn-secondary">Health Check</a>
+    <a href="/quote/RELIANCE" class="btn btn-secondary">Try: RELIANCE</a>
+  </div>
+  <p class="note">
+    Data sources: NSE India (live price) · Yahoo Finance (fundamentals) · Screener.in (ratios)
+  </p>
+</div>
+</body>
+</html>"""
+    return HTMLResponse(content=html)
 
 @app.get("/health")
 def health():
