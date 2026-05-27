@@ -231,21 +231,32 @@ Trust is the product.
 
 ---
 
-## 🛠️ Tech Stack (Indicative)
+## 🛠️ Tech Stack
 
-* **Frontend:** HTML ,CSS , Vanilla JS
-* **Backend:** 
-* **AI:** Open‑source LLMs + fine‑tuning
-* **Data:** SQL , SupaBase
+* **Frontend:** HTML5 · CSS3 · Vanilla JS (76 pages, 44 CSS files, 59 JS modules)
+* **Calculators:** 100+ standalone HTML calculators across 8 categories
+* **Embedded AI (Arya):** Web Speech API (STT) · Whisper tiny.en via transformers.js (fallback STT) · Ollama local LLM · Web Speech Synthesis (TTS)
+* **Standalone Voice Agent:** Python · faster-whisper · Ollama · edge-tts · WebSockets
+* **Alert Engine:** FastAPI · APScheduler · yfinance · pywebpush (VAPID)
+* **News API:** Flask · Google News RSS aggregation
+* **Market Intelligence:** Flask · pandas · numpy · ta (technical analysis)
+* **Budget App:** React · Vite · Tailwind CSS (11 pages)
+* **Backend API:** Django REST Framework · SQLite (dev) / PostgreSQL (prod)
+* **Stock Engine:** FastAPI · yfinance · in-memory cache
+* **Database:** Supabase (PostgreSQL · Realtime · RLS · Auth)
+* **Auth:** Supabase email/password · Firebase auth guard fallback
+* **Deployment:** Vercel (static frontend) · local Python services
+* **PWA:** Service Worker (network-first HTML, cache-first assets) · Web Push
 
 ---
 
 ## 🌱 Roadmap
 
-**Phase 1:** Core OS + KYF + Budget Engine
-**Phase 2:** AI Risk & Behaviour Layer
-**Phase 3:** Broker Integrations & Trading OS
-**Phase 4:** Community Intelligence (opt‑in)
+**Phase 1 ✅ COMPLETE:** Core OS + KYF + Budget Engine + 76-page platform  
+**Phase 2 ✅ COMPLETE:** AI Voice Layer (Arya embedded coach + standalone voice agent)  
+**Phase 2.5 ✅ COMPLETE:** Alert Engine · Health Score · Market Intelligence · Trade Journal  
+**Phase 3 🔄 IN PROGRESS:** Broker Integrations (Kite/Zerodha API) · Trading OS · Portfolio sync  
+**Phase 4 📋 PLANNED:** Community Intelligence (opt-in) · Mobile app (PWA + React Native)
 
 ---
 

@@ -1272,6 +1272,117 @@ async def portfolio_behavioral_stream(request: Request, body: PortfolioActionReq
     return await _portfolio_sse(messages, model=body.model)
 
 
+# ══════════════════════════════════════════════════════════════════
+#  MIND ENGINE COACH  — Trading Psychology AI (mindset-sim-hub.html)
+# ══════════════════════════════════════════════════════════════════
+
+class MindCoachRequest(BaseModel):
+    message:    str
+    session_id: Optional[str] = None
+    model:      Optional[str] = None
+    user_stats: Optional[dict] = None   # xp, disc, sess, fomo, name, arch, brain_state
+
+MIND_COACH_SYSTEM = """You are Arya — a trading psychology coach embedded inside FIN•OS Mind Engine.
+
+WHO YOU ARE:
+You've spent 12 years trading Indian markets (NSE/BSE, F&O, equity). You've blown up accounts, clawed back, and built real discipline the hard way. Now you coach retail traders and investors to fix their heads before they fix their strategies.
+
+HOW YOU SPEAK:
+- Warm, direct, human. Like a mentor who actually gives a damn, not a bot reading from a script.
+- You use casual language mixed with sharp insight. Short sentences. No corporate jargon ever.
+- You reference Indian market reality — Nifty, Bank Nifty, F&O expiry panic, SIP discipline, SEBI rules, RBI events.
+- When someone's struggling emotionally, acknowledge it first before giving advice.
+- You occasionally use Hindi phrases naturally (yaar, bhai, dekh, ek kaam kar) — don't overdo it.
+- No bullet-point lectures. You talk like a person, not a textbook.
+- Never say "As an AI" or add disclaimers. You're a coach, not a disclaimer machine.
+- Keep responses tight — 3-5 sentences usually. Go longer only if the question deserves depth.
+
+YOUR EXPERTISE:
+- Behavioral finance: loss aversion, FOMO, revenge trading, overconfidence, anchoring
+- Indian market psychology: F&O expiry panic, RBI news spikes, earnings season emotion
+- Discipline systems: pre-market routines, rule-based trading, journaling discipline
+- The math of survival: position sizing, drawdown psychology, the 50% loss needing 100% to recover
+- Mindset vs strategy: why most traders fix the wrong thing
+
+WHEN YOU SEE USER STATS:
+Use them naturally in conversation. If their discipline score is low, address it. If they have sessions, acknowledge their effort. Don't robotically list the stats — weave them in like you've been watching their journey.
+
+EXAMPLES OF YOUR TONE:
+- "Look, that FOMO you felt? That's your amygdala treating a Nifty move like a tiger chasing you. The same circuit. Different predator."
+- "Your discipline score is 65. Not bad — but the last 15 points are the hardest ones. That's where most people quit."
+- "Revenge trading after a loss feels like regaining control. It's not. It's panic with a buy button."
+- "You blocked 3 FOMO trades. Each one of those is probably ₹5000-15000 you didn't lose. That's real money, bhai."
+
+START every conversation with a single human line that acknowledges where the user is right now (their brain state, their discipline, their energy). Then answer what they asked."""
+
+
+def build_mind_ctx(stats: dict) -> str:
+    """Build context string from Mind Engine user stats."""
+    if not stats:
+        return ""
+    name       = stats.get("name", "")
+    xp         = stats.get("xp", 0)
+    disc       = stats.get("disc", 0)
+    sess       = stats.get("sess", 0)
+    fomo       = stats.get("fomo", 0)
+    arch       = stats.get("arch", "")
+    brain_state = stats.get("brain_state", "")
+
+    lines = ["╔═══ USER MIND ENGINE PROFILE ═══╗"]
+    if name:  lines.append(f"Name:         {name}")
+    lines.append(f"Total XP:     {xp:,}  (Level: {'Novice' if xp<500 else 'Apprentice' if xp<1000 else 'Analyst' if xp<1500 else 'Strategist' if xp<2500 else 'Operator' if xp<4000 else 'Expert' if xp<6000 else 'Master' if xp<9000 else 'Elite'})")
+    lines.append(f"Discipline:   {disc}/100  ({'Excellent' if disc>=80 else 'Good' if disc>=65 else 'Fair' if disc>=45 else 'Needs work'})")
+    lines.append(f"Sessions:     {sess} completed")
+    lines.append(f"FOMO blocked: {fomo} times")
+    if arch:        lines.append(f"Archetype:    {arch}")
+    if brain_state: lines.append(f"Brain state:  {brain_state}")
+    lines.append("╚════════════════════════════════╝")
+    return "\n".join(lines)
+
+
+@app.post("/api/mind/chat/stream")
+@limiter.limit("20/minute")
+async def mind_coach_stream(request: Request, body: MindCoachRequest):
+    """Streaming Mind Engine coach — trading psychology AI."""
+    session_id = body.session_id or str(uuid.uuid4())
+    history    = get_or_create_session(session_id)
+
+    # Build context from user stats
+    stats_ctx = build_mind_ctx(body.user_stats or {})
+
+    # System prompt with optional stats context
+    system_msg = MIND_COACH_SYSTEM
+    if stats_ctx:
+        system_msg = MIND_COACH_SYSTEM + f"\n\n{stats_ctx}"
+
+    history.append({"role": "user", "content": body.message})
+    if len(history) > MAX_HISTORY * 2:
+        history[:] = history[-(MAX_HISTORY * 2):]
+
+    messages = [{"role": "system", "content": system_msg}] + history
+
+    chosen_model = (body.model or PORTFOLIO_MODEL).strip() or OLLAMA_MODEL
+
+    async def sse_gen():
+        full_reply = ""
+        async for token in call_portfolio_stream(messages, model=chosen_model):
+            full_reply += token
+            payload = json.dumps({"token": token, "session_id": session_id})
+            yield f"data: {payload}\n\n"
+        history.append({"role": "assistant", "content": full_reply})
+        yield f"data: {json.dumps({'done': True, 'session_id': session_id})}\n\n"
+
+    return StreamingResponse(
+        sse_gen(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control":  "no-cache",
+            "Connection":     "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("brain:app", host="0.0.0.0", port=8000, reload=True)

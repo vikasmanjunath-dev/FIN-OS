@@ -6,6 +6,8 @@
 </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
   <meta name="theme-color" content="#02020c">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -47,6 +49,8 @@
       border-radius: 50%; pointer-events: none; z-index: 9998;
       transform: translate(-50%,-50%);
     }
+    /* Hide custom cursor on touch/mobile — no physical pointer exists */
+    @media (pointer: coarse) { #cur, #curR { display: none !important; } }
 
     /* ── TOP TICKER BAR ─────────────────────────────────────── */
     .topbar {
@@ -452,6 +456,13 @@
 <!-- Custom cursor -->
 <div id="cur"></div>
 <div id="curR"></div>
+<script>
+/* Remove custom cursor on touch devices — they have no physical pointer */
+if('ontouchstart' in window||navigator.maxTouchPoints>0){
+  var _c=document.getElementById('cur'),_cR=document.getElementById('curR');
+  if(_c)_c.remove(); if(_cR)_cR.remove();
+}
+</script>
 
 <!-- ── TOPBAR ─────────────────────────────────────────────── -->
 <header class="topbar">
@@ -952,5 +963,866 @@
 </style>
   <script src="../js/finos-widget.js?v=4"></script>
   <script src="../js/finos-search.js?v=2"></script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ARYA — MIND ENGINE AI COACH
+     Calls Ollama directly at port 11434 — no backend needed.
+     Streams NDJSON tokens for real-time feel
+═══════════════════════════════════════════════════════════ -->
+<style>
+/* ── Floating trigger button ── */
+#arya-btn {
+  position: fixed; bottom: 28px; right: 28px; z-index: 8000;
+  width: 58px; height: 58px; border-radius: 18px;
+  background: linear-gradient(135deg, rgba(0,255,136,.18), rgba(0,212,255,.12));
+  border: 1px solid rgba(0,255,136,.4);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 1.45rem;
+  box-shadow: 0 8px 32px rgba(0,255,136,.18), 0 2px 8px rgba(0,0,0,.5);
+  transition: transform .25s cubic-bezier(.34,1.1,.64,1), box-shadow .25s;
+}
+#arya-btn:hover { transform: scale(1.1) rotate(-4deg); box-shadow: 0 12px 40px rgba(0,255,136,.3); }
+#arya-btn .arya-pulse {
+  position: absolute; top: -3px; right: -3px; width: 11px; height: 11px;
+  border-radius: 50%; background: var(--g);
+  box-shadow: 0 0 8px var(--g); animation: blink 1.8s infinite;
+}
+#arya-btn .arya-offline { background: #666; box-shadow: none; animation: none; }
+
+/* ── Slide-in panel ── */
+#arya-panel {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 9500;
+  width: 420px; max-width: 100vw;
+  background: rgba(7,7,26,.97); backdrop-filter: blur(32px) saturate(1.5);
+  border-left: 1px solid rgba(0,255,136,.12);
+  display: flex; flex-direction: column;
+  transform: translateX(100%); transition: transform .38s cubic-bezier(.77,0,.18,1);
+  box-shadow: -20px 0 80px rgba(0,0,0,.6);
+}
+#arya-panel.open { transform: translateX(0); }
+
+/* Panel header */
+.arya-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid rgba(0,255,136,.08);
+  flex-shrink: 0;
+}
+.arya-avatar {
+  width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--v), var(--c));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; border: 1px solid rgba(255,255,255,.1);
+}
+.arya-name { font-family: var(--fD); font-size: 1rem; letter-spacing: 1.5px; color: var(--g); }
+.arya-sub  { font-family: var(--fM); font-size: .48rem; color: var(--mu); letter-spacing: 1px; margin-top: 1px; }
+.arya-status {
+  margin-left: auto; display: flex; align-items: center; gap: 6px;
+  font-family: var(--fM); font-size: .48rem; color: var(--mu); letter-spacing: 1px;
+}
+.arya-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--g); box-shadow: 0 0 6px var(--g); animation: blink 2s infinite; }
+.arya-status-dot.off { background: #444; box-shadow: none; animation: none; }
+.arya-close {
+  width: 30px; height: 30px; border-radius: 8px; border: none;
+  background: rgba(255,255,255,.05); color: var(--mu);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 1rem; flex-shrink: 0; transition: background .15s, color .15s;
+}
+.arya-close:hover { background: rgba(255,45,107,.12); color: var(--r); }
+
+/* Chat body */
+.arya-body {
+  flex: 1; overflow-y: auto; padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 14px;
+  scroll-behavior: smooth;
+}
+.arya-body::-webkit-scrollbar { width: 4px; }
+.arya-body::-webkit-scrollbar-track { background: transparent; }
+.arya-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.07); border-radius: 4px; }
+
+/* Messages */
+.arya-msg { display: flex; gap: 9px; align-items: flex-start; }
+.arya-msg.user { flex-direction: row-reverse; }
+.arya-msg-av {
+  width: 28px; height: 28px; border-radius: 9px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .8rem; font-family: var(--fD);
+}
+.arya-msg-av.ai  { background: linear-gradient(135deg,var(--v),var(--c)); color: #fff; }
+.arya-msg-av.usr { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); color: var(--txt); }
+.arya-bubble {
+  max-width: 84%; padding: 10px 13px; border-radius: 14px;
+  font-size: .8rem; line-height: 1.65; font-family: var(--fB);
+}
+.arya-bubble.ai {
+  background: rgba(0,255,136,.05); border: 1px solid rgba(0,255,136,.1);
+  color: var(--txt); border-radius: 4px 14px 14px 14px;
+}
+.arya-bubble.usr {
+  background: rgba(124,58,255,.12); border: 1px solid rgba(124,58,255,.2);
+  color: var(--txt); border-radius: 14px 4px 14px 14px;
+}
+.arya-bubble strong { color: var(--g); font-weight: 700; }
+.arya-bubble em     { color: var(--c); font-style: normal; font-weight: 600; }
+
+/* Thinking indicator */
+.arya-thinking {
+  display: flex; gap: 5px; align-items: center; padding: 10px 13px;
+  background: rgba(0,255,136,.04); border: 1px solid rgba(0,255,136,.08);
+  border-radius: 4px 14px 14px 14px; max-width: 84%;
+}
+.arya-thinking span {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--g);
+  animation: arya-dot 1.2s infinite;
+}
+.arya-thinking span:nth-child(2) { animation-delay: .18s; }
+.arya-thinking span:nth-child(3) { animation-delay: .36s; }
+@keyframes arya-dot { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-5px);opacity:1} }
+
+/* Voice control footer */
+.arya-foot {
+  padding: 18px 14px 22px; border-top: 1px solid rgba(255,255,255,.05);
+  flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.arya-vox-status {
+  font-family: var(--fM); font-size: .52rem; letter-spacing: 2px;
+  color: var(--mu); text-align: center; min-height: 16px; transition: color .3s;
+}
+.arya-vox-status.vox-listen { color: var(--g); }
+.arya-vox-status.vox-speak  { color: var(--c); }
+.arya-vox-status.vox-think  { color: var(--y); }
+.arya-wave { display: none; align-items: flex-end; gap: 3px; height: 22px; }
+.arya-wave span {
+  width: 3px; border-radius: 3px; background: var(--c);
+  animation: wave-bar 0.9s ease-in-out infinite;
+}
+.arya-wave span:nth-child(1){height:7px;animation-delay:0s}
+.arya-wave span:nth-child(2){height:13px;animation-delay:.1s}
+.arya-wave span:nth-child(3){height:20px;animation-delay:.2s}
+.arya-wave span:nth-child(4){height:13px;animation-delay:.3s}
+.arya-wave span:nth-child(5){height:7px;animation-delay:.4s}
+@keyframes wave-bar{0%,100%{transform:scaleY(.35);opacity:.45}50%{transform:scaleY(1);opacity:1}}
+#arya-mic-btn {
+  width: 66px; height: 66px; border-radius: 50%;
+  background: rgba(0,255,136,.06); border: 2px solid rgba(0,255,136,.22);
+  color: var(--g); font-size: 1.7rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; outline: none; transition: all .25s; position: relative;
+}
+#arya-mic-btn:hover { background: rgba(0,255,136,.13); border-color: var(--g); }
+#arya-mic-btn.listening {
+  background: rgba(0,255,136,.14); border-color: var(--g);
+  animation: mic-ring 1.6s infinite;
+}
+#arya-mic-btn.speaking {
+  background: rgba(0,212,255,.10); border-color: var(--c);
+  animation: mic-ring-blue 1.1s infinite;
+}
+@keyframes mic-ring      {0%{box-shadow:0 0 0 0 rgba(0,255,136,.45)}70%{box-shadow:0 0 0 20px rgba(0,255,136,0)}100%{box-shadow:0 0 0 0 rgba(0,255,136,0)}}
+@keyframes mic-ring-blue {0%{box-shadow:0 0 0 0 rgba(0,212,255,.45)}70%{box-shadow:0 0 0 20px rgba(0,212,255,0)}100%{box-shadow:0 0 0 0 rgba(0,212,255,0)}}
+#arya-txt-row { display:flex; flex-direction:row; align-items:center; gap:8px; width:100%; padding:0 2px; }
+#arya-txt { flex:1; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.15); border-radius:10px; color:#e8e8e8; padding:9px 13px; font-size:.75rem; font-family:monospace; outline:none; }
+#arya-txt::placeholder { color:rgba(255,255,255,.28); }
+#arya-txt:focus { border-color:rgba(0,255,136,.4); }
+#arya-txt-send { width:36px;height:36px;border-radius:50%;background:rgba(0,255,136,.12);border:1px solid rgba(0,255,136,.3);color:#00ff88;font-size:1.1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center; }
+.arya-hint {
+  font-family: var(--fM); font-size: .44rem; color: var(--mu);
+  letter-spacing: .5px; text-align: center;
+}
+
+/* Overlay */
+#arya-overlay {
+  position: fixed; inset: 0; z-index: 9400;
+  background: rgba(0,0,0,.45); backdrop-filter: blur(2px);
+  display: none;
+}
+#arya-overlay.on { display: block; }
+
+/* offline notice */
+.arya-offline-msg {
+  margin: 0 16px 10px;
+  padding: 9px 12px; border-radius: 9px;
+  background: rgba(255,45,107,.07); border: 1px solid rgba(255,45,107,.2);
+  font-family: var(--fM); font-size: .5rem; color: rgba(255,45,107,.9); letter-spacing: .5px;
+  display: none;
+}
+.arya-offline-msg.show { display: block; }
+</style>
+
+<!-- Floating button -->
+<button id="arya-btn" onclick="openAryaPanel()" title="Talk to Arya — your Mind Coach">
+  🧠
+  <span class="arya-pulse" id="arya-pulse"></span>
+</button>
+
+<!-- Background overlay -->
+<div id="arya-overlay" onclick="closeAryaPanel()"></div>
+
+<!-- AI panel -->
+<div id="arya-panel">
+  <!-- Header -->
+  <div class="arya-head">
+    <div class="arya-avatar">🧠</div>
+    <div>
+      <div class="arya-name">ARYA</div>
+      <div class="arya-sub">MIND ENGINE COACH · TRADING PSYCHOLOGY</div>
+    </div>
+    <div class="arya-status">
+      <div class="arya-status-dot off" id="arya-dot"></div>
+      <span id="arya-status-txt">Connecting…</span>
+    </div>
+    <button class="arya-close" onclick="closeAryaPanel()">✕</button>
+  </div>
+
+  <!-- Offline notice -->
+  <div class="arya-offline-msg" id="arya-offline-msg">
+    ⚠ Ollama isn't running. Start it with <code>ollama serve</code> in your terminal, then reload.
+  </div>
+
+  <!-- Chat messages -->
+  <div class="arya-body" id="arya-body"></div>
+
+  <!-- Voice footer -->
+  <div class="arya-foot">
+    <div class="arya-wave" id="arya-wave"><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="arya-vox-status" id="arya-vox-status">STARTING…</div>
+    <button id="arya-mic-btn" onclick="toggleAryaVoice()" title="Start / stop voice conversation">🎙</button>
+    <div class="arya-hint">Speak naturally · Arya responds aloud · Interrupt anytime</div>
+    <div id="arya-txt-row">
+      <input id="arya-txt" type="text" placeholder="Type your message and press Enter…" onkeydown="if(event.key==='Enter')_sendAryaText()">
+      <button id="arya-txt-send" onclick="_sendAryaText()" title="Send">↑</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── ARYA — VOICE CONVERSATION ENGINE v2
+   STT  : MediaRecorder + Whisper (transformers.js) — browser-local, no Google
+   TTS  : Web Speech API SpeechSynthesis — speaks through speaker
+   LLM  : Ollama at port 11434, NDJSON streaming
+   Flow : Mic → silence detect → Whisper → Ollama → TTS → repeat
+          User can interrupt Arya mid-sentence at any time.
+─────────────────────────────────────────────────────────────── */
+const OLLAMA_URL = 'http://localhost:11434';
+let ARYA_MODEL = 'llama3.1';
+let _aryaOnline  = false;
+let _aryaBusy    = false;
+let _aryaHistory = [];
+
+/* ─── Speech engine (TTS stays; STT replaced with Whisper) ── */
+const _synth       = window.speechSynthesis;
+let _voices        = [];
+let _aryaListening = false;
+let _aryaSpeaking  = false;
+let _interimBub    = null;
+let _pendingMsg    = '';
+/* Web Speech API (built-in, instant — primary STT on supported browsers) */
+let _wsr           = null;
+let _wsrActive     = false;
+const _WSR_OK      = ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+_synth.addEventListener('voiceschanged', () => { _voices = _synth.getVoices(); });
+_voices = _synth.getVoices();
+
+/* MediaRecorder STT — no Google servers, works on Brave */
+let _mrStream    = null;   // MediaStream (kept alive — avoids re-asking permission)
+let _mrRecorder  = null;   // MediaRecorder instance
+let _mrChunks    = [];     // audio buffer chunks
+let _mrCtx       = null;   // AudioContext (for RMS detection + decoding)
+let _mrAnalyser  = null;   // AnalyserNode connected to mic stream
+let _mrSource    = null;   // MediaStreamAudioSourceNode — must stay alive (GC kills analyser)
+let _mrActive    = false;  // recording window open right now
+let _speechSeen  = false;  // speech detected this recording window
+let _silenceAt   = null;   // timestamp silence started (after speech)
+
+const _STHRESH   = 0.013;  // RMS threshold — below this = silence
+
+/* Whisper model via transformers.js (runs entirely in browser) */
+let _whisper     = null;
+let _whisperOk   = false;
+let _whisperBusy = false;
+let _whisperFailed = false;  // set true after a failed load — stops retry-spam
+let _transcribeFails = 0;   // consecutive transcription failures — stops echo loop
+
+const _SDELAY  = 900;     // ms of silence after speech → submit
+const _MTYPE   = typeof MediaRecorder === 'undefined' ? '' :
+  MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' :
+  MediaRecorder.isTypeSupported('audio/webm')             ? 'audio/webm' :
+  MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')  ? 'audio/ogg;codecs=opus' :
+  MediaRecorder.isTypeSupported('audio/mp4')              ? 'audio/mp4' : '';
+
+/* ─── System prompt ─────────────────────────────────────── */
+function buildAryaSystem() {
+  const disc  = STATE.disc  || 0;
+  const xp    = STATE.xp    || 0;
+  const sess  = STATE.sess  || 0;
+  const fomo  = STATE.fomo  || 0;
+  const name  = STATE.name  || '';
+  const arch  = STATE.arch  || '';
+  const brain = document.getElementById('brainState')?.textContent || '';
+  const lvl   = xp<500?'Novice':xp<1000?'Apprentice':xp<1500?'Analyst':xp<2500?'Strategist':xp<4000?'Operator':xp<6000?'Expert':xp<9000?'Master':'Elite';
+  const grade = disc>=80?'Excellent':disc>=65?'Good':disc>=45?'Fair':'Needs work';
+  return `You are Arya — a trading psychology coach inside FIN·OS Mind Engine.
+
+WHO YOU ARE: 12 years in Indian markets — NSE/BSE, F&O, equity. You've blown up, clawed back, built real discipline. Now you help retail traders fix their heads before their strategies.
+
+HOW YOU SPEAK (CRITICAL — this is a VOICE conversation):
+- Warm, direct, human — like a mentor who gives a damn, not a bot.
+- Short sentences. Spoken naturally. No lists, no bullet points, no markdown.
+- Conversational, like you're on a call — not writing an essay.
+- Reference Indian market reality: Nifty, Bank Nifty, F&O expiry panic, SIP discipline, RBI events.
+- Acknowledge emotion first, then advise.
+- Occasionally Hindi naturally: yaar, bhai, dekh, ek kaam kar — don't overdo it.
+- Never say "As an AI". No disclaimers. You are a coach.
+- Keep it tight — 2-4 sentences max. You're speaking, not writing.
+
+EXPERTISE: loss aversion, FOMO, revenge trading, overconfidence, F&O expiry panic, position sizing, drawdown psychology.
+
+USER PROFILE:
+Name: ${name||'the trader'}, Level: ${lvl} (${xp.toLocaleString('en-IN')} XP)
+Discipline: ${disc}/100 — ${grade}, Sessions: ${sess}, FOMO blocked: ${fomo}${arch?'\nArchetype: '+arch:''}${brain?'\nBrain state: '+brain:''}
+
+Weave these naturally. Start every reply with one human line that meets the user where they are.`;
+}
+
+/* ─── Ollama health check ───────────────────────────────── */
+async function checkAryaHealth() {
+  try {
+    const r = await fetch(OLLAMA_URL + '/api/tags', { signal: AbortSignal.timeout(3000) });
+    if (r.ok) {
+      _aryaOnline = true;
+      /* Auto-pick best available model from Ollama tag list */
+      try {
+        const data = await r.json();
+        const models = (data.models || []).map(m => m.name);
+        if (models.length) {
+          const PREFERRED = ['llama3.1','llama3.2','llama3','qwen2.5:3b','qwen2.5','mistral','phi3','gemma2','gemma'];
+          const pick = PREFERRED.find(p => models.find(m => m.startsWith(p)));
+          const found = pick ? models.find(m => m.startsWith(pick)) : models[0];
+          if (found) ARYA_MODEL = found;
+        }
+      } catch (_) {}
+      document.getElementById('arya-dot').className          = 'arya-status-dot';
+      document.getElementById('arya-status-txt').textContent = 'Ollama · ' + ARYA_MODEL.split(':')[0];
+      document.getElementById('arya-pulse').className        = 'arya-pulse';
+      document.getElementById('arya-offline-msg').classList.remove('show');
+    } else throw new Error();
+  } catch {
+    _aryaOnline = false;
+    document.getElementById('arya-dot').className          = 'arya-status-dot off';
+    document.getElementById('arya-status-txt').textContent = 'Offline';
+    document.getElementById('arya-pulse').className        = 'arya-pulse arya-offline';
+    document.getElementById('arya-offline-msg').classList.add('show');
+  }
+}
+checkAryaHealth();
+
+/* ─── Status display helpers ────────────────────────────── */
+function setVoxStatus(txt, cls) {
+  const el = document.getElementById('arya-vox-status');
+  if (!el) return;
+  el.textContent = txt;
+  el.className   = 'arya-vox-status' + (cls ? ' ' + cls : '');
+}
+function showWave(on) {
+  const w = document.getElementById('arya-wave');
+  if (w) w.style.display = on ? 'flex' : 'none';
+}
+
+/* ─── TTS: Arya speaks ──────────────────────────────────── */
+function speakArya(text) {
+  _synth.cancel();
+  const clean = text
+    .replace(/\*\*(.+?)\*\*/g, '$1').replace(/\*(.+?)\*/g, '$1')
+    .replace(/`(.+?)`/g, '$1').replace(/<[^>]+>/g, '').trim();
+  if (!clean) return;
+
+  const utt = new SpeechSynthesisUtterance(clean);
+  utt.lang  = 'en-US'; utt.rate = 1.05; utt.pitch = 1.0;
+
+  if (!_voices.length) _voices = _synth.getVoices();
+  const v = _voices.find(v => v.lang === 'en-IN')
+    || _voices.find(v => v.lang.startsWith('en-IN'))
+    || _voices.find(v => v.lang === 'en-US' && /samantha|karen|moira|victoria|zira|siri/i.test(v.name))
+    || _voices.find(v => v.lang === 'en-US')
+    || _voices.find(v => v.lang.startsWith('en'));
+  if (v) utt.voice = v;
+
+  utt.onstart = () => {
+    _aryaSpeaking = true;
+    /* Reset speech detection so TTS echo can't contaminate the next capture window.
+       A real user interruption will still be detected via the 2.5× echo-guard threshold. */
+    _speechSeen = false; _silenceAt = null;
+    showWave(true);
+    setVoxStatus('ARYA IS SPEAKING', 'vox-speak');
+    const btn = document.getElementById('arya-mic-btn');
+    btn.classList.remove('listening'); btn.classList.add('speaking'); btn.textContent = '🔊';
+  };
+  const _onDone = () => {
+    _aryaSpeaking = false; showWave(false);
+    const btn = document.getElementById('arya-mic-btn');
+    btn.classList.remove('speaking'); btn.textContent = '🎙';
+    if (_aryaListening) {
+      btn.classList.add('listening');
+      setVoxStatus('LISTENING', 'vox-listen');
+    } else {
+      setVoxStatus('TAP TO RESUME');
+    }
+  };
+  utt.onend = _onDone; utt.onerror = _onDone;
+  _synth.speak(utt);
+}
+
+/* ─── Whisper STT: load model (browser-local, cached after first run) ── */
+async function _loadWhisper() {
+  if (_whisperOk) return true;
+  /* Already failed a previous attempt — show text fallback immediately, don't retry */
+  if (_whisperFailed) { _showTextFallback(false); return false; }
+  /* If already loading, wait for it — don't return false (that looks like failure) */
+  if (_whisperBusy) {
+    return new Promise(resolve => {
+      const t = setInterval(() => {
+        if (_whisperOk)         { clearInterval(t); resolve(true);  }
+        else if (!_whisperBusy) { clearInterval(t); resolve(false); }
+      }, 300);
+    });
+  }
+  _whisperBusy = true;
+  setVoxStatus('LOADING VOICE AI…', 'vox-think');
+  /* Show visible loading notice in chat — status bar text alone is easy to miss */
+  appendAryaMsg('ai', '⏳ Loading voice engine for the first time (~30 sec). You can type below while it loads!');
+  document.getElementById('arya-txt-row').style.display = 'flex';
+  try {
+    const { pipeline, env } = await import(
+      'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2'
+    );
+    env.allowLocalModels = false;
+    _whisper = await pipeline(
+      'automatic-speech-recognition',
+      'Xenova/whisper-tiny.en',
+      {
+        progress_callback: p => {
+          const n = Math.round(p.progress || 0);
+          if (p.status === 'downloading' || p.status === 'progress')
+            setVoxStatus('LOADING ' + n + '%…', 'vox-think');
+        }
+      }
+    );
+    _whisperOk   = true;
+    _whisperBusy = false;
+    console.log('[Arya] Whisper ready ✓');
+    if (_aryaListening) {
+      setVoxStatus('LISTENING', 'vox-listen');
+    }
+    return true;
+  } catch (e) {
+    console.error('[Arya] Whisper load failed:', e);
+    _whisperBusy = false;
+    _whisperFailed = true;
+    appendAryaMsg('ai', '⚠ Voice engine failed to load (network issue?). Type below — Arya still speaks back aloud.');
+    _showTextFallback(false);
+    return false;
+  }
+}
+
+/* ─── Web Speech API — primary STT path (no CDN, instant on mobile) ── */
+function _startWSR() {
+  if (!_aryaListening || _wsrActive) return;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  _wsr = new SR();
+  _wsr.continuous     = false;
+  _wsr.interimResults = true;
+  _wsr.lang           = 'en-IN';
+  _wsrActive = true;
+
+  _wsr.onstart = () => { setVoxStatus('LISTENING', 'vox-listen'); };
+  _wsr.onspeechstart = () => { showWave(true); };
+  _wsr.onspeechend   = () => { showWave(false); };
+
+  _wsr.onresult = e => {
+    const last = e.results[e.results.length - 1];
+    const text = last[0].transcript.trim();
+    if (!text) return;
+    /* Show interim transcript live in the chat bubble */
+    if (!_interimBub) _interimBub = appendAryaMsg('user', text + (last.isFinal ? '' : '…'));
+    else _interimBub.innerHTML = formatAryaText(text + (last.isFinal ? '' : '…'));
+    if (last.isFinal && text.length > 1) {
+      if (_interimBub) { _interimBub.innerHTML = formatAryaText(text); _interimBub = null; }
+      if (_aryaSpeaking) { _synth.cancel(); _aryaSpeaking = false; }
+      sendVoiceMessage(text);
+    }
+  };
+
+  _wsr.onerror = e => {
+    _wsrActive = false; showWave(false);
+    if (e.error === 'no-speech' || e.error === 'aborted') {
+      if (_aryaListening && !_aryaSpeaking) setTimeout(_startWSR, 300);
+    } else if (e.error === 'not-allowed') {
+      appendAryaMsg('ai', 'Mic access denied. Allow microphone in browser settings, then tap the mic.');
+      stopAryaVoice();
+    } else {
+      /* Any other error — fall back to Whisper path */
+      if (_aryaListening) { if (!_whisperOk && !_whisperBusy) _loadWhisper(); _startCapture(); }
+    }
+  };
+
+  _wsr.onend = () => {
+    _wsrActive = false; showWave(false);
+    /* Restart immediately so listening is continuous */
+    if (_aryaListening && !_aryaSpeaking) setTimeout(_startWSR, 150);
+  };
+
+  try { _wsr.start(); } catch(err) {
+    _wsrActive = false;
+    /* WSR unavailable on this browser — fall back to Whisper */
+    if (!_whisperOk && !_whisperBusy) _loadWhisper();
+    _startCapture();
+  }
+}
+
+/* ─── Safe stop helper ───────────────────────────────────── */
+function _stopCapture() {
+  if (!_mrActive) return;
+  showWave(false);
+  _mrActive = false;
+  if (_mrRecorder && _mrRecorder.state !== 'inactive') {
+    try { _mrRecorder.stop(); } catch(e) {}
+  }
+}
+
+/* ─── RMS silence-detection loop (primary speech detector) ── */
+function _watchSilence() {
+  if (!_mrActive || !_aryaListening) return;
+  if (!_mrAnalyser || !_mrCtx || _mrCtx.state !== 'running') {
+    if (_mrCtx && _mrCtx.state === 'suspended') { _mrCtx.resume().catch(() => {}); }
+    if (_mrActive) setTimeout(_watchSilence, 80);
+    return;
+  }
+  const buf = new Uint8Array(_mrAnalyser.frequencyBinCount);
+  _mrAnalyser.getByteTimeDomainData(buf);
+  let sum = 0;
+  for (let i = 0; i < buf.length; i++) { const v = (buf[i] - 128) / 128; sum += v * v; }
+  const rms = Math.sqrt(sum / buf.length);
+
+  /* Use 2.5× threshold while Arya is speaking — filters mic echo from TTS
+     but still detects deliberate user interruption (louder than echo). */
+  const _thresh = _aryaSpeaking ? _STHRESH * 2.5 : _STHRESH;
+  if (rms > _thresh) {                          // voice detected
+    _speechSeen = true; _silenceAt = null;
+    if (!_aryaSpeaking) showWave(true);
+  } else if (_speechSeen) {                     // silence after speech
+    if (!_silenceAt) _silenceAt = Date.now();
+    if (Date.now() - _silenceAt > _SDELAY) { _stopCapture(); return; }
+  }
+  if (_mrActive) setTimeout(_watchSilence, 80);
+}
+
+/* ─── MediaRecorder: begin one recording window ─────────── */
+async function _startCapture() {
+  if (_mrActive || !_aryaListening) return;
+
+  /* Acquire mic stream once; kept alive to avoid re-requesting permission */
+  if (!_mrStream) {
+    try {
+      _mrStream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, channelCount: {ideal: 1} }
+      });
+    } catch (e) {
+      if (e.name === 'NotAllowedError') {
+        appendAryaMsg('ai', 'Mic access denied. Allow microphone in browser settings, then tap the mic.');
+        stopAryaVoice(); return;
+      }
+      appendAryaMsg('ai', "Couldn't access microphone. Check your browser settings.");
+      return;
+    }
+  }
+
+  /* Wire AnalyserNode to mic stream for RMS detection */
+  if (_mrCtx && !_mrAnalyser) {
+    if (_mrCtx.state === 'suspended') { try { await _mrCtx.resume(); } catch {} }
+    if (_mrCtx.state === 'running') {
+      try {
+        _mrAnalyser = _mrCtx.createAnalyser();
+        _mrAnalyser.fftSize = 256;
+        _mrSource = _mrCtx.createMediaStreamSource(_mrStream);
+        _mrSource.connect(_mrAnalyser);
+      } catch(e) { console.warn('[Arya] analyser setup failed:', e); _mrAnalyser = null; _mrSource = null; }
+    }
+  }
+
+  _mrChunks   = [];
+  _speechSeen = false;
+  _silenceAt  = null;
+  /* 128 kbps so chunk-size fallback can clearly distinguish speech vs silence:
+     silence ≈ 200–600 bytes / 80 ms   |   speech ≈ 1 000–2 000 bytes / 80 ms */
+  _mrRecorder = new MediaRecorder(_mrStream, { mimeType: _MTYPE, audioBitsPerSecond: 128000 });
+
+  /* Chunk-size fallback — only used when RMS analyser is unavailable */
+  _mrRecorder.ondataavailable = e => {
+    if (!e.data || e.data.size === 0) return;
+    _mrChunks.push(e.data);
+    if (!_mrAnalyser || _mrCtx?.state !== 'running') {
+      if (e.data.size > 600) {
+        _speechSeen = true; _silenceAt = null;
+        if (!_aryaSpeaking) showWave(true);
+      } else if (_speechSeen) {
+        if (!_silenceAt) _silenceAt = Date.now();
+        if (Date.now() - _silenceAt > _SDELAY) _stopCapture();
+      }
+    }
+  };
+
+  _mrRecorder.onstop = _onCaptureDone;
+  _mrRecorder.start(80);   // fire ondataavailable every 80 ms
+  _mrActive = true;
+  _watchSilence();          // kick off RMS polling loop
+}
+
+/* ─── Transcribe captured audio with Whisper ────────────── */
+async function _onCaptureDone() {
+  if (!_aryaListening || !_speechSeen || !_mrChunks.length) {
+    if (_aryaListening) setTimeout(_startCapture, 80);
+    return;
+  }
+  const blob = new Blob(_mrChunks, { type: _mrRecorder?.mimeType || _MTYPE });
+  setVoxStatus('UNDERSTANDING…', 'vox-think');
+  let text = '';
+  try {
+    if (!_whisperOk) await _loadWhisper();
+    if (_whisperOk && _whisper) {
+      /* Decode audio — create a fresh AudioContext if the main one is closed/broken */
+      let decCtx = _mrCtx;
+      if (!decCtx || decCtx.state === 'closed') {
+        decCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const ab  = await blob.arrayBuffer();
+      const aud = await decCtx.decodeAudioData(ab);
+      const f32 = aud.getChannelData(0);
+      const res = await _whisper(
+        { data: f32, sampling_rate: aud.sampleRate },
+        { language: 'english', task: 'transcribe', return_timestamps: false }
+      );
+      text = (res.text || '').replace(/^\[.*?\]\s*/g, '').trim();
+    }
+  } catch (e) {
+    console.warn('[Arya] transcription error:', e);
+    _transcribeFails++;
+    if (_transcribeFails >= 3) {
+      /* After 3 failures stop the loop — surface text input instead */
+      appendAryaMsg('ai', '⚠ Voice recognition unavailable. Please type below.');
+      _transcribeFails = 0;
+      stopAryaVoice();
+    } else if (_aryaListening) {
+      setVoxStatus('LISTENING', 'vox-listen');
+      setTimeout(_startCapture, 800);
+    }
+    return;
+  }
+
+  _transcribeFails = 0;   // reset on any successful transcription path
+
+  /* Filter Whisper hallucinations common on near-silence */
+  if (text && text.length > 1 &&
+      !/^(\.{2,}|thank you\.?|thanks\.?|uh+\.?|um+\.?|hmm+\.?|okay\.?)$/i.test(text)) {
+    if (_aryaSpeaking) { _synth.cancel(); _aryaSpeaking = false; }
+    if (_interimBub) { _interimBub.style.opacity = '1'; _interimBub.innerHTML = formatAryaText(text); _interimBub = null; }
+    else             { appendAryaMsg('user', text); }
+    if (_aryaBusy) { _pendingMsg = text; }
+    else           { sendVoiceMessage(text); }
+  }
+  if (_aryaListening) { setVoxStatus('LISTENING', 'vox-listen'); setTimeout(_startCapture, 80); }
+}
+
+/* ─── Send to Ollama → stream → TTS ────────────────────── */
+async function sendVoiceMessage(text) {
+  if (_aryaBusy) return;
+  _aryaBusy = true;
+  setVoxStatus('THINKING…', 'vox-think');
+  showAryaThinking();
+
+  if (!_aryaOnline) {
+    removeAryaThinking();
+    const err = "Ollama isn't running. Open a terminal and type ollama serve.";
+    appendAryaMsg('ai', err); speakArya(err); _aryaBusy = false; return;
+  }
+
+  _aryaHistory.push({ role: 'user', content: text });
+  if (_aryaHistory.length > 40) _aryaHistory = _aryaHistory.slice(-40);
+  const messages = [{ role: 'system', content: buildAryaSystem() }, ..._aryaHistory];
+
+  try {
+    const res = await fetch(OLLAMA_URL + '/api/chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: ARYA_MODEL, messages, stream: true,
+        options: { num_ctx: 4096, num_predict: 280, temperature: 0.72, top_p: 0.9 }
+      }),
+      signal: AbortSignal.timeout(90000)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    const reader = res.body.getReader(), dec = new TextDecoder();
+    let buf = '', full = '', bubble = null;
+    removeAryaThinking();
+
+    while (true) {
+      const { done, value } = await reader.read(); if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split('\n'); buf = lines.pop();
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const d = JSON.parse(line); if (d.done) break;
+          const tok = d.message?.content || '';
+          if (tok) {
+            full += tok;
+            if (!bubble) bubble = appendAryaMsg('ai', '');
+            bubble.innerHTML = formatAryaText(full);
+            document.getElementById('arya-body').scrollTop = document.getElementById('arya-body').scrollHeight;
+          }
+        } catch {}
+      }
+    }
+    if (!bubble && full) appendAryaMsg('ai', full);
+    if (full) { _aryaHistory.push({ role: 'assistant', content: full }); speakArya(full); }
+
+  } catch (err) {
+    removeAryaThinking();
+    const msg = err.name === 'TimeoutError'
+      ? "That's taking too long. Is Ollama still running?"
+      : "Lost connection to Ollama. Try restarting it.";
+    appendAryaMsg('ai', msg); speakArya(msg);
+  } finally {
+    _aryaBusy = false;
+    if (_aryaListening && !_aryaSpeaking) setVoxStatus('LISTENING', 'vox-listen');
+    if (_pendingMsg) { const m = _pendingMsg; _pendingMsg = ''; sendVoiceMessage(m); }
+  }
+}
+
+/* ─── Text-fallback helpers ─────────────────────────────── */
+function _showTextFallback(isBrave){
+  const row=document.getElementById('arya-txt-row');
+  const inp=document.getElementById('arya-txt');
+  const btn=document.getElementById('arya-mic-btn');
+  row.style.display='flex';
+  btn.textContent='🔄'; btn.style.opacity='1'; btn.title='Tap to retry voice';
+  inp.placeholder=isBrave?'Shields blocking voice — type here, I speak back…':'Type your message — I still respond aloud…';
+  setVoxStatus('CHAT MODE · ARYA SPEAKS ALOUD','vox-listen');
+  setTimeout(()=>inp.focus(),120);
+}
+function _sendAryaText(){
+  const inp=document.getElementById('arya-txt');
+  if(!inp||!inp.value.trim())return;
+  const txt=inp.value.trim();inp.value='';
+  appendAryaMsg('user',txt);
+  if(_aryaBusy){_pendingMsg=txt;}else{sendVoiceMessage(txt);}
+  setTimeout(()=>inp.focus(),50);
+}
+/* ─── Mic toggle ────────────────────────────────────────── */
+function toggleAryaVoice(){
+  _aryaListening?stopAryaVoice():startAryaVoice();
+}
+async function startAryaVoice() {
+  document.getElementById('arya-mic-btn').textContent  = '🎙';
+  document.getElementById('arya-mic-btn').style.opacity = '1';
+  _aryaListening = true;
+  document.getElementById('arya-mic-btn').classList.add('listening');
+  setVoxStatus('LISTENING', 'vox-listen');
+  /* Greeting on first open */
+  if (!document.getElementById('arya-body').querySelector('.arya-msg.ai')) {
+    const disc = STATE.disc||0, fn = (STATE.name||'').split(' ')[0]||'hey';
+    const greet = disc>=65 ? `${fn}, I'm here. What's on your mind?`
+                : disc>=45 ? `${fn}. I'm listening. What's going on?`
+                :            `${fn}, tell me what happened. I'm all ears.`;
+    appendAryaMsg('ai', greet);
+    setTimeout(() => speakArya(greet), 300);
+  }
+  /* Use Web Speech API if browser supports it (instant, no CDN load) */
+  if (_WSR_OK) {
+    _startWSR();
+  } else {
+    /* Fallback: load Whisper in background and start MediaRecorder capture */
+    if (!_whisperOk && !_whisperBusy) _loadWhisper();
+    _startCapture();
+  }
+}
+function stopAryaVoice() {
+  _aryaListening = false;
+  _mrActive      = false;
+  _pendingMsg    = '';
+  _synth.cancel(); _aryaSpeaking = false; showWave(false);
+  if (_wsr) { try { _wsr.abort(); } catch {} _wsr = null; _wsrActive = false; }
+  if (_mrRecorder && _mrRecorder.state !== 'inactive') { try { _mrRecorder.stop(); } catch {} }
+  if (_mrSource) { try { _mrSource.disconnect(); } catch {} _mrSource = null; }
+  _mrAnalyser = null;  // reset so it re-wires on next _startCapture
+  /* Keep _mrStream alive — avoids re-requesting mic permission on next start */
+  const btn = document.getElementById('arya-mic-btn');
+  btn.classList.remove('listening', 'speaking'); btn.textContent = '🎙';
+  setVoxStatus('TAP TO RESUME');
+}
+
+/* ─── Panel open / close ────────────────────────────────── */
+function openAryaPanel() {
+  document.getElementById('arya-panel').classList.add('open');
+  document.getElementById('arya-overlay').classList.add('on');
+  checkAryaHealth();
+  /* Create AudioContext inside the user-gesture handler so the browser
+     keeps it in "running" state — creating it later (in setTimeout or
+     async callbacks) causes Brave/Chrome to suspend it automatically,
+     making getByteTimeDomainData() return all-128 (dead silence).      */
+  if (!_mrCtx) {
+    try { _mrCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  } else if (_mrCtx.state === 'suspended') {
+    _mrCtx.resume().catch(() => {});
+  }
+  /* Auto-start mic — panel opens from a user-gesture click so browser
+     allows microphone access immediately without a second tap.         */
+  setTimeout(() => { if (!_aryaListening) startAryaVoice(); }, 350);
+}
+function closeAryaPanel() {
+  stopAryaVoice();
+  document.getElementById('arya-panel').classList.remove('open');
+  document.getElementById('arya-overlay').classList.remove('on');
+}
+
+/* Resume AudioContext when tab becomes visible again (browser suspends it on tab-hide) */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && _mrCtx && _mrCtx.state === 'suspended') {
+    _mrCtx.resume().catch(() => {});
+  }
+});
+
+/* ─── Message rendering ─────────────────────────────────── */
+function appendAryaMsg(role, text) {
+  const body = document.getElementById('arya-body');
+  const wrap = document.createElement('div'); wrap.className = 'arya-msg ' + role;
+  const av   = document.createElement('div');
+  av.className   = 'arya-msg-av ' + (role==='ai'?'ai':'usr');
+  av.textContent = role==='ai' ? '🧠' : (STATE.name||'U')[0].toUpperCase();
+  const bub = document.createElement('div');
+  bub.className  = 'arya-bubble ' + (role==='ai'?'ai':'usr');
+  bub.innerHTML  = formatAryaText(text);
+  wrap.appendChild(av); wrap.appendChild(bub);
+  body.appendChild(wrap); body.scrollTop = body.scrollHeight;
+  return bub;
+}
+function formatAryaText(t) {
+  return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/\n/g,'<br>');
+}
+function showAryaThinking() {
+  const body = document.getElementById('arya-body');
+  const wrap = document.createElement('div'); wrap.className='arya-msg ai'; wrap.id='arya-thinking-row';
+  const av = document.createElement('div'); av.className='arya-msg-av ai'; av.textContent='🧠';
+  const th = document.createElement('div'); th.className='arya-thinking';
+  th.innerHTML='<span></span><span></span><span></span>';
+  wrap.appendChild(av); wrap.appendChild(th);
+  body.appendChild(wrap); body.scrollTop=body.scrollHeight;
+}
+function removeAryaThinking() { const el=document.getElementById('arya-thinking-row'); if(el) el.remove(); }
+
+/* Alt+M shortcut */
+document.addEventListener('keydown', e => {
+  if ((e.altKey||e.metaKey) && e.key==='m') { e.preventDefault(); openAryaPanel(); }
+});
+</script>
 </body>
 </html>

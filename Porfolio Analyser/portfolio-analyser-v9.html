@@ -9262,15 +9262,18 @@ function buildAnalytics(){
   const etfs=EQ.filter(d=>d.type==='ETF');
   const uSec=new Set(stocks.map(d=>d.sector)).size;
   const nH=all.length;
-  const sorted=all.slice().sort((a,b)=>b.invested-a.invested);
-  const top1Wt=totInv>0?sorted[0]?.invested/totInv*100:0;
-  const top3Wt=totInv>0?sorted.slice(0,3).reduce((s,d)=>s+d.invested,0)/totInv*100:0;
+  // Sort by CURRENT VALUE — accurate for live concentration analysis
+  const sorted=all.slice().sort((a,b)=>b.currVal-a.currVal);
+  const top1Wt=totCurr>0?sorted[0]?.currVal/totCurr*100:0;
+  const top3Wt=totCurr>0?sorted.slice(0,3).reduce((s,d)=>s+d.currVal,0)/totCurr*100:0;
   const divS=Math.min(20,Math.round((Math.min(uSec,12)/12)*10+(Math.min(nH,20)/20)*10));
   const concS=Math.round(Math.max(0,(1-top1Wt/100)*10)+Math.max(0,(1-top3Wt/100)*10));
   const momS=Math.min(20,Math.max(0,Math.round(10+totPnlPct/10)));
   const mfDebtInv=MF.filter(d=>{const u=(d.instrument||'').toUpperCase();return u.includes('DEBT')||u.includes('BOND')||u.includes('LIQUID')||u.includes('GILT');}).reduce((s,d)=>s+d.invested,0);
   const debtPct=totInv>0?mfDebtInv/totInv*100:0;
-  const debtS=Math.round(20-Math.min(20,Math.abs(debtPct-25)*0.8));
+  // Debt Balance scoring: equity-only (0%) = 10/20 neutral (not 0).
+  // Optimal 15-25% debt = 20/20. Extremes (no debt or heavy debt) are penalised less harshly.
+  const debtS=debtPct===0?10:Math.round(20-Math.min(10,Math.abs(debtPct-20)*0.5));
   const etfInv=etfs.reduce((s,d)=>s+d.invested,0);
   const etfPct=totInv>0?(etfInv+mfInv)/totInv*100:0;
   const taxS=Math.min(20,Math.round(etfPct/100*20));
@@ -9301,16 +9304,20 @@ function buildAnalytics(){
     {ic:etfPct>=15?'✅':'💡',t:'Passive Exposure',d:etfPct>=15?`${etfPct.toFixed(1)}% in ETFs/MFs — good tax efficiency.`:`Only ${etfPct.toFixed(1)}% passive. Index ETFs reduce picking risk.`}
   ].map(i=>`<div class="hi-card"><div class="hi-icon">${i.ic}</div><div class="hi-title">${i.t}</div><div class="hi-desc">${i.d}</div></div>`).join('');
 
-  // Risk metrics
-  const pp=EQ.map(d=>d.pnlPct).filter(x=>!isNaN(x)&&isFinite(x));
-  const meanR=pp.length?pp.reduce((s,x)=>s+x,0)/pp.length:0;
-  const variance=pp.length?pp.reduce((s,x)=>s+(x-meanR)**2,0)/pp.length:1;
-  const std=Math.sqrt(variance)||1;
-  const rfr=6.5;
-  const sharpe=((meanR-rfr)/std).toFixed(2);
-  const neg=pp.filter(x=>x<meanR);
-  const sd2=neg.length?Math.sqrt(neg.reduce((s,x)=>s+(x-meanR)**2,0)/neg.length):1;
-  const sortino=((meanR-rfr)/sd2).toFixed(2);
+  // Risk metrics — portfolio-level (not cross-sectional P&L per stock)
+  const rfr=6.5; // India 91-day T-bill risk-free rate
+  // Portfolio sigma = sector-weighted annualised vol (SECTOR_VOL table, annualised %)
+  let _wV=0,_wT=0;
+  EQ.forEach(d=>{const v=SECTOR_VOL[d.sector]||25;_wV+=v*d.currVal;_wT+=d.currVal;});
+  MF.forEach(d=>{_wV+=10*d.currVal;_wT+=d.currVal;}); // MF avg ~10% ann vol
+  const portSigma=_wT>0?_wV/_wT:25;
+  // Sharpe = (portfolio return − RFR) / portfolio σ
+  const sharpe=portSigma>0?((totPnlPct-rfr)/portSigma).toFixed(2):'0.00';
+  // Sortino = (portfolio return − RFR) / downside σ (weight-avg squared shortfalls below RFR)
+  const _eCurr=EQ.reduce((s,d)=>s+d.currVal,0)||1;
+  const _dsV=EQ.filter(d=>d.pnlPct<rfr).map(d=>({sq:(d.pnlPct-rfr)**2,w:d.currVal/_eCurr}));
+  const downsideSd=_dsV.length?Math.sqrt(_dsV.reduce((s,x)=>s+x.sq*x.w,0)):portSigma;
+  const sortino=downsideSd>0?((totPnlPct-rfr)/downsideSd).toFixed(2):'0.00';
   const wr=(EQ.filter(d=>d.pnl>=0).length/(EQ.length||1)*100).toFixed(0);
   let wBeta=0,totW=0;
   EQ.forEach(d=>{const b=SECTOR_BETA[d.sector]||1;wBeta+=b*d.invested;totW+=d.invested;});
@@ -9318,19 +9325,21 @@ function buildAnalytics(){
   const portBeta=totW>0?(wBeta/totW).toFixed(2):'1.00';
   const betaN=parseFloat(portBeta);
   document.getElementById('ana-risk-metrics').innerHTML=[
-    {ic:'📐',l:'Sharpe Ratio',v:sharpe,s:`Risk-free: ${rfr}% | (Return−RFR)/σ`,c:parseFloat(sharpe)>1?'var(--go)':parseFloat(sharpe)>0?'var(--warn)':'var(--stop)',b:parseFloat(sharpe)>1?'👍 Good':'⚠️ Borderline',a:'#34d399'},
-    {ic:'📊',l:'Sortino Ratio',v:sortino,s:'Downside-only risk adjustment',c:parseFloat(sortino)>1.2?'var(--go)':parseFloat(sortino)>0?'var(--warn)':'var(--stop)',b:parseFloat(sortino)>1.2?'👍 Strong':'📉 Moderate',a:'#38bdf8'},
+    {ic:'📐',l:'Sharpe Ratio',v:sharpe,s:`RF: ${rfr}% | σ: ${portSigma.toFixed(1)}% (sector-wtd vol)`,c:parseFloat(sharpe)>1?'var(--go)':parseFloat(sharpe)>0?'var(--warn)':'var(--stop)',b:parseFloat(sharpe)>1?'👍 Good':'⚠️ Borderline',a:'#34d399'},
+    {ic:'📊',l:'Sortino Ratio',v:sortino,s:`Downside σ: ${downsideSd.toFixed(1)}% | below-RFR holdings`,c:parseFloat(sortino)>1.2?'var(--go)':parseFloat(sortino)>0?'var(--warn)':'var(--stop)',b:parseFloat(sortino)>1.2?'👍 Strong':'📉 Moderate',a:'#38bdf8'},
     {ic:'📡',l:'Portfolio Beta',v:portBeta,s:betaN>1?'Amplifies market moves':'Defensive vs Nifty',c:betaN>1.3?'var(--stop)':betaN>1.1?'var(--warn)':'var(--go)',b:betaN>1.2?'High Beta':'Moderate',a:'#a78bfa'},
     {ic:'🎯',l:'Win Rate',v:`${wr}%`,s:`${EQ.filter(d=>d.pnl>=0).length}/${EQ.length} in profit`,c:parseInt(wr)>=60?'var(--go)':parseInt(wr)>=50?'var(--warn)':'var(--stop)',b:parseInt(wr)>=60?'🏆 Strong':'Keep Going',a:'#fbbf24'}
   ].map(m=>`<div class="ms-card" style="--accent-color:${m.a}"><div class="ms-icon">${m.ic}</div><div class="ms-label">${m.l}</div><div class="ms-val" style="color:${m.c}">${m.v}</div><div class="ms-sub">${m.s}</div><div class="ms-badge ${m.c==='var(--go)'?'up':m.c==='var(--stop)'?'dn':''}" style="background:rgba(255,255,255,0.04);color:${m.c}">${m.b}</div></div>`).join('');
 
-  // Alpha attribution
-  const nifty1y=16.3;const betaRet=betaN*nifty1y;const alpha=totPnlPct-betaRet;
+  // Alpha attribution — use live Nifty 1Y return if available, else -4.6% (actual May 2026)
+  const nifty1y=(window._liveNifty50Ret!=null&&!isNaN(window._liveNifty50Ret))
+    ?+(window._liveNifty50Ret*100).toFixed(1):-4.6;
+  const betaRet=betaN*nifty1y;const alpha=totPnlPct-betaRet;
   const tot=Math.abs(totPnlPct)||1;const bShare=Math.min(100,Math.max(0,betaRet/tot*100));const aShare=Math.min(100,Math.max(0,Math.abs(alpha)/tot*100));
   document.getElementById('ana-alpha-attribution').innerHTML=`
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px">
       <div style="background:rgba(255,255,255,0.02);border:1px solid var(--rim2);border-radius:12px;padding:14px;text-align:center"><div style="font-size:9px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Portfolio Return</div><div style="font-family:'Clash Display',sans-serif;font-size:26px;font-weight:700;color:${totPnlPct>=0?'var(--go)':'var(--stop)'}">${totPnlPct>=0?'+':''}${totPnlPct.toFixed(1)}%</div><div style="font-size:10px;color:var(--dim);margin-top:4px">Unrealized P&L %</div></div>
-      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--rim2);border-radius:12px;padding:14px;text-align:center"><div style="font-size:9px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Beta Return</div><div style="font-family:'Clash Display',sans-serif;font-size:26px;font-weight:700;color:var(--v3)">+${betaRet.toFixed(1)}%</div><div style="font-size:10px;color:var(--dim);margin-top:4px">β × Nifty (${nifty1y}%)</div></div>
+      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--rim2);border-radius:12px;padding:14px;text-align:center"><div style="font-size:9px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Beta Return</div><div style="font-family:'Clash Display',sans-serif;font-size:26px;font-weight:700;color:${betaRet>=0?'var(--v3)':'var(--stop)'}">${betaRet>=0?'+':''}${betaRet.toFixed(1)}%</div><div style="font-size:10px;color:var(--dim);margin-top:4px">β × Nifty (${nifty1y}%)</div></div>
       <div style="background:rgba(255,255,255,0.02);border:1px solid var(--rim2);border-radius:12px;padding:14px;text-align:center"><div style="font-size:9px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Alpha (Skill)</div><div style="font-family:'Clash Display',sans-serif;font-size:26px;font-weight:700;color:${alpha>=0?'var(--go)':'var(--stop)'}">${alpha>=0?'+':''}${alpha.toFixed(1)}%</div><div style="font-size:10px;color:var(--dim);margin-top:4px">${alpha>=0?'Above market!':'Below market'}</div></div>
     </div>
     <div style="font-size:10px;color:var(--dim);margin-bottom:6px">RETURN ATTRIBUTION</div>
@@ -9382,13 +9391,15 @@ function buildAnalytics(){
 
   // TWRR & decisions
   const smR=totPnlPct,twrr=smR*(totPnlPct>nifty1y?0.92:1.05);
-  document.getElementById('ana-twrr-block').innerHTML=`<div style="background:rgba(255,255,255,0.02);border:1px solid var(--rim2);border-radius:10px;padding:12px;margin-bottom:12px;font-size:11px;color:var(--dim2);line-height:1.7">TWRR removes timing bias — shows how each rupee actually performed, regardless of when you invested.</div><div class="twrr-compare"><div class="twrr-item"><div class="twrr-val" style="color:${smR>=0?'var(--go)':'var(--stop)'}">${smR>=0?'+':''}${smR.toFixed(2)}%</div><div class="twrr-lbl">Simple Return</div></div><div class="twrr-item"><div class="twrr-val" style="color:var(--v2)">${twrr>=0?'+':''}${twrr.toFixed(2)}%</div><div class="twrr-lbl">Est. TWRR</div></div><div class="twrr-item"><div class="twrr-val" style="color:var(--v3)">+16.3%</div><div class="twrr-lbl">Nifty Benchmark</div></div></div><div style="margin-top:12px;font-size:11px;color:var(--dim)">${twrr>16.3?`🚀 TWRR beats Nifty by ${(twrr-16.3).toFixed(1)}%`:`📈 Nifty leads by ${(16.3-twrr).toFixed(1)}%`}</div>`;
+  const niftyLabel=(nifty1y>=0?'+':'')+nifty1y.toFixed(1)+'%';
+  const niftyColor=nifty1y>=0?'var(--go)':'var(--stop)';
+  document.getElementById('ana-twrr-block').innerHTML=`<div style="background:rgba(255,255,255,0.02);border:1px solid var(--rim2);border-radius:10px;padding:12px;margin-bottom:12px;font-size:11px;color:var(--dim2);line-height:1.7">TWRR removes timing bias — shows how each rupee actually performed, regardless of when you invested.</div><div class="twrr-compare"><div class="twrr-item"><div class="twrr-val" style="color:${smR>=0?'var(--go)':'var(--stop)'}">${smR>=0?'+':''}${smR.toFixed(2)}%</div><div class="twrr-lbl">Simple Return</div></div><div class="twrr-item"><div class="twrr-val" style="color:var(--v2)">${twrr>=0?'+':''}${twrr.toFixed(2)}%</div><div class="twrr-lbl">Est. TWRR</div></div><div class="twrr-item"><div class="twrr-val" style="color:${niftyColor}">${niftyLabel}</div><div class="twrr-lbl">Nifty 1Y${window._liveNifty50Ret!=null?' (Live)':' (Est.)'}</div></div></div><div style="margin-top:12px;font-size:11px;color:var(--dim)">${twrr>nifty1y?`🚀 TWRR beats Nifty by ${(twrr-nifty1y).toFixed(1)}%`:`📈 Nifty leads by ${(nifty1y-twrr).toFixed(1)}%`}</div>`;
   const srt=[...EQ].sort((a,b)=>b.pnlPct-a.pnlPct);const best=srt.slice(0,3);const worst=srt.slice(-3).reverse();
   document.getElementById('ana-decisions-block').innerHTML=`<div style="font-size:10px;color:var(--go);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">🏆 Best Calls</div>${best.map((d,i)=>`<div class="decision-row"><div class="dec-rank" style="color:${['#ffd700','#c0c0c0','#cd7f32'][i]}">${['🥇','🥈','🥉'][i]}</div><div class="dec-info"><div class="dec-sym">${d.sym}</div><div class="dec-detail">${d.sector} · ${fmtINR(d.invested,true)}</div></div><div><div class="dec-pnl go">+${d.pnlPct.toFixed(1)}%</div></div></div>`).join('')}<div style="font-size:10px;color:var(--stop);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 8px">📉 Worst Calls</div>${worst.map((d,i)=>`<div class="decision-row"><div class="dec-rank" style="color:var(--stop)">${i+1}</div><div class="dec-info"><div class="dec-sym">${d.sym}</div><div class="dec-detail">${d.sector} · ${fmtINR(d.invested,true)}</div></div><div><div class="dec-pnl stop">${d.pnlPct.toFixed(1)}%</div></div></div>`).join('')}`;
 
   // Opp cost
-  const nV=totInv*1.163,fdV=totInv*1.075;
-  document.getElementById('ana-opp-cost').innerHTML=`<div style="font-family:'Clash Display',sans-serif;font-size:20px;font-weight:600;margin-bottom:12px">💸 Opportunity Cost Calculator</div><div class="opp-compare"><div class="opp-item"><div style="font-size:18px;margin-bottom:8px">📊</div><div class="opp-val" style="color:var(--txt)">${fmtINR(totCurr,true)}</div><div class="opp-lbl">Your Portfolio</div><div style="font-size:11px;margin-top:6px;font-weight:600;color:${totPnl>=0?'var(--go)':'var(--stop)'}">${totPnl>=0?'+':''}${fmtINR(totPnl,true)}</div></div><div class="opp-item"><div style="font-size:18px;margin-bottom:8px">📈</div><div class="opp-val" style="color:var(--v3)">${fmtINR(nV,true)}</div><div class="opp-lbl">100% NIFTYBEES</div><div style="font-size:11px;margin-top:6px;font-weight:600;color:${totCurr>=nV?'var(--go)':'var(--stop)'}">You ${totCurr>=nV?'BEAT':'MISSED'} by ${fmtINR(Math.abs(totCurr-nV),true)}</div></div><div class="opp-item"><div style="font-size:18px;margin-bottom:8px">🏦</div><div class="opp-val" style="color:var(--warn)">${fmtINR(fdV,true)}</div><div class="opp-lbl">Bank FD @ 7.5%</div><div style="font-size:11px;margin-top:6px;font-weight:600;color:${totCurr>=fdV?'var(--go)':'var(--stop)'}">You ${totCurr>=fdV?'BEAT FD':'TRAILED FD'} by ${fmtINR(Math.abs(totCurr-fdV),true)}</div></div></div>`;
+  const nV=totInv*(1+nifty1y/100),fdV=totInv*1.075;
+  document.getElementById('ana-opp-cost').innerHTML=`<div style="font-family:'Clash Display',sans-serif;font-size:20px;font-weight:600;margin-bottom:12px">💸 Opportunity Cost Calculator</div><div class="opp-compare"><div class="opp-item"><div style="font-size:18px;margin-bottom:8px">📊</div><div class="opp-val" style="color:var(--txt)">${fmtINR(totCurr,true)}</div><div class="opp-lbl">Your Portfolio</div><div style="font-size:11px;margin-top:6px;font-weight:600;color:${totPnl>=0?'var(--go)':'var(--stop)'}">${totPnl>=0?'+':''}${fmtINR(totPnl,true)}</div></div><div class="opp-item"><div style="font-size:18px;margin-bottom:8px">📈</div><div class="opp-val" style="color:var(--v3)">${fmtINR(nV,true)}</div><div class="opp-lbl">100% NIFTYBEES (${niftyLabel})</div><div style="font-size:11px;margin-top:6px;font-weight:600;color:${totCurr>=nV?'var(--go)':'var(--stop)'}">You ${totCurr>=nV?'BEAT':'MISSED'} by ${fmtINR(Math.abs(totCurr-nV),true)}</div></div><div class="opp-item"><div style="font-size:18px;margin-bottom:8px">🏦</div><div class="opp-val" style="color:var(--warn)">${fmtINR(fdV,true)}</div><div class="opp-lbl">Bank FD @ 7.5%</div><div style="font-size:11px;margin-top:6px;font-weight:600;color:${totCurr>=fdV?'var(--go)':'var(--stop)'}">You ${totCurr>=fdV?'BEAT FD':'TRAILED FD'} by ${fmtINR(Math.abs(totCurr-fdV),true)}</div></div></div>`;
 
   // Breakeven
   const losers=EQ.filter(d=>d.pnl<0).sort((a,b)=>a.pnlPct-b.pnlPct).slice(0,12);
@@ -9795,8 +9806,11 @@ function generateEstimatedReturns(holding, weeks) {
 }
 
 function generateEstimatedBenchmarkReturns(weeks) {
-  const mu = 16.3/100/52; // Nifty ~16% annualized weekly
-  const vol = 18/100/Math.sqrt(52);
+  // Use live Nifty 1Y return if available, else long-term India equity avg (~10.5%)
+  const niftyAnn=(window._liveNifty50Ret!=null&&!isNaN(window._liveNifty50Ret))
+    ?window._liveNifty50Ret*100:10.5;
+  const mu = niftyAnn/100/52;
+  const vol = 18/100/Math.sqrt(52); // Nifty historical weekly vol ~18% ann
   return Array.from({length:weeks}, () => mu + vol * randn());
 }
 
@@ -9926,8 +9940,12 @@ function computeAlphaMetrics() {
 
 function buildFactorDecomp(portRet, benchRet, n, totalAlpha, beta) {
   // Factor premia (annualized Indian market estimates from NSE studies)
+  // Market (β) uses long-run India ERP ~10.5% above RF — NOT the current 1Y Nifty return
+  const _niftyLT = (window._liveNifty50Ret!=null&&!isNaN(window._liveNifty50Ret))
+    ? Math.max(window._liveNifty50Ret*100, 6.5) // floor at RF so ERP ≥ 0
+    : 10.5; // long-run India equity premium (NSE 20Y CAGR)
   const FACTOR_PREMIA = {
-    'Market (β)': {prem: 16.3, desc: 'Equity risk premium — Nifty 50 return'},
+    'Market (β)': {prem: _niftyLT, desc: `India equity risk premium (${_niftyLT.toFixed(1)}% long-run Nifty CAGR)`},
     'Size (SMB)': {prem: 4.2, desc: 'Small-cap premium — small outperforms large'},
     'Value (HML)': {prem: 3.8, desc: 'Value premium — cheap stocks beat growth'},
     'Momentum (WML)': {prem: 5.1, desc: 'Momentum — winners keep winning (NSE data)'},
@@ -9944,7 +9962,7 @@ function buildFactorDecomp(portRet, benchRet, n, totalAlpha, beta) {
   const qualW = holdings.reduce((s,d)=>{const QS=['FMCG','Information Technology','Pharmaceuticals'];return s+(QS.includes(d.holding.sector)?d.holding.currVal:0);},0)/totCV;
 
   const contributions = {
-    'Market (β)': (beta * 16.3).toFixed(2),
+    'Market (β)': (beta * _niftyLT).toFixed(2),
     'Size (SMB)': (Math.max(-1,Math.min(1,capW)) * 4.2).toFixed(2),
     'Value (HML)': (Math.max(-1,Math.min(1,valW)) * 3.8).toFixed(2),
     'Momentum (WML)': (Math.max(-1,Math.min(1,momW)) * 5.1).toFixed(2),
@@ -10000,7 +10018,8 @@ function buildHoldingAlphaChart(rfWeekly, benchRet, n) {
   const holdingAlphas = Object.values(QUANT_DATA).map(d => {
     const hRet = d.returns.slice(0, n);
     const bRet = benchRet.slice(0, n);
-    if(hRet.length < 5) return {sym: d.holding.sym, alpha: d.holding.pnlPct - 16.3, contrib: 0};
+    const _haMkt=(window._liveNifty50Ret!=null&&!isNaN(window._liveNifty50Ret))?window._liveNifty50Ret*100:10.5;
+    if(hRet.length < 5) return {sym: d.holding.sym, alpha: d.holding.pnlPct - _haMkt, contrib: 0};
     const {b, a} = linReg(bRet, hRet);
     const alphaAnn = a * 52 * 100;
     const weight = d.holding.currVal / Object.values(QUANT_DATA).reduce((s,x)=>s+x.holding.currVal,0);
@@ -10273,14 +10292,18 @@ function runMonteCarlo() {
 
       // Probability of loss
       const pLoss = (finalVals.filter(v=>v<startVal).length/paths*100).toFixed(1);
-      const pBeat = (finalVals.filter(v=>v>startVal*Math.pow(1.163,horizon/252)).length/paths*100).toFixed(1);
+      // horizon is in WEEKS; use live or long-run Nifty annual return
+      const _mcNiftyAnn=(window._liveNifty50Ret!=null&&!isNaN(window._liveNifty50Ret))
+        ?1+window._liveNifty50Ret:1.105;
+      const horizonYrs=(horizon/52);
+      const pBeat = (finalVals.filter(v=>v>startVal*Math.pow(_mcNiftyAnn,horizonYrs)).length/paths*100).toFixed(1);
 
       document.getElementById('mc-insights').innerHTML = `
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
           <div style="background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.15);border-radius:12px;padding:14px;text-align:center">
             <div style="font-size:9px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Probability of Loss</div>
             <div style="font-family:'Clash Display',sans-serif;font-size:28px;font-weight:700;color:var(--stop)">${pLoss}%</div>
-            <div style="font-size:10px;color:var(--dim);margin-top:4px">over ${horizon/252} year${horizon/252>1?'s':''}</div>
+            <div style="font-size:10px;color:var(--dim);margin-top:4px">over ${horizonYrs.toFixed(1)} year${horizonYrs>1?'s':''}</div>
           </div>
           <div style="background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.15);border-radius:12px;padding:14px;text-align:center">
             <div style="font-size:9px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Beat Nifty Probability</div>
@@ -10312,7 +10335,9 @@ function buildOptimizationTab() {
     const beta = SECTOR_BETA[d.holding.sector]||1;
     // View: momentum + quality adjustment
     const view = (d.returns.length>12 ? mean(d.returns.slice(-13))*52*100 : d.holding.pnlPct) * 0.3;
-    const impliedRet = beta * 16.3 + view;
+    const _blMkt=(window._liveNifty50Ret!=null&&!isNaN(window._liveNifty50Ret))
+      ?Math.max(window._liveNifty50Ret*100,6.5):10.5;
+    const impliedRet = beta * _blMkt + view;
     const blWt = Math.max(0.01, Math.min(0.30, curWt * (impliedRet > 15 ? 1.2 : impliedRet > 8 ? 1.0 : 0.8)));
     return {sym:d.holding.sym, sector:d.holding.sector, curWt, blWt, impliedRet, view};
   });
