@@ -3,6 +3,8 @@
 > India's most complete personal finance platform.  
 > Education · Intelligence · Voice AI · Calculators · Markets · Tracking — all in one place.
 
+**Last updated:** May 2026 — Arya embedded voice coach v2, echo-loop fix, iOS audio support, Web Speech API primary STT
+
 ---
 
 ## Documentation
@@ -38,7 +40,8 @@ FIN•OS is a full-stack personal finance operating system built for Indian user
 **At a glance:**
 - **76 HTML pages** spanning every corner of personal finance
 - **100+ financial calculators** across 8 categories, each purpose-built
-- **A desi voice AI** that speaks English, Hindi, and Hinglish and knows your complete financial picture
+- **Arya — embedded AI voice coach** on every mindset/simulator page (no separate app needed)
+- **A standalone desi voice AI** that speaks English, Hindi, and Hinglish via WebSocket
 - **A proactive alert engine** watching your money 24/7 with 10 intelligent rules
 - **A financial health score** — live 0–100 rating across 6 pillars
 - **A React budget app** with AI war room, debt destroyer, FIRE calculator
@@ -60,13 +63,13 @@ Initial Deployment/
 ├── sw.js                         # Service worker
 ├── app.py                        # News Intel API  (Flask :5000)
 │
-├── html/                         # 76 main application pages
+├── html/                         # 76 main application pages (Arya embedded in mindset/simulator pages)
 ├── css/                          # 44 stylesheets
 ├── js/                           # 59 JavaScript files
 ├── assets/                       # Icons (SVG) + 24 editorial images
 ├── calculators/                  # 100+ calculators in 8 category folders
 │
-├── voiceagent/                   # FIN-OS Voice AI v10
+├── voiceagent/                   # FIN-OS standalone Voice AI v10 (WebSocket + Python)
 ├── alerts/                       # Proactive Alert Engine + Health Score
 ├── chatbot/                      # QFT text chatbot
 ├── market intelligence/          # AI trade signal API
@@ -283,7 +286,80 @@ python app.py
 
 ---
 
-## 4. Voice Agent v10 — `voiceagent/`
+## 4. Arya — Embedded AI Voice Coach
+
+Arya is a fully in-browser AI voice coach embedded directly in the psychology and simulator pages (`mindset-sim-hub.html`, `simulator-landing.html`, and the Django template `finos 2/templates/finos/base.html`). Unlike the standalone voice agent, **Arya requires no server, no WebSocket, and no installation** — it runs entirely in the user's browser tab.
+
+### Architecture
+
+```
+🎤 Microphone
+     ↓
+Web Speech API (SpeechRecognition)    ← Primary path: instant, built-in Chrome/Edge/Safari
+     OR
+Whisper tiny (transformers.js CDN)   ← Fallback: ~30s first load, offline-capable
+     ↓
+Ollama local LLM (auto-detects model via /api/tags)
+     ↓
+Web Speech Synthesis (browser TTS)
+     ↓
+🔊 Speaker
+```
+
+### Key Features
+
+| Feature | Detail |
+|---|---|
+| **Primary STT** | Web Speech API (`SpeechRecognition`) — instant, no download, works in Chrome/Edge/Safari |
+| **Fallback STT** | Whisper `tiny.en` via `@xenova/transformers@2.17.2` — runs in-browser via ONNX |
+| **LLM** | Ollama local — model auto-detected from `/api/tags` (no hardcoded model name) |
+| **TTS** | `window.speechSynthesis` — prefers `en-IN` voice, zero latency |
+| **Echo loop protection** | TTS output muted from mic via `_aryaSpeaking` gate + adaptive RMS threshold (2.5× during speech) |
+| **iOS audio support** | `_MTYPE` fallback chain: `webm;codecs=opus` → `webm` → `ogg;codecs=opus` → `mp4` → `''` |
+| **Failure counter** | `_transcribeFails` — stops voice after 3 consecutive failures, surfaces text input gracefully |
+| **GC-safe analyser** | `_mrSource` (MediaStreamAudioSourceNode) held at module-level to survive V8 GC |
+| **Text input always visible** | Chat input visible at all times — voice and text work side-by-side |
+| **Persona** | Builds on `buildAryaSystem()` — uses user's DISC score, XP, FOMO index, session count |
+
+### Affected Files
+
+| File | Role |
+|---|---|
+| `html/mindset-sim-hub.html` | Mindset simulator — Arya embedded in sidebar panel |
+| `html/simulator-landing.html` | Trading simulator landing — Arya coaching panel |
+| `finos 2/templates/finos/base.html` | Django base template — Arya available on all Django pages |
+
+### Voice Engine State Machine
+
+```
+startAryaVoice()
+   └─ _WSR_OK?
+       ├─ YES → _startWSR()          (Web Speech API, instant)
+       │         ├─ no-speech/aborted → restart after 300ms
+       │         ├─ not-allowed      → show mic denied message
+       │         └─ other error      → fall through to Whisper
+       └─ NO  → _loadWhisper()       (download Whisper tiny.en ~40MB)
+                _startCapture()      (MediaRecorder + RMS silence detection)
+                _onCaptureDone()     (decode audio → Whisper → Ollama → TTS)
+```
+
+### Recent Fixes (v2)
+
+| Fix | What changed |
+|---|---|
+| **Echo loop eliminated** | Removed `speakArya(errMsg)` from transcription `catch` block — errors shown in chat only, never spoken |
+| **Infinite loop guard** | `_transcribeFails` counter: 3 consecutive failures → stop voice, fallback to text |
+| **iOS audio** | `_MTYPE` now includes `audio/mp4` as a supported fallback for iOS Safari |
+| **Blob format** | `new Blob(_mrChunks, { type: _mrRecorder?.mimeType || _MTYPE })` — uses actual recorded format |
+| **GC bug** | `_mrSource` module-level variable prevents V8 from destroying the analyser node |
+| **Retry spam** | `_whisperFailed` flag blocks infinite Whisper CDN retry on failed load |
+| **AudioContext policy** | `await _mrCtx.resume()` before wiring analyser — handles browser autoplay suspend |
+| **Cursor overlay** | `#cur`/`#curR` custom cursor elements removed on touch devices (CSS + JS) |
+| **Cache** | `Cache-Control: no-cache` meta tags force fresh reload after updates |
+
+---
+
+## 5. Voice Agent v10 — `voiceagent/`
 
 A fully local, personalised desi voice AI. Runs 100% on your machine — no paid API.
 
@@ -391,7 +467,7 @@ Or use the all-in-one script:
 
 ---
 
-## 5. Proactive Alert Engine — `alerts/`
+## 6. Proactive Alert Engine — `alerts/`
 
 FastAPI service on port 8001. Watches every user's finances every 15 minutes. Sends alerts in-app (Supabase Realtime) and as native OS push notifications (Web Push / VAPID).
 
@@ -458,7 +534,7 @@ Enable Realtime in Supabase Dashboard → Database → Replication for `alerts` 
 
 ---
 
-## 6. Financial Health Score — `alerts/health_score.py`
+## 7. Financial Health Score — `alerts/health_score.py`
 
 Called by `GET /health-score/{user_id}`. Computes a 0–100 score from the user's live Supabase data.
 
@@ -478,7 +554,7 @@ The score is injected into the voice agent's LLM context so it can reference it 
 
 ---
 
-## 7. Platform Intelligence Layer — `js/`
+## 8. Platform Intelligence Layer — `js/`
 
 Four JS files auto-injected on every page by one script tag. Zero additional markup needed on any of the 76 pages.
 
@@ -515,7 +591,7 @@ Security: `sessionStorage` only (tab-scoped). `user_id` bound — cross-user inj
 
 ---
 
-## 8. Chatbot Brain — `chatbot/`
+## 9. Chatbot Brain — `chatbot/`
 
 Text-based finance Q&A chatbot powering `html/chat.html`.
 
@@ -531,7 +607,7 @@ python chatbot/brain.py
 
 ---
 
-## 9. Market Intelligence — `market intelligence/`
+## 10. Market Intelligence — `market intelligence/`
 
 Flask API providing AI-generated trade signals across four time horizons.
 
@@ -553,7 +629,7 @@ python app.py
 
 ---
 
-## 10. Stock Engine — `stock-engine/`
+## 11. Stock Engine — `stock-engine/`
 
 FastAPI-based stock data and indicators engine with caching.
 
@@ -571,7 +647,7 @@ stock-engine/
 
 ---
 
-## 11. Stock Dashboard — `stock-dashboard/`
+## 12. Stock Dashboard — `stock-dashboard/`
 
 Standalone mini stock research dashboard — runs independently.
 
@@ -592,7 +668,7 @@ python app.py
 
 ---
 
-## 12. Expense Tracker — `ExpenseTracker/`
+## 13. Expense Tracker — `ExpenseTracker/`
 
 A React-based budget app with a Django REST backend.
 
@@ -644,7 +720,7 @@ python manage.py runserver
 
 ---
 
-## 13. Trade Journal — `TradeJournal/`
+## 14. Trade Journal — `TradeJournal/`
 
 A standalone trade journaling app with Supabase sync and full analytics.
 
@@ -662,7 +738,7 @@ A standalone trade journaling app with Supabase sync and full analytics.
 
 ---
 
-## 14. News Aggregator — `News1/`
+## 15. News Aggregator — `News1/`
 
 TypeScript + Vite + Express news aggregation server with a modern React-style UI.
 
@@ -684,7 +760,7 @@ npm run dev    # Express + Vite on :3000
 
 ---
 
-## 15. Portfolio Analyser — `Porfolio Analyser/`
+## 16. Portfolio Analyser — `Porfolio Analyser/`
 
 Standalone portfolio analysis tool with a Python backend.
 
@@ -696,7 +772,7 @@ python server.py
 
 ---
 
-## 16. Django Legacy Scaffold — `finos 2/`
+## 17. Django Legacy Scaffold — `finos 2/`
 
 A Django project scaffold from an earlier phase of development. Kept as reference.
 
@@ -710,7 +786,7 @@ finos 2/
 
 ---
 
-## 17. Database — Supabase
+## 18. Database — Supabase
 
 **Project URL:** `https://oeapcyucnduhwpgxfknb.supabase.co`
 
@@ -745,7 +821,7 @@ Supabase Dashboard → Database → Replication → toggle ON:
 
 ---
 
-## 18. PWA & Service Worker — `sw.js` + `manifest.json`
+## 19. PWA & Service Worker — `sw.js` + `manifest.json`
 
 ### Manifest
 
@@ -777,7 +853,7 @@ Supabase Dashboard → Database → Replication → toggle ON:
 
 ---
 
-## 19. Authentication & Security
+## 20. Authentication & Security
 
 | Layer | Mechanism |
 |---|---|
@@ -792,7 +868,7 @@ Supabase Dashboard → Database → Replication → toggle ON:
 
 ---
 
-## 20. Environment Setup
+## 21. Environment Setup
 
 ### Prerequisites
 
@@ -834,7 +910,7 @@ python -c "from py_vapid import Vapid; v=Vapid(); v.generate_keys(); print('PRIV
 
 ---
 
-## 21. Running Everything
+## 22. Running Everything
 
 ### Minimum — Static frontend only
 
@@ -914,14 +990,26 @@ http://localhost:5000/api/intel           → news feed
 │  → Persistent cross-session memory                                   │
 └──────────────────────────────────────────────────────────────────────┘
 
+┌──────────────────────────────────────────────────────────────────────┐
+│  ARYA — Embedded Voice Coach (no install required)                   │
+│                                                                      │
+│  Lives inside: mindset-sim-hub.html · simulator-landing.html         │
+│                finos 2/templates/finos/base.html                     │
+│                                                                      │
+│  STT:  Web Speech API (primary) → Whisper tiny.en (fallback)         │
+│  LLM:  Ollama local (auto-detects model)                             │
+│  TTS:  browser speechSynthesis — en-IN voice preferred               │
+│  Req:  Ollama running on :11434 — that's it                          │
+└──────────────────────────────────────────────────────────────────────┘
+
 PORTS
   3000  Frontend static
   5000  News Intel API (Flask)
   8000  Chatbot Brain
   8001  Alert Engine + Health Score (FastAPI)
-  8080  Voice Agent UI
-  8765  Voice Agent WebSocket
-  11434 Ollama
+  8080  Voice Agent UI (standalone)
+  8765  Voice Agent WebSocket (standalone)
+  11434 Ollama (required for Arya + standalone voice agent)
 
 SQL MIGRATIONS (run once in Supabase SQL Editor)
   alerts/schema.sql         alerts · push_subscriptions · alert_preferences
@@ -934,6 +1022,12 @@ ENV FILES
 SUPABASE REALTIME (Dashboard → Database → Replication)
   ✅  alerts
   ✅  alert_preferences
+
+ARYA KNOWN-GOOD BROWSERS
+  ✅  Chrome / Edge (desktop + Android) — Web Speech API + full audio support
+  ✅  Safari 16+ (desktop + iOS) — Web Speech API + mp4 audio fallback
+  ⚠️  Firefox — no Web Speech API; falls back to Whisper (slower first load)
+  ⚠️  Brave — may block Web Speech API; toggle "Use Google services for…" in settings
 ```
 
 ---

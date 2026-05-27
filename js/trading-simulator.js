@@ -1153,7 +1153,133 @@ function exitPosition(sym) {
     updatePortfolioDisplay();
     renderBottomTab('positions');
     showPostTradeAutopsy(pnl, pos, pos.reason || STATE.tradeReason || 'unknown');
+    saveSimSession();
+    callOllamaMentor(pnl, pos);
     if (typeof window._afterExitPosition === 'function') window._afterExitPosition();
+}
+
+// ─── OLLAMA AI ────────────────────────────────────────────────────
+const OllamaAI = (function () {
+    const BASE  = 'http://localhost:11434';
+    const MODEL = 'qwen2.5:3b';
+
+    async function available() {
+        try {
+            const r = await fetch(BASE + '/api/tags', { signal: AbortSignal.timeout(1500) });
+            return r.ok;
+        } catch { return false; }
+    }
+
+    async function stream(prompt, onToken) {
+        const resp = await fetch(BASE + '/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: MODEL, prompt, stream: true }),
+            signal: AbortSignal.timeout(20000),
+        });
+        if (!resp.ok) throw new Error('ollama ' + resp.status);
+        const reader  = resp.body.getReader();
+        const decoder = new TextDecoder();
+        let full = '';
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const lines = decoder.decode(value).split('\n').filter(Boolean);
+            for (const ln of lines) {
+                try {
+                    const obj = JSON.parse(ln);
+                    if (obj.response) { full += obj.response; if (onToken) onToken(obj.response, full); }
+                } catch (_) {}
+            }
+        }
+        return full;
+    }
+
+    return { available, stream, MODEL };
+})();
+
+async function callOllamaMentor(pnl, pos) {
+    const mentorEl = document.getElementById('aiMentorText');
+    if (!mentorEl) return;
+    const ok = await OllamaAI.available();
+    if (!ok) return;
+
+    const emotion     = (STATE.emotionLog && STATE.emotionLog.length)
+        ? STATE.emotionLog[STATE.emotionLog.length - 1].emotion : 'not logged';
+    const scenTitle   = (SCENARIOS[STATE.scenario] && SCENARIOS[STATE.scenario].title) || STATE.scenario;
+    const hasSL       = pos.sl ? 'Yes (₹' + pos.sl + ')' : 'No';
+    const pnlStr      = (pnl >= 0 ? '+' : '') + '₹' + Math.abs(pnl).toFixed(0);
+    const rrVal       = pos.sl
+        ? Math.abs(pnl / ((pos.avgPrice - pos.sl) * pos.qty)).toFixed(1)
+        : 'N/A';
+
+    const prompt =
+        'You are a behavioral finance mentor reviewing a trading simulator trade.\n' +
+        'Scenario: ' + scenTitle + '\n' +
+        'Trade: ' + pos.side + ' ' + pos.qty + ' ' + pos.sym + '\n' +
+        'Entry: ₹' + pos.avgPrice.toFixed(2) + '  Exit: ₹' + STATE.currentPrice.toFixed(2) + '\n' +
+        'P&L: ' + pnlStr + '  R:R achieved: ' + rrVal + '\n' +
+        'Stop loss used: ' + hasSL + '\n' +
+        'Emotion logged before trade: ' + emotion + '\n\n' +
+        'Give ONE specific, honest behavioral observation about this trade (max 22 words). ' +
+        'Focus on process and psychology — not outcome. No markdown. No generic phrases.';
+
+    // Show typing indicator immediately
+    showAIMentor('🧠 Analysing trade…');
+    clearTimeout(window.mentorTimer); // prevent auto-hide during streaming
+
+    try {
+        await OllamaAI.stream(prompt, function (tok, full) {
+            mentorEl.textContent = '"' + full + '"';
+            clearTimeout(window.mentorTimer);
+        });
+        // After streaming done, restart the auto-hide timer
+        window.mentorTimer = setTimeout(function () {
+            const overlay = document.getElementById('aiMentorOverlay');
+            if (overlay) overlay.classList.add('hidden');
+        }, 8000);
+    } catch (_) {
+        // Ollama failed — existing static message already shown, do nothing
+    }
+}
+
+// ─── SESSION PERSISTENCE ──────────────────────────────────────────
+function saveSimSession() {
+    if (STATE.journal.length === 0) return;
+    const emotions = STATE.emotionLog || [];
+    const session = {
+        ts: Date.now(),
+        date: new Date().toLocaleDateString('en-IN'),
+        scenario: STATE.scenario,
+        scenarioTitle: (SCENARIOS[STATE.scenario] && SCENARIOS[STATE.scenario].title) || STATE.scenario,
+        tradeCount: STATE.journal.length,
+        wins: STATE.winCount,
+        winRate: STATE.journal.length > 0 ? Math.round((STATE.winCount / STATE.journal.length) * 100) : 0,
+        pnl: parseFloat(STATE.pnl.toFixed(2)),
+        emotions: emotions,
+        fomoCount: emotions.filter(function(e){ return e.emotion === 'fomo'; }).length,
+        revengeCount: emotions.filter(function(e){ return e.emotion === 'revenge'; }).length,
+        calmWins: emotions.filter(function(e){ return e.emotion === 'calm' && e.win; }).length,
+        calmTotal: emotions.filter(function(e){ return e.emotion === 'calm'; }).length,
+        withSL: STATE.journal.filter(function(j){ return j.rr !== 'N/A'; }).length,
+        discipline: XP_STATE.discipline,
+        xp: XP_STATE.xp,
+        capital: parseFloat(STATE.capital.toFixed(2)),
+    };
+
+    const existing = JSON.parse(localStorage.getItem('finos_sim_sessions') || '[]');
+    // Replace last entry if same session (same ts within 60s) else push
+    const lastEntry = existing[existing.length - 1];
+    if (lastEntry && (session.ts - lastEntry.ts) < 60000 && lastEntry.scenario === session.scenario) {
+        existing[existing.length - 1] = session;
+    } else {
+        existing.push(session);
+    }
+    if (existing.length > 100) existing.shift();
+    localStorage.setItem('finos_sim_sessions', JSON.stringify(existing));
+    localStorage.setItem('finos_xp', XP_STATE.xp);
+    localStorage.setItem('finos_disc', XP_STATE.discipline);
+    localStorage.setItem('finos_sessions', existing.length);
 }
 
 // ╔══════════════════════════════════════════════════════════════════╗
