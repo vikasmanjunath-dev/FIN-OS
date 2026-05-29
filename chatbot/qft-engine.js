@@ -840,6 +840,7 @@ class QFTEngine {
                     persona:       this._getPersonaSettings().aiPersona || 'bhai',
                     language:      this._getPersonaSettings().aiLang    || 'hinglish',
                     system_prompt: this._buildSystemPrompt(),
+                    psych_profile: this._getPsychProfile() || undefined,
                 }),
             });
 
@@ -1137,7 +1138,116 @@ For casual/short queries: 2–3 lines, conversational, ask one clarifying questi
             tamil:    `LANGUAGE: Tamil-inflected English. Reference chit funds, gold savings, Murugan Bank, TNPL, South Indian FD culture.`,
         };
 
-        return [CORE, PERSONA_STYLE[persona] || PERSONA_STYLE.bhai, LANG_STYLE[lang] || LANG_STYLE.hinglish].join('\n\n');
+        // ── USER CONTEXT — inject full FINOS profile so every response is personalised ──
+        const userCtxBlock = this._buildUserContextBlock();
+
+        return [CORE, PERSONA_STYLE[persona] || PERSONA_STYLE.bhai, LANG_STYLE[lang] || LANG_STYLE.hinglish, userCtxBlock].filter(Boolean).join('\n\n');
+    }
+
+    /** Build a structured context block from window.FINOS_USER_CONTEXT (set by finos-context.js). */
+    _buildUserContextBlock() {
+        try {
+            const ctx = window.FINOS_USER_CONTEXT;
+            const lines = [];
+            const INR = n => '₹' + Number(n || 0).toLocaleString('en-IN');
+
+            // ── Identity ──────────────────────────────────────────────────
+            const id    = ctx?.identity || {};
+            const name  = id.name  || localStorage.getItem('finos_display_name') || 'Investor';
+            const dna   = id.financial_dna || localStorage.getItem('finos_financial_dna') || 'Explorer';
+            lines.push('━━━━━━━━━━━━━━━━ THIS USER\'S PROFILE ━━━━━━━━━━━━━━━━');
+            lines.push(`Name: ${name} | DNA archetype: ${dna} | Life stage: ${id.life_stage || localStorage.getItem('finos_stage') || 'unknown'}`);
+            lines.push(`Income bracket: ₹${id.income_range || localStorage.getItem('finos_income') || 'unknown'}/month | Money mindset: ${id.mindset || localStorage.getItem('finos_mindset') || 'unknown'}`);
+            const interests = (() => {
+                if (Array.isArray(id.interests)) return id.interests.join(', ');
+                if (id.interests) return id.interests;
+                try { return JSON.parse(localStorage.getItem('finos_interests') || '[]').join(', '); } catch { return ''; }
+            })();
+            if (interests) lines.push(`Interests: ${interests}`);
+            if (id.city) lines.push(`City: ${id.city}`);
+
+            // ── Financial health ───────────────────────────────────────────
+            const prof = ctx?.profile || {};
+            const netWorth    = prof.net_worth      || localStorage.getItem('finos_net_worth')    || 0;
+            const savingsRate = prof.savings_rate   || localStorage.getItem('finos_savings_rate') || 0;
+            const healthScore = prof.health_score   || localStorage.getItem('finos_health_score') || 0;
+            lines.push(`Net worth: ${INR(netWorth)} | Savings rate: ${savingsRate}% | Financial health: ${healthScore}/100`);
+
+            // ── Psychographic DNA scores ───────────────────────────────────
+            const dnaData = ctx?.dna || (() => { try { return JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || 'null'); } catch { return null; } })();
+            if (dnaData?.scores?.length >= 5) {
+                lines.push(`Psychographic scores → Risk:${dnaData.scores[0]} Security:${dnaData.scores[1]} Status:${dnaData.scores[2]} Discipline:${dnaData.scores[3]} Growth:${dnaData.scores[4]} (out of 100)`);
+            }
+            if (dnaData?.archetype) lines.push(`Financial archetype: ${dnaData.archetype}`);
+
+            // ── Transactions ───────────────────────────────────────────────
+            const tx = ctx?.financial?.transactions;
+            if (tx) {
+                lines.push(`Transactions → Income: ${INR(tx.total_income)} | Expenses: ${INR(tx.total_expense)} | Net: ${INR((tx.total_income||0)-(tx.total_expense||0))}`);
+                if (tx.top_categories?.length) {
+                    lines.push(`Top spend: ${tx.top_categories.slice(0,4).map(c => `${c.cat} ${INR(c.amt)}`).join(' · ')}`);
+                }
+            }
+
+            // ── Budget tracker ─────────────────────────────────────────────
+            const budget = ctx?.budget_tracker;
+            if (budget?.income_monthly) {
+                lines.push(`Budget tracker → Income ₹${budget.income_monthly}/mo | Spent ₹${budget.spent_total} | Savings rate: ${budget.savings_rate}%`);
+                if (budget.fire_number) lines.push(`FIRE number: ${INR(budget.fire_number)}`);
+                if (budget.total_debt)  lines.push(`Total debt: ${INR(budget.total_debt)}`);
+            }
+
+            // ── Goals ──────────────────────────────────────────────────────
+            const goals = ctx?.financial?.goals;
+            if (goals?.length) {
+                lines.push(`Goals: ${goals.slice(0,4).map(g => `${g.name} ${g.progress||0}% (${INR(g.saved||0)} / ${INR(g.target)})`).join(' · ')}`);
+            }
+
+            // ── Portfolio ──────────────────────────────────────────────────
+            const portfolio = ctx?.financial?.portfolio;
+            if (portfolio) {
+                lines.push(`Portfolio: ${INR(portfolio.total_value)} | P&L: ${INR(portfolio.pnl)} (${portfolio.pnl_pct > 0 ? '+' : ''}${portfolio.pnl_pct}%)`);
+                if (portfolio.holdings?.length) {
+                    lines.push(`Holdings: ${portfolio.holdings.slice(0,6).map(h => h.symbol).join(', ')}`);
+                }
+            }
+
+            // ── Trade journal ──────────────────────────────────────────────
+            const journal = ctx?.trade_journal;
+            if (journal?.total_trades) {
+                lines.push(`Trade journal → ${journal.total_trades} trades | Win rate: ${journal.win_rate}% | Total P&L: ${INR(journal.total_pnl)}`);
+            }
+
+            // Only inject if we have real data (not all defaults)
+            if (lines.length <= 4) return '';  // guest with no data — skip
+
+            lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            lines.push('USE this profile to make EVERY response specific to this person. Reference their actual numbers, DNA archetype, and goals. Generic advice is unacceptable when you have this data.');
+            return lines.join('\n');
+        } catch {
+            return '';
+        }
+    }
+
+    /** Load psych_profile from FINOS_CORE_DNA localStorage (for backend brain.py). */
+    _getPsychProfile() {
+        try {
+            const dnaData = window.FINOS_USER_CONTEXT?.dna
+                || JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || 'null');
+            if (!dnaData?.archetype) return null;
+            return {
+                archetype:       dnaData.archetype   || '',
+                bio:             dnaData.bio          || '',
+                desiContext:     dnaData.desiContext  || '',
+                chartData:       dnaData.scores       || [],
+                resilience:      dnaData.resilience   || 50,
+                leak:            dnaData.leak         || 'NONE',
+                leakDesc:        dnaData.leakDesc     || '',
+                strengths:       dnaData.strengths    || [],
+                weaknesses:      dnaData.weaknesses   || [],
+                raw:             dnaData.raw          || {},
+            };
+        } catch { return null; }
     }
 
     // ── Tool: SIP Calculator ──────────────────────────────────────────────────

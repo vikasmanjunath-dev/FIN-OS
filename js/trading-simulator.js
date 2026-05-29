@@ -1213,16 +1213,30 @@ async function callOllamaMentor(pnl, pos) {
         ? Math.abs(pnl / ((pos.avgPrice - pos.sl) * pos.qty)).toFixed(1)
         : 'N/A';
 
+    // Pull user identity from FINOS context for personalised feedback
+    const finosCtx   = window.FINOS_USER_CONTEXT;
+    const userName   = finosCtx?.identity?.name || localStorage.getItem('finos_display_name') || 'Trader';
+    const userDNA    = finosCtx?.identity?.financial_dna || localStorage.getItem('finos_financial_dna') || '';
+    const dnaData    = finosCtx?.dna || (() => { try { return JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || 'null'); } catch { return null; } })();
+    const discipline = dnaData?.scores?.[3] ?? null;
+    const journalCtx = finosCtx?.trade_journal;
+
+    let userCtxLine = `Trader name: ${userName}`;
+    if (userDNA)    userCtxLine += ` | Financial DNA: ${userDNA}`;
+    if (discipline !== null) userCtxLine += ` | Discipline score: ${discipline}/100`;
+    if (journalCtx?.win_rate) userCtxLine += ` | Historical win rate: ${journalCtx.win_rate}%`;
+
     const prompt =
         'You are a behavioral finance mentor reviewing a trading simulator trade.\n' +
+        userCtxLine + '\n' +
         'Scenario: ' + scenTitle + '\n' +
         'Trade: ' + pos.side + ' ' + pos.qty + ' ' + pos.sym + '\n' +
         'Entry: ₹' + pos.avgPrice.toFixed(2) + '  Exit: ₹' + STATE.currentPrice.toFixed(2) + '\n' +
         'P&L: ' + pnlStr + '  R:R achieved: ' + rrVal + '\n' +
         'Stop loss used: ' + hasSL + '\n' +
         'Emotion logged before trade: ' + emotion + '\n\n' +
-        'Give ONE specific, honest behavioral observation about this trade (max 22 words). ' +
-        'Focus on process and psychology — not outcome. No markdown. No generic phrases.';
+        `Address ${userName} by name. Give ONE specific, honest behavioral observation about this trade (max 25 words). ` +
+        'Tie it to their DNA archetype or discipline score if relevant. Focus on process and psychology — not outcome. No markdown. No generic phrases.';
 
     // Show typing indicator immediately
     showAIMentor('🧠 Analysing trade…');

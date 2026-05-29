@@ -2,9 +2,13 @@ import React from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { IntelItem } from '../hooks/useIntelFeed';
 import { ArrowRight } from 'lucide-react';
+import AryaCardInsight from './AryaCardInsight';
+import type { UserContext } from '../hooks/useUserContext';
 
 interface NewsCardProps {
-  item: IntelItem;
+  item:     IntelItem;
+  allItems: IntelItem[];   // full feed for Arya cross-reference
+  userCtx:  UserContext;   // complete user profile from DB
 }
 
 const timeAgo = (timestamp: number) => {
@@ -17,7 +21,7 @@ const timeAgo = (timestamp: number) => {
   return "Just now";
 };
 
-const NewsCard = ({ item }: NewsCardProps) => {
+const NewsCard = ({ item, allItems, userCtx }: NewsCardProps) => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
@@ -63,11 +67,12 @@ const NewsCard = ({ item }: NewsCardProps) => {
       href={item.link}
       target="_blank"
       rel="noopener noreferrer"
-      className="group relative flex flex-col justify-between bg-[#0a0e17]/60 backdrop-blur-xl border border-[#00f3ff]/15 rounded-xl p-4 no-underline text-white preserve-3d h-full"
+      className="group relative flex flex-col justify-between bg-[#0a0e17]/60 backdrop-blur-xl border border-[#00f3ff]/15 rounded-xl p-4 no-underline text-white h-full"
       style={{
         rotateX,
         rotateY,
         transformPerspective: 1000,
+        transformStyle: 'preserve-3d',
       }}
       whileHover={{ scale: 1.02 }}
       onMouseMove={handleMouseMove}
@@ -78,29 +83,40 @@ const NewsCard = ({ item }: NewsCardProps) => {
       layout
     >
       <div className={`absolute top-0 left-0 w-1 h-full rounded-l-xl transition-all duration-300 ${typeColorClass}`}></div>
-      
+
       <div>
         <div className="flex justify-between items-center font-mono text-[10px] text-[#888888] mb-3">
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center flex-wrap">
             <span className={`px-2 py-0.5 rounded bg-white/5 border tracking-[1px] uppercase ${tagBorderColorClass}`}>
               {item.type}
             </span>
+            {item.region && (
+              <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[#555] tracking-[1px] uppercase">
+                {item.region}
+              </span>
+            )}
             {item.high_impact && (
               <span className="bg-[#ff4757]/10 text-[#ff4757] border border-[#ff4757]/40 px-1.5 py-0.5 rounded font-extrabold animate-pulse">
                 🔥 HIGH IMPACT
               </span>
             )}
           </div>
-          <span>{timeAgo(item.timestamp)}</span>
+          <span className="shrink-0 ml-2">{timeAgo(item.timestamp)}</span>
         </div>
 
-        <h3 className="text-sm leading-snug font-bold m-0 mb-3 font-manrope line-clamp-3">
+        <h3 className="text-sm leading-snug font-bold m-0 mb-3 line-clamp-3" style={{ fontFamily: 'Manrope, sans-serif' }}>
           {item.title}
         </h3>
       </div>
 
       <div className="flex justify-between items-center border-t border-dashed border-[#00f3ff]/15 pt-3 mt-auto">
-        <span className="font-extrabold text-[10px] text-[#888888] uppercase truncate max-w-[150px]">{item.source}</span>
+        <div className="flex items-center gap-2">
+          <span className="font-extrabold text-[10px] text-[#888888] uppercase truncate max-w-[100px]">
+            {item.source}
+          </span>
+          {/* Arya AI insight button — passes full item + feed + DB user context */}
+          <AryaCardInsight item={item} allItems={allItems} userCtx={userCtx} />
+        </div>
         <span className="font-mono font-extrabold text-[10px] text-white transition-transform duration-300 group-hover:translate-x-2 flex items-center gap-1.5 shrink-0">
           DECRYPT <ArrowRight size={12} />
         </span>

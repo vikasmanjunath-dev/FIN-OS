@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fmt, calcTotals, calcRegret, calcLifeHours } from "../utils/constants";
 import { StaggerContainer, StaggerItem } from "../components/PageTransition";
+import { streamAskArya } from "../utils/aiService";
 
 // ─── TYPEWRITER HOOK ────────────────────────────────────────────
 function useTypewriter(text, speed = 18) {
@@ -150,41 +151,30 @@ export default function AIWarRoom({ transactions, INCOME }) {
     return t;
   }, [transactions, INCOME, wants, savings]);
 
-  // AI response generator
-  const processQuery = (query) => {
+  // AI response generator — powered by Arya / Ollama (streams tokens live)
+  const processQuery = async (query) => {
     setIsProcessing(true);
     setAiMessages(prev => [...prev, { role: "user", text: query }]);
+    setAiMessages(prev => [...prev, { role: "ai", text: "" }]);
 
-    const q = query.toLowerCase();
-    let response = "";
-
-    if (q.includes("fire") || q.includes("retire")) {
-      const monthlyExpenses = total || 30000;
-      const fireNumber = monthlyExpenses * 12 * 25;
-      const currentSavings = saves * 12;
-      const yearsToFire = currentSavings > 0 ? Math.ceil(Math.log(fireNumber / Math.max(1, currentSavings)) / Math.log(1.12)) : 99;
-      response = `[FIRE ANALYSIS]\n\nTarget FIRE Number: ₹${fmt(fireNumber)}\nBased on monthly burn rate of ₹${fmt(monthlyExpenses)}\n\nAt current investment rate (₹${fmt(saves)}/mo):\n→ Years to Financial Independence: ${yearsToFire} years\n→ Required corpus at 4% SWR: ₹${fmt(fireNumber)}\n\n[RECOMMENDATION]: Increase SIP by 20% to shave 3-4 years off your FIRE date.`;
-    } else if (q.includes("worst") || q.includes("biggest")) {
-      const sorted = [...transactions].filter(t => t.category.startsWith("want") || t.category.startsWith("debt")).sort((a, b) => b.amount - a.amount);
-      const top3 = sorted.slice(0, 3);
-      response = `[DAMAGE REPORT — TOP 3 WEALTH DESTROYERS]\n\n${top3.map((t, i) => `${i + 1}. ${t.name}: -₹${fmt(t.amount)} (${t.category.replace("_", " ")})\n   10-Year Cost: ₹${fmt(calcRegret(t.amount))}`).join("\n\n")}${top3.length === 0 ? "No destructive transactions found. Excellent discipline." : "\n\n[ACTION]: Eliminate the top leak to reclaim ₹" + fmt(calcRegret(top3[0]?.amount || 0)) + " in 10 years."}`;
-    } else if (q.includes("food") || q.includes("zomato") || q.includes("swiggy")) {
-      const food = transactions.filter(t => t.type === "Dining");
-      const foodTotal = food.reduce((a, t) => a + t.amount, 0);
-      const hours = calcLifeHours(foodTotal, INCOME);
-      response = `[FOOD AUDIT]\n\nTotal dining spend: ₹${fmt(foodTotal)}\nTransactions: ${food.length}\nLife-hours traded: ${hours}h\n10-Year opportunity cost: ₹${fmt(calcRegret(foodTotal))}\n\n[INSIGHT]: Cooking 3 days/week saves ~₹1,200/month = ₹4.47L in 10 years with compounding.`;
-    } else if (q.includes("predict") || q.includes("next")) {
-      const dayOfWeek = new Date().getDay();
-      const isWeekend = dayOfWeek === 0 || dayOfWeek === 5 || dayOfWeek === 6;
-      response = `[PREDICTIVE ENGINE]\n\nBehavioral Pattern Analysis:\n→ ${isWeekend ? "⚠️ WEEKEND DETECTED: 73% higher impulse probability" : "✓ Weekday: Lower impulse probability"}\n→ Fatigue Index: ${health < 50 ? "HIGH — Financial stress detected" : "MODERATE"}\n→ Most likely next purchase: ${transactions.length > 0 ? transactions[transactions.length - 1].type : "Unknown"}\n\n[PRE-EMPTIVE PROTOCOL]: Lock ₹${fmt(Math.round(INCOME * 0.05))} into savings before the next impulse window.`;
-    } else {
-      response = `[ANALYSIS COMPLETE]\n\nIncome: ₹${fmt(INCOME)}\nBurn Rate: ₹${fmt(total)} (${Math.round(total / INCOME * 100)}%)\nHealth Score: ${health}%\nSavings: ₹${fmt(savings)}\n\nTop Categories:\n→ Needs: ₹${fmt(needs)} (${Math.round(needs / INCOME * 100)}%)\n→ Wants: ₹${fmt(wants)} (${Math.round(wants / INCOME * 100)}%)\n→ Investments: ₹${fmt(saves)} (${Math.round(saves / INCOME * 100)}%)\n\n[STATUS]: ${health > 70 ? "Systems optimal. Maintain current trajectory." : health > 40 ? "Warning: Lifestyle creep detected. Tighten protocols." : "CRITICAL: Immediate intervention required."}`;
-    }
-
-    setTimeout(() => {
-      setAiMessages(prev => [...prev, { role: "ai", text: response }]);
+    try {
+      const financialData = { INCOME, needs, wants, saves, total, savings, health, transactions };
+      await streamAskArya(query, financialData, (display) => {
+        setAiMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: "ai", text: display };
+          return updated;
+        });
+      });
+    } catch (err) {
+      setAiMessages(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { role: "ai", text: `[ERROR] ${err.message}\n\nMake sure Ollama is running: ollama serve` };
+        return updated;
+      });
+    } finally {
       setIsProcessing(false);
-    }, 800);
+    }
   };
 
   // Auto-scroll terminal

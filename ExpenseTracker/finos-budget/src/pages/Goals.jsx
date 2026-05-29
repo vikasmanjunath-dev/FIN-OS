@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { fmt, calcTotals } from "../utils/constants";
 import { StaggerContainer, StaggerItem } from "../components/PageTransition";
 import ConfettiEffect from "../components/ConfettiEffect";
+import AryaPanel from "../components/AryaPanel";
 
 const GOAL_EMOJIS = ["🎯", "🚗", "🏠", "✈️", "💻", "💍", "📱", "🎓", "🏧", "👶", "🏖️", "🎸"];
 const PRIORITIES = [
@@ -210,6 +211,26 @@ export default function Goals({ transactions, INCOME, goals, setGoals }) {
               <div style={{ fontWeight: 700, fontSize: "18px", color: "#fff", marginBottom: "8px" }}>No Goals Yet</div>
               <div>Click "CONSTRUCT GOAL" above to start building your future.</div>
             </div>
+          </StaggerItem>
+        )}
+
+        {sortedGoals.length > 0 && (
+          <StaggerItem>
+            <AryaPanel
+              title="Arya's Goal Portfolio Review"
+              subtitle="AI analysis of your goal feasibility and strategy"
+              accentColor="#F59E0B"
+              financialData={{ INCOME, savings, transactions }}
+              deps={[sortedGoals.length, INCOME]}
+              prompt={() => {
+                const goalList = sortedGoals.map(g => {
+                  const remaining = g.target - g.current;
+                  const monthly = remaining > 0 ? (remaining / Math.max(1, g.deadlineMonths)).toFixed(0) : 0;
+                  return `${g.name}: target ₹${fmt(g.target)}, saved ₹${fmt(g.current)}, deadline ${g.deadlineMonths} months, needs ₹${monthly}/mo`;
+                }).join("; ");
+                return `My financial goals: ${goalList}. My monthly liquid savings available: ₹${fmt(savings)}. Review all my goals together — which are realistic, which are at risk, and what's the best sequencing strategy? Be specific with numbers.`;
+              }}
+            />
           </StaggerItem>
         )}
       </StaggerContainer>

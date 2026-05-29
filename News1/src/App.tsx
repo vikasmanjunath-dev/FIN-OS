@@ -1,15 +1,18 @@
 import React, { useState, useMemo } from 'react';
 import { Home, Globe, User, LayoutDashboard, Library, Activity, Calculator, PieChart, TrendingUp, Target, Settings } from 'lucide-react';
 import { useIntelFeed } from './hooks/useIntelFeed';
+import { useUserContext } from './hooks/useUserContext';
 import Header from './components/Header';
 import TickerTape from './components/TickerTape';
 import FilterDock, { Category, TimeRange } from './components/FilterDock';
 import NewsGrid from './components/NewsGrid';
 import AlertToast from './components/AlertToast';
+import AryaDigest from './components/AryaDigest';
 import './index.css';
 
 const App = () => {
   const { items, markets, status, loading, newImpactAlerts, removeAlert, manualRefresh } = useIntelFeed();
+  const { userCtx } = useUserContext();  // Fetches complete user profile from Supabase DB
 
   const [activeCat, setActiveCat] = useState<Category>('all');
   const [activeImpact, setActiveImpact] = useState(false);
@@ -72,8 +75,12 @@ const App = () => {
         <Header status={status} onRefresh={manualRefresh} />
         <TickerTape markets={markets} />
 
+        {/* Arya Intel Digest — full feed + market tickers + complete DB user profile */}
+        <AryaDigest items={items} markets={markets} userCtx={userCtx} />
+
         <div className="flex-1 relative">
-          <NewsGrid items={filteredItems} loading={loading} />
+          {/* filteredItems = visible cards; items = full unfiltered feed for Arya cross-ref */}
+          <NewsGrid items={filteredItems} allItems={items} loading={loading} userCtx={userCtx} />
         </div>
 
         <FilterDock

@@ -9,12 +9,24 @@ interface AlertToastProps {
 }
 
 const AlertToast: React.FC<AlertToastProps> = ({ alerts, onRemove }) => {
+  // Cap to 3 visible toasts to prevent overwhelming the UI
+  const visible = alerts.slice(0, 3);
   return (
     <div className="fixed top-6 right-6 z-[1000] flex flex-col gap-3 pointer-events-none">
       <AnimatePresence>
-        {alerts.map((alert) => (
+        {visible.map((alert) => (
           <ToastItem key={alert.id} alert={alert} onRemove={onRemove} />
         ))}
+        {alerts.length > 3 && (
+          <motion.div
+            initial={{ opacity: 0, x: 400 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 400 }}
+            className="pointer-events-auto bg-[#0a0e17]/95 border border-[#ff4757]/40 rounded-xl px-4 py-2 text-[#ff4757] font-mono text-xs"
+          >
+            +{alerts.length - 3} more alerts
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );

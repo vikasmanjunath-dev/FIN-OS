@@ -8,12 +8,16 @@ interface HeaderProps {
 }
 
 const Header = ({ status, onRefresh }: HeaderProps) => {
-  const [theme, setTheme] = useState(localStorage.getItem('finos-theme') || 'dark');
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem('finos-theme') ?? localStorage.getItem('theme') ?? 'dark'
+  );
   const [isSpinning, setIsSpinning] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    // Keep both localStorage keys in sync with the rest of FIN-OS
     localStorage.setItem('finos-theme', theme);
+    localStorage.setItem('theme', theme);
   }, [theme]);
 
   const handleThemeToggle = () => {
@@ -21,14 +25,17 @@ const Header = ({ status, onRefresh }: HeaderProps) => {
   };
 
   const handleRefresh = () => {
+    if (isSpinning) return;
     setIsSpinning(true);
     onRefresh();
-    setTimeout(() => setIsSpinning(false), 1000);
+    // Stop spinner after 2s regardless of response time
+    setTimeout(() => setIsSpinning(false), 2000);
   };
 
   const getStatusColor = () => {
-    if (status.includes('SECURE')) return '#00F3FF';
+    if (status.includes('SECURE'))      return '#00F3FF';
     if (status.includes('INTERRUPTED')) return '#ff4757';
+    if (status.includes('SYNCING'))     return '#eab308';
     return '#888888';
   };
 

@@ -4,7 +4,9 @@
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
-    <script src="../js/arya-ai.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/finos-context.js"></script>
+  <script src="../js/arya-ai.js"></script>
     
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,7 +38,7 @@
       <a href="track-finances.html">Track Finances</a>
       <a href="../stock-dashboard/index.html">Live Tracker</a>
       <a href="simulator-landing.html">Train Mindset</a>
-      <a href="news.html">News</a>
+      <a href="http://localhost:3000">News</a>
       <a href="settings.html">Settings</a>
     </nav>
   </aside>
@@ -201,16 +203,21 @@ async function aryaImpactStory() {
   resultDiv.style.display = 'block';
   stream.innerHTML = '<span style="color:rgba(199,240,0,.5);">Calculating your compound story…</span>';
 
-  const name = localStorage.getItem('finos_display_name') || 'Investor';
-  const prompt = `${name} invests ₹${(monthly/1000).toFixed(1)}K/month for ${years} years at ${rate}% p.a.
+  const _ctx  = (typeof AryaAI !== 'undefined' && AryaAI.getContext()) || {};
+  const name  = _ctx.identity?.name       || localStorage.getItem('finos_display_name') || 'Investor';
+  const stage = _ctx.identity?.life_stage || localStorage.getItem('finos_stage') || 'Rookie';
+  const netW  = _ctx.profile?.net_worth   || localStorage.getItem('finos_net_worth') || 0;
+  const goals = (_ctx.financial?.goals || []).slice(0,2).map(g => g.name).join(', ') || null;
+
+  const prompt = `${name} (Stage: ${stage}, current net worth: ₹${Number(netW).toLocaleString('en-IN')}${goals ? `, goals: ${goals}` : ''}) calculates: investing ₹${(monthly/1000).toFixed(1)}K/month for ${years} years at ${rate}% p.a.
 Result: corpus = ₹${(corpus/100000).toFixed(1)}L, invested = ₹${(invested/100000).toFixed(1)}L, wealth gain = ₹${((corpus-invested)/100000).toFixed(1)}L (${(((corpus-invested)/invested)*100).toFixed(0)}% gain).
 
-Tell this story in 3 powerful sentences:
-1. What ₹${(monthly/1000).toFixed(1)}K/month becomes (include the corpus number)
-2. The emotional impact — what this money could represent (retirement, child's education, freedom)
-3. The cost of NOT starting today (1 year's delay = how much less corpus, calculate it)
+Tell this story in 3 powerful, PERSONALISED sentences:
+1. What ₹${(monthly/1000).toFixed(1)}K/month becomes — relate it to their current net worth of ₹${Number(netW).toLocaleString('en-IN')}
+2. The emotional impact for someone at their life stage (${stage}) — retirement, freedom, or their actual goals (${goals || 'financial freedom'})
+3. The cost of NOT starting today — calculate exactly how much less corpus after 1 year's delay
 
-Desi tone, inspiring, specific numbers. No preamble.`;
+Desi tone, inspiring, use their REAL numbers. No preamble.`;
 
   try {
     stream.innerHTML = '<span id="arya-impact-typing" style="color:rgba(255,255,255,.85);"></span>';

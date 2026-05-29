@@ -418,7 +418,8 @@ Give me a brutally honest assessment. Use markdown headers:
                 body: JSON.stringify({
                     message:    promptText,
                     session_id: currentSessionId,
-                    context:    "God Mode X-Ray"
+                    context:    (typeof AryaAI !== 'undefined' && AryaAI.getContextBlock ? AryaAI.getContextBlock() : "God Mode X-Ray"),
+                    psych_profile: (() => { try { const d = window.FINOS_USER_CONTEXT?.dna || JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || 'null'); return d?.archetype ? { archetype: d.archetype, bio: d.bio || '', desiContext: d.desiContext || '', chartData: d.scores || [], resilience: d.resilience || 50, leak: d.leak || 'NONE', leakDesc: d.leakDesc || '', strengths: d.strengths || [], weaknesses: d.weaknesses || [], raw: d.raw || {} } : undefined; } catch { return undefined; } })()
                 })
             });
 

@@ -3,6 +3,7 @@ import { Doughnut, Bar, Line } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, PointElement, LineElement, Filler } from "chart.js";
 import { fmt, calcTotals } from "../utils/constants";
 import { StaggerContainer, StaggerItem } from "../components/PageTransition";
+import AryaPanel from "../components/AryaPanel";
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, PointElement, LineElement, Filler);
 
@@ -95,6 +96,22 @@ export default function ReportsPage({ transactions, INCOME }) {
       </div>
 
       <StaggerContainer>
+        {/* ARYA MONTHLY NARRATIVE */}
+        <StaggerItem>
+          <AryaPanel
+            title="Arya's Monthly Brief"
+            subtitle="AI narrative summary of your financial cycle"
+            accentColor="#06B6D4"
+            financialData={{ INCOME, needs, wants, saves, total, savings, health, transactions }}
+            deps={[transactions.length, INCOME]}
+            prompt={() => {
+              const top = topMerchants.slice(0, 3).map(([n, a]) => `${n} ₹${fmt(a)}`).join(", ");
+              const peakDay = dayOfWeekData.days[dayOfWeekData.amounts.indexOf(Math.max(...dayOfWeekData.amounts))];
+              return `Monthly financial summary: Income ₹${fmt(INCOME)}, spent ₹${fmt(total)} (${Math.round((total/INCOME)*100)}%), savings ₹${fmt(savings)} (${savingsRate}% rate), health score ${health}%. Top spending: ${top}. Peak spending day: ${peakDay}. Needs ₹${fmt(needs)}, Wants ₹${fmt(wants)}, Investments ₹${fmt(saves)}. Write a 3-sentence monthly review in warm Hinglish — what went well, what needs fixing, and one specific action for next month.`;
+            }}
+          />
+        </StaggerItem>
+
         {/* SUMMARY ROW */}
         <StaggerItem>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "16px", marginBottom: "32px" }}>

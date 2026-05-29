@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { fmt, calcTotals } from "../utils/constants";
 import { StaggerContainer, StaggerItem } from "../components/PageTransition";
+import AryaPanel from "../components/AryaPanel";
 
 // ─── FIRE CALCULATOR ENGINE ─────────────────────────────────────
 function calcFIRE(monthlyExpenses, monthlySavings, currentCorpus = 0, returnRate = 0.12) {
@@ -212,6 +213,20 @@ export default function FIRECalculator({ transactions, INCOME }) {
               <ScenarioCard key={i} {...s} isActive={activeScenario === i} onClick={() => { setActiveScenario(i); setCustomSavings(s.savings); }} />
             ))}
           </div>
+        </StaggerItem>
+
+        {/* ARYA FIRE ANALYSIS */}
+        <StaggerItem>
+          <AryaPanel
+            title="Arya's FIRE Blueprint"
+            subtitle="Personalized path to financial independence"
+            accentColor="#FF6B35"
+            financialData={{ INCOME, needs: 0, wants: 0, saves: customSavings, total: monthlyExpenses, savings: corpus, health: 0, transactions }}
+            deps={[customSavings, returnRate, corpus, INCOME]}
+            prompt={() =>
+              `My FIRE plan: Monthly expenses ₹${fmt(monthlyExpenses)}, investing ₹${fmt(customSavings)}/mo at ${returnRate}% returns, existing corpus ₹${fmt(corpus)}, income ₹${fmt(INCOME)}. FIRE number: ₹${fmt(fireResult.fireNumber)}, years to FIRE: ${fireResult.yearsToFire}. Lean FIRE: ₹${fmt(fireResult.leanFire)}, Fat FIRE: ₹${fmt(fireResult.fatFire)}. What are the top 3 levers I can pull to reach FIRE faster? Be specific with numbers and Indian investment options (SIP, ELSS, NPS, index funds).`
+            }
+          />
         </StaggerItem>
 
         {/* TIMELINE */}

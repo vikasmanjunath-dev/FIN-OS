@@ -3,6 +3,8 @@ import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
 import { fmt, calcTotals, ICONS, CATEGORY_COLORS, TRANSACTION_TYPES, BEHAVIOR_TYPES, calcRegret, calcLifeHours } from "../utils/constants";
 import ScanUPI from "../components/ScanUPI";
+import { suggestCategory, isOllamaOnline } from "../utils/aiService";
+import AryaPanel from "../components/AryaPanel";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -190,7 +192,22 @@ function InjectForm({ addTransaction, INCOME }) {
   const [type, setType] = useState("");
   const [isRecurring, setIsRecurring] = useState(false);
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [btnState, setBtnState] = useState("default"); 
+  const [btnState, setBtnState] = useState("default");
+  const [aiSuggesting, setAiSuggesting] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState(null);
+  const suggestTimer = useRef(null);
+
+  useEffect(() => {
+    if (name.length < 3 || category || type) { setAiSuggestion(null); return; }
+    clearTimeout(suggestTimer.current);
+    suggestTimer.current = setTimeout(async () => {
+      setAiSuggesting(true);
+      const result = await suggestCategory(name, BEHAVIOR_TYPES, TRANSACTION_TYPES);
+      setAiSuggesting(false);
+      if (result) setAiSuggestion(result);
+    }, 800);
+    return () => clearTimeout(suggestTimer.current);
+  }, [name, category, type]);
 
   const parsedAmount = parseFloat(amount) || 0;
   const isWant = category.startsWith("want");
@@ -241,8 +258,25 @@ function InjectForm({ addTransaction, INCOME }) {
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '0 16px', color: '#fff', outline: 'none', fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', colorScheme: 'dark' }} />
         </div>
 
+        {(aiSuggesting || aiSuggestion) && (
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 14px", background: "rgba(199,240,0,0.06)", border: "1px solid rgba(199,240,0,0.25)", borderRadius: "12px", fontSize: "12px", fontFamily: "'JetBrains Mono', monospace" }}>
+            {aiSuggesting ? (
+              <span style={{ color: "#C7F000", opacity: 0.7 }}>⚡ AI categorizing...</span>
+            ) : aiSuggestion && (
+              <>
+                <span style={{ color: "#C7F000" }}>⚡ AI Suggest:</span>
+                <button
+                  onClick={() => { setCategory(aiSuggestion.category); setType(aiSuggestion.type); setAiSuggestion(null); }}
+                  style={{ background: "rgba(199,240,0,0.15)", border: "1px solid rgba(199,240,0,0.4)", color: "#C7F000", borderRadius: "8px", padding: "4px 10px", cursor: "pointer", fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", fontWeight: "bold" }}
+                >
+                  {aiSuggestion.category.replace("_", " ")} · {aiSuggestion.type} → Apply
+                </button>
+                <button onClick={() => setAiSuggestion(null)} style={{ background: "transparent", border: "none", color: "#9AA0B4", cursor: "pointer", fontSize: "14px" }}>✕</button>
+              </>
+            )}
+          </div>
+        )}
         <div style={{ display: "flex", gap: "12px", zIndex: 20 }}>
-            {/* Custom Dropdowns fixing the white menu issue! */}
             <GlassDropdown value={category} onChange={setCategory} options={BEHAVIOR_TYPES} placeholder="Psychological Driver" icon="🧠" />
             <GlassDropdown value={type} onChange={setType} options={TRANSACTION_TYPES} placeholder="Asset Class" icon="📦" />
         </div>
@@ -443,6 +477,18 @@ export default function WealthInterface({ transactions, addTransaction, removeTr
         <StatCard label="Ammunition" value={savings} color="#C7F000" glowColor="rgba(199, 240, 0, 0.4)" pct={Math.max(0, Math.round(savings/INCOME*100))} tag="Ready to Deploy" />
         <StatCard label="Savings Rate" value={Math.round(savings)} color={savingsRate >= 20 ? "#10B981" : "#F59E0B"} glowColor={savingsRate >= 20 ? "rgba(16,185,129,0.4)" : "rgba(245,158,11,0.4)"} pct={Math.min(100, savingsRate)} tag={`${savingsRate}% of Income`} />
       </div>
+
+      {/* ARYA WEALTH BRIEF */}
+      <AryaPanel
+        title="Arya's Wealth Brief"
+        subtitle="Real-time AI read on your financial position"
+        accentColor="#4F7CFF"
+        financialData={{ INCOME, needs, wants, saves, total, savings, health, transactions }}
+        deps={[transactions.length, INCOME]}
+        prompt={() =>
+          `Quick assessment: Income ₹${fmt(INCOME)}, spent ₹${fmt(total)}, savings ₹${fmt(savings)} (${Math.round(savings/INCOME*100)}% rate), health ${health}%. Needs ₹${fmt(needs)}, Wants ₹${fmt(wants)}, Investments ₹${fmt(saves)}. ${recurringTotal > 0 ? `Ghost tax: ₹${fmt(recurringTotal)}/mo.` : ""} Give me a 2-sentence honest snapshot of where I stand financially right now, and the single most important thing I should do today.`
+        }
+      />
 
       {/* GHOST TAX RADAR */}
       {recurringTotal > 0 && (

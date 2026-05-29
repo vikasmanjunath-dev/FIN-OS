@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fmt, calcRegret } from "../utils/constants";
 import { StaggerContainer, StaggerItem } from "../components/PageTransition";
+import AryaPanel from "../components/AryaPanel";
 
 const SUB_CATEGORIES = [
   { value: "entertainment", label: "🎬 Entertainment", color: "#EC4899" },
@@ -185,6 +186,27 @@ export default function SubscriptionManager({ subscriptions, setSubscriptions, I
             </div>
           </div>
         </StaggerItem>
+
+        {/* ARYA SUBSCRIPTION AUDIT */}
+        {subscriptions.length > 0 && (
+          <StaggerItem>
+            <AryaPanel
+              title="Arya's Ghost Tax Audit"
+              subtitle="Which subscriptions to kill, keep, or negotiate"
+              accentColor="#EC4899"
+              financialData={{ INCOME, needs: 0, wants: stats.monthlyTotal, saves: 0, total: stats.monthlyTotal, savings: 0, health: 0, transactions: [] }}
+              deps={[subscriptions.length, INCOME]}
+              prompt={() => {
+                const subList = subscriptions.filter(s => s.active).map(s => {
+                  const cycle = BILLING_CYCLES.find(c => c.value === s.cycle);
+                  const monthly = Math.round((s.amount * (cycle?.multiplier || 12)) / 12);
+                  return `${s.name} (${s.category}, ₹${monthly}/mo)`;
+                }).join("; ");
+                return `My active subscriptions: ${subList}. Total monthly drain: ₹${fmt(stats.monthlyTotal)} (${stats.ghostScore}% of income). 10-year wealth cost: ₹${fmt(stats.tenYearCost)}. Audit these subscriptions — which ones should I immediately kill, which are worth keeping, and are there any I can negotiate down? Be specific and ruthless.`;
+              }}
+            />
+          </StaggerItem>
+        )}
 
         {/* SUBSCRIPTION LIST */}
         <StaggerItem>

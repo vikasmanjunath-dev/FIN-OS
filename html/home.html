@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="stylesheet" href="../chatbot/qft-hud.css">
+  <script src="../js/finos-context.js"></script>
   <script src="../js/arya-ai.js"></script>
 </head>
 <body>
@@ -37,7 +38,7 @@
       <a href="track-finances.html">Track Finances</a>
       <a href="../stock-dashboard/index.html">Live Tracker</a>
       <a href="simulator-landing.html">Train Mindset</a>
-      <a href="news.html">News</a>
+      <a href="http://localhost:3000">News</a>
       <a href="settings.html">Settings</a>
     </nav>
   </aside>
@@ -62,7 +63,15 @@
       <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#c7f000,#4d7cff);
            display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">💡</div>
       <div style="flex:1;">
-        <div style="font-weight:700;font-size:12px;color:#c7f000;letter-spacing:.4px;margin-bottom:8px;">ARYA • TODAY'S FINANCIAL EDGE</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-weight:700;font-size:12px;color:#c7f000;letter-spacing:.4px;">ARYA • TODAY'S FINANCIAL EDGE</div>
+          <button id="arya-home-refresh" onclick="refreshHomeTip()"
+            title="Get a fresh tip"
+            style="padding:3px 10px;border-radius:8px;border:1px solid rgba(199,240,0,.3);
+                   background:rgba(199,240,0,.06);color:#c7f000;font-size:10px;font-weight:700;
+                   cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;
+                   transition:background .2s;">↺ REFRESH</button>
+        </div>
         <div id="arya-home-tip-text" style="font-size:14px;line-height:1.65;color:rgba(255,255,255,.78);">
           <span style="color:rgba(199,240,0,.5);">Loading your daily financial edge…</span>
         </div>
@@ -340,32 +349,66 @@
 
   <script>
   // ── Arya Home Daily Tip ─────────────────────────────────────────────────────
-  (async function() {
+  const _HOME_TIP_KEY = 'arya_home_tip_v1_' + new Date().toDateString();
+
+  async function loadHomeTip(force) {
     const el = document.getElementById('arya-home-tip-text');
+    const btn = document.getElementById('arya-home-refresh');
     if (!el || typeof AryaAI === 'undefined') return;
 
-    const cacheKey = 'arya_home_tip_v1_' + new Date().toDateString();
-    const cached = sessionStorage.getItem(cacheKey);
-    if (cached && cached.length > 30 && !cached.includes('<think>')) {
-      el.textContent = cached; return;
+    // Serve from cache unless force-refreshing
+    if (!force) {
+      const cached = sessionStorage.getItem(_HOME_TIP_KEY);
+      if (cached && cached.length > 30 && !cached.includes('<think>')) {
+        el.textContent = cached; return;
+      }
     }
 
-    const name     = localStorage.getItem('finos_display_name') || 'Investor';
-    const dna      = localStorage.getItem('finos_financial_dna')|| 'Explorer';
-    const interests= localStorage.getItem('finos_interests')    || 'stocks';
-    const dow      = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()];
-
-    el.innerHTML = '<span id="arya-home-stream" style="color:rgba(255,255,255,.8);"></span>';
+    // Loading state
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+    el.innerHTML = '<span id="arya-home-stream" style="color:rgba(199,240,0,.6);font-size:13px;">🧠 Generating your financial edge…</span>';
     const s = document.getElementById('arya-home-stream');
 
+    // Pull from FINOS_USER_CONTEXT (DB) with localStorage fallback
+    const ctx      = AryaAI.getContext();
+    const name     = ctx?.identity?.name     || localStorage.getItem('finos_display_name') || 'Investor';
+    const dna      = ctx?.identity?.financial_dna || localStorage.getItem('finos_financial_dna') || 'Explorer';
+    const rawInt   = ctx?.identity?.interests;
+    const interests= Array.isArray(rawInt) ? rawInt.join(', ') : (rawInt || localStorage.getItem('finos_interests') || 'stocks');
+    const netWorth = ctx?.profile?.net_worth || localStorage.getItem('finos_net_worth') || 0;
+    const savings  = ctx?.profile?.savings_rate || localStorage.getItem('finos_savings_rate') || 0;
+    const dow      = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()];
+
+    let firstToken = true;
     try {
       const result = await AryaAI.ask(
-        `${dow} tip for ${name} (DNA: ${dna}, interests: ${interests}). Give ONE powerful financial insight they can act on TODAY. 2 sentences max. Desi tone, specific to Indian markets. No greeting, no preamble.`,
-        (tok, display) => { if (display !== undefined) s.textContent = display; }
+        `${dow} personalised tip for ${name} (DNA: ${dna}, interests: ${interests}, net worth: ₹${Number(netWorth).toLocaleString('en-IN')}, savings rate: ${savings}%). Give ONE powerful financial insight they can act on TODAY based on their actual profile. 2 sentences max. Desi tone, specific to Indian markets. Reference their real numbers if possible. No greeting, no preamble.`,
+        (tok, display) => {
+          if (display !== undefined && display.trim()) {
+            if (firstToken) { el.innerHTML = '<span id="arya-home-stream" style="color:rgba(255,255,255,.82);"></span>'; firstToken = false; }
+            document.getElementById('arya-home-stream').textContent = display;
+          }
+        }
       );
-      if (result) { sessionStorage.setItem(cacheKey, result); el.textContent = result; }
-    } catch { el.innerHTML = '<span style="color:rgba(255,255,255,.3);">AI offline — start Ollama for daily tips.</span>'; }
-  })();
+      if (result && result.trim()) {
+        // Clear the "generating…" state and show final clean text
+        sessionStorage.setItem(_HOME_TIP_KEY, result);
+        el.textContent = result;
+      } else if (firstToken) {
+        el.innerHTML = '<span style="color:rgba(255,255,255,.3);">AI offline — start Ollama for daily tips.</span>';
+      }
+    } catch {
+      el.innerHTML = '<span style="color:rgba(255,255,255,.3);">AI offline — start Ollama for daily tips.</span>';
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '↺ REFRESH'; }
+    }
+  }
+
+  // Force-refresh when user clicks ↺
+  function refreshHomeTip() { loadHomeTip(true); }
+
+  // Auto-load on page load
+  loadHomeTip(false);
   </script>
   <script src="../js/mobile-nav.js"></script>
   <script src="../js/pwa-init.js"></script>

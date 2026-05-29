@@ -18,6 +18,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../js/finos-context.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&family=Manrope:wght@300;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/theme.css">
 
@@ -918,7 +919,7 @@
       <a href="track-finances.html">Track Finances</a>
       <a href="../stock-dashboard/index.html">Live Tracker</a>
       <a href="simulator-landing.html">Train Mindset</a>
-      <a href="news.html">News</a>
+      <a href="http://localhost:3000">News</a>
       <a href="settings.html">Settings</a>
     </nav>
   </aside>
@@ -2140,7 +2141,30 @@ async function sendChatMessage(userText) {
       body: JSON.stringify({
         message: userText,
         session_id: getChatSessionId(),
-        psych_profile: profile || {}
+        psych_profile: profile || {},
+        context: (() => {
+          try {
+            const ctx = window.FINOS_USER_CONTEXT;
+            if (!ctx) return undefined;
+            const id = ctx.identity || {};
+            const INR = n => '₹' + Number(n||0).toLocaleString('en-IN');
+            const lines = [
+              `Name: ${id.name || 'Investor'} | DNA: ${id.financial_dna || 'Explorer'} | Stage: ${id.life_stage || 'unknown'}`,
+              `Income: ₹${id.income_range || 'unknown'}/mo | Mindset: ${id.mindset || 'unknown'}`,
+            ];
+            const prof = ctx.profile || {};
+            lines.push(`Net worth: ${INR(prof.net_worth || 0)} | Savings rate: ${prof.savings_rate || 0}% | Health score: ${prof.health_score || 0}/100`);
+            const tx = ctx.financial?.transactions;
+            if (tx) lines.push(`Transactions → Income: ${INR(tx.total_income)} | Expenses: ${INR(tx.total_expense)}`);
+            const goals = ctx.financial?.goals;
+            if (goals?.length) lines.push(`Goals: ${goals.slice(0,3).map(g => `${g.name} ${g.progress||0}%`).join(' · ')}`);
+            const portfolio = ctx.financial?.portfolio;
+            if (portfolio) lines.push(`Portfolio: ${INR(portfolio.total_value)} | P&L: ${portfolio.pnl_pct > 0 ? '+' : ''}${portfolio.pnl_pct}%`);
+            const budget = ctx.budget_tracker;
+            if (budget?.income_monthly) lines.push(`Budget: ₹${budget.income_monthly}/mo income | Spent ₹${budget.spent_total} | ${budget.savings_rate}% saved`);
+            return lines.join('\n');
+          } catch { return undefined; }
+        })()
       }),
     });
 

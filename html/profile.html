@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/profile.css">
   <link rel="stylesheet" href="../css/theme.css">
+  <script src="../js/finos-context.js"></script>
   <script src="../js/arya-ai.js"></script>
 </head>
 
@@ -39,7 +40,7 @@
       <a href="track-finances.html">Track Finances</a>
       <a href="../stock-dashboard/index.html">Live Tracker</a>
       <a href="simulator-landing.html">Train Mindset</a>
-      <a href="news.html">News</a>
+      <a href="http://localhost:3000">News</a>
       <a href="settings.html">Settings</a>
     </nav>
   </aside>
@@ -197,18 +198,31 @@
         const chips   = [...document.querySelectorAll('.chip.active')].map(c => c.dataset.val).join(', ') || 'general finance';
         const dna     = localStorage.getItem('finos_financial_dna') || '';
 
-        const prompt = `Profile saved for ${name}.
+        // Enrich with DB context if available
+        const _ctx      = (typeof AryaAI !== 'undefined' && AryaAI.getContext()) || {};
+        const netWorth  = _ctx.profile?.net_worth     || localStorage.getItem('finos_net_worth')    || 0;
+        const savings   = _ctx.profile?.savings_rate  || localStorage.getItem('finos_savings_rate') || 0;
+        const health    = _ctx.profile?.health_score  || localStorage.getItem('finos_health_score') || 0;
+        const txCount   = _ctx.financial?.transactions?.count || 0;
+        const goalsCount= (_ctx.financial?.goals || []).length;
+        const portfolio = _ctx.financial?.portfolio;
+        const pnlStr    = portfolio ? ` | Portfolio: ₹${Number(portfolio.total_value).toLocaleString('en-IN')} (${portfolio.pnl_pct > 0 ? '+' : ''}${portfolio.pnl_pct}% P&L)` : '';
+        const journal   = _ctx.trade_journal;
+        const tradeStr  = journal?.total_trades > 0 ? ` | Trades: ${journal.total_trades} (${journal.win_rate}% win rate)` : '';
+
+        const prompt = `Profile just saved for ${name}.
 Stage: ${stage} | Income: ₹${income}/month | Mindset: ${mindset}
 Interests: ${chips}
 DNA tag: ${dna || 'not set'}
 Their curiosity: "${query}"
+Real financial data: Net worth ₹${Number(netWorth).toLocaleString('en-IN')} | Savings rate: ${savings}% | Health score: ${health}/100${txCount ? ` | ${txCount} transactions` : ''}${goalsCount ? ` | ${goalsCount} goals` : ''}${pnlStr}${tradeStr}
 
-Give them a 3-sentence Financial DNA analysis:
-1. Their archetype (give it a catchy name like "The Calculated Risk-Taker" or "The Safety-First Builder")
-2. Their biggest financial strength based on their mindset
-3. One specific action they should take this week
+Give a 3-sentence Financial DNA analysis using their REAL numbers:
+1. Their archetype (catchy name like "The Calculated Risk-Taker") — make it specific to their actual data
+2. Their biggest financial strength AND one critical weakness based on their real profile
+3. One SPECIFIC action with a number — e.g. "increase SIP by ₹X" or "your savings rate of Y% needs to reach Z% to hit FIRE"
 
-Direct, no preamble.`;
+Direct, use their actual numbers. No preamble.`;
 
         // Build & insert AI panel
         const panel = document.createElement('div');

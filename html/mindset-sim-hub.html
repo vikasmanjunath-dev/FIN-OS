@@ -961,6 +961,7 @@ if('ontouchstart' in window||navigator.maxTouchPoints>0){
 [data-theme="light"] .topbar { background: rgba(255,255,255,0.9) !important; border-color: rgba(0,0,0,0.1) !important; }
 [data-theme="light"] .cursor-dot, [data-theme="light"] .cursor-ring { border-color: #7B6FFF !important; background: #7B6FFF !important; }
 </style>
+  <script src="../js/finos-context.js"></script>
   <script src="../js/finos-widget.js?v=4"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
@@ -1352,6 +1353,27 @@ Loss aversion, FOMO, revenge trading, overconfidence, hesitation, position sizin
 User profile:
 Name: ${_aryaProfile.name || name || 'the trader'}, Level: ${lvl} (${xp.toLocaleString('en-IN')} XP)
 Discipline: ${disc}/100 — ${grade}, Sessions: ${sess}, FOMO blocked: ${fomo}${arch?'\nArchetype: '+arch:''}${brain?'\nBrain state: '+brain:''}
+
+${(() => {
+  try {
+    const ctx = window.FINOS_USER_CONTEXT;
+    if (!ctx) return '';
+    const id = ctx.identity || {};
+    const INR = n => '₹' + Number(n||0).toLocaleString('en-IN');
+    const lines = ['Full financial profile (use to make advice concrete and personal):'];
+    if (id.income_range) lines.push(`  Income: ₹${id.income_range}/month | Life stage: ${id.life_stage || 'unknown'} | Mindset: ${id.mindset || 'unknown'}`);
+    const prof = ctx.profile || {};
+    if (prof.net_worth || prof.savings_rate) lines.push(`  Net worth: ${INR(prof.net_worth||0)} | Savings rate: ${prof.savings_rate||0}% | Health score: ${prof.health_score||0}/100`);
+    const dna = ctx.dna;
+    if (dna?.scores?.length >= 5) lines.push(`  Psychographic DNA → Risk:${dna.scores[0]} Security:${dna.scores[1]} Status:${dna.scores[2]} Discipline:${dna.scores[3]} Growth:${dna.scores[4]}`);
+    const journal = ctx.trade_journal;
+    if (journal?.total_trades) lines.push(`  Trade journal: ${journal.total_trades} trades | Win rate: ${journal.win_rate}% | Total P&L: ${INR(journal.total_pnl)} | Profit factor: ${journal.profit_factor||'–'}`);
+    if (journal?.current_streak) lines.push(`  Current streak: ${journal.current_streak}`);
+    const goals = ctx.financial?.goals;
+    if (goals?.length) lines.push(`  Goals: ${goals.slice(0,3).map(g=>`${g.name} ${g.progress||0}%`).join(' · ')}`);
+    return lines.length > 1 ? lines.join('\n') : '';
+  } catch { return ''; }
+})()}
 
 Saved memory:
 ${_buildAryaMemoryBlock({ disc, xp, sess, fomo, name, arch })}
