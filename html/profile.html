@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/profile.css">
   <link rel="stylesheet" href="../css/theme.css">
+  <script src="../js/arya-ai.js"></script>
 </head>
 
 <body>
@@ -157,9 +158,12 @@
         </div>
       </section>
 
+      <!-- ── Arya AI Financial DNA Analysis ────────────────────────── -->
+      <div id="arya-dna-anchor" style="margin-top:0;"></div>
+
       <footer class="activation-footer">
         <button id="saveProfileBtn" class="mega-btn">
-          BUILD MY FINANCIAL DNA 
+          BUILD MY FINANCIAL DNA
           <span style="font-size: 1.4rem;">➔</span>
         </button>
       </footer>
@@ -170,6 +174,96 @@
 
 <script src="../js/ui.js"></script>
 <script src="../js/profile.js"></script>
+<script>
+// ── Arya AI Financial DNA Generator ─────────────────────────────────────────
+(function () {
+  // Hook into saveProfileBtn after DOM ready
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('saveProfileBtn');
+    if (!btn || typeof AryaAI === 'undefined') return;
+
+    btn.addEventListener('click', () => {
+      // Give profile.js a moment to save, then generate AI analysis
+      setTimeout(() => {
+        const anchor = document.getElementById('arya-dna-anchor');
+        if (!anchor) return;
+
+        // Gather form data
+        const name    = document.getElementById('profName')?.value   || localStorage.getItem('finos_display_name') || 'User';
+        const stage   = document.getElementById('profStage')?.value  || 'Rookie';
+        const income  = document.getElementById('profIncome')?.value || '25k-1L';
+        const query   = document.getElementById('profQuery')?.value  || '';
+        const mindset = document.querySelector('input[name="mindset"]:checked')?.value || 'freedom';
+        const chips   = [...document.querySelectorAll('.chip.active')].map(c => c.dataset.val).join(', ') || 'general finance';
+        const dna     = localStorage.getItem('finos_financial_dna') || '';
+
+        const prompt = `Profile saved for ${name}.
+Stage: ${stage} | Income: ₹${income}/month | Mindset: ${mindset}
+Interests: ${chips}
+DNA tag: ${dna || 'not set'}
+Their curiosity: "${query}"
+
+Give them a 3-sentence Financial DNA analysis:
+1. Their archetype (give it a catchy name like "The Calculated Risk-Taker" or "The Safety-First Builder")
+2. Their biggest financial strength based on their mindset
+3. One specific action they should take this week
+
+Direct, no preamble.`;
+
+        // Build & insert AI panel
+        const panel = document.createElement('div');
+        panel.style.cssText = 'margin:24px 0;';
+        anchor.innerHTML = '';
+        anchor.appendChild(panel);
+
+        // Use the internal panel builder via a tiny wrapper
+        const wrapper = document.createElement('div');
+        wrapper.id = 'arya-profile-dna-panel';
+        wrapper.innerHTML = `
+          <div style="border-radius:18px;background:linear-gradient(135deg,rgba(79,124,255,.08),rgba(0,212,255,.04));
+               border:1px solid rgba(79,124,255,.25);padding:20px 24px;margin-top:24px;
+               font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+              <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#4d7cff,#00d4ff);
+                   display:flex;align-items:center;justify-content:center;font-size:18px;">🧬</div>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:#4d7cff;letter-spacing:.4px;">ARYA • FINANCIAL DNA ANALYSIS</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.4);">Generated from your profile data</div>
+              </div>
+            </div>
+            <div id="arya-dna-text" style="font-size:14px;line-height:1.7;color:rgba(255,255,255,.82);">
+              <span style="color:rgba(79,124,255,.7);">Analysing your financial genome…</span>
+            </div>
+          </div>`;
+        anchor.innerHTML = '';
+        anchor.appendChild(wrapper);
+
+        const textEl = document.getElementById('arya-dna-text');
+        textEl.innerHTML = '<span id="arya-dna-stream" style="color:rgba(255,255,255,.82);"></span><span style="animation:aryaBlink .7s infinite;display:inline-block;">▌</span>';
+        const streamSpan = document.getElementById('arya-dna-stream');
+
+        AryaAI.ask(prompt, (tok, display) => {
+          if (display !== undefined) streamSpan.textContent = display;
+        }).then(result => {
+          // Always clear cursor — even if result is empty/null
+          if (result && result.trim().length > 0) {
+            // Use textContent to prevent XSS from AI-generated text
+            textEl.innerHTML = '';
+            const span = document.createElement('span');
+            span.style.color = 'rgba(255,255,255,.85)';
+            span.textContent = result;
+            textEl.appendChild(span);
+          } else {
+            textEl.innerHTML = '<span style="color:rgba(255,255,255,.4);">AI offline — your profile was saved successfully.</span>';
+          }
+        }).catch(() => {
+          textEl.innerHTML = '<span style="color:rgba(255,255,255,.4);">AI offline — your profile was saved successfully.</span>';
+        });
+      }, 400);
+    });
+  });
+})();
+</script>
   <script src="../js/mobile-nav.js"></script>
   <script src="../js/pwa-init.js"></script>
   <script src="../js/finos-widget.js?v=4"></script>

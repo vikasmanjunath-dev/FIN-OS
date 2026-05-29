@@ -1,77 +1,76 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
-    // 1. VISUAL FEEDBACK (So you know it started)
+    // 1. VISUAL FEEDBACK
     const container = document.querySelector('.home-hero .card-content');
-    if (container) {
-        // Default Loading State
-        container.style.opacity = 0.5;
-    }
+    if (container) container.style.opacity = 0.5;
 
     // 2. CONFIGURATION
-const supabaseUrl = 'https://oeapcyucnduhwpgxfknb.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
-    
-    // Debug Check
-    if (supabaseUrl.includes('YOUR_SUPABASE')) {
-        updateUI("System Error", "API Keys missing in js/home-focus.js. Please add them.", "CONFIG ERROR", "#ff4757");
-        return;
-    }
+    const supabaseUrl = 'https://oeapcyucnduhwpgxfknb.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+
+    // 3. TRY TO LOAD PROFILE (Supabase if logged in, localStorage otherwise)
+    let profile = null;
 
     try {
-        const client = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-        // 3. FETCH SESSION
-        const { data: { session } } = await client.auth.getSession();
-        if (!session) {
-            updateUI("Identity Unknown", "Please log in to sync your neural profile.", "LOGIN REQUIRED", "#ff4757");
-            return;
+        if (window.supabase) {
+            const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+            const { data: { session } } = await client.auth.getSession();
+            if (session) {
+                const { data: dbProfile } = await client
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', session.user.id)
+                    .single();
+                profile = dbProfile || null;
+            }
         }
+    } catch (err) {
+        console.debug('[FocusEngine] Supabase optional — guest mode:', err.message);
+    }
 
-        // 4. FETCH PROFILE DNA
-        const { data: profile } = await client
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
+    // Guest fallback: reconstruct profile from localStorage
+    if (!profile) {
+        const dna = (() => {
+            try { return JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || '{}'); } catch { return {}; }
+        })();
+        profile = {
+            dna_scores: dna.scores || [50, 50, 50, 50, 50],
+            life_stage: localStorage.getItem('finos_stage') || 'Rookie',
+            full_name:  localStorage.getItem('finos_display_name') || ''
+        };
+    }
 
-        if (!profile) {
-            updateUI("DNA Missing", "Profile not found. Please complete the DNA Decoder.", "SETUP REQUIRED", "#ff4757");
-            return;
-        }
-
-        // 5. GENERATE CONTENT (With Strict Freshness)
+    // 4. GENERATE CONTENT (With Strict Freshness)
+    try {
         const engine = new FocusEngine(profile);
-        
-        // Load History (Last 30 seen insights)
+
         let history = JSON.parse(localStorage.getItem('finos_focus_history') || '[]');
-        let insight = null;
+        let insight  = null;
         let attempts = 0;
 
         // RETRY LOOP: Try 50 times to find a completely new sentence
         while (attempts < 50) {
-            let candidate = engine.generate();
-            // Check if the BODY text is in history
-            if (!history.includes(candidate.body)) {
-                insight = candidate;
-                break; 
-            }
+            const candidate = engine.generate();
+            if (!history.includes(candidate.body)) { insight = candidate; break; }
             attempts++;
         }
-
-        // Fallback: If 50 tries failed, just use the last generated one
         if (!insight) insight = engine.generate();
 
-        // Update History
         history.push(insight.body);
-        if (history.length > 30) history.shift(); // Keep buffer small
+        if (history.length > 30) history.shift();
         localStorage.setItem('finos_focus_history', JSON.stringify(history));
 
-        // 6. RENDER
         updateUI(insight.title, insight.body, insight.tag, insight.color);
 
     } catch (err) {
         console.error("Focus Engine Crash:", err);
-        updateUI("Engine Failure", "The logic core encountered an error. Check console.", "SYSTEM CRASH", "#ff4757");
+        // Friendly fallback — never show an error to the user
+        updateUI(
+            "Today's Edge",
+            "Small consistent actions create lasting wealth. <strong>One decision today changes your tomorrow.</strong>",
+            "Daily Focus",
+            "#C7F000"
+        );
     }
 });
 

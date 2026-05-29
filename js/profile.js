@@ -1,119 +1,104 @@
-// js/profile.js
+// js/profile.js — No login required. Works fully in guest mode.
+// Data is saved to localStorage first; Supabase sync is optional & silent.
 
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("Profile Engine Starting...");
 
-    // ==========================================
-    // 1. CONFIGURATION
-    // ==========================================
-    const supabaseUrl = 'https://oeapcyucnduhwpgxfknb.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+    // ── 1. SUPABASE (Optional) ────────────────────────────────────────────────
+    const SUPA_URL = 'https://oeapcyucnduhwpgxfknb.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
 
-    const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+    let client = null;
+    let user   = null;
 
-    // ==========================================
-    // 2. CHECK USER SESSION
-    // ==========================================
-    const { data: { session } } = await client.auth.getSession();
-    
-    if (!session) {
-        window.location.href = 'login.html';
-        return;
+    try {
+        if (window.supabase) {
+            client = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+            const { data: { session } } = await client.auth.getSession();
+            if (session) user = session.user;
+        }
+    } catch (e) {
+        console.debug('[Profile] Supabase optional — guest mode:', e.message);
     }
 
-    const user = session.user;
+    // ── 2. LOAD SAVED DATA ────────────────────────────────────────────────────
+    // Priority: Supabase DB → localStorage cache
+    let dbProfile = null;
 
-    // ==========================================
-    // 3. LOAD SAVED DATA (The "Memory" Logic)
-    // ==========================================
-    // We select '*' to get ALL columns (mindset, interests, phone, etc.)
-    const { data: dbProfile } = await client
-        .from('profiles')
-        .select('*') 
-        .eq('id', user.id)
-        .single();
+    if (client && user) {
+        try {
+            const { data } = await client.from('profiles').select('*').eq('id', user.id).single();
+            dbProfile = data;
+        } catch (_) {}
+    }
 
-    if (dbProfile) {
-        console.log("Loaded Profile:", dbProfile);
+    // Merge: DB wins over localStorage
+    const lsName    = localStorage.getItem('finos_display_name') || '';
+    const lsPhone   = localStorage.getItem('finos_phone')        || '';
+    const lsEmail   = user?.email || localStorage.getItem('finos_email') || '';
+    const lsStage   = localStorage.getItem('finos_stage')        || '';
+    const lsIncome  = localStorage.getItem('finos_income')       || '';
+    const lsQuery   = localStorage.getItem('finos_query')        || '';
+    const lsMindset = localStorage.getItem('finos_mindset')      || '';
+    const lsInterests = (() => {
+        try { return JSON.parse(localStorage.getItem('finos_interests') || '[]'); } catch { return []; }
+    })();
 
-        // A. Fill Text Inputs
-        if(document.getElementById('profName')) 
-            document.getElementById('profName').value = dbProfile.full_name || user.user_metadata.full_name || "";
-        
-        if(document.getElementById('profPhone')) 
-            document.getElementById('profPhone').value = dbProfile.phone || "";
-        
-        if(document.getElementById('profEmail')) 
-            document.getElementById('profEmail').value = user.email;
+    const name      = dbProfile?.full_name    || lsName;
+    const phone     = dbProfile?.phone        || lsPhone;
+    const stage     = dbProfile?.life_stage   || lsStage;
+    const income    = dbProfile?.income_range || lsIncome;
+    const query     = dbProfile?.curiosity_query || lsQuery;
+    const mindset   = dbProfile?.mindset      || lsMindset;
+    const interests = dbProfile?.interests    || lsInterests;
 
-        if(document.getElementById('profQuery'))
-            document.getElementById('profQuery').value = dbProfile.curiosity_query || "";
+    // ── 3. POPULATE FORM ──────────────────────────────────────────────────────
+    if (document.getElementById('profName'))  document.getElementById('profName').value  = name;
+    if (document.getElementById('profPhone')) document.getElementById('profPhone').value = phone;
+    if (document.getElementById('profEmail')) document.getElementById('profEmail').value = lsEmail;
+    if (document.getElementById('profQuery')) document.getElementById('profQuery').value = query;
 
-        // B. Select Dropdowns (Life Stage & Income)
-        if (dbProfile.life_stage) {
-            const stageSelect = document.getElementById('profStage');
-            if(stageSelect) stageSelect.value = dbProfile.life_stage;
-        }
+    const stageEl = document.getElementById('profStage');
+    if (stageEl && stage) stageEl.value = stage;
 
-        if (dbProfile.income_range) {
-            const incomeSelect = document.getElementById('profIncome');
-            if(incomeSelect) incomeSelect.value = dbProfile.income_range;
-        }
+    const incomeEl = document.getElementById('profIncome');
+    if (incomeEl && income) incomeEl.value = income;
 
-        // C. Select Radio Button (Mindset)
-        if (dbProfile.mindset) {
-            const radio = document.querySelector(`input[name="mindset"][value="${dbProfile.mindset}"]`);
-            if (radio) {
-                radio.checked = true;
-                // Highlight the parent box for visual effect
-                radio.parentElement.style.borderColor = "#C7F000";
-                radio.parentElement.style.boxShadow = "0 0 15px rgba(199,240,0,0.2)";
-            }
-        }
-
-        // D. Highlight Chips (Interests)
-        // dbProfile.interests is an array like ['stocks', 'crypto']
-        if (dbProfile.interests && Array.isArray(dbProfile.interests)) {
-            const chips = document.querySelectorAll('.chip');
-            chips.forEach(chip => {
-                const val = chip.getAttribute('data-val');
-                if (dbProfile.interests.includes(val)) {
-                    chip.classList.add('active'); // Turn it ON
-                } else {
-                    chip.classList.remove('active'); // Ensure others are OFF
-                }
-            });
+    if (mindset) {
+        const radio = document.querySelector(`input[name="mindset"][value="${mindset}"]`);
+        if (radio) {
+            radio.checked = true;
+            radio.parentElement.style.borderColor = "#C7F000";
+            radio.parentElement.style.boxShadow   = "0 0 15px rgba(199,240,0,0.2)";
         }
     }
 
-    // ==========================================
-    // 4. CHART & UI INTERACTION
-    // ==========================================
-    
-    // Chips Click Logic
-    const chips = document.querySelectorAll('.chip');
-    chips.forEach(chip => {
+    if (Array.isArray(interests) && interests.length) {
+        document.querySelectorAll('.chip').forEach(chip => {
+            const val = chip.getAttribute('data-val');
+            chip.classList.toggle('active', interests.includes(val));
+        });
+    }
+
+    // ── 4. CHIP & RADIO UI ───────────────────────────────────────────────────
+    document.querySelectorAll('.chip').forEach(chip => {
         chip.addEventListener('click', () => chip.classList.toggle('active'));
     });
 
-    // Radio Highlight Logic
-    const radios = document.querySelectorAll('input[name="mindset"]');
-    radios.forEach(r => {
+    document.querySelectorAll('input[name="mindset"]').forEach(r => {
         r.addEventListener('change', (e) => {
-            // Reset all borders
             document.querySelectorAll('.glow-radio').forEach(l => {
-                l.style.borderColor = "rgba(255,255,255,0.1)"; 
-                l.style.boxShadow = "none";
+                l.style.borderColor = "rgba(255,255,255,0.1)";
+                l.style.boxShadow   = "none";
             });
-            // Highlight selected
             e.target.parentElement.style.borderColor = "#C7F000";
-            e.target.parentElement.style.boxShadow = "0 0 15px rgba(199,240,0,0.2)";
+            e.target.parentElement.style.boxShadow   = "0 0 15px rgba(199,240,0,0.2)";
         });
     });
 
-    // Chart Setup
+    // ── 5. RADAR CHART ───────────────────────────────────────────────────────
     const ctx = document.getElementById('mindsetChart');
-    if(ctx) {
+    if (ctx) {
         new Chart(ctx.getContext('2d'), {
             type: 'radar',
             data: {
@@ -130,73 +115,73 @@ document.addEventListener("DOMContentLoaded", async () => {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: { 
-                    r: { 
-                        grid: { color: 'rgba(255,255,255,0.1)' }, 
-                        ticks: { display: false }, 
-                        pointLabels: { color: '#fff', font: {size: 10} } 
-                    } 
+                scales: {
+                    r: {
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: { display: false },
+                        pointLabels: { color: '#fff', font: { size: 10 } }
+                    }
                 },
                 plugins: { legend: { display: false } }
             }
         });
     }
 
-    // ==========================================
-    // 5. SAVE BUTTON LOGIC (Updates Everything)
-    // ==========================================
+    // ── 6. SAVE BUTTON ───────────────────────────────────────────────────────
     const saveBtn = document.getElementById('saveProfileBtn');
-    
     if (saveBtn) {
         saveBtn.addEventListener('click', async () => {
             saveBtn.innerText = "SAVING...";
-            
-            // Gather Values
-            const nameVal = document.getElementById('profName').value;
-            const phoneVal = document.getElementById('profPhone').value;
-            
-            const stageEl = document.getElementById('profStage');
-            const incomeEl = document.getElementById('profIncome');
-            const queryEl = document.getElementById('profQuery');
-            
-            const stageVal = stageEl ? stageEl.value : null;
-            const incomeVal = incomeEl ? incomeEl.value : null;
-            const queryVal = queryEl ? queryEl.value : null;
 
-            // Get Chips
+            const nameVal    = document.getElementById('profName')?.value  || '';
+            const phoneVal   = document.getElementById('profPhone')?.value || '';
+            const stageVal   = document.getElementById('profStage')?.value || '';
+            const incomeVal  = document.getElementById('profIncome')?.value|| '';
+            const queryVal   = document.getElementById('profQuery')?.value || '';
+            const mindsetVal = document.querySelector('input[name="mindset"]:checked')?.value || '';
             const selectedChips = Array.from(document.querySelectorAll('.chip.active'))
-                                   .map(c => c.getAttribute('data-val'));
+                                       .map(c => c.getAttribute('data-val'));
+            const dnaTag = mindsetVal === 'freedom' ? 'Investor'
+                         : mindsetVal === 'security' ? 'Safety-First Builder'
+                         : mindsetVal === 'stress'   ? 'Rebuilder'
+                         : 'Explorer';
 
-            // Get Radio
-            const mindsetEl = document.querySelector('input[name="mindset"]:checked');
-            const mindsetVal = mindsetEl ? mindsetEl.value : null;
+            // ── Always save to localStorage ──────────────────────────────────
+            localStorage.setItem('finos_display_name',   nameVal);
+            localStorage.setItem('finos_phone',          phoneVal);
+            localStorage.setItem('finos_stage',          stageVal);
+            localStorage.setItem('finos_income',         incomeVal);
+            localStorage.setItem('finos_query',          queryVal);
+            localStorage.setItem('finos_mindset',        mindsetVal);
+            localStorage.setItem('finos_interests',      JSON.stringify(selectedChips));
+            localStorage.setItem('finos_financial_dna',  dnaTag);
 
-            // UPDATE DATABASE
-            const { error } = await client
-                .from('profiles')
-                .update({ 
-                    full_name: nameVal,
-                    phone: phoneVal,
-                    life_stage: stageVal,
-                    income_range: incomeVal,
-                    interests: selectedChips,     // Saves Array
-                    mindset: mindsetVal,
-                    curiosity_query: queryVal,    // Saves Textarea
-                    financial_dna: mindsetVal === 'freedom' ? 'Investor' : 'Saver'
-                })
-                .eq('id', user.id);
-
-            if (error) {
-                alert("Save Failed: " + error.message);
-                saveBtn.innerText = "TRY AGAIN";
-            } else {
-                saveBtn.innerText = "SAVED!";
-                setTimeout(() => {
-                    window.location.href = 'dna.html';
-                }, 800);
+            // ── Silently sync to Supabase if logged in ───────────────────────
+            if (client && user) {
+                try {
+                    await client.from('profiles').update({
+                        full_name:        nameVal,
+                        phone:            phoneVal,
+                        life_stage:       stageVal,
+                        income_range:     incomeVal,
+                        interests:        selectedChips,
+                        mindset:          mindsetVal,
+                        curiosity_query:  queryVal,
+                        financial_dna:    dnaTag,
+                    }).eq('id', user.id);
+                } catch (e) {
+                    console.debug('[Profile] Supabase save skipped:', e.message);
+                }
             }
+
+            saveBtn.innerText = "✓ SAVED!";
+            saveBtn.style.background = 'linear-gradient(135deg, #00c853, #00bfa5)';
+
+            // Don't redirect — let the AI DNA analysis play out on this page
+            setTimeout(() => {
+                saveBtn.innerText = "BUILD MY FINANCIAL DNA";
+                saveBtn.style.background = '';
+            }, 3000);
         });
     }
 });
-
-

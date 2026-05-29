@@ -5,7 +5,16 @@
 (function () {
   'use strict';
 
-  const AGENT_URL = '/voiceagent/index.html';
+  // Resolve voiceagent path relative to the current page depth.
+  // Works whether Live Server is rooted at the project folder or its parent,
+  // and works on Vercel where pages live under /html/.
+  const AGENT_URL = (function () {
+    const parts = window.location.pathname.split('/').filter(Boolean);
+    // Drop the filename, then drop one directory level (e.g. "html" or "calculators")
+    parts.pop();  // remove file
+    parts.pop();  // go up to project root
+    return (parts.length ? '/' + parts.join('/') : '') + '/voiceagent/index.html';
+  }());
 
   /* ── Inject CSS ─────────────────────────────────────────────────────────── */
   const css = `

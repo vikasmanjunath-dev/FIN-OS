@@ -23,6 +23,7 @@ from __future__ import annotations
 from datetime import datetime, date, timedelta
 from typing import Optional
 import calendar
+import re
 
 # ── Alert priority levels ────────────────────────────────────────────────────
 CRITICAL     = "critical"     # red   — act now, financial loss at stake
@@ -635,6 +636,239 @@ class NetWorthMilestone(Rule):
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# RULE 11 — TAX SAVE 80C GAP TRACKER  (Q8)
+# Personalised: scans actual this-FY investments and tells user exactly
+# how much 80C headroom is left.  Fires Oct–Mar (the saving window).
+# ═══════════════════════════════════════════════════════════════════════════
+class TaxSave80C(Rule):
+    rule_id        = "TAX_SAVE_80C"
+    name           = "80C Tax Saving Opportunity"
+    cooldown_hours = 14 * 24   # once per fortnight — nudge, not nag
+    priority       = INFO
+
+    _LIMIT_80C = 1_50_000   # ₹1.5 lakh per year
+
+    # Keywords that indicate an 80C-eligible investment
+    _80C_KEYWORDS = re.compile(
+        r"elss|ppf|epf|nsc|tax.?saving|80c|ssy|sukanya|ulip|life.?insurance|lic|nps",
+        re.I,
+    )
+
+    def _fy_start(self, today: date) -> date:
+        """Return April 1 of the current financial year."""
+        if today.month >= 4:
+            return today.replace(month=4, day=1)
+        return today.replace(year=today.year - 1, month=4, day=1)
+
+    def check(self, ud: dict) -> Optional[dict]:
+        today   = self._today()
+        profile = ud.get("profile") or {}
+
+        # Only fire between October and March (relevant saving window)
+        if today.month not in (10, 11, 12, 1, 2, 3):
+            return None
+
+        txs = ud.get("transactions") or []
+        fy_start = self._fy_start(today)
+
+        # Sum 80C-eligible investments this financial year
+        invested_80c = 0.0
+        for t in txs:
+            try:
+                tx_date = datetime.fromisoformat(t.get("date", "")).date()
+            except (ValueError, TypeError):
+                continue
+
+            if tx_date < fy_start:
+                continue
+
+            amt = float(t.get("amount") or 0)
+            cat = str(t.get("category") or "")
+            note = str(t.get("notes") or t.get("description") or "")
+
+            if (t.get("type") in ("investment", "expense")
+                    and amt > 0
+                    and self._80C_KEYWORDS.search(cat + " " + note)):
+                invested_80c += amt
+
+        gap = self._LIMIT_80C - invested_80c
+        if gap <= 0:
+            return None   # limit already maxed — no alert needed
+
+        name           = (profile.get("full_name") or "Bhai").split()[0]
+        fy_end         = fy_start.replace(year=fy_start.year + 1, month=3, day=31)
+        days_left      = (fy_end - today).days
+        monthly_needed = round(gap / max(1, days_left / 30))
+
+        # Urgency scale
+        if days_left <= 30:
+            urgency = "🚨 LAST MONTH!"
+        elif days_left <= 60:
+            urgency = "⚠️ Only 2 months left!"
+        else:
+            urgency = f"📅 {days_left} din baaki FY mein"
+
+        # Tax saved estimate (30% slab assumption, rough)
+        tax_saved_30 = int(gap * 0.30)
+        tax_saved_20 = int(gap * 0.20)
+
+        return {
+            "title":        f"💡 80C Mein {self._inr(gap)} Ka Room Bacha Hai!",
+            "message":      (
+                f"{name}, is financial year abhi tak "
+                f"{self._inr(int(invested_80c))} invest kiya 80C mein. "
+                f"{self._inr(int(gap))} aur daal sakte ho — "
+                f"isse ₹{tax_saved_30:,}–₹{tax_saved_20:,} tax bachega. "
+                f"{urgency} "
+                f"ELSS best option: market return + tax saving dono. "
+                f"Roughly {self._inr(monthly_needed)}/month karo aaj se!"
+            ),
+            "action_url":   "/html/calculators.html",
+            "action_label": "80C & Tax Calculator",
+            "data": {
+                "invested_80c":    int(invested_80c),
+                "gap_80c":         int(gap),
+                "limit_80c":       self._LIMIT_80C,
+                "days_left_in_fy": days_left,
+                "estimated_tax_saved_30pct": tax_saved_30,
+            },
+        }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# RULE 12 — AI BILL DUE PREDICTION  (Q9)
+# Detects RECURRING expense patterns from past 3 months and predicts when
+# the next payment is due — fires 5 days before the predicted date.
+# No need for the user to manually set cc_due_day. Pure AI pattern recognition.
+# ═══════════════════════════════════════════════════════════════════════════
+class BillDueAIPrediction(Rule):
+    rule_id        = "BILL_DUE_AI"
+    name           = "Predicted Bill Due Soon"
+    cooldown_hours = 5 * 24    # once per 5 days per user (across all bills)
+    priority       = WARNING
+
+    # Categories that typically have recurring monthly bills
+    _BILL_CATEGORIES = re.compile(
+        r"rent|credit.?card|emi|loan|electricity|broadband|internet|"
+        r"mobile|phone|insurance|subscription|ott|netflix|prime|hotstar|"
+        r"spotify|gas|water|society|maintenance",
+        re.I,
+    )
+    _WARN_DAYS = 5   # warn 5 days before predicted due date
+
+    def _detect_recurring(self, txs: list[dict]) -> list[dict]:
+        """
+        Group transactions by category and detect those that appear
+        roughly once per month (20–40 day gap) for at least 2 months.
+        Returns list of {category, avg_amount, predicted_next_date}.
+        """
+        from collections import defaultdict
+
+        # Bucket transactions by category
+        cat_txs: dict[str, list[date]] = defaultdict(list)
+        cat_amounts: dict[str, list[float]] = defaultdict(list)
+
+        for t in txs:
+            cat = str(t.get("category") or "")
+            if not self._BILL_CATEGORIES.search(cat):
+                continue
+            if t.get("type") not in ("expense", "payment"):
+                continue
+            try:
+                tx_date = datetime.fromisoformat(t.get("date", "")).date()
+                cat_txs[cat].append(tx_date)
+                cat_amounts[cat].append(abs(float(t.get("amount") or 0)))
+            except (ValueError, TypeError):
+                continue
+
+        predicted = []
+        today = date.today()
+
+        for cat, dates in cat_txs.items():
+            if len(dates) < 2:
+                continue   # need at least 2 data points
+
+            sorted_dates = sorted(dates)
+
+            # Compute average gap between consecutive occurrences
+            gaps = [(sorted_dates[i+1] - sorted_dates[i]).days
+                    for i in range(len(sorted_dates) - 1)]
+            avg_gap = sum(gaps) / len(gaps)
+
+            # Must be roughly monthly (20–40 days)
+            if not (20 <= avg_gap <= 45):
+                continue
+
+            last_date = sorted_dates[-1]
+            predicted_next = last_date + timedelta(days=round(avg_gap))
+
+            days_until = (predicted_next - today).days
+            if 0 <= days_until <= self._WARN_DAYS:
+                avg_amount = sum(cat_amounts[cat]) / len(cat_amounts[cat])
+                predicted.append({
+                    "category":       cat,
+                    "avg_amount":     avg_amount,
+                    "predicted_date": predicted_next,
+                    "days_until":     days_until,
+                    "confidence":     min(99, int(70 + len(dates) * 5)),
+                })
+
+        return sorted(predicted, key=lambda x: x["days_until"])
+
+    def check(self, ud: dict) -> Optional[dict]:
+        txs     = ud.get("transactions") or []
+        profile = ud.get("profile") or {}
+
+        if not txs:
+            return None
+
+        upcoming = self._detect_recurring(txs)
+        if not upcoming:
+            return None
+
+        name = (profile.get("full_name") or "Bhai").split()[0]
+        bill = upcoming[0]   # most urgent bill
+
+        days_str  = "AJ" if bill["days_until"] == 0 else f"{bill['days_until']} din mein"
+        cat_label = bill["category"].replace("_", " ").title()
+        confidence= bill["confidence"]
+
+        # Build summary of all upcoming bills if more than one
+        extra = ""
+        if len(upcoming) > 1:
+            others = ", ".join(
+                f"{b['category'].title()} ({b['days_until']}d)"
+                for b in upcoming[1:3]
+            )
+            extra = f" Aur bhi hain: {others}."
+
+        return {
+            "title":        f"📅 {cat_label} Bill Due {days_str}!",
+            "message":      (
+                f"{name}, AI ne pattern detect kiya: "
+                f"{cat_label} ka {self._inr(int(bill['avg_amount']))} payment "
+                f"roughly {days_str} due hai. "
+                f"({confidence}% confidence, past history se).{extra} "
+                f"Balance check karo — NSF bounce se bachna hai!"
+            ),
+            "action_url":   "/html/dashboard.html",
+            "action_label": "Track Finances dekho",
+            "data": {
+                "bills": [
+                    {
+                        "category":       b["category"],
+                        "amount":         int(b["avg_amount"]),
+                        "predicted_date": b["predicted_date"].isoformat(),
+                        "days_until":     b["days_until"],
+                        "confidence":     b["confidence"],
+                    }
+                    for b in upcoming[:5]
+                ],
+            },
+        }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # Registry — all active rules
 # ═══════════════════════════════════════════════════════════════════════════
 ALL_RULES: list[Rule] = [
@@ -648,6 +882,8 @@ ALL_RULES: list[Rule] = [
     TaxSeason(),
     FnoExpiryWeek(),
     NetWorthMilestone(),
+    TaxSave80C(),           # Q8 — personalised 80C gap tracker
+    BillDueAIPrediction(),  # Q9 — AI-predicted recurring bill warnings
 ]
 
 RULES_BY_ID: dict[str, Rule] = {r.rule_id: r for r in ALL_RULES}

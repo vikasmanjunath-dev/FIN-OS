@@ -88,6 +88,33 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
   </style>
   <link rel="stylesheet" href="../css/theme.css">
+  <script src="../js/arya-ai.js"></script>
+  <style>
+    /* ── AI PANEL OVERRIDES for dark terminal theme ── */
+    #mi-ai-explain-panel { margin-top: 16px; border-radius: 14px; overflow: hidden; }
+    #mi-sentiment-bar { display:flex;align-items:center;gap:12px;padding:10px 16px;
+      border-radius:10px;margin-bottom:12px;font-size:12px;font-family:'JetBrains Mono',monospace; }
+    .mi-ai-btn {
+      padding: 11px 20px; border-radius: 8px; font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 700; cursor: pointer; transition: all .2s;
+      border: 1px solid rgba(0,240,255,.4); background: rgba(0,240,255,.08); color: #00F0FF;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .mi-ai-btn:hover { background: rgba(0,240,255,.18); transform: translateY(-1px); }
+    .mi-ai-explain-output {
+      background: rgba(0,0,0,.5); border: 1px solid rgba(0,240,255,.15); border-radius: 12px;
+      padding: 18px; margin-top: 12px; font-size: 13px; line-height: 1.65;
+      color: #cce; font-family: 'Manrope', sans-serif; display: none;
+    }
+    .mi-rec-badge {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono',monospace;
+      margin-bottom: 10px;
+    }
+    .mi-rec-buy  { background: rgba(0,255,136,.15); color: #00ff88; border: 1px solid rgba(0,255,136,.3); }
+    .mi-rec-sell { background: rgba(255,42,109,.15); color: #ff2a6d; border: 1px solid rgba(255,42,109,.3); }
+    .mi-rec-hold { background: rgba(255,204,0,.12);  color: #ffcc00; border: 1px solid rgba(255,204,0,.3); }
+  </style>
 </head>
 <body>
 
@@ -123,23 +150,32 @@
 
       <button class="scan-btn" onclick="runAnalysis()">INITIATE SCAN</button>
     </div>
-        <button class="scan-btn" style="background:transparent; border:1px solid var(--neon-blue); color:var(--neon-blue); margin-top:10px;" onclick="openVisualizer()">
-          👁️ VISUALIZE & EXPLAIN (DEEP DIVE)
-        </button>
 
-        <script>
-          // Add this function to your existing script in market-intel.html
-          function openVisualizer() {
-            const symbol = document.getElementById('ticker').value;
-            if(!symbol) return alert("ENTER SYMBOL FIRST");
-            
-            // Redirect to the new page with params
-            window.location.href = `market-visualizer.html?symbol=${symbol}&mode=${currentMode}`;
-          }
-        </script>
+    <!-- Action buttons row -->
+    <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+      <button class="scan-btn" style="flex:1;background:transparent; border:1px solid var(--neon-blue); color:var(--neon-blue);" onclick="openVisualizer()">
+        👁️ VISUALIZE (DEEP DIVE)
+      </button>
+      <button class="mi-ai-btn" id="mi-sentiment-btn" onclick="miLoadSentiment()" title="Arya AI Sentiment">
+        🧠 ARYA SENTIMENT
+      </button>
+    </div>
+
+    <!-- Q4: Sentiment bar (populated on demand) -->
+    <div id="mi-sentiment-bar" style="display:none;"></div>
 
     <div class="terminal-window" id="outputConsole">
       <span style="color:#666">// SYSTEM READY.<br>// WAITING FOR TARGET SELECTION...</span>
+    </div>
+
+    <!-- Q2: AI Explain panel (appears after scan) -->
+    <div id="mi-ai-explain-panel" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;">
+        <button class="mi-ai-btn" onclick="miAIExplain()" id="mi-explain-btn">
+          🧠 EXPLAIN THIS ANALYSIS (AI)
+        </button>
+      </div>
+      <div class="mi-ai-explain-output" id="mi-explain-output"></div>
     </div>
 
   </main>
@@ -147,19 +183,17 @@
   <script>
     let currentCategory = 'technical';
     let currentMode = 'intraday';
+    let _lastSymbol = '';
+    let _lastMode   = '';
 
     function setCategory(cat) {
       currentCategory = cat;
-      
-      // Update Buttons
       document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
       event.target.classList.add('active');
-
-      // Show/Hide Sub Options
       const sub = document.getElementById('techOptions');
-      if(cat === 'technical') {
+      if (cat === 'technical') {
         sub.classList.add('visible');
-        setMode('intraday'); // Reset to default
+        setMode('intraday');
       } else {
         sub.classList.remove('visible');
         currentMode = 'fundamental';
@@ -168,33 +202,139 @@
 
     function setMode(mode) {
       currentMode = mode;
-      // UI Update
       document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-      if(event && event.target) event.target.classList.add('active');
-      else document.querySelector(`.sub-btn[onclick="setMode('${mode}')"]`).classList.add('active');
+      if (event && event.target) event.target.classList.add('active');
+      else document.querySelector(`.sub-btn[onclick="setMode('${mode}')"]`)?.classList.add('active');
     }
 
     async function runAnalysis() {
-      const symbol = document.getElementById('ticker').value;
-      if(!symbol) return alert("ENTER SYMBOL");
+      const symbol = document.getElementById('ticker').value.trim().toUpperCase();
+      if (!symbol) return alert("ENTER SYMBOL");
+      _lastSymbol = symbol;
+      _lastMode   = currentMode;
 
       const consoleDiv = document.getElementById('outputConsole');
       consoleDiv.innerHTML = `<span style="color:var(--neon-blue)">// ESTABLISHING LINK TO CORE...<br>// EXECUTING PROTOCOL: ${currentMode.toUpperCase()}<br>...</span>`;
 
+      // Hide previous AI explain
+      document.getElementById('mi-ai-explain-panel').style.display = 'none';
+      document.getElementById('mi-explain-output').style.display = 'none';
+      document.getElementById('mi-explain-output').innerHTML = '';
+
       try {
-        const res = await fetch(`http://127.0.0.1:5000/analyze?symbol=${symbol}&mode=${currentMode}`);
+        const res  = await fetch(`http://127.0.0.1:5000/analyze?symbol=${symbol}&mode=${currentMode}`);
         const data = await res.json();
 
-        if(data.status === 'success') {
-          // Display the HTML we generated in Python
+        if (data.status === 'success') {
           consoleDiv.innerHTML = data.html;
+          // Show AI Explain button after successful analysis
+          document.getElementById('mi-ai-explain-panel').style.display = 'block';
         } else {
           consoleDiv.innerHTML = `<span style="color:var(--neon-red)">ERROR: ${data.message}</span>`;
         }
       } catch(e) {
-        consoleDiv.innerHTML = `<span style="color:var(--neon-red)">CONNECTION FAILED: Ensure app.py is running.</span>`;
+        consoleDiv.innerHTML = `<span style="color:var(--neon-red)">CONNECTION FAILED: Ensure app.py is running on port 5000.</span>`;
       }
     }
+
+    function openVisualizer() {
+      const symbol = document.getElementById('ticker').value;
+      if (!symbol) return alert("ENTER SYMBOL FIRST");
+      window.location.href = `market-visualizer.html?symbol=${symbol}&mode=${currentMode}`;
+    }
+
+    // ── Q2: AI Explain ───────────────────────────────────────────────────────
+    async function miAIExplain() {
+      if (!_lastSymbol) return alert("Run a scan first!");
+
+      const btn    = document.getElementById('mi-explain-btn');
+      const output = document.getElementById('mi-explain-output');
+      btn.textContent  = '⏳ Arya thinking…';
+      btn.disabled     = true;
+      output.style.display = 'block';
+      output.innerHTML = '<span style="color:#7d80bd;">🧠 Arya is reading the signals…</span>';
+
+      try {
+        const res  = await fetch(
+          `http://127.0.0.1:5000/ai-explain?symbol=${_lastSymbol}&mode=${_lastMode}`
+        );
+        const data = await res.json();
+
+        if (data.status === 'success') {
+          const recClass = {
+            BUY:  'mi-rec-buy',
+            SELL: 'mi-rec-sell',
+            HOLD: 'mi-rec-hold',
+          }[data.recommendation] || 'mi-rec-hold';
+
+          output.innerHTML = `
+            <span class="mi-rec-badge ${recClass}">${data.recommendation}</span>
+            <div style="color:#e0e2ff;line-height:1.7;">${
+              data.explanation.replace(/\n/g, '<br>')
+            }</div>
+            <div style="margin-top:10px;font-size:11px;color:#555;font-family:'JetBrains Mono';">
+              Arya AI · ${_lastSymbol} · ${_lastMode}
+            </div>`;
+        } else {
+          output.innerHTML = `<span style="color:var(--neon-red)">AI unavailable — start app.py on port 5000.</span>`;
+        }
+      } catch(e) {
+        output.innerHTML = `<span style="color:var(--neon-red)">⚠️ app.py not running on localhost:5000.</span>`;
+      }
+
+      btn.textContent = '🧠 EXPLAIN THIS ANALYSIS (AI)';
+      btn.disabled    = false;
+    }
+
+    // ── Q4: Arya Sentiment ───────────────────────────────────────────────────
+    async function miLoadSentiment() {
+      const symbol = document.getElementById('ticker').value.trim().toUpperCase();
+      if (!symbol) { alert("Enter a symbol first!"); return; }
+
+      const bar = document.getElementById('mi-sentiment-bar');
+      bar.style.display = 'flex';
+      bar.style.background = 'rgba(0,212,255,.06)';
+      bar.style.border     = '1px solid rgba(0,212,255,.15)';
+      bar.style.color      = '#7d80bd';
+      bar.innerHTML        = `<span>🧠</span><span>Arya loading sentiment for ${symbol}…</span>`;
+
+      // Try Ollama via arya-ai.js first, fallback to flask /sentiment
+      if (typeof AryaAI !== 'undefined' && AryaAI.newsSentiment) {
+        // newsSentiment renders its own panel; we put it in the bar div
+        bar.innerHTML = '';
+        AryaAI.newsSentiment(symbol, bar);
+        return;
+      }
+
+      // Direct flask fallback
+      try {
+        const res  = await fetch(`http://127.0.0.1:5000/sentiment?symbol=${symbol}`);
+        const data = await res.json();
+
+        const colors = {
+          bullish: { bg:'rgba(0,255,136,.08)', border:'rgba(0,255,136,.2)', dot:'#00ff88', label:'BULLISH ▲' },
+          bearish: { bg:'rgba(255,42,109,.08)', border:'rgba(255,42,109,.2)', dot:'#ff2a6d', label:'BEARISH ▼' },
+          neutral: { bg:'rgba(255,204,0,.08)',  border:'rgba(255,204,0,.2)',  dot:'#ffcc00', label:'NEUTRAL →' },
+        };
+        const c = colors[data.sentiment] || colors.neutral;
+
+        bar.style.background = c.bg;
+        bar.style.border     = `1px solid ${c.border}`;
+        bar.innerHTML = `
+          <div style="width:10px;height:10px;border-radius:50%;background:${c.dot};box-shadow:0 0 8px ${c.dot};flex-shrink:0;"></div>
+          <strong style="color:${c.dot};">${c.label}</strong>
+          <span style="color:rgba(255,255,255,.6);">${data.text}</span>`;
+      } catch(e) {
+        bar.innerHTML = `<span style="color:#ff2a6d;">⚠️ Sentiment service offline (start app.py)</span>`;
+      }
+    }
+
+    // Auto-load sentiment when ticker input loses focus
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('ticker').addEventListener('blur', function() {
+        if (this.value.trim()) miLoadSentiment();
+      });
+    });
   </script>
 
   <script src="../js/mobile-nav.js"></script>

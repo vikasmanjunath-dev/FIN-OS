@@ -87,39 +87,59 @@ FIN-OS is a multi-service architecture split between a **static Vercel frontend*
 
 ## AI Pipeline — Voice Agent
 
+Two browser-side implementations share the same `agent.py` backend.
+
+### Standard Path (Chrome / Edge / Safari / Firefox)
+
 ```
 🎤 Microphone
-       │  WebSocket binary (PCM float32 chunks)
+       │  Web Speech API (primary) or Whisper CDN (fallback)
        ▼
-[Browser] getUserMedia → AudioWorkletProcessor
-       │  sends audio chunks over WS
+[Browser] transcript → sendVoiceMessage()
+       │  Ollama :11434 direct (NDJSON streaming)
        ▼
-[agent.py] VoiceGrabber (asyncio queue)
-       │  accumulates audio until silence (VAD via faster-whisper)
-       ▼
-[faster-whisper tiny]  STT — CPU int8, 8 threads
-       │  returns transcript + language hint
-       ▼
-[Brain.stream()]
-       │  1. Detect language (English / Hindi / Hinglish)
-       │  2. Detect detail request → set num_predict 400 or 1200
-       │  3. Build context string from:
-       │     - UserContext (page, portfolio, goals, income, health score)
-       │     - MemoryStore (name, income, city, debts, goals, family)
-       │     - ConvHistory (last 10 turns)
-       │     - Intent match (10 rules → topic-specific financial facts injected)
-       │  4. Call ollama.chat(qwen3:14b, stream=True, think=False)
-       │  5. Strip <think> blocks, markdown, URLs
-       │  6. Buffer until sentence boundary (., !, ?, \n)
-       ▼
-[edge-tts Neural TTS]  → per sentence
-       │  en-IN-PrabhatNeural (English/Hinglish)
-       │  hi-IN-MadhurNeural (Hindi)
-       ▼
-[Browser] receives base64 audio chunks → plays via AudioContext
+[Browser] speechSynthesis TTS → speaker
 ```
 
-**Latency budget:** STT ~300ms · LLM first token ~200ms · TTS per sentence ~400ms → first audio ~900ms
+### Brave Browser Path (auto-detected via `navigator.brave`)
+
+Brave blocks Google STT servers and jsDelivr CDN. Arya detects this synchronously and routes through the local WS backend instead.
+
+```
+🎤 Microphone
+       │  MediaRecorder (WebM/Opus) + RMS silence detection
+       ▼
+[Browser] _bvCapDone() → sends audio_chunk JSON over WS
+       │  ws://127.0.0.1:8765
+       ▼
+[agent.py] receives audio_chunk bytes
+       │  decode WebM → faster-whisper VAD + STT
+       ▼
+[Brain.stream()]
+       │  1. UserContext.to_prompt() injects full page state:
+       │     - trade_journal.full_context (all trades + all breakdowns, verbatim)
+       │     - identity, capital, win_rate, best/worst symbol, streak
+       │     - OR mind_engine: disc score, XP, sessions, FOMO, archetype
+       │  2. Detect language, intent, detail mode
+       │  3. ollama.chat(qwen3:14b, stream=True, think=False, num_ctx=32768)
+       │  4. Stream tokens → send as "token" WS messages
+       │  5. Buffer until sentence boundary
+       ▼
+[edge-tts Neural TTS]  → per sentence, streamed
+       │  en-IN-PrabhatNeural / hi-IN-MadhurNeural
+       ▼
+[Browser] receives audio_seq MP3 chunks → _bvPlayMp3() → Audio() playback
+       │  echo guard: 2800ms RMS threshold raised 5× after TTS ends
+       │  state:idle → _bvResume(1400ms) → _bvStartCap() → next turn
+       ▼
+🔊 Speaker
+```
+
+**Offline fallback (Brave, WS down):** `_bvSetOffline()` probes Ollama directly. If up, sets `_aryaOnline=true` so text chat routes through `sendVoiceMessage()` → Ollama → `speechSynthesis`.
+
+**Latency budget (Brave path):** audio_chunk → STT ~300ms · LLM first token ~200ms · TTS sentence ~400ms → first audio ~900ms
+
+**Trade context size:** `buildFullTradeContext()` generates ~3,000–8,000 tokens depending on trade count. `num_ctx=32768` ensures it fits alongside system prompt and conversation history.
 
 ---
 

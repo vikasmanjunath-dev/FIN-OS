@@ -4,6 +4,8 @@ from flask_cors import CORS
 import sys
 import io
 import re
+import json
+import requests
 from unittest.mock import patch
 
 # CORE MODULES
@@ -135,6 +137,139 @@ def analyze():
         "html": res['html'], # HTML for Terminal
         "viz": viz_data      # JSON for Visualizer
     })
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AI EXPLAIN ENDPOINT — LLM reasoning for every technical signal
+# ─────────────────────────────────────────────────────────────────────────────
+OLLAMA_URL   = "http://localhost:11434/api/generate"
+OLLAMA_MODEL = "qwen3:14b"
+
+MARKET_AI_SYSTEM = """You are Arya, FIN·OS's AI market analyst for Indian retail investors.
+Explain trading signals in plain Hinglish — like a smart friend who studied at IIM but still talks over chai.
+Use ₹, Indian market context (NSE/BSE, SEBI, Nifty, Sensex). Be specific with numbers.
+Max 3-4 sentences. End with ONE risk to watch."""
+
+def _ollama_generate(prompt: str, system: str = MARKET_AI_SYSTEM) -> str:
+    """Synchronous Ollama call — used in Flask routes."""
+    try:
+        resp = requests.post(OLLAMA_URL, json={
+            "model":   OLLAMA_MODEL,
+            "system":  system,
+            "prompt":  prompt,
+            "stream":  False,
+            "options": {"temperature": 0.6, "num_predict": 200}
+        }, timeout=30)
+        resp.raise_for_status()
+        return resp.json().get("response", "").strip()
+    except Exception as e:
+        return f"AI explanation unavailable — Ollama offline? ({e})"
+
+
+@app.route('/ai-explain', methods=['GET', 'POST'])
+def ai_explain():
+    """
+    Accepts signal data and returns a plain-language AI explanation.
+    GET  /ai-explain?symbol=RELIANCE&mode=intraday
+    POST /ai-explain  { symbol, mode, metrics: {rsi, trend, macd, ...} }
+    """
+    if request.method == 'POST':
+        data   = request.get_json(silent=True) or {}
+        symbol = data.get('symbol', 'NIFTY50')
+        mode   = data.get('mode', 'intraday')
+        metrics= data.get('metrics', {})
+    else:
+        symbol  = request.args.get('symbol', 'NIFTY50').upper()
+        mode    = request.args.get('mode', 'intraday')
+        metrics = {}  # GET mode uses existing /analyze output
+
+        if not metrics and mode:
+            # Run full analysis to get real metrics first
+            if "." not in symbol: symbol_ns = symbol + ".NS"
+            else: symbol_ns = symbol
+            try:
+                if mode == 'fundamental':
+                    res = execute_protocol(lambda: FinancialSystem(symbol_ns).run_full_scan())
+                elif mode == 'intraday':
+                    res = execute_protocol(full_stock_analytics, symbol_ns)
+                elif mode == 'swing':
+                    res = execute_protocol(swing_detailed_analytics, symbol_ns)
+                elif mode == 'long':
+                    res = execute_protocol(omni_max_analytics, symbol_ns)
+                else:
+                    res = {"raw": ""}
+                metrics = parse_metrics(mode, res['raw'])
+            except Exception as e:
+                metrics = {"error": str(e)}
+
+    # Build context-rich prompt
+    metrics_str = "\n".join(f"  {k}: {v}" for k, v in metrics.items())
+    mode_labels = {
+        "intraday":    "Intraday / Scalping (same-day trade)",
+        "swing":       "Swing Trade (3–10 days)",
+        "fundamental": "Fundamental Analysis (long-term investing)",
+        "long":        "Long-Term Investing (1+ years)"
+    }
+
+    prompt = f"""
+Stock: {symbol}
+Analysis Type: {mode_labels.get(mode, mode)}
+Technical/Fundamental Metrics:
+{metrics_str if metrics_str.strip() else "  (no metrics provided — use general knowledge)"}
+
+Explain this analysis in plain Hinglish for an Indian retail investor.
+Include: what the signal means, is it good or bad, and one specific action.
+""".strip()
+
+    explanation = _ollama_generate(prompt)
+
+    # Derive simple recommendation
+    upper = explanation.upper()
+    if any(w in upper for w in ["BUY", "BULLISH", "ACCUMULATE", "STRONG"]):
+        rec = "BUY"
+    elif any(w in upper for w in ["SELL", "BEARISH", "EXIT", "AVOID"]):
+        rec = "SELL"
+    else:
+        rec = "HOLD"
+
+    return jsonify({
+        "status":       "success",
+        "symbol":       symbol,
+        "mode":         mode,
+        "explanation":  explanation,
+        "recommendation": rec,
+        "metrics":      metrics
+    })
+
+
+@app.route('/sentiment', methods=['GET'])
+def sentiment():
+    """
+    Quick AI sentiment for a symbol.
+    GET /sentiment?symbol=RELIANCE
+    """
+    symbol = request.args.get('symbol', 'NIFTY50').upper()
+
+    prompt = f"""
+Stock/Index: {symbol} (Indian market — NSE/BSE)
+Based on your training knowledge:
+1. Sentiment right now: BULLISH / BEARISH / NEUTRAL
+2. Key reason in one sentence
+3. One risk to watch
+
+Reply in natural Hinglish, 2-3 sentences max.
+""".strip()
+
+    text = _ollama_generate(prompt)
+    upper = text.upper()
+    sentiment_val = "bullish" if "BULLISH" in upper else "bearish" if "BEARISH" in upper else "neutral"
+
+    return jsonify({
+        "status":    "success",
+        "symbol":    symbol,
+        "sentiment": sentiment_val,
+        "text":      text
+    })
+
 
 if __name__ == '__main__':
     print("🚀 FIN-OS GOD MODE SERVER READY...")

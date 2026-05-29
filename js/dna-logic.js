@@ -1,11 +1,20 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
     // ==========================================
-    // 1. CONFIGURATION & DATABASE
+    // 1. CONFIGURATION & DATABASE (Optional)
     // ==========================================
     const supabaseUrl = 'https://oeapcyucnduhwpgxfknb.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
-    const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // Safe client — may stay null if Supabase SDK not loaded
+    let client = null;
+    try {
+        if (window.supabase) {
+            client = window.supabase.createClient(supabaseUrl, supabaseKey);
+        }
+    } catch (e) {
+        console.debug('[DNA] Supabase optional — guest mode:', e.message);
+    }
 
     // Data State
     let userData = {
@@ -142,33 +151,56 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     // ==========================================
-    // 4. AUTHENTICATION & LOAD SAVED PROGRESS
+    // 4. LOAD SAVED PROGRESS (No login required)
     // ==========================================
-    const { data: { session } } = await client.auth.getSession();
-    if (!session) {
-        window.location.href = 'login.html';
-        return;
+    // Priority: Supabase DB (if logged in) → localStorage cache
+    let user = null;
+
+    if (client) {
+        try {
+            const { data: { session } } = await client.auth.getSession();
+            if (session) user = session.user;
+        } catch (e) {
+            console.debug('[DNA] Session check skipped:', e.message);
+        }
     }
-    const user = session.user;
 
-    const { data: profile } = await client
-        .from('profiles')
-        .select('dna_results, dna_scores')
-        .eq('id', user.id)
-        .single();
+    if (client && user) {
+        try {
+            const { data: profile } = await client
+                .from('profiles')
+                .select('dna_results, dna_scores')
+                .eq('id', user.id)
+                .single();
 
-    if (profile) {
-        if (profile.dna_scores) {
-            userData.scores = profile.dna_scores;
-            window.dnaChart.data.datasets[0].data = userData.scores;
-            window.dnaChart.update();
+            if (profile) {
+                if (profile.dna_scores) {
+                    userData.scores = profile.dna_scores;
+                    window.dnaChart.data.datasets[0].data = userData.scores;
+                    window.dnaChart.update();
+                }
+                if (profile.dna_results) {
+                    userData.responses = profile.dna_results;
+                    userData.step = Object.keys(userData.responses).length;
+                }
+            }
+        } catch (e) {
+            console.debug('[DNA] DB load skipped:', e.message);
         }
-
-        if (profile.dna_results) {
-            userData.responses = profile.dna_results;
-            const answeredCount = Object.keys(userData.responses).length;
-            userData.step = answeredCount;
-        }
+    } else {
+        // Guest: restore from localStorage if available
+        try {
+            const cached = JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || '{}');
+            if (cached.scores) {
+                userData.scores = cached.scores;
+                window.dnaChart.data.datasets[0].data = userData.scores;
+                window.dnaChart.update();
+            }
+            if (cached.responses) {
+                userData.responses = cached.responses;
+                userData.step = Object.keys(userData.responses).length;
+            }
+        } catch (_) {}
     }
 
     // ==========================================
@@ -225,20 +257,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         // 2. Update Local State
         userData.responses[currentStepObj.lvl] = choice.text;
 
-        // 3. Save locally for Ollama Backend (Instant read access for chat)
+        // 3. Save locally (always — works in guest mode)
         localStorage.setItem('FINOS_CORE_DNA', JSON.stringify({
             responses: userData.responses,
             scores: userData.scores
         }));
 
-        // 4. Save to Supabase
-        await client
-            .from('profiles')
-            .update({
-                dna_results: userData.responses,
-                dna_scores: userData.scores
-            })
-            .eq('id', user.id);
+        // 4. Silently sync to Supabase if logged in
+        if (client && user) {
+            try {
+                await client
+                    .from('profiles')
+                    .update({
+                        dna_results: userData.responses,
+                        dna_scores: userData.scores
+                    })
+                    .eq('id', user.id);
+            } catch (e) {
+                console.debug('[DNA] Supabase save skipped:', e.message);
+            }
+        }
 
         // 5. Advance
         userData.step++;

@@ -619,4 +619,48 @@ document.addEventListener("DOMContentLoaded", async () => {
     setText('badInsight', bad);
     setText('verdictInsight', verdict);
   }
+
+  // ── Arya AI Portfolio Risk Check ──────────────────────────────────────────
+  // Called from the "AI Risk Check" button in portfolio.html
+  window.AryaAI_checkPortfolio = function () {
+    if (typeof AryaAI === 'undefined') {
+      alert('AryaAI engine not loaded. Refresh the page.');
+      return;
+    }
+    // Collect last analyzed data from DOM (already rendered in the holdings panel)
+    const holdings = [];
+    document.querySelectorAll('.h-row, .h-item').forEach(row => {
+      const cells = row.querySelectorAll('span');
+      if (cells.length >= 2) {
+        const name  = cells[0].textContent.trim();
+        const value = cells[1].textContent.trim();
+        if (name && value && !name.startsWith('📈') && !name.startsWith('🛡') && !name.startsWith('🧈')) {
+          holdings.push({ symbol: name, value: value, weight: value });
+        }
+      }
+    });
+
+    // Also get summary stats from visible insight boxes
+    const good    = document.getElementById('goodInsight')?.textContent || '';
+    const bad     = document.getElementById('badInsight')?.textContent || '';
+    const verdict = document.getElementById('verdictInsight')?.textContent || '';
+
+    if (!holdings.length && !good) {
+      alert('Pehle portfolio file upload karo, phir AI Risk Check karo!');
+      return;
+    }
+
+    const syntheticHoldings = holdings.length ? holdings : [
+      { symbol: 'Portfolio Summary', value: 'uploaded', weight: '100%' },
+      { symbol: 'Strength', value: good || 'N/A' },
+      { symbol: 'Risk', value: bad || 'N/A' },
+      { symbol: 'Verdict', value: verdict || 'N/A' }
+    ];
+
+    const anchor = document.getElementById('arya-portfolio-ai-anchor');
+    AryaAI.portfolioRisk(syntheticHoldings, anchor);
+
+    // Scroll to result
+    setTimeout(() => anchor?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+  };
 });

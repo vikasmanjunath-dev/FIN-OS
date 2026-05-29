@@ -39,8 +39,8 @@ OLLAMA_OPTIONS = {
     "top_p":          0.92,
     "top_k":          40,
     "repeat_penalty": 1.10,
-    "num_ctx":        4096,     # context window (tokens)
-    "num_predict":    400,      # default max output tokens
+    "num_ctx":        32768,    # enlarged for full trade journal context (all trades injected)
+    "num_predict":    600,      # raised: qwen3 think tokens eat into budget
     # detail mode bumps num_predict → 1200 dynamically
     "num_thread":     8,
     "num_keep":       12,
@@ -107,14 +107,54 @@ All JSON messages are sent as text frames.
 }
 ```
 
-**Audio message** (binary frame, repeated)
+**User context message** — sent by page on connect/reconnect to inject live state
+
+```json
+{
+  "type": "user_context",
+  "sync_phase": "full",
+  "page_module": "trade_journal",
+  "page": { "module": "trade_journal", "title": "TradeBook Pro" },
+  "identity": { "name": "Vikas Manjunath" },
+  "trade_journal": {
+    "total_trades": 73,
+    "total_pnl": 23952.76,
+    "win_rate": 58.9,
+    "avg_win": 1240.5,
+    "avg_loss": -680.2,
+    "profit_factor": 1.82,
+    "capital": 500000,
+    "weekly_target": 15000,
+    "best_symbol": { "symbol": "BANKNIFTY CE", "pnl": 8400 },
+    "worst_symbol": { "symbol": "NIFTY PE", "pnl": -3200 },
+    "current_streak": "3 win",
+    "recent_trades": [ ... ],
+    "full_context": "━━━ TRADEBOOK PRO: COMPLETE JOURNAL CONTEXT ━━━\n..."
+  }
+}
+```
+
+`full_context` is a pre-formatted multi-section text block built by `buildFullTradeContext()` in `arya-tradebook.js`. It contains every trade, all breakdowns (symbol/strategy/emotion/regime), monthly and day-of-week stats, and all settings. It is injected verbatim into `UserContext.to_prompt()` so Arya can answer any specific trade query without the user repeating context.
+
+For Mind Engine pages, the message uses `page_module: "mind_engine"` and `financial.custom` instead of `trade_journal`.
+
+**Audio chunk message** (Brave path — MediaRecorder output)
+```json
+{
+  "type": "audio_chunk",
+  "data": [82, 73, 70, 70, ...]
+}
+```
+Raw WebM/Opus bytes as a JSON integer array. The agent decodes, runs VAD, and transcribes with faster-whisper.
+
+**Audio message** (legacy binary frame — standalone voice agent UI)
 
 Raw PCM float32 audio chunks sent as binary WebSocket frames. The agent buffers them until silence is detected via VAD.
 
 **Text message** (typed input)
 ```json
 {
-  "type": "text",
+  "type": "text_input",
   "text": "What should I do with my bonus?"
 }
 ```

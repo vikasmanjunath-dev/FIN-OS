@@ -178,11 +178,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                 renderQuestion();
             }
         } else {
-            window.location.href = 'login.html';
+            // Guest mode — show scan directly, no redirect
+            loader.classList.add('hidden');
+            scanSection.classList.remove('hidden');
+            renderQuestion();
         }
     } catch (err) {
         console.error("System Error:", err);
-        // [FIX] Graceful fallback: show scan instead of blank page
+        // Graceful fallback: show scan instead of blank page
         loader.classList.add('hidden');
         scanSection.classList.remove('hidden');
         renderQuestion();

@@ -22,6 +22,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="../js/arya-ai.js"></script>
 </head>
 
 <body>
@@ -51,8 +52,17 @@
           <h1>Portfolio Dissector Pro</h1>
           <p>Deep-tissue analysis of your financial health.</p>
         </div>
-        <button id="themeToggle" class="theme-btn">🌙</button>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button id="arya-portfolio-check-btn" onclick="AryaAI_checkPortfolio()"
+            style="padding:10px 18px;border-radius:14px;border:1px solid rgba(0,255,136,.3);
+                   background:rgba(0,255,136,.08);color:#00ff88;font-weight:700;font-size:13px;cursor:pointer;">
+            🧠 AI Risk Check
+          </button>
+          <button id="themeToggle" class="theme-btn">🌙</button>
+        </div>
       </header>
+      <!-- Arya Portfolio AI Panel (populated after analysis) -->
+      <div id="arya-portfolio-ai-anchor"></div>
 
       <section id="uploadSection" class="upload-universe">
         <div class="drop-zone" id="dropZone">

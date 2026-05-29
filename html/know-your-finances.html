@@ -233,6 +233,24 @@
         </div>
       </div>
 
+      <!-- ── Arya Pre-Scan Coach ──────────────────────────────────── -->
+      <div id="arya-xray-coach" style="margin-bottom:28px;border-radius:16px;
+           background:linear-gradient(135deg,rgba(199,240,0,.06),rgba(0,212,255,.03));
+           border:1px solid rgba(199,240,0,.2);padding:18px 22px;
+           font-family:'JetBrains Mono',monospace;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#c7f000,#4d7cff);
+               display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🩻</div>
+          <div>
+            <div style="font-weight:700;font-size:11px;color:#c7f000;letter-spacing:2px;">ARYA • PRE-SCAN COACHING</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.35);">What to focus on in your X-Ray</div>
+          </div>
+        </div>
+        <div id="arya-xray-coach-text" style="font-size:12px;line-height:1.7;color:rgba(255,255,255,.7);">
+          <span style="color:rgba(199,240,0,.4);">LOADING COACHING PROTOCOL…</span>
+        </div>
+      </div>
+
       <!-- ── Input Wizard ───────────────────────────────────────── -->
       <section id="inputSection" aria-label="Financial data input wizard">
 
@@ -430,6 +448,39 @@
 <!-- [FIX] Scripts moved to end of body so they don't block HTML parsing -->
 <!-- [FIX] type="module" is omitted intentionally — finances.js uses DOMContentLoaded,
      which fires correctly without it; adding module would change execution order -->
+<script src="../js/arya-ai.js"></script>
+<script>
+(async function() {
+  const el = document.getElementById('arya-xray-coach-text');
+  if (!el || typeof AryaAI === 'undefined') return;
+
+  const cacheKey = 'arya_xray_coach_v1_' + new Date().toDateString();
+  const cached = sessionStorage.getItem(cacheKey);
+  if (cached && cached.length > 30 && !cached.includes('<think>')) { el.textContent = cached; return; }
+
+  const name    = localStorage.getItem('finos_display_name') || 'Investor';
+  const dna     = localStorage.getItem('finos_financial_dna')|| 'Explorer';
+  const stage   = localStorage.getItem('finos_stage')        || 'Rookie';
+  const netWorth= localStorage.getItem('finos_net_worth')    || '0';
+
+  el.innerHTML = '<span id="arya-xray-stream" style="color:rgba(255,255,255,.75);"></span>';
+  const s = document.getElementById('arya-xray-stream');
+
+  const prompt = `${name} (DNA: ${dna}, Stage: ${stage}) is about to run a Financial X-Ray (God Mode Scan) on FIN-OS.
+
+Give them 3 bullet points of what to pay close attention to in their scan results:
+• What their most important metric to track will be at their stage
+• One typical blind spot people at their stage miss
+• One question they should ask themselves after seeing their FIRE horizon
+
+Tone: sharp, data-driven, JetBrains Mono energy. Each bullet = 1 sentence. No preamble.`;
+
+  try {
+    const result = await AryaAI.ask(prompt, (tok, display) => { if (display !== undefined) s.textContent = display; });
+    if (result) { sessionStorage.setItem(cacheKey, result); el.textContent = result; }
+  } catch { el.innerHTML = '<span style="color:rgba(255,255,255,.3);">AI offline — proceed with the X-Ray scan.</span>'; }
+})();
+</script>
 <script src="../js/finances.js" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js" defer></script>
