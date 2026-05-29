@@ -143,6 +143,7 @@ body.zen-mode .content-wrapper {
 
 {% block extra_head %}{% endblock %}
 </style>
+<script src="{% static 'js/finos-context.js' %}"></script>
 <script src="{% static 'js/arya-ai.js' %}"></script>
 </head>
 <body>
@@ -1025,6 +1026,38 @@ function _buildFullPageContext() {
       };
       if (live.fear||live.greed) lines.push(`  Fear: ${live.fear||'—'}  |  Greed: ${live.greed||'—'}  |  Revenge: ${live.revenge||'—'}  |  Discipline: ${live.discipline||'—'}`);
       if (live.outcome) lines.push(`  Live score: ${live.outcome}`);
+    }
+  } catch {}
+
+  // ── FINOS_USER_CONTEXT — Supabase DB data (net worth, goals, portfolio, DNA) ──
+  try {
+    const ctx = window.FINOS_USER_CONTEXT;
+    if (ctx) {
+      const INR = n => '₹' + Number(n||0).toLocaleString('en-IN');
+      const id = ctx.identity || {};
+      lines.push('');
+      lines.push('FINOS FINANCIAL PROFILE (from database)');
+      const profName = id.name || localStorage.getItem('finos_display_name');
+      if (profName) lines.push(`  Name: ${profName} | DNA archetype: ${id.financial_dna || 'unknown'} | Stage: ${id.life_stage || 'unknown'}`);
+      if (id.income_range) lines.push(`  Income: ₹${id.income_range}/month | Mindset: ${id.mindset || 'unknown'}`);
+      const prof = ctx.profile || {};
+      if (prof.net_worth || prof.savings_rate) {
+        lines.push(`  Net worth: ${INR(prof.net_worth||0)} | Savings rate: ${prof.savings_rate||0}% | Health score: ${prof.health_score||0}/100`);
+      }
+      const dna = ctx.dna;
+      if (dna?.scores?.length >= 5) {
+        lines.push(`  Psychographic DNA → Risk:${dna.scores[0]} Security:${dna.scores[1]} Status:${dna.scores[2]} Discipline:${dna.scores[3]} Growth:${dna.scores[4]}`);
+      }
+      const tx = ctx.financial?.transactions;
+      if (tx) lines.push(`  Transactions → Income: ${INR(tx.total_income)} | Expenses: ${INR(tx.total_expense)} | Net: ${INR((tx.total_income||0)-(tx.total_expense||0))}`);
+      const goals = ctx.financial?.goals;
+      if (goals?.length) lines.push(`  Goals: ${goals.slice(0,4).map(g=>`${g.name} ${g.progress||0}%`).join(' · ')}`);
+      const portfolio = ctx.financial?.portfolio;
+      if (portfolio) lines.push(`  Portfolio: ${INR(portfolio.total_value)} | P&L: ${INR(portfolio.pnl)} (${portfolio.pnl_pct > 0 ? '+' : ''}${portfolio.pnl_pct}%)`);
+      const journal = ctx.trade_journal;
+      if (journal?.total_trades) lines.push(`  Trade journal: ${journal.total_trades} trades | Win rate: ${journal.win_rate}% | P&L: ${INR(journal.total_pnl)}`);
+      const budget = ctx.budget_tracker;
+      if (budget?.income_monthly) lines.push(`  Budget: ₹${budget.income_monthly}/mo | Spent ₹${budget.spent_total} | Saved ${budget.savings_rate}%`);
     }
   } catch {}
 

@@ -2,13 +2,16 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IntelItem } from '../hooks/useIntelFeed';
 import NewsCard from './NewsCard';
+import type { UserContext } from '../hooks/useUserContext';
 
 interface NewsGridProps {
-  items: IntelItem[];
-  loading: boolean;
+  items:    IntelItem[];   // filtered/visible items
+  allItems: IntelItem[];   // full unfiltered feed — passed to Arya for cross-reference
+  loading:  boolean;
+  userCtx:  UserContext;
 }
 
-const NewsGrid = ({ items, loading }: NewsGridProps) => {
+const NewsGrid = ({ items, allItems, loading, userCtx }: NewsGridProps) => {
   if (loading) {
     return (
       <div className="text-center py-[100px] w-full">
@@ -21,9 +24,12 @@ const NewsGrid = ({ items, loading }: NewsGridProps) => {
 
   if (items.length === 0) {
     return (
-      <div className="text-center py-[100px] w-full">
+      <div className="text-center py-[100px] w-full flex flex-col items-center gap-3">
         <div className="font-mono text-xl text-[#888888] tracking-[3px]">
           NO ACTIVE SHARDS FOUND.
+        </div>
+        <div className="font-mono text-xs text-[#555555]">
+          Try changing the category or time filter below.
         </div>
       </div>
     );
@@ -39,7 +45,7 @@ const NewsGrid = ({ items, loading }: NewsGridProps) => {
           <AnimatePresence>
             {items.map((item) => (
               <div key={item.id} className="snap-start h-full">
-                <NewsCard item={item} />
+                <NewsCard item={item} allItems={allItems} userCtx={userCtx} />
               </div>
             ))}
           </AnimatePresence>

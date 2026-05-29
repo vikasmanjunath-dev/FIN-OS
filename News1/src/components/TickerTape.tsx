@@ -6,7 +6,15 @@ interface TickerTapeProps {
 }
 
 const TickerTape = ({ markets }: TickerTapeProps) => {
-  if (!markets || markets.length === 0) return null;
+  if (!markets || markets.length === 0) {
+    return (
+      <div className="relative z-[1] w-full bg-[#00f3ff]/5 border-b border-[#00f3ff]/15 overflow-hidden py-2.5 mb-10">
+        <div className="font-mono text-xs text-[#555555] text-center animate-pulse tracking-widest">
+          FETCHING MARKET DATA…
+        </div>
+      </div>
+    );
+  }
 
   const content = markets.map((m, idx) => (
     <span key={idx} className="mr-10">

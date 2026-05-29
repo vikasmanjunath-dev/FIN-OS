@@ -529,7 +529,7 @@
       <a href="../stock-dashboard/index.html">Live Tracker</a>
       <a href="simulator-landing.html">Train Mindset</a>
 
-      <a href="news.html">News</a>
+      <a href="http://localhost:3000">News</a>
       <a href="settings.html">Settings</a>
     </nav>
   </aside>
@@ -751,6 +751,8 @@
   });
 </script>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/finos-context.js"></script>
   <script src="../js/arya-ai.js"></script>
   <script>
   (async function() {
@@ -761,22 +763,28 @@
     const cached = sessionStorage.getItem(cacheKey);
     if (cached && cached.length > 30 && !cached.includes('<think>')) { el.textContent = cached; return; }
 
-    const name      = localStorage.getItem('finos_display_name') || 'User';
-    const dna       = localStorage.getItem('finos_financial_dna')|| 'Explorer';
-    const netWorth  = localStorage.getItem('finos_net_worth')    || '0';
-    const healthSc  = localStorage.getItem('finos_health_score') || '0';
-    const stage     = localStorage.getItem('finos_stage')        || 'Rookie';
+    // Use full DB context from finos-context.js, fallback to localStorage
+    const _ctx    = (typeof AryaAI !== 'undefined' && AryaAI.getContext()) || {};
+    const name    = _ctx.identity?.name          || localStorage.getItem('finos_display_name') || 'User';
+    const dna     = _ctx.identity?.financial_dna || localStorage.getItem('finos_financial_dna') || 'Explorer';
+    const stage   = _ctx.identity?.life_stage    || localStorage.getItem('finos_stage') || 'Rookie';
+    const healthSc= _ctx.profile?.health_score   || localStorage.getItem('finos_health_score') || '0';
+    const netWorth= _ctx.profile?.net_worth      || localStorage.getItem('finos_net_worth') || '0';
+    const txCount = _ctx.financial?.transactions?.count || 0;
+    const topSpend= _ctx.financial?.transactions?.top_categories?.[0]?.cat || null;
+    const goalsCount = _ctx.financial?.goals?.length || 0;
+    const hasTrades = _ctx.trade_journal?.total_trades > 0;
 
     el.innerHTML = '<span id="arya-diag-stream" style="color:rgba(255,255,255,.8);"></span>';
     const s = document.getElementById('arya-diag-stream');
 
-    const prompt = `${name} (DNA: ${dna}, Stage: ${stage}, Health Score: ${healthSc}/100, Net Worth: ₹${(parseFloat(netWorth)/100000).toFixed(1)}L) is on the Diagnostics page.
+    const prompt = `${name} (DNA: ${dna}, Stage: ${stage}, Health Score: ${healthSc}/100, Net Worth: ₹${(parseFloat(netWorth)/100000).toFixed(1)}L${txCount ? `, ${txCount} transactions recorded` : ''}${topSpend ? `, biggest spend: ${topSpend}` : ''}${goalsCount ? `, ${goalsCount} goals tracked` : ''}${hasTrades ? `, active trader` : ''}) is on the Diagnostics page.
 
 Two options exist:
 1. Financial X-Ray — quantitative: cashflow, net worth, burn rate, FIRE horizon
 2. Financial Being — qualitative: money mindset, emotional triggers, behavioral patterns
 
-In 2 sentences: (1) which one they need more urgently based on their profile (2) what they'll discover. No preamble.`;
+In 2 sentences: (1) which one they need MORE urgently based on their specific profile above (2) what they'll discover. No preamble.`;
 
     try {
       const result = await AryaAI.ask(prompt, (tok, display) => { if (display !== undefined) s.textContent = display; });

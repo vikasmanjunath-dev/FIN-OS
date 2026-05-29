@@ -205,7 +205,7 @@
       <a href="track-finances.html">Track Finances</a>
       <a href="../stock-dashboard/index.html">Live Tracker</a>
       <a href="simulator-landing.html">Train Mindset</a>
-      <a href="news.html">News</a>
+      <a href="http://localhost:3000">News</a>
       <a href="settings.html">Settings</a>
     </nav>
   </aside>
@@ -373,6 +373,8 @@
   </main>
 </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/finos-context.js"></script>
   <script src="../js/arya-ai.js"></script>
   <script>
   async function aryaPickRoadmap(force) {
@@ -385,16 +387,24 @@
       if (cached && cached.length > 40 && !cached.includes('<think>')) { el.textContent = cached; return; }
     }
 
-    const name    = localStorage.getItem('finos_display_name') || 'Investor';
-    const dna     = localStorage.getItem('finos_financial_dna')|| 'Explorer';
-    const stage   = localStorage.getItem('finos_stage')        || 'Rookie';
-    const income  = localStorage.getItem('finos_income')       || '25k-1L';
-    const interests=localStorage.getItem('finos_interests')    || 'stocks';
+    // Full DB context via finos-context.js
+    const _ctx   = (typeof AryaAI !== 'undefined' && AryaAI.getContext()) || {};
+    const name   = _ctx.identity?.name          || localStorage.getItem('finos_display_name') || 'Investor';
+    const dna    = _ctx.identity?.financial_dna || localStorage.getItem('finos_financial_dna') || 'Explorer';
+    const stage  = _ctx.identity?.life_stage    || localStorage.getItem('finos_stage') || 'Rookie';
+    const income = _ctx.identity?.income_range  || localStorage.getItem('finos_income') || '25k-1L';
+    const rawInt = _ctx.identity?.interests;
+    const interests = Array.isArray(rawInt) ? rawInt.join(', ') : (rawInt || localStorage.getItem('finos_interests') || 'stocks');
+    const mindset   = _ctx.identity?.mindset    || localStorage.getItem('finos_mindset') || 'freedom';
+    const netWorth  = _ctx.profile?.net_worth   || localStorage.getItem('finos_net_worth') || 0;
+    const savings   = _ctx.profile?.savings_rate|| localStorage.getItem('finos_savings_rate') || 0;
+    const hasTrades = (_ctx.trade_journal?.total_trades || 0) > 0;
+    const goalsStr  = (_ctx.financial?.goals || []).slice(0,3).map(g => g.name).join(', ') || 'none set';
 
     el.innerHTML = '<span id="arya-roadmap-stream" style="color:rgba(255,255,255,.85);"></span>';
     const s = document.getElementById('arya-roadmap-stream');
 
-    const prompt = `Indian investor ${name}: DNA=${dna}, Stage=${stage}, Income=₹${income}/month, Interests=${interests}.
+    const prompt = `Indian investor ${name}: DNA=${dna}, Stage=${stage}, Income=₹${income}/month, Interests=${interests}, Mindset=${mindset}, Net worth=₹${Number(netWorth).toLocaleString('en-IN')}, Savings rate=${savings}%, Active trader=${hasTrades}, Goals=${goalsStr}.
 
 Available roadmaps:
 • Investor GPS — wealth-building, SIP, long-term investing
@@ -405,7 +415,7 @@ Available roadmaps:
 • Fear Roadmap — for people anxious about money, debt, financial security
 • Trader Mindset — psychology and emotional control for traders
 
-Recommend the TOP 2 roadmaps for this person with 1 sentence each explaining why. End with one line on what they'll achieve in 30 days. No preamble.`;
+Based on their REAL profile above, recommend the TOP 2 roadmaps with 1 sentence each on why this person specifically needs it. End with one line on what they'll achieve in 30 days. No preamble.`;
 
     try {
       const result = await AryaAI.ask(prompt, (tok, display) => { if (display !== undefined) s.textContent = display; });

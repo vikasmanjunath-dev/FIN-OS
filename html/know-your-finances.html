@@ -213,7 +213,7 @@
       <a href="track-finances.html">Track Finances</a>
       <a href="../stock-dashboard/index.html">Live Tracker</a>
       <a href="simulator-landing.html">Train Mindset</a>
-      <a href="news.html">News</a>
+      <a href="http://localhost:3000">News</a>
       <a href="settings.html">Settings</a>
     </nav>
   </aside>
@@ -448,7 +448,8 @@
 <!-- [FIX] Scripts moved to end of body so they don't block HTML parsing -->
 <!-- [FIX] type="module" is omitted intentionally — finances.js uses DOMContentLoaded,
      which fires correctly without it; adding module would change execution order -->
-<script src="../js/arya-ai.js"></script>
+<script src="../js/finos-context.js"></script>
+  <script src="../js/arya-ai.js"></script>
 <script>
 (async function() {
   const el = document.getElementById('arya-xray-coach-text');
@@ -458,22 +459,29 @@
   const cached = sessionStorage.getItem(cacheKey);
   if (cached && cached.length > 30 && !cached.includes('<think>')) { el.textContent = cached; return; }
 
-  const name    = localStorage.getItem('finos_display_name') || 'Investor';
-  const dna     = localStorage.getItem('finos_financial_dna')|| 'Explorer';
-  const stage   = localStorage.getItem('finos_stage')        || 'Rookie';
-  const netWorth= localStorage.getItem('finos_net_worth')    || '0';
+  const _ctx    = (typeof AryaAI !== 'undefined' && AryaAI.getContext()) || {};
+  const name    = _ctx.identity?.name          || localStorage.getItem('finos_display_name') || 'Investor';
+  const dna     = _ctx.identity?.financial_dna || localStorage.getItem('finos_financial_dna') || 'Explorer';
+  const stage   = _ctx.identity?.life_stage    || localStorage.getItem('finos_stage') || 'Rookie';
+  const netWorth= _ctx.profile?.net_worth      || localStorage.getItem('finos_net_worth') || '0';
+  const savings = _ctx.profile?.savings_rate   || localStorage.getItem('finos_savings_rate') || '0';
+  const health  = _ctx.profile?.health_score   || localStorage.getItem('finos_health_score') || '0';
+  const txCount = _ctx.financial?.transactions?.count || 0;
+  const topSpend= _ctx.financial?.transactions?.top_categories?.[0]?.cat || null;
+  const goalsCount = _ctx.financial?.goals?.length || 0;
+  const budget  = _ctx.budget_tracker;
 
   el.innerHTML = '<span id="arya-xray-stream" style="color:rgba(255,255,255,.75);"></span>';
   const s = document.getElementById('arya-xray-stream');
 
-  const prompt = `${name} (DNA: ${dna}, Stage: ${stage}) is about to run a Financial X-Ray (God Mode Scan) on FIN-OS.
+  const prompt = `${name} (DNA: ${dna}, Stage: ${stage}, Net worth: ₹${Number(netWorth).toLocaleString('en-IN')}, Savings rate: ${savings}%, Health score: ${health}/100${txCount ? `, ${txCount} transactions on record` : ''}${topSpend ? `, biggest expense: ${topSpend}` : ''}${goalsCount ? `, ${goalsCount} goals tracked` : ''}${budget?.fire_years_estimate ? `, FIRE estimate: ${budget.fire_years_estimate} years` : ''}) is about to run a Financial X-Ray on FIN-OS.
 
-Give them 3 bullet points of what to pay close attention to in their scan results:
-• What their most important metric to track will be at their stage
-• One typical blind spot people at their stage miss
-• One question they should ask themselves after seeing their FIRE horizon
+Based on their REAL numbers above, give 3 personalised bullets:
+• The ONE metric in their scan they should focus on most given their actual situation
+• The specific blind spot THEY are most likely to have (based on their stage/DNA/spending pattern)
+• The exact question they need to ask themselves after seeing their FIRE horizon
 
-Tone: sharp, data-driven, JetBrains Mono energy. Each bullet = 1 sentence. No preamble.`;
+Tone: sharp, direct, data-driven. Each bullet = 1 sentence. Use their actual numbers. No preamble.`;
 
   try {
     const result = await AryaAI.ask(prompt, (tok, display) => { if (display !== undefined) s.textContent = display; });

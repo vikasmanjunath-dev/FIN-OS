@@ -187,6 +187,8 @@
   </style>
   <!-- QFT AI Chatbot CSS -->
   <link rel="stylesheet" href="../css/qft-hud.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/finos-context.js"></script>
   <script src="../js/arya-ai.js"></script>
 </head>
 
@@ -205,7 +207,7 @@
       <a href="../stock-dashboard/index.html">Live Tracker</a>
       <a href="simulator-landing.html">Train Mindset</a>
       <a href="tax.html" class="active">Tax</a>
-      <a href="news.html">News</a>
+      <a href="http://localhost:3000">News</a>
       <a href="settings.html">Settings</a>
     </nav>
   </aside>
@@ -1466,31 +1468,82 @@
       return;
     }
 
+    // Disable button + show loading state so the user knows it's working
+    const optimizeBtn = document.querySelector('#arya-tax-optimizer button[onclick="aryaOptimizeTax()"]');
+    if (optimizeBtn?.disabled) return;
+    if (optimizeBtn) { optimizeBtn.disabled = true; optimizeBtn.textContent = '⏳ Optimizing…'; }
+
     const resultDiv = document.getElementById('arya-tax-result');
     const stream    = document.getElementById('arya-tax-stream');
     const cursor    = document.getElementById('arya-tax-cursor');
+
+    // Show result section immediately with a thinking indicator
     resultDiv.style.display = 'block';
-    stream.textContent = '';
+    stream.innerHTML = '';
+    stream.style.color = 'rgba(255,255,255,.82)';
+
+    // Show "thinking" dots while waiting for first token
+    const thinkEl = document.createElement('span');
+    thinkEl.style.cssText = 'color:rgba(79,124,255,.7);font-size:13px;';
+    thinkEl.textContent = '🧠 Arya aapka tax plan bana rahi hai…';
+    stream.appendChild(thinkEl);
+
     cursor.style.display = 'inline-block';
 
-    const prompt = `Indian taxpayer: Annual income ₹${(income/100000).toFixed(1)}L, current investments ₹${(investments/1000).toFixed(0)}K, leaning towards ${regime} regime.
+    // Scroll result into view so user can see it
+    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-Give a 4-point personal tax plan:
-1. Exact tax payable (approx) in their current situation
-2. Which regime saves more for them and why (2 sentences max)
-3. Top 2-3 deductions they should use to reduce taxable income
-4. One quick win they can do before March 31
+    // Enrich with full DB context
+    const _ctx  = (typeof AryaAI !== 'undefined' && AryaAI.getContext()) || {};
+    const name  = _ctx.identity?.name         || localStorage.getItem('finos_display_name') || 'Taxpayer';
+    const stage = _ctx.identity?.life_stage   || localStorage.getItem('finos_stage') || 'Rookie';
+    const netW  = _ctx.profile?.net_worth     || localStorage.getItem('finos_net_worth') || 0;
+    const goals = (_ctx.financial?.goals || []).slice(0,2).map(g => g.name).join(', ') || null;
+    const topSpend = _ctx.financial?.transactions?.top_categories?.[0];
+    const hasSIP   = _ctx.financial?.transactions != null
+      ? (_ctx.financial.transactions.top_categories || []).some(c => /sip|mutual|invest/i.test(c.cat))
+      : null;
 
-Use ₹ figures, be specific, desi tone. No preamble.`;
+    const prompt = `Tax optimisation for ${name} (Stage: ${stage}, Net worth: ₹${Number(netW).toLocaleString('en-IN')}${goals ? `, Goals: ${goals}` : ''}).
+Annual income entered: ₹${(income/100000).toFixed(1)}L | Investments declared: ₹${(investments/1000).toFixed(0)}K | Preferred regime: ${regime}
+${topSpend ? `Biggest expense category: ${topSpend.cat} (₹${Number(topSpend.amt).toLocaleString('en-IN')})` : ''}
+${hasSIP === false ? '⚠️ No SIP detected in transaction history.' : hasSIP === true ? '✅ SIP already active.' : ''}
 
+Give a 4-point PERSONALISED tax plan:
+1. Exact tax payable (approx) and effective tax rate for their situation
+2. Which regime saves more — give the rupee difference, not just "new regime is better"
+3. Top 2-3 specific deductions they should use (name exact sections, amounts, and instruments)
+4. One URGENT action before March 31 based on their specific income/investment profile
+
+Use their real numbers. ₹ figures, specific sections (80C, 80D etc), desi tone. No preamble.`;
+
+    let firstToken = true;
     try {
-      await AryaAI.ask(prompt, (tok, display) => {
-        if (display !== undefined) stream.textContent = display;
+      const result = await AryaAI.ask(prompt, (tok, display) => {
+        if (display !== undefined && display.trim()) {
+          if (firstToken) {
+            // Clear thinking indicator on first real token
+            stream.innerHTML = '';
+            firstToken = false;
+          }
+          stream.textContent = display;
+        }
       });
+      // Final clean render
+      if (result && result.trim()) {
+        stream.innerHTML = '';
+        stream.textContent = result;
+      } else if (firstToken) {
+        // No tokens came through at all
+        stream.innerHTML = '';
+        stream.textContent = '⚠️ AI offline — Ollama se connect nahi ho paya. Run: ollama serve';
+      }
     } catch(e) {
-      stream.textContent = 'AI offline — Ollama se connect nahi ho paya.';
+      stream.innerHTML = '';
+      stream.textContent = '⚠️ AI offline — Ollama se connect nahi ho paya. Run: ollama serve';
     } finally {
       cursor.style.display = 'none';
+      if (optimizeBtn) { optimizeBtn.disabled = false; optimizeBtn.textContent = '🧠 Optimize My Tax'; }
     }
   }
 
@@ -1516,7 +1569,10 @@ Use ₹ figures, be specific, desi tone. No preamble.`;
     ans.appendChild(streamSpan);
     ans.appendChild(cursor);
 
-    const context = 'You are a tax expert for Indian taxpayers. Answer concisely (3-5 sentences). Use ₹, Indian tax law (FY 2025-26). No markdown.';
+    const _ctx2 = (typeof AryaAI !== 'undefined' && AryaAI.getContext()) || {};
+    const _txIncome = _ctx2.profile?.net_worth ? `User net worth: ₹${Number(_ctx2.profile.net_worth).toLocaleString('en-IN')}.` : '';
+    const _txStage  = _ctx2.identity?.life_stage || '';
+    const context = `You are a tax expert for Indian taxpayers (FY 2025-26). Answer concisely (3-5 sentences). Use ₹, cite actual sections (80C, 80D, etc). No markdown. ${_txIncome} ${_txStage ? `Stage: ${_txStage}.` : ''} ${AryaAI.getContextBlock ? AryaAI.getContextBlock().slice(0, 600) : ''}`;
     try {
       const result = await AryaAI.ask(`Tax question: ${q}`, (tok, display) => {
         if (display !== undefined) streamSpan.textContent = display;

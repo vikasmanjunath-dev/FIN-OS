@@ -38,32 +38,76 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="../js/finos-context.js"></script>
   <script>
     const chatBox = document.getElementById('chatBox');
     const chatInput = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendBtn');
-    let sessionId = null; // Memory persistence
+    let sessionId = null;
+
+    /** Build a personalised context block from window.FINOS_USER_CONTEXT */
+    function buildUserContext() {
+      try {
+        const ctx = window.FINOS_USER_CONTEXT;
+        const id = ctx?.identity || {};
+        const INR = n => '₹' + Number(n || 0).toLocaleString('en-IN');
+        const name  = id.name  || localStorage.getItem('finos_display_name') || 'Investor';
+        const dna   = id.financial_dna || localStorage.getItem('finos_financial_dna') || 'Explorer';
+        const lines = [
+          `Name: ${name} | DNA: ${dna} | Stage: ${id.life_stage || localStorage.getItem('finos_stage') || 'unknown'}`,
+          `Income: ₹${id.income_range || localStorage.getItem('finos_income') || 'unknown'}/month | Mindset: ${id.mindset || localStorage.getItem('finos_mindset') || 'unknown'}`,
+        ];
+        const prof = ctx?.profile || {};
+        lines.push(`Net worth: ${INR(prof.net_worth || localStorage.getItem('finos_net_worth') || 0)} | Savings rate: ${prof.savings_rate || localStorage.getItem('finos_savings_rate') || 0}% | Health: ${prof.health_score || localStorage.getItem('finos_health_score') || 0}/100`);
+        const dnaData = ctx?.dna || (() => { try { return JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || 'null'); } catch { return null; } })();
+        if (dnaData?.archetype) lines.push(`Archetype: ${dnaData.archetype}`);
+        if (dnaData?.scores?.length >= 5) lines.push(`DNA scores → Risk:${dnaData.scores[0]} Discipline:${dnaData.scores[3]} Growth:${dnaData.scores[4]}`);
+        const tx = ctx?.financial?.transactions;
+        if (tx) lines.push(`Transactions → Income: ${INR(tx.total_income)} | Expenses: ${INR(tx.total_expense)}`);
+        const goals = ctx?.financial?.goals;
+        if (goals?.length) lines.push(`Goals: ${goals.slice(0,3).map(g => `${g.name} ${g.progress||0}%`).join(' · ')}`);
+        const portfolio = ctx?.financial?.portfolio;
+        if (portfolio) lines.push(`Portfolio: ${INR(portfolio.total_value)} | P&L: ${portfolio.pnl_pct > 0 ? '+' : ''}${portfolio.pnl_pct}%`);
+        const journal = ctx?.trade_journal;
+        if (journal?.total_trades) lines.push(`Trade journal: ${journal.total_trades} trades | Win rate: ${journal.win_rate}%`);
+        return lines.join('\n');
+      } catch { return ''; }
+    }
+
+    /** Load psych profile for brain.py */
+    function getPsychProfile() {
+      try {
+        const d = window.FINOS_USER_CONTEXT?.dna || JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || 'null');
+        return d?.archetype ? { archetype: d.archetype, bio: d.bio || '', desiContext: d.desiContext || '', chartData: d.scores || [], resilience: d.resilience || 50, leak: d.leak || 'NONE', leakDesc: d.leakDesc || '', strengths: d.strengths || [], weaknesses: d.weaknesses || [], raw: d.raw || {} } : null;
+      } catch { return null; }
+    }
 
     async function sendMessage() {
       const text = chatInput.value.trim();
       if (!text) return;
 
-      // Add user message to UI
       appendMessage(text, 'user');
       chatInput.value = '';
 
-      // Create an empty assistant message box for the stream
       const assistantDiv = document.createElement('div');
       assistantDiv.className = 'msg assistant';
       assistantDiv.innerHTML = '<span style="opacity:0.5">Processing...</span>';
       chatBox.appendChild(assistantDiv);
       chatBox.scrollTop = chatBox.scrollHeight;
 
+      const userCtx    = buildUserContext();
+      const psychProf  = getPsychProfile();
+
       try {
         const response = await fetch('http://127.0.0.1:8000/api/chat/stream', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, session_id: sessionId })
+          body: JSON.stringify({
+            message:       text,
+            session_id:    sessionId,
+            context:       userCtx || undefined,
+            psych_profile: psychProf || undefined,
+          })
         });
 
         const reader = response.body.getReader();

@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fmt } from "../utils/constants";
 import { StaggerContainer, StaggerItem } from "../components/PageTransition";
+import AryaPanel from "../components/AryaPanel";
 
 function calcPayoff(debts, strategy, extraPayment = 0) {
   if (!debts || debts.length === 0) return { months: 0, totalInterest: 0, timeline: [] };
@@ -198,6 +199,21 @@ export default function DebtDestroyer({ debts, setDebts }) {
                   </div>
                 ))}
               </div>
+            </StaggerItem>
+
+            {/* ARYA DEBT ANALYSIS */}
+            <StaggerItem>
+              <AryaPanel
+                title="Arya's Debt Elimination Strategy"
+                subtitle="Personalized payoff plan based on your debt stack"
+                accentColor="#EF4444"
+                financialData={{ INCOME: 0, needs: 0, wants: 0, saves: 0, total: totalDebt, savings: 0, health: 0, transactions: [] }}
+                deps={[debts.length, extraPayment]}
+                prompt={() => {
+                  const debtList = debts.map(d => `${d.name} (${d.type}): ₹${fmt(d.amount)} at ${d.rate}% p.a., min ₹${fmt(d.minPayment)}/mo`).join("; ");
+                  return `My debts: ${debtList}. Extra monthly payment I can make: ₹${fmt(extraPayment)}. Avalanche clears in ${avalanche.months} months with ₹${fmt(avalanche.totalInterest)} interest. Snowball in ${snowball.months} months with ₹${fmt(snowball.totalInterest)} interest. Which strategy do you recommend for me specifically, and what's the ONE debt I should attack first? Give me a concrete monthly action plan.`;
+                }}
+              />
             </StaggerItem>
 
             {/* DEBT LIST */}

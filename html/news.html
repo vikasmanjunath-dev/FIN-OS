@@ -182,7 +182,7 @@
       <a href="track-finances.html">Track Finances</a>
       <a href="../stock-dashboard/index.html">Live Tracker</a>
       <a href="simulator-landing.html">Train Mindset</a>
-      <a href="news.html" class="active">News</a>
+      <a href="http://localhost:3000" class="active">News</a>
       <a href="settings.html">Settings</a>
     </nav>
   </aside>
@@ -497,6 +497,8 @@
   }
 </script>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/finos-context.js"></script>
   <script src="../js/arya-ai.js"></script>
   <script>
   // ── Arya News Digest ────────────────────────────────────────────────────────
@@ -514,24 +516,29 @@
       }
     }
 
-    // Pull user profile context
-    const name       = localStorage.getItem('finos_display_name') || 'Investor';
-    const interests  = localStorage.getItem('finos_interests')    || 'stocks, mutual funds';
-    const dna        = localStorage.getItem('finos_financial_dna')|| 'Explorer';
-    const netWorth   = localStorage.getItem('finos_net_worth')    || '0';
-    const today      = new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
+    // Full DB context from finos-context.js
+    const _ctx      = (typeof AryaAI !== 'undefined' && AryaAI.getContext()) || {};
+    const name      = _ctx.identity?.name          || localStorage.getItem('finos_display_name') || 'Investor';
+    const dna       = _ctx.identity?.financial_dna || localStorage.getItem('finos_financial_dna') || 'Explorer';
+    const rawInt    = _ctx.identity?.interests;
+    const interests = Array.isArray(rawInt) ? rawInt.join(', ') : (rawInt || localStorage.getItem('finos_interests') || 'stocks, mutual funds');
+    const netWorth  = _ctx.profile?.net_worth    || localStorage.getItem('finos_net_worth') || '0';
+    const savings   = _ctx.profile?.savings_rate || localStorage.getItem('finos_savings_rate') || '0';
+    const portfolio = _ctx.financial?.portfolio;
+    const topHoldings = portfolio?.holdings?.slice(0,4).map(h => h.symbol).join(', ') || null;
+    const today     = new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
 
     textEl.innerHTML = '<span style="color:rgba(0,243,255,.5);">DECRYPTING INTEL FOR ' + name.toUpperCase() + '…</span>';
 
-    const prompt = `Today is ${today}. You are briefing ${name} (Financial DNA: ${dna}, interests: ${interests}).
+    const prompt = `Today is ${today}. You are briefing ${name} (DNA: ${dna}, interests: ${interests}, net worth: ₹${Number(netWorth).toLocaleString('en-IN')}, savings rate: ${savings}%${topHoldings ? `, portfolio: ${topHoldings}` : ''}).
 
-Give a 4-point morning market intelligence brief:
-1. One key macro trend affecting Indian markets today
-2. One thing crypto investors should watch
-3. One insight relevant to their interests (${interests})
-4. One mental model or edge they should apply today
+Give a 4-point morning market intelligence brief PERSONALISED to their actual profile:
+1. One key macro trend affecting Indian markets today that's relevant to their interests
+2. One insight for their specific portfolio/interests (${interests})
+3. One risk or opportunity they should specifically watch given their holdings/profile
+4. One mental model or edge they should apply today based on their stage/DNA
 
-Tone: sharp, confident intel-analyst style. Each point = 1 sentence. No numbering, use • bullets. No preamble.`;
+Tone: sharp intel-analyst. Each point = 1 sentence. Use • bullets. Reference their real profile. No preamble.`;
 
     textEl.innerHTML = '<span id="arya-news-stream" style="color:rgba(255,255,255,.8);"></span>';
     const streamEl = document.getElementById('arya-news-stream');

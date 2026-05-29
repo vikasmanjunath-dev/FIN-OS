@@ -5,6 +5,7 @@ import {
   Tooltip, Legend, RadialLinearScale, PointElement, LineElement, Filler 
 } from "chart.js";
 import { fmt, calcTotals, calcRegret } from "../utils/constants";
+import { streamAskArya } from "../utils/aiService";
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, RadialLinearScale, PointElement, LineElement, Filler);
 
@@ -104,12 +105,15 @@ export default function BudgetIntelligenceDashboard({ transactions, INCOME }) {
     plugins: { legend: { display: false } }, maintainAspectRatio: false
   };
 
-  const simulateAiQuery = (query) => {
-      setAiInput(query);
-      setAiResponse(">> Accessing Quantum Ledger...\n>> Analyzing Temporal Spending Patterns...");
-      setTimeout(() => {
-          setAiResponse(`[PREDICTIVE ALERT]: Neural nets indicate an 84% probability of an emotional purchase this coming Friday at 8:00 PM based on your 'Fatigue Spending' history.\n\n[RECOMMENDATION]: Pre-emptively locking ₹3,000 into your Liquid Reserve Vault. Do you authorize this protocol?`);
-      }, 1500);
+  const simulateAiQuery = async (query) => {
+    setAiInput(query);
+    setAiResponse(">> Accessing Quantum Ledger…");
+    try {
+      const financialData = { INCOME, needs, wants, saves, total: needs + wants + saves, savings, health, transactions };
+      await streamAskArya(query, financialData, (display) => setAiResponse(display));
+    } catch (err) {
+      setAiResponse(`[ERROR] ${err.message}\n\nMake sure Ollama is running: ollama serve`);
+    }
   };
 
   return (

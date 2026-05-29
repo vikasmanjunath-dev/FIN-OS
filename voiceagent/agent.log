@@ -1,21 +1,10 @@
-2026-05-29 14:36:26,115 [INFO] fin-os.memory: Persistent memory: ENABLED  (Supabase https://oeapcyucnduhwpgxfknb.supabase.co)
-2026-05-29 14:36:26,116 [INFO] fin-os: Loading Whisper tiny…
-2026-05-29 14:36:27,001 [INFO] fin-os: Whisper tiny ready
-2026-05-29 14:36:27,006 [INFO] fin-os: FIN-OS v9  ws://127.0.0.1:8765  LLM=qwen3:14b  STT=Whisper-tiny
-2026-05-29 14:36:27,894 [INFO] fin-os: TTS warmed up
-2026-05-29 14:36:31,616 [INFO] fin-os: Ollama warmed up (qwen3:14b)
-2026-05-29 14:36:31,644 [INFO] websockets.server: server listening on 127.0.0.1:8765
-2026-05-29 14:36:31,644 [INFO] fin-os: Ready — http://localhost:8080
-2026-05-29 14:38:06,079 [INFO] websockets.server: connection open
-2026-05-29 14:38:06,080 [INFO] fin-os: Connected (1)
-2026-05-29 14:38:06,085 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-29 14:38:06,085 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-29 14:38:06,584 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-29 14:38:06,584 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-29 14:38:06,885 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-29 14:38:06,885 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-29 14:38:07,277 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-29 14:38:07,277 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-29 14:38:09,421 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
+2026-05-29 21:08:48,724 [INFO] fin-os.memory: Persistent memory: ENABLED  (Supabase https://oeapcyucnduhwpgxfknb.supabase.co)
+2026-05-29 21:08:48,727 [INFO] fin-os: Loading Whisper tiny…
+2026-05-29 21:08:49,122 [INFO] fin-os: Whisper tiny ready
+2026-05-29 21:08:49,126 [INFO] fin-os: FIN-OS v9  ws://127.0.0.1:8765  LLM=qwen3:14b  STT=Whisper-tiny
+2026-05-29 21:08:49,950 [INFO] fin-os: TTS warmed up
+2026-05-29 21:08:55,373 [INFO] fin-os: Ollama warmed up (qwen3:14b)
+2026-05-29 21:08:55,420 [INFO] websockets.server: server listening on 127.0.0.1:8765
+2026-05-29 21:08:55,421 [INFO] fin-os: Ready — http://localhost:8080
 /opt/homebrew/Cellar/python@3.11/3.11.15_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
   warnings.warn('resource_tracker: There appear to be %d '

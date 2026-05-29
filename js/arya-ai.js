@@ -1,5 +1,5 @@
 /**
- * arya-ai.js  — FIN·OS Universal AI Engine  v1.0
+ * arya-ai.js  — FIN·OS Universal AI Engine  v2.0
  * ─────────────────────────────────────────────────────────────────────────────
  * Drop this one script on any page to unlock:
  *   • Calculator AI explainer     (AryaAI.explainCalc)
@@ -44,6 +44,119 @@ Rules:
 • No markdown formatting — plain conversational text only`;
 
   /* ══════════════════════════════════════════════════════════════════════════
+     USER CONTEXT — reads from window.FINOS_USER_CONTEXT (set by finos-context.js)
+     Falls back gracefully to localStorage if context script isn't loaded.
+  ══════════════════════════════════════════════════════════════════════════ */
+
+  const INR = n => '₹' + Number(n || 0).toLocaleString('en-IN');
+
+  /**
+   * Build a rich, structured context block from window.FINOS_USER_CONTEXT.
+   * This is appended to every AI system prompt automatically so Arya always
+   * knows everything about the user — profile, transactions, goals, portfolio,
+   * budget, trade journal, DNA scores, and more.
+   */
+  function _buildContextBlock() {
+    const ctx = window.FINOS_USER_CONTEXT;
+    const lines = [];
+
+    // ── Identity ──────────────────────────────────────────────────────────
+    const id = ctx?.identity || {};
+    const name = id.name || localStorage.getItem('finos_display_name') || 'Investor';
+    const dna  = id.financial_dna || localStorage.getItem('finos_financial_dna') || 'Explorer';
+    lines.push('══ USER CONTEXT ══');
+    lines.push(`Name: ${name} | DNA: ${dna} | Stage: ${id.life_stage || localStorage.getItem('finos_stage') || 'unknown'}`);
+    lines.push(`Income bracket: ₹${id.income_range || localStorage.getItem('finos_income') || 'unknown'}/month | Mindset: ${id.mindset || localStorage.getItem('finos_mindset') || 'unknown'}`);
+
+    const interests = (() => {
+      if (Array.isArray(id.interests)) return id.interests.join(', ');
+      if (id.interests) return id.interests;
+      try { return JSON.parse(localStorage.getItem('finos_interests') || '[]').join(', '); } catch { return 'stocks'; }
+    })();
+    lines.push(`Interests: ${interests}`);
+    if (id.curiosity) lines.push(`Currently curious about: "${id.curiosity}"`);
+    if (id.city)      lines.push(`City: ${id.city}`);
+
+    // ── DB Profile ────────────────────────────────────────────────────────
+    const prof = ctx?.profile || {};
+    const healthScore  = prof.health_score  || localStorage.getItem('finos_health_score')  || 0;
+    const netWorth     = prof.net_worth      || localStorage.getItem('finos_net_worth')      || 0;
+    const savingsRate  = prof.savings_rate   || localStorage.getItem('finos_savings_rate')   || 0;
+    lines.push(`Net worth: ${INR(netWorth)} | Savings rate: ${savingsRate}% | Health score: ${healthScore}/100`);
+
+    // ── Financial DNA Scores (psychographic) ─────────────────────────────
+    const dnaData = ctx?.dna || (() => { try { return JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || 'null'); } catch { return null; } })();
+    if (dnaData?.scores?.length >= 5) {
+      lines.push(`DNA scores → Risk:${dnaData.scores[0]} Security:${dnaData.scores[1]} Status:${dnaData.scores[2]} Discipline:${dnaData.scores[3]} Growth:${dnaData.scores[4]} (out of 100)`);
+    }
+    if (dnaData?.archetype) lines.push(`Financial archetype: ${dnaData.archetype}`);
+
+    // ── Transactions (from Supabase via finos-context) ────────────────────
+    const tx = ctx?.financial?.transactions;
+    if (tx) {
+      lines.push(`Transactions: ${tx.count || tx.tx_count || 0} recorded | Income: ${INR(tx.total_income)} | Expenses: ${INR(tx.total_expense)} | Net: ${INR((tx.total_income||0)-(tx.total_expense||0))}`);
+      if (tx.top_categories?.length) {
+        lines.push(`Top spend categories: ${tx.top_categories.slice(0,4).map(c => `${c.cat} ${INR(c.amt)}`).join(' · ')}`);
+      }
+    }
+
+    // ── Budget Tracker (from ExpenseTracker app) ──────────────────────────
+    const budget = ctx?.budget_tracker;
+    if (budget && budget.income_monthly) {
+      lines.push(`Budget tracker: Income ₹${budget.income_monthly}/mo | Spent ₹${budget.spent_total} | Savings rate: ${budget.savings_rate}%`);
+      if (budget.goals?.length) {
+        lines.push(`Budget goals: ${budget.goals.slice(0,3).map(g => `${g.name} ${g.progress_pct||g.progress}%`).join(' · ')}`);
+      }
+      if (budget.fire_number) lines.push(`FIRE number: ${INR(budget.fire_number)} | Est. years to FIRE: ${budget.fire_years_estimate || 'calculating'}`);
+      if (budget.total_debt)  lines.push(`Total debt: ${INR(budget.total_debt)}`);
+    }
+
+    // ── Financial Goals (from Supabase) ──────────────────────────────────
+    const goals = ctx?.financial?.goals;
+    if (goals?.length) {
+      lines.push(`Goals: ${goals.slice(0,4).map(g => `${g.name} ${g.progress||0}% (${INR(g.saved||g.current||0)} / ${INR(g.target)})`).join(' · ')}`);
+    }
+
+    // ── Portfolio / Holdings (from Supabase) ─────────────────────────────
+    const portfolio = ctx?.financial?.portfolio;
+    if (portfolio) {
+      lines.push(`Portfolio: ${INR(portfolio.total_value)} total | P&L: ${INR(portfolio.pnl)} (${portfolio.pnl_pct > 0 ? '+' : ''}${portfolio.pnl_pct}%)`);
+      if (portfolio.holdings?.length) {
+        lines.push(`Holdings: ${portfolio.holdings.slice(0,6).map(h => `${h.symbol} (qty:${h.quantity})`).join(', ')}`);
+      }
+    }
+
+    // ── Trade Journal (from TradeBook Pro localStorage) ───────────────────
+    const journal = ctx?.trade_journal;
+    if (journal?.total_trades) {
+      lines.push(`Trade journal: ${journal.total_trades} trades | Win rate: ${journal.win_rate}% | Total P&L: ${INR(journal.total_pnl)} | Profit factor: ${journal.profit_factor || '–'}`);
+      if (journal.current_streak) lines.push(`Current streak: ${journal.current_streak}`);
+      if (journal.worst_symbol?.sym) lines.push(`Worst symbol: ${journal.worst_symbol.sym} (${INR(journal.worst_symbol.pnl)})`);
+    }
+
+    // ── Page context ──────────────────────────────────────────────────────
+    if (ctx?._page_module) lines.push(`Current page: ${ctx._page_module}`);
+    if (ctx?._sync_phase === 'full') lines.push(`[Data source: Supabase DB — complete]`);
+    else                             lines.push(`[Data source: localStorage — login for full DB data]`);
+
+    lines.push('══════════════════');
+    return lines.filter(Boolean).join('\n');
+  }
+
+  /**
+   * Return the personalised system prompt.
+   * If a custom system is passed, append user context to it.
+   * If null/undefined, use BASE_SYSTEM + context.
+   */
+  function _systemWithContext(customSystem) {
+    const base = customSystem || BASE_SYSTEM;
+    // Don't inject if the caller already has the full context (e.g. News1 which builds its own)
+    if (base.includes('══ USER CONTEXT ══')) return base;
+    const ctx = _buildContextBlock();
+    return base + '\n\n' + ctx;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════════
      STATE
   ══════════════════════════════════════════════════════════════════════════ */
   let _ws        = null;
@@ -81,7 +194,7 @@ Rules:
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({
           model:  OLLAMA_MODEL,
-          system: system || BASE_SYSTEM,
+          system: _systemWithContext(system),   // ← auto-inject full user context
           prompt: prompt,
           stream: true,
           options: {
@@ -462,7 +575,12 @@ Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
    * @param {object} data — { name, netWorth, savingsRate, healthScore, anomalies[] }
    * @param {Element} anchorEl — insert brief before this element
    */
-  AryaAI.dashboardBrief = async function (data, anchorEl) {
+  /**
+   * @param {object}  data     — { name, netWorth, savingsRate, healthScore, anomalies[], customNote }
+   * @param {Element} anchorEl — insert brief before this element
+   * @param {boolean} force    — when true, skip daily cache and generate fresh
+   */
+  AryaAI.dashboardBrief = async function (data, anchorEl, force = false) {
     _injectCSS();
 
     const { name = 'Trader', netWorth = 0, savingsRate = 0,
@@ -470,7 +588,7 @@ Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
 
     // Cache key: one brief per calendar day
     const cacheKey = 'arya_dash_brief_v2_' + new Date().toDateString();
-    const cached   = sessionStorage.getItem(cacheKey);
+    const cached   = force ? null : sessionStorage.getItem(cacheKey);
 
     // Inject the brief panel into the DOM
     let brief = document.getElementById('arya-dashboard-brief');
@@ -480,10 +598,18 @@ Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
       brief.innerHTML = `
         <div class="brief-header">
           <div class="brief-icon">🧠</div>
-          <div>
+          <div style="flex:1;">
             <div class="brief-title">Arya's Morning Brief</div>
-            <div class="brief-time">${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})} · For ${name}</div>
+            <div class="brief-time" id="arya-brief-time">${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})} · For ${name}</div>
           </div>
+          <button id="arya-brief-refresh-btn"
+            onclick="AryaAI._refreshDashBrief()"
+            title="Generate a fresh brief"
+            style="padding:4px 10px;border-radius:8px;border:1px solid rgba(0,255,136,.25);
+                   background:rgba(0,255,136,.06);color:#00ff88;font-size:10px;font-weight:700;
+                   cursor:pointer;font-family:-apple-system,sans-serif;letter-spacing:.4px;flex-shrink:0;">
+            ↺ Refresh
+          </button>
         </div>
         <div class="brief-text" id="arya-brief-text">
           <div class="arya-ai-thinking">
@@ -504,7 +630,11 @@ Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
       }
     }
 
+    // Store last-used args on the element so ↺ Refresh can re-invoke without new data fetch
+    brief._lastData = { data, anchorEl };
+
     const textEl = document.getElementById('arya-brief-text');
+    const refreshBtn = document.getElementById('arya-brief-refresh-btn');
 
     // Use cache — but only if it's clean (not broken/empty/contains think tags)
     if (cached && cached.length > 30 && !cached.includes('<think>')) {
@@ -512,6 +642,14 @@ Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
       _renderAnomalyChips(anomalies);
       return;
     }
+
+    // Show thinking state while generating
+    textEl.innerHTML = `<div class="arya-ai-thinking">
+      <span class="arya-ai-thinking-dot"></span>
+      <span class="arya-ai-thinking-dot"></span>
+      <span class="arya-ai-thinking-dot"></span>
+      <span style="margin-left:4px;font-size:13px;">Arya tera brief bana rahi hai…</span>
+    </div>`;
 
     // Build a tight, focused prompt — no fluff so the model stays on track
     const noteStr    = customNote ? `\nNote: ${customNote}` : '';
@@ -532,16 +670,30 @@ Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
 
     textEl.innerHTML = '<span class="arya-ai-streaming arya-ai-cursor"></span>';
     const span = textEl.querySelector('span');
+    if (refreshBtn) { refreshBtn.disabled = true; refreshBtn.textContent = '…'; }
 
+    // Update timestamp on refresh
+    const timeEl = document.getElementById('arya-brief-time');
+    if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) + ` · For ${name}`;
+
+    let firstToken = true;
     try {
       const result = await _ollamaStream(BASE_SYSTEM, prompt, (tok, display) => {
-        span.textContent = display || '…';
+        if (display && display.trim()) {
+          firstToken = false;
+          span.textContent = display;
+        }
       });
       span.classList.remove('arya-ai-cursor');
 
       // Only cache a clean, non-empty result
       if (result && result.length > 20) {
         sessionStorage.setItem(cacheKey, result);
+        span.textContent = result;
+      } else if (firstToken) {
+        textEl.innerHTML = `<span style="color:rgba(255,255,255,.45);font-size:13px;">
+          ⚠️ Arya offline — run <code>ollama serve</code> to enable AI brief
+        </span>`;
       }
 
       _renderAnomalyChips(anomalies);
@@ -549,7 +701,21 @@ Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
       textEl.innerHTML = `<span style="color:rgba(255,255,255,.45);font-size:13px;">
         ⚠️ Arya offline — run <code>ollama serve</code> to enable AI brief
       </span>`;
+    } finally {
+      if (refreshBtn) { refreshBtn.disabled = false; refreshBtn.textContent = '↺ Refresh'; }
     }
+  };
+
+  /** Called by the ↺ Refresh button in the dashboard brief panel */
+  AryaAI._refreshDashBrief = function () {
+    // Clear today's cache then re-call with force=true
+    const cacheKey = 'arya_dash_brief_v2_' + new Date().toDateString();
+    sessionStorage.removeItem(cacheKey);
+    // Re-use the last known data object stored on the brief element
+    const brief = document.getElementById('arya-dashboard-brief');
+    if (!brief || !brief._lastData) return;
+    const { data, anchorEl } = brief._lastData;
+    AryaAI.dashboardBrief(data, anchorEl, true);
   };
 
   function _renderAnomalyChips(anomalies) {
@@ -950,6 +1116,60 @@ Keep it to 2-3 sentences total, natural Hinglish.
 
   /* ── Status check ─────────────────────────────────────────────────────────── */
   AryaAI.isOnline = _ollamaOnline;
+
+  /* ── Context access ─────────────────────────────────────────────────────── */
+  /**
+   * Returns the raw window.FINOS_USER_CONTEXT object (or null if not loaded).
+   * Inline page scripts can call this to build rich personalised prompts.
+   */
+  AryaAI.getContext = function () {
+    return window.FINOS_USER_CONTEXT || null;
+  };
+
+  /**
+   * Returns a formatted, human-readable context block string.
+   * Use this to manually inject user context into custom prompts:
+   *   const ctx = AryaAI.getContextBlock();
+   *   AryaAI.ask(`My question\n\nUser info:\n${ctx}`);
+   */
+  AryaAI.getContextBlock = function () {
+    return _buildContextBlock();
+  };
+
+  /**
+   * Returns a system prompt string that already includes full user context.
+   * Pass this as the `system` param to AryaAI.ask() to avoid double-injecting.
+   */
+  AryaAI.getPersonalisedSystem = function (baseSystem) {
+    return _systemWithContext(baseSystem || BASE_SYSTEM);
+  };
+
+  /**
+   * Wait for finos-context.js to finish its Supabase enrichment, then call fn.
+   * If context is already fully loaded, calls fn immediately.
+   * Useful for page scripts that want DB-level data in their prompts.
+   *
+   * @param {function} fn  — called with the full context object
+   * @param {number}   maxWait — ms before giving up and calling fn anyway (default 5000)
+   */
+  AryaAI.onContextReady = function (fn, maxWait = 5000) {
+    const ctx = window.FINOS_USER_CONTEXT;
+    if (ctx && ctx._sync_phase === 'full') {
+      fn(ctx); return;
+    }
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (!settled) { settled = true; fn(window.FINOS_USER_CONTEXT || null); }
+    }, maxWait);
+    window.addEventListener('finos-context-ready', function handler(e) {
+      if (e.detail?.phase === 'full' && !settled) {
+        settled = true;
+        clearTimeout(timer);
+        window.removeEventListener('finos-context-ready', handler);
+        fn(window.FINOS_USER_CONTEXT || null);
+      }
+    });
+  };
 
   /* ══════════════════════════════════════════════════════════════════════════
      AUTO-INIT — detect page type and self-configure

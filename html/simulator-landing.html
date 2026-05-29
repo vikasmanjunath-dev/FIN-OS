@@ -677,6 +677,7 @@
 [data-theme="light"] .rm-skip { color: #9A9ABF !important; }
 </style>
 
+  <script src="../js/finos-context.js"></script>
   <script src="../js/finos-widget.js?v=4"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
@@ -1431,6 +1432,8 @@ Meet the user where they are first, then move them forward. Use their real profi
 
 User profile:
 Name: ${_aryaProfile.name||name||'the trader'}, Level: ${lvl} (${xp.toLocaleString('en-IN')} XP), Discipline: ${disc}/100 (${grade}), Sessions: ${sess}, FOMO blocked: ${fomo}${arch?'\nArchetype: '+arch:''}
+
+${(()=>{try{const ctx=window.FINOS_USER_CONTEXT;if(!ctx)return'';const id=ctx.identity||{};const INR=n=>'₹'+Number(n||0).toLocaleString('en-IN');const lines=['Financial profile (use to personalise advice):'];if(id.income_range)lines.push(`  Income: ₹${id.income_range}/mo | Stage: ${id.life_stage||'unknown'} | Mindset: ${id.mindset||'unknown'}`);const prof=ctx.profile||{};if(prof.net_worth||prof.savings_rate)lines.push(`  Net worth: ${INR(prof.net_worth||0)} | Savings rate: ${prof.savings_rate||0}% | Health: ${prof.health_score||0}/100`);const dna=ctx.dna;if(dna?.scores?.length>=5)lines.push(`  DNA → Risk:${dna.scores[0]} Discipline:${dna.scores[3]} Growth:${dna.scores[4]}`);const j=ctx.trade_journal;if(j?.total_trades)lines.push(`  Trades: ${j.total_trades} | Win rate: ${j.win_rate}% | P&L: ${INR(j.total_pnl)}${j.current_streak?' | Streak: '+j.current_streak:''}`);const goals=ctx.financial?.goals;if(goals?.length)lines.push(`  Goals: ${goals.slice(0,3).map(g=>`${g.name} ${g.progress||0}%`).join(' · ')}`);return lines.length>1?lines.join('\n'):'';}catch{return'';}})()}
 
 Saved memory:
 ${_buildAryaMemoryBlock({disc,xp,sess,fomo,name,arch})}

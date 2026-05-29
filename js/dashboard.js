@@ -94,53 +94,55 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const anchorEl = document.getElementById('arya-brief-placeholder');
 
-            // Gather data from Supabase if logged in, else use cached/empty
-            let transactions = [], goals = [], profile = {};
-            const anomalies = [];
+            // ── Use finos-context.js enriched data (DB + budget tracker + journal)
+            // Wait up to 5s for full Supabase sync, then proceed with whatever we have
+            AryaAI.onContextReady(async (finosCtx) => {
+                const prof = finosCtx?.profile || {};
+                const tx   = finosCtx?.financial?.transactions || {};
+                const goals_db = finosCtx?.financial?.goals || [];
+                const portfolio = finosCtx?.financial?.portfolio || null;
+                const budget = finosCtx?.budget_tracker || null;
+                const journal = finosCtx?.trade_journal || null;
 
-            if (client && supabaseUser) {
-                const [txRes, goalRes, profileRes] = await Promise.allSettled([
-                    client.from('transactions').select('amount,type,category,date')
-                        .eq('user_id', supabaseUser.id)
-                        .gte('date', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
-                        .order('date', { ascending: false }).limit(30),
-                    client.from('goals').select('name,target_amount,current_amount,deadline')
-                        .eq('user_id', supabaseUser.id).limit(5),
-                    client.from('profiles').select('health_score,net_worth,savings_rate,financial_dna')
-                        .eq('id', supabaseUser.id).single()
-                ]);
-
-                transactions = txRes.value?.data  || [];
-                goals        = goalRes.value?.data || [];
-                profile      = profileRes.value?.data || {};
-
-                // Anomaly: category > 30% of total spend
-                const catSpend = {};
-                transactions.filter(t => t.type === 'expense').forEach(t => {
-                    catSpend[t.category] = (catSpend[t.category] || 0) + Math.abs(t.amount);
+                // Build anomaly list from DB transaction data
+                const anomalies = [];
+                if (tx.top_categories?.length) {
+                    const totalSpend = tx.total_expense || 0;
+                    tx.top_categories.forEach(c => {
+                        const pct = totalSpend > 0 ? Math.round((c.amt / totalSpend) * 100) : 0;
+                        if (pct > 30) anomalies.push(`⚠ ${c.cat} is ${pct}% of expenses (₹${Number(c.amt).toLocaleString('en-IN')})`);
+                    });
+                }
+                if (budget && !budget.goals?.some(g => /sip|invest|mutual/i.test(g.name || ''))) {
+                    anomalies.push('⚠ No SIP/investment goal tracked in Budget Tracker');
+                }
+                if (journal?.total_trades > 0 && journal.win_rate < 40) {
+                    anomalies.push(`⚠ Trade journal: win rate ${journal.win_rate}% — below 40% threshold`);
+                }
+                if (portfolio && portfolio.pnl_pct < -10) {
+                    anomalies.push(`⚠ Portfolio down ${portfolio.pnl_pct}% overall`);
+                }
+                // Goals behind target
+                goals_db.filter(g => g.progress < 25 && g.deadline).forEach(g => {
+                    anomalies.push(`⚠ Goal "${g.name}" only ${g.progress}% complete`);
                 });
-                const totalSpend = Object.values(catSpend).reduce((s, v) => s + v, 0);
-                Object.entries(catSpend).forEach(([cat, amt]) => {
-                    if (amt / totalSpend > 0.3 && totalSpend > 0)
-                        anomalies.push(`⚠ ${cat} spending: ₹${Number(amt).toLocaleString('en-IN')} (${(amt / totalSpend * 100).toFixed(0)}% of budget)`);
-                });
 
-                const hasSIP = transactions.some(t => /sip|mutual|invest/i.test(t.category));
-                if (!hasSIP) anomalies.push('⚠ No SIP transaction this month detected');
-            }
+                const netWorth    = parseFloat(prof.net_worth    || localStorage.getItem('finos_net_worth')    || 0);
+                const savingsRate = parseFloat(prof.savings_rate || localStorage.getItem('finos_savings_rate') || budget?.savings_rate || 0);
+                const healthScore = parseFloat(prof.health_score || localStorage.getItem('finos_health_score') || 0);
 
-            // Pull any locally stored financial data as fallback context
-            const localNetWorth    = parseFloat(localStorage.getItem('finos_net_worth')    || profile.net_worth    || 0);
-            const localSavingsRate = parseFloat(localStorage.getItem('finos_savings_rate') || profile.savings_rate || 0);
-            const localHealthScore = parseFloat(localStorage.getItem('finos_health_score') || profile.health_score || 0);
+                AryaAI.dashboardBrief({
+                    name:        displayName,
+                    netWorth,
+                    savingsRate,
+                    healthScore,
+                    anomalies:   anomalies.slice(0, 5),
+                    customNote:  journal?.total_trades > 0
+                        ? `Trade journal: ${journal.total_trades} trades, ${journal.win_rate}% win rate`
+                        : (budget ? `Budget tracker active: savings rate ${budget.savings_rate}%` : null),
+                }, anchorEl);
 
-            AryaAI.dashboardBrief({
-                name:        displayName,
-                netWorth:    localNetWorth,
-                savingsRate: localSavingsRate,
-                healthScore: localHealthScore,
-                anomalies,
-            }, anchorEl);
+            }, 5000);
 
         } catch (e) {
             console.debug('[Arya] Dashboard brief skipped:', e.message);
