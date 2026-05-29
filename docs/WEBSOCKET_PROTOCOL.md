@@ -1,22 +1,30 @@
 # FIN-OS Voice Agent — WebSocket Protocol
 
-> `ws://localhost:8765` · Server: `voiceagent/agent.py`
+> `ws://127.0.0.1:8765` · Server: `voiceagent/agent.py`
+
+There are two browser clients that connect to this server:
+
+| Client | Source | When used |
+|---|---|---|
+| **Standalone voice agent** | `voiceagent/index.html` | `finos-widget.js` opens it as an iframe — all browsers |
+| **Arya Brave path** | `arya-tradebook.js`, `mindset-sim-hub.html`, `simulator-landing.html` | Only in Brave (auto-detected) |
+
+Both use the same WS endpoint and message protocol.
 
 ---
 
 ## Connection
 
-The browser connects to `ws://localhost:8765`. The server accepts one client at a time. If a second connection arrives, the previous session is cleanly closed first.
+The browser connects to `ws://127.0.0.1:8765`. The server accepts one client at a time. If a second connection arrives, the previous session is cleanly closed first.
 
 The connection is local-only (`127.0.0.1`). It cannot be reached from external IPs by design.
 
 ### Connection lifecycle
 
 ```
-Browser → ws://localhost:8765
-  Server: accept connection
-  Server: sends greeting if prior memory exists
-  Browser: sends "context" message with user state
+Browser → ws://127.0.0.1:8765
+  Server: accept connection, sends "ready" message
+  Browser: sends "user_context" message with page state
   Server: loads persistent memory if user_id matches
   ... conversation ...
   Browser: disconnects (tab close / page change)
@@ -35,9 +43,72 @@ Browser → ws://localhost:8765
 
 ## Browser → Agent Messages
 
-### `context`
+### `user_context`
 
-Sent immediately after connection to give the agent the user's full financial state. Also sent again if the user navigates to a different page.
+Sent immediately after connection (and on page navigation / session start) to inject live page state into every LLM response. Replaces the older `context` message format.
+
+```json
+{
+  "type": "user_context",
+  "sync_phase": "full",
+  "page_module": "trade_journal",
+  "page": { "module": "trade_journal", "title": "TradeBook Pro — Trade Journal" },
+  "identity": { "name": "Vikas Manjunath" },
+  "trade_journal": {
+    "total_trades": 73,
+    "total_pnl": 23952.76,
+    "win_rate": 58.9,
+    "avg_win": 1240.5,
+    "avg_loss": 680.2,
+    "profit_factor": 1.82,
+    "capital": 500000,
+    "weekly_target": 15000,
+    "best_symbol": { "symbol": "BANKNIFTY CE", "pnl": 8400 },
+    "worst_symbol": { "symbol": "NIFTY PE", "pnl": -3200 },
+    "current_streak": "3 win",
+    "recent_trades": [
+      { "symbol": "NIFTY CE", "type": "Long", "net": 1250, "date": "2024-05-15" }
+    ],
+    "full_context": "━━━ TRADEBOOK PRO: COMPLETE JOURNAL CONTEXT ━━━\n[all trades + all breakdowns]"
+  }
+}
+```
+
+**Mind Engine variant** (sent from `mindset-sim-hub.html` / `simulator-landing.html`):
+```json
+{
+  "type": "user_context",
+  "sync_phase": "full",
+  "page_module": "mind_engine",
+  "page": { "module": "mind_engine", "title": "FIN-OS Mind Engine" },
+  "identity": { "name": "Vikas" },
+  "financial": {
+    "custom": {
+      "module": "mind_engine",
+      "discipline_score": 72,
+      "xp": 2400,
+      "sessions": 18,
+      "fomo_blocked": 5,
+      "archetype": "The Analyst",
+      "brain_state": "Calm & Focused"
+    }
+  }
+}
+```
+
+`full_context` is a pre-formatted multi-section text block (built by `buildFullTradeContext()` in `arya-tradebook.js`) containing every individual trade plus all per-symbol/strategy/emotion/regime breakdowns. `UserContext.to_prompt()` in `agent.py` injects it verbatim into the system prompt.
+
+---
+
+### `context` (legacy — standalone voice agent UI)
+
+Sent by `voiceagent/index.html` via the `finos-context.js` pipeline. Older format — still handled by `agent.py`.
+
+```json
+{
+  "type": "context",
+  "context": {
+    "_user_id": "3e8f2a1b-...",
 
 ```json
 {
@@ -120,9 +191,18 @@ All fields are optional. The agent degrades gracefully if any are missing.
 
 ---
 
-### `text`
+### `text_input`
 
-Typed input (alternative to microphone).
+Typed input from Arya Brave path (chat input box).
+
+```json
+{
+  "type": "text_input",
+  "text": "Should I buy a house or continue renting?"
+}
+```
+
+### `text` (legacy — standalone voice agent)
 
 ```json
 {
@@ -133,9 +213,24 @@ Typed input (alternative to microphone).
 
 ---
 
-### `audio` (binary frame)
+### `audio_chunk` (Brave path)
 
-Raw PCM float32 audio data. Sent continuously from the browser AudioWorkletProcessor while microphone is active. The server buffers it and runs VAD (Voice Activity Detection) to detect end-of-speech.
+WebM/Opus audio bytes captured by `MediaRecorder` in the browser. Sent after silence is detected by the RMS watcher. The agent decodes the audio, runs VAD, and transcribes with faster-whisper.
+
+```json
+{
+  "type": "audio_chunk",
+  "data": [82, 73, 70, 70, 0, 0, ...]
+}
+```
+
+`data` is a `Uint8Array` serialised as a JSON integer array.
+
+---
+
+### `audio` (binary frame — legacy standalone agent)
+
+Raw PCM float32 audio data. Sent continuously from the browser AudioWorkletProcessor while microphone is active. The server buffers it and runs VAD to detect end-of-speech.
 
 No JSON wrapper — pure binary WebSocket frame.
 
@@ -163,9 +258,141 @@ Clears in-RAM memory for the current session. Does not delete Supabase persisten
 
 ## Agent → Browser Messages
 
-### `status`
+Two sets of message types exist — the **Brave/Arya path** (used by `arya-tradebook.js`, `mindset-sim-hub.html`, `simulator-landing.html`) and the **standalone voice agent** (`voiceagent/index.html`). They share the same WS server but use different message schemas.
 
-Sent when the agent changes state. The browser uses this to update the orb animation and label.
+---
+
+### Brave / Arya Path Messages
+
+#### `ready`
+
+First message sent after connection is established. Tells the browser the backend is online and which model is loaded.
+
+```json
+{ "type": "ready", "model": "qwen3:14b" }
+```
+
+Browser uses `model` to update the status label ("Local AI · qwen3").
+
+---
+
+#### `state`
+
+Pipeline state transitions. Browser updates mic button, wave animation, and status text.
+
+```json
+{ "type": "state", "state": "thinking" }
+```
+
+| `state` value | Browser action |
+|---|---|
+| `thinking` | Show thinking dots, stop mic, set status "THINKING…" |
+| `transcribing` | Set status "UNDERSTANDING…", hide wave |
+| `speaking` | Set status "ARYA IS SPEAKING", show wave, mic btn → 🔊 |
+| `idle` | `_bvBusy = false`; resume mic after 1.4s if listening |
+
+---
+
+#### `pipeline_start`
+
+Sent when audio processing begins (after receiving `audio_chunk`). Browser stops capture immediately so recording doesn't continue during processing.
+
+```json
+{ "type": "pipeline_start" }
+```
+
+---
+
+#### `user_transcript`
+
+STT result from faster-whisper. Displayed in chat as a user bubble.
+
+```json
+{ "type": "user_transcript", "text": "What is my win rate this month?" }
+```
+
+Not sent for `text_input` messages (browser already showed the bubble).
+
+---
+
+#### `token`
+
+Single LLM output token, streamed in real time. Browser appends to the active chat bubble.
+
+```json
+{ "type": "token", "text": "Your win rate" }
+```
+
+Tokens arrive continuously until `reply_done`.
+
+---
+
+#### `reply_done`
+
+LLM response is complete. Browser finalises the chat bubble.
+
+```json
+{ "type": "reply_done" }
+```
+
+---
+
+#### `audio_seq`
+
+One MP3 chunk of TTS audio, identified by sequence index. Browser buffers chunks and plays them in order.
+
+```json
+{
+  "type": "audio_seq",
+  "seq": 0,
+  "data": "//NExAAA..."
+}
+```
+
+- `seq` — 0-based chunk index
+- `data` — base64-encoded MP3 audio
+
+Browser queues chunks and plays each one as soon as the previous finishes (`_bvDrain` → `_bvPlayMp3`).
+
+---
+
+#### `audio_seq_done`
+
+Signals that all MP3 chunks have been sent. Browser knows the total count and can detect when playback is complete.
+
+```json
+{ "type": "audio_seq_done", "total": 3 }
+```
+
+When `_bvSeqNext >= total`, `_bvAllDone()` runs — resets state, reopens mic after 1.4s.
+
+---
+
+#### `tts_fallback`
+
+Edge TTS failed or is unavailable. Browser falls back to `window.speechSynthesis`.
+
+```json
+{ "type": "tts_fallback", "text": "Your win rate this month is 62 percent." }
+```
+
+---
+
+#### `status` (Brave path)
+
+Informational message — displayed as an AI chat bubble.
+
+```json
+{ "type": "status", "text": "Context loaded — I know all your trades." }
+```
+
+---
+
+### Standalone Voice Agent Messages (`voiceagent/index.html`)
+
+#### `status`
+
+Sent when the agent changes state. Browser updates the orb animation and label.
 
 ```json
 {
@@ -174,8 +401,6 @@ Sent when the agent changes state. The browser uses this to update the orb anima
   "label": "SOCH RAHA..."
 }
 ```
-
-**State values:**
 
 | State | Orb label | Meaning |
 |---|---|---|
@@ -188,35 +413,24 @@ Sent when the agent changes state. The browser uses this to update the orb anima
 
 ---
 
-### `text` (streaming)
+#### `text` (streaming)
 
-LLM output tokens streamed as they are generated. Each message has `done: false` until the last token.
+LLM output tokens streamed as they are generated.
 
 ```json
-{
-  "type": "text",
-  "token": "At your income level, ",
-  "done": false
-}
+{ "type": "text", "token": "At your income level, ", "done": false }
 ```
 
-Final message of a response:
+Final token:
 ```json
-{
-  "type": "text",
-  "token": "",
-  "done": true,
-  "full": "At your income level, 25,000 per month in SIP is the right move."
-}
+{ "type": "text", "token": "", "done": true, "full": "At your income level, 25,000 per month in SIP is the right move." }
 ```
-
-The browser accumulates tokens and displays them in the chat bubble. On `done: true` it renders the full text.
 
 ---
 
-### `audio`
+#### `audio`
 
-One TTS-rendered audio chunk, sent per sentence. The browser decodes the base64 MP3 and queues it for sequential playback.
+One TTS-rendered audio chunk, sent per sentence.
 
 ```json
 {
@@ -227,9 +441,8 @@ One TTS-rendered audio chunk, sent per sentence. The browser decodes the base64 
 }
 ```
 
-- `data` — base64-encoded MP3 audio
-- `lang` — `"english"` | `"hindi"` | `"hinglish"` (determines which voice was used)
-- `sentence_idx` — 0-based index; browser plays in order
+- `lang` — `"english"` | `"hindi"` | `"hinglish"`
+- `sentence_idx` — 0-based; browser plays in order
 
 ---
 

@@ -546,6 +546,24 @@
         <button id="themeToggle" class="theme-btn">🌙</button>
       </header>
 
+      <!-- ── Arya AI Diagnostic Recommender ───────────────────────── -->
+      <div id="arya-diag-panel" style="margin-bottom:36px;border-radius:18px;
+           background:linear-gradient(135deg,rgba(79,124,255,.07),rgba(0,212,255,.04));
+           border:1px solid rgba(79,124,255,.22);padding:20px 24px;
+           font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#4d7cff,#00d4ff);
+               display:flex;align-items:center;justify-content:center;font-size:16px;">🔍</div>
+          <div>
+            <div style="font-weight:700;font-size:12px;color:#4d7cff;letter-spacing:.6px;">ARYA • DIAGNOSTIC INTEL</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.4);">Which scan should you run first?</div>
+          </div>
+        </div>
+        <div id="arya-diag-text" style="font-size:14px;line-height:1.65;color:rgba(255,255,255,.78);">
+          <span style="color:rgba(79,124,255,.6);">Scanning your financial profile…</span>
+        </div>
+      </div>
+
       <section class="portal-grid">
         
         <a href="know-your-finances.html" class="portal-card xray" data-tilt>
@@ -733,6 +751,39 @@
   });
 </script>
 
+  <script src="../js/arya-ai.js"></script>
+  <script>
+  (async function() {
+    const el = document.getElementById('arya-diag-text');
+    if (!el || typeof AryaAI === 'undefined') return;
+
+    const cacheKey = 'arya_diag_v1_' + new Date().toDateString();
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached && cached.length > 30 && !cached.includes('<think>')) { el.textContent = cached; return; }
+
+    const name      = localStorage.getItem('finos_display_name') || 'User';
+    const dna       = localStorage.getItem('finos_financial_dna')|| 'Explorer';
+    const netWorth  = localStorage.getItem('finos_net_worth')    || '0';
+    const healthSc  = localStorage.getItem('finos_health_score') || '0';
+    const stage     = localStorage.getItem('finos_stage')        || 'Rookie';
+
+    el.innerHTML = '<span id="arya-diag-stream" style="color:rgba(255,255,255,.8);"></span>';
+    const s = document.getElementById('arya-diag-stream');
+
+    const prompt = `${name} (DNA: ${dna}, Stage: ${stage}, Health Score: ${healthSc}/100, Net Worth: ₹${(parseFloat(netWorth)/100000).toFixed(1)}L) is on the Diagnostics page.
+
+Two options exist:
+1. Financial X-Ray — quantitative: cashflow, net worth, burn rate, FIRE horizon
+2. Financial Being — qualitative: money mindset, emotional triggers, behavioral patterns
+
+In 2 sentences: (1) which one they need more urgently based on their profile (2) what they'll discover. No preamble.`;
+
+    try {
+      const result = await AryaAI.ask(prompt, (tok, display) => { if (display !== undefined) s.textContent = display; });
+      if (result) { sessionStorage.setItem(cacheKey, result); el.textContent = result; }
+    } catch { el.innerHTML = '<span style="color:rgba(255,255,255,.3);">AI offline — run both diagnostics to discover your financial blind spots.</span>'; }
+  })();
+  </script>
   <script src="../js/mobile-nav.js"></script>
   <script src="../js/pwa-init.js"></script>
   <script src="../js/finos-widget.js?v=4"></script>

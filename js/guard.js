@@ -1,30 +1,18 @@
-import { auth, onAuthStateChanged, signOut } from "./firebase-config.js";
+/**
+ * guard.js — Auth Guard (DISABLED)
+ * Login is no longer required. This file is kept as a stub so any page
+ * that still loads it doesn't crash. All redirect logic has been removed.
+ *
+ * The logout helper is preserved so existing logoutBtn handlers still work.
+ */
 
-console.log("🔒 Auth Guard Initialized");
+console.log('[FIN•OS] Auth guard disabled — running in guest mode.');
 
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        console.log(`✅ User authenticated: ${user.email}`);
-        // User is signed in.
-    } else {
-        console.log("⚠️ User not authenticated. Redirecting to login...");
-        // No user is signed in.
-        // If we are NOT on the login page or landing page, redirect.
-        const path = window.location.pathname;
-        if (!path.includes("login.html") && !path.includes("index.html") && path !== "/") {
-            window.location.href = "login.html";
-        }
-    }
-});
-
-// Expose Logout Function Globally (for UI usage)
-window.logout = async () => {
+// Expose a no-op logout that just clears local cache and goes to home
+window.logout = function () {
     try {
-        await signOut(auth);
-        localStorage.removeItem("finos_logged_in");
-        localStorage.removeItem("finos_auth_method");
-        window.location.href = "index.html";
-    } catch (error) {
-        console.error("Logout Failed:", error);
-    }
+        ['finos_display_name', 'finos_financial_dna', 'finos_logged_in', 'finos_auth_method']
+            .forEach(k => localStorage.removeItem(k));
+    } catch (_) {}
+    window.location.href = 'home.html';
 };

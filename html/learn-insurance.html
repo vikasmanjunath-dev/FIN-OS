@@ -342,6 +342,7 @@
   </style>
   <!-- QFT AI Chatbot CSS -->
   <link rel="stylesheet" href="../css/qft-hud.css">
+  <script src="../js/arya-ai.js"></script>
 </head>
 <body>
 
@@ -544,5 +545,6 @@ function updateCharts(theme) {
   <script src="../js/qft-engine.js"></script>
   <script src="../js/finos-widget.js?v=4"></script>
   <script src="../js/finos-search.js?v=2"></script>
+<script>if(typeof AryaAI!=="undefined")AryaAI.injectLearnButton();</script>
 </body>
 </html>

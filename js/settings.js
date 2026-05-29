@@ -324,7 +324,7 @@ window.doSignOut = async function () {
   const keep = ['FINOS_SYS_SETTINGS', 'finos-theme', 'theme'];
   Object.keys(localStorage).filter(k => !keep.includes(k)).forEach(k => localStorage.removeItem(k));
   toast('Session terminated. Redirecting…', 'warn');
-  setTimeout(() => { window.location.href = '../login.html'; }, 1000);
+  setTimeout(() => { window.location.href = '../html/home.html'; }, 1000);
 };
 
 window.doDeleteAccount = async function () {

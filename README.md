@@ -3,7 +3,7 @@
 > India's most complete personal finance platform.  
 > Education · Intelligence · Voice AI · Calculators · Markets · Tracking — all in one place.
 
-**Last updated:** May 2026 — Arya embedded voice coach v2, echo-loop fix, iOS audio support, Web Speech API primary STT
+**Last updated:** May 2026 — Arya v3: Brave browser WS backend path, full TradeBook trade-context injection, echo-loop fix, Mind Engine Brave support
 
 ---
 
@@ -288,20 +288,34 @@ python app.py
 
 ## 4. Arya — Embedded AI Voice Coach
 
-Arya is a fully in-browser AI voice coach embedded directly in the psychology and simulator pages (`mindset-sim-hub.html`, `simulator-landing.html`, and the Django template `finos 2/templates/finos/base.html`). Unlike the standalone voice agent, **Arya requires no server, no WebSocket, and no installation** — it runs entirely in the user's browser tab.
+Arya is a fully in-browser AI voice coach embedded in the psychology and simulator pages, and as a standalone voice agent panel in TradeBook Pro. It has two runtime paths — a standard browser path and a dedicated Brave browser path that routes through the local WS backend.
 
 ### Architecture
 
 ```
+STANDARD PATH (Chrome / Edge / Safari / Firefox)
 🎤 Microphone
      ↓
-Web Speech API (SpeechRecognition)    ← Primary path: instant, built-in Chrome/Edge/Safari
+Web Speech API (SpeechRecognition)    ← Primary: instant, built-in
      OR
-Whisper tiny (transformers.js CDN)   ← Fallback: ~30s first load, offline-capable
+Whisper tiny (transformers.js CDN)   ← Fallback: ~30s first load
      ↓
-Ollama local LLM (auto-detects model via /api/tags)
+Ollama local LLM (:11434, model auto-detected)
      ↓
 Web Speech Synthesis (browser TTS)
+     ↓
+🔊 Speaker
+
+BRAVE BROWSER PATH (added v3 — Brave blocks CDN + Google STT)
+🎤 Microphone
+     ↓
+MediaRecorder + RMS silence detection  ← no CDN, no Google
+     ↓
+ws://127.0.0.1:8765 → faster-whisper STT (voiceagent/agent.py)
+     ↓
+Ollama via voiceagent (qwen3:14b)
+     ↓
+Edge Neural TTS → base64 MP3 chunks → browser Audio() playback
      ↓
 🔊 Speaker
 ```
@@ -312,50 +326,107 @@ Web Speech Synthesis (browser TTS)
 |---|---|
 | **Primary STT** | Web Speech API (`SpeechRecognition`) — instant, no download, works in Chrome/Edge/Safari |
 | **Fallback STT** | Whisper `tiny.en` via `@xenova/transformers@2.17.2` — runs in-browser via ONNX |
-| **LLM** | Ollama local — model auto-detected from `/api/tags` (no hardcoded model name) |
-| **TTS** | `window.speechSynthesis` — prefers `en-IN` voice, zero latency |
-| **Echo loop protection** | TTS output muted from mic via `_aryaSpeaking` gate + adaptive RMS threshold (2.5× during speech) |
+| **Brave STT** | MediaRecorder → WS `audio_chunk` → faster-whisper in `voiceagent/agent.py` |
+| **LLM** | Ollama local — model auto-detected from `/api/tags`; Brave path uses `qwen3:14b` via voiceagent |
+| **TTS** | `window.speechSynthesis` (standard); Edge Neural TTS via voiceagent MP3 stream (Brave) |
+| **Echo loop protection** | TTS gate + adaptive RMS threshold (2.5× during speech); 2800ms echo guard after Edge TTS |
+| **Brave offline fallback** | `_bvSetOffline()` probes Ollama directly — text chat works even if voiceagent is down |
+| **Full trade context** | `buildFullTradeContext()` in `arya-tradebook.js` builds a complete per-trade/per-breakdown text block injected into every LLM prompt (TradeBook only) |
 | **iOS audio support** | `_MTYPE` fallback chain: `webm;codecs=opus` → `webm` → `ogg;codecs=opus` → `mp4` → `''` |
-| **Failure counter** | `_transcribeFails` — stops voice after 3 consecutive failures, surfaces text input gracefully |
-| **GC-safe analyser** | `_mrSource` (MediaStreamAudioSourceNode) held at module-level to survive V8 GC |
+| **GC-safe analyser** | `_mrSource` held at module-level to survive V8 GC |
 | **Text input always visible** | Chat input visible at all times — voice and text work side-by-side |
-| **Persona** | Builds on `buildAryaSystem()` — uses user's DISC score, XP, FOMO index, session count |
 
 ### Affected Files
 
 | File | Role |
 |---|---|
-| `html/mindset-sim-hub.html` | Mindset simulator — Arya embedded in sidebar panel |
-| `html/simulator-landing.html` | Trading simulator landing — Arya coaching panel |
+| `html/mindset-sim-hub.html` | Mind Engine — Arya inline coach panel (standard + Brave path) |
+| `html/simulator-landing.html` | Trading simulator landing — Arya inline coach panel (standard + Brave path) |
+| `TradeJournal/arya-tradebook.js` | TradeBook Pro — full Arya implementation with trade-context injection + Brave WS path |
+| `TradeJournal/index.html` | TradeBook Pro UI — hosts the `arya-tradebook.js` panel |
+| `voiceagent/agent.py` | WS backend for Brave path — STT + LLM + TTS pipeline |
 | `finos 2/templates/finos/base.html` | Django base template — Arya available on all Django pages |
 
 ### Voice Engine State Machine
 
 ```
+STANDARD PATH
 startAryaVoice()
-   └─ _WSR_OK?
-       ├─ YES → _startWSR()          (Web Speech API, instant)
-       │         ├─ no-speech/aborted → restart after 300ms
-       │         ├─ not-allowed      → show mic denied message
-       │         └─ other error      → fall through to Whisper
-       └─ NO  → _loadWhisper()       (download Whisper tiny.en ~40MB)
-                _startCapture()      (MediaRecorder + RMS silence detection)
-                _onCaptureDone()     (decode audio → Whisper → Ollama → TTS)
+   └─ _isBrave? NO
+       └─ _WSR_OK?
+           ├─ YES → _startWSR()          (Web Speech API, instant)
+           │         ├─ no-speech/aborted → restart
+           │         ├─ not-allowed      → mic denied message
+           │         └─ other error      → fall through to Whisper
+           └─ NO  → _loadWhisper() + _startCapture()
+                    _onCaptureDone() → Whisper → Ollama → TTS
+
+BRAVE PATH
+startAryaVoice() / toggleAryaVoice()
+   └─ _isBrave? YES → _bvStartVoice()
+       └─ _bvConnect() to ws://127.0.0.1:8765
+           ├─ WS OPEN → _bvSendContext() → _bvStartCap()
+           │             _bvCapDone() → send audio_chunk → agent.py
+           │             ← audio_seq MP3 chunks → _bvPlayMp3()
+           │             ← state:idle → _bvResume(1400ms) → _bvStartCap()
+           └─ WS CLOSED → _bvSetOffline() → probe Ollama
+               ├─ Ollama UP → text chat via sendVoiceMessage()
+               └─ Ollama DOWN → show offline message
 ```
 
-### Recent Fixes (v2)
+### Brave Path WS Messages
+
+| Direction | Type | Purpose |
+|---|---|---|
+| Browser → Agent | `user_context` | Sends page state (trade journal data / Mind Engine STATE) on connect |
+| Browser → Agent | `audio_chunk` | Raw WebM audio bytes after silence detected |
+| Browser → Agent | `text_input` | Typed message from chat input |
+| Agent → Browser | `ready` | Backend online, sends current model name |
+| Agent → Browser | `state` | `thinking` / `transcribing` / `speaking` / `idle` |
+| Agent → Browser | `user_transcript` | STT result (shown in chat) |
+| Agent → Browser | `token` | LLM streaming token (streamed into chat bubble) |
+| Agent → Browser | `reply_done` | LLM response complete |
+| Agent → Browser | `audio_seq` | One MP3 chunk (seq index + base64 data) |
+| Agent → Browser | `audio_seq_done` | All MP3 chunks sent (total count) |
+| Agent → Browser | `tts_fallback` | Browser should speak this text via speechSynthesis |
+
+### Trade Context Injection (TradeBook Pro)
+
+`buildFullTradeContext()` in `arya-tradebook.js` produces a complete multi-section text block covering:
+- Account settings and trading rules
+- Summary statistics (P&L, win rate, profit factor, R:R, max drawdown, streak)
+- Per-symbol, per-strategy, per-emotion, per-discipline, per-regime breakdowns
+- Monthly and day-of-week breakdowns
+- Every individual trade (compact one-liner + entry/exit time, reason, notes, lesson)
+
+This is injected into:
+- **Standard path**: `buildAryaSystem()` → Ollama system prompt directly
+- **Brave path**: `_bvSendContext()` WS `user_context` message → `trade_journal.full_context` → `agent.py UserContext.to_prompt()` renders verbatim
+
+`num_ctx` is set to `32768` on both paths to accommodate the full trade list.
+
+### Recent Fixes — v3 (May 2026)
 
 | Fix | What changed |
 |---|---|
-| **Echo loop eliminated** | Removed `speakArya(errMsg)` from transcription `catch` block — errors shown in chat only, never spoken |
-| **Infinite loop guard** | `_transcribeFails` counter: 3 consecutive failures → stop voice, fallback to text |
-| **iOS audio** | `_MTYPE` now includes `audio/mp4` as a supported fallback for iOS Safari |
-| **Blob format** | `new Blob(_mrChunks, { type: _mrRecorder?.mimeType || _MTYPE })` — uses actual recorded format |
-| **GC bug** | `_mrSource` module-level variable prevents V8 from destroying the analyser node |
-| **Retry spam** | `_whisperFailed` flag blocks infinite Whisper CDN retry on failed load |
-| **AudioContext policy** | `await _mrCtx.resume()` before wiring analyser — handles browser autoplay suspend |
-| **Cursor overlay** | `#cur`/`#curR` custom cursor elements removed on touch devices (CSS + JS) |
-| **Cache** | `Cache-Control: no-cache` meta tags force fresh reload after updates |
+| **Brave browser full support** | `_isBrave` detection routes all voice through voiceagent WS backend — no CDN, no Google servers |
+| **Brave offline text fallback** | `_bvSetOffline()` probes Ollama on WS disconnect — `_aryaOnline` stays true so text chat works |
+| **Echo loop (Brave)** | 2800ms echo guard after Edge TTS finishes; RMS threshold raised 5× during guard window |
+| **Greeting mic race (Brave)** | Mic only opens via `SpeechSynthesisUtterance.onend` callback after greeting TTS — not immediately |
+| **`state:idle` mic not reopening** | `_bvResume(1400)` now also called from `state:idle` handler when `!_bvPlaying && !_bvRecActive` |
+| **`state:speaking` permanent block** | Removed `_bvPlaying=true` from `state:speaking` handler — only `_bvPlayMp3` sets it |
+| **Full trade context** | `buildFullTradeContext()` + `_bvSendContext()` inject all 73+ trades + all breakdowns into every Arya response |
+| **Mind Engine Brave path** | `mindset-sim-hub.html` + `simulator-landing.html` both have the full Brave WS path |
+
+### Recent Fixes — v2 (earlier May 2026)
+
+| Fix | What changed |
+|---|---|
+| **Echo loop eliminated** | Removed `speakArya(errMsg)` from transcription `catch` — errors chat-only, never spoken |
+| **Infinite loop guard** | `_transcribeFails` counter: 3 consecutive failures → stop voice, show text input |
+| **iOS audio** | `_MTYPE` includes `audio/mp4` as fallback for iOS Safari |
+| **GC bug** | `_mrSource` module-level prevents V8 from destroying the analyser node |
+| **Retry spam** | `_whisperFailed` flag blocks infinite Whisper CDN retry |
 
 ---
 
@@ -991,15 +1062,23 @@ http://localhost:5000/api/intel           → news feed
 └──────────────────────────────────────────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────────────────────┐
-│  ARYA — Embedded Voice Coach (no install required)                   │
+│  ARYA — Embedded Voice Coach                                         │
 │                                                                      │
-│  Lives inside: mindset-sim-hub.html · simulator-landing.html         │
-│                finos 2/templates/finos/base.html                     │
+│  Pages: mindset-sim-hub.html · simulator-landing.html                │
+│         TradeJournal/index.html  (arya-tradebook.js)                 │
 │                                                                      │
-│  STT:  Web Speech API (primary) → Whisper tiny.en (fallback)         │
-│  LLM:  Ollama local (auto-detects model)                             │
-│  TTS:  browser speechSynthesis — en-IN voice preferred               │
-│  Req:  Ollama running on :11434 — that's it                          │
+│  STANDARD (Chrome/Edge/Safari/Firefox)                               │
+│    STT:  Web Speech API → Whisper tiny.en CDN fallback               │
+│    LLM:  Ollama :11434 (auto-detects model)                          │
+│    TTS:  browser speechSynthesis                                     │
+│    Req:  ollama serve                                                │
+│                                                                      │
+│  BRAVE (auto-detected, no toggle needed)                             │
+│    STT:  MediaRecorder → voiceagent/agent.py (faster-whisper)        │
+│    LLM:  voiceagent → qwen3:14b via Ollama                           │
+│    TTS:  Edge Neural → MP3 stream via WS                             │
+│    Req:  voiceagent/run.sh + ollama serve                            │
+│    Fallback: text chat works if only ollama serve is running         │
 └──────────────────────────────────────────────────────────────────────┘
 
 PORTS
@@ -1026,8 +1105,8 @@ SUPABASE REALTIME (Dashboard → Database → Replication)
 ARYA KNOWN-GOOD BROWSERS
   ✅  Chrome / Edge (desktop + Android) — Web Speech API + full audio support
   ✅  Safari 16+ (desktop + iOS) — Web Speech API + mp4 audio fallback
-  ⚠️  Firefox — no Web Speech API; falls back to Whisper (slower first load)
-  ⚠️  Brave — may block Web Speech API; toggle "Use Google services for…" in settings
+  ✅  Brave — WS backend path (voiceagent/run.sh required); text fallback if only Ollama running
+  ⚠️  Firefox — no Web Speech API; falls back to Whisper CDN (slower first load)
 ```
 
 ---

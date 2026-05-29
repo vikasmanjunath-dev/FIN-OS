@@ -187,6 +187,7 @@
   </style>
   <!-- QFT AI Chatbot CSS -->
   <link rel="stylesheet" href="../css/qft-hud.css">
+  <script src="../js/arya-ai.js"></script>
 </head>
 
 <body>
@@ -221,6 +222,57 @@
         </div>
         <button id="themeToggle" class="theme-btn" title="Toggle Theme">🌙</button>
       </header>
+
+      <!-- ── Arya AI Personal Tax Optimizer ─────────────────────────── -->
+      <div id="arya-tax-optimizer" style="margin-bottom:32px;border-radius:18px;
+           background:linear-gradient(135deg,rgba(79,124,255,.07),rgba(0,212,255,.04));
+           border:1px solid rgba(79,124,255,.22);padding:24px;
+           font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#4d7cff,#00d4ff);
+               display:flex;align-items:center;justify-content:center;font-size:18px;">🧮</div>
+          <div>
+            <div style="font-weight:700;font-size:14px;color:#4d7cff;">ARYA TAX OPTIMIZER</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.45);">Get a personalized tax-saving plan in seconds</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+          <div style="flex:1;min-width:160px;">
+            <label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Annual Income (₹)</label>
+            <input id="tax-income-input" type="number" placeholder="e.g. 1200000"
+              style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(79,124,255,.3);
+                     color:#fff;padding:10px 14px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;">
+          </div>
+          <div style="flex:1;min-width:140px;">
+            <label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Regime</label>
+            <select id="tax-regime-select"
+              style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(79,124,255,.3);
+                     color:#fff;padding:10px 14px;border-radius:10px;font-size:14px;outline:none;cursor:pointer;box-sizing:border-box;">
+              <option value="new">New Regime</option>
+              <option value="old">Old Regime</option>
+              <option value="unsure">Not Sure</option>
+            </select>
+          </div>
+          <div style="flex:1;min-width:140px;">
+            <label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Investments done (₹)</label>
+            <input id="tax-investments-input" type="number" placeholder="e.g. 100000"
+              style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(79,124,255,.3);
+                     color:#fff;padding:10px 14px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;">
+          </div>
+          <button onclick="aryaOptimizeTax()"
+            style="padding:10px 20px;border-radius:12px;border:none;
+                   background:linear-gradient(135deg,#4d7cff,#00d4ff);
+                   color:#fff;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+            🧠 Optimize My Tax
+          </button>
+        </div>
+        <div id="arya-tax-result" style="margin-top:16px;display:none;">
+          <div style="border-top:1px solid rgba(79,124,255,.15);padding-top:16px;
+               font-size:14px;line-height:1.7;color:rgba(255,255,255,.82);">
+            <span id="arya-tax-stream"></span><span id="arya-tax-cursor" style="animation:aryaBlink .7s infinite;display:inline-block;">▌</span>
+          </div>
+        </div>
+      </div>
 
       <!-- NAV STRIP -->
       <nav class="tax-nav">
@@ -1342,6 +1394,145 @@
     }
   });
 </script>
+  <!-- ── Arya Tax AI ─────────────────────────────────────────────── -->
+  <style>
+    @keyframes aryaBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+    #arya-tax-fab {
+      position:fixed;bottom:90px;right:24px;z-index:999;
+      background:linear-gradient(135deg,#4d7cff,#00d4ff);
+      border:none;border-radius:50px;padding:12px 18px;
+      color:#fff;font-size:13px;font-weight:700;cursor:pointer;
+      box-shadow:0 6px 24px rgba(77,124,255,.4);
+      display:flex;align-items:center;gap:8px;
+      transition:transform .18s,box-shadow .18s;
+    }
+    #arya-tax-fab:hover { transform:translateY(-2px); box-shadow:0 10px 32px rgba(77,124,255,.6); }
+    #arya-tax-drawer {
+      position:fixed;bottom:150px;right:24px;z-index:999;width:340px;
+      background:linear-gradient(180deg,rgba(9,16,30,.97),rgba(7,11,20,.99));
+      border:1px solid rgba(79,124,255,.3);border-radius:20px;padding:20px;
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      box-shadow:0 20px 60px rgba(0,0,0,.7);
+    }
+    #arya-tax-drawer.hidden { display:none; }
+    #arya-tax-drawer textarea {
+      width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(79,124,255,.2);
+      color:#fff;padding:10px;border-radius:10px;font-size:13px;resize:none;outline:none;
+      box-sizing:border-box;margin:10px 0;
+    }
+    #arya-tax-answer { font-size:13px;line-height:1.6;color:rgba(255,255,255,.82);margin-top:10px;min-height:40px; }
+  </style>
+
+  <!-- Ask Arya about Tax FAB -->
+  <button id="arya-tax-fab" onclick="document.getElementById('arya-tax-drawer').classList.toggle('hidden')">
+    🧠 Ask Arya
+  </button>
+  <div id="arya-tax-drawer" class="hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-weight:700;font-size:13px;color:#4d7cff;">🧠 Ask Arya about Tax</span>
+      <button onclick="document.getElementById('arya-tax-drawer').classList.add('hidden')"
+        style="background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:16px;">✕</button>
+    </div>
+    <textarea id="arya-tax-question" rows="3" placeholder="e.g. Should I pick old or new regime? I earn ₹12L and have home loan..."></textarea>
+    <button onclick="aryaAskTax()"
+      style="width:100%;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#4d7cff,#00d4ff);
+             color:#fff;font-weight:700;font-size:13px;cursor:pointer;">Send →</button>
+    <div id="arya-tax-answer"></div>
+  </div>
+
+  <script>
+  // ── Tax Optimizer ──────────────────────────────────────────────────────────
+  async function aryaOptimizeTax() {
+    if (typeof AryaAI === 'undefined') {
+      const s = document.getElementById('arya-tax-stream');
+      if (s) { s.textContent = '⚠️ AI engine not loaded — check console.'; document.getElementById('arya-tax-result').style.display = 'block'; }
+      return;
+    }
+    const income      = parseFloat(document.getElementById('tax-income-input').value)  || 0;
+    const investments = parseFloat(document.getElementById('tax-investments-input').value) || 0;
+    const regime      = document.getElementById('tax-regime-select').value;
+    if (!income) {
+      // Inline validation — no alert() that blocks the UI
+      const inp = document.getElementById('tax-income-input');
+      const origBorder = inp.style.borderColor;
+      const origPlaceholder = inp.placeholder;
+      inp.style.borderColor = '#ef4444';
+      inp.placeholder = 'Please enter your annual income first';
+      inp.focus();
+      setTimeout(() => {
+        inp.style.borderColor = origBorder;
+        inp.placeholder = origPlaceholder;
+      }, 2500);
+      return;
+    }
+
+    const resultDiv = document.getElementById('arya-tax-result');
+    const stream    = document.getElementById('arya-tax-stream');
+    const cursor    = document.getElementById('arya-tax-cursor');
+    resultDiv.style.display = 'block';
+    stream.textContent = '';
+    cursor.style.display = 'inline-block';
+
+    const prompt = `Indian taxpayer: Annual income ₹${(income/100000).toFixed(1)}L, current investments ₹${(investments/1000).toFixed(0)}K, leaning towards ${regime} regime.
+
+Give a 4-point personal tax plan:
+1. Exact tax payable (approx) in their current situation
+2. Which regime saves more for them and why (2 sentences max)
+3. Top 2-3 deductions they should use to reduce taxable income
+4. One quick win they can do before March 31
+
+Use ₹ figures, be specific, desi tone. No preamble.`;
+
+    try {
+      await AryaAI.ask(prompt, (tok, display) => {
+        if (display !== undefined) stream.textContent = display;
+      });
+    } catch(e) {
+      stream.textContent = 'AI offline — Ollama se connect nahi ho paya.';
+    } finally {
+      cursor.style.display = 'none';
+    }
+  }
+
+  // ── Ask Arya Drawer ────────────────────────────────────────────────────────
+  async function aryaAskTax() {
+    if (typeof AryaAI === 'undefined') return;
+    const q = document.getElementById('arya-tax-question').value.trim();
+    if (!q) return;
+
+    // Double-submit guard — disable Send button while request is in-flight
+    const sendBtn = document.querySelector('#arya-tax-drawer button[onclick="aryaAskTax()"]');
+    if (sendBtn?.disabled) return;
+    if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = '…'; }
+
+    const ans = document.getElementById('arya-tax-answer');
+    // Build streaming UI via DOM API (no innerHTML with user/AI text → XSS-safe)
+    ans.innerHTML = '';
+    const streamSpan = document.createElement('span');
+    streamSpan.style.color = 'rgba(255,255,255,.82)';
+    const cursor = document.createElement('span');
+    cursor.style.cssText = 'animation:aryaBlink .7s infinite;display:inline-block;';
+    cursor.textContent = '▌';
+    ans.appendChild(streamSpan);
+    ans.appendChild(cursor);
+
+    const context = 'You are a tax expert for Indian taxpayers. Answer concisely (3-5 sentences). Use ₹, Indian tax law (FY 2025-26). No markdown.';
+    try {
+      const result = await AryaAI.ask(`Tax question: ${q}`, (tok, display) => {
+        if (display !== undefined) streamSpan.textContent = display;
+      }, context);
+      // Final clean render — cursor removed, result set via textContent (XSS-safe)
+      cursor.remove();
+      streamSpan.textContent = result || streamSpan.textContent;
+    } catch {
+      ans.textContent = 'AI offline — check Ollama.';
+    } finally {
+      // Always re-enable the Send button
+      if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = 'Send →'; }
+    }
+  }
+  </script>
+
   <!-- QFT AI Chatbot Engine -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>

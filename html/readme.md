@@ -235,8 +235,8 @@ Trust is the product.
 
 * **Frontend:** HTML5 · CSS3 · Vanilla JS (76 pages, 44 CSS files, 59 JS modules)
 * **Calculators:** 100+ standalone HTML calculators across 8 categories
-* **Embedded AI (Arya):** Web Speech API (STT) · Whisper tiny.en via transformers.js (fallback STT) · Ollama local LLM · Web Speech Synthesis (TTS)
-* **Standalone Voice Agent:** Python · faster-whisper · Ollama · edge-tts · WebSockets
+* **Embedded AI (Arya):** Web Speech API (primary STT) · Whisper tiny.en via transformers.js CDN (fallback STT) · Ollama local LLM · Web Speech Synthesis (TTS) · Brave browser WS backend path (faster-whisper + Edge Neural TTS via voiceagent)
+* **Standalone Voice Agent:** Python · faster-whisper · Ollama (qwen3:14b) · edge-tts · WebSockets · Supabase persistent memory
 * **Alert Engine:** FastAPI · APScheduler · yfinance · pywebpush (VAPID)
 * **News API:** Flask · Google News RSS aggregation
 * **Market Intelligence:** Flask · pandas · numpy · ta (technical analysis)
@@ -255,6 +255,7 @@ Trust is the product.
 **Phase 1 ✅ COMPLETE:** Core OS + KYF + Budget Engine + 76-page platform  
 **Phase 2 ✅ COMPLETE:** AI Voice Layer (Arya embedded coach + standalone voice agent)  
 **Phase 2.5 ✅ COMPLETE:** Alert Engine · Health Score · Market Intelligence · Trade Journal  
+**Phase 2.6 ✅ COMPLETE:** Brave browser full support (WS backend path) · Full trade-context injection in Arya · Echo-loop fixes · Mind Engine Brave path  
 **Phase 3 🔄 IN PROGRESS:** Broker Integrations (Kite/Zerodha API) · Trading OS · Portfolio sync  
 **Phase 4 📋 PLANNED:** Community Intelligence (opt-in) · Mobile app (PWA + React Native)
 

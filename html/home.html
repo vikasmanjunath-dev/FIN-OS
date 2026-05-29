@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="stylesheet" href="../chatbot/qft-hud.css">
+  <script src="../js/arya-ai.js"></script>
 </head>
 <body>
 
@@ -52,6 +53,21 @@
 
       <button id="themeToggle" class="theme-btn">🌙</button>
     </header>
+
+    <!-- ── Arya AI Daily Tip ───────────────────────────────────────── -->
+    <div id="arya-home-tip" style="margin-bottom:28px;border-radius:16px;
+         background:linear-gradient(135deg,rgba(199,240,0,.06),rgba(0,212,255,.03));
+         border:1px solid rgba(199,240,0,.2);padding:18px 22px;
+         font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;gap:14px;align-items:flex-start;">
+      <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#c7f000,#4d7cff);
+           display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">💡</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:12px;color:#c7f000;letter-spacing:.4px;margin-bottom:8px;">ARYA • TODAY'S FINANCIAL EDGE</div>
+        <div id="arya-home-tip-text" style="font-size:14px;line-height:1.65;color:rgba(255,255,255,.78);">
+          <span style="color:rgba(199,240,0,.5);">Loading your daily financial edge…</span>
+        </div>
+      </div>
+    </div>
 
     <section class="home-grid">
 
@@ -322,6 +338,35 @@
 
 </div>
 
+  <script>
+  // ── Arya Home Daily Tip ─────────────────────────────────────────────────────
+  (async function() {
+    const el = document.getElementById('arya-home-tip-text');
+    if (!el || typeof AryaAI === 'undefined') return;
+
+    const cacheKey = 'arya_home_tip_v1_' + new Date().toDateString();
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached && cached.length > 30 && !cached.includes('<think>')) {
+      el.textContent = cached; return;
+    }
+
+    const name     = localStorage.getItem('finos_display_name') || 'Investor';
+    const dna      = localStorage.getItem('finos_financial_dna')|| 'Explorer';
+    const interests= localStorage.getItem('finos_interests')    || 'stocks';
+    const dow      = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()];
+
+    el.innerHTML = '<span id="arya-home-stream" style="color:rgba(255,255,255,.8);"></span>';
+    const s = document.getElementById('arya-home-stream');
+
+    try {
+      const result = await AryaAI.ask(
+        `${dow} tip for ${name} (DNA: ${dna}, interests: ${interests}). Give ONE powerful financial insight they can act on TODAY. 2 sentences max. Desi tone, specific to Indian markets. No greeting, no preamble.`,
+        (tok, display) => { if (display !== undefined) s.textContent = display; }
+      );
+      if (result) { sessionStorage.setItem(cacheKey, result); el.textContent = result; }
+    } catch { el.innerHTML = '<span style="color:rgba(255,255,255,.3);">AI offline — start Ollama for daily tips.</span>'; }
+  })();
+  </script>
   <script src="../js/mobile-nav.js"></script>
   <script src="../js/pwa-init.js"></script>
   <script src="../js/finos-widget.js?v=4"></script>

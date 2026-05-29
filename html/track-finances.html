@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
   <link rel="stylesheet" href="../css/theme.css">
+  <script src="../js/arya-ai.js"></script>
   <style>
     /* ── BASE ── */
     .tf-page {
@@ -456,9 +457,228 @@
 
       </div>
 
+      <!-- ══ DOCUMENT AI UPLOAD SECTION ══ -->
+      <div class="tf-divider" style="margin-top:48px;">
+        <div class="tf-divider-line"></div>
+        <span class="tf-divider-label">🤖 Document AI — Auto-Fill from Docs</span>
+        <div class="tf-divider-line" style="background:linear-gradient(270deg, rgba(0,212,255,.25), transparent)"></div>
+      </div>
+
+      <div id="docai-section" style="
+        margin-top:32px;
+        background:rgba(0,212,255,.04);
+        border:1px solid rgba(0,212,255,.15);
+        border-radius:20px;
+        padding:32px;
+        position:relative;
+        overflow:hidden;
+      ">
+        <!-- glow -->
+        <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+          background:radial-gradient(circle,rgba(0,212,255,.08),transparent 70%);pointer-events:none;"></div>
+
+        <div style="display:flex;align-items:flex-start;gap:18px;margin-bottom:24px;">
+          <div style="font-size:36px;line-height:1;">🧾</div>
+          <div>
+            <h2 style="font-size:20px;font-weight:700;color:#fff;margin-bottom:6px;">
+              Smart Document Parser
+            </h2>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.55;max-width:520px;">
+              Drop your salary slip, bank statement, or Form-16 — AI reads it instantly and auto-fills your income, EPF, TDS, and 80C data. No manual entry.
+            </p>
+          </div>
+        </div>
+
+        <!-- Supported types -->
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;">
+          <span style="padding:4px 12px;border-radius:999px;font-size:11px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:#00d4ff;">💰 Salary Slip</span>
+          <span style="padding:4px 12px;border-radius:999px;font-size:11px;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);color:#00ff88;">🏦 Bank Statement</span>
+          <span style="padding:4px 12px;border-radius:999px;font-size:11px;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.2);color:#ffb800;">📄 Form-16</span>
+          <span style="padding:4px 12px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);">PDF / PNG / JPG</span>
+        </div>
+
+        <!-- Drop Zone -->
+        <div id="docai-dropzone" style="
+          border:2px dashed rgba(0,212,255,.3);
+          border-radius:16px;
+          padding:36px;
+          text-align:center;
+          cursor:pointer;
+          transition:border-color .2s,background .2s;
+          background:rgba(0,212,255,.02);
+        "
+          ondragover="event.preventDefault();this.style.borderColor='rgba(0,212,255,.7)';this.style.background='rgba(0,212,255,.07)'"
+          ondragleave="this.style.borderColor='rgba(0,212,255,.3)';this.style.background='rgba(0,212,255,.02)'"
+          ondrop="docaiHandleDrop(event)"
+          onclick="document.getElementById('docai-file-input').click()"
+        >
+          <div style="font-size:40px;margin-bottom:12px;">📂</div>
+          <p style="color:rgba(255,255,255,.7);font-weight:600;margin-bottom:4px;">Drop your document here</p>
+          <p style="color:rgba(255,255,255,.35);font-size:12px;">or click to browse — PDF, PNG, JPG supported</p>
+          <input type="file" id="docai-file-input" accept=".pdf,.png,.jpg,.jpeg" hidden
+            onchange="docaiHandleFile(this.files[0])">
+        </div>
+
+        <!-- Status / Results area -->
+        <div id="docai-status" style="display:none;margin-top:24px;"></div>
+        <div id="docai-results" style="display:none;margin-top:16px;"></div>
+      </div>
+
     </div>
   </main>
 </div>
+
+<!-- DOCUMENT AI SCRIPT -->
+<script>
+const DOCAI_URL = 'http://localhost:5050/parse';
+
+function docaiHandleDrop(e) {
+  e.preventDefault();
+  const dz = document.getElementById('docai-dropzone');
+  dz.style.borderColor = 'rgba(0,212,255,.3)';
+  dz.style.background  = 'rgba(0,212,255,.02)';
+  const file = e.dataTransfer.files[0];
+  if (file) docaiHandleFile(file);
+}
+
+function docaiHandleFile(file) {
+  if (!file) return;
+
+  const allowed = ['application/pdf','image/png','image/jpeg','image/jpg','image/webp'];
+  if (!allowed.includes(file.type) && !file.name.match(/\.(pdf|png|jpg|jpeg)$/i)) {
+    docaiShowStatus('❌ Please upload a PDF or image file.', 'error');
+    return;
+  }
+
+  docaiShowStatus('🔍 Reading document…', 'loading');
+  document.getElementById('docai-results').style.display = 'none';
+
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('use_llm', 'true');
+
+  fetch(DOCAI_URL, { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'error') {
+        docaiShowStatus('❌ ' + (data.message || 'Parse failed'), 'error');
+        return;
+      }
+      docaiShowStatus(
+        `✅ <strong>${docaiTypeLabel(data.doc_type)}</strong> detected — ${data.confidence}% confidence`,
+        'success'
+      );
+      docaiShowResults(data);
+    })
+    .catch(err => {
+      docaiShowStatus(
+        '⚠️ Document AI service offline. <a href="https://github.com/fin-os/docs/wiki/document-ai" target="_blank" style="color:#00d4ff">Start it</a> with: <code>python document-ai/parser.py</code>',
+        'error'
+      );
+      console.error('[DocAI]', err);
+    });
+}
+
+function docaiTypeLabel(t) {
+  return { salary_slip:'Salary Slip', bank_statement:'Bank Statement',
+           form16:'Form-16', unknown:'Financial Document' }[t] || t;
+}
+
+function docaiShowStatus(html, type) {
+  const el = document.getElementById('docai-status');
+  const colors = {
+    loading: { bg:'rgba(0,212,255,.08)', border:'rgba(0,212,255,.2)', color:'#00d4ff' },
+    success: { bg:'rgba(0,255,136,.08)', border:'rgba(0,255,136,.2)', color:'#00ff88' },
+    error:   { bg:'rgba(255,45,107,.08)', border:'rgba(255,45,107,.2)', color:'#ff6b8a' },
+  };
+  const c = colors[type] || colors.loading;
+  el.style.cssText = `display:block;padding:14px 18px;border-radius:12px;font-size:13px;
+    background:${c.bg};border:1px solid ${c.border};color:${c.color};line-height:1.55;`;
+  el.innerHTML = html;
+}
+
+function docaiShowResults(data) {
+  const r     = document.getElementById('docai-results');
+  const items = data.extracted_data || {};
+  const prof  = data.profile_updates || {};
+  const txs   = data.transactions || [];
+  const ins   = data.insights || [];
+
+  let html = '<div style="display:grid;gap:16px;">';
+
+  // Insights first (most readable)
+  if (ins.length) {
+    html += `<div style="padding:16px;background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.15);border-radius:14px;">
+      <div style="font-size:12px;font-weight:700;color:#00ff88;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">💡 AI Insights</div>
+      ${ins.map(i => `<div style="font-size:13px;color:rgba(255,255,255,.8);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05);">${i}</div>`).join('')}
+    </div>`;
+  }
+
+  // Extracted fields table
+  const visibleFields = Object.entries(items).filter(([,v]) => v != null && v !== '');
+  if (visibleFields.length) {
+    html += `<div style="padding:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;">
+      <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;">📋 Extracted Fields</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${visibleFields.map(([k, v]) => `
+          <div style="background:rgba(255,255,255,.03);border-radius:8px;padding:8px 12px;">
+            <div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;">${k.replace(/_/g,' ')}</div>
+            <div style="font-size:13px;font-weight:600;color:#fff;margin-top:2px;">${typeof v === 'number' ? '₹'+v.toLocaleString('en-IN') : v}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Auto-fill button if we have profile updates
+  if (Object.keys(prof).length > 0) {
+    html += `<button onclick="docaiAutoFill(${JSON.stringify(prof).replace(/"/g,'&quot;')})"
+      style="width:100%;padding:14px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;
+      background:linear-gradient(135deg,rgba(0,212,255,.15),rgba(0,255,136,.1));
+      border:1px solid rgba(0,212,255,.3);color:#00d4ff;transition:all .2s;"
+      onmouseover="this.style.background='linear-gradient(135deg,rgba(0,212,255,.25),rgba(0,255,136,.2))'"
+      onmouseout="this.style.background='linear-gradient(135deg,rgba(0,212,255,.15),rgba(0,255,136,.1))'"
+    >
+      ⚡ Auto-Fill ${Object.keys(prof).length} Dashboard Fields
+    </button>`;
+  }
+
+  html += '</div>';
+  r.innerHTML = html;
+  r.style.display = 'block';
+}
+
+function docaiAutoFill(profileUpdates) {
+  // Save to localStorage for dashboard to pick up
+  const existing = JSON.parse(localStorage.getItem('finos_profile_updates') || '{}');
+  const merged = { ...existing, ...profileUpdates, _updated_at: new Date().toISOString() };
+  localStorage.setItem('finos_profile_updates', JSON.stringify(merged));
+
+  // Also save individual keys for direct dashboard reads
+  Object.entries(profileUpdates).forEach(([k, v]) => {
+    localStorage.setItem('finos_' + k, String(v));
+  });
+
+  // Visual feedback
+  docaiShowStatus(
+    `✅ Auto-filled ${Object.keys(profileUpdates).length} fields! Go to Dashboard to see updated data.`,
+    'success'
+  );
+
+  // If Arya AI is available, notify her
+  if (typeof AryaAI !== 'undefined' && AryaAI.ask) {
+    const income = profileUpdates.monthly_income;
+    if (income) {
+      const el = document.createElement('div');
+      document.body.appendChild(el);
+      AryaAI.dashboardBrief({
+        name: localStorage.getItem('finos_display_name') || 'Trader',
+        netWorth: 0, savingsRate: 0, healthScore: 0, anomalies: [],
+        customNote: `Just auto-filled monthly income ₹${parseInt(income).toLocaleString('en-IN')} from document.`
+      }, el);
+    }
+  }
+}
+</script>
 
 <script>
 (function(){

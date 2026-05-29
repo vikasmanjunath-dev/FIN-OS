@@ -78,7 +78,7 @@ OLLAMA_OPTIONS = {
     "top_p":          0.92,
     "top_k":          40,
     "repeat_penalty": 1.10,
-    "num_ctx":        8192,       # 4096 was too small — system prompt + context fills it
+    "num_ctx":        32768,      # enlarged for full trade journal context (all trades injected)
     "num_predict":    600,        # raised: qwen3 think tokens eat into budget
     "num_thread":     WHISPER_THREADS,
     "num_keep":       12,
@@ -783,6 +783,14 @@ class UserContext:
             cap = _num(tj.get("capital"), 0); wt = _num(tj.get("weekly_target"), 0)
             if cap:
                 lines.append(f"  Capital: ₹{cap:,.0f}" + (f"  |  Weekly target: ₹{wt:,.0f}" if wt else ""))
+
+            # Full pre-formatted context block from TradeBook Pro — contains
+            # every individual trade plus per-symbol/strategy/emotion breakdowns.
+            # Injected verbatim so Arya can answer any specific trade query.
+            full_ctx = tj.get("full_context")
+            if full_ctx and isinstance(full_ctx, str) and full_ctx.strip():
+                lines.append("")
+                lines.append(full_ctx.strip())
 
         # ── Focus / Learning history ───────────────────────────────────────
         fh = self._raw.get("focus_history") or []
@@ -1873,7 +1881,24 @@ class Server:
         }))
         try:
             async for raw in ws:
-                await self._dispatch(ws, json.loads(raw))
+                try:
+                    msg = json.loads(raw)
+                except json.JSONDecodeError:
+                    log.warning("Malformed JSON from client — message ignored")
+                    continue
+                try:
+                    await self._dispatch(ws, msg)
+                except websockets.exceptions.ConnectionClosed:
+                    raise  # let outer handler catch it
+                except Exception:
+                    log.exception("_dispatch error — connection kept alive")
+                    try:
+                        await ws.send(json.dumps({
+                            "type": "status",
+                            "text": "Internal error — please retry.",
+                        }))
+                    except Exception:
+                        pass
         except websockets.exceptions.ConnectionClosed:
             pass
         finally:
@@ -2248,7 +2273,8 @@ class Server:
             self.tts.warmup(),
         )
         async with websockets.serve(self.handler, WS_HOST, WS_PORT,
-                                    max_size=50_000_000):
+                                    max_size=50_000_000,
+                                    ping_interval=None):   # loopback — no keep-alive pings needed
             log.info("Ready — http://localhost:8080")
             await asyncio.Future()
 

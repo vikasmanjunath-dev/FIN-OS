@@ -471,6 +471,17 @@
           <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box">✓</div><div class="ci-text">My position size is within 2% risk rule (max loss = 2% of trading capital)<span class="ci-why">The 2% rule ensures no single trade can damage your account meaningfully. Professional traders never break this</span></div></div>
         </div>
       </div>
+      <!-- ── Arya AI Pre-Trade Clearance button ─────────────────────────── -->
+      <div style="padding:1rem 1.75rem 1.5rem;border-top:1px solid rgba(255,255,255,.05);">
+        <button id="arya-pretrade-btn" onclick="aryaPreTradeCheck()"
+          style="width:100%;padding:14px;border-radius:14px;border:1px solid rgba(0,255,136,.25);
+                 background:linear-gradient(135deg,rgba(0,255,136,.06),rgba(0,212,255,.04));
+                 color:#00ff88;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.5px;
+                 display:flex;align-items:center;justify-content:center;gap:10px;">
+          🧠 Arya Emotional Clearance Check
+          <span style="font-size:11px;font-weight:400;color:rgba(255,255,255,.4);">AI-powered pre-trade mindset scan</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1020,5 +1031,63 @@ function claimXP(){STATE.sessionsCompleted++;STATE.save();document.getElementByI
 document.querySelectorAll('.snb').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('.snb').forEach(x=>x.classList.remove('on'));this.classList.add('on');}));
 renderTraderProfile();
 window.addEventListener('behavior-profile-change', renderTraderProfile);
+
+// ── Arya Pre-Trade Emotional Clearance ───────────────────────────────────────
+function aryaPreTradeCheck() {
+  if (typeof AryaAI === 'undefined') {
+    // Fallback: load arya-ai.js dynamically then retry
+    const s = document.createElement('script');
+    s.src = '/static/js/arya-ai.js';
+    s.onload = () => AryaAI.preTradeClearance(
+      { symbol: 'Your trade', todayPnl: 0 },
+      (result) => {
+        document.getElementById('arya-pretrade-btn').style.background =
+          result.color === 'green' ? 'rgba(34,197,94,.15)' :
+          result.color === 'yellow' ? 'rgba(234,179,8,.15)' :
+          'rgba(239,68,68,.15)';
+        document.getElementById('arya-pretrade-btn').textContent =
+          `${result.color === 'green' ? '✅' : result.color === 'yellow' ? '⚠️' : '🛑'} Clearance Score: ${result.score}/100`;
+      },
+      (reason) => {
+        if (reason === 'low_score') {
+          document.getElementById('arya-pretrade-btn').textContent = '🛑 Trade Cancel Karo — Score bahut low hai';
+          document.getElementById('arya-pretrade-btn').style.background = 'rgba(239,68,68,.15)';
+        }
+      }
+    );
+    document.head.appendChild(s);
+    return;
+  }
+
+  // Get today's P&L from brain-state bars if available
+  const ratVal = document.getElementById('bqRat');
+  const todayPnl = 0; // Will be populated from trade tracker when available
+
+  AryaAI.preTradeClearance(
+    {
+      symbol:          'Nifty / Your Stock',
+      side:            'BUY/SELL',
+      todayPnl:        todayPnl,
+      lastTradeResult: localStorage.getItem('finos_last_trade_result') || null
+    },
+    (result) => {
+      // Trade approved — update button to show clearance
+      const btn = document.getElementById('arya-pretrade-btn');
+      if (btn) {
+        btn.style.background = result.color === 'green'
+          ? 'rgba(34,197,94,.15)' : 'rgba(234,179,8,.15)';
+        btn.innerHTML = `${result.color === 'green' ? '✅' : '⚠️'} Score: ${result.score}/100 — ${result.color === 'green' ? 'Green Light' : 'Caution Mode'}`;
+      }
+    },
+    (reason) => {
+      // Trade blocked
+      const btn = document.getElementById('arya-pretrade-btn');
+      if (btn && reason === 'low_score') {
+        btn.style.background = 'rgba(239,68,68,.15)';
+        btn.innerHTML = '🛑 Aaj Trade Mat Lo — Emotional state optimal nahi hai';
+      }
+    }
+  );
+}
 </script>
 {% endblock %}

@@ -225,6 +225,32 @@
         </div>
       </div>
 
+      <!-- ── Arya AI News Digest ────────────────────────────────────── -->
+      <div id="arya-news-digest" style="margin-bottom:32px;border-radius:18px;
+           background:linear-gradient(135deg,rgba(0,243,255,.06),rgba(0,212,255,.03));
+           border:1px solid rgba(0,243,255,.18);padding:20px 24px;
+           font-family:'JetBrains Mono',monospace;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#00f3ff,#4d7cff);
+                 display:flex;align-items:center;justify-content:center;font-size:16px;">🧠</div>
+            <div>
+              <div style="font-weight:700;font-size:12px;color:#00f3ff;letter-spacing:2px;">ARYA • INTEL DIGEST</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;">What matters for YOU today</div>
+            </div>
+          </div>
+          <button onclick="aryaNewsDigest(true)" id="arya-news-refresh-btn"
+            style="padding:7px 14px;border-radius:10px;border:1px solid rgba(0,243,255,.3);
+                   background:rgba(0,243,255,.06);color:#00f3ff;font-size:11px;font-weight:700;
+                   cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;">
+            ↺ REFRESH
+          </button>
+        </div>
+        <div id="arya-news-digest-text" style="font-size:13px;line-height:1.8;color:rgba(255,255,255,.75);">
+          <span style="color:rgba(0,243,255,.5);">ESTABLISHING ARYA UPLINK…</span>
+        </div>
+      </div>
+
       <div style="position: relative;">
         <div class="loader-matrix" id="loader">
           <div class="loader-text">DECRYPTING INCOMING PACKETS...</div>
@@ -471,6 +497,95 @@
   }
 </script>
 
+  <script src="../js/arya-ai.js"></script>
+  <script>
+  // ── Arya News Digest ────────────────────────────────────────────────────────
+  // force=true bypasses the daily cache (used by the ↺ Refresh button)
+  async function aryaNewsDigest(force = false) {
+    const textEl = document.getElementById('arya-news-digest-text');
+    if (!textEl || typeof AryaAI === 'undefined') return;
+
+    const cacheKey = 'arya_news_digest_v1_' + new Date().toDateString();
+    if (!force) {
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached && cached.length > 40 && !cached.includes('<think>')) {
+        textEl.textContent = cached;
+        return;
+      }
+    }
+
+    // Pull user profile context
+    const name       = localStorage.getItem('finos_display_name') || 'Investor';
+    const interests  = localStorage.getItem('finos_interests')    || 'stocks, mutual funds';
+    const dna        = localStorage.getItem('finos_financial_dna')|| 'Explorer';
+    const netWorth   = localStorage.getItem('finos_net_worth')    || '0';
+    const today      = new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
+
+    textEl.innerHTML = '<span style="color:rgba(0,243,255,.5);">DECRYPTING INTEL FOR ' + name.toUpperCase() + '…</span>';
+
+    const prompt = `Today is ${today}. You are briefing ${name} (Financial DNA: ${dna}, interests: ${interests}).
+
+Give a 4-point morning market intelligence brief:
+1. One key macro trend affecting Indian markets today
+2. One thing crypto investors should watch
+3. One insight relevant to their interests (${interests})
+4. One mental model or edge they should apply today
+
+Tone: sharp, confident intel-analyst style. Each point = 1 sentence. No numbering, use • bullets. No preamble.`;
+
+    textEl.innerHTML = '<span id="arya-news-stream" style="color:rgba(255,255,255,.8);"></span>';
+    const streamEl = document.getElementById('arya-news-stream');
+
+    try {
+      const result = await AryaAI.ask(prompt, (tok, display) => {
+        if (display !== undefined) streamEl.textContent = display;
+      });
+      if (result) sessionStorage.setItem(cacheKey, result);
+    } catch(e) {
+      textEl.innerHTML = '<span style="color:rgba(255,255,255,.3);">AI offline — Ollama connect nahi hua.</span>';
+    }
+  }
+
+  // Auto-run on load
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(aryaNewsDigest, 800);
+  });
+
+  // Add AI Impact button to each news shard after render
+  const _origRenderShards = window.renderShards;
+  // We need to hook after renderShards creates the cards — use MutationObserver
+  const newsObserver = new MutationObserver(() => {
+    document.querySelectorAll('.data-shard:not([data-arya-btn])').forEach(shard => {
+      shard.setAttribute('data-arya-btn', '1');
+      const footer = shard.querySelector('.shard-footer');
+      if (!footer) return;
+      const btn = document.createElement('button');
+      btn.textContent = '🧠 AI';
+      btn.style.cssText = 'padding:3px 10px;border-radius:6px;border:1px solid rgba(0,243,255,.3);background:rgba(0,243,255,.06);color:#00f3ff;font-size:10px;font-weight:700;cursor:pointer;font-family:"JetBrains Mono",monospace;';
+      btn.onclick = async function(e) {
+        e.preventDefault(); e.stopPropagation();
+        const title = shard.querySelector('h3')?.textContent || '';
+        if (!title) return;
+        btn.textContent = '…';
+        try {
+          const result = await AryaAI.ask(`News headline: "${title}". In 2 sentences: (1) what this means for Indian retail investors (2) one action to take or avoid. No preamble.`);
+          const popup = document.createElement('div');
+          popup.style.cssText = 'position:absolute;bottom:60px;left:24px;right:24px;z-index:100;background:rgba(9,16,30,.98);border:1px solid rgba(0,243,255,.3);border-radius:12px;padding:14px;font-size:12px;color:rgba(255,255,255,.85);line-height:1.6;font-family:"JetBrains Mono",monospace;box-shadow:0 10px 40px rgba(0,0,0,.7);';
+          popup.textContent = result || 'AI offline.';
+          // stopPropagation + preventDefault prevent click from bubbling
+          // to the parent <a> shard and triggering article navigation
+          popup.onclick = (e) => { e.stopPropagation(); e.preventDefault(); popup.remove(); };
+          shard.style.position = 'relative';
+          shard.appendChild(popup);
+          setTimeout(() => { if (popup.parentNode) popup.remove(); }, 12000);
+        } catch { }
+        btn.textContent = '🧠 AI';
+      };
+      footer.prepend(btn);
+    });
+  });
+  newsObserver.observe(document.getElementById('streamContainer') || document.body, { childList: true, subtree: true });
+  </script>
   <script src="../js/mobile-nav.js"></script>
   <script src="../js/pwa-init.js"></script>
   <script src="../js/finos-widget.js?v=4"></script>

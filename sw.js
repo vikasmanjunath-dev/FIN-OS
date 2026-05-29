@@ -6,7 +6,7 @@
 
 'use strict';
 
-const CACHE_NAME = 'finos-v1';
+const CACHE_NAME = 'finos-v2';
 
 // Pre-cached static assets (relative to sw.js at root)
 const PRECACHE_ASSETS = [

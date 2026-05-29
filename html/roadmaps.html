@@ -222,6 +222,28 @@
         </p>
       </section>
 
+      <!-- ── Arya AI Roadmap Recommender ──────────────────────────── -->
+      <div id="arya-roadmap-rec" style="margin-bottom:40px;border-radius:18px;
+           background:rgba(255,255,255,.03);border:1px solid rgba(79,124,255,.22);
+           padding:24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#4d7cff,#c7f000);
+                 display:flex;align-items:center;justify-content:center;font-size:18px;">🗺️</div>
+            <div>
+              <div style="font-weight:700;font-size:13px;color:#4d7cff;letter-spacing:.4px;">ARYA • ROADMAP NAVIGATOR</div>
+              <div style="font-size:11px;color:rgba(255,255,255,.4);">AI-picked path for your profile</div>
+            </div>
+          </div>
+          <button onclick="aryaPickRoadmap(true)"
+            style="padding:7px 14px;border-radius:10px;border:1px solid rgba(79,124,255,.3);background:rgba(79,124,255,.07);
+                   color:#4d7cff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">↺ Re-Analyse</button>
+        </div>
+        <div id="arya-roadmap-text" style="font-size:14px;line-height:1.7;color:rgba(255,255,255,.78);">
+          <span style="color:rgba(79,124,255,.5);">Analysing your financial profile to recommend the best starting path…</span>
+        </div>
+      </div>
+
       <div class="sector-title"><span>SECTOR 01</span> // GROWTH PROTOCOLS</div>
       <div class="map-grid">
         
@@ -351,6 +373,47 @@
   </main>
 </div>
 
+  <script src="../js/arya-ai.js"></script>
+  <script>
+  async function aryaPickRoadmap(force) {
+    const el = document.getElementById('arya-roadmap-text');
+    if (!el || typeof AryaAI === 'undefined') return;
+
+    const cacheKey = 'arya_roadmap_v1_' + new Date().toDateString();
+    if (!force) {
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached && cached.length > 40 && !cached.includes('<think>')) { el.textContent = cached; return; }
+    }
+
+    const name    = localStorage.getItem('finos_display_name') || 'Investor';
+    const dna     = localStorage.getItem('finos_financial_dna')|| 'Explorer';
+    const stage   = localStorage.getItem('finos_stage')        || 'Rookie';
+    const income  = localStorage.getItem('finos_income')       || '25k-1L';
+    const interests=localStorage.getItem('finos_interests')    || 'stocks';
+
+    el.innerHTML = '<span id="arya-roadmap-stream" style="color:rgba(255,255,255,.85);"></span>';
+    const s = document.getElementById('arya-roadmap-stream');
+
+    const prompt = `Indian investor ${name}: DNA=${dna}, Stage=${stage}, Income=₹${income}/month, Interests=${interests}.
+
+Available roadmaps:
+• Investor GPS — wealth-building, SIP, long-term investing
+• Life-Stage Wealth — age-based wealth milestones
+• Not Just Money — holistic financial wellbeing, mindset
+• Trader's Roadmap — active trading, F&O, technical analysis
+• Traditional Roadmap — conservative: FD, PPF, gold, real estate
+• Fear Roadmap — for people anxious about money, debt, financial security
+• Trader Mindset — psychology and emotional control for traders
+
+Recommend the TOP 2 roadmaps for this person with 1 sentence each explaining why. End with one line on what they'll achieve in 30 days. No preamble.`;
+
+    try {
+      const result = await AryaAI.ask(prompt, (tok, display) => { if (display !== undefined) s.textContent = display; });
+      if (result) { sessionStorage.setItem(cacheKey, result); el.textContent = result; }
+    } catch { el.innerHTML = '<span style="color:rgba(255,255,255,.3);">AI offline — explore the roadmaps and find your path.</span>'; }
+  }
+  document.addEventListener('DOMContentLoaded', () => aryaPickRoadmap(false));
+  </script>
   <script src="../js/mobile-nav.js"></script>
   <script src="../js/pwa-init.js"></script>
 

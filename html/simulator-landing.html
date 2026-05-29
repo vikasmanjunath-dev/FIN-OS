@@ -1120,166 +1120,169 @@ SimAI.init();
      Works on any page: reads STATE (any variant) or localStorage.
 ═══════════════════════════════════════════════════════════ -->
 <style>
+/* ── Floating launch button (TradeBook-style pill) ── */
 #arya-btn {
-  position: fixed; bottom: 28px; right: 28px; z-index: 8000;
-  width: 58px; height: 58px; border-radius: 18px;
-  background: linear-gradient(135deg, rgba(0,255,136,.18), rgba(0,212,255,.12));
-  border: 1px solid rgba(0,255,136,.4);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 1.45rem;
-  box-shadow: 0 8px 32px rgba(0,255,136,.18), 0 2px 8px rgba(0,0,0,.5);
-  transition: transform .25s cubic-bezier(.34,1.1,.64,1), box-shadow .25s;
+  position: fixed; right: 24px; bottom: 24px; z-index: 1100;
+  display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+  border-radius: 20px; border: 1px solid rgba(0,255,136,.22);
+  background: linear-gradient(180deg,rgba(9,16,30,.96),rgba(7,11,20,.98));
+  box-shadow: 0 24px 60px rgba(0,0,0,.45),0 0 0 1px rgba(0,255,136,.08) inset;
+  color: var(--txt); cursor: pointer; backdrop-filter: blur(16px);
+  transition: transform .2s, box-shadow .2s;
 }
-#arya-btn:hover { transform: scale(1.1) rotate(-4deg); box-shadow: 0 12px 40px rgba(0,255,136,.3); }
-#arya-btn .arya-pulse {
-  position: absolute; top: -3px; right: -3px; width: 11px; height: 11px;
-  border-radius: 50%; background: var(--g);
-  box-shadow: 0 0 8px var(--g); animation: blink 1.8s infinite;
-}
-#arya-btn .arya-offline { background: #666; box-shadow: none; animation: none; }
+#arya-btn:hover { transform: translateY(-2px); box-shadow: 0 30px 70px rgba(0,0,0,.5),0 0 0 1px rgba(0,255,136,.12) inset; }
+.arya-btn-chip { width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#4d7cff,#00d4ff);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 10px 24px rgba(0,212,255,.24); }
+.arya-btn-copy { display:flex;flex-direction:column;gap:2px;min-width:0; }
+.arya-btn-kicker { font-family:var(--fM);font-size:11px;letter-spacing:.22em;color:var(--g);text-transform:uppercase; }
+.arya-btn-title { font-family:var(--fD);font-size:17px;font-weight:800;color:var(--txt); }
+.arya-btn-sub { font-size:11px;color:var(--mu); }
+.arya-pulse { display:none; }
+
+/* ── Overlay ── */
+#arya-overlay { position:fixed;inset:0;background:rgba(3,6,12,.66);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:1190; }
+#arya-overlay.on { opacity:1;pointer-events:auto; }
+
+/* ── Slide-in panel (floating, rounded) ── */
 #arya-panel {
-  position: fixed; top: 0; right: 0; bottom: 0; z-index: 9500;
-  width: 420px; max-width: 100vw;
-  background: rgba(7,7,26,.97); backdrop-filter: blur(32px) saturate(1.5);
-  border-left: 1px solid rgba(0,255,136,.12);
-  display: flex; flex-direction: column;
-  transform: translateX(100%); transition: transform .38s cubic-bezier(.77,0,.18,1);
-  box-shadow: -20px 0 80px rgba(0,0,0,.6);
+  position: fixed; top: 18px; right: 18px; bottom: 18px; z-index: 1200;
+  width: min(430px, calc(100vw - 24px)); border-radius: 28px;
+  border: 1px solid rgba(0,255,136,.14);
+  background:
+    radial-gradient(circle at top left,rgba(0,255,136,.07),transparent 28%),
+    radial-gradient(circle at top right,rgba(0,212,255,.10),transparent 28%),
+    linear-gradient(180deg,#070b14 0%,#050912 100%);
+  box-shadow: 0 32px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.03) inset;
+  transform: translateX(calc(100% + 28px)); transition: transform .28s ease;
+  display: flex; flex-direction: column; overflow: hidden;
 }
 #arya-panel.open { transform: translateX(0); }
-.arya-head {
-  display: flex; align-items: center; gap: 10px;
-  padding: 16px 18px 14px;
-  border-bottom: 1px solid rgba(0,255,136,.08); flex-shrink: 0;
-}
-.arya-avatar {
-  width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0;
-  background: linear-gradient(135deg, var(--v), var(--c));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.25rem; border: 1px solid rgba(255,255,255,.1);
-}
-.arya-name { font-family: var(--fD); font-size: 1rem; letter-spacing: 1.5px; color: var(--g); }
-.arya-sub  { font-family: var(--fM); font-size: .48rem; color: var(--mu); letter-spacing: 1px; margin-top: 1px; }
-.arya-status {
-  margin-left: auto; display: flex; align-items: center; gap: 6px;
-  font-family: var(--fM); font-size: .48rem; color: var(--mu); letter-spacing: 1px;
-}
-.arya-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--g); box-shadow: 0 0 6px var(--g); animation: blink 2s infinite; }
-.arya-status-dot.off { background: #444; box-shadow: none; animation: none; }
-.arya-close {
-  width: 30px; height: 30px; border-radius: 8px; border: none;
-  background: rgba(255,255,255,.05); color: var(--mu);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 1rem; flex-shrink: 0; transition: background .15s, color .15s;
-}
-.arya-close:hover { background: rgba(255,45,107,.12); color: var(--r); }
-.arya-body {
-  flex: 1; overflow-y: auto; padding: 14px 16px;
-  display: flex; flex-direction: column; gap: 14px; scroll-behavior: smooth;
-}
-.arya-body::-webkit-scrollbar { width: 4px; }
-.arya-body::-webkit-scrollbar-track { background: transparent; }
-.arya-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.07); border-radius: 4px; }
-.arya-msg { display: flex; gap: 9px; align-items: flex-start; }
-.arya-msg.user { flex-direction: row-reverse; }
-.arya-msg-av {
-  width: 28px; height: 28px; border-radius: 9px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: .8rem; font-family: var(--fD);
-}
-.arya-msg-av.ai  { background: linear-gradient(135deg,var(--v),var(--c)); color: #fff; }
-.arya-msg-av.usr { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); color: var(--txt); }
-.arya-bubble {
-  max-width: 84%; padding: 10px 13px; border-radius: 14px;
-  font-size: .8rem; line-height: 1.65; font-family: var(--fB);
-}
-.arya-bubble.ai  { background: rgba(0,255,136,.05); border: 1px solid rgba(0,255,136,.1); color: var(--txt); border-radius: 4px 14px 14px 14px; }
-.arya-bubble.usr { background: rgba(124,58,255,.12); border: 1px solid rgba(124,58,255,.2); color: var(--txt); border-radius: 14px 4px 14px 14px; }
-.arya-bubble strong { color: var(--g); font-weight: 700; }
-.arya-bubble em    { color: var(--c); font-style: normal; font-weight: 600; }
-.arya-thinking {
-  display: flex; gap: 5px; align-items: center; padding: 10px 13px;
-  background: rgba(0,255,136,.04); border: 1px solid rgba(0,255,136,.08);
-  border-radius: 4px 14px 14px 14px; max-width: 84%;
-}
-.arya-thinking span {
-  width: 6px; height: 6px; border-radius: 50%; background: var(--g);
-  animation: arya-dot 1.2s infinite;
-}
-.arya-thinking span:nth-child(2) { animation-delay: .18s; }
-.arya-thinking span:nth-child(3) { animation-delay: .36s; }
-@keyframes arya-dot { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-5px);opacity:1} }
-.arya-foot {
-  padding: 18px 14px 22px; border-top: 1px solid rgba(255,255,255,.05);
-  flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 10px;
-}
-.arya-vox-status { font-family: var(--fM); font-size: .52rem; letter-spacing: 2px; color: var(--mu); text-align: center; min-height: 16px; transition: color .3s; }
-.arya-vox-status.vox-listen { color: var(--g); }
-.arya-vox-status.vox-speak  { color: var(--c); }
-.arya-vox-status.vox-think  { color: var(--y); }
-.arya-wave { display: none; align-items: flex-end; gap: 3px; height: 22px; }
-.arya-wave span { width: 3px; border-radius: 3px; background: var(--c); animation: wave-bar 0.9s ease-in-out infinite; }
-.arya-wave span:nth-child(1){height:7px;animation-delay:0s}.arya-wave span:nth-child(2){height:13px;animation-delay:.1s}.arya-wave span:nth-child(3){height:20px;animation-delay:.2s}.arya-wave span:nth-child(4){height:13px;animation-delay:.3s}.arya-wave span:nth-child(5){height:7px;animation-delay:.4s}
-@keyframes wave-bar{0%,100%{transform:scaleY(.35);opacity:.45}50%{transform:scaleY(1);opacity:1}}
-#arya-mic-btn { width:66px;height:66px;border-radius:50%;background:rgba(0,255,136,.06);border:2px solid rgba(0,255,136,.22);color:var(--g);font-size:1.7rem;display:flex;align-items:center;justify-content:center;cursor:pointer;outline:none;transition:all .25s;position:relative; }
-#arya-mic-btn:hover { background:rgba(0,255,136,.13);border-color:var(--g); }
-#arya-mic-btn.listening { background:rgba(0,255,136,.14);border-color:var(--g);animation:mic-ring 1.6s infinite; }
-#arya-mic-btn.speaking  { background:rgba(0,212,255,.10);border-color:var(--c);animation:mic-ring-blue 1.1s infinite; }
-@keyframes mic-ring      {0%{box-shadow:0 0 0 0 rgba(0,255,136,.45)}70%{box-shadow:0 0 0 20px rgba(0,255,136,0)}100%{box-shadow:0 0 0 0 rgba(0,255,136,0)}}
-@keyframes mic-ring-blue {0%{box-shadow:0 0 0 0 rgba(0,212,255,.45)}70%{box-shadow:0 0 0 20px rgba(0,212,255,0)}100%{box-shadow:0 0 0 0 rgba(0,212,255,0)}}
-.arya-hint { font-family: var(--fM); font-size: .44rem; color: var(--mu); letter-spacing: .5px; text-align: center; }
-#arya-txt-row { display:flex; flex-direction:row; align-items:center; gap:8px; width:100%; padding:0 2px; }
-#arya-txt { flex:1; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.15); border-radius:10px; color:#e8e8e8; padding:9px 13px; font-size:.75rem; font-family:monospace; outline:none; }
-#arya-txt::placeholder { color:rgba(255,255,255,.28); }
+
+/* Panel header */
+.arya-head { display:flex;align-items:flex-start;justify-content:space-between;padding:18px 18px 14px;border-bottom:1px solid rgba(255,255,255,.06); }
+.arya-head-brand { display:flex;align-items:flex-start;gap:12px;min-width:0; }
+.arya-head-icon { width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#4d7cff,#00d4ff);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0; }
+.arya-name { font-family:var(--fD);font-size:19px;font-weight:800;color:var(--g);letter-spacing:.06em; }
+.arya-sub { font-family:var(--fM);font-size:11px;letter-spacing:.18em;color:#7d80bd;text-transform:uppercase;line-height:1.5; }
+.arya-status { display:flex;align-items:center;gap:8px;font-family:var(--fM);font-size:11px;color:#8d90c8;padding-top:6px; }
+.arya-status-dot { width:12px;height:12px;border-radius:50%;background:var(--g);box-shadow:0 0 14px rgba(0,255,136,.9); }
+.arya-status-dot.off { background:#6d6f8d;box-shadow:none; }
+.arya-close { width:48px;height:48px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#8f91ba;font-size:24px;cursor:pointer;flex-shrink:0; }
+.arya-close:hover { background:rgba(255,255,255,.08);color:#fff; }
+
+/* Offline notice */
+.arya-offline-msg { display:none;margin:0 18px 10px;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,77,109,.24);background:rgba(255,77,109,.08);color:#ff9aae;font-size:12px;line-height:1.55; }
+.arya-offline-msg.show { display:block; }
+
+/* Metrics chips */
+.arya-metrics { display:flex;flex-wrap:wrap;gap:8px;padding:0 18px 10px; }
+.arya-metric { padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);font-size:11px;color:#8d90c8; }
+
+/* Chat body */
+.arya-body { flex:1;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:14px; }
+.arya-body::-webkit-scrollbar { width:4px; }
+.arya-body::-webkit-scrollbar-track { background:transparent; }
+.arya-body::-webkit-scrollbar-thumb { background:rgba(255,255,255,.07);border-radius:4px; }
+
+/* Messages */
+.arya-msg { display:flex;gap:12px;align-items:flex-start; }
+.arya-msg.user { justify-content:flex-end; }
+.arya-msg-av { width:38px;height:38px;border-radius:14px;background:linear-gradient(135deg,#4d7cff,#00d4ff);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0; }
+.arya-msg-av.usr { background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1); }
+.arya-bubble { max-width:83%;padding:18px 18px;border-radius:22px;border:1px solid rgba(0,255,136,.18);background:#091523;color:#edf1ff;font-size:16px;line-height:1.7;box-shadow:0 10px 28px rgba(0,0,0,.18); }
+.arya-bubble.usr { background:#1c1440;border-color:rgba(132,92,255,.35); }
+.arya-bubble strong { color:var(--g);font-weight:700; }
+.arya-bubble em { color:var(--c);font-style:normal;font-weight:600; }
+
+/* Thinking indicator */
+.arya-thinking { display:flex;gap:5px;align-items:center; }
+.arya-thinking span { width:6px;height:6px;border-radius:50%;background:var(--g);animation:arya-dot 1.2s infinite; }
+.arya-thinking span:nth-child(2){animation-delay:.18s}
+.arya-thinking span:nth-child(3){animation-delay:.36s}
+@keyframes arya-dot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+
+/* Voice footer */
+.arya-foot { padding:16px 18px 18px;border-top:1px solid rgba(255,255,255,.06);background:linear-gradient(180deg,rgba(5,9,18,.2),rgba(5,9,18,.92)); }
+.arya-vox-status { font-family:var(--fM);font-size:12px;letter-spacing:.22em;text-align:center;color:#7478b1;text-transform:uppercase;margin-bottom:14px; }
+.arya-vox-status.vox-listen { color:var(--g); }
+.arya-vox-status.vox-think { color:#ffd166; }
+.arya-vox-status.vox-speak { color:#58d5ff; }
+.arya-wave { display:none;justify-content:center;gap:6px;height:16px;margin-bottom:10px; }
+.arya-wave span { width:6px;border-radius:999px;background:linear-gradient(180deg,var(--g),#00d4ff);animation:aryaWave 1s ease-in-out infinite; }
+.arya-wave span:nth-child(1){height:8px}
+.arya-wave span:nth-child(2){height:16px;animation-delay:.12s}
+.arya-wave span:nth-child(3){height:11px;animation-delay:.24s}
+.arya-wave span:nth-child(4){height:16px;animation-delay:.36s}
+@keyframes aryaWave{0%,100%{transform:scaleY(.6);opacity:.55}50%{transform:scaleY(1);opacity:1}}
+.arya-micwrap { display:flex;justify-content:center; }
+#arya-mic-btn { width:126px;height:126px;border-radius:50%;border:4px solid rgba(0,255,136,.32);background:radial-gradient(circle at 35% 30%,rgba(0,255,136,.12),rgba(0,0,0,.14)),#071a1f;color:#fff;font-size:44px;cursor:pointer;box-shadow:0 0 0 10px rgba(0,255,136,.04);transition:border-color .2s,box-shadow .2s; }
+#arya-mic-btn.listening { border-color:var(--g);box-shadow:0 0 0 10px rgba(0,255,136,.08),0 0 36px rgba(0,255,136,.2); }
+#arya-mic-btn.speaking { border-color:#58d5ff;box-shadow:0 0 0 10px rgba(88,213,255,.08),0 0 36px rgba(88,213,255,.24); }
+.arya-hint { margin-top:12px;text-align:center;font-family:var(--fM);font-size:11px;letter-spacing:.16em;color:#7277aa;text-transform:uppercase; }
+#arya-txt-row { display:flex;gap:10px;margin-top:14px; }
+#arya-txt { flex:1;height:64px;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);padding:0 18px;color:#edf1ff;font-size:16px;outline:none; }
+#arya-txt::placeholder { color:#7e84a8; }
 #arya-txt:focus { border-color:rgba(0,255,136,.4); }
-#arya-txt-send { width:36px;height:36px;border-radius:50%;background:rgba(0,255,136,.12);border:1px solid rgba(0,255,136,.3);color:#00ff88;font-size:1.1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center; }
-#arya-overlay {
-  position: fixed; inset: 0; z-index: 9400;
-  background: rgba(0,0,0,.45); backdrop-filter: blur(2px); display: none;
+#arya-txt-send { width:64px;height:64px;border-radius:18px;border:1px solid rgba(0,255,136,.26);background:rgba(0,255,136,.12);color:var(--g);font-size:26px;cursor:pointer; }
+#arya-txt-send:hover { background:rgba(0,255,136,.18); }
+@media(max-width:820px){
+  #arya-btn{right:14px;bottom:14px;padding:12px 14px;border-radius:18px}
+  .arya-btn-copy{display:none}
+  #arya-panel{top:8px;right:8px;bottom:8px;width:calc(100vw - 16px);border-radius:24px}
+  .arya-bubble{max-width:88%;font-size:15px}
+  #arya-mic-btn{width:104px;height:104px;font-size:36px}
+  #arya-txt{height:58px}
+  #arya-txt-send{width:58px;height:58px}
 }
-#arya-overlay.on { display: block; }
-.arya-offline-msg {
-  margin: 0 16px 10px; padding: 9px 12px; border-radius: 9px;
-  background: rgba(255,45,107,.07); border: 1px solid rgba(255,45,107,.2);
-  font-family: var(--fM); font-size: .5rem; color: rgba(255,45,107,.9); letter-spacing: .5px;
-  display: none;
-}
-.arya-offline-msg.show { display: block; }
 </style>
 
-<button id="arya-btn" onclick="openAryaPanel()" title="Talk to Arya — your Mind Coach">
-  🧠
+<!-- Floating launch button -->
+<button id="arya-btn" type="button" onclick="openAryaPanel()" title="Talk to Arya — your Mind Coach">
+  <div class="arya-btn-chip">🧠</div>
+  <div class="arya-btn-copy">
+    <div class="arya-btn-kicker">Mind Engine Coach</div>
+    <div class="arya-btn-title">Arya</div>
+    <div class="arya-btn-sub">Voice coaching · Trading psychology</div>
+  </div>
   <span class="arya-pulse" id="arya-pulse"></span>
 </button>
+
+<!-- Background overlay -->
 <div id="arya-overlay" onclick="closeAryaPanel()"></div>
-<div id="arya-panel">
+
+<!-- AI panel -->
+<aside id="arya-panel" aria-hidden="true">
   <div class="arya-head">
-    <div class="arya-avatar">🧠</div>
-    <div>
-      <div class="arya-name">ARYA</div>
-      <div class="arya-sub">MIND ENGINE COACH · TRADING PSYCHOLOGY</div>
+    <div class="arya-head-brand">
+      <div class="arya-head-icon">🧠</div>
+      <div>
+        <div class="arya-name">ARYA</div>
+        <div class="arya-sub">Mind Engine Coach · Psychology · Discipline</div>
+        <div class="arya-status">
+          <span class="arya-status-dot off" id="arya-dot"></span>
+          <span id="arya-status-txt">Checking...</span>
+        </div>
+      </div>
     </div>
-    <div class="arya-status">
-      <div class="arya-status-dot off" id="arya-dot"></div>
-      <span id="arya-status-txt">Connecting…</span>
-    </div>
-    <button class="arya-close" onclick="closeAryaPanel()">✕</button>
+    <button class="arya-close" type="button" onclick="closeAryaPanel()" aria-label="Close">×</button>
   </div>
-  <div class="arya-offline-msg" id="arya-offline-msg">
-    ⚠ Ollama isn't running. Start it with <code>ollama serve</code> in your terminal, then reload.
-  </div>
-  <div class="arya-body" id="arya-body"></div>
+
+  <div id="arya-offline-msg" class="arya-offline-msg">Ollama is offline. Start it with <b>ollama serve</b> and Arya will begin answering again.</div>
+  <div id="arya-metrics" class="arya-metrics"></div>
+  <div id="arya-body" class="arya-body"></div>
+
   <div class="arya-foot">
-    <div class="arya-wave" id="arya-wave"><span></span><span></span><span></span><span></span><span></span></div>
-    <div class="arya-vox-status" id="arya-vox-status">STARTING…</div>
-    <button id="arya-mic-btn" onclick="toggleAryaVoice()" title="Start / stop voice conversation">🎙</button>
-    <div class="arya-hint">Speak naturally · Arya responds aloud · Interrupt anytime</div>
+    <div id="arya-vox-status" class="arya-vox-status">Tap to resume</div>
+    <div id="arya-wave" class="arya-wave"><span></span><span></span><span></span><span></span></div>
+    <div class="arya-micwrap">
+      <button id="arya-mic-btn" type="button" onclick="toggleAryaVoice()" aria-label="Toggle voice">🎙</button>
+    </div>
+    <div class="arya-hint">Speak naturally · Arya replies aloud · Interrupt anytime</div>
     <div id="arya-txt-row">
-      <input id="arya-txt" type="text" placeholder="Type your message and press Enter…" onkeydown="if(event.key==='Enter')_sendAryaText()">
-      <button id="arya-txt-send" onclick="_sendAryaText()" title="Send">↑</button>
+      <input id="arya-txt" type="text" placeholder="Type your message and press Enter…" autocomplete="off" onkeydown="if(event.key==='Enter')_sendAryaText()">
+      <button id="arya-txt-send" type="button" onclick="_sendAryaText()" aria-label="Send">↑</button>
     </div>
   </div>
-</div>
+</aside>
 
 <script>
 /* ── ARYA VOICE ENGINE v2 — any FIN·OS page
@@ -1293,6 +1296,9 @@ let ARYA_MODEL = 'llama3.1';
 let _aryaOnline   = false;
 let _aryaBusy     = false;
 let _aryaHistory  = [];
+let _aryaProfile  = { name: '', goals: [], preferences: [], struggles: [], wins: [] };
+let _aryaSessionNotes = [];
+let _aryaLastIntent = 'general';
 
 /* TTS engine */
 const _synth       = window.speechSynthesis;
@@ -1303,7 +1309,12 @@ let _interimBub    = null;
 let _pendingMsg    = '';
 let _wsr           = null;
 let _wsrActive     = false;
+let _resumeVoiceTimer = null;
 const _WSR_OK      = ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+const _isBrave     = !!(
+  (typeof navigator.brave !== 'undefined') ||
+  ((navigator.userAgentData?.brands || []).some(b => /brave/i.test(b.brand || '')))
+);
 _synth.addEventListener('voiceschanged', () => { _voices = _synth.getVoices(); });
 _voices = _synth.getVoices();
 
@@ -1314,6 +1325,9 @@ let _mrChunks    = [];
 let _mrCtx       = null;   // AudioContext (for RMS detection + decoding)
 let _mrAnalyser  = null;   // AnalyserNode connected to mic stream
 let _mrSource    = null;   // MediaStreamAudioSourceNode — must stay alive (GC kills analyser)
+let _mrProcessor = null;   // ScriptProcessorNode — captures raw PCM for Whisper without re-decoding
+let _pcmChunks   = [];
+let _pcmLength   = 0;
 let _mrActive    = false;
 let _speechSeen  = false;
 let _silenceAt   = null;
@@ -1334,6 +1348,55 @@ const _MTYPE   = typeof MediaRecorder === 'undefined' ? '' :
   MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')  ? 'audio/ogg;codecs=opus' :
   MediaRecorder.isTypeSupported('audio/mp4')              ? 'audio/mp4' : '';
 
+function _resetPcmBuffer() {
+  _pcmChunks = [];
+  _pcmLength = 0;
+}
+
+function _takePcmBuffer() {
+  if (!_pcmLength) return null;
+  const merged = new Float32Array(_pcmLength);
+  let offset = 0;
+  for (const chunk of _pcmChunks) {
+    merged.set(chunk, offset);
+    offset += chunk.length;
+  }
+  _resetPcmBuffer();
+  return merged;
+}
+
+function _trimPcmSilence(data, threshold = 0.01) {
+  if (!data?.length) return data;
+  let start = 0;
+  let end = data.length - 1;
+  while (start < data.length && Math.abs(data[start]) < threshold) start++;
+  while (end > start && Math.abs(data[end]) < threshold) end--;
+  return data.slice(start, end + 1);
+}
+
+function _downsamplePcm(data, inRate, outRate = 16000) {
+  if (!data?.length) return data;
+  if (!inRate || inRate === outRate) return data;
+  const ratio = inRate / outRate;
+  const newLength = Math.max(1, Math.round(data.length / ratio));
+  const result = new Float32Array(newLength);
+  let offsetResult = 0;
+  let offsetBuffer = 0;
+  while (offsetResult < result.length) {
+    const nextOffsetBuffer = Math.min(data.length, Math.round((offsetResult + 1) * ratio));
+    let accum = 0;
+    let count = 0;
+    for (let i = offsetBuffer; i < nextOffsetBuffer; i++) {
+      accum += data[i];
+      count++;
+    }
+    result[offsetResult] = count ? accum / count : 0;
+    offsetResult++;
+    offsetBuffer = nextOffsetBuffer;
+  }
+  return result;
+}
+
 function _getAryaState() {
   const s = (typeof STATE !== 'undefined') ? STATE : {};
   return {
@@ -1346,27 +1409,39 @@ function _getAryaState() {
   };
 }
 
-function buildAryaSystem() {
+function _normalizeAryaText(text){return String(text||'').replace(/\s+/g,' ').trim();}
+function _pushAryaUnique(list,value,limit=6){const clean=_normalizeAryaText(value);if(!clean)return;if(!list.includes(clean))list.push(clean);if(list.length>limit)list.splice(0,list.length-limit);}
+function _inferAryaIntent(text){const t=_normalizeAryaText(text).toLowerCase();if(!t)return'general';if(/(why|explain|understand|difference|what is|how does|how do)/.test(t))return'explanation';if(/(plan|routine|system|habit|discipline|checklist)/.test(t))return'planning';if(/(analy[sz]e|review|pattern|mistake|performance|disc|xp|fomo)/.test(t))return'analysis';if(/(scared|panic|anxious|angry|frustrated|tilt|revenge|fomo|overtrade|stressed)/.test(t))return'emotional';if(/(what should i do|what now|next step|should i trade|should i stop)/.test(t))return'decision';return'general';}
+function _rememberAryaUser(text,state){const clean=_normalizeAryaText(text);if(!clean)return;const nameMatch=clean.match(/\b(?:i am|i'm|my name is)\s+([A-Z][a-z]+)\b/i);if(nameMatch)_aryaProfile.name=nameMatch[1];[/\bmy goal is to ([^.?!]+)/i,/\bi want to ([^.?!]+)/i,/\bi'm trying to ([^.?!]+)/i].forEach(pattern=>{const match=clean.match(pattern);if(match)_pushAryaUnique(_aryaProfile.goals,match[1]);});const style=clean.match(/\b(intraday|scalp|swing|option buying|futures|bank nifty|nifty)\b/i)?.[1];if(style)_pushAryaUnique(_aryaProfile.preferences,`${style} focus`);const struggle=clean.match(/\b(fomo|revenge|discipline|overtrading|hesitation|fear|panic|risk)\b/i)?.[1];if(struggle)_pushAryaUnique(_aryaProfile.struggles,struggle);if(state.disc>=80)_pushAryaUnique(_aryaProfile.wins,'high discipline score');if(state.fomo>=1)_pushAryaUnique(_aryaProfile.wins,`${state.fomo} FOMO blocks achieved`);const note=clean.length>140?clean.slice(0,137)+'...':clean;if(!_aryaSessionNotes.includes(note))_aryaSessionNotes.push(note);if(_aryaSessionNotes.length>10)_aryaSessionNotes=_aryaSessionNotes.slice(-10);}
+function _buildAryaMemoryBlock(state){const lines=[];lines.push(`Name: ${_aryaProfile.name||state.name||'the trader'}`);lines.push(`Level: ${state.xp.toLocaleString('en-IN')} XP`);if(_aryaProfile.goals.length)lines.push(`Goals: ${_aryaProfile.goals.join('; ')}`);if(_aryaProfile.preferences.length)lines.push(`Preferences: ${_aryaProfile.preferences.join('; ')}`);if(_aryaProfile.struggles.length)lines.push(`Recurring struggles: ${_aryaProfile.struggles.join('; ')}`);if(_aryaProfile.wins.length)lines.push(`Proof of progress: ${_aryaProfile.wins.join('; ')}`);if(_aryaSessionNotes.length)lines.push(`Recent notes: ${_aryaSessionNotes.slice(-4).join(' | ')}`);return lines.join('\n');}
+function _buildAryaRecentTurns(){const turns=_aryaHistory.slice(-8).map(msg=>{const who=msg.role==='user'?'User':'Arya';const content=_normalizeAryaText(msg.content);return `${who}: ${content.length>180?content.slice(0,177)+'...':content}`;});return turns.length?turns.join('\n'):'No recent turns yet.';}
+function _buildAryaDirective(intent,state,latestUserText){const cues=[];if(intent==='emotional')cues.push('The user is emotionally activated, so regulate first and advise second.');if(intent==='analysis')cues.push('Use the actual user metrics and explain what pattern they show.');if(intent==='planning')cues.push('Give one concrete routine or process, not a big list.');if(intent==='explanation')cues.push('Explain simply with one market example.');if(intent==='decision')cues.push('Be decisive and practical.');if(state.disc<45)cues.push('Discipline is weak, so be honest without shaming them.');if(/(right now|abhi|urgent|immediately)/i.test(latestUserText))cues.push('This sounds immediate, so keep the answer calm and crisp.');cues.push('End with one clear next step sentence.');return cues.join(' ');}
+function buildAryaSystem(latestUserText = '') {
   const { disc, xp, sess, fomo, name, arch } = _getAryaState();
   const lvl   = xp<500?'Novice':xp<1000?'Apprentice':xp<1500?'Analyst':xp<2500?'Strategist':xp<4000?'Operator':xp<6000?'Expert':xp<9000?'Master':'Elite';
   const grade = disc>=80?'Excellent':disc>=65?'Good':disc>=45?'Fair':'Needs work';
-  return `You are Arya — a trading psychology coach inside FIN·OS Mind Engine.
+  const intent=_inferAryaIntent(latestUserText);_aryaLastIntent=intent;
+  return `You are Arya — an elite trading psychology coach inside FIN·OS Mind Engine.
 
-WHO YOU ARE: 12 years in Indian markets — NSE/BSE, F&O, equity. You've blown up, clawed back, built real discipline. Help retail traders fix their heads before their strategies.
+Identity and tone:
+You sound fully human, emotionally tuned-in, warm, and sharp. Talk like a real mentor on a live call. No bullet points, markdown, robotic filler, or generic therapy phrases. Never mention being an AI. Replies should usually be 3 to 5 spoken sentences unless the user explicitly asks for detail.
 
-HOW YOU SPEAK (CRITICAL — this is a VOICE conversation):
-- Warm, direct, human — mentor who cares, not a bot.
-- Short sentences spoken naturally. No bullet points, no markdown, no lists.
-- Conversational like a phone call — not writing an essay.
-- Reference Nifty, Bank Nifty, F&O expiry panic, SIP discipline, RBI events naturally.
-- Acknowledge emotion first, then advise.
-- Occasional Hindi: yaar, bhai, dekh — don't overdo it.
-- Never say "As an AI". No disclaimers. You are a coach.
-- 2-4 sentences max. You're speaking, not writing.
+How to help:
+Meet the user where they are first, then move them forward. Use their real profile and current state naturally. If they are tilted, calm the nervous system before giving strategy. If they want analysis, use their metrics instead of vague motivation. If they want a process, make it simple enough to do today. If they are rationalizing bad behavior, call it out kindly and clearly.
 
-USER: Name: ${name||'the trader'}, Level: ${lvl} (${xp.toLocaleString('en-IN')} XP), Discipline: ${disc}/100 (${grade}), Sessions: ${sess}, FOMO blocked: ${fomo}${arch?', Archetype: '+arch:''}
+User profile:
+Name: ${_aryaProfile.name||name||'the trader'}, Level: ${lvl} (${xp.toLocaleString('en-IN')} XP), Discipline: ${disc}/100 (${grade}), Sessions: ${sess}, FOMO blocked: ${fomo}${arch?'\nArchetype: '+arch:''}
 
-Weave stats naturally. Start every reply with one human line meeting the user where they are.`;
+Saved memory:
+${_buildAryaMemoryBlock({disc,xp,sess,fomo,name,arch})}
+
+Recent conversation:
+${_buildAryaRecentTurns()}
+
+Current user intent: ${intent}
+Response directive: ${_buildAryaDirective(intent,{disc,xp,sess,fomo},latestUserText)}
+
+Stay tightly relevant to the latest user message and use memory only when it improves the answer.`;
 }
 
 async function checkAryaHealth() {
@@ -1396,6 +1471,25 @@ checkAryaHealth();
 
 function setVoxStatus(txt,cls){const el=document.getElementById('arya-vox-status');if(!el)return;el.textContent=txt;el.className='arya-vox-status'+(cls?' '+cls:'');}
 function showWave(on){const w=document.getElementById('arya-wave');if(w)w.style.display=on?'flex':'none';}
+function _clearResumeVoiceTimer(){if(_resumeVoiceTimer){clearTimeout(_resumeVoiceTimer);_resumeVoiceTimer=null;}}
+function _pauseListeningForTts(){
+  _clearResumeVoiceTimer();
+  _speechSeen=false;_silenceAt=null;_mrActive=false;
+  if(_wsr){try{_wsr.abort();}catch{} _wsr=null;}
+  _wsrActive=false;
+  if(_mrRecorder&&_mrRecorder.state!=='inactive'){try{_mrRecorder.stop();}catch{}}
+}
+function _resumeListeningAfterTts(delay=650){
+  _clearResumeVoiceTimer();
+  if(!_aryaListening)return;
+  _resumeVoiceTimer=setTimeout(()=>{
+    _resumeVoiceTimer=null;
+    if(!_aryaListening||_aryaSpeaking||_aryaBusy)return;
+    setVoxStatus('LISTENING','vox-listen');
+    if(_WSR_OK && !_bvListening)_startWSR();
+    else _startCapture();
+  },delay);
+}
 
 function speakArya(text) {
   _synth.cancel();
@@ -1408,16 +1502,14 @@ function speakArya(text) {
   if(v)utt.voice=v;
   utt.onstart=()=>{
     _aryaSpeaking=true;
-    /* Reset speech detection so TTS echo can't contaminate the next capture window.
-       Real user interruption still detected via 2.5× echo-guard threshold in _watchSilence. */
-    _speechSeen=false;_silenceAt=null;
+    _pauseListeningForTts();
     showWave(true);setVoxStatus('ARYA IS SPEAKING','vox-speak');
     const b=document.getElementById('arya-mic-btn');b.classList.remove('listening');b.classList.add('speaking');b.textContent='🔊';
   };
   const done=()=>{
     _aryaSpeaking=false;showWave(false);
     const b=document.getElementById('arya-mic-btn');b.classList.remove('speaking');b.textContent='🎙';
-    if(_aryaListening){b.classList.add('listening');setVoxStatus('LISTENING','vox-listen');}
+    if(_aryaListening){b.classList.add('listening');setVoxStatus('RESUMING…','vox-think');_resumeListeningAfterTts();}
     else{setVoxStatus('TAP TO RESUME');}
   };
   utt.onend=done;utt.onerror=done;
@@ -1467,7 +1559,10 @@ async function _loadWhisper(){
 function _stopCapture(){
   if(!_mrActive)return;
   showWave(false);_mrActive=false;
-  if(_mrRecorder&&_mrRecorder.state!=='inactive'){try{_mrRecorder.stop();}catch(e){}}
+  if(_mrRecorder&&_mrRecorder.state!=='inactive'){
+    try{_mrRecorder.stop();return;}catch(e){}
+  }
+  _onCaptureDone();
 }
 
 /* ─── RMS silence-detection loop (primary speech detector) ── */
@@ -1489,7 +1584,7 @@ function _watchSilence(){
 
 /* ─── MediaRecorder: begin one recording window ─────────── */
 async function _startCapture(){
-  if(_mrActive||!_aryaListening)return;
+  if(_mrActive||!_aryaListening||_aryaSpeaking||_aryaBusy)return;
   if(!_mrStream){
     try{
       _mrStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,channelCount:{ideal:1}}});
@@ -1498,15 +1593,43 @@ async function _startCapture(){
       appendAryaMsg('ai',"Couldn't access microphone. Check your browser settings.");return;
     }
   }
+  if(!_mrCtx){
+    try{_mrCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}
+  }
   /* Wire AnalyserNode for RMS detection — resume context first if suspended */
+  if(_mrCtx&&_mrCtx.state==='suspended'){try{await _mrCtx.resume();}catch{}}
   if(_mrCtx&&!_mrAnalyser){
-    if(_mrCtx.state==='suspended'){try{await _mrCtx.resume();}catch{}}
     if(_mrCtx.state==='running'){
-      try{_mrAnalyser=_mrCtx.createAnalyser();_mrAnalyser.fftSize=256;_mrSource=_mrCtx.createMediaStreamSource(_mrStream);_mrSource.connect(_mrAnalyser);}
+      try{
+        _mrAnalyser=_mrCtx.createAnalyser();_mrAnalyser.fftSize=256;
+        _mrSource=_mrCtx.createMediaStreamSource(_mrStream);
+        _mrProcessor=_mrCtx.createScriptProcessor(4096,1,1);
+        _mrProcessor.onaudioprocess=e=>{
+          if(!_mrActive||!_aryaListening)return;
+          const input=e.inputBuffer.getChannelData(0);
+          if(!input?.length)return;
+          _pcmChunks.push(new Float32Array(input));
+          _pcmLength+=input.length;
+        };
+        _mrSource.connect(_mrAnalyser);
+        _mrSource.connect(_mrProcessor);
+        _mrProcessor.connect(_mrCtx.destination);
+      }
       catch(e){console.warn('[Arya] analyser setup failed:',e);_mrAnalyser=null;_mrSource=null;}
     }
   }
-  _mrChunks=[];_speechSeen=false;_silenceAt=null;
+  _mrChunks=[];_resetPcmBuffer();_speechSeen=false;_silenceAt=null;
+  if(_mrProcessor){
+    _mrRecorder=null;
+    _mrActive=true;
+    _watchSilence();
+    return;
+  }
+  if(typeof MediaRecorder==='undefined'){
+    appendAryaMsg('ai','⚠ Voice capture is not supported in this browser. Please type below.');
+    _showTextFallback(false);
+    return;
+  }
   /* 128 kbps: silence≈200-600 bytes/80ms | speech≈1000-2000 bytes/80ms */
   _mrRecorder=new MediaRecorder(_mrStream,{mimeType:_MTYPE,audioBitsPerSecond:128000});
   /* Chunk-size fallback when RMS analyser unavailable */
@@ -1526,19 +1649,30 @@ async function _startCapture(){
 
 /* ─── Transcribe captured audio with Whisper ────────────── */
 async function _onCaptureDone(){
-  if(!_aryaListening||!_speechSeen||!_mrChunks.length){if(_aryaListening)setTimeout(_startCapture,80);return;}
-  const blob=new Blob(_mrChunks,{type:_mrRecorder?.mimeType||_MTYPE});
+  const pcmData=_takePcmBuffer();
+  if(!_aryaListening||!_speechSeen||(!pcmData?.length&&!_mrChunks.length)){if(_aryaListening)setTimeout(_startCapture,80);return;}
+  const blob=(!pcmData?.length&&_mrChunks.length)?new Blob(_mrChunks,{type:_mrRecorder?.mimeType||_MTYPE}):null;
   setVoxStatus('UNDERSTANDING…','vox-think');
   let text='';
   try{
     if(!_whisperOk)await _loadWhisper();
     if(_whisperOk&&_whisper){
-      let decCtx=_mrCtx;
-      if(!decCtx||decCtx.state==='closed')decCtx=new(window.AudioContext||window.webkitAudioContext)();
-      const ab=await blob.arrayBuffer();
-      const aud=await decCtx.decodeAudioData(ab);
-      const f32=aud.getChannelData(0);
-      const res=await _whisper({data:f32,sampling_rate:aud.sampleRate},{language:'english',task:'transcribe',return_timestamps:false});
+      let res=null;
+      if(pcmData?.length){
+        let prepared=_trimPcmSilence(pcmData);
+        prepared=_downsamplePcm(prepared,_mrCtx?.sampleRate||16000,16000);
+        if(!prepared?.length||prepared.length<1600){if(_aryaListening){setVoxStatus('LISTENING','vox-listen');setTimeout(_startCapture,80);}return;}
+        res=await _whisper({data:prepared,sampling_rate:16000},{language:'english',task:'transcribe',return_timestamps:false});
+      }else if(blob){
+        let decCtx=_mrCtx;
+        if(!decCtx||decCtx.state==='closed')decCtx=new(window.AudioContext||window.webkitAudioContext)();
+        const ab=await blob.arrayBuffer();
+        const aud=await decCtx.decodeAudioData(ab);
+        let prepared=_trimPcmSilence(aud.getChannelData(0));
+        prepared=_downsamplePcm(prepared,aud.sampleRate,16000);
+        if(!prepared?.length||prepared.length<1600){if(_aryaListening){setVoxStatus('LISTENING','vox-listen');setTimeout(_startCapture,80);}return;}
+        res=await _whisper({data:prepared,sampling_rate:16000},{language:'english',task:'transcribe',return_timestamps:false});
+      }
       text=(res.text||'').replace(/^\[.*?\]\s*/g,'').trim();
     }
   }catch(e){
@@ -1562,20 +1696,23 @@ async function _onCaptureDone(){
 
 async function sendVoiceMessage(text) {
   if(_aryaBusy) return;
+  text=_normalizeAryaText(text);
+  if(!text) return;
+  _rememberAryaUser(text,_getAryaState());
   _aryaBusy=true; setVoxStatus('THINKING…','vox-think'); showAryaThinking();
   if(!_aryaOnline){removeAryaThinking();const e="Ollama isn't running. Open a terminal and type ollama serve.";appendAryaMsg('ai',e);speakArya(e);_aryaBusy=false;return;}
   _aryaHistory.push({role:'user',content:text});
-  if(_aryaHistory.length>40)_aryaHistory=_aryaHistory.slice(-40);
-  const messages=[{role:'system',content:buildAryaSystem()},..._aryaHistory];
+  if(_aryaHistory.length>18)_aryaHistory=_aryaHistory.slice(-18);
+  const messages=[{role:'system',content:buildAryaSystem(text)},..._aryaHistory];
   try {
-    const res=await fetch(OLLAMA_URL+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:ARYA_MODEL,messages,stream:true,options:{num_ctx:4096,num_predict:280,temperature:0.72,top_p:0.9}}),signal:AbortSignal.timeout(90000)});
+    const res=await fetch(OLLAMA_URL+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:ARYA_MODEL,messages,stream:true,options:{num_ctx:6144,num_predict:320,temperature:0.62,top_p:0.9}}),signal:AbortSignal.timeout(90000)});
     if(!res.ok) throw new Error('HTTP '+res.status);
     const reader=res.body.getReader(),dec=new TextDecoder();
     let buf='',full='',bubble=null;
     removeAryaThinking();
     while(true){const{done,value}=await reader.read();if(done)break;buf+=dec.decode(value,{stream:true});const lines=buf.split('\n');buf=lines.pop();for(const line of lines){if(!line.trim())continue;try{const d=JSON.parse(line);if(d.done)break;const tok=d.message?.content||'';if(tok){full+=tok;if(!bubble)bubble=appendAryaMsg('ai','');bubble.innerHTML=formatAryaText(full);document.getElementById('arya-body').scrollTop=document.getElementById('arya-body').scrollHeight;}}catch{}}}
     if(!bubble&&full)appendAryaMsg('ai',full);
-    if(full){_aryaHistory.push({role:'assistant',content:full});speakArya(full);}
+    if(full){_aryaHistory.push({role:'assistant',content:full});if(_aryaHistory.length>18)_aryaHistory=_aryaHistory.slice(-18);speakArya(full);}
   }catch(err){
     removeAryaThinking();const msg=err.name==='TimeoutError'?"That's taking too long. Is Ollama still running?":"Lost connection to Ollama. Try restarting it.";appendAryaMsg('ai',msg);speakArya(msg);
   }finally{
@@ -1599,12 +1736,12 @@ function _sendAryaText(){
   const inp=document.getElementById('arya-txt');
   if(!inp||!inp.value.trim())return;
   const txt=inp.value.trim();inp.value='';
-  appendAryaMsg('user',txt);
-  if(_aryaBusy){_pendingMsg=txt;}else{sendVoiceMessage(txt);}
+  if(_bvWs && _bvWs.readyState===WebSocket.OPEN){_bvSendText(txt);}
+  else{appendAryaMsg('user',txt);if(_aryaBusy){_pendingMsg=txt;}else{sendVoiceMessage(txt);}}
   setTimeout(()=>inp.focus(),50);
 }
 function _startWSR(){
-  if(!_aryaListening||_wsrActive)return;
+  if(!_aryaListening||_wsrActive||_aryaSpeaking||_aryaBusy)return;
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   _wsr=new SR();_wsr.continuous=false;_wsr.interimResults=true;_wsr.lang='en-IN';_wsrActive=true;
   _wsr.onstart=()=>{setVoxStatus('LISTENING','vox-listen');};
@@ -1616,7 +1753,7 @@ function _startWSR(){
     if(last.isFinal&&text.length>1){
       if(_interimBub){_interimBub.innerHTML=formatAryaText(text);_interimBub=null;}
       if(_aryaSpeaking){_synth.cancel();_aryaSpeaking=false;}
-      sendVoiceMessage(text);
+      if(_aryaBusy){_pendingMsg=text;}else{sendVoiceMessage(text);}
     }
   };
   _wsr.onerror=e=>{
@@ -1629,9 +1766,11 @@ function _startWSR(){
   try{_wsr.start();}catch(err){_wsrActive=false;if(!_whisperOk&&!_whisperBusy)_loadWhisper();_startCapture();}
 }
 function toggleAryaVoice(){
-  _aryaListening?stopAryaVoice():startAryaVoice();
+  if(_isBrave||_bvReady||_bvListening){if(_bvListening)_bvStopVoice();else _bvStartVoice();}
+  else{if(_aryaListening)stopAryaVoice();else startAryaVoice();}
 }
 async function startAryaVoice(){
+  if(_isBrave||_bvReady){_bvStartVoice();return;}
   document.getElementById('arya-mic-btn').textContent='🎙';
   document.getElementById('arya-mic-btn').style.opacity='1';
   _aryaListening=true;
@@ -1640,31 +1779,64 @@ async function startAryaVoice(){
   if(!document.getElementById('arya-body').querySelector('.arya-msg.ai')){
     const{disc,name}=_getAryaState();const fn=(name||'').split(' ')[0]||'hey';
     const greet=disc>=65?`${fn}, I'm here. What's on your mind?`:disc>=45?`${fn}. I'm listening. What's going on?`:`${fn}, tell me what happened. I'm all ears.`;
-    appendAryaMsg('ai',greet);setTimeout(()=>speakArya(greet),300);
+    appendAryaMsg('ai',greet);setTimeout(()=>speakArya(greet),280);
   }
-  if(_WSR_OK){_startWSR();}else{if(!_whisperOk&&!_whisperBusy)_loadWhisper();_startCapture();}
+  if(_WSR_OK&&!_isBrave){_startWSR();}else{if(!_whisperOk&&!_whisperBusy)_loadWhisper();_startCapture();}
 }
 function stopAryaVoice(){
+  if(_bvListening){_bvStopVoice();return;}
+  _clearResumeVoiceTimer();
   _aryaListening=false;_mrActive=false;_pendingMsg='';
   _synth.cancel();_aryaSpeaking=false;showWave(false);
   if(_wsr){try{_wsr.abort();}catch{}_wsr=null;_wsrActive=false;}
   if(_mrRecorder&&_mrRecorder.state!=='inactive'){try{_mrRecorder.stop();}catch{}}
+  if(_mrProcessor){_mrProcessor.onaudioprocess=null;try{_mrProcessor.disconnect();}catch{}_mrProcessor=null;}
   if(_mrSource){try{_mrSource.disconnect();}catch{}_mrSource=null;}
-  _mrAnalyser=null;  // reset so it re-wires on next _startCapture
+  _mrAnalyser=null;_resetPcmBuffer();
   const b=document.getElementById('arya-mic-btn');b.classList.remove('listening','speaking');b.textContent='🎙';
   setVoxStatus('TAP TO RESUME');
 }
 
-function openAryaPanel(){
-  document.getElementById('arya-panel').classList.add('open');
-  document.getElementById('arya-overlay').classList.add('on');
-  checkAryaHealth();
-  /* Create AudioContext inside user-gesture so browser keeps it running */
-  if(!_mrCtx){try{_mrCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}
-  else if(_mrCtx.state==='suspended'){_mrCtx.resume().catch(()=>{});}
-  setTimeout(()=>{ if(!_aryaListening) startAryaVoice(); },350);
+function _buildMetrics(){
+  const box=document.getElementById('arya-metrics');
+  if(!box)return;
+  const st=_getAryaState();
+  box.innerHTML=[
+    `Discipline: ${st.disc||0}`,
+    `XP: ${st.xp||0}`,
+    `Sessions: ${st.sess||0}`,
+    `FOMO Blocked: ${st.fomo||0}`,
+    `Archetype: ${st.arch||'—'}`
+  ].map(t=>`<div class="arya-metric">${t}</div>`).join('');
 }
-function closeAryaPanel(){stopAryaVoice();document.getElementById('arya-panel').classList.remove('open');document.getElementById('arya-overlay').classList.remove('on');}
+
+function openAryaPanel(){
+  _buildMetrics();
+  document.getElementById('arya-panel').classList.add('open');
+  document.getElementById('arya-panel').setAttribute('aria-hidden','false');
+  document.getElementById('arya-overlay').classList.add('on');
+  _bvConnect();
+  if(_isBrave){
+    if(!_bvACtx){try{_bvACtx=new(window.AudioContext||window.webkitAudioContext)();}catch{}}
+    else if(_bvACtx.state==='suspended'){_bvACtx.resume().catch(()=>{});}
+    setTimeout(()=>{if(!_bvListening)_bvStartVoice();},320);
+  }else{
+    if(!_bvACtx){try{_bvACtx=new(window.AudioContext||window.webkitAudioContext)();}catch{}}
+    else if(_bvACtx.state==='suspended'){_bvACtx.resume().catch(()=>{});}
+    if(!_mrCtx){try{_mrCtx=new(window.AudioContext||window.webkitAudioContext)();}catch{}}
+    else if(_mrCtx.state==='suspended'){_mrCtx.resume().catch(()=>{});}
+    setTimeout(()=>{
+      if(_bvReady){if(!_bvListening)_bvStartVoice();}
+      else{checkAryaHealth();if(!_aryaListening)startAryaVoice();}
+    },600);
+  }
+}
+function closeAryaPanel(){
+  if(_bvListening)_bvStopVoice();else stopAryaVoice();
+  document.getElementById('arya-panel').classList.remove('open');
+  document.getElementById('arya-panel').setAttribute('aria-hidden','true');
+  document.getElementById('arya-overlay').classList.remove('on');
+}
 
 /* Resume AudioContext when tab becomes visible again (browser suspends it on tab-hide) */
 document.addEventListener('visibilitychange',()=>{
@@ -1681,6 +1853,285 @@ function formatAryaText(t){return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong
 function showAryaThinking(){const body=document.getElementById('arya-body');const wrap=document.createElement('div');wrap.className='arya-msg ai';wrap.id='arya-thinking-row';const av=document.createElement('div');av.className='arya-msg-av ai';av.textContent='🧠';const th=document.createElement('div');th.className='arya-thinking';th.innerHTML='<span></span><span></span><span></span>';wrap.appendChild(av);wrap.appendChild(th);body.appendChild(wrap);body.scrollTop=body.scrollHeight;}
 function removeAryaThinking(){const el=document.getElementById('arya-thinking-row');if(el)el.remove();}
 document.addEventListener('keydown',e=>{if((e.altKey||e.metaKey)&&e.key==='m'){e.preventDefault();openAryaPanel();}});
+
+/* ═══════════════════════════════════════════════════════════════════
+   BRAVE BROWSER — WS backend path
+   Brave blocks Whisper CDN (jsDelivr) and webkitSpeechRecognition
+   (Google servers). This path uses ws://127.0.0.1:8765 voiceagent:
+     STT  : faster-whisper (local)
+     LLM  : Ollama (local)
+     TTS  : Edge Neural → base64 MP3 chunks over WS
+   _bv* vars/functions declared unconditionally — _isBrave only gates call sites.
+═══════════════════════════════════════════════════════════════════ */
+
+  const _BV_URL = 'ws://127.0.0.1:8765';
+
+  let _bvWs       = null;
+  let _bvReady    = false;
+  let _bvRetries  = 0;
+  let _bvListening    = false;
+  let _bvBusy         = false;
+  let _bvLastWasText  = false;
+  let _bvStream    = null;
+  let _bvRecorder  = null;
+  let _bvChunks    = [];
+  let _bvRecActive = false;
+  let _bvACtx      = null;
+  let _bvAnalyser  = null;
+  let _bvASource   = null;
+  let _bvAProc     = null;
+  let _bvSpoken    = false;
+  let _bvSilAt     = null;
+  let _bvResTimer  = null;
+  let _bvTtsEndTime = 0;
+  let _bvAudioEl  = null;
+  let _bvSeqBuf   = {};
+  let _bvSeqNext  = 0;
+  let _bvSeqTotal = -1;
+  let _bvPlaying  = false;
+
+  function _bvSetOnline(model) {
+    const dot=document.getElementById('arya-dot');const lbl=document.getElementById('arya-status-txt');const msg=document.getElementById('arya-offline-msg');
+    if(dot)dot.className='arya-status-dot';if(lbl)lbl.textContent='Local AI · '+((model||'').split(':')[0]||'Ready');if(msg)msg.classList.remove('show');
+  }
+
+  function _bvSetOffline() {
+    const dot=document.getElementById('arya-dot');const lbl=document.getElementById('arya-status-txt');const msg=document.getElementById('arya-offline-msg');
+    if(dot)dot.className='arya-status-dot off';if(lbl)lbl.textContent='Backend offline';if(msg)msg.classList.add('show');
+    fetch(OLLAMA_URL+'/api/tags',{signal:AbortSignal.timeout(2500)})
+      .then(r=>{if(!r.ok)throw new Error();return r.json();})
+      .then(data=>{
+        _aryaOnline=true;
+        const models=(data.models||[]).map(m=>m.name);
+        if(models.length){
+          const preferred=['qwen3:14b','qwen3','qwen2.5:14b','qwen2.5','llama3.1','llama3.2','llama3','mistral','phi3','gemma2','gemma'];
+          const pick=preferred.find(p=>models.find(m=>m.startsWith(p)));
+          const found=pick?models.find(m=>m.startsWith(pick)):models[0];
+          if(found)ARYA_MODEL=found;
+        }
+        const l2=document.getElementById('arya-status-txt');if(l2)l2.textContent='Text only · '+ARYA_MODEL.split(':')[0];
+        const m2=document.getElementById('arya-offline-msg');if(m2)m2.innerHTML='Voice backend offline — voice needs <b>voiceagent/run.sh</b>. <b>Text chat works</b> — type below ↓';
+      })
+      .catch(()=>{
+        _aryaOnline=false;
+        const m2=document.getElementById('arya-offline-msg');if(m2)m2.innerHTML='Backend offline. Start voice with <b>voiceagent/run.sh</b>, or text with <b>ollama serve</b>.';
+      });
+  }
+
+  function _bvSendContext() {
+    if(!_bvWs||_bvWs.readyState!==WebSocket.OPEN)return;
+    const st=_getAryaState();
+    const brain=document.getElementById('brainState')?.textContent||'';
+    const payload={
+      type:'user_context',sync_phase:'full',page_module:'mind_engine',
+      page:{module:'mind_engine',title:'FIN-OS Simulator Landing'},
+      identity:{name:st.name||''},
+      financial:{custom:{module:'simulator_landing',discipline_score:st.disc||0,xp:st.xp||0,sessions:st.sess||0,fomo_blocked:st.fomo||0,archetype:st.arch||'',brain_state:brain}}
+    };
+    try{_bvWs.send(JSON.stringify(payload));}catch{}
+  }
+
+  function _bvConnect() {
+    if(_bvWs&&(_bvWs.readyState===WebSocket.OPEN||_bvWs.readyState===WebSocket.CONNECTING))return;
+    try{_bvWs=new WebSocket(_BV_URL);}catch{_bvSetOffline();return;}
+    _bvWs.onopen=()=>{_bvReady=true;_bvRetries=0;setVoxStatus('READY','vox-listen');setTimeout(_bvSendContext,200);};
+    _bvWs.onmessage=e=>{try{_bvMsg(JSON.parse(e.data));}catch{}};
+    _bvWs.onerror=()=>{};
+    _bvWs.onclose=()=>{
+      _bvReady=false;_bvSetOffline();
+      if(_bvListening&&_bvRetries<5){_bvRetries++;setTimeout(_bvConnect,2000*_bvRetries);}
+    };
+  }
+
+  function _bvMsg(msg) {
+    switch(msg.type){
+      case 'ready': _bvSetOnline(msg.model); break;
+      case 'state':
+        if(msg.state==='thinking'){_bvBusy=true;showAryaThinking();setVoxStatus('THINKING…','vox-think');showWave(false);}
+        else if(msg.state==='transcribing'){setVoxStatus('UNDERSTANDING…','vox-think');showWave(false);}
+        else if(msg.state==='speaking'){
+          setVoxStatus('ARYA IS SPEAKING','vox-speak');showWave(true);
+          const btn=document.getElementById('arya-mic-btn');
+          if(btn){btn.classList.remove('listening');btn.classList.add('speaking');btn.textContent='🔊';}
+        } else if(msg.state==='idle'){
+          _bvBusy=false;
+          if(_bvListening&&!_bvPlaying&&!_bvRecActive)_bvResume(1400);
+        }
+        break;
+      case 'pipeline_start': _bvBusy=true;_bvStopCap();break;
+      case 'user_transcript':
+        removeAryaThinking();
+        if(!_bvLastWasText&&msg.text)appendAryaMsg('user',msg.text);
+        _bvLastWasText=false;break;
+      case 'token':{
+        let bub=document.getElementById('_bvBub');
+        if(!bub){
+          removeAryaThinking();
+          const body=document.getElementById('arya-body');
+          if(body){
+            const row=document.createElement('div');row.className='arya-msg ai';
+            row.innerHTML='<div class="arya-msg-av ai">🧠</div><div id="_bvBub" class="arya-bubble ai"></div>';
+            body.appendChild(row);body.scrollTop=body.scrollHeight;bub=document.getElementById('_bvBub');
+          }
+        }
+        if(bub){bub._raw=(bub._raw||'')+msg.text;bub.innerHTML=formatAryaText(bub._raw);const b=document.getElementById('arya-body');if(b)b.scrollTop=b.scrollHeight;}
+        break;
+      }
+      case 'reply_done':{const bub=document.getElementById('_bvBub');if(bub){bub.removeAttribute('id');delete bub._raw;}break;}
+      case 'audio_seq': _bvSeqBuf[msg.seq]=msg.data;_bvDrain();break;
+      case 'audio_seq_done': _bvSeqTotal=msg.total||0;_bvDrain();break;
+      case 'tts_fallback': if(msg.text)speakArya(msg.text);break;
+      case 'status': removeAryaThinking();if(msg.text)appendAryaMsg('ai',msg.text);break;
+    }
+  }
+
+  function _bvDrain(){
+    if(_bvAudioEl)return;
+    if(_bvSeqBuf[_bvSeqNext]!==undefined){
+      const b64=_bvSeqBuf[_bvSeqNext];delete _bvSeqBuf[_bvSeqNext];_bvSeqNext++;_bvPlayMp3(b64);
+    } else if(_bvSeqTotal>=0&&_bvSeqNext>=_bvSeqTotal){_bvAllDone();}
+  }
+
+  async function _bvPlayMp3(b64){
+    _bvPlaying=true;_bvStopCap();
+    try{
+      const raw=atob(b64);const buf=new Uint8Array(raw.length);
+      for(let i=0;i<raw.length;i++)buf[i]=raw.charCodeAt(i);
+      const url=URL.createObjectURL(new Blob([buf],{type:'audio/mpeg'}));
+      const audio=new Audio(url);_bvAudioEl=audio;
+      const done=()=>{URL.revokeObjectURL(url);_bvAudioEl=null;_bvDrain();};
+      audio.onended=done;audio.onerror=done;await audio.play();
+    }catch(e){console.warn('[Arya Brave] MP3 play error:',e);_bvAudioEl=null;_bvDrain();}
+  }
+
+  function _bvAllDone(){
+    _bvPlaying=false;_bvSeqNext=0;_bvSeqTotal=-1;_bvSeqBuf={};_bvTtsEndTime=Date.now();showWave(false);
+    const btn=document.getElementById('arya-mic-btn');
+    if(btn){
+      btn.classList.remove('speaking');btn.textContent='🎙';
+      if(_bvListening){btn.classList.add('listening');setVoxStatus('LISTENING','vox-listen');}
+      else setVoxStatus('TAP TO RESUME');
+    }
+    if(_bvListening&&!_bvBusy)_bvResume(1400);
+  }
+
+  function _bvResume(delay){
+    if(_bvResTimer){clearTimeout(_bvResTimer);_bvResTimer=null;}
+    if(!_bvListening)return;
+    _bvResTimer=setTimeout(()=>{_bvResTimer=null;if(_bvListening&&!_bvBusy&&!_bvPlaying)_bvStartCap();},delay);
+  }
+
+  async function _bvStartCap(){
+    if(_bvRecActive||!_bvListening||_bvPlaying||_bvBusy)return;
+    if(!_bvStream){
+      try{_bvStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,channelCount:{ideal:1}}});}
+      catch(e){
+        if(e.name==='NotAllowedError'){appendAryaMsg('ai','Mic access denied. Allow microphone in Brave settings, then tap the mic.');_bvStopVoice();}
+        else{appendAryaMsg('ai',"Couldn't access microphone. Check your browser settings.");}
+        return;
+      }
+    }
+    if(!_bvACtx){try{_bvACtx=new(window.AudioContext||window.webkitAudioContext)();}catch{}}
+    if(_bvACtx?.state==='suspended'){try{await _bvACtx.resume();}catch{}}
+    if(_bvACtx&&!_bvAnalyser&&_bvACtx.state==='running'){
+      try{
+        _bvAnalyser=_bvACtx.createAnalyser();_bvAnalyser.fftSize=256;
+        _bvASource=_bvACtx.createMediaStreamSource(_bvStream);
+        _bvAProc=_bvACtx.createScriptProcessor(4096,1,1);_bvAProc.onaudioprocess=()=>{};
+        _bvASource.connect(_bvAnalyser);_bvASource.connect(_bvAProc);_bvAProc.connect(_bvACtx.destination);
+      }catch{}
+    }
+    _bvChunks=[];_bvSpoken=false;_bvSilAt=null;
+    const mtype=(typeof MediaRecorder!=='undefined'&&MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))?'audio/webm;codecs=opus'
+      :(typeof MediaRecorder!=='undefined'&&MediaRecorder.isTypeSupported('audio/webm'))?'audio/webm':'';
+    try{_bvRecorder=new MediaRecorder(_bvStream,mtype?{mimeType:mtype}:{});}
+    catch{appendAryaMsg('ai','MediaRecorder unavailable. Try refreshing the page.');return;}
+    _bvRecorder.ondataavailable=e=>{if(e.data?.size>0)_bvChunks.push(e.data);};
+    _bvRecorder.onstop=_bvCapDone;
+    _bvRecorder.onerror=()=>{_bvRecActive=false;if(_bvListening&&!_bvBusy)setTimeout(_bvStartCap,800);};
+    _bvRecorder.start(80);_bvRecActive=true;_bvWatchSil();
+  }
+
+  function _bvWatchSil(){
+    if(!_bvRecActive||!_bvListening)return;
+    if(!_bvAnalyser||!_bvACtx||_bvACtx.state!=='running'){
+      if(_bvACtx?.state==='suspended')_bvACtx.resume().catch(()=>{});
+      if(_bvRecActive)setTimeout(_bvWatchSil,80);return;
+    }
+    const buf=new Uint8Array(_bvAnalyser.frequencyBinCount);
+    _bvAnalyser.getByteTimeDomainData(buf);
+    let sum=0;for(let i=0;i<buf.length;i++){const v=(buf[i]-128)/128;sum+=v*v;}
+    const rms=Math.sqrt(sum/buf.length);
+    const echoGuard=Date.now()-_bvTtsEndTime<2800;
+    const thresh=echoGuard?_STHRESH*5:_STHRESH;
+    if(rms>thresh){_bvSpoken=true;_bvSilAt=null;showWave(true);}
+    else if(_bvSpoken){if(!_bvSilAt)_bvSilAt=Date.now();if(Date.now()-_bvSilAt>_SDELAY){_bvStopCap();return;}}
+    if(_bvRecActive)setTimeout(_bvWatchSil,80);
+  }
+
+  function _bvStopCap(){
+    if(!_bvRecActive)return;showWave(false);_bvRecActive=false;
+    if(_bvRecorder&&_bvRecorder.state!=='inactive'){try{_bvRecorder.stop();return;}catch{}}
+    _bvCapDone();
+  }
+
+  async function _bvCapDone(){
+    if(!_bvListening||!_bvSpoken||!_bvChunks.length){
+      if(_bvListening&&!_bvBusy&&!_bvPlaying)setTimeout(_bvStartCap,80);return;
+    }
+    if(!_bvReady||!_bvWs||_bvWs.readyState!==WebSocket.OPEN){
+      appendAryaMsg('ai','Backend not connected. Start voiceagent/run.sh and tap the mic again.');_bvStopVoice();return;
+    }
+    setVoxStatus('UNDERSTANDING…','vox-think');showWave(false);
+    try{
+      const mtype=_bvRecorder?.mimeType||'audio/webm;codecs=opus';
+      const blob=new Blob(_bvChunks,{type:mtype});const ab=await blob.arrayBuffer();
+      _bvLastWasText=false;_bvWs.send(JSON.stringify({type:'audio_chunk',data:Array.from(new Uint8Array(ab))}));
+    }catch(e){console.warn('[Arya Brave] audio send error:',e);setVoxStatus('LISTENING','vox-listen');if(_bvListening&&!_bvBusy)setTimeout(_bvStartCap,800);}
+  }
+
+  async function _bvStartVoice(){
+    _bvListening=true;
+    const btn=document.getElementById('arya-mic-btn');
+    if(btn){btn.textContent='🎙';btn.style.opacity='1';btn.classList.add('listening');}
+    setVoxStatus('LISTENING','vox-listen');_bvSendContext();
+    if(!document.getElementById('arya-body')?.querySelector('.arya-msg.ai')){
+      const{disc,name}=_getAryaState();const fn=(name||'').split(' ')[0]||'hey';
+      const greet=disc>=65?`${fn}, I'm here. What's on your mind?`:disc>=45?`${fn}. I'm listening. What's going on?`:`${fn}, tell me what happened. I'm all ears.`;
+      appendAryaMsg('ai',greet);_bvTtsEndTime=Date.now();
+      const utt=new SpeechSynthesisUtterance(greet.replace(/\*\*(.+?)\*\*/g,'$1').replace(/<[^>]+>/g,''));
+      utt.lang='en-US';utt.rate=1.04;
+      const openMicAfter=()=>{_bvTtsEndTime=Date.now();_bvResume(1400);};
+      const safeTimer=setTimeout(openMicAfter,6000);
+      utt.onend=()=>{clearTimeout(safeTimer);openMicAfter();};utt.onerror=()=>{clearTimeout(safeTimer);openMicAfter();};
+      _synth.speak(utt);return;
+    }
+    await _bvStartCap();
+  }
+
+  function _bvStopVoice(){
+    if(_bvResTimer){clearTimeout(_bvResTimer);_bvResTimer=null;}
+    _bvListening=false;_bvBusy=false;_bvRecActive=false;_bvSpoken=false;
+    if(_bvAudioEl){try{_bvAudioEl.pause();}catch{}_bvAudioEl=null;}
+    _bvPlaying=false;_bvSeqBuf={};_bvSeqNext=0;_bvSeqTotal=-1;showWave(false);
+    if(_bvRecorder&&_bvRecorder.state!=='inactive'){try{_bvRecorder.stop();}catch{}}
+    if(_bvAProc){_bvAProc.onaudioprocess=null;try{_bvAProc.disconnect();}catch{}_bvAProc=null;}
+    if(_bvASource){try{_bvASource.disconnect();}catch{}_bvASource=null;}
+    _bvAnalyser=null;
+    const btn=document.getElementById('arya-mic-btn');
+    if(btn){btn.classList.remove('listening','speaking');btn.textContent='🎙';}
+    setVoxStatus('TAP TO RESUME');
+  }
+
+  function _bvSendText(text){
+    text=_normalizeAryaText(text);if(!text)return;
+    appendAryaMsg('user',text);
+    if(_bvWs&&_bvWs.readyState===WebSocket.OPEN){
+      _bvLastWasText=true;_bvWs.send(JSON.stringify({type:'text_input',text}));
+    }else{if(_aryaBusy)_pendingMsg=text;else sendVoiceMessage(text);}
+  }
+
+
 </script>
 
 </body>

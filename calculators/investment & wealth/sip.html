@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="../../css/layout.css">
   <link rel="stylesheet" href="../../css/components.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../../js/arya-ai.js"></script>
   <style>
     /* THEME VARIABLES (Fixes Dark Mode Text) */
     :root {
@@ -170,6 +171,23 @@ function calculate() {
 
   chart.data.datasets[0].data = [invested, gains];
   chart.update();
+
+  // ── Arya AI Explain ─────────────────────────────────────────────────────
+  if (typeof AryaAI !== 'undefined') {
+    AryaAI.explainCalc({
+      calcType: 'SIP (Systematic Investment Plan)',
+      inputs:  {
+        'Monthly SIP':   '₹' + Number(P).toLocaleString('en-IN'),
+        'Duration':      (n/12) + ' years',
+        'Expected Rate': els.rN.value + '%'
+      },
+      outputs: {
+        'Total Invested': '₹' + Number(invested).toLocaleString('en-IN'),
+        'Est. Returns':   '₹' + Number(gains).toLocaleString('en-IN'),
+        'Maturity Value': '₹' + Number(Math.round(fv)).toLocaleString('en-IN')
+      }
+    });
+  }
 }
 
 Object.values(els).forEach(e => e.addEventListener('input', calculate));
