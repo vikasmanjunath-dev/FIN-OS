@@ -41,6 +41,7 @@ if (document.readyState === 'loading') {
       folder: "calculators/investment & wealth",
       calculators: [
         { name: "SIP Calculator", file: "sip.html" },
+        { name: "AI SIP Optimizer", file: "sip-optimizer.html" },
         { name: "Step-Up SIP", file: "stepup.html" },
         { name: "Lumpsum Calculator", file: "lupsum.html" },
         { name: "Mutual Fund Returns", file: "mutualfunds.html" },

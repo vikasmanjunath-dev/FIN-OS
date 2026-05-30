@@ -837,6 +837,205 @@ async def claude_proxy(request: Request):
         log.error(f"Claude proxy error: {e}")
         raise HTTPException(status_code=502, detail=f"Claude API error: {e}")
 
+# ── AI Portfolio Analysis ─────────────────────────────────────────────────────
+
+OLLAMA_URL_PA   = "http://localhost:11434/api/generate"
+OLLAMA_MODEL_PA = "qwen3:14b"
+
+_PORT_AI_SYSTEM = """You are Arya, FIN·OS's AI portfolio strategist for Indian retail investors.
+Analyse portfolios like a SEBI-registered investment advisor.
+Use ₹, Indian market context (NSE/BSE, Nifty, sector indices).
+Be specific — name actual stocks, cite exact percentages.
+Hinglish — like a smart IIM friend over chai. Direct, warm, zero jargon.
+Max 6-8 sentences per section. Always end each section with ONE concrete action."""
+
+
+def _compute_sector_hhi(holdings: list[dict]) -> tuple[float, str]:
+    """Returns HHI (0-1) and the dominant sector name."""
+    sector_totals: dict[str, float] = {}
+    total_val = 0.0
+    for h in holdings:
+        sector = str(h.get("sector") or h.get("industry") or "Unknown")
+        val    = float(h.get("value") or h.get("current_value") or h.get("ltp", 0) or 0)
+        sector_totals[sector] = sector_totals.get(sector, 0) + val
+        total_val += val
+
+    if total_val == 0:
+        return 0.0, "Unknown"
+
+    hhi = sum((v / total_val) ** 2 for v in sector_totals.values())
+    dominant = max(sector_totals, key=sector_totals.get) if sector_totals else "Unknown"
+    return round(hhi, 4), dominant
+
+
+def _find_tax_loss_candidates(holdings: list[dict]) -> list[dict]:
+    """Find holdings with negative unrealised P&L — candidates for tax-loss harvesting."""
+    candidates = []
+    for h in holdings:
+        pnl = float(h.get("unrealised_pnl") or h.get("pnl") or h.get("gain") or 0)
+        if pnl < -500:  # only flag meaningful losses (>₹500)
+            candidates.append({
+                "symbol": h.get("symbol") or h.get("name") or "?",
+                "pnl":    round(pnl),
+                "tax_save_estimate": round(abs(pnl) * 0.20),  # rough 20% LTCG/STCG saving
+            })
+    return sorted(candidates, key=lambda x: x["pnl"])[:5]
+
+
+def _compute_what_if(holdings: list[dict], drop_pct: float = 15.0) -> dict:
+    """Estimate portfolio loss if Nifty drops by drop_pct percent."""
+    total_val = sum(float(h.get("value") or h.get("current_value") or 0) for h in holdings)
+
+    # Weight by beta (default beta = 1.0 if unknown)
+    weighted_loss = 0.0
+    for h in holdings:
+        beta = float(h.get("beta") or 1.0)
+        val  = float(h.get("value") or h.get("current_value") or 0)
+        weighted_loss += val * beta * (drop_pct / 100)
+
+    return {
+        "scenario":       f"Nifty falls {drop_pct:.0f}%",
+        "estimated_loss": round(weighted_loss),
+        "portfolio_value": round(total_val),
+        "loss_pct":       round(weighted_loss / total_val * 100, 1) if total_val else 0,
+    }
+
+
+def _portfolio_ai_prompt(holdings: list[dict], risk_profile: str, what_if: dict,
+                          tax_candidates: list[dict], hhi: float, dominant_sector: str) -> str:
+    total_val    = sum(float(h.get("value") or h.get("current_value") or 0) for h in holdings)
+    n_holdings   = len(holdings)
+    avg_pnl_pct  = sum(float(h.get("pnl_pct") or h.get("gain_pct") or 0) for h in holdings) / max(1, n_holdings)
+
+    # Top 5 by value
+    sorted_h = sorted(holdings, key=lambda x: float(x.get("value") or x.get("current_value") or 0), reverse=True)
+    top5_str = "\n".join(
+        f"  {h.get('symbol','?'):12} ₹{float(h.get('value') or h.get('current_value') or 0):>10,.0f}  "
+        f"beta={h.get('beta','?')}  sector={h.get('sector','?')}"
+        for h in sorted_h[:5]
+    )
+
+    tax_str = ""
+    if tax_candidates:
+        tax_str = "Tax-loss candidates:\n" + "\n".join(
+            f"  {c['symbol']}: loss ₹{abs(c['pnl']):,} → potential tax save ~₹{c['tax_save_estimate']:,}"
+            for c in tax_candidates
+        )
+
+    hhi_label = "high concentration" if hhi > 0.35 else "moderate concentration" if hhi > 0.20 else "well diversified"
+
+    return f"""
+PORTFOLIO DATA:
+Total value:      ₹{total_val:,.0f}
+Holdings count:   {n_holdings}
+Avg P&L:          {avg_pnl_pct:.1f}%
+Sector HHI:       {hhi:.3f} ({hhi_label})
+Dominant sector:  {dominant_sector}
+Risk profile:     {risk_profile or 'moderate'}
+
+Top 5 holdings by value:
+{top5_str}
+
+{tax_str}
+
+What-if scenario:
+  {what_if['scenario']} → estimated loss ₹{what_if['estimated_loss']:,} ({what_if['loss_pct']}% of portfolio)
+
+Provide a structured AI portfolio analysis in this format:
+
+1. CONCENTRATION RISK: [identify the biggest concentration issue with numbers]
+2. REBALANCING SUGGESTION: [specific action — what to sell/reduce, what to add]
+3. TAX-LOSS HARVESTING: [which stocks to consider selling before Mar 31 and why]
+4. DOWNSIDE PROTECTION: [based on the what-if scenario, recommend one hedge]
+5. QUICK WIN: [single highest-impact action this week]
+
+Each section: 2-3 sentences max. Use ₹ amounts. Name specific stocks. End with concrete action.
+""".strip()
+
+
+@app.post("/ai-analysis")
+async def ai_portfolio_analysis(request: Request):
+    """
+    POST /ai-analysis
+    Body: {
+      holdings: [{symbol, value, sector, beta, pnl_pct, unrealised_pnl}, ...],
+      risk_profile: "conservative|moderate|aggressive",
+      what_if_drop_pct: 15
+    }
+    Returns: structured AI analysis with streaming support via /ai-analysis/stream.
+    """
+    try:
+        body         = await request.json()
+    except Exception:
+        raise HTTPException(400, "Invalid JSON body")
+
+    holdings     = body.get("holdings", [])
+    risk_profile = body.get("risk_profile", "moderate")
+    drop_pct     = float(body.get("what_if_drop_pct", 15))
+
+    if not holdings:
+        raise HTTPException(400, "holdings array is required")
+
+    loop = asyncio.get_running_loop()
+
+    # Enrich with sector/beta from server cache where missing
+    async def _enrich_holding(h: dict) -> dict:
+        sym = str(h.get("symbol") or "").strip()
+        if sym and (not h.get("sector") or not h.get("beta")):
+            try:
+                cached = fund_cache.get(clean_sym(sym))
+                if cached:
+                    h.setdefault("sector", cached.get("sector"))
+                    h.setdefault("beta",   cached.get("beta"))
+                else:
+                    # Quick yfinance beta+sector lookup
+                    yf_data = await loop.run_in_executor(None, fetch_yf_fundamentals, sym)
+                    h.setdefault("sector", yf_data.get("sector"))
+                    h.setdefault("beta",   yf_data.get("beta"))
+            except Exception:
+                pass
+        return h
+
+    holdings = await asyncio.gather(*[_enrich_holding(h) for h in holdings[:30]])
+
+    hhi, dominant_sector = _compute_sector_hhi(list(holdings))
+    tax_candidates       = _find_tax_loss_candidates(list(holdings))
+    what_if              = _compute_what_if(list(holdings), drop_pct)
+    prompt               = _portfolio_ai_prompt(list(holdings), risk_profile, what_if,
+                                                tax_candidates, hhi, dominant_sector)
+
+    # Call Ollama synchronously via httpx (runs in executor to not block event loop)
+    def _ollama_call():
+        try:
+            resp = httpx.post(OLLAMA_URL_PA, json={
+                "model":   OLLAMA_MODEL_PA,
+                "system":  _PORT_AI_SYSTEM,
+                "prompt":  prompt,
+                "stream":  False,
+                "options": {"temperature": 0.55, "num_predict": 600, "num_ctx": 8192},
+            }, timeout=60.0)
+            resp.raise_for_status()
+            raw = resp.json().get("response", "")
+            return re.sub(r'<think>.*?</think>', '', raw, flags=re.DOTALL | re.IGNORECASE).strip()
+        except Exception as e:
+            return f"AI analysis unavailable — Ollama offline? ({e})"
+
+    analysis_text = await loop.run_in_executor(None, _ollama_call)
+
+    return {
+        "status":          "success",
+        "analysis":        analysis_text,
+        "metrics": {
+            "total_holdings":   len(holdings),
+            "sector_hhi":       hhi,
+            "dominant_sector":  dominant_sector,
+            "concentration":    "high" if hhi > 0.35 else "moderate" if hhi > 0.20 else "low",
+            "tax_candidates":   tax_candidates,
+            "what_if_scenario": what_if,
+        },
+    }
+
+
 # ── Run ───────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import uvicorn

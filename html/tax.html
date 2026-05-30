@@ -238,40 +238,78 @@
             <div style="font-size:12px;color:rgba(255,255,255,.45);">Get a personalized tax-saving plan in seconds</div>
           </div>
         </div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
-          <div style="flex:1;min-width:160px;">
+        <!-- Row 1: Core inputs -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:14px;">
+          <div>
             <label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Annual Income (₹)</label>
             <input id="tax-income-input" type="number" placeholder="e.g. 1200000"
               style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(79,124,255,.3);
                      color:#fff;padding:10px 14px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;">
           </div>
-          <div style="flex:1;min-width:140px;">
-            <label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Regime</label>
+          <div>
+            <label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">80C Investments done (₹)</label>
+            <input id="tax-investments-input" type="number" placeholder="e.g. 100000"
+              style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(79,124,255,.3);
+                     color:#fff;padding:10px 14px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Monthly HRA Rent (₹)</label>
+            <input id="tax-rent-input" type="number" placeholder="e.g. 18000"
+              style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(79,124,255,.3);
+                     color:#fff;padding:10px 14px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">NPS Tier-1 Invested (₹)</label>
+            <input id="tax-nps-input" type="number" placeholder="e.g. 50000"
+              style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(79,124,255,.3);
+                     color:#fff;padding:10px 14px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Unrealised LTCG Gains (₹)</label>
+            <input id="tax-ltcg-input" type="number" placeholder="e.g. 80000"
+              style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(79,124,255,.3);
+                     color:#fff;padding:10px 14px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Preferred Regime</label>
             <select id="tax-regime-select"
               style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(79,124,255,.3);
                      color:#fff;padding:10px 14px;border-radius:10px;font-size:14px;outline:none;cursor:pointer;box-sizing:border-box;">
               <option value="new">New Regime</option>
               <option value="old">Old Regime</option>
-              <option value="unsure">Not Sure</option>
+              <option value="unsure">Not Sure — compare both</option>
             </select>
           </div>
-          <div style="flex:1;min-width:140px;">
-            <label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Investments done (₹)</label>
-            <input id="tax-investments-input" type="number" placeholder="e.g. 100000"
-              style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(79,124,255,.3);
-                     color:#fff;padding:10px 14px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;">
-          </div>
-          <button onclick="aryaOptimizeTax()"
-            style="padding:10px 20px;border-radius:12px;border:none;
-                   background:linear-gradient(135deg,#4d7cff,#00d4ff);
-                   color:#fff;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;flex-shrink:0;">
-            🧠 Optimize My Tax
-          </button>
         </div>
+        <button onclick="aryaOptimizeTax()"
+          style="width:100%;padding:13px 20px;border-radius:12px;border:none;
+                 background:linear-gradient(135deg,#4d7cff,#00d4ff);
+                 color:#fff;font-weight:700;font-size:14px;cursor:pointer;margin-top:4px;">
+          🧠 Optimize My Tax — Get Full Savings Plan
+        </button>
+
+        <!-- Structured savings summary (shown after analysis) -->
+        <div id="arya-tax-savings-summary" style="display:none;margin-top:16px;
+          display:none;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;">
+        </div>
+
         <div id="arya-tax-result" style="margin-top:16px;display:none;">
           <div style="border-top:1px solid rgba(79,124,255,.15);padding-top:16px;
                font-size:14px;line-height:1.7;color:rgba(255,255,255,.82);">
             <span id="arya-tax-stream"></span><span id="arya-tax-cursor" style="animation:aryaBlink .7s infinite;display:inline-block;">▌</span>
+          </div>
+          <!-- Reminders button (shown after result) -->
+          <div id="arya-tax-reminder-row" style="display:none;margin-top:14px;padding-top:12px;border-top:1px solid rgba(79,124,255,.1);gap:10px;flex-wrap:wrap;">
+            <button onclick="setTaxReminders()" id="arya-tax-remind-btn"
+              style="padding:8px 18px;border-radius:10px;border:1px solid rgba(0,255,136,.25);
+                     background:rgba(0,255,136,.06);color:#00ff88;font-size:12px;font-weight:700;cursor:pointer;font-family:-apple-system,sans-serif;">
+              🔔 Set Reminders for Each Action
+            </button>
+            <button onclick="aryaOptimizeTax()"
+              style="padding:8px 18px;border-radius:10px;border:1px solid rgba(79,124,255,.25);
+                     background:rgba(79,124,255,.06);color:#4d7cff;font-size:12px;font-weight:700;cursor:pointer;font-family:-apple-system,sans-serif;">
+              ↺ Re-analyse
+            </button>
           </div>
         </div>
       </div>
@@ -1444,107 +1482,229 @@
 
   <script>
   // ── Tax Optimizer ──────────────────────────────────────────────────────────
+  // ── Tax computation helpers ────────────────────────────────────────────────
+  function _calcNewRegimeTax(income) {
+    const std = 75000;
+    const taxable = Math.max(0, income - std);
+    const slabs = [[400000,0],[400000,.05],[400000,.10],[400000,.15],[400000,.20],[400000,.25],[Infinity,.30]];
+    let tax = 0, rem = taxable;
+    for (const [cap, rate] of slabs) {
+      if (rem <= 0) break;
+      const chunk = Math.min(rem, cap);
+      tax += chunk * rate; rem -= chunk;
+    }
+    // 87A rebate: if income ≤ 12L, tax = 0
+    return taxable <= 1200000 ? 0 : tax;
+  }
+
+  function _calcOldRegimeTax(income, deductions) {
+    const std = 50000;
+    const taxable = Math.max(0, income - std - deductions);
+    const slabs = [[250000,0],[250000,.05],[500000,.20],[Infinity,.30]];
+    let tax = 0, rem = taxable;
+    for (const [cap, rate] of slabs) {
+      if (rem <= 0) break;
+      const chunk = Math.min(rem, cap);
+      tax += chunk * rate; rem -= chunk;
+    }
+    // 87A rebate: if taxable ≤ 5L, tax = 0
+    return taxable <= 500000 ? 0 : tax;
+  }
+
+  function _calcHRA(income, monthlyRent, city = 'metro') {
+    // HRA exemption = min of:
+    // a) Actual HRA received (assume 40% of basic = 40% of income/12 per month)
+    // b) Rent paid - 10% of salary
+    // c) 50% of basic (metro) or 40% (non-metro)
+    const annualBasic   = income * 0.50;  // assume 50% of CTC = basic
+    const hraReceived   = annualBasic * 0.40;
+    const rentAnnual    = monthlyRent * 12;
+    const rentMinusTen  = Math.max(0, rentAnnual - annualBasic * 0.10);
+    const metroLimit    = annualBasic * 0.50;
+    return Math.min(hraReceived, rentMinusTen, metroLimit);
+  }
+
   async function aryaOptimizeTax() {
     if (typeof AryaAI === 'undefined') {
       const s = document.getElementById('arya-tax-stream');
       if (s) { s.textContent = '⚠️ AI engine not loaded — check console.'; document.getElementById('arya-tax-result').style.display = 'block'; }
       return;
     }
-    const income      = parseFloat(document.getElementById('tax-income-input').value)  || 0;
-    const investments = parseFloat(document.getElementById('tax-investments-input').value) || 0;
+
+    const income      = parseFloat(document.getElementById('tax-income-input').value)   || 0;
+    const investments = parseFloat(document.getElementById('tax-investments-input').value)|| 0;
+    const monthlyRent = parseFloat(document.getElementById('tax-rent-input').value)      || 0;
+    const npsAmt      = parseFloat(document.getElementById('tax-nps-input').value)       || 0;
+    const ltcgGains   = parseFloat(document.getElementById('tax-ltcg-input').value)      || 0;
     const regime      = document.getElementById('tax-regime-select').value;
+
     if (!income) {
-      // Inline validation — no alert() that blocks the UI
       const inp = document.getElementById('tax-income-input');
-      const origBorder = inp.style.borderColor;
-      const origPlaceholder = inp.placeholder;
       inp.style.borderColor = '#ef4444';
       inp.placeholder = 'Please enter your annual income first';
       inp.focus();
-      setTimeout(() => {
-        inp.style.borderColor = origBorder;
-        inp.placeholder = origPlaceholder;
-      }, 2500);
+      setTimeout(() => { inp.style.borderColor = 'rgba(79,124,255,.3)'; inp.placeholder = 'e.g. 1200000'; }, 2500);
       return;
     }
 
-    // Disable button + show loading state so the user knows it's working
     const optimizeBtn = document.querySelector('#arya-tax-optimizer button[onclick="aryaOptimizeTax()"]');
     if (optimizeBtn?.disabled) return;
-    if (optimizeBtn) { optimizeBtn.disabled = true; optimizeBtn.textContent = '⏳ Optimizing…'; }
+    if (optimizeBtn) { optimizeBtn.disabled = true; optimizeBtn.textContent = '⏳ Calculating…'; }
 
-    const resultDiv = document.getElementById('arya-tax-result');
-    const stream    = document.getElementById('arya-tax-stream');
-    const cursor    = document.getElementById('arya-tax-cursor');
+    const resultDiv    = document.getElementById('arya-tax-result');
+    const stream       = document.getElementById('arya-tax-stream');
+    const cursor       = document.getElementById('arya-tax-cursor');
+    const summaryDiv   = document.getElementById('arya-tax-savings-summary');
+    const reminderRow  = document.getElementById('arya-tax-reminder-row');
 
-    // Show result section immediately with a thinking indicator
     resultDiv.style.display = 'block';
     stream.innerHTML = '';
-    stream.style.color = 'rgba(255,255,255,.82)';
+    cursor.style.display = 'inline-block';
+    if (summaryDiv) summaryDiv.style.display = 'none';
+    if (reminderRow) reminderRow.style.display = 'none';
 
-    // Show "thinking" dots while waiting for first token
     const thinkEl = document.createElement('span');
     thinkEl.style.cssText = 'color:rgba(79,124,255,.7);font-size:13px;';
-    thinkEl.textContent = '🧠 Arya aapka tax plan bana rahi hai…';
+    thinkEl.textContent = '🧠 Arya tera pura tax plan bana rahi hai…';
     stream.appendChild(thinkEl);
-
-    cursor.style.display = 'inline-block';
-
-    // Scroll result into view so user can see it
     resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-    // Enrich with full DB context
+    // ── Structured pre-computation ──────────────────────────────────────────
+    const s80c        = Math.min(investments, 150000);
+    const s80c_gap    = Math.max(0, 150000 - investments);
+    const nps_ded     = Math.min(npsAmt, 50000);         // 80CCD(1B)
+    const hra_ded     = monthlyRent > 0 ? _calcHRA(income, monthlyRent) : 0;
+    const total_old_ded = s80c + nps_ded + hra_ded;
+
+    const new_tax   = _calcNewRegimeTax(income);
+    const old_tax   = _calcOldRegimeTax(income, total_old_ded);
+    const regime_diff   = Math.abs(new_tax - old_tax);
+    const better_regime = new_tax <= old_tax ? 'new' : 'old';
+    const reg_saving    = regime_diff;
+
+    // LTCG: ₹1.25L free per year — harvest up to that limit
+    const ltcg_free    = 125000;
+    const ltcg_harvest = Math.min(ltcgGains, ltcg_free);
+    const ltcg_taxable = Math.max(0, ltcgGains - ltcg_free);
+    const ltcg_saving  = (ltcg_harvest * 0.125);
+
+    // 80C gap saving
+    const s80c_tax_saving = Math.min(s80c_gap, 150000) * 0.30;
+
+    // NPS potential
+    const nps_potential_saving = Math.max(0, 50000 - nps_ded) * 0.30;
+
+    // Total potential saving
+    const total_potential = reg_saving + s80c_tax_saving + nps_potential_saving + ltcg_saving;
+
+    // ── Show savings summary cards ──────────────────────────────────────────
+    if (summaryDiv && total_potential > 0) {
+      const cards = [
+        { label: 'Regime Switch', amt: reg_saving, tip: `Switch to ${better_regime.toUpperCase()} regime`, color: '#4d7cff' },
+        { label: '80C Gap', amt: s80c_tax_saving, tip: `Invest ₹${(s80c_gap/1000).toFixed(0)}K more in ELSS`, color: '#00ff88' },
+        { label: 'NPS 80CCD', amt: nps_potential_saving, tip: 'Open NPS Tier-1 for ₹50K deduction', color: '#ffb703' },
+        { label: 'LTCG Harvest', amt: ltcg_saving, tip: `Book ₹${(ltcg_harvest/1000).toFixed(0)}K gains before Apr 1`, color: '#c7f000' },
+      ].filter(c => c.amt > 0);
+
+      summaryDiv.innerHTML = `
+        <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:12px;grid-column:1/-1;">
+          💰 Total potential saving this FY: <strong style="color:#00ff88;font-size:16px;">₹${Math.round(total_potential).toLocaleString('en-IN')}</strong>
+        </div>
+        ${cards.map(c => `
+          <div style="padding:14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.35);margin-bottom:6px;">${c.label}</div>
+            <div style="font-size:20px;font-weight:700;color:${c.color};">₹${Math.round(c.amt).toLocaleString('en-IN')}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:4px;">${c.tip}</div>
+          </div>`).join('')}
+      `;
+      summaryDiv.style.display = 'grid';
+
+      // Store for reminders
+      window._taxActions = cards.map(c => c.tip);
+    }
+
+    // ── Build enriched AI prompt ────────────────────────────────────────────
     const _ctx  = (typeof AryaAI !== 'undefined' && AryaAI.getContext()) || {};
-    const name  = _ctx.identity?.name         || localStorage.getItem('finos_display_name') || 'Taxpayer';
-    const stage = _ctx.identity?.life_stage   || localStorage.getItem('finos_stage') || 'Rookie';
-    const netW  = _ctx.profile?.net_worth     || localStorage.getItem('finos_net_worth') || 0;
-    const goals = (_ctx.financial?.goals || []).slice(0,2).map(g => g.name).join(', ') || null;
-    const topSpend = _ctx.financial?.transactions?.top_categories?.[0];
-    const hasSIP   = _ctx.financial?.transactions != null
-      ? (_ctx.financial.transactions.top_categories || []).some(c => /sip|mutual|invest/i.test(c.cat))
-      : null;
+    const name  = _ctx.identity?.name || localStorage.getItem('finos_display_name') || 'Taxpayer';
 
-    const prompt = `Tax optimisation for ${name} (Stage: ${stage}, Net worth: ₹${Number(netW).toLocaleString('en-IN')}${goals ? `, Goals: ${goals}` : ''}).
-Annual income entered: ₹${(income/100000).toFixed(1)}L | Investments declared: ₹${(investments/1000).toFixed(0)}K | Preferred regime: ${regime}
-${topSpend ? `Biggest expense category: ${topSpend.cat} (₹${Number(topSpend.amt).toLocaleString('en-IN')})` : ''}
-${hasSIP === false ? '⚠️ No SIP detected in transaction history.' : hasSIP === true ? '✅ SIP already active.' : ''}
+    const prompt = `Tax optimisation for ${name}.
+Annual income: ₹${(income/100000).toFixed(1)}L | Preferred: ${regime} regime
 
-Give a 4-point PERSONALISED tax plan:
-1. Exact tax payable (approx) and effective tax rate for their situation
-2. Which regime saves more — give the rupee difference, not just "new regime is better"
-3. Top 2-3 specific deductions they should use (name exact sections, amounts, and instruments)
-4. One URGENT action before March 31 based on their specific income/investment profile
+PRE-COMPUTED ANALYSIS (use these EXACT numbers — do not recalculate):
+• New Regime Tax: ₹${new_tax.toLocaleString('en-IN')} | Old Regime Tax (with deductions): ₹${old_tax.toLocaleString('en-IN')}
+• Better regime: ${better_regime.toUpperCase()} saves ₹${reg_saving.toLocaleString('en-IN')}
+• 80C invested: ₹${investments.toLocaleString('en-IN')} | Gap: ₹${s80c_gap.toLocaleString('en-IN')} | Tax saving from filling gap: ₹${Math.round(s80c_tax_saving).toLocaleString('en-IN')}
+• HRA deduction: ₹${Math.round(hra_ded).toLocaleString('en-IN')} (based on ₹${monthlyRent.toLocaleString('en-IN')}/month rent)
+• NPS 80CCD(1B): ₹${nps_ded.toLocaleString('en-IN')} used | Potential extra: ₹${Math.round(nps_potential_saving).toLocaleString('en-IN')} tax saving
+• LTCG harvest opportunity: book ₹${Math.round(ltcg_harvest).toLocaleString('en-IN')} gains tax-free before Apr 1
+• TOTAL POTENTIAL SAVING THIS FY: ₹${Math.round(total_potential).toLocaleString('en-IN')}
 
-Use their real numbers. ₹ figures, specific sections (80C, 80D etc), desi tone. No preamble.`;
+Give a 4-point PERSONALISED tax plan using ONLY these numbers:
+1. Regime verdict: which regime and exact ₹ difference
+2. 80C action: how much more to invest, in which instrument, by when
+3. ${hra_ded > 0 ? 'HRA + NPS action' : 'NPS action'}: exact steps
+4. URGENT action before March 31: LTCG harvest + any other deadline
+
+Be direct. Use exact ₹ from above. Desi Hinglish tone. End with: "Total yeh plan tujhe ₹${Math.round(total_potential).toLocaleString('en-IN')} bachayega is FY."`;
 
     let firstToken = true;
     try {
       const result = await AryaAI.ask(prompt, (tok, display) => {
         if (display !== undefined && display.trim()) {
-          if (firstToken) {
-            // Clear thinking indicator on first real token
-            stream.innerHTML = '';
-            firstToken = false;
-          }
+          if (firstToken) { stream.innerHTML = ''; firstToken = false; }
           stream.textContent = display;
         }
       });
-      // Final clean render
-      if (result && result.trim()) {
-        stream.innerHTML = '';
-        stream.textContent = result;
-      } else if (firstToken) {
-        // No tokens came through at all
-        stream.innerHTML = '';
-        stream.textContent = '⚠️ AI offline — Ollama se connect nahi ho paya. Run: ollama serve';
-      }
+      if (result && result.trim()) { stream.innerHTML = ''; stream.textContent = result; }
+      else if (firstToken) { stream.innerHTML = ''; stream.textContent = '⚠️ AI offline — Ollama start karo.'; }
+
+      // Show reminder row after successful result
+      if (!firstToken && reminderRow) reminderRow.style.display = 'flex';
+
     } catch(e) {
       stream.innerHTML = '';
-      stream.textContent = '⚠️ AI offline — Ollama se connect nahi ho paya. Run: ollama serve';
+      stream.textContent = '⚠️ AI offline — run: ollama serve';
     } finally {
       cursor.style.display = 'none';
-      if (optimizeBtn) { optimizeBtn.disabled = false; optimizeBtn.textContent = '🧠 Optimize My Tax'; }
+      if (optimizeBtn) { optimizeBtn.disabled = false; optimizeBtn.textContent = '🧠 Optimize My Tax — Get Full Savings Plan'; }
     }
+  }
+
+  // ── Set Arya tax reminders via WS ─────────────────────────────────────────
+  function setTaxReminders() {
+    const actions   = window._taxActions || [];
+    const btn       = document.getElementById('arya-tax-remind-btn');
+    const fy_end    = new Date(new Date().getFullYear(), 2, 31); // March 31
+    const daysLeft  = Math.max(1, Math.round((fy_end - new Date()) / 864e5));
+
+    if (!actions.length) {
+      if (btn) btn.textContent = '⚠️ Run analysis first';
+      return;
+    }
+
+    const reminderText = [
+      `[TAX REMINDERS SET — speak these naturally to the user]`,
+      `Maine tera tax plan save kar liya. ${daysLeft} din baache hain FY mein.`,
+      `Action list:`,
+      ...actions.map((a, i) => `${i + 1}. ${a}`),
+      `March 31 se pehle yeh sab karna hai — main remind karta rahunga.`,
+    ].join(' ');
+
+    try {
+      const ws = new WebSocket('ws://127.0.0.1:8765');
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ type: 'text_input', text: reminderText }));
+        setTimeout(() => { try { ws.close(); } catch {} }, 15000);
+      };
+      ws.onerror = () => {};
+    } catch {}
+
+    // Save reminders to localStorage for future nudges
+    localStorage.setItem('finos_tax_reminders', JSON.stringify({
+      actions, set_at: new Date().toISOString(), fy_deadline: fy_end.toISOString(),
+    }));
+
+    if (btn) { btn.textContent = '✅ Reminders Set!'; btn.disabled = true; }
   }
 
   // ── Ask Arya Drawer ────────────────────────────────────────────────────────

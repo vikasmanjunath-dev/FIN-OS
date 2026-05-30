@@ -131,12 +131,42 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const savingsRate = parseFloat(prof.savings_rate || localStorage.getItem('finos_savings_rate') || budget?.savings_rate || 0);
                 const healthScore = parseFloat(prof.health_score || localStorage.getItem('finos_health_score') || 0);
 
+                // Try agent WS first for richer anomaly detection (uses server-side spend-spike analysis)
+                // Falls back to Ollama-direct if agent is not running
+                let wsAnomalies = [];
+                try {
+                    wsAnomalies = await new Promise((resolve) => {
+                        const ws = new WebSocket('ws://127.0.0.1:8765');
+                        const timer = setTimeout(() => { try { ws.close(); } catch {} resolve([]); }, 4000);
+                        ws.onopen = () => {
+                            ws.send(JSON.stringify({ type: 'dashboard_brief' }));
+                        };
+                        ws.onmessage = (e) => {
+                            try {
+                                const msg = JSON.parse(e.data);
+                                if (msg.type === 'dashboard_brief_result') {
+                                    clearTimeout(timer);
+                                    ws.close();
+                                    // Merge server anomalies into our list
+                                    const serverAnom = (msg.anomalies || []).map(a =>
+                                        `⚠ ${a.message || a}`
+                                    );
+                                    resolve(serverAnom);
+                                }
+                            } catch {}
+                        };
+                        ws.onerror = () => { try { ws.close(); } catch {} resolve([]); };
+                    });
+                } catch { wsAnomalies = []; }
+
+                const allAnomalies = [...new Set([...wsAnomalies, ...anomalies])].slice(0, 5);
+
                 AryaAI.dashboardBrief({
                     name:        displayName,
                     netWorth,
                     savingsRate,
                     healthScore,
-                    anomalies:   anomalies.slice(0, 5),
+                    anomalies:   allAnomalies,
                     customNote:  journal?.total_trades > 0
                         ? `Trade journal: ${journal.total_trades} trades, ${journal.win_rate}% win rate`
                         : (budget ? `Budget tracker active: savings rate ${budget.savings_rate}%` : null),

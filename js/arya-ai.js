@@ -586,8 +586,8 @@ Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
     const { name = 'Trader', netWorth = 0, savingsRate = 0,
             healthScore = 0, anomalies = [], customNote = null } = data;
 
-    // Cache key: one brief per calendar day
-    const cacheKey = 'arya_dash_brief_v2_' + new Date().toDateString();
+    // Cache key: one brief per 4-hour window (re-generates if new data arrives)
+    const cacheKey = 'arya_dash_brief_v2_' + Math.floor(Date.now() / (4 * 60 * 60 * 1000));
     const cached   = force ? null : sessionStorage.getItem(cacheKey);
 
     // Inject the brief panel into the DOM
@@ -708,8 +708,8 @@ Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
 
   /** Called by the ↺ Refresh button in the dashboard brief panel */
   AryaAI._refreshDashBrief = function () {
-    // Clear today's cache then re-call with force=true
-    const cacheKey = 'arya_dash_brief_v2_' + new Date().toDateString();
+    // Clear current 4-hour cache then re-call with force=true
+    const cacheKey = 'arya_dash_brief_v2_' + Math.floor(Date.now() / (4 * 60 * 60 * 1000));
     sessionStorage.removeItem(cacheKey);
     // Re-use the last known data object stored on the brief element
     const brief = document.getElementById('arya-dashboard-brief');
@@ -1169,6 +1169,89 @@ Keep it to 2-3 sentences total, natural Hinglish.
         fn(window.FINOS_USER_CONTEXT || null);
       }
     });
+  };
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     NEWS SUMMARIZER — calls /summarize on market intelligence Flask server
+     Falls back to inline Ollama if Flask is offline.
+  ══════════════════════════════════════════════════════════════════════════ */
+  const _SUMMARIZE_URL  = 'http://127.0.0.1:5000/summarize';
+  const _newsCache      = new Map();  // headline → {data, ts}
+  const _NEWS_CACHE_TTL = 30 * 60 * 1000;  // 30 min
+
+  /**
+   * AryaAI.summarizeNews(headline, symbol?)
+   * Returns { bullets[], sentiment_score, sentiment_label, retail_impact, related_stocks[] }
+   * Falls back to a quick inline Ollama call if Flask /summarize is offline.
+   */
+  AryaAI.summarizeNews = async function (headline, symbol) {
+    const cacheKey = (symbol || headline || '').slice(0, 80);
+    const cached   = _newsCache.get(cacheKey);
+    if (cached && Date.now() - cached.ts < _NEWS_CACHE_TTL) return cached.data;
+
+    // AbortController polyfill (works in all browsers)
+    function _timedSignal(ms) {
+      const c = new AbortController();
+      setTimeout(() => c.abort(), ms);
+      return c.signal;
+    }
+
+    // Try Flask /summarize first
+    try {
+      const resp = await fetch(_SUMMARIZE_URL, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ symbol: symbol || 'Market', headline, news_items: headline ? [headline] : [] }),
+        signal:  _timedSignal(10000),
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.status === 'success') {
+          _newsCache.set(cacheKey, { data, ts: Date.now() });
+          return data;
+        }
+      }
+    } catch { /* Flask offline — fall through to Ollama */ }
+
+    // Ollama fallback — quick 2-sentence analysis
+    try {
+      const prompt = `News: "${headline}"\n\nIn JSON: {"bullets":["<point1>","<point2>","<point3>"],"sentiment_score":<-100 to 100>,"sentiment_label":"bullish|bearish|neutral","retail_impact":"<1 sentence for retail investor>","related_stocks":["<sym1>"]}\nReply ONLY with valid JSON.`;
+      const raw = await _ollamaStream('You are a financial news analyst. Reply only with JSON.', prompt, null);
+      try {
+        const data = JSON.parse(raw.replace(/```json|```/g, '').trim());
+        _newsCache.set(cacheKey, { data, ts: Date.now() });
+        return data;
+      } catch { return null; }
+    } catch { return null; }
+  };
+
+  /**
+   * AryaAI.renderNewsSummary(data, containerEl)
+   * Renders a structured news summary card into containerEl.
+   */
+  AryaAI.renderNewsSummary = function (data, containerEl) {
+    if (!data || !containerEl) return;
+    const score  = data.sentiment_score || 0;
+    const color  = score > 20 ? '#00ff88' : score < -20 ? '#ff4444' : '#ffb703';
+    const label  = score > 20 ? `▲ BULLISH +${score}` : score < -20 ? `▼ BEARISH ${score}` : `→ NEUTRAL ${score}`;
+    const bullets = (data.bullets || []).map(b =>
+      `<div style="display:flex;gap:8px;margin-bottom:4px;"><span style="color:${color};flex-shrink:0;">•</span><span>${b}</span></div>`
+    ).join('');
+    const stocks = (data.related_stocks || []).map(s =>
+      `<span style="padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);font-size:10px;">${s}</span>`
+    ).join(' ');
+
+    containerEl.innerHTML = `
+      <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;
+        color:${color};margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+        🧠 Arya Analysis
+        <span style="padding:2px 10px;border-radius:12px;font-size:10px;font-weight:700;
+          background:${color}18;border:1px solid ${color}40;color:${color};">${label}</span>
+      </div>
+      <div style="font-size:12px;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:8px;">${bullets}</div>
+      ${data.retail_impact ? `<div style="font-size:11px;color:rgba(255,255,255,.4);border-top:1px solid rgba(255,255,255,.06);padding-top:6px;margin-top:4px;">💡 ${data.retail_impact}</div>` : ''}
+      ${stocks ? `<div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">${stocks}</div>` : ''}
+    `;
   };
 
   /* ══════════════════════════════════════════════════════════════════════════

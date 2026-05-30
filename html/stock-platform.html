@@ -416,10 +416,246 @@
         <div class="qs-heatmap" id="qsHeatmap"></div>
       </section>
 
+      <!-- ========== AI STOCK SCREENER ========== -->
+      <section class="qs-section" id="screener-section">
+        <div class="qs-section-head">
+          <span class="qs-tag">AI SCREENER // 05</span>
+          <h2>Natural Language Stock Screener</h2>
+          <p>Type in plain English (or Hinglish) — Arya translates to filters and screens 90+ NSE stocks.</p>
+        </div>
+
+        <style>
+          .nl-input-row { display:flex; gap:12px; margin-bottom:16px; }
+          .nl-input {
+            flex:1; padding:14px 18px; border-radius:14px;
+            background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1);
+            color:#fff; font-size:14px; font-family:-apple-system,sans-serif;
+            outline:none; transition:border-color .15s;
+          }
+          .nl-input:focus { border-color:rgba(0,255,136,.35); }
+          .nl-btn {
+            padding:14px 28px; border-radius:14px; border:none; cursor:pointer;
+            background:linear-gradient(135deg,#00ff88,#00b860); color:#000;
+            font-weight:800; font-size:14px; font-family:-apple-system,sans-serif;
+            transition:all .2s; white-space:nowrap;
+          }
+          .nl-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,255,136,.3); }
+          .nl-btn:disabled { opacity:.5; transform:none; cursor:not-allowed; }
+          .nl-pills { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+          .nl-pill {
+            padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600;
+            border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04);
+            color:rgba(255,255,255,.5); cursor:pointer; transition:all .15s;
+          }
+          .nl-pill:hover { border-color:rgba(0,255,136,.3); color:#00ff88; background:rgba(0,255,136,.06); }
+          .nl-status { font-size:12px; color:rgba(255,255,255,.4); margin-bottom:16px; min-height:18px; }
+          .nl-filters-row {
+            display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;
+          }
+          .nl-filter-chip {
+            padding:4px 12px; border-radius:20px; font-size:11px; font-weight:600;
+            background:rgba(79,124,255,.1); border:1px solid rgba(79,124,255,.25); color:#4d7cff;
+          }
+          .screen-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+          .screen-card {
+            padding:20px; border-radius:16px; background:rgba(255,255,255,.02);
+            border:1px solid rgba(255,255,255,.08); transition:border-color .2s;
+          }
+          .screen-card:hover { border-color:rgba(0,255,136,.25); }
+          .sc-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+          .sc-symbol { font-size:11px; font-weight:700; color:#4d7cff; font-family:'JetBrains Mono',monospace; }
+          .sc-name { font-size:14px; font-weight:700; color:#fff; margin-bottom:2px; }
+          .sc-sector { font-size:11px; color:rgba(255,255,255,.4); }
+          .sc-price { font-size:20px; font-weight:800; color:#fff; font-family:'JetBrains Mono',monospace; }
+          .sc-metrics { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0; }
+          .sc-met { padding:8px 10px; border-radius:8px; background:rgba(255,255,255,.03); }
+          .sc-met-label { font-size:10px; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:.5px; }
+          .sc-met-val { font-size:14px; font-weight:700; color:#fff; }
+          .sc-reason { font-size:12px; color:rgba(255,255,255,.6); line-height:1.6; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,.06); }
+          .screen-empty { text-align:center; padding:48px; color:rgba(255,255,255,.3); font-size:14px; }
+        </style>
+
+        <div class="nl-input-row">
+          <input class="nl-input" id="nlQuery"
+            placeholder="e.g. midcap IT stocks ROE above 20% debt-free under ₹1000"
+            onkeydown="if(event.key==='Enter') runScreener()">
+          <button class="nl-btn" id="nlBtn" onclick="runScreener()">🔍 Screen</button>
+        </div>
+
+        <div class="nl-pills">
+          <span class="nl-pill" onclick="quickScreen('large cap IT stocks PE below 30')">Large IT PE &lt;30</span>
+          <span class="nl-pill" onclick="quickScreen('midcap debt free ROE above 20 percent')">Midcap Debt-Free ROE 20+</span>
+          <span class="nl-pill" onclick="quickScreen('pharma stocks under 500 rupees good margins')">Pharma &lt;₹500</span>
+          <span class="nl-pill" onclick="quickScreen('smallcap stocks high revenue growth')">Small Cap High Growth</span>
+          <span class="nl-pill" onclick="quickScreen('defence capital goods stocks low PE')">Defence Low PE</span>
+        </div>
+
+        <div class="nl-status" id="nlStatus"></div>
+        <div class="nl-filters-row" id="nlFiltersRow"></div>
+        <div id="screenResults" class="screen-grid"></div>
+      </section>
+
+      <!-- ========== EARNINGS INTELLIGENCE ========== -->
+      <section class="qs-section" id="earnings-section">
+        <div class="qs-section-head">
+          <span class="qs-tag">EARNINGS // 06</span>
+          <h2>AI Earnings Analyser</h2>
+          <p>Quarterly trend, EPS beat/miss history, bull/bear case — and an Arya alert you can act on.</p>
+        </div>
+
+        <style>
+          .earn-search-row { display:flex; gap:12px; margin-bottom:24px; }
+          .earn-input {
+            flex:1; padding:14px 18px; border-radius:14px;
+            background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1);
+            color:#fff; font-size:14px; font-family:-apple-system,sans-serif;
+            outline:none; transition:border-color .15s;
+          }
+          .earn-input:focus { border-color:rgba(199,240,0,.35); }
+          .earn-btn {
+            padding:14px 28px; border-radius:14px; border:none; cursor:pointer;
+            background:linear-gradient(135deg,#c7f000,#a0c800); color:#000;
+            font-weight:800; font-size:14px; font-family:-apple-system,sans-serif;
+            transition:all .2s;
+          }
+          .earn-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(199,240,0,.25); }
+          .earn-btn:disabled { opacity:.5; transform:none; cursor:not-allowed; }
+          .earn-pills { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+          .earn-pill {
+            padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600;
+            border:1px solid rgba(199,240,0,.15); background:rgba(199,240,0,.04);
+            color:rgba(255,255,255,.5); cursor:pointer; transition:all .15s;
+          }
+          .earn-pill:hover { border-color:rgba(199,240,0,.4); color:#c7f000; background:rgba(199,240,0,.07); }
+          .earn-result { display:none; }
+          .earn-result.active { display:block; }
+          .earn-header-card {
+            display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
+            gap:16px; padding:20px 24px; border-radius:16px; margin-bottom:20px;
+            background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.08);
+          }
+          .earn-name { font-size:18px; font-weight:800; color:#fff; }
+          .earn-sym { font-size:12px; color:#4d7cff; font-family:'JetBrains Mono',monospace; margin-top:2px; }
+          .earn-meta { font-size:12px; color:rgba(255,255,255,.4); margin-top:4px; }
+          .earn-score-row { display:flex; gap:12px; }
+          .earn-score-card { text-align:center; padding:12px 16px; border-radius:12px; background:rgba(0,0,0,.3); }
+          .earn-score-val { font-size:22px; font-weight:900; font-family:'JetBrains Mono',monospace; }
+          .earn-score-label { font-size:10px; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:.5px; margin-top:2px; }
+          .earn-trend-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-bottom:20px; }
+          .earn-trend-card { padding:16px; border-radius:14px; background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.07); }
+          .earn-trend-label { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,.3); margin-bottom:6px; }
+          .earn-trend-val { font-size:18px; font-weight:700; }
+          .trend-up { color:#10B981; }
+          .trend-down { color:#FF2A5F; }
+          .trend-mixed { color:#F59E0B; }
+          .earn-quarters { overflow-x:auto; margin-bottom:20px; }
+          .earn-table { width:100%; border-collapse:collapse; font-size:13px; font-family:'JetBrains Mono',monospace; }
+          .earn-table th { padding:8px 12px; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:rgba(255,255,255,.35); border-bottom:1px solid rgba(255,255,255,.07); }
+          .earn-table td { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.04); color:rgba(255,255,255,.8); }
+          .earn-table tr:hover td { background:rgba(255,255,255,.02); }
+          .pct-pos { color:#10B981; }
+          .pct-neg { color:#FF2A5F; }
+          .bull-bear-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+          .bull-card { padding:20px; border-radius:14px; background:rgba(16,185,129,.06); border:1px solid rgba(16,185,129,.2); }
+          .bear-card { padding:20px; border-radius:14px; background:rgba(255,42,95,.06); border:1px solid rgba(255,42,95,.2); }
+          .bb-label { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1.2px; margin-bottom:8px; }
+          .bb-text { font-size:13px; line-height:1.6; color:rgba(255,255,255,.8); }
+          .arya-alert-card {
+            padding:20px; border-radius:14px;
+            background:rgba(79,124,255,.06); border:1px solid rgba(79,124,255,.2);
+            display:flex; gap:16px; align-items:flex-start;
+          }
+          .arya-alert-icon { font-size:28px; flex-shrink:0; }
+          .arya-alert-text { font-size:13px; color:rgba(255,255,255,.82); line-height:1.75; }
+          .arya-alert-label { font-size:10px; text-transform:uppercase; letter-spacing:1.2px; color:#4d7cff; margin-bottom:8px; }
+        </style>
+
+        <div class="earn-search-row">
+          <input class="earn-input" id="earnSymbol"
+            placeholder="Enter NSE symbol e.g. TCS.NS or INFY.NS"
+            onkeydown="if(event.key==='Enter') runEarnings()">
+          <button class="earn-btn" id="earnBtn" onclick="runEarnings()">📊 Analyse</button>
+        </div>
+
+        <div class="earn-pills">
+          <span class="earn-pill" onclick="quickEarnings('TCS.NS')">TCS</span>
+          <span class="earn-pill" onclick="quickEarnings('INFY.NS')">Infosys</span>
+          <span class="earn-pill" onclick="quickEarnings('HDFCBANK.NS')">HDFC Bank</span>
+          <span class="earn-pill" onclick="quickEarnings('RELIANCE.NS')">Reliance</span>
+          <span class="earn-pill" onclick="quickEarnings('BAJFINANCE.NS')">Bajaj Finance</span>
+          <span class="earn-pill" onclick="quickEarnings('SUNPHARMA.NS')">Sun Pharma</span>
+        </div>
+
+        <div class="earn-result" id="earnResult">
+          <!-- Header -->
+          <div class="earn-header-card">
+            <div>
+              <div class="earn-name" id="earnName">—</div>
+              <div class="earn-sym" id="earnSym">—</div>
+              <div class="earn-meta" id="earnMeta">—</div>
+            </div>
+            <div class="earn-score-row">
+              <div class="earn-score-card">
+                <div class="earn-score-val" id="earnBeatRate" style="color:#10B981;">—%</div>
+                <div class="earn-score-label">EPS Beat Rate</div>
+              </div>
+              <div class="earn-score-card">
+                <div class="earn-score-val" id="earnConsec" style="color:#c7f000;">—</div>
+                <div class="earn-score-label">Consecutive Beats</div>
+              </div>
+              <div class="earn-score-card">
+                <div class="earn-score-val" id="earnRisk">—</div>
+                <div class="earn-score-label">Guidance Risk</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trend cards -->
+          <div class="earn-trend-row" id="earnTrendRow"></div>
+
+          <!-- Quarterly table -->
+          <div class="earn-quarters">
+            <table class="earn-table">
+              <thead>
+                <tr>
+                  <th>Quarter</th>
+                  <th>Revenue (₹Cr)</th>
+                  <th>Net Income (₹Cr)</th>
+                  <th>QoQ Rev</th>
+                  <th>YoY Rev</th>
+                </tr>
+              </thead>
+              <tbody id="earnQTable"></tbody>
+            </table>
+          </div>
+
+          <!-- Bull / Bear -->
+          <div class="bull-bear-grid">
+            <div class="bull-card">
+              <div class="bb-label" style="color:#10B981;">🐂 Bull Case</div>
+              <div class="bb-text" id="earnBull">—</div>
+            </div>
+            <div class="bear-card">
+              <div class="bb-label" style="color:#FF2A5F;">🐻 Bear Case</div>
+              <div class="bb-text" id="earnBear">—</div>
+            </div>
+          </div>
+
+          <!-- Arya Alert -->
+          <div class="arya-alert-card" id="earnAryaCard" style="display:none;">
+            <div class="arya-alert-icon">🎙️</div>
+            <div>
+              <div class="arya-alert-label">🧠 Arya Earnings Alert</div>
+              <div class="arya-alert-text" id="earnAryaText"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- ========== API ENDPOINTS ========== -->
       <section class="qs-section">
         <div class="qs-section-head">
-          <span class="qs-tag">API // 05</span>
+          <span class="qs-tag">API // 07</span>
           <h2>Public Contract</h2>
           <p>Twelve clean endpoints. Fully typed. CORS-ready. Click to copy curl.</p>
         </div>
@@ -569,5 +805,228 @@
 
   <script src="../js/finos-widget.js?v=4"></script>
   <script src="../js/finos-search.js?v=2"></script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   AI STOCK SCREENER  — Feature 17
+   POST http://localhost:8000/screen/natural
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const SCREEN_API   = 'http://localhost:8000/screen/natural';
+const EARNINGS_API = 'http://localhost:8000/api/earnings';
+
+/* ── Format helpers ─────────────────────────────────────────────────────── */
+function fmtCr(n)  { return n == null ? '—' : '₹' + Number(n).toLocaleString('en-IN', {maximumFractionDigits:0}) + ' Cr'; }
+function fmtRs(n)  { return n == null ? '—' : '₹' + Number(n).toLocaleString('en-IN', {maximumFractionDigits:2}); }
+function fmtPct2(n){ return n == null ? '—' : (n >= 0 ? '+' : '') + Number(n).toFixed(1) + '%'; }
+function pctColor(n){ return n == null ? '' : n >= 0 ? 'pct-pos' : 'pct-neg'; }
+
+/* ── Quick-fill helpers ──────────────────────────────────────────────────── */
+function quickScreen(q) {
+  document.getElementById('nlQuery').value = q;
+  runScreener();
+}
+function quickEarnings(sym) {
+  document.getElementById('earnSymbol').value = sym;
+  runEarnings();
+}
+
+/* ═══════════════════ SCREENER ══════════════════════════════════════════════ */
+async function runScreener() {
+  const query = document.getElementById('nlQuery').value.trim();
+  if (!query) {
+    document.getElementById('nlStatus').textContent = '⚠ Please type a query first.';
+    return;
+  }
+
+  const btn    = document.getElementById('nlBtn');
+  const status = document.getElementById('nlStatus');
+  const grid   = document.getElementById('screenResults');
+  const chips  = document.getElementById('nlFiltersRow');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Screening…';
+  status.textContent = '🔍 Connecting to stock engine…';
+  grid.innerHTML = '';
+  chips.innerHTML = '';
+
+  let data;
+  try {
+    const resp = await fetch(SCREEN_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+      signal: AbortSignal.timeout(60000),   // 60s — yfinance batch can be slow
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    data = await resp.json();
+  } catch (err) {
+    status.textContent = `❌ Stock engine offline — start with: uvicorn app.main:app --reload --port 8000`;
+    btn.disabled = false;
+    btn.textContent = '🔍 Screen';
+    return;
+  }
+
+  /* Render filter chips */
+  const f = data.filters || {};
+  const chipMap = {
+    cap: v => `Cap: ${v}`,
+    sector: v => `Sector: ${v}`,
+    price_max: v => `Price ≤ ₹${v}`,
+    price_min: v => `Price ≥ ₹${v}`,
+    roe_min:   v => `ROE ≥ ${v}%`,
+    pe_max:    v => `PE ≤ ${v}`,
+    debt_max:  v => `D/E ≤ ${v}`,
+    profit_margin_min: v => `Margin ≥ ${(v*100).toFixed(0)}%`,
+    revenue_growth_min: v => `Rev Growth ≥ ${(v*100).toFixed(0)}%`,
+  };
+  chips.innerHTML = Object.entries(f)
+    .filter(([, v]) => v != null)
+    .map(([k, v]) => chipMap[k] ? `<span class="nl-filter-chip">${chipMap[k](v)}</span>` : '')
+    .join('');
+  if (data.used_ai_parser) chips.innerHTML += '<span class="nl-filter-chip" style="background:rgba(0,255,136,.08);border-color:rgba(0,255,136,.25);color:#00ff88;">✨ AI parsed</span>';
+
+  /* Results */
+  const results = data.results || [];
+  status.textContent = results.length
+    ? `${results.length} stock${results.length > 1 ? 's' : ''} matched · ${data.count} screened`
+    : `No stocks matched your criteria. Try broadening the filters.`;
+
+  if (!results.length) {
+    grid.innerHTML = `<div class="screen-empty" style="grid-column:1/-1;">No matches. Try fewer filters or a different cap/sector.</div>`;
+  } else {
+    grid.innerHTML = results.map(s => {
+      const roe   = s.roe != null ? (Math.abs(s.roe) < 2 ? (s.roe * 100).toFixed(1) : s.roe.toFixed(1)) : null;
+      const de    = s.debt_to_equity != null ? s.debt_to_equity.toFixed(1) : null;
+      const pe    = s.pe != null ? s.pe.toFixed(1) : null;
+      const pm    = s.profit_margin != null ? (s.profit_margin * 100).toFixed(1) : null;
+      const capBadge = { large: '#4F7CFF', mid: '#ffb703', small: '#00ff88' }[s.cap_meta] || '#888';
+      return `
+        <div class="screen-card">
+          <div class="sc-header">
+            <div>
+              <div class="sc-name">${s.name || s.symbol}</div>
+              <div style="display:flex;gap:6px;align-items:center;margin-top:3px;">
+                <span class="sc-symbol">${s.symbol.replace('.NS','')}</span>
+                <span style="font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.4);">${s.sector_meta || s.sector || ''}</span>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div class="sc-price">${fmtRs(s.price)}</div>
+              <div style="font-size:10px;padding:2px 8px;border-radius:8px;margin-top:4px;background:rgba(255,255,255,.04);border:1px solid ${capBadge}40;color:${capBadge};">${s.cap_meta || '—'} cap</div>
+            </div>
+          </div>
+          <div class="sc-metrics">
+            <div class="sc-met"><div class="sc-met-label">ROE</div><div class="sc-met-val" style="color:#00ff88;">${roe != null ? roe + '%' : '—'}</div></div>
+            <div class="sc-met"><div class="sc-met-label">D/E</div><div class="sc-met-val" style="color:${de != null && parseFloat(de) < 10 ? '#00ff88' : '#ffb703'};">${de != null ? de + '%' : '—'}</div></div>
+            <div class="sc-met"><div class="sc-met-label">P/E</div><div class="sc-met-val">${pe != null ? pe + '×' : '—'}</div></div>
+            <div class="sc-met"><div class="sc-met-label">Net Margin</div><div class="sc-met-val">${pm != null ? pm + '%' : '—'}</div></div>
+          </div>
+          ${s.ai_reason ? `<div class="sc-reason">💬 ${s.ai_reason}</div>` : ''}
+        </div>`;
+    }).join('');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🔍 Screen';
+}
+
+/* ═══════════════════ EARNINGS ANALYSER ════════════════════════════════════ */
+async function runEarnings() {
+  const raw = document.getElementById('earnSymbol').value.trim();
+  if (!raw) return;
+  const symbol = raw.toUpperCase().includes('.') ? raw.toUpperCase() : raw.toUpperCase() + '.NS';
+
+  const btn    = document.getElementById('earnBtn');
+  const result = document.getElementById('earnResult');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Fetching…';
+  result.classList.remove('active');
+
+  let data;
+  try {
+    const resp = await fetch(`${EARNINGS_API}/${symbol}`, {
+      signal: AbortSignal.timeout(30000),
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    data = await resp.json();
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = '📊 Analyse';
+    alert(`Earnings fetch failed: ${err.message}\n\nMake sure the stock engine is running:\nuvicorn app.main:app --reload --port 8000`);
+    return;
+  }
+
+  /* Header */
+  document.getElementById('earnName').textContent = data.name || symbol;
+  document.getElementById('earnSym').textContent  = `${symbol} · ${data.sector || 'NSE'}`;
+  document.getElementById('earnMeta').textContent =
+    `Next earnings: ${data.next_earnings || 'TBA'} · Beats: ${data.beat_count} / Misses: ${data.miss_count}`;
+
+  const beatEl = document.getElementById('earnBeatRate');
+  beatEl.textContent = (data.beat_rate_pct != null ? data.beat_rate_pct : '—') + '%';
+  beatEl.style.color = (data.beat_rate_pct || 0) > 60 ? '#10B981' : (data.beat_rate_pct || 0) < 40 ? '#FF2A5F' : '#F59E0B';
+
+  document.getElementById('earnConsec').textContent = data.trend?.consecutive_beats ?? '—';
+
+  const riskEl = document.getElementById('earnRisk');
+  const riskColor = { low: '#10B981', medium: '#F59E0B', high: '#FF2A5F' }[data.guidance_risk] || '#9AA0B4';
+  riskEl.textContent  = (data.guidance_risk || '—').toUpperCase();
+  riskEl.style.color  = riskColor;
+
+  /* Trend row */
+  const trendRow = document.getElementById('earnTrendRow');
+  const trend    = data.trend || {};
+  const trendClass = t => ({ up: 'trend-up', down: 'trend-down', mixed: 'trend-mixed' }[t] || '');
+  const trendIcon  = t => ({ up: '↑', down: '↓', mixed: '↕', 'insufficient data': '?' }[t] || '—');
+  trendRow.innerHTML = [
+    { label: 'Revenue Trend (4Q)', val: trend.revenue, color: trendClass(trend.revenue) },
+    { label: 'Profit Trend (4Q)',  val: trend.profit,  color: trendClass(trend.profit) },
+    { label: 'Consecutive Beats',  val: `${trend.consecutive_beats ?? '—'} quarters`, color: trend.consecutive_beats > 3 ? 'trend-up' : '' },
+    { label: 'EPS Beat Rate',      val: `${data.beat_rate_pct ?? '—'}%`, color: (data.beat_rate_pct || 0) > 60 ? 'trend-up' : (data.beat_rate_pct || 0) < 40 ? 'trend-down' : '' },
+  ].map(t => `
+    <div class="earn-trend-card">
+      <div class="earn-trend-label">${t.label}</div>
+      <div class="earn-trend-val ${t.color}">
+        ${trendIcon(trend.revenue)} ${typeof t.val === 'string' ? t.val : (t.val || '—')}
+      </div>
+    </div>`).join('');
+
+  /* Quarterly table */
+  const tbody = document.getElementById('earnQTable');
+  const quarters = data.quarterly || [];
+  if (!quarters.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="color:rgba(255,255,255,.35);text-align:center;padding:20px;">No quarterly data available for this stock</td></tr>';
+  } else {
+    tbody.innerHTML = quarters.map(q => `
+      <tr>
+        <td>${q.quarter || '—'}</td>
+        <td>${q.revenue != null ? fmtCr(q.revenue) : '—'}</td>
+        <td>${q.net_income != null ? fmtCr(q.net_income) : '—'}</td>
+        <td class="${pctColor(q.qoq_rev_pct)}">${fmtPct2(q.qoq_rev_pct)}</td>
+        <td class="${pctColor(q.yoy_rev_pct)}">${fmtPct2(q.yoy_rev_pct)}</td>
+      </tr>`).join('');
+  }
+
+  /* Bull / Bear */
+  document.getElementById('earnBull').textContent = data.bull_case || 'Analysis unavailable — Ollama offline';
+  document.getElementById('earnBear').textContent = data.bear_case || 'Analysis unavailable — Ollama offline';
+
+  /* Arya alert */
+  if (data.arya_alert) {
+    document.getElementById('earnAryaText').textContent = data.arya_alert;
+    document.getElementById('earnAryaCard').style.display = 'flex';
+  } else {
+    document.getElementById('earnAryaCard').style.display = 'none';
+  }
+
+  result.classList.add('active');
+  result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  btn.disabled = false;
+  btn.textContent = '📊 Re-analyse';
+}
+</script>
 </body>
 </html>

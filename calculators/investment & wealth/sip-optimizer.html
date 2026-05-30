@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIN•OS | AI SIP Optimizer</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../js/finos-context.js"></script>
+<script src="../../js/arya-ai.js?v=3"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0B0D12; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  .page { max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  .hero { text-align: center; margin-bottom: 40px; }
+  .hero-icon { font-size: 48px; margin-bottom: 12px; }
+  .hero h1 { font-size: 30px; font-weight: 800; background: linear-gradient(135deg,#00ff88,#4f7cff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; }
+  .hero p { font-size: 14px; color: rgba(255,255,255,.4); }
+
+  .input-panel {
+    background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 20px; padding: 28px; margin-bottom: 28px;
+  }
+  .input-section-title {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: rgba(255,255,255,.3); margin-bottom: 16px;
+  }
+  .input-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px; }
+
+  .inp-wrap { display: flex; flex-direction: column; gap: 6px; }
+  .inp-label { font-size: 11px; color: rgba(255,255,255,.4); }
+  .inp-field {
+    padding: 11px 14px; border-radius: 10px; background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.1); color: #fff; font-size: 14px;
+    outline: none; width: 100%; transition: border-color .15s;
+    font-family: -apple-system, sans-serif;
+  }
+  .inp-field:focus { border-color: rgba(0,255,136,.35); }
+
+  .risk-btns { display: flex; gap: 8px; }
+  .risk-btn {
+    flex: 1; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,.1);
+    background: rgba(255,255,255,.03); color: rgba(255,255,255,.5); cursor: pointer;
+    font-size: 12px; font-weight: 600; transition: all .15s; font-family: -apple-system, sans-serif;
+  }
+  .risk-btn.active { border-color: rgba(0,255,136,.4); background: rgba(0,255,136,.08); color: #00ff88; }
+
+  .optimize-btn {
+    width: 100%; padding: 16px; border-radius: 14px; border: none; cursor: pointer;
+    background: linear-gradient(135deg,#00ff88,#00b860); color: #000;
+    font-weight: 800; font-size: 15px; letter-spacing: .3px; transition: all .2s;
+    font-family: -apple-system, sans-serif;
+  }
+  .optimize-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,255,136,.35); }
+  .optimize-btn:disabled { opacity: .5; transform: none; cursor: not-allowed; }
+
+  /* ── Results ── */
+  .results { display: none; }
+  .results.active { display: block; }
+
+  .probability-card {
+    background: linear-gradient(135deg,rgba(0,255,136,.06),rgba(79,124,255,.04));
+    border: 1px solid rgba(0,255,136,.2); border-radius: 18px; padding: 28px;
+    margin-bottom: 24px; display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center;
+  }
+  .prob-percent {
+    font-size: 64px; font-weight: 900; color: #00ff88; line-height: 1;
+    text-shadow: 0 0 30px rgba(0,255,136,.3);
+  }
+  .prob-label { font-size: 13px; color: rgba(255,255,255,.4); margin-top: 4px; }
+  .prob-main-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+  .prob-desc { font-size: 13px; color: rgba(255,255,255,.6); line-height: 1.6; }
+
+  .allocation-card {
+    background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 18px; padding: 24px; margin-bottom: 20px;
+  }
+  .alloc-title {
+    font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.3);
+    margin-bottom: 16px;
+  }
+  .alloc-row {
+    display: flex; align-items: center; gap: 14px; padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+  }
+  .alloc-row:last-child { border-bottom: none; }
+  .alloc-bar-wrap { flex: 1; background: rgba(255,255,255,.06); border-radius: 4px; height: 6px; overflow: hidden; }
+  .alloc-bar { height: 100%; border-radius: 4px; transition: width .5s; }
+  .alloc-fund { font-size: 13px; color: rgba(255,255,255,.85); min-width: 200px; }
+  .alloc-pct { font-size: 14px; font-weight: 700; min-width: 40px; text-align: right; }
+  .alloc-amt { font-size: 12px; color: rgba(255,255,255,.4); min-width: 80px; text-align: right; }
+
+  .scenarios-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+  .scenario-card {
+    padding: 18px; border-radius: 14px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.02);
+  }
+  .sc-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,.3); margin-bottom: 8px; }
+  .sc-value { font-size: 22px; font-weight: 800; }
+  .sc-sub   { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 4px; }
+
+  .stepup-card {
+    background: rgba(79,124,255,.05); border: 1px solid rgba(79,124,255,.18);
+    border-radius: 16px; padding: 20px; margin-bottom: 20px;
+  }
+  .stepup-title { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #4d7cff; margin-bottom: 12px; }
+  .stepup-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .su-item { }
+  .su-label { font-size: 11px; color: rgba(255,255,255,.4); margin-bottom: 4px; }
+  .su-val   { font-size: 18px; font-weight: 700; color: #4d7cff; }
+
+  .tax-card {
+    background: rgba(255,183,3,.05); border: 1px solid rgba(255,183,3,.18);
+    border-radius: 16px; padding: 20px; margin-bottom: 20px;
+  }
+  .tax-title { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #ffb703; margin-bottom: 12px; }
+  .tax-saving { font-size: 28px; font-weight: 800; color: #ffb703; }
+  .tax-sub { font-size: 12px; color: rgba(255,255,255,.5); margin-top: 4px; line-height: 1.5; }
+
+  .chart-wrap { border-radius: 16px; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.07); padding: 20px; margin-bottom: 20px; }
+  .chart-title { font-size: 12px; color: rgba(255,255,255,.4); margin-bottom: 12px; }
+
+  .arya-box {
+    background: rgba(0,0,0,.4); border: 1px solid rgba(0,255,136,.15);
+    border-radius: 14px; padding: 18px; margin-bottom: 20px;
+    font-size: 14px; color: rgba(255,255,255,.82); line-height: 1.75;
+  }
+  .arya-box-head { font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: #00ff88; margin-bottom: 10px; }
+
+  .back-link { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,.35); font-size: 12px; text-decoration: none; margin-bottom: 24px; transition: color .15s; }
+  .back-link:hover { color: rgba(255,255,255,.7); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <a href="../../html/dashboard.html" class="back-link">‹ Back to Dashboard</a>
+
+  <div class="hero">
+    <div class="hero-icon">📈</div>
+    <h1>AI SIP Optimizer</h1>
+    <p>Monte Carlo simulation · Fund allocation · ELSS tax layer · 87% probability targeting</p>
+  </div>
+
+  <!-- Input panel -->
+  <div class="input-panel">
+    <div class="input-section-title">Your Goal</div>
+    <div class="input-grid">
+      <div class="inp-wrap">
+        <label class="inp-label">Goal Amount ₹</label>
+        <input class="inp-field" id="goalAmt" type="number" value="5000000" placeholder="e.g. 5000000">
+      </div>
+      <div class="inp-wrap">
+        <label class="inp-label">Time Horizon (years)</label>
+        <input class="inp-field" id="horizonYrs" type="number" value="15" min="3" max="40">
+      </div>
+      <div class="inp-wrap">
+        <label class="inp-label">Current Savings ₹</label>
+        <input class="inp-field" id="currentSavings" type="number" value="0" placeholder="e.g. 200000">
+      </div>
+      <div class="inp-wrap">
+        <label class="inp-label">Monthly Income ₹</label>
+        <input class="inp-field" id="monthlyIncome" type="number" placeholder="e.g. 80000">
+      </div>
+      <div class="inp-wrap">
+        <label class="inp-label">Step-Up % per year</label>
+        <input class="inp-field" id="stepUpPct" type="number" value="10" min="0" max="30">
+      </div>
+      <div class="inp-wrap">
+        <label class="inp-label">Inflation Rate %</label>
+        <input class="inp-field" id="inflationPct" type="number" value="6" min="2" max="12">
+      </div>
+    </div>
+
+    <div class="input-section-title">Risk Profile</div>
+    <div class="risk-btns" id="riskBtns" style="margin-bottom:20px;">
+      <button class="risk-btn" data-risk="conservative" onclick="setRisk(this)">🛡 Conservative<br><span style="font-weight:400;opacity:.7;">8-10% CAGR</span></button>
+      <button class="risk-btn active" data-risk="moderate" onclick="setRisk(this)">⚖️ Moderate<br><span style="font-weight:400;opacity:.7;">10-13% CAGR</span></button>
+      <button class="risk-btn" data-risk="aggressive" onclick="setRisk(this)">🚀 Aggressive<br><span style="font-weight:400;opacity:.7;">12-16% CAGR</span></button>
+    </div>
+
+    <button class="optimize-btn" id="optimizeBtn" onclick="runOptimizer()">
+      🧠 Optimize My SIP
+    </button>
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results">
+
+    <!-- Probability -->
+    <div class="probability-card">
+      <div>
+        <div class="prob-main-title" id="recTitle">Recommended SIP Plan</div>
+        <div class="prob-desc" id="recDesc"></div>
+      </div>
+      <div style="text-align:center;">
+        <div class="prob-percent" id="probPct">—%</div>
+        <div class="prob-label">Goal probability</div>
+      </div>
+    </div>
+
+    <!-- Fund allocation -->
+    <div class="allocation-card">
+      <div class="alloc-title">📊 Optimal Fund Allocation</div>
+      <div id="allocRows"></div>
+    </div>
+
+    <!-- Scenarios -->
+    <div class="scenarios-grid" id="scenariosGrid"></div>
+
+    <!-- Step-up SIP -->
+    <div class="stepup-card">
+      <div class="stepup-title">📈 Step-Up SIP Analysis</div>
+      <div class="stepup-grid" id="stepupGrid"></div>
+    </div>
+
+    <!-- Tax efficiency -->
+    <div class="tax-card">
+      <div class="tax-title">💰 ELSS Tax Efficiency</div>
+      <div id="taxContent"></div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-wrap">
+      <div class="chart-title">Monte Carlo Wealth Projection — 1,000 scenarios</div>
+      <canvas id="mcChart"></canvas>
+    </div>
+
+    <!-- Arya insight -->
+    <div class="arya-box" id="aryaBox" style="display:none;">
+      <div class="arya-box-head">🧠 Arya's Strategy Note</div>
+      <div id="aryaBoxText"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   MONTE CARLO SIP OPTIMIZER — pure JS, zero dependencies
+══════════════════════════════════════════════════════════════════════════ */
+
+const OLLAMA_URL = 'http://localhost:11434/api/generate';
+let mcChart = null;
+let selectedRisk = 'moderate';
+
+/* ── Risk profile → CAGR range ─────────────────────────────────────────── */
+const RISK_PROFILES = {
+  conservative: { min: 0.08, max: 0.10, label: 'Conservative', color: '#4f7cff' },
+  moderate:     { min: 0.10, max: 0.13, label: 'Moderate',     color: '#00ff88' },
+  aggressive:   { min: 0.12, max: 0.16, label: 'Aggressive',   color: '#ffb703' },
+};
+
+/* ── Fund allocations by risk profile ──────────────────────────────────── */
+const FUND_ALLOCS = {
+  conservative: [
+    { name: 'Nifty 50 Index Fund',        pct: 60, color: '#4f7cff', elss: false },
+    { name: 'Nifty Next 50 Index',         pct: 20, color: '#00d4ff', elss: false },
+    { name: 'Balanced Advantage Fund',     pct: 10, color: '#00ff88', elss: false },
+    { name: 'Debt Fund (Short Duration)',  pct: 10, color: '#ffb703', elss: false },
+  ],
+  moderate: [
+    { name: 'Nifty 50 Index Fund',         pct: 40, color: '#4f7cff', elss: false },
+    { name: 'Flexi Cap / Midcap Fund',     pct: 30, color: '#00ff88', elss: false },
+    { name: 'ELSS Tax Saver Fund',         pct: 20, color: '#ffb703', elss: true  },
+    { name: 'Small Cap Index Fund',        pct: 10, color: '#ff6b6b', elss: false },
+  ],
+  aggressive: [
+    { name: 'Nifty 50 Index Fund',         pct: 30, color: '#4f7cff', elss: false },
+    { name: 'Midcap 150 Index Fund',       pct: 30, color: '#00ff88', elss: false },
+    { name: 'Small Cap Index Fund',        pct: 25, color: '#ff6b6b', elss: false },
+    { name: 'ELSS Tax Saver Fund',         pct: 15, color: '#ffb703', elss: true  },
+  ],
+};
+
+function setRisk(btn) {
+  document.querySelectorAll('.risk-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedRisk = btn.dataset.risk;
+}
+
+/* ── SIP FV calculator ──────────────────────────────────────────────────── */
+function sipFV(monthly, months, annualRate) {
+  const i = annualRate / 12;
+  if (i < 1e-10) return monthly * months;
+  return monthly * ((Math.pow(1 + i, months) - 1) / i) * (1 + i);
+}
+
+/* ── Step-up SIP FV ─────────────────────────────────────────────────────── */
+function stepUpSipFV(startMonthly, years, annualRate, stepUpPct) {
+  let total = 0;
+  let monthly = startMonthly;
+  const monthsPerYear = 12;
+  for (let y = 0; y < years; y++) {
+    const r = annualRate / 12;
+    const fvYear = monthly * ((Math.pow(1 + r, monthsPerYear) - 1) / r) * (1 + r);
+    total = total * Math.pow(1 + r, monthsPerYear) + fvYear;
+    monthly *= (1 + stepUpPct / 100);
+  }
+  return total;
+}
+
+/* ── Find minimum SIP for goal ──────────────────────────────────────────── */
+function findMinSip(goal, years, annualRate, stepUpPct, currentSavings) {
+  const months = years * 12;
+  const lumpFV = currentSavings * Math.pow(1 + annualRate, years);
+  const needed = Math.max(0, goal - lumpFV);
+  if (needed <= 0) return 0;
+
+  // Binary search for monthly SIP
+  let lo = 100, hi = 500000;
+  for (let iter = 0; iter < 50; iter++) {
+    const mid = (lo + hi) / 2;
+    const fv  = stepUpPct > 0
+      ? stepUpSipFV(mid, years, annualRate, stepUpPct)
+      : sipFV(mid, months, annualRate);
+    if (fv < needed) lo = mid; else hi = mid;
+  }
+  return Math.ceil((lo + hi) / 2 / 100) * 100;
+}
+
+/* ── Monte Carlo simulation ─────────────────────────────────────────────── */
+function monteCarlo(startMonthly, years, minRate, maxRate, stepUpPct, currentSavings, N = 1000) {
+  const results = [];
+  const months  = years * 12;
+
+  for (let sim = 0; sim < N; sim++) {
+    // Random annual rate from uniform distribution in [minRate, maxRate]
+    const annualRate = minRate + Math.random() * (maxRate - minRate);
+
+    let portfolio = currentSavings;
+    let monthly   = startMonthly;
+    const monthlyRate = annualRate / 12;
+
+    for (let m = 0; m < months; m++) {
+      portfolio = portfolio * (1 + monthlyRate) + monthly;
+      // Step-up monthly SIP at each year anniversary
+      if (stepUpPct > 0 && m > 0 && m % 12 === 0) {
+        monthly *= (1 + stepUpPct / 100);
+      }
+    }
+    results.push(portfolio);
+  }
+
+  results.sort((a, b) => a - b);
+  return results;
+}
+
+/* ── Format ₹ ──────────────────────────────────────────────────────────── */
+function fmt(n) {
+  if (n >= 1e7)  return '₹' + (n / 1e7).toFixed(2) + ' Cr';
+  if (n >= 1e5)  return '₹' + (n / 1e5).toFixed(2) + ' L';
+  return '₹' + Math.round(n).toLocaleString('en-IN');
+}
+
+/* ── Main optimizer ─────────────────────────────────────────────────────── */
+async function runOptimizer() {
+  const goal          = parseFloat(document.getElementById('goalAmt').value)       || 5000000;
+  const years         = parseInt(document.getElementById('horizonYrs').value)      || 15;
+  const currentSav    = parseFloat(document.getElementById('currentSavings').value)|| 0;
+  const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value) || 0;
+  const stepUp        = parseFloat(document.getElementById('stepUpPct').value)     || 10;
+  const inflation     = parseFloat(document.getElementById('inflationPct').value)  || 6;
+  const risk          = RISK_PROFILES[selectedRisk];
+  const funds         = FUND_ALLOCS[selectedRisk];
+
+  const btn = document.getElementById('optimizeBtn');
+  btn.disabled = true; btn.textContent = '⏳ Running 1,000 simulations…';
+
+  // Small delay for UI to update
+  await new Promise(r => setTimeout(r, 20));
+
+  // ── 1. Optimal SIP amount (at expected CAGR midpoint) ───────────────────
+  const expectedCAGR = (risk.min + risk.max) / 2;
+  const sipAmt       = findMinSip(goal, years, expectedCAGR, stepUp, currentSav);
+
+  // ── 2. Monte Carlo simulation ─────────────────────────────────────────────
+  const simResults = monteCarlo(sipAmt, years, risk.min, risk.max, stepUp, currentSav, 1000);
+  const N          = simResults.length;
+  const hitGoal    = simResults.filter(v => v >= goal).length;
+  const probPct    = Math.round(hitGoal / N * 100);
+  const p10        = simResults[Math.floor(N * 0.10)];
+  const p50        = simResults[Math.floor(N * 0.50)];
+  const p90        = simResults[Math.floor(N * 0.90)];
+
+  // ── 3. Inflation-adjusted real value ─────────────────────────────────────
+  const realValue = goal / Math.pow(1 + inflation / 100, years);
+
+  // ── 4. Step-up analysis ───────────────────────────────────────────────────
+  const sipNoStepup   = findMinSip(goal, years, expectedCAGR, 0, currentSav);
+  const corpusStepup  = stepUpSipFV(sipAmt, years, expectedCAGR, stepUp) + currentSav * Math.pow(1 + expectedCAGR, years);
+  const corpusFlat    = sipFV(sipNoStepup, years * 12, expectedCAGR) + currentSav * Math.pow(1 + expectedCAGR, years);
+
+  // ── 5. ELSS tax saving ────────────────────────────────────────────────────
+  const elssAlloc  = funds.find(f => f.elss);
+  const elssMonthly= elssAlloc ? Math.round(sipAmt * elssAlloc.pct / 100) : 0;
+  const elssAnnual = elssMonthly * 12;
+  const taxSaving  = Math.min(elssAnnual, 150000) * 0.30; // assuming 30% slab
+  const nonElssCorpus = sipFV(sipAmt, years * 12, expectedCAGR) + currentSav * Math.pow(1 + expectedCAGR, years);
+  const elssBonus  = taxSaving * Math.pow(1 + expectedCAGR, years); // reinvested tax saving
+
+  // ── 6. Render results ─────────────────────────────────────────────────────
+  const results = document.getElementById('results');
+  results.classList.add('active');
+  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Probability card
+  document.getElementById('probPct').textContent = probPct + '%';
+  document.getElementById('probPct').style.color = probPct >= 80 ? '#00ff88' : probPct >= 60 ? '#ffb703' : '#ff6b6b';
+  document.getElementById('recTitle').textContent = `${fmt(sipAmt)}/month SIP — ${risk.label} Portfolio`;
+  document.getElementById('recDesc').innerHTML = `
+    With ${stepUp}% annual step-up, ${years}-year horizon.<br>
+    Real value of ${fmt(goal)} goal today: <strong style="color:rgba(255,255,255,.8);">${fmt(realValue)}</strong> (adjusted for ${inflation}% inflation).<br>
+    ${monthlyIncome > 0 ? `That's <strong>${Math.round(sipAmt / monthlyIncome * 100)}%</strong> of your ₹${(monthlyIncome/1000).toFixed(0)}K monthly income.` : ''}
+  `;
+
+  // Fund allocation
+  document.getElementById('allocRows').innerHTML = funds.map(f => `
+    <div class="alloc-row">
+      <div class="alloc-fund">${f.name}${f.elss ? ' <span style="font-size:10px;background:rgba(255,183,3,.12);border:1px solid rgba(255,183,3,.25);color:#ffb703;padding:1px 6px;border-radius:8px;margin-left:4px;">ELSS</span>' : ''}</div>
+      <div class="alloc-bar-wrap"><div class="alloc-bar" style="width:${f.pct}%;background:${f.color};"></div></div>
+      <div class="alloc-pct" style="color:${f.color};">${f.pct}%</div>
+      <div class="alloc-amt">₹${(sipAmt * f.pct / 100).toLocaleString('en-IN', {maximumFractionDigits:0})}/mo</div>
+    </div>`).join('');
+
+  // Scenarios
+  document.getElementById('scenariosGrid').innerHTML = [
+    { label: 'Pessimistic (P10)', value: p10, sub: `${risk.min * 100}% CAGR`, color: '#ff6b6b' },
+    { label: 'Expected (P50)',    value: p50, sub: `${(expectedCAGR*100).toFixed(0)}% CAGR`, color: '#00ff88' },
+    { label: 'Optimistic (P90)', value: p90, sub: `${risk.max * 100}% CAGR`, color: '#ffb703' },
+  ].map(s => `
+    <div class="scenario-card">
+      <div class="sc-label">${s.label}</div>
+      <div class="sc-value" style="color:${s.color};">${fmt(s.value)}</div>
+      <div class="sc-sub">${s.sub}</div>
+    </div>`).join('');
+
+  // Step-up analysis
+  document.getElementById('stepupGrid').innerHTML = [
+    { label: `SIP with ${stepUp}% step-up`,    val: fmt(sipAmt),        sub: 'Recommended' },
+    { label: 'SIP without step-up',             val: fmt(sipNoStepup),   sub: 'More expensive' },
+    { label: 'Corpus with step-up',             val: fmt(corpusStepup),  sub: 'Expected outcome' },
+    { label: 'Step-up saves monthly',           val: fmt(sipNoStepup - sipAmt), sub: 'vs flat SIP' },
+  ].map(i => `
+    <div class="su-item">
+      <div class="su-label">${i.label}</div>
+      <div class="su-val">${i.val}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:2px;">${i.sub}</div>
+    </div>`).join('');
+
+  // Tax efficiency
+  document.getElementById('taxContent').innerHTML = `
+    <div class="tax-saving">₹${Math.round(taxSaving).toLocaleString('en-IN')}</div>
+    <div class="tax-sub">
+      Tax saved this year via ELSS (₹${elssMonthly.toLocaleString('en-IN')}/mo × 12 = ₹${elssAnnual.toLocaleString('en-IN')} at 30% slab).<br>
+      Reinvested over ${years} years that ₹${Math.round(taxSaving).toLocaleString('en-IN')} tax saving becomes <strong style="color:#ffb703;">${fmt(elssBonus)}</strong> extra corpus.<br>
+      ${elssAnnual >= 150000 ? '✅ 80C limit fully used via ELSS.' : `⚠ Only ₹${elssAnnual.toLocaleString('en-IN')} of ₹1,50,000 80C limit used — invest more in ELSS or PPF.`}
+    </div>
+  `;
+
+  // Monte Carlo chart
+  const percentiles = [10, 20, 30, 40, 50, 60, 70, 80, 90];
+  const percValues  = percentiles.map(p => simResults[Math.floor(N * p / 100)]);
+  const labels      = percentiles.map(p => `P${p}`);
+
+  if (mcChart) mcChart.destroy();
+  const ctx = document.getElementById('mcChart').getContext('2d');
+  mcChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Portfolio Value',
+        data: percValues,
+        backgroundColor: percValues.map(v => v >= goal ? 'rgba(0,255,136,.3)' : 'rgba(79,124,255,.3)'),
+        borderColor:     percValues.map(v => v >= goal ? 'rgba(0,255,136,.6)' : 'rgba(79,124,255,.5)'),
+        borderWidth: 1, borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } },
+        annotation: {},
+      },
+      scales: {
+        x: { ticks: { color: 'rgba(255,255,255,.5)' }, grid: { color: 'rgba(255,255,255,.04)' } },
+        y: { ticks: { color: 'rgba(255,255,255,.5)', callback: v => fmt(v) }, grid: { color: 'rgba(255,255,255,.06)' } }
+      }
+    }
+  });
+
+  const canv = document.getElementById('mcChart');
+  // Replace any existing goal note (prevents stacking on re-run)
+  const prevNote = canv.parentNode.querySelector('[data-role="goal-note"]');
+  if (prevNote) prevNote.remove();
+  const note = document.createElement('div');
+  note.dataset.role = 'goal-note';
+  note.style.cssText = 'font-size:11px;color:#ffb703;margin-top:6px;';
+  note.textContent = `Goal: ${fmt(goal)} | Green bars = goal achieved | Success probability: ${probPct}%`;
+  canv.parentNode.appendChild(note);
+
+  // Arya AI strategy note
+  loadAryaNote(sipAmt, years, probPct, stepUp, funds, elssAnnual, taxSaving, risk.label);
+
+  btn.disabled = false; btn.textContent = '🧠 Re-Optimize';
+}
+
+async function loadAryaNote(sip, years, prob, stepUp, funds, elssAnnual, taxSaving, riskLabel) {
+  const box    = document.getElementById('aryaBox');
+  const textEl = document.getElementById('aryaBoxText');
+  box.style.display = 'block';
+  textEl.textContent = 'Arya teri SIP strategy analyse kar rahi hai…';
+
+  const alloc  = funds.slice(0, 3).map(f => `${f.pct}% ${f.name.split(' ')[0]}`).join(' + ');
+  const prompt = `
+SIP Optimization result:
+Monthly SIP: ₹${sip.toLocaleString('en-IN')} with ${stepUp}% annual step-up
+Risk profile: ${riskLabel}
+Fund allocation: ${alloc}
+Goal probability: ${prob}%
+ELSS annual: ₹${elssAnnual.toLocaleString('en-IN')} → tax saving ₹${Math.round(taxSaving).toLocaleString('en-IN')}
+
+Write a 3-sentence Hinglish strategy note:
+1. What makes this SIP allocation specifically good for them
+2. The biggest risk in this plan and one hedge
+3. One immediate action to start this plan today (app + fund name)
+
+Direct, warm, specific. No preamble.
+`.trim();
+
+  try {
+    const resp = await fetch(OLLAMA_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'qwen3:14b', prompt,
+        system: 'Arya FIN-OS AI. 3-sentence Hinglish SIP strategy note. Specific app/fund names. No preamble.',
+        stream: true, options: { temperature: 0.55, num_predict: 160 },
+      }),
+    });
+    const reader = resp.body.getReader();
+    const dec = new TextDecoder();
+    let full = '';
+    textEl.textContent = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      dec.decode(value).split('\n').forEach(line => {
+        if (!line.trim()) return;
+        try {
+          const d = JSON.parse(line);
+          const tok = (d.response || '').replace(/<think>[\s\S]*?<\/think>/gi, '');
+          if (tok) { full += tok; textEl.textContent = full; }
+        } catch {}
+      });
+    }
+    if (!full) box.style.display = 'none';
+  } catch { box.style.display = 'none'; }
+}
+
+// Pre-fill from profile
+document.addEventListener('DOMContentLoaded', () => {
+  const inc = parseFloat((localStorage.getItem('finos_monthly_income') || '').replace(/[^0-9.]/g, ''));
+  if (inc > 0) document.getElementById('monthlyIncome').value = Math.round(inc);
+  const risk = localStorage.getItem('finos_risk_score');
+  if (risk) {
+    const rNum = parseInt(risk);
+    const rKey = rNum >= 65 ? 'aggressive' : rNum >= 35 ? 'moderate' : 'conservative';
+    document.querySelectorAll('.risk-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`[data-risk="${rKey}"]`)?.classList.add('active');
+    selectedRisk = rKey;
+  }
+});
+</script>
+<script src="../../js/calc-explainer.js"></script>
+</body>
+</html>

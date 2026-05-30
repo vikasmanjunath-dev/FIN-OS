@@ -3,7 +3,7 @@
 > India's most complete personal finance platform.  
 > Education · Intelligence · Voice AI · Calculators · Markets · Tracking — all in one place.
 
-**Last updated:** May 2026 — Arya v3: Brave browser WS backend path, full TradeBook trade-context injection, echo-loop fix, Mind Engine Brave support
+**Last updated:** May 30, 2026 — TIER 5/6/7 AI features: Budget Forecaster · SIP Optimizer · Tax Optimizer · NL Stock Screener · Earnings Analyser · Life Goals Planner · FIRE Intelligence Engine
 
 ---
 
@@ -38,14 +38,16 @@
 FIN•OS is a full-stack personal finance operating system built for Indian users. It is not a single app — it is an entire ecosystem of interconnected tools, education modules, market dashboards, AI assistants, and financial calculators running under one roof.
 
 **At a glance:**
-- **76 HTML pages** spanning every corner of personal finance
-- **100+ financial calculators** across 8 categories, each purpose-built
+- **77 HTML pages** spanning every corner of personal finance
+- **88 financial calculators** across 8 categories, each purpose-built
+- **7 AI predictive features** — Budget Forecaster, SIP Optimizer, Tax Optimizer, NL Stock Screener, Earnings Analyser, Life Goals Planner, FIRE Intelligence
 - **Arya — embedded AI voice coach** on every mindset/simulator page (no separate app needed)
 - **A standalone desi voice AI** that speaks English, Hindi, and Hinglish via WebSocket
 - **A proactive alert engine** watching your money 24/7 with 10 intelligent rules
 - **A financial health score** — live 0–100 rating across 6 pillars
-- **A React budget app** with AI war room, debt destroyer, FIRE calculator
-- **A Django REST backend** for structured data and API services
+- **A React budget app** with AI war room, debt destroyer, enhanced FIRE calculator (4 variants)
+- **A Django REST backend** for structured data, `/api/forecast/` Holt's EWMA endpoint
+- **A FastAPI stock engine** with 14 endpoints — NL screener, earnings analyser, live ticks
 - **Market intelligence signals** — intraday, swing, fundamental, long-term
 - **Trade journal** with P&L analytics and Supabase sync
 - **Everything runs locally** — zero cloud AI cost, full privacy
@@ -63,11 +65,11 @@ Initial Deployment/
 ├── sw.js                         # Service worker
 ├── app.py                        # News Intel API  (Flask :5000)
 │
-├── html/                         # 76 main application pages (Arya embedded in mindset/simulator pages)
+├── html/                         # 77 main application pages (Arya embedded in mindset/simulator pages)
 ├── css/                          # 44 stylesheets
 ├── js/                           # 59 JavaScript files
 ├── assets/                       # Icons (SVG) + 24 editorial images
-├── calculators/                  # 100+ calculators in 8 category folders
+├── calculators/                  # 88 calculators in 8 category folders
 │
 ├── voiceagent/                   # FIN-OS standalone Voice AI v10 (WebSocket + Python)
 ├── alerts/                       # Proactive Alert Engine + Health Score
@@ -126,8 +128,10 @@ The core of FIN•OS. 76 HTML pages, each with a dedicated CSS file and JS modul
 | `html/track-finances.html` | Expense tracker — add, categorise, view history |
 | `html/tracker.html` | Budget tracker — monthly budgets vs actuals |
 | `html/portfolio.html` | Investment portfolio — holdings, P&L, allocation |
-| `html/tax.html` | Tax calculator — Old vs New regime, deductions |
-| `html/calculators.html` | Hub linking to all 100+ calculator tools |
+| `html/tax.html` | Tax calculator — Old vs New regime + **AI Tax Optimizer** (HRA/NPS/LTCG, savings summary, reminders) |
+| `html/budget-forecast.html` | **NEW — AI Budget Forecaster** — Holt's EWMA per category, event multipliers, Arya insight |
+| `html/life-goals-planner.html` | **NEW — AI Life Goals Planner** — dynamic phase roadmap with exact SIP amounts |
+| `html/calculators.html` | Hub linking to all 88 calculator tools |
 | `html/know-your-finances.html` | Net worth calculator |
 
 **Markets & Investing**
@@ -179,7 +183,7 @@ The core of FIN•OS. 76 HTML pages, each with a dedicated CSS file and JS modul
 
 **Roadmaps & Planning**
 
-`roadmap.html` · `roadmaps.html` · `trader-roadmap.html` · `traditional-roadmap.html` · `fear-roadmap.html` · `life-wealth.html` · `principles.html` · `foundations.html` · `finance101.html`
+`roadmap.html` · `roadmaps.html` · `trader-roadmap.html` · `traditional-roadmap.html` · `fear-roadmap.html` · `life-wealth.html` · `principles.html` · `foundations.html` · `finance101.html` · **`life-goals-planner.html`** (AI dynamic planner)
 
 **Tools & Simulators**
 
@@ -223,8 +227,8 @@ The core of FIN•OS. 76 HTML pages, each with a dedicated CSS file and JS modul
 **Banking & Fixed Income** (10 calculators)
 `fd.html` · `rd.html` · `ppf.html` · `epf.html` · `nps.html` · `ssy.html` · `scss.html` · `postoffice.html` · `bond.html` · `savingsinvestment.html`
 
-**Investment & Wealth** (15 calculators)
-`sip.html` · `stepup.html` · `lupsum.html` · `swp.html` · `cagr.html` · `xirr.html` · `mutualfunds.html` · `etf.html` · `dividend.html` · `goalbased.html` · `assetalloc.html` · `portfolio.html` · `rebalancing.html` · `rollingreturns.html` · `taxadj.html`
+**Investment & Wealth** (16 calculators)
+`sip.html` · **`sip-optimizer.html`** (AI Monte Carlo SIP Optimizer) · `stepup.html` · `lupsum.html` · `swp.html` · `cagr.html` · `xirr.html` · `mutualfunds.html` · `etf.html` · `dividend.html` · `goalbased.html` · `assetalloc.html` · `portfolio.html` · `rebalancing.html` · `rollingreturns.html` · `taxadj.html`
 
 **Loans, Debt & EMI** (11 calculators)
 `emi.html` · `home.html` · `car.html` · `personal.html` · `education.html` · `creditcard.html` · `emiprepay.html` · `debtsnow.html` · `loaneligibility.html` · `loantenure.html` · `interest.html`
@@ -702,19 +706,51 @@ python app.py
 
 ## 11. Stock Engine — `stock-engine/`
 
-FastAPI-based stock data and indicators engine with caching.
+FastAPI stock data, indicators, and AI analysis engine with in-memory caching.
 
 ```
 stock-engine/
 ├── backend/
+│   ├── requirements.txt          # fastapi, uvicorn, yfinance, pandas, numpy, httpx, pydantic
 │   └── app/
-│       ├── main.py          # FastAPI app
-│       ├── cache.py         # In-memory cache layer
+│       ├── main.py               # FastAPI app — 14 endpoints
+│       ├── cache.py              # In-memory TTL cache (Redis-compatible interface)
 │       └── services/
-│           ├── market_data.py    # yfinance data fetcher
-│           └── indicators.py     # Technical indicator calculations
+│           ├── market_data.py    # yfinance async wrapper — spot, history, fundamentals
+│           ├── indicators.py     # RSI, MACD, SMA/EMA, Bollinger, ATR (numpy)
+│           ├── insights.py       # Rule-based signal engine — 8 transparent rules  ← NEW
+│           ├── universe.py       # 90-stock NSE universe — search + sector breakdown ← NEW
+│           ├── screener.py       # NL stock screener — Ollama parse + yfinance filter ← NEW
+│           └── earnings.py       # Quarterly earnings analyser + bull/bear AI        ← NEW
 └── frontend/
 ```
+
+### All 14 Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/health` | Engine status |
+| GET | `/api/stock/{symbol}` | Spot quote — price, PE, 52W, volume |
+| GET | `/api/history/{symbol}` | OHLCV candles (1m → 1mo intervals) |
+| GET | `/api/indicators/{symbol}` | RSI, MACD, MA20/50/200, Bollinger, ATR |
+| GET | `/api/insights/{symbol}` | Rule-engine signals + plain-English narrative |
+| GET | `/api/depth/{symbol}` | Simulated 5-level bid/ask book |
+| GET | `/api/fundamentals/{symbol}` | EPS, P/E, P/B, ROE, debt, margins |
+| GET | `/api/sectors` | NSE sector heatmap data |
+| GET | `/api/search?q=` | Fuzzy ticker autocomplete (90-stock universe) |
+| GET | `/api/earnings/{symbol}` | Quarterly financials, beat/miss, bull/bear case · **NEW** |
+| POST | `/screen/natural` | NL → structured filters → screened results · **NEW** |
+| WS | `/ws/ticks` | Live tick stream (3–5s, subscribable symbol list) |
+
+### Start
+
+```bash
+cd stock-engine/backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+```
+
+> ⚠️ Port 8000 is also used by `chatbot/brain.py`. Run one at a time, or change the stock engine to `--port 8002` and update `html/stock-platform.html → const API_BASE`.
 
 ---
 
@@ -751,9 +787,9 @@ Built with React, Vite, and Tailwind CSS. 11 full-page modules:
 |---|---|
 | `WealthInterface.jsx` | Main wealth overview dashboard |
 | `BudgetIntelligenceDashboard.jsx` | AI-powered budget analysis |
-| `AIWarRoom.jsx` | AI financial war room — scenario analysis |
+| `AIWarRoom.jsx` | AI financial war room — threats, neural terminal, **next-month budget forecast panel** |
 | `DebtDestroyer.jsx` | Debt payoff strategy planner (snowball / avalanche) |
-| `FIRECalculator.jsx` | Financial Independence / Retire Early calculator |
+| `FIRECalculator.jsx` | **Enhanced** — 4 FIRE variants (Lean/Regular/Fat/Barista) · Monte Carlo sequence-of-returns · India SWR · Healthcare inflation · Geographic arbitrage |
 | `Goals.jsx` | Goal tracking and progress |
 | `FlowMap.jsx` | Visual cashflow map |
 | `ReportsPage.jsx` | Monthly and annual reports |
@@ -778,10 +814,26 @@ Django REST framework backend for the budget app.
 | Module | Role |
 |---|---|
 | `api/models.py` | Data models — transactions, budgets, goals |
-| `api/views.py` | REST API views |
+| `api/views.py` | REST API views — overview, forecast, wealth simulation, AA webhook |
 | `api/urls.py` | URL routing |
 | `api/admin.py` | Django admin config |
 | `api/migrations/` | Database migrations |
+
+**API Endpoints:**
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET/POST | `/api/overview/` | Budget overview — totals, health score, transaction log |
+| POST | `/api/forecast/` | **AI Budget Forecaster** — Holt's EWMA per category, event multipliers, risk detection |
+| POST | `/api/wealth-sim/` | Monte Carlo wealth simulation (3-path) |
+| POST | `/api/aa-sync/` | Account Aggregator webhook stub |
+
+`POST /api/forecast/` body:
+```json
+{ "months_history": 6, "upcoming_events": ["Diwali", "Car insurance"] }
+```
+
+Returns predicted spend per category with `trend` (up/down/stable), `risk_categories`, and `save_this_month` recommendation.
 
 ```bash
 cd ExpenseTracker/finos_backend

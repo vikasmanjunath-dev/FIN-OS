@@ -229,6 +229,8 @@
 
         if (data.status === 'success') {
           consoleDiv.innerHTML = data.html;
+          // Store parsed metrics for /explain POST
+          window._lastScanMetrics = data.viz || {};
           // Show AI Explain button after successful analysis
           document.getElementById('mi-ai-explain-panel').style.display = 'block';
         } else {
@@ -245,7 +247,7 @@
       window.location.href = `market-visualizer.html?symbol=${symbol}&mode=${currentMode}`;
     }
 
-    // ── Q2: AI Explain ───────────────────────────────────────────────────────
+    // ── Q2: AI Explain (uses new /explain POST for structured signals) ──────────
     async function miAIExplain() {
       if (!_lastSymbol) return alert("Run a scan first!");
 
@@ -257,10 +259,33 @@
       output.innerHTML = '<span style="color:#7d80bd;">🧠 Arya is reading the signals…</span>';
 
       try {
-        const res  = await fetch(
-          `http://127.0.0.1:5000/ai-explain?symbol=${_lastSymbol}&mode=${_lastMode}`
-        );
-        const data = await res.json();
+        // Try structured /explain POST first (uses parsed metrics from last scan)
+        let data;
+        const structuredPayload = {
+          symbol: _lastSymbol,
+          mode:   _lastMode,
+          signal: _lastMode === 'fundamental' ? 'HOLD' : 'BUY',  // overridden by LLM analysis
+        };
+
+        // Merge any last-scanned metrics (RSI, trend, alignment etc.)
+        if (window._lastScanMetrics) {
+          structuredPayload.rsi    = window._lastScanMetrics.rsi;
+          structuredPayload.trend  = window._lastScanMetrics.trend;
+        }
+
+        const explainResp = await fetch('http://127.0.0.1:5000/explain', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(structuredPayload),
+        });
+
+        if (explainResp.ok) {
+          data = await explainResp.json();
+        } else {
+          // Fallback to legacy /ai-explain GET
+          const res = await fetch(`http://127.0.0.1:5000/ai-explain?symbol=${_lastSymbol}&mode=${_lastMode}`);
+          data = await res.json();
+        }
 
         if (data.status === 'success') {
           const recClass = {

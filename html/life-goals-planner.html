@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0B0D12">
+<title>FIN•OS | AI Life Goals Planner</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/finos-context.js"></script>
+<script src="../js/arya-ai.js?v=3"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0B0D12;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
+
+.page{max-width:900px;margin:0 auto;padding:40px 20px 100px;}
+
+/* ── Hero ── */
+.hero{text-align:center;margin-bottom:40px;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;
+  background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);
+  font-size:11px;font-weight:700;letter-spacing:1px;color:#00ff88;text-transform:uppercase;margin-bottom:16px;}
+.hero h1{font-size:32px;font-weight:900;background:linear-gradient(135deg,#00ff88,#4f7cff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;}
+.hero p{font-size:14px;color:rgba(255,255,255,.4);}
+
+/* ── Input Panel ── */
+.input-panel{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;padding:28px;margin-bottom:24px;}
+.section-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:14px;}
+.input-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px;margin-bottom:20px;}
+.inp-wrap{display:flex;flex-direction:column;gap:6px;}
+.inp-label{font-size:11px;color:rgba(255,255,255,.4);}
+.inp-field{padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);color:#fff;font-size:14px;outline:none;width:100%;
+  font-family:-apple-system,sans-serif;transition:border-color .15s;}
+.inp-field:focus{border-color:rgba(0,255,136,.35);}
+
+/* ── Goals ── */
+.goals-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+.goal-row{display:grid;grid-template-columns:1fr 130px 90px 90px 36px;gap:8px;align-items:end;}
+.goal-del{width:36px;height:36px;border-radius:8px;background:rgba(255,107,107,.08);
+  border:1px solid rgba(255,107,107,.2);color:#ff6b6b;cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.goal-del:hover{background:rgba(255,107,107,.18);}
+.add-goal-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.5);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;
+  font-family:-apple-system,sans-serif;}
+.add-goal-btn:hover{border-color:rgba(0,255,136,.3);color:#00ff88;background:rgba(0,255,136,.05);}
+
+/* ── Generate button ── */
+.gen-btn{width:100%;padding:16px;border-radius:14px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#00ff88,#00b860);color:#000;
+  font-weight:800;font-size:15px;letter-spacing:.3px;transition:all .2s;
+  font-family:-apple-system,sans-serif;}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,255,136,.35);}
+.gen-btn:disabled{opacity:.5;transform:none;cursor:not-allowed;}
+
+/* ── Results ── */
+.results{display:none;}
+.results.active{display:block;}
+
+/* ── Summary strip ── */
+.summary-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:28px;}
+.sum-card{padding:16px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);}
+.sum-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.35);margin-bottom:6px;}
+.sum-val{font-size:22px;font-weight:800;}
+.sum-sub{font-size:11px;color:rgba(255,255,255,.35);margin-top:3px;}
+
+/* ── Goal progress bars ── */
+.goals-overview{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;padding:22px;margin-bottom:24px;}
+.goal-prog-row{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.goal-prog-row:last-child{border-bottom:none;}
+.goal-prog-header{display:flex;justify-content:space-between;margin-bottom:7px;}
+.goal-prog-name{font-size:13px;font-weight:600;color:#fff;}
+.goal-prog-meta{font-size:12px;color:rgba(255,255,255,.45);}
+.prog-bar-track{height:5px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;}
+.prog-bar-fill{height:100%;border-radius:4px;transition:width .6s ease;}
+.goal-prog-detail{display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:rgba(255,255,255,.35);}
+
+/* ── Phase cards ── */
+.phase-card{border-radius:18px;padding:24px;margin-bottom:16px;
+  border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02);
+  transition:border-color .2s;}
+.phase-card:hover{border-color:var(--pc,rgba(79,124,255,.3));}
+.phase-header{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.phase-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.phase-title{font-size:16px;font-weight:800;color:#fff;}
+.phase-years{font-size:12px;color:rgba(255,255,255,.35);font-family:'JetBrains Mono',monospace;}
+.phase-items{display:flex;flex-direction:column;gap:8px;}
+.phase-item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;
+  background:rgba(255,255,255,.03);}
+.phase-item-icon{font-size:16px;flex-shrink:0;width:20px;text-align:center;}
+.phase-item-text{font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;}
+.phase-item-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;
+  background:rgba(199,240,0,.1);border:1px solid rgba(199,240,0,.2);color:#c7f000;margin-left:6px;vertical-align:middle;}
+
+/* ── Arya insight per phase ── */
+.arya-phase{margin-top:14px;padding:12px 14px;border-radius:10px;
+  background:rgba(79,124,255,.05);border:1px solid rgba(79,124,255,.15);
+  font-size:13px;color:rgba(255,255,255,.75);line-height:1.7;min-height:20px;}
+.arya-phase-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#4d7cff;margin-bottom:6px;}
+
+/* ── Feasibility banner ── */
+.feas-banner{padding:14px 18px;border-radius:12px;font-size:13px;line-height:1.6;
+  display:flex;gap:12px;align-items:flex-start;margin-bottom:24px;}
+.feas-ok{background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.2);color:rgba(255,255,255,.85);}
+.feas-warn{background:rgba(255,183,3,.05);border:1px solid rgba(255,183,3,.2);color:rgba(255,255,255,.85);}
+.feas-icon{font-size:20px;flex-shrink:0;}
+
+@keyframes aryaBlink{50%{opacity:0;}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-badge">🧠 AI Planner</div>
+    <h1>Life Goals Planner</h1>
+    <p>Enter your numbers — get a year-by-year financial roadmap with SIP amounts, milestones &amp; Arya's guidance.</p>
+  </div>
+
+  <!-- ── Input Panel ── -->
+  <div class="input-panel">
+    <div class="section-label">Your Financial Profile</div>
+    <div class="input-grid">
+      <div class="inp-wrap">
+        <label class="inp-label">Your Age</label>
+        <input class="inp-field" id="inAge" type="number" value="28" min="18" max="60">
+      </div>
+      <div class="inp-wrap">
+        <label class="inp-label">Monthly Income ₹</label>
+        <input class="inp-field" id="inIncome" type="number" value="120000" placeholder="e.g. 120000">
+      </div>
+      <div class="inp-wrap">
+        <label class="inp-label">Current Savings ₹</label>
+        <input class="inp-field" id="inSavings" type="number" value="320000" placeholder="e.g. 320000">
+      </div>
+      <div class="inp-wrap">
+        <label class="inp-label">Monthly Investable ₹</label>
+        <input class="inp-field" id="inSurplus" type="number" value="35000" placeholder="e.g. 35000">
+      </div>
+      <div class="inp-wrap">
+        <label class="inp-label">Retirement Age</label>
+        <input class="inp-field" id="inRetireAge" type="number" value="58" min="40" max="70">
+      </div>
+      <div class="inp-wrap">
+        <label class="inp-label">Expected Return %</label>
+        <input class="inp-field" id="inReturn" type="number" value="12" min="6" max="20">
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:4px;">Your Financial Goals</div>
+    <div class="goals-list" id="goalsList"></div>
+    <button class="add-goal-btn" onclick="addGoal()">＋ Add Goal</button>
+
+    <div style="margin-top:20px;">
+      <button class="gen-btn" id="genBtn" onclick="generateRoadmap()">
+        🗺️ Generate My Financial Roadmap
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Results ── -->
+  <div class="results" id="results">
+    <div class="feas-banner" id="feasBanner"></div>
+    <div class="summary-strip" id="summaryStrip"></div>
+    <div class="goals-overview" id="goalsOverview"></div>
+    <div id="phasesContainer"></div>
+  </div>
+
+</div>
+
+<script src="../js/mobile-nav.js"></script>
+<script src="../js/pwa-init.js"></script>
+<script src="../js/finos-widget.js?v=4"></script>
+<script src="../js/finos-search.js?v=2"></script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   AI LIFE GOALS PLANNER — pure JS math engine + Arya AI narrative
+   ═══════════════════════════════════════════════════════════════════════ */
+
+const OLLAMA_URL = 'http://localhost:11434/api/generate';
+
+// Default goals seeded for demo
+const DEFAULT_GOALS = [
+  { name: 'Own Home', amount: 8000000, years: 7, inflation: 0.06 },
+  { name: "Child's Education", amount: 2500000, years: 18, inflation: 0.08 },
+  { name: 'Retirement Corpus', amount: 50000000, years: 30, inflation: 0.06 },
+];
+
+let goalCount = 0;
+
+function addGoal(preset = null) {
+  const id = ++goalCount;
+  const g = preset || { name: '', amount: '', years: '', inflation: 0.06 };
+  const row = document.createElement('div');
+  row.className = 'goal-row';
+  row.id = `goal-row-${id}`;
+  row.innerHTML = `
+    <div class="inp-wrap">
+      <label class="inp-label">Goal Name</label>
+      <input class="inp-field" id="g-name-${id}" value="${g.name}" placeholder="e.g. Own Home">
+    </div>
+    <div class="inp-wrap">
+      <label class="inp-label">Target ₹</label>
+      <input class="inp-field" id="g-amt-${id}" type="number" value="${g.amount}" placeholder="e.g. 5000000">
+    </div>
+    <div class="inp-wrap">
+      <label class="inp-label">In (years)</label>
+      <input class="inp-field" id="g-yrs-${id}" type="number" value="${g.years}" placeholder="10" min="1" max="40">
+    </div>
+    <div class="inp-wrap">
+      <label class="inp-label">Inflation %</label>
+      <input class="inp-field" id="g-inf-${id}" type="number" value="${Math.round(g.inflation*100)}" placeholder="6" min="0" max="15">
+    </div>
+    <button class="goal-del" onclick="document.getElementById('goal-row-${id}').remove()">✕</button>
+  `;
+  document.getElementById('goalsList').appendChild(row);
+}
+
+// Seed default goals
+DEFAULT_GOALS.forEach(g => addGoal(g));
+
+/* ── Math helpers ────────────────────────────────────────────────────── */
+function sipFV(monthly, months, annualRate) {
+  const r = annualRate / 12;
+  if (r < 1e-10) return monthly * months;
+  return monthly * ((Math.pow(1 + r, months) - 1) / r) * (1 + r);
+}
+
+function findSIP(target, years, annualRate) {
+  if (target <= 0 || years <= 0) return 0;
+  const months = years * 12;
+  let lo = 100, hi = 10000000;
+  for (let i = 0; i < 60; i++) {
+    const mid = (lo + hi) / 2;
+    if (sipFV(mid, months, annualRate) < target) lo = mid; else hi = mid;
+  }
+  return Math.ceil((lo + hi) / 2 / 500) * 500;
+}
+
+function fmt(n) {
+  if (n >= 1e7)  return '₹' + (n / 1e7).toFixed(1) + ' Cr';
+  if (n >= 1e5)  return '₹' + (n / 1e5).toFixed(1) + ' L';
+  if (n >= 1e3)  return '₹' + (n / 1e3).toFixed(0) + 'K';
+  return '₹' + Math.round(n).toLocaleString('en-IN');
+}
+
+/* ── Phase color palette ─────────────────────────────────────────────── */
+const PHASE_COLORS = ['#4F7CFF', '#00D4FF', '#00ff88', '#ffb703', '#c7f000', '#FF6B6B', '#9B59B6'];
+
+/* ── Split an item string into leading emoji + rest text ─────────────── */
+function splitItem(item) {
+  const idx = item.indexOf(' ');
+  if (idx <= 0) return { icon: item.slice(0, 2), text: item.slice(2) };
+  return { icon: item.slice(0, idx), text: item.slice(idx + 1) };
+}
+
+/* ── Main roadmap generator ──────────────────────────────────────────── */
+function generateRoadmap() {
+  const age        = parseInt(document.getElementById('inAge').value)       || 28;
+  const income     = parseFloat(document.getElementById('inIncome').value)  || 120000;
+  const savings    = parseFloat(document.getElementById('inSavings').value) || 0;
+  const surplus    = parseFloat(document.getElementById('inSurplus').value) || 35000;
+  const retireAge  = parseInt(document.getElementById('inRetireAge').value) || 58;
+  const returnRate = parseFloat(document.getElementById('inReturn').value) / 100 || 0.12;
+
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true; btn.textContent = '⏳ Calculating…';
+
+  // Read goals
+  const goals = [];
+  document.querySelectorAll('.goal-row').forEach(row => {
+    const id = row.id.replace('goal-row-', '');
+    const name   = document.getElementById(`g-name-${id}`)?.value?.trim() || 'Goal';
+    const amount = parseFloat(document.getElementById(`g-amt-${id}`)?.value) || 0;
+    const years  = parseInt(document.getElementById(`g-yrs-${id}`)?.value)  || 10;
+    const inf    = (parseFloat(document.getElementById(`g-inf-${id}`)?.value) || 6) / 100;
+    if (amount > 0) goals.push({ name, amount, years, inflation: inf });
+  });
+
+  // ── Core computations ──────────────────────────────────────────────
+  const monthlyExpenses = income - surplus;
+  const efTarget = monthlyExpenses * 6;
+  const efDone   = Math.min(savings, efTarget);
+  const efGap    = Math.max(0, efTarget - efDone);
+
+  // Process each goal
+  const processed = goals.map(g => {
+    const inflatedTarget = g.amount * Math.pow(1 + g.inflation, g.years);
+    const currentSavingsContrib = savings > efGap ? Math.min(savings - efGap, inflatedTarget) : 0;
+    const netTarget = Math.max(0, inflatedTarget - currentSavingsContrib * Math.pow(1 + returnRate, g.years));
+    const sipNeeded = findSIP(netTarget, g.years, returnRate);
+    const pct80c    = sipNeeded * 0.20; // ELSS portion suggestion
+    return { ...g, inflatedTarget, sipNeeded, pct80c };
+  });
+
+  const totalSIPNeeded = processed.reduce((s, g) => s + g.sipNeeded, 0);
+  const efAlloc        = efGap > 0 ? Math.min(surplus * 0.50, efGap / 6) : 0;
+  const sipAvail       = surplus - efAlloc;
+  const feasPct        = totalSIPNeeded > 0
+    ? Math.min(999, Math.round((sipAvail / totalSIPNeeded) * 100))
+    : 100;
+
+  const retireYears = Math.max(1, retireAge - age);
+
+  // ── Build phases ──────────────────────────────────────────────────
+  const phases = [];
+
+  // Phase 1: Foundation
+  const efMonths = efGap > 0 ? Math.ceil(efGap / (surplus * 0.5)) : 0;
+  const startSIP = Math.min(sipAvail * 0.6, 30000);
+  const taxSave  = Math.min(startSIP * 0.20 * 12, 150000) * 0.30;
+  phases.push({
+    id: 'foundation',
+    title: '🏗️ Foundation Phase',
+    years: `Year 1–2  (Age ${age}–${age+2})`,
+    color: PHASE_COLORS[0],
+    summary: 'Build your financial safety net before chasing returns.',
+    items: [
+      efGap > 0
+        ? `🛡️ Emergency fund: ${fmt(efTarget)} target — ${Math.round(efDone/efTarget*100)}% done. Save ${fmt(efGap/Math.max(efMonths,1))}/month for ${efMonths} months`
+        : `✅ Emergency fund: ${fmt(efTarget)} — already complete`,
+      `☂️ Term life insurance: ₹1 Cr cover ≈ ₹8,000–12,000/year — apply online today [urgent]`,
+      `📈 Start SIP: ${fmt(startSIP)}/month → 60% Nifty 50 Index, 40% FlexiCap`,
+      `💰 Tax savings: ₹${Math.round(taxSave/1000)}K+ via ELSS (80C) + NPS (80CCD1B)`,
+      `📋 Automate: SIP on 1st of month, EF on 5th — remove willpower from the equation`,
+    ]
+  });
+
+  // Phase 2: Acceleration
+  const sipY2 = Math.min(sipAvail * 0.8, 40000);
+  const sipStepUp = Math.round(sipY2 * 1.10 / 500) * 500;
+  const portfolioY5 = sipFV(sipY2, 36, returnRate);
+  phases.push({
+    id: 'acceleration',
+    title: '🚀 Acceleration Phase',
+    years: `Year 3–5  (Age ${age+2}–${age+5})`,
+    color: PHASE_COLORS[1],
+    summary: 'Emergency fund done. Now redirect that surplus into high-conviction investments.',
+    items: [
+      `📈 Step-up SIP to ${fmt(sipStepUp)}/month (10% annual step-up rule)`,
+      efGap > 0 ? `🔁 Redirect old EF instalments (${fmt(efGap/Math.max(efMonths,1))}/mo) into equity` : `🔁 Full ${fmt(surplus)}/month now deployable into goals`,
+      `📊 Portfolio at Year 5: ~${fmt(portfolioY5)} — start separate goal-specific buckets`,
+      `🎯 80C fully utilized via ELSS — ensure ₹1.5L/year invested before March 31`,
+      `🏥 Health insurance: ₹10L family floater — review coverage annually`,
+    ]
+  });
+
+  // Goal-specific phases
+  const sortedGoals = [...processed].sort((a, b) => a.years - b.years);
+  sortedGoals.forEach((g, i) => {
+    if (g.name.toLowerCase().includes('retire')) return; // handled separately
+    const phaseAge1 = age + g.years - 2;
+    const phaseAge2 = age + g.years;
+    const color = PHASE_COLORS[2 + i] || PHASE_COLORS[2];
+    const accumY = Math.max(0, g.years - 2);
+    const accumCorpus = sipFV(g.sipNeeded, accumY * 12, returnRate);
+    const downPmt  = g.name.toLowerCase().includes('home') ? g.inflatedTarget * 0.20 : 0;
+    const dpMonthly = downPmt > 0 ? Math.round(findSIP(downPmt, g.years, 0.07) / 500) * 500 : 0;
+
+    const items = [
+      `🎯 Target (inflation-adjusted): ${fmt(g.inflatedTarget)} by Year ${g.years}`,
+      `📈 Required SIP: ${fmt(g.sipNeeded)}/month at ${(returnRate*100).toFixed(0)}% CAGR`,
+    ];
+    if (downPmt > 0) {
+      items.push(`🏠 Down payment (20%): ${fmt(downPmt)} — save ${fmt(dpMonthly)}/month in debt fund`);
+      items.push(`💳 EMI capacity check: keep EMI ≤ 35% of income (${fmt(income*0.35)}/month)`);
+    }
+    items.push(`⚖️ Rebalance portfolio 2 years before goal: shift 60% to debt to protect gains`);
+    items.push(`✅ Year ${g.years} milestone: ${g.name} funded — redirect that ${fmt(g.sipNeeded)}/month to next goal`);
+
+    phases.push({
+      id: `goal-${i}`,
+      title: `🎯 ${g.name}`,
+      years: `Year ${Math.max(1, g.years-2)}–${g.years}  (Age ${Math.max(age+1, phaseAge1)}–${phaseAge2})`,
+      color,
+      summary: `${accumCorpus > g.inflatedTarget * 0.7 ? '✅ On track' : '⚠️ Needs higher SIP'} — ${fmt(accumCorpus)} projected vs ${fmt(g.inflatedTarget)} target.`,
+      items,
+    });
+  });
+
+  // Wealth milestone phases
+  if (retireYears > 10) {
+    const midAge = age + Math.round(retireYears * 0.5);
+    phases.push({
+      id: 'wealth',
+      title: '💎 Wealth Compounding Phase',
+      years: `Year ${Math.round(retireYears*0.4)}–${Math.round(retireYears*0.75)}  (Age ${age + Math.round(retireYears*0.4)}–${midAge})`,
+      color: PHASE_COLORS[5 % PHASE_COLORS.length],
+      summary: 'Portfolio now large enough to compound faster than you can save.',
+      items: [
+        `📊 Portfolio crossing ₹25L → add Small Cap satellite (15% allocation)`,
+        `📊 Portfolio crossing ₹50L → start equity rebalancing every 6 months`,
+        `🏦 NPS Tier-1: maximize ₹50,000 in 80CCD(1B) — guaranteed tax benefit`,
+        `📈 Step-up SIP every year: ₹500–1,000 per month — habit over willpower`,
+        `🔄 Review asset allocation annually: age-appropriate equity % = 100 − age`,
+      ]
+    });
+  }
+
+  // Pre-retirement phase
+  const preRetireStart = Math.max(age + 2, retireAge - 5);
+  const preRetireYearStart = Math.max(1, retireAge - age - 5);
+  phases.push({
+    id: 'preretire',
+    title: '🌅 Pre-Retirement Phase',
+    years: `Year ${preRetireYearStart}–${retireAge-age}  (Age ${preRetireStart}–${retireAge})`,
+    color: PHASE_COLORS[4],
+    summary: 'Capital preservation mode. Protect what you built.',
+    items: [
+      `⚖️ Shift equity: 60% → 40% over 5 years — systematic rebalancing`,
+      `🏦 NPS vesting: plan annuity vs lumpsum (60% lumpsum = tax-free)`,
+      `📋 Start SWP planning: ${fmt(income * 0.8)} withdrawals at 3.5% SWR`,
+      `🏥 Top up health insurance to ₹25L before retirement — premiums lower now`,
+      `📝 Review nominations, will, estate plan — the boring stuff that matters most`,
+    ]
+  });
+
+  // ── Render ──────────────────────────────────────────────────────
+  renderResults({ age, income, savings, surplus, returnRate, efTarget, efDone, efGap,
+                  processed, totalSIPNeeded, feasPct, phases, retireYears });
+
+  btn.disabled = false; btn.textContent = '🗺️ Regenerate Roadmap';
+
+  // Async: load Arya narratives per phase
+  setTimeout(() => loadAryaNarratives(phases, { age, income, surplus, processed, feasPct }), 200);
+}
+
+function renderResults(data) {
+  const res = document.getElementById('results');
+  res.classList.add('active');
+
+  const { income, surplus, efTarget, efDone, efGap, processed, totalSIPNeeded, feasPct, phases } = data;
+
+  // Feasibility banner
+  const feas = document.getElementById('feasBanner');
+  if (feasPct >= 90) {
+    feas.className = 'feas-banner feas-ok';
+    feas.innerHTML = `<div class="feas-icon">✅</div><div>Your ₹${surplus.toLocaleString('en-IN')}/month surplus <strong>fully covers</strong> all goals (${feasPct}% feasibility). Stay disciplined and the roadmap delivers.</div>`;
+  } else if (feasPct >= 60) {
+    feas.className = 'feas-banner feas-warn';
+    feas.innerHTML = `<div class="feas-icon">⚠️</div><div>Surplus covers <strong>${feasPct}%</strong> of required ${fmt(totalSIPNeeded)}/month. Close the gap by extending lower-priority goals by 2–3 years OR increasing investable surplus by ${fmt(totalSIPNeeded - (surplus - Math.min(surplus*0.5, efGap/6)))}.</div>`;
+  } else {
+    feas.className = 'feas-banner feas-warn';
+    feas.innerHTML = `<div class="feas-icon">🚨</div><div>Surplus covers only <strong>${feasPct}%</strong> of goals. Prioritize retirement + nearest goal only. Defer rest. Consider increasing income streams — skills > frugality at this stage.</div>`;
+  }
+
+  // Summary strip
+  const strip = document.getElementById('summaryStrip');
+  const totalGoalAmount = processed.reduce((s, g) => s + g.inflatedTarget, 0);
+  const totalSIPText = fmt(totalSIPNeeded);
+  strip.innerHTML = [
+    { label: 'Total Goals (inflated)', val: fmt(totalGoalAmount), sub: `${processed.length} goals`, color: '#4F7CFF' },
+    { label: 'Required Monthly SIP', val: totalSIPText, sub: `across all goals`, color: '#00ff88' },
+    { label: 'Feasibility', val: feasPct + '%', sub: `of surplus covered`, color: feasPct >= 80 ? '#00ff88' : '#ffb703' },
+    { label: 'Phases Defined', val: phases.length, sub: `roadmap milestones`, color: '#c7f000' },
+  ].map(c => `
+    <div class="sum-card">
+      <div class="sum-label">${c.label}</div>
+      <div class="sum-val" style="color:${c.color};">${c.val}</div>
+      <div class="sum-sub">${c.sub}</div>
+    </div>`).join('');
+
+  // Goal progress overview
+  const ov = document.getElementById('goalsOverview');
+  const ovHead = `<div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:14px;">📊 Goal Allocation Breakdown</div>`;
+  ov.innerHTML = ovHead + processed.map((g, i) => {
+    const color = PHASE_COLORS[i % PHASE_COLORS.length];
+    const pct = Math.min(100, Math.round((g.sipNeeded / Math.max(totalSIPNeeded, 1)) * 100));
+    return `
+      <div class="goal-prog-row">
+        <div class="goal-prog-header">
+          <span class="goal-prog-name">${g.name}</span>
+          <span class="goal-prog-meta">${fmt(g.sipNeeded)}/mo SIP needed</span>
+        </div>
+        <div class="prog-bar-track">
+          <div class="prog-bar-fill" style="width:${pct}%;background:${color};"></div>
+        </div>
+        <div class="goal-prog-detail">
+          <span>Target: ${fmt(g.inflatedTarget)} in ${g.years}yr (inflation-adjusted)</span>
+          <span>${pct}% of total SIP</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Phases
+  const container = document.getElementById('phasesContainer');
+  container.innerHTML = phases.map((p, i) => `
+    <div class="phase-card" style="--pc:${p.color}40;border-color:rgba(255,255,255,.06);">
+      <div class="phase-header">
+        <div class="phase-dot" style="background:${p.color};box-shadow:0 0 8px ${p.color}60;"></div>
+        <div>
+          <div class="phase-title">${p.title}</div>
+          <div class="phase-years">${p.years}</div>
+        </div>
+      </div>
+      ${p.summary ? `<div style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:12px;padding:8px 10px;background:rgba(255,255,255,.02);border-radius:8px;">${p.summary}</div>` : ''}
+      <div class="phase-items">
+        ${p.items.map(item => {
+          const s = splitItem(item);
+          return `
+          <div class="phase-item">
+            <span class="phase-item-icon">${s.icon}</span>
+            <span class="phase-item-text">${s.text}</span>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="arya-phase" id="arya-${p.id}">
+        <div class="arya-phase-label">🧠 Arya's Take</div>
+        <span style="color:rgba(255,255,255,.3);font-size:12px;">Loading…</span>
+      </div>
+    </div>
+  `).join('');
+
+  res.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ── Arya AI narratives (parallel, streaming) ──────────────────────── */
+async function loadAryaNarratives(phases, ctx) {
+  const { age, income, surplus, processed, feasPct } = ctx;
+  const goals_str = processed.map(g => `${g.name}: ${fmt(g.inflatedTarget)} in ${g.years}yr`).join(', ');
+
+  for (const phase of phases) {
+    const el = document.getElementById(`arya-${phase.id}`);
+    if (!el) continue;
+
+    const prompt = `
+Financial roadmap phase for user:
+Age ${age}, Income ${fmt(income)}/month, Monthly investable ${fmt(surplus)}, Feasibility ${feasPct}%
+Goals: ${goals_str}
+
+Phase: "${phase.title}" (${phase.years})
+Key actions: ${phase.items.slice(0, 3).join(' | ')}
+
+Write ONE Hinglish sentence (max 25 words) of warm, specific advice for this phase.
+No preamble. Address the user as "tu". Be direct and motivating.
+`.trim();
+
+    const cursorId = `arya-cur-${phase.id}`;
+    el.innerHTML = `<div class="arya-phase-label">🧠 Arya's Take</div><span id="arya-txt-${phase.id}"></span><span id="${cursorId}" style="animation:aryaBlink .7s infinite;display:inline-block;color:#4d7cff;">▌</span>`;
+    const txtEl = document.getElementById(`arya-txt-${phase.id}`);
+
+    const removeCursor = () => { document.getElementById(cursorId)?.remove(); };
+
+    try {
+      const resp = await fetch(OLLAMA_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'qwen3:14b', prompt,
+          system: 'Arya FIN-OS AI. One sentence Hinglish warm advice. Max 25 words. Direct, personal, motivating. No preamble.',
+          stream: true, options: { temperature: 0.6, num_predict: 60 },
+        }),
+      });
+      const reader = resp.body.getReader();
+      const dec = new TextDecoder();
+      let full = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        dec.decode(value).split('\n').forEach(line => {
+          if (!line.trim()) return;
+          try {
+            const d = JSON.parse(line);
+            const tok = (d.response || '').replace(/<think>[\s\S]*?<\/think>/gi, '');
+            if (tok) { full += tok; txtEl.textContent = full; }
+          } catch {}
+        });
+      }
+      removeCursor();
+      if (!full.trim()) {
+        txtEl.textContent = 'Iss phase mein focused reh — consistency hi sabse bada weapon hai.';
+      }
+    } catch {
+      removeCursor();
+      el.innerHTML = `<div class="arya-phase-label">🧠 Arya's Take</div><span style="color:rgba(255,255,255,.3);font-size:12px;">Start Ollama for AI insights — the math roadmap above is fully valid.</span>`;
+    }
+  }
+}
+
+// Auto-fill from Finos context if available
+document.addEventListener('finos-context-ready', () => {
+  try {
+    const ctx = window.FINOS_USER_CONTEXT || {};
+    const fin = ctx.financial || {};
+    if (fin.monthly_income > 0 && !document.getElementById('inIncome').value) {
+      document.getElementById('inIncome').value = fin.monthly_income;
+    }
+  } catch {}
+});
+</script>
+</body>
+</html>

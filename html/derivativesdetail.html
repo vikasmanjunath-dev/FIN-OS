@@ -331,8 +331,302 @@
         <a href="markets.html" class="action-btn">Return to Base ➔</a>
       </footer>
 
+      <!-- ═══════════════════════════════════════════════════════════════════
+           F&O AI COACH — Interactive position analyzer
+           ═══════════════════════════════════════════════════════════════════ -->
+      <section id="fno-ai-coach" style="
+        margin:40px 0;padding:32px;
+        background:linear-gradient(135deg,rgba(255,42,109,.04),rgba(131,56,236,.04));
+        border:1px solid rgba(255,42,109,.2);border-radius:20px;">
+
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px;">
+          <div style="font-size:28px;">🤖</div>
+          <div>
+            <h2 style="margin:0;font-size:22px;color:#fff;">F&O AI Coach</h2>
+            <div style="font-size:13px;color:rgba(255,255,255,.4);margin-top:2px;">
+              Apni position describe karo — Arya strategy + risk batayegi
+            </div>
+          </div>
+        </div>
+
+        <div style="background:rgba(255,42,109,.08);border:1px solid rgba(255,42,109,.2);border-radius:10px;
+          padding:12px 16px;margin:16px 0;font-size:12px;color:rgba(255,150,150,.9);line-height:1.6;">
+          ⚠️ <strong>SEBI Warning:</strong> 90% of retail F&O traders lose money. This coach is for
+          <strong>education only</strong> — not investment advice. Always use stop losses.
+          Never risk more than 1-2% of capital per trade.
+        </div>
+
+        <!-- Input grid -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px;">
+
+          <div>
+            <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">INDEX / STOCK</label>
+            <input id="fno-symbol" placeholder="NIFTY / BANKNIFTY / RELIANCE"
+              style="width:100%;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.05);
+                     border:1px solid rgba(255,255,255,.12);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+
+          <div>
+            <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">OPTION TYPE</label>
+            <select id="fno-type"
+              style="width:100%;padding:10px 12px;border-radius:10px;background:#0d0d14;
+                     border:1px solid rgba(255,255,255,.12);color:#fff;font-size:13px;outline:none;">
+              <option value="CE">CE — Call (Bullish)</option>
+              <option value="PE">PE — Put (Bearish)</option>
+              <option value="short_CE">Short CE (Bear)</option>
+              <option value="short_PE">Short PE (Bull)</option>
+              <option value="bull_spread">Bull Call Spread</option>
+              <option value="bear_spread">Bear Put Spread</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">SPOT PRICE ₹</label>
+            <input id="fno-spot" type="number" placeholder="e.g. 22500"
+              style="width:100%;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.05);
+                     border:1px solid rgba(255,255,255,.12);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+
+          <div>
+            <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">STRIKE PRICE ₹</label>
+            <input id="fno-strike" type="number" placeholder="e.g. 22000"
+              style="width:100%;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.05);
+                     border:1px solid rgba(255,255,255,.12);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+
+          <div>
+            <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">PREMIUM PAID ₹</label>
+            <input id="fno-premium" type="number" placeholder="e.g. 120"
+              style="width:100%;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.05);
+                     border:1px solid rgba(255,255,255,.12);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+
+          <div>
+            <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">DAYS TO EXPIRY</label>
+            <input id="fno-dte" type="number" placeholder="e.g. 7"
+              style="width:100%;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.05);
+                     border:1px solid rgba(255,255,255,.12);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+
+          <div>
+            <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">VIX (India VIX)</label>
+            <input id="fno-vix" type="number" step="0.1" placeholder="e.g. 18.5"
+              style="width:100%;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.05);
+                     border:1px solid rgba(255,255,255,.12);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+
+          <div>
+            <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">LOT SIZE</label>
+            <input id="fno-lots" type="number" value="1" placeholder="1"
+              style="width:100%;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.05);
+                     border:1px solid rgba(255,255,255,.12);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+
+        </div>
+
+        <!-- Greeks estimate bar -->
+        <div id="fno-greeks-bar" style="display:none;
+          background:rgba(131,56,236,.08);border:1px solid rgba(131,56,236,.2);
+          border-radius:12px;padding:12px 16px;margin-bottom:14px;
+          flex-wrap:wrap;gap:16px;font-size:12px;font-family:monospace;">
+        </div>
+
+        <button onclick="runFnoAiCoach()"
+          style="width:100%;padding:14px;border-radius:12px;
+                 background:linear-gradient(135deg,#ff2a6d,#8338ec);
+                 color:#fff;font-weight:800;font-size:14px;border:none;cursor:pointer;
+                 letter-spacing:.5px;transition:opacity .2s;"
+          onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+          🧠 ANALYSE THIS F&O POSITION
+        </button>
+
+        <!-- Output panel -->
+        <div id="fno-coach-output" style="display:none;margin-top:20px;">
+          <div id="fno-coach-text"
+            style="font-size:14px;line-height:1.75;color:rgba(255,255,255,.88);
+                   white-space:pre-wrap;font-family:-apple-system,sans-serif;"></div>
+
+          <!-- Strategy alternatives -->
+          <div id="fno-strategy-alt" style="display:none;margin-top:16px;
+            background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.15);
+            border-radius:12px;padding:16px;">
+            <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;
+              color:#00ff88;margin-bottom:10px;">Better Strategy Suggestion</div>
+            <div id="fno-strategy-text" style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.7;"></div>
+          </div>
+        </div>
+
+      </section>
+
     </main>
   </div>
+
+  <script>
+  // ── Greeks estimator (Black-Scholes approximation — educational only) ────────
+  function estimateGreeks(S, K, T, r, sigma) {
+    // T in years, sigma = IV as decimal (e.g. 0.18 for 18%)
+    if (!S || !K || !T || !sigma) return null;
+    const d1 = (Math.log(S / K) + (r + sigma * sigma / 2) * T) / (sigma * Math.sqrt(T));
+    const d2 = d1 - sigma * Math.sqrt(T);
+
+    function normCDF(x) {
+      const t = 1 / (1 + 0.2316419 * Math.abs(x));
+      const poly = t * (0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
+      const result = 1 - (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x) * poly;
+      return x >= 0 ? result : 1 - result;
+    }
+    function normPDF(x) {
+      return (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
+    }
+
+    const Nd1 = normCDF(d1);
+    const Nd2 = normCDF(d2);
+    const delta_call = Nd1;
+    const delta_put  = Nd1 - 1;
+    const gamma = normPDF(d1) / (S * sigma * Math.sqrt(T));
+    const theta_call = (-(S * normPDF(d1) * sigma) / (2 * Math.sqrt(T)) - r * K * Math.exp(-r * T) * Nd2) / 365;
+    const vega  = S * normPDF(d1) * Math.sqrt(T) / 100;
+
+    return { delta_call, delta_put, gamma, theta_call, vega,
+             intrinsic_call: Math.max(0, S - K), intrinsic_put: Math.max(0, K - S) };
+  }
+
+  async function runFnoAiCoach() {
+    const symbol  = document.getElementById('fno-symbol').value.trim().toUpperCase() || 'NIFTY';
+    const type    = document.getElementById('fno-type').value;
+    const spot    = parseFloat(document.getElementById('fno-spot').value) || 0;
+    const strike  = parseFloat(document.getElementById('fno-strike').value) || 0;
+    const premium = parseFloat(document.getElementById('fno-premium').value) || 0;
+    const dte     = parseInt(document.getElementById('fno-dte').value) || 7;
+    const vix     = parseFloat(document.getElementById('fno-vix').value) || 15;
+    const lots    = parseInt(document.getElementById('fno-lots').value) || 1;
+
+    // Standard lot sizes
+    const lotSizes = { NIFTY: 25, BANKNIFTY: 15, FINNIFTY: 40, SENSEX: 10 };
+    const lotSize  = lotSizes[symbol] || 100;
+    const totalPremium = premium * lotSize * lots;
+
+    // Greeks estimate
+    const T     = dte / 365;
+    const sigma = vix / 100;
+    const greeks = estimateGreeks(spot || strike, strike, T, 0.065, sigma);
+
+    // Show greeks bar
+    if (greeks && spot && strike) {
+      const isCall = type.includes('CE') || type.includes('call') || type.includes('bull');
+      const delta  = isCall ? greeks.delta_call : greeks.delta_put;
+      const bar    = document.getElementById('fno-greeks-bar');
+      bar.style.display = 'flex';
+      bar.innerHTML = [
+        `<span><span style="color:rgba(255,255,255,.4)">Delta:</span> <strong style="color:#c7f000">${delta.toFixed(2)}</strong></span>`,
+        `<span><span style="color:rgba(255,255,255,.4)">Gamma:</span> <strong style="color:#4f7cff">${greeks.gamma.toFixed(4)}</strong></span>`,
+        `<span><span style="color:rgba(255,255,255,.4)">Theta/day:</span> <strong style="color:#ff6b6b">₹${(Math.abs(greeks.theta_call) * lotSize * lots).toFixed(0)}</strong></span>`,
+        `<span><span style="color:rgba(255,255,255,.4)">Vega/1%:</span> <strong style="color:#00ff88">₹${(greeks.vega * lotSize * lots).toFixed(0)}</strong></span>`,
+        `<span><span style="color:rgba(255,255,255,.4)">Total invested:</span> <strong style="color:#fff">₹${totalPremium.toLocaleString('en-IN')}</strong></span>`,
+        `<span><span style="color:rgba(255,255,255,.4)">IVR:</span> <strong style="color:${vix > 20 ? '#ff6b6b' : vix > 15 ? '#ffb703' : '#00ff88'}">${vix > 20 ? 'HIGH — sell options' : vix > 15 ? 'MODERATE' : 'LOW — buy options'}</strong></span>`,
+      ].join('');
+    }
+
+    // Determine moneyness
+    let moneyness = '';
+    if (spot && strike) {
+      const isCall2 = type.startsWith('CE') || type === 'bull_spread';
+      if (isCall2) moneyness = spot > strike * 1.01 ? 'ITM' : spot < strike * 0.99 ? 'OTM' : 'ATM';
+      else         moneyness = spot < strike * 0.99 ? 'ITM' : spot > strike * 1.01 ? 'OTM' : 'ATM';
+    }
+
+    // Build position description
+    const typeLabels = {
+      CE: 'Long Call (CE) — bullish bet',
+      PE: 'Long Put (PE) — bearish bet',
+      short_CE: 'Short Call (Naked CE sell) — bearish',
+      short_PE: 'Short Put (Naked PE sell) — bullish, max-loss unlimited on downside',
+      bull_spread: 'Bull Call Spread — limited risk bullish',
+      bear_spread: 'Bear Put Spread — limited risk bearish',
+    };
+
+    const prompt = `
+F&O Position Analysis Request:
+Symbol:       ${symbol}
+Position:     ${typeLabels[type] || type}
+Spot price:   ₹${spot || 'not given'}
+Strike:       ₹${strike || 'not given'}
+Moneyness:    ${moneyness || 'unknown'}
+Premium paid: ₹${premium} per unit (₹${totalPremium.toLocaleString('en-IN')} total for ${lots} lot${lots > 1 ? 's' : ''} of ${lotSize})
+Days to expiry: ${dte}
+India VIX:    ${vix} (${vix > 20 ? 'HIGH — IV rich, options expensive' : vix > 15 ? 'moderate' : 'LOW — IV cheap, options attractive to buy'})
+Estimated greeks: ${greeks ? `Delta ${(type.includes('PE') ? greeks.delta_put : greeks.delta_call).toFixed(2)}, Theta ₹${(Math.abs(greeks.theta_call) * lotSize * lots).toFixed(0)}/day, Vega ₹${(greeks.vega * lotSize * lots).toFixed(0)} per 1% IV move` : 'not computed'}
+
+Please analyse this F&O position:
+1. Is this a smart trade given current VIX and DTE? (2 sentences)
+2. Key risk: what scenario kills this trade? (1 sentence)
+3. Better alternative strategy if you disagree with this approach (specific strikes)
+4. Max loss: ₹____ | Breakeven: ₹____ | Suggested stop: ₹____
+Include a SEBI-compliant risk reminder at the end.
+`.trim();
+
+    const outputDiv = document.getElementById('fno-coach-output');
+    const textEl    = document.getElementById('fno-coach-text');
+    const altDiv    = document.getElementById('fno-strategy-alt');
+    const altText   = document.getElementById('fno-strategy-text');
+
+    outputDiv.style.display = 'block';
+    altDiv.style.display    = 'none';
+    textEl.textContent      = '🧠 Arya F&O position analyse kar rahi hai…';
+    outputDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    try {
+      const resp = await fetch('http://localhost:11434/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model:   'qwen3:14b',
+          system:  `You are Arya, FIN·OS's F&O trading coach for Indian retail investors.
+Expert in NSE derivatives — options theory, Greeks, VIX, expiry strategies.
+Respond in warm Hinglish. Always include SEBI risk disclaimer.
+Format: numbered sections, ₹ amounts, be specific about strikes and levels.
+Max 6 sentences total across all sections.`,
+          prompt:  prompt,
+          stream:  true,
+          options: { temperature: 0.55, num_predict: 400, num_ctx: 4096 },
+        }),
+      });
+
+      if (!resp.ok || !resp.body) throw new Error('Ollama not available');
+
+      const reader = resp.body.getReader();
+      const dec    = new TextDecoder();
+      let full     = '';
+      textEl.textContent = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        dec.decode(value).split('\n').forEach(line => {
+          if (!line.trim()) return;
+          try {
+            const d = JSON.parse(line);
+            let tok = (d.response || '').replace(/<think>[\s\S]*?<\/think>/gi, '');
+            if (tok) { full += tok; textEl.textContent = full; }
+          } catch {}
+        });
+      }
+
+      // If response mentions an alternative strategy, extract and highlight it
+      const altMatch = full.match(/(?:Better|Alternative|Instead)[^:]*:(.*?)(?:\n\d\.|\n\n|$)/is);
+      if (altMatch && altMatch[1].trim().length > 20) {
+        altDiv.style.display = 'block';
+        altText.textContent  = altMatch[1].trim();
+      }
+
+    } catch (err) {
+      textEl.innerHTML = `<span style="color:rgba(255,100,100,.8);">
+        ⚠️ Arya offline — Ollama start karo aur qwen3:14b model load karo.<br>
+        <code style="font-size:11px;">ollama serve && ollama pull qwen3:14b</code>
+      </span>`;
+    }
+  }
+  </script>
 
   <script src="../js/ui.js"></script>
   <script src="../js/derivativesdetail.js"></script>

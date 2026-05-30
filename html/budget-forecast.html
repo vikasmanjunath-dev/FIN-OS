@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0B0D12">
+<title>FIN•OS | AI Budget Forecaster</title>
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/theme.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/finos-context.js"></script>
+<script src="../js/arya-ai.js?v=3"></script>
+<style>
+  .forecast-wrap { max-width: 820px; margin: 0 auto; padding: 32px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  .forecast-hero { text-align: center; margin-bottom: 36px; }
+  .forecast-hero h1 { font-size: 28px; font-weight: 800; color: #fff; margin: 12px 0 6px; }
+  .forecast-hero p  { font-size: 14px; color: rgba(255,255,255,.4); }
+
+  .config-panel {
+    background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px; padding: 20px; margin-bottom: 24px;
+  }
+  .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .cf-label { font-size: 11px; color: rgba(255,255,255,.4); margin-bottom: 5px; display: block; }
+  .cf-input, .cf-select {
+    width: 100%; padding: 10px 12px; border-radius: 10px;
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+    color: #fff; font-size: 13px; outline: none; box-sizing: border-box;
+    font-family: -apple-system, sans-serif;
+  }
+  .cf-input:focus, .cf-select:focus { border-color: rgba(0,255,136,.3); }
+
+  .event-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .event-chip {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04);
+    color: rgba(255,255,255,.5); cursor: pointer; transition: all .15s;
+    font-family: -apple-system, sans-serif;
+  }
+  .event-chip.active { border-color: rgba(0,255,136,.4); background: rgba(0,255,136,.08); color: #00ff88; }
+
+  .run-btn {
+    width: 100%; padding: 14px; border-radius: 12px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, #00ff88, #00b860); color: #000;
+    font-weight: 800; font-size: 14px; font-family: -apple-system, sans-serif;
+    transition: all .2s; letter-spacing: .3px;
+  }
+  .run-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,255,136,.3); }
+  .run-btn:disabled { opacity: .5; transform: none; cursor: not-allowed; }
+
+  .forecast-results { display: none; }
+  .forecast-results.active { display: block; }
+
+  .total-card {
+    background: linear-gradient(135deg,rgba(0,255,136,.06),rgba(79,124,255,.04));
+    border: 1px solid rgba(0,255,136,.2); border-radius: 18px; padding: 24px;
+    margin-bottom: 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  }
+  .total-amount { font-size: 40px; font-weight: 800; color: #00ff88; }
+  .total-label  { font-size: 13px; color: rgba(255,255,255,.4); margin-top: 2px; }
+  .total-meta   { flex: 1; }
+  .total-meta-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+
+  .save-banner {
+    background: rgba(255,183,3,.06); border: 1px solid rgba(255,183,3,.2);
+    border-radius: 12px; padding: 14px 18px; margin-bottom: 20px;
+    font-size: 13px; color: rgba(255,255,255,.85); line-height: 1.6;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .save-icon { font-size: 20px; flex-shrink: 0; }
+
+  .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .cat-card {
+    padding: 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.02); transition: border-color .2s;
+  }
+  .cat-card.risk { border-color: rgba(255,107,107,.25); background: rgba(255,107,107,.04); }
+  .cat-card.event-boosted { border-color: rgba(255,183,3,.25); background: rgba(255,183,3,.04); }
+  .cat-name { font-size: 12px; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
+  .cat-amount { font-size: 22px; font-weight: 700; color: #fff; }
+  .cat-trend { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; }
+  .trend-up   { color: #ff6b6b; }
+  .trend-down { color: #00ff88; }
+  .trend-flat { color: rgba(255,255,255,.4); }
+
+  .chart-card {
+    background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px; padding: 20px; margin-bottom: 20px;
+  }
+  .chart-title { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.6); margin-bottom: 14px; }
+
+  .arya-insight {
+    background: rgba(79,124,255,.05); border: 1px solid rgba(79,124,255,.18);
+    border-radius: 14px; padding: 18px; margin-bottom: 20px;
+    font-size: 14px; color: rgba(255,255,255,.82); line-height: 1.75;
+  }
+  .arya-insight-title { font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: #4d7cff; margin-bottom: 10px; }
+
+  .source-note { font-size: 11px; color: rgba(255,255,255,.25); margin-top: 8px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="budget-forecast.html" style="color:var(--accent);">Budget Forecast</a>
+      <a href="track-finances.html">Track Finances</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+    <div class="forecast-wrap">
+
+      <div class="forecast-hero">
+        <div style="font-size:40px;">🔮</div>
+        <h1>AI Budget Forecaster</h1>
+        <p>Next month ka spending predict karo — category-wise, event-adjusted, trend-aware.</p>
+      </div>
+
+      <!-- Config panel -->
+      <div class="config-panel">
+        <div class="config-grid">
+          <div>
+            <label class="cf-label">History to use</label>
+            <select class="cf-select" id="monthsSelect">
+              <option value="3">Last 3 months</option>
+              <option value="6" selected>Last 6 months</option>
+              <option value="12">Last 12 months</option>
+            </select>
+          </div>
+          <div>
+            <label class="cf-label">Monthly Income ₹</label>
+            <input class="cf-input" id="incomeInput" type="number" placeholder="e.g. 80000">
+          </div>
+        </div>
+
+        <label class="cf-label">Upcoming events (select all that apply)</label>
+        <div class="event-chips" id="eventChips">
+          <span class="event-chip" data-event="diwali">🪔 Diwali</span>
+          <span class="event-chip" data-event="eid">🌙 Eid</span>
+          <span class="event-chip" data-event="christmas">🎄 Christmas</span>
+          <span class="event-chip" data-event="new year">🎉 New Year</span>
+          <span class="event-chip" data-event="holi">🎨 Holi</span>
+          <span class="event-chip" data-event="wedding">💍 Wedding</span>
+          <span class="event-chip" data-event="vacation">✈️ Vacation</span>
+          <span class="event-chip" data-event="car insurance">🚗 Car Insurance</span>
+          <span class="event-chip" data-event="school fees">📚 School Fees</span>
+          <span class="event-chip" data-event="tax filing">📋 Tax Filing</span>
+          <span class="event-chip" data-event="medical">🏥 Medical</span>
+        </div>
+
+        <button class="run-btn" id="runBtn" onclick="runForecast()">
+          🔮 Generate Forecast
+        </button>
+      </div>
+
+      <!-- Results -->
+      <div class="forecast-results" id="forecastResults">
+
+        <!-- Total predicted -->
+        <div class="total-card">
+          <div>
+            <div class="total-amount" id="totalAmount">₹0</div>
+            <div class="total-label">Predicted next month spend</div>
+          </div>
+          <div class="total-meta">
+            <div class="total-meta-title" id="totalTitle">Calculating…</div>
+            <div id="totalSubtitle" style="font-size:13px;color:rgba(255,255,255,.4);margin-top:4px;"></div>
+          </div>
+        </div>
+
+        <!-- Save banner -->
+        <div class="save-banner" id="saveBanner">
+          <div class="save-icon">💡</div>
+          <div id="saveMsg"></div>
+        </div>
+
+        <!-- Arya AI insight -->
+        <div class="arya-insight" id="aryaInsight" style="display:none;">
+          <div class="arya-insight-title">🧠 Arya's Forecast Analysis</div>
+          <div id="aryaInsightText"></div>
+        </div>
+
+        <!-- Category breakdown -->
+        <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:12px;">Category Breakdown</div>
+        <div class="category-grid" id="categoryGrid"></div>
+
+        <!-- Chart -->
+        <div class="chart-card">
+          <div class="chart-title">📊 Predicted vs Last Month Comparison</div>
+          <canvas id="forecastChart" height="80"></canvas>
+        </div>
+
+        <div class="source-note" id="sourceNote"></div>
+
+      </div>
+
+    </div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   CLIENT-SIDE EWMA FORECASTER
+   Reads from localStorage (finos_transactions) + optional Django API
+══════════════════════════════════════════════════════════════════════════ */
+
+const DJANGO_API = 'http://localhost:8000/api/forecast/';
+const OLLAMA_URL = 'http://localhost:11434/api/generate';
+
+// Event → category spending multipliers
+const EVENT_MULTIPLIERS = {
+  'diwali':       { Shopping: 1.8, Entertainment: 1.5, Food: 1.3, Gifts: 2.5 },
+  'eid':          { Shopping: 1.6, Food: 1.4, Gifts: 2.0 },
+  'christmas':    { Shopping: 1.5, Entertainment: 1.4, Food: 1.3 },
+  'new year':     { Entertainment: 1.6, Food: 1.3, Shopping: 1.3 },
+  'holi':         { Food: 1.3, Entertainment: 1.4, Shopping: 1.2 },
+  'wedding':      { Shopping: 2.0, Food: 1.5, Travel: 1.8 },
+  'vacation':     { Travel: 2.5, Entertainment: 1.6, Food: 1.4 },
+  'car insurance':{ Insurance: 3.0, Transport: 1.2 },
+  'school fees':  { Education: 2.0 },
+  'tax filing':   { Investment: 1.5 },
+  'medical':      { Healthcare: 2.5 },
+};
+
+/* ── Holt's Double Exponential Smoothing ────────────────────────────────── */
+function holtForecast(series, alpha = 0.3, beta = 0.1) {
+  if (!series.length) return 0;
+  if (series.length === 1) return series[0];
+
+  let level = series[0];
+  let trend = series[1] - series[0];
+
+  for (let i = 1; i < series.length; i++) {
+    const prevLevel = level;
+    level = alpha * series[i] + (1 - alpha) * (level + trend);
+    trend = beta  * (level - prevLevel) + (1 - beta) * trend;
+  }
+  return Math.max(0, level + trend);
+}
+
+/* ── Read transactions from localStorage ───────────────────────────────── */
+function readLocalTransactions() {
+  try {
+    return JSON.parse(localStorage.getItem('finos_transactions') || '[]');
+  } catch { return []; }
+}
+
+/* ── Bucket transactions by category + month ────────────────────────────── */
+function bucketByMonth(txns, monthsBack) {
+  const now    = new Date();
+  const cutoff = new Date(now.getFullYear(), now.getMonth() - monthsBack, 1);
+  const catMonthly = {};
+
+  txns.forEach(t => {
+    let d;
+    try { d = new Date(t.date); } catch { return; }
+    if (d < cutoff) return;
+
+    const cat = t.category || t.type || t.label || 'Other';
+    if (/invest|save|sip/i.test(cat)) return; // skip investments
+
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    if (!catMonthly[cat]) catMonthly[cat] = {};
+    catMonthly[cat][key] = (catMonthly[cat][key] || 0) + Math.abs(t.amount || 0);
+  });
+  return catMonthly;
+}
+
+/* ── Generate month keys ─────────────────────────────────────────────────── */
+function monthKeys(monthsBack) {
+  const keys = [];
+  const now  = new Date();
+  for (let i = monthsBack; i >= 1; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    keys.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+  }
+  return keys;
+}
+
+/* ── Main forecast function ─────────────────────────────────────────────── */
+function computeForecast(txns, monthsBack, events) {
+  const months     = monthKeys(monthsBack);
+  const catMonthly = bucketByMonth(txns, monthsBack);
+
+  const byCategory  = {};
+  const trends      = {};
+  const riskCats    = [];
+
+  Object.entries(catMonthly).forEach(([cat, monthly]) => {
+    const series = months.map(m => monthly[m] || 0);
+    if (series.every(v => v === 0)) return;
+
+    let predicted = holtForecast(series);
+
+    // Apply event multipliers
+    events.forEach(event => {
+      const mults = EVENT_MULTIPLIERS[event] || {};
+      // fuzzy match category
+      for (const [mCat, mult] of Object.entries(mults)) {
+        if (cat.toLowerCase().includes(mCat.toLowerCase()) ||
+            mCat.toLowerCase().includes(cat.toLowerCase())) {
+          predicted *= mult;
+          break;
+        }
+      }
+    });
+
+    byCategory[cat] = Math.round(predicted);
+
+    // Trend vs 3-month avg
+    const last3  = series.slice(-3);
+    const avg3   = last3.reduce((a, b) => a + b, 0) / Math.max(1, last3.length);
+    const lastVal= series[series.length - 1];
+    const pct    = avg3 > 0 ? (lastVal - avg3) / avg3 : 0;
+    trends[cat]  = pct > 0.10 ? 'up' : pct < -0.10 ? 'down' : 'stable';
+
+    // Risk: predicted > avg3 by >20%
+    if (avg3 > 0 && (predicted - avg3) / avg3 > 0.20) riskCats.push(cat);
+  });
+
+  const total = Object.values(byCategory).reduce((a, b) => a + b, 0);
+
+  // Save recommendation
+  let saveMsg = '';
+  if (events.length && riskCats.length) {
+    const topRisk = riskCats.sort((a, b) => byCategory[b] - byCategory[a])[0];
+    const lockAmt = Math.round(byCategory[topRisk] * 0.3 / 100) * 100;
+    saveMsg = `Lock ₹${lockAmt.toLocaleString('en-IN')} in FD before ${events.map(e => e.charAt(0).toUpperCase() + e.slice(1)).join('/')} spending starts — ${topRisk} category expected to spike.`;
+  } else if (total > 0) {
+    const saveAmt = Math.round(total * 0.20 / 100) * 100;
+    saveMsg = `Set aside ₹${saveAmt.toLocaleString('en-IN')} before the month starts — 20% buffer on predicted ₹${total.toLocaleString('en-IN')} spend.`;
+  }
+
+  return { total, byCategory, trends, riskCats, saveMsg };
+}
+
+/* ── Event chip toggle ───────────────────────────────────────────────────── */
+const selectedEvents = new Set();
+document.querySelectorAll('.event-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const ev = chip.dataset.event;
+    if (selectedEvents.has(ev)) {
+      selectedEvents.delete(ev);
+      chip.classList.remove('active');
+    } else {
+      selectedEvents.add(ev);
+      chip.classList.add('active');
+    }
+  });
+});
+
+/* ── Render chart ────────────────────────────────────────────────────────── */
+let forecastChart = null;
+function renderChart(byCategory, catMonthly, monthsBack) {
+  const ctx    = document.getElementById('forecastChart').getContext('2d');
+  const labels = Object.keys(byCategory).slice(0, 10);
+  const pred   = labels.map(c => byCategory[c]);
+  const months = monthKeys(monthsBack);
+  const lastM  = months[months.length - 1];
+  const last   = labels.map(c => {
+    const monthly = catMonthly[c] || {};
+    return monthly[lastM] || 0;
+  });
+
+  if (forecastChart) forecastChart.destroy();
+  forecastChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Last Month', data: last, backgroundColor: 'rgba(79,124,255,.35)', borderColor: 'rgba(79,124,255,.6)', borderWidth: 1, borderRadius: 6 },
+        { label: 'Predicted', data: pred, backgroundColor: 'rgba(0,255,136,.25)', borderColor: 'rgba(0,255,136,.6)', borderWidth: 1, borderRadius: 6 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { labels: { color: 'rgba(255,255,255,.6)' } } },
+      scales: {
+        x: { ticks: { color: 'rgba(255,255,255,.5)' }, grid: { color: 'rgba(255,255,255,.04)' } },
+        y: { ticks: { color: 'rgba(255,255,255,.5)', callback: v => '₹' + v.toLocaleString('en-IN') }, grid: { color: 'rgba(255,255,255,.06)' } }
+      }
+    }
+  });
+}
+
+/* ── Arya AI insight ─────────────────────────────────────────────────────── */
+async function loadAryaInsight(forecast, events) {
+  const insightEl = document.getElementById('aryaInsight');
+  const textEl    = document.getElementById('aryaInsightText');
+  insightEl.style.display = 'block';
+  textEl.textContent = 'Arya forecast analyse kar rahi hai…';
+
+  const topCats = Object.entries(forecast.byCategory)
+    .sort((a, b) => b[1] - a[1]).slice(0, 4)
+    .map(([c, v]) => `${c}: ₹${v.toLocaleString('en-IN')}`).join(', ');
+
+  const prompt = `
+Budget forecast for next month:
+Total predicted spend: ₹${forecast.total.toLocaleString('en-IN')}
+Top categories: ${topCats}
+Risk categories (spike detected): ${forecast.riskCats.join(', ') || 'none'}
+Upcoming events: ${events.join(', ') || 'none'}
+
+Write a 3-sentence Hinglish insight:
+1. What this forecast tells about their spending pattern
+2. Which category needs most attention and why
+3. One specific action to improve next month's savings
+
+Direct, warm, no preamble. Use ₹ amounts.
+`.trim();
+
+  try {
+    const resp = await fetch(OLLAMA_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'qwen3:14b', prompt,
+        system: 'Arya FIN-OS AI. 3-sentence warm Hinglish budget insight. No preamble. Specific ₹ figures.',
+        stream: true, options: { temperature: 0.6, num_predict: 180 },
+      }),
+    });
+    const reader = resp.body.getReader();
+    const dec    = new TextDecoder();
+    let full = '';
+    textEl.textContent = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      dec.decode(value).split('\n').forEach(line => {
+        if (!line.trim()) return;
+        try {
+          const d = JSON.parse(line);
+          const tok = (d.response || '').replace(/<think>[\s\S]*?<\/think>/gi, '');
+          if (tok) { full += tok; textEl.textContent = full; }
+        } catch {}
+      });
+    }
+    if (!full) insightEl.style.display = 'none';
+  } catch {
+    insightEl.style.display = 'none';
+  }
+}
+
+/* ── Main run ────────────────────────────────────────────────────────────── */
+async function runForecast() {
+  const btn        = document.getElementById('runBtn');
+  const monthsBack = parseInt(document.getElementById('monthsSelect').value);
+  const income     = parseFloat(document.getElementById('incomeInput').value) || 0;
+  const events     = [...selectedEvents];
+
+  btn.disabled = true; btn.textContent = '⏳ Computing…';
+
+  let forecast   = null;
+  let sourceText = '';
+
+  // Try Django API first
+  try {
+    const resp = await fetch(DJANGO_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ months_history: monthsBack, upcoming_events: events }),
+      signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 4000); return c.signal; })(),
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.status === 'success' && data.predicted_spend_next_month > 0) {
+        // Convert Django format to our format
+        const byCategory = {};
+        const trends     = {};
+        const riskCats   = data.risk_categories || [];
+        Object.entries(data.by_category || {}).forEach(([cat, info]) => {
+          byCategory[cat] = typeof info === 'object' ? info.predicted : info;
+          trends[cat]     = typeof info === 'object' ? info.trend : 'stable';
+        });
+        forecast   = { total: data.predicted_spend_next_month, byCategory, trends, riskCats, saveMsg: data.save_this_month };
+        sourceText = '✅ Powered by Django backend with DB transactions';
+        // Still load local txns for chart last-month comparison bars
+        const localTxns = readLocalTransactions();
+        if (localTxns.length) window._catMonthly = bucketByMonth(localTxns, monthsBack);
+      }
+    }
+  } catch {}
+
+  // Fallback: client-side with localStorage
+  if (!forecast) {
+    const txns = readLocalTransactions();
+    if (!txns.length) {
+      btn.disabled = false; btn.textContent = '🔮 Generate Forecast';
+      document.getElementById('forecastResults').classList.add('active');
+      document.getElementById('totalAmount').textContent = '₹0';
+      document.getElementById('totalTitle').textContent = 'No transaction data found';
+      document.getElementById('saveBanner').style.display = 'none';
+      document.getElementById('saveMsg').textContent = 'Add transactions via the Budget Tracker app (finos-budget) or ExpenseTracker to enable forecasting.';
+      document.getElementById('saveBanner').style.display = 'flex';
+      return;
+    }
+    const catMonthly = bucketByMonth(txns, monthsBack);
+    forecast   = computeForecast(txns, monthsBack, events);
+    sourceText = `⚡ Client-side forecast from ${txns.length} local transactions`;
+    window._catMonthly = catMonthly;
+  }
+
+  // ── Render results ────────────────────────────────────────────────────────
+  const results = document.getElementById('forecastResults');
+  results.classList.add('active');
+
+  // Total card
+  document.getElementById('totalAmount').textContent = '₹' + forecast.total.toLocaleString('en-IN');
+  const incomeLabel = income > 0 ? `${Math.round(forecast.total / income * 100)}% of income` : '';
+  document.getElementById('totalTitle').textContent   = `Next Month Predicted Spend${incomeLabel ? ' — ' + incomeLabel : ''}`;
+  document.getElementById('totalSubtitle').textContent = `Based on last ${monthsBack} months${events.length ? ' + ' + events.map(e => e.charAt(0).toUpperCase() + e.slice(1)).join(', ') : ''}`;
+
+  // Save banner
+  document.getElementById('saveMsg').textContent = forecast.saveMsg || '';
+  document.getElementById('saveBanner').style.display = forecast.saveMsg ? 'flex' : 'none';
+
+  // Category grid
+  const grid = document.getElementById('categoryGrid');
+  grid.innerHTML = Object.entries(forecast.byCategory)
+    .sort((a, b) => b[1] - a[1]).slice(0, 12)
+    .map(([cat, amount]) => {
+      const trend   = forecast.trends[cat] || 'stable';
+      const isRisk  = forecast.riskCats.includes(cat);
+      const isEvent = events.some(ev => {
+        const mults = EVENT_MULTIPLIERS[ev] || {};
+        return Object.keys(mults).some(mc => cat.toLowerCase().includes(mc.toLowerCase()) || mc.toLowerCase().includes(cat.toLowerCase()));
+      });
+      const trendIcon  = trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→';
+      const trendClass = trend === 'up' ? 'trend-up' : trend === 'down' ? 'trend-down' : 'trend-flat';
+      const badgeHtml  = isRisk ? '<span style="font-size:10px;background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.3);color:#ff6b6b;padding:2px 8px;border-radius:10px;margin-left:6px;">⚠ Risk</span>' : isEvent ? '<span style="font-size:10px;background:rgba(255,183,3,.1);border:1px solid rgba(255,183,3,.25);color:#ffb703;padding:2px 8px;border-radius:10px;margin-left:6px;">🎉 Event</span>' : '';
+      return `
+        <div class="cat-card ${isRisk ? 'risk' : isEvent ? 'event-boosted' : ''}">
+          <div class="cat-name">${cat}${badgeHtml}</div>
+          <div class="cat-amount">₹${amount.toLocaleString('en-IN')}</div>
+          <div class="cat-trend ${trendClass}">${trendIcon} ${trend === 'up' ? 'Trending up' : trend === 'down' ? 'Trending down' : 'Stable'}</div>
+        </div>`;
+    }).join('');
+
+  // Chart
+  const catMonthly = window._catMonthly || {};
+  renderChart(forecast.byCategory, catMonthly, monthsBack);
+
+  // Source note
+  document.getElementById('sourceNote').textContent = sourceText;
+
+  // Arya insight (async, non-blocking)
+  loadAryaInsight(forecast, events);
+
+  btn.disabled = false; btn.textContent = '🔮 Regenerate Forecast';
+}
+
+// Auto-populate income from localStorage
+document.addEventListener('DOMContentLoaded', () => {
+  const savedIncome = localStorage.getItem('finos_monthly_income') || localStorage.getItem('finos_income');
+  if (savedIncome) {
+    const val = parseFloat(savedIncome.replace(/[^0-9.]/g, ''));
+    if (val > 0) document.getElementById('incomeInput').value = Math.round(val);
+  }
+});
+</script>
+
+<script src="../js/mobile-nav.js"></script>
+<script src="../js/pwa-init.js"></script>
+<script src="../js/finos-widget.js?v=4"></script>
+<script src="../js/finos-search.js?v=2"></script>
+<style>
+#floatBackBtn{position:fixed;bottom:22px;left:82px;z-index:9999;padding:8px 16px 8px 12px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);color:rgba(255,255,255,0.55);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s,color .2s,transform .2s;backdrop-filter:blur(10px);text-decoration:none;}
+#floatBackBtn:hover{background:rgba(255,255,255,0.10);color:#fff;transform:translateX(-3px);}
+</style>
+<a id="floatBackBtn" onclick="history.back();return false;" href="#">‹ BACK</a>
+</body>
+</html>
