@@ -499,7 +499,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/finos-context.js"></script>
-  <script src="../js/arya-ai.js"></script>
+  <script src="../js/arya-ai.js?v=3"></script>
   <script>
   // ── Arya News Digest ────────────────────────────────────────────────────────
   // force=true bypasses the daily cache (used by the ↺ Refresh button)
@@ -573,20 +573,38 @@ Tone: sharp intel-analyst. Each point = 1 sentence. Use • bullets. Reference t
         e.preventDefault(); e.stopPropagation();
         const title = shard.querySelector('h3')?.textContent || '';
         if (!title) return;
-        btn.textContent = '…';
+
+        // Remove existing popup if any
+        shard.querySelector('.arya-news-popup')?.remove();
+        btn.textContent = '…'; btn.disabled = true;
+
+        const popup = document.createElement('div');
+        popup.className = 'arya-news-popup';
+        popup.style.cssText = 'position:absolute;bottom:60px;left:8px;right:8px;z-index:100;background:rgba(9,16,30,.97);border:1px solid rgba(0,243,255,.25);border-radius:14px;padding:16px;font-size:12px;color:rgba(255,255,255,.85);line-height:1.6;font-family:-apple-system,sans-serif;box-shadow:0 10px 40px rgba(0,0,0,.8);';
+        popup.innerHTML = '<span style="color:rgba(0,243,255,.5)">🧠 Arya soch rahi hai…</span>';
+        popup.onclick = (ev) => { ev.stopPropagation(); ev.preventDefault(); popup.remove(); };
+        shard.style.position = 'relative';
+        shard.appendChild(popup);
+
         try {
-          const result = await AryaAI.ask(`News headline: "${title}". In 2 sentences: (1) what this means for Indian retail investors (2) one action to take or avoid. No preamble.`);
-          const popup = document.createElement('div');
-          popup.style.cssText = 'position:absolute;bottom:60px;left:24px;right:24px;z-index:100;background:rgba(9,16,30,.98);border:1px solid rgba(0,243,255,.3);border-radius:12px;padding:14px;font-size:12px;color:rgba(255,255,255,.85);line-height:1.6;font-family:"JetBrains Mono",monospace;box-shadow:0 10px 40px rgba(0,0,0,.7);';
-          popup.textContent = result || 'AI offline.';
-          // stopPropagation + preventDefault prevent click from bubbling
-          // to the parent <a> shard and triggering article navigation
-          popup.onclick = (e) => { e.stopPropagation(); e.preventDefault(); popup.remove(); };
-          shard.style.position = 'relative';
-          shard.appendChild(popup);
-          setTimeout(() => { if (popup.parentNode) popup.remove(); }, 12000);
-        } catch { }
-        btn.textContent = '🧠 AI';
+          // Use AryaAI.summarizeNews for structured output (bullets + sentiment + retail impact)
+          const data = await AryaAI.summarizeNews(title, null);
+          if (data) {
+            AryaAI.renderNewsSummary(data, popup);
+            // Add close hint
+            const hint = document.createElement('div');
+            hint.style.cssText = 'margin-top:8px;font-size:10px;color:rgba(255,255,255,.2);text-align:right;';
+            hint.textContent = 'tap to close';
+            popup.appendChild(hint);
+          } else {
+            // Fallback: plain text ask
+            const result = await AryaAI.ask(`News: "${title}". In 2 sentences for Indian retail investor: (1) what this means (2) one action to take or avoid.`);
+            popup.textContent = result || 'AI offline — Ollama ya Flask start karo.';
+          }
+        } catch { popup.textContent = 'AI offline.'; }
+
+        btn.textContent = '🧠 AI'; btn.disabled = false;
+        setTimeout(() => { if (popup.parentNode) popup.remove(); }, 18000);
       };
       footer.prepend(btn);
     });

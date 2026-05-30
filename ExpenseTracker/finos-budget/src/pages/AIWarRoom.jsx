@@ -93,6 +93,131 @@ function ThreatCard({ threat, index }) {
   );
 }
 
+// ─── HOLT'S EWMA FORECAST ───────────────────────────────────────
+function holtForecast(series, alpha = 0.3, beta = 0.1) {
+  if (!series.length) return 0;
+  if (series.length === 1) return series[0];
+  let level = series[0];
+  let trend = series[1] - series[0];
+  for (let i = 1; i < series.length; i++) {
+    const prev = level;
+    level = alpha * series[i] + (1 - alpha) * (level + trend);
+    trend = beta * (level - prev) + (1 - beta) * trend;
+  }
+  return Math.max(0, level + trend);
+}
+
+function computeBudgetForecast(transactions, monthsBack = 6) {
+  const now = new Date();
+  const cutoff = new Date(now.getFullYear(), now.getMonth() - monthsBack, 1);
+
+  // Build month keys
+  const months = [];
+  for (let i = monthsBack; i >= 1; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+  }
+
+  // Skip investment/save categories
+  const skipRe = /invest|save|safe|equity|wealth/i;
+
+  // Bucket by category + month
+  const catMonthly = {};
+  transactions.forEach((t) => {
+    if (!t.date || !t.amount || skipRe.test(t.category || "")) return;
+    const d = new Date(t.date);
+    if (isNaN(d) || d < cutoff) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const cat = t.category || "Other";
+    if (!catMonthly[cat]) catMonthly[cat] = {};
+    catMonthly[cat][key] = (catMonthly[cat][key] || 0) + Math.abs(t.amount);
+  });
+
+  const byCategory = {};
+  Object.entries(catMonthly).forEach(([cat, monthly]) => {
+    const series = months.map((m) => monthly[m] || 0);
+    if (series.every((v) => v === 0)) return;
+    byCategory[cat] = Math.round(holtForecast(series));
+  });
+
+  const total = Object.values(byCategory).reduce((a, b) => a + b, 0);
+  return { total, byCategory };
+}
+
+// ─── FORECAST PANEL ─────────────────────────────────────────────
+function ForecastPanel({ transactions, INCOME }) {
+  const forecast = useMemo(() => computeBudgetForecast(transactions, 6), [transactions]);
+  const top5 = Object.entries(forecast.byCategory)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  const max = top5[0]?.[1] || 1;
+  const pctOfIncome = INCOME > 0 ? Math.round((forecast.total / INCOME) * 100) : 0;
+  const hasData = forecast.total > 0;
+
+  const panelStyle = {
+    background: "rgba(79,124,255,0.05)",
+    border: "1px solid rgba(79,124,255,0.18)",
+    borderRadius: "24px",
+    padding: "28px",
+    backdropFilter: "blur(12px)",
+  };
+  const labelStyle = {
+    fontSize: "10px", textTransform: "uppercase",
+    letterSpacing: "1.2px", color: "#4F7CFF", marginBottom: "20px",
+    display: "flex", alignItems: "center", gap: "8px",
+  };
+  const totalStyle = {
+    fontSize: "42px", fontWeight: 900, color: "#fff",
+    fontFamily: "'JetBrains Mono', monospace", letterSpacing: "-1px",
+  };
+
+  return (
+    <div style={panelStyle}>
+      <div style={labelStyle}>
+        <span>🔮</span> Next Month Budget Forecast
+      </div>
+
+      {!hasData ? (
+        <div style={{ color: "rgba(255,255,255,0.35)", fontSize: "13px", textAlign: "center", padding: "24px 0" }}>
+          Add transactions across multiple months to enable forecasting.
+        </div>
+      ) : (
+        <>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: "16px", marginBottom: "6px" }}>
+            <div style={totalStyle}>₹{forecast.total.toLocaleString("en-IN")}</div>
+            <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", paddingBottom: "8px" }}>
+              predicted spend
+            </div>
+          </div>
+          <div style={{ fontSize: "12px", color: pctOfIncome > 80 ? "#FF2A5F" : pctOfIncome > 60 ? "#F59E0B" : "#10B981", marginBottom: "24px", fontWeight: 700 }}>
+            {pctOfIncome}% of your ₹{INCOME.toLocaleString("en-IN")} income
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {top5.map(([cat, amt]) => (
+              <div key={cat}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
+                  <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.7)" }}>{cat}</span>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: "#fff", fontFamily: "'JetBrains Mono', monospace" }}>
+                    ₹{amt.toLocaleString("en-IN")}
+                  </span>
+                </div>
+                <div style={{ height: "4px", background: "rgba(255,255,255,0.06)", borderRadius: "4px", overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${(amt / max) * 100}%`, background: "linear-gradient(90deg, #4F7CFF, #00D4FF)", borderRadius: "4px", transition: "width 0.6s ease" }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: "20px", fontSize: "11px", color: "rgba(255,255,255,0.25)", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "12px" }}>
+            ⚡ Client-side EWMA — based on last 6 months of transactions
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ─── MATRIX RAIN COMPONENT ──────────────────────────────────────
 function MatrixRain({ transactions }) {
   const canvasRef = useRef(null);
@@ -277,6 +402,37 @@ export default function AIWarRoom({ transactions, INCOME }) {
           </div>
         </StaggerItem>
       </StaggerContainer>
+
+      {/* FORECAST + REGRET ROW */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginTop: "8px" }}>
+        <ForecastPanel transactions={transactions} INCOME={INCOME} />
+
+        {/* 10-YEAR REGRET CARD */}
+        <div style={{ background: "rgba(255,42,95,0.05)", border: "1px solid rgba(255,42,95,0.18)", borderRadius: "24px", padding: "28px", backdropFilter: "blur(12px)" }}>
+          <div style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "1.2px", color: "#FF2A5F", marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
+            <span>⏳</span> 10-Year Opportunity Cost
+          </div>
+          <div style={{ fontSize: "42px", fontWeight: 900, color: "#fff", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "-1px", marginBottom: "6px" }}>
+            ₹{calcRegret(wants).toLocaleString("en-IN")}
+          </div>
+          <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", marginBottom: "20px" }}>
+            what your want-spending becomes at 12% CAGR
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            {[
+              { label: "Monthly wants", value: `₹${fmt(wants)}`, color: "#FF2A5F" },
+              { label: "Annual drain", value: `₹${fmt(wants * 12)}`, color: "#F59E0B" },
+              { label: "10yr regret (12%)", value: `₹${fmt(calcRegret(wants))}`, color: "#FF2A5F" },
+              { label: "Multiplier", value: "3.1×", color: "#C7F000" },
+            ].map((item) => (
+              <div key={item.label} style={{ background: "rgba(0,0,0,0.3)", borderRadius: "12px", padding: "12px" }}>
+                <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.8px" }}>{item.label}</div>
+                <div style={{ fontSize: "16px", fontWeight: 900, color: item.color, fontFamily: "'JetBrains Mono', monospace" }}>{item.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

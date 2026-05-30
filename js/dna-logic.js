@@ -281,6 +281,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         // 5. Advance
         userData.step++;
         renderStep();
+        // When quiz ends, trigger AI behavioral debrief
+        if (userData.step >= steps.length) {
+            setTimeout(() => window.runBehavioralDebrief && window.runBehavioralDebrief(), 800);
+        }
     }
 
     renderStep();
@@ -313,6 +317,206 @@ window.toggleAppTheme = function() {
     }
 
     localStorage.setItem('FINOS_THEME', newTheme);
+};
+
+// ==========================================
+// 7. BEHAVIORAL AI DEBRIEF (Phase 2)
+// ==========================================
+
+window.runBehavioralDebrief = async function() {
+    const rawData = localStorage.getItem('FINOS_CORE_DNA');
+    if (!rawData) return;
+
+    let dnaData;
+    try { dnaData = JSON.parse(rawData); } catch { return; }
+
+    const scores    = dnaData.scores || [50,50,50,50,50];
+    const archetype = localStorage.getItem('finos_financial_dna') || 'Explorer';
+
+    // Inject debrief panel into page
+    let debriefEl = document.getElementById('dna-ai-debrief');
+    if (!debriefEl) {
+        debriefEl = document.createElement('div');
+        debriefEl.id = 'dna-ai-debrief';
+        debriefEl.style.cssText = 'margin-top:32px;padding:24px;border-radius:18px;background:linear-gradient(135deg,rgba(124,58,255,.08),rgba(0,255,136,.04));border:1px solid rgba(124,58,255,.2);font-family:-apple-system,sans-serif;';
+        debriefEl.innerHTML = `
+          <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#a78bff;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            🧠 Arya's Behavioral Finance Debrief
+            <span style="font-size:10px;color:rgba(255,255,255,.25);">Kahneman · Thaler · Ariely</span>
+          </div>
+          <div id="dna-debrief-text" style="font-size:14px;color:rgba(255,255,255,.82);line-height:1.75;min-height:60px;">
+            <span style="color:rgba(255,255,255,.35);">Arya tera behavioral profile analyse kar rahi hai…</span>
+          </div>
+          <div id="dna-bias-chips" style="margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;"></div>
+          <div id="dna-strategy-box" style="display:none;margin-top:16px;padding:14px;border-radius:12px;background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.15);">
+            <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#00ff88;margin-bottom:8px;">Recommended Strategy</div>
+            <div id="dna-strategy-text" style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.7;"></div>
+          </div>
+          <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+            <button onclick="window.runBehavioralDebrief()" style="padding:8px 18px;border-radius:10px;border:1px solid rgba(124,58,255,.3);background:rgba(124,58,255,.08);color:#a78bff;font-size:12px;font-weight:700;cursor:pointer;font-family:-apple-system,sans-serif;">↺ Re-analyse</button>
+            <button onclick="window._dnaVoiceDebrief()" style="padding:8px 18px;border-radius:10px;border:1px solid rgba(0,255,136,.3);background:rgba(0,255,136,.06);color:#00ff88;font-size:12px;font-weight:700;cursor:pointer;font-family:-apple-system,sans-serif;">🎙 Arya se sunna</button>
+          </div>
+        `;
+
+        // Append to quiz container or visualizer section
+        const target = document.querySelector('.visualizer') || document.querySelector('.dna-terminal-container') || document.body;
+        target.appendChild(debriefEl);
+    }
+
+    const textEl     = document.getElementById('dna-debrief-text');
+    const chipsEl    = document.getElementById('dna-bias-chips');
+    const stratBoxEl = document.getElementById('dna-strategy-box');
+    const stratEl    = document.getElementById('dna-strategy-text');
+
+    textEl.innerHTML = '<span style="color:rgba(255,255,255,.35);">Arya analyse kar rahi hai…</span>';
+    chipsEl.innerHTML = '';
+    stratBoxEl.style.display = 'none';
+
+    // Try WebSocket agent first for full behavioral_analysis
+    let wsSuccess = false;
+    try {
+        await new Promise((resolve, reject) => {
+            const ws = new WebSocket('ws://127.0.0.1:8765');
+            const timer = setTimeout(() => { ws.close(); reject('timeout'); }, 5000);
+            ws.onopen = () => {
+                ws.send(JSON.stringify({
+                    type: 'behavioral_analysis',
+                    scores,
+                    archetype,
+                    responses: dnaData.responses || {},
+                }));
+            };
+            ws.onmessage = (e) => {
+                try {
+                    const msg = JSON.parse(e.data);
+                    if (msg.type === 'behavioral_analysis_result') {
+                        clearTimeout(timer);
+                        ws.close();
+                        _renderDebrief(JSON.parse(msg.payload));
+                        wsSuccess = true;
+                        resolve();
+                    }
+                } catch {}
+            };
+            ws.onerror = () => reject('ws_error');
+        });
+    } catch {}
+
+    // Fallback: direct Ollama call
+    if (!wsSuccess) {
+        await _dnaOllamaDebrief(scores, archetype, dnaData.responses || {});
+    }
+};
+
+async function _dnaOllamaDebrief(scores, archetype, responses) {
+    const OLLAMA_URL   = 'http://localhost:11434/api/generate';
+    const OLLAMA_MODEL = 'qwen3:14b';
+
+    const textEl = document.getElementById('dna-debrief-text');
+
+    const biasDescriptions = {
+        loss_aversion:    'Loss se 2-3× zyada affected hota hai compared to same gain',
+        overconfidence:   'Apni abilities aur predictions ko overestimate karta hai',
+        recency_bias:     'Recent events ko future ka indicator maanta hai',
+        anchoring:        'Pehli number (entry price, etc.) pe too much weight deta hai',
+        herd_mentality:   'Jo sab kar rahe hain wahi karta hai without analysis',
+        sunk_cost:        'Losing position hold karta hai kyunki "already invest kiya hai"',
+        confirmation_bias:'Sirf woh information dhundhta hai jo apna view confirm kare',
+    };
+
+    const prompt = `
+Behavioral DNA scores (0-100):
+Risk Tolerance: ${scores[0]}, Security Need: ${scores[1]}, Status Drive: ${scores[2]}, Financial Discipline: ${scores[3]}, Growth Ambition: ${scores[4]}
+Archetype: ${archetype}
+
+Based on these scores, identify the top 2 behavioral finance biases this person likely has.
+Return JSON:
+{
+  "primary_bias": "bias_name",
+  "secondary_bias": "bias_name",
+  "cognitive_traps": ["trap1", "trap2"],
+  "optimal_strategy": "one sentence",
+  "annual_cost_estimate": number,
+  "debrief": "3-sentence warm Hinglish debrief. Name the bias, show how it manifests in financial decisions, give one specific habit to fix it."
+}
+Reply ONLY with valid JSON.`.trim();
+
+    try {
+        const resp = await fetch(OLLAMA_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: OLLAMA_MODEL, prompt,
+                system: 'You are a behavioral finance psychologist. Reply only with JSON. No markdown.',
+                stream: false,
+                options: { temperature: 0.5, num_predict: 400 },
+            }),
+        });
+        const data = await resp.json();
+        const raw  = (data.response || '').replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/```(?:json)?|```/g, '').trim();
+        const parsed = JSON.parse(raw);
+        _renderDebrief(parsed);
+    } catch (e) {
+        if (textEl) textEl.textContent = 'AI offline — Ollama start karo for behavioral analysis. Your scores show you\'re a ' + archetype + '.';
+    }
+}
+
+function _renderDebrief(data) {
+    const textEl     = document.getElementById('dna-debrief-text');
+    const chipsEl    = document.getElementById('dna-bias-chips');
+    const stratBoxEl = document.getElementById('dna-strategy-box');
+    const stratEl    = document.getElementById('dna-strategy-text');
+
+    if (!textEl) return;
+
+    // Debrief text
+    textEl.textContent = data.debrief || 'Analysis complete — check your score radar.';
+
+    // Bias chips
+    if (chipsEl && (data.primary_bias || data.cognitive_traps)) {
+        const items = [
+            data.primary_bias   ? { label: '⚠ ' + data.primary_bias.replace(/_/g,' '),   color: '#ff6b6b' } : null,
+            data.secondary_bias ? { label: '⚡ ' + data.secondary_bias.replace(/_/g,' '), color: '#ffb703' } : null,
+            ...(data.cognitive_traps || []).map(t => ({ label: t, color: 'rgba(255,255,255,.4)' })),
+        ].filter(Boolean);
+
+        chipsEl.innerHTML = items.map(item => `
+            <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;
+              background:${item.color}14;border:1px solid ${item.color}40;color:${item.color};">
+              ${item.label}
+            </span>`).join('');
+    }
+
+    // Strategy box
+    if (stratBoxEl && stratEl && data.optimal_strategy) {
+        stratBoxEl.style.display = 'block';
+        let stratText = data.optimal_strategy;
+        if (data.annual_cost_estimate > 0) {
+            stratText += ` (Estimated bias cost: ₹${data.annual_cost_estimate.toLocaleString('en-IN')}/year)`;
+        }
+        stratEl.textContent = stratText;
+    }
+
+    // Save to localStorage
+    try {
+        const existing = JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || '{}');
+        existing.behavioral_analysis = data;
+        localStorage.setItem('FINOS_CORE_DNA', JSON.stringify(existing));
+        localStorage.setItem('finos_primary_bias', data.primary_bias || '');
+    } catch {}
+}
+
+window._dnaVoiceDebrief = function() {
+    const data = JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || '{}');
+    const debrief = data.behavioral_analysis?.debrief || data.debrief || 'Analysis not available yet — run the quiz first.';
+    try {
+        const ws = new WebSocket('ws://127.0.0.1:8765');
+        ws.onopen = () => {
+            ws.send(JSON.stringify({ type: 'text_input', text: `[BEHAVIORAL DEBRIEF — read aloud warmly]: ${debrief}` }));
+            setTimeout(() => { try { ws.close(); } catch {} }, 20000);
+        };
+        ws.onerror = () => alert('Voice agent offline — start voiceagent/agent.py');
+    } catch {}
 };
 
 window.getDNAContextForOllama = function() {

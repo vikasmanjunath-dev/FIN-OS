@@ -16,6 +16,7 @@ import tempfile
 import threading
 import time
 from collections import deque
+from datetime import datetime, date, timedelta
 
 from faster_whisper import WhisperModel
 import edge_tts
@@ -1758,6 +1759,244 @@ def detect_calc_intent(text: str, mem_profile: dict | None = None) -> dict | Non
     return None
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+# SPEND ANOMALY DETECTOR  —  compares current vs prior month per category
+# ══════════════════════════════════════════════════════════════════════════════
+
+def detect_spend_anomalies(user_ctx: "UserContext") -> list[dict]:
+    """
+    Compare spending per category this month vs last month.
+    Returns list of anomaly dicts: {category, this_month, last_month, ratio, message}
+    Any category that is ≥1.5× last month's spend triggers an anomaly.
+    """
+    anomalies = []
+    try:
+        raw = user_ctx._raw
+        txns = (
+            (raw.get("financial") or {}).get("raw_transactions")
+            or (raw.get("budget_tracker") or {}).get("raw_transactions")
+            or []
+        )
+        if not txns:
+            return []
+
+        today    = date.today()
+        this_m   = f"{today.year}-{today.month:02d}"
+        prev_dt  = (today.replace(day=1) - timedelta(days=1))
+        prev_m   = f"{prev_dt.year}-{prev_dt.month:02d}"
+
+        cat_this: dict[str, float] = {}
+        cat_prev: dict[str, float] = {}
+
+        for t in txns:
+            try:
+                dt  = datetime.fromisoformat(str(t.get("date", "")).replace("Z", "+00:00").replace("+00:00", "")).date()
+                amt = abs(float(t.get("amount", 0)))
+                cat = str(t.get("category") or t.get("type") or "Other")
+                typ = str(t.get("type", "")).lower()
+                if typ in ("income", "credit", "salary") or amt <= 0:
+                    continue
+                mkey = f"{dt.year}-{dt.month:02d}"
+                if mkey == this_m:
+                    cat_this[cat] = cat_this.get(cat, 0) + amt
+                elif mkey == prev_m:
+                    cat_prev[cat] = cat_prev.get(cat, 0) + amt
+            except Exception:
+                continue
+
+        THRESHOLD = 1.5  # 50% more than last month
+        MIN_ABS   = 500  # only flag if absolute amount > ₹500
+
+        for cat, this_amt in cat_this.items():
+            prev_amt = cat_prev.get(cat, 0)
+            if prev_amt < MIN_ABS or this_amt < MIN_ABS:
+                continue
+            ratio = this_amt / prev_amt
+            if ratio >= THRESHOLD:
+                anomalies.append({
+                    "category":   cat,
+                    "this_month": round(this_amt),
+                    "last_month": round(prev_amt),
+                    "ratio":      round(ratio, 2),
+                    "message":    (
+                        f"{cat} spending ₹{this_amt:,.0f} this month vs "
+                        f"₹{prev_amt:,.0f} last month — {ratio:.1f}× spike"
+                    ),
+                })
+    except Exception as e:
+        log.debug("Anomaly detection error: %s", e)
+
+    return sorted(anomalies, key=lambda x: x["ratio"], reverse=True)[:5]
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# DAILY BRIEFING STORE  —  persists the morning brief to disk (JSON)
+# ══════════════════════════════════════════════════════════════════════════════
+
+_BRIEF_STORE_PATH = os.path.join(os.path.dirname(__file__), ".arya_daily_brief.json")
+_BRIEF_TTL_HOURS  = 20  # re-generate if older than this
+
+
+def _load_stored_brief() -> dict | None:
+    try:
+        with open(_BRIEF_STORE_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        stored_at = datetime.fromisoformat(data.get("generated_at", "2000-01-01").replace("Z", ""))
+        age_hours = (datetime.utcnow() - stored_at).total_seconds() / 3600
+        if age_hours < _BRIEF_TTL_HOURS:
+            return data
+    except Exception:
+        pass
+    return None
+
+
+def _save_stored_brief(brief_text: str, user_id: str, anomalies: list[dict]):
+    try:
+        with open(_BRIEF_STORE_PATH, "w", encoding="utf-8") as f:
+            json.dump({
+                "brief_text":   brief_text,
+                "user_id":      user_id,
+                "anomalies":    anomalies,
+                "generated_at": datetime.utcnow().isoformat(),
+            }, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        log.debug("Brief store write error: %s", e)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PROACTIVE BRIEFING ENGINE
+# ══════════════════════════════════════════════════════════════════════════════
+
+class ProactiveBriefingEngine:
+    """
+    Generates scheduled proactive financial briefings using LLM reasoning.
+    Runs as a background asyncio task.  Stores output to disk so Arya can
+    speak it on the next app open — even if the briefing was generated offline.
+
+    Triggers:
+      • Daily morning brief (7am)
+      • Weekly Sunday summary
+      • On-demand dashboard_brief WS request
+      • Anomaly detected (spend spike ≥1.5×)
+    """
+
+    # ── Build prompt for daily brief ──────────────────────────────────────────
+    @staticmethod
+    def _build_brief_prompt(user_ctx: "UserContext", anomalies: list[dict]) -> str:
+        name    = user_ctx.name() or "Bhai"
+        fin     = user_ctx.financial
+
+        # Pull key numbers
+        nw      = _num((fin.get("net_worth") or {}).get("total"), 0)
+        sr_raw  = (user_ctx._raw.get("budget_tracker") or {}).get("savings_rate", 0)
+        hs_raw  = (fin.get("health_score") or {}).get("total", 0)
+        bt      = user_ctx._raw.get("budget_tracker") or {}
+        goals   = fin.get("goals") or []
+        port    = fin.get("portfolio") or {}
+
+        nw_str  = f"₹{nw:,.0f}" if nw else "unknown"
+        sr_str  = f"{_num(sr_raw, 0):.1f}%" if sr_raw else "unknown"
+        hs_str  = f"{hs_raw}/100" if hs_raw else "unknown"
+
+        goal_behind = [g for g in goals if _num(g.get("progress"), 100) < 25]
+        pnl_pct     = _num(port.get("pnl_pct"), 0)
+
+        anomaly_lines = ""
+        if anomalies:
+            anomaly_lines = "\n\nSpend anomalies detected this month:\n" + "\n".join(
+                f"• {a['message']}" for a in anomalies[:3]
+            )
+
+        goal_lines = ""
+        if goal_behind:
+            goal_lines = "\n\nGoals behind schedule:\n" + "\n".join(
+                f"• {g.get('name','Goal')} — {_num(g.get('progress'),0):.0f}% complete"
+                for g in goal_behind[:2]
+            )
+
+        weekday = datetime.now().strftime("%A")
+        is_sunday = weekday == "Sunday"
+
+        if is_sunday:
+            style = (
+                "This is the WEEKLY FINANCIAL REVIEW briefing (Sunday). "
+                "Give a warm 3-sentence weekly summary — celebrate any wins, "
+                "flag the biggest concern, end with a reflection question for the week ahead."
+            )
+        else:
+            style = (
+                "This is the DAILY MORNING BRIEF. "
+                "2-3 sentences max — warm Hinglish like a caring IIM friend. "
+                "Mention one specific number. End with one actionable question for today."
+            )
+
+        return (
+            f"User: {name}\n"
+            f"Net worth: {nw_str} | Savings rate: {sr_str} | Health score: {hs_str}\n"
+            f"Portfolio P&L: {pnl_pct:+.1f}%"
+            + anomaly_lines + goal_lines
+            + f"\n\n{style}\n"
+            + "IMPORTANT: Direct reply only — no preamble, no 'Sure!', no markdown."
+        )
+
+    # ── Generate the brief via LLM ────────────────────────────────────────────
+    @staticmethod
+    def generate(brain: "Brain", user_ctx: "UserContext", anomalies: list[dict]) -> str:
+        prompt   = ProactiveBriefingEngine._build_brief_prompt(user_ctx, anomalies)
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT + user_ctx.to_prompt()},
+            {"role": "user",   "content": prompt},
+        ]
+        try:
+            result = ollama.chat(
+                model   = OLLAMA_MODEL,
+                messages= messages,
+                stream  = False,
+                options = {**OLLAMA_OPTIONS, "num_predict": 200, "temperature": 0.7},
+                think   = OLLAMA_THINK,
+            )
+            raw = result["message"]["content"]
+            return clean_display(_RE_THINK.sub("", raw)).strip()
+        except Exception as e:
+            log.warning("ProactiveBriefingEngine.generate error: %s", e)
+            return ""
+
+    # ── Build dashboard brief (3-sentence + anomaly list) ────────────────────
+    @staticmethod
+    def build_dashboard_brief(
+        brain: "Brain",
+        user_ctx: "UserContext",
+    ) -> dict:
+        """
+        Generate the structured dashboard brief:
+          {narrative, anomalies, generated_at}
+        Checks disk cache first (4-hour TTL).
+        """
+        # Check disk cache
+        stored = _load_stored_brief()
+        if stored and stored.get("user_id") == user_ctx.user_id:
+            return {
+                "narrative":    stored.get("brief_text", ""),
+                "anomalies":    stored.get("anomalies", []),
+                "generated_at": stored.get("generated_at", ""),
+                "from_cache":   True,
+            }
+
+        anomalies    = detect_spend_anomalies(user_ctx)
+        brief_text   = ProactiveBriefingEngine.generate(brain, user_ctx, anomalies)
+        generated_at = datetime.utcnow().isoformat() + "Z"
+
+        if brief_text and user_ctx.user_id:
+            _save_stored_brief(brief_text, user_ctx.user_id, anomalies)
+
+        return {
+            "narrative":    brief_text,
+            "anomalies":    anomalies,
+            "generated_at": generated_at,
+            "from_cache":   False,
+        }
+
+
 def _sync_ollama_warm():
     try:
         for _ in ollama.chat(
@@ -1786,6 +2025,7 @@ class Server:
         self.clients: set = set()
         self._lang: str | None = None
         self._autosave_task: asyncio.Task | None = None
+        self._daily_brief_task: asyncio.Task | None = None
         self._mem_loaded: bool = False       # True once persistent memory restored
 
     async def _send(self, obj: dict):
@@ -1831,6 +2071,17 @@ class Server:
                 self._autosave_loop(user_id)
             )
 
+        # On first connect with user context, check if a stored brief exists and send it
+        stored = _load_stored_brief()
+        if stored and stored.get("user_id") == user_id and stored.get("brief_text"):
+            await self._send({
+                "type":         "proactive_brief",
+                "narrative":    stored["brief_text"],
+                "anomalies":    stored.get("anomalies", []),
+                "generated_at": stored.get("generated_at", ""),
+                "trigger":      "on_connect_cached",
+            })
+
     async def _autosave_loop(self, user_id: str):
         """Silently save memory every AUTOSAVE_INTERVAL seconds."""
         try:
@@ -1841,6 +2092,56 @@ class Server:
                 await self.mem_store.save(user_id, self.mem)
         except asyncio.CancelledError:
             pass
+
+    async def _daily_briefing_loop(self):
+        """
+        Background task: generates a fresh daily briefing at 7am every day
+        (and every Sunday for the weekly review), stores it to disk so Arya
+        can speak it on the next app open.
+        Runs continuously as long as the server is alive.
+        """
+        try:
+            while True:
+                now    = datetime.now()
+                # Schedule next run at 7:00 AM
+                target = now.replace(hour=7, minute=0, second=0, microsecond=0)
+                if now >= target:
+                    # Already past 7am today — schedule for tomorrow 7am
+                    target = (now + timedelta(days=1)).replace(hour=7, minute=0, second=0, microsecond=0)
+
+                wait_s = max(60, (target - now).total_seconds())
+                log.info("DailyBrief: next run in %.0fh (at %s)",
+                         wait_s / 3600, target.strftime("%Y-%m-%d %H:%M"))
+                await asyncio.sleep(wait_s)
+
+                # Only run if we have user context
+                if not self.user_ctx._raw:
+                    log.info("DailyBrief: skipping — no user context yet")
+                    continue
+
+                log.info("DailyBrief: generating morning brief for %s",
+                         (self.user_ctx.user_id or "guest")[:12])
+                loop = asyncio.get_event_loop()
+                result = await loop.run_in_executor(
+                    None,
+                    ProactiveBriefingEngine.build_dashboard_brief,
+                    self.brain, self.user_ctx,
+                )
+
+                if result.get("narrative") and self.clients:
+                    await self._send({
+                        "type":         "proactive_brief",
+                        "narrative":    result["narrative"],
+                        "anomalies":    result["anomalies"],
+                        "generated_at": result["generated_at"],
+                        "trigger":      "daily_7am",
+                    })
+                    log.info("DailyBrief: sent to client (%d chars)", len(result["narrative"]))
+
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            log.error("DailyBriefingLoop error: %s", e)
 
     async def save_session_memory(self, user_id: str):
         """
@@ -2009,6 +2310,175 @@ class Server:
                     "phase":   "rejected",
                     "reason":  "user_id mismatch — security check failed",
                 }))
+
+        elif t == "personalize_content":
+            # Frontend sends page + user context → agent returns personalised highlights
+            # { page: "learn-equity", sections: [...], user_archetype: "...", knowledge_gaps: [...] }
+            page      = msg.get("page", "unknown")
+            sections  = msg.get("sections", [])
+            archetype = msg.get("user_archetype") or self.user_ctx.identity.get("financial_dna") or "Explorer"
+            gaps      = msg.get("knowledge_gaps", [])
+
+            prompt = (
+                f"User archetype: {archetype}. Knowledge gaps: {', '.join(gaps) or 'none identified'}.\n"
+                f"Learning page: {page}.\n"
+                f"Available sections: {', '.join(sections[:10]) if sections else 'all sections'}.\n\n"
+                f"Return a JSON object with:\n"
+                f"  highlight_sections: [list of section names most relevant for this archetype]\n"
+                f"  skip_sections: [list of sections already well-understood given gaps]\n"
+                f"  focus_order: [ordered list by priority]\n"
+                f"  quiz_questions: [3 questions with options and correct answer index]\n"
+                f"  callout: one Hinglish sentence connecting this module to their top goal\n"
+                f"Reply ONLY with valid JSON."
+            )
+
+            loop = asyncio.get_event_loop()
+            def _personalise():
+                try:
+                    result = ollama.chat(
+                        model=OLLAMA_MODEL,
+                        messages=[
+                            {"role": "system", "content": "You are a financial curriculum personaliser. Return only valid JSON. No markdown fences."},
+                            {"role": "user", "content": prompt},
+                        ],
+                        stream=False,
+                        options={**OLLAMA_OPTIONS, "num_predict": 400, "temperature": 0.4},
+                        think=OLLAMA_THINK,
+                    )
+                    import re as _re
+                    raw = result["message"]["content"]
+                    raw = _re.sub(r'<think>.*?</think>', '', raw, flags=_re.DOTALL|_re.IGNORECASE)
+                    raw = _re.sub(r'```(?:json)?|```', '', raw).strip()
+                    return raw
+                except Exception as e:
+                    return f'{{"error": "{e}"}}'
+
+            raw_json = await loop.run_in_executor(None, _personalise)
+            await ws.send(json.dumps({
+                "type":    "personalize_content_result",
+                "page":    page,
+                "payload": raw_json,
+            }))
+
+        elif t == "behavioral_analysis":
+            # Full behavioral DNA analysis — receives quiz responses + spending signals
+            # Returns bias profile, debrief text, recommended strategy
+            responses   = msg.get("responses", {})       # { q_id: selected_option }
+            scores      = msg.get("scores", [50,50,50,50,50])  # five DNA dimensions
+            archetype   = msg.get("archetype", "Explorer")
+            trade_stats = msg.get("trade_stats", {})      # optional: win_rate, avg_loss etc.
+
+            prompt = f"""
+You are a behavioral finance psychologist trained in Kahneman-Tversky, Thaler, and Ariely.
+
+User DNA scores (0-100): Risk={scores[0] if len(scores)>0 else 50}, Security={scores[1] if len(scores)>1 else 50}, Status={scores[2] if len(scores)>2 else 50}, Discipline={scores[3] if len(scores)>3 else 50}, Growth={scores[4] if len(scores)>4 else 50}
+Archetype: {archetype}
+Trade stats (if available): {trade_stats or 'none'}
+
+Analyse and return as JSON:
+{{
+  "primary_bias": "<one bias name e.g. loss_aversion>",
+  "secondary_bias": "<one bias name>",
+  "cognitive_traps": ["<trap1>", "<trap2>"],
+  "stress_triggers": ["<trigger1>", "<trigger2>"],
+  "optimal_strategy": "<one sentence recommended approach>",
+  "risk_instruments": ["<instrument1>", "<instrument2>"],
+  "annual_cost_estimate": <estimated annual ₹ cost of biases>,
+  "debrief": "<3-sentence warm Hinglish debrief — like a psychologist friend. Name the bias, explain how it shows up in their behaviour, give one concrete habit to fix it>"
+}}
+
+Reply ONLY with valid JSON. No markdown.
+""".strip()
+
+            loop = asyncio.get_event_loop()
+            def _analyse():
+                try:
+                    result = ollama.chat(
+                        model=OLLAMA_MODEL,
+                        messages=[
+                            {"role": "system", "content": "You are a behavioral finance psychologist. Reply only with JSON. No markdown."},
+                            {"role": "user", "content": prompt},
+                        ],
+                        stream=False,
+                        options={**OLLAMA_OPTIONS, "num_predict": 500, "temperature": 0.5},
+                        think=OLLAMA_THINK,
+                    )
+                    import re as _re
+                    raw = result["message"]["content"]
+                    raw = _re.sub(r'<think>.*?</think>', '', raw, flags=_re.DOTALL|_re.IGNORECASE)
+                    raw = _re.sub(r'```(?:json)?|```', '', raw).strip()
+                    return raw
+                except Exception as e:
+                    return f'{{"error": "{e}", "debrief": "Analysis unavailable — Ollama offline?"}}'
+
+            raw_json = await loop.run_in_executor(None, _analyse)
+            await ws.send(json.dumps({
+                "type":    "behavioral_analysis_result",
+                "payload": raw_json,
+            }))
+
+            # Also speak the debrief via TTS
+            try:
+                import json as _json
+                parsed = _json.loads(raw_json)
+                debrief = parsed.get("debrief", "")
+                if debrief:
+                    await self._pipeline(
+                        f"[BEHAVIORAL DEBRIEF — speak this warmly]: {debrief}",
+                        self._lang or "hinglish",
+                        self.user_ctx,
+                    )
+            except Exception:
+                pass
+
+        elif t == "dashboard_brief":
+            # Frontend requests structured dashboard brief (with anomaly detection)
+            # Returns cached result if <4 hours old, else generates fresh
+            if not self.user_ctx._raw:
+                await ws.send(json.dumps({
+                    "type":      "dashboard_brief_result",
+                    "narrative": "",
+                    "anomalies": [],
+                    "error":     "No user context — send user_context first",
+                }))
+                return
+
+            log.info("dashboard_brief requested by client")
+            force = bool(msg.get("force", False))
+
+            # Clear cache if force-refresh
+            if force and os.path.exists(_BRIEF_STORE_PATH):
+                try:    os.unlink(_BRIEF_STORE_PATH)
+                except: pass
+
+            loop = asyncio.get_event_loop()
+            result = await loop.run_in_executor(
+                None,
+                ProactiveBriefingEngine.build_dashboard_brief,
+                self.brain, self.user_ctx,
+            )
+
+            await ws.send(json.dumps({
+                "type":         "dashboard_brief_result",
+                "narrative":    result.get("narrative", ""),
+                "anomalies":    result.get("anomalies", []),
+                "generated_at": result.get("generated_at", ""),
+                "from_cache":   result.get("from_cache", False),
+            }))
+
+            # Announce anomalies proactively (speak them if client is voice-connected)
+            anomalies = result.get("anomalies", [])
+            if anomalies and not result.get("from_cache"):
+                top = anomalies[0]
+                spike_text = (
+                    f"Ek anomaly mili — {top['category']} ka kharcha is mahine "
+                    f"₹{top['this_month']:,} hai, last month se {top['ratio']:.1f}× zyada tha."
+                )
+                await self._pipeline(
+                    f"[PROACTIVE ANOMALY — speak this naturally]: {spike_text}",
+                    self._lang or "hinglish",
+                    self.user_ctx,
+                )
 
         elif t == "clear_memory":
             uid = self.user_ctx.user_id
@@ -2266,15 +2736,17 @@ class Server:
                     except: pass
 
     async def serve(self):
-        log.info("FIN-OS v9  ws://%s:%d  LLM=%s  STT=Whisper-%s",
+        log.info("FIN-OS v10  ws://%s:%d  LLM=%s  STT=Whisper-%s",
                  WS_HOST, WS_PORT, OLLAMA_MODEL, WHISPER_SIZE)
         await asyncio.gather(
             asyncio.get_event_loop().run_in_executor(None, _sync_ollama_warm),
             self.tts.warmup(),
         )
+        # Start daily briefing background loop
+        self._daily_brief_task = asyncio.ensure_future(self._daily_briefing_loop())
         async with websockets.serve(self.handler, WS_HOST, WS_PORT,
                                     max_size=50_000_000,
-                                    ping_interval=None):   # loopback — no keep-alive pings needed
+                                    ping_interval=None):
             log.info("Ready — http://localhost:8080")
             await asyncio.Future()
 

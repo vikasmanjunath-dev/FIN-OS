@@ -26,13 +26,72 @@
 
   <div class="onboard">
 
+    <!-- Step indicator -->
+    <div id="stepIndicator" style="
+      display:flex;gap:6px;justify-content:center;margin-bottom:18px;
+      opacity:0.5;transition:opacity .3s;">
+    </div>
+
     <div class="core" id="coreOrb">YOU</div>
+
+    <!-- Step label -->
+    <div id="stepLabel" style="
+      font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+      color:rgba(255,255,255,.35);margin-bottom:8px;text-align:center;
+      min-height:16px;transition:opacity .3s;"></div>
 
     <h1 id="question"></h1>
 
+    <!-- AI response box — Arya reacts to each answer -->
+    <div id="aryaResponse" style="
+      display:none;
+      background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.12);
+      border-radius:14px;padding:14px 18px;margin:12px 0 18px;
+      font-size:14px;color:rgba(255,255,255,.82);line-height:1.6;
+      font-style:italic;text-align:center;max-width:420px;
+      transition:opacity .4s;">
+      <span id="aryaResponseText"></span>
+    </div>
+
+    <!-- Free-text input (Step 1 only) -->
+    <div id="freeInputWrap" style="display:none;width:100%;max-width:380px;margin-bottom:16px;">
+      <textarea id="freeInput"
+        placeholder="Bata — paisa kyu chahiye tujhe? (apne words mein)"
+        style="width:100%;padding:14px 16px;border-radius:14px;
+               background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
+               color:#fff;font-size:15px;line-height:1.5;resize:none;height:100px;
+               font-family:-apple-system,sans-serif;outline:none;box-sizing:border-box;">
+      </textarea>
+    </div>
+
     <div id="options" class="options"></div>
 
+    <!-- Goal priority ranking (Step 4) -->
+    <div id="goalRankWrap" style="display:none;width:100%;max-width:380px;margin-bottom:16px;">
+      <div id="goalRankList" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+
+    <!-- AI summary card (Step 5 — final) -->
+    <div id="summaryCard" style="
+      display:none;
+      background:linear-gradient(135deg,rgba(0,255,136,.08),rgba(79,124,255,.08));
+      border:1px solid rgba(0,255,136,.18);border-radius:18px;
+      padding:24px;margin:12px 0 20px;max-width:420px;text-align:left;">
+      <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+                  color:#00ff88;margin-bottom:10px;">Your Financial OS</div>
+      <div id="summaryText" style="font-size:14px;color:rgba(255,255,255,.9);line-height:1.7;"></div>
+      <div id="summaryGoals" style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;"></div>
+    </div>
+
     <button id="nextBtn" disabled>Continue</button>
+
+    <!-- Skip link -->
+    <div style="margin-top:14px;text-align:center;">
+      <a id="skipLink" href="home.html"
+         style="font-size:12px;color:rgba(255,255,255,.25);text-decoration:none;">
+        Skip for now
+      </a>
+    </div>
 
   </div>
 </div>

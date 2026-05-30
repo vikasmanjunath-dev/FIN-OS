@@ -44,6 +44,8 @@ async function initScraper(showLoader) {
       renderNews(finalFeed);
       updateStatus("LIVE UPLINK SECURE", "#00F3FF");
       initInteractions();
+      // Inject AI summary after cards render
+      setTimeout(injectNewsSummaries, 400);
     } else {
       throw new Error("Empty Data Stream - Rate Limited");
     }
@@ -211,6 +213,142 @@ window.filterNews = function(category, btnElement) {
       card.style.display = 'none';
     }
   });
+}
+
+// ── 7. AI NEWS SUMMARIZER ─────────────────────────────────────────────────────
+// fetchAiSummary(symbol, headlines) — calls /summarize on market intel Flask server
+// Returns { bullets, sentiment_score, sentiment_label, retail_impact, related_stocks }
+
+const SUMMARIZE_URL = 'http://127.0.0.1:5000/summarize';
+const _summaryCache = new Map();   // in-memory: symbol → { data, ts }
+const SUMMARY_TTL   = 30 * 60 * 1000;  // 30 minutes
+
+window.fetchAiSummary = async function (symbol, headlines = []) {
+  if (!symbol) return null;
+  const key = symbol.toUpperCase();
+
+  // Cache hit
+  const cached = _summaryCache.get(key);
+  if (cached && Date.now() - cached.ts < SUMMARY_TTL) return cached.data;
+
+  // AbortSignal.timeout() polyfill for older browsers
+  function _makeSignal(ms) {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), ms);
+    return ctrl.signal;
+  }
+
+  try {
+    const resp = await fetch(SUMMARIZE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ symbol, news_items: headlines.slice(0, 6) }),
+      signal: _makeSignal(15000),
+    });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    if (data.status !== 'success') return null;
+    _summaryCache.set(key, { data, ts: Date.now() });
+    return data;
+  } catch { return null; }
+};
+
+// Inject skeleton + sentiment CSS once
+(function _injectNewsCss() {
+  if (document.getElementById('arya-news-css')) return;
+  const s = document.createElement('style');
+  s.id = 'arya-news-css';
+  s.textContent = `
+    .arya-dot {
+      border-radius: 6px;
+      background: linear-gradient(90deg, rgba(255,255,255,.05) 25%, rgba(255,255,255,.12) 50%, rgba(255,255,255,.05) 75%);
+      background-size: 200% 100%;
+      animation: arya-shimmer 1.4s infinite;
+    }
+    @keyframes arya-shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .arya-news-summary-card { transition: opacity .3s; }
+  `;
+  document.head.appendChild(s);
+})();
+
+// Inject an AI summary card into any container element
+window.injectAiSummaryCard = function (container, symbolOrData, headlines = []) {
+  if (!container) return;
+
+  // Placeholder while loading
+  const card = document.createElement('div');
+  card.className = 'arya-news-summary-card';
+  card.style.cssText = `
+    background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.12);
+    border-radius:14px;padding:16px 18px;margin:12px 0;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;`;
+  card.innerHTML = `
+    <div style="font-size:11px;letter-spacing:1.2px;text-transform:uppercase;
+      color:#00ff88;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+      🧠 Arya AI Summary
+      <span id="arya-sentiment-badge-${symbolOrData}"
+        style="padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700;
+               background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);">Loading…</span>
+    </div>
+    <div id="arya-bullets-${symbolOrData}" style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.7;">
+      <div class="arya-dot" style="width:120px;height:12px;background:rgba(255,255,255,.06);border-radius:6px;margin:6px 0;"></div>
+      <div class="arya-dot" style="width:180px;height:12px;background:rgba(255,255,255,.06);border-radius:6px;margin:6px 0;"></div>
+      <div class="arya-dot" style="width:100px;height:12px;background:rgba(255,255,255,.06);border-radius:6px;margin:6px 0;"></div>
+    </div>
+    <div id="arya-retail-${symbolOrData}" style="margin-top:10px;font-size:12px;
+      color:rgba(255,255,255,.4);border-top:1px solid rgba(255,255,255,.06);padding-top:8px;"></div>`;
+  container.prepend(card);
+
+  // Fetch and populate
+  fetchAiSummary(symbolOrData, headlines).then(data => {
+    if (!data) {
+      card.style.display = 'none';
+      return;
+    }
+
+    const badge   = card.querySelector(`#arya-sentiment-badge-${symbolOrData}`);
+    const bulletsEl = card.querySelector(`#arya-bullets-${symbolOrData}`);
+    const retailEl  = card.querySelector(`#arya-retail-${symbolOrData}`);
+
+    const score = data.sentiment_score || 0;
+    const badgeColor = score > 20 ? '#00ff88' : score < -20 ? '#ff6b6b' : '#ffb703';
+    const badgeBg    = score > 20 ? 'rgba(0,255,136,.12)' : score < -20 ? 'rgba(255,107,107,.12)' : 'rgba(255,183,3,.12)';
+    const badgeLabel = score > 20 ? `▲ BULLISH ${score}` : score < -20 ? `▼ BEARISH ${score}` : `→ NEUTRAL ${score}`;
+
+    if (badge) {
+      badge.textContent   = badgeLabel;
+      badge.style.color   = badgeColor;
+      badge.style.background = badgeBg;
+    }
+
+    if (bulletsEl && data.bullets?.length) {
+      bulletsEl.innerHTML = data.bullets.map(b =>
+        `<div style="display:flex;gap:8px;margin-bottom:4px;">
+           <span style="color:#00ff88;flex-shrink:0;">•</span>
+           <span>${b}</span>
+         </div>`
+      ).join('');
+    }
+
+    if (retailEl && data.retail_impact) {
+      retailEl.textContent = `💡 For you: ${data.retail_impact}`;
+    }
+  });
+};
+
+// Auto-inject on news page: attach AI summary to top 3 news cards
+function injectNewsSummaries() {
+  const cards = document.querySelectorAll('.intel-packet');
+  if (!cards.length) return;
+  const headlines = Array.from(cards).slice(0, 8).map(c => c.querySelector('h3')?.textContent || '');
+  // Inject one aggregate summary at the top of the feed
+  const feed = document.getElementById('newsFeed');
+  if (feed) {
+    injectAiSummaryCard(feed, 'IndiaMarkets', headlines);
+  }
 }
 
 // --- 7. FAILSAFE GHOST DATA ---

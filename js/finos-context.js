@@ -272,6 +272,19 @@
     // Focus/habit history (last 7 entries only — don't bloat context)
     const focusHistory = (safeJson('finos_focus_history', []) || []).slice(-7);
 
+    // Learning progress — modules completed + quiz scores
+    const learnedModules = safeJson('finos_learned_modules', {}) || {};
+    const quizScores     = safeJson('finos_learn_quiz_scores', {}) || {};
+    const learningProfile = {
+      completed_modules: Object.keys(learnedModules),
+      quiz_scores:       quizScores,
+      knowledge_gaps:    (() => {
+        // Modules with quiz score < 67% or never taken = knowledge gaps
+        const allModules = ['equity','mutual_funds','etf','debt','fno','fundamental','technical','insurance','tax','crypto','commodity','forex','analysis','indicators','money_market','metrics'];
+        return allModules.filter(m => !learnedModules[m] || (quizScores[m]?.score || 0) < 67);
+      })(),
+    };
+
     const ctx = {
       _version:      2,
       _user_id:      null,         // set after Supabase check
@@ -325,8 +338,9 @@
       financial: Object.keys(pageData).length ? pageData : null,
 
       /* ── Other signals ── */
-      watchlist:    watchlist && watchlist.length ? watchlist.slice(0, 20) : null,
-      focus_history: focusHistory.length ? focusHistory : null,
+      watchlist:        watchlist && watchlist.length ? watchlist.slice(0, 20) : null,
+      focus_history:    focusHistory.length ? focusHistory : null,
+      learning_profile: Object.keys(learningProfile.completed_modules).length || Object.keys(quizScores).length ? learningProfile : null,
 
       /* ── Cross-app data (budget tracker + trade journal) ── */
       budget_tracker: collectBudgetTracker(),

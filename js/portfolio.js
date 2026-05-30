@@ -663,4 +663,133 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Scroll to result
     setTimeout(() => anchor?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
   };
+
+  // ── Deep AI Analysis — calls Portfolio Analyser /ai-analysis ─────────────
+  window.runDeepAIAnalysis = async function (force = false) {
+    const panel    = document.getElementById('arya-deep-analysis-panel');
+    const textEl   = document.getElementById('ai-analysis-text');
+    const metricsEl= document.getElementById('ai-metrics-row');
+    const taxSec   = document.getElementById('ai-tax-section');
+    const taxTable = document.getElementById('ai-tax-table');
+    const wifSec   = document.getElementById('ai-whatif-section');
+    const wifText  = document.getElementById('ai-whatif-text');
+    const tsEl     = document.getElementById('ai-analysis-ts');
+    const btn      = document.getElementById('arya-deep-analysis-btn');
+
+    // Collect structured holdings from DOM (populated after file upload)
+    const holdings = [];
+    document.querySelectorAll('.h-row, .h-item, [data-symbol]').forEach(row => {
+      // Safe span text extractor — returns '' if missing
+      const spanText = (idx) => (row.querySelectorAll('span')[idx]?.textContent || '').trim();
+
+      const sym    = (row.dataset.symbol || spanText(0)).replace(/[📈🛡️🧈]/g, '').trim();
+      const valStr = (row.dataset.value  || spanText(1)).replace(/[₹,\s]/g, '');
+      const pnlStr = (row.dataset.pnl    || spanText(2)).replace(/[₹,%\s]/g, '');
+      const val    = parseFloat(valStr);
+      const pnl    = parseFloat(pnlStr);
+
+      if (sym && !isNaN(val) && val > 0) {
+        holdings.push({
+          symbol:         sym,
+          value:          val,
+          pnl_pct:        isNaN(pnl) ? 0 : pnl,
+          unrealised_pnl: parseFloat(row.dataset.pnlAbs || '0') || 0,
+          sector:         row.dataset.sector || null,
+          beta:           parseFloat(row.dataset.beta || '1') || 1.0,
+        });
+      }
+    });
+
+    // Fallback: use summary stats as synthetic input
+    if (!holdings.length) {
+      const good    = document.getElementById('goodInsight')?.textContent || '';
+      const bad     = document.getElementById('badInsight')?.textContent || '';
+      if (!good && !bad) {
+        alert('Pehle portfolio file upload karo, phir AI Analysis karo!');
+        return;
+      }
+      alert('File uploaded — AI analysis starting with available data. For best results, re-upload with a Zerodha/Groww CSV that includes sector tags.');
+      holdings.push(
+        { symbol: 'Portfolio', value: 100000, sector: 'Mixed', beta: 1.0 }
+      );
+    }
+
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    textEl.textContent  = '🧠 Arya portfolio analyse kar rahi hai…';
+    metricsEl.innerHTML = '';
+    taxSec.style.display = 'none';
+    wifSec.style.display = 'none';
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Analysing…'; }
+
+    try {
+      const resp = await fetch('http://localhost:8766/ai-analysis', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          holdings,
+          risk_profile:       localStorage.getItem('finos_risk_score') > 65 ? 'aggressive'
+                              : localStorage.getItem('finos_risk_score') > 35 ? 'moderate' : 'conservative',
+          what_if_drop_pct:   15,
+        }),
+      });
+
+      if (!resp.ok) throw new Error(`Server error ${resp.status}`);
+      const data = await resp.json();
+
+      // Render analysis text
+      textEl.textContent = data.analysis || 'Analysis unavailable';
+
+      // Render metrics chips
+      const m = data.metrics || {};
+      const chips = [
+        { label: 'Holdings',     val: m.total_holdings  },
+        { label: 'HHI',          val: m.sector_hhi      },
+        { label: 'Concentration',val: m.concentration   },
+        { label: 'Dominant',     val: m.dominant_sector },
+      ];
+      metricsEl.innerHTML = chips.filter(c => c.val != null).map(c => `
+        <div style="padding:8px 14px;border-radius:10px;background:rgba(255,255,255,.04);
+          border:1px solid rgba(255,255,255,.08);font-size:12px;white-space:nowrap;">
+          <span style="color:rgba(255,255,255,.4);">${c.label}:</span>
+          <span style="color:#fff;font-weight:600;margin-left:6px;">${c.val}</span>
+        </div>`
+      ).join('');
+
+      // Tax-loss harvesting section
+      const tax = m.tax_candidates || [];
+      if (tax.length) {
+        taxSec.style.display  = 'block';
+        taxTable.innerHTML = tax.map(t => `
+          <div style="display:flex;justify-content:space-between;padding:8px 0;
+            border-bottom:1px solid rgba(255,255,255,.06);font-size:13px;">
+            <span style="color:#fff;font-weight:600;">${t.symbol}</span>
+            <span style="color:#ff6b6b;">Loss: ₹${Math.abs(t.pnl).toLocaleString('en-IN')}</span>
+            <span style="color:#ffb400;">Save ~₹${t.tax_save_estimate.toLocaleString('en-IN')} tax</span>
+          </div>`
+        ).join('');
+      }
+
+      // What-if scenario
+      const wi = m.what_if_scenario;
+      if (wi) {
+        wifSec.style.display = 'block';
+        wifText.innerHTML = `
+          <span style="color:#ff6b6b;font-weight:700;">⚠ ${wi.scenario}</span>
+          → Portfolio loses <strong style="color:#ff6b6b;">₹${wi.estimated_loss.toLocaleString('en-IN')}</strong>
+          (${wi.loss_pct}% of ₹${wi.portfolio_value.toLocaleString('en-IN')}).
+          Consider a Nifty PUT hedge or increase debt allocation to cushion this.`;
+      }
+
+      if (tsEl) tsEl.textContent = new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+
+    } catch (err) {
+      textEl.innerHTML = `<span style="color:rgba(255,100,100,.8);">
+        ⚠️ Portfolio Analyser server offline — start server.py on port 8766.<br>
+        <code style="font-size:11px;">cd "Portfolio Analyser" && python server.py</code>
+      </span>`;
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '🧠 Analyse Portfolio (AI)'; }
+    }
+  };
 });

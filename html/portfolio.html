@@ -54,15 +54,68 @@
           <h1>Portfolio Dissector Pro</h1>
           <p>Deep-tissue analysis of your financial health.</p>
         </div>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <button id="arya-portfolio-check-btn" onclick="AryaAI_checkPortfolio()"
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <button id="arya-deep-analysis-btn" onclick="runDeepAIAnalysis()"
             style="padding:10px 18px;border-radius:14px;border:1px solid rgba(0,255,136,.3);
-                   background:rgba(0,255,136,.08);color:#00ff88;font-weight:700;font-size:13px;cursor:pointer;">
-            🧠 AI Risk Check
+                   background:rgba(0,255,136,.08);color:#00ff88;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;">
+            🧠 Analyse Portfolio (AI)
+          </button>
+          <button id="arya-portfolio-check-btn" onclick="AryaAI_checkPortfolio()"
+            style="padding:10px 18px;border-radius:14px;border:1px solid rgba(79,124,255,.3);
+                   background:rgba(79,124,255,.08);color:#4f7cff;font-weight:700;font-size:13px;cursor:pointer;">
+            ⚡ Quick Risk Check
           </button>
           <button id="themeToggle" class="theme-btn">🌙</button>
         </div>
       </header>
+      <!-- Arya Deep AI Analysis Panel -->
+      <div id="arya-deep-analysis-panel" style="display:none;
+        background:linear-gradient(135deg,rgba(0,255,136,.04),rgba(79,124,255,.04));
+        border:1px solid rgba(0,255,136,.15);border-radius:18px;
+        padding:24px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div>
+            <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#00ff88;margin-bottom:4px;">AI Portfolio Intelligence</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.5);">Concentration · Rebalancing · Tax-Loss · Downside Protection</div>
+          </div>
+          <button onclick="runDeepAIAnalysis(true)"
+            style="padding:6px 14px;border-radius:10px;border:1px solid rgba(0,255,136,.25);
+                   background:rgba(0,255,136,.06);color:#00ff88;font-size:11px;font-weight:700;cursor:pointer;">
+            ↺ Refresh
+          </button>
+        </div>
+
+        <!-- Metrics row -->
+        <div id="ai-metrics-row" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;"></div>
+
+        <!-- Analysis text (streaming) -->
+        <div id="ai-analysis-text"
+          style="font-size:14px;line-height:1.75;color:rgba(255,255,255,.85);
+                 white-space:pre-wrap;font-family:-apple-system,sans-serif;">
+        </div>
+
+        <!-- Tax candidates table -->
+        <div id="ai-tax-section" style="display:none;margin-top:16px;
+          background:rgba(255,180,0,.04);border:1px solid rgba(255,180,0,.15);
+          border-radius:12px;padding:14px;">
+          <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#ffb400;margin-bottom:10px;">
+            📋 Tax-Loss Harvesting Candidates
+          </div>
+          <div id="ai-tax-table"></div>
+        </div>
+
+        <!-- What-if scenario -->
+        <div id="ai-whatif-section" style="display:none;margin-top:12px;
+          background:rgba(255,42,109,.04);border:1px solid rgba(255,42,109,.15);
+          border-radius:12px;padding:14px;">
+          <div id="ai-whatif-text" style="font-size:13px;color:rgba(255,255,255,.75);"></div>
+        </div>
+
+        <div style="margin-top:12px;font-size:11px;color:rgba(255,255,255,.2);">
+          Powered by Arya AI · <span id="ai-analysis-ts"></span>
+        </div>
+      </div>
+
       <!-- Arya Portfolio AI Panel (populated after analysis) -->
       <div id="arya-portfolio-ai-anchor"></div>
 

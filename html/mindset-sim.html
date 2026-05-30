@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0B0D12">
+<title>FIN•OS | AI Mindset Simulator</title>
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/theme.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/finos-context.js"></script>
+<script src="../js/arya-ai.js?v=3"></script>
+<style>
+  :root { --purple: #a78bff; --pink: #ff2a6d; --cyan: #00f3ff; --green: #00ff88; }
+  .sim-wrapper { max-width: 800px; margin: 0 auto; padding: 32px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  .sim-header { text-align: center; margin-bottom: 36px; }
+  .sim-header h1 { font-size: 30px; font-weight: 800; color: #fff; margin: 12px 0 6px; background: linear-gradient(135deg,var(--purple),var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .sim-header p { font-size: 14px; color: rgba(255,255,255,.4); }
+
+  /* Scenario grid */
+  .scenario-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 32px; }
+  .scenario-card {
+    background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px; padding: 18px; cursor: pointer; transition: all .2s;
+    position: relative; overflow: hidden;
+  }
+  .scenario-card:hover { border-color: var(--purple); background: rgba(167,139,255,.06); transform: translateY(-2px); }
+  .scenario-card.active { border-color: var(--green); background: rgba(0,255,136,.06); }
+  .sc-tag { font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; padding: 3px 8px; border-radius: 10px; display: inline-block; margin-bottom: 10px; }
+  .tag-crash  { background: rgba(255,42,109,.12); color: #ff2a6d; border: 1px solid rgba(255,42,109,.25); }
+  .tag-fomo   { background: rgba(255,183,3,.1); color: #ffb703; border: 1px solid rgba(255,183,3,.2); }
+  .tag-crisis { background: rgba(167,139,255,.1); color: var(--purple); border: 1px solid rgba(167,139,255,.2); }
+  .tag-trap   { background: rgba(255,107,107,.1); color: #ff6b6b; border: 1px solid rgba(255,107,107,.2); }
+  .tag-life   { background: rgba(0,243,255,.08); color: var(--cyan); border: 1px solid rgba(0,243,255,.2); }
+  .sc-name  { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .sc-desc  { font-size: 11px; color: rgba(255,255,255,.4); line-height: 1.5; }
+  .sc-diff  { position: absolute; top: 12px; right: 12px; font-size: 10px; font-weight: 700; }
+
+  /* Simulation arena */
+  .sim-arena { display: none; }
+  .sim-arena.active { display: block; }
+  .sim-scene-header {
+    background: linear-gradient(135deg,rgba(167,139,255,.08),rgba(0,243,255,.04));
+    border: 1px solid rgba(167,139,255,.2); border-radius: 18px;
+    padding: 24px; margin-bottom: 20px;
+  }
+  .sim-year-badge {
+    display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px;
+    border-radius: 20px; background: rgba(167,139,255,.12); border: 1px solid rgba(167,139,255,.3);
+    color: var(--purple); font-size: 12px; font-weight: 700; margin-bottom: 14px;
+  }
+  .sim-portfolio-bar {
+    display: flex; gap: 16px; flex-wrap: wrap; margin: 14px 0;
+    padding: 12px 16px; background: rgba(0,0,0,.3); border-radius: 10px;
+    font-size: 13px; font-family: 'JetBrains Mono', monospace;
+  }
+  .pb-item { display: flex; flex-direction: column; gap: 2px; }
+  .pb-label { font-size: 9px; color: rgba(255,255,255,.3); text-transform: uppercase; letter-spacing: .8px; }
+  .pb-val   { font-size: 16px; font-weight: 700; }
+
+  .sim-narrative {
+    font-size: 15px; color: rgba(255,255,255,.85); line-height: 1.8;
+    margin: 14px 0; border-left: 3px solid var(--purple); padding-left: 16px;
+  }
+
+  .sim-choices { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+  .sim-choice {
+    padding: 14px 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1);
+    background: rgba(255,255,255,.03); cursor: pointer; font-size: 14px;
+    color: rgba(255,255,255,.8); text-align: left; transition: all .2s;
+    font-family: -apple-system, sans-serif;
+  }
+  .sim-choice:hover { border-color: var(--purple); background: rgba(167,139,255,.08); }
+
+  /* Outcome reveal */
+  .sim-outcome {
+    display: none; background: linear-gradient(135deg,rgba(0,255,136,.04),rgba(0,0,0,0));
+    border: 1px solid rgba(0,255,136,.15); border-radius: 16px; padding: 20px; margin-top: 20px;
+  }
+  .sim-outcome.active { display: block; }
+  .outcome-title { font-size: 13px; letter-spacing: 1px; text-transform: uppercase; color: #00ff88; margin-bottom: 12px; }
+  .outcome-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .oc-box { padding: 14px; border-radius: 12px; text-align: center; }
+  .oc-box-held   { background: rgba(0,255,136,.08); border: 1px solid rgba(0,255,136,.2); }
+  .oc-box-sold   { background: rgba(255,107,107,.06); border: 1px solid rgba(255,107,107,.15); }
+  .oc-label { font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: rgba(255,255,255,.4); margin-bottom: 6px; }
+  .oc-amount { font-size: 22px; font-weight: 800; }
+  .oc-sub { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 2px; }
+
+  .score-chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .s-chip {
+    padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+
+  .ai-debrief-box {
+    margin-top: 16px; padding: 16px; border-radius: 12px;
+    background: rgba(9,13,18,.98); border: 1px solid rgba(167,139,255,.15);
+    font-size: 13px; color: rgba(255,255,255,.82); line-height: 1.75;
+  }
+  .ai-debrief-title { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); margin-bottom: 8px; }
+
+  .sim-cta-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+  .sim-btn {
+    padding: 11px 20px; border-radius: 12px; font-size: 13px; font-weight: 700;
+    cursor: pointer; font-family: -apple-system, sans-serif; transition: all .2s;
+  }
+  .sim-btn-primary { background: linear-gradient(135deg,var(--purple),#7c3aed); color: #fff; border: none; }
+  .sim-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(167,139,255,.3); }
+  .sim-btn-ghost { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.6); }
+  .sim-btn-ghost:hover { background: rgba(255,255,255,.08); }
+
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .filter-btn {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: -apple-system, sans-serif; transition: all .15s;
+    border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); color: rgba(255,255,255,.5);
+  }
+  .filter-btn.active { border-color: var(--purple); background: rgba(167,139,255,.1); color: var(--purple); }
+  .filter-btn:hover { border-color: rgba(167,139,255,.4); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="trading-coach.html">Trading Coach</a>
+      <a href="mindset-sim.html" style="color:var(--accent);">Mindset Sim</a>
+      <a href="dna.html">Financial DNA</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+    <div class="sim-wrapper">
+
+      <div class="sim-header">
+        <div style="font-size:40px;">🎭</div>
+        <h1>AI Mindset Simulator</h1>
+        <p>Immersive financial scenarios. Arya plays the market. You make the call.</p>
+      </div>
+
+      <!-- Scenario picker -->
+      <div id="scenarioPicker">
+        <div class="filter-row" id="filterRow">
+          <button class="filter-btn active" onclick="filterScenarios('all', this)">All</button>
+          <button class="filter-btn" onclick="filterScenarios('crash', this)">📉 Market Crashes</button>
+          <button class="filter-btn" onclick="filterScenarios('fomo', this)">🚀 FOMO Traps</button>
+          <button class="filter-btn" onclick="filterScenarios('life', this)">🏠 Life Crises</button>
+          <button class="filter-btn" onclick="filterScenarios('trap', this)">⚠️ Manipulation</button>
+          <button class="filter-btn" onclick="filterScenarios('crisis', this)">📰 Major Events</button>
+        </div>
+        <div class="scenario-grid" id="scenarioGrid"></div>
+      </div>
+
+      <!-- Simulation arena -->
+      <div class="sim-arena" id="simArena">
+        <button onclick="backToGrid()" style="margin-bottom:20px;padding:8px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.6);font-size:12px;font-weight:600;cursor:pointer;font-family:-apple-system,sans-serif;">‹ Back to Scenarios</button>
+
+        <div class="sim-scene-header">
+          <div class="sim-year-badge" id="simYearBadge">📅 Loading…</div>
+          <h2 id="simTitle" style="font-size:22px;font-weight:800;color:#fff;margin:0 0 8px;"></h2>
+          <div class="sim-portfolio-bar" id="simPortfolioBar"></div>
+          <div class="sim-narrative" id="simNarrative" style="min-height:60px;"></div>
+        </div>
+
+        <div class="sim-choices" id="simChoices"></div>
+
+        <div class="sim-outcome" id="simOutcome">
+          <div class="outcome-title">📊 Historical Outcome Revealed</div>
+          <div class="outcome-compare" id="outcomeCompare"></div>
+          <div class="score-chips" id="scoreChips"></div>
+          <div class="ai-debrief-box">
+            <div class="ai-debrief-title">🧠 Arya's Behavioral Analysis</div>
+            <div id="simDebriefText" style="min-height:40px;"></div>
+          </div>
+          <div class="sim-cta-row">
+            <button class="sim-btn sim-btn-primary" onclick="nextScenario()">▶ Next Scenario</button>
+            <button class="sim-btn sim-btn-ghost" onclick="backToGrid()">↩ Choose Different</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   SCENARIO LIBRARY — 50 scenarios across 5 categories
+══════════════════════════════════════════════════════════════════════════ */
+const SCENARIOS = [
+  // ── MARKET CRASHES ──────────────────────────────────────────────────────
+  { id:'crash_2008', cat:'crash', tag:'tag-crash', diff:'⭐⭐⭐⭐⭐', name:'2008 — Lehman Collapse', desc:'Nifty -52%. ₹5L portfolio down 45% in 6 weeks.',
+    year:'Oct 10, 2008', portfolio:'₹2.75L', initialPortfolio: 500000, finalIfHeld: 820000, finalIfSold: 210000,
+    narrative:'Market khul gaya. Nifty 2,500 pe aa gaya — all-time high 6,357 se 60% neeche. CNBC pe breaking news: "Lehman Brothers bankrupt." WhatsApp pe sab bol rahe hain "bech do, aur giregi." Teri ₹5L ki equity portfolio abhi ₹2.75L ki reh gayi hai. Agle 3 mahine aur gir sakti hai. Tu kya karega?',
+    choices: ['🔴 Sab bech do — aur loss se bachna hai', '🟡 Aadha bech do — kuch capital bachao', '🟢 Hold karo — fundamentals nahi badle', '💪 Aur kharido — yeh buying opportunity hai'],
+    bestChoice: 3, worstChoice: 0,
+    held_outcome:'Jo investors held kiye ya buy kiye, unhe 2010 tak ₹8.2L mila (64% gain from bottom). Long-term Nifty ne 2015 tak 15,000 cross kiya.',
+    sold_outcome:'Jo bech gaye, wo sirf ₹2.1L ke saath baahar aaye — 58% permanent loss. Zyaatar market recover hone ke baad waapis nahi aa paaye (anchoring bias).',
+    biases: ['loss_aversion', 'panic_selling', 'anchoring'],
+  },
+  { id:'crash_2020', cat:'crash', tag:'tag-crash', diff:'⭐⭐⭐⭐', name:'2020 — COVID Crash', desc:'Nifty -38% in 40 days. Fastest crash in history.',
+    year:'Mar 23, 2020', portfolio:'₹3.2L', initialPortfolio: 500000, finalIfHeld: 950000, finalIfSold: 270000,
+    narrative:'Lockdown announce hua. Stock markets worldwide circuit breaker. Nifty 7,511 pe. Airlines, hotels, restaurants — sab band. Log bol rahe hain "recession aayegi, 2-3 saal lagenge recover hone mein." Teri portfolio 36% down. Tu kya karega abhi?',
+    choices: ['🔴 SIP band karo, sab bech do', '🟡 SIP rokke hold karo', '🟢 SIP jaari rakho normal', '💪 SIP double karo — massive dip hai'],
+    bestChoice: 3, worstChoice: 0,
+    held_outcome:'Nifty ne Dec 2020 tak old highs recover kiye. Jo SIP double kiya, unhe 24 months mein 90%+ returns mile. COVID dip proved to be the best SIP opportunity of the decade.',
+    sold_outcome:'Jo March mein bech ke nikle, unhe average entry milti 11,000+ pe waapas ane ke liye — 40% higher. Most never re-entered and permanently missed the recovery.',
+    biases: ['panic_selling', 'recency_bias', 'herd_mentality'],
+  },
+  { id:'crash_2000', cat:'crash', tag:'tag-crash', diff:'⭐⭐⭐⭐⭐', name:'2000 — Dot-com Bust', desc:'Tech stocks -80%. Sensex -55% over 2 years.',
+    year:'Mar 2000', portfolio:'₹2L', initialPortfolio: 400000, finalIfHeld: 520000, finalIfSold: 160000,
+    narrative:'"Internet is the future" — aur teri portfolio tech stocks se bhar gayi. Infosys 900x gayi. Ab crash shuru hua hai. IT index -20% in a week. Kuch log bol rahe hain bounce aayega. Kuch bol rahe hain bubble tha. Tera IT exposure 70% hai.',
+    choices: ['🔴 IT stocks immediately becho', '🟡 Thoda diversify karo gradually', '🟢 Hold karo — IT ka future bright hai', '💪 Aur IT kharido — discount pe milegi'],
+    bestChoice: 1, worstChoice: 3,
+    held_outcome:'Quality stocks like Infosys/TCS ne 2003-2004 mein recover kiya. But diversifying during crash ke baad better risk-adjusted returns mile.',
+    sold_outcome:'Panic selling ke baad most investors 2003 recovery miss kiya. However, some IT stocks took 7+ years to recover to 2000 highs.',
+    biases: ['overconfidence', 'anchoring', 'sunk_cost'],
+  },
+  { id:'crash_2024', cat:'crash', tag:'tag-crash', diff:'⭐⭐⭐', name:'2024 Budget Shock', desc:'Nifty -3% single day after Union Budget capital gains tax hike.',
+    year:'Jul 23, 2024', portfolio:'₹4.5L', initialPortfolio: 450000, finalIfHeld: 510000, finalIfSold: 390000,
+    narrative:'Budget mein LTCG tax 10% se 12.5% ho gaya. STCG 15% se 20% ho gayi. Market ne instantly react kiya — Nifty 700 points neeche. Social media pe "sell everything" trending. Tera LTCG eligible portfolio bhi neeche hai. Real impact kitna hai?',
+    choices: ['🔴 Sab bech do pehle aur tax se bachao', '🟡 Only loss-making stocks becho (tax loss harvesting)', '🟢 Hold karo — tax change temporary market reaction hai', '📊 Calculate actual impact and then decide'],
+    bestChoice: 3, worstChoice: 0,
+    held_outcome:'Nifty ne 45 days mein budget shock recover kiya. Tax change ka actual impact 2.5% extra tax on GAINS only — panic sellers ne bade returns miss kiye.',
+    sold_outcome:'Budget day pe bechne walon ne market recovery miss kiya. Plus: selling mein STCG trigger hua jo new higher rate pe tha — double loss.',
+    biases: ['recency_bias', 'loss_aversion', 'news_trading'],
+  },
+  { id:'crash_small', cat:'crash', tag:'tag-crash', diff:'⭐⭐', name:'Smallcap 40% Correction', desc:'Small & midcap funds -40% while large cap flat.',
+    year:'2018-2019', portfolio:'₹1.8L', initialPortfolio: 300000, finalIfHeld: 380000, finalIfSold: 150000,
+    narrative:'Smallcap index 40% down. Tera smallcap fund NAV ₹28 se ₹17 aa gayi. Large cap flat hai. SEBI ne recategorisation rule change kiya — kuch funds forced sellers bane. Kya yeh structural breakdown hai ya temporary?',
+    choices: ['🔴 Smallcap se niklo completely', '🟡 Shift to large cap gradually', '🟢 Hold and wait — small cap cycles hain', '💪 STP kar ke aur smallcap kharido'],
+    bestChoice: 2, worstChoice: 0,
+    held_outcome:'2020-2021 mein smallcap mania aayi — jo held kiya unhe 3-4x returns mile. But 2018-19 mein holding required real conviction in fundamentals.',
+    sold_outcome:'Jo 2018-19 correction mein bech ke nikle, unhe 2020-2021 bull run miss hua. Average miss: 120% returns over 2 years.',
+    biases: ['recency_bias', 'category_switching'],
+  },
+
+  // ── FOMO TRAPS ───────────────────────────────────────────────────────────
+  { id:'fomo_bitcoin', cat:'fomo', tag:'tag-fomo', diff:'⭐⭐⭐⭐', name:'Bitcoin 2021 Mania', desc:'BTC at ₹42L. "It will hit 1 crore" everywhere.',
+    year:'Nov 2021', portfolio:'₹5L savings', initialPortfolio: 500000, finalIfHeld: 175000, finalIfSold: 400000,
+    narrative:'Bitcoin ₹42 lakh pe hai. Tera colleague 5x return le chuka hai. Elon Musk tweet kar raha hai. "Decentralised future is coming." Tu sochta hai ₹2L invest karta hoon. Chart dekha — straight line up. Kya yeh is the right time?',
+    choices: ['🔴 All in — ₹5L Bitcoin mein daal do', '🟡 ₹50K small bet lagao — FOMO se bachne ke liye', '🟢 Analysis karo pehle — market cycle samjho', '❌ Kuch nahi karo — apna plan stick karo'],
+    bestChoice: 3, worstChoice: 0,
+    held_outcome:'Nov 2021 ATH ke baad BTC ne 74% crash kiya. Jo ₹42L pe baith gaye, unhe 2022 mein ₹10L se bhi neeche dekha. 2024 mein ₹60L tak recovery aayi — but 2.5 saal ka psychological torture.',
+    sold_outcome:'Jo early 2022 mein sold kiya and moved to index funds — better risk-adjusted returns mile. Time in market vs timing market.',
+    biases: ['fomo', 'herd_mentality', 'overconfidence'],
+  },
+  { id:'fomo_ipo', cat:'fomo', tag:'tag-fomo', diff:'⭐⭐⭐', name:'IPO Listing Mania', desc:'Hot IPO listing at 80% premium. Should you buy on listing day?',
+    year:'2021 Zomato IPO', portfolio:'₹50K cash', initialPortfolio: 50000, finalIfHeld: 22000, finalIfSold: 45000,
+    narrative:'Zomato listed at ₹128 vs ₹76 issue price — 68% gain in a day. Tu allotment nahi mila. Sab log "it will hit ₹200" bol rahe hain. Listing day pe secondary market se kharidna chahiye? ₹50K cash hai.',
+    choices: ['🔴 Listing day pe hi ₹50K invest karo', '🟡 Aadha kharido — ₹25K', '🟢 Wait karo — listing euphoria fade hogi', '📊 Fundamentals check karo pehle (P/S ratio, profitability)'],
+    bestChoice: 3, worstChoice: 0,
+    held_outcome:'Zomato ₹128 pe buy karne walon ko 2022 mein ₹40 dekha — 69% loss. Fundamentally it was trading at 40x sales with no profitability path clear.',
+    sold_outcome:'Jo listing day pe bech ke nikle with 68% gain (allottees) — brilliant. But secondary buyers had no margin of safety at listing premium.',
+    biases: ['fomo', 'anchoring', 'narrative_bias'],
+  },
+  { id:'fomo_tip', cat:'fomo', tag:'tag-fomo', diff:'⭐⭐', name:"Friend's 'Sure Shot' Tip", desc:'Your friend made 200% on a penny stock. "Next one" upcoming.',
+    year:'Any time', portfolio:'₹1L savings', initialPortfolio: 100000, finalIfHeld: 20000, finalIfSold: 100000,
+    narrative:'Tera dost bolta hai: "Yaar, mere paas insider info hai. XYZ pharma stock mein daalo — drug approval announcement aane wala hai. Abhi ₹8 pe hai, ₹80 jayegi. Maine ₹50K daale hain." WhatsApp group pe bhi sab bol rahe hain. Kya karega tu?',
+    choices: ['🔴 All in — ₹1L daal do, friend ne trust kiya', '🟡 Small bet — ₹10K dalo just in case', '🟢 Politely decline — no due diligence', '📊 Ask for proof: SEBI filing, annual report, management track record'],
+    bestChoice: 2, worstChoice: 0,
+    held_outcome:'Penny stocks tip stories almost always end badly — stock typically already pumped. "Insider info" is usually illegal, unverifiable, or planted. ₹8 stocks can go to ₹0.80 easily.',
+    sold_outcome:'Not investing in unverified tips = 100% capital preserved. Opportunity cost: near zero for verified good alternatives.',
+    biases: ['herd_mentality', 'authority_bias', 'overconfidence'],
+  },
+  { id:'fomo_nft', cat:'fomo', tag:'tag-fomo', diff:'⭐⭐⭐', name:'NFT Monkey FOMO', desc:'JPEG se ₹50L? 2022 NFT mania.',
+    year:'Jan 2022', portfolio:'₹2L savings', initialPortfolio: 200000, finalIfHeld: 10000, finalIfSold: 180000,
+    narrative:'NFTs everywhere. Boring Ape Yacht Club — ₹50L per image. Influencers bol rahe hain "digital real estate." Tu samajh nahi pa raha lekin sab invest kar rahe hain. ₹2L daalega NFT mein? "Miss mat kar yeh opportunity."',
+    choices: ['🔴 ₹2L ki NFT kharido', '🟡 Small bet — ₹20K NFT experiment', '🟢 Samajh nahi aata toh nahi', '📊 Research karo — cash flows, utility, market depth'],
+    bestChoice: 2, worstChoice: 0,
+    held_outcome:'NFT market ne 2022-2023 mein 95%+ value khoyi. Most NFTs went to literally zero — no buyers, no market. "Digital art" without utility = speculation pure.',
+    sold_outcome:'Capital preservation beats FOMO every time when you don\'t understand the investment.',
+    biases: ['fomo', 'narrative_bias', 'herding'],
+  },
+  { id:'fomo_gold', cat:'fomo', tag:'tag-fomo', diff:'⭐⭐', name:'Gold at Record High', desc:'Gold ₹70,000/10g. "It will hit ₹1L" by end of year.',
+    year:'2024', portfolio:'₹3L', initialPortfolio: 300000, finalIfHeld: 320000, finalIfSold: 285000,
+    narrative:'Gold ₹70,000 per 10g — all-time high. Jewellers bhare hain. Media reports "safe haven demand." Tu sochta hai inflation hedge ke liye khareedna chahiye. Lekin yeh ATH pe hai. Should you buy?',
+    choices: ['🔴 All in gold now — ATH = momentum play', '🟡 SGB (Sovereign Gold Bond) with 2.5% interest', '🟢 Already have 5-10% gold — don\'t add more', '💡 Rebalance: if gold >15% portfolio, trim it'],
+    bestChoice: 1, worstChoice: 0,
+    held_outcome:'SGB gives gold price appreciation + 2.5% interest annually — better than physical gold. Buying at ATH is fine if it\'s portfolio allocation, not speculation.',
+    sold_outcome:'Selling at ATH anticipating crash often wrong — gold can stay elevated longer than expected.',
+    biases: ['momentum_bias', 'anchoring'],
+  },
+
+  // ── LIFE CRISES ──────────────────────────────────────────────────────────
+  { id:'life_jobloss', cat:'life', tag:'tag-life', diff:'⭐⭐⭐⭐', name:'Sudden Job Loss', desc:'Layoff. 3 months salary as severance. ₹2L portfolio, ₹50K monthly expenses.',
+    year:'Your future', portfolio:'₹2L portfolio', initialPortfolio: 200000, finalIfHeld: 250000, finalIfSold: 140000,
+    narrative:'Layoff hua. HR ne 3 months ka severance diya — ₹1.5L. Emergency fund sirf ₹60K hai. Monthly expenses ₹50K. Portfolio mein ₹2L equity hai. Job search minimum 3-4 months lagegi. Tu kya karega?',
+    choices: ['🔴 Sab portfolio immediately becho — security chahiye', '🟡 50% portfolio becho — ₹1L liquidate karo', '🟢 Expense cut karo, emergency fund use karo, portfolio touch mat karo', '💡 Part-time work + expense cuts, portfolio absolutely last resort'],
+    bestChoice: 3, worstChoice: 0,
+    held_outcome:'Cutting expenses to ₹30K + part-time income stretches runway to 6+ months. Portfolio compounds untouched. Post-job re-employment accelerates recovery dramatically.',
+    sold_outcome:'Selling equity at distress timing often coincides with market lows. ₹2L ke ₹1.4L milenge post-tax after STCG. Mental accounting loss + actual loss.',
+    biases: ['loss_aversion', 'short_term_thinking', 'fear'],
+  },
+  { id:'life_medical', cat:'life', tag:'tag-life', diff:'⭐⭐⭐⭐⭐', name:'Medical Emergency', desc:'Parent hospitalised. ₹8L bill. Only ₹3L savings. No insurance.',
+    year:'Your future', portfolio:'₹5L stocks', initialPortfolio: 500000, finalIfHeld: 420000, finalIfSold: 380000,
+    narrative:'Ghar mein medical emergency. Bill ₹8L. Insurance nahi hai (just cancelled for "saving money"). Savings ₹3L. Portfolio mein ₹5L stocks hain — kuch profit mein, kuch loss mein. Tu kya karega?',
+    choices: ['🔴 Sab portfolio becho immediately at any price', '🟡 Pehle profitable stocks becho, phir loss wale', '🟢 Medical loan at 14% vs selling losing stocks — calculate', '💡 Sell losing stocks (STCG harvest) + take medical loan for rest'],
+    bestChoice: 3, worstChoice: 0,
+    held_outcome:'Tax-loss harvesting while selling + medical loan is mathematically optimal. 14% loan < missed returns if quality stocks sold at temporary low.',
+    sold_outcome:'Panic selling all at market price often means selling at temporary low PLUS triggering capital gains tax unnecessarily.',
+    biases: ['panic', 'loss_aversion'],
+    lesson: 'THIS IS WHY HEALTH INSURANCE IS NON-NEGOTIABLE. ₹15K/year health insurance > this entire scenario.',
+  },
+  { id:'life_wedding', cat:'life', tag:'tag-life', diff:'⭐⭐', name:'Wedding Pressure', desc:'₹15L wedding budget "expected". Savings only ₹5L.',
+    year:'Your future', portfolio:'₹5L + ₹8L retirement SIP', initialPortfolio: 500000, finalIfHeld: 800000, finalIfSold: 300000,
+    narrative:'"Log kya kahenge" pressure. Teri shaadi mein ₹15L expected hai family ko. Tera savings ₹5L. Retirement SIP mein ₹8L jo 10+ saal se chal rahi hai. Kuch relatives bol rahe hain "ek hi baar hoti hai shaadi — YOLO."',
+    choices: ['🔴 Retirement SIP withdraw karo + loan lo for full ₹15L wedding', '🟡 ₹8L wedding karo — apna savings + small loan', '🟢 ₹5L wedding — affordable, meaningful', '💡 Destination wedding with 30 close people — ₹4L budget'],
+    bestChoice: 3, worstChoice: 0,
+    held_outcome:'SIP withdrawal at ₹8L after 10 years means losing years of compounding. ₹8L in SIP at 12% CAGR for 10 more years = ₹24L. Wedding cost: 10 years of memories vs ₹16L opportunity cost.',
+    sold_outcome:'₹15L spent on single day = ₹50L+ opportunity cost at retirement. A meaningful small wedding is a better financial decision and often equally memorable.',
+    biases: ['social_pressure', 'status_bias', 'present_bias'],
+  },
+  { id:'life_caremu', cat:'life', tag:'tag-life', diff:'⭐⭐', name:'EMI Upgrade Temptation', desc:'New ₹18L car. Current salary ₹70K. ₹40K existing EMIs.',
+    year:'Your future', portfolio:'₹3L', initialPortfolio: 300000, finalIfHeld: 380000, finalIfSold: 180000,
+    narrative:'Promotion mili. Salary ₹60K se ₹70K ho gayi. Showroom mein naya ₹18L car — "life change ho jayegi." EMI ₹28,000/month hogi. Current EMIs (home loan) ₹40K. Total: ₹68K = 97% salary. Dealership bol raha hai "easy finance available."',
+    choices: ['🔴 Buy now — EMI ho jayegi, salary hai', '🟡 ₹10L ka car lo — compromise karo', '🟢 Second-hand 3-year-old car ₹8L — same utility', '💡 Public transport 2 more years, then buy with 50% cash'],
+    bestChoice: 3, worstChoice: 0,
+    held_outcome:'97% salary in EMIs = zero financial buffer. One medical expense or job loss = default. Cars depreciate 15-20% annually. ₹18L car worth ₹9L in 4 years.',
+    sold_outcome:'Second-hand car + savings invested: difference of ₹10L invested at 12% CAGR for 10 years = ₹31L.',
+    biases: ['status_bias', 'lifestyle_inflation', 'present_bias'],
+  },
+  { id:'life_loan', cat:'life', tag:'tag-life', diff:'⭐⭐⭐', name:'Friend Needs ₹2L Loan', desc:'Close friend needs urgent ₹2L. Your entire emergency fund.',
+    year:'Your future', portfolio:'₹2L emergency fund', initialPortfolio: 200000, finalIfHeld: 200000, finalIfSold: 0,
+    narrative:'Tera best friend ne phone kiya — "Yaar mujhe ₹2L chahiye, 2 mahine mein wapas kar dunga. Business mein problem hai." Yeh tera poora emergency fund hai. Tu kya karega?',
+    choices: ['🔴 De do — yaar hai, trust karte hain', '🟡 ₹50K de do — help kar aur emergency fund rakhho', '🟢 Politely say no — explain your own financial situation', '💡 Help find alternatives — NBFC loan, crowdfunding, family'],
+    bestChoice: 2, worstChoice: 0,
+    held_outcome:'Friendships survive honest financial conversations better than they survive unpaid loans. Your emergency fund exists for YOUR emergencies.',
+    sold_outcome:'Giving away emergency fund creates YOUR financial vulnerability. Statistics: 40% of friend loans never fully returned — strains relationships anyway.',
+    biases: ['social_pressure', 'authority_bias', 'empathy_trap'],
+  },
+
+  // ── MANIPULATION TRAPS ───────────────────────────────────────────────────
+  { id:'trap_pump', cat:'trap', tag:'tag-trap', diff:'⭐⭐⭐⭐', name:'Pump & Dump Penny Stock', desc:'WhatsApp group: "Next multibagger — ₹2 se ₹100 jayegi."',
+    year:'Any time', portfolio:'₹1L', initialPortfolio: 100000, finalIfHeld: 5000, finalIfSold: 95000,
+    narrative:'WhatsApp pe viral: "XYZABC Ltd — promoters bada contract sign karne wale hain. Abhi ₹2 pe hai. ₹100 target. Limited seats." Group mein 500+ members hain, sab bol rahe hain "maine daala." Stock kal se upper circuit lagna wali hai.',
+    choices: ['🔴 All in — ₹1L daal do', '🟡 ₹10K small bet', '🟢 Research karo — BSE/NSE pe company dekho', '❌ Block the group — yeh classic pump & dump hai'],
+    bestChoice: 3, worstChoice: 0,
+    held_outcome:'Classic pump-and-dump: organizers already bought at ₹0.50. Retail buyers at ₹2-5. When they sell, price crashes to ₹0.10. Circuit down for weeks. 95% permanent loss.',
+    sold_outcome:'Not investing = 100% capital preserved. These schemes specifically target retail investors who fear missing out.',
+    biases: ['fomo', 'authority_bias', 'herd_mentality'],
+  },
+  { id:'trap_broker', cat:'trap', tag:'tag-trap', diff:'⭐⭐⭐', name:"Broker's 'Hot Stock' Call", desc:'Sub-broker recommends F&O position. Guaranteed 50% in 2 weeks.',
+    year:'Any time', portfolio:'₹3L', initialPortfolio: 300000, finalIfHeld: 200000, finalIfSold: 275000,
+    narrative:'Tera sub-broker call karta hai: "Sir, ek guaranteed trade hai — NIFTY 22,500 CE. 2 weeks mein ₹50K se ₹1.5L ho jayega. Sirf ₹50K chahiye, baaki mein leverage dunga." Professional laga, confident laga. Kya karega?',
+    choices: ['🔴 "Guaranteed" hai — ₹3L invest karo', '🟡 ₹50K dalo — risk limit karo', '🟢 Iska track record maango, SEBI registered number check karo', '❌ Koi bhi "guaranteed" return ki baat kare — fraud hai, disconnect karo'],
+    bestChoice: 3, worstChoice: 0,
+    held_outcome:'SEBI regulations: no one can guarantee returns. F&O leverage losses can exceed capital. Many "sub-brokers" are unregistered and simply pocket the money.',
+    sold_outcome:'Verified registered advisors (RIA number on SEBI website) + verified track record = minimum due diligence.',
+    biases: ['authority_bias', 'greed', 'overconfidence'],
+  },
+  { id:'trap_insurance', cat:'trap', tag:'tag-trap', diff:'⭐⭐', name:'LIC Endowment vs ELSS', desc:'Agent pressures: "Family ke liye karo, ₹5L return guaranteed."',
+    year:'Any time', portfolio:'₹1L/year savings', initialPortfolio: 1000000, finalIfHeld: 2800000, finalIfSold: 1800000,
+    narrative:'Tera relative (insurance agent) ₹50K/year LIC endowment plan recommend karta hai. "20 saal mein ₹18L milenge. Life cover bhi." Calculation karte hain: ₹50K × 20 = ₹10L invested → ₹18L return = 3% CAGR. Alternatively: ₹50K ELSS + ₹8K term plan separately.',
+    choices: ['🔴 LIC endowment lo — relative ka trust hai', '🟡 ULIP lo — at least market exposure milega', '🟢 Term + ELSS — pure insurance + pure investment', '📊 Calculate exact returns both ways before deciding'],
+    bestChoice: 2, worstChoice: 0,
+    held_outcome:'₹50K in ELSS for 20 years at 12% CAGR = ₹48L. ₹8K term plan gives ₹1Cr cover. Total: ₹48L + ₹1Cr cover vs ₹18L endowment. Difference: ₹30L lost to bad product.',
+    sold_outcome:'ELSS + term = mathematically superior in almost all scenarios for working-age investors.',
+    biases: ['authority_bias', 'loss_aversion', 'complexity_aversion'],
+  },
+
+  // ── MAJOR EVENTS ─────────────────────────────────────────────────────────
+  { id:'crisis_demonet', cat:'crisis', tag:'tag-crisis', diff:'⭐⭐⭐', name:'2016 Demonetization', desc:'₹500 and ₹1000 notes invalid overnight. Cash economy shock.',
+    year:'Nov 8, 2016', portfolio:'₹2L', initialPortfolio: 200000, finalIfHeld: 260000, finalIfSold: 160000,
+    narrative:'PM Modi announced: ₹500 and ₹1000 notes invalid midnight. Nifty futures circuit down. Real estate stocks crashed. Bank stocks fell. Tu sochta hai market collapse hoga. Kya equity portfolio bechna chahiye?',
+    choices: ['🔴 Sab bech do — economy crash aayega', '🟡 50% cash karo', '🟢 Hold — short-term disruption, not structural damage', '📊 Analyse which sectors win (banks, digital payments) vs lose (real estate, cash economy)'],
+    bestChoice: 3, worstChoice: 0,
+    held_outcome:'Nifty ne 6 months mein pre-demonetization highs recover kiye. Digital payment stocks like Paytm (pre-IPO investors) saw massive gains. Sector rotation mattered more than panic.',
+    sold_outcome:'Selling on demonetization night locked in temporary losses. Economy adjusted faster than expected.',
+    biases: ['overreaction', 'news_trading', 'herd_mentality'],
+  },
+  { id:'crisis_rbi', cat:'crisis', tag:'tag-crisis', diff:'⭐⭐', name:'RBI Rate Hike Cycle', desc:'RBI raises rates 6 times in 8 months. Bond market chaos.',
+    year:'2022-2023', portfolio:'₹4L (30% bonds)', initialPortfolio: 400000, finalIfHeld: 450000, finalIfSold: 360000,
+    narrative:'RBI ne repo rate 4% se 6.5% kar di. Teri long-duration debt fund NAV ne 8% diya. Equity flat hai. Long bond funds -12% in 1 year. Sab keh rahe hain "bonds mein mat raho."',
+    choices: ['🔴 Debt funds immediately becho — loss cut karo', '🟡 Short-duration funds mein shift karo', '🟢 Hold — rate cycle ends eventually', '📊 Duration match with investment horizon'],
+    bestChoice: 1, worstChoice: 0,
+    held_outcome:'Short-duration debt funds provided stability while long-duration suffered. Smart shift preserved capital AND earned reasonable returns.',
+    sold_outcome:'Panic selling debt at rate-hike bottom locked in losses. Debt markets recovered as RBI paused hiking cycle.',
+    biases: ['recency_bias', 'loss_aversion'],
+  },
+];
+
+let currentScenarioIdx = 0;
+let filteredScenarios  = [...SCENARIOS];
+let userChoice         = null;
+
+/* ── Render scenario grid ─────────────────────────────────────────────── */
+function filterScenarios(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filteredScenarios = cat === 'all' ? [...SCENARIOS] : SCENARIOS.filter(s => s.cat === cat);
+  renderGrid();
+}
+
+function renderGrid() {
+  const grid = document.getElementById('scenarioGrid');
+  grid.innerHTML = filteredScenarios.map((s, i) => `
+    <div class="scenario-card" onclick="startScenario(${SCENARIOS.indexOf(s)})">
+      <span class="sc-tag ${s.tag}">${s.cat.toUpperCase()}</span>
+      <div class="sc-diff">${s.diff}</div>
+      <div class="sc-name">${s.name}</div>
+      <div class="sc-desc">${s.desc}</div>
+    </div>`).join('');
+}
+
+/* ── Start scenario ─────────────────────────────────────────────────────── */
+function startScenario(idx) {
+  const s = SCENARIOS[idx];
+  currentScenarioIdx = idx;
+  userChoice = null;
+
+  document.getElementById('scenarioPicker').style.display = 'none';
+  const arena = document.getElementById('simArena');
+  arena.classList.add('active');
+
+  document.getElementById('simYearBadge').innerHTML = `📅 ${s.year}`;
+  document.getElementById('simTitle').textContent = s.name;
+  document.getElementById('simPortfolioBar').innerHTML = `
+    <div class="pb-item">
+      <div class="pb-label">Your Portfolio</div>
+      <div class="pb-val" style="color:#ff6b6b;">${s.portfolio}</div>
+    </div>
+    <div class="pb-item">
+      <div class="pb-label">Initial Value</div>
+      <div class="pb-val" style="color:rgba(255,255,255,.7);">₹${(s.initialPortfolio/100000).toFixed(1)}L</div>
+    </div>
+    <div class="pb-item">
+      <div class="pb-label">Scenario</div>
+      <div class="pb-val" style="color:var(--purple);">${s.diff}</div>
+    </div>
+  `;
+
+  // Stream narrative via Ollama
+  const narr = document.getElementById('simNarrative');
+  narr.textContent = s.narrative;
+
+  // Render choices
+  const choicesEl = document.getElementById('simChoices');
+  choicesEl.innerHTML = s.choices.map((c, i) => `
+    <button class="sim-choice" onclick="makeChoice(${idx}, ${i}, this)">${c}</button>`).join('');
+
+  document.getElementById('simOutcome').classList.remove('active');
+}
+
+/* ── User makes a choice ────────────────────────────────────────────────── */
+function makeChoice(scenarioIdx, choiceIdx, btn) {
+  if (userChoice !== null) return;
+  userChoice = choiceIdx;
+
+  const s = SCENARIOS[scenarioIdx];
+
+  // Highlight choice
+  document.querySelectorAll('.sim-choice').forEach(b => {
+    b.style.opacity = '0.4'; b.style.cursor = 'default';
+  });
+  btn.style.opacity = '1';
+  btn.style.borderColor = choiceIdx === s.bestChoice ? '#00ff88' : choiceIdx === s.worstChoice ? '#ff6b6b' : '#ffb703';
+  btn.style.background = choiceIdx === s.bestChoice ? 'rgba(0,255,136,.1)' : choiceIdx === s.worstChoice ? 'rgba(255,107,107,.08)' : 'rgba(255,183,3,.06)';
+
+  revealOutcome(scenarioIdx, choiceIdx);
+}
+
+/* ── Reveal outcome ──────────────────────────────────────────────────────*/
+async function revealOutcome(scenarioIdx, choiceIdx) {
+  const s = SCENARIOS[scenarioIdx];
+  const outcome = document.getElementById('simOutcome');
+  outcome.classList.add('active');
+  outcome.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // Performance score
+  const isBest   = choiceIdx === s.bestChoice;
+  const isWorst  = choiceIdx === s.worstChoice;
+  const perfScore = isBest ? 100 : isWorst ? 10 : 55;
+
+  // Outcome comparison
+  document.getElementById('outcomeCompare').innerHTML = `
+    <div class="oc-box oc-box-held">
+      <div class="oc-label">📈 If Held / Best Action</div>
+      <div class="oc-amount" style="color:#00ff88;">₹${(s.finalIfHeld/100000).toFixed(1)}L</div>
+      <div class="oc-sub">${((s.finalIfHeld - s.initialPortfolio)/s.initialPortfolio*100).toFixed(0)}% return</div>
+    </div>
+    <div class="oc-box oc-box-sold">
+      <div class="oc-label">❌ If Panicked</div>
+      <div class="oc-amount" style="color:#ff6b6b;">₹${(s.finalIfSold/100000).toFixed(1)}L</div>
+      <div class="oc-sub">${((s.finalIfSold - s.initialPortfolio)/s.initialPortfolio*100).toFixed(0)}% return</div>
+    </div>`;
+
+  // Score chips
+  const color = isBest ? '#00ff88' : isWorst ? '#ff6b6b' : '#ffb703';
+  const label = isBest ? '🎯 Optimal Decision' : isWorst ? '⚠️ Costly Mistake' : '📊 Acceptable';
+  const biasesStr = (s.biases || []).map(b =>
+    `<span class="s-chip" style="background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.2);color:#ff6b6b;font-size:10px;padding:3px 10px;border-radius:12px;">${b.replace(/_/g,' ')}</span>`
+  ).join('');
+
+  document.getElementById('scoreChips').innerHTML = `
+    <span class="s-chip" style="background:${color}12;border:1px solid ${color}30;color:${color};font-size:12px;padding:5px 14px;border-radius:20px;">${label}</span>
+    ${biasesStr}`;
+
+  // Historical outcome text
+  const outcomeText = isBest ? s.held_outcome : isWorst ? s.sold_outcome : `${s.held_outcome}\n\nYour choice was reasonable, but the optimal path was: ${s.choices[s.bestChoice]}`;
+
+  // AI debrief
+  const debriefEl = document.getElementById('simDebriefText');
+  debriefEl.textContent = 'Arya debrief likh rahi hai…';
+
+  const archetype = localStorage.getItem('finos_financial_dna') || 'Investor';
+  const prompt = `
+Financial scenario: "${s.name}"
+User's choice: "${s.choices[choiceIdx]}"
+Optimal choice was: "${s.choices[s.bestChoice]}"
+Historical outcome: ${outcomeText}
+Biases triggered: ${(s.biases || []).join(', ')}
+User archetype: ${archetype}
+
+Write a 3-sentence Hinglish behavioral finance debrief:
+1. What bias/emotion drove this decision
+2. How this specific mistake costs ₹ over time (use the numbers)
+3. ONE practical rule to avoid this bias next time
+
+Warm, non-judgmental, like a wise mentor. No preamble.
+`.trim();
+
+  const OLLAMA_URL = 'http://localhost:11434/api/generate';
+  try {
+    const resp = await fetch(OLLAMA_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'qwen3:14b', prompt,
+        system: 'You are Arya, FIN-OS behavioral finance coach. 3-sentence warm Hinglish debrief. No preamble. Mention specific ₹ amounts.',
+        stream: true, options: { temperature: 0.6, num_predict: 200 },
+      }),
+    });
+    const reader = resp.body.getReader();
+    const dec    = new TextDecoder();
+    let full = '';
+    debriefEl.textContent = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      dec.decode(value).split('\n').forEach(line => {
+        if (!line.trim()) return;
+        try {
+          const d = JSON.parse(line);
+          const tok = (d.response || '').replace(/<think>[\s\S]*?<\/think>/gi, '');
+          if (tok) { full += tok; debriefEl.textContent = full; }
+        } catch {}
+      });
+    }
+    if (!full) debriefEl.textContent = outcomeText;
+  } catch {
+    debriefEl.textContent = outcomeText;
+  }
+
+  // Save score to localStorage
+  const simScores = JSON.parse(localStorage.getItem('finos_sim_scores') || '{}');
+  simScores[s.id] = { score: perfScore, choice: choiceIdx, taken_at: new Date().toISOString() };
+  localStorage.setItem('finos_sim_scores', JSON.stringify(simScores));
+}
+
+function nextScenario() {
+  const nextIdx = (currentScenarioIdx + 1) % SCENARIOS.length;
+  startScenario(nextIdx);
+}
+
+function backToGrid() {
+  document.getElementById('scenarioPicker').style.display = 'block';
+  document.getElementById('simArena').classList.remove('active');
+  renderGrid();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderGrid();
+});
+</script>
+
+<script src="../js/mobile-nav.js"></script>
+<script src="../js/pwa-init.js"></script>
+<script src="../js/finos-widget.js?v=4"></script>
+<script src="../js/finos-search.js?v=2"></script>
+<style>
+#floatBackBtn{position:fixed;bottom:22px;left:82px;z-index:9999;padding:8px 16px 8px 12px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);color:rgba(255,255,255,0.55);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s,color .2s,transform .2s;backdrop-filter:blur(10px);text-decoration:none;}
+#floatBackBtn:hover{background:rgba(255,255,255,0.10);color:#fff;transform:translateX(-3px);}
+</style>
+<a id="floatBackBtn" onclick="history.back();return false;" href="#">‹ BACK</a>
+</body>
+</html>
