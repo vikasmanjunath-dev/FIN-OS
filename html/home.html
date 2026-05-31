@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- <noreload> — tells VS Code Live Server NOT to inject HMR / auto-reload script -->
 <html lang="en">
 <head>
 <script>
@@ -7,6 +8,7 @@
   
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FIN-OS — Your personalized AI-powered financial operating system for Indian investors.">
   <meta name="theme-color" content="#0B0D12">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,6 +16,10 @@
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
   <title>Home | FIN-OS</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -130,8 +136,6 @@
 <script src="../js/home-focus.js"></script>
 
     </section>
-     
-</section>
     
     <style>
       /* ── PROTOCOL 0X HERO SECTION ── */
@@ -350,16 +354,16 @@
 </div>
 <script src="../js/ui.js"></script>
 
-</section>
-
-
-</div>
-
   <script>
   // ── Arya Home Daily Tip ─────────────────────────────────────────────────────
   const _HOME_TIP_KEY = 'arya_home_tip_v1_' + new Date().toDateString();
 
   async function loadHomeTip(force) {
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => loadHomeTip(force));
+      return;
+    }
     const el = document.getElementById('arya-home-tip-text');
     const btn = document.getElementById('arya-home-refresh');
     if (!el || typeof AryaAI === 'undefined') return;
@@ -851,6 +855,7 @@
 
   // Calls the FastAPI endpoint we built in brain.py
   async function callBackend(message, typing) {
+    window._aiStreamActive = true; // Block SW updates during API call
     try {
       const resp = await fetch(`${QFT_API}/api/chat`, {
         method: 'POST',
@@ -878,6 +883,7 @@
       typing.remove();
       await streamOllama(null, err); // Fallback to direct Ollama if FastAPI is down
     } finally {
+      window._aiStreamActive = false; // Release guard (streamOllama sets its own)
       unlock();
     }
   }
@@ -888,10 +894,18 @@
 Give direct, data-driven financial advice for Indian professionals. Use ₹ for amounts. Reference SIP, EMI, Nifty, ELSS. Zero fluff. Always quantify.
 \n[USER CONTEXT]\n${getFinosContext()}`;
 
+    // Signal that streaming is active — prevents SW update from reloading mid-response
+    window._aiStreamActive = true;
+
+    const controller = new AbortController();
+    // Abort fetch if user navigates away
+    window.addEventListener('beforeunload', () => controller.abort(), { once: true });
+
     try {
       const resp = await fetch(OLLAMA, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           model: MODEL,
           messages: [
@@ -911,6 +925,17 @@ Give direct, data-driven financial advice for Indian professionals. Use ₹ for 
       const decoder = new TextDecoder();
       let chunk = '';
 
+      // Use textContent for per-token updates (no markdown parse per token)
+      // and a debounced markdown render for readability
+      let renderTimer = null;
+      function scheduleRender() {
+        clearTimeout(renderTimer);
+        renderTimer = setTimeout(() => {
+          msgDiv.innerHTML = DOMPurify.sanitize(marked.parse(buffer));
+          scrollBottom();
+        }, 120); // render markdown at most ~8x per second
+      }
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -924,23 +949,30 @@ Give direct, data-driven financial advice for Indian professionals. Use ₹ for 
             const token = parsed.message?.content;
             if (token) {
               buffer += token;
-              msgDiv.innerHTML = DOMPurify.sanitize(marked.parse(buffer));
+              // Fast raw text update on every token
+              msgDiv.textContent = buffer;
               scrollBottom();
+              // Debounced markdown render
+              scheduleRender();
             }
           } catch {}
         }
       }
+
+      // Final render with full markdown
+      clearTimeout(renderTimer);
+      msgDiv.innerHTML = DOMPurify.sanitize(marked.parse(buffer));
+      scrollBottom();
       history.push({ role: 'assistant', content: buffer });
 
     } catch (err) {
       if (typing) typing.remove();
       const errDiv = appendMsg('', 'ai');
       errDiv.classList.add('qft-msg-error');
-      errDiv.innerHTML = `⚠️ QFT offline.<br>
-        Start backend: <code>uvicorn brain:app --host 0.0.0.0 --port 8000</code><br>
-        or check Ollama.<br>
-        <small>${backendErr ? backendErr.message + ' / ' : ''}${err.message}</small>`;
+      errDiv.innerHTML = `⚠️ QFT is offline right now.<br>
+        <small style="color:rgba(255,255,255,.4)">The AI engine is not running. Please ensure the backend services are started.</small>`;
     } finally {
+      window._aiStreamActive = false; // Release SW update guard
       unlock();
     }
   }

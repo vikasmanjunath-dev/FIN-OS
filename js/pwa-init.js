@@ -1,17 +1,22 @@
 /**
- * FIN•OS PWA Init — Phase 1
- * Registers the service worker from html/ pages (one level deep).
+ * FIN•OS PWA Init — Phase 2
+ * Safe SW registration: never reloads the page mid-stream.
+ *
+ * Key rules:
+ *  1. On localhost: unregister SW + clear caches (dev mode — always fresh).
+ *  2. On production: register SW; listen for updates.
+ *  3. On SW update: wait until the AI is idle before activating the new SW.
+ *     This prevents controllerchange from interrupting a streaming response.
  */
+
+// Global flag that QFT / Arya / VoiceAgent set to true while streaming
+window._aiStreamActive = false;
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
     const isLocalhost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
 
-    // In local development we want fresh HTML/JS immediately after edits.
-    // Unregister any existing service workers so stale cached pages cannot mask fixes.
-    // GUARD: only run once per browser session — the unregister can fire a
-    // controllerchange event which some browsers interpret as a page reload trigger,
-    // causing an infinite reload loop if pwa-init.js runs every time.
+    /* ── DEV MODE: disable SW entirely ──────────────────────────────────── */
     if (isLocalhost) {
       if (sessionStorage.getItem('_pwa_dev_cleaned')) return;
       sessionStorage.setItem('_pwa_dev_cleaned', '1');
@@ -29,20 +34,76 @@ if ('serviceWorker' in navigator) {
           }
         })
         .then(function () {
-          console.log('FIN•OS dev mode: service workers disabled and caches cleared for localhost');
+          console.log('[FIN-OS] Dev mode: SW disabled, caches cleared.');
         })
         .catch(function (err) {
-          console.log('FIN•OS dev SW cleanup failed', err);
+          console.warn('[FIN-OS] Dev SW cleanup failed:', err);
         });
       return;
     }
 
+    /* ── PRODUCTION: register SW + safe update handling ─────────────────── */
     navigator.serviceWorker.register('../sw.js', { scope: '../' })
       .then(function (reg) {
-        console.log('FIN•OS SW registered', reg.scope);
+        console.log('[FIN-OS] SW registered', reg.scope);
+
+        // When a new SW has installed and is waiting, prompt it to activate
+        // ONLY when the AI is not mid-stream.
+        function trySkipWaiting(waiting) {
+          if (!waiting) return;
+
+          function doSkip() {
+            console.log('[FIN-OS] SW update: activating (AI idle).');
+            waiting.postMessage({ type: 'SKIP_WAITING' });
+          }
+
+          // If AI is streaming, wait for it to finish
+          if (window._aiStreamActive) {
+            var poll = setInterval(function () {
+              if (!window._aiStreamActive) {
+                clearInterval(poll);
+                setTimeout(doSkip, 500); // small buffer after stream ends
+              }
+            }, 500);
+          } else {
+            // Idle — safe to update after a brief delay
+            setTimeout(doSkip, 3000);
+          }
+        }
+
+        // SW waiting already (page was opened after new SW installed)
+        if (reg.waiting) {
+          trySkipWaiting(reg.waiting);
+        }
+
+        // SW installed while page is open
+        reg.addEventListener('updatefound', function () {
+          var newWorker = reg.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener('statechange', function () {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              trySkipWaiting(newWorker);
+            }
+          });
+        });
       })
       .catch(function (err) {
-        console.log('SW registration failed', err);
+        console.warn('[FIN-OS] SW registration failed:', err);
       });
+
+    // On controllerchange: reload the page ONLY when not mid-stream
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (window._aiStreamActive) {
+        // Wait for stream to finish, then reload
+        var poll = setInterval(function () {
+          if (!window._aiStreamActive) {
+            clearInterval(poll);
+            setTimeout(function () { window.location.reload(); }, 300);
+          }
+        }, 500);
+      } else {
+        window.location.reload();
+      }
+    });
   });
 }

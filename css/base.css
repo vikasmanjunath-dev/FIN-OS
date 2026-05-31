@@ -58,154 +58,73 @@ body {
 
 
 
-:root[data-theme="light"] {
-  --text-primary: #0B0D12;
+/* =========================
+   FIN-OS DESIGN TOKENS — LIGHT MODE (default)
+   Single authoritative :root block — DO NOT duplicate below
+   ========================= */
+:root {
+  /* Backgrounds */
+  --bg-main:     #F7F9FC;
+  --bg-surface:  #FFFFFF;
+  --bg-glass:    rgba(255, 255, 255, 0.65);
+  --bg-sidebar:  #0E1117;
+
+  /* Text */
+  --text-primary:   #0B0D12;
   --text-secondary: #5F677A;
-  --bg-main: #FFFFFF;
-  --bg-surface: #FFFFFF;
-}
-
-:root[data-theme="dark"] {
-  --text-primary: #F5F7FA;
-  --text-secondary: #A1A8B8;
-  --bg-main: #0B0D12;
-  --bg-surface: #12151D;
-}
-
-
-
-/* =========================
-   COLOR SYSTEM — LIGHT MODE
-   ========================= */
-
-:root {
-  /* Backgrounds */
-  --bg-main: #F7F8FA;
-  --bg-surface: #FFFFFF;
-  --bg-sidebar: #0E1117;
-
-  /* Text */
-  --text-primary: #0B0F19;
-  --text-secondary: #5B6475;
+  --text-main:      #0B0D12;   /* alias — kept for backwards compatibility */
+  --text-muted:     #5E6475;
 
   /* Accent */
-  --accent: #4F7CFF;
-  --accent-soft: #E9EEFF;
+  --accent:          #4F7CFF;
+  --accent-primary:  #4F7CFF;
+  --accent-secondary:#C7F000;
+  --accent-soft:     rgba(79, 124, 255, 0.15);
 
   /* Cards & UI */
   --card-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.06),
-    0 4px 12px rgba(0, 0, 0, 0.04);
+    0 10px 25px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.03);
 
   /* Borders */
-  --border-soft: rgba(0, 0, 0, 0.06);
-}
+  --border-soft: rgba(0, 0, 0, 0.08);
 
-/* =========================
-   COLOR SYSTEM — LIGHT MODE
-   ========================= */
+  /* Glow */
+  --glow-primary:   rgba(79, 124, 255, 0.35);
+  --glow-secondary: rgba(199, 240, 0, 0.35);
 
-:root {
-  /* Backgrounds */
-  --bg-main: #F7F8FA;
-  --bg-surface: #FFFFFF;
-  --bg-sidebar: #0E1117;
-
-  /* Text */
-  --text-primary: #0B0F19;
-  --text-secondary: #5B6475;
-
-  /* Accent */
-  --accent: #4F7CFF;
-  --accent-soft: #E9EEFF;
-
-  /* Cards & UI */
-  --card-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.06),
-    0 4px 12px rgba(0, 0, 0, 0.04);
-
-  /* Borders */
-  --border-soft: rgba(0, 0, 0, 0.06);
-}
-
-
-
-body {
-  font-family: 'Inter', sans-serif;
-  color: var(--text-main);
-  /* Was #111 */
-}
-
-h1,
-h2 {
-  font-family: 'Manrope', sans-serif;
-  letter-spacing: -0.4px;
-}
-
-h1 {
-  font-size: 34px;
-  font-weight: 700;
-}
-
-h2 {
-  font-size: 22px;
-  font-weight: 600;
-}
-
-:root {
+  /* Radii */
   --radius-xl: 20px;
   --radius-lg: 14px;
 }
 
-
-/* RESET DEFAULT BROWSER SPACING */
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-
-
-
-
 /* =========================
-   DESIGN TOKENS – LIGHT MODE
-   ========================= */
-:root {
-  --bg-main: #F7F8FA;
-  --bg-surface: #FFFFFF;
-  --bg-sidebar: #0E0F12;
-
-  --text-primary: #0B0C10;
-  --text-secondary: #6B7280;
-
-  --accent: #4F7CFF;
-  --accent-soft: rgba(79, 124, 255, 0.15);
-
-  --card-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.04),
-    0 1px 2px rgba(0, 0, 0, 0.03);
-}
-
-/* =========================
-   DESIGN TOKENS – DARK MODE
+   FIN-OS DESIGN TOKENS — DARK MODE
    ========================= */
 [data-theme="dark"] {
-  --bg-main: #0B0C10;
-  --bg-surface: #15171D;
-  --bg-sidebar: #000000;
+  --bg-main:     #0B0D12;
+  --bg-surface:  rgba(20, 24, 40, 0.9);
+  --bg-glass:    rgba(255, 255, 255, 0.06);
+  --bg-sidebar:  #0E1117;
 
-  --text-primary: #F5F6FA;
-  --text-secondary: #9CA0AB;
+  --text-primary:   #F5F7FA;
+  --text-secondary: #A1A8B8;
+  --text-main:      #F5F7FA;
+  --text-muted:     #9AA0B4;
 
-  --accent: #6F8CFF;
-  --accent-soft: rgba(111, 140, 255, 0.18);
+  --accent:          #4F7CFF;
+  --accent-primary:  #4F7CFF;
+  --accent-secondary:#C7F000;
+  --accent-soft:     rgba(79, 124, 255, 0.18);
 
   --card-shadow:
     0 15px 35px rgba(0, 0, 0, 0.6),
     0 2px 8px rgba(0, 0, 0, 0.5);
+
+  --border-soft: rgba(255, 255, 255, 0.10);
+
+  --glow-primary:   rgba(79, 124, 255, 0.55);
+  --glow-secondary: rgba(199, 240, 0, 0.45);
 }
 
 html,
@@ -241,48 +160,6 @@ html {
   background: #6a7380;
 }
 
-
-
-
-/* =========================
-   FIN-OS COLOR SYSTEM
-   ========================= */
-
-/* ---------- LIGHT MODE ---------- */
-[data-theme="light"] {
-  --bg-main: #F7F9FC;
-  --bg-surface: rgba(255, 255, 255, 0.9);
-  --bg-glass: rgba(255, 255, 255, 0.65);
-
-  --text-main: #0B0D12;
-  --text-muted: #5E6475;
-
-  --accent-primary: #4F7CFF;
-  /* Electric Blue */
-  --accent-secondary: #C7F000;
-  /* Neon Lime */
-
-  --border-soft: rgba(11, 13, 18, 0.12);
-  --glow-primary: rgba(79, 124, 255, 0.35);
-  --glow-secondary: rgba(199, 240, 0, 0.35);
-}
-
-/* ---------- DARK MODE ---------- */
-[data-theme="dark"] {
-  --bg-main: #0B0D12;
-  --bg-surface: rgba(20, 24, 40, 0.9);
-  --bg-glass: rgba(255, 255, 255, 0.06);
-
-  --text-main: #F5F7FA;
-  --text-muted: #9AA0B4;
-
-  --accent-primary: #4F7CFF;
-  --accent-secondary: #C7F000;
-
-  --border-soft: rgba(255, 255, 255, 0.18);
-  --glow-primary: rgba(79, 124, 255, 0.55);
-  --glow-secondary: rgba(199, 240, 0, 0.45);
-}
 
 
 /* =========================
@@ -382,32 +259,8 @@ html {
 
 
 
-/* =========================
-   REINFORCED THEME VARIABLES
-   ========================= */
-
-:root {
-  /* DARK MODE */
-  --bg-main: #0B0D12;
-  --bg-surface: #12151D;
-  --text-main: #F5F7FA;
-  --text-muted: #9AA0B4;
-  --border-soft: rgba(255, 255, 255, 0.1);
-}
-
-[data-theme="light"] {
-  /* LIGHT MODE (Fixes invisible elements) */
-  --bg-main: #F7F9FC;
-  /* Light gray background */
-  --bg-surface: #FFFFFF;
-  /* Solid white panels */
-  --text-main: #0B0D12;
-  /* Near-black text */
-  --text-muted: #5F677A;
-  /* Deep gray for secondary text */
-  --border-soft: rgba(0, 0, 0, 0.1);
-  /* Visible dark border */
-}
+/* ── Note: Theme tokens are defined once at the top of this file.
+   The :root and [data-theme="dark"] blocks above are the sole authority. ──── */
 
 /* Ensure all pages follow these rules */
 .main {

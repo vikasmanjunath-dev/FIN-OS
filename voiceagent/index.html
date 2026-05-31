@@ -946,6 +946,7 @@ function onMsg(m){
     case 'pipeline_start':
       // New response starting — reset audio queue, cancel any ongoing speech
       _pipelineActive = true;
+      window._aiStreamActive = true;  // Block SW updates mid-stream
       resetSeqQueue();
       if('speechSynthesis' in window) window.speechSynthesis.cancel();
       speakQueue = []; isSpeaking = false;
@@ -956,6 +957,7 @@ function onMsg(m){
       break;
 
     case 'reply_done':
+      window._aiStreamActive = false; // Text stream finished (audio may still play)
       onReplyDone(m.text, m.display);
       break;
 

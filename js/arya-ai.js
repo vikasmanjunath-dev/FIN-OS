@@ -519,6 +519,30 @@ Rules:
 
   const AryaAI = {};
 
+  /* ── _speak: Text-to-speech via Web Speech API (graceful no-op fallback) ── */
+  AryaAI._speak = function (text) {
+    if (!text || typeof text !== 'string') return;
+    try {
+      if ('speechSynthesis' in window) {
+        const utt = new SpeechSynthesisUtterance(text.slice(0, 200));
+        utt.lang = 'en-IN';
+        utt.rate = 1.0;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utt);
+      }
+    } catch (e) { /* TTS is non-critical — fail silently */ }
+  };
+
+  /* ── getContext: Returns the current FINOS_USER_CONTEXT object ── */
+  AryaAI.getContext = function () {
+    return window.FINOS_USER_CONTEXT || null;
+  };
+
+  /* ── getContextBlock: Returns pre-built context string for system prompts ── */
+  AryaAI.getContextBlock = function () {
+    return _buildContextBlock();
+  };
+
   /* ── Q1: Calculator AI Explainer ────────────────────────────────────────── */
   /**
    * Call this after any calculator's calculate() function.

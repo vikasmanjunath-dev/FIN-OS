@@ -70,11 +70,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.querySelectorAll(".card").forEach(card => {
     card.addEventListener("mouseenter", () => {
-      card.style.transform = "translateY(-6px)";
+      if (!card._entering) card.style.transform = "translateY(-6px)";
     });
 
     card.addEventListener("mouseleave", () => {
-      card.style.transform = "translateY(0)";
+      if (!card._entering) card.style.transform = "translateY(0)";
     });
   });
 
@@ -85,14 +85,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const cards = document.querySelectorAll(".card");
 
   cards.forEach((card, i) => {
+    card._entering = true;
     card.style.opacity = "0";
     card.style.transform = "translateY(20px)";
 
     setTimeout(() => {
       card.style.transition =
-        "all 0.6s cubic-bezier(0.16,1,0.3,1)";
+        "opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1)";
       card.style.opacity = "1";
       card.style.transform = "translateY(0)";
+      // Clear the entering flag after transition completes
+      setTimeout(() => {
+        card._entering = false;
+        // Restore the full transition so hover works smoothly
+        card.style.transition = "all 0.3s cubic-bezier(0.16,1,0.3,1)";
+      }, 650);
     }, i * 80);
   });
 

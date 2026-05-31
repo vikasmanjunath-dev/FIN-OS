@@ -110,10 +110,19 @@ self.addEventListener('install', function (event) {
         })
       );
     }).then(function () {
-      console.log('[SW] Install complete — finos-v1');
-      return self.skipWaiting();
+      console.log('[SW] Install complete — waiting for idle page to activate');
+      // DO NOT call skipWaiting() here.
+      // We wait for the page to send SKIP_WAITING when not mid-stream,
+      // preventing the controllerchange event from interrupting active responses.
     })
   );
+});
+
+// Allow the page to trigger skipWaiting safely when it knows the UI is idle
+self.addEventListener('message', function (event) {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 /* ── Activate: delete old caches ───────────────────────────────── */
