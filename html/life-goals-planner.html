@@ -116,6 +116,29 @@ body{background:#0B0D12;color:#fff;font-family:-apple-system,BlinkMacSystemFont,
 <body>
 <div class="page">
 
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+    <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
+       border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+       color:rgba(255,255,255,.55);font-size:12px;font-weight:600;text-decoration:none;
+       transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.09)'"
+       onmouseout="this.style.background='rgba(255,255,255,.04)'">← Dashboard</a>
+    <a href="track-finances.html" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
+       border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+       color:rgba(255,255,255,.55);font-size:12px;font-weight:600;text-decoration:none;
+       transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.09)'"
+       onmouseout="this.style.background='rgba(255,255,255,.04)'">💰 Track Finances</a>
+    <a href="diagnostics.html" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
+       border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+       color:rgba(255,255,255,.55);font-size:12px;font-weight:600;text-decoration:none;
+       transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.09)'"
+       onmouseout="this.style.background='rgba(255,255,255,.04)'">🔬 Diagnostics</a>
+    <a href="home.html" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
+       border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+       color:rgba(255,255,255,.55);font-size:12px;font-weight:600;text-decoration:none;
+       transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.09)'"
+       onmouseout="this.style.background='rgba(255,255,255,.04)'">🏠 Home</a>
+  </div>
+
   <div class="hero">
     <div class="hero-badge">🧠 AI Planner</div>
     <h1>Life Goals Planner</h1>
@@ -160,6 +183,9 @@ body{background:#0B0D12;color:#fff;font-family:-apple-system,BlinkMacSystemFont,
       <button class="gen-btn" id="genBtn" onclick="generateRoadmap()">
         🗺️ Generate My Financial Roadmap
       </button>
+      <div id="validationError" style="display:none;margin-top:12px;padding:10px 14px;border-radius:10px;
+        background:rgba(240,68,68,.08);border:1px solid rgba(240,68,68,.25);
+        color:#f06b6b;font-size:13px;line-height:1.5;"></div>
     </div>
   </div>
 
@@ -260,28 +286,76 @@ function splitItem(item) {
   return { icon: item.slice(0, idx), text: item.slice(idx + 1) };
 }
 
+function showValidationError(msg) {
+  const el = document.getElementById('validationError');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function clearValidationError() {
+  const el = document.getElementById('validationError');
+  if (el) el.style.display = 'none';
+}
+
 /* ── Main roadmap generator ──────────────────────────────────────────── */
 function generateRoadmap() {
-  const age        = parseInt(document.getElementById('inAge').value)       || 28;
-  const income     = parseFloat(document.getElementById('inIncome').value)  || 120000;
+  clearValidationError();
+
+  const age        = parseInt(document.getElementById('inAge').value);
+  const income     = parseFloat(document.getElementById('inIncome').value);
   const savings    = parseFloat(document.getElementById('inSavings').value) || 0;
-  const surplus    = parseFloat(document.getElementById('inSurplus').value) || 35000;
+  const surplus    = parseFloat(document.getElementById('inSurplus').value);
   const retireAge  = parseInt(document.getElementById('inRetireAge').value) || 58;
   const returnRate = parseFloat(document.getElementById('inReturn').value) / 100 || 0.12;
 
+  // Validate required fields
+  if (!age || age < 18 || age > 80) {
+    showValidationError('Please enter a valid age between 18 and 80.');
+    document.getElementById('inAge').focus();
+    return;
+  }
+  if (!income || income < 1000) {
+    showValidationError('Please enter a monthly income of at least ₹1,000.');
+    document.getElementById('inIncome').focus();
+    return;
+  }
+  if (!surplus || surplus <= 0) {
+    showValidationError('Please enter how much you can invest each month (must be greater than 0).');
+    document.getElementById('inSurplus').focus();
+    return;
+  }
+  if (surplus >= income) {
+    showValidationError('Monthly investable amount cannot be greater than or equal to your monthly income.');
+    document.getElementById('inSurplus').focus();
+    return;
+  }
+  if (retireAge <= age) {
+    showValidationError('Retirement age must be greater than your current age.');
+    document.getElementById('inRetireAge').focus();
+    return;
+  }
+
+  const goals = [];
+  let goalError = null;
+  document.querySelectorAll('.goal-row').forEach(row => {
+    const id     = row.id.replace('goal-row-', '');
+    const name   = document.getElementById(`g-name-${id}`)?.value?.trim() || '';
+    const amount = parseFloat(document.getElementById(`g-amt-${id}`)?.value) || 0;
+    const years  = parseInt(document.getElementById(`g-yrs-${id}`)?.value)  || 0;
+    if (name && !amount) goalError = `Goal "${name}" needs a target amount.`;
+    if (name && !years) goalError = goalError || `Goal "${name}" needs a timeframe (years).`;
+    if (amount > 0) goals.push({ name: name || 'Goal', amount, years: years || 10, inflation: (parseFloat(document.getElementById(`g-inf-${id}`)?.value) || 6) / 100 });
+  });
+  if (goalError) { showValidationError(goalError); return; }
+  if (!goals.length) {
+    showValidationError('Please add at least one financial goal before generating the roadmap.');
+    return;
+  }
+
   const btn = document.getElementById('genBtn');
   btn.disabled = true; btn.textContent = '⏳ Calculating…';
-
-  // Read goals
-  const goals = [];
-  document.querySelectorAll('.goal-row').forEach(row => {
-    const id = row.id.replace('goal-row-', '');
-    const name   = document.getElementById(`g-name-${id}`)?.value?.trim() || 'Goal';
-    const amount = parseFloat(document.getElementById(`g-amt-${id}`)?.value) || 0;
-    const years  = parseInt(document.getElementById(`g-yrs-${id}`)?.value)  || 10;
-    const inf    = (parseFloat(document.getElementById(`g-inf-${id}`)?.value) || 6) / 100;
-    if (amount > 0) goals.push({ name, amount, years, inflation: inf });
-  });
 
   // ── Core computations ──────────────────────────────────────────────
   const monthlyExpenses = income - surplus;

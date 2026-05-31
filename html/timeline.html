@@ -1,0 +1,454 @@
+<!-- <noreload> -->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Timeline | FIN•OS</title>
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/animations.css">
+<link rel="stylesheet" href="../css/theme.css">
+<script src="../js/finos-context.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  /* Hero */
+  .tl-hero {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 60%, #1a1f2e 100%);
+    border: 1px solid rgba(0,212,255,.15);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .tl-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(0,212,255,.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .tl-hero h1 { font-size: 1.6rem; margin: 0 0 6px; }
+  .tl-hero p  { color: var(--text-muted); margin: 0; font-size: .95rem; }
+
+  /* Stat cards */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-card .sc-label { font-size: .75rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .06em; }
+  .stat-card .sc-val   { font-size: 1.8rem; font-weight: 800; color: var(--text-primary); }
+  .stat-card .sc-sub   { font-size: .8rem; color: var(--text-muted); margin-top: 4px; }
+  .sc-up   { color: #22d3a6; }
+  .sc-down { color: #f04444; }
+  .sc-blue { color: #00d4ff; }
+  .sc-gold { color: #f0c040; }
+
+  /* Chart container */
+  .chart-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 28px;
+    position: relative;
+  }
+  .chart-card h2 { font-size: 1rem; margin: 0 0 20px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+  .chart-wrap { position: relative; height: 280px; }
+
+  /* Timeline events */
+  .tl-section-title {
+    font-size: .8rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--text-muted);
+    margin: 0 0 16px;
+  }
+  .tl-events { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+  .tl-event {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: background .15s;
+  }
+  .tl-event:hover { background: rgba(255,255,255,.03); }
+  .tl-event-date {
+    font-size: .78rem; color: var(--text-muted);
+    white-space: nowrap; min-width: 80px;
+  }
+  .tl-event-emoji { font-size: 1.5rem; }
+  .tl-event-body { flex: 1; }
+  .tl-event-score { font-size: 1.1rem; font-weight: 800; color: var(--text-primary); }
+  .tl-event-delta { font-size: .82rem; font-weight: 600; margin-left: 8px; }
+  .delta-up   { color: #22d3a6; }
+  .delta-down { color: #f04444; }
+  .tl-event-desc { font-size: .82rem; color: var(--text-muted); margin-top: 3px; }
+
+  /* Tier badge */
+  .tier-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: .72rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .tier-ELITE  { background: rgba(240,192,64,.15);  color: #f0c040; border: 1px solid rgba(240,192,64,.35); }
+  .tier-GREAT  { background: rgba(34,211,166,.12);  color: #22d3a6; border: 1px solid rgba(34,211,166,.3); }
+  .tier-GOOD   { background: rgba(0,212,255,.12);   color: #00d4ff; border: 1px solid rgba(0,212,255,.3); }
+  .tier-FAIR   { background: rgba(240,165,0,.12);   color: #f0a500; border: 1px solid rgba(240,165,0,.3); }
+  .tier-DANGER { background: rgba(240,68,68,.12);   color: #f04444; border: 1px solid rgba(240,68,68,.3); }
+
+  /* Demo banner */
+  .demo-banner {
+    background: rgba(240,165,0,.1);
+    border: 1px solid rgba(240,165,0,.25);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: .82rem;
+    color: #f0a500;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  /* Skeleton */
+  .skeleton {
+    background: linear-gradient(90deg,
+      rgba(255,255,255,.05) 25%,
+      rgba(255,255,255,.1) 50%,
+      rgba(255,255,255,.05) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  .skel-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    height: 80px;
+  }
+
+  @media (max-width: 768px) {
+    .tl-hero h1 { font-size: 1.3rem; }
+    .chart-wrap { height: 200px; }
+    .tl-event-date { min-width: 60px; font-size: .72rem; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="financial-hub.html">⚡ Command Hub</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="content-wrapper">
+
+      <!-- HERO -->
+      <div class="tl-hero">
+        <h1>Your Financial Journey 📈</h1>
+        <p>Health score trajectory over time — milestones, dips &amp; comebacks</p>
+      </div>
+
+      <!-- DEMO BANNER -->
+      <div class="demo-banner" id="demoBanner">
+        ⚠️ Demo mode — showing sample data (alert engine offline)
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="stat-grid" id="statGrid">
+        <div class="skel-card skeleton"></div>
+        <div class="skel-card skeleton"></div>
+        <div class="skel-card skeleton"></div>
+        <div class="skel-card skeleton"></div>
+      </div>
+
+      <!-- CHART -->
+      <div class="chart-card">
+        <h2>Health Score — Last 90 Days</h2>
+        <div class="chart-wrap">
+          <canvas id="tlChart"></canvas>
+        </div>
+      </div>
+
+      <!-- MILESTONE EVENTS -->
+      <div class="tl-section-title">Key Milestones</div>
+      <div class="tl-events" id="tlEvents">
+        <div class="skel-card skeleton" style="height:70px;"></div>
+        <div class="skel-card skeleton" style="height:70px;"></div>
+        <div class="skel-card skeleton" style="height:70px;"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+const ALERT_ENGINE = 'http://localhost:8001';
+const SUPABASE_URL = 'https://oeapcyucnduhwpgxfknb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let chartInstance = null;
+
+function getTier(score) {
+  if (score >= 85) return 'ELITE';
+  if (score >= 70) return 'GREAT';
+  if (score >= 55) return 'GOOD';
+  if (score >= 40) return 'FAIR';
+  return 'DANGER';
+}
+
+function getTierEmoji(score) {
+  if (score >= 85) return '👑';
+  if (score >= 70) return '🌟';
+  if (score >= 55) return '✅';
+  if (score >= 40) return '⚠️';
+  return '🚨';
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' });
+}
+
+function generateDemoData() {
+  const data = [];
+  const now = new Date();
+  // 90 days of data going from ~52 → ~71
+  for (let i = 89; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    const progress = (89 - i) / 89;
+    // sigmoid-like curve: starts slow, accelerates, then tapers
+    const base = 52 + progress * 19;
+    const noise = (Math.sin(i * 0.7) * 2.2) + (Math.cos(i * 1.3) * 1.4);
+    const score = Math.round(Math.max(48, Math.min(76, base + noise)));
+    data.push({
+      date: d.toISOString().split('T')[0],
+      score
+    });
+  }
+  return data;
+}
+
+function renderChart(history) {
+  const labels = history.map(h => formatDate(h.date));
+  const scores = history.map(h => h.score);
+
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+  const ctx = document.getElementById('tlChart').getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+  gradient.addColorStop(0, 'rgba(0,212,255,0.35)');
+  gradient.addColorStop(1, 'rgba(0,212,255,0.00)');
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Health Score',
+        data: scores,
+        borderColor: '#00d4ff',
+        backgroundColor: gradient,
+        borderWidth: 2.5,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: '#00d4ff',
+        tension: 0.35,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(11,13,18,0.95)',
+          borderColor: 'rgba(0,212,255,.3)',
+          borderWidth: 1,
+          titleColor: '#8892a4',
+          bodyColor: '#F5F7FA',
+          callbacks: {
+            label: ctx => ` Score: ${ctx.parsed.y}  (${getTier(ctx.parsed.y)})`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,.04)' },
+          ticks: {
+            color: '#8892a4',
+            font: { size: 10 },
+            maxTicksLimit: 10,
+          }
+        },
+        y: {
+          min: 30,
+          max: 100,
+          grid: { color: 'rgba(255,255,255,.06)' },
+          ticks: { color: '#8892a4', font: { size: 10 } }
+        }
+      }
+    }
+  });
+}
+
+function renderStatCards(history) {
+  const scores = history.map(h => h.score);
+  const current = scores[scores.length - 1];
+  const peak    = Math.max(...scores);
+  const lowest  = Math.min(...scores);
+  const netChange = current - scores[0];
+  const changeClass = netChange >= 0 ? 'sc-up' : 'sc-down';
+  const changeSymbol = netChange >= 0 ? '▲' : '▼';
+
+  document.getElementById('statGrid').innerHTML = `
+    <div class="stat-card">
+      <div class="sc-label">Current Score</div>
+      <div class="sc-val sc-blue">${current}</div>
+      <div class="sc-sub">${getTier(current)}</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">Peak Score</div>
+      <div class="sc-val sc-gold">${peak}</div>
+      <div class="sc-sub">${getTier(peak)}</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">Lowest Score</div>
+      <div class="sc-val" style="color:#8892a4">${lowest}</div>
+      <div class="sc-sub">${getTier(lowest)}</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">Net Change (90d)</div>
+      <div class="sc-val ${changeClass}">${changeSymbol}${Math.abs(netChange)}</div>
+      <div class="sc-sub">vs start of period</div>
+    </div>`;
+}
+
+function renderMilestones(history) {
+  const THRESHOLD = 3;
+  const milestones = [];
+
+  for (let i = 1; i < history.length; i++) {
+    const delta = history[i].score - history[i - 1].score;
+    if (Math.abs(delta) >= THRESHOLD) {
+      milestones.push({
+        date: history[i].date,
+        score: history[i].score,
+        delta,
+        tier: getTier(history[i].score)
+      });
+    }
+  }
+
+  // Deduplicate close events (keep most significant per 7-day window)
+  const deduped = [];
+  let lastDate = null;
+  for (const m of milestones) {
+    const d = new Date(m.date);
+    if (!lastDate || (d - lastDate) / 864e5 >= 5) {
+      deduped.push(m);
+      lastDate = d;
+    } else if (Math.abs(m.delta) > Math.abs(deduped[deduped.length - 1].delta)) {
+      deduped[deduped.length - 1] = m;
+      lastDate = d;
+    }
+  }
+
+  const container = document.getElementById('tlEvents');
+  if (deduped.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:20px;">No major score changes in this period.</p>';
+    return;
+  }
+
+  container.innerHTML = deduped.map(m => {
+    const isUp = m.delta > 0;
+    const emoji = isUp ? getTierEmoji(m.score) : '📉';
+    const deltaClass = isUp ? 'delta-up' : 'delta-down';
+    const deltaSymbol = isUp ? '+' : '';
+    const desc = isUp
+      ? `Score improved by ${m.delta} points — ${m.tier} territory`
+      : `Score dropped by ${Math.abs(m.delta)} points — review your finances`;
+    return `
+      <div class="tl-event">
+        <div class="tl-event-date">${formatDate(m.date)}</div>
+        <div class="tl-event-emoji">${emoji}</div>
+        <div class="tl-event-body">
+          <div>
+            <span class="tl-event-score">${m.score}</span>
+            <span class="tl-event-delta ${deltaClass}">${deltaSymbol}${m.delta}</span>
+          </div>
+          <div class="tl-event-desc">${desc}</div>
+        </div>
+        <span class="tier-badge tier-${m.tier}">${m.tier}</span>
+      </div>`;
+  }).join('');
+}
+
+async function loadTimeline() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const uid = session?.user?.id || 'demo';
+
+    if (uid === 'demo') throw new Error('no session');
+
+    const res = await fetch(`${ALERT_ENGINE}/health-score/${uid}/history?days=90`);
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+
+    const history = Array.isArray(data) ? data : data.history;
+    if (!history || history.length === 0) throw new Error('empty');
+
+    renderChart(history);
+    renderStatCards(history);
+    renderMilestones(history);
+
+  } catch (err) {
+    console.warn('[Timeline] Falling back to demo data:', err.message);
+    document.getElementById('demoBanner').style.display = 'block';
+    const demo = generateDemoData();
+    renderChart(demo);
+    renderStatCards(demo);
+    renderMilestones(demo);
+  }
+}
+
+loadTimeline();
+</script>
+</body>
+</html>

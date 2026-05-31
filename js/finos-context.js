@@ -272,6 +272,21 @@
     // Focus/habit history (last 7 entries only — don't bloat context)
     const focusHistory = (safeJson('finos_focus_history', []) || []).slice(-7);
 
+    // Session engagement tracking (written by finos-personalization.js)
+    const _streak = safeJson('finos_streak', { count: 0, lastDate: null, longestStreak: 0 });
+    const _sessionMeta = (() => {
+      const key = 'finos_session_meta';
+      let meta = safeJson(key, { count: 0, firstDate: null });
+      const today = new Date().toDateString();
+      if (meta.lastDate !== today) {
+        meta.count = (meta.count || 0) + 1;
+        if (!meta.firstDate) meta.firstDate = today;
+        meta.lastDate = today;
+        try { localStorage.setItem(key, JSON.stringify(meta)); } catch {}
+      }
+      return meta;
+    })();
+
     // Learning progress — modules completed + quiz scores
     const learnedModules = safeJson('finos_learned_modules', {}) || {};
     const quizScores     = safeJson('finos_learn_quiz_scores', {}) || {};
@@ -345,6 +360,18 @@
       /* ── Cross-app data (budget tracker + trade journal) ── */
       budget_tracker: collectBudgetTracker(),
       trade_journal:  collectTradeJournal(),
+
+      /* ── Engagement & session history ── */
+      engagement: {
+        streak_days:     _streak.count    || 0,
+        longest_streak:  _streak.longestStreak || 0,
+        last_active:     _streak.lastDate  || null,
+        total_sessions:  _sessionMeta.count || 0,
+        member_since:    _sessionMeta.firstDate || null,
+        days_since_first: _sessionMeta.firstDate
+          ? Math.floor((Date.now() - new Date(_sessionMeta.firstDate).getTime()) / 86400000)
+          : 0,
+      },
     };
 
     /* Restore identity from previous full sync stored in sessionStorage */

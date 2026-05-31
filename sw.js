@@ -6,7 +6,9 @@
 
 'use strict';
 
-const CACHE_NAME = 'finos-v2';
+// Cache version is injected at build time by scripts/inject-sw-version.js
+// Fallback 'finos-v2' is used in local dev without a build step
+const CACHE_NAME = (typeof __CACHE_VERSION__ !== 'undefined') ? __CACHE_VERSION__ : 'finos-v2';
 
 // Pre-cached static assets (relative to sw.js at root)
 const PRECACHE_ASSETS = [

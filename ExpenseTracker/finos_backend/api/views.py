@@ -112,40 +112,72 @@ _EVENT_MULTIPLIERS = {
 _RISK_THRESHOLD_PCT = 0.20  # 20% above avg = risky
 
 
-def _ewma(values: list, alpha: float = 0.3) -> list:
-    """
-    Exponential Weighted Moving Average — manual Holt-Winters Level.
-    alpha: smoothing factor (0 = fully historical, 1 = fully reactive)
-    """
-    if not values:
-        return []
-    smoothed = [values[0]]
-    for v in values[1:]:
-        smoothed.append(alpha * v + (1 - alpha) * smoothed[-1])
-    return smoothed
-
-
 def _holt_forecast(values: list, alpha: float = 0.3, beta: float = 0.1) -> float:
     """
-    Holt's Double Exponential Smoothing (trend-aware) — no statsmodels needed.
+    Holt's Double Exponential Smoothing — fallback for short history (<6 months).
     Returns forecast for next period.
     """
     if not values:
         return 0.0
     if len(values) == 1:
-        return values[0]
+        return float(values[0])
 
-    # Initialise
-    level = values[0]
-    trend = values[1] - values[0]
-
+    level = float(values[0])
+    trend = float(values[1]) - float(values[0])
     for v in values[1:]:
         prev_level = level
-        level = alpha * v + (1 - alpha) * (level + trend)
+        level = alpha * float(v) + (1 - alpha) * (level + trend)
         trend = beta * (level - prev_level) + (1 - beta) * trend
+    return max(0.0, level + trend)
 
-    forecast = level + trend
-    return max(0.0, forecast)
+
+def _holt_winters_forecast(values: list) -> float:
+    """
+    Triple Exponential Smoothing (Holt-Winters additive) via statsmodels.
+    Captures seasonal patterns (Diwali, school fees, etc.) automatically.
+    Falls back to Holt's double if statsmodels unavailable or history too short.
+    Requires ≥12 data points (12 months) for seasonal_periods=12.
+    """
+    if len(values) < 6:
+        return _holt_forecast(values)
+
+    try:
+        from statsmodels.tsa.holtwinters import ExponentialSmoothing
+        import warnings, numpy as np
+
+        arr = np.array(values, dtype=float)
+
+        if len(arr) >= 12:
+            # Full Holt-Winters with annual seasonality
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                model = ExponentialSmoothing(
+                    arr,
+                    trend="add",
+                    seasonal="add",
+                    seasonal_periods=12,
+                    initialization_method="estimated",
+                ).fit(optimized=True, use_brute=False)
+            forecast = float(model.forecast(1)[0])
+        else:
+            # Holt's double (no seasonality) for 6–11 months of data
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                model = ExponentialSmoothing(
+                    arr,
+                    trend="add",
+                    seasonal=None,
+                    initialization_method="estimated",
+                ).fit(optimized=True)
+            forecast = float(model.forecast(1)[0])
+
+        return max(0.0, forecast)
+
+    except ImportError:
+        # statsmodels not installed — use manual Holt's
+        return _holt_forecast(values)
+    except Exception:
+        return _holt_forecast(values)
 
 
 @csrf_exempt
@@ -214,8 +246,8 @@ def forecast_budget(request):
         if sum(series) == 0:
             continue
 
-        # Compute forecast using Holt's method
-        predicted = _holt_forecast(series)
+        # Compute forecast using Holt-Winters (seasonal) or Holt's (short history)
+        predicted = _holt_winters_forecast(series)
 
         # Apply event seasonal multipliers
         for event in upcoming_events:

@@ -1,0 +1,459 @@
+<!-- <noreload> -->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peer Benchmarking | FIN•OS</title>
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/animations.css">
+<link rel="stylesheet" href="../css/theme.css">
+<script src="../js/finos-context.js"></script>
+<style>
+  .bench-hero {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 60%, #1a1f2e 100%);
+    border: 1px solid rgba(0,212,255,.15);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bench-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 70% 40%, rgba(0,212,255,.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .bench-hero h1 { font-size: 1.6rem; margin: 0 0 6px; }
+  .bench-hero p  { color: var(--text-muted); margin: 0; font-size: .95rem; }
+  .segment-badge {
+    display: inline-flex; gap: 8px; flex-wrap: wrap; margin-top: 14px;
+  }
+  .seg-chip {
+    background: rgba(0,212,255,.1); border: 1px solid rgba(0,212,255,.25);
+    border-radius: 20px; padding: 4px 12px; font-size: .78rem;
+    color: var(--accent); font-weight: 600;
+  }
+
+  /* Arya summary card */
+  .arya-summary {
+    background: linear-gradient(90deg, rgba(0,212,255,.08), rgba(80,80,255,.06));
+    border: 1px solid rgba(0,212,255,.2);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  .arya-avatar { font-size: 2rem; line-height: 1; }
+  .arya-text   { font-size: .95rem; color: var(--text-primary); line-height: 1.6; }
+  .arya-name   { font-weight: 700; color: var(--accent); font-size: .8rem; margin-bottom: 4px; }
+
+  /* Benchmark table */
+  .bench-table-wrap {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .bench-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .bench-table thead th {
+    background: rgba(0,212,255,.06);
+    padding: 14px 20px;
+    text-align: left;
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .bench-table thead th:not(:first-child) { text-align: center; }
+  .bench-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    transition: background .15s;
+  }
+  .bench-table tbody tr:last-child { border-bottom: none; }
+  .bench-table tbody tr:hover { background: rgba(255,255,255,.02); }
+  .bench-table td {
+    padding: 16px 20px;
+    font-size: .92rem;
+    vertical-align: middle;
+  }
+  .bench-table td:not(:first-child) { text-align: center; }
+
+  .metric-label { font-weight: 600; color: var(--text-primary); }
+  .metric-user  {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .metric-peer  { color: var(--text-muted); font-size: .9rem; }
+  .metric-top   { color: #22d3a6; font-size: .9rem; font-weight: 600; }
+
+  /* Bar inside user cell */
+  .user-cell { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .mini-bar-wrap {
+    width: 80px; height: 6px;
+    background: rgba(255,255,255,.08);
+    border-radius: 10px; overflow: hidden;
+  }
+  .mini-bar { height: 100%; border-radius: 10px; transition: width .6s ease; }
+
+  /* Status badge */
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: .72rem; font-weight: 700; white-space: nowrap;
+  }
+  .badge-top10    { background: rgba(34,211,166,.15); color: #22d3a6; border: 1px solid rgba(34,211,166,.3); }
+  .badge-above    { background: rgba(0,212,255,.12);  color: #00d4ff; border: 1px solid rgba(0,212,255,.3); }
+  .badge-avg      { background: rgba(240,165,0,.12);  color: #f0a500; border: 1px solid rgba(240,165,0,.3); }
+  .badge-below    { background: rgba(240,68,68,.12);  color: #f04444; border: 1px solid rgba(240,68,68,.3); }
+
+  /* Arya comment per row */
+  .row-arya {
+    font-size: .8rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 4px;
+  }
+
+  /* Score cards row */
+  .score-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .score-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+  }
+  .score-card .sc-label { font-size: .75rem; color: var(--text-muted); margin-bottom: 6px; }
+  .score-card .sc-val   { font-size: 1.6rem; font-weight: 800; }
+  .score-card .sc-unit  { font-size: .8rem;  color: var(--text-muted); margin-left: 2px; }
+  .sc-green { color: #22d3a6; }
+  .sc-amber { color: #f0a500; }
+  .sc-red   { color: #f04444; }
+  .sc-blue  { color: #00d4ff; }
+
+  /* Loading skeleton */
+  .skeleton {
+    background: linear-gradient(90deg,
+      rgba(255,255,255,.05) 25%,
+      rgba(255,255,255,.1) 50%,
+      rgba(255,255,255,.05) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  .loading-row td div { height: 18px; }
+
+  /* Refresh button */
+  .refresh-btn {
+    background: rgba(0,212,255,.1);
+    border: 1px solid rgba(0,212,255,.3);
+    color: var(--accent);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: .83rem;
+    cursor: pointer;
+    transition: background .2s;
+    font-weight: 600;
+  }
+  .refresh-btn:hover { background: rgba(0,212,255,.2); }
+
+  @media (max-width: 768px) {
+    .bench-table thead th:nth-child(3),
+    .bench-table tbody td:nth-child(3) { display: none; }
+    .bench-hero h1 { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="financial-hub.html">⚡ Command Hub</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="content-wrapper">
+
+      <!-- HEADER -->
+      <div class="bench-hero">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h1>How Do I Compare? 📊</h1>
+            <p>Anonymised peer benchmarking — your age group, city tier &amp; income bracket</p>
+            <div class="segment-badge" id="segmentBadges">
+              <span class="seg-chip skeleton" style="width:70px;height:22px;">&nbsp;</span>
+              <span class="seg-chip skeleton" style="width:50px;height:22px;">&nbsp;</span>
+              <span class="seg-chip skeleton" style="width:80px;height:22px;">&nbsp;</span>
+            </div>
+          </div>
+          <button class="refresh-btn" onclick="loadBenchmark()">↻ Refresh</button>
+        </div>
+      </div>
+
+      <!-- ARYA SUMMARY -->
+      <div class="arya-summary" id="aryaSummary" style="display:none;">
+        <div class="arya-avatar">🤖</div>
+        <div>
+          <div class="arya-name">ARYA</div>
+          <div class="arya-text" id="aryaText">Loading…</div>
+        </div>
+      </div>
+
+      <!-- SCORE CARDS -->
+      <div class="score-cards" id="scoreCards">
+        <div class="score-card"><div class="sc-label">Above Average</div><div class="sc-val skeleton" style="height:34px;width:40px;margin:auto;">&nbsp;</div></div>
+        <div class="score-card"><div class="sc-label">At Average</div><div class="sc-val skeleton" style="height:34px;width:40px;margin:auto;">&nbsp;</div></div>
+        <div class="score-card"><div class="sc-label">Below Target</div><div class="sc-val skeleton" style="height:34px;width:40px;margin:auto;">&nbsp;</div></div>
+        <div class="score-card"><div class="sc-label">In Top 10%</div><div class="sc-val skeleton" style="height:34px;width:40px;margin:auto;">&nbsp;</div></div>
+      </div>
+
+      <!-- BENCHMARK TABLE -->
+      <div class="bench-table-wrap">
+        <table class="bench-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>You</th>
+              <th>Avg Peer</th>
+              <th>Top 10%</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="benchTableBody">
+            <!-- loading rows -->
+            <tr class="loading-row"><td><div class="skeleton" style="width:120px;"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton" style="width:100px;"></div></td></tr>
+            <tr class="loading-row"><td><div class="skeleton" style="width:140px;"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton" style="width:100px;"></div></td></tr>
+            <tr class="loading-row"><td><div class="skeleton" style="width:110px;"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton" style="width:100px;"></div></td></tr>
+            <tr class="loading-row"><td><div class="skeleton" style="width:130px;"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton" style="width:100px;"></div></td></tr>
+            <tr class="loading-row"><td><div class="skeleton" style="width:120px;"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton" style="width:100px;"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- DISCLAIMER -->
+      <p style="font-size:.75rem;color:var(--text-muted);text-align:center;margin-top:-10px;">
+        Benchmarks sourced from SEBI AMFI reports, RBI Household Finance Survey, and NPS Trust data.
+        Zero PII stored — only percentile segments.
+      </p>
+
+    </div>
+  </main>
+</div>
+
+<script>
+const ALERT_ENGINE = 'http://localhost:8001';
+
+const SUPABASE_URL = 'https://oeapcyucnduhwpgxfknb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const STATUS_META = {
+  top_10:     { cls: 'badge-top10', icon: '🏆', label: 'Top 10%'      },
+  above_avg:  { cls: 'badge-above', icon: '🟢', label: 'Above Avg'    },
+  average:    { cls: 'badge-avg',   icon: '🟡', label: 'Average'      },
+  below_target:{ cls:'badge-below', icon: '🔴', label: 'Below Target' },
+};
+
+const BAR_COLOR = {
+  top_10:       '#22d3a6',
+  above_avg:    '#00d4ff',
+  average:      '#f0a500',
+  below_target: '#f04444',
+};
+
+function barPct(user, avg, top10, lowerIsBetter) {
+  if (lowerIsBetter) {
+    if (user === 0) return 100;
+    const worst = avg * 1.8;
+    return Math.max(5, Math.min(100, (1 - user / worst) * 100));
+  }
+  const ref = Math.max(top10, user) * 1.1 || 1;
+  return Math.max(5, Math.min(100, user / ref * 100));
+}
+
+function renderTable(metrics) {
+  const tbody = document.getElementById('benchTableBody');
+  tbody.innerHTML = '';
+  metrics.forEach(m => {
+    const meta = STATUS_META[m.status] || STATUS_META.average;
+    const pct  = barPct(m.user, m.avg, m.top10, m.lower_is_better).toFixed(1);
+    const col  = BAR_COLOR[m.status] || '#888';
+    const userFmt = `${m.user}${m.unit}`;
+    const avgFmt  = `${m.avg}${m.unit}`;
+    const topFmt  = `${m.top10}${m.unit}`;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div class="metric-label">${m.label}</div>
+        <div class="row-arya">${m.arya_comment}</div>
+      </td>
+      <td>
+        <div class="user-cell">
+          <div class="metric-user">${userFmt}</div>
+          <div class="mini-bar-wrap">
+            <div class="mini-bar" style="width:${pct}%;background:${col};"></div>
+          </div>
+        </div>
+      </td>
+      <td><span class="metric-peer">${avgFmt}</span></td>
+      <td><span class="metric-top">${topFmt}</span></td>
+      <td>
+        <span class="status-badge ${meta.cls}">
+          ${meta.icon} ${meta.label}
+        </span>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderScoreCards(data) {
+  const top10 = data.metrics.filter(m => m.status === 'top_10').length;
+  const above = data.metrics.filter(m => m.status === 'above_avg').length;
+  const avg   = data.metrics.filter(m => m.status === 'average').length;
+  const below = data.metrics.filter(m => m.status === 'below_target').length;
+
+  document.getElementById('scoreCards').innerHTML = `
+    <div class="score-card">
+      <div class="sc-label">Above Average</div>
+      <div class="sc-val sc-blue">${above + top10}<span class="sc-unit">/ ${data.metrics.length}</span></div>
+    </div>
+    <div class="score-card">
+      <div class="sc-label">At Average</div>
+      <div class="sc-val sc-amber">${avg}</div>
+    </div>
+    <div class="score-card">
+      <div class="sc-label">Below Target</div>
+      <div class="sc-val sc-red">${below}</div>
+    </div>
+    <div class="score-card">
+      <div class="sc-label">In Top 10%</div>
+      <div class="sc-val sc-green">${top10}</div>
+    </div>`;
+}
+
+function renderSegment(seg) {
+  const badges = document.getElementById('segmentBadges');
+  badges.innerHTML = `
+    <span class="seg-chip">👤 ${seg.age_bracket}</span>
+    <span class="seg-chip">🏙️ ${seg.city_tier}</span>
+    <span class="seg-chip">💰 ${seg.income_bracket} income</span>`;
+}
+
+function showUpgradeCTA(currentPlan) {
+  document.getElementById('aryaText').textContent =
+    `Peer Benchmarking is a Smart Plan feature. You're on the ${currentPlan || 'free'} plan — upgrade to compare yourself against peers.`;
+  document.getElementById('aryaSummary').style.display = 'flex';
+  document.getElementById('benchTableBody').innerHTML = `
+    <tr><td colspan="5" style="text-align:center;padding:40px;">
+      <div style="font-size:2rem;margin-bottom:12px;">🔒</div>
+      <div style="font-weight:700;margin-bottom:8px;">Smart Plan Required</div>
+      <div style="color:var(--text-muted);font-size:.88rem;margin-bottom:20px;">
+        Upgrade to Smart (₹199/mo) to unlock peer benchmarking
+      </div>
+      <a href="settings.html#upgrade"
+         style="background:linear-gradient(135deg,#7c3aed,#00d4ff);color:#fff;
+                border-radius:10px;padding:12px 28px;font-weight:700;
+                text-decoration:none;display:inline-block;">
+        Upgrade to Smart →
+      </a>
+    </td></tr>`;
+}
+
+async function loadBenchmark() {
+  // B13 fix: wrap entire function in try/catch — getSession() itself can throw
+  // on network errors, and refresh button should reset to skeleton state first.
+  document.getElementById('aryaSummary').style.display = 'none';
+
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      document.getElementById('aryaText').textContent =
+        'Please log in to see your peer benchmark.';
+      document.getElementById('aryaSummary').style.display = 'flex';
+      return;
+    }
+
+    const uid = session.user.id;
+    const res  = await fetch(`${ALERT_ENGINE}/benchmark/${uid}`);
+    if (res.status === 402) {
+      const err = await res.json();
+      showUpgradeCTA(err.detail?.current_plan);
+      return;
+    }
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+
+    renderTable(data.metrics);
+    renderScoreCards(data);
+    renderSegment(data.segment);
+
+    document.getElementById('aryaText').textContent = data.summary;
+    document.getElementById('aryaSummary').style.display = 'flex';
+
+  } catch (err) {
+    console.error(err);
+    // Fallback: show demo data so the page is useful even without backend
+    const demo = getDemoData();
+    renderTable(demo.metrics);
+    renderScoreCards(demo);
+    renderSegment(demo.segment);
+    document.getElementById('aryaText').textContent =
+      '(Demo mode — alert engine offline) ' + demo.summary;
+    document.getElementById('aryaSummary').style.display = 'flex';
+  }
+}
+
+function getDemoData() {
+  return {
+    segment: { age_bracket: '30s', city_tier: 'metro', income_bracket: 'mid' },
+    summary: 'Savings rate top 25% mein hai — well done. But insurance sirf 6× income hai. Industry standard 15× hai. Teri family ke liye risk hai. Abhi fix karte hain?',
+    metrics: [
+      { key:'savings_rate', label:'Savings Rate',    user:28,  avg:19,  top10:38,  unit:'%', lower_is_better:false, status:'above_avg',    arya_comment:'Bhai, savings rate top 25% mein hai — well done 🎉' },
+      { key:'invest_pct',   label:'Investment %',    user:12,  avg:8,   top10:22,  unit:'%', lower_is_better:false, status:'above_avg',    arya_comment:'Bhai, investment % top 25% mein hai — well done 🎉' },
+      { key:'debt_pct',     label:'Debt/Income',     user:22,  avg:31,  top10:8,   unit:'%', lower_is_better:true,  status:'average',      arya_comment:'Debt ratio average ke paas hai — thoda aur push kar sakte ho.' },
+      { key:'ef_months',    label:'Emergency Fund',  user:2.1, avg:1.8, top10:6,   unit:'mo',lower_is_better:false, status:'below_target', arya_comment:'⚠️ Emergency fund below target hai. 🛡️ liquid fund bana le — abhi fix karte hain?' },
+      { key:'ins_ratio',    label:'Insurance Cover', user:6,   avg:4,   top10:15,  unit:'×', lower_is_better:false, status:'below_target', arya_comment:'⚠️ Insurance below target hai. 🏥 term plan upgrade kar — abhi fix karte hain?' },
+    ],
+    above_count: 2,
+    below_count: 2,
+  };
+}
+
+loadBenchmark();
+</script>
+</body>
+</html>

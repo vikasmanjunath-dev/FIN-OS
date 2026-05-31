@@ -1,0 +1,641 @@
+<!-- <noreload> -->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Report | FIN•OS</title>
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/animations.css">
+<link rel="stylesheet" href="../css/theme.css">
+<script src="../js/finos-context.js"></script>
+<script src="../js/share-card.js"></script>
+<style>
+  /* ── Hero ── */
+  .rep-hero {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 60%, #1a1f2e 100%);
+    border: 1px solid rgba(0,212,255,.15);
+    border-radius: 20px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .rep-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 80% 30%, rgba(0,212,255,.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .rep-hero h1   { font-size: 1.5rem; margin: 0 0 4px; }
+  .rep-hero .sub { color: var(--text-muted); font-size: .88rem; }
+  .rep-actions   { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  .btn-print {
+    background: var(--accent);
+    color: #0B0D12;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-size: .9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .2s;
+  }
+  .btn-print:hover { opacity: .85; }
+
+  .btn-share {
+    background: rgba(0,212,255,.1);
+    border: 1px solid rgba(0,212,255,.3);
+    color: var(--accent);
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: .9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .btn-share:hover { background: rgba(0,212,255,.18); }
+
+  /* ── Section blocks ── */
+  .rep-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .rep-section-title {
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--text-muted);
+    margin: 0 0 18px;
+  }
+
+  /* ── Section 1: Health Score ── */
+  .score-ring-wrap {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .ring-container {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    flex-shrink: 0;
+  }
+  .ring-svg { transform: rotate(-90deg); }
+  .ring-bg   { fill: none; stroke: rgba(255,255,255,.08); stroke-width: 10; }
+  .ring-fill { fill: none; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset .8s ease; }
+  .ring-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .ring-score { font-size: 2rem; font-weight: 900; }
+  .ring-tier  { font-size: .68rem; font-weight: 700; color: var(--text-muted); margin-top: 2px; }
+
+  .score-details { flex: 1; }
+  .score-headline { font-size: 1.1rem; font-weight: 700; margin: 0 0 8px; }
+  .score-subtext  { font-size: .88rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* Tier badge */
+  .tier-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: .75rem;
+    font-weight: 700;
+  }
+  .tier-ELITE  { background: rgba(240,192,64,.15);  color: #f0c040; border: 1px solid rgba(240,192,64,.35); }
+  .tier-GREAT  { background: rgba(34,211,166,.12);  color: #22d3a6; border: 1px solid rgba(34,211,166,.3); }
+  .tier-GOOD   { background: rgba(0,212,255,.12);   color: #00d4ff; border: 1px solid rgba(0,212,255,.3); }
+  .tier-FAIR   { background: rgba(240,165,0,.12);   color: #f0a500; border: 1px solid rgba(240,165,0,.3); }
+  .tier-DANGER { background: rgba(240,68,68,.12);   color: #f04444; border: 1px solid rgba(240,68,68,.3); }
+
+  /* ── Section 2: Pillars Grid ── */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+  }
+  .pillar-card {
+    background: rgba(255,255,255,.02);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .pillar-name  { font-size: .78rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .06em; }
+  .pillar-score-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .pillar-score-val { font-size: 1.3rem; font-weight: 800; color: var(--text-primary); }
+  .pillar-grade { font-size: .8rem; font-weight: 700; padding: 2px 8px; border-radius: 8px; }
+  .grade-A { background: rgba(34,211,166,.15); color: #22d3a6; }
+  .grade-B { background: rgba(0,212,255,.12);  color: #00d4ff; }
+  .grade-C { background: rgba(240,165,0,.12);  color: #f0a500; }
+  .grade-D { background: rgba(240,68,68,.12);  color: #f04444; }
+  .pillar-bar-bg { height: 5px; background: rgba(255,255,255,.08); border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
+  .pillar-bar    { height: 100%; border-radius: 10px; transition: width .6s ease; }
+  .pillar-narrative { font-size: .77rem; color: var(--text-muted); line-height: 1.5; }
+
+  /* ── Section 3: Benchmark table (compact) ── */
+  .bench-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .bench-table thead th {
+    background: rgba(0,212,255,.05);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: .73rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .bench-table thead th:not(:first-child) { text-align: center; }
+  .bench-table tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); }
+  .bench-table tbody tr:last-child { border-bottom: none; }
+  .bench-table td { padding: 12px 14px; font-size: .88rem; }
+  .bench-table td:not(:first-child) { text-align: center; }
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: .7rem;
+    font-weight: 700;
+  }
+  .badge-top10    { background: rgba(34,211,166,.15); color: #22d3a6; border: 1px solid rgba(34,211,166,.3); }
+  .badge-above    { background: rgba(0,212,255,.12);  color: #00d4ff; border: 1px solid rgba(0,212,255,.3); }
+  .badge-avg      { background: rgba(240,165,0,.12);  color: #f0a500; border: 1px solid rgba(240,165,0,.3); }
+  .badge-below    { background: rgba(240,68,68,.12);  color: #f04444; border: 1px solid rgba(240,68,68,.3); }
+
+  /* ── Section 4: Action items ── */
+  .action-list { display: flex; flex-direction: column; gap: 14px; }
+  .action-item {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .action-num {
+    width: 36px; height: 36px; flex-shrink: 0;
+    background: rgba(0,212,255,.12);
+    border: 1px solid rgba(0,212,255,.3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; font-weight: 800; color: var(--accent);
+  }
+  .action-text { flex: 1; font-size: .95rem; line-height: 1.6; padding-top: 6px; }
+
+  /* ── Section 5: Arya message ── */
+  .arya-block {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .arya-avatar { font-size: 2.2rem; line-height: 1; }
+  .arya-inner .arya-name { font-weight: 700; font-size: .8rem; color: var(--accent); margin-bottom: 6px; }
+  .arya-inner .arya-headline { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+  .arya-inner .arya-win { font-size: .9rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* ── Report footer ── */
+  .rep-footer {
+    text-align: center;
+    font-size: .78rem;
+    color: var(--text-muted);
+    padding: 16px 0 4px;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+  }
+
+  /* ── Demo banner ── */
+  .demo-banner {
+    background: rgba(240,165,0,.1);
+    border: 1px solid rgba(240,165,0,.25);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: .82rem;
+    color: #f0a500;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  /* ── Skeleton ── */
+  .skeleton {
+    background: linear-gradient(90deg,
+      rgba(255,255,255,.05) 25%,
+      rgba(255,255,255,.1) 50%,
+      rgba(255,255,255,.05) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  /* ── Print styles ── */
+  @media print {
+    .sidebar, .rep-actions, .demo-banner { display: none !important; }
+    .app { display: block; }
+    .main { margin: 0; padding: 0; }
+    .content-wrapper { max-width: 100%; padding: 0; }
+    body, html { background: #fff !important; color: #111 !important; }
+    .rep-hero, .rep-section {
+      background: #f9f9f9 !important;
+      border: 1px solid #ddd !important;
+      color: #111 !important;
+    }
+    .rep-hero h1, .rep-section-title, .pillar-name,
+    .score-headline, .action-text, .arya-inner .arya-headline { color: #111 !important; }
+    .rep-hero p, .score-subtext, .pillar-narrative, .arya-inner .arya-win,
+    .bench-table td, .bench-table thead th, .arya-inner .arya-win,
+    .rep-footer { color: #555 !important; }
+    .ring-bg { stroke: #ddd !important; }
+    .rep-section { break-inside: avoid; }
+    .pillars-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .rep-hero h1 { font-size: 1.2rem; }
+    .pillars-grid { grid-template-columns: repeat(2, 1fr); }
+    .score-ring-wrap { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="financial-hub.html">⚡ Command Hub</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="../Porfolio Analyser/portfolio-analyser-v10.html">Portfolio X-Ray</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="content-wrapper">
+
+      <!-- HERO -->
+      <div class="rep-hero">
+        <div>
+          <h1>Financial Health Report 📄</h1>
+          <div class="sub" id="repSubline">Generating your report…</div>
+        </div>
+        <div class="rep-actions">
+          <button class="btn-share" onclick="handleShare()">🔗 Share</button>
+          <button class="btn-print" onclick="window.print()">🖨️ Print / PDF</button>
+        </div>
+      </div>
+
+      <!-- DEMO BANNER -->
+      <div class="demo-banner" id="demoBanner">
+        ⚠️ Demo mode — showing sample data (alert engine offline)
+      </div>
+
+      <!-- SECTION 1: HEALTH SCORE -->
+      <div class="rep-section" id="sec1">
+        <div class="rep-section-title">Health Score</div>
+        <div style="height:130px;" class="skeleton"></div>
+      </div>
+
+      <!-- SECTION 2: PILLARS -->
+      <div class="rep-section" id="sec2">
+        <div class="rep-section-title">8 Financial Pillars</div>
+        <div class="pillars-grid">
+          <div class="skeleton" style="height:110px;border-radius:12px;"></div>
+          <div class="skeleton" style="height:110px;border-radius:12px;"></div>
+          <div class="skeleton" style="height:110px;border-radius:12px;"></div>
+          <div class="skeleton" style="height:110px;border-radius:12px;"></div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: BENCHMARK -->
+      <div class="rep-section" id="sec3">
+        <div class="rep-section-title">Peer Benchmark</div>
+        <div style="height:120px;" class="skeleton"></div>
+      </div>
+
+      <!-- SECTION 4: ACTION ITEMS -->
+      <div class="rep-section" id="sec4">
+        <div class="rep-section-title">Top 3 Action Items</div>
+        <div style="height:90px;" class="skeleton"></div>
+      </div>
+
+      <!-- SECTION 5: ARYA -->
+      <div class="rep-section" id="sec5">
+        <div class="rep-section-title">Arya Says</div>
+        <div style="height:80px;" class="skeleton"></div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="rep-footer" id="repFooter"></div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+const ALERT_ENGINE = 'http://localhost:8001';
+const SUPABASE_URL = 'https://oeapcyucnduhwpgxfknb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const TIER_COLOR = {
+  ELITE:  '#f0c040',
+  GREAT:  '#22d3a6',
+  GOOD:   '#00d4ff',
+  FAIR:   '#f0a500',
+  DANGER: '#f04444',
+};
+
+function getTier(score) {
+  if (score >= 85) return 'ELITE';
+  if (score >= 70) return 'GREAT';
+  if (score >= 55) return 'GOOD';
+  if (score >= 40) return 'FAIR';
+  return 'DANGER';
+}
+
+function getGrade(score) {
+  if (score >= 80) return 'A';
+  if (score >= 60) return 'B';
+  if (score >= 40) return 'C';
+  return 'D';
+}
+
+function getPillarColor(score) {
+  if (score >= 80) return '#22d3a6';
+  if (score >= 60) return '#00d4ff';
+  if (score >= 40) return '#f0a500';
+  return '#f04444';
+}
+
+function formatDate(d) {
+  return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
+function renderSec1(hs) {
+  const tier  = getTier(hs.score);
+  const color = TIER_COLOR[tier];
+  const circ  = 2 * Math.PI * 52;
+  const offset = circ * (1 - hs.score / 100);
+
+  document.getElementById('sec1').innerHTML = `
+    <div class="rep-section-title">Health Score</div>
+    <div class="score-ring-wrap">
+      <div class="ring-container">
+        <svg class="ring-svg" width="130" height="130" viewBox="0 0 130 130">
+          <circle class="ring-bg" cx="65" cy="65" r="52"/>
+          <circle class="ring-fill" cx="65" cy="65" r="52"
+            stroke="${color}"
+            stroke-dasharray="${circ}"
+            stroke-dashoffset="${offset}"/>
+        </svg>
+        <div class="ring-label">
+          <div class="ring-score" style="color:${color}">${hs.score}</div>
+          <div class="ring-tier">${tier}</div>
+        </div>
+      </div>
+      <div class="score-details">
+        <div class="score-headline">
+          ${hs.headline || 'Your financial health at a glance'}
+          <span class="tier-badge tier-${tier}" style="margin-left:10px;">${tier}</span>
+        </div>
+        <div class="score-subtext">${hs.summary || hs.description || 'Comprehensive analysis of your 8 financial pillars.'}</div>
+      </div>
+    </div>`;
+}
+
+function renderSec2(pillars) {
+  const grid = pillars.map(p => {
+    const grade = getGrade(p.score);
+    const color = getPillarColor(p.score);
+    return `
+      <div class="pillar-card">
+        <div class="pillar-name">${p.name}</div>
+        <div class="pillar-score-row">
+          <div class="pillar-score-val" style="color:${color}">${p.score}</div>
+          <span class="pillar-grade grade-${grade}">${grade}</span>
+        </div>
+        <div class="pillar-bar-bg">
+          <div class="pillar-bar" style="width:${p.score}%;background:${color};"></div>
+        </div>
+        <div class="pillar-narrative">${p.narrative || p.description || '—'}</div>
+      </div>`;
+  }).join('');
+  document.getElementById('sec2').innerHTML = `
+    <div class="rep-section-title">8 Financial Pillars</div>
+    <div class="pillars-grid">${grid}</div>`;
+}
+
+function renderSec3(bench) {
+  const STATUS_META = {
+    top_10:       { cls: 'badge-top10', icon: '🏆', label: 'Top 10%'      },
+    above_avg:    { cls: 'badge-above', icon: '🟢', label: 'Above Avg'    },
+    average:      { cls: 'badge-avg',   icon: '🟡', label: 'Average'      },
+    below_target: { cls: 'badge-below', icon: '🔴', label: 'Below Target' },
+  };
+  const rows = bench.metrics.map(m => {
+    const meta = STATUS_META[m.status] || STATUS_META.average;
+    return `<tr>
+      <td>${m.label}</td>
+      <td><strong>${m.user}${m.unit}</strong></td>
+      <td style="color:var(--text-muted)">${m.avg}${m.unit}</td>
+      <td style="color:#22d3a6">${m.top10}${m.unit}</td>
+      <td><span class="status-badge ${meta.cls}">${meta.icon} ${meta.label}</span></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('sec3').innerHTML = `
+    <div class="rep-section-title">Peer Benchmark</div>
+    <table class="bench-table">
+      <thead><tr>
+        <th>Category</th><th>You</th><th>Avg Peer</th><th>Top 10%</th><th>Status</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function renderSec4(tips) {
+  const top3 = tips.slice(0, 3);
+  const items = top3.map((t, i) => `
+    <div class="action-item">
+      <div class="action-num">${i + 1}</div>
+      <div class="action-text">${t.text || t.tip || t}</div>
+    </div>`).join('');
+  document.getElementById('sec4').innerHTML = `
+    <div class="rep-section-title">Top 3 Action Items</div>
+    <div class="action-list">${items}</div>`;
+}
+
+function renderSec5(hs) {
+  document.getElementById('sec5').innerHTML = `
+    <div class="rep-section-title">Arya Says</div>
+    <div class="arya-block">
+      <div class="arya-avatar">🤖</div>
+      <div class="arya-inner">
+        <div class="arya-name">ARYA — Your Money AI</div>
+        <div class="arya-headline">${hs.headline || 'Your finances are on track.'}</div>
+        <div class="arya-win">${hs.quick_win || hs.tip || 'Keep building on your current habits. Small consistent actions compound into major results.'}</div>
+      </div>
+    </div>`;
+}
+
+function renderFooter() {
+  const d = formatDate(new Date());
+  document.getElementById('repFooter').textContent = `Generated by FIN•OS  |  finos.app  |  ${d}`;
+}
+
+function showToast(msg, duration = 3000) {
+  let el = document.getElementById('rep-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'rep-toast';
+    el.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);background:rgba(20,24,40,.97);border:1px solid rgba(255,255,255,.12);color:#fff;padding:10px 20px;border-radius:10px;font-size:.82rem;opacity:0;pointer-events:none;z-index:9999;white-space:nowrap;transition:opacity .2s,transform .2s;backdrop-filter:blur(12px);';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = '1';
+  el.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(-50%) translateY(16px)'; }, duration);
+}
+
+function handleShare() {
+  if (window.ShareCard && typeof ShareCard.showShareModal === 'function') {
+    ShareCard.showShareModal();
+  } else if (navigator.share) {
+    navigator.share({ title: 'My FIN•OS Financial Report', url: window.location.href });
+  } else {
+    navigator.clipboard?.writeText(window.location.href)
+      .then(() => showToast('Report link copied to clipboard!'))
+      .catch(() => showToast('Copy not supported — share the URL manually.'));
+  }
+}
+
+// ── Demo data ──
+function getDemoHealthScore() {
+  return {
+    score: 64,
+    tier: 'GOOD',
+    headline: 'Solid foundation — a few targeted fixes will push you to GREAT',
+    summary: 'Your savings discipline is strong and debt levels are manageable. Focus on building emergency reserves and boosting insurance cover.',
+    quick_win: 'Start a ₹5,000/month liquid fund SIP today — it builds your emergency buffer in 6 months with zero effort.',
+    tips: [
+      { text: 'Build emergency fund to 6 months of expenses (currently at 2.1 months).' },
+      { text: 'Increase term insurance cover to at least 15× annual income.' },
+      { text: 'Automate ₹3,000/month into an index fund SIP to boost investment pillar.' },
+    ],
+    pillars: [
+      { name: 'Savings',      score: 74, narrative: 'Savings rate of 28% — above peer average. Keep it up!' },
+      { name: 'Investments',  score: 58, narrative: 'Equity allocation is low. Increase SIP contributions.' },
+      { name: 'Debt',         score: 70, narrative: 'Debt-to-income at 22% — manageable. Avoid new EMIs.' },
+      { name: 'Insurance',    score: 38, narrative: 'Insurance gap: only 6× income covered vs 15× recommended.' },
+      { name: 'Emergency',    score: 35, narrative: 'Only 2.1 months of reserves. Target: 6 months minimum.' },
+      { name: 'Tax Planning', score: 62, narrative: '80C utilised. Explore NPS and HRA optimisations.' },
+      { name: 'Goals',        score: 68, narrative: 'Home goal on track. Retirement corpus needs attention.' },
+      { name: 'Net Worth',    score: 72, narrative: 'Net worth growing steadily at ~12% YoY.' },
+    ]
+  };
+}
+
+function getDemoBenchmark() {
+  return {
+    segment: { age_bracket: '30s', city_tier: 'metro', income_bracket: 'mid' },
+    metrics: [
+      { key:'savings_rate', label:'Savings Rate',    user:28,  avg:19,  top10:38,  unit:'%', status:'above_avg'    },
+      { key:'invest_pct',   label:'Investment %',    user:12,  avg:8,   top10:22,  unit:'%', status:'above_avg'    },
+      { key:'debt_pct',     label:'Debt/Income',     user:22,  avg:31,  top10:8,   unit:'%', status:'average'      },
+      { key:'ef_months',    label:'Emergency Fund',  user:2.1, avg:1.8, top10:6,   unit:'mo',status:'below_target' },
+      { key:'ins_ratio',    label:'Insurance Cover', user:6,   avg:4,   top10:15,  unit:'×', status:'below_target' },
+    ]
+  };
+}
+
+async function loadReport() {
+  const now = new Date();
+  let userName = 'FIN•OS User';
+
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      userName = session.user.user_metadata?.full_name || session.user.email || userName;
+    }
+  } catch (_) {}
+
+  document.getElementById('repSubline').innerHTML =
+    `<strong>${userName}</strong> &nbsp;|&nbsp; Generated on ${formatDate(now)}`;
+
+  let hsData, benchData;
+
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const uid = session?.user?.id;
+    if (!uid) throw new Error('no session');
+
+    const timeout = ms => new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms));
+    const [hsRes, benchRes] = await Promise.race([
+      Promise.all([
+        fetch(`${ALERT_ENGINE}/health-score/${uid}`),
+        fetch(`${ALERT_ENGINE}/benchmark/${uid}`)
+      ]),
+      timeout(8000).then(() => { throw new Error('timeout'); })
+    ]);
+    if (!hsRes.ok || !benchRes.ok) throw new Error('fetch failed');
+
+    hsData    = await hsRes.json();
+    benchData = await benchRes.json();
+
+  } catch (err) {
+    console.warn('[Report] Demo mode:', err.message);
+    document.getElementById('demoBanner').style.display = 'block';
+    hsData    = getDemoHealthScore();
+    benchData = getDemoBenchmark();
+  }
+
+  // Normalise pillars
+  const pillars = hsData.pillars || hsData.components || getDemoHealthScore().pillars;
+  const tips    = hsData.tips    || hsData.action_items || getDemoHealthScore().tips;
+
+  renderSec1(hsData);
+  renderSec2(pillars);
+  renderSec3(benchData);
+  renderSec4(tips);
+  renderSec5(hsData);
+  renderFooter();
+}
+
+loadReport();
+</script>
+</body>
+</html>

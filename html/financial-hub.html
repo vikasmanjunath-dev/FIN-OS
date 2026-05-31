@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0B0D12">
+<title>FIN•OS | Financial Command Hub</title>
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/theme.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/finos-context.js"></script>
+<script src="../js/arya-ai.js?v=3"></script>
+<script src="../js/finos-personalization.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════
+   GLOBAL PAGE ENHANCEMENT
+═══════════════════════════════════════════════════════ */
+.content-wrapper{
+  background:radial-gradient(ellipse at 60% 0%,rgba(199,240,0,.03) 0%,transparent 55%),
+             radial-gradient(ellipse at 10% 80%,rgba(0,212,255,.025) 0%,transparent 50%);
+  padding-top:28px !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   HUB HERO HEADER
+═══════════════════════════════════════════════════════ */
+.hub-hero{
+  background:linear-gradient(135deg,rgba(20,24,36,1) 0%,rgba(12,15,22,1) 100%);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;
+  padding:28px 32px;
+  margin-bottom:24px;
+  position:relative;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+}
+.hub-hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 70% 50%,rgba(199,240,0,.06) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hub-hero::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(199,240,0,.3),rgba(0,212,255,.2),transparent);
+}
+.hub-hero-left{display:flex;align-items:center;gap:18px;flex:1;}
+.hub-hero-icon{
+  width:52px;height:52px;border-radius:14px;flex-shrink:0;
+  background:linear-gradient(135deg,rgba(199,240,0,.15),rgba(199,240,0,.05));
+  border:1px solid rgba(199,240,0,.2);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+.hub-hero-text h1{font-size:20px;font-weight:800;color:#fff;margin:0 0 4px;letter-spacing:-.02em;}
+.hub-hero-text p{font-size:12px;color:#6b7589;margin:0;line-height:1.5;max-width:480px;}
+.hub-hero-right{display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap;}
+.hub-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 13px;border-radius:20px;font-size:10px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  background:rgba(199,240,0,.08);border:1px solid rgba(199,240,0,.22);color:#c7f000;
+}
+.hub-header-bar{display:none;}/* legacy, replaced by hub-hero */
+
+/* ═══════════════════════════════════════════════════════
+   TAB BAR — pill style
+═══════════════════════════════════════════════════════ */
+.hub-tabbar-wrap{
+  position:relative;margin-bottom:24px;
+  background:rgba(255,255,255,.025);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:14px;
+  padding:5px;
+}
+.hub-tabbar{
+  display:flex;gap:3px;overflow-x:auto;
+  scrollbar-width:none;
+}
+.hub-tabbar::-webkit-scrollbar{display:none;}
+.hub-tab{
+  display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+  padding:9px 16px;border:none;cursor:pointer;
+  background:transparent;border-radius:10px;
+  font-size:12.5px;font-weight:600;font-family:inherit;color:#5e6b80;
+  transition:color .15s,background .15s;flex-shrink:0;
+}
+.hub-tab:hover{color:#c0c8d8;background:rgba(255,255,255,.05);}
+.hub-tab.active{
+  color:#0a0d12;
+  background:linear-gradient(135deg,#c7f000,#9ab800);
+  box-shadow:0 2px 12px rgba(199,240,0,.25);
+}
+.hub-tab-icon{font-size:13px;line-height:1;}
+@media(max-width:700px){.hub-tab{padding:8px 11px;font-size:11.5px;gap:4px;}}
+@media(max-width:480px){.hub-tab-icon{display:none;}}
+
+/* ═══════════════════════════════════════════════════════
+   PANELS
+═══════════════════════════════════════════════════════ */
+.hub-panel{display:none;}
+.hub-panel.active{display:block;animation:panelIn .22s cubic-bezier(.2,.8,.2,1);}
+@keyframes panelIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+/* ═══════════════════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════════════════ */
+.hf-card{
+  background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.015));
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;padding:26px 28px;margin-bottom:16px;
+  position:relative;overflow:hidden;
+  transition:border-color .2s,box-shadow .2s;
+}
+.hf-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);
+  pointer-events:none;
+}
+.hf-card:hover{border-color:rgba(255,255,255,.12);box-shadow:0 8px 32px rgba(0,0,0,.25);}
+
+.hf-card-title{
+  font-size:10px;font-weight:700;color:#6b7589;text-transform:uppercase;
+  letter-spacing:.12em;margin-bottom:20px;display:flex;align-items:center;gap:8px;
+}
+.hf-card-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.07),transparent);}
+
+/* ── Panel section header (larger, more breathable) ── */
+.hf-section-head{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:12px;
+}
+.hf-section-title{font-size:14px;font-weight:700;color:#eef0f4;letter-spacing:-.01em;}
+.hf-section-sub{font-size:12px;color:#6b7589;margin-top:2px;}
+
+/* ═══════════════════════════════════════════════════════
+   FORM PRIMITIVES
+═══════════════════════════════════════════════════════ */
+.hf-label{
+  font-size:11px;color:#7a8499;font-weight:600;text-transform:uppercase;
+  letter-spacing:.07em;margin-bottom:7px;display:block;
+}
+.hf-input,.hf-select{
+  width:100%;padding:11px 14px;border-radius:11px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
+  color:#eef0f4;font-size:13.5px;outline:none;font-family:inherit;
+  transition:border-color .15s,box-shadow .15s,background .15s;box-sizing:border-box;
+  -webkit-appearance:none;
+}
+.hf-input:hover{background:rgba(255,255,255,.07);}
+.hf-input:focus,.hf-select:focus{
+  border-color:rgba(199,240,0,.45);
+  box-shadow:0 0 0 3px rgba(199,240,0,.08);
+  background:rgba(255,255,255,.07);
+}
+.hf-input::placeholder{color:#3a4556;}
+.hf-select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7589' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;
+  cursor:pointer;
+}
+.hf-select option{background:#131720;color:#eef0f4;}
+.hf-grid{display:grid;gap:16px;}
+.hf-g2{grid-template-columns:1fr 1fr;}
+.hf-g3{grid-template-columns:1fr 1fr 1fr;}
+.hf-g4{grid-template-columns:1fr 1fr 1fr 1fr;}
+@media(max-width:640px){.hf-g2,.hf-g3,.hf-g4{grid-template-columns:1fr 1fr;}}
+@media(max-width:420px){.hf-g2,.hf-g3,.hf-g4{grid-template-columns:1fr;}}
+
+/* ── Field group wrapper ── */
+.hf-field{display:flex;flex-direction:column;}
+
+/* ═══════════════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════════════ */
+.hf-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:11px 24px;border-radius:12px;border:none;
+  cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;
+  transition:all .18s;white-space:nowrap;letter-spacing:.01em;
+}
+.hf-btn-primary{
+  background:linear-gradient(135deg,#c7f000 0%,#9ab800 100%);
+  color:#0a0d12;
+  box-shadow:0 2px 8px rgba(199,240,0,.2);
+}
+.hf-btn-primary:hover:not(:disabled){
+  transform:translateY(-2px);
+  box-shadow:0 8px 28px rgba(199,240,0,.32);
+  filter:brightness(1.05);
+}
+.hf-btn-primary:active{transform:translateY(0);box-shadow:none;}
+.hf-btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none !important;box-shadow:none;}
+.hf-btn-ghost{
+  background:rgba(255,255,255,.06);color:#c0c8d8;
+  border:1px solid rgba(255,255,255,.12);
+}
+.hf-btn-ghost:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);}
+.hf-btn-accent{
+  background:rgba(0,212,255,.1);color:#00d4ff;
+  border:1px solid rgba(0,212,255,.25);
+}
+.hf-btn-accent:hover{background:rgba(0,212,255,.18);}
+.hf-btn-sm{padding:8px 16px;font-size:12px;border-radius:9px;}
+.hf-btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:20px;}
+
+/* ═══════════════════════════════════════════════════════
+   STATS STRIP
+═══════════════════════════════════════════════════════ */
+.hf-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px;}
+.hf-stat{
+  padding:16px 18px;border-radius:14px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+  position:relative;overflow:hidden;
+}
+.hf-stat::before{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--stat-color,rgba(199,240,0,.5)),transparent);
+  opacity:.6;
+}
+.hf-stat-v{font-size:20px;font-weight:800;color:var(--stat-color,#eef0f4);line-height:1.1;margin-bottom:4px;}
+.hf-stat-l{font-size:10px;color:#6b7589;text-transform:uppercase;letter-spacing:.07em;}
+
+/* ═══════════════════════════════════════════════════════
+   ARYA AI BLOCK
+═══════════════════════════════════════════════════════ */
+.hf-ai{
+  margin-top:18px;border-radius:15px;overflow:hidden;
+  border:1px solid rgba(199,240,0,.14);
+  background:linear-gradient(135deg,rgba(199,240,0,.04),rgba(0,212,255,.025));
+}
+.hf-ai-header{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;
+  border-bottom:1px solid rgba(199,240,0,.1);
+  background:rgba(199,240,0,.04);
+}
+.hf-ai-avatar{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#c7f000,#00d4ff);
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+.hf-ai-lbl{font-size:10px;font-weight:800;color:#c7f000;letter-spacing:.1em;text-transform:uppercase;}
+.hf-ai-body{padding:14px 16px;font-size:13px;color:rgba(255,255,255,.78);line-height:1.75;}
+
+/* ═══════════════════════════════════════════════════════
+   RESULT BLOCK
+═══════════════════════════════════════════════════════ */
+.hf-result{display:none;animation:panelIn .22s ease;}
+.hf-result.show{display:block;}
+
+/* ═══════════════════════════════════════════════════════
+   CHIPS
+═══════════════════════════════════════════════════════ */
+.chip{
+  display:inline-flex;align-items:center;gap:5px;padding:7px 15px;border-radius:20px;
+  font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);color:#6b7589;cursor:pointer;
+  transition:all .15s;user-select:none;
+}
+.chip:hover{border-color:rgba(255,255,255,.2);color:#c0c8d8;background:rgba(255,255,255,.07);}
+.chip.on{
+  border-color:rgba(199,240,0,.45);background:rgba(199,240,0,.1);
+  color:#c7f000;box-shadow:0 0 0 3px rgba(199,240,0,.07);
+}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+
+/* Inline validation */
+.hf-err{font-size:11px;color:#f87171;margin-top:6px;display:none;padding:6px 10px;border-radius:7px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);}
+.hf-err.show{display:block;}
+.hf-notice{padding:10px 14px;border-radius:10px;font-size:12.5px;margin-top:12px;display:none;line-height:1.5;}
+.hf-notice.error{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:#f87171;display:block;}
+.hf-notice.success{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);color:#22c55e;display:block;}
+
+/* ═══════════════════════════════════════════════════════
+   CHART WRAPPER
+═══════════════════════════════════════════════════════ */
+.hf-chart{
+  padding:20px;border-radius:16px;
+  background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);
+  margin-bottom:16px;position:relative;
+}
+.hf-chart-title{font-size:11px;font-weight:700;color:#6b7589;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
+
+/* ═══════════════════════════════════════════════════════
+   BUDGET TABLE
+═══════════════════════════════════════════════════════ */
+.fc-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.fc-table th{padding:10px 12px;text-align:left;color:#6b7589;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02);}
+.fc-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);color:#c0c8d8;}
+.fc-table tr:last-child td{border-bottom:none;}
+.fc-table tbody tr:hover td{background:rgba(255,255,255,.03);}
+
+/* ═══════════════════════════════════════════════════════
+   LIFE GOALS
+═══════════════════════════════════════════════════════ */
+.goal-row{
+  display:grid;
+  grid-template-columns:2fr 130px 76px 76px 38px;
+  gap:10px;align-items:end;margin-bottom:12px;
+  padding:16px;background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.06);border-radius:12px;
+}
+@media(max-width:600px){.goal-row{grid-template-columns:1fr 1fr;row-gap:10px;}}
+.goal-del{
+  width:38px;height:38px;border-radius:9px;flex-shrink:0;
+  background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);
+  color:#f87171;cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.goal-del:hover{background:rgba(248,113,113,.2);border-color:rgba(248,113,113,.35);transform:scale(1.05);}
+.feas-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 16px;border-radius:12px;font-size:13px;margin-bottom:10px;
+  flex-wrap:wrap;gap:8px;
+}
+.feas-ok{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);}
+.feas-warn{background:rgba(234,179,8,.06);border:1px solid rgba(234,179,8,.2);}
+
+/* ═══════════════════════════════════════════════════════
+   PEER BENCHMARK
+═══════════════════════════════════════════════════════ */
+.bk-metric{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05);
+}
+.bk-metric:last-child{border-bottom:none;}
+.bk-name{width:130px;font-size:12px;color:#8892a4;flex-shrink:0;font-weight:500;}
+.bk-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;}
+.bk-bar{height:100%;border-radius:4px;transition:width .9s cubic-bezier(.34,1.3,.64,1);}
+.bk-badge{font-size:11px;font-weight:700;padding:4px 11px;border-radius:8px;flex-shrink:0;min-width:60px;text-align:center;}
+.bk-vals{font-size:11px;color:#6b7589;text-align:right;width:110px;flex-shrink:0;line-height:1.6;}
+.seg-chip{padding:4px 11px;border-radius:10px;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.18);color:#00d4ff;font-size:11px;font-weight:600;}
+
+/* ═══════════════════════════════════════════════════════
+   COUPLE FINANCE
+═══════════════════════════════════════════════════════ */
+.partner-wrap{display:flex;gap:14px;margin-bottom:20px;flex-wrap:wrap;}
+.partner-card{
+  flex:1;min-width:200px;padding:20px;border-radius:16px;
+  border:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden;
+}
+.partner-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.partner-a{background:linear-gradient(145deg,rgba(79,124,255,.07),rgba(79,124,255,.02));}
+.partner-a::before{background:linear-gradient(90deg,#4f7cff,#7c3aed);}
+.partner-b{background:linear-gradient(145deg,rgba(0,212,255,.07),rgba(0,212,255,.02));}
+.partner-b::before{background:linear-gradient(90deg,#00d4ff,#22d3a6);}
+.partner-tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.cp-split-bar{display:flex;border-radius:10px;overflow:hidden;height:12px;margin:14px 0 8px;background:rgba(255,255,255,.05);}
+.cp-split-a{background:linear-gradient(90deg,#4f7cff,#7c3aed);transition:flex .7s cubic-bezier(.34,1.2,.64,1);}
+.cp-split-b{background:linear-gradient(90deg,#00d4ff,#22d3a6);transition:flex .7s cubic-bezier(.34,1.2,.64,1);}
+.cp-pct-row{display:flex;justify-content:space-between;font-size:11px;color:#6b7589;margin-bottom:16px;}
+
+/* ═══════════════════════════════════════════════════════
+   TIMELINE
+═══════════════════════════════════════════════════════ */
+.tl-list{position:relative;padding-left:30px;}
+.tl-list::before{content:'';position:absolute;left:10px;top:10px;bottom:10px;width:2px;background:linear-gradient(180deg,rgba(199,240,0,.25),rgba(0,212,255,.15),rgba(255,255,255,.05));border-radius:2px;}
+.tl-item{position:relative;padding-bottom:18px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-dot{
+  position:absolute;left:-24px;top:5px;
+  width:13px;height:13px;border-radius:50%;
+  border:2.5px solid #0b0d12;flex-shrink:0;z-index:1;
+  box-shadow:0 0 0 1px currentColor;
+}
+.tl-body{
+  background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);
+  border-radius:13px;padding:13px 16px;
+  transition:border-color .2s,background .2s;
+}
+.tl-body:hover{border-color:rgba(255,255,255,.13);background:rgba(255,255,255,.04);}
+.tl-body-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.tl-note{font-size:13px;font-weight:600;color:#eef0f4;line-height:1.4;}
+.tl-date{font-size:11px;color:#6b7589;margin-top:3px;font-family:'JetBrains Mono',monospace;}
+.tl-amt{font-size:12px;font-weight:700;white-space:nowrap;}
+.tl-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.tl-del{background:transparent;border:none;color:#3e4a5c;cursor:pointer;font-size:13px;padding:4px 8px;border-radius:7px;transition:all .15s;}
+.tl-del:hover{color:#f87171;background:rgba(248,113,113,.1);}
+.tl-add-row{display:grid;grid-template-columns:150px 140px 130px 1fr auto;gap:12px;align-items:end;margin-top:22px;}
+@media(max-width:700px){.tl-add-row{grid-template-columns:1fr 1fr;}}
+@media(max-width:400px){.tl-add-row{grid-template-columns:1fr;}}
+.tl-empty{
+  text-align:center;padding:40px 24px;
+  color:#6b7589;font-size:13px;
+}
+.tl-empty-icon{font-size:36px;margin-bottom:10px;opacity:.5;}
+
+/* ═══════════════════════════════════════════════════════
+   MONEY AI CHAT
+═══════════════════════════════════════════════════════ */
+.chat-wrap{
+  display:flex;flex-direction:column;
+  height:480px;
+  background:rgba(10,12,20,.6);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;overflow:hidden;
+  box-shadow:0 16px 48px rgba(0,0,0,.4);
+}
+.chat-header{
+  padding:14px 18px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;gap:12px;
+  background:linear-gradient(135deg,rgba(20,24,36,.9),rgba(12,15,22,.9));
+  flex-shrink:0;
+}
+.chat-av{
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,#c7f000,#00d4ff);
+  display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;
+  box-shadow:0 0 0 3px rgba(199,240,0,.15);
+}
+.chat-status-dot{width:8px;height:8px;border-radius:50%;margin-left:auto;flex-shrink:0;}
+.chat-messages{
+  flex:1;overflow-y:auto;padding:18px;
+  display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth;
+}
+.chat-messages::-webkit-scrollbar{width:4px;}
+.chat-messages::-webkit-scrollbar-track{background:transparent;}
+.chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px;}
+.msg{max-width:84%;padding:12px 16px;border-radius:16px;font-size:13px;line-height:1.7;}
+.msg.user{
+  align-self:flex-end;
+  background:linear-gradient(135deg,rgba(199,240,0,.18),rgba(199,240,0,.1));
+  border:1px solid rgba(199,240,0,.3);
+  border-bottom-right-radius:4px;
+}
+.msg.arya{
+  align-self:flex-start;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  border-bottom-left-radius:4px;
+}
+.msg-lbl{
+  font-size:9px;font-weight:800;color:#c7f000;
+  letter-spacing:.12em;margin-bottom:6px;display:block;
+}
+/* Explicit text color on message content — never inherits from dark ancestors */
+.msg-text{
+  color:#dde2f0;
+  font-size:13px;
+  line-height:1.75;
+  display:block;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+.msg.user .msg-text{ color:#e8f0d0; }
+.msg-text code{
+  background:rgba(255,255,255,.12);
+  border-radius:4px;padding:1px 6px;
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#c7f000;
+}
+.chat-qp{
+  padding:10px 16px;border-top:1px solid rgba(255,255,255,.06);
+  display:flex;gap:7px;flex-wrap:wrap;
+  background:rgba(255,255,255,.015);flex-shrink:0;
+}
+.qp{
+  padding:6px 13px;border-radius:20px;
+  background:rgba(199,240,0,.06);border:1px solid rgba(199,240,0,.18);
+  color:#a8c400;font-size:11px;font-weight:600;cursor:pointer;
+  transition:all .15s;white-space:nowrap;
+}
+.qp:hover{background:rgba(199,240,0,.12);color:#c7f000;border-color:rgba(199,240,0,.35);}
+.chat-input-area{
+  padding:12px 14px;border-top:1px solid rgba(255,255,255,.07);
+  display:flex;gap:9px;align-items:flex-end;
+  background:rgba(0,0,0,.2);flex-shrink:0;
+}
+.chat-textarea{
+  flex:1;padding:11px 14px;border-radius:11px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:#eef0f4;font-size:13px;outline:none;font-family:inherit;
+  resize:none;max-height:100px;line-height:1.5;transition:border-color .15s;
+}
+.chat-textarea:focus{border-color:rgba(199,240,0,.4);background:rgba(255,255,255,.08);}
+.chat-textarea::placeholder{color:#3a4556;}
+.tdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#6b7589;animation:td 1.1s infinite;}
+.tdot:nth-child(2){animation-delay:.18s;}
+.tdot:nth-child(3){animation-delay:.36s;}
+@keyframes td{0%,60%,100%{opacity:.2;transform:translateY(0);}30%{opacity:1;transform:translateY(-4px);}}
+
+/* ═══════════════════════════════════════════════════════
+   REPORT
+═══════════════════════════════════════════════════════ */
+.rpt-grade{display:flex;align-items:center;justify-content:center;width:68px;height:68px;border-radius:50%;font-size:26px;font-weight:900;flex-shrink:0;}
+.rpt-sec{border-left:3px solid rgba(199,240,0,.3);padding-left:18px;margin-bottom:26px;}
+.rpt-sec h3{font-size:13px;font-weight:700;color:#fff;margin:0 0 14px;display:flex;align-items:center;gap:7px;}
+.rpt-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;}
+.rpt-row:last-child{border-bottom:none;}
+.rpt-row span:first-child{color:#8892a4;}
+.rpt-row span:last-child{color:#eef0f4;font-weight:600;}
+.rpt-tip{
+  padding:12px 16px;border-radius:11px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+  font-size:13px;color:#9aa0b4;margin-bottom:10px;line-height:1.65;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.rpt-progress{height:6px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:10px;}
+.rpt-progress-bar{height:100%;border-radius:4px;transition:width .9s ease;}
+.skeleton{
+  background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.04) 75%);
+  background-size:200% 100%;animation:sk 1.4s infinite;border-radius:8px;height:14px;
+}
+@keyframes sk{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* ═══════════════════════════════════════════════════════
+   DOCUMENT AI
+═══════════════════════════════════════════════════════ */
+.drop-zone{
+  border:2px dashed rgba(0,212,255,.2);border-radius:18px;
+  padding:52px 24px;text-align:center;cursor:pointer;
+  transition:all .25s;background:rgba(0,212,255,.015);
+  position:relative;overflow:hidden;
+}
+.drop-zone::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 80%,rgba(0,212,255,.06),transparent 70%);
+  opacity:0;transition:opacity .25s;
+}
+.drop-zone:hover,.drop-zone.drag{
+  border-color:rgba(0,212,255,.5);background:rgba(0,212,255,.04);
+}
+.drop-zone:hover::before,.drop-zone.drag::before{opacity:1;}
+.drop-zone h3{font-size:16px;font-weight:700;color:#eef0f4;margin:14px 0 7px;}
+.drop-zone p{font-size:12.5px;color:#6b7589;margin:0;}
+.dz-icon{font-size:44px;line-height:1;position:relative;z-index:1;}
+.doc-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;}
+.doc-row:last-child{border-bottom:none;}
+.doc-row .k{color:#8892a4;text-transform:capitalize;}
+.doc-row .v{color:#eef0f4;font-weight:600;text-align:right;max-width:58%;}
+.doc-status{padding:11px 16px;border-radius:11px;margin:14px 0;font-size:13px;display:flex;align-items:center;gap:10px;line-height:1.5;}
+.doc-status.loading{background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.2);color:#00d4ff;}
+.doc-status.success{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);color:#22c55e;}
+.doc-status.error{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.2);color:#f87171;}
+.doc-progress{height:3px;background:rgba(0,212,255,.12);border-radius:2px;overflow:hidden;margin-top:8px;}
+.doc-progress-bar{height:100%;background:linear-gradient(90deg,#00d4ff,#22d3a6);border-radius:2px;transition:width .35s ease;}
+
+/* ═══════════════════════════════════════════════════════
+   FILE TYPE BADGES
+═══════════════════════════════════════════════════════ */
+.dz-types{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:16px;}
+.dz-type{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="financial-hub.html" class="active">⚡ Command Hub</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="../Porfolio Analyser/portfolio-analyser-v10.html">Portfolio X-Ray</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+
+      <!-- Hero Header -->
+      <div class="hub-hero">
+        <div class="hub-hero-left">
+          <div class="hub-hero-icon">⚡</div>
+          <div class="hub-hero-text">
+            <h1>Financial Command Hub</h1>
+            <p>Budget · Goals · Benchmark · Couple Finance · Timeline · AI · Report · Documents</p>
+          </div>
+        </div>
+        <div class="hub-hero-right">
+          <span class="hub-badge">8 Tools</span>
+          <button id="themeToggle" class="theme-btn" style="flex-shrink:0;">🌙</button>
+        </div>
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="hub-tabbar-wrap">
+        <div class="hub-tabbar" id="hubTabbar" role="tablist">
+          <button class="hub-tab active" data-tab="budget"   role="tab" aria-selected="true"><span class="hub-tab-icon">📊</span> Budget Forecast</button>
+          <button class="hub-tab"        data-tab="goals"    role="tab"><span class="hub-tab-icon">🎯</span> Life Goals</button>
+          <button class="hub-tab"        data-tab="bench"    role="tab"><span class="hub-tab-icon">📈</span> Peer Benchmark</button>
+          <button class="hub-tab"        data-tab="couple"   role="tab"><span class="hub-tab-icon">💑</span> Couple Finance</button>
+          <button class="hub-tab"        data-tab="timeline" role="tab"><span class="hub-tab-icon">🕐</span> My Timeline</button>
+          <button class="hub-tab"        data-tab="moneyai"  role="tab"><span class="hub-tab-icon">🤖</span> Money AI</button>
+          <button class="hub-tab"        data-tab="report"   role="tab"><span class="hub-tab-icon">📄</span> Report</button>
+          <button class="hub-tab"        data-tab="docai"    role="tab"><span class="hub-tab-icon">🔍</span> Document AI</button>
+        </div>
+      </div>
+
+      <!-- ════════════════════ PANEL: BUDGET FORECAST ════════════════════ -->
+      <div class="hub-panel active" id="panel-budget">
+        <div class="hf-card">
+          <div class="hf-card-title">Your Financial Profile</div>
+          <div class="hf-grid hf-g3" style="margin-bottom:22px;">
+            <div class="hf-field">
+              <label class="hf-label">Monthly Income (₹)</label>
+              <input class="hf-input" id="bf-income" type="number" min="0" placeholder="e.g. 80,000">
+              <div class="hf-err" id="bf-income-err">Please enter your monthly income</div>
+            </div>
+            <div class="hf-field">
+              <label class="hf-label">Current Savings (₹)</label>
+              <input class="hf-input" id="bf-savings" type="number" min="0" placeholder="e.g. 2,00,000">
+            </div>
+            <div class="hf-field">
+              <label class="hf-label">Risk Profile</label>
+              <select class="hf-select" id="bf-risk">
+                <option value="conservative">Conservative — 7% CAGR</option>
+                <option value="moderate" selected>Moderate — 12% CAGR</option>
+                <option value="aggressive">Aggressive — 18% CAGR</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="hf-card-title">Upcoming Life Events <span style="font-weight:400;font-size:9px;color:#4a5568;letter-spacing:.05em;">(select all that apply)</span></div>
+          <div class="chips" id="bf-chips">
+            <span class="chip" data-v="marriage">💍 Marriage</span>
+            <span class="chip" data-v="baby">👶 Baby</span>
+            <span class="chip" data-v="house">🏠 Buy House</span>
+            <span class="chip" data-v="car">🚗 Buy Car</span>
+            <span class="chip" data-v="education">🎓 Higher Education</span>
+            <span class="chip" data-v="travel">✈️ International Travel</span>
+            <span class="chip" data-v="retirement">🏖️ Early Retirement</span>
+          </div>
+
+          <div class="hf-btn-row" style="margin-top:4px;">
+            <button class="hf-btn hf-btn-primary" id="bf-run" onclick="BF.run()">🔮 Generate 12-Month Forecast</button>
+          </div>
+        </div>
+
+        <div class="hf-result" id="bf-result">
+          <div class="hf-stats" id="bf-stats"></div>
+          <div class="hf-chart">
+            <div class="hf-chart-title">Savings vs Corpus Growth</div>
+            <canvas id="bf-chart" height="190"></canvas>
+          </div>
+          <div class="hf-card">
+            <div class="hf-card-title">Month-by-Month Breakdown</div>
+            <div style="overflow-x:auto;"><table class="fc-table" id="bf-table"></table></div>
+          </div>
+          <div class="hf-ai" id="bf-ai">
+            <div class="hf-ai-header">
+              <div class="hf-ai-avatar">🤖</div>
+              <div class="hf-ai-lbl">Arya's Analysis</div>
+            </div>
+            <div class="hf-ai-body" id="bf-ai-txt">Generating…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════ PANEL: LIFE GOALS ════════════════════ -->
+      <div class="hub-panel" id="panel-goals">
+        <div class="hf-card">
+          <div class="hf-card-title">Your Financial Profile</div>
+          <div class="hf-grid hf-g3" style="margin-bottom:22px;">
+            <div class="hf-field">
+              <label class="hf-label">Monthly Income (₹)</label>
+              <input class="hf-input" id="gl-income" type="number" placeholder="e.g. 80,000">
+            </div>
+            <div class="hf-field">
+              <label class="hf-label">Monthly Expenses (₹)</label>
+              <input class="hf-input" id="gl-exp" type="number" placeholder="e.g. 50,000">
+            </div>
+            <div class="hf-field">
+              <label class="hf-label">Current Monthly SIP (₹)</label>
+              <input class="hf-input" id="gl-sip" type="number" placeholder="e.g. 5,000">
+            </div>
+          </div>
+          <div class="hf-card-title">Your Goals</div>
+          <div id="gl-list"></div>
+          <div class="hf-btn-row">
+            <button class="hf-btn hf-btn-ghost hf-btn-sm" onclick="GL.add()">＋ Add Goal</button>
+            <button class="hf-btn hf-btn-primary" onclick="GL.run()">🗺️ Generate My Roadmap</button>
+          </div>
+        </div>
+        <div class="hf-result" id="gl-result">
+          <div class="hf-stats" id="gl-stats"></div>
+          <div id="gl-feas" style="margin-bottom:18px;"></div>
+          <div class="hf-chart">
+            <div class="hf-chart-title">Corpus Projection at Current SIP</div>
+            <canvas id="gl-chart" height="220"></canvas>
+          </div>
+          <div class="hf-ai" id="gl-ai">
+            <div class="hf-ai-header">
+              <div class="hf-ai-avatar">🤖</div>
+              <div class="hf-ai-lbl">Arya's Roadmap</div>
+            </div>
+            <div class="hf-ai-body" id="gl-ai-txt">Generating…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════ PANEL: PEER BENCHMARK ════════════════════ -->
+      <div class="hub-panel" id="panel-bench">
+        <div class="hf-card">
+          <div class="hf-card-title">Your Details</div>
+          <div class="hf-grid hf-g3" style="margin-bottom:16px;">
+            <div>
+              <label class="hf-label">Age Bracket</label>
+              <select class="hf-select" id="bk-age">
+                <option value="20s">20s</option>
+                <option value="30s" selected>30s</option>
+                <option value="40s">40s</option>
+                <option value="50s">50s</option>
+              </select>
+            </div>
+            <div>
+              <label class="hf-label">City Tier</label>
+              <select class="hf-select" id="bk-city">
+                <option value="metro" selected>Metro (Mumbai / Delhi / BLR)</option>
+                <option value="tier2">Tier 2 (Pune / Hyd / Chennai)</option>
+                <option value="tier3">Tier 3 / Rest of India</option>
+              </select>
+            </div>
+            <div>
+              <label class="hf-label">Annual Income Bracket</label>
+              <select class="hf-select" id="bk-income">
+                <option value="low">Under ₹5L / yr</option>
+                <option value="mid" selected>₹5L – ₹15L / yr</option>
+                <option value="high">₹15L – ₹50L / yr</option>
+                <option value="ultra">₹50L+ / yr</option>
+              </select>
+            </div>
+          </div>
+          <div class="hf-grid hf-g3" style="margin-bottom:20px;">
+            <div>
+              <label class="hf-label">Your Net Worth (₹)</label>
+              <input class="hf-input" id="bk-nw" type="number" placeholder="500000">
+            </div>
+            <div>
+              <label class="hf-label">Monthly Savings (₹)</label>
+              <input class="hf-input" id="bk-saves" type="number" placeholder="15000">
+            </div>
+            <div>
+              <label class="hf-label">Monthly SIP (₹)</label>
+              <input class="hf-input" id="bk-sip" type="number" placeholder="5000">
+            </div>
+          </div>
+          <div class="hf-btn-row" style="margin-top:4px;">
+            <button class="hf-btn hf-btn-primary" onclick="BK.run()">📊 Compare with Peers</button>
+          </div>
+        </div>
+        <div class="hf-result" id="bk-result">
+          <div class="hf-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+              <div class="hf-card-title" style="margin:0;">How you rank vs peers</div>
+              <div id="bk-segs" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+            </div>
+            <div id="bk-metrics"></div>
+          </div>
+          <div class="hf-ai" id="bk-ai">
+            <div class="hf-ai-header">
+              <div class="hf-ai-avatar">🤖</div>
+              <div class="hf-ai-lbl">Arya's Take</div>
+            </div>
+            <div class="hf-ai-body" id="bk-ai-txt"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════ PANEL: COUPLE FINANCE ════════════════════ -->
+      <div class="hub-panel" id="panel-couple">
+        <div class="hf-card">
+          <div class="hf-card-title">Partner Incomes</div>
+          <div class="partner-wrap">
+            <div class="partner-card partner-a">
+              <div class="partner-tag" style="color:#4f7cff;">👤 Partner A</div>
+              <label class="hf-label">Monthly Income (₹)</label>
+              <input class="hf-input" id="cp-a" type="number" placeholder="70000">
+            </div>
+            <div class="partner-card partner-b">
+              <div class="partner-tag" style="color:#00d4ff;">👤 Partner B</div>
+              <label class="hf-label">Monthly Income (₹)</label>
+              <input class="hf-input" id="cp-b" type="number" placeholder="50000">
+            </div>
+          </div>
+          <div class="hf-card-title" style="margin-bottom:14px;">Joint Monthly Expenses (₹)</div>
+          <div class="hf-grid hf-g3" style="margin-bottom:16px;">
+            <div><label class="hf-label">Rent / EMI</label><input class="hf-input" id="cp-rent" type="number" placeholder="25000"></div>
+            <div><label class="hf-label">Food & Groceries</label><input class="hf-input" id="cp-food" type="number" placeholder="12000"></div>
+            <div><label class="hf-label">Utilities & Bills</label><input class="hf-input" id="cp-util" type="number" placeholder="5000"></div>
+            <div><label class="hf-label">Transport</label><input class="hf-input" id="cp-trans" type="number" placeholder="4000"></div>
+            <div><label class="hf-label">Entertainment</label><input class="hf-input" id="cp-enter" type="number" placeholder="3000"></div>
+            <div><label class="hf-label">Monthly Savings Goal (₹)</label><input class="hf-input" id="cp-goal" type="number" placeholder="20000"></div>
+          </div>
+          <div style="margin-bottom:20px;">
+            <label class="hf-label">Split Method</label>
+            <select class="hf-select" id="cp-method" style="max-width:280px;">
+              <option value="prop">Proportional (by income ratio)</option>
+              <option value="equal">Equal 50-50</option>
+              <option value="primary">Primary earner covers fixed costs</option>
+            </select>
+          </div>
+          <div class="hf-btn-row" style="margin-top:4px;">
+            <button class="hf-btn hf-btn-primary" onclick="CP.run()">💑 Calculate Split</button>
+          </div>
+        </div>
+        <div class="hf-result" id="cp-result">
+          <div class="hf-stats" id="cp-stats"></div>
+          <div class="hf-card">
+            <div class="hf-card-title">Income Split</div>
+            <div class="cp-split-bar">
+              <div class="cp-split-a" id="cp-bar-a"></div>
+              <div class="cp-split-b" id="cp-bar-b"></div>
+            </div>
+            <div class="cp-pct-row">
+              <span id="cp-pct-a" style="color:#4f7cff;font-weight:600;font-size:12px;"></span>
+              <span id="cp-pct-b" style="color:#00d4ff;font-weight:600;font-size:12px;"></span>
+            </div>
+            <div id="cp-table"></div>
+          </div>
+          <div class="hf-ai" id="cp-ai">
+            <div class="hf-ai-header">
+              <div class="hf-ai-avatar">🤖</div>
+              <div class="hf-ai-lbl">Financial Harmony Tips</div>
+            </div>
+            <div class="hf-ai-body" id="cp-ai-txt"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════ PANEL: MY TIMELINE ════════════════════ -->
+      <div class="hub-panel" id="panel-timeline">
+        <div class="hf-card">
+          <div class="hf-card-title">Your Financial Journey</div>
+          <div class="tl-list" id="tl-list"></div>
+        </div>
+
+        <div class="hf-card">
+          <div class="hf-card-title">Add Milestone</div>
+          <div class="tl-add-row">
+            <div>
+              <label class="hf-label">Type</label>
+              <select class="hf-select" id="tl-type">
+                <option value="investment">📈 Investment</option>
+                <option value="goal">🎯 Goal Achieved</option>
+                <option value="job">💼 Job Change</option>
+                <option value="purchase">🏠 Big Purchase</option>
+                <option value="debt">💳 Debt Cleared</option>
+                <option value="milestone">⭐ Milestone</option>
+              </select>
+            </div>
+            <div>
+              <label class="hf-label">Month / Year</label>
+              <input class="hf-input" id="tl-date" type="month">
+            </div>
+            <div>
+              <label class="hf-label">Amount (₹, optional)</label>
+              <input class="hf-input" id="tl-amt" type="number" placeholder="0">
+            </div>
+            <div>
+              <label class="hf-label">Note</label>
+              <input class="hf-input" id="tl-note" placeholder="e.g. Started first SIP ₹5K/mo">
+            </div>
+            <div>
+              <label class="hf-label" style="visibility:hidden;">Add</label>
+              <button class="hf-btn hf-btn-primary" onclick="TL.add()">＋ Add</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════ PANEL: MONEY AI ════════════════════ -->
+      <div class="hub-panel" id="panel-moneyai">
+        <div class="chat-wrap">
+          <div class="chat-header">
+            <div class="chat-av">🤖</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#eef0f4;">Arya</div>
+              <div style="font-size:11px;color:#6b7589;" id="ai-status-txt">Your AI financial advisor</div>
+            </div>
+            <div class="chat-status-dot" id="ai-dot" style="background:#22c55e;" title="Ollama Online"></div>
+          </div>
+          <div class="chat-messages" id="chat-msgs"></div>
+          <div class="chat-qp" id="chat-qp">
+            <span class="qp" onclick="AI.send('How should I build an emergency fund in India?')">Emergency fund</span>
+            <span class="qp" onclick="AI.send('Best SIP strategy for 10-year wealth creation')">SIP strategy</span>
+            <span class="qp" onclick="AI.send('ELSS vs PPF — which wins for 80C?')">ELSS vs PPF</span>
+            <span class="qp" onclick="AI.send('How to start with Nifty 50 index fund?')">Index funds</span>
+            <span class="qp" onclick="AI.send('Buy vs Rent in metro cities — 2025 analysis')">Buy vs Rent</span>
+            <span class="qp" onclick="AI.send('How does RBI rate cut affect my FD and EMI?')">RBI impact</span>
+          </div>
+          <div class="chat-input-area">
+            <textarea class="chat-textarea" id="ai-input" rows="1"
+              placeholder="Ask Arya anything about your money…"
+              onkeydown="AI.onKey(event)"
+              oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"></textarea>
+            <button class="hf-btn hf-btn-primary" onclick="AI.send()" style="flex-shrink:0;">Send ↑</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════ PANEL: REPORT ════════════════════ -->
+      <div class="hub-panel" id="panel-report">
+        <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center;">
+          <button class="hf-btn hf-btn-primary" onclick="RPT.build()">🔄 Refresh</button>
+          <button class="hf-btn hf-btn-ghost" onclick="window.print()">🖨️ Print / PDF</button>
+          <span style="font-size:11px;color:#6b7589;" id="rpt-ts"></span>
+        </div>
+        <div id="rpt-body"></div>
+      </div>
+
+      <!-- ════════════════════ PANEL: DOCUMENT AI ════════════════════ -->
+      <div class="hub-panel" id="panel-docai">
+        <div class="hf-card">
+          <div class="hf-card-title">Upload Financial Document</div>
+          <div class="drop-zone" id="dz"
+               onclick="document.getElementById('dz-file').click()"
+               ondragover="DOC.over(event)" ondragleave="DOC.leave(event)" ondrop="DOC.drop(event)">
+            <div class="dz-icon">📂</div>
+            <h3>Drop your document here</h3>
+            <p>or click to browse — PDF, PNG, JPG, WEBP supported</p>
+            <div class="dz-types">
+              <span class="dz-type" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:#00d4ff;">💰 Salary Slip</span>
+              <span class="dz-type" style="background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);color:#00ff88;">🏦 Bank Statement</span>
+              <span class="dz-type" style="background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.2);color:#ffb800;">📄 Form-16</span>
+              <span class="dz-type" style="background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.2);color:#a855f7;">💳 Credit Card</span>
+            </div>
+            <p style="margin-top:12px;font-size:11px;color:#3a4556;">Max 10 MB · Processed locally via Document AI</p>
+          </div>
+          <input type="file" id="dz-file" accept=".pdf,.png,.jpg,.jpeg,.webp" style="display:none;" onchange="DOC.handle(this.files[0])">
+          <div id="doc-status-wrap"></div>
+        </div>
+        <div class="hf-result" id="doc-result">
+          <div class="hf-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+              <div>
+                <div class="hf-card-title" style="margin:0 0 4px;">Extracted Data</div>
+                <div id="doc-type" style="font-size:12px;color:#6b7589;"></div>
+              </div>
+              <button class="hf-btn hf-btn-primary hf-btn-sm" onclick="DOC.fill()">⚡ Auto-fill Budget</button>
+            </div>
+            <div id="doc-data"></div>
+          </div>
+          <div class="hf-ai" id="doc-ai">
+            <div class="hf-ai-header">
+              <div class="hf-ai-avatar">🤖</div>
+              <div class="hf-ai-lbl">Document Summary</div>
+            </div>
+            <div class="hf-ai-body" id="doc-ai-txt"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-wrapper -->
+  </main>
+</div>
+
+<script src="../js/finos-widget.js?v=4"></script>
+<script src="../js/mobile-nav.js"></script>
+<script src="../js/theme.js"></script>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   GLOBALS
+════════════════════════════════════════════════════════════ */
+const OL_URL   = 'http://localhost:11434/api/generate';
+const OL_MODEL = 'qwen3:14b';
+const AL_URL   = 'http://localhost:8001';
+const DJ_URL   = 'http://localhost:8002/api/forecast/';
+const DA_URL   = 'http://localhost:8004/parse/document';
+
+function inr(n){
+  const v=Number(n)||0;
+  if(v>=1e7) return '₹'+(v/1e7).toFixed(1)+'Cr';
+  if(v>=1e5) return '₹'+(v/1e5).toFixed(1)+'L';
+  if(v>=1e3) return '₹'+(v/1e3).toFixed(0)+'K';
+  return '₹'+v.toLocaleString('en-IN');
+}
+function pct(a,b){return b>0?Math.round(a/b*100):0;}
+function v(id){return document.getElementById(id);}
+
+function stat(val,lbl,col='#eef0f4'){
+  return `<div class="hf-stat" style="--stat-color:${col}"><div class="hf-stat-v">${val}</div><div class="hf-stat-l">${lbl}</div></div>`;
+}
+
+async function ollama(prompt, cb){
+  try{
+    const r=await fetch(OL_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:OL_MODEL,prompt,stream:!!cb})});
+    if(!r.ok) throw 0;
+    if(!cb){const d=await r.json();return (d.response||'').replace(/<think>[\s\S]*?<\/think>/gi,'').trim();}
+    const reader=r.body.getReader(),dec=new TextDecoder();let full='';
+    while(true){
+      const{done,value}=await reader.read();if(done)break;
+      for(const ln of dec.decode(value).split('\n').filter(Boolean)){
+        try{const j=JSON.parse(ln);const t=(j.response||'').replace(/<think>[\s\S]*?<\/think>/gi,'');if(t){full+=t;cb(full);}}catch{}
+      }
+    }
+    return full;
+  }catch{return null;}
+}
+
+function typing(el){el.innerHTML='<span class="tdot"></span><span class="tdot"></span><span class="tdot"></span>';}
+function spin(btn,label='Working…'){btn.disabled=true;btn._orig=btn.innerHTML;btn.innerHTML='⏳ '+label;}
+function unspin(btn){btn.disabled=false;btn.innerHTML=btn._orig||btn.innerHTML;}
+
+/* ════════════════════════════════════════════════════════════
+   TAB CONTROLLER
+════════════════════════════════════════════════════════════ */
+const _done={};
+
+function switchTab(name){
+  document.querySelectorAll('.hub-tab').forEach(b=>{
+    const on=b.dataset.tab===name;
+    b.classList.toggle('active',on);
+    b.setAttribute('aria-selected',on);
+  });
+  document.querySelectorAll('.hub-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  // scroll tab into view
+  const btn=document.querySelector(`.hub-tab[data-tab="${name}"]`);
+  if(btn) btn.scrollIntoView({inline:'nearest',block:'nearest',behavior:'smooth'});
+  // URL hash
+  history.replaceState(null,'','#'+name);
+  // lazy init
+  if(!_done[name]){
+    _done[name]=true;
+    ({goals:()=>GL.init(),bench:()=>BK.init(),couple:()=>CP.init(),
+      timeline:()=>TL.init(),moneyai:()=>AI.init(),report:()=>RPT.build(),
+      docai:()=>DOC.init()})[name]?.();
+  }
+}
+
+document.querySelectorAll('.hub-tab').forEach(b=>{
+  b.addEventListener('click',()=>switchTab(b.dataset.tab));
+});
+
+// URL hash on load
+(function(){
+  const h=(location.hash||'').replace('#','');
+  const valid=['budget','goals','bench','couple','timeline','moneyai','report','docai'];
+  if(valid.includes(h)) switchTab(h);
+  else _done.budget=true;  // budget is default, no special init needed
+})();
+
+// Context → auto-prefill
+window.addEventListener('finos-context-ready',()=>{
+  const b=window.FINOS_USER_CONTEXT?.budget_tracker;
+  if(!b) return;
+  const map={
+    'bf-income': b.income_monthly,
+    'gl-income': b.income_monthly,
+    'gl-exp':    b.spent_total,
+  };
+  Object.entries(map).forEach(([id,val])=>{
+    const el=v(id); if(el&&!el.value&&val) el.value=Math.round(val);
+  });
+});
+
+/* ════════════════════════════════════════════════════════════
+   MODULE 1 — BUDGET FORECAST
+════════════════════════════════════════════════════════════ */
+const BF={
+  chart:null,
+  run(){
+    const income=+v('bf-income').value||0;
+    if(!income){v('bf-income-err').classList.add('show');v('bf-income').focus();return;}
+    v('bf-income-err').classList.remove('show');
+    const savings=+v('bf-savings').value||0;
+    const risk=v('bf-risk').value;
+    const events=[...document.querySelectorAll('#bf-chips .chip.on')].map(c=>c.dataset.v);
+    const btn=v('bf-run'); spin(btn,'Forecasting…');
+
+    const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const now=new Date();
+    const RATE={conservative:.07/12,moderate:.12/12,aggressive:.18/12}[risk];
+    const expR=events.length>2?.76:events.length>0?.70:.62;
+    const saveAmt=income*(1-expR);
+    const savePct=pct(saveAmt,income);
+
+    let corpus=savings,rows=[],cSave=[],cCorpus=[];
+    for(let i=0;i<12;i++){
+      const m=MONTHS[(now.getMonth()+i)%12];
+      const exp=Math.round(income*expR*(1+i*.003));
+      const sav=Math.round(income-exp);
+      corpus=corpus*(1+RATE)+sav;
+      rows.push({m,income:Math.round(income),exp,sav,corpus:Math.round(corpus)});
+      cSave.push(sav); cCorpus.push(Math.round(corpus));
+    }
+
+    v('bf-stats').innerHTML=
+      stat(inr(income),'Monthly Income')+
+      stat(inr(Math.round(saveAmt)),'Monthly Savings',savePct>=20?'#22c55e':'#eab308')+
+      stat(savePct+'%','Savings Rate',savePct>=20?'#22c55e':'#f87171')+
+      stat(inr(rows[11].corpus),'12-Month Corpus','#c7f000');
+
+    v('bf-table').innerHTML=`<tr><th>Month</th><th>Income</th><th>Expenses</th><th>Saved</th><th>Corpus</th></tr>`
+      +rows.map(r=>`<tr><td>${r.m}</td><td>${inr(r.income)}</td><td style="color:#f87171">${inr(r.exp)}</td><td style="color:#22c55e">${inr(r.sav)}</td><td style="color:#c7f000">${inr(r.corpus)}</td></tr>`).join('');
+
+    if(this.chart) this.chart.destroy();
+    this.chart=new Chart(v('bf-chart').getContext('2d'),{
+      type:'bar',
+      data:{
+        labels:rows.map(r=>r.m),
+        datasets:[
+          {label:'Monthly Savings',data:cSave,backgroundColor:'rgba(199,240,0,.65)',borderRadius:5,borderSkipped:false},
+          {label:'Corpus',type:'line',data:cCorpus,borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,.06)',tension:.4,pointRadius:3,fill:true,yAxisID:'y2'}
+        ]
+      },
+      options:{
+        responsive:true,interaction:{mode:'index'},
+        plugins:{legend:{labels:{color:'#8892a4',font:{size:11}}}},
+        scales:{
+          x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6b7589'}},
+          y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6b7589',callback:n=>inr(n)}},
+          y2:{position:'right',grid:{drawOnChartArea:false},ticks:{color:'#00d4ff',callback:n=>inr(n)}}
+        }
+      }
+    });
+
+    v('bf-result').classList.add('show');
+    unspin(btn);
+
+    typing(v('bf-ai-txt'));
+    const prompt=`You are Arya, a warm Indian financial advisor. Analyze this 12-month budget forecast in exactly 3 bullet points (•). Max 55 words per point. Use real numbers from context. No preamble.
+Income: ${inr(income)}/mo | Savings rate: ${savePct}% | Projected corpus: ${inr(rows[11].corpus)} | Risk: ${risk} | Life events: ${events.join(', ')||'none'}
+Points: (1) Savings health assessment (2) Corpus growth milestone (3) One specific action for this risk profile.`;
+    ollama(prompt).then(r=>{v('bf-ai-txt').textContent=r||'Start Ollama for AI insights — run: ollama run qwen3:14b';});
+  }
+};
+document.querySelectorAll('#bf-chips .chip').forEach(c=>{c.onclick=()=>c.classList.toggle('on');});
+
+/* ════════════════════════════════════════════════════════════
+   MODULE 2 — LIFE GOALS
+════════════════════════════════════════════════════════════ */
+const GL={
+  chart:null, n:0,
+  init(){
+    this.add({name:'Own Home',amt:8000000,yrs:7,inf:6});
+    this.add({name:'Retirement Corpus',amt:50000000,yrs:30,inf:6});
+  },
+  add(p={}){
+    const id=++this.n;
+    const d=document.createElement('div');
+    d.className='goal-row'; d.id='gr-'+id;
+    d.innerHTML=`
+      <div><label class="hf-label">Goal Name</label><input class="hf-input" id="gn-${id}" value="${p.name||''}" placeholder="e.g. Own Home"></div>
+      <div><label class="hf-label">Target ₹</label><input class="hf-input" id="ga-${id}" type="number" value="${p.amt||''}" placeholder="5000000"></div>
+      <div><label class="hf-label">Years</label><input class="hf-input" id="gy-${id}" type="number" value="${p.yrs||10}" placeholder="10" min="1" max="40"></div>
+      <div><label class="hf-label">Inflation %</label><input class="hf-input" id="gi-${id}" type="number" value="${p.inf||6}" placeholder="6" step=".5"></div>
+      <button class="goal-del" title="Remove" onclick="document.getElementById('gr-${id}').remove()">✕</button>`;
+    v('gl-list').appendChild(d);
+  },
+  run(){
+    const income=+v('gl-income').value||0;
+    const exp=+v('gl-exp').value||0;
+    const curSIP=+v('gl-sip').value||0;
+    if(!income){
+      const err=v('gl-income');
+      err.style.borderColor='rgba(248,113,113,.5)';err.focus();
+      setTimeout(()=>err.style.borderColor='',2500);
+      return;
+    }
+    const surplus=income-exp;
+    const CAGR=0.12; const r=CAGR/12;
+
+    const goals=[];
+    document.querySelectorAll('[id^="gr-"]').forEach(row=>{
+      const i=row.id.replace('gr-','');
+      const name=v('gn-'+i)?.value;
+      const amt=+v('ga-'+i)?.value||0;
+      const yrs=+v('gy-'+i)?.value||10;
+      const inf=+v('gi-'+i)?.value||6;
+      if(name&&amt){
+        const target=amt*Math.pow(1+inf/100,yrs);
+        const n=yrs*12;
+        const sip=Math.round(target*r/(Math.pow(1+r,n)-1));
+        goals.push({name,target,sip,yrs,ok:surplus>=sip});
+      }
+    });
+    if(!goals.length){
+      const notice=document.createElement('div');
+      notice.className='hf-notice error';notice.textContent='Add at least one goal with a name and target amount.';
+      const list=v('gl-list');list.parentNode.insertBefore(notice,list.nextSibling);
+      setTimeout(()=>notice.remove(),4000);return;
+    }
+
+    const totalSIP=goals.reduce((s,g)=>s+g.sip,0);
+    const extra=surplus-totalSIP;
+
+    v('gl-stats').innerHTML=
+      stat(inr(surplus),'Monthly Surplus')+
+      stat(inr(totalSIP),'Total SIP Needed',extra>=0?'#22c55e':'#f87171')+
+      stat(extra>=0?'✅ Feasible':'⚠ Shortfall','Roadmap',extra>=0?'#22c55e':'#eab308')+
+      stat(inr(Math.abs(extra)),extra>=0?'Surplus After SIPs':'Monthly Gap',extra>=0?'#22c55e':'#f87171');
+
+    v('gl-feas').innerHTML=goals.map(g=>`
+      <div class="feas-row ${g.ok?'feas-ok':'feas-warn'}">
+        <span>${g.ok?'✅':'⚠️'} <strong>${g.name}</strong></span>
+        <span style="font-size:12px;color:#8892a4;">SIP needed: <strong style="color:${g.ok?'#22c55e':'#eab308'}">${inr(g.sip)}/mo</strong> · Target ${g.yrs}yr: ${inr(Math.round(g.target))}</span>
+      </div>`).join('');
+
+    const maxYrs=Math.max(...goals.map(g=>g.yrs),10);
+    const labels=[],data=[];
+    let c=0;
+    for(let m=0;m<=maxYrs*12;m++){
+      c=c*(1+r)+curSIP;
+      if(m%12===0){labels.push('Yr '+(m/12));data.push(Math.round(c));}
+    }
+    if(this.chart) this.chart.destroy();
+    this.chart=new Chart(v('gl-chart').getContext('2d'),{
+      type:'line',
+      data:{labels,datasets:[{label:'Corpus @ '+inr(curSIP)+'/mo SIP',data,borderColor:'#c7f000',backgroundColor:'rgba(199,240,0,.06)',tension:.4,fill:true,pointRadius:0,pointHoverRadius:4}]},
+      options:{responsive:true,plugins:{legend:{labels:{color:'#8892a4',font:{size:11}}}},
+        scales:{x:{ticks:{color:'#6b7589'},grid:{color:'rgba(255,255,255,.04)'}},
+                y:{ticks:{color:'#6b7589',callback:n=>inr(n)},grid:{color:'rgba(255,255,255,.04)'}}}}
+    });
+
+    v('gl-result').classList.add('show');
+    typing(v('gl-ai-txt'));
+    const prompt=`You are Arya. Give a 3-point financial roadmap for these goals (max 200 words total, warm Hinglish-English):
+Goals: ${goals.map(g=>`${g.name} (SIP ₹${g.sip}/mo, ${g.yrs}yr)`).join(', ')}
+Monthly surplus: ${inr(surplus)}. ${extra>=0?'Surplus after all SIPs: '+inr(extra):'Shortfall: '+inr(Math.abs(extra))}.
+Advice: priority order, best instruments per horizon (ELSS/index fund/PPF), one specific savings hack.`;
+    ollama(prompt).then(r=>{v('gl-ai-txt').textContent=r||'Start Ollama for AI roadmap.';});
+  }
+};
+
+/* ════════════════════════════════════════════════════════════
+   MODULE 3 — PEER BENCHMARK
+════════════════════════════════════════════════════════════ */
+const BK={
+  init(){},
+  P:{
+    '20s':{metro:{low:[80000,8000,2000],mid:[250000,18000,5000],high:[800000,45000,15000],ultra:[2000000,120000,40000]},
+           tier2:{low:[60000,6000,1500],mid:[180000,13000,3500],high:[600000,35000,12000],ultra:[1500000,90000,30000]},
+           tier3:{low:[40000,4000,1000],mid:[120000,9000,2500],high:[400000,25000,8000],ultra:[1000000,60000,20000]}},
+    '30s':{metro:{low:[300000,12000,3000],mid:[1200000,30000,10000],high:[4000000,80000,30000],ultra:[12000000,200000,80000]},
+           tier2:{low:[200000,9000,2000],mid:[800000,22000,7000],high:[2800000,60000,22000],ultra:[8000000,150000,60000]},
+           tier3:{low:[120000,6000,1200],mid:[500000,15000,4000],high:[1800000,40000,15000],ultra:[5000000,100000,35000]}},
+    '40s':{metro:{low:[800000,15000,4000],mid:[3500000,40000,15000],high:[12000000,100000,40000],ultra:[35000000,250000,100000]},
+           tier2:{low:[500000,11000,3000],mid:[2400000,30000,11000],high:[8000000,75000,30000],ultra:[25000000,180000,75000]},
+           tier3:{low:[300000,7000,2000],mid:[1500000,20000,7000],high:[5000000,50000,20000],ultra:[15000000,120000,50000]}},
+    '50s':{metro:{low:[1500000,18000,5000],mid:[6000000,50000,20000],high:[20000000,120000,50000],ultra:[60000000,300000,120000]},
+           tier2:{low:[1000000,13000,3500],mid:[4000000,38000,14000],high:[14000000,90000,38000],ultra:[40000000,220000,90000]},
+           tier3:{low:[600000,9000,2000],mid:[2500000,25000,8000],high:[8500000,60000,25000],ultra:[25000000,150000,60000]}}
+  },
+  rank(u,avg){const r=u/avg;if(r>=2)return 92;if(r>=1.5)return 78;if(r>=1)return 58;if(r>=.7)return 40;return 22;},
+  run(){
+    const age=v('bk-age').value,city=v('bk-city').value,inc=v('bk-income').value;
+    const nw=+v('bk-nw').value||0,saves=+v('bk-saves').value||0,sip=+v('bk-sip').value||0;
+    const peer=this.P[age]?.[city]?.[inc]||[800000,25000,8000];
+    const metrics=[
+      {lbl:'Net Worth',user:nw,avg:peer[0]},
+      {lbl:'Monthly Savings',user:saves,avg:peer[1]},
+      {lbl:'Monthly SIP',user:sip,avg:peer[2]}
+    ];
+    v('bk-segs').innerHTML=[`👤 ${age}`,`🏙️ ${city}`,`💰 ${inc}`].map(s=>`<span class="seg-chip">${s}</span>`).join(' ');
+    v('bk-metrics').innerHTML=metrics.map(m=>{
+      const rk=this.rank(m.user,m.avg);
+      const w=Math.min(100,Math.round(m.user/m.avg*60));
+      const col=rk>=60?'#22c55e':rk>=40?'#eab308':'#f87171';
+      return `<div class="bk-metric">
+        <div class="bk-name">${m.lbl}</div>
+        <div class="bk-bar-wrap"><div class="bk-bar" style="width:${w}%;background:${col};"></div></div>
+        <span class="bk-badge" style="background:${col}22;color:${col};">${rk}th %ile</span>
+        <div class="bk-vals">You: ${inr(m.user)}<br>Avg: ${inr(m.avg)}</div>
+      </div>`;
+    }).join('');
+    v('bk-result').classList.add('show');
+    typing(v('bk-ai-txt'));
+    const nwRk=this.rank(nw,peer[0]);
+    const prompt=`You are Arya. In 2 short sentences, give warm, honest feedback to this ${age} person in ${city} (${inc} income). Their net worth ranks ${nwRk}th percentile vs peers. Net worth: ${inr(nw)}, peer avg: ${inr(peer[0])}. Savings: ${inr(saves)}/mo. SIP: ${inr(sip)}/mo. Be specific and actionable. No preamble.`;
+    ollama(prompt).then(r=>{v('bk-ai-txt').textContent=r||`You're at the ${nwRk}th percentile for your peer group. ${nwRk>=60?'Solid work!':nwRk>=40?'On track — keep it up.':'Focus on automating a monthly SIP.'}`});
+  }
+};
+
+/* ════════════════════════════════════════════════════════════
+   MODULE 4 — COUPLE FINANCE
+════════════════════════════════════════════════════════════ */
+const CP={
+  init(){},
+  run(){
+    const aI=+v('cp-a').value||0, bI=+v('cp-b').value||0;
+    if(!aI||!bI){
+      const field=!aI?v('cp-a'):v('cp-b');
+      field.style.borderColor='rgba(248,113,113,.5)';field.focus();
+      setTimeout(()=>field.style.borderColor='',2500);return;
+    }
+    const rent=+v('cp-rent').value||0, food=+v('cp-food').value||0;
+    const util=+v('cp-util').value||0, trans=+v('cp-trans').value||0;
+    const enter=+v('cp-enter').value||0, goal=+v('cp-goal').value||0;
+    const method=v('cp-method').value;
+    const total=aI+bI, exp=rent+food+util+trans+enter, sur=total-exp;
+    let aS, bS;
+    if(method==='equal'){aS=bS=.5;}
+    else if(method==='prop'){aS=aI/total;bS=bI/total;}
+    else{aS=aI>=bI?.65:.35;bS=1-aS;}
+    const aNet=aI-Math.round(exp*aS), bNet=bI-Math.round(exp*bS);
+    const gap=goal-sur;
+
+    v('cp-stats').innerHTML=
+      stat(inr(total),'Joint Income')+
+      stat(inr(exp),'Joint Expenses')+
+      stat(inr(sur),'Monthly Surplus',sur>0?'#22c55e':'#f87171')+
+      stat(gap<=0?'✅ Met':inr(gap),gap<=0?'Goal Met':'Savings Gap',gap<=0?'#22c55e':'#eab308');
+
+    v('cp-bar-a').style.flex=aS;
+    v('cp-bar-b').style.flex=bS;
+    v('cp-pct-a').textContent='Partner A: '+Math.round(aS*100)+'%';
+    v('cp-pct-b').textContent='Partner B: '+Math.round(bS*100)+'%';
+
+    const cats=[['🏠 Rent/EMI',rent],['🛒 Food',food],['⚡ Utilities',util],['🚗 Transport',trans],['🎭 Entertainment',enter]].filter(c=>c[1]>0);
+    v('cp-table').innerHTML=`<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr><th style="text-align:left;padding:8px;color:#6b7589;font-size:10px;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.07);">Category</th>
+          <th style="text-align:right;padding:8px;color:#4f7cff;font-size:10px;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.07);">Partner A</th>
+          <th style="text-align:right;padding:8px;color:#00d4ff;font-size:10px;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.07);">Partner B</th>
+          <th style="text-align:right;padding:8px;color:#6b7589;font-size:10px;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.07);">Total</th></tr>
+      ${cats.map(([n,x])=>`<tr>
+        <td style="padding:8px;color:#c0c8d8;border-bottom:1px solid rgba(255,255,255,.04);">${n}</td>
+        <td style="padding:8px;text-align:right;color:#4f7cff;border-bottom:1px solid rgba(255,255,255,.04);">${inr(Math.round(x*aS))}</td>
+        <td style="padding:8px;text-align:right;color:#00d4ff;border-bottom:1px solid rgba(255,255,255,.04);">${inr(Math.round(x*bS))}</td>
+        <td style="padding:8px;text-align:right;color:#8892a4;border-bottom:1px solid rgba(255,255,255,.04);">${inr(x)}</td></tr>`).join('')}
+      <tr style="font-weight:700;">
+        <td style="padding:8px;color:#eef0f4;">💰 Net Disposable</td>
+        <td style="padding:8px;text-align:right;color:#4f7cff;">${inr(aNet)}</td>
+        <td style="padding:8px;text-align:right;color:#00d4ff;">${inr(bNet)}</td>
+        <td style="padding:8px;text-align:right;color:#c7f000;">${inr(aNet+bNet)}</td></tr>
+    </table></div>`;
+
+    v('cp-result').classList.add('show');
+    /* Fixed: properly closed all parens/backticks */
+    v('cp-ai-txt').innerHTML = gap <= 0
+      ? `✅ Meeting ${inr(goal)}/mo savings goal with ${inr(Math.abs(gap))} to spare. Put the surplus into a joint liquid fund SIP on the 1st of every month.`
+      : `⚠️ ${inr(Math.abs(gap))}/mo short of ${inr(goal)} goal. Try trimming entertainment by 20% and automating a joint SIP. Even ${inr(Math.round(Math.abs(gap)*.5))}/mo now beats zero.`;
+  }
+};
+
+/* ════════════════════════════════════════════════════════════
+   MODULE 5 — MY TIMELINE
+════════════════════════════════════════════════════════════ */
+const TL={
+  items:[],
+  COLORS:{investment:'#22c55e',goal:'#c7f000',job:'#00d4ff',purchase:'#f59e0b',debt:'#a855f7',milestone:'#8892a4'},
+  ICONS:{investment:'📈',goal:'🎯',job:'💼',purchase:'🏠',debt:'💳',milestone:'⭐'},
+  STORAGE:'finos_timeline_v1',
+  init(){
+    v('tl-date').value=new Date().toISOString().slice(0,7);
+    try{const s=localStorage.getItem(this.STORAGE);if(s)this.items=JSON.parse(s);}catch{}
+    if(!this.items.length){
+      this.items=[
+        {type:'job',date:'2023-04',amt:0,note:'Got promoted — salary +30%'},
+        {type:'investment',date:'2023-08',amt:50000,note:'Started Nifty 50 SIP ₹5K/mo'},
+        {type:'goal',date:'2024-01',amt:100000,note:'Emergency fund complete (6 months)'},
+        {type:'purchase',date:'2024-06',amt:800000,note:'Down payment for 2BHK'},
+      ];
+    }
+    this.render();
+  },
+  save(){try{localStorage.setItem(this.STORAGE,JSON.stringify(this.items));}catch{}},
+  add(){
+    const type=v('tl-type').value,date=v('tl-date').value;
+    const amt=+v('tl-amt').value||0,note=v('tl-note').value.trim();
+    if(!date||!note){
+      v('tl-note').style.borderColor='rgba(248,113,113,.5)';
+      setTimeout(()=>v('tl-note').style.borderColor='',2000);
+      return;
+    }
+    this.items.push({type,date,amt,note});
+    this.items.sort((a,b)=>a.date.localeCompare(b.date));
+    v('tl-note').value=''; v('tl-amt').value='';
+    this.save(); this.render();
+  },
+  del(i){this.items.splice(i,1);this.save();this.render();},
+  render(){
+    const el=v('tl-list');
+    if(!this.items.length){
+      el.innerHTML='<div class="tl-empty"><div class="tl-empty-icon">🕐</div>No milestones yet — log your first financial win below.</div>';
+      return;
+    }
+    const sorted=[...this.items].reverse();
+    el.innerHTML=sorted.map((it,i)=>{
+      const col=this.COLORS[it.type]||'#6b7589';
+      const realIdx=this.items.length-1-i;
+      return `
+      <div class="tl-item">
+        <div class="tl-dot" style="background:${col};color:${col};box-shadow:0 0 0 3px #0b0d12,0 0 8px ${col}55;"></div>
+        <div class="tl-body">
+          <div class="tl-body-top">
+            <div style="flex:1;min-width:0;">
+              <div class="tl-note">${this.ICONS[it.type]||'⭐'} ${it.note}</div>
+              <div class="tl-date">${it.date}</div>
+            </div>
+            <div class="tl-actions">
+              ${it.amt?`<span class="tl-amt" style="color:${col}">${inr(it.amt)}</span>`:''}
+              <button class="tl-del" onclick="TL.del(${realIdx})" title="Remove milestone" aria-label="Remove">✕</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+};
+
+/* ════════════════════════════════════════════════════════════
+   MODULE 6 — MONEY AI
+════════════════════════════════════════════════════════════ */
+const AI={
+  ready:false,
+  init(){
+    if(this.ready) return; this.ready=true;
+    this.append('arya','Namaste! 🙏 I\'m Arya, your personal financial advisor. Ask me anything about investing, tax, savings, or your financial goals — I\'ll give you clear, India-specific advice.');
+    // check Ollama status
+    fetch('http://localhost:11434/api/tags',{signal:AbortSignal.timeout(2000)})
+      .then(()=>{ v('ai-dot').style.background='#22c55e'; v('ai-status-txt').textContent='Ollama online'; })
+      .catch(()=>{ v('ai-dot').style.background='#f87171'; v('ai-status-txt').textContent='Ollama offline'; });
+  },
+  async send(override){
+    const inp=v('ai-input');
+    const text=(override||inp.value).trim();
+    if(!text) return;
+    inp.value=''; inp.style.height='auto';
+    this.append('user',text);
+    const typing=this.showTyping();
+    const ctx=window.FINOS_USER_CONTEXT?.budget_tracker;
+    let sys=`You are Arya, a sharp Indian financial advisor. Give concise (under 150 words), actionable advice. India-specific: NSE/BSE/SEBI/RBI/MF/FD/PPF/ELSS/NPS. Occasionally use a Hindi word (yaar, bilkul, etc.) for warmth. No preamble.`;
+    if(ctx?.income_monthly) sys+=` User income: ${inr(ctx.income_monthly)}/mo.`;
+    const el=this.append('arya','');
+    typing.remove();
+    const msgText=el.querySelector('.msg-text');
+    const res=await ollama(sys+'\n\nUser: '+text+'\n\nArya:',txt=>{
+      if(msgText) msgText.innerHTML=txt.replace(/\n/g,'<br>');
+      const msgs=v('chat-msgs'); msgs.scrollTop=msgs.scrollHeight;
+    });
+    if(!res && msgText) msgText.innerHTML='Ollama is offline. Start it with: <code>ollama run qwen3:14b</code>';
+  },
+  onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();this.send();}},
+  append(role,text){
+    const msgs=v('chat-msgs');
+    const d=document.createElement('div');
+    d.className='msg '+role;
+    if(role==='arya'){
+      d.innerHTML=`<span class="msg-lbl">ARYA</span><span class="msg-text">${text||''}</span>`;
+    } else {
+      d.innerHTML=`<span class="msg-text">${text||''}</span>`;
+    }
+    msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight;
+    return d;
+  },
+  showTyping(){
+    const msgs=v('chat-msgs');
+    const d=document.createElement('div');
+    d.className='msg arya';
+    d.innerHTML='<span class="msg-lbl">ARYA</span><span class="msg-text"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></span>';
+    msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight;
+    return d;
+  }
+};
+
+/* ════════════════════════════════════════════════════════════
+   MODULE 7 — FINANCIAL REPORT
+════════════════════════════════════════════════════════════ */
+const RPT={
+  build(){
+    const el=v('rpt-body');
+    const ctx=window.FINOS_USER_CONTEXT;
+    if(!ctx){
+      el.innerHTML=`<div class="hf-card">${['','','',''].map(()=>`<div class="skeleton" style="margin-bottom:10px;"></div>`).join('')}<div style="text-align:center;padding:12px 0;font-size:13px;color:#6b7589;">Loading your data…</div></div>`;
+      window.addEventListener('finos-context-ready',()=>this.build(),{once:true});
+      return;
+    }
+    const budget=ctx.budget_tracker||{};
+    const prof=ctx.profile||{};
+    const goals=ctx.financial?.goals||[];
+    const journal=ctx.trade_journal||null;
+    const hs=parseFloat(prof.health_score||localStorage.getItem('finos_health_score')||0);
+    const nw=parseFloat(prof.net_worth||localStorage.getItem('finos_net_worth')||0);
+    const sr=parseFloat(budget.savings_rate||localStorage.getItem('finos_savings_rate')||0);
+    const income=budget.income_monthly||0;
+    const name=localStorage.getItem('finos_display_name')||'Investor';
+
+    function grade(s){
+      if(s>=80)return{g:'A',c:'#22c55e'};if(s>=65)return{g:'B+',c:'#86efac'};
+      if(s>=50)return{g:'B',c:'#eab308'};if(s>=35)return{g:'C',c:'#f59e0b'};
+      return{g:'D',c:'#f87171'};
+    }
+    const{g,c}=grade(hs);
+    const tips=[];
+    if(sr<20) tips.push('💡 Raise savings rate to 20%+ — automate a SIP on salary day so it\'s never optional.');
+    if(!goals.length) tips.push('🎯 Set financial goals in the Life Goals tab to track progress systematically.');
+    if(journal?.win_rate<40) tips.push('📓 Trading win rate below 40% — review your entry/exit strategy before the next trade.');
+    if(nw<income*12) tips.push('💰 Build net worth to at least 12× monthly income before increasing risk exposure.');
+    if(!tips.length) tips.push('✅ Your financial profile looks healthy! Keep the SIP automated and avoid lifestyle inflation.');
+
+    v('rpt-ts').textContent='Generated '+new Date().toLocaleTimeString('en-IN');
+    el.innerHTML=`<div style="max-width:680px;margin:0 auto;">
+      <div class="hf-card" style="text-align:center;padding:32px;">
+        <div style="font-size:10px;font-weight:800;color:#6b7589;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;">FIN•OS FINANCIAL REPORT</div>
+        <div style="font-size:26px;font-weight:900;color:#fff;margin-bottom:4px;">${name}</div>
+        <div style="font-size:12px;color:#6b7589;">${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:18px;margin:24px 0 8px;">
+          <div class="rpt-grade" style="background:${c}18;color:${c};border:2px solid ${c};">${g}</div>
+          <div style="text-align:left;">
+            <div style="font-size:42px;font-weight:900;color:${c};line-height:1;">${hs>0?Math.round(hs):'—'}<span style="font-size:16px;font-weight:400;color:#6b7589;">/100</span></div>
+            <div style="font-size:11px;color:#6b7589;margin-top:2px;">Financial Health Score</div>
+          </div>
+        </div>
+        ${hs>0?`<div class="rpt-progress"><div class="rpt-progress-bar" style="width:${hs}%;background:${c};"></div></div>`:''}
+      </div>
+
+      <div class="hf-card">
+        <div class="rpt-sec">
+          <h3>📊 Financial Snapshot</h3>
+          <div class="rpt-row"><span>Monthly Income</span><span>${income?inr(income):'—'}</span></div>
+          <div class="rpt-row"><span>Monthly Expenses</span><span>${budget.spent_total?inr(budget.spent_total):'—'}</span></div>
+          <div class="rpt-row"><span>Savings Rate</span><span style="color:${sr>=20?'#22c55e':'#eab308'}">${sr?sr+'%':'—'}</span></div>
+          <div class="rpt-row"><span>Net Worth</span><span>${nw?inr(nw):'—'}</span></div>
+          ${budget.total_debt>0?`<div class="rpt-row"><span>Outstanding Debt</span><span style="color:#f87171">${inr(budget.total_debt)}</span></div>`:''}
+        </div>
+      </div>
+
+      ${goals.length?`<div class="hf-card"><div class="rpt-sec"><h3>🎯 Goals Progress</h3>
+        ${goals.map(g=>`
+          <div style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+              <span style="font-size:13px;color:#eef0f4;">${g.name}</span>
+              <span style="font-size:12px;font-weight:700;color:${(g.progress||0)>=50?'#22c55e':'#eab308'}">${g.progress||0}%</span>
+            </div>
+            <div class="rpt-progress"><div class="rpt-progress-bar" style="width:${Math.min(g.progress||0,100)}%;background:${(g.progress||0)>=50?'#22c55e':'#eab308'};"></div></div>
+          </div>`).join('')}
+      </div></div>`:''}
+
+      ${budget.top_categories?.length?`<div class="hf-card"><div class="rpt-sec"><h3>💸 Top Spending</h3>
+        ${budget.top_categories.slice(0,5).map(c=>`<div class="rpt-row"><span>${c.cat}</span><span>${inr(c.amt)} ${income?'('+pct(c.amt,income)+'%)':''}</span></div>`).join('')}
+      </div></div>`:''}
+
+      <div class="hf-card"><div class="rpt-sec"><h3>💡 Arya's Recommendations</h3>
+        ${tips.map(t=>`<div class="rpt-tip">${t}</div>`).join('')}
+      </div></div>
+
+      <div style="text-align:center;font-size:11px;color:#3e4a5c;padding:16px 0;">
+        FIN•OS · <a href="diagnostics.html" style="color:#6b7589;">View Full Diagnostics</a> · Data stored locally on your device
+      </div>
+    </div>`;
+  }
+};
+
+/* ════════════════════════════════════════════════════════════
+   MODULE 8 — DOCUMENT AI
+════════════════════════════════════════════════════════════ */
+const DOC={
+  last:null,
+  init(){},
+  over(e){e.preventDefault();v('dz').classList.add('drag');},
+  leave(){v('dz').classList.remove('drag');},
+  drop(e){e.preventDefault();v('dz').classList.remove('drag');this.handle(e.dataTransfer.files[0]);},
+  async handle(file){
+    if(!file) return;
+    const ok=['application/pdf','image/png','image/jpeg','image/jpg','image/webp'];
+    if(!ok.includes(file.type)&&!file.name.match(/\.(pdf|png|jpg|jpeg|webp)$/i)){
+      this.status('❌ Please upload a PDF or image file (PDF, PNG, JPG, WEBP).','error');return;
+    }
+    this.status(`📄 Uploading ${file.name} (${(file.size/1024).toFixed(0)} KB)…`,'loading',0);
+    v('doc-result').classList.remove('show');
+    const fd=new FormData(); fd.append('file',file); fd.append('use_llm','true');
+    try{
+      this.status(`🔍 Analysing document…`,'loading',60);
+      const r=await fetch(DA_URL,{method:'POST',body:fd});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const data=await r.json();
+      this.last=data;
+      if(data.status==='error') throw new Error(data.message||'Parse failed');
+      this.status(`✅ ${this.label(data.doc_type)} detected — ${data.confidence||'high'} confidence`,'success',100);
+      this.render(data);
+    }catch(err){
+      const isOffline=err.message.includes('fetch')||err.message.includes('Failed');
+      this.status(isOffline?'⚠️ Document AI server offline. Start it: <code style="background:rgba(255,255,255,.1);padding:2px 6px;border-radius:4px;">uvicorn server:app --port 8004</code> in the <code>document-ai/</code> folder.':'❌ '+err.message,'error',0);
+    }
+  },
+  status(html,type,prog=-1){
+    const w=v('doc-status-wrap');
+    const bar=prog>=0?`<div class="doc-progress"><div class="doc-progress-bar" style="width:${prog}%"></div></div>`:'';
+    w.innerHTML=`<div class="doc-status ${type||''}">${html}${bar}</div>`;
+  },
+  label(t){return{salary_slip:'Salary Slip',bank_statement:'Bank Statement',form16:'Form-16',credit_card:'Credit Card Statement',unknown:'Financial Document'}[t]||t||'Document';},
+  render(data){
+    const fields=data.fields||data.extracted||{};
+    v('doc-data').innerHTML=Object.keys(fields).length
+      ?Object.entries(fields).map(([k,val])=>`<div class="doc-row"><span class="k">${k.replace(/_/g,' ')}</span><span class="v">${val||'—'}</span></div>`).join('')
+      :'<div style="color:#6b7589;font-size:13px;">No structured fields detected. Raw text may be available in the server log.</div>';
+    v('doc-type').textContent=`Type: ${this.label(data.doc_type)} · Pages: ${data.pages||1}`;
+    v('doc-result').classList.add('show');
+    if(data.arya_summary){v('doc-ai-txt').textContent=data.arya_summary;}
+    else{
+      typing(v('doc-ai-txt'));
+      const prompt=`You are Arya. In 2 sentences, summarize what this ${this.label(data.doc_type)} shows and give one actionable financial tip based on it. Data: ${JSON.stringify(fields).slice(0,500)}. No preamble.`;
+      ollama(prompt).then(r=>{v('doc-ai-txt').textContent=r||'Start Ollama for AI document summary.';});
+    }
+  },
+  fill(){
+    if(!this.last) return;
+    const f=this.last.fields||{};
+    const income=parseFloat((f.net_pay||f.basic_salary||f.gross_pay||'').replace(/[^0-9.]/g,''))||0;
+    if(income){
+      localStorage.setItem('finos_manual_income',income);
+      // also prefill hub income fields
+      ['bf-income','gl-income'].forEach(id=>{const el=v(id);if(el)el.value=Math.round(income);});
+      this.status(`✅ Income ${inr(income)}/mo saved and prefilled in Budget & Goals tabs.`,'success');
+    }else{
+      this.status('⚠️ Could not auto-detect income. Fill manually in Track Finances.','error');
+    }
+  }
+};
+</script>
+</body>
+</html>

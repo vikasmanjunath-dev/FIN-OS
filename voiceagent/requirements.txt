@@ -7,3 +7,5 @@ transformers==5.8.1
 edge-tts>=6.1.9
 httpx>=0.27.0
 python-dotenv>=1.0.1
+sentence-transformers>=2.7.0
+psutil>=5.9.0

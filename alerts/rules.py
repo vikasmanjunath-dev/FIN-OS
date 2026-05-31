@@ -23,7 +23,9 @@ from __future__ import annotations
 from datetime import datetime, date, timedelta
 from typing import Optional
 import calendar
+import math
 import re
+import statistics
 
 # ── Alert priority levels ────────────────────────────────────────────────────
 CRITICAL     = "critical"     # red   — act now, financial loss at stake
@@ -581,13 +583,13 @@ class NetWorthMilestone(Rule):
     priority       = CELEBRATION
 
     _MILESTONES = [
-        (1_00_000,     "₹1 Lakh",    "🎯"),
-        (5_00_000,     "₹5 Lakh",    "🔥"),
-        (10_00_000,    "₹10 Lakh",   "💎"),
-        (25_00_000,    "₹25 Lakh",   "🚀"),
-        (50_00_000,    "₹50 Lakh",   "🏆"),
-        (1_00_00_000,  "₹1 Crore",   "👑"),
-        (5_00_00_000,  "₹5 Crore",   "🌟"),
+        (1_00_000,     "₹1 Lakh",    "🎯", "1L"),
+        (5_00_000,     "₹5 Lakh",    "🔥", "5L"),
+        (10_00_000,    "₹10 Lakh",   "💎", "10L"),
+        (25_00_000,    "₹25 Lakh",   "🚀", "25L"),
+        (50_00_000,    "₹50 Lakh",   "🏆", "50L"),
+        (1_00_00_000,  "₹1 Crore",   "👑", "1CR"),
+        (5_00_00_000,  "₹5 Crore",   "🌟", "5CR"),
     ]
 
     def check(self, ud: dict) -> Optional[dict]:
@@ -601,13 +603,13 @@ class NetWorthMilestone(Rule):
 
         name = (profile.get("full_name") or "Bhai").split()[0]
 
-        for milestone, label, emoji in self._MILESTONES:
+        for milestone, label, emoji, milestone_key in self._MILESTONES:
             if prev_nw < milestone <= curr_nw:
                 years_to_next = None
+                next_label    = ""
                 # Find next milestone
-                for nxt_val, nxt_label, _ in self._MILESTONES:
+                for nxt_val, nxt_label, _, _nxt_key in self._MILESTONES:
                     if nxt_val > curr_nw:
-                        # Rough estimate at 12% CAGR
                         import math
                         try:
                             years_to_next = math.log(nxt_val / curr_nw) / math.log(1.12)
@@ -630,7 +632,7 @@ class NetWorthMilestone(Rule):
                     "action_url":   "/html/dashboard.html",
                     "action_label": "Net worth tracker",
                     "data":         {"milestone": milestone, "current_nw": curr_nw,
-                                     "label": label},
+                                     "label": label, "milestone_key": milestone_key},
                 }
         return None
 
@@ -871,6 +873,217 @@ class BillDueAIPrediction(Rule):
 # ═══════════════════════════════════════════════════════════════════════════
 # Registry — all active rules
 # ═══════════════════════════════════════════════════════════════════════════
+class AnomalySpend(Rule):
+    """
+    Rule #13 — ANOMALY_SPEND
+    ─────────────────────────────────────────────────────────────────────────────
+    Detects a statistically unusual single transaction using Z-score analysis
+    per spending category. No sklearn required — pure stdlib statistics.
+
+    Fires when:
+      • A transaction amount is > 2.5 standard deviations above the category mean
+      • The category has at least 5 historical transactions to establish a baseline
+      • The anomalous amount is at least 3× the category average (magnitude filter)
+
+    Cooldown: 24 hours (once per day max, per user)
+    """
+    rule_id        = "ANOMALY_SPEND"
+    name           = "Unusual Spending Detected"
+    cooldown_hours = 24
+    priority       = WARNING
+
+    _Z_THRESHOLD   = 2.5    # standard deviations above mean
+    _RATIO_MIN     = 3.0    # must be ≥3× the category average
+    _MIN_SAMPLES   = 5      # need at least 5 txns to establish baseline
+    _LOOKBACK_DAYS = 90     # window for baseline computation
+
+    def check(self, ud: dict) -> Optional[dict]:
+        txns    = ud.get("transactions", []) or []
+        profile = ud.get("profile", {}) or {}
+
+        if len(txns) < self._MIN_SAMPLES:
+            return None
+
+        name    = (profile.get("full_name") or "Bhai").split()[0]
+        today   = date.today()
+        cutoff  = today - timedelta(days=self._LOOKBACK_DAYS)
+
+        # ── Bucket expenses by category ──────────────────────────────────────
+        cat_amounts: dict[str, list[float]] = {}
+        recent_txns: list[dict]             = []
+
+        for t in txns:
+            if str(t.get("type", "")).lower() not in ("expense", "debit"):
+                continue
+            amt = abs(float(t.get("amount", 0) or 0))
+            if amt <= 0:
+                continue
+            cat = str(t.get("category") or "Other").strip().title()
+            try:
+                tx_date = date.fromisoformat(str(t.get("date", ""))[:10])
+            except (ValueError, TypeError):
+                continue
+
+            if tx_date >= cutoff:
+                cat_amounts.setdefault(cat, []).append(amt)
+                recent_txns.append({"cat": cat, "amt": amt, "date": tx_date, "raw": t})
+
+        if not recent_txns:
+            return None
+
+        # ── Detect anomalies ─────────────────────────────────────────────────
+        anomalies: list[dict] = []
+        for item in recent_txns:
+            cat    = item["cat"]
+            amt    = item["amt"]
+            series = cat_amounts.get(cat, [])
+
+            if len(series) < self._MIN_SAMPLES:
+                continue
+
+            # Leave-one-out: compute baseline excluding the transaction under test.
+            # This prevents the spike from skewing its own detection.
+            baseline = [v for v in series if v != amt]
+            if not baseline:
+                baseline = series  # degenerate: all transactions are the spike
+
+            mean = statistics.mean(baseline)
+            if mean <= 0:
+                continue
+
+            if len(baseline) < 2:
+                # Single baseline value — use 15% of mean as minimum stdev
+                stdev = mean * 0.15
+            else:
+                stdev = statistics.stdev(baseline)
+
+            # Apply a floor so perfectly uniform baselines still produce a Z-score
+            stdev = max(stdev, mean * 0.05 + 1.0)
+
+            z_score = (amt - mean) / stdev
+            ratio   = amt / mean
+
+            # Only flag if amount is both statistically and practically large
+            if z_score >= self._Z_THRESHOLD and ratio >= self._RATIO_MIN:
+                # Only flag the most recent transaction that is an anomaly
+                anomalies.append({
+                    "category": cat,
+                    "amount":   amt,
+                    "mean":     round(mean),
+                    "ratio":    round(ratio, 1),
+                    "z_score":  round(z_score, 1),
+                    "date":     item["date"].isoformat(),
+                })
+
+        if not anomalies:
+            return None
+
+        # Report the highest-ratio anomaly
+        top = max(anomalies, key=lambda x: x["ratio"])
+        cat       = top["category"]
+        amt       = top["amount"]
+        avg       = top["mean"]
+        ratio_str = f"{top['ratio']:.1f}×"
+
+        return {
+            "title":       f"🚨 Unusual {cat} Spend Detected!",
+            "message":     (
+                f"{name}, ek ₹{int(amt):,} ka {cat} transaction aaya — "
+                f"normally tu ₹{avg:,} spend karta hai is category mein. "
+                f"Yeh {ratio_str} zyada hai! Check karo — koi fraud toh nahi?"
+            ),
+            "action_url":   "/html/track-finances.html",
+            "action_label": "Transactions dekho",
+            "data": {"anomalies": anomalies[:5]},
+        }
+
+
+class InsuranceRenewalDue(Rule):
+    """
+    Rule #14 — INSURANCE_RENEWAL_DUE
+    ─────────────────────────────────────────────────────────────────────────────
+    Fires 30 days before any insurance policy is due for renewal.
+    Reads profile fields: term_renewal_month, health_renewal_month,
+    car_renewal_month, home_renewal_month (1-12 values).
+
+    If the day of month is also stored (term_renewal_day etc.), uses it.
+    Otherwise assumes renewal on the 1st of the renewal month.
+
+    Why 30 days: term insurance renewal is time-critical — missing it can mean
+    re-underwriting at a higher premium or coverage gap.
+    """
+    rule_id        = "INSURANCE_RENEWAL_DUE"
+    name           = "Insurance Renewal Reminder"
+    cooldown_hours = 24 * 20   # fire once every 20 days per policy type
+    priority       = WARNING
+
+    _LEAD_DAYS = 30
+
+    def check(self, ud: dict) -> Optional[dict]:
+        profile = ud.get("profile", {}) or {}
+        today   = date.today()
+        target  = today + timedelta(days=self._LEAD_DAYS)
+
+        policies = [
+            ("term",   "Term Life Insurance",   profile.get("term_renewal_month"),   profile.get("term_renewal_day",   1)),
+            ("health", "Health Insurance",       profile.get("health_renewal_month"), profile.get("health_renewal_day", 1)),
+            ("car",    "Car Insurance",           profile.get("car_renewal_month"),    profile.get("car_renewal_day",    1)),
+            ("home",   "Home Insurance",          profile.get("home_renewal_month"),   profile.get("home_renewal_day",   1)),
+        ]
+
+        upcoming = []
+        for pol_key, pol_name, renewal_month, renewal_day in policies:
+            if not renewal_month:
+                continue
+            try:
+                renewal_month = int(renewal_month)
+                renewal_day   = int(renewal_day or 1)
+            except (TypeError, ValueError):
+                continue
+
+            # Find the next renewal date (could be this year or next)
+            for year_offset in (0, 1):
+                try:
+                    renewal_date = date(today.year + year_offset, renewal_month, renewal_day)
+                except ValueError:
+                    renewal_date = date(today.year + year_offset, renewal_month, 28)
+
+                if renewal_date >= today:
+                    days_until = (renewal_date - today).days
+                    if days_until <= self._LEAD_DAYS:
+                        upcoming.append({
+                            "type":         pol_key,
+                            "name":         pol_name,
+                            "renewal_date": renewal_date.isoformat(),
+                            "days_until":   days_until,
+                        })
+                    break
+
+        if not upcoming:
+            return None
+
+        most_urgent = min(upcoming, key=lambda x: x["days_until"])
+        name_str    = (profile.get("full_name") or "Bhai").split()[0]
+        days_str    = "kal" if most_urgent["days_until"] == 1 else f"{most_urgent['days_until']} din mein"
+
+        extra = ""
+        if len(upcoming) > 1:
+            others = ", ".join(p["name"] for p in upcoming[1:2])
+            extra  = f" Aur bhi: {others}."
+
+        return {
+            "title":        f"🏥 {most_urgent['name']} Renewal {days_str}!",
+            "message":      (
+                f"{name_str}, tera {most_urgent['name']} {days_str} renew hoga "
+                f"({most_urgent['renewal_date']}).{extra} "
+                f"Abhi review karo — lapsed policy mein claim reject hota hai!"
+            ),
+            "action_url":   "/html/insurance-directory.html",
+            "action_label": "Insurance check karo",
+            "data":         {"upcoming_renewals": upcoming},
+        }
+
+
 ALL_RULES: list[Rule] = [
     SipMissed(),
     SalaryCredited(),
@@ -884,6 +1097,8 @@ ALL_RULES: list[Rule] = [
     NetWorthMilestone(),
     TaxSave80C(),           # Q8 — personalised 80C gap tracker
     BillDueAIPrediction(),  # Q9 — AI-predicted recurring bill warnings
+    AnomalySpend(),         # Q10 — statistical anomaly detection (no sklearn needed)
+    InsuranceRenewalDue(),  # Q11 — 30-day insurance renewal reminder
 ]
 
 RULES_BY_ID: dict[str, Rule] = {r.rule_id: r for r in ALL_RULES}

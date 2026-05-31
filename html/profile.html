@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/finos-context.js"></script>
   <script src="../js/arya-ai.js"></script>
+  <script src="../js/finos-personalization.js"></script>
 </head>
 
 <body>
@@ -40,7 +41,8 @@
       <a href="track-finances.html">Track Finances</a>
       <a href="../stock-dashboard/index.html">Live Tracker</a>
       <a href="simulator-landing.html">Train Mindset</a>
-      <a href="http://localhost:3000">News</a>
+      <a href="news.html">News</a>
+      <a href="financial-hub.html">⚡ Command Hub</a>
       <a href="settings.html">Settings</a>
     </nav>
   </aside>
@@ -282,5 +284,24 @@ Direct, use their actual numbers. No preamble.`;
   <script src="../js/pwa-init.js"></script>
   <script src="../js/finos-widget.js?v=4"></script>
   <script src="../js/finos-search.js?v=2"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof FinosPersona === 'undefined') return;
+    // Profile page: inject status strip (shows health, savings rate, net worth, FIRE %)
+    // Greeting is already handled by the profile page's own JS — just add strip + badges.
+    FinosPersona.injectStatusStrip('.header, header');
+    FinosPersona.injectNavBadges();
+    // Render smart nudges below the status strip for the profile page
+    const nudgeTarget = document.querySelector('.content-wrapper, main');
+    if (nudgeTarget) {
+      const nudgeDiv = document.createElement('div');
+      nudgeDiv.id = 'profile-nudges';
+      nudgeDiv.style.marginBottom = '20px';
+      // Insert after the first child (usually the header)
+      nudgeTarget.insertBefore(nudgeDiv, nudgeTarget.children[1] || nudgeTarget.firstChild);
+      FinosPersona.renderNudges(nudgeDiv);
+    }
+  });
+  </script>
 </body>
 </html>

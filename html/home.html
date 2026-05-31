@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="../chatbot/qft-hud.css">
   <script src="../js/finos-context.js"></script>
   <script src="../js/arya-ai.js"></script>
+  <script src="../js/finos-personalization.js"></script>
 </head>
 <body>
 
@@ -36,11 +37,11 @@
       <a href="foundations.html">Foundations</a>
       <a href="diagnostics.html">Diagnostics</a>
       <a href="track-finances.html">Track Finances</a>
-      <a href="budget-forecast.html">Budget Forecast</a>
-      <a href="life-goals-planner.html">Life Goals</a>
+      <a href="financial-hub.html">⚡ Command Hub</a>
       <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="../Porfolio Analyser/portfolio-analyser-v10.html">Portfolio X-Ray</a>
       <a href="simulator-landing.html">Train Mindset</a>
-      <a href="http://localhost:3000">News</a>
+      <a href="news.html">News</a>
       <a href="settings.html">Settings</a>
     </nav>
   </aside>
@@ -50,12 +51,17 @@
 
     <header class="header header-flex">
       <div>
-        <h1>Welcome to FIN-OS</h1>
-        <p>Your personalized financial operating system.</p>
+        <h1 id="home-greeting">Welcome to FIN-OS</h1>
+        <p id="home-sub">Your personalized financial operating system.</p>
       </div>
-
       <button id="themeToggle" class="theme-btn">🌙</button>
     </header>
+
+    <!-- Personalized status strip — populated by finos-personalization.js -->
+    <div id="home-status-strip"></div>
+
+    <!-- Personalized smart nudges — populated by finos-personalization.js -->
+    <div id="home-nudges" style="margin-bottom:20px;"></div>
 
     <!-- ── Arya AI Daily Tip ───────────────────────────────────────── -->
     <div id="arya-home-tip" style="margin-bottom:28px;border-radius:16px;
@@ -412,6 +418,67 @@
   // Auto-load on page load
   loadHomeTip(false);
   </script>
+
+  <script>
+  // ── FIN-OS Personalization — Home Page ──────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof FinosPersona === 'undefined') return;
+
+    // 1. Personalised greeting in the header
+    FinosPersona.injectGreeting({
+      selector: '#home-greeting',
+      subEl: document.getElementById('home-sub'),
+    });
+
+    // 2. Financial status strip (health score, savings rate, FIRE %, streak)
+    // We supply the strip container directly so the engine skips its anchor search
+    const stripEl = document.getElementById('home-status-strip');
+    if (stripEl) {
+      // Override anchor detection — render directly into #home-status-strip
+      function _buildHomeStrip() {
+        const r = FinosPersona.resolveCtx();
+        const items = [];
+        const INR = n => { const v=Number(n)||0; return v>=1e7?'₹'+(v/1e7).toFixed(1)+' Cr':v>=1e5?'₹'+(v/1e5).toFixed(1)+' L':v>=1e3?'₹'+(v/1e3).toFixed(0)+'K':'₹'+v.toLocaleString('en-IN'); };
+        if (r.healthScore > 0) { const t=r.healthScore>=80?'🟢':r.healthScore>=55?'🟡':'🔴'; items.push({label:'Health Score',value:`${t} ${Math.round(r.healthScore)}/100`,href:'diagnostics.html'}); }
+        if (r.savingsRate > 0) { const ok=r.savingsRate>=20?'✅':'⚠️'; items.push({label:'Savings Rate',value:`${ok} ${r.savingsRate}%`,href:'track-finances.html'}); }
+        if (r.netWorth > 0)    items.push({label:'Net Worth',value:INR(r.netWorth),href:'diagnostics.html'});
+        if (r.budget?.fire_number>0) { const pct=r.netWorth>0?Math.min(100,Math.round(r.netWorth/r.budget.fire_number*100)):0; items.push({label:'FIRE Progress',value:`${pct}%`,href:'life-goals-planner.html'}); }
+        const streak=JSON.parse(localStorage.getItem('finos_streak')||'{"count":0}');
+        if (streak.count>1) items.push({label:'Daily Streak',value:`🔥 ${streak.count} days`,href:null});
+        if (!items.length) { stripEl.innerHTML=''; return; }
+        stripEl.style.cssText='display:flex;gap:0;flex-wrap:wrap;overflow:hidden;border-radius:14px;border:1px solid rgba(199,240,0,.12);background:rgba(199,240,0,.03);margin-bottom:20px;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif;';
+        stripEl.innerHTML = items.map(it=>`
+          <${it.href?`a href="${it.href}"`:'span'} style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 18px;flex:1;min-width:80px;border-right:1px solid rgba(255,255,255,.05);text-decoration:none;transition:background .2s;${it.href?'cursor:pointer;':''}" ${it.href?`onmouseover="this.style.background='rgba(199,240,0,.06)'" onmouseout="this.style.background=''"`:''}>
+            <span style="font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;font-weight:600;">${it.label}</span>
+            <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,.85);">${it.value}</span>
+          </${it.href?'a':'span'}>
+        `).join('');
+      }
+      _buildHomeStrip();
+      window.addEventListener('finos-context-ready', _buildHomeStrip);
+    }
+
+    // 3. Smart nudges based on live data (goals behind, high spend, no SIP, etc.)
+    const nudgeEl = document.getElementById('home-nudges');
+    if (nudgeEl) FinosPersona.renderNudges(nudgeEl);
+
+    // 4. Nav badges (alert counts on sidebar links)
+    FinosPersona.injectNavBadges();
+  });
+
+  // Also update QFT system prompt to use full FINOS_USER_CONTEXT
+  window.addEventListener('finos-context-ready', function () {
+    // QFT uses getFinosContext() which only reads localStorage DNA + xray.
+    // Upgrade it to also include the richer finos-context.js data.
+    const originalGetCtx = window._qftGetContext;
+    if (typeof AryaAI !== 'undefined') {
+      const richCtx = AryaAI.getContextBlock();
+      if (richCtx && richCtx.length > 50) {
+        window._finosQFTContext = richCtx;
+      }
+    }
+  });
+  </script>
   <script src="../js/mobile-nav.js"></script>
   <script src="../js/pwa-init.js"></script>
   <script src="../js/finos-widget.js?v=4"></script>
@@ -687,7 +754,7 @@
 (function() {
   const QFT_API   = 'http://127.0.0.1:8000';
   const OLLAMA    = 'http://127.0.0.1:11434/api/chat';
-  const MODEL     = 'llama3.1'; // Updated to your brain.py model
+  const MODEL     = 'qwen3:14b'; // Consistent with Arya AI and voice agent
   const USE_BACKEND = true;
 
   const fab      = document.getElementById('qft-fab');

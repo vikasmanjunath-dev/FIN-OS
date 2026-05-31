@@ -831,18 +831,66 @@
 
 <script>
   // index.html lives at ROOT — paths must NOT use ../
-  // auth.js is NOT loaded here (it uses ../login.html which breaks from root).
-  // All login buttons are wired directly below.
-
   function goToLogin() {
     window.location.href = "html/home.html";
   }
 
-  // "Enter FIN-OS" hero button
   document.getElementById("loginBtn")?.addEventListener("click", goToLogin);
-
-  // Bottom CTA button
   document.getElementById("loginBtnFinal")?.addEventListener("click", goToLogin);
+
+  // ── Returning-user personalization ──────────────────────────────────────────
+  // Reads from localStorage (set by finos-context.js during previous sessions).
+  // Runs silently — no error shown to first-time visitors.
+  (function personalizeForReturningUser() {
+    try {
+      const displayName = localStorage.getItem('finos_display_name');
+      const income      = parseFloat(localStorage.getItem('finos_income') || '0');
+      const dna         = localStorage.getItem('finos_financial_dna');
+      const savingsRate = parseFloat(localStorage.getItem('finos_savings_rate') || '0');
+
+      // 1. Personalise hero CTA for returning users
+      if (displayName) {
+        const firstName = displayName.trim().split(/\s+/)[0];
+        const loginBtn = document.getElementById('loginBtn');
+        if (loginBtn) {
+          loginBtn.textContent = `Continue, ${firstName} →`;
+          loginBtn.title = `Welcome back, ${firstName}`;
+        }
+        const heroH1 = document.querySelector('.landing-hero h1');
+        if (heroH1) {
+          const eyebrow = document.querySelector('.eyebrow');
+          if (eyebrow) eyebrow.textContent = `Welcome back, ${firstName}`;
+        }
+      }
+
+      // 2. Personalise the paycheck simulator with real income
+      if (income >= 5000) {
+        const incomeDisplay = document.querySelector('.income-bar strong');
+        const balanceEl     = document.getElementById('balanceAmount');
+        if (incomeDisplay) {
+          incomeDisplay.textContent = '₹' + income.toLocaleString('en-IN');
+        }
+        if (balanceEl) {
+          balanceEl.textContent = '₹' + income.toLocaleString('en-IN');
+        }
+        // Also store on window so landing.js run-month animation uses real income
+        window._finosUserIncome = income;
+      }
+
+      // 3. Show a returning-user DNA badge near the bottom CTA
+      if (dna && dna !== 'Explorer') {
+        const finalSection = document.querySelector('.landing-final');
+        if (finalSection && !document.getElementById('dna-badge-landing')) {
+          const badge = document.createElement('p');
+          badge.id = 'dna-badge-landing';
+          badge.style.cssText = 'font-size:13px;opacity:.55;margin-bottom:12px;';
+          badge.textContent = `Your Financial DNA: ${dna}${savingsRate > 0 ? ' · Savings rate: ' + savingsRate + '%' : ''}`;
+          finalSection.insertBefore(badge, finalSection.querySelector('button'));
+        }
+      }
+
+    } catch (_) { /* never break the landing page */ }
+  })();
 </script>
 
 </body>
