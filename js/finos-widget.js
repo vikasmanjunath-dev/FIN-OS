@@ -447,4 +447,4 @@
     document.head.appendChild(hsScript);
   }
 
-})();;
+})();

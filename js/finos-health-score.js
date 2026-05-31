@@ -417,14 +417,22 @@
 
   async function fetchScore(userId) {
     renderLoading();
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 5000); // 5s timeout
     try {
-      const r = await fetch(`${ALERT_API}/health-score/${userId}`);
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const r = await fetch(`${ALERT_API}/health-score/${userId}`, { signal: controller.signal });
+      clearTimeout(tid);
+      if (!r.ok) throw new Error(`Server returned ${r.status}`);
       const data = await r.json();
       _lastData = data;
       render(data);
     } catch (e) {
-      renderError(e.message);
+      clearTimeout(tid);
+      if (e.name === 'AbortError') {
+        renderError('Score engine timed out — is the alert service running?');
+      } else {
+        renderError(e.message.includes('fetch') ? 'Alert engine offline — run the backend service.' : e.message);
+      }
     }
   }
 

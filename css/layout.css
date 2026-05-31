@@ -24,12 +24,13 @@ html {
   height: 100vh;
 
   background: var(--bg-sidebar);
-  padding: 24px 20px; /* Reduced from 32px to 24px */
+  padding: 24px 20px;
 
   display: flex;
   box-sizing: border-box;
   flex-direction: column;
   overflow-y: auto;
+  overflow-x: hidden; /* Prevents active indicator ::before pip from overflowing */
   position: fixed;
   top: 0;
   left: 0;

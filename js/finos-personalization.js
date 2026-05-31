@@ -65,8 +65,13 @@
     return streak;
   }
 
-  /* ── Context resolution ── */
+  /* ── Context resolution (memoized per event-loop tick to avoid redundant localStorage reads) ── */
+  let _ctxCache = null;
+  let _ctxCacheTimer = null;
+
   function resolveCtx() {
+    if (_ctxCache) return _ctxCache;
+
     const ctx = window.FINOS_USER_CONTEXT;
     const id  = ctx?.identity || {};
     const prof = ctx?.profile || {};
@@ -103,9 +108,19 @@
       !learnedModules[m] || (quizScores[m]?.score || 0) < 67
     );
 
-    return { ctx, id, prof, budget, journal, goals, portfolio, dna, dnaTag, stage, income, city,
+    _ctxCache = { ctx, id, prof, budget, journal, goals, portfolio, dna, dnaTag, stage, income, city,
              name, healthScore, savingsRate, netWorth, learnedModules, knowledgeGaps };
+
+    // Invalidate cache after 16ms (one event loop turn) so each render cycle is fresh
+    clearTimeout(_ctxCacheTimer);
+    _ctxCacheTimer = setTimeout(() => { _ctxCache = null; }, 16);
+
+    return _ctxCache;
   }
+
+  // Also invalidate cache when new context is published
+  window.addEventListener('finos-context-ready', () => { _ctxCache = null; });
+
 
   /* ════════════════════════════════════════════════════════════════════════
      1. PERSONALISED HEADER GREETING

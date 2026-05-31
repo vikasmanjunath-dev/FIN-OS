@@ -3072,9 +3072,26 @@ Reply ONLY with valid JSON. No markdown.
 
         except Exception as e:
             log.exception("Pipeline failed")
+            err_str = str(e).lower()
+            # Classify error type for user-friendly messages
+            if "remoteprotocolerror" in err_str or "server disconnected" in err_str or "connection refused" in err_str:
+                msg = "Ollama se connection toot gaya — thoda ruko aur phir try karo. 🔄"
+                # Attempt a quick reconnect ping to Ollama
+                try:
+                    import httpx as _hx
+                    _hx.get("http://localhost:11434/api/version", timeout=2)
+                    msg = "Thodi der ki dikkat thi — ab ready hai! Dobara try karo. ✅"
+                except Exception:
+                    msg = "AI engine abhi busy hai — 10 second mein dobara try karo. ⏳"
+            elif "timeout" in err_str or "timedout" in err_str:
+                msg = "Response aane mein time lag gaya — thoda simple sawaal poocho ya dobara try karo."
+            elif "model" in err_str and "not found" in err_str:
+                msg = f"Model '{OLLAMA_MODEL}' nahi mila — 'ollama pull {OLLAMA_MODEL}' run karo."
+            else:
+                msg = "Thodi technical dikkat hui — ek baar aur try karo yaar. 🙏"
             await self._send({
                 "type": "status",
-                "text": "Backend pipeline error. Please retry once; if it repeats, check agent.log.",
+                "text": msg,
             })
         finally:
             await self._send({"type": "state", "state": "idle"})
