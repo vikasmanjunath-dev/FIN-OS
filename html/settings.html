@@ -50,7 +50,8 @@
       <a href="../stock-dashboard/index.html">Live Tracker</a>
       <a href="simulator-landing.html">Train Mindset</a>
       <a href="trade-journal.html">Trade Journal</a>
-      <a href="http://localhost:3000">News</a>
+      <a href="news.html">News</a>
+      <a href="financial-hub.html">⚡ Command Hub</a>
       <a href="settings.html" class="active">Settings</a>
     </nav>
   </aside>
@@ -533,5 +534,187 @@
 <script src="../js/pwa-init.js"></script>
 <script src="../js/finos-widget.js?v=4"></script>
 <script src="../js/finos-search.js?v=2"></script>
+
+<style>
+/* ── Alert Preferences Section ─────────────────────────────────────────── */
+.alert-prefs-section {
+  margin: 32px 0;
+}
+.alert-prefs-section h3 {
+  font-size: 1rem; font-weight: 700; margin: 0 0 6px;
+  display: flex; align-items: center; gap: 8px;
+}
+.alert-prefs-section p.sub {
+  color: var(--text-muted); font-size: .85rem; margin: 0 0 20px;
+}
+.alert-pref-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.alert-pref-row:last-child { border-bottom: none; }
+.pref-icon  { font-size: 1.3rem; flex-shrink: 0; width: 28px; text-align: center; }
+.pref-info  { flex: 1; min-width: 0; }
+.pref-name  { font-weight: 600; font-size: .9rem; }
+.pref-desc  { font-size: .77rem; color: var(--text-muted); margin-top: 2px; }
+.pref-priority {
+  font-size: .68rem; font-weight: 700; padding: 2px 8px;
+  border-radius: 20px; flex-shrink: 0; text-transform: uppercase;
+}
+.pref-priority.critical { background: rgba(240,68,68,.15); color: #f04444; }
+.pref-priority.warning  { background: rgba(240,165,0,.15);  color: #f0a500; }
+.pref-priority.info     { background: rgba(0,212,255,.12);  color: #00d4ff; }
+.pref-priority.celebration { background: rgba(34,211,166,.12); color: #22d3a6; }
+/* Toggle switch */
+.toggle-wrap { flex-shrink: 0; }
+.toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; cursor: pointer; inset: 0;
+  background: rgba(255,255,255,.12); border-radius: 24px;
+  transition: background .25s;
+}
+.toggle-slider::before {
+  position: absolute; content: '';
+  height: 18px; width: 18px; left: 3px; bottom: 3px;
+  background: #fff; border-radius: 50%;
+  transition: transform .25s;
+}
+input:checked + .toggle-slider { background: #00d4ff; }
+input:checked + .toggle-slider::before { transform: translateX(20px); }
+.prefs-save-btn {
+  margin-top: 18px;
+  background: linear-gradient(135deg, #00d4ff22, #00d4ff11);
+  border: 1px solid rgba(0,212,255,.3); color: #00d4ff;
+  border-radius: 10px; padding: 10px 24px;
+  font-size: .88rem; font-weight: 700; cursor: pointer;
+  transition: background .2s;
+}
+.prefs-save-btn:hover { background: rgba(0,212,255,.2); }
+.prefs-status { font-size: .8rem; color: var(--text-muted); margin-top: 8px; }
+</style>
+
+<script>
+(function () {
+  const ALERT_ENGINE = 'http://localhost:8001';
+  const SUPABASE_URL = 'https://oeapcyucnduhwpgxfknb.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const RULE_META = {
+    SIP_MISSED:          { icon: '📈', desc: 'Alert when SIP date passes with no transaction',       priority: 'warning'     },
+    SALARY_CREDITED:     { icon: '💰', desc: 'Prompt budget waterfall when salary is detected',      priority: 'info'        },
+    MARKET_DROP:         { icon: '📉', desc: 'Notify when Nifty falls 3%+ in a single day',          priority: 'warning'     },
+    GOAL_BEHIND:         { icon: '🎯', desc: 'Alert when goal contribution is insufficient',         priority: 'warning'     },
+    CC_BILL_DUE:         { icon: '💳', desc: 'Remind 3 days before credit card due date',            priority: 'warning'     },
+    BUDGET_OVERRUN:      { icon: '🔴', desc: 'Alert when any category hits 90% of budget',           priority: 'warning'     },
+    EMERGENCY_FUND_LOW:  { icon: '🛡️', desc: 'Critical: emergency fund below 3 months expenses',   priority: 'critical'    },
+    TAX_SEASON:          { icon: '📋', desc: 'Context-aware tax reminders (80C, ITR, advance tax)', priority: 'info'        },
+    FNO_EXPIRY_WEEK:     { icon: '⚡', desc: 'F&O expiry week warning for options traders',          priority: 'warning'     },
+    NETWORTH_MILESTONE:  { icon: '🏆', desc: 'Celebrate ₹1L / ₹5L / ₹10L / ₹1Cr net worth hits',  priority: 'celebration' },
+    TAX_SAVE_80C:        { icon: '🎁', desc: 'Track 80C gap and remind to invest before March',     priority: 'info'        },
+    BILL_DUE_AI:         { icon: '🤖', desc: 'AI-predicted recurring bill warnings (5 days ahead)', priority: 'info'        },
+    ANOMALY_SPEND:       { icon: '🚨', desc: 'Detect statistically unusual transactions in any category', priority: 'warning' },
+  };
+
+  let currentUserId = null;
+  let pendingPrefs  = {};
+
+  async function initAlertPrefs() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    currentUserId = session.user.id;
+
+    // Inject the section into the settings page
+    const container = document.querySelector('.settings-view .content-wrapper') ||
+                      document.querySelector('.settings-view') ||
+                      document.querySelector('.content-wrapper');
+    if (!container) return;
+
+    const section = document.createElement('section');
+    section.className = 'settings-card alert-prefs-section';
+    section.id = 'alertPrefsSection';
+    section.innerHTML = `
+      <h3>🔔 Alert Preferences</h3>
+      <p class="sub">Choose which smart alerts Arya sends you. All alerts respect cooldown periods to avoid spam.</p>
+      <div id="alertPrefsList"><div style="color:var(--text-muted);font-size:.85rem;">Loading alert settings…</div></div>
+      <button class="prefs-save-btn" onclick="window._saveAlertPrefs()">Save Preferences</button>
+      <div class="prefs-status" id="prefsStatus"></div>`;
+    container.appendChild(section);
+
+    loadAlertPrefs();
+  }
+
+  async function loadAlertPrefs() {
+    const list = document.getElementById('alertPrefsList');
+    if (!list || !currentUserId) return;
+    try {
+      const res  = await fetch(`${ALERT_ENGINE}/alerts/preferences/${currentUserId}`);
+      if (!res.ok) throw new Error('Engine offline');
+      const data = await res.json();
+
+      list.innerHTML = '';
+      (data.preferences || []).forEach(pref => {
+        const meta = RULE_META[pref.rule_id] || { icon: '🔔', desc: pref.rule_id, priority: 'info' };
+        const row  = document.createElement('div');
+        row.className = 'alert-pref-row';
+        row.innerHTML = `
+          <div class="pref-icon">${meta.icon}</div>
+          <div class="pref-info">
+            <div class="pref-name">${(pref._name || pref.rule_id).replace(/_/g,' ')}</div>
+            <div class="pref-desc">${meta.desc}</div>
+          </div>
+          <span class="pref-priority ${meta.priority}">${meta.priority}</span>
+          <div class="toggle-wrap">
+            <label class="toggle-switch">
+              <input type="checkbox" id="pref-${pref.rule_id}"
+                ${pref.enabled !== false ? 'checked' : ''}
+                onchange="window._markPrefDirty('${pref.rule_id}', this.checked)" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>`;
+        list.appendChild(row);
+        pendingPrefs[pref.rule_id] = pref.enabled !== false;
+      });
+    } catch (e) {
+      list.innerHTML = `<div style="color:var(--text-muted);font-size:.83rem;">
+        Alert engine offline — preferences unavailable. Start alert-engine.py to manage alerts.</div>`;
+    }
+  }
+
+  window._markPrefDirty = function(ruleId, enabled) {
+    pendingPrefs[ruleId] = enabled;
+  };
+
+  window._saveAlertPrefs = async function() {
+    const btn    = document.querySelector('.prefs-save-btn');
+    const status = document.getElementById('prefsStatus');
+    if (!currentUserId) { status.textContent = 'Not logged in.'; return; }
+    btn.disabled = true; btn.textContent = 'Saving…';
+    let saved = 0, failed = 0;
+    for (const [ruleId, enabled] of Object.entries(pendingPrefs)) {
+      try {
+        const r = await fetch(`${ALERT_ENGINE}/alerts/preferences`, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: currentUserId, rule_id: ruleId, enabled }),
+        });
+        r.ok ? saved++ : failed++;
+      } catch { failed++; }
+    }
+    btn.disabled = false; btn.textContent = 'Save Preferences';
+    status.textContent = failed
+      ? `⚠️ ${saved} saved, ${failed} failed — is alert engine running?`
+      : `✅ All ${saved} preferences saved!`;
+    setTimeout(() => status.textContent = '', 3000);
+  };
+
+  // Run after DOM loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAlertPrefs);
+  } else {
+    setTimeout(initAlertPrefs, 300);
+  }
+})();
+</script>
 </body>
 </html>

@@ -21,6 +21,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/finos-context.js"></script>
   <script src="../js/arya-ai.js"></script>
+  <script src="../js/finos-personalization.js"></script>
   <style>
     /* ── BASE ── */
     .tf-page {
@@ -103,7 +104,7 @@
     .tf-desc {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 16px; font-weight: 400;
-      color: #3e4a6a;
+      color: rgba(255,255,255,.45);
       max-width: 500px;
       line-height: 1.6;
       margin: 0;
@@ -127,7 +128,7 @@
       font-size: 9.5px; font-weight: 500;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: #252b3d;
+      color: rgba(255,255,255,.25);
     }
 
     /* ── GRID ── */
@@ -240,13 +241,13 @@
     .sc-number {
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px; font-weight: 600;
-      color: #1e2438;
+      color: rgba(255,255,255,.2);
       letter-spacing: .08em;
       transition: color .3s;
     }
     .sc-arrow {
       font-size: 18px;
-      color: #1e2438;
+      color: rgba(255,255,255,.25);
       opacity: .6;
       transition: opacity .3s, transform .3s, color .3s;
       line-height: 1;
@@ -278,7 +279,7 @@
     .sc-sub {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 13.5px; font-weight: 400;
-      color: #2e3650;
+      color: rgba(255,255,255,.45);
       line-height: 1.55;
       margin-bottom: 22px;
       flex: 1;
@@ -296,9 +297,9 @@
       letter-spacing: .05em;
       padding: 5px 10px;
       border-radius: 7px;
-      background: rgba(255,255,255,.03);
-      border: 1px solid rgba(255,255,255,.07);
-      color: #2e3650;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.09);
+      color: rgba(255,255,255,.4);
       transition: background .25s, border-color .25s, color .25s;
       white-space: nowrap;
     }
@@ -329,10 +330,10 @@
       <a href="foundations.html">Foundations</a>
       <a href="diagnostics.html">Diagnostics</a>
       <a href="track-finances.html" class="active">Track Finances</a>
-      <a href="budget-forecast.html">Budget Forecast</a>
+      <a href="financial-hub.html">⚡ Command Hub</a>
       <a href="../stock-dashboard/index.html">Live Tracker</a>
       <a href="simulator-landing.html">Train Mindset</a>
-      <a href="http://localhost:3000">News</a>
+      <a href="news.html">News</a>
       <a href="settings.html">Settings</a>
     </nav>
   </aside>
@@ -366,8 +367,9 @@
       <div class="suite-grid">
 
         <!-- EXPENSE ENGINE -->
-        <a class="suite-card" href="http://localhost:5173/"
-           style="--cc:#c7f000;--cr:199,240,0">
+        <a class="suite-card" id="expenseEngineCard" href="http://localhost:5173/"
+           style="--cc:#c7f000;--cr:199,240,0"
+           onclick="return checkExpenseEngine(event)">
           <div class="sc-top">
             <div class="sc-icon-wrap">
               <div class="sc-icon-bg"></div>
@@ -378,8 +380,11 @@
               <span class="sc-arrow">→</span>
             </div>
           </div>
-          <div class="sc-name">Expense Engine</div>
+          <div class="sc-name">Expense Engine <span id="expenseEngineBadge" style="display:none;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(240,165,0,.15);border:1px solid rgba(240,165,0,.3);color:#f0a500;letter-spacing:.06em;vertical-align:middle;margin-left:6px;">LOCAL</span></div>
           <div class="sc-sub">Full-featured budget tracker with category breakdowns, monthly history, and visual spending pattern reports.</div>
+          <div id="expenseOfflineMsg" style="display:none;margin-top:8px;padding:8px 12px;border-radius:8px;background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.2);color:#f0a500;font-size:11px;line-height:1.5;">
+            ⚠️ Expense Engine is a local app. Run <code style="font-family:monospace;background:rgba(0,0,0,.3);padding:1px 5px;border-radius:4px;">npm run dev</code> to start it.
+          </div>
           <div class="sc-tags">
             <span class="sc-tag">Budget Tracking</span>
             <span class="sc-tag">Category Breakdown</span>
@@ -412,7 +417,7 @@
         </a>
 
         <!-- PORTFOLIO X-RAY -->
-        <a class="suite-card" href="../Porfolio Analyser/portfolio-analyser-v9.html"
+        <a class="suite-card" href="../Porfolio Analyser/portfolio-analyser-v10.html"
            style="--cc:#9b5de5;--cr:155,93,229">
           <div class="sc-top">
             <div class="sc-icon-wrap">
@@ -533,7 +538,7 @@
 
 <!-- DOCUMENT AI SCRIPT -->
 <script>
-const DOCAI_URL = 'http://localhost:5050/parse';
+const DOCAI_URL = 'http://localhost:8004/parse/document';
 
 function docaiHandleDrop(e) {
   e.preventDefault();
@@ -575,7 +580,7 @@ function docaiHandleFile(file) {
     })
     .catch(err => {
       docaiShowStatus(
-        '⚠️ Document AI service offline. <a href="https://github.com/fin-os/docs/wiki/document-ai" target="_blank" style="color:#00d4ff">Start it</a> with: <code>python document-ai/parser.py</code>',
+        '⚠️ Document AI service offline. <a href="https://github.com/fin-os/docs/wiki/document-ai" target="_blank" style="color:#00d4ff">Start it</a> with: <code>uvicorn document-ai/server:app --port 8004</code>',
         'error'
       );
       console.error('[DocAI]', err);
@@ -680,6 +685,37 @@ function docaiAutoFill(profileUpdates) {
       }, el);
     }
   }
+}
+</script>
+
+<script>
+// Probe local Expense Engine — show badge + offline message if unreachable
+(function probeExpenseEngine() {
+  const badge   = document.getElementById('expenseEngineBadge');
+  const offMsg  = document.getElementById('expenseOfflineMsg');
+  const card    = document.getElementById('expenseEngineCard');
+
+  // Always show the LOCAL badge so users know it's a local service
+  if (badge) badge.style.display = 'inline';
+
+  fetch('http://localhost:5173/', { method: 'HEAD', mode: 'no-cors', cache: 'no-store', signal: AbortSignal.timeout(2000) })
+    .catch(() => {
+      // Service is offline — show offline hint and disable navigation
+      if (offMsg) offMsg.style.display = 'block';
+      if (card) {
+        card.style.cursor = 'default';
+        card.style.opacity = '.7';
+      }
+    });
+})();
+
+function checkExpenseEngine(e) {
+  const offMsg = document.getElementById('expenseOfflineMsg');
+  if (offMsg && offMsg.style.display === 'block') {
+    e.preventDefault();
+    return false;
+  }
+  return true;
 }
 </script>
 
@@ -797,5 +833,13 @@ function docaiAutoFill(profileUpdates) {
 
   <script src="../js/finos-widget.js?v=4"></script>
   <script src="../js/finos-search.js?v=2"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof FinosPersona === 'undefined') return;
+    FinosPersona.injectGreeting({ selector: '.header h1, header h1' });
+    FinosPersona.injectStatusStrip('.header, header');
+    FinosPersona.injectNavBadges();
+  });
+  </script>
 </body>
 </html>

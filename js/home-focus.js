@@ -4,31 +4,39 @@ document.addEventListener("DOMContentLoaded", async () => {
     const container = document.querySelector('.home-hero .card-content');
     if (container) container.style.opacity = 0.5;
 
-    // 2. CONFIGURATION
-    const supabaseUrl = 'https://oeapcyucnduhwpgxfknb.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
-
-    // 3. TRY TO LOAD PROFILE (Supabase if logged in, localStorage otherwise)
+    // 2. LOAD PROFILE — prefer window.FINOS_USER_CONTEXT (already populated by
+    //    finos-context.js which handles Supabase auth). No second client needed.
     let profile = null;
 
-    try {
-        if (window.supabase) {
-            const client = window.supabase.createClient(supabaseUrl, supabaseKey);
-            const { data: { session } } = await client.auth.getSession();
-            if (session) {
-                const { data: dbProfile } = await client
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', session.user.id)
-                    .single();
-                profile = dbProfile || null;
-            }
-        }
-    } catch (err) {
-        console.debug('[FocusEngine] Supabase optional — guest mode:', err.message);
+    function _buildProfileFromCtx() {
+        const ctx = window.FINOS_USER_CONTEXT;
+        if (!ctx) return null;
+        const dnaData = ctx.dna || (() => {
+            try { return JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || 'null'); } catch { return null; }
+        })();
+        return {
+            dna_scores: dnaData?.scores || [50, 50, 50, 50, 50],
+            life_stage: ctx.identity?.life_stage || localStorage.getItem('finos_stage') || 'Rookie',
+            full_name:  ctx.identity?.name       || localStorage.getItem('finos_display_name') || '',
+        };
     }
 
-    // Guest fallback: reconstruct profile from localStorage
+    // Try the already-enriched context first
+    profile = _buildProfileFromCtx();
+
+    // If context not yet available, wait for the first context-ready event
+    if (!profile) {
+        await new Promise(resolve => {
+            const timer = setTimeout(resolve, 3000); // max 3s wait
+            window.addEventListener('finos-context-ready', () => {
+                clearTimeout(timer);
+                resolve();
+            }, { once: true });
+        });
+        profile = _buildProfileFromCtx();
+    }
+
+    // Final guest fallback
     if (!profile) {
         const dna = (() => {
             try { return JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || '{}'); } catch { return {}; }
@@ -36,7 +44,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         profile = {
             dna_scores: dna.scores || [50, 50, 50, 50, 50],
             life_stage: localStorage.getItem('finos_stage') || 'Rookie',
-            full_name:  localStorage.getItem('finos_display_name') || ''
+            full_name:  localStorage.getItem('finos_display_name') || '',
         };
     }
 

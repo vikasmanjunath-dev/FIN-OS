@@ -108,10 +108,18 @@
   <aside class="sidebar">
     <div class="logo">FIN•OS</div>
     <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
       <a href="home.html">Home</a>
       <a href="dashboard.html">Dashboard</a>
-      <a href="budget-forecast.html" style="color:var(--accent);">Budget Forecast</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
       <a href="track-finances.html">Track Finances</a>
+      <a href="financial-hub.html">⚡ Command Hub</a>
+      <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="../Porfolio Analyser/portfolio-analyser-v10.html">Portfolio X-Ray</a>
+      <a href="simulator-landing.html">Train Mindset</a>
+      <a href="news.html">News</a>
+      <a href="settings.html">Settings</a>
     </nav>
   </aside>
 
@@ -214,7 +222,7 @@
    Reads from localStorage (finos_transactions) + optional Django API
 ══════════════════════════════════════════════════════════════════════════ */
 
-const DJANGO_API = 'http://localhost:8000/api/forecast/';
+const DJANGO_API = 'http://localhost:8002/api/forecast/';
 const OLLAMA_URL = 'http://localhost:11434/api/generate';
 
 // Event → category spending multipliers

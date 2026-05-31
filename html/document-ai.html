@@ -1,0 +1,1352 @@
+<!-- <noreload> -->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document AI | FIN•OS</title>
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/animations.css">
+<link rel="stylesheet" href="../css/theme.css">
+<script src="../js/finos-context.js"></script>
+<style>
+/* ── Hero ─────────────────────────────────────────────── */
+.doc-hero {
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 60%, #1a1f2e 100%);
+  border: 1px solid rgba(0,212,255,.15);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.doc-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 70% 40%, rgba(0,212,255,.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.doc-hero h1 { font-size: 1.6rem; margin: 0 0 6px; }
+.doc-hero .subtitle { color: var(--text-muted); margin: 0 0 6px; font-size: .95rem; }
+.doc-hero .doc-types-hint {
+  font-size: .8rem;
+  color: rgba(0,212,255,.7);
+  letter-spacing: .04em;
+}
+
+/* ── Doc type cards ───────────────────────────────────── */
+.doc-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.doc-type-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 16px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s, transform .15s;
+  position: relative;
+  overflow: hidden;
+}
+.doc-type-card:hover {
+  border-color: rgba(0,212,255,.35);
+  background: rgba(0,212,255,.04);
+  transform: translateY(-2px);
+}
+.doc-type-card.selected {
+  border-color: var(--accent);
+  background: rgba(0,212,255,.08);
+  box-shadow: 0 0 0 1px rgba(0,212,255,.2);
+}
+.doc-type-card .dtc-emoji { font-size: 1.8rem; margin-bottom: 10px; display: block; }
+.doc-type-card .dtc-name  { font-size: .9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+.doc-type-card .dtc-desc  { font-size: .76rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; }
+.doc-type-card .dtc-ex    { font-size: .72rem; color: rgba(0,212,255,.55); font-family: monospace; }
+.doc-type-card .dtc-check {
+  position: absolute; top: 10px; right: 10px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: none; align-items: center; justify-content: center;
+  font-size: .7rem; color: #000; font-weight: 900;
+}
+.doc-type-card.selected .dtc-check { display: flex; }
+
+/* ── Drop zone ────────────────────────────────────────── */
+.drop-zone {
+  border: 2px dashed rgba(0,212,255,.3);
+  border-radius: 20px;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  background: rgba(0,212,255,.02);
+  margin-bottom: 20px;
+  position: relative;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--accent);
+  background: rgba(0,212,255,.06);
+}
+.drop-zone.drag-over { box-shadow: 0 0 20px rgba(0,212,255,.1); }
+.drop-zone .dz-icon  { font-size: 2.8rem; margin-bottom: 14px; display: block; }
+.drop-zone .dz-label { font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+.drop-zone .dz-sub   { font-size: .85rem; color: var(--text-muted); margin-bottom: 14px; }
+.drop-zone .dz-hint  { font-size: .75rem; color: rgba(255,255,255,.3); }
+#fileInput { display: none; }
+
+.file-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(0,212,255,.1); border: 1px solid rgba(0,212,255,.25);
+  border-radius: 20px; padding: 6px 14px;
+  font-size: .82rem; color: var(--accent);
+  margin-bottom: 16px; font-weight: 600;
+}
+.file-chip .chip-remove {
+  cursor: pointer; opacity: .6; transition: opacity .15s;
+  font-style: normal; font-size: .85rem;
+}
+.file-chip .chip-remove:hover { opacity: 1; }
+
+/* Analyze button */
+.analyze-btn {
+  display: block; width: 100%;
+  background: linear-gradient(90deg, rgba(0,212,255,.9), rgba(80,80,255,.8));
+  border: none; border-radius: 12px;
+  padding: 15px 24px;
+  font-size: 1rem; font-weight: 700;
+  color: #fff; cursor: pointer;
+  transition: opacity .2s, transform .15s;
+  letter-spacing: .03em;
+}
+.analyze-btn:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
+.analyze-btn:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+
+/* ── State panels ─────────────────────────────────────── */
+.state-panel {
+  display: none;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .3s ease, transform .3s ease;
+  margin-bottom: 28px;
+}
+.state-panel.visible {
+  display: block;
+  animation: fadeUp .3s ease forwards;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Uploading / extracting panel */
+.processing-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px 32px;
+  text-align: center;
+}
+.processing-panel .proc-icon { font-size: 3rem; margin-bottom: 16px; display: block; }
+.processing-panel .proc-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+.processing-panel .proc-sub { font-size: .88rem; color: var(--text-muted); margin-bottom: 24px; }
+.processing-panel .proc-steps { text-align: left; max-width: 320px; margin: 0 auto 24px; }
+.proc-step {
+  display: flex; align-items: center; gap: 10px;
+  font-size: .84rem; color: var(--text-muted);
+  padding: 6px 0;
+  transition: color .3s;
+}
+.proc-step.done { color: #22d3a6; }
+.proc-step.active { color: var(--accent); }
+.proc-step .step-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,.15); flex-shrink: 0;
+  transition: background .3s;
+}
+.proc-step.done   .step-dot { background: #22d3a6; }
+.proc-step.active .step-dot { background: var(--accent); animation: pulse-dot 1s infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:.4;} }
+
+/* Progress bar */
+.progress-bar-wrap {
+  background: rgba(255,255,255,.08);
+  border-radius: 20px;
+  height: 8px;
+  overflow: hidden;
+  max-width: 400px;
+  margin: 0 auto 12px;
+}
+.progress-bar {
+  height: 100%;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #00d4ff, #5050ff);
+  width: 0%;
+  transition: width .6s ease;
+}
+.progress-label { font-size: .82rem; color: var(--text-muted); }
+
+/* Spinning animation */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin-ring {
+  width: 48px; height: 48px;
+  border: 3px solid rgba(0,212,255,.15);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+/* Brain pulse */
+@keyframes brain-pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }
+.brain-icon { animation: brain-pulse 1.5s ease-in-out infinite; display: inline-block; font-size: 3rem; margin-bottom: 16px; }
+
+/* ── Review panel ─────────────────────────────────────── */
+.review-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.review-header {
+  background: linear-gradient(90deg, rgba(0,212,255,.07), rgba(80,80,255,.05));
+  border-bottom: 1px solid var(--border);
+  padding: 20px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.doc-type-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(0,212,255,.12); border: 1px solid rgba(0,212,255,.3);
+  border-radius: 20px; padding: 6px 16px;
+  font-size: .85rem; font-weight: 700; color: var(--accent);
+}
+.confidence-wrap {
+  display: flex; align-items: center; gap: 10px; font-size: .82rem; color: var(--text-muted);
+}
+.conf-bar-wrap {
+  width: 100px; height: 6px;
+  background: rgba(255,255,255,.08); border-radius: 10px; overflow: hidden;
+}
+.conf-bar { height: 100%; border-radius: 10px; background: #22d3a6; transition: width .8s ease; }
+.conf-pct { font-weight: 700; color: #22d3a6; }
+
+.review-body { padding: 24px; }
+
+/* Extracted fields table */
+.review-table-wrap {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.review-table { width: 100%; border-collapse: collapse; }
+.review-table thead th {
+  background: rgba(255,255,255,.03);
+  padding: 11px 16px;
+  text-align: left;
+  font-size: .74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+.review-table tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); transition: background .15s; }
+.review-table tbody tr:last-child { border-bottom: none; }
+.review-table tbody tr:hover { background: rgba(255,255,255,.02); }
+.review-table td { padding: 13px 16px; font-size: .88rem; vertical-align: middle; }
+.review-table .field-name { color: var(--text-muted); font-size: .82rem; }
+.review-table .field-val  { font-weight: 600; color: var(--text-primary); }
+.review-table .field-edit {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: var(--text-primary);
+  font-size: .85rem;
+  width: 100%;
+  outline: none;
+  transition: border-color .2s;
+}
+.review-table .field-edit:focus { border-color: rgba(0,212,255,.4); }
+
+/* Fill actions */
+.fill-actions-section { margin-bottom: 24px; }
+.fill-actions-title {
+  font-size: .78rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--text-muted); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.fill-actions-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.action-checkbox-list { display: flex; flex-direction: column; gap: 10px; }
+.action-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.action-item:hover { border-color: rgba(0,212,255,.2); background: rgba(0,212,255,.03); }
+.action-item input[type="checkbox"] {
+  width: 16px; height: 16px; margin-top: 2px; flex-shrink: 0;
+  accent-color: var(--accent); cursor: pointer;
+}
+.action-item-body { flex: 1; }
+.action-target {
+  font-size: .78rem; font-family: monospace;
+  color: rgba(0,212,255,.6); margin-bottom: 3px;
+}
+.action-label  { font-size: .88rem; font-weight: 600; color: var(--text-primary); }
+.action-value  { font-size: .82rem; color: var(--text-muted); margin-top: 2px; }
+
+/* Review buttons */
+.review-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-apply {
+  flex: 1; min-width: 160px;
+  background: linear-gradient(90deg, rgba(0,212,255,.9), rgba(80,80,255,.8));
+  border: none; border-radius: 10px;
+  padding: 13px 20px;
+  font-size: .92rem; font-weight: 700;
+  color: #fff; cursor: pointer;
+  transition: opacity .2s, transform .15s;
+}
+.btn-apply:hover { opacity: .9; transform: translateY(-1px); }
+.btn-reupload {
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 20px;
+  font-size: .92rem; font-weight: 600;
+  color: var(--text-muted); cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.btn-reupload:hover { background: rgba(255,255,255,.08); color: var(--text-primary); }
+
+/* ── Done panel ───────────────────────────────────────── */
+.done-panel {
+  background: var(--card-bg);
+  border: 1px solid rgba(34,211,166,.2);
+  border-radius: 20px;
+  padding: 40px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.done-panel .done-icon { font-size: 3.5rem; margin-bottom: 14px; display: block; }
+.done-panel .done-title { font-size: 1.3rem; font-weight: 800; color: #22d3a6; margin-bottom: 8px; }
+.done-panel .done-sub { font-size: .92rem; color: var(--text-muted); margin-bottom: 24px; }
+.done-links { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.done-link {
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: .85rem; font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: border-color .2s, background .2s;
+}
+.done-link:hover { border-color: rgba(0,212,255,.3); background: rgba(0,212,255,.05); }
+
+/* Confetti */
+.confetti-canvas {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  width: 100%; height: 100%;
+}
+
+/* ── Error panel ──────────────────────────────────────── */
+.error-panel {
+  background: var(--card-bg);
+  border: 1px solid rgba(240,68,68,.2);
+  border-radius: 20px;
+  padding: 32px;
+  text-align: center;
+}
+.error-panel .err-icon  { font-size: 2.8rem; margin-bottom: 14px; display: block; }
+.error-panel .err-title { font-size: 1.1rem; font-weight: 700; color: #f04444; margin-bottom: 6px; }
+.error-panel .err-msg   { font-size: .88rem; color: var(--text-muted); margin-bottom: 20px; }
+.err-tips {
+  text-align: left;
+  background: rgba(240,68,68,.05);
+  border: 1px solid rgba(240,68,68,.1);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+.err-tips h4 { font-size: .8rem; font-weight: 700; color: #f04444; margin: 0 0 8px; text-transform: uppercase; letter-spacing: .05em; }
+.err-tips ul { margin: 0; padding-left: 18px; }
+.err-tips li { font-size: .84rem; color: var(--text-muted); margin-bottom: 4px; }
+.btn-retry {
+  background: rgba(240,68,68,.1);
+  border: 1px solid rgba(240,68,68,.3);
+  color: #f04444; border-radius: 10px;
+  padding: 11px 24px; font-size: .9rem; font-weight: 700;
+  cursor: pointer; transition: background .2s;
+}
+.btn-retry:hover { background: rgba(240,68,68,.18); }
+
+/* ── History section ──────────────────────────────────── */
+.history-section {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 28px;
+}
+.history-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .15s;
+}
+.history-toggle:hover { background: rgba(255,255,255,.02); }
+.history-toggle h3 { font-size: .9rem; font-weight: 700; margin: 0; }
+.history-toggle .toggle-caret {
+  font-size: .75rem; color: var(--text-muted);
+  transition: transform .25s;
+}
+.history-toggle.open .toggle-caret { transform: rotate(180deg); }
+.history-body { border-top: 1px solid var(--border); }
+.history-empty {
+  padding: 24px; text-align: center;
+  font-size: .88rem; color: var(--text-muted);
+}
+.history-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 22px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  transition: background .15s;
+}
+.history-item:last-child { border-bottom: none; }
+.history-item:hover { background: rgba(255,255,255,.02); }
+.hist-icon-name { display: flex; align-items: center; gap: 10px; }
+.hist-icon { font-size: 1.3rem; }
+.hist-name { font-size: .88rem; font-weight: 600; color: var(--text-primary); }
+.hist-date { font-size: .75rem; color: var(--text-muted); margin-top: 2px; }
+.hist-fields-badge {
+  background: rgba(0,212,255,.1); border: 1px solid rgba(0,212,255,.2);
+  border-radius: 20px; padding: 3px 10px;
+  font-size: .72rem; color: var(--accent); font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ── Demo badge ───────────────────────────────────────── */
+.demo-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(240,165,0,.1); border: 1px solid rgba(240,165,0,.3);
+  border-radius: 20px; padding: 3px 10px;
+  font-size: .72rem; color: #f0a500; font-weight: 700;
+  margin-left: 10px; vertical-align: middle;
+}
+
+/* ── Upload wrapper (contains drop zone + file chip + button) */
+#uploadWrapper { margin-bottom: 0; }
+
+/* ── Misc ─────────────────────────────────────────────── */
+.section-sep { margin-bottom: 28px; }
+
+@media (max-width: 768px) {
+  .doc-type-grid { grid-template-columns: repeat(2, 1fr); }
+  .review-actions { flex-direction: column; }
+  .doc-hero h1 { font-size: 1.3rem; }
+}
+@media (max-width: 480px) {
+  .doc-type-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media print {
+  .sidebar { display: none !important; }
+  .main { margin-left: 0 !important; }
+  .analyze-btn, .btn-apply, .btn-reupload, .btn-retry, .history-section { display: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
+      <a href="home.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="diagnostics.html">Diagnostics</a>
+      <a href="track-finances.html">Track Finances</a>
+      <a href="financial-hub.html">⚡ Command Hub</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="content-wrapper">
+
+      <!-- HERO -->
+      <div class="doc-hero">
+        <h1>Document Intelligence 📄</h1>
+        <p class="subtitle">Upload any financial document — AI extracts and auto-fills your data</p>
+        <p class="doc-types-hint">Salary slip • CC statement • ITR • Broker note • Bank statement</p>
+      </div>
+
+      <!-- DOC TYPE CARDS -->
+      <div class="doc-type-grid" id="docTypeGrid">
+        <div class="doc-type-card" data-type="salary_slip" onclick="selectDocType(this)">
+          <div class="dtc-check">✓</div>
+          <span class="dtc-emoji">💰</span>
+          <div class="dtc-name">Salary Slip</div>
+          <div class="dtc-desc">Extracts take-home, HRA, EPF, employer</div>
+          <div class="dtc-ex">payslip_march_2026.pdf</div>
+        </div>
+        <div class="doc-type-card" data-type="cc_statement" onclick="selectDocType(this)">
+          <div class="dtc-check">✓</div>
+          <span class="dtc-emoji">💳</span>
+          <div class="dtc-name">CC Statement</div>
+          <div class="dtc-desc">Imports 3 months of categorized spending</div>
+          <div class="dtc-ex">hdfc_statement.pdf</div>
+        </div>
+        <div class="doc-type-card" data-type="itr" onclick="selectDocType(this)">
+          <div class="dtc-check">✓</div>
+          <span class="dtc-emoji">📋</span>
+          <div class="dtc-name">ITR / Form 16</div>
+          <div class="dtc-desc">Extracts income, 80C, NPS, tax paid</div>
+          <div class="dtc-ex">itr_2025-26.pdf</div>
+        </div>
+        <div class="doc-type-card" data-type="broker_note" onclick="selectDocType(this)">
+          <div class="dtc-check">✓</div>
+          <span class="dtc-emoji">📈</span>
+          <div class="dtc-name">Broker Note</div>
+          <div class="dtc-desc">Imports trades to Trade Journal</div>
+          <div class="dtc-ex">zerodha_contract.pdf</div>
+        </div>
+        <div class="doc-type-card" data-type="bank_statement" onclick="selectDocType(this)">
+          <div class="dtc-check">✓</div>
+          <span class="dtc-emoji">🏦</span>
+          <div class="dtc-name">Bank Statement</div>
+          <div class="dtc-desc">Builds your cashflow map</div>
+          <div class="dtc-ex">sbi_statement.pdf</div>
+        </div>
+      </div>
+
+      <!-- UPLOAD WRAPPER -->
+      <div id="uploadWrapper">
+        <!-- DROP ZONE -->
+        <div class="drop-zone" id="dropZone">
+          <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg">
+          <span class="dz-icon">📤</span>
+          <div class="dz-label">Drag &amp; drop your document here</div>
+          <div class="dz-sub">or click to browse</div>
+          <div class="dz-hint">Supported: PDF, PNG, JPG &nbsp;•&nbsp; Max 10 MB</div>
+        </div>
+
+        <!-- FILE CHIP (hidden until file selected) -->
+        <div id="fileChipWrap" style="text-align:center;margin-bottom:16px;display:none;">
+          <span class="file-chip" id="fileChip">
+            <span id="fileChipName"></span>
+            <em class="chip-remove" onclick="clearFile()" title="Remove">✕</em>
+          </span>
+        </div>
+
+        <!-- ANALYZE BUTTON -->
+        <button class="analyze-btn" id="analyzeBtn" disabled onclick="analyzeDocument()">
+          🔍 Analyze Document
+        </button>
+      </div>
+
+      <!-- ── STATE: uploading ───────────────────────── -->
+      <div class="state-panel" id="stateUploading">
+        <div class="processing-panel">
+          <div class="spin-ring"></div>
+          <div class="proc-title">Uploading your document…</div>
+          <div class="proc-sub" id="uploadSubLabel">Preparing secure upload</div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" id="uploadProgressBar"></div>
+          </div>
+          <div class="progress-label" id="uploadProgressLabel">0%</div>
+        </div>
+      </div>
+
+      <!-- ── STATE: extracting ──────────────────────── -->
+      <div class="state-panel" id="stateExtracting">
+        <div class="processing-panel">
+          <div class="brain-icon">🤖</div>
+          <div class="proc-title">Arya is reading your document…</div>
+          <div class="proc-sub">Using AI to extract structured financial data</div>
+          <div class="proc-steps" id="procSteps">
+            <div class="proc-step" id="step1"><span class="step-dot"></span> Detecting document type</div>
+            <div class="proc-step" id="step2"><span class="step-dot"></span> Parsing page layout</div>
+            <div class="proc-step" id="step3"><span class="step-dot"></span> Extracting structured data</div>
+            <div class="proc-step" id="step4"><span class="step-dot"></span> Validating &amp; confidence scoring</div>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" id="extractProgressBar"></div>
+          </div>
+          <div class="progress-label" id="extractProgressLabel">30%</div>
+        </div>
+      </div>
+
+      <!-- ── STATE: reviewing ───────────────────────── -->
+      <div class="state-panel" id="stateReviewing">
+        <div class="review-panel">
+          <div class="review-header">
+            <div>
+              <span class="doc-type-badge" id="reviewTypeBadge">📄 Document</span>
+              <span class="demo-badge" id="demoBadge" style="display:none;">⚡ Demo Mode</span>
+            </div>
+            <div class="confidence-wrap">
+              Confidence:
+              <div class="conf-bar-wrap">
+                <div class="conf-bar" id="confBar" style="width:0%;"></div>
+              </div>
+              <span class="conf-pct" id="confPct">–</span>
+            </div>
+          </div>
+
+          <div class="review-body">
+            <!-- Extracted fields table -->
+            <div class="review-table-wrap">
+              <table class="review-table">
+                <thead>
+                  <tr>
+                    <th style="width:40%">Field</th>
+                    <th style="width:30%">Extracted Value</th>
+                    <th style="width:30%">Edit Before Applying</th>
+                  </tr>
+                </thead>
+                <tbody id="reviewTableBody"></tbody>
+              </table>
+            </div>
+
+            <!-- Fill actions -->
+            <div class="fill-actions-section">
+              <div class="fill-actions-title">These will be auto-filled in FIN•OS</div>
+              <div class="action-checkbox-list" id="actionList"></div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="review-actions">
+              <button class="btn-apply" onclick="applyChanges()">✅ Apply Changes</button>
+              <button class="btn-reupload" onclick="reupload()">🔄 Re-upload</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STATE: done ────────────────────────────── -->
+      <div class="state-panel" id="stateDone">
+        <div class="done-panel" id="donePanelInner">
+          <canvas class="confetti-canvas" id="confettiCanvas"></canvas>
+          <span class="done-icon">✅</span>
+          <div class="done-title" id="doneTitle">Done! Fields updated in FIN•OS.</div>
+          <div class="done-sub">Your financial data has been auto-filled.</div>
+          <div class="done-links" id="doneLinks"></div>
+          <br>
+          <button class="btn-reupload" style="margin-top:8px;" onclick="reupload()">Upload another document</button>
+        </div>
+      </div>
+
+      <!-- ── STATE: error ───────────────────────────── -->
+      <div class="state-panel" id="stateError">
+        <div class="error-panel">
+          <span class="err-icon">❌</span>
+          <div class="err-title">Could not extract data</div>
+          <div class="err-msg" id="errorMsg">Something went wrong while processing your document.</div>
+          <div class="err-tips">
+            <h4>Tips for better results</h4>
+            <ul>
+              <li>Use original PDF downloads rather than scanned copies where possible</li>
+              <li>Ensure the file is not password-protected or encrypted</li>
+              <li>JPG/PNG scans should be at least 150 DPI for best OCR accuracy</li>
+              <li>Select the correct document type from the cards above</li>
+              <li>Make sure the file size is under 10 MB</li>
+            </ul>
+          </div>
+          <button class="btn-retry" onclick="reupload()">↺ Try Again</button>
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div class="history-section">
+        <div class="history-toggle" id="historyToggle" onclick="toggleHistory()">
+          <h3>🕐 Recently Processed</h3>
+          <span class="toggle-caret">▼</span>
+        </div>
+        <div class="history-body" id="historyBody" style="display:none;">
+          <div class="history-empty" id="historyEmpty">No documents processed yet.</div>
+          <div id="historyList"></div>
+        </div>
+      </div>
+
+    </div><!-- /content-wrapper -->
+  </main>
+</div><!-- /app -->
+
+<script>
+// ─── Constants ──────────────────────────────────────────
+const DOC_AI       = 'http://localhost:8004';
+const SUPABASE_URL = 'https://oeapcyucnduhwpgxfknb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+const sb           = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ─── State ──────────────────────────────────────────────
+let selectedFile    = null;
+let extractedData   = null;
+let selectedDocType = null;
+let isDemoMode      = false;
+
+// ─── DOM refs ───────────────────────────────────────────
+const dropZone        = document.getElementById('dropZone');
+const fileInput       = document.getElementById('fileInput');
+const fileChipWrap    = document.getElementById('fileChipWrap');
+const fileChipName    = document.getElementById('fileChipName');
+const analyzeBtn      = document.getElementById('analyzeBtn');
+
+// ─── Doc type selection ──────────────────────────────────
+function selectDocType(card) {
+  document.querySelectorAll('.doc-type-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  selectedDocType = card.dataset.type;
+}
+
+// ─── Drag and drop ──────────────────────────────────────
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => {
+  e.preventDefault();
+  dropZone.classList.add('drag-over');
+});
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f) handleFile(f);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) handleFile(fileInput.files[0]);
+});
+
+// ─── File handling ───────────────────────────────────────
+function handleFile(file) {
+  const allowed = ['application/pdf','image/png','image/jpeg','image/jpg'];
+  const ext = file.name.split('.').pop().toLowerCase();
+  const allowedExt = ['pdf','png','jpg','jpeg'];
+
+  if (!allowedExt.includes(ext)) {
+    showToast('Unsupported file type. Please use PDF, PNG, or JPG.', 'error');
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('File too large. Max size is 10 MB.', 'error');
+    return;
+  }
+
+  selectedFile = file;
+  const sizeMB = (file.size / 1048576).toFixed(2);
+  fileChipName.textContent = `${file.name}  (${sizeMB} MB)`;
+  fileChipWrap.style.display = 'block';
+  analyzeBtn.disabled = false;
+
+  // Auto-detect type from filename if not manually selected
+  if (!selectedDocType) autoDetectType(file.name);
+}
+
+function clearFile() {
+  selectedFile = null;
+  fileInput.value = '';
+  fileChipWrap.style.display = 'none';
+  analyzeBtn.disabled = true;
+}
+
+function autoDetectType(name) {
+  const n = name.toLowerCase();
+  const map = {
+    salary_slip:   ['salary','payslip','pay_slip','slip'],
+    cc_statement:  ['statement','credit','cc','card'],
+    itr:           ['itr','form16','form_16','tax'],
+    broker_note:   ['broker','zerodha','groww','upstox','contract','note'],
+    bank_statement:['bank','sbi','hdfc','icici','axis','kotak'],
+  };
+  for (const [type, keywords] of Object.entries(map)) {
+    if (keywords.some(k => n.includes(k))) {
+      const card = document.querySelector(`.doc-type-card[data-type="${type}"]`);
+      if (card) selectDocType(card);
+      return;
+    }
+  }
+}
+
+// ─── State machine ───────────────────────────────────────
+const STATES = ['uploading','extracting','reviewing','done','error'];
+function setState(state) {
+  STATES.forEach(s => {
+    const el = document.getElementById('state' + capitalise(s));
+    if (el) { el.classList.remove('visible'); }
+  });
+  const uploadWrapper = document.getElementById('uploadWrapper');
+
+  if (state === 'idle') {
+    uploadWrapper.style.display = 'block';
+    return;
+  }
+  uploadWrapper.style.display = 'none';
+
+  const target = document.getElementById('state' + capitalise(state));
+  if (target) {
+    target.classList.add('visible');
+    target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+function capitalise(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// ─── Progress simulation ─────────────────────────────────
+function animateProgress(barId, labelId, from, to, durationMs) {
+  return new Promise(resolve => {
+    const bar   = document.getElementById(barId);
+    const label = document.getElementById(labelId);
+    const start = performance.now();
+    const range = to - from;
+    function step(now) {
+      const t = Math.min((now - start) / durationMs, 1);
+      const val = Math.round(from + range * easeOut(t));
+      if (bar)   bar.style.width = val + '%';
+      if (label) label.textContent = val + '%';
+      if (t < 1) requestAnimationFrame(step);
+      else resolve();
+    }
+    requestAnimationFrame(step);
+  });
+}
+function easeOut(t) { return 1 - Math.pow(1 - t, 2); }
+
+async function runExtractSteps() {
+  const steps = ['step1','step2','step3','step4'];
+  const delays = [400, 700, 1100, 1600];
+  const doneAt = [35, 50, 70, 85];
+  for (let i = 0; i < steps.length; i++) {
+    await new Promise(r => setTimeout(r, delays[i]));
+    // Mark previous done
+    if (i > 0) {
+      const prev = document.getElementById(steps[i-1]);
+      prev.classList.remove('active'); prev.classList.add('done');
+      prev.innerHTML = prev.innerHTML.replace('</span>', '</span> ✓');
+    }
+    document.getElementById(steps[i]).classList.add('active');
+    animateProgress('extractProgressBar','extractProgressLabel',
+      i === 0 ? 30 : doneAt[i-1], doneAt[i], delays[i] * 0.9);
+  }
+}
+
+// ─── Main analyze ────────────────────────────────────────
+async function analyzeDocument() {
+  if (!selectedFile) return;
+  isDemoMode = false;
+
+  // Phase 1: upload
+  setState('uploading');
+  document.getElementById('uploadSubLabel').textContent = 'Securing connection…';
+  await animateProgress('uploadProgressBar','uploadProgressLabel', 0, 30, 1200);
+
+  // Phase 2: extract
+  setState('extracting');
+  // Reset step styles
+  ['step1','step2','step3','step4'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'proc-step';
+    // Restore original text (strip any ✓ added)
+    el.innerHTML = el.innerHTML.replace(/ ✓$/, '');
+  });
+  document.getElementById('extractProgressBar').style.width = '30%';
+
+  const stepRunner = runExtractSteps();
+
+  const formData = new FormData();
+  formData.append('file', selectedFile);
+  if (selectedDocType) formData.append('doc_type', selectedDocType);
+
+  try {
+    const res = await fetch(`${DOC_AI}/parse/document`, {
+      method: 'POST',
+      body: formData,
+      signal: AbortSignal.timeout(30000),
+    });
+    await stepRunner;
+    await animateProgress('extractProgressBar','extractProgressLabel', 85, 100, 500);
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(errText || `Server error ${res.status}`);
+    }
+    extractedData = await res.json();
+  } catch (err) {
+    // Offline / timeout → demo mode
+    console.warn('Doc AI server unavailable, using demo mode:', err.message);
+    isDemoMode = true;
+    await stepRunner.catch(() => {}); // don't double-throw
+    await animateProgress('extractProgressBar','extractProgressLabel', 85, 100, 400);
+    extractedData = getDemoExtraction(selectedDocType || 'salary_slip');
+  }
+
+  setState('reviewing');
+  renderReview(extractedData);
+}
+
+// ─── Render review ───────────────────────────────────────
+const TYPE_META = {
+  salary_slip:   { emoji:'💰', label:'Salary Slip' },
+  cc_statement:  { emoji:'💳', label:'CC Statement' },
+  itr:           { emoji:'📋', label:'ITR / Form 16' },
+  broker_note:   { emoji:'📈', label:'Broker Note' },
+  bank_statement:{ emoji:'🏦', label:'Bank Statement' },
+};
+
+function renderReview(data) {
+  const meta = TYPE_META[data.doc_type] || { emoji:'📄', label: data.doc_type || 'Document' };
+
+  // Badge
+  document.getElementById('reviewTypeBadge').textContent = `${meta.emoji} ${meta.label}`;
+
+  // Demo badge
+  document.getElementById('demoBadge').style.display = isDemoMode ? 'inline-flex' : 'none';
+
+  // Confidence
+  const pct = Math.round((data.confidence || 0) * 100);
+  document.getElementById('confBar').style.width = pct + '%';
+  document.getElementById('confPct').textContent = pct + '%';
+  const bar = document.getElementById('confBar');
+  bar.style.background = pct >= 85 ? '#22d3a6' : pct >= 60 ? '#f0a500' : '#f04444';
+  document.getElementById('confPct').style.color = bar.style.background;
+
+  // Fields table
+  const tbody = document.getElementById('reviewTableBody');
+  tbody.innerHTML = '';
+  const extracted = data.extracted || {};
+  Object.entries(extracted).forEach(([key, val]) => {
+    const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const displayVal = formatValue(val);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="field-name">${label}</td>
+      <td class="field-val">${displayVal}</td>
+      <td><input class="field-edit" data-key="${key}" type="text" value="${escHtml(String(val))}"></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Actions
+  const actionList = document.getElementById('actionList');
+  actionList.innerHTML = '';
+  (data.fill_actions || []).forEach((action, idx) => {
+    const div = document.createElement('div');
+    div.className = 'action-item';
+    div.innerHTML = `
+      <input type="checkbox" id="action_${idx}" checked>
+      <label class="action-item-body" for="action_${idx}" style="cursor:pointer;">
+        <div class="action-target">${escHtml(action.target)}</div>
+        <div class="action-label">${escHtml(action.label)}</div>
+        <div class="action-value">${formatValue(action.value)}</div>
+      </label>
+    `;
+    actionList.appendChild(div);
+  });
+}
+
+function formatValue(val) {
+  if (typeof val === 'number') {
+    return Number.isInteger(val)
+      ? '₹' + val.toLocaleString('en-IN')
+      : val.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+  }
+  return escHtml(String(val));
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Apply changes ───────────────────────────────────────
+async function applyChanges() {
+  if (!extractedData) return;
+
+  // Collect checked actions
+  const checkedActions = [];
+  (extractedData.fill_actions || []).forEach((action, idx) => {
+    const cb = document.getElementById(`action_${idx}`);
+    if (cb && cb.checked) {
+      // Use edited value from table if available
+      const editInput = document.querySelector(`.field-edit[data-key="${action.target.split('.')[1]}"]`);
+      const val = editInput ? parseSmartValue(editInput.value, action.value) : action.value;
+      checkedActions.push({ ...action, value: val });
+    }
+  });
+
+  let appliedCount = 0;
+  const errors = [];
+
+  for (const action of checkedActions) {
+    try {
+      await applyAction(action);
+      appliedCount++;
+    } catch (err) {
+      errors.push(`${action.label}: ${err.message}`);
+    }
+  }
+
+  // Save to localStorage history
+  saveHistory({
+    doc_type: extractedData.doc_type,
+    filename: selectedFile ? selectedFile.name : 'document',
+    fields_count: appliedCount,
+    date: new Date().toISOString(),
+    is_demo: isDemoMode,
+  });
+
+  // Show done state
+  setState('done');
+  const meta = TYPE_META[extractedData.doc_type] || { emoji:'📄', label:'Document' };
+  document.getElementById('doneTitle').textContent =
+    `Done! ${appliedCount} field${appliedCount !== 1 ? 's' : ''} updated in FIN•OS.${isDemoMode ? ' (Demo)' : ''}`;
+
+  // Relevant links per type
+  const linkMap = {
+    salary_slip:   [{ href:'dashboard.html', label:'📊 View Dashboard' }, { href:'foundations.html', label:'🧱 Foundations' }],
+    cc_statement:  [{ href:'track-finances.html', label:'💸 Track Finances' }, { href:'budget-forecast.html', label:'📅 Budget' }],
+    itr:           [{ href:'foundations.html', label:'🧱 Foundations' }, { href:'diagnostics.html', label:'🩺 Diagnostics' }],
+    broker_note:   [{ href:'track-finances.html', label:'💸 Track Finances' }, { href:'dashboard.html', label:'📊 Dashboard' }],
+    bank_statement:[{ href:'track-finances.html', label:'💸 Track Finances' }, { href:'budget-forecast.html', label:'📅 Budget' }],
+  };
+  const links = linkMap[extractedData.doc_type] || [{ href:'dashboard.html', label:'📊 Dashboard' }];
+  const doneLinks = document.getElementById('doneLinks');
+  doneLinks.innerHTML = links.map(l => `<a class="done-link" href="${l.href}">${l.label}</a>`).join('');
+
+  if (errors.length) {
+    doneLinks.insertAdjacentHTML('afterend',
+      `<p style="color:#f0a500;font-size:.8rem;margin-top:12px;">⚠️ Some fields could not be saved: ${errors.join(', ')}</p>`);
+  }
+
+  // Confetti if > 3 fields
+  if (appliedCount > 3) launchConfetti();
+
+  renderHistory();
+}
+
+async function applyAction(action) {
+  const [table, field] = action.target.split('.');
+  if (!table || !field) return;
+
+  if (table === 'profiles') {
+    // Upsert profile field
+    const { data: { user } } = await sb.auth.getUser();
+    const userId = user?.id;
+    if (!userId) {
+      // Not logged in — save to localStorage
+      const profile = JSON.parse(localStorage.getItem('finos-profile') || '{}');
+      profile[field] = action.value;
+      localStorage.setItem('finos-profile', JSON.stringify(profile));
+      return;
+    }
+    const { error } = await sb.from('profiles').upsert({ id: userId, [field]: action.value });
+    if (error) throw new Error(error.message);
+
+  } else if (table === 'transactions') {
+    if (field === 'bulk_insert' && Array.isArray(action.value)) {
+      const { data: { user } } = await sb.auth.getUser();
+      const userId = user?.id;
+      const rows = action.value.map(txn => ({ ...txn, user_id: userId || 'demo' }));
+      const { error } = await sb.from('transactions').insert(rows);
+      if (error) throw new Error(error.message);
+    }
+  } else {
+    // Generic: save to localStorage as fallback
+    const store = JSON.parse(localStorage.getItem(`finos-${table}`) || '{}');
+    store[field] = action.value;
+    localStorage.setItem(`finos-${table}`, JSON.stringify(store));
+  }
+}
+
+function parseSmartValue(str, originalVal) {
+  if (typeof originalVal === 'number') {
+    const n = parseFloat(str.replace(/[₹,\s]/g, ''));
+    return isNaN(n) ? originalVal : n;
+  }
+  return str;
+}
+
+// ─── Reupload ────────────────────────────────────────────
+function reupload() {
+  selectedFile    = null;
+  extractedData   = null;
+  isDemoMode      = false;
+  fileInput.value = '';
+  fileChipWrap.style.display = 'none';
+  analyzeBtn.disabled = true;
+  document.querySelectorAll('.doc-type-card').forEach(c => c.classList.remove('selected'));
+  selectedDocType = null;
+  STATES.forEach(s => {
+    const el = document.getElementById('state' + capitalise(s));
+    if (el) el.classList.remove('visible');
+  });
+  document.getElementById('uploadWrapper').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── History ─────────────────────────────────────────────
+function saveHistory(entry) {
+  const hist = JSON.parse(localStorage.getItem('finos-doc-history') || '[]');
+  hist.unshift(entry);
+  localStorage.setItem('finos-doc-history', JSON.stringify(hist.slice(0, 10)));
+}
+
+function renderHistory() {
+  const hist = JSON.parse(localStorage.getItem('finos-doc-history') || '[]');
+  const list  = document.getElementById('historyList');
+  const empty = document.getElementById('historyEmpty');
+
+  if (!hist.length) {
+    empty.style.display = 'block';
+    list.innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = hist.slice(0, 5).map(entry => {
+    const meta = TYPE_META[entry.doc_type] || { emoji:'📄', label: entry.doc_type || 'Document' };
+    const d    = new Date(entry.date);
+    const dateStr = isNaN(d) ? '—' : d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+    return `
+      <div class="history-item">
+        <div class="hist-icon-name">
+          <span class="hist-icon">${meta.emoji}</span>
+          <div>
+            <div class="hist-name">${escHtml(entry.filename || meta.label)}${entry.is_demo ? ' <span class="demo-badge">⚡ Demo</span>' : ''}</div>
+            <div class="hist-date">${meta.label} · ${dateStr}</div>
+          </div>
+        </div>
+        <span class="hist-fields-badge">${entry.fields_count} fields</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleHistory() {
+  const body   = document.getElementById('historyBody');
+  const toggle = document.getElementById('historyToggle');
+  const isOpen = body.style.display !== 'none';
+  body.style.display   = isOpen ? 'none' : 'block';
+  toggle.classList.toggle('open', !isOpen);
+  if (!isOpen) renderHistory();
+}
+
+// ─── Toast ───────────────────────────────────────────────
+function showToast(msg, type = 'info') {
+  const t = document.createElement('div');
+  t.style.cssText = `
+    position:fixed;bottom:24px;right:24px;z-index:9999;
+    background:${type === 'error' ? 'rgba(240,68,68,.9)' : 'rgba(0,212,255,.9)'};
+    color:#fff;padding:12px 20px;border-radius:10px;font-size:.88rem;font-weight:600;
+    box-shadow:0 4px 20px rgba(0,0,0,.4);
+    animation:fadeUp .3s ease;
+    max-width:320px;word-break:break-word;
+  `;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// ─── Confetti ─────────────────────────────────────────────
+function launchConfetti() {
+  const canvas = document.getElementById('confettiCanvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+
+  const particles = Array.from({length: 80}, () => ({
+    x: Math.random() * canvas.width,
+    y: -10,
+    vx: (Math.random() - 0.5) * 3,
+    vy: Math.random() * 3 + 2,
+    color: ['#00d4ff','#22d3a6','#f0a500','#ff6b9d','#a855f7'][Math.floor(Math.random()*5)],
+    size: Math.random() * 6 + 4,
+    rot: Math.random() * 360,
+    rotV: (Math.random() - 0.5) * 8,
+  }));
+
+  let alive = true;
+  let frame = 0;
+  function draw() {
+    if (!alive) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x  += p.vx;
+      p.y  += p.vy;
+      p.vy += 0.05; // gravity
+      p.rot += p.rotV;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size/2);
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 150) requestAnimationFrame(draw);
+    else { ctx.clearRect(0,0,canvas.width,canvas.height); alive = false; }
+  }
+  draw();
+}
+
+// ─── Demo data ────────────────────────────────────────────
+function getDemoExtraction(docType) {
+  const demos = {
+    salary_slip: {
+      doc_type: 'salary_slip',
+      confidence: 0.94,
+      extracted: {
+        employee_name:     'Demo User',
+        employer:          'Infosys Limited',
+        month:             'March 2026',
+        gross_salary:      125000,
+        basic_salary:      50000,
+        hra:               25000,
+        special_allowance: 40000,
+        epf_deduction:     6000,
+        professional_tax:  200,
+        income_tax_tds:    8500,
+        net_take_home:     94300,
+      },
+      fill_actions: [
+        { target: 'profiles.monthly_income', value: 94300,       label: 'Monthly take-home income' },
+        { target: 'profiles.employer',       value: 'Infosys Limited', label: 'Employer name' },
+        { target: 'profiles.basic_salary',   value: 50000,       label: 'Basic salary' },
+        { target: 'profiles.hra',            value: 25000,       label: 'HRA component' },
+        { target: 'profiles.epf_monthly',    value: 6000,        label: 'EPF monthly deduction' },
+      ],
+    },
+    cc_statement: {
+      doc_type: 'cc_statement',
+      confidence: 0.88,
+      extracted: {
+        card_holder:         'Demo User',
+        bank:                'HDFC Bank',
+        statement_period:    'Jan–Mar 2026',
+        total_spend_3m:      87500,
+        food_and_dining:     18000,
+        shopping:            22000,
+        travel:              14500,
+        utilities:           8200,
+        entertainment:       6800,
+        others:              18000,
+        min_due:             4250,
+        total_due:           29200,
+      },
+      fill_actions: [
+        { target: 'profiles.monthly_cc_spend', value: 29167, label: 'Monthly CC spend (avg 3m)' },
+        {
+          target: 'transactions.bulk_insert',
+          value: [
+            { date:'2026-03-15', description:'Swiggy', amount:850,  category:'Food',       type:'expense' },
+            { date:'2026-03-12', description:'Amazon', amount:3200, category:'Shopping',    type:'expense' },
+            { date:'2026-03-08', description:'Uber',   amount:650,  category:'Travel',      type:'expense' },
+            { date:'2026-03-05', description:'Netflix',amount:799,  category:'Entertainment',type:'expense' },
+          ],
+          label: 'Import recent CC transactions',
+        },
+      ],
+    },
+    itr: {
+      doc_type: 'itr',
+      confidence: 0.91,
+      extracted: {
+        assessee_name:      'Demo User',
+        pan:                'XXXXX1234X',
+        assessment_year:    '2025-26',
+        gross_total_income: 1500000,
+        deduction_80c:      150000,
+        deduction_80d:      25000,
+        deduction_nps:      50000,
+        taxable_income:     1275000,
+        tax_payable:        196500,
+        tds_deducted:       185000,
+        tax_refund:         0,
+        tax_payable_balance:11500,
+      },
+      fill_actions: [
+        { target: 'profiles.annual_income',     value: 1500000, label: 'Gross annual income' },
+        { target: 'profiles.deduction_80c',     value: 150000,  label: '80C deductions' },
+        { target: 'profiles.deduction_80d',     value: 25000,   label: '80D deductions' },
+        { target: 'profiles.nps_contribution',  value: 50000,   label: 'NPS contribution' },
+        { target: 'profiles.tax_paid_fy',       value: 185000,  label: 'TDS deducted this FY' },
+      ],
+    },
+    broker_note: {
+      doc_type: 'broker_note',
+      confidence: 0.86,
+      extracted: {
+        broker:        'Zerodha',
+        trade_date:    '2026-03-20',
+        symbol:        'RELIANCE',
+        exchange:      'NSE',
+        trade_type:    'BUY',
+        quantity:      25,
+        price:         2850,
+        total_value:   71250,
+        brokerage:     40,
+        stt:           71,
+        net_amount:    71361,
+      },
+      fill_actions: [
+        {
+          target: 'transactions.bulk_insert',
+          value: [
+            { date:'2026-03-20', description:'BUY RELIANCE 25@2850', amount:71361, category:'Investment', type:'expense' },
+          ],
+          label: 'Add trade to journal',
+        },
+        { target: 'profiles.equity_invested', value: 71361, label: 'Equity invested (this trade)' },
+      ],
+    },
+    bank_statement: {
+      doc_type: 'bank_statement',
+      confidence: 0.89,
+      extracted: {
+        account_holder:   'Demo User',
+        bank:             'SBI',
+        account_number:   'XXXXXX7890',
+        period:           'Mar 2026',
+        opening_balance:  45000,
+        closing_balance:  68500,
+        total_credits:    125000,
+        total_debits:     101500,
+        avg_monthly_bal:  55000,
+        transactions_ct:  42,
+      },
+      fill_actions: [
+        { target: 'profiles.savings_balance', value: 68500,  label: 'Current savings balance' },
+        { target: 'profiles.monthly_income',  value: 125000, label: 'Monthly credits (proxy income)' },
+        { target: 'profiles.monthly_expense', value: 101500, label: 'Monthly debits (proxy expense)' },
+      ],
+    },
+  };
+  return demos[docType] || demos.salary_slip;
+}
+
+// ─── Init ─────────────────────────────────────────────────
+renderHistory();
+</script>
+</body>
+</html>

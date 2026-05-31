@@ -17,6 +17,7 @@ import threading
 import time
 from collections import deque
 from datetime import datetime, date, timedelta
+import psutil
 
 from faster_whisper import WhisperModel
 import edge_tts
@@ -60,7 +61,30 @@ else:
 # ══════════════════════════════════════════════════════════════════════════════
 # CONFIG
 # ══════════════════════════════════════════════════════════════════════════════
-OLLAMA_MODEL    = "qwen3:14b"
+
+def _pick_ollama_model() -> str:
+    """Auto-select model based on available RAM and installed models."""
+    env_override = os.getenv("OLLAMA_MODEL")
+    if env_override:
+        return env_override
+    try:
+        ram_gb = psutil.virtual_memory().total / 1e9
+        available_models = {m["model"] for m in ollama.list().get("models", [])}
+        # Try models in descending capability order
+        for model, min_ram in [("qwen3:14b", 16), ("qwen3:8b", 10), ("qwen3:4b", 6), ("qwen2.5:3b", 4)]:
+            if ram_gb >= min_ram and any(model in m for m in available_models):
+                log.info("Auto-selected model: %s (RAM: %.1fGB)", model, ram_gb)
+                return model
+        # Fallback: use whatever is listed first, or default
+        if available_models:
+            first = next(iter(available_models))
+            log.warning("Falling back to first available model: %s", first)
+            return first
+    except Exception as e:
+        log.warning("Model auto-detection failed: %s — using qwen3:14b", e)
+    return "qwen3:14b"
+
+OLLAMA_MODEL    = _pick_ollama_model()
 
 WHISPER_SIZE    = "tiny"
 WHISPER_THREADS = 8
@@ -840,6 +864,57 @@ class UserContext:
         return "\n".join(lines)
 
 
+# ── Selective RAC Context ─────────────────────────────────────────────────────
+_INTENT_PATTERNS = {
+    "market":    re.compile(r'\b(nifty|sensex|market|share|stock|portfolio|invest|sip|mutual fund|mf|etf|ipo)\b', re.I),
+    "budget":    re.compile(r'\b(budget|expense|spend|kharcha|saving|bachao|rent|emi|bill|salary)\b', re.I),
+    "goal":      re.compile(r'\b(goal|target|house|car|retirement|fire|education|wedding|dream|plan)\b', re.I),
+    "insurance": re.compile(r'\b(insurance|term|health|ulip|cover|policy|claim)\b', re.I),
+    "tax":       re.compile(r'\b(tax|80c|nps|ppf|elss|itr|refund|gst|tds|regime)\b', re.I),
+    "debt":      re.compile(r'\b(debt|loan|emi|credit card|cc|borrow|repay|interest)\b', re.I),
+}
+
+def _classify_intent(text: str) -> str:
+    for intent, pattern in _INTENT_PATTERNS.items():
+        if pattern.search(text):
+            return intent
+    return "general"
+
+def _build_rac_context(intent: str, user_ctx: dict) -> str:
+    """Build minimal context slice relevant to the detected intent."""
+    if not user_ctx:
+        return ""
+
+    identity = user_ctx.get("identity", {})
+    base = f"User: {identity.get('name', 'User')}, {identity.get('city', '')}, {identity.get('life_stage', '')}"
+
+    slices = {
+        "market":    ["financial.portfolio", "trade_journal"],
+        "budget":    ["financial.transactions", "budget_tracker"],
+        "goal":      ["financial.goals", "profile.health_score"],
+        "insurance": ["profile.insurance", "profile.health_score"],
+        "tax":       ["profile.tax", "financial.transactions"],
+        "debt":      ["financial.transactions", "budget_tracker.total_debt"],
+        "general":   ["profile", "profile.health_score"],
+    }
+
+    keys = slices.get(intent, slices["general"])
+    parts = [base]
+
+    for key in keys:
+        try:
+            obj = user_ctx
+            for k in key.split("."):
+                obj = obj.get(k, {}) if isinstance(obj, dict) else {}
+            if obj and obj != {}:
+                import json as _json
+                parts.append(f"{key}: {_json.dumps(obj, ensure_ascii=False)[:400]}")
+        except Exception:
+            pass
+
+    return "\n".join(parts)
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # PERSISTENT MEMORY STORE  —  Supabase-backed cross-session memory
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1014,6 +1089,94 @@ class MemoryStore:
 
 # Autosave interval (seconds) — saves mid-session every N seconds
 AUTOSAVE_INTERVAL = 5 * 60   # 5 minutes
+
+
+# ── Semantic Memory (pgvector) ────────────────────────────────────────────────
+class SemanticMemory:
+    """
+    Stores and recalls memories using sentence embeddings + pgvector.
+    Falls back to no-op if sentence_transformers not installed or Supabase not ready.
+    """
+    _model = None
+    _ready = False
+
+    def __init__(self):
+        if not _SB_READY:
+            return
+        try:
+            from sentence_transformers import SentenceTransformer
+            self._model = SentenceTransformer("all-MiniLM-L6-v2")
+            self._ready = True
+            log.info("SemanticMemory: all-MiniLM-L6-v2 loaded (pgvector mode)")
+        except ImportError:
+            log.warning("SemanticMemory: sentence_transformers not installed — falling back to keyword memory")
+        except Exception as e:
+            log.warning("SemanticMemory init failed: %s", e)
+
+    def _embed(self, text: str) -> list[float] | None:
+        if not self._ready or not self._model:
+            return None
+        try:
+            return self._model.encode(text).tolist()
+        except Exception:
+            return None
+
+    async def store(self, user_id: str, content: str, category: str = "general"):
+        """Store a memory fact with its embedding."""
+        if not self._ready or not _SB_READY:
+            return
+        emb = self._embed(content)
+        if not emb:
+            return
+        try:
+            import httpx as _hx
+            async with _hx.AsyncClient() as c:
+                await c.post(
+                    f"{_SB_URL}/rest/v1/memory_embeddings",
+                    headers={
+                        "apikey": _SB_KEY,
+                        "Authorization": f"Bearer {_SB_KEY}",
+                        "Content-Type": "application/json",
+                        "Prefer": "return=minimal",
+                    },
+                    json={
+                        "user_id": user_id,
+                        "content": content,
+                        "embedding": emb,
+                        "category": category,
+                    },
+                    timeout=5.0,
+                )
+        except Exception as e:
+            log.debug("SemanticMemory.store error: %s", e)
+
+    async def recall(self, user_id: str, query: str, k: int = 3) -> list[str]:
+        """Recall top-k relevant memories for a query."""
+        if not self._ready or not _SB_READY:
+            return []
+        emb = self._embed(query)
+        if not emb:
+            return []
+        try:
+            import httpx as _hx
+            async with _hx.AsyncClient() as c:
+                r = await c.post(
+                    f"{_SB_URL}/rest/v1/rpc/match_memories",
+                    headers={
+                        "apikey": _SB_KEY,
+                        "Authorization": f"Bearer {_SB_KEY}",
+                        "Content-Type": "application/json",
+                    },
+                    json={"query_embedding": emb, "query_user_id": user_id, "match_count": k},
+                    timeout=5.0,
+                )
+                if r.status_code == 200:
+                    return [row["content"] for row in r.json()]
+        except Exception as e:
+            log.debug("SemanticMemory.recall error: %s", e)
+        return []
+
+_semantic_memory = SemanticMemory()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1377,7 +1540,8 @@ class Brain:
     )
 
     def stream(self, user_text: str, lang: str = "english",
-               user_ctx: "UserContext | None" = None):
+               user_ctx: "UserContext | None" = None,
+               semantic_memories: list[str] | None = None):
         profile_ctx  = self.mem.get_profile_ctx()
         lang_inject  = self._LANG_INJECT.get(lang, self._LANG_INJECT["english"])
         intent_ctx   = self._classify_intent(user_text)
@@ -1390,7 +1554,17 @@ class Brain:
 
         # Inject full structured user context from the browser (highest priority)
         if user_ctx and user_ctx._raw:
+            # Build intent-based RAC context slice for focused relevance
+            rac_intent = _classify_intent(user_text)
+            rac_ctx = _build_rac_context(rac_intent, user_ctx._raw)
+            if rac_ctx:
+                system += f"\n\n[INTENT-FOCUSED CONTEXT ({rac_intent})]:\n{rac_ctx}\n"
             system += user_ctx.to_prompt()
+
+        # Inject semantic memory recall results
+        if semantic_memories:
+            sem_block = "\n".join(f"  • {m}" for m in semantic_memories)
+            system += f"\n\n[RECALLED MEMORIES — facts from past conversations]:\n{sem_block}\n"
 
         if intent_ctx:
             system += f"\n\n{intent_ctx}"
@@ -2011,6 +2185,170 @@ def _sync_ollama_warm():
     except Exception as e:
         log.warning("Ollama warmup failed: %s", e)
 
+
+# ── Agentic Tools ─────────────────────────────────────────────────────────────
+ARYA_TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "create_goal",
+            "description": "Create a new financial savings goal for the user in FIN-OS",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "title":         {"type": "string",  "description": "Goal name e.g. 'House Down Payment'"},
+                    "target_amount": {"type": "number",  "description": "Target amount in INR"},
+                    "target_date":   {"type": "string",  "description": "Target date YYYY-MM-DD (optional)"},
+                    "monthly_contribution": {"type": "number", "description": "Monthly SIP/contribution amount"},
+                },
+                "required": ["title", "target_amount"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "log_transaction",
+            "description": "Log a financial transaction for the user",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "amount":   {"type": "number", "description": "Amount in INR (positive=income, negative=expense)"},
+                    "category": {"type": "string", "description": "Category: food/rent/emi/salary/investment/etc"},
+                    "notes":    {"type": "string", "description": "Short description"},
+                    "type":     {"type": "string", "enum": ["income", "expense", "investment"], "description": "Transaction type"},
+                },
+                "required": ["amount", "category", "type"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "set_budget",
+            "description": "Set or update a monthly budget limit for a spending category",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "category": {"type": "string"},
+                    "limit":    {"type": "number", "description": "Monthly limit in INR"},
+                },
+                "required": ["category", "limit"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_health_score",
+            "description": "Fetch the user's current financial health score",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "schedule_sip_reminder",
+            "description": "Schedule a recurring SIP reminder alert for the user",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "amount":   {"type": "number"},
+                    "day":      {"type": "integer", "description": "Day of month 1-28"},
+                    "fund":     {"type": "string",  "description": "Fund name or 'general'"},
+                },
+                "required": ["amount", "day"],
+            },
+        },
+    },
+]
+
+
+async def _execute_tool(tool_name: str, tool_args: dict, user_id: str) -> str:
+    """Execute an agentic tool call and return a human-readable result."""
+    if not _SB_READY or not user_id:
+        return f"Cannot execute {tool_name} — Supabase not connected."
+
+    import httpx as _hx
+    headers = {
+        "apikey": _SB_KEY,
+        "Authorization": f"Bearer {_SB_KEY}",
+        "Content-Type": "application/json",
+        "Prefer": "return=representation",
+    }
+
+    try:
+        async with _hx.AsyncClient(timeout=8.0) as c:
+
+            if tool_name == "create_goal":
+                payload = {
+                    "user_id":              user_id,
+                    "name":                 tool_args.get("title", "New Goal"),
+                    "target_amount":        tool_args.get("target_amount", 0),
+                    "current_amount":       0,
+                    "target_date":          tool_args.get("target_date"),
+                    "monthly_contribution": tool_args.get("monthly_contribution", 0),
+                }
+                r = await c.post(f"{_SB_URL}/rest/v1/goals", headers=headers, json=payload)
+                if r.status_code in (200, 201):
+                    return f"✅ Goal '{payload['name']}' created! Target: ₹{payload['target_amount']:,.0f}"
+                return f"Goal creation failed: {r.text[:100]}"
+
+            elif tool_name == "log_transaction":
+                from datetime import date
+                payload = {
+                    "user_id":  user_id,
+                    "amount":   tool_args.get("amount", 0),
+                    "category": tool_args.get("category", "other").title(),
+                    "type":     tool_args.get("type", "expense"),
+                    "notes":    tool_args.get("notes", "Logged by Arya"),
+                    "date":     date.today().isoformat(),
+                }
+                r = await c.post(f"{_SB_URL}/rest/v1/transactions", headers=headers, json=payload)
+                amt = abs(payload["amount"])
+                return (f"✅ Transaction logged: ₹{amt:,.0f} {payload['type']} — {payload['category']}"
+                        if r.status_code in (200, 201) else f"Logging failed: {r.text[:80]}")
+
+            elif tool_name == "set_budget":
+                from datetime import date
+                today = date.today()
+                payload = {
+                    "user_id":  user_id,
+                    "category": tool_args.get("category", "other").title(),
+                    "limit":    tool_args.get("limit", 0),
+                    "spent":    0,
+                    "month":    today.month,
+                    "year":     today.year,
+                }
+                r = await c.post(f"{_SB_URL}/rest/v1/budgets", headers=headers, json=payload)
+                return (f"✅ Budget set: {payload['category']} = ₹{payload['limit']:,.0f}/month"
+                        if r.status_code in (200, 201) else f"Budget failed: {r.text[:80]}")
+
+            elif tool_name == "get_health_score":
+                r = await c.get(f"http://localhost:8001/health-score/{user_id}", timeout=5.0)
+                if r.status_code == 200:
+                    data = r.json()
+                    return f"Health Score: {data['total']}/100 ({data['tier']}) — {data['quick_win']}"
+                return "Health score unavailable — alert engine not running."
+
+            elif tool_name == "schedule_sip_reminder":
+                payload = {
+                    "user_id": user_id,
+                    "rule_id": "SIP_MISSED",
+                    "enabled": True,
+                    "channels": ["in_app", "push"],
+                }
+                r = await c.post(f"{_SB_URL}/rest/v1/alert_preferences", headers=headers, json=payload)
+                return (f"✅ SIP reminder set: ₹{tool_args.get('amount',0):,.0f} on day {tool_args.get('day',1)} of every month"
+                        if r.status_code in (200, 201) else f"Reminder failed: {r.text[:80]}")
+
+            return f"Unknown tool: {tool_name}"
+
+    except Exception as e:
+        log.error("Tool %s failed: %s", tool_name, e)
+        return f"Tool error: {e}"
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # WEBSOCKET SERVER
 # ══════════════════════════════════════════════════════════════════════════════
@@ -2515,6 +2853,21 @@ Reply ONLY with valid JSON. No markdown.
         await self._send({"type": "user_transcript", "text": user_text})
         await self._send({"type": "state", "state": "thinking"})
 
+        # ── Intent detection + RAC context ────────────────────────────────
+        rac_intent = _classify_intent(user_text)
+        log.info("Detected intent: %s", rac_intent)
+
+        # ── Semantic memory recall ─────────────────────────────────────────
+        semantic_memories: list[str] = []
+        uid = user_ctx.user_id if user_ctx else None
+        if uid:
+            try:
+                semantic_memories = await _semantic_memory.recall(uid, user_text, k=3)
+                if semantic_memories:
+                    log.info("SemanticMemory: recalled %d memories for intent=%s", len(semantic_memories), rac_intent)
+            except Exception as _sme:
+                log.debug("SemanticMemory recall error: %s", _sme)
+
         # ── Calculator intent detection ────────────────────────────────────
         llm_user_text = user_text   # may be augmented with exact calc numbers
         try:
@@ -2541,13 +2894,62 @@ Reply ONLY with valid JSON. No markdown.
             log.warning("CalcEngine: %s", _ce)
         # ──────────────────────────────────────────────────────────────────
 
+        # ── Agentic tool-use (non-streaming check) ─────────────────────────
+        # Run a quick non-streaming check with tools to see if Ollama wants to call one
+        tool_result_text: str = ""
+        try:
+            _tool_msgs = (
+                [{"role": "system", "content": SYSTEM_PROMPT}]
+                + self.mem.get_history()[-4:]
+                + [{"role": "user", "content": llm_user_text}]
+            )
+            _tool_resp = await loop.run_in_executor(
+                None,
+                lambda: ollama.chat(
+                    model=OLLAMA_MODEL,
+                    messages=_tool_msgs,
+                    stream=False,
+                    tools=ARYA_TOOLS,
+                    options={**OLLAMA_OPTIONS, "num_predict": 200, "temperature": 0.2},
+                    think=False,
+                ),
+            )
+            _tool_calls = (_tool_resp.get("message") or {}).get("tool_calls") or []
+            if _tool_calls:
+                tool_results = []
+                for tc in _tool_calls:
+                    fn = tc.get("function") or {}
+                    t_name = fn.get("name", "")
+                    t_args = fn.get("arguments") or {}
+                    if isinstance(t_args, str):
+                        try:
+                            t_args = json.loads(t_args)
+                        except Exception:
+                            t_args = {}
+                    log.info("Agentic tool call: %s(%s)", t_name, t_args)
+                    result = await _execute_tool(t_name, t_args, uid or "")
+                    tool_results.append(result)
+                    await self._send({"type": "tool_result", "tool": t_name, "result": result})
+                tool_result_text = "\n".join(tool_results)
+                # Prepend tool results into the user message for the streaming LLM call
+                llm_user_text = (
+                    llm_user_text
+                    + f"\n\n[TOOL RESULT — confirm this to the user naturally]:\n{tool_result_text}"
+                )
+        except Exception as _te:
+            log.debug("Agentic tool-use check error: %s", _te)
+        # ──────────────────────────────────────────────────────────────────
+
         try:
             _DONE = object()
             q: asyncio.Queue = asyncio.Queue()
 
             def _produce():
                 try:
-                    for tok, full in self.brain.stream(llm_user_text, lang, user_ctx):
+                    for tok, full in self.brain.stream(
+                        llm_user_text, lang, user_ctx,
+                        semantic_memories=semantic_memories,
+                    ):
                         loop.call_soon_threadsafe(q.put_nowait, (tok, full))
                 except Exception as e:
                     loop.call_soon_threadsafe(q.put_nowait, e)
@@ -2645,6 +3047,19 @@ Reply ONLY with valid JSON. No markdown.
             await self._send({"type": "reply_done", "text": full,
                                "display": clean_display(full)})
             log.info("%.1fs | %d chars | %d TTS", time.monotonic()-t0, len(full), seq)
+
+            # ── Store semantic memory for this exchange ────────────────────
+            if uid and user_text.strip():
+                try:
+                    asyncio.ensure_future(
+                        _semantic_memory.store(
+                            uid,
+                            f"User asked: {user_text[:200]}. Arya said: {_RE_THINK.sub('', full).strip()[:200]}",
+                            category=rac_intent,
+                        )
+                    )
+                except Exception as _sms_e:
+                    log.debug("SemanticMemory store schedule error: %s", _sms_e)
 
             if tasks:
                 await self._send({"type": "state", "state": "speaking"})

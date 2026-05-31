@@ -134,6 +134,15 @@ Rules:
       if (journal.worst_symbol?.sym) lines.push(`Worst symbol: ${journal.worst_symbol.sym} (${INR(journal.worst_symbol.pnl)})`);
     }
 
+    // ── Engagement ────────────────────────────────────────────────────────
+    const eng = ctx?.engagement;
+    if (eng?.streak_days > 0) {
+      lines.push(`Activity streak: ${eng.streak_days} consecutive days (best: ${eng.longest_streak})`);
+    }
+    if (eng?.total_sessions > 0) {
+      lines.push(`Total sessions: ${eng.total_sessions} · Member for: ${eng.days_since_first || 0} days`);
+    }
+
     // ── Page context ──────────────────────────────────────────────────────
     if (ctx?._page_module) lines.push(`Current page: ${ctx._page_module}`);
     if (ctx?._sync_phase === 'full') lines.push(`[Data source: Supabase DB — complete]`);
@@ -651,22 +660,35 @@ Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
       <span style="margin-left:4px;font-size:13px;">Arya tera brief bana rahi hai…</span>
     </div>`;
 
-    // Build a tight, focused prompt — no fluff so the model stays on track
-    const noteStr    = customNote ? `\nNote: ${customNote}` : '';
-    const anomalyStr = anomalies.length
-      ? `\nFlags this month: ${anomalies.slice(0,3).join(' | ')}`
-      : '';
-
-    const prompt = (
-      `User's name: ${name}. ` +
-      `Net worth: ₹${Number(netWorth).toLocaleString('en-IN')}. ` +
-      `Savings rate: ${savingsRate}%. ` +
-      `Financial health score: ${healthScore}/100.` +
-      anomalyStr + noteStr +
-      `\n\nWrite a 2-sentence morning brief in warm Hinglish — like a caring IIM friend over chai. ` +
-      `Mention one specific number from above. End with one short question to reflect on today. ` +
-      `Reply directly — no preamble, no "Sure!", just the brief.`
-    ).trim();
+    // If the personalization engine is loaded, use its rich prompt that includes
+    // actual goal names, top spend categories, portfolio P&L, trade stats, etc.
+    // Otherwise fall back to the basic field-by-field prompt.
+    let prompt;
+    if (typeof FinosPersona !== 'undefined' && typeof FinosPersona.buildRichBriefPrompt === 'function') {
+      // customNote from dashboard.js already IS the rich prompt when FinosPersona
+      // built it — use it directly to avoid double-wrapping.
+      if (customNote && customNote.length > 200) {
+        prompt = customNote;
+      } else {
+        prompt = FinosPersona.buildRichBriefPrompt(name);
+      }
+    } else {
+      // Fallback: basic prompt (no FinosPersona loaded on this page)
+      const noteStr    = customNote ? `\nNote: ${customNote}` : '';
+      const anomalyStr = anomalies.length
+        ? `\nFlags this month: ${anomalies.slice(0,3).join(' | ')}`
+        : '';
+      prompt = (
+        `User's name: ${name}. ` +
+        `Net worth: ₹${Number(netWorth).toLocaleString('en-IN')}. ` +
+        `Savings rate: ${savingsRate}%. ` +
+        `Financial health score: ${healthScore}/100.` +
+        anomalyStr + noteStr +
+        `\n\nWrite a 2-sentence morning brief in warm Hinglish — like a caring IIM friend over chai. ` +
+        `Mention one specific number from above. End with one short question to reflect on today. ` +
+        `Reply directly — no preamble, no "Sure!", just the brief.`
+      ).trim();
+    }
 
     textEl.innerHTML = '<span class="arya-ai-streaming arya-ai-cursor"></span>';
     const span = textEl.querySelector('span');

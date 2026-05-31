@@ -529,7 +529,8 @@
       <a href="../stock-dashboard/index.html">Live Tracker</a>
       <a href="simulator-landing.html">Train Mindset</a>
 
-      <a href="http://localhost:3000">News</a>
+      <a href="news.html">News</a>
+      <a href="financial-hub.html">⚡ Command Hub</a>
       <a href="settings.html">Settings</a>
     </nav>
   </aside>
@@ -754,6 +755,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/finos-context.js"></script>
   <script src="../js/arya-ai.js"></script>
+  <script src="../js/finos-personalization.js"></script>
   <script>
   (async function() {
     const el = document.getElementById('arya-diag-text');
@@ -796,5 +798,13 @@ In 2 sentences: (1) which one they need MORE urgently based on their specific pr
   <script src="../js/pwa-init.js"></script>
   <script src="../js/finos-widget.js?v=4"></script>
   <script src="../js/finos-search.js?v=2"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof FinosPersona === 'undefined') return;
+    FinosPersona.injectGreeting({ selector: '.header h1, header h1' });
+    FinosPersona.injectStatusStrip('.header, header');
+    FinosPersona.injectNavBadges();
+  });
+  </script>
 </body>
 </html>

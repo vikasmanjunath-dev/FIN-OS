@@ -1,58 +1,36 @@
 // js/dashboard.js
-// No login required — works in guest mode with optional Supabase enrichment.
-
-const _SUPABASE_URL = 'https://oeapcyucnduhwpgxfknb.supabase.co';
-const _SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+// Supabase credentials live in finos-personalization.js — do not duplicate here.
+// We use window.FINOS_USER_CONTEXT (set by finos-context.js) for all user data.
 
 document.addEventListener("DOMContentLoaded", async () => {
 
     // ── 1. RESOLVE DISPLAY NAME ─────────────────────────────────────────────
-    // Priority: localStorage saved name → Supabase session → "User"
-    let displayName = localStorage.getItem('finos_display_name') || '';
-    let dnaTag      = localStorage.getItem('finos_financial_dna') || '';
-    let supabaseUser = null;
-    let client = null;
+    // finos-context.js runs synchronously before this script and populates
+    // window.FINOS_USER_CONTEXT from localStorage immediately (Phase 1), then
+    // enriches it from Supabase async (Phase 2). We just read it here — no
+    // second Supabase client needed on this page.
+    let displayName = (
+        window.FINOS_USER_CONTEXT?.identity?.name ||
+        localStorage.getItem('finos_display_name') ||
+        'Investor'
+    );
+    let dnaTag = (
+        window.FINOS_USER_CONTEXT?.identity?.financial_dna ||
+        localStorage.getItem('finos_financial_dna') ||
+        ''
+    );
 
-    // Try Supabase silently — never redirect if it fails
-    try {
-        if (window.supabase) {
-            client = window.supabase.createClient(_SUPABASE_URL, _SUPABASE_KEY);
-            const { data: { session } } = await client.auth.getSession();
-
-            if (session) {
-                supabaseUser = session.user;
-
-                // Get name from metadata first
-                displayName = session.user.user_metadata?.full_name || displayName;
-
-                // Then try DB profile
-                try {
-                    const { data: profile } = await client
-                        .from('profiles')
-                        .select('full_name, financial_dna')
-                        .eq('id', session.user.id)
-                        .single();
-
-                    if (profile?.full_name)    displayName = profile.full_name;
-                    if (profile?.financial_dna) dnaTag     = profile.financial_dna;
-                } catch (_) { /* DB not set up — no problem */ }
-
-                // Fallback to email prefix
-                if (!displayName) {
-                    displayName = session.user.email.split('@')[0];
-                }
-
-                // Cache for offline use
-                localStorage.setItem('finos_display_name', displayName);
-                if (dnaTag) localStorage.setItem('finos_financial_dna', dnaTag);
-            }
+    // Update displayName when DB enrichment completes (async, non-blocking)
+    window.addEventListener('finos-context-ready', function _nameRefresh(e) {
+        if (e.detail?.phase !== 'full') return;
+        const fresh = window.FINOS_USER_CONTEXT?.identity?.name;
+        if (fresh && fresh !== displayName) {
+            displayName = fresh;
+            const nameEl = document.getElementById('userName');
+            if (nameEl) nameEl.innerText = displayName;
         }
-    } catch (e) {
-        console.debug('[Dashboard] Supabase optional — continuing as guest:', e.message);
-    }
-
-    // Final fallback
-    if (!displayName) displayName = 'Trader';
+        window.removeEventListener('finos-context-ready', _nameRefresh);
+    });
 
     // ── 2. UPDATE HEADER ─────────────────────────────────────────────────────
     const nameEl = document.getElementById('userName');
@@ -94,64 +72,54 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const anchorEl = document.getElementById('arya-brief-placeholder');
 
-            // ── Use finos-context.js enriched data (DB + budget tracker + journal)
-            // Wait up to 5s for full Supabase sync, then proceed with whatever we have
+            // Wait up to 5s for full Supabase sync, then build the richest possible brief.
             AryaAI.onContextReady(async (finosCtx) => {
-                const prof = finosCtx?.profile || {};
-                const tx   = finosCtx?.financial?.transactions || {};
+                const prof     = finosCtx?.profile || {};
+                const tx       = finosCtx?.financial?.transactions || {};
                 const goals_db = finosCtx?.financial?.goals || [];
                 const portfolio = finosCtx?.financial?.portfolio || null;
-                const budget = finosCtx?.budget_tracker || null;
-                const journal = finosCtx?.trade_journal || null;
+                const budget   = finosCtx?.budget_tracker || null;
+                const journal  = finosCtx?.trade_journal || null;
 
-                // Build anomaly list from DB transaction data
+                // ── Build anomaly chips ────────────────────────────────────────
                 const anomalies = [];
                 if (tx.top_categories?.length) {
-                    const totalSpend = tx.total_expense || 0;
                     tx.top_categories.forEach(c => {
-                        const pct = totalSpend > 0 ? Math.round((c.amt / totalSpend) * 100) : 0;
-                        if (pct > 30) anomalies.push(`⚠ ${c.cat} is ${pct}% of expenses (₹${Number(c.amt).toLocaleString('en-IN')})`);
+                        const pct = tx.total_expense > 0
+                            ? Math.round((c.amt / tx.total_expense) * 100) : 0;
+                        if (pct > 30) anomalies.push(`⚠ ${c.cat} = ${pct}% of expenses`);
                     });
                 }
                 if (budget && !budget.goals?.some(g => /sip|invest|mutual/i.test(g.name || ''))) {
-                    anomalies.push('⚠ No SIP/investment goal tracked in Budget Tracker');
+                    anomalies.push('⚠ No SIP goal found in budget tracker');
                 }
                 if (journal?.total_trades > 0 && journal.win_rate < 40) {
-                    anomalies.push(`⚠ Trade journal: win rate ${journal.win_rate}% — below 40% threshold`);
+                    anomalies.push(`⚠ Win rate ${journal.win_rate}% — below 40%`);
                 }
-                if (portfolio && portfolio.pnl_pct < -10) {
-                    anomalies.push(`⚠ Portfolio down ${portfolio.pnl_pct}% overall`);
+                if (portfolio?.pnl_pct < -10) {
+                    anomalies.push(`⚠ Portfolio down ${portfolio.pnl_pct}%`);
                 }
-                // Goals behind target
                 goals_db.filter(g => g.progress < 25 && g.deadline).forEach(g => {
-                    anomalies.push(`⚠ Goal "${g.name}" only ${g.progress}% complete`);
+                    anomalies.push(`⚠ Goal "${g.name}" only ${g.progress}% funded`);
                 });
 
                 const netWorth    = parseFloat(prof.net_worth    || localStorage.getItem('finos_net_worth')    || 0);
                 const savingsRate = parseFloat(prof.savings_rate || localStorage.getItem('finos_savings_rate') || budget?.savings_rate || 0);
                 const healthScore = parseFloat(prof.health_score || localStorage.getItem('finos_health_score') || 0);
 
-                // Try agent WS first for richer anomaly detection (uses server-side spend-spike analysis)
-                // Falls back to Ollama-direct if agent is not running
+                // ── Optional: voice agent server-side anomaly enrichment ──────
                 let wsAnomalies = [];
                 try {
                     wsAnomalies = await new Promise((resolve) => {
                         const ws = new WebSocket('ws://127.0.0.1:8765');
                         const timer = setTimeout(() => { try { ws.close(); } catch {} resolve([]); }, 4000);
-                        ws.onopen = () => {
-                            ws.send(JSON.stringify({ type: 'dashboard_brief' }));
-                        };
+                        ws.onopen  = () => ws.send(JSON.stringify({ type: 'dashboard_brief' }));
                         ws.onmessage = (e) => {
                             try {
                                 const msg = JSON.parse(e.data);
                                 if (msg.type === 'dashboard_brief_result') {
-                                    clearTimeout(timer);
-                                    ws.close();
-                                    // Merge server anomalies into our list
-                                    const serverAnom = (msg.anomalies || []).map(a =>
-                                        `⚠ ${a.message || a}`
-                                    );
-                                    resolve(serverAnom);
+                                    clearTimeout(timer); ws.close();
+                                    resolve((msg.anomalies || []).map(a => `⚠ ${a.message || a}`));
                                 }
                             } catch {}
                         };
@@ -161,15 +129,37 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 const allAnomalies = [...new Set([...wsAnomalies, ...anomalies])].slice(0, 5);
 
+                // ── Build a rich customNote from actual user data ──────────────
+                // FinosPersona.buildRichBriefPrompt provides the fully structured
+                // context string; we pass it as customNote so AryaAI includes it.
+                let richNote = null;
+                if (typeof FinosPersona !== 'undefined') {
+                    richNote = FinosPersona.buildRichBriefPrompt(displayName);
+                } else {
+                    // Fallback: build a compact note from available data
+                    const parts = [];
+                    if (budget?.top_categories?.length) {
+                        parts.push(`Top spend: ${budget.top_categories.slice(0,2).map(c=>`${c.cat} ₹${Number(c.amt).toLocaleString('en-IN')}`).join(', ')}`);
+                    }
+                    if (goals_db.length) {
+                        parts.push(`Goals: ${goals_db.slice(0,2).map(g=>`${g.name} ${g.progress||0}%`).join(' | ')}`);
+                    }
+                    if (journal?.total_trades > 0) {
+                        parts.push(`Trading: ${journal.total_trades} trades, ${journal.win_rate}% win rate`);
+                    }
+                    if (portfolio) {
+                        parts.push(`Portfolio P&L: ${portfolio.pnl_pct > 0 ? '+' : ''}${portfolio.pnl_pct}%`);
+                    }
+                    richNote = parts.join('. ') || null;
+                }
+
                 AryaAI.dashboardBrief({
                     name:        displayName,
                     netWorth,
                     savingsRate,
                     healthScore,
                     anomalies:   allAnomalies,
-                    customNote:  journal?.total_trades > 0
-                        ? `Trade journal: ${journal.total_trades} trades, ${journal.win_rate}% win rate`
-                        : (budget ? `Budget tracker active: savings rate ${budget.savings_rate}%` : null),
+                    customNote:  richNote,
                 }, anchorEl);
 
             }, 5000);

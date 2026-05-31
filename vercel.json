@@ -1,7 +1,7 @@
 {
   "rewrites": [
-    { "source": "/portfolio-analyser", "destination": "/Porfolio Analyser/portfolio-analyser-v9.html" },
-    { "source": "/portfolio",          "destination": "/Porfolio Analyser/portfolio-analyser-v9.html" },
+    { "source": "/portfolio-analyser", "destination": "/Porfolio Analyser/portfolio-analyser-v10.html" },
+    { "source": "/portfolio",          "destination": "/Porfolio Analyser/portfolio-analyser-v10.html" },
     { "source": "/trade-journal",      "destination": "/TradeJournal/index.html" },
     { "source": "/trades",             "destination": "/TradeJournal/index.html" },
     { "source": "/expense-tracker",    "destination": "/ExpenseTracker/finos-budget/index.html" },
@@ -11,7 +11,16 @@
     { "source": "/voice",              "destination": "/voiceagent/index.html" },
     { "source": "/markets",            "destination": "/html/markets.html" },
     { "source": "/dashboard",          "destination": "/html/dashboard.html" },
-    { "source": "/track",              "destination": "/html/track-finances.html" }
+    { "source": "/track",              "destination": "/html/track-finances.html" },
+    { "source": "/benchmark",          "destination": "/html/benchmarking.html" },
+    { "source": "/couple",             "destination": "/html/couple-finance.html" },
+    { "source": "/timeline",           "destination": "/html/timeline.html" },
+    { "source": "/money-ai",           "destination": "/html/money-ai.html" },
+    { "source": "/report",             "destination": "/html/financial-report.html" },
+    { "source": "/document-ai",        "destination": "/html/document-ai.html" },
+    { "source": "/docs",               "destination": "/html/document-ai.html" },
+    { "source": "/hub",                "destination": "/html/financial-hub.html" },
+    { "source": "/command-hub",        "destination": "/html/financial-hub.html" }
   ],
   "redirects": [
     {
@@ -27,16 +36,47 @@
   ],
   "headers": [
     {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co http://localhost:* ws://localhost:* https://openrouter.ai; img-src 'self' data: https: blob:; media-src 'self' blob:; worker-src 'self' blob:; frame-ancestors 'none'"
+        },
+        { "key": "X-Frame-Options",        "value": "DENY" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy",        "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy",     "value": "camera=(), microphone=(self), geolocation=()" }
+      ]
+    },
+    {
       "source": "/(.*\\.html)",
-      "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
+      ]
     },
     {
-      "source": "/(.*\\.js)",
-      "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
+      "source": "/js/(.*\\.js)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=3600" }
+      ]
     },
     {
-      "source": "/(.*\\.css)",
-      "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
+      "source": "/css/(.*\\.css)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=3600" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=2592000, immutable" }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
     }
   ]
 }

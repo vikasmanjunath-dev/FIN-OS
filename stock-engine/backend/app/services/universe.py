@@ -1,13 +1,138 @@
 """
 NIFTY Universe
 ==============
-Pre-defined stock universe for screening. Covers Nifty 50, Nifty Next 50,
-and selected Nifty Midcap 100 names.  Symbols use yfinance NSE format (.NS).
+Dynamic stock universe loader.
+Primary: loads Nifty 500 constituents from NSE's public CSV (refreshed every 24h).
+Fallback: built-in 90-stock curated list when NSE CSV is unreachable.
+Symbols use yfinance NSE format (.NS).
 """
 from __future__ import annotations
 
 import asyncio
+import csv
+import io
+import logging
+import time
 from typing import Any
+
+import httpx
+
+log = logging.getLogger("stock-engine.universe")
+
+# NSE public Nifty 500 constituent list (refreshed daily by NSE)
+_NSE_NIFTY500_URL = (
+    "https://archives.nseindia.com/content/indices/ind_nifty500list.csv"
+)
+
+# ── Dynamic universe cache ────────────────────────────────────────────────────
+_dynamic_universe: list[dict] = []
+_universe_loaded_at: float    = 0
+_UNIVERSE_CACHE_TTL = 86_400  # 24 hours
+
+
+# Sector name normaliser (NSE uses verbose names, we want short ones)
+_SECTOR_MAP: dict[str, str] = {
+    "Information Technology":     "IT",
+    "Financial Services":         "Banking",
+    "Consumer Goods":             "FMCG",
+    "Automobile":                 "Auto",
+    "Pharmaceuticals":            "Pharma",
+    "Oil & Gas":                  "Energy",
+    "Metals":                     "Metals",
+    "Construction":               "Infrastructure",
+    "Power":                      "Power",
+    "Telecom":                    "Telecom",
+    "Healthcare":                 "Healthcare",
+    "Fast Moving Consumer Goods": "FMCG",
+    "Consumer Services":          "Consumer",
+    "Capital Goods":              "Capital Goods",
+    "Chemicals":                  "Chemicals",
+    "Realty":                     "Real Estate",
+    "Diversified":                "Diversified",
+    "Services":                   "Services",
+    "Textiles":                   "Textiles",
+    "Media & Entertainment":      "Media",
+    "Cement & Cement Products":   "Cement",
+    "Insurance":                  "Insurance",
+    "Fertilisers & Agrochemicals":"Agro",
+}
+
+
+def _normalise_sector(raw: str) -> str:
+    raw = raw.strip()
+    return _SECTOR_MAP.get(raw, raw.title()[:20] if raw else "Other")
+
+
+async def _fetch_nifty500() -> list[dict]:
+    """Download and parse NSE Nifty 500 CSV. Returns list of stock dicts."""
+    try:
+        async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as c:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (compatible; FIN-OS/2.0)",
+                "Accept":     "text/csv,*/*",
+            }
+            r = await c.get(_NSE_NIFTY500_URL, headers=headers)
+            r.raise_for_status()
+        reader  = csv.DictReader(io.StringIO(r.text))
+        stocks  = []
+        for row in reader:
+            # NSE CSV columns: Company Name, Industry, Symbol, Series, ISIN Code
+            symbol = str(row.get("Symbol", "")).strip()
+            name   = str(row.get("Company Name", "")).strip()
+            sector = str(row.get("Industry", "")).strip()
+            if not symbol or not name:
+                continue
+            stocks.append({
+                "symbol": f"{symbol}.NS",
+                "name":   name,
+                "sector": _normalise_sector(sector),
+                "cap":    "large",   # Nifty 500 caps assigned below
+                "isin":   str(row.get("ISIN Code", "")).strip(),
+            })
+        log.info("Nifty 500 universe loaded: %d stocks from NSE CSV", len(stocks))
+        return stocks
+    except Exception as e:
+        log.warning("NSE CSV fetch failed (%s) — falling back to built-in universe", e)
+        return []
+
+
+def _refresh_universe_sync() -> None:
+    """Synchronous wrapper — called from startup lifespan."""
+    import asyncio as _asyncio
+    try:
+        loop = _asyncio.get_event_loop()
+        if loop.is_running():
+            _asyncio.ensure_future(_refresh_universe())
+        else:
+            loop.run_until_complete(_refresh_universe())
+    except Exception:
+        pass
+
+
+async def _refresh_universe() -> None:
+    global _dynamic_universe, _universe_loaded_at
+    fetched = await _fetch_nifty500()
+    if fetched:
+        _dynamic_universe   = fetched
+        _universe_loaded_at = time.time()
+
+
+def get_universe() -> list[dict]:
+    """
+    Return current universe. Auto-triggers async refresh if stale.
+    Returns Nifty 500 (dynamic) if loaded, else built-in 90-stock fallback.
+    """
+    global _dynamic_universe, _universe_loaded_at
+    now = time.time()
+    # Schedule background refresh if cache is stale
+    if now - _universe_loaded_at > _UNIVERSE_CACHE_TTL:
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                asyncio.ensure_future(_refresh_universe())
+        except Exception:
+            pass
+    return _dynamic_universe if _dynamic_universe else NIFTY_UNIVERSE
 
 # ---------------------------------------------------------------------------
 # Universe definition  (symbol, display-name, sector, cap-category)
@@ -113,12 +238,15 @@ NIFTY_UNIVERSE: list[dict] = [
 # Search
 # ---------------------------------------------------------------------------
 def search_universe(query: str) -> list[dict]:
-    """Case-insensitive fuzzy search by name or symbol."""
-    q = query.lower().strip()
-    exact   = [s for s in NIFTY_UNIVERSE if q == s["symbol"].lower().replace(".ns", "")]
-    starts  = [s for s in NIFTY_UNIVERSE if s["symbol"].lower().startswith(q) and s not in exact]
-    by_name = [s for s in NIFTY_UNIVERSE if q in s["name"].lower() and s not in exact and s not in starts]
-    return (exact + starts + by_name)[:12]
+    """Case-insensitive fuzzy search by name or symbol across full universe."""
+    universe = get_universe()
+    q        = query.lower().strip()
+    if not q:
+        return universe[:20]
+    exact   = [s for s in universe if q == s["symbol"].lower().replace(".ns", "")]
+    starts  = [s for s in universe if s["symbol"].lower().startswith(q) and s not in exact]
+    by_name = [s for s in universe if q in s["name"].lower() and s not in exact and s not in starts]
+    return (exact + starts + by_name)[:15]
 
 
 # ---------------------------------------------------------------------------

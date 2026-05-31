@@ -505,8 +505,22 @@
     }
 
     list.innerHTML = filtered.map(a => {
-      const p    = PRIORITY[a.priority] || PRIORITY.info;
-      const isRead= a.read;
+      const p      = PRIORITY[a.priority] || PRIORITY.info;
+      const isRead = a.read;
+      const isMilestone = a.rule_id === 'NETWORTH_MILESTONE' && a.priority === 'celebration';
+
+      // Build milestone share button if applicable
+      const shareBtn = isMilestone ? (() => {
+        const milestoneKey = _extractMilestoneKey(a.data);
+        return milestoneKey
+          ? `<button class="fad-card-action"
+               style="border-color:#22d3a655;color:#22d3a6;background:rgba(34,211,166,.1);margin-left:6px;"
+               onclick="event.stopPropagation();_finosShowMilestoneShare('${milestoneKey}')">
+               🎉 Share
+             </button>`
+          : '';
+      })() : '';
+
       return `
         <div class="fad-card${isRead ? ' read' : ''}"
              style="background:${p.bg};border-color:${p.color}22;"
@@ -519,13 +533,16 @@
             <span class="fad-card-time">${timeAgo(a.created_at)}</span>
           </div>
           <div class="fad-card-msg">${escHtml(a.message)}</div>
-          ${a.action_url
-            ? `<a class="fad-card-action" href="${a.action_url}"
-                  style="border-color:${p.color}55;color:${p.color};background:${p.bg}"
-                  onclick="event.stopPropagation()">
-                ${escHtml(a.action_label || 'Details →')}
-               </a>`
-            : ''}
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+            ${a.action_url
+              ? `<a class="fad-card-action" href="${a.action_url}"
+                    style="border-color:${p.color}55;color:${p.color};background:${p.bg}"
+                    onclick="event.stopPropagation()">
+                  ${escHtml(a.action_label || 'Details →')}
+                 </a>`
+              : ''}
+            ${shareBtn}
+          </div>
         </div>`;
     }).join('');
 
@@ -556,6 +573,56 @@
   function escHtml(s) {
     return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
+
+  /** Extract milestone key (e.g. '1L', '1CR') from alert data payload. */
+  function _extractMilestoneKey(data) {
+    if (!data) return null;
+
+    // 1. Prefer explicit milestone_key field added in rules.py v2
+    const directKey = String(data.milestone_key || '').toUpperCase();
+    if (['1L','5L','10L','25L','50L','1CR','5CR'].includes(directKey)) return directKey;
+
+    // 2. Numeric milestone value → key map (rules.py stores numeric: 100000 = 1L)
+    const numericMap = {
+      '100000':   '1L',
+      '500000':   '5L',
+      '1000000':  '10L',
+      '2500000':  '25L',
+      '5000000':  '50L',
+      '10000000': '1CR',
+      '50000000': '5CR',
+    };
+    const numVal = String(data.milestone || data.milestone_value || data.current_nw || '');
+    if (numericMap[numVal]) return numericMap[numVal];
+
+    // 3. Label string fallback: "₹1 Lakh" → "1L"
+    const labelMap = {
+      '₹1 LAKH': '1L', '₹5 LAKH': '5L', '₹10 LAKH': '10L',
+      '₹25 LAKH': '25L', '₹50 LAKH': '50L', '₹1 CRORE': '1CR', '₹5 CRORE': '5CR',
+    };
+    const labelVal = String(data.label || '').toUpperCase();
+    return labelMap[labelVal] || null;
+  }
+
+  /** Trigger ShareCard modal for a milestone. Falls back gracefully. */
+  window._finosShowMilestoneShare = function(milestoneKey) {
+    if (typeof ShareCard !== 'undefined' && ShareCard.showShareModal) {
+      const ctx = window.FINOS_USER_CONTEXT || {};
+      const budget = ctx.budget_tracker || {};
+      ShareCard.showShareModal(milestoneKey, {
+        savingsRate: budget.savings_rate || '--',
+        healthScore: ctx.profile?.health_score || '--',
+        healthTier:  ctx.profile?.health_tier  || 'GOOD',
+        userName:    ctx.identity?.name || '',
+      });
+    } else {
+      // Load share-card.js dynamically if not already present
+      const s = document.createElement('script');
+      s.src = '/js/share-card.js';
+      s.onload = () => window._finosShowMilestoneShare(milestoneKey);
+      document.head.appendChild(s);
+    }
+  };
 
   /* ── Open/close drawer ──────────────────────────────────────────────────── */
   function openDrawer() {

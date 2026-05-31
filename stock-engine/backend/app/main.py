@@ -4,7 +4,7 @@ Quantum Stock Engine — FastAPI core
 NSE / BSE pricing, indicator engine, rule-based insights, WebSocket ticks.
 
 Run:
-    uvicorn app.main:app --reload --port 8000
+    uvicorn app.main:app --reload --port 8002
 
 Endpoints:
     GET  /api/stock/{symbol}
@@ -33,7 +33,7 @@ from pydantic import BaseModel
 from .services.market_data import MarketData
 from .services.indicators import IndicatorEngine
 from .services.insights import InsightsEngine
-from .services.universe import NIFTY_UNIVERSE, search_universe, sector_breakdown
+from .services.universe import NIFTY_UNIVERSE, search_universe, sector_breakdown, get_universe, _refresh_universe
 from .services.screener import NLScreener
 from .services.earnings import EarningsAnalyser
 from .cache import cache
@@ -41,8 +41,14 @@ from .cache import cache
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Warm up the universe so the first /api/search is instant
-    await cache.set("universe", NIFTY_UNIVERSE, ttl=3600)
+    # Load Nifty 500 from NSE CSV on startup (falls back to built-in 90 if offline)
+    await _refresh_universe()
+    live = get_universe()
+    await cache.set("universe", live, ttl=86400)  # 24h cache
+    import logging
+    logging.getLogger("stock-engine").info(
+        "Universe ready: %d stocks loaded", len(live)
+    )
     yield
 
 

@@ -26,7 +26,7 @@ import httpx
 import yfinance as yf
 
 from ..cache import cache
-from .universe import NIFTY_UNIVERSE
+from .universe import get_universe
 
 OLLAMA_URL   = "http://localhost:11434/api/generate"
 OLLAMA_MODEL = "qwen3:14b"
@@ -232,7 +232,7 @@ class NLScreener:
         used_ai    = ai_filters is not None
 
         # 2. Pre-filter universe by cap / sector (no API calls)
-        candidates = NIFTY_UNIVERSE[:]
+        candidates = get_universe()[:]
         if "cap" in filters:
             candidates = [s for s in candidates if s["cap"] == filters["cap"]]
         if "sector" in filters and filters["sector"]:

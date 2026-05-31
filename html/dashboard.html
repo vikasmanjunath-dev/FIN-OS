@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/finos-context.js"></script>
   <script src="../js/arya-ai.js"></script>
+  <script src="../js/finos-personalization.js"></script>
 </head>
 
 <body>
@@ -39,11 +40,11 @@
       <a href="foundations.html">Foundations</a>
       <a href="diagnostics.html">Diagnostics</a>
       <a href="track-finances.html">Track Finances</a>
-      <a href="budget-forecast.html">Budget Forecast</a>
-      <a href="life-goals-planner.html">Life Goals</a>
+      <a href="financial-hub.html">⚡ Command Hub</a>
       <a href="../stock-dashboard/index.html">Live Tracker</a>
+      <a href="../Porfolio Analyser/portfolio-analyser-v10.html">Portfolio X-Ray</a>
       <a href="simulator-landing.html">Train Mindset</a>
-      <a href="http://localhost:3000">News</a>
+      <a href="news.html">News</a>
       <a href="settings.html">Settings</a>
     </nav>
   </aside>
@@ -65,8 +66,49 @@
           </button>
         </header>
 
+<!-- ── Adaptive Quick-Access Bar (AI-ranked, time-aware) ──────────── -->
+<div id="adaptive-quick-access"></div>
+
+<!-- ── Context Banner (time-of-day + weekend pattern) ─────────────── -->
+<div id="adaptive-context-banner"></div>
+
+<!-- ── Weekend Portfolio Widget ────────────────────────────────────── -->
+<div id="adaptive-weekend-widget"></div>
+
 <!-- ── Arya AI Morning Brief ─────────────────────────────────────────── -->
 <div id="arya-brief-placeholder" style="margin-bottom:24px;"></div>
+
+<!-- ── Smart Nudges (goals behind, high spend, no SIP) ────────────── -->
+<div id="dashboard-nudges" style="margin-bottom:24px;"></div>
+
+<!-- ── Health Score Trend + Peer Benchmark Preview ──────────────── -->
+<div id="dash-insight-widgets" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:28px;">
+
+  <!-- Health Score Trajectory Sparkline -->
+  <div class="card" style="padding:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <h3 style="margin:0;font-size:.95rem;font-weight:700;">📈 Health Score Journey</h3>
+    </div>
+    <div id="hs-sparkline-mount"></div>
+  </div>
+
+  <!-- Peer Benchmark Preview -->
+  <div class="card" style="padding:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <h3 style="margin:0;font-size:.95rem;font-weight:700;">📊 vs Your Peers</h3>
+    </div>
+    <div id="dash-benchmark-preview">
+      <div style="color:var(--text-muted);font-size:.83rem;">Loading peer comparison…</div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+@media (max-width: 680px) {
+  #dash-insight-widgets { grid-template-columns: 1fr !important; }
+}
+</style>
 
 <section class="action-portal" style="margin-bottom: 40px;">
           <div class="foundation-portal" style="display: flex; gap: 20px; flex-wrap: nowrap; width: 100%;">
@@ -101,69 +143,142 @@
           </div>
         </section>
 
-        <!-- DAILY 5 -->
-        <section class="daily-feed">
+        <!-- DAILY 5 — Adaptive, personalized by knowledge gaps + DNA -->
+        <section class=”daily-feed”>
           <h2>
-            Today’s 5 insights
-            <span class="pill">Personalized</span>
+            Today’s insights <span id=”dash-insight-subtitle” style=”font-size:12px;opacity:.5;font-weight:400;”></span>
+            <span class=”pill” style=”background:rgba(199,240,0,.08);border-color:rgba(199,240,0,.3);color:#c7f000;”>For you</span>
           </h2>
-
-          <div class="cards">
-            <div class="cards grid grid-2">
-
-              <div class="card insight inflation" onclick="window.location.href='insight-inflation.html'"
-                style="cursor: pointer;">
-                <div class="card-image"></div>
-                <div class="card-content">
-                  <h4>Why inflation hurts your lifestyle silently</h4>
-                </div>
-              </div>
-
-              <div class="card insight sip" onclick="window.location.href='insight-sip.html'" style="cursor: pointer;">
-                <div class="card-image"></div>
-                <div class="card-content">
-                  <h4>₹500 SIP vs waiting for “more income”</h4>
-                </div>
-              </div>
-
-              <div class="card insight debt" onclick="window.location.href='insight-debt.html'"
-                style="cursor: pointer;">
-                <div class="card-image"></div>
-                <div class="card-content">
-                  <h4>Good debt vs bad debt (India reality)</h4>
-                </div>
-              </div>
-
-              <div class="card insight emi" onclick="window.location.href='insight-emi.html'" style="cursor: pointer;">
-                <div class="card-image"></div>
-                <div class="card-content">
-                  <h4>Why EMI feels normal but is dangerous</h4>
-                </div>
-              </div>
-
-              <div class="card insight policy" onclick="window.location.href='insight-rbi.html'"
-                style="cursor: pointer;">
-                <div class="card-image"></div>
-                <div class="card-content">
-                  <h4>What RBI decisions mean for YOU</h4>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
+          <!-- Populated by finos-personalization.js renderAdaptiveInsights() -->
+          <div id=”dash-adaptive-insights” style=”display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:14px;”></div>
         </section>
       </div>
     </main>
   </div>
 
+  <script src="../js/usage-tracker.js"></script>
+  <script src="../js/adaptive-layout.js"></script>
+  <script src="../js/health-sparkline.js"></script>
   <script src="../js/dashboard.js"></script>
   <script src="../js/ui.js"></script>
-
   <script src="../js/mobile-nav.js"></script>
   <script src="../js/pwa-init.js"></script>
   <script src="../js/finos-widget.js?v=4"></script>
   <script src="../js/finos-search.js?v=2"></script>
+
+  <script>
+  // ── FIN-OS Personalization — Dashboard Page ─────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof FinosPersona === 'undefined') return;
+
+    // 1. Status strip (health score, savings rate, net worth, FIRE %)
+    FinosPersona.injectStatusStrip('.header');
+
+    // 2. Smart nudges — goals behind, high spend, no SIP, poor win rate
+    const nudgeEl = document.getElementById('dashboard-nudges');
+    if (nudgeEl) FinosPersona.renderNudges(nudgeEl);
+
+    // 3. Adaptive insights ranked by knowledge gaps + DNA
+    const insightEl = document.getElementById('dash-adaptive-insights');
+    if (insightEl) {
+      FinosPersona.renderAdaptiveInsights(insightEl, 5);
+      // Update subtitle when context is ready
+      window.addEventListener('finos-context-ready', function () {
+        const r = FinosPersona.resolveCtx();
+        const sub = document.getElementById('dash-insight-subtitle');
+        if (sub && r.knowledgeGaps.length > 0) {
+          sub.textContent = `· ${r.knowledgeGaps.length} modules to complete`;
+        }
+      });
+    }
+
+    // 4. Nav badges (alert counts)
+    FinosPersona.injectNavBadges();
+  });
+  </script>
+
+  <script>
+  // ── Dashboard Insight Widgets ────────────────────────────────────────────
+  const ALERT_ENGINE = 'http://localhost:8001';
+  const SUPABASE_URL = 'https://oeapcyucnduhwpgxfknb.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+
+  const TIER_COLOR = { ELITE:'#f0c040', GREAT:'#22d3a6', GOOD:'#00d4ff', FAIR:'#f0a500', DANGER:'#f04444' };
+  const STATUS_ICON = { top_10:'🏆', above_avg:'🟢', average:'🟡', below_target:'🔴' };
+  const STATUS_LBL  = { top_10:'Top 10%', above_avg:'Above Avg', average:'Average', below_target:'Below Target' };
+
+  async function initDashboardWidgets() {
+    try {
+      const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return;
+      const uid = session.user.id;
+
+      // ── 1. Health Score Sparkline ────────────────────────────────────────
+      if (typeof HealthSparkline !== 'undefined') {
+        HealthSparkline.autoMount(uid);
+      }
+
+      // ── 2. Benchmark Preview (top 2 metrics) ────────────────────────────
+      const benchEl = document.getElementById('dash-benchmark-preview');
+      if (!benchEl) return;
+
+      try {
+        const res = await fetch(`${ALERT_ENGINE}/benchmark/${uid}`);
+        if (res.status === 402) {
+          benchEl.innerHTML = `
+            <div style="text-align:center;padding:16px 0;">
+              <div style="font-size:1.3rem;margin-bottom:6px;">🔒</div>
+              <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:10px;">Smart Plan unlocks peer benchmarking</div>
+              <a href="settings.html#upgrade"
+                 style="font-size:.78rem;color:var(--accent);font-weight:700;text-decoration:none;">
+                Upgrade →
+              </a>
+            </div>`;
+          return;
+        }
+        if (!res.ok) throw new Error('offline');
+        const data = await res.json();
+        const top2 = (data.metrics || []).slice(0, 2);
+        benchEl.innerHTML = top2.map(m => `
+          <div style="display:flex;align-items:center;gap:10px;
+                      padding:10px;border-radius:10px;
+                      background:rgba(255,255,255,.04);margin-bottom:8px;">
+            <div style="flex:1;">
+              <div style="font-size:.82rem;font-weight:600;">${m.label}</div>
+              <div style="font-size:.75rem;color:var(--text-muted);">Avg peer: ${m.avg}${m.unit}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:1.1rem;font-weight:800;">${m.user}${m.unit}</div>
+              <div style="font-size:.7rem;font-weight:700;color:${
+                m.status === 'top_10'       ? '#22d3a6' :
+                m.status === 'above_avg'    ? '#00d4ff' :
+                m.status === 'average'      ? '#f0a500' : '#f04444'
+              };">${STATUS_ICON[m.status] || ''} ${STATUS_LBL[m.status] || ''}</div>
+            </div>
+          </div>`).join('') +
+          `<a href="diagnostics.html"
+             style="display:block;text-align:center;font-size:.78rem;
+                    color:var(--accent);font-weight:700;text-decoration:none;margin-top:4px;">
+            See all 5 metrics →
+          </a>`;
+      } catch {
+        benchEl.innerHTML = `
+          <div style="color:var(--text-muted);font-size:.8rem;text-align:center;padding:12px 0;">
+            Peer benchmarking unavailable right now.
+          </div>`;
+      }
+    } catch (e) {
+      console.debug('[Dashboard Widgets]', e);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDashboardWidgets);
+  } else {
+    setTimeout(initDashboardWidgets, 600);
+  }
+  </script>
 </body>
 
 </html>
