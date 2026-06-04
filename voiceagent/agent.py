@@ -781,7 +781,7 @@ class UserContext:
             avg_w = _num(tj.get("avg_win"), 0); avg_l = _num(tj.get("avg_loss"), 0)
             mdd   = _num(tj.get("max_drawdown"), 0)
             if avg_w or avg_l:
-                rr = abs(avg_w / avg_l) if avg_l else 0
+                rr = abs(avg_w / avg_l) if avg_l != 0 else 0
                 lines.append(
                     f"  Avg win: ₹{avg_w:,.0f}  |  Avg loss: ₹{avg_l:,.0f}  |  "
                     f"R:R ratio: {rr:.2f}  |  Max drawdown: ₹{mdd:,.0f}"
@@ -2536,8 +2536,8 @@ class Server:
                             "type": "status",
                             "text": "Internal error — please retry.",
                         }))
-                    except Exception:
-                        pass
+                    except Exception as send_err:
+                        log.debug("Failed to send error response to client: %s", send_err)
         except websockets.exceptions.ConnectionClosed:
             pass
         finally:
@@ -2787,14 +2787,21 @@ Reply ONLY with valid JSON. No markdown.
             # Clear cache if force-refresh
             if force and os.path.exists(_BRIEF_STORE_PATH):
                 try:    os.unlink(_BRIEF_STORE_PATH)
-                except: pass
+                except (FileNotFoundError, PermissionError, OSError): pass
 
             loop = asyncio.get_event_loop()
-            result = await loop.run_in_executor(
-                None,
-                ProactiveBriefingEngine.build_dashboard_brief,
-                self.brain, self.user_ctx,
-            )
+            try:
+                result = await asyncio.wait_for(
+                    loop.run_in_executor(
+                        None,
+                        ProactiveBriefingEngine.build_dashboard_brief,
+                        self.brain, self.user_ctx,
+                    ),
+                    timeout=30.0
+                )
+            except asyncio.TimeoutError:
+                log.warning("Dashboard brief timed out after 30s")
+                result = {"error": "Brief generation timed out", "anomalies": []}
 
             await ws.send(json.dumps({
                 "type":         "dashboard_brief_result",
@@ -2808,9 +2815,12 @@ Reply ONLY with valid JSON. No markdown.
             anomalies = result.get("anomalies", [])
             if anomalies and not result.get("from_cache"):
                 top = anomalies[0]
+                _cat       = top.get('category', 'Unknown')
+                _this_mo   = top.get('this_month') or 0
+                _ratio     = top.get('ratio') or 1.0
                 spike_text = (
-                    f"Ek anomaly mili — {top['category']} ka kharcha is mahine "
-                    f"₹{top['this_month']:,} hai, last month se {top['ratio']:.1f}× zyada tha."
+                    f"Ek anomaly mili — {_cat} ka kharcha is mahine "
+                    f"₹{_this_mo:,} hai, last month se {_ratio:.1f}× zyada tha."
                 )
                 await self._pipeline(
                     f"[PROACTIVE ANOMALY — speak this naturally]: {spike_text}",

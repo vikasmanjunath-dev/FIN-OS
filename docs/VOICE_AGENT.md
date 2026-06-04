@@ -1,5 +1,6 @@
 # FIN-OS Voice Agent — Technical Reference
 
+> Version: 1.2 | Date: June 5, 2026  
 > `voiceagent/agent.py` · WebSocket `:8765` · UI `voiceagent/index.html`
 
 ---

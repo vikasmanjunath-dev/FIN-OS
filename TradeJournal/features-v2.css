@@ -54,19 +54,42 @@
 .skill-unlocked-badge { font-size: 9px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: .08em; margin-top: 6px; }
 
 /* ────────────────────────────────────────
-   GAMIFICATION — Streak Widget (Dashboard)
+   GAMIFICATION — Streak Badge (Floating Corner)
 ──────────────────────────────────────── */
-.streak-widget { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; }
-.streak-fire { font-size: 36px; line-height: 1; }
-.streak-info { flex: 1; }
-.streak-count { font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--accent); }
-.streak-label { font-size: 12px; color: var(--text2); }
-.streak-best { font-size: 11px; color: var(--text3); margin-top: 2px; }
-.streak-days { display: flex; gap: 4px; }
-.streak-dot { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; border: 1px solid var(--border); background: var(--bg4); color: var(--text3); }
+#streak-widget-container { position: fixed; bottom: 28px; right: 28px; z-index: 9999; }
+
+.streak-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 16px; border-radius: 999px;
+  background: var(--bg3); border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.55);
+  cursor: pointer; transition: transform .15s ease, box-shadow .15s ease;
+  user-select: none; white-space: nowrap;
+}
+.streak-badge:hover { transform: translateY(-2px); box-shadow: 0 7px 28px rgba(0,0,0,0.65); border-color: var(--accent); }
+.streak-badge-fire { font-size: 18px; line-height: 1; }
+.streak-badge-count { font-size: 14px; font-weight: 800; color: var(--accent); font-family: var(--font-display, inherit); }
+.streak-badge-label { font-size: 11px; color: var(--text2); letter-spacing: .02em; }
+
+.streak-popover {
+  position: absolute; bottom: calc(100% + 10px); right: 0;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.65);
+  min-width: 230px; display: none; pointer-events: none;
+}
+.streak-popover.open { display: block; pointer-events: auto; animation: streakFadeUp .18s ease; }
+@keyframes streakFadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.streak-pop-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.streak-pop-fire { font-size: 28px; line-height: 1; }
+.streak-pop-count { font-family: var(--font-display, inherit); font-size: 24px; font-weight: 800; color: var(--accent); }
+.streak-pop-sub { font-size: 11px; color: var(--text2); }
+.streak-pop-best { font-size: 11px; color: var(--text3); margin-bottom: 10px; }
+.streak-days { display: flex; gap: 4px; margin-bottom: 12px; }
+.streak-dot { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; border: 1px solid var(--border); background: var(--bg4); color: var(--text3); }
 .streak-dot.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 .streak-dot.today { box-shadow: 0 0 8px var(--accent-glow, rgba(0,255,136,.3)); }
-.streak-freeze-btn { padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: rgba(59,130,246,.1); color: #3b82f6; font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s; }
+.streak-freeze-btn { width: 100%; padding: 7px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: rgba(59,130,246,.1); color: #3b82f6; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; text-align: center; }
 .streak-freeze-btn:hover { background: rgba(59,130,246,.2); }
 
 /* ────────────────────────────────────────
@@ -231,8 +254,8 @@
 @media (max-width: 768px) {
   .quests-grid { grid-template-columns: 1fr; }
   .skill-tree-grid { grid-template-columns: repeat(2, 1fr); }
-  .streak-widget { flex-wrap: wrap; }
   .streak-days { flex-wrap: wrap; }
+  #streak-widget-container { bottom: 18px; right: 16px; }
   .meditation-timer-display { font-size: 40px; }
   .meditation-ring { width: 140px; height: 140px; }
   .sector-heatmap-grid { grid-template-columns: repeat(2, 1fr); }

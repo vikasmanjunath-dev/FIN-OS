@@ -195,8 +195,9 @@ body.news-page {
 
 /* DARK MODE HOVER */
 [data-theme="dark"] .news-card:hover {
-    background-color: var(--bg-card-hover);
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    background-color: transparent;
+    box-shadow: 0 0 0 1px rgba(79,124,255,.15), 0 10px 30px -10px rgba(0,0,0,0.5);
+    border-color: rgba(79,124,255,.15);
 }
 
 /* LIGHT MODE HOVER */
@@ -317,9 +318,11 @@ body.news-page {
 
 /* DARK MODE ACTIVE */
 [data-theme="dark"] .dock-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: transparent;
     color: #fff;
     transform: translateY(-3px);
+    border-color: rgba(255,255,255,.25);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.1);
 }
 
 [data-theme="dark"] .dock-btn.active {
@@ -339,10 +342,11 @@ body.news-page {
 }
 
 [data-theme="light"] .dock-btn:hover {
-    background: #F0F0F0;
+    background: transparent;
     color: #000;
     border-color: #000;
     transform: translateY(-3px);
+    box-shadow: 0 0 0 1px rgba(0,0,0,.15);
 }
 
 [data-theme="light"] .dock-btn.active {

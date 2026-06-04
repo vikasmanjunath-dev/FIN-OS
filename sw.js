@@ -6,30 +6,55 @@
 
 'use strict';
 
-// Cache version is injected at build time by scripts/inject-sw-version.js
-// Fallback 'finos-v2' is used in local dev without a build step
-const CACHE_NAME = (typeof __CACHE_VERSION__ !== 'undefined') ? __CACHE_VERSION__ : 'finos-v2';
+// Cache version — bump this manually when deploying breaking CSS/JS changes.
+// Format: finos-YYYY-MM-DD-N (N = daily build counter).
+// The inject-sw-version.js build script can override this automatically.
+const CACHE_NAME = (typeof __CACHE_VERSION__ !== 'undefined') ? __CACHE_VERSION__ : 'finos-2026-06-02-2';
 
 // Pre-cached static assets (relative to sw.js at root)
 const PRECACHE_ASSETS = [
-  // Key HTML pages
+  // ── Key HTML pages ──────────────────────────────────────────────
   './html/home.html',
   './html/dashboard.html',
   './html/calculators.html',
   './html/track-finances.html',
   './html/foundations.html',
-  // Core CSS
+  './html/portfolio.html',
+  './html/diagnostics.html',
+  './html/scenarios.html',
+  './html/insurance-hub.html',
+  './html/life-goals-planner.html',
+  './html/tax.html',
+  './html/markets.html',
+  './html/dna.html',
+  // ── Core CSS ─────────────────────────────────────────────────────
   './css/base.css',
   './css/layout.css',
   './css/components.css',
   './css/animations.css',
-  // Core JS
+  './css/theme.css',
+  './css/mobile-ux.css',
+  // ── Core JS ──────────────────────────────────────────────────────
   './js/ui.js',
   './js/mobile-nav.js',
   './js/pwa-init.js',
   './js/theme-init.js',
   './js/guard.js',
-  // Manifest & icons
+  './js/supabase-config.js',
+  './js/finos-toast.js',
+  './js/finos-async.js',
+  './js/finos-context.js',
+  './js/arya-ai.js',
+  './js/arya-memory.js',
+  './js/arya-life-events.js',
+  './js/arya-scenarios.js',
+  './js/finos-personalization.js',
+  './js/finos-widget.js',
+  './js/finos-mobile.js',
+  './js/mf-intelligence.js',
+  './js/finos-portfolio-analytics.js',
+  './css/states.css',
+  // ── Manifest & icons ─────────────────────────────────────────────
   './manifest.json',
   './assets/icons/icon-192.svg',
   './assets/icons/icon-512.svg',

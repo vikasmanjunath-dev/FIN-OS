@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <title>CA / Advisor Mode | FIN•OS</title>
+    <link rel="stylesheet" href="../css/design-tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-context.js" defer></script>
+  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-personalization.js" defer></script>
+  <script src="../js/tax-dossier.js" defer></script>
+<style>
+/* ── CA / Advisor Page Styles ── */
+.ca-tabs { display:flex; gap:4px; background:var(--bg-surface); border-radius:12px; padding:4px; margin-bottom:24px; overflow-x:auto; }
+.ca-tab {
+  flex:1; min-width:110px; padding:9px 10px; border-radius:9px; border:none;
+  background:transparent; color:rgba(255,255,255,.4);
+  font-size:13px; font-weight:600; cursor:pointer;
+  transition:all .15s; white-space:nowrap;
+}
+.ca-tab.active { background:rgba(123,47,247,.15); color:#a78bfa; }
+.ca-tab:hover:not(.active) { background:var(--bg-surface); color:rgba(255,255,255,.7); }
+
+.ca-tab-content { display:none; }
+.ca-tab-content.active { display:block; }
+
+.ca-card {
+  background:var(--bg-surface);
+  border:1px solid var(--border-soft);
+  border-radius:18px; padding:24px;
+  margin-bottom:20px;
+}
+.ca-card-title {
+  font-size:11px; font-weight:800;
+  text-transform:uppercase; letter-spacing:.08em;
+  color:rgba(255,255,255,.4); margin-bottom:18px;
+}
+
+.ca-two-col { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+@media(max-width:680px){ .ca-two-col { grid-template-columns:1fr; } }
+
+.ca-label { font-size:11px; color:rgba(255,255,255,.45); display:block; margin-bottom:5px; }
+.ca-input, .ca-select, .ca-textarea {
+  width:100%; padding:10px 12px;
+  background:var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius:10px; color:var(--text-primary); font-size:13px;
+  outline:none; margin-bottom:14px; transition:border-color .15s;
+}
+.ca-input:focus,.ca-select:focus,.ca-textarea:focus { border-color:rgba(123,47,247,.5); }
+.ca-select option { background:#0d0f1a; }
+.ca-textarea { resize:vertical; min-height:80px; }
+
+.ca-btn {
+  padding:10px 20px; border-radius:12px;
+  font-size:13px; font-weight:700; cursor:pointer; border:1px solid;
+  transition:background .15s;
+}
+.ca-btn-primary { background:rgba(0,212,255,.1); border-color:rgba(0,212,255,.3); color:#00d4ff; }
+.ca-btn-primary:hover { background:rgba(0,212,255,.18); }
+.ca-btn-purple { background:rgba(123,47,247,.12); border-color:rgba(123,47,247,.3); color:#a78bfa; }
+.ca-btn-purple:hover { background:rgba(123,47,247,.2); }
+.ca-btn-danger { background:rgba(255,68,68,.08); border-color:rgba(255,68,68,.25); color:#ff6666; }
+.ca-btn-full { width:100%; padding:13px; border-radius:14px; border:none; background:linear-gradient(135deg,#7b2ff7,#00d4ff); color:#fff; font-size:14px; font-weight:800; cursor:pointer; transition:opacity .15s; }
+.ca-btn-full:hover { opacity:.9; }
+
+/* Invite code block */
+.ca-invite-code {
+  background:rgba(123,47,247,.06);
+  border:2px dashed rgba(123,47,247,.35);
+  border-radius:16px; padding:22px; text-align:center; margin-bottom:20px;
+}
+.ca-code-display {
+  font-size:26px; font-weight:900;
+  letter-spacing:.15em; color:#a78bfa; margin:10px 0;
+  font-family:monospace;
+}
+.ca-share-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; }
+@media(max-width:400px){ .ca-share-grid { grid-template-columns:1fr; } }
+.ca-share-btn {
+  padding:9px 8px; border-radius:10px; border:1px solid;
+  font-size:12px; font-weight:700; cursor:pointer; text-align:center;
+  transition:background .15s;
+}
+
+/* Advisor cards */
+.ca-advisor-card {
+  display:flex; align-items:center; gap:14px;
+  padding:16px; border:1px solid var(--border-soft);
+  border-radius:14px; margin-bottom:10px;
+}
+.ca-advisor-avatar {
+  width:46px; height:46px; border-radius:50%;
+  background:linear-gradient(135deg,#7b2ff7,#00d4ff);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; flex-shrink:0;
+}
+.ca-advisor-name { font-size:14px; font-weight:700; color:#F5F7FA; }
+.ca-advisor-role { font-size:12px; color:rgba(255,255,255,.4); margin-top:2px; }
+.ca-advisor-access { font-size:11px; color:#22d3a6; margin-top:3px; }
+
+/* Toggle switches */
+.ca-access-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 0; border-bottom:1px solid var(--border-soft);
+}
+.ca-access-row:last-child { border-bottom:none; }
+.ca-access-label { font-size:13px; color:#F5F7FA; }
+.ca-access-sub { font-size:11px; color:rgba(255,255,255,.35); margin-top:2px; }
+.ca-toggle {
+  appearance:none; width:42px; height:24px;
+  background:rgba(255,255,255,.1); border-radius:12px;
+  cursor:pointer; position:relative; flex-shrink:0;
+  transition:background .2s; outline:none;
+}
+.ca-toggle:checked { background:#22d3a6; }
+.ca-toggle::after {
+  content:''; position:absolute; top:3px; left:3px;
+  width:18px; height:18px; background:#fff;
+  border-radius:50%; transition:left .18s;
+}
+.ca-toggle:checked::after { left:21px; }
+
+/* Activity log */
+.ca-log-row {
+  display:flex; gap:14px; padding:10px 0;
+  border-bottom:1px solid var(--border-soft);
+  font-size:13px;
+}
+.ca-log-row:last-child { border-bottom:none; }
+.ca-log-time { font-size:11px; color:rgba(255,255,255,.3); width:100px; flex-shrink:0; margin-top:2px; }
+
+/* Note cards */
+.ca-note-card {
+  background:var(--bg-surface); border:1px solid var(--border-soft);
+  border-radius:14px; padding:16px; margin-bottom:12px;
+}
+.ca-note-header { display:flex; justify-content:space-between; margin-bottom:8px; }
+.ca-note-author { font-size:12px; font-weight:700; color:#00d4ff; }
+.ca-note-date { font-size:11px; color:rgba(255,255,255,.3); }
+.ca-note-text { font-size:13px; color:rgba(255,255,255,.65); line-height:1.65; }
+
+/* Dossier preview rows */
+.ca-dossier-section { font-size:12px; font-weight:700; color:rgba(255,255,255,.4); margin:14px 0 6px; text-transform:uppercase; letter-spacing:.06em; }
+.ca-dossier-row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--border-soft); font-size:13px; }
+.ca-dossier-row:last-child { border-bottom:none; }
+.ca-dossier-label { color:rgba(255,255,255,.5); }
+.ca-dossier-val { font-weight:600; }
+.ca-dossier-winner { display:flex; justify-content:space-between; padding:10px 0 6px; font-size:14px; font-weight:800; border-top: 1px solid var(--border-soft); margin-top:6px; }
+
+/* Breadcrumb */
+.page-breadcrumb {
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:20px; font-size:13px; color:rgba(255,255,255,.4);
+}
+.page-breadcrumb a { color:rgba(255,255,255,.4); text-decoration:none; }
+.page-breadcrumb a:hover { color:#a78bfa; }
+.page-breadcrumb span { color:rgba(255,255,255,.2); }
+</style>
+  <link rel="stylesheet" href="../css/interactions.css">
+</head>
+<body>
+<div class="app">
+          <aside class="sidebar" role="complementary" aria-label="Navigation">
+
+    <!-- Brand -->
+    <div class="sb-brand">
+      <div class="sb-logomark" aria-hidden="true">
+        <span class="sb-logomark-letter">F</span>
+      </div>
+      <div class="sb-wordmark">
+        <div class="sb-wordmark-name">FIN•OS</div>
+        <div class="sb-wordmark-tag">Financial OS</div>
+      </div>
+    </div>
+
+    <!-- Identity -->
+    <a href="profile.html" class="sb-identity" aria-label="Your profile">
+      <div class="sb-av" id="sb-av" aria-hidden="true">I</div>
+      <div class="sb-identity-body">
+        <div class="sb-identity-name" id="sb-name">Investor</div>
+        <div class="sb-identity-meta">
+          <span class="sb-identity-dna"  id="sb-dna">Financial DNA</span>
+          <span class="sb-health-pill"   id="sb-health-pill"></span>
+        </div>
+      </div>
+      <span class="sb-identity-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </a>
+
+    <!-- Search shortcut -->
+    <button class="sb-cmd" id="sb-cmd" aria-label="Search (Ctrl+K)">
+      <span class="sb-cmd-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="sb-cmd-label">Search or jump to…</span>
+      <kbd class="sb-cmd-kbd" aria-hidden="true">⌘K</kbd>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="sb-nav" aria-label="Main">
+        <a href="home.html" class="sb-link" title="Home">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+          <span class="sb-label">Home</span>
+        </a>
+        <a href="dashboard.html" class="sb-link" title="Dashboard">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>
+          <span class="sb-label">Dashboard</span>
+          <span class="sb-badge" id="sb-streak" aria-label="count"></span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="foundations.html" class="sb-link" title="Learn">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+          <span class="sb-label">Learn</span>
+        </a>
+        <a href="simulator-landing.html" class="sb-link" title="Mindset">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span>
+          <span class="sb-label">Mindset</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="diagnostics.html" class="sb-link" title="Diagnostics">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          <span class="sb-label">Diagnostics</span>
+        </a>
+        <a href="track-finances.html" class="sb-link" title="Track">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+          <span class="sb-label">Track</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="markets.html" class="sb-link" title="Markets">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+          <span class="sb-label">Markets</span>
+        </a>
+        <a href="tools.html" class="sb-link active" aria-current="page" title="Tools">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+          <span class="sb-label">Tools</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="news.html" class="sb-link" title="News">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span>
+          <span class="sb-label">News</span>
+        </a>
+    </nav>
+
+    <!-- Footer: Arya AI + Settings -->
+    <div class="sb-footer-zone">
+
+      <button class="sb-arya-row" id="sb-arya-btn"
+              aria-label="Arya AI — your financial coach"
+              onclick="document.querySelector('.finos-fab')?.click?.();">
+        <div class="sb-arya-icon" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span class="sb-arya-dot checking" id="sb-arya-dot"></span>
+        </div>
+        <div class="sb-arya-body">
+          <div class="sb-arya-name">Arya AI</div>
+          <div class="sb-arya-status checking" id="sb-arya-status">Connecting…</div>
+        </div>
+        <span class="sb-arya-arrow" aria-hidden="true">›</span>
+      </button>
+
+      <a href="settings.html" class="sb-settings-row" title="Settings">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        <span class="sb-label">Settings</span>
+      </a>
+
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+
+      <!-- Breadcrumb -->
+      <div class="page-breadcrumb">
+        <a href="dashboard.html">Dashboard</a>
+        <span>/</span>
+        <span style="color:#F5F7FA;">CA / Advisor Mode</span>
+      </div>
+
+      <header class="header" style="margin-bottom:8px;">
+        <div>
+          <h1 style="margin-bottom:4px;">👔 CA / Advisor Mode</h1>
+          <p style="font-size:13px;color:rgba(255,255,255,.45);margin:0;">Share your financial overview with your CA or advisor. Read-only access — you stay in complete control.</p>
+        </div>
+      </header>
+
+      <!-- Tabs -->
+      <div class="ca-tabs" style="margin-top:20px;">
+        <button class="ca-tab active" onclick="_switchTab('invite')">📧 Invite Advisor</button>
+        <button class="ca-tab" onclick="_switchTab('access')">🔐 Access Control</button>
+        <button class="ca-tab" onclick="_switchTab('dossier')">📋 Tax Dossier</button>
+        <button class="ca-tab" onclick="_switchTab('notes')">💬 Notes</button>
+      </div>
+
+      <!-- ── Tab: Invite ── -->
+      <div id="tab-invite" class="ca-tab-content active">
+
+        <div class="ca-card">
+          <div class="ca-card-title">📧 Invite Your CA or Financial Advisor</div>
+
+          <div class="ca-invite-code">
+            <div style="font-size:12px;color:rgba(255,255,255,.4);">Your Advisor Access Code</div>
+            <div class="ca-code-display" id="advisor-code">FINOS-8A3K-2P7M</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:14px;">Share this code with your CA · Valid for 7 days</div>
+            <div class="ca-share-grid">
+              <button class="ca-share-btn" style="background:rgba(37,211,102,.08);border-color:rgba(37,211,102,.3);color:#25d366;" onclick="_shareWhatsApp()">📱 WhatsApp</button>
+              <button class="ca-share-btn" style="background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.3);color:#00d4ff;" onclick="_copyCode()">📋 Copy Code</button>
+              <button class="ca-share-btn" style="background:rgba(123,47,247,.08);border-color:rgba(123,47,247,.3);color:#a78bfa;" onclick="_shareEmail()">✉️ Email</button>
+            </div>
+          </div>
+
+          <div class="ca-two-col">
+            <div>
+              <label class="ca-label">Advisor Name</label>
+              <input class="ca-input" id="adv-name" type="text" placeholder="e.g. CA Rajesh Sharma">
+              <label class="ca-label">Email Address</label>
+              <input class="ca-input" id="adv-email" type="email" placeholder="ca@example.com">
+            </div>
+            <div>
+              <label class="ca-label">Role</label>
+              <select class="ca-select" id="adv-role">
+                <option value="ca">Chartered Accountant (CA)</option>
+                <option value="advisor">Financial Advisor / CFP</option>
+                <option value="family">Trusted Family Member</option>
+                <option value="broker">Broker / Sub-Broker</option>
+              </select>
+              <label class="ca-label">Access Duration</label>
+              <select class="ca-select" id="adv-expiry">
+                <option value="7">7 days — one-time review</option>
+                <option value="30">30 days — monthly review</option>
+                <option value="365">1 year — ongoing</option>
+                <option value="0">No expiry</option>
+              </select>
+            </div>
+          </div>
+          <button class="ca-btn-full" onclick="_sendInvite()">📨 Send Invite to Advisor</button>
+        </div>
+
+        <div class="ca-card">
+          <div class="ca-card-title">👥 Active Advisors</div>
+          <div id="advisors-list">
+            <div class="ca-advisor-card">
+              <div class="ca-advisor-avatar">👩‍💼</div>
+              <div style="flex:1;">
+                <div class="ca-advisor-name">CA Priya Menon</div>
+                <div class="ca-advisor-role">Chartered Accountant · priya.menon@ca.com</div>
+                <div class="ca-advisor-access">✓ Tax Data · Goals · Transactions · Expires 31 Dec 2025</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+                <button class="ca-btn ca-btn-primary" style="font-size:11px;padding:5px 12px;">Activity Log</button>
+                <button class="ca-btn ca-btn-danger" style="font-size:11px;padding:5px 12px;" onclick="this.closest('.ca-advisor-card').remove()">Revoke</button>
+              </div>
+            </div>
+            <div style="font-size:13px;color:rgba(255,255,255,.3);text-align:center;padding:12px;">Advisors you invite will appear here.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Tab: Access Control ── -->
+      <div id="tab-access" class="ca-tab-content">
+        <div class="ca-card">
+          <div class="ca-card-title">🔐 What Your Advisor Can See</div>
+          <p style="font-size:13px;color:rgba(255,255,255,.45);margin:0 0 18px;line-height:1.6;">Your advisor has <strong style="color:#F5F7FA;">read-only</strong> access. They cannot make transactions or change any settings.</p>
+
+          <div class="ca-access-row">
+            <div><div class="ca-access-label">📊 Income &amp; Expenses</div><div class="ca-access-sub">Monthly income, spending by category, savings rate</div></div>
+            <input type="checkbox" class="ca-toggle" id="acc-txn" checked onchange="_saveAccess()">
+          </div>
+          <div class="ca-access-row">
+            <div><div class="ca-access-label">🎯 Financial Goals</div><div class="ca-access-sub">Goal names, targets, progress, timelines</div></div>
+            <input type="checkbox" class="ca-toggle" id="acc-goals" checked onchange="_saveAccess()">
+          </div>
+          <div class="ca-access-row">
+            <div><div class="ca-access-label">📋 Tax Data</div><div class="ca-access-sub">Income, deductions, capital gains, tax dossier</div></div>
+            <input type="checkbox" class="ca-toggle" id="acc-tax" checked onchange="_saveAccess()">
+          </div>
+          <div class="ca-access-row">
+            <div><div class="ca-access-label">📈 Portfolio &amp; Investments</div><div class="ca-access-sub">Stocks, MFs, net worth (no account numbers)</div></div>
+            <input type="checkbox" class="ca-toggle" id="acc-portfolio" onchange="_saveAccess()">
+          </div>
+          <div class="ca-access-row">
+            <div><div class="ca-access-label">📓 Trade Journal</div><div class="ca-access-sub">P&amp;L, win rate, monthly trade history</div></div>
+            <input type="checkbox" class="ca-toggle" id="acc-trades" onchange="_saveAccess()">
+          </div>
+          <div class="ca-access-row">
+            <div><div class="ca-access-label">🛡️ Insurance Details</div><div class="ca-access-sub">Policy names, coverage amounts, renewal dates</div></div>
+            <input type="checkbox" class="ca-toggle" id="acc-insurance" onchange="_saveAccess()">
+          </div>
+          <div class="ca-access-row">
+            <div><div class="ca-access-label">💳 Debt &amp; Loans</div><div class="ca-access-sub">Outstanding amounts, EMIs, interest rates</div></div>
+            <input type="checkbox" class="ca-toggle" id="acc-debt" onchange="_saveAccess()">
+          </div>
+
+          <div style="background:rgba(34,211,166,.05);border:1px solid rgba(34,211,166,.15);border-radius:12px;padding:14px;margin-top:18px;font-size:12px;color:rgba(255,255,255,.5);line-height:1.65;">
+            🔒 <strong style="color:#22d3a6;">Never shared, ever:</strong> Account numbers, UPI IDs, passwords, biometric data, full PAN, Aadhaar, bank card details, or anything you exclude above.
+          </div>
+        </div>
+
+        <div class="ca-card">
+          <div class="ca-card-title">📝 Advisor Activity Log</div>
+          <div id="activity-log">
+            <div class="ca-log-row"><div class="ca-log-time">Today, 3:42 PM</div><div>CA Priya Menon viewed Tax Data section</div></div>
+            <div class="ca-log-row"><div class="ca-log-time">Yesterday</div><div>CA Priya Menon downloaded Tax Dossier</div></div>
+            <div class="ca-log-row"><div class="ca-log-time">2 days ago</div><div>CA Priya Menon left a note (see Notes tab)</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tab: Tax Dossier ── -->
+      <div id="tab-dossier" class="ca-tab-content">
+        <div class="ca-card">
+          <div class="ca-card-title">📋 Auto-Generated Tax Dossier for Your CA</div>
+          <p style="font-size:13px;color:rgba(255,255,255,.45);margin:0 0 18px;line-height:1.6;">Based on your transactions and profile. Your CA gets this pre-filled — reduces prep time and errors.</p>
+
+          <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;margin-bottom:18px;">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#7b2ff7;font-weight:800;margin-bottom:14px;">FIN·OS Tax Dossier — FY 2025-26</div>
+
+            <div class="ca-dossier-section">Income</div>
+            <div class="ca-dossier-row"><span class="ca-dossier-label">Salary Income</span><span class="ca-dossier-val" id="d-salary">—</span></div>
+            <div class="ca-dossier-row"><span class="ca-dossier-label">Other Income</span><span class="ca-dossier-val" id="d-other">₹0</span></div>
+            <div class="ca-dossier-row"><span class="ca-dossier-label">STCG (Equity, 20% tax)</span><span class="ca-dossier-val" id="d-stcg">₹0</span></div>
+            <div class="ca-dossier-row"><span class="ca-dossier-label">LTCG (Equity, 12.5% above ₹1.25L)</span><span class="ca-dossier-val" id="d-ltcg">₹0</span></div>
+
+            <div class="ca-dossier-section">Deductions (Old Regime)</div>
+            <div class="ca-dossier-row"><span class="ca-dossier-label">80C (ELSS/PPF/LIC/EPF)</span><span class="ca-dossier-val" id="d-80c">—</span></div>
+            <div class="ca-dossier-row"><span class="ca-dossier-label">80D (Health Insurance)</span><span class="ca-dossier-val" id="d-80d">—</span></div>
+            <div class="ca-dossier-row"><span class="ca-dossier-label">HRA Exemption</span><span class="ca-dossier-val" id="d-hra">₹0</span></div>
+            <div class="ca-dossier-row"><span class="ca-dossier-label">Section 24(b) Home Loan Interest</span><span class="ca-dossier-val" id="d-homeloan">₹0</span></div>
+
+            <div class="ca-dossier-section">Tax Liability</div>
+            <div class="ca-dossier-row"><span class="ca-dossier-label">Old Regime Tax</span><span class="ca-dossier-val" id="d-old-tax">—</span></div>
+            <div class="ca-dossier-row"><span class="ca-dossier-label">New Regime Tax</span><span class="ca-dossier-val" id="d-new-tax">—</span></div>
+            <div class="ca-dossier-winner"><span>Recommended Regime</span><span id="d-recommend" style="color:#22d3a6;">—</span></div>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="ca-btn ca-btn-purple" onclick="window.FinosTaxDossier?.print()">🖨 Print for CA</button>
+            <button class="ca-btn ca-btn-primary" onclick="window.FinosTaxDossier?.copyText()">📋 Copy as Text</button>
+            <a href="tax.html" class="ca-btn ca-btn-primary" style="text-decoration:none;line-height:1.6;">📊 Full Tax Analysis</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tab: Notes ── -->
+      <div id="tab-notes" class="ca-tab-content">
+        <div class="ca-card">
+          <div class="ca-card-title">💬 Notes from Your Advisor</div>
+          <p style="font-size:13px;color:rgba(255,255,255,.45);margin:0 0 18px;line-height:1.6;">Your CA leaves notes here. Arya reads them and incorporates advice into suggestions.</p>
+
+          <div id="notes-list">
+            <div class="ca-note-card">
+              <div class="ca-note-header">
+                <span class="ca-note-author">👩‍💼 CA Priya Menon</span>
+                <span class="ca-note-date">2 days ago</span>
+              </div>
+              <div class="ca-note-text">Your 80C limit has ₹42,000 unused. Invest in ELSS before March 31 to maximise deductions. Also, advance tax Q3 of ₹18,500 is due December 15 — pay via Challan 280 on Income Tax portal.</div>
+              <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+                <button class="ca-btn ca-btn-primary" style="font-size:11px;padding:6px 14px;" onclick="window.AryaAI?._speak('Your CA says: ' + this.closest('.ca-note-card').querySelector('.ca-note-text').textContent)">🤖 Read to me</button>
+                <button class="ca-btn" style="font-size:11px;padding:6px 14px;background:transparent;border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.4);" onclick="this.closest('.ca-note-card').remove()">✓ Mark done</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:20px;">
+            <label class="ca-label">Send a message to your advisor</label>
+            <textarea class="ca-textarea" id="reply-text" placeholder="Type a question or message for your CA…"></textarea>
+            <button class="ca-btn ca-btn-primary" onclick="_sendReply()" style="width:100%;padding:12px;border-radius:12px;font-size:14px;font-weight:700;">📨 Send Message</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-wrapper -->
+  </main>
+</div><!-- /app -->
+
+<script src="../js/finos-widget.js?v=5"></script>
+<script src="../js/mobile-nav.js" defer></script>
+
+<script>
+  const INR = n => '₹' + Math.round(Number(n)||0).toLocaleString('en-IN');
+
+  /* ── Tab switching ─────────────────────────────────────── */
+  const TABS = ['invite','access','dossier','notes'];
+  function _switchTab(tab) {
+    TABS.forEach(t => {
+      document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    });
+    document.querySelectorAll('.ca-tab').forEach((b,i) => {
+      b.classList.toggle('active', TABS[i]===tab);
+    });
+    if (tab==='dossier') _fillDossier();
+  }
+
+  /* ── Generate new code ──────────────────────────────────── */
+  function _newCode() {
+    return 'FINOS-'+Math.random().toString(36).slice(2,6).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
+  }
+
+  /* ── Share actions ─────────────────────────────────────── */
+  function _copyCode() {
+    const code = document.getElementById('advisor-code').textContent;
+    navigator.clipboard?.writeText('Join my FIN·OS dashboard as advisor: Code '+code+' → https://finos.app/advisor-join')
+      .then(() => window.FinosToast?.show?.('Code copied to clipboard!','success'));
+  }
+  function _shareWhatsApp() {
+    const code = document.getElementById('advisor-code').textContent;
+    window.open('https://wa.me/?text='+encodeURIComponent('Hi! Please use FIN·OS advisor code: '+code+' to view my financial overview → https://finos.app/advisor-join'),'_blank');
+  }
+  function _shareEmail() {
+    const code = document.getElementById('advisor-code').textContent;
+    window.open('mailto:?subject=FIN·OS Advisor Access&body='+encodeURIComponent('Hi,\n\nI have granted you read-only access to my financial overview on FIN·OS.\n\nAccess Code: '+code+'\nLogin at: https://finos.app/advisor-join\n\nYou will see my income, expenses, goals, and tax dossier.\n\nThanks,'),'_blank');
+  }
+
+  /* ── Send invite ────────────────────────────────────────── */
+  function _sendInvite() {
+    const name  = document.getElementById('adv-name').value.trim();
+    const email = document.getElementById('adv-email').value.trim();
+    const role  = document.getElementById('adv-role').value;
+    if(!name||!email){ alert('Please enter advisor name and email.'); return; }
+
+    const code = _newCode();
+    document.getElementById('advisor-code').textContent = code;
+
+    const ROLES = {ca:'Chartered Accountant',advisor:'Financial Advisor',family:'Family Member',broker:'Broker'};
+    const card  = document.createElement('div');
+    card.className='ca-advisor-card';
+    card.innerHTML=`
+      <div class="ca-advisor-avatar">👔</div>
+      <div style="flex:1;">
+        <div class="ca-advisor-name">${name}</div>
+        <div class="ca-advisor-role">${ROLES[role]||role} · ${email}</div>
+        <div class="ca-advisor-access">⏳ Invite pending · Code: ${code}</div>
+      </div>
+      <button class="ca-btn ca-btn-danger" style="font-size:11px;padding:5px 12px;flex-shrink:0;" onclick="this.closest('.ca-advisor-card').remove()">Revoke</button>`;
+    document.getElementById('advisors-list').insertBefore(card, document.getElementById('advisors-list').firstChild);
+
+    document.getElementById('adv-name').value='';
+    document.getElementById('adv-email').value='';
+    window.FinosToast?.show?.('✅ Invite ready! Share code '+code+' with '+name,'success');
+  }
+
+  /* ── Access toggles ────────────────────────────────────── */
+  function _saveAccess() {
+    const acc={};
+    ['txn','goals','tax','portfolio','trades','insurance','debt'].forEach(k => {
+      acc[k]=document.getElementById('acc-'+k)?.checked;
+    });
+    localStorage.setItem('finos_advisor_access',JSON.stringify(acc));
+  }
+
+  /* ── Dossier prefill ───────────────────────────────────── */
+  function _fillDossier() {
+    const ctx    = window.FINOS_USER_CONTEXT||{};
+    const budget = ctx.budget_tracker||{};
+    const salary = Number(budget.income_monthly||localStorage.getItem('finos_monthly_income')||0)*12;
+    const d80c   = Number(ctx.tax?.deductions_80c||0);
+    const d80d   = Number(ctx.tax?.deductions_80d||0);
+
+    document.getElementById('d-salary').textContent = salary ? INR(salary) : '—';
+    document.getElementById('d-80c').textContent    = d80c ? INR(d80c)+(d80c<150000?' (gap: '+INR(150000-d80c)+')':' ✓') : '—';
+    document.getElementById('d-80d').textContent    = d80d ? INR(d80d) : '—';
+
+    if (window.FinosTaxDossier) {
+      const dos = window.FinosTaxDossier.build(ctx);
+      document.getElementById('d-old-tax').textContent  = INR(dos.old_regime.total);
+      document.getElementById('d-new-tax').textContent  = INR(dos.new_regime.total);
+      document.getElementById('d-recommend').textContent = dos.better_regime==='old'?'✓ Old Regime saves '+INR(dos.saving):'✓ New Regime saves '+INR(dos.saving);
+    }
+  }
+
+  /* ── Reply ─────────────────────────────────────────────── */
+  function _sendReply() {
+    const text = document.getElementById('reply-text')?.value?.trim();
+    if(!text) return;
+    window.FinosToast?.show?.('Message queued — your advisor will receive it on their next login.','success');
+    document.getElementById('reply-text').value='';
+  }
+
+  /* ── Load saved access state ───────────────────────────── */
+  document.addEventListener('DOMContentLoaded',function(){
+    try {
+      const saved=JSON.parse(localStorage.getItem('finos_advisor_access')||'{}');
+      Object.entries(saved).forEach(([k,v])=>{
+        const el=document.getElementById('acc-'+k);
+        if(el) el.checked=v;
+      });
+    }catch(_){}
+  });
+</script>
+
+<script src="../js/sidebar.js"></script>
+  <script src="../js/interactions.js" defer></script>
+<button id="themeToggle" class="theme-btn" style="position:fixed;top:16px;right:16px;z-index:150;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;" aria-label="Toggle dark/light theme">🌙</button>
+<script>
+(function(){
+  var btn=document.getElementById('themeToggle');
+  if(!btn) return;
+  var t=document.documentElement.getAttribute('data-theme')||'dark';
+  btn.textContent=t==='dark'?'🌙':'☀️';
+  btn.addEventListener('click',function(){
+    var cur=document.documentElement.getAttribute('data-theme');
+    var nxt=cur==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',nxt);
+    localStorage.setItem('finos-theme',nxt);
+    localStorage.setItem('theme',nxt);
+    btn.textContent=nxt==='dark'?'🌙':'☀️';
+    btn.setAttribute('aria-label',nxt==='dark'?'Switch to light mode':'Switch to dark mode');
+  });
+})();
+</script>
+<script src="../js/ui.js" defer></script>
+</body>
+</html>

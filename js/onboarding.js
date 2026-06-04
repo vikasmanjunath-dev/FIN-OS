@@ -338,14 +338,16 @@
     orbColor('#4f7cff');
     hideArya();
 
+    let _classifying = false;
     btn.onclick = async () => {
       const text = freeInput.value.trim();
-      if (!text) return;
+      if (!text || _classifying) return;
+      _classifying = true;
       answers.whyMoney = text;
       btn.disabled = true;
       btn.textContent = 'Arya soch rahi hai…';
 
-      // Classify archetype
+      // Classify archetype (with safe default if LLM fails)
       archetype = await classifyArchetype(text);
       const meta = ARCHETYPES[archetype] || {};
       localStorage.setItem('finos_financial_dna', archetype);
@@ -358,6 +360,7 @@
         'You are Arya, an AI finance advisor. Respond in warm Hinglish — 2 short sentences max. No markdown.'
       );
 
+      _classifying = false;
       btn.textContent = 'Continue';
       btn.disabled    = false;
       btn.classList.add('enabled');

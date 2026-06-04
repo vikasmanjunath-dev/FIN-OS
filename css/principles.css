@@ -71,8 +71,9 @@
 
 .law-card:hover {
   transform: translateY(-5px);
-  border-color: rgba(255,255,255,0.2);
-  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(79,124,255,.22);
+  background: transparent;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.1), 0 12px 36px rgba(0,0,0,.3);
 }
 
 .law-card.special { border-top: 4px solid var(--accent); }

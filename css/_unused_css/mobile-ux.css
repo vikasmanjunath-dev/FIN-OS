@@ -1,0 +1,340 @@
+/**
+ * mobile-ux.css — FIN·OS Native-Feel Mobile Experience  v1.0
+ * ──────────────────────────────────────────────────────────────
+ * Bottom navigation, swipe gestures, haptic feedback,
+ * quick-capture sheet, biometric prompt, offline indicator.
+ */
+
+/* ══════════════════════════════════════════════════════════════
+   BOTTOM NAVIGATION (mobile only, 5 tabs)
+══════════════════════════════════════════════════════════════ */
+.finos-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* Show bottom nav on mobile */
+  .finos-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 1000;
+    background: rgba(11,13,18,.96);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-top: 1px solid rgba(255,255,255,.08);
+    padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  /* Push main content above bottom nav */
+  .main { padding-bottom: 80px !important; }
+
+  /* Hide desktop sidebar on mobile */
+  .sidebar { display: none !important; }
+  .app { grid-template-columns: 1fr !important; }
+
+  /* Reduce padding on mobile */
+  .content-wrapper { padding: 12px 16px !important; }
+}
+
+.finos-bottom-nav-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: all 0.15s ease;
+  position: relative;
+  min-width: 56px;
+}
+
+.finos-bottom-nav-tab:active {
+  transform: scale(0.92);
+}
+
+.finos-bottom-nav-tab.active {
+  background: rgba(0,212,255,.1);
+}
+
+.finos-bottom-nav-tab .nav-icon {
+  font-size: 22px;
+  line-height: 1;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.finos-bottom-nav-tab.active .nav-icon {
+  transform: scale(1.15) translateY(-2px);
+}
+
+.finos-bottom-nav-tab .nav-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: rgba(255,255,255,.4);
+  transition: color 0.15s;
+}
+
+.finos-bottom-nav-tab.active .nav-label {
+  color: #00d4ff;
+}
+
+/* Badge on nav tab */
+.finos-bottom-nav-tab .nav-badge {
+  position: absolute;
+  top: 2px; right: 8px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #ff4444;
+  color: #fff;
+  font-size: 8px;
+  font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #0B0D12;
+}
+
+/* Active tab indicator dot */
+.finos-bottom-nav-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 50%; transform: translateX(-50%);
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: #00d4ff;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   QUICK CAPTURE SHEET (bottom sheet for fast expense logging)
+══════════════════════════════════════════════════════════════ */
+.finos-quick-capture {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 2000;
+  background: #0f1117;
+  border-top: 1px solid rgba(255,255,255,.1);
+  border-radius: 24px 24px 0 0;
+  padding: 20px 20px max(20px, env(safe-area-inset-bottom));
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+  box-shadow: 0 -8px 40px rgba(0,0,0,.5);
+}
+
+.finos-quick-capture.open {
+  transform: translateY(0);
+}
+
+.finos-quick-capture-handle {
+  width: 36px; height: 4px;
+  background: rgba(255,255,255,.2);
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+
+.finos-quick-capture-title {
+  font-size: 14px; font-weight: 800;
+  text-align: center; margin-bottom: 16px;
+}
+
+.finos-quick-capture-amount {
+  font-size: 3rem; font-weight: 900;
+  text-align: center; color: #fff;
+  margin-bottom: 8px;
+  min-height: 60px;
+  line-height: 1;
+}
+
+.finos-qc-numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.finos-qc-key {
+  padding: 14px;
+  background: rgba(255,255,255,.06);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.finos-qc-key:active {
+  background: rgba(255,255,255,.15);
+  transform: scale(0.95);
+}
+
+.finos-qc-key.action {
+  background: rgba(0,212,255,.15);
+  color: #00d4ff;
+}
+
+.finos-qc-cats {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.finos-qc-cat {
+  padding: 6px 12px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,.7);
+  cursor: pointer;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.finos-qc-cat.selected {
+  background: rgba(0,212,255,.15);
+  border-color: rgba(0,212,255,.4);
+  color: #00d4ff;
+}
+
+.finos-qc-save {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.finos-qc-save:active {
+  transform: scale(0.97);
+}
+
+/* Backdrop for sheet */
+.finos-sheet-backdrop {
+  position: fixed; inset: 0; z-index: 1999;
+  background: rgba(0,0,0,.5);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.finos-sheet-backdrop.visible {
+  opacity: 1; pointer-events: all;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   OFFLINE INDICATOR
+══════════════════════════════════════════════════════════════ */
+.finos-offline-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 9999;
+  background: #ff9500;
+  color: #000;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 16px;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+
+.finos-offline-bar.visible {
+  transform: translateY(0);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SWIPE HINT (left swipe on transaction = actions)
+══════════════════════════════════════════════════════════════ */
+.swipe-row {
+  position: relative;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.swipe-row-actions {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px;
+  transform: translateX(100%);
+  transition: transform 0.2s ease;
+}
+
+.swipe-row.swiped .swipe-row-actions {
+  transform: translateX(0);
+}
+
+.swipe-action-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   HAPTIC FEEDBACK (visual pulse when navigator.vibrate used)
+══════════════════════════════════════════════════════════════ */
+@keyframes haptic-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0,212,255,.4); }
+  70% { box-shadow: 0 0 0 10px rgba(0,212,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(0,212,255,0); }
+}
+
+.haptic-feedback {
+  animation: haptic-pulse 0.3s ease-out;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PULL-TO-REFRESH INDICATOR
+══════════════════════════════════════════════════════════════ */
+.finos-ptr {
+  position: fixed;
+  top: -50px; left: 50%; transform: translateX(-50%);
+  width: 40px; height: 40px;
+  background: rgba(0,212,255,.15);
+  border: 1px solid rgba(0,212,255,.3);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  z-index: 9998;
+  transition: top 0.2s ease;
+}
+
+.finos-ptr.visible {
+  top: 12px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   LOADING SKELETON (mobile optimized)
+══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Reduced radius on mobile for tighter feel — use token vars */
+  .card  { border-radius: var(--radius-lg, 14px) !important; }
+  .panel { border-radius: var(--radius-lg, 14px) !important; }
+
+  /* DO NOT globally override h1/h2 — it breaks all page headings.
+     Responsive heading sizes are handled per-component with clamp().
+     Only the header h1 inside .main/.page benefits from a gentle cap: */
+  .header h1 { font-size: clamp(20px, 5vw, 28px); }
+
+  /* Minimum touch targets (WCAG 2.5.5) */
+  button, a.btn, .clickable, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

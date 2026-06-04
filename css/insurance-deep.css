@@ -63,9 +63,10 @@
 }
 
 .sanctum-card:hover {
-  transform: translateY(-15px) scale(1.02);
+  transform: translateY(-12px) scale(1.01);
   border-color: var(--accent-primary);
-  background: rgba(79, 124, 255, 0.05);
+  background: transparent;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.2), 0 20px 48px rgba(0,0,0,.35);
 }
 
 .layer-tag {
@@ -110,9 +111,9 @@
 }
 
 .sanctum-card:hover .desi-reality {
-  background: rgba(199, 240, 0, 0.1);
+  background: transparent;
   transform: scale(1.02);
-  box-shadow: 0 5px 20px rgba(199, 240, 0, 0.05);
+  box-shadow: 0 0 0 1px rgba(199,240,0,.15), 0 5px 20px rgba(199,240,0,.05);
 }
 
 [data-theme="light"] .desi-reality {

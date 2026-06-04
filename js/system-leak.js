@@ -104,15 +104,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- 4. THE LIVE WEALTH DRAIN (Holographic Ticker) ---
     let totalLeakValue = 0;
     const tickerValue = document.querySelector('.value.high');
-    
-    setInterval(() => {
-        // Average Indian household loses ~₹14,000/day to inflation/lifestyle
-        // 14000 / 86400 sec ≈ 0.16 per second
-        totalLeakValue += 0.16; 
+    // Cap at a reasonable daily max (₹14,000) so counter stays meaningful
+    const MAX_DAILY_LEAK = 14000;
+    const _leakInterval = setInterval(() => {
+        totalLeakValue = Math.min(totalLeakValue + 0.16, MAX_DAILY_LEAK);
         if (tickerValue) {
             tickerValue.innerText = `₹${totalLeakValue.toFixed(2)} DRAINED`;
         }
     }, 1000);
+    window.addEventListener('beforeunload', () => clearInterval(_leakInterval), { once: true });
 
 });
 
@@ -501,12 +501,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Initialize with IntersectionObserver
+    let _p05Interval = null;
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                if (entry.target.id === 'protocol-05') {
-                    setInterval(spawnExpense, 700);
-                }
+            if (entry.isIntersecting && entry.target.id === 'protocol-05' && !_p05Interval) {
+                _p05Interval = setInterval(spawnExpense, 700);
+                window.addEventListener('beforeunload', () => clearInterval(_p05Interval), { once: true });
             }
         });
     }, { threshold: 0.3 });

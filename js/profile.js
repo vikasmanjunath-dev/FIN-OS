@@ -99,7 +99,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // ── 5. RADAR CHART ───────────────────────────────────────────────────────
     const ctx = document.getElementById('mindsetChart');
     if (ctx) {
-        new Chart(ctx.getContext('2d'), {
+        if (ctx._chartInstance) ctx._chartInstance.destroy();
+        ctx._chartInstance = new Chart(ctx.getContext('2d'), {
             type: 'radar',
             data: {
                 labels: ['Risk', 'Stability', 'Growth', 'Freedom', 'Control'],

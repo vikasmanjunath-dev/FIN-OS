@@ -18,7 +18,8 @@
 (function (global) {
   'use strict';
 
-  const ALERT_ENGINE = 'http://localhost:8001';
+  const ALERT_ENGINE = (['localhost','127.0.0.1','::1'].includes(window.location.hostname)) ? 'http://localhost:8001' : null;
+  // Skip API calls when running on production (no local server)
 
   // ── Layout config per time period ─────────────────────────────────────────
   const TIME_LAYOUTS = {
@@ -59,6 +60,11 @@
     high:     { checks: 5, label: null }, // triggers full Arya intervention
   };
 
+  // ── Page URL overrides (page key → actual destination) ───────────────────
+  const PAGE_URL_OVERRIDES = {
+    'portfolio': 'track-finances.html#portfolio-xray',
+  };
+
   // ── Quick-access link renderer ─────────────────────────────────────────────
   function renderQuickAccess(containerId) {
     const container = document.getElementById(containerId);
@@ -97,7 +103,7 @@
         </div>
         <div class="qa-links">
           ${ranked.map(item => `
-            <a href="${item.page}.html" class="qa-chip ${item.isPriority ? 'qa-chip--time' : ''}"
+            <a href="${PAGE_URL_OVERRIDES[item.page] || item.meta.url || item.page + '.html'}" class="qa-chip ${item.isPriority ? 'qa-chip--time' : ''}"
                title="${item.count ? `Visited ${item.count}× this month` : 'Suggested for this time of day'}"
                onclick="FinosTracker.trackFeature('quick-access', { page: '${item.page}' })">
               <span class="qa-icon">${item.meta.icon}</span>
@@ -163,6 +169,7 @@
     // Fetch market data to confirm market is actually down
     let marketDown = false;
     try {
+      if (!ALERT_ENGINE) return;
       const res = await fetch(`${ALERT_ENGINE}/market`);
       if (res.ok) {
         const mkt  = await res.json();

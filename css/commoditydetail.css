@@ -38,7 +38,7 @@
 .toc-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
 .toc-link { color: var(--text-secondary); text-decoration: none; padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; display: block; transition: all 0.2s; }
 .toc-link.active { background: rgba(243, 156, 18, 0.15); color: var(--comm-accent); font-weight: 700; border-left: 3px solid var(--comm-accent); }
-.toc-link:hover { color: var(--text-primary); background: rgba(255,255,255,0.03); }
+.toc-link:hover { color: var(--text-primary); background: transparent; }
 .back-btn { margin-top: auto; padding: 12px; text-align: center; border: 1px solid var(--border-soft); border-radius: 8px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: 0.3s; }
 .back-btn:hover { border-color: var(--comm-accent); color: var(--comm-accent); }
 
@@ -138,7 +138,7 @@
 .deep-footer { margin-top: 100px; text-align: center; padding: 80px; border-top: 1px solid rgba(255,255,255,0.1); }
 .deep-footer h2 { color: #FFFFFF !important; margin-bottom: 20px; }
 .action-btn { display: inline-block; padding: 16px 40px; background: #fff; color: #000; font-weight: 800; text-decoration: none; border-radius: 100px; transition: 0.3s; font-size: 1.1rem; }
-.action-btn:hover { background: var(--comm-accent); box-shadow: 0 0 30px var(--comm-accent); transform: translateY(-5px); }
+.action-btn:hover { filter: brightness(1.08); box-shadow: 0 0 30px var(--comm-accent), 0 12px 36px rgba(var(--comm-rgb,79,124,255),.35); transform: translateY(-5px); }
 
 /* --- GOD MODE --- */
 .god-mode { border: 1px solid var(--comm-accent); background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), transparent); padding: 40px; border-radius: 20px; text-align: center; color: #FFFFFF !important; }

@@ -1,4 +1,44 @@
 /* =========================
+   CARD ENTRANCE — CSS-class-driven (no inline style thrashing)
+   Toggled by IntersectionObserver in ui.js
+   ========================= */
+
+.card {
+  /* Hover lift — handled purely in CSS, no JS transform writes */
+  transition:
+    transform 0.3s cubic-bezier(0.16,1,0.3,1),
+    box-shadow 0.3s ease;
+  will-change: transform;
+}
+.card:hover {
+  transform: translateY(-6px);
+}
+
+/* Hidden state injected by ui.js before card enters viewport */
+.card--hidden {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.6s cubic-bezier(0.16,1,0.3,1) var(--card-delay, 0ms),
+    transform 0.6s cubic-bezier(0.16,1,0.3,1) var(--card-delay, 0ms);
+}
+/* Visible state — triggered by IntersectionObserver */
+.card--visible {
+  opacity: 1;
+  transform: translateY(0);
+  /* Allow hover to take over after entrance is complete */
+  transition:
+    opacity 0.6s cubic-bezier(0.16,1,0.3,1) var(--card-delay, 0ms),
+    transform 0.6s cubic-bezier(0.16,1,0.3,1) var(--card-delay, 0ms);
+}
+/* Once fully visible, hand off to the simpler hover transition */
+.card--visible:not(.card--hidden) {
+  transition:
+    transform 0.3s cubic-bezier(0.16,1,0.3,1),
+    box-shadow 0.3s ease;
+}
+
+/* =========================
    FIN-OS CARD REVEAL
    ========================= */
 
@@ -15,9 +55,6 @@
   transform: translateY(0);
 }
 
-
-
-
 .reveal {
   opacity: 0;
   transform: translateY(16px) scale(0.98);
@@ -32,6 +69,26 @@
   opacity: 1;
   transform: translateY(0) scale(1);
   filter: blur(0);
+}
+
+/* Respect reduced-motion: skip entrance animations, show content immediately */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-card,
+  .reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+  .landing-hero h1,
+  .landing-hero p,
+  .hero-cta {
+    animation: none;
+    opacity: 1;
+  }
+  .vision-card:hover {
+    transform: none;
+  }
 }
 
 

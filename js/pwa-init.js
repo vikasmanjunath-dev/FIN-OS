@@ -12,7 +12,8 @@
 // Global flag that QFT / Arya / VoiceAgent set to true while streaming
 window._aiStreamActive = false;
 
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && !window._pwaInitDone) {
+  window._pwaInitDone = true;
   window.addEventListener('load', function () {
     const isLocalhost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
 

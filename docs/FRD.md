@@ -1,441 +1,250 @@
 # FIN-OS — Functional Requirements Document (FRD)
 
-**Document owner:** Vikas Manjunath  
-**Version:** 1.0  
-**Date:** May 2026  
-**Status:** Active  
+**Owner:** Vikas Manjunath | **Version:** 1.2 | **Date:** June 5, 2026 | **Status:** Active
 
 ---
 
 ## 1. Purpose
 
-This document defines the functional requirements for every module of FIN-OS — what each feature must do, how it behaves, what inputs it accepts, what outputs it produces, and what the acceptance criteria are.
+Defines functional requirements for every FIN-OS module — what each feature does, inputs, outputs, and acceptance criteria.
 
 ---
 
-## 2. Module FR-01 — Authentication
+## 2. FR-01 — Authentication
 
 ### FR-01.1 Login
-
-- **Input:** Email + password
-- **Action:** Supabase `signInWithPassword()`
-- **On success:** Redirect to `html/home.html`
-- **On failure:** Show inline error message. No redirect.
-- **Session persistence:** Supabase session stored in localStorage. Auto-restored on page reload.
+- Input: email + password → Supabase `signInWithPassword()`
+- Success: redirect to `html/home.html`
+- Failure: inline error, no redirect
+- Session persistence: Supabase JWT in localStorage; auto-restored on reload
 
 ### FR-01.2 Signup
-
-- **Input:** Email + password + confirm password
-- **Validation:** Password ≥ 8 characters, passwords must match
-- **Action:** Supabase `signUp()` → sends confirmation email
-- **On success:** Show "Check your email" message
-- **Post-confirm redirect:** `html/onboarding.html`
+- Input: email + password + confirm password (≥8 chars, must match)
+- Action: `signUp()` → confirmation email
+- Post-confirm: redirect to `html/onboarding.html`
 
 ### FR-01.3 Route Guard (`js/guard.js`)
-
 - Runs on every protected page load
-- Checks Supabase session validity
-- If session invalid or expired → redirect to `login.html`
-- Does not block public pages: `index.html`, `login.html`
+- Invalid/expired session → redirect to `login.html`
+- Public pages exempt: `index.html`, `login.html`
 
 ### FR-01.4 Logout
-
-- Calls Supabase `signOut()`
-- Clears sessionStorage
-- Redirects to `login.html`
+- `signOut()` → clear sessionStorage → redirect to `login.html`
 
 **Acceptance criteria:**
-- [ ] Unauthenticated user accessing `html/home.html` is redirected to `login.html`
-- [ ] Login with wrong password shows error, does not redirect
-- [ ] Logged-in session persists across browser refresh
-- [ ] Logout clears all user data from sessionStorage
+- [ ] Unauthenticated user on `html/home.html` → redirected to `login.html`
+- [ ] Wrong password → error shown, no redirect
+- [ ] Session persists across browser refresh
+- [ ] Logout clears all sessionStorage user data
 
 ---
 
-## 3. Module FR-02 — Onboarding
+## 3. FR-02 — Onboarding (`html/onboarding.html`)
 
-### FR-02.1 Multi-step wizard (`html/onboarding.html`)
-
-Collects user profile data across 6 steps:
+6-step wizard collecting:
 
 | Step | Fields |
 |---|---|
 | 1. Life Stage | student / early_career / growth / peak / pre_retirement / retirement |
-| 2. Income | income range selector (below 3L / 3-5L / 5-10L / 10-15L / 15-25L / 25-50L / 50L+) |
+| 2. Income | range selector (below 3L to 50L+) |
 | 3. Goals | multi-select: emergency fund, house, FIRE, education, business, travel |
-| 4. Current Situation | checkboxes: has SIP, has home loan, has car loan, has PPF, has term insurance, etc. |
-| 5. Risk Profile | conservative / moderate / aggressive (with description) |
+| 4. Situation | has SIP / home loan / car loan / PPF / term insurance / health insurance |
+| 5. Risk Profile | conservative / moderate / aggressive |
 | 6. Financial DNA | 5-question behaviour quiz → DNA type |
 
-**On completion:**
-- Writes all data to `profiles` table in Supabase
-- Redirects to `html/home.html`
-- Skipped if `profiles` row already exists for user (onboarding is one-time)
+On completion: writes `profiles` row → redirect to `html/home.html`. Skipped if row exists.
 
-### FR-02.2 DNA Assessment
-
-- 5 behavioural questions with 4 options each
-- Score mapped to DNA type: wealth_builder, cautious_saver, growth_seeker, security_seeker, balanced_planner
-- DNA stored in `profiles.financial_dna`
-- Drives personalised content throughout app
+DNA types: `wealth_builder` · `cautious_saver` · `growth_seeker` · `security_seeker` · `balanced_planner`
 
 ---
 
-## 4. Module FR-03 — Voice AI Agent
+## 4. FR-03 — Dashboard (`html/dashboard.html`)
 
-### FR-03.1 Connection
+### FR-03.1 KPI Snapshot Row
+- Displays: net worth · savings rate · FIRE progress · streak
+- Data from `profiles` + `transactions` (Supabase)
+- Skeleton loader during fetch
 
-- Browser requests microphone permission via `getUserMedia()`
-- If permission denied → show error chip, fallback to typed input
-- Connects to `ws://localhost:8765`
-- If connection refused → show "OFFLINE" chip, all other features still work
-- On connect → sends `context` message with full user state
+### FR-03.2 Arya + Nudges Layout
+- Left: Arya AI brief (voice summary or text)
+- Right: priority action nudges from alert engine
+- Responsive: stacks on mobile
 
-### FR-03.2 Voice Input
+### FR-03.3 Portfolio Quick-Access
+- "Portfolio" button → `track-finances.html#portfolio-xray` (not a standalone holding page)
 
-- User clicks orb or presses spacebar to begin recording
-- AudioWorkletProcessor captures PCM audio at 16kHz
-- Audio sent as binary WebSocket frames continuously
-- VAD (Voice Activity Detection) in `agent.py` detects end-of-speech
-- Processing begins automatically after silence detected
-
-### FR-03.3 Speech-to-Text
-
-- faster-whisper tiny model
-- Returns transcript + confidence score
-- Low-confidence transcript (<0.6) → agent asks "Sorry, didn't catch that"
-
-### FR-03.4 Language Response
-
-- Language detected from transcript (see `VOICE_AGENT.md` language detection)
-- Response language matches input language
-- Voice switches automatically per message
-
-### FR-03.5 LLM Response
-
-- qwen3:14b via Ollama
-- System prompt includes: persona, 8 laws of money, Indian benchmarks, user context
-- Default: 2–3 sentences
-- Detail mode (triggered by keywords): up to 1200 tokens
-- Thinking mode disabled (`think=False`) for qwen3
-
-### FR-03.6 Text-to-Speech
-
-- edge-tts Neural TTS
-- Sentence-streamed: TTS starts on first sentence while LLM generates rest
-- English/Hinglish → en-IN-PrabhatNeural
-- Hindi → hi-IN-MadhurNeural
-- Audio sent to browser as base64-encoded MP3 chunks
-
-### FR-03.7 Profile Card
-
-- Populated from `context` message (Supabase data) + extracted conversation facts
-- Shows: name, age (Supabase only), city, income, life stage, financial DNA, mindset
-- Family status (married, kids, single) extracted from conversation with possessive-phrase matching only
-- Profile card renders on first context message and updates on memory events
-
-### FR-03.8 Memory Panel
-
-- Shows last N conversation turns as `[user]` and `[agent]` tagged items
-- Scrolls automatically to latest
-- Persists during session in RAM
-- Saved to Supabase on disconnect
-
-### FR-03.9 Persistent Memory
-
-- On reconnect: agent greets user by name, shows "🧠 MEMORY RESTORED" banner
-- Memory includes: extracted profile + session summary + last 20 turns
-- Autosave every 5 minutes during active session
-
-### FR-03.10 Portfolio Query
-
-- If `window.FINOS_PORTFOLIO_DATA` is set (Portfolio Analyser page), agent knows full holdings
-- User can ask: "which of my stocks should I sell?", "what is my total P&L?", "what is my biggest loser?"
-- Agent answers with specific stock names and numbers from the actual portfolio
-
-**Acceptance criteria:**
-- [ ] Orb shows READY HAI within 3 seconds of page load (with Ollama running)
-- [ ] Speaking "my name is Rahul" → profile card shows "Rahul" within next 2 responses
-- [ ] Speaking "my son is starting school" does NOT trigger "Has kids" card (topic mention, not ownership)
-- [ ] Speaking "my son Arjun needs a laptop" DOES trigger "Has kids" card
-- [ ] Asking "explain SIP in detail" gets ≥5 sentences, not 2–3
-- [ ] Disconnecting and reconnecting → profile card restored from memory
-- [ ] Typing when mic is off works identically to voice input
+### FR-03.4 Health Score Badge
+- Live 0–100 in header
+- Calculated by `alerts/health_score.py`; updated every 15 minutes
 
 ---
 
-## 5. Module FR-04 — Financial Calculators
+## 5. FR-04 — Calculators (88 tools across 9 categories)
 
-### FR-04.1 Calculator Grid (`html/calculators.html`)
+### Individual Calculator Requirements
 
-- Renders 87 calculator cards across 9 categories on page load
-- Cards grouped by category with expandable sections
-- Search filter narrows visible cards by name
-- Category sections collapsible
-- Grid renders on first load (no refresh required — `readyState` guard)
+Each tool must:
+- Load in <1s
+- Work offline (no external API calls)
+- Show visual output (chart / table / comparison) — not just numbers
+- Use Indian benchmarks as defaults
+- Be mobile-responsive
+- Show results on same page (no redirect)
+- Use CSS tokens from `design-tokens.css` — no hardcoded colours
+- Support both light and dark themes
+- Include back-link to `html/calculators.html`
 
-### FR-04.2 Individual Calculators
+### Calculator Categories
 
-Each calculator must satisfy:
+| Category | Count | Key tools |
+|---|---|---|
+| Banking & Fixed Income | 10 | FD, RD, PPF, EPF, NPS, SSY |
+| Core Thinking | 10 | Compounding, Inflation, Real Return |
+| Desi Reality Check | 10 | Buy House, Shaadi Cost, Middle Class Trap |
+| Financial Health | 6 | Emergency Fund, Net Worth, Savings Rate |
+| Investment & Wealth | 16 | SIP, SIP Optimizer, XIRR, CAGR, Goal Based |
+| Loans, Debt & EMI | 11 | Home, Car, EMI, Debt Snowball |
+| Retirement & Life | 7 | Retirement Corpus, Pension Gap, Longevity |
+| Tax & Salary | 10 | Old vs New Regime, In-Hand, Capital Gains |
+| Trading & Markets | 8 | Brokerage, Options, Position Size, F&O P&L |
 
-| Requirement | Detail |
+---
+
+## 6. FR-05 — Voice Agent
+
+### FR-05.1 Widget (`js/finos-widget.js`)
+- Included on every page
+- Floating mic button for logged-in users
+- Opens voice agent iframe on click
+- Passes `sessionStorage.FINOS_CTX` (user context) to agent
+
+### FR-05.2 AI Processing (`voiceagent/agent.py`)
+- WebSocket at `ws://localhost:8765`
+- Input: audio chunks OR text transcript
+- Pipeline: faster-whisper → qwen3:14b → edge-tts
+- Output: streamed audio chunks + transcript
+- Memory: reads/writes `agent_memories` Supabase table
+
+### FR-05.3 Language Support
+- Auto-detects English / Hindi / Hinglish
+- Responds in detected language
+- Indian benchmarks always injected
+
+### FR-05.4 Persona Rules
+- Never starts with filler phrases ("Sure!", "Great question!")
+- 2–3 sentences default; full detail only when asked
+- Zero markdown in spoken output
+- Uses user's name from profile when known
+
+---
+
+## 7. FR-06 — Alert Engine (10 rules)
+
+| Rule | Trigger | Priority |
+|---|---|---|
+| SIP missed | Expected SIP date passed, no matching transaction | warning |
+| Salary credited | Large income transaction detected | info |
+| Emergency fund low | <3 months expenses in liquid savings | critical |
+| Net worth milestone | Crosses ₹5L / ₹10L / ₹25L / ₹50L / ₹1Cr | info |
+| Credit card due | Bill due in ≤5 days | warning |
+| F&O overtrading | >3 options/futures trades in 7 days | warning |
+| LIC premium | LIC-type premium payment detected | warning |
+| High expense ratio | Fund expense ratio >1% | info |
+| Tax deadline | Advance tax / ITR due dates | warning |
+| Portfolio drift | Allocation deviates >10% from target | info |
+
+Scheduler: every 15 minutes via APScheduler.  
+Push notifications: VAPID via pywebpush + `push_subscriptions` Supabase table.
+
+---
+
+## 8. FR-07 — Financial Health Score (6 pillars, 0–100)
+
+| Pillar | Factors |
 |---|---|
-| Loads without backend | Pure HTML/JS — no API calls |
-| Inputs have sensible defaults | Pre-filled with Indian-context values |
-| Outputs update on change | Real-time (no submit button needed for basic calc) |
-| Shows visual result | Chart or comparison table, not just a number |
-| Works on mobile | Responsive layout, inputs tappable |
-| URL is shareable | Each calculator has a unique URL |
+| Emergency Fund | Months of expenses in liquid savings |
+| Debt Load | EMI-to-income ratio |
+| Investment Rate | SIP as % of income |
+| Insurance Cover | Term + health coverage adequacy |
+| Net Worth Growth | Month-on-month delta |
+| Expense Discipline | Discretionary spend % of income |
 
-### FR-04.3 Calculator Categories and Files
-
-| Category | Count | Folder |
-|---|---|---|
-| Core Thinking | 10 | `calculators/core-thinking/` |
-| Investment & Wealth | 15 | `calculators/investment & wealth/` |
-| Banking & Fixed Income | 10 | `calculators/banking & fixed income/` |
-| Loans, Debt & EMI | 11 | `calculators/loans, debt & emi/` |
-| Tax & Salary | 10 | `calculators/tax & salary/` |
-| Retirement & Life | 7 | `calculators/retirement & life planning/` |
-| Trading & Markets | 8 | `calculators/trading & markets/` |
-| Financial Health | 6 | `calculators/financial health/` |
-| Desi Reality Check | 10 | `calculators/desi reality check/` |
-
-**Acceptance criteria:**
-- [ ] All 87 calculator links in `calculators.html` resolve to 200 (no 404s)
-- [ ] SIP calculator: ₹10,000/month, 12%, 20 years → ~₹99.9 lakhs
-- [ ] EMI calculator: ₹50L, 8.5%, 20 years → ₹43,391/month
-- [ ] Old vs New regime correctly applies 87A rebate for income ≤ ₹7L under new regime
+Score = average of 6 pillar scores. Updated every 15 minutes.
 
 ---
 
-## 6. Module FR-05 — Alert Engine
+## 9. FR-08 — UI System
 
-### FR-05.1 Scheduled Evaluation
+### FR-08.1 Hover System (`css/interactions.css` + `js/interactions.js`)
 
-- APScheduler runs every 15 minutes
-- Fetches all active user profiles from Supabase
-- Runs 10 rule classes in sequence for each user
-- Each rule checks cooldown before firing (prevents spam)
+Zero-fill hover vocabulary — no background fills on hover:
 
-### FR-05.2 Alert Rules
+| Pattern | Required effect |
+|---|---|
+| `.card`, `.feat-card`, `.tool-card` | `translateY(-4px)` + border-glow + depth shadow |
+| `.sb-link` (sidebar nav) | Text brightens + icon to accent; no fill |
+| `.btn-secondary`, `.btn-outline` | Border glow + ring; no fill |
+| `[class*="-tab"]`, `.tf-mod-tab` | Border accent + underline; no fill |
+| `.toc-link` | 2px left accent bar slides in |
+| `.matrix-row`, `.tf-step-check` | Left accent bar + text shift |
 
-| Rule | Trigger Condition | Cooldown |
-|---|---|---|
-| `sip_missed` | No SIP transaction this calendar month (user had SIP before) | 72 hours |
-| `salary_credited` | Income transaction in last 5 days | 25 days |
-| `market_drop` | Nifty 50 falls > 3% in one day | 12 hours |
-| `goal_behind` | Goal deadline < 180 days, funded < 30% | 7 days |
-| `cc_bill_due` | Credit card bill due within 5 days | 48 hours |
-| `budget_overrun` | Any category spend > 20% over budget | 48 hours |
-| `emergency_fund_low` | Liquid savings < 3 months of expenses | 7 days |
-| `tax_season` | 8 calendar-based triggers (advance tax, ITR deadline, 80C deadline, etc.) | 6 hours |
-| `fno_expiry_week` | User has F&O positions AND expiry Thursday is within 7 days | 7 days |
-| `net_worth_milestone` | Portfolio crosses ₹1L / ₹5L / ₹10L / ₹25L / ₹50L / ₹1Cr | 30 days |
+`js/interactions.js` patches inline `onmouseover` background handlers at `DOMContentLoaded`.
 
-### FR-05.3 Alert Delivery
+### FR-08.2 Theme System
 
-- **In-app:** Supabase Realtime INSERT fires → `finos-alerts.js` updates bell badge
-- **Push notification:** Web Push (VAPID) via `pywebpush` — OS-level notification
-- User can disable individual rules via preferences API
+| Requirement | Specification |
+|---|---|
+| Anti-FOUC | Inline IIFE **first child of `<head>`** before any `<link>` |
+| Toggle | Every page has `#themeToggle` or fixed-position button |
+| Persistence | Written to `finos-theme`, `theme`, `FINOS_SYS_SETTINGS.theme` |
+| CSS tokens | All colour values via `var(--token)` — no hardcoded hex |
+| Light coverage | 326 rules in `theme.css` |
+| New page checklist | See FR-08.3 |
 
-### FR-05.4 Alert UI
+### FR-08.3 New Page Requirements
 
-- Bell icon on every page (injected by `finos-widget.js`)
-- Badge shows unread count
-- Click opens slide-out drawer with all alerts, newest first
-- Each alert has: priority icon, title, message, timestamp, optional action link
-- "Mark all read" button clears badge
-
-**Acceptance criteria:**
-- [ ] Nifty drops 3.1% → `market_drop` alert appears in bell within 15 minutes
-- [ ] Alert marked read → badge count decreases
-- [ ] Push notification arrives on OS when app is in background (requires subscribed device)
-- [ ] User disables `sip_missed` rule → no more SIP alerts for that user
+- [ ] Anti-FOUC IIFE first in `<head>`
+- [ ] `design-tokens.css` before page CSS
+- [ ] `interactions.css` and `theme.css` linked
+- [ ] Theme toggle present
+- [ ] `ui.js` and `interactions.js` included
+- [ ] No hardcoded dark colours in inline `<style>` blocks
 
 ---
 
-## 7. Module FR-06 — Financial Health Score
+## 10. FR-09 — Education Modules (14 modules)
 
-### FR-06.1 Scoring
+Each module must:
+- Have a dedicated page `html/learn-[topic].html`
+- Include scrolling card deck (key concepts)
+- Include at least one interactive simulation
+- Link to related calculators
+- Work fully offline
+- Support both themes
 
-Computed by `GET /health-score/{user_id}` from live Supabase data:
-
-| Pillar | Max Points | Full Score Condition |
-|---|---|---|
-| Emergency Fund | 20 | ≥ 6 months of expenses in liquid savings |
-| Debt Management | 20 | Zero EMI burden; penalty for CC debt + personal loans |
-| Savings Rate | 20 | ≥ 30% savings rate + active SIP |
-| Investment Growth | 20 | Diversified portfolio, no F&O >10%, goals funded |
-| Insurance | 10 | Term insurance ≥ 10× income + health cover ≥ ₹10L |
-| Tax Efficiency | 10 | 80C maxed + NPS open + PPF active |
-
-### FR-06.2 UI
-
-- Floating score badge on every page (injected by `finos-widget.js`)
-- Click opens animated SVG ring chart showing all 6 pillars
-- Top 2 actionable tips shown below chart
-- Badge colour: red (0–39), amber (40–59), green (60–74), teal (75–89), gold (90–100)
-
-**Acceptance criteria:**
-- [ ] User with no emergency fund, no SIP, no insurance → score < 40 (DANGER)
-- [ ] Score badge visible on all pages with `finos-widget.js` included
-- [ ] Score refreshes if user updates profile data without hard reload
-
----
-
-## 8. Module FR-07 — Portfolio Analyser
-
-### FR-07.1 CSV Upload
-
-- User uploads Zerodha Holdings export (CSV)
-- Parser reads: symbol, quantity, avg cost, LTP, P&L
-- Parses both EQ (equity/ETF) and MF (mutual fund) sections
-- Displays holdings table with sortable columns
-
-### FR-07.2 Analytics
-
-After upload, shows:
-- Total portfolio value, cost basis, absolute P&L, P&L %
-- Holdings table: symbol, type, quantity, avg price, LTP, P&L, P&L %
-- Asset allocation pie chart (equity / MF / ETF / other)
-- Sector breakdown (for equity holdings)
-- Top 5 gainers + top 5 losers
-
-### FR-07.3 Voice Integration
-
-- After CSV parse, `_buildVoicePortfolioCtx()` builds `window.FINOS_PORTFOLIO_DATA`
-- Voice agent context updated via `window._finosRequestContext()`
-- User can ask voice agent: "what is my total P&L?", "should I sell HDFC Bank?", "which sector am I overweight in?"
-- Agent answers with specific stock names, numbers, and percentages from the actual portfolio
-
-**Acceptance criteria:**
-- [ ] Zerodha CSV upload → portfolio table renders within 2 seconds
-- [ ] "What is my biggest loser?" → agent names the actual stock with its P&L%
-- [ ] Portfolio with RELIANCE +18% → voice agent can confirm this gain when asked
+| Page | Topic |
+|---|---|
+| `learn-equity.html` | Stocks, indices, market mechanics |
+| `learn-mf.html` | Mutual funds, SIP, categories |
+| `learn-fno.html` | F&O — with risk warnings |
+| `learn-insurance.html` | Term vs ULIP vs endowment |
+| `learn-debt.html` | Bonds, FDs, fixed income |
+| `learn-etf.html` | ETFs vs mutual funds |
+| `learn-commodity.html` | Gold, silver, oil |
+| `learn-crypto.html` | Crypto — with risk warnings |
+| `learn-forex.html` | Currency markets |
+| `learn-analysis.html` | Fundamental analysis |
+| `learn-technical.html` | Technical analysis |
+| `learn-indicators.html` | Key market indicators |
+| `learn-fundamental.html` | Balance sheet, P&L, ratios |
+| `learn-metrics.html` | Valuation metrics |
 
 ---
 
-## 9. Module FR-08 — Budget & Expense Tracker
+## 11. FR-10 — Portfolio Analyser
 
-### FR-08.1 Transaction Entry
-
-- Add transaction: amount, type (income/expense), category, date, optional note
-- Categories: salary, rent, food, transport, utilities, entertainment, medical, SIP, EMI, investment, other
-- Edit and delete existing transactions
-- Bulk import (CSV) for historical data
-
-### FR-08.2 Budget Setting
-
-- Set monthly budget per category
-- Visual progress bars: spent / budget limit
-- Over-budget categories highlighted in red
-- Budget carries forward month-to-month unless changed
-
-### FR-08.3 Reports
-
-- Monthly summary: income vs expense vs savings
-- Category breakdown for any date range
-- Savings rate trend (last 12 months)
-- Export to CSV
-
-### FR-08.4 React Budget App (Separate Module)
-
-The React app at `ExpenseTracker/finos-budget/` extends the tracker with:
-- FIRE Calculator (time to financial independence)
-- Debt Destroyer (snowball + avalanche comparison)
-- AI War Room (scenario analysis: "what if I increase SIP by ₹5,000?")
-- Gamified achievements
-- Subscription manager
-
----
-
-## 10. Module FR-09 — Market Intelligence
-
-### FR-09.1 Markets Overview (`html/markets.html`)
-
-- Nifty 50 and Sensex price + change (via yfinance)
-- Sector heatmap (11 NIFTY sectors)
-- Top gainers and losers (Nifty 500)
-- Data refreshes every 5 minutes during market hours
-
-### FR-09.2 Trade Signals (`html/market-intel.html`)
-
-- 4 signal categories: intraday, swing, fundamental, long-term
-- Each signal: symbol, signal type (buy/sell/hold), confidence, key indicators, entry/exit levels
-- Signals generated by local Python APIs — not bought from any data vendor
-
-### FR-09.3 Asset Detail Pages
-
-Individual deep-dive pages for: equity, mutual funds, ETFs, bonds, commodities, forex, derivatives, crypto. Each shows: historical price chart, key metrics, India-specific context.
-
----
-
-## 11. Module FR-10 — News Intel
-
-### FR-10.1 Feed (`app.py` :5000)
-
-- Aggregates Google News RSS for financial terms
-- Regions: India + Global
-- Categories: stocks, mutual_funds, economy, personal_finance, crypto
-- High-impact flag: articles with words like crash, surge, RBI, Fed, crisis, record, inflation
-
-### FR-10.2 Display (`html/news.html`)
-
-- Card layout: title, source, category chip, high-impact badge, timestamp
-- Filter by category
-- Cached 10 minutes — no rate limiting issues
-- Opens article in new tab
-
----
-
-## 12. Module FR-11 — Education Suite
-
-### FR-11.1 Finance 101 (`html/finance101.html`)
-
-Core concepts covered:
-- Time value of money
-- Compounding
-- Inflation and real returns
-- Risk and reward tradeoff
-- Asset classes overview
-
-### FR-11.2 Learn Modules (14 pages)
-
-Each learn page covers: what it is, how it works in India, red flags, what to use it for, and practical starting steps.
-
-### FR-11.3 Insight Articles (5 pages)
-
-Long-form deep dives: SIP myths, EMI reality, debt traps, inflation impact, RBI rate decisions.
-
-### FR-11.4 Psychology / Behavioural Finance (10 pages)
-
-DNA assessment, mindset simulations, fear roadmap, decision framework, money behaviours.
-
----
-
-## 13. Module FR-12 — PWA
-
-### FR-12.1 Installability
-
-- `manifest.json` with icons, name, display: standalone
-- Service worker registered on first load
-- Install prompt shown after 2 page visits
-
-### FR-12.2 Offline Support
-
-- All HTML pages cached after first visit (network-first strategy)
-- CSS, JS, assets cached immediately (cache-first strategy)
-- Offline fallback page shown for uncached pages
-- Calculators work fully offline (no external dependencies)
-
-### FR-12.3 Push Notifications
-
-- Service worker handles Web Push
-- Bell subscription prompt on alert engine pages
-- OS-level notifications for critical and warning alerts
-
-**Acceptance criteria:**
-- [ ] App installable from Chrome on Android + Safari on iOS
-- [ ] SIP calculator works with no network connection
-- [ ] Push notification received when market drops 3% (requires subscription + device)
+- File input: Zerodha holdings CSV
+- On upload: parse → holdings table → inject into voice agent context
+- Voice-queryable: "which stocks should I sell?" → AI analyses with context
+- XIRR calculation per holding
+- Accessible via: Dashboard quick-access → `track-finances.html#portfolio-xray`

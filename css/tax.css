@@ -84,9 +84,10 @@
 }
 
 .tax-nav a:hover {
-  color: #fff;
-  background: rgba(79,124,255,0.15);
-  border-color: rgba(79,124,255,0.3);
+  color: var(--accent);
+  background: transparent;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(79,124,255,.2);
 }
 
 /* --- PART DIVIDERS --- */
@@ -544,7 +545,7 @@
 }
 
 .matrix-row:last-child { border-bottom: none; }
-.matrix-row:hover { background: rgba(255,255,255,0.02); }
+.matrix-row:hover { background: transparent; border-left: 2px solid var(--accent); padding-left: 4px; transition: border-left 150ms, padding-left 150ms; }
 
 .asset-name .sub {
   font-size: 0.78rem;
@@ -849,8 +850,9 @@
 }
 [data-theme="light"] .tax-nav a:hover {
   color: #4F7CFF;
-  background: rgba(79,124,255,0.1);
-  border-color: rgba(79,124,255,0.25);
+  background: transparent;
+  border-color: rgba(79,124,255,.35);
+  box-shadow: 0 0 0 1px rgba(79,124,255,.2);
 }
 
 /* Part divider */
@@ -966,7 +968,9 @@
   color: #111 !important;
 }
 [data-theme="light"] .matrix-row:hover {
-  background: #F9FAFB !important;
+  background: transparent !important;
+  border-left: 2px solid var(--accent);
+  padding-left: 4px;
 }
 [data-theme="light"] .asset-name .sub {
   color: #666 !important;

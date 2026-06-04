@@ -3,15 +3,17 @@
 <head>
 <script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 <meta charset="UTF-8">
+  <meta name="description" content="FIN•OS — Your AI-powered Financial Operating System for Indian investors.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0B0D12">
 <title>FIN•OS | AI Life Goals Planner</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../js/finos-context.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+<script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-context.js" defer></script>
 <script src="../js/arya-ai.js?v=3"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{background:#0B0D12;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
+body {background:var(--bg-main);color:var(--text-primary);min-height:100vh;}
 
 .page{max-width:900px;margin:0 auto;padding:40px 20px 100px;}
 
@@ -25,14 +27,14 @@ body{background:#0B0D12;color:#fff;font-family:-apple-system,BlinkMacSystemFont,
 .hero p{font-size:14px;color:rgba(255,255,255,.4);}
 
 /* ── Input Panel ── */
-.input-panel{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);
+.input-panel{background:var(--bg-surface);border:1px solid var(--border-soft);
   border-radius:20px;padding:28px;margin-bottom:24px;}
 .section-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:14px;}
 .input-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px;margin-bottom:20px;}
 .inp-wrap{display:flex;flex-direction:column;gap:6px;}
 .inp-label{font-size:11px;color:rgba(255,255,255,.4);}
-.inp-field{padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.1);color:#fff;font-size:14px;outline:none;width:100%;
+.inp-field{padding:10px 14px;border-radius:10px;background:var(--bg-surface);
+  border: 1px solid var(--border-soft);color:#fff;font-size:14px;outline:none;width:100%;
   font-family:-apple-system,sans-serif;transition:border-color .15s;}
 .inp-field:focus{border-color:rgba(0,255,136,.35);}
 
@@ -44,7 +46,7 @@ body{background:#0B0D12;color:#fff;font-family:-apple-system,BlinkMacSystemFont,
   display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
 .goal-del:hover{background:rgba(255,107,107,.18);}
 .add-goal-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  background:var(--bg-surface);border: 1px solid var(--border-soft);
   color:rgba(255,255,255,.5);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;
   font-family:-apple-system,sans-serif;}
 .add-goal-btn:hover{border-color:rgba(0,255,136,.3);color:#00ff88;background:rgba(0,255,136,.05);}
@@ -63,26 +65,26 @@ body{background:#0B0D12;color:#fff;font-family:-apple-system,BlinkMacSystemFont,
 
 /* ── Summary strip ── */
 .summary-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:28px;}
-.sum-card{padding:16px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);}
+.sum-card{padding:16px;border-radius:14px;background:var(--bg-surface);border:1px solid var(--border-soft);}
 .sum-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.35);margin-bottom:6px;}
 .sum-val{font-size:22px;font-weight:800;}
 .sum-sub{font-size:11px;color:rgba(255,255,255,.35);margin-top:3px;}
 
 /* ── Goal progress bars ── */
-.goals-overview{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);
+.goals-overview{background:var(--bg-surface);border:1px solid var(--border-soft);
   border-radius:18px;padding:22px;margin-bottom:24px;}
-.goal-prog-row{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.goal-prog-row{padding:10px 0;border-bottom:1px solid var(--border-soft);}
 .goal-prog-row:last-child{border-bottom:none;}
 .goal-prog-header{display:flex;justify-content:space-between;margin-bottom:7px;}
 .goal-prog-name{font-size:13px;font-weight:600;color:#fff;}
 .goal-prog-meta{font-size:12px;color:rgba(255,255,255,.45);}
-.prog-bar-track{height:5px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;}
+.prog-bar-track{height:5px;background:var(--bg-surface);border-radius:4px;overflow:hidden;}
 .prog-bar-fill{height:100%;border-radius:4px;transition:width .6s ease;}
 .goal-prog-detail{display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:rgba(255,255,255,.35);}
 
 /* ── Phase cards ── */
 .phase-card{border-radius:18px;padding:24px;margin-bottom:16px;
-  border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02);
+  border:1px solid var(--border-soft);background:var(--bg-surface);
   transition:border-color .2s;}
 .phase-card:hover{border-color:var(--pc,rgba(79,124,255,.3));}
 .phase-header{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
@@ -91,7 +93,7 @@ body{background:#0B0D12;color:#fff;font-family:-apple-system,BlinkMacSystemFont,
 .phase-years{font-size:12px;color:rgba(255,255,255,.35);font-family:'JetBrains Mono',monospace;}
 .phase-items{display:flex;flex-direction:column;gap:8px;}
 .phase-item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;
-  background:rgba(255,255,255,.03);}
+  background:var(--bg-surface);}
 .phase-item-icon{font-size:16px;flex-shrink:0;width:20px;text-align:center;}
 .phase-item-text{font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;}
 .phase-item-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;
@@ -111,32 +113,57 @@ body{background:#0B0D12;color:#fff;font-family:-apple-system,BlinkMacSystemFont,
 .feas-icon{font-size:20px;flex-shrink:0;}
 
 @keyframes aryaBlink{50%{opacity:0;}}
-</style>
+
+
+/* ── Light mode text overrides (auto-generated) ── */
+[data-theme="light"] .inp-field {
+  color: var(--text-primary) !important;
+    background: var(--bg-surface) !important;
+}
+[data-theme="light"] .goal-prog-name {
+  color: var(--text-primary) !important;
+}
+[data-theme="light"] .phase-title {
+  color: var(--text-primary) !important;
+}</style>
+  <meta property="og:site_name" content="FIN•OS">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/assets/icons/icon-512.svg">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@finos_app">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/interactions.css">
 </head>
 <body>
+<button id="floatThemeBtn" style="position:fixed;top:16px;right:16px;z-index:200;width:40px;height:40px;border-radius:50%;background:var(--bg-surface);border:1px solid var(--border-soft);color:var(--text-primary);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--card-shadow);transition:transform 160ms,box-shadow 160ms;" aria-label="Toggle theme" onclick="(function(){var t=document.documentElement.getAttribute('data-theme');var n=t==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('finos-theme',n);this.textContent=n==='dark'?'🌙':'☀️';}).call(this)">🌙</button>
 <div class="page">
 
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
     <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
-       border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+       border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,.1);
        color:rgba(255,255,255,.55);font-size:12px;font-weight:600;text-decoration:none;
-       transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.09)'"
-       onmouseout="this.style.background='rgba(255,255,255,.04)'">← Dashboard</a>
+       transition:color 150ms,border-color 150ms,box-shadow 160ms;"
+       onmouseover="this.style.color='rgba(255,255,255,.85)';this.style.borderColor='rgba(79,124,255,.4)';this.style.boxShadow='0 0 0 1px rgba(79,124,255,.15)'"
+       onmouseout="this.style.color='rgba(255,255,255,.55)';this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow=''">← Dashboard</a>
     <a href="track-finances.html" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
-       border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+       border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,.1);
        color:rgba(255,255,255,.55);font-size:12px;font-weight:600;text-decoration:none;
-       transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.09)'"
-       onmouseout="this.style.background='rgba(255,255,255,.04)'">💰 Track Finances</a>
+       transition:color 150ms,border-color 150ms,box-shadow 160ms;"
+       onmouseover="this.style.color='rgba(255,255,255,.85)';this.style.borderColor='rgba(79,124,255,.4)';this.style.boxShadow='0 0 0 1px rgba(79,124,255,.15)'"
+       onmouseout="this.style.color='rgba(255,255,255,.55)';this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow=''">💰 Track Finances</a>
     <a href="diagnostics.html" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
-       border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+       border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,.1);
        color:rgba(255,255,255,.55);font-size:12px;font-weight:600;text-decoration:none;
-       transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.09)'"
-       onmouseout="this.style.background='rgba(255,255,255,.04)'">🔬 Diagnostics</a>
+       transition:color 150ms,border-color 150ms,box-shadow 160ms;"
+       onmouseover="this.style.color='rgba(255,255,255,.85)';this.style.borderColor='rgba(79,124,255,.4)';this.style.boxShadow='0 0 0 1px rgba(79,124,255,.15)'"
+       onmouseout="this.style.color='rgba(255,255,255,.55)';this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow=''">🔬 Diagnostics</a>
     <a href="home.html" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
-       border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+       border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,.1);
        color:rgba(255,255,255,.55);font-size:12px;font-weight:600;text-decoration:none;
-       transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.09)'"
-       onmouseout="this.style.background='rgba(255,255,255,.04)'">🏠 Home</a>
+       transition:color 150ms,border-color 150ms,box-shadow 160ms;"
+       onmouseover="this.style.color='rgba(255,255,255,.85)';this.style.borderColor='rgba(79,124,255,.4)';this.style.boxShadow='0 0 0 1px rgba(79,124,255,.15)'"
+       onmouseout="this.style.color='rgba(255,255,255,.55)';this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow=''">🏠 Home</a>
   </div>
 
   <div class="hero">
@@ -199,7 +226,8 @@ body{background:#0B0D12;color:#fff;font-family:-apple-system,BlinkMacSystemFont,
 
 </div>
 
-<script src="../js/mobile-nav.js"></script>
+<script src="../js/ui.js" defer></script>
+  <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
 <script src="../js/finos-widget.js?v=4"></script>
 <script src="../js/finos-search.js?v=2"></script>
@@ -668,5 +696,6 @@ document.addEventListener('finos-context-ready', () => {
   } catch {}
 });
 </script>
+  <script src="../js/interactions.js" defer></script>
 </body>
 </html>

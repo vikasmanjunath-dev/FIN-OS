@@ -218,8 +218,10 @@ select:focus  { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-
 }
 
 .btn-outline:hover {
-  background: var(--bg-panel);
-  border-color: var(--border-hi);
+  background: transparent;
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 4px 16px var(--accent-soft);
 }
 
 .btn-primary {
@@ -256,9 +258,10 @@ select:focus  { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-
 }
 
 .btn-danger:hover {
-  background: var(--danger);
-  color: #fff;
-  box-shadow: 0 0 18px rgba(255,79,79,0.35);
+  background: transparent;
+  border-color: var(--danger);
+  color: var(--danger);
+  box-shadow: 0 0 0 1px var(--danger), 0 0 18px rgba(255,79,79,.25);
 }
 
 .btn-danger--ghost {
@@ -267,8 +270,10 @@ select:focus  { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-
 }
 
 .btn-danger--ghost:hover {
-  background: var(--danger);
-  color: #fff;
+  background: transparent;
+  border-color: var(--danger);
+  color: var(--danger);
+  box-shadow: 0 0 0 1px var(--danger);
 }
 
 /* ─── SIGN-OUT ROW ──────────────────────────────────────────────── */
@@ -785,7 +790,7 @@ input[type="range"]::-moz-range-thumb {
   line-height: 1;
 }
 
-.modal-close:hover { background: var(--bg-surface); color: var(--text-main); }
+.modal-close:hover { background: transparent; color: var(--color-error, #f87171); border-color: var(--color-error, #f87171); box-shadow: 0 0 0 1px rgba(248,113,113,.2); }
 
 .modal-box h4 {
   font-family: 'JetBrains Mono', monospace;
@@ -956,8 +961,10 @@ body.modal-open { overflow: hidden; }
 }
 
 [data-theme="light"] .btn-outline:hover {
-  background: #E8EBF4 !important;
-  border-color: rgba(0,0,0,0.2) !important;
+  background: transparent !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  box-shadow: 0 0 0 1px var(--accent), 0 4px 12px rgba(79,124,255,.12) !important;
 }
 
 [data-theme="light"] .btn-danger {
@@ -967,8 +974,10 @@ body.modal-open { overflow: hidden; }
 }
 
 [data-theme="light"] .btn-danger:hover {
-  background: #D4234E !important;
-  color: #fff !important;
+  background: transparent !important;
+  border-color: #D4234E !important;
+  color: #D4234E !important;
+  box-shadow: 0 0 0 1px #D4234E !important;
 }
 
 [data-theme="light"] .persona-card {

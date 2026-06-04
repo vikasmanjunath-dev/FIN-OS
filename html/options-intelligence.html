@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <title>Options Intelligence | FIN•OS</title>
+    <link rel="stylesheet" href="../css/design-tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-context.js" defer></script>
+  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-personalization.js" defer></script>
+<style>
+/* ── Options Intelligence Page Styles ── */
+.opt-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+@media(max-width:900px){ .opt-grid { grid-template-columns:1fr; } }
+
+.opt-disclaimer {
+  background:rgba(255,68,68,.06);
+  border:1px solid rgba(255,68,68,.18);
+  border-left:3px solid rgba(255,68,68,.6);
+  border-radius:12px;
+  padding:12px 18px;
+  margin-bottom:24px;
+  font-size:12.5px;
+  color:rgba(255,120,120,.9);
+  line-height:1.6;
+}
+
+.opt-card {
+  background:var(--bg-surface);
+  border:1px solid var(--border-soft);
+  border-radius:18px;
+  padding:22px;
+}
+.opt-card-title {
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:rgba(255,255,255,.4);
+  margin-bottom:16px;
+}
+
+/* Greeks pills */
+.greeks-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px; }
+@media(max-width:560px){ .greeks-grid { grid-template-columns:repeat(2,1fr); } }
+.greek-pill {
+  background:var(--bg-surface);
+  border:1px solid var(--border-soft);
+  border-radius:12px;
+  padding:14px 10px;
+  text-align:center;
+}
+.greek-symbol { font-size:22px; font-weight:900; margin-bottom:3px; }
+.greek-name   { font-size:10px; color:rgba(255,255,255,.4); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+.greek-val    { font-size:17px; font-weight:700; color:#F5F7FA; }
+
+/* IV gauge */
+.iv-gauge-bar {
+  height:8px;
+  border-radius:4px;
+  background:linear-gradient(90deg,#22d3a6,#f0a500,#ff4444);
+  position:relative;
+  margin:8px 0 6px;
+}
+.iv-gauge-needle {
+  position:absolute; top:-5px;
+  width:4px; height:18px;
+  background:#fff;
+  border-radius:2px;
+  transform:translateX(-50%);
+  transition:left .7s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 0 6px rgba(255,255,255,.5);
+}
+.iv-labels { display:flex; justify-content:space-between; font-size:10px; color:rgba(255,255,255,.35); }
+
+/* IV metric tiles */
+.iv-tile {
+  background:var(--bg-surface);
+  border:1px solid var(--border-soft);
+  border-radius:12px;
+  padding:14px;
+  text-align:center;
+  flex:1;
+}
+.iv-tile-label { font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:rgba(255,255,255,.4); margin-bottom:6px; }
+.iv-tile-val   { font-size:26px; font-weight:900; line-height:1; }
+.iv-tile-sub   { font-size:10px; color:rgba(255,255,255,.35); margin-top:4px; }
+
+/* Strategy cards */
+.strategy-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media(max-width:460px){ .strategy-grid { grid-template-columns:1fr; } }
+.strategy-card {
+  background:var(--bg-surface);
+  border:1px solid var(--border-soft);
+  border-radius:14px;
+  padding:16px;
+  cursor:pointer;
+  transition:border-color .15s, background .15s, transform .15s;
+}
+.strategy-card:hover {
+  border-color:rgba(0,212,255,.4);
+  background:rgba(0,212,255,.05);
+  transform:translateY(-2px);
+}
+.strategy-name { font-size:13px; font-weight:700; margin-bottom:5px; }
+.strategy-desc { font-size:11px; color:rgba(255,255,255,.45); line-height:1.5; margin-bottom:10px; }
+.risk-badge { font-size:10px; font-weight:800; padding:2px 9px; border-radius:20px; display:inline-block; }
+.risk-low    { background:rgba(34,211,166,.15); color:#22d3a6; }
+.risk-medium { background:rgba(240,165,0,.15);  color:#f0a500; }
+.risk-high   { background:rgba(255,68,68,.15);   color:#ff4444; }
+
+/* Quiz options */
+.quiz-option {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 16px;
+  background:var(--bg-surface);
+  border:1px solid var(--border-soft);
+  border-radius:12px;
+  margin-bottom:8px;
+  cursor:pointer;
+  font-size:13px;
+  color:#F5F7FA;
+  transition:border-color .15s, background .15s;
+}
+.quiz-option:hover { border-color:rgba(0,212,255,.3); background:rgba(0,212,255,.04); }
+.quiz-option input[type="radio"] { accent-color:#00d4ff; width:16px; height:16px; flex-shrink:0; }
+
+/* Options chain */
+.chain-table { width:100%; border-collapse:collapse; font-size:12px; }
+.chain-table th {
+  padding:8px 10px;
+  background:var(--bg-surface);
+  color:rgba(255,255,255,.4);
+  text-align:right;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.chain-table th:nth-child(5), .chain-table td:nth-child(5) { text-align:center; }
+.chain-table td { padding:8px 10px; border-bottom: 1px solid var(--border-soft); text-align:right; }
+.chain-table tr.atm td { background:rgba(0,212,255,.05); }
+.chain-itm { color:#22d3a6; }
+.chain-otm { color:rgba(255,255,255,.35); }
+.chain-strike { font-weight:800; color:#F5F7FA; text-align:center !important; background:var(--bg-surface); padding:8px 14px !important; }
+
+/* Inputs */
+.opt-input-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+@media(max-width:400px){ .opt-input-row { grid-template-columns:1fr; } }
+.opt-label { font-size:11px; color:rgba(255,255,255,.45); display:block; margin-bottom:5px; }
+.opt-input {
+  width:100%;
+  padding:10px 12px;
+  background:var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius:10px;
+  color:var(--text-primary);
+  font-size:13px;
+  outline:none;
+  transition:border-color .15s;
+}
+.opt-input:focus { border-color:rgba(0,212,255,.5); }
+
+.opt-btn {
+  flex:1; padding:10px;
+  border-radius:10px;
+  font-size:13px; font-weight:700;
+  cursor:pointer; border:1px solid;
+  transition:background .15s;
+}
+.opt-btn-call { background:rgba(34,211,166,.1); border-color:rgba(34,211,166,.3); color:#22d3a6; }
+.opt-btn-put  { background:rgba(255,68,68,.08);  border-color:rgba(255,68,68,.25);  color:#ff6666; }
+.opt-btn-call:hover { background:rgba(34,211,166,.2); }
+.opt-btn-put:hover  { background:rgba(255,68,68,.16); }
+
+.iv-rec {
+  background:var(--bg-surface);
+  border:1px solid var(--border-soft);
+  border-radius:12px;
+  padding:14px 16px;
+  font-size:13px;
+  color:rgba(255,255,255,.65);
+  line-height:1.65;
+  margin-bottom:18px;
+}
+
+/* Breadcrumb */
+.page-breadcrumb {
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:20px;
+  font-size:13px; color:rgba(255,255,255,.4);
+}
+.page-breadcrumb a { color:rgba(255,255,255,.4); text-decoration:none; }
+.page-breadcrumb a:hover { color:#00d4ff; }
+.page-breadcrumb span { color:rgba(255,255,255,.2); }
+
+/* Modal */
+.opt-modal {
+  display:none; position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,.72);
+  align-items:center; justify-content:center; padding:20px;
+}
+.opt-modal-box {
+  background:linear-gradient(145deg,#0d0f1a,#161929);
+  border: 1px solid var(--border-soft);
+  border-radius:20px;
+  max-width:520px; width:100%;
+  padding:28px;
+  max-height:80vh; overflow-y:auto;
+}
+.opt-modal-close {
+  width:100%; margin-top:20px; padding:12px;
+  border-radius:12px;
+  background:var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  color:rgba(255,255,255,.5);
+  font-size:13px; cursor:pointer;
+}
+</style>
+  <link rel="stylesheet" href="../css/interactions.css">
+</head>
+<body>
+<div class="app">
+          <aside class="sidebar" role="complementary" aria-label="Navigation">
+
+    <!-- Brand -->
+    <div class="sb-brand">
+      <div class="sb-logomark" aria-hidden="true">
+        <span class="sb-logomark-letter">F</span>
+      </div>
+      <div class="sb-wordmark">
+        <div class="sb-wordmark-name">FIN•OS</div>
+        <div class="sb-wordmark-tag">Financial OS</div>
+      </div>
+    </div>
+
+    <!-- Identity -->
+    <a href="profile.html" class="sb-identity" aria-label="Your profile">
+      <div class="sb-av" id="sb-av" aria-hidden="true">I</div>
+      <div class="sb-identity-body">
+        <div class="sb-identity-name" id="sb-name">Investor</div>
+        <div class="sb-identity-meta">
+          <span class="sb-identity-dna"  id="sb-dna">Financial DNA</span>
+          <span class="sb-health-pill"   id="sb-health-pill"></span>
+        </div>
+      </div>
+      <span class="sb-identity-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </a>
+
+    <!-- Search shortcut -->
+    <button class="sb-cmd" id="sb-cmd" aria-label="Search (Ctrl+K)">
+      <span class="sb-cmd-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="sb-cmd-label">Search or jump to…</span>
+      <kbd class="sb-cmd-kbd" aria-hidden="true">⌘K</kbd>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="sb-nav" aria-label="Main">
+        <a href="home.html" class="sb-link" title="Home">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+          <span class="sb-label">Home</span>
+        </a>
+        <a href="dashboard.html" class="sb-link" title="Dashboard">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>
+          <span class="sb-label">Dashboard</span>
+          <span class="sb-badge" id="sb-streak" aria-label="count"></span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="foundations.html" class="sb-link" title="Learn">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+          <span class="sb-label">Learn</span>
+        </a>
+        <a href="simulator-landing.html" class="sb-link" title="Mindset">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span>
+          <span class="sb-label">Mindset</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="diagnostics.html" class="sb-link" title="Diagnostics">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          <span class="sb-label">Diagnostics</span>
+        </a>
+        <a href="track-finances.html" class="sb-link" title="Track">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+          <span class="sb-label">Track</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="markets.html" class="sb-link" title="Markets">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+          <span class="sb-label">Markets</span>
+        </a>
+        <a href="tools.html" class="sb-link active" aria-current="page" title="Tools">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+          <span class="sb-label">Tools</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="news.html" class="sb-link" title="News">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span>
+          <span class="sb-label">News</span>
+        </a>
+    </nav>
+
+    <!-- Footer: Arya AI + Settings -->
+    <div class="sb-footer-zone">
+
+      <button class="sb-arya-row" id="sb-arya-btn"
+              aria-label="Arya AI — your financial coach"
+              onclick="document.querySelector('.finos-fab')?.click?.();">
+        <div class="sb-arya-icon" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span class="sb-arya-dot checking" id="sb-arya-dot"></span>
+        </div>
+        <div class="sb-arya-body">
+          <div class="sb-arya-name">Arya AI</div>
+          <div class="sb-arya-status checking" id="sb-arya-status">Connecting…</div>
+        </div>
+        <span class="sb-arya-arrow" aria-hidden="true">›</span>
+      </button>
+
+      <a href="settings.html" class="sb-settings-row" title="Settings">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        <span class="sb-label">Settings</span>
+      </a>
+
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+
+      <!-- Breadcrumb -->
+      <div class="page-breadcrumb">
+        <a href="dashboard.html">Dashboard</a>
+        <span>/</span>
+        <span style="color:#F5F7FA;">Options Intelligence</span>
+      </div>
+
+      <!-- Page header -->
+      <header class="header" style="margin-bottom:8px;">
+        <div>
+          <h1 style="margin-bottom:4px;">⚡ Options Intelligence</h1>
+          <p style="font-size:13px;color:rgba(255,255,255,.45);margin:0;">Greeks · IV Rank · Strategy builder · F&amp;O readiness quiz</p>
+        </div>
+      </header>
+
+      <!-- Risk Disclaimer -->
+      <div class="opt-disclaimer">
+        ⚠️ <strong>Risk Warning:</strong> F&amp;O trading involves significant risk. 90%+ of retail F&amp;O traders lose money in India. This tool is for education and analysis only — not a trade recommendation. Always use proper position sizing and stop-losses.
+      </div>
+
+      <!-- Main 2-col grid -->
+      <div class="opt-grid">
+
+        <!-- Card 1: F&O Readiness Quiz -->
+        <div class="opt-card">
+          <div class="opt-card-title">🧠 Am I Ready for F&amp;O?</div>
+          <p style="font-size:13px;color:rgba(255,255,255,.45);margin:0 0 18px;line-height:1.6;">5 questions to assess your F&amp;O readiness based on your experience, capital, and risk profile.</p>
+
+          <div id="quiz-q1">
+            <div style="font-size:14px;font-weight:700;color:#F5F7FA;margin-bottom:12px;">1. How long have you been investing in equities?</div>
+            <label class="quiz-option"><input type="radio" name="q1" value="1"> Less than 1 year</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="2"> 1–3 years</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="3"> 3–5 years</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="4"> 5+ years</label>
+          </div>
+
+          <div id="quiz-q2" style="display:none;margin-top:4px;">
+            <div style="font-size:14px;font-weight:700;color:#F5F7FA;margin-bottom:12px;">2. Can you afford to lose your entire F&amp;O capital?</div>
+            <label class="quiz-option"><input type="radio" name="q2" value="1"> No — would significantly hurt my finances</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="2"> It would hurt but I'd recover in 6 months</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="3"> Yes — this is pure speculation money</label>
+          </div>
+
+          <div id="quiz-q3" style="display:none;margin-top:4px;">
+            <div style="font-size:14px;font-weight:700;color:#F5F7FA;margin-bottom:12px;">3. Do you understand Options Greeks (Delta, Theta, Gamma, Vega)?</div>
+            <label class="quiz-option"><input type="radio" name="q3" value="1"> Never heard of them</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="2"> Know names, not the mechanics</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="3"> Understand them conceptually</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="4"> Can calculate and apply them</label>
+          </div>
+
+          <div id="quiz-q4" style="display:none;margin-top:4px;">
+            <div style="font-size:14px;font-weight:700;color:#F5F7FA;margin-bottom:12px;">4. What is your emergency fund status?</div>
+            <label class="quiz-option"><input type="radio" name="q4" value="1"> Less than 3 months of expenses</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="2"> 3–6 months</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="3"> 6+ months fully funded</label>
+          </div>
+
+          <div id="quiz-q5" style="display:none;margin-top:4px;">
+            <div style="font-size:14px;font-weight:700;color:#F5F7FA;margin-bottom:12px;">5. F&amp;O allocation vs your total net worth?</div>
+            <label class="quiz-option"><input type="radio" name="q5" value="1"> More than 20%</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="2"> 10–20%</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="3"> Less than 10% — pure learning capital</label>
+          </div>
+
+          <div id="quiz-result" style="display:none;"></div>
+
+          <button id="quiz-next-btn" onclick="_quizNext()" style="margin-top:16px;width:100%;padding:12px;border-radius:12px;background:transparent;border:1px solid rgba(0,212,255,.3);color:#00d4ff;font-size:14px;font-weight:700;cursor:pointer;transition:border-color 150ms,box-shadow 160ms;" onmouseover="this.style.borderColor='rgba(0,212,255,.6)';this.style.boxShadow='0 0 0 1px rgba(0,212,255,.2)'" onmouseout="this.style.borderColor='rgba(0,212,255,.3)';this.style.boxShadow=''">
+            Next →
+          </button>
+        </div>
+
+        <!-- Card 2: IV Rank + Strategy -->
+        <div class="opt-card">
+          <div class="opt-card-title">📊 IV Rank &amp; Strategy Recommendation</div>
+
+          <div style="display:flex;gap:10px;margin-bottom:16px;">
+            <div class="iv-tile">
+              <div class="iv-tile-label">Nifty IV Rank</div>
+              <div class="iv-tile-val" id="iv-rank-val" style="color:#f0a500;">—</div>
+              <div class="iv-tile-sub" id="iv-rank-label">Loading…</div>
+            </div>
+            <div class="iv-tile">
+              <div class="iv-tile-label">India VIX</div>
+              <div class="iv-tile-val" id="vix-val" style="color:#00d4ff;">—</div>
+              <div class="iv-tile-sub">Volatility index</div>
+            </div>
+            <div class="iv-tile">
+              <div class="iv-tile-label">Nifty Spot</div>
+              <div class="iv-tile-val" id="nifty-spot" style="color:#F5F7FA;font-size:20px;">—</div>
+              <div class="iv-tile-sub" id="nifty-change">—</div>
+            </div>
+          </div>
+
+          <div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:5px;">IV Rank — 0 = cheap options (buy) · 100 = expensive options (sell)</div>
+          <div class="iv-gauge-bar">
+            <div class="iv-gauge-needle" id="iv-needle" style="left:50%"></div>
+          </div>
+          <div class="iv-labels">
+            <span>0 — Buy options</span>
+            <span>50</span>
+            <span>100 — Sell IV</span>
+          </div>
+
+          <div class="iv-rec" id="iv-recommendation" style="margin-top:14px;">Market data loading…</div>
+
+          <div class="opt-card-title" style="margin-top:4px;">⚙️ Strategy Builder</div>
+          <div class="strategy-grid">
+            <div class="strategy-card" onclick="_showStrategy('covered_call')">
+              <div class="strategy-name">📞 Covered Call</div>
+              <div class="strategy-desc">Own shares + sell call. Earn income on existing holdings.</div>
+              <span class="risk-badge risk-low">Low Risk</span>
+            </div>
+            <div class="strategy-card" onclick="_showStrategy('bull_spread')">
+              <div class="strategy-name">🐂 Bull Call Spread</div>
+              <div class="strategy-desc">Buy lower call, sell higher. Defined risk bullish bet.</div>
+              <span class="risk-badge risk-medium">Medium Risk</span>
+            </div>
+            <div class="strategy-card" onclick="_showStrategy('iron_condor')">
+              <div class="strategy-name">🦅 Iron Condor</div>
+              <div class="strategy-desc">Range-bound bet. Sell OTM call + put. Works in high IV.</div>
+              <span class="risk-badge risk-medium">Medium Risk</span>
+            </div>
+            <div class="strategy-card" onclick="_showStrategy('straddle')">
+              <div class="strategy-name">⚡ Long Straddle</div>
+              <div class="strategy-desc">Buy ATM call + put. Profits from any large move. Low IV.</div>
+              <span class="risk-badge risk-high">High Risk</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Greeks Calculator -->
+        <div class="opt-card">
+          <div class="opt-card-title">🔢 Options Greeks — Live Calculator</div>
+
+          <div class="opt-input-row">
+            <div>
+              <label class="opt-label">Spot Price (₹)</label>
+              <input class="opt-input" id="g-spot" type="number" value="22000">
+            </div>
+            <div>
+              <label class="opt-label">Strike Price (₹)</label>
+              <input class="opt-input" id="g-strike" type="number" value="22000">
+            </div>
+            <div>
+              <label class="opt-label">Days to Expiry</label>
+              <input class="opt-input" id="g-dte" type="number" value="7" min="1" max="365">
+            </div>
+            <div>
+              <label class="opt-label">Implied Volatility (%)</label>
+              <input class="opt-input" id="g-iv" type="number" value="15" min="1" max="200">
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-bottom:18px;">
+            <button class="opt-btn opt-btn-call" onclick="_calcGreeks('call')">📈 Call Option</button>
+            <button class="opt-btn opt-btn-put"  onclick="_calcGreeks('put')">📉 Put Option</button>
+          </div>
+
+          <div class="greeks-grid" id="greeks-display">
+            <div class="greek-pill">
+              <div class="greek-symbol" style="color:#22d3a6;">Δ</div>
+              <div class="greek-name">Delta</div>
+              <div class="greek-val" id="g-delta">—</div>
+            </div>
+            <div class="greek-pill">
+              <div class="greek-symbol" style="color:#ff6666;">Θ</div>
+              <div class="greek-name">Theta/day</div>
+              <div class="greek-val" id="g-theta">—</div>
+            </div>
+            <div class="greek-pill">
+              <div class="greek-symbol" style="color:#00d4ff;">Γ</div>
+              <div class="greek-name">Gamma</div>
+              <div class="greek-val" id="g-gamma">—</div>
+            </div>
+            <div class="greek-pill">
+              <div class="greek-symbol" style="color:#a78bfa;">V</div>
+              <div class="greek-name">Vega/1%IV</div>
+              <div class="greek-val" id="g-vega">—</div>
+            </div>
+          </div>
+
+          <div id="greeks-summary" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px;font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.7;min-height:52px;"></div>
+        </div>
+
+        <!-- Card 4: Options Chain -->
+        <div class="opt-card">
+          <div class="opt-card-title">📋 Simulated Options Chain (Nifty)</div>
+          <p style="font-size:12px;color:rgba(255,255,255,.35);margin:0 0 14px;line-height:1.5;">Indicative data for education. ATM = closest strike to spot. <span style="color:#22d3a6;">Green = ITM calls</span> · <span style="color:rgba(255,255,255,.35);">Grey = OTM</span></p>
+          <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+            <table class="chain-table" id="options-chain">
+              <thead>
+                <tr>
+                  <th style="text-align:right;">OI</th>
+                  <th style="text-align:right;">LTP</th>
+                  <th style="text-align:right;">Δ</th>
+                  <th style="text-align:right;">IV%</th>
+                  <th style="text-align:center;background:rgba(255,255,255,.06);">STRIKE</th>
+                  <th style="text-align:right;">IV%</th>
+                  <th style="text-align:right;">Δ</th>
+                  <th style="text-align:right;">LTP</th>
+                  <th style="text-align:right;">OI</th>
+                </tr>
+                <tr>
+                  <th colspan="4" style="text-align:center;color:#22d3a6;padding:5px;font-size:10px;">← CALLS</th>
+                  <th style="background:rgba(255,255,255,.04);"></th>
+                  <th colspan="4" style="text-align:center;color:#ff6666;padding:5px;font-size:10px;">PUTS →</th>
+                </tr>
+              </thead>
+              <tbody id="chain-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /opt-grid -->
+
+    </div><!-- /content-wrapper -->
+  </main>
+</div><!-- /app -->
+
+<!-- Strategy Detail Modal -->
+<div id="strategy-modal" class="opt-modal">
+  <div class="opt-modal-box">
+    <div id="strategy-modal-content"></div>
+    <button class="opt-modal-close" onclick="document.getElementById('strategy-modal').style.display='none'">✕ Close</button>
+  </div>
+</div>
+
+<script src="../js/finos-widget.js?v=5"></script>
+<script src="../js/mobile-nav.js" defer></script>
+
+<script>
+/* ── Quiz ─────────────────────────────────────────────────── */
+let _quizPage = 1, _quizScores = [];
+
+window._quizNext = function() {
+  const q = document.querySelector(`[name="q${_quizPage}"]:checked`);
+  if (!q) { alert('Please select an answer to continue.'); return; }
+  _quizScores.push(parseInt(q.value));
+
+  document.getElementById(`quiz-q${_quizPage}`).style.display = 'none';
+  _quizPage++;
+
+  if (_quizPage <= 5) {
+    document.getElementById(`quiz-q${_quizPage}`).style.display = 'block';
+    if (_quizPage === 5) document.getElementById('quiz-next-btn').textContent = 'Get My Result →';
+    return;
+  }
+
+  const total = _quizScores.reduce((a,b) => a+b, 0);
+  const pct   = Math.round(total / 18 * 100);
+  const res   = pct >= 70
+    ? { verdict:'✅ F&O Ready', color:'#22d3a6', advice:'You show the profile of a disciplined trader. Start with hedged strategies — covered calls or bull spreads. Paper trade for at least 3 months first.' }
+    : pct >= 45
+    ? { verdict:'⚠️ Almost Ready', color:'#f0a500', advice:'You\'re building the right foundation. Strengthen your emergency fund, study Greeks deeply, and paper trade for 6 months before risking real capital.' }
+    : { verdict:'❌ Not Yet', color:'#ff4444', advice:'F&O trading is not recommended right now. Focus on your equity portfolio, emergency fund, and financial education. Revisit in 12–18 months.' };
+
+  document.getElementById('quiz-next-btn').style.display = 'none';
+  document.getElementById('quiz-result').style.display   = 'block';
+  document.getElementById('quiz-result').innerHTML = `
+    <div style="background:rgba(255,255,255,.04);border:1px solid ${res.color}25;border-radius:14px;padding:22px;text-align:center;">
+      <div style="font-size:22px;font-weight:900;color:${res.color};margin-bottom:6px;">${res.verdict}</div>
+      <div style="font-size:32px;font-weight:900;margin-bottom:4px;">${pct}%</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:14px;">Readiness Score</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.65);line-height:1.7;text-align:left;background:rgba(255,255,255,.03);border-radius:10px;padding:14px;">${res.advice}</div>
+      <button onclick="_resetQuiz()" style="margin-top:16px;padding:9px 22px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;">Retake Quiz</button>
+    </div>`;
+};
+
+window._resetQuiz = function() {
+  _quizPage=1; _quizScores=[];
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('quiz-q1').style.display='block';
+  document.getElementById('quiz-next-btn').style.display='block';
+  document.getElementById('quiz-next-btn').textContent='Next →';
+  document.querySelectorAll('[name^="q"]').forEach(r => r.checked=false);
+};
+
+/* ── Black-Scholes Greeks ─────────────────────────────────── */
+function _normalCDF(x) {
+  const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+  const sign = x<0?-1:1; x=Math.abs(x)/Math.sqrt(2);
+  const t=1/(1+p*x);
+  const y=1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+  return 0.5*(1+sign*y);
+}
+
+window._calcGreeks = function(type) {
+  const S=parseFloat(document.getElementById('g-spot').value)||22000;
+  const K=parseFloat(document.getElementById('g-strike').value)||22000;
+  const T=parseFloat(document.getElementById('g-dte').value)/365||0.02;
+  const IV=parseFloat(document.getElementById('g-iv').value)/100||0.15;
+  const r=0.065;
+
+  const d1=(Math.log(S/K)+(r+IV*IV/2)*T)/(IV*Math.sqrt(T));
+  const d2=d1-IV*Math.sqrt(T);
+  const phi=Math.exp(-d1*d1/2)/Math.sqrt(2*Math.PI);
+
+  const delta = type==='call' ? _normalCDF(d1) : _normalCDF(d1)-1;
+  const gamma = phi/(S*IV*Math.sqrt(T));
+  const vega  = S*phi*Math.sqrt(T)/100;
+  const theta = (type==='call'
+    ? -S*phi*IV/(2*Math.sqrt(T)) - r*K*Math.exp(-r*T)*_normalCDF(d2)
+    : -S*phi*IV/(2*Math.sqrt(T)) + r*K*Math.exp(-r*T)*_normalCDF(-d2))/365;
+  const price = type==='call'
+    ? S*_normalCDF(d1)-K*Math.exp(-r*T)*_normalCDF(d2)
+    : K*Math.exp(-r*T)*_normalCDF(-d2)-S*_normalCDF(-d1);
+
+  const moneyness = S>K?(type==='call'?'ITM':'OTM'):S<K?(type==='call'?'OTM':'ITM'):'ATM';
+  document.getElementById('g-delta').textContent = delta.toFixed(3);
+  document.getElementById('g-theta').textContent = theta.toFixed(2);
+  document.getElementById('g-gamma').textContent = gamma.toFixed(4);
+  document.getElementById('g-vega').textContent  = '₹'+vega.toFixed(2);
+  document.getElementById('greeks-summary').innerHTML = `
+    <strong style="color:#F5F7FA;">Theoretical ${type.toUpperCase()} Price: ₹${price.toFixed(2)}</strong> · Moneyness: <strong>${moneyness}</strong><br>
+    <span style="color:#22d3a6;">Δ ${delta.toFixed(3)}</span> = ₹${Math.abs(delta).toFixed(2)} gain per ₹1 Nifty move. &nbsp;
+    <span style="color:#ff6666;">Θ ${theta.toFixed(2)}</span> = ₹${Math.abs(theta).toFixed(2)} lost per day. &nbsp;
+    <span style="color:#a78bfa;">V ₹${vega.toFixed(2)}</span> = value change per 1% IV move.`;
+};
+
+/* ── Options Chain ────────────────────────────────────────── */
+function _buildChain() {
+  const spot=22800, atmStrike=22800;
+  const strikes=[-400,-300,-200,-100,0,100,200,300,400].map(d=>atmStrike+d);
+  document.getElementById('chain-body').innerHTML = strikes.map(K => {
+    const atm=K===atmStrike;
+    const d1=(Math.log(spot/K)+0.08*0.012)/(0.15*Math.sqrt(0.012));
+    const dc=_normalCDF(d1).toFixed(2), dp=(parseFloat(dc)-1).toFixed(2);
+    const ivc=(14+Math.abs(K-atmStrike)/100*0.5).toFixed(1);
+    const ivp=(15+Math.abs(K-atmStrike)/100*0.7).toFixed(1);
+    const ltpC=Math.max(2,spot-K+Math.random()*25).toFixed(0);
+    const ltpP=Math.max(2,K-spot+Math.random()*25).toFixed(0);
+    const oiC=Math.round(Math.random()*50+10)+'K';
+    const oiP=Math.round(Math.random()*60+15)+'K';
+    const cC=K<atmStrike?'chain-itm':'chain-otm';
+    const cP=K>atmStrike?'chain-itm':'chain-otm';
+    return `<tr class="${atm?'atm':''}">
+      <td class="${cC}">${oiC}</td>
+      <td class="${cC}">₹${ltpC}</td>
+      <td class="${cC}">${dc}</td>
+      <td class="${cC}">${ivc}%</td>
+      <td class="chain-strike">${K}${atm?' ★':''}</td>
+      <td class="${cP}">${ivp}%</td>
+      <td class="${cP}">${dp}</td>
+      <td class="${cP}">₹${ltpP}</td>
+      <td class="${cP}">${oiP}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── IV Rank simulation ───────────────────────────────────── */
+function _simulateMarket() {
+  const ivr=(Math.round(35+Math.random()*35));
+  const vix=(12+Math.random()*8).toFixed(1);
+  const nifty=(22700+Math.random()*300).toFixed(0);
+  const chg=((Math.random()-.45)*1.5).toFixed(2);
+  const col=ivr>60?'#ff6666':ivr>35?'#f0a500':'#22d3a6';
+
+  document.getElementById('iv-rank-val').textContent=ivr;
+  document.getElementById('iv-rank-val').style.color=col;
+  document.getElementById('iv-rank-label').textContent=ivr>60?'High — Sell IV':ivr>35?'Moderate':'Low — Buy options';
+  document.getElementById('vix-val').textContent=vix;
+  document.getElementById('nifty-spot').textContent='₹'+parseInt(nifty).toLocaleString('en-IN');
+  document.getElementById('nifty-change').innerHTML=`<span style="color:${chg>=0?'#22d3a6':'#ff4444'}">${chg>=0?'+':''}${chg}%</span>`;
+  document.getElementById('iv-needle').style.left=ivr+'%';
+  document.getElementById('iv-recommendation').innerHTML = ivr>60
+    ? `<strong style="color:#22d3a6;">High IV Environment:</strong> Premiums are rich. Favour <strong>Iron Condors, Covered Calls, Short Strangles</strong>. Avoid buying naked options — theta decay is your enemy.`
+    : ivr>35
+    ? `<strong style="color:#f0a500;">Moderate IV:</strong> Balanced environment. <strong>Bull/Bear Spreads</strong> offer defined risk with reasonable premiums.`
+    : `<strong style="color:#00d4ff;">Low IV Environment:</strong> Options are cheap. Good time for <strong>Long Straddles/Strangles</strong> before an expected big move.`;
+}
+
+/* ── Strategy details ─────────────────────────────────────── */
+const STRATEGIES = {
+  covered_call: { name:'Covered Call',icon:'📞', description:'You own 50 shares of Reliance at ₹2,800. Sell a 2900 CE expiring in 30 days for ₹40 premium. If Reliance stays below ₹2,900, you keep ₹2,000 as income. If it rallies above ₹2,900, your shares get called away at an effective ₹2,940.', when:'IV Rank > 50, mildly bullish, you own the underlying stock', risk:'Capped upside if the stock rallies strongly', ideal_iv:'High (IVR 50–80)' },
+  bull_spread:  { name:'Bull Call Spread',icon:'🐂', description:'Buy NIFTY 22800 CE @ ₹180. Sell NIFTY 23000 CE @ ₹90. Net cost: ₹90. Max profit: ₹110 if Nifty > 23000 at expiry. Max loss: ₹90 (net premium). Break-even at 22890.', when:'Moderately bullish, want defined maximum loss', risk:'Defined — max loss is net premium paid', ideal_iv:'Moderate (IVR 20–50)' },
+  iron_condor:  { name:'Iron Condor',icon:'🦅', description:'Sell NIFTY 23200 CE + Buy 23400 CE (call spread). Sell 22400 PE + Buy 22200 PE (put spread). Collect premium from both sides. Profit if Nifty stays in the 22400–23200 range till expiry.', when:'Range-bound market, high IV environment (premium selling)', risk:'Defined on both sides — max loss at either wing strike', ideal_iv:'High (IVR 60+)' },
+  straddle:     { name:'Long Straddle',icon:'⚡', description:'Buy ATM NIFTY Call + Put at same strike (22800), same expiry. Total premium: ~₹350. Upside break-even: 23150. Downside: 22450. Profits from any large move in either direction.', when:'Big event ahead (Budget, RBI policy, Q4 results) + low IV', risk:'High — both options bleed theta every day', ideal_iv:'Low (IVR < 30)' },
+};
+
+window._showStrategy = function(id) {
+  const s=STRATEGIES[id]; if(!s) return;
+  document.getElementById('strategy-modal-content').innerHTML = `
+    <div style="font-size:32px;margin-bottom:10px;">${s.icon}</div>
+    <div style="font-size:18px;font-weight:800;color:#F5F7FA;margin-bottom:16px;">${s.name}</div>
+    <div style="background:rgba(255,255,255,.04);border-radius:12px;padding:16px;font-size:13px;color:rgba(255,255,255,.65);line-height:1.75;margin-bottom:16px;">${s.description}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;">
+      <div style="background:rgba(34,211,166,.06);border:1px solid rgba(34,211,166,.15);border-radius:10px;padding:12px;"><div style="color:#22d3a6;font-weight:700;margin-bottom:5px;">✅ When to use</div><div style="color:rgba(255,255,255,.55);">${s.when}</div></div>
+      <div style="background:rgba(255,68,68,.06);border:1px solid rgba(255,68,68,.15);border-radius:10px;padding:12px;"><div style="color:#ff6666;font-weight:700;margin-bottom:5px;">⚠ Risk profile</div><div style="color:rgba(255,255,255,.55);">${s.risk}</div></div>
+      <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:10px;padding:12px;grid-column:1/-1;"><div style="color:#00d4ff;font-weight:700;margin-bottom:5px;">📊 Best IV environment</div><div style="color:rgba(255,255,255,.55);">${s.ideal_iv}</div></div>
+    </div>`;
+  document.getElementById('strategy-modal').style.display='flex';
+};
+
+/* ── Init ─────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', function() {
+  _simulateMarket();
+  _buildChain();
+  _calcGreeks('call');
+  setInterval(_simulateMarket, 60000);
+});
+</script>
+
+<script src="../js/sidebar.js"></script>
+  <script src="../js/interactions.js" defer></script>
+<button id="themeToggle" class="theme-btn" style="position:fixed;top:16px;right:16px;z-index:150;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;" aria-label="Toggle dark/light theme">🌙</button>
+<script>
+(function(){
+  var btn=document.getElementById('themeToggle');
+  if(!btn) return;
+  var t=document.documentElement.getAttribute('data-theme')||'dark';
+  btn.textContent=t==='dark'?'🌙':'☀️';
+  btn.addEventListener('click',function(){
+    var cur=document.documentElement.getAttribute('data-theme');
+    var nxt=cur==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',nxt);
+    localStorage.setItem('finos-theme',nxt);
+    localStorage.setItem('theme',nxt);
+    btn.textContent=nxt==='dark'?'🌙':'☀️';
+    btn.setAttribute('aria-label',nxt==='dark'?'Switch to light mode':'Switch to dark mode');
+  });
+})();
+</script>
+<script src="../js/ui.js" defer></script>
+</body>
+</html>

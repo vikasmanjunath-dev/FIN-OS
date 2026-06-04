@@ -289,18 +289,7 @@ html[data-theme="light"] {
   margin-bottom: 24px;
 }
 
-/* BUTTON */
-.primary-btn {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 14px 28px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: transform 0.25s ease;
-}
+/* Primary button canonical definition lives in design-tokens.css */
 
 .primary-btn:hover {
   transform: translateY(-2px);
@@ -613,47 +602,7 @@ body::after {
   transform: translateY(-4px) scale(1.1);
   filter: drop-shadow(0 10px 20px rgba(79,124,255,0.35));
 }
-/* =========================
-   BUTTON INTERACTIONS
-   ========================= */
-
-.primary-btn {
-  position: relative;
-  overflow: hidden;
-
-  transition:
-    transform 0.3s cubic-bezier(0.16,1,0.3,1),
-    box-shadow 0.3s ease;
-}
-
-.primary-btn:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 20px 50px rgba(79,124,255,0.45);
-}
-
-.primary-btn:active {
-  transform: translateY(0) scale(0.97);
-}
-
-/* Ripple-like light sweep */
-.primary-btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(255,255,255,0.35),
-    transparent
-  );
-  transform: translateX(-120%);
-  transition: transform 0.6s ease;
-}
-
-.primary-btn:hover::after {
-  transform: translateX(120%);
-}
+/* Button interactions — canonical in design-tokens.css */
 
 
 /* ================= BELIEF ENGINE ================= */
@@ -702,7 +651,9 @@ body::after {
 
 .belief-grid button:hover {
   transform: translateY(-4px);
-  background: rgba(79,124,255,0.18);
+  background: transparent;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(79,124,255,.25), 0 8px 24px rgba(79,124,255,.12);
 }
 
 .belief-result {
@@ -739,7 +690,9 @@ section {
 
 .belief-grid button:hover {
   transform: translateY(-4px);
-  background: rgba(79,124,255,0.18);
+  background: transparent;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(79,124,255,.25), 0 8px 24px rgba(79,124,255,.12);
 }
 
 .belief-grid button.active {
@@ -857,10 +810,213 @@ section {
 
 
 
-/* Add this to the bottom of your CSS file */
-.primary-btn {
-  width: auto !important;         /* Stop 100% width */
-  max-width: none !important;     /* Remove the 450px limit */
-  display: inline-flex;           /* Make it behave like a button, not a block */
-  justify-content: center;        /* Center text inside */
+/* primary-btn: canonical in design-tokens.css — no overrides needed here */
+
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS FOR LANDING PAGE
+   All grids previously had no mobile breakpoints — fixed here.
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  /* India realities 3-col → 2-col */
+  .india-realities {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+
+  /* Trust strip 4-col → 2-col */
+  .trust-strip {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin: 56px 0;
+  }
+
+  /* Landing values 3-col → 2-col */
+  .landing-values {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 64px;
+  }
+
+  /* Myth-reality grid 2-col → 1-col */
+  .myth-reality-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  /* Vision grid: let auto-fit do 2 per row */
+  .vision-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Section title smaller */
+  .section-title {
+    font-size: 30px;
+    letter-spacing: -0.3px;
+  }
+
+  /* Landing hero heading */
+  .landing-hero h1 {
+    font-size: clamp(32px, 6vw, 50px);
+  }
+
+  /* Landing outer padding */
+  .landing {
+    padding: 80px 5vw 60px;
+  }
+
+  /* Section spacing reduction */
+  .landing-section {
+    margin: 64px 0;
+  }
+
+  /* Vision section */
+  .vision-section {
+    padding: 80px 0;
+  }
+
+  /* Vision header */
+  .vision-header {
+    margin-bottom: 40px;
+  }
+}
+
+@media (max-width: 600px) {
+  /* India realities → single column */
+  .india-realities {
+    grid-template-columns: 1fr;
+  }
+
+  /* Trust strip → single column */
+  .trust-strip {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  /* Landing values → single column */
+  .landing-values {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  /* Vision grid → single column */
+  .vision-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Life simulator: stack columns vertically */
+  .life-simulator {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .life-divider {
+    transform: rotate(90deg);
+    font-size: 1.5rem;
+  }
+
+  /* Literacy simulator: stack */
+  .literacy-simulator {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .literacy-arrow {
+    transform: rotate(90deg);
+    display: block;
+    text-align: center;
+  }
+
+  /* Solution simulator: stack */
+  .solution-simulator {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .solution-arrow {
+    transform: rotate(90deg);
+    display: block;
+    text-align: center;
+  }
+
+  /* Orbit animations: scale down container to prevent overflow */
+  .money-energy,
+  .chulha {
+    width: 220px;
+    height: 220px;
+    margin: 2rem auto;
+  }
+
+  .energy-core,
+  .fire-core {
+    width: 90px;
+    height: 90px;
+  }
+
+  /* Section title mobile */
+  .section-title {
+    font-size: 24px;
+  }
+
+  .section-sub {
+    font-size: 15px;
+  }
+
+  /* Hero CTA */
+  .hero-cta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  /* Timeline track already scrolls, keep it */
+  .timeline-track {
+    gap: 16px;
+  }
+
+  .timeline-card {
+    min-width: 220px;
+    padding: 20px;
+  }
+
+  /* Landing padding */
+  .landing {
+    padding: 64px 4vw 48px;
+  }
+
+  /* Section spacing */
+  .landing-section {
+    margin: 48px 0;
+  }
+
+  /* Belief engine */
+  .belief-grid {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .belief-grid button {
+    width: 100%;
+    text-align: left;
+  }
+
+  /* Landing final CTA */
+  .landing-final h2 {
+    font-size: 22px;
+  }
+
+  /* Remove br spacers effect */
+  .landing br + br { display: none; }
+
+  /* Vision header */
+  .vision-header {
+    max-width: 100%;
+  }
+
+  .vision-section {
+    padding: 56px 0;
+  }
 }

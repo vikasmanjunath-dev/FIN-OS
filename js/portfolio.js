@@ -278,7 +278,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     dropZone.addEventListener('dragover', () => dropZone.classList.add('dragover'));
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
     dropZone.addEventListener('drop', (e) => handleFile(e.dataTransfer.files[0]));
-    fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+    let _fileDebounce;
+    fileInput.addEventListener('change', (e) => {
+      clearTimeout(_fileDebounce);
+      _fileDebounce = setTimeout(() => handleFile(e.target.files[0]), 250);
+    });
   }
 
   function handleFile(file) {
@@ -539,6 +543,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  function _safeText(str) {
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
   function renderHierarchy(stats, total, unknownList) {
     const box = document.getElementById('hierarchyContainer');
     if(!box || total === 0) return;
@@ -582,7 +590,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             </div>`;
       h += `<div class="h-sub" style="border-left:2px solid #ff4757;">`;
       unknownList.forEach(item => {
-         h += `<div class="h-row"><span>${item.symbol}</span><span>₹${Math.round(item.value).toLocaleString()}</span></div>`;
+         h += `<div class="h-row"><span>${_safeText(item.symbol)}</span><span>₹${Math.round(item.value).toLocaleString()}</span></div>`;
       });
       h += `<div class="h-row" style="font-size:12px; opacity:0.7; margin-top:8px;"><i>(These symbols were not found in our database. Please check spelling or manually categorize.)</i></div>`;
       h += `</div>`;

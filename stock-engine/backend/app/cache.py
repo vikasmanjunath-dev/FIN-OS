@@ -14,6 +14,7 @@ class _MemoryCache:
     def __init__(self) -> None:
         self._store: dict[str, tuple[float, Any]] = {}
         self._lock = asyncio.Lock()
+        self._cleanup_counter = 0
 
     async def get(self, key: str) -> Optional[Any]:
         async with self._lock:
@@ -30,21 +31,35 @@ class _MemoryCache:
         async with self._lock:
             expires = time.time() + ttl if ttl else 0
             self._store[key] = (expires, value)
+            self._cleanup_counter += 1
+            if self._cleanup_counter >= 100:
+                self._cleanup_counter = 0
+                now = time.time()
+                self._store = {k: v for k, v in self._store.items() if not v[0] or v[0] > now}
 
 
 class _RedisCache:
     def __init__(self, url: str) -> None:
         import redis.asyncio as aioredis  # type: ignore
-        self._r = aioredis.from_url(url, decode_responses=True)
+        self._r = aioredis.from_url(url, decode_responses=True, socket_connect_timeout=2, socket_timeout=2)
 
     async def get(self, key: str) -> Optional[Any]:
         import json
-        raw = await self._r.get(key)
-        return json.loads(raw) if raw else None
+        try:
+            raw = await asyncio.wait_for(self._r.get(key), timeout=2.0)
+            return json.loads(raw) if raw else None
+        except Exception:
+            return None
 
     async def set(self, key: str, value: Any, ttl: int = 30) -> None:
         import json
-        await self._r.set(key, json.dumps(value, default=str), ex=ttl or None)
+        try:
+            await asyncio.wait_for(
+                self._r.set(key, json.dumps(value, default=str), ex=ttl or None),
+                timeout=2.0
+            )
+        except Exception:
+            pass
 
 
 def _build():

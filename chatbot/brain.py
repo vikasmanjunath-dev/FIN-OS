@@ -39,7 +39,7 @@ OLLAMA_MODEL     = os.getenv("OLLAMA_MODEL",     "llama3.1")
 # Portfolio model — defaults to llama3.1 (fast, already warm).
 # Override: PORTFOLIO_MODEL=qwen3:14b python brain.py  (slower but smarter)
 PORTFOLIO_MODEL  = os.getenv("PORTFOLIO_MODEL",  "llama3.1")
-ALLOWED_ORIGINS  = os.getenv("ALLOWED_ORIGINS",  "*").split(",")
+ALLOWED_ORIGINS  = os.getenv("ALLOWED_ORIGINS",  "http://localhost:3000,http://localhost:5173,http://127.0.0.1:5500").split(",")
 MAX_HISTORY      = int(os.getenv("MAX_HISTORY",   "20"))
 OLLAMA_TIMEOUT   = int(os.getenv("OLLAMA_TIMEOUT","120"))
 MAX_SESSIONS     = int(os.getenv("MAX_SESSIONS",  "1000"))
@@ -445,7 +445,7 @@ async def call_ollama_nonstream(messages: list[dict], retries: int = 2) -> dict:
         except Exception as e:
             if attempt == retries:
                 raise HTTPException(status_code=502, detail=str(e))
-            await asyncio.sleep(1.5 ** attempt)
+            await asyncio.sleep(min(10, 1.5 ** attempt) + __import__('random').uniform(0, 1))
 
 
 async def call_ollama_stream(messages: list[dict]) -> AsyncGenerator[str, None]:
@@ -615,7 +615,8 @@ async def chat_stream(request: Request, body: ChatRequest):
                     if chunk.get("done"):
                         history.append({"role": "assistant", "content": "".join(full_reply)})
                         yield f"data: {json.dumps({'done': True, 'session_id': session_id})}\n\n"
-                except Exception:
+                except Exception as parse_err:
+                    logger.debug("Malformed Ollama chunk skipped: %s", parse_err)
                     continue
         except HTTPException as e:
             yield f"data: {json.dumps({'error': e.detail})}\n\n"
@@ -935,7 +936,7 @@ class PortfolioSnapshot(BaseModel):
     totalInvested: float = 0
     dayChange:     float = 0
     dayChangePct:  float = 0
-    holdings:      list[PortfolioHolding] = Field(default_factory=list)
+    holdings:      list[PortfolioHolding] = Field(default_factory=list, max_length=500)
     # pre-computed analytics sent from frontend
     sectorBreakdown: dict = Field(default_factory=dict)  # {"IT": 28.4, "Banking": 22.1, ...}
     concentrationScore: float = 0    # 0-100, higher = more concentrated

@@ -101,23 +101,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // --- PERSONA SELECTOR INTERACTION ---
-window.selectPersona = function(type) {
+window.selectPersona = function(type, evt) {
+  const e = evt || (typeof event !== 'undefined' ? event : null);
   const text = document.querySelector('.you-decide');
   const buttons = document.querySelectorAll('.choice-btn');
-  
+
   // Reset buttons
-  buttons.forEach(btn => btn.style.opacity = '0.5');
-  
+  buttons.forEach(btn => { btn.style.opacity = '0.5'; btn.style.transform = ''; });
+
   // Highlight text
   if (type === 'investor') {
-    text.innerText = "WELCOME, INVESTOR.";
-    text.style.backgroundImage = "linear-gradient(90deg, #C7F000, #fff)";
-    event.target.style.opacity = '1';
-    event.target.style.transform = 'scale(1.1)';
+    if (text) { text.innerText = "WELCOME, INVESTOR."; text.style.backgroundImage = "linear-gradient(90deg, #C7F000, #fff)"; }
+    if (e && e.target) { e.target.style.opacity = '1'; e.target.style.transform = 'scale(1.1)'; }
   } else {
-    text.innerText = "WELCOME, TRADER.";
-    text.style.backgroundImage = "linear-gradient(90deg, #4F7CFF, #fff)";
-    event.target.style.opacity = '1';
-    event.target.style.transform = 'scale(1.1)';
+    if (text) { text.innerText = "WELCOME, TRADER."; text.style.backgroundImage = "linear-gradient(90deg, #4F7CFF, #fff)"; }
+    if (e && e.target) { e.target.style.opacity = '1'; e.target.style.transform = 'scale(1.1)'; }
   }
 };

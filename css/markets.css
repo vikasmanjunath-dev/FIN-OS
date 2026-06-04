@@ -44,10 +44,11 @@
   transition: all 0.3s ease;
 }
 .nav-pill:hover, .nav-pill.active {
-  background: var(--accent);
-  color: #000;
+  background: transparent;
+  color: var(--accent);
   font-weight: 700;
   border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(79,124,255,.3);
 }
 
 /* SECTIONS */
@@ -282,10 +283,10 @@
 }
 
 .choice-btn:hover {
-  background: var(--accent);
-  color: #000;
-  box-shadow: 0 0 20px rgba(79, 124, 255, 0.6);
-  transform: scale(1.05);
+  background: transparent;
+  color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 20px rgba(79,124,255,.35);
+  transform: scale(1.03);
   border-color: var(--accent);
 }
 
@@ -379,8 +380,8 @@
 .persona-card:hover {
   transform: translateY(-12px);
   border-color: var(--accent);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-  background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(0,0,0,0.3));
+  box-shadow: 0 0 0 1px rgba(79,124,255,.18), 0 20px 48px rgba(0,0,0,.4);
+  background: transparent;
 }
 
 /* 4. CONTENT STYLING */

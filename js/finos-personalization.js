@@ -15,9 +15,13 @@
 (function FinosPersonalization() {
   'use strict';
 
-  /* ── Supabase config (centralised — DO NOT duplicate in other files) ── */
-  const SB_URL = 'https://oeapcyucnduhwpgxfknb.supabase.co';
-  const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+  /* ── Supabase config — reads from supabase-config.js singleton ── */
+  const SB_URL = (window.FINOS_SB && window.FINOS_SB.url)
+    ? window.FINOS_SB.url
+    : 'https://oeapcyucnduhwpgxfknb.supabase.co';
+  const SB_KEY = (window.FINOS_SB && window.FINOS_SB.key)
+    ? window.FINOS_SB.key
+    : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
 
   /* ── Exports — pages can call window.FinosPersona.xxx() ── */
   window.FinosPersona = window.FinosPersona || {};
@@ -126,6 +130,11 @@
      1. PERSONALISED HEADER GREETING
      Replaces the first <h1> in .header with "Good morning, Vikas 👋"
   ════════════════════════════════════════════════════════════════════════ */
+  // XSS-safe text sanitiser for dynamic user values
+  function _esc(str) {
+    return String(str ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
   function injectGreeting(opts = {}) {
     const { selector = '.header h1', nameEl = null, subEl = null } = opts;
 
@@ -138,7 +147,7 @@
       /* -- main H1 -- */
       const h1 = nameEl || document.querySelector(selector);
       if (h1) {
-        h1.innerHTML = `${greeting}, <span style="color:var(--accent,#c7f000)">${r.name}</span> 👋`;
+        h1.innerHTML = `${_esc(greeting)}, <span style="color:var(--accent,#c7f000)">${_esc(r.name)}</span> 👋`;
       }
 
       /* -- sub-headline -- */
@@ -146,8 +155,8 @@
       if (sub && !sub.dataset.greetingSet) {
         sub.dataset.greetingSet = '1';
         const dnaLine = r.dnaTag !== 'Explorer'
-          ? `Financial DNA: <span style="color:var(--accent,#c7f000)">${r.dnaTag}</span>`
-          : `${r.stage} Stage`;
+          ? `Financial DNA: <span style="color:var(--accent,#c7f000)">${_esc(r.dnaTag)}</span>`
+          : `${_esc(r.stage)} Stage`;
         sub.innerHTML = dnaLine + streakStr;
       }
     }
@@ -187,11 +196,6 @@
       if (r.journal?.win_rate > 0) {
         items.push({ label: 'Win rate', value: `${r.journal.win_rate}%`, href: '../TradeJournal/index.html' });
       }
-      const streak = safeJson('finos_streak', { count: 0 });
-      if (streak.count > 1) {
-        items.push({ label: 'Streak', value: `🔥 ${streak.count} days`, href: null });
-      }
-
       if (!items.length) return;
 
       let strip = document.getElementById('finos-status-strip');

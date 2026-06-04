@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <title>Real Estate Intelligence | FIN•OS</title>
+    <link rel="stylesheet" href="../css/design-tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-context.js" defer></script>
+  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-personalization.js" defer></script>
+<style>
+/* ── Real Estate Page Styles ── */
+.re-tabs { display:flex; gap:4px; background:var(--bg-surface); border-radius:12px; padding:4px; margin-bottom:24px; }
+.re-tab {
+  flex:1; padding:9px 8px; border-radius:9px; border:none;
+  background:transparent; color:rgba(255,255,255,.4);
+  font-size:13px; font-weight:600; cursor:pointer;
+  transition:all .15s; white-space:nowrap;
+}
+.re-tab.active { background:rgba(34,211,166,.12); color:#22d3a6; }
+.re-tab:hover:not(.active) { background:var(--bg-surface); color:rgba(255,255,255,.7); }
+
+.re-card {
+  background:var(--bg-surface);
+  border:1px solid var(--border-soft);
+  border-radius:18px;
+  padding:24px;
+  margin-bottom:20px;
+}
+.re-card-title {
+  font-size:11px; font-weight:800;
+  text-transform:uppercase; letter-spacing:.08em;
+  color:rgba(255,255,255,.4); margin-bottom:18px;
+}
+
+.re-two-col { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+@media(max-width:680px){ .re-two-col { grid-template-columns:1fr; } }
+
+.re-label { font-size:11px; color:rgba(255,255,255,.45); display:block; margin-bottom:5px; }
+.re-input, .re-select {
+  width:100%; padding:10px 12px;
+  background:var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius:10px;
+  color:var(--text-primary); font-size:13px;
+  outline:none; margin-bottom:14px;
+  transition:border-color .15s;
+}
+.re-input:focus, .re-select:focus { border-color:rgba(34,211,166,.5); }
+.re-select option { background:#0d0f1a; }
+
+.re-calc-btn {
+  width:100%; padding:14px;
+  border-radius:14px; border:none;
+  background:linear-gradient(135deg,#22d3a6,#00d4ff);
+  color:#0d0f1a; font-size:15px; font-weight:800;
+  cursor:pointer; margin-top:4px;
+  transition:opacity .15s;
+}
+.re-calc-btn:hover { opacity:.9; }
+
+.re-result { margin-top:20px; display:none; }
+
+.re-winner {
+  text-align:center; padding:18px;
+  border-radius:14px;
+  margin-bottom:18px;
+}
+.re-metric-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; }
+@media(max-width:500px){ .re-metric-grid { grid-template-columns:repeat(2,1fr); } }
+.re-metric {
+  background:var(--bg-surface);
+  border-radius:12px; padding:14px; text-align:center;
+}
+.re-metric-val { font-size:18px; font-weight:800; margin-bottom:3px; }
+.re-metric-lbl { font-size:10px; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:.05em; }
+
+.re-result-box {
+  background:var(--bg-surface);
+  border:1px solid var(--border-soft);
+  border-radius:14px; padding:18px;
+}
+.re-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-soft); font-size:13px; }
+.re-row:last-child { border-bottom:none; }
+.re-row-label { color:rgba(255,255,255,.5); }
+.re-row-val { font-weight:600; }
+.re-row-total { display:flex; justify-content:space-between; padding:12px 0 6px; font-size:14px; font-weight:800; border-top: 1px solid var(--border-soft); margin-top:6px; }
+
+.re-timeline { height:8px; background:var(--bg-surface); border-radius:4px; margin:8px 0 4px; overflow:hidden; }
+.re-timeline-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,#22d3a6,#00d4ff); transition:width .8s ease; }
+
+.re-insight-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.re-insight {
+  background:var(--bg-surface);
+  border:1px solid var(--border-soft);
+  border-radius:14px; padding:16px;
+}
+.re-insight-icon { font-size:22px; margin-bottom:8px; }
+.re-insight-title { font-size:13px; font-weight:700; color:#F5F7FA; margin-bottom:5px; }
+.re-insight-text { font-size:12px; color:rgba(255,255,255,.45); line-height:1.6; }
+
+.re-tab-content { display:none; }
+.re-tab-content.active { display:block; }
+
+/* Breadcrumb */
+.page-breadcrumb {
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:20px; font-size:13px; color:rgba(255,255,255,.4);
+}
+.page-breadcrumb a { color:rgba(255,255,255,.4); text-decoration:none; }
+.page-breadcrumb a:hover { color:#22d3a6; }
+.page-breadcrumb span { color:rgba(255,255,255,.2); }
+</style>
+  <link rel="stylesheet" href="../css/interactions.css">
+</head>
+<body>
+<div class="app">
+          <aside class="sidebar" role="complementary" aria-label="Navigation">
+
+    <!-- Brand -->
+    <div class="sb-brand">
+      <div class="sb-logomark" aria-hidden="true">
+        <span class="sb-logomark-letter">F</span>
+      </div>
+      <div class="sb-wordmark">
+        <div class="sb-wordmark-name">FIN•OS</div>
+        <div class="sb-wordmark-tag">Financial OS</div>
+      </div>
+    </div>
+
+    <!-- Identity -->
+    <a href="profile.html" class="sb-identity" aria-label="Your profile">
+      <div class="sb-av" id="sb-av" aria-hidden="true">I</div>
+      <div class="sb-identity-body">
+        <div class="sb-identity-name" id="sb-name">Investor</div>
+        <div class="sb-identity-meta">
+          <span class="sb-identity-dna"  id="sb-dna">Financial DNA</span>
+          <span class="sb-health-pill"   id="sb-health-pill"></span>
+        </div>
+      </div>
+      <span class="sb-identity-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </a>
+
+    <!-- Search shortcut -->
+    <button class="sb-cmd" id="sb-cmd" aria-label="Search (Ctrl+K)">
+      <span class="sb-cmd-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="sb-cmd-label">Search or jump to…</span>
+      <kbd class="sb-cmd-kbd" aria-hidden="true">⌘K</kbd>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="sb-nav" aria-label="Main">
+        <a href="home.html" class="sb-link" title="Home">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+          <span class="sb-label">Home</span>
+        </a>
+        <a href="dashboard.html" class="sb-link" title="Dashboard">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>
+          <span class="sb-label">Dashboard</span>
+          <span class="sb-badge" id="sb-streak" aria-label="count"></span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="foundations.html" class="sb-link" title="Learn">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+          <span class="sb-label">Learn</span>
+        </a>
+        <a href="simulator-landing.html" class="sb-link" title="Mindset">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span>
+          <span class="sb-label">Mindset</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="diagnostics.html" class="sb-link" title="Diagnostics">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          <span class="sb-label">Diagnostics</span>
+        </a>
+        <a href="track-finances.html" class="sb-link" title="Track">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+          <span class="sb-label">Track</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="markets.html" class="sb-link" title="Markets">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+          <span class="sb-label">Markets</span>
+        </a>
+        <a href="tools.html" class="sb-link active" aria-current="page" title="Tools">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+          <span class="sb-label">Tools</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="news.html" class="sb-link" title="News">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span>
+          <span class="sb-label">News</span>
+        </a>
+    </nav>
+
+    <!-- Footer: Arya AI + Settings -->
+    <div class="sb-footer-zone">
+
+      <button class="sb-arya-row" id="sb-arya-btn"
+              aria-label="Arya AI — your financial coach"
+              onclick="document.querySelector('.finos-fab')?.click?.();">
+        <div class="sb-arya-icon" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span class="sb-arya-dot checking" id="sb-arya-dot"></span>
+        </div>
+        <div class="sb-arya-body">
+          <div class="sb-arya-name">Arya AI</div>
+          <div class="sb-arya-status checking" id="sb-arya-status">Connecting…</div>
+        </div>
+        <span class="sb-arya-arrow" aria-hidden="true">›</span>
+      </button>
+
+      <a href="settings.html" class="sb-settings-row" title="Settings">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        <span class="sb-label">Settings</span>
+      </a>
+
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+
+      <!-- Breadcrumb -->
+      <div class="page-breadcrumb">
+        <a href="dashboard.html">Dashboard</a>
+        <span>/</span>
+        <span style="color:#F5F7FA;">Real Estate Intelligence</span>
+      </div>
+
+      <header class="header" style="margin-bottom:8px;">
+        <div>
+          <h1 style="margin-bottom:4px;">🏠 Real Estate Intelligence</h1>
+          <p style="font-size:13px;color:rgba(255,255,255,.45);margin:0;">Buy vs Rent · True ownership cost · Rental yield · 20-year wealth comparison</p>
+        </div>
+      </header>
+
+      <!-- Tabs -->
+      <div class="re-tabs" style="margin-top:20px;">
+        <button class="re-tab active" onclick="_switchTab('bvr')">🏠 Buy vs Rent</button>
+        <button class="re-tab" onclick="_switchTab('tco')">💰 True Cost</button>
+        <button class="re-tab" onclick="_switchTab('yield')">📈 Rental Yield</button>
+        <button class="re-tab" onclick="_switchTab('insights')">💡 Insights</button>
+      </div>
+
+      <!-- Tab 1: Buy vs Rent -->
+      <div id="tab-bvr" class="re-tab-content active">
+        <div class="re-card">
+          <div class="re-card-title">🏠 Buy vs Rent — 20-Year Wealth Comparison</div>
+          <div class="re-two-col">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#22d3a6;margin-bottom:14px;">BUY Scenario</div>
+              <label class="re-label">Property Price (₹)</label>
+              <input class="re-input" id="prop-price" type="number" value="8000000">
+              <label class="re-label">Down Payment (%)</label>
+              <input class="re-input" id="down-pct" type="number" value="20" min="10" max="50">
+              <label class="re-label">Home Loan Rate (%)</label>
+              <input class="re-input" id="loan-rate" type="number" value="8.5" step="0.1">
+              <label class="re-label">Loan Tenure (years)</label>
+              <input class="re-input" id="loan-tenure" type="number" value="20" min="5" max="30">
+              <label class="re-label">Annual Property Appreciation (%)</label>
+              <input class="re-input" id="prop-app" type="number" value="6" step="0.5">
+              <label class="re-label">Monthly Maintenance (₹)</label>
+              <input class="re-input" id="maintenance" type="number" value="5000">
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#f0a500;margin-bottom:14px;">RENT Scenario</div>
+              <label class="re-label">Current Monthly Rent (₹)</label>
+              <input class="re-input" id="rent" type="number" value="25000">
+              <label class="re-label">Annual Rent Increase (%)</label>
+              <input class="re-input" id="rent-inc" type="number" value="7" step="0.5">
+              <label class="re-label">Investment Return on Savings (%)</label>
+              <input class="re-input" id="invest-ret" type="number" value="12" step="0.5">
+              <label class="re-label">Your Tax Bracket (%)</label>
+              <select class="re-select" id="tax-bracket">
+                <option value="0">0% (below ₹7L)</option>
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+                <option value="20" selected>20%</option>
+                <option value="30">30%</option>
+              </select>
+              <label class="re-label">Annual Home Loan Tax Benefit (₹)</label>
+              <input class="re-input" id="tax-benefit" type="number" value="350000">
+            </div>
+          </div>
+          <button class="re-calc-btn" onclick="calcBuyVsRent()">🔍 Calculate 20-Year Comparison</button>
+          <div id="bvr-result" class="re-result"></div>
+        </div>
+      </div>
+
+      <!-- Tab 2: True Cost of Ownership -->
+      <div id="tab-tco" class="re-tab-content">
+        <div class="re-card">
+          <div class="re-card-title">💰 True All-In Cost of Home Purchase</div>
+          <div class="re-two-col">
+            <div>
+              <label class="re-label">Property Price (₹)</label>
+              <input class="re-input" id="tco-price" type="number" value="8000000">
+              <label class="re-label">State (for stamp duty)</label>
+              <select class="re-select" id="tco-state">
+                <option value="6">Maharashtra (6%)</option>
+                <option value="5">Karnataka (5%)</option>
+                <option value="7">Delhi (7% men / 5% women)</option>
+                <option value="7">Tamil Nadu (7%)</option>
+                <option value="4.9">Gujarat (4.9%)</option>
+                <option value="6">Telangana (6%)</option>
+                <option value="5.5">Other (avg 5.5%)</option>
+              </select>
+              <label class="re-label">GST (under-construction only)</label>
+              <select class="re-select" id="tco-gst">
+                <option value="0">No GST (ready-to-move)</option>
+                <option value="5">Affordable housing (5%)</option>
+                <option value="12">Non-affordable (12%)</option>
+              </select>
+            </div>
+            <div>
+              <label class="re-label">Loan Amount (₹)</label>
+              <input class="re-input" id="tco-loan" type="number" value="6400000">
+              <label class="re-label">Processing Fee (%)</label>
+              <input class="re-input" id="tco-proc" type="number" value="0.5" step="0.1">
+              <label class="re-label">Annual Society / Maintenance (₹)</label>
+              <input class="re-input" id="tco-maint" type="number" value="60000">
+              <label class="re-label">Furnishing Budget (₹)</label>
+              <input class="re-input" id="tco-furnish" type="number" value="500000">
+            </div>
+          </div>
+          <button class="re-calc-btn" onclick="calcTCO()">📊 Show True Cost</button>
+          <div id="tco-result" class="re-result"></div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Rental Yield -->
+      <div id="tab-yield" class="re-tab-content">
+        <div class="re-card">
+          <div class="re-card-title">📈 Rental Yield &amp; ROI — Investment Property Analysis</div>
+          <div class="re-two-col">
+            <div>
+              <label class="re-label">Property Price (₹)</label>
+              <input class="re-input" id="ry-price" type="number" value="5000000">
+              <label class="re-label">Monthly Rental Income (₹)</label>
+              <input class="re-input" id="ry-rent" type="number" value="18000">
+              <label class="re-label">Annual Maintenance + Property Tax (₹)</label>
+              <input class="re-input" id="ry-costs" type="number" value="40000">
+              <label class="re-label">Monthly Loan EMI, if any (₹)</label>
+              <input class="re-input" id="ry-emi" type="number" value="0">
+            </div>
+            <div>
+              <label class="re-label">Expected Annual Appreciation (%)</label>
+              <input class="re-input" id="ry-app" type="number" value="6" step="0.5">
+              <label class="re-label">Holding Period (years)</label>
+              <input class="re-input" id="ry-years" type="number" value="10" min="1" max="30">
+              <label class="re-label">Equity Market CAGR Alternative (%)</label>
+              <input class="re-input" id="ry-eq" type="number" value="13" step="0.5">
+            </div>
+          </div>
+          <button class="re-calc-btn" onclick="calcRentalYield()">📊 Analyse This Investment</button>
+          <div id="ry-result" class="re-result"></div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Insights -->
+      <div id="tab-insights" class="re-tab-content">
+        <div class="re-card">
+          <div class="re-card-title">💡 Essential Real Estate Insights for Indian Buyers</div>
+          <div class="re-insight-grid">
+            <div class="re-insight">
+              <div class="re-insight-icon">🏦</div>
+              <div class="re-insight-title">EMI Rule of Thumb</div>
+              <div class="re-insight-text">Banks fund 75–80% of property value. Keep EMI ≤ 40% of take-home salary. CIBIL score 750+ gets best rates. Check your eligibility before shortlisting.</div>
+            </div>
+            <div class="re-insight">
+              <div class="re-insight-icon">📋</div>
+              <div class="re-insight-title">RERA Compliance is Non-Negotiable</div>
+              <div class="re-insight-text">Verify on state RERA portal before booking. Builder must maintain escrow account (70% of collections). Always insist on possession date in writing.</div>
+            </div>
+            <div class="re-insight">
+              <div class="re-insight-icon">💸</div>
+              <div class="re-insight-title">Hidden Costs Add 10–15%</div>
+              <div class="re-insight-text">Stamp duty + registration (5–8%), GST on under-construction (5–12%), society charges, broker fee (1–2%), furnishing, legal fees, and loan processing.</div>
+            </div>
+            <div class="re-insight">
+              <div class="re-insight-icon">📊</div>
+              <div class="re-insight-title">LTCG Tax on Property Sale</div>
+              <div class="re-insight-text">After 2 years: 12.5% LTCG (indexation removed FY 2024). Section 54 gives exemption if you reinvest proceeds in another residential property within 2 years.</div>
+            </div>
+            <div class="re-insight">
+              <div class="re-insight-icon">🏠</div>
+              <div class="re-insight-title">Real Rental Yields in India</div>
+              <div class="re-insight-text">Mumbai: 1.5–2.5%. Bengaluru: 2–3.5%. Pune: 2–3%. Net yield after maintenance, vacancy, and tax is usually 0.5–1% lower. Rarely beats equity long-term.</div>
+            </div>
+            <div class="re-insight">
+              <div class="re-insight-icon">⏱️</div>
+              <div class="re-insight-title">Break-Even Is 7–12 Years</div>
+              <div class="re-insight-text">In most Indian cities, buying only beats renting after 7–12 years of holding. Shorter horizon? Rent + invest the difference almost always wins.</div>
+            </div>
+            <div class="re-insight">
+              <div class="re-insight-icon">💡</div>
+              <div class="re-insight-title">Tax Benefits (Old Regime)</div>
+              <div class="re-insight-text">Section 24(b): ₹2L deduction on home loan interest. Section 80C: ₹1.5L on principal repayment (within 80C limit). Only applicable under Old Tax Regime.</div>
+            </div>
+            <div class="re-insight">
+              <div class="re-insight-icon">⚡</div>
+              <div class="re-insight-title">The Opportunity Cost Question</div>
+              <div class="re-insight-text">₹20L down payment invested at 12% CAGR = ₹1.93 Cr in 20 years. Your property must appreciate beyond this to justify the illiquidity and EMI pressure.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-wrapper -->
+  </main>
+</div><!-- /app -->
+
+<script src="../js/finos-widget.js?v=5"></script>
+<script src="../js/mobile-nav.js" defer></script>
+
+<script>
+  const INR = n => '₹' + Math.round(Number(n)||0).toLocaleString('en-IN');
+  const C   = id => parseFloat(document.getElementById(id)?.value||0);
+
+  /* Tab switching */
+  function _switchTab(tab) {
+    document.querySelectorAll('.re-tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.re-tab').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('tab-'+tab).classList.add('active');
+    document.querySelectorAll('.re-tab')[['bvr','tco','yield','insights'].indexOf(tab)].classList.add('active');
+  }
+
+  /* ── Buy vs Rent ─────────────────────────────────────────── */
+  function calcBuyVsRent() {
+    const price   = C('prop-price'), downPct = C('down-pct')/100;
+    const rate    = C('loan-rate')/100/12, tenure = C('loan-tenure')*12;
+    const appRate = C('prop-app')/100, maint = C('maintenance');
+    const rent0   = C('rent'), rentInc = C('rent-inc')/100;
+    const invRet  = C('invest-ret')/100, taxSav = C('tax-benefit');
+    const years   = 20;
+
+    const downPay = price * downPct;
+    const loan    = price * (1-downPct);
+    const emi     = loan * rate * Math.pow(1+rate,tenure) / (Math.pow(1+rate,tenure)-1);
+
+    // Buy: property value after 20yr
+    const propValFinal = price * Math.pow(1+appRate, years);
+    let totalInterest=0, remaining=loan;
+    for(let m=0;m<Math.min(tenure,years*12);m++){
+      const int=remaining*rate, prin=emi-int;
+      totalInterest+=int; remaining-=prin;
+    }
+    const totalMaint   = maint*12*years;
+    const taxBenefits  = taxSav * Math.min(years, C('loan-tenure'));
+    const netEquity    = propValFinal - Math.max(0,remaining);
+
+    // Rent: invest down + monthly savings
+    const monthly_mortgage = emi+maint;
+    let rentWorth=downPay, rentAmt=rent0;
+    for(let m=0;m<years*12;m++){
+      if(m%12===0&&m>0) rentAmt*=(1+rentInc);
+      rentWorth = rentWorth*(1+invRet/12) + Math.max(0,monthly_mortgage-rentAmt);
+    }
+
+    // Break-even year
+    let breakEven=0, bvBuy=downPay, bvRent=downPay, bvRentAmt=rent0, bvRem=loan;
+    for(let y=1;y<=years;y++){
+      for(let m=0;m<12;m++){
+        const int=bvRem*rate; bvRem=Math.max(0,bvRem-(emi-int));
+        bvRent=bvRent*(1+invRet/12)+Math.max(0,emi+maint-bvRentAmt);
+        bvRentAmt*=Math.pow(1+rentInc,1/12);
+      }
+      bvBuy=price*Math.pow(1+appRate,y)-bvRem;
+      if(bvBuy>=bvRent&&breakEven===0) breakEven=y;
+    }
+
+    const buyBetter = netEquity > rentWorth;
+    const diff      = Math.abs(netEquity-rentWorth);
+    const winCol    = buyBetter ? '#22d3a6' : '#f0a500';
+    const winLabel  = buyBetter ? '🏠 BUYING wins' : '🏢 RENTING + INVESTING wins';
+
+    const el = document.getElementById('bvr-result');
+    el.style.display='block';
+    el.innerHTML = `
+      <div class="re-winner" style="background:${winCol}10;border:1px solid ${winCol}30;">
+        <div style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">20-Year Winner</div>
+        <div style="font-size:20px;font-weight:900;color:${winCol};">${winLabel} by ${INR(diff)}</div>
+      </div>
+      <div class="re-two-col">
+        <div class="re-result-box">
+          <div style="font-size:12px;font-weight:700;color:#22d3a6;margin-bottom:10px;">🏠 Buy — Net Equity at Year 20</div>
+          ${_row('Property value', INR(propValFinal))}
+          ${_row('Total EMIs paid', INR(emi*Math.min(tenure,years*12)),'rgba(255,100,100,.8)')}
+          ${_row('Total interest paid', INR(totalInterest),'rgba(255,100,100,.8)')}
+          ${_row('Maintenance 20yr', INR(totalMaint),'rgba(255,100,100,.8)')}
+          ${_row('Tax benefits claimed', INR(taxBenefits),'#22d3a6')}
+          <div class="re-row-total"><span>Net Worth</span><span style="color:${buyBetter?'#22d3a6':'#F5F7FA'}">${INR(netEquity)}</span></div>
+        </div>
+        <div class="re-result-box">
+          <div style="font-size:12px;font-weight:700;color:#f0a500;margin-bottom:10px;">🏢 Rent + Invest — Corpus at Year 20</div>
+          ${_row('Down payment invested at start', INR(downPay))}
+          ${_row('Monthly surplus invested', 'variable')}
+          ${_row('Investment return assumed', C('invest-ret')+'% CAGR')}
+          <div class="re-row-total"><span>Final Corpus</span><span style="color:${!buyBetter?'#22d3a6':'#F5F7FA'}">${INR(rentWorth)}</span></div>
+        </div>
+      </div>
+      <div class="re-result-box" style="margin-top:14px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:10px;">⏱️ Break-Even Point</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.55);margin-bottom:10px;">
+          Buying becomes better than renting around <strong style="color:#F5F7FA;">Year ${breakEven||'>20'}</strong>.
+          ${breakEven>15?'Renting and investing may be better for shorter horizons.':''}
+        </div>
+        <div class="re-timeline"><div class="re-timeline-fill" style="width:${Math.min(100,(breakEven||21)/20*100)}%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.3);margin-top:4px;"><span>Year 0</span><span style="color:#00d4ff;">Break-even: Yr ${breakEven||'>20'}</span><span>Year 20</span></div>
+      </div>
+    `;
+  }
+
+  /* ── True Cost of Ownership ──────────────────────────────── */
+  function calcTCO() {
+    const price   = C('tco-price');
+    const stamp   = price * C('tco-state')/100;
+    const reg     = price * 0.01;
+    const gst     = price * C('tco-gst')/100;
+    const proc    = C('tco-loan') * C('tco-proc')/100;
+    const maint20 = C('tco-maint') * 20;
+    const furnish = C('tco-furnish');
+    const total   = price+stamp+reg+gst+proc+furnish;
+    const total20 = total+maint20;
+    const premiumPct = ((total/price-1)*100).toFixed(1);
+
+    const el = document.getElementById('tco-result');
+    el.style.display='block';
+    el.innerHTML = `
+      <div style="text-align:center;padding:20px;background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.2);border-radius:14px;margin-bottom:18px;">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.4);margin-bottom:6px;">Total All-In at Purchase</div>
+        <div style="font-size:32px;font-weight:900;color:#f0a500;">${INR(total)}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.4);margin-top:4px;">${premiumPct}% above base price · 20yr ownership total: ${INR(total20)}</div>
+      </div>
+      <div class="re-metric-grid">
+        ${_metric(INR(price),'Base Price','#F5F7FA')}
+        ${_metric(INR(stamp),'Stamp Duty','rgba(255,100,100,.8)')}
+        ${_metric(INR(reg),'Registration','rgba(255,100,100,.8)')}
+        ${gst>0?_metric(INR(gst),'GST','rgba(255,100,100,.8)'):''}
+        ${_metric(INR(proc),'Processing Fee','#f0a500')}
+        ${_metric(INR(furnish),'Furnishing','#f0a500')}
+        ${_metric(INR(maint20),'Maintenance 20yr','rgba(255,255,255,.4)')}
+      </div>
+      <div style="background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.18);border-radius:12px;padding:14px;font-size:12.5px;color:rgba(240,165,0,.8);line-height:1.6;">
+        💡 The property needs to appreciate to at least <strong>${INR(total)}</strong> for you to break even on resale (before LTCG tax). That's <strong>${premiumPct}%</strong> appreciation needed just to recover acquisition costs.
+      </div>
+    `;
+  }
+
+  /* ── Rental Yield ────────────────────────────────────────── */
+  function calcRentalYield() {
+    const price  = C('ry-price'), rent = C('ry-rent');
+    const costs  = C('ry-costs'), emi  = C('ry-emi');
+    const appR   = C('ry-app')/100, yrs = C('ry-years');
+    const eqR    = C('ry-eq')/100;
+
+    const grossY   = (rent*12/price*100).toFixed(2);
+    const netY     = ((rent*12-costs)/price*100).toFixed(2);
+    const cashflow = rent-emi-costs/12;
+    const finalProp = price*Math.pow(1+appR,yrs);
+    const eqCorpus  = price*Math.pow(1+eqR,yrs);
+    const propBetter= finalProp>eqCorpus;
+    const totalROI  = ((finalProp+rent*12*yrs-costs*yrs-price)/price*100).toFixed(1);
+
+    const el = document.getElementById('ry-result');
+    el.style.display='block';
+    el.innerHTML = `
+      <div class="re-metric-grid">
+        ${_metric(grossY+'%','Gross Yield',parseFloat(grossY)>3?'#22d3a6':'#f0a500')}
+        ${_metric(netY+'%','Net Yield',parseFloat(netY)>2?'#22d3a6':'rgba(255,100,100,.8)')}
+        ${_metric((cashflow>=0?'+':'')+INR(cashflow)+'/mo','Monthly Cashflow',cashflow>=0?'#22d3a6':'rgba(255,100,100,.8)')}
+        ${_metric(INR(finalProp),'Property '+yrs+'yr Value','#00d4ff')}
+        ${_metric(INR(eqCorpus),'Equity at '+C('ry-eq')+'%','#a78bfa')}
+        ${_metric(totalROI+'%','Total '+yrs+'yr ROI','#F5F7FA')}
+      </div>
+      <div style="background:${propBetter?'rgba(34,211,166,.06)':'rgba(240,165,0,.06)'};border:1px solid ${propBetter?'rgba(34,211,166,.2)':'rgba(240,165,0,.2)'};border-radius:12px;padding:16px;font-size:13px;color:rgba(255,255,255,.65);line-height:1.7;">
+        ${propBetter
+          ? `🏠 <strong style="color:#22d3a6;">Property wins</strong> over ${yrs} years in this scenario. Rental income + appreciation beats equity at ${C('ry-eq')}% CAGR by ${INR(finalProp-eqCorpus)}.`
+          : `📈 <strong style="color:#f0a500;">Equity market beats this property</strong> over ${yrs} years by ${INR(eqCorpus-finalProp)} at ${C('ry-eq')}% CAGR. Consider whether the illiquidity and EMI risk are worth it.`}
+        <br>Net rental yield of <strong>${netY}%</strong> ${parseFloat(netY)<3?'is below the current FD rate. You\'re relying primarily on appreciation — a speculative bet.':'gives you positive cashflow — a reasonable passive income play.'}</div>
+    `;
+  }
+
+  /* ── Helpers ─────────────────────────────────────────────── */
+  function _row(l,v,vc='rgba(255,255,255,.75)') {
+    return `<div class="re-row"><span class="re-row-label">${l}</span><span class="re-row-val" style="color:${vc}">${v}</span></div>`;
+  }
+  function _metric(val,lbl,col='#F5F7FA') {
+    return `<div class="re-metric"><div class="re-metric-val" style="color:${col}">${val}</div><div class="re-metric-lbl">${lbl}</div></div>`;
+  }
+</script>
+
+<script src="../js/sidebar.js"></script>
+  <script src="../js/interactions.js" defer></script>
+<button id="themeToggle" class="theme-btn" style="position:fixed;top:16px;right:16px;z-index:150;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;" aria-label="Toggle dark/light theme">🌙</button>
+<script>
+(function(){
+  var btn=document.getElementById('themeToggle');
+  if(!btn) return;
+  var t=document.documentElement.getAttribute('data-theme')||'dark';
+  btn.textContent=t==='dark'?'🌙':'☀️';
+  btn.addEventListener('click',function(){
+    var cur=document.documentElement.getAttribute('data-theme');
+    var nxt=cur==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',nxt);
+    localStorage.setItem('finos-theme',nxt);
+    localStorage.setItem('theme',nxt);
+    btn.textContent=nxt==='dark'?'🌙':'☀️';
+    btn.setAttribute('aria-label',nxt==='dark'?'Switch to light mode':'Switch to dark mode');
+  });
+})();
+</script>
+<script src="../js/ui.js" defer></script>
+</body>
+</html>

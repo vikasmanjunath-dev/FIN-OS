@@ -23,6 +23,8 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
+import re as _re
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
@@ -61,9 +63,9 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173,http://127.0.0.1:5500").split(","),
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 market   = MarketData()
@@ -86,12 +88,16 @@ async def health():
     return {"status": "ok", "service": "quantum-stock-engine", "version": "1.0.0"}
 
 
+_SYMBOL_RE = _re.compile(r'^[A-Z0-9\-&]{1,15}(\.NS|\.BO)?$')
+
 @app.get("/api/stock/{symbol}")
 async def stock(symbol: str):
+    if not _SYMBOL_RE.match(symbol.upper()):
+        raise HTTPException(status_code=400, detail="Invalid symbol format")
     try:
         return await market.spot(symbol.upper())
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Quote fetch failed: {e}")
+    except Exception:
+        raise HTTPException(status_code=502, detail="Market data unavailable")
 
 
 @app.get("/api/history/{symbol}")
@@ -100,10 +106,12 @@ async def history(
     interval: str = Query("1d", regex="^(1m|2m|5m|15m|30m|60m|1h|1d|5d|1wk|1mo)$"),
     range: str = Query("1y", regex="^(1d|5d|1mo|3mo|6mo|1y|2y|5y|10y|ytd|max)$"),
 ):
+    if not _SYMBOL_RE.match(symbol.upper()):
+        raise HTTPException(status_code=400, detail="Invalid symbol format")
     try:
         return await market.history(symbol.upper(), interval=interval, range_=range)
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=f"History fetch failed: {e}")
+    except Exception:
+        raise HTTPException(status_code=502, detail="Market data unavailable")
 
 
 @app.get("/api/indicators/{symbol}")
@@ -227,7 +235,13 @@ async def ws_ticks(ws: WebSocket):
                     continue
                 ticks = await market.bulk_ticks(list(subs))
                 for t in ticks:
-                    await ws.send_text(json.dumps({"event": "tick", **t}))
+                    try:
+                        await asyncio.wait_for(
+                            ws.send_text(json.dumps({"event": "tick", **t})),
+                            timeout=5.0
+                        )
+                    except asyncio.TimeoutError:
+                        return
         except WebSocketDisconnect:
             pass
 

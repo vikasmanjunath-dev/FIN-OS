@@ -1,67 +1,85 @@
 # FIN-OS — Database Reference
 
+> Version: 1.2 | Date: June 5, 2026  
 > Supabase (Postgres) · Project: `oeapcyucnduhwpgxfknb`
 
 ---
 
 ## Overview
 
-FIN-OS uses a single Supabase project for all persistent storage. Tables are split into three groups:
+FIN-OS uses one Supabase project for all persistent storage.
 
-- **Core app tables** — profiles, transactions, goals, holdings, budgets (managed by the frontend)
-- **Alert engine tables** — alerts, push_subscriptions, alert_preferences (managed by `alerts/schema.sql`)
-- **Voice agent table** — agent_memories (managed by `voiceagent/schema.sql`)
+| Group | Tables | Managed by |
+|---|---|---|
+| Core app | profiles, transactions, goals, holdings, budgets | Frontend |
+| Alert engine | alerts, push_subscriptions, alert_preferences | `alerts/schema.sql` |
+| Voice agent | agent_memories | `voiceagent/schema.sql` |
 
-All tables have Row Level Security (RLS) enabled. Users can only access their own data. Service-role keys (used in backend `.env` files) bypass RLS.
+All tables have **Row Level Security (RLS)** enabled. Users access only their own data.  
+`service_role` keys (backend `.env` only) bypass RLS.
 
 ---
 
 ## Core App Tables
 
-These tables are created via Supabase Dashboard or managed by the frontend. They extend `auth.users`.
-
 ### `profiles`
 
-One row per user. Created on first login via the onboarding flow.
+One row per user. Created by `html/onboarding.html` on first login.
 
 | Column | Type | Description |
 |---|---|---|
-| `id` | `uuid` PK | References `auth.users.id` |
-| `full_name` | `text` | Display name |
-| `email` | `text` | Email address |
-| `age` | `int` | Age in years (used by voice agent profile card) |
-| `income_range` | `text` | e.g., `10L-15L`, `5L-10L` |
-| `life_stage` | `text` | `student`, `early_career`, `growth`, `peak`, `pre_retirement`, `retirement` |
-| `city` | `text` | City name |
-| `financial_dna` | `text` | DNA type from `dna.html` assessment |
-| `mindset` | `text` | e.g., `disciplined_saver`, `growth_seeker` |
-| `interests` | `jsonb` | Array of selected topics |
-| `has_home_loan` | `bool` | |
-| `has_car_loan` | `bool` | |
-| `has_credit_card_debt` | `bool` | |
-| `has_sip` | `bool` | |
-| `has_ppf` | `bool` | |
-| `has_nps` | `bool` | |
-| `has_term_insurance` | `bool` | |
-| `has_health_insurance` | `bool` | |
-| `emergency_fund_months` | `numeric` | Months of expenses in liquid savings |
-| `created_at` | `timestamptz` | |
-| `updated_at` | `timestamptz` | |
+| `id` | uuid PK | References `auth.users.id` |
+| `full_name` | text | Display name |
+| `email` | text | Email address |
+| `age` | int | Age in years |
+| `income_range` | text | e.g. `10L-15L`, `5L-10L` |
+| `life_stage` | text | `student` / `early_career` / `growth` / `peak` / `pre_retirement` / `retirement` |
+| `city` | text | City name |
+| `financial_dna` | text | DNA type from `html/dna.html` assessment |
+| `mindset` | text | e.g. `disciplined_saver`, `growth_seeker` |
+| `interests` | jsonb | Array of selected topics |
+| `has_home_loan` | bool | |
+| `has_car_loan` | bool | |
+| `has_credit_card_debt` | bool | |
+| `has_sip` | bool | |
+| `has_ppf` | bool | |
+| `has_nps` | bool | |
+| `has_term_insurance` | bool | |
+| `has_health_insurance` | bool | |
+| `emergency_fund_months` | numeric | Months of expenses in liquid savings |
+| `fire_number` | numeric | FIRE target corpus (INR) |
+| `fire_progress` | numeric | Current progress toward FIRE number |
+| `monthly_savings` | numeric | Average monthly savings |
+| `net_worth` | numeric | Total net worth (INR) |
+| `sip_amount` | numeric | Monthly SIP amount (INR) |
+| `created_at` | timestamptz | |
+| `updated_at` | timestamptz | |
+
+**RLS policy:**
+```sql
+CREATE POLICY "Users can CRUD own profile"
+ON profiles FOR ALL
+USING (auth.uid() = id);
+```
+
+---
 
 ### `transactions`
 
-Expense and income entries.
+Income and expense entries.
 
 | Column | Type | Description |
 |---|---|---|
-| `id` | `uuid` PK | |
-| `user_id` | `uuid` FK → `auth.users` | |
-| `amount` | `numeric` | Always positive |
-| `type` | `text` | `income` or `expense` |
-| `category` | `text` | e.g., `food`, `rent`, `salary`, `sip` |
-| `note` | `text` | Optional description |
-| `date` | `date` | Transaction date |
-| `created_at` | `timestamptz` | |
+| `id` | uuid PK | |
+| `user_id` | uuid FK → `auth.users` | |
+| `amount` | numeric | Always positive |
+| `type` | text | `income` or `expense` |
+| `category` | text | `food` / `rent` / `salary` / `sip` / `emi` etc. |
+| `note` | text | Optional description |
+| `date` | date | Transaction date |
+| `created_at` | timestamptz | |
+
+---
 
 ### `goals`
 
@@ -69,215 +87,157 @@ Savings and investment goals.
 
 | Column | Type | Description |
 |---|---|---|
-| `id` | `uuid` PK | |
-| `user_id` | `uuid` FK | |
-| `name` | `text` | e.g., "Emergency Fund", "House Down Payment" |
-| `target_amount` | `numeric` | Goal target in INR |
-| `current_amount` | `numeric` | Current saved amount |
-| `target_date` | `date` | Goal deadline |
-| `category` | `text` | `emergency`, `house`, `education`, `retirement`, `travel`, `other` |
-| `created_at` | `timestamptz` | |
+| `id` | uuid PK | |
+| `user_id` | uuid FK | |
+| `name` | text | e.g. "Emergency Fund", "House Down Payment" |
+| `target_amount` | numeric | Goal target (INR) |
+| `current_amount` | numeric | Current saved amount |
+| `target_date` | date | Deadline |
+| `category` | text | `emergency` / `house` / `education` / `retirement` / `travel` / `other` |
+| `created_at` | timestamptz | |
+
+---
 
 ### `holdings`
 
-Investment portfolio.
+Investment holdings (manually entered or CSV-imported from Zerodha).
 
 | Column | Type | Description |
 |---|---|---|
-| `id` | `uuid` PK | |
-| `user_id` | `uuid` FK | |
-| `symbol` | `text` | e.g., `RELIANCE.NS`, `NIFTYBEES` |
-| `asset_type` | `text` | `equity`, `mf`, `etf`, `crypto`, `gold`, `fd` |
-| `quantity` | `numeric` | Units held |
-| `avg_price` | `numeric` | Average buy price |
-| `current_price` | `numeric` | Latest price |
-| `updated_at` | `timestamptz` | |
+| `id` | uuid PK | |
+| `user_id` | uuid FK | |
+| `symbol` | text | NSE ticker e.g. `RELIANCE` |
+| `name` | text | Company name |
+| `quantity` | numeric | Units held |
+| `avg_price` | numeric | Average buy price (INR) |
+| `current_price` | numeric | Last known price |
+| `current_value` | numeric | `quantity × current_price` |
+| `gain_loss` | numeric | Unrealised P&L |
+| `gain_loss_pct` | numeric | Unrealised P&L % |
+| `asset_type` | text | `equity` / `mf` / `etf` / `gold` / `fd` / `crypto` |
+| `purchase_date` | date | For XIRR calculation |
+| `created_at` | timestamptz | |
+| `updated_at` | timestamptz | |
+
+---
 
 ### `budgets`
 
-Monthly category budgets.
+Monthly budget targets per category.
 
 | Column | Type | Description |
 |---|---|---|
-| `id` | `uuid` PK | |
-| `user_id` | `uuid` FK | |
-| `month` | `int` | 1–12 |
-| `year` | `int` | e.g., 2026 |
-| `category` | `text` | Category name |
-| `limit_amount` | `numeric` | Budget cap for category |
+| `id` | uuid PK | |
+| `user_id` | uuid FK | |
+| `category` | text | Budget category |
+| `amount` | numeric | Monthly budget (INR) |
+| `month` | date | First day of the budget month |
+| `created_at` | timestamptz | |
 
 ---
 
-## Alert Engine Tables
-
-Run `alerts/schema.sql` in Supabase SQL Editor to create these.
+## Alert Engine Tables (managed by `alerts/schema.sql`)
 
 ### `alerts`
 
-One row per generated alert.
+Triggered alert history.
 
 | Column | Type | Description |
 |---|---|---|
-| `id` | `uuid` PK | |
-| `user_id` | `uuid` FK | |
-| `rule_id` | `text` | e.g., `sip_missed`, `market_drop` |
-| `title` | `text` | Short alert headline |
-| `message` | `text` | Full alert message (1–2 sentences) |
-| `priority` | `text` | `critical`, `warning`, `info`, `celebration` |
-| `read` | `bool` | Default false |
-| `action_url` | `text` | Optional deep-link URL |
-| `metadata` | `jsonb` | Rule-specific extra data |
-| `created_at` | `timestamptz` | |
+| `id` | uuid PK | |
+| `user_id` | uuid FK | |
+| `rule_id` | text | Alert rule identifier e.g. `sip_missed` |
+| `title` | text | Short alert title |
+| `message` | text | Full alert message |
+| `priority` | text | `info` / `warning` / `critical` |
+| `triggered_at` | timestamptz | When the rule fired |
+| `read_at` | timestamptz | Null until user reads it |
+| `dismissed_at` | timestamptz | Null until user dismisses |
 
 ### `push_subscriptions`
 
-Web Push device registrations.
+Web Push VAPID subscriptions.
 
 | Column | Type | Description |
 |---|---|---|
-| `id` | `uuid` PK | |
-| `user_id` | `uuid` FK | |
-| `endpoint` | `text` UNIQUE | Push endpoint URL |
-| `p256dh` | `text` | ECDH public key |
-| `auth_key` | `text` | Auth secret |
-| `created_at` | `timestamptz` | |
+| `id` | uuid PK | |
+| `user_id` | uuid FK | |
+| `endpoint` | text | Push endpoint URL |
+| `p256dh` | text | Encryption key |
+| `auth` | text | Auth secret |
+| `created_at` | timestamptz | |
 
 ### `alert_preferences`
 
-Per-user rule on/off settings.
+Per-rule opt-in/out per user.
 
 | Column | Type | Description |
 |---|---|---|
-| `user_id` | `uuid` | Composite PK |
-| `rule_id` | `text` | Composite PK |
-| `enabled` | `bool` | Default true |
-| `channels` | `jsonb` | `{"in_app": true, "push": true}` |
+| `id` | uuid PK | |
+| `user_id` | uuid FK | |
+| `rule_id` | text | Alert rule identifier |
+| `enabled` | bool | Default: true |
+| `updated_at` | timestamptz | |
 
 ---
 
-## Voice Agent Table
-
-Run `voiceagent/schema.sql` in Supabase SQL Editor to create this.
+## Voice Agent Table (managed by `voiceagent/schema.sql`)
 
 ### `agent_memories`
 
-One row per user — persistent voice agent memory.
+Long-term memory facts extracted from voice conversations.
 
 | Column | Type | Description |
 |---|---|---|
-| `user_id` | `uuid` PK | References `auth.users.id` |
-| `profile` | `jsonb` | Extracted facts: name, income, city, goals, debts, family |
-| `summary` | `text` | LLM-generated session summary (~120 words) |
-| `mem_items` | `jsonb` | Last 20 conversation turns (role + content) |
-| `total_sessions` | `int` | Incremented on each session |
-| `total_messages` | `int` | Cumulative message count |
-| `first_seen` | `timestamptz` | First session timestamp |
-| `last_seen` | `timestamptz` | Most recent session timestamp |
-| `updated_at` | `timestamptz` | Auto-updated by trigger |
-
-**Profile JSONB structure:**
-```json
-{
-  "name": "Rahul",
-  "income": "₹12L/yr",
-  "income_num": 1200000,
-  "city": "Bangalore",
-  "life_stage": "growth",
-  "goals": {
-    "house": true,
-    "fire": false,
-    "business": false,
-    "abroad": false
-  },
-  "debts": {
-    "home_loan_emi": true,
-    "car_loan": false,
-    "credit_card_debt": false
-  },
-  "family": {
-    "married": true,
-    "has_kids": false,
-    "single": false,
-    "dependent_parents": true
-  }
-}
-```
+| `id` | uuid PK | |
+| `user_id` | uuid FK | |
+| `fact` | text | Extracted fact e.g. "User has home loan of 45L at 8.5% rate" |
+| `category` | text | `income` / `loan` / `goal` / `investment` / `family` / `behaviour` |
+| `confidence` | numeric | 0.0–1.0 extraction confidence |
+| `source_session` | text | Session ID when extracted |
+| `created_at` | timestamptz | |
+| `last_used_at` | timestamptz | When last injected into context |
 
 ---
 
 ## RLS Policies
 
-All tables have the same basic pattern:
+All user-data tables use the same pattern:
 
 ```sql
--- Users read their own data
-CREATE POLICY "user_read_own"
-  ON <table> FOR SELECT
-  USING (auth.uid() = user_id);
+-- Allow users to read/write only their own rows
+CREATE POLICY "user_owns_row"
+ON <table> FOR ALL
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
 
--- Users write their own data
-CREATE POLICY "user_write_own"
-  ON <table> FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
--- Users update their own data
-CREATE POLICY "user_update_own"
-  ON <table> FOR UPDATE
-  USING (auth.uid() = user_id);
+-- Service role bypasses RLS (used by Python backends)
+-- No policy needed — service role is superuser
 ```
-
-**Service role key** (`SUPABASE_SERVICE_KEY` in backend `.env`) bypasses all RLS policies. Use it in server-side Python only, never in browser code.
 
 ---
 
-## Supabase Realtime
+## Migrations
 
-Two tables must have Realtime enabled for live features to work:
+To add a new column:
 
+```sql
+-- Run in Supabase SQL Editor
+ALTER TABLE profiles
+ADD COLUMN IF NOT EXISTS new_column_name data_type DEFAULT default_value;
 ```
-Supabase Dashboard → Database → Replication
-```
 
-Toggle ON:
-- `alerts` — powers the alert bell real-time badge in `finos-alerts.js`
-- `alert_preferences` — pushes preference changes to open browser tabs
-
----
-
-## Running Migrations
-
-1. Go to [Supabase SQL Editor](https://supabase.com/dashboard/project/oeapcyucnduhwpgxfknb/sql/new)
-2. Paste and run in order:
-   ```
-   1. alerts/schema.sql
-   2. voiceagent/schema.sql
-   ```
-
-Both scripts are idempotent — they use `DROP TABLE IF EXISTS` / `CREATE OR REPLACE` so they can be re-run safely.
+**Never run `DROP TABLE` or `TRUNCATE` without a Supabase backup.**
 
 ---
 
 ## Environment Variables
 
-### Voice Agent (`voiceagent/.env`)
-```
-SUPABASE_URL=https://oeapcyucnduhwpgxfknb.supabase.co
-SUPABASE_SERVICE_KEY=eyJhbG...   # service_role key — Settings → API
-```
+| Variable | Used by | Notes |
+|---|---|---|
+| `VITE_SUPABASE_URL` | React budget app | Public (browser-safe) |
+| `VITE_SUPABASE_ANON_KEY` | React budget app | Public (browser-safe) |
+| `SUPABASE_URL` | All Python backends | |
+| `SUPABASE_SERVICE_ROLE_KEY` | All Python backends | **Never in browser code** |
 
-### Alert Engine (`alerts/.env`)
-```
-SUPABASE_URL=https://oeapcyucnduhwpgxfknb.supabase.co
-SUPABASE_SERVICE_KEY=eyJhbG...   # service_role key
-SUPABASE_ANON_KEY=eyJhbG...      # anon/public key — Settings → API
-VAPID_PRIVATE_KEY=...
-VAPID_PUBLIC_KEY=...
-```
-
-### Frontend (browser — `js/auth.js`, `js/finos-context.js`)
-```javascript
-const SUPABASE_URL  = "https://oeapcyucnduhwpgxfknb.supabase.co";
-const SUPABASE_ANON = "eyJhbG...";   // anon/public key only — safe in browser
-```
-
-The anon key is safe in browser code — it is constrained by RLS policies. Never put the service_role key in any browser-visible file.
+Browser pages use the `anon` key from `js/supabase-config.js`. The `anon` key has restricted access via RLS; the `service_role` key bypasses all RLS and must only exist in backend `.env` files.

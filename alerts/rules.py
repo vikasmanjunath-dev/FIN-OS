@@ -91,11 +91,16 @@ class SipMissed(Rule):
             return None
 
         # Check if any SIP-matching transaction exists this month
+        def _safe_dt(t):
+            try: return datetime.fromisoformat(t.get("date",""))
+            except (ValueError, TypeError): return None
+
         this_month_txs = [
             t for t in txs
             if t.get("type") == "investment"
-            and datetime.fromisoformat(t["date"]).month == today.month
-            and datetime.fromisoformat(t["date"]).year  == today.year
+            and _safe_dt(t) is not None
+            and _safe_dt(t).month == today.month
+            and _safe_dt(t).year  == today.year
         ]
 
         if this_month_txs:
@@ -294,7 +299,10 @@ class CcBillDue(Rule):
             return None
 
         today     = self._today()
-        due_this_month = today.replace(day=int(bill_day))
+        try:
+            due_this_month = today.replace(day=min(int(bill_day), 28))  # cap at 28 to handle Feb/short months
+        except (ValueError, TypeError):
+            return None
         if due_this_month < today:
             # Already past — calculate next month's
             if today.month == 12:
@@ -1102,3 +1110,133 @@ ALL_RULES: list[Rule] = [
 ]
 
 RULES_BY_ID: dict[str, Rule] = {r.rule_id: r for r in ALL_RULES}
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SMART NOTIFICATION TIMING  v2
+# Tracks user's active hours and delivers alerts at optimal times.
+# ═══════════════════════════════════════════════════════════════════════════
+
+import statistics as _stats
+from datetime import datetime as _dt
+
+def get_optimal_delivery_hour(user_activity_log: list[dict]) -> int:
+    """
+    Given a list of {ts: ISO-timestamp} activity events,
+    return the hour (0-23) when the user is most active.
+    Defaults to 9 AM if insufficient data.
+
+    Args:
+        user_activity_log: list of {'ts': '2026-05-15T08:23:00Z', ...}
+
+    Returns:
+        int: optimal hour to send notification (0-23)
+    """
+    if not user_activity_log or len(user_activity_log) < 3:
+        return 9  # default: 9 AM
+
+    try:
+        hours = []
+        for entry in user_activity_log[-50:]:  # last 50 sessions
+            ts = entry.get('ts') or entry.get('created_at') or ''
+            if ts:
+                h = _dt.fromisoformat(ts.replace('Z', '+00:00')).hour
+                hours.append(h)
+
+        if not hours:
+            return 9
+
+        # Find the most common hour
+        from collections import Counter
+        counter = Counter(hours)
+        # Weight recent hours more
+        return counter.most_common(1)[0][0]
+    except Exception:
+        return 9
+
+
+def should_throttle_alerts(
+    alerts_sent_today: int,
+    user_alert_pref: dict,
+    priority: str
+) -> bool:
+    """
+    Alert fatigue prevention — max 3 alerts/day for non-urgent.
+
+    Args:
+        alerts_sent_today: count of alerts already sent today
+        user_alert_pref:   user preference dict from DB
+        priority:          'critical' | 'warning' | 'info' | 'celebration'
+
+    Returns:
+        bool: True if alert should be throttled (NOT sent)
+    """
+    max_per_day = user_alert_pref.get('max_daily_alerts', 3)
+
+    # Critical alerts always go through
+    if priority == 'critical':
+        return False
+
+    # Celebration alerts always go through (good vibes)
+    if priority == 'celebration':
+        return False
+
+    # Throttle info + warning if daily cap hit
+    return alerts_sent_today >= max_per_day
+
+
+def batch_low_priority_alerts(alerts: list[dict]) -> list[dict]:
+    """
+    Bundle multiple low-priority alerts into a single digest notification.
+
+    Args:
+        alerts: list of alert dicts
+
+    Returns:
+        list: modified alerts — low-priority ones batched into one
+    """
+    high_prio   = [a for a in alerts if a.get('priority') in ('critical', 'warning')]
+    low_prio    = [a for a in alerts if a.get('priority') in ('info', None)]
+
+    if len(low_prio) <= 1:
+        return alerts  # nothing to batch
+
+    # Create a digest
+    digest = {
+        'rule_id':  'DIGEST',
+        'title':    f'{len(low_prio)} Financial Updates',
+        'message':  ' · '.join(a.get('title', '') for a in low_prio[:3]),
+        'priority': 'info',
+        'action_url': '/html/dashboard.html',
+        'is_digest': True,
+        'digest_count': len(low_prio),
+    }
+
+    return high_prio + [digest]
+
+
+def enrich_alert_with_deeplink(alert: dict) -> dict:
+    """
+    Ensure every alert has an actionable deep-link CTA.
+
+    Maps rule_id → best URL to act on the alert.
+    """
+    DEEPLINKS = {
+        'SIP_MISSED':        '/html/track-finances.html#sip',
+        'SALARY_CREDITED':   '/html/life-goals-planner.html',
+        'MARKET_DROP':       '/html/portfolio.html',
+        'GOAL_BEHIND':       '/html/life-goals-planner.html',
+        'CC_BILL_DUE':       '/html/track-finances.html#bills',
+        'BUDGET_OVERRUN':    '/html/track-finances.html',
+        'EMERGENCY_FUND_LOW':'/html/calculators.html#emergency-fund',
+        'TAX_SEASON':        '/html/tax.html',
+        'TAX_SAVE_80C':      '/html/tax.html#80c',
+        'FNO_EXPIRY_WEEK':   '/TradeJournal/index.html',
+        'NETWORTH_MILESTONE':'/html/dashboard.html',
+        'ANOMALY_SPEND':     '/html/track-finances.html',
+        'INSURANCE_RENEWAL': '/html/insurance-hub.html',
+        'BILL_DUE_AI':       '/html/track-finances.html#bills',
+    }
+    if not alert.get('action_url'):
+        alert['action_url'] = DEEPLINKS.get(alert.get('rule_id', ''), '/html/dashboard.html')
+    return alert

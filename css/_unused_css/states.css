@@ -1,0 +1,324 @@
+/* =============================================================
+   FIN•OS — Loading, Error & Empty States
+   Global system used by all async components.
+   Import once via base.css (already linked on every page).
+   ============================================================= */
+
+/* ── Skeleton shimmer base ── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--t-bg3, #14181F) 25%,
+    var(--t-bg2, #10131C) 50%,
+    var(--t-bg3, #14181F) 75%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 8px;
+  color: transparent !important;
+  pointer-events: none;
+  user-select: none;
+}
+:root[data-theme="light"] .skeleton {
+  background: linear-gradient(
+    90deg,
+    #EEF0F7 25%,
+    #FFFFFF 50%,
+    #EEF0F7 75%
+  );
+  background-size: 600px 100%;
+}
+
+/* Pre-built skeleton shapes */
+.skel-text   { height: 14px; border-radius: 4px; margin-bottom: 8px; }
+.skel-text-sm{ height: 11px; border-radius: 4px; margin-bottom: 6px; }
+.skel-title  { height: 22px; border-radius: 6px; margin-bottom: 12px; }
+.skel-card   { height: 120px; border-radius: 16px; }
+.skel-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+.skel-badge  { height: 22px; width: 70px; border-radius: 999px; }
+.skel-btn    { height: 40px; border-radius: 10px; }
+.skel-chart  { height: 180px; border-radius: 16px; }
+.skel-w-full { width: 100%; }
+.skel-w-3-4  { width: 75%; }
+.skel-w-1-2  { width: 50%; }
+.skel-w-1-4  { width: 25%; }
+
+/* Skeleton card layout helper */
+.skel-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  background: var(--t-bg2, #10131C);
+  border: 1px solid var(--t-border, rgba(255,255,255,0.07));
+  border-radius: 16px;
+}
+:root[data-theme="light"] .skel-card-body {
+  background: #FFFFFF;
+  border-color: rgba(0,0,0,0.08);
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
+
+/* ── Loading spinner ── */
+.finos-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--t-border2, rgba(255,255,255,0.12));
+  border-top-color: var(--t-accent, #4F7CFF);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+.finos-spinner--lg {
+  width: 36px;
+  height: 36px;
+  border-width: 3px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .finos-spinner { animation: none; border-color: var(--t-accent, #4F7CFF); }
+}
+
+/* ── Loading overlay (full-card) ── */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--t-bg2, rgba(16,19,28,0.85));
+  backdrop-filter: blur(4px);
+  border-radius: inherit;
+  z-index: 10;
+  gap: 10px;
+  color: var(--t-text2, #9AA0B4);
+  font-size: 0.83rem;
+}
+:root[data-theme="light"] .loading-overlay {
+  background: rgba(255,255,255,0.85);
+}
+
+/* ── Error state ── */
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--t-text2, #9AA0B4);
+}
+.error-state__icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+.error-state__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--t-text, #E8EAF0);
+  margin: 0;
+}
+.error-state__desc {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  max-width: 280px;
+  margin: 0;
+  color: var(--t-text2, #9AA0B4);
+}
+.error-state__retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: rgba(79,124,255,0.1);
+  border: 1px solid rgba(79,124,255,0.25);
+  border-radius: 8px;
+  color: var(--t-accent, #4F7CFF);
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  text-decoration: none;
+}
+.error-state__retry:hover {
+  background: rgba(79,124,255,0.18);
+  border-color: rgba(79,124,255,0.45);
+}
+.error-state__retry:focus-visible {
+  outline: 2px solid var(--t-accent, #4F7CFF);
+  outline-offset: 3px;
+}
+
+/* Inline error (small, inside a field or card) */
+.inline-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #f04444;
+  margin-top: 4px;
+}
+.inline-error::before { content: '⚠'; }
+
+/* ── Empty state ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 20px;
+  text-align: center;
+}
+.empty-state__icon {
+  font-size: 2.5rem;
+  opacity: 0.5;
+  line-height: 1;
+}
+.empty-state__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--t-text, #E8EAF0);
+  margin: 0;
+}
+.empty-state__desc {
+  font-size: 0.82rem;
+  color: var(--t-text2, #9AA0B4);
+  max-width: 260px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Success flash ── */
+@keyframes successPop {
+  0%   { transform: scale(0.8); opacity: 0; }
+  60%  { transform: scale(1.1); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+.success-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(34,211,166,0.12);
+  border: 1px solid rgba(34,211,166,0.3);
+  border-radius: 8px;
+  color: #22d3a6;
+  font-size: 0.83rem;
+  font-weight: 600;
+  animation: successPop 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ── Toast notification system ── */
+#finos-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+  max-width: 360px;
+  width: calc(100vw - 48px);
+}
+@media (max-width: 480px) {
+  #finos-toast-container {
+    bottom: 16px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+  }
+}
+
+.finos-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--t-bg2, #10131C);
+  border: 1px solid var(--t-border2, rgba(255,255,255,0.12));
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  pointer-events: all;
+  animation: toastIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--t-text, #E8EAF0);
+  position: relative;
+  overflow: hidden;
+}
+.finos-toast.toast-out {
+  animation: toastOut 0.25s ease forwards;
+}
+@keyframes toastIn {
+  from { transform: translateX(120%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes toastOut {
+  to { transform: translateX(120%); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .finos-toast, .finos-toast.toast-out { animation: none; }
+}
+
+/* Toast type accents */
+.finos-toast--success { border-left: 3px solid #22d3a6; }
+.finos-toast--error   { border-left: 3px solid #f04444; }
+.finos-toast--warning { border-left: 3px solid #f0a500; }
+.finos-toast--info    { border-left: 3px solid #4F7CFF; }
+
+.finos-toast__icon { font-size: 1.1rem; flex-shrink: 0; line-height: 1.4; }
+.finos-toast__body { flex: 1; }
+.finos-toast__title {
+  font-weight: 700;
+  font-size: 0.875rem;
+  margin-bottom: 2px;
+}
+.finos-toast__msg  { color: var(--t-text2, #9AA0B4); font-size: 0.82rem; }
+
+.finos-toast__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--t-text2, #9AA0B4);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.finos-toast__close:hover { color: var(--t-text, #E8EAF0); }
+
+/* Progress bar inside toast */
+.finos-toast__progress {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 2px;
+  background: currentColor;
+  opacity: 0.35;
+  animation: toastProgress var(--toast-duration, 4000ms) linear forwards;
+}
+@keyframes toastProgress { from { width: 100%; } to { width: 0%; } }
+
+/* Light mode */
+:root[data-theme="light"] .finos-toast {
+  background: #FFFFFF;
+  border-color: rgba(0,0,0,0.10);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  color: #0B0D12;
+}
+:root[data-theme="light"] .finos-toast__msg { color: #4A5068; }
+:root[data-theme="light"] .finos-toast__close { color: #8A92A8; }
+:root[data-theme="light"] .finos-toast__close:hover { color: #0B0D12; }

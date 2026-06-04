@@ -108,10 +108,10 @@
 }
 
 .level-card:hover {
-  transform: translateY(-5px) scale(1.02);
-  background: rgba(255,255,255,0.05);
+  transform: translateY(-5px) scale(1.01);
+  background: transparent;
   border-color: var(--accent);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  box-shadow: 0 0 0 1px rgba(79,124,255,.18), 0 20px 40px rgba(0,0,0,.4);
 }
 
 .level-card.warning { border-top: 4px solid #ff4757; }
@@ -178,7 +178,7 @@
 .journey-footer { text-align: center; margin-top: 100px; padding: 60px 20px; border-top: 1px solid rgba(255,255,255,0.1); }
 .next-steps { display: flex; justify-content: center; gap: 20px; margin-top: 30px; flex-wrap: wrap; }
 .next-btn { padding: 15px 30px; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: #fff; text-decoration: none; font-weight: 700; transition: all 0.3s; }
-.next-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-5px); }
+.next-btn:hover { background: transparent; transform: translateY(-5px); filter: brightness(1.1); box-shadow: 0 8px 28px rgba(79,124,255,.3); }
 .next-btn.accent { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 20px rgba(199, 240, 0, 0.4); }
 
 /* --- LIGHT MODE --- */

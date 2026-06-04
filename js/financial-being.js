@@ -599,46 +599,46 @@ Keep responses concise but deeply insightful. Use markdown for structure when ne
 ${systemHint}`;
 
         try {
-            const response = await fetch("https://api.anthropic.com/v1/messages", {
+            // Route through local Ollama backend (never expose API keys on frontend)
+            const ollamaUrl = 'http://localhost:11434/api/generate';
+            const response = await fetch(ollamaUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    model:      "claude-sonnet-4-20250514",
-                    max_tokens: 1000,
-                    system:     systemPrompt,
-                    messages:   [{ role: "user", content: prompt }]
-                })
+                    model:  "qwen3:14b",
+                    prompt: `${systemPrompt}\n\nUser: ${prompt}\nAssistant:`,
+                    stream: false,
+                    options: { temperature: 0.18, num_predict: 700 }
+                }),
+                signal: AbortSignal.timeout(30000)
             });
 
-            if (!response.ok) throw new Error(`API error: ${response.status}`);
+            if (!response.ok) throw new Error(`Ollama returned ${response.status}`);
             const data = await response.json();
-
-            // Extract text from response
-            const text = data.content
-                ?.filter(b => b.type === 'text')
-                .map(b => b.text)
-                .join('') || '';
+            const text = (data.response || '').replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+            if (!text) throw new Error('Empty response');
 
             // Typewriter effect for immersion
             await typewriterEffect(targetEl, text);
 
         } catch (err) {
-            targetEl.innerHTML = `<span class="ai-error">⚠ AI unavailable. Check your backend connection.<br><small>${err.message}</small></span>`;
+            targetEl.innerHTML = `<span class="ai-error">⚠ AI mentor unavailable — make sure Ollama is running locally.<br><small>${String(err.message).replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]))}</small></span>`;
         }
     }
 
     /** Renders text with a typewriter animation */
     async function typewriterEffect(el, text, speed = 6) {
         el.innerHTML = '';
-        // Render markdown-ish: bold, code, newlines
-        const html = text
+        // Sanitize plain text first, then apply markdown-style formatting safely
+        const safe = text
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
             .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
             .replace(/`(.+?)`/g, '<code>$1</code>')
             .replace(/#{1,3} (.+)/g, '<h4>$1</h4>')
             .replace(/\n/g, '<br>');
 
         const tmp  = document.createElement('div');
-        tmp.innerHTML = html;
+        tmp.innerHTML = safe;
         const chars = tmp.innerHTML.split('');
 
         el.innerHTML = '';

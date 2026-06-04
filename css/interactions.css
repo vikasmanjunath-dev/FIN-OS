@@ -1,0 +1,465 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   FIN-OS GLOBAL INTERACTION SYSTEM
+   ───────────────────────────────────────────────────────────────────────
+   Replaces all flat background-fill hovers with premium depth-based effects.
+
+   The vocabulary:
+     Cards     → lift + border brightens + glow underneath
+     Nav/Links → text brightens + accent color (zero fill)
+     Buttons   → glow intensifies (primary already good; ghost → border glow)
+     Chips     → border accent + text shift (zero fill)
+     Tabs      → accent underline slides in (zero fill)
+     Rows      → left accent bar + text brightens (zero fill)
+     TOC       → left accent slides in + opacity shift
+
+   Base transition speed: 160ms — fast enough to feel instant, slow enough
+   to feel considered.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Universal transition baseline ─────────────────────────────────── */
+*,
+*::before,
+*::after {
+  transition-timing-function: cubic-bezier(.25,.46,.45,.94);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   1. CARDS  ── lift + border brightens + ambient glow below
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Base card — used everywhere */
+.card:hover {
+  transform: translateY(-4px) !important;
+  border-color: rgba(79,124,255,.22) !important;
+  background: var(--bg-surface) !important;   /* lock — no fill shift */
+  box-shadow:
+    0 0 0 1px rgba(79,124,255,.1),
+    0 16px 48px rgba(0,0,0,.32),
+    0 4px 16px rgba(79,124,255,.08) !important;
+}
+
+/* Feature/new-feature cards (dynamic rgb accent) */
+.feat-card:hover,
+.nf-card:hover {
+  background: transparent !important;
+  transform: translateY(-3px) !important;
+  box-shadow:
+    0 0 0 1px rgba(var(--feat-rgb, var(--nf-color, 79,124,255)), .28),
+    0 12px 36px rgba(var(--feat-rgb, var(--nf-color, 79,124,255)), .12) !important;
+  border-color: rgba(var(--feat-rgb, var(--nf-color, 79,124,255)), .28) !important;
+}
+
+/* Tool cards (tools hub) */
+.tool-card:hover {
+  background: var(--bg-surface) !important;
+  transform: translateY(-3px) !important;
+  border-color: rgba(79,124,255,.2) !important;
+  box-shadow:
+    0 0 0 1px rgba(79,124,255,.1),
+    0 12px 36px rgba(0,0,0,.28),
+    0 4px 12px rgba(79,124,255,.07) !important;
+}
+
+/* KPI cards */
+.kpi-card:hover {
+  background: var(--bg-surface) !important;
+  transform: translateY(-2px) !important;
+  box-shadow:
+    0 0 0 1px rgba(var(--kpi-rgb, 79,124,255), .15),
+    0 10px 30px rgba(0,0,0,.25) !important;
+}
+
+/* Foundation portal buttons */
+.foundation-btn:hover,
+.qa-card:hover {
+  background: var(--bg-surface) !important;
+  transform: translateY(-2px) !important;
+  border-color: rgba(79,124,255,.18) !important;
+  box-shadow:
+    0 0 0 1px rgba(79,124,255,.08),
+    0 10px 28px rgba(0,0,0,.22) !important;
+}
+
+/* Suite cards (track-finances hub) */
+.suite-card:hover {
+  transform: translateY(-4px) !important;
+  border-color: rgba(var(--cr, 79,124,255), .28) !important;
+  box-shadow:
+    0 16px 48px rgba(0,0,0,.5),
+    0 0 0 1px rgba(var(--cr,79,124,255), .12) !important;
+}
+
+/* Vision / belief / timeline / value cards (landing) */
+.vision-card:hover,
+.belief-card:hover,
+.value-card:hover,
+.timeline-card:hover,
+.india-card:hover,
+.choice-card:hover {
+  transform: translateY(-4px) !important;
+  background: var(--bg-surface) !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,.25), 0 0 0 1px rgba(255,255,255,.08) !important;
+}
+
+/* OS navigation zone links (dashboard) */
+.os-link:hover {
+  background: transparent !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.15), inset 0 0 12px rgba(79,124,255,.06) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   2. SIDEBAR NAV  ── accent color + text brightens, zero fill
+   ══════════════════════════════════════════════════════════════════════ */
+
+.sb-link:hover {
+  color: rgba(255,255,255,.84) !important;
+  background: transparent !important;
+  transform: translateX(2px) !important;
+  border-color: transparent !important;
+}
+.sb-link:hover .sb-icon {
+  color: var(--sb-accent, #4f7cff) !important;
+  transform: scale(1.08) !important;
+}
+
+.sb-settings-row:hover {
+  background: transparent !important;
+  color: rgba(255,255,255,.72) !important;
+  transform: translateX(2px) !important;
+}
+.sb-settings-row:hover .sb-icon { color: var(--sb-accent, #4f7cff) !important; }
+
+/* Arya row hover — subtle glow, no fill */
+.sb-arya-row:hover {
+  background: transparent !important;
+  border-color: rgba(79,124,255,.18) !important;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.1),
+              inset 0 0 20px rgba(79,124,255,.04) !important;
+}
+
+/* Identity card hover — border glow, no fill */
+.sb-identity:hover {
+  background: transparent !important;
+  border-color: rgba(var(--sb-accent-rgb, 79,124,255), .25) !important;
+  box-shadow: 0 0 0 1px rgba(var(--sb-accent-rgb, 79,124,255), .08) !important;
+}
+
+/* Command shortcut hover */
+.sb-cmd:hover {
+  background: transparent !important;
+  border-color: rgba(var(--sb-accent-rgb, 79,124,255), .28) !important;
+  box-shadow: 0 0 0 1px rgba(var(--sb-accent-rgb, 79,124,255), .08) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   3. BUTTONS  ── glow-first, no flat fills
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Ghost / secondary buttons */
+.btn-secondary:hover,
+.btn-outline:hover {
+  background: transparent !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  box-shadow: 0 0 0 1px var(--accent), 0 4px 20px var(--accent-soft) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Action buttons in detail pages (.action-btn) */
+.action-btn:hover {
+  filter: brightness(1.08) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 36px rgba(var(--accent-rgb, 79,124,255), .35) !important;
+}
+
+/* Next-module / next-step buttons */
+.next-module-btn:hover,
+.next-btn:hover {
+  filter: brightness(1.1) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 28px rgba(79,124,255,.3) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   4. TOC LINKS  ── left accent bar slides in, no background
+   ══════════════════════════════════════════════════════════════════════ */
+
+.toc-link:hover {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  padding-left: calc(var(--toc-indent, 0px) + 12px) !important;
+  border-left: 2px solid var(--accent) !important;
+  transition: padding-left 150ms, border-left 150ms, color 150ms !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   5. TABS & CHIPS  ── border shift, text brightens, zero fill
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Tab buttons (markets, track-finances, etc.) */
+.tf-mod-tab:hover,
+[class*="-tab"]:hover {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 1px 0 var(--accent) !important;
+}
+
+/* Budget category buttons, quiz options, nav pills */
+.budget-cat-btn:hover,
+.quiz-opt:hover,
+.np-btn:hover,
+.qc-chip:hover {
+  background: transparent !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   6. TABLE ROWS & LIST ITEMS  ── left accent bar, zero fill
+   ══════════════════════════════════════════════════════════════════════ */
+
+.matrix-row:hover,
+.tf-step-check:hover,
+.tf-vital:hover {
+  background: transparent !important;
+  border-left: 2px solid var(--accent) !important;
+  padding-left: 4px !important;
+  transition: border-left 150ms, padding-left 150ms !important;
+}
+
+/* Watchlist items */
+.qs-watch-item:hover {
+  background: transparent !important;
+  transform: translateX(3px) !important;
+  border-color: rgba(79,124,255,.2) !important;
+  box-shadow: inset 0 0 0 1px rgba(79,124,255,.08) !important;
+}
+
+/* Stock suggestion items */
+.qs-suggest-item:hover,
+.qs-suggest-item.active {
+  background: transparent !important;
+  border-left: 2px solid var(--accent) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   7. MARKETS & DETAIL TYPE CARDS  ── border glow, no fill
+   ══════════════════════════════════════════════════════════════════════ */
+
+.type-card:hover,
+.mf-type-card:hover {
+  background: transparent !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.15), 0 8px 28px rgba(79,124,255,.1) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Mini chip (stock platform) */
+.qs-mini:hover {
+  background: transparent !important;
+  border-color: rgba(199,240,0,.4) !important;
+  color: #c7f000 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 0 0 1px rgba(199,240,0,.15) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   8. BACK / UTILITY BUTTONS  ── border glow, no fill
+   ══════════════════════════════════════════════════════════════════════ */
+
+.back-btn:hover,
+.markets-deep .back-btn:hover {
+  background: transparent !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.18) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   9. MODAL / OVERLAY CONTROLS  ── border glow, no fill
+   ══════════════════════════════════════════════════════════════════════ */
+
+.modal-close:hover {
+  background: transparent !important;
+  border-color: var(--color-error) !important;
+  color: var(--color-error) !important;
+  box-shadow: 0 0 0 1px rgba(248,113,113,.2) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   10. THEME TOGGLE & UTILITY BUTTONS  ── glow ring, no fill
+   ══════════════════════════════════════════════════════════════════════ */
+
+.theme-btn:hover,
+.fixed-theme-btn:hover {
+  background: transparent !important;
+  box-shadow:
+    0 0 0 2px rgba(79,124,255,.2),
+    0 4px 16px rgba(79,124,255,.12) !important;
+  transform: rotate(12deg) scale(1.08) !important;
+}
+
+/* Mobile hamburger */
+.mob-ham:hover {
+  background: transparent !important;
+  border-color: rgba(255,255,255,.3) !important;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.1) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   11. INLINE-STYLE OVERRIDE HELPERS  ── utility classes injected via JS
+   to override the 180 inline hover styles in HTML files that we cannot
+   reach with CSS alone.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Applied by interactions.js to any element with inline hover style */
+[data-hover="lift"] {
+  transition: transform 160ms, box-shadow 160ms, border-color 160ms !important;
+}
+[data-hover="lift"]:hover {
+  transform: translateY(-3px) !important;
+  background: transparent !important;
+}
+[data-hover="glow"] {
+  transition: box-shadow 160ms, border-color 160ms !important;
+}
+[data-hover="glow"]:hover {
+  background: transparent !important;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.22), 0 8px 28px rgba(79,124,255,.1) !important;
+  border-color: rgba(79,124,255,.22) !important;
+}
+[data-hover="bright"] {
+  transition: color 150ms, opacity 150ms !important;
+}
+[data-hover="bright"]:hover {
+  background: transparent !important;
+  opacity: 1 !important;
+  color: var(--text-primary) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   12. LOGIN / STANDALONE PAGE ELEMENTS
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Google sign-in button */
+.google-btn:hover,
+.btn-google-neo:hover {
+  background: transparent !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.18) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Login back-link */
+.back-link:hover {
+  background: transparent !important;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.15) !important;
+}
+
+/* Footer audit / CTA button */
+.footer-audit-btn:hover {
+  background: transparent !important;
+  border-color: var(--neon-lime, #c7f000) !important;
+  color: var(--neon-lime, #c7f000) !important;
+  box-shadow: 0 0 0 1px rgba(199,240,0,.25), 0 8px 28px rgba(199,240,0,.15) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   13. NAV PILLS, TABS, CHIPS (site-wide catch-all)
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Catches .nav-pill, .nav-link, .tab-btn, etc. */
+[class*="nav-pill"]:hover,
+[class*="nav-link"]:hover {
+  background: transparent !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.2) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   14. NEWS CARDS & DOCK BUTTONS
+   ══════════════════════════════════════════════════════════════════════ */
+
+.news-card:hover {
+  background: transparent !important;
+  border-color: rgba(79,124,255,.15) !important;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.12), 0 10px 30px rgba(0,0,0,.22) !important;
+  transform: translateY(-3px) !important;
+}
+
+.dock-btn:hover {
+  background: transparent !important;
+  border-color: rgba(255,255,255,.25) !important;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.1) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   15. PROFILE PAGE ELEMENTS
+   ══════════════════════════════════════════════════════════════════════ */
+
+.chip:hover {
+  background: transparent !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+.mega-btn:hover {
+  background: transparent !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 1px var(--accent), 0 8px 28px rgba(79,124,255,.2) !important;
+  transform: translateY(-2px) !important;
+}
+
+.activation-card:hover {
+  background: transparent !important;
+  border-color: rgba(79,124,255,.25) !important;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.12), 0 12px 32px rgba(0,0,0,.25) !important;
+  transform: translateY(-3px) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   16. SETTINGS PAGE  ── btn-danger consistent with global system
+   ══════════════════════════════════════════════════════════════════════ */
+
+.settings-card:hover {
+  background: transparent !important;
+  border-color: rgba(79,124,255,.2) !important;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.1), 0 8px 24px rgba(0,0,0,.18) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   17. HOLO / SPECIAL CARDS  (tracker, insight-cards)
+   ══════════════════════════════════════════════════════════════════════ */
+
+.holo-card:hover {
+  background: transparent !important;
+  border-color: rgba(79,124,255,.3) !important;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.15), 0 20px 50px rgba(0,0,0,.4) !important;
+  transform: translateY(-4px) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   18. GLOBAL ANCHOR LINK HOVER  ── remove underline; use color shift
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Suppress the underline-on-hover from base.css for nav/interactive anchors */
+a.card:hover,
+a[class]:hover {
+  text-decoration: none !important;
+}
+
+/* ─── Light-mode overrides ──────────────────────────────────────────── */
+[data-theme="light"] .card:hover         { box-shadow: 0 0 0 1px rgba(79,124,255,.15), 0 12px 36px rgba(0,0,0,.1), 0 4px 12px rgba(79,124,255,.06) !important; }
+[data-theme="light"] .feat-card:hover    { box-shadow: 0 0 0 1px rgba(var(--feat-rgb,79,124,255),.22), 0 8px 24px rgba(var(--feat-rgb,79,124,255),.08) !important; }
+[data-theme="light"] .foundation-btn:hover { box-shadow: 0 0 0 1px rgba(79,124,255,.12), 0 8px 24px rgba(0,0,0,.1) !important; }
+[data-theme="light"] .news-card:hover    { background: transparent !important; border-color: rgba(79,124,255,.12) !important; box-shadow: 0 0 0 1px rgba(79,124,255,.1), 0 8px 20px rgba(0,0,0,.08) !important; }
+[data-theme="light"] .dock-btn:hover     { background: transparent !important; border-color: rgba(0,0,0,.2) !important; box-shadow: 0 0 0 1px rgba(0,0,0,.1) !important; }

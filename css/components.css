@@ -3,31 +3,8 @@
   padding-top: 32px;
 }
 
-
-
-
-
-
 /* =========================
-   FIN-OS LOGIN UNIVERSE
-   ========================= */
-
-/* Update in components.css */
-/* Update in components.css */
-/* =========================
-   FIXED LOGIN UNIVERSE
-   ========================= */
-
-/* =========================
-   FIXED LOGIN LAYOUT
-   ========================= */
-
-/* =========================
-   FIXED LOGIN LAYOUT (components.css)
-   ========================= */
-
-/* =========================
-   FIXED LOGIN UNIVERSE
+   LOGIN UNIVERSE — single authoritative block
    ========================= */
 
 .login-universe {
@@ -35,133 +12,59 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;    /* Fixes left-drift in image_140f48.jpg */
-  justify-content: center; 
+  align-items: center;
+  justify-content: center;
   padding: 60px 20px;
-  
-  /* CRITICAL: Use the theme variable from base.css */
-  background: var(--bg-main) !important; 
+  background: var(--bg-main);
   color: var(--text-main);
   transition: background 0.4s ease, color 0.4s ease;
 }
 
-/* Constrain the core content to the center */
 .login-core {
   width: 100%;
-  max-width: 480px; 
+  max-width: 480px;
   margin: 0 auto;
   text-align: center;
+  padding-bottom: 4rem;
 }
 
-/* =========================
-   FIXED AUTH PANEL (The Box)
-   ========================= */
+/* Primary Button — full definition is in design-tokens.css.
+   Only layout overrides that are page-context-specific belong here. */
+.login-core .primary-btn { width: 100%; margin-top: var(--space-5); }
 
-/* =========================
-   FIXED LAYOUT & THEME
-   ========================= */
-
-.login-universe {
-  min-height: 100vh;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;    /* Fixes left-drift */
-  justify-content: center; 
-  padding: 60px 20px;
-  background: var(--bg-main) !important; /* Theme support */
-  color: var(--text-main);
-  transition: all 0.4s ease;
-}
-
-.login-core {
-  width: 100%;
-  max-width: 480px; 
-  margin: 0 auto;
-  text-align: center;
-}
-
-/* FIX: Top cut issue */
-.login-energy {
-  margin: 0 auto 1.5rem auto !important; /* Resets massive top margin */
-}
-
-
-/* Ensure the box turns dark in Dark Mode */
-.auth-panel {
-  background: var(--bg-surface) !important; 
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--card-shadow);
-}
-
-/* Make inputs look stylish and themed */
-.auth-form input {
-  background: var(--bg-glass) !important;
-  color: var(--text-main) !important;
-  border: 1px solid var(--border-soft);
-  padding: 16px;
-  border-radius: 14px;
-}
-
-/* Primary Button Styling */
-.primary-btn {
-  width: 100%;
-  padding: 18px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-  color: #0b0d12;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  margin-top: 20px;
-  box-shadow: var(--glow-primary);
-}
-
-/* =========================
-   THEME-REACTIVE COMPONENTS
-   ========================= */
-
-/* Update these in components.css */
-
+/* Auth panel */
 .auth-panel {
   width: 100%;
   margin-top: 24px;
   padding: 30px;
   border-radius: 20px;
-  /* Use surface variable instead of hardcoded white */
-  background: var(--bg-surface) !important; 
+  background: var(--bg-surface);
   border: 1px solid var(--border-soft);
   box-shadow: var(--card-shadow);
   backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .choice-card {
   width: 100%;
-  background: var(--bg-surface) !important;
-  color: var(--text-main) !important;
+  background: var(--bg-surface);
+  color: var(--text-main);
   border: 1px solid var(--border-soft);
 }
 
-.auth-form input {
-  background: var(--bg-glass) !important;
-  border: 1px solid var(--border-soft);
-  color: var(--text-main) !important;
-}
+/* auth-form input — canonical style in design-tokens.css form system.
+   Contextual overrides only: */
+.auth-form { display: flex; flex-direction: column; gap: var(--space-4); }
+.auth-form input { margin-bottom: 0; }
 
 .back-link {
   position: absolute;
-  top: 1.0rem;
+  top: 1.5rem;
   left: 1.5rem;
   text-decoration: none;
   opacity: 0.6;
 }
 
-/* CORE */
-.login-core {
-  max-width: 480px;
-  text-align: center;
-  padding-bottom: 4rem;
-}
 
 /* ENERGY */
 .login-energy {
@@ -169,8 +72,7 @@
   width: 120px;
   height: 120px;
 
-  margin: 12.5rem auto 50rem;
-  /* 🔽 moves FIN-OS down */
+  margin: 0 auto 1.5rem auto;
 
   border-radius: 50%;
   background: linear-gradient(135deg, #C7F000, #B6FF3B);
@@ -233,8 +135,9 @@
 .choice-card.active {
   transform: translateY(-4px);
   border-color: rgba(182, 255, 59, 0.8);
-  background: var(--bg-surface);
+  background: transparent;
   color: var(--text-main);
+  box-shadow: 0 0 0 1px rgba(182,255,59,.2), 0 10px 30px rgba(0,0,0,.2);
 }
 
 /* Ensure text color adapts */
@@ -280,8 +183,9 @@
 
 /* Hover */
 .back-link:hover {
-  background: rgba(0, 0, 0, 0.08);
+  background: transparent;
   transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.1);
 }
 
 /* Dark mode */
@@ -291,7 +195,8 @@
 }
 
 [data-theme="dark"] .back-link:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: transparent;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.12);
 }
 
 
@@ -1072,45 +977,15 @@
 }
 
 /* =========================
-   CARD SYSTEM (ONE SOURCE)
+   CARD SYSTEM — delegates to design-tokens.css .card base.
+   Only layout / context overrides here.
    ========================= */
-
 .card {
-  background: var(--bg-surface);
-  color: var(--text-primary);
-
-  padding: 20px 24px;
-  border-radius: 20px;
-
-  box-shadow: var(--card-shadow);
-
-  transition:
-    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.28s ease,
-    background 0.3s ease;
-
   cursor: pointer;
-
-  border-radius: 24px;
-  /* more curvy */
-  font-size: 15.5px;
-  font-weight: 500;
-  line-height: 1.55;
 }
 
 .card:hover {
-  transform: translateY(-6px) scale(1.01);
-}
-
-.card {
-  transition:
-    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.35s ease,
-    letter-spacing 0.25s ease;
-}
-
-.card:hover {
-  letter-spacing: 0.2px;
+  transform: translateY(-5px);
 }
 
 /* =========================
@@ -1785,34 +1660,7 @@
 
 
 
-.primary-btn {
-  margin: 40px auto 0;
-  padding: 18px 52px;
-
-  border-radius: 999px;
-  font-size: 1.05rem;
-  font-weight: 900;
-  letter-spacing: 0.3px;
-
-  border: none;
-  cursor: pointer;
-
-  background: linear-gradient(135deg,
-      #5f8cff,
-      #c7f000);
-  color: #0B0D12;
-
-  box-shadow:
-    0 26px 60px rgba(95, 140, 255, 0.45);
-
-  transition:
-    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.3s ease;
-}
-
-.primary-btn:hover {
-  transform: translateY(-3px);
-}
+/* Duplicate .primary-btn removed — definition lives in design-tokens.css */
 
 
 
@@ -1900,90 +1748,30 @@
 }
 
 .auth-tab.active {
-  background: linear-gradient(135deg,
-      #7f9cff,
-      #cde85a);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   color: #0B0D12;
-  border-color: absolute;
-
-  box-shadow:
-    0 8px 20px rgba(95, 140, 255, 0.35);
+  border-color: transparent;
+  box-shadow: 0 8px 20px var(--glow-primary);
 }
 
-/* Form */
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* Input field updates */
-.auth-form input {
-  background: var(--bg-glass) !important; 
-  border: 1px solid var(--border-soft);
-  color: var(--text-main);
-}
-
-/* Choice card updates */
+/* Choice card */
 .choice-card {
-  background: var(--bg-surface) !important;
+  background: var(--bg-surface);
   border: 1px solid var(--border-soft);
-  color: var(--text-main); /* Prevents text from disappearing */
+  color: var(--text-primary);
 }
 
-/* Fix for the sub-text (small tags) */
-.choice-card small, .login-sub {
+.choice-card small,
+.login-sub {
   color: var(--text-muted);
 }
 
-.auth-form input:focus {
-  outline: none;
-  border-color: rgba(79, 124, 255, 0.6);
-  background: #fff;
-  box-shadow:
-    0 0 0 4px rgba(79, 124, 255, 0.15);
-}
+/* auth-form input focus — canonical in design-tokens.css, no duplication needed */
 
-
-.auth-form input::placeholder {
-  color: var(--text-muted);
-}
-
-.auth-form input:focus {
-  outline: none;
-  border-color: #7aa2ff;
-  box-shadow: 0 0 0 3px rgba(122, 162, 255, 0.15);
-}
-
-/* Email CTA */
+/* Email CTA — extends the canonical .primary-btn from design-tokens.css */
 .auth-action {
-  margin-top: 10px;
-  padding: 15px;
-
-  border-radius: 999px;
-  font-weight: 600;
-  font-size: 0.95rem;
-
-  border: none;
-  cursor: pointer;
-
-  background: linear-gradient(135deg,
-      #7f9cff,
-      #cde85a);
-  color: #0B0D12;
-
-  box-shadow:
-    0 16px 36px rgba(95, 140, 255, 0.35);
-
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
-}
-
-.auth-action:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 22px 48px rgba(95, 140, 255, 0.45);
+  margin-top: var(--space-3);
+  width: 100%;
 }
 
 
@@ -2026,8 +1814,9 @@
 
 .google-btn:hover {
   border-color: var(--accent);
-  background: var(--bg-main);
+  background: transparent;
   transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(79,124,255,.18);
 }
 
 /* Fixed Theme Button (For Login/Standalone Pages) */
@@ -2060,47 +1849,14 @@
   border-color: var(--accent);
 }
 
-/* FINAL DECISION CTA */
-.primary-btn {
-  margin: 36px 0 0;
-  padding: 16px 46px;
-  border-radius: 999px;
-  font-size: 1.05rem;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  background: linear-gradient(135deg,
-      #7f9cff,
-      #cde85a);
-  color: #0b0d12;
-  box-shadow: 0 20px 48px rgba(95, 140, 255, 0.35);
-}
+/* Duplicate .primary-btn removed — definition lives in design-tokens.css */
 
 
 
 /* =========================
    SIGN-UP SPECIFIC STYLES
+   auth-form input canonical styles live in design-tokens.css
    ========================= */
-
-/* Use the same stylish input class we created for login */
-.auth-form input {
-  width: 100%;
-  padding: 16px 20px; 
-  margin-bottom: 12px;
-  border-radius: 14px; 
-  font-size: 0.95rem;
-  background: var(--bg-glass) !important; /* Frosted glass effect */
-  border: 1px solid var(--border-soft);
-  color: var(--text-main);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Ensure forms are hidden/shown as flexible columns */
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
 
 /* Password strength bar styling */
 .password-strength {
@@ -2231,10 +1987,11 @@ html[data-theme="dark"] .login-theme-btn .icon-moon {
 
 /* Hover Energy Sweep */
 .footer-audit-btn:hover {
-    background: var(--neon-lime);
-    color: #000 !important; /* High contrast flip on hover */
+    background: transparent;
+    border-color: var(--neon-lime);
+    color: var(--neon-lime) !important;
     transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(199, 240, 0, 0.3);
+    box-shadow: 0 0 0 1px rgba(199,240,0,.25), 0 8px 28px rgba(199,240,0,.2);
 }
 
 .btn-energy-glid {

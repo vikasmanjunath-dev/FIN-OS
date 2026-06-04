@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <title>Insurance Hub | FIN•OS</title>
+    <link rel="stylesheet" href="../css/design-tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-context.js" defer></script>
+  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-personalization.js" defer></script>
+<style>
+.ins-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+.ins-card { background:var(--bg-surface); border:1px solid var(--border-soft); border-radius:18px; padding:20px; }
+.ins-card-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.ins-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.ins-type { font-size:.85rem; font-weight:700; }
+.ins-provider { font-size:11px; color:rgba(255,255,255,.4); }
+.ins-metric { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--border-soft); }
+.ins-metric:last-of-type { border:none; }
+.ins-metric-label { font-size:12px; color:rgba(255,255,255,.55); }
+.ins-metric-val   { font-size:12px; font-weight:700; }
+.gap-bar { height:8px; background:var(--bg-surface); border-radius:4px; overflow:hidden; margin:6px 0; }
+.gap-fill { height:100%; border-radius:4px; }
+.ins-input { background:var(--bg-surface); border:1px solid var(--border-soft); border-radius:8px; padding:8px 12px; color:var(--text-primary); width:100%; font-size:13px; }
+.add-policy-form { background:var(--bg-surface); border:1px dashed rgba(255,255,255,.12); border-radius:18px; padding:24px; }
+.coverage-ring { position:relative; width:80px; height:80px; }
+.coverage-ring svg { transform:rotate(-90deg); }
+.coverage-ring .ring-val { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:14px; font-weight:900; text-align:center; line-height:1.1; }
+.premium-cal { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+.premium-month { flex:1; min-width:40px; padding:6px 4px; border-radius:8px; text-align:center; font-size:10px; }
+
+
+/* ── Light mode text overrides (auto-generated) ── */
+[data-theme="light"] .ins-input {
+  color: var(--text-primary) !important;
+    background: var(--bg-surface) !important;
+}</style>
+  <link rel="stylesheet" href="../css/interactions.css">
+</head>
+<body>
+<div class="app">
+          <aside class="sidebar" role="complementary" aria-label="Navigation">
+
+    <!-- Brand -->
+    <div class="sb-brand">
+      <div class="sb-logomark" aria-hidden="true">
+        <span class="sb-logomark-letter">F</span>
+      </div>
+      <div class="sb-wordmark">
+        <div class="sb-wordmark-name">FIN•OS</div>
+        <div class="sb-wordmark-tag">Financial OS</div>
+      </div>
+    </div>
+
+    <!-- Identity -->
+    <a href="profile.html" class="sb-identity" aria-label="Your profile">
+      <div class="sb-av" id="sb-av" aria-hidden="true">I</div>
+      <div class="sb-identity-body">
+        <div class="sb-identity-name" id="sb-name">Investor</div>
+        <div class="sb-identity-meta">
+          <span class="sb-identity-dna"  id="sb-dna">Financial DNA</span>
+          <span class="sb-health-pill"   id="sb-health-pill"></span>
+        </div>
+      </div>
+      <span class="sb-identity-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </a>
+
+    <!-- Search shortcut -->
+    <button class="sb-cmd" id="sb-cmd" aria-label="Search (Ctrl+K)">
+      <span class="sb-cmd-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="sb-cmd-label">Search or jump to…</span>
+      <kbd class="sb-cmd-kbd" aria-hidden="true">⌘K</kbd>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="sb-nav" aria-label="Main">
+        <a href="home.html" class="sb-link" title="Home">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+          <span class="sb-label">Home</span>
+        </a>
+        <a href="dashboard.html" class="sb-link" title="Dashboard">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>
+          <span class="sb-label">Dashboard</span>
+          <span class="sb-badge" id="sb-streak" aria-label="count"></span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="foundations.html" class="sb-link" title="Learn">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+          <span class="sb-label">Learn</span>
+        </a>
+        <a href="simulator-landing.html" class="sb-link" title="Mindset">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span>
+          <span class="sb-label">Mindset</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="diagnostics.html" class="sb-link" title="Diagnostics">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          <span class="sb-label">Diagnostics</span>
+        </a>
+        <a href="track-finances.html" class="sb-link" title="Track">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+          <span class="sb-label">Track</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="markets.html" class="sb-link" title="Markets">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+          <span class="sb-label">Markets</span>
+        </a>
+        <a href="tools.html" class="sb-link active" aria-current="page" title="Tools">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+          <span class="sb-label">Tools</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="news.html" class="sb-link" title="News">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span>
+          <span class="sb-label">News</span>
+        </a>
+    </nav>
+
+    <!-- Footer: Arya AI + Settings -->
+    <div class="sb-footer-zone">
+
+      <button class="sb-arya-row" id="sb-arya-btn"
+              aria-label="Arya AI — your financial coach"
+              onclick="document.querySelector('.finos-fab')?.click?.();">
+        <div class="sb-arya-icon" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span class="sb-arya-dot checking" id="sb-arya-dot"></span>
+        </div>
+        <div class="sb-arya-body">
+          <div class="sb-arya-name">Arya AI</div>
+          <div class="sb-arya-status checking" id="sb-arya-status">Connecting…</div>
+        </div>
+        <span class="sb-arya-arrow" aria-hidden="true">›</span>
+      </button>
+
+      <a href="settings.html" class="sb-settings-row" title="Settings">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        <span class="sb-label">Settings</span>
+      </a>
+
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="content-wrapper">
+
+      <header class="header header-flex">
+        <div>
+          <h1>🛡️ Insurance Intelligence Hub</h1>
+          <p style="color:rgba(255,255,255,.5);font-size:13px;">Your complete insurance picture — coverage gaps, premium calendar, renewal alerts</p>
+        </div>
+        <button onclick="openAddPolicy()" style="background:rgba(0,212,255,.15);border:1px solid rgba(0,212,255,.4);border-radius:10px;padding:9px 18px;color:#00d4ff;font-weight:700;font-size:13px;cursor:pointer;">+ Add Policy</button>
+      </header>
+
+      <!-- Coverage Overview -->
+      <section style="margin-bottom:28px;">
+        <h2 style="font-size:.95rem;font-weight:800;margin-bottom:16px;">Coverage Overview</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;" id="coverageOverview">
+          <!-- Filled by JS -->
+        </div>
+      </section>
+
+      <!-- Gap Analysis Card -->
+      <section style="margin-bottom:28px;">
+        <h2 style="font-size:.95rem;font-weight:800;margin-bottom:16px;">⚠️ Coverage Gap Analysis</h2>
+        <div id="gapAnalysis" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;"></div>
+      </section>
+
+      <!-- Your Policies -->
+      <section style="margin-bottom:28px;">
+        <h2 style="font-size:.95rem;font-weight:800;margin-bottom:16px;">Your Policies</h2>
+        <div class="ins-grid" id="policiesGrid">
+          <!-- Filled by JS -->
+        </div>
+      </section>
+
+      <!-- Add Policy Form -->
+      <section id="addPolicySection" style="display:none;margin-bottom:28px;">
+        <h2 style="font-size:.95rem;font-weight:800;margin-bottom:16px;">Add New Policy</h2>
+        <div class="add-policy-form">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div>
+              <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Policy Type</label>
+              <select class="ins-input" id="polType">
+                <option value="health">Health Insurance</option>
+                <option value="life_term">Term Life Insurance</option>
+                <option value="life_ulip">ULIP</option>
+                <option value="vehicle">Vehicle Insurance</option>
+                <option value="home">Home/Property Insurance</option>
+                <option value="travel">Travel Insurance</option>
+                <option value="critical">Critical Illness</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Insurance Company</label>
+              <input type="text" class="ins-input" id="polProvider" placeholder="e.g. Star Health, LIC, HDFC Ergo">
+            </div>
+            <div>
+              <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Sum Assured (₹)</label>
+              <input type="number" class="ins-input" id="polSumAssured" placeholder="e.g. 5000000">
+            </div>
+            <div>
+              <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Annual Premium (₹)</label>
+              <input type="number" class="ins-input" id="polPremium" placeholder="e.g. 12000">
+            </div>
+            <div>
+              <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Renewal Date</label>
+              <input type="date" class="ins-input" id="polRenewal">
+            </div>
+            <div>
+              <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Policy Number</label>
+              <input type="text" class="ins-input" id="polNumber" placeholder="Optional">
+            </div>
+          </div>
+          <div style="margin-bottom:12px;">
+            <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Notes (optional)</label>
+            <input type="text" class="ins-input" id="polNotes" placeholder="e.g. Family floater, covers spouse + 2 kids">
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button onclick="savePolicy()" style="flex:1;background:rgba(34,211,166,.15);border:1px solid rgba(34,211,166,.4);border-radius:10px;padding:10px;color:#22d3a6;font-weight:700;font-size:13px;cursor:pointer;">Save Policy</button>
+            <button onclick="closeAddPolicy()" style="padding:10px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:rgba(255,255,255,.5);font-size:13px;cursor:pointer;">Cancel</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Premium Calendar -->
+      <section style="margin-bottom:28px;">
+        <h2 style="font-size:.95rem;font-weight:800;margin-bottom:16px;">📅 Premium Calendar</h2>
+        <div id="premiumCalendar" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;"></div>
+      </section>
+
+      <!-- Arya Insurance Analysis -->
+      <section style="margin-bottom:28px;">
+        <div style="background:linear-gradient(135deg,rgba(0,212,255,.06),rgba(123,47,247,.06));border:1px solid rgba(0,212,255,.15);border-radius:18px;padding:20px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#7b2ff7);display:flex;align-items:center;justify-content:center;font-size:14px;">✨</div>
+            <div>
+              <div style="font-size:.85rem;font-weight:800;">Arya's Insurance Analysis</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.4);">Personalized recommendations based on your profile</div>
+            </div>
+            <button onclick="analyzeInsurance()" style="margin-left:auto;background:rgba(0,212,255,.15);border:1px solid rgba(0,212,255,.3);border-radius:8px;padding:6px 12px;color:#00d4ff;font-size:11px;font-weight:700;cursor:pointer;">Analyze →</button>
+          </div>
+          <div id="aryaInsuranceText" style="font-size:13.5px;color:rgba(255,255,255,.8);line-height:1.7;min-height:40px;">Click "Analyze" for Arya's personalized insurance review.</div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/finos-widget.js?v=5"></script>
+<script>
+const STORE_KEY = 'finos_insurance_policies';
+
+function INR(n) {
+  const num = Number(n)||0;
+  if (num >= 1e7) return '₹' + (num/1e7).toFixed(1) + ' Cr';
+  if (num >= 1e5) return '₹' + (num/1e5).toFixed(1) + ' L';
+  if (num >= 1e3) return '₹' + Math.round(num/1e3) + 'K';
+  return '₹' + Math.round(num).toLocaleString('en-IN');
+}
+
+function loadPolicies() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); }
+  catch { return []; }
+}
+function savePolicies(p) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(p));
+}
+
+const TYPE_META = {
+  health:       { icon:'🏥', label:'Health Insurance',  color:'#22d3a6', recBase: 1000000 },
+  life_term:    { icon:'🛡️', label:'Term Life',         color:'#00d4ff', recBase: 10000000 },
+  life_ulip:    { icon:'📈', label:'ULIP',               color:'#7b2ff7', recBase: 5000000  },
+  vehicle:      { icon:'🚗', label:'Vehicle Insurance',  color:'#ff9500', recBase: 500000  },
+  home:         { icon:'🏠', label:'Home Insurance',     color:'#c7f000', recBase: 3000000  },
+  travel:       { icon:'✈️', label:'Travel Insurance',   color:'#00d4ff', recBase: 1000000  },
+  critical:     { icon:'❤️', label:'Critical Illness',   color:'#ff4444', recBase: 5000000  }
+};
+
+/* ── Coverage Overview Cards ─── */
+function renderOverview(policies) {
+  const ctx = window.FINOS_USER_CONTEXT;
+  const income = Number(ctx?.budget_tracker?.income_monthly || localStorage.getItem('finos_income') || 50000);
+  const nw     = Number(ctx?.profile?.net_worth || localStorage.getItem('finos_net_worth') || 0);
+
+  const RECOMMENDED = {
+    health:    income * 12 * 2,         // 2x annual income
+    life_term: income * 12 * 15,        // 15x annual income
+    vehicle:   500000,                   // static
+    critical:  income * 12 * 5          // 5x annual income
+  };
+
+  const byType = {};
+  policies.forEach(p => {
+    if (!byType[p.type]) byType[p.type] = 0;
+    byType[p.type] += Number(p.sum_assured || 0);
+  });
+
+  const types = ['health','life_term','vehicle','critical'];
+  document.getElementById('coverageOverview').innerHTML = types.map(t => {
+    const meta = TYPE_META[t];
+    const have = byType[t] || 0;
+    const rec  = RECOMMENDED[t];
+    const pct  = rec > 0 ? Math.min(100, have / rec * 100) : 0;
+    const col  = pct >= 80 ? '#22d3a6' : pct >= 40 ? '#ff9500' : '#ff4444';
+    const CIRC = 157; // 2πr for r=25
+    const fill = (pct/100) * CIRC;
+    return `
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;">
+        <div class="coverage-ring">
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="25" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="5"/>
+            <circle cx="40" cy="40" r="25" fill="none" stroke="${col}" stroke-width="5"
+              stroke-dasharray="${fill} ${CIRC-fill}" stroke-linecap="round"/>
+          </svg>
+          <div class="ring-val" style="color:${col};">${Math.round(pct)}%</div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;">${meta.label}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:2px;">Have: ${have > 0 ? INR(have) : '—'}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.35);">Recommended: ${INR(rec)}</div>
+          ${have < rec ? `<div style="font-size:10px;color:${col};margin-top:3px;font-weight:700;">Gap: ${INR(rec - have)}</div>` : `<div style="font-size:10px;color:#22d3a6;margin-top:3px;font-weight:700;">✅ Covered</div>`}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ── Gap Analysis ─── */
+function renderGapAnalysis(policies) {
+  const ctx = window.FINOS_USER_CONTEXT;
+  const income = Number(ctx?.budget_tracker?.income_monthly || 50000);
+  const age    = Number(localStorage.getItem('finos_age') || 30);
+  const hasHealth = policies.some(p => p.type === 'health');
+  const hasTerm   = policies.some(p => p.type === 'life_term');
+  const hasVehicle = policies.some(p => p.type === 'vehicle');
+  const totalHealth = policies.filter(p => p.type === 'health').reduce((s,p) => s + Number(p.sum_assured||0), 0);
+  const totalLife   = policies.filter(p => p.type === 'life_term').reduce((s,p) => s + Number(p.sum_assured||0), 0);
+  const recHealth = income * 12 * 2;
+  const recLife   = income * 12 * 15;
+
+  const gaps = [];
+  if (!hasHealth) gaps.push({ icon:'🏥', title:'No health insurance', severity:'critical', msg:`With rising healthcare costs, one hospitalization can cost ₹5-25L. Get a ${INR(recHealth)} family floater plan.`, action:'insurance-directory.html', cta:'Find plans' });
+  else if (totalHealth < recHealth) gaps.push({ icon:'🏥', title:`Health cover is low (${INR(totalHealth)})`, severity:'high', msg:`Recommended: ${INR(recHealth)}. Hospital bills at AIIMS/Apollo can be ₹15-30L. Top-up your existing cover.`, action:'insurance-directory.html', cta:'Explore top-up' });
+  if (!hasTerm && age < 55) gaps.push({ icon:'🛡️', title:'No term life insurance', severity:'critical', msg:`A ${income * 12 * 15 > 10000000 ? INR(income*12*15) : '₹1 Cr+'} term plan at age ${age} costs just ₹${Math.round(income*0.01).toLocaleString('en-IN')}/month. Essential if anyone depends on your income.`, action:'insurance-directory.html', cta:'Get term plan' });
+  else if (totalLife < income * 12 * 10) gaps.push({ icon:'🛡️', title:`Life cover may be insufficient`, severity:'medium', msg:`Current: ${INR(totalLife)}. Ideal: 15x annual income (${INR(income*12*15)}). Review if your liabilities have grown.`, action:'insurance-directory.html', cta:'Review' });
+  if (!hasVehicle) gaps.push({ icon:'🚗', title:'Vehicle insurance status unknown', severity:'low', msg:'Third-party vehicle insurance is legally mandatory in India. Ensure comprehensive cover to protect your asset.', action:'insurance-directory.html', cta:'Check' });
+  if (age > 35 && !policies.some(p => p.type === 'critical')) gaps.push({ icon:'❤️', title:'No critical illness cover', severity:'medium', msg:`Cancer, heart attack, stroke — treatment can cost ₹10-50L. A ${INR(income*12*5)} critical illness rider costs ~₹3-5K/year.`, action:'insurance-directory.html', cta:'Add rider' });
+
+  if (!gaps.length) {
+    document.getElementById('gapAnalysis').innerHTML = `<div style="text-align:center;padding:20px;"><div style="font-size:2rem;margin-bottom:8px;">🎉</div><div style="font-weight:700;margin-bottom:4px;">Excellent coverage!</div><div style="font-size:13px;color:rgba(255,255,255,.5);">No critical gaps detected. Review annually.</div></div>`;
+    return;
+  }
+
+  const SEV_COL = { critical:'#ff4444', high:'#ff9500', medium:'#00d4ff', low:'rgba(255,255,255,.3)' };
+  document.getElementById('gapAnalysis').innerHTML = gaps.map(g => `
+    <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+      <div style="font-size:22px;flex-shrink:0;">${g.icon}</div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-size:13px;font-weight:700;">${g.title}</span>
+          <span style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:8px;background:${SEV_COL[g.severity]}20;color:${SEV_COL[g.severity]};">${g.severity.toUpperCase()}</span>
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.5;margin-bottom:6px;">${g.msg}</div>
+        <a href="${g.action}" style="font-size:11px;font-weight:700;color:${SEV_COL[g.severity]};text-decoration:none;">${g.cta} →</a>
+      </div>
+    </div>`).join('');
+}
+
+/* ── Policies Grid ─── */
+function renderPolicies(policies) {
+  const el = document.getElementById('policiesGrid');
+  if (!policies.length) {
+    el.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,.3);">
+      <div style="font-size:2.5rem;margin-bottom:10px;">🛡️</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:6px;">No policies added yet</div>
+      <div style="font-size:12px;">Add your health, term, and vehicle insurance to see your complete picture.</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = policies.map((p, i) => {
+    const meta = TYPE_META[p.type] || TYPE_META.health;
+    const renewalDays = p.renewal_date ? Math.floor((new Date(p.renewal_date) - Date.now()) / 86400000) : null;
+    const renewalColor = renewalDays !== null ? (renewalDays <= 30 ? '#ff4444' : renewalDays <= 90 ? '#ff9500' : '#22d3a6') : 'rgba(255,255,255,.3)';
+    return `
+      <div class="ins-card" style="border-top:3px solid ${meta.color};">
+        <div class="ins-card-header">
+          <div class="ins-icon" style="background:${meta.color}18;">${meta.icon}</div>
+          <div>
+            <div class="ins-type">${meta.label}</div>
+            <div class="ins-provider">${p.provider || 'Unknown provider'}</div>
+          </div>
+          <button onclick="deletePolicy(${i})" style="margin-left:auto;background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.2);border-radius:6px;padding:4px 8px;color:#ff6b6b;font-size:11px;cursor:pointer;">✕</button>
+        </div>
+        <div class="ins-metric">
+          <span class="ins-metric-label">Sum Assured</span>
+          <span class="ins-metric-val" style="color:${meta.color};">${INR(p.sum_assured)}</span>
+        </div>
+        <div class="ins-metric">
+          <span class="ins-metric-label">Annual Premium</span>
+          <span class="ins-metric-val">${p.annual_premium ? INR(p.annual_premium) : '—'}</span>
+        </div>
+        ${renewalDays !== null ? `
+        <div class="ins-metric">
+          <span class="ins-metric-label">Renewal</span>
+          <span class="ins-metric-val" style="color:${renewalColor};">${renewalDays <= 0 ? 'EXPIRED!' : renewalDays === 0 ? 'Today' : renewalDays + 'd'}</span>
+        </div>` : ''}
+        ${p.policy_number ? `<div class="ins-metric"><span class="ins-metric-label">Policy No.</span><span class="ins-metric-val" style="font-size:11px;color:rgba(255,255,255,.5);">${p.policy_number}</span></div>` : ''}
+        ${p.notes ? `<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.05);">${p.notes}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+/* ── Premium Calendar ─── */
+function renderPremiumCalendar(policies) {
+  const el = document.getElementById('premiumCalendar');
+  if (!policies.length) { el.innerHTML = `<div style="text-align:center;font-size:12px;color:rgba(255,255,255,.3);padding:10px;">Add policies to see premium calendar.</div>`; return; }
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const premByMonth = new Array(12).fill(0);
+  const renewalByMonth = {};
+
+  policies.forEach(p => {
+    if (!p.renewal_date) return;
+    const d = new Date(p.renewal_date);
+    const m = d.getMonth();
+    premByMonth[m] += Number(p.annual_premium || 0);
+    if (!renewalByMonth[m]) renewalByMonth[m] = [];
+    renewalByMonth[m].push(p);
+  });
+
+  const maxPrem = Math.max(...premByMonth, 1);
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin-bottom:10px;">
+      ${months.map((m, i) => {
+        const prem = premByMonth[i];
+        const h    = Math.max(8, (prem / maxPrem * 60));
+        const col  = prem > 0 ? '#00d4ff' : 'rgba(255,255,255,.08)';
+        const renewals = renewalByMonth[i] || [];
+        return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;" title="${renewals.map(r => TYPE_META[r.type]?.label).join(', ')}">
+          <div style="width:100%;height:${h}px;background:${col};border-radius:4px;transition:height .3s;"></div>
+          <div style="font-size:9px;color:rgba(255,255,255,.4);">${m}</div>
+          ${prem > 0 ? `<div style="font-size:9px;color:#00d4ff;font-weight:700;">${INR(prem)}</div>` : ''}
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="font-size:12px;color:rgba(255,255,255,.5);">
+      Total annual premiums: <strong style="color:#fff;">${INR(premByMonth.reduce((a,b)=>a+b,0))}</strong>
+    </div>`;
+}
+
+/* ── Add / Save / Delete ─── */
+function openAddPolicy()  { document.getElementById('addPolicySection').style.display = 'block'; }
+function closeAddPolicy() { document.getElementById('addPolicySection').style.display = 'none'; }
+
+function savePolicy() {
+  const p = {
+    type:          document.getElementById('polType').value,
+    provider:      document.getElementById('polProvider').value.trim(),
+    sum_assured:   Number(document.getElementById('polSumAssured').value) || 0,
+    annual_premium:Number(document.getElementById('polPremium').value)    || 0,
+    renewal_date:  document.getElementById('polRenewal').value,
+    policy_number: document.getElementById('polNumber').value.trim(),
+    notes:         document.getElementById('polNotes').value.trim(),
+    added_at:      new Date().toISOString()
+  };
+  if (!p.provider) { alert('Please enter insurance company name'); return; }
+  if (!p.sum_assured) { alert('Please enter sum assured amount'); return; }
+
+  const policies = loadPolicies();
+  policies.push(p);
+  savePolicies(policies);
+  closeAddPolicy();
+  renderAll(policies);
+}
+
+function deletePolicy(i) {
+  if (!confirm('Remove this policy?')) return;
+  const policies = loadPolicies();
+  policies.splice(i, 1);
+  savePolicies(policies);
+  renderAll(policies);
+}
+
+/* ── Arya Analysis ─── */
+async function analyzeInsurance() {
+  if (!window.AryaAI) return;
+  const el = document.getElementById('aryaInsuranceText');
+  const policies = loadPolicies();
+  const ctx = window.FINOS_USER_CONTEXT || {};
+  const income = Number(ctx?.budget_tracker?.income_monthly || 50000);
+  const age = Number(localStorage.getItem('finos_age') || 30);
+  const name = ctx?.identity?.name?.split(' ')[0] || 'bhai';
+
+  const polSummary = policies.length ? policies.map(p => `${TYPE_META[p.type]?.label}: ${INR(p.sum_assured)}`).join(', ') : 'No policies added yet';
+  const totalPrem  = policies.reduce((s,p) => s + Number(p.annual_premium||0), 0);
+
+  const prompt = `Insurance analysis for ${name} (age ${age}, income ${INR(income)}/month):
+Current policies: ${polSummary}
+Total annual premiums: ${INR(totalPrem)}
+Rule of thumb: Term life = 15x income (${INR(income*12*15)}), Health = 2x income (${INR(income*12*2)})
+
+Analyze in 4 Hinglish points:
+1. Overall coverage assessment (good/risky/dangerous)
+2. Most critical gap (if any)
+3. Best next step (specific, with amount)
+4. Premium optimization tip (too much/too little?)
+
+Be direct and honest like a good friend. Use Indian context.`;
+
+  el.innerHTML = `<span style="color:rgba(255,255,255,.4);">Analyzing…</span>`;
+  el.textContent = '';
+  await window.AryaAI.ask(prompt, tok => { el.textContent = (el.textContent||'') + tok; });
+}
+
+/* ── Master render ─── */
+function renderAll(policies) {
+  renderOverview(policies);
+  renderGapAnalysis(policies);
+  renderPolicies(policies);
+  renderPremiumCalendar(policies);
+}
+
+/* ── Init ─── */
+document.addEventListener('DOMContentLoaded', () => {
+  const policies = loadPolicies();
+  renderAll(policies);
+});
+
+window.addEventListener('finos-context-ready', () => {
+  renderAll(loadPolicies());
+});
+</script>
+
+<script src="../js/sidebar.js"></script>
+  <script src="../js/interactions.js" defer></script>
+<button id="themeToggle" class="theme-btn" style="position:fixed;top:16px;right:16px;z-index:150;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;" aria-label="Toggle dark/light theme">🌙</button>
+<script>
+(function(){
+  var btn=document.getElementById('themeToggle');
+  if(!btn) return;
+  var t=document.documentElement.getAttribute('data-theme')||'dark';
+  btn.textContent=t==='dark'?'🌙':'☀️';
+  btn.addEventListener('click',function(){
+    var cur=document.documentElement.getAttribute('data-theme');
+    var nxt=cur==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',nxt);
+    localStorage.setItem('finos-theme',nxt);
+    localStorage.setItem('theme',nxt);
+    btn.textContent=nxt==='dark'?'🌙':'☀️';
+    btn.setAttribute('aria-label',nxt==='dark'?'Switch to light mode':'Switch to dark mode');
+  });
+})();
+</script>
+<script src="../js/ui.js" defer></script>
+</body>
+</html>

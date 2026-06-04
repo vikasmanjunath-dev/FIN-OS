@@ -16,9 +16,18 @@
   'use strict';
 
   /* ── Config ──────────────────────────────────────────────────────────── */
-  const ALERT_API      = 'http://localhost:8001';
-  const SUPABASE_URL   = 'https://oeapcyucnduhwpgxfknb.supabase.co';
-  const SUPABASE_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+  // ALERT_API only works when the local Python server is running.
+  // On production (Vercel) it gracefully degrades to Supabase-only alerts.
+  const IS_LOCAL  = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+  const ALERT_API = IS_LOCAL ? 'http://localhost:8001' : null;
+
+  // Use the centralised config if available, fall back to inline values.
+  const SUPABASE_URL = (window.FINOS_SB && window.FINOS_SB.url)
+    ? window.FINOS_SB.url
+    : 'https://oeapcyucnduhwpgxfknb.supabase.co';
+  const SUPABASE_KEY = (window.FINOS_SB && window.FINOS_SB.key)
+    ? window.FINOS_SB.key
+    : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
 
   /* ── State ──────────────────────────────────────────────────────────── */
   let _userId      = null;
@@ -420,6 +429,9 @@
 
   /* ── Inject bell into header ──────────────────────────────────────────────── */
   function injectBell() {
+    // Guard: only inject once per page
+    if (document.getElementById('finos-alert-bell')) return;
+
     // 1. Standard pages: bundle search + bell + theme in one right-side group
     const toggle = document.getElementById('themeToggle');
     if (toggle && toggle.parentNode) {
@@ -653,10 +665,10 @@
       _unread = Math.max(0, _unread - 1);
       updateBadge();
       renderAlerts();
-      // Persist
-      try {
-        await fetch(`${ALERT_API}/alerts/${alertId}/read`, { method: 'POST' });
-      } catch {}
+      // Persist to local server if available
+      if (ALERT_API) {
+        try { await fetch(`${ALERT_API}/alerts/${alertId}/read`, { method: 'POST' }); } catch {}
+      }
     }
   }
 
@@ -666,9 +678,9 @@
     _unread = 0;
     updateBadge();
     renderAlerts();
-    try {
-      await fetch(`${ALERT_API}/alerts/mark-all-read/${_userId}`, { method: 'POST' });
-    } catch {}
+    if (ALERT_API) {
+      try { await fetch(`${ALERT_API}/alerts/mark-all-read/${_userId}`, { method: 'POST' }); } catch {}
+    }
   }
 
   function openAlert(alertId, actionUrl) {
@@ -686,7 +698,7 @@
 
   /* ── Fetch alerts from API ──────────────────────────────────────────────── */
   async function fetchAlerts() {
-    if (!_userId) return;
+    if (!_userId || !ALERT_API) return; // Gracefully skip on production
     try {
       const r = await fetch(`${ALERT_API}/alerts/${_userId}?limit=50`);
       if (!r.ok) return;
@@ -743,9 +755,13 @@
       animation:toastIn .35s cubic-bezier(.34,1.56,.64,1);
       cursor:pointer;
     `;
-    const styleToast = document.createElement('style');
-    styleToast.textContent = `@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}`;
-    document.head.appendChild(styleToast);
+    // Inject animation CSS only once
+    if (!document.getElementById('fad-toast-style')) {
+      const styleToast = document.createElement('style');
+      styleToast.id = 'fad-toast-style';
+      styleToast.textContent = `@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}`;
+      document.head.appendChild(styleToast);
+    }
     toast.innerHTML = `
       <div style="display:flex;gap:8px;align-items:flex-start">
         <span style="font-size:18px;flex-shrink:0">${p.icon}</span>
@@ -759,6 +775,10 @@
       toast.remove();
       openDrawer();
     };
+    // Cap toasts at 5 to prevent DOM accumulation
+    const existingToasts = document.querySelectorAll('.fad-toast-notification');
+    if (existingToasts.length >= 5) existingToasts[0].remove();
+    toast.classList.add('fad-toast-notification');
     document.body.appendChild(toast);
     setTimeout(() => {
       toast.style.opacity = '0';
@@ -784,7 +804,11 @@
       return;
     }
 
-    // Get VAPID public key
+    // Get VAPID public key — only available when local server is running
+    if (!ALERT_API) {
+      pushStatus.textContent = 'Push: not available in production';
+      return;
+    }
     let vapidKey;
     try {
       const r = await fetch(`${ALERT_API}/vapid-public-key`);
@@ -880,7 +904,8 @@
           subscribeRealtime();
           setupPush();   // async — doesn't block
           // Refresh every 5 minutes
-          setInterval(fetchAlerts, 5 * 60 * 1000);
+          const _pollInterval = setInterval(fetchAlerts, 5 * 60 * 1000);
+          window.addEventListener('beforeunload', () => clearInterval(_pollInterval), { once: true });
         }
       }
     } catch (e) {

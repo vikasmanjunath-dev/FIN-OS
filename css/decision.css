@@ -142,7 +142,7 @@
   font-weight: 800;
   transition: all 0.3s;
 }
-.next-module-btn:hover { background: var(--accent); box-shadow: 0 0 30px var(--accent); }
+.next-module-btn:hover { background: transparent; filter: brightness(1.1); box-shadow: 0 0 30px var(--accent), 0 8px 28px rgba(79,124,255,.3); transform: translateY(-2px); }
 
 /* MOBILE */
 @media (max-width: 900px) {
@@ -250,8 +250,9 @@
   border: 1px solid transparent;
 }
 [data-theme="light"] .checklist label:hover {
-  border-color: #CBD5E1;
-  background: #E2E8F0;
+  border-color: rgba(79,124,255,.3);
+  background: transparent;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.12);
 }
 
 /* 7. Footer */
