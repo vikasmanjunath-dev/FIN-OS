@@ -1,5 +1,6 @@
 # FIN-OS Voice Agent — WebSocket Protocol
 
+> Version: 1.2 | Date: June 5, 2026  
 > `ws://127.0.0.1:8765` · Server: `voiceagent/agent.py`
 
 There are two browser clients that connect to this server:

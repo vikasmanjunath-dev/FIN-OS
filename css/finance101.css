@@ -207,10 +207,10 @@
 }
 
 .scrolling-card:hover {
-  background: rgba(255,255,255,0.06);
+  background: transparent;
   transform: translateY(-8px) scale(1.02);
   border-color: var(--accent);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  box-shadow: 0 0 0 1px rgba(79,124,255,.2), 0 20px 40px rgba(0,0,0,0.3);
 }
 
 .card-icon { font-size: 3rem; margin-bottom: 16px; }
@@ -334,10 +334,10 @@
 
 /* 4. Scrolling Cards (Hover Effect) */
 [data-theme="light"] .scrolling-card:hover {
-  background: #FFFFFF;
+  background: transparent;
   border-color: #4F7CFF;
   transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(79, 124, 255, 0.15);
+  box-shadow: 0 0 0 1px rgba(79,124,255,.2), 0 15px 30px rgba(79,124,255,.12);
 }
 
 [data-theme="light"] .truth {

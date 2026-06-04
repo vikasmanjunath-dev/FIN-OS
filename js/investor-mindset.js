@@ -54,8 +54,9 @@ document.addEventListener("DOMContentLoaded", () => {
             mouseY = event.clientY / window.innerHeight - 0.5;
         });
 
-        // Animation Loop
+        // Animation Loop — tracked for cleanup on page exit
         const clock = new THREE.Clock();
+        let _threeAnimId = null;
 
         const animate = () => {
             const elapsedTime = clock.getElapsedTime();
@@ -69,16 +70,24 @@ document.addEventListener("DOMContentLoaded", () => {
             camera.lookAt(scene.position);
 
             renderer.render(scene, camera);
-            requestAnimationFrame(animate);
+            _threeAnimId = requestAnimationFrame(animate);
         }
         animate();
 
-        // Resize handler
-        window.addEventListener('resize', () => {
+        // Resize handler — stored for removal
+        const _handleThreeResize = () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+        };
+        window.addEventListener('resize', _handleThreeResize);
+
+        // Cleanup on page exit to prevent memory/GPU leaks
+        window.addEventListener('beforeunload', () => {
+            if (_threeAnimId) cancelAnimationFrame(_threeAnimId);
+            window.removeEventListener('resize', _handleThreeResize);
+            renderer.dispose();
+        }, { once: true });
     };
 
     initThreeJS();

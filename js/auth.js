@@ -47,8 +47,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 function updateUIForUser(user) {
     const authContainer = document.querySelector('.auth-container');
     if (authContainer) {
+        const _displayName = user.email || user.user_metadata?.full_name || 'User';
         authContainer.innerHTML = `
-            <span style="font-size:0.9rem;margin-right:10px;">👋 ${user.email}</span>
+            <span style="font-size:0.9rem;margin-right:10px;">👋 ${_displayName.replace(/[<>"']/g, '')}</span>
             <button id="logoutBtn" class="theme-btn" style="border:1px solid #ff4757;color:#ff4757;">Logout</button>
         `;
         document.getElementById('logoutBtn')?.addEventListener('click', async () => {

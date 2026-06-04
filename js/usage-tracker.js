@@ -35,7 +35,7 @@
   // ── Page metadata (human labels + category) ──────────────────────────────
   const PAGE_META = {
     'dashboard':         { label: 'Dashboard',        cat: 'overview',    icon: '🏠' },
-    'portfolio':         { label: 'Portfolio',         cat: 'investing',   icon: '📊' },
+    'portfolio':         { label: 'Portfolio',         cat: 'investing',   icon: '📊', url: 'track-finances.html#portfolio-xray' },
     'track-finances':    { label: 'Track Finances',    cat: 'spending',    icon: '💸' },
     'budget-forecast':   { label: 'Budget Forecast',   cat: 'spending',    icon: '📅' },
     'diagnostics':       { label: 'Diagnostics',       cat: 'health',      icon: '🔬' },

@@ -1,6 +1,7 @@
 # FIN-OS — API Reference
 
-All backend APIs run locally. None are deployed to Vercel (which is static-only).
+> Version: 1.2 | Date: June 5, 2026  
+> All APIs run locally. None are deployed to Vercel (static-only).
 
 ---
 
@@ -9,6 +10,10 @@ All backend APIs run locally. None are deployed to Vercel (which is static-only)
 ### `GET /api/intel`
 
 Returns aggregated financial news from Google News RSS.
+
+```bash
+curl http://localhost:5000/api/intel
+```
 
 **Response:**
 ```json
@@ -31,27 +36,25 @@ Returns aggregated financial news from Google News RSS.
 ```
 
 **Fields:**
-- `status` — `"online"` always while server is running
-- `cached_ago` — seconds since last RSS fetch (cache TTL = 600s)
-- `items[].type` — `"stocks"` | `"mutual_funds"` | `"economy"` | `"personal_finance"` | `"crypto"`
-- `items[].high_impact` — true if title contains: surge, crash, record, RBI, Fed, crisis, breakout, inflation, rate cut, rate hike, ban, fraud, scam, bubble, correction, rally
+- `cached_ago` — seconds since last RSS fetch (TTL: 600s)
+- `type` — `stocks` | `mutual_funds` | `economy` | `personal_finance` | `crypto`
+- `high_impact` — true if title contains: surge, crash, record, RBI, Fed, crisis, rally, correction, inflation, rate cut/hike, ban, fraud, scam, bubble
 
-**No authentication required.**
-
-```bash
-curl http://localhost:5000/api/intel
-```
+No authentication required.
 
 ---
 
 ## Alert Engine API — `alerts/alert-engine.py` (FastAPI :8001)
 
-All endpoints except `/vapid-public-key` and `/health` require a `user_id` parameter.
+All endpoints except `/health` and `/vapid-public-key` require a `user_id` parameter.
 
 ### `GET /health`
 
 Engine health check.
 
+```bash
+curl http://localhost:8001/health
+```
 ```json
 {
   "status": "ok",
@@ -61,307 +64,274 @@ Engine health check.
 }
 ```
 
-### `GET /market`
+### `GET /vapid-public-key`
 
-Nifty 50 live snapshot via yfinance.
+Returns the VAPID public key for Web Push subscription.
 
+```bash
+curl http://localhost:8001/vapid-public-key
+```
 ```json
-{
-  "symbol": "^NSEI",
-  "price": 22847.50,
-  "change": -124.30,
-  "change_pct": -0.54,
-  "timestamp": 1716000000
-}
+{ "public_key": "BNtq..." }
 ```
 
-### `GET /alerts/{user_id}`
+### `POST /subscribe`
 
-Fetch alerts for a user.
+Registers a push subscription for the user.
 
-**Query params:**
-- `limit` — default 50, max 200
-- `unread_only` — `true` | `false` (default false)
+```bash
+curl -X POST http://localhost:8001/subscribe \
+  -H "Content-Type: application/json" \
+  -d '{"user_id": "uuid", "subscription": {"endpoint": "...", "keys": {"p256dh": "...", "auth": "..."}}}'
+```
+```json
+{ "status": "subscribed" }
+```
 
-**Response:**
+### `GET /alerts?user_id=<uuid>&limit=20`
+
+Returns the last `limit` alerts for the user.
+
+```bash
+curl "http://localhost:8001/alerts?user_id=abc123&limit=10"
+```
 ```json
 {
   "alerts": [
     {
       "id": "uuid",
-      "rule_id": "market_drop",
-      "title": "Nifty 50 dropped 3.2%",
-      "message": "Nifty 50 fell 3.2% today — from 23,500 to 22,747. Consider reviewing your equity allocation or adding to your SIP at this dip.",
+      "rule_id": "sip_missed",
+      "title": "SIP not invested this month",
+      "message": "Your monthly SIP of INR 10,000 was not detected...",
       "priority": "warning",
-      "read": false,
-      "action_url": "/html/markets.html",
-      "created_at": "2026-05-23T09:15:00Z"
+      "triggered_at": "2026-06-05T10:30:00Z",
+      "read_at": null
     }
-  ],
-  "unread_count": 3
+  ]
 }
 ```
 
-### `POST /alerts/{alert_id}/read`
+### `POST /alerts/<id>/read`
 
-Mark one alert as read.
+Marks an alert as read.
 
-**Response:** `{ "success": true }`
-
-### `POST /alerts/mark-all-read/{user_id}`
-
-Mark all alerts for a user as read.
-
-**Response:** `{ "success": true, "count": 5 }`
-
-### `POST /alerts/subscribe`
-
-Register a browser for Web Push notifications.
-
-**Request body:**
+```bash
+curl -X POST http://localhost:8001/alerts/uuid/read
+```
 ```json
-{
-  "user_id": "uuid",
-  "subscription": {
-    "endpoint": "https://fcm.googleapis.com/...",
-    "keys": {
-      "p256dh": "...",
-      "auth": "..."
-    }
-  }
-}
+{ "status": "ok" }
 ```
 
-**Response:** `{ "success": true }`
+### `GET /health-score?user_id=<uuid>`
 
-### `DELETE /alerts/subscribe`
+Returns the user's current financial health score.
 
-Unregister a push subscription.
-
-**Request body:**
+```bash
+curl "http://localhost:8001/health-score?user_id=abc123"
+```
 ```json
 {
-  "user_id": "uuid",
-  "endpoint": "https://fcm.googleapis.com/..."
-}
-```
-
-### `GET /vapid-public-key`
-
-Returns the VAPID public key for the browser to use when subscribing.
-
-```json
-{ "publicKey": "BN..." }
-```
-
-### `PUT /alerts/preferences`
-
-Update rule preferences for a user.
-
-**Request body:**
-```json
-{
-  "user_id": "uuid",
-  "preferences": {
-    "market_drop": { "enabled": true, "channels": { "in_app": true, "push": false } },
-    "sip_missed": { "enabled": false }
-  }
-}
-```
-
-### `GET /alerts/preferences/{user_id}`
-
-Get all preferences for a user.
-
-```json
-{
-  "sip_missed":          { "enabled": true,  "channels": { "in_app": true, "push": true } },
-  "salary_credited":     { "enabled": true,  "channels": { "in_app": true, "push": true } },
-  "market_drop":         { "enabled": true,  "channels": { "in_app": true, "push": true } },
-  "goal_behind":         { "enabled": true,  "channels": { "in_app": true, "push": false } },
-  "cc_bill_due":         { "enabled": true,  "channels": { "in_app": true, "push": true } },
-  "budget_overrun":      { "enabled": true,  "channels": { "in_app": true, "push": false } },
-  "emergency_fund_low":  { "enabled": true,  "channels": { "in_app": true, "push": true } },
-  "tax_season":          { "enabled": true,  "channels": { "in_app": true, "push": true } },
-  "fno_expiry_week":     { "enabled": true,  "channels": { "in_app": true, "push": false } },
-  "net_worth_milestone": { "enabled": true,  "channels": { "in_app": true, "push": true } }
-}
-```
-
-### `GET /health-score/{user_id}`
-
-Full 6-pillar financial health score.
-
-```json
-{
-  "score": 62,
-  "tier": "GOOD",
-  "tier_emoji": "✅",
+  "score": 72,
   "pillars": {
-    "emergency_fund": { "score": 12, "max": 20, "label": "Emergency Fund", "detail": "4 months covered, target is 6" },
-    "debt_management": { "score": 16, "max": 20, "label": "Debt Management", "detail": "Home loan only, no CC debt" },
-    "savings_rate":    { "score": 14, "max": 20, "label": "Savings Rate",    "detail": "22% savings rate, SIP active" },
-    "investment":      { "score": 12, "max": 20, "label": "Investment",      "detail": "Diversified, goals underfunded" },
-    "insurance":       { "score": 5,  "max": 10, "label": "Insurance",       "detail": "Health cover present, term missing" },
-    "tax_efficiency":  { "score": 3,  "max": 10, "label": "Tax Efficiency",  "detail": "80C not maxed, no NPS" }
+    "emergency_fund": 85,
+    "debt_load": 60,
+    "investment_rate": 75,
+    "insurance_cover": 80,
+    "net_worth_growth": 65,
+    "expense_discipline": 70
   },
-  "top_advice": [
-    "Open a term insurance plan — 1 crore cover costs under ₹12,000/yr at your age",
-    "Max your 80C with ELSS — you have ₹60,000 still available"
+  "grade": "B",
+  "last_calculated": "2026-06-05T10:30:00Z"
+}
+```
+
+Grades: `A` (≥80) · `B` (60–79) · `C` (40–59) · `D` (<40)
+
+---
+
+## Chatbot Brain API — `chatbot/brain.py` (Python :8000)
+
+### `POST /chat`
+
+Processes a text message through the QFT (Quantified Financial Thinking) engine.
+
+```bash
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Should I invest in FD or mutual funds?", "user_id": "uuid"}'
+```
+```json
+{
+  "response": "For a 3-year horizon with moderate risk tolerance, index mutual funds historically outperform FDs...",
+  "intent": "investment_comparison",
+  "sources": ["FD 7%", "Nifty 12% CAGR 20Y average"]
+}
+```
+
+---
+
+## Stock Engine API — `stock-engine/` (FastAPI, 6 services)
+
+All services are accessible under a common gateway or individually by port.
+
+### Service Map
+
+| Service | Port | Purpose |
+|---|---|---|
+| `market_data` | varies | Live and historical OHLCV |
+| `indicators` | varies | Technical indicators (RSI, MACD, etc.) |
+| `insights` | varies | AI-generated stock insights |
+| `universe` | varies | Stock universe (NSE 500) |
+| `screener` | varies | Natural language screener |
+| `earnings` | varies | Earnings calendar and surprises |
+
+### `GET /market-data/{symbol}`
+
+```bash
+curl "http://localhost:<port>/market-data/RELIANCE?period=1y&interval=1d"
+```
+```json
+{
+  "symbol": "RELIANCE",
+  "period": "1y",
+  "data": [
+    { "date": "2025-06-05", "open": 2950, "high": 2980, "low": 2940, "close": 2965, "volume": 12400000 }
   ]
 }
 ```
 
-**Tier thresholds:**
-| Score | Tier |
-|---|---|
-| 0–39 | 🚨 DANGER |
-| 40–59 | ⚠️ FAIR |
-| 60–74 | ✅ GOOD |
-| 75–89 | 🌟 GREAT |
-| 90–100 | 🏆 ELITE |
+### `GET /indicators/{symbol}`
 
-### `GET /health-score/{user_id}/summary`
-
-Lightweight version — score + tier + 2 tips only. Used by `finos-health-score.js`.
-
+```bash
+curl "http://localhost:<port>/indicators/RELIANCE"
+```
 ```json
 {
-  "score": 62,
-  "tier": "GOOD",
-  "tier_emoji": "✅",
-  "tips": [
-    "Open a term insurance plan",
-    "Max your 80C this year"
+  "symbol": "RELIANCE",
+  "rsi_14": 58.3,
+  "macd": { "macd": 12.5, "signal": 10.2, "histogram": 2.3 },
+  "sma_50": 2930,
+  "sma_200": 2750,
+  "signal": "bullish"
+}
+```
+
+### `POST /screener/natural-language`
+
+```bash
+curl -X POST http://localhost:<port>/screener/natural-language \
+  -H "Content-Type: application/json" \
+  -d '{"query": "large cap IT stocks with P/E below 25 and positive earnings growth"}'
+```
+```json
+{
+  "results": [
+    { "symbol": "TCS", "pe": 22.1, "earnings_growth": 12.5, "market_cap": "large" },
+    { "symbol": "INFOSYS", "pe": 20.8, "earnings_growth": 9.2, "market_cap": "large" }
   ]
 }
 ```
-
-### `POST /alerts/run`
-
-Manually trigger one evaluation cycle for all users. Dev/admin use.
-
-**Response:** `{ "triggered": true, "users_processed": 3 }`
-
----
-
-## Django Budget API — `ExpenseTracker/finos_backend/` (:8000)
-
-Django REST Framework. Requires auth token in `Authorization: Token <token>` header.
-
-### Base URL: `http://localhost:8000/api/`
-
-### `GET /api/transactions/`
-
-List transactions for authenticated user.
-
-**Query params:** `month`, `year`, `category`, `type`
-
-### `POST /api/transactions/`
-
-Create transaction.
-
-**Request:**
-```json
-{
-  "amount": 5000,
-  "type": "expense",
-  "category": "food",
-  "note": "Grocery run",
-  "date": "2026-05-15"
-}
-```
-
-### `GET /api/budgets/`
-
-List budgets for current month.
-
-### `POST /api/budgets/`
-
-Set category budget.
-
-```json
-{
-  "month": 5,
-  "year": 2026,
-  "category": "food",
-  "limit_amount": 8000
-}
-```
-
-### `GET /api/goals/`
-
-List all goals.
-
-### `POST /api/goals/`
-
-Create goal.
-
-```json
-{
-  "name": "Emergency Fund",
-  "target_amount": 300000,
-  "current_amount": 120000,
-  "target_date": "2026-12-31",
-  "category": "emergency"
-}
-```
-
----
-
-## Stock Engine API — `stock-engine/backend/` (FastAPI, port varies)
-
-### `GET /stock/{symbol}`
-
-Stock data + technical indicators.
-
-**Response:**
-```json
-{
-  "symbol": "RELIANCE.NS",
-  "price": 2847.50,
-  "change_pct": 1.2,
-  "indicators": {
-    "rsi": 58.4,
-    "macd": { "macd": 12.3, "signal": 8.7, "histogram": 3.6 },
-    "bb": { "upper": 2910, "middle": 2840, "lower": 2770 }
-  },
-  "cached_at": 1716000000
-}
-```
-
-### `GET /market/overview`
-
-Nifty 50 snapshot + sector performance.
-
----
-
-## Market Intelligence API — `market intelligence/` (Flask, port varies)
-
-### `GET /signals/intraday`
-
-Intraday trade signals (VWAP, RSI, Bollinger Bands).
-
-### `GET /signals/swing`
-
-Swing trade setups (EMA crossovers, MACD, volume surge).
-
-### `GET /signals/fundamental`
-
-Value/growth screening (P/E, P/B, ROE, D/E).
-
-### `GET /signals/long`
-
-Long-term signals (CAGR trends, sector momentum).
 
 ---
 
 ## Stock Dashboard API — `stock-dashboard/app.py` (Flask :5001)
 
-### `GET /api/stock/<symbol>`
+### `GET /api/stock/{symbol}`
 
-Basic stock data via yfinance.
+```bash
+curl "http://localhost:5001/api/stock/RELIANCE"
+```
+```json
+{
+  "symbol": "RELIANCE",
+  "name": "Reliance Industries Ltd",
+  "price": 2965.50,
+  "change": 12.30,
+  "change_pct": 0.42,
+  "volume": 12400000,
+  "pe": 28.4,
+  "market_cap": 2000000000000,
+  "52w_high": 3200,
+  "52w_low": 2650
+}
+```
 
-### `GET /api/market`
+---
 
-Market overview.
+## Budget Backend API — `ExpenseTracker/finos_backend/` (Django REST :8000)
+
+### `GET /api/transactions/`
+
+Returns paginated transactions for authenticated user.
+
+**Authentication:** DRF Token or Supabase JWT via middleware.
+
+```bash
+curl http://localhost:8000/api/transactions/ \
+  -H "Authorization: Token <token>"
+```
+```json
+{
+  "count": 128,
+  "next": "http://localhost:8000/api/transactions/?page=2",
+  "results": [
+    {
+      "id": 1,
+      "amount": "50000.00",
+      "type": "income",
+      "category": "salary",
+      "note": "June salary",
+      "date": "2026-06-01"
+    }
+  ]
+}
+```
+
+### `POST /api/transactions/`
+
+Create a new transaction.
+
+```bash
+curl -X POST http://localhost:8000/api/transactions/ \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Token <token>" \
+  -d '{"amount": "1200", "type": "expense", "category": "food", "date": "2026-06-05"}'
+```
+
+### `GET /api/summary/`
+
+Returns income, expense, and savings totals for the current month.
+
+```bash
+curl http://localhost:8000/api/summary/ -H "Authorization: Token <token>"
+```
+```json
+{
+  "month": "2026-06",
+  "income": 85000,
+  "expense": 52000,
+  "savings": 33000,
+  "savings_rate": 38.8
+}
+```
+
+---
+
+## Error Format (all APIs)
+
+All APIs return errors in this format:
+
+```json
+{
+  "error": "user_not_found",
+  "message": "No profile found for user_id: abc123",
+  "status": 404
+}
+```
+
+Common status codes:
+- `200` — success
+- `400` — bad request (missing or invalid params)
+- `404` — resource not found
+- `422` — validation error (FastAPI)
+- `500` — server error

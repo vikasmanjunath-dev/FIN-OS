@@ -17,39 +17,130 @@
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
   <title>Home | FIN-OS</title>
   <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <!-- Design tokens must be first -->
+  <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="stylesheet" href="../chatbot/qft-hud.css">
-  <script src="../js/finos-context.js"></script>
-  <script src="../js/arya-ai.js"></script>
-  <script src="../js/finos-personalization.js"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-context.js" defer></script>
+  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-personalization.js" defer></script>
+  <meta property="og:site_name" content="FIN•OS">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/assets/icons/icon-512.svg">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@finos_app">
+  <link rel="stylesheet" href="../css/interactions.css">
 </head>
 <body>
 
 <div class="app">
 
-  <aside class="sidebar">
-    <div class="logo">FIN•OS</div>
-        <nav>
-      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
-      <a href="home.html" class="active">Home</a>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="foundations.html">Foundations</a>
-      <a href="diagnostics.html">Diagnostics</a>
-      <a href="track-finances.html">Track Finances</a>
-      <a href="financial-hub.html">⚡ Command Hub</a>
-      <a href="../stock-dashboard/index.html">Live Tracker</a>
-      <a href="../Porfolio Analyser/portfolio-analyser-v10.html">Portfolio X-Ray</a>
-      <a href="simulator-landing.html">Train Mindset</a>
-      <a href="news.html">News</a>
-      <a href="settings.html">Settings</a>
+          <aside class="sidebar" role="complementary" aria-label="Navigation">
+
+    <!-- Brand -->
+    <div class="sb-brand">
+      <div class="sb-logomark" aria-hidden="true">
+        <span class="sb-logomark-letter">F</span>
+      </div>
+      <div class="sb-wordmark">
+        <div class="sb-wordmark-name">FIN•OS</div>
+        <div class="sb-wordmark-tag">Financial OS</div>
+      </div>
+    </div>
+
+    <!-- Identity -->
+    <a href="profile.html" class="sb-identity" aria-label="Your profile">
+      <div class="sb-av" id="sb-av" aria-hidden="true">I</div>
+      <div class="sb-identity-body">
+        <div class="sb-identity-name" id="sb-name">Investor</div>
+        <div class="sb-identity-meta">
+          <span class="sb-identity-dna"  id="sb-dna">Financial DNA</span>
+          <span class="sb-health-pill"   id="sb-health-pill"></span>
+        </div>
+      </div>
+      <span class="sb-identity-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </a>
+
+    <!-- Search shortcut -->
+    <button class="sb-cmd" id="sb-cmd" aria-label="Search (Ctrl+K)">
+      <span class="sb-cmd-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="sb-cmd-label">Search or jump to…</span>
+      <kbd class="sb-cmd-kbd" aria-hidden="true">⌘K</kbd>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="sb-nav" aria-label="Main">
+        <a href="home.html" class="sb-link active" aria-current="page" title="Home">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+          <span class="sb-label">Home</span>
+        </a>
+        <a href="dashboard.html" class="sb-link" title="Dashboard">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>
+          <span class="sb-label">Dashboard</span>
+          <span class="sb-badge" id="sb-streak" aria-label="count"></span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="foundations.html" class="sb-link" title="Learn">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+          <span class="sb-label">Learn</span>
+        </a>
+        <a href="simulator-landing.html" class="sb-link" title="Mindset">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span>
+          <span class="sb-label">Mindset</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="diagnostics.html" class="sb-link" title="Diagnostics">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          <span class="sb-label">Diagnostics</span>
+        </a>
+        <a href="track-finances.html" class="sb-link" title="Track">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+          <span class="sb-label">Track</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="markets.html" class="sb-link" title="Markets">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+          <span class="sb-label">Markets</span>
+        </a>
+        <a href="tools.html" class="sb-link" title="Tools">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+          <span class="sb-label">Tools</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="news.html" class="sb-link" title="News">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span>
+          <span class="sb-label">News</span>
+        </a>
     </nav>
+
+    <!-- Footer: Arya AI + Settings -->
+    <div class="sb-footer-zone">
+
+      <button class="sb-arya-row" id="sb-arya-btn"
+              aria-label="Arya AI — your financial coach"
+              onclick="document.querySelector('.finos-fab')?.click?.();">
+        <div class="sb-arya-icon" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span class="sb-arya-dot checking" id="sb-arya-dot"></span>
+        </div>
+        <div class="sb-arya-body">
+          <div class="sb-arya-name">Arya AI</div>
+          <div class="sb-arya-status checking" id="sb-arya-status">Connecting…</div>
+        </div>
+        <span class="sb-arya-arrow" aria-hidden="true">›</span>
+      </button>
+
+      <a href="settings.html" class="sb-settings-row" title="Settings">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        <span class="sb-label">Settings</span>
+      </a>
+
+    </div>
   </aside>
 
   <main class="main">
@@ -60,7 +151,7 @@
         <h1 id="home-greeting">Welcome to FIN-OS</h1>
         <p id="home-sub">Your personalized financial operating system.</p>
       </div>
-      <button id="themeToggle" class="theme-btn">🌙</button>
+      <button id="themeToggle" class="theme-btn" aria-label="Toggle dark/light theme" title="Toggle theme">🌙</button>
     </header>
 
     <!-- Personalized status strip — populated by finos-personalization.js -->
@@ -69,25 +160,22 @@
     <!-- Personalized smart nudges — populated by finos-personalization.js -->
     <div id="home-nudges" style="margin-bottom:20px;"></div>
 
-    <!-- ── Arya AI Daily Tip ───────────────────────────────────────── -->
-    <div id="arya-home-tip" style="margin-bottom:28px;border-radius:16px;
-         background:linear-gradient(135deg,rgba(199,240,0,.06),rgba(0,212,255,.03));
-         border:1px solid rgba(199,240,0,.2);padding:18px 22px;
-         font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;gap:14px;align-items:flex-start;">
-      <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#c7f000,#4d7cff);
-           display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">💡</div>
-      <div style="flex:1;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <div style="font-weight:700;font-size:12px;color:#c7f000;letter-spacing:.4px;">ARYA • TODAY'S FINANCIAL EDGE</div>
-          <button id="arya-home-refresh" onclick="refreshHomeTip()"
-            title="Get a fresh tip"
-            style="padding:3px 10px;border-radius:8px;border:1px solid rgba(199,240,0,.3);
-                   background:rgba(199,240,0,.06);color:#c7f000;font-size:10px;font-weight:700;
-                   cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;
-                   transition:background .2s;">↺ REFRESH</button>
+    <!-- ── Arya AI Daily Tip ─────────────────────────────────────────
+         Styles via .arya-tip-card class (no inline styles) so both
+         light and dark mode render correctly without hacks.
+    ── -->
+    <div id="arya-home-tip" class="arya-tip-card" role="region" aria-label="Arya daily financial tip">
+      <div class="arya-tip-icon" aria-hidden="true">💡</div>
+      <div class="arya-tip-body">
+        <div class="arya-tip-header">
+          <span class="arya-tip-label">ARYA · TODAY'S FINANCIAL EDGE</span>
+          <button id="arya-home-refresh" class="arya-tip-refresh"
+                  onclick="refreshHomeTip()"
+                  aria-label="Refresh Arya tip"
+                  title="Get a fresh tip">↺ REFRESH</button>
         </div>
-        <div id="arya-home-tip-text" style="font-size:14px;line-height:1.65;color:rgba(255,255,255,.78);">
-          <span style="color:rgba(199,240,0,.5);">Loading your daily financial edge…</span>
+        <div id="arya-home-tip-text" class="arya-tip-text">
+          <span class="arya-tip-loading">Loading your daily financial edge…</span>
         </div>
       </div>
     </div>
@@ -97,29 +185,32 @@
         
       <div class="home-actions cards grid grid-1">
 
-     <div class="card insight learning" onclick="window.location.href='start.html'" style="cursor: pointer;">
-        <div class="card-image"></div>
+     <a class="card insight learning" href="start.html"
+           aria-label="Learn financial foundations — The Zero to Mastery Path">
+        <div class="card-image" role="img" aria-label="Financial learning"></div>
         <div class="card-content">
-          <h4>Learn financial foundations</h4>
-          <p style="font-size:0.8rem; opacity:0.7; margin-top:4px;">The Zero to Mastery Path ➔</p>
+          <h3>Learn financial foundations</h3>
+          <p>The Zero to Mastery Path ➔</p>
         </div>
-      </div>
+      </a>
 
-      <div class="card insight thinking" onclick="window.location.href='decision.html'" style="cursor: pointer;">
-        <div class="card-image"></div>
+      <a class="card insight thinking" href="decision.html"
+         aria-label="Improve decision thinking — Fix your mental bugs">
+        <div class="card-image" role="img" aria-label="Decision thinking"></div>
         <div class="card-content">
-          <h4>Improve decision thinking</h4>
-          <p style="font-size:0.8rem; opacity:0.7; margin-top:4px;">Fix your mental bugs ➔</p>
+          <h3>Improve decision thinking</h3>
+          <p>Fix your mental bugs ➔</p>
         </div>
-      </div>
+      </a>
 
-      <div class="card insight clarity" onclick="window.location.href='clarity.html'" style="cursor: pointer;">
-        <div class="card-image"></div>
+      <a class="card insight clarity" href="clarity.html"
+         aria-label="Understand your money clearly — View the Wealth HUD">
+        <div class="card-image" role="img" aria-label="Financial clarity"></div>
         <div class="card-content">
-          <h4>Understand your money clearly</h4>
-          <p style="font-size:0.8rem; opacity:0.7; margin-top:4px;">View the Wealth HUD ➔</p>
+          <h3>Understand your money clearly</h3>
+          <p>View the Wealth HUD ➔</p>
         </div>
-      </div>
+      </a>
 
       </div>
 
@@ -286,7 +377,12 @@
         .protocol-hero { padding: 28px 22px; }
         .ph-right { display: none; }
       }
-    </style>
+    
+
+/* ── Light mode text overrides (auto-generated) ── */
+[data-theme="light"] .ph-title {
+  color: var(--text-primary) !important;
+}</style>
 
     <section class="protocol-section">
       <div class="protocol-label">CRITICAL INSIGHT</div>
@@ -352,7 +448,7 @@
 </main>
 
 </div>
-<script src="../js/ui.js"></script>
+<script src="../js/ui.js" defer></script>
 
   <script>
   // ── Arya Home Daily Tip ─────────────────────────────────────────────────────
@@ -447,12 +543,11 @@
         if (r.savingsRate > 0) { const ok=r.savingsRate>=20?'✅':'⚠️'; items.push({label:'Savings Rate',value:`${ok} ${r.savingsRate}%`,href:'track-finances.html'}); }
         if (r.netWorth > 0)    items.push({label:'Net Worth',value:INR(r.netWorth),href:'diagnostics.html'});
         if (r.budget?.fire_number>0) { const pct=r.netWorth>0?Math.min(100,Math.round(r.netWorth/r.budget.fire_number*100)):0; items.push({label:'FIRE Progress',value:`${pct}%`,href:'life-goals-planner.html'}); }
-        const streak=JSON.parse(localStorage.getItem('finos_streak')||'{"count":0}');
-        if (streak.count>1) items.push({label:'Daily Streak',value:`🔥 ${streak.count} days`,href:null});
+        // streak rendered as floating badge — not in the strip
         if (!items.length) { stripEl.innerHTML=''; return; }
         stripEl.style.cssText='display:flex;gap:0;flex-wrap:wrap;overflow:hidden;border-radius:14px;border:1px solid rgba(199,240,0,.12);background:rgba(199,240,0,.03);margin-bottom:20px;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif;';
         stripEl.innerHTML = items.map(it=>`
-          <${it.href?`a href="${it.href}"`:'span'} style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 18px;flex:1;min-width:80px;border-right:1px solid rgba(255,255,255,.05);text-decoration:none;transition:background .2s;${it.href?'cursor:pointer;':''}" ${it.href?`onmouseover="this.style.background='rgba(199,240,0,.06)'" onmouseout="this.style.background=''"`:''}>
+          <${it.href?`a href="${it.href}"`:'span'} style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 18px;flex:1;min-width:80px;border-right:1px solid rgba(255,255,255,.05);text-decoration:none;transition:background .2s;${it.href?'cursor:pointer;':''}" ${it.href?` `:''}>
             <span style="font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;font-weight:600;">${it.label}</span>
             <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,.85);">${it.value}</span>
           </${it.href?'a':'span'}>
@@ -483,12 +578,101 @@
     }
   });
   </script>
-  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
-  <script src="../js/finos-widget.js?v=4"></script>
+  <script src="../js/finos-widget.js?v=5"></script>
   <script src="../js/finos-search.js?v=2"></script>
+  <script src="../js/arya-memory.js" defer></script>
+  <script src="../js/arya-life-events.js" defer></script>
+  <script src="../js/finos-mobile.js" defer></script>
 
 <style id="home-light-theme">
+/* ── Arya tip card ────────────────────────────────────────────── */
+.arya-tip-card {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  padding: 18px 22px;
+  border-radius: 16px;
+  border: 1px solid rgba(199,240,0,.2);
+  background: linear-gradient(135deg, rgba(199,240,0,.06), rgba(0,212,255,.03));
+  font-family: var(--font-sans, -apple-system, sans-serif);
+}
+.arya-tip-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #c7f000, #4d7cff);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.arya-tip-body { flex: 1; min-width: 0; }
+.arya-tip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+.arya-tip-label {
+  font-weight: 700;
+  font-size: 12px;
+  color: #c7f000;
+  letter-spacing: .4px;
+  font-family: var(--font-mono, monospace);
+}
+.arya-tip-refresh {
+  padding: 3px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(199,240,0,.3);
+  background: rgba(199,240,0,.06);
+  color: #c7f000;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-mono, monospace);
+  letter-spacing: .5px;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+.arya-tip-refresh:hover { background: rgba(199,240,0,.14); }
+.arya-tip-refresh:focus-visible {
+  outline: 2px solid #c7f000;
+  outline-offset: 2px;
+}
+.arya-tip-text {
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(255,255,255,.78);
+}
+.arya-tip-loading { color: rgba(199,240,0,.5); }
+
+/* Light mode overrides for Arya tip */
+[data-theme="light"] .arya-tip-card {
+  border-color: rgba(79,124,255,.2);
+  background: linear-gradient(135deg, rgba(79,124,255,.05), rgba(0,180,255,.03));
+}
+[data-theme="light"] .arya-tip-label { color: #4F7CFF; }
+[data-theme="light"] .arya-tip-refresh {
+  border-color: rgba(79,124,255,.3);
+  background: rgba(79,124,255,.06);
+  color: #4F7CFF;
+}
+[data-theme="light"] .arya-tip-refresh:hover { background: rgba(79,124,255,.14); }
+[data-theme="light"] .arya-tip-text { color: rgba(0,0,0,.72); }
+[data-theme="light"] .arya-tip-loading { color: rgba(79,124,255,.6); }
+
+/* Card links — remove anchor underline but keep all card styles */
+a.card {
+  text-decoration: none;
+  display: flex;
+}
+a.card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 /* Protocol 0X card — keep intentionally dark, protect all inner text from theme.css heading overrides */
 [data-theme="light"] .protocol-hero {
   background: #0e1120 !important;
@@ -546,7 +730,7 @@
     align-items: center;
     gap: 8px;
     padding: 0.65rem 1.2rem;
-    background: #0B0D12;
+    background: var(--bg-main);
     border: 1px solid rgba(199,240,0,0.35);
     border-radius: 100px;
     color: #c7f000;
@@ -568,7 +752,7 @@
     top: 0; right: -520px;
     width: 480px;
     height: 100dvh;
-    background: #09090b;
+    background: var(--bg-main);
     border-left: 1px solid rgba(199,240,0,0.15);
     box-shadow: -12px 0 60px rgba(0,0,0,0.7);
     z-index: 10000;
@@ -583,8 +767,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 1rem 1.25rem;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-    background: #111113;
+    border-bottom: 1px solid var(--border-soft);
+    background: var(--bg-surface);
     flex-shrink: 0;
   }
   .qft-close-btn {
@@ -634,8 +818,8 @@
   }
   .qft-msg-ai {
     align-self: flex-start;
-    background: #111113;
-    border: 1px solid rgba(255,255,255,0.07);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-soft);
     color: #d4d4d8;
     max-width: 98%; width: 100%;
   }
@@ -652,8 +836,8 @@
   }
   .qft-typing {
     align-self: flex-start;
-    background: #111113;
-    border: 1px solid rgba(255,255,255,0.07);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-soft);
     color: #71717a;
     padding: 10px 16px;
     border-radius: 10px;
@@ -663,8 +847,8 @@
   }
   #qft-form {
     padding: 0.75rem 1rem 1rem;
-    border-top: 1px solid rgba(255,255,255,0.07);
-    background: #111113;
+    border-top: 1px solid var(--border-soft);
+    background: var(--bg-surface);
     flex-shrink: 0;
   }
   .qft-input-wrapper {
@@ -674,7 +858,7 @@
     display: block;
     width: 100%;
     background: #18181b;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid var(--border-soft);
     border-radius: 8px;
     padding: 0.65rem 2.8rem 0.65rem 0.85rem;
     color: #f4f4f5;
@@ -1003,5 +1187,54 @@ Give direct, data-driven financial advice for Indian professionals. Use ₹ for 
 })();
 </script>
 
+<!-- Floating streak badge -->
+<div id="home-streak-badge" style="display:none;position:fixed;bottom:28px;right:28px;z-index:9999;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;"></div>
+<script>
+(function() {
+  function _renderStreakBadge() {
+    const el = document.getElementById('home-streak-badge');
+    if (!el) return;
+    const s = JSON.parse(localStorage.getItem('finos_streak') || '{"count":0}');
+    if (s.count < 1) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    el.innerHTML = `
+      <div style="position:relative">
+        <div onclick="this.parentElement.querySelector('.hs-pop').classList.toggle('hs-open')"
+             style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:999px;background:rgba(20,20,28,0.95);border:1px solid rgba(199,240,0,0.2);box-shadow:0 4px 20px rgba(0,0,0,0.55);cursor:pointer;white-space:nowrap;transition:transform .15s,box-shadow .15s;"
+             onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 7px 28px rgba(0,0,0,0.65)';this.style.borderColor='rgba(199,240,0,0.5)'"
+             onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,0.55)';this.style.borderColor='rgba(199,240,0,0.2)'">
+          <span style="font-size:18px;line-height:1">${s.count >= 7 ? '🔥' : s.count >= 3 ? '✨' : '📝'}</span>
+          <span style="font-size:14px;font-weight:800;color:#c7f000;">${s.count}</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:.02em">day streak</span>
+        </div>
+        <div class="hs-pop" style="display:none;position:absolute;bottom:calc(100% + 10px);right:0;background:rgba(20,20,28,0.97);border:1px solid rgba(199,240,0,0.2);border-radius:14px;padding:16px 18px;box-shadow:0 8px 32px rgba(0,0,0,0.65);min-width:180px;animation:hsFadeUp .18s ease;">
+          <div style="font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:8px">Daily Streak</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:28px">${s.count >= 7 ? '🔥' : s.count >= 3 ? '✨' : '📝'}</span>
+            <div>
+              <div style="font-size:22px;font-weight:800;color:#c7f000;">${s.count} Day${s.count !== 1 ? 's' : ''}</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.4);">Best: ${s.best || s.count} days</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#home-streak-badge')) {
+        document.querySelectorAll('.hs-pop').forEach(p => p.classList.remove('hs-open'));
+      }
+    });
+  }
+  _renderStreakBadge();
+  window.addEventListener('finos-context-ready', _renderStreakBadge);
+})();
+</script>
+<style>
+.hs-pop.hs-open { display:block !important; }
+@keyframes hsFadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+</style>
+
+<script src="../js/sidebar.js"></script>
+  <script src="../js/interactions.js" defer></script>
 </body>
 </html>

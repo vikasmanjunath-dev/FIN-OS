@@ -6,8 +6,9 @@
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <meta charset="UTF-8">
+  <meta name="description" content="Your FIN•OS financial command centre — DNA score, health metrics, goals and adaptive insights.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,270 +16,918 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-  <title>Dashboard | Financial OS</title>
+  <title>Dashboard | FIN•OS</title>
+  <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
-  <script src="../js/finos-context.js"></script>
-  <script src="../js/arya-ai.js"></script>
-  <script src="../js/finos-personalization.js"></script>
+  <link rel="stylesheet" href="../css/insight-cards.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-context.js" defer></script>
+  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/arya-memory.js" defer></script>
+  <script src="../js/arya-life-events.js" defer></script>
+  <script src="../js/finos-personalization.js" defer></script>
+
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   DASHBOARD — Professional reorganised layout
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Page header ──────────────────────────────────────────────── */
+.dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 0 24px;
+}
+.dash-header-left { flex: 1; min-width: 0; }
+.dash-greeting {
+  font-size: clamp(20px, 2.4vw, 28px);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 6px;
+  line-height: 1.2;
+}
+.dash-greeting-name { color: var(--accent); }
+.dash-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+.dash-meta-date {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.dash-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.dash-badge-dna {
+  background: rgba(79,124,255,.12);
+  border: 1px solid rgba(79,124,255,.25);
+  color: var(--accent);
+}
+.dash-badge-streak {
+  background: rgba(251,146,60,.1);
+  border: 1px solid rgba(251,146,60,.25);
+  color: #fb923c;
+}
+.dash-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── Section pattern ──────────────────────────────────────────── */
+.dash-section { margin-bottom: 32px; }
+.dash-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.dash-section-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dash-section-title::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 13px;
+  background: var(--accent);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.dash-section-link {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  opacity: .65;
+  transition: opacity .15s;
+  white-space: nowrap;
+}
+.dash-section-link:hover { opacity: 1; }
+
+/* ── KPI strip ────────────────────────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.kpi-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  padding: 18px 18px 16px;
+  position: relative;
+  overflow: hidden;
+  transition: transform .22s cubic-bezier(.16,1,.3,1), box-shadow .22s;
+  cursor: default;
+}
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--kpi-color, var(--accent));
+  border-radius: 0 0 2px 2px;
+}
+.kpi-card:hover { transform: translateY(-2px); box-shadow: var(--card-shadow-hover); }
+.kpi-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.kpi-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 5px;
+  font-family: var(--font-mono);
+  letter-spacing: -.02em;
+}
+.kpi-delta {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.kpi-delta.up   { color: var(--color-success); }
+.kpi-delta.down { color: var(--color-error); }
+.kpi-bg-icon {
+  position: absolute;
+  bottom: 8px; right: 12px;
+  font-size: 28px;
+  opacity: .09;
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* ── Two-col zone: Arya + Nudges ──────────────────────────────── */
+.dash-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+/* Arya brief placeholder — frames whatever arya-ai.js injects */
+#arya-brief-placeholder {
+  background: linear-gradient(135deg,
+    rgba(79,124,255,.08) 0%,
+    rgba(199,240,0,.05) 100%);
+  border: 1px solid rgba(79,124,255,.18);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+}
+/* Normalise arya-ai.js injected card to fit our shell */
+#arya-brief-placeholder #arya-dashboard-brief {
+  flex: 1;
+  padding: 18px 20px;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Nudges panel */
+.nudges-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 120px;
+}
+.nudges-panel-title {
+  font-size: 11px; font-weight: 800;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0;
+}
+.nudges-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  gap: 6px;
+}
+
+/* ── Quick Actions ────────────────────────────────────────────── */
+.qa-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.qa-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  text-decoration: none;
+  transition: border-color .18s, transform .2s cubic-bezier(.16,1,.3,1), box-shadow .18s;
+  position: relative;
+  overflow: hidden;
+}
+.qa-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-medium);
+  box-shadow: var(--card-shadow-hover);
+}
+.qa-icon-wrap {
+  width: 40px; height: 40px;
+  border-radius: var(--radius-md);
+  background: rgba(var(--qa-rgb, 79,124,255), .1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: background .18s;
+}
+.qa-card:hover .qa-icon-wrap { background: rgba(var(--qa-rgb, 79,124,255), .18); }
+.qa-body { flex: 1; min-width: 0; }
+.qa-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin: 0 0 2px; line-height: 1.3; }
+.qa-sub   { font-size: 11px; color: var(--text-muted); line-height: 1.4; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qa-arrow { font-size: 13px; color: var(--text-muted); transition: transform .15s, color .15s; flex-shrink: 0; }
+.qa-card:hover .qa-arrow { transform: translateX(3px); color: var(--accent); }
+
+/* ── Insights grid ────────────────────────────────────────────── */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+/* ── Feature cards ────────────────────────────────────────────── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+  gap: 12px;
+}
+.feat-card {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 18px 16px 14px;
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(var(--feat-rgb,0,212,255), .18);
+  background: rgba(var(--feat-rgb,0,212,255), .04);
+  transition: background .18s, transform .2s cubic-bezier(.16,1,.3,1), box-shadow .18s;
+  position: relative;
+  overflow: hidden;
+}
+.feat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: rgba(var(--feat-rgb,0,212,255), .5);
+}
+.feat-card:hover {
+  background: rgba(var(--feat-rgb,0,212,255), .09);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(var(--feat-rgb,0,212,255), .1);
+}
+.feat-icon  { font-size: 20px; margin-bottom: 2px; }
+.feat-title { font-size: 12px; font-weight: 700; color: var(--text-primary); line-height: 1.3; }
+.feat-sub   { font-size: 11px; color: var(--text-muted); line-height: 1.45; flex: 1; }
+.feat-arrow { font-size: 12px; color: rgba(var(--feat-rgb,0,212,255),.6); font-weight: 700; margin-top: 6px; transition: transform .15s; }
+.feat-card:hover .feat-arrow { transform: translateX(4px); }
+
+/* ── Adaptive quick-access bar ────────────────────────────────── */
+.qa-bar-wrap {
+  border-top: 1px solid var(--border-soft);
+  padding-top: 18px;
+  margin-bottom: 28px;
+}
+
+/* ── Skeleton ─────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, var(--border-soft) 25%, var(--border-medium) 50%, var(--border-soft) 75%);
+  background-size: 400% 100%;
+  animation: sk-slide 1.4s ease infinite;
+  border-radius: 6px;
+}
+@keyframes sk-slide { 0% { background-position:100% 50%; } 100% { background-position:0% 50%; } }
+.sk-line { height: 12px; margin-bottom: 8px; }
+.sk-w-75  { width: 75%; }
+.sk-w-50  { width: 50%; }
+.sk-w-100 { width: 100%; }
+.sk-card  { background: var(--bg-surface); border: 1px solid var(--border-soft); border-radius: var(--radius-xl); padding: 18px; }
+
+/* ── Badges ───────────────────────────────────────────────────── */
+.badge-for-you {
+  font-size: 10px; font-weight: 800; letter-spacing: .06em;
+  padding: 3px 9px; border-radius: 20px;
+  background: rgba(199,240,0,.1); border: 1px solid rgba(199,240,0,.28);
+  color: #c7f000;
+}
+.badge-new {
+  font-size: 10px; font-weight: 800; letter-spacing: .06em;
+  padding: 3px 8px; border-radius: 20px;
+  background: linear-gradient(135deg,#7b2ff7,#00d4ff); color: #fff;
+}
+
+/* ── Divider ──────────────────────────────────────────────────── */
+.dash-divider {
+  height: 1px;
+  background: var(--border-soft);
+  margin: 4px 0 28px;
+}
+
+/* ── Status strip injected ────────────────────────────────────── */
+#dash-status-strip { margin-bottom: 24px; }
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 860px) {
+  .dash-two-col { grid-template-columns: 1fr; }
+  .qa-grid      { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .kpi-grid        { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .kpi-value       { font-size: 20px; }
+  .features-grid   { grid-template-columns: repeat(2, 1fr); }
+  .insights-grid   { grid-template-columns: 1fr; }
+  .dash-header     { flex-wrap: wrap; }
+}
+</style>
+  <link rel="stylesheet" href="../css/interactions.css">
 </head>
 
 <body>
+<div class="app">
 
-  <div class="app">
+  <!-- ── SIDEBAR ─────────────────────────────────────────────── -->
+          <aside class="sidebar" role="complementary" aria-label="Navigation">
 
-    <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="logo">FIN•OS</div>
-        <nav>
-      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
-      <a href="home.html">Home</a>
-      <a href="dashboard.html" class="active">Dashboard</a>
-      <a href="foundations.html">Foundations</a>
-      <a href="diagnostics.html">Diagnostics</a>
-      <a href="track-finances.html">Track Finances</a>
-      <a href="financial-hub.html">⚡ Command Hub</a>
-      <a href="../stock-dashboard/index.html">Live Tracker</a>
-      <a href="../Porfolio Analyser/portfolio-analyser-v10.html">Portfolio X-Ray</a>
-      <a href="simulator-landing.html">Train Mindset</a>
-      <a href="news.html">News</a>
-      <a href="settings.html">Settings</a>
+    <!-- Brand -->
+    <div class="sb-brand">
+      <div class="sb-logomark" aria-hidden="true">
+        <span class="sb-logomark-letter">F</span>
+      </div>
+      <div class="sb-wordmark">
+        <div class="sb-wordmark-name">FIN•OS</div>
+        <div class="sb-wordmark-tag">Financial OS</div>
+      </div>
+    </div>
+
+    <!-- Identity -->
+    <a href="profile.html" class="sb-identity" aria-label="Your profile">
+      <div class="sb-av" id="sb-av" aria-hidden="true">I</div>
+      <div class="sb-identity-body">
+        <div class="sb-identity-name" id="sb-name">Investor</div>
+        <div class="sb-identity-meta">
+          <span class="sb-identity-dna"  id="sb-dna">Financial DNA</span>
+          <span class="sb-health-pill"   id="sb-health-pill"></span>
+        </div>
+      </div>
+      <span class="sb-identity-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </a>
+
+    <!-- Search shortcut -->
+    <button class="sb-cmd" id="sb-cmd" aria-label="Search (Ctrl+K)">
+      <span class="sb-cmd-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="sb-cmd-label">Search or jump to…</span>
+      <kbd class="sb-cmd-kbd" aria-hidden="true">⌘K</kbd>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="sb-nav" aria-label="Main">
+        <a href="home.html" class="sb-link" title="Home">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+          <span class="sb-label">Home</span>
+        </a>
+        <a href="dashboard.html" class="sb-link active" aria-current="page" title="Dashboard">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>
+          <span class="sb-label">Dashboard</span>
+          <span class="sb-badge" id="sb-streak" aria-label="count"></span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="foundations.html" class="sb-link" title="Learn">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+          <span class="sb-label">Learn</span>
+        </a>
+        <a href="simulator-landing.html" class="sb-link" title="Mindset">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span>
+          <span class="sb-label">Mindset</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="diagnostics.html" class="sb-link" title="Diagnostics">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          <span class="sb-label">Diagnostics</span>
+        </a>
+        <a href="track-finances.html" class="sb-link" title="Track">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+          <span class="sb-label">Track</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="markets.html" class="sb-link" title="Markets">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+          <span class="sb-label">Markets</span>
+        </a>
+        <a href="tools.html" class="sb-link" title="Tools">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+          <span class="sb-label">Tools</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="news.html" class="sb-link" title="News">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span>
+          <span class="sb-label">News</span>
+        </a>
     </nav>
+
+    <!-- Footer: Arya AI + Settings -->
+    <div class="sb-footer-zone">
+
+      <button class="sb-arya-row" id="sb-arya-btn"
+              aria-label="Arya AI — your financial coach"
+              onclick="document.querySelector('.finos-fab')?.click?.();">
+        <div class="sb-arya-icon" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span class="sb-arya-dot checking" id="sb-arya-dot"></span>
+        </div>
+        <div class="sb-arya-body">
+          <div class="sb-arya-name">Arya AI</div>
+          <div class="sb-arya-status checking" id="sb-arya-status">Connecting…</div>
+        </div>
+        <span class="sb-arya-arrow" aria-hidden="true">›</span>
+      </button>
+
+      <a href="settings.html" class="sb-settings-row" title="Settings">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        <span class="sb-label">Settings</span>
+      </a>
+
+    </div>
   </aside>
 
-    <!-- MAIN -->
-    <main class="main">
-      <div class="content-wrapper">
+  <!-- ── MAIN ────────────────────────────────────────────────── -->
+  <main class="main">
+  <div class="content-wrapper">
 
-        <!-- HEADER -->
-        <header class="header header-flex">
-          <div>
-            <h1>Welcome, <span id="userName">Loading...</span></h1> 
-            
-            <p>Financial DNA: <span id="userDNA" style="color:var(--accent);">Loading...</span></p>
+    <!-- ══════════════════════════════════════════════════════════
+         1. HEADER — greeting + identity + streak badge
+    ══════════════════════════════════════════════════════════════ -->
+    <header class="dash-header">
+      <div class="dash-header-left">
+        <h1 class="dash-greeting">
+          Good <span id="timeOfDay">morning</span>,
+          <span id="userName" class="dash-greeting-name">Investor</span>
+        </h1>
+        <div class="dash-meta">
+          <span class="dash-meta-date" id="todayDate"></span>
+          <span class="dash-badge dash-badge-dna" id="userDNABadge">DNA ···</span>
+          <span class="dash-badge dash-badge-streak" id="streakBadge" style="display:none"></span>
+        </div>
+      </div>
+      <div class="dash-header-actions">
+        <button id="themeToggle" class="theme-btn" aria-label="Toggle dark/light theme">🌙</button>
+      </div>
+    </header>
+
+    <div class="dash-divider"></div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         2. FINANCIAL SNAPSHOT — 4 KPI cards
+    ══════════════════════════════════════════════════════════════ -->
+    <section class="dash-section">
+      <div class="dash-section-head">
+        <h2 class="dash-section-title">Financial Snapshot</h2>
+        <a href="track-finances.html" class="dash-section-link">View details →</a>
+      </div>
+      <div class="kpi-grid">
+
+        <div class="kpi-card" style="--kpi-color:#4ade80">
+          <p class="kpi-label">💚 Health Score</p>
+          <div class="kpi-value" id="kpi-health">—</div>
+          <div class="kpi-delta" id="kpi-health-delta">Calculating…</div>
+          <span class="kpi-bg-icon">💚</span>
+        </div>
+
+        <div class="kpi-card" style="--kpi-color:#4f7cff">
+          <p class="kpi-label">💰 Est. Net Worth</p>
+          <div class="kpi-value" id="kpi-networth">—</div>
+          <div class="kpi-delta" id="kpi-networth-delta">Add finances to track</div>
+          <span class="kpi-bg-icon">📈</span>
+        </div>
+
+        <div class="kpi-card" style="--kpi-color:#c7f000">
+          <p class="kpi-label">🏦 Savings Rate</p>
+          <div class="kpi-value" id="kpi-savings">—</div>
+          <div class="kpi-delta" id="kpi-savings-delta">vs 20% target</div>
+          <span class="kpi-bg-icon">💹</span>
+        </div>
+
+        <div class="kpi-card" style="--kpi-color:#f0a500">
+          <p class="kpi-label">🔥 FIRE Progress</p>
+          <div class="kpi-value" id="kpi-fire">—</div>
+          <div class="kpi-delta" id="kpi-fire-delta">Financial independence</div>
+          <span class="kpi-bg-icon">🎯</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         3. ARYA BRIEF  +  ACTION ITEMS — side by side
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="dash-two-col">
+
+      <!-- Arya AI brief — populated by arya-ai.js / dashboard.js -->
+      <div id="arya-brief-placeholder" aria-live="polite"></div>
+
+      <!-- Smart nudges / action items -->
+      <div class="nudges-panel">
+        <div id="dashboard-nudges" aria-live="polite">
+          <div class="nudges-empty">
+            <span>⏳</span> Loading your action items…
           </div>
+        </div>
+      </div>
 
-          <button id="themeToggle" class="theme-btn">
-            🌙
-          </button>
-        </header>
-
-<!-- ── Adaptive Quick-Access Bar (AI-ranked, time-aware) ──────────── -->
-<div id="adaptive-quick-access"></div>
-
-<!-- ── Context Banner (time-of-day + weekend pattern) ─────────────── -->
-<div id="adaptive-context-banner"></div>
-
-<!-- ── Weekend Portfolio Widget ────────────────────────────────────── -->
-<div id="adaptive-weekend-widget"></div>
-
-<!-- ── Arya AI Morning Brief ─────────────────────────────────────────── -->
-<div id="arya-brief-placeholder" style="margin-bottom:24px;"></div>
-
-<!-- ── Smart Nudges (goals behind, high spend, no SIP) ────────────── -->
-<div id="dashboard-nudges" style="margin-bottom:24px;"></div>
-
-<!-- ── Health Score Trend + Peer Benchmark Preview ──────────────── -->
-<div id="dash-insight-widgets" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:28px;">
-
-  <!-- Health Score Trajectory Sparkline -->
-  <div class="card" style="padding:20px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <h3 style="margin:0;font-size:.95rem;font-weight:700;">📈 Health Score Journey</h3>
     </div>
-    <div id="hs-sparkline-mount"></div>
-  </div>
 
-  <!-- Peer Benchmark Preview -->
-  <div class="card" style="padding:20px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <h3 style="margin:0;font-size:.95rem;font-weight:700;">📊 vs Your Peers</h3>
-    </div>
-    <div id="dash-benchmark-preview">
-      <div style="color:var(--text-muted);font-size:.83rem;">Loading peer comparison…</div>
-    </div>
-  </div>
+    <!-- ══════════════════════════════════════════════════════════
+         4. QUICK ACTIONS — 3 primary destinations
+    ══════════════════════════════════════════════════════════════ -->
+    <section class="dash-section">
+      <div class="dash-section-head">
+        <h2 class="dash-section-title">Quick Actions</h2>
+      </div>
+      <div class="qa-grid">
 
-</div>
+        <a href="impact.html" class="qa-card" style="--qa-rgb:199,240,0">
+          <div class="qa-icon-wrap">🦋</div>
+          <div class="qa-body">
+            <p class="qa-title">Impact Simulator</p>
+            <p class="qa-sub">See how small changes compound over decades</p>
+          </div>
+          <span class="qa-arrow">→</span>
+        </a>
+
+        <a href="life-goals-planner.html" class="qa-card" style="--qa-rgb:79,124,255">
+          <div class="qa-icon-wrap">🎯</div>
+          <div class="qa-body">
+            <p class="qa-title">Life Goals Planner</p>
+            <p class="qa-sub">Home · Education · Retirement — with exact SIPs</p>
+          </div>
+          <span class="qa-arrow">→</span>
+        </a>
+
+        <a href="../TradeJournal/index.html" class="qa-card" style="--qa-rgb:168,85,247">
+          <div class="qa-icon-wrap">📓</div>
+          <div class="qa-body">
+            <p class="qa-title">Trade Journal</p>
+            <p class="qa-sub">Log and analyze your market moves</p>
+          </div>
+          <span class="qa-arrow">→</span>
+        </a>
+
+        <a href="tools.html" class="qa-card" style="--qa-rgb:34,211,166">
+          <div class="qa-icon-wrap">🛠️</div>
+          <div class="qa-body">
+            <p class="qa-title">All Tools</p>
+            <p class="qa-sub">Tax · Insurance · Real Estate · Simulators</p>
+          </div>
+          <span class="qa-arrow">→</span>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         5. TODAY'S INSIGHTS — personalised by knowledge gaps + DNA
+    ══════════════════════════════════════════════════════════════ -->
+    <section class="dash-section">
+      <div class="dash-section-head">
+        <h2 class="dash-section-title">
+          Today's Insights
+          <span id="dash-insight-subtitle" style="font-size:11px;opacity:.45;font-weight:500;text-transform:none;letter-spacing:0;"></span>
+        </h2>
+        <span class="badge-for-you">For you</span>
+      </div>
+      <div id="dash-adaptive-insights" class="insights-grid" aria-live="polite" aria-label="Today's personalised insights">
+        <div class="sk-card"><div class="skeleton sk-line sk-w-50" style="height:14px;margin-bottom:10px;"></div><div class="skeleton sk-line sk-w-100"></div><div class="skeleton sk-line sk-w-75"></div><div class="skeleton sk-line sk-w-50"></div></div>
+        <div class="sk-card"><div class="skeleton sk-line sk-w-50" style="height:14px;margin-bottom:10px;"></div><div class="skeleton sk-line sk-w-100"></div><div class="skeleton sk-line sk-w-75"></div><div class="skeleton sk-line sk-w-50"></div></div>
+        <div class="sk-card"><div class="skeleton sk-line sk-w-50" style="height:14px;margin-bottom:10px;"></div><div class="skeleton sk-line sk-w-100"></div><div class="skeleton sk-line sk-w-75"></div><div class="skeleton sk-line sk-w-50"></div></div>
+        <div class="sk-card"><div class="skeleton sk-line sk-w-50" style="height:14px;margin-bottom:10px;"></div><div class="skeleton sk-line sk-w-100"></div><div class="skeleton sk-line sk-w-75"></div><div class="skeleton sk-line sk-w-50"></div></div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         6. RECENTLY VISITED — adaptive quick-access (utility, below fold)
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="qa-bar-wrap">
+      <div id="adaptive-quick-access"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         7. YOUR FINANCIAL OS — full navigation map
+    ══════════════════════════════════════════════════════════════ -->
+    <section class="dash-section" style="margin-bottom:52px;">
+      <div class="dash-section-head">
+        <h2 class="dash-section-title">Your Financial OS</h2>
+        <span style="font-size:11px;color:var(--text-muted);">Every section in one place</span>
+      </div>
+
+      <!-- UNDERSTAND -->
+      <div class="os-zone">
+        <div class="os-zone-label">📚 Understand</div>
+        <div class="os-zone-links">
+          <a href="foundations.html"      class="os-link">Foundations</a>
+          <a href="finance101.html"        class="os-link">Finance 101</a>
+          <a href="principles.html"        class="os-link">Principles</a>
+          <a href="simulator-landing.html" class="os-link">Train Mindset</a>
+          <a href="decision.html"          class="os-link">Decision Core</a>
+          <a href="fear-roadmap.html"      class="os-link">Mindset Repair</a>
+        </div>
+      </div>
+
+      <!-- KNOW YOURSELF -->
+      <div class="os-zone">
+        <div class="os-zone-label">🔬 Know Yourself</div>
+        <div class="os-zone-links">
+          <a href="diagnostics.html"       class="os-link">Diagnostics</a>
+          <a href="dna.html"               class="os-link">DNA Decoder</a>
+          <a href="know-your-finances.html" class="os-link">Financial X-Ray</a>
+          <a href="benchmarking.html"      class="os-link">Peer Benchmark</a>
+          <a href="financial-being.html"   class="os-link">Financial Being</a>
+          <a href="document-ai.html"       class="os-link os-link-ai">Document AI</a>
+          <a href="track-finances.html"    class="os-link">Track Finances</a>
+        </div>
+      </div>
+
+      <!-- ACT — MARKETS -->
+      <div class="os-zone">
+        <div class="os-zone-label">📈 Markets</div>
+        <div class="os-zone-links">
+          <a href="markets.html"            class="os-link">Markets Hub</a>
+          <a href="market-intel.html"       class="os-link">Market Intel</a>
+          <a href="equitydetail.html"       class="os-link">Equity</a>
+          <a href="mfdetail.html"           class="os-link">Mutual Funds</a>
+          <a href="etfdetail.html"          class="os-link">ETFs</a>
+          <a href="debtdetail.html"         class="os-link">Debt</a>
+          <a href="cryptodetail.html"       class="os-link">Crypto</a>
+          <a href="stock-platform.html"     class="os-link">Stock Platform</a>
+          <a href="../stock-dashboard/index.html" class="os-link">Live Tracker</a>
+        </div>
+      </div>
+
+      <!-- ACT — TOOLS -->
+      <div class="os-zone">
+        <div class="os-zone-label">🛠️ Tools</div>
+        <div class="os-zone-links">
+          <a href="tools.html"              class="os-link os-link-accent">All Tools →</a>
+          <a href="calculators.html"        class="os-link">Calculators (88+)</a>
+          <a href="scenarios.html"          class="os-link">What-If Simulator</a>
+          <a href="tax.html"                class="os-link">Tax Dossier</a>
+          <a href="real-estate.html"        class="os-link">Real Estate</a>
+          <a href="insurance-hub.html"      class="os-link">Insurance Hub</a>
+          <a href="mf-intelligence.html"    class="os-link">MF Intelligence</a>
+          <a href="options-intelligence.html" class="os-link">Options Intel</a>
+          <a href="life-goals-planner.html" class="os-link">Life Goals</a>
+          <a href="financial-report.html"   class="os-link">Monthly Report</a>
+        </div>
+      </div>
+
+    </section>
 
 <style>
-@media (max-width: 680px) {
-  #dash-insight-widgets { grid-template-columns: 1fr !important; }
+.os-zone {
+  margin-bottom: 20px;
+  padding: 16px 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+}
+.os-zone-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.os-zone-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.os-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-main);
+  border: 1px solid var(--border-soft);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: border-color .15s, background .15s, color .15s;
+  white-space: nowrap;
+}
+.os-link:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.os-link-accent {
+  background: var(--accent-soft);
+  border-color: rgba(79,124,255,.3);
+  color: var(--accent);
+  font-weight: 700;
+}
+.os-link-ai {
+  background: rgba(199,240,0,.06);
+  border-color: rgba(199,240,0,.2);
+  color: #c7f000;
+}
+@media (max-width: 600px) {
+  .os-zone { padding: 14px; }
 }
 </style>
 
-<section class="action-portal" style="margin-bottom: 40px;">
-          <div class="foundation-portal" style="display: flex; gap: 20px; flex-wrap: nowrap; width: 100%;">
-            
-            <a href="impact.html" class="foundation-btn" style="flex: 1; max-width: none;">
-              <div class="icon-box">🦋</div>
-              <div class="text-box">
-                <span class="btn-title">Small changes, huge impact</span>
-                <span class="btn-sub">Minor decisions shape decades of outcomes</span>
-              </div>
-              <div class="arrow-box">➔</div>
-            </a>
+  </div><!-- /.content-wrapper -->
+  </main>
 
-            <a href="life-goals-planner.html" class="foundation-btn" style="flex: 1; max-width: none;">
-              <div class="icon-box">🎯</div>
-              <div class="text-box">
-                <span class="btn-title">Life Goals Planner</span>
-                <span class="btn-sub">AI roadmap: Home, Education, Retirement — with exact SIPs</span>
-              </div>
-              <div class="arrow-box">➔</div>
-            </a>
+</div><!-- /.app -->
 
-            <a href="../TradeJournal/index.html" class="foundation-btn" style="flex: 1; max-width: none;">
-              <div class="icon-box">📓</div>
-              <div class="text-box">
-                <span class="btn-title">Trade Journal</span>
-                <span class="btn-sub">Log and analyze your market moves</span>
-              </div>
-              <div class="arrow-box">➔</div>
-            </a>
+<!-- ── SCRIPTS ──────────────────────────────────────────────────── -->
+<script src="../js/usage-tracker.js"></script>
+<script src="../js/adaptive-layout.js"></script>
+<script src="../js/dashboard.js"></script>
+<script src="../js/insight-cards.js"></script>
+<script src="../js/ui.js" defer></script>
+<script src="../js/mobile-nav.js" defer></script>
+<script src="../js/pwa-init.js"></script>
+<script src="../js/finos-widget.js?v=4"></script>
+<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/finos-progressive-mode.js" defer></script>
+<script src="../js/finos-webauthn.js" defer></script>
+<script src="../js/finos-aa.js" defer></script>
+<script src="../js/sip-intelligence.js" defer></script>
+<script src="../js/goal-auto-fund.js" defer></script>
+<script src="../js/tax-dossier.js" defer></script>
+<script src="../js/explain-my-money.js" defer></script>
 
-          </div>
-        </section>
+<script>
+/* ── Greeting, date, streak badge ────────────────────────────── */
+(function() {
+  const h = new Date().getHours();
+  const tod = document.getElementById('timeOfDay');
+  if (tod) tod.textContent = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
 
-        <!-- DAILY 5 — Adaptive, personalized by knowledge gaps + DNA -->
-        <section class=”daily-feed”>
-          <h2>
-            Today’s insights <span id=”dash-insight-subtitle” style=”font-size:12px;opacity:.5;font-weight:400;”></span>
-            <span class=”pill” style=”background:rgba(199,240,0,.08);border-color:rgba(199,240,0,.3);color:#c7f000;”>For you</span>
-          </h2>
-          <!-- Populated by finos-personalization.js renderAdaptiveInsights() -->
-          <div id=”dash-adaptive-insights” style=”display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:14px;”></div>
-        </section>
-      </div>
-    </main>
-  </div>
-
-  <script src="../js/usage-tracker.js"></script>
-  <script src="../js/adaptive-layout.js"></script>
-  <script src="../js/health-sparkline.js"></script>
-  <script src="../js/dashboard.js"></script>
-  <script src="../js/ui.js"></script>
-  <script src="../js/mobile-nav.js"></script>
-  <script src="../js/pwa-init.js"></script>
-  <script src="../js/finos-widget.js?v=4"></script>
-  <script src="../js/finos-search.js?v=2"></script>
-
-  <script>
-  // ── FIN-OS Personalization — Dashboard Page ─────────────────────────────────
-  document.addEventListener('DOMContentLoaded', function () {
-    if (typeof FinosPersona === 'undefined') return;
-
-    // 1. Status strip (health score, savings rate, net worth, FIRE %)
-    FinosPersona.injectStatusStrip('.header');
-
-    // 2. Smart nudges — goals behind, high spend, no SIP, poor win rate
-    const nudgeEl = document.getElementById('dashboard-nudges');
-    if (nudgeEl) FinosPersona.renderNudges(nudgeEl);
-
-    // 3. Adaptive insights ranked by knowledge gaps + DNA
-    const insightEl = document.getElementById('dash-adaptive-insights');
-    if (insightEl) {
-      FinosPersona.renderAdaptiveInsights(insightEl, 5);
-      // Update subtitle when context is ready
-      window.addEventListener('finos-context-ready', function () {
-        const r = FinosPersona.resolveCtx();
-        const sub = document.getElementById('dash-insight-subtitle');
-        if (sub && r.knowledgeGaps.length > 0) {
-          sub.textContent = `· ${r.knowledgeGaps.length} modules to complete`;
-        }
-      });
-    }
-
-    // 4. Nav badges (alert counts)
-    FinosPersona.injectNavBadges();
+  const dateEl = document.getElementById('todayDate');
+  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-IN', {
+    weekday: 'long', day: 'numeric', month: 'long'
   });
-  </script>
 
-  <script>
-  // ── Dashboard Insight Widgets ────────────────────────────────────────────
-  const ALERT_ENGINE = 'http://localhost:8001';
-  const SUPABASE_URL = 'https://oeapcyucnduhwpgxfknb.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+  const aryaTime = document.getElementById('arya-time');
+  if (aryaTime) aryaTime.textContent = new Date().toLocaleTimeString('en-IN', {
+    hour: '2-digit', minute: '2-digit'
+  });
 
-  const TIER_COLOR = { ELITE:'#f0c040', GREAT:'#22d3a6', GOOD:'#00d4ff', FAIR:'#f0a500', DANGER:'#f04444' };
-  const STATUS_ICON = { top_10:'🏆', above_avg:'🟢', average:'🟡', below_target:'🔴' };
-  const STATUS_LBL  = { top_10:'Top 10%', above_avg:'Above Avg', average:'Average', below_target:'Below Target' };
-
-  async function initDashboardWidgets() {
-    try {
-      const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session) return;
-      const uid = session.user.id;
-
-      // ── 1. Health Score Sparkline ────────────────────────────────────────
-      if (typeof HealthSparkline !== 'undefined') {
-        HealthSparkline.autoMount(uid);
-      }
-
-      // ── 2. Benchmark Preview (top 2 metrics) ────────────────────────────
-      const benchEl = document.getElementById('dash-benchmark-preview');
-      if (!benchEl) return;
-
-      try {
-        const res = await fetch(`${ALERT_ENGINE}/benchmark/${uid}`);
-        if (res.status === 402) {
-          benchEl.innerHTML = `
-            <div style="text-align:center;padding:16px 0;">
-              <div style="font-size:1.3rem;margin-bottom:6px;">🔒</div>
-              <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:10px;">Smart Plan unlocks peer benchmarking</div>
-              <a href="settings.html#upgrade"
-                 style="font-size:.78rem;color:var(--accent);font-weight:700;text-decoration:none;">
-                Upgrade →
-              </a>
-            </div>`;
-          return;
-        }
-        if (!res.ok) throw new Error('offline');
-        const data = await res.json();
-        const top2 = (data.metrics || []).slice(0, 2);
-        benchEl.innerHTML = top2.map(m => `
-          <div style="display:flex;align-items:center;gap:10px;
-                      padding:10px;border-radius:10px;
-                      background:rgba(255,255,255,.04);margin-bottom:8px;">
-            <div style="flex:1;">
-              <div style="font-size:.82rem;font-weight:600;">${m.label}</div>
-              <div style="font-size:.75rem;color:var(--text-muted);">Avg peer: ${m.avg}${m.unit}</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-size:1.1rem;font-weight:800;">${m.user}${m.unit}</div>
-              <div style="font-size:.7rem;font-weight:700;color:${
-                m.status === 'top_10'       ? '#22d3a6' :
-                m.status === 'above_avg'    ? '#00d4ff' :
-                m.status === 'average'      ? '#f0a500' : '#f04444'
-              };">${STATUS_ICON[m.status] || ''} ${STATUS_LBL[m.status] || ''}</div>
-            </div>
-          </div>`).join('') +
-          `<a href="diagnostics.html"
-             style="display:block;text-align:center;font-size:.78rem;
-                    color:var(--accent);font-weight:700;text-decoration:none;margin-top:4px;">
-            See all 5 metrics →
-          </a>`;
-      } catch {
-        benchEl.innerHTML = `
-          <div style="color:var(--text-muted);font-size:.8rem;text-align:center;padding:12px 0;">
-            Peer benchmarking unavailable right now.
-          </div>`;
-      }
-    } catch (e) {
-      console.debug('[Dashboard Widgets]', e);
+  try {
+    const streak = JSON.parse(localStorage.getItem('finos_streak') || '{}');
+    if (streak.count > 1) {
+      const el = document.getElementById('streakBadge');
+      if (el) { el.textContent = '🔥 ' + streak.count + '-day streak'; el.style.display = 'inline-flex'; }
     }
-  }
+  } catch (_) {}
+})();
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initDashboardWidgets);
-  } else {
-    setTimeout(initDashboardWidgets, 600);
-  }
-  </script>
+/* ── KPI hydration from localStorage ─────────────────────────── */
+(function() {
+  try {
+    const health   = parseFloat(localStorage.getItem('finos_health_score') || '0');
+    const netWorth = parseFloat(localStorage.getItem('finos_net_worth')    || '0');
+    const savings  = parseFloat(localStorage.getItem('finos_savings_rate') || '0');
+    const fire     = parseFloat(localStorage.getItem('finos_fire_percent') || '0');
+    const dna      = localStorage.getItem('finos_financial_dna')           || '';
+    const name     = localStorage.getItem('finos_display_name')            || '';
+
+    if (name) {
+      const el = document.getElementById('userName');
+      if (el) el.textContent = name.trim().split(/\s+/)[0];
+    }
+    if (dna) {
+      const el = document.getElementById('userDNABadge');
+      if (el) el.textContent = 'DNA · ' + dna;
+    }
+
+    const fmt = n => n >= 1e7 ? '₹' + (n/1e7).toFixed(1) + 'Cr'
+                  : n >= 1e5  ? '₹' + (n/1e5).toFixed(1) + 'L'
+                  : n >= 1000 ? '₹' + Math.round(n/1000) + 'K'
+                  : '₹' + Math.round(n);
+
+    if (health > 0) {
+      document.getElementById('kpi-health').textContent = health.toFixed(0) + '/100';
+      const d = document.getElementById('kpi-health-delta');
+      if (health >= 80)      { d.className = 'kpi-delta up';   d.textContent = '↑ Excellent shape'; }
+      else if (health >= 60) { d.className = 'kpi-delta up';   d.textContent = '↑ Good standing'; }
+      else if (health >= 40) { d.className = 'kpi-delta';      d.textContent = '→ Room to improve'; }
+      else                   { d.className = 'kpi-delta down'; d.textContent = '↓ Needs attention'; }
+    }
+    if (netWorth > 0) {
+      document.getElementById('kpi-networth').textContent = fmt(netWorth);
+      document.getElementById('kpi-networth-delta').textContent = '→ Track on Diagnostics';
+    }
+    if (savings > 0) {
+      document.getElementById('kpi-savings').textContent = savings.toFixed(0) + '%';
+      const d = document.getElementById('kpi-savings-delta');
+      d.className = savings >= 20 ? 'kpi-delta up' : 'kpi-delta down';
+      d.textContent = savings >= 20 ? '↑ Above 20% target' : '↓ Below 20% target';
+    }
+    if (fire > 0) {
+      document.getElementById('kpi-fire').textContent = fire.toFixed(0) + '%';
+      const d = document.getElementById('kpi-fire-delta');
+      d.className = fire >= 80 ? 'kpi-delta up' : fire >= 50 ? 'kpi-delta' : 'kpi-delta down';
+      d.textContent = fire >= 80 ? '↑ Nearly there' : fire >= 50 ? '→ Halfway' : '↓ Keep building';
+    }
+  } catch (_) {}
+})();
+
+/* ── Personalization hooks ────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof FinosPersona === 'undefined') return;
+
+  FinosPersona.injectNavBadges();
+
+  window.addEventListener('finos-context-ready', function() {
+    if (typeof FinosPersona === 'undefined') return;
+    const r = FinosPersona.resolveCtx();
+    const sub = document.getElementById('dash-insight-subtitle');
+    if (sub && r.knowledgeGaps?.length > 0) {
+      sub.textContent = '· ' + r.knowledgeGaps.length + ' gaps to close';
+    }
+    /* Override nudges into the styled nudges panel */
+    const nudgeEl = document.getElementById('dashboard-nudges');
+    if (nudgeEl) {
+      const nudges = (typeof FinosPersona.computeNudges === 'function')
+        ? FinosPersona.computeNudges() : [];
+      if (nudges && nudges.length) {
+        FinosPersona.renderNudges(nudgeEl);
+      } else {
+        nudgeEl.innerHTML = '<div class="nudges-empty">✅ All clear — no action items right now</div>';
+      }
+    }
+  });
+
+  /* Fallback if context fires before listener */
+  const nudgeEl = document.getElementById('dashboard-nudges');
+  if (nudgeEl) FinosPersona.renderNudges(nudgeEl);
+});
+</script>
+
+
+<script src="../js/sidebar.js"></script>
+  <script src="../js/interactions.js" defer></script>
 </body>
-
 </html>

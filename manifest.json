@@ -1,13 +1,17 @@
 {
   "name": "FIN•OS — Financial Operating System",
   "short_name": "FIN•OS",
-  "description": "Your personalized financial operating system. Track, learn, and grow your wealth.",
+  "description": "India's #1 AI-powered personal finance OS. Track wealth, learn investing, run what-if scenarios, get personalized guidance from Arya AI.",
   "start_url": "./html/home.html",
+  "id": "./html/home.html",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "background_color": "#0B0D12",
   "theme_color": "#0B0D12",
   "orientation": "portrait-primary",
+  "lang": "en-IN",
+  "dir": "ltr",
   "categories": ["finance", "education", "productivity"],
   "icons": [
     { "src": "./assets/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any" },
@@ -15,9 +19,42 @@
     { "src": "./assets/icons/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any" },
     { "src": "./assets/icons/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "maskable" }
   ],
+  "screenshots": [
+    {
+      "src": "./assets/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "FIN•OS Command Center"
+    }
+  ],
   "shortcuts": [
-    { "name": "Home", "url": "./html/home.html", "description": "Go to home" },
-    { "name": "Track Finances", "url": "./html/track-finances.html", "description": "Track your finances" },
-    { "name": "Calculators", "url": "./html/calculators.html", "description": "Financial calculators" }
-  ]
+    {
+      "name": "Command Center",
+      "short_name": "Dashboard",
+      "url": "./html/dashboard.html",
+      "description": "Net worth, health score, Arya morning brief — your full financial life at one glance",
+      "icons": [{ "src": "./assets/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Track Finances",
+      "short_name": "Track",
+      "url": "./html/track-finances.html",
+      "description": "Log and track income, expenses, savings"
+    },
+    {
+      "name": "What-If Scenarios",
+      "short_name": "Scenarios",
+      "url": "./html/scenarios.html",
+      "description": "Job loss, house purchase, market crash simulations on your real data"
+    },
+    {
+      "name": "Insurance Hub",
+      "short_name": "Insurance",
+      "url": "./html/insurance-hub.html",
+      "description": "All policies, coverage gaps, premium calendar in one place"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 }

@@ -271,26 +271,50 @@ function getStreakData() {
 }
 
 function renderStreakWidget() {
-  const container = G('streak-widget-container');
+  let container = G('streak-widget-container');
   if (!container) return;
+  // Move to body so position:fixed isn't broken by ancestor transforms
+  if (container.parentElement !== document.body) {
+    document.body.appendChild(container);
+  }
   const s = getStreakData();
   const freezes = parseInt(localStorage.getItem('tb_streak_freezes') || '3');
 
+  const fireIcon = s.current >= 7 ? '🔥' : s.current >= 3 ? '✨' : '📝';
   container.innerHTML = `
-    <div class="streak-widget">
-      <div class="streak-fire">${s.current >= 7 ? '🔥' : s.current >= 3 ? '✨' : '📝'}</div>
-      <div class="streak-info">
-        <div class="streak-count">${s.current} Day${s.current !== 1 ? 's' : ''}</div>
-        <div class="streak-label">Current Streak</div>
-        <div class="streak-best">Best: ${s.best} days</div>
+    <div style="position:relative">
+      <div class="streak-badge" onclick="window._toggleStreakPopover()" title="Daily Streak">
+        <span class="streak-badge-fire">${fireIcon}</span>
+        <span class="streak-badge-count">${s.current}</span>
+        <span class="streak-badge-label">day streak</span>
       </div>
-      <div class="streak-days">
-        ${s.last7.map(d => `<div class="streak-dot${d.active ? ' active' : ''}${d.isToday ? ' today' : ''}">${d.label}</div>`).join('')}
+      <div class="streak-popover" id="streak-popover">
+        <div class="streak-pop-header">
+          <span class="streak-pop-fire">${fireIcon}</span>
+          <div>
+            <div class="streak-pop-count">${s.current} Day${s.current !== 1 ? 's' : ''}</div>
+            <div class="streak-pop-sub">Current Streak</div>
+          </div>
+        </div>
+        <div class="streak-pop-best">Best: ${s.best} days</div>
+        <div class="streak-days">
+          ${s.last7.map(d => `<div class="streak-dot${d.active ? ' active' : ''}${d.isToday ? ' today' : ''}">${d.label}</div>`).join('')}
+        </div>
+        <button class="streak-freeze-btn" onclick="window._useStreakFreeze()" title="Freeze your streak for 1 day (${freezes} left)">❄️ Freeze  ·  ${freezes} left</button>
       </div>
-      <button class="streak-freeze-btn" onclick="window._useStreakFreeze()" title="Freeze your streak for 1 day (${freezes} left)">❄️ ${freezes}</button>
     </div>
   `;
 }
+
+window._toggleStreakPopover = function() {
+  const pop = document.getElementById('streak-popover');
+  if (!pop) return;
+  pop.classList.toggle('open');
+  if (pop.classList.contains('open')) {
+    const close = (e) => { if (!e.target.closest('#streak-widget-container')) { pop.classList.remove('open'); document.removeEventListener('click', close); } };
+    setTimeout(() => document.addEventListener('click', close), 0);
+  }
+};
 
 window._useStreakFreeze = function() {
   let freezes = parseInt(localStorage.getItem('tb_streak_freezes') || '3');

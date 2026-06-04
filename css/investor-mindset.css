@@ -84,7 +84,9 @@ body[data-theme="graham"] {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 210, 255, 0.5);
+    background: transparent;
+    border-color: rgba(0,210,255,.6);
+    box-shadow: 0 0 0 1px rgba(0,210,255,.25);
 }
 
 .scroll-container {

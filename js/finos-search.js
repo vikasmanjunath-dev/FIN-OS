@@ -672,10 +672,15 @@
     if (!wrap.contains(e.target)) closeSearch();
   }
 
+  function _escHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
   function highlight(text, q) {
-    if (!q) return text;
+    if (!q || !text) return _escHtml(text || '');
+    const safeText = _escHtml(text);
     const esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return text.replace(new RegExp(`(${esc})`, 'gi'),
+    return safeText.replace(new RegExp(`(${esc})`, 'gi'),
       '<span class="fs-highlight">$1</span>');
   }
 
@@ -687,7 +692,7 @@
     if (!q.trim()) { dd.classList.remove('show'); return; }
 
     if (!currentResults.length) {
-      dd.innerHTML = `<div class="fs-empty">No results for "<strong>${q}</strong>" — try a different keyword</div>`;
+      dd.innerHTML = `<div class="fs-empty">No results for "<strong>${_escHtml(q)}</strong>" — try a different keyword</div>`;
       dd.classList.add('show');
       return;
     }

@@ -114,11 +114,11 @@
 }
 
 .back-btn:hover {
-  background: rgba(255,255,255,0.1);
+  background: transparent;
   border-color: var(--accent);
   color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 0 0 1px rgba(79,124,255,.18), 0 5px 15px rgba(0,0,0,.2);
 }
 
 .back-btn:active {
@@ -149,7 +149,7 @@
 [data-theme="light"] .visual-container { background: #f8f9fa; border: 1px solid #e2e8f0; }
 [data-theme="light"] .gear { border-color: rgba(0,0,0,0.2); color: #000; }
 [data-theme="light"] .back-btn { background: #fff; border-color: rgba(0,0,0,0.1); color: #333; }
-[data-theme="light"] .back-btn:hover { border-color: var(--accent); background: #F0F4FF; color: var(--accent); }
+[data-theme="light"] .back-btn:hover { border-color: var(--accent); background: transparent; color: var(--accent); box-shadow: 0 0 0 1px rgba(79,124,255,.18); }
 
 
 .user-symbol {

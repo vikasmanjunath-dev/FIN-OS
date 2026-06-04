@@ -201,11 +201,10 @@ def _apply_filters(stock: dict, meta: dict, f: dict) -> bool:
     if "roe_min" in f:
         if roe is None:
             return False
-        roe_pct = roe * 100 if roe < 2 else roe   # normalise decimal → percent
+        roe_pct = roe * 100 if abs(roe) < 2 else roe   # normalise decimal → percent
         if roe_pct < f["roe_min"]:
             return False
-    if "debt_max" in f and debt is not None and debt > f["debt_max"] * 100:
-        # yfinance returns D/E as percentage (e.g. 10 = 10%)
+    if "debt_max" in f and debt is not None and debt > f["debt_max"]:
         return False
     if "profit_margin_min" in f and (pm is None or pm < f["profit_margin_min"]):
         return False
@@ -268,7 +267,11 @@ class NLScreener:
                 await cache.set(ck, data, ttl=900)
             return data
 
-        raw = await asyncio.gather(*(fetch_one(m) for m in candidates))
+        sem = asyncio.Semaphore(5)
+        async def fetch_one_limited(meta):
+            async with sem:
+                return await fetch_one(meta)
+        raw = await asyncio.gather(*(fetch_one_limited(m) for m in candidates))
         fetched = [r for r in raw if r]
 
         # 4. Apply filters

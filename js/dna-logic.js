@@ -250,7 +250,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const choice = currentStepObj.options[index];
 
         // 1. Update Chart
-        userData.scores = userData.scores.map((val, i) => Math.max(0, val + choice.impact[i]));
+        userData.scores = userData.scores.map((val, i) => Math.min(100, Math.max(0, val + choice.impact[i])));
         window.dnaChart.data.datasets[0].data = userData.scores;
         window.dnaChart.update();
 

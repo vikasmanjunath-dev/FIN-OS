@@ -200,7 +200,7 @@
   transition: background 0.3s ease;
 }
 .tf-vital:last-child { border-right: none; }
-.tf-vital:hover { background: rgba(79,124,255,0.07); }
+.tf-vital:hover { background: transparent; border-left: 2px solid var(--accent); padding-left: 4px; }
 
 .tv-val {
   display: block;
@@ -302,8 +302,8 @@
 .tf-leg-item:hover {
   transform: translateX(8px);
   border-color: var(--item-color, var(--tf-blue));
-  background: rgba(var(--item-rgb, 79,124,255), 0.06);
-  box-shadow: 0 0 20px rgba(var(--item-rgb, 79,124,255), 0.1);
+  background: transparent;
+  box-shadow: 0 0 0 1px rgba(var(--item-rgb,79,124,255),.15), 0 0 20px rgba(var(--item-rgb,79,124,255),.08);
 }
 
 .tf-leg-dot {
@@ -487,8 +487,10 @@
   margin-top: auto;
 }
 .tf-launch:hover {
-  background: var(--c-accent, var(--tf-blue));
-  color: #000;
+  background: transparent;
+  color: var(--c-accent, var(--tf-blue));
+  border-color: var(--c-accent, var(--tf-blue));
+  box-shadow: 0 0 0 1px rgba(79,124,255,.25), 0 4px 16px rgba(79,124,255,.15);
 }
 .tf-launch .arr {
   font-size: 18px;
@@ -721,8 +723,9 @@
   margin-bottom: 14px;
 }
 .tf-step-link:hover {
-  background: rgba(79,124,255,0.1);
+  background: transparent;
   border-color: var(--tf-blue);
+  box-shadow: 0 0 0 1px rgba(79,124,255,.2);
 }
 
 .tf-step-check {
@@ -736,7 +739,7 @@
   border-radius: 8px;
   transition: background 0.2s;
 }
-.tf-step-check:hover { background: rgba(255,255,255,0.04); }
+.tf-step-check:hover { background: transparent; border-left: 2px solid var(--accent); padding-left: 4px; }
 .tf-step-check input {
   accent-color: var(--tf-lime);
   cursor: pointer;
@@ -994,7 +997,7 @@
   white-space: nowrap;
   position: relative;
 }
-.tf-mod-tab:hover { color: var(--tf-text); background: rgba(255,255,255,0.04); }
+.tf-mod-tab:hover { color: var(--tf-text); background: transparent; border-color: var(--accent); box-shadow: 0 1px 0 var(--accent); }
 .tf-mod-tab.active[data-tab="budget"] { background: var(--tf-lime);   color: #000; box-shadow: 0 4px 20px rgba(199,240,0,0.3); }
 .tf-mod-tab.active[data-tab="sip"]    { background: var(--tf-blue);   color: #fff; box-shadow: 0 4px 20px rgba(79,124,255,0.35); }
 .tf-mod-tab.active[data-tab="health"] { background: var(--tf-purple); color: #fff; box-shadow: 0 4px 20px rgba(155,93,229,0.35); }
@@ -1076,7 +1079,7 @@
   font-family: 'Space Grotesk', sans-serif;
   line-height: 1.3;
 }
-.budget-cat-btn:hover { background: rgba(199,240,0,0.07); color: var(--tf-text); }
+.budget-cat-btn:hover { background: transparent; color: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 1px rgba(79,124,255,.2); transform: translateY(-1px); }
 .budget-cat-btn.sel {
   background: rgba(199,240,0,0.13);
   border-color: var(--tf-lime);
@@ -1102,7 +1105,7 @@
   transition: all 0.18s ease;
   text-align: center;
 }
-.np-btn:hover { background: rgba(79,124,255,0.1); border-color: var(--tf-blue); }
+.np-btn:hover { background: transparent; border-color: var(--tf-blue); box-shadow: 0 0 0 1px rgba(79,124,255,.2); color: var(--tf-blue); transform: translateY(-1px); }
 .np-btn:active { transform: scale(0.93); }
 .np-btn.np-clr { color: var(--tf-pink); border-color: rgba(255,45,120,0.25); font-size: 13px; }
 .np-btn.np-del { font-size: 15px; }
@@ -1266,7 +1269,7 @@ input[type=range].tf-slider.s-purple::-webkit-slider-thumb { background: var(--t
   transition: all 0.22s ease; text-align: left;
   display: flex; align-items: center; gap: 12px;
 }
-.quiz-opt:hover { background: rgba(155,93,229,0.1); border-color: var(--tf-purple); color: var(--tf-text); transform: translateX(4px); }
+.quiz-opt:hover { background: transparent; border-color: var(--tf-purple); color: var(--tf-text); transform: translateX(4px); box-shadow: 0 0 0 1px rgba(155,93,229,.2); }
 .quiz-opt .ql { width: 24px; height: 24px; border-radius: 50%; background: rgba(155,93,229,0.13); border: 1px solid rgba(155,93,229,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--tf-purple); flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }
 .health-result-col { display: flex; flex-direction: column; gap: 16px; }
 .health-gauge-box {
@@ -1360,3 +1363,61 @@ input[type=range].tf-slider.s-purple::-webkit-slider-thumb { background: var(--t
 .gd-sub  { font-size: 11px; color: var(--tf-dim); margin-top: 2px; }
 .gd-arr  { color: var(--gc, var(--tf-blue)); font-size: 16px; transition: transform 0.3s; flex-shrink: 0; }
 .godeep-card:hover .gd-arr { transform: translateX(4px); }
+
+/* ═══════════════════════════════════════════════════════
+   TRACK FINANCES — LIGHT MODE
+   ═══════════════════════════════════════════════════════ */
+[data-theme="light"] .tf-page {
+  background: var(--bg-main) !important;
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .tf-title {
+  background: linear-gradient(135deg, #0B0D12, #3A4264) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+[data-theme="light"] .suite-card {
+  background: #FFFFFF !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+[data-theme="light"] .sc-name { color: #0B0D12 !important; }
+[data-theme="light"] .sc-sub  { color: #4A5068 !important; }
+
+[data-theme="light"] .tf-desc { color: var(--text-secondary) !important; }
+[data-theme="light"] .tf-divider-label { color: #B0B8D0 !important; }
+[data-theme="light"] .tf-eyebrow-text  { color: #4F7CFF !important; }
+
+[data-theme="light"] .tf-tab,
+[data-theme="light"] .tf-mod-tab {
+  background: rgba(0,0,0,0.04) !important;
+  color: var(--text-secondary) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+[data-theme="light"] .tf-mod-tab.active {
+  color: #fff !important;
+}
+
+[data-theme="light"] .tf-step-row,
+[data-theme="light"] .tf-vital-row,
+[data-theme="light"] .tf-module {
+  background: #FFFFFF !important;
+  border-color: rgba(0,0,0,0.08) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .quiz-opt {
+  background: rgba(0,0,0,0.02) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .budget-cat-btn {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+  color: var(--text-secondary) !important;
+}

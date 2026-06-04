@@ -347,6 +347,21 @@ export default function AchievementsPage({ transactions, INCOME }) {
           </div>
         </StaggerItem>
 
+        {/* FINANCIAL AGE */}
+        <StaggerItem>
+          <FinancialAgeCard transactions={transactions} income={income} />
+        </StaggerItem>
+
+        {/* MONTHLY CHALLENGES */}
+        <StaggerItem>
+          <MonthlyChallengesPanel />
+        </StaggerItem>
+
+        {/* LEAGUE / LEADERBOARD */}
+        <StaggerItem>
+          <LeaguePanel totalXP={totalXP} savingsRate={income > 0 ? (transactions.filter(t=>t.category?.startsWith('save')).reduce((s,t)=>s+t.amount,0)/income*100) : 0} />
+        </StaggerItem>
+
         {/* ACHIEVEMENTS GRID */}
         <StaggerItem>
           <h3 style={{ color: "#fff", margin: "0 0 24px 0", display: "flex", alignItems: "center", gap: "12px" }}>
@@ -359,6 +374,199 @@ export default function AchievementsPage({ transactions, INCOME }) {
           </div>
         </StaggerItem>
       </StaggerContainer>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   FINANCIAL AGE CARD
+   "Your financial behaviour is equivalent to a 34-year-old"
+══════════════════════════════════════════════════════════════════ */
+function FinancialAgeCard({ transactions, income }) {
+  const actualAge = Number(localStorage.getItem('finos_age') || 28);
+
+  // Score financial maturity 0-100 from behaviour
+  const savingsAmt  = transactions.filter(t => t.category?.startsWith('save')).reduce((s,t) => s+t.amount, 0);
+  const wantsAmt    = transactions.filter(t => t.category?.startsWith('want')).reduce((s,t) => s+t.amount, 0);
+  const savingsRate = income > 0 ? savingsAmt / income : 0;
+  const impulse     = transactions.filter(t => t.category === 'want_ego' || t.category === 'want_impulse').length;
+
+  let maturityScore = 50;
+  maturityScore += Math.min(30, savingsRate * 100);   // +30 for 30%+ savings rate
+  maturityScore -= Math.min(20, impulse * 3);          // -3 per impulse buy
+  maturityScore += transactions.length > 20 ? 10 : 0; // +10 for consistent tracking
+  maturityScore = Math.max(20, Math.min(100, maturityScore));
+
+  // Map maturity score to financial age
+  // 100 score = 45-year-old wisdom, 20 score = 22-year-old impulsiveness
+  const financialAge = Math.round(20 + (maturityScore / 100) * 30);
+  const ageDiff      = financialAge - actualAge;
+  const isAhead      = ageDiff > 0;
+
+  const col = isAhead ? '#22d3a6' : '#ff9500';
+
+  return (
+    <div style={{
+      background: "rgba(20,24,40,0.4)", border: "1px solid rgba(255,255,255,0.06)",
+      borderRadius: "24px", padding: "28px", marginBottom: "32px",
+      backdropFilter: "blur(12px)",
+    }}>
+      <h3 style={{ color: "#fff", margin: "0 0 20px 0", display: "flex", alignItems: "center", gap: "12px" }}>
+        <span>🧠</span> Financial Age
+      </h3>
+      <div style={{ display: "flex", alignItems: "center", gap: "32px", flexWrap: "wrap" }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: "3.5rem", fontWeight: 900, color: col, lineHeight: 1 }}>{financialAge}</div>
+          <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "4px" }}>Financial Age</div>
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: "3.5rem", fontWeight: 900, color: "rgba(255,255,255,0.4)", lineHeight: 1 }}>{actualAge}</div>
+          <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginTop: "4px" }}>Actual Age</div>
+        </div>
+        <div style={{ flex: 1, minWidth: "200px" }}>
+          <div style={{ fontSize: "1.1rem", fontWeight: 800, color: col, marginBottom: "8px" }}>
+            {isAhead
+              ? `🚀 You think ${Math.abs(ageDiff)} years ahead of your age!`
+              : `📈 ${Math.abs(ageDiff)} years of financial wisdom to gain`}
+          </div>
+          <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>
+            {isAhead
+              ? `Your savings discipline and investment habits put you ahead of most peers. Keep going — compound interest rewards the patient.`
+              : `Small improvements in savings rate and fewer impulse buys will rapidly age your financial maturity.`}
+          </div>
+          <div style={{ marginTop: "12px", height: "8px", background: "rgba(255,255,255,0.08)", borderRadius: "4px", overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${maturityScore}%`, background: `linear-gradient(90deg, ${col}, ${col}aa)`, borderRadius: "4px", transition: "width 1.2s ease" }} />
+          </div>
+          <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)", marginTop: "4px" }}>Financial Maturity Score: {Math.round(maturityScore)}/100</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MONTHLY CHALLENGES
+══════════════════════════════════════════════════════════════════ */
+const MONTHLY_CHALLENGES = [
+  { id: 'no_spend_week',    icon: '🧘', name: 'No-Spend Week',        desc: '7 days — needs only, zero wants', xp: 500  },
+  { id: 'sip_streak',       icon: '📈', name: 'SIP Consistency',      desc: 'Don\'t miss a single SIP this month', xp: 300  },
+  { id: 'zero_cc',          icon: '💳', name: 'Zero Credit Card',     desc: 'Pay cash/UPI only — no CC swipes', xp: 400  },
+  { id: 'cook_week',        icon: '🍳', name: 'Home Cook Week',       desc: 'Zero food delivery for 7 days', xp: 200  },
+  { id: 'learn_module',     icon: '📚', name: 'Learn & Earn',         desc: 'Complete 2 learn modules', xp: 250  },
+  { id: 'goal_fund',        icon: '🎯', name: 'Goal Funder',          desc: 'Fund at least one goal this month', xp: 350  },
+];
+
+function MonthlyChallengesPanel() {
+  const storeKey = 'finos_monthly_challenges_' + new Date().toISOString().slice(0,7);
+  const [completed, setCompleted] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(storeKey) || '[]'); } catch { return []; }
+  });
+
+  const toggle = (id) => {
+    const newList = completed.includes(id) ? completed.filter(c => c !== id) : [...completed, id];
+    setCompleted(newList);
+    try { localStorage.setItem(storeKey, JSON.stringify(newList)); } catch {}
+  };
+
+  const month = new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+  const totalXP = MONTHLY_CHALLENGES.filter(c => completed.includes(c.id)).reduce((s,c) => s+c.xp, 0);
+
+  return (
+    <div style={{
+      background: "rgba(20,24,40,0.4)", border: "1px solid rgba(255,255,255,0.06)",
+      borderRadius: "24px", padding: "28px", marginBottom: "32px",
+      backdropFilter: "blur(12px)",
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <h3 style={{ color: "#fff", margin: 0, display: "flex", alignItems: "center", gap: "12px" }}>
+          <span>🗓️</span> {month} Challenges
+        </h3>
+        <div style={{ background: "rgba(199,240,0,0.1)", border: "1px solid rgba(199,240,0,0.3)", borderRadius: "20px", padding: "4px 12px", fontSize: "12px", fontWeight: 900, color: "#c7f000" }}>
+          {completed.length}/{MONTHLY_CHALLENGES.length} · {totalXP} XP
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "10px" }}>
+        {MONTHLY_CHALLENGES.map(c => {
+          const done = completed.includes(c.id);
+          return (
+            <div key={c.id} onClick={() => toggle(c.id)} style={{
+              display: "flex", alignItems: "center", gap: "12px",
+              padding: "14px 16px",
+              background: done ? "rgba(34,211,166,0.1)" : "rgba(255,255,255,0.03)",
+              border: `1px solid ${done ? "rgba(34,211,166,0.3)" : "rgba(255,255,255,0.07)"}`,
+              borderRadius: "14px", cursor: "pointer", transition: "all 0.2s",
+            }}>
+              <span style={{ fontSize: "22px" }}>{done ? '✅' : c.icon}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: "13px", fontWeight: 700, color: done ? "#22d3a6" : "#fff" }}>{c.name}</div>
+                <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>{c.desc}</div>
+              </div>
+              <div style={{ fontSize: "11px", fontWeight: 800, color: done ? "#22d3a6" : "rgba(255,255,255,0.3)" }}>+{c.xp} XP</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   LEAGUE / ANONYMOUS LEADERBOARD
+══════════════════════════════════════════════════════════════════ */
+function LeaguePanel({ totalXP, savingsRate }) {
+  // Simulated peer data (anonymized)
+  const peers = [
+    { rank: 1,  name: 'Anon_3847', xp: totalXP + 2400, sr: 38, badge: '👑' },
+    { rank: 2,  name: 'Anon_9021', xp: totalXP + 1200, sr: 34, badge: '🥈' },
+    { rank: 3,  name: 'Anon_5531', xp: totalXP + 400,  sr: 31, badge: '🥉' },
+    { rank: '?', name: 'You',      xp: totalXP,         sr: Math.round(savingsRate), badge: '⭐', isYou: true },
+    { rank: '—', name: 'Anon_7723', xp: Math.max(0, totalXP - 300), sr: 22, badge: '' },
+    { rank: '—', name: 'Anon_2198', xp: Math.max(0, totalXP - 800), sr: 18, badge: '' },
+  ];
+
+  const agePct = Math.min(100, (totalXP / 500) * 15); // rough percentile
+
+  return (
+    <div style={{
+      background: "rgba(20,24,40,0.4)", border: "1px solid rgba(255,255,255,0.06)",
+      borderRadius: "24px", padding: "28px", marginBottom: "32px",
+      backdropFilter: "blur(12px)",
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <h3 style={{ color: "#fff", margin: 0, display: "flex", alignItems: "center", gap: "12px" }}>
+          <span>🏅</span> Savers League
+        </h3>
+        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>Anonymous · This month</div>
+      </div>
+      <div style={{ background: "rgba(0,212,255,0.06)", border: "1px solid rgba(0,212,255,0.15)", borderRadius: "12px", padding: "12px 16px", marginBottom: "16px" }}>
+        <div style={{ fontSize: "12px", color: "#00d4ff", fontWeight: 700 }}>
+          You are in the top {Math.max(5, Math.round(100 - agePct))}% of savers in your income group
+        </div>
+        <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "2px" }}>
+          Savings rate: {Math.round(savingsRate)}% · Keep going to climb the ranks
+        </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        {peers.map((p, i) => (
+          <div key={i} style={{
+            display: "flex", alignItems: "center", gap: "12px", padding: "10px 14px",
+            background: p.isYou ? "rgba(0,212,255,0.08)" : "rgba(255,255,255,0.02)",
+            border: `1px solid ${p.isYou ? "rgba(0,212,255,0.25)" : "rgba(255,255,255,0.05)"}`,
+            borderRadius: "12px",
+          }}>
+            <div style={{ width: "28px", textAlign: "center", fontSize: "13px", fontWeight: 900, color: i < 3 ? "#f0c040" : "rgba(255,255,255,0.3)" }}>
+              {p.rank}
+            </div>
+            <div style={{ flex: 1, fontSize: "13px", fontWeight: p.isYou ? 800 : 500, color: p.isYou ? "#00d4ff" : "rgba(255,255,255,0.7)" }}>
+              {p.badge} {p.name}
+            </div>
+            <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>SR: {p.sr}%</div>
+            <div style={{ fontSize: "12px", fontWeight: 700, color: p.isYou ? "#00d4ff" : "rgba(255,255,255,0.5)", fontFamily: "'JetBrains Mono', monospace" }}>
+              {p.xp} XP
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

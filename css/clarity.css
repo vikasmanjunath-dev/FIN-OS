@@ -130,7 +130,7 @@
 .terminal-text { font-family: 'JetBrains Mono'; color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 8px; }
 .terminal-text.highlight { color: var(--accent); animation: blink 1s infinite; }
 .next-module-btn { display: inline-block; margin-top: 30px; padding: 16px 32px; background: #fff; color: #000; border-radius: 100px; text-decoration: none; font-weight: 800; transition: all 0.3s; }
-.next-module-btn:hover { background: var(--accent); box-shadow: 0 0 30px var(--accent); }
+.next-module-btn:hover { background: transparent; filter: brightness(1.1); box-shadow: 0 0 30px var(--accent), 0 8px 28px rgba(79,124,255,.3); transform: translateY(-2px); }
 
 /* MOBILE */
 @media (max-width: 900px) {
@@ -249,9 +249,10 @@
 
 /* New Hover Effect (Keeps line aligned) */
 .ladder-step:hover {
-  background: rgba(255,255,255,0.05);
-  border-color: rgba(255,255,255,0.2);
-  transform: scale(1.01); /* Subtle grow instead of shift */
+  background: transparent;
+  border-color: rgba(79,124,255,.22);
+  transform: scale(1.01);
+  box-shadow: 0 0 0 1px rgba(79,124,255,.1);
 }
 
 /* Header Design - Tweaked for alignment */

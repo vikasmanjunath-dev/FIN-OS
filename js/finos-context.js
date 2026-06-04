@@ -15,12 +15,16 @@
 (function FinosContext() {
   'use strict';
 
-  /* ── Config ──────────────────────────────────────────────────────────── */
-  const SESSION_KEY    = 'FINOS_USER_CONTEXT';   // sessionStorage key
-  const DB_CACHE_KEY   = 'FINOS_DB_PROFILE';     // localStorage cache of last Supabase fetch
-  const REFRESH_MS     = 60_000;                 // re-collect page globals every 60s
-  const SUPABASE_URL   = 'https://oeapcyucnduhwpgxfknb.supabase.co';
-  const SUPABASE_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+  /* ── Config — use centralised supabase-config.js when available ─────────── */
+  const SESSION_KEY    = 'FINOS_USER_CONTEXT';
+  const DB_CACHE_KEY   = 'FINOS_DB_PROFILE';
+  const REFRESH_MS     = 60_000;
+  const SUPABASE_URL   = (window.FINOS_SB && window.FINOS_SB.url)
+    ? window.FINOS_SB.url
+    : 'https://oeapcyucnduhwpgxfknb.supabase.co';
+  const SUPABASE_KEY   = (window.FINOS_SB && window.FINOS_SB.key)
+    ? window.FINOS_SB.key
+    : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
 
   /* ── Helpers ──────────────────────────────────────────────────────────── */
   function safeJson(key, fallback) {
@@ -122,7 +126,7 @@
       const fire_number      = monthly_expenses * 12 * 25; // 4% SWR
       const fire_years       = monthly_savings > 0
         ? +((Math.log(fire_number / (monthly_savings * 12) + 1)
-             / Math.log(1.12)).toFixed(1))
+             / Math.log(1.07)).toFixed(1))
         : null;
 
       return {
@@ -448,13 +452,13 @@
       }
 
       /* Fetch transactions / goals / holdings */
-      await _fetchFinancialRecords(client, user.id, ctx).catch(() => {});
+      await _fetchFinancialRecords(client, user.id, ctx).catch(e => console.debug('[FIN-OS Context] Records fetch:', e.message));
 
       /* Fetch Financial Health Score summary from alert engine */
-      await _fetchHealthScore(user.id, ctx).catch(() => {});
+      await _fetchHealthScore(user.id, ctx).catch(e => console.debug('[FIN-OS Context] Health score fetch:', e.message));
 
       /* Fetch top news headlines (high-impact only) */
-      await _fetchNewsHeadlines(ctx).catch(() => {});
+      await _fetchNewsHeadlines(ctx).catch(e => console.debug('[FIN-OS Context] News fetch:', e.message));
 
     } catch (err) {
       // Non-fatal — page may not have Supabase loaded
@@ -595,9 +599,15 @@
   publish(partialCtx);
 
   // Phase 2 — async Supabase enrichment (runs in background, doesn't block page)
-  enrichFromSupabase(partialCtx).then(fullCtx => {
-    publish(fullCtx);
-  });
+  let _enriching = false;
+  function _runEnrichment(ctx) {
+    if (_enriching) return;
+    _enriching = true;
+    enrichFromSupabase(ctx).then(fullCtx => {
+      publish(fullCtx);
+    }).finally(() => { _enriching = false; });
+  }
+  _runEnrichment(partialCtx);
 
   // Periodic refresh — re-reads page globals in case financial data changed
   setInterval(() => {

@@ -10,7 +10,19 @@
   if (window._mobNavInit) return;
   window._mobNavInit = true;
 
-  // Only activate on mobile viewports
+  /* ── Inject ARIA roles onto sidebar nav + main ──────────────── */
+  var sidebarNav = document.querySelector('.sidebar nav');
+  if (sidebarNav && !sidebarNav.getAttribute('aria-label')) {
+    sidebarNav.setAttribute('role', 'navigation');
+    sidebarNav.setAttribute('aria-label', 'Main navigation');
+  }
+  var mainContent = document.querySelector('.main, main, .page');
+  if (mainContent) {
+    if (!mainContent.getAttribute('role')) mainContent.setAttribute('role', 'main');
+    if (!mainContent.id) mainContent.id = 'main-content';
+  }
+
+  // Only activate mobile topbar on small viewports
   if (window.innerWidth > 900) return;
 
   /* ── Inject styles ─────────────────────────────────────────── */

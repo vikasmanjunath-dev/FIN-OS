@@ -5,6 +5,7 @@
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
   <meta charset="UTF-8">
+  <meta name="description" content="FIN•OS — Your AI-powered Financial Operating System for Indian investors.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,12 +14,17 @@
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
   <title>FIN•OS | Equity Masterclass</title>
-  
-  <script src="../js/theme-init.js"></script>
-  <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/design-tokens.css">
+<link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/equitydetail.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta property="og:site_name" content="FIN•OS">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/assets/icons/icon-512.svg">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@finos_app">
+  <link rel="stylesheet" href="../css/interactions.css">
 </head>
 <body>
 
@@ -371,11 +377,12 @@
     </main>
   </div>
 
-  <script src="../js/ui.js"></script>
+  <script src="../js/ui.js" defer></script>
   <script src="../js/equitydetail.js"></script>
-  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
   <script src="../js/finos-widget.js?v=4"></script>
   <script src="../js/finos-search.js?v=2"></script>
+  <script src="../js/interactions.js" defer></script>
 </body>
 </html>

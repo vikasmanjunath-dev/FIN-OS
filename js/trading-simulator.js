@@ -128,7 +128,9 @@ const WHY_DATA = {
 };
 
 // ─── GENERATE CANDLE DATA ─────────────────────────────────────────
+const _candleCache = {};
 function generateCandles(scenario) {
+    if (_candleCache[scenario]) return _candleCache[scenario];
     const scen = SCENARIOS[scenario];
     const candles = [];
     const start = new Date('2024-01-15T09:15:00+05:30');
@@ -165,6 +167,7 @@ function generateCandles(scenario) {
         });
         price = close;
     }
+    _candleCache[scenario] = candles;
     return candles;
 }
 
@@ -950,7 +953,8 @@ function showEmotionModal(pnl) {
             showAIMentor(`Emotion logged: "${emotion}". ${emotion === 'fomo' ? 'FOMO trades lose 73% of the time according to SEBI data.' : emotion === 'revenge' ? 'Revenge trading is the fastest way to blow up your account.' : emotion === 'calm' ? 'Trading calm = best outcomes. You are building discipline.' : ''}`);
         });
     });
-    setTimeout(() => overlay?.remove(), 15000);
+    const _emotionTimer = setTimeout(() => overlay?.remove(), 15000);
+    window.addEventListener('beforeunload', () => clearTimeout(_emotionTimer), { once: true });
 }
 
 // ╔══════════════════════════════════════════════════════════════════╗
@@ -1284,7 +1288,7 @@ function saveSimSession() {
     const existing = JSON.parse(localStorage.getItem('finos_sim_sessions') || '[]');
     // Replace last entry if same session (same ts within 60s) else push
     const lastEntry = existing[existing.length - 1];
-    if (lastEntry && (session.ts - lastEntry.ts) < 60000 && lastEntry.scenario === session.scenario) {
+    if (lastEntry && (session.ts - lastEntry.ts) <= 60000 && lastEntry.scenario === session.scenario) {
         existing[existing.length - 1] = session;
     } else {
         existing.push(session);

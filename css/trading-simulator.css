@@ -77,7 +77,9 @@ body {
 
 .tf-btn:hover {
     color: white;
-    background: rgba(255, 255, 255, 0.05);
+    background: transparent;
+    border-color: rgba(255,255,255,.25);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.1);
 }
 
 .tf-btn.active {
@@ -173,8 +175,9 @@ body {
 }
 
 .qty-ctrl:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: transparent;
+    border-color: rgba(255,255,255,.3);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.12);
 }
 
 /* Watchlist item */
@@ -190,7 +193,9 @@ body {
 }
 
 .wl-item:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: transparent;
+    border-color: rgba(255,255,255,.12);
+    transform: translateX(2px);
 }
 
 .wl-item.active {
@@ -265,7 +270,10 @@ body {
 }
 
 .sim-table .action-exit:hover {
-    background: rgba(224, 82, 96, 0.2);
+    background: transparent;
+    border-color: rgba(224,82,96,.5);
+    color: rgba(224,82,96,1);
+    box-shadow: 0 0 0 1px rgba(224,82,96,.25);
 }
 
 /* WHY tooltip */
@@ -700,8 +708,10 @@ body.safety-off #safetyToggle span {
 }
 
 .glossary-term:hover {
-    background: rgba(251, 191, 36, 0.08);
+    background: transparent;
     border-radius: 2px;
+    box-shadow: 0 1px 0 rgba(251,191,36,.5);
+    color: rgba(251,191,36,.9);
 }
 
 .glossary-entry {

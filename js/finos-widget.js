@@ -332,6 +332,7 @@
   function closeWidget() {
     if (!isOpen) return;
     isOpen = false;
+    clearInterval(_ctxTimer);
 
     backdrop.classList.remove('visible');
     popup.classList.remove('open');

@@ -12,7 +12,8 @@
 (function (global) {
   'use strict';
 
-  const ALERT_ENGINE = 'http://localhost:8001';
+  const ALERT_ENGINE = (['localhost','127.0.0.1','::1'].includes(window.location.hostname)) ? 'http://localhost:8001' : null;
+  // Skip API calls when running on production (no local server)
 
   const TIER_COLOR = {
     ELITE:  '#f0c040',
@@ -83,7 +84,8 @@
       <div id="_hs_stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>`;
 
     try {
-      const res  = await fetch(`${ALERT_ENGINE}/health-score/${userId}/history?days=90`);
+      const res  = if (!ALERT_ENGINE) return;
+      await fetch(`${ALERT_ENGINE}/health-score/${userId}/history?days=90`);
       if (!res.ok) throw new Error('offline');
       const data = await res.json();
       const series = data.series || [];

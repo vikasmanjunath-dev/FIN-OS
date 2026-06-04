@@ -66,10 +66,10 @@
 }
 
 .dna-option:hover {
-  background: rgba(79, 124, 255, 0.1);
+  background: transparent;
   border-color: var(--neon-blue);
   transform: translateX(10px);
-  box-shadow: -10px 0 30px rgba(79, 124, 255, 0.2);
+  box-shadow: 0 0 0 1px rgba(79,124,255,.25), -10px 0 30px rgba(79,124,255,.15);
 }
 
 /* PROGRESS BAR */
@@ -146,8 +146,9 @@
 }
 
 [data-theme="light"] .dna-option:hover {
-  background: rgba(79, 124, 255, 0.05); /* Light blue hover */
+  background: transparent;
   border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(79,124,255,.15);
 }
 
 /* THEME BUTTON SHAPE: Right-side, rounded square like Profile */

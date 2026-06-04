@@ -5,6 +5,7 @@
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
   <meta charset="UTF-8" />
+  <meta name="description" content="Track your income, expenses and savings — your complete money flow at a glance.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,19 +14,21 @@
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
   <title>FIN•OS | Track Finances</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+<link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
   <link rel="stylesheet" href="../css/theme.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/finos-context.js"></script>
-  <script src="../js/arya-ai.js"></script>
-  <script src="../js/finos-personalization.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-context.js" defer></script>
+  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/arya-memory.js" defer></script>
+  <script src="../js/arya-life-events.js" defer></script>
+  <script src="../js/finos-personalization.js" defer></script>
   <style>
     /* ── BASE ── */
     .tf-page {
-      background: #06080e;
+      background: var(--bg-main);
       position: relative;
       overflow-x: hidden;
       min-height: 100vh;
@@ -144,7 +147,7 @@
       flex-direction: column;
       padding: 28px 26px 24px;
       background: linear-gradient(145deg, #0d1020, #0a0d18);
-      border: 1px solid rgba(255,255,255,.06);
+      border: 1px solid var(--border-soft);
       border-radius: 20px;
       text-decoration: none;
       position: relative;
@@ -157,6 +160,7 @@
     .suite-card:nth-child(2) { animation: fadeUp .6s .45s ease forwards; }
     .suite-card:nth-child(3) { animation: fadeUp .6s .55s ease forwards; }
     .suite-card:nth-child(4) { animation: fadeUp .6s .65s ease forwards; }
+    .suite-card:nth-child(5) { animation: fadeUp .6s .75s ease forwards; }
 
     /* glow layer */
     .suite-card::before {
@@ -217,7 +221,7 @@
       position: relative;
       width: 56px; height: 56px;
       border-radius: 15px;
-      border: 1px solid rgba(255,255,255,.08);
+      border: 1px solid var(--border-soft);
       display: flex; align-items: center; justify-content: center;
       font-size: 26px;
       flex-shrink: 0;
@@ -297,8 +301,8 @@
       letter-spacing: .05em;
       padding: 5px 10px;
       border-radius: 7px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.09);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-soft);
       color: rgba(255,255,255,.4);
       transition: background .25s, border-color .25s, color .25s;
       white-space: nowrap;
@@ -316,26 +320,118 @@
       .tf-wrap { padding: 44px 20px 64px; }
     }
   </style>
+  <meta property="og:site_name" content="FIN•OS">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/assets/icons/icon-512.svg">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@finos_app">
+  <link rel="stylesheet" href="../css/interactions.css">
 </head>
 <body>
 <div class="app">
 
   <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="logo">FIN•OS</div>
-    <nav>
-      <a href="profile.html"><span class="user-symbol">👤</span> Profile</a>
-      <a href="home.html">Home</a>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="foundations.html">Foundations</a>
-      <a href="diagnostics.html">Diagnostics</a>
-      <a href="track-finances.html" class="active">Track Finances</a>
-      <a href="financial-hub.html">⚡ Command Hub</a>
-      <a href="../stock-dashboard/index.html">Live Tracker</a>
-      <a href="simulator-landing.html">Train Mindset</a>
-      <a href="news.html">News</a>
-      <a href="settings.html">Settings</a>
+          <aside class="sidebar" role="complementary" aria-label="Navigation">
+
+    <!-- Brand -->
+    <div class="sb-brand">
+      <div class="sb-logomark" aria-hidden="true">
+        <span class="sb-logomark-letter">F</span>
+      </div>
+      <div class="sb-wordmark">
+        <div class="sb-wordmark-name">FIN•OS</div>
+        <div class="sb-wordmark-tag">Financial OS</div>
+      </div>
+    </div>
+
+    <!-- Identity -->
+    <a href="profile.html" class="sb-identity" aria-label="Your profile">
+      <div class="sb-av" id="sb-av" aria-hidden="true">I</div>
+      <div class="sb-identity-body">
+        <div class="sb-identity-name" id="sb-name">Investor</div>
+        <div class="sb-identity-meta">
+          <span class="sb-identity-dna"  id="sb-dna">Financial DNA</span>
+          <span class="sb-health-pill"   id="sb-health-pill"></span>
+        </div>
+      </div>
+      <span class="sb-identity-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </a>
+
+    <!-- Search shortcut -->
+    <button class="sb-cmd" id="sb-cmd" aria-label="Search (Ctrl+K)">
+      <span class="sb-cmd-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="sb-cmd-label">Search or jump to…</span>
+      <kbd class="sb-cmd-kbd" aria-hidden="true">⌘K</kbd>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="sb-nav" aria-label="Main">
+        <a href="home.html" class="sb-link" title="Home">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+          <span class="sb-label">Home</span>
+        </a>
+        <a href="dashboard.html" class="sb-link" title="Dashboard">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>
+          <span class="sb-label">Dashboard</span>
+          <span class="sb-badge" id="sb-streak" aria-label="count"></span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="foundations.html" class="sb-link" title="Learn">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+          <span class="sb-label">Learn</span>
+        </a>
+        <a href="simulator-landing.html" class="sb-link" title="Mindset">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span>
+          <span class="sb-label">Mindset</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="diagnostics.html" class="sb-link" title="Diagnostics">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          <span class="sb-label">Diagnostics</span>
+        </a>
+        <a href="track-finances.html" class="sb-link active" aria-current="page" title="Track">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+          <span class="sb-label">Track</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="markets.html" class="sb-link" title="Markets">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+          <span class="sb-label">Markets</span>
+        </a>
+        <a href="tools.html" class="sb-link" title="Tools">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+          <span class="sb-label">Tools</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="news.html" class="sb-link" title="News">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span>
+          <span class="sb-label">News</span>
+        </a>
     </nav>
+
+    <!-- Footer: Arya AI + Settings -->
+    <div class="sb-footer-zone">
+
+      <button class="sb-arya-row" id="sb-arya-btn"
+              aria-label="Arya AI — your financial coach"
+              onclick="document.querySelector('.finos-fab')?.click?.();">
+        <div class="sb-arya-icon" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span class="sb-arya-dot checking" id="sb-arya-dot"></span>
+        </div>
+        <div class="sb-arya-body">
+          <div class="sb-arya-name">Arya AI</div>
+          <div class="sb-arya-status checking" id="sb-arya-status">Connecting…</div>
+        </div>
+        <span class="sb-arya-arrow" aria-hidden="true">›</span>
+      </button>
+
+      <a href="settings.html" class="sb-settings-row" title="Settings">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        <span class="sb-label">Settings</span>
+      </a>
+
+    </div>
   </aside>
 
   <!-- MAIN -->
@@ -343,6 +439,80 @@
     <canvas id="tf-stars"></canvas>
 
     <div class="tf-wrap">
+
+      <!-- ══════════════════════════════════════════════════════════
+           COMMAND HUB — Full old-dashboard panel
+           Arya Brief · Nudges · Insights · Health · Peer Benchmark
+      ══════════════════════════════════════════════════════════ -->
+      <div id="tf-command-hub" style="
+        background:rgba(255,255,255,.03);
+        border:1px solid rgba(199,240,0,.18);
+        border-top:3px solid #c7f000;
+        border-radius:20px;
+        margin-bottom:36px;
+        overflow:hidden;
+      ">
+        <!-- Hub Header / Toggle -->
+        <div onclick="toggleTFHub()" style="
+          display:flex;align-items:center;gap:12px;
+          padding:16px 22px;cursor:pointer;
+          background:rgba(199,240,0,.05);
+          border-bottom:1px solid rgba(199,240,0,.12);
+          user-select:none;">
+          <span style="font-size:22px;">🧠</span>
+          <div style="flex:1;">
+            <div style="font-size:.95rem;font-weight:800;color:#c7f000;">Command Hub</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.4);">Your financial brain — Arya brief, smart nudges, insights, health score</div>
+          </div>
+          <span id="tfHubChevron" style="color:#c7f000;font-size:14px;transition:transform .3s;">▼</span>
+        </div>
+
+        <!-- Hub Body -->
+        <div id="tfHubBody" style="padding:20px 22px;">
+
+          <!-- Arya Morning Brief -->
+          <div id="tf-arya-brief-anchor" style="margin-bottom:18px;"></div>
+
+          <!-- Nudges row -->
+          <div id="tf-nudges" style="margin-bottom:18px;"></div>
+
+          <!-- Health Score + Peer Benchmark + Savings Rate row -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:18px;" id="tf-metrics-row">
+            <!-- Net Worth -->
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;text-align:center;">
+              <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">Net Worth</div>
+              <div style="font-size:1.4rem;font-weight:900;" id="tf-nw-val">—</div>
+            </div>
+            <!-- Health Score -->
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;text-align:center;">
+              <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">Health Score</div>
+              <div style="font-size:1.4rem;font-weight:900;" id="tf-hs-val">—</div>
+            </div>
+            <!-- Savings Rate -->
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;text-align:center;">
+              <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">Savings Rate</div>
+              <div style="font-size:1.4rem;font-weight:900;" id="tf-sr-val">—</div>
+            </div>
+            <!-- FIRE Progress -->
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;text-align:center;">
+              <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">FIRE Progress</div>
+              <div style="font-size:1.4rem;font-weight:900;" id="tf-fire-val">—</div>
+            </div>
+          </div>
+
+          <!-- Adaptive Insights -->
+          <div style="margin-bottom:4px;">
+            <div style="font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:10px;">✨ Today's Insights for You</div>
+            <div id="tf-adaptive-insights" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;">
+              <div style="height:80px;background:rgba(255,255,255,.04);border-radius:12px;animation:sk-pulse 1.5s infinite;"></div>
+              <div style="height:80px;background:rgba(255,255,255,.04);border-radius:12px;animation:sk-pulse 1.5s infinite;"></div>
+              <div style="height:80px;background:rgba(255,255,255,.04);border-radius:12px;animation:sk-pulse 1.5s infinite;"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- ═══════════════════ END COMMAND HUB ═══════════════════════ -->
 
       <!-- EYEBROW -->
       <div class="tf-eyebrow">
@@ -417,7 +587,7 @@
         </a>
 
         <!-- PORTFOLIO X-RAY -->
-        <a class="suite-card" href="../Porfolio Analyser/portfolio-analyser-v10.html"
+        <a id="portfolio-xray" class="suite-card" href="../Porfolio Analyser/portfolio-analyser-v10.html"
            style="--cc:#9b5de5;--cr:155,93,229">
           <div class="sc-top">
             <div class="sc-icon-wrap">
@@ -460,6 +630,30 @@
             <span class="sc-tag">Psychology Hub</span>
             <span class="sc-tag">Bias Scanner</span>
             <span class="sc-tag">Analytics</span>
+          </div>
+        </a>
+
+        <!-- COMMAND HUB -->
+        <a class="suite-card" href="financial-hub.html"
+           style="--cc:#00d4ff;--cr:0,212,255; grid-column: 1 / -1;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              ⚡
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">05</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Command Hub</div>
+          <div class="sc-sub">Your intelligent gateway to every financial tool — income planning, budget simulation, debt payoff, and AI-powered auto-fill from documents. One place to orchestrate it all.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Income Planner</span>
+            <span class="sc-tag">Budget Sim</span>
+            <span class="sc-tag">Debt Payoff</span>
+            <span class="sc-tag">AI Auto-Fill</span>
+            <span class="sc-tag">All Tools</span>
           </div>
         </a>
 
@@ -643,8 +837,9 @@ function docaiShowResults(data) {
       style="width:100%;padding:14px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;
       background:linear-gradient(135deg,rgba(0,212,255,.15),rgba(0,255,136,.1));
       border:1px solid rgba(0,212,255,.3);color:#00d4ff;transition:all .2s;"
-      onmouseover="this.style.background='linear-gradient(135deg,rgba(0,212,255,.25),rgba(0,255,136,.2))'"
-      onmouseout="this.style.background='linear-gradient(135deg,rgba(0,212,255,.15),rgba(0,255,136,.1))'"
+      
+      onmouseover="this.style.borderColor='rgba(0,212,255,.6)';this.style.boxShadow='0 0 0 1px rgba(0,212,255,.2)'"
+      onmouseout="this.style.borderColor='rgba(0,212,255,.3)';this.style.boxShadow=''"
     >
       ⚡ Auto-Fill ${Object.keys(prof).length} Dashboard Fields
     </button>`;
@@ -773,21 +968,27 @@ function checkExpenseEngine(e) {
   init(); frame();
 })();
 </script>
-<script src="../js/mobile-nav.js"></script>
+<script src="../js/ui.js" defer></script>
+  <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
 
 <style>
 #floatThemeBtn {
   position: fixed; top: 14px; right: 18px; z-index: 9999;
   width: 36px; height: 36px; border-radius: 10px;
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  background: var(--bg-surface); border: 1px solid var(--border-soft);
   color: #fff; font-size: 16px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: background .2s, transform .2s;
   backdrop-filter: blur(10px);
 }
-#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
-</style>
+#floatThemeBtn:hover { background: transparent; transform: scale(1.08); }
+
+
+/* ── Light mode text overrides (auto-generated) ── */
+[data-theme="light"] #floatThemeBtn {
+  color: var(--text-primary) !important;
+}</style>
 <button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
 <script>
 (function(){
@@ -831,15 +1032,134 @@ function checkExpenseEngine(e) {
 [data-theme="light"] #tf-stars { opacity: 0.04 !important; }
 </style>
 
-  <script src="../js/finos-widget.js?v=4"></script>
+  <script src="../js/finos-widget.js?v=5"></script>
+  <script src="../js/finos-mobile.js" defer></script>
   <script src="../js/finos-search.js?v=2"></script>
-  <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    if (typeof FinosPersona === 'undefined') return;
-    FinosPersona.injectGreeting({ selector: '.header h1, header h1' });
-    FinosPersona.injectStatusStrip('.header, header');
-    FinosPersona.injectNavBadges();
-  });
-  </script>
+
+<script>
+/* ── Track Finances: FinosPersona injection ───────────────────── */
+document.addEventListener('DOMContentLoaded', function () {
+  if (typeof FinosPersona === 'undefined') return;
+  FinosPersona.injectGreeting({ selector: '.header h1, header h1' });
+  FinosPersona.injectStatusStrip('.header, header');
+  FinosPersona.injectNavBadges();
+});
+
+/* ── Command Hub: toggle collapse ────────────────────────────── */
+window.toggleTFHub = function() {
+  const body    = document.getElementById('tfHubBody');
+  const chevron = document.getElementById('tfHubChevron');
+  const open    = body.style.display !== 'none';
+  body.style.display      = open ? 'none' : 'block';
+  chevron.style.transform = open ? 'rotate(-90deg)' : 'rotate(0deg)';
+  localStorage.setItem('finos_tfhub_open', open ? '0' : '1');
+};
+
+// Restore collapse state
+(function() {
+  const saved = localStorage.getItem('finos_tfhub_open');
+  if (saved === '0') {
+    const body    = document.getElementById('tfHubBody');
+    const chevron = document.getElementById('tfHubChevron');
+    if (body)    body.style.display      = 'none';
+    if (chevron) chevron.style.transform = 'rotate(-90deg)';
+  }
+})();
+
+/* ── INR helper ───────────────────────────────────────────────── */
+function tfINR(n) {
+  const num = Number(n)||0;
+  if (num >= 1e7) return '₹' + (num/1e7).toFixed(1) + 'Cr';
+  if (num >= 1e5) return '₹' + (num/1e5).toFixed(1) + 'L';
+  if (num >= 1e3) return '₹' + Math.round(num/1e3) + 'K';
+  return '₹' + Math.round(num).toLocaleString('en-IN');
+}
+
+/* ── Command Hub: fill content on context ready ───────────────── */
+window.addEventListener('finos-context-ready', async function fillTFHub(e) {
+  if (e.detail?.phase !== 'full') return;
+  window.removeEventListener('finos-context-ready', fillTFHub);
+
+  const ctx = window.FINOS_USER_CONTEXT;
+  if (!ctx) return;
+
+  // ── 1. Metrics row ────────────────────────────────────────────
+  const nw = Number(ctx?.profile?.net_worth    || localStorage.getItem('finos_net_worth')    || 0);
+  const hs = Number(ctx?.profile?.health_score || localStorage.getItem('finos_health_score') || 0);
+  const sr = Number(ctx?.budget_tracker?.savings_rate || localStorage.getItem('finos_savings_rate') || 0);
+  const fireNum = Number(ctx?.budget_tracker?.fire_number || 0);
+  const firePct = fireNum > 0 ? Math.min(100, (nw / fireNum * 100)).toFixed(1) + '%' : '—';
+  const hsColors = { 90:'#f0c040', 75:'#22d3a6', 60:'#00d4ff', 40:'#ff9500', 0:'#ff4444' };
+  const hsCol = Object.entries(hsColors).reverse().find(([min]) => hs >= Number(min))?.[1] || '#ff4444';
+
+  document.getElementById('tf-nw-val').textContent    = nw ? tfINR(nw) : '—';
+  document.getElementById('tf-nw-val').style.color    = '#22d3a6';
+  document.getElementById('tf-hs-val').textContent    = hs ? hs + '/100' : '—';
+  document.getElementById('tf-hs-val').style.color    = hsCol;
+  document.getElementById('tf-sr-val').textContent    = sr ? sr.toFixed(1) + '%' : '—';
+  document.getElementById('tf-sr-val').style.color    = sr >= 30 ? '#22d3a6' : sr >= 20 ? '#00d4ff' : '#ff9500';
+  document.getElementById('tf-fire-val').textContent  = firePct;
+  document.getElementById('tf-fire-val').style.color  = '#c7f000';
+
+  // ── 2. Arya Morning Brief ─────────────────────────────────────
+  if (window.AryaAI?.dashboardBrief) {
+    const anchor    = document.getElementById('tf-arya-brief-anchor');
+    const name      = ctx?.identity?.name?.split(' ')[0] || 'Investor';
+    const anomalies = [];
+    const tx        = ctx?.financial?.transactions || {};
+    if (tx.top_categories?.length) {
+      tx.top_categories.forEach(c => {
+        const pct = tx.total_expense > 0 ? Math.round(c.amt / tx.total_expense * 100) : 0;
+        if (pct > 30) anomalies.push(`⚠ ${c.cat} = ${pct}% of expenses`);
+      });
+    }
+    (ctx?.financial?.goals || []).filter(g => (g.progress||0) < 25 && g.target_date).forEach(g => {
+      anomalies.push(`⚠ Goal "${g.name}" only ${g.progress||0}% funded`);
+    });
+    let richNote = null;
+    if (typeof FinosPersona !== 'undefined' && FinosPersona.buildRichBriefPrompt) {
+      richNote = FinosPersona.buildRichBriefPrompt(name);
+    }
+    if (anchor) {
+      await AryaAI.dashboardBrief({ name, netWorth: nw, savingsRate: sr, healthScore: hs, anomalies, customNote: richNote }, anchor);
+    }
+  }
+
+  // ── 3. Smart Nudges ───────────────────────────────────────────
+  const nudgeEl = document.getElementById('tf-nudges');
+  if (nudgeEl) {
+    if (typeof FinosPersona !== 'undefined' && FinosPersona.renderNudges) {
+      FinosPersona.renderNudges(nudgeEl);
+    } else {
+      // Inline fallback nudges
+      const nudges = [];
+      const income = Number(ctx?.budget_tracker?.income_monthly || 0);
+      const spent  = Number(ctx?.budget_tracker?.spent_total    || 0);
+      const goals  = ctx?.financial?.goals || [];
+      if (income > 0 && spent > income * 0.85) {
+        nudges.push({ col:'#ff4444', icon:'⚠️', text:`Spending ${Math.round(spent/income*100)}% of income this month — reduce wants to save more.`, link:'track-finances.html' });
+      }
+      const bg = goals.find(g => { const d = g.target_date ? Math.floor((new Date(g.target_date)-Date.now())/86400000) : Infinity; return d > 0 && d < 60 && Number(g.progress||0) < 60; });
+      if (bg) nudges.push({ col:'#ff9500', icon:'🎯', text:`"${bg.name}" goal is behind — ${bg.progress||0}% funded with ${Math.floor((new Date(bg.target_date)-Date.now())/86400000)}d left.`, link:'life-goals-planner.html' });
+      if (sr > 0 && sr < 15) nudges.push({ col:'#00d4ff', icon:'💡', text:`${sr.toFixed(1)}% savings rate — target 30% for financial independence.`, link:'../ExpenseTracker/finos-budget/index.html' });
+      nudgeEl.innerHTML = nudges.map(n => `
+        <div style="display:flex;gap:10px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.03);border-left:3px solid ${n.col};margin-bottom:8px;">
+          <span style="font-size:16px;">${n.icon}</span>
+          <span style="font-size:13px;color:rgba(255,255,255,.78);flex:1;line-height:1.5;">${n.text}</span>
+          <a href="${n.link}" style="font-size:11px;color:${n.col};font-weight:700;text-decoration:none;flex-shrink:0;align-self:center;">Fix →</a>
+        </div>`).join('') || '<div style="font-size:12px;color:rgba(255,255,255,.3);padding:4px 0;">✅ All clear — no urgent actions.</div>';
+    }
+  }
+
+  // ── 4. Adaptive Insights ──────────────────────────────────────
+  const insightEl = document.getElementById('tf-adaptive-insights');
+  if (insightEl && typeof FinosPersona !== 'undefined' && FinosPersona.renderAdaptiveInsights) {
+    FinosPersona.renderAdaptiveInsights(insightEl, 4);
+  }
+});
+</script>
+
+<script src="../js/sidebar.js"></script>
+  <script src="../js/interactions.js" defer></script>
 </body>
 </html>

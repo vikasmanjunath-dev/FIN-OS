@@ -221,10 +221,11 @@
 }
 
 .warp-btn:hover {
-  background: var(--accent-secondary);
-  color: #000;
-  box-shadow: 0 0 50px var(--accent-secondary);
-  transform: scale(1.05);
+  background: transparent;
+  color: var(--accent-secondary);
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 0 1px var(--accent-secondary), 0 0 30px rgba(199,240,0,.3);
+  transform: scale(1.03);
 }
 
 .warp-btn::before {

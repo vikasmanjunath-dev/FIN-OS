@@ -3,7 +3,7 @@
    ========================= */
 
 .os-portal {
-  background: #0B0D12;
+  background: var(--bg-main);
   margin: 0;
   overflow: hidden;
   color: white;
@@ -192,9 +192,10 @@
 }
 
 .btn-google-neo:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: transparent;
+  border-color: rgba(255,255,255,.3);
   transform: translateY(-2px);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.12);
 }
 
 .g-icon {

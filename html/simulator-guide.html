@@ -6,6 +6,7 @@
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
     <meta charset="UTF-8">
+  <meta name="description" content="FIN•OS — Your AI-powered Financial Operating System for Indian investors.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -42,16 +43,20 @@
     </script>
 
     <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap"
-        rel="stylesheet">
-
     <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+      <link rel="stylesheet" href="../css/design-tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../css/simulator-guide.css">
   <link rel="stylesheet" href="../css/theme.css">
+  <meta property="og:site_name" content="FIN•OS">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/assets/icons/icon-512.svg">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@finos_app">
+  <link rel="stylesheet" href="../css/interactions.css">
 </head>
 
 <body class="bg-kbg text-gray-300 font-sans h-screen overflow-hidden flex selection:bg-kblue/30">
@@ -221,21 +226,27 @@
 
     <!-- Custom JS -->
     <script src="../js/simulator-guide.js"></script>
-  <script src="../js/mobile-nav.js"></script>
+  <script src="../js/ui.js" defer></script>
+  <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
 
 <style>
 #floatThemeBtn {
   position: fixed; top: 14px; right: 18px; z-index: 9999;
   width: 36px; height: 36px; border-radius: 10px;
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  background: var(--bg-surface); border: 1px solid var(--border-soft);
   color: #fff; font-size: 16px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: background .2s, transform .2s;
   backdrop-filter: blur(10px);
 }
-#floatThemeBtn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
-</style>
+#floatThemeBtn:hover { background: transparent; transform: scale(1.08); }
+
+
+/* ── Light mode text overrides (auto-generated) ── */
+[data-theme="light"] #floatThemeBtn {
+  color: var(--text-primary) !important;
+}</style>
 <button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
 <script>
 (function(){
@@ -260,19 +271,20 @@
 #floatBackBtn {
   position: fixed; bottom: 22px; left: 82px; z-index: 9999;
   padding: 8px 16px 8px 12px; border-radius: 10px;
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  background: var(--bg-surface); border: 1px solid var(--border-soft);
   color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
   font-size: 11px; font-weight: 600; letter-spacing: .06em;
   cursor: pointer; display: flex; align-items: center; gap: 6px;
   transition: background .2s, color .2s, transform .2s;
   backdrop-filter: blur(10px); text-decoration: none;
 }
-#floatBackBtn:hover { background: rgba(255,255,255,0.10); color: #fff; transform: translateX(-3px); }
+#floatBackBtn:hover { background: transparent; color: var(--text-primary); transform: translateX(-3px); }
 </style>
 <a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 
   <script src="../js/finos-widget.js?v=4"></script>
   <script src="../js/finos-search.js?v=2"></script>
+  <script src="../js/interactions.js" defer></script>
 </body>
 
 </html>

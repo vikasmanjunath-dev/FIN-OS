@@ -1,284 +1,176 @@
-# FIN-OS — The Financial Operating System for India
+# FIN-OS HTML Pages
 
-> **Build clarity. Engineer discipline. Preserve capital.**
----
-
-## 🚀 Vision
-
-To become the **default financial brain** for Indians—helping users move from:
-
-* reactive money behavior ➜ **deliberate financial control**
-* scattered apps ➜ **one unified system**
-* emotional decisions ➜ **data‑backed discipline**
-
-FIN-OS is not a broker, not a tip platform, and not a one‑time planner. It is a **living operating system** that evolves with the user.
+> Version: 1.2 | Date: June 5, 2026  
+> Total: **94 pages** in this folder + `index.html` + `login.html` = **96 pages**
 
 ---
 
-## 🧠 Core Philosophy
+## Page Index
 
-FIN-OS is built on four non‑negotiable principles:
+### Core App
+| File | Purpose |
+|---|---|
+| `home.html` | App hub — navigation center |
+| `dashboard.html` | Main user control panel (KPI row, Arya, Portfolio access) |
+| `profile.html` | User profile and settings |
+| `settings.html` | App settings, theme, notifications, account |
+| `onboarding.html` | 6-step first-time setup wizard |
 
-1. **Capital Preservation First**
-   Growth is meaningless without survival.
+### Finance Tracking
+| File | Purpose |
+|---|---|
+| `track-finances.html` | Complete money tracking hub |
+| `portfolio.html` | Investment portfolio |
+| `budget-forecast.html` | AI budget forecasting |
+| `know-your-finances.html` | Deep financial self-assessment |
+| `financial-report.html` | Comprehensive financial report |
+| `diagnostics.html` | Financial health diagnostics |
+| `tracker.html` | Expense tracker |
 
-2. **Behavior > Products**
-   Fixing mindset compounds faster than switching funds.
+### Markets & Intelligence
+| File | Purpose |
+|---|---|
+| `markets.html` | Market overview |
+| `market-intel.html` | Market intelligence hub |
+| `market-visualizer.html` | Market data visualisations |
+| `news.html` | Financial news feed |
+| `stock-platform.html` | Stock research platform |
+| `mf-intelligence.html` | Mutual fund intelligence |
+| `options-intelligence.html` | Options trading tools |
+| `quantedge.html` | Quantitative analysis |
 
-3. **Contextual India‑First Design**
-   Salaries, EMIs, family obligations, addictions, aspirations—modeled realistically.
+### Education Modules (14)
+| File | Topic |
+|---|---|
+| `finance101.html` | Core financial literacy |
+| `learn-equity.html` | Stocks and indices |
+| `learn-mf.html` | Mutual funds |
+| `learn-fno.html` | Futures & Options |
+| `learn-insurance.html` | Insurance types |
+| `learn-debt.html` | Fixed income |
+| `learn-etf.html` | ETFs |
+| `learn-commodity.html` | Commodities |
+| `learn-crypto.html` | Cryptocurrency |
+| `learn-forex.html` | Forex markets |
+| `learn-analysis.html` | Fundamental analysis |
+| `learn-technical.html` | Technical analysis |
+| `learn-indicators.html` | Market indicators |
+| `learn-fundamental.html` | Financial statements |
+| `learn-metrics.html` | Valuation metrics |
+| `learn-money-market.html` | Money markets |
 
-4. **System Thinking Over Advice**
-   FIN-OS gives frameworks, not opinions.
+### Planning & Goals
+| File | Purpose |
+|---|---|
+| `life-goals-planner.html` | AI-powered life goals |
+| `life-wealth.html` | Life and wealth integration |
+| `financial-being.html` | Financial wellbeing |
+| `roadmap.html` | Personal finance roadmap |
+| `roadmaps.html` | Roadmap selector |
+| `traditional-roadmap.html` | Conservative path |
+| `trader-roadmap.html` | Trading path |
+| `fear-roadmap.html` | Overcoming fear roadmap |
+| `timeline.html` | Financial timeline |
+| `scenarios.html` | What-if scenario modelling |
+| `impact.html` | Financial impact analysis |
+| `impact-detail.html` | Deep impact detail |
+
+### AI & Simulation
+| File | Purpose |
+|---|---|
+| `money-ai.html` | AI money coach |
+| `chat.html` | Text chat interface |
+| `ca-advisor.html` | CA / tax advisor AI |
+| `document-ai.html` | Document analysis AI |
+| `trading-coach.html` | Trading psychology AI |
+| `mindset-sim.html` | Mindset simulator |
+| `mindset-sim-hub.html` | Simulation hub |
+| `simulator.html` | → redirects to trading-simulator.html |
+| `simulator-landing.html` | Simulator entry page |
+| `simulator-guide.html` | Simulation guide |
+| `trading-simulator.html` | Paper trading simulator |
+| `train-mindset.html` | Mindset training |
+
+### Insight Deep-Dives
+| File | Purpose |
+|---|---|
+| `insight-inflation.html` | Inflation impact |
+| `insight-sip.html` | SIP power |
+| `insight-debt.html` | Debt trap analysis |
+| `insight-emi.html` | EMI true cost |
+| `insight-rbi.html` | RBI policy impact |
+| `insight-cards.html` | Insight card library |
+| `insight-debt.html` | Debt insight |
+
+### Detail Pages (asset-specific)
+| File | Asset class |
+|---|---|
+| `equitydetail.html` | Equity deep dive |
+| `mfdetail.html` | Mutual fund detail |
+| `debtdetail.html` | Debt / fixed income |
+| `etfdetail.html` | ETF detail |
+| `cryptodetail.html` | Crypto detail |
+| `commoditydetail.html` | Commodity detail |
+| `forexdetail.html` | Forex detail |
+| `derivativesdetail.html` | Derivatives detail |
+| `moneydetail.html` | Money market detail |
+
+### Tools & Special
+| File | Purpose |
+|---|---|
+| `calculators.html` | Calculator grid (all 88 tools) |
+| `tools.html` | Tools directory |
+| `insurance-directory.html` | Insurance directory |
+| `insurance-hub.html` | Insurance intelligence hub |
+| `couple-finance.html` | Couple financial planning |
+| `real-estate.html` | Real estate tools |
+| `hedgefund.html` | Hedge fund education |
+| `foundations.html` | Financial foundations |
+| `principles.html` | Investing principles |
+| `clarity.html` | Financial clarity module |
+| `decision.html` | Decision support tool |
+| `dna.html` | Financial DNA assessment |
+| `benchmarking.html` | Peer benchmarking |
+| `system-leak.html` | Wealth leak detector |
+| `not-money.html` | → redirects to mindset-sim.html |
+| `tax.html` | Tax planning hub |
 
 ---
 
-## 🧩 What Problem Does FIN-OS Solve?
+## Required Head Template (for all pages)
 
-Despite record demat accounts and digital inclusion:
+```html
+<head>
+  <!-- 1. Anti-FOUC IIFE — MUST be first, before any <link> -->
+  <script>
+    (function(){
+      var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';
+      document.documentElement.setAttribute('data-theme',t);
+    })();
+  </script>
 
-* Functional financial literacy in India remains ~27%
-* Users know *what* to buy but not *why*, *when*, or *how much*
-* Financial apps optimize for transactions, not outcomes
+  <!-- 2. Meta tags -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-FIN-OS addresses the **Resilience Paradox**: access has increased, understanding hasn’t.
-
----
-
-## 🏗️ Architecture Overview
-
-FIN-OS is modular, composable, and API‑first.
-
+  <!-- 3. CSS in this order -->
+  <link rel="stylesheet" href="../css/design-tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/interactions.css">
+  <link rel="stylesheet" href="../css/[page].css">
+</head>
 ```
-User Layer
-├── Profile & Mindset Engine
-├── Know Your Finances (KYF)
-├── Goal & Dependency Mapping
-
-Intelligence Layer
-├── Risk Officer AI
-├── Analyst AI
-├── Behaviour Coach AI
-
-Decision Layer
-├── Budget OS
-├── Investment OS
-├── Trading OS
-├── Emergency OS
-
-Execution Layer
-├── Broker APIs (Kite, etc.)
-├── Bank / Account Sync
-├── Alert & Guardrails
-
-Data Layer
-├── Secure User Vault
-├── Encrypted Logs
-├── Consent‑Driven Storage
-```
 
 ---
 
-## 🔐 Core Modules
-
-### 1️⃣ Know Your Finances (KYF)
-
-A brutally honest financial MRI.
-
-**Inputs captured:**
-
-* Income streams (active + passive)
-* Fixed commitments (rent, EMIs, family support)
-* Variable spending (needs vs wants)
-* Subscriptions (productive & entertainment)
-* Addictions & money leaks (good & bad habits)
-* Savings cadence (weekly / monthly)
-* Investments & assets
-* Dependencies & obligations
-
-**Output:**
-
-* Net Free Cash Flow
-* Stress Score
-* Survival Runway (months)
-* Financial Fragility Index
-
----
-
-### 2️⃣ Profile & Mindset Engine
-
-Money behavior is modeled like a personality system.
-
-Tracks:
-
-* Risk tolerance (claimed vs actual)
-* Loss reaction patterns
-* Overconfidence cycles
-* Discipline decay
-* Decision fatigue
-
-Used by all AIs to **contextualize advice**.
-
----
-
-### 3️⃣ Risk Officer AI 🛡️
-
-Acts as the internal CRO (Chief Risk Officer).
-
-Responsibilities:
-
-* Drawdown control
-* Position sizing limits
-* Overtrading detection
-* Capital exposure alerts
-* Emergency overrides
-
-**Default bias:** Survival > returns.
-
----
-
-### 4️⃣ Analyst AI 📊
-
-Purely rational, data‑driven engine.
-
-Capabilities:
-
-* Fundamental analysis
-* Valuation sanity checks
-* Balance sheet risk flags
-* Sector & macro context
-* Long‑term vs short‑term separation
-
-No hype. No narratives.
-
----
-
-### 5️⃣ Behaviour Coach AI 🧠
-
-The most underrated module.
-
-Functions:
-
-* Detects emotional trades
-* Identifies revenge trading
-* Flags boredom entries
-* Enforces cooldown periods
-* Reinforces good habits
-
-This is where alpha is protected.
-
----
-
-## 📈 Investment OS
-
-Designed for **long‑term wealth creation**.
-
-Features:
-
-* SIP intelligence (pause / increase logic)
-* Asset allocation guardrails
-* Rebalancing signals
-* Goal‑linked portfolios
-* Drawdown‑aware suggestions
-
-No product pushing. Ever.
-
----
-
-## ⚡ Trading OS
-
-Built for serious intraday & swing traders.
-
-Capabilities:
-
-* Intraday lowest price tracking
-* Multi‑timeframe confluence
-* Risk‑reward enforcement
-* Daily loss caps
-* Trade journaling + pattern mining
-
-Trading is treated as a **business**, not a game.
-
----
-
-## 🚨 Emergency OS
-
-Because life happens.
-
-Includes:
-
-* Emergency fund sufficiency check
-* SOS liquidity planning
-* Income shock simulation
-* Forced de‑risking rules
-* Family dependency impact
-
-This module alone can prevent ruin.
-
----
-
-## 🔒 Security & Privacy
-
-FIN-OS is **safe‑by‑design**.
-
-* Opt‑in data sharing
-* Local‑first encryption
-* No dark patterns
-* No selling user data
-* Clear audit trails
-
-Trust is the product.
-
----
-
-## 🛠️ Tech Stack
-
-* **Frontend:** HTML5 · CSS3 · Vanilla JS (76 pages, 44 CSS files, 59 JS modules)
-* **Calculators:** 100+ standalone HTML calculators across 8 categories
-* **Embedded AI (Arya):** Web Speech API (primary STT) · Whisper tiny.en via transformers.js CDN (fallback STT) · Ollama local LLM · Web Speech Synthesis (TTS) · Brave browser WS backend path (faster-whisper + Edge Neural TTS via voiceagent)
-* **Standalone Voice Agent:** Python · faster-whisper · Ollama (qwen3:14b) · edge-tts · WebSockets · Supabase persistent memory
-* **Alert Engine:** FastAPI · APScheduler · yfinance · pywebpush (VAPID)
-* **News API:** Flask · Google News RSS aggregation
-* **Market Intelligence:** Flask · pandas · numpy · ta (technical analysis)
-* **Budget App:** React · Vite · Tailwind CSS (11 pages)
-* **Backend API:** Django REST Framework · SQLite (dev) / PostgreSQL (prod)
-* **Stock Engine:** FastAPI · yfinance · in-memory cache
-* **Database:** Supabase (PostgreSQL · Realtime · RLS · Auth)
-* **Auth:** Supabase email/password · Firebase auth guard fallback
-* **Deployment:** Vercel (static frontend) · local Python services
-* **PWA:** Service Worker (network-first HTML, cache-first assets) · Web Push
-
----
-
-## 🌱 Roadmap
-
-**Phase 1 ✅ COMPLETE:** Core OS + KYF + Budget Engine + 76-page platform  
-**Phase 2 ✅ COMPLETE:** AI Voice Layer (Arya embedded coach + standalone voice agent)  
-**Phase 2.5 ✅ COMPLETE:** Alert Engine · Health Score · Market Intelligence · Trade Journal  
-**Phase 2.6 ✅ COMPLETE:** Brave browser full support (WS backend path) · Full trade-context injection in Arya · Echo-loop fixes · Mind Engine Brave path  
-**Phase 3 🔄 IN PROGRESS:** Broker Integrations (Kite/Zerodha API) · Trading OS · Portfolio sync  
-**Phase 4 📋 PLANNED:** Community Intelligence (opt-in) · Mobile app (PWA + React Native)
-
----
-
-## 🧠 What FIN-OS Is NOT
-
-* ❌ Not a tip provider
-* ❌ Not a get‑rich‑quick tool
-* ❌ Not influencer finance
-* ❌ Not a brokerage replacement
-
-FIN-OS is a **thinking system**.
-
----
-
-## 🏁 Final Note
-
-> *People don’t lose money because they lack information.
-> They lose money because they lack systems.*
-
-FIN-OS exists to be that system.
-
----
-
-**Built for India. Engineered for discipline. Designed for longevity.**
+## File Counts Summary
+
+| Location | Count |
+|---|---|
+| `html/*.html` | 94 |
+| `index.html` | 1 |
+| `login.html` | 1 |
+| **Total HTML pages** | **96** |

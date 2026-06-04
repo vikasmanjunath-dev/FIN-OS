@@ -1,0 +1,545 @@
+<!-- <noreload> -->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FIN-OS Tools Hub — Calculators, Tax, Real Estate, Insurance, What-If Simulator and more.">
+  <meta name="theme-color" content="#0B0D12">
+  <title>Tools | FIN•OS</title>
+  <link rel="stylesheet" href="../css/design-tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-context.js" defer></script>
+  <script src="../js/finos-personalization.js" defer></script>
+
+<style>
+/* ── Tools Hub ─────────────────────────────────────────────────── */
+.tools-header {
+  padding: 32px 0 28px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 36px;
+}
+.tools-title {
+  font-size: clamp(22px, 2.4vw, 30px);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 6px;
+}
+.tools-sub {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── Category sections ─────────────────────────────────────────── */
+.tools-section { margin-bottom: 44px; }
+.tools-section-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.tools-section-icon { font-size: 18px; }
+.tools-section-title {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0;
+}
+.tools-section-count {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+  margin-left: auto;
+}
+
+/* ── Tool cards grid ────────────────────────────────────────────── */
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+.tool-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 18px 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .18s, transform .2s cubic-bezier(.16,1,.3,1), box-shadow .18s;
+}
+.tool-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--tc-color, var(--accent));
+  opacity: .7;
+}
+.tool-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-medium);
+  box-shadow: var(--card-shadow-hover);
+}
+.tool-card-icon  { font-size: 22px; margin-bottom: 4px; }
+.tool-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+  margin: 0;
+}
+.tool-card-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  flex: 1;
+}
+.tool-card-arrow {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  font-weight: 700;
+  transition: transform .15s, color .15s;
+}
+.tool-card:hover .tool-card-arrow {
+  transform: translateX(4px);
+  color: var(--accent);
+}
+.tool-card-badge {
+  position: absolute;
+  top: 10px; right: 10px;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.badge-ai    { background: rgba(79,124,255,.12); color: var(--accent); border: 1px solid rgba(79,124,255,.25); }
+.badge-new   { background: rgba(199,240,0,.1);  color: #c7f000;       border: 1px solid rgba(199,240,0,.25); }
+.badge-pro   { background: rgba(168,85,247,.12); color: #a855f7;       border: 1px solid rgba(168,85,247,.25); }
+
+/* ── Quick-calc strip ───────────────────────────────────────────── */
+.quick-calc-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+.qc-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: border-color .15s, background .15s, transform .15s;
+}
+.qc-chip:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+.qc-chip-icon { font-size: 14px; flex-shrink: 0; }
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .tools-grid        { grid-template-columns: 1fr 1fr; }
+  .quick-calc-strip  { grid-template-columns: 1fr 1fr; }
+}
+</style>
+  <link rel="stylesheet" href="../css/interactions.css">
+</head>
+
+<body>
+<div class="app">
+
+  <!-- ── SIDEBAR ─────────────────────────────────────────────── -->
+          <aside class="sidebar" role="complementary" aria-label="Navigation">
+
+    <!-- Brand -->
+    <div class="sb-brand">
+      <div class="sb-logomark" aria-hidden="true">
+        <span class="sb-logomark-letter">F</span>
+      </div>
+      <div class="sb-wordmark">
+        <div class="sb-wordmark-name">FIN•OS</div>
+        <div class="sb-wordmark-tag">Financial OS</div>
+      </div>
+    </div>
+
+    <!-- Identity -->
+    <a href="profile.html" class="sb-identity" aria-label="Your profile">
+      <div class="sb-av" id="sb-av" aria-hidden="true">I</div>
+      <div class="sb-identity-body">
+        <div class="sb-identity-name" id="sb-name">Investor</div>
+        <div class="sb-identity-meta">
+          <span class="sb-identity-dna"  id="sb-dna">Financial DNA</span>
+          <span class="sb-health-pill"   id="sb-health-pill"></span>
+        </div>
+      </div>
+      <span class="sb-identity-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </a>
+
+    <!-- Search shortcut -->
+    <button class="sb-cmd" id="sb-cmd" aria-label="Search (Ctrl+K)">
+      <span class="sb-cmd-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="sb-cmd-label">Search or jump to…</span>
+      <kbd class="sb-cmd-kbd" aria-hidden="true">⌘K</kbd>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="sb-nav" aria-label="Main">
+        <a href="home.html" class="sb-link" title="Home">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+          <span class="sb-label">Home</span>
+        </a>
+        <a href="dashboard.html" class="sb-link" title="Dashboard">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>
+          <span class="sb-label">Dashboard</span>
+          <span class="sb-badge" id="sb-streak" aria-label="count"></span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="foundations.html" class="sb-link" title="Learn">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+          <span class="sb-label">Learn</span>
+        </a>
+        <a href="simulator-landing.html" class="sb-link" title="Mindset">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span>
+          <span class="sb-label">Mindset</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="diagnostics.html" class="sb-link" title="Diagnostics">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          <span class="sb-label">Diagnostics</span>
+        </a>
+        <a href="track-finances.html" class="sb-link" title="Track">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+          <span class="sb-label">Track</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="markets.html" class="sb-link" title="Markets">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+          <span class="sb-label">Markets</span>
+        </a>
+        <a href="tools.html" class="sb-link active" aria-current="page" title="Tools">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+          <span class="sb-label">Tools</span>
+        </a>
+        <hr class="sb-divider" aria-hidden="true"/>
+        <a href="news.html" class="sb-link" title="News">
+          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span>
+          <span class="sb-label">News</span>
+        </a>
+    </nav>
+
+    <!-- Footer: Arya AI + Settings -->
+    <div class="sb-footer-zone">
+
+      <button class="sb-arya-row" id="sb-arya-btn"
+              aria-label="Arya AI — your financial coach"
+              onclick="document.querySelector('.finos-fab')?.click?.();">
+        <div class="sb-arya-icon" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span class="sb-arya-dot checking" id="sb-arya-dot"></span>
+        </div>
+        <div class="sb-arya-body">
+          <div class="sb-arya-name">Arya AI</div>
+          <div class="sb-arya-status checking" id="sb-arya-status">Connecting…</div>
+        </div>
+        <span class="sb-arya-arrow" aria-hidden="true">›</span>
+      </button>
+
+      <a href="settings.html" class="sb-settings-row" title="Settings">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        <span class="sb-label">Settings</span>
+      </a>
+
+    </div>
+  </aside>
+
+  <!-- ── MAIN ─────────────────────────────────────────────────── -->
+  <main class="main">
+  <div class="content-wrapper">
+
+    <header class="tools-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+        <div>
+          <h1 class="tools-title">🛠️ Tools</h1>
+          <p class="tools-sub">Every precision instrument you need — calculators, simulators, tax, insurance, real estate, and AI-powered analysis.</p>
+        </div>
+        <button id="themeToggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
+      </div>
+    </header>
+
+    <!-- ══════════════════════════════════════════════
+         1. PLANNING & SIMULATION
+    ══════════════════════════════════════════════ -->
+    <section class="tools-section">
+      <div class="tools-section-head">
+        <span class="tools-section-icon">🎯</span>
+        <h2 class="tools-section-title">Planning & Simulation</h2>
+        <span class="tools-section-count">4 tools</span>
+      </div>
+      <div class="tools-grid">
+
+        <a href="life-goals-planner.html" class="tool-card" style="--tc-color:#4f7cff">
+          <span class="tool-card-badge badge-ai">AI</span>
+          <div class="tool-card-icon">🎯</div>
+          <p class="tool-card-title">Life Goals Planner</p>
+          <p class="tool-card-sub">Home · Education · Retirement — AI builds your exact SIP roadmap</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+        <a href="scenarios.html" class="tool-card" style="--tc-color:#00d4ff">
+          <span class="tool-card-badge badge-ai">AI</span>
+          <div class="tool-card-icon">🎲</div>
+          <p class="tool-card-title">What-If Simulator</p>
+          <p class="tool-card-sub">Job loss · Market crash · House purchase — stress-test your finances</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+        <a href="impact.html" class="tool-card" style="--tc-color:#c7f000">
+          <div class="tool-card-icon">🦋</div>
+          <p class="tool-card-title">Impact Simulator</p>
+          <p class="tool-card-sub">See how saving ₹500/month more changes your life in 20 years</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+        <a href="budget-forecast.html" class="tool-card" style="--tc-color:#4f7cff">
+          <span class="tool-card-badge badge-ai">AI</span>
+          <div class="tool-card-icon">📅</div>
+          <p class="tool-card-title">Budget Forecaster</p>
+          <p class="tool-card-sub">AI predicts next month's spend from your patterns</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         2. TAX & COMPLIANCE
+    ══════════════════════════════════════════════ -->
+    <section class="tools-section">
+      <div class="tools-section-head">
+        <span class="tools-section-icon">📋</span>
+        <h2 class="tools-section-title">Tax & Compliance</h2>
+        <span class="tools-section-count">2 tools</span>
+      </div>
+      <div class="tools-grid">
+
+        <a href="tax.html" class="tool-card" style="--tc-color:#ff4444">
+          <span class="tool-card-badge badge-new">NEW</span>
+          <div class="tool-card-icon">📋</div>
+          <p class="tool-card-title">Tax Dossier</p>
+          <p class="tool-card-sub">ITR prep · Advance tax calendar · Old vs New regime comparison</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+        <a href="ca-advisor.html" class="tool-card" style="--tc-color:#7b2ff7">
+          <span class="tool-card-badge badge-pro">PRO</span>
+          <div class="tool-card-icon">👔</div>
+          <p class="tool-card-title">CA / Advisor Mode</p>
+          <p class="tool-card-sub">Invite your CA · Controlled access · Share tax dossier securely</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         3. INVESTMENTS
+    ══════════════════════════════════════════════ -->
+    <section class="tools-section">
+      <div class="tools-section-head">
+        <span class="tools-section-icon">📊</span>
+        <h2 class="tools-section-title">Investment Analysis</h2>
+        <span class="tools-section-count">3 tools</span>
+      </div>
+      <div class="tools-grid">
+
+        <a href="mf-intelligence.html" class="tool-card" style="--tc-color:#a855f7">
+          <span class="tool-card-badge badge-ai">AI</span>
+          <div class="tool-card-icon">📊</div>
+          <p class="tool-card-title">MF Intelligence</p>
+          <p class="tool-card-sub">Fund overlap · Switch analysis · Direct vs Regular savings calculator</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+        <a href="options-intelligence.html" class="tool-card" style="--tc-color:#00d4ff">
+          <span class="tool-card-badge badge-new">NEW</span>
+          <div class="tool-card-icon">⚡</div>
+          <p class="tool-card-title">Options Intelligence</p>
+          <p class="tool-card-sub">Greeks · IV Rank · Strategy builder · F&amp;O quiz</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+        <a href="track-finances.html#portfolio-xray" class="tool-card" style="--tc-color:#22d3a6">
+          <div class="tool-card-icon">🔬</div>
+          <p class="tool-card-title">Portfolio X-Ray</p>
+          <p class="tool-card-sub">Deep-dive: overlaps · risk concentration · sector exposure · rebalancing</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         4. PROPERTY & INSURANCE
+    ══════════════════════════════════════════════ -->
+    <section class="tools-section">
+      <div class="tools-section-head">
+        <span class="tools-section-icon">🏠</span>
+        <h2 class="tools-section-title">Property & Protection</h2>
+        <span class="tools-section-count">3 tools</span>
+      </div>
+      <div class="tools-grid">
+
+        <a href="real-estate.html" class="tool-card" style="--tc-color:#22d3a6">
+          <span class="tool-card-badge badge-new">NEW</span>
+          <div class="tool-card-icon">🏠</div>
+          <p class="tool-card-title">Real Estate Intel</p>
+          <p class="tool-card-sub">Buy vs Rent · True cost · Rental yield · Break-even calculator</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+        <a href="insurance-hub.html" class="tool-card" style="--tc-color:#f0a500">
+          <span class="tool-card-badge badge-new">NEW</span>
+          <div class="tool-card-icon">🛡️</div>
+          <p class="tool-card-title">Insurance Hub</p>
+          <p class="tool-card-sub">Gap analysis · Premium calendar · Coverage adequacy check</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+        <a href="insurance-directory.html" class="tool-card" style="--tc-color:#f0a500">
+          <div class="tool-card-icon">📁</div>
+          <p class="tool-card-title">Insurance Directory</p>
+          <p class="tool-card-sub">Complete directory of insurance types, plans, and comparisons</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         5. REPORTS & DOCUMENTS
+    ══════════════════════════════════════════════ -->
+    <section class="tools-section">
+      <div class="tools-section-head">
+        <span class="tools-section-icon">📄</span>
+        <h2 class="tools-section-title">Reports & Documents</h2>
+        <span class="tools-section-count">2 tools</span>
+      </div>
+      <div class="tools-grid">
+
+        <a href="financial-report.html" class="tool-card" style="--tc-color:#22d3a6">
+          <div class="tool-card-icon">📄</div>
+          <p class="tool-card-title">Monthly Report</p>
+          <p class="tool-card-sub">Plain-English financial summary · WhatsApp share · Print-ready PDF</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+        <a href="document-ai.html" class="tool-card" style="--tc-color:#4f7cff">
+          <span class="tool-card-badge badge-ai">AI</span>
+          <div class="tool-card-icon">🤖</div>
+          <p class="tool-card-title">Document AI</p>
+          <p class="tool-card-sub">Upload salary slip or bank statement — auto-fills your financial profile</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         6. LIFE & RELATIONSHIPS
+    ══════════════════════════════════════════════ -->
+    <section class="tools-section">
+      <div class="tools-section-head">
+        <span class="tools-section-icon">💑</span>
+        <h2 class="tools-section-title">Life & Relationships</h2>
+        <span class="tools-section-count">2 tools</span>
+      </div>
+      <div class="tools-grid">
+
+        <a href="couple-finance.html" class="tool-card" style="--tc-color:#f0a500">
+          <div class="tool-card-icon">💑</div>
+          <p class="tool-card-title">Couple Finance</p>
+          <p class="tool-card-sub">Joint goal planning · Expense splits · Combined FIRE number</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+        <a href="life-wealth.html" class="tool-card" style="--tc-color:#4f7cff">
+          <div class="tool-card-icon">🌱</div>
+          <p class="tool-card-title">Life & Wealth Planner</p>
+          <p class="tool-card-sub">Integrated life stage planning from your 20s to retirement</p>
+          <div class="tool-card-arrow">→</div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         7. CALCULATORS — Quick access strip
+    ══════════════════════════════════════════════ -->
+    <section class="tools-section" style="margin-bottom:52px;">
+      <div class="tools-section-head">
+        <span class="tools-section-icon">🧮</span>
+        <h2 class="tools-section-title">Quick Calculators</h2>
+        <a href="calculators.html" style="font-size:12px;font-weight:700;color:var(--accent);text-decoration:none;margin-left:auto;opacity:.7;">All 88+ calculators →</a>
+      </div>
+      <div class="quick-calc-strip">
+        <a href="calculators.html#sip"        class="qc-chip"><span class="qc-chip-icon">📈</span> SIP Calculator</a>
+        <a href="calculators.html#emi"         class="qc-chip"><span class="qc-chip-icon">🏠</span> EMI Calculator</a>
+        <a href="calculators.html#retirement"  class="qc-chip"><span class="qc-chip-icon">🎯</span> Retirement</a>
+        <a href="calculators.html#tax"         class="qc-chip"><span class="qc-chip-icon">📋</span> Tax Estimator</a>
+        <a href="calculators.html#compound"    class="qc-chip"><span class="qc-chip-icon">💹</span> Compound Interest</a>
+        <a href="calculators.html#inflation"   class="qc-chip"><span class="qc-chip-icon">📉</span> Inflation Impact</a>
+        <a href="calculators.html#lumpsum"     class="qc-chip"><span class="qc-chip-icon">💰</span> Lumpsum Return</a>
+        <a href="calculators.html#fire"        class="qc-chip"><span class="qc-chip-icon">🔥</span> FIRE Number</a>
+        <a href="calculators.html#hra"         class="qc-chip"><span class="qc-chip-icon">🏡</span> HRA Exemption</a>
+        <a href="calculators.html#debt"        class="qc-chip"><span class="qc-chip-icon">⚡</span> Debt Payoff</a>
+        <a href="calculators.html#nps"         class="qc-chip"><span class="qc-chip-icon">🔐</span> NPS Maturity</a>
+        <a href="calculators.html#ppf"         class="qc-chip"><span class="qc-chip-icon">🏦</span> PPF Returns</a>
+        <a href="calculators.html"             class="qc-chip" style="border-style:dashed;color:var(--text-muted);"><span class="qc-chip-icon">➕</span> All Calculators</a>
+      </div>
+    </section>
+
+  </div><!-- /.content-wrapper -->
+  </main>
+</div><!-- /.app -->
+
+<script src="../js/ui.js" defer></script>
+<script src="../js/mobile-nav.js" defer></script>
+<script src="../js/finos-widget.js?v=4"></script>
+<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/pwa-init.js"></script>
+
+<script src="../js/sidebar.js"></script>
+  <script src="../js/interactions.js" defer></script>
+</body>
+</html>

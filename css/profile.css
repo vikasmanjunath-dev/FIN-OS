@@ -1,140 +1,250 @@
 /* =========================
-   GEN Z CYBER-PROFILE STYLES (THEME CORRECTED)
+   PROFILE PAGE STYLES
    ========================= */
 
 :root {
-  --neon-blue: #4F7CFF;
-  --neon-lime: #C7F000;
-  --neon-purple: #9b59b6;
-  /* Dynamic colors based on base.css variables */
-  --profile-text: var(--text-primary);
-  --profile-subtext: var(--text-secondary);
-  --input-bg: rgba(0, 0, 0, 0.05);
+  --neon-blue:   #4F7CFF;
+  --neon-lime:   #C7F000;
+  --neon-purple: #9b5de5;
+  --input-bg:    rgba(0,0,0,.05);
 }
-
-/* Dark Mode overrides for internal elements */
 [data-theme="dark"] {
-  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-bg: rgba(255,255,255,.05);
 }
 
+/* ── Page wrapper ─────────────────────────────────────────────── */
 .profile-container {
-  padding: 40px 0 100px 0; /* Improved top spacing */
-  animation: fadeIn 0.8s ease-out;
+  padding: 32px 48px 100px;
+  animation: fadeIn .8s ease-out;
 }
 
-/* Activation Cards - Spacing & Visibility */
+
+/* ── Page header ──────────────────────────────────────────────── */
+.profile-header {
+  margin-bottom: 48px;
+}
+.profile-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.profile-eyebrow-line {
+  width: 28px; height: 1.5px;
+  background: linear-gradient(90deg, var(--neon-blue), transparent);
+  border-radius: 2px;
+}
+.profile-eyebrow-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--neon-blue);
+}
+.profile-title {
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1.15;
+  margin: 0 0 10px;
+  color: var(--text-primary);
+}
+.profile-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Section cards ────────────────────────────────────────────── */
 .activation-card {
-  margin-bottom: 40px; /* Increased spacing between sections */
-  padding: 50px 40px;
+  position: relative;          /* fixes absolute section-tag */
+  margin-bottom: 24px;
+  padding: 40px 36px 36px;
   background: var(--bg-surface);
   border: 1px solid var(--border-soft);
-  border-radius: 32px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 24px;
+  transition: box-shadow .3s ease, border-color .3s ease;
 }
-
 .activation-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+  box-shadow: 0 8px 32px rgba(0,0,0,.12);
+  border-color: rgba(79,124,255,.2);
 }
 
-/* Section Tags */
+/* ── Section tag (pill at top-left of card) ───────────────────── */
 .section-tag {
   position: absolute;
-  top: 0;
-  left: 40px;
+  top: 0; left: 32px;
   background: var(--neon-blue);
-  color: #FFFFFF; /* Keep white for contrast on blue */
-  padding: 6px 16px;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-  border-radius: 0 0 12px 12px;
+  color: #fff;
+  padding: 5px 14px;
+  font-size: 10px; font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  border-radius: 0 0 10px 10px;
   font-family: 'JetBrains Mono', monospace;
 }
+.section-tag.lime   { background: #5a6800; color: var(--neon-lime); }
+.section-tag.purple { background: rgba(155,93,229,.25); color: var(--neon-purple); }
+.section-tag.plain  { background: rgba(255,255,255,.08); color: var(--text-secondary); }
 
-/* Labels and Text */
+/* ── Section heading inside card ─────────────────────────────── */
+.card-section-title {
+  font-size: 16px; font-weight: 700;
+  color: var(--text-primary);
+  margin: 20px 0 6px;
+}
+.card-section-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0 0 22px;
+  line-height: 1.55;
+}
+
+/* ── Labels ───────────────────────────────────────────────────── */
 label {
   display: block;
-  color: var(--profile-text);
-  font-weight: 700;
-  margin-bottom: 12px;
-  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 8px;
 }
 
-.subtitle, .desi-context, .micro-text {
-  color: var(--profile-subtext);
-  margin-top: 8px;
-}
-
-/* Cyber Inputs & Selects */
-.cyber-input, .cyber-select {
+/* ── Inputs ───────────────────────────────────────────────────── */
+.cyber-input {
   width: 100%;
   background: var(--input-bg);
-  border: 2px solid var(--border-soft);
-  padding: 16px;
-  border-radius: 16px;
-  color: var(--profile-text);
-  font-size: 1rem;
-  transition: all 0.3s ease;
+  border: 1.5px solid var(--border-soft);
+  padding: 13px 16px;
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color .2s, box-shadow .2s;
+  box-sizing: border-box;
 }
-
-.cyber-input::placeholder {
-  color: var(--text-secondary);
-  opacity: 0.5;
-}
-
+.cyber-input::placeholder { color: var(--text-secondary); opacity: .5; }
 .cyber-input:focus {
   border-color: var(--neon-blue);
+  box-shadow: 0 0 0 3px rgba(79,124,255,.12);
   outline: none;
   background: var(--bg-main);
 }
 
-/* Grid Spacing */
-.grid-2, .grid-3 {
-  display: grid;
-  gap: 30px;
-  margin-top: 20px;
+/* ── Selects ──────────────────────────────────────────────────── */
+.cyber-select {
+  width: 100%;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%234F7CFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  background-color: var(--input-bg);
+  padding: 13px 40px 13px 16px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s;
+  box-sizing: border-box;
+}
+.cyber-select option {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+}
+.cyber-select:focus {
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 0 3px rgba(79,124,255,.12);
+  outline: none;
 }
 
-.grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-.grid-3 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+/* ── Grids ────────────────────────────────────────────────────── */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+/* Mindset section: chart left, questions right */
+.grid-2-alt {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 20px;
+  align-items: center;
+}
+@media (max-width: 640px) {
+  .grid-2-alt { grid-template-columns: 1fr; }
+}
 
-/* Interactive Radar Box */
+.input-group { display: flex; flex-direction: column; }
+.stat-select  { display: flex; flex-direction: column; }
+
+/* ── Radar chart box ─────────────────────────────────────────── */
 .viz-box {
   background: var(--bg-main);
-  border-radius: 24px;
-  padding: 20px;
+  border-radius: 16px;
+  padding: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 300px;
+  min-height: 220px;
+  position: relative;
 }
 
-/* Chips Visibility */
-.chip {
-  padding: 12px 24px;
-  border-radius: 14px;
-  background: var(--bg-main);
-  border: 1px solid var(--border-soft);
-  color: var(--profile-text);
-  font-weight: 600;
-  transition: 0.3s;
+/* ── Mindset radio stack ─────────────────────────────────────── */
+.q-content h3 {
+  font-size: 16px; font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+.desi-context {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0 0 18px;
+}
+.radio-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.glow-radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.glow-radio:hover {
+  border-color: var(--neon-blue);
+  background: transparent;
+  box-shadow: 0 0 0 1px rgba(79,124,255,.2);
+}
+.glow-radio input[type="radio"] { accent-color: var(--neon-blue); }
+.radio-label {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.glow-radio:has(input:checked) {
+  border-color: var(--neon-blue);
+  background: rgba(79,124,255,.08);
 }
 
-.chip:hover {
-  border-color: var(--neon-purple);
-}
-
-/* Terminal Adjustments for Light Mode */
-.terminal-style {
-  background: #12151D !important; /* Keep terminal dark even in light mode for "unreal" feel */
-}
-.terminal-body label { color: #888; }
-
-/* IQ Meter */
+/* ── IQ meter ─────────────────────────────────────────────────── */
 .iq-meter {
-  width: 100%;
-  height: 8px;
+  width: 100%; height: 8px;
   background: var(--border-soft);
   border-radius: 10px;
   margin: 10px 0;
@@ -143,271 +253,201 @@ label {
 .iq-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--neon-blue), var(--neon-lime));
-  transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-radius: 10px;
+  transition: width .5s cubic-bezier(.175,.885,.32,1.275);
+}
+.micro-text {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin: 4px 0 0;
 }
 
-
-
-/* =========================
-   SELECT & DROPDOWN HOTFIX
-   ========================= */
-
-.cyber-select {
-  appearance: none; /* Removes default browser styling */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234F7CFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1em;
-  padding-right: 2.5rem;
-  cursor: pointer;
-  background-color: var(--input-bg); /* Use dynamic variable */
-  color: var(--text-primary); /* */
-  border: 2px solid var(--border-soft); /* */
-}
-
-/* This forces the dropdown list to use the app's theme colors */
-.cyber-select option {
-  background-color: var(--bg-surface); /* Matches card background */
-  color: var(--text-primary); /* Matches main text color */
-  padding: 12px;
-}
-
-/* Hover/Focus state */
-.cyber-select:focus {
-  border-color: var(--neon-blue); /* */
-  outline: none;
-}
-
-
-
-/* Update the chip container to a dynamic grid */
+/* ── Interest chips ───────────────────────────────────────────── */
 .chip-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Responsive columns */
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.chip {
   display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+.chip {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: 12px 16px;
-  background: var(--bg-main); /* */
-  border: 1px solid var(--border-soft); /* */
-  border-radius: 12px;
-  color: var(--text-primary); /* */
+  padding: 9px 18px;
+  background: var(--bg-main);
+  border: 1.5px solid var(--border-soft);
+  border-radius: 100px;
+  color: var(--text-primary);
   font-weight: 600;
-  font-size: 0.85rem;
-  transition: all 0.2s ease;
+  font-size: 13px;
   cursor: pointer;
+  transition: all .2s ease;
+  white-space: nowrap;
 }
-
+.chip:hover {
+  border-color: var(--neon-purple);
+  color: var(--neon-purple);
+}
 .chip.active {
-  background: var(--neon-purple); /* */
-  color: #FFFFFF;
-  border-color: #FFFFFF;
-  box-shadow: 0 0 15px rgba(155, 89, 182, 0.3);
+  background: rgba(155,93,229,.15);
+  color: var(--neon-purple);
+  border-color: var(--neon-purple);
+  box-shadow: 0 0 12px rgba(155,93,229,.2);
 }
 
-
-/* =========================
-   SELECT & DROPDOWN HOTFIX
-   ========================= */
-
-.cyber-select {
-  appearance: none; /* Removes default browser arrow */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234F7CFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1em;
-  padding-right: 2.5rem;
-  cursor: pointer;
-  background-color: var(--input-bg); /* */
-  color: var(--text-primary); /* */
-}
-
-/* Force dropdown options to be visible in all themes */
-.cyber-select option {
-  background-color: var(--bg-surface); /* */
-  color: var(--text-primary); /* */
-  padding: 10px;
-}
-
-
-
-.chip-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Responsive grid */
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.chip {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px;
-  background: var(--bg-main); /* */
-  border: 1px solid var(--border-soft); /* */
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.chip.active {
-  background: var(--neon-purple); /* */
-  border-color: #fff;
-  color: #fff;
-  box-shadow: 0 0 15px rgba(155, 89, 182, 0.4);
-}
-
-
-
-
-/* Fix visibility of Monthly Fuel and Life Stage dropdowns */
-.cyber-select {
-  appearance: none; /* Removes default browser styling */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234F7CFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1em;
-  padding-right: 2.5rem;
-  cursor: pointer;
-  background-color: var(--input-bg); /* */
-  color: var(--text-primary); /* */
-  border: 2px solid var(--border-soft); /* */
-}
-
-/* Force dropdown options to be visible in all themes */
-.cyber-select option {
-  background-color: var(--bg-surface); /* */
-  color: var(--text-primary); /* */
-  padding: 12px;
-}
-
-.chip-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* High-density grid */
-  gap: 12px;
-  margin-top: 20px;
-  width: 100%;
-}
-
-.chip {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 16px;
-  background: var(--bg-main); /* */
-  border: 1px solid var(--border-soft); /* */
-  border-radius: 12px;
-  color: var(--text-primary); /* */
-  font-weight: 600;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.chip.active {
-  background: var(--neon-purple); /* */
-  color: #FFFFFF;
-  border-color: #FFFFFF;
-  box-shadow: 0 0 15px rgba(155, 89, 182, 0.4);
-}
-
-
-
+/* ── Terminal (curiosity query) ───────────────────────────────── */
 .terminal-style {
-  background: #0D1117 !important; /* Fixed dark terminal background */
-  border: 1px solid #30363D;
-  border-radius: 12px;
+  background: #0D1117 !important;
+  border: 1px solid #30363d !important;
+  border-radius: 16px !important;
   overflow: hidden;
-  margin-top: 20px;
 }
-
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+}
+.terminal-header .dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: #30363d;
+}
+.terminal-header .dot:nth-child(1) { background: #ff5f56; }
+.terminal-header .dot:nth-child(2) { background: #ffbd2e; }
+.terminal-header .dot:nth-child(3) { background: #27c93f; }
+.t-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,.35);
+  margin-left: 6px;
+  letter-spacing: .06em;
+}
+.terminal-body {
+  padding: 20px 24px 4px;
+}
+.terminal-body label {
+  color: rgba(255,255,255,.45);
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: .06em;
+  margin-bottom: 12px;
+}
 .t-input {
-  width: 100% !important; /* Force full width */
-  min-height: 120px; 
+  width: 100%;
+  min-height: 110px;
   background: transparent;
   border: none;
-  color: #C7F000; /* Neon Lime */
+  color: var(--neon-lime);
   font-family: 'JetBrains Mono', monospace;
-  padding: 24px;
+  font-size: 14px;
+  line-height: 1.65;
+  padding: 4px 0 20px;
   resize: none;
   outline: none;
-  font-size: 1.1rem;
 }
-
-/* Custom terminal scrollbar */
-.t-input::-webkit-scrollbar {
-  width: 8px;
-}
+.t-input::placeholder { color: rgba(199,240,0,.35); }
+.t-input::-webkit-scrollbar { width: 6px; }
 .t-input::-webkit-scrollbar-thumb {
-  background: rgba(199, 240, 0, 0.2);
+  background: rgba(199,240,0,.15);
   border-radius: 4px;
 }
 
-
-/* =========================
-   GEN Z FOOTER & MEGA BUTTON
-   ========================= */
-
+/* ── Save button ──────────────────────────────────────────────── */
 .activation-footer {
-  margin-top: 80px;
+  margin-top: 12px;
   padding-bottom: 60px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Professional Gen Z left-alignment */
-  gap: 24px;
+  align-items: center;
+  gap: 16px;
 }
-
-/* Designing an "Out of the World" Mega Button */
 .mega-btn {
-  background: var(--accent-secondary); /* Neon Lime */
-  color: #000000 !important; /* Force black for maximum contrast on neon */
-  padding: 18px 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--neon-lime);
+  color: #000 !important;
+  padding: 16px 32px;
   border-radius: 14px;
   border: none;
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Space Grotesk', 'Manrope', sans-serif;
   font-weight: 800;
-  font-size: 1.1rem;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
+  font-size: 15px;
+  letter-spacing: .04em;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 10px 30px rgba(199, 240, 0, 0.2);
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  transition: transform .25s cubic-bezier(.175,.885,.32,1.275), box-shadow .25s;
+  box-shadow: 0 8px 24px rgba(199,240,0,.2);
 }
-
 .mega-btn:hover {
-  transform: scale(1.05) translateY(-5px);
-  box-shadow: 0 20px 50px rgba(199, 240, 0, 0.4);
-  background: #d4ff00; /* Slightly brighter on hover */
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(199,240,0,.35);
 }
+.mega-btn:active { transform: translateY(0); }
 
-/* Correcting the "white-on-white" footer text */
-.final-note {
-  color: var(--text-primary); /* Uses theme-aware variable */
-  font-size: 1.2rem;
-  font-weight: 600;
-  opacity: 0.9;
-  letter-spacing: -0.2px;
-  border-left: 3px solid var(--accent-primary); /* Electric Blue accent */
-  padding-left: 15px;
+/* ── Profile save status ──────────────────────────────────────── */
+#save-status {
+  font-size: 13px;
+  color: var(--text-secondary);
+  opacity: 0;
+  transition: opacity .3s;
 }
+#save-status.visible { opacity: 1; }
+#save-status.success { color: #27c93f; }
+#save-status.error   { color: #ff5f56; }
 
-
-
+/* ── Sidebar user symbol ──────────────────────────────────────── */
 .user-symbol {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  background: var(--accent-soft); /* */
-  border-radius: 50%; /* Makes it a round symbol */
-  margin-right: 12px;
-  font-size: 0.8rem;
+  width: 20px; height: 20px;
+  font-size: .8rem;
+  margin-right: 6px;
+}
+
+/* ── Neon border accents ──────────────────────────────────────── */
+.neon-border-blue   { border-color: rgba(79,124,255,.25) !important; }
+.neon-border-lime   { border-color: rgba(199,240,0,.2) !important; }
+.neon-border-purple { border-color: rgba(155,93,229,.25) !important; }
+
+/* ── Animations ───────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   PROFILE — LIGHT MODE
+   ═══════════════════════════════════════════════════════ */
+[data-theme="light"] .profile-page,
+[data-theme="light"] .profile-layout {
+  background: var(--bg-main) !important;
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .activation-card,
+[data-theme="light"] .profile-card,
+[data-theme="light"] .identity-card {
+  background: #FFFFFF !important;
+  border-color: rgba(0,0,0,0.08) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .glow-radio {
+  background: rgba(0,0,0,0.03) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .chip {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .mega-btn {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  color: var(--text-primary) !important;
 }

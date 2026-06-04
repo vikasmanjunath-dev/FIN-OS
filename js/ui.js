@@ -1,4 +1,47 @@
 // js/ui.js
+// Auto-loads toast + async utilities on every page
+
+/* ── Focus-source tracking (WCAG 2.4.7)
+   Sets data-focus-source="mouse" on <html> during pointer interactions
+   so CSS can suppress the outline ring for mouse users only, while
+   keyboard and AT users always get a visible ring. ── */
+(function () {
+  var html = document.documentElement;
+  document.addEventListener('pointerdown', function () {
+    html.setAttribute('data-focus-source', 'mouse');
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Tab' || e.key === 'Enter' || e.key === ' ') {
+      html.removeAttribute('data-focus-source');
+    }
+  });
+  // Also handle programmatic focus via AT (remove on any focusin after key)
+  document.addEventListener('focusin', function () {
+    if (!html.hasAttribute('data-focus-source')) {
+      /* keyboard or AT — leave outline visible */
+    }
+  });
+})();
+
+(function () {
+  function loadScript(src) {
+    if (document.querySelector('script[src="' + src + '"]')) return;
+    var s = document.createElement('script');
+    s.src = src; s.defer = true;
+    document.head.appendChild(s);
+  }
+  // Resolve relative path — works from any html/ sub-directory
+  var base = (function () {
+    var scripts = document.getElementsByTagName('script');
+    for (var i = 0; i < scripts.length; i++) {
+      var s = scripts[i].src || '';
+      if (s.indexOf('ui.js') !== -1) return s.replace('ui.js', '');
+    }
+    return '../js/';
+  })();
+  loadScript(base + 'finos-toast.js');
+  loadScript(base + 'finos-async.js');
+})();
 
 /* ─── GLOBAL SETTINGS PROPAGATOR ─────────────────────────────────
    Runs immediately on every page that includes ui.js.
@@ -62,72 +105,95 @@
   };
 })();
 
-document.addEventListener("DOMContentLoaded", () => {
+// ui.js is loaded with defer — DOMContentLoaded may have already fired.
+// Use readyState guard so init always runs regardless of load timing.
+function _finosUIInit() {
 
   /* =========================
-     CARD HOVER INTERACTION
+     CARD ENTRANCE + HOVER
+     Uses IntersectionObserver + CSS classes — no layout thrashing.
+     CSS handles transitions; JS only toggles class names.
      ========================= */
 
-  document.querySelectorAll(".card").forEach(card => {
-    card.addEventListener("mouseenter", () => {
-      if (!card._entering) card.style.transform = "translateY(-6px)";
-    });
+  var prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    card.addEventListener("mouseleave", () => {
-      if (!card._entering) card.style.transform = "translateY(0)";
+  if (!prefersReduced && "IntersectionObserver" in window) {
+    var cardObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          var card = entry.target;
+          card.classList.add("card--visible");
+          cardObserver.unobserve(card);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    document.querySelectorAll(".card").forEach(function (card, i) {
+      card.style.setProperty("--card-delay", (i * 60) + "ms");
+      card.classList.add("card--hidden");
+      cardObserver.observe(card);
     });
-  });
+  }
 
   /* =========================
-     CARD ENTRANCE ANIMATION
+     ACTIVE NAV LINK — auto-detect by URL
+     Sets class="active" AND aria-current="page" (WCAG 4.1.2)
      ========================= */
+  (function () {
+    var path = window.location.pathname.split("/").pop() || "home.html";
+    // Normalise: index.html → home.html for the root
+    if (path === "" || path === "index.html") path = "home.html";
 
-  const cards = document.querySelectorAll(".card");
-
-  cards.forEach((card, i) => {
-    card._entering = true;
-    card.style.opacity = "0";
-    card.style.transform = "translateY(20px)";
-
-    setTimeout(() => {
-      card.style.transition =
-        "opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1)";
-      card.style.opacity = "1";
-      card.style.transform = "translateY(0)";
-      // Clear the entering flag after transition completes
-      setTimeout(() => {
-        card._entering = false;
-        // Restore the full transition so hover works smoothly
-        card.style.transition = "all 0.3s cubic-bezier(0.16,1,0.3,1)";
-      }, 650);
-    }, i * 80);
-  });
+    document.querySelectorAll(".sidebar nav a").forEach(function (link) {
+      var href = link.getAttribute("href") || "";
+      var page = href.split("/").pop().split("?")[0];
+      var isActive = (page === path);
+      link.classList.toggle("active", isActive);
+      if (isActive) {
+        link.setAttribute("aria-current", "page");
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    });
+  })();
 
   /* =========================
      THEME TOGGLE (GLOBAL)
      ========================= */
 
-  const btn = document.getElementById("themeToggle");
-  if (!btn) return;
+  var themeBtn = document.getElementById("themeToggle");
+  if (!themeBtn) return;
 
-  const savedTheme = localStorage.getItem("finos-theme") || localStorage.getItem("theme") || "dark";
+  var savedTheme = localStorage.getItem("finos-theme") || localStorage.getItem("theme") || "dark";
   document.documentElement.setAttribute("data-theme", savedTheme);
-  btn.textContent = savedTheme === "dark" ? "🌙" : "☀️";
+  themeBtn.textContent = savedTheme === "dark" ? "🌙" : "☀️";
+  themeBtn.setAttribute("aria-label", savedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode");
 
-  btn.addEventListener("click", () => {
-    const current = document.documentElement.getAttribute("data-theme");
-    const next = current === "dark" ? "light" : "dark";
+  themeBtn.addEventListener("click", function () {
+    var current = document.documentElement.getAttribute("data-theme");
+    var next = current === "dark" ? "light" : "dark";
 
     document.documentElement.setAttribute("data-theme", next);
     localStorage.setItem("finos-theme", next);
     localStorage.setItem("theme", next);
-    var s = JSON.parse(localStorage.getItem("FINOS_SYS_SETTINGS") || "{}");
-    s.theme = next;
-    localStorage.setItem("FINOS_SYS_SETTINGS", JSON.stringify(s));
-    btn.textContent = next === "dark" ? "🌙" : "☀️";
+    try {
+      var s = JSON.parse(localStorage.getItem("FINOS_SYS_SETTINGS") || "{}");
+      s.theme = next;
+      localStorage.setItem("FINOS_SYS_SETTINGS", JSON.stringify(s));
+    } catch (_) {}
+    themeBtn.textContent = next === "dark" ? "🌙" : "☀️";
+    themeBtn.setAttribute("aria-label", next === "dark" ? "Switch to light mode" : "Switch to dark mode");
   });
 
-});
+} // end _finosUIInit
+
+// Fire immediately if DOM is ready (defer scripts run after parsing),
+// or wait for DOMContentLoaded if somehow called earlier.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _finosUIInit);
+} else {
+  _finosUIInit();
+}
 
 
 // =========================

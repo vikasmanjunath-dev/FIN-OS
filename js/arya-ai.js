@@ -592,11 +592,14 @@ Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
 `.trim();
 
       const panel2 = document.getElementById('arya-calc-panel');
+      // Store refresh data safely to avoid inline JSON injection in onclick
+      const _calcRefreshKey = '_aryaCalcData_' + Date.now();
+      window[_calcRefreshKey] = { calcType, inputs, outputs };
       await _streamIntoPanel(
         panel2,
         BASE_SYSTEM,
         prompt,
-        `<button class="arya-ai-btn arya-ai-btn-ghost" onclick="AryaAI.explainCalc({calcType:'${calcType}',inputs:${JSON.stringify(inputs)},outputs:${JSON.stringify(outputs)}})">🔄 Refresh</button>
+        `<button class="arya-ai-btn arya-ai-btn-ghost" data-rk="${_calcRefreshKey}" onclick="AryaAI.explainCalc(window[this.dataset.rk])">🔄 Refresh</button>
          <button class="arya-ai-btn arya-ai-btn-primary" onclick="AryaAI._speak(document.querySelector('#arya-calc-panel .arya-ai-body').textContent)">🔊 Speak</button>`
       );
     }, 1200);  // 1.2s debounce — waits for user to stop sliding
@@ -893,9 +896,12 @@ For each risk give: the problem, why it matters, and one concrete fix.
 Keep it direct and actionable. 4-6 sentences total.
 `.trim();
 
+    // Store holdings data safely to avoid inline JSON in onclick
+    const _portRefreshKey = '_aryaPortData_' + Date.now();
+    window[_portRefreshKey] = holdings;
     await _streamIntoPanel(
       panel, BASE_SYSTEM, prompt,
-      `<button class="arya-ai-btn arya-ai-btn-ghost" onclick="AryaAI.portfolioRisk(${JSON.stringify(holdings)})">🔄 Re-analyse</button>
+      `<button class="arya-ai-btn arya-ai-btn-ghost" data-rk="${_portRefreshKey}" onclick="AryaAI.portfolioRisk(window[this.dataset.rk])">🔄 Re-analyse</button>
        <button class="arya-ai-btn arya-ai-btn-primary" onclick="AryaAI._speak(document.querySelector('#arya-portfolio-panel .arya-ai-body').textContent)">🔊 Speak</button>`
     );
   };

@@ -10,7 +10,8 @@
 (function () {
   'use strict';
 
-  const ALERT_API = 'http://localhost:8001';
+  const ALERT_API = (['localhost','127.0.0.1','::1'].includes(window.location.hostname)) ? 'http://localhost:8001' : null;
+  // Skip API calls when running on production (no local server)
 
   /* ── CSS ─────────────────────────────────────────────────────────────────── */
   const CSS = `
@@ -420,6 +421,7 @@
     const controller = new AbortController();
     const tid = setTimeout(() => controller.abort(), 5000); // 5s timeout
     try {
+      if (!ALERT_API) { clearTimeout(tid); return; }
       const r = await fetch(`${ALERT_API}/health-score/${userId}`, { signal: controller.signal });
       clearTimeout(tid);
       if (!r.ok) throw new Error(`Server returned ${r.status}`);
@@ -438,7 +440,7 @@
 
   function openPanel() {
     if (_isOpen) return;
-    _isOpen = true;
+    _isOpen = true; // Set immediately to block rapid double-clicks
     const bd = document.getElementById('finos-hs-backdrop');
     const pn = document.getElementById('finos-hs-panel');
     if (bd) { bd.classList.add('open'); requestAnimationFrame(() => bd.classList.add('vis')); }
@@ -473,6 +475,9 @@
 
   /* ── Build DOM ───────────────────────────────────────────────────────────── */
   function init() {
+    // Guard against double-init (e.g. script injected twice)
+    if (document.getElementById('finos-hs-trigger')) return;
+
     // Inject CSS
     const style = document.createElement('style');
     style.textContent = CSS;
@@ -526,6 +531,7 @@
     if (!userId) return;
 
     try {
+      if (!ALERT_API) return;
       const r = await fetch(`${ALERT_API}/health-score/${userId}/summary`);
       if (!r.ok) return;
       const d = await r.json();

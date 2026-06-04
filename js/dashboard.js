@@ -118,12 +118,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                             try {
                                 const msg = JSON.parse(e.data);
                                 if (msg.type === 'dashboard_brief_result') {
-                                    clearTimeout(timer); ws.close();
-                                    resolve((msg.anomalies || []).map(a => `⚠ ${a.message || a}`));
+                                    clearTimeout(timer);
+                                    try { ws.close(); } catch {}
+                                    resolve((msg.anomalies || []).map(a => `⚠ ${String(a.message || a).slice(0, 200)}`));
                                 }
                             } catch {}
                         };
-                        ws.onerror = () => { try { ws.close(); } catch {} resolve([]); };
+                        ws.onerror = () => { clearTimeout(timer); try { ws.close(); } catch {} resolve([]); };
+                        ws.onclose = () => { clearTimeout(timer); };
                     });
                 } catch { wsAnomalies = []; }
 
@@ -179,10 +181,4 @@ const articles = [
     { title: "RBI decisions explained for you",   minAge: 21 },
 ];
 
-function loadDailyFeed() {
-    const feed = document.querySelector(".cards");
-    if (!feed) return;
-    // Cards are already rendered in HTML — no need to re-inject
-}
-
-loadDailyFeed();
+// loadDailyFeed: cards are pre-rendered in HTML — function intentionally empty, removed call.

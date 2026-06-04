@@ -69,7 +69,7 @@ label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 8px; fon
   padding: 4px 8px; border-radius: 6px; background: #0a0a0a; transition: all 0.2s;
   font-family: 'Manrope', sans-serif; font-weight: 600;
 }
-.zero-toggle:hover { color: #fff; border-color: #666; }
+.zero-toggle:hover { color: rgba(255,255,255,.9); border-color: rgba(255,255,255,.4); box-shadow: 0 0 0 1px rgba(255,255,255,.12); }
 .zero-toggle.active { 
     background: var(--neon-green); color: #000; border-color: var(--neon-green); 
     box-shadow: 0 0 10px rgba(199, 240, 0, 0.3);
@@ -192,7 +192,7 @@ label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 8px; fon
 /* Hover state */
 .stylish-button:hover {
   /* Slightly lighter background */
-  background-color: #555555;
+  background-color: transparent;
   /* Slight lift effect */
   transform: translateY(-2px);
   /* More pronounced shadow */
@@ -207,4 +207,24 @@ label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 8px; fon
   transform: translateY(0);
   /* Reset shadow to create a "pressed" effect */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+/* ═══════════════════════════════════════════════════════
+   FINANCES — LIGHT MODE
+   ═══════════════════════════════════════════════════════ */
+[data-theme="light"] .glass-card,
+[data-theme="light"] .finances-card {
+  background: #FFFFFF !important;
+  border-color: rgba(0,0,0,0.08) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .zero-toggle {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .stylish-button {
+  background: var(--accent) !important;
+  color: #fff !important;
 }

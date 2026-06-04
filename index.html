@@ -1,34 +1,45 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
-  <!-- Fix [15]: charset must appear before any script to avoid encoding bugs -->
+<script>
+  (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <!-- Fix [16]: manifest link added so landing page can trigger PWA install -->
+  <meta name="description" content="FIN-OS — India's financial operating system. Replace money myths with clarity and long-term thinking.">
+  <meta name="theme-color" content="#0B0D12">
+  <meta property="og:title" content="FIN-OS | Financial Operating System for India">
+  <meta property="og:description" content="Replace confusion, myths, and noise with clarity and long-term thinking.">
   <link rel="manifest" href="manifest.json">
-  <!-- THEME GUARD (shared across app) -->
+  <!-- Theme guard: reads localStorage before any paint to prevent flash -->
   <script src="js/ui.js"></script>
 
-  <title>FIN-OS | Financial Operating System</title>
+  <title>FIN-OS | Financial Operating System for India</title>
 
+  <!-- Design tokens first so all subsequent CSS can reference variables -->
+  <link rel="stylesheet" href="css/design-tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/landing.css">
-  
+  <link rel="stylesheet" href="css/interactions.css">
 </head>
 
 <body>
-                  <!-- FIN-OS LOGO (TOP LEFT) -->
-                  <a href="index.html" class="finos-logo">FIN-OS  </a>
+  <!-- Skip to main content (WCAG 2.4.1) -->
+  <a href="#landing-main" class="landing-skip-link">Skip to main content</a>
 
-                  <!-- PREMIUM BACKGROUND CANVAS -->
-                  <div class="bg-canvas"></div>
+  <!-- FIN-OS LOGO (TOP LEFT) -->
+  <a href="index.html" class="finos-logo" aria-label="FIN-OS — Home">FIN•OS</a>
 
+  <!-- PREMIUM BACKGROUND CANVAS (decorative) -->
+  <div class="bg-canvas" aria-hidden="true"></div>
 
-<!-- THEME TOGGLE (SAME BUTTON, SAME LOGIC) -->
-  <button id="themeToggle" class="theme-btn landing-theme">🌙</button>
+  <!-- THEME TOGGLE -->
+  <button id="themeToggle" class="theme-btn landing-theme"
+          aria-label="Toggle dark/light theme" title="Toggle theme">🌙</button>
 
+<main id="landing-main">
 <div class="landing">
 
   <!-- ================= HERO ================= -->
@@ -668,10 +679,6 @@
 </section>
 
 
-<br>
-<br>
-<br>
-
 <div class="fin-divider fin-divider--mark"></div>
 <section class="belief-engine">
   <h2>Your <span class="text-highlight">Beliefs</span>, Over Time</h2>
@@ -728,16 +735,14 @@
 <div class="fin-divider fin-divider--mark"></div>
 
   <!-- ================= FIN-OS INDIA VISION ================= -->
-<section class="vision-section">
-  <header class="vision-header">
-    <h2><span class="text-highlight">What FIN-OS Is Building for India</span>
-    </h2>
-
+<section class="vision-section" aria-labelledby="vision-heading">
+  <div class="vision-header">
+    <h2 id="vision-heading"><span class="text-highlight">What FIN-OS Is Building for India</span></h2>
     <p>
       A financial operating system designed for real Indian life —
       not sales funnels or market noise.
     </p>
-  </header>
+  </div>
 
   <div class="vision-grid">
 
@@ -826,6 +831,143 @@
   </button>
 </section>
 
+</div><!-- /.landing -->
+</main>
+
+<!-- ── SITE FOOTER ──────────────────────────────────────────── -->
+<footer class="landing-footer" role="contentinfo">
+  <div class="landing-footer-inner">
+    <div class="landing-footer-brand">
+      <span class="landing-footer-logo">FIN•OS</span>
+      <p>India's financial operating system.<br>Built for long-term thinkers.</p>
+    </div>
+    <nav class="landing-footer-nav" aria-label="Footer navigation">
+      <a href="html/home.html">App</a>
+      <a href="html/foundations.html">Learn</a>
+      <a href="html/diagnostics.html">Diagnostics</a>
+      <a href="html/track-finances.html">Track Finances</a>
+    </nav>
+    <div class="landing-footer-legal">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <span>© 2025 FIN-OS. Not SEBI registered. Not financial advice.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ── STICKY CTA BAR (appears after scrolling past hero) ──── -->
+<div id="sticky-cta" class="landing-sticky-cta" aria-hidden="true">
+  <span class="sticky-cta-text">Start building your financial OS — free.</span>
+  <button class="primary-btn btn-sm" id="stickyCTABtn">Enter FIN-OS</button>
+</div>
+
+<style>
+  /* Landing skip link */
+  .landing-skip-link {
+    position: absolute; top: -100px; left: 16px; z-index: 9999;
+    background: var(--accent); color: #fff;
+    padding: 10px 18px; border-radius: 8px;
+    font-weight: 700; font-size: 14px; text-decoration: none;
+    transition: top 0.2s;
+  }
+  .landing-skip-link:focus { top: 16px; }
+
+  /* Footer */
+  .landing-footer {
+    background: var(--bg-main);
+    border-top: 1px solid var(--border-soft);
+    padding: var(--space-14, 56px) 8vw var(--space-8, 32px);
+    margin-top: var(--space-12, 48px);
+  }
+  .landing-footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 48px;
+    align-items: start;
+  }
+  .landing-footer-logo {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 10px;
+  }
+  .landing-footer-brand p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .landing-footer-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .landing-footer-nav a {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .landing-footer-nav a:hover { color: var(--text-primary); }
+  .landing-footer-legal {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .landing-footer-legal a {
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .landing-footer-legal a:hover { text-decoration: underline; }
+
+  /* Sticky CTA */
+  .landing-sticky-cta {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 14px 24px 14px 20px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-pill, 9999px);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.20);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.4s ease;
+    opacity: 0;
+    white-space: nowrap;
+  }
+  .landing-sticky-cta.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+  .sticky-cta-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  @media (max-width: 600px) {
+    .landing-footer-inner {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+    .sticky-cta-text { display: none; }
+    .landing-sticky-cta { padding: 12px 20px; }
+  }
+</style>
+
 <!-- AUTH / ROUTING -->
 <script src="js/landing.js"></script>
 
@@ -891,7 +1033,34 @@
 
     } catch (_) { /* never break the landing page */ }
   })();
+
+  // ── Sticky CTA: appears after user scrolls 400px past hero ──────────────────
+  (function() {
+    const stickyCTA = document.getElementById('sticky-cta');
+    const stickyCTABtn = document.getElementById('stickyCTABtn');
+    const heroSection = document.querySelector('.landing-hero');
+    if (!stickyCTA || !heroSection) return;
+
+    let shown = false;
+    const heroBottom = () => heroSection.getBoundingClientRect().bottom + window.scrollY;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting && !shown) {
+        shown = true;
+        stickyCTA.classList.add('visible');
+        stickyCTA.setAttribute('aria-hidden', 'false');
+      } else if (entry.isIntersecting) {
+        shown = false;
+        stickyCTA.classList.remove('visible');
+        stickyCTA.setAttribute('aria-hidden', 'true');
+      }
+    }, { threshold: 0 });
+
+    observer.observe(heroSection);
+    if (stickyCTABtn) stickyCTABtn.addEventListener('click', () => window.location.href = 'html/home.html');
+  })();
 </script>
 
+  <script src="js/interactions.js" defer></script>
 </body>
 </html>

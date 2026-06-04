@@ -449,7 +449,11 @@ Give me a brutally honest assessment. Use markdown headers:
                         if (data.session_id) currentSessionId = data.session_id;
                         if (data.token) {
                             fullContent += data.token;
-                            msgDiv.innerHTML = marked.parse(fullContent);
+                            // Sanitize LLM output before rendering as HTML to prevent XSS
+                            const rawHtml = marked.parse(fullContent);
+                            msgDiv.innerHTML = typeof DOMPurify !== 'undefined'
+                                ? DOMPurify.sanitize(rawHtml)
+                                : rawHtml.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/javascript:/gi, '');
                             verdictBox.scrollTop = verdictBox.scrollHeight;
                         }
                         if (data.done) break;
