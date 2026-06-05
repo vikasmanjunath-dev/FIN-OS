@@ -198,7 +198,7 @@ Zero-fill hover vocabulary — no background fills on hover:
 | Toggle | Every page has `#themeToggle` or fixed-position button |
 | Persistence | Written to `finos-theme`, `theme`, `FINOS_SYS_SETTINGS.theme` |
 | CSS tokens | All colour values via `var(--token)` — no hardcoded hex |
-| Light coverage | 326 rules in `theme.css` |
+| Light coverage | 360 rules in `theme.css` |
 | New page checklist | See FR-08.3 |
 
 ### FR-08.3 New Page Requirements

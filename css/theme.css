@@ -227,19 +227,21 @@
    SIDEBAR (always dark - by design)
    ═══════════════════════════════════ */
 :root[data-theme="light"] .sidebar {
-  background: #0E1117 !important;
+  background: #FFFFFF !important;
+  border-right-color: rgba(0,0,0,0.08) !important;
 }
 :root[data-theme="light"] .sidebar .logo,
 :root[data-theme="light"] .sidebar nav a {
-  color: #A1A4AC;
+  color: #4A5068;
 }
 :root[data-theme="light"] .sidebar nav a.active,
 :root[data-theme="light"] .sidebar nav a[aria-current="page"] {
   color: #4F7CFF;
+  background: rgba(79,124,255,0.08);
 }
 :root[data-theme="light"] .sidebar nav a:hover {
-  color: rgba(255,255,255,.9);
-  background: transparent;
+  color: #0B0D12;
+  background: rgba(0,0,0,0.04);
   transform: translateX(2px);
 }
 
@@ -295,7 +297,9 @@
    MOBILE NAV
    ═══════════════════════════════════ */
 :root[data-theme="light"] .mob-topbar {
-  background: #0E1117 !important;
+  background: #FFFFFF !important;
+  border-bottom-color: rgba(0,0,0,0.1) !important;
+  color: #0B0D12 !important;
 }
 
 /* ═══════════════════════════════════
@@ -351,11 +355,11 @@
   background: radial-gradient(ellipse at 50% 0%, rgba(79,124,255,.04) 0%, transparent 70%) !important;
 }
 
-/* ── Hedgefund page – hardcoded dark nav link color ── */
-:root[data-theme="light"] .sidebar nav a { color: #A1A4AC; }
+/* ── Sidebar nav link colors (canonical, all pages) ── */
+:root[data-theme="light"] .sidebar nav a { color: #4A5068; }
 :root[data-theme="light"] .sidebar nav a.active,
-:root[data-theme="light"] .sidebar nav a[aria-current="page"] { color: #C7F000; }
-:root[data-theme="light"] .sidebar nav a:hover { color: #ffffff !important; }
+:root[data-theme="light"] .sidebar nav a[aria-current="page"] { color: #4F7CFF; }
+:root[data-theme="light"] .sidebar nav a:hover { color: #0B0D12 !important; }
 
 /* ── Principles / roadmap cards ── */
 :root[data-theme="light"] .c-head { color: #0B0C15; }
@@ -1041,9 +1045,69 @@ button[id="themeToggle"][style*="position:fixed"] {
 }
 
 /* ── Generic: any element with explicit color:#fff inline gets fixed ── */
-/* Already covered by !important rule above, reinforcing with class patterns */
 :root[data-theme="light"] .text-white,
 :root[data-theme="light"] [class*="text-white"] {
   color: #0B0D12 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   LIGHT MODE — INLINE STYLE OVERRIDES
+   Inline styles (highest CSS specificity) need !important to be
+   overridden. These target the most common hardcoded dark-mode
+   values found across the 96-page codebase.
+═══════════════════════════════════════════════════════════════════ */
+
+/* Hardcoded white text → readable dark in light mode */
+:root[data-theme="light"] [style*="color:#fff"],
+:root[data-theme="light"] [style*="color: #fff"],
+:root[data-theme="light"] [style*="color:#FFF"],
+:root[data-theme="light"] [style*="color:white"],
+:root[data-theme="light"] [style*="color: white"],
+:root[data-theme="light"] [style*="color:#ffffff"],
+:root[data-theme="light"] [style*="color:#FFFFFF"] {
+  color: var(--text-primary) !important;
+}
+
+/* Hardcoded dark backgrounds → surface token in light mode */
+:root[data-theme="light"] [style*="background:#0b0d12"],
+:root[data-theme="light"] [style*="background: #0b0d12"],
+:root[data-theme="light"] [style*="background:#0B0D12"],
+:root[data-theme="light"] [style*="background:#0d0f1a"],
+:root[data-theme="light"] [style*="background:#0d0d14"],
+:root[data-theme="light"] [style*="background:#07080f"],
+:root[data-theme="light"] [style*="background:#0e1117"],
+:root[data-theme="light"] [style*="background:#111218"],
+:root[data-theme="light"] [style*="background:#12141c"] {
+  background: var(--bg-surface) !important;
+}
+
+/* Hardcoded semi-transparent white backgrounds → light token */
+:root[data-theme="light"] [style*="background:rgba(255,255,255,.05)"],
+:root[data-theme="light"] [style*="background:rgba(255,255,255,0.05)"],
+:root[data-theme="light"] [style*="background:rgba(255,255,255,.08)"],
+:root[data-theme="light"] [style*="background:rgba(255,255,255,0.08)"],
+:root[data-theme="light"] [style*="background:rgba(255,255,255,.1)"],
+:root[data-theme="light"] [style*="background:rgba(255,255,255,0.1)"] {
+  background: rgba(0,0,0,0.04) !important;
+}
+
+/* Hardcoded near-white transparent borders → soft border token */
+:root[data-theme="light"] [style*="border-color:rgba(255,255,255,.1)"],
+:root[data-theme="light"] [style*="border:1px solid rgba(255,255,255,.1)"],
+:root[data-theme="light"] [style*="border:1px solid rgba(255,255,255,0.1)"],
+:root[data-theme="light"] [style*="border:1px solid rgba(255,255,255,.08)"] {
+  border-color: var(--border-soft) !important;
+}
+
+/* Muted white text (opacity applied) → dark muted in light mode */
+:root[data-theme="light"] [style*="color:rgba(255,255,255,.6)"],
+:root[data-theme="light"] [style*="color:rgba(255,255,255,0.6)"],
+:root[data-theme="light"] [style*="color:rgba(255,255,255,.7)"],
+:root[data-theme="light"] [style*="color:rgba(255,255,255,.8)"],
+:root[data-theme="light"] [style*="color:rgba(255,255,255,.55)"],
+:root[data-theme="light"] [style*="color:rgba(255,255,255,.5)"],
+:root[data-theme="light"] [style*="color:rgba(255,255,255,.4)"],
+:root[data-theme="light"] [style*="color:rgba(255,255,255,.3)"] {
+  color: var(--text-secondary) !important;
 }
 

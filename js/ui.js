@@ -161,19 +161,41 @@ function _finosUIInit() {
      THEME TOGGLE (GLOBAL)
      ========================= */
 
-  var themeBtn = document.getElementById("themeToggle");
-  if (!themeBtn) return;
+  // Recognise all theme-button ID conventions used across the site
+  var themeBtn = document.getElementById("themeToggle")
+              || document.getElementById("floatThemeBtn")
+              || document.getElementById("themeBtn");
 
-  var savedTheme = localStorage.getItem("finos-theme") || localStorage.getItem("theme") || "dark";
-  document.documentElement.setAttribute("data-theme", savedTheme);
-  themeBtn.textContent = savedTheme === "dark" ? "🌙" : "☀️";
-  themeBtn.setAttribute("aria-label", savedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+  // Auto-inject a floating toggle on pages that have no existing toggle button
+  if (!themeBtn) {
+    themeBtn = document.createElement("button");
+    themeBtn.id = "themeToggle";
+    themeBtn.className = "theme-btn theme-btn--floating";
+    themeBtn.setAttribute("aria-label", "Toggle dark/light theme");
+    themeBtn.setAttribute("title", "Toggle theme");
+    document.body.appendChild(themeBtn);
+  } else {
+    // Strip any pre-attached inline event listeners by cloning the node.
+    // Inline IIFE/bare scripts run before this deferred script, so their
+    // listeners live on the original element — the clone starts listener-free.
+    var _orig = themeBtn;
+    themeBtn = _orig.cloneNode(true);
+    _orig.parentNode.replaceChild(themeBtn, _orig);
+  }
 
-  themeBtn.addEventListener("click", function () {
-    var current = document.documentElement.getAttribute("data-theme");
-    var next = current === "dark" ? "light" : "dark";
+  function _syncThemeBtn(theme) {
+    themeBtn.textContent = theme === "dark" ? "🌙" : "☀️";
+    themeBtn.setAttribute("aria-label", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+  }
 
+  function _applyTheme(next) {
     document.documentElement.setAttribute("data-theme", next);
+    // Sync Tailwind darkMode: 'class' for pages that use it
+    if (next === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
     localStorage.setItem("finos-theme", next);
     localStorage.setItem("theme", next);
     try {
@@ -181,8 +203,27 @@ function _finosUIInit() {
       s.theme = next;
       localStorage.setItem("FINOS_SYS_SETTINGS", JSON.stringify(s));
     } catch (_) {}
-    themeBtn.textContent = next === "dark" ? "🌙" : "☀️";
-    themeBtn.setAttribute("aria-label", next === "dark" ? "Switch to light mode" : "Switch to dark mode");
+    _syncThemeBtn(next);
+    // Notify Chart.js instances and any other listeners
+    window.dispatchEvent(new CustomEvent("finos-theme-changed", { detail: { theme: next } }));
+  }
+
+  var savedTheme = localStorage.getItem("finos-theme") || localStorage.getItem("theme") || "dark";
+  document.documentElement.setAttribute("data-theme", savedTheme);
+  _syncThemeBtn(savedTheme);
+
+  // Clone is always a fresh node — attach exactly one listener
+  themeBtn.addEventListener("click", function () {
+    var current = document.documentElement.getAttribute("data-theme") || "dark";
+    _applyTheme(current === "dark" ? "light" : "dark");
+  });
+
+  // Sync all theme buttons on the page if settings.js fires its own event
+  window.addEventListener("finos-settings-updated", function (e) {
+    if (e.detail && e.detail.key === "theme") {
+      var resolved = document.documentElement.getAttribute("data-theme") || "dark";
+      _syncThemeBtn(resolved);
+    }
   });
 
 } // end _finosUIInit
@@ -194,6 +235,44 @@ if (document.readyState === 'loading') {
 } else {
   _finosUIInit();
 }
+
+/* ─── GLOBAL CHART.JS THEME UPDATER ─────────────────────────────
+   Listens for finos-theme-changed (dispatched by ui.js toggle)
+   and finos-settings-updated (dispatched by settings.js).
+   Updates all registered Chart.js instances' text colors.
+──────────────────────────────────────────────────────────────── */
+(function () {
+  function _updateCharts(isDark) {
+    if (typeof Chart === 'undefined' || !Chart.instances) return;
+    var textColor = isDark ? '#A1A8B8' : '#5A6278';
+    var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.07)';
+    Object.values(Chart.instances).forEach(function (chart) {
+      try {
+        var opts = chart.options;
+        if (opts.plugins && opts.plugins.legend && opts.plugins.legend.labels) {
+          opts.plugins.legend.labels.color = textColor;
+        }
+        var scales = opts.scales || {};
+        Object.values(scales).forEach(function (scale) {
+          if (scale.ticks) scale.ticks.color = textColor;
+          if (scale.grid)  scale.grid.color  = gridColor;
+        });
+        chart.update('none'); // silent update — no animation
+      } catch (e) { /* individual chart errors must not block others */ }
+    });
+  }
+
+  function _onThemeChange() {
+    var isDark = (document.documentElement.getAttribute('data-theme') || 'dark') === 'dark';
+    // Small delay so CSS variables are applied before chart reads colors
+    setTimeout(function () { _updateCharts(isDark); }, 60);
+  }
+
+  window.addEventListener('finos-theme-changed', _onThemeChange);
+  window.addEventListener('finos-settings-updated', function (e) {
+    if (e.detail && e.detail.key === 'theme') _onThemeChange();
+  });
+})();
 
 
 // =========================

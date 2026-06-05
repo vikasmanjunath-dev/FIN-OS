@@ -179,10 +179,12 @@
 
   
 
-/* ── Light mode text overrides (auto-generated) ── */
-[data-theme="light"] .markdown-body strong {
-  color: var(--text-primary) !important;
-}</style>
+/* ── Light mode text overrides ── */
+[data-theme="light"] .markdown-body strong { color: var(--text-primary) !important; }
+[data-theme="light"] .markdown-body p      { color: var(--text-secondary) !important; }
+[data-theme="light"] .markdown-body li     { color: var(--text-secondary) !important; }
+[data-theme="light"] .markdown-body h3     { color: var(--text-primary) !important; }
+</style>
   <link rel="stylesheet" href="../css/interactions.css">
 </head>
 
@@ -524,8 +526,8 @@
 <!-- [FIX] type="module" is omitted intentionally — finances.js uses DOMContentLoaded,
      which fires correctly without it; adding module would change execution order -->
 <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
-  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/arya-ai.js?v=4" defer></script>
 <script>
 (async function() {
   const el = document.getElementById('arya-xray-coach-text');
@@ -574,12 +576,12 @@ Tone: sharp, direct, data-driven. Each bullet = 1 sentence. Use their actual num
 <a id="floatBackBtn" href="#" onclick="history.back(); return false;"
    role="button" aria-label="Go back to previous page">‹ BACK</a>
 
-  <script src="../js/finos-widget.js?v=4"></script>
+  <script src="../js/finos-widget.js?v=6"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <script src="../js/sidebar.js"></script>
   <script src="../js/interactions.js" defer></script>
-<button id="themeToggle" class="theme-btn" style="position:fixed;top:16px;right:16px;z-index:150;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;" aria-label="Toggle dark/light theme">🌙</button>
+<button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
 <script>
 (function(){
   var btn=document.getElementById('themeToggle');

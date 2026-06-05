@@ -14,8 +14,8 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
-  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/arya-ai.js?v=4" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
   <script src="../js/tax-dossier.js" defer></script>
 <style>
@@ -165,6 +165,26 @@
 .page-breadcrumb a { color:rgba(255,255,255,.4); text-decoration:none; }
 .page-breadcrumb a:hover { color:#a78bfa; }
 .page-breadcrumb span { color:rgba(255,255,255,.2); }
+
+/* ── LIGHT MODE ───────────────────────────────────────────── */
+[data-theme="light"] .ca-tab { color:rgba(0,0,0,.5); }
+[data-theme="light"] .ca-tab:hover:not(.active) { color:rgba(0,0,0,.7); }
+[data-theme="light"] .ca-card-title { color:rgba(0,0,0,.45); }
+[data-theme="light"] .ca-label { color:rgba(0,0,0,.5); }
+[data-theme="light"] .ca-select option { background:#ffffff; color:#0B0D12; }
+[data-theme="light"] .ca-advisor-name { color:#0B0D12; }
+[data-theme="light"] .ca-advisor-role { color:rgba(0,0,0,.45); }
+[data-theme="light"] .ca-access-label { color:#0B0D12; }
+[data-theme="light"] .ca-access-sub { color:rgba(0,0,0,.4); }
+[data-theme="light"] .ca-toggle { background:rgba(0,0,0,.1); }
+[data-theme="light"] .ca-log-time { color:rgba(0,0,0,.35); }
+[data-theme="light"] .ca-note-date { color:rgba(0,0,0,.35); }
+[data-theme="light"] .ca-note-text { color:rgba(0,0,0,.65); }
+[data-theme="light"] .ca-dossier-section { color:rgba(0,0,0,.45); }
+[data-theme="light"] .ca-dossier-label { color:rgba(0,0,0,.5); }
+[data-theme="light"] .page-breadcrumb,
+[data-theme="light"] .page-breadcrumb a { color:rgba(0,0,0,.45); }
+[data-theme="light"] .page-breadcrumb span { color:rgba(0,0,0,.25); }
 </style>
   <link rel="stylesheet" href="../css/interactions.css">
 </head>
@@ -480,7 +500,7 @@
   </main>
 </div><!-- /app -->
 
-<script src="../js/finos-widget.js?v=5"></script>
+<script src="../js/finos-widget.js?v=6"></script>
 <script src="../js/mobile-nav.js" defer></script>
 
 <script>
@@ -597,7 +617,7 @@
 
 <script src="../js/sidebar.js"></script>
   <script src="../js/interactions.js" defer></script>
-<button id="themeToggle" class="theme-btn" style="position:fixed;top:16px;right:16px;z-index:150;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;" aria-label="Toggle dark/light theme">🌙</button>
+<button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
 <script>
 (function(){
   var btn=document.getElementById('themeToggle');

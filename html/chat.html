@@ -35,6 +35,7 @@
     <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/components.css">
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
   <meta property="og:image" content="/assets/icons/icon-512.svg">
@@ -43,7 +44,7 @@
   <link rel="stylesheet" href="../css/interactions.css">
 </head>
 <body>
-<button id="floatThemeBtn" style="position:fixed;top:16px;right:16px;z-index:200;width:40px;height:40px;border-radius:50%;background:var(--bg-surface);border:1px solid var(--border-soft);color:var(--text-primary);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--card-shadow);transition:transform 160ms,box-shadow 160ms;" aria-label="Toggle theme" onclick="(function(){var t=document.documentElement.getAttribute('data-theme');var n=t==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('finos-theme',n);this.textContent=n==='dark'?'🌙':'☀️';}).call(this)">🌙</button>
+<button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle theme">🌙</button>
 
   <div class="header">
     <div class="dot"></div>
@@ -61,7 +62,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
   <script>
     const chatBox = document.getElementById('chatBox');
     const chatInput = document.getElementById('chatInput');
@@ -173,7 +174,7 @@
     sendBtn.addEventListener('click', sendMessage);
     chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
   </script>
-  <script src="../js/finos-widget.js?v=4"></script>
+  <script src="../js/finos-widget.js?v=6"></script>
   <script src="../js/finos-search.js?v=2"></script>
   <script src="../js/ui.js" defer></script>
   <script src="../js/mobile-nav.js" defer></script>

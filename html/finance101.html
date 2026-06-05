@@ -33,8 +33,6 @@
 
 <body>
 <div class="app">
-
- <div class="app">
           <aside class="sidebar" role="complementary" aria-label="Navigation">
 
     <!-- Brand -->
@@ -488,47 +486,6 @@
     </div> </main>
 </div>
 
-    </div> </main>
-</div> ```
-
-### **3. Stabilize the CSS (`css/finance101.css`)**
-Add this to ensure the footer doesn't float and the layout is rigid.
-
-```css
-/* =========================
-   STABILITY FIXES
-   ========================= */
-
-/* Stop any rogue animations */
-.module, .intro-card, .fin-footer {
-  opacity: 1 !important;
-  transform: none !important;
-  transition: none !important;
-  animation: none !important; /* Kills any infinite looping animations */
-}
-
-/* Ensure Footer is grounded */
-.fin-footer {
-  margin-top: 80px;
-  margin-bottom: 40px;
-  padding: 60px 40px;
-  background: var(--bg-surface); /* Solid surface instead of gradient */
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 32px;
-  text-align: center;
-  position: relative; /* Ensures it stays in flow */
-  z-index: 1;
-  box-shadow: none; /* Remove shadow if it looks like it's floating */
-}
-
-/* Fix Pulse if that was the "infinite" thing */
-.pulse-circle {
-  animation: none; /* Stops the pulsing if it was annoying */
-  box-shadow: 0 0 0 10px rgba(199, 240, 0, 0.1); /* Static glow */
-}
-    </div>
-  </main>
-</div>
 
 <script src="../js/ui.js" defer></script>
 <script src="../js/finance101.js"></script>
@@ -554,7 +511,7 @@ Add this to ensure the footer doesn't float and the layout is rigid.
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
   <script src="../chatbot/qft-engine.js"></script>
-  <script src="../js/finos-widget.js?v=4"></script>
+  <script src="../js/finos-widget.js?v=6"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <script src="../js/sidebar.js"></script>

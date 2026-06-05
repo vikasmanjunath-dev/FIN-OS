@@ -26,8 +26,8 @@
   <link rel="stylesheet" href="../css/insight-cards.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
-  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/arya-ai.js?v=4" defer></script>
   <script src="../js/arya-memory.js" defer></script>
   <script src="../js/arya-life-events.js" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
@@ -582,6 +582,20 @@
       <!-- Arya AI brief — populated by arya-ai.js / dashboard.js -->
       <div id="arya-brief-placeholder" aria-live="polite"></div>
 
+      <!-- AI PORTFOLIO AUTOPSY -->
+      <div id="portfolio-autopsy-card" style="background:var(--bg-surface);border:1px solid var(--border-soft);border-radius:20px;padding:20px;margin-bottom:16px;display:none;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,rgba(248,113,113,.2),rgba(255,107,53,.1));display:flex;align-items:center;justify-content:center;font-size:16px;">🔬</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--text-primary);">Portfolio Autopsy</div>
+            <div style="font-size:11px;color:var(--text-muted);">AI analysis of your holdings vs market events</div>
+          </div>
+          <button id="autopsy-refresh" onclick="window._runAutopsy()" style="margin-left:auto;padding:6px 12px;border-radius:8px;background:var(--bg-glass);border:1px solid var(--border-soft);color:var(--text-secondary);font-size:11px;font-weight:600;cursor:pointer;">↻ Refresh</button>
+        </div>
+        <div id="autopsy-content" style="font-size:13px;color:var(--text-secondary);line-height:1.7;"></div>
+        <div id="autopsy-metrics" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:12px;"></div>
+      </div>
+
       <!-- Smart nudges / action items -->
       <div class="nudges-panel">
         <div id="dashboard-nudges" aria-live="polite">
@@ -807,7 +821,7 @@
 <script src="../js/ui.js" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=4"></script>
+<script src="../js/finos-widget.js?v=6"></script>
 <script src="../js/finos-search.js?v=2"></script>
 <script src="../js/finos-progressive-mode.js" defer></script>
 <script src="../js/finos-webauthn.js" defer></script>
@@ -929,5 +943,86 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script src="../js/sidebar.js"></script>
   <script src="../js/interactions.js" defer></script>
+
+<script>
+window._runAutopsy = function() {
+  const card = document.getElementById('portfolio-autopsy-card');
+  const content = document.getElementById('autopsy-content');
+  const metrics = document.getElementById('autopsy-metrics');
+  if (!card || !content) return;
+
+  card.style.display = 'block';
+
+  const ctx = window.FINOS_USER_CONTEXT || {};
+  const portfolio = ctx.financial?.portfolio || {};
+  const netWorth = ctx.profile?.net_worth || 0;
+  const pnl = portfolio.pnl || 0;
+  const pnlPct = portfolio.pnl_pct || 0;
+  const equityPct = portfolio.equity_pct || 0;
+  const holdings = portfolio.holdings || [];
+  const tradeStats = ctx.trade_journal || {};
+
+  function INR(n) {
+    const num = Number(n)||0;
+    if(num>=1e7) return '₹'+(num/1e7).toFixed(1)+' Cr';
+    if(num>=1e5) return '₹'+(num/1e5).toFixed(1)+' L';
+    if(num>=1e3) return '₹'+Math.round(num/1e3)+'K';
+    return '₹'+Math.round(num).toLocaleString('en-IN');
+  }
+
+  // Show metrics
+  if (metrics && netWorth > 0) {
+    metrics.innerHTML = [
+      { label: 'Net Worth', value: INR(netWorth), color: 'var(--accent)' },
+      { label: 'Portfolio P&L', value: INR(pnl), color: pnl >= 0 ? 'var(--color-success)' : 'var(--color-error)' },
+      { label: 'P&L %', value: (pnlPct >= 0 ? '+' : '') + pnlPct + '%', color: pnlPct >= 0 ? 'var(--color-success)' : 'var(--color-error)' },
+      { label: 'Equity Allocation', value: equityPct + '%', color: 'var(--color-info)' },
+    ].map(k => `
+      <div style="background:var(--bg-glass);border:1px solid var(--border-soft);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;">${k.label}</div>
+        <div style="font-size:.95rem;font-weight:800;color:${k.color};">${k.value}</div>
+      </div>`).join('');
+  }
+
+  // Build autopsy prompt
+  const hasData = netWorth > 0 || holdings.length > 0 || tradeStats.total_trades > 0;
+
+  if (!hasData) {
+    content.innerHTML = `<span style="color:var(--text-muted);font-style:italic;">Add your portfolio data in Track → Portfolio to get a personalized autopsy.</span>`;
+    return;
+  }
+
+  content.innerHTML = '<span style="color:var(--text-muted);">Arya is analysing your portfolio…</span>';
+
+  const name = ctx.identity?.name || 'yaar';
+  const prompt = `Portfolio autopsy for ${name}.
+Net worth: ${INR(netWorth)}, P&L: ${INR(pnl)} (${pnlPct}%), Equity allocation: ${equityPct}%.
+${tradeStats.total_trades > 0 ? `Trade journal: ${tradeStats.total_trades} trades, win rate ${tradeStats.win_rate || 0}%, total P&L ${INR(tradeStats.total_pnl || 0)}.` : ''}
+${tradeStats.worst_symbol ? `Worst symbol: ${tradeStats.worst_symbol}.` : ''}
+DNA: ${ctx.identity?.financial_dna || 'unknown'}, Health score: ${ctx.profile?.health_score || 0}/100.
+
+Give a 4-point portfolio autopsy in Hinglish:
+1. Strengths (what's working)
+2. Vulnerabilities (biggest risk right now)
+3. One behavioral pattern you notice
+4. Single most important action this week
+Be specific, use their actual numbers.`;
+
+  if (window.AryaAI?.ask) {
+    content.textContent = '';
+    window.AryaAI.ask(prompt, tok => { content.textContent += tok; });
+  } else {
+    content.textContent = 'Connect Ollama to get your personalized portfolio autopsy. Start with: ollama serve';
+  }
+};
+
+// Auto-run autopsy on context ready
+window.addEventListener('finos-context-ready', () => {
+  const ctx = window.FINOS_USER_CONTEXT || {};
+  if ((ctx.profile?.net_worth > 0) || (ctx.trade_journal?.total_trades > 0)) {
+    setTimeout(window._runAutopsy, 1500);
+  }
+});
+</script>
 </body>
 </html>

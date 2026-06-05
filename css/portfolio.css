@@ -240,6 +240,27 @@
 [data-theme="light"] .h-item { background: rgba(0,0,0,0.04); }
 [data-theme="light"] .h-sub { border-left-color: rgba(0,0,0,0.1); }
 
+/* ── PORTFOLIO — ADDITIONAL LIGHT MODE OVERRIDES ─────────────── */
+/* h-row border and text */
+[data-theme="light"] .h-row {
+  border-bottom-color: rgba(0,0,0,0.05);
+  color: #4A5068;
+}
+
+/* stat-card h2 gradient — white fallback looks good but add dark version */
+[data-theme="light"] .stat-card h2 {
+  background: linear-gradient(90deg, #0B0D12, #4A5068);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* risk-bar track already uses rgba(0,0,0,.1) — fine */
+
+/* drop-zone already uses var() tokens — fine */
+/* breakdown-section has no bg — fine */
+
+/* chart-card / insight-card use var(--bg-surface) — fine */
+
 
 
 

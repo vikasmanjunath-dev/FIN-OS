@@ -98,9 +98,9 @@ FIN-OS fills this gap with a voice-first, desi-native AI that speaks the user's 
 - [x] Trade journal with Supabase sync
 - [x] 14+ education modules (equity, MF, F&O, insurance, etc.)
 - [x] PWA (installable, offline-capable, push notifications)
-- [x] **Design token system** (92 CSS variables, single source of truth)
+- [x] **Design token system** (133 CSS variables, single source of truth)
 - [x] **Premium hover system** (180+ effects, zero-fill vocabulary, `interactions.css/js`)
-- [x] **Full light/dark theme** (326 rules, 96-page coverage, FOUC-free)
+- [x] **Full light/dark theme** (360 rules, 96-page coverage, FOUC-free)
 - [x] Portfolio Analyser accessible from Dashboard quick-access bar
 
 ### Should Have (in progress / near-term)

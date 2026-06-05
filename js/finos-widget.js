@@ -254,6 +254,280 @@
     ></iframe>
   `;
 
+  /* ── QUICK-LOG BUTTON (Voice Journal) ──────────────────────────────────── */
+  const qlCSS = `
+    #finos-ql-btn {
+      position:fixed; bottom:88px; right:28px; z-index:99997;
+      width:40px; height:40px; border-radius:50%; border:none; cursor:pointer;
+      background:linear-gradient(135deg,#c7f000,#22d3a6);
+      box-shadow:0 3px 14px rgba(199,240,0,.35);
+      display:flex; align-items:center; justify-content:center;
+      font-size:16px; transition:transform .18s ease, opacity .18s ease;
+      opacity:.88;
+    }
+    #finos-ql-btn:hover { transform:scale(1.12); opacity:1; }
+    #finos-ql-panel {
+      position:fixed; bottom:136px; right:28px; z-index:99997;
+      width:320px; background:#12151d; border:1px solid rgba(199,240,0,.2);
+      border-radius:18px; padding:16px; box-shadow:0 8px 40px rgba(0,0,0,.6);
+      display:none; flex-direction:column; gap:10px;
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    }
+    #finos-ql-panel.open { display:flex; }
+    #finos-ql-input {
+      width:100%; padding:10px 14px; border-radius:10px;
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+      color:#fff; font-size:13px; outline:none; resize:none; min-height:42px;
+      font-family:inherit;
+    }
+    #finos-ql-input::placeholder { color:rgba(255,255,255,.3); }
+    .ql-row { display:flex; gap:6px; }
+    .ql-btn {
+      flex:1; padding:8px; border-radius:8px; border:none; cursor:pointer;
+      font-size:11px; font-weight:700; transition:all .15s;
+    }
+    .ql-btn.primary { background:#c7f000; color:#000; }
+    .ql-btn.primary:hover { filter:brightness(1.1); }
+    .ql-btn.voice { background:rgba(255,255,255,.06); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.1); }
+    .ql-btn.voice.listening { background:rgba(255,71,87,.12); color:#ff4757; border-color:rgba(255,71,87,.3); animation:qlPulse .7s infinite; }
+    .ql-btn.close-ql { background:transparent; color:rgba(255,255,255,.3); border:1px solid rgba(255,255,255,.08); flex:0; padding:8px 10px; }
+    #finos-ql-parsed { font-size:11px; padding:8px 10px; border-radius:8px; background:rgba(0,0,0,.2); color:rgba(255,255,255,.6); display:none; line-height:1.5; }
+    #finos-ql-history { max-height:100px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; }
+    .ql-entry { font-size:11px; padding:5px 8px; border-radius:6px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.05); color:rgba(255,255,255,.55); display:flex; justify-content:space-between; }
+    .ql-entry-amount { color:#c7f000; font-weight:700; }
+    @keyframes qlPulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+    [data-theme="light"] #finos-ql-panel { background:#fff; border-color:rgba(0,0,0,.1); box-shadow:0 8px 32px rgba(0,0,0,.12); }
+    [data-theme="light"] #finos-ql-input { background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.12); color:#0B0D12; }
+    [data-theme="light"] .ql-entry { background:rgba(0,0,0,.02); border-color:rgba(0,0,0,.06); color:#4A5068; }
+    [data-theme="light"] #finos-ql-parsed { background:rgba(0,0,0,.04); color:#4A5068; }
+    [data-theme="light"] .ql-btn.voice { background:rgba(0,0,0,.04); color:#4A5068; border-color:rgba(0,0,0,.1); }
+  `;
+  const qlStyle = document.createElement('style');
+  qlStyle.textContent = qlCSS;
+  document.head.appendChild(qlStyle);
+
+  const qlBtn = document.createElement('button');
+  qlBtn.id = 'finos-ql-btn';
+  qlBtn.title = 'Quick Log — voice or type an expense/note';
+  qlBtn.innerHTML = '✏️';
+
+  const qlPanel = document.createElement('div');
+  qlPanel.id = 'finos-ql-panel';
+  qlPanel.setAttribute('role', 'dialog');
+  qlPanel.setAttribute('aria-label', 'Quick Log');
+  qlPanel.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
+      <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#c7f000;font-weight:700;">✏️ Quick Log</div>
+      <button class="ql-btn close-ql" onclick="window._finosQlClose()">✕</button>
+    </div>
+    <textarea id="finos-ql-input" placeholder="Type or speak: 'spent 800 on food' · 'saved 5000 this week' · 'bought groceries 1200'" rows="2"></textarea>
+    <div id="finos-ql-parsed"></div>
+    <div class="ql-row">
+      <button class="ql-btn voice" id="finos-ql-voice-btn" onclick="window._finosQlVoice()">🎙 Voice</button>
+      <button class="ql-btn primary" onclick="window._finosQlLog()">Log it →</button>
+    </div>
+    <div id="finos-ql-history"></div>
+  `;
+
+  document.body.appendChild(qlBtn);
+  document.body.appendChild(qlPanel);
+
+  /* ── Voice Journal Logic ─────────────────────────────────────────────── */
+  let _qlRecog = null;
+  let _qlListening = false;
+
+  function _qlINR(n) {
+    const num = Number(n) || 0;
+    if (num >= 1e5) return '₹' + (num/1e5).toFixed(1) + 'L';
+    if (num >= 1e3) return '₹' + Math.round(num/1e3) + 'K';
+    return '₹' + Math.round(num);
+  }
+
+  /* Intent parser — natural language → structured entry */
+  function _qlParse(text) {
+    if (!text || !text.trim()) return null;
+    const t = text.toLowerCase().trim();
+
+    // Amount detection — match ₹1200, 1,200, 1200, 1.2k, 1.2 lakh
+    let amount = 0;
+    const amtMatch =
+      t.match(/₹?\s*([\d,]+(?:\.\d+)?)\s*(?:k|thousand|rupees|rs)?/i) ||
+      t.match(/([\d,]+(?:\.\d+)?)\s*(?:lakh|l\b)/i);
+    if (amtMatch) {
+      const raw = parseFloat(amtMatch[1].replace(/,/g, ''));
+      if (/lakh|^l\b/i.test(t)) amount = raw * 100000;
+      else if (/k|thousand/i.test(amtMatch[0])) amount = raw * 1000;
+      else amount = raw;
+    }
+
+    // Category detection
+    const CATS = {
+      food:       ['food','eat','lunch','dinner','breakfast','restaurant','zomato','swiggy','pizza','biryani','snack'],
+      groceries:  ['grocery','groceries','bigbasket','blinkit','vegetables','milk','provisions'],
+      transport:  ['petrol','fuel','uber','ola','auto','cab','bus','train','metro','travel'],
+      shopping:   ['bought','shopping','amazon','flipkart','clothes','shirt','shoes','mall'],
+      bills:      ['bill','electricity','water','gas','broadband','internet','recharge','phone'],
+      health:     ['medicine','doctor','hospital','pharmacy','health','gym','medical'],
+      investment: ['sip','mutual fund','invest','stock','nifty','equity','ppf','fd'],
+      savings:    ['saved','saving','transfer','put aside','emergency'],
+      income:     ['salary','received','got paid','income','bonus','freelance','earned'],
+    };
+    let category = 'other';
+    for (const [cat, keywords] of Object.entries(CATS)) {
+      if (keywords.some(k => t.includes(k))) { category = cat; break; }
+    }
+
+    // Type detection
+    const isIncome = ['salary','received','got paid','income','bonus','earned','saved','saving','sip','invest'].some(k => t.includes(k));
+    const type = isIncome ? 'income' : 'expense';
+
+    // Description — strip amount & filler words
+    const desc = text
+      .replace(/₹?[\d,]+(?:\.\d+)?(?:\s*(?:k|thousand|lakh|rupees|rs))?/gi, '')
+      .replace(/\b(spent|spend|bought|paid|on|for|the|a|an|i|my)\b/gi, '')
+      .trim()
+      .replace(/\s+/g, ' ')
+      .slice(0, 60) || category;
+
+    return { amount, type, category, description: desc || category, raw: text, timestamp: new Date().toISOString() };
+  }
+
+  function _qlRenderParsed(entry) {
+    const el = document.getElementById('finos-ql-parsed');
+    if (!el) return;
+    if (!entry || !entry.amount) { el.style.display = 'none'; return; }
+    const typeColor = entry.type === 'income' ? '#22d3a6' : '#ff6b6b';
+    el.style.display = 'block';
+    el.innerHTML = `
+      <span style="color:${typeColor};font-weight:700;">${entry.type === 'income' ? '↑ Income' : '↓ Expense'}</span>
+      <span style="color:#c7f000;font-weight:700;margin:0 6px;">${_qlINR(entry.amount)}</span>
+      <span>· ${entry.category} · "${entry.description.slice(0,30)}"</span>`;
+  }
+
+  function _qlSaveEntry(entry) {
+    try {
+      const txns = JSON.parse(localStorage.getItem('finos_transactions') || '[]');
+      txns.push({
+        id: Date.now(),
+        date: new Date().toISOString().slice(0, 10),
+        amount: entry.amount,
+        type: entry.type,
+        category: entry.category,
+        description: entry.description,
+        source: 'voice_journal',
+      });
+      localStorage.setItem('finos_transactions', JSON.stringify(txns));
+
+      // Update totals
+      if (entry.type === 'expense') {
+        const prev = Number(localStorage.getItem('finos_expense_total')) || 0;
+        localStorage.setItem('finos_expense_total', prev + entry.amount);
+      }
+    } catch {}
+  }
+
+  function _qlRenderHistory() {
+    const el = document.getElementById('finos-ql-history');
+    if (!el) return;
+    try {
+      const txns = JSON.parse(localStorage.getItem('finos_transactions') || '[]')
+        .filter(t => t.source === 'voice_journal')
+        .slice(-5).reverse();
+      if (!txns.length) { el.innerHTML = ''; return; }
+      el.innerHTML = txns.map(t => `
+        <div class="ql-entry">
+          <span>${t.date.slice(5)} · ${t.category} · ${t.description.slice(0,22)}</span>
+          <span class="ql-entry-amount">${t.type === 'income' ? '+' : '-'}${_qlINR(t.amount)}</span>
+        </div>`).join('');
+    } catch {}
+  }
+
+  window._finosQlClose = function () {
+    qlPanel.classList.remove('open');
+  };
+
+  window._finosQlLog = function () {
+    const input = document.getElementById('finos-ql-input');
+    if (!input) return;
+    const entry = _qlParse(input.value);
+    if (!entry || !entry.amount) {
+      const parsedEl = document.getElementById('finos-ql-parsed');
+      if (parsedEl) { parsedEl.style.display = 'block'; parsedEl.innerHTML = '<span style="color:#ff6b6b;">Could not parse an amount — try "spent 800 on food"</span>'; }
+      return;
+    }
+    _qlSaveEntry(entry);
+    input.value = '';
+    const parsedEl = document.getElementById('finos-ql-parsed');
+    if (parsedEl) { parsedEl.style.display = 'block'; parsedEl.innerHTML = `<span style="color:#22d3a6;font-weight:700;">✓ Logged!</span> ${entry.type} of ${_qlINR(entry.amount)} in ${entry.category}`; }
+    _qlRenderHistory();
+    setTimeout(() => { if (parsedEl) parsedEl.style.display = 'none'; }, 3000);
+    // Refresh AI context so Arya sees the new transaction immediately
+    window.dispatchEvent(new CustomEvent('finos-context-ready', { detail: { phase: 'partial', source: 'voice_journal' } }));
+  };
+
+  window._finosQlVoice = function () {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      const el = document.getElementById('finos-ql-parsed');
+      if (el) { el.style.display = 'block'; el.innerHTML = '<span style="color:#ff9500;">Browser speech not supported — type instead</span>'; }
+      return;
+    }
+    const voiceBtn = document.getElementById('finos-ql-voice-btn');
+    if (_qlListening) {
+      if (_qlRecog) _qlRecog.stop();
+      _qlListening = false;
+      if (voiceBtn) voiceBtn.classList.remove('listening');
+      return;
+    }
+    _qlRecog = new SpeechRecognition();
+    _qlRecog.lang = 'hi-IN'; // Hinglish (Hindi + English)
+    _qlRecog.interimResults = true;
+    _qlRecog.maxAlternatives = 1;
+
+    _qlListening = true;
+    if (voiceBtn) { voiceBtn.classList.add('listening'); voiceBtn.textContent = '⏹ Stop'; }
+
+    _qlRecog.onresult = e => {
+      const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+      const input = document.getElementById('finos-ql-input');
+      if (input) input.value = transcript;
+      const entry = _qlParse(transcript);
+      _qlRenderParsed(entry);
+    };
+    _qlRecog.onend = () => {
+      _qlListening = false;
+      if (voiceBtn) { voiceBtn.classList.remove('listening'); voiceBtn.textContent = '🎙 Voice'; }
+    };
+    _qlRecog.onerror = () => {
+      _qlListening = false;
+      if (voiceBtn) { voiceBtn.classList.remove('listening'); voiceBtn.textContent = '🎙 Voice'; }
+    };
+    _qlRecog.start();
+  };
+
+  /* Live parse as user types */
+  qlPanel.addEventListener('input', e => {
+    if (e.target.id === 'finos-ql-input') {
+      _qlRenderParsed(_qlParse(e.target.value));
+    }
+  });
+
+  qlBtn.addEventListener('click', () => {
+    const isOpen = qlPanel.classList.toggle('open');
+    if (isOpen) {
+      _qlRenderHistory();
+      setTimeout(() => document.getElementById('finos-ql-input')?.focus(), 100);
+    }
+  });
+
+  /* Enter to log */
+  qlPanel.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey && e.target.id === 'finos-ql-input') {
+      e.preventDefault();
+      window._finosQlLog();
+    }
+  });
+
   document.body.appendChild(fab);
   document.body.appendChild(backdrop);
   document.body.appendChild(popup);
@@ -423,7 +697,7 @@
      Makes the widget self-sufficient: drop one <script> tag, everything runs. */
   if (typeof window.FINOS_USER_CONTEXT === 'undefined') {
     const ctxScript = document.createElement('script');
-    ctxScript.src   = _widgetBasePath() + 'finos-context.js?v=2';
+    ctxScript.src   = _widgetBasePath() + 'finos-context.js?v=3';
     ctxScript.async = true;
     document.head.appendChild(ctxScript);
   }
@@ -443,7 +717,7 @@
   if (!window._finosHealthScoreLoaded) {
     window._finosHealthScoreLoaded = true;
     const hsScript = document.createElement('script');
-    hsScript.src   = _widgetBasePath() + 'finos-health-score.js?v=2';
+    hsScript.src   = _widgetBasePath() + 'finos-health-score.js?v=3';
     hsScript.async = true;
     document.head.appendChild(hsScript);
   }

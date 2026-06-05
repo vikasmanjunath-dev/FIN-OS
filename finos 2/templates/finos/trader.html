@@ -1037,7 +1037,7 @@ function aryaPreTradeCheck() {
   if (typeof AryaAI === 'undefined') {
     // Fallback: load arya-ai.js dynamically then retry
     const s = document.createElement('script');
-    s.src = '/static/js/arya-ai.js';
+    s.src = '/static/js/arya-ai.js?v=4';
     s.onload = () => AryaAI.preTradeClearance(
       { symbol: 'Your trade', todayPnl: 0 },
       (result) => {

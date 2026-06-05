@@ -547,7 +547,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     <h1 class="page-title">DECISION<br>ENGINE</h1>
     <p class="page-sub">Every metric used by Bridgewater, Renaissance, Citadel and Two Sigma — decoded in plain English, with Indian examples, live interactive calculators, and a behavioral control layer that predicts your mistakes before you make them.</p>
   </div>
-  <button class="theme-btn" id="themeBtn">☀️ LIGHT</button>
+  <button class="theme-btn" id="themeToggle">🌙</button>
 </header>
 
 <!-- INTRO CARDS -->
@@ -998,14 +998,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 </div>
 </main>
 <script>
-/* ═══════════════════════════════════════════════════════
-   THEME
-═══════════════════════════════════════════════════════ */
-document.getElementById('themeBtn').addEventListener('click',()=>{
-  const d=document.documentElement.getAttribute('data-theme')==='dark';
-  document.documentElement.setAttribute('data-theme',d?'light':'dark');
-  document.getElementById('themeBtn').textContent=d?'🌙 DARK':'☀️ LIGHT';
-  setTimeout(initAllCharts,80);
+/* Theme toggle handled by ui.js — finos-theme-changed fires on toggle */
+window.addEventListener('finos-theme-changed', function(e){
+  setTimeout(initAllCharts, 80);
 });
 
 /* ═══════════════════════════════════════════════════════
@@ -1491,41 +1486,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
 
-<style>
-#floatThemeBtn {
-  position: fixed; top: 14px; right: 18px; z-index: 9999;
-  width: 36px; height: 36px; border-radius: 10px;
-  background: var(--bg-surface); border: 1px solid var(--border-soft);
-  color: #fff; font-size: 16px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: background .2s, transform .2s;
-  backdrop-filter: blur(10px);
-}
-#floatThemeBtn:hover { background: transparent; transform: scale(1.08); }
-
-
-/* ── Light mode text overrides (auto-generated) ── */
-[data-theme="light"] #floatThemeBtn {
-  color: var(--text-primary) !important;
-}</style>
-<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
-<script>
-(function(){
-  var btn = document.getElementById('floatThemeBtn');
-  var html = document.documentElement;
-  var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
-  html.setAttribute('data-theme', saved);
-  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
-  btn.addEventListener('click', function(){
-    var cur = html.getAttribute('data-theme');
-    var next = cur === 'dark' ? 'light' : 'dark';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('finos-theme', next);
-    localStorage.setItem('theme', next);
-    btn.textContent = next === 'dark' ? '🌙' : '☀️';
-  });
-})();
-</script>
 
 
 <style>
@@ -1556,7 +1516,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 [data-theme="light"] .card-body { color: #4A5068 !important; }
 [data-theme="light"] .formula-display { background: #fff !important; }
 </style>
-  <script src="../js/finos-widget.js?v=4"></script>
+  <script src="../js/finos-widget.js?v=6"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <script src="../js/sidebar.js"></script>

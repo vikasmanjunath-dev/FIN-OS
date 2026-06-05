@@ -14,8 +14,8 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
-  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/arya-ai.js?v=4" defer></script>
   <script src="../js/arya-scenarios.js" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
 <style>
@@ -205,7 +205,7 @@
   </main>
 </div>
 
-<script src="../js/finos-widget.js?v=5"></script>
+<script src="../js/finos-widget.js?v=6"></script>
 <script>
 function initScenarios() {
   if (window.AryaScenarios) {
@@ -219,8 +219,9 @@ document.addEventListener('DOMContentLoaded', () => setTimeout(initScenarios, 30
 </script>
 
 <script src="../js/sidebar.js"></script>
+<script src="../js/mobile-nav.js" defer></script>
   <script src="../js/interactions.js" defer></script>
-<button id="themeToggle" class="theme-btn" style="position:fixed;top:16px;right:16px;z-index:150;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;" aria-label="Toggle dark/light theme">🌙</button>
+<button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
 <script>
 (function(){
   var btn=document.getElementById('themeToggle');

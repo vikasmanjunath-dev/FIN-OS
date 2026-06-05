@@ -433,6 +433,16 @@
                     </div>
                 </div>
             </section>
+            <!-- ====== APPLY TO MY PORTFOLIO PANEL ====== -->
+            <div id="investor-apply-panel" style="margin-top:24px;padding:24px;border-radius:20px;background:linear-gradient(135deg,rgba(79,124,255,.06),rgba(199,240,0,.03));border:1px solid rgba(79,124,255,.15);">
+              <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#4F7CFF;margin-bottom:12px;">🧠 Apply This Mental Model to My Portfolio</div>
+              <p style="font-size:13px;color:rgba(255,255,255,.6);margin:0 0 14px;line-height:1.6;">Arya will analyze your actual holdings through <span id="iap-investor-name">this investor</span>'s lens and give you 3 specific actions.</p>
+              <button id="iap-btn" onclick="window._applyInvestorModel()" style="padding:10px 24px;border-radius:12px;background:#4F7CFF;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer;transition:all .2s;">
+                Get Personalized Analysis →
+              </button>
+              <div id="iap-result" style="margin-top:16px;font-size:13px;color:rgba(255,255,255,.8);line-height:1.75;"></div>
+            </div>
+
             <!-- Bottom spacing -->
             <div class="h-32"></div>
         </div>
@@ -500,9 +510,156 @@
 </style>
 <a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 
-  <script src="../js/finos-widget.js?v=4"></script>
+  <script src="../js/finos-widget.js?v=6"></script>
   <script src="../js/finos-search.js?v=2"></script>
   <script src="../js/interactions.js" defer></script>
+
+<script>
+(function() {
+  // Mental model prompts per investor archetype
+  const INVESTOR_MODELS = {
+    'warren_buffett': {
+      name: 'Warren Buffett',
+      lens: 'deep value + moat + forever holding period',
+      questions: [
+        'Does each holding have a sustainable competitive moat?',
+        'Am I paying a fair price for each business (P/E < 20)?',
+        'Would I be comfortable holding each position for 10 years?',
+        'Which holding would Buffett call a "wonderful business at a fair price" vs. a "fair business at a wonderful price"?'
+      ]
+    },
+    'rakesh_jhunjhunwala': {
+      name: 'Rakesh Jhunjhunwala',
+      lens: 'conviction buying + India growth theme + long-term macro',
+      questions: [
+        'Which holding benefits most from India\'s next decade of GDP growth?',
+        'Am I holding with enough conviction, or am I diversifying away returns?',
+        'Which position has the clearest earnings visibility for next 5 years?',
+        'Am I investing or speculating? RJ only bought what he understood deeply.'
+      ]
+    },
+    'jim_simons': {
+      name: 'Jim Simons',
+      lens: 'quantitative edge + pattern + risk-adjusted returns',
+      questions: [
+        'What is the actual mathematical edge behind each position?',
+        'Is my portfolio optimized for risk-adjusted return (Sharpe ratio), not just absolute return?',
+        'Am I sizing positions based on probability, or gut feeling?',
+        'Where is the pattern-based entry/exit in each holding?'
+      ]
+    },
+    'default': {
+      name: 'This Investor',
+      lens: 'disciplined long-term value investing',
+      questions: [
+        'Is each position bought for the right reason?',
+        'Am I diversified across sectors and market caps?',
+        'Do I have an exit strategy for each holding?',
+        'What is my actual thesis for holding each position?'
+      ]
+    }
+  };
+
+  // Detect which investor is selected from page context
+  function getActiveInvestor() {
+    // Try to get from page heading, active tab, or selected card
+    const heading = document.querySelector('h1, h2, .investor-name, [data-investor]');
+    if (heading) {
+      const text = (heading.textContent || heading.getAttribute('data-investor') || '').toLowerCase();
+      if (text.includes('buffett')) return 'warren_buffett';
+      if (text.includes('jhunjhunwala') || text.includes('rakesh')) return 'rakesh_jhunjhunwala';
+      if (text.includes('simons') || text.includes('jim')) return 'jim_simons';
+    }
+    return 'default';
+  }
+
+  function INR(n) {
+    const num = Number(n)||0;
+    if(num>=1e7) return '₹'+(num/1e7).toFixed(1)+' Cr';
+    if(num>=1e5) return '₹'+(num/1e5).toFixed(1)+' L';
+    if(num>=1e3) return '₹'+Math.round(num/1e3)+'K';
+    return '₹'+Math.round(num).toLocaleString('en-IN');
+  }
+
+  window._applyInvestorModel = function() {
+    const resultEl = document.getElementById('iap-result');
+    const btn = document.getElementById('iap-btn');
+    if (!resultEl || !btn) return;
+
+    const investorKey = getActiveInvestor();
+    const model = INVESTOR_MODELS[investorKey] || INVESTOR_MODELS.default;
+
+    // Update investor name in panel
+    const nameEl = document.getElementById('iap-investor-name');
+    if (nameEl) nameEl.textContent = model.name + "'s";
+
+    const ctx = window.FINOS_USER_CONTEXT || {};
+    const portfolio = ctx.financial?.portfolio || {};
+    const netWorth = ctx.profile?.net_worth || 0;
+    const pnl = portfolio.pnl || 0;
+    const holdings = portfolio.holdings || [];
+    const name = ctx.identity?.name || 'yaar';
+    const dna = ctx.identity?.financial_dna || 'unknown';
+
+    btn.textContent = 'Analysing…';
+    btn.style.opacity = '0.7';
+    btn.disabled = true;
+
+    resultEl.innerHTML = '<span style="color:rgba(255,255,255,.35);">Arya is applying ' + model.name + '\'s mental model to your portfolio…</span>';
+
+    const prompt = `You are Arya, applying ${model.name}'s investment philosophy (${model.lens}) to ${name}'s portfolio.
+
+Portfolio: Net worth ${INR(netWorth)}, P&L ${INR(pnl)}.
+${holdings.length > 0 ? 'Holdings: ' + holdings.slice(0,5).map(h => h.symbol || h.name).join(', ') + '.' : 'No specific holdings data available — give general advice.'}
+Investor DNA: ${dna}.
+
+Apply these ${model.name} filter questions to their portfolio:
+${model.questions.map((q,i) => `${i+1}. ${q}`).join('\n')}
+
+Give 3 specific, actionable Hinglish points. Each point: what ${model.name} would say + specific action for ${name}. End with one contrarian insight that most investors miss.`;
+
+    if (window.AryaAI?.ask) {
+      resultEl.textContent = '';
+      window.AryaAI.ask(prompt, tok => {
+        resultEl.textContent += tok;
+      }).finally(() => {
+        btn.textContent = 'Get Personalized Analysis →';
+        btn.style.opacity = '1';
+        btn.disabled = false;
+      });
+    } else {
+      resultEl.textContent = 'Start Ollama to get personalized analysis: ollama serve';
+      btn.textContent = 'Get Personalized Analysis →';
+      btn.style.opacity = '1';
+      btn.disabled = false;
+    }
+  };
+
+  // Update investor name when page loads or investor changes
+  function _updateInvestorName() {
+    const model = INVESTOR_MODELS[getActiveInvestor()] || INVESTOR_MODELS.default;
+    const nameEl = document.getElementById('iap-investor-name');
+    if (nameEl) nameEl.textContent = model.name + "'s";
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    _updateInvestorName();
+    // Auto-load finos-context if not loaded
+    if (!document.querySelector('script[src*="finos-context"]')) {
+      const s = document.createElement('script');
+      s.src = '../js/finos-context.js?v=3';
+      s.defer = true;
+      document.head.appendChild(s);
+    }
+    if (!document.querySelector('script[src*="arya-ai"]')) {
+      const s = document.createElement('script');
+      s.src = '../js/arya-ai.js?v=4';
+      s.defer = true;
+      document.head.appendChild(s);
+    }
+  });
+})();
+</script>
 </body>
 
 </html>

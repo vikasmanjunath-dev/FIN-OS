@@ -267,6 +267,22 @@ body[data-theme="graham"] {
     animation-iteration-count: 1;
 }
 
+/* ── INVESTOR MINDSET — LIGHT MODE OVERRIDES ─────────────────── */
+[data-theme="light"] ::-webkit-scrollbar-track { background: #F0F2F8; }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(79,124,255,0.2); }
+
+/* Glow text effects are distracting on white — remove shadow */
+[data-theme="light"] .glow-text-green { text-shadow: none; color: #16a34a; }
+[data-theme="light"] .glow-text-red   { text-shadow: none; color: #dc2626; }
+
+/* range slider thumb */
+[data-theme="light"] .range-styled::-webkit-slider-thumb {
+    background: #4F7CFF;
+    box-shadow: 0 0 8px rgba(79,124,255,0.4);
+}
+
+/* chart bar keep as-is (uses rgba, fine on light) */
+
 /* Floating animation for Decision nodes */
 @keyframes float {
     0% {

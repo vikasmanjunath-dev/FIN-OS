@@ -14,8 +14,8 @@
 <link rel="stylesheet" href="../css/theme.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
 <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
-<script src="../js/arya-ai.js?v=3"></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
+<script src="../js/arya-ai.js?v=4"></script>
 <style>
   :root { --purple: #a78bff; --pink: #ff2a6d; --cyan: #00f3ff; --green: #00ff88; }
   .sim-wrapper { max-width: 800px; margin: 0 auto; padding: 32px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
@@ -125,10 +125,24 @@
   .filter-btn:hover { border-color: rgba(167,139,255,.4); }
 
 
-/* ── Light mode text overrides (auto-generated) ── */
-[data-theme="light"] .sc-name {
-  color: var(--text-primary) !important;
-}</style>
+/* ── Light mode overrides ── */
+[data-theme="light"] .sc-name         { color: var(--text-primary) !important; }
+[data-theme="light"] .sc-desc         { color: rgba(0,0,0,.5) !important; }
+[data-theme="light"] .sim-header p    { color: rgba(0,0,0,.5) !important; }
+[data-theme="light"] .pb-label        { color: rgba(0,0,0,.4) !important; }
+[data-theme="light"] .sim-portfolio-bar { background: rgba(0,0,0,.04) !important; }
+[data-theme="light"] .sim-narrative   { color: rgba(0,0,0,.8) !important; }
+[data-theme="light"] .sim-choice      { color: rgba(0,0,0,.75) !important; }
+[data-theme="light"] .oc-label        { color: rgba(0,0,0,.45) !important; }
+[data-theme="light"] .oc-sub          { color: rgba(0,0,0,.45) !important; }
+[data-theme="light"] .ai-debrief-box  {
+  background: #F5F7FB !important;
+  border-color: rgba(0,0,0,.08) !important;
+  color: rgba(0,0,0,.75) !important;
+}
+[data-theme="light"] .sim-btn-ghost   { color: rgba(0,0,0,.55) !important; }
+[data-theme="light"] .filter-btn      { color: rgba(0,0,0,.5) !important; }
+</style>
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
   <meta property="og:image" content="/assets/icons/icon-512.svg">
@@ -691,7 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <script src="../js/ui.js" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=4"></script>
+<script src="../js/finos-widget.js?v=6"></script>
 <script src="../js/finos-search.js?v=2"></script>
 <style>
 #floatBackBtn{position:fixed;bottom:22px;left:82px;z-index:9999;padding:8px 16px 8px 12px;border-radius:10px;background:var(--bg-surface);border:1px solid var(--border-soft);color:rgba(255,255,255,0.55);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s,color .2s,transform .2s;backdrop-filter:blur(10px);text-decoration:none;}
@@ -701,7 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <script src="../js/sidebar.js"></script>
   <script src="../js/interactions.js" defer></script>
-<button id="themeToggle" class="theme-btn" style="position:fixed;top:16px;right:16px;z-index:150;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;" aria-label="Toggle dark/light theme">🌙</button>
+<button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
 <script>
 (function(){
   var btn=document.getElementById('themeToggle');

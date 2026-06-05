@@ -12,8 +12,8 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
-  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/arya-ai.js?v=4" defer></script>
   <script src="../js/mf-intelligence.js" defer></script>
   <link rel="stylesheet" href="../css/interactions.css">
 </head>
@@ -154,7 +154,7 @@
 .mf-tab.active,.mf-tab:hover { background:rgba(0,212,255,.15);border-color:rgba(0,212,255,.4);color:#00d4ff; }
 </style>
 
-<script src="../js/finos-widget.js?v=5"></script>
+<script src="../js/finos-widget.js?v=6"></script>
 <script src="../js/finos-mobile.js" defer></script>
 <script>
 function switchTab(tab) {
@@ -175,8 +175,9 @@ document.addEventListener('DOMContentLoaded', () => setTimeout(init, 300));
 </script>
 
 <script src="../js/sidebar.js"></script>
+<script src="../js/mobile-nav.js" defer></script>
   <script src="../js/interactions.js" defer></script>
-<button id="themeToggle" class="theme-btn" style="position:fixed;top:16px;right:16px;z-index:150;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;" aria-label="Toggle dark/light theme">🌙</button>
+<button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
 <script>
 (function(){
   var btn=document.getElementById('themeToggle');

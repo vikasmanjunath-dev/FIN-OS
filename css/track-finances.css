@@ -52,11 +52,14 @@
 #tf-starfield {
   position: fixed;
   top: 0;
-  left: 260px;
-  width: calc(100vw - 260px);
+  left: 232px;
+  width: calc(100% - 232px);
   height: 100vh;
   z-index: 0;
   pointer-events: none;
+}
+@media (max-width: 900px) {
+  #tf-starfield { left: 0; width: 100%; }
 }
 
 .tf-wrapper {

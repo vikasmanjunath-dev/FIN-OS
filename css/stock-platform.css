@@ -827,3 +827,36 @@
   color: #0B0D12 !important;
   border-color: rgba(0,0,0,0.08) !important;
 }
+
+/* Hero section — text hardcoded as near-white, must flip in light mode */
+[data-theme="light"] .qs-hero { background: var(--bg-main); }
+[data-theme="light"] .qs-hero-orbs .orb-1 { opacity: 0.08; }
+[data-theme="light"] .qs-hero-orbs .orb-2 { opacity: 0.10; }
+[data-theme="light"] .qs-hero-orbs .orb-3 { opacity: 0.07; }
+
+[data-theme="light"] .qs-hero h1,
+[data-theme="light"] .qs-hero h2,
+[data-theme="light"] .qs-hero h3 { color: var(--text-primary) !important; }
+
+[data-theme="light"] .qs-sub,
+[data-theme="light"] .qs-sub b { color: var(--text-secondary) !important; }
+
+[data-theme="light"] .qs-hero-stats .qs-stat-val,
+[data-theme="light"] .qs-node-name,
+[data-theme="light"] .qs-arch-info b { color: var(--text-primary) !important; }
+
+[data-theme="light"] .qs-arch-info,
+[data-theme="light"] .qs-node-tag { color: var(--text-secondary) !important; }
+
+[data-theme="light"] .qs-arch-line { stroke: rgba(0,0,0,0.12) !important; }
+
+[data-theme="light"] .qs-node {
+  background: #FFFFFF !important;
+  border-color: rgba(0,0,0,0.1) !important;
+}
+
+[data-theme="light"] .qs-hero-stat {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+[data-theme="light"] .qs-hero-stat .qs-stat-label { color: var(--text-muted) !important; }

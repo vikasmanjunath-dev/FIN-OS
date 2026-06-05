@@ -51,7 +51,7 @@
 
     /* Sidebar Override */
     .sidebar { background: rgba(11, 12, 21, 0.95); border-right: 1px solid var(--hub-border); backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 200; }
-    .main { width: calc(100% - 260px); min-height: 100vh; margin-left: 260px; }
+    .main { width: calc(100% - 232px); min-height: 100vh; margin-left: 232px; }
 
     .content-wrapper {
       max-width: 1200px;
@@ -497,8 +497,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
-  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/arya-ai.js?v=4" defer></script>
   <script>
   async function aryaPickRoadmap(force) {
     const el = document.getElementById('arya-roadmap-text');
@@ -625,7 +625,7 @@ Based on their REAL profile above, recommend the TOP 2 roadmaps with 1 sentence 
 [data-theme="light"] .c-meta { color: #888 !important; border-color: rgba(0,0,0,0.08) !important; }
 </style>
 
-  <script src="../js/finos-widget.js?v=4"></script>
+  <script src="../js/finos-widget.js?v=6"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <script src="../js/sidebar.js"></script>

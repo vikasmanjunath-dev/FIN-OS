@@ -132,3 +132,13 @@ body[data-hero="burry"] {
     cursor: pointer;
     box-shadow: 0 0 10px var(--neon-pri);
 }
+
+/* ── LIGHT MODE ──────────────────────────────────────────────── */
+[data-theme="light"] .text-gradient-hero {
+    background: linear-gradient(135deg, #1a1a2e, var(--neon-pri));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+[data-theme="light"] .range-styled {
+    background: rgba(0,0,0,0.12);
+}

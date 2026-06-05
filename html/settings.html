@@ -550,6 +550,89 @@
           </div>
         </section>
 
+        <!-- ══════════════════════════════════════════
+             COUPLE FINANCE MODE
+        ══════════════════════════════════════════ -->
+        <section class="settings-card glass-panel" id="couple-finance-section">
+          <h3><span class="s-icon">💑</span> Household &amp; Couple Finance</h3>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Partner Account</label>
+              <span>Link your partner's FIN-OS account to view combined net worth, joint goals, and compatibility score.</span>
+            </div>
+            <div id="couple-status" style="display:flex;align-items:center;gap:8px;">
+              <span id="couple-link-status" style="font-size:12px;color:var(--text-muted);">Not linked</span>
+              <button class="btn-outline" style="font-size:12px;padding:6px 14px;" onclick="window._coupleLink()">Link Partner →</button>
+            </div>
+          </div>
+
+          <div id="couple-invite-form" style="display:none;margin-top:12px;padding:16px;border-radius:12px;background:var(--bg-glass);border:1px solid var(--border-soft);">
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Enter your partner's FIN-OS email or share invite link:</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input id="couple-email" type="email" placeholder="partner@email.com" style="flex:1;min-width:180px;padding:8px 12px;border-radius:8px;background:var(--bg-surface);border:1px solid var(--border-medium);color:var(--text-primary);font-size:13px;outline:none;">
+              <button onclick="window._coupleInvite()" style="padding:8px 16px;border-radius:8px;background:var(--accent);color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;">Send Invite</button>
+            </div>
+            <div style="margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--bg-surface);border:1px solid var(--border-soft);">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Or share invite link:</div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <code id="couple-invite-link" style="flex:1;font-size:11px;color:var(--accent);word-break:break-all;"></code>
+                <button onclick="window._coupleCopyLink()" style="padding:4px 10px;border-radius:6px;background:var(--accent-soft);border:1px solid var(--accent);color:var(--accent);font-size:11px;cursor:pointer;">Copy</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="couple-dashboard" style="display:none;margin-top:12px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px;" id="couple-metrics"></div>
+            <div id="couple-compatibility" style="padding:14px;border-radius:12px;background:var(--bg-glass);border:1px solid var(--border-soft);font-size:13px;color:var(--text-secondary);line-height:1.7;"></div>
+          </div>
+
+          <div class="setting-row" style="margin-top:12px;">
+            <div class="label-group">
+              <label>Household Goals</label>
+              <span>Goals that require both incomes — home purchase, child education, joint FIRE date.</span>
+            </div>
+            <div id="household-goal-count" style="font-size:12px;color:var(--text-muted);"></div>
+          </div>
+          <div id="household-goals-list" style="margin-top:8px;"></div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+             BRAIN SYNC
+        ══════════════════════════════════════════ -->
+        <section class="settings-card glass-panel" id="brain-sync-section">
+          <h3><span class="s-icon">🧠</span> Financial Brain Sync</h3>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Export Your Financial Brain</label>
+              <span>Download a complete snapshot of your DNA, goals, behavioral profile, and preferences. Import on any device to restore Arya's full context instantly.</span>
+            </div>
+            <button class="btn-outline" style="font-size:12px;padding:6px 14px;" onclick="window._brainExport()">Export Brain →</button>
+          </div>
+
+          <div class="setting-row" style="margin-top:12px;">
+            <div class="label-group">
+              <label>Import Brain</label>
+              <span>Restore your financial context from a previously exported brain file.</span>
+            </div>
+            <div>
+              <input type="file" id="brain-import-file" accept=".json" style="display:none;" onchange="window._brainImport(this)">
+              <button class="btn-outline" style="font-size:12px;padding:6px 14px;" onclick="document.getElementById('brain-import-file').click()">Import Brain →</button>
+            </div>
+          </div>
+
+          <div id="brain-sync-status" style="margin-top:12px;font-size:12px;color:var(--text-muted);"></div>
+
+          <div class="setting-row" style="margin-top:12px;">
+            <div class="label-group">
+              <label>Brain Snapshot</label>
+              <span>What's in your current brain export.</span>
+            </div>
+          </div>
+          <div id="brain-contents" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:8px;"></div>
+        </section>
+
       </div><!-- /settings-stack -->
 
       <!-- ── SAVE BAR ── -->
@@ -636,7 +719,7 @@
 <script src="../js/settings.js?v=3"></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=4"></script>
+<script src="../js/finos-widget.js?v=6"></script>
 <script src="../js/finos-search.js?v=2"></script>
 
 <style>
@@ -821,5 +904,188 @@ const sb = (window.FINOS_SB && window.FINOS_SB.getClient()) || (window.supabase 
 
 <script src="../js/sidebar.js"></script>
   <script src="../js/interactions.js" defer></script>
+
+<script>
+(function() {
+  // COUPLE FINANCE
+  window._coupleLink = function() {
+    const form = document.getElementById('couple-invite-form');
+    if (form) {
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+      // Generate invite link
+      const uid = localStorage.getItem('finos_user_id') || Math.random().toString(36).slice(2,10);
+      const link = `https://finos1.vercel.app/html/onboarding.html?partner=${uid}`;
+      const linkEl = document.getElementById('couple-invite-link');
+      if (linkEl) linkEl.textContent = link;
+    }
+  };
+
+  window._coupleInvite = function() {
+    const email = document.getElementById('couple-email')?.value?.trim();
+    if (!email) return;
+    const statusEl = document.getElementById('couple-link-status');
+    if (statusEl) statusEl.textContent = `Invite sent to ${email}`;
+    localStorage.setItem('finos_couple_invited', email);
+    const form = document.getElementById('couple-invite-form');
+    if (form) form.style.display = 'none';
+    // Show success
+    const s = document.getElementById('brain-sync-status') || document.getElementById('couple-status');
+    if (s) s.textContent = `✓ Invite sent to ${email}. They'll see a prompt to link when they log in.`;
+  };
+
+  window._coupleCopyLink = function() {
+    const link = document.getElementById('couple-invite-link')?.textContent;
+    if (link) navigator.clipboard?.writeText(link).then(() => {
+      const btn = document.querySelector('[onclick="_coupleCopyLink()"], [onclick="window._coupleCopyLink()"]');
+      if (btn) { btn.textContent = '✓ Copied'; setTimeout(() => btn.textContent = 'Copy', 2000); }
+    });
+  };
+
+  // Check for existing couple link
+  function _checkCoupleStatus() {
+    const invited = localStorage.getItem('finos_couple_invited');
+    const linked = localStorage.getItem('finos_couple_linked');
+    const statusEl = document.getElementById('couple-link-status');
+    if (linked) {
+      if (statusEl) statusEl.textContent = '✓ Linked with ' + linked;
+      _renderCoupleDashboard(linked);
+    } else if (invited) {
+      if (statusEl) statusEl.textContent = 'Invite pending: ' + invited;
+    }
+  }
+
+  function _renderCoupleDashboard(partnerName) {
+    const dash = document.getElementById('couple-dashboard');
+    const metrics = document.getElementById('couple-metrics');
+    if (!dash || !metrics) return;
+    dash.style.display = 'block';
+
+    function INR(n) {
+      const num = Number(n)||0;
+      if(num>=1e7) return '₹'+(num/1e7).toFixed(1)+' Cr';
+      if(num>=1e5) return '₹'+(num/1e5).toFixed(1)+' L';
+      return '₹'+Math.round(num).toLocaleString('en-IN');
+    }
+
+    const myNW = Number(localStorage.getItem('finos_net_worth')) || 0;
+    const mySR = Number(localStorage.getItem('finos_savings_rate')) || 0;
+    const partnerNW = Number(localStorage.getItem('finos_partner_net_worth')) || 0;
+    const partnerSR = Number(localStorage.getItem('finos_partner_savings_rate')) || 0;
+
+    metrics.innerHTML = [
+      { label: 'Combined Net Worth', value: INR(myNW + partnerNW), color: 'var(--accent)' },
+      { label: 'Your Savings Rate', value: mySR + '%', color: 'var(--color-success)' },
+      { label: partnerName + "'s Rate", value: partnerSR + '%', color: 'var(--color-info)' },
+      { label: 'Household Health', value: Math.round((mySR + partnerSR) / 2 * 2.5) + '/100', color: 'var(--color-warning)' },
+    ].map(k => `
+      <div style="background:var(--bg-glass);border:1px solid var(--border-soft);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;">${k.label}</div>
+        <div style="font-size:.95rem;font-weight:800;color:${k.color};">${k.value}</div>
+      </div>`).join('');
+  }
+
+  // BRAIN SYNC
+  window._brainExport = function() {
+    const KEYS = [
+      // Core identity
+      'FINOS_CORE_DNA','finos_financial_dna','finos_display_name','finos_income',
+      'finos_net_worth','finos_savings_rate','finos_health_score','finos_health_score_detail',
+      'finos_fire_percent','finos_emergency_fund','finos_city','finos_stage','finos_mindset',
+      // Behavioral intelligence
+      'finos_behavioral_debt_annual','finos_primary_bias','FINOS_DNA_HISTORY',
+      // Engagement & learning
+      'finos_streak','finos_learned_modules','finos_learn_quiz_scores',
+      // Financial data
+      'finos_transactions','finos_goals','finos_debts','finos_subscriptions',
+      'finos_expense_total','finos_tax_savings',
+      // Trade journal
+      'finos_trade_stats','tradebook_trades',
+      // Household / couple
+      'finos_couple_linked','finos_partner_net_worth','finos_partner_savings_rate',
+      // Preferences
+      'FINOS_SYS_SETTINGS','finos_session_meta',
+      // Onboarding & profile
+      'finos_profile','finos_interests',
+    ];
+    const brain = { version: '1.0', exported: new Date().toISOString(), data: {} };
+    KEYS.forEach(k => {
+      const v = localStorage.getItem(k);
+      if (v) {
+        try { brain.data[k] = JSON.parse(v); } catch { brain.data[k] = v; }
+      }
+    });
+    brain.checksum = Object.keys(brain.data).length;
+
+    const blob = new Blob([JSON.stringify(brain, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `finos-brain-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    const statusEl = document.getElementById('brain-sync-status');
+    if (statusEl) statusEl.textContent = `✓ Brain exported: ${brain.checksum} data keys saved.`;
+    _renderBrainContents();
+  };
+
+  window._brainImport = function(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const brain = JSON.parse(e.target.result);
+        if (!brain.data) throw new Error('Invalid brain file');
+        let count = 0;
+        Object.entries(brain.data).forEach(([k, v]) => {
+          localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v));
+          count++;
+        });
+        const statusEl = document.getElementById('brain-sync-status');
+        if (statusEl) statusEl.textContent = `✓ Brain imported: ${count} keys restored. Reload the page to see your data.`;
+        setTimeout(() => window.location.reload(), 1500);
+      } catch (err) {
+        const statusEl = document.getElementById('brain-sync-status');
+        if (statusEl) statusEl.textContent = '✗ Invalid brain file. Please use a valid FIN-OS brain export.';
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  function _renderBrainContents() {
+    const container = document.getElementById('brain-contents');
+    if (!container) return;
+    const inventory = [
+      { key: 'FINOS_CORE_DNA',              label: 'DNA Profile',       icon: '🧬' },
+      { key: 'finos_behavioral_debt_annual', label: 'Behavioral Debt',  icon: '🧠' },
+      { key: 'FINOS_DNA_HISTORY',           label: 'DNA Evolution',     icon: '📈' },
+      { key: 'finos_transactions',           label: 'Transactions',     icon: '💳' },
+      { key: 'finos_goals',                  label: 'Goals',            icon: '🎯' },
+      { key: 'finos_streak',                 label: 'Streak',           icon: '🔥' },
+      { key: 'finos_tax_savings',            label: 'Tax Savings',      icon: '🧾' },
+      { key: 'finos_health_score_detail',    label: 'FIN-OS Score',     icon: '💯' },
+      { key: 'finos_couple_linked',          label: 'Partner Link',     icon: '💑' },
+      { key: 'FINOS_SYS_SETTINGS',          label: 'Preferences',      icon: '⚙️' },
+      { key: 'finos_learned_modules',        label: 'Learning',         icon: '📚' },
+      { key: 'tradebook_trades',             label: 'Trade Journal',    icon: '📊' },
+    ];
+    container.innerHTML = inventory.map(item => {
+      const has = !!localStorage.getItem(item.key);
+      return `
+        <div style="padding:10px;border-radius:10px;background:${has ? 'rgba(0,255,136,.04)' : 'var(--bg-glass)'};border:1px solid ${has ? 'rgba(0,255,136,.15)' : 'var(--border-soft)'};text-align:center;">
+          <div style="font-size:18px;margin-bottom:4px;">${item.icon}</div>
+          <div style="font-size:10px;color:${has ? 'var(--color-success)' : 'var(--text-muted)'};">${item.label}</div>
+          <div style="font-size:9px;color:${has ? 'var(--color-success)' : 'var(--text-muted)'};">${has ? '✓ Present' : '— Empty'}</div>
+        </div>`;
+    }).join('');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    _checkCoupleStatus();
+    _renderBrainContents();
+  });
+})();
+</script>
 </body>
 </html>

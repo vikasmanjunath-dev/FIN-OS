@@ -446,14 +446,17 @@
     if (bd) { bd.classList.add('open'); requestAnimationFrame(() => bd.classList.add('vis')); }
     if (pn) pn.classList.add('open');
 
-    // Load score if we have a user
+    // Load score — try API first, fall back to local computation
     const userId = window._finosCurrentUserId || window.FINOS_USER_CONTEXT?.identity?.user_id;
-    if (userId && !_lastData) {
-      fetchScore(userId);
-    } else if (_lastData) {
+    if (_lastData) {
       render(_lastData);
+    } else if (userId && ALERT_API) {
+      fetchScore(userId);
     } else {
-      renderError('Sign in to see your score');
+      // Fully local — no backend needed
+      const local = _computeLocalScore();
+      _lastData = local;
+      render(local);
     }
   }
 
@@ -528,24 +531,154 @@
   async function autoLoadSummary() {
     const userId = window._finosCurrentUserId
       || window.FINOS_USER_CONTEXT?.identity?.user_id;
-    if (!userId) return;
 
+    // Try API first (when backend is running)
+    if (userId && ALERT_API) {
+      try {
+        const r = await fetch(`${ALERT_API}/health-score/${userId}/summary`);
+        if (r.ok) {
+          const d = await r.json();
+          _applyTriggerDisplay(d.total, d.tier, d.tier_emoji);
+          return;
+        }
+      } catch (_) {}
+    }
+
+    // Fallback: compute FIN-OS Score locally from localStorage
+    const local = _computeLocalScore();
+    _applyTriggerDisplay(local.total, local.tier, local.tier_emoji);
+    if (_isOpen) render(local);
+  }
+
+  function _applyTriggerDisplay(total, tier, tierEmoji) {
+    const color = { ELITE:'#f0c040', GREAT:'#22d3a6', GOOD:'#00d4ff',
+                    FAIR:'#f0a500', DANGER:'#f04444' }[tier] || '#888';
+    const num   = document.getElementById('finos-hs-score-num');
+    const badge = document.getElementById('finos-hs-tier-badge');
+    if (num)   { num.textContent = total; num.style.color = color; }
+    if (badge) {
+      badge.textContent = `${tierEmoji} ${tier}`;
+      badge.style.background = color + '22';
+      badge.style.color = color;
+    }
+  }
+
+  /* ── LOCAL FIN-OS SCORE COMPUTATION ──────────────────────────────────────
+     Works 100% offline — reads from localStorage. No backend required.
+     7 behavioral wealth dimensions, max 100 pts each → total /100.
+  ──────────────────────────────────────────────────────────────────────── */
+  function _computeLocalScore() {
+    function safeNum(key, fallback) { return Number(localStorage.getItem(key)) || fallback || 0; }
+    function safeJSON(key, fallback) { try { return JSON.parse(localStorage.getItem(key) || 'null') || fallback; } catch { return fallback; } }
+
+    const income        = safeNum('finos_income', 60000);
+    const netWorth      = safeNum('finos_net_worth', 0);
+    // Also pull from live context if available (Supabase data > localStorage)
+    const ctx         = window.FINOS_USER_CONTEXT;
+    const bt          = ctx?.budget_tracker || {};
+    const prof        = ctx?.profile || {};
+
+    const savingsRate = bt.savings_rate      || safeNum('finos_savings_rate', 0);
+    const efRaw       = safeNum('finos_emergency_fund', 0);
+    const efMonths    = efRaw / Math.max(1, income);
+    const streak      = safeJSON('finos_streak', {}).count || ctx?.engagement?.streak_days || 0;
+    const goals       = safeJSON('finos_goals', []);
+    const transactions= safeJSON('finos_transactions', []);
+    const dna         = safeJSON('FINOS_CORE_DNA', {});
+    const learned     = safeJSON('finos_learned_modules', []);
+    const tradeStats  = ctx?.trade_journal || safeJSON('finos_trade_stats', {});
+    const primaryBias = localStorage.getItem('finos_primary_bias') || '';
+
+    // User's own savings target (from settings or default 25%)
+    const sysSettings    = safeJSON('FINOS_SYS_SETTINGS', {});
+    const savingsTarget  = sysSettings.savingsTarget || 25; // user can set target in settings
+
+    // ── 1. Savings Discipline (20 pts) — scored against user's own target ──
+    const savingsPts = savingsRate >= savingsTarget
+      ? 20
+      : Math.min(19, Math.round((savingsRate / savingsTarget) * 20));
+
+    // ── 2. Emergency Fund Coverage (15 pts) ────────────────────────────────
+    // Target: 6 months (SEBI/RBI standard)
+    const efPts = efMonths >= 6 ? 15 : efMonths >= 4 ? 12 : efMonths >= 3 ? 9 : efMonths >= 1 ? 4 : 0;
+
+    // ── 3. Goal Adherence (15 pts) ─────────────────────────────────────────
+    let goalPts = 0;
+    const allGoals = goals.length ? goals : (ctx?.financial?.goals || []);
+    if (allGoals.length > 0) {
+      const avgProgress = allGoals.reduce((s, g) => s + (Number(g.progress) || Number(g.current) / Math.max(1, Number(g.target)) * 100), 0) / allGoals.length;
+      goalPts = Math.min(15, Math.round(avgProgress * 0.15));
+    } else {
+      goalPts = 0; // 0 = no goals set — user must set goals to score here
+    }
+
+    // ── 4. Behavioral Score (15 pts) ───────────────────────────────────────
+    const biasPenalties = { loss_aversion: 4, overconfidence: 5, herd_mentality: 4, recency_bias: 3, sunk_cost: 3, anchoring: 2, confirmation_bias: 2 };
+    const biasPenalty = biasPenalties[primaryBias] || 0;
+    const dnaScores = dna.scores || [50, 50, 50, 50, 50];
+    const disciplineScore = dnaScores[3] || 50; // Financial Discipline dimension
+    const behaviorPts = Math.max(0, Math.min(15, Math.round(disciplineScore * 0.15) - biasPenalty));
+
+    // ── 5. Wealth Building (15 pts) ────────────────────────────────────────
+    const annualIncome = income * 12;
+    const wealthRatio = annualIncome > 0 ? netWorth / annualIncome : 0;
+    const wealthPts = Math.min(15, Math.round(wealthRatio * 3)); // 5× income = 15 pts
+
+    // ── 6. Knowledge & Engagement (10 pts) ─────────────────────────────────
+    const moduleCount = Array.isArray(learned) ? learned.length : 0;
+    const knowledgePts = Math.min(6, Math.floor(moduleCount * 0.43)); // 14 modules = 6 pts
+    const streakPts = streak >= 30 ? 4 : streak >= 14 ? 3 : streak >= 7 ? 2 : streak >= 3 ? 1 : 0;
+    const engagePts = knowledgePts + streakPts;
+
+    // ── 7. Spending Awareness (10 pts) ─────────────────────────────────────
+    const recentTxns = transactions.filter(t => {
+      const d = new Date(t.date || t.timestamp || 0);
+      return (Date.now() - d) < 30 * 24 * 3600 * 1000; // last 30 days
+    });
+    const spendingPts = recentTxns.length > 10 ? 10 : recentTxns.length > 4 ? 7 : recentTxns.length > 0 ? 4 : 0;
+
+    const total = savingsPts + efPts + goalPts + behaviorPts + wealthPts + engagePts + spendingPts;
+    const tier = total >= 80 ? 'ELITE' : total >= 65 ? 'GREAT' : total >= 50 ? 'GOOD' : total >= 35 ? 'FAIR' : 'DANGER';
+    const tierEmoji = { ELITE:'🏆', GREAT:'🌟', GOOD:'✅', FAIR:'⚠️', DANGER:'🚨' }[tier];
+    const headline = {
+      ELITE: 'Exceptional wealth behavior — top 10% of Indian investors',
+      GREAT: 'Strong financial discipline — keep building momentum',
+      GOOD:  'Solid foundation — a few tweaks can make a big difference',
+      FAIR:  'Room to grow — focus on savings rate and emergency fund',
+      DANGER:'Critical gaps — start with emergency fund this month',
+    }[tier];
+
+    const pillars = [
+      { name:'Savings Discipline', emoji:'💰', score:savingsPts, max_pts:20, pct:Math.round(savingsPts/20*100), grade: savingsPts>=16?'A+':savingsPts>=12?'A':savingsPts>=8?'B':savingsPts>=4?'C':'D',
+        headline: savingsRate >= 25 ? 'Excellent savings rate!' : savingsRate >= 15 ? 'Good — push towards 25%' : 'Savings rate needs attention',
+        tips: savingsRate < 20 ? ['Automate SIP before expenses — pay yourself first'] : [] },
+      { name:'Emergency Fund', emoji:'🛡️', score:efPts, max_pts:15, pct:Math.round(efPts/15*100), grade: efMonths>=6?'A+':efMonths>=3?'B':efMonths>=1?'C':'D',
+        headline: efMonths >= 6 ? 'Full 6-month cover — excellent!' : `${efMonths.toFixed(1)} months coverage — target 6`,
+        tips: efMonths < 3 ? ['Build emergency fund to 3 months before increasing investments'] : [] },
+      { name:'Goal Adherence', emoji:'🎯', score:goalPts, max_pts:15, pct:Math.round(goalPts/15*100), grade: goalPts>=12?'A':goalPts>=9?'B':goalPts>=5?'C':'D',
+        headline: goals.length === 0 ? 'Set financial goals to track progress' : `${goals.length} goals tracked`,
+        tips: goals.length === 0 ? ['Add your first financial goal in Track → Goals'] : [] },
+      { name:'Behavioral Score', emoji:'🧠', score:behaviorPts, max_pts:15, pct:Math.round(behaviorPts/15*100), grade: behaviorPts>=12?'A':behaviorPts>=9?'B':behaviorPts>=5?'C':'D',
+        headline: primaryBias ? `Primary bias: ${primaryBias.replace(/_/g,' ')}` : 'Take DNA quiz to detect biases',
+        tips: primaryBias ? [`Work on ${primaryBias.replace(/_/g,' ')} — biggest wealth leak`] : [] },
+      { name:'Wealth Building', emoji:'📈', score:wealthPts, max_pts:15, pct:Math.round(wealthPts/15*100), grade: wealthRatio>=5?'A+':wealthRatio>=3?'A':wealthRatio>=1?'B':wealthRatio>=0.5?'C':'D',
+        headline: netWorth > 0 ? `${wealthRatio.toFixed(1)}× annual income in net worth` : 'Start building net worth',
+        tips: wealthRatio < 2 ? ['Target: net worth = 5× your annual income by 40'] : [] },
+      { name:'Knowledge & Engagement', emoji:'📚', score:engagePts, max_pts:10, pct:Math.round(engagePts/10*100), grade: engagePts>=8?'A':engagePts>=6?'B':engagePts>=3?'C':'D',
+        headline: `${moduleCount} modules · ${streak} day streak`,
+        tips: moduleCount < 5 ? ['Complete 5 learning modules to unlock personalized insights'] : [] },
+      { name:'Spending Awareness', emoji:'🔍', score:spendingPts, max_pts:10, pct:Math.round(spendingPts/10*100), grade: spendingPts>=8?'A':spendingPts>=5?'B':spendingPts>=3?'C':'D',
+        headline: recentTxns.length > 0 ? `${recentTxns.length} transactions logged this month` : 'No spending data — start tracking',
+        tips: recentTxns.length < 5 ? ['Log expenses daily — awareness is the first step to control'] : [] },
+    ];
+
+    const result = { total, tier, tier_emoji: tierEmoji, headline, pillars, computed_at: new Date().toISOString(), source: 'local' };
+    // Persist so finos-context.js can include score in Arya's context
     try {
-      if (!ALERT_API) return;
-      const r = await fetch(`${ALERT_API}/health-score/${userId}/summary`);
-      if (!r.ok) return;
-      const d = await r.json();
-      const color = { ELITE:'#f0c040', GREAT:'#22d3a6', GOOD:'#00d4ff',
-                      FAIR:'#f0a500', DANGER:'#f04444' }[d.tier] || '#888';
-      const num   = document.getElementById('finos-hs-score-num');
-      const badge = document.getElementById('finos-hs-tier-badge');
-      if (num)   { num.textContent = d.total; num.style.color = color; }
-      if (badge) {
-        badge.textContent = `${d.tier_emoji} ${d.tier}`;
-        badge.style.background = color + '22';
-        badge.style.color = color;
-      }
-    } catch (_) {}  // silently fail — engine may not be running
+      localStorage.setItem('finos_health_score', String(total));
+      localStorage.setItem('finos_health_score_detail', JSON.stringify({ total, tier, headline }));
+    } catch {}
+    return result;
   }
 
   /* ── Expose public API ───────────────────────────────────────────────────── */

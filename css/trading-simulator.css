@@ -14,6 +14,11 @@
     --kcard: rgba(18, 18, 24, 0.95);
 }
 
+[data-theme="light"] {
+    --kbg: #F5F7FB;
+    --kcard: rgba(255, 255, 255, 0.98);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -806,4 +811,234 @@ body.safety-off #safetyToggle span {
         opacity: 0;
         transform: translateY(-20px) scale(0.9);
     }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TRADING SIMULATOR — LIGHT MODE OVERRIDES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Simulator body/background */
+[data-theme="light"] body {
+    background: var(--kbg, #F5F7FB);
+}
+
+/* Navigation/header bars (dark panels in HTML) — override via bg on simulator page */
+[data-theme="light"] .speed-btn { color: #4A5068; }
+[data-theme="light"] .speed-btn:hover { color: #0B0D12; }
+[data-theme="light"] .speed-btn.active {
+    background: rgba(59,130,246,0.1);
+    color: #3b82f6;
+}
+
+[data-theme="light"] .tf-btn { color: #4A5068; }
+[data-theme="light"] .tf-btn:hover {
+    color: #0B0D12;
+    border-color: rgba(0,0,0,0.2);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
+}
+[data-theme="light"] .tf-btn.active {
+    background: rgba(38,161,123,0.12);
+    color: var(--kgreen);
+}
+
+[data-theme="light"] .btab-btn { color: #4A5068; }
+[data-theme="light"] .btab-btn:hover { color: #0B0D12; }
+[data-theme="light"] .btab-btn.active {
+    color: #0B0D12;
+    border-bottom-color: var(--kblue);
+}
+[data-theme="light"] .btab-btn .tab-sub { color: #8A92A8; }
+[data-theme="light"] .btab-btn.active .tab-sub { color: #5A6278; }
+
+[data-theme="light"] .ptype-btn {
+    background: rgba(0,0,0,0.03);
+    border-color: rgba(0,0,0,0.08);
+    color: #4A5068;
+}
+[data-theme="light"] .ptype-btn:hover {
+    border-color: rgba(0,0,0,0.16);
+    color: #0B0D12;
+}
+[data-theme="light"] .ptype-btn.active {
+    background: rgba(38,161,123,0.08);
+    border-color: rgba(38,161,123,0.35);
+    color: var(--kgreen);
+}
+
+[data-theme="light"] .field-label { color: #8A92A8; }
+
+[data-theme="light"] .qty-ctrl {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.08);
+    color: #0B0D12;
+}
+[data-theme="light"] .qty-ctrl:hover {
+    border-color: rgba(0,0,0,0.2);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .wl-item {
+    border-bottom-color: rgba(0,0,0,0.05);
+}
+[data-theme="light"] .wl-item:hover {
+    background: rgba(0,0,0,0.02);
+    border-color: rgba(0,0,0,0.1);
+}
+[data-theme="light"] .wl-item.active {
+    background: rgba(38,161,123,0.05);
+    border-left-color: var(--kgreen);
+}
+
+[data-theme="light"] .wl-sym { color: #0B0D12; }
+[data-theme="light"] .wl-name { color: #8A92A8; }
+[data-theme="light"] .wl-sector { color: #A1A8B8; }
+
+[data-theme="light"] .sim-table th { color: #8A92A8; }
+[data-theme="light"] .sim-table td {
+    color: #4A5068;
+    border-top-color: rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .analytics-card {
+    background: rgba(0,0,0,0.02);
+    border-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .why-trade-btn {
+    background: rgba(0,0,0,0.03);
+    border-color: rgba(0,0,0,0.07);
+    color: #5A6278;
+}
+[data-theme="light"] .why-trade-btn:hover { color: #0B0D12; }
+
+[data-theme="light"] .emotion-btn {
+    background: rgba(0,0,0,0.03);
+    border-color: rgba(0,0,0,0.07);
+    color: #5A6278;
+}
+[data-theme="light"] .emotion-btn:hover {
+    border-color: rgba(0,0,0,0.15);
+    color: #0B0D12;
+}
+
+[data-theme="light"] .autopsy-row {
+    border-bottom-color: rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .mistake-item {
+    background: rgba(255,71,87,0.04);
+    border-color: rgba(255,71,87,0.12);
+}
+[data-theme="light"] .insight-item {
+    background: rgba(59,130,246,0.04);
+    border-color: rgba(59,130,246,0.12);
+}
+
+[data-theme="light"] .guide-step { color: #8A92A8; }
+[data-theme="light"] .guide-step-arrow { color: #A1A8B8; }
+
+[data-theme="light"] .onboard-dot {
+    background: rgba(0,0,0,0.15);
+}
+
+[data-theme="light"] .explain-text { color: #A1A8B8; }
+[data-theme="light"] body.why-on .explain-text { color: #5A6278; }
+
+/* ═══════════════════════════════════════════════════════
+   TAILWIND ARBITRARY-COLOR OVERRIDES FOR LIGHT MODE
+   The simulator uses inline Tailwind classes with hardcoded
+   dark hex values. These rules beat them via specificity.
+   ═══════════════════════════════════════════════════════ */
+
+/* All hardcoded dark bg Tailwind classes → light surface */
+[data-theme="light"] .bg-\[#060608\],
+[data-theme="light"] .bg-\[#07070c\],
+[data-theme="light"] .bg-\[#08080e\],
+[data-theme="light"] .bg-\[#0a0a0f\],
+[data-theme="light"] .bg-\[#0d0d12\],
+[data-theme="light"] .bg-\[#0d1117\],
+[data-theme="light"] .bg-\[#141418\],
+[data-theme="light"] .bg-\[#1a0a0a\],
+[data-theme="light"] .bg-\[#0a0d08\] {
+  background-color: #FFFFFF !important;
+}
+
+/* Semi-transparent white borders → dark borders */
+[data-theme="light"] .border-\[#ffffff0a\],
+[data-theme="light"] .border-\[#ffffff07\],
+[data-theme="light"] .border-\[#ffffff06\],
+[data-theme="light"] .border-\[#ffffff08\],
+[data-theme="light"] .border-\[#ffffff12\] {
+  border-color: rgba(0,0,0,0.09) !important;
+}
+
+/* bg-[#ffffffXX] transparent overlays → light equivalents */
+[data-theme="light"] .bg-\[#ffffff08\],
+[data-theme="light"] .bg-\[#ffffff0d\],
+[data-theme="light"] .bg-\[#ffffff12\] {
+  background-color: rgba(0,0,0,0.04) !important;
+}
+
+/* White text → dark text in light mode */
+[data-theme="light"] .text-white {
+  color: #0B0D12 !important;
+}
+[data-theme="light"] .text-gray-400,
+[data-theme="light"] .text-gray-300 {
+  color: #5A6278 !important;
+}
+[data-theme="light"] .text-gray-500 {
+  color: #8A92A8 !important;
+}
+
+/* Input fields */
+[data-theme="light"] input.bg-\[#141418\],
+[data-theme="light"] input.bg-\[#0d0d12\],
+[data-theme="light"] select.bg-\[#141418\],
+[data-theme="light"] select.bg-\[#0d0d12\] {
+  background-color: #F5F7FB !important;
+  color: #0B0D12 !important;
+  border-color: rgba(0,0,0,0.12) !important;
+}
+
+/* Hover states in light mode */
+[data-theme="light"] .hover\:bg-\[#ffffff0d\]:hover { background-color: rgba(0,0,0,0.04) !important; }
+[data-theme="light"] .hover\:bg-\[#ffffff12\]:hover { background-color: rgba(0,0,0,0.06) !important; }
+
+/* Top-level structural regions */
+[data-theme="light"] body {
+  background-color: #F5F7FB !important;
+  color: #0B0D12 !important;
+}
+[data-theme="light"] header {
+  background-color: #FFFFFF !important;
+  border-bottom-color: rgba(0,0,0,0.09) !important;
+}
+[data-theme="light"] #storyBanner,
+[data-theme="light"] #xpBar {
+  background-color: #F5F7FB !important;
+  border-bottom-color: rgba(0,0,0,0.07) !important;
+  color: #0B0D12 !important;
+}
+[data-theme="light"] #whyToggle,
+[data-theme="light"] #safetyToggle {
+  background-color: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.09) !important;
+  color: #4A5068 !important;
+}
+
+/* Chart area — keep dark (trading charts always render better dark) */
+[data-theme="light"] #chart-wrapper,
+[data-theme="light"] #chart-container,
+[data-theme="light"] [id*="chart"] {
+  background-color: #0B0D12 !important;
+}
+
+/* Watchlist / order panel */
+[data-theme="light"] #watchlist-panel,
+[data-theme="light"] #order-panel,
+[data-theme="light"] #bottom-panel {
+  background-color: #FFFFFF !important;
+  border-color: rgba(0,0,0,0.09) !important;
+  color: #0B0D12 !important;
 }

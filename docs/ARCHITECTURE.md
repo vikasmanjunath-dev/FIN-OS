@@ -13,9 +13,9 @@ Browser  (finos1.vercel.app)
   96 HTML pages + 88 calculators + React budget app
 
   CSS LAYER
-    design-tokens.css   92 CSS variables — single source of truth
+    design-tokens.css   133 CSS variables — single source of truth
     interactions.css    180+ hover effects (zero-fill vocabulary)
-    theme.css           326 light/dark-mode override rules
+    theme.css           360 light-mode override rules
     base.css            Reset + typography + WCAG focus rings
     layout.css          Sidebar + mobile nav
     components.css      Shared UI components
@@ -74,6 +74,7 @@ Local Python
 | Stock Engine | `stock-engine/` | FastAPI + yfinance | varies |
 | Stock Dashboard API | `stock-dashboard/app.py` | Flask | 5001 |
 | Budget Backend | `ExpenseTracker/finos_backend/` | Django REST | 8000 |
+| Document AI Parser | `document-ai/server.py` | FastAPI | varies |
 
 ---
 
@@ -82,18 +83,18 @@ Local Python
 ### CSS Load Order
 
 ```
-1. design-tokens.css    92 CSS variables — all theme values defined once
+1. design-tokens.css    133 CSS variables — all theme values defined once
 2. base.css             imports design-tokens; reset + typography + focus rings
 3. layout.css           sidebar + mobile nav
 4. components.css       shared UI components
-5. theme.css            326 light/dark-mode overrides (loaded last among globals)
+5. theme.css            360 light-mode overrides (loaded last among globals)
 6. interactions.css     hover system (uses !important to beat inline styles)
 7. [page].css           page-specific styles
 ```
 
 ### Design Token System
 
-`css/design-tokens.css` is the single source of truth for all 92 CSS variables.
+`css/design-tokens.css` is the single source of truth for all 133 CSS variables.
 Dark mode values defined in `:root` and `:root[data-theme="dark"]`.
 Light mode values defined in `:root[data-theme="light"]`.
 

@@ -3,7 +3,7 @@
 > India's most complete personal finance platform.  
 > Education · Intelligence · Voice AI · Calculators · Markets · Tracking — all in one place.
 
-**Last updated:** June 4, 2026 — UI/UX overhaul complete: hover system rebuilt (180+ effects, zero-fill vocabulary), light/dark theme deep audit (326 rules, 96 pages fully verified), 92-token design system, FOUC prevention on all pages, theme toggle 100% coverage.
+**Last updated:** June 6, 2026 — UI/UX overhaul complete: hover system rebuilt (180+ effects, zero-fill vocabulary), light/dark theme deep audit (360 rules, 96 pages fully verified), 133-token design system, FOUC prevention on all pages, theme toggle 100% coverage.
 
 ---
 
@@ -45,10 +45,10 @@ FIN•OS is a full-stack personal finance operating system built for Indian user
 | Financial calculators | **88** across 9 categories |
 | CSS stylesheets | **45** (incl. design tokens + interaction system) |
 | JavaScript modules | **88** |
-| Design tokens (CSS vars) | **92** |
+| Design tokens (CSS vars) | **133** |
 | Light-mode CSS rules | **326** |
 | React budget app pages | 11 |
-| Python backend services | 5 |
+| Python backend services | 9 |
 | Supabase tables | 10+ |
 | Voice AI model | qwen3:14b (Ollama, local) |
 | STT | faster-whisper tiny (local) |
@@ -62,9 +62,9 @@ FIN•OS is a full-stack personal finance operating system built for Indian user
 Browser (finos1.vercel.app)
 ├── 96 HTML pages + 88 calculators + React budget app
 │
-├── css/design-tokens.css    → 92 CSS variables — single source of truth
+├── css/design-tokens.css    → 133 CSS variables — single source of truth
 ├── css/interactions.css     → 180+ premium hover effects (zero-fill)
-├── css/theme.css            → 326 light-mode override rules
+├── css/theme.css            → 360 light-mode override rules
 ├── css/base.css             → Reset, typography, focus rings
 ├── css/layout.css           → Sidebar, mobile nav
 ├── css/components.css       → Shared UI components
@@ -114,7 +114,7 @@ The site uses a **zero-fill hover vocabulary** — no flat background fills on h
 
 ### Design Token System (`css/design-tokens.css`)
 
-92 CSS variables are the single source of truth. All values adapt when `[data-theme="light"]` is applied to `<html>`.
+133 CSS variables are the single source of truth. All values adapt when `[data-theme="light"]` is applied to `<html>`.
 
 ```css
 /* Backgrounds */    --bg-main, --bg-surface, --bg-glass, --bg-sidebar
@@ -134,7 +134,7 @@ The site uses a **zero-fill hover vocabulary** — no flat background fills on h
 |---|---|
 | Anti-FOUC | Inline `<script>` IIFE in `<head>` before any `<link>` — reads `localStorage`, sets `data-theme` before first paint |
 | Persistence | Written to `finos-theme`, `theme`, and `FINOS_SYS_SETTINGS.theme` on every toggle |
-| Light-mode coverage | 326 rules in `theme.css` cover all card types, inputs, tables, modals, search, toasts, skeletons, inline-style patterns |
+| Light-mode coverage | 360 rules in `theme.css` cover all card types, inputs, tables, modals, search, toasts, skeletons, inline-style patterns |
 | WCAG compliance | `color-scheme` set per theme; native controls (scrollbars, checkboxes, selects) adapt automatically |
 | Page coverage | 100% — all 96 pages have anti-FOUC + theme toggle |
 
@@ -152,9 +152,9 @@ Initial Deployment/
 │
 ├── html/                       94 app pages
 ├── css/                        45 stylesheets
-│   ├── design-tokens.css       92 CSS variables (single source of truth)
+│   ├── design-tokens.css       133 CSS variables (single source of truth)
 │   ├── interactions.css        Premium hover system (180+ rules)
-│   ├── theme.css               Light/dark overrides (326+ rules)
+│   ├── theme.css               Light/dark overrides (360 rules)
 │   ├── base.css                Global reset, typography, focus rings
 │   ├── layout.css              Sidebar, mobile nav, topbar
 │   ├── components.css          Shared UI components
@@ -201,6 +201,7 @@ Initial Deployment/
 ├── market intelligence/        Trade signal API (Flask)
 ├── stock-engine/               Stock data API (FastAPI — 6 services, 14 endpoints)
 ├── stock-dashboard/            Stock research UI (Flask :5001)
+├── document-ai/                Document AI parser (FastAPI — PDF/statement ingestion)
 │
 ├── ExpenseTracker/
 │   ├── finos-budget/           React + Vite + Tailwind budget app (11 pages)
@@ -210,7 +211,7 @@ Initial Deployment/
 ├── News1/                      TypeScript/Vite news aggregator
 ├── Porfolio Analyser/          Portfolio analysis (CSV → voice-queryable)
 │
-└── docs/                       Technical documentation (13 docs)
+└── docs/                       Technical documentation (12 docs)
     ├── PRD.md                  Product requirements
     ├── FRD.md                  Functional requirements
     ├── TRD.md                  Technical requirements

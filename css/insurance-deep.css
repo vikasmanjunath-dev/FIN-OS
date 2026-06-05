@@ -320,3 +320,51 @@
   border-color: rgba(0, 0, 0, 0.1);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
+
+/* ── INSURANCE-DEEP LIGHT MODE — COMPREHENSIVE OVERRIDES ─────── */
+[data-theme="light"] .sanctum-card {
+  background: #FFFFFF;
+  border-color: rgba(0,0,0,0.08);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .sanctum-card:hover {
+  background: #F5F7FB;
+  border-color: var(--accent-primary, #4F7CFF);
+  box-shadow: 0 0 0 1px rgba(79,124,255,.18), 0 20px 48px rgba(0,0,0,.08);
+}
+
+/* core-node text stays visible */
+[data-theme="light"] .core-node {
+  color: #fff; /* text on coloured background — keep white */
+}
+
+/* metric row separators */
+[data-theme="light"] .metric {
+  border-bottom-color: rgba(0,0,0,0.07);
+  color: #4A5068;
+}
+
+/* layer-tag — accent-secondary is neon lime, darken for light bg */
+[data-theme="light"] .layer-tag { color: #4A5068; letter-spacing: 4px; }
+
+/* visual engine radial gradient */
+[data-theme="light"] .visual-engine {
+  background: radial-gradient(circle, rgba(79,124,255,0.08) 0%, transparent 80%);
+}
+
+/* orbital lines — lighten opacity in light mode */
+[data-theme="light"] .line-density {
+  opacity: 0.15;
+}
+
+/* deep-metrics text */
+[data-theme="light"] .deep-metrics { color: #4A5068; }
+
+/* fin-footer border */
+[data-theme="light"] .fin-footer {
+  border-top-color: rgba(0,0,0,0.08);
+}
+
+/* copyright text */
+[data-theme="light"] .copyright-module { color: #4A5068; }
+[data-theme="light"] .brand { color: #0B0D12; }

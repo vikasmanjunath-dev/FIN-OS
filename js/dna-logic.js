@@ -283,6 +283,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderStep();
         // When quiz ends, trigger AI behavioral debrief
         if (userData.step >= steps.length) {
+            if (window._saveDNASnapshot) window._saveDNASnapshot();
             setTimeout(() => window.runBehavioralDebrief && window.runBehavioralDebrief(), 800);
         }
     }
@@ -406,6 +407,8 @@ window.runBehavioralDebrief = async function() {
     if (!wsSuccess) {
         await _dnaOllamaDebrief(scores, archetype, dnaData.responses || {});
     }
+
+    _renderDNAEvolution();
 };
 
 async function _dnaOllamaDebrief(scores, archetype, responses) {
@@ -504,6 +507,222 @@ function _renderDebrief(data) {
         localStorage.setItem('FINOS_CORE_DNA', JSON.stringify(existing));
         localStorage.setItem('finos_primary_bias', data.primary_bias || '');
     } catch {}
+
+    _renderBehavioralDebt(data);
+}
+
+function _getBiasFixHint(bias) {
+    const hints = {
+        loss_aversion:     'Set a pre-decided exit rule before buying. "I will sell if it falls 15%." — removes emotion from the decision.',
+        overconfidence:    'Keep a decision journal. Write your prediction before making any trade. Review after 3 months.',
+        recency_bias:      'Look at 10-year data, not last 6 months. Recency is a trap — markets mean-revert.',
+        anchoring:         "Ask yourself: \"If I didn't own this, would I buy it today at this price?\" If no — sell.",
+        herd_mentality:    'Be contrarian by default. When everyone is buying, ask why you should.',
+        sunk_cost:         "Your entry price is irrelevant to the future. The market doesn't know what you paid.",
+        confirmation_bias: 'Actively seek the bear case for every investment. Read what critics are saying.',
+    };
+    return hints[bias] || 'Track every financial decision and its outcome. Patterns reveal biases.';
+}
+
+function _renderBehavioralDebt(data) {
+    const existing = document.getElementById('dna-behavioral-debt');
+    if (existing) existing.remove();
+
+    // Use real income from context → localStorage → ask user
+    const ctx = window.FINOS_USER_CONTEXT;
+    const rawIncome = ctx?.budget_tracker?.income_monthly
+                   || Number(localStorage.getItem('finos_income'))
+                   || 0;
+
+    if (!rawIncome) {
+        // No income data — show a setup prompt instead of fake numbers
+        const panel = document.createElement('div');
+        panel.id = 'dna-behavioral-debt';
+        panel.style.cssText = 'margin-top:20px;padding:18px 20px;border-radius:16px;background:rgba(255,107,53,.05);border:1px solid rgba(255,107,53,.15);font-family:-apple-system,sans-serif;';
+        panel.innerHTML = `
+          <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#ff6b35;margin-bottom:10px;">💸 Behavioral Debt Score</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.6;">
+            Add your monthly income in <a href="profile.html" style="color:#4F7CFF;">Profile</a> or <a href="track-finances.html" style="color:#4F7CFF;">Track Finances</a> to see your exact annual behavioral cost in rupees.
+          </div>`;
+        const target = document.getElementById('dna-ai-debrief');
+        if (target) target.parentNode.insertBefore(panel, target.nextSibling);
+        return;
+    }
+
+    const income = rawIncome;
+    const annualIncome = income * 12;
+
+    const biasCosts = {
+        loss_aversion:     0.12,
+        overconfidence:    0.10,
+        recency_bias:      0.09,
+        anchoring:         0.07,
+        herd_mentality:    0.11,
+        sunk_cost:         0.08,
+        confirmation_bias: 0.06,
+    };
+
+    const primaryBias   = data.primary_bias   || 'loss_aversion';
+    const secondaryBias = data.secondary_bias || 'recency_bias';
+    const primaryCost   = Math.round(annualIncome * (biasCosts[primaryBias]   || 0.08));
+    const secondaryCost = Math.round(annualIncome * (biasCosts[secondaryBias] || 0.06));
+    const totalCost     = primaryCost + secondaryCost;
+    const compoundedCost = Math.round(totalCost * ((Math.pow(1.12, 5) - 1) / 0.12));
+
+    // Persist to localStorage so context.js + Brain Export + Arya can all read it
+    try {
+        localStorage.setItem('finos_behavioral_debt_annual', JSON.stringify({
+            primary: primaryCost, secondary: secondaryCost,
+            total_annual: totalCost, compounded_5yr: compoundedCost,
+            primary_bias: primaryBias, secondary_bias: secondaryBias,
+            computed_at: new Date().toISOString(),
+        }));
+        if (primaryBias) localStorage.setItem('finos_primary_bias', primaryBias);
+    } catch {}
+
+    function INR(n) {
+        const num = Number(n) || 0;
+        if (num >= 1e7) return '₹' + (num / 1e7).toFixed(1) + ' Cr';
+        if (num >= 1e5) return '₹' + (num / 1e5).toFixed(1) + ' L';
+        if (num >= 1e3) return '₹' + Math.round(num / 1e3) + 'K';
+        return '₹' + Math.round(num).toLocaleString('en-IN');
+    }
+
+    const panel = document.createElement('div');
+    panel.id = 'dna-behavioral-debt';
+    panel.style.cssText = 'margin-top:20px;padding:24px;border-radius:18px;background:linear-gradient(135deg,rgba(255,107,53,.08),rgba(255,71,87,.04));border:1px solid rgba(255,107,53,.2);font-family:-apple-system,sans-serif;';
+
+    panel.innerHTML = `
+      <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#ff6b35;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+        💸 Behavioral Debt Score
+        <span style="font-size:10px;color:rgba(255,255,255,.25);">Annual wealth leakage from cognitive biases</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px;">
+        <div style="background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.2);border-radius:12px;padding:14px;text-align:center;">
+          <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">Annual Leakage</div>
+          <div style="font-size:1.3rem;font-weight:800;color:#ff6b35;">${INR(totalCost)}</div>
+        </div>
+        <div style="background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.2);border-radius:12px;padding:14px;text-align:center;">
+          <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">5-Year Compounded Loss</div>
+          <div style="font-size:1.3rem;font-weight:800;color:#ff4757;">${INR(compoundedCost)}</div>
+        </div>
+        <div style="background:rgba(255,183,3,.08);border:1px solid rgba(255,183,3,.2);border-radius:12px;padding:14px;text-align:center;">
+          <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">Bias Count</div>
+          <div style="font-size:1.3rem;font-weight:800;color:#ffb703;">2 active</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:8px;letter-spacing:.8px;text-transform:uppercase;">Breakdown by Bias</div>
+        <div style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:12px;color:rgba(255,255,255,.7);">⚠ ${primaryBias.replace(/_/g, ' ')}</span>
+            <span style="font-size:12px;font-weight:700;color:#ff6b35;">${INR(primaryCost)}/yr</span>
+          </div>
+          <div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;">
+            <div style="height:100%;width:${Math.round(primaryCost / totalCost * 100)}%;background:#ff6b35;border-radius:2px;transition:width .6s ease;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:12px;color:rgba(255,255,255,.7);">⚡ ${secondaryBias.replace(/_/g, ' ')}</span>
+            <span style="font-size:12px;font-weight:700;color:#ffb703;">${INR(secondaryCost)}/yr</span>
+          </div>
+          <div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;">
+            <div style="height:100%;width:${Math.round(secondaryCost / totalCost * 100)}%;background:#ffb703;border-radius:2px;transition:width .6s ease;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:12px 16px;border-radius:10px;background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.15);font-size:12px;color:rgba(255,255,255,.7);line-height:1.6;">
+        <span style="color:#00ff88;font-weight:700;">Fix it:</span>
+        ${_getBiasFixHint(primaryBias)}
+      </div>
+    `;
+
+    const target = document.getElementById('dna-ai-debrief') || document.querySelector('.visualizer') || document.body;
+    target.parentNode.insertBefore(panel, target.nextSibling);
+}
+
+function _saveDNASnapshot() {
+    const raw = localStorage.getItem('FINOS_CORE_DNA');
+    if (!raw) return;
+    try {
+        const dna = JSON.parse(raw);
+        if (!dna.scores) return;
+        const history = JSON.parse(localStorage.getItem('FINOS_DNA_HISTORY') || '[]');
+        const today = new Date().toISOString().slice(0, 10);
+        const entry = { date: today, scores: dna.scores, archetype: localStorage.getItem('finos_financial_dna') || '' };
+        if (history.length && history[history.length - 1].date === today) {
+            history[history.length - 1] = entry;
+        } else {
+            history.push(entry);
+        }
+        localStorage.setItem('FINOS_DNA_HISTORY', JSON.stringify(history.slice(-12)));
+    } catch {}
+}
+window._saveDNASnapshot = _saveDNASnapshot;
+
+function _renderDNAEvolution() {
+    _saveDNASnapshot();
+    const history = JSON.parse(localStorage.getItem('FINOS_DNA_HISTORY') || '[]');
+    if (history.length < 2) return;
+
+    const existing = document.getElementById('dna-evolution');
+    if (existing) existing.remove();
+
+    const labels = ['Risk', 'Security', 'Status', 'Discipline', 'Growth'];
+    const colors = ['#4F7CFF', '#00d4ff', '#c7f000', '#00ff88', '#a855f7'];
+
+    const timelineItems = history.map((entry, i) => {
+        const prev = i > 0 ? history[i - 1] : null;
+        const changes = prev ? labels.map((l, j) => {
+            const delta = entry.scores[j] - prev.scores[j];
+            return { label: l, delta, color: colors[j] };
+        }).filter(c => Math.abs(c.delta) >= 3) : [];
+
+        const isLatest = i === history.length - 1;
+        return `
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;${!isLatest ? 'border-bottom:1px solid rgba(255,255,255,.05);' : ''}">
+            <div style="flex-shrink:0;width:8px;height:8px;border-radius:50%;background:${isLatest ? '#c7f000' : 'rgba(255,255,255,.2)'};margin-top:4px;box-shadow:${isLatest ? '0 0 8px #c7f000' : ''};"></div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <span style="font-size:12px;font-weight:700;color:${isLatest ? '#c7f000' : 'rgba(255,255,255,.6)'};">${entry.date}</span>
+                ${entry.archetype ? `<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.45);">${entry.archetype}</span>` : ''}
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                ${labels.map((l, j) => `
+                  <span style="font-size:10px;padding:2px 7px;border-radius:8px;background:${colors[j]}15;color:${colors[j]};border:1px solid ${colors[j]}30;">${l}: ${entry.scores[j]}</span>
+                `).join('')}
+              </div>
+              ${changes.length ? `<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+                ${changes.map(c => `<span style="font-size:10px;color:${c.delta > 0 ? '#00ff88' : '#ff6b6b'};">${c.delta > 0 ? '↑' : '↓'} ${c.label} ${Math.abs(c.delta)}pts</span>`).join('')}
+              </div>` : ''}
+            </div>
+          </div>`;
+    }).join('');
+
+    const panel = document.createElement('div');
+    panel.id = 'dna-evolution';
+    panel.style.cssText = 'margin-top:20px;padding:24px;border-radius:18px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);font-family:-apple-system,sans-serif;';
+
+    panel.innerHTML = `
+      <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+        📈 Your DNA Evolution
+        <span style="font-size:10px;color:rgba(255,255,255,.2);">${history.length} scans recorded</span>
+      </div>
+      <div style="position:relative;padding-left:20px;border-left:1px solid rgba(255,255,255,.08);">
+        ${timelineItems}
+      </div>
+    `;
+
+    const debtEl    = document.getElementById('dna-behavioral-debt');
+    const debriefEl = document.getElementById('dna-ai-debrief');
+    const insertAfter = debtEl || debriefEl;
+    if (insertAfter) {
+        insertAfter.parentNode.insertBefore(panel, insertAfter.nextSibling);
+    }
 }
 
 window._dnaVoiceDebrief = function() {

@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="../css/animations.css">
 <link rel="stylesheet" href="../css/theme.css">
 <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
 <script src="../js/share-card.js"></script>
 <style>
   /* ── Hero ── */
@@ -280,6 +280,21 @@
     .rep-hero h1 { font-size: 1.2rem; }
     .pillars-grid { grid-template-columns: repeat(2, 1fr); }
     .score-ring-wrap { justify-content: center; }
+  }
+
+  /* ── LIGHT MODE ───────────────────────────────────────────── */
+  [data-theme="light"] .rep-hero {
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8edf8 60%, #eef2fc 100%);
+    border-color: rgba(79,124,255,.2);
+  }
+  [data-theme="light"] .rep-hero::before {
+    background: radial-gradient(ellipse at 80% 30%, rgba(79,124,255,.07) 0%, transparent 70%);
+  }
+  [data-theme="light"] .ring-bg { stroke: rgba(0,0,0,.1); }
+  [data-theme="light"] .skeleton {
+    background: linear-gradient(90deg,
+      rgba(0,0,0,.04) 25%, rgba(0,0,0,.08) 50%, rgba(0,0,0,.04) 75%);
+    background-size: 200% 100%;
   }
 </style>
   <meta property="og:site_name" content="FIN•OS">
@@ -734,7 +749,7 @@ loadReport();
 
 <script src="../js/sidebar.js"></script>
   <script src="../js/interactions.js" defer></script>
-<button id="themeToggle" class="theme-btn" style="position:fixed;top:16px;right:16px;z-index:150;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;" aria-label="Toggle dark/light theme">🌙</button>
+<button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
 <script>
 (function(){
   var btn=document.getElementById('themeToggle');

@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="../css/animations.css">
 <link rel="stylesheet" href="../css/theme.css">
 <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
 <style>
 /* ── Hero ─────────────────────────────────────────────── */
 .doc-hero {
@@ -479,6 +479,23 @@
   .main { margin-left: 0 !important; }
   .analyze-btn, .btn-apply, .btn-reupload, .btn-retry, .history-section { display: none !important; }
 }
+
+/* ── LIGHT MODE ───────────────────────────────────────────── */
+[data-theme="light"] .doc-hero {
+  background: linear-gradient(135deg, #f0f4ff 0%, #e8edf8 60%, #eef2fc 100%);
+  border-color: rgba(79,124,255,.2);
+}
+[data-theme="light"] .doc-hero::before {
+  background: radial-gradient(ellipse at 70% 40%, rgba(79,124,255,.07) 0%, transparent 70%);
+}
+[data-theme="light"] .drop-zone .dz-hint { color: rgba(0,0,0,.35); }
+[data-theme="light"] .proc-step .step-dot { background: rgba(0,0,0,.12); }
+[data-theme="light"] .proc-step.done  { color: #10836b; }
+[data-theme="light"] .proc-step.done  .step-dot { background: #10836b; }
+[data-theme="light"] .conf-pct        { color: #10836b; }
+[data-theme="light"] .done-panel .done-title  { color: #10836b; }
+[data-theme="light"] .err-title,
+[data-theme="light"] .err-tips h4 { color: #c0392b; }
 </style>
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
@@ -1449,7 +1466,7 @@ renderHistory();
 
 <script src="../js/sidebar.js"></script>
   <script src="../js/interactions.js" defer></script>
-<button id="themeToggle" class="theme-btn" style="position:fixed;top:16px;right:16px;z-index:150;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;" aria-label="Toggle dark/light theme">🌙</button>
+<button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
 <script>
 (function(){
   var btn=document.getElementById('themeToggle');

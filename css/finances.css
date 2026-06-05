@@ -228,3 +228,117 @@ label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 8px; fon
   background: var(--accent) !important;
   color: #fff !important;
 }
+
+/* ── FINANCES LIGHT MODE — COMPREHENSIVE ─────────────────────── */
+[data-theme="light"] .terminal-window {
+  background: #FFFFFF;
+  border-color: rgba(0,0,0,0.1);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .terminal-bar {
+  background: #F5F7FB;
+  border-bottom-color: rgba(0,0,0,0.08);
+}
+[data-theme="light"] .term-title { color: rgba(0,0,0,0.45); }
+
+[data-theme="light"] .wizard-content {
+  background: radial-gradient(circle at top right, rgba(79,124,255,0.04), transparent 40%);
+}
+[data-theme="light"] .wizard-controls {
+  background: #F5F7FB;
+  border-top-color: rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .fin-input {
+  background: #F5F7FB;
+  border-color: rgba(0,0,0,0.12);
+  color: #0B0D12;
+}
+[data-theme="light"] .fin-input:focus {
+  border-color: var(--neon-cyan);
+  background: rgba(0,243,255,0.02);
+}
+
+[data-theme="light"] label { color: #4A5068; }
+[data-theme="light"] .hint-text { color: #8A92A8; }
+[data-theme="light"] .subtitle { color: #5A6278; }
+
+[data-theme="light"] .report-hero {
+  border-bottom-color: rgba(0,0,0,0.08);
+}
+[data-theme="light"] .neon-text { color: #0B0D12; text-shadow: none; }
+[data-theme="light"] .net-reality-box .label { color: #8A92A8; }
+
+[data-theme="light"] .flow-node {
+  background: rgba(0,0,0,0.02);
+  border-color: rgba(0,0,0,0.12);
+  color: #4A5068;
+}
+[data-theme="light"] .connector { color: rgba(0,0,0,0.25); }
+
+[data-theme="light"] .stat-row { border-top-color: rgba(0,0,0,0.07); }
+[data-theme="light"] .stat label { color: #8A92A8; }
+[data-theme="light"] .stat h4 { color: #0B0D12; }
+
+[data-theme="light"] .signal-box {
+  background: rgba(0,0,0,0.02);
+  border-color: rgba(0,0,0,0.08);
+}
+[data-theme="light"] .signal-box h4 { color: #5A6278; }
+
+[data-theme="light"] .leak-item {
+  border-bottom-color: rgba(0,0,0,0.07);
+  color: #4A5068;
+}
+
+[data-theme="light"] .sub-list li {
+  color: #5A6278;
+  border-bottom-color: rgba(0,0,0,0.06);
+}
+[data-theme="light"] .sub-list li span:last-child { color: #0B0D12; }
+
+[data-theme="light"] .debt-visual::after {
+  background: #FFFFFF;
+}
+
+[data-theme="light"] .hologram-border {
+  border-color: rgba(79,124,255,0.3);
+  background: linear-gradient(180deg, rgba(79,124,255,0.04), transparent);
+  box-shadow: 0 0 24px rgba(79,124,255,0.06);
+}
+[data-theme="light"] .hologram-border h3 { color: var(--accent); }
+
+[data-theme="light"] .v-card {
+  background: #F5F7FB;
+  border-color: rgba(0,0,0,0.08);
+}
+[data-theme="light"] .v-card h4 { color: var(--accent); }
+[data-theme="light"] .v-card p { color: #5A6278; }
+
+[data-theme="light"] .card-head { color: #8A92A8; border-bottom-color: rgba(0,0,0,0.06); }
+[data-theme="light"] .micro-insight { color: #5A6278; }
+
+/* ── FINANCES LIGHT MODE — ADDITIONAL OVERRIDES ──────────────── */
+/* blink-text uses hardcoded #fff */
+[data-theme="light"] .blink-text { color: #0B0D12; }
+
+/* progress track background */
+[data-theme="light"] .progress-track { background: rgba(0,0,0,0.1); }
+
+/* zero-toggle hover — ensure readable */
+[data-theme="light"] .zero-toggle:hover { color: #0B0D12 !important; border-color: rgba(0,0,0,0.3) !important; }
+
+/* leak-item badge */
+[data-theme="light"] .leak-item span { background: rgba(255,71,87,0.08); }
+
+/* flow-node color variants override hardcoded border-colors */
+[data-theme="light"] .flow-node.income { border-color: var(--neon-cyan); color: #00a0aa; }
+[data-theme="light"] .flow-node.needs  { border-color: #e05050; color: #e05050; }
+[data-theme="light"] .flow-node.wants  { border-color: #b08000; color: #b08000; }
+[data-theme="light"] .flow-node.invest { border-color: #5a8000; color: #5a8000; }
+
+/* report-hero heading */
+[data-theme="light"] .report-hero h1 { color: #0B0D12; }
+
+/* stylish-button active state */
+[data-theme="light"] .stylish-button:active { background-color: #3a3a3a !important; }
