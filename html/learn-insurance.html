@@ -156,8 +156,8 @@
 
 /* 2. Fix the Main scroll area */
 .main {
-  width: calc(100% - 260px);
-  margin-left: 260px;
+  width: calc(100% - 232px);
+  margin-left: 232px;
   overflow-y: auto; /* Enable scrolling for the content */
   height: 100vh;
   background: var(--bg-main);
@@ -346,8 +346,8 @@
   <link rel="stylesheet" href="../chatbot/qft-hud.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
-  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/arya-ai.js?v=4" defer></script>
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
   <meta property="og:image" content="/assets/icons/icon-512.svg">
@@ -581,30 +581,7 @@
   });
 
 
-  document.addEventListener('DOMContentLoaded', () => {
-  const themeToggle = document.getElementById('themeToggle');
-  const htmlElement = document.documentElement;
-
-  // 1. Check for saved user preference
-  const savedTheme = localStorage.getItem('finos-theme') || 'dark';
-  htmlElement.setAttribute('data-theme', savedTheme);
-  updateToggleButton(savedTheme);
-
-  // 2. Toggle Logic
-  themeToggle.addEventListener('click', () => {
-    const currentTheme = htmlElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
-    htmlElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('finos-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-    updateToggleButton(newTheme);
-  });
-
-  function updateToggleButton(theme) {
-    themeToggle.innerHTML = theme === 'dark' ? '🌙' : '☀️';
-  }
-});
+  // Theme toggle handled by ui.js
 
 function updateCharts(theme) {
   const textColor = theme === 'dark' ? '#9AA0B4' : '#0B0D12';
@@ -641,7 +618,7 @@ function updateCharts(theme) {
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
   <script src="../chatbot/qft-engine.js"></script>
-  <script src="../js/finos-widget.js?v=4"></script>
+  <script src="../js/finos-widget.js?v=6"></script>
   <script src="../js/finos-search.js?v=2"></script>
 <script>if(typeof AryaAI!=="undefined")AryaAI.injectLearnButton();</script>
 

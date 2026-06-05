@@ -31,7 +31,7 @@
     .nav-item.active { color: var(--neon-lime); }
 
     /* MAIN */
-    .main { margin-left: 260px; width: calc(100% - 260px); min-height: 100vh; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
+    .main { margin-left: 232px; width: calc(100% - 232px); min-height: 100vh; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
     
     /* HEADER */
     .header { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 30px; }
@@ -98,8 +98,8 @@
 <link rel="stylesheet" href="../css/theme.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
-  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/arya-ai.js?v=4" defer></script>
   <style>
     /* ── AI PANEL OVERRIDES for dark terminal theme ── */
     #mi-ai-explain-panel { margin-top: 16px; border-radius: 14px; overflow: hidden; }
@@ -541,8 +541,14 @@
 [data-theme="light"] .panel-title { color: #0B0D12 !important; }
 [data-theme="light"] .metric-label { color: #4A5068 !important; }
 [data-theme="light"] .metric-val { color: #0B0D12 !important; }
+[data-theme="light"] .terminal-window {
+  background: #F5F7FB !important;
+  border-color: rgba(0,0,0,0.12) !important;
+  color: #0B0D12 !important;
+}
+[data-theme="light"] .nav-item { color: #4A5068 !important; }
 </style>
-  <script src="../js/finos-widget.js?v=4"></script>
+  <script src="../js/finos-widget.js?v=6"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <script src="../js/sidebar.js"></script>

@@ -1103,3 +1103,130 @@
 }
 
 
+/* ============================================================
+   LIGHT MODE OVERRIDES
+   ============================================================ */
+
+[data-theme="light"] .leak-section {
+    background: #FFFFFF;
+    border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+[data-theme="light"] .glitch-text {
+    color: #0B0D12;
+}
+
+[data-theme="light"] .section-title {
+    color: var(--text-primary, #0B0D12);
+}
+
+[data-theme="light"] .description-lead { color: #5A6278; }
+
+[data-theme="light"] .forensic-list li {
+    border-bottom-color: rgba(0,0,0,0.06);
+    color: #4A5068;
+}
+
+[data-theme="light"] .loss-comparison {
+    background: rgba(0,0,0,0.03);
+}
+
+[data-theme="light"] .leak-meter {
+    background: rgba(0,0,0,0.07);
+    border-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .metrics-grid {
+    background: rgba(0,0,0,0.03);
+}
+
+[data-theme="light"] .metric span { color: #8A92A8; }
+[data-theme="light"] .metric strong { color: var(--crit-red); }
+
+[data-theme="light"] .leak-visual-full {
+    background: rgba(0,0,0,0.02);
+    border-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .ego-hologram-container {
+    background: radial-gradient(circle at center, rgba(240,242,248,0.9) 0%, rgba(245,247,251,0.95) 100%);
+    border-color: rgba(79,124,255,0.2);
+}
+
+[data-theme="light"] .ego-stat-overlay {
+    background: rgba(255,255,255,0.92);
+    border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .forensic-card.danger-glow {
+    background: linear-gradient(145deg, rgba(255,71,87,0.05) 0%, rgba(245,247,251,0.9) 100%);
+    border-color: rgba(255,71,87,0.2);
+}
+
+[data-theme="light"] .forensic-card.info-glow {
+    background: linear-gradient(145deg, rgba(79,124,255,0.05) 0%, rgba(245,247,251,0.9) 100%);
+    border-color: rgba(79,124,255,0.2);
+}
+
+[data-theme="light"] .metric-box {
+    background: rgba(0,0,0,0.03);
+    border-color: rgba(0,0,0,0.07);
+}
+[data-theme="light"] .m-label { color: #8A92A8; }
+[data-theme="light"] .m-value { color: #0B0D12; }
+
+[data-theme="light"] .system-warning-box {
+    background: rgba(255,165,2,0.04);
+    border-color: rgba(255,165,2,0.3);
+}
+
+[data-theme="light"] .stress-monitor {
+    background: rgba(0,0,0,0.03);
+    border-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .compression-gauge {
+    background: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .sinkhole-core {
+    background: #F5F7FB;
+}
+
+[data-theme="light"] .expense-particle {
+    background: rgba(245,247,251,0.95);
+    border-color: var(--neon-lime);
+    color: #0B0D12;
+}
+
+[data-theme="light"] .metric-mini-card {
+    background: rgba(0,0,0,0.03);
+    border-color: rgba(0,0,0,0.07);
+}
+[data-theme="light"] .m-num { color: #0B0D12; }
+[data-theme="light"] .m-tag { color: #8A92A8; }
+
+[data-theme="light"] .radar-face {
+    background: #F0F2F8;
+}
+
+[data-theme="light"] .ticker-box {
+    background: rgba(0,0,0,0.03);
+    border-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .debt-core {
+    background: #FFFFFF;
+}
+[data-theme="light"] .core-label { color: #8A92A8; }
+[data-theme="light"] .core-val { color: #0B0D12; }
+
+[data-theme="light"] .footer-btn {
+    background: rgba(245,247,251,0.9);
+    color: #0B0D12;
+}
+[data-theme="light"] .footer-btn:not(.secondary) {
+    color: var(--neon-lime);
+}

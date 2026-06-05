@@ -5,6 +5,9 @@
    Never define tokens anywhere else.
    ============================================================= */
 
+/* ── DEFAULT COLOR-SCHEME: DARK ─────────────────────────────── */
+:root { color-scheme: dark; }
+
 /* ── 8-POINT SPACING SCALE ─────────────────────────────────── */
 :root {
   --space-1:   4px;
@@ -77,8 +80,7 @@
   --shadow-5: 0 40px 80px rgba(0,0,0,0.20), 0 8px 20px rgba(0,0,0,0.10);
 }
 
-/* ── LIGHT MODE TOKENS (default) ────────────────────────────── */
-:root,
+/* ── LIGHT MODE TOKENS ───────────────────────────────────────── */
 :root[data-theme="light"] {
   color-scheme: light;
 

@@ -901,3 +901,155 @@
   .insights-grid { grid-template-columns: 1fr; }
   .ic-stats-row { grid-template-columns: 1fr 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT MODE OVERRIDES
+   ═══════════════════════════════════════════════════════════════ */
+[data-theme="light"] .ic-card {
+  background: #FFFFFF;
+  border-color: rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .ic-card::after {
+  background: #FFFFFF;
+}
+
+[data-theme="light"] .ic-title {
+  color: var(--text-primary, #0B0D12);
+}
+
+[data-theme="light"] .ic-sub {
+  color: rgba(0,0,0,0.5);
+}
+
+[data-theme="light"] .ic-badge {
+  background: rgba(0,0,0,0.04);
+}
+
+[data-theme="light"] .ic-modal {
+  background: #FFFFFF;
+  border-color: rgba(0,0,0,0.1);
+}
+
+[data-theme="light"] .ic-modal-header {
+  border-bottom-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .ic-modal-title {
+  color: var(--text-primary, #0B0D12);
+}
+
+[data-theme="light"] .ic-modal-sub {
+  color: rgba(0,0,0,0.5);
+}
+
+[data-theme="light"] .ic-modal-close {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.1);
+  color: rgba(0,0,0,0.6);
+}
+[data-theme="light"] .ic-modal-close:hover {
+  background: rgba(0,0,0,0.08);
+  color: #0B0D12;
+}
+
+[data-theme="light"] .ic-modal-tabs {
+  border-bottom-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .ic-tab {
+  color: rgba(0,0,0,0.4);
+}
+[data-theme="light"] .ic-tab:hover:not(.active) { color: rgba(0,0,0,0.65); }
+
+[data-theme="light"] .ic-modal-body {
+  scrollbar-color: rgba(0,0,0,0.1) transparent;
+}
+[data-theme="light"] .ic-modal-body::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.1);
+}
+
+[data-theme="light"] .ic-section-label { color: rgba(0,0,0,0.35); }
+
+[data-theme="light"] .ic-stat-card {
+  background: #F5F7FB;
+  border-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .ic-stat-label { color: rgba(0,0,0,0.45); }
+[data-theme="light"] .ic-stat-meta { color: rgba(0,0,0,0.35); }
+
+[data-theme="light"] .ic-chart-wrap {
+  background: #F5F7FB;
+  border-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .ic-chart-title { color: rgba(0,0,0,0.65); }
+
+[data-theme="light"] .ic-compare-col {
+  background: #F5F7FB;
+  border-color: rgba(0,0,0,0.08);
+}
+[data-theme="light"] .ic-compare-col.good { border-color: rgba(0,200,130,0.3); }
+[data-theme="light"] .ic-compare-col.bad  { border-color: rgba(255,68,68,0.3); }
+
+[data-theme="light"] .ic-compare-item {
+  color: rgba(0,0,0,0.55);
+  border-bottom-color: rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .ic-slider-section {
+  background: #F5F7FB;
+  border-color: rgba(0,0,0,0.07);
+}
+[data-theme="light"] .ic-slider-label span { color: rgba(0,0,0,0.5); }
+
+[data-theme="light"] .ic-slider {
+  background: rgba(0,0,0,0.1);
+}
+
+[data-theme="light"] .ic-result-display {
+  background: rgba(0,0,0,0.04);
+}
+[data-theme="light"] .ic-result-label { color: rgba(0,0,0,0.4); }
+[data-theme="light"] .ic-result-value { color: var(--text-primary, #0B0D12); }
+
+[data-theme="light"] .ic-progress-bar { background: rgba(0,0,0,0.07); }
+
+[data-theme="light"] .ic-callout { background: rgba(0,0,0,0.02); }
+[data-theme="light"] .ic-callout-body { color: rgba(0,0,0,0.55); }
+
+[data-theme="light"] .ic-step-title { color: rgba(0,0,0,0.82); }
+[data-theme="light"] .ic-step-desc  { color: rgba(0,0,0,0.45); }
+
+[data-theme="light"] .ic-tag {
+  border-color: rgba(0,0,0,0.1);
+  color: rgba(0,0,0,0.55);
+  background: rgba(0,0,0,0.03);
+}
+
+[data-theme="light"] .ic-emi-labels { color: rgba(0,0,0,0.45); }
+
+[data-theme="light"] .ic-legend-item { color: rgba(0,0,0,0.6); }
+[data-theme="light"] .ic-legend-val  { color: rgba(0,0,0,0.4); }
+
+[data-theme="light"] .ic-modal-footer {
+  border-top-color: rgba(0,0,0,0.07);
+}
+[data-theme="light"] .ic-modal-cta.secondary {
+  background: rgba(0,0,0,0.04);
+  color: rgba(0,0,0,0.65);
+  border-color: rgba(0,0,0,0.1);
+}
+[data-theme="light"] .ic-modal-cta.secondary:hover {
+  background: transparent;
+  color: #0B0D12;
+  border-color: rgba(0,0,0,0.25);
+}
+
+[data-theme="light"] .ic-modal-progress { color: rgba(0,0,0,0.3); }
+
+[data-theme="light"] .ic-drag-handle { background: rgba(0,0,0,0.12); }
+
+[data-theme="light"] .ic-strip-title { color: rgba(0,0,0,0.82); }
+[data-theme="light"] .ic-strip-sub   { color: rgba(0,0,0,0.4); }

@@ -52,7 +52,7 @@
 
     /* Sidebar Override */
     .sidebar { background: rgba(0,0,0,0.95); border-right: 1px solid #331100; backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 200; }
-    .main { width: calc(100% - 260px); min-height: 100vh; margin-left: 260px; }
+    .main { width: calc(100% - 232px); min-height: 100vh; margin-left: 232px; }
 
     .content-wrapper {
       max-width: 1000px;
@@ -685,8 +685,14 @@
   border-color: rgba(255,94,0,0.2) !important;
 }
 [data-theme="light"] .card-header { color: #1A0A00 !important; }
+[data-theme="light"] .glitch-title { color: #1A0A00 !important; text-shadow: none !important; }
+[data-theme="light"] .hud-title    { color: #1A0A00 !important; }
+[data-theme="light"] .adj-val      { color: #1A0A00 !important; }
+[data-theme="light"] .m-title      { color: #1A0A00 !important; }
+[data-theme="light"] .hud-panel,
+[data-theme="light"] .adj-box      { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.1) !important; }
 </style>
-  <script src="../js/finos-widget.js?v=4"></script>
+  <script src="../js/finos-widget.js?v=6"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <script src="../js/sidebar.js"></script>

@@ -6,8 +6,8 @@
 </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
-  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/arya-ai.js?v=4" defer></script>
     
   <meta charset="UTF-8">
   <meta name="description" content="ESG and social impact investing — align your money with your values.">
@@ -347,10 +347,19 @@ Desi tone, inspiring, use their REAL numbers. No preamble.`;
   backdrop-filter: blur(10px); text-decoration: none;
 }
 #floatBackBtn:hover { background: transparent; color: var(--text-primary); transform: translateX(-3px); }
+
+/* ── LIGHT MODE ── */
+[data-theme="light"] #impact-monthly,
+[data-theme="light"] #impact-years,
+[data-theme="light"] #impact-rate {
+  background: var(--bg-surface) !important;
+  border-color: rgba(0,0,0,0.15) !important;
+  color: var(--text-primary) !important;
+}
 </style>
 <a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 
-  <script src="../js/finos-widget.js?v=4"></script>
+  <script src="../js/finos-widget.js?v=6"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <script src="../js/sidebar.js"></script>

@@ -529,3 +529,121 @@
   margin-right: 12px;
   font-size: 0.8rem;
 }
+
+/* ── MARKETS LIGHT MODE — COMPREHENSIVE ─────────────────────── */
+[data-theme="light"] .nav-pill {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.1);
+}
+[data-theme="light"] .nav-pill:hover,
+[data-theme="light"] .nav-pill.active {
+  background: transparent;
+  border-color: var(--accent);
+}
+
+[data-theme="light"] .market-section {
+  border-color: rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .info-card {
+  background: #FFFFFF;
+  border-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .interactive-chart-container {
+  background: rgba(0,0,0,0.03);
+}
+
+[data-theme="light"] .comparison-table {
+  background: #F5F7FB;
+}
+
+[data-theme="light"] .vs-badge {
+  background: #FFFFFF;
+  color: #0B0D12;
+  border-color: rgba(0,0,0,0.12);
+}
+
+[data-theme="light"] .fno-card {
+  background: rgba(255,71,87,0.04);
+  border-color: rgba(255,71,87,0.1);
+}
+[data-theme="light"] .fno-card.highlight {
+  background: rgba(255,71,87,0.07);
+  border-color: rgba(255,71,87,0.2);
+}
+
+[data-theme="light"] .persona-card {
+  background: linear-gradient(145deg, rgba(0,0,0,0.02), rgba(0,0,0,0.04));
+  border-color: rgba(0,0,0,0.07);
+}
+[data-theme="light"] .persona-card:hover {
+  background: #FFFFFF;
+}
+[data-theme="light"] .persona-card h3 { color: #0B0D12; }
+
+[data-theme="light"] .final-truth {
+  border-top-color: rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .decision-matrix {
+  border-top-color: rgba(0,0,0,0.08);
+}
+[data-theme="light"] .decision-matrix h3 { color: #4A5068; }
+
+[data-theme="light"] .choice-btn {
+  background: #FFFFFF;
+  color: #0B0D12;
+  border-color: rgba(0,0,0,0.1);
+}
+
+[data-theme="light"] .final-quote-section {
+  background: radial-gradient(circle at center, rgba(79,124,255,0.06) 0%, transparent 70%);
+}
+[data-theme="light"] .sub-quote { color: var(--text-secondary); }
+
+[data-theme="light"] .dive-container {
+  border-top-color: rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .warning-banner {
+  background: rgba(255,71,87,0.06);
+  border-color: rgba(255,71,87,0.2);
+}
+
+[data-theme="light"] .safe-vault .door { border-color: #546de5; }
+
+[data-theme="light"] .silver-card { color: #5A6278; }
+[data-theme="light"] .oil-card { color: #c0552e; }
+
+[data-theme="light"] .footer-btn {
+  background: rgba(245,247,251,0.9);
+  color: #0B0D12;
+}
+
+[data-theme="light"] #participants .scrolling-wrapper .persona-card {
+  background: #FFFFFF;
+  border-color: rgba(0,0,0,0.08);
+}
+
+/* ── MARKETS LIGHT MODE — ADDITIONAL OVERRIDES ────────────────── */
+/* Persona card description text */
+[data-theme="light"] .persona-card p { color: #4A5068; }
+
+/* node.secondary uses hardcoded #C7F000 — mute for light bg */
+[data-theme="light"] .node.secondary { color: #5a6a00; border-color: #7a8e00; background: rgba(120,145,0,0.06); }
+
+/* Gold/Silver/Oil card color text — already has silver/oil, add gold text */
+[data-theme="light"] .gold-card { color: #8a7000; }
+
+/* Crypto card description text */
+[data-theme="light"] .crypto-card { color: #4A5068; }
+
+/* Ticker bar (market-ticker used on some pages via shared markup) */
+[data-theme="light"] .market-ticker { background: #F0F2F8; border-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .ticker-symbol { color: #0B0D12; }
+[data-theme="light"] .ticker-price  { color: #0B0D12; }
+[data-theme="light"] .ticker-item   { color: #4A5068; }
+
+/* mode-switcher border */
+[data-theme="light"] .mode-switcher { border-bottom-color: rgba(0,0,0,0.08); }

@@ -17,9 +17,9 @@ Defines technical stack, performance budgets, security, accessibility, and integ
 | Layer | Technology | Notes |
 |---|---|---|
 | HTML | HTML5 | 96 pages, no framework overhead |
-| CSS | CSS3 + custom properties | 92-token design system |
+| CSS | CSS3 + custom properties | 133-token design system |
 | JavaScript | Vanilla ES6+ | No build step; 88 modules |
-| React app | React 18 + Vite 5 + Tailwind | Budget app (11 pages) only |
+| React app | React 19 + Vite 5 + Tailwind | Budget app (11 pages) only |
 | TypeScript | TS 5 + Vite + Express | News1 aggregator |
 | PWA | Service Worker + Web Push Level 3 | Offline + push notifications |
 
@@ -27,9 +27,9 @@ Defines technical stack, performance budgets, security, accessibility, and integ
 
 | File | Purpose |
 |---|---|
-| `design-tokens.css` | 92 CSS variables — single source of truth |
+| `design-tokens.css` | 133 CSS variables — single source of truth |
 | `interactions.css` | 180+ zero-fill hover effects |
-| `theme.css` | 326 light/dark-mode rules |
+| `theme.css` | 360 light-mode rules |
 | `base.css` | Reset, typography, WCAG focus rings |
 | `layout.css` | Sidebar, mobile nav, topbar |
 | `components.css` | Shared UI components |
@@ -61,6 +61,7 @@ Defines technical stack, performance budgets, security, accessibility, and integ
 | Stock Engine (6 services) | FastAPI + yfinance | varies |
 | Budget Backend | Django REST Framework 5.0+ | 8000 |
 | Stock Dashboard | Flask + yfinance | 5001 |
+| Document AI Parser | FastAPI + DocParser | varies |
 
 ### AI / ML
 
@@ -127,7 +128,7 @@ Defines technical stack, performance budgets, security, accessibility, and integ
 | Anti-FOUC | Inline IIFE as **first child of `<head>`**, before any `<link>` |
 | Theme persistence | Written to `finos-theme`, `theme`, `FINOS_SYS_SETTINGS.theme` |
 | CSS variables | All colour values via `var(--token)` — no hardcoded hex outside token files |
-| Light-mode coverage | 326 rules in `theme.css` covering all component types |
+| Light-mode coverage | 360 rules in `theme.css` covering all component types |
 | Hover system | Zero-fill vocabulary — all effects via `interactions.css` |
 | Inline style blocks | Must not contain hardcoded dark hex or `rgba(255,255,255,.0x)` surfaces |
 | Toggle coverage | Theme toggle on **all 96 pages** |

@@ -177,6 +177,29 @@ input, select {
 [data-theme="light"] .mode-btn { color: #4a5568; border-color: rgba(0,0,0,0.1); }
 [data-theme="light"] .mode-btn.active { color: #000; }
 
+/* ── PRINCIPLES — ADDITIONAL LIGHT MODE OVERRIDES ────────────── */
+/* mode-switcher border hardcoded white */
+[data-theme="light"] .mode-switcher { border-bottom-color: rgba(0,0,0,0.08); }
+
+/* mode-btn hover: hardcoded color:#fff */
+[data-theme="light"] .mode-btn:hover { color: #0B0D12; border-color: var(--accent); }
+
+/* badge text (hardcoded via var(--text-secondary) — fine, but opacity overlay on white needs help) */
+[data-theme="light"] .badge { color: #8A92A8; }
+
+/* allocation-bar labels — color:#000 is fine but debt segment text is #fff hardcoded */
+[data-theme="light"] .alloc-segment.debt { color: #fff; }
+
+/* result-box background tint */
+[data-theme="light"] .result-box { background: rgba(90,120,0,0.08); color: #4a6400; }
+
+/* desi-reality warning in light */
+[data-theme="light"] .desi-reality.warning { background: rgba(255,71,87,0.04); border-left-color: #ff4757; }
+[data-theme="light"] .desi-reality .flag { color: #4F7CFF; }
+
+/* group-title span number badge */
+[data-theme="light"] .group-title span { color: var(--accent); }
+
 @media (max-width: 900px) {
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
 }

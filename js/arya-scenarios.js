@@ -375,6 +375,173 @@ Base timeline: ${Math.floor(r.baseMths/12)}y ${r.baseMths%12}m → New: ${Math.f
 ROI of extra payment: ${r.roi}%.
 Explain in 3 Hinglish points. Compare: "that ${INR(r.extra)}/month saved you ${INR(r.saved)}!" Make it feel exciting.`;
       }
+    },
+
+    /* 7 ── Time Machine ─────────────────────────────────────────── */
+    time_machine: {
+      id: 'time_machine', icon: '⏳',
+      title: 'What if I\'d invested ₹X in 2015?',
+      subtitle: 'FD vs Nifty vs Gold — real historical data',
+      color: '#00d4ff',
+      inputs: [
+        { id: 'amount',    label: 'Monthly amount (₹)',  type: 'number', default: 5000, min: 500, max: 200000 },
+        { id: 'startYear', label: 'Start year',           type: 'range',  min: 2010, max: 2023, default: 2015 },
+        { id: 'asset',     label: 'Asset',                type: 'select',
+          options: [
+            { value: 'nifty50', label: 'Nifty 50 SIP' },
+            { value: 'fd',      label: 'Bank FD' },
+            { value: 'gold',    label: 'Gold SIP' },
+            { value: 'ppf',     label: 'PPF' }
+          ],
+          default: 'nifty50' }
+      ],
+
+      compute(ctx, inp) {
+        const amount    = n(inp.amount || 5000);
+        const startYear = n(inp.startYear || 2015);
+        const asset     = inp.asset || 'nifty50';
+
+        const CAGR = { nifty50: 0.13, fd: 0.065, gold: 0.10, ppf: 0.075 };
+        const LABELS = { nifty50: 'Nifty 50 SIP', fd: 'Bank FD', gold: 'Gold SIP', ppf: 'PPF' };
+        const ALT    = { nifty50: 'fd', fd: 'nifty50', gold: 'nifty50', ppf: 'nifty50' };
+
+        const sipFV = (amt, cagr, months) => {
+          const r = cagr / 12;
+          return amt * ((Math.pow(1 + r, months) - 1) / r) * (1 + r);
+        };
+
+        const years    = 2024 - startYear;
+        const months   = years * 12;
+        const invested = amount * months;
+        const corpus   = Math.round(sipFV(amount, CAGR[asset], months));
+        const gain     = corpus - invested;
+        const xirr     = (CAGR[asset] * 100).toFixed(1);
+
+        const altAsset   = ALT[asset];
+        const altCorpus  = Math.round(sipFV(amount, CAGR[altAsset], months));
+        const opportunity = Math.abs(corpus - altCorpus);
+        const assetLabel  = LABELS[asset];
+        const altLabel    = LABELS[altAsset];
+
+        return { amount, years, months, invested, corpus, gain, xirr, altCorpus, opportunity, assetLabel, altLabel, startYear };
+      },
+
+      prompt(ctx, r) {
+        return `Financial time machine for ${getName(ctx)}: ₹${r.amount}/month in ${r.assetLabel} from ${r.startYear} = ${INR(r.corpus)} today on ${INR(r.invested)} invested. Alternative (${r.altLabel}) would give ${INR(r.altCorpus)}. Difference: ${INR(r.opportunity)}. Explain in 3 Hinglish sentences what this teaches. Make it punchy and personal.`;
+      }
+    },
+
+    /* 8 ── Monte Carlo ──────────────────────────────────────────── */
+    monte_carlo: {
+      id: 'monte_carlo', icon: '🎲',
+      title: 'Will I reach my goals? (1000 simulations)',
+      subtitle: 'Probability engine — runs scenarios on your actual data',
+      color: '#a855f7',
+      inputs: [
+        { id: 'sipAmt',       label: 'Monthly investment (₹)',     type: 'number', default: 10000, min: 1000,   max: 500000 },
+        { id: 'targetCorpus', label: 'Target corpus (₹)',          type: 'number', default: 10000000, min: 500000, max: 500000000 },
+        { id: 'years',        label: 'Years',                       type: 'range',  min: 5, max: 40, default: 20 },
+        { id: 'returnMean',   label: 'Expected return % (mean)',    type: 'range',  min: 8, max: 18, default: 12 },
+        { id: 'returnStdDev', label: 'Market volatility (std dev %)', type: 'range', min: 2, max: 15, default: 6 }
+      ],
+
+      compute(ctx, inp) {
+        const income       = n(ctx?.budget_tracker?.income_monthly) || 50000;
+        const sipAmt       = n(inp.sipAmt) || Math.round(income * 0.2) || 10000;
+        const targetCorpus = n(inp.targetCorpus || 10000000);
+        const years        = n(inp.years || 20);
+        const returnMean   = n(inp.returnMean || 12) / 100;
+        const returnStdDev = n(inp.returnStdDev || 6) / 100;
+        const months       = years * 12;
+
+        function boxMuller() {
+          let u = 0, v = 0;
+          while (!u) u = Math.random();
+          while (!v) v = Math.random();
+          return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+        }
+
+        const outcomes = [];
+        for (let i = 0; i < 1000; i++) {
+          let corpus = 0;
+          for (let y = 0; y < years; y++) {
+            const annualReturn = returnMean + returnStdDev * boxMuller();
+            const monthlyRate  = annualReturn / 12;
+            if (monthlyRate <= -1) { corpus = 0; continue; }
+            corpus = corpus * Math.pow(1 + monthlyRate, 12) +
+              sipAmt * ((Math.pow(1 + monthlyRate, 12) - 1) / monthlyRate) * (1 + monthlyRate);
+          }
+          outcomes.push(Math.max(0, corpus));
+        }
+        outcomes.sort((a, b) => a - b);
+
+        const successCount = outcomes.filter(v => v >= targetCorpus).length;
+        const prob_success = Math.round(successCount / 10);
+        const p10          = Math.round(outcomes[99]);
+        const p50          = Math.round(outcomes[499]);
+        const p90          = Math.round(outcomes[899]);
+        const invested     = sipAmt * months;
+
+        return { sipAmt, targetCorpus, years, returnMean: returnMean * 100, invested, prob_success, p10, p50, p90 };
+      },
+
+      prompt(ctx, r) {
+        return `Monte Carlo for ${getName(ctx)}: ${INR(r.sipAmt)}/month for ${r.years} years with mean ${r.returnMean}% return. Probability of reaching ${INR(r.targetCorpus)}: ${r.prob_success}%. Median outcome: ${INR(r.p50)}. Best case: ${INR(r.p90)}, Worst case: ${INR(r.p10)}. Give 3 Hinglish sentences. If prob_success < 50%, suggest how to improve. If > 80%, be encouraging.`;
+      }
+    },
+
+    /* 9 ── Generational Wealth ──────────────────────────────────── */
+    generational: {
+      id: 'generational', icon: '🌳',
+      title: 'What does my child inherit?',
+      subtitle: 'Generational wealth multiplier — decisions you make today',
+      color: '#22d3a6',
+      inputs: [
+        { id: 'childAge',    label: "Your child's current age",       type: 'range',  min: 0,  max: 20, default: 5 },
+        { id: 'retireAge',   label: 'Your retirement age',             type: 'range',  min: 45, max: 70, default: 60 },
+        { id: 'extraMonthly', label: "Extra monthly for child's future (₹)", type: 'number', default: 2000, min: 500, max: 100000 },
+        { id: 'horizonAge',  label: 'Child gets wealth at age',        type: 'range',  min: 25, max: 40, default: 30 }
+      ],
+
+      compute(ctx, inp) {
+        const childAge     = n(inp.childAge ?? 5);
+        const retireAge    = n(inp.retireAge || 60);
+        const extraMonthly = n(inp.extraMonthly || 2000);
+        const horizonAge   = n(inp.horizonAge || 30);
+
+        const currentAge     = ctx?.identity?.life_stage === 'Early Career' ? 28 : 35;
+        const yearsToRetire  = Math.max(1, retireAge - currentAge);
+        const yearsToHorizon = Math.max(1, horizonAge - childAge);
+
+        const income     = n(ctx?.budget_tracker?.income_monthly) || 60000;
+        const netWorthNow = n(ctx?.profile?.net_worth) || 0;
+
+        const sipFV = (amt, cagr, yrs) => {
+          const r = cagr / 12;
+          const m = yrs * 12;
+          return amt * ((Math.pow(1 + r, m) - 1) / r) * (1 + r);
+        };
+
+        const corpusAtRetire      = Math.round(sipFV(income * 0.25, 0.12, yearsToRetire));
+        const childCorpus         = Math.round(sipFV(extraMonthly, 0.12, yearsToHorizon));
+        const inheritedAtHorizon  = Math.round(netWorthNow * Math.pow(1.10, yearsToHorizon));
+        const totalInheritance    = corpusAtRetire + childCorpus + inheritedAtHorizon;
+        const generationalMultiplier = (totalInheritance / (netWorthNow || 1)).toFixed(1);
+        const biggestLever        = childCorpus > netWorthNow * 0.5
+          ? 'dedicated child corpus'
+          : 'your own wealth building';
+        const extraInvested = extraMonthly * yearsToHorizon * 12;
+
+        return {
+          corpusAtRetire, childCorpus, inheritedAtHorizon, totalInheritance,
+          generationalMultiplier, biggestLever, extraInvested, extraMonthly,
+          yearsToRetire, yearsToHorizon, horizonAge
+        };
+      },
+
+      prompt(ctx, r) {
+        return `Generational wealth analysis for ${getName(ctx)}'s family. Child's inheritance at age ${r.horizonAge}: total ${INR(r.totalInheritance)} (retirement corpus + child fund + grown net worth). Biggest lever: ${r.biggestLever}. Extra ₹${r.extraMonthly}/month for child = ${INR(r.childCorpus)} by age ${r.horizonAge}. Explain in 3 emotional Hinglish lines about legacy and choices made today.`;
+      }
     }
 
   };
@@ -481,6 +648,24 @@ Explain in 3 Hinglish points. Compare: "that ${INR(r.extra)}/month saved you ${I
         { label: 'Years Saved', value: r.yrsSaved + ' yrs', positive: yes },
         { label: 'Base Timeline', value: Math.floor(r.baseMths/12) + 'y ' + (r.baseMths%12) + 'm', positive: no },
         { label: 'New Timeline', value: Math.floor(r.fasterMths/12) + 'y ' + (r.fasterMths%12) + 'm', positive: yes }
+      ],
+      time_machine: [
+        { label: 'Invested',       value: INR(r.invested),   positive: yes },
+        { label: 'Current Value',  value: INR(r.corpus),     positive: yes },
+        { label: 'Gain',           value: INR(r.gain),       positive: r.gain > 0 },
+        { label: 'XIRR',           value: r.xirr + '%',      positive: yes }
+      ],
+      monte_carlo: [
+        { label: 'Success Probability', value: r.prob_success + '%',  positive: r.prob_success >= 60 },
+        { label: 'Median Outcome',      value: INR(r.p50),            positive: yes },
+        { label: 'Best Case (P90)',     value: INR(r.p90),            positive: yes },
+        { label: 'Worst Case (P10)',    value: INR(r.p10),            positive: r.p10 >= r.invested }
+      ],
+      generational: [
+        { label: 'Your Retirement Corpus', value: INR(r.corpusAtRetire),   positive: yes },
+        { label: "Child's Dedicated Fund", value: INR(r.childCorpus),      positive: yes },
+        { label: 'Total Inheritance',      value: INR(r.totalInheritance), positive: yes },
+        { label: 'Generational Multiplier', value: r.generationalMultiplier + '×', positive: yes }
       ]
     };
     return M[id] || [];
@@ -529,6 +714,10 @@ Explain in 3 Hinglish points. Compare: "that ${INR(r.extra)}/month saved you ${I
                           style="flex:1;accent-color:${sc.color};">
                         <span style="font-size:13px;font-weight:700;color:${sc.color};min-width:32px;">${inp.default}</span>
                        </div>`
+                    : inp.type === 'select'
+                    ? `<select data-sc="${sc.id}" data-inp="${inp.id}" class="sc-input">
+                        ${inp.options.map(o => `<option value="${o.value}"${o.value === inp.default ? ' selected' : ''}>${o.label}</option>`).join('')}
+                       </select>`
                     : `<input type="number" value="${inp.default}" min="${inp.min}" max="${inp.max}"
                         data-sc="${sc.id}" data-inp="${inp.id}"
                         class="sc-input">`}
@@ -541,6 +730,70 @@ Explain in 3 Hinglish points. Compare: "that ${INR(r.extra)}/month saved you ${I
             <div class="sc-result-${sc.id}" style="margin-top:14px;display:none;"></div>
           </div>`).join('')}
       </div>`;
+
+    // ── Dynamic defaults from real user data ──────────────────────────
+    function applyContextDefaults() {
+      const ctx  = window.FINOS_USER_CONTEXT || {};
+      const bt   = ctx.budget_tracker || {};
+      const prof = ctx.profile || {};
+
+      const realIncome  = bt.income_monthly   || Number(localStorage.getItem('finos_income'))        || null;
+      const realSR      = bt.savings_rate      || Number(localStorage.getItem('finos_savings_rate'))  || null;
+      const realSIP     = prof.sip_monthly     || Number(localStorage.getItem('finos_sip_monthly'))   ||
+                          (realIncome && realSR ? Math.round(realIncome * realSR / 100) : null);
+      const realFIREYrs = bt.fire_years_estimate || null;
+      const realFIRENum = bt.fire_number       || Number(localStorage.getItem('finos_fire_number'))   || null;
+      const realDebt    = bt.total_debt        || null;
+      const realExpense = realIncome && realSR  ? Math.round(realIncome * (1 - realSR / 100))        : null;
+
+      const realEMI = (() => {
+        try {
+          const txns = JSON.parse(localStorage.getItem('finos_transactions') || '[]');
+          const emiTx = txns.filter(t => ['emi','bills','loan'].includes(t.category) ||
+                                         (t.description||'').toLowerCase().includes('emi'));
+          return emiTx.length ? Math.round(emiTx.reduce((s,t) => s + (t.amount||0), 0) / emiTx.length) : null;
+        } catch { return null; }
+      })();
+
+      // scenarioId → { inputId: realValue } — null means "no real data, keep default"
+      const REAL = {
+        sip_delay:     { sipAmt: realSIP,  years: realFIREYrs },
+        fire_shift:    { expenseChange: realExpense ? -Math.round(realExpense * 0.10) : null },
+        extra_payment: { loanAmt: realDebt, emiAmt: realEMI },
+        time_machine:  { amount: realSIP },
+        monte_carlo:   { sipAmt: realSIP, targetCorpus: realFIRENum, years: realFIREYrs },
+      };
+
+      let anyPersonalised = false;
+      Object.entries(REAL).forEach(([scId, overrides]) => {
+        let cardPersonalised = false;
+        Object.entries(overrides).forEach(([inpId, val]) => {
+          if (!val || isNaN(val) || val <= 0) return;
+          const el = containerEl.querySelector(`[data-sc="${scId}"][data-inp="${inpId}"]`);
+          if (!el) return;
+          el.value = Math.round(val);
+          if (el.type === 'range' && el.nextElementSibling) el.nextElementSibling.textContent = el.value;
+          cardPersonalised = true;
+          anyPersonalised  = true;
+        });
+        // Badge the card if any input got a real value
+        if (cardPersonalised) {
+          const card = containerEl.querySelector(`.sc-card[data-sc="${scId}"]`);
+          if (card && !card.querySelector('.sc-badge-live')) {
+            const badge = document.createElement('span');
+            badge.className = 'sc-badge-live';
+            badge.style.cssText = 'display:inline-block;margin-left:6px;font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.25);color:#00d4ff;font-weight:700;vertical-align:middle;';
+            badge.textContent = '✦ Live data';
+            const titleEl = card.querySelector('[style*="font-weight:700;font-size:.95rem"]');
+            if (titleEl) titleEl.appendChild(badge);
+          }
+        }
+      });
+    }
+
+    // Apply now if context ready, else wait for it
+    if (window.FINOS_USER_CONTEXT) applyContextDefaults();
+    else window.addEventListener('finos-context-ready', applyContextDefaults, { once: true });
 
     // Wire up buttons
     containerEl.querySelectorAll('.sc-btn').forEach(btn => {

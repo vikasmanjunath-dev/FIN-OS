@@ -291,3 +291,93 @@
 [data-theme="light"] #pathLine {
   stroke: #CBD5E1; /* Light grey path instead of dark */
 }
+
+/* ── START PAGE — ADDITIONAL LIGHT MODE OVERRIDES ────────────── */
+[data-theme="light"] .level-card {
+  background: #FFFFFF;
+  border-color: rgba(0,0,0,0.07);
+}
+[data-theme="light"] .level-card h3 { color: #0B0D12; }
+[data-theme="light"] .level-card.special {
+  background: rgba(199,240,0,0.04);
+  border-color: rgba(199,240,0,0.3);
+}
+
+[data-theme="light"] .lvl-tag {
+  color: #5A6278;
+  background: rgba(0,0,0,0.04);
+}
+[data-theme="light"] .concept { color: #4A5068; }
+[data-theme="light"] .highlight { color: var(--accent); }
+
+[data-theme="light"] .desi-box {
+  background: rgba(79,124,255,0.06);
+  border-color: #4F7CFF;
+}
+[data-theme="light"] .desi-box.warning {
+  background: rgba(255,71,87,0.06);
+  border-color: #ff4757;
+}
+[data-theme="light"] .flag { color: var(--accent); }
+
+[data-theme="light"] .visual-mini {
+  background: #F0F2F8;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+[data-theme="light"] .battery-visual { border-color: #0B0D12; }
+[data-theme="light"] .battery-visual::before { background: #0B0D12; }
+
+[data-theme="light"] .key-points span {
+  background: rgba(0,0,0,0.05);
+  color: #4A5068;
+}
+
+[data-theme="light"] .step {
+  background: rgba(0,0,0,0.04);
+  color: #0B0D12;
+}
+
+[data-theme="light"] .journey-footer {
+  border-top-color: rgba(0,0,0,0.08);
+}
+[data-theme="light"] .journey-footer h2 { color: #0B0D12; }
+
+[data-theme="light"] .next-btn {
+  color: #0B0D12;
+  border-color: rgba(0,0,0,0.1);
+}
+[data-theme="light"] .next-btn:hover {
+  box-shadow: 0 8px 24px rgba(79,124,255,0.15);
+}
+[data-theme="light"] .next-btn.accent {
+  background: var(--accent);
+  color: #0B0D12;
+  border-color: var(--accent);
+}
+
+[data-theme="light"] .node-marker {
+  background: #FFFFFF;
+}
+
+[data-theme="light"] .dot { color: #0B0D12; }
+
+[data-theme="light"] .warning-text { color: #dc2626; }
+
+/* ── START PAGE — ADDITIONAL LIGHT MODE OVERRIDES ────────────── */
+/* pizza-visual slices — default is rgba white overlay on white bg */
+[data-theme="light"] .pizza-visual { background: rgba(0,0,0,0.06); }
+[data-theme="light"] .slice { background: rgba(0,0,0,0.1); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08); }
+[data-theme="light"] .slice.highlight { background: var(--accent); }
+
+/* pacman dot: hardcoded #fff */
+[data-theme="light"] .dot { color: #0B0D12; }
+
+/* pacman body color is fine (gold), no override needed */
+
+/* level-node: padding/layout fine, no bg hardcoding */
+
+/* journey-container background is transparent — fine */
+
+/* mode-switcher border in start page context */
+[data-theme="light"] .mode-switcher { border-bottom-color: rgba(0,0,0,0.08); }

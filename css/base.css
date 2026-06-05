@@ -85,6 +85,33 @@ a:hover { text-decoration: underline; }
   color: #fff;
 }
 
+/* ── THEME TRANSITION — smooth color changes on toggle ── */
+*,
+*::before,
+*::after {
+  transition:
+    background-color 0.25s ease,
+    background    0.25s ease,
+    color         0.2s  ease,
+    border-color  0.2s  ease,
+    box-shadow    0.25s ease;
+}
+/* Exceptions: animations and transforms must NOT be slowed by the global rule */
+*[class*="animate"],
+*[class*="spin"],
+*[class*="pulse"],
+.scan-line,
+.particles,
+.loading-spinner,
+canvas {
+  transition: none !important;
+}
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  transition: none !important;
+}
+
 /* =========================
    FOCUS RINGS (WCAG 2.4.7 / 2.4.11)
    Strategy: remove browser default outline on mouse click only.
@@ -212,6 +239,10 @@ html {
   scrollbar-width: thin;
   scroll-behavior: smooth;
 }
+[data-theme="light"] html,
+html[data-theme="light"] {
+  scrollbar-color: #A1A8B8 #EEF0F7;
+}
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
@@ -224,15 +255,25 @@ html {
 ::-webkit-scrollbar-track {
   background: #12161d;
 }
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #EEF0F7;
+}
 
 ::-webkit-scrollbar-thumb {
   background: #545b66;
   border-radius: 999px;
   border: 2px solid #12161d;
 }
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #A1A8B8;
+  border: 2px solid #EEF0F7;
+}
 
 ::-webkit-scrollbar-thumb:hover {
   background: #6a7380;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: #8A92A8;
 }
 
 
@@ -359,8 +400,37 @@ html {
   justify-content: center;
   width: 24px;
   height: 24px;
-  background: var(--accent-soft); /* */
-  border-radius: 50%; /* Makes it a round symbol */
+  background: var(--accent-soft);
+  border-radius: 50%;
   margin-right: 12px;
   font-size: 0.8rem;
+}
+
+/* ── FLOATING THEME TOGGLE — auto-injected by ui.js on pages without one ── */
+.theme-btn {
+  background: var(--bg-surface, #15181F);
+  color: var(--text-primary, #F0F2F8);
+  border: 1px solid var(--border-soft, rgba(255,255,255,0.08));
+  border-radius: 999px;
+  width: 44px;
+  height: 44px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+  transition: transform 0.25s ease, background 0.3s ease, border-color 0.2s ease;
+}
+.theme-btn:hover { transform: scale(1.08); }
+.theme-btn:focus-visible {
+  outline: 2px solid var(--accent, #4F7CFF);
+  outline-offset: 3px;
+}
+
+.theme-btn--floating {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9000;
 }

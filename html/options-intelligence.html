@@ -14,8 +14,8 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
-  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/arya-ai.js?v=4" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
 <style>
 /* ── Options Intelligence Page Styles ── */
@@ -225,6 +225,30 @@
   color:rgba(255,255,255,.5);
   font-size:13px; cursor:pointer;
 }
+
+/* ── LIGHT MODE ───────────────────────────────────────────── */
+[data-theme="light"] .opt-card-title  { color:rgba(0,0,0,.45); }
+[data-theme="light"] .greek-name      { color:rgba(0,0,0,.45); }
+[data-theme="light"] .greek-val       { color:#0B0D12; }
+[data-theme="light"] .iv-gauge-needle { background:#0B0D12; box-shadow:0 0 6px rgba(0,0,0,.25); }
+[data-theme="light"] .iv-labels       { color:rgba(0,0,0,.4); }
+[data-theme="light"] .iv-tile-label   { color:rgba(0,0,0,.45); }
+[data-theme="light"] .iv-tile-sub     { color:rgba(0,0,0,.4); }
+[data-theme="light"] .strategy-desc   { color:rgba(0,0,0,.5); }
+[data-theme="light"] .quiz-option     { color:#0B0D12; }
+[data-theme="light"] .chain-table th  { color:rgba(0,0,0,.45); }
+[data-theme="light"] .chain-otm       { color:rgba(0,0,0,.4); }
+[data-theme="light"] .chain-strike    { color:#0B0D12; }
+[data-theme="light"] .opt-label       { color:rgba(0,0,0,.5); }
+[data-theme="light"] .iv-rec          { color:rgba(0,0,0,.65); }
+[data-theme="light"] .opt-modal-close { color:rgba(0,0,0,.5); }
+[data-theme="light"] .opt-modal-box {
+  background: #ffffff;
+  border-color: rgba(0,0,0,.1);
+}
+[data-theme="light"] .page-breadcrumb,
+[data-theme="light"] .page-breadcrumb a { color:rgba(0,0,0,.45); }
+[data-theme="light"] .page-breadcrumb span { color:rgba(0,0,0,.25); }
 </style>
   <link rel="stylesheet" href="../css/interactions.css">
 </head>
@@ -564,7 +588,7 @@
   </div>
 </div>
 
-<script src="../js/finos-widget.js?v=5"></script>
+<script src="../js/finos-widget.js?v=6"></script>
 <script src="../js/mobile-nav.js" defer></script>
 
 <script>
@@ -741,7 +765,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script src="../js/sidebar.js"></script>
   <script src="../js/interactions.js" defer></script>
-<button id="themeToggle" class="theme-btn" style="position:fixed;top:16px;right:16px;z-index:150;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;" aria-label="Toggle dark/light theme">🌙</button>
+<button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
 <script>
 (function(){
   var btn=document.getElementById('themeToggle');

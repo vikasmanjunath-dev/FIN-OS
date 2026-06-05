@@ -1095,6 +1095,17 @@
   transform: scale(1.08);
 }
 
+/* Auto-injected floating toggle for pages with no existing theme button */
+.theme-btn--floating {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9000;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--card-shadow);
+}
+
 /* =========================
    CARD ICONS
    ========================= */

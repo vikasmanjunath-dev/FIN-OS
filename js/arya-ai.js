@@ -65,8 +65,12 @@ Rules:
     const name = id.name || localStorage.getItem('finos_display_name') || 'Investor';
     const dna  = id.financial_dna || localStorage.getItem('finos_financial_dna') || 'Explorer';
     lines.push('══ USER CONTEXT ══');
-    lines.push(`Name: ${name} | DNA: ${dna} | Stage: ${id.life_stage || localStorage.getItem('finos_stage') || 'unknown'}`);
-    lines.push(`Income bracket: ₹${id.income_range || localStorage.getItem('finos_income') || 'unknown'}/month | Mindset: ${id.mindset || localStorage.getItem('finos_mindset') || 'unknown'}`);
+    const stage     = id.life_stage   || localStorage.getItem('finos_stage')   || null;
+    const incomeVal = id.income_range  || localStorage.getItem('finos_income')  ||
+                      ctx?.budget_tracker?.income_monthly || null;
+    const mindset   = id.mindset       || localStorage.getItem('finos_mindset') || null;
+    lines.push(`Name: ${name} | DNA: ${dna}${stage ? ' | Stage: ' + stage : ''}`);
+    if (incomeVal) lines.push(`Income: ₹${incomeVal}/month${mindset ? ' | Mindset: ' + mindset : ''}`);
 
     const interests = (() => {
       if (Array.isArray(id.interests)) return id.interests.join(', ');
@@ -141,6 +145,21 @@ Rules:
     }
     if (eng?.total_sessions > 0) {
       lines.push(`Total sessions: ${eng.total_sessions} · Member for: ${eng.days_since_first || 0} days`);
+    }
+
+    // ── Behavioral Intelligence (DNA debrief + behavioral debt) ──────────
+    const beh = ctx?.behavioral;
+    if (beh) {
+      if (beh.primary_bias) lines.push(`Primary behavioral bias: ${beh.primary_bias.replace(/_/g,' ')} (annual cost: ${INR(beh.annual_bias_cost)}, 5-year compounded: ${INR(beh.compounded_5yr_cost)})`);
+      if (beh.finos_score)  lines.push(`FIN-OS Wealth Behavior Score: ${beh.finos_score}/100 (${beh.finos_tier})`);
+      if (beh.dna_history_count > 1) lines.push(`DNA scans completed: ${beh.dna_history_count} (latest 3: ${(beh.dna_evolution || []).map(e => e.date + ' ' + (e.archetype||'?')).join(' → ')})`);
+      if (beh.tax_savings_potential > 0) lines.push(`Tax optimization potential this FY: ${INR(beh.tax_savings_potential)}`);
+    }
+
+    // ── Household / Couple data ───────────────────────────────────────────
+    const household = ctx?.household;
+    if (household?.partner_name) {
+      lines.push(`Linked partner: ${household.partner_name} | Combined net worth: ${INR(household.combined_net_worth)} | Partner savings rate: ${household.partner_savings_rate}%`);
     }
 
     // ── Page context ──────────────────────────────────────────────────────

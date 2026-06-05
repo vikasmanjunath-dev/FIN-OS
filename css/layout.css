@@ -625,6 +625,22 @@ html {
   .np-btn { padding: 11px 6px; font-size: 15px; }
 }
 
+/* ─────────────────────────────────────────────────────────────
+   MOBILE THEME BUTTON — push below the 56 px mobile topbar
+   Covers: .theme-btn--floating (ui.js-injected or class-based),
+   #floatThemeBtn (IIFE pages), and any button with id="themeToggle"
+   that carries an inline position:fixed.
+   z-index set to 9000 so it always renders above the topbar (500).
+───────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .theme-btn--floating,
+  #floatThemeBtn,
+  button#themeToggle[style*="position:fixed"] {
+    top: 62px !important;
+    z-index: 9000 !important;
+  }
+}
+
 /* =========================
    HIGH CONTRAST MODE (accessibility)
    ========================= */
@@ -650,4 +666,113 @@ html {
   .main, .page { margin-left: 0 !important; width: 100% !important; padding: 0 !important; }
   .card { box-shadow: none !important; border: 1px solid #ccc !important; }
 }
+
+/* =========================
+   LIGHT MODE — SIDEBAR & LAYOUT OVERRIDES
+   ========================= */
+[data-theme="light"] .sidebar {
+  background: #FFFFFF;
+  border-right-color: rgba(0,0,0,0.1);
+  box-shadow: 1px 0 0 rgba(0,0,0,0.06), 6px 0 24px rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .sb-brand {
+  border-bottom-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .sb-wordmark-name {
+  color: rgba(0,0,0,0.85);
+}
+[data-theme="light"] .sb-wordmark-tag {
+  color: rgba(0,0,0,0.35);
+}
+
+[data-theme="light"] .sb-identity {
+  border-color: rgba(0,0,0,0.07);
+  background: rgba(0,0,0,0.02);
+}
+
+[data-theme="light"] .sb-identity-name {
+  color: rgba(0,0,0,0.8);
+}
+
+[data-theme="light"] .sb-cmd {
+  border-color: rgba(0,0,0,0.08);
+  background: rgba(0,0,0,0.03);
+}
+[data-theme="light"] .sb-cmd-icon { color: rgba(0,0,0,0.5); }
+[data-theme="light"] .sb-cmd-label { color: rgba(0,0,0,0.4); }
+[data-theme="light"] .sb-cmd-kbd {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.1);
+  color: rgba(0,0,0,0.35);
+}
+
+[data-theme="light"] .sb-divider {
+  background: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .sb-link {
+  color: rgba(0,0,0,0.5);
+}
+[data-theme="light"] .sb-link:hover {
+  color: #4F7CFF;
+  background: rgba(79,124,255,0.06);
+}
+[data-theme="light"] .sb-link:hover .sb-icon { color: #4F7CFF; }
+
+[data-theme="light"] .sb-link.active,
+[data-theme="light"] .sb-link[aria-current="page"] {
+  color: rgba(0,0,0,0.85);
+  background: rgba(79,124,255,0.10);
+  border-color: rgba(79,124,255,0.14);
+  box-shadow: none;
+}
+
+[data-theme="light"] .sb-icon { color: rgba(0,0,0,0.3); }
+[data-theme="light"] .sb-link.active .sb-icon,
+[data-theme="light"] .sb-link[aria-current="page"] .sb-icon { color: var(--sb-accent); }
+
+[data-theme="light"] .sb-footer-zone {
+  border-top-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .sb-arya-name { color: rgba(0,0,0,0.65); }
+[data-theme="light"] .sb-arya-status { color: rgba(0,0,0,0.35); }
+[data-theme="light"] .sb-arya-arrow { color: rgba(0,0,0,0.2); }
+[data-theme="light"] .sb-arya-dot { border-color: #FFFFFF; }
+
+[data-theme="light"] .sb-settings-row { color: rgba(0,0,0,0.45); }
+[data-theme="light"] .sb-settings-row:hover { color: rgba(0,0,0,0.8); }
+[data-theme="light"] .sb-settings-row.active,
+[data-theme="light"] .sb-settings-row[aria-current="page"] { color: rgba(0,0,0,0.85); }
+[data-theme="light"] .sb-settings-row .sb-icon { color: rgba(0,0,0,0.25); }
+
+[data-theme="light"] .sb-health-pill {
+  background: rgba(22,163,74,0.1);
+  border-color: rgba(22,163,74,0.25);
+  color: #16a34a;
+}
+[data-theme="light"] .sb-health-pill.warn {
+  background: rgba(217,119,6,0.1);
+  border-color: rgba(217,119,6,0.25);
+  color: #d97706;
+}
+[data-theme="light"] .sb-health-pill.crit {
+  background: rgba(220,38,38,0.1);
+  border-color: rgba(220,38,38,0.25);
+  color: #dc2626;
+}
+
+/* Mobile top bar */
+[data-theme="light"] .mob-topbar {
+  background: #FFFFFF;
+  border-bottom-color: rgba(0,0,0,0.1);
+}
+[data-theme="light"] .mob-ham {
+  border-color: rgba(0,0,0,0.12);
+  color: #0B0D12;
+}
+[data-theme="light"] .mob-ham:hover { border-color: rgba(0,0,0,0.25); }
+[data-theme="light"] .mob-logo-text { color: #0B0D12; }
 

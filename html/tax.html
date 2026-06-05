@@ -187,8 +187,8 @@
   <link rel="stylesheet" href="../chatbot/qft-hud.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
-  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/arya-ai.js?v=4" defer></script>
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
   <meta property="og:image" content="/assets/icons/icon-512.svg">
@@ -403,6 +403,32 @@
             </button>
           </div>
         </div>
+      </div>
+
+      <!-- TAX SAVINGS COUNTER -->
+      <div id="tax-savings-counter" style="margin:0 0 24px;padding:24px;border-radius:20px;background:linear-gradient(135deg,rgba(199,240,0,.06),rgba(79,124,255,.04));border:1px solid rgba(199,240,0,.15);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#c7f000;margin-bottom:4px;">⚡ Live Tax Savings Tracker</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.5);">Based on your income · Updates as you plan</div>
+          </div>
+          <div id="tst-fy-badge" style="padding:4px 12px;border-radius:20px;background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.2);font-size:11px;font-weight:700;color:#4F7CFF;">FY 2024–25</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:16px;" id="tst-grid">
+          <!-- filled by JS -->
+        </div>
+
+        <div style="background:rgba(0,0,0,.2);border-radius:12px;padding:16px;" id="tst-sections">
+          <!-- section-wise breakdown filled by JS -->
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+          <input id="tst-income" type="number" placeholder="Enter your annual income (₹)"
+            style="flex:1;min-width:200px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:13px;outline:none;" />
+          <button onclick="window._tstCalculate()" style="padding:10px 20px;border-radius:10px;background:#c7f000;color:#000;font-weight:800;border:none;cursor:pointer;font-size:13px;">Calculate →</button>
+        </div>
+        <div id="tst-arya" style="margin-top:12px;font-size:13px;color:rgba(255,255,255,.7);line-height:1.7;min-height:0;"></div>
       </div>
 
       <!-- NAV STRIP -->
@@ -1508,23 +1534,6 @@
 <script src="../js/tax.js?v=3"></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script>
-  // Theme button toggle fix
-  document.addEventListener('DOMContentLoaded', () => {
-    const themeBtn = document.getElementById('themeToggle');
-    if(themeBtn) {
-      const updateBtnIcon = () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        themeBtn.textContent = currentTheme === 'light' ? '☀️' : '🌙';
-      };
-      updateBtnIcon();
-      
-      themeBtn.addEventListener('click', () => {
-        setTimeout(updateBtnIcon, 50);
-      });
-    }
-  });
-</script>
   <!-- ── Arya Tax AI ─────────────────────────────────────────────── -->
   <style>
     @keyframes aryaBlink { 0%,100%{opacity:1} 50%{opacity:0} }
@@ -1850,11 +1859,161 @@ Be direct. Use exact ₹ from above. Desi Hinglish tone. End with: "Total yeh pl
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
   <script src="../chatbot/qft-engine.js"></script>
-  <script src="../js/finos-widget.js?v=5"></script>
+  <script src="../js/finos-widget.js?v=6"></script>
   <script src="../js/finos-mobile.js" defer></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <script src="../js/sidebar.js"></script>
   <script src="../js/interactions.js" defer></script>
+
+<script>
+(function() {
+  function INR(n) {
+    const num = Number(n)||0;
+    if(num>=1e7) return '₹'+(num/1e7).toFixed(1)+' Cr';
+    if(num>=1e5) return '₹'+(num/1e5).toFixed(1)+' L';
+    if(num>=1e3) return '₹'+Math.round(num/1e3)+'K';
+    return '₹'+num.toLocaleString('en-IN');
+  }
+
+  // Tax sections with caps
+  const SECTIONS = [
+    { id:'s80c',    label:'80C (ELSS/PPF/LIC)', maxDeduction:150000, color:'#4F7CFF' },
+    { id:'s80d',    label:'80D (Health Insurance)', maxDeduction:25000, color:'#22d3a6' },
+    { id:'s80ccd1b',label:'80CCD(1B) – NPS Extra', maxDeduction:50000, color:'#c7f000' },
+    { id:'s80e',    label:'80E (Education Loan)', maxDeduction:999999, color:'#a855f7' }, // no cap
+    { id:'hra',     label:'HRA Exemption', maxDeduction:200000, color:'#ff9500' },
+    { id:'s24b',    label:'24(b) Home Loan Interest', maxDeduction:200000, color:'#00d4ff' },
+  ];
+
+  // New tax regime slabs 2024-25
+  function calcTax(taxableIncome) {
+    const slabs = [[300000,0],[300000,.05],[300000,.10],[300000,.15],[300000,.20],[Infinity,.30]];
+    let tax = 0, rem = Math.max(0, taxableIncome);
+    for (const [slab, rate] of slabs) {
+      if (rem <= 0) break;
+      const chunk = Math.min(rem, slab);
+      tax += chunk * rate;
+      rem -= chunk;
+    }
+    // Rebate 87A: tax = 0 if taxable income <= 7L
+    if (taxableIncome <= 700000) tax = 0;
+    return Math.round(tax * 1.04); // +4% cess
+  }
+
+  window._tstCalculate = function() {
+    const incomeEl = document.getElementById('tst-income');
+    const ctx      = window.FINOS_USER_CONTEXT;
+    // Read from: typed input → localStorage monthly×12 → context budget tracker → context profile
+    const fromLS   = Number(localStorage.getItem('finos_income')) * 12;
+    const fromCtx  = (ctx?.budget_tracker?.income_monthly || 0) * 12;
+    const income   = Number(incomeEl?.value) || fromLS || fromCtx;
+    if (!income || income < 100000) {
+      const aryaEl = document.getElementById('tst-arya');
+      if (aryaEl) {
+        aryaEl.style.display = 'block';
+        aryaEl.innerHTML = '<span style="color:#ff9500;font-size:13px;">Please enter your annual income above to see your personalized tax savings.</span>';
+      }
+      if (incomeEl) { incomeEl.style.borderColor = 'rgba(255,149,0,.5)'; incomeEl.focus(); }
+      return;
+    }
+
+    _renderTST(income);
+
+    // Ask Arya for personalized tip
+    const aryaEl = document.getElementById('tst-arya');
+    if (!aryaEl) return;
+    const totalSavings = _computeSavings(income).potentialTaxSaved;
+    const prompt = `Tax optimization for someone earning ${INR(income)}/year. They can potentially save ${INR(totalSavings)} in taxes this FY through 80C, 80D, NPS, and HRA. Give ONE most impactful action in 2 Hinglish sentences. Be specific with amounts.`;
+
+    aryaEl.innerHTML = '<span style="color:rgba(255,255,255,.35);">Arya calculating…</span>';
+    if (window.AryaAI?.ask) {
+      window.AryaAI.ask(prompt, tok => { aryaEl.textContent = (aryaEl.textContent === 'Arya calculating…' ? '' : aryaEl.textContent) + tok; });
+    } else {
+      aryaEl.textContent = '';
+    }
+  };
+
+  function _computeSavings(income) {
+    const taxWithout = calcTax(income);
+    const sections = SECTIONS.map(s => {
+      const deduction = Math.min(s.maxDeduction, income * 0.12); // assume 12% already used
+      const headroom = Math.max(0, s.maxDeduction - deduction);
+      const taxSaved = calcTax(income) - calcTax(income - headroom);
+      return { ...s, headroom, taxSaved };
+    });
+    const potentialTaxSaved = sections.reduce((sum,s) => sum + s.taxSaved, 0);
+    return { taxWithout, sections, potentialTaxSaved };
+  }
+
+  function _renderTST(income) {
+    const grid = document.getElementById('tst-grid');
+    const sectionsEl = document.getElementById('tst-sections');
+    if (!grid || !sectionsEl) return;
+
+    const { taxWithout, sections, potentialTaxSaved } = _computeSavings(income);
+
+    // Persist tax data so finos-context.js + Arya can access it
+    try {
+      localStorage.setItem('finos_tax_savings', JSON.stringify({
+        income, current_tax: taxWithout, potential: potentialTaxSaved,
+        effective_rate: +((taxWithout/income)*100).toFixed(1),
+        sections: sections.map(s => ({ id: s.id, label: s.label, headroom: s.headroom, tax_saved: s.taxSaved })),
+        computed_at: new Date().toISOString(),
+      }));
+      // Also expose to FINOS_TAX_DATA so context.js page-data picks it up
+      window.FINOS_TAX_DATA = { potential_saving: potentialTaxSaved, current_tax: taxWithout, income };
+    } catch {}
+
+    // KPI grid
+    grid.innerHTML = [
+      { label: 'Current Tax', value: INR(taxWithout), color: '#ff6b6b' },
+      { label: 'Potential Saving', value: INR(potentialTaxSaved), color: '#c7f000' },
+      { label: 'After Optimization', value: INR(Math.max(0, taxWithout - potentialTaxSaved)), color: '#00ff88' },
+      { label: 'Effective Rate', value: ((taxWithout/income)*100).toFixed(1)+'%', color: '#4F7CFF' },
+    ].map(k => `
+      <div style="background:rgba(255,255,255,.04);border:1px solid ${k.color}25;border-radius:12px;padding:14px;text-align:center;">
+        <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;">${k.label}</div>
+        <div style="font-size:1.1rem;font-weight:800;color:${k.color};">${k.value}</div>
+      </div>`).join('');
+
+    // Section breakdown
+    sectionsEl.innerHTML = `
+      <div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:10px;letter-spacing:.8px;text-transform:uppercase;">Deduction headroom this FY</div>
+      ${sections.map(s => `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <div style="flex:1;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <span style="font-size:12px;color:rgba(255,255,255,.65);">${s.label}</span>
+              <span style="font-size:12px;font-weight:700;color:${s.color};">Save ${INR(s.taxSaved)}</span>
+            </div>
+            <div style="height:3px;background:rgba(255,255,255,.05);border-radius:2px;">
+              <div style="height:100%;width:${s.headroom>0?Math.round(Math.min(100,s.headroom/s.maxDeduction*100)):0}%;background:${s.color};border-radius:2px;"></div>
+            </div>
+            <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:2px;">${INR(s.headroom)} headroom left</div>
+          </div>
+        </div>`).join('')}`;
+  }
+
+  // Auto-run if income is already in localStorage
+  // Auto-populate income from context (runs on load + when context refreshes)
+  function _tstAutoFill() {
+    const ctx    = window.FINOS_USER_CONTEXT;
+    const fromLS = Number(localStorage.getItem('finos_income')) * 12;
+    const fromCtx = (ctx?.budget_tracker?.income_monthly || 0) * 12;
+    const income  = fromLS || fromCtx;
+    const el      = document.getElementById('tst-income');
+    if (!el || el.value > 0) return; // don't overwrite user's typed value
+    if (income > 100000) {
+      el.value = income;
+      setTimeout(() => _renderTST(income), 300);
+    }
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(_tstAutoFill, 300); // after localStorage read
+    window.addEventListener('finos-context-ready', _tstAutoFill, { once: true }); // after Supabase loads
+  });
+})();
+</script>
 </body>
 </html>

@@ -73,7 +73,11 @@
       const saves = txns.filter(t => (t.category||'').startsWith('save'))
                         .reduce((s,t) => s+(t.amount||0), 0);
       const total        = needs + wants + saves;
-      const savings_rate = income > 0 ? +((income - total) / income * 100).toFixed(1) : 0;
+      // Use declared savings rate from localStorage when transaction data is sparse
+      // (< 10 transactions) — prevents 99% savings rate from 1 logged entry
+      const declaredSR = safeJson('finos_savings_rate', 0) || 0;
+      const txnDerivedSR = income > 0 ? +((income - total) / income * 100).toFixed(1) : 0;
+      const savings_rate = txns.length >= 10 ? txnDerivedSR : (declaredSR || txnDerivedSR);
 
       // Top spend categories
       const catMap = {};
@@ -148,8 +152,10 @@
                              })),
         budget_health:       income > 0 ? health : null,
         tx_count:            txns.length,
-        fire_number:         fire_number > 0 ? Math.round(fire_number) : null,
-        fire_years_estimate: fire_years,
+        // Use stored FIRE number if available (more accurate than transaction-derived)
+        fire_number:         safeJson('finos_fire_number', 0) || (fire_number > 0 ? Math.round(fire_number) : null),
+        fire_years_estimate: safeJson('finos_fire_years', 0)  || fire_years,
+        fire_percent:        safeJson('finos_fire_percent', 0) || null,
       };
     } catch (e) {
       return null;
@@ -364,6 +370,39 @@
       /* ── Cross-app data (budget tracker + trade journal) ── */
       budget_tracker: collectBudgetTracker(),
       trade_journal:  collectTradeJournal(),
+
+      /* ── Behavioral intelligence (from DNA quiz + debt tracker) ── */
+      behavioral: (function() {
+        const primaryBias   = localStorage.getItem('finos_primary_bias') || null;
+        const debtRaw       = safeJson('finos_behavioral_debt_annual', null);
+        const dnaHistory    = safeJson('FINOS_DNA_HISTORY', []);
+        const taxSavings    = safeJson('finos_tax_savings', null);
+        const finosScore    = safeJson('finos_health_score_detail', null);
+        return {
+          primary_bias:          primaryBias,
+          annual_bias_cost:      debtRaw?.total_annual || 0,
+          compounded_5yr_cost:   debtRaw?.compounded_5yr || 0,
+          bias_breakdown:        debtRaw ? { primary: debtRaw.primary, secondary: debtRaw.secondary } : null,
+          dna_history_count:     dnaHistory.length,
+          dna_evolution:         dnaHistory.slice(-3),  // last 3 scans for trend
+          tax_savings_potential: taxSavings?.potential || 0,
+          finos_score:           finosScore?.total || null,
+          finos_tier:            finosScore?.tier || null,
+        };
+      })(),
+
+      /* ── Household / couple context ── */
+      household: (function() {
+        const linked = localStorage.getItem('finos_couple_linked');
+        if (!linked) return null;
+        return {
+          partner_name:         linked,
+          partner_net_worth:    Number(localStorage.getItem('finos_partner_net_worth')) || 0,
+          partner_savings_rate: Number(localStorage.getItem('finos_partner_savings_rate')) || 0,
+          combined_net_worth:   (Number(localStorage.getItem('finos_net_worth')) || 0) +
+                                (Number(localStorage.getItem('finos_partner_net_worth')) || 0),
+        };
+      })(),
 
       /* ── Engagement & session history ── */
       engagement: {

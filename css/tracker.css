@@ -287,3 +287,73 @@
   70% { box-shadow: 0 0 0 10px rgba(255, 0, 85, 0); }
   100% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0); }
 }
+
+/* ── TRACKER LIGHT MODE ──────────────────────────────────────── */
+[data-theme="light"] .glitch-header {
+  color: #0B0D12;
+}
+[data-theme="light"] .glitch-header::before,
+[data-theme="light"] .glitch-header::after {
+  background: var(--bg-main, #F5F7FB);
+}
+
+[data-theme="light"] .ticker-wrap {
+  background: #F0F2F8;
+  border-top-color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+[data-theme="light"] .ticker__item { color: #0B0D12; }
+
+[data-theme="light"] .holo-card {
+  background: #FFFFFF;
+  border-color: rgba(0,0,0,0.08);
+  backdrop-filter: none;
+}
+[data-theme="light"] .holo-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 24px rgba(79,124,255,0.12);
+}
+
+[data-theme="light"] .holo-body h2 { color: #0B0D12; }
+
+[data-theme="light"] .portal-section {
+  background: radial-gradient(circle at center, rgba(79,124,255,0.06) 0%, transparent 70%);
+}
+[data-theme="light"] .neon-text {
+  color: #0B0D12;
+  text-shadow: none;
+}
+
+[data-theme="light"] .warp-btn {
+  background: #FFFFFF;
+  color: #0B0D12;
+  border-color: var(--accent-secondary);
+}
+[data-theme="light"] .warp-btn:hover {
+  background: transparent;
+  color: var(--accent-secondary);
+}
+
+[data-theme="light"] .warning-text { color: #dc2626; }
+
+[data-theme="light"] .node-marker {
+  background: #FFFFFF;
+}
+
+/* ── TRACKER — ADDITIONAL LIGHT MODE OVERRIDES ───────────────── */
+/* Remove the noisy scanline overlay on white cards */
+[data-theme="light"] .holo-card::before {
+  background: none;
+}
+
+/* .flat ticker items: hardcoded #ccc — too light on white */
+[data-theme="light"] .flat { color: #8A92A8; }
+
+/* portal section p text */
+[data-theme="light"] .portal-content p { color: #4A5068; }
+
+/* info-card (tracker) already uses var() tokens — confirm no explicit bg needed */
+
+/* analogy-text uses var(--accent-secondary) — visible */
+
+/* desc-text uses var(--text-secondary) — fine */

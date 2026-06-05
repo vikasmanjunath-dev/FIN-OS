@@ -713,28 +713,7 @@
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     
-    // --- 1. THEME TOGGLE LOGIC ---
-    const themeToggleBtn = document.getElementById('themeToggle');
-    const htmlElement = document.documentElement;
-
-    // Check saved theme
-    const savedTheme = localStorage.getItem('finos-theme') || localStorage.getItem('theme');
-    if (savedTheme) {
-      htmlElement.setAttribute('data-theme', savedTheme);
-      themeToggleBtn.innerText = savedTheme === 'dark' ? '🌙' : '☀️';
-    }
-
-    themeToggleBtn.addEventListener('click', () => {
-      const currentTheme = htmlElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      
-      htmlElement.setAttribute('data-theme', newTheme);
-      localStorage.setItem('finos-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-      themeToggleBtn.innerText = newTheme === 'dark' ? '🌙' : '☀️';
-    });
-
-    // --- 2. 3D TILT EFFECT ---
+    // --- 2. 3D TILT EFFECT --- (theme toggle handled by ui.js)
     const cards = document.querySelectorAll('[data-tilt]');
     
     cards.forEach(card => {
@@ -847,8 +826,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js" defer></script>
-  <script src="../js/arya-ai.js" defer></script>
+  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/arya-ai.js?v=4" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
   <script>
   (async function() {
@@ -891,7 +870,7 @@ In 2 sentences: (1) which one they need MORE urgently based on their specific pr
   <script src="../js/ui.js" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
-  <script src="../js/finos-widget.js?v=5"></script>
+  <script src="../js/finos-widget.js?v=6"></script>
   <script src="../js/finos-mobile.js" defer></script>
   <script src="../js/finos-search.js?v=2"></script>
   <script>

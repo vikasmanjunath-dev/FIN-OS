@@ -493,6 +493,43 @@
       });
     }
 
+    /* ── Behavioral bias nudge (from DNA debrief) ─────────── */
+    const primaryBias = localStorage.getItem('finos_primary_bias');
+    const biasDebt    = (() => { try { return JSON.parse(localStorage.getItem('finos_behavioral_debt_annual') || 'null'); } catch { return null; } })();
+    if (primaryBias && biasDebt?.total_annual > 0) {
+      const biasMsgs = {
+        loss_aversion:    'You\'re likely selling winners too early and holding losers too long.',
+        overconfidence:   'You may be taking positions larger than your edge justifies.',
+        recency_bias:     'Recent market moves are driving your decisions more than fundamentals.',
+        herd_mentality:   'You\'re buying when everyone is bullish — often the peak.',
+        sunk_cost:        'You\'re holding dead positions because you "already invested" in them.',
+        anchoring:        'Entry price anchoring is clouding your exit decisions.',
+        confirmation_bias:'You\'re filtering out bearish signals on your favorite stocks.',
+      };
+      const msg = biasMsgs[primaryBias] || 'Your behavioral bias is costing you money silently.';
+      nudges.push({
+        type: 'warn',
+        icon: '🧠',
+        title: `${primaryBias.replace(/_/g,' ')} is costing ₹${Math.round(biasDebt.total_annual/1000)}K/year`,
+        body: msg + ` Run DNA quiz to get a personalized debrief.`,
+        action: 'See DNA debrief', href: 'dna.html',
+      });
+    }
+
+    /* ── Tax savings nudge ──────────────────────────────────── */
+    const taxSavings = (() => { try { return JSON.parse(localStorage.getItem('finos_tax_savings') || 'null'); } catch { return null; } })();
+    if (taxSavings?.potential > 5000) {
+      const months = new Date().getMonth(); // 0-11
+      const isQ4 = months >= 9; // Oct–Mar = tax planning season
+      nudges.push({
+        type: isQ4 ? 'alert' : 'good',
+        icon: '🧾',
+        title: `₹${Math.round(taxSavings.potential/1000)}K in tax savings available this FY`,
+        body: `Optimize 80C, 80D and NPS before March 31. ${isQ4 ? 'Q4 — act now!' : ''}`,
+        action: 'Open tax optimizer', href: 'tax.html',
+      });
+    }
+
     /* ── General financial literacy nudge (if no other nudges) */
     if (!nudges.length) {
       const gapCount = r.knowledgeGaps.length;
