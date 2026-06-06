@@ -33,7 +33,6 @@ const PRECACHE_ASSETS = [
   './css/components.css',
   './css/animations.css',
   './css/theme.css',
-  './css/mobile-ux.css',
   // ── Core JS ──────────────────────────────────────────────────────
   './js/ui.js',
   './js/mobile-nav.js',
@@ -53,7 +52,6 @@ const PRECACHE_ASSETS = [
   './js/finos-mobile.js',
   './js/mf-intelligence.js',
   './js/finos-portfolio-analytics.js',
-  './css/states.css',
   // ── Manifest & icons ─────────────────────────────────────────────
   './manifest.json',
   './assets/icons/icon-192.svg',

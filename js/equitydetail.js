@@ -79,6 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: { labels: { color: textColor } },
         tooltip: { mode: 'index', intersect: false }
@@ -103,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { label: 'Reality (Miss)', data: [100, 120, 140, 130], borderColor: '#ff4757', borderWidth: 3 }
       ]
     },
-    options: { responsive: true, scales: { y: { display: false }, x: { grid: { display: false } } } }
+    options: { responsive: true, maintainAspectRatio: false, scales: { y: { display: false }, x: { grid: { display: false } } } }
   });
 
 
