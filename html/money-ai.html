@@ -264,19 +264,6 @@
   .mic-btn.listening { background: rgba(240,68,68,.15); border-color: rgba(240,68,68,.4); color: #f04444; animation: pulse 1s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
 
-  /* ── Offline notice ── */
-  .offline-bar {
-    background: rgba(240,68,68,.1);
-    border: 1px solid rgba(240,68,68,.2);
-    border-radius: 8px;
-    padding: 7px 14px;
-    font-size: .78rem;
-    color: #f04444;
-    margin-bottom: 10px;
-    display: none;
-    flex-shrink: 0;
-  }
-
   /* ── Toast notification ── */
   .toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(16px);
@@ -436,11 +423,6 @@
         </div>
       </div>
 
-      <!-- OFFLINE NOTICE -->
-      <div class="offline-bar" id="offlineBar">
-        ⚠️ Voice agent offline — using text AI (Ollama) as fallback
-      </div>
-
       <!-- QUICK CHIPS -->
       <div class="quick-chips" id="quickChips">
         <div class="q-chip" onclick="sendQuick('🏆 My health score')">🏆 My health score</div>
@@ -540,7 +522,6 @@ function connectWebSocket() {
     ws.onopen = () => {
       wsConnected = true;
       setStatus('green', 'Connected — voice &amp; text ready');
-      document.getElementById('offlineBar').style.display = 'none';
     };
 
     ws.onmessage = (evt) => {
@@ -558,19 +539,16 @@ function connectWebSocket() {
     ws.onerror = () => {
       wsConnected = false;
       setStatus('red', 'Voice agent offline — using AI fallback');
-      document.getElementById('offlineBar').style.display = 'block';
     };
 
     ws.onclose = () => {
       wsConnected = false;
       setStatus('red', 'Voice agent offline — using AI fallback');
-      document.getElementById('offlineBar').style.display = 'block';
       // Retry after 15 seconds
       setTimeout(connectWebSocket, 15000);
     };
   } catch (_) {
     setStatus('red', 'Voice agent offline — using AI fallback');
-    document.getElementById('offlineBar').style.display = 'block';
   }
 }
 

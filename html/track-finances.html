@@ -45,7 +45,7 @@
       position: fixed;
       top: -20vh; left: 50%;
       transform: translateX(-50%);
-      width: 900px; height: 600px;
+      width: 1200px; height: 700px;
       background: radial-gradient(ellipse at 50% 0%, rgba(79,124,255,.07) 0%, transparent 70%);
       pointer-events: none;
       z-index: 0;
@@ -53,9 +53,9 @@
 
     .tf-wrap {
       position: relative; z-index: 1;
-      max-width: 920px;
+      max-width: 1160px;
       margin: 0 auto;
-      padding: 72px 40px 100px;
+      padding: 80px 56px 128px;
     }
 
     /* ── EYEBROW ── */
@@ -82,17 +82,17 @@
 
     /* ── HERO HEADER ── */
     .tf-hero {
-      margin-bottom: 64px;
+      margin-bottom: 80px;
       opacity: 0;
       animation: fadeUp .6s .2s ease forwards;
     }
     .tf-title {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(32px, 5vw, 52px);
+      font-size: clamp(36px, 5vw, 56px);
       font-weight: 800;
       letter-spacing: -.02em;
       line-height: 1.12;
-      margin: 0 0 16px;
+      margin: 0 0 20px;
       background: linear-gradient(135deg, #ffffff 0%, #a0aac0 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -106,10 +106,10 @@
     }
     .tf-desc {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 16px; font-weight: 400;
-      color: rgba(255,255,255,.45);
-      max-width: 500px;
-      line-height: 1.6;
+      font-size: 17px; font-weight: 400;
+      color: rgba(255,255,255,.5);
+      max-width: 620px;
+      line-height: 1.7;
       margin: 0;
     }
 
@@ -138,17 +138,17 @@
     .suite-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
+      gap: 22px;
     }
 
     /* ── CARD ── */
     .suite-card {
       display: flex;
       flex-direction: column;
-      padding: 28px 26px 24px;
+      padding: 36px 32px 30px;
       background: linear-gradient(145deg, #0d1020, #0a0d18);
       border: 1px solid var(--border-soft);
-      border-radius: 20px;
+      border-radius: 24px;
       text-decoration: none;
       position: relative;
       overflow: hidden;
@@ -219,11 +219,11 @@
 
     .sc-icon-wrap {
       position: relative;
-      width: 56px; height: 56px;
-      border-radius: 15px;
+      width: 64px; height: 64px;
+      border-radius: 18px;
       border: 1px solid var(--border-soft);
       display: flex; align-items: center; justify-content: center;
-      font-size: 26px;
+      font-size: 30px;
       flex-shrink: 0;
       transition: border-color .3s, box-shadow .3s;
       overflow: hidden;
@@ -275,17 +275,17 @@
     /* ── TEXT ── */
     .sc-name {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 19px; font-weight: 700;
+      font-size: 21px; font-weight: 700;
       color: #cdd3e0;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       letter-spacing: -.01em;
     }
     .sc-sub {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 13.5px; font-weight: 400;
-      color: rgba(255,255,255,.45);
-      line-height: 1.55;
-      margin-bottom: 22px;
+      font-size: 14.5px; font-weight: 400;
+      color: rgba(255,255,255,.5);
+      line-height: 1.65;
+      margin-bottom: 26px;
       flex: 1;
     }
 
@@ -293,17 +293,17 @@
     .sc-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 7px;
+      gap: 8px;
     }
     .sc-tag {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; font-weight: 500;
+      font-size: 10.5px; font-weight: 500;
       letter-spacing: .05em;
-      padding: 5px 10px;
-      border-radius: 7px;
+      padding: 6px 13px;
+      border-radius: 8px;
       background: var(--bg-surface);
       border: 1px solid var(--border-soft);
-      color: rgba(255,255,255,.4);
+      color: rgba(255,255,255,.45);
       transition: background .25s, border-color .25s, color .25s;
       white-space: nowrap;
     }
@@ -314,10 +314,18 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    /* ── TABLET ── */
+    @media (max-width: 900px) {
+      .suite-grid { gap: 16px; }
+      .suite-card { padding: 28px 24px 24px; }
+      .tf-wrap { padding: 64px 36px 100px; }
+    }
+
     /* ── MOBILE ── */
-    @media (max-width: 680px) {
+    @media (max-width: 640px) {
       .suite-grid { grid-template-columns: 1fr; }
-      .tf-wrap { padding: 44px 20px 64px; }
+      .tf-wrap { padding: 44px 20px 72px; }
+      .suite-card { padding: 24px 22px 22px; }
     }
   </style>
   <meta property="og:site_name" content="FIN•OS">
@@ -440,6 +448,18 @@
 
     <div class="tf-wrap">
 
+      <!-- EYEBROW -->
+      <div class="tf-eyebrow">
+        <div class="tf-eyebrow-line"></div>
+        <span class="tf-eyebrow-text">Financial Command Center</span>
+      </div>
+
+      <!-- HERO -->
+      <div class="tf-hero">
+        <h1 class="tf-title">Track Every<br><span>Dimension</span> of Your Money</h1>
+        <p class="tf-desc">Four precision-built tools that give you complete visibility — from daily spending to portfolio depth.</p>
+      </div>
+
       <!-- ══════════════════════════════════════════════════════════
            COMMAND HUB — Full old-dashboard panel
            Arya Brief · Nudges · Insights · Health · Peer Benchmark
@@ -454,8 +474,8 @@
       ">
         <!-- Hub Header / Toggle -->
         <div onclick="toggleTFHub()" style="
-          display:flex;align-items:center;gap:12px;
-          padding:16px 22px;cursor:pointer;
+          display:flex;align-items:center;gap:14px;
+          padding:20px 28px;cursor:pointer;
           background:rgba(199,240,0,.05);
           border-bottom:1px solid rgba(199,240,0,.12);
           user-select:none;">
@@ -468,7 +488,7 @@
         </div>
 
         <!-- Hub Body -->
-        <div id="tfHubBody" style="padding:20px 22px;">
+        <div id="tfHubBody" style="padding:26px 28px;">
 
           <!-- Arya Morning Brief -->
           <div id="tf-arya-brief-anchor" style="margin-bottom:18px;"></div>
@@ -513,18 +533,6 @@
         </div>
       </div>
       <!-- ═══════════════════ END COMMAND HUB ═══════════════════════ -->
-
-      <!-- EYEBROW -->
-      <div class="tf-eyebrow">
-        <div class="tf-eyebrow-line"></div>
-        <span class="tf-eyebrow-text">Financial Command Center</span>
-      </div>
-
-      <!-- HERO -->
-      <div class="tf-hero">
-        <h1 class="tf-title">Track Every<br><span>Dimension</span> of Your Money</h1>
-        <p class="tf-desc">Four precision-built tools that give you complete visibility — from daily spending to portfolio depth.</p>
-      </div>
 
       <!-- DIVIDER -->
       <div class="tf-divider">
@@ -667,11 +675,11 @@
       </div>
 
       <div id="docai-section" style="
-        margin-top:32px;
+        margin-top:36px;
         background:rgba(0,212,255,.04);
         border:1px solid rgba(0,212,255,.15);
-        border-radius:20px;
-        padding:32px;
+        border-radius:24px;
+        padding:42px 44px;
         position:relative;
         overflow:hidden;
       ">

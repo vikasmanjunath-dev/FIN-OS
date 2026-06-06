@@ -27,7 +27,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-context.js?v=3" defer></script>
-  <script src="../js/arya-ai.js?v=4" defer></script>
+  <script src="../js/arya-ai.js?v=5" defer></script>
   <script src="../js/arya-memory.js" defer></script>
   <script src="../js/arya-life-events.js" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
@@ -192,10 +192,11 @@
   position: absolute;
   bottom: 8px; right: 12px;
   font-size: 28px;
-  opacity: .09;
+  opacity: .55;
   pointer-events: none;
   line-height: 1;
 }
+[data-theme="light"] .kpi-bg-icon { opacity: .55 !important; }
 
 /* ── Two-col zone: Arya + Nudges ──────────────────────────────── */
 .dash-two-col {

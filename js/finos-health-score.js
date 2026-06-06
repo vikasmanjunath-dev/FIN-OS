@@ -15,49 +15,49 @@
 
   /* ── CSS ─────────────────────────────────────────────────────────────────── */
   const CSS = `
-    /* ── Trigger button ── */
+    /* ── Trigger button (compact pill) ── */
     #finos-hs-trigger {
       position: fixed;
       bottom: 90px;
       right: 28px;
       z-index: 99990;
-      background: linear-gradient(135deg,#0c1628,#162540);
-      border: 1px solid rgba(0,212,255,.25);
-      border-radius: 14px;
-      padding: 8px 14px 8px 10px;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
+      padding: 6px 14px 6px 10px;
+      border-radius: 50px;
+      background: var(--bg-surface, #1a2035);
+      border: 1.5px solid var(--border-soft, rgba(0,212,255,.18));
       cursor: pointer;
-      box-shadow: 0 4px 20px rgba(0,0,0,.5);
+      box-shadow: 0 2px 14px rgba(0,0,0,.25);
       transition: transform .15s ease, box-shadow .15s ease;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      white-space: nowrap;
     }
     #finos-hs-trigger:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 28px rgba(0,0,0,.6);
+      box-shadow: 0 5px 20px rgba(0,0,0,.32);
+    }
+    #finos-hs-trigger .hs-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #888;
+      flex-shrink: 0;
+      transition: background .4s ease;
     }
     #finos-hs-trigger .hs-score-num {
-      font-size: 18px;
+      font-size: 14px;
       font-weight: 800;
       line-height: 1;
-      transition: color .4s ease;
+      color: var(--text-primary, #e8eef6);
     }
     #finos-hs-trigger .hs-label {
       font-size: 9px;
       font-weight: 700;
-      color: rgba(255,255,255,.45);
+      color: var(--text-muted, rgba(150,160,180,.7));
       letter-spacing: .6px;
-      line-height: 1;
-      margin-top: 1px;
-    }
-    #finos-hs-trigger .hs-tier-badge {
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: .4px;
-      padding: 2px 6px;
-      border-radius: 5px;
-      line-height: 1.4;
+      text-transform: uppercase;
     }
 
     /* ── Backdrop ── */
@@ -253,15 +253,10 @@
 
     /* ── Light mode overrides ── */
     [data-theme="light"] #finos-hs-trigger {
-      background: #ffffff;
-      border-color: rgba(0,100,180,.22);
-      box-shadow: 0 4px 16px rgba(0,0,0,.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,.1);
     }
     [data-theme="light"] #finos-hs-trigger:hover {
-      box-shadow: 0 6px 24px rgba(0,0,0,.14);
-    }
-    [data-theme="light"] #finos-hs-trigger .hs-label {
-      color: rgba(0,0,0,.45);
+      box-shadow: 0 5px 16px rgba(0,0,0,.14);
     }
     [data-theme="light"] #finos-hs-panel {
       background: #f4f7fb;
@@ -376,15 +371,11 @@
       </div>
     `;
 
-    // Update trigger button
-    const num  = document.getElementById('finos-hs-score-num');
-    const tier = document.getElementById('finos-hs-tier-badge');
-    if (num)  { num.textContent = data.total; num.style.color = color; }
-    if (tier) {
-      tier.textContent = `${data.tier_emoji} ${data.tier}`;
-      tier.style.background = color + '22';
-      tier.style.color = color;
-    }
+    // Update trigger pill
+    const num = document.getElementById('finos-hs-score-num');
+    const dot = document.getElementById('finos-hs-dot');
+    if (num) num.textContent = data.total;
+    if (dot) dot.style.background = color;
   }
 
   function renderLoading() {
@@ -492,14 +483,9 @@
     trigger.setAttribute('title', 'Financial Health Score');
     trigger.onclick = () => _isOpen ? closePanel() : openPanel();
     trigger.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;line-height:1">
-        <span id="finos-hs-score-num" class="hs-score-num" style="color:#888">—</span>
-        <span class="hs-label">HEALTH</span>
-      </div>
-      <div id="finos-hs-tier-badge" class="hs-tier-badge"
-           style="background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)">
-        SCORE
-      </div>`;
+      <span class="hs-dot" id="finos-hs-dot"></span>
+      <span id="finos-hs-score-num" class="hs-score-num">—</span>
+      <span class="hs-label">Health</span>`;
     document.body.appendChild(trigger);
 
     // Backdrop
@@ -553,14 +539,10 @@
   function _applyTriggerDisplay(total, tier, tierEmoji) {
     const color = { ELITE:'#f0c040', GREAT:'#22d3a6', GOOD:'#00d4ff',
                     FAIR:'#f0a500', DANGER:'#f04444' }[tier] || '#888';
-    const num   = document.getElementById('finos-hs-score-num');
-    const badge = document.getElementById('finos-hs-tier-badge');
-    if (num)   { num.textContent = total; num.style.color = color; }
-    if (badge) {
-      badge.textContent = `${tierEmoji} ${tier}`;
-      badge.style.background = color + '22';
-      badge.style.color = color;
-    }
+    const num = document.getElementById('finos-hs-score-num');
+    const dot = document.getElementById('finos-hs-dot');
+    if (num) num.textContent = total;
+    if (dot) { dot.style.background = color; dot.style.boxShadow = `0 0 6px ${color}88`; }
   }
 
   /* ── LOCAL FIN-OS SCORE COMPUTATION ──────────────────────────────────────
