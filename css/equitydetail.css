@@ -252,3 +252,6 @@ html, body {
 
 [data-theme="light"] .flow-line { background: #CBD5E1 !important; }
 [data-theme="light"] .deal-box { background: #F1F5F9 !important; border: 1px solid #E2E8F0 !important; }
+/* ── Chart canvas fix: explicit height so Chart.js renders ── */
+.chart-container { position: relative; height: 350px; width: 100%; }
+.chart-container canvas { width: 100% !important; height: 100% !important; }

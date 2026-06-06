@@ -718,3 +718,9 @@ html, body {
   margin-right: 12px;
   font-size: 0.8rem;
 }
+
+/* ── Chart canvas fix: explicit height so Chart.js renders ── */
+.visual-content { position: relative; min-height: 280px; }
+.visual-content canvas { width: 100% !important; height: 260px !important; }
+.gauge-container { position: relative; height: 280px; }
+.gauge-container canvas { width: 100% !important; height: 100% !important; }
