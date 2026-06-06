@@ -24,101 +24,139 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <style>
+    /* ── Page-local tokens ── */
     :root {
       --shield-glow: #4F7CFF;
-      --neon-lime: #C7F000;
-      --danger-red: #ff4757;
-      --glass: rgba(255, 255, 255, 0.03);
+      --neon-lime:   #C7F000;
+      --danger-red:  #ff4757;
+      --packet-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      --glass-blur: blur(12px);
     }
 
-    /* UNREAL HERO ANIMATION */
-    /* =========================
-   MAX-DENSITY SHIELD MATRIX
-   ========================= */
+    /* ── Light-mode token overrides ── */
+    [data-theme="light"] {
+      --shield-glow:   #2d55bb;
+      --neon-lime:     #2f6b00;
+      --bg-main:       #F4F7FF;
+      --bg-surface:    #FFFFFF;
+      --text-primary:  #0A0C10;
+      --text-secondary:#4A5568;
+      --accent-primary:#3B82F6;
+      --border-soft:   rgba(0,0,0,0.10);
+      --packet-shadow: 0 8px 28px rgba(59,130,246,0.10);
+    }
 
-.shield-core {
-  position: relative;
-  width: 320px; /* Increased size */
-  height: 320px;
-  margin: 60px auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  /* Adds a deep glow behind the rings */
-  background: radial-gradient(circle, var(--shield-glow) 0%, transparent 75%);
-}
+    /* ── Layout ── */
+    .app  { height: 100vh; overflow-x: hidden; }
+    .main {
+      width: calc(100% - 232px);
+      margin-left: 232px;
+      overflow-y: auto;
+      height: 100vh;
+      background: var(--bg-main);
+      scroll-behavior: smooth;
+    }
+    @media (min-width: 1200px) { .main { padding-right: 288px; } }
 
-.orbit {
-  position: absolute;
-  border-radius: 50%;
-  /* Size and Thickness Boost */
-  border: 3px solid rgba(79, 124, 255, 0.4); 
-  box-shadow: 0 0 15px var(--shield-glow), inset 0 0 15px var(--shield-glow);
-  transition: all 0.3s ease;
-}
+    /* ── Chapter ── */
+    .chapter {
+      opacity: 1 !important;
+      transform: none !important;
+      padding: 28px 0 !important;
+      margin-bottom: 0 !important;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .visual-box {
+      margin: 16px 0 !important;
+      padding: 20px !important;
+    }
 
-/* HIGH DENSITY ORBIT 1 (Outer - Thick) */
-.orbit-1 { 
-  width: 100%; 
-  height: 100%; 
-  border-width: 5px; /* Maximum thickness */
-  border-style: double; /* Double line for "density" feel */
-  animation: rotate 12s linear infinite; 
-}
+    /* ── Shield illustration ── */
+    .shield-core {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      margin: 60px auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle, var(--shield-glow) 0%, transparent 75%);
+    }
+    [data-theme="light"] .shield-core {
+      background: radial-gradient(circle, rgba(45,85,187,0.15) 0%, transparent 70%);
+    }
 
-/* HIGH DENSITY ORBIT 2 (Inner - Fast) */
-.orbit-2 { 
-  width: 75%; 
-  height: 75%; 
-  border-width: 3px;
-  border-style: dashed; /* Dashed lines create a "data stream" effect */
-  animation: rotate 6s linear infinite reverse; 
-}
+    .orbit {
+      position: absolute;
+      border-radius: 50%;
+      border: 3px solid rgba(79,124,255,0.4);
+      box-shadow: 0 0 15px var(--shield-glow), inset 0 0 15px var(--shield-glow);
+      transition: all 0.3s ease;
+    }
+    [data-theme="light"] .orbit {
+      border-color: rgba(45,85,187,0.45);
+      box-shadow: 0 0 10px rgba(45,85,187,0.25), inset 0 0 10px rgba(45,85,187,0.15);
+    }
+    .orbit-1 { width:100%; height:100%; border-width:5px; border-style:double; animation:rotate 12s linear infinite; }
+    .orbit-2 { width:75%;  height:75%;  border-width:3px; border-style:dashed; animation:rotate 6s linear infinite reverse; }
+    .orbit-3 {
+      position:absolute; width:50%; height:50%;
+      border: 2px solid var(--neon-lime);
+      opacity:0.6; filter:blur(1px);
+      animation:rotate 4s ease-in-out infinite;
+    }
+    [data-theme="light"] .orbit-3 { opacity:0.5; }
 
-/* ADDING A THIRD "DENSITY" LAYER */
-.orbit-3 {
-  position: absolute;
-  width: 50%;
-  height: 50%;
-  border: 2px solid var(--neon-lime);
-  opacity: 0.6;
-  filter: blur(1px); /* Glow effect */
-  animation: rotate 4s ease-in-out infinite;
-}
+    @keyframes rotate { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
     .core-icon {
       font-size: 4rem;
       filter: drop-shadow(0 0 20px var(--shield-glow));
       z-index: 2;
     }
 
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    /* DEEP TECH CARDS */
+    /* ── Data packets ── */
     .data-packet {
-      background: var(--glass);
+      background: var(--bg-surface);
       border: 1px solid var(--border-soft);
-      padding: 24px;
-      border-radius: 20px;
+      box-shadow: var(--packet-shadow);
+      backdrop-filter: var(--glass-blur);
+      padding: 32px;
+      border-radius: 24px;
       margin-bottom: 20px;
-      position: relative;
-      overflow: hidden;
-      transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
+      color: var(--text-primary);
     }
-
+    /* Dark mode glass effect */
+    [data-theme="dark"] .data-packet {
+      background: rgba(20,24,40,0.6);
+    }
     .data-packet:hover {
-      border-color: var(--neon-lime);
+      border-color: var(--accent-primary);
       transform: translateY(-5px);
-      background: rgba(199, 240, 0, 0.02);
+    }
+    [data-theme="light"] .data-packet {
+      background: #FFFFFF;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.07);
+    }
+    [data-theme="light"] .data-packet:hover {
+      border-color: var(--accent-primary);
+      background: #fafcff;
     }
 
+    .data-packet h2,
+    .data-packet h3 { color: var(--text-primary); }
+
+    .data-packet p,
+    .chapter p      { color: var(--text-secondary); }
+
+    [data-theme="light"] .data-packet h2,
+    [data-theme="light"] .data-packet h3 { color: #0A0C10; }
+
+    [data-theme="light"] .data-packet p,
+    [data-theme="light"] .chapter p      { color: #4A5568; }
+
+    /* ── Packet label ── */
     .packet-label {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.7rem;
@@ -127,220 +165,208 @@
       letter-spacing: 2px;
       margin-bottom: 12px;
       display: block;
+      text-shadow: 0 0 10px var(--neon-lime);
+    }
+    [data-theme="light"] .packet-label {
+      color: var(--accent-primary);
+      text-shadow: none;
+      font-weight: 800;
+      background: rgba(59,130,246,0.10);
+      padding: 4px 12px;
+      border-radius: 20px;
     }
 
-    .matrix-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
+    /* ── Chapter badge ── */
+    .chapter-badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+      background: rgba(79,124,255,0.12);
+      color: var(--accent-primary);
+      border: 1px solid rgba(79,124,255,0.25);
+    }
+    [data-theme="light"] .chapter-badge {
+      background: rgba(59,130,246,0.10);
+      color: #1d4ed8;
+      border-color: rgba(59,130,246,0.30);
     }
 
+    /* ── Chapter headings ── */
+    .chapter h2 { color: var(--text-primary); }
+    [data-theme="light"] .chapter h2 { color: #0A0C10; }
+
+    /* ── Brutal truth ── */
     .brutal-truth {
       border-left: 4px solid var(--danger-red);
-      background: rgba(255, 71, 87, 0.05);
+      background: rgba(255,71,87,0.05);
       padding: 20px;
       border-radius: 0 12px 12px 0;
       margin: 20px 0;
+      color: var(--text-primary);
+    }
+    [data-theme="light"] .brutal-truth {
+      background: rgba(255,71,87,0.07);
+      color: #b91c1c;
     }
 
+    /* ── Grid ── */
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
+      gap: 20px;
+    }
 
-    /* =========================
-   VISIBILITY & VIBRANCY FIX
-   ========================= */
+    /* ── Pro-tip / GOD MODE box ── */
+    .pro-tip { color: var(--text-primary); }
+    [data-theme="light"] .pro-tip {
+      background: #FFFFFF !important;
+      border-color: var(--accent-primary) !important;
+    }
 
-/* 1. Reset the app container to allow vertical flow */
-.app {
-  height: 100vh;
-  overflow-x: hidden; /* Keeps layout stable */
-}
+    /* ── GOD MODE accent heading ── */
+    .ins-accent {
+      color: var(--neon-lime);
+    }
+    [data-theme="light"] .ins-accent {
+      color: #1d4ed8;
+    }
 
-/* 2. Fix the Main scroll area */
-.main {
-  width: calc(100% - 232px);
-  margin-left: 232px;
-  overflow-y: auto; /* Enable scrolling for the content */
-  height: 100vh;
-  background: var(--bg-main);
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch; /* Smooth scroll for iOS */
-}
+    /* ── Table ── */
+    table th, table td { color: var(--text-primary); }
+    [data-theme="light"] table th,
+    [data-theme="light"] table td { color: #0A0C10 !important; }
+    [data-theme="light"] table tr[class="godmode-header-row"] { border-bottom-color: rgba(0,0,0,0.10); }
 
-/* 3. Fix the "Dullness" (Vibrancy Patch) */
-.chapter {
-  opacity: 1 !important; /* Force visibility */
-  transform: none !important; 
-  padding: 60px 0;
-  border-bottom: 1px solid var(--border-soft);
-}
+    /* ── GOD MODE table accent cell ── */
+    .ins-self-insure { color: var(--neon-lime); }
+    [data-theme="light"] .ins-self-insure { color: #15803d !important; }
 
-/* 4. Ensure Glassmorphism doesn't wash out */
-.data-packet {
-  background: rgba(20, 24, 40, 0.6); /* Darker base for better contrast */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-soft);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
+    /* ── Lime-border data packet ── */
+    .lime-left-border { border-left: 4px solid var(--neon-lime) !important; }
 
-/* 5. Glow Reinforcement */
-.packet-label {
-  text-shadow: 0 0 10px var(--neon-lime);
-}
+    /* ── Footer ── */
+    .fin-footer {
+      margin-top: 100px;
+      padding: 60px 40px;
+      text-align: center;
+      border-top: 1px solid var(--border-soft);
+      background: linear-gradient(to top, rgba(79,124,255,0.04), transparent);
+    }
+    [data-theme="light"] .fin-footer {
+      background: linear-gradient(to top, rgba(59,130,246,0.06), transparent);
+    }
+    .footer-copy {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+    .footer-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 32px;
+      background: var(--accent-primary);
+      color: #FFFFFF !important;
+      text-decoration: none;
+      font-weight: 800;
+      border-radius: 50px;
+      box-shadow: 0 10px 30px rgba(79,124,255,0.3);
+      transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    .footer-btn:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 20px 40px rgba(79,124,255,0.5);
+    }
 
+    /* ── Knowledge bar: light mode ── */
+    [data-theme="light"] .arya-knowledge-bar {
+      background: rgba(248,250,252,0.97) !important;
+      border-left: 1px solid rgba(0,0,0,0.10) !important;
+    }
+    [data-theme="light"] .kb-title  { color: rgba(0,0,0,0.45) !important; }
+    [data-theme="light"] .kb-name   { color: rgba(0,0,0,0.80) !important; }
+    [data-theme="light"] .kb-todo   { color: rgba(0,0,0,0.28) !important; }
+    [data-theme="light"] .kb-module { border-bottom-color: rgba(0,0,0,0.07) !important; }
 
-/* LIGHT MODE VIBRANCY FIX */
-[data-theme="light"] {
-  --bg-main: #F7F9FC; /* Light Blue-Grey */
-  --bg-surface: #FFFFFF; /* Pure White for cards */
-  --text-primary: #0B0D12; /* Deep Black for visibility */
-  --text-secondary: #4A5568; /* Solid Grey for subtext */
-  --accent: #2B6CB0; /* Stronger Blue for light backgrounds */
-  --border-soft: rgba(0, 0, 0, 0.15); /* More visible borders */
-}
+    /* ── Arya callout: light mode ── */
+    [data-theme="light"] .arya-callout {
+      background: linear-gradient(135deg,rgba(0,160,90,.07),rgba(59,130,246,.05)) !important;
+      border: 1px solid rgba(0,140,80,.25) !important;
+    }
+    [data-theme="light"] .arya-callout-head {
+      color: #15803d !important;
+    }
+    [data-theme="light"] .arya-callout-head span {
+      color: rgba(0,0,0,.38) !important;
+    }
+    [data-theme="light"] .arya-callout-body {
+      color: #1e293b !important;
+    }
+    [data-theme="light"] .arya-explain-btn {
+      color: #3B82F6 !important;
+      border-color: rgba(59,130,246,.35) !important;
+      background: rgba(59,130,246,.08) !important;
+    }
+    [data-theme="light"] .arya-quiz-section {
+      border-top-color: rgba(0,0,0,.10) !important;
+    }
+    [data-theme="light"] .arya-quiz-title  { color: #0A0C10 !important; }
+    [data-theme="light"] .arya-quiz-sub    { color: rgba(0,0,0,.55) !important; }
+    [data-theme="light"] .arya-quiz-q-text { color: #1e293b !important; }
+    [data-theme="light"] .arya-quiz-option {
+      background: rgba(0,0,0,.03) !important;
+      border-color: rgba(0,0,0,.12) !important;
+      color: #1e293b !important;
+    }
+    [data-theme="light"] .arya-quiz-submit {
+      background: rgba(59,130,246,.12) !important;
+      border-color: rgba(59,130,246,.30) !important;
+      color: #1d4ed8 !important;
+    }
+    [data-theme="light"] .arya-quiz-result { color: #1e293b !important; }
+    [data-theme="light"] .arya-score-badge { color: #0A0C10 !important; }
 
-/* Ensure data-packets switch color correctly */
-[data-theme="light"] .data-packet {
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  border: 1px solid var(--border-soft);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); /* Soft shadow for depth */
-}
-
-[data-theme="light"] .packet-label {
-  color: #2D3748; /* Darker label for Light Mode */
-  font-weight: 700;
-}
-
-
-/* LIGHT MODE REINFORCEMENT */
-[data-theme="light"] .data-packet,
-[data-theme="light"] .pro-tip {
-  background: #FFFFFF !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-}
-
-[data-theme="light"] .chapter h2,
-[data-theme="light"] .data-packet h3,
-[data-theme="light"] .data-packet p {
-  color: #0B0D12 !important; /* Force deep black for primary text */
-}
-
-[data-theme="light"] .brutal-truth {
-  background: rgba(255, 71, 87, 0.08);
-  color: #D63031;
-}
-
-[data-theme="light"] table th,
-[data-theme="light"] table td {
-  color: #0B0D12 !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-
-/* =========================
-   GEN-Z ADAPTIVE THEME ENGINE
-   ========================= */
-
-:root {
-  /* Dynamic Elevation (The subtle depth beneath packets) */
-  --packet-shadow: 0 10px 40px rgba(0,0,0,0.2);
-  --glass-blur: blur(12px);
-}
-
-[data-theme="light"] {
-  --bg-main: #F4F7FF; /* A soft, premium blue-white */
-  --bg-surface: #FFFFFF;
-  --text-primary: #0A0C10; /* Pure deep ink */
-  --text-secondary: #4A5568;
-  --accent-primary: #3B82F6;
-  --accent-secondary: #059669; /* Sharp emerald instead of lime */
-  --border-soft: rgba(0, 0, 0, 0.08);
-  --packet-shadow: 0 10px 30px rgba(59, 130, 246, 0.08);
-}
-
-/* THE UNREAL DATA PACKET STYLING */
-.data-packet {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--packet-shadow);
-  backdrop-filter: var(--glass-blur);
-  padding: 32px;
-  border-radius: 24px;
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-  color: var(--text-primary);
-}
-
-/* FIXING THE "DULL" LIGHT MODE TEXT */
-[data-theme="light"] .chapter h2,
-[data-theme="light"] .data-packet h3,
-[data-theme="light"] .chapter p {
-  color: var(--text-primary) !important;
-  opacity: 1 !important;
-}
-
-[data-theme="light"] .packet-label {
-  color: var(--accent-primary);
-  font-weight: 800;
-  background: rgba(59, 130, 246, 0.1);
-  padding: 4px 12px;
-  border-radius: 20px;
-}
-
-/* GOD MODE MATRIX - LIGHT MODE FIX */
-[data-theme="light"] .pro-tip {
-  background: #FFFFFF !important;
-  color: #000 !important;
-  border: 2px solid var(--accent-primary) !important;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-}
-
-/* =========================
-   GEN-Z COMMAND FOOTER
-   ========================= */
-
-.fin-footer {
-  margin-top: 100px;
-  padding: 60px 40px;
-  text-align: center;
-  border-top: 1px solid var(--border-soft);
-  background: linear-gradient(to top, rgba(79, 124, 255, 0.03), transparent);
-}
-
-.footer-copy {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.85rem;
-  letter-spacing: 1px;
-  color: var(--text-secondary);
-  opacity: 0.8;
-  margin-bottom: 24px;
-}
-
-/* THE UNREAL BUTTON SYSTEM */
-.footer-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 32px;
-  background: var(--accent-primary);
-  color: #FFFFFF !important;
-  text-decoration: none;
-  font-weight: 800;
-  border-radius: 50px;
-  box-shadow: 0 10px 30px rgba(79, 124, 255, 0.3);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.footer-btn:hover {
-  transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 20px 40px rgba(79, 124, 255, 0.5);
-  letter-spacing: 1px;
-}
-
-[data-theme="light"] .fin-footer {
-  background: linear-gradient(to top, rgba(45, 91, 255, 0.05), transparent);
-}
-
+    /* Quiz options — correct class name is arya-quiz-opt */
+    [data-theme="light"] .arya-quiz-opt {
+      color: #1e293b !important;
+      border-color: rgba(0,0,0,.12) !important;
+      background: #ffffff !important;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    [data-theme="light"] .arya-quiz-opt:hover {
+      border-color: rgba(59,130,246,.4) !important;
+      background: rgba(59,130,246,.05) !important;
+    }
+    [data-theme="light"] .arya-quiz-opt.selected {
+      border-color: rgba(59,130,246,.6) !important;
+      background: rgba(59,130,246,.08) !important;
+    }
+    [data-theme="light"] .arya-opt-letter {
+      border-color: rgba(0,0,0,.25) !important;
+      color: #1e293b !important;
+    }
+    [data-theme="light"] .arya-quiz-opt.correct {
+      border-color: #15803d !important;
+      background: rgba(21,128,61,.08) !important;
+      color: #15803d !important;
+    }
+    [data-theme="light"] .arya-quiz-opt.wrong {
+      border-color: #dc2626 !important;
+      background: rgba(220,38,38,.06) !important;
+      color: #dc2626 !important;
+    }
+    [data-theme="light"] .arya-quiz-submit {
+      background: rgba(59,130,246,.12) !important;
+      border-color: rgba(59,130,246,.35) !important;
+      color: #1d4ed8 !important;
+    }
   </style>
   <!-- QFT AI Chatbot CSS -->
   <link rel="stylesheet" href="../chatbot/qft-hud.css">
@@ -516,7 +542,7 @@
         <h2>Term Insurance: Pure Death Benefit</h2>
         <p>Most Indians buy "Endowment" plans (LIC style) because they "get money back." These plans give ~5% returns. Inflation is 6-7%. You are literally losing money to insure yourself.</p>
 
-        <div class="data-packet" style="border-left: 4px solid var(--neon-lime);">
+        <div class="data-packet lime-left-border">
             <h3>The FIN-OS Formula</h3>
             <p style="font-family: 'JetBrains Mono'; font-size: 1.2rem;">Cover = (Annual Income × 20) + Total Debt</p>
             <p>If you earn ₹10L/year and have a ₹50L Home Loan, you need a <strong>₹2.5 Crore</strong> Term Plan. Anything less is a system vulnerability.</p>
@@ -525,11 +551,11 @@
 
       <section class="chapter" id="godmode">
         <div class="pro-tip" style="background: linear-gradient(135deg, var(--bg-main), var(--bg-surface)); border: 1px solid var(--neon-lime);">
-            <h2 style="color: var(--neon-lime);">☠️ GOD MODE: The 1% Risk Manager</h2>
+            <h2 class="ins-accent">☠️ GOD MODE: The 1% Risk Manager</h2>
             <p>Masters of the system don't insure everything. They follow the <strong>Matrix of Transfer</strong>:</p>
             
             <table style="width:100%; margin-top:20px; border-collapse: collapse;">
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <tr style="border-bottom: 1px solid var(--border-soft);">
                     <th style="padding:15px; text-align:left;">Probability</th>
                     <th style="padding:15px; text-align:left;">Financial Impact</th>
                     <th style="padding:15px; text-align:left;">Action</th>
@@ -537,7 +563,7 @@
                 <tr>
                     <td style="padding:15px;">High (e.g. Earphones)</td>
                     <td style="padding:15px;">Low</td>
-                    <td style="padding:15px; color: var(--neon-lime);">SELF-INSURE</td>
+                    <td style="padding:15px;" class="ins-self-insure">SELF-INSURE</td>
                 </tr>
                 <tr style="background: rgba(79, 124, 255, 0.05);">
                     <td style="padding:15px;">Low (e.g. Death)</td>
@@ -559,8 +585,10 @@
 
 <script>
   // Dynamic Chart for Medical Wipeout
-  const ctx = document.getElementById('medicalInflationChart').getContext('2d');
-  new Chart(ctx, {
+  const _chartCtx = document.getElementById('medicalInflationChart').getContext('2d');
+  const _isDark = () => document.documentElement.getAttribute('data-theme') !== 'light';
+
+  const medicalChart = new Chart(_chartCtx, {
     type: 'bar',
     data: {
       labels: ['Year 0', 'Year 5', 'Year 10'],
@@ -574,28 +602,36 @@
     options: {
       plugins: { legend: { display: false } },
       scales: {
-        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9CA0AB' } },
-        x: { grid: { display: false }, ticks: { color: '#9CA0AB' } }
+        y: {
+          grid: { color: _isDark() ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)' },
+          ticks: { color: _isDark() ? '#9CA0AB' : '#4A5568' }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: _isDark() ? '#9CA0AB' : '#4A5568' }
+        }
       }
     }
   });
 
+  function updateCharts(theme) {
+    const textColor = theme === 'dark' ? '#9CA0AB' : '#4A5568';
+    const gridColor = theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)';
+    medicalChart.options.scales.x.ticks.color = textColor;
+    medicalChart.options.scales.y.ticks.color = textColor;
+    medicalChart.options.scales.y.grid.color = gridColor;
+    medicalChart.update();
+  }
 
-  // Theme toggle handled by ui.js
-
-function updateCharts(theme) {
-  const textColor = theme === 'dark' ? '#9AA0B4' : '#0B0D12';
-  const gridColor = theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-
-  myChart.options.scales.x.ticks.color = textColor;
-  myChart.options.scales.y.ticks.color = textColor;
-  myChart.options.scales.y.grid.color = gridColor;
-  myChart.update();
-}
+  // Hook into theme toggle
+  document.addEventListener('themechange', e => updateCharts(e.detail?.theme || 'dark'));
+  document.getElementById('themeToggle')?.addEventListener('click', () => {
+    setTimeout(() => updateCharts(document.documentElement.getAttribute('data-theme')), 50);
+  });
 </script>
 
 <script src="../js/ui.js" defer></script>
-  <script src="../js/learn-ai.js"></script>
+  <script src="../js/learn-ai.js?v=3"></script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
 
@@ -604,7 +640,7 @@ function updateCharts(theme) {
   position: fixed; bottom: 22px; left: 82px; z-index: 9999;
   padding: 8px 16px 8px 12px; border-radius: 10px;
   background: var(--bg-surface); border: 1px solid var(--border-soft);
-  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  color: var(--text-secondary); font-family: 'JetBrains Mono',monospace;
   font-size: 11px; font-weight: 600; letter-spacing: .06em;
   cursor: pointer; display: flex; align-items: center; gap: 6px;
   transition: background .2s, color .2s, transform .2s;

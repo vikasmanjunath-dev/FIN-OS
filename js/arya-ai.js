@@ -453,6 +453,14 @@ Rules:
       }
       [data-theme="light"] .arya-ai-thinking { color: rgba(0,120,70,.8) !important; }
       [data-theme="light"] .arya-ai-thinking-dot { background: #007744 !important; }
+      [data-theme="light"] #arya-dashboard-brief .brief-title { color: #0057cc !important; }
+      [data-theme="light"] #arya-dashboard-brief .brief-time  { color: rgba(0,0,0,.45) !important; }
+      [data-theme="light"] #arya-dashboard-brief .brief-text  { color: #1a1a2e !important; }
+      [data-theme="light"] #arya-brief-refresh-btn {
+        border-color: rgba(79,124,255,.4) !important;
+        background: rgba(79,124,255,.08) !important;
+        color: #4f7cff !important;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -523,7 +531,7 @@ Rules:
       }
       return clean;
     } catch (e) {
-      body.innerHTML = `<span style="color:rgba(255,255,255,.4)">${_ollamaOfflineMsg()}</span>`;
+      body.innerHTML = `<span style="color:inherit">${_ollamaOfflineMsg()}</span>`;
       return null;
     }
   }
@@ -759,14 +767,14 @@ Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
         sessionStorage.setItem(cacheKey, result);
         span.textContent = result;
       } else if (firstToken) {
-        textEl.innerHTML = `<span style="color:rgba(255,255,255,.45);font-size:13px;">
+        textEl.innerHTML = `<span style="color:inherit;font-size:13px;">
           ⚠️ Arya offline — run <code>ollama serve</code> to enable AI brief
         </span>`;
       }
 
       _renderAnomalyChips(anomalies);
     } catch {
-      textEl.innerHTML = `<span style="color:rgba(255,255,255,.45);font-size:13px;">
+      textEl.innerHTML = `<span style="color:inherit;font-size:13px;">
         ⚠️ Arya offline — run <code>ollama serve</code> to enable AI brief
       </span>`;
     } finally {

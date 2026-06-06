@@ -143,6 +143,39 @@
         font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 6px;
       }
       .arya-quiz-sub { font-size: 13px; color: rgba(255,255,255,.4); margin-bottom: 24px; }
+
+      /* ── Light mode: Arya callout ── */
+      [data-theme="light"] .arya-callout {
+        background: linear-gradient(135deg,rgba(0,180,100,.07),rgba(59,130,246,.05));
+        border: 1px solid rgba(0,160,90,.25);
+      }
+      [data-theme="light"] .arya-callout-head { color: #15803d; }
+      [data-theme="light"] .arya-callout-head span { color: rgba(0,0,0,.35) !important; }
+      [data-theme="light"] .arya-callout-body { color: #1e293b; }
+
+      /* ── Light mode: explain button ── */
+      [data-theme="light"] .arya-explain-btn {
+        color: #3B82F6;
+        border-color: rgba(59,130,246,.35);
+        background: rgba(59,130,246,.08);
+      }
+
+      /* ── Light mode: quiz section ── */
+      [data-theme="light"] .arya-quiz-section { border-top-color: rgba(0,0,0,.10); }
+      [data-theme="light"] .arya-quiz-title   { color: #0A0C10; }
+      [data-theme="light"] .arya-quiz-sub     { color: rgba(0,0,0,.50); }
+      [data-theme="light"] .arya-quiz-q-text  { color: #1e293b; }
+      [data-theme="light"] .arya-quiz-option  {
+        background: rgba(0,0,0,.03);
+        border-color: rgba(0,0,0,.10);
+        color: #1e293b;
+      }
+      [data-theme="light"] .arya-quiz-submit  {
+        background: rgba(59,130,246,.12);
+        border-color: rgba(59,130,246,.30);
+        color: #1d4ed8;
+      }
+      [data-theme="light"] .arya-quiz-result  { color: #1e293b; }
       .arya-quiz-q { margin-bottom: 20px; }
       .arya-quiz-q-text { font-size: 14px; color: rgba(255,255,255,.85); margin-bottom: 10px; font-weight: 600; }
       .arya-quiz-opt {
@@ -153,8 +186,40 @@
         transition: all .15s; font-family: -apple-system, sans-serif;
       }
       .arya-quiz-opt:hover { border-color: rgba(0,255,136,.3); background: rgba(0,255,136,.04); }
-      .arya-quiz-opt.correct { border-color: #00ff88; background: rgba(0,255,136,.1); color: #00ff88; }
-      .arya-quiz-opt.wrong   { border-color: #ff6b6b; background: rgba(255,107,107,.08); color: #ff6b6b; }
+      .arya-quiz-opt.selected { border-color: rgba(0,255,136,.4) !important; background: rgba(0,255,136,.06) !important; }
+      .arya-quiz-opt.correct { border-color: #00ff88 !important; background: rgba(0,255,136,.1) !important; color: #00ff88 !important; }
+      .arya-quiz-opt.wrong   { border-color: #ff6b6b !important; background: rgba(255,107,107,.08) !important; color: #ff6b6b !important; }
+
+      /* Light mode: quiz options */
+      [data-theme="light"] .arya-quiz-opt {
+        color: #1e293b !important;
+        border-color: rgba(0,0,0,.12) !important;
+        background: #ffffff !important;
+        box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      }
+      [data-theme="light"] .arya-quiz-opt:hover {
+        border-color: rgba(59,130,246,.4) !important;
+        background: rgba(59,130,246,.05) !important;
+      }
+      [data-theme="light"] .arya-quiz-opt.selected {
+        border-color: rgba(59,130,246,.6) !important;
+        background: rgba(59,130,246,.08) !important;
+      }
+      [data-theme="light"] .arya-quiz-opt .arya-opt-letter {
+        border-color: rgba(0,0,0,.25) !important;
+        color: #1e293b !important;
+      }
+      [data-theme="light"] .arya-quiz-opt.correct {
+        border-color: #15803d !important;
+        background: rgba(21,128,61,.08) !important;
+        color: #15803d !important;
+      }
+      [data-theme="light"] .arya-quiz-opt.wrong {
+        border-color: #dc2626 !important;
+        background: rgba(220,38,38,.06) !important;
+        color: #dc2626 !important;
+      }
+
       .arya-quiz-submit {
         margin-top: 16px; padding: 12px 28px; border-radius: 12px;
         background: rgba(0,255,136,.1); border: 1px solid rgba(0,255,136,.25);
@@ -182,6 +247,16 @@
       .kb-name { color: rgba(255,255,255,.6); }
       .kb-status { font-size: 11px; }
       .kb-done { color: #00ff88; } .kb-todo { color: rgba(255,255,255,.25); }
+
+      /* Light mode overrides */
+      [data-theme="light"] .arya-knowledge-bar {
+        background: rgba(248,250,252,0.97); border-left: 1px solid rgba(0,0,0,0.10);
+      }
+      [data-theme="light"] .kb-title  { color: rgba(0,0,0,0.45); }
+      [data-theme="light"] .kb-module { border-bottom-color: rgba(0,0,0,0.07); }
+      [data-theme="light"] .kb-name   { color: rgba(0,0,0,0.78); }
+      [data-theme="light"] .kb-todo   { color: rgba(0,0,0,0.30); }
+      [data-theme="light"] .kb-done   { color: #15803d; }
     `;
     document.head.appendChild(s);
   }
@@ -345,14 +420,14 @@ Use a real Indian example. Max 3 sentences. Hinglish. No preamble.
       q.opts.forEach((opt, oi) => {
         const optDiv = document.createElement('div');
         optDiv.className = 'arya-quiz-opt';
-        optDiv.innerHTML = `<span style="width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;">${String.fromCharCode(65 + oi)}</span> ${opt}`;
+        optDiv.innerHTML = `<span class="arya-opt-letter" style="width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;">${String.fromCharCode(65 + oi)}</span> ${opt}`;
         optDiv.onclick = () => {
           qDiv.querySelectorAll('.arya-quiz-opt').forEach(o => {
-            o.style.borderColor = 'rgba(255,255,255,.08)';
-            o.style.background = 'rgba(255,255,255,.03)';
+            o.classList.remove('selected');
+            o.style.borderColor = '';
+            o.style.background = '';
           });
-          optDiv.style.borderColor = 'rgba(0,255,136,.4)';
-          optDiv.style.background = 'rgba(0,255,136,.06)';
+          optDiv.classList.add('selected');
           selections[qi] = oi;
         };
         qDiv.appendChild(optDiv);

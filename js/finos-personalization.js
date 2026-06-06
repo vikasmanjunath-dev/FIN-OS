@@ -178,23 +178,23 @@
       const items = [];
 
       if (r.healthScore > 0) {
-        const tier = r.healthScore >= 80 ? '🟢' : r.healthScore >= 55 ? '🟡' : '🔴';
-        items.push({ label: 'Health', value: `${tier} ${Math.round(r.healthScore)}/100`, href: 'diagnostics.html' });
+        const dot = r.healthScore >= 80 ? '#22d3a6' : r.healthScore >= 55 ? '#f0a500' : '#f04444';
+        items.push({ label: 'Health', value: `${Math.round(r.healthScore)}/100`, dot, href: 'diagnostics.html' });
       }
       if (r.savingsRate > 0) {
-        const ok = r.savingsRate >= 20 ? '✅' : '⚠️';
-        items.push({ label: 'Savings rate', value: `${ok} ${r.savingsRate}%`, href: 'track-finances.html' });
+        const dot = r.savingsRate >= 20 ? '#22d3a6' : '#f0a500';
+        items.push({ label: 'Savings', value: `${r.savingsRate}%`, dot, href: 'track-finances.html' });
       }
       if (r.netWorth > 0) {
-        items.push({ label: 'Net worth', value: INR(r.netWorth), href: 'diagnostics.html' });
+        items.push({ label: 'Net Worth', value: INR(r.netWorth), dot: '#00d4ff', href: 'diagnostics.html' });
       }
       if (r.budget?.fire_number > 0) {
         const pct = r.netWorth > 0
           ? Math.min(100, Math.round(r.netWorth / r.budget.fire_number * 100)) : 0;
-        items.push({ label: 'FIRE', value: `${pct}% of goal`, href: 'life-goals-planner.html' });
+        items.push({ label: 'FIRE', value: `${pct}%`, dot: '#a78bfa', href: 'life-goals-planner.html' });
       }
       if (r.journal?.win_rate > 0) {
-        items.push({ label: 'Win rate', value: `${r.journal.win_rate}%`, href: '../TradeJournal/index.html' });
+        items.push({ label: 'Win Rate', value: `${r.journal.win_rate}%`, dot: '#22d3a6', href: '../TradeJournal/index.html' });
       }
       if (!items.length) return;
 
@@ -203,10 +203,9 @@
         strip = document.createElement('div');
         strip.id = 'finos-status-strip';
         strip.style.cssText = `
-          display:flex; gap:0; flex-wrap:wrap; overflow:hidden;
-          border-radius:14px; border:1px solid rgba(199,240,0,.12);
-          background:rgba(199,240,0,.03);
-          margin-bottom:20px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          display:flex; gap:6px; flex-wrap:wrap; align-items:center;
+          margin-bottom:14px;
+          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
         `;
         const anchor = document.querySelector(anchorSelector);
         if (anchor) anchor.insertAdjacentElement('afterend', strip);
@@ -214,16 +213,20 @@
       }
 
       strip.innerHTML = items.map(it => `
-        <${it.href ? `a href="${it.href}"` : 'span'} style="
-          display:flex; flex-direction:column; align-items:center; gap:2px;
-          padding:10px 18px; flex:1; min-width:80px;
-          border-right:1px solid rgba(255,255,255,.05);
-          text-decoration:none; transition:background .2s;
-          ${it.href ? 'cursor:pointer;' : ''}
-        " ${it.href ? `onmouseover="this.style.background='rgba(199,240,0,.06)'" onmouseout="this.style.background=''"` : ''}>
-          <span style="font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;font-weight:600;">${it.label}</span>
-          <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,.85);">${it.value}</span>
-        </${it.href ? 'a' : 'span'}>
+        <a href="${it.href || '#'}" style="
+          display:inline-flex; align-items:center; gap:6px;
+          padding:5px 12px 5px 9px;
+          border-radius:50px;
+          background:var(--bg-surface,rgba(255,255,255,.06));
+          border:1.5px solid var(--border-soft,rgba(255,255,255,.09));
+          text-decoration:none; cursor:pointer;
+          transition:opacity .15s;
+          white-space:nowrap; flex-shrink:0;
+        " onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">
+          <span style="width:8px;height:8px;border-radius:50%;background:${it.dot};flex-shrink:0;display:inline-block;box-shadow:0 0 6px ${it.dot}66;"></span>
+          <span style="font-size:13px;font-weight:700;color:var(--text-primary,#e8eef6);">${it.value}</span>
+          <span style="font-size:10px;font-weight:600;color:var(--text-muted,rgba(150,160,180,.7));text-transform:uppercase;letter-spacing:.06em;">${it.label}</span>
+        </a>
       `).join('');
     }
 

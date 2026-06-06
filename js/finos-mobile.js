@@ -17,22 +17,6 @@
     try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (_) {}
   };
 
-  /* ── Offline indicator ────────────────────────────────────────── */
-  function initOfflineIndicator() {
-    const bar = document.createElement('div');
-    bar.className = 'finos-offline-bar';
-    bar.id = 'finos-offline-bar';
-    bar.innerHTML = '📡 You\'re offline — FIN•OS is working from cached data';
-    document.body.appendChild(bar);
-
-    function update() {
-      bar.classList.toggle('visible', !navigator.onLine);
-    }
-    window.addEventListener('online',  () => { update(); haptic([10,10,10]); });
-    window.addEventListener('offline', () => { update(); haptic([50]); });
-    update();
-  }
-
   /* ── Bottom Navigation ────────────────────────────────────────── */
   function injectBottomNav() {
     if (!isMobile()) return;
@@ -302,7 +286,6 @@
       link.rel = 'stylesheet'; link.href = '../css/mobile-ux.css';
       document.head.appendChild(link);
     }
-    initOfflineIndicator();
     injectBottomNav();
     if (isMobile()) {
       initQuickCapture();
