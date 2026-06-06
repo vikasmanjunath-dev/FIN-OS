@@ -36,6 +36,8 @@ new Chart(dnaCtx, {
         }]
     },
     options: {
+        responsive: true,
+        maintainAspectRatio: false,
         scales: {
             r: {
                 grid: { color: 'rgba(255,255,255,0.1)' },

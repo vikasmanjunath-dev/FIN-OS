@@ -449,6 +449,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }]
                 },
                 options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         r: {
                             angleLines: { color: 'rgba(255,255,255,0.1)' },
