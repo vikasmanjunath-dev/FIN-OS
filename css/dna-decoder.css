@@ -229,3 +229,6 @@ body {
 [data-theme="light"] .progress-bar {
   box-shadow: 0 0 8px rgba(79,124,255,0.4);
 }
+/* ── Chart canvas fix: explicit height so Chart.js renders ── */
+.chart-box { position: relative; height: 320px; width: 100%; }
+.chart-box canvas { width: 100% !important; height: 100% !important; }

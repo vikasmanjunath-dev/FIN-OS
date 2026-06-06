@@ -69,6 +69,12 @@
     .visual-box {
       margin: 16px 0 !important;
       padding: 20px !important;
+      min-height: 280px;
+      position: relative;
+    }
+    .visual-box canvas {
+      width: 100% !important;
+      height: 260px !important;
     }
 
     /* ── Shield illustration ── */
@@ -600,11 +606,23 @@
       }]
     },
     options: {
-      plugins: { legend: { display: false } },
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ₹' + ctx.raw + ' Lakhs'
+          }
+        }
+      },
       scales: {
         y: {
           grid: { color: _isDark() ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)' },
-          ticks: { color: _isDark() ? '#9CA0AB' : '#4A5568' }
+          ticks: {
+            color: _isDark() ? '#9CA0AB' : '#4A5568',
+            callback: v => '₹' + v + 'L'
+          }
         },
         x: {
           grid: { display: false },
