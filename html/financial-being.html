@@ -2011,96 +2011,79 @@ function initAISections() {
   initChatSection();
 }
 
-/* ── Section 14: Report tab loader ── */
+/* ── Section 14: Report tab loader — LOCAL FIRST, backend upgrade in background ── */
 async function loadReportTab(tabKey) {
   const contentEl = document.getElementById('aiReportContent');
   if (!contentEl) return;
 
+  /* Serve from cache immediately */
   if (reportCache[tabKey]) {
     contentEl.innerHTML = `<div class="ai-response-text">${reportCache[tabKey]}</div>`;
     return;
   }
 
-  contentEl.innerHTML = `
-    <div class="ai-skeleton"></div>
-    <div class="ai-skeleton"></div>
-    <div class="ai-skeleton short"></div>
-  `;
+  /* ① Render local content INSTANTLY — no network wait */
+  contentEl.innerHTML = generateReportLocal(tabKey);
 
-  try {
-    const html = await streamReportTab(tabKey, contentEl);
-    reportCache[tabKey] = html;
-  } catch (e) {
-    contentEl.innerHTML = generateReportLocal(tabKey);
-  }
+  /* ② Try backend silently in background — if it responds, upgrade content */
+  _tryBackendReportUpgrade(tabKey, contentEl);
 }
 
-async function streamReportTab(tabKey, targetEl) {
-  targetEl.innerHTML = `<div class="ai-response-text" id="_streamTarget"></div>`;
-  const streamEl = document.getElementById('_streamTarget');
-  if (!streamEl) throw new Error('stream target gone');
+async function _tryBackendReportUpgrade(tabKey, contentEl) {
+  try {
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 2000); /* 2 s probe */
+    const res = await fetch(`${CFG.brainUrl}/api/ai-report/stream`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal:  ctrl.signal,
+      body:    JSON.stringify({ tab: tabKey, profile: profile || {} }),
+    });
+    clearTimeout(timer);
+    if (!res.ok) return;                            /* backend offline — keep local */
 
-  const cursor = document.createElement('span');
-  cursor.className = 'ai-cursor';
-  cursor.textContent = '▋';
-  streamEl.appendChild(cursor);
+    /* Backend is alive → stream AI response into a fresh container */
+    contentEl.innerHTML = `<div class="ai-response-text" id="_streamTarget"><span class="ai-cursor">▋</span></div>`;
+    const streamEl = document.getElementById('_streamTarget');
+    if (!streamEl) return;
 
-  let fullText = '';
+    const cursor  = streamEl.querySelector('.ai-cursor');
+    const reader  = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '', fullText = '';
 
-  const _ctrl = new AbortController();
-  const _probeTimer = setTimeout(() => _ctrl.abort(), 5000);
-  const res = await fetch(`${CFG.brainUrl}/api/ai-report/stream`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    signal: _ctrl.signal,
-    body: JSON.stringify({
-      tab:     tabKey,
-      profile: profile || {},
-    }),
-  });
-  clearTimeout(_probeTimer);
-
-  if (!res.ok) {
-    const errBody = await res.text().catch(() => '');
-    throw new Error(`brain.py ${res.status}: ${errBody.slice(0, 200)}`);
-  }
-
-  const reader  = res.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = '';
-
-  outer: while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    
-    buffer += decoder.decode(value, { stream: true });
-    let lines = buffer.split('\n\n');
-    buffer = lines.pop(); // keep the incomplete part
-
-    for (const block of lines) {
-      const line = block.split('\n').find(l => l.startsWith('data: '));
-      if (!line) continue;
-      const raw = line.slice(6).trim();
-      if (!raw) continue;
-      try {
-        const chunk = JSON.parse(raw);
-        if (chunk.error) throw new Error(chunk.error);
-        if (chunk.done)  break outer;
-        const token = chunk.token || '';
-        if (token) {
-          fullText += token;
-          streamEl.innerHTML = markdownToHTML(fullText);
-          streamEl.appendChild(cursor);
-          streamEl.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
-      } catch (parseErr) { /* skip malformed SSE lines */ }
+    outer: while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split('\n\n');
+      buf = lines.pop();
+      for (const block of lines) {
+        const line = block.split('\n').find(l => l.startsWith('data: '));
+        if (!line) continue;
+        const raw = line.slice(6).trim();
+        if (!raw) continue;
+        try {
+          const chunk = JSON.parse(raw);
+          if (chunk.error) break outer;
+          if (chunk.done)  break outer;
+          const token = chunk.token || chunk.t || '';
+          if (token) {
+            fullText += token;
+            streamEl.innerHTML = markdownToHTML(fullText);
+            if (cursor) streamEl.appendChild(cursor);
+          }
+        } catch {}
+      }
     }
-  }
 
-  cursor.remove();
-  const finalHTML = markdownToHTML(fullText);
-  streamEl.innerHTML = finalHTML;
-  return finalHTML;
+    cursor?.remove();
+    const finalHTML = markdownToHTML(fullText);
+    if (finalHTML.trim()) {
+      streamEl.innerHTML = finalHTML;
+      reportCache[tabKey] = finalHTML;
+    }
+  } catch { /* backend offline — local content already shown */ }
 }
 
 /* Lightweight markdown renderer */
@@ -2140,28 +2123,29 @@ async function shareReport() {
   }
 }
 
-/* ── Section 14b: Proactive Insights ── */
+/* ── Section 14b: Proactive Insights — LOCAL FIRST ── */
 async function loadInsights() {
   const panelEl = document.getElementById('insightsPanel');
   if (!panelEl) return;
 
-  try {
-    const _iCtrl = new AbortController();
-    const _iTimer = setTimeout(() => _iCtrl.abort(), 5000);
-    const res = await fetch(`${CFG.brainUrl}/api/insights`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      signal: _iCtrl.signal,
-      body: JSON.stringify({
-        profile: profile || {}
-      }),
-    });
-    clearTimeout(_iTimer);
-    if (!res.ok) throw new Error("API error fetching insights");
-    
-    const data = await res.json();
-    const insights = data.insights || [];
+  /* ① Show computed insights immediately */
+  panelEl.innerHTML = generateInsightsLocal();
 
+  /* ② Try backend in background — if it responds, upgrade chips */
+  try {
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 2000);
+    const res = await fetch(`${CFG.brainUrl}/api/insights`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal:  ctrl.signal,
+      body:    JSON.stringify({ profile: profile || {} }),
+    });
+    clearTimeout(timer);
+    if (!res.ok) return;
+    const data     = await res.json();
+    const insights = data.insights || [];
+    if (!insights.length) return;
     panelEl.innerHTML = insights.map(ins => `
       <div class="insight-chip ${ins.severity || 'info'}">
         <div class="insight-chip-category">${ins.category || 'GENERAL'}</div>
@@ -2169,9 +2153,7 @@ async function loadInsights() {
         <div class="insight-chip-body">${ins.body || ''}</div>
       </div>
     `).join('');
-  } catch (e) {
-    panelEl.innerHTML = generateInsightsLocal();
-  }
+  } catch { /* backend offline — local chips stay */ }
 }
 
 /* ── Section 15: Chat ── */
@@ -2234,41 +2216,23 @@ async function sendChatMessage(userText) {
 
   const bubbleEl = document.getElementById('_chatBubble');
 
+  /* Probe brain.py with 1.5 s timeout */
+  const _cCtrl = new AbortController();
+  const _cTimer = setTimeout(() => _cCtrl.abort(), 1500);
+  let _brainRes = null;
   try {
-    const res = await fetch(`${CFG.brainUrl}/api/chat/stream`, {
+    _brainRes = await fetch(`${CFG.brainUrl}/api/chat/stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: userText,
-        session_id: getChatSessionId(),
-        psych_profile: profile || {},
-        context: (() => {
-          try {
-            const ctx = window.FINOS_USER_CONTEXT;
-            if (!ctx) return undefined;
-            const id = ctx.identity || {};
-            const INR = n => '₹' + Number(n||0).toLocaleString('en-IN');
-            const lines = [
-              `Name: ${id.name || 'Investor'} | DNA: ${id.financial_dna || 'Explorer'} | Stage: ${id.life_stage || 'unknown'}`,
-              `Income: ₹${id.income_range || 'unknown'}/mo | Mindset: ${id.mindset || 'unknown'}`,
-            ];
-            const prof = ctx.profile || {};
-            lines.push(`Net worth: ${INR(prof.net_worth || 0)} | Savings rate: ${prof.savings_rate || 0}% | Health score: ${prof.health_score || 0}/100`);
-            const tx = ctx.financial?.transactions;
-            if (tx) lines.push(`Transactions → Income: ${INR(tx.total_income)} | Expenses: ${INR(tx.total_expense)}`);
-            const goals = ctx.financial?.goals;
-            if (goals?.length) lines.push(`Goals: ${goals.slice(0,3).map(g => `${g.name} ${g.progress||0}%`).join(' · ')}`);
-            const portfolio = ctx.financial?.portfolio;
-            if (portfolio) lines.push(`Portfolio: ${INR(portfolio.total_value)} | P&L: ${portfolio.pnl_pct > 0 ? '+' : ''}${portfolio.pnl_pct}%`);
-            const budget = ctx.budget_tracker;
-            if (budget?.income_monthly) lines.push(`Budget: ₹${budget.income_monthly}/mo income | Spent ₹${budget.spent_total} | ${budget.savings_rate}% saved`);
-            return lines.join('\n');
-          } catch { return undefined; }
-        })()
-      }),
+      signal: _cCtrl.signal,
+      body: JSON.stringify({ message: userText, session_id: getChatSessionId(), psych_profile: profile || {} }),
     });
+    clearTimeout(_cTimer);
+  } catch { clearTimeout(_cTimer); }
 
-    if (!res.ok) throw new Error(`API ${res.status}`);
+  try {
+    const res = _brainRes;
+    if (!res || !res.ok) throw new Error('brain offline');
 
     const reader  = res.body.getReader();
     const decoder = new TextDecoder();

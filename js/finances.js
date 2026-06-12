@@ -513,10 +513,6 @@ Assess my true wealth trajectory with brutal honesty. Use these markdown headers
 
     // Read brain.py SSE stream
     async function readSSEStream(response, verdictBox, isInitialLoad, source) {
-        if (!isInitialLoad) {
-            // Add follow-up visual separator — handled by caller context
-        }
-
         const responseId = `msg-${Date.now()}`;
         verdictBox.innerHTML += `<div id="${responseId}" class="qft-msg" style="margin-bottom:20px;"><span style="color:#888;">Thinking...</span></div>`;
         const msgDiv = document.getElementById(responseId);
@@ -539,6 +535,7 @@ Assess my true wealth trajectory with brutal honesty. Use these markdown headers
                     if (!raw || raw === '[DONE]') continue;
                     try {
                         const data = JSON.parse(raw);
+                        if (data.error) throw new Error(data.error);
                         if (data.session_id) currentSessionId = data.session_id;
                         const token = data.token || data.t || '';
                         if (token) {
@@ -547,13 +544,21 @@ Assess my true wealth trajectory with brutal honesty. Use these markdown headers
                             verdictBox.scrollTop = verdictBox.scrollHeight;
                         }
                         if (data.done) break;
-                    } catch { /* skip malformed chunk */ }
+                    } catch (e) {
+                        if (!(e instanceof SyntaxError)) throw e; // re-throw real errors, skip malformed JSON
+                    }
                 }
             }
         } finally {
             chatInputArea?.classList.remove('hidden');
             if (followUpInput && !chatInputArea?.classList.contains('hidden')) followUpInput.focus();
             verdictBox.scrollTop = verdictBox.scrollHeight;
+        }
+
+        // If stream ended with no content, remove the empty "Thinking..." and signal failure
+        if (!fullContent) {
+            msgDiv.remove();
+            throw new Error('empty stream — Ollama offline');
         }
     }
 
