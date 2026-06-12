@@ -2031,7 +2031,7 @@ async function loadReportTab(tabKey) {
     const html = await streamReportTab(tabKey, contentEl);
     reportCache[tabKey] = html;
   } catch (e) {
-    contentEl.innerHTML = `<p class="ai-error">⚠ Could not load analysis. Check your connection and try again.<br><small>${e.message}</small></p>`;
+    contentEl.innerHTML = generateReportLocal(tabKey);
   }
 }
 
@@ -2047,14 +2047,18 @@ async function streamReportTab(tabKey, targetEl) {
 
   let fullText = '';
 
+  const _ctrl = new AbortController();
+  const _probeTimer = setTimeout(() => _ctrl.abort(), 5000);
   const res = await fetch(`${CFG.brainUrl}/api/ai-report/stream`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    signal: _ctrl.signal,
     body: JSON.stringify({
       tab:     tabKey,
       profile: profile || {},
     }),
   });
+  clearTimeout(_probeTimer);
 
   if (!res.ok) {
     const errBody = await res.text().catch(() => '');
@@ -2142,14 +2146,17 @@ async function loadInsights() {
   if (!panelEl) return;
 
   try {
+    const _iCtrl = new AbortController();
+    const _iTimer = setTimeout(() => _iCtrl.abort(), 5000);
     const res = await fetch(`${CFG.brainUrl}/api/insights`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: _iCtrl.signal,
       body: JSON.stringify({
         profile: profile || {}
       }),
     });
-    
+    clearTimeout(_iTimer);
     if (!res.ok) throw new Error("API error fetching insights");
     
     const data = await res.json();
@@ -2163,13 +2170,7 @@ async function loadInsights() {
       </div>
     `).join('');
   } catch (e) {
-    panelEl.innerHTML = `
-      <div class="insight-chip warning">
-        <div class="insight-chip-category">SYSTEM</div>
-        <div class="insight-chip-title">Insights temporarily unavailable</div>
-        <div class="insight-chip-body">Verify your local Ollama instance and brain.py connection.</div>
-      </div>
-    `;
+    panelEl.innerHTML = generateInsightsLocal();
   }
 }
 
@@ -2306,12 +2307,285 @@ async function sendChatMessage(userText) {
     chatHistory.push({ role: 'assistant', content: fullText });
 
   } catch (e) {
-    if (bubbleEl) bubbleEl.innerHTML = `<span class="ai-error">⚠ Connection issue — please ensure brain.py is running locally.</span>`;
-    chatHistory.pop();
+    /* ── Tier 2: Ollama direct at :11434 ── */
+    let tier2Success = false;
+    try {
+      const c2 = new AbortController();
+      const t2 = setTimeout(() => c2.abort(), 5000);
+      const ollamaRes = await fetch('http://127.0.0.1:11434/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: c2.signal,
+        body: JSON.stringify({
+          model: 'llama3.2:3b',
+          prompt: `You are a financial advisor for Indian investors. User archetype: ${profile ? profile.archetype : 'unknown'}. Answer concisely in 3-4 sentences using Indian context (₹ amounts, Indian markets): ${userText}`,
+          stream: true,
+          options: { temperature: 0.3, num_predict: 280 }
+        })
+      });
+      clearTimeout(t2);
+      if (ollamaRes.ok) {
+        const r2 = ollamaRes.body.getReader();
+        const d2 = new TextDecoder();
+        let ollText = ''; let buf2 = '';
+        while (true) {
+          const { done, value } = await r2.read();
+          if (done) break;
+          buf2 += d2.decode(value, { stream: true });
+          const parts = buf2.split('\n'); buf2 = parts.pop();
+          for (const part of parts) {
+            if (!part.trim()) continue;
+            try {
+              const obj = JSON.parse(part);
+              if (obj.response) {
+                ollText += obj.response;
+                if (bubbleEl) { bubbleEl.innerHTML = markdownToHTML(ollText) + '<span class="ai-cursor">▋</span>'; chatEl && (chatEl.scrollTop = chatEl.scrollHeight); }
+              }
+              if (obj.done) break;
+            } catch {}
+          }
+        }
+        if (bubbleEl) bubbleEl.innerHTML = markdownToHTML(ollText);
+        chatHistory.push({ role: 'assistant', content: ollText });
+        tier2Success = true;
+      }
+    } catch {}
+
+    /* ── Tier 3: Smart offline reply from profile data ── */
+    if (!tier2Success) {
+      const offlineReply = generateOfflineReply(userText);
+      if (bubbleEl) bubbleEl.innerHTML = markdownToHTML(offlineReply);
+      chatHistory.push({ role: 'assistant', content: offlineReply });
+    }
   }
 
   if (sendBtn) sendBtn.disabled = false;
   chatEl && (chatEl.scrollTop = chatEl.scrollHeight);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   12b. LOCAL AI FALLBACKS — 100% offline, archetype-personalised
+══════════════════════════════════════════════════════════════ */
+
+function generateReportLocal(tabKey) {
+  if (!profile) {
+    return '<p style="color:var(--text-dim);font-size:.85rem;text-align:center;padding:24px 0">Complete the scan above to generate your personalised report.</p>';
+  }
+  const arch = ARCHETYPES[profile.archetypeKey] || ARCHETYPES.drifter;
+  const p = profile;
+
+  const riskLabel = (p.riskScore || 0) >= 66 ? 'HIGH' : (p.riskScore || 0) >= 33 ? 'MODERATE' : 'LOW';
+  const riskDesc  = { HIGH:'high-conviction, long-horizon investor', MODERATE:'balanced, medium-horizon investor', LOW:'capital-preservation, conservative investor' }[riskLabel];
+  const incomeLabel = { fragile:'Single Income — Fragile', semi_resilient:'Salary + Side Income', resilient:'Multiple Active Streams', antifragile:'Active + Passive Mix' }[p.income_type] || 'Developing';
+  const emoLabel    = { stress:'stress / anxiety', boredom:'boredom', joy:'celebration', fomo:'FOMO' }[p.emo_trigger] || 'mixed triggers';
+  const driverLabel = { fear:'Fear of scarcity', status:'Status and recognition', freedom:'Freedom and autonomy', impact:'Legacy and impact' }[p.driver] || 'Undefined';
+  const knowLabel   = { novice:'Beginner', basic:'Mutual Fund Level', intermediate:'Evolving Investor', advanced:'Market-Aware' }[p.knowledge] || 'Developing';
+  const stageLabel  = { early:'Early Career', building:'Wealth Builder', scaling:'Senior / Scaling', protecting:'Family Protector' }[p.life_stage] || 'Builder';
+  const windfallLabel = { saver:'saves/invests immediately', spender:'treats yourself first', debt_clearer:'pays off debts first', analyst:'researches before acting' }[p.windfall] || 'evaluates options';
+  const balanceLabel  = { calm:'calm and in control', anxious:'anxious — you sometimes avoid looking', motivated:'motivated — numbers energize you', indifferent:'indifferent — money is just a tool' }[p.balance_feel] || 'a mix of emotions';
+
+  /* Allocation recommendation */
+  const baseAlloc = { guardian:{eq:40,debt:40,gold:10,cash:10}, architect:{eq:60,debt:25,gold:5,cash:10}, adventurer:{eq:75,debt:10,gold:5,cash:10}, caretaker:{eq:45,debt:35,gold:10,cash:10}, drifter:{eq:30,debt:30,gold:10,cash:30} };
+  const alloc = Object.assign({}, baseAlloc[p.archetypeKey] || baseAlloc.drifter);
+  const rAdj  = Math.round((p.riskScore || 0) / 10);
+  alloc.eq   = Math.min(80, alloc.eq + rAdj);
+  alloc.debt = Math.max(5,  alloc.debt - rAdj);
+
+  const savRateTarget = { guardian:'25–35%', architect:'30–40%', adventurer:'20–30%', caretaker:'20–25%', drifter:'15–20%' }[p.archetypeKey] || '20–30%';
+  const spendFix = { impulsive:'Install a 24-hr rule: screenshot any unplanned purchase, check it again 24 hrs later. You\'ll skip 70% of them.', lifestyle:'50% rule: half of every raise gets auto-invested before lifestyle adjusts.', austere:'Your discipline is your superpower — ensure it doesn\'t slide into deprivation. A guilt-free "play" budget prevents binge rebounds.', balanced:'Protect this intentional spending habit as your income grows — lifestyle inflation is subtle.' }[p.spend_pattern] || 'Track spending by category for 30 days — visibility precedes control.';
+
+  const tabs = {
+    psyche: `
+      <h4>Your Money Psychology</h4>
+      <p>You are <strong>${arch.name}</strong> — <em>${arch.tagline}</em>. Your core financial driver is <strong>${driverLabel}</strong>. This shapes every money decision below your conscious awareness. When you receive unexpected money, your instinct is to <strong>${windfallLabel}</strong> — this single behavior reveals your deepest financial belief in action.</p>
+
+      <h4>The Emotional Leak Pattern</h4>
+      <p>Your biggest spending trigger is <strong>${emoLabel}</strong>. Your most expensive moments aren't planned — they're reactive. The antidote isn't willpower: it's a <strong>pre-committed spending rule</strong>. ${spendFix}</p>
+
+      <h4>Your Hidden Money Story</h4>
+      <p>Checking your bank balance makes you feel <strong>${balanceLabel}</strong>. This isn't just emotion — it tells you whether your financial system matches your identity. For ${arch.name} types, the central internal conflict is: <em>${arch.limitingBelief}</em></p>
+
+      <h4>The Reframe That Changes Everything</h4>
+      <p>The limiting belief becomes a <strong>decision rule</strong> when you name it explicitly. Write three non-negotiable money rules — when followed automatically, they neutralize the belief without requiring willpower. Example: "I invest 25% before I see my salary" removes the belief from the equation entirely. Automate first; beliefs follow behaviour.</p>
+    `,
+
+    wealth_path: `
+      <h4>Your Current Wealth Trajectory</h4>
+      <p>Life stage: <strong>${stageLabel}</strong> · Income: <strong>${incomeLabel}</strong> · Knowledge: <strong>${knowLabel}</strong>. These three factors drive 80% of your wealth velocity. The single number to move first is your <strong>savings rate</strong> — target for ${arch.name}: <strong>${savRateTarget}</strong> of gross income, invested before you see it.</p>
+
+      <h4>Wealth Killers in Your Profile</h4>
+      <ul>
+        ${p.income_type === 'fragile' ? '<li><strong>Single Income Risk:</strong> One layoff = financial crisis. Build a side income to ₹10,000/month within 12 months — freelancing, consulting, or monetising a skill.</li>' : ''}
+        ${(p.spend_pattern === 'impulsive' || p.spend_pattern === 'lifestyle') ? '<li><strong>Lifestyle Inflation:</strong> Every salary increment absorbed by expenses rather than investments. Cap lifestyle at last year\'s level for 12 months.</li>' : ''}
+        ${(p.knowledge === 'novice' || p.knowledge === 'basic') ? '<li><strong>Knowledge Gap:</strong> Low financial knowledge = suboptimal product selection and high advisor dependency. 15 min/day for 90 days on Zerodha Varsity changes this permanently.</li>' : ''}
+        <li><strong>${arch.weaknesses[0]}</strong> — your archetype\'s primary wealth trap. Acknowledge it before it compounds silently.</li>
+        <li><strong>${arch.weaknesses[1]}</strong> — the secondary blind spot people with your profile consistently miss.</li>
+      </ul>
+
+      <h4>Your Wealth Path Milestones</h4>
+      <ul>
+        <li><strong>Month 1–3:</strong> Build ₹1L emergency fund. Non-negotiable. Non-investable. In a liquid fund.</li>
+        <li><strong>Month 3–12:</strong> Hit ${savRateTarget.split('–')[0]}%+ savings rate. Auto-SIP on salary day + 1.</li>
+        <li><strong>Year 1–3:</strong> Nifty 50 index fund SIP. Step up 10% every April on your raise date.</li>
+        <li><strong>Year 3–7:</strong> Add small-cap exposure (${(p.riskScore || 0) >= 66 ? '20–30%' : '10–15%'} of equity). Direct stocks only after SIP corpus crosses ₹5L.</li>
+      </ul>
+    `,
+
+    risk_matrix: `
+      <h4>Your True Risk DNA</h4>
+      <p>Declared tolerance: <strong>${riskLabel} (${p.riskScore || 0}/100)</strong> — you self-identify as a <strong>${riskDesc}</strong>. ${
+        p.archetypeKey === 'adventurer' ? 'Watch for overconfidence: high stated tolerance + limited volatility experience = shock at the first 40% drawdown.' :
+        p.archetypeKey === 'guardian'   ? 'Conservative stance is rational — but over-safe positioning (excess FD/cash) creates slow wealth erosion via inflation at 6%/year.' :
+        p.archetypeKey === 'drifter'    ? 'Undefined tolerance creates reactive decisions: panic-selling or FOMO-buying at exactly the wrong time.' :
+        'Your risk profile is balanced — the discipline challenge is maintaining it through market cycles.'
+      }</p>
+
+      <h4>Recommended Portfolio Allocation</h4>
+      <ul>
+        <li><strong>Equity (Stocks + MFs):</strong> <strong>${alloc.eq}%</strong> — ${alloc.eq >= 60 ? 'growth-focused' : 'conservative-growth'} positioning for your archetype + risk score</li>
+        <li><strong>Debt (PPF, FD, bonds):</strong> <strong>${alloc.debt}%</strong> — ${alloc.debt >= 35 ? 'heavy safety net' : 'moderate cushion'}</li>
+        <li><strong>Gold / Alternatives:</strong> <strong>${alloc.gold}%</strong> — inflation + currency hedge</li>
+        <li><strong>Liquid / Emergency Cash:</strong> <strong>${alloc.cash}%</strong> — minimum 3 months of expenses</li>
+      </ul>
+
+      <h4>Behavioural Guard Rails</h4>
+      <ul>
+        <li><strong>48-hour rule:</strong> No portfolio change executed within 48 hours of any market move ±3%.</li>
+        <li><strong>Rebalancing trigger:</strong> Rebalance only when any asset class drifts >10% from target — once a year at most.</li>
+        ${(p.riskScore || 0) >= 66 ? '<li><strong>Concentration cap:</strong> No single stock >5% of portfolio. No single sector >20%. Conviction ≠ concentration.</li>' : ''}
+        ${(p.riskScore || 0) < 33 ? '<li><strong>Inflation guard:</strong> FDs above 40% of total portfolio means your money shrinks in real terms at 6% inflation. Minimum 30% in equity SIPs.</li>' : ''}
+        <li><strong>Emotional stop-loss:</strong> If you check the portfolio >3× daily during a down market, log out. Reactive monitoring is a wealth destroyer.</li>
+      </ul>
+    `,
+
+    action_plan: `
+      <h4>Month 1 — Foundation (Days 1–30)</h4>
+      <ul>
+        <li><strong>Week 1:</strong> Open a zero-cost demat (Zerodha / Groww) if you haven't. Set up auto-SIP of ₹1,000/month into Nifty 50 index fund — the amount is irrelevant, the habit is everything.</li>
+        <li><strong>Week 2:</strong> Build your net worth statement. Total assets − total liabilities = your starting point. No judgment — just measurement.</li>
+        <li><strong>Week 3:</strong> Identify your top 3 discretionary expense categories. For ${{ stress:'stress-spenders', boredom:'boredom-buyers', joy:'celebration-spenders', fomo:'FOMO-buyers' }[p.emo_trigger] || 'you'}: apply a 24-hr rule on any unplanned purchase &gt;₹2,000 in these categories.</li>
+        <li><strong>Week 4:</strong> Build a 1-month emergency fund (monthly expenses × 1). Park in a liquid fund — not savings account.</li>
+      </ul>
+
+      <h4>Month 2 — Systems (Days 31–60)</h4>
+      <ul>
+        <li>Increase SIP to your target savings rate (${savRateTarget.split('–')[0]}% of take-home). Debit set for salary day + 1. Done — no willpower needed.</li>
+        <li>${p.income_type === 'fragile' ? 'Start building secondary income. 3 hrs/week on a monetisable skill. Target ₹5,000/month within 6 months.' : 'Review your current income streams. Raise your rate on the highest-leverage one.'}</li>
+        <li>${(p.knowledge === 'novice' || p.knowledge === 'basic') ? 'Study one concept/week: index fund → expense ratio → SIP step-up → rebalancing. Use Zerodha Varsity (free).' : 'Audit your portfolio: expense ratios, exit loads, fund overlap. Remove one underperformer.'}</li>
+        <li>Set a weekly "money date" — 20 minutes every Sunday reviewing the week\'s numbers. Consistency beats intensity.</li>
+      </ul>
+
+      <h4>Month 3 — Acceleration (Days 61–90)</h4>
+      <ul>
+        <li><strong>Tax optimisation:</strong> Max out 80C (₹1.5L — ELSS is best), 80CCD(1B) NPS (₹50K additional), 80D health insurance (₹25K+). At 30% bracket = ₹67,500 saved annually.</li>
+        <li>${arch.actions[0].icon} <strong>${arch.actions[0].title}:</strong> ${arch.actions[0].desc}</li>
+        <li>${arch.actions[1].icon} <strong>${arch.actions[1].title}:</strong> ${arch.actions[1].desc}</li>
+        <li>${arch.actions[2].icon} <strong>${arch.actions[2].title}:</strong> ${arch.actions[2].desc}</li>
+        <li><strong>Compound check:</strong> Compare Month 3 savings rate to Month 1. Every 5% improvement = thousands of rupees compounding for decades. Celebrate the system, not just the number.</li>
+      </ul>
+    `
+  };
+
+  return `<div class="ai-response-text">${tabs[tabKey] || tabs.psyche}</div>`;
+}
+
+function generateInsightsLocal() {
+  if (!profile) {
+    return `<div class="insight-chip info">
+      <div class="insight-chip-category">SCAN NEEDED</div>
+      <div class="insight-chip-title">Complete your psychological scan</div>
+      <div class="insight-chip-body">Answer the 12 questions to generate personalised proactive alerts based on your financial profile.</div>
+    </div>`;
+  }
+  const p    = profile;
+  const arch = ARCHETYPES[p.archetypeKey] || ARCHETYPES.drifter;
+  const chips = [];
+
+  /* Income resilience */
+  if (p.income_type === 'fragile') {
+    chips.push({ sev:'critical', cat:'INCOME RISK', title:'Single Point of Failure', body:'One layoff = zero runway. Building ₹10K/month side income reduces this risk by 60%. Start with one freelanceable skill for 3 hrs/week.' });
+  } else if (p.income_type === 'semi_resilient') {
+    chips.push({ sev:'warning', cat:'INCOME', title:'Growing — But Not Diversified Yet', body:"Side income exists but isn't substantial. Target: side income > 20% of total income within 12 months. When it hits this, your layoff anxiety drops dramatically." });
+  }
+
+  /* Spending pattern */
+  if (p.spend_pattern === 'impulsive') {
+    chips.push({ sev:'critical', cat:'CASH FLOW', title:'Impulse Spending Alert', body:'Reactive spending is your #1 wealth leak. Install the 24-hr rule: screenshot the desired purchase and check it again tomorrow. You\'ll skip 70% of them automatically.' });
+  } else if (p.spend_pattern === 'lifestyle') {
+    chips.push({ sev:'warning', cat:'LIFESTYLE INFLATION', title:'Lifestyle Creep Detected', body:'Every salary raise absorbed by expenses = years added to your FIRE timeline. Cap lifestyle at last year\'s level for 12 months. Invest the delta.' });
+  }
+
+  /* Knowledge vs risk mismatch */
+  if ((p.knowledge === 'novice' || p.knowledge === 'basic') && (p.riskScore || 0) >= 66) {
+    chips.push({ sev:'critical', cat:'RISK MISMATCH', title:'High Risk Appetite + Low Knowledge', body:'This combination creates the worst outcomes: over-exposure followed by panic selling. Learn before you leverage. 90 days on Zerodha Varsity changes your decision quality permanently.' });
+  } else if (p.knowledge === 'novice' || p.knowledge === 'basic') {
+    chips.push({ sev:'info', cat:'KNOWLEDGE UPGRADE', title:'Financial Literacy = 2× Better Returns', body:'Investors with basic financial literacy earn 2× better risk-adjusted returns on average. 15 min/day for 90 days on Zerodha Varsity (free) pays 12% CAGR compounded.' });
+  }
+
+  /* Emergency fund — universal */
+  chips.push({ sev:'warning', cat:'EMERGENCY BUFFER', title:'3-Month Buffer: Your Most Important Number', body:`${arch.name} types often ${(p.archetypeKey === 'drifter' || p.archetypeKey === 'adventurer') ? 'skip the emergency fund entirely' : 'underfund the emergency fund'}. Formula: monthly expenses × 3. Park in a liquid fund. Everything else is secondary.` });
+
+  /* Tax optimisation */
+  if (p.life_stage === 'scaling' || p.life_stage === 'protecting') {
+    chips.push({ sev:'info', cat:'TAX ALPHA', title:"You're Likely Leaving ₹67,500+ on the Table", body:'At 30% bracket: 80C ₹1.5L + 80CCD(1B) NPS ₹50K + 80D ₹25K = ₹2.25L deduction. That\'s ₹67,500 saved annually — reinvested at 12% for 10 years = ₹11.7L extra corpus.' });
+  } else {
+    chips.push({ sev:'info', cat:'TAX ALPHA', title:'ELSS > FD for Section 80C', body:'ELSS gives 80C benefit + 12–15% historical returns vs FD\'s 7%. 3-year lock-in is shorter than PPF\'s 15 years. Switch now if you\'re still using FD for 80C.' });
+  }
+
+  /* Archetype-specific blind spot */
+  chips.push({ sev:{ guardian:'warning', architect:'info', adventurer:'critical', caretaker:'warning', drifter:'critical' }[p.archetypeKey] || 'warning', cat:'ARCHETYPE ALERT', title:arch.weaknesses[0], body:arch.weaknesses[1] + ' — this is the pattern that silently compounds against ' + arch.name + ' types over a decade.' });
+
+  return chips.slice(0, 4).map(c => `
+    <div class="insight-chip ${c.sev}">
+      <div class="insight-chip-category">${c.cat}</div>
+      <div class="insight-chip-title">${c.title}</div>
+      <div class="insight-chip-body">${c.body}</div>
+    </div>
+  `).join('');
+}
+
+function generateOfflineReply(userText) {
+  if (!profile) return "Complete the psychological scan above first — then I can give you archetype-specific answers tailored to your profile.";
+  const arch = ARCHETYPES[profile.archetypeKey] || ARCHETYPES.drifter;
+  const p    = profile;
+  const q    = (userText || '').toLowerCase();
+
+  const riskLabel = (p.riskScore || 0) >= 66 ? 'Aggressive' : (p.riskScore || 0) >= 33 ? 'Moderate' : 'Conservative';
+  const sipAlloc  = {
+    Aggressive: 'Nifty 50 index (40%) + Nifty Next 50 (30%) + small cap index (20%) + international ETF (10%)',
+    Moderate:   'Nifty 50 index (60%) + Nifty Next 50 (25%) + short-duration debt fund (15%)',
+    Conservative:'Nifty 50 index (40%) + PPF or short debt fund (40%) + gold ETF (20%)',
+  }[riskLabel];
+  const savRateTarget = { guardian:'25–35%', architect:'30–40%', adventurer:'20–30%', caretaker:'20–25%', drifter:'15–20%' }[p.archetypeKey] || '20–30%';
+  const stageLabelFull = { early:'Early Career', building:'Wealth Building', scaling:'Scaling', protecting:'Family Protecting' }[p.life_stage] || 'your current';
+
+  if (q.includes('blind spot') || q.includes('weakness') || q.includes('mistake') || q.includes('wrong')) {
+    return `**Your #1 blind spot as ${arch.name}:** ${arch.weaknesses[0]}.\n\n${arch.weaknesses[1]} is the second pattern people with your profile miss consistently. Your emotional spending trigger (${({ stress:'stress/anxiety', boredom:'boredom', joy:'celebration', fomo:'FOMO' }[p.emo_trigger] || 'mixed triggers')}) amplifies this silently.\n\n**One action this week:** Set a monthly "blind spot budget" of ₹2,000. Anything from that trigger category comes from this bucket only. When it\'s gone, it\'s gone — the constraint makes the leak visible and measurable.`;
+  }
+
+  if (q.includes('sip') || q.includes('mutual fund') || q.includes('invest') || q.includes('portfolio') || q.includes('allocation')) {
+    return `**SIP strategy for ${arch.name} with ${riskLabel} risk profile:**\n\n**Recommended allocation:** ${sipAlloc}\n\n**Starting amount:** Whatever you can sustain — even ₹1,000/month. Habit > amount in the first year.\n\n**Step-up rule:** 10% increase every April on your salary hike date. Automate this decision so it doesn't require willpower.\n\n**Horizon:** Minimum 7 years for equity to demonstrate its compounding. Checking performance monthly on a 20-year SIP is noise, not signal.`;
+  }
+
+  if (q.includes('fire') || q.includes('retire') || q.includes('financial independence') || q.includes('corpus')) {
+    const yearsMap = { early:'20–25', building:'12–18', scaling:'8–12', protecting:'5–10' };
+    return `**FIRE for ${arch.name} in ${stageLabelFull} stage:**\n\n**Typical timeline:** ${yearsMap[p.life_stage] || '10–15'} years from now — assuming ${savRateTarget.split('–')[0]}%+ savings rate and 12% CAGR on equity.\n\n**The FIRE number:** 25× your annual expenses. If you spend ₹60,000/month = ₹7.2L/year = corpus of ₹1.8 Cr minimum. Add 20% buffer for medical and lifestyle drift.\n\n**Your specific obstacle:** ${arch.limitingBelief.replace(/["']/g, '')} — this belief, if unaddressed, will cause you to either over-save (never feeling safe enough) or under-save (always "later"). Automate the math so the belief doesn't get a vote.`;
+  }
+
+  if (q.includes('debt') || q.includes('emi') || q.includes('loan') || q.includes('repay')) {
+    return `**Debt strategy for ${arch.name}:**\n\nSplit your debts into two categories:\n- **Productive debt:** Home loan <9% interest — often worth it (real estate + tax benefit under 80C + 24b)\n- **Toxic debt:** Personal loans, credit cards, consumer loans above 12% — eliminate first\n\n**The waterfall method:** List all debts by interest rate. Pay minimum on all; throw every extra rupee at the highest-rate debt. Once cleared, that freed EMI attacks the next one. Speed compounds both ways.\n\nAs ${arch.name}: ${{ guardian:'you naturally avoid debt — ensure this instinct doesn\'t prevent productive leverage like a home loan.', architect:'you analyse well — ensure analysis doesn\'t cause delays in prepaying toxic debt.', adventurer:'you may over-leverage on high-risk opportunities — cap speculative debt at zero.', caretaker:'you may carry family debts you shouldn\'t — audit which debts are truly yours to carry.', drifter:'start with your highest-rate debt today, not tomorrow.' }[p.archetypeKey] || 'audit your blended interest rate annually.'}`;
+  }
+
+  if (q.includes('tax') || q.includes('80c') || q.includes('save tax') || q.includes('nps') || q.includes('elss')) {
+    return `**Tax alpha for your profile:**\n\n1. **Section 80C (₹1.5L limit):** ELSS mutual funds — same tax benefit as PPF but with 12–15% historical returns and only 3-year lock-in. Best option unless you need guaranteed returns.\n\n2. **Section 80CCD(1B) (₹50K extra):** NPS Tier 1 — additional deduction beyond 80C. Invest in Aggressive (75% equity) for long horizon. Saves ₹15,000–₹22,500/year in taxes.\n\n3. **Section 80D (₹25K+):** Health insurance for yourself + family. Medical inflation runs at 15%/year — this is non-negotiable.\n\n**Total at 30% bracket: ₹67,500/year saved.** Reinvested at 12% for 10 years = ₹11.7L in extra corpus. Tax planning is investing.`;
+  }
+
+  if (q.includes('30') || q.includes('reset') || q.includes('plan') || q.includes('start') || q.includes('begin')) {
+    return `**30-day financial reset for ${arch.name}:**\n\n**Days 1–7 (Measure):** Track every rupee spent for 7 days. Don\'t change anything yet — just measure. You can\'t manage what you don\'t see.\n\n**Days 8–14 (Automate):** Set up auto-SIP for the minimum you can sustain (₹1,000 is enough to start). Debit set for salary day + 1. Investing is now automated.\n\n**Days 15–21 (Cut):** Identify the one expense category to cut 50% for the rest of the month. ${({ impulsive:'For you: dining/entertainment or impulse purchases.', lifestyle:'For you: the biggest lifestyle upgrade purchase category.', austere:'You\'re already lean — cut one subscription unused in 30 days.', balanced:'For you: the category with highest month-on-month variance.' }[p.spend_pattern] || 'Start with the highest variance category.')}\n\n**Days 22–30 (Learn):** Study one financial concept you\'re unclear on. ${(p.knowledge === 'novice' || p.knowledge === 'basic') ? 'Start with: what is an index fund, expense ratio, and SIP step-up.' : 'Explore: tax-loss harvesting, asset allocation, or rebalancing strategies.'}\n\n**End of month:** Calculate new savings rate. Any number above last month\'s is compounding in the right direction.`;
+  }
+
+  /* Default: profile summary + invitation to ask specific questions */
+  return `As **${arch.name}** — ${arch.tagline} — here\'s what your profile tells me:\n\n- **Spending pattern:** ${{ austere:'Minimalist — disciplined', balanced:'Conscious — intentional', lifestyle:'Lifestyle-first — watch the gap', impulsive:'Impulse-driven — biggest leak' }[p.spend_pattern] || 'Mixed'}\n- **Income structure:** ${{ fragile:'Single stream (fragile)', semi_resilient:'Semi-diversified (growing)', resilient:'Multiple active (solid)', antifragile:'Active + passive (antifragile)' }[p.income_type] || 'Developing'}\n- **Risk tolerance:** ${riskLabel} (${p.riskScore || 0}/100)\n- **Target savings rate:** ${savRateTarget}\n\nAsk me about: **blind spots · SIP strategy · FIRE timeline · debt waterfall · tax saving · 30-day reset plan** — I\'ll give you archetype-specific advice for each.`;
 }
 
 /* ══════════════════════════════════════════════════════════════

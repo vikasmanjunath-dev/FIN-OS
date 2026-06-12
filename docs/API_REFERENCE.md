@@ -1,6 +1,6 @@
 # FIN-OS — API Reference
 
-> Version: 1.3 | Date: June 10, 2026  
+> Version: 1.4 | Date: June 13, 2026  
 > All APIs run locally. None are deployed to Vercel (static-only).
 
 ---
@@ -20,7 +20,7 @@ Arya AI backend for Portfolio.AI (`portfolio-analyser-v10.html`). Local only —
 | Analysis temperature | **0.25** |
 | Chat model | `llama3.2:3b` (fast follow-ups) |
 | Chat num_ctx | **1536** |
-| Chat temperature | **0.45** |
+| Chat temperature | **0.30** |
 | Client max_tokens (analysis) | **700** |
 | Client max_tokens (chat) | **300** |
 
@@ -64,12 +64,14 @@ curl -X POST http://localhost:8766/arya/stream \
 
 **Stream events:**
 ```
-data: {"token": "VERDICT: "}
-data: {"token": "Trim "}
-data: {"token": "HDFC Bank "}
+data: {"t": "VERDICT: "}
+data: {"t": "Trim "}
+data: {"t": "HDFC Bank "}
 ...
-data: {"done": true}
+data: [DONE]
 ```
+
+Each event uses `"t"` (not `"token"`) as the field name — the JS client reads `const { t } = JSON.parse(payload)`. The stream terminates with the literal `data: [DONE]` sentinel line.
 
 ### Request body fields
 

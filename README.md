@@ -3,7 +3,7 @@
 > India's most complete personal finance platform.  
 > Education · Intelligence · Voice AI · Calculators · Markets · Tracking — all in one place.
 
-**Last updated:** June 10, 2026 — Portfolio.AI v10 Arya AI full integration: Arya on all 10 pages, MutationObserver navigation, QGLP system prompt (VERDICT-first), pre-computed signals (Kelly/G-Sec/Health Score), cross-page intelligence, TTS rewrite, server.py on port 8766 (llama3.1:latest + llama3.2:3b). File: 22,372 lines. Voice agent reverted to plain ws://127.0.0.1:8765 (WS_HOST=127.0.0.1, HISTORY_TURNS=10).
+**Last updated:** June 13, 2026 — Portfolio.AI v10 Arya deep upgrade: rich live macro context (Nifty session tone, India VIX regime signal, USD/INR, Crude, Gold — injected into every prompt), smart dynamic chips (_aryaDynamicChips: concentration/tax/VIX/momentum alerts), enhanced aryaFormat (VERDICT callout, ⚡ ARYA'S CALL styled box, OVERWEIGHT/UNDERWEIGHT badges, bullet styling), window._macroLive wired to renderMacroTile. Anti-hallucination: 16 vectors eliminated, NSE sector map, chat temp 0.30. File: 22,570 lines. Voice agent: ws://127.0.0.1:8765.
 
 ---
 
@@ -57,7 +57,7 @@ FIN•OS is a full-stack personal finance operating system built for Indian user
 | Widget coverage | ALL 96 pages + ALL 88 calculators (`finos-widget.js?v=7`) |
 | Navigation engine | 130+ routes, voice + text navigation |
 | Vercel Edge Function | `api/chat.js` — OpenRouter proxy (deployed, `CLOUD_MODE=false`) |
-| Portfolio.AI version | **v10** — **22,372 lines**, 10 pages, Arya AI on all pages, QGLP system prompt, server.py :8766 |
+| Portfolio.AI version | **v10** — **22,570 lines**, 10 pages, Arya AI on all pages, QGLP + rich macro context + smart chips, server.py :8766 |
 
 ---
 
@@ -185,11 +185,13 @@ The site uses a **zero-fill hover vocabulary** — no flat background fills on h
 
 ---
 
-## Portfolio.AI — Feature Map (v10, June 10, 2026)
+## Portfolio.AI — Feature Map (v10, June 13, 2026)
 
-`Porfolio Analyser/portfolio-analyser-v10.html` is a standalone **22,372-line** single-page institutional quant suite for Zerodha portfolios. Arya AI is embedded on all 10 pages.
+`Porfolio Analyser/portfolio-analyser-v10.html` is a standalone **22,570-line** single-page institutional quant suite for Zerodha portfolios. Arya AI is embedded on all 10 pages.
 
-**Arya backend:** `server.py` on port **8766** (HTTP, local only). Analysis model: `llama3.1:latest` (num_ctx 2560, temp 0.25). Chat model: `llama3.2:3b` (num_ctx 1536, temp 0.45).
+**Arya backend:** `server.py` on port **8766** (HTTP, local only). Analysis model: `llama3.1:latest` (num_ctx 2560, temp 0.25). Chat model: `llama3.2:3b` (num_ctx 1536, temp 0.30).
+
+**Arya AI improvements (June 13, 2026):** Rich live macro context (Nifty session tone, India VIX regime signal, USD/INR, Crude, Gold) injected into every prompt via `_aryaGetMarketCtx()`. Smart dynamic chips auto-computed from portfolio state (`_aryaDynamicChips` — concentration/tax-harvest/VIX/momentum). Enhanced `aryaFormat()` with VERDICT callout box, styled ⚡ ARYA'S CALL footer, OVERWEIGHT/UNDERWEIGHT/NEUTRAL badges, bullet styling. `window._macroLive` cache wired to `renderMacroTile()`. Anti-hallucination: 16 vectors eliminated, NSE sector map enforced, chat temperature 0.30.
 
 ### Pages / Tabs
 
@@ -286,7 +288,7 @@ Initial Deployment/
 ├── ExpenseTracker/
 │   └── finos-budget/           React 19 + Vite 5 budget app
 ├── TradeJournal/               Trade journal
-├── Porfolio Analyser/          Portfolio.AI v10 (22,372-line single-file quant app)
+├── Porfolio Analyser/          Portfolio.AI v10 (22,570-line single-file quant app)
 │   ├── portfolio-analyser-v10.html   Full institutional quant suite + Arya AI on all 10 pages
 │   └── server.py                    Arya AI backend — HTTP :8766 (llama3.1:latest + llama3.2:3b)
 ├── docs/                       12 documentation files (v1.3+)
