@@ -9,6 +9,7 @@ import time
 import asyncio
 import logging
 from collections import OrderedDict
+from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Optional, AsyncGenerator, Literal
 import json
@@ -36,22 +37,34 @@ logger = logging.getLogger("fin-os")
 # ──────────────────────────────────────────────
 OLLAMA_URL       = os.getenv("OLLAMA_URL",       "http://localhost:11434")
 OLLAMA_MODEL     = os.getenv("OLLAMA_MODEL",     "llama3.1")
-# Portfolio model — defaults to llama3.1 (fast, already warm).
-# Override: PORTFOLIO_MODEL=qwen3:14b python brain.py  (slower but smarter)
 PORTFOLIO_MODEL  = os.getenv("PORTFOLIO_MODEL",  "llama3.1")
 ALLOWED_ORIGINS  = os.getenv("ALLOWED_ORIGINS",  "http://localhost:3000,http://localhost:5173,http://localhost:5500,http://127.0.0.1:5500,http://127.0.0.1:3000,http://127.0.0.1:5173").split(",")
-MAX_HISTORY      = int(os.getenv("MAX_HISTORY",   "20"))
+MAX_HISTORY      = int(os.getenv("MAX_HISTORY",   "8"))           # 20 → 8: less context = faster TTFT
 OLLAMA_TIMEOUT   = int(os.getenv("OLLAMA_TIMEOUT","120"))
 MAX_SESSIONS     = int(os.getenv("MAX_SESSIONS",  "1000"))
 
 _app_start_time = time.time()
 
+# Persistent HTTP client — reused across all Ollama calls to avoid per-request setup overhead
+_http_client: httpx.AsyncClient | None = None
+
 limiter = Limiter(key_func=get_remote_address, default_limits=["30/minute"])
+
+@asynccontextmanager
+async def lifespan(application: "FastAPI"):
+    global _http_client
+    _http_client = httpx.AsyncClient(timeout=OLLAMA_TIMEOUT)
+    logger.info("[Startup] Persistent HTTP client created")
+    yield
+    await _http_client.aclose()
+    logger.info("[Shutdown] Persistent HTTP client closed")
+
 
 app = FastAPI(
     title="FIN-OS QFT Engine — GOD MODE",
     description="Blunt AI financial mentor for Indian professionals.",
     version="3.0.1",
+    lifespan=lifespan,
 )
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -479,21 +492,21 @@ async def call_ollama_nonstream(messages: list[dict], retries: int = 2) -> dict:
         "stream": False,
         "keep_alive": -1,
         "options": {
-            "num_ctx":        8192,   # Full context for holdings + history + system prompt
-            "num_predict":    1200,   # Deep analysis without truncation
-            "temperature":    0.12,   # High factual precision — financial data must be accurate
-            "top_p":          0.88,   # Tight nucleus — grounded, not creative
-            "top_k":          30,     # Tighter top-k for factual responses
-            "repeat_penalty": 1.15,   # Prevents padding and repetition
+            "num_ctx":        4096,
+            "num_predict":    600,
+            "temperature":    0.12,
+            "top_p":          0.88,
+            "top_k":          30,
+            "repeat_penalty": 1.15,
+            "num_batch":      512,
         }
     }
 
     for attempt in range(retries + 1):
         try:
-            async with httpx.AsyncClient(timeout=OLLAMA_TIMEOUT) as client:
-                resp = await client.post(url, json=payload)
-                resp.raise_for_status()
-                return resp.json()
+            resp = await _http_client.post(url, json=payload)
+            resp.raise_for_status()
+            return resp.json()
         except Exception as e:
             if attempt == retries:
                 raise HTTPException(status_code=502, detail=str(e))
@@ -508,49 +521,46 @@ async def call_ollama_stream(messages: list[dict]) -> AsyncGenerator[str, None]:
         "stream": True,
         "keep_alive": -1,
         "options": {
-            "num_ctx":        8192,  # Full context window
-            "num_predict":    1400,  # Deep analysis
-            "temperature":    0.12,  # High factual precision
+            "num_ctx":        4096,   # 8192 → 4096: smaller KV cache = faster TTFT
+            "num_predict":    500,    # 1400 → 500: most chat replies are under 400 tokens
+            "temperature":    0.12,
             "top_p":          0.88,
             "top_k":          30,
             "repeat_penalty": 1.15,
+            "num_batch":      512,    # process prompt in larger batches
         }
     }
-    async with httpx.AsyncClient(timeout=OLLAMA_TIMEOUT) as client:
-        async with client.stream("POST", url, json=payload) as resp:
-            resp.raise_for_status()
-            async for line in resp.aiter_lines():
-                if line:
-                    yield line
+    async with _http_client.stream("POST", url, json=payload) as resp:
+        resp.raise_for_status()
+        async for line in resp.aiter_lines():
+            if line:
+                yield line
 
 
 async def call_portfolio_stream(messages: list[dict], model: str = None) -> AsyncGenerator[str, None]:
     """Portfolio-tuned stream — model defaults to PORTFOLIO_MODEL, can be overridden per-request."""
     chosen  = (model or PORTFOLIO_MODEL).strip() or OLLAMA_MODEL
     url     = f"{OLLAMA_URL}/api/chat"
-    # Scale context window based on model size for best perf/quality balance
-    is_small = any(x in chosen for x in ("3b", "2b", "1b"))
-    num_ctx  = 6144 if is_small else 8192
     payload  = {
         "model":      chosen,
         "messages":   messages,
         "stream":     True,
         "keep_alive": -1,
         "options": {
-            "num_ctx":        num_ctx,
-            "num_predict":    2000,   # Portfolio analysis needs detailed output
-            "temperature":    0.10,   # Maximum precision for portfolio-specific answers
+            "num_ctx":        4096,
+            "num_predict":    800,    # 2000 → 800: enough for detailed portfolio output
+            "temperature":    0.10,
             "top_p":          0.85,
             "top_k":          25,
             "repeat_penalty": 1.15,
+            "num_batch":      512,
         }
     }
-    async with httpx.AsyncClient(timeout=OLLAMA_TIMEOUT) as client:
-        async with client.stream("POST", url, json=payload) as resp:
-            resp.raise_for_status()
-            async for line in resp.aiter_lines():
-                if line:
-                    yield line
+    async with _http_client.stream("POST", url, json=payload) as resp:
+        resp.raise_for_status()
+        async for line in resp.aiter_lines():
+            if line:
+                yield line
 
 
 # ──────────────────────────────────────────────
@@ -566,6 +576,8 @@ async def health():
         "ollama_url":       OLLAMA_URL,
         "model":            OLLAMA_MODEL,
         "portfolio_model":  PORTFOLIO_MODEL,
+        "ollama_reachable": True,
+        "active_model":     OLLAMA_MODEL,
     }
 
 
