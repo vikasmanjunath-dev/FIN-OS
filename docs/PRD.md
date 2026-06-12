@@ -1,8 +1,8 @@
 # FIN-OS — Product Requirements Document (PRD)
 
 **Document owner:** Vikas Manjunath  
-**Version:** 1.2  
-**Date:** June 5, 2026  
+**Version:** 1.5  
+**Date:** June 10, 2026  
 **Status:** Active  
 **Live product:** https://finos1.vercel.app  
 
@@ -102,6 +102,35 @@ FIN-OS fills this gap with a voice-first, desi-native AI that speaks the user's 
 - [x] **Premium hover system** (180+ effects, zero-fill vocabulary, `interactions.css/js`)
 - [x] **Full light/dark theme** (360 rules, 96-page coverage, FOUC-free)
 - [x] Portfolio Analyser accessible from Dashboard quick-access bar
+- [x] **Portfolio.AI v10** — full institutional-grade quant suite (June 8, 2026):
+  - [x] Squarified treemap (EQ+ETF block + MF block, P&L% on every cell)
+  - [x] SIP Auto-Allocation Engine (Rebalance Planner — SIP mode)
+  - [x] Rebalance Frequency Backtest (Quarterly vs Annual vs Buy-and-Hold, 5-year simulation)
+  - [x] Per-Holding Monte Carlo (individual probability cones, P5/P50/P95)
+  - [x] Options Overlay / Hedging Calculator (Black-Scholes put insurance, covered calls, IV vs HV)
+  - [x] Fama-French 5-Factor Regression (Mkt-RF, SMB, HML, RMW, CMA — rolling betas + attribution)
+  - [x] Security audit: XSS prevention (`_esc`), wake word loop fix, alert Set pruning
+- [x] **Portfolio.AI Phase 13** — Research & UX upgrade (June 8, 2026):
+  - [x] **Feature 20** — Live News Feed + AI Sentiment (per-headline Bullish/Neutral/Bearish badge)
+  - [x] **Feature 21** — Peer Comparison Table (17 sectors, 85+ stocks, per-metric rank badge)
+  - [x] **Feature 22** — Promoter Holding Trend (52 stocks × 8 quarters, decline-streak red alert)
+  - [x] **Feature 25** — Watchlist & Screener page (6 preset screens, custom filters, localStorage watchlist)
+  - [x] **Feature 27** — Command Palette ⌘K (pages + actions + 80+ stocks, keyboard navigation)
+  - [x] **Feature 28** — Drag-and-Drop Overview Layout (5 draggable sections, persistent order)
+  - [x] **Feature 29** — Shareable Portfolio Link (base64 URL, anonymize toggle, read-only banner)
+  - [x] **Feature 30** — 4-Theme System (Dark, Light, Bloomberg Terminal 💚, Saffron 🪔)
+- [x] **Arya v2 semantic fixes** — 3 bugs in `agent.py` `ProactiveBriefingEngine` (month classification, double detect_mood call)
+- [x] **Portfolio.AI Phase 14** — Arya AI full integration (June 8–10, 2026):
+  - [x] **Arya AI on all 10 pages** — overview, equity, sectors, insights, tax, rebalance, analytics, quant, research, watchlist
+  - [x] **MutationObserver navigation** — replaces fragile `go()` hook chain; watches `.page[id^="page-"]` for `.on` class changes; immune to all `go()` overrides
+  - [x] **`window.EQ` bug fix** — `EQ` declared with `let` (not `var`); guards use `typeof EQ !== 'undefined' && EQ.length`
+  - [x] **QGLP system prompt** — Motilal Oswal PMS / Saurabh Mukherjea framework; Quality / Growth / Longevity / Price thresholds; Hinglish voice; VERDICT-first output
+  - [x] **Pre-computed signals** — Kelly criterion, earnings yield vs 10Y G-Sec (7.2% proxy), per-stock downside risk (>20% from 52W low), Portfolio Health Score (0-100 / 5 components), top-3 concentration %
+  - [x] **VERDICT-first output** — LLM leads with key number; 3 focused sections; closes with `⚡ ARYA'S CALL: NSE:SYMBOL — [ACTION] ₹[amount] · [conviction] · [10-word reason]`
+  - [x] **Cross-page intelligence** — `_aryaFacts` stores per-page computed facts; `_aryaGetCrossCtx()` injects other pages' facts into current prompt
+  - [x] **TTS speak button rewrite** — voices pre-loaded at page load; `speak()` synchronous in onclick; Chrome heartbeat (pause/resume every 10s)
+  - [x] **server.py on port 8766** — HTTP, local only; `POST /arya` + `POST /arya/stream`; `llama3.1:latest` (num_ctx 2560, temp 0.25) + `llama3.2:3b` (num_ctx 1536, temp 0.45)
+- [x] **Voice agent reverted** — plain `ws://127.0.0.1:8765` (no SSL); WS_HOST `"127.0.0.1"`; HISTORY_TURNS 10; original `voiceagent/index.html` UI
 
 ### Should Have (in progress / near-term)
 
@@ -265,6 +294,9 @@ All interactive elements must use the zero-fill hover vocabulary (`css/interacti
 | Phase 7 — Full calculator suite (88 tools) | ✅ Done | May 2026 |
 | Phase 8 — Dashboard professional redesign | ✅ Done | June 2026 |
 | Phase 9 — UI/UX overhaul (hover + theme + 96 pages) | ✅ Done | June 2026 |
-| Phase 10 — Kite API live sync | 🔲 Planned | Q3 2026 |
-| Phase 11 — Voice on all pages | 🔲 Planned | Q3 2026 |
-| Phase 12 — Account Aggregator | 🔲 Planned | Q4 2026 |
+| Phase 10 — Portfolio.AI deep overhaul (security, treemap, 5 new quant features) | ✅ Done | June 7–8, 2026 |
+| Phase 11 — Portfolio.AI Research & UX upgrade (News Feed, Peers, Promoters, Watchlist, ⌘K, Drag, Share, 4-theme) | ✅ Done | June 8, 2026 |
+| Phase 12 — Portfolio.AI Arya AI full integration (all 10 pages, QGLP, server.py :8766) | ✅ Done | June 8–10, 2026 |
+| Phase 13 — Kite API live sync | 🔲 Planned | Q3 2026 |
+| Phase 14 — Voice on all pages | 🔲 Planned | Q3 2026 |
+| Phase 15 — Account Aggregator | 🔲 Planned | Q4 2026 |
