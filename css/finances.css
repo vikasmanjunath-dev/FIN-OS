@@ -13,6 +13,7 @@
 .fin-container {
   max-width: 1200px;
   margin: 0 auto;
+  padding-top: 36px;
   padding-bottom: 200px;
 }
 
