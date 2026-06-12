@@ -562,33 +562,42 @@
     if (iframeLoaded) sendContextToIframe();
   });
 
-  /* Listen for context requests from the iframe (e.g., on reconnect) */
+  /* Listen for messages from the iframe (context requests + navigation) */
   window.addEventListener('message', function(e) {
     if (e.data?.type === 'finos_request_context') {
       sendContextToIframe();
     }
+    // Navigation command from voice agent — close widget then route
+    if (e.data?.type === 'finos_navigate' && e.data.url) {
+      closeWidget();
+      setTimeout(() => { window.location.href = e.data.url; }, 240);
+    }
   });
+
+  /* ── Preload iframe 2s after page load so first open is instant ─────────── */
+  function _loadIframe() {
+    if (iframeLoaded) return;
+    const iframeEl = document.getElementById('finos-iframe');
+    iframeEl.src = AGENT_URL;
+    iframeLoaded = true;
+    iframeEl.addEventListener('load', function onLoad() {
+      iframeEl.removeEventListener('load', onLoad);
+      setTimeout(sendContextToIframe, 200);   // was 800ms
+      clearInterval(_ctxTimer);
+      _ctxTimer = setInterval(sendContextToIframe, 90_000);
+    });
+  }
+  setTimeout(_loadIframe, 2000);
 
   function openWidget() {
     if (isOpen) return;
     isOpen = true;
 
-    // Lazy-load the iframe only on first open
     if (!iframeLoaded) {
-      const iframeEl = document.getElementById('finos-iframe');
-      iframeEl.src = AGENT_URL;
-      iframeLoaded = true;
-      // Wait for iframe to load, then send context
-      iframeEl.addEventListener('load', function onLoad() {
-        iframeEl.removeEventListener('load', onLoad);
-        // Small delay so the iframe WS connection can establish first
-        setTimeout(sendContextToIframe, 800);
-        // Then resend every 90s to refresh page globals (portfolio prices etc.)
-        clearInterval(_ctxTimer);
-        _ctxTimer = setInterval(sendContextToIframe, 90_000);
-      });
+      // User clicked before 2s preload — load immediately
+      _loadIframe();
     } else {
-      // Iframe already loaded — just push fresh context
+      // Already preloaded — push fresh context
       setTimeout(sendContextToIframe, 100);
     }
 
@@ -671,11 +680,13 @@
     } catch {}
   }
 
-  // Check for alerts every 5 minutes after a 3-second initial delay
-  setTimeout(() => {
-    refreshAlertBadge();
-    setInterval(refreshAlertBadge, 5 * 60 * 1000);
-  }, 3000);
+  // Alert badge poll only runs locally (localhost) — alert-engine.py is local-only
+  if (/^(localhost|127\.|0\.0\.0\.0)/.test(window.location.hostname)) {
+    setTimeout(() => {
+      refreshAlertBadge();
+      setInterval(refreshAlertBadge, 5 * 60 * 1000);
+    }, 3000);
+  }
 
   /* ── Inject finos-context.js if not already loaded ───────────────────────
      This makes the widget self-sufficient: drop one <script> tag on any page

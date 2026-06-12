@@ -1,113 +1,27 @@
-2026-05-31 14:52:25,857 [INFO] fin-os.memory: Persistent memory: ENABLED  (Supabase https://oeapcyucnduhwpgxfknb.supabase.co)
-2026-05-31 14:52:25,878 [INFO] fin-os: Auto-selected model: qwen3:14b (RAM: 25.8GB)
-2026-05-31 14:52:25,879 [WARNING] fin-os: SemanticMemory: sentence_transformers not installed — falling back to keyword memory
-2026-05-31 14:52:25,880 [INFO] fin-os: Loading Whisper tiny…
-2026-05-31 14:52:26,278 [INFO] fin-os: Whisper tiny ready
-2026-05-31 14:52:26,282 [INFO] fin-os: FIN-OS v10  ws://127.0.0.1:8765  LLM=qwen3:14b  STT=Whisper-tiny
-2026-05-31 14:52:26,902 [INFO] fin-os: TTS warmed up
-2026-05-31 14:52:29,870 [INFO] fin-os: Ollama warmed up (qwen3:14b)
-2026-05-31 14:52:29,892 [INFO] fin-os: DailyBrief: next run in 16h (at 2026-06-01 07:00)
-2026-05-31 14:52:29,893 [INFO] websockets.server: server listening on 127.0.0.1:8765
-2026-05-31 14:52:29,893 [INFO] fin-os: Ready — http://localhost:8080
-2026-05-31 14:52:38,760 [INFO] websockets.server: connection open
-2026-05-31 14:52:38,761 [INFO] fin-os: Connected (1)
-2026-05-31 14:52:38,763 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 14:52:38,763 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 14:52:39,263 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 14:52:39,263 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 14:52:39,453 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 14:52:39,453 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 14:52:39,850 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 14:52:39,850 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 14:52:42,211 [INFO] fin-os: Detected intent: general
-2026-05-31 14:53:07,111 [INFO] fin-os: 24.9s | 207 chars | 4 TTS
-2026-05-31 14:53:16,205 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
-2026-05-31 14:53:47,182 [INFO] websockets.server: connection open
-2026-05-31 14:53:47,182 [INFO] fin-os: Connected (1)
-2026-05-31 14:53:47,252 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 14:53:47,252 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 14:53:47,898 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 14:53:47,898 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 14:53:48,084 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 14:53:48,085 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 14:53:48,689 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 14:53:48,689 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 14:54:16,252 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 14:54:16,252 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 14:55:16,254 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 14:55:16,254 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 14:55:17,130 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 14:55:17,130 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 14:56:16,255 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 14:56:16,260 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 14:56:47,131 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 14:56:47,131 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 14:57:07,849 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
-2026-05-31 15:29:28,055 [INFO] websockets.server: connection open
-2026-05-31 15:29:28,056 [INFO] fin-os: Connected (1)
-2026-05-31 15:29:28,058 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 15:29:28,058 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 15:29:28,558 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 15:29:28,558 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 15:29:28,803 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 15:29:28,804 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 15:29:29,197 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 15:29:29,198 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 15:29:31,087 [INFO] fin-os: Detected intent: general
-2026-05-31 15:29:50,727 [INFO] websockets.server: connection open
-2026-05-31 15:29:50,730 [INFO] fin-os: Extra connection rejected (already have 1 client)
-2026-05-31 15:29:53,811 [INFO] websockets.server: connection open
-2026-05-31 15:29:53,811 [INFO] fin-os: Extra connection rejected (already have 1 client)
-2026-05-31 15:29:56,703 [INFO] websockets.server: connection open
-2026-05-31 15:29:56,704 [INFO] fin-os: Extra connection rejected (already have 1 client)
-2026-05-31 15:29:59,735 [INFO] websockets.server: connection open
-2026-05-31 15:29:59,735 [INFO] fin-os: Extra connection rejected (already have 1 client)
-2026-05-31 15:30:02,779 [INFO] websockets.server: connection open
-2026-05-31 15:30:02,780 [INFO] fin-os: Extra connection rejected (already have 1 client)
-2026-05-31 15:30:04,755 [INFO] fin-os: 33.7s | 207 chars | 4 TTS
-2026-05-31 15:30:05,864 [INFO] websockets.server: connection open
-2026-05-31 15:30:05,864 [INFO] fin-os: Extra connection rejected (already have 1 client)
-2026-05-31 15:30:05,943 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
-2026-05-31 15:30:08,868 [INFO] websockets.server: connection open
-2026-05-31 15:30:08,868 [INFO] fin-os: Connected (1)
-2026-05-31 15:30:08,875 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 15:30:08,875 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 15:30:09,370 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 15:30:09,370 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 15:30:15,127 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
-2026-05-31 15:30:16,360 [INFO] websockets.server: connection open
-2026-05-31 15:30:16,360 [INFO] fin-os: Connected (1)
-2026-05-31 15:30:16,364 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 15:30:16,364 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 15:30:16,864 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 15:30:16,864 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 15:30:17,164 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 15:30:17,165 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 15:30:17,560 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 15:30:17,560 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 15:30:20,333 [INFO] fin-os: Detected intent: general
-2026-05-31 15:30:37,068 [INFO] fin-os: 16.7s | 207 chars | 4 TTS
-2026-05-31 15:31:01,425 [INFO] fin-os: Detected intent: general
-2026-05-31 15:32:03,903 [INFO] fin-os: 62.5s | 1925 chars | 25 TTS
-2026-05-31 15:32:05,135 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 15:32:05,135 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 15:32:05,135 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 15:32:05,135 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 15:32:15,324 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 15:32:15,324 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 15:33:15,331 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 15:33:15,334 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 15:33:16,365 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-05-31 15:33:16,365 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-05-31 15:34:09,287 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
-2026-05-31 15:34:18,681 [INFO] websockets.server: connection open
-2026-05-31 15:34:18,681 [INFO] fin-os: Connected (1)
-2026-05-31 15:34:18,887 [INFO] fin-os: UserContext: ingested full phase for user guest
-2026-05-31 15:34:18,887 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=full
-2026-05-31 15:34:19,002 [INFO] fin-os: UserContext: ingested full phase for user guest
-2026-05-31 15:34:19,002 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=full
-2026-05-31 15:34:34,821 [INFO] fin-os: Detected intent: general
-2026-05-31 15:34:59,830 [INFO] fin-os: 25.0s | 167 chars | 4 TTS
-2026-05-31 15:35:15,010 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
+2026-06-09 23:12:57,133 [INFO] fin-os.memory: Persistent memory: ENABLED  (Supabase https://oeapcyucnduhwpgxfknb.supabase.co)
+2026-06-09 23:12:57,136 [INFO] fin-os: Auto-selected model: qwen3:14b (RAM: 25.8GB)
+2026-06-09 23:12:57,137 [WARNING] fin-os: SemanticMemory: sentence_transformers not installed — falling back to keyword memory
+2026-06-09 23:12:57,138 [INFO] fin-os: Loading Whisper tiny…
+2026-06-09 23:12:57,645 [INFO] fin-os: Whisper tiny ready
+2026-06-09 23:12:57,649 [INFO] fin-os: FIN-OS v10  ws://127.0.0.1:8765  LLM=qwen3:14b  STT=Whisper-tiny
+2026-06-09 23:12:58,638 [INFO] fin-os: TTS warmed up
+2026-06-09 23:13:04,310 [INFO] fin-os: Ollama warmed up (qwen3:14b)
+2026-06-09 23:13:04,350 [INFO] fin-os: DailyBrief: next run in 8h (at 2026-06-10 07:00)
+2026-06-09 23:13:04,351 [INFO] websockets.server: server listening on 127.0.0.1:8765
+2026-06-09 23:13:04,351 [INFO] fin-os: Ready — http://localhost:8080
+2026-06-09 23:16:12,545 [INFO] websockets.server: connection open
+2026-06-09 23:16:12,545 [INFO] fin-os: Connected (1)
+2026-06-09 23:16:12,548 [INFO] fin-os: UserContext: ingested partial phase for user guest
+2026-06-09 23:16:12,548 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
+2026-06-09 23:16:12,702 [INFO] fin-os: UserContext: ingested partial phase for user guest
+2026-06-09 23:16:12,702 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
+2026-06-09 23:16:13,049 [INFO] fin-os: UserContext: ingested partial phase for user guest
+2026-06-09 23:16:13,049 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
+2026-06-09 23:16:13,726 [INFO] fin-os: UserContext: ingested partial phase for user guest
+2026-06-09 23:16:13,726 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
+2026-06-09 23:16:15,927 [INFO] fin-os: UserContext: ingested partial phase for user guest
+2026-06-09 23:16:15,927 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
+2026-06-09 23:16:29,234 [INFO] fin-os: UserContext: ingested partial phase for user guest
+2026-06-09 23:16:29,235 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
 /opt/homebrew/Cellar/python@3.11/3.11.15_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
   warnings.warn('resource_tracker: There appear to be %d '

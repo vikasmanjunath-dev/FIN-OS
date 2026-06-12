@@ -320,6 +320,7 @@ def fetch_yf_fundamentals(symbol: str) -> dict:
             "beta": g("beta"), "sector": g("sector"), "industry": g("industry"),
             "shortName": g("shortName"), "longName": g("longName"),
             "recommendation": g("recommendationKey"),
+            "numAnalysts":   g("numberOfAnalystOpinions"),
             "source": "Yahoo Finance", "_ts": time.time(),
         }
 
@@ -424,7 +425,76 @@ async def fetch_screener_data(symbol: str, client: httpx.AsyncClient) -> dict:
     return {}
 
 # ── OHLCV history ─────────────────────────────────────────────────────────────
+_PERIOD_DAYS = {
+    "1d": 1, "5d": 5, "1mo": 30, "3mo": 90, "6mo": 182,
+    "1y": 365, "2y": 730, "5y": 1825, "10y": 3650, "ytd": 365, "max": 7300,
+}
+
+def _period_to_unix(period: str) -> tuple[int, int]:
+    days = _PERIOD_DAYS.get(period, 365)
+    now = int(time.time())
+    return now - days * 86400, now
+
+async def fetch_ohlcv_history_direct(symbol: str, period: str, interval: str) -> list:
+    """
+    Fetches OHLCV from Yahoo Finance chart API via direct httpx — no yfinance,
+    no crumb/cookie auth required, much more reliable than .history().
+    """
+    sym = clean_sym(symbol)
+    yft = to_yf_ticker(sym)
+    period1, period2 = _period_to_unix(period)
+
+    for base in [
+        f"https://query1.finance.yahoo.com/v8/finance/chart/{yft}",
+        f"https://query2.finance.yahoo.com/v8/finance/chart/{yft}",
+    ]:
+        try:
+            async with httpx.AsyncClient(timeout=12.0) as client:
+                r = await client.get(base, params={
+                    "period1": period1, "period2": period2,
+                    "interval": interval, "events": "history",
+                    "includePrePost": "false",
+                }, headers={
+                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+                    "Accept": "application/json",
+                })
+            if r.status_code != 200:
+                continue
+            d = r.json()
+            result = d.get("chart", {}).get("result", [None])[0]
+            if not result:
+                continue
+            timestamps = result.get("timestamp", [])
+            q = result.get("indicators", {}).get("quote", [{}])[0]
+            opens  = q.get("open",   [])
+            highs  = q.get("high",   [])
+            lows   = q.get("low",    [])
+            closes = q.get("close",  [])
+            vols   = q.get("volume", [])
+            rows = []
+            for i, ts in enumerate(timestamps):
+                c = closes[i] if i < len(closes) else None
+                if c is None or (isinstance(c, float) and (c != c)):  # NaN check
+                    continue
+                from datetime import timezone
+                dt = datetime.fromtimestamp(ts, tz=timezone.utc)
+                rows.append({
+                    "date":   dt.strftime("%Y-%m-%d"),
+                    "open":   round(float(opens[i]),  2) if i < len(opens)  and opens[i]  else round(float(c), 2),
+                    "high":   round(float(highs[i]),  2) if i < len(highs)  and highs[i]  else round(float(c), 2),
+                    "low":    round(float(lows[i]),   2) if i < len(lows)   and lows[i]   else round(float(c), 2),
+                    "close":  round(float(c), 2),
+                    "volume": int(vols[i] or 0) if i < len(vols) else 0,
+                })
+            if rows:
+                log.info(f"History (direct): {sym} → {len(rows)} {interval} bars")
+                return rows
+        except Exception as e:
+            log.debug(f"History direct failed for {sym} ({base}): {e}")
+    return []
+
 def fetch_ohlcv_history(symbol: str, period: str, interval: str) -> list:
+    """yfinance fallback — used only when direct HTTP fetch fails."""
     sym = clean_sym(symbol)
     yft = to_yf_ticker(sym)
     try:
@@ -444,7 +514,7 @@ def fetch_ohlcv_history(symbol: str, period: str, interval: str) -> list:
             })
         return rows
     except Exception as e:
-        log.warning(f"History failed for {sym}: {e}")
+        log.warning(f"History yf fallback failed for {sym}: {e}")
         return []
 
 # ── Merge all sources into one clean response ─────────────────────────────────
@@ -489,7 +559,7 @@ def merge_quote(nse: dict, yf_d: dict, scr: dict) -> dict:
         "website":     yf_d.get("website"),
         "employees":   yf_d.get("employees"),
         "recommendation": yf_d.get("recommendation"),
-        "numAnalysts": yf_d.get("numAnalysts"),
+        "numAnalysts":    yf_d.get("numAnalysts"),
         # ── Valuation ──
         "pe":          first(yf_d.get("pe"),         scr.get("pe_scr")),
         "forwardPE":   yf_d.get("forwardPE"),
@@ -784,8 +854,11 @@ async def history(
         return {"symbol": symbol, "period": period, "interval": interval,
                 "rows": hist_cache[cache_key], "cached": True, "count": len(hist_cache[cache_key])}
 
-    loop = asyncio.get_running_loop()
-    rows = await loop.run_in_executor(None, fetch_ohlcv_history, symbol, period, interval)
+    # Try direct HTTP first (no yfinance rate limit); fall back to yfinance
+    rows = await fetch_ohlcv_history_direct(symbol, period, interval)
+    if not rows:
+        loop = asyncio.get_running_loop()
+        rows = await loop.run_in_executor(None, fetch_ohlcv_history, symbol, period, interval)
 
     if not rows:
         raise HTTPException(404, detail=f"No history found for {symbol} (period={period}, interval={interval})")
@@ -839,15 +912,188 @@ async def claude_proxy(request: Request):
 
 # ── AI Portfolio Analysis ─────────────────────────────────────────────────────
 
-OLLAMA_URL_PA   = "http://localhost:11434/api/generate"
-OLLAMA_MODEL_PA = "qwen3:14b"
+OLLAMA_CHAT_URL = "http://localhost:11434/api/chat"
+
+# TWO-TIER Arya model strategy:
+#   ANALYSIS (fast=false) → llama3.1:latest (8B) — sharper reasoning, better insights
+#   CHAT     (fast=true)  → llama3.2:3b (3B)    — low latency follow-up responses
+# 8B is ~2× llama3.2:3b latency but far more insightful for page-level analysis.
+# 3B stays for chat so typing a question gets a near-instant answer.
+OLLAMA_ARYA_MODEL      = "llama3.1:latest"   # 8B — analysis quality
+OLLAMA_ARYA_FAST_MODEL = "llama3.2:3b"       # 3B — fast chat replies
+
+# Larger model kept for heavy /ai-analysis endpoint (better reasoning)
+OLLAMA_MODEL_PA   = "qwen3:14b"
 
 _PORT_AI_SYSTEM = """You are Arya, FIN·OS's AI portfolio strategist for Indian retail investors.
 Analyse portfolios like a SEBI-registered investment advisor.
 Use ₹, Indian market context (NSE/BSE, Nifty, sector indices).
 Be specific — name actual stocks, cite exact percentages.
 Hinglish — like a smart IIM friend over chai. Direct, warm, zero jargon.
-Max 6-8 sentences per section. Always end each section with ONE concrete action."""
+Max 4-5 sentences per section. Always end with ONE concrete action."""
+
+
+def _ollama_messages(system: str, prompt: str) -> list[dict]:
+    msgs = []
+    if system:
+        msgs.append({"role": "system", "content": system})
+    msgs.append({"role": "user", "content": prompt})
+    return msgs
+
+
+def _ollama_generate(system: str, prompt: str, max_tokens: int = 600,
+                     model: str | None = None) -> str:
+    """Blocking Ollama chat call. Used for /ai-analysis (runs in executor)."""
+    m = model or OLLAMA_ARYA_MODEL
+    resp = httpx.post(
+        OLLAMA_CHAT_URL,
+        json={
+            "model":    m,
+            "think":    False,
+            "stream":   False,
+            "options":  {"temperature": 0.25, "num_predict": max_tokens, "num_ctx": 2560},
+            "messages": _ollama_messages(system, prompt),
+        },
+        timeout=120.0,
+    )
+    resp.raise_for_status()
+    return resp.json().get("message", {}).get("content", "").strip()
+
+
+def _ollama_generate_messages(messages: list[dict], max_tokens: int = 600,
+                              model: str | None = None) -> str:
+    """Blocking Ollama chat call with full messages array (multi-turn conversation)."""
+    m = model or OLLAMA_ARYA_MODEL
+    resp = httpx.post(
+        OLLAMA_CHAT_URL,
+        json={
+            "model":    m,
+            "think":    False,
+            "stream":   False,
+            "options":  {"temperature": 0.25, "num_predict": max_tokens, "num_ctx": 2560},
+            "messages": messages,
+        },
+        timeout=120.0,
+    )
+    resp.raise_for_status()
+    return resp.json().get("message", {}).get("content", "").strip()
+
+
+# ── /arya — non-streaming fallback ───────────────────────────────────────────
+@app.post("/arya")
+async def arya_endpoint(request: Request):
+    """
+    Non-streaming Arya endpoint (fallback).
+    Body: { "prompt": "...", "system": "...", "max_tokens": 500 }
+        OR { "messages": [{role, content}, ...], "max_tokens": 500 }
+    """
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(400, "Invalid JSON body")
+    prompt     = body.get("prompt", "")
+    system     = body.get("system", _PORT_AI_SYSTEM)
+    max_tokens = int(body.get("max_tokens", 500))
+    msgs_in    = body.get("messages", None)
+    loop       = asyncio.get_running_loop()
+    try:
+        if msgs_in:
+            if not any(m.get("role") == "system" for m in msgs_in):
+                msgs_in = [{"role": "system", "content": system}] + msgs_in
+            text = await loop.run_in_executor(None, _ollama_generate_messages, msgs_in, max_tokens)
+        else:
+            if not prompt:
+                raise HTTPException(400, "prompt or messages is required")
+            text = await loop.run_in_executor(None, _ollama_generate, system, prompt, max_tokens)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(502, detail=f"Ollama error: {e}")
+    return {"response": text}
+
+
+# ── /arya/stream — SSE streaming endpoint (primary, low perceived latency) ───
+import json as _json
+from fastapi.responses import StreamingResponse
+
+@app.post("/arya/stream")
+async def arya_stream(request: Request):
+    """
+    SSE streaming Arya endpoint.  Tokens are forwarded to the browser as they
+    arrive from Ollama, so the first word appears within ~1 second.
+
+    Body: { "prompt": "...", "system": "...", "max_tokens": 500 }
+    Each SSE event: data: {"t": "token"}
+    Final event:    data: [DONE]
+    """
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(400, "Invalid JSON body")
+
+    prompt     = body.get("prompt", "")
+    system     = body.get("system", _PORT_AI_SYSTEM)
+    max_tokens = int(body.get("max_tokens", 500))
+    msgs_in    = body.get("messages", None)
+    # fast=true → use smaller 3B model with reduced context for low-latency chat responses
+    fast_mode  = bool(body.get("fast", False))
+
+    if msgs_in:
+        if not any(m.get("role") == "system" for m in msgs_in):
+            msgs_in = [{"role": "system", "content": system}] + msgs_in
+        stream_messages = msgs_in
+    elif prompt:
+        stream_messages = _ollama_messages(system, prompt)
+    else:
+        raise HTTPException(400, "prompt or messages is required")
+
+    # Choose model and context window based on fast flag
+    # fast=False → 8B analysis model with 3072 ctx for richer insights
+    # fast=True  → 3B chat model with 2048 ctx for low-latency follow-ups
+    arya_model   = OLLAMA_ARYA_FAST_MODEL if fast_mode else OLLAMA_ARYA_MODEL
+    arya_num_ctx = 1536 if fast_mode else 2560   # 2560 fits full prompt + 700-token output; 37% faster KV fill vs 4096
+    arya_temp    = 0.30 if fast_mode else 0.25   # 0.25 = crisp analysis; 0.30 = precise chat (lower = less hallucination)
+
+    async def event_stream():
+        try:
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                async with client.stream(
+                    "POST", OLLAMA_CHAT_URL,
+                    json={
+                        "model":    arya_model,
+                        "think":    False,
+                        "stream":   True,
+                        "options":  {"temperature": arya_temp, "num_predict": max_tokens, "num_ctx": arya_num_ctx},
+                        "messages": stream_messages,
+                    },
+                ) as resp:
+                    async for raw_line in resp.aiter_lines():
+                        if not raw_line.strip():
+                            continue
+                        try:
+                            chunk = _json.loads(raw_line)
+                        except Exception:
+                            continue
+                        token = chunk.get("message", {}).get("content", "")
+                        if token:
+                            yield f"data: {_json.dumps({'t': token})}\n\n"
+                        if chunk.get("done"):
+                            break
+            yield "data: [DONE]\n\n"
+        except Exception as e:
+            log.warning(f"Arya stream error: {e}")
+            yield f"data: {_json.dumps({'error': str(e)})}\n\n"
+            yield "data: [DONE]\n\n"
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control":     "no-cache",
+            "X-Accel-Buffering": "no",
+            "Connection":        "keep-alive",
+        },
+    )
 
 
 def _compute_sector_hhi(holdings: list[dict]) -> tuple[float, str]:
@@ -1004,19 +1250,10 @@ async def ai_portfolio_analysis(request: Request):
     prompt               = _portfolio_ai_prompt(list(holdings), risk_profile, what_if,
                                                 tax_candidates, hhi, dominant_sector)
 
-    # Call Ollama synchronously via httpx (runs in executor to not block event loop)
+    # Call Ollama via chat endpoint using the larger model for deeper analysis
     def _ollama_call():
         try:
-            resp = httpx.post(OLLAMA_URL_PA, json={
-                "model":   OLLAMA_MODEL_PA,
-                "system":  _PORT_AI_SYSTEM,
-                "prompt":  prompt,
-                "stream":  False,
-                "options": {"temperature": 0.55, "num_predict": 600, "num_ctx": 8192},
-            }, timeout=60.0)
-            resp.raise_for_status()
-            raw = resp.json().get("response", "")
-            return re.sub(r'<think>.*?</think>', '', raw, flags=re.DOTALL | re.IGNORECASE).strip()
+            return _ollama_generate(_PORT_AI_SYSTEM, prompt, max_tokens=600, model=OLLAMA_MODEL_PA)
         except Exception as e:
             return f"AI analysis unavailable — Ollama offline? ({e})"
 

@@ -1,7 +1,84 @@
 # FIN-OS — API Reference
 
-> Version: 1.2 | Date: June 5, 2026  
+> Version: 1.3 | Date: June 10, 2026  
 > All APIs run locally. None are deployed to Vercel (static-only).
+
+---
+
+## Arya AI API — `Porfolio Analyser/server.py` (HTTP :8766)
+
+Arya AI backend for Portfolio.AI (`portfolio-analyser-v10.html`). Local only — NOT deployed to Vercel.
+
+### Server configuration
+
+| Parameter | Value |
+|---|---|
+| Port | **8766** |
+| Protocol | HTTP (plain) |
+| Analysis model | `llama3.1:latest` (8B) |
+| Analysis num_ctx | **2560** |
+| Analysis temperature | **0.25** |
+| Chat model | `llama3.2:3b` (fast follow-ups) |
+| Chat num_ctx | **1536** |
+| Chat temperature | **0.45** |
+| Client max_tokens (analysis) | **700** |
+| Client max_tokens (chat) | **300** |
+
+### `POST /arya`
+
+Non-streaming analysis. Returns a complete JSON response.
+
+```bash
+curl -X POST http://localhost:8766/arya \
+  -H "Content-Type: application/json" \
+  -d '{
+    "page": "overview",
+    "prompt": "Analyse my portfolio health",
+    "context": "Portfolio value ₹8.5L, CAGR 14.2%, health score 72/100, Kelly f*=0.28",
+    "type": "analysis"
+  }'
+```
+
+**Response:**
+```json
+{
+  "response": "VERDICT: Your portfolio is in GOOD health (72/100) with a 14.2% CAGR...\n\n**Strengths**\n...\n\n**Risks**\n...\n\n**Action**\n...\n\n⚡ ARYA'S CALL: NSE:RELIANCE — HOLD ₹0 · High conviction · Top holding, strong moat, fairly valued"
+}
+```
+
+### `POST /arya/stream`
+
+SSE streaming analysis. Returns `text/event-stream` — each event is a token chunk.
+
+```bash
+curl -X POST http://localhost:8766/arya/stream \
+  -H "Content-Type: application/json" \
+  -H "Accept: text/event-stream" \
+  -d '{
+    "page": "equity",
+    "prompt": "Which stocks should I trim?",
+    "context": "...",
+    "type": "analysis"
+  }'
+```
+
+**Stream events:**
+```
+data: {"token": "VERDICT: "}
+data: {"token": "Trim "}
+data: {"token": "HDFC Bank "}
+...
+data: {"done": true}
+```
+
+### Request body fields
+
+| Field | Type | Description |
+|---|---|---|
+| `page` | string | Current page: `overview`, `equity`, `sectors`, `insights`, `tax`, `rebalance`, `analytics`, `quant`, `research`, `watchlist` |
+| `prompt` | string | User's question or page auto-prompt |
+| `context` | string | Pre-computed signals injected by JS (Kelly, G-Sec spread, Health Score, cross-page facts, etc.) |
+| `type` | string | `analysis` (llama3.1, slower) or `chat` (llama3.2:3b, fast follow-up) |
 
 ---
 

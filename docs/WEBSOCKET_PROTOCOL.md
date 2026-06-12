@@ -1,7 +1,7 @@
 # FIN-OS Voice Agent — WebSocket Protocol
 
-> Version: 1.2 | Date: June 5, 2026  
-> `ws://127.0.0.1:8765` · Server: `voiceagent/agent.py`
+> Version: 1.4 | Date: June 10, 2026  
+> `ws://127.0.0.1:8765` (plain WebSocket, local-only) · Server: `voiceagent/agent.py`
 
 There are two browser clients that connect to this server:
 
@@ -16,9 +16,26 @@ Both use the same WS endpoint and message protocol.
 
 ## Connection
 
-The browser connects to `ws://127.0.0.1:8765`. The server accepts one client at a time. If a second connection arrives, the previous session is cleanly closed first.
+### Protocol: ws:// (plain WebSocket, local-only)
 
-The connection is local-only (`127.0.0.1`). It cannot be reached from external IPs by design.
+The server listens on **plain `ws://`** — no TLS, no certificates. The explicit IPv4 address `127.0.0.1` is used (not `localhost`) to avoid IPv6 resolution mismatches.
+
+```javascript
+// voiceagent/index.html
+const WS_URL = 'ws://127.0.0.1:8765';
+```
+
+No browser trust step is required. The connection is localhost-only and cannot be reached from external IPs.
+
+### Server address
+
+```
+Server: ws://127.0.0.1:8765
+Host:   127.0.0.1  (WS_HOST = "127.0.0.1" in agent.py)
+Port:   8765
+```
+
+The server accepts one client at a time. If a second connection arrives, the previous session is cleanly closed first.
 
 ### Connection lifecycle
 
@@ -110,12 +127,6 @@ Sent by `voiceagent/index.html` via the `finos-context.js` pipeline. Older forma
   "type": "context",
   "context": {
     "_user_id": "3e8f2a1b-...",
-
-```json
-{
-  "type": "context",
-  "context": {
-    "_user_id": "3e8f2a1b-...",
     "_sync_phase": "full",
     "identity": {
       "name": "Rahul Sharma",
@@ -143,18 +154,12 @@ Sent by `voiceagent/index.html` via the `finos-context.js` pipeline. Older forma
       "pnl": 95000,
       "pnl_pct": 12.6,
       "holdings_count": 12,
-      "stocks_count": 8,
-      "mf_count": 4,
       "top_holdings": [
         { "symbol": "RELIANCE", "value": 210000, "pnl_pct": 18.2 },
         { "symbol": "INFY", "value": 145000, "pnl_pct": 5.1 }
       ],
-      "top_gainers": [
-        { "symbol": "RELIANCE", "pnl_pct": 18.2 }
-      ],
-      "top_losers": [
-        { "symbol": "HDFCBANK", "pnl_pct": -4.3 }
-      ],
+      "top_gainers": [{ "symbol": "RELIANCE", "pnl_pct": 18.2 }],
+      "top_losers": [{ "symbol": "HDFCBANK", "pnl_pct": -4.3 }],
       "sector_breakdown": [
         { "sector": "Technology", "pct": 32 },
         { "sector": "Finance", "pct": 25 }
@@ -174,16 +179,8 @@ Sent by `voiceagent/index.html` via the `finos-context.js` pipeline. Older forma
         ]
       }
     },
-    "health_score": {
-      "score": 62,
-      "tier": "GOOD",
-      "tips": ["Open a term insurance", "Max your 80C"]
-    },
-    "budget_app": {
-      "monthly_budget": 80000,
-      "spent_this_month": 67000,
-      "savings_rate": 0.22
-    }
+    "health_score": { "score": 62, "tier": "GOOD", "tips": ["Open a term insurance", "Max your 80C"] },
+    "budget_app": { "monthly_budget": 80000, "spent_this_month": 67000, "savings_rate": 0.22 }
   }
 }
 ```
@@ -197,19 +194,13 @@ All fields are optional. The agent degrades gracefully if any are missing.
 Typed input from Arya Brave path (chat input box).
 
 ```json
-{
-  "type": "text_input",
-  "text": "Should I buy a house or continue renting?"
-}
+{ "type": "text_input", "text": "Should I buy a house or continue renting?" }
 ```
 
 ### `text` (legacy — standalone voice agent)
 
 ```json
-{
-  "type": "text",
-  "text": "Should I buy a house or continue renting?"
-}
+{ "type": "text", "text": "Should I buy a house or continue renting?" }
 ```
 
 ---
@@ -219,10 +210,7 @@ Typed input from Arya Brave path (chat input box).
 WebM/Opus audio bytes captured by `MediaRecorder` in the browser. Sent after silence is detected by the RMS watcher. The agent decodes the audio, runs VAD, and transcribes with faster-whisper.
 
 ```json
-{
-  "type": "audio_chunk",
-  "data": [82, 73, 70, 70, 0, 0, ...]
-}
+{ "type": "audio_chunk", "data": [82, 73, 70, 70, 0, 0, ...] }
 ```
 
 `data` is a `Uint8Array` serialised as a JSON integer array.
@@ -270,10 +258,10 @@ Two sets of message types exist — the **Brave/Arya path** (used by `arya-trade
 First message sent after connection is established. Tells the browser the backend is online and which model is loaded.
 
 ```json
-{ "type": "ready", "model": "qwen3:14b" }
+{ "type": "ready", "model": "qwen2.5:3b" }
 ```
 
-Browser uses `model` to update the status label ("Local AI · qwen3").
+Browser uses `model` to update the status label.
 
 ---
 
@@ -306,7 +294,7 @@ Sent when audio processing begins (after receiving `audio_chunk`). Browser stops
 
 #### `user_transcript`
 
-STT result from faster-whisper. Displayed in chat as a user bubble.
+STT result from faster-whisper. Displayed in chat as a user bubble. Also checked by `detectNavIntent()` in `voiceagent/index.html` — if a navigation intent is detected, `navigateTo()` is called instead of sending the transcript to the AI.
 
 ```json
 { "type": "user_transcript", "text": "What is my win rate this month?" }
@@ -343,11 +331,7 @@ LLM response is complete. Browser finalises the chat bubble.
 One MP3 chunk of TTS audio, identified by sequence index. Browser buffers chunks and plays them in order.
 
 ```json
-{
-  "type": "audio_seq",
-  "seq": 0,
-  "data": "//NExAAA..."
-}
+{ "type": "audio_seq", "seq": 0, "data": "//NExAAA..." }
 ```
 
 - `seq` — 0-based chunk index
@@ -396,11 +380,7 @@ Informational message — displayed as an AI chat bubble.
 Sent when the agent changes state. Browser updates the orb animation and label.
 
 ```json
-{
-  "type": "status",
-  "state": "thinking",
-  "label": "SOCH RAHA..."
-}
+{ "type": "status", "state": "thinking", "label": "SOCH RAHA..." }
 ```
 
 | State | Orb label | Meaning |
@@ -434,12 +414,7 @@ Final token:
 One TTS-rendered audio chunk, sent per sentence.
 
 ```json
-{
-  "type": "audio",
-  "data": "//NExAAA...",
-  "lang": "english",
-  "sentence_idx": 0
-}
+{ "type": "audio", "data": "//NExAAA...", "lang": "english", "sentence_idx": 0 }
 ```
 
 - `lang` — `"english"` | `"hindi"` | `"hinglish"`
@@ -482,12 +457,8 @@ Sent after a successful persistent memory load (user had a previous session save
 ```json
 {
   "type": "session_restored",
-  "profile": {
-    "name": "Rahul",
-    "income": "₹12L/yr",
-    "city": "Bangalore"
-  },
-  "summary": "Rahul is a 28-year-old software engineer in Bangalore earning ~12L/yr. Discussed SIP strategy and home loan prepayment in last session. Has HDFC home loan. Goal: buy a larger flat in 3 years.",
+  "profile": { "name": "Rahul", "income": "₹12L/yr", "city": "Bangalore" },
+  "summary": "Rahul is a 28-year-old software engineer in Bangalore earning ~12L/yr. Discussed SIP strategy and home loan prepayment in last session.",
   "turns": 47,
   "sessions": 6
 }
@@ -518,15 +489,60 @@ Sent when a non-recoverable error occurs.
 
 ---
 
+## NEW: `finos_navigate` — Navigation postMessage (voiceagent iframe → parent page)
+
+This is **not** a WebSocket message. It is a `window.postMessage` event sent by `voiceagent/index.html` to its parent frame (`finos-widget.js`) when a navigation intent is detected.
+
+### Outgoing from `voiceagent/index.html`
+
+Sent by `navigateTo(page)` inside `voiceagent/index.html` after showing the navigation bubble:
+
+```javascript
+window.parent.postMessage(
+    { type: 'finos_navigate', url: '/html/portfolio-analyser.html', label: 'Portfolio Analyser' },
+    '*'
+);
+```
+
+- `type` — always `'finos_navigate'`
+- `url` — relative URL from `FINOS_PAGES` array (e.g. `/html/portfolio-analyser.html`, `/calculators/sip-calculator/index.html`)
+- `label` — human-readable page name for logging / display
+
+The message is posted 200ms after the navigation bubble appears.
+
+### Received by `finos-widget.js` in the parent page
+
+`finos-widget.js` listens for this message:
+
+```javascript
+window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'finos_navigate') {
+        closeWidget();
+        setTimeout(function() {
+            window.location.href = e.data.url;
+        }, 240);
+    }
+});
+```
+
+Flow:
+1. `closeWidget()` — hides the widget iframe immediately
+2. 240ms delay — allows the close animation to complete
+3. `window.location.href = e.data.url` — navigates the parent page to the new URL
+
+---
+
 ## Timing and Latency
 
 | Stage | Typical Time |
 |---|---|
 | Audio VAD silence detection | 0.5–1.5s after speech ends |
 | Whisper tiny transcription | 200–400ms |
-| LLM first token | 150–250ms |
+| LLM first token (qwen2.5:3b) | 100–200ms |
+| LLM first token (qwen3:14b) | 400–800ms |
 | TTS first sentence | 350–500ms |
-| **Total: first audio heard** | ~1.0–2.2s |
+| **Total: first audio heard (qwen2.5:3b)** | ~0.8–1.5s |
+| **Total: first audio heard (qwen3:14b)** | ~1.5–2.5s |
 
 The pipeline is streaming end-to-end:
 - LLM tokens stream in as generated
@@ -537,7 +553,7 @@ The pipeline is streaming end-to-end:
 
 ## Security Notes
 
-1. The WebSocket server only binds to `127.0.0.1` — not reachable from outside the machine.
+1. The WebSocket server binds to `127.0.0.1` (`WS_HOST = "127.0.0.1"`) — it cannot be reached from any external IP by design. No TLS is needed for localhost-only communication.
 2. `_user_id` from the context message is bound to the session. Subsequent messages from a different `user_id` are rejected.
 3. Audio is processed in RAM only — no transcripts written to disk.
 4. LLM conversation history is cleared from RAM on disconnect.

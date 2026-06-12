@@ -1,6 +1,6 @@
 # FIN-OS — Local Setup Guide
 
-> Version: 1.2 | Date: June 5, 2026
+> Version: 1.4 | Date: June 10, 2026
 
 This guide gets the full stack running on your machine from scratch.
 
@@ -11,7 +11,6 @@ This guide gets the full stack running on your machine from scratch.
 ```bash
 python3 --version      # need 3.10+
 node --version         # need 18+
-git --version
 
 # macOS
 brew install ollama ffmpeg
@@ -23,11 +22,12 @@ sudo apt install ffmpeg
 
 ---
 
-## 1. Clone the Repo
+## 1. Project Directory
+
+No git repository. The project directory is `Initial Deployment/` — work directly inside it.
 
 ```bash
-git clone https://github.com/vikasmanjunath-dev/Hexa-Mind.git
-cd "Hexa-Mind/Initial Deployment"
+cd "Initial Deployment"
 ```
 
 ---
@@ -49,11 +49,15 @@ All 96 pages, 88 calculators, and education modules work with just this.
 
 ### Step 1 — Pull the LLM
 
+For best latency, pull the smallest model first:
+
 ```bash
-ollama pull qwen3:14b        # ~9GB — run once
-# Lower-end machine fallback:
-ollama pull qwen2.5:3b       # ~2GB
+ollama pull qwen2.5:3b       # ~2GB — preferred for speed
+# OR for max quality (slower):
+ollama pull qwen3:14b        # ~9GB
 ```
+
+Model picker in `agent.py` prefers: `qwen2.5:3b` → `qwen3:4b` → `qwen3:8b` → `qwen3:14b` (first available wins).
 
 ### Step 2 — Python environment
 
@@ -73,7 +77,7 @@ cp .env.example .env
 # Edit .env:
 SUPABASE_URL=https://oeapcyucnduhwpgxfknb.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
-OLLAMA_MODEL=qwen3:14b
+OLLAMA_MODEL=qwen2.5:3b          # recommended for latency; change to qwen3:14b for quality
 OLLAMA_BASE_URL=http://localhost:11434
 WHISPER_MODEL=tiny
 VOICE_NAME=en-IN-NeerjaNeural
@@ -83,10 +87,30 @@ VOICE_NAME=en-IN-NeerjaNeural
 
 ```bash
 python agent.py
-# Agent listening on ws://localhost:8765
 ```
 
-Test: open http://localhost:3000/voiceagent/index.html
+Expected output:
+```
+Listening on ws://127.0.0.1:8765
+```
+
+No SSL certificates, no browser trust step needed — the agent uses plain WebSocket (`ws://`) for local-only communication.
+
+### Step 5 — Test the widget
+
+Open `http://localhost:3000` (or `http://localhost:3000/voiceagent/index.html` for the standalone UI) and click the AI widget. It should connect and display the voice agent.
+
+### Port conflict
+
+If port 8765 is already in use:
+
+```bash
+# Kill whatever is using it
+lsof -ti :8765 | xargs kill -9
+
+# Then restart
+python agent.py
+```
 
 ---
 
@@ -172,9 +196,22 @@ const SUPABASE_ANON = 'eyJ...';  // public anon key
 
 ---
 
+## Model Selection Guide
+
+| Use case | Recommended model | Pull command |
+|---|---|---|
+| Daily use, fast responses | `qwen2.5:3b` | `ollama pull qwen2.5:3b` |
+| Balanced speed + quality | `qwen3:4b` | `ollama pull qwen3:4b` |
+| Full quality (slower) | `qwen3:8b` | `ollama pull qwen3:8b` |
+| Maximum quality, no latency concern | `qwen3:14b` | `ollama pull qwen3:14b` |
+
+The model picker in `agent.py` automatically selects the smallest available model unless `OLLAMA_MODEL` is set in `voiceagent/.env`.
+
+---
+
 ## Full Stack Launch (all services)
 
-Open 5 terminal windows:
+Open 6 terminal windows:
 
 ```bash
 # Terminal 1 — Frontend
@@ -192,6 +229,10 @@ cd alerts && source .venv/bin/activate && uvicorn alert-engine:app --port 8001
 
 # Terminal 5 — News API
 cd .. && source .venv/bin/activate && python app.py
+
+# Terminal 6 — Portfolio.AI (Arya equity analysis)
+cd "Porfolio Analyser" && source .venv/bin/activate && python server.py
+# API at http://127.0.0.1:8766  (POST /arya  |  POST /arya/stream)
 ```
 
 ---
@@ -211,8 +252,8 @@ curl -s http://localhost:8001/health                                   # {"statu
 # News API
 curl -s http://localhost:5000/api/intel | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d['items']),'items')"
 
-# Voice agent
-# Open http://localhost:3000/voiceagent/index.html and speak
+# Voice agent — open browser and click the AI widget at http://localhost:3000
+# No cert trust needed — plain ws:// local connection
 ```
 
 ---
@@ -225,10 +266,11 @@ curl -s http://localhost:5000/api/intel | python3 -c "import sys,json; d=json.lo
 | `SUPABASE_SERVICE_ROLE_KEY` | all backends | `.env` only — never browser |
 | `VITE_SUPABASE_URL` | React budget app | `ExpenseTracker/finos-budget/.env` |
 | `VITE_SUPABASE_ANON_KEY` | React budget app | `ExpenseTracker/finos-budget/.env` |
-| `OLLAMA_MODEL` | voiceagent | `voiceagent/.env` |
+| `OLLAMA_MODEL` | voiceagent | `voiceagent/.env` (e.g. `qwen2.5:3b`) |
 | `OLLAMA_BASE_URL` | voiceagent | `voiceagent/.env` |
 | `WHISPER_MODEL` | voiceagent | `voiceagent/.env` |
 | `VOICE_NAME` | voiceagent | `voiceagent/.env` |
 | `VAPID_PRIVATE_KEY` | alert engine | `alerts/.env` |
 | `VAPID_PUBLIC_KEY` | alert engine | `alerts/.env` |
 | `VAPID_CLAIMS_EMAIL` | alert engine | `alerts/.env` |
+| `OPENROUTER_API_KEY` | api/chat.js (Vercel only) | Vercel dashboard env vars |

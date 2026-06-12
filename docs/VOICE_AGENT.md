@@ -1,7 +1,7 @@
 # FIN-OS Voice Agent — Technical Reference
 
-> Version: 1.2 | Date: June 5, 2026  
-> `voiceagent/agent.py` · WebSocket `:8765` · UI `voiceagent/index.html`
+> Version: 1.5 | Date: June 10, 2026  
+> `voiceagent/agent.py` · WebSocket `:8765` (plain ws://) · UI `voiceagent/index.html`
 
 ---
 
@@ -10,23 +10,25 @@
 FIN-OS Voice Agent is a fully local, three-stage AI pipeline:
 
 ```
-Microphone → Whisper tiny (STT) → qwen3:14b via Ollama (LLM) → Edge Neural TTS → Speaker
+Microphone → Whisper tiny (STT) → qwen2.5:3b via Ollama (LLM, preferred) → Edge Neural TTS → Speaker
 ```
 
 Everything runs on your machine. No external API calls. No cloud inference. Complete privacy.
+
+The agent serves over **plain `ws://`** (no TLS — reverted to git HEAD). No SSL cert is generated. No browser cert-trust step is required.
 
 ---
 
 ## Configuration (`agent.py` top-level constants)
 
 ```python
-OLLAMA_MODEL    = "qwen3:14b"         # LLM model (must be pulled in Ollama)
+OLLAMA_MODEL    = "qwen2.5:3b"        # LLM model — auto-selected by _pick_ollama_model(); overridden by .env
 OLLAMA_THINK    = False               # qwen3: suppress <think> blocks (top-level kwarg)
 
 WHISPER_SIZE    = "tiny"              # fastest; "small" or "base" for better accuracy
 WHISPER_THREADS = 8                   # CPU threads for STT
 
-WS_HOST = "127.0.0.1"
+WS_HOST = "127.0.0.1"                # IPv4 loopback only (NOT "" / all interfaces)
 WS_PORT = 8765
 
 HISTORY_TURNS   = 10                  # conversation turns kept in RAM
@@ -40,14 +42,24 @@ OLLAMA_OPTIONS = {
     "top_p":          0.92,
     "top_k":          40,
     "repeat_penalty": 1.10,
-    "num_ctx":        32768,    # enlarged for full trade journal context (all trades injected)
-    "num_predict":    600,      # raised: qwen3 think tokens eat into budget
-    # detail mode bumps num_predict → 1200 dynamically
+    "num_ctx":        8192,     # reduced for latency — was 32768
+    "num_predict":    400,      # reduced for latency — was 600; detail mode bumps → 1200
     "num_thread":     8,
-    "num_keep":       12,
+    "num_keep":       0,        # was 12 — set to 0 to reduce VRAM pressure
     "mirostat":       0,
 }
 ```
+
+### Configuration Summary (current values — reverted to git HEAD)
+
+| Parameter | Current value | Notes |
+|---|---|---|
+| `WS_HOST` | `"127.0.0.1"` | IPv4 loopback only |
+| `HISTORY_TURNS` | `10` | Restored; provides better context |
+| `num_ctx` | `8192` | Smaller KV-cache vs original 32768 |
+| `num_predict` | `400` | Voice needs 2–3 sentences |
+| `num_keep` | `0` | KV-reuse disabled |
+| `LLM_FIRST_TOKEN_TIMEOUT` | `45` | Fail fast |
 
 ### TTS Settings
 
@@ -64,11 +76,110 @@ EDGE_VOICES = {
 
 ---
 
+## WebSocket Setup (plain ws://)
+
+The voice agent uses a plain (non-TLS) WebSocket. No SSL certificates are generated and no browser trust step is required.
+
+`websockets.serve()` is called **without** `ssl=` argument:
+
+```python
+server = await websockets.serve(handler, WS_HOST, WS_PORT, max_size=50_000_000)
+# WS_HOST = "127.0.0.1", WS_PORT = 8765
+```
+
+### Startup output
+
+```
+INFO  fin-os: Whisper tiny ready
+INFO  fin-os: Ollama warmed up (qwen2.5:3b)
+INFO  fin-os: TTS warmed up (en-IN-PrabhatNeural)
+Listening on ws://127.0.0.1:8765
+```
+
+No cert trust step needed. Open `http://localhost:3000` → click AI FAB → widget connects immediately.
+
+---
+
+## Model Picker (Smallest-First for Latency)
+
+`agent.py` queries Ollama for available models and picks the first match in this order:
+
+```
+qwen2.5:3b  →  qwen3:4b  →  qwen3:8b  →  qwen3:14b
+```
+
+This is smallest-first (lowest latency preferred). The old order was largest-first. If `OLLAMA_MODEL` is explicitly set in `.env`, that model is used directly without probing.
+
+For maximum quality (slower), pull `qwen3:14b` and set `OLLAMA_MODEL=qwen3:14b` in `voiceagent/.env`.
+
+---
+
+## WS_URL (`index.html`)
+
+`voiceagent/index.html` always connects to plain `ws://`:
+
+```javascript
+const WS_URL = 'ws://127.0.0.1:8765';
+```
+
+Explicit IPv4 address `127.0.0.1` is used (not `localhost`) to avoid IPv6 resolution issues. No protocol switching — always plain ws://.
+
+The widget chip in `index.html` displays this URL.
+
+---
+
+## Navigation Engine (`index.html`)
+
+### FINOS_PAGES array
+
+`index.html` defines a `FINOS_PAGES` array containing 130+ entries. Each entry is:
+
+```javascript
+{ label: "Portfolio Analyser", url: "/html/portfolio-analyser.html", keywords: ["portfolio", "holdings", "stocks"] }
+```
+
+The array covers all 96 pages and all 88 calculators.
+
+### `detectNavIntent(text)`
+
+Called on every user message (both typed and voice) **before** the message is sent to the AI. Algorithm:
+
+1. Lowercases the input text.
+2. Tests against `NAV_TRIGGER` regex — a pattern covering Hindi and English trigger words:
+   - English: `go to`, `open`, `take me to`, `navigate to`, `show me`, `launch`
+   - Hindi/Hinglish: `chalo`, `kholo`, `dikhaao`, `le jao`
+3. If the trigger regex matches, scans `FINOS_PAGES` for the best keyword match in the remaining text.
+4. Returns the matching page entry, or `null` if no match.
+
+### `navigateTo(page)` flow
+
+When `detectNavIntent()` returns a match:
+
+1. A chat bubble is shown immediately: `"📍 Navigating to [Page Label]..."`
+2. After a 200ms delay, `navigateTo()` fires `window.parent.postMessage`:
+   ```javascript
+   { type: 'finos_navigate', url: '/html/portfolio-analyser.html', label: 'Portfolio Analyser' }
+   ```
+3. The message is received by `finos-widget.js` in the parent page (see Widget section below).
+4. The AI is **not** called for navigation intents — `sendText()` and the `user_transcript` handler both check `detectNavIntent()` first and short-circuit if it returns a match.
+
+### `CLOUD_MODE = false`
+
+`index.html` sets `CLOUD_MODE = false`. The variables `chatHistory`, `cloudSR`, and `isCloudPending` are declared but unused. `buildSystemPrompt()` and `sendCloud()` are present in the code but never called. All traffic goes to local Ollama via the WebSocket.
+
+---
+
+## Profile Sync Deduplication (`_ctxSent` fix)
+
+`index.html` sets `_ctxSent = true` **immediately** inside `applyCtxToUI()` after showing the "Profile synced" status message — before any async operation. This prevents the context from being sent 4× in quick succession when the iframe receives multiple `postMessage` events on load.
+
+---
+
 ## WebSocket Protocol
 
 ### Connection
 
-Browser connects to `ws://localhost:8765`. The voice agent accepts one client at a time. On second connect, the old session is closed first.
+Browser connects to `ws://127.0.0.1:8765` (plain WebSocket, no SSL). The voice agent accepts one client at a time. On second connect, the old session is closed first.
 
 ### Message Types — Browser → Agent
 
@@ -88,21 +199,11 @@ All JSON messages are sent as text frames.
       "financial_dna": "wealth_builder",
       "mindset": "disciplined_saver"
     },
-    "profile": {
-      "age": 28
-    },
+    "profile": { "age": 28 },
     "page": "portfolio_analyser",
-    "portfolio": {
-      "total_value": 850000,
-      "pnl": 95000,
-      "pnl_pct": 12.6,
-      "top_holdings": [ ... ],
-      "top_gainers": [ ... ],
-      "top_losers": [ ... ],
-      "sector_breakdown": [ ... ]
-    },
-    "goals": [ ... ],
-    "transactions": { "summary": { ... } },
+    "portfolio": { "total_value": 850000, "pnl": 95000, "pnl_pct": 12.6 },
+    "goals": [],
+    "transactions": { "summary": {} },
     "health_score": { "score": 62, "tier": "GOOD" }
   }
 }
@@ -129,22 +230,19 @@ All JSON messages are sent as text frames.
     "best_symbol": { "symbol": "BANKNIFTY CE", "pnl": 8400 },
     "worst_symbol": { "symbol": "NIFTY PE", "pnl": -3200 },
     "current_streak": "3 win",
-    "recent_trades": [ ... ],
+    "recent_trades": [],
     "full_context": "━━━ TRADEBOOK PRO: COMPLETE JOURNAL CONTEXT ━━━\n..."
   }
 }
 ```
 
-`full_context` is a pre-formatted multi-section text block built by `buildFullTradeContext()` in `arya-tradebook.js`. It contains every trade, all breakdowns (symbol/strategy/emotion/regime), monthly and day-of-week stats, and all settings. It is injected verbatim into `UserContext.to_prompt()` so Arya can answer any specific trade query without the user repeating context.
+`full_context` is a pre-formatted multi-section text block built by `buildFullTradeContext()` in `arya-tradebook.js`. It is injected verbatim into `UserContext.to_prompt()` so Arya can answer any specific trade query without the user repeating context.
 
 For Mind Engine pages, the message uses `page_module: "mind_engine"` and `financial.custom` instead of `trade_journal`.
 
 **Audio chunk message** (Brave path — MediaRecorder output)
 ```json
-{
-  "type": "audio_chunk",
-  "data": [82, 73, 70, 70, ...]
-}
+{ "type": "audio_chunk", "data": [82, 73, 70, 70, ...] }
 ```
 Raw WebM/Opus bytes as a JSON integer array. The agent decodes, runs VAD, and transcribes with faster-whisper.
 
@@ -154,10 +252,7 @@ Raw PCM float32 audio chunks sent as binary WebSocket frames. The agent buffers 
 
 **Text message** (typed input)
 ```json
-{
-  "type": "text_input",
-  "text": "What should I do with my bonus?"
-}
+{ "type": "text_input", "text": "What should I do with my bonus?" }
 ```
 
 **Ping** (keepalive)
@@ -169,57 +264,32 @@ Raw PCM float32 audio chunks sent as binary WebSocket frames. The agent buffers 
 
 **Status update**
 ```json
-{
-  "type": "status",
-  "state": "thinking",
-  "label": "SOCH RAHA..."
-}
+{ "type": "status", "state": "thinking", "label": "SOCH RAHA..." }
 ```
 
 States: `idle` · `listening` · `thinking` · `speaking`
 
 **Text token** (streamed during LLM generation)
 ```json
-{
-  "type": "text",
-  "token": "At your income level, ",
-  "done": false
-}
+{ "type": "text", "token": "At your income level, ", "done": false }
 ```
 
 Final token:
 ```json
-{
-  "type": "text",
-  "token": "",
-  "done": true,
-  "full": "At your income level, 25,000 per month in SIP makes sense."
-}
+{ "type": "text", "token": "", "done": true, "full": "At your income level, 25,000 per month in SIP makes sense." }
 ```
 
 **Audio chunk** (streamed TTS output)
 ```json
-{
-  "type": "audio",
-  "data": "<base64 encoded MP3>",
-  "lang": "english"
-}
+{ "type": "audio", "data": "<base64 encoded MP3>", "lang": "english" }
 ```
 
 **Memory update** (sent when new profile fact extracted)
 ```json
 {
   "type": "memory",
-  "items": [
-    "[user] My name is Rahul",
-    "[agent] Nice to meet you Rahul!",
-    "[user] I earn 12 lakhs a year"
-  ],
-  "profile": {
-    "name": "Rahul",
-    "income": "₹12L/yr",
-    "income_num": 1200000
-  }
+  "items": ["[user] My name is Rahul", "[agent] Nice to meet you Rahul!", "[user] I earn 12 lakhs a year"],
+  "profile": { "name": "Rahul", "income": "₹12L/yr", "income_num": 1200000 }
 }
 ```
 
@@ -227,7 +297,7 @@ Final token:
 ```json
 {
   "type": "session_restored",
-  "profile": { ... },
+  "profile": {},
   "summary": "Rahul is a 28-year-old software engineer in Bangalore earning 15L/yr...",
   "turns": 47
 }
@@ -235,10 +305,7 @@ Final token:
 
 **Error**
 ```json
-{
-  "type": "error",
-  "message": "Ollama connection failed"
-}
+{ "type": "error", "message": "Ollama connection failed" }
 ```
 
 ---
@@ -339,11 +406,7 @@ On disconnect, the `MemoryStore.save()` generates a session summary and writes t
         "debts": { "home_loan_emi": true }
     },
     "summary": "Rahul is a 28-year-old software engineer in Bangalore...",
-    "mem_items": [
-        "[user] message ...",
-        "[agent] response ...",
-        ...
-    ],
+    "mem_items": ["[user] message ...", "[agent] response ..."],
     "total_sessions": 7,
     "total_messages": 43
 }
@@ -382,14 +445,14 @@ The full prompt is assembled per-request as:
 [CONTEXT BLOCK — built by UserContext.to_prompt()]
   User: Rahul | Age: 28 | Income: ₹12L/yr | Life Stage: Growth | City: Bangalore
   Health Score: 62/100 (GOOD)
-  
+
   Portfolio: ₹8.5L total | +₹95K (+12.6%)
   Top Holdings: RELIANCE (+18%), INFY (+5%), TCS (-2%)
-  
+
   Active Goals: Emergency fund (40%), House down payment (15%)
-  
+
   Debts: Home loan EMI active
-  
+
   Current Page: portfolio_analyser
 
 [INTENT FACTS — if intent matched]
@@ -416,13 +479,11 @@ In `Brain._INTENT_RULES` (list of dicts):
     "facts": """
 GOLD FACTS: SGB (Sovereign Gold Bond) gives 2.5% interest + gold appreciation.
 Tax-free on redemption at maturity (8 years). Better than physical gold or Gold ETF.
-Physical gold: making charges 8-20%, storage risk, no yield.
-Gold ETF: no interest, but liquid and no storage. Track gold price 1:1.
 """
 }
 ```
 
-### Add a new profile pattern (agent.py)
+### Add a new profile pattern
 
 In `MemoryStore._FAMILY_PATS`:
 ```python
@@ -439,7 +500,47 @@ Edit `EDGE_VOICES` at the top of `agent.py`. Available Indian voices:
 
 ### Switch LLM
 
-Change `OLLAMA_MODEL` and run `ollama pull <model>`. For non-qwen3 models, set `OLLAMA_THINK = None` (or remove the `think` kwarg from all `ollama.chat()` calls). The `think` parameter is qwen3-specific.
+Change `OLLAMA_MODEL` in `voiceagent/.env` and run `ollama pull <model>`. For non-qwen3 models, set `OLLAMA_THINK = None` (or remove the `think` kwarg from all `ollama.chat()` calls). The `think` parameter is qwen3-specific.
+
+---
+
+---
+
+## ProactiveBriefingEngine — Mood & Month Semantics (Arya v2)
+
+`ProactiveBriefingEngine` in `agent.py` generates the daily dashboard brief. Critical month semantics (corrected June 8, 2026):
+
+### `detect_mood(user_ctx)` — month classification
+
+| Month | Classification | Rationale |
+|---|---|---|
+| January, February | `budget_season` (festive mood) | Union Budget presented Feb 1; Jan/Feb = anticipation season |
+| March | `year_end_crunch` (deadline urgency) | March 31 = fiscal year-end, ITR advance tax, LIC premium deadlines |
+| April | `new_year_start` (festive mood) | New financial year begins; goal-setting energy |
+| October, November | `festive` (festive mood) | Diwali, Navratri — gifting and investment season |
+| All others | `normal` | No special override |
+
+⚠️ **Common confusion:** February is `budget_season` (festive), NOT `year_end_crunch`. March 31 tax deadline applies to March only.
+
+### `SYSTEM_PROMPT` FESTIVE MODE text (corrected)
+
+```
+FESTIVE MODE (Budget Day Jan/Feb, Diwali Oct/Nov, new financial year April — NOT March, which is deadline urgency):
+```
+
+### `generate()` — avoid double `detect_mood()` call
+
+```python
+# CORRECT — mood computed once by caller and passed in
+mood = ProactiveBriefingEngine.detect_mood(user_ctx)
+brief = ProactiveBriefingEngine.generate(brain, user_ctx, anomalies, mood=mood)
+
+# WRONG — was computing mood twice (once in generate(), once in build_dashboard_brief())
+brief = ProactiveBriefingEngine.generate(brain, user_ctx, anomalies)
+mood  = ProactiveBriefingEngine.detect_mood(user_ctx)  # ← redundant second call
+```
+
+`generate()` accepts an optional `mood` parameter. If not supplied (e.g. in direct/test invocations), it computes mood internally as a fallback.
 
 ---
 
@@ -453,10 +554,9 @@ Key log lines:
 ```
 INFO  fin-os.memory: Persistent memory: ENABLED  (Supabase ...)
 INFO  fin-os: Whisper tiny ready
-INFO  fin-os: Ollama warmed up (qwen3:14b)
+INFO  fin-os: Ollama warmed up (qwen2.5:3b)
 INFO  fin-os: TTS warmed up (en-IN-PrabhatNeural)
-INFO  fin-os: Ready — http://localhost:8080
-INFO  websockets.server: server listening on 127.0.0.1:8765
+Listening on ws://127.0.0.1:8765
 INFO  fin-os: [session] user abc123 connected
 INFO  fin-os: [stt] "what should I do with my HDFC SIP?"  (0.31s)
 INFO  fin-os: [llm] first token 0.19s | total 2.3s | 312 tokens
