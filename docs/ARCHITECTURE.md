@@ -1,6 +1,6 @@
 # FIN-OS — Architecture
 
-> Version: 1.4 | Date: June 10, 2026 | Live: https://finos1.vercel.app
+> Version: 1.5 | Date: June 13, 2026 | Live: https://finos1.vercel.app
 
 ---
 
@@ -289,7 +289,7 @@ POST /arya/stream  → SSE streaming (text/event-stream)
 Port: 8766 (HTTP, local only — NOT deployed to Vercel)
 
 Analysis model:  llama3.1:latest  — num_ctx=2560, temperature=0.25
-Chat model:      llama3.2:3b      — num_ctx=1536, temperature=0.45
+Chat model:      llama3.2:3b      — num_ctx=1536, temperature=0.30
 Client max_tokens: 700 (analysis) / 300 (chat follow-up)
 ```
 
@@ -342,6 +342,45 @@ Based on Motilal Oswal PMS / Saurabh Mukherjea framework:
 - **Price:** Earnings yield > G-Sec (7.2%) margin of safety
 
 Output format: VERDICT sentence first → 3 focused sections → `⚡ ARYA'S CALL: NSE:SYMBOL — [ACTION] ₹[amount] · [conviction] · [10-word reason]`
+
+NSE Sector Map is baked into `_ARYA_SYSTEM` — 10 sectors mapped to ~50 specific stocks. `SECTOR DISCIPLINE` rule prevents cross-sector misclassification (e.g. HDFC Life = Financial Services, never Consumer Goods).
+
+Anti-hallucination rules: (1) only cite portfolio context numbers; (2) no invented PE/ROE/price targets; (3) only OVERWEIGHT/UNDERWEIGHT/NEUTRAL vocabulary; (4) FII flows/RBI dates → redirect to portfolio data; (5) benchmark locked to 12–14% annual Nifty CAGR.
+
+### Live Macro Context (`_aryaGetMarketCtx()` — June 13, 2026)
+
+Appended to every prompt via `aryaPortfolioCtx()`. Reads from `window._macroLive` (populated by `renderMacroTile()` when the macro dashboard updates). Injects:
+
+| Data | Source | Regime signal |
+|---|---|---|
+| Today's date + FY quarter | `new Date()` | FY-end countdown if <90 days |
+| Nifty 50 price + % change | `_macroLive['mac-nifty']` | Session tone (bull/bear/flat) |
+| India VIX | `_macroLive['mac-vix']` | 6-tier regime: LOW FEAR → CRISIS MODE |
+| USD/INR | `_macroLive['mac-usdinr']` | Import-cost signal (IT vs OMC impact) |
+| Crude WTI | `_macroLive['mac-crude']` | ONGC/OMC sector signal |
+| Gold | `_macroLive['mac-gold']` | Risk-on / risk-off signal |
+
+`window._macroLive` is populated by `renderMacroTile()` each time the macro dashboard updates (both live fetch and fallback paths). Numeric values are cached alongside display strings. If no macro data is available, only the date + FY quarter is injected.
+
+### Smart Dynamic Chips (`_aryaDynamicChips()` — June 13, 2026)
+
+Computed fresh on every `aryaCall()` response. Returns 2 highest-priority chips based on live portfolio state. Prepended before each page's static chips. Signals checked (in priority order):
+
+| Signal | Threshold | Chip shown |
+|---|---|---|
+| HHI (concentration) | > 0.25 | `🔴 Fix concentration risk NOW` |
+| Tax-loss harvest | FY-end <90d + >₹10K losses | `📅 Tax harvest — ₹Xk savings (Nd left)` |
+| India VIX | ≥ 20 | `🛡️ VIX at X — protect my portfolio now` |
+| Positions underwater | > 55% of holdings | `💊 X% positions underwater — diagnose` |
+| Single stock overweight | > 15% of portfolio | `⚠️ SYMBOL = X% — trim plan?` |
+| Nifty sell-off | < −1.5% today | `📉 Nifty X% — what to do right now?` |
+
+### Enhanced Formatter (`aryaFormat()` — June 13, 2026)
+
+`VERDICT:` lines → `.arya-verdict` div (purple left-border callout box).
+`⚡ ARYA'S CALL:` → `.arya-callout` div (teal highlighted footer box).
+Bullet points (`•`, `·`, `-`) → `.arya-bullet` div with `▸` marker.
+Added badges: `OVERWEIGHT` (green), `UNDERWEIGHT` (red), `NEUTRAL` (yellow).
 
 ### TTS Architecture
 

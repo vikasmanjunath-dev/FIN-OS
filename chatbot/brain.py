@@ -39,7 +39,7 @@ OLLAMA_MODEL     = os.getenv("OLLAMA_MODEL",     "llama3.1")
 # Portfolio model — defaults to llama3.1 (fast, already warm).
 # Override: PORTFOLIO_MODEL=qwen3:14b python brain.py  (slower but smarter)
 PORTFOLIO_MODEL  = os.getenv("PORTFOLIO_MODEL",  "llama3.1")
-ALLOWED_ORIGINS  = os.getenv("ALLOWED_ORIGINS",  "http://localhost:3000,http://localhost:5173,http://127.0.0.1:5500").split(",")
+ALLOWED_ORIGINS  = os.getenv("ALLOWED_ORIGINS",  "http://localhost:3000,http://localhost:5173,http://localhost:5500,http://127.0.0.1:5500,http://127.0.0.1:3000,http://127.0.0.1:5173").split(",")
 MAX_HISTORY      = int(os.getenv("MAX_HISTORY",   "20"))
 OLLAMA_TIMEOUT   = int(os.getenv("OLLAMA_TIMEOUT","120"))
 MAX_SESSIONS     = int(os.getenv("MAX_SESSIONS",  "1000"))

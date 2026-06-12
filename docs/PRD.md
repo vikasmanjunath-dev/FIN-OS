@@ -129,7 +129,10 @@ FIN-OS fills this gap with a voice-first, desi-native AI that speaks the user's 
   - [x] **VERDICT-first output** — LLM leads with key number; 3 focused sections; closes with `⚡ ARYA'S CALL: NSE:SYMBOL — [ACTION] ₹[amount] · [conviction] · [10-word reason]`
   - [x] **Cross-page intelligence** — `_aryaFacts` stores per-page computed facts; `_aryaGetCrossCtx()` injects other pages' facts into current prompt
   - [x] **TTS speak button rewrite** — voices pre-loaded at page load; `speak()` synchronous in onclick; Chrome heartbeat (pause/resume every 10s)
-  - [x] **server.py on port 8766** — HTTP, local only; `POST /arya` + `POST /arya/stream`; `llama3.1:latest` (num_ctx 2560, temp 0.25) + `llama3.2:3b` (num_ctx 1536, temp 0.45)
+  - [x] **server.py on port 8766** — HTTP, local only; `POST /arya` + `POST /arya/stream`; `llama3.1:latest` (num_ctx 2560, temp 0.25) + `llama3.2:3b` (num_ctx 1536, temp 0.30)
+  - [x] **Rich macro context** — live Nifty session tone, India VIX regime signal, USD/INR, Crude, Gold injected into every Arya prompt via `_aryaGetMarketCtx()`; `window._macroLive` cache wired to `renderMacroTile()`
+  - [x] **Smart dynamic chips** — `_aryaDynamicChips()` auto-computes 2 most urgent chips per portfolio state (concentration, tax-harvest, VIX spike, positions underwater, single-stock overweight, Nifty sell-off)
+  - [x] **Enhanced aryaFormat** — VERDICT callout box, styled ⚡ ARYA'S CALL footer, OVERWEIGHT/UNDERWEIGHT/NEUTRAL badges, bullet styling; NSE sector map + anti-hallucination rules locked in system prompt
 - [x] **Voice agent reverted** — plain `ws://127.0.0.1:8765` (no SSL); WS_HOST `"127.0.0.1"`; HISTORY_TURNS 10; original `voiceagent/index.html` UI
 
 ### Should Have (in progress / near-term)

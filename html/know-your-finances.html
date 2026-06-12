@@ -529,25 +529,42 @@
   <script src="../js/finos-context.js?v=3" defer></script>
   <script src="../js/arya-ai.js?v=4" defer></script>
 <script>
-(async function() {
+/* Pre-scan Arya coaching — runs after DOMContentLoaded so defer'd arya-ai.js is ready */
+document.addEventListener('DOMContentLoaded', async function _aryaCoach() {
   const el = document.getElementById('arya-xray-coach-text');
-  if (!el || typeof AryaAI === 'undefined') return;
+  if (!el) return;
+
+  /* Static fallback shown when AI backend is offline */
+  const STATIC_COACHING = [
+    '• Focus on your <strong style="color:#c7f000">savings rate</strong> first — it\'s the single most controllable lever in your X-Ray. Anything below 20% needs structural change, not willpower.',
+    '• Your biggest blind spot is likely <strong style="color:#c7f000">lifestyle creep</strong> hiding in the \'miscellaneous\' bucket. Map every ₹ before you see your burn rate.',
+    '• When you see your FIRE horizon, ask: <strong style="color:#c7f000">what monthly expense, cut in half, moves the date by the most years?</strong> That\'s where to focus first.'
+  ].join('<br>');
+
+  /* If AryaAI is not loaded (offline or slow), show static coaching immediately */
+  if (typeof AryaAI === 'undefined') {
+    el.innerHTML = STATIC_COACHING;
+    return;
+  }
 
   const cacheKey = 'arya_xray_coach_v1_' + new Date().toDateString();
   const cached = sessionStorage.getItem(cacheKey);
-  if (cached && cached.length > 30 && !cached.includes('<think>')) { el.textContent = cached; return; }
+  if (cached && cached.length > 30 && !cached.includes('<think>')) {
+    el.textContent = cached;
+    return;
+  }
 
-  const _ctx    = (typeof AryaAI !== 'undefined' && AryaAI.getContext()) || {};
-  const name    = _ctx.identity?.name          || localStorage.getItem('finos_display_name') || 'Investor';
-  const dna     = _ctx.identity?.financial_dna || localStorage.getItem('finos_financial_dna') || 'Explorer';
-  const stage   = _ctx.identity?.life_stage    || localStorage.getItem('finos_stage') || 'Rookie';
-  const netWorth= _ctx.profile?.net_worth      || localStorage.getItem('finos_net_worth') || '0';
-  const savings = _ctx.profile?.savings_rate   || localStorage.getItem('finos_savings_rate') || '0';
-  const health  = _ctx.profile?.health_score   || localStorage.getItem('finos_health_score') || '0';
-  const txCount = _ctx.financial?.transactions?.count || 0;
-  const topSpend= _ctx.financial?.transactions?.top_categories?.[0]?.cat || null;
+  const _ctx     = AryaAI.getContext() || {};
+  const name     = _ctx.identity?.name          || localStorage.getItem('finos_display_name') || 'Investor';
+  const dna      = _ctx.identity?.financial_dna || localStorage.getItem('finos_financial_dna') || 'Explorer';
+  const stage    = _ctx.identity?.life_stage    || localStorage.getItem('finos_stage') || 'Rookie';
+  const netWorth = _ctx.profile?.net_worth      || localStorage.getItem('finos_net_worth') || '0';
+  const savings  = _ctx.profile?.savings_rate   || localStorage.getItem('finos_savings_rate') || '0';
+  const health   = _ctx.profile?.health_score   || localStorage.getItem('finos_health_score') || '0';
+  const txCount  = _ctx.financial?.transactions?.count || 0;
+  const topSpend = _ctx.financial?.transactions?.top_categories?.[0]?.cat || null;
   const goalsCount = _ctx.financial?.goals?.length || 0;
-  const budget  = _ctx.budget_tracker;
+  const budget   = _ctx.budget_tracker;
 
   el.innerHTML = '<span id="arya-xray-stream" style="color:rgba(255,255,255,.75);"></span>';
   const s = document.getElementById('arya-xray-stream');
@@ -564,8 +581,11 @@ Tone: sharp, direct, data-driven. Each bullet = 1 sentence. Use their actual num
   try {
     const result = await AryaAI.ask(prompt, (tok, display) => { if (display !== undefined) s.textContent = display; });
     if (result) { sessionStorage.setItem(cacheKey, result); el.textContent = result; }
-  } catch { el.innerHTML = '<span style="color:rgba(255,255,255,.3);">AI offline — proceed with the X-Ray scan.</span>'; }
-})();
+    else { el.innerHTML = STATIC_COACHING; }
+  } catch {
+    el.innerHTML = STATIC_COACHING;
+  }
+});
 </script>
 <script src="../js/finances.js" defer></script>
 <script src="../js/ui.js" defer></script>

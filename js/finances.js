@@ -1,62 +1,53 @@
 /**
  * FIN•OS — God Mode X-Ray | finances.js
- * Production-Ready v2.0
+ * Production-Ready v3.0  (June 13, 2026)
  *
- * Fixes applied:
- *  - [CRITICAL] Ratios API payload: monthly_savings now correctly derived from (income - expenses),
- *    not sent as 0 when monthlySurplus is negative — was crashing /api/tools/ratios (Field ge=0 on server).
- *  - [CRITICAL] SSE parser: bare try/catch inside line loop silently swallowed malformed JSON;
- *    added '[DONE]' guard and error-safe parsing.
- *  - [CRITICAL] verdictBox reference: declared twice (inside DOMContentLoaded AND at module scope),
- *    causing the chat follow-up to reference a stale null element before the report renders.
- *    Removed duplicate declaration; all references now use the live DOM call.
- *  - [MAJOR]   reportSection never shown when API calls fail mid-scan — fixed with finally block.
- *  - [MAJOR]   "INITIALIZE GOD MODE" button remains clickable during scan causing duplicate requests.
- *    Added isScanning guard.
- *  - [MAJOR]   No input validation — user can advance with all-zero income, leading to NaN in UI.
- *    Added per-step validation with inline error messages.
- *  - [MAJOR]   Negative monthlySurplus rendered as a positive green number (color not swapped).
- *    Fixed: surplus now shown in red when negative.
- *  - [MINOR]   editDataBtn listener crashes if called before reportSection renders (missing null check).
- *  - [MINOR]   followUpInput.focus() called when chatInputArea is still hidden — harmless but noisy.
- *  - [MINOR]   Progress bar shows 100% on step 1 of 6 due to off-by-one in first render.
- *    (Was correct in rendering but visually misleading — added a 'first render' note.)
- *  - [MINOR]   localStorage access in HTML <script> tag (theme init) can throw in incognito/Safari
- *    — wrapped in try/catch in HTML (noted in audit; not in scope of this JS file).
+ * v3.0 CRITICAL FIX: All financial calculations now client-side.
+ *  - Ratios (savings rate, debt-to-asset, net-worth grade) computed inline — NO backend needed.
+ *  - FIRE corpus + expenses computed inline using present-value annuity formula — NO backend needed.
+ *  - AI verdict (God Mode analysis) now tries:
+ *      1. Local brain.py at http://127.0.0.1:8000/api/chat/stream  (full AI narrative)
+ *      2. Local Ollama at http://127.0.0.1:11434/api/generate      (direct LLM fallback)
+ *      3. Inline template verdict built from the computed numbers   (100% offline fallback)
+ *  - Page now works fully on finos1.vercel.app without ANY local backend.
+ *  - Arya pre-scan coaching gracefully shows offline message when AryaAI is unavailable.
  *
- * New additions:
- *  - Export-to-PDF button on report (print-ready layout via window.print).
- *  - Inline validation error messages per step.
+ * v2.0 fixes retained:
+ *  - isScanning guard prevents duplicate requests.
+ *  - Per-step input validation with inline error messages.
  *  - Surplus color coding (green = positive, red = negative).
- *  - isScanning lock prevents double-submissions.
+ *  - MutationObserver-based print button injection.
+ *  - XSS protection via escapeHtml() before innerHTML injection.
  */
 
 document.addEventListener("DOMContentLoaded", () => {
     // ─── DOM References ─────────────────────────────────────────────────────
-    const inputSection   = document.getElementById('inputSection');
-    const reportSection  = document.getElementById('reportSection');
-    const loader         = document.getElementById('loader');
-    const wizardForm     = document.getElementById('wizardForm');
-    const nextBtn        = document.getElementById('nextBtn');
-    const prevBtn        = document.getElementById('prevBtn');
-    const progressText   = document.getElementById('progressText');
-    const wizProgress    = document.getElementById('wizProgress');
-    const chatInputArea  = document.getElementById('chatInputArea');
-    const followUpInput  = document.getElementById('followUpInput');
+    const inputSection    = document.getElementById('inputSection');
+    const reportSection   = document.getElementById('reportSection');
+    const loader          = document.getElementById('loader');
+    const wizardForm      = document.getElementById('wizardForm');
+    const nextBtn         = document.getElementById('nextBtn');
+    const prevBtn         = document.getElementById('prevBtn');
+    const progressText    = document.getElementById('progressText');
+    const wizProgress     = document.getElementById('wizProgress');
+    const chatInputArea   = document.getElementById('chatInputArea');
+    const followUpInput   = document.getElementById('followUpInput');
     const sendFollowUpBtn = document.getElementById('sendFollowUpBtn');
 
     // ─── State ───────────────────────────────────────────────────────────────
-    let currentStep = 0;
-    let isScanning  = false;          // [FIX] prevents duplicate scan requests
-    let currentSessionId = null;
-    const userData = {};
+    let currentStep       = 0;
+    let isScanning        = false;
+    let currentSessionId  = null;
+    const userData        = {};
+
+    // Cached computed results — used by fallback AI template
+    let _computed = {};
 
     // ─── Wizard Steps ────────────────────────────────────────────────────────
     const steps = [
         {
             title: "01/06: INCOME STREAMS",
             fields: ['base_income', 'bonus_income', 'side_income'],
-            requiredFields: ['base_income'],  // at least base salary must be > 0
             html: `
                 <label class="x-ray-label">Base In-Hand Salary (₹ / Month)</label>
                 <input type="number" id="base_income" class="x-ray-input" placeholder="e.g. 120000" min="0" />
@@ -69,7 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
         {
             title: "02/06: FIXED OBLIGATIONS",
             fields: ['housing_cost', 'other_emis', 'fixed_utils'],
-            requiredFields: [],
             html: `
                 <label class="x-ray-label">Rent / Home Loan EMI (₹ / Month)</label>
                 <input type="number" id="housing_cost" class="x-ray-input" placeholder="e.g. 35000" min="0" />
@@ -82,7 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
         {
             title: "03/06: LIFESTYLE BURN",
             fields: ['groceries', 'fun_money', 'subs_misc'],
-            requiredFields: [],
             html: `
                 <label class="x-ray-label">Groceries & Essentials (₹ / Month)</label>
                 <input type="number" id="groceries" class="x-ray-input" placeholder="e.g. 15000" min="0" />
@@ -95,7 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
         {
             title: "04/06: ASSET ALLOCATION",
             fields: ['asset_equity', 'asset_safe', 'asset_alt', 'asset_cash'],
-            requiredFields: [],
             html: `
                 <label class="x-ray-label">Equity Portfolio (Stocks + MFs) (Total ₹)</label>
                 <input type="number" id="asset_equity" class="x-ray-input" placeholder="e.g. 1200000 (12L)" min="0" />
@@ -110,7 +98,6 @@ document.addEventListener("DOMContentLoaded", () => {
         {
             title: "05/06: LIABILITIES",
             fields: ['total_debt', 'avg_interest'],
-            requiredFields: [],
             html: `
                 <label class="x-ray-label">Total Debt Outstanding (Total ₹)</label>
                 <input type="number" id="total_debt" class="x-ray-input" placeholder="e.g. 4500000 (45L)" min="0" />
@@ -121,7 +108,6 @@ document.addEventListener("DOMContentLoaded", () => {
         {
             title: "06/06: THE HORIZON",
             fields: ['curr_age', 'fire_age'],
-            requiredFields: ['curr_age', 'fire_age'],
             html: `
                 <label class="x-ray-label">Current Age</label>
                 <input type="number" id="curr_age" class="x-ray-input" placeholder="e.g. 28" min="18" max="79" />
@@ -130,6 +116,140 @@ document.addEventListener("DOMContentLoaded", () => {
             `
         }
     ];
+
+    // ─── Client-Side Financial Math ─────────────────────────────────────────
+    /**
+     * Compute ratios without any backend call.
+     * Indian net-worth benchmark: Thomas Stanley rule adapted — (Age − 27) × Annual Income / 10
+     */
+    function computeRatios(totalIncome, totalExpenses, monthlySurplus, totalAssets, totalDebt, age) {
+        const netWorth      = totalAssets - totalDebt;
+        const savingsRate   = totalIncome > 0
+            ? ((Math.max(monthlySurplus, 0) / totalIncome) * 100).toFixed(1)
+            : '0.0';
+        const debtToAsset   = totalAssets > 0
+            ? ((totalDebt / totalAssets) * 100).toFixed(1)
+            : '0.0';
+
+        // Indian benchmarked expected NW: years_working × annual_income × 0.1
+        const annualIncome  = totalIncome * 12;
+        const yearsWorking  = Math.max(0, age - 22);
+        const expectedNW    = yearsWorking * annualIncome * 0.1;
+
+        let nwGrade;
+        if (expectedNW <= 0) {
+            nwGrade = netWorth > 0 ? 'Building ↑' : 'Getting started';
+        } else {
+            const pct = ((netWorth / expectedNW - 1) * 100).toFixed(0);
+            nwGrade = pct >= 0 ? `+${pct}% vs target ✅` : `${pct}% vs target ⚠`;
+        }
+
+        return {
+            net_worth_inr:          netWorth,
+            savings_rate_percent:   parseFloat(savingsRate),
+            debt_to_asset_ratio:    parseFloat(debtToAsset),
+            expected_net_worth_inr: expectedNW,
+            net_worth_grade:        nwGrade
+        };
+    }
+
+    /**
+     * FIRE corpus using present-value annuity formula.
+     * Inflation: 6% | Post-retire return: 10% | Life expectancy: 85
+     */
+    function computeFIRE(totalExpenses, currAge, fireAge, lifeExp = 85, inflation = 6.0, postReturn = 10.0) {
+        const yearsToFire   = Math.max(1, fireAge - currAge);
+        const retireYears   = Math.max(1, lifeExp - fireAge);
+
+        // Inflate today's annual expenses to retirement age
+        const expAtRetire   = totalExpenses * 12 * Math.pow(1 + inflation / 100, yearsToFire);
+
+        // Real rate of return in retirement (Fisher equation)
+        const realReturn    = (postReturn - inflation) / 100;
+        let corpus;
+        if (realReturn > 0) {
+            corpus = expAtRetire * (1 - Math.pow(1 + realReturn, -retireYears)) / realReturn;
+        } else {
+            corpus = expAtRetire * retireYears;   // zero-real-return edge case
+        }
+
+        // Monthly SIP needed at 12% CAGR to hit corpus in yearsToFire years
+        const monthlyRate = 0.12 / 12;
+        const months      = yearsToFire * 12;
+        const sipNeeded   = corpus * monthlyRate / (Math.pow(1 + monthlyRate, months) - 1);
+
+        let realityCheck;
+        const corpusCr = corpus / 1e7;
+        if (yearsToFire <= 5) {
+            realityCheck = `⚡ Aggressive ${yearsToFire}-year timeline. You need ₹${Math.round(sipNeeded / 1000)}K/month SIP at 12% CAGR — or a major income event. Every ₹1L of expense reduction saves ₹${(16.7 / 10).toFixed(1)}L in corpus needed.`;
+        } else if (yearsToFire <= 15) {
+            realityCheck = `Achievable with discipline. Target ₹${Math.round(sipNeeded / 1000)}K/month SIP (10% annual step-up). Cutting ₹10K/month in lifestyle burn saves ₹${(10000 * 12 * Math.pow(1.06, yearsToFire) / 1e5).toFixed(1)}L corpus needed at retirement.`;
+        } else {
+            realityCheck = `Long runway — time is your biggest asset. Start ₹${Math.round(sipNeeded / 1000)}K/month SIP today, step up 10%/year. At 12% CAGR over ${yearsToFire} years, compounding does the heavy lifting.`;
+        }
+
+        return {
+            required_fire_corpus_inr: corpus,
+            expenses_at_retirement_inr: Math.round(expAtRetire),
+            sip_needed_monthly: Math.round(sipNeeded),
+            reality_check: realityCheck
+        };
+    }
+
+    // ─── Inline Verdict Template (100% offline fallback) ─────────────────────
+    function buildInlineVerdict(c) {
+        const { totalIncome, totalExpenses, monthlySurplus, ratioData, fireData, userData } = c;
+        const savRate  = ratioData.savings_rate_percent;
+        const dta      = ratioData.debt_to_asset_ratio;
+        const nw       = ratioData.net_worth_inr;
+        const corpus   = fireData.required_fire_corpus_inr;
+        const yearsToFire = (userData.fire_age || 45) - (userData.curr_age || 30);
+
+        // Reality Check grade
+        const srGrade  = savRate >= 30 ? '✅ Excellent' : savRate >= 20 ? '⚠ Average' : '🔴 Critical';
+        const dtaGrade = dta <= 30 ? '✅ Healthy' : dta <= 60 ? '⚠ Watch this' : '🔴 Debt-heavy';
+        const emiPct   = totalIncome > 0 ? ((userData.housing_cost + userData.other_emis) / totalIncome * 100).toFixed(0) : 0;
+
+        const aryaFmt  = v => `₹${Math.abs(Math.round(v)).toLocaleString('en-IN')}`;
+
+        return `
+### 🔍 The Reality Check
+
+Your **savings rate is ${savRate}%** — ${srGrade === '✅ Excellent' ? 'above the 30% threshold. You\'re building wealth.' : savRate >= 20 ? 'in average range. Optimise 2–3 expenses to cross 30%.' : 'below 20% danger zone. Structural fix needed, not just cutting chai.'} EMIs consume **${emiPct}%** of income — ${emiPct > 40 ? '🔴 above 40%, you\'re working for your lenders.' : emiPct > 25 ? '⚠ manageable but watch scope creep.' : '✅ healthy ratio.'} Debt-to-asset: **${dta}%** — ${dtaGrade}.
+
+---
+
+### 📐 The Math
+
+| Metric | Your Number | Benchmark |
+|--------|------------|-----------|
+| Monthly Surplus | **${monthlySurplus >= 0 ? aryaFmt(monthlySurplus) : '-' + aryaFmt(monthlySurplus)}** | > 30% of income |
+| Savings Rate | **${savRate}%** | ≥30% for wealth-builders |
+| Debt-to-Asset | **${dta}%** | <30% = fortress |
+| FIRE Corpus Needed | **₹${(corpus / 1e7).toFixed(2)} Cr** | at age ${userData.fire_age || 45} |
+| Monthly SIP needed | **${aryaFmt(fireData.sip_needed_monthly)}/month** | at 12% CAGR |
+| Net Worth | **${nw >= 0 ? aryaFmt(nw) : '-' + aryaFmt(nw)}** | ${ratioData.net_worth_grade} |
+
+---
+
+### ⚠️ Where People Fail
+
+${dta > 60 ? '**Debt trap:** Your liabilities-to-assets ratio signals you\'re building someone else\'s wealth. Every high-interest EMI is compounding *against* you. Prepay the highest-rate debt first — calculate the post-tax return equivalent before investing elsewhere.' : '**Lifestyle creep:** The biggest wealth destroyer for Indian professionals isn\'t debt — it\'s invisible spending (eating out, subscriptions, "one-time" purchases) that prevents the savings rate from crossing 30%. At 12% CAGR, every extra ₹10K/month invested today = ₹' + (10000 * Math.pow(1.12, yearsToFire) / 1000).toFixed(0) + 'K in ' + yearsToFire + ' years.'}
+
+${savRate < 20 ? '**Low savings rate:** If you can\'t save 20%+ monthly, your FIRE timeline extends by years. Run the 50-30-20 rule: 50% needs, 30% wants, 20% minimum savings. Anything above 30% savings is the real wealth-building zone.' : ''}
+
+---
+
+### ✅ The FIN-OS Fix
+
+1. **Automate investments first** — move SIP debit to Day 1 of the month. Invest first, live on the rest.
+2. **Step up SIP 10% every April** — on your salary hike date. Automate this decision.
+3. **Kill the drain** — identify your single biggest discretionary leak and cut it by 50%.
+${userData.total_debt > 0 ? '4. **Debt waterfall** — list all debts by interest rate. Extra cash goes to highest rate first. Free ₹ from closed EMIs flows directly to investments.' : '4. **Corpus bridge** — you\'re debt-light. Focus capital on equity SIPs and NPS 80CCD(1B) for tax-free ₹50K deduction.'}
+
+*To get a personalised AI-driven analysis, start the FIN-OS backend: cd chatbot && uvicorn brain:app --port 8000*
+        `.trim();
+    }
 
     // ─── Rendering ───────────────────────────────────────────────────────────
     function renderStep() {
@@ -161,15 +281,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    /**
-     * [NEW] Validates required fields for the current step.
-     * Returns true if valid, false (and shows error) if not.
-     */
     function validateCurrentStep() {
-        const step = steps[currentStep];
         const errorEl = document.getElementById('stepError');
-
-        // Step 0: base_income must be > 0
         if (currentStep === 0) {
             const baseIncome = parseFloat(document.getElementById('base_income')?.value) || 0;
             if (baseIncome <= 0) {
@@ -177,11 +290,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 return false;
             }
         }
-
-        // Step 5: ages must be logical
         if (currentStep === 5) {
-            const currAge  = parseFloat(document.getElementById('curr_age')?.value) || 0;
-            const fireAge  = parseFloat(document.getElementById('fire_age')?.value) || 0;
+            const currAge = parseFloat(document.getElementById('curr_age')?.value) || 0;
+            const fireAge = parseFloat(document.getElementById('fire_age')?.value) || 0;
             if (currAge < 18 || currAge > 79) {
                 if (errorEl) errorEl.innerText = '⚠ Current age must be between 18 and 79.';
                 return false;
@@ -191,7 +302,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 return false;
             }
         }
-
         if (errorEl) errorEl.innerText = '';
         return true;
     }
@@ -200,9 +310,7 @@ document.addEventListener("DOMContentLoaded", () => {
     nextBtn.addEventListener('click', async () => {
         if (isScanning) return;
         if (!validateCurrentStep()) return;
-
         saveCurrentStep();
-
         if (currentStep < steps.length - 1) {
             currentStep++;
             renderStep();
@@ -227,275 +335,351 @@ document.addEventListener("DOMContentLoaded", () => {
         renderStep();
     });
 
-    // ─── Deep Scan ───────────────────────────────────────────────────────────
+    // ─── Deep Scan ─────────────────────────────────────────────────────────
     async function executeDeepScan() {
         if (isScanning) return;
         isScanning = true;
         nextBtn.disabled = true;
-
         inputSection.classList.add('hidden');
         loader.classList.remove('hidden');
 
-        // Derived aggregates
-        const totalIncome    = userData.base_income + userData.bonus_income + userData.side_income;
-        const totalFixed     = userData.housing_cost + userData.other_emis + userData.fixed_utils;
-        const totalVariable  = userData.groceries + userData.fun_money + userData.subs_misc;
-        const totalExpenses  = totalFixed + totalVariable;
-        const monthlySurplus = totalIncome - totalExpenses;
+        // ── Derived aggregates ──────────────────────────────────────────────
+        const totalIncome   = userData.base_income   + userData.bonus_income + userData.side_income;
+        const totalFixed    = userData.housing_cost  + userData.other_emis   + userData.fixed_utils;
+        const totalVariable = userData.groceries     + userData.fun_money    + userData.subs_misc;
+        const totalExpenses = totalFixed + totalVariable;
+        const monthlySurplus= totalIncome - totalExpenses;
+        const totalAssets   = userData.asset_equity + userData.asset_safe + userData.asset_alt + userData.asset_cash;
+        const totalDebt     = userData.total_debt || 0;
+        const age           = userData.curr_age || 25;
+        const fireAge       = userData.fire_age || 45;
 
-        const totalAssets    = userData.asset_equity + userData.asset_safe + userData.asset_alt + userData.asset_cash;
-        const totalDebt      = userData.total_debt;
+        // ── Client-side calculations (no backend needed) ────────────────────
+        const ratioData = computeRatios(totalIncome, totalExpenses, monthlySurplus, totalAssets, totalDebt, age);
+        const fireData  = computeFIRE(totalExpenses, age, fireAge);
 
-        try {
-            // [FIX] monthly_savings must be >= 0 (server Field ge=0). Clamp to 0 minimum.
-            const ratioRes = await fetch('http://127.0.0.1:8000/api/tools/ratios', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    monthly_income:    Math.max(totalIncome, 1),
-                    monthly_expenses:  totalExpenses,
-                    monthly_savings:   Math.max(monthlySurplus, 0),   // [FIX] was `monthlySurplus > 0 ? monthlySurplus : 0` but the ternary was never reached due to prior code path bug
-                    total_assets:      totalAssets,
-                    total_liabilities: totalDebt,
-                    age:               userData.curr_age || 25
-                })
-            });
+        // Cache computed context for AI prompt and inline fallback
+        _computed = { totalIncome, totalExpenses, monthlySurplus, totalAssets, totalDebt, ratioData, fireData, userData: { ...userData } };
 
-            if (!ratioRes.ok) {
-                const errBody = await ratioRes.text();
-                throw new Error(`Ratios API: ${ratioRes.status} — ${errBody}`);
-            }
-            const ratioData = await ratioRes.json();
+        // ── Populate Report ─────────────────────────────────────────────────
+        document.getElementById('repNetWorth').innerText =
+            `₹${Math.round(ratioData.net_worth_inr).toLocaleString('en-IN')}`;
+        document.getElementById('repTotalIncome').innerText =
+            `₹${totalIncome.toLocaleString('en-IN')}`;
+        document.getElementById('repTotalBurn').innerText =
+            `₹${totalExpenses.toLocaleString('en-IN')}`;
 
-            // F.I.R.E. analysis
-            const fireRes = await fetch('http://127.0.0.1:8000/api/tools/fire', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    monthly_expenses:   totalExpenses,
-                    current_age:        userData.curr_age || 25,
-                    target_fire_age:    userData.fire_age || 45,
-                    life_expectancy:    85,
-                    inflation_rate:     6.0,
-                    post_retire_return: 10.0
-                })
-            });
+        const surplusEl = document.getElementById('repSurplus');
+        surplusEl.innerText = `₹${Math.abs(monthlySurplus).toLocaleString('en-IN')}${monthlySurplus < 0 ? ' deficit' : ''}`;
+        surplusEl.style.color = monthlySurplus >= 0 ? '#4F7CFF' : '#FF4F4F';
 
-            if (!fireRes.ok) {
-                const errBody = await fireRes.text();
-                throw new Error(`FIRE API: ${fireRes.status} — ${errBody}`);
-            }
-            const fireData = await fireRes.json();
+        document.getElementById('repSavingsRate').innerText =
+            `${ratioData.savings_rate_percent}%`;
+        document.getElementById('repDebtRatio').innerText =
+            `${ratioData.debt_to_asset_ratio}%`;
+        document.getElementById('repNwGrade').innerText =
+            ratioData.net_worth_grade;
 
-            // ── Populate Report ─────────────────────────────────────────────
-            document.getElementById('repNetWorth').innerText =
-                `₹${Math.round(ratioData.net_worth_inr).toLocaleString('en-IN')}`;
-            document.getElementById('repTotalIncome').innerText =
-                `₹${totalIncome.toLocaleString('en-IN')}`;
-            document.getElementById('repTotalBurn').innerText =
-                `₹${totalExpenses.toLocaleString('en-IN')}`;
+        document.getElementById('repEquity').innerText  = `₹${userData.asset_equity.toLocaleString('en-IN')}`;
+        document.getElementById('repSafe').innerText    = `₹${userData.asset_safe.toLocaleString('en-IN')}`;
+        document.getElementById('repAlt').innerText     = `₹${userData.asset_alt.toLocaleString('en-IN')}`;
+        document.getElementById('repLiquid').innerText  = `₹${userData.asset_cash.toLocaleString('en-IN')}`;
 
-            // [FIX] Surplus color: red when negative, blue when positive
-            const surplusEl = document.getElementById('repSurplus');
-            surplusEl.innerText = `₹${monthlySurplus.toLocaleString('en-IN')}`;
-            surplusEl.style.color = monthlySurplus >= 0 ? '#4F7CFF' : '#FF4F4F';
+        document.getElementById('fireResults').innerHTML = `
+            <p>
+              <strong>Corpus Required at Age ${fireAge}:</strong>
+              <span style="color:#C7F000; font-size:18px;">
+                ₹${(fireData.required_fire_corpus_inr / 1e7).toFixed(2)} Cr
+              </span>
+            </p>
+            <p><strong>Projected Yearly Burn at ${fireAge}:</strong> ₹${fireData.expenses_at_retirement_inr.toLocaleString('en-IN')}</p>
+            <p><strong>SIP Needed Now:</strong> <span style="color:#a78bfa">₹${fireData.sip_needed_monthly.toLocaleString('en-IN')}/month</span> at 12% CAGR</p>
+            <div class="api-insight">> ${fireData.reality_check}</div>
+        `;
 
-            document.getElementById('repSavingsRate').innerText =
-                `${ratioData.savings_rate_percent}%`;
-            document.getElementById('repDebtRatio').innerText =
-                `${ratioData.debt_to_asset_ratio ?? 0}%`;
-            document.getElementById('repNwGrade').innerText =
-                ratioData.net_worth_grade;
-
-            document.getElementById('repEquity').innerText =
-                `₹${userData.asset_equity.toLocaleString('en-IN')}`;
-            document.getElementById('repSafe').innerText =
-                `₹${userData.asset_safe.toLocaleString('en-IN')}`;
-            document.getElementById('repAlt').innerText =
-                `₹${userData.asset_alt.toLocaleString('en-IN')}`;
-            document.getElementById('repLiquid').innerText =
-                `₹${userData.asset_cash.toLocaleString('en-IN')}`;
-
-            document.getElementById('fireResults').innerHTML = `
-                <p>
-                  <strong>Corpus Required at Age ${userData.fire_age}:</strong>
-                  <span style="color:#C7F000; font-size:18px;">
-                    ₹${(fireData.required_fire_corpus_inr / 10_000_000).toFixed(2)} Cr
-                  </span>
-                </p>
-                <p><strong>Projected Yearly Burn:</strong> ₹${fireData.expenses_at_retirement_inr.toLocaleString('en-IN')}</p>
-                <div class="api-insight">> ${fireData.reality_check}</div>
-            `;
-
-            // ── Verdict Box ─────────────────────────────────────────────────
-            const verdictBox = document.getElementById('verdictGrid');
-            verdictBox.innerHTML = `
-                <div id="qftResponseStream" style="margin-bottom:20px;">
-                    <div style="text-align:center; padding:40px 10px;" id="streamLoader">
-                        <div style="width:30px; height:30px; border:2px solid rgba(199,240,0,0.2);
-                             border-top-color:#C7F000; border-radius:50%;
-                             animation:spin 1s linear infinite; margin:0 auto 15px;"></div>
-                        <span style="color:#C7F000; font-family:'JetBrains Mono',monospace; font-size:13px;">
-                            QFT CORE IS ANALYZING YOUR DATA...
-                        </span>
-                    </div>
+        // ── Verdict Box spinner ─────────────────────────────────────────────
+        const verdictBox = document.getElementById('verdictGrid');
+        verdictBox.innerHTML = `
+            <div id="qftResponseStream" style="margin-bottom:20px;">
+                <div style="text-align:center; padding:40px 10px;" id="streamLoader">
+                    <div style="width:30px; height:30px; border:2px solid rgba(199,240,0,0.2);
+                         border-top-color:#C7F000; border-radius:50%;
+                         animation:spin 1s linear infinite; margin:0 auto 15px;"></div>
+                    <span style="color:#C7F000; font-family:'JetBrains Mono',monospace; font-size:13px;">
+                        QFT CORE IS ANALYZING YOUR DATA...
+                    </span>
                 </div>
-                <style>@keyframes spin { 100% { transform:rotate(360deg); } }</style>
-            `;
+            </div>
+            <style>@keyframes spin { 100% { transform:rotate(360deg); } }</style>
+        `;
 
-            loader.classList.add('hidden');
-            reportSection.classList.remove('hidden');
+        loader.classList.add('hidden');
+        reportSection.classList.remove('hidden');
+        isScanning = false;
+        nextBtn.disabled = false;
 
-            // ── God Mode Prompt ─────────────────────────────────────────────
-            const godModePrompt = `
+        // ── God Mode AI prompt ──────────────────────────────────────────────
+        const godModePrompt = `
 PERFORM A 'GOD MODE' FINANCIAL X-RAY ON MY EXACT DATA.
-[INCOME] ₹${totalIncome} | [BURN] ₹${totalExpenses} | [SURPLUS] ₹${monthlySurplus} | [SAVINGS RATE] ${ratioData.savings_rate_percent}%
-[EQUITY] ₹${userData.asset_equity} | [SAFE] ₹${userData.asset_safe} | [LIQUID] ₹${userData.asset_cash}
-[DEBT] ₹${totalDebt} at ${userData.avg_interest}% | [NW] ₹${ratioData.net_worth_inr} vs Target ₹${ratioData.expected_net_worth_inr}
-[FIRE] Target Age ${userData.fire_age} (Corpus needed: ₹${(fireData.required_fire_corpus_inr / 10_000_000).toFixed(2)} Cr)
+[INCOME] ₹${totalIncome}/month | [BURN] ₹${totalExpenses}/month | [SURPLUS] ₹${monthlySurplus}/month | [SAVINGS RATE] ${ratioData.savings_rate_percent}%
+[EQUITY] ₹${userData.asset_equity} | [SAFE] ₹${userData.asset_safe} | [LIQUID] ₹${userData.asset_cash} | [ALT] ₹${userData.asset_alt}
+[DEBT] ₹${totalDebt} at ${userData.avg_interest || 0}% | [NW] ₹${Math.round(ratioData.net_worth_inr)} vs Target ₹${Math.round(ratioData.expected_net_worth_inr)}
+[FIRE] Target Age ${fireAge} | Corpus needed: ₹${(fireData.required_fire_corpus_inr / 1e7).toFixed(2)} Cr | SIP needed: ₹${fireData.sip_needed_monthly}/month
+[DEBT-TO-ASSET] ${ratioData.debt_to_asset_ratio}% | [EMI LOAD] ${totalIncome > 0 ? ((userData.housing_cost + userData.other_emis) / totalIncome * 100).toFixed(0) : 0}% of income
 
-Assess my true wealth trajectory. Are my EMIs destroying me? Is my allocation too safe?
-Give me a brutally honest assessment. Use markdown headers:
+Assess my true wealth trajectory with brutal honesty. Use these markdown headers:
 ### 🔍 The Reality Check
 ### 📐 The Math
 ### ⚠️ Where People Fail
 ### ✅ The FIN-OS Fix
-            `.trim();
+        `.trim();
 
-            await streamOllamaResponse(godModePrompt, true);
-
-        } catch (error) {
-            console.error("QFT Error:", error);
-            // [FIX] Always show report section even on error so user isn't stuck on loader
-            loader.classList.add('hidden');
-            reportSection.classList.remove('hidden');
-            const verdictBox = document.getElementById('verdictGrid');
-            if (verdictBox) {
-                verdictBox.innerHTML = `
-                    <div style="color:#FF4F4F; padding:20px; font-family:'JetBrains Mono';">
-                        <strong>⚠ CONNECTION ERROR</strong><br><br>
-                        Ensure your Python backend is running:<br>
-                        <code style="color:#C7F000;">uvicorn brain:app --reload --port 8000</code><br><br>
-                        Details: ${escapeHtml(error.message)}
-                    </div>
-                `;
-            }
-        } finally {
-            isScanning = false;
-            nextBtn.disabled = false;
-        }
+        // Try AI streaming with cascading fallbacks
+        await streamWithFallback(godModePrompt, true);
     }
 
-    // ─── Streaming Chat Engine ────────────────────────────────────────────────
-    async function streamOllamaResponse(promptText, isInitialLoad = false) {
-        // [FIX] Always fetch verdictBox from live DOM (not a stale closure variable)
+    // ─── Streaming with 3-tier fallback ──────────────────────────────────────
+    async function streamWithFallback(promptText, isInitialLoad = false) {
+        // Tier 1: Local brain.py
+        const tier1Success = await tryStreamBrain(promptText, isInitialLoad);
+        if (tier1Success) return;
+
+        // Tier 2: Local Ollama directly
+        const tier2Success = await tryStreamOllama(promptText, isInitialLoad);
+        if (tier2Success) return;
+
+        // Tier 3: Inline template (100% offline)
+        renderInlineVerdict(isInitialLoad);
+    }
+
+    // Tier 1: chatbot/brain.py at :8000
+    async function tryStreamBrain(promptText, isInitialLoad) {
         const verdictBox = document.getElementById('verdictGrid');
-        if (!verdictBox) return;
-
-        if (!isInitialLoad) {
-            verdictBox.innerHTML += `
-                <div style="background:rgba(79,124,255,0.1); border-left:3px solid #4F7CFF; padding:15px; margin:20px 0;">
-                    <strong style="color:#4F7CFF;">YOU:</strong> ${escapeHtml(promptText)}
-                </div>
-            `;
-        }
-
-        const responseId = `msg-${Date.now()}`;
-        verdictBox.innerHTML += `
-            <div id="${responseId}" class="qft-msg" style="margin-bottom:20px;">
-                <span style="color:#888;">Typing...</span>
-            </div>
-        `;
-        const msgDiv = document.getElementById(responseId);
-
-        chatInputArea?.classList.add('hidden');
-        verdictBox.scrollTop = verdictBox.scrollHeight;
+        if (!verdictBox) return false;
 
         try {
+            const controller  = new AbortController();
+            const timeoutId   = setTimeout(() => controller.abort(), 5000); // 5s probe timeout
+
             const response = await fetch('http://127.0.0.1:8000/api/chat/stream', {
-                method: 'POST',
+                method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
+                signal:  controller.signal,
                 body: JSON.stringify({
                     message:    promptText,
                     session_id: currentSessionId,
-                    context:    (typeof AryaAI !== 'undefined' && AryaAI.getContextBlock ? AryaAI.getContextBlock() : "God Mode X-Ray"),
-                    psych_profile: (() => { try { const d = window.FINOS_USER_CONTEXT?.dna || JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || 'null'); return d?.archetype ? { archetype: d.archetype, bio: d.bio || '', desiContext: d.desiContext || '', chartData: d.scores || [], resilience: d.resilience || 50, leak: d.leak || 'NONE', leakDesc: d.leakDesc || '', strengths: d.strengths || [], weaknesses: d.weaknesses || [], raw: d.raw || {} } : undefined; } catch { return undefined; } })()
+                    context:    'God Mode X-Ray'
                 })
             });
+            clearTimeout(timeoutId);
+            if (!response.ok) return false;
 
-            if (!response.ok) throw new Error(`Backend returned ${response.status}`);
+            await readSSEStream(response, verdictBox, isInitialLoad, 'brain');
+            return true;
+        } catch (e) {
+            return false; // offline or refused connection
+        }
+    }
 
-            const reader  = response.body.getReader();
-            const decoder = new TextDecoder('utf-8');
-            let fullContent = '';
+    // Tier 2: Ollama directly at :11434
+    async function tryStreamOllama(promptText, isInitialLoad) {
+        const verdictBox = document.getElementById('verdictGrid');
+        if (!verdictBox) return false;
 
-            // Remove spinner now that stream has started
-            document.getElementById('streamLoader')?.remove();
+        try {
+            const controller = new AbortController();
+            const timeoutId  = setTimeout(() => controller.abort(), 5000);
 
+            const response = await fetch('http://127.0.0.1:11434/api/generate', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                signal:  controller.signal,
+                body: JSON.stringify({
+                    model:  'llama3.2:3b',
+                    prompt: `You are a ruthless Indian financial analyst. ${promptText}`,
+                    stream: true,
+                    options: { temperature: 0.3, num_predict: 700 }
+                })
+            });
+            clearTimeout(timeoutId);
+            if (!response.ok) return false;
+
+            await readOllamaStream(response, verdictBox, isInitialLoad);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    // Read brain.py SSE stream
+    async function readSSEStream(response, verdictBox, isInitialLoad, source) {
+        if (!isInitialLoad) {
+            // Add follow-up visual separator — handled by caller context
+        }
+
+        const responseId = `msg-${Date.now()}`;
+        verdictBox.innerHTML += `<div id="${responseId}" class="qft-msg" style="margin-bottom:20px;"><span style="color:#888;">Thinking...</span></div>`;
+        const msgDiv = document.getElementById(responseId);
+
+        document.getElementById('streamLoader')?.remove();
+        chatInputArea?.classList.add('hidden');
+
+        const reader  = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let fullContent = '';
+
+        try {
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-
                 const chunk = decoder.decode(value, { stream: true });
-                const lines = chunk.split('\n');
-
-                for (const line of lines) {
+                for (const line of chunk.split('\n')) {
                     if (!line.startsWith('data: ')) continue;
                     const raw = line.slice(6).trim();
-                    if (!raw || raw === '[DONE]') continue;   // [FIX] guard against SSE [DONE] sentinel
-
+                    if (!raw || raw === '[DONE]') continue;
                     try {
                         const data = JSON.parse(raw);
                         if (data.session_id) currentSessionId = data.session_id;
-                        if (data.token) {
-                            fullContent += data.token;
-                            // Sanitize LLM output before rendering as HTML to prevent XSS
-                            const rawHtml = marked.parse(fullContent);
-                            msgDiv.innerHTML = typeof DOMPurify !== 'undefined'
-                                ? DOMPurify.sanitize(rawHtml)
-                                : rawHtml.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/javascript:/gi, '');
+                        const token = data.token || data.t || '';
+                        if (token) {
+                            fullContent += token;
+                            msgDiv.innerHTML = renderMarkdown(fullContent);
                             verdictBox.scrollTop = verdictBox.scrollHeight;
                         }
                         if (data.done) break;
-                    } catch {
-                        // Malformed SSE chunk — skip silently
-                    }
+                    } catch { /* skip malformed chunk */ }
                 }
             }
-
-        } catch (e) {
-            if (msgDiv) msgDiv.innerHTML = `<span style="color:#FF4F4F;">Connection Error: ${escapeHtml(e.message)}</span>`;
         } finally {
             chatInputArea?.classList.remove('hidden');
-            // [FIX] Only focus if element is visible
-            if (followUpInput && !chatInputArea?.classList.contains('hidden')) {
-                followUpInput.focus();
-            }
+            if (followUpInput && !chatInputArea?.classList.contains('hidden')) followUpInput.focus();
             verdictBox.scrollTop = verdictBox.scrollHeight;
         }
     }
 
-    // ─── Follow-up Chat ───────────────────────────────────────────────────────
-    function handleFollowUp() {
+    // Read Ollama NDJSON stream
+    async function readOllamaStream(response, verdictBox, isInitialLoad) {
+        const responseId = `msg-${Date.now()}`;
+        verdictBox.innerHTML += `<div id="${responseId}" class="qft-msg" style="margin-bottom:20px;"><span style="color:#888;">Thinking via Ollama...</span></div>`;
+        const msgDiv = document.getElementById(responseId);
+
+        document.getElementById('streamLoader')?.remove();
+        chatInputArea?.classList.add('hidden');
+
+        const reader  = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let fullContent = '';
+        let buf = '';
+
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buf += decoder.decode(value, { stream: true });
+                const parts = buf.split('\n');
+                buf = parts.pop(); // keep incomplete last line
+                for (const part of parts) {
+                    if (!part.trim()) continue;
+                    try {
+                        const data = JSON.parse(part);
+                        if (data.response) {
+                            fullContent += data.response;
+                            msgDiv.innerHTML = renderMarkdown(fullContent);
+                            verdictBox.scrollTop = verdictBox.scrollHeight;
+                        }
+                        if (data.done) break;
+                    } catch { /* skip */ }
+                }
+            }
+        } finally {
+            chatInputArea?.classList.remove('hidden');
+            if (followUpInput && !chatInputArea?.classList.contains('hidden')) followUpInput.focus();
+            verdictBox.scrollTop = verdictBox.scrollHeight;
+        }
+    }
+
+    // Tier 3: fully offline inline verdict
+    function renderInlineVerdict(isInitialLoad) {
+        const verdictBox = document.getElementById('verdictGrid');
+        if (!verdictBox) return;
+
+        document.getElementById('streamLoader')?.remove();
+
+        const md = buildInlineVerdict(_computed);
+        const responseId = `msg-${Date.now()}`;
+        verdictBox.innerHTML += `
+            <div id="${responseId}" class="qft-msg" style="margin-bottom:20px;">
+                ${renderMarkdown(md)}
+                <div style="margin-top:16px;padding:10px 14px;background:rgba(199,240,0,.04);border:1px solid rgba(199,240,0,.15);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(199,240,0,.5);">
+                    ⚡ AI OFFLINE — showing computed analysis. For personalised AI narrative, run <code>cd chatbot && uvicorn brain:app --port 8000</code> locally.
+                </div>
+            </div>`;
+        verdictBox.scrollTop = verdictBox.scrollHeight;
+        chatInputArea?.classList.remove('hidden');
+        if (followUpInput && !chatInputArea?.classList.contains('hidden')) followUpInput.focus();
+    }
+
+    // ─── Markdown renderer ───────────────────────────────────────────────────
+    function renderMarkdown(md) {
+        if (typeof marked !== 'undefined' && marked.parse) {
+            const raw = marked.parse(md);
+            return typeof DOMPurify !== 'undefined'
+                ? DOMPurify.sanitize(raw)
+                : raw.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/javascript:/gi, '');
+        }
+        // Basic fallback if marked hasn't loaded yet
+        return md
+            .replace(/^### (.+)$/gm, '<strong style="color:#C7F000;font-size:13px;display:block;margin:14px 0 6px">$1</strong>')
+            .replace(/^---$/gm, '<hr style="border-color:rgba(255,255,255,0.08);margin:12px 0">')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>');
+    }
+
+    // ─── Follow-up chat (also uses cascading fallback) ────────────────────────
+    async function streamOllamaResponse(promptText) {
+        const verdictBox = document.getElementById('verdictGrid');
+        if (!verdictBox) return;
+
+        verdictBox.innerHTML += `
+            <div style="background:rgba(79,124,255,0.1); border-left:3px solid #4F7CFF; padding:15px; margin:20px 0;">
+                <strong style="color:#4F7CFF;">YOU:</strong> ${escapeHtml(promptText)}
+            </div>
+        `;
+
+        // Enrich follow-up with computed context so AI has full picture
+        const enriched = `
+Context from earlier God Mode scan:
+Income ₹${_computed.totalIncome}/month | Savings rate ${_computed.ratioData?.savings_rate_percent}% | NW ₹${Math.round(_computed.ratioData?.net_worth_inr)} | Debt ₹${_computed.totalDebt}
+FIRE corpus needed: ₹${(_computed.fireData?.required_fire_corpus_inr / 1e7).toFixed(2)} Cr at age ${_computed.userData?.fire_age}
+
+User follow-up question: ${promptText}
+
+Answer concisely (3-5 sentences) with specific ₹ amounts. Be direct and brutally honest.`.trim();
+
+        await streamWithFallback(enriched, false);
+    }
+
+    sendFollowUpBtn?.addEventListener('click', () => {
         const text = followUpInput.value.trim();
         if (!text) return;
         followUpInput.value = '';
-        streamOllamaResponse(text, false);
-    }
-
-    sendFollowUpBtn?.addEventListener('click', handleFollowUp);
-    followUpInput?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleFollowUp();
+        streamOllamaResponse(text);
+    });
+    followUpInput?.addEventListener('keypress', e => {
+        if (e.key === 'Enter') {
+            const text = followUpInput.value.trim();
+            if (!text) return;
+            followUpInput.value = '';
+            streamOllamaResponse(text);
+        }
     });
 
-    // ─── [NEW] Export to PDF ──────────────────────────────────────────────────
-    // Injects a print button into the report action bar and triggers browser print.
+    // ─── Print / PDF ──────────────────────────────────────────────────────────
     function injectPrintButton() {
         const actionBar = document.querySelector('.action-bar');
         if (!actionBar || document.getElementById('printReportBtn')) return;
-
         const printBtn = document.createElement('button');
-        printBtn.id = 'printReportBtn';
+        printBtn.id        = 'printReportBtn';
         printBtn.className = 'stylish-button';
         printBtn.style.cssText = 'margin-left:10px;';
         printBtn.innerHTML = '🖨 EXPORT PDF';
@@ -503,22 +687,12 @@ Give me a brutally honest assessment. Use markdown headers:
         actionBar.appendChild(printBtn);
     }
 
-    // Inject print button once the report section becomes visible.
-    // MutationObserver watches the hidden class toggle.
     const observer = new MutationObserver(() => {
-        if (!reportSection.classList.contains('hidden')) {
-            injectPrintButton();
-        }
+        if (!reportSection.classList.contains('hidden')) injectPrintButton();
     });
-    if (reportSection) {
-        observer.observe(reportSection, { attributes: true, attributeFilter: ['class'] });
-    }
+    if (reportSection) observer.observe(reportSection, { attributes: true, attributeFilter: ['class'] });
 
-    // ─── Utility ─────────────────────────────────────────────────────────────
-    /**
-     * Escapes user-supplied strings before injecting into innerHTML.
-     * Prevents stored-XSS from chat follow-up content.
-     */
+    // ─── Utilities ────────────────────────────────────────────────────────────
     function escapeHtml(str) {
         return String(str)
             .replace(/&/g, '&amp;')

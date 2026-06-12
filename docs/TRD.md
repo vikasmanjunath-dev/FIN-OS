@@ -341,7 +341,7 @@ Protocol     HTTP (not deployed to Vercel — local only)
 Endpoints    POST /arya             (non-streaming JSON response)
              POST /arya/stream      (SSE streaming response)
 Analysis     llama3.1:latest — num_ctx=2560, temperature=0.25, max_tokens=700
-Chat         llama3.2:3b    — num_ctx=1536, temperature=0.45, max_tokens=300
+Chat         llama3.2:3b    — num_ctx=1536, temperature=0.30, max_tokens=300
 ```
 
 ### Alert Engine
