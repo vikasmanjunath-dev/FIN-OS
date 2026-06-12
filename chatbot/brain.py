@@ -57,7 +57,7 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -87,9 +87,10 @@ async def log_requests(request: Request, call_next):
     response = await call_next(request)
     duration = (time.perf_counter() - start) * 1000
     if not request.url.path.startswith("/health"):
+        origin = request.headers.get("origin", "-")
         logger.info(
-            "%s %s -> %d (%.1f ms)",
-            request.method, request.url.path, response.status_code, duration
+            "%s %s [origin: %s] -> %d (%.1f ms)",
+            request.method, request.url.path, origin, response.status_code, duration
         )
     return response
 
@@ -739,6 +740,9 @@ async def chat_stream(request: Request, body: ChatRequest):
                     continue
         except HTTPException as e:
             yield f"data: {json.dumps({'error': e.detail})}\n\n"
+        except Exception as e:
+            logger.warning("[chat_stream] Ollama unreachable: %s", e)
+            yield f"data: {json.dumps({'error': 'Ollama offline — run: ollama serve'})}\n\n"
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
 
@@ -824,6 +828,9 @@ async def ai_report_stream(request: Request, body: ReportRequest):
                     continue
         except HTTPException as e:
             yield f"data: {json.dumps({'error': e.detail})}\n\n"
+        except Exception as e:
+            logger.warning("[ai_report_stream] Ollama unreachable: %s", e)
+            yield f"data: {json.dumps({'error': 'Ollama offline — run: ollama serve'})}\n\n"
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
 
@@ -1228,6 +1235,9 @@ async def _portfolio_sse(messages: list[dict], model: str = None):
                     continue
         except HTTPException as e:
             yield f"data: {json.dumps({'error': e.detail})}\n\n"
+        except Exception as e:
+            logger.warning("[mind_stream] Ollama unreachable: %s", e)
+            yield f"data: {json.dumps({'error': 'Ollama offline — run: ollama serve'})}\n\n"
 
     return StreamingResponse(gen(), media_type="text/event-stream")
 
@@ -1266,6 +1276,9 @@ async def portfolio_chat_stream(request: Request, body: PortfolioChatRequest):
                     continue
         except HTTPException as e:
             yield f"data: {json.dumps({'error': e.detail})}\n\n"
+        except Exception as e:
+            logger.warning("[portfolio_chat_stream] Ollama unreachable: %s", e)
+            yield f"data: {json.dumps({'error': 'Ollama offline — run: ollama serve'})}\n\n"
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
 
