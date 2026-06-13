@@ -1,12 +1,35 @@
-2026-06-13 11:52:00,975 [INFO] fin-os.memory: Persistent memory: ENABLED  (Supabase https://oeapcyucnduhwpgxfknb.supabase.co)
-2026-06-13 11:52:00,978 [INFO] fin-os: Auto-selected model: qwen3:14b (RAM: 25.8GB)
-2026-06-13 11:52:00,979 [WARNING] fin-os: SemanticMemory: sentence_transformers not installed — falling back to keyword memory
-2026-06-13 11:52:00,981 [INFO] fin-os: Loading Whisper tiny…
-2026-06-13 11:52:01,473 [INFO] fin-os: Whisper tiny ready
-2026-06-13 11:52:01,480 [INFO] fin-os: FIN-OS v10  wss://127.0.0.1:8765  LLM=qwen3:14b  STT=Whisper-tiny
-2026-06-13 11:52:02,331 [INFO] fin-os: TTS warmed up
-2026-06-13 11:52:08,600 [INFO] fin-os: Ollama warmed up (qwen3:14b)
-2026-06-13 11:52:08,635 [INFO] fin-os: HTTPS Ollama proxy  →  https://127.0.0.1:8767
-2026-06-13 11:52:08,751 [INFO] fin-os: DailyBrief: next run in 19h (at 2026-06-14 07:00)
-2026-06-13 11:52:08,751 [INFO] websockets.server: server listening on 127.0.0.1:8765
-2026-06-13 11:52:08,751 [INFO] fin-os: Ready — wss://127.0.0.1:8765  |  https proxy: 127.0.0.1:8767
+2026-06-13 12:36:26,261 [INFO] fin-os.memory: Persistent memory: ENABLED  (Supabase https://oeapcyucnduhwpgxfknb.supabase.co)
+2026-06-13 12:36:26,264 [INFO] fin-os: Auto-selected model: qwen3:14b (RAM: 25.8GB)
+2026-06-13 12:36:26,265 [WARNING] fin-os: SemanticMemory: sentence_transformers not installed — falling back to keyword memory
+2026-06-13 12:36:26,266 [INFO] fin-os: Loading Whisper tiny…
+2026-06-13 12:36:26,650 [INFO] fin-os: Whisper tiny ready
+2026-06-13 12:36:26,654 [INFO] fin-os: FIN-OS v10  wss://127.0.0.1:8765  LLM=qwen3:14b  STT=Whisper-tiny
+2026-06-13 12:36:27,310 [INFO] fin-os: TTS warmed up
+2026-06-13 12:36:30,083 [INFO] fin-os: Ollama warmed up (qwen3:14b)
+2026-06-13 12:36:30,090 [INFO] fin-os: HTTPS Ollama proxy  →  https://127.0.0.1:8767
+2026-06-13 12:36:30,110 [INFO] fin-os: DailyBrief: next run in 18h (at 2026-06-14 07:00)
+2026-06-13 12:36:30,110 [INFO] websockets.server: server listening on 127.0.0.1:8765
+2026-06-13 12:36:30,110 [INFO] fin-os: Ready — wss://127.0.0.1:8765  |  https proxy: 127.0.0.1:8767
+2026-06-13 12:36:33,328 [INFO] websockets.server: connection open
+2026-06-13 12:36:33,328 [INFO] fin-os: Connected (1)
+2026-06-13 12:36:33,349 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 12:36:33,349 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 12:36:33,768 [INFO] fin-os.memory: No saved memory for user e8dab5b2 — fresh session
+2026-06-13 12:36:33,843 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 12:36:33,843 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 12:36:35,697 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
+2026-06-13 12:36:38,397 [INFO] websockets.server: connection open
+2026-06-13 12:36:38,397 [INFO] fin-os: Connected (1)
+2026-06-13 12:36:38,399 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 12:36:38,399 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 12:36:38,433 [INFO] fin-os.memory: No saved memory for user e8dab5b2 — fresh session
+2026-06-13 12:36:38,585 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 12:36:38,585 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 12:36:38,899 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 12:36:38,899 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 12:36:39,517 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 12:36:39,517 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 12:36:39,950 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 12:36:39,951 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+/opt/homebrew/Cellar/python@3.11/3.11.15_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
