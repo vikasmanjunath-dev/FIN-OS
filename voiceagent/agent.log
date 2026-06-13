@@ -1,27 +1,12 @@
-2026-06-09 23:12:57,133 [INFO] fin-os.memory: Persistent memory: ENABLED  (Supabase https://oeapcyucnduhwpgxfknb.supabase.co)
-2026-06-09 23:12:57,136 [INFO] fin-os: Auto-selected model: qwen3:14b (RAM: 25.8GB)
-2026-06-09 23:12:57,137 [WARNING] fin-os: SemanticMemory: sentence_transformers not installed — falling back to keyword memory
-2026-06-09 23:12:57,138 [INFO] fin-os: Loading Whisper tiny…
-2026-06-09 23:12:57,645 [INFO] fin-os: Whisper tiny ready
-2026-06-09 23:12:57,649 [INFO] fin-os: FIN-OS v10  ws://127.0.0.1:8765  LLM=qwen3:14b  STT=Whisper-tiny
-2026-06-09 23:12:58,638 [INFO] fin-os: TTS warmed up
-2026-06-09 23:13:04,310 [INFO] fin-os: Ollama warmed up (qwen3:14b)
-2026-06-09 23:13:04,350 [INFO] fin-os: DailyBrief: next run in 8h (at 2026-06-10 07:00)
-2026-06-09 23:13:04,351 [INFO] websockets.server: server listening on 127.0.0.1:8765
-2026-06-09 23:13:04,351 [INFO] fin-os: Ready — http://localhost:8080
-2026-06-09 23:16:12,545 [INFO] websockets.server: connection open
-2026-06-09 23:16:12,545 [INFO] fin-os: Connected (1)
-2026-06-09 23:16:12,548 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-06-09 23:16:12,548 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-06-09 23:16:12,702 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-06-09 23:16:12,702 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-06-09 23:16:13,049 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-06-09 23:16:13,049 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-06-09 23:16:13,726 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-06-09 23:16:13,726 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-06-09 23:16:15,927 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-06-09 23:16:15,927 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-2026-06-09 23:16:29,234 [INFO] fin-os: UserContext: ingested partial phase for user guest
-2026-06-09 23:16:29,235 [INFO] fin-os: UserContext accepted: guest | no-uid | phase=partial
-/opt/homebrew/Cellar/python@3.11/3.11.15_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
-  warnings.warn('resource_tracker: There appear to be %d '
+2026-06-13 11:05:08,028 [INFO] fin-os.memory: Persistent memory: ENABLED  (Supabase https://oeapcyucnduhwpgxfknb.supabase.co)
+2026-06-13 11:05:08,037 [INFO] fin-os: Auto-selected model: qwen3:14b (RAM: 25.8GB)
+2026-06-13 11:05:08,037 [WARNING] fin-os: SemanticMemory: sentence_transformers not installed — falling back to keyword memory
+2026-06-13 11:05:08,039 [INFO] fin-os: Loading Whisper tiny…
+2026-06-13 11:05:08,487 [INFO] fin-os: Whisper tiny ready
+2026-06-13 11:05:08,494 [INFO] fin-os: FIN-OS v10  wss://127.0.0.1:8765  LLM=qwen3:14b  STT=Whisper-tiny
+2026-06-13 11:05:09,106 [INFO] fin-os: TTS warmed up
+2026-06-13 11:05:14,493 [INFO] fin-os: Ollama warmed up (qwen3:14b)
+2026-06-13 11:05:14,503 [INFO] fin-os: HTTPS Ollama proxy  →  https://127.0.0.1:8766
+2026-06-13 11:05:14,582 [INFO] fin-os: DailyBrief: next run in 20h (at 2026-06-14 07:00)
+2026-06-13 11:05:14,583 [INFO] websockets.server: server listening on 127.0.0.1:8765
+2026-06-13 11:05:14,583 [INFO] fin-os: Ready — wss://127.0.0.1:8765  |  https proxy: 127.0.0.1:8766
