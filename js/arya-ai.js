@@ -537,7 +537,12 @@ Rules:
   }
 
   function _ollamaOfflineMsg() {
-    return `⚠️ Arya offline — make sure Ollama is running: <code>ollama serve</code>`;
+    return `⚠️ Arya offline — agent.py running? If yes, browser is blocking the cert.
+      <a href="https://127.0.0.1:8767" target="_blank"
+         onclick="setTimeout(function(){AryaAI._retryAllPanels&&AryaAI._retryAllPanels();},2800)"
+         style="color:#00ff88;text-decoration:underline;cursor:pointer;font-weight:700;">
+        👉 Click here to trust certificate
+      </a>, then click ↺ Refresh above. (One-time fix per browser session.)`;
   }
 
   /* ══════════════════════════════════════════════════════════════════════════
@@ -767,16 +772,12 @@ Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
         sessionStorage.setItem(cacheKey, result);
         span.textContent = result;
       } else if (firstToken) {
-        textEl.innerHTML = `<span style="color:inherit;font-size:13px;">
-          ⚠️ Arya offline — run <code>ollama serve</code> to enable AI brief
-        </span>`;
+        textEl.innerHTML = `<span style="color:inherit;font-size:13px;">${_ollamaOfflineMsg()}</span>`;
       }
 
       _renderAnomalyChips(anomalies);
     } catch {
-      textEl.innerHTML = `<span style="color:inherit;font-size:13px;">
-        ⚠️ Arya offline — run <code>ollama serve</code> to enable AI brief
-      </span>`;
+      textEl.innerHTML = `<span style="color:inherit;font-size:13px;">${_ollamaOfflineMsg()}</span>`;
     } finally {
       if (refreshBtn) { refreshBtn.disabled = false; refreshBtn.textContent = '↺ Refresh'; }
     }
@@ -792,6 +793,18 @@ Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
     if (!brief || !brief._lastData) return;
     const { data, anchorEl } = brief._lastData;
     AryaAI.dashboardBrief(data, anchorEl, true);
+  };
+
+  /**
+   * Clears all Arya session caches and retries the Morning Brief + Home tip.
+   * Called automatically 2.8 s after the user clicks "trust certificate" link.
+   */
+  AryaAI._retryAllPanels = function () {
+    Object.keys(sessionStorage)
+      .filter(k => k.startsWith('arya_'))
+      .forEach(k => sessionStorage.removeItem(k));
+    if (typeof AryaAI._refreshDashBrief === 'function') AryaAI._refreshDashBrief();
+    if (typeof window._aryaHomeTipRetry === 'function') window._aryaHomeTipRetry();
   };
 
   function _renderAnomalyChips(anomalies) {

@@ -27,7 +27,6 @@
   <link rel="stylesheet" href="../chatbot/qft-hud.css">
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-context.js?v=3" defer></script>
-  <script src="../js/arya-ai.js?v=4" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
@@ -159,26 +158,6 @@
 
     <!-- Personalized smart nudges — populated by finos-personalization.js -->
     <div id="home-nudges" style="margin-bottom:20px;"></div>
-
-    <!-- ── Arya AI Daily Tip ─────────────────────────────────────────
-         Styles via .arya-tip-card class (no inline styles) so both
-         light and dark mode render correctly without hacks.
-    ── -->
-    <div id="arya-home-tip" class="arya-tip-card" role="region" aria-label="Arya daily financial tip">
-      <div class="arya-tip-icon" aria-hidden="true">💡</div>
-      <div class="arya-tip-body">
-        <div class="arya-tip-header">
-          <span class="arya-tip-label">ARYA · TODAY'S FINANCIAL EDGE</span>
-          <button id="arya-home-refresh" class="arya-tip-refresh"
-                  onclick="refreshHomeTip()"
-                  aria-label="Refresh Arya tip"
-                  title="Get a fresh tip">↺ REFRESH</button>
-        </div>
-        <div id="arya-home-tip-text" class="arya-tip-text">
-          <span class="arya-tip-loading">Loading your daily financial edge…</span>
-        </div>
-      </div>
-    </div>
 
     <section class="home-grid">
 
@@ -451,75 +430,6 @@
 <script src="../js/ui.js" defer></script>
 
   <script>
-  // ── Arya Home Daily Tip ─────────────────────────────────────────────────────
-  const _HOME_TIP_KEY = 'arya_home_tip_v1_' + new Date().toDateString();
-
-  async function loadHomeTip(force) {
-    // Wait for DOM to be ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => loadHomeTip(force));
-      return;
-    }
-    const el = document.getElementById('arya-home-tip-text');
-    const btn = document.getElementById('arya-home-refresh');
-    if (!el || typeof AryaAI === 'undefined') return;
-
-    // Serve from cache unless force-refreshing
-    if (!force) {
-      const cached = sessionStorage.getItem(_HOME_TIP_KEY);
-      if (cached && cached.length > 30 && !cached.includes('<think>')) {
-        el.textContent = cached; return;
-      }
-    }
-
-    // Loading state
-    if (btn) { btn.disabled = true; btn.textContent = '…'; }
-    el.innerHTML = '<span id="arya-home-stream" style="color:rgba(199,240,0,.6);font-size:13px;">🧠 Generating your financial edge…</span>';
-    const s = document.getElementById('arya-home-stream');
-
-    // Pull from FINOS_USER_CONTEXT (DB) with localStorage fallback
-    const ctx      = AryaAI.getContext();
-    const name     = ctx?.identity?.name     || localStorage.getItem('finos_display_name') || 'Investor';
-    const dna      = ctx?.identity?.financial_dna || localStorage.getItem('finos_financial_dna') || 'Explorer';
-    const rawInt   = ctx?.identity?.interests;
-    const interests= Array.isArray(rawInt) ? rawInt.join(', ') : (rawInt || localStorage.getItem('finos_interests') || 'stocks');
-    const netWorth = ctx?.profile?.net_worth || localStorage.getItem('finos_net_worth') || 0;
-    const savings  = ctx?.profile?.savings_rate || localStorage.getItem('finos_savings_rate') || 0;
-    const dow      = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()];
-
-    let firstToken = true;
-    try {
-      const result = await AryaAI.ask(
-        `${dow} personalised tip for ${name} (DNA: ${dna}, interests: ${interests}, net worth: ₹${Number(netWorth).toLocaleString('en-IN')}, savings rate: ${savings}%). Give ONE powerful financial insight they can act on TODAY based on their actual profile. 2 sentences max. Desi tone, specific to Indian markets. Reference their real numbers if possible. No greeting, no preamble.`,
-        (tok, display) => {
-          if (display !== undefined && display.trim()) {
-            if (firstToken) { el.innerHTML = '<span id="arya-home-stream" style="color:rgba(255,255,255,.82);"></span>'; firstToken = false; }
-            document.getElementById('arya-home-stream').textContent = display;
-          }
-        }
-      );
-      if (result && result.trim()) {
-        // Clear the "generating…" state and show final clean text
-        sessionStorage.setItem(_HOME_TIP_KEY, result);
-        el.textContent = result;
-      } else if (firstToken) {
-        el.innerHTML = '<span style="color:rgba(255,255,255,.3);">AI offline — start Ollama for daily tips.</span>';
-      }
-    } catch {
-      el.innerHTML = '<span style="color:rgba(255,255,255,.3);">AI offline — start Ollama for daily tips.</span>';
-    } finally {
-      if (btn) { btn.disabled = false; btn.textContent = '↺ REFRESH'; }
-    }
-  }
-
-  // Force-refresh when user clicks ↺
-  function refreshHomeTip() { loadHomeTip(true); }
-
-  // Auto-load on page load
-  loadHomeTip(false);
-  </script>
-
-  <script>
   // ── FIN-OS Personalization — Home Page ──────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function () {
     if (typeof FinosPersona === 'undefined') return;
@@ -565,104 +475,14 @@
     FinosPersona.injectNavBadges();
   });
 
-  // Also update QFT system prompt to use full FINOS_USER_CONTEXT
-  window.addEventListener('finos-context-ready', function () {
-    // QFT uses getFinosContext() which only reads localStorage DNA + xray.
-    // Upgrade it to also include the richer finos-context.js data.
-    const originalGetCtx = window._qftGetContext;
-    if (typeof AryaAI !== 'undefined') {
-      const richCtx = AryaAI.getContextBlock();
-      if (richCtx && richCtx.length > 50) {
-        window._finosQFTContext = richCtx;
-      }
-    }
-  });
   </script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
   <script src="../js/finos-widget.js?v=7"></script>
   <script src="../js/finos-search.js?v=2"></script>
-  <script src="../js/arya-memory.js" defer></script>
-  <script src="../js/arya-life-events.js" defer></script>
   <script src="../js/finos-mobile.js" defer></script>
 
 <style id="home-light-theme">
-/* ── Arya tip card ────────────────────────────────────────────── */
-.arya-tip-card {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-  margin-bottom: 28px;
-  padding: 18px 22px;
-  border-radius: 16px;
-  border: 1px solid rgba(199,240,0,.2);
-  background: linear-gradient(135deg, rgba(199,240,0,.06), rgba(0,212,255,.03));
-  font-family: var(--font-sans, -apple-system, sans-serif);
-}
-.arya-tip-icon {
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #c7f000, #4d7cff);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-.arya-tip-body { flex: 1; min-width: 0; }
-.arya-tip-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  gap: 8px;
-}
-.arya-tip-label {
-  font-weight: 700;
-  font-size: 12px;
-  color: #c7f000;
-  letter-spacing: .4px;
-  font-family: var(--font-mono, monospace);
-}
-.arya-tip-refresh {
-  padding: 3px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(199,240,0,.3);
-  background: rgba(199,240,0,.06);
-  color: #c7f000;
-  font-size: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: var(--font-mono, monospace);
-  letter-spacing: .5px;
-  transition: background .2s;
-  flex-shrink: 0;
-}
-.arya-tip-refresh:hover { background: rgba(199,240,0,.14); }
-.arya-tip-refresh:focus-visible {
-  outline: 2px solid #c7f000;
-  outline-offset: 2px;
-}
-.arya-tip-text {
-  font-size: 14px;
-  line-height: 1.65;
-  color: rgba(255,255,255,.78);
-}
-.arya-tip-loading { color: rgba(199,240,0,.5); }
-
-/* Light mode overrides for Arya tip */
-[data-theme="light"] .arya-tip-card {
-  border-color: rgba(79,124,255,.2);
-  background: linear-gradient(135deg, rgba(79,124,255,.05), rgba(0,180,255,.03));
-}
-[data-theme="light"] .arya-tip-label { color: #4F7CFF; }
-[data-theme="light"] .arya-tip-refresh {
-  border-color: rgba(79,124,255,.3);
-  background: rgba(79,124,255,.06);
-  color: #4F7CFF;
-}
-[data-theme="light"] .arya-tip-refresh:hover { background: rgba(79,124,255,.14); }
-[data-theme="light"] .arya-tip-text { color: rgba(0,0,0,.72); }
-[data-theme="light"] .arya-tip-loading { color: rgba(79,124,255,.6); }
-
 /* Card links — remove anchor underline but keep all card styles */
 a.card {
   text-decoration: none;
