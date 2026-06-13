@@ -14,9 +14,9 @@
   'use strict';
 
   /* ── Config ──────────────────────────────────────────────────────────────── */
-  const OLLAMA_URL   = 'http://localhost:11434/api/generate';
+  const OLLAMA_URL   = 'https://127.0.0.1:8766/api/generate';
   const OLLAMA_MODEL = 'qwen3:14b';
-  const WS_URL       = 'ws://127.0.0.1:8765';
+  const WS_URL       = 'wss://127.0.0.1:8765';
   const QUIZ_STORAGE = 'finos_learn_quiz_scores';    // localStorage key
   const MOD_STORAGE  = 'finos_learned_modules';      // localStorage key
 

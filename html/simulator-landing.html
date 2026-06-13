@@ -704,7 +704,7 @@
 <!-- ── OLLAMA AI MODULE ────────────────────────────────────────── -->
 <script>
 const OllamaAI = (function () {
-  const BASE  = 'http://localhost:11434';
+  const BASE  = 'https://127.0.0.1:8766';
   const MODEL = 'qwen2.5:3b';
 
   async function available() {
@@ -1309,7 +1309,7 @@ SimAI.init();
    LLM: Ollama port 11434, NDJSON streaming
    State: reads any STATE variant or localStorage
 ─────────────────────────────────────────────────────────────── */
-const OLLAMA_URL = 'http://localhost:11434';
+const OLLAMA_URL = 'https://127.0.0.1:8766';
 let ARYA_MODEL = 'llama3.1';
 let _aryaOnline   = false;
 let _aryaBusy     = false;
@@ -1877,14 +1877,14 @@ document.addEventListener('keydown',e=>{if((e.altKey||e.metaKey)&&e.key==='m'){e
 /* ═══════════════════════════════════════════════════════════════════
    BRAVE BROWSER — WS backend path
    Brave blocks Whisper CDN (jsDelivr) and webkitSpeechRecognition
-   (Google servers). This path uses ws://127.0.0.1:8765 voiceagent:
+   (Google servers). This path uses wss://127.0.0.1:8765 voiceagent:
      STT  : faster-whisper (local)
      LLM  : Ollama (local)
      TTS  : Edge Neural → base64 MP3 chunks over WS
    _bv* vars/functions declared unconditionally — _isBrave only gates call sites.
 ═══════════════════════════════════════════════════════════════════ */
 
-  const _BV_URL = 'ws://127.0.0.1:8765';
+  const _BV_URL = 'wss://127.0.0.1:8765';
 
   let _bvWs       = null;
   let _bvReady    = false;
