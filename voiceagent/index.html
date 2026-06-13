@@ -504,7 +504,7 @@ input[type=range]::-webkit-slider-thumb{
   </div>
   <div class="topbar-r">
     <div class="chip model" id="chip-model">qwen2.5:3b</div>
-    <div class="chip" id="chip-ws">ws://localhost:8765</div>
+    <div class="chip" id="chip-ws">wss://127.0.0.1:8765</div>
     <div class="chip live" id="chip-status">OFFLINE</div>
     <div id="dot"></div>
   </div>
@@ -654,7 +654,7 @@ input[type=range]::-webkit-slider-thumb{
 const WS_URL = (function() {
   const p = new URLSearchParams(window.location.search);
   if (p.get('ws')) return p.get('ws');
-  return 'ws://localhost:8765';
+  return 'wss://127.0.0.1:8765';
 })();
 document.getElementById('chip-ws').textContent = WS_URL;
 
