@@ -414,7 +414,7 @@ window.runBehavioralDebrief = async function() {
 };
 
 async function _dnaOllamaDebrief(scores, archetype, responses) {
-    const OLLAMA_URL   = 'https://127.0.0.1:8766/api/generate';
+    const OLLAMA_URL   = 'https://127.0.0.1:8767/api/generate';
     const OLLAMA_MODEL = 'qwen3:14b';
 
     const textEl = document.getElementById('dna-debrief-text');

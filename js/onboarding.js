@@ -19,7 +19,7 @@
   'use strict';
 
   /* ── Config ─────────────────────────────────────────────────────────────── */
-  const OLLAMA_URL   = 'https://127.0.0.1:8766/api/generate';
+  const OLLAMA_URL   = 'https://127.0.0.1:8767/api/generate';
   const OLLAMA_MODEL = 'qwen3:14b';
   const SUPABASE_URL = 'https://oeapcyucnduhwpgxfknb.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';

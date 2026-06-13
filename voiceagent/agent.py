@@ -95,7 +95,7 @@ WHISPER_DIR     = "./models"
 
 WS_HOST    = "127.0.0.1"
 WS_PORT    = 8765
-PROXY_PORT = 8766          # HTTPS Ollama proxy — allows Vercel (HTTPS) to reach local Ollama
+PROXY_PORT = 8767          # HTTPS Ollama proxy — allows Vercel (HTTPS) to reach local Ollama
 
 # ── SSL context (self-signed cert generated on first run) ─────────────────────
 _CERT = os.path.join(os.path.dirname(__file__), ".finos_cert.pem")
@@ -106,9 +106,10 @@ def _build_ssl_ctx() -> ssl.SSLContext:
     ctx.load_cert_chain(_CERT, _KEY)
     return ctx
 
-# ── HTTPS Ollama proxy (aiohttp) — port 8766 ─────────────────────────────────
-# Exposes http://localhost:11434 as https://127.0.0.1:8766 so the Vercel
+# ── HTTPS Ollama proxy (aiohttp) — port 8767 ─────────────────────────────────
+# Exposes http://localhost:11434 as https://127.0.0.1:8767 so the Vercel
 # deployment (HTTPS) can call Ollama without mixed-content blocking.
+# (Port 8766 is reserved for Portfolio Analyser server.py)
 
 _TRUST_PAGE = (
     "<!DOCTYPE html><html><head><meta charset=utf-8><title>FIN-OS Arya</title>"
