@@ -842,7 +842,7 @@
       <p>India's financial operating system.<br>Built for long-term thinkers.</p>
     </div>
     <nav class="landing-footer-nav" aria-label="Footer navigation">
-      <a href="html/home.html">App</a>
+      <a href="login.html">App</a>
       <a href="html/foundations.html">Learn</a>
       <a href="html/diagnostics.html">Diagnostics</a>
       <a href="html/track-finances.html">Track Finances</a>
@@ -1090,13 +1090,53 @@
 <script src="js/landing.js"></script>
 
 <script>
-  // index.html lives at ROOT — paths must NOT use ../
-  function goToLogin() {
-    window.location.href = "html/home.html";
+  // ══════════════════════════════════════════════════════════════════
+  // SMART APP ENTRY  —  index → login.html → html/home.html
+  // If user already has a valid Supabase session → skip login entirely
+  // ══════════════════════════════════════════════════════════════════
+  function goToApp() {
+    try {
+      // Supabase v2 stores session as: sb-<project-ref>-auth-token
+      const raw = localStorage.getItem('sb-oeapcyucnduhwpgxfknb-auth-token');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const valid  = parsed?.access_token && (
+          !parsed.expires_at || (Date.now() / 1000 < parsed.expires_at)
+        );
+        if (valid) { window.location.href = 'html/profile.html'; return; }
+      }
+    } catch(_) {}
+    // No valid session → send to login first
+    window.location.href = 'login.html';
   }
 
-  document.getElementById("loginBtn")?.addEventListener("click", goToLogin);
-  document.getElementById("loginBtnFinal")?.addEventListener("click", goToLogin);
+  // ── Main CTA buttons ────────────────────────────────────────────────
+  document.getElementById("loginBtn")?.addEventListener("click", goToApp);
+  document.getElementById("loginBtnFinal")?.addEventListener("click", goToApp);
+
+  // ── Simulation buttons: inject "Enter FIN-OS →" after each demo ends ─
+  // When the result message becomes visible, a CTA appears inside it.
+  // The user reads the insight first, then naturally continues to FIN-OS.
+  function attachSimCTA(msgId) {
+    const el = document.getElementById(msgId);
+    if (!el) return;
+    new MutationObserver(() => {
+      if (!el.classList.contains('show') || el.querySelector('.sim-enter-cta')) return;
+      const btn = document.createElement('button');
+      btn.className = 'primary-btn btn-sm sim-enter-cta';
+      btn.style.cssText = 'margin-top: 20px; display: inline-flex;';
+      btn.innerHTML   = 'Enter FIN-OS &nbsp;→';
+      btn.addEventListener('click', goToApp);
+      el.appendChild(btn);
+    }).observe(el, { attributes: true, attributeFilter: ['class'] });
+  }
+  ['lifeMessage','desiMessage','literacyMessage','paycheckMessage','solutionMessage']
+    .forEach(attachSimCTA);
+
+  // ── Belief grid: redirect 1.8 s after user picks a belief ───────────
+  document.querySelectorAll('.belief-grid button').forEach(btn => {
+    btn.addEventListener('click', () => setTimeout(goToApp, 1800));
+  });
 
   // ── Returning-user personalization ──────────────────────────────────────────
   // Reads from localStorage (set by finos-context.js during previous sessions).
@@ -1175,7 +1215,7 @@
     }, { threshold: 0 });
 
     observer.observe(heroSection);
-    if (stickyCTABtn) stickyCTABtn.addEventListener('click', () => window.location.href = 'html/home.html');
+    if (stickyCTABtn) stickyCTABtn.addEventListener('click', goToApp);
   })();
 </script>
 
