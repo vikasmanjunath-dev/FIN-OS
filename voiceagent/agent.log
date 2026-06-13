@@ -10,3 +10,49 @@
 2026-06-13 11:05:14,582 [INFO] fin-os: DailyBrief: next run in 20h (at 2026-06-14 07:00)
 2026-06-13 11:05:14,583 [INFO] websockets.server: server listening on 127.0.0.1:8765
 2026-06-13 11:05:14,583 [INFO] fin-os: Ready — wss://127.0.0.1:8765  |  https proxy: 127.0.0.1:8766
+2026-06-13 11:12:51,993 [INFO] websockets.server: connection open
+2026-06-13 11:12:51,994 [INFO] fin-os: Connected (1)
+2026-06-13 11:12:51,998 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:12:51,998 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:12:52,165 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:12:52,165 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:12:52,217 [INFO] fin-os.memory: No saved memory for user e8dab5b2 — fresh session
+2026-06-13 11:12:52,497 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:12:52,497 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:12:52,830 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:12:52,831 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:12:53,085 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:12:53,085 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:13:49,271 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:13:49,272 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:13:49,274 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:13:49,274 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:14:49,272 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:14:49,273 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:14:49,279 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:14:49,279 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:15:49,273 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:15:49,273 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:15:49,280 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:15:49,280 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:16:17,632 [INFO] fin-os: Disconnected (0) — memory saved, context cleared
+2026-06-13 11:16:28,323 [INFO] websockets.server: connection open
+2026-06-13 11:16:28,323 [INFO] fin-os: Connected (1)
+2026-06-13 11:16:28,325 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:16:28,325 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:16:28,429 [INFO] fin-os.memory: No saved memory for user e8dab5b2 — fresh session
+2026-06-13 11:16:28,512 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:16:28,512 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:16:28,826 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:16:28,826 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:16:29,434 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:16:29,434 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:16:29,739 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:16:29,739 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:16:36,427 [INFO] fin-os: STT: english (94%)  "Hi bro, what's up, how are you doing?"
+2026-06-13 11:16:36,427 [INFO] fin-os: Detected intent: general
+2026-06-13 11:17:22,595 [INFO] fin-os: 46.2s | 134 chars | 3 TTS
+2026-06-13 11:17:26,188 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:17:26,188 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
+2026-06-13 11:17:26,226 [INFO] fin-os: UserContext: ingested full phase for user e8dab5b2-121
+2026-06-13 11:17:26,226 [INFO] fin-os: UserContext accepted: Vikas Manjunath | e8dab5b2-121 | phase=full
