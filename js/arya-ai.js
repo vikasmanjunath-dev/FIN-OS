@@ -11,8 +11,8 @@
  *   • General chat                (AryaAI.ask)
  *
  * Transport priority:
- *   1. Arya WebSocket  ws://127.0.0.1:8765  (voiceagent — full TTS + memory)
- *   2. Ollama HTTP API http://localhost:11434  (text-only, fast)
+ *   1. Arya WebSocket  wss://127.0.0.1:8765  (voiceagent — full TTS + memory)
+ *   2. Ollama HTTP API https://127.0.0.1:8766  (HTTPS proxy → localhost:11434)
  *   3. Graceful offline fallback
  *
  * Zero cloud cost. Runs 100% locally. Complete privacy.
@@ -24,9 +24,9 @@
   /* ══════════════════════════════════════════════════════════════════════════
      CONFIG
   ══════════════════════════════════════════════════════════════════════════ */
-  const OLLAMA_URL   = 'http://localhost:11434/api/generate';
+  const OLLAMA_URL   = 'https://127.0.0.1:8766/api/generate';
   const OLLAMA_MODEL = 'qwen3:14b';          // matches voiceagent
-  const WS_URL       = 'ws://127.0.0.1:8765';
+  const WS_URL       = 'wss://127.0.0.1:8765';
   const TIMEOUT_MS   = 45_000;
 
   /* ══════════════════════════════════════════════════════════════════════════
@@ -261,7 +261,7 @@ Rules:
   /** Check if Ollama is reachable */
   async function _ollamaOnline() {
     try {
-      const r = await fetch('http://localhost:11434/api/tags', { signal: AbortSignal.timeout(2000) });
+      const r = await fetch('https://127.0.0.1:8766/api/tags', { signal: AbortSignal.timeout(2000) });
       return r.ok;
     } catch { return false; }
   }

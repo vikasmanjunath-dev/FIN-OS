@@ -11,6 +11,7 @@ import json
 import logging
 import os
 import re
+import ssl
 import subprocess
 import tempfile
 import threading
@@ -23,6 +24,8 @@ from faster_whisper import WhisperModel
 import edge_tts
 import ollama
 import websockets
+from aiohttp import web as _aiohttp_web
+import aiohttp as _aiohttp
 
 try:
     import httpx
@@ -90,8 +93,100 @@ WHISPER_SIZE    = "tiny"
 WHISPER_THREADS = 8
 WHISPER_DIR     = "./models"
 
-WS_HOST = "127.0.0.1"
-WS_PORT = 8765
+WS_HOST    = "127.0.0.1"
+WS_PORT    = 8765
+PROXY_PORT = 8766          # HTTPS Ollama proxy — allows Vercel (HTTPS) to reach local Ollama
+
+# ── SSL context (self-signed cert generated on first run) ─────────────────────
+_CERT = os.path.join(os.path.dirname(__file__), ".finos_cert.pem")
+_KEY  = os.path.join(os.path.dirname(__file__), ".finos_key.pem")
+
+def _build_ssl_ctx() -> ssl.SSLContext:
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    ctx.load_cert_chain(_CERT, _KEY)
+    return ctx
+
+# ── HTTPS Ollama proxy (aiohttp) — port 8766 ─────────────────────────────────
+# Exposes http://localhost:11434 as https://127.0.0.1:8766 so the Vercel
+# deployment (HTTPS) can call Ollama without mixed-content blocking.
+
+_TRUST_PAGE = (
+    "<!DOCTYPE html><html><head><meta charset=utf-8><title>FIN-OS Arya</title>"
+    "<style>*{box-sizing:border-box}body{font-family:system-ui;background:#0B0D12;color:#fff;"
+    "display:flex;align-items:center;justify-content:center;height:100vh;margin:0}"
+    ".card{text-align:center;padding:48px;border:1px solid #2563EB;border-radius:20px;max-width:420px}"
+    "h2{color:#38BDF8;margin:0 0 12px}p{color:#94a3b8;font-size:14px;margin:0}</style></head>"
+    "<body><div class='card'><h2>FIN-OS Arya -- Cert Trusted</h2>"
+    "<p>Certificate accepted. You can close this tab and return to FIN-OS.</p>"
+    "</div></body></html>"
+).encode("utf-8")
+
+async def _proxy_handler(request: _aiohttp_web.Request) -> _aiohttp_web.StreamResponse:
+    """Stream-proxy any request to Ollama on localhost:11434."""
+    # CORS preflight
+    if request.method == "OPTIONS":
+        return _aiohttp_web.Response(
+            status=204,
+            headers={
+                "Access-Control-Allow-Origin":  "*",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+                "Access-Control-Max-Age":        "86400",
+            },
+        )
+    # Cert-trust landing page
+    if request.path in ("/", ""):
+        return _aiohttp_web.Response(body=_TRUST_PAGE, content_type="text/html")
+
+    target = f"http://127.0.0.1:11434{request.path}"
+    if request.query_string:
+        target += "?" + request.query_string
+
+    body = await request.read()
+    fwd_headers = {
+        k: v for k, v in request.headers.items()
+        if k.lower() not in ("host", "content-length", "transfer-encoding")
+    }
+
+    try:
+        async with _aiohttp.ClientSession() as session:
+            async with session.request(
+                method=request.method,
+                url=target,
+                data=body,
+                headers=fwd_headers,
+            ) as upstream:
+                resp = _aiohttp_web.StreamResponse(
+                    status=upstream.status,
+                    headers={
+                        "Content-Type":                  upstream.headers.get("Content-Type", "application/json"),
+                        "Access-Control-Allow-Origin":   "*",
+                        "Access-Control-Allow-Headers":  "Content-Type",
+                        "Cache-Control":                 "no-cache",
+                    },
+                )
+                await resp.prepare(request)
+                async for chunk in upstream.content.iter_any():
+                    await resp.write(chunk)
+                await resp.write_eof()
+                return resp
+    except Exception as exc:
+        log.warning("HTTPS proxy error: %s", exc)
+        err = json.dumps({"error": str(exc)}).encode()
+        return _aiohttp_web.Response(
+            body=err, status=502, content_type="application/json",
+            headers={"Access-Control-Allow-Origin": "*"},
+        )
+
+async def _start_https_proxy(ssl_ctx: ssl.SSLContext) -> None:
+    app    = _aiohttp_web.Application()
+    app.router.add_route("*", "/{path_info:.*}", _proxy_handler)
+    app.router.add_route("*", "/",               _proxy_handler)
+    runner = _aiohttp_web.AppRunner(app, access_log=None)
+    await runner.setup()
+    site   = _aiohttp_web.TCPSite(runner, "127.0.0.1", PROXY_PORT, ssl_context=ssl_ctx)
+    await site.start()
+    log.info("HTTPS Ollama proxy  →  https://127.0.0.1:%d", PROXY_PORT)
 
 HISTORY_TURNS      = 10          # deeper memory — more personalization
 MIN_SENTENCE_CHARS = 6
@@ -3178,18 +3273,22 @@ Reply ONLY with valid JSON. No markdown.
                     except: pass
 
     async def serve(self):
-        log.info("FIN-OS v10  ws://%s:%d  LLM=%s  STT=Whisper-%s",
+        ssl_ctx = _build_ssl_ctx()
+        log.info("FIN-OS v10  wss://%s:%d  LLM=%s  STT=Whisper-%s",
                  WS_HOST, WS_PORT, OLLAMA_MODEL, WHISPER_SIZE)
         await asyncio.gather(
             asyncio.get_event_loop().run_in_executor(None, _sync_ollama_warm),
             self.tts.warmup(),
         )
+        # Start HTTPS Ollama proxy (port 8766) — allows Vercel site to reach local Ollama
+        await _start_https_proxy(ssl_ctx)
         # Start daily briefing background loop
         self._daily_brief_task = asyncio.ensure_future(self._daily_briefing_loop())
         async with websockets.serve(self.handler, WS_HOST, WS_PORT,
+                                    ssl=ssl_ctx,
                                     max_size=50_000_000,
                                     ping_interval=None):
-            log.info("Ready — http://localhost:8080")
+            log.info("Ready — wss://127.0.0.1:%d  |  https proxy: 127.0.0.1:%d", WS_PORT, PROXY_PORT)
             await asyncio.Future()
 
 if __name__ == "__main__":
