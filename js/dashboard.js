@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 let wsAnomalies = [];
                 try {
                     wsAnomalies = await new Promise((resolve) => {
-                        const ws = new WebSocket('ws://127.0.0.1:8765');
+                        const ws = new WebSocket('wss://127.0.0.1:8765');
                         const timer = setTimeout(() => { try { ws.close(); } catch {} resolve([]); }, 4000);
                         ws.onopen  = () => ws.send(JSON.stringify({ type: 'dashboard_brief' }));
                         ws.onmessage = (e) => {

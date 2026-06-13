@@ -602,7 +602,7 @@ ${systemHint}`;
 
         try {
             // Route through local Ollama backend (never expose API keys on frontend)
-            const ollamaUrl = 'http://localhost:11434/api/generate';
+            const ollamaUrl = 'https://127.0.0.1:8766/api/generate';
             const response = await fetch(ollamaUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

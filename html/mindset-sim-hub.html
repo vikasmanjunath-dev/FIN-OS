@@ -1160,7 +1160,7 @@ if('ontouchstart' in window||navigator.maxTouchPoints>0){
    Flow : Mic → silence detect → Whisper → Ollama → TTS → repeat
           User can interrupt Arya mid-sentence at any time.
 ─────────────────────────────────────────────────────────────── */
-const OLLAMA_URL = 'http://localhost:11434';
+const OLLAMA_URL = 'https://127.0.0.1:8766';
 let ARYA_MODEL = 'llama3.1';
 let _aryaOnline  = false;
 let _aryaBusy    = false;
@@ -2042,7 +2042,7 @@ document.addEventListener('keydown', e => {
 // Activated by _isBrave detection OR by successful WS connection probe.
 // ═══════════════════════════════════════════════════════════════════
 
-  const _BV_URL = 'ws://127.0.0.1:8765';
+  const _BV_URL = 'wss://127.0.0.1:8765';
 
   // WS state
   let _bvWs       = null;

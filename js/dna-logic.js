@@ -379,7 +379,7 @@ window.runBehavioralDebrief = async function() {
     let wsSuccess = false;
     try {
         await new Promise((resolve, reject) => {
-            const ws = new WebSocket('ws://127.0.0.1:8765');
+            const ws = new WebSocket('wss://127.0.0.1:8765');
             const timer = setTimeout(() => { ws.close(); reject('timeout'); }, 5000);
             ws.onopen = () => {
                 ws.send(JSON.stringify({
@@ -414,7 +414,7 @@ window.runBehavioralDebrief = async function() {
 };
 
 async function _dnaOllamaDebrief(scores, archetype, responses) {
-    const OLLAMA_URL   = 'http://localhost:11434/api/generate';
+    const OLLAMA_URL   = 'https://127.0.0.1:8766/api/generate';
     const OLLAMA_MODEL = 'qwen3:14b';
 
     const textEl = document.getElementById('dna-debrief-text');
@@ -731,7 +731,7 @@ window._dnaVoiceDebrief = function() {
     const data = JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || '{}');
     const debrief = data.behavioral_analysis?.debrief || data.debrief || 'Analysis not available yet — run the quiz first.';
     try {
-        const ws = new WebSocket('ws://127.0.0.1:8765');
+        const ws = new WebSocket('wss://127.0.0.1:8765');
         ws.onopen = () => {
             ws.send(JSON.stringify({ type: 'text_input', text: `[BEHAVIORAL DEBRIEF — read aloud warmly]: ${debrief}` }));
             setTimeout(() => { try { ws.close(); } catch {} }, 20000);

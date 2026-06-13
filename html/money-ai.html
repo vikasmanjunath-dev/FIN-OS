@@ -463,8 +463,8 @@
 
 <script>
 const ALERT_ENGINE = (['localhost','127.0.0.1','::1'].includes(window.location.hostname)) ? 'http://localhost:8001' : null;
-const WS_URL       = 'ws://127.0.0.1:8765';
-const OLLAMA_URL   = 'http://localhost:11434/api/generate';
+const WS_URL       = 'wss://127.0.0.1:8765';
+const OLLAMA_URL   = 'https://127.0.0.1:8766/api/generate';
 const OLLAMA_MODEL = 'qwen3:14b';
 const ARYA_SYSTEM  = 'You are Arya, FIN-OS India\'s financial AI. Answer financial questions in 2-3 sentences, mix English and Hindi naturally.';
 

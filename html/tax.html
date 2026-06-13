@@ -1797,7 +1797,7 @@ Be direct. Use exact ₹ from above. Desi Hinglish tone. End with: "Total yeh pl
     ].join(' ');
 
     try {
-      const ws = new WebSocket('ws://127.0.0.1:8765');
+      const ws = new WebSocket('wss://127.0.0.1:8765');
       ws.onopen = () => {
         ws.send(JSON.stringify({ type: 'text_input', text: reminderText }));
         setTimeout(() => { try { ws.close(); } catch {} }, 15000);

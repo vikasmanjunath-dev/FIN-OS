@@ -1164,7 +1164,7 @@ function exitPosition(sym) {
 
 // ─── OLLAMA AI ────────────────────────────────────────────────────
 const OllamaAI = (function () {
-    const BASE  = 'http://localhost:11434';
+    const BASE  = 'https://127.0.0.1:8766';
     const MODEL = 'qwen2.5:3b';
 
     async function available() {

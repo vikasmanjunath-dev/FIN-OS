@@ -1064,7 +1064,7 @@
 /* ════════════════════════════════════════════════════════════
    GLOBALS
 ════════════════════════════════════════════════════════════ */
-const OL_URL   = 'http://localhost:11434/api/generate';
+const OL_URL   = 'https://127.0.0.1:8766/api/generate';
 const OL_MODEL = 'qwen3:14b';
 const AL_URL   = 'http://localhost:8001';
 const DJ_URL   = 'http://localhost:8002/api/forecast/';
@@ -1512,7 +1512,7 @@ const AI={
     if(this.ready) return; this.ready=true;
     this.append('arya','Namaste! 🙏 I\'m Arya, your personal financial advisor. Ask me anything about investing, tax, savings, or your financial goals — I\'ll give you clear, India-specific advice.');
     // check Ollama status
-    fetch('http://localhost:11434/api/tags',{signal:AbortSignal.timeout(2000)})
+    fetch('https://127.0.0.1:8766/api/tags',{signal:AbortSignal.timeout(2000)})
       .then(()=>{ v('ai-dot').style.background='#22c55e'; v('ai-status-txt').textContent='Ollama online'; })
       .catch(()=>{ v('ai-dot').style.background='#f87171'; v('ai-status-txt').textContent='Ollama offline'; });
   },
