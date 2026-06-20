@@ -1,6 +1,6 @@
 # FIN-OS — API Reference
 
-> Version: 1.4 | Date: June 13, 2026  
+> Version: 1.5 | Date: June 20, 2026  
 > All APIs run locally. None are deployed to Vercel (static-only).
 
 ---
@@ -393,6 +393,23 @@ curl http://localhost:8000/api/summary/ -H "Authorization: Token <token>"
   "savings_rate": 38.8
 }
 ```
+
+---
+
+## RAG Engine API — `rag-engine/server.py` (FastAPI :7476) **[PLANNED]**
+
+Full retrieval-augmented generation API — hybrid retrieval (Qdrant + BM25) → rerank → cited, streamed generation via `qwen3:14b`. Not yet implemented; full endpoint reference, request/response examples, and error codes are documented separately in **[RAG_API.md](RAG_API.md)**.
+
+Quick summary:
+
+| Endpoint | Purpose |
+|---|---|
+| `POST /api/query` | Full RAG pipeline, SSE streaming, returns answer + citations |
+| `POST /api/upload` | Ingest a user document into their private namespace |
+| `POST /api/search-regulations` | Targeted search restricted to regulatory documents |
+| `POST /api/explain` | Explain a passage from a user's own uploaded document |
+| `POST /api/feedback` | Thumbs up/down on a RAG answer |
+| `GET /api/health` | Service health check (Ollama/Qdrant/Redis status) |
 
 ---
 

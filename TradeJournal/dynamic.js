@@ -56,69 +56,109 @@
      Falls back gracefully if offline
   ═══════════════════════════════════════════════════ */
   const TICKER_SYMBOLS = [
-    { id: 'NIFTY', yahoo: '^NSEI', label: 'NIFTY' },
+    { id: 'NIFTY',     yahoo: '^NSEI',    label: 'NIFTY'     },
     { id: 'BANKNIFTY', yahoo: '^NSEBANK', label: 'BANKNIFTY' },
-    { id: 'SENSEX', yahoo: '^BSESN', label: 'SENSEX' },
+    { id: 'SENSEX',    yahoo: '^BSESN',   label: 'SENSEX'    },
   ];
 
+  // Sanity bounds for Indian indices (price must be in this range to be trusted)
+  const PRICE_BOUNDS = { '^NSEI': [5000, 100000], '^NSEBANK': [10000, 200000], '^BSESN': [15000, 300000] };
+
+  // Last known good prices — shown while a fresh fetch is in-flight
+  const _lastGoodTick = {};
+
+  // CORS proxies tried in order; next proxy used if previous fails
+  const CORS_PROXIES = [
+    url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+  ];
+
+  async function _fetchViaProxy(proxyFn, yahooUrl) {
+    const res = await fetch(proxyFn(yahooUrl), { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return null;
+    const wrapper = await res.json();
+    // allorigins wraps in { contents }, codetabs returns raw JSON
+    const raw = wrapper.contents !== undefined ? wrapper.contents : JSON.stringify(wrapper);
+    return JSON.parse(raw);
+  }
+
   async function fetchTickerData(symbol) {
-    try {
-      // Yahoo Finance v8 — no auth required, CORS via allorigins proxy
-      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=2d`;
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(5000) });
-      if (!res.ok) return null;
-      const json = await res.json();
-      const data = JSON.parse(json.contents);
-      const result = data?.chart?.result?.[0];
-      if (!result) return null;
-      const meta = result.meta;
-      const price = meta.regularMarketPrice;
-      const prev = meta.chartPreviousClose || meta.previousClose;
-      const change = price - prev;
-      const changePct = prev ? (change / prev) * 100 : 0;
-      return { price, change, changePct };
-    } catch {
-      return null;
+    const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=2d`;
+    const [minP, maxP] = PRICE_BOUNDS[symbol] || [0, Infinity];
+
+    for (const proxyFn of CORS_PROXIES) {
+      try {
+        const data   = await _fetchViaProxy(proxyFn, yahooUrl);
+        const result = data?.chart?.result?.[0];
+        if (!result) continue;
+
+        const meta  = result.meta;
+        const price = meta.regularMarketPrice;
+        const prev  = meta.chartPreviousClose || meta.previousClose;
+
+        // Validate values are reasonable before trusting them
+        if (!price || price < minP || price > maxP) continue;
+        if (!prev  || prev  < minP || prev  > maxP) continue;
+
+        const change    = price - prev;
+        const changePct = (change / prev) * 100;
+        const tick      = { price, change, changePct };
+
+        _lastGoodTick[symbol] = tick;   // cache last known good
+        return tick;
+      } catch {
+        // Try next proxy
+      }
+    }
+
+    // All proxies failed — return last known good value (stale but better than —)
+    return _lastGoodTick[symbol] || null;
+  }
+
+  function updateTicker() { return updateTickerWithBackoff(); }
+
+  // Fetch on load, then every 60 seconds with backoff on consecutive failures
+  let _tickerFailures = 0;
+  let _tickerInterval = null;
+  async function updateTickerWithBackoff() {
+    const hadData = await (async () => {
+      const tickerEl = document.getElementById('market-ticker');
+      if (!tickerEl) return false;
+      tickerEl.style.opacity = '0.5';
+      const results = await Promise.all(
+        TICKER_SYMBOLS.map(async s => ({ ...s, data: await fetchTickerData(s.yahoo) }))
+      );
+      tickerEl.style.opacity = '1';
+      const hasData = results.some(r => r.data);
+      if (hasData) {
+        tickerEl.innerHTML = results.map((r, i) => {
+          const sep = i < results.length - 1 ? '<span class="ticker-sep">|</span>' : '';
+          if (!r.data) return `<span class="ticker-item">${r.label} <span style="color:var(--text3)">—</span></span>${sep}`;
+          const { price, changePct } = r.data;
+          const up = changePct >= 0;
+          const priceStr = price >= 1000 ? price.toLocaleString('en-IN', { maximumFractionDigits: 0 }) : price.toFixed(2);
+          const pctStr = (up ? '▲' : '▼') + Math.abs(changePct).toFixed(1) + '%';
+          return `<span class="ticker-item">${r.label} <span class="${up ? 'ticker-up' : 'ticker-dn'}">${priceStr} ${pctStr}</span></span>${sep}`;
+        }).join('');
+      }
+      return hasData;
+    })();
+    if (hadData) {
+      _tickerFailures = 0;
+    } else {
+      _tickerFailures++;
+      // Exponential backoff: after 3 failures, extend interval (max 10 min)
+      if (_tickerFailures >= 3 && _tickerInterval) {
+        clearInterval(_tickerInterval);
+        const backoff = Math.min(600000, 60000 * Math.pow(2, _tickerFailures - 2));
+        _tickerInterval = setInterval(updateTickerWithBackoff, backoff);
+      }
     }
   }
-
-  async function updateTicker() {
-    const tickerEl = document.getElementById('market-ticker');
-    if (!tickerEl) return;
-
-    // Show loading state
-    tickerEl.style.opacity = '0.5';
-
-    const results = await Promise.all(
-      TICKER_SYMBOLS.map(async s => ({ ...s, data: await fetchTickerData(s.yahoo) }))
-    );
-
-    tickerEl.style.opacity = '1';
-
-    // Only update if we got at least one result
-    const hasData = results.some(r => r.data);
-    if (!hasData) return; // keep existing content if all fetches failed
-
-    tickerEl.innerHTML = results.map((r, i) => {
-      const sep = i < results.length - 1 ? '<span class="ticker-sep">|</span>' : '';
-      if (!r.data) {
-        return `<span class="ticker-item">${r.label} <span style="color:var(--text3)">—</span></span>${sep}`;
-      }
-      const { price, changePct } = r.data;
-      const up = changePct >= 0;
-      const priceStr = price >= 1000
-        ? price.toLocaleString('en-IN', { maximumFractionDigits: 0 })
-        : price.toFixed(2);
-      const pctStr = (up ? '▲' : '▼') + Math.abs(changePct).toFixed(1) + '%';
-      return `<span class="ticker-item">${r.label} <span class="${up ? 'ticker-up' : 'ticker-dn'}">${priceStr} ${pctStr}</span></span>${sep}`;
-    }).join('');
-  }
-
-  // Fetch on load, then every 60 seconds
   document.addEventListener('DOMContentLoaded', () => {
-    updateTicker();
-    setInterval(updateTicker, 60000);
+    updateTickerWithBackoff();
+    _tickerInterval = setInterval(updateTickerWithBackoff, 60000);
   });
 
   /* ═══════════════════════════════════════════════════
@@ -571,27 +611,32 @@
 
   /* ═══════════════════════════════════════════════════
      10. TRADE SAVE HOOK — trigger all reactive updates
+     Deferred to window.load so we wrap the FINAL version
+     of saveTrades (after app.js, insights.js, stats.js
+     have all applied their own wrappers).
   ═══════════════════════════════════════════════════ */
-  const _origSaveTrades = window.saveTrades;
-  window.saveTrades = function (trades) {
-    if (_origSaveTrades) _origSaveTrades.apply(this, arguments);
+  window.addEventListener('load', function () {
+    const _origSaveTrades = window.saveTrades;
+    window.saveTrades = function (trades) {
+      if (_origSaveTrades) _origSaveTrades.apply(this, arguments);
 
-    // Debounce
-    clearTimeout(window._dynamicRefreshTimer);
-    window._dynamicRefreshTimer = setTimeout(() => {
-      syncSettingsToDashboard();
-      checkDailyLossDisplay();
-      autoPopulateTools();
-      // Re-fill any open tool inputs
-      const openPage = document.querySelector('.nav-item.active')?.dataset?.page;
-      if (openPage === 'analytics-hub') {
-        const t = getTrades();
-        if (t.length >= 2) {
-          window.renderBenchmark && window.renderBenchmark(t);
+      // Debounce — reactive UI updates after any save
+      clearTimeout(window._dynamicRefreshTimer);
+      window._dynamicRefreshTimer = setTimeout(() => {
+        syncSettingsToDashboard();
+        checkDailyLossDisplay();
+        autoPopulateTools();
+        // Re-fill any open tool inputs
+        const openPage = document.querySelector('.nav-item.active')?.dataset?.page;
+        if (openPage === 'analytics-hub') {
+          const t = getTrades();
+          if (t.length >= 2) {
+            window.renderBenchmark && window.renderBenchmark(t);
+          }
         }
-      }
-    }, 350);
-  };
+      }, 350);
+    };
+  });
 
   /* ═══════════════════════════════════════════════════
      11. MONTHLY CALENDAR LABEL — always shows real month
@@ -617,10 +662,14 @@
     syncSettingsToDashboard();
     checkDailyLossDisplay();
 
-    // Respond to settings changes
+    // Respond to settings changes — debounced to prevent thrashing on rapid saves
+    let _settingsDebounce;
     document.addEventListener('tb:settings-changed', () => {
-      syncSettingsToDashboard();
-      autoPopulateTools();
+      clearTimeout(_settingsDebounce);
+      _settingsDebounce = setTimeout(() => {
+        syncSettingsToDashboard();
+        autoPopulateTools();
+      }, 100);
     });
   });
 

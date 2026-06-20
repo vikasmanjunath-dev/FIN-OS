@@ -1,6 +1,6 @@
 # FIN-OS HTML Pages
 
-> Version: 1.2 | Date: June 5, 2026  
+> Version: 1.3 | Date: June 14, 2026  
 > Total: **94 pages** in this folder + `index.html` + `login.html` = **96 pages**
 
 ---
@@ -65,7 +65,7 @@
 | `life-goals-planner.html` | AI-powered life goals |
 | `life-wealth.html` | Life and wealth integration |
 | `financial-being.html` | Financial wellbeing |
-| `roadmap.html` | Personal finance roadmap |
+| `roadmap.html` | Interactive 3-view financial roadmap (rebuilt June 14 2026): **Roadmap** (DNA-themed step cards with Unsplash images), **Mind Map** (pan/zoom SVG), **Life Journey** (drag-scroll timeline) — powered by `arya-roadmap.js` |
 | `roadmaps.html` | Roadmap selector |
 | `traditional-roadmap.html` | Conservative path |
 | `trader-roadmap.html` | Trading path |

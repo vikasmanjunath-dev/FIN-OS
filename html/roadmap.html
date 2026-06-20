@@ -1,426 +1,432 @@
+<!-- <noreload> -->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-<script>
-(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
-</script>
-  <meta charset="UTF-8" />
-  <meta name="description" content="Your personalised financial roadmap — a step-by-step wealth building plan.">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0B0D12">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="FIN•OS">
-  <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-  <title>FIN•OS | Dynamic GPS</title>
-
-    <link rel="stylesheet" href="../css/design-tokens.css">
+<script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="description" content="FIN·OS — Your personalized financial roadmap, mindmap and life journey.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0B0D12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FIN•OS">
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+<title>My Roadmap | FIN·OS</title>
+<link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css">
-  <link rel="stylesheet" href="../css/components.css">
-  <link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/animations.css">
+<link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="../css/interactions.css">
+<script src="../js/supabase-config.js"></script>
+<script src="../js/finos-context.js?v=3" defer></script>
+<script src="../js/finos-personalization.js" defer></script>
 
-  <style>
-    /* =========================
-       THEME: CYBER-GPS V2
-       ========================= */
-    :root {
-      --neon-cyan: #00f3ff;
-      --neon-purple: #bc13fe;
-      --neon-green: #0aff68;
-      --neon-red: #ff0050;
-      --neon-yellow: #f5d300;
-      --bg-void: #030305;
-      --glass: rgba(255, 255, 255, 0.03);
-      --glass-hover: rgba(255, 255, 255, 0.08);
-      --border: rgba(255, 255, 255, 0.1);
-      --font-display: 'Manrope', sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
-    }
+<style>
+/* ════════════════════════════════════════════════════════════════
+   ROADMAP PAGE — Arya-Powered Personalized Visual System
+   ════════════════════════════════════════════════════════════════ */
 
-    body {
-      background-color: var(--bg-void) !important;
-      background-image: 
-        linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      color: var(--text-primary) !important;
-      
-      overflow-x: hidden;
-    }
+/* ── Page wrapper ─────────────────────────────────────────────── */
+.rm-page { padding: 28px 0 100px; }
 
-    /* Sidebar Override */
-    .sidebar { background: rgba(0,0,0,0.9); border-right: 1px solid #222; backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 200; }
-    .main { width: calc(100% - 232px); min-height: 100vh; margin-left: 232px; }
-
-    .content-wrapper {
-      max-width: 900px;
-      margin: 0 auto;
-      padding-top: 50px;
-      padding-bottom: 100px;
-      position: relative;
-    }
-
-    /* =========================
-       PHASE 1: THE SCANNER (INPUT)
-       ========================= */
-    
-    .scanner-section {
-      min-height: 80vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      transition: all 0.5s ease;
-    }
-
-    .scanner-header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    .glitch-title {
-      font-size: 3.5rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      text-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
-      letter-spacing: -2px;
-      margin-bottom: 10px;
-    }
-
-    /* Age Slider */
-    .age-container {
-      background: var(--glass);
-      border: 1px solid var(--border);
-      padding: 30px;
-      border-radius: 20px;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-
-    .age-display {
-      font-size: 4rem;
-      font-weight: 800;
-      color: var(--neon-cyan);
-      font-family: var(--font-mono);
-      text-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
-    }
-
-    input[type=range] {
-      width: 100%;
-      margin: 20px 0;
-      -webkit-appearance: none;
-      background: transparent;
-    }
-    input[type=range]::-webkit-slider-track {
-      background: #333;
-      height: 8px;
-      border-radius: 4px;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      height: 30px; width: 30px;
-      background: var(--neon-cyan);
-      border-radius: 50%;
-      cursor: pointer;
-      box-shadow: 0 0 15px var(--neon-cyan);
-      margin-top: -12px;
-    }
-
-    /* Question Cards */
-    .question-card {
-      background: var(--glass);
-      border: 1px solid var(--border);
-      padding: 30px;
-      border-radius: 20px;
-      margin-bottom: 20px;
-      transition: all 0.4s ease;
-      /* Hidden initially logic handled via JS */
-    }
-
-    .question-card.active {
-      border-color: var(--neon-purple);
-      box-shadow: 0 0 20px rgba(188, 19, 254, 0.1);
-    }
-
-    .q-title { font-size: 1.2rem; margin-bottom: 20px; color: #fff; display: flex; align-items: center; gap: 10px; }
-    .q-badge { background: var(--neon-purple); color: #000; font-family: var(--font-mono); font-size: 0.8rem; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
-
-    .options-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 15px;
-    }
-
-    .option-btn {
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      padding: 15px;
-      border-radius: 12px;
-      cursor: pointer;
-      text-align: left;
-      transition: 0.2s;
-    }
-
-    .option-btn:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
-    
-    .option-btn.selected {
-      background: rgba(0, 243, 255, 0.1);
-      border-color: var(--neon-cyan);
-      box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
-    }
-
-    .opt-icon { font-size: 1.5rem; margin-bottom: 5px; display: block; }
-    .opt-label { font-weight: 700; color: #fff; display: block; margin-bottom: 5px; }
-
-    /* Calculate Button */
-    .calc-btn-container { text-align: center; margin-top: 40px; display: none; }
-    
-    .calc-btn {
-      background: var(--neon-green);
-      color: #000;
-      border: none;
-      padding: 18px 50px;
-      font-size: 1.2rem;
-      font-weight: 800;
-      border-radius: 50px;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      box-shadow: 0 0 20px var(--neon-green);
-      transition: 0.3s;
-    }
-    .calc-btn:hover { transform: scale(1.05); box-shadow: 0 0 40px var(--neon-green); }
-
-
-    /* =========================
-       PHASE 2: THE DYNAMIC ROADMAP (OUTPUT)
-       ========================= */
-    
-    .roadmap-section {
-      display: none;
-      animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-
-    @keyframes slideUp { from { opacity: 0; transform: translateY(100px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* The Persona Header */
-    .persona-header {
-      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05), transparent 70%);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 40px;
-      text-align: center;
-      margin-bottom: 50px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .persona-tag {
-      font-family: var(--font-mono);
-      color: var(--neon-yellow);
-      border: 1px solid var(--neon-yellow);
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      margin-bottom: 20px;
-      display: inline-block;
-    }
-
-    .persona-title {
-      font-size: 3rem;
-      font-weight: 900;
-      color: #fff;
-      line-height: 1.1;
-      margin-bottom: 15px;
-      text-transform: uppercase;
-    }
-
-    .persona-desc {
-      font-size: 1.1rem;
-      color: #aaa;
-      max-width: 700px;
-      margin: 0 auto;
-      line-height: 1.6;
-    }
-
-    /* Generated Timeline */
-    .dynamic-timeline {
-      position: relative;
-      padding-left: 30px;
-    }
-
-    .dt-line {
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 2px;
-      background: linear-gradient(to bottom, var(--neon-cyan), transparent);
-    }
-
-    .dt-step {
-      position: relative;
-      margin-bottom: 40px;
-      padding-left: 30px;
-      opacity: 0; /* Animated in via JS */
-      transform: translateX(-20px);
-      transition: 0.5s all ease;
-    }
-    .dt-step.visible { opacity: 1; transform: translateX(0); }
-
-    .dt-dot {
-      position: absolute;
-      left: -6px; top: 5px;
-      width: 14px; height: 14px;
-      background: var(--bg-void);
-      border: 2px solid var(--neon-cyan);
-      border-radius: 50%;
-      box-shadow: 0 0 10px var(--neon-cyan);
-    }
-
-    .dt-card {
-      background: var(--glass);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 25px;
-    }
-    
-    .dt-head { font-size: 1.4rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
-    .dt-body { color: #ccc; font-size: 0.95rem; line-height: 1.6; }
-    .dt-action { 
-        margin-top: 15px; 
-        display: inline-block; 
-        font-family: var(--font-mono); 
-        color: var(--neon-green); 
-        font-size: 0.8rem; 
-        border: 1px dashed var(--neon-green); 
-        padding: 5px 10px; 
-        border-radius: 4px;
-    }
-
-    /* Warning Box */
-    .alert-box {
-      margin-top: 30px;
-      background: rgba(255, 0, 80, 0.1);
-      border-left: 4px solid var(--neon-red);
-      padding: 20px;
-      color: #ddd;
-      font-size: 0.95rem;
-    }
-    .alert-title { color: var(--neon-red); font-weight: 800; display: block; margin-bottom: 5px; }
-
-  
-
-/* ── Light mode text overrides (auto-generated) ── */
-[data-theme="light"] .q-title {
-  color: var(--text-primary) !important;
+/* ── Page header ──────────────────────────────────────────────── */
+.rm-page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; margin-bottom: 28px; flex-wrap: wrap;
 }
-[data-theme="light"] .opt-label {
-  color: var(--text-primary) !important;
+.rm-page-title {
+  font-size: clamp(22px,3vw,30px); font-weight: 900;
+  color: var(--text-primary); margin: 0 0 6px;
 }
-[data-theme="light"] .persona-title {
-  color: var(--text-primary) !important;
+.rm-page-title span {
+  background: linear-gradient(90deg,#00d4ff,#7b2ff7);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
-[data-theme="light"] .dt-head {
-  color: var(--text-primary) !important;
-}</style>
-  <meta property="og:site_name" content="FIN•OS">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="/assets/icons/icon-512.svg">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:site" content="@finos_app">
-  <link rel="stylesheet" href="../css/interactions.css">
+.rm-page-sub { font-size: 13px; color: var(--text-tertiary); margin: 0; }
+
+.rm-header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.rm-ask-arya-btn {
+  padding: 10px 18px;
+  background: linear-gradient(135deg,rgba(0,212,255,.12),rgba(123,47,247,.1));
+  border: 1px solid rgba(0,212,255,.25); border-radius: 12px;
+  color: #00d4ff; font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all .15s; white-space: nowrap;
+}
+.rm-ask-arya-btn:hover { background: linear-gradient(135deg,rgba(0,212,255,.2),rgba(123,47,247,.16)); }
+.rm-refresh-btn {
+  padding: 10px 14px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px; color: var(--text-tertiary); font-size: 13px;
+  cursor: pointer; font-family: inherit; transition: all .15s;
+}
+.rm-refresh-btn:hover { background: rgba(255,255,255,.08); color: var(--text-primary); }
+
+/* ── View toggle tabs ─────────────────────────────────────────── */
+.rm-tabs {
+  display: flex; gap: 6px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+  border-radius: 14px; padding: 5px; margin-bottom: 24px;
+}
+.rm-tab {
+  flex: 1; padding: 10px 16px; border-radius: 10px; border: none;
+  background: transparent; color: var(--text-tertiary); font-size: 13px;
+  font-weight: 700; cursor: pointer; transition: all .2s; font-family: inherit;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  white-space: nowrap;
+}
+.rm-tab.active {
+  background: linear-gradient(135deg,rgba(0,212,255,.15),rgba(123,47,247,.12));
+  color: #fff; border: 1px solid rgba(0,212,255,.25);
+}
+.rm-tab:hover:not(.active) { background: rgba(255,255,255,.06); color: var(--text-secondary); }
+
+/* ── Loading skeleton ─────────────────────────────────────────── */
+.rm-loading {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 420px; gap: 16px;
+  color: var(--text-tertiary);
+}
+.rm-loading-ring {
+  width: 48px; height: 48px; border: 3px solid rgba(0,212,255,.12);
+  border-top-color: #00d4ff; border-radius: 50%;
+  animation: rmSpin 1s linear infinite;
+}
+@keyframes rmSpin { to { transform: rotate(360deg); } }
+
+/* ── View panels ──────────────────────────────────────────────── */
+.rm-view { display: none; }
+.rm-view.active { display: block; animation: rmFadeIn .3s ease; }
+@keyframes rmFadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* ══════════════════════════════════════════════════════════════
+   ROADMAP VIEW
+   ══════════════════════════════════════════════════════════════ */
+
+.rm-hero {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px; padding: 22px 26px; margin-bottom: 24px;
+  background: linear-gradient(135deg,rgba(0,212,255,.07),rgba(123,47,247,.06));
+  border: 1px solid rgba(0,212,255,.15); border-radius: 20px;
+  flex-wrap: wrap;
+}
+.rm-hero-text h2 { font-size: clamp(16px,2vw,22px); font-weight: 900; color: #fff; margin: 0 0 6px; }
+.rm-hero-text p  { font-size: 12.5px; color: rgba(255,255,255,.4); margin: 0; line-height: 1.6; }
+.rm-hero-score   { flex-shrink: 0; text-align: center; }
+.rm-hero-score-label { font-size: 10px; color: rgba(255,255,255,.4); margin-top: 4px; font-weight: 700; text-align: center; }
+
+/* Step grid */
+.rm-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
+  gap: 16px;
+}
+
+/* Individual step card */
+.rm-step {
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px; overflow: hidden; cursor: pointer;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+.rm-step:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,.4); }
+.rm-step.rm-done     { border-color: rgba(0,255,180,.2); }
+.rm-step.rm-progress { border-color: rgba(255,150,0,.18); }
+.rm-step.rm-todo     { border-color: rgba(255,255,255,.06); }
+.rm-step.rm-expanded { box-shadow: 0 0 0 2px rgba(0,212,255,.3); }
+
+.rm-step-img-wrap { position: relative; height: 155px; overflow: hidden; }
+.rm-step-img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; display: block; }
+.rm-step:hover .rm-step-img { transform: scale(1.05); }
+.rm-step-img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 30%, #0a0d15 100%);
+}
+.rm-step-num {
+  position: absolute; top: 12px; left: 12px;
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 900; color: #000;
+}
+.rm-step-badge {
+  position: absolute; top: 12px; right: 12px;
+  font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 20px;
+  backdrop-filter: blur(8px);
+}
+.rm-step-badge.rm-done     { background: rgba(0,255,180,.15); color: #00ffb3; border: 1px solid rgba(0,255,180,.3); }
+.rm-step-badge.rm-progress { background: rgba(255,150,0,.15);  color: #ffb300; border: 1px solid rgba(255,150,0,.3); }
+.rm-step-badge.rm-todo     { background: rgba(255,255,255,.08); color: rgba(255,255,255,.5); border: 1px solid rgba(255,255,255,.12); }
+
+.rm-step-body { padding: 14px 16px 10px; }
+.rm-step-cat   { font-size: 10px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; margin-bottom: 5px; }
+.rm-step-title { font-size: 15px; font-weight: 900; color: #fff; margin-bottom: 3px; }
+.rm-step-sub   { font-size: 11.5px; color: rgba(255,255,255,.4); margin-bottom: 10px; }
+.rm-step-progress-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.rm-step-progress-bar  { flex: 1; height: 5px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
+.rm-step-progress-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+.rm-step-pct  { font-size: 11px; font-weight: 800; min-width: 30px; text-align: right; }
+.rm-step-stat { font-size: 11.5px; color: rgba(255,255,255,.45); }
+
+/* Expanded detail */
+.rm-step-detail { display: none; padding: 0 16px 16px; animation: rmFadeIn .25s ease; }
+.rm-step.rm-expanded .rm-step-detail { display: block; }
+.rm-step-action {
+  background: rgba(255,255,255,.03); border-left: 3px solid #00d4ff;
+  border-radius: 0 10px 10px 0; padding: 10px 12px; margin-bottom: 10px;
+}
+.rm-action-label { font-size: 10px; font-weight: 800; color: rgba(255,255,255,.35); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px; }
+.rm-action-text  { font-size: 12.5px; color: rgba(255,255,255,.8); line-height: 1.6; }
+.rm-step-why  { font-size: 11.5px; color: rgba(255,255,255,.35); line-height: 1.5; margin-bottom: 12px; font-style: italic; }
+.rm-arya-btn {
+  width: 100%; padding: 9px; border-radius: 10px;
+  border: 1px solid rgba(0,212,255,.3); background: rgba(0,212,255,.06);
+  color: #00d4ff; font-size: 12px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all .15s;
+}
+.rm-arya-btn:hover { background: rgba(0,212,255,.12); }
+
+/* ══════════════════════════════════════════════════════════════
+   MINDMAP VIEW
+   ══════════════════════════════════════════════════════════════ */
+#rm-mindmap {
+  position: relative; width: 100%;
+  background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.06);
+  border-radius: 20px; overflow: hidden; min-height: 600px;
+}
+.mm-hint {
+  text-align: center; padding: 12px 16px; font-size: 12px;
+  color: rgba(255,255,255,.3); background: rgba(0,212,255,.03);
+  border-bottom: 1px solid rgba(255,255,255,.04); letter-spacing: .3px;
+}
+.mm-legend {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  padding: 14px 20px; border-top: 1px solid rgba(255,255,255,.05);
+  background: rgba(255,255,255,.02);
+}
+.mm-leg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(255,255,255,.5); }
+.mm-leg-dot  { width: 8px; height: 8px; border-radius: 50%; }
+.mm-reset-btn {
+  position: absolute; bottom: 70px; right: 16px;
+  padding: 7px 14px; background: rgba(0,212,255,.1);
+  border: 1px solid rgba(0,212,255,.2); border-radius: 10px;
+  color: #00d4ff; font-size: 11px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all .15s;
+}
+.mm-reset-btn:hover { background: rgba(0,212,255,.18); }
+
+/* ══════════════════════════════════════════════════════════════
+   LIFE TIMELINE VIEW
+   ══════════════════════════════════════════════════════════════ */
+.tl-header { margin-bottom: 24px; }
+.tl-header h2 { font-size: clamp(18px,2.5vw,24px); font-weight: 900; color: #fff; margin: 0 0 6px; }
+.tl-header p  { font-size: 13px; color: rgba(255,255,255,.4); margin: 0 0 16px; }
+.tl-age-bar-wrap { display: flex; align-items: center; gap: 12px; }
+.tl-age-bar  { flex: 1; height: 6px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
+.tl-age-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+.tl-age-label { font-size: 12px; font-weight: 800; color: rgba(255,255,255,.5); min-width: 50px; }
+
+/* Horizontal scroll */
+.tl-scroll {
+  position: relative; overflow-x: auto; overflow-y: visible;
+  padding: 24px 0 40px; scrollbar-width: thin;
+  scrollbar-color: rgba(0,212,255,.3) transparent; cursor: grab;
+}
+.tl-scroll:active { cursor: grabbing; }
+.tl-scroll::-webkit-scrollbar { height: 4px; }
+.tl-scroll::-webkit-scrollbar-track { background: transparent; }
+.tl-scroll::-webkit-scrollbar-thumb { background: rgba(0,212,255,.2); border-radius: 4px; }
+
+.tl-track {
+  position: absolute; top: 72px; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0,212,255,.3) 5%, rgba(123,47,247,.3) 95%, transparent);
+}
+.tl-milestones {
+  display: flex; align-items: flex-start;
+  padding: 0 40px; width: max-content; gap: 0;
+}
+
+/* Milestone card */
+.tl-milestone {
+  display: flex; flex-direction: column; align-items: center;
+  width: 250px; flex-shrink: 0; cursor: pointer; padding: 0 12px;
+  position: relative;
+}
+.tl-milestone-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid #0a0d15; margin-bottom: 14px; flex-shrink: 0;
+  transition: transform .2s; position: relative; z-index: 2;
+}
+.tl-milestone:hover .tl-milestone-dot { transform: scale(1.4); }
+.tl-is-now .tl-milestone-dot { width: 18px; height: 18px; animation: rmSpin 4s linear infinite; border: 3px dashed; }
+
+.tl-milestone-card {
+  width: 100%; background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08); border-radius: 16px; overflow: hidden;
+  transition: all .2s;
+}
+.tl-milestone:hover .tl-milestone-card { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,.5); }
+.tl-is-now  .tl-milestone-card { border-color: rgba(0,212,255,.3); box-shadow: 0 0 24px rgba(0,212,255,.12); }
+.tl-done    .tl-milestone-card { border-color: rgba(0,255,180,.15); }
+
+.tl-card-img-wrap { position: relative; height: 130px; overflow: hidden; }
+.tl-card-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; display: block; }
+.tl-milestone:hover .tl-card-img-wrap img { transform: scale(1.06); }
+.tl-card-img-overlay { position: absolute; inset: 0; }
+.tl-card-age {
+  position: absolute; bottom: 10px; left: 10px;
+  font-size: 11px; font-weight: 900; padding: 3px 10px; border-radius: 20px; color: #000;
+}
+.tl-now-badge {
+  position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 800;
+  padding: 3px 9px; border-radius: 20px; background: rgba(0,212,255,.2);
+  border: 1px solid rgba(0,212,255,.4); color: #00d4ff; backdrop-filter: blur(8px);
+}
+.tl-card-body { padding: 12px; }
+.tl-card-icon   { font-size: 20px; margin-bottom: 4px; }
+.tl-card-title  { font-size: 12.5px; font-weight: 900; margin-bottom: 2px; }
+.tl-card-wealth { font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+.tl-card-detail { font-size: 11px; color: rgba(255,255,255,.4); line-height: 1.5; margin-bottom: 6px; }
+.tl-card-expand-hint { font-size: 10px; color: rgba(255,255,255,.22); margin-bottom: 6px; }
+.tl-card-action {
+  display: none; font-size: 11px; color: rgba(255,255,255,.7); line-height: 1.6;
+  border-left: 2px solid #00d4ff; padding: 7px 10px;
+  background: rgba(0,212,255,.04); border-radius: 0 8px 8px 0;
+  margin-bottom: 8px; animation: rmFadeIn .25s ease;
+}
+.tl-arya-btn {
+  display: none; width: 100%; padding: 7px; border-radius: 8px;
+  border: 1px solid rgba(0,212,255,.3); background: rgba(0,212,255,.06);
+  color: #00d4ff; font-size: 11px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all .15s; animation: rmFadeIn .3s ease;
+}
+.tl-arya-btn:hover { background: rgba(0,212,255,.12); }
+.tl-expanded .tl-card-action,
+.tl-expanded .tl-arya-btn  { display: block; }
+.tl-expanded .tl-card-expand-hint { display: none; }
+
+.tl-legend { display: flex; gap: 20px; padding: 12px 0 0; }
+.tl-leg      { font-size: 11px; color: rgba(255,255,255,.35); font-weight: 600; }
+.tl-leg.now  { color: #00d4ff; }
+.tl-leg.done { color: #00ffb3; }
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .rm-tabs    { flex-wrap: wrap; }
+  .rm-tab     { font-size: 12px; padding: 9px 10px; }
+  .rm-hero    { flex-direction: column; }
+  .rm-steps   { grid-template-columns: 1fr; }
+  .tl-milestone { width: 220px; }
+  .rm-header-actions { width: 100%; }
+  .rm-ask-arya-btn, .rm-refresh-btn { flex: 1; text-align: center; justify-content: center; }
+}
+
+/* Light theme */
+[data-theme="light"] .rm-step,
+[data-theme="light"] .tl-milestone-card { background: rgba(0,0,0,.03); border-color: rgba(0,0,0,.08); }
+[data-theme="light"] .rm-hero { background: linear-gradient(135deg,rgba(0,100,200,.06),rgba(100,0,200,.04)); border-color: rgba(0,100,200,.12); }
+[data-theme="light"] #rm-mindmap { background: rgba(240,245,255,.6); border-color: rgba(0,0,0,.06); }
+[data-theme="light"] .rm-page-title  { color: var(--text-primary); }
+[data-theme="light"] .rm-step-title  { color: var(--text-primary); }
+[data-theme="light"] .tl-card-title  { color: var(--text-primary); }
+[data-theme="light"] .tl-card-wealth { color: var(--text-primary); }
+[data-theme="light"] .rm-hero-text h2 { color: var(--text-primary); }
+</style>
 </head>
 
 <body>
-<div class="app">
+<div class="app-shell">
 
-          <aside class="sidebar" role="complementary" aria-label="Navigation">
+  <!-- ═══ Sidebar ══════════════════════════════════════════════ -->
+  <aside class="sidebar" role="complementary" aria-label="Navigation">
 
-    <!-- Brand -->
-    <div class="sb-brand">
-      <div class="sb-logomark" aria-hidden="true">
-        <span class="sb-logomark-letter">F</span>
-      </div>
+    <a class="sb-brand" href="home.html" aria-label="FIN·OS home">
+      <div class="sb-logomark" aria-hidden="true"><span class="sb-logomark-letter">F</span></div>
       <div class="sb-wordmark">
         <div class="sb-wordmark-name">FIN•OS</div>
         <div class="sb-wordmark-tag">Financial OS</div>
       </div>
-    </div>
+    </a>
 
-    <!-- Identity -->
     <a href="profile.html" class="sb-identity" aria-label="Your profile">
       <div class="sb-av" id="sb-av" aria-hidden="true">I</div>
       <div class="sb-identity-body">
         <div class="sb-identity-name" id="sb-name">Investor</div>
         <div class="sb-identity-meta">
-          <span class="sb-identity-dna"  id="sb-dna">Financial DNA</span>
-          <span class="sb-health-pill"   id="sb-health-pill"></span>
+          <span class="sb-identity-dna" id="sb-dna">Financial DNA</span>
+          <span class="sb-health-pill"  id="sb-health-pill"></span>
         </div>
       </div>
       <span class="sb-identity-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
     </a>
 
-    <!-- Search shortcut -->
     <button class="sb-cmd" id="sb-cmd" aria-label="Search (Ctrl+K)">
       <span class="sb-cmd-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
       <span class="sb-cmd-label">Search or jump to…</span>
       <kbd class="sb-cmd-kbd" aria-hidden="true">⌘K</kbd>
     </button>
 
-    <!-- Navigation -->
     <nav class="sb-nav" aria-label="Main">
-        <a href="home.html" class="sb-link" title="Home">
-          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
-          <span class="sb-label">Home</span>
-        </a>
-        <a href="dashboard.html" class="sb-link" title="Dashboard">
-          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>
-          <span class="sb-label">Dashboard</span>
-          <span class="sb-badge" id="sb-streak" aria-label="count"></span>
-        </a>
-        <hr class="sb-divider" aria-hidden="true"/>
-        <a href="foundations.html" class="sb-link" title="Learn">
-          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
-          <span class="sb-label">Learn</span>
-        </a>
-        <a href="simulator-landing.html" class="sb-link" title="Mindset">
-          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span>
-          <span class="sb-label">Mindset</span>
-        </a>
-        <hr class="sb-divider" aria-hidden="true"/>
-        <a href="diagnostics.html" class="sb-link" title="Diagnostics">
-          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
-          <span class="sb-label">Diagnostics</span>
-        </a>
-        <a href="track-finances.html" class="sb-link" title="Track">
-          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
-          <span class="sb-label">Track</span>
-        </a>
-        <hr class="sb-divider" aria-hidden="true"/>
-        <a href="markets.html" class="sb-link" title="Markets">
-          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
-          <span class="sb-label">Markets</span>
-        </a>
-        <a href="tools.html" class="sb-link active" aria-current="page" title="Tools">
-          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
-          <span class="sb-label">Tools</span>
-        </a>
-        <hr class="sb-divider" aria-hidden="true"/>
-        <a href="news.html" class="sb-link" title="News">
-          <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span>
-          <span class="sb-label">News</span>
-        </a>
+      <a href="home.html" class="sb-link" title="Home">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        <span class="sb-label">Home</span>
+      </a>
+      <a href="dashboard.html" class="sb-link" title="Dashboard">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>
+        <span class="sb-label">Dashboard</span>
+        <span class="sb-badge" id="sb-streak" aria-label="count"></span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="foundations.html" class="sb-link" title="Learn">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+        <span class="sb-label">Learn</span>
+      </a>
+      <a href="simulator-landing.html" class="sb-link" title="Mindset">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span>
+        <span class="sb-label">Mindset</span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="diagnostics.html" class="sb-link" title="Diagnostics">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+        <span class="sb-label">Diagnostics</span>
+      </a>
+      <a href="track-finances.html" class="sb-link" title="Track">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+        <span class="sb-label">Track</span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="markets.html" class="sb-link" title="Markets">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+        <span class="sb-label">Markets</span>
+      </a>
+      <a href="tools.html" class="sb-link" title="Tools">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+        <span class="sb-label">Tools</span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="roadmap.html" class="sb-link active" aria-current="page" title="Roadmap">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+        <span class="sb-label">Roadmap</span>
+      </a>
+      <a href="goals.html" class="sb-link" title="Goals">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
+        <span class="sb-label">Goals</span>
+      </a>
+      <a href="news.html" class="sb-link" title="News">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span>
+        <span class="sb-label">News</span>
+      </a>
     </nav>
 
-    <!-- Footer: Arya AI + Settings -->
     <div class="sb-footer-zone">
-
       <button class="sb-arya-row" id="sb-arya-btn"
               aria-label="Arya AI — your financial coach"
               onclick="document.querySelector('.finos-fab')?.click?.();">
         <div class="sb-arya-icon" aria-hidden="true">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span>🤖</span>
           <span class="sb-arya-dot checking" id="sb-arya-dot"></span>
         </div>
         <div class="sb-arya-body">
@@ -431,334 +437,171 @@
       </button>
 
       <a href="settings.html" class="sb-settings-row" title="Settings">
-        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        <span class="sb-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
         <span class="sb-label">Settings</span>
       </a>
-
     </div>
   </aside>
 
-  <main class="main">
+  <!-- ═══ Main content ═════════════════════════════════════════ -->
+  <main class="main" role="main">
     <div class="content-wrapper">
+      <div class="rm-page">
 
-      <section id="scanner" class="scanner-section">
-        
-        <div class="scanner-header">
-          <div class="glitch-title">System Calibration</div>
-          <p style="color:#666;">// CONFIGURE PARAMETERS FOR PERSONALIZED ROADMAP</p>
+        <!-- Page header -->
+        <div class="rm-page-header">
+          <div>
+            <h1 class="rm-page-title">Your <span>Financial Roadmap</span></h1>
+            <p class="rm-page-sub">Personalized to your DNA, goals &amp; real data — click any card to expand</p>
+          </div>
+          <div class="rm-header-actions">
+            <button class="rm-refresh-btn" onclick="refreshAll()" title="Refresh with latest data">↺ Refresh</button>
+            <button class="rm-ask-arya-btn" onclick="document.querySelector('.finos-fab')?.click?.()">🤖 Ask Arya</button>
+          </div>
         </div>
 
-        <div class="age-container">
-          <div style="font-family:var(--font-mono); color:#888; margin-bottom:10px;">PARAMETER 01: BIOLOGICAL AGE</div>
-          <div class="age-display" id="ageDisplay">25</div>
-          <input type="range" min="18" max="70" value="25" id="ageInput" oninput="updateAge()">
-          <div style="font-size:0.9rem; color:#666; margin-top:10px;" id="ageContext">Time is your biggest asset. Use it.</div>
+        <!-- Tab switcher -->
+        <div class="rm-tabs" role="tablist">
+          <button class="rm-tab active" role="tab" aria-selected="true"  id="tab-roadmap"  onclick="switchView('roadmap')">🗺️ Roadmap</button>
+          <button class="rm-tab"        role="tab" aria-selected="false" id="tab-mindmap"  onclick="switchView('mindmap')">🧠 MindMap</button>
+          <button class="rm-tab"        role="tab" aria-selected="false" id="tab-timeline" onclick="switchView('timeline')">🌅 Life Journey</button>
         </div>
 
-        <div class="question-card" id="q2">
-          <div class="q-title"><span class="q-badge">PARAM 02</span> Income Stream</div>
-          <div class="options-grid">
-            <div class="option-btn" onclick="setParam('income', 'unstable', this)">
-              <span class="opt-icon">🎢</span>
-              <span class="opt-label">Unstable / Irregular</span>
-            </div>
-            <div class="option-btn" onclick="setParam('income', 'stable', this)">
-              <span class="opt-icon">⚓</span>
-              <span class="opt-label">Stable Job</span>
-            </div>
-            <div class="option-btn" onclick="setParam('income', 'wealth', this)">
-              <span class="opt-icon">🚀</span>
-              <span class="opt-label">High / Surplus</span>
+        <!-- ROADMAP view -->
+        <div class="rm-view active" id="view-roadmap" role="tabpanel">
+          <div id="rm-roadmap">
+            <div class="rm-loading">
+              <div class="rm-loading-ring"></div>
+              <p>Building your personalized roadmap…</p>
             </div>
           </div>
         </div>
 
-        <div class="question-card" id="q3">
-          <div class="q-title"><span class="q-badge">PARAM 03</span> Cash Buffer (Emergency)</div>
-          <div class="options-grid">
-            <div class="option-btn" onclick="setParam('backup', 'zero', this)">
-              <span class="opt-icon">☠️</span>
-              <span class="opt-label">Zero / Debt</span>
-            </div>
-            <div class="option-btn" onclick="setParam('backup', 'thin', this)">
-              <span class="opt-icon">☂️</span>
-              <span class="opt-label">1-2 Months</span>
-            </div>
-            <div class="option-btn" onclick="setParam('backup', 'strong', this)">
-              <span class="opt-icon">🛡️</span>
-              <span class="opt-label">6+ Months (Solid)</span>
+        <!-- MINDMAP view -->
+        <div class="rm-view" id="view-mindmap" role="tabpanel">
+          <div class="mm-hint">🖱️ Drag to pan · Scroll to zoom · Click a node to reveal its data</div>
+          <div id="rm-mindmap">
+            <div class="rm-loading">
+              <div class="rm-loading-ring"></div>
+              <p>Plotting your financial MindMap…</p>
             </div>
           </div>
         </div>
 
-        <div class="question-card" id="q4">
-          <div class="q-title"><span class="q-badge">PARAM 04</span> Responsibility Load</div>
-          <div class="options-grid">
-            <div class="option-btn" onclick="setParam('deps', 'solo', this)">
-              <span class="opt-icon">🦅</span>
-              <span class="opt-label">Solo (Self Only)</span>
-            </div>
-            <div class="option-btn" onclick="setParam('deps', 'family', this)">
-              <span class="opt-icon">🏠</span>
-              <span class="opt-label">Family (1-2 Deps)</span>
-            </div>
-            <div class="option-btn" onclick="setParam('deps', 'heavy', this)">
-              <span class="opt-icon">🏗️</span>
-              <span class="opt-label">Heavy (Parents + Kids)</span>
+        <!-- TIMELINE view -->
+        <div class="rm-view" id="view-timeline" role="tabpanel">
+          <div id="rm-timeline">
+            <div class="rm-loading">
+              <div class="rm-loading-ring"></div>
+              <p>Mapping your life journey…</p>
             </div>
           </div>
         </div>
 
-        <div class="calc-btn-container" id="calcContainer">
-          <button class="calc-btn" onclick="generateProtocol()">Initialize GPS ➔</button>
-        </div>
-
-      </section>
-
-
-      <section id="roadmap" class="roadmap-section">
-        
-        <div class="persona-header" id="personaCard">
-          </div>
-
-        <div class="dynamic-timeline" id="timelineList">
-          <div class="dt-line"></div>
-          </div>
-
-        <div style="text-align:center; margin-top:80px;">
-            <button onclick="location.reload()" style="background:transparent; border:1px solid #444; color:#888; padding:10px 20px; border-radius:30px; cursor:pointer;">↺ Recalibrate</button>
-        </div>
-
-      </section>
-
-    </div>
+      </div><!-- .rm-page -->
+    </div><!-- .content-wrapper -->
   </main>
-</div>
+</div><!-- .app-shell -->
+
+<!-- Core FIN-OS scripts -->
+<script src="../js/finos-widget.js?v=7"></script>
+<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/arya-sidebar-panel.js"></script>
+<!-- Roadmap engine (must come after context scripts) -->
+<script src="../js/arya-roadmap.js"></script>
+<script src="../js/interactions.js" defer></script>
+<script src="../js/mobile-nav.js" defer></script>
+<script src="../js/pwa-init.js"></script>
 
 <script>
-  // STATE MANAGEMENT
-  let userProfile = {
-    age: 25,
-    income: null,
-    backup: null,
-    deps: null
-  };
+/* ── View state ──────────────────────────────────────────────── */
+let _mindmapDone  = false;
+let _timelineDone = false;
+let _currentView  = 'roadmap';
 
-  // 1. AGE SLIDER LOGIC
-  function updateAge() {
-    const val = document.getElementById('ageInput').value;
-    document.getElementById('ageDisplay').innerText = val;
-    userProfile.age = parseInt(val);
+function switchView(name) {
+  document.querySelectorAll('.rm-view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.rm-tab').forEach(t => {
+    t.classList.remove('active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  document.getElementById('view-' + name).classList.add('active');
+  const tab = document.getElementById('tab-' + name);
+  tab.classList.add('active');
+  tab.setAttribute('aria-selected', 'true');
+  _currentView = name;
 
-    const ctx = document.getElementById('ageContext');
-    if(val < 25) ctx.innerText = "Phase: Aggressive Learning & Skilling";
-    else if(val < 35) ctx.innerText = "Phase: Aggressive Accumulation";
-    else if(val < 50) ctx.innerText = "Phase: Optimization & Stability";
-    else ctx.innerText = "Phase: Preservation & Legacy";
+  // Lazy-render each view only on first visit
+  if (name === 'mindmap' && !_mindmapDone) {
+    _mindmapDone = true;
+    const el = document.getElementById('rm-mindmap');
+    el.innerHTML = '';
+    if (window.AryaRoadmap) AryaRoadmap.init(null, el, null);
   }
-
-  // 2. BUTTON SELECTION LOGIC
-  function setParam(key, value, btn) {
-    userProfile[key] = value;
-
-    // Visual selection
-    const parent = btn.closest('.options-grid');
-    parent.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-
-    // Check if all filled to show button
-    if(userProfile.income && userProfile.backup && userProfile.deps) {
-      document.getElementById('calcContainer').style.display = 'block';
-      // Smooth scroll to button
-      setTimeout(() => {
-        document.getElementById('calcContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 200);
-    }
+  if (name === 'timeline' && !_timelineDone) {
+    _timelineDone = true;
+    const el = document.getElementById('rm-timeline');
+    el.innerHTML = '';
+    if (window.AryaRoadmap) AryaRoadmap.init(null, null, el);
+    setTimeout(attachTlDrag, 500);
   }
+}
 
-  // 3. THE CORE ENGINE (GENERATOR)
-  function generateProtocol() {
-    // Hide Input, Show Output
-    document.getElementById('scanner').style.display = 'none';
-    const resultMap = document.getElementById('roadmap');
-    resultMap.style.display = 'block';
+/* ── Hard refresh ────────────────────────────────────────────── */
+function refreshAll() {
+  _mindmapDone  = false;
+  _timelineDone = false;
+  const rm = document.getElementById('rm-roadmap');
+  rm.innerHTML = '<div class="rm-loading"><div class="rm-loading-ring"></div><p>Refreshing…</p></div>';
+  if (window.AryaRoadmap) {
+    AryaRoadmap.init(rm, null, null);
+  }
+}
 
-    // --- LOGIC CALCULATIONS ---
-    let title = "";
-    let desc = "";
-    let badge = "";
-    let steps = [];
-    let alertMsg = "";
+/* ── Timeline drag-scroll ─────────────────────────────────────── */
+function attachTlDrag() {
+  const tl = document.querySelector('.tl-scroll');
+  if (!tl || tl._dragAttached) return;
+  tl._dragAttached = true;
+  let isDown = false, startX, scrollLeft;
+  tl.addEventListener('mousedown', e => {
+    isDown = true; startX = e.pageX - tl.offsetLeft; scrollLeft = tl.scrollLeft;
+  });
+  ['mouseleave','mouseup'].forEach(ev => tl.addEventListener(ev, () => { isDown = false; }));
+  tl.addEventListener('mousemove', e => {
+    if (!isDown) return; e.preventDefault();
+    tl.scrollLeft = scrollLeft - (e.pageX - tl.offsetLeft - startX) * 1.5;
+  });
+}
 
-    // A. DETERMINE PERSONA BASED ON COMBINATIONS
+/* ── Boot ─────────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  const roadmapEl = document.getElementById('rm-roadmap');
+  if (window.AryaRoadmap) {
+    AryaRoadmap.init(roadmapEl, null, null);
+  }
+  // Attach drag-scroll after timeline renders
+  document.addEventListener('arya-timeline-ready', attachTlDrag);
+});
 
-    // SCENARIO 1: SURVIVAL MODE (Any Age, Unstable Income OR No Backup)
-    if (userProfile.backup === 'zero' || userProfile.income === 'unstable') {
-      badge = "PROTOCOL: DEFENSE";
-      title = "The Guerrilla Survivor";
-      desc = "Your foundation is currently under threat. Do not think about 'Investing' yet. Your only goal is to build a shield so life doesn't crush you.";
-      
-      steps.push({
-        head: "Step 1: The Oxygen Mask",
-        body: "Stop all SIPs. Stop trading. Hoard cash until you have ₹50,000 liquid. You are one emergency away from debt.",
-        action: "ACTION: Build Emergency Fund"
-      });
-      steps.push({
-        head: "Step 2: Income Stabilization",
-        body: "Your income is volatile. Focus 80% energy on upskilling or finding a stable secondary income stream.",
-        action: "ACTION: Increase Cash Inflow"
-      });
-       steps.push({
-        head: "Step 3: Term Insurance",
-        body: "Since your backup is low, you cannot afford a medical crisis. Get a basic Term Plan immediately.",
-        action: "ACTION: Buy Protection"
-      });
-
-      if(userProfile.age < 25) {
-        alertMsg = "⚠️ <strong>Youth Warning:</strong> You have time but no money. Don't fall for 'Get Rich Quick' crypto/trading schemes. They prey on people in your stage.";
-      }
-    } 
-    
-    // SCENARIO 2: YOUNG & FREE (Under 30, Stable/High Income, Good Backup)
-    else if (userProfile.age < 30 && userProfile.backup !== 'zero' && userProfile.deps === 'solo') {
-      badge = "PROTOCOL: OFFENSE";
-      title = "The Rocket Launcher";
-      desc = "You have the golden trifecta: Time, Cash, and No Responsibility. You can afford to take risks that others cannot.";
-      
-      steps.push({
-        head: "Step 1: Aggressive Equity",
-        body: "Max out your equity exposure. 80-90% in Direct Stocks or Flexi-cap Funds. Volatility is your friend right now.",
-        action: "ACTION: Start Aggressive SIP"
-      });
-      steps.push({
-        head: "Step 2: Skill Acquisition",
-        body: "Your biggest asset isn't stocks, it's YOU. Spend money on courses/learning to double your salary in 2 years.",
-        action: "ACTION: Invest in Self"
-      });
-      steps.push({
-        head: "Step 3: Satellite Portfolio",
-        body: "Allocate 10-15% to high-risk bets (Crypto/Smallcaps). If it goes to zero, you don't care. If it 10x, you win big.",
-        action: "ACTION: Explore Asymmetric Bets"
-      });
-    }
-
-    // SCENARIO 3: THE FAMILY FORTRESS (30+, Family/Heavy Deps, Stable Income)
-    else if (userProfile.age >= 30 && userProfile.deps !== 'solo') {
-      badge = "PROTOCOL: STABILITY";
-      title = "The Iron Fortress";
-      desc = "People depend on you. You cannot afford to blow up. Your strategy is 'Unbreakable Growth'.";
-      
-      if(userProfile.backup === 'thin') {
-        steps.push({
-          head: "Step 1: Fortify the Walls",
-          body: "Your backup is thin. Before investing heavily, boost your Emergency Fund to 6 months of household expenses.",
-          action: "ACTION: Boost Liquidity"
-        });
-      } else {
-        steps.push({
-          head: "Step 1: Goal-Based Allocation",
-          body: "Separate money for Kids' Education and Retirement. Do not mix them.",
-          action: "ACTION: Map Goals"
-        });
-      }
-
-      steps.push({
-        head: "Step 2: Balanced Growth",
-        body: "60% Equity (Nifty 50 / Large Cap) + 40% Debt/Gold. We need growth, but with shock absorbers.",
-        action: "ACTION: Rebalance Portfolio"
-      });
-      
-      steps.push({
-        head: "Step 3: Maximum Insurance",
-        body: "Ensure your Term Plan covers 20x your annual income. Add a Super Top-up Health plan for parents.",
-        action: "ACTION: Audit Insurance"
-      });
-    }
-
-    // SCENARIO 4: THE WEALTH COMPOUNDER (Any Age, Wealth Income, Strong Backup)
-    else if (userProfile.income === 'wealth' && userProfile.backup === 'strong') {
-      badge = "PROTOCOL: MASTERY";
-      title = "The Capital Allocator";
-      desc = "You have won the survival game. Now you are playing for freedom and legacy.";
-
-      steps.push({
-        head: "Step 1: Asset Diversification",
-        body: "Don't keep everything in India. Look at US Equity (Nasdaq) or Real Estate to diversify jurisdictional risk.",
-        action: "ACTION: Go Global"
-      });
-      steps.push({
-        head: "Step 2: Time Reclamation",
-        body: "Use your wealth to buy time. Outsource tasks. Your time is now worth more than the money you save fixing a tap.",
-        action: "ACTION: Buy Time"
-      });
-      steps.push({
-        head: "Step 3: Angel / Private Bets",
-        body: "Allocate 5-10% to pre-IPO or startups. This is your 'Moonshot' bucket.",
-        action: "ACTION: Private Markets"
-      });
-    }
-
-    // FALLBACK SCENARIO (Balanced)
-    else {
-      badge = "PROTOCOL: BALANCE";
-      title = "The Steady Climber";
-      desc = "You are in a transition phase. Keep moving forward without taking lethal risks.";
-      steps.push({ head: "Step 1: Automate Everything", body: "SIPs, Bills, Savings. Remove willpower from the equation.", action: "ACTION: Automate" });
-      steps.push({ head: "Step 2: Index Funds", body: "Stick to Nifty 50 Index funds. Low cost, guaranteed market returns.", action: "ACTION: Indexing" });
-    }
-
-    // --- RENDER CONTENT ---
-    
-    // 1. Header
-    const headerHTML = `
-      <span class="persona-tag">${badge}</span>
-      <h1 class="persona-title">${title}</h1>
-      <p class="persona-desc">${desc}</p>
-    `;
-    document.getElementById('personaCard').innerHTML = headerHTML;
-
-    // 2. Timeline
-    const timelineContainer = document.getElementById('timelineList');
-    timelineContainer.innerHTML = '<div class="dt-line"></div>'; // Reset
-
-    steps.forEach((step, index) => {
-      const stepHTML = `
-        <div class="dt-step" style="transition-delay: ${index * 0.2}s">
-          <div class="dt-dot"></div>
-          <div class="dt-card">
-            <div class="dt-head">${step.head}</div>
-            <div class="dt-body">${step.body}</div>
-            <div class="dt-action">${step.action}</div>
-          </div>
-        </div>
-      `;
-      timelineContainer.innerHTML += stepHTML;
-    });
-
-    // 3. Alert (if any)
-    if(alertMsg) {
-      const alertHTML = `
-        <div class="dt-step" style="transition-delay: 0.8s">
-          <div class="alert-box">
-             <span class="alert-title">CRITICAL WARNING</span>
-             ${alertMsg}
-          </div>
-        </div>
-      `;
-      timelineContainer.innerHTML += alertHTML;
-    }
-
-    // Trigger Animations
+/* Re-render on full context upgrade (localStorage → Supabase) */
+window.addEventListener('finos-context-ready', e => {
+  if (e.detail?.phase === 'full') {
     setTimeout(() => {
-      document.querySelectorAll('.dt-step').forEach(el => el.classList.add('visible'));
-    }, 100);
+      if (window.AryaRoadmap) {
+        AryaRoadmap.init(document.getElementById('rm-roadmap'), null, null);
+        _mindmapDone  = false;
+        _timelineDone = false;
+        // If user is on mindmap/timeline, refresh those too
+        if (_currentView !== 'roadmap') switchView(_currentView);
+      }
+    }, 400);
   }
-
+});
 </script>
-  <script src="../js/ui.js" defer></script>
-  <script src="../js/mobile-nav.js" defer></script>
-  <script src="../js/pwa-init.js"></script>
 
+<!-- Float buttons -->
 <style>
 #floatThemeBtn {
   position: fixed; top: 14px; right: 18px; z-index: 9999;
@@ -766,26 +609,33 @@
   background: var(--bg-surface); border: 1px solid var(--border-soft);
   color: #fff; font-size: 16px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: background .2s, transform .2s;
-  backdrop-filter: blur(10px);
+  transition: background .2s, transform .2s; backdrop-filter: blur(10px);
 }
 #floatThemeBtn:hover { background: transparent; transform: scale(1.08); }
+[data-theme="light"] #floatThemeBtn { color: var(--text-primary); }
 
-
-/* ── Light mode text overrides (auto-generated) ── */
-[data-theme="light"] #floatThemeBtn {
-  color: var(--text-primary) !important;
-}</style>
+#floatBackBtn {
+  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  padding: 8px 16px 8px 12px; border-radius: 10px;
+  background: var(--bg-surface); border: 1px solid var(--border-soft);
+  color: rgba(255,255,255,.55); font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .2s, color .2s, transform .2s;
+  backdrop-filter: blur(10px); text-decoration: none;
+}
+#floatBackBtn:hover { background: transparent; color: var(--text-primary); transform: translateX(-3px); }
+</style>
 <button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 <script>
 (function(){
-  var btn = document.getElementById('floatThemeBtn');
+  var btn  = document.getElementById('floatThemeBtn');
   var html = document.documentElement;
   var saved = localStorage.getItem('finos-theme') || localStorage.getItem('theme') || 'dark';
   html.setAttribute('data-theme', saved);
   btn.textContent = saved === 'dark' ? '🌙' : '☀️';
   btn.addEventListener('click', function(){
-    var cur = html.getAttribute('data-theme');
+    var cur  = html.getAttribute('data-theme');
     var next = cur === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-theme', next);
     localStorage.setItem('finos-theme', next);
@@ -794,49 +644,5 @@
   });
 })();
 </script>
-
-
-<style>
-#floatBackBtn {
-  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
-  padding: 8px 16px 8px 12px; border-radius: 10px;
-  background: var(--bg-surface); border: 1px solid var(--border-soft);
-  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
-  font-size: 11px; font-weight: 600; letter-spacing: .06em;
-  cursor: pointer; display: flex; align-items: center; gap: 6px;
-  transition: background .2s, color .2s, transform .2s;
-  backdrop-filter: blur(10px); text-decoration: none;
-}
-#floatBackBtn:hover { background: transparent; color: var(--text-primary); transform: translateX(-3px); }
-</style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
-
-<style id="ro-light-theme">
-[data-theme="light"] body {
-  background-color: #EFF2FF !important;
-  background-image: none !important;
-  color: #0B0D12 !important;
-}
-[data-theme="light"] .main { background: #EFF2FF !important; }
-[data-theme="light"] .node-title { color: #0B0D12 !important; }
-[data-theme="light"] .node-body { color: #4A5068 !important; }
-[data-theme="light"] .dt-body { color: #4A5068 !important; }
-[data-theme="light"] .dt-title { color: #0B0D12 !important; }
-[data-theme="light"] .road-card, [data-theme="light"] .path-card {
-  background: rgba(255,255,255,0.85) !important;
-  border-color: rgba(0,243,255,0.2) !important;
-}
-[data-theme="light"] .card-header, [data-theme="light"] .road-header { color: #0B0D12 !important; }
-[data-theme="light"] .q-title  { color: #0B0D12 !important; }
-[data-theme="light"] .opt-label { color: #0B0D12 !important; }
-[data-theme="light"] .dt-head  { color: #0B0D12 !important; }
-[data-theme="light"] .option-btn { border-color: rgba(0,0,0,0.2) !important; color: #0B0D12 !important; }
-[data-theme="light"] .option-btn:hover { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.4) !important; }
-</style>
-  <script src="../js/finos-widget.js?v=7"></script>
-  <script src="../js/finos-search.js?v=2"></script>
-
-<script src="../js/sidebar.js"></script>
-  <script src="../js/interactions.js" defer></script>
 </body>
 </html>

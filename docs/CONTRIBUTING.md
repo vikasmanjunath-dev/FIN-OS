@@ -1,6 +1,6 @@
 # FIN-OS — Contributing Guide
 
-> Version: 1.2 | Date: June 5, 2026
+> Version: 1.3 | Date: June 14, 2026
 
 ---
 
@@ -60,7 +60,8 @@ js/your-page.js          (if page-specific logic needed)
   <script src="../js/interactions.js" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
   <script src="../js/your-page.js" defer></script>
-  <script src="../js/finos-widget.js?v=5" defer></script>
+  <script src="../js/arya-sidebar-panel.js" defer></script>
+  <script src="../js/finos-widget.js?v=7" defer></script>
 </body>
 </html>
 ```
@@ -301,6 +302,54 @@ In `voiceagent/agent.py`, add to `Brain._INTENT_RULES`:
 
 ---
 
+## Adding a New Arya Panel Tab
+
+The Arya sidebar panel (`js/arya-sidebar-panel.js`) has a 4-tab system. To add a 5th tab:
+
+### Step 1 — Add the tab button in `buildPanel()`
+
+```html
+<button class="asp-tab" data-view="mytab">🔧 MyTab</button>
+```
+
+### Step 2 — Add the view panel in `buildPanel()`
+
+```html
+<div id="asp-view-mytab" class="asp-view" role="tabpanel">
+  <div id="arya-mytab-container">
+    <div class="asp-rm-loading"><div class="asp-rm-spinner"></div>Loading…</div>
+  </div>
+  <button class="asp-view-ask-btn" data-msg="Ask Arya about my tab…">🤖 Ask Arya</button>
+</div>
+```
+
+### Step 3 — Add lazy-render logic in `switchAryaTab()`
+
+```javascript
+let _myTabRendered = false;
+
+// Inside switchAryaTab(name):
+if (name === 'mytab' && !_myTabRendered) {
+  _myTabRendered = true;
+  const el = document.getElementById('arya-mytab-container');
+  if (el) {
+    el.innerHTML = '<p>Your content here</p>';
+  }
+}
+```
+
+### Step 4 — Wire tab click in `openPanel()`
+
+The click delegation already handles any `.asp-tab` — no extra wiring needed. The `asp-view-ask-btn` delegation also fires automatically.
+
+### Notes
+
+- Keep views lightweight — the panel is 430px wide; use single-column layouts.
+- Use `var(--token)` colours only — no hardcoded hex.
+- If your tab needs `arya-roadmap.js` features, call `ensureRoadmapEngine(cb)` instead of relying on the script being present.
+
+---
+
 ## Commit Message Format
 
 ```
@@ -324,6 +373,7 @@ Types: `feat` `fix` `refactor` `docs` `style` `test` `chore`
 - [ ] No `SUPABASE_SERVICE_KEY` in any browser-visible file
 - [ ] New `.env` variables have an entry in `.env.example`
 - [ ] `finos-widget.js?v=N` bumped if the widget changed
+- [ ] `arya-sidebar-panel.js` included on all new app pages (before `finos-widget.js`)
 - [ ] No `rgba(255,255,255,.0x)` surfaces in new `<style>` blocks
 - [ ] Anti-FOUC IIFE present as first `<head>` child on any new pages
 - [ ] Theme toggle present on all new pages
@@ -348,12 +398,14 @@ Initial Deployment/
 │   ├── layout.css           Sidebar + mobile nav
 │   ├── components.css       Shared UI components
 │   └── [page].css           38 per-page stylesheets
-├── js/                      88 JS modules
+├── js/                      91 JS modules
 │   ├── theme-init.js        Anti-FOUC theme applier
 │   ├── interactions.js      Hover override engine
 │   ├── ui.js                Theme toggle + animation
 │   ├── finos-widget.js      AI overlay (every page)
-│   └── [page].js            84 per-page modules
+│   ├── arya-sidebar-panel.js  Arya AI panel — 4-tab sidebar (all 94 pages)
+│   ├── arya-roadmap.js      Visual engine — roadmap / mindmap / timeline
+│   └── [page].js            85 per-page modules
 ├── calculators/             88 standalone calculators (9 categories)
 ├── voiceagent/              Voice AI (local Python, :8765)
 ├── alerts/                  Alert Engine (FastAPI :8001)
