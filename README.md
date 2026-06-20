@@ -3,7 +3,7 @@
 > India's most complete personal finance platform.  
 > Education · Intelligence · Voice AI · Calculators · Markets · Tracking — all in one place.
 
-**Last updated:** June 13, 2026 — Portfolio.AI v10 Arya deep upgrade: rich live macro context (Nifty session tone, India VIX regime signal, USD/INR, Crude, Gold — injected into every prompt), smart dynamic chips (_aryaDynamicChips: concentration/tax/VIX/momentum alerts), enhanced aryaFormat (VERDICT callout, ⚡ ARYA'S CALL styled box, OVERWEIGHT/UNDERWEIGHT badges, bullet styling), window._macroLive wired to renderMacroTile. Anti-hallucination: 16 vectors eliminated, NSE sector map, chat temp 0.30. File: 22,570 lines. Voice agent: ws://127.0.0.1:8765.
+**Last updated:** June 14, 2026 — Arya AI Sidebar Panel v2.0: 4-tab system (💬 Chat · 🗺️ Plan · 🧠 Map · 🌅 Life) embedded on all 94 pages; `arya-roadmap.js` self-contained visual engine (935 lines, `injectStyles()`, pan/zoom SVG mindmap, life-journey timeline with Unsplash cards); `roadmap.html` rebuilt as interactive 3-view page; `ensureRoadmapEngine()` lazy-loads the engine on any page without a `<script>` tag. Previous: Portfolio.AI v10 Arya deep upgrade (macro context, smart chips, enhanced aryaFormat, anti-hallucination). File: 22,570 lines. Voice agent: ws://127.0.0.1:8765.
 
 ---
 
@@ -44,7 +44,7 @@ FIN•OS is a full-stack personal finance operating system built for Indian user
 | HTML pages | **96** (94 in `html/` + `index.html` + `login.html`) |
 | Financial calculators | **88** across 9 categories |
 | CSS stylesheets | **45** (incl. design tokens + interaction system) |
-| JavaScript modules | **88** |
+| JavaScript modules | **91** (incl. arya-sidebar-panel.js, arya-roadmap.js) |
 | Design tokens (CSS vars) | **133** |
 | Light-mode CSS rules | **360** |
 | React budget app pages | 11 |
@@ -83,7 +83,17 @@ Browser (finos1.vercel.app — HTTPS)
 │     └─ navigation listener (finos_navigate → window.location.href)
 ├── js/finos-context.js      → User state collector
 ├── js/finos-alerts.js       → Real-time alert bell
-└── js/finos-health-score.js → Live 0–100 score badge
+├── js/finos-health-score.js → Live 0–100 score badge
+├── js/arya-sidebar-panel.js → Arya AI sidebar panel (all 94 pages)
+│     ├─ 4-tab system: 💬 Chat | 🗺️ Plan | 🧠 Map | 🌅 Life
+│     ├─ switchAryaTab() — lazy-renders visual views on first click
+│     ├─ ensureRoadmapEngine() — dynamic <script> injection for arya-roadmap.js
+│     └─ AryaSidebar public API: open(), close(), ask(q), clearHistory()
+└── js/arya-roadmap.js       → Self-contained visual engine (935 lines)
+      ├─ injectStyles() — injects all .rm-* / .mm-* / .tl-* CSS on init
+      ├─ renderRoadmap() — DNA-themed step cards with Unsplash images
+      ├─ renderMindmap() — pan/zoom SVG (mousedown, wheel, touch)
+      └─ renderTimeline() — horizontal life-journey timeline (drag-scroll)
        │
        │  iframe: voiceagent/index.html (same Vercel origin)
        │    ├─ Navigation Engine: FINOS_PAGES[130+] + detectNavIntent()
@@ -252,6 +262,42 @@ N(x) via erf(|x|/√2) — Abramowitz & Stegun 7.1.26
 
 ---
 
+## Arya AI Sidebar Panel (v2.0, June 14, 2026)
+
+`js/arya-sidebar-panel.js` (1,879 lines) is an IIFE injected on all 94 app pages. It provides a slide-in panel with a **4-tab system** so users can access AI chat, financial roadmap, mind map, and life timeline from any page without navigating away.
+
+### Tab System
+
+| Tab | Label | Content |
+|---|---|---|
+| 💬 Chat | Chat | Arya AI chat (existing) — Ollama `qwen3:14b`, page-scoped context, follow-up chips |
+| 🗺️ Plan | Plan | Personalised financial roadmap — DNA-themed step cards (Unsplash images, progress badges) |
+| 🧠 Map | Map | Interactive SVG mind map — pan (drag), zoom (scroll/pinch), click-to-expand nodes |
+| 🌅 Life | Life | Life-journey timeline — horizontal scroll, milestone cards with photos, drag-scroll |
+
+### Architecture
+
+- **Lazy rendering** — visual tabs only render on first click; `_rmRendered`/`_mmRendered`/`_tlRendered` flags prevent double-renders.
+- **`ensureRoadmapEngine(cb)`** — if `arya-roadmap.js` is not on the page, dynamically injects a `<script>` tag by deriving the URL from the panel script's own `src` attribute. Calls `cb` on load.
+- **`switchAryaTab(name)`** — swaps `active` class on `.asp-tab` buttons and `.asp-view` panels; triggers lazy-render for roadmap / mindmap / timeline.
+- **"Ask Arya" buttons** — each visual view has an `.asp-view-ask-btn` that switches to the Chat tab and fires a pre-filled question via `sendMessage()`.
+- **Public API** — `AryaSidebar.open()`, `AryaSidebar.close()`, `AryaSidebar.ask(q)`, `AryaSidebar.clearHistory()`.
+
+### arya-roadmap.js Engine (935 lines)
+
+`js/arya-roadmap.js` is a fully self-contained visual module. It can be loaded on any page (no additional CSS required):
+
+```javascript
+// Public API
+AryaRoadmap.init(roadmapEl, mindmapEl, timelineEl);
+// Pass null for views you don't want rendered.
+// injectStyles() is called automatically — no <style> block needed.
+```
+
+`injectStyles()` injects a `<style id="arya-rm-styles">` tag (guard: runs once) with all `.rm-*`, `.mm-*`, and `.tl-*` classes. The engine reads `localStorage` for Financial DNA archetype, risk profile, income, age, and goals to personalise all three views.
+
+---
+
 ## Folder Structure
 
 ```
@@ -265,7 +311,7 @@ Initial Deployment/
 │   └── chat.js                 Vercel Edge Function — OpenRouter proxy
 ├── html/                       94 main app pages
 ├── css/                        45 stylesheets
-├── js/                         88 JavaScript modules
+├── js/                         91 JavaScript modules
 ├── assets/                     Images, icons, fonts
 ├── calculators/                88 standalone HTML calculators
 │   ├── investment & wealth/    sip.html, sip-optimizer.html, swp.html ...

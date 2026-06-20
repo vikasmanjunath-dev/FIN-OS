@@ -1,6 +1,6 @@
 # FIN-OS — Architecture
 
-> Version: 1.5 | Date: June 13, 2026 | Live: https://finos1.vercel.app
+> Version: 1.7 | Date: June 20, 2026 | Live: https://finos1.vercel.app
 
 ---
 
@@ -32,6 +32,16 @@ Browser  (finos1.vercel.app — HTTPS)
     finos-context.js      User-state collector
     finos-alerts.js       Real-time alert bell
     finos-health-score.js Live 0-100 score badge
+    arya-sidebar-panel.js Arya AI panel — 4-tab sidebar (all 94 pages)
+      ├─ 💬 Chat | 🗺️ Plan | 🧠 Map | 🌅 Life
+      ├─ switchAryaTab() + lazy-render flags
+      ├─ ensureRoadmapEngine() — dynamic <script> injection
+      └─ AryaSidebar public API: open/close/ask/clearHistory
+    arya-roadmap.js       Self-contained visual engine (935 lines)
+      ├─ injectStyles() — all .rm-* / .mm-* / .tl-* CSS injected on init
+      ├─ renderRoadmap() — DNA-themed step cards
+      ├─ renderMindmap() — pan/zoom SVG with touch support
+      └─ renderTimeline() — horizontal drag-scroll life-journey
          │
          │  ws://127.0.0.1:8765  (plain WebSocket — no SSL)
          ▼
@@ -51,10 +61,15 @@ Local Python
     chatbot/brain.py           Python :8000  (QFT engine)
     stock-engine/              FastAPI  (6 services, 14 endpoints)
     stock-dashboard/app.py     Flask :5001
+    rag-engine/server.py       FastAPI :7476 (RAG — see RAG_SYSTEM.md) [PLANNED]
+      ├─ Qdrant :6333            local vector DB (HNSW, 1024-dim)
+      ├─ Redis :6379             query result cache (1hr TTL)
+      └─ calls Ollama :11434     qwen3:14b (gen) + qwen3:8b (utility) + mxbai-embed-large (embed)
          │                         │
          ▼                         ▼
     Supabase                   Ollama :11434
-  (Auth + Postgres + RLS)     (local LLM server)
+  (Auth + Postgres + RLS,     (local LLM server)
+   + rag_documents/rag_feedback)
 
   ─── Vercel Edge (serverless) ───
   api/chat.js               POST /api/chat — OpenRouter proxy
@@ -95,6 +110,20 @@ Local Python
 | Stock Dashboard API | `stock-dashboard/app.py` | Flask + yfinance | http://127.0.0.1:5001 |
 | Budget Backend | `ExpenseTracker/finos_backend/` | Django REST Framework 5.0+ | http://127.0.0.1:8000 |
 | Document AI Parser | `document-ai/server.py` | FastAPI + DocParser | varies |
+| RAG Engine **[PLANNED]** | `rag-engine/server.py` | FastAPI + LlamaIndex + Qdrant + Ollama | http://127.0.0.1:7476 |
+
+---
+
+## RAG System (Planned — Not Yet Implemented)
+
+Full retrieval-augmented generation layer for grounded, cited answers over SEBI/RBI regulations, user-uploaded documents, and FIN-OS's own content. Planned for an Apple M5 24GB/1TB local machine, fully local (no cloud dependency by default). See:
+
+- [RAG_SYSTEM.md](RAG_SYSTEM.md) — master reference and design decisions
+- [RAG_HARDWARE.md](RAG_HARDWARE.md) — M5 RAM/storage budget and performance targets
+- [RAG_PIPELINE.md](RAG_PIPELINE.md) — ingestion → chunking → embedding → retrieval → generation
+- [RAG_MODELS.md](RAG_MODELS.md), [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md), [RAG_API.md](RAG_API.md)
+- [RAG_INTEGRATION.md](RAG_INTEGRATION.md), [RAG_SECURITY.md](RAG_SECURITY.md), [RAG_EVALUATION.md](RAG_EVALUATION.md)
+- [RAG_SETUP.md](RAG_SETUP.md), [RAG_PHASES.md](RAG_PHASES.md) — setup guide and 6-phase build plan
 
 ---
 
@@ -385,6 +414,146 @@ Added badges: `OVERWEIGHT` (green), `UNDERWEIGHT` (red), `NEUTRAL` (yellow).
 ### TTS Architecture
 
 Voices pre-loaded at page load (`speechSynthesis.getVoices()`). `speak()` called synchronously inside `onclick` handler (inside user-gesture call stack). Chrome heartbeat: `pause()` / `resume()` every 10 seconds prevents Chrome's TTS from cutting off long responses.
+
+---
+
+## Arya Sidebar Panel Architecture (v2.0, June 14 2026)
+
+`js/arya-sidebar-panel.js` — 1,879 lines, IIFE pattern, injected on all 94 app pages.
+
+### Panel DOM Structure
+
+```
+#arya-sidebar-panel (slide-in panel, right edge)
+  #arya-sp-header         (avatar + title + close button)
+  #arya-sp-tabs           (tab bar)
+    .asp-tab[data-view="chat"]      💬 Chat (active by default)
+    .asp-tab[data-view="roadmap"]   🗺️ Plan
+    .asp-tab[data-view="mindmap"]   🧠 Map
+    .asp-tab[data-view="timeline"]  🌅 Life
+  #asp-view-chat   .asp-view.active   (chat messages + chips + input)
+  #asp-view-roadmap .asp-view         (arya-rm-container + ask button)
+  #asp-view-mindmap .asp-view         (arya-mm-container + ask button)
+  #asp-view-timeline .asp-view        (arya-tl-container + ask button)
+```
+
+### Tab Switching — `switchAryaTab(name)`
+
+```javascript
+switchAryaTab('roadmap')
+  ↓ toggles .active on .asp-tab + .asp-view elements
+  ↓ if first-time render (_rmRendered === false):
+      ensureRoadmapEngine(cb)
+        → if window.AryaRoadmap exists: cb() immediately
+        → else: inject <script src="arya-roadmap.js"> → s.onload = cb
+      cb: el.innerHTML = ''; AryaRoadmap.init(el, null, null)
+```
+
+Lazy-render flags prevent double-render: `_rmRendered`, `_mmRendered`, `_tlRendered`.
+
+### `ensureRoadmapEngine(cb)` — Dynamic Script Injection
+
+Resolves the arya-roadmap.js URL by reading the `src` of the currently loaded `arya-sidebar-panel.js` script tag and replacing the filename. This works from any page depth:
+
+```javascript
+const panelSrc = Array.from(document.scripts)
+  .find(sc => sc.src?.includes('arya-sidebar-panel'))?.src || '';
+const roadmapSrc = panelSrc
+  ? panelSrc.replace('arya-sidebar-panel.js', 'arya-roadmap.js').split('?')[0]
+  : '../js/arya-roadmap.js';  // fallback
+```
+
+### CSS Injection Pattern
+
+Both modules inject their own CSS via `document.createElement('style')` at runtime:
+- `arya-sidebar-panel.js` → `<style id="arya-sp-styles">` (panel chrome, tabs, views, spinner)
+- `arya-roadmap.js` → `<style id="arya-rm-styles">` (roadmap, mindmap, timeline classes)
+
+Both guards check `document.getElementById('*-styles')` before injecting — safe to call multiple times.
+
+### Public API — `window.AryaSidebar`
+
+| Method | Description |
+|---|---|
+| `AryaSidebar.open()` | Opens the panel |
+| `AryaSidebar.close()` | Closes the panel |
+| `AryaSidebar.ask(q)` | Switches to Chat tab and sends message `q` |
+| `AryaSidebar.clearHistory()` | Clears chat message history |
+
+`AryaRoadmap.init()` uses `window.AryaSidebar.ask(q)` from `.rm-arya-btn` / `.tl-arya-btn` click handlers.
+
+---
+
+## arya-roadmap.js Engine Architecture (935 lines)
+
+`js/arya-roadmap.js` — self-contained visual engine, works with no page-level CSS.
+
+### Public API
+
+```javascript
+AryaRoadmap.init(roadmapEl, mindmapEl, timelineEl)
+// Pass null for any view to skip rendering.
+// Called at top of init(): injectStyles(); const d = loadUserData();
+```
+
+### `injectStyles()`
+
+Injects `<style id="arya-rm-styles">` once (idempotent). Covers:
+- `.rm-hero`, `.rm-steps`, `.rm-step`, `.rm-step-img-wrap`, `.rm-step-badge`, `.rm-step-body`, `.rm-step-detail`, `.rm-arya-btn`
+- `.mm-legend`, `.mm-leg-item`, `.mm-leg-dot`, `.mm-reset-btn`
+- `.tl-header`, `.tl-scroll`, `.tl-track`, `.tl-milestones`, `.tl-milestone`, `.tl-milestone-dot`, `.tl-milestone-card`, `.tl-card-*`, `.tl-legend`
+- `@keyframes rmFadeIn`, `@keyframes rmSpin`
+- Light-theme overrides
+
+### `loadUserData()`
+
+Reads from `localStorage`:
+- `finos_dna_result` → archetype (Builder/Guardian/Explorer/Optimizer/Achiever/Visionary/Realist) + gradient pair
+- `finos_user_profile` → income, age, risk tolerance, goals
+
+### `renderRoadmap(el, d)`
+
+Generates persona-specific step cards based on DNA archetype and life stage. Each card has:
+- Unsplash image `https://images.unsplash.com/{photoID}?w=400&h=220&fit=crop`
+- Progress badge, step title, detail text
+- `.rm-arya-btn` → calls `AryaSidebar.ask(question)`
+
+### `renderMindmap(el, d)`
+
+SVG-based mind map with:
+- Size: `W = Math.min(container.clientWidth, 900)`, `H = Math.max(600, Math.min(720, window.innerHeight - 200))`
+- Pan: `mousedown` + `mousemove` (translateX/Y on SVG group)
+- Zoom: `wheel` event (scale 0.3–3×)
+- Touch: pinch-zoom + drag support
+- Reset button `.mm-reset-btn` → restores transform to identity
+- DNA color theming per archetype
+
+### `renderTimeline(el, d)`
+
+Horizontal life-journey timeline:
+- Drag-scroll via `mousedown` + `mousemove` on `.tl-scroll`
+- Milestone cards with Unsplash photos and estimated ages
+- `.tl-arya-btn` → calls `AryaSidebar.ask(question)`
+- Decade markers + legend
+
+---
+
+## roadmap.html — Interactive 3-View Page (rebuilt June 14 2026)
+
+`html/roadmap.html` was rebuilt from the old static "Cyber GPS" questionnaire into a full interactive 3-view page.
+
+### Old version (removed)
+Age slider + income / emergency backup / dependants selectors → generated static protocol advice text.
+
+### New version
+3 tabs: **Roadmap** (arya-roadmap.js `renderRoadmap`), **Mind Map** (`renderMindmap`), **Life Journey** (`renderTimeline`).
+
+Key behaviour:
+- Roadmap renders immediately on page load
+- Mind Map and Life Journey render lazily on first tab click
+- Timeline drag-scroll attached via `setTimeout(attachTlDrag, 500)` after timeline renders
+- Re-renders on `finos-context-ready` event with `phase === 'full'`
+- Scripts: `arya-sidebar-panel.js` + `arya-roadmap.js` both loaded — panel already has the engine, so `ensureRoadmapEngine()` is a no-op
 
 ---
 

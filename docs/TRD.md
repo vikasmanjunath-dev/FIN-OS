@@ -1,6 +1,6 @@
 # FIN-OS — Technical Requirements Document (TRD)
 
-**Owner:** Vikas Manjunath | **Version:** 1.4 | **Date:** June 10, 2026 | **Status:** Active
+**Owner:** Vikas Manjunath | **Version:** 1.6 | **Date:** June 20, 2026 | **Status:** Active
 
 ---
 
@@ -18,7 +18,7 @@ Defines technical stack, performance budgets, security, accessibility, and integ
 |---|---|---|
 | HTML | HTML5 | 96 pages, no framework overhead |
 | CSS | CSS3 + custom properties | 133-token design system |
-| JavaScript | Vanilla ES6+ | No build step; 88 modules |
+| JavaScript | Vanilla ES6+ | No build step; 91 modules |
 | React app | React 19 + Vite 5 + Tailwind | Budget app (`ExpenseTracker/finos-budget/`) — 11 pages |
 | TypeScript | TS 5 + Vite + Express | News1 aggregator |
 | PWA | Service Worker + Web Push Level 3 | Offline + push notifications |
@@ -36,7 +36,7 @@ Defines technical stack, performance budgets, security, accessibility, and integ
 | `css/components.css` | Shared UI components |
 | `css/[page].css` (38 files) | Per-page styles |
 
-### JS Architecture (88 modules)
+### JS Architecture (91 modules)
 
 | File | Purpose |
 |---|---|
@@ -48,7 +48,9 @@ Defines technical stack, performance budgets, security, accessibility, and integ
 | `js/finos-alerts.js` | Alert bell |
 | `js/finos-health-score.js` | Health score badge |
 | `js/guard.js` | Auth route guard |
-| `js/[page].js` (80 files) | Per-page logic |
+| `js/arya-sidebar-panel.js` | Arya AI sidebar panel — 4-tab (Chat/Plan/Map/Life), all 94 pages; 1,879 lines; IIFE; injects own CSS; `AryaSidebar` public API |
+| `js/arya-roadmap.js` | Self-contained visual engine — 935 lines; `injectStyles()`, `renderRoadmap()`, `renderMindmap()` (pan/zoom SVG), `renderTimeline()` (drag-scroll); `AryaRoadmap` public API |
+| `js/[page].js` (81 files) | Per-page logic |
 
 ### Backend Services
 
@@ -64,6 +66,26 @@ Defines technical stack, performance budgets, security, accessibility, and integ
 | Budget Backend | `ExpenseTracker/finos_backend/` | Django REST Framework 5.0+ | http://127.0.0.1:8000 |
 | Stock Dashboard API | `stock-dashboard/app.py` | Flask + yfinance | http://127.0.0.1:5001 |
 | Document AI Parser | `document-ai/server.py` | FastAPI + DocParser | varies |
+| RAG Engine **[PLANNED]** | `rag-engine/server.py` | FastAPI + LlamaIndex | http://127.0.0.1:7476 |
+
+### RAG Stack **[PLANNED — see RAG_SYSTEM.md]**
+
+| Component | Library / Model | Mode | Notes |
+|---|---|---|---|
+| Orchestration | LlamaIndex 0.10+ | Local | Hybrid retrieval, `SubQuestionQueryEngine` for multi-hop |
+| Vector DB | Qdrant (local binary) | Local, port 6333 | HNSW, 1024-dim, Cosine distance |
+| Sparse index | bm25s + SQLite FTS5 | Local | Exact-term match (e.g. "Section 80CCD(1B)") |
+| Embedding (primary) | `mxbai-embed-large` via Ollama | Local, Metal | 1024-dim, MTEB 64.68 |
+| Embedding (fallback) | `nomic-embed-text` via Ollama | Local, Metal | 768-dim, used for high-volume batch ingestion |
+| Reranker | `BAAI/bge-reranker-v2-m3` | Local, PyTorch MPS | Cross-encoder, top-40 → top-8 |
+| Generation LLM | `qwen3:14b` via Ollama | Local, Metal | 8.5 GB Q4_K_M, ~50 tok/s on M5 |
+| Utility LLM | `qwen3:8b` via Ollama | Local, Metal | Query rewrite, HyDE, sub-question decomposition |
+| Faithfulness guard | `cross-encoder/nli-deberta-v3-base` | Local, PyTorch MPS | Post-generation entailment check |
+| Cloud fallback | Claude Sonnet 4.6 (Anthropic API) | Remote | Public namespace only — never for user documents |
+| Query cache | Redis | Local, port 6379 | 1 hour TTL |
+| PII scrubbing | presidio-analyzer + presidio-anonymizer | Local | PAN/Aadhaar/account-number masking before persistence |
+
+Full detail: [RAG_SYSTEM.md](RAG_SYSTEM.md), [RAG_HARDWARE.md](RAG_HARDWARE.md), [RAG_MODELS.md](RAG_MODELS.md).
 
 ### AI / ML Stack
 

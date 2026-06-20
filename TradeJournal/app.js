@@ -241,11 +241,13 @@ function renderJournal(filter, search) {
   }
   if (empty) empty.style.display = 'none';
 
+  const safeId = id => String(id).replace(/[^a-zA-Z0-9_-]/g, '');
   tbody.innerHTML = trades.map(t => {
     const n = net(t);
+    const sid = safeId(t.id);
     const cls = n > 0 ? 'badge-win' : n < 0 ? 'badge-loss' : 'badge-be';
     const label = n > 0 ? 'WIN' : n < 0 ? 'LOSS' : 'BE';
-    return `<tr onclick="openTradeModal('${t.id}')" style="cursor:pointer">
+    return `<tr onclick="openTradeModal('${sid}')" style="cursor:pointer">
       <td>${t.date || '—'}</td>
       <td><strong style="color:var(--accent)">${t.symbol || '—'}</strong></td>
       <td><span style="color:${t.direction === 'Long' ? 'var(--green)' : 'var(--red)'}">${t.direction || '—'}</span></td>
@@ -257,8 +259,8 @@ function renderJournal(filter, search) {
       <td><span class="badge ${cls}">${label}</span></td>
       <td style="color:var(--text2);font-size:11px">${t.emotion || '—'}</td>
       <td class="tbl-actions">
-        <button class="tbl-btn tbl-btn-edit" onclick="event.stopPropagation();editTrade('${t.id}')">Edit</button>
-        <button class="tbl-btn tbl-btn-del" onclick="event.stopPropagation();deleteTradeById('${t.id}')">Del</button>
+        <button class="tbl-btn tbl-btn-edit" onclick="event.stopPropagation();editTrade('${sid}')">Edit</button>
+        <button class="tbl-btn tbl-btn-del" onclick="event.stopPropagation();deleteTradeById('${sid}')">Del</button>
       </td>
     </tr>`;
   }).join('');
@@ -382,9 +384,13 @@ function renderTagSelector() {
   if (!container) return;
   const tags = getTags();
   if (!tags.length) { container.innerHTML = '<span style="font-size:12px;color:var(--text3)">No tags yet. Create them in Tools Hub → Tags.</span>'; return; }
+  const safeColor = c => /^#[0-9a-fA-F]{3,8}$/.test(c) ? c : 'var(--accent)';
+  const safeId2 = id => String(id).replace(/[^a-zA-Z0-9_-]/g, '');
   container.innerHTML = tags.map(tag => {
     const sel = _selectedTags.includes(tag.id);
-    return `<button onclick="toggleTradeTag('${tag.id}',this)" style="padding:4px 12px;border-radius:20px;border:1px solid ${sel ? tag.color : 'var(--border)'};background:${sel ? tag.color+'22' : 'transparent'};color:${sel ? tag.color : 'var(--text2)'};font-size:11px;cursor:pointer;transition:all .15s" data-id="${tag.id}">${tag.name}</button>`;
+    const sid = safeId2(tag.id);
+    const col = safeColor(tag.color);
+    return `<button onclick="toggleTradeTag('${sid}',this)" style="padding:4px 12px;border-radius:20px;border:1px solid ${sel ? col : 'var(--border)'};background:${sel ? col+'22' : 'transparent'};color:${sel ? col : 'var(--text2)'};font-size:11px;cursor:pointer;transition:all .15s" data-id="${sid}">${tag.name}</button>`;
   }).join('');
 }
 function toggleTradeTag(id, btn) {
@@ -1431,9 +1437,9 @@ function openTradeModal(id) {
 
     <!-- Footer buttons -->
     <div class="trd-foot">
-      <button class="btn-primary" onclick="editTrade('${trade.id}');closeTradeModal()" style="flex:1">✏️ Edit Trade</button>
-      <button class="btn-secondary" onclick="copyTradeReport('${trade.id}')">📋 Copy</button>
-      <button class="btn-danger" onclick="deleteTradeById('${trade.id}');closeTradeModal()">🗑</button>
+      <button class="btn-primary" onclick="editTrade('${String(trade.id).replace(/[^a-zA-Z0-9_-]/g,'')}');closeTradeModal()" style="flex:1">✏️ Edit Trade</button>
+      <button class="btn-secondary" onclick="copyTradeReport('${String(trade.id).replace(/[^a-zA-Z0-9_-]/g,'')}')">📋 Copy</button>
+      <button class="btn-danger" onclick="deleteTradeById('${String(trade.id).replace(/[^a-zA-Z0-9_-]/g,'')}');closeTradeModal()">🗑</button>
     </div>
 
   </div><!-- /trd-wrap -->
@@ -1908,21 +1914,37 @@ function renderCorrelationMatrix(trades) {
    TOOLS HUB
 ──────────────────────────────────────────────────────────── */
 function calcKelly() {
-  const cap = parseFloat(document.getElementById('k-cap')?.value) || (window.TB?.getCapital ? window.TB.getCapital() : 50000);
-  const wr = (parseFloat(document.getElementById('k-wr')?.value) || (window.TB?.deriveStats?.()?.wr ? window.TB.deriveStats().wr : 0.667) * 100) / 100;
-  const aw = parseFloat(document.getElementById('k-aw')?.value)||1166;
-  const al = parseFloat(document.getElementById('k-al')?.value)||300;
-  const b = aw/al;
-  const kelly = ((b*wr-(1-wr))/b)*100;
-  const halfKelly = kelly/2;
-  const rec = Math.max(0,Math.min(halfKelly,5));
-  const amount = cap*rec/100;
   const result = document.getElementById('kelly-result');
   if (!result) return;
+
+  const cap = parseFloat(document.getElementById('k-cap')?.value) || (window.TB?.getCapital ? window.TB.getCapital() : 0);
+  const wr  = (parseFloat(document.getElementById('k-wr')?.value)  || (window.TB?.deriveStats?.()?.wr ? window.TB.deriveStats().wr * 100 : 0)) / 100;
+  const aw  = parseFloat(document.getElementById('k-aw')?.value) || 0;
+  const al  = parseFloat(document.getElementById('k-al')?.value) || 0;
+
+  if (cap <= 0) {
+    result.innerHTML = '<p style="color:var(--gold);font-size:12px">⚠️ Enter your trading capital above to calculate.</p>';
+    return;
+  }
+  if (wr <= 0 || wr >= 1) {
+    result.innerHTML = '<p style="color:var(--gold);font-size:12px">⚠️ Win rate must be between 1% and 99%.</p>';
+    return;
+  }
+  if (al <= 0) {
+    result.innerHTML = '<p style="color:var(--gold);font-size:12px">⚠️ Enter average loss amount to calculate.</p>';
+    return;
+  }
+
+  const b         = aw > 0 ? aw / al : 1;
+  const kelly     = ((b * wr - (1 - wr)) / b) * 100;
+  const halfKelly = kelly / 2;
+  const rec       = Math.max(0, Math.min(halfKelly, 5));
+  const amount    = cap * rec / 100;
+
   result.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
     <div style="background:var(--bg);border-radius:6px;padding:10px"><div style="font-size:10px;color:var(--text3)">Full Kelly</div><div style="font-size:16px;font-weight:800;color:var(--gold)">${Math.max(0,kelly).toFixed(1)}%</div></div>
     <div style="background:var(--bg);border-radius:6px;padding:10px"><div style="font-size:10px;color:var(--text3)">Half Kelly (recommended)</div><div style="font-size:16px;font-weight:800;color:var(--accent)">${Math.max(0,halfKelly).toFixed(1)}%</div></div>
-    <div style="background:var(--bg);border-radius:6px;padding:10px;grid-column:1/-1"><div style="font-size:10px;color:var(--text3)">Risk Amount (capped at 5%)</div><div style="font-size:20px;font-weight:800;color:var(--green)">₹${amount.toFixed(0)}</div></div>
+    <div style="background:var(--bg);border-radius:6px;padding:10px;grid-column:1/-1"><div style="font-size:10px;color:var(--text3)">Risk Amount (capped at 5%)</div><div style="font-size:20px;font-weight:800;color:var(--green)">₹${amount.toLocaleString('en-IN',{maximumFractionDigits:0})}</div></div>
   </div>`;
 }
 
@@ -2002,22 +2024,39 @@ function calcVP() {
 }
 
 function calcPositionSizer() {
-  const capital = parseFloat(document.getElementById('ps-capital')?.value) || (window.TB?.getCapital ? window.TB.getCapital() : 50000);
-  const riskPct = parseFloat(document.getElementById('ps-risk-pct')?.value)||1;
-  const entry = parseFloat(document.getElementById('ps-entry')?.value)||0;
-  const sl = parseFloat(document.getElementById('ps-sl')?.value)||0;
-  const target = parseFloat(document.getElementById('ps-target')?.value)||0;
   const result = document.getElementById('ps-result');
-  if (!result || !entry || !sl) return;
+  if (!result) return;
+
+  const capital = parseFloat(document.getElementById('ps-capital')?.value) || (window.TB?.getCapital ? window.TB.getCapital() : 0);
+  const riskPct = parseFloat(document.getElementById('ps-risk-pct')?.value) || 1;
+  const entry   = parseFloat(document.getElementById('ps-entry')?.value)    || 0;
+  const sl      = parseFloat(document.getElementById('ps-sl')?.value)       || 0;
+  const target  = parseFloat(document.getElementById('ps-target')?.value)   || 0;
+
+  if (capital <= 0) {
+    result.innerHTML = '<p style="color:var(--gold);font-size:12px">⚠️ Enter your trading capital to calculate position size.</p>';
+    return;
+  }
+  if (!entry || !sl) {
+    result.innerHTML = '<p style="color:var(--text3);font-size:12px">Enter entry price and stop-loss to size your position.</p>';
+    return;
+  }
+  if (entry === sl) {
+    result.innerHTML = '<p style="color:var(--red);font-size:12px">⚠️ Entry and stop-loss cannot be the same price.</p>';
+    return;
+  }
+
   const riskAmount = capital * riskPct / 100;
-  const slDist = Math.abs(entry - sl);
-  const qty = slDist > 0 ? Math.floor(riskAmount / slDist) : 0;
-  const cost = qty * entry;
-  const rrRatio = target ? ((Math.abs(target-entry)/slDist)).toFixed(1) : '—';
+  const slDist     = Math.abs(entry - sl);
+  const qty        = slDist > 0 ? Math.floor(riskAmount / slDist) : 0;
+  const cost       = qty * entry;
+  const rrRatio    = (target && slDist > 0) ? (Math.abs(target - entry) / slDist).toFixed(1) : '—';
+  const pctOfCap   = capital > 0 ? ((cost / capital) * 100).toFixed(1) : '—';
+
   result.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
     <div style="background:var(--bg);border-radius:6px;padding:10px"><div style="font-size:10px;color:var(--text3)">Quantity</div><div style="font-size:22px;font-weight:800;color:var(--accent)">${qty}</div></div>
-    <div style="background:var(--bg);border-radius:6px;padding:10px"><div style="font-size:10px;color:var(--text3)">Max Risk</div><div style="font-size:22px;font-weight:800;color:var(--red)">₹${riskAmount.toFixed(0)}</div></div>
-    <div style="background:var(--bg);border-radius:6px;padding:10px"><div style="font-size:10px;color:var(--text3)">Position Cost</div><div style="font-size:14px;font-weight:700;color:var(--text)">₹${cost.toLocaleString('en-IN')}</div></div>
+    <div style="background:var(--bg);border-radius:6px;padding:10px"><div style="font-size:10px;color:var(--text3)">Max Risk</div><div style="font-size:22px;font-weight:800;color:var(--red)">₹${riskAmount.toLocaleString('en-IN',{maximumFractionDigits:0})}</div></div>
+    <div style="background:var(--bg);border-radius:6px;padding:10px"><div style="font-size:10px;color:var(--text3)">Position Cost</div><div style="font-size:14px;font-weight:700;color:var(--text)">₹${cost.toLocaleString('en-IN',{maximumFractionDigits:0})}</div><div style="font-size:10px;color:var(--text3);margin-top:3px">${pctOfCap}% of capital</div></div>
     <div style="background:var(--bg);border-radius:6px;padding:10px"><div style="font-size:10px;color:var(--text3)">R:R Ratio</div><div style="font-size:14px;font-weight:700;color:var(--gold)">${rrRatio}:1</div></div>
   </div>`;
 }
@@ -2933,6 +2972,22 @@ const THEMES = {
     '--text': '#f5f5f5', '--text2': '#a0a0a0', '--text3': '#606060',
     '--accent': '#00c896', '--accent-dim': 'rgba(0,200,150,0.12)', '--accent-glow': '0 0 15px rgba(0,200,150,0.2)',
     '--accent2': '#00a87a', '--green': '#00c896', '--red': '#ff4757'
+  },
+  matrix: {
+    '--bg': '#000000', '--bg2': '#040f04', '--bg3': '#071407', '--bg4': '#0c1e0c', '--bg5': '#122912',
+    '--glass': 'rgba(0,255,0,0.02)', '--glass2': 'rgba(0,255,0,0.04)', '--glass-border': 'rgba(0,255,0,0.08)',
+    '--border': 'rgba(0,255,0,0.1)', '--border2': 'rgba(0,255,0,0.18)', '--border3': 'rgba(0,255,0,0.28)',
+    '--text': '#00ff00', '--text2': '#00cc00', '--text3': '#007700',
+    '--accent': '#00ff00', '--accent-dim': 'rgba(0,255,0,0.12)', '--accent-glow': '0 0 15px rgba(0,255,0,0.3)',
+    '--accent2': '#00cc00', '--green': '#00ff00', '--red': '#ff0040'
+  },
+  light: {
+    '--bg': '#f8fafc', '--bg2': '#ffffff', '--bg3': '#f1f5f9', '--bg4': '#e2e8f0', '--bg5': '#cbd5e1',
+    '--glass': 'rgba(0,0,0,0.02)', '--glass2': 'rgba(0,0,0,0.04)', '--glass-border': 'rgba(0,0,0,0.06)',
+    '--border': 'rgba(0,0,0,0.08)', '--border2': 'rgba(0,0,0,0.12)', '--border3': 'rgba(0,0,0,0.2)',
+    '--text': '#0f172a', '--text2': '#475569', '--text3': '#94a3b8',
+    '--accent': '#10b981', '--accent-dim': 'rgba(16,185,129,0.12)', '--accent-glow': '0 0 15px rgba(16,185,129,0.2)',
+    '--accent2': '#3b82f6', '--green': '#10b981', '--red': '#ef4444'
   }
 };
 function applyTheme(name) {
@@ -2973,7 +3028,14 @@ function importData(event) {
     try {
       const data = JSON.parse(e.target.result);
       if (!confirm(`Import ${data.trades?.length||0} trades? This will replace all current data.`)) return;
-      if (data.trades) saveTrades(data.trades);
+      if (data.trades) {
+        // Sanitize IDs to prevent XSS via crafted backup files
+        const sanitized = data.trades.map(t => ({
+          ...t,
+          id: t.id ? String(t.id).replace(/[^a-zA-Z0-9_-]/g, '') || Date.now().toString() : Date.now().toString()
+        }));
+        saveTrades(sanitized);
+      }
       if (data.settings) persistSettings(data.settings);
       if (data.tags) saveTags(data.tags);
       if (data.rules) saveRules(data.rules);
@@ -2989,11 +3051,47 @@ window.importData = importData;
 
 function exportCSV() {
   const trades = getTrades();
-  const headers = ['Date','Symbol','Direction','Qty','Entry','Exit','Gross','Tax','Net','Strategy','Emotion','Discipline','Regime','Quality','Notes'];
-  const rows = trades.map(t=>[t.date,t.symbol,t.direction,t.qty,t.entry,t.exit,t.gross,t.tax,t.net,t.strategy,t.emotion,t.discipline,t.regime,t.qualityScore,`"${(t.reason||'').replace(/"/g,"'")}"`]);
-  const csv = [headers.join(','),...rows.map(r=>r.join(','))].join('\n');
-  const blob=new Blob([csv],{type:'text/csv'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='tradebook_trades.csv';a.click();
+
+  // RFC 4180: wrap in double-quotes if field contains comma, newline, or quote
+  // Escape inner double-quotes by doubling them ("")
+  function csvCell(v) {
+    const s = (v === null || v === undefined) ? '' : String(v);
+    return (s.includes(',') || s.includes('"') || s.includes('\n') || s.includes('\r'))
+      ? '"' + s.replace(/"/g, '""') + '"'
+      : s;
+  }
+
+  const headers = [
+    'Date','Symbol','Direction','Instrument','Timeframe','Entry','Exit','Qty','LotSize',
+    'Gross P&L','Brokerage','STT','Exchange','SEBI','GST','Slippage','Other','Total Tax','Net P&L',
+    'Capital Deployed','Return %','Strategy','Setup Grade','Trade Type','Entry Type','Exit Type',
+    'SL','Target','Planned R:R','Actual R:R','MAE','MFE',
+    'Market Regime','Emotion','Quality Score','Discipline','Plan Adherence',
+    'Indicators','Exit Reason','Mistakes','Notes','Tags'
+  ];
+
+  const rows = trades.map(t => [
+    t.date, t.symbol, t.direction, t.instrumentType || '', t.timeframe || '',
+    t.entry || '', t.exit || '', t.qty || '', t.lotSize || '',
+    t.gross || '', t.brokerage || '', t.stt || '', t.exchangeCharges || '',
+    t.sebi || '', t.gst || '', t.slippage || '', t.otherCharges || '', t.tax || '', t.net || '',
+    t.capitalDeployed || '', t.returnPct || '',
+    t.strategy || '', t.setupGrade || '', t.tradeType || '', t.entryType || '', t.exitType || '',
+    t.sl || '', t.target || '', t.plannedRR || '', t.actualRR || '', t.mae || '', t.mfe || '',
+    t.regime || '', t.emotion || '', t.qualityScore || '', t.discipline || '', t.planAdherence || '',
+    t.indicators || '', t.exitReason || '', t.mistakes || '', t.reason || '', (t.tags || []).join('; ')
+  ].map(csvCell));
+
+  // UTF-8 BOM (﻿) makes Excel auto-detect encoding for ₹ and Unicode
+  const BOM = '﻿';
+  const csv = BOM + [headers.map(csvCell).join(','), ...rows.map(r => r.join(','))].join('\r\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `tradebook_export_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
   toast('CSV downloaded!');
 }
 window.exportCSV = exportCSV;
@@ -3071,14 +3169,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('global-search-input');
   const resultsEl = document.getElementById('global-search-results');
   if (searchInput && resultsEl) {
+    let _gsTimer;
     searchInput.addEventListener('input', () => {
-      const q = searchInput.value.trim().toLowerCase();
-      if (!q) { resultsEl.innerHTML=''; return; }
-      const trades = getTrades().filter(t=>(t.symbol||'').toLowerCase().includes(q)||(t.strategy||'').toLowerCase().includes(q)||(t.reason||'').toLowerCase().includes(q));
-      resultsEl.innerHTML = trades.slice(0,8).map(t=>`<div class="gs-result-item" onclick="openTradeModal('${t.id}');document.getElementById('global-search-overlay').classList.remove('active')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-        <div><strong style="color:var(--accent)">${t.symbol||'—'}</strong> <span style="color:var(--text3);font-size:11px">${t.date} · ${t.strategy||'—'}</span></div>
-        <span style="color:${net(t)>=0?'var(--green)':'var(--red)'};font-family:var(--font-mono);font-size:13px">${fmtS(net(t))}</span>
-      </div>`).join('') || '<div style="padding:14px;color:var(--text3);font-size:13px">No trades found</div>';
+      clearTimeout(_gsTimer);
+      _gsTimer = setTimeout(() => {
+        const q = searchInput.value.trim().toLowerCase();
+        if (!q) { resultsEl.innerHTML=''; return; }
+        const trades = getTrades().filter(t=>(t.symbol||'').toLowerCase().includes(q)||(t.strategy||'').toLowerCase().includes(q)||(t.reason||'').toLowerCase().includes(q));
+        const safeId = id => String(id).replace(/[^a-zA-Z0-9_-]/g, '');
+        resultsEl.innerHTML = trades.slice(0,8).map(t=>`<div class="gs-result-item" onclick="openTradeModal('${safeId(t.id)}');document.getElementById('global-search-overlay').classList.remove('active')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <div><strong style="color:var(--accent)">${t.symbol||'—'}</strong> <span style="color:var(--text3);font-size:11px">${t.date} · ${t.strategy||'—'}</span></div>
+          <span style="color:${net(t)>=0?'var(--green)':'var(--red)'};font-family:var(--font-mono);font-size:13px">${fmtS(net(t))}</span>
+        </div>`).join('') || '<div style="padding:14px;color:var(--text3);font-size:13px">No trades found</div>';
+      }, 150);
     });
     document.addEventListener('keydown', e => {
       if ((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.getElementById('global-search-overlay')?.classList.add('active');setTimeout(()=>searchInput.focus(),50);}

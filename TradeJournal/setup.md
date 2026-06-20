@@ -1,89 +1,70 @@
 # TradeBook Pro — Cloud Sync Setup Guide
 
 ## What you need
-- A free Google account
+- A free Supabase account (supabase.com)
 - 5 minutes
 
 ---
 
-## Step 1 — Create Firebase Project
+## Step 1 — Create a Supabase Project
 
-1. Go to **https://console.firebase.google.com**
-2. Click **"Add project"**
+1. Go to **https://supabase.com** and sign up (free)
+2. Click **"New project"**
 3. Name it anything (e.g. `tradebook-pro`)
-4. Disable Google Analytics (not needed) → **Create project**
+4. Set a database password (save it somewhere safe)
+5. Choose the region closest to you → **Create project**
 
 ---
 
-## Step 2 — Create Realtime Database
+## Step 2 — Run the Setup SQL
 
-1. In your project, click **"Realtime Database"** in the left sidebar
-2. Click **"Create Database"**
-3. Choose your region (pick the closest to you)
-4. Select **"Start in test mode"** → **Enable**
+1. In your Supabase project, click **"SQL Editor"** in the left sidebar
+2. Click **"New query"**
+3. Paste the following SQL and click **"Run"**:
 
-> ⚠️ Test mode allows read/write for 30 days. After that, set up security rules (see Step 4).
+```sql
+create table if not exists tb_vaults (
+  vault_id  text primary key,
+  created_at timestamptz default now()
+);
 
----
+create table if not exists tb_data (
+  vault_id  text not null references tb_vaults(vault_id) on delete cascade,
+  key       text not null,
+  value     jsonb,
+  updated_at timestamptz default now(),
+  primary key (vault_id, key)
+);
 
-## Step 3 — Get Your Database URL
+create index if not exists tb_data_vault on tb_data(vault_id);
 
-1. In Realtime Database, look at the top — you'll see a URL like:
-   ```
-   https://tradebook-pro-default-rtdb.firebaseio.com
-   ```
-2. Copy that URL.
+alter table tb_vaults enable row level security;
+alter table tb_data   enable row level security;
 
----
+create policy "vault owner" on tb_vaults for all using (true) with check (true);
+create policy "data owner"  on tb_data   for all using (true) with check (true);
 
-## Step 4 — Update sync.js
-
-Open `sync.js` and replace line 31:
-
-```javascript
-// BEFORE:
-const FIREBASE_DB_URL = 'https://tradebook-pro-default-rtdb.firebaseio.com';
-
-// AFTER (paste your actual URL):
-const FIREBASE_DB_URL = 'https://YOUR-PROJECT-ID-default-rtdb.firebaseio.com';
+alter publication supabase_realtime add table tb_data;
 ```
 
 ---
 
-## Step 5 — Set Security Rules (Important!)
+## Step 3 — Get Your API Credentials
 
-In Firebase Console → Realtime Database → **Rules** tab, paste:
-
-```json
-{
-  "rules": {
-    "vaults": {
-      "$vaultId": {
-        ".read": true,
-        ".write": true
-      }
-    }
-  }
-}
-```
-
-Click **Publish**. This allows any device with the correct vault ID (derived from the password hash) to read/write that vault.
+1. In your project, click **"Project Settings"** → **"API"**
+2. Copy two values:
+   - **Project URL** — looks like `https://abcdefghijk.supabase.co`
+   - **anon / public key** — a long JWT string starting with `eyJ...`
 
 ---
 
-## Step 6 — Deploy & Use
+## Step 4 — Connect in the App
 
-Put all your files on any web host (GitHub Pages, Netlify, Vercel — all free):
-
-```bash
-# GitHub Pages example:
-git init
-git add .
-git commit -m "TradeBook Pro"
-git remote add origin https://github.com/YOURNAME/tradebook.git
-git push -u origin main
-# Then enable GitHub Pages in repo Settings → Pages
-```
+1. Open TradeBook Pro → **Settings** page → **Cloud Sync** section
+2. Paste your **Project URL** and **Anon Key**
+3. Click **Connect**
+4. Enter your phone number as the sync password
+5. Done! The sync indicator in Settings will turn green.
 
 ---
 
@@ -91,20 +72,21 @@ git push -u origin main
 
 | Action | What happens |
 |--------|-------------|
-| Enter password | SHA-256 hashed in browser — never sent in plaintext |
-| Hash becomes vault ID | All data stored at `/vaults/{hash}/` in Firebase |
-| Same password, different device | Same vault ID → same data → real-time sync |
-| Different password | Different hash → completely separate vault |
-| Close browser | Session ends. Re-enter password next time. |
+| Enter phone number | Hashed with **PBKDF2-SHA256 (100,000 iterations)** in-browser — never sent in plaintext |
+| Hash becomes vault ID | All data stored under that vault in Supabase |
+| Same phone, different device | Same vault ID → same data → real-time sync |
+| Different phone | Different hash → completely separate vault |
+| Close browser | Session ends. Re-enter phone next time. |
+| First login after upgrade | Automatically migrates data from legacy SHA-256 vault to PBKDF2 vault |
 
-**Your password is never stored anywhere.** Only its SHA-256 hash is used as a database key.
+**Your phone number is never stored or transmitted.** Only its PBKDF2 hash is used as a database key. PBKDF2 with 100,000 iterations makes brute-force ~100,000× harder than plain SHA-256.
 
 ---
 
 ## Multi-Device Usage
 
-1. Open the app on Device A → enter password → start trading
-2. Open the app on Device B → enter **same password** → automatically syncs all data
+1. Open the app on Device A → enter phone → start trading
+2. Open the app on Device B → enter **same phone number** → automatically syncs all data
 3. Log a trade on Device A → appears on Device B within ~1 second
 
 ---
@@ -115,33 +97,33 @@ git push -u origin main
 - Settings (`tradebook_settings`)
 - Trading rules, custom tags, challenges
 - Mood journal, audit trail, snapshots
-- Themes, badges, dismissed insights
+- Themes, XP badges
 
 ---
 
 ## Privacy
 
-- Your vault password is never transmitted
-- Data is stored in your own Firebase project (you own it)
-- You can delete your data anytime from the Firebase console
-- Firebase free tier: 1GB storage, 10GB/month bandwidth — more than enough
+- Your phone number is never transmitted — only its PBKDF2 hash (100,000 iterations)
+- Data is stored in **your own** Supabase project (you own it)
+- You can delete your data anytime from the Supabase table editor
+- Supabase free tier: 500MB storage, unlimited API calls — more than enough
 
 ---
 
 ## Troubleshooting
 
-**"Connection error" on login**
-→ Check your `FIREBASE_DB_URL` in sync.js is correct and includes `https://`
+**"Connection error" when connecting**
+→ Check that your Project URL starts with `https://` and ends with `.supabase.co`
 
-**Data not syncing between devices**  
-→ Make sure both devices use the exact same password (case-sensitive)
+**"Invalid API key" error**
+→ Make sure you copied the **anon/public** key, not the service_role key
 
-**"sync failed" toast appears**  
-→ Usually a temporary network issue — data is saved locally and will sync when connection restores
+**Data not syncing between devices**
+→ Make sure both devices use the exact same phone number (no spaces)
 
-**After 30 days, getting permission errors**  
-→ Update your Firebase security rules as shown in Step 5
+**"sync failed" toast appears**
+→ Usually a temporary network issue — data is saved locally and will sync on reconnect
 
 ---
 
-*TradeBook Pro Sync — built on Firebase Realtime Database (free tier)*
+*TradeBook Pro Sync — built on Supabase (free PostgreSQL + Realtime)*

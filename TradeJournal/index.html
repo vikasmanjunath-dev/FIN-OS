@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="mobile.css">
 <link rel="stylesheet" href="showcase.css">
 <link rel="stylesheet" href="features-v2.css">
+<link rel="stylesheet" href="upgrades.css">
 <link rel="stylesheet" href="scan-trade.css">
 
 <script>
@@ -390,7 +391,7 @@ input::-webkit-calendar-picker-indicator { opacity:.4; cursor:pointer; }
         <span class="ticker-sep">|</span>
         <span class="ticker-item">SENSEX <span class="ticker-up" id="tick-sensex">—</span></span>
       </div>
-      <button class="btn-search" onclick="openGlobalSearch()" title="Search (Ctrl+K)">🔍 <kbd>⌘K</kbd></button>
+      <button class="btn-search" onclick="openGlobalSearch()" title="Search (Ctrl+K / ⌘K)">🔍 <kbd>⌘K</kbd></button>
       <button class="btn-add-trade" onclick="navigateTo('add-trade')">+ Log Trade</button>
     </div>
   </header>
@@ -2275,8 +2276,6 @@ input::-webkit-calendar-picker-indicator { opacity:.4; cursor:pointer; }
 <script src="insights.js"></script>
 <script src="hub_upgrades.js"></script>
 <script src="stats.js"></script>
-<script src="deep-analytics.js"></script>
-<script src="insights.js"></script>
 
 <!-- WHAT-IF SIMULATOR MODAL -->
 <div class="modal-overlay" id="whatif-modal" onclick="if(event.target===this)closeWhatIfModal()">
@@ -2286,10 +2285,6 @@ input::-webkit-calendar-picker-indicator { opacity:.4; cursor:pointer; }
   </div>
 </div>
 
-<script src="insights.js" onerror="0"></script>
-<script src="deepanalytics.js" onerror="0"></script>
-<script src="institutional.js" onerror="0"></script>
-<script src="router.js" onerror="0"></script>
 <script src="fixes.js"></script>
 <script src="hub_fix.js"></script>
 <script src="showcase.js"></script>

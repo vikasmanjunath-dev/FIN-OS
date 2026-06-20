@@ -78,9 +78,13 @@
   }
 
   /* ════════════════════════════════════════════════════════
-     MASTER COMPUTE — everything in one pass
+     MASTER COMPUTE — memoized; reuses result if trades unchanged
   ════════════════════════════════════════════════════════ */
+  let _computeCache = null;
+  let _computeKey = '';
   function compute(trades) {
+    const key = trades.length + '|' + (trades[trades.length - 1]?.id || '') + '|' + (trades[trades.length - 1]?.net || '');
+    if (_computeCache && key === _computeKey) return _computeCache;
     const sorted = [...trades].sort((a, b) => a.date.localeCompare(b.date));
     const wins = trades.filter(t => N(t) > 0);
     const losses = trades.filter(t => N(t) < 0);
@@ -175,7 +179,7 @@
     const wr = trades.length ? wins.length / trades.length : 0;
     const expectancy = wr * avgWin - (1 - wr) * avgLoss;
 
-    return {
+    _computeCache = {
       sorted, wins, losses, bes,
       totalPnl, totalGross, totalCommissions, totalTax,
       longs, shorts, longPnl, shortPnl, longWR, shortWR,
@@ -187,6 +191,8 @@
       maxDD, maxDDpct,
       bySymbol, avgWin, avgLoss, wr, expectancy, capital
     };
+    _computeKey = key;
+    return _computeCache;
   }
 
   /* ════════════════════════════════════════════════════════
@@ -638,6 +644,7 @@
     if (typeof origSave === 'function') {
       window.saveTrades = function (trades) {
         origSave(trades);
+        _computeCache = null; // invalidate memoization cache
         // Debounce refresh
         clearTimeout(window._statsRefreshTimer);
         window._statsRefreshTimer = setTimeout(function () {

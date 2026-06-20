@@ -1,8 +1,8 @@
 # FIN-OS — Product Requirements Document (PRD)
 
 **Document owner:** Vikas Manjunath  
-**Version:** 1.5  
-**Date:** June 10, 2026  
+**Version:** 1.6  
+**Date:** June 14, 2026  
 **Status:** Active  
 **Live product:** https://finos1.vercel.app  
 
@@ -134,6 +134,19 @@ FIN-OS fills this gap with a voice-first, desi-native AI that speaks the user's 
   - [x] **Smart dynamic chips** — `_aryaDynamicChips()` auto-computes 2 most urgent chips per portfolio state (concentration, tax-harvest, VIX spike, positions underwater, single-stock overweight, Nifty sell-off)
   - [x] **Enhanced aryaFormat** — VERDICT callout box, styled ⚡ ARYA'S CALL footer, OVERWEIGHT/UNDERWEIGHT/NEUTRAL badges, bullet styling; NSE sector map + anti-hallucination rules locked in system prompt
 - [x] **Voice agent reverted** — plain `ws://127.0.0.1:8765` (no SSL); WS_HOST `"127.0.0.1"`; HISTORY_TURNS 10; original `voiceagent/index.html` UI
+- [x] **Arya AI Sidebar Panel v2.0** — 4-tab system embedded on all 94 app pages (June 14, 2026):
+  - [x] **4-tab panel** — 💬 Chat | 🗺️ Plan | 🧠 Map | 🌅 Life; tab bar with `switchAryaTab()` and lazy-render flags (`_rmRendered`/`_mmRendered`/`_tlRendered`)
+  - [x] **`ensureRoadmapEngine(cb)`** — dynamically injects `arya-roadmap.js` via `<script>` tag on any page; URL derived from panel's own `src` attribute; `s.onerror` shows graceful fallback
+  - [x] **"Ask Arya" bridge** — `.asp-view-ask-btn` in each visual view switches to Chat tab and fires a pre-filled AI question via `sendMessage()`
+  - [x] **`AryaSidebar` public API** — `open()`, `close()`, `ask(q)`, `clearHistory()` exposed on `window`
+  - [x] **CSS injection** — panel injects `<style id="arya-sp-styles">` (tabs, views, spinner, ask-btn) at first open; idempotent guard prevents duplication
+- [x] **`arya-roadmap.js` visual engine** (935 lines, June 14 2026):
+  - [x] **Self-contained** — `injectStyles()` injects all `.rm-*` / `.mm-*` / `.tl-*` CSS on `init()`; no page-level stylesheet required
+  - [x] **`AryaRoadmap.init(roadmapEl, mindmapEl, timelineEl)`** public API; pass `null` to skip any view
+  - [x] **DNA-personalised roadmap** — 7 archetype variants (Builder/Guardian/Explorer/Optimizer/Achiever/Visionary/Realist); Unsplash images; step cards with badges + detail text + Ask Arya button
+  - [x] **Interactive SVG mindmap** — pan (mousedown/mousemove), zoom (wheel, 0.3–3×), touch pinch-zoom, reset button; SVG sized to `Math.min(container.clientWidth, 900) × Math.max(600, window.innerHeight-200)`
+  - [x] **Life-journey timeline** — horizontal drag-scroll, milestone cards with Unsplash photos, decade markers, legend, Ask Arya button per milestone
+- [x] **`roadmap.html` rebuilt** (June 14 2026) — replaced static "Cyber GPS" questionnaire with interactive 3-view page; 3 tabs (Roadmap / Mind Map / Life Journey); lazy renders mindmap + timeline on first tab click; re-renders on `finos-context-ready` event
 
 ### Should Have (in progress / near-term)
 
@@ -300,6 +313,7 @@ All interactive elements must use the zero-fill hover vocabulary (`css/interacti
 | Phase 10 — Portfolio.AI deep overhaul (security, treemap, 5 new quant features) | ✅ Done | June 7–8, 2026 |
 | Phase 11 — Portfolio.AI Research & UX upgrade (News Feed, Peers, Promoters, Watchlist, ⌘K, Drag, Share, 4-theme) | ✅ Done | June 8, 2026 |
 | Phase 12 — Portfolio.AI Arya AI full integration (all 10 pages, QGLP, server.py :8766) | ✅ Done | June 8–10, 2026 |
-| Phase 13 — Kite API live sync | 🔲 Planned | Q3 2026 |
-| Phase 14 — Voice on all pages | 🔲 Planned | Q3 2026 |
-| Phase 15 — Account Aggregator | 🔲 Planned | Q4 2026 |
+| Phase 13 — Arya Sidebar Panel v2.0 (4-tab: Chat/Plan/Map/Life on all 94 pages + arya-roadmap.js engine + roadmap.html rebuild) | ✅ Done | June 14, 2026 |
+| Phase 14 — Kite API live sync | 🔲 Planned | Q3 2026 |
+| Phase 15 — Voice on all pages | 🔲 Planned | Q3 2026 |
+| Phase 16 — Account Aggregator | 🔲 Planned | Q4 2026 |

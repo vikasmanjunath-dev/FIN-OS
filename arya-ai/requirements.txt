@@ -1,0 +1,29 @@
+# Arya AI — Python Dependencies
+# Install:  pip install -r requirements.txt
+# Python 3.10+ required (3.14 on this machine — uses .venv at /Users/vkm/Desktop/Finos/.venv)
+
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+pydantic>=2.0.0
+
+# Market data
+yfinance>=0.2.40
+pandas>=2.0.0
+numpy>=1.26.0
+
+# Technical analysis
+ta>=0.11.0
+
+# HTTP & scraping
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
+httpx>=0.27.0
+
+# News
+feedparser>=6.0.10
+
+# Reports
+openpyxl>=3.1.0
+
+# Already in stdlib: sqlite3, json, time, re, hashlib, threading, asyncio

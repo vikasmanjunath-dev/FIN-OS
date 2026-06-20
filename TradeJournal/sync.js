@@ -66,13 +66,15 @@ const LS_VAULT     = 'tb_vault_id';
 const LS_PHONE     = 'tb_phone_display';
 const LS_QUEUE     = 'tb_sync_queue';
 const LS_LAST_SYNC = 'tb_last_sync';
+const LS_SKIP_SYNC = 'tb_skip_sync';   // user chose offline-only mode
 
 /* ── State ──────────────────────────────────────────────────── */
-let _vaultId     = localStorage.getItem(LS_VAULT) || null;
-let _phoneDisplay= localStorage.getItem(LS_PHONE) || null;
-let _channel     = null;
-let _online      = navigator.onLine;
-let _syncing     = false;
+let _vaultId      = localStorage.getItem(LS_VAULT) || null;
+let _phoneDisplay = localStorage.getItem(LS_PHONE) || null;
+let _channel      = null;
+let _online       = navigator.onLine;
+let _syncing      = false;
+let _reconnecting = false;   // guard against multiple reconnect chains
 
 /* ── Supabase config (read from localStorage, set via Settings UI) */
 function cfg() {
@@ -83,13 +85,30 @@ function cfg() {
 }
 function isConfigured() { const c = cfg(); return !!(c.url && c.key); }
 
-/* ── SHA-256 hash ────────────────────────────────────────────── */
-async function sha256(str) {
-  const buf = await crypto.subtle.digest(
-    'SHA-256', new TextEncoder().encode(str)
+/* ── PBKDF2 hash (100K iterations, SHA-256, app-level salt)
+   Dramatically harder to brute-force than bare SHA-256.
+   The constant salt prevents cross-app rainbow tables while
+   keeping vault IDs deterministic across devices.
+   ─────────────────────────────────────────────────────────── */
+const _PBKDF2_SALT = 'TradeBookPro::v2::VaultKey::2024';
+const _PBKDF2_ITERS = 100_000;
+
+async function pbkdf2Hash(str) {
+  const enc = new TextEncoder();
+  const keyMat = await crypto.subtle.importKey(
+    'raw', enc.encode(str), 'PBKDF2', false, ['deriveBits']
   );
-  return Array.from(new Uint8Array(buf))
-    .map(b => b.toString(16).padStart(2,'0')).join('');
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt: enc.encode(_PBKDF2_SALT), iterations: _PBKDF2_ITERS, hash: 'SHA-256' },
+    keyMat, 256
+  );
+  return 'v2_' + Array.from(new Uint8Array(bits)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+/* Legacy SHA-256 — kept only to migrate existing vaults */
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
 /* ── REST helpers (no SDK needed) ───────────────────────────── */
@@ -268,12 +287,17 @@ function subscribe() {
     try {
       const msg = JSON.parse(e.data);
       if (msg.event === 'postgres_changes') {
-        const record = msg.payload?.data?.record;
+        const payload = msg.payload?.data;
+        // Never apply DELETE events — a remote row deletion must never wipe local data
+        if (!payload || payload.type === 'DELETE') return;
+        const record = payload.record;
         if (!record || record.vault_id !== _vaultId) return;
         const { key, value } = record;
         if (!SYNC_KEYS.includes(key)) return;
-        const local = localStorage.getItem(key);
-        const remote = JSON.stringify(value);
+        // Validate value is not null/undefined before storing
+        if (value === null || value === undefined) return;
+        const local   = localStorage.getItem(key);
+        const remote  = JSON.stringify(value);
         if (local !== remote) {
           localStorage.setItem(key, remote);
           refreshApp();
@@ -290,8 +314,11 @@ function subscribe() {
   ws.onclose = () => {
     setSyncStatus('offline');
     updateSyncBadge('🔴 Offline');
-    // Reconnect after 5s
-    setTimeout(subscribe, 5000);
+    // Guard: only one reconnect chain active at a time
+    if (!_reconnecting) {
+      _reconnecting = true;
+      setTimeout(() => { _reconnecting = false; subscribe(); }, 5000);
+    }
   };
 
   ws.onerror = () => setSyncStatus('error');
@@ -563,7 +590,7 @@ function buildLoginScreen() {
 
       <!-- Footer -->
       <div style="text-align:center;margin-top:16px;font-size:11px;color:var(--text3,#3d4a63)">
-        🔒 Phone number hashed with SHA-256 · Never transmitted · You own your data
+        🔒 Phone number hashed with PBKDF2 (100K iterations) · Never transmitted · You own your data
       </div>
     </div>
 
@@ -670,34 +697,70 @@ window._syncSaveConfig = async function () {
 window._syncBackToPhone = function () { showStep(0); };
 
 window._syncSkip = function () {
+  // Persist the choice so the overlay doesn't reappear on every page reload
+  localStorage.setItem(LS_SKIP_SYNC, '1');
   const overlay = document.getElementById('sync-login-overlay');
   if (overlay) overlay.remove();
+  setSyncStatus('offline');
   toast('Running in offline mode — data stays on this device only');
 };
 
 async function _doConnect(phoneRaw) {
   showStep(2);
-  const loadEl = document.getElementById('login-loading');
+  const loadEl  = document.getElementById('login-loading');
   const successEl = document.getElementById('login-success');
-  const msgEl = document.getElementById('login-loading-msg');
-  if (loadEl) loadEl.style.display = 'block';
+  const msgEl   = document.getElementById('login-loading-msg');
+  if (loadEl)    loadEl.style.display    = 'block';
   if (successEl) successEl.style.display = 'none';
 
-  // Hash phone
-  if (msgEl) msgEl.textContent = 'Hashing your number…';
-  const hash = await sha256(phoneRaw.replace(/\s/g, ''));
+  try {
+
+  // Derive PBKDF2 vault ID (v2_ prefix = upgraded security)
+  if (msgEl) msgEl.textContent = 'Securing your vault key… (100K iterations)';
+  const normalized = phoneRaw.replace(/\s/g, '');
+  const newHash    = await pbkdf2Hash(normalized);
+
+  // Check if user has an existing v1 (SHA-256) vault and migrate it silently
+  const storedId = localStorage.getItem(LS_VAULT);
+  const isLegacy = storedId && !storedId.startsWith('v2_');
+
+  if (isLegacy) {
+    if (msgEl) msgEl.textContent = 'Upgrading vault security…';
+    const oldHash = await sha256(normalized);
+    if (storedId === oldHash && isConfigured()) {
+      // Pull from old vault, push to new vault, then delete old vault
+      _vaultId = oldHash;
+      const rows = await pullAll();
+      if (rows && rows.length) {
+        _vaultId = newHash;
+        await ensureVault(newHash);
+        for (const { key, value } of rows) {
+          await pushKey(key, value);
+        }
+        // Best-effort delete old vault (non-critical if it fails)
+        try {
+          await fetch(`${cfg().url}/rest/v1/tb_data?vault_id=eq.${oldHash}`,
+            { method: 'DELETE', headers: { 'apikey': cfg().key, 'Authorization': `Bearer ${cfg().key}`, 'Prefer': 'return=minimal' } });
+          await fetch(`${cfg().url}/rest/v1/tb_vaults?vault_id=eq.${oldHash}`,
+            { method: 'DELETE', headers: { 'apikey': cfg().key, 'Authorization': `Bearer ${cfg().key}`, 'Prefer': 'return=minimal' } });
+        } catch { /* non-critical */ }
+        toast('🔒 Vault upgraded to PBKDF2 security');
+      }
+    }
+  }
 
   // Create vault if needed
   if (msgEl) msgEl.textContent = 'Creating your vault…';
-  await ensureVault(hash);
+  await ensureVault(newHash);
 
   // Pull existing data
   if (msgEl) msgEl.textContent = 'Loading your trades…';
-  _vaultId = hash;
+  _vaultId = newHash;
   const mask = '+' + phoneRaw.replace(/\D/g,'').slice(0,-4).replace(/./g,'•') + phoneRaw.replace(/\D/g,'').slice(-4);
   _phoneDisplay = mask;
-  localStorage.setItem(LS_VAULT, hash);
+  localStorage.setItem(LS_VAULT, newHash);
   localStorage.setItem(LS_PHONE, mask);
+  localStorage.removeItem(LS_SKIP_SYNC);  // cloud vault takes precedence over offline mode
 
   const pulled = await pullAndApply();
 
@@ -726,6 +789,32 @@ async function _doConnect(phoneRaw) {
       setTimeout(() => { overlay.remove(); refreshApp(); }, 400);
     }
   }, 1800);
+
+  } catch (err) {
+    // Never leave the user staring at a frozen spinner
+    console.error('[sync] _doConnect failed:', err);
+    if (loadEl) loadEl.style.display = 'none';
+    if (msgEl) msgEl.style.display = 'none';
+    const errBox = document.createElement('div');
+    errBox.style.cssText = 'padding:16px;text-align:center';
+    errBox.innerHTML = `
+      <div style="color:#ff4466;font-size:14px;font-weight:700;margin-bottom:8px">⚠️ Connection failed</div>
+      <div style="color:var(--text3,#3d4a63);font-size:12px;margin-bottom:16px">${err.message || 'Network error — check your Supabase URL and key'}</div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button onclick="showStep(0)"
+          style="padding:8px 16px;border:1px solid var(--border2);border-radius:8px;cursor:pointer;
+            background:var(--bg4,#111828);color:var(--text,#eef2ff);font-size:12px;font-family:var(--font-body)">
+          ← Try Again
+        </button>
+        <button onclick="window._syncSkip()"
+          style="padding:8px 16px;border:none;border-radius:8px;cursor:pointer;
+            background:transparent;color:var(--text3,#3d4a63);font-size:12px;font-family:var(--font-body)">
+          Use offline
+        </button>
+      </div>`;
+    const card = document.querySelector('#lstep-2') || loadEl?.parentElement;
+    if (card) card.appendChild(errBox);
+  }
 }
 
 /* ── Sync indicator in topbar ────────────────────────────────── */
@@ -795,7 +884,11 @@ function showSyncPanel() {
             ${_phoneDisplay || 'Unknown'}</div>
         </div>` : `
         <div style="background:var(--bg4);border-radius:8px;padding:12px;margin-bottom:14px">
-          <div style="font-size:13px;color:var(--text2)">Not signed in. Enter phone to enable sync.</div>
+          <div style="font-size:13px;color:var(--text2)">
+            ${localStorage.getItem(LS_SKIP_SYNC) ? '📴 Offline mode — data saved locally only.' : 'Not signed in.'}
+            <a href="javascript:void(0)" onclick="document.getElementById('sync-panel-overlay')?.remove();buildLoginScreen();"
+              style="color:var(--accent);text-decoration:underline;margin-left:4px">Connect to cloud →</a>
+          </div>
         </div>`}
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
@@ -866,8 +959,10 @@ window._syncLogout = function () {
   _vaultId = null;
   _phoneDisplay = null;
   [LS_VAULT, LS_PHONE].forEach(k => localStorage.removeItem(k));
+  // Return to offline mode (skip overlay until user explicitly reconnects)
+  localStorage.setItem(LS_SKIP_SYNC, '1');
   setSyncStatus('offline');
-  toast('Signed out of sync');
+  toast('Signed out of sync — running offline');
 };
 
 /* ── Settings page integration ───────────────────────────────── */
@@ -953,13 +1048,13 @@ document.addEventListener('DOMContentLoaded', () => {
   interceptLocalStorage();
   injectSyncIndicator();
 
-  // Show login screen if not yet connected
-  if (!_vaultId || !isConfigured()) {
+  // Show login screen if not yet connected and user hasn't chosen offline mode
+  if ((!_vaultId || !isConfigured()) && !localStorage.getItem(LS_SKIP_SYNC)) {
     // Small delay so the rest of the app loads first
     setTimeout(() => {
       buildLoginScreen();
     }, 400);
-  } else {
+  } else if (_vaultId && isConfigured()) {
     // Already have vault — connect silently
     setSyncStatus('syncing');
     pullAndApply().then(() => {
