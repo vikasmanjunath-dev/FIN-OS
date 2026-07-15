@@ -1,6 +1,17 @@
 ollama>=0.1.9
 websockets>=12.0
 numpy==1.26.4
+openwakeword>=0.6.0   # wake-word detection, opt-in (off by default). Uses the
+                      # "hey_jarvis" pretrained model as a stand-in — there is
+                      # no pretrained "hey_arya" model; training a custom one
+                      # needs real voice samples. See agent.py's WAKE_WORD_MODEL
+                      # comment for how to swap it once one exists.
+scipy<1.14            # openwakeword pulls in scikit-learn, which by default
+                      # pulls a scipy too new for numpy==1.26.4 above — hits
+                      # "cannot import name 'numpy' from
+                      # scipy._lib.array_api_compat" on import. Verified
+                      # working combo: scipy 1.13.1 + scikit-learn 1.8.0 +
+                      # numpy 1.26.4 + onnxruntime 1.26.0.
 faster-whisper==1.2.1
 tokenizers==0.22.2
 transformers==5.8.1

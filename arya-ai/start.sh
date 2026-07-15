@@ -18,6 +18,12 @@ fi
 PORT="${ARYA_PORT:-7475}"
 HOST="${ARYA_HOST:-0.0.0.0}"
 
+# WeasyPrint (PDF reports) needs Pango, a Homebrew library — but Homebrew on
+# Apple Silicon doesn't put /opt/homebrew/lib on the default dynamic-linker
+# search path for a non-Homebrew Python (this venv). Without this, PDF export
+# fails with "cannot load library libgobject-2.0-0" on the first request.
+export DYLD_LIBRARY_PATH="/opt/homebrew/lib:${DYLD_LIBRARY_PATH:-}"
+
 echo ""
 echo "  ╔═══════════════════════════════════╗"
 echo "  ║     Arya AI — Starting up         ║"

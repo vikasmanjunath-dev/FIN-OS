@@ -1,7 +1,7 @@
 # Arya AI — Complete Reference
 
-> Version: 2.0 | Date: June 14, 2026  
-> File: `js/arya-sidebar-panel.js` · 2800+ lines · IIFE `'use strict'`
+> Version: 7.0 | Date: July 14, 2026  
+> File: `js/arya-sidebar-panel.js` · **7,738 lines** · IIFE `'use strict'`
 
 ---
 
@@ -236,17 +236,26 @@ Applied to every Arya response in the chat bubble:
 
 ---
 
-## Ollama Integration
+## Ollama Integration & Multi-Model Routing
 
 ```javascript
 const OLLAMA_ENDPOINTS = [
   'http://127.0.0.1:11434/api/generate',   // direct Ollama
   'https://127.0.0.1:8767/api/generate',   // HTTPS proxy (for Vercel pages)
 ];
-const OLLAMA_MODEL = 'qwen3:14b';
 ```
 
 `_findEndpoint()` probes `/api/tags` on each with a 1500ms timeout and caches the winner in `_activeEndpoint`. Resets to null on any stream error so the next call re-probes.
+
+### Model Routing (`selectModel(taskType)`) — Phase 17
+
+Task-based model selection routes to what's actually installed on the machine:
+
+| Task type | Model | Why |
+|---|---|---|
+| `'quick'` / auto-insight | `qwen2.5:3b` | Fastest, for scenario lab inline / auto-context |
+| `'chat'` (default) | `qwen3:8b` | Balanced quality/speed for normal conversation |
+| `'agent'` (tool-calling loop) | `qwen3:14b` | Maximum reasoning for `AryaAgentRunner.run()` |
 
 `streamFromOllama(system, user, onToken, numPredict)`:
 - `think: false` — disables qwen3 chain-of-thought (biggest speedup)

@@ -1,21 +1,22 @@
 # FIN-OS RAG — Security & Privacy Reference
 
-> Version: 1.0 | Date: June 20, 2026
+> Version: 1.3 | Date: June 20, 2026
+> **Status:** Namespace isolation (§2) is built and verified twice over — once manually in Phase 3/4, and now via a real, passing, self-cleaning pytest (`evaluation/test_namespace_isolation.py`, 3 tests, see [RAG_EVALUATION.md](RAG_EVALUATION.md) §6). PII scrubbing (§3) is built and verified, including a real false-positive bug found and fixed. Authentication (§4) is built (Phase 3), verified with real rejection tests against the live Supabase project. The faithfulness guard (new, §1) is built but has a measured domain-reliability gap — see [RAG_PHASES.md](RAG_PHASES.md) Phase 5. The threat-model row below for "outdated regulation" and "cloud fallback" describe **designs that were never built** — corrected from earlier drafts of this doc that implied otherwise.
 
 ---
 
 ## 1. Threat Model
 
-| Risk | Mitigation | Enforced at |
+| Risk | Mitigation | Status |
 |---|---|---|
-| User A retrieves User B's ITR/bank statement | Namespace pre-filter on every vector + keyword query | Qdrant payload filter + SQLite WHERE clause (query level, not post-filter) |
-| PAN/Aadhaar/account numbers persisted in plaintext | `presidio-analyzer` + custom regex recognizers scrub before storage | `ingestion/pii.py`, runs before any chunk reaches Qdrant/SQLite/Supabase |
-| Prompt injection via malicious content inside an uploaded PDF | Chunk content never interpolated directly into the system prompt — only into the clearly delimited `[RETRIEVED CONTEXT]` block, which the system prompt instructs the model to treat as data, not instructions | `generation/assembler.py` prompt template |
-| Outdated regulation cited as current | Every doc carries `last_indexed_at` + `version`; conflict detector flags when ≥2 chunks for the same `regulation_ref` disagree | `retrieval/hybrid.py` + `/api/search-regulations` `superseded_versions_found` field |
-| LLM hallucinates a fact not in any source | Post-generation NLI entailment check against cited chunks | `generation/faithfulness.py` |
-| Private document content leaked to cloud fallback (Claude API) | Cloud fallback is hard-excluded from any query carrying a `namespace: user:{uuid}` filter — code-level check, not a config flag | `rag-engine/config.py` — `CLOUD_FALLBACK_NAMESPACES = ["public"]` |
-| Unauthenticated user queries private namespace | `/api/query` requires `user_id` to match the Supabase JWT's `sub` claim; mismatch returns `403 namespace_violation` | FastAPI auth dependency in `server.py` |
-| Raw uploaded files exposed via public URL | Supabase Storage bucket `rag-docs` is **not public**; access only via short-lived signed URLs generated per-request | Supabase Storage policy |
+| User A retrieves User B's ITR/bank statement | Namespace pre-filter on every vector + keyword query, applied at the query level (not post-filter) | ✅ Built and verified by a real pytest — see §2 |
+| PAN/Aadhaar/account numbers persisted in plaintext | `presidio-analyzer` + custom regex recognizers scrub before storage | ✅ Built — `ingestion/pii.py`, runs before any chunk reaches Qdrant/SQLite |
+| Prompt injection via malicious content inside an uploaded PDF | Chunk content interpolated only into a clearly delimited context block, never as raw instructions | ✅ Built — `generation/prompt.py`'s `RETRIEVED CONTEXT` block; not separately adversarially tested |
+| Outdated regulation cited as current | — | ❌ **Not built.** No `version`/conflict-detection mechanism exists; this row described a design, not a built feature, in earlier drafts of this doc |
+| LLM hallucinates a fact not in any source | Post-generation NLI entailment check against cited chunks | 🟡 Built (`generation/faithfulness.py`, Phase 5), but with a **measured reliability gap** on Indian regulatory/financial text specifically — see [RAG_PHASES.md](RAG_PHASES.md) Phase 5. Treat as a noisy signal, not a guarantee. |
+| Private document content leaked to a cloud LLM | — | ❌ **Not built.** No cloud fallback exists in the actual code at all (no Claude API call anywhere in `rag-engine`) — this risk doesn't currently apply, but also isn't "mitigated by design," it's just absent |
+| Unauthenticated user queries private namespace | Any request claiming a `user_id` must carry a Supabase access token verified against `/auth/v1/user`; mismatch → `403 namespace_violation` | ✅ Built (Phase 3) — see §4. Note: verification is a live REST call to Supabase, not local JWT decoding |
+| Raw uploaded files exposed via public URL | — | ❌ **Not built** — no Supabase Storage integration exists; uploaded files are processed in a temp file and discarded, never persisted as a retrievable raw file at all |
 
 ---
 
@@ -45,15 +46,17 @@ client.search(
 ```
 Because the filter is passed to Qdrant's own search call, points outside the allowed namespace are never scored, never returned, and never present in the candidate list passed to the reranker. There is no step where a private chunk exists in application memory for a request it doesn't belong to.
 
-### At the SQLite FTS5 layer
+### At the SQLite FTS5 layer — actual table name is `chunks_fts`, not `rag_bm25_index`
 ```sql
-SELECT * FROM rag_bm25_index
-WHERE content MATCH ? AND namespace IN ('public', ?)
-ORDER BY bm25(rag_bm25_index) LIMIT 20;
+-- storage/sqlite_fts.py search() — real query, parameterized (not string-interpolated)
+SELECT point_id, payload_json, bm25(chunks_fts) AS score
+FROM chunks_fts
+WHERE chunks_fts MATCH ? AND namespace IN ({placeholders})
+ORDER BY score LIMIT ?;
 ```
 
-### At the Supabase layer
-Standard RLS, identical pattern to existing FIN-OS tables (`profiles`, `transactions`):
+### At the Supabase layer — ❌ not applicable, schema not built
+The RLS policy below is the planned design from `rag-engine/schema.sql` (written, not applied — see [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md) §3). It currently protects nothing because the table doesn't exist. Today, the **only** namespace enforcement that's real is the Qdrant + SQLite layer above, which is sufficient for everything currently built (no Supabase-stored RAG metadata exists yet to protect).
 ```sql
 CREATE POLICY "namespace isolation" ON rag_documents
   USING (namespace = 'public' OR user_id = auth.uid());
@@ -79,33 +82,39 @@ The original (unscrubbed) file is retained in Supabase Storage (private bucket, 
 
 ---
 
-## 4. Authentication Flow
+## 4. Authentication Flow — ✅ Built (Phase 3, June 20, 2026)
+
+**Built differently than originally planned.** The original design called for local JWT decoding (`verify_jwt(token) → extract sub`), which needs the Supabase JWT signing secret. The actual implementation (`storage/auth.py`) instead calls Supabase's own `/auth/v1/user` REST endpoint — simpler, needs only the anon key (already public, see `js/supabase-config.js`), and Supabase itself handles expiry/revocation:
 
 ```
-Browser (Supabase session) 
-   │  Authorization: Bearer <jwt>
+Browser (Supabase session)
+   │  Authorization: Bearer <access_token>
    ▼
-rag-engine FastAPI
-   │  verify_jwt(token) → extract `sub` (user_id)
-   │  if request.user_id != token.sub → 403 namespace_violation
+rag-engine FastAPI (storage/auth.py)
+   │  GET {SUPABASE_URL}/auth/v1/user
+   │    headers: Authorization: Bearer <token>, apikey: <anon_key>
+   │  Supabase returns 200 + {"id": "..."} if valid, 401 if not
+   │  if response.id != request.user_id → 403 namespace_violation
    ▼
-Proceed with namespace_filter(user_id=token.sub)
+Proceed with namespace_filter(user_id=verified_id)
 ```
 
-`rag-engine` does not maintain its own user/session store — it validates the same Supabase JWT already issued by `js/auth.js`, reusing the existing auth infrastructure rather than introducing a second auth system.
+`rag-engine` does not maintain its own user/session store — it validates the same Supabase session already issued by `js/auth.js`, reusing the existing auth infrastructure rather than introducing a second auth system. A 60-second in-process cache avoids hitting Supabase on every request from the same session (latency only, not a security boundary).
+
+**Verified with real tests against the live Supabase project:** a missing token and a garbage token are both correctly rejected with `403 namespace_violation`. **Not yet verified:** the positive path (a real, valid, logged-in user successfully accessing their own namespace) — this needs a live browser session token, which wasn't fabricated for testing without asking first. See [RAG_PHASES.md](RAG_PHASES.md) Phase 3 for detail. Wired into `/api/query`, `/api/search`, and `/api/upload`.
 
 ---
 
 ## 5. Data Retention & Deletion
 
-| Data | Retention | Deletion path |
-|---|---|---|
-| User-uploaded raw files | Until user deletes | `DELETE FROM rag_documents WHERE id = ?` cascades to Supabase Storage object removal |
-| Indexed chunks (Qdrant + SQLite) | Until source document deleted or superseded | Background job removes orphaned chunks (`doc_id` no longer in `rag_documents`) nightly |
-| `rag_feedback` | Indefinite (used for evaluation) | User can request deletion via existing account-deletion flow (cascades via FK) |
-| Redis query cache | 1 hour TTL | Automatic expiry |
+| Data | Retention | Deletion path | Status |
+|---|---|---|---|
+| User-uploaded raw files | **None** — never persisted at all (see above: temp file deleted immediately after parsing) | N/A | ✅ Actually simpler than planned — there's no raw file to delete |
+| Indexed chunks (Qdrant + SQLite) | Indefinite — no expiry, no cleanup job | None exists | ❌ Not built — `delete_by_doc_type()` exists and is used for idempotent re-ingestion, but there's no per-user "delete all my data" path yet |
+| `rag_feedback` | N/A | N/A | ❌ Table doesn't exist |
+| Redis query cache | 1 hour TTL | Automatic expiry | ✅ Built, real |
 
-Account deletion (existing FIN-OS flow) must be extended to cascade into `rag_documents`, `rag_feedback`, and a Qdrant `delete` call filtered by `namespace = user:{uuid}` — this is a required addition during Phase 4 implementation, not optional.
+**Account deletion does not yet cascade into RAG data.** If a FIN-OS user deletes their account today, any chunks they uploaded under `namespace: user:{uuid}` remain in Qdrant/SQLite indefinitely — there is no hook from the existing account-deletion flow into `delete_by_doc_type()` or an equivalent per-user purge. This is a real, currently-open gap, not a "Phase 4 requirement" that got met — Phase 4 happened (Arya integration) and this was not part of it. Needs a `delete_by_namespace(user_id)` function (not built) wired into account deletion before this matters in practice — i.e., before real users have real private documents.
 
 ---
 

@@ -22,6 +22,48 @@ def _safe_last(series) -> float | None:
         return None
 
 
+def _supertrend(high: pd.Series, low: pd.Series, close: pd.Series,
+                period: int = 10, multiplier: float = 3.0) -> tuple[pd.Series, pd.Series]:
+    """
+    Supertrend — not in the `ta` library at all (only pandas_ta has it built in,
+    which is why the original plan called for pandas_ta specifically). Standard
+    ATR-based formula, manually implemented: a "sticky" band that only moves in
+    the direction of the trend, flips when price closes through it.
+    Returns (supertrend_line, direction) where direction is 1 (uptrend) or -1 (downtrend).
+    """
+    atr = ta.volatility.AverageTrueRange(high=high, low=low, close=close, window=period).average_true_range()
+    hl2 = (high + low) / 2
+    basic_upper = hl2 + multiplier * atr
+    basic_lower = hl2 - multiplier * atr
+
+    final_upper = basic_upper.copy()
+    final_lower = basic_lower.copy()
+    direction = pd.Series(1, index=close.index)
+    supertrend = pd.Series(0.0, index=close.index)
+
+    for i in range(1, len(close)):
+        # Bands only move closer to price, never away — except on a flip.
+        final_upper.iloc[i] = (
+            basic_upper.iloc[i] if (basic_upper.iloc[i] < final_upper.iloc[i - 1]
+                                     or close.iloc[i - 1] > final_upper.iloc[i - 1])
+            else final_upper.iloc[i - 1]
+        )
+        final_lower.iloc[i] = (
+            basic_lower.iloc[i] if (basic_lower.iloc[i] > final_lower.iloc[i - 1]
+                                     or close.iloc[i - 1] < final_lower.iloc[i - 1])
+            else final_lower.iloc[i - 1]
+        )
+        if close.iloc[i] > final_upper.iloc[i - 1]:
+            direction.iloc[i] = 1
+        elif close.iloc[i] < final_lower.iloc[i - 1]:
+            direction.iloc[i] = -1
+        else:
+            direction.iloc[i] = direction.iloc[i - 1]
+
+    supertrend = final_lower.where(direction == 1, final_upper)
+    return supertrend, direction
+
+
 def analyze(symbol: str, exchange: str = "NSE") -> dict:
     """
     Full technical analysis for a symbol.
@@ -152,6 +194,21 @@ def analyze(symbol: str, exchange: str = "NSE") -> dict:
             "value":  adx_val,
             "signal": "STRONG TREND" if adx_val and adx_val > 25 else "WEAK / RANGING",
         }
+    except Exception:
+        pass
+
+    # ── Supertrend ─────────────────────────────────────────────────────────────
+    try:
+        st_line, st_dir = _supertrend(df["high"], df["low"], df["close"])
+        st_val  = _safe_last(st_line)
+        st_dval = int(st_dir.iloc[-1])
+        st_signal = "BULLISH (price above band)" if st_dval == 1 else "BEARISH (price below band)"
+        signals["Supertrend"] = {
+            "value":  st_val,
+            "signal": st_signal,
+        }
+        if st_dval == 1: buy_votes  += 1
+        else:             sell_votes += 1
     except Exception:
         pass
 

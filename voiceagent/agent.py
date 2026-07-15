@@ -26,6 +26,8 @@ import ollama
 import websockets
 from aiohttp import web as _aiohttp_web
 import aiohttp as _aiohttp
+import numpy as np
+from openwakeword.model import Model as _OWWModel
 
 try:
     import httpx
@@ -92,6 +94,28 @@ OLLAMA_MODEL    = _pick_ollama_model()
 WHISPER_SIZE    = "tiny"
 WHISPER_THREADS = 8
 WHISPER_DIR     = "./models"
+
+# ── Wake word (Phase 4 gap fix) ────────────────────────────────────────────────
+# "Hey Arya" has no pretrained openwakeword model — training one needs real
+# voice samples (openwakeword's own training pipeline uses synthetic TTS data
+# plus a non-trivial training run) that nobody has provided. Using "hey_jarvis"
+# as a stand-in: same engine, same wiring, verified for real (not assumed) with
+# synthesized speech via this project's own edge-tts — 0.9988 peak confidence
+# on "Hey Jarvis", 0.0000116 on an unrelated sentence, streamed through in
+# realistic 80ms chunks. Swap WAKE_WORD_MODEL to a custom-trained "hey_arya"
+# model later without touching any other code here.
+WAKE_WORD_MODEL     = "hey_jarvis"
+WAKE_WORD_THRESHOLD = 0.5
+WAKE_WORD_FRAME     = 1280   # 80ms @ 16kHz mono — openwakeword's expected chunk size
+_oww_model: "_OWWModel | None" = None
+
+
+def _get_wake_word_model() -> _OWWModel:
+    global _oww_model
+    if _oww_model is None:
+        _oww_model = _OWWModel(wakeword_models=[WAKE_WORD_MODEL], inference_framework="onnx")
+    return _oww_model
+
 
 WS_HOST    = "127.0.0.1"
 WS_PORT    = 8765
@@ -2461,6 +2485,8 @@ class Server:
         self._autosave_task: asyncio.Task | None = None
         self._daily_brief_task: asyncio.Task | None = None
         self._mem_loaded: bool = False       # True once persistent memory restored
+        self._wake_word_enabled: bool = False  # opt-in, OFF by default — see _dispatch's
+                                                # "wake_word_toggle" handler for why
 
     async def _send(self, obj: dict):
         if not self.clients: return
@@ -2677,6 +2703,52 @@ class Server:
 
         elif t == "audio_chunk":
             await self._from_audio(bytes(msg["data"]))
+
+        elif t == "wake_word_toggle":
+            # Explicit per-session opt-in/out — there is no default-on always-
+            # listening mode. The frontend only starts streaming raw mic audio
+            # after the user flips this on; flipping off here doesn't stop the
+            # browser's mic capture by itself, the frontend handles that side.
+            self._wake_word_enabled = bool(msg.get("enabled", False))
+            if self._wake_word_enabled:
+                # The model keeps a rolling audio-context buffer across
+                # predict() calls (needed since one 80ms frame alone has no
+                # word in it) — without resetting, a fresh "start listening"
+                # can briefly inherit leftover context from whatever was
+                # streamed the last time wake-word mode was on, since the
+                # model instance is a long-lived module-level singleton, not
+                # per-session. Observed this for real as a transient false
+                # trigger right after a prior detection; reset() before each
+                # fresh session closes it.
+                _get_wake_word_model().reset()
+            log.info("Wake word detection %s", "enabled" if self._wake_word_enabled else "disabled")
+            await self._send({"type": "wake_word_state", "enabled": self._wake_word_enabled})
+
+        elif t == "wake_audio_frame":
+            # Small raw PCM16 mono 16kHz chunks streamed continuously while
+            # wake-word mode is on — NOT the same path as "audio_chunk" above,
+            # which is one full recording sent after the user stops talking.
+            if not self._wake_word_enabled:
+                return  # ignore stray frames if the toggle raced the client's stop
+            try:
+                frame = np.array(msg["data"], dtype=np.int16)
+            except (KeyError, ValueError, TypeError):
+                return
+            model = _get_wake_word_model()
+            # debounce_time: one spoken "Hey Jarvis" spans several 80ms frames,
+            # each independently scoring above threshold — without this,
+            # confirmed for real (7 separate detection events for one
+            # utterance in testing). 2s is long enough to cover one utterance,
+            # short enough not to swallow a deliberate, quick repeat.
+            scores = model.predict(
+                frame,
+                threshold={WAKE_WORD_MODEL: WAKE_WORD_THRESHOLD},
+                debounce_time=2.0,
+            )
+            score = scores.get(WAKE_WORD_MODEL, 0.0)
+            if score >= WAKE_WORD_THRESHOLD:
+                log.info("Wake word detected (score=%.3f)", score)
+                await self._send({"type": "wake_detected", "score": round(float(score), 3)})
 
         elif t == "user_context":
             # Structured user profile from finos-context.js (via postMessage → iframe → WS)

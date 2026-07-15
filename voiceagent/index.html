@@ -321,6 +321,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   color:var(--text);width:50px;height:50px;font-size:1.15rem;
 }
 #btn-mic.rec{background:var(--danger);border-color:var(--danger);color:#fff;animation:btnPulse 1s infinite}
+#btn-wake.rec{background:var(--a4);border-color:var(--a4);color:#fff;animation:btnPulse 1.6s infinite}
 @keyframes btnPulse{0%,100%{box-shadow:0 0 0 0 rgba(240,68,68,.4)}70%{box-shadow:0 0 0 10px rgba(240,68,68,0)}}
 
 .modetabs{display:flex;gap:1px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;padding:2px}
@@ -641,6 +642,7 @@ input[type=range]::-webkit-slider-thumb{
   </div>
   <textarea id="inp" placeholder="Bol bhai, kya poochna hai? (Enter = send, Shift+Enter = newline)"></textarea>
   <button class="btn" id="btn-mic" onclick="toggleMic()" title="Record voice">🎙</button>
+  <button class="btn" id="btn-wake" onclick="toggleWakeWord()" title="Listen for &quot;Hey Jarvis&quot; (stand-in for Hey Arya — see README)">👂</button>
   <button class="btn" id="btn-send" onclick="sendText()" title="Send">↑</button>
   <button class="btn" id="btn-clear" onclick="clearChat()">CLEAR</button>
 </footer>
@@ -672,6 +674,11 @@ let micStream    = null;
 let audioCtx     = null;
 let analyser     = null;
 let rafVU        = null;
+let wakeWordActive  = false;  // opt-in, off by default — see toggleWakeWord()
+let wakeAudioCtx    = null;
+let wakeStream      = null;
+let wakeProcessor   = null;
+let wakeSampleBuf   = [];     // accumulates downsampled int16 until 1280 samples (80ms)
 let ttsNative    = false;
 let currentSpeech= null;
 let streamTarget = null;   // the live .row element being typed into
@@ -910,6 +917,21 @@ function onMsg(m){
         document.getElementById('sv-lang').textContent = m.lang;
         document.getElementById('lang-select').value   = m.lang;
       }
+      break;
+
+    case 'wake_word_state':
+      // Server-confirmed toggle state — keeps the button in sync if the
+      // backend ever rejects/resets it independently of the client's own click
+      document.getElementById('btn-wake').classList.toggle('rec', !!m.enabled);
+      break;
+
+    case 'wake_detected':
+      // Heard "Hey Jarvis" — auto-start the same recording flow as clicking
+      // 🎙 manually. Still click-to-stop, same as manual recording always was;
+      // this only saves the click to *start*, it doesn't add silence-based
+      // auto-stop (that's a separate, untested-without-a-live-mic feature).
+      sysNote(`👂 Wake word heard (${(m.score*100).toFixed(0)}% confidence) — listening...`);
+      if(!micActive) toggleMic();
       break;
 
     case 'detected_lang':
@@ -1623,6 +1645,79 @@ function stopMic(){
   document.getElementById('btn-mic').classList.remove('rec');
   document.getElementById('btn-mic').textContent = '🎙';
   waveTarget = 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   WAKE WORD ("Hey Jarvis" stand-in — see agent.py's WAKE_WORD_MODEL comment)
+   Opt-in only: clicking 👂 starts continuous mic capture and streams raw
+   16kHz PCM frames to the backend's openwakeword model. This is a separate
+   pipeline from toggleMic()'s push-to-talk recording — that one captures a
+   full webm/opus blob and sends it once on stop; this one streams small raw
+   PCM frames continuously while active, since openwakeword needs raw audio
+   frames to run inference on, not a compressed container format.
+═══════════════════════════════════════════════════════════════════ */
+function _downsampleTo16k(float32, inputRate){
+  if(inputRate === 16000) return float32;
+  const ratio = inputRate / 16000;
+  const outLen = Math.round(float32.length / ratio);
+  const out = new Float32Array(outLen);
+  for(let i=0; i<outLen; i++) out[i] = float32[Math.floor(i*ratio)];
+  return out;
+}
+function _floatToInt16(float32){
+  const out = new Int16Array(float32.length);
+  for(let i=0; i<float32.length; i++){
+    const s = Math.max(-1, Math.min(1, float32[i]));
+    out[i] = s < 0 ? s*32768 : s*32767;
+  }
+  return out;
+}
+
+async function toggleWakeWord(){
+  if(wakeWordActive){ stopWakeWord(); return; }
+
+  try{ wakeStream = await navigator.mediaDevices.getUserMedia({audio:true}); }
+  catch(e){ sysNote('⚠ Mic access nahi mila for wake word — allow karo please.'); return; }
+
+  wakeAudioCtx = new AudioContext();
+  const src = wakeAudioCtx.createMediaStreamSource(wakeStream);
+  // ScriptProcessorNode is deprecated but needs no separate worklet file to
+  // load — simplest path for a small opt-in side feature. AudioWorkletNode
+  // would be the modern replacement if this becomes a primary interaction.
+  wakeProcessor = wakeAudioCtx.createScriptProcessor(4096, 1, 1);
+  wakeSampleBuf = [];
+
+  wakeProcessor.onaudioprocess = (e) => {
+    if(!wakeWordActive) return;
+    const input = e.inputBuffer.getChannelData(0);
+    const down  = _downsampleTo16k(input, wakeAudioCtx.sampleRate);
+    const int16 = _floatToInt16(down);
+    for(let i=0; i<int16.length; i++) wakeSampleBuf.push(int16[i]);
+
+    const FRAME = 1280; // 80ms @ 16kHz — matches WAKE_WORD_FRAME in agent.py
+    while(wakeSampleBuf.length >= FRAME){
+      const frame = wakeSampleBuf.splice(0, FRAME);
+      send({type:'wake_audio_frame', data: frame});
+    }
+  };
+
+  src.connect(wakeProcessor);
+  wakeProcessor.connect(wakeAudioCtx.destination); // required by spec for onaudioprocess to fire
+
+  wakeWordActive = true;
+  send({type:'wake_word_toggle', enabled:true});
+  document.getElementById('btn-wake').classList.add('rec');
+  sysNote('👂 Listening for "Hey Jarvis" (stand-in wake word) in the background.');
+}
+
+function stopWakeWord(){
+  send({type:'wake_word_toggle', enabled:false});
+  wakeProcessor?.disconnect();
+  wakeStream?.getTracks().forEach(t=>t.stop());
+  wakeAudioCtx?.close();
+  wakeWordActive = false;
+  wakeSampleBuf = [];
+  document.getElementById('btn-wake').classList.remove('rec');
 }
 
 /* ═══════════════════════════════════════════════════════════════════

@@ -1,127 +1,151 @@
 # FIN-OS RAG — Integration Reference
 
-> Version: 1.0 | Date: June 20, 2026
+> Version: 2.0 | Date: June 20, 2026 — rewritten after actually reading `js/arya-sidebar-panel.js` (7,241 lines); the original version below was written speculatively during planning and got the core architecture wrong in one important way (see §1).
 > How `rag-engine` (port 7476) wires into the existing FIN-OS platform without disrupting it.
+> **Status: built and verified live in a browser**, June 20, 2026 — see [RAG_PHASES.md](RAG_PHASES.md) Phase 4 for the full verification log.
 
 ---
 
-## 1. Integration Map
+## 1. Integration Map — corrected
 
-| Existing system | Integration |
-|---|---|
-| `js/arya-sidebar-panel.js` | Gains 4 new entries in the AgentTools registry (see §2) |
-| `arya-ai` backend (port 7475) | Makes HTTP calls to `rag-engine:7476` for any tool invocation requiring grounded answers |
-| `document-ai/server.py` | Parsed documents are forwarded into `rag-engine`'s ingestion pipeline instead of (or in addition to) their current destination |
-| `js/finos-context.js` | `window.FINOS_USER_CONTEXT` is read by `rag-engine` and injected into every generation prompt — no duplicate context-fetching logic |
-| `js/arya-memory.js` | RAG query/answer pairs are written back as new episodic memories, so future Arya conversations can reference past RAG answers without re-querying |
-| `voiceagent/agent.py` (port 8765) | Optional: voice transcripts can be routed through `rag-engine` instead of directly to Ollama, when the query is finance-factual rather than conversational |
-| `chatbot/brain.py` (port 8000) | **Unchanged.** This serves a different purpose (QFT chat engine) and is not replaced by RAG |
-| Supabase | Existing project reused — new tables `rag_documents`, `rag_feedback` added alongside existing `profiles`, `transactions`, etc. |
+**The original plan assumed one chat path that calls tools through an `AgentTools` registry.** That registry genuinely exists (34 tools, confirmed real) — the planning got that part right. What it missed: **there are two separate interaction paths in `arya-sidebar-panel.js`, and only one of them uses the tool registry at all.**
 
----
-
-## 2. New Arya Agent Tools (4 additions)
-
-Added to the AgentTools registry inside `js/arya-sidebar-panel.js`:
-
-| Tool | Signature | Calls | Description |
+| Path | Function | Uses `AgentTools`? | How RAG was wired in |
 |---|---|---|---|
-| `rag_query` | `(question: string, filters?: object)` | `POST rag-engine:7476/api/query` | Full hybrid RAG pipeline → answer + citations |
-| `rag_upload_doc` | `(file: File, doc_type: string)` | `POST rag-engine:7476/api/upload` | Upload + ingest a user document into their private namespace |
-| `rag_search_regulations` | `(topic: string, authority?: string, date_from?: string)` | `POST rag-engine:7476/api/search-regulations` | Targeted search restricted to the regulatory namespace |
-| `rag_explain_statement` | `(doc_id: string, text_snippet: string)` | `POST rag-engine:7476/api/explain` | Explain a specific sentence from a user's own uploaded document |
+| **Main Chat tab** | `sendMessage()` → `streamFromOllama()` | **No.** Single direct Ollama call per message. Pre-fetches context (macro news, etc.) and injects into that one call's system prompt — same pattern `fetchMacroNews()` already used. | New `detectRagIntent()` + `fetchRagContext()`, mirroring `fetchMacroNews()` exactly. Calls the new lightweight `POST /api/retrieve` (no generation) and injects results as `ragSection` in the system prompt. |
+| **Agent tab** | `AryaAgentRunner.run()` | **Yes.** A real ReAct loop (Reason → `TOOL_CALL` → Observe → repeat, max 6 steps) using `AgentTools.schema`/`execute()`. | Two new entries added directly to the existing registry: `rag_query`, `rag_search_regulations`. Each calls `POST /api/query` (full generation) and returns a formatted string, exactly like every other tool. |
 
-### Tool registration pattern (matches existing Arya tool conventions)
+Both paths talk to `rag-engine` directly over HTTP from the browser — there is no proxy through `arya-ai` (port 7475). That was also a planning assumption that turned out unnecessary: `rag-engine` just needed its own CORS middleware (added, mirrors `arya-ai/server.py`'s existing dev-open config) and the frontend calls it directly.
+
+| Existing system | Integration | Status |
+|---|---|---|
+| `js/arya-sidebar-panel.js` | Two new helper functions (`ragAPI`, `detectRagIntent`, `fetchRagContext`) + 2 new `AgentTools` entries | ✅ Built |
+| `rag-engine` CORS | `CORSMiddleware`, `allow_origins=["*"]`, mirrors `arya-ai/server.py` | ✅ Built |
+| `arya-ai` backend (port 7475) | **Not used as a proxy.** Frontend calls rag-engine (7476) directly | N/A — corrected assumption |
+| `document-ai/server.py` | Forwards parsed documents into `rag-engine`'s ingestion pipeline | ❌ Not built |
+| `js/finos-context.js` | `window.FINOS_USER_CONTEXT` injected into RAG prompts | ❌ Not built — main chat's `buildUserContext()` still runs independently of the RAG context block |
+| `js/arya-memory.js` | RAG query/answer pairs written back as episodic memories | ❌ Not built |
+| `voiceagent/agent.py` (port 8765) | Route finance-factual voice queries through RAG | ❌ Not built |
+| `chatbot/brain.py` (port 8000) | **Unchanged**, as planned | ✅ Confirmed untouched |
+| Supabase | New tables `rag_documents`, `rag_feedback` | ❌ Not built — schema written (`rag-engine/schema.sql`) but not applied, see [RAG_PHASES.md](RAG_PHASES.md) Phase 1 |
+
+---
+
+## 2. Main Chat Tab — Context Injection (built)
+
+`sendMessage()` (the function behind every message typed in the primary Chat tab) already pre-fetches macro news non-blocking with a timeout and injects it into the system prompt. RAG grounding follows the identical shape:
 
 ```javascript
-// inside js/arya-sidebar-panel.js AgentTools registry
-AgentTools.rag_query = async function(question, filters = {}) {
-  const userId = window.FINOS_USER_CONTEXT?.user_id || null;
-  const res = await fetch('http://localhost:7476/api/query', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${window.FINOS_USER_CONTEXT?.session_token || ''}`
-    },
-    body: JSON.stringify({ query: question, user_id: userId, filters, stream: true })
-  });
-  return streamSSEIntoBubble(res); // reuses existing streamFromOllama-style renderer
-};
+// inside js/arya-sidebar-panel.js, near fetchMacroNews()
+const _RAG_INTENT_RE = /\b(section\s?\d|circular|notification|sebi|rbi|amfi|regulation|regulatory|kcc|kisan credit|directions?,?\s*20\d\d|rule\b|act\b|compliance|directive)\b/i;
+
+function detectRagIntent(userText) {
+  return _RAG_INTENT_RE.test(userText || '');
+}
+
+async function fetchRagContext(userText) {
+  try {
+    // 4500ms, not 2500ms — measured retrieve+rerank baseline is 1.1-2.5s on this
+    // M5 (docs/RAG_HARDWARE.md §4), and this call runs concurrently with the main
+    // chat's own Ollama generate call, contending for the same GPU. 2.5s aborted
+    // consistently in real browser testing even with otherwise-idle models.
+    const d = await ragAPI('/api/retrieve', { query: userText, top_k: 3, stream: false }, 4500);
+    if (d.error || !Array.isArray(d.chunks) || !d.chunks.length) return '';
+    return d.chunks.map(c => `[${c.doc_title}]\n${c.text}`).join('\n\n');
+  } catch { return ''; }
+}
 ```
 
-This mirrors the existing `streamFromOllama()` pattern already used for direct Ollama calls — `rag_query` is a drop-in alternative path, not a parallel UI system.
+Wired into `sendMessage()` right next to the existing news fetch:
 
----
-
-## 3. Routing Logic — When Arya Calls RAG vs. Direct Ollama
-
-Arya should not route every message through the full RAG pipeline — that would add unnecessary latency to casual conversation. The router (`detectRagIntent()`, new function in `arya-sidebar-panel.js`) decides:
-
-| Signal | Route to RAG |
-|---|---|
-| Question contains a regulation reference pattern (`Section \d+`, `SEBI`, `RBI`, `circular`) | Yes |
-| Question references "my document", "my ITR", "my Form 16", "uploaded" | Yes (with `rag_upload_doc`/`rag_explain_statement`) |
-| Question asks "is this still valid/current" | Yes (`rag_search_regulations`) |
-| Casual chat, greetings, emotional support, page-navigation requests | No — stays on existing direct Ollama path |
-| Calculator-related quick questions already covered by `calc-explainer.js` | No |
-
-This keeps RAG's added latency (~1.5–3s) scoped only to questions that actually need grounding, while keeping Arya's existing snappy conversational flow untouched for everything else.
-
----
-
-## 4. `document-ai` Integration
-
-`document-ai/server.py` already parses uploaded documents (existing `document_ai_log` Supabase table). Two integration options, both supported:
-
-1. **Forward parsed output** — after `document-ai` finishes OCR/parsing, it POSTs the extracted text to `rag-engine:7476/api/upload` instead of (or in addition to) its current storage path, so the same document becomes queryable via RAG without the user re-uploading.
-2. **Direct upload** — `rag_upload_doc` tool can also call `document-ai`'s existing parser first if the file format needs OCR (scanned PDFs), then ingests the result.
-
-Recommended: option 1, since `document-ai` already has the parsing pipeline — `rag-engine`'s own loaders (PyMuPDF, EasyOCR) become the fallback path only.
-
----
-
-## 5. Frontend — `js/arya-rag-ui.js` (new file)
-
-New module responsible for everything the RAG pipeline needs visually that existing Arya UI doesn't have:
-
-| Function | Purpose |
-|---|---|
-| `renderSourceCards(citations)` | Clickable cards beneath an answer showing doc title, page, date |
-| `renderFaithfulnessBadge(flaggedSentences)` | ⚠️ inline marker on any sentence that failed the NLI entailment check |
-| `renderUploadWidget()` | Drag-and-drop file upload zone inside the Arya panel (new "Documents" sub-tab) |
-| `renderFeedbackButtons(queryId)` | 👍/👎 buttons wired to `POST /api/feedback` |
-| `streamSSEIntoBubble(response)` | SSE consumer — parses `event: token`/`citations`/`faithfulness`/`done` and updates the chat bubble incrementally |
-
-This file is loaded alongside `arya-sidebar-panel.js`, following the same lazy-load convention used for `arya-roadmap.js` (`ensureRoadmapEngine()` pattern) — `ensureRagUI()` loads `arya-rag-ui.js` only the first time a RAG-routed tool is invoked.
-
----
-
-## 6. New Admin Page — `html/rag-explorer.html`
-
-A debug/admin page (not linked in main nav, accessed directly) for inspecting the knowledge base:
-- Search box hitting `/api/query` directly with raw retrieval results (no generation) — useful for verifying retrieval quality during development
-- Table view of `rag_documents` (via Supabase client) with re-index buttons per source
-- `rag_feedback` review table — surfaces all thumbs-down entries for weekly QA (see [RAG_EVALUATION.md](RAG_EVALUATION.md))
-
-Follows the existing 6-file CSS load order convention from [user-profile / design standards] — uses `design-tokens.css` → `base.css` → `theme.css` → `layout.css` → `components.css` → `interactions.css`.
-
----
-
-## 7. Voice Agent Integration (optional, Phase 4+)
-
-`voiceagent/agent.py` currently sends transcripts directly to Ollama (`qwen2.5:3b`/`qwen3:14b` per `_pick_ollama_model()`). To route finance-factual voice queries through RAG:
-
-```python
-# inside voiceagent/agent.py, after STT transcription
-if detect_rag_intent(transcript):  # same heuristic as §3, ported to Python
-    answer = requests.post("http://localhost:7476/api/query", json={
-        "query": transcript, "user_id": session_user_id, "stream": False
-    }).json()["answer"]
-else:
-    answer = existing_ollama_call(transcript)  # unchanged path
+```javascript
+let ragLines = '';
+if (!isAutoInsight && detectRagIntent(userText)) {
+  ragLines = await Promise.race([
+    fetchRagContext(userText),
+    new Promise(r => setTimeout(() => r(''), 4500))
+  ]);
+}
+const ragSection = ragLines
+  ? `\n\nGROUNDING CONTEXT FROM SEBI/RBI REGULATIONS (cite the source document by name inline — do not invent regulation details not present here):\n${ragLines}`
+  : '';
 ```
 
-TTS (Edge Neural / Piper) consumes the RAG answer identically to any other Ollama response — no changes needed downstream of text generation.
+**Why no generation call to `/api/query` here:** the main chat already makes exactly one Ollama call per message (`qwen3:14b`, via `streamFromOllama()`). Running a second full RAG generation (rag-engine's own `qwen3:8b` call) would mean two LLM calls per message — wasteful and slower on this hardware. `POST /api/retrieve` (new, built in this phase) returns only the ranked chunks, no generation, so the *existing* chat call does the synthesis, citing source titles inline per the prompt instruction above.
+
+**Verified live:** `window.AryaSidebar.ask('What is the RBI Kisan Credit Card scheme notification about?')` — confirmed via browser network tab that `POST /api/retrieve` fires, and the resulting chat response became visibly more specific once that call succeeded (vs. a generic fallback answer on a timed-out attempt).
+
+**Real limitation found:** under concurrent GPU load (the main chat's `qwen3:14b` call and the retrieve's `mxbai-embed-large` call running at the same time — confirmed via `ps eww` to be separate `ollama runner` subprocesses contending for the same M5 GPU), the retrieve call can still time out even at 4.5s. This degrades gracefully — chat continues without grounding context, no user-facing error — but means the auto-injection is best-effort, not guaranteed, especially on the first message after a cold start (reranker not yet loaded into `rag-engine`'s process memory).
+
+---
+
+## 3. Agent Tab — New Tools (built)
+
+Added directly to the existing `AgentTools.schema` array and `execute()` switch — same shape as all 32 pre-existing tools (`{name, desc, args}` schema entry; `execute()` case returns a plain string):
+
+```javascript
+// schema additions
+{ name: 'rag_query', desc: 'Ask a question grounded in indexed SEBI/RBI regulations + FIN-OS docs, with cited answer — REAL retrieved text, not guesses', args: { query: 'the question to answer' } },
+{ name: 'rag_search_regulations', desc: 'Search ONLY SEBI/RBI regulatory text (no FIN-OS content) — use for "what does the circular/notification say" questions', args: { query: 'regulation topic or keyword' } },
+
+// execute() cases
+case 'rag_query': {
+  const d = await ragAPI('/api/query', { query: args.query, stream: false, top_k: 3 }, 20000);
+  if (d.error) return `RAG lookup failed (is rag-engine running on :7476?): ${d.error}`;
+  const cites = (d.citations || []).map((c, i) => `  [${i+1}] ${c.doc_title}${c.source_path ? ' — ' + c.source_path : ''}`);
+  return `${d.answer}${cites.length ? '\n\nSources:\n' + cites.join('\n') : ''}`;
+}
+
+case 'rag_search_regulations': {
+  const d = await ragAPI('/api/query', { query: args.query, stream: false, top_k: 3, doc_type: 'regulation' }, 20000);
+  if (d.error) return `Regulation search failed: ${d.error}`;
+  if (!d.citations?.length) return `No indexed SEBI/RBI regulation matched "${args.query}". Only a small sample of circulars/notifications is indexed so far.`;
+  const cites = d.citations.map((c, i) => `  [${i+1}] ${c.doc_title}${c.source_path ? ' — ' + c.source_path : ''}`);
+  return `${d.answer}\n\nSources:\n${cites.join('\n')}`;
+}
+```
+
+`rag_search_regulations` is genuinely distinct from `rag_query`, not a same-results rename — `doc_type: 'regulation'` is a real filter, added to `storage/qdrant_store.py` and `storage/sqlite_fts.py` in this phase specifically so this tool would do something different. Verified: an unfiltered query against "insurance" returned a mix of `finos_page` and `regulation` chunks; the same query with the filter returned `regulation` chunks only.
+
+**Why no `rag_upload_doc`/`rag_explain_statement` yet:** `/api/upload` exists (Phase 3) but wiring a file-picker into the Agent tab's text-based tool-call loop needs its own UI work (the ReAct loop's `TOOL_CALL` format is plain JSON text — there's no file-attachment mechanism in that flow yet). Deferred, not forgotten.
+
+**Verified live**, both tools, via direct console calls against the real backend:
+```javascript
+await window.AryaSidebar.tools.execute('rag_query', { query: 'What is the Kisan Credit Card scheme?' })
+await window.AryaSidebar.tools.execute('rag_search_regulations', { query: 'mutual fund nomination' })
+```
+Both returned correctly-cited, real answers — see [RAG_PHASES.md](RAG_PHASES.md) Phase 4 for the captured output.
+
+---
+
+## 4. `document-ai` Integration (still not built)
+
+`document-ai/server.py` already parses uploaded documents (existing `document_ai_log` Supabase table). Two integration options, both still just plans:
+
+1. **Forward parsed output** — after `document-ai` finishes OCR/parsing, it POSTs the extracted text to `rag-engine:7476/api/upload` instead of (or in addition to) its current storage path.
+2. **Direct upload** — the (not-yet-built) `rag_upload_doc` tool calls `document-ai`'s existing parser first if the file format needs OCR, then ingests the result.
+
+Recommended: option 1, since `document-ai` already has the parsing pipeline — `rag-engine`'s own loaders (PyMuPDF) would become the fallback path only. Not implemented this pass.
+
+---
+
+## 5. Frontend Rendering — no new UI file needed
+
+**The original plan called for a new `js/arya-rag-ui.js` with `renderSourceCards()`, `renderFaithfulnessBadge()`, an SSE consumer, etc. None of that was built, and it turned out not to be needed:** every existing `AgentTools` entry (all 34 of them) returns a plain string that gets fed back into the ReAct loop's text history, or — for the main chat path — gets folded into one Ollama call's output and rendered through the *existing* `richText()` highlighter. Citations render as a plain "Sources:" list appended to the tool's returned string, exactly matching how e.g. `search_web` already lists its result URLs. This is consistent with the project's existing convention (plain text + light highlighting, no bespoke card components per feature) rather than a gap.
+
+If source cards or a faithfulness badge are wanted later, that's a real, scoped addition — but it's not blocking anything that exists today.
+
+---
+
+## 6. New Admin Page — `html/rag-explorer.html` (still not built)
+
+A debug/admin page (not linked in main nav) for inspecting the knowledge base — search box hitting `/api/query` directly, a table view of indexed documents, a `rag_feedback` review table. Still just a plan; not built this pass. Lower priority now that the real integration points (tasks above) are live and individually testable via the browser console.
+
+---
+
+## 7. Voice Agent Integration (still not built)
+
+`voiceagent/agent.py` currently sends transcripts directly to Ollama. To route finance-factual voice queries through RAG, the same `detectRagIntent()` heuristic would need a Python port and a call to `rag-engine:7476/api/query`. Not implemented this pass.
 
 ---
 
@@ -129,6 +153,7 @@ TTS (Edge Neural / Piper) consumes the RAG answer identically to any other Ollam
 
 - `chatbot/brain.py` (port 8000) — separate QFT engine, untouched
 - `alerts/alert-engine.py` — health score and alert logic, untouched
-- Existing Supabase tables (`profiles`, `transactions`, `goals`, `holdings`, etc.) — only additive new tables
-- Existing Arya conversational flow for non-factual queries — RAG is additive, not a replacement
+- Existing Supabase tables (`profiles`, `transactions`, `goals`, `holdings`, etc.) — only additive new tables, and those aren't even applied yet
+- Existing Arya conversational flow for non-RAG-triggered queries — entirely unaffected; `detectRagIntent()` returning `false` means zero behavior change from before this phase
 - Vercel deployment — `rag-engine` is local-only, never deployed; static frontend deployment is unaffected
+- `arya-ai` backend (port 7475) — not touched; the frontend calls rag-engine directly instead of proxying through it, contrary to the original plan

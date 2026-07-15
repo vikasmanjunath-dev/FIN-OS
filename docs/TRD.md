@@ -1,6 +1,6 @@
 # FIN-OS — Technical Requirements Document (TRD)
 
-**Owner:** Vikas Manjunath | **Version:** 1.6 | **Date:** June 20, 2026 | **Status:** Active
+**Owner:** Vikas Manjunath | **Version:** 1.9 | **Date:** June 21, 2026 | **Status:** Active — RAG stack table now reflects two real Phase 6 builds (startup warmup, async RQ ingestion with a genuine macOS fork-crash bug found and fixed)
 
 ---
 
@@ -66,26 +66,35 @@ Defines technical stack, performance budgets, security, accessibility, and integ
 | Budget Backend | `ExpenseTracker/finos_backend/` | Django REST Framework 5.0+ | http://127.0.0.1:8000 |
 | Stock Dashboard API | `stock-dashboard/app.py` | Flask + yfinance | http://127.0.0.1:5001 |
 | Document AI Parser | `document-ai/server.py` | FastAPI + DocParser | varies |
-| RAG Engine **[PLANNED]** | `rag-engine/server.py` | FastAPI + LlamaIndex | http://127.0.0.1:7476 |
+| RAG Engine **[Phase 1-5 LIVE]** | `rag-engine/server.py` | FastAPI (direct orchestration, no LlamaIndex) | http://127.0.0.1:7476 |
 
-### RAG Stack **[PLANNED — see RAG_SYSTEM.md]**
+### RAG Stack — Phase 1-5 built (see [RAG_PHASES.md](RAG_PHASES.md) for exactly what's still open)
 
-| Component | Library / Model | Mode | Notes |
+| Component | Library / Model | Mode | Status |
 |---|---|---|---|
-| Orchestration | LlamaIndex 0.10+ | Local | Hybrid retrieval, `SubQuestionQueryEngine` for multi-hop |
-| Vector DB | Qdrant (local binary) | Local, port 6333 | HNSW, 1024-dim, Cosine distance |
-| Sparse index | bm25s + SQLite FTS5 | Local | Exact-term match (e.g. "Section 80CCD(1B)") |
-| Embedding (primary) | `mxbai-embed-large` via Ollama | Local, Metal | 1024-dim, MTEB 64.68 |
-| Embedding (fallback) | `nomic-embed-text` via Ollama | Local, Metal | 768-dim, used for high-volume batch ingestion |
-| Reranker | `BAAI/bge-reranker-v2-m3` | Local, PyTorch MPS | Cross-encoder, top-40 → top-8 |
-| Generation LLM | `qwen3:14b` via Ollama | Local, Metal | 8.5 GB Q4_K_M, ~50 tok/s on M5 |
-| Utility LLM | `qwen3:8b` via Ollama | Local, Metal | Query rewrite, HyDE, sub-question decomposition |
-| Faithfulness guard | `cross-encoder/nli-deberta-v3-base` | Local, PyTorch MPS | Post-generation entailment check |
-| Cloud fallback | Claude Sonnet 4.6 (Anthropic API) | Remote | Public namespace only — never for user documents |
-| Query cache | Redis | Local, port 6379 | 1 hour TTL |
-| PII scrubbing | presidio-analyzer + presidio-anonymizer | Local | PAN/Aadhaar/account-number masking before persistence |
+| Orchestration | Direct Python (FastAPI + custom modules) | Local | ✅ Built — **LlamaIndex was planned but not used**; direct `qdrant_client`/`sqlite3`/`httpx` calls proved simpler for this scope, no abstraction layer needed |
+| Vector DB | Qdrant (local binary, official GitHub release — no Homebrew formula exists) | Local, port 6333 | ✅ Built, 508 chunks indexed (94 FIN-OS pages + SEBI + RBI) |
+| Sparse index | Native SQLite FTS5 `bm25()` on a table named `chunks_fts` (no separate `bm25s` package) | Local | ✅ Built, namespace isolation verified by a real passing pytest, see [RAG_EVALUATION.md](RAG_EVALUATION.md) §6 |
+| Embedding (primary) | `mxbai-embed-large` via Ollama | Local, Metal | ✅ Built, confirmed 1024-dim |
+| Embedding (fallback) | `nomic-embed-text` via Ollama | Local, Metal | Pulled, not yet exercised |
+| Reranker | `BAAI/bge-reranker-v2-m3` | Local, PyTorch MPS | ✅ Built — found & fixed a real device-placement bug, see [RAG_MODELS.md](RAG_MODELS.md) §5. Disk footprint is 2.1 GB (measured) — an earlier 590 MB estimate was wrong. |
+| Generation LLM | **`qwen3:8b`** via Ollama (changed from `qwen3:14b`) | Local, Metal | ✅ Built — ~20 tok/s measured (not ~90 as first estimated) |
+| Utility LLM | `qwen3:8b` via Ollama | Local, Metal | ✅ Built and wired — powers HyDE (`retrieval/hyde.py`) and multi-hop sub-question decomposition (`retrieval/multi_hop.py`), both opt-in per-request |
+| Multi-hop decomposition | `qwen3:8b`-driven query splitting, capped at 2 sub-questions | Local | ✅ Built — verified useful on a real compound question |
+| Faithfulness guard | `cross-encoder/nli-deberta-v3-base` | Local, PyTorch MPS | 🟡 Built (Phase 5), but with a **measured reliability gap** on Indian regulatory/financial text — see [RAG_PHASES.md](RAG_PHASES.md) Phase 5. Treat as a noisy signal, not a guarantee. |
+| Cloud fallback | ~~Claude Sonnet 4.6 (Anthropic API)~~ | Remote | ❌ **Never built** — listed only as an unscheduled candidate idea in [RAG_PHASES.md](RAG_PHASES.md)'s open-ended Phase 6 wishlist, not an in-progress or committed feature; no cloud LLM call exists anywhere in this codebase today |
+| Query cache | Redis | Local, port 6379 | ✅ Built, 1hr TTL, cache hit <5ms measured |
+| PII scrubbing | presidio-analyzer + presidio-anonymizer | Local | ✅ Built — found & fixed a false-positive bug, see [RAG_PHASES.md](RAG_PHASES.md) Phase 1 |
+| User document upload | `POST /api/upload` (PDF/TXT/MD/HTML → parse → PII scrub → chunk → embed → dual-index) | Local | 🟡 Built and pipeline-verified directly in Python; no live authenticated HTTP upload exercised yet (needs a real Supabase session token) |
+| Session auth | Live verification against Supabase `/auth/v1/user` REST endpoint (not local JWT decoding) | Remote call, 60s local cache | ✅ Built — see [RAG_SECURITY.md](RAG_SECURITY.md) §4 |
+| Regulatory crawlers | SEBI circulars + RBI notifications, manual-trigger HTTP crawl | Local → remote fetch | ✅ Built for these two sources. AMFI investigated, found infeasible (JS-rendered site). IT Act/Finance Act/IRDAI/PFRDA/NSE-BSE not attempted. |
+| Document/feedback registry | Supabase (`rag_documents`, `rag_feedback`) | Remote | ❌ **Not built** — `schema.sql` is written but never applied (no DB credentials available); metadata currently lives only in Qdrant payloads + local SQLite |
+| Arya integration | Direct browser→rag-engine calls from `js/arya-sidebar-panel.js` (CORS-enabled), plus 2 Agent tool-calling functions (`rag_query`, `rag_search_regulations`) | Local, browser-driven | ✅ Built — **not** proxied through the `arya-ai` backend, a correction from the original plan, see [RAG_INTEGRATION.md](RAG_INTEGRATION.md) |
+| Evaluation | pytest namespace isolation suite (3 tests, passing) + Prometheus `/api/metrics` + a 10-question Indian finance benchmark | Local | ✅ All three built and verified with real traffic/runs. Benchmark: 90% (9/10), one failure root-caused to a real generation-side limitation, see [RAG_PHASES.md](RAG_PHASES.md) Phase 5. RAGAS: attempted, abandoned on a concrete upstream packaging bug, not skipped. No Grafana dashboard (deliberate — same complexity-avoidance call as dropping LlamaIndex/bm25s). |
+| Cold-start warmup | `server.py` startup handler loads the reranker + faithfulness NLI model before accepting traffic | Local | ✅ Built, Phase 6 — measured 8.4s combined, moved from taxing the first real query to happening once at boot |
+| Async ingestion | RQ (`jobs.py` + `rq worker rag-ingestion`), decouples the three batch ingest endpoints from request/response | Local, Redis-backed | ✅ Built, Phase 6 — verified under real concurrent load (a live SEBI crawl + a live query, simultaneously, neither blocked the other). **Requires `--worker-class rq.worker.SimpleWorker`** — RQ's default forking worker crashes on macOS once torch (pulled in transitively via presidio's spaCy dependency) has touched Metal/MPS; a real bug found and fixed, not a style choice. |
 
-Full detail: [RAG_SYSTEM.md](RAG_SYSTEM.md), [RAG_HARDWARE.md](RAG_HARDWARE.md), [RAG_MODELS.md](RAG_MODELS.md).
+Full detail: [RAG_SYSTEM.md](RAG_SYSTEM.md), [RAG_HARDWARE.md](RAG_HARDWARE.md), [RAG_MODELS.md](RAG_MODELS.md), [RAG_PHASES.md](RAG_PHASES.md) for the complete built-vs-planned breakdown.
 
 ### AI / ML Stack
 

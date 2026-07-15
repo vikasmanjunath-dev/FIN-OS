@@ -1,20 +1,26 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# FIN-OS News Intelligence — React/TypeScript App
 
-# Run and deploy your AI Studio app
+> React + TypeScript + Vite | Gemini AI | Indian financial news  
+> **Updated:** July 14, 2026
 
-This contains everything you need to run your app locally.
+A React/TypeScript news application that aggregates and analyses Indian financial news using the Gemini API.
 
-View your app in AI Studio: https://ai.studio/apps/77708314-5f5f-4b41-a0cd-05372d1ebd11
+---
 
-## Run Locally
+## Setup
 
-**Prerequisites:**  Node.js
+**Prerequisites:** Node.js 18+
 
+```bash
+cd "Initial Deployment/News1"
+npm install
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+# Add your Gemini API key
+echo "GEMINI_API_KEY=your_key_here" > .env.local
+
+npm run dev
+```
+
+## Note
+
+The primary news backend for FIN-OS is `app.py` (Flask, Google News RSS, port 5000), which requires no API key. This React/TypeScript app is a separate standalone experiment using the Gemini API for news summarisation and analysis.

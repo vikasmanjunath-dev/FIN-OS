@@ -1,12 +1,100 @@
 """
 Arya AI — Report Generator.
-Produces self-contained HTML reports (no PDF dependency needed).
-Opens in new browser tab. Can be extended to PDF via WeasyPrint later.
+Produces self-contained HTML reports by default (no PDF dependency needed) —
+or a PDF rendering of the exact same HTML/CSS when fmt="pdf" is passed.
+
+PDF needs WeasyPrint + Pango (a real system library — `brew install pango`,
+not just pip). On this machine, WeasyPrint also needs DYLD_LIBRARY_PATH to
+include /opt/homebrew/lib at runtime, or it fails with "cannot load library
+libgobject-2.0-0" — Homebrew-on-Apple-Silicon doesn't put /opt/homebrew/lib on
+the default dynamic-linker search path for a non-Homebrew Python. start.sh
+sets this; if you're running uvicorn directly, set it yourself.
 """
 import time
 import json
 from pathlib import Path
 from config import REPORTS_DIR
+
+
+def _write(html: str, base_name: str, fmt: str) -> str:
+    if fmt == "pdf":
+        from weasyprint import HTML
+        fname = REPORTS_DIR / f"{base_name}.pdf"
+        HTML(string=html).write_pdf(str(fname))
+    else:
+        fname = REPORTS_DIR / f"{base_name}.html"
+        fname.write_text(html, encoding="utf-8")
+    return str(fname)
+
+
+# ── Portfolio Excel Export ──────────────────────────────────────────────────
+# Holdings & unrealized P&L only — NOT a capital-gains tax computation. The
+# `holdings` table has no purchase-date column anywhere in this codebase
+# (checked: js/finos-context.js, alerts/alert-engine.py — both only select
+# symbol/quantity/avg_price/current_price/asset_type). STCG (<12mo) vs LTCG
+# (>=12mo) classification needs a lot-level purchase date; faking one would
+# produce a wrong tax number, which is worse than not having the feature.
+
+def portfolio_excel(summary: dict) -> str:
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+    from openpyxl.utils import get_column_letter
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Holdings"
+
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="1F2937", end_color="1F2937", fill_type="solid")
+    green = Font(color="0A7D33")
+    red = Font(color="C0392B")
+
+    headers = ["Symbol", "Quantity", "Avg Price", "Current Price", "Price Source",
+               "Invested Value", "Current Value", "Unrealized P&L", "P&L %"]
+    ws.append(headers)
+    for col in range(1, len(headers) + 1):
+        cell = ws.cell(row=1, column=col)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal="center")
+
+    for h in summary.get("holdings", []):
+        row = [
+            h["symbol"], h["quantity"], h["avg_price"], h["current_price"], h["price_source"],
+            h["invested_value"], h["current_value"], h["pnl"], h["pnl_pct"],
+        ]
+        ws.append(row)
+        pnl_cell = ws.cell(row=ws.max_row, column=8)
+        pnl_cell.font = green if h["pnl"] >= 0 else red
+
+    for col in range(1, len(headers) + 1):
+        ws.column_dimensions[get_column_letter(col)].width = 16
+
+    # Totals row
+    ws.append([])
+    total_row = ["TOTAL", "", "", "", "",
+                 summary.get("total_invested", 0), summary.get("total_current_value", 0),
+                 summary.get("total_pnl", 0), summary.get("total_pnl_pct", 0)]
+    ws.append(total_row)
+    for col in range(1, len(headers) + 1):
+        ws.cell(row=ws.max_row, column=col).font = Font(bold=True)
+
+    # Honest caveat sheet — not buried in fine print
+    notes = wb.create_sheet("Notes")
+    notes.append(["What this is"])
+    notes.append(["Holdings and unrealized profit/loss, with each position's price",
+                  "refreshed live at export time (see 'Price Source' column)."])
+    notes.append([])
+    notes.append(["What this is NOT"])
+    notes.append(["A capital-gains tax computation. STCG (<12mo) vs LTCG (>=12mo)",
+                  "classification needs a lot-level purchase date, which does not exist",
+                  "anywhere in the holdings table this data comes from. Building that",
+                  "split without a real date would mean guessing — not done here."])
+    notes.column_dimensions["A"].width = 70
+
+    fname = REPORTS_DIR / f"portfolio_{summary.get('user_id','unknown')[:8]}_{int(time.time())}.xlsx"
+    wb.save(str(fname))
+    return str(fname)
 
 
 def _ts() -> str:
@@ -77,7 +165,7 @@ def _wrap(title: str, body: str) -> str:
 
 # ── Quote Report ──────────────────────────────────────────────────────────────
 
-def quote_report(quote: dict, technicals: dict | None = None) -> str:
+def quote_report(quote: dict, technicals: dict | None = None, fmt: str = "html") -> str:
     sym = quote.get("symbol", "UNKNOWN")
     chg = quote.get("change_pct", 0) or 0
     chg_cls = "green" if chg >= 0 else "red"
@@ -136,16 +224,14 @@ def quote_report(quote: dict, technicals: dict | None = None) -> str:
     </div>
     {ta_section}"""
 
-    html  = _wrap(f"{sym} Report", body)
-    fname = REPORTS_DIR / f"{sym}_report_{int(time.time())}.html"
-    fname.write_text(html, encoding="utf-8")
-    return str(fname)
+    html = _wrap(f"{sym} Report", body)
+    return _write(html, f"{sym}_report_{int(time.time())}", fmt)
 
 
 # ── Market Overview Report ────────────────────────────────────────────────────
 
 def market_overview_report(overview: dict, commodities: dict,
-                            crypto: dict, news: list[dict]) -> str:
+                            crypto: dict, news: list[dict], fmt: str = "html") -> str:
     # Indices table
     idx_rows = ""
     for name, data in (overview.get("indices") or {}).items():
@@ -207,7 +293,5 @@ def market_overview_report(overview: dict, commodities: dict,
       </div>
     </div>"""
 
-    html  = _wrap("Market Overview", body)
-    fname = REPORTS_DIR / f"market_overview_{int(time.time())}.html"
-    fname.write_text(html, encoding="utf-8")
-    return str(fname)
+    html = _wrap("Market Overview", body)
+    return _write(html, f"market_overview_{int(time.time())}", fmt)

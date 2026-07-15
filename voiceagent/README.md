@@ -1,9 +1,9 @@
 # FIN-OS Voice Agent v10
 
 > Fully local voice AI — faster-whisper STT · qwen2.5:3b via Ollama · Edge Neural TTS  
-> WebSocket server on `wss://127.0.0.1:8765` (TLS) · Served as iframe by `finos-widget.js?v=7`
+> WebSocket server on `ws://127.0.0.1:8765` (plain — no SSL) · Served as iframe by `finos-widget.js?v=7`
 
-**Version:** 1.3 | **Updated:** June 7, 2026
+**Version:** 1.4 | **Updated:** July 14, 2026
 
 ---
 
@@ -16,7 +16,7 @@ The voice agent is a three-stage fully-local AI pipeline. It serves two clients:
 
 ```
 🎤 Microphone
-     ↓  MediaRecorder (WebM/Opus or WAV) → binary frames over wss://
+     ↓  MediaRecorder (WebM/Opus or WAV) → binary frames over ws://
 faster-whisper tiny  (int8, 8 CPU threads, VAD filter)
      ↓ transcript
 qwen2.5:3b via Ollama :11434  (streaming, num_ctx=8192, num_predict=400)
@@ -27,6 +27,27 @@ edge-tts Neural  (en-IN-PrabhatNeural / hi-IN-MadhurNeural)
 ```
 
 Everything runs on your machine. No paid API, no cloud inference, complete data privacy.
+
+### Wake word (opt-in)
+
+Click 👂 to start hands-free activation — say **"Hey Jarvis"** and recording
+starts automatically, same as clicking 🎙 yourself. Off by default; nothing
+streams to the backend until you click it on, and clicking it off stops the
+mic capture immediately.
+
+"Hey Jarvis," not "Hey Arya" — [openwakeword](https://github.com/dscripka/openWakeWord)
+(the local, no-API-key wake-word engine) ships pretrained models for `alexa`,
+`hey_jarvis`, `hey_mycroft`, `hey_rhasspy`, `timer`, `weather`. There's no
+pretrained "Hey Arya"; training one needs real recorded voice samples run
+through openwakeword's own training pipeline. `hey_jarvis` is a stand-in —
+swap `WAKE_WORD_MODEL` in `agent.py` once a custom model exists, nothing else
+needs to change.
+
+Still click-to-stop: detecting the wake word only auto-starts recording, the
+same way clicking 🎙 always worked. There's no silence-based auto-stop here —
+building one needs real human-voice threshold tuning this project can't do
+without a live microphone, so it's left as a known, deliberate gap rather
+than a guessed-at heuristic.
 
 ---
 
@@ -65,42 +86,17 @@ source .venv/bin/activate
 python agent.py
 ```
 
-### ONE-TIME BROWSER CERT TRUST (do once per browser profile, ever)
-
-On first run, `agent.py` auto-generates `voiceagent/.finos_cert.pem` and `voiceagent/.finos_key.pem` using:
-
-```bash
-openssl req -x509 -newkey rsa:4096 -keyout .finos_key.pem -out .finos_cert.pem \
-    -days 3650 -nodes -subj "/CN=127.0.0.1" \
-    -addext "subjectAltName=IP:127.0.0.1,DNS:localhost"
-```
-
-The terminal prints:
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ONE-TIME BROWSER TRUST STEP (only needed once ever):
-  Open this URL in Brave/Chrome → click Advanced → Proceed:
-  https://127.0.0.1:8765
-  After accepting, reload finos1.vercel.app  ✅
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
-1. Open a new browser tab while `agent.py` is running.
-2. Visit **`https://127.0.0.1:8765`**.
-3. Click **Advanced → Proceed to 127.0.0.1 (unsafe)** (Chrome/Brave/Edge) or **Accept the Risk and Continue** (Firefox).
-4. You see a plain WebSocket error page — that is correct. Trust is now stored permanently.
-5. Close the tab. The widget on any FIN-OS page connects automatically.
-
 ### Expected startup output
 
 ```
-INFO  fin-os: Listening on wss://127.0.0.1:8765
+INFO  fin-os: Listening on ws://127.0.0.1:8765
 INFO  fin-os: Whisper tiny ready
 INFO  fin-os: Ollama warmed up (qwen2.5:3b)
 INFO  fin-os: TTS warmed up (en-IN-PrabhatNeural)
 INFO  fin-os: Ready — FIN-OS AI is live ✅
 ```
+
+No browser cert trust step required — the agent runs on plain `ws://`, not `wss://` (TLS was reverted in June 2026; see progress.md Phase 14J for context).
 
 Open `https://finos1.vercel.app` → click the AI FAB → widget shows **ONLINE** (green dot).
 
@@ -110,14 +106,12 @@ Open `https://finos1.vercel.app` → click the AI FAB → widget shows **ONLINE*
 
 | File | Role |
 |---|---|
-| `agent.py` | WebSocket server — SSL setup, STT pipeline, LLM inference, TTS, memory, alerts |
-| `index.html` | Voice agent UI (3-col: memory · chat orb · stats) + Navigation Engine (130+ routes) |
-| `requirements.txt` | Python deps: `faster-whisper==1.2.1`, `ollama>=0.1.9`, `edge-tts>=6.1.9`, `websockets>=12.0`, `httpx>=0.27.0`, `python-dotenv>=1.0.1`, `psutil>=5.9.0`, `sentence-transformers>=2.7.0` |
+| `agent.py` | WebSocket server (plain ws://) — STT pipeline, LLM inference, TTS, memory, wake-word opt-in |
+| `index.html` | Voice agent UI (3-col: memory · chat orb · stats) + Navigation Engine (130+ routes) + 👂 wake-word toggle |
+| `requirements.txt` | Python deps: `faster-whisper==1.2.1`, `ollama>=0.1.9`, `edge-tts>=6.1.9`, `websockets>=12.0`, `httpx>=0.27.0`, `python-dotenv>=1.0.1`, `psutil>=5.9.0`, `sentence-transformers>=2.7.0`, `openwakeword>=0.6.0` (+ `scipy<1.14` pin — version conflict with `numpy==1.26.4`; see requirements.txt comment) |
 | `schema.sql` | Supabase `agent_memories` table DDL |
 | `.env.example` | Template for `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OLLAMA_MODEL` |
 | `run.sh` | All-in-one launch helper |
-| `.finos_cert.pem` | Auto-generated self-signed TLS cert (CN=127.0.0.1, RSA 4096, 10-year validity) |
-| `.finos_key.pem` | Auto-generated private key (no passphrase) |
 
 ---
 
@@ -125,15 +119,12 @@ Open `https://finos1.vercel.app` → click the AI FAB → widget shows **ONLINE*
 
 Constants are at the top of `agent.py`. Override `OLLAMA_MODEL` in `voiceagent/.env`.
 
-### WebSocket / SSL
+### WebSocket
 
 ```python
-WS_HOST = ""         # "" = all interfaces (IPv4 0.0.0.0 + IPv6 ::)
-WS_PORT = 8765       # serves wss://127.0.0.1:8765
-
-# SSL: _get_ssl_context() generates certs on first run via subprocess openssl
-# Cert: voiceagent/.finos_cert.pem
-# Key:  voiceagent/.finos_key.pem
+WS_HOST = "127.0.0.1"   # IPv4 loopback only — no SSL, no external access
+WS_PORT = 8765           # serves ws://127.0.0.1:8765 (plain, not wss://)
+# No SSL context — agent.py does NOT call _get_ssl_context() or pass ssl= to websockets.serve()
 ```
 
 ### Model Picker
@@ -164,7 +155,7 @@ OLLAMA_OPTIONS = {
     "mirostat":       0,
 }
 OLLAMA_THINK = False           # suppress <think> blocks (required for qwen3)
-HISTORY_TURNS = 5              # turns in RAM (was 10)
+HISTORY_TURNS = 10             # turns kept in RAM for context
 LLM_FIRST_TOKEN_TIMEOUT = 45  # seconds (was 90)
 ```
 
@@ -193,18 +184,12 @@ WHISPER_DIR     = "./models"
 ## WS_URL Selection in `index.html`
 
 ```javascript
-const WS_URL = (function() {
-  const p = new URLSearchParams(window.location.search);
-  if (p.get('ws')) return p.get('ws');             // ?ws= override
-  const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  return `${proto}//127.0.0.1:8765`;               // explicit IPv4 (not localhost)
-})();
+const WS_URL = 'ws://127.0.0.1:8765';  // always plain ws://, regardless of page protocol
 ```
 
-- **HTTPS page (finos1.vercel.app):** `wss://127.0.0.1:8765`
-- **HTTP page (local dev):** `ws://127.0.0.1:8765`
+Always `ws://127.0.0.1:8765` — even from HTTPS pages on finos1.vercel.app. The agent uses no TLS. Explicit `127.0.0.1` avoids DNS resolution to `::1` (IPv6 loopback) on some macOS versions.
 
-Explicit `127.0.0.1` avoids DNS resolution to `::1` (IPv6 loopback) on some macOS versions.
+> **Note:** The `?ws=` query-param override and `wss://` auto-detection were removed when TLS support was reverted (Phase 14J, June 2026).
 
 ---
 
@@ -234,12 +219,12 @@ Total latency: ~440ms. Covers all 96 HTML pages + all 88 calculators.
 | Symptom | Cause | Fix |
 |---|---|---|
 | `OSError: [Errno 48] address already in use` | Old process on :8765 | `lsof -ti :8765 \| xargs kill -9` |
-| Widget OFFLINE | Cert not trusted | Visit `https://127.0.0.1:8765` → Advanced → Proceed |
 | Widget OFFLINE | agent.py not started | `cd voiceagent && python agent.py` |
+| Widget OFFLINE | Wrong WS URL | Check browser console — must connect to `ws://127.0.0.1:8765` (not `wss://`) |
 | High latency | Wrong model or large ctx | Use `qwen2.5:3b`; check `num_ctx=8192` in agent.py |
 | TTS silent | No internet | edge-tts needs internet; set `USE_PIPER=true` in .env |
 | STT inaccurate | `tiny` model | `WHISPER_SIZE=small` in .env |
-| SSL error at start | Cert files corrupt | Delete `.finos_cert.pem` + `.finos_key.pem` → restart |
+| Wake-word false positives | Audio buffer state leak | Restart agent.py (model state resets on each new session) |
 
 ---
 
@@ -248,12 +233,12 @@ Total latency: ~440ms. Covers all 96 HTML pages + all 88 calculators.
 | Parameter | Before | After | Effect |
 |---|---|---|---|
 | `num_ctx` | 32768 | **8192** | 4× faster first token (biggest win) |
-| `HISTORY_TURNS` | 10 | **5** | Shorter prompt → faster prefill |
 | `num_predict` | 600 | **400** | Faster per-turn completion |
 | `num_keep` | 12 | **0** | Reduces VRAM pressure |
 | `LLM_FIRST_TOKEN_TIMEOUT` | 90 s | **45 s** | Fail fast, surface errors sooner |
 | Model picker order | largest-first | **smallest-first** | Prefers qwen2.5:3b for speed |
-| `WS_HOST` | `"127.0.0.1"` | **`""`** | Binds IPv4 + IPv6 (fixes macOS localhost→::1) |
+| `WS_HOST` | `""` (all interfaces) | **`"127.0.0.1"`** | IPv4 loopback only; no SSL, no external |
+| Protocol | `wss://` (TLS) | **`ws://`** (plain) | No cert trust step, works immediately |
 | Widget iframe load | on click | **2s preload** | Zero wait time on open |
 | Context send delay | 800ms | **200ms** | Faster profile sync |
 | Navigation delay | 1000ms | **200ms** | 5× faster navigation |

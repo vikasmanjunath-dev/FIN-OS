@@ -1,12 +1,12 @@
 # FIN-OS — Architecture
 
-> Version: 1.7 | Date: June 20, 2026 | Live: https://finos1.vercel.app
+> Version: 3.0 | Date: July 14, 2026 | Live: https://finos1.vercel.app — Phases 15–17 complete: RAG (6 phases, 508+ chunks), Arya AI backend (8-phase plan, port 7475), openwakeword, Supertrend, multi-model routing in arya-sidebar-panel.js
 
 ---
 
 ## System Overview
 
-FIN-OS splits into a **static Vercel frontend** (96 pages / 88 calculators / React sub-app / Vercel Edge Function) and a **fully local Python backend**. All AI — STT, LLM, TTS — runs on the user's machine for privacy and zero inference cost.
+FIN-OS splits into a **static Vercel frontend** (96 pages / 91 JS modules / 88 calculators / React sub-app / Vercel Edge Function) and a **fully local Python backend**. All AI — STT, LLM, TTS, RAG — runs on the user's machine for privacy and zero inference cost.
 
 ```
 Browser  (finos1.vercel.app — HTTPS)
@@ -32,10 +32,13 @@ Browser  (finos1.vercel.app — HTTPS)
     finos-context.js      User-state collector
     finos-alerts.js       Real-time alert bell
     finos-health-score.js Live 0-100 score badge
-    arya-sidebar-panel.js Arya AI panel — 4-tab sidebar (all 94 pages)
-      ├─ 💬 Chat | 🗺️ Plan | 🧠 Map | 🌅 Life
-      ├─ switchAryaTab() + lazy-render flags
-      ├─ ensureRoadmapEngine() — dynamic <script> injection
+    arya-sidebar-panel.js Arya AI panel — 7,738 lines — 7-tab sidebar (all 94 pages)
+      ├─ 💬 Chat | 🗺️ Plan | 🧠 Map | 🌅 Life | 📊 Pulse | 📅 Calendar | 🇮🇳 India
+      ├─ selectModel(taskType) → qwen2.5:3b/qwen3:8b/qwen3:14b routing
+      ├─ RAG integration: detectRagIntent() + POST /api/retrieve → rag-engine
+      ├─ AryaAgentRunner.run() — ReAct tool-calling loop (34 tools via arya-ai :7475)
+      ├─ switchAryaTab() + lazy-render flags for all 7 views
+      ├─ ensureRoadmapEngine() — dynamic <script> injection for Plan/Map/Life
       └─ AryaSidebar public API: open/close/ask/clearHistory
     arya-roadmap.js       Self-contained visual engine (935 lines)
       ├─ injectStyles() — all .rm-* / .mm-* / .tl-* CSS injected on init
@@ -61,15 +64,28 @@ Local Python
     chatbot/brain.py           Python :8000  (QFT engine)
     stock-engine/              FastAPI  (6 services, 14 endpoints)
     stock-dashboard/app.py     Flask :5001
-    rag-engine/server.py       FastAPI :7476 (RAG — see RAG_SYSTEM.md) [PLANNED]
-      ├─ Qdrant :6333            local vector DB (HNSW, 1024-dim)
-      ├─ Redis :6379             query result cache (1hr TTL)
-      └─ calls Ollama :11434     qwen3:14b (gen) + qwen3:8b (utility) + mxbai-embed-large (embed)
-         │                         │
-         ▼                         ▼
-    Supabase                   Ollama :11434
-  (Auth + Postgres + RLS,     (local LLM server)
-   + rag_documents/rag_feedback)
+    rag-engine/server.py       FastAPI :7476 (RAG — Phase 1-6 LIVE, see RAG_SYSTEM.md)
+      ├─ Qdrant :6333            local vector DB (HNSW, 1024-dim) — 508+ chunks indexed
+      │                          (94 FIN-OS pages, SEBI circulars, RBI notifications)
+      ├─ Redis :6379             query result cache (1hr TTL) + RQ ingestion job queue
+      ├─ rag-ingestion worker    separate `rq worker` process, no port — runs the 3 batch
+      │                          ingest jobs async (Phase 6); requires --worker-class
+      │                          SimpleWorker on macOS (torch/Metal fork-crash, see RAG_PHASES.md)
+      ├─ SQLite FTS5 (local file) sparse/BM25 index (`chunks_fts` table), mirrors Qdrant
+      ├─ BGE-reranker-v2-m3 + NLI faithfulness guard (PyTorch MPS, in-process, warmed at
+      │  server startup since Phase 6 — no longer taxes the first real query)
+      ├─ called directly by the browser (CORS-enabled) from js/arya-sidebar-panel.js
+      │  — NOT proxied through arya-ai, see RAG_INTEGRATION.md
+      └─ calls Ollama :11434     qwen3:8b (gen + HyDE/multi-hop) + mxbai-embed-large (embed)
+         │
+         ▼
+    Ollama :11434
+  (local LLM server — also serves qwen3:14b for the separate main-chat path)
+
+  NOTE: rag-engine does NOT write to Supabase at all — no rag_documents/rag_feedback
+  tables exist (schema.sql is written but not applied). Metadata lives only in Qdrant
+  payloads + local SQLite. Auth is real: session tokens are verified live against
+  Supabase's /auth/v1/user REST endpoint. See RAG_PHASES.md Phase 1/3 for details.
 
   ─── Vercel Edge (serverless) ───
   api/chat.js               POST /api/chat — OpenRouter proxy
@@ -110,13 +126,14 @@ Local Python
 | Stock Dashboard API | `stock-dashboard/app.py` | Flask + yfinance | http://127.0.0.1:5001 |
 | Budget Backend | `ExpenseTracker/finos_backend/` | Django REST Framework 5.0+ | http://127.0.0.1:8000 |
 | Document AI Parser | `document-ai/server.py` | FastAPI + DocParser | varies |
-| RAG Engine **[PLANNED]** | `rag-engine/server.py` | FastAPI + LlamaIndex + Qdrant + Ollama | http://127.0.0.1:7476 |
+| Arya AI Backend **[Phase 16-17 LIVE]** | `arya-ai/server.py` | FastAPI + yfinance/AMFI/CoinGecko/DuckDuckGo + ta + WeasyPrint + openpyxl + SQLite (L2 cache) | http://127.0.0.1:7475 |
+| RAG Engine **[Phase 15: Phases 1-6 LIVE]** | `rag-engine/server.py` + a separate `rq worker` process | FastAPI + Qdrant + SQLite FTS5 + Ollama + PyTorch MPS + RQ/Redis | http://127.0.0.1:7476 |
 
 ---
 
-## RAG System (Planned — Not Yet Implemented)
+## RAG System (Phase 1-6 Built — see RAG_PHASES.md for what's genuinely left)
 
-Full retrieval-augmented generation layer for grounded, cited answers over SEBI/RBI regulations, user-uploaded documents, and FIN-OS's own content. Planned for an Apple M5 24GB/1TB local machine, fully local (no cloud dependency by default). See:
+Retrieval-augmented generation layer for grounded, cited answers — covers FIN-OS's own 94-page content plus live-crawled SEBI circulars and RBI notifications (508+ chunks total), via hybrid (dense+BM25) retrieval, reranking, streaming generation with `qwen3:8b`, and a faithfulness/NLI guard on the output. User document upload (PII-scrubbed, namespace-isolated), real Supabase-auth verification, a Prometheus `/api/metrics` endpoint, a 10-question Indian finance benchmark (90% passing, see [RAG_PHASES.md](RAG_PHASES.md) Phase 5), startup model warmup, and async ingestion via a separate RQ worker (Phase 6) are built. Integrated into Arya's sidebar chat (direct browser→rag-engine calls, not proxied) and as two Agent tool-calling functions. Not built: AMFI/IT-Act/IRDAI/PFRDA/NSE-BSE sources, the RAGAS evaluation suite (attempted, abandoned on an upstream packaging bug), the full 100-question benchmark, a Grafana dashboard (deliberate), a Supabase metadata registry, and an admin/explorer UI — see [RAG_PHASES.md](RAG_PHASES.md) for the full per-phase status. Running on an Apple M5 24GB/1TB local machine, fully local — no cloud LLM dependency at all (an earlier-planned Claude API fallback was never built, see [RAG_MODELS.md](RAG_MODELS.md) §7). See:
 
 - [RAG_SYSTEM.md](RAG_SYSTEM.md) — master reference and design decisions
 - [RAG_HARDWARE.md](RAG_HARDWARE.md) — M5 RAM/storage budget and performance targets
@@ -417,9 +434,9 @@ Voices pre-loaded at page load (`speechSynthesis.getVoices()`). `speak()` called
 
 ---
 
-## Arya Sidebar Panel Architecture (v2.0, June 14 2026)
+## Arya Sidebar Panel Architecture (v7.0, July 14 2026)
 
-`js/arya-sidebar-panel.js` — 1,879 lines, IIFE pattern, injected on all 94 app pages.
+`js/arya-sidebar-panel.js` — **7,738 lines**, IIFE pattern, injected on all 94 app pages.
 
 ### Panel DOM Structure
 

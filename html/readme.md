@@ -1,6 +1,6 @@
 # FIN-OS HTML Pages
 
-> Version: 1.3 | Date: June 14, 2026  
+> Version: 1.4 | Date: July 14, 2026  
 > Total: **94 pages** in this folder + `index.html` + `login.html` = **96 pages**
 
 ---

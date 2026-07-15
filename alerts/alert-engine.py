@@ -10,6 +10,17 @@ Ports:
   HTTP API: 8001   (browser calls /alerts/subscribe, /alerts/{uid})
   WS voice agent is on 8765 — separate process
 
+Scheduled jobs (APScheduler, timezone Asia/Kolkata):
+  alert_check     — every 15 min, evaluates all 10 rules per user (not 5 min —
+                     every rule's cooldown_hours is >= 12h, so finer-grained
+                     checking can't notify any faster; see check_all_users()'s
+                     docstring)
+  market_refresh  — every 60 min, refreshes the Nifty/Sensex cache
+  morning_brief   — cron, 8:30am IST, broadcasts a market-wide brief via the
+                     existing Web Push mechanism to every push subscriber
+                     (not per-user financial advice — that's the *separate*,
+                     client-triggered "Proactive Brief" in arya-sidebar-panel.js)
+
 Dependencies (install via requirements.txt):
   fastapi uvicorn apscheduler supabase pywebpush yfinance python-dotenv httpx
 """
@@ -95,6 +106,21 @@ _market_cache: dict[str, Any] = {}
 _market_updated_at: float = 0
 _MARKET_CACHE_TTL = 900  # 15 minutes
 
+def _index_change(symbol: str) -> dict | None:
+    """One index's last-close vs prev-close. Returns None on bad/short history."""
+    hist = yf.Ticker(symbol).history(period="5d")
+    if len(hist) < 2:
+        return None
+    today_close = float(hist["Close"].iloc[-1])
+    prev_close  = float(hist["Close"].iloc[-2])
+    return {
+        "value":      round(today_close, 2),
+        "prev":       round(prev_close, 2),
+        "change_pct": round(((today_close - prev_close) / prev_close) * 100, 2),
+        "change_abs": round(today_close - prev_close, 2),
+    }
+
+
 def get_market_data() -> dict:
     """Fetch Nifty 50 and Sensex data with caching."""
     global _market_cache, _market_updated_at
@@ -103,28 +129,41 @@ def get_market_data() -> dict:
         return _market_cache
 
     try:
-        ticker = yf.Ticker("^NSEI")
-        hist   = ticker.history(period="5d")
+        nifty = _index_change("^NSEI")
+        # Sensex — docstring always claimed this, code never actually fetched it
+        # (only Nifty). Same _index_change helper, separate try/except so a
+        # Sensex hiccup can't take Nifty down with it.
+        try:
+            sensex = _index_change("^BSESN")
+        except Exception as e:
+            log.warning("Sensex fetch failed: %s", e)
+            sensex = None
 
-        if len(hist) >= 2:
-            today_close = float(hist["Close"].iloc[-1])
-            prev_close  = float(hist["Close"].iloc[-2])
-            change_pct  = ((today_close - prev_close) / prev_close) * 100
-
+        if nifty:
             _market_cache = {
-                "nifty_value":      round(today_close, 2),
-                "nifty_prev":       round(prev_close, 2),
-                "nifty_change_pct": round(change_pct, 2),
-                "nifty_change_abs": round(today_close - prev_close, 2),
+                "nifty_value":      nifty["value"],
+                "nifty_prev":       nifty["prev"],
+                "nifty_change_pct": nifty["change_pct"],
+                "nifty_change_abs": nifty["change_abs"],
                 "updated_at":       datetime.now(timezone.utc).isoformat(),
             }
         else:
             _market_cache = {"nifty_value": 0, "nifty_change_pct": 0}
 
+        if sensex:
+            _market_cache.update({
+                "sensex_value":      sensex["value"],
+                "sensex_prev":       sensex["prev"],
+                "sensex_change_pct": sensex["change_pct"],
+                "sensex_change_abs": sensex["change_abs"],
+            })
+
         _market_updated_at = time.time()
-        log.info("Market data refreshed: Nifty %.0f (%.2f%%)",
+        log.info("Market data refreshed: Nifty %.0f (%.2f%%) | Sensex %.0f (%.2f%%)",
                  _market_cache.get("nifty_value", 0),
-                 _market_cache.get("nifty_change_pct", 0))
+                 _market_cache.get("nifty_change_pct", 0),
+                 _market_cache.get("sensex_value", 0),
+                 _market_cache.get("sensex_change_pct", 0))
 
     except Exception as e:
         log.warning("Market data fetch failed: %s", e)
@@ -338,7 +377,15 @@ def create_alert(sb: Client, user_id: str, rule, alert_data: dict) -> dict | Non
 # ── Core scheduler job ────────────────────────────────────────────────────────
 async def check_all_users():
     """
-    Main scheduled job — runs every 15 minutes.
+    Main scheduled job — runs every 15 minutes, not the 5min a literal reading
+    of the plan would suggest. Checked, not assumed: every rule in rules.py
+    has cooldown_hours >= 12 (the shortest is the morning/afternoon spending
+    check at 12h; most are 24h-30 days). A rule that can't re-fire for at
+    least 12 hours gets notified on the same cycle either way — checking
+    every 5 minutes instead of 15 would triple the Supabase query load
+    (O(users x rules) per cycle) for zero practical improvement in alert
+    latency. 15 minutes is the deliberate choice; 5 minutes only makes sense
+    if a genuinely intraday, sub-hour-cooldown rule gets added later.
     For each active user, evaluates all 10 alert rules.
     """
     try:
@@ -405,6 +452,75 @@ async def check_all_users():
 async def refresh_market_data():
     """Refresh market data cache every 60 minutes."""
     get_market_data()
+
+
+# ── Morning brief (Phase 7 gap — was interval-only, no time-of-day job) ───────
+def generate_market_brief() -> dict:
+    """
+    Build a market-wide (not per-user) brief: Nifty + Sensex move overnight.
+    Returns a {title, message} pair ready for send_push_to_user's payload.
+    """
+    m = get_market_data()
+    nifty_pct  = m.get("nifty_change_pct", 0)
+    nifty_val  = m.get("nifty_value", 0)
+    sensex_pct = m.get("sensex_change_pct")
+    sensex_val = m.get("sensex_value")
+
+    def _arrow(pct):
+        return "▲" if pct > 0 else "▼" if pct < 0 else "▬"
+
+    lines = [f"Nifty {_arrow(nifty_pct)} {nifty_val:,.0f} ({nifty_pct:+.2f}%)"]
+    if sensex_val is not None:
+        lines.append(f"Sensex {_arrow(sensex_pct)} {sensex_val:,.0f} ({sensex_pct:+.2f}%)")
+
+    return {
+        "title":   "Good morning — market open",
+        "message": " · ".join(lines),
+    }
+
+
+async def morning_brief_job():
+    """
+    Cron job, 8:30am IST (scheduler runs with timezone="Asia/Kolkata", set at
+    startup below). Broadcasts one market-wide brief via the existing Web Push
+    mechanism — not a new WebSocket broadcaster; send_push_to_user already
+    handles VAPID signing, per-subscription delivery, and pruning dead
+    subscriptions, so this reuses it rather than standing up a second
+    notification path.
+
+    NOTE: schema.sql's alert_preferences.channels supports a "voice" channel
+    (Arya literally speaking the brief), but nothing in this file ever checks
+    for it — push notifications only. Wiring real voice playback means the
+    always-running voiceagent process would need to be told to speak
+    unprompted from a separate process, which doesn't exist today; left as a
+    known, flagged gap rather than guessed at.
+    """
+    try:
+        sb = _get_supabase()
+    except RuntimeError as e:
+        log.error("Supabase init failed: %s", e)
+        return
+
+    brief = generate_market_brief()
+
+    try:
+        r = sb.table("push_subscriptions").select("user_id").execute()
+        user_ids = list({row["user_id"] for row in (r.data or [])})
+    except Exception as e:
+        log.error("Could not fetch push subscribers: %s", e)
+        return
+
+    log.info("Morning brief: %s — broadcasting to %d subscribers", brief["message"], len(user_ids))
+    for user_id in user_ids:
+        try:
+            send_push_to_user(sb, user_id, {
+                "title":      brief["title"],
+                "message":    brief["message"],
+                "rule_id":    "morning_brief",
+                "action_url": "/html/dashboard.html",
+            })
+        except Exception as e:
+            log.error("Morning brief push failed for %s: %s", user_id[:8], e)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1217,6 +1333,8 @@ async def startup():
                       id="alert_check",    replace_existing=True)
     scheduler.add_job(refresh_market_data, "interval", minutes=60,
                       id="market_refresh", replace_existing=True)
+    scheduler.add_job(morning_brief_job,   "cron", hour=8, minute=30,
+                      id="morning_brief",  replace_existing=True)
     scheduler.start()
 
     log.info("FIN-OS Alert Engine v2 started — %d rules loaded | Metrics: /metrics | Cache: TTL=5min",
