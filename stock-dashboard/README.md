@@ -8,15 +8,11 @@ A production-grade, real-time stock market dashboard with a Gen Z dark-mode UI.
 
 ```
 stock-dashboard/
-├── backend/
-│   ├── app.py              ← Flask API server
-│   └── requirements.txt    ← Python dependencies
-└── frontend/
-    ├── index.html          ← Main dashboard page
-    ├── css/
-    │   └── styles.css      ← Full styling (dark/light theme)
-    └── js/
-        └── app.js          ← All JS: charts, watchlist, compare, particles
+├── app.py              ← Flask API server
+├── requirements.txt    ← Python dependencies
+├── index.html          ← Main dashboard page
+├── styles.css          ← Full styling (dark/light theme)
+└── app.js              ← All JS: charts, watchlist, compare, particles
 ```
 
 ---
@@ -26,7 +22,7 @@ stock-dashboard/
 ### Step 1 — Backend (Python)
 
 ```bash
-cd stock-dashboard/backend
+cd stock-dashboard
 
 # Create a virtual environment (recommended)
 python3 -m venv venv
@@ -46,10 +42,10 @@ The API runs at: **http://localhost:5000**
 
 ### Step 2 — Frontend
 
-Open `frontend/index.html` directly in your browser, **or** serve it with a local server:
+Open `index.html` directly in your browser, **or** serve it with a local server:
 
 ```bash
-cd stock-dashboard/frontend
+cd stock-dashboard
 python3 -m http.server 8080
 ```
 

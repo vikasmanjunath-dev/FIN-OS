@@ -1,7 +1,8 @@
 # Voice AI — Complete Reference
 
-> Version: 10 | Date: June 14, 2026  
-> File: `voiceagent/agent.py` · WebSocket `:8765` · HTTPS proxy `:8767` · UI: `voiceagent/index.html`
+> Version: 11 | Date: July 14, 2026  
+> File: `voiceagent/agent.py` · WebSocket `ws://127.0.0.1:8765` (plain — no TLS) · UI: `voiceagent/index.html`  
+> Wake-word: openwakeword "Hey Jarvis" opt-in (👂 toggle) — `HISTORY_TURNS=10`, `WS_HOST="127.0.0.1"`
 
 ---
 

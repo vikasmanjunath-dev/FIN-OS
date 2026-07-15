@@ -179,10 +179,34 @@ def web_search(query: str, max_results: int = 5) -> list[dict]:
 
 # ── URL Content Extraction ────────────────────────────────────────────────────
 
+def _extract_with_bs4(html: str) -> str:
+    """The original heuristic — CSS class name guessing. Kept as a fallback,
+    not the primary path anymore; see read_url()'s docstring for why."""
+    soup = BeautifulSoup(html, "lxml")
+    for tag in soup(["script", "style", "nav", "footer", "header", "aside", "form"]):
+        tag.decompose()
+    article = soup.find("article") or soup.find(class_=re.compile(r"article|content|story|post"))
+    text = article.get_text(" ", strip=True) if article else soup.get_text(" ", strip=True)
+    return re.sub(r"\s{2,}", " ", text).strip()
+
+
 def read_url(url: str, max_chars: int = 3000) -> str:
     """
     Fetch a URL and return clean article text (no HTML).
     Used by the agent's read_url tool.
+
+    trafilatura first, BeautifulSoup-heuristic fallback — not a blind library
+    swap. Tested both against real pages (a Wikipedia infobox-heavy article
+    and RBI's notification listing page, which turned out to be a JS-shell
+    with no real content in the static HTML at all) and got mixed results:
+    each method fails differently on non-prose pages — the old heuristic
+    sometimes strips too aggressively (returned 37 chars of a 173KB RBI page
+    because nav/header/footer removal ate the whole thing), trafilatura
+    sometimes includes too much nav cruft on infobox-heavy pages. Neither
+    is uniformly better, so this keeps both: trafilatura is purpose-built for
+    exactly the genuine-prose-article case this tool is mostly used for (news,
+    blog posts), with the old method as a safety net if trafilatura comes back
+    empty or suspiciously short.
     """
     key = f"url:{hashlib.md5(url.encode()).hexdigest()[:12]}"
     cached = cache.get(key, 1800)
@@ -196,15 +220,12 @@ def read_url(url: str, max_chars: int = 3000) -> str:
     try:
         r = requests.get(url, headers=headers, timeout=10, allow_redirects=True)
         r.raise_for_status()
-        soup = BeautifulSoup(r.text, "lxml")
-        # Remove boilerplate
-        for tag in soup(["script", "style", "nav", "footer", "header", "aside", "form"]):
-            tag.decompose()
-        # Try article body first
-        article = soup.find("article") or soup.find(class_=re.compile(r"article|content|story|post"))
-        text = article.get_text(" ", strip=True) if article else soup.get_text(" ", strip=True)
-        # Collapse whitespace
-        text = re.sub(r"\s{2,}", " ", text).strip()
+
+        import trafilatura
+        text = trafilatura.extract(r.text, url=url)
+        if not text or len(text) < 200:
+            text = _extract_with_bs4(r.text)
+
         result = text[:max_chars]
         cache.set(key, result)
         return result

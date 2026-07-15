@@ -26,7 +26,7 @@
       color:    '#22d3a6',
       level:    1,
       tagline:  'Tracking + 1 goal + basics',
-      unlocks:  ['track-finances', 'calculator', 'money-ai', 'learn-mf', 'learn-equity', 'onboarding', 'dashboard'],
+      unlocks:  ['track-finances', 'calculator', 'money-ai', 'learn-mf', 'learn-equity', 'onboarding', 'dashboard', 'markets'],
       arya_style: 'simple',
       description: 'Perfect if you\'re just starting your financial journey. Clean, simple, Arya explains everything.',
     },

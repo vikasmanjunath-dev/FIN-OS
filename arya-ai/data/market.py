@@ -22,6 +22,16 @@ from config import (
 )
 
 # ── NSE Session Manager ────────────────────────────────────────────────────────
+# This custom session, not the `nsepy` library originally specified — checked,
+# not assumed: nsepy's last PyPI release was 2020-03-07 (verified via PyPI's
+# API), and a real test against the live NSE site today fails immediately —
+# `nsepy.get_quote()` hardcodes `www1.nseindia.com` (a legacy subdomain) and
+# gets an SSL handshake error (TLSV1_ALERT_INTERNAL_ERROR) before even
+# reaching a real endpoint. Switching to nsepy would be a regression, not the
+# spec-compliance fix it looks like on paper — this custom session (live
+# cookies against the *current* nseindia.com, yfinance fallback if NSE itself
+# blocks the request) is the one that actually works against NSE as it exists
+# today, six years after nsepy's last update.
 
 class _NSESession:
     """Keeps a live NSE session with cookies so their API responds."""
@@ -257,6 +267,19 @@ def search_mf(query: str, limit: int = 10) -> list[dict]:
 # ── Gold & Silver ──────────────────────────────────────────────────────────────
 
 def get_commodities() -> dict:
+    """
+    Gold/silver are a *global-price-converted-to-INR estimate*, not MCX's
+    actual quoted price — labels corrected to say so after investigating
+    MCX's real site properly (not assumed): mcxindia.com/market-data/
+    spot-market-price has the right table headers in static HTML, but the
+    price cells themselves are "Data not available" — populated by
+    JavaScript/AJAX after load, same pattern confirmed on AMFI's and RBI's
+    sites (see get_fx_rates()'s docstring). A real MCX scrape would need a
+    headless browser, which this project has consistently avoided.
+    The number shown here will run a few % below MCX's real traded price —
+    MCX's price bakes in import duty (~6-15%), GST, and a local market
+    premium/discount that a global-futures-to-INR conversion doesn't capture.
+    """
     key = "commodities"
     cached = cache.get(key, TTL_GOLD)
     if cached:
@@ -264,8 +287,8 @@ def get_commodities() -> dict:
 
     data = {}
     commodity_tickers = {
-        "GOLD (10g MCX)":   "GC=F",    # Gold futures USD/oz → convert
-        "SILVER (1kg MCX)": "SI=F",
+        "GOLD (10g, global equiv.)":   "GC=F",    # Gold futures USD/oz → convert
+        "SILVER (1kg, global equiv.)": "SI=F",
         "CRUDE OIL (bbl)":  "CL=F",
         "NATURAL GAS":      "NG=F",
     }
@@ -286,10 +309,12 @@ def get_commodities() -> dict:
             # Convert gold: USD/troy oz → INR/10g
             if "GOLD" in label:
                 price_inr = round(price_usd * usd_inr / 31.1035 * 10, 0)
-                data[label] = {"price": price_inr, "unit": "₹/10g", "change_pct": chg_pct}
+                data[label] = {"price": price_inr, "unit": "₹/10g", "change_pct": chg_pct,
+                               "note": "global futures price converted to INR, not MCX's actual quote"}
             elif "SILVER" in label:
                 price_inr = round(price_usd * usd_inr / 31.1035 * 1000, 0)
-                data[label] = {"price": price_inr, "unit": "₹/kg", "change_pct": chg_pct}
+                data[label] = {"price": price_inr, "unit": "₹/kg", "change_pct": chg_pct,
+                               "note": "global futures price converted to INR, not MCX's actual quote"}
             else:
                 data[label] = {"price": round(price_usd, 2), "unit": "USD", "change_pct": chg_pct}
         except Exception:
@@ -340,6 +365,19 @@ def get_crypto(coins: list[str] | None = None) -> dict:
 # ── Forex / FX ────────────────────────────────────────────────────────────────
 
 def get_fx_rates() -> dict:
+    """
+    yfinance forex tickers, not RBI's official reference rate — investigated
+    properly (not assumed): RBI's ReferenceRateArchive.aspx is an ASP.NET
+    WebForms page whose data only loads via __doPostBack (no plain URL
+    returns it — confirmed via direct fetch, zero rate-shaped numbers
+    anywhere in the static HTML). RBI's DBIE data portal is an Angular SPA
+    shell, same story. Both need a headless browser to scrape, which this
+    project has consistently avoided elsewhere (see AMFI's NAV page,
+    investigated and found infeasible the same way during rag-engine's
+    build). yfinance's live forex tickers are the pragmatic working
+    alternative, same call as keeping AMFI's NAVAll.txt flat file instead
+    of scraping their JS-rendered site.
+    """
     key = "fx:rates"
     cached = cache.get(key, TTL_FX)
     if cached:

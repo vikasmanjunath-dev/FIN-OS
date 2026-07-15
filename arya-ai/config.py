@@ -19,6 +19,11 @@ OLLAMA_MODEL  = os.getenv("OLLAMA_MODEL", "qwen3:14b")
 # ── Database ──────────────────────────────────────────────────────────────────
 DB_PATH       = BASE_DIR / "db" / "arya.db"
 
+# ── Supabase (only used by /api/portfolio/summary — every other endpoint here
+# is public market data with no user namespace) ──────────────────────────────
+SUPABASE_URL       = os.getenv("SUPABASE_URL", "")
+SUPABASE_ANON_KEY  = os.getenv("SUPABASE_ANON_KEY", "")
+
 # ── Cache TTLs (seconds) ──────────────────────────────────────────────────────
 TTL_QUOTE     = int(os.getenv("TTL_QUOTE",   10))      # live stock quotes
 TTL_INDEX     = int(os.getenv("TTL_INDEX",   15))      # Nifty / Sensex

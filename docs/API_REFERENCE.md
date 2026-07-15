@@ -1,6 +1,6 @@
 # FIN-OS — API Reference
 
-> Version: 1.5 | Date: June 20, 2026  
+> Version: 1.8 | Date: June 21, 2026 — Phase 6: the three RAG ingest endpoints are now async (return a job_id immediately, require a separate `rq worker` process); added `GET /api/ingest/status/{job_id}`
 > All APIs run locally. None are deployed to Vercel (static-only).
 
 ---
@@ -396,20 +396,28 @@ curl http://localhost:8000/api/summary/ -H "Authorization: Token <token>"
 
 ---
 
-## RAG Engine API — `rag-engine/server.py` (FastAPI :7476) **[PLANNED]**
+## RAG Engine API — `rag-engine/server.py` (FastAPI :7476) **[Phase 1-5 LIVE]**
 
-Full retrieval-augmented generation API — hybrid retrieval (Qdrant + BM25) → rerank → cited, streamed generation via `qwen3:14b`. Not yet implemented; full endpoint reference, request/response examples, and error codes are documented separately in **[RAG_API.md](RAG_API.md)**.
+Retrieval-augmented generation API — hybrid retrieval (Qdrant + SQLite FTS5) → rerank → cited, streamed generation via `qwen3:8b`, with optional HyDE/multi-hop query expansion and a post-generation faithfulness/NLI check. Full endpoint reference, real captured request/response examples, and a built-vs-planned breakdown are in **[RAG_API.md](RAG_API.md)**.
 
 Quick summary:
 
-| Endpoint | Purpose |
-|---|---|
-| `POST /api/query` | Full RAG pipeline, SSE streaming, returns answer + citations |
-| `POST /api/upload` | Ingest a user document into their private namespace |
-| `POST /api/search-regulations` | Targeted search restricted to regulatory documents |
-| `POST /api/explain` | Explain a passage from a user's own uploaded document |
-| `POST /api/feedback` | Thumbs up/down on a RAG answer |
-| `GET /api/health` | Service health check (Ollama/Qdrant/Redis status) |
+| Endpoint | Purpose | Status |
+|---|---|---|
+| `POST /api/query` | Full RAG pipeline, SSE streaming, returns answer + citations + `flagged_sentences`. Accepts `use_hyde`, `multi_hop`, `doc_type` | ✅ Built |
+| `POST /api/retrieve` | Retrieval + rerank only, no generation (used by Arya's sidebar for fast grounding context) | ✅ Built, Phase 4 |
+| `POST /api/search` | Raw vector search, no rerank (debugging) | ✅ Built |
+| `POST /api/upload` | Ingest a user document (PDF/TXT/MD/HTML) into their private namespace — parse → PII scrub → chunk → embed → dual-index | 🟡 Built (Phase 3), pipeline-verified directly; no live authenticated HTTP upload exercised yet |
+| `POST /api/ingest/finos-pages` | Re-index all 94 FIN-OS pages | ✅ Built. **Async since Phase 6** — returns `{"job_id","status":"queued"}` immediately; poll `GET /api/ingest/status/{job_id}`. Requires a separate `rq worker` process — see [RAG_API.md](RAG_API.md). |
+| `POST /api/ingest/sebi-circulars` | Crawl and index live SEBI circulars | ✅ Built, Phase 3. Async since Phase 6, same as above. |
+| `POST /api/ingest/rbi-notifications` | Crawl and index live RBI notifications | ✅ Built, Phase 3. Async since Phase 6, same as above. |
+| `GET /api/ingest/status/{job_id}` | Poll an ingestion job's status/result | ✅ Built, Phase 6 |
+| `GET /api/health` | Service health check (Ollama/Qdrant status, chunk count, `ingest_workers_running`) | ✅ Built |
+| ~~`POST /api/search-regulations`~~ | Targeted search + conflict detection for superseded regulations | ❌ **Never built** — earlier drafts of this doc and [RAG_SECURITY.md](RAG_SECURITY.md) described this as planned/in-progress; it doesn't exist. `doc_type` filtering on `/api/query`/`/api/retrieve` is the closest real equivalent. |
+| ~~`POST /api/explain`~~ | Explain a passage from a user's own uploaded document | ❌ Not built, not currently planned |
+| ~~`POST /api/feedback`~~ | Thumbs up/down on a RAG answer | ❌ Not built — `rag_feedback` table doesn't exist (Supabase schema written, never applied) |
+
+**Auth gap is now closed.** Earlier drafts of this doc flagged "no authentication is checked on `user_id`" as a pre-Phase-3 gap. It's fixed: any request claiming a `user_id` now has it verified against a live Supabase session token via `/auth/v1/user`, with a 60-second in-process cache. See [RAG_SECURITY.md](RAG_SECURITY.md) §4. **Remaining real gap:** no cascade from FIN-OS account deletion into RAG data — deleting a FIN-OS account does not purge that user's RAG chunks. See [RAG_SECURITY.md](RAG_SECURITY.md) §5.
 
 ---
 

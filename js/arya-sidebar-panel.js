@@ -31,9 +31,26 @@
     'http://127.0.0.1:11434/api/generate',
     'https://127.0.0.1:8767/api/generate',
   ];
-  const OLLAMA_MODEL  = 'qwen3:14b';
+  const OLLAMA_MODEL  = 'qwen3:14b';   // default/fallback — kept for back-compat, see selectModel()
   const TIMEOUT_MS    = 45_000;
+
+  // Phase 8 multi-model routing — picks by task type, not one model for everything.
+  // Plan named qwen2.5:3b/deepseek-r1:14b/qwen3:14b; deepseek-r1:14b is not pulled
+  // on this machine (confirmed via `ollama list`) and isn't pulled automatically
+  // here — a multi-GB model download is a real, consequential action, not
+  // something to do silently as a side effect of a routing fix. qwen3:14b (the
+  // existing default, already pulled) stands in for the "deep reasoning" tier
+  // instead; everything else uses what's actually installed.
+  const OLLAMA_MODELS = {
+    quick_quote:   'qwen2.5:3b',   // fast/focused — matches the existing "auto-insight" 320-token path
+    deep_analysis: 'qwen3:14b',    // tool-calling agent loop — multi-step reasoning, needs the strongest model
+    chat:          'qwen3:8b',     // default conversational tier — balances quality and latency
+  };
+  function selectModel(taskType) {
+    return OLLAMA_MODELS[taskType] || OLLAMA_MODEL;
+  }
   const ARYA_API_BASE = 'http://localhost:7475';   // arya-ai FastAPI backend
+  const RAG_API_BASE  = 'http://localhost:7476';   // rag-engine FastAPI backend (Phase 4)
   let   _activeEndpoint = null;
 
   /* ── Arya AI backend call ──────────────────────────────────────────────── */
@@ -57,6 +74,136 @@
     try {
       const r = await fetch(`${ARYA_API_BASE}${path}`, { signal: AbortSignal.timeout(10000) });
       return r.ok ? r.json() : { error: `HTTP ${r.status}` };
+    } catch (e) {
+      return { error: String(e) };
+    }
+  }
+
+  /* ── Live candlestick chart (Lightweight Charts, MIT, TradingView) ───────
+     Same library + visual style as js/trading-simulator.js's chart, but a
+     self-contained overlay rather than reusing that file's module-scoped
+     chart/series variables — keeps this independent of a 7000+ line file's
+     existing tab/chat rendering pipeline rather than risking a regression
+     there. Lazy-loads the CDN script on first use, not on every page load. */
+  const _LWC_CDN = 'https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js';
+  let _lwcLoading = null;
+  let _chartInstance = null;
+
+  function _loadLightweightCharts() {
+    if (window.LightweightCharts) return Promise.resolve();
+    if (_lwcLoading) return _lwcLoading;
+    _lwcLoading = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = _LWC_CDN;
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('Failed to load Lightweight Charts from CDN'));
+      document.head.appendChild(script);
+    });
+    return _lwcLoading;
+  }
+
+  function _ensureChartOverlay() {
+    if (document.getElementById('arya-chart-overlay')) return;
+    const style = document.createElement('style');
+    style.id = 'arya-chart-css';
+    style.textContent = `
+#arya-chart-overlay { position: fixed; inset: 0; z-index: 999995; background: rgba(0,0,0,.75);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  display: none; align-items: center; justify-content: center; }
+#arya-chart-overlay.open { display: flex; }
+#arya-chart-box { width: min(900px, 92vw); height: min(560px, 80vh); background: #0a0d18;
+  border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 16px;
+  display: flex; flex-direction: column; }
+#arya-chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+#arya-chart-title { color: #fff; font-weight: 800; font-size: 15px; font-family: -apple-system, sans-serif; }
+#arya-chart-close { background: none; border: none; color: rgba(255,255,255,.5); font-size: 20px;
+  cursor: pointer; line-height: 1; padding: 4px; }
+#arya-chart-close:hover { color: #fff; }
+#arya-chart-container { flex: 1; min-height: 0; }
+#arya-chart-loading { color: rgba(255,255,255,.5); font-size: 13px; text-align: center;
+  padding-top: 40px; font-family: -apple-system, sans-serif; }`;
+    document.head.appendChild(style);
+
+    const overlay = document.createElement('div');
+    overlay.id = 'arya-chart-overlay';
+    overlay.innerHTML = `<div id="arya-chart-box">
+      <div id="arya-chart-header">
+        <div id="arya-chart-title">Chart</div>
+        <button id="arya-chart-close" aria-label="Close chart">✕</button>
+      </div>
+      <div id="arya-chart-container"><div id="arya-chart-loading">Loading…</div></div>
+    </div>`;
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeStockChart(); });
+    overlay.querySelector('#arya-chart-close').addEventListener('click', closeStockChart);
+  }
+
+  function closeStockChart() {
+    const overlay = document.getElementById('arya-chart-overlay');
+    if (overlay) overlay.classList.remove('open');
+    if (_chartInstance) { _chartInstance.remove(); _chartInstance = null; }
+  }
+
+  async function showStockChart(symbol, exchange = 'NSE', period = '6mo') {
+    _ensureChartOverlay();
+    const overlay   = document.getElementById('arya-chart-overlay');
+    const container = document.getElementById('arya-chart-container');
+    document.getElementById('arya-chart-title').textContent = `${symbol} (${exchange}) — ${period}`;
+    container.innerHTML = '<div id="arya-chart-loading">Loading…</div>';
+    overlay.classList.add('open');
+
+    try {
+      await _loadLightweightCharts();
+      const hist = await aryaAPI('get_history', { symbol, exchange, period, interval: '1d' });
+      if (hist.error || !hist.ohlcv || !hist.ohlcv.length) {
+        container.innerHTML = `<div id="arya-chart-loading">No chart data: ${hist.error || 'empty response for ' + symbol}</div>`;
+        return false;
+      }
+
+      container.innerHTML = '';
+      const chart = LightweightCharts.createChart(container, {
+        layout:     { background: { color: '#0a0d18' }, textColor: '#9ca3af' },
+        grid:       { vertLines: { color: 'rgba(255,255,255,0.03)' }, horzLines: { color: 'rgba(255,255,255,0.03)' } },
+        crosshair:  { mode: LightweightCharts.CrosshairMode.Normal },
+        rightPriceScale: { borderColor: 'rgba(255,255,255,0.07)' },
+        timeScale:  { borderColor: 'rgba(255,255,255,0.07)', timeVisible: true },
+        width: container.clientWidth, height: container.clientHeight,
+      });
+
+      const candleSeries = chart.addCandlestickSeries({
+        upColor: '#26a17b', downColor: '#e05260',
+        borderUpColor: '#26a17b', borderDownColor: '#e05260',
+        wickUpColor: '#26a17b', wickDownColor: '#e05260',
+      });
+      candleSeries.setData(hist.ohlcv.map(b => ({ time: b.date, open: b.open, high: b.high, low: b.low, close: b.close })));
+
+      const volumeSeries = chart.addHistogramSeries({
+        priceFormat: { type: 'volume' }, priceScaleId: 'volume', color: '#ffffff15',
+      });
+      chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
+      volumeSeries.setData(hist.ohlcv.map(b => ({ time: b.date, value: b.volume })));
+
+      chart.timeScale().fitContent();
+      _chartInstance = chart;
+      return true;
+    } catch (e) {
+      container.innerHTML = `<div id="arya-chart-loading">Chart failed to load: ${e.message}</div>`;
+      return false;
+    }
+  }
+
+  /* ── RAG engine backend call (Phase 4) ──────────────────────────────────── */
+  async function ragAPI(path, body, timeoutMs = 8000) {
+    try {
+      const r = await fetch(`${RAG_API_BASE}${path}`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(body),
+        signal:  AbortSignal.timeout(timeoutMs),
+      });
+      if (!r.ok) return { error: `HTTP ${r.status}` };
+      return await r.json();
     } catch (e) {
       return { error: String(e) };
     }
@@ -925,7 +1072,7 @@
   }
 
   // numPredict: 320 for auto-insights (fast, focused), 600 for user questions (detailed)
-  async function streamFromOllama(systemPrompt, userPrompt, onToken, numPredict = 450) {
+  async function streamFromOllama(systemPrompt, userPrompt, onToken, numPredict = 450, taskType = 'chat') {
     const endpoint = await _findEndpoint();
     const ctrl = new AbortController();
     const tid  = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
@@ -935,7 +1082,7 @@
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({
-          model:   OLLAMA_MODEL,
+          model:   selectModel(taskType),
           prompt:  userPrompt,
           system:  systemPrompt,
           stream:  true,
@@ -1270,6 +1417,33 @@ RULES (non-negotiable):
       _newsCache = result; _newsCacheTs = Date.now();
       return result;
     } catch { return _newsCache || ''; }
+  }
+
+  /* ══ RAG CONTEXT INJECTION (Phase 4) ════════════════════════════════════════
+   * Mirrors fetchMacroNews() exactly: cached, capped wait, never blocks chat.
+   * Main Chat tab (sendMessage→streamFromOllama) is a single direct Ollama
+   * call — no tool loop — so grounding context has to be pre-fetched and
+   * injected into that one call's system prompt, the same way macro news is.
+   * See docs/RAG_INTEGRATION.md for why this differs from the original
+   * (speculative, written before this file was read) AgentTools-only design.
+   */
+  const _RAG_INTENT_RE = /\b(section\s?\d|circular|notification|sebi|rbi|amfi|regulation|regulatory|kcc|kisan credit|directions?,?\s*20\d\d|rule\b|act\b|compliance|directive)\b/i;
+
+  function detectRagIntent(userText) {
+    return _RAG_INTENT_RE.test(userText || '');
+  }
+
+  async function fetchRagContext(userText) {
+    try {
+      // 4500ms not 2500ms: measured retrieve+rerank baseline alone is 1.1-2.5s on
+      // this hardware (docs/RAG_HARDWARE.md §4), and this call runs concurrently
+      // with the main chat's own Ollama generate request, which contends for the
+      // same local Ollama process — 2.5s aborted consistently in real browser
+      // testing even with otherwise-idle models. See docs/RAG_PHASES.md Phase 4.
+      const d = await ragAPI('/api/retrieve', { query: userText, top_k: 3, stream: false }, 4500);
+      if (d.error || !Array.isArray(d.chunks) || !d.chunks.length) return '';
+      return d.chunks.map(c => `[${c.doc_title}]\n${c.text}`).join('\n\n');
+    } catch { return ''; }
   }
 
   /* ══ HEATMAP CALENDAR ════════════════════════════════════════════════════ */
@@ -1648,7 +1822,12 @@ RULES (non-negotiable):
       { name: 'live_news',      desc: 'Latest financial news with AI sentiment (bullish/bearish/neutral) from ET/MC/BS/Mint', args: { limit: 'number of articles (default 8)' } },
       { name: 'search_web',     desc: 'Search the web (DuckDuckGo) for any financial topic, company, or news', args: { query: 'search query', max: 'results (default 5)' } },
       { name: 'read_url',       desc: 'Read and extract clean text from any URL — annual reports, news articles, SEBI filings', args: { url: 'full URL to read', max_chars: 'max chars (default 2500)' } },
-      { name: 'analyze_stock',  desc: 'Full technical analysis: RSI, MACD, Bollinger Bands, EMA, SMA200, ADX, Volume signal + BUY/HOLD/SELL verdict', args: { symbol: 'NSE symbol e.g. INFY', exchange: 'NSE or BSE (default NSE)' } },
+      { name: 'analyze_stock',  desc: 'Full technical analysis: RSI, MACD, Bollinger Bands, EMA, SMA200, ADX, Supertrend, Volume signal + BUY/HOLD/SELL verdict', args: { symbol: 'NSE symbol e.g. INFY', exchange: 'NSE or BSE (default NSE)' } },
+      { name: 'generate_report', desc: 'Generate a stock or market-overview report and get a link to open — HTML or PDF. For a portfolio report use the app\'s own export button, not this (it needs your login, which this tool cannot carry)', args: { type: '"quote" or "market"', symbol: 'required if type=quote, e.g. RELIANCE', format: '"html" or "pdf" (default html)' } },
+      { name: 'show_chart',     desc: 'Open a live candlestick + volume chart for a stock right in this panel — use when the user asks to see/view/plot a chart, not for text-only analysis (use analyze_stock for that)', args: { symbol: 'NSE/BSE symbol e.g. RELIANCE', exchange: 'NSE or BSE (default NSE)', period: '1mo|3mo|6mo|1y|2y (default 6mo)' } },
+      /* ── RAG TOOLS (requires rag-engine backend on port 7476) ──────────── */
+      { name: 'rag_query',      desc: 'Ask a question grounded in indexed SEBI/RBI regulations + FIN-OS docs, with cited answer — REAL retrieved text, not guesses', args: { query: 'the question to answer' } },
+      { name: 'rag_search_regulations', desc: 'Search ONLY SEBI/RBI regulatory text (no FIN-OS content) — use for "what does the circular/notification say" questions', args: { query: 'regulation topic or keyword' } },
     ],
 
     async execute(name, args = {}) {
@@ -2270,13 +2449,55 @@ Verdict: ${d.verdict || '—'} | Bullish Score: ${d.score || 0}/100
 ${sigLines.join('\n')}`;
         }
 
+        case 'generate_report': {
+          const type = (args.type || '').toLowerCase();
+          const fmt  = (args.format || 'html').toLowerCase();
+          const d = await aryaAPI('generate_report', { type, symbol: args.symbol, format: fmt });
+          if (d.error) return `Couldn't generate that report: ${d.error}`;
+          return `Report ready — open it here: ${d.report_url}\n(${fmt.toUpperCase()}, opens in a new tab)`;
+        }
+
+        case 'show_chart': {
+          const sym = (args.symbol || '').toUpperCase();
+          if (!sym) return 'Please provide a stock symbol to chart.';
+          const exc = (args.exchange || 'NSE').toUpperCase();
+          const per = args.period || '6mo';
+          const ok = await showStockChart(sym, exc, per);
+          return ok
+            ? `Chart opened for ${sym} (${exc}, ${per}) — candlesticks + volume.`
+            : `Couldn't open a chart for ${sym} — check the symbol and try again.`;
+        }
+
+        /* ── RAG (Phase 4 — see docs/RAG_INTEGRATION.md) ────────────────── */
+        case 'rag_query': {
+          const query = args.query || '';
+          if (!query) return 'Please provide a question to look up.';
+          const d = await ragAPI('/api/query', { query, stream: false, top_k: 3 }, 20000);
+          if (d.error) return `RAG lookup failed (is rag-engine running on :7476?): ${d.error}`;
+          const cites = (d.citations || []).map((c, i) => `  [${i+1}] ${c.doc_title}${c.source_path ? ' — ' + c.source_path : ''}`);
+          return `${d.answer}${cites.length ? '\n\nSources:\n' + cites.join('\n') : ''}`;
+        }
+
+        case 'rag_search_regulations': {
+          const query = args.query || '';
+          if (!query) return 'Please provide a regulation topic or keyword.';
+          const d = await ragAPI('/api/query', { query, stream: false, top_k: 3, doc_type: 'regulation' }, 20000);
+          if (d.error) return `Regulation search failed (is rag-engine running on :7476?): ${d.error}`;
+          if (!d.citations || !d.citations.length) return `No indexed SEBI/RBI regulation matched "${query}". Only a small sample of circulars/notifications is indexed so far — this is not a complete regulatory database.`;
+          const cites = d.citations.map((c, i) => `  [${i+1}] ${c.doc_title}${c.source_path ? ' — ' + c.source_path : ''}`);
+          return `${d.answer}\n\nSources:\n${cites.join('\n')}`;
+        }
+
         default:
           return `Unknown tool: "${name}". Available tools: ${AgentTools.schema.map(t=>t.name).join(', ')}`;
       }
     },
 
     schemaPrompt() {
-      return 'AVAILABLE TOOLS (33 tools — call ONE at a time with exact JSON format):\n' +
+      // Computed from schema.length, not hardcoded — a literal count here went
+      // stale twice already (33 -> 34 -> 35 as tools were added over time)
+      // because nothing forced it to be updated alongside the schema array.
+      return `AVAILABLE TOOLS (${this.schema.length} tools — call ONE at a time with exact JSON format):\n` +
         this.schema.map(t => {
           const argsStr = Object.keys(t.args).length
             ? '(' + Object.entries(t.args).map(([k,v])=>`${k}: "${v}"`).join(', ') + ')'
@@ -2359,7 +2580,7 @@ ${ctx}`;
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model:   OLLAMA_MODEL,
+            model:   selectModel('deep_analysis'),  // tool-calling agent loop — needs the strongest model
             prompt,
             system,
             stream:  true,
@@ -2808,13 +3029,18 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       briefBubble.innerHTML = '<div class="agt-brief-hd">📋 Good morning brief</div><div class="asp-thinking"><span></span><span></span><span></span></div>';
     }
 
+    const briefSpeaker = _createIncrementalSpeaker();
     try {
-      await streamFromOllama(
+      const finalText = await streamFromOllama(
         BASE_SYSTEM + '\nBe extremely concise. Use bullet points. No filler.',
         briefPrompt,
-        partial => { if (briefBubble) briefBubble.innerHTML = `<div class="agt-brief-hd">📋 Morning brief</div>${richText(partial)}`; },
+        partial => {
+          if (briefBubble) briefBubble.innerHTML = `<div class="agt-brief-hd">📋 Morning brief</div>${richText(partial)}`;
+          briefSpeaker.onPartial(partial);
+        },
         160
       );
+      briefSpeaker.flush(finalText);
       if (briefBubble) {
         const final = briefBubble.innerHTML;
         briefBubble.innerHTML = final.replace(/<span class="asp-cursor"><\/span>/, '');
@@ -5839,6 +6065,13 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 }
 #arya-sp-mic:hover { background: rgba(0,212,255,.12); border-color: rgba(0,212,255,.3); transform: scale(1.05); }
 #arya-sp-mic.listening { background: rgba(255,60,60,.18); border-color: #ff4d6d; animation: aspPulse 1s infinite; }
+#arya-sp-voice-toggle {
+  width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+  transition: all .18s;
+}
+#arya-sp-voice-toggle:hover { background: rgba(0,212,255,.12); border-color: rgba(0,212,255,.3); transform: scale(1.05); }
 #arya-sp-send {
   width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
   background: linear-gradient(135deg,#00d4ff 0%,#7b2ff7 100%);
@@ -6424,6 +6657,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
         </div>
         <div id="arya-sp-input-wrap">
           <textarea id="arya-sp-input" placeholder="Ask Arya anything about your finances…" rows="1" aria-label="Message Arya"></textarea>
+          <button id="arya-sp-voice-toggle" title="Arya speaks her replies — click to mute" aria-label="Toggle Arya's voice">🔊</button>
           <button id="arya-sp-mic" title="Voice input (en-IN)" aria-label="Voice input">🎙️</button>
           <button id="arya-sp-send" aria-label="Send message">
             <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
@@ -6720,6 +6954,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
   async function sendMessage(userText, isAutoInsight = false) {
     if (_aiRunning) return;
     _aiRunning = true;
+    _stopAllSpeech();  // a new response is coming — don't let leftover speech overlap it
 
     const sendBtn   = document.getElementById('arya-sp-send');
     const inputEl   = document.getElementById('arya-sp-input');
@@ -6756,9 +6991,25 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
       ? `\n\nLATEST INDIA FINANCE HEADLINES (use only if directly relevant to user's query — do not force-fit):\n${newsLines}`
       : '';
 
+    // Fetch RAG grounding context (Phase 4) — only when the message looks like
+    // it needs a regulation/circular/notification lookup; skipped otherwise so
+    // casual chat never pays this extra latency on this hardware (see
+    // docs/RAG_HARDWARE.md §4 — even fast retrieval costs 1-3s here, more under
+    // contention with the main chat's own concurrent Ollama call).
+    let ragLines = '';
+    if (!isAutoInsight && detectRagIntent(userText)) {
+      ragLines = await Promise.race([
+        fetchRagContext(userText),
+        new Promise(r => setTimeout(() => r(''), 4500))
+      ]);
+    }
+    const ragSection = ragLines
+      ? `\n\nGROUNDING CONTEXT FROM SEBI/RBI REGULATIONS (cite the source document by name inline when you use it, e.g. "per the RBI KCC Directions, 2026..." — do not invent regulation details not present here):\n${ragLines}`
+      : '';
+
     // Full system prompt with user context (includes session, memory, bias)
     const userCtx   = buildUserContext(pageKey);
-    const systemPmt = `${BASE_SYSTEM}${getPersonaAppend()}${_emotionAppend}${newsSection}\n\nCurrent page: ${pageInfo.name}\n\n${userCtx}`;
+    const systemPmt = `${BASE_SYSTEM}${getPersonaAppend()}${_emotionAppend}${newsSection}${ragSection}\n\nCurrent page: ${pageInfo.name}\n\n${userCtx}`;
 
     // Build prompt with recent chat history for follow-ups
     let fullPrompt = userText;
@@ -6773,7 +7024,9 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 
     // Auto-insights: 320 tokens (focused, fast) — user questions: 600 (thorough, detailed)
     const numPredict = isAutoInsight ? 320 : 600;
+    const taskType   = isAutoInsight ? 'quick_quote' : 'chat';
 
+    const speaker = _createIncrementalSpeaker();
     try {
       finalText = await streamFromOllama(systemPmt, fullPrompt, partialText => {
         if (!bubbleEl) {
@@ -6786,7 +7039,9 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
           const log = document.getElementById('arya-sp-messages');
           if (log) log.scrollTop = log.scrollHeight;
         }
-      }, numPredict);
+        speaker.onPartial(partialText);   // speak each sentence as it completes, not after the full answer
+      }, numPredict, taskType);
+      speaker.flush(finalText);           // say whatever's left (no trailing punctuation, last fragment, etc.)
 
       removeThinking();
       if (!bubbleEl) bubbleEl = appendMessage('arya', finalText);
@@ -6836,6 +7091,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
       if (bubbleEl) { bubbleEl.classList.remove('asp-cursor'); bubbleEl.remove(); }
       const fallback = offlineFallback(pageKey, userText);
       appendMessage('arya', fallback);
+      speakText(fallback);
       if (offlineEl) offlineEl.classList.add('show');
     }
 
@@ -6863,11 +7119,68 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
   }
 
   /* ══ 4. VOICE INPUT ══════════════════════════════════════════════════════ */
+  let _lastVoiceToastAt = 0;
+  let _lastVoiceToastMsg = '';
+  function _voiceToast(msg, type) {
+    // setupVoiceInput() can end up attached more than once if openPanel()'s
+    // setup path runs more than once for the same button (observed: onerror
+    // firing 6x for a single click) — rather than chase that down here too,
+    // just collapse identical messages within a short window so the user
+    // sees one toast, not a stack of the same one.
+    const now = Date.now();
+    if (msg === _lastVoiceToastMsg && now - _lastVoiceToastAt < 1000) return;
+    _lastVoiceToastAt = now;
+    _lastVoiceToastMsg = msg;
+    if (window.FiNOS?.toast?.show) {
+      window.FiNOS.toast.show({ title: 'Arya voice', msg, type: type || 'warning' });
+      // Confirmed by direct testing this was the real bug behind "voice
+      // detech is not working": toast.show() WAS firing with the right
+      // message, but rendered invisibly. Root cause turned out deeper than
+      // expected — #finos-toast-container has no positioning CSS applied at
+      // all on this page (position: static, height: 0px). The rules that
+      // are supposed to style it (position: fixed, bottom/right, animations)
+      // live in css/_unused_css/states.css — a folder no page actually
+      // loads. That's a real, separate, site-wide bug (every toast.show()
+      // call anywhere in the app is affected, not just Arya's), flagged on
+      // its own rather than fixed here. This inline-styles the container so
+      // Arya's specific voice toasts work regardless of that gap.
+      const container = document.getElementById('finos-toast-container');
+      if (container) {
+        Object.assign(container.style, {
+          position: 'fixed', bottom: '24px', right: '24px', zIndex: '999996',
+          display: 'flex', flexDirection: 'column', gap: '10px',
+          maxWidth: '360px', width: 'calc(100vw - 48px)', pointerEvents: 'none',
+        });
+        const toastEl = container.lastElementChild;
+        if (toastEl) {
+          Object.assign(toastEl.style, {
+            display: 'flex', alignItems: 'flex-start', gap: '10px',
+            padding: '14px 16px', background: '#10131C',
+            border: '1px solid rgba(255,255,255,0.12)', borderRadius: '14px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)', pointerEvents: 'all',
+            fontSize: '0.875rem', lineHeight: '1.45', color: '#E8EAF0',
+          });
+        }
+      }
+    } else {
+      console.warn('[Arya voice]', msg);
+    }
+  }
+
   function setupVoiceInput() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const micBtn = document.getElementById('arya-sp-mic');
     if (!micBtn) return;
-    if (!SpeechRecognition) { micBtn.style.display = 'none'; return; }
+    if (!SpeechRecognition) {
+      // Was silently display:none before — looked exactly like "voice doesn't
+      // work" with zero explanation. Safari's webkitSpeechRecognition support
+      // is inconsistent across versions; Firefox has none at all. Keep the
+      // button visible but disabled with a real reason, not invisible.
+      micBtn.disabled = true;
+      micBtn.title = 'Voice input needs Chrome or Edge — not supported in this browser';
+      micBtn.style.opacity = '0.35';
+      return;
+    }
 
     const recog = new SpeechRecognition();
     recog.lang = 'en-IN';
@@ -6877,8 +7190,16 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 
     micBtn.addEventListener('click', () => {
       if (listening) { recog.stop(); return; }
-      try { recog.start(); listening = true; micBtn.classList.add('listening'); }
-      catch {}
+      try {
+        recog.start();
+        listening = true;
+        micBtn.classList.add('listening');
+      } catch (e) {
+        // Previously a silent catch{} — clicking did nothing with zero
+        // feedback if start() threw (already listening, no mic, etc.).
+        // That's indistinguishable from "broken" to a user.
+        _voiceToast('Could not start voice input: ' + (e?.message || e));
+      }
     });
 
     recog.onresult = e => {
@@ -6899,7 +7220,179 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
       }
     };
 
-    recog.onerror = () => { listening = false; micBtn.classList.remove('listening'); };
+    recog.onerror = (e) => {
+      listening = false;
+      micBtn.classList.remove('listening');
+      // 'no-speech' and 'aborted' fire on completely normal use (silence,
+      // user clicked stop) — only surface errors that mean something is
+      // actually wrong, so this doesn't nag on every ordinary non-result.
+      const reasons = {
+        'not-allowed':   'Microphone permission denied — allow mic access in your browser\'s site settings.',
+        'service-not-allowed': 'Microphone permission denied — allow mic access in your browser\'s site settings.',
+        'audio-capture': 'No microphone found.',
+        'network':       'Voice recognition needs an internet connection.',
+      };
+      if (reasons[e.error]) _voiceToast(reasons[e.error], 'error');
+    };
+  }
+
+  /* ══ 4b. VOICE OUTPUT (TTS) — Arya speaks her replies ═══════════════════
+     Browser speechSynthesis, not edge-tts — this panel has no WebSocket to
+     voiceagent's backend (it talks to Ollama directly over /api/generate),
+     and edge-tts needs that backend round-trip. speechSynthesis works
+     everywhere instantly with zero server dependency; the tradeoff is a
+     more robotic voice than voiceagent's edge-tts neural voices. Default ON
+     per explicit request — "must start talking like a real human personal
+     finance assistant" — with a one-click mute since unsolicited audio from
+     a webpage is something a user should always be able to silence fast. */
+  let _voiceOutputEnabled = get('finos_arya_voice_enabled', '1') !== '0';
+  let _cachedIndianVoice = null;
+
+  function _pickVoice() {
+    if (_cachedIndianVoice) return _cachedIndianVoice;
+    const voices = window.speechSynthesis?.getVoices() || [];
+    _cachedIndianVoice = voices.find(v => v.lang === 'en-IN')
+                      || voices.find(v => v.lang?.startsWith('en'))
+                      || null;
+    return _cachedIndianVoice;
+  }
+
+  function _speakBrowserTTS(clean) {
+    // Fallback only — robotic OS voice, used when the edge-tts backend
+    // (arya-ai, port 7475) is unreachable. Not the primary path: edge-tts's
+    // Microsoft neural voices sound like an actual person, speechSynthesis
+    // does not.
+    if (!window.speechSynthesis) return;
+    const utter = new SpeechSynthesisUtterance(clean);
+    utter.lang = 'en-IN';
+    utter.rate = 1.02;
+    const voice = _pickVoice();
+    if (voice) utter.voice = voice;
+    window.speechSynthesis.speak(utter);
+  }
+
+  // edge-tts returns a real audio file per call — unlike speechSynthesis,
+  // playing two Audio elements doesn't auto-queue, so a fast sequence like
+  // greeting-then-brief needs its own queue or the second clip cuts the
+  // first one off mid-sentence.
+  let _audioQueue = [];
+  let _audioPlaying = false;
+  let _currentAudio = null;   // the Audio element actually playing right now, if any
+  function _playNextQueued() {
+    if (_audioPlaying || !_audioQueue.length) return;
+    _audioPlaying = true;
+    const url = _audioQueue.shift();
+    const audio = new Audio(url);
+    _currentAudio = audio;
+    const advance = () => {
+      URL.revokeObjectURL(url);
+      if (_currentAudio === audio) _currentAudio = null;
+      _audioPlaying = false;
+      _playNextQueued();
+    };
+    audio.onended = advance;
+    audio.onerror = advance;
+    audio.play().catch(advance);
+  }
+  function _stopAllSpeech() {
+    window.speechSynthesis?.cancel();
+    _audioQueue.forEach(URL.revokeObjectURL);
+    _audioQueue = [];
+    _audioPlaying = false;
+    // Clearing the queue alone left whatever sentence was ALREADY playing
+    // running to its natural end — confirmed for real: asking a follow-up
+    // mid-sentence let the old topic's audio keep talking until it finished,
+    // with the new answer's text already on screen. A real person stops
+    // talking immediately when asked something new, not mid-sentence later.
+    if (_currentAudio) {
+      _currentAudio.pause();
+      _currentAudio.onended = null;
+      _currentAudio.onerror = null;
+      _currentAudio = null;
+    }
+  }
+
+  async function speakText(text) {
+    if (!_voiceOutputEnabled || !text) return;
+    const clean = text
+      .replace(/<[^>]+>/g, ' ')           // strip HTML (richText() output, brief bubbles)
+      .replace(/[*_#`]/g, '')             // strip markdown so TTS doesn't say "asterisk"
+      .replace(/₹/g, 'rupees ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+    if (!clean) return;
+    try {
+      const r = await fetch(`${ARYA_API_BASE}/api/tts`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ text: clean, lang: 'english' }),
+        signal:  AbortSignal.timeout(10000),
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const blob = await r.blob();
+      if (!_voiceOutputEnabled) return;   // user muted while the request was in flight
+      _audioQueue.push(URL.createObjectURL(blob));
+      _playNextQueued();
+    } catch (e) {
+      _speakBrowserTTS(clean);
+    }
+  }
+
+  // Speaking the FULL response only after streaming finishes is what makes
+  // Arya feel like she's reading a transcript instead of talking — there's a
+  // multi-second silent pause while the whole answer generates, then one
+  // long uninterrupted block. This speaks each sentence as soon as it's
+  // complete, while the rest of the answer is still generating, the way a
+  // person actually talks (thinking out loud one sentence at a time, not
+  // rehearsing the whole answer silently first).
+  //
+  // Splits on . ! ? followed by whitespace/end-of-string only — deliberately
+  // NOT on bare periods, so "₹1.5 lakh" (a decimal, no space after the ".")
+  // never gets cut mid-number. Real sentence ends always have a space (or
+  // end-of-string) after the punctuation; decimals never do.
+  const _SENTENCE_BOUNDARY = /[.!?](?:\s|$)/g;
+
+  function _createIncrementalSpeaker() {
+    let spokenUpTo = 0;
+    return {
+      onPartial(fullTextSoFar) {
+        if (!_voiceOutputEnabled) return;
+        const unspoken = fullTextSoFar.slice(spokenUpTo);
+        let boundary = -1;
+        _SENTENCE_BOUNDARY.lastIndex = 0;
+        let m;
+        while ((m = _SENTENCE_BOUNDARY.exec(unspoken)) !== null) {
+          boundary = m.index + m[0].length;
+        }
+        if (boundary > 0) {
+          speakText(unspoken.slice(0, boundary));
+          spokenUpTo += boundary;
+        }
+      },
+      flush(fullText) {
+        if (!_voiceOutputEnabled) return;
+        const remaining = fullText.slice(spokenUpTo).trim();
+        if (remaining) speakText(remaining);
+        spokenUpTo = fullText.length;
+      },
+    };
+  }
+
+  function setupVoiceOutput() {
+    // getVoices() is often empty until this fires — refresh the cached pick once it does
+    if (window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = () => { _cachedIndianVoice = null; _pickVoice(); };
+    }
+    const btn = document.getElementById('arya-sp-voice-toggle');
+    if (!btn) return;
+    btn.textContent = _voiceOutputEnabled ? '🔊' : '🔇';
+    btn.addEventListener('click', () => {
+      _voiceOutputEnabled = !_voiceOutputEnabled;
+      set('finos_arya_voice_enabled', _voiceOutputEnabled ? '1' : '0');
+      btn.textContent = _voiceOutputEnabled ? '🔊' : '🔇';
+      btn.title = _voiceOutputEnabled ? 'Arya speaks her replies — click to mute' : 'Arya\'s voice is muted — click to unmute';
+      if (!_voiceOutputEnabled) _stopAllSpeech();
+    });
   }
 
   /* ══ OPEN / CLOSE PANEL ═════════════════════════════════════════════════ */
@@ -6987,8 +7480,9 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
         else if (!_aiRunning) sendMessage(text);
       });
 
-      // 4. Setup voice input
+      // 4. Setup voice input/output
       setupVoiceInput();
+      setupVoiceOutput();
 
       document.addEventListener('keydown', _escHandler);
     }
@@ -7025,6 +7519,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
         setTimeout(() => {
           const greeting = buildSmartGreeting(pageKey);
           appendMessage('arya', greeting);
+          speakText(greeting);
           _chatHistory.push({ role: 'arya', text: greeting });
           saveChatToDisk(pageKey, _chatHistory);
           // Proactive nudges — fire critical alerts before AI insight
@@ -7219,6 +7714,8 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
   window.AryaSidebar = {
     open:         openPanel,
     close:        closePanel,
+    showChart:    showStockChart,
+    closeChart:   closeStockChart,
     ask:          (q) => { if (!_panelOpen) openPanel(); setTimeout(() => sendMessage(q), 500); },
     runAgent:     (goal) => {
       if (!_panelOpen) openPanel();
