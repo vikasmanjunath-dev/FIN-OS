@@ -1,3 +1,21 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# settings.py — Django Project Configuration (Expense Tracker Backend)
+# ─────────────────────────────────────────────────────────────────────────────
+# This settings file controls the budget API backend — the Django project that
+# powers the Expense Tracker's REST API.
+#
+# KEY DIFFERENCES from finos 2/core/settings.py:
+#   1. Django 5.2.9 (not 6.0.4)
+#   2. INSTALLED_APPS includes 'rest_framework' and 'corsheaders' and 'api'
+#   3. MIDDLEWARE has CorsMiddleware as the VERY FIRST entry
+#   4. CORS_ALLOWED_ORIGINS restricts cross-origin calls to the React dev server
+#   5. DEFAULT_AUTO_FIELD = BigAutoField (64-bit IDs)
+#
+# ARCHITECTURE CONTEXT:
+#   React app (localhost:5173) ←→ This Django backend (localhost:8000)
+#   The React app makes fetch() calls to /api/budget/* endpoints.
+#   Without CORS configuration, the browser would block all these calls.
+# ─────────────────────────────────────────────────────────────────────────────
 """
 Django settings for finos_backend project.
 
@@ -12,7 +30,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# BASE_DIR resolves to: ExpenseTracker/finos_backend/
+# Two .parent calls go up from settings.py:
+#   settings.py → finos_backend/ → finos_backend/ (project root)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -20,47 +40,102 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# This key is used for all cryptographic signing in Django:
+#   - Session cookies, CSRF tokens, password reset links
+# The 'django-insecure-' prefix is a visual reminder that this key
+# was auto-generated and is NOT safe for production.
+# PRODUCTION FIX: SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 SECRET_KEY = 'django-insecure-mjaot%)f7b$6emxdh)+ryes9rh!ik*mh0#oi%py_c-$^ga@kkh'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG=True shows full Python tracebacks in the browser on errors.
+# This would expose file paths, environment variables, and code structure.
 DEBUG = True
 
+# In development (DEBUG=True), an empty list means only localhost requests work.
+# PRODUCTION: ALLOWED_HOSTS = ['api.finos.in']
 ALLOWED_HOSTS = []
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    # --- FIN-OS ENGINES ---
+    # ── DJANGO CORE APPS ────────────────────────────────────────────────────
+    'django.contrib.admin',          # /admin/ panel — auto-generated CRUD UI
+    'django.contrib.auth',           # User model, login, permissions
+    'django.contrib.contenttypes',   # Generic FK framework (required by admin)
+    'django.contrib.sessions',       # Server-side session storage
+    'django.contrib.messages',       # One-time flash messages (used in admin)
+    'django.contrib.staticfiles',    # Static file serving in dev (DEBUG=True)
+
+    # ── FIN-OS ENGINES ──────────────────────────────────────────────────────
+    # Django REST Framework — adds @api_view, Response, serializers, auth classes.
+    # Required for views.py's @api_view decorator and DRF Response objects.
+    # Also adds the BROWSABLE API — visit /api/budget/overview/ in a browser
+    # and you get a rendered HTML form interface for testing the API.
     'rest_framework',
+
+    # django-cors-headers — adds Cross-Origin Resource Sharing headers.
+    # Needed because React (localhost:5173) and Django (localhost:8000) are
+    # different origins (different port = different origin in browser security).
+    # Without this, browser blocks all fetch() calls from React to Django.
     'corsheaders',  # Add this
+
+    # Our custom budget API app — contains Transaction model, views, urls.
     'api',
 ]
 
 MIDDLEWARE = [
+    # ── CORS MIDDLEWARE — MUST BE FIRST ─────────────────────────────────────
+    # CorsMiddleware must come before any other middleware that generates
+    # responses. Reason: browser sends an OPTIONS "preflight" request before
+    # the actual POST. If CorsMiddleware isn't first, CommonMiddleware might
+    # redirect the OPTIONS request (e.g., adding trailing slash) before
+    # CORS headers are added — causing the browser to reject the response.
     'corsheaders.middleware.CorsMiddleware', # Add this exactly here
+
+    # Adds security HTTP headers: X-Content-Type-Options, X-XSS-Protection, etc.
+    # When SECURE_SSL_REDIRECT=True (production), this middleware forces HTTPS.
     'django.middleware.security.SecurityMiddleware',
+    # Note: SecurityMiddleware is listed TWICE here — this is a bug (harmless
+    # but redundant). The second entry is a duplicate and can be removed.
     'django.middleware.security.SecurityMiddleware',
+
+    # Loads the session from the 'sessionid' cookie → request.session dict.
     'django.contrib.sessions.middleware.SessionMiddleware',
+
+    # Normalises URLs (trailing slash, www redirect).
     'django.middleware.common.CommonMiddleware',
+
+    # CSRF token validation for unsafe HTTP methods (POST, PUT, PATCH, DELETE).
+    # NOTE: Several API views use @csrf_exempt to bypass this for React clients
+    # that don't have Django's CSRF cookie. Production fix: use DRF TokenAuth.
     'django.middleware.csrf.CsrfViewMiddleware',
+
+    # Attaches request.user by reading session data.
+    # MUST come after SessionMiddleware.
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+    # Enables flash messages framework. Used by Django admin panel.
     'django.contrib.messages.middleware.MessageMiddleware',
+
+    # Adds X-Frame-Options: DENY to prevent clickjacking via iframes.
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# The Python dotted path to the root URL configuration.
+# Django will import ExpenseTracker/finos_backend/finos_backend/urls.py
+# and start URL matching from there for every request.
 ROOT_URLCONF = 'finos_backend.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        # Empty DIRS list — this project has no custom HTML templates.
+        # All responses are JSON (REST API). Templates are only used by
+        # Django's built-in admin panel (which finds its own templates via APP_DIRS).
         'DIRS': [],
+        # APP_DIRS=True lets Django find admin templates in django/contrib/admin/templates/
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -72,6 +147,8 @@ TEMPLATES = [
     },
 ]
 
+# WSGI entry point for production servers (Gunicorn).
+# Run: gunicorn finos_backend.wsgi:application --bind 0.0.0.0:8000
 WSGI_APPLICATION = 'finos_backend.wsgi.application'
 
 
@@ -80,7 +157,28 @@ WSGI_APPLICATION = 'finos_backend.wsgi.application'
 
 DATABASES = {
     'default': {
+        # SQLite for development — single file, zero config, no server.
+        # PRODUCTION: Switch to PostgreSQL for concurrent writes, full-text search,
+        # and to support the planned Account Aggregator real-time data ingestion.
+        #
+        # PostgreSQL example:
+        #   'ENGINE': 'django.db.backends.postgresql',
+        #   'NAME': 'finos_budget',
+        #   'USER': 'finos_user',
+        #   'PASSWORD': os.environ['DB_PASSWORD'],
+        #   'HOST': 'db',        ← service name in docker-compose
+        #   'PORT': '5432',
         'ENGINE': 'django.db.backends.sqlite3',
+
+        # The SQLite database file lives at: ExpenseTracker/finos_backend/db.sqlite3
+        # This file is created automatically on first `python manage.py migrate`.
+        # It contains:
+        #   api_transaction           ← Our Transaction model (from 0001_initial.py)
+        #   auth_user                 ← Django's built-in user accounts
+        #   django_migrations         ← Migration history log
+        #   django_session            ← Active session data
+        #   django_content_type       ← Generic FK registry
+        #   django_admin_log          ← Audit trail of admin actions
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
@@ -91,15 +189,19 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
+        # Reject password too similar to user's personal info (>70% similarity)
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
+        # Reject password shorter than 8 characters
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
     {
+        # Reject password found in the list of 20,000 common passwords
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
+        # Reject password that is entirely numeric (e.g., '12345678')
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
@@ -110,25 +212,64 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
+# ─────────────────────────────────────────────────────────────────────────────
+# IMPORTANT FOR FIN-OS INDIA:
+# TIME_ZONE = 'UTC' means that auto_now_add=True on Transaction.date will
+# record midnight UTC, not midnight IST. For Indian users transacting after
+# 6:30 PM IST (midnight UTC), the date recorded will be TOMORROW in IST.
+# PRODUCTION FIX: Change to TIME_ZONE = 'Asia/Kolkata'
+# ─────────────────────────────────────────────────────────────────────────────
 TIME_ZONE = 'UTC'
 
+# Enable Django's translation/internationalisation framework.
+# Required for admin panel labels to be rendered in LANGUAGE_CODE's language.
 USE_I18N = True
 
+# Store all DateTimeField values as UTC in the database.
+# Python datetime objects created by Django will be timezone-aware.
+# Required for correct time zone conversion to 'Asia/Kolkata' later.
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
+# URL prefix for static files. Because this is a pure REST API backend,
+# no custom static files are served — only Django admin uses this.
+# Admin CSS/JS lives inside the django package itself and is served via this prefix.
 STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
+# BigAutoField = 64-bit integer primary key (auto-incrementing).
+# Django 3.2+ default. Supports up to 9,223,372,036,854,775,807 rows.
+# (Django 2.x used AutoField = 32-bit, max ~2 billion rows)
+# This ensures the Transaction table's 'id' column is a BIGINT in SQLite/PostgreSQL.
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# ─────────────────────────────────────────────────────────────────────────────
+# CORS — Cross-Origin Resource Sharing
+# ─────────────────────────────────────────────────────────────────────────────
+# Same-Origin Policy: browsers block JavaScript from sending requests to a
+# different origin (different protocol, domain, or port) than the page itself.
+#
+# Our React app runs at: http://localhost:5173  (Vite dev server)
+# Our Django API runs at: http://localhost:8000  (different port = different origin)
+#
+# Without CORS: Every React fetch('/api/budget/...') call is blocked by the browser:
+#   "Access to XMLHttpRequest has been blocked by CORS policy:
+#    No 'Access-Control-Allow-Origin' header is present on the requested resource."
+#
+# With CORS configured below:
+#   Django adds the header: Access-Control-Allow-Origin: http://localhost:5173
+#   Browser sees this, allows the request.
+#
+# PRODUCTION FIX:
+#   CORS_ALLOWED_ORIGINS = ['https://app.finos.in']  ← your production domain
+#   Remove localhost entries entirely in production.
 # Allow React to communicate with Django
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
+    "http://localhost:5173",    # Vite dev server (npm run dev)
+    "http://127.0.0.1:5173",    # Same as above but using IP instead of hostname
 ]

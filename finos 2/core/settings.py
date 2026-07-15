@@ -1,3 +1,23 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# settings.py — Django Project Configuration (FIN-OS Core Server)
+# ─────────────────────────────────────────────────────────────────────────────
+# This file is the BRAIN of the Django project. Every major Django behaviour
+# is controlled from here: installed apps, database, templates, static files,
+# security, internationalisation, middleware order, and more.
+#
+# Django reads this file ONCE at startup and caches the values.
+# Changes require a server restart to take effect.
+#
+# LOADING ORDER:
+#   manage.py sets DJANGO_SETTINGS_MODULE = 'core.settings'
+#   Django imports this module and binds all names as settings
+#   Any setting name in ALL_CAPS is a valid Django setting
+#
+# SECURITY NOTE:
+#   This file contains SECRET_KEY and DEBUG=True — safe for development,
+#   dangerous in production. Never commit production credentials to git.
+#   Use environment variables + python-dotenv for production values.
+# ─────────────────────────────────────────────────────────────────────────────
 """
 Django settings for core project.
 
@@ -10,109 +30,308 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+# pathlib.Path provides OS-independent file path manipulation.
+# Much safer than os.path.join() for cross-platform compatibility.
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+# __file__  = the absolute path to THIS settings.py file
+# .resolve() = resolve any symlinks, get the real absolute path
+# .parent    = go up one directory (from core/ to finos2/)
+# .parent    = go up again (from finos2/ to the project root)
+# Result: BASE_DIR points to the root of the Django project (where manage.py lives)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# SECURITY SETTINGS
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
+# ─────────────────────────────────────────────────────────────────────────────
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# The SECRET_KEY is used for:
+#   - Cryptographic signing of cookies and sessions
+#   - CSRF token generation
+#   - Password reset token generation
+#   - Any django.core.signing operation
+# If this key leaks, attackers can forge session cookies and bypass auth.
+# PRODUCTION FIX: Load from environment → SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 SECRET_KEY = 'django-insecure-tu(gj$ico((oabd1g5@-#67d+5t!1&q4^d)^tw15oou17f(dr#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG=True enables:
+#   - Detailed error pages with full stack traces (visible to users!)
+#   - Django's automatic static file serving
+#   - Extra debug toolbar support
+# PRODUCTION FIX: Set DEBUG=False and configure proper error pages (handler404, handler500)
 DEBUG = True
 
+# Which hostnames Django will serve.
+# Empty list = only 'localhost' and '127.0.0.1' work (safe for development).
+# PRODUCTION FIX: ALLOWED_HOSTS = ['finos.in', 'www.finos.in']
+# If DEBUG=False and this is empty, ALL requests return 400 Bad Request.
 ALLOWED_HOSTS = []
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# INSTALLED_APPS
+# Tells Django which applications are part of this project.
+# Order matters — apps listed first take precedence for templates, management
+# commands, and some signals.
+# ─────────────────────────────────────────────────────────────────────────────
 
 # Application definition
 
 INSTALLED_APPS = [
+    # ── FIN-OS APPLICATION ──────────────────────────────────────────────────
+    # Our custom app at finos/ — contains views.py, urls.py, templates/.
+    # Listed FIRST so its templates take priority over built-in admin templates.
     'finos',
+
+    # ── DJANGO BUILT-IN APPS ────────────────────────────────────────────────
+    # Provides the /admin/ panel — auto-generates CRUD UI for all registered models
     'django.contrib.admin',
+
+    # User model (auth.User), login/logout views, permission framework.
+    # Required by admin. Provides: request.user, @login_required, has_perm()
     'django.contrib.auth',
+
+    # Generic relations system (ContentType framework).
+    # Required by admin and auth for polymorphic model relationships.
     'django.contrib.contenttypes',
+
+    # Session framework — stores server-side session data tied to a cookie.
+    # Powers: request.session['key'] = value
     'django.contrib.sessions',
+
+    # One-time flash messages framework.
+    # Powers: messages.success(request, "Transaction saved!")
+    # Displayed once and then cleared.
     'django.contrib.messages',
+
+    # Static file serving in development.
+    # In production, Nginx/S3 serves static files instead.
+    # Provides: {% load static %} template tag + `collectstatic` command
     'django.contrib.staticfiles',
 ]
 
+# ─────────────────────────────────────────────────────────────────────────────
+# MIDDLEWARE
+# A stack of callables that wrap every request/response.
+# Each middleware can inspect or modify the request BEFORE the view runs,
+# and inspect or modify the response AFTER the view returns.
+# ORDER IS CRITICAL — listed top to bottom = request processing order.
+# ─────────────────────────────────────────────────────────────────────────────
+
 MIDDLEWARE = [
+    # Adds security-related HTTP headers to every response:
+    #   X-Content-Type-Options: nosniff   (prevent MIME sniffing)
+    #   X-XSS-Protection: 1; mode=block  (legacy XSS filter for old browsers)
+    #   Strict-Transport-Security        (enable with SECURE_HSTS_SECONDS in prod)
+    # Also handles HTTPS redirect when SECURE_SSL_REDIRECT=True
     'django.middleware.security.SecurityMiddleware',
+
+    # Reads the 'sessionid' cookie, loads the session dict from the database,
+    # and makes it available as request.session throughout the request.
+    # Saves any changes back to DB after the view returns.
     'django.contrib.sessions.middleware.SessionMiddleware',
+
+    # URL normalisation:
+    #   - Appends trailing slash if APPEND_SLASH=True and URL has no match
+    #   - Prepends www if PREPEND_WWW=True
     'django.middleware.common.CommonMiddleware',
+
+    # CSRF (Cross-Site Request Forgery) protection.
+    # On unsafe methods (POST, PUT, PATCH, DELETE):
+    #   - Reads csrftoken cookie set by Django
+    #   - Checks for X-CSRFToken header or csrfmiddlewaretoken form field
+    #   - If they don't match → 403 Forbidden
+    # Safe methods (GET, HEAD, OPTIONS) bypass this check entirely.
     'django.middleware.csrf.CsrfViewMiddleware',
+
+    # Reads request.session to identify the logged-in user.
+    # Attaches request.user — either an authenticated User instance or
+    # AnonymousUser (for non-logged-in visitors).
+    # MUST come after SessionMiddleware (it reads the session).
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+    # Enables the one-time flash messages framework.
+    # After a redirect, the stored messages are retrieved and cleared.
+    # Used heavily in Django admin: "The transaction was saved successfully."
     'django.contrib.messages.middleware.MessageMiddleware',
+
+    # Adds the X-Frame-Options: DENY header to every response.
+    # This prevents FIN-OS pages from being embedded in <iframe> tags on
+    # other sites, blocking clickjacking attacks.
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Tells Django where the ROOT URL configuration module is.
+# Django imports core/urls.py and matches incoming URL paths against its
+# urlpatterns list. This is the first URL file Django looks at.
 ROOT_URLCONF = 'core.urls'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TEMPLATES
+# How Django finds and renders HTML templates.
+# ─────────────────────────────────────────────────────────────────────────────
 
 TEMPLATES = [
     {
+        # The template engine to use.
+        # 'django.template.backends.django.DjangoTemplates' is Django's built-in
+        # engine that processes {% tags %}, {{ variables }}, and {{ filters }}.
+        # Alternative: 'django.template.backends.jinja2.Jinja2'
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+
+        # DIRS: explicit list of directories to search for templates.
+        # BASE_DIR / 'templates' = finos2/templates/
+        # This is where our finos/templates/finos/*.html files live.
         'DIRS': [BASE_DIR / 'templates'],
+
+        # APP_DIRS=True: also look in <app>/templates/ for each installed app.
+        # So Django searches in this order:
+        #   1. BASE_DIR/templates/  (our DIRS entry above)
+        #   2. finos/templates/     (APP_DIRS)
+        #   3. django/contrib/admin/templates/  (built-in admin)
         'APP_DIRS': True,
+
         'OPTIONS': {
+            # Context processors add variables to EVERY template's context
+            # automatically — you don't have to pass them from the view.
             'context_processors': [
+                # Adds 'request' to template context — lets templates access
+                # request.user, request.path, request.GET params, etc.
                 'django.template.context_processors.request',
+
+                # Adds 'user' and 'perms' to context.
+                # Templates can check: {% if user.is_authenticated %}
                 'django.contrib.auth.context_processors.auth',
+
+                # Adds 'messages' to context — the flash messages list.
+                # The base template iterates {% for message in messages %} to
+                # display one-time notifications.
                 'django.contrib.messages.context_processors.messages',
             ],
         },
     },
 ]
 
+# The WSGI application path that production servers (Gunicorn) will load.
+# Points to the `application` variable defined in core/wsgi.py.
 WSGI_APPLICATION = 'core.wsgi.application'
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DATABASE
+# Django's ORM (Object-Relational Mapper) uses this configuration to know
+# which database engine to connect to and where the data lives.
+# ─────────────────────────────────────────────────────────────────────────────
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
+    # 'default' is the database alias. Django can manage multiple databases
+    # simultaneously (e.g., 'default' for main data, 'analytics' for read replicas).
+    # All ORM calls use 'default' unless you specify: Model.objects.using('analytics')
     'default': {
+        # SQLite engine — stores the entire database in a single file.
+        # Perfect for development: zero configuration, no server process needed.
+        # PRODUCTION FIX: Switch to PostgreSQL:
+        #   'ENGINE': 'django.db.backends.postgresql',
+        #   'NAME': 'finos_db',
+        #   'USER': 'finos_user',
+        #   'PASSWORD': os.environ['DB_PASSWORD'],
+        #   'HOST': 'localhost',
+        #   'PORT': '5432',
         'ENGINE': 'django.db.backends.sqlite3',
+
+        # BASE_DIR / 'db.sqlite3' = finos2/db.sqlite3
+        # This single file holds ALL Django tables:
+        #   django_migrations, auth_user, auth_permission,
+        #   django_session, django_content_type, django_admin_log
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PASSWORD VALIDATION
+# Django runs submitted passwords through these validators when a user
+# sets or changes their password (via admin, registration forms, etc.)
+# All validators must pass — if any fail, the password is rejected.
+# ─────────────────────────────────────────────────────────────────────────────
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
+        # Rejects passwords that are too similar to the user's username,
+        # first name, last name, or email address (similarity > 70%).
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
+        # Rejects passwords shorter than 8 characters (default minimum length).
+        # Configure: {'NAME': '...MinimumLengthValidator', 'OPTIONS': {'min_length': 12}}
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
     {
+        # Rejects passwords that appear in Django's list of 20,000 common passwords
+        # (e.g., 'password', '123456', 'qwerty').
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
+        # Rejects passwords that are entirely numeric (e.g., '87654321').
+        # Numeric-only passwords are too easy to brute-force.
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# INTERNATIONALISATION
+# Controls language, time zone, and translation behaviour.
+# ─────────────────────────────────────────────────────────────────────────────
+
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
+# Default language for Django's built-in translations (admin panel labels,
+# form error messages, etc.)
+# FIN-OS future: set to 'hi' (Hindi) for Hindi admin interface
 LANGUAGE_CODE = 'en-us'
 
+# All datetime values are stored in the database as UTC.
+# When displaying to users, Django converts to the user's local timezone.
+# PRODUCTION FIX: Change to 'Asia/Kolkata' so that auto_now_add=True fields
+# record IST midnight rather than UTC midnight — critical for Indian transaction dates.
 TIME_ZONE = 'UTC'
 
+# USE_I18N=True: Enable Django's translation framework.
+# Allows {% trans "text" %} in templates for multilingual support.
 USE_I18N = True
 
+# USE_TZ=True: Store all datetimes as timezone-aware UTC in the database.
+# Django then converts to TIME_ZONE for display.
+# If False, datetimes are stored as "naive" (no timezone info) — risky.
 USE_TZ = True
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STATIC FILES
+# "Static files" = CSS, JavaScript, images — files that don't change per request.
+# In development (DEBUG=True), Django serves them automatically.
+# In production, Nginx or a CDN serves them (faster, no Python overhead).
+# ─────────────────────────────────────────────────────────────────────────────
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
+# The URL prefix browsers use when requesting static files.
+# STATIC_URL = 'static/' means a file at finos/static/css/main.css
+# is served at http://localhost:8000/static/css/main.css
+# In templates: {% load static %} then {% static 'css/main.css' %}
 STATIC_URL = 'static/'
