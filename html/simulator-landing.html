@@ -10,7 +10,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta name="theme-color" content="#02020c">
-  <title>FIN•OS | Simulator Hub</title>
+  <title>Simulator Hub | FIN-OS</title>
 
   <style>
     :root {
@@ -320,6 +320,9 @@
     ::-webkit-scrollbar-track { background: var(--ink); }
     ::-webkit-scrollbar-thumb { background: rgba(0,255,136,.4); border-radius: 2px; }
   </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/theme.css">
@@ -366,7 +369,7 @@
       <span>INFY <strong class="dn">▼ 1,521 (-0.4%)</strong></span>
     </div>
   </div>
-  <a href="mindset-sim-hub.html" class="tb-back">← HUB</a>
+  <a href="home.html" class="tb-back">← HOME</a>
 </header>
 
 <!-- PAGE -->
@@ -437,24 +440,24 @@
         </div>
       </a>
 
-      <!-- CARD 3: SIMULATOR HUB (Django Landing) -->
-      <a href="http://localhost:8000/" class="card card-hub">
+      <!-- CARD 3: EMOTION-AWARE TRADING COACH -->
+      <a href="trading-coach.html" class="card card-hub">
         <div class="card-bar"></div>
         <div class="card-glow"></div>
         <div class="card-body">
-          <div class="card-chip">COMMAND CENTER</div>
-          <div class="card-icon">🚀</div>
-          <div class="card-title">SIMULATOR HUB</div>
-          <p class="card-desc">The full-stack cockpit — live Django-powered simulator hub with real-time routing, dynamic scenarios, and persistent progress tracking.</p>
+          <div class="card-chip">PSYCHOLOGY</div>
+          <div class="card-icon">🧠</div>
+          <div class="card-title">EMOTION COACH</div>
+          <p class="card-desc">Your real-time emotion-aware trading coach — detects fear, greed, and overconfidence patterns before they destroy your trades.</p>
           <ul class="card-list">
-            <li>🌐 Live Django-powered platform</li>
-            <li>🔄 Dynamic scenario routing</li>
-            <li>👤 Investor &amp; Trader profiles</li>
-            <li>📒 Integrated Trade Journal</li>
-            <li>📊 Persistent simulation history</li>
+            <li>⚡ Real-time bias detection</li>
+            <li>🎯 Pre-trade emotion check</li>
+            <li>📉 Loss-streak intervention</li>
+            <li>🧘 Calm &amp; recover protocols</li>
+            <li>📊 Behavioral pattern tracker</li>
           </ul>
           <div class="card-cta">
-            <span>ENTER SIMULATOR HUB</span>
+            <span>START COACHING</span>
             <span class="arr">→</span>
           </div>
         </div>
@@ -482,11 +485,56 @@
         </div>
       </div>
 
+      <a href="trading-brain.html" class="card card-hub">
+        <div class="card-bar"></div>
+        <div class="card-glow"></div>
+        <div class="card-body">
+          <div class="card-chip">AI COMPANION</div>
+          <div class="card-icon">🧠</div>
+          <div class="card-title">TRADY — TRADING BRAIN</div>
+          <p class="card-desc">Signals, pattern recognition, chart vision and a trading playbook — with its own mindset check built in.</p>
+          <div class="card-cta">
+            <span>OPEN TRADY</span>
+            <span class="arr">→</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="investor-mindset.html" class="card card-hub">
+        <div class="card-bar"></div>
+        <div class="card-glow"></div>
+        <div class="card-body">
+          <div class="card-chip">GUIDE</div>
+          <div class="card-icon">📖</div>
+          <div class="card-title">INVESTOR MINDSET</div>
+          <p class="card-desc">The mental game of long-term investing — biases, patience and conviction, explained.</p>
+          <div class="card-cta">
+            <span>READ THE GUIDE</span>
+            <span class="arr">→</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="mindset-sim.html" class="card card-hub">
+        <div class="card-bar"></div>
+        <div class="card-glow"></div>
+        <div class="card-body">
+          <div class="card-chip">SCENARIOS</div>
+          <div class="card-icon">🎭</div>
+          <div class="card-title">AI MINDSET SIMULATOR</div>
+          <p class="card-desc">Market crashes, FOMO traps, life crises — Arya plays the scenario, you make the call.</p>
+          <div class="card-cta">
+            <span>RUN A SCENARIO</span>
+            <span class="arr">→</span>
+          </div>
+        </div>
+      </a>
+
     </div>
 
     <div class="bottom-note">
       NOT SURE WHERE TO START? &nbsp;·&nbsp; READ THE GUIDE FIRST, THEN SIMULATE &nbsp;·&nbsp;
-      <a href="mindset-sim-hub.html">← BACK TO HUB</a>
+      <a href="home.html">← HOME</a>
     </div>
   </section>
 </div>
@@ -548,16 +596,19 @@
 
 <style>
 #floatBackBtn {
-  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  /* Clear of the 232px sidebar on desktop */
+  position: fixed; bottom: 22px; left: 256px; z-index: 9999;
   padding: 8px 16px 8px 12px; border-radius: 10px;
   background: var(--bg-surface); border: 1px solid var(--border-soft);
-  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  color: var(--text-secondary); font-family: var(--font-mono);
   font-size: 11px; font-weight: 600; letter-spacing: .06em;
   cursor: pointer; display: flex; align-items: center; gap: 6px;
   transition: background .2s, color .2s, transform .2s;
   backdrop-filter: blur(10px); text-decoration: none;
 }
 #floatBackBtn:hover { background: transparent; color: var(--text-primary); transform: translateX(-3px); }
+/* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
+@media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
 <a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 
@@ -689,8 +740,8 @@
 </style>
 
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <!-- ── READINESS MODAL ─────────────────────────────────────────── -->

@@ -6,7 +6,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
-  <title>Insurance Hub | FIN•OS</title>
+  <title>Insurance Hub | FIN-OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -14,7 +17,7 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=4" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
 <style>
@@ -258,7 +261,7 @@
   </main>
 </div>
 
-<script src="../js/finos-widget.js?v=7"></script>
+<script src="../js/finos-widget.js?v=8"></script>
 <script>
 const STORE_KEY = 'finos_insurance_policies';
 
@@ -291,7 +294,9 @@ const TYPE_META = {
 /* ── Coverage Overview Cards ─── */
 function renderOverview(policies) {
   const ctx = window.FINOS_USER_CONTEXT;
-  const income = Number(ctx?.budget_tracker?.income_monthly || localStorage.getItem('finos_income') || 50000);
+  const INCOME_MAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
+  const lsIncome = INCOME_MAP[localStorage.getItem('finos_income') || ''] || 0;
+  const income = Number(ctx?.budget_tracker?.income_monthly || lsIncome || 50000);
   const nw     = Number(ctx?.profile?.net_worth || localStorage.getItem('finos_net_worth') || 0);
 
   const RECOMMENDED = {

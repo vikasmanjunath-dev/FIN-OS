@@ -3,7 +3,6 @@
    insight-cards.css
    ═══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;600&display=swap');
 
 /* ─── CARD GRID ─────────────────────────────────────────────── */
 .insights-grid {
@@ -94,7 +93,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -186,7 +185,7 @@
 
 /* ─── STAT PILL ──────────────────────────────────────────────── */
 .ic-stat {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   color: var(--ic-accent, #00ffa3);
   background: var(--ic-accent-dim, rgba(0,255,163,0.07));
@@ -256,7 +255,7 @@
 }
 
 .ic-modal-tag {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -275,7 +274,7 @@
 }
 
 .ic-modal-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-sans);
   font-size: 26px;
   font-weight: 800;
   color: #fff;
@@ -367,7 +366,7 @@
 }
 
 .ic-section-label {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -505,7 +504,7 @@
 }
 .ic-slider-label span { font-size: 12px; color: rgba(255,255,255,0.5); }
 .ic-slider-val {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 600;
   color: var(--modal-accent, #00ffa3);
@@ -575,7 +574,7 @@
 }
 .ic-progress-top .label { color: rgba(255,255,255,0.55); }
 .ic-progress-top .val {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   color: rgba(255,255,255,0.8);
   font-weight: 600;
@@ -657,7 +656,7 @@
   background: var(--modal-accent-dim, rgba(0,255,163,0.1));
   border: 1px solid var(--modal-accent, #00ffa3);
   color: var(--modal-accent, #00ffa3);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
   display: flex; align-items: center; justify-content: center;
@@ -761,7 +760,7 @@
   flex-shrink: 0;
 }
 .ic-legend-val {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   color: rgba(255,255,255,0.4);
   margin-left: auto;
@@ -814,7 +813,7 @@
 }
 
 .ic-modal-progress {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   color: rgba(255,255,255,0.25);
   letter-spacing: 0.06em;

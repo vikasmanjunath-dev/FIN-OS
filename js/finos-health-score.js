@@ -18,7 +18,8 @@
     /* ── Trigger button (compact pill) ── */
     #finos-hs-trigger {
       position: fixed;
-      bottom: 90px;
+      /* Stack order (bottom-right, desktop): AI fab 28px → quick-log 88px → this 140px */
+      bottom: 140px;
       right: 28px;
       z-index: 99990;
       display: inline-flex;
@@ -245,10 +246,12 @@
     }
     .hs-refresh:hover { background: rgba(0,212,255,.1); color: #00d4ff; }
 
-    /* Mobile */
-    @media (max-width: 480px) {
+    /* Mobile — hide the floating trigger entirely: health is already shown
+       in the page header and the sidebar pill, and the bottom-right corner
+       is reserved for the tab bar + AI fab. Panel stays reachable there. */
+    @media (max-width: 768px) {
+      #finos-hs-trigger { display: none; }
       #finos-hs-panel { right: 0; left: 0; bottom: 0; width: 100%; border-radius: 18px 18px 0 0; }
-      #finos-hs-trigger { bottom: 95px; right: 16px; }
     }
 
     /* ── Light mode overrides ── */
@@ -553,16 +556,22 @@
     function safeNum(key, fallback) { return Number(localStorage.getItem(key)) || fallback || 0; }
     function safeJSON(key, fallback) { try { return JSON.parse(localStorage.getItem(key) || 'null') || fallback; } catch { return fallback; } }
 
-    const income        = safeNum('finos_income', 60000);
+    const _IMAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
     const netWorth      = safeNum('finos_net_worth', 0);
     // Also pull from live context if available (Supabase data > localStorage)
     const ctx         = window.FINOS_USER_CONTEXT;
     const bt          = ctx?.budget_tracker || {};
+    const income        = bt.income_monthly
+                        || parseFloat(localStorage.getItem('finos_monthly_income') || '0')
+                        || _IMAP[localStorage.getItem('finos_income') || '']
+                        || 60000;
     const prof        = ctx?.profile || {};
 
-    const savingsRate = bt.savings_rate      || safeNum('finos_savings_rate', 0);
-    const efRaw       = safeNum('finos_emergency_fund', 0);
-    const efMonths    = efRaw / Math.max(1, income);
+    const savingsRate  = bt.savings_rate      || safeNum('finos_savings_rate', 0);
+    const efRaw        = safeNum('finos_emergency_fund', 0);
+    const monthlyExp   = safeNum('finos_monthly_expense', 0) || safeNum('finos_budget_expenses', 0);
+    // Use pre-computed months from Emergency Fund Tracker; fall back to efRaw ÷ monthly expense
+    const efMonths     = safeNum('finos_emergency_months_covered', 0) || (monthlyExp > 0 ? efRaw / monthlyExp : 0);
     const streak      = safeJSON('finos_streak', {}).count || ctx?.engagement?.streak_days || 0;
     const goals       = safeJSON('finos_goals', []);
     const transactions= safeJSON('finos_transactions', []);
@@ -575,14 +584,26 @@
     const sysSettings    = safeJSON('FINOS_SYS_SETTINGS', {});
     const savingsTarget  = sysSettings.savingsTarget || 25; // user can set target in settings
 
-    // ── 1. Savings Discipline (20 pts) — scored against user's own target ──
-    const savingsPts = savingsRate >= savingsTarget
-      ? 20
-      : Math.min(19, Math.round((savingsRate / savingsTarget) * 20));
+    // ── Tracker signals for Health Score v2 ───────────────────────────────
+    const _80cUsed        = safeNum('finos_80c_used', 0);
+    const insurancePols   = safeJSON('finos_insurance_policies', []);
+    const _hasLife        = insurancePols.some(p => /life/i.test(p.type||p.category||''));
+    const _hasHealth      = insurancePols.some(p => /health/i.test(p.type||p.category||''));
+    const _assetDiversity = [
+      'finos_portfolio_value','finos_sip_value','finos_fd_value','finos_gold_value',
+      'finos_property_value','finos_epf_value','finos_nps_value','finos_ppf_value','finos_crypto_value',
+    ].filter(k => (Number(localStorage.getItem(k)) || 0) > 0).length;
+
+    // ── 1. Savings Discipline (20 pts) — savings rate + 80C utilization ──
+    const _rateBase  = Math.min(17, savingsTarget > 0 ? Math.round((savingsRate / savingsTarget) * 17) : 0);
+    const _s80cBonus = _80cUsed >= 150000 ? 3 : _80cUsed >= 100000 ? 2 : _80cUsed >= 50000 ? 1 : 0;
+    const savingsPts = Math.min(20, _rateBase + _s80cBonus);
 
     // ── 2. Emergency Fund Coverage (15 pts) ────────────────────────────────
     // Target: 6 months (SEBI/RBI standard)
-    const efPts = efMonths >= 6 ? 15 : efMonths >= 4 ? 12 : efMonths >= 3 ? 9 : efMonths >= 1 ? 4 : 0;
+    const _efBase   = efMonths >= 6 ? 13 : efMonths >= 4 ? 10 : efMonths >= 3 ? 7 : efMonths >= 1 ? 3 : 0;
+    const _insBonus = (_hasLife && _hasHealth) ? 2 : (_hasLife || _hasHealth) ? 1 : 0;
+    const efPts     = Math.min(15, _efBase + _insBonus);
 
     // ── 3. Goal Adherence (15 pts) ─────────────────────────────────────────
     let goalPts = 0;
@@ -601,10 +622,13 @@
     const disciplineScore = dnaScores[3] || 50; // Financial Discipline dimension
     const behaviorPts = Math.max(0, Math.min(15, Math.round(disciplineScore * 0.15) - biasPenalty));
 
-    // ── 5. Wealth Building (15 pts) ────────────────────────────────────────
-    const annualIncome = income * 12;
-    const wealthRatio = annualIncome > 0 ? netWorth / annualIncome : 0;
-    const wealthPts = Math.min(15, Math.round(wealthRatio * 3)); // 5× income = 15 pts
+    // ── 5. Wealth Building (15 pts) — wealth ratio + portfolio diversification + retirement ──
+    const annualIncome   = income * 12;
+    const wealthRatio    = annualIncome > 0 ? netWorth / annualIncome : 0;
+    const _wealthBase    = Math.min(8, Math.round(wealthRatio * 2));  // 4× income = 8 pts
+    const _divBonus      = _assetDiversity >= 5 ? 4 : _assetDiversity >= 4 ? 3 : _assetDiversity >= 3 ? 2 : _assetDiversity >= 2 ? 1 : 0;
+    const _retireBonus   = safeNum('finos_retire_gap', 1) <= 0 && safeNum('finos_retire_corpus', 0) > 0 ? 3 : 0;
+    const wealthPts      = Math.min(15, _wealthBase + _divBonus + _retireBonus);
 
     // ── 6. Knowledge & Engagement (10 pts) ─────────────────────────────────
     const moduleCount = Array.isArray(learned) ? learned.length : 0;
@@ -632,11 +656,17 @@
 
     const pillars = [
       { name:'Savings Discipline', emoji:'💰', score:savingsPts, max_pts:20, pct:Math.round(savingsPts/20*100), grade: savingsPts>=16?'A+':savingsPts>=12?'A':savingsPts>=8?'B':savingsPts>=4?'C':'D',
-        headline: savingsRate >= 25 ? 'Excellent savings rate!' : savingsRate >= 15 ? 'Good — push towards 25%' : 'Savings rate needs attention',
-        tips: savingsRate < 20 ? ['Automate SIP before expenses — pay yourself first'] : [] },
+        headline: savingsRate >= 25 ? `Excellent rate${_s80cBonus > 0 ? ' + 80C max ✓' : ''}` : savingsRate >= 15 ? `Good rate${_s80cBonus > 0 ? ' + 80C invested' : ' — push to 25%'}` : '80C & savings rate need attention',
+        tips: [
+          ...(savingsRate < 20 ? ['Automate SIP before expenses — pay yourself first'] : []),
+          ...(_80cUsed < 150000 ? [`80C gap: ₹${Math.round(150000-_80cUsed).toLocaleString('en-IN')} — invest in ELSS/PPF to save tax`] : []),
+        ].slice(0, 1) },
       { name:'Emergency Fund', emoji:'🛡️', score:efPts, max_pts:15, pct:Math.round(efPts/15*100), grade: efMonths>=6?'A+':efMonths>=3?'B':efMonths>=1?'C':'D',
-        headline: efMonths >= 6 ? 'Full 6-month cover — excellent!' : `${efMonths.toFixed(1)} months coverage — target 6`,
-        tips: efMonths < 3 ? ['Build emergency fund to 3 months before increasing investments'] : [] },
+        headline: efMonths >= 6 ? `Full 6-month cover${_insBonus > 0 ? ' + insurance ✓' : ''}` : `${efMonths.toFixed(1)} months · ${_insBonus > 0 ? 'insurance ✓' : 'no insurance'}`,
+        tips: [
+          ...(efMonths < 3 ? ['Build emergency fund to 3 months before investing more'] : []),
+          ...(!_hasHealth ? ['Get health insurance — biggest protection gap for Indian families'] : []),
+        ].slice(0, 1) },
       { name:'Goal Adherence', emoji:'🎯', score:goalPts, max_pts:15, pct:Math.round(goalPts/15*100), grade: goalPts>=12?'A':goalPts>=9?'B':goalPts>=5?'C':'D',
         headline: goals.length === 0 ? 'Set financial goals to track progress' : `${goals.length} goals tracked`,
         tips: goals.length === 0 ? ['Add your first financial goal in Track → Goals'] : [] },
@@ -644,8 +674,12 @@
         headline: primaryBias ? `Primary bias: ${primaryBias.replace(/_/g,' ')}` : 'Take DNA quiz to detect biases',
         tips: primaryBias ? [`Work on ${primaryBias.replace(/_/g,' ')} — biggest wealth leak`] : [] },
       { name:'Wealth Building', emoji:'📈', score:wealthPts, max_pts:15, pct:Math.round(wealthPts/15*100), grade: wealthRatio>=5?'A+':wealthRatio>=3?'A':wealthRatio>=1?'B':wealthRatio>=0.5?'C':'D',
-        headline: netWorth > 0 ? `${wealthRatio.toFixed(1)}× annual income in net worth` : 'Start building net worth',
-        tips: wealthRatio < 2 ? ['Target: net worth = 5× your annual income by 40'] : [] },
+        headline: netWorth > 0 ? `${wealthRatio.toFixed(1)}× income · ${_assetDiversity} asset class${_assetDiversity !== 1 ? 'es' : ''}${_retireBonus > 0 ? ' · retirement on track ✓' : ''}` : 'Start building net worth',
+        tips: [
+          ...(wealthRatio < 2 ? ['Target: net worth = 5× your annual income by 40'] : []),
+          ...(_assetDiversity < 3 ? ['Diversify across equity, MF, FD, EPF, NPS, gold for resilience'] : []),
+          ...(_retireBonus === 0 && safeNum('finos_retire_required', 0) > 0 ? ['Fill retirement corpus gap — use Retirement Planner for a plan'] : []),
+        ].slice(0, 1) },
       { name:'Knowledge & Engagement', emoji:'📚', score:engagePts, max_pts:10, pct:Math.round(engagePts/10*100), grade: engagePts>=8?'A':engagePts>=6?'B':engagePts>=3?'C':'D',
         headline: `${moduleCount} modules · ${streak} day streak`,
         tips: moduleCount < 5 ? ['Complete 5 learning modules to unlock personalized insights'] : [] },

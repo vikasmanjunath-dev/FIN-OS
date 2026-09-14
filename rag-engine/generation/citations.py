@@ -28,6 +28,7 @@ def extract_citations(answer_text: str, ranked_chunks: list[dict]) -> list[dict]
                 "doc_title": payload.get("doc_title", "Unknown"),
                 "doc_type": payload.get("doc_type", "unknown"),
                 "page_key": payload.get("page_key"),
+                "section_heading": payload.get("section_heading", ""),
                 # source_path: FIN-OS pages (local file); source_url: regulations (live URL)
                 "source_path": payload.get("source_path") or payload.get("source_url"),
             }

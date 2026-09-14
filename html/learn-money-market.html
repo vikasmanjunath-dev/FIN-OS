@@ -5,7 +5,7 @@
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
   <meta charset="UTF-8">
-  <meta name="description" content="FIN•OS — Your AI-powered Financial Operating System for Indian investors.">
+  <meta name="description" content="Money Market Deep Dive — treasury bills, CPs and where short-term cash actually goes.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,14 +13,17 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-  <title>FIN•OS | Money Market</title>
+  <title>Money Market | FIN-OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/markets-deep.css">
+  <link rel="stylesheet" href="../css/markets-deep.css?v=2">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=4" defer></script>
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
@@ -74,7 +77,7 @@
         <p>This market is where Banks, Governments, and Giants borrow cash for <strong>1 to 364 days</strong>.</p>
         
         <ul class="mech-list">
-          <li><strong>T-Bills (Treasury Bills):</strong> You lend to the Govt of India for 91, 182, or 364 days. <span style="color:#C7F000">Risk: ZERO.</span></li>
+          <li><strong>T-Bills (Treasury Bills):</strong> You lend to the Govt of India for 91, 182, or 364 days. <span style="color: var(--accent-secondary)">Risk: ZERO.</span></li>
           <li><strong>CP (Commercial Paper):</strong> You lend to Reliance/Tata for 3 months. <span style="color:#4F7CFF">Risk: Low.</span></li>
           <li><strong>CD (Certificate of Deposit):</strong> You lend to HDFC Bank for 1 year. <span style="color:#4F7CFF">Risk: Low.</span></li>
         </ul>
@@ -149,10 +152,11 @@
 })();
 </script>
 
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-search.js?v=2"></script>
 <script>if(typeof AryaAI!=="undefined")AryaAI.injectLearnButton();</script>
   <script src="../js/interactions.js" defer></script>
 <script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-learn-nav.js"></script>
 </body>
 </html>

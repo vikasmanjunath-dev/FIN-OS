@@ -1,5 +1,5 @@
 """
-SEBI + RBI regulatory crawlers — see docs/RAG_PIPELINE.md Layer 1 and docs/RAG_PHASES.md Phase 3.
+SEBI + RBI + IRDAI + PFRDA regulatory crawlers — see docs/RAG_PIPELINE.md Layer 1 and docs/RAG_PHASES.md Phase 3.
 
 SEBI — investigated and confirmed working against the live site (June 20, 2026):
   - Listing page (HTML) lists circular detail pages as plain <a href> links
@@ -206,3 +206,205 @@ def crawl_recent_rbi_notifications(limit: int = 10) -> list[CrawledCircular]:
         if result:
             notifications.append(result)
     return notifications
+
+
+# ── IRDAI ─────────────────────────────────────────────────────────────────
+# Investigated live July 17 2026:
+#   Listing page https://irdai.gov.in/circulars returns a table with 6 columns.
+#   Each row: td[2] = title (bilingual "Hindi / English"), td[4] = date, td[5] = PDF link(s).
+#   PDFs with English filenames (no %E0%A4 URL-encoded Devanagari) download directly at
+#   ~200-360KB and parse cleanly. Rows with only Hindi PDFs are downloaded anyway and
+#   Devanagari lines are stripped (same pattern as RBI). Auth: none required.
+_IRDAI_LISTING_URL = "https://irdai.gov.in/circulars"
+_IRDAI_BASE = "https://irdai.gov.in"
+
+
+def _extract_english_title(raw: str) -> str:
+    """IRDAI titles are often 'Hindi / English Title'. Return the English part."""
+    if "/" in raw:
+        parts = raw.split("/", 1)
+        english = parts[1].strip()
+        # If the english part looks like real English (mostly ASCII), prefer it
+        ascii_ratio = sum(1 for c in english if ord(c) < 128) / max(1, len(english))
+        if ascii_ratio > 0.7:
+            return english
+    # Fallback: extract any ASCII-dominant substring after a separator
+    return raw.strip()
+
+
+def list_irdai_circulars(limit: int = 10) -> list[tuple[str, str]]:
+    """Returns [(english_title, pdf_url), ...] from IRDAI's circular listing table."""
+    try:
+        resp = httpx.get(_IRDAI_LISTING_URL, timeout=_TIMEOUT, follow_redirects=True, headers=_HEADERS)
+        resp.raise_for_status()
+    except httpx.HTTPError as e:
+        print(f"[regulatory] failed to fetch IRDAI listing: {e}")
+        return []
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    seen: set[str] = set()
+    results: list[tuple[str, str]] = []
+
+    for tr in soup.find_all("tr")[1:]:
+        tds = tr.find_all("td")
+        if len(tds) < 6:
+            continue
+
+        raw_title = tds[2].get_text(" ", strip=True)
+        title = _extract_english_title(raw_title)
+        if not title:
+            continue
+
+        # td[5] contains PDF links; prefer English (no %E0%A4), fall back to any PDF
+        pdf_links = [a["href"] for a in tds[5].find_all("a", href=True) if ".pdf" in a["href"].lower()]
+        if not pdf_links:
+            continue
+
+        # Prefer an English-filename PDF; fall back to whatever is first
+        english_pdfs = [u for u in pdf_links if "%E0%A4" not in u]
+        pdf_url = (english_pdfs or pdf_links)[0]
+
+        if pdf_url in seen:
+            continue
+        seen.add(pdf_url)
+        results.append((title, pdf_url))
+        if len(results) >= limit:
+            break
+
+    return results
+
+
+def fetch_irdai_circular(title: str, pdf_url: str) -> CrawledCircular | None:
+    """Downloads an IRDAI circular PDF and extracts text."""
+    try:
+        pdf_resp = httpx.get(pdf_url, timeout=_TIMEOUT, follow_redirects=True, headers=_HEADERS)
+        pdf_resp.raise_for_status()
+    except httpx.HTTPError as e:
+        print(f"[regulatory] failed to download IRDAI PDF {pdf_url}: {e}")
+        return None
+
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+        tmp.write(pdf_resp.content)
+        tmp_path = Path(tmp.name)
+
+    try:
+        doc = load_pdf(tmp_path)
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+    if not doc.text.strip():
+        print(f"[regulatory] no extractable text in IRDAI PDF {pdf_url}")
+        return None
+
+    return CrawledCircular(
+        title=title,
+        detail_url=pdf_url,
+        pdf_url=pdf_url,
+        text=_strip_devanagari_lines(doc.text),
+    )
+
+
+def crawl_recent_irdai_circulars(limit: int = 10) -> list[CrawledCircular]:
+    circulars = []
+    for title, pdf_url in list_irdai_circulars(limit=limit):
+        result = fetch_irdai_circular(title, pdf_url)
+        if result:
+            circulars.append(result)
+    return circulars
+
+
+# ── PFRDA ─────────────────────────────────────────────────────────────────
+# Investigated live July 17 2026:
+#   Listing page https://pfrda.org.in/regulatory-framework/circulars lists circular
+#   titles as <a href="/en/web/pfrda/w/<slug>"> links (no direct PDF on listing page).
+#   Each detail page at that slug has a single PDF link (text "PDF (<size>)").
+#   No auth required; pages are ~500KB HTML but load and parse correctly.
+_PFRDA_LISTING_URL = "https://pfrda.org.in/regulatory-framework/circulars"
+_PFRDA_BASE = "https://pfrda.org.in"
+
+
+def list_pfrda_circulars(limit: int = 10) -> list[tuple[str, str]]:
+    """Returns [(title, detail_url), ...] from PFRDA's circular listing page."""
+    try:
+        resp = httpx.get(_PFRDA_LISTING_URL, timeout=_TIMEOUT, follow_redirects=True, headers=_HEADERS)
+        resp.raise_for_status()
+    except httpx.HTTPError as e:
+        print(f"[regulatory] failed to fetch PFRDA listing: {e}")
+        return []
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    seen: set[str] = set()
+    results: list[tuple[str, str]] = []
+
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        if "/en/web/pfrda/w/" not in href:
+            continue
+        full_url = href if href.startswith("http") else _PFRDA_BASE + href
+        if full_url in seen:
+            continue
+        title = a.get_text(strip=True)
+        if not title or len(title) < 10:
+            continue
+        seen.add(full_url)
+        results.append((title, full_url))
+        if len(results) >= limit:
+            break
+
+    return results
+
+
+def fetch_pfrda_circular(title: str, detail_url: str) -> CrawledCircular | None:
+    """Fetches a PFRDA detail page, finds the PDF link, downloads and extracts text."""
+    try:
+        detail_resp = httpx.get(detail_url, timeout=_TIMEOUT, follow_redirects=True, headers=_HEADERS)
+        detail_resp.raise_for_status()
+    except httpx.HTTPError as e:
+        print(f"[regulatory] failed to fetch PFRDA detail {detail_url}: {e}")
+        return None
+
+    soup = BeautifulSoup(detail_resp.text, "html.parser")
+    pdf_link = next(
+        (a["href"] for a in soup.find_all("a", href=True) if ".pdf" in a["href"].lower()),
+        None,
+    )
+    if not pdf_link:
+        print(f"[regulatory] no PDF found on PFRDA detail page {detail_url}")
+        return None
+
+    pdf_url = pdf_link if pdf_link.startswith("http") else _PFRDA_BASE + pdf_link
+    try:
+        pdf_resp = httpx.get(pdf_url, timeout=_TIMEOUT, follow_redirects=True, headers=_HEADERS)
+        pdf_resp.raise_for_status()
+    except httpx.HTTPError as e:
+        print(f"[regulatory] failed to download PFRDA PDF {pdf_url}: {e}")
+        return None
+
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+        tmp.write(pdf_resp.content)
+        tmp_path = Path(tmp.name)
+
+    try:
+        doc = load_pdf(tmp_path)
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+    if not doc.text.strip():
+        print(f"[regulatory] no extractable text in PFRDA PDF {pdf_url}")
+        return None
+
+    return CrawledCircular(
+        title=title,
+        detail_url=detail_url,
+        pdf_url=pdf_url,
+        text=_strip_devanagari_lines(doc.text),
+    )
+
+
+def crawl_recent_pfrda_circulars(limit: int = 10) -> list[CrawledCircular]:
+    circulars = []
+    for title, detail_url in list_pfrda_circulars(limit=limit):
+        result = fetch_pfrda_circular(title, detail_url)
+        if result:
+            circulars.append(result)
+    return circulars

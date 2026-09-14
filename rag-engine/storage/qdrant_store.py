@@ -103,13 +103,50 @@ def search(query_vector: list[float], user_id: str | None, top_k: int = 8, doc_t
 
 
 def delete_by_doc_type(doc_type: str) -> None:
-    """Used before re-ingesting a source so re-runs don't duplicate content (full
-    incremental dedup via content hash is Phase 3 scope — see docs/RAG_PIPELINE.md §1)."""
+    """Used before a full re-ingest to wipe all chunks of a given type.
+    Incremental runs (scheduler) skip this — they use get_existing_hashes() instead."""
     client = get_client()
     client.delete(
         collection_name=config.COLLECTION_NAME,
         points_selector=Filter(must=[FieldCondition(key="doc_type", match=MatchAny(any=[doc_type]))]),
     )
+
+
+def get_existing_hashes(doc_type: str | None = None, namespace: str | None = None) -> set[str]:
+    """Return all `content_hash` values currently stored for the given filter.
+
+    Used for incremental ingestion: a chunk whose text hash is already in Qdrant
+    is identical to what's stored, so we skip re-embedding and re-upserting it.
+    Reads with_vectors=False and fetches only the content_hash payload field to
+    keep the scroll cheap.
+    """
+    client = get_client()
+    must = []
+    if namespace:
+        must.append(FieldCondition(key="namespace", match=MatchAny(any=[namespace])))
+    if doc_type:
+        must.append(FieldCondition(key="doc_type", match=MatchAny(any=[doc_type])))
+    filt = Filter(must=must) if must else None
+
+    hashes: set[str] = set()
+    offset = None
+    while True:
+        records, next_offset = client.scroll(
+            collection_name=config.COLLECTION_NAME,
+            scroll_filter=filt,
+            limit=1000,
+            offset=offset,
+            with_payload=["content_hash"],
+            with_vectors=False,
+        )
+        for r in records:
+            h = (r.payload or {}).get("content_hash")
+            if h:
+                hashes.add(h)
+        if next_offset is None:
+            break
+        offset = next_offset
+    return hashes
 
 
 def collection_size() -> int:

@@ -264,7 +264,7 @@
 .qs-mini:hover {
   background: transparent !important;
   border-color: rgba(199,240,0,.4) !important;
-  color: #c7f000 !important;
+  color: var(--accent-secondary) !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 0 0 1px rgba(199,240,0,.15) !important;
 }

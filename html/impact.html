@@ -6,7 +6,7 @@
 </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=4" defer></script>
     
   <meta charset="UTF-8">
@@ -18,7 +18,10 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-  <title>Small Changes, Big Impact</title>
+  <title>Small Changes, Big Impact | FIN-OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -164,7 +167,7 @@
           <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#c7f000,#4d7cff);
                display:flex;align-items:center;justify-content:center;font-size:18px;">🦋</div>
           <div>
-            <div style="font-weight:700;font-size:13px;color:#c7f000;letter-spacing:.4px;">ARYA • YOUR COMPOUND IMPACT STORY</div>
+            <div style="font-weight:700;font-size:13px;color: var(--accent-secondary);letter-spacing:.4px;">ARYA • YOUR COMPOUND IMPACT STORY</div>
             <div style="font-size:11px;color:rgba(255,255,255,.4);">Enter your numbers → get your personal compound story</div>
           </div>
         </div>
@@ -337,16 +340,19 @@ Desi tone, inspiring, use their REAL numbers. No preamble.`;
 
 <style>
 #floatBackBtn {
-  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  /* Clear of the 232px sidebar on desktop */
+  position: fixed; bottom: 22px; left: 256px; z-index: 9999;
   padding: 8px 16px 8px 12px; border-radius: 10px;
   background: var(--bg-surface); border: 1px solid var(--border-soft);
-  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  color: var(--text-secondary); font-family: var(--font-mono);
   font-size: 11px; font-weight: 600; letter-spacing: .06em;
   cursor: pointer; display: flex; align-items: center; gap: 6px;
   transition: background .2s, color .2s, transform .2s;
   backdrop-filter: blur(10px); text-decoration: none;
 }
 #floatBackBtn:hover { background: transparent; color: var(--text-primary); transform: translateX(-3px); }
+/* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
+@media (max-width: 768px) { #floatBackBtn { display: none; } }
 
 /* ── LIGHT MODE ── */
 [data-theme="light"] #impact-monthly,
@@ -359,7 +365,7 @@ Desi tone, inspiring, use their REAL numbers. No preamble.`;
 </style>
 <a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <script src="../js/sidebar.js"></script>

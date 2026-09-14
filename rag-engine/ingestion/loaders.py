@@ -35,7 +35,6 @@ def load_html(path: Path) -> LoadedDocument:
 
     body = soup.body or soup
     text = body.get_text(separator=" ", strip=True)
-    # Collapse repeated whitespace left over from stripped tags
     text = " ".join(text.split())
 
     return LoadedDocument(
@@ -44,6 +43,60 @@ def load_html(path: Path) -> LoadedDocument:
         source_path=str(path),
         metadata={"page_key": path.stem},
     )
+
+
+def load_html_sections(path: Path) -> list[LoadedDocument]:
+    """Split a FIN-OS HTML page into one LoadedDocument per h2/h3 section.
+
+    This improves retrieval precision: a query about "tax slabs" lands on the
+    exact section rather than a mid-page chunk that loses heading context.
+    Falls back to a single full-page document when no h2/h3 exists.
+    """
+    raw = path.read_text(encoding="utf-8", errors="ignore")
+    soup = BeautifulSoup(raw, "html.parser")
+
+    title_tag = soup.title
+    page_title = title_tag.string.strip() if title_tag and title_tag.string else path.stem
+
+    for tag in soup(_BOILERPLATE_TAGS):
+        tag.decompose()
+
+    body = soup.body or soup
+
+    # Walk top-level children, grouping elements between h2/h3 headings.
+    raw_sections: list[tuple[str, list]] = []  # (heading_text, elements)
+    current_heading = ""
+    current_els: list = []
+
+    for el in body.children:
+        if hasattr(el, "name") and el.name in ("h2", "h3"):
+            if current_els:
+                raw_sections.append((current_heading, current_els))
+            current_heading = el.get_text(strip=True)
+            current_els = []
+        else:
+            current_els.append(el)
+
+    if current_els:
+        raw_sections.append((current_heading, current_els))
+
+    docs: list[LoadedDocument] = []
+    for heading, els in raw_sections:
+        section_text = " ".join(
+            " ".join(e.get_text(separator=" ").split()) if hasattr(e, "get_text") else str(e).strip()
+            for e in els
+        ).strip()
+        if not section_text:
+            continue
+        full_text = f"{heading}\n\n{section_text}" if heading else section_text
+        docs.append(LoadedDocument(
+            text=full_text,
+            title=f"{page_title} — {heading}" if heading else page_title,
+            source_path=str(path),
+            metadata={"page_key": path.stem, "section_heading": heading},
+        ))
+
+    return docs if docs else [load_html(path)]
 
 
 def load_pdf(path: Path) -> LoadedDocument:
@@ -73,11 +126,11 @@ def load_pdf(path: Path) -> LoadedDocument:
 
 
 def load_finos_pages(html_dir: Path) -> list[LoadedDocument]:
-    """Load every .html page in the FIN-OS html/ directory."""
+    """Load every .html page in the FIN-OS html/ directory, split at h2/h3 section boundaries."""
     docs = []
     for path in sorted(html_dir.glob("*.html")):
         try:
-            docs.append(load_html(path))
+            docs.extend(load_html_sections(path))
         except Exception as e:
             print(f"[loaders] failed to load {path.name}: {e}")
     return docs

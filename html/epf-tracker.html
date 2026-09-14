@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="EPF & PF Tracker — Track your Employees' Provident Fund balance, contributions, and retirement corpus projection.">
+  <title>EPF Tracker | FIN-OS</title>
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/interactions.css">
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
+  <script src="../js/finos-epf-tracker.js" defer></script>
+
+  <style>
+    /* ── Page ────────────────────────────────────────── */
+    .epf-page { background: var(--bg-main); min-height: 100vh; }
+    .epf-main-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 40px 120px;
+    }
+
+    /* ── Header ──────────────────────────────────────── */
+    .epf-back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; color: rgba(255,255,255,.4);
+      text-decoration: none; margin-bottom: 24px;
+      transition: color .2s;
+    }
+    .epf-back-link:hover { color: #22D3A6; }
+    .epf-page-header {
+      display: flex; align-items: flex-start; gap: 14px;
+      margin-bottom: 32px;
+    }
+    .epf-page-icon { font-size: 36px; line-height: 1; }
+    .epf-page-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(22px, 3vw, 32px); font-weight: 800;
+      color: #fff; margin: 0 0 6px; letter-spacing: -.01em;
+    }
+    .epf-page-sub {
+      font-size: 14px; color: rgba(255,255,255,.5); margin: 0; line-height: 1.6;
+    }
+
+    /* ── Tabs ────────────────────────────────────────── */
+    .epf-tabs {
+      display: flex; gap: 4px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px; padding: 4px;
+      margin-bottom: 28px; width: fit-content;
+    }
+    .epf-tab {
+      padding: 8px 20px; border-radius: 9px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px; font-weight: 600;
+      color: rgba(255,255,255,.5); border: none;
+      background: transparent; cursor: pointer;
+      transition: all .2s;
+    }
+    .epf-tab.active {
+      background: rgba(34,211,166,.15);
+      border: 1px solid rgba(34,211,166,.3);
+      color: #22D3A6;
+    }
+    .epf-tab:hover:not(.active) { color: rgba(255,255,255,.8); }
+
+    /* ── Panel container ─────────────────────────────── */
+    .epf-panels { display: grid; gap: 20px; }
+    .epf-panel { display: none; }
+    .epf-panel.active { display: block; }
+
+    /* ── Form ────────────────────────────────────────── */
+    .epf-form {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px; padding: 26px;
+      margin-bottom: 20px;
+    }
+    .epf-form-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 8px;
+    }
+    .epf-form-hint {
+      font-size: 12px; color: rgba(255,255,255,.4); margin-bottom: 22px; line-height: 1.5;
+    }
+    .epf-field-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px; margin-bottom: 20px;
+    }
+    .epf-field { display: flex; flex-direction: column; gap: 6px; }
+    .epf-field label {
+      font-size: 11px; font-weight: 600; letter-spacing: .05em;
+      text-transform: uppercase; color: rgba(255,255,255,.4);
+    }
+    .epf-inp {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px; color: #fff;
+      font-family: var(--font-mono);
+      font-size: 14px; padding: 10px 14px;
+      width: 100%; box-sizing: border-box;
+      transition: border-color .2s, background .2s; outline: none;
+    }
+    .epf-inp:focus {
+      border-color: rgba(34,211,166,.5);
+      background: rgba(34,211,166,.05);
+    }
+    .epf-inp::placeholder { color: rgba(255,255,255,.25); }
+    .epf-rates-box {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+      padding: 16px;
+      background: rgba(34,211,166,.04);
+      border: 1px solid rgba(34,211,166,.15);
+      border-radius: 12px;
+    }
+    .epf-rate-item { display: flex; flex-direction: column; gap: 2px; }
+    .epf-rate-lbl { font-size: 10px; color: rgba(255,255,255,.4); }
+    .epf-rate-val { font-size: 15px; font-weight: 800; color: #22D3A6; }
+    .epf-rate-note { font-size: 10px; color: rgba(255,255,255,.3); }
+
+    /* ── Overview styles ─────────────────────────────── */
+    .epf-balance-card {
+      background: linear-gradient(135deg, rgba(34,211,166,.12), rgba(34,211,166,.04));
+      border: 1px solid rgba(34,211,166,.3);
+      border-top: 3px solid #22D3A6;
+      border-radius: 18px; padding: 28px 28px 24px;
+      text-align: center; margin-bottom: 24px;
+    }
+    .epf-balance-lbl { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 10px; }
+    .epf-balance-val {
+      font-family: var(--font-mono);
+      font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+      color: #22D3A6; margin-bottom: 8px;
+    }
+    .epf-balance-sub { font-size: 13px; color: rgba(255,255,255,.45); margin-bottom: 12px; }
+    .epf-balance-badge {
+      display: inline-block;
+      padding: 4px 14px; border-radius: 20px;
+      background: rgba(34,211,166,.1); border: 1px solid rgba(34,211,166,.25);
+      font-size: 11px; font-weight: 700; color: #22D3A6;
+    }
+    .epf-section-title {
+      font-size: 11px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: rgba(255,255,255,.4);
+      margin-bottom: 14px;
+    }
+    .epf-contrib-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px; margin-bottom: 20px;
+    }
+    .epf-contrib-card {
+      border-radius: 14px; padding: 16px; text-align: center;
+    }
+    .epf-contrib-emp  { background: rgba(34,211,166,.08); border: 1px solid rgba(34,211,166,.2); }
+    .epf-contrib-empr { background: rgba(79,124,255,.08); border: 1px solid rgba(79,124,255,.2); }
+    .epf-contrib-eps  { background: rgba(255,184,0,.06);  border: 1px solid rgba(255,184,0,.2); }
+    .epf-contrib-total{ background: rgba(199,240,0,.06);  border: 1px solid rgba(199,240,0,.2); }
+    .epf-contrib-lbl { font-size: 11px; color: rgba(255,255,255,.5); margin-bottom: 8px; line-height: 1.4; }
+    .epf-contrib-val {
+      font-family: var(--font-mono);
+      font-size: 18px; font-weight: 800; color: #fff;
+    }
+    .epf-per-mo { font-size: 11px; font-weight: 400; color: rgba(255,255,255,.4); }
+    .epf-contrib-annual { font-size: 11px; color: rgba(255,255,255,.35); margin-top: 4px; }
+    .epf-interest-banner {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px; padding: 18px 20px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px; margin-bottom: 20px;
+    }
+    .epf-int-lbl { font-size: 10px; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    .epf-int-val { font-size: 15px; font-weight: 700; color: #fff; }
+    .epf-compare-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px; margin-bottom: 20px;
+    }
+    .epf-compare-item {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px; padding: 14px; text-align: center;
+    }
+    .epf-compare-name { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.7); margin-bottom: 6px; }
+    .epf-compare-rate { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+    .epf-compare-tax  { font-size: 10px; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,.06); color: rgba(255,255,255,.5); margin-bottom: 4px; display: inline-block; }
+    .epf-compare-note { font-size: 10px; color: rgba(255,255,255,.3); }
+    .epf-passbook-link {
+      display: inline-block; margin-top: 8px;
+      padding: 10px 18px; border-radius: 10px;
+      background: rgba(34,211,166,.08); border: 1px solid rgba(34,211,166,.2);
+      color: #22D3A6; font-size: 13px; font-weight: 600;
+      text-decoration: none; transition: background .2s;
+    }
+    .epf-passbook-link:hover { background: rgba(34,211,166,.15); }
+
+    /* ── Projection styles ───────────────────────────── */
+    .epf-proj-hero {
+      background: linear-gradient(135deg, rgba(34,211,166,.1), rgba(79,124,255,.06));
+      border: 1px solid rgba(34,211,166,.25);
+      border-top: 3px solid #22D3A6;
+      border-radius: 18px; padding: 32px; text-align: center;
+      margin-bottom: 24px;
+    }
+    .epf-proj-sub { font-size: 13px; color: rgba(255,255,255,.5); margin-bottom: 10px; }
+    .epf-proj-val {
+      font-family: var(--font-mono);
+      font-size: clamp(32px, 5vw, 52px); font-weight: 900;
+      color: #22D3A6; margin-bottom: 12px;
+    }
+    .epf-proj-meta { font-size: 13px; color: rgba(255,255,255,.4); }
+    .epf-proj-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px; margin-bottom: 28px;
+    }
+    .epf-proj-item {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px; padding: 18px; text-align: center;
+    }
+    .epf-proj-lbl { font-size: 11px; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+    .epf-proj-num {
+      font-family: var(--font-mono);
+      font-size: 19px; font-weight: 800; margin-bottom: 4px;
+    }
+    .epf-proj-note { font-size: 11px; color: rgba(255,255,255,.35); }
+
+    /* Milestone timeline */
+    .epf-milestone-row {
+      display: flex; align-items: flex-start; gap: 0;
+      margin-bottom: 28px; overflow-x: auto; padding-bottom: 8px;
+    }
+    .epf-milestone {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 8px; flex: 1; min-width: 80px; position: relative;
+    }
+    .epf-milestone:not(:last-child)::after {
+      content: '';
+      position: absolute; top: 7px; left: 50%;
+      width: 100%; height: 2px;
+      background: rgba(255,255,255,.1);
+    }
+    .epf-ms-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.2);
+      z-index: 1; flex-shrink: 0;
+    }
+    .epf-milestone.current .epf-ms-dot { background: #22D3A6; border-color: #22D3A6; }
+    .epf-milestone.retire .epf-ms-dot { background: #c7f000; border-color: var(--accent-secondary); box-shadow: 0 0 8px rgba(199,240,0,.4); }
+    .epf-ms-lbl { font-size: 11px; color: rgba(255,255,255,.4); }
+    .epf-ms-val { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: #fff; text-align: center; }
+
+    /* VPF box */
+    .epf-vpf-box {
+      background: rgba(79,124,255,.06); border: 1px solid rgba(79,124,255,.2);
+      border-radius: 14px; padding: 20px; margin-bottom: 16px;
+    }
+    .epf-vpf-title { font-size: 14px; font-weight: 700; color: #4F7CFF; margin-bottom: 8px; }
+    .epf-vpf-body { font-size: 13px; color: rgba(255,255,255,.65); line-height: 1.6; margin: 0; }
+    .epf-vpf-body strong { color: #4F7CFF; }
+
+    .epf-assumption-note {
+      font-size: 11px; color: rgba(255,255,255,.25); line-height: 1.6;
+      padding: 12px; border-radius: 10px; background: rgba(255,255,255,.02);
+    }
+
+    /* ── Empty state ─────────────────────────────────── */
+    .epf-empty {
+      padding: 40px 28px; text-align: center;
+      color: rgba(255,255,255,.35); font-size: 14px; line-height: 1.6;
+      background: rgba(255,255,255,.02); border-radius: 14px;
+      border: 1px dashed rgba(255,255,255,.1);
+    }
+
+    /* ── Light theme ─────────────────────────────────── */
+    [data-theme="light"] .epf-page       { background: #F4F6FB; }
+    [data-theme="light"] .epf-page-title { color: #0B0D12; }
+    [data-theme="light"] .epf-page-sub   { color: #4A5068; }
+    [data-theme="light"] .epf-form       { background: #fff; border-color: rgba(0,0,0,.08); }
+    [data-theme="light"] .epf-form-title { color: #0B0D12; }
+    [data-theme="light"] .epf-form-hint  { color: #6A7090; }
+    [data-theme="light"] .epf-inp        { background: #F4F6FB; border-color: rgba(0,0,0,.12); color: #0B0D12; }
+    [data-theme="light"] .epf-inp:focus  { border-color: rgba(34,211,166,.5); }
+    [data-theme="light"] .epf-tabs       { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.08); }
+    [data-theme="light"] .epf-tab        { color: #6A7090; }
+    [data-theme="light"] .epf-proj-item,
+    [data-theme="light"] .epf-compare-item,
+    [data-theme="light"] .epf-interest-banner { background: #fff; border-color: rgba(0,0,0,.08); }
+    [data-theme="light"] .epf-int-val    { color: #0B0D12; }
+    [data-theme="light"] .epf-ms-val     { color: #0B0D12; }
+    [data-theme="light"] .epf-section-title { color: #6A7090; }
+    [data-theme="light"] .epf-balance-sub,
+    [data-theme="light"] .epf-proj-meta  { color: #6A7090; }
+
+    /* ── Responsive ──────────────────────────────────── */
+    @media (max-width: 700px) {
+      .epf-main-wrap { padding: 24px 16px 80px; }
+      .epf-compare-grid { grid-template-columns: 1fr 1fr; }
+      .epf-proj-strip { grid-template-columns: 1fr; }
+      .epf-field-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar" role="complementary" aria-label="Navigation">
+    <div class="sb-brand">
+      <div class="sb-logomark" aria-hidden="true"><span class="sb-logomark-letter">F</span></div>
+      <div class="sb-wordmark">
+        <div class="sb-wordmark-name">FIN•OS</div>
+        <div class="sb-wordmark-tag">Financial OS</div>
+      </div>
+    </div>
+
+    <a href="profile.html" class="sb-identity" aria-label="Your profile">
+      <div class="sb-av" id="sb-av" aria-hidden="true">I</div>
+      <div class="sb-identity-body">
+        <div class="sb-identity-name" id="sb-name">Investor</div>
+        <div class="sb-identity-meta">
+          <span class="sb-identity-dna" id="sb-dna">Financial DNA</span>
+          <span class="sb-health-pill" id="sb-health-pill"></span>
+        </div>
+      </div>
+      <span class="sb-identity-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </a>
+
+    <button class="sb-cmd" id="sb-cmd" aria-label="Search (Ctrl+K)">
+      <span class="sb-cmd-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="sb-cmd-label">Search or jump to…</span>
+      <kbd class="sb-cmd-kbd" aria-hidden="true">⌘K</kbd>
+    </button>
+
+    <nav class="sb-nav" aria-label="Main">
+      <a href="home.html" class="sb-link" title="Home">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        <span class="sb-label">Home</span>
+      </a>
+      <a href="dashboard.html" class="sb-link" title="Dashboard">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>
+        <span class="sb-label">Dashboard</span>
+        <span class="sb-badge" id="sb-streak" aria-label="count"></span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="foundations.html" class="sb-link" title="Learn">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+        <span class="sb-label">Learn</span>
+      </a>
+      <a href="simulator-landing.html" class="sb-link" title="Mindset">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span>
+        <span class="sb-label">Mindset</span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="diagnostics.html" class="sb-link" title="Diagnostics">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+        <span class="sb-label">Diagnostics</span>
+      </a>
+      <a href="track-finances.html" class="sb-link active" aria-current="page" title="Track">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+        <span class="sb-label">Track</span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="markets.html" class="sb-link" title="Markets">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+        <span class="sb-label">Markets</span>
+      </a>
+      <a href="tools.html" class="sb-link" title="Tools">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+        <span class="sb-label">Tools</span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="news.html" class="sb-link" title="News">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span>
+        <span class="sb-label">News</span>
+      </a>
+    </nav>
+
+    <div class="sb-footer-zone">
+      <button class="sb-arya-row" id="sb-arya-btn"
+              aria-label="Arya AI — your financial coach"
+              onclick="document.querySelector('.finos-fab')?.click?.();">
+        <div class="sb-arya-icon" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span class="sb-arya-dot checking" id="sb-arya-dot"></span>
+        </div>
+        <div class="sb-arya-body">
+          <div class="sb-arya-name">Arya AI</div>
+          <div class="sb-arya-status checking" id="sb-arya-status">Connecting…</div>
+        </div>
+        <span class="sb-arya-arrow" aria-hidden="true">›</span>
+      </button>
+      <a href="settings.html" class="sb-settings-row" title="Settings">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        <span class="sb-label">Settings</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main epf-page">
+    <div class="epf-main-wrap">
+
+      <a href="track-finances.html" class="epf-back-link">← Back to Track Finances</a>
+
+      <div class="epf-page-header">
+        <div class="epf-page-icon">🏛️</div>
+        <div>
+          <h1 class="epf-page-title">EPF & PF Tracker</h1>
+          <p class="epf-page-sub">Track your Employees' Provident Fund, see the full contribution breakdown (EPF + EPS),<br>and project your retirement corpus with 8.25% guaranteed compounding.</p>
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;">
+        <a href="net-worth.html" style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">Net Worth →</a>
+        <a href="fd-tracker.html" style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">Fixed Income →</a>
+        <a href="tax.html" style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">Tax Optimizer →</a>
+        <a href="life-goals-planner.html" style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">Retirement Goals →</a>
+      </div>
+
+      <!-- Input form (always visible) -->
+      <div id="epf-form-mount"></div>
+
+      <!-- Tab switcher -->
+      <div class="epf-tabs">
+        <button class="epf-tab active" id="epf-tab-overview"    onclick="epfSwitch('overview')">📊 Overview</button>
+        <button class="epf-tab"        id="epf-tab-projection"  onclick="epfSwitch('projection')">🔮 Retirement Projection</button>
+      </div>
+
+      <!-- Panels -->
+      <div class="epf-panels">
+        <div class="epf-panel active" id="epf-panel-overview"></div>
+        <div class="epf-panel"        id="epf-panel-projection"></div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--bg-surface); border: 1px solid var(--border-soft);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s; backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: transparent; transform: scale(1.08); }
+[data-theme="light"] #floatThemeBtn { color: var(--text-primary) !important; }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+<script>
+function waitFor(fn, cb, ms) {
+  if (fn()) { cb(); return; }
+  setTimeout(() => waitFor(fn, cb, ms), ms || 150);
+}
+
+var _epfTabInited = {};
+
+function epfSwitch(tab) {
+  ['overview','projection'].forEach(function(t) {
+    document.getElementById('epf-panel-' + t).classList.toggle('active', t === tab);
+    document.getElementById('epf-tab-' + t).classList.toggle('active', t === tab);
+  });
+  if (!_epfTabInited[tab]) {
+    _epfTabInited[tab] = true;
+    waitFor(
+      () => typeof window.FinosEPFTracker !== 'undefined',
+      () => {
+        const el = document.getElementById('epf-panel-' + tab);
+        if (tab === 'overview')   window.FinosEPFTracker.renderOverview(el);
+        if (tab === 'projection') window.FinosEPFTracker.renderProjection(el);
+      }
+    );
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  waitFor(
+    () => typeof window.FinosEPFTracker !== 'undefined',
+    () => {
+      window.FinosEPFTracker.renderForm(document.getElementById('epf-form-mount'));
+      // Init default tab
+      _epfTabInited['overview'] = true;
+      window.FinosEPFTracker.renderOverview(document.getElementById('epf-panel-overview'));
+    }
+  );
+});
+</script>
+
+<script src="../js/ui.js" defer></script>
+<script src="../js/mobile-nav.js" defer></script>
+<script src="../js/pwa-init.js"></script>
+<script src="../js/finos-widget.js?v=8"></script>
+<script src="../js/finos-mobile.js" defer></script>
+<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/interactions.js" defer></script>
+</body>
+</html>

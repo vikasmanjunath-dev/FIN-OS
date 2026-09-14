@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg: #0a0a12; --s1: #111122; --s2: #181830; --border: rgba(255,255,255,0.09);
+    --txt: #e8e4ff; --mu: #6a6a9a;
+    --c: #00d4ff; --g: #00ff88; --y: #ffcc00; --p: #a78bfa; --r: #ff6b8a; --o: #ff9d4d;
+    --mono: 'Courier New', monospace;
+    --sans: system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--txt); font-family: var(--sans); padding: 28px 20px 48px; width: 780px; }
+
+  h1 { text-align: center; font-family: var(--mono); font-size: 11px; letter-spacing: 4px;
+       color: var(--c); text-transform: uppercase; margin-bottom: 5px; }
+  .sub { text-align: center; font-size: 12px; color: var(--mu); margin-bottom: 26px; }
+
+  .pipe { max-width: 740px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0; }
+
+  .step {
+    width: 100%; background: var(--s1); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 18px; display: flex; align-items: flex-start;
+    gap: 13px;
+  }
+
+  .step-num {
+    font-family: var(--mono); font-size: 10px; color: var(--mu); flex-shrink: 0;
+    background: var(--s2); border-radius: 6px; padding: 3px 7px; margin-top: 1px;
+  }
+  .step-icon { font-size: 22px; flex-shrink: 0; line-height: 1.2; }
+
+  .step-body { flex: 1; min-width: 0; }
+  .step-title { font-size: 13.5px; font-weight: 700; margin-bottom: 4px; }
+  .step-desc { font-size: 11.5px; color: var(--mu); line-height: 1.65; margin-bottom: 8px; }
+
+  .libs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .lib {
+    font-family: var(--mono); font-size: 10px; padding: 2px 9px;
+    border-radius: 5px; border: 1px solid; display: inline-block;
+  }
+  .lib-g { color: var(--g); border-color: rgba(0,255,136,.3); background: rgba(0,255,136,.07); }
+  .lib-c { color: var(--c); border-color: rgba(0,212,255,.3); background: rgba(0,212,255,.07); }
+  .lib-p { color: var(--p); border-color: rgba(167,139,250,.3); background: rgba(167,139,250,.07); }
+  .lib-y { color: var(--y); border-color: rgba(255,204,0,.3); background: rgba(255,204,0,.07); }
+  .lib-r { color: var(--r); border-color: rgba(255,107,138,.3); background: rgba(255,107,138,.07); }
+  .lib-o { color: var(--o); border-color: rgba(255,157,77,.3); background: rgba(255,157,77,.07); }
+  .lib-w { color: #9a9ac0; border-color: rgba(255,255,255,.15); background: rgba(255,255,255,.04); }
+
+  .step.st { border-left: 3px solid var(--g); }
+  .step.sp { border-left: 3px solid var(--c); }
+  .step.sl { border-left: 3px solid var(--y); }
+  .step.sm { border-left: 3px solid var(--p); }
+  .step.sr { border-left: 3px solid var(--r); }
+  .step.so { border-left: 3px solid var(--o); }
+
+  .arr {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 3px 0; gap: 1px;
+  }
+  .arr-line { width: 2px; height: 18px; background: var(--border); }
+  .arr-head { width: 0; height: 0; border-left: 5px solid transparent;
+              border-right: 5px solid transparent; border-top: 8px solid rgba(255,255,255,0.15); }
+  .arr-label { font-family: var(--mono); font-size: 9.5px; color: var(--mu); letter-spacing: .5px; }
+
+  .branch-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+  .branch-tag {
+    font-family: var(--mono); font-size: 9.5px; color: var(--mu);
+    text-align: center; padding-bottom: 7px; letter-spacing: 1px; width: 100%;
+  }
+
+  .legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px; margin-bottom: 22px; }
+  .leg { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--mu); }
+  .leg-bar { width: 16px; height: 3px; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<h1>FIN-OS Voice AI — Pipeline Flow</h1>
+<div class="sub">Library used at each step · v10 · Whisper → Ollama → Edge TTS</div>
+
+<div class="legend">
+  <div class="leg"><div class="leg-bar" style="background:var(--g)"></div> Input</div>
+  <div class="leg"><div class="leg-bar" style="background:var(--c)"></div> Network</div>
+  <div class="leg"><div class="leg-bar" style="background:var(--y)"></div> Processing</div>
+  <div class="leg"><div class="leg-bar" style="background:var(--p)"></div> AI / LLM</div>
+  <div class="leg"><div class="leg-bar" style="background:var(--r)"></div> Audio Out</div>
+  <div class="leg"><div class="leg-bar" style="background:var(--o)"></div> Memory</div>
+</div>
+
+<div class="pipe">
+
+  <div class="step st">
+    <div class="step-num">01</div>
+    <div class="step-icon">🎙️</div>
+    <div class="step-body">
+      <div class="step-title" style="color:var(--g)">Microphone Capture</div>
+      <div class="step-desc">Browser records 16kHz mono PCM · streams binary frames over WebSocket</div>
+      <div class="libs">
+        <span class="lib lib-c">websockets</span>
+        <span class="lib lib-w">MediaRecorder API</span>
+        <span class="lib lib-w">asyncio</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="arr"><div class="arr-line"></div><div class="arr-head"></div></div>
+
+  <div class="step st">
+    <div class="step-num">02</div>
+    <div class="step-icon">🔔</div>
+    <div class="step-body">
+      <div class="step-title" style="color:var(--g)">Wake Word Detection</div>
+      <div class="step-desc">Every 1280-sample chunk (80ms) scored · confidence ≥ 0.5 triggers recording · model: <b>hey_jarvis</b> (stand-in for Hey Arya)</div>
+      <div class="libs">
+        <span class="lib lib-g">openwakeword</span>
+        <span class="lib lib-g">numpy</span>
+        <span class="lib lib-w">onnxruntime</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="arr"><div class="arr-line"></div><div class="arr-label">16kHz WAV bytes</div><div class="arr-line"></div><div class="arr-head"></div></div>
+
+  <div class="step sl">
+    <div class="step-num">03</div>
+    <div class="step-icon">📝</div>
+    <div class="step-body">
+      <div class="step-title" style="color:var(--y)">Speech → Text (STT)</div>
+      <div class="step-desc">Whisper <b>tiny</b> · int8 quantised · 8 CPU threads · VAD filter removes silence · beam_size=1 for speed</div>
+      <div class="libs">
+        <span class="lib lib-y">faster-whisper</span>
+        <span class="lib lib-w">ctranslate2</span>
+        <span class="lib lib-w">tempfile (stdlib)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="arr"><div class="arr-line"></div><div class="arr-head"></div></div>
+
+  <div class="step sl">
+    <div class="step-num">04</div>
+    <div class="step-icon">🌐</div>
+    <div class="step-body">
+      <div class="step-title" style="color:var(--y)">Language Detection</div>
+      <div class="step-desc">Devanagari chars → <b>Hindi</b> · desi slang words → <b>Hinglish</b> · else → <b>English</b><br>Voice selected per lang: PrabhatNeural / MadhurNeural</div>
+      <div class="libs">
+        <span class="lib lib-w">re (stdlib)</span>
+        <span class="lib lib-w">detect_lang()</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="arr"><div class="arr-line"></div><div class="arr-head"></div></div>
+
+  <div class="branch-tag">⑤ PRE-PROCESSING — runs in parallel</div>
+  <div class="branch-row">
+    <div class="step sl" style="border-left-color:var(--r)">
+      <div class="step-icon">🔢</div>
+      <div class="step-body">
+        <div class="step-title" style="color:var(--r); font-size:12.5px;">Calculator Intent?</div>
+        <div class="step-desc" style="font-size:10.5px;">Regex detects SIP · EMI · Tax · FD · Lumpsum · Goal SIP → CalcEngine computes exact ₹ numbers</div>
+        <div class="libs">
+          <span class="lib lib-r">CalcEngine</span>
+          <span class="lib lib-w">re (stdlib)</span>
+        </div>
+      </div>
+    </div>
+    <div class="step sl" style="border-left-color:var(--o)">
+      <div class="step-icon">👁️</div>
+      <div class="step-body">
+        <div class="step-title" style="color:var(--o); font-size:12.5px;">Profile Extraction</div>
+        <div class="step-desc" style="font-size:10.5px;">Silently extracts name · income · age · goals · debts from every message</div>
+        <div class="libs">
+          <span class="lib lib-o">Memory class</span>
+          <span class="lib lib-w">re (stdlib)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arr"><div class="arr-line"></div><div class="arr-label">assembled system prompt</div><div class="arr-line"></div><div class="arr-head"></div></div>
+
+  <div class="step sm">
+    <div class="step-num">06</div>
+    <div class="step-icon">🧠</div>
+    <div class="step-body">
+      <div class="step-title" style="color:var(--p)">LLM — Ollama (on-device, streaming)</div>
+      <div class="step-desc">
+        Prompt = <b>SYSTEM_PROMPT</b> (FIN-OS soul + 12 Laws) + profile + live user data (portfolio, budget, trade journal) + last 10 turns + intent hint + language mode<br>
+        Model auto-selected by RAM · qwen3:14b / 8b / 4b / qwen2.5:3b · temp 0.75 · ctx 32 768 tokens
+      </div>
+      <div class="libs">
+        <span class="lib lib-p">ollama</span>
+        <span class="lib lib-w">asyncio</span>
+        <span class="lib lib-w">UserContext.to_prompt()</span>
+        <span class="lib lib-w">psutil (RAM detect)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="arr"><div class="arr-line"></div><div class="arr-label">token stream</div><div class="arr-line"></div><div class="arr-head"></div></div>
+
+  <div class="step sr">
+    <div class="step-num">07</div>
+    <div class="step-icon">🧹</div>
+    <div class="step-body">
+      <div class="step-title" style="color:var(--r)">Text Cleaning</div>
+      <div class="step-desc">Strip &lt;think&gt; blocks · remove markdown, URLs, parens · accumulate into sentences (min 6 chars) · up to 6 concurrent TTS tasks</div>
+      <div class="libs">
+        <span class="lib lib-r">re (stdlib)</span>
+        <span class="lib lib-w">_strip() · clean_tts()</span>
+        <span class="lib lib-w">asyncio.Semaphore</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="arr"><div class="arr-line"></div><div class="arr-head"></div></div>
+
+  <div class="step sr">
+    <div class="step-num">08</div>
+    <div class="step-icon">🔊</div>
+    <div class="step-body">
+      <div class="step-title" style="color:var(--r)">Text → Speech (TTS)</div>
+      <div class="step-desc">Microsoft Edge Neural voices · <b>en-IN-PrabhatNeural</b> (English/Hinglish) · <b>hi-IN-MadhurNeural</b> (Hindi) · Rate +12% · Pitch −3Hz · returns MP3 bytes</div>
+      <div class="libs">
+        <span class="lib lib-r">edge-tts</span>
+        <span class="lib lib-w">asyncio</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="arr"><div class="arr-line"></div><div class="arr-label">base64 MP3 → WebSocket</div><div class="arr-line"></div><div class="arr-head"></div></div>
+
+  <div class="step sp">
+    <div class="step-num">09</div>
+    <div class="step-icon">🖥️</div>
+    <div class="step-body">
+      <div class="step-title" style="color:var(--c)">Browser — Playback</div>
+      <div class="step-desc">Audio chunks queued for gapless streaming · text displayed alongside · playback starts on first sentence (low latency)</div>
+      <div class="libs">
+        <span class="lib lib-c">websockets</span>
+        <span class="lib lib-w">Web Audio API</span>
+        <span class="lib lib-w">base64 (stdlib)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="arr"><div class="arr-line"></div><div class="arr-head"></div></div>
+
+  <div class="step so">
+    <div class="step-num">10</div>
+    <div class="step-icon">💾</div>
+    <div class="step-body">
+      <div class="step-title" style="color:var(--o)">Memory — Save &amp; Recall</div>
+      <div class="step-desc">
+        <b>In-session:</b> deque of last 20 turns in RAM<br>
+        <b>Cross-session:</b> profile + turns upserted to Supabase every 5 min<br>
+        <b>Semantic:</b> key facts embedded &amp; stored in pgvector · recalled by cosine similarity next session<br>
+        <b>On disconnect:</b> LLM writes 120-word memory note → saved for next login
+      </div>
+      <div class="libs">
+        <span class="lib lib-o">httpx</span>
+        <span class="lib lib-o">sentence-transformers</span>
+        <span class="lib lib-w">collections.deque</span>
+        <span class="lib lib-w">Supabase REST</span>
+        <span class="lib lib-w">pgvector</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:16px"></div>
+
+  <div class="step so" style="border-left-color: var(--g); border-style: dashed; opacity: 0.85;">
+    <div class="step-num" style="color:var(--g)">bg</div>
+    <div class="step-icon">⏰</div>
+    <div class="step-body">
+      <div class="step-title" style="color:var(--g)">Proactive Briefing Engine <span style="font-size:10px;color:var(--mu);font-weight:400">(background task)</span></div>
+      <div class="step-desc">Daily 7am brief · Sunday weekly review · Spend anomaly detection (≥1.5× month spike) · LLM generates 3-sentence brief · disk-cached 20hrs · spoken on next app open</div>
+      <div class="libs">
+        <span class="lib lib-g">asyncio</span>
+        <span class="lib lib-g">ollama</span>
+        <span class="lib lib-w">datetime (stdlib)</span>
+        <span class="lib lib-w">json (stdlib)</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

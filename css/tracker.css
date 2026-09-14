@@ -75,12 +75,12 @@
 .ticker__item {
   display: inline-block;
   padding: 10px 30px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 1rem;
   color: #fff;
 }
 
-.up { color: #C7F000; }
+.up { color: var(--accent-secondary); }
 .down { color: #ff4757; }
 .flat { color: #ccc; }
 
@@ -150,7 +150,7 @@
 
 .holo-body h2 {
   font-size: 3rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   margin: 0;
   color: #fff;
 }
@@ -210,7 +210,7 @@
   background: #000;
   color: #fff;
   border: 1px solid var(--accent-secondary);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 1.2rem;
   font-weight: 700;
   text-decoration: none;

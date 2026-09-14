@@ -53,7 +53,7 @@ html, body {
   height: calc(100vh - 80px);
   border-radius: 16px;
 }
-.toc-header { font-family: 'JetBrains Mono'; font-size: 0.8rem; letter-spacing: 2px; color: var(--crypto-purple); margin-bottom: 25px; font-weight: 700; }
+.toc-header { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 2px; color: var(--crypto-purple); margin-bottom: 25px; font-weight: 700; }
 .toc-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
 .toc-link { color: var(--text-secondary); text-decoration: none; padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; display: block; transition: all 0.2s; }
 .toc-link.active { background: rgba(155, 89, 182, 0.15); color: var(--crypto-purple); font-weight: 700; border-left: 3px solid var(--crypto-purple); }
@@ -78,7 +78,7 @@ html, body {
 .chapter h1 { font-size: 3.5rem; margin-bottom: 20px; color: #FFFFFF !important; }
 .chapter h2 { font-size: 2rem; margin-bottom: 30px; color: #FFFFFF !important; border-left: 4px solid var(--crypto-purple); padding-left: 15px; }
 .chapter p { font-size: 1.15rem; line-height: 1.7; color: #A1A8B8 !important; margin-bottom: 20px; max-width: 800px; }
-.chapter-badge { display: inline-block; padding: 6px 12px; background: rgba(155, 89, 182, 0.1); color: var(--crypto-purple); border-radius: 100px; font-family: 'JetBrains Mono'; font-size: 0.75rem; margin-bottom: 20px; }
+.chapter-badge { display: inline-block; padding: 6px 12px; background: rgba(155, 89, 182, 0.1); color: var(--crypto-purple); border-radius: 100px; font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 20px; }
 
 /* --- HERO & WARNING --- */
 .warning-banner { background: rgba(155, 89, 182, 0.1); border: 1px solid var(--crypto-purple); padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; margin: 20px 0; }
@@ -87,7 +87,7 @@ html, body {
 
 /* --- NOTEBOOK VISUAL --- */
 .notebook-visual { display: flex; gap: 30px; align-items: center; margin-bottom: 20px; }
-.book { width: 200px; height: 140px; background: #fff; color: #000; border-radius: 8px; padding: 15px; font-family: 'JetBrains Mono'; font-size: 0.8rem; box-shadow: 0 0 20px rgba(155, 89, 182, 0.2); transform: rotate(-2deg); }
+.book { width: 200px; height: 140px; background: #fff; color: #000; border-radius: 8px; padding: 15px; font-family: var(--font-mono); font-size: 0.8rem; box-shadow: 0 0 20px rgba(155, 89, 182, 0.2); transform: rotate(-2deg); }
 .line { border-bottom: 1px dashed #ccc; padding: 5px 0; }
 .locked { color: var(--crypto-purple); font-weight: 700; margin-top: 10px; border: none; }
 .network { display: flex; gap: 10px; }
@@ -139,7 +139,7 @@ html, body {
 
 /* --- CHART & FOOTER --- */
 .chart-container { position: relative; height: 350px; width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 20px; margin: 30px 0; color: #FFFFFF !important; }
-.chart-caption { text-align: center; font-family: 'JetBrains Mono'; font-size: 0.8rem; color: var(--text-secondary); margin-top: 15px; opacity: 0.8; }
+.chart-caption { text-align: center; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-secondary); margin-top: 15px; opacity: 0.8; }
 
 .deep-footer { margin-top: 100px; text-align: center; padding: 80px; border-top: 1px solid rgba(255,255,255,0.1); }
 .deep-footer h2 { color: #FFFFFF !important; margin-bottom: 20px; }

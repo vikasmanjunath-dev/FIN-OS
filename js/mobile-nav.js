@@ -22,12 +22,17 @@
     if (!mainContent.id) mainContent.id = 'main-content';
   }
 
-  // Only activate mobile topbar on small viewports
-  if (window.innerWidth > 900) return;
+  // Always inject; CSS media queries decide visibility. (Injecting only
+  // when innerWidth <= 900 left desktop loads without a topbar after a
+  // rotate/resize, and inline display styles leaked into desktop widths.)
 
   /* ── Inject styles ─────────────────────────────────────────── */
   const style = document.createElement('style');
   style.textContent = `
+    /* Hidden by default — the media query below is the only thing
+       that ever shows mobile chrome. Never set display inline. */
+    .mob-topbar { display: none; }
+
     /* Reset sidebar for mobile — override any inline positioning */
     @media (max-width: 900px) {
       .sidebar {
@@ -68,7 +73,6 @@
   topbar.className = 'mob-topbar';
   topbar.setAttribute('role', 'banner');
   topbar.style.cssText = `
-    display: flex;
     position: fixed;
     top: 0; left: 0; right: 0;
     height: 56px;

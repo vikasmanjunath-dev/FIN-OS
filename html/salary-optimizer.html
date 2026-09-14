@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Salary CTC Optimizer — Structure your salary for maximum take-home. HRA exemption, NPS, LTA, flexi benefits and old vs new regime analysis.">
+  <title>Salary Optimizer | FIN•OS</title>
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/interactions.css">
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
+  <script src="../js/finos-salary-optimizer.js" defer></script>
+
+  <style>
+    .so-page { background: var(--bg-main); min-height: 100vh; }
+    .so-main-wrap { max-width: 900px; margin: 0 auto; padding: 40px 40px 120px; }
+    .so-back { display:inline-flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.4);text-decoration:none;margin-bottom:24px;transition:color .2s; }
+    .so-back:hover { color: #9B5DE5; }
+    .so-page-header { display:flex;align-items:flex-start;gap:14px;margin-bottom:32px; }
+    .so-page-icon { font-size:36px;line-height:1; }
+    .so-page-title { font-family:'Space Grotesk',sans-serif;font-size:clamp(22px,3vw,32px);font-weight:800;color:#fff;margin:0 0 6px;letter-spacing:-.01em; }
+    .so-page-sub { font-size:14px;color:rgba(255,255,255,.5);margin:0;line-height:1.6; }
+    .so-tabs { display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:4px;margin-bottom:28px;width:fit-content; }
+    .so-tab { padding:8px 20px;border-radius:9px;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,.5);border:none;background:transparent;cursor:pointer;transition:all .2s; }
+    .so-tab.active { background:rgba(155,93,229,.12);border:1px solid rgba(155,93,229,.3);color:#9B5DE5; }
+    .so-tab:hover:not(.active) { color:rgba(255,255,255,.8); }
+    .so-panel { display:none; }
+    .so-panel.active { display:block; }
+    [data-theme="light"] .so-page { background:#F4F6FB; }
+    [data-theme="light"] .so-page-title { color:#0B0D12; }
+    [data-theme="light"] .so-page-sub { color:#4A5068; }
+    @media (max-width:600px) { .so-main-wrap { padding:24px 16px 80px; } }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" role="complementary" aria-label="Navigation">
+    <div class="sb-brand">
+      <div class="sb-logomark"><span class="sb-logomark-letter">F</span></div>
+      <div class="sb-wordmark"><div class="sb-wordmark-name">FIN•OS</div><div class="sb-wordmark-tag">Financial OS</div></div>
+    </div>
+    <a href="profile.html" class="sb-identity" aria-label="Your profile">
+      <div class="sb-av" id="sb-av">I</div>
+      <div class="sb-identity-body">
+        <div class="sb-identity-name" id="sb-name">Investor</div>
+        <div class="sb-identity-meta"><span class="sb-identity-dna" id="sb-dna">Financial DNA</span><span class="sb-health-pill" id="sb-health-pill"></span></div>
+      </div>
+      <span class="sb-identity-chevron"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </a>
+    <button class="sb-cmd" id="sb-cmd">
+      <span class="sb-cmd-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="sb-cmd-label">Search or jump to…</span><kbd class="sb-cmd-kbd">⌘K</kbd>
+    </button>
+    <nav class="sb-nav">
+      <a href="home.html" class="sb-link"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="sb-label">Home</span></a>
+      <a href="dashboard.html" class="sb-link"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span><span class="sb-label">Dashboard</span><span class="sb-badge" id="sb-streak"></span></a>
+      <hr class="sb-divider"/>
+      <a href="foundations.html" class="sb-link"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="sb-label">Learn</span></a>
+      <a href="simulator-landing.html" class="sb-link"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span><span class="sb-label">Mindset</span></a>
+      <hr class="sb-divider"/>
+      <a href="diagnostics.html" class="sb-link"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span><span class="sb-label">Diagnostics</span></a>
+      <a href="track-finances.html" class="sb-link active" aria-current="page"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span><span class="sb-label">Track</span></a>
+      <hr class="sb-divider"/>
+      <a href="markets.html" class="sb-link"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span><span class="sb-label">Markets</span></a>
+      <a href="tools.html" class="sb-link"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span class="sb-label">Tools</span></a>
+      <hr class="sb-divider"/>
+      <a href="news.html" class="sb-link"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span><span class="sb-label">News</span></a>
+    </nav>
+    <div class="sb-footer-zone">
+      <button class="sb-arya-row" id="sb-arya-btn" onclick="document.querySelector('.finos-fab')?.click?.();">
+        <div class="sb-arya-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><span class="sb-arya-dot checking" id="sb-arya-dot"></span></div>
+        <div class="sb-arya-body"><div class="sb-arya-name">Arya AI</div><div class="sb-arya-status checking" id="sb-arya-status">Connecting…</div></div>
+        <span class="sb-arya-arrow">›</span>
+      </button>
+      <a href="settings.html" class="sb-settings-row"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="sb-label">Settings</span></a>
+    </div>
+  </aside>
+
+  <main class="main so-page">
+    <div class="so-main-wrap">
+      <a href="track-finances.html" class="so-back">← Back to Track Finances</a>
+      <div class="so-page-header">
+        <div class="so-page-icon">💼</div>
+        <div>
+          <h1 class="so-page-title">Salary CTC Optimizer</h1>
+          <p class="so-page-sub">Structure your salary for maximum take-home. HRA exemption (Sec 10(13A)), LTA,<br>employer NPS (80CCD(2)), flexi benefits, and old vs new regime side-by-side.</p>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;">
+        <a href="tax.html"  style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">Tax Optimizer →</a>
+        <a href="nps-tracker.html"    style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">NPS Tracker →</a>
+        <a href="epf-tracker.html"    style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">EPF Tracker →</a>
+      </div>
+
+      <div class="so-tabs">
+        <button class="so-tab active" id="so-tab-structure" onclick="soSwitch('structure')">💼 CTC Breakup</button>
+        <button class="so-tab"        id="so-tab-hra"       onclick="soSwitch('hra')">🏠 HRA Analysis</button>
+        <button class="so-tab"        id="so-tab-optimize"  onclick="soSwitch('optimize')">⚡ Optimize</button>
+      </div>
+
+      <div class="so-panel active" id="so-panel-structure"></div>
+      <div class="so-panel"        id="so-panel-hra"></div>
+      <div class="so-panel"        id="so-panel-optimize"></div>
+    </div>
+  </main>
+</div>
+
+<style>
+#floatThemeBtn{position:fixed;top:14px;right:18px;z-index:9999;width:36px;height:36px;border-radius:10px;background:var(--bg-surface);border:1px solid var(--border-soft);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s;backdrop-filter:blur(10px);}
+#floatThemeBtn:hover{background:transparent;transform:scale(1.08);}
+[data-theme="light"] #floatThemeBtn{color:var(--text-primary)!important;}
+</style>
+<button id="floatThemeBtn">🌙</button>
+<script>
+(function(){var btn=document.getElementById('floatThemeBtn'),html=document.documentElement,saved=localStorage.getItem('finos-theme')||'dark';html.setAttribute('data-theme',saved);btn.textContent=saved==='dark'?'🌙':'☀️';btn.addEventListener('click',function(){var cur=html.getAttribute('data-theme'),next=cur==='dark'?'light':'dark';html.setAttribute('data-theme',next);localStorage.setItem('finos-theme',next);localStorage.setItem('theme',next);btn.textContent=next==='dark'?'🌙':'☀️';});})();
+</script>
+<script>
+function waitFor(fn,cb,ms){if(fn()){cb();return;}setTimeout(()=>waitFor(fn,cb,ms),ms||150);}
+var _soTabInited={};
+function soSwitch(tab){
+  ['structure','hra','optimize'].forEach(t=>{
+    document.getElementById('so-panel-'+t).classList.toggle('active',t===tab);
+    document.getElementById('so-tab-'+t).classList.toggle('active',t===tab);
+  });
+  if(!_soTabInited[tab]){
+    _soTabInited[tab]=true;
+    waitFor(()=>typeof window.FinosSalaryOptimizer!=='undefined',()=>{
+      var el=document.getElementById('so-panel-'+tab);
+      if(tab==='hra')      window.FinosSalaryOptimizer.renderHRA(el);
+      if(tab==='optimize') window.FinosSalaryOptimizer.renderOptimize(el);
+    });
+  }
+}
+document.addEventListener('DOMContentLoaded',function(){
+  waitFor(()=>typeof window.FinosSalaryOptimizer!=='undefined',()=>{
+    window.FinosSalaryOptimizer.renderStructure(document.getElementById('so-panel-structure'));
+    _soTabInited['structure']=true;
+  });
+});
+</script>
+<script src="../js/ui.js" defer></script>
+<script src="../js/mobile-nav.js" defer></script>
+<script src="../js/pwa-init.js"></script>
+<script src="../js/finos-widget.js?v=8"></script>
+<script src="../js/finos-mobile.js" defer></script>
+<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/interactions.js" defer></script>
+</body>
+</html>

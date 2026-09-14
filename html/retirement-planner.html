@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retirement Planner — FIN-OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/finos-theme.css">
+  <link rel="stylesheet" href="../css/finos-sidebar.css">
+  <style>
+    :root { --accent: #22D3A6; }
+    body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-primary, #0B0D12); color: var(--text-primary, #F5F7FA); }
+    .page-wrap { display: flex; min-height: 100vh; }
+    .main-content { flex: 1; padding: 32px 28px; overflow-y: auto; }
+    .page-header { margin-bottom: 28px; }
+    .page-header h1 { font-size: 26px; font-weight: 900; margin: 0 0 6px; color: var(--accent); letter-spacing: -0.5px; }
+    .page-header p  { font-size: 14px; color: rgba(255,255,255,.45); margin: 0; }
+    [data-theme="light"] .page-header p { color: rgba(0,0,0,.5); }
+    .tab-nav { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+    .tab-btn { padding: 9px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); color: rgba(255,255,255,.55); font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s; font-family: inherit; }
+    .tab-btn:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .tab-btn.active { background: rgba(34,211,166,.12); border-color: rgba(34,211,166,.3); color: #22D3A6; }
+    [data-theme="light"] .tab-btn { color: rgba(0,0,0,.6); border-color: rgba(0,0,0,.1); background: rgba(0,0,0,.03); }
+    [data-theme="light"] .tab-btn.active { background: rgba(34,211,166,.1); color: #14a382; border-color: rgba(34,211,166,.3); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+  <!-- Sidebar -->
+  <nav class="finos-sidebar" id="finos-sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">⬡</span>
+      <span class="logo-text">FIN-OS</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="../index.html">Dashboard</a></li>
+      <li class="active"><a href="track-finances.html">Track Finances</a></li>
+      <li><a href="portfolio.html">Portfolio</a></li>
+      <li><a href="budget-forecast.html">Budget</a></li>
+      <li><a href="tax.html">Tax</a></li>
+      <li><a href="goal-optimizer.html">Goals</a></li>
+      <li><a href="money-ai.html">Arya AI</a></li>
+    </ul>
+  </nav>
+
+  <div class="main-content">
+    <div class="page-header">
+      <h1>Retirement Planner</h1>
+      <p>Unified view of your retirement corpus across EPF, NPS, PPF, SIP and all savings</p>
+    </div>
+
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="rpSwitch('overview')">Overview</button>
+      <button class="tab-btn" onclick="rpSwitch('plan')">Corpus Builder</button>
+      <button class="tab-btn" onclick="rpSwitch('income')">Income Model</button>
+    </div>
+
+    <div id="rp-overview" class="tab-panel active">
+      <div id="rp-panel-overview" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:14px;">Loading…</div>
+    </div>
+    <div id="rp-plan" class="tab-panel">
+      <div id="rp-panel-plan" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:14px;">Loading…</div>
+    </div>
+    <div id="rp-income" class="tab-panel">
+      <div id="rp-panel-income" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:14px;">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/finos-theme.js"></script>
+<script src="../js/finos-sidebar.js"></script>
+<script src="../js/finos-retirement-planner.js"></script>
+<script>
+  var _rpTabInited = {};
+
+  function rpSwitch(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      const names = ['overview','plan','income'];
+      b.classList.toggle('active', names[i] === tab);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('rp-' + tab).classList.add('active');
+
+    if (_rpTabInited[tab]) return;
+    _rpTabInited[tab] = true;
+
+    if (typeof window.FinosRetirementPlanner === 'undefined') {
+      var p = document.getElementById('rp-panel-' + tab);
+      if (p) p.innerHTML = '<div style="color:#EF4444;font-size:13px;padding:20px;">Module failed to load. Please refresh.</div>';
+      return;
+    }
+
+    var el = document.getElementById('rp-panel-' + tab);
+    if (tab === 'overview') window.FinosRetirementPlanner.renderOverview(el);
+    else if (tab === 'plan')   window.FinosRetirementPlanner.renderPlan(el);
+    else if (tab === 'income') window.FinosRetirementPlanner.renderIncome(el);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // Always init overview immediately
+    _rpTabInited['overview'] = true;
+    var el = document.getElementById('rp-panel-overview');
+    if (window.FinosRetirementPlanner) window.FinosRetirementPlanner.renderOverview(el);
+    else el.innerHTML = '<div style="color:#EF4444;font-size:13px;padding:20px;">Module failed to load.</div>';
+  });
+</script>
+</body>
+</html>

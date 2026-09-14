@@ -4,7 +4,11 @@
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MF Intelligence | FIN•OS</title>
+  <meta name="description" content="Fund overlap detector, switch analysis, and Direct vs Regular plan savings calculator — for the funds you already own.">
+  <title>MF Intelligence | FIN-OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -12,9 +16,10 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=4" defer></script>
   <script src="../js/mf-intelligence.js" defer></script>
+  <script src="../js/finos-sip-tracker.js" defer></script>
   <link rel="stylesheet" href="../css/interactions.css">
 </head>
 <body>
@@ -131,15 +136,19 @@
 
       <!-- Tab Nav -->
       <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;" id="mfTabs">
-        <button class="mf-tab active" data-tab="overlap" onclick="switchTab('overlap')">Fund Overlap</button>
-        <button class="mf-tab" data-tab="expense" onclick="switchTab('expense')">Expense Ratio Impact</button>
+        <button class="mf-tab active" data-tab="my-sips" onclick="switchTab('my-sips')">📊 My SIPs</button>
+        <button class="mf-tab" data-tab="fund-search" onclick="switchTab('fund-search')">🔍 Fund Search</button>
+        <button class="mf-tab" data-tab="overlap" onclick="switchTab('overlap')">Fund Overlap</button>
+        <button class="mf-tab" data-tab="expense" onclick="switchTab('expense')">Expense Ratio</button>
         <button class="mf-tab" data-tab="sip" onclick="switchTab('sip')">SIP Calendar</button>
         <button class="mf-tab" data-tab="category" onclick="switchTab('category')">Category Returns</button>
       </div>
 
       <!-- Panels -->
       <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;">
-        <div id="tabOverlap"></div>
+        <div id="tab-my-sips"></div>
+        <div id="tab-fund-search" style="display:none;"></div>
+        <div id="tabOverlap" style="display:none;"></div>
         <div id="tabExpense" style="display:none;"></div>
         <div id="tabSip" style="display:none;"></div>
         <div id="tabCategory" style="display:none;"></div>
@@ -154,24 +163,54 @@
 .mf-tab.active,.mf-tab:hover { background:rgba(0,212,255,.15);border-color:rgba(0,212,255,.4);color:#00d4ff; }
 </style>
 
-<script src="../js/finos-widget.js?v=7"></script>
+<script src="../js/finos-widget.js?v=8"></script>
 <script src="../js/finos-mobile.js" defer></script>
 <script>
+// Map tab key → panel element id
+const TAB_PANELS = {
+  'my-sips':     'tab-my-sips',
+  'fund-search': 'tab-fund-search',
+  'overlap':     'tabOverlap',
+  'expense':     'tabExpense',
+  'sip':         'tabSip',
+  'category':    'tabCategory',
+};
+
+// Track which tabs have been initialised (lazy-render on first visit)
+const _tabInited = {};
+
 function switchTab(tab) {
   document.querySelectorAll('.mf-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-  ['overlap','expense','sip','category'].forEach(t => {
-    document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = t === tab ? 'block' : 'none';
+  Object.entries(TAB_PANELS).forEach(([key, elId]) => {
+    const el = document.getElementById(elId);
+    if (el) el.style.display = key === tab ? 'block' : 'none';
   });
+  _initTab(tab);
 }
 
-function init() {
-  if (!window.MFIntelligence) { setTimeout(init, 200); return; }
-  MFIntelligence.renderOverlapTool(document.getElementById('tabOverlap'));
-  MFIntelligence.renderExpenseCalculator(document.getElementById('tabExpense'));
-  MFIntelligence.renderSIPCalendar(document.getElementById('tabSip'), null);
-  MFIntelligence.renderCategoryPerformance(document.getElementById('tabCategory'));
+function _initTab(tab) {
+  if (_tabInited[tab]) return;
+  _tabInited[tab] = true;
+
+  if (tab === 'my-sips') {
+    if (window.FinosSIPTracker) FinosSIPTracker.renderPortfolio(document.getElementById('tab-my-sips'));
+    else { const t = setInterval(() => { if (window.FinosSIPTracker) { clearInterval(t); FinosSIPTracker.renderPortfolio(document.getElementById('tab-my-sips')); }}, 150); }
+    return;
+  }
+  if (tab === 'fund-search') {
+    if (window.FinosSIPTracker) FinosSIPTracker.renderFundSearch(document.getElementById('tab-fund-search'));
+    else { const t = setInterval(() => { if (window.FinosSIPTracker) { clearInterval(t); FinosSIPTracker.renderFundSearch(document.getElementById('tab-fund-search')); }}, 150); }
+    return;
+  }
+  if (!window.MFIntelligence) { const t = setInterval(() => { if (window.MFIntelligence) { clearInterval(t); _initTab(tab); }}, 150); return; }
+  if (tab === 'overlap')  MFIntelligence.renderOverlapTool(document.getElementById('tabOverlap'));
+  if (tab === 'expense')  MFIntelligence.renderExpenseCalculator(document.getElementById('tabExpense'));
+  if (tab === 'sip')      MFIntelligence.renderSIPCalendar(document.getElementById('tabSip'), null);
+  if (tab === 'category') MFIntelligence.renderCategoryPerformance(document.getElementById('tabCategory'));
 }
-document.addEventListener('DOMContentLoaded', () => setTimeout(init, 300));
+
+// Boot: render the default tab (My SIPs) on load
+document.addEventListener('DOMContentLoaded', () => setTimeout(() => _initTab('my-sips'), 200));
 </script>
 
 <script src="../js/sidebar.js"></script>

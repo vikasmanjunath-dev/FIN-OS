@@ -2,7 +2,6 @@
    FIN-OS PROTOCOL 0X: ADVANCED FORENSIC STYLING
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Manrope:wght@800&display=swap');
 
 :root {
   --crit-red: #ff4757;
@@ -264,7 +263,7 @@
     justify-content: space-between;
     padding: 12px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
 }
 
 .forensic-list li strong {
@@ -318,7 +317,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
 }
 
 .metric span { font-size: 0.8rem; color: #888; }
@@ -437,7 +436,7 @@
 
 .stat-label {
     display: block;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.8rem; color: var(--elec-blue);
     letter-spacing: 2px; margin-bottom: 10px;
 }
@@ -465,7 +464,7 @@
     border: 1px solid rgba(255,255,255,0.05);
 }
 
-.m-label { display: block; font-size: 0.7rem; color: #888; margin-bottom: 5px; font-family: 'JetBrains Mono', monospace; }
+.m-label { display: block; font-size: 0.7rem; color: #888; margin-bottom: 5px; font-family: var(--font-mono); }
 .m-value { font-size: 1.4rem; color: #fff; font-weight: 800; }
 .m-value.critical { color: var(--crit-red); text-shadow: 0 0 10px var(--crit-red); }
 
@@ -478,7 +477,7 @@
 
 .warning-header { color: var(--warning-orange); font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;}
 
-.meter-header { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 10px; font-family: 'JetBrains Mono', monospace; }
+.meter-header { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 10px; font-family: var(--font-mono); }
 
 /* Animations */
 @keyframes spin-slow { to { transform: rotate(360deg); } }
@@ -517,7 +516,7 @@
 }
 
 .forensic-footer-tag {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.7rem;
     color: #555;
     text-align: center;
@@ -600,7 +599,7 @@
 
 /* Typography for the central counter */
 .sinkhole-core .label {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.8rem; color: var(--neon-lime);
     letter-spacing: 1px; margin-bottom: 5px;
 }
@@ -617,7 +616,7 @@
     border: 1px solid var(--neon-lime);
     border-radius: 20px;
     color: #fff;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.75rem;
     pointer-events: none; /* Prevents interaction */
     white-space: nowrap;
@@ -719,7 +718,7 @@
     color: var(--elec-blue);
     border: 1px solid rgba(79, 124, 255, 0.3);
     border-radius: 10px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     transition: all 2s ease-in;
 }
 
@@ -807,7 +806,7 @@
 .m-tag {
   font-size: 0.7rem;
   color: #888;
-  font-family: 'JetBrains Mono';
+  font-family: var(--font-mono);
 }
 
 
@@ -1034,7 +1033,7 @@
     padding: 16px 32px;
     background: rgba(10, 14, 22, 0.6);
     border: 1px solid; /* Color defined dynamically below */
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -1070,7 +1069,7 @@
     background: transparent;
     box-shadow: 0 0 0 1px rgba(199,240,0,.25), 0 0 30px rgba(199,240,0,.2);
     border-color: rgba(199,240,0,.4);
-    color: #c7f000;
+    color: var(--accent-secondary);
     text-shadow: 0 0 8px var(--neon-lime);
     transform: translateY(-2px) scale(1.01);
 }

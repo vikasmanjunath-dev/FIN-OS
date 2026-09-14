@@ -39,7 +39,7 @@
 
 .brain-text h2 { font-size: 1.5rem; color: #fff; margin-bottom: 8px; text-align: center; }
 .typewriter {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   color: var(--accent);
   border-right: 2px solid var(--accent);
   white-space: nowrap;
@@ -52,7 +52,7 @@
 
 /* SECTION BADGES */
 .section-badge {
-  font-family: 'JetBrains Mono';
+  font-family: var(--font-mono);
   font-size: 0.8rem;
   color: var(--text-secondary);
   border: 1px solid rgba(255,255,255,0.2);
@@ -86,7 +86,7 @@
 .mode-card.active .status-indicator { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
 
 .status-indicator {
-  font-family: 'JetBrains Mono';
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   margin-top: 15px;
   color: #555;
@@ -128,7 +128,7 @@
 
 /* TERMINAL FOOTER */
 .final-message { text-align: center; margin-top: 80px; padding: 40px; border-top: 1px solid rgba(255,255,255,0.1); }
-.terminal-text { font-family: 'JetBrains Mono'; color: var(--text-secondary); font-size: 1.1rem; }
+.terminal-text { font-family: var(--font-mono); color: var(--text-secondary); font-size: 1.1rem; }
 .terminal-text.highlight { color: var(--accent); animation: blink 1s infinite; }
 
 .next-module-btn {

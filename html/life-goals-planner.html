@@ -3,13 +3,13 @@
 <head>
 <script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 <meta charset="UTF-8">
-  <meta name="description" content="FIN•OS — Your AI-powered Financial Operating System for Indian investors.">
+  <meta name="description" content="AI Life Goals Planner — priority scoring, inflation-adjusted SIP per goal, and feasibility checks against your real savings rate.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0B0D12">
-<title>FIN•OS | AI Life Goals Planner</title>
+<title>AI Life Goals Planner | FIN-OS</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
 <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
 <script src="../js/arya-ai.js?v=4"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -90,14 +90,14 @@ body {background:var(--bg-main);color:var(--text-primary);min-height:100vh;}
 .phase-header{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
 .phase-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
 .phase-title{font-size:16px;font-weight:800;color:#fff;}
-.phase-years{font-size:12px;color:rgba(255,255,255,.35);font-family:'JetBrains Mono',monospace;}
+.phase-years{font-size:12px;color:rgba(255,255,255,.35);font-family: var(--font-mono);}
 .phase-items{display:flex;flex-direction:column;gap:8px;}
 .phase-item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;
   background:var(--bg-surface);}
 .phase-item-icon{font-size:16px;flex-shrink:0;width:20px;text-align:center;}
 .phase-item-text{font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;}
 .phase-item-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;
-  background:rgba(199,240,0,.1);border:1px solid rgba(199,240,0,.2);color:#c7f000;margin-left:6px;vertical-align:middle;}
+  background:rgba(199,240,0,.1);border:1px solid rgba(199,240,0,.2);color: var(--accent-secondary);margin-left:6px;vertical-align:middle;}
 
 /* ── Arya insight per phase ── */
 .arya-phase{margin-top:14px;padding:12px 14px;border-radius:10px;
@@ -131,6 +131,9 @@ body {background:var(--bg-main);color:var(--text-primary);min-height:100vh;}
   <meta property="og:image" content="/assets/icons/icon-512.svg">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/theme.css">
@@ -231,7 +234,7 @@ body {background:var(--bg-main);color:var(--text-primary);min-height:100vh;}
 <script src="../js/ui.js" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=7"></script>
+<script src="../js/finos-widget.js?v=8"></script>
 <script src="../js/finos-search.js?v=2"></script>
 
 <script>
@@ -529,6 +532,16 @@ function generateRoadmap() {
   renderResults({ age, income, savings, surplus, returnRate, efTarget, efDone, efGap,
                   processed, totalSIPNeeded, feasPct, phases, retireYears });
 
+  // Push goal data to finos context — flows to dashboard, FIRE calculator, Arya
+  try {
+    const totalGoalAmt = processed.reduce((s, g) => s + (g.inflatedTarget || 0), 0);
+    localStorage.setItem('finos_goals_monthly_sip',  Math.round(totalSIPNeeded).toString());
+    localStorage.setItem('finos_goals_target_total', Math.round(totalGoalAmt).toString());
+    localStorage.setItem('finos_goals_count',        processed.length.toString());
+    localStorage.setItem('finos_goals_feasibility',  feasPct.toString());
+    window.FinosContext?.update?.({ goalsMonthlyRequired: totalSIPNeeded, goalsFeasibility: feasPct });
+  } catch {}
+
   btn.disabled = false; btn.textContent = '🗺️ Regenerate Roadmap';
 
   // Async: load Arya narratives per phase
@@ -629,9 +642,13 @@ async function loadAryaNarratives(phases, ctx) {
   const { age, income, surplus, processed, feasPct } = ctx;
   const goals_str = processed.map(g => `${g.name}: ${fmt(g.inflatedTarget)} in ${g.years}yr`).join(', ');
 
+  let ollamaFailed = false;
+
   for (const phase of phases) {
     const el = document.getElementById(`arya-${phase.id}`);
     if (!el) continue;
+
+    if (ollamaFailed) { el.style.display = 'none'; continue; }
 
     const prompt = `
 Financial roadmap phase for user:
@@ -681,20 +698,60 @@ No preamble. Address the user as "tu". Be direct and motivating.
         txtEl.textContent = 'Iss phase mein focused reh — consistency hi sabse bada weapon hai.';
       }
     } catch {
+      ollamaFailed = true;
       removeCursor();
       el.innerHTML = `<div class="arya-phase-label">🧠 Arya's Take</div><span style="color:rgba(255,255,255,.3);font-size:12px;">Start Ollama for AI insights — the math roadmap above is fully valid.</span>`;
     }
   }
 }
 
-// Auto-fill from Finos context if available
+// Auto-fill from localStorage profile (immediate, no async needed)
+document.addEventListener('DOMContentLoaded', function () {
+  var INCOME_MAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
+  var incomeKey  = localStorage.getItem('finos_income') || '';
+  var income     = INCOME_MAP[incomeKey] || 0;
+  var netWorth   = Number(localStorage.getItem('finos_net_worth')   || 0);
+  var savingsRate = Number(localStorage.getItem('finos_savings_rate') || 0);
+  var anyFilled  = false;
+
+  if (income > 0) {
+    document.getElementById('inIncome').value  = income;
+    var surplus = savingsRate > 0
+      ? Math.round(income * savingsRate / 100)
+      : Math.round(income * 0.30);
+    document.getElementById('inSurplus').value = surplus;
+    anyFilled = true;
+  }
+  if (netWorth > 0) {
+    document.getElementById('inSavings').value = netWorth;
+    anyFilled = true;
+  }
+
+  if (anyFilled) {
+    var hero = document.querySelector('.hero');
+    if (hero) {
+      var chip = document.createElement('div');
+      chip.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:5px 12px;' +
+        'border-radius:20px;background:rgba(34,211,166,.1);border:1px solid rgba(34,211,166,.2);' +
+        'color:#22d3a6;font-size:11px;font-weight:700;margin-top:10px;letter-spacing:.03em;';
+      chip.textContent = '✓ Pre-filled from your profile — adjust as needed';
+      hero.appendChild(chip);
+    }
+  }
+});
+
+// Auto-fill from Supabase context (overrides localStorage approximations with exact data)
 document.addEventListener('finos-context-ready', () => {
   try {
     const ctx = window.FINOS_USER_CONTEXT || {};
     const fin = ctx.financial || {};
-    if (fin.monthly_income > 0 && !document.getElementById('inIncome').value) {
+    if (fin.monthly_income > 0) {
       document.getElementById('inIncome').value = fin.monthly_income;
+      const sr = ctx.profile?.savings_rate;
+      if (sr > 0) document.getElementById('inSurplus').value = Math.round(fin.monthly_income * sr / 100);
     }
+    const nw = ctx.profile?.net_worth;
+    if (nw > 0) document.getElementById('inSavings').value = nw;
   } catch {}
 });
 </script>

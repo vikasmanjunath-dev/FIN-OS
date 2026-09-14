@@ -27,9 +27,18 @@
     : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
 
   /* ── Helpers ──────────────────────────────────────────────────────────── */
+  const INCOME_MAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
+
   function safeJson(key, fallback) {
     try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
     catch { return fallback; }
+  }
+
+  function resolveIncome() {
+    const exact = parseFloat(localStorage.getItem('finos_monthly_income') || '0');
+    if (exact > 0) return exact;
+    const rangeKey = localStorage.getItem('finos_income') || '';
+    return INCOME_MAP[rangeKey] || 0;
   }
 
   function moduleFromUrl(href) {
@@ -58,7 +67,7 @@
   function collectBudgetTracker() {
     try {
       const txns   = safeJson('finos_transactions', []) || [];
-      const income = safeJson('finos_income',  0)       || 0;
+      const income = resolveIncome();
       const goals  = safeJson('finos_goals',   [])      || [];
       const debts  = safeJson('finos_debts',   [])      || [];
       const subs   = safeJson('finos_subscriptions', []) || [];
@@ -370,6 +379,87 @@
       /* ── Cross-app data (budget tracker + trade journal) ── */
       budget_tracker: collectBudgetTracker(),
       trade_journal:  collectTradeJournal(),
+
+      /* ── Tracker suite (Phase 28-33: net worth, tax, insurance, goals, calendar) ── */
+      tracker_suite: (function() {
+        try {
+          const gs  = k => parseFloat(localStorage.getItem(k) || '0') || 0;
+          const ins = safeJson('finos_insurance_policies', []) || [];
+          const nxt = (() => {
+            try {
+              const TAX_EVENTS = [
+                '2026-03-31','2026-07-31','2026-09-15','2026-12-15','2027-03-15','2027-03-31'
+              ];
+              const todayStr = new Date().toISOString().slice(0,10);
+              return TAX_EVENTS.find(d => d >= todayStr) || null;
+            } catch { return null; }
+          })();
+          return {
+            equity_value:     gs('finos_portfolio_value'),
+            sip_value:        gs('finos_sip_value'),
+            fd_value:         gs('finos_fd_value'),
+            gold_value:       gs('finos_gold_value'),
+            property_value:   gs('finos_property_value'),
+            crypto_value:     gs('finos_crypto_value'),
+            cash_value:       gs('finos_cash_value'),
+            epf_value:        gs('finos_epf_value'),
+            epf_projected:    gs('finos_epf_projected'),
+            epf_pension:      gs('finos_epf_pension'),
+            nps_value:        gs('finos_nps_value'),
+            nps_projected:    gs('finos_nps_projected'),
+            nps_annual_tax:   gs('finos_nps_annual_tax'),
+            emergency_fund:           gs('finos_emergency_fund'),
+            emergency_months_covered: gs('finos_emergency_months_covered'),
+            salary_ctc:               gs('finos_salary_ctc'),
+            salary_take_home:         gs('finos_salary_take_home'),
+            salary_hra_exempt:        gs('finos_salary_hra_exempt'),
+            ppf_value:                gs('finos_ppf_value'),
+            ppf_80c:                  gs('finos_ppf_80c'),
+            retire_corpus:            gs('finos_retire_corpus'),
+            retire_required:          gs('finos_retire_required'),
+            retire_gap:               gs('finos_retire_gap'),
+            retire_monthly_income:    gs('finos_retire_monthly_income'),
+            passive_income_mo:        gs('finos_passive_total_mo'),
+            passive_coverage:         gs('finos_passive_coverage'),
+            rebalance_needed:         localStorage.getItem('finos_rebalance_needed') === '1',
+            goals_total_sip:          gs('finos_goals_total_sip'),
+            sip_stepup_corpus:        gs('finos_sip_stepup_corpus'),
+            sip_flat_corpus:          gs('finos_sip_flat_corpus'),
+            sip_stepup_gain:          gs('finos_sip_stepup_gain'),
+            life_cover_needed:        gs('finos_life_cover_needed'),
+            life_cover_hlv:           gs('finos_life_cover_hlv'),
+            harvest_tax_saved:        gs('finos_harvest_tax_saved'),
+            harvest_ltcg_net:         gs('finos_harvest_ltcg_net'),
+            cibil_score:              gs('finos_cibil_score'),
+            credit_util_pct:          gs('finos_credit_util_pct'),
+            credit_health:            localStorage.getItem('finos_credit_health') || null,
+            home_loan_emi:            gs('finos_home_loan_emi'),
+            home_loan_total_interest: gs('finos_home_loan_total_interest'),
+            windfall_allocated:       gs('finos_windfall_allocated'),
+            total_assets:     gs('finos_portfolio_value') + gs('finos_sip_value') + gs('finos_fd_value')
+                            + gs('finos_gold_value')      + gs('finos_property_value') + gs('finos_crypto_value')
+                            + gs('finos_cash_value')      + gs('finos_epf_value')      + gs('finos_nps_value')
+                            + gs('finos_ppf_value'),
+            fire_percent:     gs('finos_fire_percent'),
+            tax_regime:       localStorage.getItem('finos_tax_best_regime') || null,
+            tax_liability:    gs('finos_tax_liability'),
+            s80c_used:        gs('finos_80c_used'),
+            s80c_gap:         gs('finos_80c_gap'),
+            ins_count:        ins.length,
+            has_health_ins:   ins.some(p => /health/i.test(p.type||p.category||'')),
+            has_life_ins:     ins.some(p => /life|term/i.test(p.type||p.category||'')),
+            goals_sip_req:    gs('finos_goals_monthly_sip'),
+            goals_count:      parseInt(localStorage.getItem('finos_goals_count') || '0') || 0,
+            goals_feasibility:gs('finos_goals_feasibility'),
+            monthly_income:   gs('finos_monthly_income'),
+            monthly_expense:  gs('finos_monthly_expense'),
+            savings_rate:     gs('finos_savings_rate'),
+            health_score:     gs('finos_health_score'),
+            health_tier:      (safeJson('finos_health_score_detail', null) || {}).tier || null,
+            next_tax_event:   nxt,
+          };
+        } catch (_) { return null; }
+      })(),
 
       /* ── Behavioral intelligence (from DNA quiz + debt tracker) ── */
       behavioral: (function() {

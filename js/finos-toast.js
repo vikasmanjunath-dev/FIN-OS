@@ -22,7 +22,48 @@
 
   var container = null;
 
+  /* Self-contained styles — the old rules lived in css/_unused_css/states.css,
+     which no page loads, so every toast rendered invisible. Injected here so
+     toasts work on every page ui.js touches. Mobile: anchored to the TOP so
+     they never collide with the bottom tab bar / FABs. */
+  var STYLE_ID = 'finos-toast-styles';
+  function ensureStyles() {
+    if (document.getElementById(STYLE_ID)) return;
+    var s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent =
+      '#finos-toast-container{position:fixed;bottom:24px;right:24px;z-index:999996;' +
+        'display:flex;flex-direction:column;gap:10px;max-width:360px;' +
+        'width:calc(100vw - 48px);pointer-events:none;}' +
+      '.finos-toast{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;' +
+        'background:var(--bg-surface,#10131C);border:1px solid var(--border-medium,rgba(255,255,255,.12));' +
+        'border-radius:14px;box-shadow:var(--shadow-4,0 8px 32px rgba(0,0,0,.4));pointer-events:all;' +
+        'font-family:var(--font-sans,system-ui,sans-serif);font-size:.875rem;line-height:1.45;' +
+        'color:var(--text-primary,#E8EAF0);position:relative;overflow:hidden;' +
+        'animation:finosToastIn .28s cubic-bezier(.16,1,.3,1);}' +
+      '.finos-toast.toast-out{opacity:0;transform:translateY(8px);transition:opacity .26s ease,transform .26s ease;}' +
+      '.finos-toast__icon{font-size:16px;flex-shrink:0;}' +
+      '.finos-toast__body{flex:1;min-width:0;}' +
+      '.finos-toast__title{font-weight:700;}' +
+      '.finos-toast__msg{color:var(--text-secondary,rgba(255,255,255,.65));margin-top:2px;}' +
+      '.finos-toast__close{background:none;border:none;color:var(--text-muted,rgba(255,255,255,.5));' +
+        'font-size:16px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0;}' +
+      '.finos-toast__close:hover{color:var(--text-primary,#fff);}' +
+      '.finos-toast__progress{position:absolute;left:0;bottom:0;height:2px;width:100%;' +
+        'background:var(--accent,#4F7CFF);transform-origin:left;' +
+        'animation:finosToastProgress var(--toast-duration,4000ms) linear forwards;}' +
+      '.finos-toast--success .finos-toast__progress{background:var(--color-success,#4ade80);}' +
+      '.finos-toast--error .finos-toast__progress{background:var(--color-error,#f87171);}' +
+      '.finos-toast--warning .finos-toast__progress{background:var(--color-warning,#fbbf24);}' +
+      '@keyframes finosToastIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}' +
+      '@keyframes finosToastProgress{from{transform:scaleX(1);}to{transform:scaleX(0);}}' +
+      '@media (max-width:768px){#finos-toast-container{top:68px;bottom:auto;left:50%;right:auto;' +
+        'transform:translateX(-50%);}}';
+    document.head.appendChild(s);
+  }
+
   function getContainer() {
+    ensureStyles();
     if (container && document.body.contains(container)) return container;
     container = document.getElementById('finos-toast-container');
     if (!container) {

@@ -95,16 +95,23 @@ WHISPER_SIZE    = "tiny"
 WHISPER_THREADS = 8
 WHISPER_DIR     = "./models"
 
-# ── Wake word (Phase 4 gap fix) ────────────────────────────────────────────────
-# "Hey Arya" has no pretrained openwakeword model — training one needs real
-# voice samples (openwakeword's own training pipeline uses synthetic TTS data
-# plus a non-trivial training run) that nobody has provided. Using "hey_jarvis"
-# as a stand-in: same engine, same wiring, verified for real (not assumed) with
-# synthesized speech via this project's own edge-tts — 0.9988 peak confidence
-# on "Hey Jarvis", 0.0000116 on an unrelated sentence, streamed through in
-# realistic 80ms chunks. Swap WAKE_WORD_MODEL to a custom-trained "hey_arya"
-# model later without touching any other code here.
-WAKE_WORD_MODEL     = "hey_jarvis"
+# ── Wake word (Phase 24) ───────────────────────────────────────────────────────
+# Auto-detect a custom "hey_arya" ONNX model produced by train_hey_arya/train.py.
+# Falls back to "hey_jarvis" (pretrained openwakeword model) if the custom model
+# hasn't been trained yet.  The path check happens once at startup so there is no
+# per-frame overhead; both models share the same inference wiring below.
+_CUSTOM_ARYA_PATH = os.path.join(os.path.dirname(__file__), "models", "hey_arya.onnx")
+
+if os.path.isfile(_CUSTOM_ARYA_PATH):
+    WAKE_WORD_MODEL     = _CUSTOM_ARYA_PATH   # full path → openwakeword loads from disk
+    WAKE_WORD_MODEL_KEY = "hey_arya"          # key openwakeword uses in scores dict
+    log.info("Wake word: using custom hey_arya.onnx model")
+else:
+    WAKE_WORD_MODEL     = "hey_jarvis"
+    WAKE_WORD_MODEL_KEY = "hey_jarvis"
+    log.info("Wake word: hey_arya.onnx not found — using hey_jarvis stand-in. "
+             "Run .venv/bin/python3 train_hey_arya/train.py to train the custom model.")
+
 WAKE_WORD_THRESHOLD = 0.5
 WAKE_WORD_FRAME     = 1280   # 80ms @ 16kHz mono — openwakeword's expected chunk size
 _oww_model: "_OWWModel | None" = None
@@ -2742,10 +2749,10 @@ class Server:
             # short enough not to swallow a deliberate, quick repeat.
             scores = model.predict(
                 frame,
-                threshold={WAKE_WORD_MODEL: WAKE_WORD_THRESHOLD},
+                threshold={WAKE_WORD_MODEL_KEY: WAKE_WORD_THRESHOLD},
                 debounce_time=2.0,
             )
-            score = scores.get(WAKE_WORD_MODEL, 0.0)
+            score = scores.get(WAKE_WORD_MODEL_KEY, 0.0)
             if score >= WAKE_WORD_THRESHOLD:
                 log.info("Wake word detected (score=%.3f)", score)
                 await self._send({"type": "wake_detected", "score": round(float(score), 3)})

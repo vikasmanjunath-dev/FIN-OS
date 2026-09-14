@@ -13,11 +13,14 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-  <title>FIN•OS | Profile Activation</title>
+  <title>Profile Activation | FIN-OS</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -25,7 +28,7 @@
   <link rel="stylesheet" href="../css/profile.css?v=2">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=4" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
   <meta property="og:site_name" content="FIN•OS">
@@ -268,7 +271,7 @@
       <!-- SAVE -->
       <footer class="activation-footer">
         <button id="saveProfileBtn" class="mega-btn">
-          Save Profile ➔
+          BUILD MY FINANCIAL DNA
         </button>
         <span id="save-status"></span>
       </footer>
@@ -360,12 +363,36 @@ Direct, use their actual numbers. No preamble.`;
         textEl.innerHTML = '<span id="arya-dna-stream" style="color:rgba(255,255,255,.82);"></span><span style="animation:aryaBlink .7s infinite;display:inline-block;">▌</span>';
         const streamSpan = document.getElementById('arya-dna-stream');
 
+        function _showNextStep() {
+          if (anchor.querySelector('#profile-next-cta')) return;
+          var isNew = !localStorage.getItem('finos_health_score') && !localStorage.getItem('finos_txn_count');
+          var cta = document.createElement('div');
+          cta.id = 'profile-next-cta';
+          cta.style.cssText = 'margin-top:14px;';
+          cta.innerHTML =
+            '<div style="padding:16px 20px;border-radius:14px;' +
+            'background:rgba(34,211,166,.06);border:1px solid rgba(34,211,166,.2);">' +
+              '<div style="font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;' +
+              'color:#22d3a6;margin-bottom:12px;">What\'s Next</div>' +
+              '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
+                '<a href="home.html" style="flex:1;min-width:110px;padding:10px 14px;border-radius:10px;' +
+                'background:rgba(34,211,166,.14);border:1px solid rgba(34,211,166,.3);' +
+                'color:#22d3a6;font-size:13px;font-weight:700;text-decoration:none;text-align:center;">' +
+                '🏠 Go to Home</a>' +
+                '<a href="' + (isNew ? 'foundations.html' : 'dashboard.html') + '" ' +
+                'style="flex:1;min-width:110px;padding:10px 14px;border-radius:10px;' +
+                'background:rgba(79,124,255,.08);border:1px solid rgba(79,124,255,.2);' +
+                'color:#4f7cff;font-size:13px;font-weight:700;text-decoration:none;text-align:center;">' +
+                (isNew ? '📚 Start Learning' : '📊 View Dashboard') + '</a>' +
+              '</div>' +
+            '</div>';
+          anchor.appendChild(cta);
+        }
+
         AryaAI.ask(prompt, (tok, display) => {
           if (display !== undefined) streamSpan.textContent = display;
         }).then(result => {
-          // Always clear cursor — even if result is empty/null
           if (result && result.trim().length > 0) {
-            // Use textContent to prevent XSS from AI-generated text
             textEl.innerHTML = '';
             const span = document.createElement('span');
             span.style.color = 'rgba(255,255,255,.85)';
@@ -374,8 +401,10 @@ Direct, use their actual numbers. No preamble.`;
           } else {
             textEl.innerHTML = '<span style="color:rgba(255,255,255,.4);">AI offline — your profile was saved successfully.</span>';
           }
+          _showNextStep();
         }).catch(() => {
           textEl.innerHTML = '<span style="color:rgba(255,255,255,.4);">AI offline — your profile was saved successfully.</span>';
+          _showNextStep();
         });
       }, 400);
     });
@@ -384,7 +413,7 @@ Direct, use their actual numbers. No preamble.`;
 </script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-search.js?v=2"></script>
   <script>
   document.addEventListener('DOMContentLoaded', function () {

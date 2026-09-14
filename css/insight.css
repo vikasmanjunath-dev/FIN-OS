@@ -40,7 +40,7 @@
   font-size: 1.5rem; 
   color: var(--accent); 
   margin-bottom: 20px; 
-  font-family: 'JetBrains Mono'; 
+  font-family: var(--font-mono); 
   text-transform: uppercase; 
   letter-spacing: 1px; 
 }
@@ -85,7 +85,7 @@
 }
 
 .toc-header {
-  font-family: 'JetBrains Mono';
+  font-family: var(--font-mono);
   color: var(--accent);
   letter-spacing: 2px;
   margin-bottom: 20px;
@@ -136,7 +136,7 @@
   display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff;
 }
 .gear.rbi { width: 100px; height: 100px; left: 0; border-color: #4F7CFF; animation: spin 10s linear infinite; }
-.gear.bank { width: 80px; height: 80px; right: 0; top: 40px; border-color: #C7F000; animation: spin 10s linear infinite reverse; }
+.gear.bank { width: 80px; height: 80px; right: 0; top: 40px; border-color: var(--accent-secondary); animation: spin 10s linear infinite reverse; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
 .pacman-track { display: flex; gap: 20px; align-items: center; font-size: 2rem; color: #fff; }
@@ -174,7 +174,7 @@
   color: #0B0D12;
 }
 [data-theme="light"] .gear.rbi  { border-color: #4F7CFF; color: #4F7CFF; }
-[data-theme="light"] .gear.bank { border-color: #C7F000; color: #5a6a00; }
+[data-theme="light"] .gear.bank { border-color: var(--accent-secondary); color: #5a6a00; }
 
 [data-theme="light"] .pacman-track { color: #0B0D12; }
 

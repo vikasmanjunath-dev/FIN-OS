@@ -32,7 +32,7 @@
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
 
-  <title>FIN•OS | Financial X-Ray (God Mode Scan)</title>
+  <title>Financial X-Ray (God Mode Scan) | FIN-OS</title>
 
   <!-- [FIX] Removed unused @supabase/supabase-js — not referenced anywhere in finances.js,
        was adding ~150 KB to page weight for no reason. -->
@@ -41,6 +41,9 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
 
   <!-- Stylesheets -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -52,17 +55,19 @@
   <style>
     /* ── Float Back Button ───────────────────────────────────────── */
     #floatBackBtn {
-      position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+      /* Clear of the 232px sidebar on desktop */
+      position: fixed; bottom: 22px; left: 256px; z-index: 9999;
       padding: 8px 16px 8px 12px; border-radius: 10px;
       background: var(--bg-surface);
       border: 1px solid var(--border-soft);
-      color: rgba(255, 255, 255, 0.55);
-      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
       font-size: 11px; font-weight: 600; letter-spacing: .06em;
       cursor: pointer; display: flex; align-items: center; gap: 6px;
       transition: background .2s, color .2s, transform .2s;
       backdrop-filter: blur(10px); text-decoration: none;
     }
+    @media (max-width: 768px) { #floatBackBtn { display: none; } }
     #floatBackBtn:hover {
       background: transparent;
       color: var(--text-primary);
@@ -73,9 +78,9 @@
     input.x-ray-input {
       background: rgba(0, 0, 0, 0.3);
       border: 1px solid var(--border-soft);
-      color: #C7F000;
+      color: var(--accent-secondary);
       padding: 12px;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       width: 100%;
       margin-bottom: 15px;
       border-radius: 6px;
@@ -85,7 +90,7 @@
       transition: border-color .2s, box-shadow .2s;
     }
     input.x-ray-input:focus {
-      border-color: #C7F000;
+      border-color: var(--accent-secondary);
       box-shadow: 0 0 0 2px rgba(199, 240, 0, 0.15);
     }
     /* [FIX] Remove browser number-input spinners — they look broken in dark themes */
@@ -104,7 +109,7 @@
     /* ── Step validation error ───────────────────────────────────── */
     #stepError {
       color: #FF4F4F;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 12px;
       margin-top: 8px;
       min-height: 18px;
@@ -123,10 +128,10 @@
 
     /* ── Markdown body styles ────────────────────────────────────── */
     .markdown-body h3 {
-      color: #C7F000;
+      color: var(--accent-secondary);
       margin-top: 25px;
       margin-bottom: 10px;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 16px;
       text-transform: uppercase;
       border-bottom: 1px solid var(--border-soft);
@@ -314,12 +319,12 @@
       <div id="arya-xray-coach" style="margin-bottom:28px;border-radius:16px;
            background:linear-gradient(135deg,rgba(199,240,0,.06),rgba(0,212,255,.03));
            border:1px solid rgba(199,240,0,.2);padding:18px 22px;
-           font-family:'JetBrains Mono',monospace;">
+           font-family: var(--font-mono);">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
           <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#c7f000,#4d7cff);
                display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🩻</div>
           <div>
-            <div style="font-weight:700;font-size:11px;color:#c7f000;letter-spacing:2px;">ARYA • PRE-SCAN COACHING</div>
+            <div style="font-weight:700;font-size:11px;color: var(--accent-secondary);letter-spacing:2px;">ARYA • PRE-SCAN COACHING</div>
             <div style="font-size:10px;color:rgba(255,255,255,.35);">What to focus on in your X-Ray</div>
           </div>
         </div>
@@ -401,7 +406,7 @@
             <div class="stat-row" style="margin-bottom: 20px;">
               <div class="stat">
                 <label for="repTotalIncome">GROSS MONTHLY IN</label>
-                <h4 id="repTotalIncome" style="color: #C7F000;">...</h4>
+                <h4 id="repTotalIncome" style="color: var(--accent-secondary);">...</h4>
               </div>
               <div class="stat">
                 <label for="repTotalBurn">TOTAL BURN (FIXED + VAR)</label>
@@ -437,19 +442,19 @@
             <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
               <div>
                 <label style="font-size: 10px; color: #888;">EQUITY / MF</label>
-                <div id="repEquity" style="font-family: 'JetBrains Mono'; color: #4F7CFF; font-size: 16px;">₹0</div>
+                <div id="repEquity" style="font-family: var(--font-mono); color: #4F7CFF; font-size: 16px;">₹0</div>
               </div>
               <div>
                 <label style="font-size: 10px; color: #888;">SAFE (EPF/PPF)</label>
-                <div id="repSafe" style="font-family: 'JetBrains Mono'; color: #4ade80; font-size: 16px;">₹0</div>
+                <div id="repSafe" style="font-family: var(--font-mono); color: #4ade80; font-size: 16px;">₹0</div>
               </div>
               <div>
                 <label style="font-size: 10px; color: #888;">ALT (GOLD/CRYPTO)</label>
-                <div id="repAlt" style="font-family: 'JetBrains Mono'; color: #FFB020; font-size: 16px;">₹0</div>
+                <div id="repAlt" style="font-family: var(--font-mono); color: #FFB020; font-size: 16px;">₹0</div>
               </div>
               <div>
                 <label style="font-size: 10px; color: #888;">EMERGENCY LIQUID</label>
-                <div id="repLiquid" style="font-family: 'JetBrains Mono'; color: #a78bfa; font-size: 16px;">₹0</div>
+                <div id="repLiquid" style="font-family: var(--font-mono); color: #a78bfa; font-size: 16px;">₹0</div>
               </div>
             </div>
           </div>
@@ -526,7 +531,7 @@
 <!-- [FIX] type="module" is omitted intentionally — finances.js uses DOMContentLoaded,
      which fires correctly without it; adding module would change execution order -->
 <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=4" defer></script>
 <script>
 /* Pre-scan Arya coaching — runs after DOMContentLoaded so defer'd arya-ai.js is ready */
@@ -536,9 +541,9 @@ document.addEventListener('DOMContentLoaded', async function _aryaCoach() {
 
   /* Static fallback shown when AI backend is offline */
   const STATIC_COACHING = [
-    '• Focus on your <strong style="color:#c7f000">savings rate</strong> first — it\'s the single most controllable lever in your X-Ray. Anything below 20% needs structural change, not willpower.',
-    '• Your biggest blind spot is likely <strong style="color:#c7f000">lifestyle creep</strong> hiding in the \'miscellaneous\' bucket. Map every ₹ before you see your burn rate.',
-    '• When you see your FIRE horizon, ask: <strong style="color:#c7f000">what monthly expense, cut in half, moves the date by the most years?</strong> That\'s where to focus first.'
+    '• Focus on your <strong style="color: var(--accent-secondary)">savings rate</strong> first — it\'s the single most controllable lever in your X-Ray. Anything below 20% needs structural change, not willpower.',
+    '• Your biggest blind spot is likely <strong style="color: var(--accent-secondary)">lifestyle creep</strong> hiding in the \'miscellaneous\' bucket. Map every ₹ before you see your burn rate.',
+    '• When you see your FIRE horizon, ask: <strong style="color: var(--accent-secondary)">what monthly expense, cut in half, moves the date by the most years?</strong> That\'s where to focus first.'
   ].join('<br>');
 
   /* If AryaAI is not loaded (offline or slow), show static coaching immediately */
@@ -596,7 +601,7 @@ Tone: sharp, direct, data-driven. Each bullet = 1 sentence. Use their actual num
 <a id="floatBackBtn" href="#" onclick="history.back(); return false;"
    role="button" aria-label="Go back to previous page">‹ BACK</a>
 
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <script src="../js/sidebar.js"></script>

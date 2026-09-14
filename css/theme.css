@@ -101,7 +101,7 @@
 :root[data-theme="light"] .protocol-hero h4 {
   color: #ffffff !important;
 }
-:root[data-theme="light"] .protocol-hero h2 em { color: #c7f000 !important; }
+:root[data-theme="light"] .protocol-hero h2 em { color: var(--accent-secondary) !important; }
 
 :root[data-theme="light"] p,
 :root[data-theme="light"] span:not(.pill):not(.badge):not(.sc-tag):not(.sc-badge):not(.status-pill):not(.tag):not(.ph-code):not(.ph-sub):not(.ph-badge):not(.ph-arrow),
@@ -453,8 +453,8 @@
   color: #0B0D12 !important;
 }
 /* Exception: bright accent text should stay readable (lime, blue, neon) */
-:root[data-theme="light"] [style*="color: #c7f000"],
-:root[data-theme="light"] [style*="color: #C7F000"],
+:root[data-theme="light"] [style*="color: var(--accent-secondary)"],
+:root[data-theme="light"] [style*="color: var(--accent-secondary)"],
 :root[data-theme="light"] [style*="color: #4f7cff"],
 :root[data-theme="light"] [style*="color: #4F7CFF"],
 :root[data-theme="light"] [style*="color: #00d4ff"],

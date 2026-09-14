@@ -31,6 +31,12 @@ FAITHFULNESS_FLAGS = Counter(
     "for the known domain-reliability gap before treating this as a quality signal)",
 )
 
+FEEDBACK_VOTES = Counter(
+    "rag_feedback_votes_total",
+    "User thumbs-up / thumbs-down votes on RAG answers",
+    ["vote"],  # label values: "up" or "down"
+)
+
 
 def render() -> tuple[bytes, str]:
     return generate_latest(), CONTENT_TYPE_LATEST

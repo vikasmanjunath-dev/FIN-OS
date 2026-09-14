@@ -6,7 +6,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
-  <title>What-If Scenarios | FIN•OS</title>
+  <title>What-If Scenarios | FIN-OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -14,7 +17,7 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=4" defer></script>
   <script src="../js/arya-scenarios.js" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
@@ -35,7 +38,7 @@
   display: inline-flex; align-items: center; gap: 6px;
   background: rgba(199,240,0,.1); border: 1px solid rgba(199,240,0,.3);
   border-radius: 20px; padding: 4px 12px; font-size: 11px;
-  font-weight: 700; color: #c7f000; margin-bottom: 12px;
+  font-weight: 700; color: var(--accent-secondary); margin-bottom: 12px;
 }
 .how-it-works {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -205,7 +208,7 @@
   </main>
 </div>
 
-<script src="../js/finos-widget.js?v=7"></script>
+<script src="../js/finos-widget.js?v=8"></script>
 <script>
 function initScenarios() {
   if (window.AryaScenarios) {

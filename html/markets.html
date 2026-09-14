@@ -13,8 +13,11 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-  <title>FIN•OS | Markets Masterclass</title>
+  <title>Markets Masterclass | FIN-OS</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -34,6 +37,8 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="../js/supabase-config.js"></script>
 </head>
 
 <body>
@@ -545,6 +550,32 @@
         </div>
       </section>
 
+      <section style="padding: 60px 24px 40px; text-align: center; max-width: 860px; margin: 0 auto;">
+        <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-primary); margin-bottom: 16px; opacity: .7;">Market Power Tools</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 14px; text-align: left;">
+          <a href="market-intel.html" style="display:flex;flex-direction:column;gap:8px;padding:20px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;text-decoration:none;color:inherit;transition:border-color .2s,transform .2s;" onmouseover="this.style.borderColor='rgba(255,255,255,.2)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.transform=''">
+            <div style="font-size: 22px;">📡</div>
+            <div style="font-size: 13px; font-weight: 700; letter-spacing: .03em;">Market Intelligence</div>
+            <div style="font-size: 12px; opacity: .55; line-height: 1.5;">Live news flow, sectoral rotation, and macro signals decoded for Indian markets.</div>
+          </a>
+          <a href="market-visualizer.html" style="display:flex;flex-direction:column;gap:8px;padding:20px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;text-decoration:none;color:inherit;transition:border-color .2s,transform .2s;" onmouseover="this.style.borderColor='rgba(255,255,255,.2)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.transform=''">
+            <div style="font-size: 22px;">📊</div>
+            <div style="font-size: 13px; font-weight: 700; letter-spacing: .03em;">Deep Dive Visualizer</div>
+            <div style="font-size: 12px; opacity: .55; line-height: 1.5;">Visual breakdowns of market structures, flows, and historical patterns.</div>
+          </a>
+          <a href="quantedge.html" style="display:flex;flex-direction:column;gap:8px;padding:20px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;text-decoration:none;color:inherit;transition:border-color .2s,transform .2s;" onmouseover="this.style.borderColor='rgba(255,255,255,.2)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.transform=''">
+            <div style="font-size: 22px;">⚡</div>
+            <div style="font-size: 13px; font-weight: 700; letter-spacing: .03em;">QuantEdge Terminal</div>
+            <div style="font-size: 12px; opacity: .55; line-height: 1.5;">Quant-grade market regime detection, edge bias scoring, and mean-reversion signals.</div>
+          </a>
+          <a href="tracker.html" style="display:flex;flex-direction:column;gap:8px;padding:20px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;text-decoration:none;color:inherit;transition:border-color .2s,transform .2s;" onmouseover="this.style.borderColor='rgba(255,255,255,.2)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.transform=''">
+            <div style="font-size: 22px;">📡</div>
+            <div style="font-size: 13px; font-weight: 700; letter-spacing: .03em;">Market Pulse</div>
+            <div style="font-size: 12px; opacity: .55; line-height: 1.5;">Live NIFTY, SENSEX, BANKNIFTY, VIX, Gold feeds with GOD MODE analytics dashboard.</div>
+          </a>
+        </div>
+      </section>
+
       <section class="next-phase-section">
         <div class="unlock-badge">PHASE 03 UNLOCKED</div>
         <h2 style="font-size: 2.8rem; margin: 15px 0;">Master the Matrix</h2>
@@ -568,7 +599,7 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
   <script src="../chatbot/qft-engine.js"></script>
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-mobile.js" defer></script>
   <script src="../js/finos-search.js?v=2"></script>
 

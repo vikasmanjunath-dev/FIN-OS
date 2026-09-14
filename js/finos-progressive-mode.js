@@ -12,6 +12,16 @@
  *
  * Usage: include this JS on every page. Add data-min-mode="builder" to
  * nav items to auto-hide/show them. Call FinosMode.render() for the badge.
+ *
+ * ── Where this sits among FIN-OS's other "personalize the UI" engines ──
+ * This is the one that decides *what exists on the page at all* — treat
+ * it as the outermost gate. finos-personalization.js decides *what the
+ * visible content says* (greeting/insights/nudges) once a feature has
+ * already passed this gate. adaptive-layout.js + usage-tracker.js decide
+ * *what order* passed-gate content appears in. focus-engine.js only ever
+ * writes into the single home-hero focus card, not the rest of the page.
+ * If a feature needs to be hidden for a mode, gate it here — don't add
+ * ad-hoc visibility logic to the other three.
  */
 (function (global) {
   'use strict';
@@ -26,7 +36,7 @@
       color:    '#22d3a6',
       level:    1,
       tagline:  'Tracking + 1 goal + basics',
-      unlocks:  ['track-finances', 'calculator', 'money-ai', 'learn-mf', 'learn-equity', 'onboarding', 'dashboard', 'markets'],
+      unlocks:  ['track-finances', 'life-goals-planner', 'calculator', 'money-ai', 'learn-mf', 'learn-equity', 'onboarding', 'dashboard', 'markets'],
       arya_style: 'simple',
       description: 'Perfect if you\'re just starting your financial journey. Clean, simple, Arya explains everything.',
     },
@@ -36,7 +46,7 @@
       color:    '#00d4ff',
       level:    2,
       tagline:  'Budget + goals + SIPs + portfolio',
-      unlocks:  ['budget-forecast', 'life-goals-planner', 'portfolio', 'sip', 'markets', 'tax', 'insurance-hub', 'financial-health'],
+      unlocks:  ['budget-forecast', 'portfolio', 'sip', 'tax', 'insurance-hub', 'financial-health'],
       arya_style: 'balanced',
       description: 'You\'re building wealth systematically. Full budget, multiple goals, SIP tracking.',
     },
@@ -328,7 +338,7 @@
   });
 
   window.addEventListener('finos-context-ready', e => {
-    if (e.detail?.phase !== 'full') return;
+    if (!['partial','full'].includes(e.detail?.phase)) return;
     const ctx = window.FINOS_USER_CONTEXT;
     if (ctx) {
       setTimeout(() => checkProgression(ctx), 5000);

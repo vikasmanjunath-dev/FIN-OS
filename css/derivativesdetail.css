@@ -53,7 +53,7 @@ html, body {
   height: calc(100vh - 80px);
   border-radius: 16px;
 }
-.toc-header { font-family: 'JetBrains Mono'; font-size: 0.8rem; letter-spacing: 2px; color: var(--deriv-accent); margin-bottom: 25px; font-weight: 700; }
+.toc-header { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 2px; color: var(--deriv-accent); margin-bottom: 25px; font-weight: 700; }
 .toc-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
 .toc-link { color: var(--text-secondary); text-decoration: none; padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; display: block; transition: all 0.2s; }
 .toc-link.active { background: rgba(255, 71, 87, 0.15); color: var(--deriv-accent); font-weight: 700; border-left: 3px solid var(--deriv-accent); }
@@ -86,7 +86,7 @@ html, body {
 .chapter h1 { font-size: 3.5rem; margin-bottom: 20px; color: #FFFFFF !important; }
 .chapter h2 { font-size: 2rem; margin-bottom: 30px; color: #FFFFFF !important; border-left: 4px solid var(--deriv-accent); padding-left: 15px; }
 .chapter p { font-size: 1.15rem; line-height: 1.7; color: #A1A8B8 !important; margin-bottom: 20px; max-width: 800px; }
-.chapter-badge { display: inline-block; padding: 6px 12px; background: rgba(255, 71, 87, 0.1); color: var(--deriv-accent); border-radius: 100px; font-family: 'JetBrains Mono'; font-size: 0.75rem; margin-bottom: 20px; }
+.chapter-badge { display: inline-block; padding: 6px 12px; background: rgba(255, 71, 87, 0.1); color: var(--deriv-accent); border-radius: 100px; font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 20px; }
 
 /* --- ONION VISUAL --- */
 .onion-story { display: flex; align-items: center; gap: 30px; }

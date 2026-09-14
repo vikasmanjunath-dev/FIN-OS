@@ -5,7 +5,7 @@
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
   <meta charset="UTF-8" />
-  <meta name="description" content="FIN•OS — Your AI-powered Financial Operating System for Indian investors.">
+  <meta name="description" content="You Are Not Wrong — a roadmap outcome for the safety-first saver archetype, one of three persona paths from your Roadmap quiz.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,8 +13,11 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-  <title>FIN•OS | The Fortress</title>
+  <title>The Fortress | FIN-OS</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -227,6 +230,8 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="../js/supabase-config.js"></script>
 </head>
 
 <body>
@@ -401,6 +406,7 @@
       <section id="bridge" class="bridge-section">
         
         <div class="validation-card">
+          <a href="roadmap.html" style="display:inline-block;margin-bottom:8px;font-size:11px;letter-spacing:.08em;color:#888;text-decoration:none;">← ONE OF 3 ROADMAP OUTCOMES</a>
           <span class="val-header" id="personaID">// PERSONA: THE GUARDIAN</span>
           <h1 class="val-title" id="personaTitle">YOU ARE NOT WRONG.</h1>
           <p class="val-text" id="personaDesc">
@@ -651,16 +657,19 @@
 
 <style>
 #floatBackBtn {
-  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  /* Clear of the 232px sidebar on desktop */
+  position: fixed; bottom: 22px; left: 256px; z-index: 9999;
   padding: 8px 16px 8px 12px; border-radius: 10px;
   background: var(--bg-surface); border: 1px solid var(--border-soft);
-  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  color: var(--text-secondary); font-family: var(--font-mono);
   font-size: 11px; font-weight: 600; letter-spacing: .06em;
   cursor: pointer; display: flex; align-items: center; gap: 6px;
   transition: background .2s, color .2s, transform .2s;
   backdrop-filter: blur(10px); text-decoration: none;
 }
 #floatBackBtn:hover { background: transparent; color: var(--text-primary); transform: translateX(-3px); }
+/* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
+@media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
 <a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 
@@ -685,7 +694,7 @@
 [data-theme="light"] .brick-card  { background: #F5F2E8 !important; border-color: rgba(0,0,0,0.1) !important; }
 [data-theme="light"] .diamond-box { background: #FFFBEE !important; border-color: rgba(0,0,0,0.15) !important; }
 </style>
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <script src="../js/sidebar.js"></script>

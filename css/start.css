@@ -82,7 +82,7 @@
   border: 2px solid var(--accent);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-family: 'JetBrains Mono'; font-weight: 800; color: var(--accent);
+  font-family: var(--font-mono); font-weight: 800; color: var(--accent);
   box-shadow: 0 0 20px rgba(199, 240, 0, 0.3);
   
   /* Positioning Logic handled by Layout, usually centered relative to path */
@@ -119,7 +119,7 @@
 
 /* Card Content */
 .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-.lvl-tag { font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--text-secondary); background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; }
+.lvl-tag { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-secondary); background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; }
 .level-card h3 { font-size: 1.5rem; margin: 8px 0 0 0; color: #fff; }
 
 .concept { font-size: 1rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; }
@@ -157,7 +157,7 @@
 /* Pacman */
 .pacman-container { display: flex; align-items: center; gap: 10px; }
 .pacman { width: 0; height: 0; border-right: 20px solid transparent; border-top: 20px solid #f1c40f; border-left: 20px solid #f1c40f; border-bottom: 20px solid #f1c40f; border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; animation: chomp 0.3s infinite; }
-.dot { font-family: 'JetBrains Mono'; color: #fff; animation: fadeLeft 1s infinite linear; }
+.dot { font-family: var(--font-mono); color: #fff; animation: fadeLeft 1s infinite linear; }
 @keyframes chomp { 50% { border-right: 20px solid #f1c40f; } }
 
 /* Pizza */

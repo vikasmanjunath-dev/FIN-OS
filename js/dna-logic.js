@@ -532,8 +532,9 @@ function _renderBehavioralDebt(data) {
 
     // Use real income from context → localStorage → ask user
     const ctx = window.FINOS_USER_CONTEXT;
+    const _IMAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
     const rawIncome = ctx?.budget_tracker?.income_monthly
-                   || Number(localStorage.getItem('finos_income'))
+                   || _IMAP[localStorage.getItem('finos_income') || '']
                    || 0;
 
     if (!rawIncome) {

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Passive Income Tracker — track dividends, FD interest, SWP, SGB coupon, and rental income. See financial freedom coverage ratio and a roadmap to 100% expense coverage.">
+  <title>Passive Income Tracker | FIN-OS</title>
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/interactions.css">
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
+  <script src="../js/finos-passive-income.js?v=2" defer></script>
+
+  <style>
+    .pi-page { background: var(--bg-main); min-height: 100vh; }
+    .pi-main-wrap { max-width: 900px; margin: 0 auto; padding: 40px 40px 120px; }
+
+    .pi-back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-muted);
+      text-decoration: none; margin-bottom: 24px; transition: color .2s;
+    }
+    .pi-back-link:hover { color: #22D3A6; }
+    .pi-page-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 28px; }
+    .pi-page-icon { font-size: 36px; line-height: 1; }
+    .pi-page-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(22px, 3vw, 32px); font-weight: 800;
+      color: #fff; margin: 0 0 6px; letter-spacing: -.01em;
+    }
+    .pi-page-sub { font-size: 14px; color: rgba(255,255,255,.5); margin: 0; line-height: 1.6; max-width: 640px; }
+
+    .tab-nav { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+    .tab-btn { padding: 9px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); color: rgba(255,255,255,.55); font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s; font-family: var(--font-sans); }
+    .tab-btn:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .tab-btn.active { background: rgba(34,211,166,.12); border-color: rgba(34,211,166,.3); color: #22D3A6; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Light */
+    [data-theme="light"] .pi-page { background: #F4F6FB; }
+    [data-theme="light"] .pi-page-title { color: #0B0D12; }
+    [data-theme="light"] .pi-page-sub { color: #4A5068; }
+    [data-theme="light"] .tab-btn { color: rgba(0,0,0,.6); border-color: rgba(0,0,0,.1); background: rgba(0,0,0,.03); }
+    [data-theme="light"] .tab-btn.active { background: rgba(34,211,166,.1); color: #14a382; border-color: rgba(34,211,166,.3); }
+
+    @media (max-width: 700px) {
+      .pi-main-wrap { padding: 24px 16px 80px; }
+    }
+  </style>
+</head>
+<body data-nav-section="track-finances.html">
+<div class="app">
+  <aside class="sidebar" role="complementary" aria-label="Navigation">
+    <div class="sb-brand">
+      <div class="sb-logomark" aria-hidden="true"><span class="sb-logomark-letter">F</span></div>
+      <div class="sb-wordmark"><div class="sb-wordmark-name">FIN•OS</div><div class="sb-wordmark-tag">Financial OS</div></div>
+    </div>
+    <a href="profile.html" class="sb-identity" aria-label="Your profile">
+      <div class="sb-av" id="sb-av" aria-hidden="true">I</div>
+      <div class="sb-identity-body">
+        <div class="sb-identity-name" id="sb-name">Investor</div>
+        <div class="sb-identity-meta"><span class="sb-identity-dna" id="sb-dna">Financial DNA</span><span class="sb-health-pill" id="sb-health-pill"></span></div>
+      </div>
+      <span class="sb-identity-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </a>
+    <button class="sb-cmd" id="sb-cmd" aria-label="Search (Ctrl+K)">
+      <span class="sb-cmd-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="sb-cmd-label">Search or jump to…</span><kbd class="sb-cmd-kbd" aria-hidden="true">⌘K</kbd>
+    </button>
+    <nav class="sb-nav" aria-label="Main">
+      <a href="home.html" class="sb-link" title="Home"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="sb-label">Home</span></a>
+      <a href="dashboard.html" class="sb-link" title="Dashboard"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span><span class="sb-label">Dashboard</span><span class="sb-badge" id="sb-streak" aria-label="count"></span></a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="foundations.html" class="sb-link" title="Learn"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="sb-label">Learn</span></a>
+      <a href="simulator-landing.html" class="sb-link" title="Mindset"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span><span class="sb-label">Mindset</span></a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="diagnostics.html" class="sb-link" title="Diagnostics"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span><span class="sb-label">Diagnostics</span></a>
+      <a href="track-finances.html" class="sb-link active" aria-current="page" title="Track"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span><span class="sb-label">Track</span></a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="markets.html" class="sb-link" title="Markets"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span><span class="sb-label">Markets</span></a>
+      <a href="tools.html" class="sb-link" title="Tools"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span class="sb-label">Tools</span></a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="news.html" class="sb-link" title="News"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span><span class="sb-label">News</span></a>
+    </nav>
+    <div class="sb-footer-zone">
+      <button class="sb-arya-row" id="sb-arya-btn" aria-label="Arya AI — your financial coach" onclick="document.querySelector('.finos-fab')?.click?.();">
+        <div class="sb-arya-icon" aria-hidden="true"><span>🤖</span><span class="sb-arya-dot checking" id="sb-arya-dot"></span></div>
+        <div class="sb-arya-body"><div class="sb-arya-name">Arya AI</div><div class="sb-arya-status checking" id="sb-arya-status">Connecting…</div></div>
+        <span class="sb-arya-arrow" aria-hidden="true">›</span>
+      </button>
+      <a href="settings.html" class="sb-settings-row" title="Settings"><span class="sb-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="sb-label">Settings</span></a>
+    </div>
+  </aside>
+
+  <main class="main pi-page">
+    <div class="pi-main-wrap">
+      <a href="track-finances.html" class="pi-back-link">← Back to Track Finances</a>
+      <div class="pi-page-header">
+        <div class="pi-page-icon">💸</div>
+        <div>
+          <h1 class="pi-page-title">Passive Income Tracker</h1>
+          <p class="pi-page-sub">Track dividends, FD interest, SWP, SGB coupon, and rental income. See financial freedom coverage ratio, FIRE proximity, and a roadmap to 100% expense coverage.</p>
+        </div>
+      </div>
+
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="piSwitch('overview')">Overview</button>
+        <button class="tab-btn" onclick="piSwitch('streams')">Streams</button>
+        <button class="tab-btn" onclick="piSwitch('freedom')">Freedom Progress</button>
+      </div>
+
+      <div id="pi-overview" class="tab-panel active">
+        <div id="pi-panel-overview" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:14px;">Loading…</div>
+      </div>
+      <div id="pi-streams" class="tab-panel">
+        <div id="pi-panel-streams" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:14px;">Loading…</div>
+      </div>
+      <div id="pi-freedom" class="tab-panel">
+        <div id="pi-panel-freedom" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:14px;">Loading…</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<style>
+#floatThemeBtn { position:fixed;top:14px;right:18px;z-index:9999;width:36px;height:36px;border-radius:10px;background:var(--bg-surface);border:1px solid var(--border-soft);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s;backdrop-filter:blur(10px); }
+#floatThemeBtn:hover{background:transparent;transform:scale(1.08);}
+[data-theme="light"] #floatThemeBtn{color:var(--text-primary)!important;}
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){var btn=document.getElementById('floatThemeBtn'),html=document.documentElement,saved=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';html.setAttribute('data-theme',saved);btn.textContent=saved==='dark'?'🌙':'☀️';btn.addEventListener('click',function(){var cur=html.getAttribute('data-theme'),next=cur==='dark'?'light':'dark';html.setAttribute('data-theme',next);localStorage.setItem('finos-theme',next);localStorage.setItem('theme',next);btn.textContent=next==='dark'?'🌙':'☀️';});})();
+</script>
+<script>
+  var _piTabInited = {};
+
+  function piSwitch(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      const names = ['overview','streams','freedom'];
+      b.classList.toggle('active', names[i] === tab);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('pi-' + tab).classList.add('active');
+
+    if (_piTabInited[tab]) return;
+    _piTabInited[tab] = true;
+
+    var el = document.getElementById('pi-panel-' + tab);
+    if (!window.FinosPassiveIncome) {
+      el.innerHTML = '<div style="color:#EF4444;font-size:13px;padding:20px;">Module failed to load.</div>';
+      return;
+    }
+    if (tab === 'overview') window.FinosPassiveIncome.renderOverview(el);
+    else if (tab === 'streams') window.FinosPassiveIncome.renderStreams(el);
+    else if (tab === 'freedom') window.FinosPassiveIncome.renderFreedom(el);
+  }
+
+  function _piInit() {
+    if (!window.FinosPassiveIncome) { setTimeout(_piInit, 100); return; }
+    _piTabInited['overview'] = true;
+    window.FinosPassiveIncome.renderOverview(document.getElementById('pi-panel-overview'));
+  }
+  document.addEventListener('DOMContentLoaded', _piInit);
+</script>
+<script src="../js/ui.js" defer></script>
+<script src="../js/mobile-nav.js" defer></script>
+<script src="../js/pwa-init.js"></script>
+<script src="../js/finos-widget.js?v=8"></script>
+<script src="../js/finos-mobile.js" defer></script>
+<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/interactions.js" defer></script>
+</body>
+</html>

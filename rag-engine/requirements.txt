@@ -24,3 +24,8 @@ prometheus-client==0.25.0
 
 # Phase 6 — Async ingestion
 rq==2.10.0
+
+# Phase 7 — News RSS + additional regulators + scheduler + conversation memory (July 2026)
+feedparser==6.0.12
+apscheduler==3.11.3
+pytz==2026.2

@@ -35,6 +35,11 @@ html, body {
   background: var(--bg-main, #0B0C10);
 }
 
+/* Reserve space for fixed knowledge-bar (280px + 20px gap) on wide screens */
+@media (min-width: 1200px) {
+  .deep-wrapper { padding-right: 300px; }
+}
+
 /* Scrollbar hiding */
 .deep-content {
   overflow-y: auto;
@@ -65,7 +70,7 @@ html, body {
 }
 
 .toc-header {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.8rem;
   color: var(--text-secondary); /* Dynamic */
   text-transform: uppercase;
@@ -120,7 +125,7 @@ html, body {
   color: #4F7CFF;
   padding: 6px 12px;
   border-radius: 6px;
-  font-family: 'JetBrains Mono';
+  font-family: var(--font-mono);
   font-size: 0.8rem;
   margin-bottom: 16px;
 }
@@ -285,7 +290,7 @@ html, body {
   border-radius: 12px;
   
   /* Typography */
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 1px;

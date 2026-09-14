@@ -304,7 +304,7 @@ body.news-page {
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--text-secondary);
     
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-sans);
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 1px;

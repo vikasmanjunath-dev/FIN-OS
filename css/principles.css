@@ -17,7 +17,7 @@
   color: var(--text-secondary);
   padding: 12px 32px;
   border-radius: 100px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -51,7 +51,7 @@
 }
 
 .group-title span {
-  font-family: 'JetBrains Mono';
+  font-family: var(--font-mono);
   font-size: 1rem;
   background: rgba(255,255,255,0.1);
   padding: 4px 10px;
@@ -80,7 +80,7 @@
 .law-card.warning { border-top: 4px solid #ff4757; }
 
 .badge {
-  font-family: 'JetBrains Mono';
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -131,7 +131,7 @@ input, select {
   border: 1px solid rgba(255,255,255,0.1);
   color: #fff;
   border-radius: 8px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .result-box {

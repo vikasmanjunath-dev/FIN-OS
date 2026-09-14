@@ -156,6 +156,181 @@ Rules:
       if (beh.tax_savings_potential > 0) lines.push(`Tax optimization potential this FY: ${INR(beh.tax_savings_potential)}`);
     }
 
+    // ── Tracker Suite (Phases 28-33: net worth breakdown, FIRE, tax, insurance, goals) ──
+    const ts = ctx?.tracker_suite;
+    if (ts) {
+      // Asset class breakdown
+      const _assetParts = [];
+      if (ts.equity_value   > 0) _assetParts.push(`Equity ${INR(ts.equity_value)}`);
+      if (ts.sip_value      > 0) _assetParts.push(`MF/SIP ${INR(ts.sip_value)}`);
+      if (ts.fd_value       > 0) _assetParts.push(`FD/PPF ${INR(ts.fd_value)}`);
+      if (ts.gold_value     > 0) _assetParts.push(`Gold ${INR(ts.gold_value)}`);
+      if (ts.property_value > 0) _assetParts.push(`Property ${INR(ts.property_value)}`);
+      if (ts.crypto_value   > 0) _assetParts.push(`Crypto ${INR(ts.crypto_value)}`);
+      if (ts.cash_value     > 0) _assetParts.push(`Cash ${INR(ts.cash_value)}`);
+      if (ts.epf_value      > 0) _assetParts.push(`EPF ${INR(ts.epf_value)}`);
+      if (ts.nps_value      > 0) _assetParts.push(`NPS ${INR(ts.nps_value)}`);
+      if (ts.ppf_value      > 0) _assetParts.push(`PPF/SS ${INR(ts.ppf_value)}`);
+      if (_assetParts.length) lines.push(`Asset breakdown: ${_assetParts.join(' · ')}${ts.total_assets > 0 ? ' | Total: ' + INR(ts.total_assets) : ''}`);
+
+      // FIRE progress
+      if (ts.fire_percent > 0) {
+        lines.push(`FIRE progress: ${ts.fire_percent.toFixed(1)}% of 25× annual-expense corpus${ts.fire_percent >= 100 ? ' — FIRE ACHIEVED 🎉' : ''}`);
+      }
+
+      // Tax optimisation
+      if (ts.tax_regime) {
+        const gapNote = ts.s80c_gap > 5000
+          ? ` | 80C gap: ${INR(ts.s80c_gap)} (save ~${INR(Math.round(ts.s80c_gap * 0.31))} in tax)`
+          : ts.s80c_used >= 150000 ? ' | 80C fully utilised ✓' : '';
+        lines.push(`Tax regime: ${ts.tax_regime} is better (annual liability: ${INR(ts.tax_liability)})${gapNote}`);
+      } else if (ts.s80c_used > 0) {
+        lines.push(`80C invested: ${INR(ts.s80c_used)} of ₹1.5L limit${ts.s80c_gap > 0 ? ` | Gap: ${INR(ts.s80c_gap)}` : ' — maxed ✓'}`);
+      }
+
+      // Insurance coverage
+      const _insStatus = ts.has_health_ins && ts.has_life_ins
+        ? 'health insurance ✓ + life/term ✓'
+        : ts.has_health_ins
+          ? 'health insurance ✓ — no life/term insurance detected ⚠️'
+          : ts.has_life_ins
+            ? 'life/term insurance ✓ — NO health insurance ⚠️'
+            : ts.ins_count > 0
+              ? `${ts.ins_count} polic${ts.ins_count > 1 ? 'ies' : 'y'} tracked — no health or life insurance detected ⚠️`
+              : 'no insurance tracked — health insurance is priority #1 ⚠️';
+      lines.push(`Insurance: ${_insStatus}`);
+
+      // Goals from Life Goals Planner
+      if (ts.goals_count > 0) {
+        lines.push(`Life goals: ${ts.goals_count} goal${ts.goals_count > 1 ? 's' : ''} | Monthly SIP needed: ${INR(ts.goals_sip_req)} | Feasibility: ${ts.goals_feasibility.toFixed(0)}%`);
+      }
+
+      // Health score (if not already shown from profile)
+      if (ts.health_score > 0 && !healthScore) {
+        lines.push(`FIN-OS wealth health score: ${ts.health_score}/100 (${ts.health_tier || '–'})`);
+      }
+
+      // EPF retirement projection
+      if (ts.epf_value > 0) {
+        const _epfLine = [`EPF corpus: ${INR(ts.epf_value)}`];
+        if (ts.epf_projected > ts.epf_value) _epfLine.push(`projected ${INR(ts.epf_projected)} at retirement`);
+        if (ts.epf_pension   > 0)            _epfLine.push(`EPS pension est. ${INR(ts.epf_pension)}/mo`);
+        lines.push(_epfLine.join(' | '));
+      }
+
+      // NPS retirement projection
+      if (ts.nps_value > 0) {
+        const _npsLine = [`NPS corpus: ${INR(ts.nps_value)}`];
+        if (ts.nps_projected > ts.nps_value) _npsLine.push(`projected ${INR(ts.nps_projected)} at 60`);
+        if (ts.nps_annual_tax > 0)           _npsLine.push(`tax saving ${INR(ts.nps_annual_tax)}/yr via 80CCD`);
+        lines.push(_npsLine.join(' | '));
+      }
+
+      // PPF & small savings
+      if (ts.ppf_value > 0) {
+        const _ppfLine = [`PPF/small savings: ${INR(ts.ppf_value)}`];
+        if (ts.ppf_80c > 0) _ppfLine.push(`80C eligible ${INR(Math.min(ts.ppf_80c, 150000))}/yr`);
+        lines.push(_ppfLine.join(' | '));
+      }
+
+      // Salary structure
+      if (ts.salary_ctc > 0) {
+        const _sLine = [`CTC: ${INR(ts.salary_ctc)}`];
+        if (ts.salary_take_home > 0) _sLine.push(`take-home ~${INR(ts.salary_take_home)}/mo`);
+        if (ts.salary_hra_exempt > 0) _sLine.push(`HRA exempt ${INR(ts.salary_hra_exempt)}/yr`);
+        lines.push(_sLine.join(' | '));
+      }
+
+      // Emergency fund status
+      if (ts.emergency_fund > 0 || ts.monthly_expense > 0) {
+        const _mc = ts.emergency_months_covered || 0;
+        const _efStatus = _mc >= 6 ? `✓ ${_mc.toFixed(1)} months covered — fully funded`
+          : _mc >= 3 ? `⚠ ${_mc.toFixed(1)} months covered — below 6-month target`
+          : `🚨 only ${_mc.toFixed(1)} months covered — critical gap`;
+        lines.push(`Emergency fund: ${ts.emergency_fund > 0 ? INR(ts.emergency_fund) : 'not set'} | ${_efStatus}`);
+      }
+
+      // Goals feasibility + SIP gap
+      if (ts.goals_count > 0 && ts.goals_feasibility > 0) {
+        const _gfColor = ts.goals_feasibility >= 80 ? '✓' : ts.goals_feasibility >= 50 ? '⚠' : '🚨';
+        const _sipGap  = (ts.goals_total_sip || ts.goals_sip_req) > 0
+          ? ` | SIP needed: ${INR(ts.goals_total_sip || ts.goals_sip_req)}/mo`
+          : '';
+        lines.push(`Goals feasibility: ${_gfColor} ${ts.goals_feasibility}% (${ts.goals_count} goals)${_sipGap}`);
+      }
+
+      // Rebalancing alert
+      if (ts.rebalance_needed) {
+        lines.push(`Portfolio rebalancing needed — one or more asset classes have drifted >5% from target allocation. See Rebalancer tool.`);
+      }
+
+      // Passive income & financial freedom
+      if (ts.passive_income_mo > 0) {
+        const _cov = Number(ts.passive_coverage) || 0;
+        const _freedomStatus = _cov >= 100 ? '✓ financially free — passive income exceeds expenses'
+          : _cov >= 75 ? `${_cov.toFixed(0)}% freedom — coast-FIRE territory`
+          : _cov >= 50 ? `${_cov.toFixed(0)}% freedom — half expenses covered passively`
+          : `${_cov.toFixed(0)}% freedom — building passive income base`;
+        lines.push(`Passive income: ${INR(ts.passive_income_mo)}/mo | ${_freedomStatus}`);
+      }
+
+      // SIP step-up advantage
+      if (ts.sip_stepup_corpus > 0 && ts.sip_stepup_gain > 0) {
+        const _gainPct = ts.sip_flat_corpus > 0 ? Math.round(ts.sip_stepup_gain / ts.sip_flat_corpus * 100) : 0;
+        lines.push(`SIP step-up: projected ${INR(ts.sip_stepup_corpus)} with step-up vs ${INR(ts.sip_flat_corpus)} flat (+${INR(ts.sip_stepup_gain)} / ${_gainPct}% more wealth). Use the SIP Step-Up Planner to see year-by-year growth.`);
+      }
+
+      // Life insurance coverage gap
+      if (ts.life_cover_needed > 0) {
+        lines.push(`Life insurance gap: ${INR(ts.life_cover_needed)} additional term cover needed (HLV: ${INR(ts.life_cover_hlv)}). User is under-insured — recommend buying a pure term plan.`);
+      }
+
+      // Tax harvest savings
+      if (ts.harvest_tax_saved > 0) {
+        const _ltcgNet = ts.harvest_ltcg_net > 0 ? ` | Net LTCG after harvest: ${INR(ts.harvest_ltcg_net)}` : '';
+        lines.push(`Tax harvest opportunity: ${INR(ts.harvest_tax_saved)} in tax savings available this FY via loss booking and gain-sweeping within the ₹1.25L LTCG exemption${_ltcgNet}.`);
+      }
+
+      // Credit score health
+      if (ts.cibil_score > 0) {
+        const _csColor = ts.cibil_score >= 750 ? '✓' : ts.cibil_score >= 650 ? '⚠' : '🚨';
+        const _csLabel = ts.cibil_score >= 800 ? 'Excellent' : ts.cibil_score >= 750 ? 'Very Good' : ts.cibil_score >= 700 ? 'Good' : ts.cibil_score >= 650 ? 'Fair' : 'Poor';
+        const _utilNote = ts.credit_util_pct > 30 ? ` | ⚠ utilization ${ts.credit_util_pct.toFixed(0)}% (target <30%)` : '';
+        lines.push(`Credit score: ${_csColor} ${ts.cibil_score} (${_csLabel})${_utilNote}. See Credit Score Tracker for improvement tips and home loan rate impact.`);
+      }
+
+      // Home loan EMI burden
+      if (ts.home_loan_emi > 0) {
+        const _monthlyInc = ts.monthly_income || 0;
+        const _emiPct = _monthlyInc > 0 ? Math.round(ts.home_loan_emi / _monthlyInc * 100) : 0;
+        const _emiStatus = _emiPct > 0 ? ` (${_emiPct}% of income${_emiPct > 40 ? ' — above 40% rule ⚠' : ' ✓'})` : '';
+        lines.push(`Home loan EMI: ${INR(ts.home_loan_emi)}/mo${_emiStatus} | Total interest: ${INR(ts.home_loan_total_interest)}. Use Home Loan Planner for prepayment scenarios.`);
+      }
+
+      // Windfall allocation
+      if (ts.windfall_allocated > 0) {
+        lines.push(`Windfall allocated: ${INR(ts.windfall_allocated)} distributed via priority waterfall (EF → debt → 80C → NPS → home loan → goals → wealth). See Bonus Allocator.`);
+      }
+
+      // Retirement readiness
+      if (ts.retire_corpus > 0 || ts.retire_required > 0) {
+        const _readyPct = ts.retire_required > 0 ? Math.round(ts.retire_corpus / ts.retire_required * 100) : 0;
+        const _gap      = ts.retire_gap || 0;
+        const _retStatus = _gap <= 0 ? `✓ on track — surplus ${INR(-_gap)}`
+          : `⚠ gap of ${INR(_gap)} — need to invest more`;
+        const _retLine = [`Retirement corpus: projected ${INR(ts.retire_corpus)} vs required ${INR(ts.retire_required)} (${_readyPct}% ready)`];
+        _retLine.push(_retStatus);
+        if (ts.retire_monthly_income > 0) _retLine.push(`estimated monthly income in retirement: ${INR(ts.retire_monthly_income)}`);
+        lines.push(_retLine.join(' | '));
+      }
+
+      // Next tax deadline
+      if (ts.next_tax_event) {
+        const daysUntil = Math.ceil((new Date(ts.next_tax_event) - new Date()) / 86400000);
+        if (daysUntil <= 90) lines.push(`Next tax deadline: ${ts.next_tax_event} (${daysUntil} days away)`);
+      }
+    }
+
     // ── Household / Couple data ───────────────────────────────────────────
     const household = ctx?.household;
     if (household?.partner_name) {

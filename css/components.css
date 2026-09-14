@@ -1710,7 +1710,7 @@
   /* Matches your cards and buttons */
   border-radius: 14px; 
   font-size: 0.95rem;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
 
   /* Theme-aware background and borders */
   background: var(--bg-glass) !important;
@@ -1759,7 +1759,7 @@
 }
 
 .auth-tab.active {
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  background: linear-gradient(135deg, var(--btn-grad-start), var(--btn-grad-end));
   color: #0B0D12;
   border-color: transparent;
   box-shadow: 0 8px 20px var(--glow-primary);
@@ -1975,7 +1975,7 @@ html[data-theme="dark"] .login-theme-btn .icon-moon {
     border: 1px solid var(--neon-lime); /* Adaptive theme color */
     color: var(--text-primary); /* Adaptive text color */
     text-decoration: none;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.8rem;
     letter-spacing: 1px;
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);

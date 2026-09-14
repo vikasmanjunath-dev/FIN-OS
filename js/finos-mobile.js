@@ -19,7 +19,8 @@
 
   /* ── Bottom Navigation ────────────────────────────────────────── */
   function injectBottomNav() {
-    if (!isMobile()) return;
+    // Always inject; the stylesheet media query decides visibility (a
+    // load-time width guard left no tab bar after rotating to portrait).
     if (document.getElementById('finos-bottom-nav')) return;
 
     const path = window.location.pathname;
@@ -57,8 +58,7 @@
 
   /* ── Quick Capture Sheet ──────────────────────────────────────── */
   function initQuickCapture() {
-    // Add a floating "+" button visible on mobile
-    if (!isMobile()) return;
+    // Always build; the "+" fab and sheet show only under the media query.
 
     const backdrop = document.createElement('div');
     backdrop.className = 'finos-sheet-backdrop';
@@ -166,13 +166,19 @@
     fab.setAttribute('aria-label', 'Quick add expense');
     fab.onclick = window.openQuickCapture;
     fab.style.cssText = `
-      position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+      position:fixed;bottom:calc(76px + env(safe-area-inset-bottom, 0px));left:16px;
       width:50px;height:50px;border-radius:50%;
       background:linear-gradient(135deg,#00d4ff,#7b2ff7);
       border:none;color:#fff;font-size:26px;font-weight:900;
       cursor:pointer;z-index:999;box-shadow:0 4px 20px rgba(0,212,255,.4);
-      display:none;align-items:center;justify-content:center;line-height:1;`;
-    if (isMobile()) { fab.style.display = 'flex'; }
+      align-items:center;justify-content:center;line-height:1;`;
+    // Visibility via media query, never inline — inline display survives
+    // crossing the breakpoint on resize/rotate and leaks into desktop.
+    const fabStyle = document.createElement('style');
+    fabStyle.textContent =
+      '#finos-qc-fab{display:none;}' +
+      '@media (max-width:768px){#finos-qc-fab{display:flex !important;}}';
+    document.head.appendChild(fabStyle);
     document.body.appendChild(fab);
   }
 
@@ -260,7 +266,7 @@
     setTimeout(() => {
       const nudge = document.createElement('div');
       nudge.style.cssText = `
-        position:fixed;bottom:90px;left:12px;right:12px;z-index:5000;
+        position:fixed;top:68px;left:12px;right:12px;z-index:5000;
         background:#0f1117;border:1px solid rgba(0,212,255,.2);border-radius:16px;
         padding:14px 16px;display:flex;align-items:center;gap:12px;
         box-shadow:0 8px 32px rgba(0,0,0,.5);animation:_aSlide .3s ease;`;
@@ -283,12 +289,14 @@
   function init() {
     if (document.querySelector('link[href*="mobile-ux.css"]') === null) {
       const link = document.createElement('link');
-      link.rel = 'stylesheet'; link.href = '../css/mobile-ux.css';
+      link.rel = 'stylesheet'; link.href = '../css/mobile-ux.css?v=2';
       document.head.appendChild(link);
     }
+    // Chrome (tab bar, "+" sheet) is always built — stylesheet media queries
+    // decide visibility, so rotation/resize can never strand or leak it.
     injectBottomNav();
+    initQuickCapture();
     if (isMobile()) {
-      initQuickCapture();
       initSwipeGestures();
       initPullToRefresh();
       offerBiometric();

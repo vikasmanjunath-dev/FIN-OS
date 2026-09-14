@@ -45,7 +45,7 @@ html, body {
   height: calc(100vh - 80px);
   border-radius: 16px;
 }
-.toc-header { font-family: 'JetBrains Mono'; font-size: 0.8rem; letter-spacing: 2px; color: var(--accent); margin-bottom: 25px; font-weight: 700; }
+.toc-header { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 2px; color: var(--accent); margin-bottom: 25px; font-weight: 700; }
 .toc-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
 .toc-link { color: var(--text-secondary); text-decoration: none; padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; display: block; transition: all 0.2s; }
 .toc-link.active { background: rgba(79, 124, 255, 0.1); color: var(--accent); font-weight: 700; border-left: 3px solid var(--accent); }
@@ -70,7 +70,7 @@ html, body {
 .chapter h1 { font-size: 3.5rem; margin-bottom: 20px; color: #FFFFFF !important; }
 .chapter h2 { font-size: 2rem; margin-bottom: 30px; color: #FFFFFF !important; border-left: 4px solid var(--accent); padding-left: 15px; }
 .chapter p { font-size: 1.15rem; line-height: 1.7; color: #A1A8B8 !important; margin-bottom: 20px; max-width: 800px; }
-.chapter-badge { display: inline-block; padding: 6px 12px; background: rgba(79, 124, 255, 0.1); color: #4F7CFF; border-radius: 100px; font-family: 'JetBrains Mono'; font-size: 0.75rem; margin-bottom: 20px; }
+.chapter-badge { display: inline-block; padding: 6px 12px; background: rgba(79, 124, 255, 0.1); color: #4F7CFF; border-radius: 100px; font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 20px; }
 
 /* --- SEESAW ANIMATION (Rate vs Price) --- */
 .seesaw-container { width: 100%; height: 200px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; margin: 40px 0; }
@@ -91,7 +91,7 @@ html, body {
 .deal-box { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; margin: 25px 0; border: 1px dashed rgba(255,255,255,0.2); }
 .deal-side strong { display: block; color: #FFFFFF !important; font-size: 0.9rem; margin-bottom: 5px; }
 .deal-side p { color: #A1A8B8 !important; margin: 0; font-size: 0.9rem; }
-.deal-arrow { color: #C7F000; font-family: 'JetBrains Mono'; font-size: 0.8rem; background: rgba(199, 240, 0, 0.1); padding: 5px 15px; border-radius: 100px; }
+.deal-arrow { color: var(--accent-secondary); font-family: var(--font-mono); font-size: 0.8rem; background: rgba(199, 240, 0, 0.1); padding: 5px 15px; border-radius: 100px; }
 
 /* --- FLOW DIAGRAM --- */
 .visual-flow-container { display: flex; justify-content: space-between; align-items: center; padding: 50px; position: relative; color: #FFFFFF !important; }
@@ -114,7 +114,7 @@ html, body {
 .mini-card p { font-size: 0.95rem; color: #A1A8B8 !important; margin: 0; }
 .mini-card.danger { border-color: rgba(255, 71, 87, 0.3); background: rgba(255, 71, 87, 0.05); }
 .mini-card.danger h4 { color: #ff4757 !important; }
-.mini-card.success h4 { color: #C7F000 !important; }
+.mini-card.success h4 { color: var(--accent-secondary) !important; }
 
 /* CARD BOX */
 .card-box { padding: 25px; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); text-align: center; transition: 0.3s; }
@@ -129,7 +129,7 @@ html, body {
 .comp-row.header { font-weight: 700; background: rgba(255,255,255,0.05); color: var(--accent); }
 .comp-row span { flex: 1; text-align: center; }
 .comp-row span:first-child { text-align: left; font-weight: 700; color: #A1A8B8; }
-.comp-row .highlight { color: #C7F000; font-weight: 700; }
+.comp-row .highlight { color: var(--accent-secondary); font-weight: 700; }
 
 /* --- GOD MODE --- */
 .god-mode { border: 1px solid #9b59b6; background: linear-gradient(135deg, rgba(155, 89, 182, 0.1), transparent); padding: 40px; border-radius: 20px; text-align: center; color: #FFFFFF !important; }

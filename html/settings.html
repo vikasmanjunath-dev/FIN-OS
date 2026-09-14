@@ -25,10 +25,14 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <title>Settings | FIN•OS</title>
+  <title>Settings | FIN-OS</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="../js/supabase-config.js"></script>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -273,6 +277,34 @@
               <button class="font-size-btn" data-size="large"  onclick="setFontSize('large')">L</button>
             </div>
           </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+             SECTION — COMPLEXITY MODE
+        ══════════════════════════════════════════ -->
+        <section class="settings-card glass-panel" id="mode">
+          <h3><span class="s-icon">⚡</span> Complexity Mode</h3>
+          <p style="font-size:13px;color:var(--text-secondary);margin:0 0 16px;line-height:1.6;">
+            Controls which features and tools are visible across FIN-OS. Level up naturally as you grow, or switch manually here.
+          </p>
+          <div id="finos-mode-selector-container"></div>
+          <script>
+          (function() {
+            function initModeSelector() {
+              if (window.FinosMode && typeof window.FinosMode.renderModeSelector === 'function') {
+                window.FinosMode.renderModeSelector('finos-mode-selector-container');
+              }
+            }
+            if (window.FinosMode) {
+              initModeSelector();
+            } else {
+              var s = document.createElement('script');
+              s.src = '../js/finos-progressive-mode.js?v=3';
+              s.onload = initModeSelector;
+              document.head.appendChild(s);
+            }
+          })();
+          </script>
         </section>
 
         <!-- ══════════════════════════════════════════
@@ -598,6 +630,20 @@
         </section>
 
         <!-- ══════════════════════════════════════════
+             ACCOUNT AGGREGATOR
+        ══════════════════════════════════════════ -->
+        <section class="settings-card glass-panel" id="account-aggregator-section">
+          <h3><span class="s-icon">🔗</span> Account Aggregator</h3>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.55;">
+            Connect your bank accounts and mutual funds via RBI-regulated Account Aggregator providers for automatic data sync in Track Finances.
+          </p>
+          <div id="settings-aa-dashboard"></div>
+          <div style="margin-top:12px;font-size:12px;color:var(--text-muted);">
+            Connections and consent data are stored locally and never leave your device.
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
              BRAIN SYNC
         ══════════════════════════════════════════ -->
         <section class="settings-card glass-panel" id="brain-sync-section">
@@ -715,11 +761,12 @@
 </div>
 
 
+<script src="../js/finos-aa.js" defer></script>
 <script src="../js/ui.js?v=2"></script>
 <script src="../js/settings.js?v=3"></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=7"></script>
+<script src="../js/finos-widget.js?v=8"></script>
 <script src="../js/finos-search.js?v=2"></script>
 
 <style>
@@ -1086,6 +1133,21 @@ const sb = (window.FINOS_SB && window.FINOS_SB.getClient()) || (window.supabase 
     _checkCoupleStatus();
     _renderBrainContents();
   });
+})();
+</script>
+<script>
+(function () {
+  function _initSettingsAA() {
+    if (window.FinosAA) {
+      window.FinosAA.renderDashboard('settings-aa-dashboard');
+      document.addEventListener('aa-sync-complete', () => {
+        window.FinosAA.renderDashboard('settings-aa-dashboard');
+      });
+    } else {
+      setTimeout(_initSettingsAA, 150);
+    }
+  }
+  _initSettingsAA();
 })();
 </script>
 </body>

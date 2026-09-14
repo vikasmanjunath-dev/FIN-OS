@@ -74,7 +74,7 @@
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.78rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   color: #9AA0B4;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
@@ -150,7 +150,7 @@
 }
 
 .section-number {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 4rem;
   color: rgba(255,255,255,0.05);
   font-weight: 700;
@@ -260,7 +260,7 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  font-family: 'JetBrains Mono';
+  font-family: var(--font-mono);
   flex-wrap: wrap;
 }
 
@@ -316,7 +316,7 @@
 }
 
 .auth-card h4 {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 1.1rem;
   color: var(--neon-blue);
   margin-bottom: 6px;
@@ -328,7 +328,7 @@
   background: rgba(79,124,255,0.12);
   border-radius: 20px;
   font-size: 0.72rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   color: var(--neon-blue);
   margin: 8px 0;
 }
@@ -381,7 +381,7 @@
 }
 
 .mini-card h5 {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.9rem;
   color: var(--neon-blue);
   margin-bottom: 10px;
@@ -464,7 +464,7 @@
   padding: 10px 14px;
   background: rgba(255,255,255,0.05);
   border-bottom: 1px solid rgba(255,255,255,0.1);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.8rem;
   color: #9AA0B4;
 }
@@ -475,7 +475,7 @@
 }
 
 .slab-table .rate {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-weight: 700;
 }
 
@@ -516,7 +516,7 @@
 }
 
 .shield-icon { font-size: 2.5rem; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
-.limit { display: block; font-family: 'JetBrains Mono'; font-size: 0.8rem; color: var(--neon-green); margin: 5px 0 10px; }
+.limit { display: block; font-family: var(--font-mono); font-size: 0.8rem; color: var(--neon-green); margin: 5px 0 10px; }
 
 /* --- CAPITAL GAINS MATRIX (4 columns) --- */
 .matrix-container {
@@ -553,13 +553,13 @@
 }
 
 .period {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.85rem;
   color: #aaa;
 }
 
-.tax-rate { font-family: 'JetBrains Mono'; font-weight: bold; }
-.tax-rate span { display: block; font-size: 0.7rem; font-family: 'Inter'; font-weight: normal; opacity: 0.7; margin-top: 4px; }
+.tax-rate { font-family: var(--font-mono); font-weight: bold; }
+.tax-rate span { display: block; font-size: 0.7rem; font-family: var(--font-sans); font-weight: normal; opacity: 0.7; margin-top: 4px; }
 .tax-rate.good { color: var(--neon-green); }
 .tax-rate.bad { color: #f1c40f; }
 .tax-rate.ugly { color: #e67e22; }
@@ -571,7 +571,7 @@
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
   padding: 20px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.88rem;
 }
 
@@ -646,7 +646,7 @@
   display: inline-block;
   padding: 2px 10px;
   border-radius: 6px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.78rem;
   font-weight: 700;
   min-width: 40px;
@@ -677,7 +677,7 @@
 /* --- CRITICAL/WARNING TEXT --- */
 .critical-text {
   color: var(--neon-red) !important;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.95rem;
   margin: 8px 0;
@@ -685,7 +685,7 @@
 
 .warning-text {
   color: #f1c40f !important;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.95rem;
   margin: 8px 0;

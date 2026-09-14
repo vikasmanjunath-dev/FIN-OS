@@ -5,7 +5,7 @@
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
   <meta charset="UTF-8">
-  <meta name="description" content="FIN•OS — Your AI-powered Financial Operating System for Indian investors."><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Your savings account is losing you 4% a year, quietly. Why inflation is the wealth killer nobody notices."><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,6 +13,9 @@
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
   <title>Inflation Reality | FIN-OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/insight.css">
@@ -24,6 +27,8 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="../js/supabase-config.js"></script>
 </head>
 <body>
 <div class="insight-wrapper">
@@ -69,6 +74,7 @@
           <p><strong>Net Result: +5% Real Wealth.</strong></p>
         </div>
       </div>
+      <p style="text-align:center;margin-top:24px;"><a href="../calculators/core-thinking/inflation-impact.html" style="font-size:13px;font-weight:600;opacity:.8;">🧮 Run this with your own numbers →</a></p>
     </section>
   </main>
 </div>
@@ -113,7 +119,7 @@
 })();
 </script>
 
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-search.js?v=2"></script>
   <script src="../js/interactions.js" defer></script>
 <script src="../js/arya-sidebar-panel.js"></script>

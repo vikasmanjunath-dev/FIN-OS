@@ -80,6 +80,15 @@
   --shadow-5: 0 40px 80px rgba(0,0,0,0.20), 0 8px 20px rgba(0,0,0,0.10);
 }
 
+/* ── BRAND GRADIENT (theme-invariant) ───────────────────────── */
+/* The flagship blue→lime CTA gradient always carries near-black
+   text, so it keeps the raw brand colors in BOTH themes. Use these
+   for gradient FILLS only — never for text or borders. */
+:root {
+  --btn-grad-start: #4F7CFF;
+  --btn-grad-end:   #C7F000;
+}
+
 /* ── LIGHT MODE TOKENS ───────────────────────────────────────── */
 :root[data-theme="light"] {
   color-scheme: light;
@@ -94,23 +103,27 @@
   /* Text */
   --text-primary:   #0B0D12;
   --text-secondary: #5A6278;
-  --text-muted:     #8A92A8;
+  --text-muted:     #667085;   /* 4.97:1 on white — AA */
   --text-inverse:   #FFFFFF;
   --text-main:      #0B0D12;   /* backwards-compat alias */
 
-  /* Brand Accent */
-  --accent:           #4F7CFF;
+  /* Brand Accent
+     --accent is the FOREGROUND accent (text, links, borders, focus):
+     darkened in light mode to pass AA on white. --accent-primary
+     stays raw brand blue for fills/gradients. */
+  --accent:           #3D63E6;  /* 5.09:1 on white */
   --accent-primary:   #4F7CFF;
-  --accent-secondary: #C7F000;  /* canonical lime spelling */
-  --accent-soft:      rgba(79, 124, 255, 0.12);
+  --accent-secondary: #5C7300;  /* lime-as-ink: olive in light (5.37:1) */
+  --accent-soft:      rgba(61, 99, 230, 0.12);
   --accent-lime-soft: rgba(199, 240, 0, 0.12);
+  --neon-lime:        #5C7300;
 
   /* Semantic */
   --color-success:      #16a34a;
   --color-success-soft: rgba(22, 163, 74, 0.10);
   --color-error:        #dc2626;
   --color-error-soft:   rgba(220, 38, 38, 0.10);
-  --color-warning:      #d97706;
+  --color-warning:      #B45309;  /* 5.02:1 on white — AA */
   --color-warning-soft: rgba(217, 119, 6, 0.10);
   --color-info:         #0284c7;
   --color-info-soft:    rgba(2, 132, 199, 0.10);
@@ -135,10 +148,10 @@
   --t-surface: #FFFFFF;
   --t-text:    #0B0D12;
   --t-text2:   #5A6278;
-  --t-text3:   #8A92A8;
+  --t-text3:   #667085;
   --t-border:  rgba(0, 0, 0, 0.08);
   --t-border2: rgba(0, 0, 0, 0.14);
-  --t-accent:  #4F7CFF;
+  --t-accent:  #3D63E6;
   --t-shadow:  rgba(0, 0, 0, 0.08);
 }
 
@@ -156,7 +169,7 @@
   /* Text */
   --text-primary:   #F0F2F8;
   --text-secondary: #A1A8B8;
-  --text-muted:     #5A6278;
+  --text-muted:     #7E879C;   /* 5.4:1 on bg-main — AA */
   --text-inverse:   #0B0D12;
   --text-main:      #F0F2F8;
 
@@ -166,6 +179,7 @@
   --accent-secondary: #C7F000;
   --accent-soft:      rgba(79, 124, 255, 0.18);
   --accent-lime-soft: rgba(199, 240, 0, 0.10);
+  --neon-lime:        #C7F000;
 
   /* Semantic */
   --color-success:      #4ade80;
@@ -197,7 +211,7 @@
   --t-surface: #15181F;
   --t-text:    #F0F2F8;
   --t-text2:   #A1A8B8;
-  --t-text3:   #3E4558;
+  --t-text3:   #78829A;   /* was #3E4558 (2.0:1) — now 5.05:1 */
   --t-border:  rgba(255, 255, 255, 0.07);
   --t-border2: rgba(255, 255, 255, 0.12);
   --t-accent:  #4F7CFF;
@@ -239,7 +253,7 @@ code, pre, .mono, kbd {
   text-decoration: none;
   white-space: nowrap;
 
-  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  background: linear-gradient(135deg, var(--btn-grad-start) 0%, var(--btn-grad-end) 100%);
   color: #0B0D12;
 
   box-shadow: 0 8px 28px var(--glow-primary);

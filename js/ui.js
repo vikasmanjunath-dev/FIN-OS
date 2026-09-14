@@ -138,16 +138,28 @@ function _finosUIInit() {
   /* =========================
      ACTIVE NAV LINK — auto-detect by URL
      Sets class="active" AND aria-current="page" (WCAG 4.1.2)
+
+     Sub-pages that aren't themselves one of the 9 sidebar links (e.g. every
+     calculator/tracker hanging off Track Finances) never matched anything
+     here, so the sidebar showed no section as current no matter what the
+     page's own static HTML claimed — the "active" class on a sub-page's
+     intended parent link was silently stripped every load. A page can now
+     opt in with <body data-nav-section="track-finances.html"> to be treated
+     as that section for highlighting purposes; pages without it keep the
+     original exact-filename behavior unchanged.
      ========================= */
   (function () {
     var path = window.location.pathname.split("/").pop() || "home.html";
     // Normalise: index.html → home.html for the root
     if (path === "" || path === "index.html") path = "home.html";
 
+    var section = document.body.getAttribute("data-nav-section");
+    var matchTarget = section || path;
+
     document.querySelectorAll(".sidebar nav a").forEach(function (link) {
       var href = link.getAttribute("href") || "";
       var page = href.split("/").pop().split("?")[0];
-      var isActive = (page === path);
+      var isActive = (page === matchTarget);
       link.classList.toggle("active", isActive);
       if (isActive) {
         link.setAttribute("aria-current", "page");

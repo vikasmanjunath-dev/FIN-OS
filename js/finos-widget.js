@@ -203,7 +203,14 @@
         max-height: 88vh;
         border-radius: 20px 20px 0 0;
       }
-      #finos-fab { bottom: 20px; right: 16px; }
+    }
+
+    /* Keep clear of the 60px bottom tab bar on mobile */
+    @media (max-width: 768px) {
+      #finos-fab {
+        bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+        right: 12px;
+      }
     }
   `;
 
@@ -301,6 +308,12 @@
     [data-theme="light"] .ql-entry { background:rgba(0,0,0,.02); border-color:rgba(0,0,0,.06); color:#4A5068; }
     [data-theme="light"] #finos-ql-parsed { background:rgba(0,0,0,.04); color:#4A5068; }
     [data-theme="light"] .ql-btn.voice { background:rgba(0,0,0,.04); color:#4A5068; border-color:rgba(0,0,0,.1); }
+
+    /* Mobile: quick-log lives inside the "+" quick-capture flow; hiding the
+       pencil keeps the corner to ONE fab above the tab bar. */
+    @media (max-width: 768px) {
+      #finos-ql-btn, #finos-ql-panel { display: none !important; }
+    }
   `;
   const qlStyle = document.createElement('style');
   qlStyle.textContent = qlCSS;
@@ -705,10 +718,12 @@
   }
 
   /* ── Auto-inject finos-context.js if not already loaded ─────────────────
-     Makes the widget self-sufficient: drop one <script> tag, everything runs. */
-  if (typeof window.FINOS_USER_CONTEXT === 'undefined') {
+     Makes the widget self-sufficient: drop one <script> tag, everything runs.
+     Guard: check for any existing finos-context <script> tag in the DOM to
+     avoid duplicate loads when the page already includes it with defer/async. */
+  if (!document.querySelector('script[src*="finos-context"]')) {
     const ctxScript = document.createElement('script');
-    ctxScript.src   = _widgetBasePath() + 'finos-context.js?v=3';
+    ctxScript.src   = _widgetBasePath() + 'finos-context.js?v=4';
     ctxScript.async = true;
     document.head.appendChild(ctxScript);
   }

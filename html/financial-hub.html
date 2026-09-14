@@ -6,7 +6,10 @@
   <meta name="description" content="FIN•OS Command Hub — your intelligent gateway to every financial tool.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0B0D12">
-<title>FIN•OS | Financial Command Hub</title>
+<title>Financial Command Hub | FIN-OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/layout.css">
@@ -14,7 +17,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
 <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
 <script src="../js/arya-ai.js?v=4"></script>
 <script src="../js/finos-personalization.js" defer></script>
 <style>
@@ -63,7 +66,7 @@
   display:inline-flex;align-items:center;gap:5px;
   padding:5px 13px;border-radius:20px;font-size:10px;font-weight:700;
   letter-spacing:.08em;text-transform:uppercase;
-  background:rgba(199,240,0,.08);border:1px solid rgba(199,240,0,.22);color:#c7f000;
+  background:rgba(199,240,0,.08);border:1px solid rgba(199,240,0,.22);color: var(--accent-secondary);
 }
 .hub-header-bar{display:none;}/* legacy, replaced by hub-hero */
 
@@ -243,7 +246,7 @@
   background:linear-gradient(135deg,#c7f000,#00d4ff);
   display:flex;align-items:center;justify-content:center;font-size:13px;
 }
-.hf-ai-lbl{font-size:10px;font-weight:800;color:#c7f000;letter-spacing:.1em;text-transform:uppercase;}
+.hf-ai-lbl{font-size:10px;font-weight:800;color: var(--accent-secondary);letter-spacing:.1em;text-transform:uppercase;}
 .hf-ai-body{padding:14px 16px;font-size:13px;color:rgba(255,255,255,.78);line-height:1.75;}
 
 /* ═══════════════════════════════════════════════════════
@@ -264,7 +267,7 @@
 .chip:hover{border-color: var(--border-soft);color:#c0c8d8;background:var(--bg-surface);}
 .chip.on{
   border-color:rgba(199,240,0,.45);background:rgba(199,240,0,.1);
-  color:#c7f000;box-shadow:0 0 0 3px rgba(199,240,0,.07);
+  color: var(--accent-secondary);box-shadow:0 0 0 3px rgba(199,240,0,.07);
 }
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
 
@@ -375,7 +378,7 @@
 .tl-body:hover{border-color: var(--border-soft);background:var(--bg-surface);}
 .tl-body-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;}
 .tl-note{font-size:13px;font-weight:600;color:#eef0f4;line-height:1.4;}
-.tl-date{font-size:11px;color:#6b7589;margin-top:3px;font-family:'JetBrains Mono',monospace;}
+.tl-date{font-size:11px;color:#6b7589;margin-top:3px;font-family: var(--font-mono);}
 .tl-amt{font-size:12px;font-weight:700;white-space:nowrap;}
 .tl-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
 .tl-del{background:transparent;border:none;color:#3e4a5c;cursor:pointer;font-size:13px;padding:4px 8px;border-radius:7px;transition:all .15s;}
@@ -435,7 +438,7 @@
   border-bottom-left-radius:4px;
 }
 .msg-lbl{
-  font-size:9px;font-weight:800;color:#c7f000;
+  font-size:9px;font-weight:800;color: var(--accent-secondary);
   letter-spacing:.12em;margin-bottom:6px;display:block;
 }
 /* Explicit text color on message content — never inherits from dark ancestors */
@@ -451,7 +454,7 @@
 .msg-text code{
   background:rgba(255,255,255,.12);
   border-radius:4px;padding:1px 6px;
-  font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#c7f000;
+  font-family: var(--font-mono);font-size:11.5px;color: var(--accent-secondary);
 }
 .chat-qp{
   padding:10px 16px;border-top:1px solid var(--border-soft);
@@ -464,7 +467,7 @@
   color:#a8c400;font-size:11px;font-weight:600;cursor:pointer;
   transition:all .15s;white-space:nowrap;
 }
-.qp:hover{background:rgba(199,240,0,.12);color:#c7f000;border-color:rgba(199,240,0,.35);}
+.qp:hover{background:rgba(199,240,0,.12);color: var(--accent-secondary);border-color:rgba(199,240,0,.35);}
 .chat-input-area{
   padding:12px 14px;border-top:1px solid var(--border-soft);
   display:flex;gap:9px;align-items:flex-end;
@@ -699,6 +702,7 @@
 
       <!-- ════════════════════ PANEL: BUDGET FORECAST ════════════════════ -->
       <div class="hub-panel active" id="panel-budget">
+        <p style="text-align:right;margin:0 0 12px;"><a href="budget-forecast.html" style="font-size:12px;font-weight:600;opacity:.6;">Open as full page ↗</a></p>
         <div class="hf-card">
           <div class="hf-card-title">Your Financial Profile</div>
           <div class="hf-grid hf-g3" style="margin-bottom:22px;">
@@ -759,6 +763,7 @@
 
       <!-- ════════════════════ PANEL: LIFE GOALS ════════════════════ -->
       <div class="hub-panel" id="panel-goals">
+        <p style="text-align:right;margin:0 0 12px;"><a href="life-goals-planner.html" style="font-size:12px;font-weight:600;opacity:.6;">Open as full page ↗</a></p>
         <div class="hf-card">
           <div class="hf-card-title">Your Financial Profile</div>
           <div class="hf-grid hf-g3" style="margin-bottom:22px;">
@@ -801,6 +806,7 @@
 
       <!-- ════════════════════ PANEL: PEER BENCHMARK ════════════════════ -->
       <div class="hub-panel" id="panel-bench">
+        <p style="text-align:right;margin:0 0 12px;"><a href="benchmarking.html" style="font-size:12px;font-weight:600;opacity:.6;">Open as full page ↗</a></p>
         <div class="hf-card">
           <div class="hf-card-title">Your Details</div>
           <div class="hf-grid hf-g3" style="margin-bottom:16px;">
@@ -869,6 +875,7 @@
 
       <!-- ════════════════════ PANEL: COUPLE FINANCE ════════════════════ -->
       <div class="hub-panel" id="panel-couple">
+        <p style="text-align:right;margin:0 0 12px;"><a href="couple-finance.html" style="font-size:12px;font-weight:600;opacity:.6;">Open as full page ↗</a></p>
         <div class="hf-card">
           <div class="hf-card-title">Partner Incomes</div>
           <div class="partner-wrap">
@@ -930,6 +937,7 @@
 
       <!-- ════════════════════ PANEL: MY TIMELINE ════════════════════ -->
       <div class="hub-panel" id="panel-timeline">
+        <p style="text-align:right;margin:0 0 12px;"><a href="timeline.html" style="font-size:12px;font-weight:600;opacity:.6;">Open as full page ↗</a></p>
         <div class="hf-card">
           <div class="hf-card-title">Your Financial Journey</div>
           <div class="tl-list" id="tl-list"></div>
@@ -971,6 +979,7 @@
 
       <!-- ════════════════════ PANEL: MONEY AI ════════════════════ -->
       <div class="hub-panel" id="panel-moneyai">
+        <p style="text-align:right;margin:0 0 8px;"><a href="money-ai.html" style="font-size:12px;font-weight:600;opacity:.6;">Open as full page ↗</a></p>
         <div class="chat-wrap">
           <div class="chat-header">
             <div class="chat-av">🤖</div>
@@ -1001,6 +1010,7 @@
 
       <!-- ════════════════════ PANEL: REPORT ════════════════════ -->
       <div class="hub-panel" id="panel-report">
+        <p style="text-align:right;margin:0 0 12px;"><a href="financial-report.html" style="font-size:12px;font-weight:600;opacity:.6;">Open as full page ↗</a></p>
         <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center;">
           <button class="hf-btn hf-btn-primary" onclick="RPT.build()">🔄 Refresh</button>
           <button class="hf-btn hf-btn-ghost" onclick="window.print()">🖨️ Print / PDF</button>
@@ -1011,6 +1021,7 @@
 
       <!-- ════════════════════ PANEL: DOCUMENT AI ════════════════════ -->
       <div class="hub-panel" id="panel-docai">
+        <p style="text-align:right;margin:0 0 12px;"><a href="document-ai.html" style="font-size:12px;font-weight:600;opacity:.6;">Open as full page ↗</a></p>
         <div class="hf-card">
           <div class="hf-card-title">Upload Financial Document</div>
           <div class="drop-zone" id="dz"
@@ -1055,7 +1066,7 @@
   </main>
 </div>
 
-<script src="../js/finos-widget.js?v=7"></script>
+<script src="../js/finos-widget.js?v=8"></script>
 <script src="../js/ui.js" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/theme.js"></script>
@@ -1147,11 +1158,12 @@ document.querySelectorAll('.hub-tab').forEach(b=>{
 // Context → auto-prefill
 window.addEventListener('finos-context-ready',()=>{
   const b=window.FINOS_USER_CONTEXT?.budget_tracker;
-  if(!b) return;
+  const nw=parseFloat(localStorage.getItem('finos_net_worth')||'0');
   const map={
-    'bf-income': b.income_monthly,
-    'gl-income': b.income_monthly,
-    'gl-exp':    b.spent_total,
+    'bf-income': b?.income_monthly,
+    'gl-income': b?.income_monthly,
+    'gl-exp':    b?.spent_total,
+    'bf-savings': nw || null,
   };
   Object.entries(map).forEach(([id,val])=>{
     const el=v(id); if(el&&!el.value&&val) el.value=Math.round(val);
@@ -1196,7 +1208,7 @@ const BF={
       stat(inr(rows[11].corpus),'12-Month Corpus','#c7f000');
 
     v('bf-table').innerHTML=`<tr><th>Month</th><th>Income</th><th>Expenses</th><th>Saved</th><th>Corpus</th></tr>`
-      +rows.map(r=>`<tr><td>${r.m}</td><td>${inr(r.income)}</td><td style="color:#f87171">${inr(r.exp)}</td><td style="color:#22c55e">${inr(r.sav)}</td><td style="color:#c7f000">${inr(r.corpus)}</td></tr>`).join('');
+      +rows.map(r=>`<tr><td>${r.m}</td><td>${inr(r.income)}</td><td style="color:#f87171">${inr(r.exp)}</td><td style="color:#22c55e">${inr(r.sav)}</td><td style="color: var(--accent-secondary)">${inr(r.corpus)}</td></tr>`).join('');
 
     if(this.chart) this.chart.destroy();
     this.chart=new Chart(v('bf-chart').getContext('2d'),{
@@ -1426,7 +1438,7 @@ const CP={
         <td style="padding:8px;color:#eef0f4;">💰 Net Disposable</td>
         <td style="padding:8px;text-align:right;color:#4f7cff;">${inr(aNet)}</td>
         <td style="padding:8px;text-align:right;color:#00d4ff;">${inr(bNet)}</td>
-        <td style="padding:8px;text-align:right;color:#c7f000;">${inr(aNet+bNet)}</td></tr>
+        <td style="padding:8px;text-align:right;color: var(--accent-secondary);">${inr(aNet+bNet)}</td></tr>
     </table></div>`;
 
     v('cp-result').classList.add('show');

@@ -13,8 +13,11 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-    <title>FIN•OS | THE SYSTEM LEAK [FORENSIC AUDIT]</title>
+    <title>THE SYSTEM LEAK [FORENSIC AUDIT] | FIN-OS</title>
     
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
       <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/layout.css">
@@ -29,6 +32,8 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="../js/supabase-config.js"></script>
 </head>
 <body>
 
@@ -644,16 +649,19 @@
 
 <style>
 #floatBackBtn {
-  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  /* Clear of the 232px sidebar on desktop */
+  position: fixed; bottom: 22px; left: 256px; z-index: 9999;
   padding: 8px 16px 8px 12px; border-radius: 10px;
   background: var(--bg-surface); border: 1px solid var(--border-soft);
-  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  color: var(--text-secondary); font-family: var(--font-mono);
   font-size: 11px; font-weight: 600; letter-spacing: .06em;
   cursor: pointer; display: flex; align-items: center; gap: 6px;
   transition: background .2s, color .2s, transform .2s;
   backdrop-filter: blur(10px); text-decoration: none;
 }
 #floatBackBtn:hover { background: transparent; color: var(--text-primary); transform: translateX(-3px); }
+/* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
+@media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
 <a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 
@@ -747,7 +755,7 @@ html[data-theme="light"] .debt-core .core-label,
 html[data-theme="light"] .debt-core .core-val { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
 
 html[data-theme="light"] .ego-stat-overlay .stat-label { color: #4F7CFF !important; -webkit-text-fill-color: #4F7CFF !important; }
-html[data-theme="light"] .sinkhole-core .label { color: #C7F000 !important; -webkit-text-fill-color: #C7F000 !important; }
+html[data-theme="light"] .sinkhole-core .label { color: var(--accent-secondary) !important; -webkit-text-fill-color: var(--accent-secondary) !important; }
 html[data-theme="light"] .debt-core .core-label { color: #888 !important; -webkit-text-fill-color: #888 !important; }
 
 /* Glitch text inside dark cards stays white */
@@ -808,7 +816,7 @@ html[data-theme="light"] .sinkhole-core .glitch-text { color: #ffffff !important
 [data-theme="light"] #floatBackBtn:hover { background: rgba(0,0,0,0.10) !important; color: #0B0D12 !important; }
 </style>
 
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <script src="../js/sidebar.js"></script>

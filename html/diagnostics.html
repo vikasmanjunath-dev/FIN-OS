@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-  <title>FIN•OS | Diagnostic Portal</title>
+  <title>Diagnostic Portal | FIN-OS</title>
   
   <style>
     /* =========================
@@ -83,7 +83,7 @@
       font-weight: 800;
       margin-bottom: 32px;
       color: #FFFFFF;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       letter-spacing: 1px;
     }
 
@@ -183,7 +183,7 @@
       color: var(--accent-secondary);
       border: 1px solid rgba(199, 240, 0, 0.3);
       border-radius: 4px;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 0.75rem;
       letter-spacing: 2px;
       margin-bottom: 16px;
@@ -271,7 +271,7 @@
     }
 
     .tech-tag {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 0.75rem;
       color: var(--text-secondary);
       background: var(--bg-surface);
@@ -284,7 +284,7 @@
       font-weight: 800;
       font-size: 0.9rem;
       transition: transform 0.3s ease;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
     }
     .portal-card:hover .arrow { transform: translateX(10px); }
     .portal-card.xray:hover .arrow { color: var(--accent-primary); }
@@ -509,6 +509,9 @@
       background: var(--bg-main);
     }
   </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -706,6 +709,32 @@
 
       </section>
 
+      <section style="padding: 48px 24px 20px; max-width: 860px; margin: 0 auto;">
+        <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-primary); margin-bottom: 16px; opacity: .7; text-align: center;">Deep Diagnostic Tools</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 14px;">
+          <a href="dna.html" style="display:flex;flex-direction:column;gap:8px;padding:20px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;text-decoration:none;color:inherit;transition:border-color .2s,transform .2s;" onmouseover="this.style.borderColor='rgba(255,255,255,.2)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.transform=''">
+            <div style="font-size: 22px;">🧬</div>
+            <div style="font-size: 13px; font-weight: 700; letter-spacing: .03em;">DNA Decoder</div>
+            <div style="font-size: 12px; opacity: .55; line-height: 1.5;">Decode your investor DNA — behavioral profile, risk tolerance, and cognitive biases mapped to an archetype.</div>
+          </a>
+          <a href="benchmarking.html" style="display:flex;flex-direction:column;gap:8px;padding:20px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;text-decoration:none;color:inherit;transition:border-color .2s,transform .2s;" onmouseover="this.style.borderColor='rgba(255,255,255,.2)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.transform=''">
+            <div style="font-size: 22px;">📊</div>
+            <div style="font-size: 13px; font-weight: 700; letter-spacing: .03em;">Peer Benchmarking</div>
+            <div style="font-size: 12px; opacity: .55; line-height: 1.5;">See exactly how your financial health stacks up against your peer cohort by age, income, and city tier.</div>
+          </a>
+          <a href="investor-profile.html" style="display:flex;flex-direction:column;gap:8px;padding:20px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;text-decoration:none;color:inherit;transition:border-color .2s,transform .2s;" onmouseover="this.style.borderColor='rgba(255,255,255,.2)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.transform=''">
+            <div style="font-size: 22px;">🧠</div>
+            <div style="font-size: 13px; font-weight: 700; letter-spacing: .03em;">Investor Archetype</div>
+            <div style="font-size: 12px; opacity: .55; line-height: 1.5;">Deep-dive into Apex Cognitive Architectures — discover your investor type and the decision framework that fits it.</div>
+          </a>
+          <a href="system-leak.html" style="display:flex;flex-direction:column;gap:8px;padding:20px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;text-decoration:none;color:inherit;transition:border-color .2s,transform .2s;" onmouseover="this.style.borderColor='rgba(255,255,255,.2)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.transform=''">
+            <div style="font-size: 22px;">🔍</div>
+            <div style="font-size: 13px; font-weight: 700; letter-spacing: .03em;">The System Leak</div>
+            <div style="font-size: 12px; opacity: .55; line-height: 1.5;">Forensic audit of where your money actually drains — subscriptions, lifestyle creep, and hidden recurring costs.</div>
+          </a>
+        </div>
+      </section>
+
     </div>
   </main>
 </div>
@@ -826,7 +855,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=4" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
   <script>
@@ -870,7 +899,7 @@ In 2 sentences: (1) which one they need MORE urgently based on their specific pr
   <script src="../js/ui.js" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-mobile.js" defer></script>
   <script src="../js/finos-search.js?v=2"></script>
   <script>

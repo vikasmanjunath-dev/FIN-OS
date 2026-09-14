@@ -5,8 +5,8 @@
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
   <meta charset="UTF-8">
-  <meta name="description" content="FIN•OS — Your AI-powered Financial Operating System for Indian investors.">
-  <title>FIN•OS | MARKET INTEL</title>
+  <meta name="description" content="Scan any stock across intraday, swing, and long-term timeframes — fundamental and technical verdicts in one pass.">
+  <title>MARKET INTEL | FIN-OS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -26,7 +26,7 @@
     
     /* SIDEBAR */
     .sidebar { width: 260px; background: var(--panel); border-right: 1px solid var(--border); padding: 30px; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; }
-    .logo { font-family: 'JetBrains Mono'; font-weight: 800; font-size: 24px; margin-bottom: 40px; }
+    .logo { font-family: var(--font-mono); font-weight: 800; font-size: 24px; margin-bottom: 40px; }
     .nav-item { display: block; padding: 12px 0; color: #666; text-decoration: none; font-weight: 600; }
     .nav-item.active { color: var(--neon-lime); }
 
@@ -35,21 +35,21 @@
     
     /* HEADER */
     .header { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 30px; }
-    h1 { font-family: 'JetBrains Mono'; font-size: 32px; font-weight: 800; text-transform: uppercase; margin: 0; }
+    h1 { font-family: var(--font-mono); font-size: 32px; font-weight: 800; text-transform: uppercase; margin: 0; }
     .sub { color: #666; font-size: 14px; margin-top: 5px; }
 
     /* SEARCH & CONTROLS */
     .control-panel { background: #0A0A0A; border: 1px solid var(--border); border-radius: 12px; padding: 25px; margin-bottom: 30px; }
     
     .input-group { display: flex; gap: 15px; margin-bottom: 25px; }
-    input { flex: 1; background: var(--bg-surface); border: 1px solid var(--border); padding: 15px; color: var(--text-primary); font-family: 'JetBrains Mono'; border-radius: 8px; outline: none; }
+    input { flex: 1; background: var(--bg-surface); border: 1px solid var(--border); padding: 15px; color: var(--text-primary); font-family: var(--font-mono); border-radius: 8px; outline: none; }
     input:focus { border-color: var(--neon-blue); }
     
     /* SELECTION TOGGLES */
     .toggle-group { display: flex; gap: 10px; margin-bottom: 15px; }
     .toggle-btn { 
         flex: 1; padding: 12px; border: 1px solid var(--border); background: transparent; 
-        color: #666; font-family: 'JetBrains Mono'; font-weight: 700; cursor: pointer; 
+        color: #666; font-family: var(--font-mono); font-weight: 700; cursor: pointer; 
         border-radius: 6px; transition: 0.2s;
     }
     .toggle-btn.active { background: rgba(204, 255, 0, 0.1); border-color: var(--neon-lime); color: var(--neon-lime); }
@@ -59,21 +59,21 @@
     
     .sub-btn { 
         flex: 1; padding: 10px; border: 1px solid var(--border); background: transparent; 
-        color: #666; font-family: 'JetBrains Mono'; font-size: 12px; cursor: pointer; 
+        color: #666; font-family: var(--font-mono); font-size: 12px; cursor: pointer; 
         border-radius: 6px; 
     }
     .sub-btn.active { background: rgba(0, 240, 255, 0.1); border-color: var(--neon-blue); color: var(--neon-blue); }
 
     .scan-btn { 
         width: 100%; padding: 15px; background: var(--neon-lime); color: #000; font-weight: 800; 
-        border: none; border-radius: 8px; font-family: 'JetBrains Mono'; cursor: pointer; margin-top: 15px;
+        border: none; border-radius: 8px; font-family: var(--font-mono); cursor: pointer; margin-top: 15px;
     }
     .scan-btn:hover { transform: scale(1.02); }
 
     /* TERMINAL OUTPUT */
     .terminal-window { 
         flex: 1; background: #000; border: 1px solid #333; border-radius: 12px; padding: 20px; 
-        font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #ccc; overflow-y: auto; 
+        font-family: var(--font-mono); font-size: 13px; color: #ccc; overflow-y: auto; 
         line-height: 1.5; white-space: pre-wrap; /* Keeps formatting */
         box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
     }
@@ -92,21 +92,24 @@
   color: var(--text-primary) !important;
     background: var(--bg-surface) !important;
 }</style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
 <link rel="stylesheet" href="../css/theme.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=4" defer></script>
   <style>
     /* ── AI PANEL OVERRIDES for dark terminal theme ── */
     #mi-ai-explain-panel { margin-top: 16px; border-radius: 14px; overflow: hidden; }
     #mi-sentiment-bar { display:flex;align-items:center;gap:12px;padding:10px 16px;
-      border-radius:10px;margin-bottom:12px;font-size:12px;font-family:'JetBrains Mono',monospace; }
+      border-radius:10px;margin-bottom:12px;font-size:12px;font-family: var(--font-mono); }
     .mi-ai-btn {
-      padding: 11px 20px; border-radius: 8px; font-family: 'JetBrains Mono', monospace;
+      padding: 11px 20px; border-radius: 8px; font-family: var(--font-mono);
       font-size: 12px; font-weight: 700; cursor: pointer; transition: all .2s;
       border: 1px solid rgba(0,240,255,.4); background: rgba(0,240,255,.08); color: #00F0FF;
       display: inline-flex; align-items: center; gap: 8px;
@@ -119,7 +122,7 @@
     }
     .mi-rec-badge {
       display: inline-block; padding: 4px 12px; border-radius: 999px;
-      font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono',monospace;
+      font-size: 11px; font-weight: 700; font-family: var(--font-mono);
       margin-bottom: 10px;
     }
     .mi-rec-buy  { background: rgba(0,255,136,.15); color: #00ff88; border: 1px solid rgba(0,255,136,.3); }
@@ -409,7 +412,7 @@
             <div style="color:#e0e2ff;line-height:1.7;">${
               data.explanation.replace(/\n/g, '<br>')
             }</div>
-            <div style="margin-top:10px;font-size:11px;color:#555;font-family:'JetBrains Mono';">
+            <div style="margin-top:10px;font-size:11px;color:#555;font-family: var(--font-mono);">
               Arya AI · ${_lastSymbol} · ${_lastMode}
             </div>`;
         } else {
@@ -517,16 +520,19 @@
 
 <style>
 #floatBackBtn {
-  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  /* Clear of the 232px sidebar on desktop */
+  position: fixed; bottom: 22px; left: 256px; z-index: 9999;
   padding: 8px 16px 8px 12px; border-radius: 10px;
   background: var(--bg-surface); border: 1px solid var(--border-soft);
-  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  color: var(--text-secondary); font-family: var(--font-mono);
   font-size: 11px; font-weight: 600; letter-spacing: .06em;
   cursor: pointer; display: flex; align-items: center; gap: 6px;
   transition: background .2s, color .2s, transform .2s;
   backdrop-filter: blur(10px); text-decoration: none;
 }
 #floatBackBtn:hover { background: transparent; color: var(--text-primary); transform: translateX(-3px); }
+/* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
+@media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
 <a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 
@@ -548,7 +554,7 @@
 }
 [data-theme="light"] .nav-item { color: #4A5068 !important; }
 </style>
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <script src="../js/sidebar.js"></script>

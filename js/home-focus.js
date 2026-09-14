@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             "Today's Edge",
             "Small consistent actions create lasting wealth. <strong>One decision today changes your tomorrow.</strong>",
             "Daily Focus",
-            "#C7F000"
+            "var(--accent-secondary)"
         );
     }
 });
@@ -250,9 +250,9 @@ class FocusEngine {
     }
 
     getColor(type) {
-        if (type === 'danger') return '#ff4757'; // Red
-        if (type === 'growth') return '#C7F000'; // Lime
-        if (type === 'psych') return '#4F7CFF';  // Blue
-        return '#fff';
+        if (type === 'danger') return 'var(--color-error)';
+        if (type === 'growth') return 'var(--accent-secondary)';
+        if (type === 'psych') return 'var(--accent)';
+        return 'var(--text-primary)';
     }
 }

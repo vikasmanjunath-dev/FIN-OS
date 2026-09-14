@@ -5,7 +5,7 @@
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
   <meta charset="UTF-8">
-  <meta name="description" content="FIN•OS — Your AI-powered Financial Operating System for Indian investors.">
+  <meta name="description" content="Derivatives (F&O) Masterclass — futures, options, hedging and speculation, explained from first principles.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,7 +13,10 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-  <title>FIN•OS | Derivatives Masterclass</title>
+  <title>Derivatives Masterclass | FIN-OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/derivativesdetail.css">
@@ -25,6 +28,8 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="../js/supabase-config.js"></script>
 </head>
 <body>
 
@@ -524,7 +529,7 @@
       const bar    = document.getElementById('fno-greeks-bar');
       bar.style.display = 'flex';
       bar.innerHTML = [
-        `<span><span style="color:rgba(255,255,255,.4)">Delta:</span> <strong style="color:#c7f000">${delta.toFixed(2)}</strong></span>`,
+        `<span><span style="color:rgba(255,255,255,.4)">Delta:</span> <strong style="color: var(--accent-secondary)">${delta.toFixed(2)}</strong></span>`,
         `<span><span style="color:rgba(255,255,255,.4)">Gamma:</span> <strong style="color:#4f7cff">${greeks.gamma.toFixed(4)}</strong></span>`,
         `<span><span style="color:rgba(255,255,255,.4)">Theta/day:</span> <strong style="color:#ff6b6b">₹${(Math.abs(greeks.theta_call) * lotSize * lots).toFixed(0)}</strong></span>`,
         `<span><span style="color:rgba(255,255,255,.4)">Vega/1%:</span> <strong style="color:#00ff88">₹${(greeks.vega * lotSize * lots).toFixed(0)}</strong></span>`,
@@ -638,7 +643,7 @@ Max 6 sentences total across all sections.`,
   <script src="../js/derivativesdetail.js"></script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-search.js?v=2"></script>
   <script src="../js/interactions.js" defer></script>
 <script src="../js/arya-sidebar-panel.js"></script>

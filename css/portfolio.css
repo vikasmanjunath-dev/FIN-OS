@@ -203,7 +203,7 @@
 
 .hierarchy-list {
   margin-top: 24px;
-  font-family: 'JetBrains Mono', monospace; /* Tech feel */
+  font-family: var(--font-mono); /* Tech feel */
 }
 
 .h-item {

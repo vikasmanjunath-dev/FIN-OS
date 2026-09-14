@@ -27,6 +27,8 @@ from pydantic import BaseModel
 import config
 import metrics
 import jobs
+import scheduler
+from storage import conversation
 from fastapi import Response
 from ingestion.loaders import load_pdf, load_html
 from ingestion.chunker import chunk_text
@@ -53,6 +55,7 @@ from retrieval.multi_hop import multi_hop_retrieve
 from retrieval import reranker
 from retrieval.reranker import rerank
 from generation.prompt import build_prompt
+from ingestion.amfi import search_nav
 from generation.streamer import stream_generate
 from generation.citations import extract_citations
 from generation import faithfulness
@@ -92,6 +95,12 @@ def _startup():
     reranker._get_model()
     faithfulness._get_model()
     print(f"[startup] reranker + faithfulness models warmed in {time.time() - started:.1f}s")
+    scheduler.start_scheduler()
+
+
+@app.on_event("shutdown")
+def _shutdown():
+    scheduler.stop_scheduler()
 
 
 # ── Schemas ──────────────────────────────────────────────────────────────
@@ -104,6 +113,7 @@ class SearchRequest(BaseModel):
 class QueryRequest(BaseModel):
     query: str
     user_id: str | None = None
+    session_id: str | None = None  # Phase 7: multi-turn conversation memory (Redis TTL 2h)
     top_k: int = 3  # measured prefill on this M5 is the dominant latency cost
                      # (~200-260 tok/s, not ~2500 — see docs/RAG_HARDWARE.md); fewer
                      # chunks in context directly cuts it. 8 is still available if a
@@ -150,6 +160,8 @@ def health():
         status["ingest_workers_running"] = len(Worker.all(connection=_rq_redis))
     except Exception:
         status["ingest_workers_running"] = "unknown"
+
+    status["scheduler"] = scheduler.get_scheduler_status()
 
     return status
 
@@ -292,6 +304,58 @@ def ingest_rbi_notifications(req: CrawlRequest):
     return {"job_id": job.id, "status": "queued"}
 
 
+@app.post("/api/ingest/irdai-circulars")
+def ingest_irdai_circulars(req: CrawlRequest):
+    """Enqueues a crawl of IRDAI's circular listing (https://irdai.gov.in/circulars).
+    PDFs download directly from the listing row's td[5] link — no detail-page hop.
+    Verified live July 17 2026: real PDF downloads cleanly at ~360KB, 17K chars of text."""
+    job = _ingest_queue.enqueue(jobs.ingest_irdai_circulars_job, req.limit, job_timeout="10m")
+    return {"job_id": job.id, "status": "queued"}
+
+
+@app.post("/api/ingest/pfrda-circulars")
+def ingest_pfrda_circulars(req: CrawlRequest):
+    """Enqueues a crawl of PFRDA's circular listing (https://pfrda.org.in/regulatory-framework/circulars).
+    Each circular links to a detail page with a single PDF link. Verified live July 17 2026."""
+    job = _ingest_queue.enqueue(jobs.ingest_pfrda_circulars_job, req.limit, job_timeout="10m")
+    return {"job_id": job.id, "status": "queued"}
+
+
+@app.post("/api/ingest/nse-filings")
+def ingest_nse_filings(req: CrawlRequest):
+    """
+    Enqueues a crawl of recent NSE corporate announcements.
+    Uses NSE's /api/home-corporate-announcements endpoint (session-cookie auth handled
+    internally, same pattern as arya-ai's market data layer). Announcement subject
+    text — not PDF downloads — is indexed for retrieval (see ingestion/corporate.py).
+    Verified endpoint pattern: arya-ai/data/news.py get_announcements() uses the same path.
+    """
+    job = _ingest_queue.enqueue(jobs.ingest_nse_filings_job, req.limit, job_timeout="5m")
+    return {"job_id": job.id, "status": "queued"}
+
+
+@app.post("/api/ingest/bse-filings")
+def ingest_bse_filings(req: CrawlRequest):
+    """
+    Enqueues a crawl of recent BSE corporate announcements from api.bseindia.com.
+    No session cookie required — BSE's AnnSubCategoryGetData endpoint accepts requests
+    with a Referer header. Uses a 7-day rolling window (strPrevDate/strToDate params).
+    Announcement headline text indexed for retrieval (see ingestion/corporate.py).
+    """
+    job = _ingest_queue.enqueue(jobs.ingest_bse_filings_job, req.limit, job_timeout="5m")
+    return {"job_id": job.id, "status": "queued"}
+
+
+@app.post("/api/ingest/news")
+def ingest_news():
+    """Enqueues a news RSS fetch from 5 verified Indian financial news feeds
+    (Mint Markets, Mint Money, MoneyControl, NDTV Profit, Hindu Business Line).
+    Fetches up to 20 articles per feed, deduplicates by title, chunks at 200 tokens.
+    Verified live July 17 2026: 4 of 5 feeds return 18–60 articles each."""
+    job = _ingest_queue.enqueue(jobs.ingest_news_job, job_timeout="5m")
+    return {"job_id": job.id, "status": "queued"}
+
+
 @app.get("/api/ingest/status/{job_id}")
 def ingest_status(job_id: str):
     """Poll an ingestion job enqueued by one of the three endpoints above."""
@@ -365,6 +429,7 @@ def retrieve_endpoint(req: QueryRequest, authorization: str | None = Header(None
                 "text": c["payload"].get("text", ""),
                 "doc_title": c["payload"].get("doc_title", "Unknown"),
                 "doc_type": c["payload"].get("doc_type", "unknown"),
+                "section_heading": c["payload"].get("section_heading", ""),
                 "source": c["payload"].get("source_path") or c["payload"].get("source_url"),
             }
             for c in ranked_chunks
@@ -400,10 +465,13 @@ def query_endpoint(req: QueryRequest, authorization: str | None = Header(None)):
             return cached
         metrics.CACHE_MISSES.inc()
 
+    # Phase 7: load conversation history for multi-turn context
+    history = conversation.get_history(req.session_id) if req.session_id else []
+
     ranked_chunks, sub_questions = _retrieve_and_rerank(
         req.query, req.user_id, req.top_k, use_hyde=req.use_hyde, multi_hop=req.multi_hop, doc_type=req.doc_type
     )
-    prompt = build_prompt(req.query, ranked_chunks)
+    prompt = build_prompt(req.query, ranked_chunks, history=history)
 
     if req.stream:
         # Manual timing, recorded when the generator actually finishes — not via the
@@ -418,6 +486,8 @@ def query_endpoint(req: QueryRequest, authorization: str | None = Header(None)):
                 yield f"event: token\ndata: {json.dumps({'text': token})}\n\n"
 
             answer_text = "".join(full_answer)
+            if req.session_id:
+                conversation.append_turn(req.session_id, req.query, answer_text)
             citations = extract_citations(answer_text, ranked_chunks)
             yield f"event: citations\ndata: {json.dumps({'sources': citations})}\n\n"
             flagged = check_faithfulness(answer_text, ranked_chunks)
@@ -431,6 +501,8 @@ def query_endpoint(req: QueryRequest, authorization: str | None = Header(None)):
         return StreamingResponse(event_stream(), media_type="text/event-stream")
 
     answer_text = "".join(stream_generate(prompt))
+    if req.session_id:
+        conversation.append_turn(req.session_id, req.query, answer_text)
     citations = extract_citations(answer_text, ranked_chunks)
     flagged_sentences = check_faithfulness(answer_text, ranked_chunks)
     metrics.FAITHFULNESS_FLAGS.inc(len(flagged_sentences))
@@ -446,6 +518,103 @@ def query_endpoint(req: QueryRequest, authorization: str | None = Header(None)):
     }
     redis_cache.set_cached(req.query, req.user_id, result)
     return result
+
+
+@app.get("/api/amfi/nav")
+def amfi_nav_endpoint(q: str, top_k: int = 5):
+    """
+    Live AMFI NAV lookup — fetches https://www.amfiindia.com/spages/NAVAll.txt
+    (cached 1h, updated daily by AMFI) and returns fuzzy-matched fund records.
+    No auth required — AMFI data is public.
+
+    Example: GET /api/amfi/nav?q=sbi+bluechip&top_k=3
+    """
+    if not q or not q.strip():
+        raise HTTPException(status_code=400, detail="q parameter required")
+    try:
+        results = search_nav(q.strip(), top_k=min(top_k, 20))
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"AMFI fetch failed: {e}")
+    return {
+        "query": q,
+        "results": [
+            {
+                "scheme_code": r.scheme_code,
+                "scheme_name": r.scheme_name,
+                "nav": r.nav,
+                "date": r.date,
+                "isin_growth": r.isin_growth,
+                "isin_div":    r.isin_div,
+                "match_score": r.score,
+            }
+            for r in results
+        ],
+    }
+
+
+class FeedbackRequest(BaseModel):
+    query: str
+    answer: str        # first 200 chars stored as excerpt
+    vote: str          # "up" or "down"
+    session_id: str | None = None
+    comment: str | None = None
+
+
+@app.post("/api/feedback")
+def feedback_endpoint(req: FeedbackRequest):
+    """
+    Record a user thumbs-up / thumbs-down on a RAG answer. Phase 7.
+
+    Stored in Redis at key `rag:feedback:{ts}:{session_id}`, TTL 30 days,
+    so a weekly evaluation batch can read recent feedback without unbounded
+    growth. GET /api/feedback/summary aggregates across all stored keys.
+    """
+    if req.vote not in ("up", "down"):
+        raise HTTPException(status_code=400, detail="vote must be 'up' or 'down'")
+
+    client = redis_cache.get_client()
+    record = {
+        "query": req.query,
+        "answer_excerpt": req.answer[:200],
+        "vote": req.vote,
+        "session_id": req.session_id,
+        "comment": req.comment,
+        "ts": time.time(),
+    }
+    key = f"rag:feedback:{int(time.time())}:{req.session_id or 'anon'}"
+    client.set(key, json.dumps(record), ex=86400 * 30)
+
+    metrics.FEEDBACK_VOTES.labels(vote=req.vote).inc()
+    return {"status": "recorded"}
+
+
+@app.get("/api/feedback/summary")
+def feedback_summary():
+    """
+    Aggregate all stored feedback records (last 30 days).
+    Returns counts by vote and the 20 most-recent entries for inspection.
+    """
+    client = redis_cache.get_client()
+    keys = client.keys("rag:feedback:*")
+    records = []
+    for k in keys:
+        raw = client.get(k)
+        if raw:
+            try:
+                records.append(json.loads(raw))
+            except Exception:
+                pass
+
+    records.sort(key=lambda r: r.get("ts", 0), reverse=True)
+    up   = sum(1 for r in records if r.get("vote") == "up")
+    down = sum(1 for r in records if r.get("vote") == "down")
+    return {
+        "total": len(records),
+        "up": up,
+        "down": down,
+        "approval_rate": round(up / len(records), 3) if records else None,
+        "recent": records[:20],
+    }
 
 
 if __name__ == "__main__":

@@ -18,7 +18,7 @@ import asyncio
 import threading
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query, BackgroundTasks, Header, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Query, BackgroundTasks, Header, WebSocket, WebSocketDisconnect, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, Response
 from pydantic import BaseModel
@@ -32,6 +32,7 @@ from data.market import (
 )
 from data.news import fetch_news, web_search, read_url, get_announcements
 from data.portfolio import get_portfolio_summary
+import data.kite as kite
 from intelligence.technical import analyze, multi_timeframe_summary
 from intelligence.sentiment import aggregate_sentiment
 from reports.generator import quote_report, market_overview_report, portfolio_excel
@@ -451,6 +452,143 @@ def tool_gateway(call: ToolCall):
 
 
 # ── Cache management ──────────────────────────────────────────────────────────
+
+# ── Zerodha Kite Connect — Phase 19 ──────────────────────────────────────────
+# Credentials (KITE_API_KEY / KITE_API_SECRET) live in .env.
+# The browser stores the per-day access_token in localStorage and passes it
+# via the X-Kite-Token header on every /api/kite/* call.
+
+def _kite_token(x_kite_token: Optional[str] = Header(None)) -> str:
+    if not x_kite_token:
+        raise HTTPException(status_code=401, detail="Missing X-Kite-Token header. Connect Zerodha first.")
+    return x_kite_token
+
+
+@app.get("/api/kite/status")
+def kite_status():
+    """Check whether Kite credentials are configured in .env."""
+    return {
+        "configured": kite.credentials_configured(),
+        "login_url": kite.get_login_url() if kite.credentials_configured() else None,
+        "message": (
+            "Ready — open login_url to authenticate."
+            if kite.credentials_configured()
+            else "KITE_API_KEY and KITE_API_SECRET not set in .env. "
+                 "Create an app at https://developers.kite.trade/ and add the credentials."
+        ),
+    }
+
+
+@app.get("/api/kite/login")
+def kite_login():
+    """Return the Zerodha OAuth login URL. Frontend opens this in a popup."""
+    if not kite.credentials_configured():
+        raise HTTPException(status_code=503, detail="Kite credentials not configured in .env.")
+    return {"login_url": kite.get_login_url()}
+
+
+@app.get("/api/kite/callback")
+def kite_callback(request_token: str = Query(...)):
+    """
+    OAuth callback endpoint — Zerodha redirects here after login.
+    Exchanges request_token for access_token and returns an HTML page
+    that postMessages the token back to window.opener (the FIN-OS popup caller).
+
+    Set this URL as the redirect_uri in your Kite Connect app dashboard:
+        http://localhost:7475/api/kite/callback
+    """
+    if not kite.credentials_configured():
+        raise HTTPException(status_code=503, detail="Kite credentials not configured.")
+
+    try:
+        session_data = kite.exchange_token(request_token)
+    except Exception as exc:
+        html_error = f"""<!doctype html><html><body>
+<script>
+  window.opener && window.opener.postMessage(
+    {{type:'kite_auth_error', error:{repr(str(exc))}}}, '*');
+  window.close();
+</script>
+<p>Auth failed: {exc}. You can close this window.</p>
+</body></html>"""
+        return Response(content=html_error, media_type="text/html")
+
+    access_token  = session_data.get("access_token", "")
+    user_name     = session_data.get("user_name", "")
+    user_shortname = session_data.get("user_shortname", "")
+    email         = session_data.get("email", "")
+    login_time    = session_data.get("login_time", "")
+
+    # Return a mini HTML page that sends the token back and closes the popup.
+    html = f"""<!doctype html>
+<html>
+<head><title>Zerodha Connected</title></head>
+<body style="margin:0;background:#080B14;font-family:-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;">
+<div style="text-align:center;color:#F5F7FA;">
+  <div style="font-size:48px;margin-bottom:16px;">✅</div>
+  <div style="font-size:20px;font-weight:700;margin-bottom:8px;">Connected!</div>
+  <div style="font-size:14px;color:#8892A4;">Welcome, {user_name or user_shortname}. Closing window…</div>
+</div>
+<script>
+  const payload = {{
+    type:         'kite_auth_success',
+    access_token: {repr(access_token)},
+    user_name:    {repr(user_name)},
+    email:        {repr(email)},
+    login_time:   {repr(login_time)},
+  }};
+  if (window.opener) {{
+    window.opener.postMessage(payload, '*');
+  }}
+  setTimeout(() => window.close(), 1200);
+</script>
+</body>
+</html>"""
+    return Response(content=html, media_type="text/html")
+
+
+@app.get("/api/kite/holdings")
+def kite_holdings(token: str = Depends(_kite_token)):
+    """
+    Returns the authenticated user's Demat equity holdings.
+    Requires X-Kite-Token: <access_token> header.
+    """
+    try:
+        holdings = kite.get_holdings(token)
+        return {"status": "success", "data": holdings, "count": len(holdings)}
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Kite API error: {exc}")
+
+
+@app.get("/api/kite/positions")
+def kite_positions(token: str = Depends(_kite_token)):
+    """Returns today's net and day positions."""
+    try:
+        positions = kite.get_positions(token)
+        return {"status": "success", "data": positions}
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Kite API error: {exc}")
+
+
+@app.get("/api/kite/orders")
+def kite_orders(token: str = Depends(_kite_token)):
+    """Returns all orders placed today."""
+    try:
+        orders = kite.get_orders(token)
+        return {"status": "success", "data": orders, "count": len(orders)}
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Kite API error: {exc}")
+
+
+@app.get("/api/kite/margins")
+def kite_margins(token: str = Depends(_kite_token)):
+    """Returns available fund margins (equity + commodity segments)."""
+    try:
+        margins = kite.get_margins(token)
+        return {"status": "success", "data": margins}
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Kite API error: {exc}")
+
 
 @app.post("/api/cache/clear")
 def clear_cache():

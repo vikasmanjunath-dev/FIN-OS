@@ -19,6 +19,13 @@
  *   FinosTracker.trackCalc('sip-optimizer')
  *   FinosTracker.trackFeature('arya-ask')
  *   FinosTracker.getInsights()  → { topPages, stressLevel, timeContext, ... }
+ *
+ * This is the data source for adaptive-layout.js only — it doesn't render
+ * anything itself. If you're adding a new "personalize the UI" signal,
+ * feed it in here rather than starting a separate tracker; see
+ * adaptive-layout.js's header for how the four personalization engines
+ * (this pair + finos-progressive-mode.js + finos-personalization.js)
+ * divide responsibility.
  */
 (function (global) {
   'use strict';

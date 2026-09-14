@@ -45,7 +45,7 @@ html, body {
   height: calc(100vh - 80px);
   border-radius: 16px;
 }
-.toc-header { font-family: 'JetBrains Mono'; font-size: 0.8rem; letter-spacing: 2px; color: var(--accent); margin-bottom: 25px; font-weight: 700; }
+.toc-header { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 2px; color: var(--accent); margin-bottom: 25px; font-weight: 700; }
 .toc-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
 .toc-link { color: var(--text-secondary); text-decoration: none; padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; display: block; transition: all 0.2s; }
 .toc-link.active { background: rgba(79, 124, 255, 0.1); color: var(--accent); font-weight: 700; border-left: 3px solid var(--accent); }
@@ -70,7 +70,7 @@ html, body {
 .chapter h1 { font-size: 3.5rem; margin-bottom: 20px; color: #FFFFFF !important; }
 .chapter h2 { font-size: 2rem; margin-bottom: 30px; color: #FFFFFF !important; border-left: 4px solid var(--accent); padding-left: 15px; }
 .chapter p { font-size: 1.15rem; line-height: 1.7; color: #A1A8B8 !important; margin-bottom: 20px; max-width: 800px; }
-.chapter-badge { display: inline-block; padding: 6px 12px; background: rgba(79, 124, 255, 0.1); color: #4F7CFF; border-radius: 100px; font-family: 'JetBrains Mono'; font-size: 0.75rem; margin-bottom: 20px; }
+.chapter-badge { display: inline-block; padding: 6px 12px; background: rgba(79, 124, 255, 0.1); color: #4F7CFF; border-radius: 100px; font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 20px; }
 
 /* --- THALI VISUAL --- */
 .thali-visual { display: flex; align-items: center; gap: 40px; margin-bottom: 20px; }
@@ -88,7 +88,7 @@ html, body {
 .comp-row.header { font-weight: 700; background: rgba(255,255,255,0.05); color: var(--accent); }
 .comp-row span { flex: 1; text-align: center; }
 .comp-row span:first-child { text-align: left; font-weight: 700; color: #A1A8B8; }
-.comp-row .highlight { color: #C7F000; font-weight: 700; }
+.comp-row .highlight { color: var(--accent-secondary); font-weight: 700; }
 
 /* --- FLOW DIAGRAM --- */
 .visual-flow-container { display: flex; justify-content: space-between; align-items: center; padding: 50px; position: relative; color: #FFFFFF !important; }
@@ -133,7 +133,7 @@ html, body {
 .scrolling-card { min-width: 250px; padding: 25px; border-radius: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
 .scrolling-card h3 { color: #fff !important; font-size: 1.1rem; }
 .answer { font-weight: 800; font-size: 1.2rem; margin: 10px 0 !important; }
-.answer.yes { color: #C7F000; }
+.answer.yes { color: var(--accent-secondary); }
 .answer.no { color: #ff4757; }
 
 /* --- GOD MODE --- */
@@ -223,7 +223,7 @@ html, body {
 
 .chart-caption {
   text-align: center;
-  font-family: 'JetBrains Mono';
+  font-family: var(--font-mono);
   font-size: 0.8rem;
   color: var(--text-secondary);
   margin-top: 15px;

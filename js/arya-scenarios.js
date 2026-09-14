@@ -737,7 +737,8 @@ Explain in 3 Hinglish points. Compare: "that ${INR(r.extra)}/month saved you ${I
       const bt   = ctx.budget_tracker || {};
       const prof = ctx.profile || {};
 
-      const realIncome  = bt.income_monthly   || Number(localStorage.getItem('finos_income'))        || null;
+      const _IMAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
+      const realIncome  = bt.income_monthly   || _IMAP[localStorage.getItem('finos_income') || '']   || null;
       const realSR      = bt.savings_rate      || Number(localStorage.getItem('finos_savings_rate'))  || null;
       const realSIP     = prof.sip_monthly     || Number(localStorage.getItem('finos_sip_monthly'))   ||
                           (realIncome && realSR ? Math.round(realIncome * realSR / 100) : null);

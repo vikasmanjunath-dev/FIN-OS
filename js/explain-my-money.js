@@ -304,7 +304,7 @@
   global.ExplainMyMoney = ExplainMyMoney;
 
   window.addEventListener('finos-context-ready', e => {
-    if (e.detail?.phase !== 'full') return;
+    if (!['partial','full'].includes(e.detail?.phase)) return;
     ExplainMyMoney.autoMount();
   });
 

@@ -147,6 +147,13 @@
       return Math.max(0, fv2 - fv1);
     }
 
+    // 10yr FV of a flat extra monthly amount at this fund's own CAGR — a
+    // quick dashboard-card estimate, deliberately not the same calculation
+    // as FinosSIPStepup._compute() in finos-sip-stepup.js, which models a
+    // SIP that itself grows every year at a user-chosen step-up % and rate.
+    // Point users wanting the full year-by-year picture at sip-stepup.html
+    // (see the "See Full Projection" link in _renderAlert) rather than
+    // expanding this into a second full planner.
     _stepUpCorpus(sip, stepUp) {
       const years = 10;
       const r = (sip.cagr_3y || 13) / 100 / 12;
@@ -290,7 +297,8 @@
     } else if (a.action === 'switch') {
       actions = `<button class="sip-btn sip-btn-primary" onclick="window.FinosSIPIntel?.findBetter('${a.sip.id}')">🔍 Find Better Fund</button>`;
     } else if (a.action === 'stepup') {
-      actions = `<button class="sip-btn sip-btn-primary" onclick="window.FinosSIPIntel?.stepUp('${a.sip.id}', ${a.stepUp})">⬆️ Step Up ${INR(a.stepUp)}/mo</button>`;
+      actions = `<button class="sip-btn sip-btn-primary" onclick="window.FinosSIPIntel?.stepUp('${a.sip.id}', ${a.stepUp})">⬆️ Step Up ${INR(a.stepUp)}/mo</button>
+      <a class="sip-btn sip-btn-secondary" href="sip-stepup.html">📊 See Full Projection</a>`;
     } else if (a.action === 'direct') {
       actions = `<button class="sip-btn sip-btn-primary" onclick="window.FinosSIPIntel?.switchDirect('${a.sip.id}')">↗️ Switch to Direct</button>`;
     }
@@ -368,7 +376,7 @@
 
   /* ── Auto-init ─────────────────────────────────────────────────── */
   window.addEventListener('finos-context-ready', e => {
-    if (e.detail?.phase !== 'full') return;
+    if (!['partial','full'].includes(e.detail?.phase)) return;
     const ctx = window.FINOS_USER_CONTEXT;
     if (!ctx) return;
     FinosSIPIntel.init(ctx);

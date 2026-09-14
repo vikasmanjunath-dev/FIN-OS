@@ -35,7 +35,7 @@
   border-radius: 2px;
 }
 .profile-eyebrow-label {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px; font-weight: 600;
   letter-spacing: .22em;
   text-transform: uppercase;
@@ -82,7 +82,7 @@
   letter-spacing: .12em;
   text-transform: uppercase;
   border-radius: 0 0 10px 10px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
 }
 .section-tag.lime   { background: #5a6800; color: var(--neon-lime); }
 .section-tag.purple { background: rgba(155,93,229,.25); color: var(--neon-purple); }
@@ -318,7 +318,7 @@ label {
 .terminal-header .dot:nth-child(2) { background: #ffbd2e; }
 .terminal-header .dot:nth-child(3) { background: #27c93f; }
 .t-title {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   color: rgba(255,255,255,.35);
   margin-left: 6px;
@@ -330,7 +330,7 @@ label {
 .terminal-body label {
   color: rgba(255,255,255,.45);
   font-size: 12px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   letter-spacing: .06em;
   margin-bottom: 12px;
 }
@@ -340,7 +340,7 @@ label {
   background: transparent;
   border: none;
   color: var(--neon-lime);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 14px;
   line-height: 1.65;
   padding: 4px 0 20px;

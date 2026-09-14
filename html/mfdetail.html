@@ -5,7 +5,7 @@
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
   <meta charset="UTF-8">
-  <meta name="description" content="FIN•OS — Your AI-powered Financial Operating System for Indian investors.">
+  <meta name="description" content="Mutual Fund Masterclass — direct vs regular, expense ratios, and how to actually pick a fund.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,7 +13,10 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-  <title>FIN•OS | Mutual Fund Masterclass</title>
+  <title>Mutual Fund Masterclass | FIN-OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/mfdetail.css">
@@ -25,6 +28,8 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="../js/supabase-config.js"></script>
 </head>
 <body>
 
@@ -183,7 +188,7 @@
           </div>
 
           <div class="type-card glass">
-            <h3 style="color:#C7F000;">B. Debt Funds (Loans)</h3>
+            <h3 style="color: var(--accent-secondary);">B. Debt Funds (Loans)</h3>
             <p>Low Risk, Low Return. For goals < 3 Years.</p>
             <ul class="micro-list">
               <li><strong>Liquid Funds:</strong> Like a Savings Account (Safe).</li>
@@ -326,6 +331,7 @@
       <footer class="deep-footer">
         <h2>Protocol Complete.</h2>
         <p>You are now smarter than 99% of mutual fund agents.</p>
+        <a href="mf-intelligence.html" class="action-btn">Analyze Your Own Funds ➔</a>
         <a href="markets.html" class="action-btn">Return to Base ➔</a>
       </footer>
 
@@ -336,7 +342,7 @@
   <script src="../js/mfdetail.js"></script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-search.js?v=2"></script>
   <script src="../js/interactions.js" defer></script>
 <script src="../js/arya-sidebar-panel.js"></script>

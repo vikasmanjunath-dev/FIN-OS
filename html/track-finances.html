@@ -13,18 +13,22 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-  <title>FIN•OS | Track Finances</title>
+  <title>Track Finances | FIN-OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=4" defer></script>
   <script src="../js/arya-memory.js" defer></script>
   <script src="../js/arya-life-events.js" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
+  <script src="../js/finos-aa.js" defer></script>
   <style>
     /* ── BASE ── */
     .tf-page {
@@ -73,7 +77,7 @@
       border-radius: 2px;
     }
     .tf-eyebrow-text {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 10px; font-weight: 600;
       letter-spacing: .22em;
       text-transform: uppercase;
@@ -127,7 +131,7 @@
       background: linear-gradient(90deg, rgba(79,124,255,.25), transparent);
     }
     .tf-divider-label {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 9.5px; font-weight: 500;
       letter-spacing: .18em;
       text-transform: uppercase;
@@ -161,6 +165,35 @@
     .suite-card:nth-child(3) { animation: fadeUp .6s .55s ease forwards; }
     .suite-card:nth-child(4) { animation: fadeUp .6s .65s ease forwards; }
     .suite-card:nth-child(5) { animation: fadeUp .6s .75s ease forwards; }
+    .suite-card:nth-child(6) { animation: fadeUp .6s .85s ease forwards; }
+    .suite-card:nth-child(7) { animation: fadeUp .6s .95s ease forwards; }
+    .suite-card:nth-child(8) { animation: fadeUp .6s 1.05s ease forwards; }
+    .suite-card:nth-child(9) { animation: fadeUp .6s 1.15s ease forwards; }
+    .suite-card:nth-child(10){ animation: fadeUp .6s 1.25s ease forwards; }
+    .suite-card:nth-child(11){ animation: fadeUp .6s 1.35s ease forwards; }
+    .suite-card:nth-child(12){ animation: fadeUp .6s 1.45s ease forwards; }
+    .suite-card:nth-child(13){ animation: fadeUp .6s 1.55s ease forwards; }
+    .suite-card:nth-child(14){ animation: fadeUp .6s 1.65s ease forwards; }
+    .suite-card:nth-child(15){ animation: fadeUp .6s 1.75s ease forwards; }
+    .suite-card:nth-child(16){ animation: fadeUp .6s 1.85s ease forwards; }
+    .suite-card:nth-child(17){ animation: fadeUp .6s 1.95s ease forwards; }
+    .suite-card:nth-child(18){ animation: fadeUp .6s 2.05s ease forwards; }
+    .suite-card:nth-child(19){ animation: fadeUp .6s 2.15s ease forwards; }
+    .suite-card:nth-child(20){ animation: fadeUp .6s 2.25s ease forwards; }
+    .suite-card:nth-child(21){ animation: fadeUp .6s 2.35s ease forwards; }
+    .suite-card:nth-child(22){ animation: fadeUp .6s 2.45s ease forwards; }
+    .suite-card:nth-child(23){ animation: fadeUp .6s 2.55s ease forwards; }
+    .suite-card:nth-child(24){ animation: fadeUp .6s 2.65s ease forwards; }
+    .suite-card:nth-child(25){ animation: fadeUp .6s 2.75s ease forwards; }
+    .suite-card:nth-child(26){ animation: fadeUp .6s 2.85s ease forwards; }
+    .suite-card:nth-child(27){ animation: fadeUp .6s 2.95s ease forwards; }
+    .suite-card:nth-child(28){ animation: fadeUp .6s 3.05s ease forwards; }
+    .suite-card:nth-child(29){ animation: fadeUp .6s 3.15s ease forwards; }
+    .suite-card:nth-child(30){ animation: fadeUp .6s 3.25s ease forwards; }
+    .suite-card:nth-child(31){ animation: fadeUp .6s 3.35s ease forwards; }
+    .suite-card:nth-child(32){ animation: fadeUp .6s 3.45s ease forwards; }
+    .suite-card:nth-child(33){ animation: fadeUp .6s 3.55s ease forwards; }
+    .suite-card:nth-child(34){ animation: fadeUp .6s 3.65s ease forwards; }
 
     /* glow layer */
     .suite-card::before {
@@ -243,7 +276,7 @@
       gap: 4px;
     }
     .sc-number {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 11px; font-weight: 600;
       color: rgba(255,255,255,.2);
       letter-spacing: .08em;
@@ -260,7 +293,7 @@
     /* ── BADGE ── */
     .sc-badge {
       align-self: flex-start;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 9px; font-weight: 700;
       letter-spacing: .12em; text-transform: uppercase;
       padding: 3px 9px; border-radius: 20px;
@@ -296,7 +329,7 @@
       gap: 8px;
     }
     .sc-tag {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 10.5px; font-weight: 500;
       letter-spacing: .05em;
       padding: 6px 13px;
@@ -481,10 +514,10 @@
           user-select:none;">
           <span style="font-size:22px;">🧠</span>
           <div style="flex:1;">
-            <div style="font-size:.95rem;font-weight:800;color:#c7f000;">Command Hub</div>
+            <div style="font-size:.95rem;font-weight:800;color: var(--accent-secondary);">Command Hub</div>
             <div style="font-size:11px;color:rgba(255,255,255,.4);">Your financial brain — Arya brief, smart nudges, insights, health score</div>
           </div>
-          <span id="tfHubChevron" style="color:#c7f000;font-size:14px;transition:transform .3s;">▼</span>
+          <span id="tfHubChevron" style="color: var(--accent-secondary);font-size:14px;transition:transform .3s;">▼</span>
         </div>
 
         <!-- Hub Body -->
@@ -641,16 +674,651 @@
           </div>
         </a>
 
-        <!-- COMMAND HUB -->
+        <!-- PORTFOLIO DISSECTOR -->
+        <a class="suite-card" href="portfolio.html"
+           style="--cc:#ff6b35;--cr:255,107,53">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🔎
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">05</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Portfolio Dissector</div>
+          <div class="sc-sub">Upload your holdings CSV and instantly get a breakdown of sector exposure, risk concentration, top assets, and AI-powered rebalancing nudges.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">CSV Upload</span>
+            <span class="sc-tag">Risk Score</span>
+            <span class="sc-tag">Sector Breakdown</span>
+            <span class="sc-tag">AI Insights</span>
+          </div>
+        </a>
+
+        <a class="suite-card" href="mf-intelligence.html"
+           style="--cc:#22d3a6;--cr:34,211,166;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              📈
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">06</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">SIP &amp; MF Tracker</div>
+          <div class="sc-sub">Track your mutual fund SIPs with live AMFI NAV, XIRR, and P&amp;L. Search 10,000+ funds by name, add investments, and see your portfolio summary update in real time.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Live NAV</span>
+            <span class="sc-tag">XIRR</span>
+            <span class="sc-tag">Fund Search</span>
+            <span class="sc-tag">SIP Portfolio</span>
+          </div>
+        </a>
+
+        <a class="suite-card" href="fd-tracker.html"
+           style="--cc:#00d4ff;--cr:0,212,255;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🏦
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">07</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Fixed Income Tracker</div>
+          <div class="sc-sub">Track FD, RD, PPF, NSC, SCSS, Sukanya Samriddhi, and bonds. See current value, interest earned, maturity dates — and current government rates at a glance.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">FD / RD</span>
+            <span class="sc-tag">PPF</span>
+            <span class="sc-tag">NSC / SCSS</span>
+            <span class="sc-tag">Maturity Calendar</span>
+          </div>
+        </a>
+
+        <a class="suite-card" href="net-worth.html"
+           style="--cc:#a855f7;--cr:168,85,247;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              💎
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">08</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Net Worth Aggregator</div>
+          <div class="sc-sub">Unified balance sheet across Zerodha equity, SIP portfolios, FDs, gold, real estate, crypto and liabilities. FIRE corpus tracker included.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">All Assets</span>
+            <span class="sc-tag">Liabilities</span>
+            <span class="sc-tag">FIRE Progress</span>
+            <span class="sc-tag">Growth Timeline</span>
+          </div>
+        </a>
+
+        <a class="suite-card" href="insurance-hub.html"
+           style="--cc:#f97316;--cr:249,115,22;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🛡️
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">09</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Insurance Tracker</div>
+          <div class="sc-sub">Track all your health, term, vehicle and life policies. Gap analysis shows whether you're under-insured vs. your income. Renewal calendar included.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Health</span>
+            <span class="sc-tag">Term Life</span>
+            <span class="sc-tag">Gap Analysis</span>
+            <span class="sc-tag">Renewals</span>
+          </div>
+        </a>
+
+        <a class="suite-card" href="life-goals-planner.html"
+           style="--cc:#c7f000;--cr:199,240,0;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🎯
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">10</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Life Goals Planner</div>
+          <div class="sc-sub">Set financial goals — home, education, retirement — and get a goal-by-goal SIP roadmap with feasibility score. Arya AI narrates each phase.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Goal SIP</span>
+            <span class="sc-tag">Retirement</span>
+            <span class="sc-tag">Feasibility</span>
+            <span class="sc-tag">Arya Roadmap</span>
+          </div>
+        </a>
+
+        <a class="suite-card" href="budget-forecast.html"
+           style="--cc:#ff9500;--cr:255,149,0;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🔮
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">11</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Budget Forecast</div>
+          <div class="sc-sub">Predict next month's spending by category using Holt-Winters forecasting on your transaction history. Flags risk categories and seasonal events.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Spend Forecast</span>
+            <span class="sc-tag">Category Trends</span>
+            <span class="sc-tag">Seasonal Events</span>
+            <span class="sc-tag">Savings Rate</span>
+          </div>
+        </a>
+
+        <a class="suite-card" href="real-estate.html"
+           style="--cc:#34d399;--cr:52,211,153;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🏠
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">12</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Real Estate Tools</div>
+          <div class="sc-sub">Buy vs. Rent decision calculator, True Cost of Ownership, and Rental Yield analyser. Run the numbers before committing to the biggest purchase of your life.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Buy vs Rent</span>
+            <span class="sc-tag">True Cost</span>
+            <span class="sc-tag">Rental Yield</span>
+            <span class="sc-tag">ROI</span>
+          </div>
+        </a>
+
+        <a class="suite-card" href="financial-calendar.html"
+           style="--cc:#c7f000;--cr:199,240,0;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              📅
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">13</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Financial Calendar</div>
+          <div class="sc-sub">SIP debit dates, FD maturities, insurance renewals, tax deadlines, and goal milestones — all your financial events in one month-view calendar.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">SIP Dates</span>
+            <span class="sc-tag">FD Maturity</span>
+            <span class="sc-tag">Tax Deadlines</span>
+            <span class="sc-tag">Goals</span>
+          </div>
+        </a>
+
+        <!-- DEBT OPTIMIZER -->
+        <a class="suite-card" href="debt-optimizer.html"
+           style="--cc:#EF4444;--cr:239,68,68;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              📉
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">14</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Debt Optimizer</div>
+          <div class="sc-sub">Avalanche vs Snowball payoff comparison, debt-free date, and home loan prepayment impact. See how much interest you save with extra monthly payments.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Avalanche</span>
+            <span class="sc-tag">Snowball</span>
+            <span class="sc-tag">Prepayment</span>
+            <span class="sc-tag">Debt-Free Date</span>
+          </div>
+        </a>
+
+        <!-- EPF & PF TRACKER -->
+        <a class="suite-card" href="epf-tracker.html"
+           style="--cc:#22d3a6;--cr:34,211,166;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🏛️
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">15</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">EPF & PF Tracker</div>
+          <div class="sc-sub">Track your EPF balance, see employee + employer contribution breakdown, EPS pension estimate, and project your retirement corpus at 8.25% guaranteed compounding.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">EPF Balance</span>
+            <span class="sc-tag">EPS Pension</span>
+            <span class="sc-tag">Retirement Corpus</span>
+            <span class="sc-tag">VPF Impact</span>
+          </div>
+        </a>
+
+        <!-- GOLD TRACKER -->
+        <a class="suite-card" href="gold-tracker.html"
+           style="--cc:#FFB347;--cr:255,179,71;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🥇
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">16</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Gold Tracker</div>
+          <div class="sc-sub">Track physical gold, Sovereign Gold Bonds (SGB), Gold ETFs and Gold MFs. SGB coupon income, maturity countdown, and Avalanche vs physical vs ETF tax comparison.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Physical Gold</span>
+            <span class="sc-tag">SGB</span>
+            <span class="sc-tag">Gold ETF</span>
+            <span class="sc-tag">Tax Analysis</span>
+          </div>
+        </a>
+
+        <!-- CRYPTO TRACKER -->
+        <a class="suite-card" href="crypto-tracker.html"
+           style="--cc:#9B5DE5;--cr:155,93,229;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🪙
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">17</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Crypto Tracker</div>
+          <div class="sc-sub">Track Bitcoin, Ethereum and altcoin holdings with cost basis, unrealised P&L, and India's 30% flat tax + 1% TDS impact calculated per coin.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">BTC / ETH</span>
+            <span class="sc-tag">P&amp;L</span>
+            <span class="sc-tag">30% Tax</span>
+            <span class="sc-tag">TDS 1%</span>
+          </div>
+        </a>
+
+        <!-- NPS TRACKER -->
+        <a class="suite-card" href="nps-tracker.html"
+           style="--cc:#00D4FF;--cr:0,212,255;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🏛️
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">18</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">NPS Tracker</div>
+          <div class="sc-sub">Track Tier 1 &amp; Tier 2 NPS corpus, project retirement wealth, and calculate annual tax savings under 80CCD(1), 80CCD(1B), and 80CCD(2) — the exclusive ₹50K extra deduction.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Tier 1 &amp; 2</span>
+            <span class="sc-tag">Retirement</span>
+            <span class="sc-tag">80CCD</span>
+            <span class="sc-tag">Tax-Free</span>
+          </div>
+        </a>
+
+        <!-- EMERGENCY FUND -->
+        <a class="suite-card" href="emergency-fund.html"
+           style="--cc:#22D3A6;--cr:34,211,166;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🛡️
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">19</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Emergency Fund</div>
+          <div class="sc-sub">Track your financial safety net — months of expenses covered, shortfall vs target, and a step-by-step build-up plan with instrument recommendations (liquid fund, FD ladder, savings account).</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Safety Net</span>
+            <span class="sc-tag">Months Covered</span>
+            <span class="sc-tag">Liquid Fund</span>
+            <span class="sc-tag">Build-Up Plan</span>
+          </div>
+        </a>
+
+        <!-- SALARY OPTIMIZER -->
+        <a class="suite-card" href="salary-optimizer.html"
+           style="--cc:#9B5DE5;--cr:155,93,229;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              💼
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">20</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Salary Optimizer</div>
+          <div class="sc-sub">Structure your CTC for maximum take-home. HRA exemption (Sec 10(13A)), LTA, employer NPS (80CCD(2)), flexi benefits, and old vs new regime side-by-side comparison with restructuring tips.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">HRA Exemption</span>
+            <span class="sc-tag">LTA</span>
+            <span class="sc-tag">Old vs New</span>
+            <span class="sc-tag">CTC Breakup</span>
+          </div>
+        </a>
+
+        <!-- PPF & SMALL SAVINGS -->
+        <a class="suite-card" href="ppf-tracker.html"
+           style="--cc:#00D4FF;--cr:0,212,255;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              📮
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">21</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">PPF & Small Savings</div>
+          <div class="sc-sub">Track PPF, Sukanya Samriddhi (SSY), NSC, SCSS and KVP with compound-interest maturity projections, April-5 deposit reminder, EEE status and 80C deduction summary.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">PPF</span>
+            <span class="sc-tag">SSY</span>
+            <span class="sc-tag">NSC / SCSS</span>
+            <span class="sc-tag">EEE Tax-Free</span>
+          </div>
+        </a>
+
+        <!-- RETIREMENT PLANNER -->
+        <a class="suite-card" href="retirement-planner.html"
+           style="--cc:#22D3A6;--cr:34,211,166;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🌅
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">22</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Retirement Planner</div>
+          <div class="sc-sub">Unified corpus view across EPF, NPS, PPF, SIP and all savings. Required corpus (25× rule), corpus gap, estimated monthly income via 4% SWR + EPS pension + NPS annuity.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Corpus Gap</span>
+            <span class="sc-tag">4% SWR</span>
+            <span class="sc-tag">EPS + NPS</span>
+            <span class="sc-tag">Income Model</span>
+          </div>
+        </a>
+
+        <!-- ITR FILING PREP -->
+        <a class="suite-card" href="itr-summary.html"
+           style="--cc:#4F7CFF;--cr:79,124,255;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🧾
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">23</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">ITR Filing Prep</div>
+          <div class="sc-sub">Auto-filled ITR summary from all trackers — income, 80C/80CCD/80D deductions, HRA, home loan, TDS. Old vs New regime comparison with recommended regime and refund/balance due.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">80C Breakdown</span>
+            <span class="sc-tag">HRA + 80D</span>
+            <span class="sc-tag">Regime Switch</span>
+            <span class="sc-tag">TDS & Refund</span>
+          </div>
+        </a>
+
+        <!-- PORTFOLIO REBALANCER -->
+        <a class="suite-card" href="portfolio-rebalancer.html"
+           style="--cc:#4F7CFF;--cr:79,124,255;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              ⚖️
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">24</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Portfolio Rebalancer</div>
+          <div class="sc-sub">Current vs target allocation across equity, debt, gold, real estate, crypto and govt savings. Drifts highlighted with exact rupee buy/sell actions. Set your own target allocation or pick a preset.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Drift Alert</span>
+            <span class="sc-tag">Target Alloc</span>
+            <span class="sc-tag">Buy / Sell</span>
+            <span class="sc-tag">6 Classes</span>
+          </div>
+        </a>
+
+        <!-- GOAL OPTIMIZER -->
+        <a class="suite-card" href="goal-optimizer.html"
+           style="--cc:#22D3A6;--cr:34,211,166;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🎯
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">25</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Goal Optimizer</div>
+          <div class="sc-sub">Priority scoring, inflation-adjusted SIP per goal (PMT formula), feasibility check against your savings rate, and timeline conflict detection. Know exactly which goal to fund first and how much.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">SIP per Goal</span>
+            <span class="sc-tag">Priority Score</span>
+            <span class="sc-tag">Feasibility</span>
+            <span class="sc-tag">Conflict Alert</span>
+          </div>
+        </a>
+
+        <!-- PASSIVE INCOME TRACKER -->
+        <a class="suite-card" href="passive-income.html"
+           style="--cc:#22D3A6;--cr:34,211,166;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              💸
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">26</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Passive Income Tracker</div>
+          <div class="sc-sub">Track dividends, FD interest, SWP, SGB coupon, and rental income. See financial freedom coverage ratio, FIRE proximity, and a roadmap to 100% expense coverage.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Dividends</span>
+            <span class="sc-tag">SWP</span>
+            <span class="sc-tag">FD Interest</span>
+            <span class="sc-tag">Freedom %</span>
+          </div>
+        </a>
+
+        <!-- SIP STEP-UP PLANNER -->
+        <a class="suite-card" href="sip-stepup.html"
+           style="--cc:#22D3A6;--cr:34,211,166;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              📈
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">27</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">SIP Step-Up Planner</div>
+          <div class="sc-sub">See how increasing your SIP by 10% every year (with your salary) can add crores vs flat SIP. Year-by-year corpus table, scenario grid at 5/10/15/20% step-up, and the increment-redirect rule.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Step-Up SIP</span>
+            <span class="sc-tag">Corpus Growth</span>
+            <span class="sc-tag">Annual Increment</span>
+            <span class="sc-tag">Scenarios</span>
+          </div>
+        </a>
+
+        <!-- LIFE INSURANCE NEED CALCULATOR -->
+        <a class="suite-card" href="life-cover.html"
+           style="--cc:#4F7CFF;--cr:79,124,255;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🛡️
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">28</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Life Insurance Need Calculator</div>
+          <div class="sc-sub">HLV and income replacement methods to find exact term cover needed. Flags under-insurance, estimates term premium, and checks if liabilities are covered. Pure-term vs ULIP guidance.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Term Cover</span>
+            <span class="sc-tag">HLV Method</span>
+            <span class="sc-tag">Income Replacement</span>
+            <span class="sc-tag">Premium Estimate</span>
+          </div>
+        </a>
+
+        <!-- TAX LOSS HARVESTING -->
+        <a class="suite-card" href="tax-harvest.html"
+           style="--cc:#FFB347;--cr:255,179,71;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🌾
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">29</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Tax Loss / Gain Harvesting</div>
+          <div class="sc-sub">India LTCG/STCG optimiser with Budget 2024 rates (12.5%/20%). Book losses to offset gains, sweep gains within the ₹1.25L annual exemption, and step up your cost basis tax-free.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">LTCG ₹1.25L Exempt</span>
+            <span class="sc-tag">Loss Harvest</span>
+            <span class="sc-tag">Gain Harvest</span>
+            <span class="sc-tag">STCG 20%</span>
+          </div>
+        </a>
+
+        <!-- CREDIT SCORE TRACKER -->
+        <a class="suite-card" href="credit-score.html"
+           style="--cc:#22D3A6;--cr:34,211,166;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              📊
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">30</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Credit Score Tracker</div>
+          <div class="sc-sub">Monitor your CIBIL score with a live gauge, score-band reference, and personalised improvement tips. Shows the home loan rate penalty and extra interest cost at your current score vs 800+.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">CIBIL Score</span>
+            <span class="sc-tag">Utilization</span>
+            <span class="sc-tag">Home Loan Rate</span>
+            <span class="sc-tag">Improvement Tips</span>
+          </div>
+        </a>
+
+        <!-- HOME LOAN EMI PLANNER -->
+        <a class="suite-card" href="home-loan.html"
+           style="--cc:#4F7CFF;--cr:79,124,255;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              🏠
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">31</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Home Loan EMI Planner</div>
+          <div class="sc-sub">EMI calculator with principal/interest split, year-by-year amortisation, prepayment impact (tenure saved + interest saved), Section 24(b) + 80C tax benefit, and PMAY-CLSS eligibility check.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">EMI Calculator</span>
+            <span class="sc-tag">Prepayment</span>
+            <span class="sc-tag">Sec 24(b)</span>
+            <span class="sc-tag">PMAY</span>
+          </div>
+        </a>
+
+        <!-- BONUS & WINDFALL ALLOCATOR -->
+        <a class="suite-card" href="windfall.html"
+           style="--cc:#FFB347;--cr:255,179,71;">
+          <div class="sc-top">
+            <div class="sc-icon-wrap">
+              <div class="sc-icon-bg"></div>
+              💰
+            </div>
+            <div class="sc-meta">
+              <span class="sc-number">32</span>
+              <span class="sc-arrow">→</span>
+            </div>
+          </div>
+          <div class="sc-name">Bonus & Windfall Allocator</div>
+          <div class="sc-sub">Smart priority waterfall for bonuses, RSU vesting, inheritances, and FD maturities — emergency fund → debt → 80C → NPS → home loan prepay → goals → wealth. Tax-on-windfall calculator for each source type.</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Bonus</span>
+            <span class="sc-tag">RSU / ESOP</span>
+            <span class="sc-tag">Priority Waterfall</span>
+            <span class="sc-tag">Tax on Windfall</span>
+          </div>
+        </a>
+
         <a class="suite-card" href="financial-hub.html"
-           style="--cc:#00d4ff;--cr:0,212,255; grid-column: 1 / -1;">
+           style="--cc:#7b2ff7;--cr:123,47,247; grid-column: 1 / -1;">
           <div class="sc-top">
             <div class="sc-icon-wrap">
               <div class="sc-icon-bg"></div>
               ⚡
             </div>
             <div class="sc-meta">
-              <span class="sc-number">05</span>
+              <span class="sc-number">33</span>
               <span class="sc-arrow">→</span>
             </div>
           </div>
@@ -733,6 +1401,15 @@
         <div id="docai-status" style="display:none;margin-top:24px;"></div>
         <div id="docai-results" style="display:none;margin-top:16px;"></div>
       </div>
+
+      <!-- ══ ACCOUNT AGGREGATOR ══ -->
+      <div class="tf-divider" style="margin-top:48px;">
+        <div class="tf-divider-line"></div>
+        <span class="tf-divider-label">🔗 Account Aggregator — Auto-Import from Banks</span>
+        <div class="tf-divider-line" style="background:linear-gradient(270deg, rgba(123,47,247,.25), transparent)"></div>
+      </div>
+
+      <div id="finos-aa-dashboard" style="margin-top:36px;margin-bottom:48px;"></div>
 
     </div>
   </main>
@@ -1040,7 +1717,7 @@ function checkExpenseEngine(e) {
 [data-theme="light"] #tf-stars { opacity: 0.04 !important; }
 </style>
 
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-mobile.js" defer></script>
   <script src="../js/finos-search.js?v=2"></script>
 
@@ -1085,7 +1762,7 @@ function tfINR(n) {
 
 /* ── Command Hub: fill content on context ready ───────────────── */
 window.addEventListener('finos-context-ready', async function fillTFHub(e) {
-  if (e.detail?.phase !== 'full') return;
+  if (!['partial','full'].includes(e.detail?.phase)) return;
   window.removeEventListener('finos-context-ready', fillTFHub);
 
   const ctx = window.FINOS_USER_CONTEXT;
@@ -1167,6 +1844,21 @@ window.addEventListener('finos-context-ready', async function fillTFHub(e) {
 });
 </script>
 
+<script>
+(function () {
+  function _initAA() {
+    if (window.FinosAA) {
+      window.FinosAA.renderDashboard('finos-aa-dashboard');
+      document.addEventListener('aa-sync-complete', () => {
+        window.FinosAA.renderDashboard('finos-aa-dashboard');
+      });
+    } else {
+      setTimeout(_initAA, 150);
+    }
+  }
+  _initAA();
+})();
+</script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/arya-sidebar-panel.js"></script>
   <script src="../js/interactions.js" defer></script>

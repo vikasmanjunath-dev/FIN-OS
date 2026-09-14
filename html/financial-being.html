@@ -15,12 +15,15 @@
   <meta name="supabase-url" content="">
   <meta name="supabase-anon-key" content="">
 
-  <title>FIN•OS | Financial Being</title>
+  <title>Financial Being | FIN-OS</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -895,6 +898,7 @@
       backdrop-filter: blur(10px); text-decoration: none;
     }
     #floatBackBtn:hover { background: transparent; color: var(--text); transform: translateX(-3px); }
+    @media (max-width: 768px) { #floatBackBtn { display: none; } }
 
     /* ══════════════════════════════════════════════════════
        LIGHT THEME OVERRIDES
@@ -1850,7 +1854,7 @@ function renderMirror(p, arch) {
   const sp = spendMap[p.spend_pattern] || { icon:'❓', label:'UNDEFINED', color:'#888' };
   safeHTML('expenseVisual',
     `<div style="font-size:2.5rem;margin-bottom:8px">${sp.icon}</div>
-     <div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;letter-spacing:.1em;color:${sp.color}">${sp.label}</div>`
+     <div style="font-family: var(--font-mono);font-size:.8rem;letter-spacing:.1em;color:${sp.color}">${sp.label}</div>`
   );
   const expText = {
     austere:  "Discipline is your superpower. Ensure it doesn't become deprivation.",
@@ -2601,7 +2605,7 @@ if (document.readyState === 'loading') {
 }
 </script>
 
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-search.js?v=2"></script>
   <script src="../js/ui.js" defer></script>
   <script src="../js/mobile-nav.js" defer></script>

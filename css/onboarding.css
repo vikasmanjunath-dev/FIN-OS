@@ -3,7 +3,7 @@
 body {
   margin: 0;
   height: 100vh;
-  font-family: Inter, system-ui, sans-serif;
+  font-family: var(--font-sans, system-ui, sans-serif);
   background: #05070c;
   overflow: hidden;
 }
@@ -117,7 +117,7 @@ body {
 
 .option.active {
   background: rgba(199,240,0,0.18);
-  border-color: #c7f000;
+  border-color: var(--accent-secondary);
   box-shadow:
     0 0 30px rgba(199,240,0,0.45),
     inset 0 0 16px rgba(199,240,0,0.25);

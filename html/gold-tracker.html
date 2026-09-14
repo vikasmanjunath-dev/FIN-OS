@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Gold Tracker — Track physical gold, Sovereign Gold Bonds (SGB), Gold ETFs and Gold MFs with live price, SGB coupon income and tax analysis.">
+  <title>Gold Tracker | FIN•OS</title>
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/interactions.css">
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
+  <script src="../js/finos-gold-tracker.js" defer></script>
+
+  <style>
+    /* ── Page ────────────────────────────────────────── */
+    .gt-page { background: var(--bg-main); min-height: 100vh; }
+    .gt-main-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 40px 120px;
+    }
+
+    /* ── Header ──────────────────────────────────────── */
+    .gt-back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; color: rgba(255,255,255,.4);
+      text-decoration: none; margin-bottom: 24px;
+      transition: color .2s;
+    }
+    .gt-back-link:hover { color: #FFB347; }
+    .gt-page-header {
+      display: flex; align-items: flex-start; gap: 14px;
+      margin-bottom: 32px;
+    }
+    .gt-page-icon { font-size: 36px; line-height: 1; }
+    .gt-page-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(22px, 3vw, 32px); font-weight: 800;
+      color: #fff; margin: 0 0 6px; letter-spacing: -.01em;
+    }
+    .gt-page-sub {
+      font-size: 14px; color: rgba(255,255,255,.5); margin: 0; line-height: 1.6;
+    }
+
+    /* ── Tabs ────────────────────────────────────────── */
+    .gt-tabs {
+      display: flex; gap: 4px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px; padding: 4px;
+      margin-bottom: 28px; width: fit-content;
+    }
+    .gt-tab {
+      padding: 8px 20px; border-radius: 9px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px; font-weight: 600;
+      color: rgba(255,255,255,.5); border: none;
+      background: transparent; cursor: pointer;
+      transition: all .2s;
+    }
+    .gt-tab.active {
+      background: rgba(255,179,71,.15);
+      border: 1px solid rgba(255,179,71,.3);
+      color: #FFB347;
+    }
+    .gt-tab:hover:not(.active) { color: rgba(255,255,255,.8); }
+
+    /* ── Panels ──────────────────────────────────────── */
+    .gt-panel { display: none; }
+    .gt-panel.active { display: block; }
+
+    /* ── Price bar ───────────────────────────────────── */
+    .gt-price-bar {
+      display: flex; align-items: center; gap: 16px;
+      background: rgba(255,179,71,.06);
+      border: 1px solid rgba(255,179,71,.2);
+      border-radius: 14px; padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+    .gt-price-icon { font-size: 24px; flex-shrink: 0; }
+    .gt-price-lbl  { font-size: 13px; font-weight: 700; color: #FFB347; }
+    .gt-price-sub  { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 2px; }
+    .gt-price-input-wrap {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 10px; padding: 8px 12px;
+      flex-shrink: 0;
+    }
+    .gt-price-sym  { font-size: 14px; color: rgba(255,255,255,.6); }
+    .gt-price-inp  {
+      background: none; border: none; outline: none;
+      color: #fff; font-family: var(--font-mono);
+      font-size: 15px; font-weight: 700; width: 80px;
+    }
+    .gt-price-unit { font-size: 11px; color: rgba(255,255,255,.4); }
+
+    /* ── Summary strip ───────────────────────────────── */
+    .gt-summary-strip {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      margin-bottom: 24px;
+    }
+    .gt-summary-item {
+      flex: 1; min-width: 130px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px; padding: 14px; text-align: center;
+    }
+    .gt-sum-total {
+      background: rgba(255,179,71,.08);
+      border-color: rgba(255,179,71,.25);
+    }
+    .gt-sum-lbl  { font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 6px; }
+    .gt-sum-val  { font-family: var(--font-mono); font-size: 18px; font-weight: 800; color: #FFB347; }
+    .gt-sum-note { font-size: 10px; color: rgba(255,255,255,.3); margin-top: 4px; }
+
+    /* ── Holdings list ───────────────────────────────── */
+    .gt-section-title {
+      font-size: 11px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: rgba(255,255,255,.4);
+      margin-bottom: 12px;
+    }
+    .gt-holdings-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .gt-holding-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px; padding: 16px 18px;
+      transition: border-color .2s;
+    }
+    .gt-holding-card:hover { border-color: rgba(255,179,71,.2); }
+    .gt-hc-top  { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .gt-hc-type { font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 2px; }
+    .gt-hc-name { font-size: 14px; font-weight: 700; color: rgba(255,255,255,.85); margin-bottom: 4px; }
+    .gt-hc-detail { font-size: 11px; color: rgba(255,255,255,.4); line-height: 1.5; }
+    .gt-hc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+    .gt-hc-val  { font-family: var(--font-mono); font-size: 17px; font-weight: 800; color: #fff; white-space: nowrap; }
+    .gt-del-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 14px; color: rgba(255,255,255,.25);
+      padding: 4px; transition: color .2s;
+    }
+    .gt-del-btn:hover { color: #EF4444; }
+
+    /* ── Add form ────────────────────────────────────── */
+    .gt-add-form {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px; padding: 20px;
+    }
+    .gt-type-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .gt-type-btn {
+      padding: 8px 16px; border-radius: 9px;
+      font-size: 12px; font-weight: 700;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      color: rgba(255,255,255,.55); cursor: pointer;
+      transition: all .2s;
+    }
+    .gt-type-btn.active {
+      background: rgba(255,179,71,.15);
+      border-color: rgba(255,179,71,.35);
+      color: #FFB347;
+    }
+    .gt-type-btn:hover:not(.active) { color: rgba(255,255,255,.85); }
+
+    .gt-fields-block { margin-bottom: 16px; }
+    .gt-field-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 12px;
+    }
+    .gt-field { display: flex; flex-direction: column; gap: 6px; }
+    .gt-field label {
+      font-size: 11px; font-weight: 600; letter-spacing: .05em;
+      text-transform: uppercase; color: rgba(255,255,255,.4);
+    }
+    .gt-inp {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px; color: #fff;
+      font-family: var(--font-mono);
+      font-size: 14px; padding: 10px 14px;
+      width: 100%; box-sizing: border-box;
+      transition: border-color .2s, background .2s; outline: none;
+    }
+    .gt-inp:focus {
+      border-color: rgba(255,179,71,.5);
+      background: rgba(255,179,71,.05);
+    }
+    .gt-inp::placeholder { color: rgba(255,255,255,.25); }
+    .gt-sgb-note {
+      margin-top: 10px; padding: 10px 14px;
+      background: rgba(34,211,166,.06);
+      border: 1px solid rgba(34,211,166,.15);
+      border-radius: 10px; font-size: 12px;
+      color: rgba(255,255,255,.6); line-height: 1.5;
+    }
+    .gt-add-btn {
+      display: block; width: 100%; margin-top: 16px;
+      padding: 14px; border-radius: 12px;
+      background: linear-gradient(135deg, rgba(255,179,71,.18), rgba(255,179,71,.08));
+      border: 1px solid rgba(255,179,71,.35);
+      color: #FFB347; font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px; font-weight: 800; cursor: pointer;
+      transition: all .25s;
+    }
+    .gt-add-btn:hover {
+      background: linear-gradient(135deg, rgba(255,179,71,.28), rgba(255,179,71,.15));
+      box-shadow: 0 0 0 1px rgba(255,179,71,.25), 0 6px 20px rgba(255,179,71,.12);
+    }
+
+    /* ── Tax analysis ────────────────────────────────── */
+    .gt-tax-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px; padding: 22px; margin-bottom: 16px;
+    }
+    .gt-tax-sgb  { border-color: rgba(34,211,166,.2); background: rgba(34,211,166,.03); }
+    .gt-tax-compare { border-color: rgba(255,179,71,.2); background: rgba(255,179,71,.03); }
+    .gt-tax-title { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 14px; }
+    .gt-tax-desc  { font-size: 13px; color: rgba(255,255,255,.55); line-height: 1.6; margin-bottom: 10px; }
+    .gt-tax-note  { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 10px; }
+    .gt-tax-row   { margin-bottom: 10px; }
+    .gt-tax-series{ font-size: 13px; font-weight: 700; color: rgba(255,255,255,.8); margin-bottom: 6px; }
+    .gt-tax-detail{ display: flex; flex-wrap: wrap; gap: 8px; }
+    .gt-tax-badge {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      font-size: 11px; font-weight: 700;
+    }
+    .gt-tax-green { background: rgba(34,211,166,.12); border: 1px solid rgba(34,211,166,.25); color: #22D3A6; }
+    .gt-tax-blue  { background: rgba(79,124,255,.12); border: 1px solid rgba(79,124,255,.25); color: #4F7CFF; }
+    .gt-tax-amber { background: rgba(255,179,71,.12); border: 1px solid rgba(255,179,71,.25); color: #FFB347; }
+    .gt-compare-tax-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px; margin-top: 14px;
+    }
+    .gt-ctg-item {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px; padding: 14px;
+    }
+    .gt-ctg-name  { font-size: 13px; font-weight: 800; margin-bottom: 10px; }
+    .gt-ctg-row   { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,.5); padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+    .gt-ctg-row strong { color: #fff; }
+    .gt-ctg-status { margin-top: 8px; font-size: 11px; font-weight: 700; color: #22D3A6; }
+
+    /* ── Empty state ─────────────────────────────────── */
+    .gt-empty {
+      padding: 36px 24px; text-align: center;
+      color: rgba(255,255,255,.35); font-size: 14px; line-height: 1.6;
+      background: rgba(255,255,255,.02); border-radius: 14px;
+      border: 1px dashed rgba(255,255,255,.1); margin-bottom: 20px;
+    }
+
+    /* ── Light theme ─────────────────────────────────── */
+    [data-theme="light"] .gt-page        { background: #F4F6FB; }
+    [data-theme="light"] .gt-page-title  { color: #0B0D12; }
+    [data-theme="light"] .gt-page-sub    { color: #4A5068; }
+    [data-theme="light"] .gt-add-form,
+    [data-theme="light"] .gt-holding-card,
+    [data-theme="light"] .gt-tax-card,
+    [data-theme="light"] .gt-summary-item { background: #fff; border-color: rgba(0,0,0,.08); }
+    [data-theme="light"] .gt-hc-name     { color: #0B0D12; }
+    [data-theme="light"] .gt-inp         { background: #F4F6FB; border-color: rgba(0,0,0,.12); color: #0B0D12; }
+    [data-theme="light"] .gt-tax-title   { color: #0B0D12; }
+    [data-theme="light"] .gt-section-title { color: #6A7090; }
+    [data-theme="light"] .gt-ctg-item    { background: #f8f9fc; border-color: rgba(0,0,0,.08); }
+    [data-theme="light"] .gt-ctg-row strong { color: #0B0D12; }
+
+    /* ── Responsive ──────────────────────────────────── */
+    @media (max-width: 700px) {
+      .gt-main-wrap { padding: 24px 16px 80px; }
+      .gt-compare-tax-grid { grid-template-columns: 1fr; }
+      .gt-summary-strip { flex-direction: column; }
+      .gt-field-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar" role="complementary" aria-label="Navigation">
+    <div class="sb-brand">
+      <div class="sb-logomark" aria-hidden="true"><span class="sb-logomark-letter">F</span></div>
+      <div class="sb-wordmark">
+        <div class="sb-wordmark-name">FIN•OS</div>
+        <div class="sb-wordmark-tag">Financial OS</div>
+      </div>
+    </div>
+
+    <a href="profile.html" class="sb-identity" aria-label="Your profile">
+      <div class="sb-av" id="sb-av" aria-hidden="true">I</div>
+      <div class="sb-identity-body">
+        <div class="sb-identity-name" id="sb-name">Investor</div>
+        <div class="sb-identity-meta">
+          <span class="sb-identity-dna" id="sb-dna">Financial DNA</span>
+          <span class="sb-health-pill" id="sb-health-pill"></span>
+        </div>
+      </div>
+      <span class="sb-identity-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </a>
+
+    <button class="sb-cmd" id="sb-cmd" aria-label="Search (Ctrl+K)">
+      <span class="sb-cmd-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="sb-cmd-label">Search or jump to…</span>
+      <kbd class="sb-cmd-kbd" aria-hidden="true">⌘K</kbd>
+    </button>
+
+    <nav class="sb-nav" aria-label="Main">
+      <a href="home.html" class="sb-link" title="Home">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        <span class="sb-label">Home</span>
+      </a>
+      <a href="dashboard.html" class="sb-link" title="Dashboard">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>
+        <span class="sb-label">Dashboard</span>
+        <span class="sb-badge" id="sb-streak" aria-label="count"></span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="foundations.html" class="sb-link" title="Learn">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+        <span class="sb-label">Learn</span>
+      </a>
+      <a href="simulator-landing.html" class="sb-link" title="Mindset">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span>
+        <span class="sb-label">Mindset</span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="diagnostics.html" class="sb-link" title="Diagnostics">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+        <span class="sb-label">Diagnostics</span>
+      </a>
+      <a href="track-finances.html" class="sb-link active" aria-current="page" title="Track">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+        <span class="sb-label">Track</span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="markets.html" class="sb-link" title="Markets">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+        <span class="sb-label">Markets</span>
+      </a>
+      <a href="tools.html" class="sb-link" title="Tools">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+        <span class="sb-label">Tools</span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="news.html" class="sb-link" title="News">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span>
+        <span class="sb-label">News</span>
+      </a>
+    </nav>
+
+    <div class="sb-footer-zone">
+      <button class="sb-arya-row" id="sb-arya-btn"
+              aria-label="Arya AI — your financial coach"
+              onclick="document.querySelector('.finos-fab')?.click?.();">
+        <div class="sb-arya-icon" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span class="sb-arya-dot checking" id="sb-arya-dot"></span>
+        </div>
+        <div class="sb-arya-body">
+          <div class="sb-arya-name">Arya AI</div>
+          <div class="sb-arya-status checking" id="sb-arya-status">Connecting…</div>
+        </div>
+        <span class="sb-arya-arrow" aria-hidden="true">›</span>
+      </button>
+      <a href="settings.html" class="sb-settings-row" title="Settings">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        <span class="sb-label">Settings</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main gt-page">
+    <div class="gt-main-wrap">
+
+      <a href="track-finances.html" class="gt-back-link">← Back to Track Finances</a>
+
+      <div class="gt-page-header">
+        <div class="gt-page-icon">🥇</div>
+        <div>
+          <h1 class="gt-page-title">Gold Tracker</h1>
+          <p class="gt-page-sub">Track physical gold, Sovereign Gold Bonds (SGB), Gold ETFs and Gold MFs.<br>SGB coupon income, maturity countdown, and full tax comparison included.</p>
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;">
+        <a href="net-worth.html"       style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">Net Worth →</a>
+        <a href="fd-tracker.html"      style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">Fixed Income →</a>
+        <a href="tax.html"   style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">Tax Optimizer →</a>
+        <a href="mf-intelligence.html" style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">SIP Tracker →</a>
+      </div>
+
+      <!-- Price bar (always visible) -->
+      <div id="gt-price-mount"></div>
+
+      <!-- Tab switcher -->
+      <div class="gt-tabs">
+        <button class="gt-tab active" id="gt-tab-holdings" onclick="gtSwitch('holdings')">🏅 Holdings</button>
+        <button class="gt-tab"        id="gt-tab-tax"      onclick="gtSwitch('tax')">⚖️ Tax Analysis</button>
+      </div>
+
+      <!-- Panels -->
+      <div class="gt-panel active" id="gt-panel-holdings"></div>
+      <div class="gt-panel"        id="gt-panel-tax"></div>
+
+    </div>
+  </main>
+
+</div>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--bg-surface); border: 1px solid var(--border-soft);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s; backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: transparent; transform: scale(1.08); }
+[data-theme="light"] #floatThemeBtn { color: var(--text-primary) !important; }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+
+<script>
+(function(){
+  var btn = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+<script>
+function waitFor(fn, cb, ms) {
+  if (fn()) { cb(); return; }
+  setTimeout(() => waitFor(fn, cb, ms), ms || 150);
+}
+
+var _gtTabInited = {};
+
+function gtSwitch(tab) {
+  ['holdings','tax'].forEach(function(t) {
+    document.getElementById('gt-panel-' + t).classList.toggle('active', t === tab);
+    document.getElementById('gt-tab-' + t).classList.toggle('active', t === tab);
+  });
+  if (!_gtTabInited[tab]) {
+    _gtTabInited[tab] = true;
+    waitFor(
+      () => typeof window.FinosGoldTracker !== 'undefined',
+      () => {
+        if (tab === 'tax') window.FinosGoldTracker.renderTaxPanel(document.getElementById('gt-panel-tax'));
+      }
+    );
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  waitFor(
+    () => typeof window.FinosGoldTracker !== 'undefined',
+    () => {
+      window.FinosGoldTracker.renderSetup(document.getElementById('gt-price-mount'));
+      _gtTabInited['holdings'] = true;
+    }
+  );
+});
+</script>
+
+<script src="../js/ui.js" defer></script>
+<script src="../js/mobile-nav.js" defer></script>
+<script src="../js/pwa-init.js"></script>
+<script src="../js/finos-widget.js?v=8"></script>
+<script src="../js/finos-mobile.js" defer></script>
+<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/interactions.js" defer></script>
+</body>
+</html>

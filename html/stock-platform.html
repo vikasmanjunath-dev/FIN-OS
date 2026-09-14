@@ -5,7 +5,7 @@
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
   <meta charset="UTF-8" />
-  <meta name="description" content="FIN•OS — Your AI-powered Financial Operating System for Indian investors.">
+  <meta name="description" content="Quantum Stock Engine — live NSE/BSE data, charting and order-flow in one platform.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,8 +13,11 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-  <title>FIN•OS | Quantum Stock Engine — NSE/BSE Live Platform</title>
+  <title>Quantum Stock Engine — NSE/BSE Live Platform | FIN-OS</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -32,6 +35,8 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="../js/supabase-config.js"></script>
 </head>
 
 <body>
@@ -553,10 +558,10 @@
           }
           .screen-card:hover { border-color:rgba(0,255,136,.25); }
           .sc-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
-          .sc-symbol { font-size:11px; font-weight:700; color:#4d7cff; font-family:'JetBrains Mono',monospace; }
+          .sc-symbol { font-size:11px; font-weight:700; color:#4d7cff; font-family: var(--font-mono); }
           .sc-name { font-size:14px; font-weight:700; color:#fff; margin-bottom:2px; }
           .sc-sector { font-size:11px; color:rgba(255,255,255,.4); }
-          .sc-price { font-size:20px; font-weight:800; color:#fff; font-family:'JetBrains Mono',monospace; }
+          .sc-price { font-size:20px; font-weight:800; color:#fff; font-family: var(--font-mono); }
           .sc-metrics { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0; }
           .sc-met { padding:8px 10px; border-radius:8px; background:var(--bg-surface); }
           .sc-met-label { font-size:10px; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:.5px; }
@@ -631,7 +636,7 @@
             border:1px solid rgba(199,240,0,.15); background:rgba(199,240,0,.04);
             color:rgba(255,255,255,.5); cursor:pointer; transition:all .15s;
           }
-          .earn-pill:hover { border-color:rgba(199,240,0,.4); color:#c7f000; background:rgba(199,240,0,.07); }
+          .earn-pill:hover { border-color:rgba(199,240,0,.4); color: var(--accent-secondary); background:rgba(199,240,0,.07); }
           .earn-result { display:none; }
           .earn-result.active { display:block; }
           .earn-header-card {
@@ -640,11 +645,11 @@
             background:var(--bg-surface); border:1px solid var(--border-soft);
           }
           .earn-name { font-size:18px; font-weight:800; color:#fff; }
-          .earn-sym { font-size:12px; color:#4d7cff; font-family:'JetBrains Mono',monospace; margin-top:2px; }
+          .earn-sym { font-size:12px; color:#4d7cff; font-family: var(--font-mono); margin-top:2px; }
           .earn-meta { font-size:12px; color:rgba(255,255,255,.4); margin-top:4px; }
           .earn-score-row { display:flex; gap:12px; }
           .earn-score-card { text-align:center; padding:12px 16px; border-radius:12px; background:rgba(0,0,0,.3); }
-          .earn-score-val { font-size:22px; font-weight:900; font-family:'JetBrains Mono',monospace; }
+          .earn-score-val { font-size:22px; font-weight:900; font-family: var(--font-mono); }
           .earn-score-label { font-size:10px; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:.5px; margin-top:2px; }
           .earn-trend-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-bottom:20px; }
           .earn-trend-card { padding:16px; border-radius:14px; background:var(--bg-surface); border:1px solid var(--border-soft); }
@@ -654,7 +659,7 @@
           .trend-down { color:#FF2A5F; }
           .trend-mixed { color:#F59E0B; }
           .earn-quarters { overflow-x:auto; margin-bottom:20px; }
-          .earn-table { width:100%; border-collapse:collapse; font-size:13px; font-family:'JetBrains Mono',monospace; }
+          .earn-table { width:100%; border-collapse:collapse; font-size:13px; font-family: var(--font-mono); }
           .earn-table th { padding:8px 12px; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:rgba(255,255,255,.35); border-bottom:1px solid var(--border-soft); }
           .earn-table td { padding:10px 12px; border-bottom: 1px solid var(--border-soft); color:rgba(255,255,255,.8); }
           .earn-table tr:hover td { background:var(--bg-surface); }
@@ -714,7 +719,7 @@
                 <div class="earn-score-label">EPS Beat Rate</div>
               </div>
               <div class="earn-score-card">
-                <div class="earn-score-val" id="earnConsec" style="color:#c7f000;">—</div>
+                <div class="earn-score-val" id="earnConsec" style="color: var(--accent-secondary);">—</div>
                 <div class="earn-score-label">Consecutive Beats</div>
               </div>
               <div class="earn-score-card">
@@ -909,20 +914,23 @@
 
 <style>
 #floatBackBtn {
-  position: fixed; bottom: 22px; left: 82px; z-index: 9999;
+  /* Clear of the 232px sidebar on desktop */
+  position: fixed; bottom: 22px; left: 256px; z-index: 9999;
   padding: 8px 16px 8px 12px; border-radius: 10px;
   background: var(--bg-surface); border: 1px solid var(--border-soft);
-  color: rgba(255,255,255,0.55); font-family: 'JetBrains Mono',monospace;
+  color: var(--text-secondary); font-family: var(--font-mono);
   font-size: 11px; font-weight: 600; letter-spacing: .06em;
   cursor: pointer; display: flex; align-items: center; gap: 6px;
   transition: background .2s, color .2s, transform .2s;
   backdrop-filter: blur(10px); text-decoration: none;
 }
 #floatBackBtn:hover { background: transparent; color: var(--text-primary); transform: translateX(-3px); }
+/* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
+@media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
 <a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <script>

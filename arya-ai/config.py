@@ -46,6 +46,12 @@ NSE_HEADERS   = {
     "Connection": "keep-alive",
 }
 
+# ── Zerodha Kite Connect (Phase 19 — live portfolio sync) ────────────────────
+# Get credentials at: https://developers.kite.trade/
+# Set redirect_uri to: http://localhost:7475/api/kite/callback
+KITE_API_KEY    = os.getenv("KITE_API_KEY",    "")
+KITE_API_SECRET = os.getenv("KITE_API_SECRET", "")
+
 # ── CoinGecko (free, no key) ──────────────────────────────────────────────────
 COINGECKO_BASE = "https://api.coingecko.com/api/v3"
 

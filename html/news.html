@@ -13,8 +13,11 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-  <title>FIN•OS | Neural Intel Stream</title>
+  <title>Neural Intel Stream | FIN-OS</title>
   
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -67,11 +70,11 @@
     }
     .status-pill {
       display: inline-flex; align-items: center; gap: 8px; background: rgba(0, 243, 255, 0.05); border: 1px solid var(--accent-cyan);
-      padding: 6px 12px; border-radius: 50px; font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--accent-cyan); margin-bottom: 15px;
+      padding: 6px 12px; border-radius: 50px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-cyan); margin-bottom: 15px;
     }
     .status-pill .dot { width: 8px; height: 8px; background: var(--accent-cyan); border-radius: 50%; box-shadow: 0 0 10px var(--accent-cyan); animation: pulse 1s infinite alternate; }
     @keyframes pulse { to { opacity: 0.3; transform: scale(0.8); } }
-    .subtitle { color: var(--text-muted); font-family: 'JetBrains Mono'; font-size: 0.9rem; margin-top: 5px; }
+    .subtitle { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.9rem; margin-top: 5px; }
 
     .radar-container { position: absolute; right: 40px; top: 10px; width: 150px; height: 150px; opacity: 0.6; pointer-events: none; }
 
@@ -80,7 +83,7 @@
       position: relative; z-index: 1; width: 100%; background: rgba(0, 243, 255, 0.03);
       border-bottom: 1px solid var(--glass-border); overflow: hidden; padding: 10px 0; margin-bottom: 40px;
     }
-    .ticker { display: inline-block; white-space: nowrap; font-family: 'JetBrains Mono'; font-size: 0.8rem; color: var(--text-muted); animation: ticker-scroll 30s linear infinite; }
+    .ticker { display: inline-block; white-space: nowrap; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); animation: ticker-scroll 30s linear infinite; }
     .ticker-item { margin-right: 40px; }
     .ticker-item span { color: var(--text-main); font-weight: 700; }
     .ticker-item.up span { color: var(--accent-lime); }
@@ -108,7 +111,7 @@
     .data-shard:hover { border-color: var(--border-soft); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); }
     [data-theme="light"] .data-shard:hover { border-color: rgba(0,0,0,0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
 
-    .shard-meta { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 16px; transform: translateZ(20px); }
+    .shard-meta { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); margin-bottom: 16px; transform: translateZ(20px); }
     
     .tag-container { display: flex; gap: 8px; align-items: center;}
     .shard-tag { padding: 4px 10px; border-radius: 4px; background: rgba(128,128,128,0.1); border: 1px solid var(--glass-border); letter-spacing: 1px; }
@@ -122,7 +125,7 @@
     .data-shard h3 { font-size: 1.25rem; line-height: 1.5; font-weight: 700; margin: 0 0 20px 0; transform: translateZ(30px); font-family: 'Manrope', sans-serif; }
     .shard-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--glass-border); padding-top: 16px; transform: translateZ(10px); }
     .shard-source { font-weight: 800; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
-    .read-arrow { font-family: 'JetBrains Mono'; font-weight: 800; color: var(--text-main); transition: transform 0.3s; }
+    .read-arrow { font-family: var(--font-mono); font-weight: 800; color: var(--text-main); transition: transform 0.3s; }
     .data-shard:hover .read-arrow { transform: translateX(8px); }
 
     /* ADVANCED FILTER DOCK */
@@ -140,7 +143,7 @@
     
     .dock-btn {
       background: transparent; border: none; color: var(--text-muted);
-      font-family: 'JetBrains Mono'; font-size: 0.75rem; font-weight: 700;
+      font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700;
       letter-spacing: 1px; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s;
     }
     .dock-btn:hover { color: var(--text-main); background: var(--bg-surface); }
@@ -155,7 +158,7 @@
     .time-select {
       background: var(--bg-surface); color: var(--text-main);
       border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 8px;
-      font-family: 'JetBrains Mono'; font-size: 0.75rem; cursor: pointer; outline: none;
+      font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; outline: none;
     }
     [data-theme="light"] .time-select { background: rgba(0,0,0,0.05); color: #000; }
     .time-select:focus { border-color: var(--accent-cyan); }
@@ -163,7 +166,7 @@
     .divider { width: 1px; height: 20px; background: var(--glass-border); margin: 0 5px; }
 
     .loader-matrix { text-align: center; padding: 100px 20px; position: absolute; width: 100%; top: 0; left: 0; z-index: 2; }
-    .loader-text { font-family: 'JetBrains Mono'; font-size: 1.2rem; color: var(--accent-cyan); letter-spacing: 3px; animation: blink 1.5s infinite; }
+    .loader-text { font-family: var(--font-mono); font-size: 1.2rem; color: var(--accent-cyan); letter-spacing: 3px; animation: blink 1.5s infinite; }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
   </style>
   <meta property="og:site_name" content="FIN•OS">
@@ -322,7 +325,7 @@
       <div id="arya-news-digest" style="margin-bottom:32px;border-radius:18px;
            background:linear-gradient(135deg,rgba(0,243,255,.06),rgba(0,212,255,.03));
            border:1px solid rgba(0,243,255,.18);padding:20px 24px;
-           font-family:'JetBrains Mono',monospace;">
+           font-family: var(--font-mono);">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
           <div style="display:flex;align-items:center;gap:10px;">
             <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#00f3ff,#4d7cff);
@@ -335,7 +338,7 @@
           <button onclick="aryaNewsDigest(true)" id="arya-news-refresh-btn"
             style="padding:7px 14px;border-radius:10px;border:1px solid rgba(0,243,255,.3);
                    background:rgba(0,243,255,.06);color:#00f3ff;font-size:11px;font-weight:700;
-                   cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;">
+                   cursor:pointer;font-family: var(--font-mono);letter-spacing:.5px;">
             ↺ REFRESH
           </button>
         </div>
@@ -504,8 +507,14 @@
       updateStatus("LIVE FEED OFFLINE. USING GHOST DATA.", "#ff4757");
     } finally {
       document.getElementById('loader').style.display = 'none';
-      init3D();
     }
+  }
+
+  function updateStatus(text, color) {
+    const el = document.getElementById('serverStatus');
+    if (el) { el.innerText = text; el.style.color = color; }
+    const dot = document.getElementById('statusDot');
+    if (dot) dot.style.background = color;
   }
 
   function timeAgo(timestamp) {
@@ -592,7 +601,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=4"></script>
   <script>
   // ── Arya News Digest ────────────────────────────────────────────────────────
@@ -643,7 +652,7 @@ Tone: sharp intel-analyst. Each point = 1 sentence. Use • bullets. Reference t
       });
       if (result) sessionStorage.setItem(cacheKey, result);
     } catch(e) {
-      textEl.innerHTML = '<span style="color:rgba(255,255,255,.3);">AI offline — Ollama connect nahi hua.</span>';
+      textEl.innerHTML = '<span style="color:var(--text-muted,rgba(255,255,255,.5));">Arya is offline right now — start the local AI to get your personalized digest.</span>';
     }
   }
 
@@ -662,7 +671,7 @@ Tone: sharp intel-analyst. Each point = 1 sentence. Use • bullets. Reference t
       if (!footer) return;
       const btn = document.createElement('button');
       btn.textContent = '🧠 AI';
-      btn.style.cssText = 'padding:3px 10px;border-radius:6px;border:1px solid rgba(0,243,255,.3);background:rgba(0,243,255,.06);color:#00f3ff;font-size:10px;font-weight:700;cursor:pointer;font-family:"JetBrains Mono",monospace;';
+      btn.style.cssText = 'padding:3px 10px;border-radius:6px;border:1px solid rgba(0,243,255,.3);background:rgba(0,243,255,.06);color:#00f3ff;font-size:10px;font-weight:700;cursor:pointer;font-family: var(--font-mono);';
       btn.onclick = async function(e) {
         e.preventDefault(); e.stopPropagation();
         const title = shard.querySelector('h3')?.textContent || '';
@@ -708,7 +717,7 @@ Tone: sharp intel-analyst. Each point = 1 sentence. Use • bullets. Reference t
   <script src="../js/ui.js" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-search.js?v=2"></script>
 
 <script src="../js/sidebar.js"></script>

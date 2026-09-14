@@ -1,3 +1,9 @@
+// focus-engine.js — renders the Daily Focus Directive into the single
+// .home-hero card on home.html, reading FINOS_CORE_DNA (the DNA quiz
+// result) via focus-library.js. Scoped to that one card only — it does
+// not gate feature visibility or reorder the rest of the page; see
+// finos-progressive-mode.js's header for how it relates to the other
+// three site-wide "personalize the UI" engines.
 document.addEventListener("DOMContentLoaded", () => {
     // 1. SYSTEM INITIALIZATION
     const rawData = localStorage.getItem('FINOS_CORE_DNA');

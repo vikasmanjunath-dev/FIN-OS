@@ -11,6 +11,12 @@
  * ║  • Session streak tracking (consecutive days active)                      ║
  * ║  • Navigation badge injection (alerts, pending actions)                   ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * Scope note: this engine owns page CONTENT (what the greeting/insight/
+ * nudge text says), not page STRUCTURE. Whether a feature is visible at
+ * all is finos-progressive-mode.js's call — check FinosMode before
+ * rendering something that a Starter-mode user shouldn't see yet.
+ * Layout order (what's first on the page) belongs to adaptive-layout.js.
  */
 (function FinosPersonalization() {
   'use strict';
@@ -411,6 +417,17 @@
     const r = resolveCtx();
     const nudges = [];
 
+    /* ── Profile completion nudge (has DNA but no name yet) ── */
+    if (localStorage.getItem('finos_financial_dna') && !localStorage.getItem('finos_display_name')) {
+      nudges.push({
+        type: 'good',
+        icon: '🧬',
+        title: 'Complete your profile',
+        body: 'You have your Financial DNA — set your name and income to unlock fully personalized insights.',
+        action: 'Complete Profile', href: 'profile.html',
+      });
+    }
+
     /* ── Budget nudges ─────────────────────────────────────── */
     if (r.budget) {
       const b = r.budget;
@@ -533,6 +550,90 @@
       });
     }
 
+    /* ── FIRE timeline nudge ────────────────────────────────────── */
+    const _firePct  = parseFloat(localStorage.getItem('finos_fire_percent') || '0');
+    const _income   = parseFloat(localStorage.getItem('finos_monthly_income') || '0');
+    const _savRate  = parseFloat(localStorage.getItem('finos_savings_rate') || '0');
+    if (_firePct > 0 && _income > 0 && _savRate > 0) {
+      const _netW   = parseFloat(localStorage.getItem('finos_net_worth') || '0');
+      const _mExp   = parseFloat(localStorage.getItem('finos_monthly_expense') || '0') || _income * 0.6 || 50000;
+      const _corpus = _mExp * 12 * 25;
+      const _pmt    = _income * _savRate / 100;
+      const _r      = 0.01; // 12% p.a. → 1% monthly
+      let _yrs = null;
+      if (_pmt > 0 && _corpus > _netW) {
+        const _num = Math.log((_corpus - _pmt / _r) / (_netW - _pmt / _r));
+        if (isFinite(_num) && _num > 0) _yrs = Math.ceil(_num / Math.log(1 + _r) / 12);
+      }
+      if (_firePct < 100 && _yrs && _yrs > 0 && _yrs < 50) {
+        nudges.push({
+          type: _yrs <= 10 ? 'good' : 'warn',
+          icon: '🔥',
+          title: `FIRE in ~${_yrs} year${_yrs > 1 ? 's' : ''} at current trajectory`,
+          body: `${_firePct.toFixed(0)}% of ₹${(_corpus/1e5).toFixed(0)}L corpus built. Keep ₹${Math.round(_pmt).toLocaleString('en-IN')}/mo invested.`,
+          action: 'View FIRE progress', href: 'net-worth.html',
+        });
+      } else if (_firePct >= 100) {
+        nudges.push({
+          type: 'good',
+          icon: '🎉',
+          title: 'FIRE corpus reached — financial independence achieved!',
+          body: `Your net worth covers 25× annual expenses. You can now choose how you spend your time.`,
+          action: 'View Net Worth', href: 'net-worth.html',
+        });
+      }
+    }
+
+    /* ── Insurance gap nudge ─────────────────────────────────────── */
+    const _insurPols = (() => { try { return JSON.parse(localStorage.getItem('finos_insurance_policies') || '[]'); } catch { return []; } })();
+    const _hasHealthIns = _insurPols.some(p => /health/i.test(p.type||p.category||''));
+    const _hasLifeIns   = _insurPols.some(p => /life|term/i.test(p.type||p.category||''));
+    if (!_hasHealthIns) {
+      nudges.push({
+        type: 'alert',
+        icon: '🏥',
+        title: 'No health insurance detected',
+        body: 'A single hospitalisation can wipe out years of savings. Cover yourself first — before investing.',
+        action: 'Add insurance', href: 'insurance-hub.html',
+      });
+    } else if (!_hasLifeIns && _income > 0) {
+      nudges.push({
+        type: 'warn',
+        icon: '🛡️',
+        title: 'No term life insurance detected',
+        body: `At ₹${Math.round(_income/1000)}K/mo income, you should hold a ₹${Math.round(_income * 120 / 1e5).toFixed(0)}L+ term policy.`,
+        action: 'Review insurance', href: 'insurance-hub.html',
+      });
+    }
+
+    /* ── 80C gap nudge (Jan–Mar urgency + full year) ─────────────── */
+    const _80cGap  = parseFloat(localStorage.getItem('finos_80c_gap') || '0');
+    const _80cUsed = parseFloat(localStorage.getItem('finos_80c_used') || '0');
+    if (_80cGap > 25000) {
+      const _isQ4 = new Date().getMonth() >= 9; // Oct onwards
+      const _taxSaved = Math.round(_80cGap * 0.3 * 1.04); // 30% bracket + 4% cess
+      nudges.push({
+        type: _isQ4 ? 'alert' : 'warn',
+        icon: '🧾',
+        title: `₹${Math.round(_80cGap/1000)}K 80C gap — save ₹${Math.round(_taxSaved/1000)}K in tax`,
+        body: `₹${Math.round(_80cUsed/1000)}K of ₹1.5L 80C used. Invest the gap in ELSS or PPF before March 31.`,
+        action: 'Open Tax Optimiser', href: 'tax.html',
+      });
+    }
+
+    /* ── Asset diversification nudge ─────────────────────────────── */
+    const _assetClasses = ['finos_portfolio_value','finos_sip_value','finos_fd_value','finos_gold_value','finos_property_value']
+      .filter(k => (parseFloat(localStorage.getItem(k)) || 0) > 0).length;
+    if (_assetClasses === 1 && _income > 0) {
+      nudges.push({
+        type: 'warn',
+        icon: '⚖️',
+        title: 'Single asset class — concentration risk',
+        body: 'Diversify across equity, MF, and FD for a resilient portfolio that survives market cycles.',
+        action: 'Track finances', href: 'track-finances.html',
+      });
+    }
+
     /* ── General financial literacy nudge (if no other nudges) */
     if (!nudges.length) {
       const gapCount = r.knowledgeGaps.length;
@@ -555,7 +656,11 @@
       }
     }
 
-    return nudges.slice(0, 3);
+    // Sort: alert first, then warn, then good — highest-priority nudges surface at top
+    const _PRIORITY = { alert: 0, warn: 1, good: 2 };
+    nudges.sort((a, b) => (_PRIORITY[a.type] || 2) - (_PRIORITY[b.type] || 2));
+
+    return nudges.slice(0, 4);
   }
 
   const NUDGE_COLORS = {
@@ -767,6 +872,7 @@
      PUBLIC API
   ════════════════════════════════════════════════════════════════════════ */
   Object.assign(window.FinosPersona, {
+    greetByTime,
     injectGreeting,
     injectStatusStrip,
     renderAdaptiveInsights,

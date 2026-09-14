@@ -53,6 +53,34 @@
   const RAG_API_BASE  = 'http://localhost:7476';   // rag-engine FastAPI backend (Phase 4)
   let   _activeEndpoint = null;
 
+  // Phase 8: per-panel-open session UUID for multi-turn conversation memory.
+  // Scoped to this IIFE execution (= this browser tab load), not persisted,
+  // so a page reload starts a fresh conversation — correct behaviour.
+  const _ragSessionId = (typeof crypto?.randomUUID === 'function')
+    ? crypto.randomUUID()
+    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+
+  // Delegated click handler for inline [SOURCE_N] superscripts produced by richText().
+  // Installed once; works for all dynamically added bubbles without any per-bubble wiring.
+  (function _installRagCiteClick() {
+    document.addEventListener('click', e => {
+      const ref = e.target.closest('.rag-src-ref');
+      if (!ref) return;
+      const n = parseInt(ref.dataset.src, 10);
+      const msgWrap = ref.closest('.asp-msg');
+      if (!msgWrap) return;
+      // Walk forward from the message wrap to find the adjacent .asp-rag-cites block
+      let el = msgWrap.nextElementSibling;
+      while (el && !el.classList.contains('asp-rag-cites')) el = el.nextElementSibling;
+      const card = el?.querySelectorAll('.asp-rag-card')[n - 1];
+      if (!card) return;
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      card.style.outline = '2px solid rgba(0,212,255,.8)';
+      card.style.background = 'rgba(0,212,255,.18)';
+      setTimeout(() => { card.style.outline = ''; card.style.background = ''; }, 1500);
+    });
+  })();
+
   /* ── Arya AI backend call ──────────────────────────────────────────────── */
   async function aryaAPI(tool, args = {}) {
     try {
@@ -194,14 +222,15 @@
   }
 
   /* ── RAG engine backend call (Phase 4) ──────────────────────────────────── */
-  async function ragAPI(path, body, timeoutMs = 8000) {
+  async function ragAPI(path, body, timeoutMs = 8000, method) {
     try {
-      const r = await fetch(`${RAG_API_BASE}${path}`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(body),
-        signal:  AbortSignal.timeout(timeoutMs),
-      });
+      const isGet = (method || (body === null || body === undefined ? 'GET' : 'POST')) === 'GET';
+      const fetchOpts = { method: isGet ? 'GET' : 'POST', signal: AbortSignal.timeout(timeoutMs) };
+      if (!isGet) {
+        fetchOpts.headers = { 'Content-Type': 'application/json' };
+        fetchOpts.body    = JSON.stringify(body);
+      }
+      const r = await fetch(`${RAG_API_BASE}${path}`, fetchOpts);
       if (!r.ok) return { error: `HTTP ${r.status}` };
       return await r.json();
     } catch (e) {
@@ -213,6 +242,11 @@
   const get  = (k, d) => { try { return localStorage.getItem(k) || d; } catch { return d; } };
   const getJ = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch { return d; } };
   const set  = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+  const _INCOME_MAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
+  const resolveInc = () =>
+    parseFloat(window.FINOS_USER_CONTEXT?.budget_tracker?.income_monthly || 0)
+    || parseFloat(get('finos_monthly_income', '0'))
+    || _INCOME_MAP[get('finos_income', '')] || 0;
   const INR  = n => {
     const num = Number(n || 0);
     if (num >= 1e7) return '₹' + (num / 1e7).toFixed(1) + ' Cr';
@@ -989,6 +1023,10 @@
     // Key Indian financial acronyms — bold
     h = h.replace(/\b(SIP|ELSS|NPS|PPF|EPF|FD|FIRE|CAGR|EMI|HRA|80C|80D|LIC|ULIP|ITR)\b/g,
         '<b>$1</b>');
+    // RAG inline citations: [SOURCE_N] → clickable superscript ¹ ² ³ …
+    // Click scrolls to and briefly highlights the Nth source card below the bubble.
+    h = h.replace(/\[SOURCE_(\d+)\]/gi, (_, n) =>
+      `<sup class="rag-src-ref" data-src="${n}" title="Source ${n}">${n}</sup>`);
     return h;
   }
 
@@ -1002,7 +1040,7 @@
   }
 
   function buildCalcCard(intent) {
-    const income = parseFloat(window.FINOS_USER_CONTEXT?.budget_tracker?.income_monthly || get('finos_income','0'));
+    const income = resolveInc();
     const nw     = parseFloat(get('finos_net_worth','0'));
     const cfg = {
       sip: { title:'⚡ SIP Calculator', inputs:[
@@ -1204,7 +1242,10 @@ RULES (non-negotiable):
   /* ══ PROACTIVE NUDGE ENGINE ═════════════════════════════════════════════ */
   function computeNudges() {
     const nudges = [];
-    const inc  = parseFloat(get('finos_income','0'));
+    const _imap  = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
+    const inc  = parseFloat(window.FINOS_USER_CONTEXT?.budget_tracker?.income_monthly || 0)
+              || _imap[get('finos_income','')]
+              || 0;
     const exp  = parseFloat(get('finos_expenses','0'));
     const nw   = parseFloat(get('finos_net_worth','0'));
     const debt = parseFloat(get('finos_debt','0'));
@@ -1249,7 +1290,10 @@ RULES (non-negotiable):
 
   /* ══ PULSE DASHBOARD VIEW ════════════════════════════════════════════════ */
   function buildPulseView() {
-    const inc   = parseFloat(get('finos_income','0'));
+    const _imap  = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
+    const inc   = parseFloat(window.FINOS_USER_CONTEXT?.budget_tracker?.income_monthly || 0)
+               || _imap[get('finos_income','')]
+               || 0;
     const exp   = parseFloat(get('finos_expenses','0'));
     const nw    = parseFloat(get('finos_net_worth','0'));
     const debt  = parseFloat(get('finos_debt','0'));
@@ -1441,9 +1485,10 @@ RULES (non-negotiable):
       // same local Ollama process — 2.5s aborted consistently in real browser
       // testing even with otherwise-idle models. See docs/RAG_PHASES.md Phase 4.
       const d = await ragAPI('/api/retrieve', { query: userText, top_k: 3, stream: false }, 4500);
-      if (d.error || !Array.isArray(d.chunks) || !d.chunks.length) return '';
-      return d.chunks.map(c => `[${c.doc_title}]\n${c.text}`).join('\n\n');
-    } catch { return ''; }
+      if (d.error || !Array.isArray(d.chunks) || !d.chunks.length) return { text: '', chunks: [] };
+      const text = d.chunks.map(c => `[${c.doc_title}]\n${c.text}`).join('\n\n');
+      return { text, chunks: d.chunks };
+    } catch { return { text: '', chunks: [] }; }
   }
 
   /* ══ HEATMAP CALENDAR ════════════════════════════════════════════════════ */
@@ -1828,16 +1873,23 @@ RULES (non-negotiable):
       /* ── RAG TOOLS (requires rag-engine backend on port 7476) ──────────── */
       { name: 'rag_query',      desc: 'Ask a question grounded in indexed SEBI/RBI regulations + FIN-OS docs, with cited answer — REAL retrieved text, not guesses', args: { query: 'the question to answer' } },
       { name: 'rag_search_regulations', desc: 'Search ONLY SEBI/RBI regulatory text (no FIN-OS content) — use for "what does the circular/notification say" questions', args: { query: 'regulation topic or keyword' } },
+      { name: 'rag_upload_doc', desc: 'Let the user upload a personal financial document (PDF/TXT/HTML — e.g. Form 16, bank statement, salary slip) so it can be queried. Opens a file picker immediately.', args: { category: '(optional) tax|bank|insurance|investment|other' } },
+      { name: 'rag_explain_statement', desc: 'Explain a financial statement, transaction line, or document excerpt — looks it up in the knowledge base and adds regulatory/FIN-OS context', args: { statement: 'the text or transaction to explain' } },
+      { name: 'amfi_nav_lookup', desc: 'Look up the current NAV (Net Asset Value) of any Indian mutual fund from live AMFI data — use for "what is the NAV of X fund?" questions', args: { fund_name: 'mutual fund name, e.g. "SBI Bluechip" or "Mirae Asset Large Cap"' } },
+      { name: 'rag_search_filings', desc: 'Search indexed NSE/BSE corporate filings and announcements — use for "what did [company] announce?", "recent quarterly results", "board meeting outcome" questions', args: { query: 'company name, event type, or announcement topic' } },
     ],
 
     async execute(name, args = {}) {
       const n = parseFloat;
+      const _imap = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
+      const incLS = () => n(get('finos_monthly_income','0')) || _imap[get('finos_income','')] || 0;
+      const ctxInc = () => n(window.FINOS_USER_CONTEXT?.budget_tracker?.income_monthly || 0) || incLS();
       switch (name) {
 
         /* ── PROFILE + DATA ─────────────────────────────────────────────── */
         case 'get_profile': {
           const goals = getJ('finos_goals', []);
-          const inc   = n(get('finos_income','0'));
+          const inc   = ctxInc();
           const nw    = n(get('finos_net_worth','0'));
           const sip   = n(get('finos_sip_amount','0'));
           const em    = n(get('finos_emergency_fund','0'));
@@ -1878,7 +1930,7 @@ RULES (non-negotiable):
 
         case 'get_health': {
           const score = n(get('finos_health_score','0'));
-          const inc   = n(get('finos_income','0'));
+          const inc   = ctxInc();
           const em    = n(get('finos_emergency_fund','0'));
           const sav   = n(get('finos_savings_rate','0'));
           const debt  = n(get('finos_total_debt','0'));
@@ -1929,7 +1981,7 @@ RULES (non-negotiable):
         }
 
         case 'calc_fire': {
-          const inc   = n(get('finos_income','50000'));
+          const inc   = ctxInc() || 50000;
           const exp   = n(args.monthly_expense || inc * 0.70);
           const corpus= exp * 12 * 25;
           const nw    = n(get('finos_net_worth','0'));
@@ -2009,7 +2061,7 @@ ALLOCATION CHECK (Age ${age}):
         }
 
         case 'optimize_tax': {
-          const inc    = n(args.annual_income || get('finos_income','0')) * (args.annual_income ? 1 : 12);
+          const inc    = n(args.annual_income || ctxInc()) * (args.annual_income ? 1 : 12);
           const c80    = n(get('finos_investments_80c','0'));
           const hi     = n(get('finos_health_insurance','0'));
           const nps    = n(get('finos_nps_amount','0'));
@@ -2036,7 +2088,7 @@ PRIORITY ACTION: ${priority}`;
         }
 
         case 'calc_insurance': {
-          const inc    = n(get('finos_income','0')) * 12;
+          const inc    = ctxInc() * 12;
           const debt   = n(get('finos_total_debt','0'));
           const term   = n(get('finos_term_insurance','0'));
           const hcover = n(get('finos_health_insurance_cover','0'));
@@ -2128,7 +2180,7 @@ ${actions.map(a=>'• '+a).join('\n')}`;
         }
 
         case 'detect_bias': {
-          const inc   = n(get('finos_income','0'));
+          const inc   = ctxInc();
           const sip   = n(get('finos_sip_amount','0'));
           const em    = n(get('finos_emergency_fund','0'));
           const nw    = n(get('finos_net_worth','0'));
@@ -2149,7 +2201,7 @@ Cognitive biases cost Indian investors avg ₹2-5L in returns annually. Automate
         }
 
         case 'create_budget': {
-          const income = n(get('finos_income','0'));
+          const income = ctxInc();
           const sip    = n(get('finos_sip_amount','0'));
           const style  = (args.style || '50-30-20').toLowerCase();
           if (!income) return 'Monthly income not set in profile.';
@@ -2191,7 +2243,7 @@ SAVINGS+INVEST (${ss}% = ${INR(SA)}):
 
         case 'calc_nps': {
           const contrib  = Math.min(n(args.contribution || 50000), 50000);
-          const inc      = n(get('finos_income','0')) * 12;
+          const inc      = ctxInc() * 12;
           const age      = parseInt(get('finos_age','30'));
           const rate     = inc > 1500000 ? 0.30 : inc > 1000000 ? 0.20 : inc > 700000 ? 0.10 : 0.05;
           const taxSaved = Math.round(contrib * rate);
@@ -2215,7 +2267,7 @@ ${rate >= 0.20 ? '⭐ HIGHLY RECOMMENDED for your tax bracket — effectively a 
 
         case 'assess_risk': {
           const age   = parseInt(get('finos_age','30'));
-          const inc   = n(get('finos_income','0'));
+          const inc   = ctxInc();
           const nw    = n(get('finos_net_worth','0'));
           const em    = n(get('finos_emergency_fund','0'));
           const debt  = n(get('finos_total_debt','0'));
@@ -2246,7 +2298,7 @@ KEY FACTORS:
         }
 
         case 'calc_advance_tax': {
-          const annInc = n(args.annual_income || get('finos_income','0')) * (args.annual_income ? 1 : 12);
+          const annInc = n(args.annual_income || ctxInc()) * (args.annual_income ? 1 : 12);
           const taxable = Math.max(0, annInc - 50000 - 150000); // std + 80C estimate
           let tax = 0;
           if (taxable > 1000000)      tax = 112500 + (taxable-1000000)*0.30;
@@ -2472,7 +2524,7 @@ ${sigLines.join('\n')}`;
         case 'rag_query': {
           const query = args.query || '';
           if (!query) return 'Please provide a question to look up.';
-          const d = await ragAPI('/api/query', { query, stream: false, top_k: 3 }, 20000);
+          const d = await ragAPI('/api/query', { query, stream: false, top_k: 3, session_id: _ragSessionId }, 20000);
           if (d.error) return `RAG lookup failed (is rag-engine running on :7476?): ${d.error}`;
           const cites = (d.citations || []).map((c, i) => `  [${i+1}] ${c.doc_title}${c.source_path ? ' — ' + c.source_path : ''}`);
           return `${d.answer}${cites.length ? '\n\nSources:\n' + cites.join('\n') : ''}`;
@@ -2481,11 +2533,83 @@ ${sigLines.join('\n')}`;
         case 'rag_search_regulations': {
           const query = args.query || '';
           if (!query) return 'Please provide a regulation topic or keyword.';
-          const d = await ragAPI('/api/query', { query, stream: false, top_k: 3, doc_type: 'regulation' }, 20000);
+          const d = await ragAPI('/api/query', { query, stream: false, top_k: 3, doc_type: 'regulation', session_id: _ragSessionId }, 20000);
           if (d.error) return `Regulation search failed (is rag-engine running on :7476?): ${d.error}`;
           if (!d.citations || !d.citations.length) return `No indexed SEBI/RBI regulation matched "${query}". Only a small sample of circulars/notifications is indexed so far — this is not a complete regulatory database.`;
           const cites = d.citations.map((c, i) => `  [${i+1}] ${c.doc_title}${c.source_path ? ' — ' + c.source_path : ''}`);
           return `${d.answer}\n\nSources:\n${cites.join('\n')}`;
+        }
+
+        case 'rag_upload_doc': {
+          return new Promise(resolve => {
+            const userId = get('finos_user_id', '') || get('supabase_user_id', '');
+            if (!userId) {
+              return resolve('Upload requires a logged-in user ID. Log in to FIN-OS first, then try again.');
+            }
+            const input = Object.assign(document.createElement('input'), {
+              type: 'file', accept: '.pdf,.txt,.md,.html,.htm',
+            });
+            input.onchange = async () => {
+              const file = input.files?.[0];
+              if (!file) return resolve('No file selected.');
+              const form = new FormData();
+              form.append('file', file);
+              form.append('user_id', userId);
+              if (args.category) form.append('finance_category', args.category);
+              try {
+                const r = await fetch(`${RAG_API_BASE}/api/upload`, {
+                  method: 'POST', body: form,
+                  signal: AbortSignal.timeout(30000),
+                });
+                if (!r.ok) return resolve(`Upload failed — HTTP ${r.status}. Is rag-engine running on :7476?`);
+                const d = await r.json();
+                resolve(`✓ "${file.name}" uploaded — ${d.chunks_created} chunks indexed, ${d.pii_redactions} PII items redacted. You can now ask questions about this document.`);
+              } catch (e) {
+                resolve(`Upload error: ${e.message}`);
+              }
+            };
+            input.oncancel = () => resolve('Upload cancelled.');
+            input.click();
+          });
+        }
+
+        case 'rag_explain_statement': {
+          const statement = args.statement || args.text || '';
+          if (!statement) return 'Please provide a financial statement, transaction, or text excerpt to explain.';
+          const query = `Explain this financial item in the context of Indian personal finance: ${statement}`;
+          const d = await ragAPI('/api/query', { query, stream: false, top_k: 3, session_id: _ragSessionId }, 20000);
+          if (d.error) return `Explanation lookup failed (is rag-engine running on :7476?): ${d.error}`;
+          const cites = (d.citations || []).map((c, i) => `  [${i+1}] ${c.doc_title}`);
+          return `${d.answer}${cites.length ? '\n\nSources:\n' + cites.join('\n') : ''}`;
+        }
+
+        case 'amfi_nav_lookup': {
+          const fundName = args.fund_name || args.fund || args.query || '';
+          if (!fundName) return 'Please provide a mutual fund name to look up.';
+          const nd = await ragAPI(`/api/amfi/nav?q=${encodeURIComponent(fundName)}&top_k=5`, null, 10000);
+          if (nd.error) return `AMFI NAV lookup failed (is rag-engine running on :7476?): ${nd.error}`;
+          const results = nd.results || [];
+          if (!results.length) return `No mutual fund found matching "${fundName}". Try a shorter name like "SBI Bluechip" or "HDFC Top 100".`;
+          return results.map((r, i) =>
+            `${i+1}. ${r.scheme_name}\n   NAV: ₹${r.nav}  (as of ${r.date})\n   ISIN (Growth): ${r.isin_growth || '—'}  |  ISIN (Div): ${r.isin_div || '—'}\n   Scheme Code: ${r.scheme_code}`
+          ).join('\n\n') + '\n\n_Source: AMFI NAVAll.txt (live, refreshed every trading day)_';
+        }
+
+        case 'rag_search_filings': {
+          const query = args.query || args.company || args.text || '';
+          if (!query) return 'Please provide a company name, event type, or topic to search corporate filings.';
+          const d = await ragAPI('/api/retrieve', {
+            query,
+            stream: false,
+            top_k: 5,
+            doc_type: 'corporate_filing',
+          }, 15000);
+          if (d.error) return `Corporate filings search failed (is rag-engine running on :7476?): ${d.error}`;
+          const chunks = d.chunks || [];
+          if (!chunks.length) return `No indexed corporate filings found for "${query}". Run POST /api/ingest/nse-filings and /api/ingest/bse-filings first to populate the corpus.`;
+          return chunks.map((c, i) =>
+            `${i+1}. ${c.doc_title}\n${c.text}`
+          ).join('\n\n') + '\n\n_Source: NSE/BSE corporate filings (indexed via RAG engine)_';
         }
 
         default:
@@ -3008,7 +3132,7 @@ ${ctx}`;
 
     // Gather quick data snapshot from tools
     const health  = parseFloat(get('finos_health_score','0'));
-    const income  = parseFloat(get('finos_income','0'));
+    const income  = resolveInc();
     const nw      = parseFloat(get('finos_net_worth','0'));
     const sip     = parseFloat(get('finos_sip_amount','0'));
     const goals   = getJ('finos_goals', []);
@@ -3071,7 +3195,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
   /* ══ WEALTH TRAJECTORY CHART ════════════════════════════════════════════ */
   function buildCrossPageHUD() {
   // Read from ALL cross-page data points
-  const income  = parseFloat(get('finos_monthly_income','0')) || parseFloat(get('finos_income','0')) || 0;
+  const income  = resolveInc();
   const expense = parseFloat(get('finos_monthly_expenses','0')) || parseFloat(get('finos_expense_total','0')) || 0;
   const nw      = parseFloat(get('finos_net_worth','0')) || 0;
   const sip     = parseFloat(get('finos_sip_monthly','0')) || parseFloat(get('finos_sip','0')) || 0;
@@ -3177,7 +3301,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
 
   /* ══ SMART INSIGHT CARDS ════════════════════════════════════════════ */
   function buildSmartInsightCards() {
-    const income  = parseFloat(get('finos_monthly_income','0')) || parseFloat(get('finos_income','0')) || 0;
+    const income  = resolveInc();
     const expense = parseFloat(get('finos_monthly_expenses','0')) || parseFloat(get('finos_expense_total','0')) || 0;
     const nw      = parseFloat(get('finos_net_worth','0')) || 0;
     const sip     = parseFloat(get('finos_sip_monthly','0')) || parseFloat(get('finos_sip','0')) || 0;
@@ -3363,7 +3487,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
 
   /* ══ WEALTH FINGERPRINT RADAR ════════════════════════════════════════ */
   function buildWealthFingerprint() {
-    const income  = parseFloat(get('finos_monthly_income','0')) || parseFloat(get('finos_income','0')) || 0;
+    const income  = resolveInc();
     const expense = parseFloat(get('finos_monthly_expenses','0')) || parseFloat(get('finos_expense_total','0')) || 0;
     const nw      = parseFloat(get('finos_net_worth','0')) || 0;
     const sip     = parseFloat(get('finos_sip_monthly','0')) || parseFloat(get('finos_sip','0')) || 0;
@@ -3641,7 +3765,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
   function buildWealthChart() {
   const nw     = parseFloat(get('finos_net_worth', '0')) || 0;
   const sip    = parseFloat(get('finos_sip', '0')) || parseFloat(get('finos_sip_monthly','0')) || 0;
-  const inc    = parseFloat(get('finos_income', '0')) || parseFloat(get('finos_monthly_income','0')) || 50000;
+  const inc    = resolveInc() || 50000;
   const exp    = parseFloat(get('finos_expenses', '0')) || parseFloat(get('finos_monthly_expenses','0')) || 40000;
   const age    = parseInt(get('finos_age', '30'), 10);
   const retAge = parseInt(get('finos_retire_age', '60'), 10);
@@ -3983,7 +4107,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
 
   /* ══ SAVINGS RATE METER ══════════════════════════════════════════════ */
   function buildSavingsRateMeter() {
-    const income  = parseFloat(get('finos_monthly_income','0')) || parseFloat(get('finos_income','0')) || 0;
+    const income  = resolveInc();
     const expense = parseFloat(get('finos_monthly_expenses','0')) || parseFloat(get('finos_expense_total','0')) || 0;
     if (!income) return '';
 
@@ -4057,7 +4181,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
 
   /* ══ TAX DASHBOARD ═══════════════════════════════════════════════════════ */
   function buildTaxDashboard() {
-    const inc   = parseFloat(get('finos_income', '0')) || 0;
+    const inc   = resolveInc();
     if (!inc) return '';
     const sip   = parseFloat(get('finos_sip', '0')) || 0;
     const ctx   = window.FINOS_USER_CONTEXT || {};
@@ -4120,7 +4244,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
   /* ══ DEBT FREEDOM PLANNER ════════════════════════════════════════════════ */
   function buildDebtFreedomPlanner() {
     const debt = parseFloat(get('finos_debt', '0')) || 0;
-    const inc  = parseFloat(get('finos_income', '0')) || 0;
+    const inc  = resolveInc();
     const exp  = parseFloat(get('finos_expenses', '0')) || 0;
     if (debt <= 0 || !inc) return '';
 
@@ -4443,13 +4567,13 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
           ${[['Loan',INR(P),'#fff'],['Rate',ann+'% p.a.','#fff'],['Tenure',yrs+' yrs','#fff'],['Monthly EMI',INR(Math.round(emi)),'#ffd93d'],['Total paid',INR(Math.round(tot)),'#ffb300'],['Total interest',INR(Math.round(tot-P)),'#ff7c43']].map(([l,v,c])=>`<div style="background:rgba(255,255,255,.04);border-radius:7px;padding:7px"><div style="font-size:9.5px;color:rgba(255,255,255,.38)">${l}</div><div style="font-size:12px;font-weight:800;color:${c};margin-top:2px">${v}</div></div>`).join('')}
         </div>
-        <button class="asp-view-ask-btn" style="margin-top:8px;width:100%" data-msg="EMI of ${INR(Math.round(emi))}/mo on ${INR(P)} loan at ${ann}% for ${yrs} yrs. Is this within my budget? What's the rent vs buy comparison? My income is ${INR(parseFloat(get('finos_income','0')))}/mo.">🤖 Rent vs buy analysis</button>`);
+        <button class="asp-view-ask-btn" style="margin-top:8px;width:100%" data-msg="EMI of ${INR(Math.round(emi))}/mo on ${INR(P)} loan at ${ann}% for ${yrs} yrs. Is this within my budget? What's the rent vs buy comparison? My income is ${INR(resolveInc())}/mo.">🤖 Rent vs buy analysis</button>`);
       wireAskBtnInEl(document.getElementById('arya-sp-messages').lastElementChild?.querySelector('.asp-msg-bubble') || document.body);
       return true;
     }
 
     if (cmd === '/fire') {
-      const inc  = parseFloat(get('finos_income','0')) || 50000;
+      const inc  = resolveInc() || 50000;
       const exp  = parseFloat(get('finos_expenses','0')) || 40000;
       const nw   = parseFloat(get('finos_net_worth','0')) || 0;
       const sip  = parseFloat(get('finos_sip','0')) || 0;
@@ -4531,7 +4655,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
   let _labDebounce = null;
 
   function buildScenarioLab() {
-    const inc       = parseFloat(get('finos_income', '0'))     || 50000;
+    const inc       = resolveInc() || 50000;
     const sip       = parseFloat(get('finos_sip', '0'))        || 5000;
     const retireAge = parseInt(get('finos_retire_age', '60'), 10);
     const age       = parseInt(get('finos_age', '30'), 10);
@@ -4676,7 +4800,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
   ];
 
   function buildIndiaMap() {
-    const income = parseFloat(get('finos_income', '0')) || 50000;
+    const income = resolveInc() || 50000;
     const maxCol = Math.max(...INDIA_STATES.map(s => s.col));
     const minCol = Math.min(...INDIA_STATES.map(s => s.col));
 
@@ -4733,7 +4857,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
   }
 
   function wireIndiaMap() {
-    const income  = parseFloat(get('finos_income', '0')) || 50000;
+    const income  = resolveInc() || 50000;
     document.querySelectorAll('#india-svg .imap-node').forEach(node => {
       node.addEventListener('click', () => {
         const col     = parseInt(node.dataset.col, 10);
@@ -4954,7 +5078,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
     const c80  = parseFloat(get('finos_investments_80c','0'))  || 0;
     const hi   = parseFloat(get('finos_health_insurance','0')) || 0;
     const nps  = parseFloat(get('finos_nps_amount','0'))       || 0;
-    const inc  = (parseFloat(get('finos_income','0')) || 0) * 12;
+    const inc  = (resolveInc() || 0) * 12;
     const taxable = Math.max(0, inc - 50000);
     const rate = taxable > 1500000 ? 30 : taxable > 1200000 ? 20 : taxable > 1000000 ? 15 : taxable > 700000 ? 10 : taxable > 300000 ? 5 : 0;
 
@@ -5008,7 +5132,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
 
   /* ── 0c. INSURANCE GAP ANALYZER ─────────────────────────────────────────── */
   function buildInsuranceGapSection() {
-    const inc    = parseFloat(get('finos_income','0')) || 0;
+    const inc    = resolveInc() || 0;
     const debt   = parseFloat(get('finos_total_debt','0')) || 0;
     const term   = parseFloat(get('finos_term_insurance','0')) || 0;
     const hcover = parseFloat(get('finos_health_insurance_cover','0')) || 0;
@@ -5357,7 +5481,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
   function wirePeerBenchmarkSection() {
     const age    = parseInt(get('finos_age',            '30'), 10) || 30;
     const nw     = parseFloat(get('finos_net_worth',    '0'))      || 0;
-    const income = parseFloat(get('finos_income',       '0'))      || 0;
+    const income = resolveInc();
     const sip    = parseFloat(get('finos_sip_amount',   '0'))      || 0;
     const bkt    = _ageBracket(age);
     const nwB    = _INDIA_PEER.netWorth[bkt] || _INDIA_PEER.netWorth['30-35'];
@@ -5456,7 +5580,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       let grand = 0;
       parsed.forEach(p => { totals[p.cat] = (totals[p.cat]||0) + p.amt; grand += p.amt; });
       const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]);
-      const income = parseFloat(get('finos_income','0'))||0;
+      const income = resolveInc()||0;
 
       res.innerHTML = `
         <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:8px">
@@ -5656,7 +5780,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
     const name   = get('finos_display_name','User');
     const age    = get('finos_age','30');
     const city   = get('finos_city','India');
-    const income = parseFloat(get('finos_income','0'))        || 0;
+    const income = resolveInc()        || 0;
     const nw     = parseFloat(get('finos_net_worth','0'))     || 0;
     const sip    = parseFloat(get('finos_sip_amount','0'))    || 0;
     const health = parseFloat(get('finos_health_score','0'))  || 0;
@@ -5755,7 +5879,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
   }
 
   function _runMonitorChecks() {
-    const income = parseFloat(get('finos_income',          '0')) || 0;
+    const income = resolveInc();
     const emerg  = parseFloat(get('finos_emergency_fund',  '0')) || 0;
     const sip    = parseFloat(get('finos_sip_amount',      '0')) || 0;
     const debt   = parseFloat(get('finos_total_debt',      '0')) || 0;
@@ -6513,6 +6637,55 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 #agt-quick-tax:hover  { background: rgba(77,255,180,.16) !important; }
 /* v6.0 — Wealth X-Ray, Tax Optimizer, Insurance gap sections */
 .arya-xray-legend-dot { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+
+/* ── RAG inline citation superscripts ──────────────────────── */
+.rag-src-ref {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%; font-size: 9px; font-weight: 700;
+  background: rgba(0,212,255,.18); color: rgba(0,212,255,.9);
+  border: 1px solid rgba(0,212,255,.3); cursor: pointer; vertical-align: super;
+  margin: 0 1px; transition: background .12s, color .12s; line-height: 1; text-decoration: none;
+  font-style: normal;
+}
+.rag-src-ref:hover { background: rgba(0,212,255,.35); color: #fff; border-color: rgba(0,212,255,.7); }
+[data-theme="light"] .rag-src-ref { background: rgba(0,100,200,.1); color: rgba(0,100,200,.8); border-color: rgba(0,100,200,.3); }
+[data-theme="light"] .rag-src-ref:hover { background: rgba(0,100,200,.2); color: rgba(0,100,200,1); }
+
+/* ── RAG citation source cards (Phase 7) ───────────────────── */
+.asp-rag-cites {
+  margin: 4px 0 6px 36px; display: flex; flex-direction: column; gap: 4px;
+}
+.asp-rag-cites-label {
+  font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: rgba(255,255,255,.28); margin-bottom: 3px;
+}
+.asp-rag-cards { display: flex; flex-wrap: wrap; gap: 5px; }
+.asp-rag-card {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 9px; border-radius: 8px;
+  background: rgba(0,212,255,.06); border: 1px solid rgba(0,212,255,.14);
+  font-size: 11px; color: rgba(255,255,255,.55); max-width: 220px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: background .15s, border-color .15s;
+}
+.asp-rag-card:hover {
+  background: rgba(0,212,255,.12); border-color: rgba(0,212,255,.28);
+  color: rgba(255,255,255,.8);
+}
+.asp-rag-card-icon { font-size: 12px; flex-shrink: 0; }
+.asp-rag-card-title { overflow: hidden; text-overflow: ellipsis; flex: 1; }
+.asp-rag-card-type {
+  font-size: 9px; padding: 1px 5px; border-radius: 4px;
+  background: rgba(255,255,255,.08); color: rgba(255,255,255,.35);
+  flex-shrink: 0;
+}
+[data-theme="light"] .asp-rag-card {
+  background: rgba(0,100,200,.05); border-color: rgba(0,100,200,.15); color: rgba(0,0,0,.5);
+}
+[data-theme="light"] .asp-rag-card:hover {
+  background: rgba(0,100,200,.1); border-color: rgba(0,100,200,.3); color: rgba(0,0,0,.8);
+}
+[data-theme="light"] .asp-rag-cites-label { color: rgba(0,0,0,.3); }
 `;
     document.head.appendChild(s);
   }
@@ -6761,7 +6934,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
   function removeThinking() { document.getElementById('arya-sp-thinking')?.remove(); }
 
   /* ══ 7. CONVERSATION RATINGS ════════════════════════════════════════════ */
-  function addRatingButtons(bubbleEl, responseText, pageKey) {
+  function addRatingButtons(bubbleEl, responseText, pageKey, query = '') {
     const wrap = document.createElement('div');
     wrap.className = 'asp-rating';
     wrap.innerHTML = `<span class="asp-rate-text">Helpful?</span><button class="asp-rate-btn" data-v="1">👍</button><button class="asp-rate-btn" data-v="-1">👎</button>`;
@@ -6769,16 +6942,45 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
       const btn = e.target.closest('.asp-rate-btn');
       if (!btn) return;
       const val = parseInt(btn.dataset.v);
+      const vote = val > 0 ? 'up' : 'down';
       try {
         const fb = JSON.parse(localStorage.getItem('finos_arya_ratings') || '[]');
         fb.push({ ts: Date.now(), page: pageKey, val, preview: responseText.slice(0, 80) });
         set('finos_arya_ratings', JSON.stringify(fb.slice(-100)));
       } catch {}
+      // Also POST to backend so feedback can be aggregated across sessions
+      ragAPI('/api/feedback', { query: query || pageKey, answer: responseText, vote }, 3000).catch(() => {});
       wrap.innerHTML = val > 0
         ? '<span class="asp-rate-text" style="color:#00ffb3">✓ Glad that helped, yaar!</span>'
         : '<span class="asp-rate-text" style="color:#ffb300">Thanks — I\'ll improve!</span>';
     });
     bubbleEl?.parentElement?.insertAdjacentElement('afterend', wrap);
+  }
+
+  /* ══ RAG CITATION SOURCE CARDS (Phase 7) ════════════════════════════════ */
+  function buildRagCitationCards(chunks) {
+    if (!chunks || !chunks.length) return null;
+    const TYPE_ICON = { regulation: '📋', news: '📰', user_doc: '📄', finos_page: '📚' };
+    const wrap = document.createElement('div');
+    wrap.className = 'asp-rag-cites';
+    const cards = chunks.map(c => {
+      const icon    = TYPE_ICON[c.doc_type] || '🔍';
+      const rawTitle = c.doc_title || 'Source';
+      const section  = c.section_heading || '';
+      const title    = (section ? `${rawTitle} › ${section}` : rawTitle).replace(/</g, '&lt;');
+      const type    = (c.doc_type || '').replace(/_/g, ' ');
+      const link    = c.source
+        ? ` <a href="${c.source}" target="_blank" rel="noopener" style="color:rgba(100,200,255,.8);font-size:10px;text-decoration:none" title="Open source">↗</a>`
+        : '';
+      const tip     = (c.text || '').slice(0, 150).replace(/"/g, '&quot;').replace(/\n/g, ' ');
+      return `<div class="asp-rag-card" title="${tip}">`
+        + `<span class="asp-rag-card-icon">${icon}</span>`
+        + `<span class="asp-rag-card-title">${title}${link}</span>`
+        + (type ? `<span class="asp-rag-card-type">${type}</span>` : '')
+        + `</div>`;
+    }).join('');
+    wrap.innerHTML = `<div class="asp-rag-cites-label">Sources</div><div class="asp-rag-cards">${cards}</div>`;
+    return wrap;
   }
 
   /* ══ 6. SMART FOLLOW-UP CHIPS ═══════════════════════════════════════════ */
@@ -6997,11 +7199,14 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
     // docs/RAG_HARDWARE.md §4 — even fast retrieval costs 1-3s here, more under
     // contention with the main chat's own concurrent Ollama call).
     let ragLines = '';
+    let ragChunks = [];
     if (!isAutoInsight && detectRagIntent(userText)) {
-      ragLines = await Promise.race([
+      const ragResult = await Promise.race([
         fetchRagContext(userText),
-        new Promise(r => setTimeout(() => r(''), 4500))
+        new Promise(r => setTimeout(() => r({ text: '', chunks: [] }), 4500))
       ]);
+      ragLines = ragResult.text || '';
+      ragChunks = ragResult.chunks || [];
     }
     const ragSection = ragLines
       ? `\n\nGROUNDING CONTEXT FROM SEBI/RBI REGULATIONS (cite the source document by name inline when you use it, e.g. "per the RBI KCC Directions, 2026..." — do not invent regulation details not present here):\n${ragLines}`
@@ -7064,8 +7269,14 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
       _chatHistory.push({ role: 'arya', text: finalText });
       if (offlineEl) offlineEl.classList.remove('show');
 
+      // Inject RAG citation source cards if grounding context was retrieved (Phase 7)
+      if (!isAutoInsight && ragChunks.length > 0) {
+        const citeEl = buildRagCitationCards(ragChunks);
+        if (citeEl) bubbleEl?.parentElement?.insertAdjacentElement('afterend', citeEl);
+      }
+
       // 7. Add rating buttons after AI response
-      if (!isAutoInsight) addRatingButtons(bubbleEl, finalText, pageKey);
+      if (!isAutoInsight) addRatingButtons(bubbleEl, finalText, pageKey, userText);
 
       // 6. Update follow-up chips
       const followUps = generateFollowUps(finalText);
@@ -7132,36 +7343,11 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
     _lastVoiceToastAt = now;
     _lastVoiceToastMsg = msg;
     if (window.FiNOS?.toast?.show) {
+      // finos-toast.js now injects its own stylesheet (the old rules lived in
+      // css/_unused_css/states.css which no page loads), so no inline-style
+      // fallback is needed here anymore — and inline positioning would fight
+      // the toast system's mobile top-anchoring.
       window.FiNOS.toast.show({ title: 'Arya voice', msg, type: type || 'warning' });
-      // Confirmed by direct testing this was the real bug behind "voice
-      // detech is not working": toast.show() WAS firing with the right
-      // message, but rendered invisibly. Root cause turned out deeper than
-      // expected — #finos-toast-container has no positioning CSS applied at
-      // all on this page (position: static, height: 0px). The rules that
-      // are supposed to style it (position: fixed, bottom/right, animations)
-      // live in css/_unused_css/states.css — a folder no page actually
-      // loads. That's a real, separate, site-wide bug (every toast.show()
-      // call anywhere in the app is affected, not just Arya's), flagged on
-      // its own rather than fixed here. This inline-styles the container so
-      // Arya's specific voice toasts work regardless of that gap.
-      const container = document.getElementById('finos-toast-container');
-      if (container) {
-        Object.assign(container.style, {
-          position: 'fixed', bottom: '24px', right: '24px', zIndex: '999996',
-          display: 'flex', flexDirection: 'column', gap: '10px',
-          maxWidth: '360px', width: 'calc(100vw - 48px)', pointerEvents: 'none',
-        });
-        const toastEl = container.lastElementChild;
-        if (toastEl) {
-          Object.assign(toastEl.style, {
-            display: 'flex', alignItems: 'flex-start', gap: '10px',
-            padding: '14px 16px', background: '#10131C',
-            border: '1px solid rgba(255,255,255,0.12)', borderRadius: '14px',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.4)', pointerEvents: 'all',
-            fontSize: '0.875rem', lineHeight: '1.45', color: '#E8EAF0',
-          });
-        }
-      }
     } else {
       console.warn('[Arya voice]', msg);
     }
@@ -7593,23 +7779,58 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
     }
   }
 
-  /* ══ STATUS CHECK ════════════════════════════════════════════════════════ */
+  /* ══ STATUS CHECK ════════════════════════════════════════════════════════
+     This is the ONE authoritative Arya online/offline check. It used to race
+     with an independent, weaker check in sidebar.js (11434 only, one-shot,
+     inline styles) — whichever fetch resolved last silently won, so the two
+     could disagree and neither ever revisited the question after page load
+     (starting Ollama mid-session needed a manual refresh to notice). Fixed by:
+       • checking both known endpoints (direct Ollama + the HTTPS proxy),
+       • writing state via CSS classes (sb-arya-dot/status + .online/.offline/
+         .checking from layout.css) instead of inline styles, so it stays
+         theme-consistent and matches sidebar.js's own class-based rendering,
+       • publishing the result on window._aryaOnline + an 'arya-status-change'
+         event — sidebar.js already had dead code waiting to consume exactly
+         this, it was just never fired,
+       • polling on an interval and on window focus, so the badge self-heals
+         once Ollama actually starts.                                        */
+  let _statusChecking = false;
+
   async function checkStatus() {
-    const dotEl  = document.getElementById('sb-arya-dot');
-    const textEl = document.getElementById('sb-arya-status');
-    for (const url of OLLAMA_ENDPOINTS) {
-      try {
-        const tagsUrl = url.replace('/api/generate', '/api/tags');
-        const r = await fetch(tagsUrl, { signal: AbortSignal.timeout(2500) });
-        if (r.ok || r.type === 'opaque') {
-          if (dotEl)  { dotEl.style.background = '#00ffb3'; dotEl.style.boxShadow = '0 0 6px #00ffb3'; }
-          if (textEl) textEl.textContent = 'Online';
-          return;
-        }
-      } catch {}
+    if (_statusChecking) return;
+    _statusChecking = true;
+    try {
+      const dotEl  = document.getElementById('sb-arya-dot');
+      const textEl = document.getElementById('sb-arya-status');
+      const setState = (state, label) => {
+        if (dotEl)  dotEl.className  = 'sb-arya-dot ' + state;
+        if (textEl) { textEl.className = 'sb-arya-status ' + state; textEl.textContent = label; }
+        window._aryaOnline = (state === 'online');
+        window.dispatchEvent(new CustomEvent('arya-status-change', { detail: { online: window._aryaOnline } }));
+      };
+
+      for (const url of OLLAMA_ENDPOINTS) {
+        try {
+          const tagsUrl = url.replace('/api/generate', '/api/tags');
+          const r = await fetch(tagsUrl, { signal: AbortSignal.timeout(2500) });
+          if (r.ok || r.type === 'opaque') {
+            setState('online', 'Online · Ask anything');
+            return;
+          }
+        } catch {}
+      }
+      setState('offline', 'Offline · Start Ollama');
+    } finally {
+      _statusChecking = false;
     }
-    if (dotEl)  { dotEl.style.background = '#ff4444'; dotEl.style.boxShadow = 'none'; }
-    if (textEl) textEl.textContent = 'Offline · Start Ollama';
+  }
+
+  /* Re-check periodically and whenever the tab regains focus (e.g. the user
+     just started Ollama in a terminal and switched back). */
+  function _scheduleStatusChecks() {
+    checkStatus();
+    setInterval(checkStatus, 20000);
+    window.addEventListener('focus', () => checkStatus());
   }
 
   /* ══ INIT ════════════════════════════════════════════════════════════════ */
@@ -7686,7 +7907,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
     recordPageVisit(pageKey);
 
     wireSidebarButton();
-    checkStatus();
+    _scheduleStatusChecks();
 
     // Silent pre-probe: cache the working endpoint NOW, before the user clicks.
     setTimeout(() => _findEndpoint().catch(() => {}), 1200);

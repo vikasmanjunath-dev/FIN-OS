@@ -19,6 +19,9 @@
   <!-- Google Fonts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <!-- Design tokens must be first -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -26,8 +29,8 @@
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="stylesheet" href="../chatbot/qft-hud.css">
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
-  <script src="../js/finos-personalization.js" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
+  <script src="../js/finos-personalization.js?v=2" defer></script>
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
   <meta property="og:image" content="/assets/icons/icon-512.svg">
@@ -159,6 +162,122 @@
     <!-- Personalized smart nudges — populated by finos-personalization.js -->
     <div id="home-nudges" style="margin-bottom:20px;"></div>
 
+    <!-- 5-Stage Journey Strip -->
+    <div id="journey-strip" style="margin-bottom:24px;"></div>
+    <style>
+      #journey-strip { display:flex; align-items:center; gap:0; overflow-x:auto; scrollbar-width:none; padding-bottom:2px; }
+      #journey-strip::-webkit-scrollbar { display:none; }
+      .js-stage {
+        display:flex; flex-direction:column; align-items:center; gap:4px;
+        flex:1; min-width:60px; position:relative; cursor:pointer;
+        text-decoration:none; color:inherit;
+        transition:opacity .2s;
+      }
+      .js-stage:hover { opacity:.8; }
+      .js-stage.active { cursor:default; }
+      .js-dot {
+        width:28px; height:28px; border-radius:50%;
+        border:2px solid rgba(255,255,255,.12);
+        background:rgba(255,255,255,.04);
+        display:flex; align-items:center; justify-content:center;
+        font-size:13px; transition:all .3s; position:relative; z-index:1;
+      }
+      .js-stage.active .js-dot {
+        border-color:var(--js-color,#4f7cff);
+        background:rgba(var(--js-rgb,79,124,255),.18);
+        box-shadow:0 0 16px rgba(var(--js-rgb,79,124,255),.35);
+      }
+      .js-stage.done .js-dot {
+        border-color:rgba(255,255,255,.28);
+        background:rgba(255,255,255,.07);
+      }
+      .js-label {
+        font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+        color:rgba(255,255,255,.22); white-space:nowrap;
+      }
+      .js-stage.active .js-label { color:var(--js-color,#4f7cff); }
+      .js-stage.done  .js-label { color:rgba(255,255,255,.45); }
+      .js-line {
+        flex:1; height:1px; background:rgba(255,255,255,.1); margin:0 -1px;
+        position:relative; top:-10px;
+      }
+      .js-line.done { background:rgba(255,255,255,.28); }
+      [data-theme="light"] .js-dot { border-color:rgba(0,0,0,.1); background:rgba(0,0,0,.04); }
+      [data-theme="light"] .js-stage.done .js-dot { border-color:rgba(0,0,0,.25); background:rgba(0,0,0,.06); }
+      [data-theme="light"] .js-label { color:rgba(0,0,0,.25); }
+      [data-theme="light"] .js-stage.done .js-label { color:rgba(0,0,0,.5); }
+      [data-theme="light"] .js-line { background:rgba(0,0,0,.1); }
+      [data-theme="light"] .js-line.done { background:rgba(0,0,0,.25); }
+    </style>
+    <script>
+    (function(){
+      const STAGES = [
+        { key:'discover', icon:'🔭', label:'Discover', color:'#22d3a6', rgb:'34,211,166', href:'profile.html',          tip:'Set up your profile & find your DNA' },
+        { key:'learn',    icon:'📚', label:'Learn',    color:'#4f7cff', rgb:'79,124,255', href:'foundations.html',       tip:'Start the Zero to Mastery curriculum' },
+        { key:'track',    icon:'📊', label:'Track',    color:'#f59e0b', rgb:'245,158,11', href:'track-finances.html',    tip:'Track expenses & grow your health score' },
+        { key:'grow',     icon:'🚀', label:'Grow',     color:'#a855f7', rgb:'168,85,247', href:'life-goals-planner.html',tip:'Set goals and plan your SIP strategy' },
+        { key:'master',   icon:'⚡', label:'Master',   color:'#ef4444', rgb:'239,68,68',  href:'dashboard.html',         tip:'Command Centre — full power mode' },
+      ];
+      function getStageIndex() {
+        const h = parseFloat(localStorage.getItem('finos_health_score') || '0');
+        const hasDNA = !!localStorage.getItem('finos_financial_dna');
+        const hasName = !!localStorage.getItem('finos_display_name');
+        const txns = parseInt(localStorage.getItem('finos_txn_count') || '0', 10);
+        if (!hasName && !hasDNA) return 0;          // DISCOVER
+        if (h < 35 || (!txns && h < 50)) return 1;  // LEARN
+        if (h < 55 || txns < 10) return 2;           // TRACK
+        if (h < 75) return 3;                         // GROW
+        return 4;                                     // MASTER
+      }
+      const strip = document.getElementById('journey-strip');
+      if (!strip) return;
+      const idx = getStageIndex();
+      let html = '';
+      STAGES.forEach((s, i) => {
+        const cls = i < idx ? 'done' : i === idx ? 'active' : '';
+        const vars = i === idx ? `style="--js-color:${s.color};--js-rgb:${s.rgb}"` : '';
+        const tag  = i === idx ? 'div' : 'a';
+        const href = i !== idx ? ` href="${s.href}"` : '';
+        const tip  = `title="${i === idx ? s.label + ' — current stage' : s.tip}"`;
+        html += `<${tag} class="js-stage ${cls}"${href} ${vars} ${tip} aria-label="${s.tip}">
+          <div class="js-dot">${s.icon}</div>
+          <div class="js-label">${s.label}</div>
+        </${tag}>`;
+        if (i < STAGES.length - 1) {
+          html += `<div class="js-line ${i < idx ? 'done' : ''}"></div>`;
+        }
+      });
+      strip.innerHTML = html;
+
+      // First-time welcome banner — DISCOVER stage only, dismissible
+      if (idx === 0 && !localStorage.getItem('finos_welcome_dismissed')) {
+        var wb = document.createElement('div');
+        wb.id = 'home-welcome-banner';
+        wb.style.cssText = 'margin-bottom:20px;';
+        wb.innerHTML =
+          '<div style="padding:20px 24px;border-radius:18px;' +
+          'background:linear-gradient(135deg,rgba(34,211,166,.09),rgba(79,124,255,.06));' +
+          'border:1px solid rgba(34,211,166,.25);display:flex;align-items:center;gap:16px;flex-wrap:wrap;">' +
+            '<div style="font-size:28px;flex-shrink:0;">🧬</div>' +
+            '<div style="flex:1;min-width:180px;">' +
+              '<div style="font-size:15px;font-weight:800;color:var(--text-primary,#e8eef6);margin-bottom:4px;">Welcome to FIN·OS</div>' +
+              '<div style="font-size:13px;color:var(--text-secondary,rgba(200,210,230,.6));line-height:1.5;">' +
+              'Build your financial DNA in 2 minutes — unlock personalized insights, your stage journey, and Arya\'s intelligence.</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;">' +
+              '<a href="profile.html" style="display:inline-block;padding:10px 18px;border-radius:10px;' +
+              'background:rgba(34,211,166,.15);border:1px solid rgba(34,211,166,.35);' +
+              'color:#22d3a6;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;">Build My DNA →</a>' +
+              '<button onclick="localStorage.setItem(\'finos_welcome_dismissed\',\'1\');document.getElementById(\'home-welcome-banner\').remove();" ' +
+              'style="padding:10px 14px;border-radius:10px;background:transparent;' +
+              'border:1px solid var(--border-medium,rgba(255,255,255,.1));color:var(--text-muted,rgba(200,210,230,.4));font-size:12px;cursor:pointer;white-space:nowrap;">Skip</button>' +
+            '</div>' +
+          '</div>';
+        strip.parentNode.insertBefore(wb, strip);
+      }
+    })();
+    </script>
+
     <section class="home-grid">
 
         
@@ -214,12 +333,12 @@
         position: relative;
       }
       .protocol-label {
-        font-family: 'JetBrains Mono', monospace;
+        font-family: var(--font-mono);
         font-size: 10px;
         font-weight: 700;
         letter-spacing: .22em;
         text-transform: uppercase;
-        color: #c7f000;
+        color: var(--accent-secondary);
         margin-bottom: 14px;
         display: flex;
         align-items: center;
@@ -298,7 +417,7 @@
         gap: 10px;
       }
       .ph-code {
-        font-family: 'JetBrains Mono', monospace;
+        font-family: var(--font-mono);
         font-size: 11px;
         font-weight: 700;
         letter-spacing: .2em;
@@ -315,10 +434,10 @@
       }
       .ph-title em {
         font-style: normal;
-        color: #c7f000;
+        color: var(--accent-secondary);
       }
       .ph-sub {
-        font-family: 'JetBrains Mono', monospace;
+        font-family: var(--font-mono);
         font-size: 12px;
         color: rgba(255,255,255,.28);
         letter-spacing: .06em;
@@ -332,7 +451,7 @@
         flex-shrink: 0;
       }
       .ph-badge {
-        font-family: 'JetBrains Mono', monospace;
+        font-family: var(--font-mono);
         font-size: 9.5px;
         font-weight: 700;
         letter-spacing: .14em;
@@ -341,12 +460,12 @@
         border-radius: 6px;
         background: rgba(199,240,0,.1);
         border: 1px solid rgba(199,240,0,.25);
-        color: #c7f000;
+        color: var(--accent-secondary);
         white-space: nowrap;
       }
       .ph-arrow {
         font-size: 28px;
-        color: #c7f000;
+        color: var(--accent-secondary);
         transition: transform .3s ease;
         line-height: 1;
         filter: drop-shadow(0 0 8px rgba(199,240,0,.4));
@@ -406,7 +525,7 @@
       .track-icon { font-size: 3rem; filter: drop-shadow(0 0 15px rgba(79,124,255,0.4)); }
       .track-text { display: flex; flex-direction: column; gap: 6px; flex-grow: 1; }
       .tr-title { font-size: 1.4rem; font-weight: 800; color: #4F7CFF; letter-spacing: 0.5px; font-family: 'Manrope', sans-serif; }
-      .tr-sub { font-size: 0.95rem; color: #A1A4AC; font-family: 'JetBrains Mono', monospace; }
+      .tr-sub { font-size: 0.95rem; color: #A1A4AC; font-family: var(--font-mono); }
       .tr-arrow { font-size: 1.8rem; color: #4F7CFF; transition: transform 0.3s ease; }
       .track-action-btn:hover .tr-arrow { transform: translateX(10px); }
       @keyframes scan-track { 0% { left: -100%; } 100% { left: 200%; } }
@@ -478,7 +597,7 @@
   </script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
-  <script src="../js/finos-widget.js?v=7"></script>
+  <script src="../js/finos-widget.js?v=8"></script>
   <script src="../js/finos-search.js?v=2"></script>
   <script src="../js/finos-mobile.js" defer></script>
 
@@ -503,7 +622,7 @@ a.card:focus-visible {
   color: #ffffff !important;
 }
 [data-theme="light"] .protocol-hero .ph-title em {
-  color: #c7f000 !important;
+  color: var(--accent-secondary) !important;
 }
 [data-theme="light"] .protocol-hero .ph-code {
   color: rgba(199,240,0,0.55) !important;
@@ -514,10 +633,10 @@ a.card:focus-visible {
 [data-theme="light"] .protocol-hero .ph-badge {
   background: rgba(199,240,0,0.1) !important;
   border-color: rgba(199,240,0,0.25) !important;
-  color: #c7f000 !important;
+  color: var(--accent-secondary) !important;
 }
 [data-theme="light"] .protocol-hero .ph-arrow {
-  color: #c7f000 !important;
+  color: var(--accent-secondary) !important;
 }
 /* Track Finances button */
 [data-theme="light"] .track-action-btn {
@@ -543,7 +662,7 @@ a.card:focus-visible {
     bottom: 1.75rem;
     right: 1.75rem;
     z-index: 9999;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
   }
   #qft-fab {
     display: flex;
@@ -553,8 +672,8 @@ a.card:focus-visible {
     background: var(--bg-main);
     border: 1px solid rgba(199,240,0,0.35);
     border-radius: 100px;
-    color: #c7f000;
-    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent-secondary);
+    font-family: var(--font-mono);
     font-size: 0.82rem;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -563,7 +682,7 @@ a.card:focus-visible {
     transition: all 0.2s ease;
   }
   #qft-fab:hover {
-    border-color: #c7f000;
+    border-color: var(--accent-secondary);
     box-shadow: 0 0 28px rgba(199,240,0,0.18), 0 8px 40px rgba(0,0,0,0.6);
     transform: translateY(-2px);
   }
@@ -697,7 +816,7 @@ a.card:focus-visible {
     transform: translateY(-50%);
     background: none;
     border: none;
-    color: #c7f000;
+    color: var(--accent-secondary);
     cursor: pointer;
     display: flex;
     padding: 0;
@@ -710,7 +829,7 @@ a.card:focus-visible {
     margin: 6px 0 0;
     font-size: 0.62rem;
     color: #52525b;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     letter-spacing: 0.05em;
   }
   @media (max-width: 520px) {
@@ -728,7 +847,7 @@ a.card:focus-visible {
     <div class="qft-header">
       <div>
         <h2 style="margin:0; font-size:1.1rem; color:#F5F7FA; display:flex; align-items:center; gap:8px;">
-          <span style="color:#C7F000; font-size:0.8rem;">●</span> QFT Terminal
+          <span style="color: var(--accent-secondary); font-size:0.8rem;">●</span> QFT Terminal
         </h2>
         <p style="margin:4px 0 0; font-size:0.75rem; color:#A1A8B8; font-family:monospace;">Financial Thinking Engine</p>
       </div>
@@ -1007,8 +1126,13 @@ Give direct, data-driven financial advice for Indian professionals. Use ₹ for 
 })();
 </script>
 
-<!-- Floating streak badge -->
-<div id="home-streak-badge" style="display:none;position:fixed;bottom:28px;right:28px;z-index:9999;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;"></div>
+<!-- Floating streak badge — bottom-LEFT: the bottom-right corner belongs to
+     the AI fab / quick-log / health stack. Hidden on mobile (streak already
+     appears in the header subtitle and the bottom-right corner is reserved). -->
+<style>
+  @media (max-width: 768px) { #home-streak-badge { display: none !important; } }
+</style>
+<div id="home-streak-badge" style="display:none;position:fixed;bottom:28px;left:28px;z-index:9999;font-family:var(--font-sans,sans-serif);"></div>
 <script>
 (function() {
   function _renderStreakBadge() {
@@ -1024,15 +1148,15 @@ Give direct, data-driven financial advice for Indian professionals. Use ₹ for 
              onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 7px 28px rgba(0,0,0,0.65)';this.style.borderColor='rgba(199,240,0,0.5)'"
              onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,0.55)';this.style.borderColor='rgba(199,240,0,0.2)'">
           <span style="font-size:18px;line-height:1">${s.count >= 7 ? '🔥' : s.count >= 3 ? '✨' : '📝'}</span>
-          <span style="font-size:14px;font-weight:800;color:#c7f000;">${s.count}</span>
+          <span style="font-size:14px;font-weight:800;color: var(--accent-secondary);">${s.count}</span>
           <span style="font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:.02em">day streak</span>
         </div>
-        <div class="hs-pop" style="display:none;position:absolute;bottom:calc(100% + 10px);right:0;background:rgba(20,20,28,0.97);border:1px solid rgba(199,240,0,0.2);border-radius:14px;padding:16px 18px;box-shadow:0 8px 32px rgba(0,0,0,0.65);min-width:180px;animation:hsFadeUp .18s ease;">
+        <div class="hs-pop" style="display:none;position:absolute;bottom:calc(100% + 10px);left:0;background:rgba(20,20,28,0.97);border:1px solid rgba(199,240,0,0.2);border-radius:14px;padding:16px 18px;box-shadow:0 8px 32px rgba(0,0,0,0.65);min-width:180px;animation:hsFadeUp .18s ease;">
           <div style="font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:8px">Daily Streak</div>
           <div style="display:flex;align-items:center;gap:10px">
             <span style="font-size:28px">${s.count >= 7 ? '🔥' : s.count >= 3 ? '✨' : '📝'}</span>
             <div>
-              <div style="font-size:22px;font-weight:800;color:#c7f000;">${s.count} Day${s.count !== 1 ? 's' : ''}</div>
+              <div style="font-size:22px;font-weight:800;color: var(--accent-secondary);">${s.count} Day${s.count !== 1 ? 's' : ''}</div>
               <div style="font-size:11px;color:rgba(255,255,255,0.4);">Best: ${s.best || s.count} days</div>
             </div>
           </div>

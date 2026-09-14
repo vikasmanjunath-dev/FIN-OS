@@ -40,6 +40,21 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentSessionId  = null;
     const userData        = {};
 
+    // Pre-populate income from localStorage profile data
+    (function _prefillFromProfile() {
+        const _IMAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
+        const ctx = window.FINOS_USER_CONTEXT;
+        const income = (ctx?.budget_tracker?.income_monthly)
+                    || parseFloat(localStorage.getItem('finos_monthly_income') || '0')
+                    || _IMAP[localStorage.getItem('finos_income') || '']
+                    || 0;
+        if (income > 0) {
+            userData['base_income'] = income;
+        }
+        const age = parseInt(localStorage.getItem('finos_age') || '0', 10);
+        if (age > 0) userData['curr_age'] = age;
+    })();
+
     // Cached computed results — used by fallback AI template
     let _computed = {};
 
@@ -268,9 +283,18 @@ ${userData.total_debt > 0 ? '4. **Debt waterfall** — list all debts by interes
         nextBtn.disabled = isScanning;
 
         // Restore previously saved values
+        let anyPrefilled = false;
         for (const key in userData) {
             const input = document.getElementById(key);
-            if (input) input.value = userData[key] || '';
+            if (input) { input.value = userData[key] || ''; anyPrefilled = true; }
+        }
+        // Show pre-fill notice on first step
+        if (anyPrefilled && currentStep === 0) {
+            const err = document.getElementById('stepError');
+            if (err) {
+                err.style.color = '#C7F000';
+                err.textContent = '✓ Pre-filled from your profile — adjust as needed';
+            }
         }
     }
 

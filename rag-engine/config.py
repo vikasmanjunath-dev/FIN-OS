@@ -43,10 +43,14 @@ REDIS_PORT = 6379
 
 # ── Chunking (docs/RAG_PIPELINE.md §2) ──────────────────────────────────
 CHUNK_SIZES = {
-    "finos_page": {"size": 350, "overlap": 70},
-    "regulation": {"size": 400, "overlap": 80},
-    "news": {"size": 200, "overlap": 40},
-    "user_doc": {"size": 150, "overlap": 30},
+    "finos_page":        {"size": 350, "overlap": 70},
+    "regulation":        {"size": 400, "overlap": 80},
+    "news":              {"size": 200, "overlap": 40},
+    "user_doc":          {"size": 150, "overlap": 30},
+    # Corporate filing text is a short structured block (~100-150 tokens) — each
+    # announcement is already an atomic unit, so chunk size just needs to fit one
+    # full announcement. 200/40 matches the news chunk size, which has the same shape.
+    "corporate_filing":  {"size": 200, "overlap": 40},
 }
 
 # ── Namespaces ───────────────────────────────────────────────────────────

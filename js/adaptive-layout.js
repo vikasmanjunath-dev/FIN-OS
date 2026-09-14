@@ -14,6 +14,11 @@
  *   <div id="adaptive-context-banner"></div>
  *   <script src="../js/usage-tracker.js"></script>
  *   <script src="../js/adaptive-layout.js"></script>
+ *
+ * Scope note: this engine owns ORDER (what shows first), never whether
+ * something is visible (finos-progressive-mode.js) or what it says
+ * (finos-personalization.js). Don't hide elements here — only reorder
+ * or promote/demote ones that are already visible.
  */
 (function (global) {
   'use strict';

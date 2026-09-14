@@ -112,7 +112,7 @@
 | `cryptodetail.html` | Crypto detail |
 | `commoditydetail.html` | Commodity detail |
 | `forexdetail.html` | Forex detail |
-| `derivativesdetail.html` | Derivatives detail |
+| `fnodetail.html` | Derivatives (F&O) detail |
 | `moneydetail.html` | Money market detail |
 
 ### Tools & Special

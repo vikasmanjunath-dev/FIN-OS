@@ -3,10 +3,13 @@
 <head>
 <script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 <meta charset="UTF-8">
-  <meta name="description" content="FIN•OS — Your AI-powered Financial Operating System for Indian investors.">
+  <meta name="description" content="AI predicts next month's spend from your own patterns — a 12-month savings and corpus forecast, not a generic budget template.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0B0D12">
-<title>FIN•OS | AI Budget Forecaster</title>
+<title>AI Budget Forecaster | FIN-OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/layout.css">
@@ -15,7 +18,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
 <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
 <script src="../js/arya-ai.js?v=4"></script>
 <style>
   .forecast-wrap { max-width: 820px; margin: 0 auto; padding: 32px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
@@ -637,6 +640,17 @@ async function runForecast() {
   document.getElementById('totalTitle').textContent   = `Next Month Predicted Spend${incomeLabel ? ' — ' + incomeLabel : ''}`;
   document.getElementById('totalSubtitle').textContent = `Based on last ${monthsBack} months${events.length ? ' + ' + events.map(e => e.charAt(0).toUpperCase() + e.slice(1)).join(', ') : ''}`;
 
+  // Push to finos context — feeds dashboard savings-rate KPI and net-worth FIRE calculator
+  if (forecast.total > 0) {
+    localStorage.setItem('finos_monthly_expense', Math.round(forecast.total).toString());
+    if (income > 0) {
+      const savRate = Math.max(0, Math.round((income - forecast.total) / income * 100));
+      localStorage.setItem('finos_savings_rate', savRate.toString());
+      localStorage.setItem('finos_monthly_income', income.toString());
+    }
+    window.FinosContext?.update?.({ monthlyExpense: forecast.total, savingsRate: income > 0 ? (income - forecast.total) / income * 100 : 0 });
+  }
+
   // Save banner
   document.getElementById('saveMsg').textContent = forecast.saveMsg || '';
   document.getElementById('saveBanner').style.display = forecast.saveMsg ? 'flex' : 'none';
@@ -678,22 +692,24 @@ async function runForecast() {
 
 // Auto-populate income from localStorage
 document.addEventListener('DOMContentLoaded', () => {
-  const savedIncome = localStorage.getItem('finos_monthly_income') || localStorage.getItem('finos_income');
-  if (savedIncome) {
-    const val = parseFloat(savedIncome.replace(/[^0-9.]/g, ''));
-    if (val > 0) document.getElementById('incomeInput').value = Math.round(val);
-  }
+  const INCOME_MAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
+  // Try exact numeric value first (from Supabase context), then map range string
+  const exact   = parseFloat(localStorage.getItem('finos_monthly_income') || '0');
+  const rangeKey = localStorage.getItem('finos_income') || '';
+  const income  = exact > 0 ? exact : (INCOME_MAP[rangeKey] || 0);
+  if (income > 0) document.getElementById('incomeInput').value = Math.round(income);
 });
 </script>
 
 <script src="../js/ui.js" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=7"></script>
+<script src="../js/finos-widget.js?v=8"></script>
 <script src="../js/finos-search.js?v=2"></script>
 <style>
-#floatBackBtn{position:fixed;bottom:22px;left:82px;z-index:9999;padding:8px 16px 8px 12px;border-radius:10px;background:var(--bg-surface);border:1px solid var(--border-soft);color:rgba(255,255,255,0.55);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s,color .2s,transform .2s;backdrop-filter:blur(10px);text-decoration:none;}
+#floatBackBtn{position:fixed;bottom:22px;left:256px;z-index:9999;padding:8px 16px 8px 12px;border-radius:10px;background:var(--bg-surface);border:1px solid var(--border-soft);color:var(--text-secondary);font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s,color .2s,transform .2s;backdrop-filter:blur(10px);text-decoration:none;}
 #floatBackBtn:hover{background: transparent;color:var(--text-primary);transform:translateX(-3px);}
+@media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
 <a id="floatBackBtn" onclick="history.back();return false;" href="#">‹ BACK</a>
 

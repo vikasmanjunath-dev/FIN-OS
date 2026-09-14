@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Debt Optimizer — Avalanche vs Snowball payoff strategies, prepayment impact, and debt-free date for Indian borrowers.">
+  <title>Debt Optimizer | FIN-OS</title>
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/interactions.css">
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
+  <script src="../js/finos-debt-optimizer.js" defer></script>
+
+  <style>
+    /* ── Page layout ─────────────────────────────────── */
+    .do-page { background: var(--bg-main); min-height: 100vh; }
+
+    .do-main-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 40px 120px;
+    }
+
+    /* ── Page header ─────────────────────────────────── */
+    .do-page-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+    .do-page-icon {
+      font-size: 36px;
+      line-height: 1;
+    }
+    .do-page-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(22px, 3vw, 32px);
+      font-weight: 800;
+      color: #fff;
+      margin: 0 0 6px;
+      letter-spacing: -.01em;
+    }
+    .do-page-sub {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      color: rgba(255,255,255,.5);
+      margin: 0;
+      line-height: 1.6;
+    }
+    .do-back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: rgba(255,255,255,.4);
+      text-decoration: none;
+      margin-bottom: 24px;
+      transition: color .2s;
+    }
+    .do-back-link:hover { color: #EF4444; }
+
+    /* ── Section title ───────────────────────────────── */
+    .do-section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.55);
+      margin-bottom: 16px;
+    }
+
+    /* ── Setup container ─────────────────────────────── */
+    .do-setup {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: 28px 28px 32px;
+    }
+    .do-hint {
+      font-size: 13px;
+      color: rgba(255,255,255,.4);
+      margin: 0 0 24px;
+      line-height: 1.6;
+    }
+
+    /* ── Loan card ───────────────────────────────────── */
+    .do-loan-card {
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      transition: border-color .25s;
+    }
+    .do-loan-card.do-loan-active {
+      border-color: rgba(239,68,68,.25);
+    }
+    .do-loan-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      background: rgba(255,255,255,.03);
+      cursor: pointer;
+    }
+    .do-loan-icon { font-size: 20px; }
+    .do-loan-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(255,255,255,.85);
+      flex: 1;
+    }
+
+    /* Toggle switch */
+    .do-toggle { position: relative; display: inline-block; width: 36px; height: 20px; flex-shrink: 0; }
+    .do-toggle input { opacity: 0; width: 0; height: 0; }
+    .do-toggle-knob {
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,.12);
+      border-radius: 20px;
+      transition: background .25s;
+      cursor: pointer;
+    }
+    .do-toggle-knob::before {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      left: 3px; top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform .25s;
+    }
+    .do-toggle input:checked + .do-toggle-knob { background: #EF4444; }
+    .do-toggle input:checked + .do-toggle-knob::before { transform: translateX(16px); }
+
+    /* Fields */
+    .do-loan-fields { padding: 20px 18px 18px; }
+    .do-field-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 14px;
+    }
+    .do-field { display: flex; flex-direction: column; gap: 6px; }
+    .do-field label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+    }
+    .do-inp {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      padding: 10px 14px;
+      width: 100%;
+      box-sizing: border-box;
+      transition: border-color .2s, background .2s;
+      outline: none;
+    }
+    .do-inp:focus {
+      border-color: rgba(239,68,68,.5);
+      background: rgba(239,68,68,.06);
+    }
+    .do-inp::placeholder { color: rgba(255,255,255,.25); }
+    .do-calc-btn {
+      margin-top: 4px;
+      padding: 6px 12px;
+      background: rgba(239,68,68,.12);
+      border: 1px solid rgba(239,68,68,.25);
+      border-radius: 8px;
+      color: #EF4444;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .2s;
+      align-self: flex-start;
+      white-space: nowrap;
+    }
+    .do-calc-btn:hover { background: rgba(239,68,68,.22); }
+    .do-field-hint {
+      font-size: 11px;
+      color: rgba(255,255,255,.3);
+      line-height: 1.4;
+    }
+
+    /* Extra row */
+    .do-extra-row {
+      display: flex;
+      gap: 14px;
+      margin-top: 24px;
+      padding: 18px;
+      background: rgba(34,211,166,.04);
+      border: 1px solid rgba(34,211,166,.15);
+      border-radius: 14px;
+    }
+
+    /* CTA */
+    .do-cta-btn {
+      display: block;
+      width: 100%;
+      margin-top: 24px;
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(239,68,68,.2), rgba(239,68,68,.1));
+      border: 1px solid rgba(239,68,68,.4);
+      border-radius: 12px;
+      color: #EF4444;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .25s;
+    }
+    .do-cta-btn:hover {
+      background: linear-gradient(135deg, rgba(239,68,68,.3), rgba(239,68,68,.18));
+      box-shadow: 0 0 0 1px rgba(239,68,68,.3), 0 8px 24px rgba(239,68,68,.15);
+    }
+
+    /* ── Summary strip ───────────────────────────────── */
+    .do-summary-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .do-summary-item {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+    .do-summary-lbl {
+      font-size: 10px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+      margin-bottom: 6px;
+    }
+    .do-summary-val {
+      font-family: var(--font-mono);
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* ── Strategy grid ───────────────────────────────── */
+    .do-strategy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .do-strategy-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px;
+      padding: 22px 22px 20px;
+      position: relative;
+      transition: border-color .25s;
+    }
+    .do-strategy-winner {
+      border-color: rgba(34,211,166,.35);
+      background: rgba(34,211,166,.04);
+    }
+    .do-winner-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(34,211,166,.15);
+      border: 1px solid rgba(34,211,166,.3);
+      color: #22D3A6;
+      margin-bottom: 12px;
+    }
+    .do-strategy-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .do-strategy-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,.4);
+      margin-bottom: 18px;
+    }
+    .do-strategy-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .do-strategy-stat:last-of-type { border-bottom: none; }
+    .do-stat-lbl { font-size: 12px; color: rgba(255,255,255,.5); }
+    .do-stat-val {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .do-strategy-saving {
+      margin-top: 14px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(34,211,166,.1);
+      border: 1px solid rgba(34,211,166,.2);
+      font-size: 12px;
+      color: #22D3A6;
+      font-weight: 600;
+    }
+    .do-strategy-order {
+      margin-top: 12px;
+      font-size: 11px;
+      color: rgba(255,255,255,.35);
+      line-height: 1.5;
+    }
+
+    /* ── Insight box ─────────────────────────────────── */
+    .do-insight-box {
+      padding: 14px 18px;
+      background: rgba(255,184,0,.06);
+      border: 1px solid rgba(255,184,0,.2);
+      border-radius: 12px;
+      font-size: 13px;
+      color: rgba(255,255,255,.75);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    /* ── Prepayment box ──────────────────────────────── */
+    .do-prepay-box {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-top: 3px solid #4F7CFF;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .do-prepay-grid {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .do-prepay-card {
+      flex: 1;
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .do-prepay-std {
+      background: rgba(239,68,68,.06);
+      border: 1px solid rgba(239,68,68,.18);
+    }
+    .do-prepay-acc {
+      background: rgba(34,211,166,.06);
+      border: 1px solid rgba(34,211,166,.25);
+    }
+    .do-prepay-arrow {
+      font-size: 24px;
+      color: rgba(255,255,255,.3);
+      flex-shrink: 0;
+    }
+    .do-prepay-lbl {
+      font-size: 11px;
+      color: rgba(255,255,255,.45);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .do-prepay-val {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .do-prepay-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,.45);
+    }
+    .do-prepay-date {
+      margin-top: 6px;
+      font-size: 11px;
+      color: rgba(255,255,255,.3);
+    }
+    .do-prepay-savings {
+      padding: 12px 16px;
+      background: rgba(79,124,255,.08);
+      border: 1px solid rgba(79,124,255,.2);
+      border-radius: 10px;
+      font-size: 13px;
+      color: rgba(255,255,255,.8);
+      line-height: 1.5;
+    }
+    .do-prepay-savings strong { color: #4F7CFF; }
+
+    /* ── Edit button ─────────────────────────────────── */
+    .do-edit-btn {
+      padding: 10px 20px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 10px;
+      color: rgba(255,255,255,.6);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      margin-top: 8px;
+    }
+    .do-edit-btn:hover {
+      background: rgba(255,255,255,.1);
+      color: #fff;
+    }
+
+    /* ── Light theme ─────────────────────────────────── */
+    [data-theme="light"] .do-page       { background: #F4F6FB; }
+    [data-theme="light"] .do-page-title { color: #0B0D12; }
+    [data-theme="light"] .do-page-sub   { color: #4A5068; }
+    [data-theme="light"] .do-setup      { background: #fff; border-color: rgba(0,0,0,.08); }
+    [data-theme="light"] .do-hint       { color: #4A5068; }
+    [data-theme="light"] .do-loan-card  { border-color: rgba(0,0,0,.09); }
+    [data-theme="light"] .do-loan-head  { background: rgba(0,0,0,.03); }
+    [data-theme="light"] .do-loan-label { color: #0B0D12; }
+    [data-theme="light"] .do-inp        { background: #F4F6FB; border-color: rgba(0,0,0,.12); color: #0B0D12; }
+    [data-theme="light"] .do-inp:focus  { border-color: rgba(239,68,68,.5); background: rgba(239,68,68,.04); }
+    [data-theme="light"] .do-field label { color: #6A7090; }
+    [data-theme="light"] .do-summary-item { background: #fff; border-color: rgba(0,0,0,.08); }
+    [data-theme="light"] .do-summary-lbl { color: #6A7090; }
+    [data-theme="light"] .do-strategy-card { background: #fff; border-color: rgba(0,0,0,.08); }
+    [data-theme="light"] .do-stat-lbl  { color: #6A7090; }
+    [data-theme="light"] .do-section-title { color: #6A7090; }
+
+    /* ── Responsive ──────────────────────────────────── */
+    @media (max-width: 700px) {
+      .do-main-wrap { padding: 24px 16px 80px; }
+      .do-strategy-grid { grid-template-columns: 1fr; }
+      .do-summary-strip { grid-template-columns: 1fr 1fr; }
+      .do-prepay-grid { flex-direction: column; }
+      .do-prepay-arrow { transform: rotate(90deg); }
+      .do-field-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar" role="complementary" aria-label="Navigation">
+    <div class="sb-brand">
+      <div class="sb-logomark" aria-hidden="true"><span class="sb-logomark-letter">F</span></div>
+      <div class="sb-wordmark">
+        <div class="sb-wordmark-name">FIN•OS</div>
+        <div class="sb-wordmark-tag">Financial OS</div>
+      </div>
+    </div>
+
+    <a href="profile.html" class="sb-identity" aria-label="Your profile">
+      <div class="sb-av" id="sb-av" aria-hidden="true">I</div>
+      <div class="sb-identity-body">
+        <div class="sb-identity-name" id="sb-name">Investor</div>
+        <div class="sb-identity-meta">
+          <span class="sb-identity-dna" id="sb-dna">Financial DNA</span>
+          <span class="sb-health-pill" id="sb-health-pill"></span>
+        </div>
+      </div>
+      <span class="sb-identity-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </a>
+
+    <button class="sb-cmd" id="sb-cmd" aria-label="Search (Ctrl+K)">
+      <span class="sb-cmd-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="sb-cmd-label">Search or jump to…</span>
+      <kbd class="sb-cmd-kbd" aria-hidden="true">⌘K</kbd>
+    </button>
+
+    <nav class="sb-nav" aria-label="Main">
+      <a href="home.html" class="sb-link" title="Home">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        <span class="sb-label">Home</span>
+      </a>
+      <a href="dashboard.html" class="sb-link" title="Dashboard">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>
+        <span class="sb-label">Dashboard</span>
+        <span class="sb-badge" id="sb-streak" aria-label="count"></span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="foundations.html" class="sb-link" title="Learn">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+        <span class="sb-label">Learn</span>
+      </a>
+      <a href="simulator-landing.html" class="sb-link" title="Mindset">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span>
+        <span class="sb-label">Mindset</span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="diagnostics.html" class="sb-link" title="Diagnostics">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+        <span class="sb-label">Diagnostics</span>
+      </a>
+      <a href="track-finances.html" class="sb-link active" aria-current="page" title="Track">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+        <span class="sb-label">Track</span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="markets.html" class="sb-link" title="Markets">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+        <span class="sb-label">Markets</span>
+      </a>
+      <a href="tools.html" class="sb-link" title="Tools">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+        <span class="sb-label">Tools</span>
+      </a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="news.html" class="sb-link" title="News">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span>
+        <span class="sb-label">News</span>
+      </a>
+    </nav>
+
+    <div class="sb-footer-zone">
+      <button class="sb-arya-row" id="sb-arya-btn"
+              aria-label="Arya AI — your financial coach"
+              onclick="document.querySelector('.finos-fab')?.click?.();">
+        <div class="sb-arya-icon" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span class="sb-arya-dot checking" id="sb-arya-dot"></span>
+        </div>
+        <div class="sb-arya-body">
+          <div class="sb-arya-name">Arya AI</div>
+          <div class="sb-arya-status checking" id="sb-arya-status">Connecting…</div>
+        </div>
+        <span class="sb-arya-arrow" aria-hidden="true">›</span>
+      </button>
+
+      <a href="settings.html" class="sb-settings-row" title="Settings">
+        <span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        <span class="sb-label">Settings</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main do-page">
+    <div class="do-main-wrap">
+
+      <a href="track-finances.html" class="do-back-link">← Back to Track Finances</a>
+
+      <div class="do-page-header">
+        <div class="do-page-icon">📉</div>
+        <div>
+          <h1 class="do-page-title">Debt Optimizer</h1>
+          <p class="do-page-sub">Compare Avalanche vs Snowball payoff strategies, calculate your debt-free date,<br>and see how extra payments can save you lakhs in interest.</p>
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px;">
+        <a href="net-worth.html" style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">Net Worth →</a>
+        <a href="financial-calendar.html" style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">EMI Calendar →</a>
+        <a href="calculators.html" style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">EMI Calculator →</a>
+        <a href="debtdetail.html" style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">Debt Insights →</a>
+      </div>
+
+      <!-- Setup + Results will be injected here -->
+      <div id="do-setup-mount"></div>
+
+    </div>
+  </main>
+
+</div>
+
+<style>
+#floatThemeBtn {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--bg-surface); border: 1px solid var(--border-soft);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .2s;
+  backdrop-filter: blur(10px);
+}
+#floatThemeBtn:hover { background: transparent; transform: scale(1.08); }
+[data-theme="light"] #floatThemeBtn { color: var(--text-primary) !important; }
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+
+<script>
+(function(){
+  var btn  = document.getElementById('floatThemeBtn');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('finos-theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '🌙' : '☀️';
+  btn.addEventListener('click', function(){
+    var cur  = html.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('finos-theme', next);
+    localStorage.setItem('theme', next);
+    btn.textContent = next === 'dark' ? '🌙' : '☀️';
+  });
+})();
+</script>
+
+<script>
+function waitFor(fn, cb, ms) {
+  if (fn()) { cb(); return; }
+  setTimeout(() => waitFor(fn, cb, ms), ms || 150);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  waitFor(
+    () => typeof window.FinosDebtOptimizer !== 'undefined',
+    () => {
+      const mount = document.getElementById('do-setup-mount');
+      if (mount) window.FinosDebtOptimizer.renderSetup(mount);
+    }
+  );
+});
+</script>
+
+<script src="../js/ui.js" defer></script>
+<script src="../js/mobile-nav.js" defer></script>
+<script src="../js/pwa-init.js"></script>
+<script src="../js/finos-widget.js?v=8"></script>
+<script src="../js/finos-mobile.js" defer></script>
+<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/interactions.js" defer></script>
+</body>
+</html>

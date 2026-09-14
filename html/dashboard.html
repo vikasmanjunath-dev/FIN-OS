@@ -16,7 +16,10 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
-  <title>Dashboard | FIN•OS</title>
+  <title>Dashboard | FIN-OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -26,8 +29,9 @@
   <link rel="stylesheet" href="../css/insight-cards.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
+  <script src="../js/finos-net-worth.js" defer></script>
 
 <style>
 /* ═══════════════════════════════════════════════════════════════
@@ -339,7 +343,7 @@
   font-size: 10px; font-weight: 800; letter-spacing: .06em;
   padding: 3px 9px; border-radius: 20px;
   background: rgba(199,240,0,.1); border: 1px solid rgba(199,240,0,.28);
-  color: #c7f000;
+  color: var(--accent-secondary);
 }
 .badge-new {
   font-size: 10px; font-weight: 800; letter-spacing: .06em;
@@ -533,7 +537,7 @@
           <span class="kpi-bg-icon">📈</span>
         </div>
 
-        <div class="kpi-card" style="--kpi-color:#c7f000">
+        <div class="kpi-card" style="--kpi-color: var(--accent-secondary)">
           <p class="kpi-label">🏦 Savings Rate</p>
           <div class="kpi-value" id="kpi-savings">—</div>
           <div class="kpi-delta" id="kpi-savings-delta">vs 20% target</div>
@@ -586,52 +590,101 @@
     </section>
 
     <!-- ══════════════════════════════════════════════════════════
-         5. QUICK ACTIONS — 3 primary destinations
+         5. QUICK ACTIONS — stage-adaptive primary destinations
     ══════════════════════════════════════════════════════════════ -->
     <section class="dash-section">
       <div class="dash-section-head">
         <h2 class="dash-section-title">Quick Actions</h2>
+        <span id="qa-stage-chip" style="font-size:10px;font-weight:700;letter-spacing:.08em;
+          text-transform:uppercase;color:var(--accent-primary);opacity:.6;padding:3px 8px;
+          border:1px solid rgba(var(--accent-primary-rgb,79,124,255),.2);border-radius:20px;"></span>
       </div>
-      <div class="qa-grid">
-
-        <a href="impact.html" class="qa-card" style="--qa-rgb:199,240,0">
-          <div class="qa-icon-wrap">🦋</div>
-          <div class="qa-body">
-            <p class="qa-title">Impact Simulator</p>
-            <p class="qa-sub">See how small changes compound over decades</p>
-          </div>
-          <span class="qa-arrow">→</span>
-        </a>
-
-        <a href="life-goals-planner.html" class="qa-card" style="--qa-rgb:79,124,255">
-          <div class="qa-icon-wrap">🎯</div>
-          <div class="qa-body">
-            <p class="qa-title">Life Goals Planner</p>
-            <p class="qa-sub">Home · Education · Retirement — with exact SIPs</p>
-          </div>
-          <span class="qa-arrow">→</span>
-        </a>
-
-        <a href="../TradeJournal/index.html" class="qa-card" style="--qa-rgb:168,85,247">
-          <div class="qa-icon-wrap">📓</div>
-          <div class="qa-body">
-            <p class="qa-title">Trade Journal</p>
-            <p class="qa-sub">Log and analyze your market moves</p>
-          </div>
-          <span class="qa-arrow">→</span>
-        </a>
-
-        <a href="tools.html" class="qa-card" style="--qa-rgb:34,211,166">
-          <div class="qa-icon-wrap">🛠️</div>
-          <div class="qa-body">
-            <p class="qa-title">All Tools</p>
-            <p class="qa-sub">Tax · Insurance · Real Estate · Simulators</p>
-          </div>
-          <span class="qa-arrow">→</span>
-        </a>
-
-      </div>
+      <div class="qa-grid" id="qa-grid"></div>
     </section>
+    <script>
+    (function(){
+      const QA = {
+        discover: {
+          label: 'Discover',
+          cards: [
+            { href:'dna.html',           icon:'🧬', title:'Find Your DNA',      sub:'Discover your financial archetype in 5 questions' },
+            { href:'foundations.html',   icon:'📚', title:'Learn the Basics',   sub:'Personal finance, laws, and behavioral patterns' },
+            { href:'diagnostics.html',   icon:'💚', title:'Run a Health Check', sub:'Score your financial fitness across 8 dimensions' },
+            { href:'tools.html',         icon:'🔭', title:'Explore Tools',      sub:'See every calculator and simulator available' },
+          ]
+        },
+        learn: {
+          label: 'Learn',
+          cards: [
+            { href:'finance101.html',         icon:'📖', title:'Finance 101',       sub:'Dismantle toxic money scripts and rewrite your OS' },
+            { href:'track-finances.html',      icon:'📊', title:'Track Finances',   sub:'Log income, expenses, and watch your health rise' },
+            { href:'life-goals-planner.html',  icon:'🎯', title:'Set a Goal',       sub:'Home · Education · Retirement — with exact SIPs' },
+            { href:'simulator-landing.html',   icon:'🧠', title:'Mindset Lab',      sub:'Bias tests, emotional resilience, behavioural drills' },
+          ]
+        },
+        track: {
+          label: 'Track',
+          cards: [
+            { href:'portfolio.html',       icon:'📈', title:'Portfolio.AI',       sub:'AI-powered portfolio analysis and rebalancing' },
+            { href:'financial-hub.html',   icon:'💰', title:'Budget Forecast',    sub:'Month-by-month projection with life events' },
+            { href:'impact.html',          icon:'🦋', title:'Impact Simulator',   sub:'See how small changes compound over decades' },
+            { href:'markets.html',         icon:'📡', title:'Market Intel',       sub:'Sectoral rotation, macro signals, live flow' },
+          ]
+        },
+        grow: {
+          label: 'Grow',
+          cards: [
+            { href:'life-goals-planner.html', icon:'🎯', title:'Life Goals',        sub:'Home · Education · Retirement — with exact SIPs' },
+            { href:'sip-calculator.html',     icon:'💹', title:'SIP Calculator',    sub:'Find the exact monthly SIP to hit any goal' },
+            { href:'portfolio.html',          icon:'🔍', title:'Portfolio Dissect', sub:'Sector exposure, risk concentration, AI nudges' },
+            { href:'quantedge.html',          icon:'⚡', title:'QuantEdge',         sub:'Advanced quantitative screening and signals' },
+          ]
+        },
+        master: {
+          label: 'Master',
+          cards: [
+            { href:'../TradeJournal/index.html', icon:'📓', title:'Trade Journal',   sub:'Log and analyse every market move you make' },
+            { href:'quantedge.html',             icon:'⚡', title:'QuantEdge',        sub:'Advanced quantitative screening and signals' },
+            { href:'money-ai.html',              icon:'🤖', title:'Money AI',         sub:'Ask Arya anything — tax, SIP, portfolio, market' },
+            { href:'tax.html',                   icon:'📄', title:'Tax Architecture', sub:'Optimize your tax footprint legally and precisely' },
+          ]
+        },
+      };
+
+      function getStage() {
+        const h = parseFloat(localStorage.getItem('finos_health_score') || '0');
+        const hasDNA  = !!localStorage.getItem('finos_financial_dna');
+        const hasName = !!localStorage.getItem('finos_display_name');
+        const txns    = parseInt(localStorage.getItem('finos_txn_count') || '0', 10);
+        if (!hasName && !hasDNA) return 'discover';
+        if (h < 35 || (!txns && h < 50)) return 'learn';
+        if (h < 55 || txns < 10) return 'track';
+        if (h < 75) return 'grow';
+        return 'master';
+      }
+
+      const stage = getStage();
+      const { label, cards } = QA[stage];
+
+      const chip = document.getElementById('qa-stage-chip');
+      if (chip) chip.textContent = label + ' stage';
+
+      const COLORS = ['199,240,0','79,124,255','168,85,247','34,211,166'];
+      const grid = document.getElementById('qa-grid');
+      if (grid) {
+        grid.innerHTML = cards.map((c, i) =>
+          `<a href="${c.href}" class="qa-card" style="--qa-rgb:${COLORS[i]}">
+            <div class="qa-icon-wrap">${c.icon}</div>
+            <div class="qa-body">
+              <p class="qa-title">${c.title}</p>
+              <p class="qa-sub">${c.sub}</p>
+            </div>
+            <span class="qa-arrow">→</span>
+          </a>`
+        ).join('');
+      }
+    })();
+    </script>
 
     <!-- ══════════════════════════════════════════════════════════
          6. RECENTLY VISITED — adaptive quick-access (utility, below fold)
@@ -655,7 +708,7 @@
 <script src="../js/ui.js" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=7"></script>
+<script src="../js/finos-widget.js?v=8"></script>
 <script src="../js/finos-search.js?v=2"></script>
 <script src="../js/finos-progressive-mode.js" defer></script>
 <script src="../js/finos-webauthn.js" defer></script>
@@ -668,9 +721,12 @@
 <script>
 /* ── Greeting, date, streak badge ────────────────────────────── */
 (function() {
+  // Same thresholds as greetByTime() in finos-personalization.js — home and
+  // dashboard must never disagree about the time of day.
   const h = new Date().getHours();
   const tod = document.getElementById('timeOfDay');
-  if (tod) tod.textContent = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+  if (tod) tod.textContent =
+    (h < 5) ? 'night' : (h < 12) ? 'morning' : (h < 17) ? 'afternoon' : (h < 21) ? 'evening' : 'night';
 
   const dateEl = document.getElementById('todayDate');
   if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-IN', {
@@ -695,7 +751,24 @@
 (function() {
   try {
     const health   = parseFloat(localStorage.getItem('finos_health_score') || '0');
-    const netWorth = parseFloat(localStorage.getItem('finos_net_worth')    || '0');
+    // Sum all tracker sources; fall back to manually-set value if none tracked yet
+    const _kite  = parseFloat(localStorage.getItem('finos_portfolio_value')   || '0');
+    const _sip   = parseFloat(localStorage.getItem('finos_sip_value')         || '0');
+    const _fd    = parseFloat(localStorage.getItem('finos_fd_value')          || '0');
+    const _gold  = parseFloat(localStorage.getItem('finos_gold_value')        || '0');
+    const _prop  = parseFloat(localStorage.getItem('finos_property_value')    || '0');
+    const _cryp  = parseFloat(localStorage.getItem('finos_crypto_value')      || '0');
+    const _cash  = parseFloat(localStorage.getItem('finos_cash_value')        || '0');
+    const _oth   = parseFloat(localStorage.getItem('finos_other_value')       || '0');
+    const _lhome = parseFloat(localStorage.getItem('finos_home_loan')         || '0');
+    const _lcar  = parseFloat(localStorage.getItem('finos_car_loan')          || '0');
+    const _lpers = parseFloat(localStorage.getItem('finos_personal_loan')     || '0');
+    const _lcc   = parseFloat(localStorage.getItem('finos_credit_card_debt')  || '0');
+    const _loth  = parseFloat(localStorage.getItem('finos_other_liability')   || '0');
+    const _manual= parseFloat(localStorage.getItem('finos_net_worth')         || '0');
+    const _tracked = _kite + _sip + _fd + _gold + _prop + _cryp + _cash + _oth;
+    const _liabs   = _lhome + _lcar + _lpers + _lcc + _loth;
+    const netWorth = _tracked > 0 ? (_tracked - _liabs) : _manual;
     const savings  = parseFloat(localStorage.getItem('finos_savings_rate') || '0');
     const fire     = parseFloat(localStorage.getItem('finos_fire_percent') || '0');
     const dna      = localStorage.getItem('finos_financial_dna')           || '';
@@ -725,7 +798,7 @@
     }
     if (netWorth > 0) {
       document.getElementById('kpi-networth').textContent = fmt(netWorth);
-      document.getElementById('kpi-networth-delta').textContent = '→ Track on Diagnostics';
+      document.getElementById('kpi-networth-delta').innerHTML = '<a href="net-worth.html" style="color:inherit;text-decoration:none;">→ View Net Worth</a>';
     }
     if (savings > 0) {
       document.getElementById('kpi-savings').textContent = savings.toFixed(0) + '%';
@@ -736,8 +809,28 @@
     if (fire > 0) {
       document.getElementById('kpi-fire').textContent = fire.toFixed(0) + '%';
       const d = document.getElementById('kpi-fire-delta');
+      // Compute years-to-FIRE at current savings trajectory
+      let _fireLabel = fire >= 80 ? '↑ Nearly there' : fire >= 50 ? '→ Halfway' : '↓ Keep building';
+      try {
+        const _inc = parseFloat(localStorage.getItem('finos_monthly_income') || '0');
+        const _sav = parseFloat(localStorage.getItem('finos_savings_rate') || '0');
+        const _mEx = parseFloat(localStorage.getItem('finos_monthly_expense') || '0') || (_inc * 0.6) || 50000;
+        const _pmt = _inc * _sav / 100;
+        const _nw  = netWorth;
+        const _cor = _mEx * 12 * 25;
+        if (_pmt > 0 && _cor > _nw && _inc > 0) {
+          const _r  = 0.01;
+          const _n  = Math.log((_cor - _pmt / _r) / (_nw - _pmt / _r)) / Math.log(1 + _r);
+          const _yr = Math.ceil(_n / 12);
+          if (_yr > 0 && _yr < 50) {
+            _fireLabel = `→ ~${_yr}yr${_yr > 1 ? 's' : ''} to FIRE`;
+          }
+        } else if (fire >= 100) {
+          _fireLabel = '🎉 FIRE corpus reached!';
+        }
+      } catch (_) {}
       d.className = fire >= 80 ? 'kpi-delta up' : fire >= 50 ? 'kpi-delta' : 'kpi-delta down';
-      d.textContent = fire >= 80 ? '↑ Nearly there' : fire >= 50 ? '→ Halfway' : '↓ Keep building';
+      d.textContent = _fireLabel;
     }
   } catch (_) {}
 })();

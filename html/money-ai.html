@@ -5,9 +5,12 @@
 <script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
 <meta charset="UTF-8">
-  <meta name="description" content="FIN•OS — Your AI-powered Financial Operating System for Indian investors.">
+  <meta name="description" content="Arya, your Money AI — ask anything about tax, SIPs, or markets and get a straight, Indian-context answer.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Money AI — Arya | FIN•OS</title>
+<title>Money AI — Arya | FIN-OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/layout.css">
@@ -15,7 +18,7 @@
 <link rel="stylesheet" href="../css/animations.css">
 <link rel="stylesheet" href="../css/theme.css">
 <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
 <script src="../js/upi-execute.js"></script>
 <script src="../js/share-card.js"></script>
 <style>
@@ -423,23 +426,15 @@
         </div>
       </div>
 
-      <!-- QUICK CHIPS -->
-      <div class="quick-chips" id="quickChips">
-        <div class="q-chip" onclick="sendQuick('🏆 My health score')">🏆 My health score</div>
-        <div class="q-chip" onclick="sendQuick('💸 Where am I overspending?')">💸 Where am I overspending?</div>
-        <div class="q-chip" onclick="sendQuick('💰 Am I saving enough?')">💰 Am I saving enough?</div>
-        <div class="q-chip" onclick="sendQuick('📋 Best tax moves this month')">📋 Best tax moves this month</div>
-        <div class="q-chip" onclick="sendQuick('🎯 Am I on track for goals?')">🎯 Am I on track for goals?</div>
-        <div class="q-chip" onclick="sendQuick('📈 Should I invest more?')">📈 Should I invest more?</div>
-        <div class="q-chip" onclick="sendQuick('🛡️ Do I have enough insurance?')">🛡️ Do I have enough insurance?</div>
-      </div>
+      <!-- QUICK CHIPS — populated by _renderStageChips() on init -->
+      <div class="quick-chips" id="quickChips"></div>
 
       <!-- CHAT -->
       <div class="chat-container">
         <div class="messages-area" id="messagesArea">
-          <div class="welcome-card">
+          <div class="welcome-card" id="arya-welcome-card">
             <div class="wc-emoji">🤖</div>
-            <h3>Namaste! Main Arya hoon.</h3>
+            <h3 id="arya-welcome-h3">Namaste! Main Arya hoon.</h3>
             <p>Ask me anything about your finances — savings, investments, tax, insurance, goals. I'll answer in plain English mixed with a bit of Hindi, just like a trusted friend.</p>
           </div>
         </div>
@@ -488,20 +483,63 @@ async function init() {
 
 // ── User profile chip ──
 async function loadUserProfile() {
+  // Always populate from localStorage first (instant, no auth needed)
+  const lsName = localStorage.getItem('finos_display_name') || '';
+  const lsFirst = lsName.trim().split(/\s+/)[0] || 'You';
+  document.getElementById('chipName').textContent = lsFirst;
+  const lsHealth = parseFloat(localStorage.getItem('finos_health_score') || '0');
+  if (lsHealth > 0) document.getElementById('chipTier').textContent = getTier(lsHealth);
+
+  // Stage-adaptive quick chips (run immediately, before any async)
+  _renderStageChips();
+
+  // Then try Supabase for exact data (overrides localStorage approximations)
   try {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) return;
-    const name = session.user.user_metadata?.full_name || session.user.email || 'User';
+    const name = session.user.user_metadata?.full_name || session.user.email || lsFirst;
     document.getElementById('chipName').textContent = name.split(' ')[0];
 
-    // Try to get health score tier
     const res = await fetch(`${ALERT_ENGINE}/health-score/${session.user.id}`);
     if (res.ok) {
       const hs = await res.json();
       document.getElementById('chipTier').textContent = hs.tier || getTier(hs.score || 0);
     }
-  } catch (_) {
-    document.getElementById('chipName').textContent = 'You';
+  } catch (_) {}
+}
+
+function _renderStageChips() {
+  const h      = parseFloat(localStorage.getItem('finos_health_score') || '0');
+  const hasDNA = !!localStorage.getItem('finos_financial_dna');
+  const hasName= !!localStorage.getItem('finos_display_name');
+  const txns   = parseInt(localStorage.getItem('finos_txn_count') || '0', 10);
+
+  const CHIP_SETS = {
+    discover: ['🧬 What is my financial DNA?', '📖 How do I start investing in India?', '💼 What is SIP and how does it work?', '🏦 How do I build an emergency fund?', '📊 Explain the 50/30/20 rule'],
+    learn:    ['📈 Difference between stocks and mutual funds?', '🔢 What is expense ratio?', '📦 Should I invest in index funds?', '💰 How much should I save monthly?', '🎯 How do I pick my first mutual fund?'],
+    track:    ['🏆 What is my health score?', '💸 Where am I overspending?', '💰 Am I saving enough?', '📋 How do I grow my health score?', '🎯 Am I on track for my goals?'],
+    grow:     ['🎯 Am I on track for goals?', '📈 Should I increase my SIP?', '💎 Best mutual funds for my profile?', '📊 How to diversify my portfolio?', '🛡️ Do I have enough insurance?'],
+    master:   ['📊 Analyze my portfolio vs Nifty', '📋 Best tax moves this month', '⚡ Options strategy for current market', '💎 Portfolio stress test ideas', '🔬 Deep dive my asset allocation'],
+  };
+
+  const stage =
+    (!hasName && !hasDNA) ? 'discover' :
+    (h < 35 || (!txns && h < 50)) ? 'learn' :
+    (h < 55 || txns < 10) ? 'track' :
+    (h < 75) ? 'grow' : 'master';
+
+  const chips = CHIP_SETS[stage];
+  const container = document.getElementById('quickChips');
+  if (!container || !chips) return;
+  container.innerHTML = chips.map(c =>
+    `<div class="q-chip" onclick="sendQuick('${c.replace(/'/g, "\\'")}')">${c}</div>`
+  ).join('');
+
+  // Personalize welcome greeting with user's name
+  const greet = document.getElementById('arya-welcome-h3');
+  if (greet) {
+    const n = (localStorage.getItem('finos_display_name') || '').trim().split(/\s+/)[0];
+    greet.textContent = n ? `Namaste, ${n}! Main Arya hoon.` : 'Namaste! Main Arya hoon.';
   }
 }
 
@@ -819,6 +857,6 @@ init();
   });
 })();
 </script>
-<script src="../js/finos-widget.js?v=7"></script>
+<script src="../js/finos-widget.js?v=8"></script>
 </body>
 </html>

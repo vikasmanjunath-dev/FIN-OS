@@ -9,7 +9,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="FIN-OS Tools Hub — Calculators, Tax, Real Estate, Insurance, What-If Simulator and more.">
   <meta name="theme-color" content="#0B0D12">
-  <title>Tools | FIN•OS</title>
+  <title>Tools | FIN-OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -17,7 +20,7 @@
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="stylesheet" href="../css/animations.css">
   <script src="../js/supabase-config.js"></script>
-  <script src="../js/finos-context.js?v=3" defer></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
 
 <style>
@@ -136,7 +139,7 @@
   text-transform: uppercase;
 }
 .badge-ai    { background: rgba(79,124,255,.12); color: var(--accent); border: 1px solid rgba(79,124,255,.25); }
-.badge-new   { background: rgba(199,240,0,.1);  color: #c7f000;       border: 1px solid rgba(199,240,0,.25); }
+.badge-new   { background: rgba(199,240,0,.1);  color: var(--accent-secondary);       border: 1px solid rgba(199,240,0,.25); }
 .badge-pro   { background: rgba(168,85,247,.12); color: #a855f7;       border: 1px solid rgba(168,85,247,.25); }
 
 /* ── Quick-calc strip ───────────────────────────────────────────── */
@@ -298,6 +301,136 @@
     </header>
 
     <!-- ══════════════════════════════════════════════
+         0a. COMMAND HUB CALLOUT — financial-hub.html isn't
+         linked anywhere else on this page; it's the one-page
+         tabbed workspace (Budget Forecast, Life Goals, Peer
+         Benchmark, Couple Finance, Timeline, Money AI, Report,
+         Document AI) reachable at /hub and /command-hub.
+    ══════════════════════════════════════════════ -->
+    <a href="financial-hub.html" class="tool-card" style="--tc-color:#c7f000; margin-bottom:32px; display:flex; flex-direction:row; align-items:center; gap:16px; padding:18px 22px;">
+      <div class="tool-card-icon" style="margin:0; font-size:26px;">⚡</div>
+      <div style="flex:1; min-width:0;">
+        <p class="tool-card-title" style="margin:0 0 3px;">Command Hub</p>
+        <p class="tool-card-sub">Budget, Goals, Benchmark, Couple Finance, Timeline, Money AI, Report and Document AI — in one tabbed workspace, no page changes</p>
+      </div>
+      <div class="tool-card-arrow" style="margin:0;">→</div>
+    </a>
+
+    <!-- ══════════════════════════════════════════════
+         0. STAGE-AWARE START HERE
+    ══════════════════════════════════════════════ -->
+    <div id="tools-start-here" style="margin-bottom:32px;"></div>
+    <style>
+      #tools-start-here:empty { display:none; }
+      .tsh-wrap { background:var(--bg-surface); border:1px solid var(--border-soft); border-radius:16px; padding:20px 24px; }
+      .tsh-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+      .tsh-label { font-size:10px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-primary); opacity:.7; }
+      .tsh-stage { font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+        color:rgba(255,255,255,.28); border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:3px 9px; }
+      [data-theme="light"] .tsh-stage { color:rgba(0,0,0,.3); border-color:rgba(0,0,0,.1); }
+      .tsh-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr)); gap:10px; }
+      .tsh-card { display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:12px;
+        background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07);
+        text-decoration:none; transition:background 150ms,border-color 150ms; }
+      .tsh-card:hover { background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.15); }
+      [data-theme="light"] .tsh-card { background:rgba(0,0,0,.025); border-color:rgba(0,0,0,.07); }
+      [data-theme="light"] .tsh-card:hover { background:rgba(0,0,0,.05); }
+      .tsh-icon { font-size:20px; flex-shrink:0; }
+      .tsh-body { min-width:0; }
+      .tsh-name { font-size:12px; font-weight:700; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .tsh-sub  { font-size:11px; color:rgba(255,255,255,.38); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      [data-theme="light"] .tsh-sub { color:rgba(0,0,0,.4); }
+    </style>
+    <script>
+    (function(){
+      const STAGE_TOOLS = {
+        discover: {
+          label:'Discover stage — try these first',
+          stage:'Discover',
+          tools:[
+            {href:'dna.html',              icon:'🧬', name:'DNA Decoder',         sub:'Find your financial archetype'},
+            {href:'diagnostics.html',      icon:'💚', name:'Health Check',        sub:'Score 8 dimensions of fitness'},
+            {href:'sip-calculator.html',   icon:'💹', name:'SIP Calculator',      sub:'₹500/mo grows to how much?'},
+            {href:'life-goals-planner.html',icon:'🎯',name:'Goals Planner',       sub:'Set your first financial goal'},
+          ]
+        },
+        learn: {
+          label:'Learn stage — build your foundation',
+          stage:'Learn',
+          tools:[
+            {href:'sip-calculator.html',   icon:'💹', name:'SIP Calculator',      sub:'Understand compounding in 2 min'},
+            {href:'impact.html',           icon:'🦋', name:'Impact Simulator',    sub:'See how habits compound over decades'},
+            {href:'emi-calculator.html',   icon:'🏦', name:'EMI Calculator',      sub:'Know your loan cost before signing'},
+            {href:'life-goals-planner.html',icon:'🎯',name:'Goals Planner',       sub:'Build a year-by-year roadmap'},
+          ]
+        },
+        track: {
+          label:'Track stage — measure everything',
+          stage:'Track',
+          tools:[
+            {href:'portfolio.html',        icon:'📈', name:'Portfolio.AI',        sub:'Upload CSV · get AI analysis'},
+            {href:'tax.html',              icon:'📄', name:'Tax Architecture',     sub:'Legal optimization, not evasion'},
+            {href:'benchmarking.html',     icon:'📊', name:'Peer Benchmarking',   sub:'How you rank vs your cohort'},
+            {href:'impact.html',           icon:'🦋', name:'Impact Simulator',    sub:'Change one habit, see decade impact'},
+          ]
+        },
+        grow: {
+          label:'Grow stage — deploy capital',
+          stage:'Grow',
+          tools:[
+            {href:'quantedge.html',        icon:'⚡', name:'QuantEdge Terminal',  sub:'Advanced quantitative signals'},
+            {href:'portfolio.html',        icon:'🔎', name:'Portfolio Dissector', sub:'Sector exposure · risk concentration'},
+            {href:'sip-calculator.html',   icon:'💹', name:'SIP Optimizer',       sub:'Find the exact SIP for every goal'},
+            {href:'tax.html',              icon:'📄', name:'Tax Architecture',     sub:'Maximize 80C · LTCG harvesting'},
+          ]
+        },
+        master: {
+          label:'Master stage — precision instruments',
+          stage:'Master',
+          tools:[
+            {href:'quantedge.html',        icon:'⚡', name:'QuantEdge Terminal',  sub:'Quant screening · custom signals'},
+            {href:'market-intel.html',     icon:'📡', name:'Market Intelligence', sub:'Macro signals · sectoral rotation'},
+            {href:'portfolio.html',        icon:'📈', name:'Portfolio.AI',        sub:'AI rebalancing · drawdown analysis'},
+            {href:'money-ai.html',         icon:'🤖', name:'Money AI',            sub:'Ask anything — tax, SIP, markets'},
+          ]
+        },
+      };
+
+      function getStage(){
+        const h=parseFloat(localStorage.getItem('finos_health_score')||'0');
+        const hasDNA=!!localStorage.getItem('finos_financial_dna');
+        const hasName=!!localStorage.getItem('finos_display_name');
+        const txns=parseInt(localStorage.getItem('finos_txn_count')||'0',10);
+        if(!hasName&&!hasDNA)return'discover';
+        if(h<35||(!txns&&h<50))return'learn';
+        if(h<55||txns<10)return'track';
+        if(h<75)return'grow';
+        return'master';
+      }
+
+      const stage=getStage();
+      const cfg=STAGE_TOOLS[stage];
+      const wrap=document.getElementById('tools-start-here');
+      if(!wrap)return;
+      wrap.innerHTML=`<div class="tsh-wrap">
+        <div class="tsh-head">
+          <span class="tsh-label">${cfg.label}</span>
+          <span class="tsh-stage">${cfg.stage}</span>
+        </div>
+        <div class="tsh-grid">${cfg.tools.map(t=>
+          `<a href="${t.href}" class="tsh-card">
+            <span class="tsh-icon">${t.icon}</span>
+            <div class="tsh-body">
+              <div class="tsh-name">${t.name}</div>
+              <div class="tsh-sub">${t.sub}</div>
+            </div>
+          </a>`).join('')}
+        </div>
+      </div>`;
+    })();
+    </script>
+
+    <!-- ══════════════════════════════════════════════
          1. PLANNING & SIMULATION
     ══════════════════════════════════════════════ -->
     <section class="tools-section">
@@ -324,7 +457,7 @@
           <div class="tool-card-arrow">→</div>
         </a>
 
-        <a href="impact.html" class="tool-card" style="--tc-color:#c7f000">
+        <a href="impact.html" class="tool-card" style="--tc-color: var(--accent-secondary)">
           <div class="tool-card-icon">🦋</div>
           <p class="tool-card-title">Impact Simulator</p>
           <p class="tool-card-sub">See how saving ₹500/month more changes your life in 20 years</p>
@@ -535,7 +668,7 @@
 
 <script src="../js/ui.js" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
-<script src="../js/finos-widget.js?v=7"></script>
+<script src="../js/finos-widget.js?v=8"></script>
 <script src="../js/finos-search.js?v=2"></script>
 <script src="../js/pwa-init.js"></script>
 
