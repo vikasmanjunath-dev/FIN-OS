@@ -184,7 +184,7 @@ window.FinosRetirementPlanner = (function () {
 .rp-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin:0 0 14px;}
 [data-theme="light"] .rp-hero{background:rgba(34,211,166,.05);}
 [data-theme="light"] .rp-val{color:#0B0D12;}
-[data-theme="light"] .rp-src-box,.rp-inc{background:#fff;border-color:rgba(0,0,0,.08);}
+[data-theme="light"] .rp-src-box,[data-theme="light"] .rp-inc{background:#fff;border-color:rgba(0,0,0,.08);}
 </style>
 
 <div class="rp-hero">

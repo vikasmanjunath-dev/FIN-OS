@@ -110,7 +110,7 @@ window.FinosEmergencyFund = (function () {
 .ef-inp:focus{border-color:rgba(34,211,166,.5);background:rgba(34,211,166,.05);}
 .ef-section{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin:0 0 12px;}
 [data-theme="light"] .ef-hero{background:rgba(34,211,166,.05);}
-[data-theme="light"] .ef-stat,.ef-form{background:#fff;border-color:rgba(0,0,0,.08);}
+[data-theme="light"] .ef-stat,[data-theme="light"] .ef-form{background:#fff;border-color:rgba(0,0,0,.08);}
 [data-theme="light"] .ef-inp{background:#F4F6FB;border-color:rgba(0,0,0,.12);color:#0B0D12;}
 [data-theme="light"] .ef-stat-val{color:#0B0D12;}
 </style>

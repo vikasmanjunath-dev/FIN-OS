@@ -92,30 +92,3 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 });
-
-// 4. Chart (Expectation vs Reality)
-  const ctx = document.getElementById('expectationChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['Q1', 'Q2', 'Q3 (Result)', 'Q4'],
-      datasets: [
-        { label: 'Market Expectation', data: [100, 120, 150, 160], borderColor: '#4F7CFF', borderDash: [5, 5] },
-        { label: 'Reality (Miss)', data: [100, 120, 140, 130], borderColor: '#ff4757', borderWidth: 3 }
-      ]
-    },
-    options: { responsive: true, maintainAspectRatio: false, scales: { y: { display: false }, x: { grid: { display: false } } } }
-  });
-
-
-
-    if(themeBtn) {
-    themeBtn.addEventListener('click', () => {
-      setTimeout(() => {
-        const newColor = getThemeColor();
-        chartInstance.options.plugins.legend.labels.color = newColor;
-        chartInstance.options.scales.x.ticks.color = newColor;
-        chartInstance.update();
-      }, 100);
-    });
-  }

@@ -159,9 +159,9 @@ window.FinosPPFTracker = (function () {
 .ppf-add-btn{display:block;width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,rgba(0,212,255,.12),rgba(0,212,255,.06));border:1px solid rgba(0,212,255,.3);color:#00D4FF;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .25s;}
 .ppf-add-btn:hover{box-shadow:0 0 0 1px rgba(0,212,255,.3),0 6px 20px rgba(0,212,255,.1);}
 [data-theme="light"] .ppf-hero{background:rgba(0,212,255,.05);}
-[data-theme="light"] .ppf-stat,.ppf-form{background:#fff;border-color:rgba(0,0,0,.08);}
+[data-theme="light"] .ppf-stat,[data-theme="light"] .ppf-form{background:#fff;border-color:rgba(0,0,0,.08);}
 [data-theme="light"] .ppf-inp{background:#F4F6FB;border-color:rgba(0,0,0,.12);color:#0B0D12;}
-[data-theme="light"] .ppf-stat-val,.ppf-hero-val{color:#0B0D12;}
+[data-theme="light"] .ppf-stat-val,[data-theme="light"] .ppf-hero-val{color:#0B0D12;}
 </style>
 
 <div class="ppf-hero">

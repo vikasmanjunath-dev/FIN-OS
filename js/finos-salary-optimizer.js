@@ -169,7 +169,7 @@ window.FinosSalaryOptimizer = (function () {
 .so-inp{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;padding:10px 14px;width:100%;box-sizing:border-box;outline:none;transition:border-color .2s;}
 .so-inp:focus{border-color:rgba(155,93,229,.5);background:rgba(155,93,229,.05);}
 .so-note{font-size:11px;color:rgba(255,255,255,.35);margin-top:3px;line-height:1.5;}
-[data-theme="light"] .so-hero,.so-form,.so-stat{background:#fff;border-color:rgba(0,0,0,.08);}
+[data-theme="light"] .so-hero,[data-theme="light"] .so-form,[data-theme="light"] .so-stat{background:#fff;border-color:rgba(0,0,0,.08);}
 [data-theme="light"] .so-inp{background:#F4F6FB;border-color:rgba(0,0,0,.12);color:#0B0D12;}
 [data-theme="light"] .so-hero{background:rgba(155,93,229,.05);}
 [data-theme="light"] .so-hero-val{color:#7B2FF7;}

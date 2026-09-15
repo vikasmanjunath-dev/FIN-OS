@@ -2,12 +2,8 @@
   "rewrites": [
     { "source": "/portfolio-analyser", "destination": "/Porfolio Analyser/portfolio-analyser-v10.html" },
     { "source": "/portfolio",          "destination": "/Porfolio Analyser/portfolio-analyser-v10.html" },
-    { "source": "/trade-journal",      "destination": "/TradeJournal/index.html" },
-    { "source": "/trades",             "destination": "/TradeJournal/index.html" },
-    { "source": "/expense-tracker",    "destination": "/ExpenseTracker/finos-budget/index.html" },
-    { "source": "/budget",             "destination": "/ExpenseTracker/finos-budget/index.html" },
     { "source": "/news",               "destination": "/News1/index.html" },
-    { "source": "/chatbot",            "destination": "/chatbot/index.html" },
+    { "source": "/chatbot",            "destination": "/html/money-ai.html" },
     { "source": "/voice",              "destination": "/voiceagent/index.html" },
     { "source": "/markets",            "destination": "/html/markets.html" },
     { "source": "/dashboard",          "destination": "/html/dashboard.html" },
@@ -32,6 +28,26 @@
       "source": "/Porfolio%20Analyser/portfolio-analyser-v10.html",
       "destination": "/portfolio-analyser",
       "permanent": true
+    },
+    {
+      "source": "/trade-journal",
+      "destination": "/TradeJournal/index.html",
+      "permanent": false
+    },
+    {
+      "source": "/trades",
+      "destination": "/TradeJournal/index.html",
+      "permanent": false
+    },
+    {
+      "source": "/expense-tracker",
+      "destination": "/ExpenseTracker/finos-budget/dist/index.html",
+      "permanent": false
+    },
+    {
+      "source": "/budget",
+      "destination": "/ExpenseTracker/finos-budget/dist/index.html",
+      "permanent": false
     }
   ],
   "headers": [
@@ -40,7 +56,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co http://localhost:* ws://localhost:* wss://localhost:* http://127.0.0.1:* ws://127.0.0.1:* wss://127.0.0.1:* https://openrouter.ai https://fonts.googleapis.com https://cdn.jsdelivr.net https://api.coingecko.com https://query1.finance.yahoo.com; img-src 'self' data: https: blob:; media-src 'self' blob:; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co http://localhost:* ws://localhost:* wss://localhost:* http://127.0.0.1:* ws://127.0.0.1:* wss://127.0.0.1:* https://openrouter.ai https://fonts.googleapis.com https://cdn.jsdelivr.net https://api.coingecko.com https://query1.finance.yahoo.com https://corsproxy.io https://api.codetabs.com https://api.allorigins.win; img-src 'self' data: https: blob:; media-src 'self' blob:; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
         },
         { "key": "X-Frame-Options",           "value": "DENY" },
         { "key": "X-Content-Type-Options",    "value": "nosniff" },

@@ -180,4 +180,3 @@ igniteBtn?.addEventListener("click", () => {
 
   msg.classList.add("show");
 });
-s
