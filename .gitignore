@@ -9,10 +9,14 @@ __pycache__/
 # AI Models
 models/
 voiceagent/models/
+voiceagent/piper/
 *.bin
 *.pt
 *.onnx
 *.safetensors
+
+# Node
+node_modules/
 
 # Logs
 *.log
