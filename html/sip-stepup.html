@@ -27,13 +27,7 @@
   <style>
     .ss-page { background: var(--bg-main); min-height: 100vh; }
     .ss-main-wrap { max-width: 900px; margin: 0 auto; padding: 40px 40px 120px; }
-
-    .ss-back-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; color: var(--text-muted);
-      text-decoration: none; margin-bottom: 24px; transition: color .2s;
-    }
-    .ss-back-link:hover { color: #22D3A6; }
+    .page-back-link:hover { color: #22D3A6; }
     .ss-page-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 28px; }
     .ss-page-icon { font-size: 36px; line-height: 1; }
     .ss-page-title {
@@ -108,7 +102,7 @@
 
   <main class="main ss-page">
     <div class="ss-main-wrap">
-      <a href="track-finances.html" class="ss-back-link">← Back to Track Finances</a>
+      <a href="track-finances.html" class="page-back-link">← Back to Track Finances</a>
       <div class="ss-page-header">
         <div class="ss-page-icon">📈</div>
         <div>
@@ -160,7 +154,7 @@
 <script src="../js/pwa-init.js"></script>
 <script src="../js/finos-widget.js?v=8"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/finos-search.js?v=3"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/arya-sidebar-panel.js"></script>
 <script src="../js/interactions.js" defer></script>

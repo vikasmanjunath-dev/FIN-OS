@@ -1,7 +1,7 @@
 # FIN-OS HTML Pages
 
-> Version: 1.4 | Date: July 14, 2026  
-> Total: **94 pages** in this folder + `index.html` + `login.html` = **96 pages**
+> Version: 1.5 | Date: September 15, 2026  
+> Total: **117 pages** in this folder + `index.html` + `login.html` = **119 pages**
 
 ---
 
@@ -19,13 +19,42 @@
 ### Finance Tracking
 | File | Purpose |
 |---|---|
-| `track-finances.html` | Complete money tracking hub |
+| `track-finances.html` | Complete money tracking hub — launcher for the 28-tool Command Hub suite below |
 | `portfolio.html` | Investment portfolio |
 | `budget-forecast.html` | AI budget forecasting |
 | `know-your-finances.html` | Deep financial self-assessment |
 | `financial-report.html` | Comprehensive financial report |
 | `diagnostics.html` | Financial health diagnostics |
 | `tracker.html` | Expense tracker |
+
+### Track Finances Suite — Command Hub Trackers (23)
+Stateful tools (localStorage-backed, feed Arya AI context) launched from `track-finances.html`. Distinct from the stateless calculators below — each has a "related tool" cross-link where a calculator covers overlapping ground. Also indexed in `js/finos-search.js` under the "Trackers" category.
+
+| File | Purpose |
+|---|---|
+| `credit-score.html` | CIBIL score gauge, improvement tips, loan-rate impact |
+| `crypto-tracker.html` | Crypto cost basis, P&L, India 30% tax + 1% TDS |
+| `debt-optimizer.html` | Avalanche vs Snowball payoff strategy |
+| `emergency-fund.html` | Months-covered progress, build-up scenarios |
+| `epf-tracker.html` | EPF contribution breakdown, EPS pension estimate |
+| `fd-tracker.html` | FD/RD/PPF/NSC/SCSS/Sukanya/Bond maturity calendar |
+| `financial-calendar.html` | Unified calendar of every SIP/FD/insurance/goal/tax date |
+| `financial-hub.html` | Gateway to every financial tool on FIN-OS |
+| `goal-optimizer.html` | Priority score + SIP plan across all life goals |
+| `gold-tracker.html` | Physical gold, SGB, Gold ETF/MF tracking |
+| `home-loan.html` | Amortisation schedule, Sec 24(b)/80C, PMAY, prepayment |
+| `itr-summary.html` | Auto-filled ITR prep — deductions, TDS, regime comparison |
+| `life-cover.html` | HLV + income-replacement life insurance sizing |
+| `net-worth.html` | Unified balance sheet, FIRE progress, growth timeline |
+| `nps-tracker.html` | NPS Tier 1/2 corpus and retirement annuity projection |
+| `passive-income.html` | Dividend/FD/rental/SWP income, freedom coverage ratio |
+| `portfolio-rebalancer.html` | Drift detection + buy/sell/hold action plan |
+| `ppf-tracker.html` | PPF/SSY/NSC/SCSS/KVP maturity + 80C summary |
+| `retirement-planner.html` | Aggregates EPF/NPS/PPF/SIP into required-corpus model |
+| `salary-optimizer.html` | CTC breakup, HRA exemption, regime comparison |
+| `sip-stepup.html` | Step-up SIP vs flat SIP corpus comparison |
+| `tax-harvest.html` | LTCG/STCG loss/gain harvesting optimiser |
+| `windfall.html` | 7-step priority waterfall for bonus/RSU/inheritance |
 
 ### Markets & Intelligence
 | File | Purpose |
@@ -92,6 +121,8 @@
 | `train-mindset.html` | Mindset training |
 
 ### Insight Deep-Dives
+Reachable only via dynamically-injected personalization/insight cards (`js/finos-personalization.js`, `js/insight-cards.js`) on dashboard/home — no static nav links to these by design.
+
 | File | Purpose |
 |---|---|
 | `insight-inflation.html` | Inflation impact |
@@ -99,8 +130,6 @@
 | `insight-debt.html` | Debt trap analysis |
 | `insight-emi.html` | EMI true cost |
 | `insight-rbi.html` | RBI policy impact |
-| `insight-cards.html` | Insight card library |
-| `insight-debt.html` | Debt insight |
 
 ### Detail Pages (asset-specific)
 | File | Asset class |
@@ -170,7 +199,11 @@
 
 | Location | Count |
 |---|---|
-| `html/*.html` | 94 |
+| `html/*.html` | 117 |
 | `index.html` | 1 |
 | `login.html` | 1 |
-| **Total HTML pages** | **96** |
+| **Total HTML pages** | **119** |
+| `calculators/*/*.html` (stateless, 9 categories) | 88 |
+| Command Hub trackers (stateful, within `html/`) | 23 |
+
+Also see [markets.html](markets.html) → **Quantum Stock Engine** card and [tools.html](tools.html) Master-stage tools for `stock-platform.html` (1,163-line NSE/BSE research platform — has no dedicated readme entry above since it isn't a distinct top-level category; it lives under Markets & Intelligence).

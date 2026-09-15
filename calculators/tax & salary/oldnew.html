@@ -4,15 +4,17 @@
   <meta charset="UTF-8" />
   <title>Old vs New Regime • FIN-OS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="../../css/design-tokens.css">
   <link rel="stylesheet" href="../../css/base.css">
   <link rel="stylesheet" href="../../css/layout.css">
   <link rel="stylesheet" href="../../css/components.css">
+  <link rel="stylesheet" href="../../css/theme.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../../js/finos-context.js?v=4"></script>
   <script src="../../js/arya-ai.js?v=4"></script>
   <style>
-    :root { --text-primary: #1e293b; --text-secondary: #64748b; --bg-main: #f1f5f9; --bg-surface: #ffffff; --card-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    [data-theme="dark"] { --text-primary: #f8fafc; --text-secondary: #94a3b8; --bg-main: #0f172a; --bg-surface: #1e293b; --card-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); }
+    
+    
     body { color: var(--text-primary); background: var(--bg-main); font-family: sans-serif; }
     h1, h2, h3 { color: var(--text-primary); }
     input[type="number"] { color: var(--text-primary); background: rgba(255,255,255,0.05); }
@@ -21,6 +23,9 @@
     .page-header h1 { font-size: 42px; font-weight: 700; margin: 8px 0; }
     .back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
     .back-btn:hover { color: #06b6d4; }
+    .related-tool-link { display: block; max-width: 1100px; margin: -16px auto 24px; padding: 14px 20px; border-radius: 14px; background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.25); color: var(--text-primary); text-decoration: none; font-size: 14px; font-weight: 500; line-height: 1.6; transition: background .2s; }
+    .related-tool-link:hover { background: rgba(6,182,212,0.14); }
+    .related-tool-link strong { color: #06b6d4; }
     .impact-card { max-width: 1100px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 48px; border-radius: 32px; background: var(--bg-surface); box-shadow: var(--card-shadow); }
     .impact-inputs { display: flex; flex-direction: column; gap: 24px; }
     .input-group { display: flex; flex-direction: column; gap: 12px; }
@@ -63,6 +68,8 @@
       <h1>Old vs New Tax Regime</h1>
       <p>Compare tax liability for FY 2024-25.</p>
     </header>
+
+    <a href="../../html/itr-summary.html" class="related-tool-link">🔗 Filing season? Use the <strong>ITR Filing Prep Kit</strong> — full computation, deductions, and regime comparison auto-filled from your real data →</a>
 
     <section class="impact-card">
       <div class="impact-left">

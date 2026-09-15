@@ -27,13 +27,7 @@
   <style>
     .hl-page { background: var(--bg-main); min-height: 100vh; }
     .hl-main-wrap { max-width: 940px; margin: 0 auto; padding: 40px 40px 120px; }
-
-    .hl-back-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; color: var(--text-muted);
-      text-decoration: none; margin-bottom: 24px; transition: color .2s;
-    }
-    .hl-back-link:hover { color: #4F7CFF; }
+    .page-back-link:hover { color: #4F7CFF; }
     .hl-page-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 28px; }
     .hl-page-icon { font-size: 36px; line-height: 1; }
     .hl-page-title {
@@ -108,7 +102,7 @@
 
   <main class="main hl-page">
     <div class="hl-main-wrap">
-      <a href="track-finances.html" class="hl-back-link">← Back to Track Finances</a>
+      <a href="track-finances.html" class="page-back-link">← Back to Track Finances</a>
       <div class="hl-page-header">
         <div class="hl-page-icon">🏠</div>
         <div>
@@ -160,7 +154,7 @@
 <script src="../js/pwa-init.js"></script>
 <script src="../js/finos-widget.js?v=8"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/finos-search.js?v=3"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/arya-sidebar-panel.js"></script>
 <script src="../js/interactions.js" defer></script>

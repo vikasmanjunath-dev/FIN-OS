@@ -989,6 +989,22 @@
 }
 
 /* =========================
+   PAGE BACK-LINK — shared "‹ Back to X" affordance.
+   Each page sets only its own :hover color as a one-line override
+   right after this include; do not redefine the base rule per page.
+   ========================= */
+.page-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-bottom: 24px;
+  transition: color .2s;
+}
+
+/* =========================
    GRID SYSTEM (GLOBAL)
    ========================= */
 

@@ -5,9 +5,11 @@
   <title>Real Rate of Return • FIN-OS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
+  <link rel="stylesheet" href="../../css/design-tokens.css">
   <link rel="stylesheet" href="../../css/base.css">
   <link rel="stylesheet" href="../../css/layout.css">
   <link rel="stylesheet" href="../../css/components.css">
+  <link rel="stylesheet" href="../../css/theme.css">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../../js/finos-context.js?v=4"></script>
@@ -28,21 +30,9 @@
           }
 
         /* 1. DEFINE THE COLORS FOR LIGHT AND DARK MODES */
-                :root {
-                    --text-primary: #1e293b;   /* Dark Blue-Grey for Light Mode */
-                    --text-secondary: #64748b; /* Muted Grey */
-                    --bg-main: #f1f5f9;
-                    --bg-surface: #ffffff;
-                    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                }
+                
 
-                [data-theme="dark"] {
-                    --text-primary: #f8fafc;   /* White/Light Grey for Dark Mode */
-                    --text-secondary: #94a3b8; /* Light Muted Grey */
-                    --bg-main: #0f172a;        /* Dark Navy Background */
-                    --bg-surface: #1e293b;     /* Slightly Lighter Navy for Cards */
-                    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-                }
+                
 
                 /* 2. APPLY THE TEXT COLOR GLOBALLY */
                 body {

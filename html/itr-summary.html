@@ -27,13 +27,9 @@
   <style>
     .itr-page { background: var(--bg-main); min-height: 100vh; }
     .itr-main-wrap { max-width: 960px; margin: 0 auto; padding: 40px 40px 120px; }
-
-    .itr-back-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; color: var(--text-muted);
-      text-decoration: none; margin-bottom: 24px; transition: color .2s;
-    }
-    .itr-back-link:hover { color: #4F7CFF; }
+    .page-back-link:hover { color: #4F7CFF; }
+    .itr-related-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); text-decoration: none; margin: -14px 0 24px; transition: color .2s; }
+    .itr-related-link:hover { color: #4F7CFF; }
     .itr-page-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 28px; }
     .itr-page-icon { font-size: 36px; line-height: 1; }
     .itr-page-title {
@@ -61,7 +57,7 @@
       .itr-main-wrap { padding: 24px 16px 80px; }
     }
     @media print {
-      .itr-page-header, .tab-nav, #floatThemeBtn, .sidebar, .itr-back-link { display: none !important; }
+      .itr-page-header, .tab-nav, #floatThemeBtn, .sidebar, .page-back-link { display: none !important; }
       .tab-panel { display: block !important; }
       body { background: #fff !important; color: #000 !important; }
     }
@@ -113,7 +109,7 @@
 
   <main class="main itr-page">
     <div class="itr-main-wrap">
-      <a href="track-finances.html" class="itr-back-link">← Back to Track Finances</a>
+      <a href="track-finances.html" class="page-back-link">← Back to Track Finances</a>
       <div class="itr-page-header">
         <div class="itr-page-icon">🧾</div>
         <div>
@@ -121,6 +117,8 @@
           <p class="itr-page-sub">Auto-filled ITR summary from all trackers — income, 80C/80CCD/80D deductions, HRA, home loan, TDS. Old vs New regime comparison with recommended regime and refund/balance due.</p>
         </div>
       </div>
+
+      <a href="../calculators/tax & salary/income.html" class="itr-related-link">⚡ Just want a quick number, not a full filing prep? Try the Income Tax or Old vs New Regime calculator →</a>
 
       <div class="tab-nav">
         <button class="tab-btn active" onclick="itrSwitch('summary')">Summary</button>
@@ -188,7 +186,7 @@
 <script src="../js/pwa-init.js"></script>
 <script src="../js/finos-widget.js?v=8"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/finos-search.js?v=3"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/arya-sidebar-panel.js"></script>
 <script src="../js/interactions.js" defer></script>

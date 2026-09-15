@@ -27,13 +27,9 @@
   <style>
     .lc-page { background: var(--bg-main); min-height: 100vh; }
     .lc-main-wrap { max-width: 900px; margin: 0 auto; padding: 40px 40px 120px; }
-
-    .lc-back-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; color: var(--text-muted);
-      text-decoration: none; margin-bottom: 24px; transition: color .2s;
-    }
-    .lc-back-link:hover { color: #4F7CFF; }
+    .page-back-link:hover { color: #4F7CFF; }
+    .lc-related-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); text-decoration: none; margin: -14px 0 24px; transition: color .2s; }
+    .lc-related-link:hover { color: #4F7CFF; }
     .lc-page-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 28px; }
     .lc-page-icon { font-size: 36px; line-height: 1; }
     .lc-page-title {
@@ -108,7 +104,7 @@
 
   <main class="main lc-page">
     <div class="lc-main-wrap">
-      <a href="track-finances.html" class="lc-back-link">← Back to Track Finances</a>
+      <a href="track-finances.html" class="page-back-link">← Back to Track Finances</a>
       <div class="lc-page-header">
         <div class="lc-page-icon">🛡️</div>
         <div>
@@ -116,6 +112,8 @@
           <p class="lc-page-sub">HLV and income replacement methods to find exact term cover needed. Flags under-insurance, estimates term premium, and checks if liabilities are covered. Pure-term vs ULIP guidance.</p>
         </div>
       </div>
+
+      <a href="../calculators/financial health/insurancecoverage.html" class="lc-related-link">⚡ Just want a 10-second estimate? Try the quick Insurance Coverage calculator →</a>
 
       <div class="tab-row">
         <button class="tab-btn active" onclick="lcSwitch('calc')">Calculator</button>
@@ -160,7 +158,7 @@
 <script src="../js/pwa-init.js"></script>
 <script src="../js/finos-widget.js?v=8"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/finos-search.js?v=3"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/arya-sidebar-panel.js"></script>
 <script src="../js/interactions.js" defer></script>

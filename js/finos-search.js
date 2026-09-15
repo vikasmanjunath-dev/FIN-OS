@@ -43,6 +43,36 @@
     { title:'Life Wealth',       desc:'Life milestones and wealth map — marriage, home, children, retirement',  url:'../html/life-wealth.html',       cat:'Pages',       tags:['life','milestones','marriage','home','children','retirement','plan'] },
     { title:'Foundations — Finance 101', desc:'Dismantle money myths, income vs wealth, EMI disease explained', url:'../html/finance101.html',       cat:'Learning',    tags:['finance 101','beginner','myths','income','wealth'] },
 
+    /* ── Trackers: Track Finances Suite (Command Hub) ── */
+    { title:'Budget Forecast',       desc:"AI predicts next month's spend from your patterns — 12-month savings and corpus forecast", url:'../html/budget-forecast.html',      cat:'Trackers', tags:['budget','forecast','ai','predict','spend','savings','corpus'] },
+    { title:'Credit Score Tracker',  desc:'CIBIL score gauge, improvement tips, and home loan rate impact by score band',           url:'../html/credit-score.html',         cat:'Trackers', tags:['credit score','cibil','loan rate','utilization','improve'] },
+    { title:'Crypto Tracker',        desc:'Cost basis, unrealised P&L, and India 30% tax + 1% TDS per coin',                        url:'../html/crypto-tracker.html',       cat:'Trackers', tags:['crypto','bitcoin','coin','p&l','tax','tds','portfolio'] },
+    { title:'Debt Optimizer',        desc:'Avalanche vs Snowball payoff strategy, debt-free date, home loan prepayment impact',      url:'../html/debt-optimizer.html',       cat:'Trackers', tags:['debt','avalanche','snowball','payoff','prepayment','emi'] },
+    { title:'Emergency Fund Tracker',desc:'Months-covered progress ring, shortfall/surplus, and build-up scenarios',                 url:'../html/emergency-fund.html',       cat:'Trackers', tags:['emergency fund','safety net','months covered','liquid'] },
+    { title:'EPF Tracker',           desc:'Employee + employer contribution breakdown, EPS pension estimate, retirement projection', url:'../html/epf-tracker.html',          cat:'Trackers', tags:['epf','pf','pension','eps','retirement','uan'] },
+    { title:'Fixed Income Tracker',  desc:'FD, RD, PPF, NSC, SCSS, Sukanya and bonds in one maturity calendar',                      url:'../html/fd-tracker.html',           cat:'Trackers', tags:['fd','rd','fixed deposit','maturity','bond','nsc'] },
+    { title:'Financial Calendar',    desc:'Every SIP, FD maturity, insurance renewal, goal deadline and tax date in one calendar',   url:'../html/financial-calendar.html',   cat:'Trackers', tags:['calendar','deadline','renewal','maturity','tax date','events'] },
+    { title:'Financial Command Hub',  desc:'Your intelligent gateway to every financial tool on FIN-OS',                            url:'../html/financial-hub.html',        cat:'Trackers', tags:['hub','command','gateway','all tools','overview'] },
+    { title:'Goal Optimizer',        desc:'Priority score, inflation-adjusted SIP plan, and timeline conflict detection across goals', url:'../html/goal-optimizer.html',     cat:'Trackers', tags:['goal','priority','sip plan','timeline','conflict'] },
+    { title:'Gold Tracker',          desc:'Physical gold, Sovereign Gold Bonds and Gold ETF/MF — value and tax comparison',          url:'../html/gold-tracker.html',         cat:'Trackers', tags:['gold','sgb','sovereign gold bond','etf','mcx'] },
+    { title:'Home Loan EMI Planner', desc:'Full amortisation schedule, Sec 24(b)/80C deductions, PMAY eligibility, prepayment',      url:'../html/home-loan.html',            cat:'Trackers', tags:['home loan','emi','amortisation','24b','pmay','prepay'] },
+    { title:'Insurance Hub',         desc:'Term, health and life insurance intelligence — coverage gaps and policy tracking',        url:'../html/insurance-hub.html',        cat:'Trackers', tags:['insurance','term','health','life','policy','coverage'] },
+    { title:'ITR Filing Prep Kit',   desc:'Auto-filled ITR summary from all trackers — deductions, TDS, and regime comparison',      url:'../html/itr-summary.html',          cat:'Trackers', tags:['itr','filing','income tax','deductions','tds','regime'] },
+    { title:'Life Insurance Need Calculator', desc:'HLV and income-replacement methods to size the exact term cover needed',         url:'../html/life-cover.html',           cat:'Trackers', tags:['life insurance','term cover','hlv','under insured','premium'] },
+    { title:'Life Goals Planner',    desc:'AI-powered goal planning — car, home, education, retirement with a year-by-year roadmap', url:'../html/life-goals-planner.html',   cat:'Trackers', tags:['goals','planning','car','home','education','roadmap'] },
+    { title:'Mutual Fund Intelligence', desc:'Fund overlap detector, switch analysis, and Direct vs Regular plan savings',           url:'../html/mf-intelligence.html',      cat:'Trackers', tags:['mutual fund','overlap','direct regular','switch','expense ratio'] },
+    { title:'Net Worth Tracker',     desc:'Unified balance sheet across every asset class, FIRE progress, and growth timeline',      url:'../html/net-worth.html',            cat:'Trackers', tags:['net worth','balance sheet','fire','assets','liabilities'] },
+    { title:'NPS Tracker',           desc:'Tier 1 & 2 corpus tracking, weighted return projection, retirement annuity vs lump-sum',  url:'../html/nps-tracker.html',          cat:'Trackers', tags:['nps','pension','tier 1','tier 2','annuity','80ccd'] },
+    { title:'Passive Income Tracker',desc:'Dividends, FD interest, rental, SWP and SGB coupons — financial freedom coverage ratio',  url:'../html/passive-income.html',       cat:'Trackers', tags:['passive income','dividend','freedom','fire','coverage ratio'] },
+    { title:'Portfolio Rebalancer',  desc:'Drift detection across 6 asset classes with an exact buy/sell/hold action plan',          url:'../html/portfolio-rebalancer.html', cat:'Trackers', tags:['rebalance','drift','asset allocation','buy sell hold'] },
+    { title:'PPF & Small Savings Tracker', desc:'PPF, SSY, NSC, SCSS and KVP — maturity projections and 80C deduction summary',      url:'../html/ppf-tracker.html',          cat:'Trackers', tags:['ppf','ssy','nsc','scss','kvp','80c','small savings'] },
+    { title:'Real Estate Intelligence', desc:'Property investment analysis — rental yield, appreciation, buy vs rent economics',     url:'../html/real-estate.html',          cat:'Trackers', tags:['real estate','property','rent','rental yield','buy vs rent'] },
+    { title:'Retirement Planner',    desc:'Aggregates EPF, NPS, PPF, SIP, equity, FD and gold into one required-corpus income model', url:'../html/retirement-planner.html',  cat:'Trackers', tags:['retirement','corpus','fire','swr','income model'] },
+    { title:'Salary Optimizer',      desc:'CTC breakup, HRA exemption, and old vs new regime take-home comparison with tips',        url:'../html/salary-optimizer.html',     cat:'Trackers', tags:['salary','ctc','take home','hra','restructure','regime'] },
+    { title:'SIP Step-Up Planner',   desc:'Year-by-year corpus comparison — annual step-up % vs flat SIP',                          url:'../html/sip-stepup.html',           cat:'Trackers', tags:['sip','step up','corpus','increment','compounding'] },
+    { title:'Tax Loss / Gain Harvesting', desc:'India LTCG/STCG optimiser — book losses, sweep gains within the ₹1.25L exemption',   url:'../html/tax-harvest.html',          cat:'Trackers', tags:['tax harvest','ltcg','stcg','capital gains','exemption'] },
+    { title:'Bonus & Windfall Allocator', desc:'Smart 7-step priority waterfall for bonus, RSU, property sale or inheritance money',  url:'../html/windfall.html',             cat:'Trackers', tags:['windfall','bonus','rsu','inheritance','allocation'] },
+
     /* ── Calculators: Investment & Wealth ── */
     { title:'SIP Calculator',        desc:'Calculate SIP returns — monthly investment, expected corpus, wealth creation', url:'../calculators/investment & wealth/sip.html',          cat:'Calculators', tags:['sip','mutual fund','monthly','invest','corpus','return','compounding'] },
     { title:'Lump Sum Calculator',   desc:'One-time investment returns calculator — how much will ₹X grow to?',           url:'../calculators/investment & wealth/lupsum.html',        cat:'Calculators', tags:['lump sum','one time','investment','return','grow','amount'] },
@@ -337,6 +367,7 @@
   .cat-Pages       .fs-item-icon { background: rgba(123,47,247,.2); }
   .cat-Calculators .fs-item-icon { background: rgba(0,212,255,.15); }
   .cat-Learning    .fs-item-icon { background: rgba(0,255,150,.12); }
+  .cat-Trackers    .fs-item-icon { background: rgba(245,158,11,.15); }
   .fs-item-body { flex: 1; min-width: 0; }
   .fs-item-title {
     font-size: 13.5px;
@@ -486,6 +517,8 @@
   body.light-theme    .cat-Calculators  .fs-item-icon { background: rgba(0,100,255,.10); }
   [data-theme="light"] .cat-Learning    .fs-item-icon,
   body.light-theme    .cat-Learning     .fs-item-icon { background: rgba(0,160,80,.10);  }
+  [data-theme="light"] .cat-Trackers    .fs-item-icon,
+  body.light-theme    .cat-Trackers     .fs-item-icon { background: rgba(217,119,6,.12);  }
   [data-theme="light"] .fs-item-title,
   body.light-theme .fs-item-title {
     color: #111827;
@@ -527,7 +560,7 @@
   /* ═══════════════════════════════════════════════════════
      BUILD DOM
   ═══════════════════════════════════════════════════════ */
-  const CAT_ICONS = { Pages: '🗂️', Calculators: '🧮', Learning: '📚' };
+  const CAT_ICONS = { Pages: '🗂️', Calculators: '🧮', Learning: '📚', Trackers: '📌' };
 
   const wrap = document.createElement('div');
   wrap.id = 'fs-wrap';

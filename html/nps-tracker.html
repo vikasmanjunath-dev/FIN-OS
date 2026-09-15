@@ -27,13 +27,7 @@
   <style>
     .nps-page { background: var(--bg-main); min-height: 100vh; }
     .nps-main-wrap { max-width: 900px; margin: 0 auto; padding: 40px 40px 120px; }
-
-    .nps-back-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; color: rgba(255,255,255,.4);
-      text-decoration: none; margin-bottom: 24px; transition: color .2s;
-    }
-    .nps-back-link:hover { color: #00D4FF; }
+    .page-back-link:hover { color: #00D4FF; }
     .nps-page-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 32px; }
     .nps-page-icon { font-size: 36px; line-height: 1; }
     .nps-page-title {
@@ -112,7 +106,7 @@
 
   <main class="main nps-page">
     <div class="nps-main-wrap">
-      <a href="track-finances.html" class="nps-back-link">← Back to Track Finances</a>
+      <a href="track-finances.html" class="page-back-link">← Back to Track Finances</a>
       <div class="nps-page-header">
         <div class="nps-page-icon">🏛️</div>
         <div>
@@ -178,7 +172,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <script src="../js/pwa-init.js"></script>
 <script src="../js/finos-widget.js?v=8"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/finos-search.js?v=3"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/arya-sidebar-panel.js"></script>
 <script src="../js/interactions.js" defer></script>

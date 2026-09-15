@@ -27,13 +27,9 @@
   <style>
     .pi-page { background: var(--bg-main); min-height: 100vh; }
     .pi-main-wrap { max-width: 900px; margin: 0 auto; padding: 40px 40px 120px; }
-
-    .pi-back-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; color: var(--text-muted);
-      text-decoration: none; margin-bottom: 24px; transition: color .2s;
-    }
-    .pi-back-link:hover { color: #22D3A6; }
+    .page-back-link:hover { color: #22D3A6; }
+    .pi-related-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); text-decoration: none; margin: -14px 0 24px; transition: color .2s; }
+    .pi-related-link:hover { color: #22D3A6; }
     .pi-page-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 28px; }
     .pi-page-icon { font-size: 36px; line-height: 1; }
     .pi-page-title {
@@ -108,7 +104,7 @@
 
   <main class="main pi-page">
     <div class="pi-main-wrap">
-      <a href="track-finances.html" class="pi-back-link">← Back to Track Finances</a>
+      <a href="track-finances.html" class="page-back-link">← Back to Track Finances</a>
       <div class="pi-page-header">
         <div class="pi-page-icon">💸</div>
         <div>
@@ -116,6 +112,8 @@
           <p class="pi-page-sub">Track dividends, FD interest, SWP, SGB coupon, and rental income. See financial freedom coverage ratio, FIRE proximity, and a roadmap to 100% expense coverage.</p>
         </div>
       </div>
+
+      <a href="../calculators/investment & wealth/dividend.html" class="pi-related-link">⚡ Just projecting future DRIP growth? Try the Dividend Reinvestment calculator →</a>
 
       <div class="tab-nav">
         <button class="tab-btn active" onclick="piSwitch('overview')">Overview</button>
@@ -181,7 +179,7 @@
 <script src="../js/pwa-init.js"></script>
 <script src="../js/finos-widget.js?v=8"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/finos-search.js?v=3"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/arya-sidebar-panel.js"></script>
 <script src="../js/interactions.js" defer></script>

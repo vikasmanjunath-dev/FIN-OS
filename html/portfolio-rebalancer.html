@@ -27,13 +27,7 @@
   <style>
     .rb-page { background: var(--bg-main); min-height: 100vh; }
     .rb-main-wrap { max-width: 920px; margin: 0 auto; padding: 40px 40px 120px; }
-
-    .rb-back-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; color: var(--text-muted);
-      text-decoration: none; margin-bottom: 24px; transition: color .2s;
-    }
-    .rb-back-link:hover { color: #4F7CFF; }
+    .page-back-link:hover { color: #4F7CFF; }
     .rb-page-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 28px; }
     .rb-page-icon { font-size: 36px; line-height: 1; }
     .rb-page-title {
@@ -108,7 +102,7 @@
 
   <main class="main rb-page">
     <div class="rb-main-wrap">
-      <a href="track-finances.html" class="rb-back-link">← Back to Track Finances</a>
+      <a href="track-finances.html" class="page-back-link">← Back to Track Finances</a>
       <div class="rb-page-header">
         <div class="rb-page-icon">⚖️</div>
         <div>
@@ -183,7 +177,7 @@
 <script src="../js/pwa-init.js"></script>
 <script src="../js/finos-widget.js?v=8"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/finos-search.js?v=3"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/arya-sidebar-panel.js"></script>
 <script src="../js/interactions.js" defer></script>

@@ -160,10 +160,8 @@
     const cmd = document.getElementById('sb-cmd');
     if (cmd) {
       const open = () => {
-        const el = document.getElementById('finos-search-trigger')
-          || document.querySelector('[data-search-trigger]')
-          || document.querySelector('.finos-search-input');
-        el?.click?.(); el?.focus?.();
+        const el = document.getElementById('fs-toggle');
+        el?.click?.();
       };
       cmd.addEventListener('click', open);
       document.addEventListener('keydown', e => {

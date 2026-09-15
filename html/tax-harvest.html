@@ -27,13 +27,9 @@
   <style>
     .th-page { background: var(--bg-main); min-height: 100vh; }
     .th-main-wrap { max-width: 940px; margin: 0 auto; padding: 40px 40px 120px; }
-
-    .th-back-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; color: var(--text-muted);
-      text-decoration: none; margin-bottom: 24px; transition: color .2s;
-    }
-    .th-back-link:hover { color: #22D3A6; }
+    .page-back-link:hover { color: #22D3A6; }
+    .th-related-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); text-decoration: none; margin: -14px 0 24px; transition: color .2s; }
+    .th-related-link:hover { color: #22D3A6; }
     .th-page-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 28px; }
     .th-page-icon { font-size: 36px; line-height: 1; }
     .th-page-title {
@@ -108,7 +104,7 @@
 
   <main class="main th-page">
     <div class="th-main-wrap">
-      <a href="track-finances.html" class="th-back-link">← Back to Track Finances</a>
+      <a href="track-finances.html" class="page-back-link">← Back to Track Finances</a>
       <div class="th-page-header">
         <div class="th-page-icon">🌾</div>
         <div>
@@ -116,6 +112,8 @@
           <p class="th-page-sub">India LTCG/STCG optimiser with Budget 2024 rates (12.5%/20%). Book losses to offset gains, sweep gains within the ₹1.25L annual exemption, and step up your cost basis tax-free.</p>
         </div>
       </div>
+
+      <a href="../calculators/tax & salary/captalgains.html" class="th-related-link">⚡ Just need a one-off capital gains number? Try the quick Capital Gains Tax calculator →</a>
 
       <div class="tab-row">
         <button class="tab-btn active" onclick="thSwitch('overview')">Harvest Overview</button>
@@ -160,7 +158,7 @@
 <script src="../js/pwa-init.js"></script>
 <script src="../js/finos-widget.js?v=8"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=2"></script>
+<script src="../js/finos-search.js?v=3"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/arya-sidebar-panel.js"></script>
 <script src="../js/interactions.js" defer></script>
