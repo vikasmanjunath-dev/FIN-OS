@@ -175,5 +175,5 @@ if __name__ == "__main__":
     # Fix [04]: Never run with debug=True in production.
     # Set FLASK_DEBUG=true in your local .env only.
     debug_mode = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
-    print("FIN-OS BACKEND ACTIVE ON PORT 5000")
-    app.run(debug=debug_mode, port=5000)
+    print("FIN-OS BACKEND ACTIVE ON PORT 5002")
+    app.run(debug=debug_mode, port=5002)

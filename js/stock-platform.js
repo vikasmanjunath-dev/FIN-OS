@@ -11,7 +11,7 @@
 
   // ============== CONFIG ==============
   const USE_BACKEND = false; // flip to true once FastAPI is up at API_BASE
-  const API_BASE = 'http://localhost:8000/api';
+  const API_BASE = 'http://localhost:8003/api';
   const POLL_MS = 4000;
 
   // ============== TICKER UNIVERSE ==============

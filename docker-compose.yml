@@ -6,13 +6,17 @@ version: "3.9"
 #
 # Port map (internal):
 #   8001 = alert-engine   → /api/alerts/*
-#   8002 = budget-backend → /api/budget/*
 #   8003 = stock-engine   → /api/stocks/*
 #   8004 = document-ai    → /api/docs/*
-#   8005 = market-intel   → /api/market/*
+#   5000 = market-intel   → /api/market/*
 #   8765 = voice-agent-ws → proxied as /ws/voice
 #   3000 = frontend (static)
 #   8000 = API GATEWAY (single entry point for all above)
+#
+# Budget tracking is NOT here — the Django budget-backend (ExpenseTracker/)
+# was retired in favour of the Supabase-backed Command Hub trackers
+# (html/track-finances.html + 23 tracker pages), which is the canonical
+# implementation. See ../_archive/ExpenseTracker if that code is ever needed.
 # ════════════════════════════════════════════════════════════════════
 
 services:
@@ -59,20 +63,6 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # ── Budget Backend (Django) ──────────────────────────────────────
-  budget-backend:
-    build: ./ExpenseTracker/finos_backend
-    expose:
-      - "8000"
-    restart: unless-stopped
-    environment:
-      - DJANGO_SETTINGS_MODULE=finos_backend.settings
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/overview/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
   # ── Stock Engine (FastAPI) ───────────────────────────────────────
   stock-engine:
     build: ./stock-engine/backend
@@ -114,7 +104,6 @@ services:
       - ./nginx-gateway.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - alert-engine
-      - budget-backend
       - stock-engine
       - document-ai
       - market-intel

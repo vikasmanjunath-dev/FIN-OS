@@ -487,7 +487,7 @@
 
     try {
       // Connects to your Flask server, but will abort if it takes > 3s
-      const response = await fetch('http://localhost:5000/api/intel', {
+      const response = await fetch('http://localhost:5002/api/intel', {
         signal: controller.signal
       });
       

@@ -4,7 +4,7 @@ Quantum Stock Engine — FastAPI core
 NSE / BSE pricing, indicator engine, rule-based insights, WebSocket ticks.
 
 Run:
-    uvicorn app.main:app --reload --port 8002
+    uvicorn app.main:app --reload --port 8003
 
 Endpoints:
     GET  /api/stock/{symbol}

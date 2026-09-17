@@ -780,47 +780,47 @@
         </div>
 
         <div class="qs-api-grid">
-          <div class="qs-api" data-curl="curl http://localhost:8000/api/stock/RELIANCE.NS">
+          <div class="qs-api" data-curl="curl http://localhost:8003/api/stock/RELIANCE.NS">
             <span class="m get">GET</span>
             <code>/api/stock/{symbol}</code>
             <p>Spot quote + market cap, PE, 52W, volume.</p>
           </div>
-          <div class="qs-api" data-curl="curl 'http://localhost:8000/api/history/RELIANCE.NS?interval=1d&range=1y'">
+          <div class="qs-api" data-curl="curl 'http://localhost:8003/api/history/RELIANCE.NS?interval=1d&range=1y'">
             <span class="m get">GET</span>
             <code>/api/history/{symbol}</code>
             <p>OHLCV. Intervals: 1m → 1mo. Range: 1d → max.</p>
           </div>
-          <div class="qs-api" data-curl="curl http://localhost:8000/api/indicators/RELIANCE.NS">
+          <div class="qs-api" data-curl="curl http://localhost:8003/api/indicators/RELIANCE.NS">
             <span class="m get">GET</span>
             <code>/api/indicators/{symbol}</code>
             <p>RSI, MACD, MA20/50/200, Bollinger, ATR.</p>
           </div>
-          <div class="qs-api" data-curl="curl http://localhost:8000/api/insights/RELIANCE.NS">
+          <div class="qs-api" data-curl="curl http://localhost:8003/api/insights/RELIANCE.NS">
             <span class="m get">GET</span>
             <code>/api/insights/{symbol}</code>
             <p>Rule-engine signals + plain-English narrative.</p>
           </div>
-          <div class="qs-api" data-curl="curl http://localhost:8000/api/depth/RELIANCE.NS">
+          <div class="qs-api" data-curl="curl http://localhost:8003/api/depth/RELIANCE.NS">
             <span class="m get">GET</span>
             <code>/api/depth/{symbol}</code>
             <p>Simulated 5-level bid/ask book.</p>
           </div>
-          <div class="qs-api" data-curl="curl http://localhost:8000/api/fundamentals/RELIANCE.NS">
+          <div class="qs-api" data-curl="curl http://localhost:8003/api/fundamentals/RELIANCE.NS">
             <span class="m get">GET</span>
             <code>/api/fundamentals/{symbol}</code>
             <p>EPS, P/E, P/B, ROE, debt, margins.</p>
           </div>
-          <div class="qs-api" data-curl="curl http://localhost:8000/api/sectors">
+          <div class="qs-api" data-curl="curl http://localhost:8003/api/sectors">
             <span class="m get">GET</span>
             <code>/api/sectors</code>
             <p>NSE sector indices for the heatmap.</p>
           </div>
-          <div class="qs-api" data-curl="curl http://localhost:8000/api/search?q=reliance">
+          <div class="qs-api" data-curl="curl http://localhost:8003/api/search?q=reliance">
             <span class="m get">GET</span>
             <code>/api/search?q=</code>
             <p>Fuzzy ticker autocomplete.</p>
           </div>
-          <div class="qs-api" data-curl="wscat -c ws://localhost:8000/ws/ticks">
+          <div class="qs-api" data-curl="wscat -c ws://localhost:8003/ws/ticks">
             <span class="m ws">WS</span>
             <code>/ws/ticks</code>
             <p>WebSocket — live tick stream (3-5s).</p>
@@ -936,11 +936,11 @@
 <script>
 /* ═══════════════════════════════════════════════════════════════════════════
    AI STOCK SCREENER  — Feature 17
-   POST http://localhost:8000/screen/natural
+   POST http://localhost:8003/screen/natural
    ═══════════════════════════════════════════════════════════════════════════ */
 
-const SCREEN_API   = 'http://localhost:8000/screen/natural';
-const EARNINGS_API = 'http://localhost:8000/api/earnings';
+const SCREEN_API   = 'http://localhost:8003/screen/natural';
+const EARNINGS_API = 'http://localhost:8003/api/earnings';
 
 /* ── Format helpers ─────────────────────────────────────────────────────── */
 function fmtCr(n)  { return n == null ? '—' : '₹' + Number(n).toLocaleString('en-IN', {maximumFractionDigits:0}) + ' Cr'; }

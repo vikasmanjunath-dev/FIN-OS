@@ -16,7 +16,6 @@ market intelligence/
 ├── intraday.py         ← Intraday trading analytics
 ├── swing.py            ← Swing trading analytics (multi-day to weeks)
 ├── long.py             ← Long-term investment analytics (omni_max_analytics)
-├── bridge.py           ← Shared utilities + data-source connectors
 └── requirements.txt    ← Python dependencies
 ```
 

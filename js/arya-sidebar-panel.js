@@ -1442,25 +1442,11 @@ RULES (non-negotiable):
   const _NEWS_TTL  = 30 * 60 * 1000;
 
   async function fetchMacroNews() {
-    if (_newsCache && Date.now() - _newsCacheTs < _NEWS_TTL) return _newsCache;
-    const parse = async url => {
-      const r = await fetch(url, { signal: AbortSignal.timeout(2000) });
-      if (!r.ok) throw new Error('not ok');
-      const d = await r.json();
-      const items = (d.articles || d.news || d.headlines || d.results || []).slice(0, 5);
-      const lines = items.map(a => '• ' + (a.title || a.headline || a.text || '')).filter(s => s.length > 5).join('\n');
-      if (!lines) throw new Error('empty');
-      return lines;
-    };
-    try {
-      const result = await Promise.any([
-        parse('http://127.0.0.1:5000/api/headlines?limit=5'),
-        parse('http://127.0.0.1:5000/headlines?limit=5'),
-        parse('http://127.0.0.1:5000/api/news?limit=5')
-      ]);
-      _newsCache = result; _newsCacheTs = Date.now();
-      return result;
-    } catch { return _newsCache || ''; }
+    // The three routes this used to race (127.0.0.1:5000 /api/headlines,
+    // /headlines, /api/news) never existed on any backend — always-failing
+    // network calls removed. No working macro-news endpoint is wired up yet;
+    // callers already treat an empty return as "no news available".
+    return _newsCache || '';
   }
 
   /* ══ RAG CONTEXT INJECTION (Phase 4) ════════════════════════════════════════

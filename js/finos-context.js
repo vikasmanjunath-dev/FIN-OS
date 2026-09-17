@@ -682,7 +682,7 @@
     try {
       const controller = new AbortController();
       const tid = setTimeout(() => controller.abort(), 2000);
-      const r = await fetch('http://localhost:5000/api/intel', { signal: controller.signal });
+      const r = await fetch('http://localhost:5002/api/intel', { signal: controller.signal });
       clearTimeout(tid);
       if (!r.ok) return;
       const d = await r.json();
