@@ -12,13 +12,13 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/layout.css?v=2">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
-  <script src="../js/arya-ai.js?v=4" defer></script>
+  <script src="../js/arya-ai.js?v=7" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
 <style>
 .ins-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
@@ -46,7 +46,10 @@
 [data-theme="light"] .ins-input {
   color: var(--text-primary) !important;
     background: var(--bg-surface) !important;
-}</style>
+}
+[data-theme="light"] .ins-provider,
+[data-theme="light"] .ins-metric-label { color: var(--text-muted); }
+</style>
   <link rel="stylesheet" href="../css/interactions.css">
 </head>
 <body>
@@ -261,7 +264,7 @@
   </main>
 </div>
 
-<script src="../js/finos-widget.js?v=8"></script>
+<script src="../js/finos-widget.js?v=9"></script>
 <script>
 const STORE_KEY = 'finos_insurance_policies';
 

@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
-<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/layout.css?v=2">
 <link rel="stylesheet" href="../css/components.css">
 <link rel="stylesheet" href="../css/animations.css">
 <link rel="stylesheet" href="../css/theme.css">
@@ -224,8 +224,7 @@
 
 
 /* ── Light mode text overrides (auto-generated) ── */
-[data-theme="light"] Button spinner ── */
-  .btn-spinner {
+[data-theme="light"] .btn-spinner {
   color: var(--text-primary) !important;
 }</style>
   <meta property="og:site_name" content="FIN•OS">
@@ -542,6 +541,11 @@
 </div>
 
 <script>
+// Known gap, not fixed by this pass: alert-engine.py (like every other FIN-OS
+// backend) only runs locally today, so ALERT_ENGINE is null off localhost and
+// every fetch below silently fails for real users — falls back to showSetup().
+// Fixing this needs the backend actually deployed (see P1 item 2), not a
+// frontend change.
 const ALERT_ENGINE = (['localhost','127.0.0.1','::1'].includes(window.location.hostname)) ? 'http://localhost:8001' : null;
 const sb = (window.FINOS_SB && window.FINOS_SB.getClient()) || (window.supabase ? window.supabase.createClient(window.FINOS_SB ? window.FINOS_SB.url : 'https://oeapcyucnduhwpgxfknb.supabase.co', window.FINOS_SB ? window.FINOS_SB.key : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q') : null);
 
@@ -641,6 +645,39 @@ function showLinked(data) {
   document.getElementById('setupPanel').style.display = 'none';
   document.getElementById('linkedView').style.display = 'block';
   renderOverview(data);
+  bridgeToArya(data);
+}
+
+/* ── Bridge to Arya's household context ──────────────────────────────────
+   finos-context.js / arya-ai.js / arya-sidebar-panel.js already read
+   finos_couple_linked / finos_partner_net_worth / finos_partner_savings_rate
+   to make Arya couple-aware everywhere in the app — but nothing ever wrote
+   them, since this page's data comes from a live API call, not localStorage.
+   Bridging them here (not fabricating anything not in the API response):
+   the /couple/overview endpoint doesn't return net worth, only income and
+   expense, so finos_partner_net_worth is deliberately left unset rather
+   than invented — Arya's combined_net_worth will read as "your own" until
+   a future backend change exposes the partner's real net worth. It also
+   doesn't return a display name (neither does this page's own UI, which
+   just shows "Partner"), so finos_couple_linked uses that same label
+   rather than a raw user_id. ────────────────────────────────────────── */
+function bridgeToArya(data) {
+  try {
+    localStorage.setItem('finos_couple_linked', 'Partner');
+    const b = data.partner_b;
+    if (b && b.monthly_income > 0) {
+      const rate = Math.round((b.monthly_income - b.monthly_expense) / b.monthly_income * 100);
+      localStorage.setItem('finos_partner_savings_rate', String(rate));
+    }
+  } catch {}
+}
+
+function unbridgeFromArya() {
+  try {
+    localStorage.removeItem('finos_couple_linked');
+    localStorage.removeItem('finos_partner_savings_rate');
+    localStorage.removeItem('finos_partner_net_worth');
+  } catch {}
 }
 
 /* ── Invite / Accept ──────────────────────────────────────────────────────── */
@@ -952,6 +989,7 @@ async function confirmDissolve() {
   try {
     await fetch(`${ALERT_ENGINE}/couple/dissolve/${currentUserId}`, { method: 'DELETE' });
     currentCoupleId = null;
+    unbridgeFromArya();
     showSetup();
   } catch {
     const zone = document.querySelector('.dissolve-zone');
@@ -990,6 +1028,6 @@ init();
   });
 })();
 </script>
-<script src="../js/finos-widget.js?v=8"></script>
+<script src="../js/finos-widget.js?v=9"></script>
 </body>
 </html>

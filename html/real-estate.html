@@ -12,13 +12,13 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/layout.css?v=2">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
-  <script src="../js/arya-ai.js?v=4" defer></script>
+  <script src="../js/arya-ai.js?v=7" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
 <style>
 /* ── Real Estate Page Styles ── */
@@ -47,6 +47,12 @@
 
 .re-two-col { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
 @media(max-width:680px){ .re-two-col { grid-template-columns:1fr; } }
+@media(min-width:769px){
+  /* Whichever form row scrolls to this position has its right-column
+     field (e.g. "Annual Home Loan Tax Benefit") covered by #finos-fab;
+     this keeps every row's right field clear of it. */
+  .re-two-col { padding-right:110px; }
+}
 
 .re-label { font-size:11px; color:rgba(255,255,255,.45); display:block; margin-bottom:5px; }
 .re-input, .re-select {
@@ -438,7 +444,7 @@
   </main>
 </div><!-- /app -->
 
-<script src="../js/finos-widget.js?v=8"></script>
+<script src="../js/finos-widget.js?v=9"></script>
 <script src="../js/mobile-nav.js" defer></script>
 
 <script>

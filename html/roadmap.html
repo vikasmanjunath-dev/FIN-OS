@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
-<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/layout.css?v=2">
 <link rel="stylesheet" href="../css/components.css">
 <link rel="stylesheet" href="../css/animations.css">
 <link rel="stylesheet" href="../css/theme.css">
@@ -35,6 +35,13 @@
 
 /* ── Page wrapper ─────────────────────────────────────────────── */
 .rm-page { padding: 28px 0 100px; }
+@media (min-width: 769px) {
+  /* 28px top padding put the "Ask Arya"/Refresh header row directly behind
+     the global fixed topbar icons (search/fullscreen/theme/alert-bell,
+     y:14-52), making most of the "Ask Arya" button unclickable underneath
+     them. Extra top clearance moves the whole header row below the icons. */
+  .rm-page { padding-top: 60px; }
+}
 
 /* ── Page header ──────────────────────────────────────────────── */
 .rm-page-header {
@@ -402,6 +409,19 @@
 [data-theme="light"] .rm-path-desi strong { color: var(--text-primary); }
 [data-theme="light"] .rm-path-seclabel { color: rgba(0,0,0,.3); }
 [data-theme="light"] .rm-path-seclabel::after { background: rgba(0,0,0,.08); }
+[data-theme="light"] .mm-hint,
+[data-theme="light"] .mm-leg-item,
+[data-theme="light"] .rm-action-label,
+[data-theme="light"] .rm-hero-score-label,
+[data-theme="light"] .rm-step-stat,
+[data-theme="light"] .rm-step-sub,
+[data-theme="light"] .rm-step-why,
+[data-theme="light"] .tl-age-label,
+[data-theme="light"] .tl-card-detail,
+[data-theme="light"] .tl-card-expand-hint,
+[data-theme="light"] .tl-leg:not(.now):not(.done) { color: var(--text-tertiary); }
+[data-theme="light"] .rm-action-text,
+[data-theme="light"] .tl-card-action { color: var(--text-secondary); }
 </style>
 </head>
 
@@ -649,12 +669,12 @@
 </div><!-- .app-shell -->
 
 <!-- Core FIN-OS scripts -->
-<script src="../js/finos-widget.js?v=8"></script>
+<script src="../js/finos-widget.js?v=9"></script>
 <script src="../js/finos-search.js?v=3"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/arya-sidebar-panel.js"></script>
 <!-- Roadmap engine (must come after context scripts) -->
-<script src="../js/arya-roadmap.js"></script>
+<script src="../js/arya-roadmap.js?v=2"></script>
 <script src="../js/interactions.js" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>

@@ -24,10 +24,9 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/layout.css?v=2">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/theme.css">
-  <link rel="stylesheet" href="../chatbot/qft-hud.css">
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/finos-personalization.js?v=2" defer></script>
@@ -120,8 +119,10 @@
         </a>
     </nav>
 
-    <!-- Footer: Arya AI + Settings -->
+    <!-- Footer: Streak + Arya AI + Settings -->
     <div class="sb-footer-zone">
+
+      <div id="home-streak-badge" style="display:none;font-family:var(--font-sans,sans-serif);"></div>
 
       <button class="sb-arya-row" id="sb-arya-btn"
               aria-label="Arya AI — your financial coach"
@@ -597,7 +598,7 @@
   </script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
-  <script src="../js/finos-widget.js?v=8"></script>
+  <script src="../js/finos-widget.js?v=9"></script>
   <script src="../js/finos-search.js?v=3"></script>
   <script src="../js/finos-mobile.js" defer></script>
 
@@ -659,7 +660,9 @@ a.card:focus-visible {
 <style>
   #qft-system {
     position: fixed;
-    bottom: 1.75rem;
+    /* Bottom-right stack (desktop): AI fab 28px -> quick-log 88px ->
+       health score 140px -> this (Ask QFT) 200px, the next free slot. */
+    bottom: 12.5rem;
     right: 1.75rem;
     z-index: 9999;
     font-family: var(--font-mono);
@@ -832,9 +835,12 @@ a.card:focus-visible {
     font-family: var(--font-mono);
     letter-spacing: 0.05em;
   }
-  @media (max-width: 520px) {
-    #qft-drawer { width: 100vw; right: -100vw; }
-    #qft-fab { bottom: 1rem; right: 1rem; }
+  @media (max-width: 768px) {
+    /* Match finos-ql-btn / finos-hs-trigger: below the desktop breakpoint
+       the bottom-right stack is already full (fab + tab bar), so Ask QFT
+       stays a desktop-only entry point here, same as it always was via
+       chatbot/qft-hud.css's own (now-removed) mobile rule. */
+    #qft-system { display: none; }
   }
 </style>
 
@@ -1126,13 +1132,14 @@ Give direct, data-driven financial advice for Indian professionals. Use ₹ for 
 })();
 </script>
 
-<!-- Floating streak badge — bottom-LEFT: the bottom-right corner belongs to
-     the AI fab / quick-log / health stack. Hidden on mobile (streak already
-     appears in the header subtitle and the bottom-right corner is reserved). -->
+<!-- Streak badge now lives in-flow inside the sidebar's .sb-footer-zone
+     (see markup above Arya AI), so it can never overlap the AI fab /
+     quick-log / health stack in the bottom-right, or the sidebar footer
+     rows it used to float on top of. Hidden on mobile (streak already
+     appears in the header subtitle and the sidebar is hidden there too). -->
 <style>
   @media (max-width: 768px) { #home-streak-badge { display: none !important; } }
 </style>
-<div id="home-streak-badge" style="display:none;position:fixed;bottom:28px;left:28px;z-index:9999;font-family:var(--font-sans,sans-serif);"></div>
 <script>
 (function() {
   function _renderStreakBadge() {
@@ -1142,9 +1149,9 @@ Give direct, data-driven financial advice for Indian professionals. Use ₹ for 
     if (s.count < 1) { el.style.display = 'none'; return; }
     el.style.display = 'block';
     el.innerHTML = `
-      <div style="position:relative">
+      <div style="position:relative;margin-bottom:6px">
         <div onclick="this.parentElement.querySelector('.hs-pop').classList.toggle('hs-open')"
-             style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:999px;background:rgba(20,20,28,0.95);border:1px solid rgba(199,240,0,0.2);box-shadow:0 4px 20px rgba(0,0,0,0.55);cursor:pointer;white-space:nowrap;transition:transform .15s,box-shadow .15s;"
+             style="display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;background:rgba(20,20,28,0.95);border:1px solid rgba(199,240,0,0.2);box-shadow:0 4px 20px rgba(0,0,0,0.55);cursor:pointer;white-space:nowrap;transition:transform .15s,box-shadow .15s;max-width:100%;overflow:hidden;text-overflow:ellipsis;"
              onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 7px 28px rgba(0,0,0,0.65)';this.style.borderColor='rgba(199,240,0,0.5)'"
              onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,0.55)';this.style.borderColor='rgba(199,240,0,0.2)'">
           <span style="font-size:18px;line-height:1">${s.count >= 7 ? '🔥' : s.count >= 3 ? '✨' : '📝'}</span>

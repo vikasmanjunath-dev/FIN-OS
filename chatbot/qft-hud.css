@@ -68,9 +68,22 @@
 }
 
 /* ─── FAB ────────────────────────────────────────────────────────── */
+/* Stacked above the whole finos-widget.js corner column (main fab 28px ->
+   quick-log 88px -> health-score trigger 140px, all bottom-right:28px)
+   rather than sharing any of their corners — it used to land exactly on
+   the main fab, then a later fix accidentally moved it onto the
+   quick-log button instead (both are bottom:88px/right:28px) on every
+   page that loads both (home, foundations, finance101, learn-insurance,
+   markets, principles, tax). 252px clears all three plus tax.html's own
+   #arya-tax-fab at 200px (the most constrained of the 7 pages this file
+   loads on). home.html has its own local #qft-fab override (200px) that
+   already avoided this, which is why the bug was invisible there.
+   Hidden on mobile: one AI entry point per screen is enough there,
+   matching the precedent already set for finos-widget.js's own
+   secondary quick-log button. */
 #qft-fab {
     position:    fixed;
-    bottom:      1.75rem;
+    bottom:      15.75rem;
     right:       1.75rem;
     z-index:     9999;
     display:     flex;
@@ -916,6 +929,11 @@
 }
 
 /* ─── MOBILE ─────────────────────────────────────────────────────── */
+/* One AI entry point on small screens — the main FIN-OS AI fab covers
+   the same job and mobile real estate is too tight for both. */
+@media (max-width: 768px) {
+    #qft-fab { display: none; }
+}
 @media (max-width: 520px) {
     #qft-system { --qft-drawer-w: 100vw; }
     #qft-drawer { right: calc(-100vw - 20px); border-left: none; }

@@ -7,13 +7,13 @@
 
   <link rel="stylesheet" href="../../css/design-tokens.css">
   <link rel="stylesheet" href="../../css/base.css">
-  <link rel="stylesheet" href="../../css/layout.css">
+  <link rel="stylesheet" href="../../css/layout.css?v=2">
   <link rel="stylesheet" href="../../css/components.css">
   <link rel="stylesheet" href="../../css/theme.css">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../../js/finos-context.js?v=4"></script>
-  <script src="../../js/arya-ai.js?v=4"></script>
+  <script src="../../js/arya-ai.js?v=7"></script>
 
   <style>
 
@@ -301,7 +301,7 @@
           <div class="comparison">
             <div class="option option-a">
               <div style="font-size: 12px; color: var(--text-secondary);">You Spent</div>
-              <div style="font-size: 22px; font-weight: 700; margin-top: 4px;" id="spent">₹50,000</div>
+              <div style="font-size: 22px; font-weight: 700; margin-top: 4px;" id="spentDisplay">₹50,000</div>
             </div>
             <div class="option option-b">
               <div style="font-size: 12px; color: var(--text-secondary);">Could Have Been</div>
@@ -391,6 +391,7 @@ function calculate() {
   const opportunityCost = futureValue - amount;
 
   document.getElementById("trueCost").textContent = `₹${futureValue.toLocaleString()}`;
+  document.getElementById("spentDisplay").textContent = `₹${amount.toLocaleString()}`;
   document.getElementById("couldBe").textContent = `₹${futureValue.toLocaleString()}`;
   document.getElementById("oppCost").textContent = `₹${opportunityCost.toLocaleString()}`;
 
@@ -402,7 +403,7 @@ function calculate() {
 calculate();
 </script>
 
-<script src="../../js/calc-explainer.js"></script>
+<script src="../../js/calc-explainer.js?v=2"></script>
 <script src="../../js/finos-widget.js?v=7"></script>
 </body>
 </html>

@@ -530,7 +530,15 @@ Rules:
       .arya-sentiment-badge.neutral  { background:rgba(148,163,184,.12);color:#94a3b8; }
       /* ── Learn "Ask Arya" floating btn ────────────────────── */
       #arya-learn-fab {
-        position: fixed; bottom: 96px; right: 24px; z-index: 998;
+        /* bottom:96px used to land almost exactly on finos-widget.js's
+           quick-log button (bottom:88px) on every one of the 15 learn-*
+           pages that call injectLearnButton() (all of which also load
+           finos-widget.js, which unconditionally auto-injects both the
+           quick-log button AND finos-health-score.js's #finos-hs-trigger
+           pill at bottom:140px/right:28px on every page site-wide) — so
+           140px is also taken. 200px is the next free slot (matches the
+           #arya-tax-fab convention on tax.html) and clears all three. */
+        position: fixed; bottom: 200px; right: 24px; z-index: 998;
         background: linear-gradient(135deg,#4d7cff,#00d4ff);
         border: none; border-radius: 50px; padding: 12px 18px;
         color: #fff; font-size: 13px; font-weight: 700;
@@ -621,6 +629,8 @@ Rules:
       [data-theme="light"] .arya-ai-header { background: rgba(0,150,100,.06) !important; }
       [data-theme="light"] .arya-ai-header-title { color: #007744 !important; }
       [data-theme="light"] .arya-ai-header-sub { color: rgba(0,0,0,.5) !important; }
+      [data-theme="light"] .arya-ai-header-chevron { color: rgba(0,0,0,.4) !important; }
+      [data-theme="light"] .arya-ai-streaming { color: rgba(0,0,0,.62) !important; }
       [data-theme="light"] .arya-ai-btn-ghost {
         background: rgba(0,0,0,.06) !important;
         color: rgba(0,0,0,.6) !important;

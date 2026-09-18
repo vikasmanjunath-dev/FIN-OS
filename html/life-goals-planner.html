@@ -10,7 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
 <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
-<script src="../js/arya-ai.js?v=4"></script>
+<script src="../js/arya-ai.js?v=7"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body {background:var(--bg-main);color:var(--text-primary);min-height:100vh;}
@@ -40,6 +40,12 @@ body {background:var(--bg-main);color:var(--text-primary);min-height:100vh;}
 
 /* ── Goals ── */
 .goals-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+@media (min-width:769px){
+  /* Extra rows push the delete (X) button into the fixed bottom-right
+     finos-fab's zone; this keeps every row's delete button clear of it
+     regardless of how many goals are added. */
+  .goals-list{padding-right:80px;}
+}
 .goal-row{display:grid;grid-template-columns:1fr 130px 90px 90px 36px;gap:8px;align-items:end;}
 .goal-del{width:36px;height:36px;border-radius:8px;background:rgba(255,107,107,.08);
   border:1px solid rgba(255,107,107,.2);color:#ff6b6b;cursor:pointer;font-size:16px;
@@ -125,6 +131,22 @@ body {background:var(--bg-main);color:var(--text-primary);min-height:100vh;}
 }
 [data-theme="light"] .phase-title {
   color: var(--text-primary) !important;
+}
+[data-theme="light"] .add-goal-btn:not(:hover),
+[data-theme="light"] .goal-prog-detail,
+[data-theme="light"] .goal-prog-meta,
+[data-theme="light"] .inp-label,
+[data-theme="light"] .phase-years,
+[data-theme="light"] .section-label,
+[data-theme="light"] .sum-label,
+[data-theme="light"] .sum-sub {
+  color: var(--text-muted) !important;
+}
+[data-theme="light"] .arya-phase,
+[data-theme="light"] .feas-ok,
+[data-theme="light"] .feas-warn,
+[data-theme="light"] .phase-item-text {
+  color: var(--text-secondary) !important;
 }</style>
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
@@ -234,7 +256,7 @@ body {background:var(--bg-main);color:var(--text-primary);min-height:100vh;}
 <script src="../js/ui.js" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=8"></script>
+<script src="../js/finos-widget.js?v=9"></script>
 <script src="../js/finos-search.js?v=3"></script>
 
 <script>

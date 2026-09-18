@@ -18,7 +18,27 @@ ExpenseTracker/finos_backend/
 finos 2/
 market intelligence/
 stock-engine/
+rag-engine/
+
+# Backend source files that live alongside servable frontend assets in the
+# same folder (e.g. chatbot/ also has qft-hud.css + qft-engine.js that DO
+# need to ship) — exclude only the Python/db/log files, not the whole dir.
+app.py
+alerts/*.py
 alerts/__pycache__/
+chatbot/*.py
+chatbot/__pycache__/
+document-ai/*.py
+document-ai/__pycache__/
+stock-dashboard/*.py
+stock-dashboard/__pycache__/
+*.db
+*.sqlite3
+*.log
+
+# Infra config not needed by (and not meant for) the static frontend
+docker-compose.yml
+nginx-gateway.conf
 
 # Python cache and env files
 __pycache__/

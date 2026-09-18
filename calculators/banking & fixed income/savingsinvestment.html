@@ -2,20 +2,20 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <title>Bond Yield Calculator • FIN-OS</title>
+  <title>Savings vs Investment Calculator • FIN-OS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="../../css/design-tokens.css">
   <link rel="stylesheet" href="../../css/base.css">
-  <link rel="stylesheet" href="../../css/layout.css">
+  <link rel="stylesheet" href="../../css/layout.css?v=2">
   <link rel="stylesheet" href="../../css/components.css">
   <link rel="stylesheet" href="../../css/theme.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../../js/finos-context.js?v=4"></script>
-  <script src="../../js/arya-ai.js?v=4"></script>
+  <script src="../../js/arya-ai.js?v=7"></script>
   <style>
     /* Standard Styles Reuse */
-    
-    
+
+
     body { color: var(--text-primary); background: var(--bg-main); font-family: sans-serif; }
     h1, h2, h3 { color: var(--text-primary); }
     input[type="number"] { color: var(--text-primary); background: rgba(255,255,255,0.05); }
@@ -61,57 +61,58 @@
 
     <header class="page-header">
       <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
-      <h1>Bond Yield</h1>
-      <p>Estimate returns on fixed-income securities.</p>
+      <h1>Savings vs Investment</h1>
+      <p>Should you save in an FD or invest in equity? Compare growth and find the break-even.</p>
     </header>
 
     <section class="impact-card">
       <div class="impact-left">
         <div class="impact-inputs">
           <div class="input-group">
-            <label>Face Value (₹)</label>
+            <label>Amount (₹)</label>
             <div class="input-row">
-              <input type="range" min="100" max="10000" step="100" value="1000" id="face">
-              <input type="number" value="1000" id="faceNum">
+              <input type="range" min="10000" max="10000000" step="10000" value="100000" id="amount">
+              <input type="number" value="100000" id="amountNum">
             </div>
           </div>
           <div class="input-group">
-            <label>Coupon Rate (%)</label>
+            <label>FD / Savings Rate (% p.a)</label>
             <div class="input-row">
-              <input type="range" min="1" max="15" step="0.1" value="8" id="coupon">
-              <input type="number" value="8" id="couponNum">
+              <input type="range" min="3" max="9" step="0.1" value="6.5" id="fdRate">
+              <input type="number" value="6.5" id="fdRateNum">
             </div>
           </div>
           <div class="input-group">
-            <label>Current Market Price (₹)</label>
+            <label>Expected Equity Return (% p.a)</label>
             <div class="input-row">
-              <input type="range" min="500" max="1500" step="10" value="950" id="price">
-              <input type="number" value="950" id="priceNum">
+              <input type="range" min="8" max="18" step="0.5" value="12" id="eqRate">
+              <input type="number" value="12" id="eqRateNum">
             </div>
           </div>
           <div class="input-group">
-            <label>Years to Maturity</label>
+            <label>Time Period (Years)</label>
             <div class="input-row">
-              <input type="range" min="1" max="30" value="5" id="years">
-              <input type="number" value="5" id="yearsNum">
+              <input type="range" min="1" max="30" value="10" id="time">
+              <input type="number" value="10" id="timeNum">
             </div>
           </div>
         </div>
       </div>
       <div class="impact-right">
-        <div class="chart-container"><canvas id="bondChart"></canvas></div>
+        <div class="chart-container"><canvas id="siChart"></canvas></div>
         <div class="result-grid">
           <div class="age-comparison">
-            <div class="age-box"><span>Current Yield</span><strong id="currYield">0%</strong></div>
-            <div class="age-box" style="background: rgba(139,92,246,0.12)"><span>Annual Income</span><strong id="incomeVal">₹0</strong></div>
+            <div class="age-box"><span>FD / Savings Value</span><strong id="fdVal">₹0</strong></div>
+            <div class="age-box" style="background: rgba(34,197,94,0.12)"><span>Equity Investment Value</span><strong id="eqVal">₹0</strong></div>
           </div>
-          <div class="verdict-box" id="ytmVal">Approx YTM: 0%</div>
+          <div class="verdict-box" id="verdictVal">Extra Wealth from Investing: ₹0</div>
         </div>
       </div>
     </section>
   </main>
 
 <script>
+// Theme Toggle & Sync (Standard)
 const root = document.documentElement;
 const toggle = document.getElementById("themeToggle");
 const savedTheme = localStorage.getItem("finos-theme");
@@ -125,69 +126,84 @@ toggle.onclick = () => {
 };
 
 const els = {
-  f: document.getElementById('face'), fN: document.getElementById('faceNum'),
-  c: document.getElementById('coupon'), cN: document.getElementById('couponNum'),
-  p: document.getElementById('price'), pN: document.getElementById('priceNum'),
-  y: document.getElementById('years'), yN: document.getElementById('yearsNum')
+  a: document.getElementById('amount'), aN: document.getElementById('amountNum'),
+  f: document.getElementById('fdRate'), fN: document.getElementById('fdRateNum'),
+  e: document.getElementById('eqRate'), eN: document.getElementById('eqRateNum'),
+  t: document.getElementById('time'), tN: document.getElementById('timeNum')
 };
 
-['f', 'c', 'p', 'y'].forEach(k => {
+['a', 'f', 'e', 't'].forEach(k => {
   els[k].oninput = () => els[k+'N'].value = els[k].value;
   els[k+'N'].oninput = () => els[k].value = els[k+'N'].value;
 });
 
-const ctx = document.getElementById('bondChart');
+const ctx = document.getElementById('siChart');
 const chart = new Chart(ctx, {
-  type: 'bar',
+  type: 'line',
   data: {
-    labels: ['Coupon Rate', 'Current Yield', 'YTM'],
-    datasets: [{
-      data: [8, 8.4, 9],
-      backgroundColor: ['#1e293b', '#06b6d4', '#22c55e'],
-      borderRadius: 8, borderWidth: 0
-    }]
+    labels: [],
+    datasets: [
+      { label: 'FD / Savings', data: [], borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.12)', tension: 0.3, fill: true, pointRadius: 0 },
+      { label: 'Equity Investment', data: [], borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.12)', tension: 0.3, fill: true, pointRadius: 0 }
+    ]
   },
   options: {
-    scales: { y: { display:false }, x: { grid:{display:false}, ticks:{color:'#94a3b8'} } },
-    plugins: { legend: { display: false } }
+    scales: {
+      y: { ticks: { color: '#94a3b8', callback: v => format(v) }, grid: { color: 'rgba(148,163,184,0.1)' } },
+      x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+    },
+    plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } }
   }
 });
 
+function format(num) {
+  if(num>=10000000) return "₹"+(num/10000000).toFixed(2)+" Cr";
+  if(num>=100000) return "₹"+(num/100000).toFixed(2)+" L";
+  return "₹"+Math.round(num).toLocaleString();
+}
+
 function calculate() {
-  const F = +els.fN.value;
-  const C = +els.cN.value;
-  const P = +els.pN.value;
-  const n = +els.yN.value;
-  
-  const annualCoupon = F * (C/100);
-  
-  // 1. Current Yield = Annual Coupon / Current Price
-  const currentYield = (annualCoupon / P) * 100;
-  
-  // 2. Approx YTM Formula: [C + (F-P)/n] / [(F+P)/2]
-  const num = annualCoupon + ((F - P) / n);
-  const den = (F + P) / 2;
-  const ytm = (num / den) * 100;
+  const P = +els.aN.value;
+  const fdR = +els.fN.value;
+  const eqR = +els.eN.value;
+  const t = +els.tN.value;
 
-  document.getElementById('currYield').textContent = currentYield.toFixed(2) + "%";
-  document.getElementById('incomeVal').textContent = "₹" + annualCoupon;
-  
-  const ytmEl = document.getElementById('ytmVal');
-  ytmEl.textContent = "Approx YTM: " + ytm.toFixed(2) + "%";
-  
-  // Color coding YTM
-  if (ytm > C) ytmEl.className = "verdict-box ahead"; // Discount Bond
-  else if (ytm < C) ytmEl.className = "verdict-box behind"; // Premium Bond
-  else ytmEl.className = "verdict-box on-track"; // Par
+  const labels = [];
+  const fdData = [];
+  const eqData = [];
 
-  chart.data.datasets[0].data = [C, currentYield, ytm];
+  for (let y = 0; y <= t; y++) {
+    labels.push('Y' + y);
+    // FD/Savings: quarterly compounding (standard for Indian FDs)
+    fdData.push(P * Math.pow(1 + fdR/400, 4*y));
+    // Equity: annual compounding of expected returns
+    eqData.push(P * Math.pow(1 + eqR/100, y));
+  }
+
+  const fdFinal = fdData[fdData.length - 1];
+  const eqFinal = eqData[eqData.length - 1];
+  const diff = eqFinal - fdFinal;
+
+  document.getElementById('fdVal').textContent = format(fdFinal);
+  document.getElementById('eqVal').textContent = format(eqFinal);
+
+  const verdictEl = document.getElementById('verdictVal');
+  if (diff >= 0) {
+    verdictEl.textContent = "Extra Wealth from Investing: " + format(diff);
+  } else {
+    verdictEl.textContent = "FD is ahead by: " + format(-diff);
+  }
+
+  chart.data.labels = labels;
+  chart.data.datasets[0].data = fdData;
+  chart.data.datasets[1].data = eqData;
   chart.update();
 }
 
 Object.values(els).forEach(el => el.addEventListener('input', calculate));
 calculate();
 </script>
-<script src="../../js/calc-explainer.js"></script>
+<script src="../../js/calc-explainer.js?v=2"></script>
 <script src="../../js/finos-widget.js?v=7"></script>
 </body>
 </html>

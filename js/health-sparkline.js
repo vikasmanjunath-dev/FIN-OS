@@ -84,8 +84,8 @@
       <div id="_hs_stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>`;
 
     try {
-      const res  = if (!ALERT_ENGINE) return;
-      await fetch(`${ALERT_ENGINE}/health-score/${userId}/history?days=90`);
+      if (!ALERT_ENGINE) return;
+      const res = await fetch(`${ALERT_ENGINE}/health-score/${userId}/history?days=90`);
       if (!res.ok) throw new Error('offline');
       const data = await res.json();
       const series = data.series || [];

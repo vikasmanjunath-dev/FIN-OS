@@ -741,7 +741,7 @@
 
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
-  <script src="../js/finos-widget.js?v=8"></script>
+  <script src="../js/finos-widget.js?v=9"></script>
   <script src="../js/finos-search.js?v=3"></script>
 
 <!-- ── READINESS MODAL ─────────────────────────────────────────── -->
@@ -1185,8 +1185,17 @@ SimAI.init();
 ═══════════════════════════════════════════════════════════ -->
 <style>
 /* ── Floating launch button (TradeBook-style pill) ── */
+/* left, not right: right:24px/bottom:24px landed almost exactly on top of
+   the main FIN-OS AI fab (js/finos-widget.js, also loaded on this page)
+   with a lower z-index, so it was partly hidden behind it. Left side is
+   clear at desktop widths; the mobile override below already repositions
+   this to bottom:14/right:14, clear of the main fab's own mobile position
+   (bottom:~76px), so mobile was never affected. */
 #arya-btn {
-  position: fixed; right: 24px; bottom: 24px; z-index: 1100;
+  /* bottom:24/left:24 used to land on top of #floatBackBtn (bottom:22,
+     left:256, ~74px wide) since this chip is 277px wide starting at the
+     same left edge — stacked above it instead. */
+  position: fixed; left: 24px; bottom: 80px; z-index: 1100;
   display: flex; align-items: center; gap: 12px; padding: 14px 16px;
   border-radius: 20px; border: 1px solid rgba(0,255,136,.22);
   background: linear-gradient(180deg,rgba(9,16,30,.96),rgba(7,11,20,.98));
@@ -1289,7 +1298,7 @@ SimAI.init();
 #arya-txt-send { width:64px;height:64px;border-radius:18px;border:1px solid rgba(0,255,136,.26);background:rgba(0,255,136,.12);color:var(--g);font-size:26px;cursor:pointer; }
 #arya-txt-send:hover { background:rgba(0,255,136,.18); }
 @media(max-width:820px){
-  #arya-btn{right:14px;bottom:14px;padding:12px 14px;border-radius:18px}
+  #arya-btn{left:auto;right:14px;bottom:14px;padding:12px 14px;border-radius:18px}
   .arya-btn-copy{display:none}
   #arya-panel{top:8px;right:8px;bottom:8px;width:calc(100vw - 16px);border-radius:24px}
   .arya-bubble{max-width:88%;font-size:15px}

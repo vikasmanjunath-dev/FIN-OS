@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/layout.css?v=2">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="stylesheet" href="../css/interactions.css">
@@ -44,6 +44,9 @@
     [data-theme="light"] .ppf-page { background:#F4F6FB; }
     [data-theme="light"] .ppf-page-title { color:#0B0D12; }
     [data-theme="light"] .ppf-page-sub { color:#4A5068; }
+    [data-theme="light"] .ppf-back { color: var(--text-muted); }
+    [data-theme="light"] .ppf-tabs { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.08); }
+    [data-theme="light"] .ppf-tab:not(.active) { color: #6A7090; }
     @media (max-width:600px) { .ppf-main-wrap { padding:24px 16px 80px; } }
   </style>
 </head>
@@ -103,9 +106,9 @@
       </div>
 
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;">
-        <a href="tax.html"  style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">Tax Optimizer →</a>
-        <a href="fd-tracker.html"     style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">FD Tracker →</a>
-        <a href="net-worth.html"      style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">Net Worth →</a>
+        <a href="tax.html"  class="cross-link-pill">Tax Optimizer →</a>
+        <a href="fd-tracker.html"     class="cross-link-pill">FD Tracker →</a>
+        <a href="net-worth.html"      class="cross-link-pill">Net Worth →</a>
       </div>
 
       <div class="ppf-tabs">
@@ -157,7 +160,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <script src="../js/ui.js" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=8"></script>
+<script src="../js/finos-widget.js?v=9"></script>
 <script src="../js/finos-mobile.js" defer></script>
 <script src="../js/finos-search.js?v=3"></script>
 <script src="../js/sidebar.js"></script>

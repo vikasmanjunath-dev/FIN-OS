@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/layout.css?v=2">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="stylesheet" href="../css/interactions.css">
@@ -439,11 +439,28 @@
     [data-theme="light"] .do-inp        { background: #F4F6FB; border-color: rgba(0,0,0,.12); color: #0B0D12; }
     [data-theme="light"] .do-inp:focus  { border-color: rgba(239,68,68,.5); background: rgba(239,68,68,.04); }
     [data-theme="light"] .do-field label { color: #6A7090; }
+    [data-theme="light"] .do-field-hint { color: #6A7090; }
     [data-theme="light"] .do-summary-item { background: #fff; border-color: rgba(0,0,0,.08); }
     [data-theme="light"] .do-summary-lbl { color: #6A7090; }
+    [data-theme="light"] .do-summary-val { color: #0B0D12; }
     [data-theme="light"] .do-strategy-card { background: #fff; border-color: rgba(0,0,0,.08); }
+    [data-theme="light"] .do-strategy-name { color: #0B0D12; }
+    [data-theme="light"] .do-strategy-sub { color: #6A7090; }
+    [data-theme="light"] .do-strategy-stat { border-bottom-color: rgba(0,0,0,.06); }
     [data-theme="light"] .do-stat-lbl  { color: #6A7090; }
+    [data-theme="light"] .do-stat-val  { color: #0B0D12; }
+    [data-theme="light"] .do-strategy-order { color: #6A7090; }
     [data-theme="light"] .do-section-title { color: #6A7090; }
+    [data-theme="light"] .do-insight-box { color: #4A5068; }
+    [data-theme="light"] .do-prepay-arrow { color: rgba(0,0,0,.25); }
+    [data-theme="light"] .do-prepay-lbl { color: #6A7090; }
+    [data-theme="light"] .do-prepay-val { color: #0B0D12; }
+    [data-theme="light"] .do-prepay-sub { color: #6A7090; }
+    [data-theme="light"] .do-prepay-date { color: #6A7090; }
+    [data-theme="light"] .do-prepay-savings { color: #4A5068; }
+    [data-theme="light"] .do-inp::placeholder { color: #6A7090; }
+    [data-theme="light"] .do-edit-btn { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.1); color: rgba(0,0,0,.5); }
+    [data-theme="light"] .do-edit-btn:hover { background: rgba(0,0,0,.08); color: #0B0D12; }
 
     /* ── Responsive ──────────────────────────────────── */
     @media (max-width: 700px) {
@@ -568,10 +585,10 @@
 
       <!-- Quick links -->
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px;">
-        <a href="net-worth.html" style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">Net Worth →</a>
-        <a href="financial-calendar.html" style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">EMI Calendar →</a>
-        <a href="calculators.html" style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">EMI Calculator →</a>
-        <a href="debtdetail.html" style="padding:5px 13px;border-radius:999px;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);text-decoration:none;">Debt Insights →</a>
+        <a href="net-worth.html" class="cross-link-pill">Net Worth →</a>
+        <a href="financial-calendar.html" class="cross-link-pill">EMI Calendar →</a>
+        <a href="calculators.html" class="cross-link-pill">EMI Calculator →</a>
+        <a href="debtdetail.html" class="cross-link-pill">Debt Insights →</a>
       </div>
 
       <!-- Setup + Results will be injected here -->
@@ -635,7 +652,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <script src="../js/ui.js" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=8"></script>
+<script src="../js/finos-widget.js?v=9"></script>
 <script src="../js/finos-mobile.js" defer></script>
 <script src="../js/finos-search.js?v=3"></script>
 <script src="../js/sidebar.js"></script>

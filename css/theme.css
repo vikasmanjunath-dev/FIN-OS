@@ -183,7 +183,7 @@
 /* ═══════════════════════════════════
    INPUTS & FORMS
    ═══════════════════════════════════ */
-:root[data-theme="light"] input,
+:root[data-theme="light"] input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]),
 :root[data-theme="light"] select,
 :root[data-theme="light"] textarea {
   background: var(--t-bg2) !important;

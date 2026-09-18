@@ -205,12 +205,20 @@
       }
     }
 
-    /* Keep clear of the 60px bottom tab bar on mobile */
+    /* Keep clear of the 60px bottom tab bar on mobile, and collapse to an
+       icon-only circle — the full text pill is wide enough to sit on top of
+       card content at this width (confirmed on track-finances.html, and
+       equitydetail.html's "Ask Arya about this page" panel). Matches the
+       "keep the corner to ONE fab" intent already applied to #finos-ql-btn. */
     @media (max-width: 768px) {
       #finos-fab {
         bottom: calc(76px + env(safe-area-inset-bottom, 0px));
         right: 12px;
+        width: 52px;
+        padding: 0;
+        justify-content: center;
       }
+      #finos-fab .fab-label { display: none; }
     }
   `;
 
@@ -308,6 +316,8 @@
     [data-theme="light"] .ql-entry { background:rgba(0,0,0,.02); border-color:rgba(0,0,0,.06); color:#4A5068; }
     [data-theme="light"] #finos-ql-parsed { background:rgba(0,0,0,.04); color:#4A5068; }
     [data-theme="light"] .ql-btn.voice { background:rgba(0,0,0,.04); color:#4A5068; border-color:rgba(0,0,0,.1); }
+    [data-theme="light"] .ql-btn.close-ql { color:#4A5068; border-color:rgba(0,0,0,.1); }
+    [data-theme="light"] #finos-ql-input::placeholder { color:rgba(0,0,0,.35); }
 
     /* Mobile: quick-log lives inside the "+" quick-capture flow; hiding the
        pencil keeps the corner to ONE fab above the tab bar. */

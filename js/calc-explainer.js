@@ -148,6 +148,17 @@ Format: Direct Hinglish, no preamble, no "Sure!", use ₹ amounts. Lead with the
         padding: 14px 18px;
         border-bottom: 1px solid rgba(0,255,136,.1);
       }
+      @media (min-width: 769px) {
+        /* This panel spans the full page width, so whenever it happens to
+           render at a scroll position matching the fixed bottom-right
+           widget stack (main fab, ~140px wide), the right-aligned Refresh
+           button lands almost entirely behind it (confirmed severe on
+           calculators/investment & wealth/sip-optimizer.html, milder
+           corner-graze on assetalloc.html). Extra header padding keeps the
+           button clear of that zone on every calculator page, regardless
+           of where the panel lands vertically. */
+        #arya-calc-header { padding-right: 170px; }
+      }
       #arya-calc-header-left {
         display: flex; align-items: center; gap: 10px;
       }
@@ -195,6 +206,9 @@ Format: Direct Hinglish, no preamble, no "Sure!", use ₹ amounts. Lead with the
       .arya-calc-dot:nth-child(2) { animation-delay: .15s; }
       .arya-calc-dot:nth-child(3) { animation-delay: .3s; }
       @keyframes arya-bounce { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
+      [data-theme="light"] #arya-calc-header-sub,
+      [data-theme="light"] .arya-calc-thinking { color: rgba(0,0,0,.4); }
+      [data-theme="light"] #arya-calc-body { color: rgba(0,0,0,.78); }
     `;
     document.head.appendChild(s);
   }
@@ -366,10 +380,18 @@ Format: 2 bullet points, each 1 sentence. Hinglish. Use exact ₹ numbers from c
       document.querySelector('.result-section'),
       document.querySelector('.output-section'),
       document.querySelector('.calc-result'),
-      // Fallback: after the last output element
+      // Fallback: after the last output element. `.closest()` alone can stop
+      // at a narrow stat box (e.g. one cell of a 2-up results grid) instead
+      // of the actual results section, cramming this panel into ~150px
+      // (confirmed on calculators/investment & wealth/assetalloc.html) —
+      // walk up until the container is wide enough to hold the panel.
       (() => {
         const el = document.getElementById('totalVal') || document.getElementById('result') || document.getElementById('emiVal');
-        return el?.closest('div, section, .card') || null;
+        let node = el?.closest('div, section, .card') || null;
+        while (node && node.offsetWidth < 400 && node.parentElement) {
+          node = node.parentElement.closest('div, section, .card') || node.parentElement;
+        }
+        return node;
       })(),
     ];
 

@@ -98,6 +98,26 @@ body[data-theme="graham"] {
     /* Firefox */
 }
 
+@media (min-width: 769px) {
+    /* The "COGNITIVE OS" 5-item nav list (item 03 "DECISION ENGINE") sits at a
+       fixed page offset and, on initial load with no scrolling, item 03 lands
+       directly behind the always-on-screen #finos-fab (bottom:28/right:28).
+       Capping the list's height relative to the viewport and letting it
+       scroll internally guarantees no item can ever render behind the fab,
+       at any viewport height, instead of relying on a fragile fixed pixel
+       budget. */
+    .cognitive-os-list {
+        max-height: calc(100vh - 570px);
+        overflow-y: auto;
+        padding-right: 2px;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .cognitive-os-list::-webkit-scrollbar {
+        display: none;
+    }
+}
+
 .scroll-container::-webkit-scrollbar {
     display: none;
 }

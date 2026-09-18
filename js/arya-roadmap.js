@@ -334,6 +334,7 @@
 [data-theme="light"] .rm-step,[data-theme="light"] .tl-milestone-card{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.08)}
 [data-theme="light"] .rm-step-title,[data-theme="light"] .tl-card-title,[data-theme="light"] .tl-card-wealth,[data-theme="light"] .rm-hero-text h2{color:#0a0d15}
 [data-theme="light"] .rm-hero{background:linear-gradient(135deg,rgba(0,100,200,.06),rgba(100,0,200,.04));border-color:rgba(0,100,200,.12)}
+[data-theme="light"] .rm-hero-text p,[data-theme="light"] .rm-step-subtitle,[data-theme="light"] .tl-header p{color:#6A7090}
 .rm-done-btn{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 12px;border-radius:8px;border:1px solid rgba(0,255,179,.3);background:rgba(0,255,179,.06);color:#00ffb3;font-size:11.5px;font-weight:700;cursor:pointer;transition:background .18s,border-color .18s}
 .rm-done-btn:hover{background:rgba(0,255,179,.14);border-color:rgba(0,255,179,.5)}
 .rm-done-btn.rm-done-active{background:rgba(0,255,179,.15);border-color:#00ffb3;color:#00ffb3}

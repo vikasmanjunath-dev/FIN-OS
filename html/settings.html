@@ -35,9 +35,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/layout.css?v=2">
   <link rel="stylesheet" href="../css/components.css">
-  <link rel="stylesheet" href="../css/settings.css">
+  <link rel="stylesheet" href="../css/settings.css?v=2">
   <link rel="stylesheet" href="../css/theme.css">
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
@@ -583,50 +583,21 @@
         </section>
 
         <!-- ══════════════════════════════════════════
-             COUPLE FINANCE MODE
+             COUPLE FINANCE MODE — real implementation lives at
+             couple-finance.html (Supabase-backed invite/link/goals).
+             This section used to duplicate it with a fake, non-networked
+             invite flow (finos_couple_linked was never set by anything);
+             replaced with a link to the real page instead.
         ══════════════════════════════════════════ -->
         <section class="settings-card glass-panel" id="couple-finance-section">
           <h3><span class="s-icon">💑</span> Household &amp; Couple Finance</h3>
-
           <div class="setting-row">
             <div class="label-group">
               <label>Partner Account</label>
-              <span>Link your partner's FIN-OS account to view combined net worth, joint goals, and compatibility score.</span>
+              <span>Link your partner's FIN-OS account to view combined net worth, joint goals and shared responsibilities.</span>
             </div>
-            <div id="couple-status" style="display:flex;align-items:center;gap:8px;">
-              <span id="couple-link-status" style="font-size:12px;color:var(--text-muted);">Not linked</span>
-              <button class="btn-outline" style="font-size:12px;padding:6px 14px;" onclick="window._coupleLink()">Link Partner →</button>
-            </div>
+            <a class="btn-outline" style="font-size:12px;padding:6px 14px;text-decoration:none;" href="couple-finance.html">Open Couple Finance →</a>
           </div>
-
-          <div id="couple-invite-form" style="display:none;margin-top:12px;padding:16px;border-radius:12px;background:var(--bg-glass);border:1px solid var(--border-soft);">
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Enter your partner's FIN-OS email or share invite link:</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <input id="couple-email" type="email" placeholder="partner@email.com" style="flex:1;min-width:180px;padding:8px 12px;border-radius:8px;background:var(--bg-surface);border:1px solid var(--border-medium);color:var(--text-primary);font-size:13px;outline:none;">
-              <button onclick="window._coupleInvite()" style="padding:8px 16px;border-radius:8px;background:var(--accent);color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;">Send Invite</button>
-            </div>
-            <div style="margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--bg-surface);border:1px solid var(--border-soft);">
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Or share invite link:</div>
-              <div style="display:flex;align-items:center;gap:8px;">
-                <code id="couple-invite-link" style="flex:1;font-size:11px;color:var(--accent);word-break:break-all;"></code>
-                <button onclick="window._coupleCopyLink()" style="padding:4px 10px;border-radius:6px;background:var(--accent-soft);border:1px solid var(--accent);color:var(--accent);font-size:11px;cursor:pointer;">Copy</button>
-              </div>
-            </div>
-          </div>
-
-          <div id="couple-dashboard" style="display:none;margin-top:12px;">
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px;" id="couple-metrics"></div>
-            <div id="couple-compatibility" style="padding:14px;border-radius:12px;background:var(--bg-glass);border:1px solid var(--border-soft);font-size:13px;color:var(--text-secondary);line-height:1.7;"></div>
-          </div>
-
-          <div class="setting-row" style="margin-top:12px;">
-            <div class="label-group">
-              <label>Household Goals</label>
-              <span>Goals that require both incomes — home purchase, child education, joint FIRE date.</span>
-            </div>
-            <div id="household-goal-count" style="font-size:12px;color:var(--text-muted);"></div>
-          </div>
-          <div id="household-goals-list" style="margin-top:8px;"></div>
         </section>
 
         <!-- ══════════════════════════════════════════
@@ -766,7 +737,7 @@
 <script src="../js/settings.js?v=3"></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=8"></script>
+<script src="../js/finos-widget.js?v=9"></script>
 <script src="../js/finos-search.js?v=3"></script>
 
 <style>
@@ -955,83 +926,6 @@ const sb = (window.FINOS_SB && window.FINOS_SB.getClient()) || (window.supabase 
 
 <script>
 (function() {
-  // COUPLE FINANCE
-  window._coupleLink = function() {
-    const form = document.getElementById('couple-invite-form');
-    if (form) {
-      form.style.display = form.style.display === 'none' ? 'block' : 'none';
-      // Generate invite link
-      const uid = localStorage.getItem('finos_user_id') || Math.random().toString(36).slice(2,10);
-      const link = `https://finos1.vercel.app/html/onboarding.html?partner=${uid}`;
-      const linkEl = document.getElementById('couple-invite-link');
-      if (linkEl) linkEl.textContent = link;
-    }
-  };
-
-  window._coupleInvite = function() {
-    const email = document.getElementById('couple-email')?.value?.trim();
-    if (!email) return;
-    const statusEl = document.getElementById('couple-link-status');
-    if (statusEl) statusEl.textContent = `Invite sent to ${email}`;
-    localStorage.setItem('finos_couple_invited', email);
-    const form = document.getElementById('couple-invite-form');
-    if (form) form.style.display = 'none';
-    // Show success
-    const s = document.getElementById('brain-sync-status') || document.getElementById('couple-status');
-    if (s) s.textContent = `✓ Invite sent to ${email}. They'll see a prompt to link when they log in.`;
-  };
-
-  window._coupleCopyLink = function() {
-    const link = document.getElementById('couple-invite-link')?.textContent;
-    if (link) navigator.clipboard?.writeText(link).then(() => {
-      const btn = document.querySelector('[onclick="_coupleCopyLink()"], [onclick="window._coupleCopyLink()"]');
-      if (btn) { btn.textContent = '✓ Copied'; setTimeout(() => btn.textContent = 'Copy', 2000); }
-    });
-  };
-
-  // Check for existing couple link
-  function _checkCoupleStatus() {
-    const invited = localStorage.getItem('finos_couple_invited');
-    const linked = localStorage.getItem('finos_couple_linked');
-    const statusEl = document.getElementById('couple-link-status');
-    if (linked) {
-      if (statusEl) statusEl.textContent = '✓ Linked with ' + linked;
-      _renderCoupleDashboard(linked);
-    } else if (invited) {
-      if (statusEl) statusEl.textContent = 'Invite pending: ' + invited;
-    }
-  }
-
-  function _renderCoupleDashboard(partnerName) {
-    const dash = document.getElementById('couple-dashboard');
-    const metrics = document.getElementById('couple-metrics');
-    if (!dash || !metrics) return;
-    dash.style.display = 'block';
-
-    function INR(n) {
-      const num = Number(n)||0;
-      if(num>=1e7) return '₹'+(num/1e7).toFixed(1)+' Cr';
-      if(num>=1e5) return '₹'+(num/1e5).toFixed(1)+' L';
-      return '₹'+Math.round(num).toLocaleString('en-IN');
-    }
-
-    const myNW = Number(localStorage.getItem('finos_net_worth')) || 0;
-    const mySR = Number(localStorage.getItem('finos_savings_rate')) || 0;
-    const partnerNW = Number(localStorage.getItem('finos_partner_net_worth')) || 0;
-    const partnerSR = Number(localStorage.getItem('finos_partner_savings_rate')) || 0;
-
-    metrics.innerHTML = [
-      { label: 'Combined Net Worth', value: INR(myNW + partnerNW), color: 'var(--accent)' },
-      { label: 'Your Savings Rate', value: mySR + '%', color: 'var(--color-success)' },
-      { label: partnerName + "'s Rate", value: partnerSR + '%', color: 'var(--color-info)' },
-      { label: 'Household Health', value: Math.round((mySR + partnerSR) / 2 * 2.5) + '/100', color: 'var(--color-warning)' },
-    ].map(k => `
-      <div style="background:var(--bg-glass);border:1px solid var(--border-soft);border-radius:10px;padding:10px;text-align:center;">
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;">${k.label}</div>
-        <div style="font-size:.95rem;font-weight:800;color:${k.color};">${k.value}</div>
-      </div>`).join('');
-  }
-
   // BRAIN SYNC
   window._brainExport = function() {
     const KEYS = [
@@ -1130,7 +1024,6 @@ const sb = (window.FINOS_SB && window.FINOS_SB.getClient()) || (window.supabase 
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    _checkCoupleStatus();
     _renderBrainContents();
   });
 })();

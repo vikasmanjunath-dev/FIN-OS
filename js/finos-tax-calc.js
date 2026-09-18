@@ -276,6 +276,12 @@
     container.innerHTML = `
       <style>
         .tc-form { display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:12px;margin-bottom:20px; }
+        @media (min-width:769px) {
+          /* Whichever field lands here is covered by the fixed #finos-fab
+             or #qft-fab; this keeps every field clear of both regardless
+             of which one ends up at this scroll position. */
+          .tc-form { padding-right:100px; }
+        }
         .tc-field { display:flex;flex-direction:column;gap:5px; }
         .tc-label { font-size:10px;font-weight:700;color:#8892A4;text-transform:uppercase;letter-spacing:.6px; }
         .tc-input { padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#F5F7FA;font-size:14px;outline:none;transition:.2s; }

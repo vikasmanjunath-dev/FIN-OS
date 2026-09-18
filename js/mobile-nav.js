@@ -72,17 +72,10 @@
   const topbar = document.createElement('div');
   topbar.className = 'mob-topbar';
   topbar.setAttribute('role', 'banner');
-  topbar.style.cssText = `
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 56px;
-    background: #0E1117;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    z-index: 500;
-    align-items: center;
-    padding: 0 16px;
-    gap: 16px;
-  `;
+  // Layout, background and border all come from the .mob-topbar class in
+  // layout.css (incl. its [data-theme="light"] override and the media
+  // query that switches it to display:flex on mobile) — no inline style
+  // needed, and one here would shadow the light-theme background/border.
 
   const hamBtn = document.createElement('button');
   hamBtn.className = 'mob-ham';
@@ -90,29 +83,19 @@
   hamBtn.setAttribute('aria-expanded', 'false');
   hamBtn.setAttribute('aria-controls', 'sidebar');
   hamBtn.innerHTML = '&#9776;'; // ☰
-  hamBtn.style.cssText = `
-    background: none;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    color: #fff;
-    font-size: 18px;
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
-    flex-shrink: 0;
-  `;
+  // Styling comes from the .mob-ham class in layout.css (incl. its
+  // [data-theme="light"] override) — an inline style here would shadow
+  // that override with a hardcoded white color, making the icon invisible
+  // on light backgrounds.
 
   const logo = document.createElement('span');
   logo.className = 'mob-logo-text';
   logo.textContent = 'FIN•OS';
+  // No hardcoded color here — layout.css's .mob-logo-text (and its
+  // [data-theme="light"] override) handles that; layout-only inline props.
   logo.style.cssText = `
     font-size: 17px;
     font-weight: 700;
-    color: #fff;
     letter-spacing: 0.04em;
     flex: 1;
     text-align: center;

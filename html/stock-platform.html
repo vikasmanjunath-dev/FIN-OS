@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/layout.css?v=2">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/stock-platform.css">
   <link rel="stylesheet" href="../css/theme.css">
@@ -571,6 +571,12 @@
         
 
 /* ── Light mode text overrides (auto-generated) ── */
+[data-theme="light"] .nl-pill,
+[data-theme="light"] .nl-status,
+[data-theme="light"] .sc-met-label,
+[data-theme="light"] .sc-sector,
+[data-theme="light"] .screen-empty { color: var(--text-muted); }
+[data-theme="light"] .sc-reason { color: var(--text-secondary); }
 [data-theme="light"] .nl-input {
   color: var(--text-primary) !important;
     background: var(--bg-surface) !important;
@@ -930,7 +936,7 @@
 </style>
 <a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 
-  <script src="../js/finos-widget.js?v=8"></script>
+  <script src="../js/finos-widget.js?v=9"></script>
   <script src="../js/finos-search.js?v=3"></script>
 
 <script>

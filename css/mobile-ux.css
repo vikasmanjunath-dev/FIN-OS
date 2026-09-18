@@ -19,6 +19,20 @@
     align-items: center;
     padding-bottom: env(safe-area-inset-bottom, 0);
   }
+  /* Reserve space for the fixed 60px tab bar PLUS the FAB(s) that float
+     above it (FIN-OS AI mic + quick-capture "+", each ~50px, anchored
+     around bottom:76-92px) so the last card/section on any page (e.g.
+     home.html's "Learn financial foundations" prompt, or the journey
+     strip icons) doesn't render underneath either of them. Pages with
+     their own internal scroll container (.main inside the sidebar .app
+     layout) get it applied there instead, since body itself doesn't
+     scroll on those pages. */
+  body {
+    padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px));
+  }
+  .app .main {
+    padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px));
+  }
 }
 .finos-bottom-nav-tab {
   display: flex; flex-direction: column; align-items: center; gap: 2px;

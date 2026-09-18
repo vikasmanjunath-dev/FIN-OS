@@ -151,6 +151,13 @@
   border-bottom: 1px solid var(--border-soft);
   gap: 16px;
 }
+@media (min-width: 769px) {
+  /* Whichever row lands here has its right-aligned control (e.g. the Font
+     Size S/M/L group) majority-covered by the fixed #finos-fab; this keeps
+     every row's control clear of it regardless of settings-card scroll
+     position. */
+  .setting-row { padding-right: 100px; }
+}
 
 .setting-row:last-child { border-bottom: none; }
 

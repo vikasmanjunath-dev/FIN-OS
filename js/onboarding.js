@@ -4,12 +4,14 @@
  * Intelligence Interview — replaces the static 5-step wizard with a
  * conversational AI-guided flow:
  *
- *  Step 0: Free-text "why do you want money?" → AI classifies archetype
- *  Step 1: Life stage (age/profession)
- *  Step 2: Income + behavioral scenario (DISC profile)
- *  Step 3: Market scenario → risk profile computed
- *  Step 4: AI-suggested top 3 goals — user ranks them
- *  Step 5: AI-generated "Your Financial OS" summary + Arya speaks it
+ *  Step 0: Solo or with a partner? — sets answers.planningMode, branches
+ *          the completion redirect only (couple-finance.html vs home.html)
+ *  Step 1: Free-text "why do you want money?" → AI classifies archetype
+ *  Step 2: Life stage (age/profession)
+ *  Step 3: Income + behavioral scenario (DISC profile)
+ *  Step 4: Market scenario → risk profile computed
+ *  Step 5: AI-suggested top 3 goals — user ranks them
+ *  Step 6: AI-generated "Your Financial OS" summary + Arya speaks it
  *
  * Archetype → stored in localStorage + Supabase user_context table.
  * All AI calls go to local Ollama (qwen3:14b) — zero cloud cost.
@@ -55,7 +57,7 @@
   let   riskScore = 0;        // 0-100
   let   goalRank  = [];       // ordered array of goal names
   let   currentStep = 0;
-  const TOTAL_STEPS = 6;
+  const TOTAL_STEPS = 7;
 
   /* ── DOM refs — lazy, resolved inside DOMContentLoaded ──────────────────── */
   let qEl, optEl, btn, orb, aryaBox, aryaText, freeWrap, freeInput;
@@ -317,10 +319,42 @@
      STEP DEFINITIONS
   ══════════════════════════════════════════════════════════════════════════ */
 
-  /* ── Step 0: Open question → archetype ─────────────────────────────────── */
-  async function step0() {
+  /* ── Step 0: Solo or with a partner? ────────────────────────────────────── */
+  function stepPlanning() {
     updateStepIndicator(0);
-    stepLabel.textContent = 'Step 1 of 6 — Your Money Story';
+    stepLabel.textContent  = 'Step 1 of 7 — Household';
+    freeWrap.style.display = 'none';
+    goalWrap.style.display = 'none';
+    summaryCard.style.display = 'none';
+    orbColor('#00d4ff');
+
+    let sel = null;
+    qEl.textContent = 'Planning your money solo, or with a partner?';
+
+    const opts = ['Just me', 'Me and my partner'];
+    renderOptions(opts, chosen => {
+      sel = chosen;
+      answers.planningMode = chosen === 'Me and my partner' ? 'couple' : 'solo';
+      showAryaResponse(
+        answers.planningMode === 'couple'
+          ? 'User is planning finances together with a partner, not solo. In ONE warm Hinglish sentence, tell them you\'ll build their individual profile first, then set up their shared household view at the end.'
+          : 'User is planning their finances solo, just for themselves. In ONE warm Hinglish sentence, acknowledge that and say you\'ll build their personal Financial OS.',
+        'Arya AI: 1 sentence, warm Hinglish, no markdown, no preamble.'
+      );
+      btn.disabled = false;
+      btn.classList.add('enabled');
+    });
+
+    btn.onclick = () => {
+      if (!sel) return;
+      goTo(1);
+    };
+  }
+
+  /* ── Step 1: Open question → archetype ─────────────────────────────────── */
+  async function step0() {
+    updateStepIndicator(1);
+    stepLabel.textContent = 'Step 2 of 7 — Your Money Story';
     qEl.textContent       = 'Ek sawaal se shuru karte hain — tujhe paisa kyu chahiye?';
     optEl.innerHTML       = '';
     goalWrap.style.display = 'none';
@@ -364,14 +398,14 @@
       btn.textContent = 'Continue';
       btn.disabled    = false;
       btn.classList.add('enabled');
-      btn.onclick = () => goTo(1);
+      btn.onclick = () => goTo(2);
     };
   }
 
-  /* ── Step 1: Life stage + profession ────────────────────────────────────── */
+  /* ── Step 2: Life stage + profession ────────────────────────────────────── */
   function step1() {
-    updateStepIndicator(1);
-    stepLabel.textContent  = 'Step 2 of 6 — Life Phase';
+    updateStepIndicator(2);
+    stepLabel.textContent  = 'Step 3 of 7 — Life Phase';
     freeWrap.style.display = 'none';
     goalWrap.style.display = 'none';
     summaryCard.style.display = 'none';
@@ -396,14 +430,14 @@
 
     btn.onclick = () => {
       if (!sel) return;
-      goTo(2);
+      goTo(3);
     };
   }
 
-  /* ── Step 2: Income + behavioral scenario ───────────────────────────────── */
+  /* ── Step 3: Income + behavioral scenario ───────────────────────────────── */
   function step2() {
-    updateStepIndicator(2);
-    stepLabel.textContent  = 'Step 3 of 6 — Income & Behavior';
+    updateStepIndicator(3);
+    stepLabel.textContent  = 'Step 4 of 7 — Income & Behavior';
     freeWrap.style.display = 'none';
     goalWrap.style.display = 'none';
     summaryCard.style.display = 'none';
@@ -429,14 +463,14 @@
 
     btn.onclick = () => {
       if (!sel) return;
-      goTo(3);
+      goTo(4);
     };
   }
 
-  /* ── Step 3: Market scenario → DISC + Risk ───────────────────────────────── */
+  /* ── Step 4: Market scenario → DISC + Risk ───────────────────────────────── */
   function step3() {
-    updateStepIndicator(3);
-    stepLabel.textContent  = 'Step 4 of 6 — Behavioral DNA';
+    updateStepIndicator(4);
+    stepLabel.textContent  = 'Step 5 of 7 — Behavioral DNA';
     freeWrap.style.display = 'none';
     goalWrap.style.display = 'none';
     summaryCard.style.display = 'none';
@@ -472,14 +506,14 @@
 
     btn.onclick = () => {
       if (!sel) return;
-      goTo(4);
+      goTo(5);
     };
   }
 
-  /* ── Step 4: Goal prioritization ────────────────────────────────────────── */
+  /* ── Step 5: Goal prioritization ────────────────────────────────────────── */
   function step4() {
-    updateStepIndicator(4);
-    stepLabel.textContent  = 'Step 5 of 6 — Your Goals';
+    updateStepIndicator(5);
+    stepLabel.textContent  = 'Step 6 of 7 — Your Goals';
     freeWrap.style.display = 'none';
     optEl.innerHTML        = '';
     summaryCard.style.display = 'none';
@@ -554,14 +588,14 @@
     btn.classList.add('enabled');
     btn.onclick = () => {
       answers.goalRank = goalRank;
-      goTo(5);
+      goTo(6);
     };
   }
 
-  /* ── Step 5: AI-generated Financial OS summary ──────────────────────────── */
+  /* ── Step 6: AI-generated Financial OS summary ──────────────────────────── */
   async function step5() {
-    updateStepIndicator(5);
-    stepLabel.textContent  = 'Step 6 of 6 — Your Financial OS';
+    updateStepIndicator(6);
+    stepLabel.textContent  = 'Step 7 of 7 — Your Financial OS';
     freeWrap.style.display = 'none';
     optEl.innerHTML        = '';
     goalWrap.style.display = 'none';
@@ -663,7 +697,11 @@
     btn.disabled  = false;
     btn.classList.add('enabled');
     btn.textContent = "Let's go! →";
-    btn.onclick = () => { window.location.href = 'home.html'; };
+    btn.onclick = () => {
+      // Couples land on the real household feature to link their partner;
+      // everyone else goes straight to the home dashboard as before.
+      window.location.href = answers.planningMode === 'couple' ? 'couple-finance.html' : 'home.html';
+    };
   }
 
   /* ── Speak via Arya voice agent (WS) ─────────────────────────────────────── */
@@ -691,12 +729,13 @@
     btn.classList.remove('enabled');
     btn.disabled = true;
 
-    if (step === 0) step0();
-    else if (step === 1) step1();
-    else if (step === 2) step2();
-    else if (step === 3) step3();
-    else if (step === 4) step4();
-    else if (step === 5) step5();
+    if (step === 0) stepPlanning();
+    else if (step === 1) step0();
+    else if (step === 2) step1();
+    else if (step === 3) step2();
+    else if (step === 4) step3();
+    else if (step === 5) step4();
+    else if (step === 6) step5();
   }
 
   /* ── Boot ────────────────────────────────────────────────────────────────── */

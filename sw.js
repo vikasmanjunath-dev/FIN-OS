@@ -9,7 +9,7 @@
 // Cache version — bump this manually when deploying breaking CSS/JS changes.
 // Format: finos-YYYY-MM-DD-N (N = daily build counter).
 // The inject-sw-version.js build script can override this automatically.
-const CACHE_NAME = (typeof __CACHE_VERSION__ !== 'undefined') ? __CACHE_VERSION__ : 'finos-2026-06-02-2';
+const CACHE_NAME = (typeof __CACHE_VERSION__ !== 'undefined') ? __CACHE_VERSION__ : 'finos-2026-09-16-1';
 
 // Pre-cached static assets (relative to sw.js at root)
 const PRECACHE_ASSETS = [

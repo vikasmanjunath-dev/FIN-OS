@@ -1005,6 +1005,22 @@
 }
 
 /* =========================
+   CROSS-LINK PILL — small "related tool →" chip used in Command
+   Hub tracker headers. Token-based so it needs no per-page
+   light-theme override (unlike the hardcoded rgba(255,255,255,..)
+   inline style it replaces, which was invisible in light theme).
+   ========================= */
+.cross-link-pill {
+  padding: 5px 13px;
+  border-radius: 999px;
+  font-size: 11px;
+  background: rgba(127,127,127,.08);
+  border: 1px solid var(--border-soft);
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+/* =========================
    GRID SYSTEM (GLOBAL)
    ========================= */
 

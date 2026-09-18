@@ -428,6 +428,19 @@ html {
     color 0.4s ease;
 }
 
+/* Desktop-only: reserve space at the bottom of the scrollable .main/.page
+   content so the last card/button on any page doesn't render underneath
+   the fixed bottom-right widget stack (finos-widget.js's AI fab 28px ->
+   quick-log 88px -> finos-health-score.js's trigger 140px, all right:28px).
+   The 24px bottom padding above was never enough to clear that column —
+   confirmed live on ca-advisor.html, where both the "Access Duration"
+   field and the "Send Invite to Advisor" button ran underneath it.
+   Mobile already has its own equivalent fix in mobile-ux.css (60px, for
+   the bottom tab bar instead), so this is scoped to desktop widths only. */
+@media (min-width: 769px) {
+  .main, .page { padding-bottom: 200px; }
+}
+
 /* Soft width control (NOT CENTERING) */
 .content-wrapper {
   max-width: 1400px;
