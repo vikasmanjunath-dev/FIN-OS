@@ -628,7 +628,13 @@ html {
 }
 
 @media (max-width: 480px) {
-  .main, .page { padding: 68px 14px 32px !important; }
+  /* Bottom value must clear finos-mobile.js's fixed 60px bottom-nav bar
+     plus its floating FABs (mobile-ux.css normally reserves ~150px for
+     this via `.app .main`, but that rule has lower specificity than this
+     one and no !important, so it was being silently wiped out on every
+     page at this width — confirmed on tax.html, where a tax-deduction
+     input rendered directly behind the bottom nav bar). */
+  .main, .page { padding: 68px 14px calc(150px + env(safe-area-inset-bottom, 0px)) !important; }
   .tf-sec-h2 { font-size: 26px !important; }
   .tv-val { font-size: 18px; }
   .tf-tool-card, .godeep-card { padding: 20px 18px; }

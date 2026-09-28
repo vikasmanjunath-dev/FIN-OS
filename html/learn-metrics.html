@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css?v=2">
+  <link rel="stylesheet" href="../css/layout.css?v=3">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/theme.css">
 
@@ -95,6 +95,15 @@
       position: sticky;
       top: 20px;
       z-index: 100;
+    }
+    @media (max-width: 480px) {
+      /* Before this sticky nav scrolls up to top:20 (clear of the fixed
+         #arya-learn-fab), its natural in-flow position on initial load
+         puts the last-row chips (MGMT/RISK) behind it — extra right
+         padding forces those chips onto their own row, clear of the fab's
+         x-range at this width. !important because a later same-specificity
+         @media(max-width:768px) rule resets this shorthand's padding-right. */
+      .sector-nav { padding-right: 160px !important; }
     }
 
     .sector-btn {

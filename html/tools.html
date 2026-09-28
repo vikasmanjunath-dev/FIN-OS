@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css?v=2">
+  <link rel="stylesheet" href="../css/layout.css?v=3">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="stylesheet" href="../css/animations.css">
@@ -334,6 +334,11 @@
         color:rgba(255,255,255,.28); border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:3px 9px; }
       [data-theme="light"] .tsh-stage { color:rgba(0,0,0,.3); border-color:rgba(0,0,0,.1); }
       .tsh-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr)); gap:10px; }
+      @media (max-width:768px) {
+        /* Single-column on mobile; whichever card lands here gets covered
+           by the fixed mobile #finos-fab (confirmed on the 3rd card). */
+        .tsh-grid { padding-right:40px; }
+      }
       .tsh-card { display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:12px;
         background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07);
         text-decoration:none; transition:background 150ms,border-color 150ms; }

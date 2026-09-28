@@ -437,3 +437,25 @@ html[data-theme="light"] {
   right: 16px;
   z-index: 9000;
 }
+
+/* ── MOBILE TOPBAR (auto-injected by mobile-nav.js on every page) ──
+   mobile-nav.js only ever sets display:none/flex inline via its own
+   <style> tag and relies on layout.css for position/sizing. Pages that
+   don't load layout.css (e.g. investor-mindset.html, investor-profile.html)
+   were left with a display:flex, position:static .mob-topbar — a real
+   in-flow flex item that got laid out as a sibling of <main> inside a
+   flex body, stealing width from <main> at <=900px viewports. Defining
+   position:fixed here (values match layout.css's .mob-topbar exactly, so
+   this is a no-op on pages that also load layout.css) makes the topbar
+   self-sufficient wherever base.css is loaded. */
+.mob-topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
+  background: #0E1117;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  z-index: 500;
+  align-items: center;
+  padding: 0 16px;
+  gap: 16px;
+}

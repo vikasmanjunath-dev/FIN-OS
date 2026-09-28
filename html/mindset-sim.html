@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
-<link rel="stylesheet" href="../css/layout.css?v=2">
+<link rel="stylesheet" href="../css/layout.css?v=3">
 <link rel="stylesheet" href="../css/components.css">
 <link rel="stylesheet" href="../css/theme.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
@@ -33,6 +33,11 @@
        edge covered by #floatBackBtn (left) or #finos-fab (right); this
        keeps every row clear regardless of which scenario ends up there. */
     .scenario-grid { padding-left: 40px; padding-right: 115px; }
+  }
+  @media (max-width: 768px) {
+    /* Single-column on mobile; whichever card lands here is covered by
+       the fixed mobile #finos-fab (confirmed on the 3rd card). */
+    .scenario-grid { padding-right: 65px; }
   }
   .scenario-card {
     background: var(--bg-surface); border: 1px solid var(--border-soft);

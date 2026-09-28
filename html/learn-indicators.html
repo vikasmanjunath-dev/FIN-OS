@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
 <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css?v=2">
+  <link rel="stylesheet" href="../css/layout.css?v=3">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/theme.css">
 
@@ -120,6 +120,15 @@
     }
     @media (max-width: 768px) {
       .sensor-grid { padding-right: 0; }
+    }
+    @media (max-width: 480px) {
+      /* At true phone widths the forced 2-column grid (below, `1fr 1fr`)
+         puts the whole right-column button behind #arya-learn-fab (137px
+         wide, roughly centered-right) — there's no padding-right that
+         keeps 2 readable columns AND clears a fab that wide on a 375px
+         screen, so this collapses to 1 column instead, same fix class as
+         mobile-nav-bar/full-width-field collisions elsewhere on the site. */
+      .sensor-grid { grid-template-columns: 1fr !important; }
     }
 
     .sensor-btn {
