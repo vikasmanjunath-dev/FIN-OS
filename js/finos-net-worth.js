@@ -68,6 +68,7 @@
   ];
 
   /* ── Core compute ────────────────────────────────────────────────── */
+  let _lastComputeSignature = null;
   function compute() {
     const breakdown = ASSETS.map(a => ({ ...a, value: gs(a.key) })).filter(a => a.value > 0);
     const liabilities = LIABILITIES.map(l => ({ ...l, value: gs(l.key) })).filter(l => l.value > 0);
@@ -89,7 +90,14 @@
     if (window.FinosContext?.update) {
       window.FinosContext.update({ netWorth, totalAssets, totalLiabilities, firePercent: _firePct });
     }
-    document.dispatchEvent(new CustomEvent('finos-networth-updated', { detail: { netWorth, totalAssets, totalLiabilities } }));
+    // Only broadcast when the figures actually change — compute() is re-entered by
+    // consumers of this very event (e.g. net-worth.html re-rendering the overview on
+    // update), so an unconditional dispatch here recurses forever with no base case.
+    const _signature = `${netWorth}|${totalAssets}|${totalLiabilities}`;
+    if (_signature !== _lastComputeSignature) {
+      _lastComputeSignature = _signature;
+      document.dispatchEvent(new CustomEvent('finos-networth-updated', { detail: { netWorth, totalAssets, totalLiabilities } }));
+    }
 
     return { breakdown, liabilities, totalAssets, totalLiabilities, netWorth, firePercent: _firePct };
   }

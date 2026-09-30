@@ -1,6 +1,6 @@
 # FIN-OS HTML Pages
 
-> Version: 1.5 | Date: September 15, 2026  
+> Version: 1.6 | Date: September 29, 2026  
 > Total: **117 pages** in this folder + `index.html` + `login.html` = **119 pages**
 
 ---
@@ -148,7 +148,7 @@ Reachable only via dynamically-injected personalization/insight cards (`js/finos
 | File | Purpose |
 |---|---|
 | `calculators.html` | Calculator grid (all 88 tools) |
-| `tools.html` | Tools directory |
+| `tools.html` | Tools directory — calculator/simulator grid plus a **Command Hub Trackers** quick-access strip (added Sept 29 2026) cross-linking 22 of the 23 stateful trackers so they're reachable without drilling into `track-finances.html` |
 | `insurance-directory.html` | Insurance directory |
 | `insurance-hub.html` | Insurance intelligence hub |
 | `couple-finance.html` | Couple financial planning |
@@ -192,6 +192,27 @@ Reachable only via dynamically-injected personalization/insight cards (`js/finos
   <link rel="stylesheet" href="../css/[page].css">
 </head>
 ```
+
+---
+
+## Shared Page-Header Component (added Sept 29 2026)
+
+`css/components.css` now has a canonical `.page-header` block — the icon + title + subtitle (+ optional trailing actions) shape that most pages previously hand-rolled under their own class name (`.tools-header`, `.epf-page-header`, ad hoc `<header style="...">`, etc.). New pages should use this instead of inventing another one-off class:
+
+```html
+<a class="page-back-link" href="...">← Back to X</a>       <!-- optional -->
+<nav class="page-breadcrumb">...</nav>                     <!-- optional, instead of the back-link -->
+<header class="page-header">
+  <span class="page-header-icon">🏛️</span>                 <!-- optional -->
+  <div class="page-header-body">
+    <h1 class="page-header-title">Title</h1>
+    <p class="page-header-sub">Subtitle</p>
+  </div>
+  <div class="page-header-actions">...</div>                <!-- optional -->
+</header>
+```
+
+`.page-back-link` and `.page-breadcrumb` compose with `.page-header` but aren't part of it — use one of the two (not both) above it, or neither. Existing pages were **not** retroactively converted (that needs a per-page visual QA pass); `net-worth.html` was converted as the first real usage and is the reference example if you want to see it in a live page.
 
 ---
 

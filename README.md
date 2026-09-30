@@ -41,7 +41,7 @@ FIN•OS is a full-stack personal finance operating system built for Indian user
 
 | Dimension | Count / Value |
 |---|---|
-| HTML pages | **96** (94 in `html/` + `index.html` + `login.html`) |
+| HTML pages | **119** (117 in `html/` + `index.html` + `login.html`) |
 | Financial calculators | **88** across 9 categories |
 | CSS stylesheets | **45** (incl. design tokens + interaction system) |
 | JavaScript modules | **91** (incl. arya-sidebar-panel.js, arya-roadmap.js) |
@@ -54,7 +54,7 @@ FIN•OS is a full-stack personal finance operating system built for Indian user
 | Voice AI model | qwen2.5:3b preferred / auto-selected via `_pick_ollama_model()` (Ollama, local) |
 | STT | faster-whisper tiny int8 (local, 8 threads) |
 | TTS | Edge Neural — en-IN-PrabhatNeural / hi-IN-MadhurNeural |
-| Widget coverage | ALL 96 pages + ALL 88 calculators (`finos-widget.js?v=7`) |
+| Widget coverage | ALL 119 pages + ALL 88 calculators (`finos-widget.js?v=7`) |
 | Navigation engine | 130+ routes, voice + text navigation |
 | Vercel Edge Function | `api/chat.js` — OpenRouter proxy (deployed, `CLOUD_MODE=false`) |
 | Portfolio.AI version | **v10** — **22,570 lines**, 10 pages, Arya AI on all pages, QGLP + rich macro context + smart chips, server.py :8766 |
@@ -65,7 +65,7 @@ FIN•OS is a full-stack personal finance operating system built for Indian user
 
 ```
 Browser (finos1.vercel.app — HTTPS)
-├── 96 HTML pages + 88 calculators + React budget app
+├── 119 HTML pages + 88 calculators + React budget app
 │
 ├── css/design-tokens.css    → 133 CSS variables — single source of truth
 ├── css/interactions.css     → 180+ premium hover effects (zero-fill)
@@ -131,7 +131,7 @@ python -m http.server 3000
 # Open http://localhost:3000
 ```
 
-All 96 pages, 88 calculators, and education modules work with just this.
+All 119 pages, 88 calculators, and education modules work with just this.
 
 ### Voice AI (local Ollama)
 
@@ -191,7 +191,7 @@ The site uses a **zero-fill hover vocabulary** — no flat background fills on h
 | Anti-FOUC | Inline `<script>` IIFE in `<head>` before any `<link>` |
 | Persistence | `localStorage['finos-theme']`, `localStorage['theme']`, `FINOS_SYS_SETTINGS.theme` |
 | Light-mode coverage | 360 rules in `theme.css` |
-| Page coverage | 100% — all 96 pages have anti-FOUC + theme toggle |
+| Page coverage | 100% — all 119 pages have anti-FOUC + theme toggle |
 
 ---
 
@@ -309,7 +309,7 @@ Initial Deployment/
 ├── vercel.json                 Rewrites, security headers, CSP, iframe override
 ├── api/
 │   └── chat.js                 Vercel Edge Function — OpenRouter proxy
-├── html/                       94 main app pages
+├── html/                       117 main app pages
 ├── css/                        45 stylesheets
 ├── js/                         91 JavaScript modules
 ├── assets/                     Images, icons, fonts
@@ -345,7 +345,7 @@ Initial Deployment/
 
 ## Deployment
 
-**No git repository** — deploy directly:
+Tracked in git (`origin` → `github.com/vikasmanjunath-dev/FIN-OS`, branch `main`), but Vercel deploys directly from the local files regardless of git state — no push required first:
 
 ```bash
 cd "Initial Deployment"

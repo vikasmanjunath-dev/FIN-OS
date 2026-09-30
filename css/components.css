@@ -1005,6 +1005,84 @@
 }
 
 /* =========================
+   PAGE BREADCRUMB — optional trail, sits above .page-header.
+   Composes with .page-back-link (use one or the other, not both,
+   on a given page) rather than replacing it.
+   ========================= */
+.page-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+.page-breadcrumb a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color .2s;
+}
+.page-breadcrumb a:hover { color: var(--accent); }
+.page-breadcrumb-sep { opacity: .4; }
+
+/* =========================
+   PAGE HEADER — canonical icon + title + subtitle (+ optional
+   trailing actions) block. Replaces the many hand-rolled per-page
+   equivalents (.tools-header, .epf-page-header, ad hoc <header
+   style="..."> blocks, etc.) that all repeat this same shape with
+   different class names and slightly different spacing/sizing.
+   Markup:
+     <a class="page-back-link">...</a>          (optional)
+     <nav class="page-breadcrumb">...</nav>      (optional, instead of back-link)
+     <header class="page-header">
+       <span class="page-header-icon">🏛️</span>  (optional)
+       <div class="page-header-body">
+         <h1 class="page-header-title">Title</h1>
+         <p class="page-header-sub">Subtitle</p>
+       </div>
+       <div class="page-header-actions">...</div> (optional)
+     </header>
+   New pages should use this instead of inventing a new header class;
+   existing pages are not retroactively converted in this pass — each
+   has its own tuned spacing/sizing and swapping the markup site-wide
+   needs a per-page visual QA pass this session didn't do.
+   ========================= */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.page-header-icon {
+  font-size: 36px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.page-header-body { min-width: 0; }
+.page-header-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 6px;
+}
+.page-header-sub {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+.page-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* =========================
    CROSS-LINK PILL — small "related tool →" chip used in Command
    Hub tracker headers. Token-based so it needs no per-page
    light-theme override (unlike the hardcoded rgba(255,255,255,..)

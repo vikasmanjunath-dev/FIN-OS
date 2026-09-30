@@ -24,7 +24,7 @@
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-tracker-sync.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
-  <script src="../js/finos-net-worth.js" defer></script>
+  <script src="../js/finos-net-worth.js?v=2" defer></script>
 </head>
 <body>
 <div class="app">
@@ -123,12 +123,13 @@
   <main class="main">
     <div class="content-wrapper">
 
-      <header class="header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-        <div>
-          <h1>💎 Net Worth</h1>
-          <p style="color:rgba(255,255,255,.5);font-size:13px;">Equity · SIPs · Fixed Income · Real Estate · Gold · Crypto — unified balance sheet</p>
+      <header class="page-header">
+        <span class="page-header-icon">💎</span>
+        <div class="page-header-body">
+          <h1 class="page-header-title">Net Worth</h1>
+          <p class="page-header-sub">Equity · SIPs · Fixed Income · Real Estate · Gold · Crypto — unified balance sheet</p>
         </div>
-        <div style="display:flex;gap:8px;">
+        <div class="page-header-actions">
           <a href="dashboard.html" style="padding:8px 16px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:rgba(255,255,255,.6);font-size:12px;font-weight:700;text-decoration:none;">← Dashboard</a>
         </div>
       </header>

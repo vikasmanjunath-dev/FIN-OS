@@ -75,7 +75,7 @@
     }
     .tf-eyebrow-line {
       width: 28px; height: 1.5px;
-      background: linear-gradient(90deg, #4f7cff, transparent);
+      background: linear-gradient(90deg, var(--accent-primary), transparent);
       border-radius: 2px;
     }
     .tf-eyebrow-text {
@@ -83,7 +83,7 @@
       font-size: 10px; font-weight: 600;
       letter-spacing: .22em;
       text-transform: uppercase;
-      color: #4f7cff;
+      color: var(--accent-primary);
     }
 
     /* ── HERO HEADER ── */
@@ -534,22 +534,22 @@
           <!-- Health Score + Peer Benchmark + Savings Rate row -->
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:18px;" id="tf-metrics-row">
             <!-- Net Worth -->
-            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;text-align:center;">
+            <div style="background:rgba(255,255,255,.04);border:1px solid var(--border-soft);border-radius:14px;padding:14px;text-align:center;">
               <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">Net Worth</div>
               <div style="font-size:1.4rem;font-weight:900;" id="tf-nw-val">—</div>
             </div>
             <!-- Health Score -->
-            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;text-align:center;">
+            <div style="background:rgba(255,255,255,.04);border:1px solid var(--border-soft);border-radius:14px;padding:14px;text-align:center;">
               <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">Health Score</div>
               <div style="font-size:1.4rem;font-weight:900;" id="tf-hs-val">—</div>
             </div>
             <!-- Savings Rate -->
-            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;text-align:center;">
+            <div style="background:rgba(255,255,255,.04);border:1px solid var(--border-soft);border-radius:14px;padding:14px;text-align:center;">
               <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">Savings Rate</div>
               <div style="font-size:1.4rem;font-weight:900;" id="tf-sr-val">—</div>
             </div>
             <!-- FIRE Progress -->
-            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;text-align:center;">
+            <div style="background:rgba(255,255,255,.04);border:1px solid var(--border-soft);border-radius:14px;padding:14px;text-align:center;">
               <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">FIRE Progress</div>
               <div style="font-size:1.4rem;font-weight:900;" id="tf-fire-val">—</div>
             </div>
@@ -1715,7 +1715,6 @@ function checkExpenseEngine(e) {
 }
 [data-theme="light"] .tf-desc { color: #4A5068 !important; }
 [data-theme="light"] .tf-divider-label { color: #B0B8D0 !important; }
-[data-theme="light"] .tf-eyebrow-text { color: #4F7CFF !important; }
 [data-theme="light"] #tf-stars { opacity: 0.04 !important; }
 </style>
 
