@@ -86,7 +86,7 @@
     const coins = [...new Set(holdings.map(h => h.symbol))];
     el.innerHTML = `
       <div class="ct-price-bar">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:12px;">Update Current Prices (₹)</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:12px;">Update Current Prices (₹)</div>
         <div class="ct-price-grid">
           ${coins.map(sym => `
             <div class="ct-price-item">

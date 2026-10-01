@@ -220,7 +220,7 @@
         .fd-maturity-bar { height:5px;background:rgba(255,255,255,.08);border-radius:3px;margin-top:10px;overflow:hidden; }
         .fd-maturity-fill { height:100%;border-radius:3px;transition:width .6s ease; }
         .fd-type-group { margin-bottom:24px; }
-        .fd-type-header { font-size:11px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;display:flex;align-items:center;gap:8px; }
+        .fd-type-header { font-size:11px;font-weight:700;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;display:flex;align-items:center;gap:8px; }
         .fd-empty { text-align:center;padding:40px;color:#8892A4;font-size:13px; }
       </style>
 
@@ -260,7 +260,7 @@
         }
       </div>
 
-      <div style="font-size:11px;color:rgba(255,255,255,.2);text-align:right;margin-top:12px;">
+      <div style="font-size:11px;color:rgba(255,255,255,0.58);text-align:right;margin-top:12px;">
         Interest computed with compound-interest math · Rates as entered · For reference only
       </div>`;
   }

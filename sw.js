@@ -9,7 +9,14 @@
 // Cache version — bump this manually when deploying breaking CSS/JS changes.
 // Format: finos-YYYY-MM-DD-N (N = daily build counter).
 // The inject-sw-version.js build script can override this automatically.
-const CACHE_NAME = (typeof __CACHE_VERSION__ !== 'undefined') ? __CACHE_VERSION__ : 'finos-2026-09-16-1';
+const CACHE_NAME = (typeof __CACHE_VERSION__ !== 'undefined') ? __CACHE_VERSION__ : 'finos-2026-10-01-2';
+
+// Shared reminder-selection logic (pure; same file the page uses). importScripts() is only allowed during the
+// worker's initial evaluation, so it must be here and not inside the periodicsync handler. Failure is non-fatal.
+try { importScripts('./js/finos-reminders.js'); } catch (e) { console.warn('[SW] finos-reminders.js unavailable — background reminders disabled'); }
+
+const ICON_URL  = new URL('./assets/icons/icon-192.png', self.registration.scope).href;
+const BADGE_URL = new URL('./assets/icons/icon-72.png',  self.registration.scope).href;
 
 // Pre-cached static assets (relative to sw.js at root)
 const PRECACHE_ASSETS = [
@@ -42,8 +49,19 @@ const PRECACHE_ASSETS = [
   './js/supabase-config.js',
   './js/finos-toast.js',
   './js/finos-async.js',
+  './js/finos-store.js',
+  './js/finos-api.js',
+  './js/finos-a11y.js',
+  './js/finos-i18n.js',
+  './js/finos-vault-boot.js',
+  './js/finos-vault.js',
+  './js/finos-format.js',
+  './js/finos-taxdates.js',
   './js/finos-context.js',
   './js/arya-ai.js',
+  './js/arya-lazy.js',
+  './js/arya-guardrails.js',
+  './js/arya-pulse-rank.js',
   './js/arya-memory.js',
   './js/arya-life-events.js',
   './js/arya-scenarios.js',
@@ -56,6 +74,8 @@ const PRECACHE_ASSETS = [
   './manifest.json',
   './assets/icons/icon-192.svg',
   './assets/icons/icon-512.svg',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png',
 ];
 
 // Offline fallback HTML
@@ -184,10 +204,15 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  // Cache-first for CSS, JS, fonts, images, SVG, JSON (manifest/data)
+  // Stale-while-revalidate for code and data: instant from cache, refreshed in the background, so a deploy
+  // reaches returning visitors on their NEXT load without anyone having to bump CACHE_NAME by hand.
+  if (path.endsWith('.js') || path.endsWith('.css') || path.endsWith('.json')) {
+    event.respondWith(staleWhileRevalidate(req));
+    return;
+  }
+
+  // Cache-first for fonts, images, SVG (immutable in practice)
   if (
-    path.endsWith('.css') ||
-    path.endsWith('.js') ||
     path.endsWith('.svg') ||
     path.endsWith('.png') ||
     path.endsWith('.jpg') ||
@@ -196,8 +221,7 @@ self.addEventListener('fetch', function (event) {
     path.endsWith('.woff') ||
     path.endsWith('.woff2') ||
     path.endsWith('.ttf') ||
-    path.endsWith('.eot') ||
-    path.endsWith('.json')
+    path.endsWith('.eot')
   ) {
     event.respondWith(cacheFirstStatic(req));
     return;
@@ -234,6 +258,66 @@ function networkFirstHTML(req) {
    PUSH NOTIFICATIONS — FIN-OS Alert Engine
    ══════════════════════════════════════════════════════════════════ */
 
+
+/* ══════════════════════════════════════════════════════════════════
+   BACKGROUND REMINDERS — SIP debits, renewals, maturities, tax dates
+   The page mirrors the next 45 days of events into IndexedDB (finos/snapshots/upcoming-reminders)
+   because a service worker cannot read localStorage. Chrome wakes this handler about twice a day for
+   installed PWAs that have the "periodic-background-sync" permission; elsewhere reminders still fire
+   while the site is open (js/finos-reminders.js).
+   ══════════════════════════════════════════════════════════════════ */
+function readReminderSnapshot() {
+  return new Promise(function (resolve) {
+    if (!self.indexedDB) return resolve(null);
+    const open = indexedDB.open('finos');
+    // Never create the DB from here — if the page hasn't made it yet, abort so the page's own upgrade still runs.
+    open.onupgradeneeded = function (e) { e.target.transaction.abort(); resolve(null); };
+    open.onerror = function () { resolve(null); };
+    open.onsuccess = function () {
+      const db = open.result;
+      if (!db.objectStoreNames.contains('snapshots')) { db.close(); return resolve(null); }
+      const req = db.transaction('snapshots', 'readonly').objectStore('snapshots').get('upcoming-reminders');
+      req.onsuccess = function () { db.close(); resolve(req.result || null); };
+      req.onerror = function () { db.close(); resolve(null); };
+    };
+  });
+}
+function writeReminderSnapshot(snap) {
+  return new Promise(function (resolve) {
+    const open = indexedDB.open('finos');
+    open.onupgradeneeded = function (e) { e.target.transaction.abort(); resolve(); };
+    open.onerror = function () { resolve(); };
+    open.onsuccess = function () {
+      const db = open.result;
+      if (!db.objectStoreNames.contains('snapshots')) { db.close(); return resolve(); }
+      const tx = db.transaction('snapshots', 'readwrite');
+      tx.objectStore('snapshots').put(snap);
+      tx.oncomplete = tx.onerror = function () { db.close(); resolve(); };
+    };
+  });
+}
+
+async function runBackgroundReminders() {
+  const snap = await readReminderSnapshot();
+  if (!snap || !Array.isArray(snap.events)) return;
+  const R = self.FinosReminders;
+  if (!R || !R.select) return;
+  const d = new Date();
+  const today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const seen = snap.seen || {};
+  const picks = R.select(snap.events, today, seen);
+  for (const r of picks) {
+    const m = R.message(r);
+    await self.registration.showNotification(m.title, { body: m.body, tag: r.key, icon: ICON_URL, badge: BADGE_URL, data: { url: new URL('./html/financial-calendar.html', self.registration.scope).href } });
+    seen[r.key] = today;
+  }
+  if (picks.length) { snap.seen = seen; await writeReminderSnapshot(snap); }
+}
+
+self.addEventListener('periodicsync', function (event) {
+  if (event.tag === 'finos-reminders') event.waitUntil(runBackgroundReminders());
+});
+
 /* Receive push from alert-engine.py via pywebpush */
 self.addEventListener('push', function (event) {
   if (!event.data) return;
@@ -246,13 +330,13 @@ self.addEventListener('push', function (event) {
   const title   = payload.title   || 'FIN-OS';
   const options = {
     body:    payload.body    || '',
-    icon:    '/assets/icons/icon-192.svg',
-    badge:   '/assets/icons/icon-72.svg',
+    icon:    ICON_URL,
+    badge:   BADGE_URL,
     tag:     payload.tag     || 'finos-alert',
     data:    payload.data    || {},
     vibrate: [150, 50, 150],
     actions: payload.data?.url ? [
-      { action: 'open',    title: '📊 Open',    icon: '/assets/icons/icon-72.svg' },
+      { action: 'open',    title: '📊 Open' },
       { action: 'dismiss', title: '✕ Dismiss' },
     ] : [],
     requireInteraction: payload.requireInteraction || false,
@@ -311,6 +395,19 @@ self.addEventListener('pushsubscriptionchange', function (event) {
     })
   );
 });
+
+/* ── Strategy: Stale-while-revalidate (JS / CSS / JSON) ─────────── */
+function staleWhileRevalidate(req) {
+  return caches.open(CACHE_NAME).then(function (cache) {
+    return cache.match(req).then(function (cached) {
+      const network = fetch(req).then(function (response) {
+        if (response && response.status === 200) cache.put(req, response.clone());
+        return response;
+      }).catch(function () { return cached; });
+      return cached || network;                 // cached → instant; background fetch refreshes it
+    });
+  });
+}
 
 /* ── Strategy: Cache-first (static assets) ─────────────────────── */
 function cacheFirstStatic(req) {

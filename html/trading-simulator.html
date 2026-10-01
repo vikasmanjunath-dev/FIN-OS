@@ -2,6 +2,7 @@
 <html lang="en" class="dark">
 
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);if(t==='dark')document.documentElement.classList.add('dark');else document.documentElement.classList.remove('dark');})();
 </script>
@@ -13,7 +14,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
     <title>Trading Simulator | India's First Thinking Trading OS | FIN-OS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -792,10 +793,13 @@
 </style>
 <a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 
-  <script src="../js/finos-widget.js?v=9"></script>
-  <script src="../js/finos-search.js?v=3"></script>
+  <script src="../js/finos-widget.js?v=10"></script>
+  <script src="../js/finos-search.js?v=4"></script>
   <script src="../js/interactions.js" defer></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 </body>
 
 </html>

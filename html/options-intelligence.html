@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <meta charset="UTF-8">
@@ -17,6 +18,7 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=7" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
@@ -49,7 +51,7 @@
   font-weight:800;
   text-transform:uppercase;
   letter-spacing:.08em;
-  color:rgba(255,255,255,.4);
+  color:rgba(255,255,255,0.58);
   margin-bottom:16px;
 }
 
@@ -64,7 +66,7 @@
   text-align:center;
 }
 .greek-symbol { font-size:22px; font-weight:900; margin-bottom:3px; }
-.greek-name   { font-size:10px; color:rgba(255,255,255,.4); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+.greek-name   { font-size:10px; color:rgba(255,255,255,0.58); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
 .greek-val    { font-size:17px; font-weight:700; color:#F5F7FA; }
 
 /* IV gauge */
@@ -84,7 +86,7 @@
   transition:left .7s cubic-bezier(.34,1.56,.64,1);
   box-shadow:0 0 6px rgba(255,255,255,.5);
 }
-.iv-labels { display:flex; justify-content:space-between; font-size:10px; color:rgba(255,255,255,.35); }
+.iv-labels { display:flex; justify-content:space-between; font-size:10px; color:rgba(255,255,255,0.58); }
 
 /* IV metric tiles */
 .iv-tile {
@@ -95,9 +97,9 @@
   text-align:center;
   flex:1;
 }
-.iv-tile-label { font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:rgba(255,255,255,.4); margin-bottom:6px; }
+.iv-tile-label { font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:rgba(255,255,255,0.58); margin-bottom:6px; }
 .iv-tile-val   { font-size:26px; font-weight:900; line-height:1; }
-.iv-tile-sub   { font-size:10px; color:rgba(255,255,255,.35); margin-top:4px; }
+.iv-tile-sub   { font-size:10px; color:rgba(255,255,255,0.58); margin-top:4px; }
 
 /* Strategy cards */
 .strategy-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
@@ -116,7 +118,7 @@
   transform:translateY(-2px);
 }
 .strategy-name { font-size:13px; font-weight:700; margin-bottom:5px; }
-.strategy-desc { font-size:11px; color:rgba(255,255,255,.45); line-height:1.5; margin-bottom:10px; }
+.strategy-desc { font-size:11px; color:rgba(255,255,255,0.58); line-height:1.5; margin-bottom:10px; }
 .risk-badge { font-size:10px; font-weight:800; padding:2px 9px; border-radius:20px; display:inline-block; }
 .risk-low    { background:rgba(34,211,166,.15); color:#22d3a6; }
 .risk-medium { background:rgba(240,165,0,.15);  color:#f0a500; }
@@ -143,7 +145,7 @@
 .chain-table th {
   padding:8px 10px;
   background:var(--bg-surface);
-  color:rgba(255,255,255,.4);
+  color:rgba(255,255,255,0.58);
   text-align:right;
   font-size:10px;
   font-weight:700;
@@ -154,13 +156,13 @@
 .chain-table td { padding:8px 10px; border-bottom: 1px solid var(--border-soft); text-align:right; }
 .chain-table tr.atm td { background:rgba(0,212,255,.05); }
 .chain-itm { color:#22d3a6; }
-.chain-otm { color:rgba(255,255,255,.35); }
+.chain-otm { color:rgba(255,255,255,0.58); }
 .chain-strike { font-weight:800; color:#F5F7FA; text-align:center !important; background:var(--bg-surface); padding:8px 14px !important; }
 
 /* Inputs */
 .opt-input-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
 @media(max-width:400px){ .opt-input-row { grid-template-columns:1fr; } }
-.opt-label { font-size:11px; color:rgba(255,255,255,.45); display:block; margin-bottom:5px; }
+.opt-label { font-size:11px; color:rgba(255,255,255,0.58); display:block; margin-bottom:5px; }
 .opt-input {
   width:100%;
   padding:10px 12px;
@@ -201,11 +203,11 @@
 .page-breadcrumb {
   display:flex; align-items:center; gap:8px;
   margin-bottom:20px;
-  font-size:13px; color:rgba(255,255,255,.4);
+  font-size:13px; color:rgba(255,255,255,0.58);
 }
-.page-breadcrumb a { color:rgba(255,255,255,.4); text-decoration:none; }
+.page-breadcrumb a { color:rgba(255,255,255,0.58); text-decoration:none; }
 .page-breadcrumb a:hover { color:#00d4ff; }
-.page-breadcrumb span { color:rgba(255,255,255,.2); }
+.page-breadcrumb span { color:rgba(255,255,255,0.58); }
 
 /* Modal */
 .opt-modal {
@@ -231,28 +233,28 @@
 }
 
 /* ── LIGHT MODE ───────────────────────────────────────────── */
-[data-theme="light"] .opt-card-title  { color:rgba(0,0,0,.45); }
-[data-theme="light"] .greek-name      { color:rgba(0,0,0,.45); }
+[data-theme="light"] .opt-card-title  { color:rgba(0,0,0,0.62); }
+[data-theme="light"] .greek-name      { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .greek-val       { color:#0B0D12; }
 [data-theme="light"] .iv-gauge-needle { background:#0B0D12; box-shadow:0 0 6px rgba(0,0,0,.25); }
-[data-theme="light"] .iv-labels       { color:rgba(0,0,0,.4); }
-[data-theme="light"] .iv-tile-label   { color:rgba(0,0,0,.45); }
-[data-theme="light"] .iv-tile-sub     { color:rgba(0,0,0,.4); }
-[data-theme="light"] .strategy-desc   { color:rgba(0,0,0,.5); }
+[data-theme="light"] .iv-labels       { color:rgba(0,0,0,0.62); }
+[data-theme="light"] .iv-tile-label   { color:rgba(0,0,0,0.62); }
+[data-theme="light"] .iv-tile-sub     { color:rgba(0,0,0,0.62); }
+[data-theme="light"] .strategy-desc   { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .quiz-option     { color:#0B0D12; }
-[data-theme="light"] .chain-table th  { color:rgba(0,0,0,.45); }
-[data-theme="light"] .chain-otm       { color:rgba(0,0,0,.4); }
+[data-theme="light"] .chain-table th  { color:rgba(0,0,0,0.62); }
+[data-theme="light"] .chain-otm       { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .chain-strike    { color:#0B0D12; }
-[data-theme="light"] .opt-label       { color:rgba(0,0,0,.5); }
+[data-theme="light"] .opt-label       { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .iv-rec          { color:rgba(0,0,0,.65); }
-[data-theme="light"] .opt-modal-close { color:rgba(0,0,0,.5); }
+[data-theme="light"] .opt-modal-close { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .opt-modal-box {
   background: #ffffff;
   border-color: rgba(0,0,0,.1);
 }
 [data-theme="light"] .page-breadcrumb,
-[data-theme="light"] .page-breadcrumb a { color:rgba(0,0,0,.45); }
-[data-theme="light"] .page-breadcrumb span { color:rgba(0,0,0,.25); }
+[data-theme="light"] .page-breadcrumb a { color:rgba(0,0,0,0.62); }
+[data-theme="light"] .page-breadcrumb span { color:rgba(0,0,0,0.62); }
 </style>
   <link rel="stylesheet" href="../css/interactions.css">
 </head>
@@ -375,7 +377,7 @@
       <header class="header" style="margin-bottom:8px;">
         <div>
           <h1 style="margin-bottom:4px;">⚡ Options Intelligence</h1>
-          <p style="font-size:13px;color:rgba(255,255,255,.45);margin:0;">Greeks · IV Rank · Strategy builder · F&amp;O readiness quiz</p>
+          <p style="font-size:13px;color:rgba(255,255,255,0.58);margin:0;">Greeks · IV Rank · Strategy builder · F&amp;O readiness quiz</p>
           <a href="../calculators/trading%20%26%20markets/options.html" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:600;opacity:.7;">📈 Just need a payoff diagram for one trade? Options Payoff Calculator →</a>
         </div>
       </header>
@@ -391,7 +393,7 @@
         <!-- Card 1: F&O Readiness Quiz -->
         <div class="opt-card">
           <div class="opt-card-title">🧠 Am I Ready for F&amp;O?</div>
-          <p style="font-size:13px;color:rgba(255,255,255,.45);margin:0 0 18px;line-height:1.6;">5 questions to assess your F&amp;O readiness based on your experience, capital, and risk profile.</p>
+          <p style="font-size:13px;color:rgba(255,255,255,0.58);margin:0 0 18px;line-height:1.6;">5 questions to assess your F&amp;O readiness based on your experience, capital, and risk profile.</p>
 
           <div id="quiz-q1">
             <div style="font-size:14px;font-weight:700;color:#F5F7FA;margin-bottom:12px;">1. How long have you been investing in equities?</div>
@@ -459,7 +461,7 @@
             </div>
           </div>
 
-          <div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:5px;">IV Rank — 0 = cheap options (buy) · 100 = expensive options (sell)</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:5px;">IV Rank — 0 = cheap options (buy) · 100 = expensive options (sell)</div>
           <div class="iv-gauge-bar">
             <div class="iv-gauge-needle" id="iv-needle" style="left:50%"></div>
           </div>
@@ -553,7 +555,7 @@
         <!-- Card 4: Options Chain -->
         <div class="opt-card">
           <div class="opt-card-title">📋 Simulated Options Chain (Nifty)</div>
-          <p style="font-size:12px;color:rgba(255,255,255,.35);margin:0 0 14px;line-height:1.5;">Indicative data for education. ATM = closest strike to spot. <span style="color:#22d3a6;">Green = ITM calls</span> · <span style="color:rgba(255,255,255,.35);">Grey = OTM</span></p>
+          <p style="font-size:12px;color:rgba(255,255,255,0.58);margin:0 0 14px;line-height:1.5;">Indicative data for education. ATM = closest strike to spot. <span style="color:#22d3a6;">Green = ITM calls</span> · <span style="color:rgba(255,255,255,0.58);">Grey = OTM</span></p>
           <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
             <table class="chain-table" id="options-chain">
               <thead>
@@ -593,7 +595,7 @@
   </div>
 </div>
 
-<script src="../js/finos-widget.js?v=9"></script>
+<script src="../js/finos-widget.js?v=10"></script>
 <script src="../js/mobile-nav.js" defer></script>
 
 <script>
@@ -628,7 +630,7 @@ window._quizNext = function() {
     <div style="background:rgba(255,255,255,.04);border:1px solid ${res.color}25;border-radius:14px;padding:22px;text-align:center;">
       <div style="font-size:22px;font-weight:900;color:${res.color};margin-bottom:6px;">${res.verdict}</div>
       <div style="font-size:32px;font-weight:900;margin-bottom:4px;">${pct}%</div>
-      <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:14px;">Readiness Score</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.58);margin-bottom:14px;">Readiness Score</div>
       <div style="font-size:13px;color:rgba(255,255,255,.65);line-height:1.7;text-align:left;background:rgba(255,255,255,.03);border-radius:10px;padding:14px;">${res.advice}</div>
       <button onclick="_resetQuiz()" style="margin-top:16px;padding:9px 22px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;">Retake Quiz</button>
     </div>`;
@@ -769,7 +771,10 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 <button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
 <script>
@@ -790,5 +795,6 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 <script src="../js/ui.js" defer></script>
+<script src="../js/pwa-init.js"></script>
 </body>
 </html>

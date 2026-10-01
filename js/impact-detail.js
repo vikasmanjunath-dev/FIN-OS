@@ -399,30 +399,3 @@ expenses grow slower than income.
 
 
 
-  const steps = document.querySelectorAll(".flow-step");
-  const insightBox = document.getElementById("flowInsight");
-
-  steps.forEach(step => {
-    step.addEventListener("click", () => {
-      steps.forEach(s => s.classList.remove("active"));
-      step.classList.add("active");
-
-      const id = step.dataset.step;
-      const data = insights[id];
-
-      insightBox.innerHTML = `
-        <h4>${data.title}</h4>
-        <p>${data.text.replace(/\n/g, "<br>")}</p>
-      `;
-
-      insightBox.classList.add("show");
-      insightBox.scrollIntoView({ behavior: "smooth", block: "center" });
-    });
-  });
-
-  // Auto-open first insight
-  steps[0].click();
-
-
-
-

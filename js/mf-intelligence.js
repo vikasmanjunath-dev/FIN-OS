@@ -55,7 +55,7 @@
       <div class="overlap-grid">
         ${[0,1,2].map(i => `
           <div>
-            <label style="font-size:10px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Fund ${i+1}</label>
+            <label style="font-size:10px;color:rgba(255,255,255,0.58);display:block;margin-bottom:4px;">Fund ${i+1}</label>
             <select class="mf-select" id="mfSelect${i}">
               <option value="">— Select fund —</option>
               ${fundNames.map(f => `<option value="${f}">${f}</option>`).join('')}
@@ -103,12 +103,12 @@
           </div>
           <div style="text-align:right;">
             <div style="font-size:.85rem;font-weight:700;color:${color};">${verdict}</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.4);">${overlap.length} common holdings across ${funds.length} funds</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.58);">${overlap.length} common holdings across ${funds.length} funds</div>
           </div>
         </div>
         ${overlap.length > 0 ? `
           <div style="margin-bottom:10px;">
-            <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:8px;text-transform:uppercase;letter-spacing:.8px;">Overlapping Holdings</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:8px;text-transform:uppercase;letter-spacing:.8px;">Overlapping Holdings</div>
             <div style="display:flex;flex-wrap:wrap;gap:6px;">
               ${overlap.slice(0,12).map(h => {
                 const bg = h.count === funds.length ? 'rgba(255,68,68,.2)' : 'rgba(255,149,0,.15)';
@@ -135,23 +135,23 @@
       <p style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:12px;">See how much expense ratio costs you over your investment horizon.</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
         <div>
-          <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Monthly SIP (₹)</label>
+          <label style="font-size:11px;color:rgba(255,255,255,0.58);display:block;margin-bottom:4px;">Monthly SIP (₹)</label>
           <input type="number" id="erSIP" value="10000" min="500" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px 12px;color:#fff;width:100%;font-size:13px;">
         </div>
         <div>
-          <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Years</label>
+          <label style="font-size:11px;color:rgba(255,255,255,0.58);display:block;margin-bottom:4px;">Years</label>
           <input type="range" id="erYears" min="5" max="40" value="20"
             oninput="document.getElementById('erYearsVal').textContent=this.value" style="width:100%;accent-color:#00d4ff;margin-top:8px;">
           <span id="erYearsVal" style="font-size:12px;color:#00d4ff;">20</span> years
         </div>
         <div>
-          <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Regular Plan ER (%)</label>
+          <label style="font-size:11px;color:rgba(255,255,255,0.58);display:block;margin-bottom:4px;">Regular Plan ER (%)</label>
           <input type="range" id="erRegular" min="0.5" max="3" step="0.1" value="1.8"
             oninput="document.getElementById('erRegVal').textContent=this.value" style="width:100%;accent-color:#ff9500;margin-top:8px;">
           <span id="erRegVal" style="font-size:12px;color:#ff9500;">1.8</span>%
         </div>
         <div>
-          <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Direct Plan ER (%)</label>
+          <label style="font-size:11px;color:rgba(255,255,255,0.58);display:block;margin-bottom:4px;">Direct Plan ER (%)</label>
           <input type="range" id="erDirect" min="0.1" max="1.5" step="0.1" value="0.6"
             oninput="document.getElementById('erDirVal').textContent=this.value" style="width:100%;accent-color:#22d3a6;margin-top:8px;">
           <span id="erDirVal" style="font-size:12px;color:#22d3a6;">0.6</span>%
@@ -183,18 +183,18 @@
           <div style="background:rgba(255,149,0,.08);border:1px solid rgba(255,149,0,.2);border-radius:12px;padding:14px;text-align:center;">
             <div style="font-size:10px;color:#ff9500;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;">Regular Plan (${erReg}% ER)</div>
             <div style="font-size:1.3rem;font-weight:900;">${INR(regCorpus)}</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.4);">after ${years} years</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.58);">after ${years} years</div>
           </div>
           <div style="background:rgba(34,211,166,.08);border:1px solid rgba(34,211,166,.2);border-radius:12px;padding:14px;text-align:center;">
             <div style="font-size:10px;color:#22d3a6;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;">Direct Plan (${erDir}% ER)</div>
             <div style="font-size:1.3rem;font-weight:900;color:#22d3a6;">${INR(dirCorpus)}</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.4);">after ${years} years</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.58);">after ${years} years</div>
           </div>
         </div>
         <div style="background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.2);border-radius:12px;padding:14px;text-align:center;margin-bottom:10px;">
           <div style="font-size:11px;color:#ff6b6b;margin-bottom:4px;">You lose this much by staying in Regular Plan:</div>
           <div style="font-size:2rem;font-weight:900;color:#ff6b6b;">${INR(diff)}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.4);">= ${(diff/invested*100).toFixed(0)}% of your total invested amount (${INR(invested)})</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.58);">= ${(diff/invested*100).toFixed(0)}% of your total invested amount (${INR(invested)})</div>
         </div>
         <div style="font-size:12px;color:rgba(255,255,255,.55);padding:10px;background:rgba(255,255,255,.03);border-radius:8px;">
           💡 Switch to Direct Plans via MF Central, Zerodha Coin, or Groww Direct. Takes 5 minutes. Saves ${INR(diff)} over ${years} years.
@@ -227,7 +227,7 @@
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <div>
             <span style="font-size:1.6rem;font-weight:900;color:${consistency >= 90 ? '#22d3a6' : consistency >= 70 ? '#ff9500' : '#ff4444'};">${consistency}%</span>
-            <span style="font-size:11px;color:rgba(255,255,255,.4);margin-left:6px;">SIP consistency (12 months)</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.58);margin-left:6px;">SIP consistency (12 months)</span>
           </div>
           <span style="font-size:12px;color:#00d4ff;font-weight:700;">🔥 ${streak}m streak</span>
         </div>
@@ -241,10 +241,10 @@
           }).join('')}
         </div>
         <div style="display:flex;gap:14px;margin-top:6px;">
-          <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:rgba(255,255,255,.4);">
+          <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:rgba(255,255,255,0.58);">
             <div style="width:10px;height:10px;border-radius:2px;background:rgba(34,211,166,.5);"></div> Paid
           </div>
-          <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:rgba(255,255,255,.4);">
+          <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:rgba(255,255,255,0.58);">
             <div style="width:10px;height:10px;border-radius:2px;background:rgba(255,68,68,.25);"></div> Missed
           </div>
         </div>
@@ -298,11 +298,11 @@
     ].sort((a,b) => b.return3y - a.return3y);
 
     containerEl.innerHTML = `
-      <p style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:10px;">3-year category average returns (indicative)</p>
+      <p style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:10px;">3-year category average returns (indicative)</p>
       ${categories.map(c => `
         <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);">
           <span style="font-size:12px;flex:1;color:rgba(255,255,255,.75);">${c.name}</span>
-          <span style="font-size:11px;color:rgba(255,255,255,.4);">${c.rank}</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.58);">${c.rank}</span>
           <span style="font-size:13px;font-weight:800;color:${c.color};min-width:40px;text-align:right;">${c.return3y}%</span>
         </div>`).join('')}`;
   }

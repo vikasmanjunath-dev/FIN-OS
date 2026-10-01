@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
@@ -12,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
     <title>THE SYSTEM LEAK [FORENSIC AUDIT] | FIN-OS</title>
     
       <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -642,7 +643,7 @@
 </div>
 
 <script src="../js/ui.js" defer></script>
-<script src="../js/system-leak.js"></script>
+<script src="../js/system-leak.js?v=2"></script>
 
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
@@ -782,7 +783,7 @@ html[data-theme="light"] .sinkhole-core .glitch-text { color: #ffffff !important
 [data-theme="light"] .metric-mini-card.critical .m-num { color: #ff4757 !important; }
 [data-theme="light"] .wealth-sphere { background: radial-gradient(circle, rgba(255,71,87,0.5) 0%, rgba(255,71,87,0.1) 60%, transparent 80%) !important; border-color: rgba(255,71,87,0.3) !important; }
 [data-theme="light"] .current-val { color: #0B0D12 !important; }
-[data-theme="light"] .residual-label { color: rgba(0,0,0,0.5) !important; }
+[data-theme="light"] .residual-label { color: rgba(0,0,0,0.62) !important; }
 [data-theme="light"] .beam-stat span { color: #4A5068 !important; }
 [data-theme="light"] .beam-stat strong { color: #0B0D12 !important; }
 [data-theme="light"] .beam-track { background: rgba(0,0,0,0.08) !important; }
@@ -816,11 +817,14 @@ html[data-theme="light"] .sinkhole-core .glitch-text { color: #ffffff !important
 [data-theme="light"] #floatBackBtn:hover { background: rgba(0,0,0,0.10) !important; color: #0B0D12 !important; }
 </style>
 
-  <script src="../js/finos-widget.js?v=9"></script>
-  <script src="../js/finos-search.js?v=3"></script>
+  <script src="../js/finos-widget.js?v=10"></script>
+  <script src="../js/finos-search.js?v=4"></script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 </body>
 </html>

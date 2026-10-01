@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
   <!-- [FIX] localStorage wrapped in try/catch — prevents SecurityError crash
        in Safari Private Browsing, strict iframe sandboxes, and storage-blocked envs -->
   <script>
@@ -30,7 +31,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
 
   <title>Financial X-Ray (God Mode Scan) | FIN-OS</title>
 
@@ -325,7 +326,7 @@
                display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🩻</div>
           <div>
             <div style="font-weight:700;font-size:11px;color: var(--accent-secondary);letter-spacing:2px;">ARYA • PRE-SCAN COACHING</div>
-            <div style="font-size:10px;color:rgba(255,255,255,.35);">What to focus on in your X-Ray</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.58);">What to focus on in your X-Ray</div>
           </div>
         </div>
         <div id="arya-xray-coach-text" style="font-size:12px;line-height:1.7;color:rgba(255,255,255,.7);">
@@ -531,6 +532,7 @@
 <!-- [FIX] type="module" is omitted intentionally — finances.js uses DOMContentLoaded,
      which fires correctly without it; adding module would change execution order -->
 <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=7" defer></script>
 <script>
@@ -601,11 +603,14 @@ Tone: sharp, direct, data-driven. Each bullet = 1 sentence. Use their actual num
 <a id="floatBackBtn" href="#" onclick="history.back(); return false;"
    role="button" aria-label="Go back to previous page">‹ BACK</a>
 
-  <script src="../js/finos-widget.js?v=9"></script>
-  <script src="../js/finos-search.js?v=3"></script>
+  <script src="../js/finos-widget.js?v=10"></script>
+  <script src="../js/finos-search.js?v=4"></script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 <button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
 <script>

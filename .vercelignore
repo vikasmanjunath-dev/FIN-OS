@@ -49,3 +49,12 @@ __pycache__/
 # Source files that are already built/deployed via dist/
 News1/src/
 ExpenseTracker/finos-budget/src/
+
+# Dev tooling — not part of the served site
+tests/
+scripts/
+package.json
+dist-min/
+rag-engine/Dockerfile
+arya-ai/Dockerfile
+gateway/

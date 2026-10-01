@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){
   /* Fix [H3]: wrap JSON.parse in try-catch — corrupted storage must not
@@ -253,10 +254,10 @@
                 <button class="color-swatch" data-color="#00D4FF" style="background:#00D4FF" onclick="setAccent('#00D4FF')" title="Cyan" aria-label="Accent: Cyan"></button>
                 <button class="color-swatch" data-color="#A78BFA" style="background:#A78BFA" onclick="setAccent('#A78BFA')" title="Violet" aria-label="Accent: Violet"></button>
                 <button class="color-swatch" data-color="#34D399" style="background:#34D399" onclick="setAccent('#34D399')" title="Emerald" aria-label="Accent: Emerald"></button>
-                <button class="color-swatch swatch-custom" title="Custom color" aria-label="Accent: Custom color">
-                  <input type="color" id="accentPicker" value="#4F7CFF" oninput="onAccentPicker(this.value)" title="Pick custom color">
-                  <span>+</span>
-                </button>
+                <label class="color-swatch swatch-custom" title="Custom color">
+                  <input type="color" id="accentPicker" value="#4F7CFF" oninput="onAccentPicker(this.value)" aria-label="Accent: Custom color">
+                  <span aria-hidden="true">+</span>
+                </label>
               </div>
               <div class="accent-preview-row">
                 <div class="accent-preview" id="accentPreview"></div>
@@ -323,6 +324,18 @@
               <option value="hinglish">Hinglish (Default)</option>
               <option value="english">Pure English</option>
               <option value="hindi">Pure Hindi</option>
+            </select>
+          </div>
+
+          <!-- Interface language -->
+          <div class="setting-row">
+            <div class="label-group">
+              <label for="uiLangSelect">Interface Language</label>
+              <span>Menus, buttons and labels. Your numbers and notes are never translated.</span>
+            </div>
+            <select id="uiLangSelect" onchange="setUILang(this.value)">
+              <option value="en" data-no-i18n>English</option>
+              <option value="hi" data-no-i18n>हिन्दी (Hindi)</option>
             </select>
           </div>
 
@@ -496,6 +509,25 @@
 
           <div class="setting-row">
             <div class="label-group">
+              <label>Due-Date Reminders</label>
+              <span>SIP debits, insurance renewals, maturities and tax dates — as browser notifications. <span id="remindersHint" style="opacity:.7"></span></span>
+            </div>
+            <label class="toggle-wrap">
+              <input type="checkbox" id="notifRemindersToggle" onchange="toggleReminders(this.checked)">
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+
+          <div class="setting-row" id="installRow" style="display:none">
+            <div class="label-group">
+              <label>Install FIN•OS</label>
+              <span>Add it to your home screen / desktop — opens full-screen and works offline.</span>
+            </div>
+            <button class="btn-outline" onclick="installApp()">Install app</button>
+          </div>
+
+          <div class="setting-row">
+            <div class="label-group">
               <label>Goal Nudges</label>
               <span>Weekly check-in on your savings &amp; investment goals.</span>
             </div>
@@ -518,6 +550,50 @@
               <span>Download all your FIN•OS data as a JSON file.</span>
             </div>
             <button class="btn-outline" onclick="exportData()">Export JSON</button>
+          </div>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Passcode Lock</label>
+              <span id="vaultHint">Encrypts your FIN•OS data on this device whenever it is locked, and asks for a passcode to open it. A forgotten passcode cannot be recovered.</span>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+              <button class="btn-outline" id="vaultToggleBtn" onclick="vaultToggle()">Set up</button>
+              <button class="btn-outline" id="vaultLockBtn" onclick="vaultLockNow()" hidden>Lock now</button>
+            </div>
+          </div>
+          <div class="setting-row" id="vaultMore" hidden>
+            <div class="label-group">
+              <label for="vaultIdle">Auto-lock after</label>
+              <span>Locks (and encrypts) after this long without activity while a FIN•OS tab is open. Closing a tab without locking does not encrypt.</span>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+              <select id="vaultIdle" onchange="vaultSetIdle(this.value)">
+                <option value="5">5 min</option><option value="10">10 min</option><option value="30">30 min</option><option value="120">2 hours</option>
+              </select>
+              <button class="btn-outline" onclick="vaultChange()">Change passcode</button>
+            </div>
+          </div>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Encrypted Backup</label>
+              <span>A passphrase-protected copy of your data. Without the passphrase it is unreadable — keep it safe.</span>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+              <button class="btn-outline" onclick="exportEncryptedBackup()">Export</button>
+              <button class="btn-outline" onclick="document.getElementById('importEncFile').click()">Restore</button>
+              <input type="file" id="importEncFile" accept="application/json,.json" hidden onchange="importEncryptedBackup(this)">
+            </div>
+          </div>
+
+          <div class="setting-row">
+            <div class="label-group">
+              <label>Restore From Backup</label>
+              <span>Import a FIN•OS export. Existing values are kept; only missing data is added.</span>
+            </div>
+            <button class="btn-outline" onclick="document.getElementById('importDataFile').click()">Import JSON</button>
+            <input type="file" id="importDataFile" accept="application/json,.json" hidden onchange="importData(this)">
           </div>
 
           <div class="setting-row">
@@ -733,12 +809,16 @@
 
 
 <script src="../js/finos-aa.js" defer></script>
-<script src="../js/ui.js?v=2"></script>
+<script src="../js/ui.js?v=3"></script>
+<script src="../js/finos-store.js"></script>
+<script src="../js/finos-reminders.js"></script>
+<script src="../js/finos-i18n.js"></script>
+<script src="../js/finos-vault.js"></script>
 <script src="../js/settings.js?v=3"></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=9"></script>
-<script src="../js/finos-search.js?v=3"></script>
+<script src="../js/finos-widget.js?v=10"></script>
+<script src="../js/finos-search.js?v=4"></script>
 
 <style>
 /* ── Alert Preferences Section ─────────────────────────────────────────── */
@@ -921,7 +1001,10 @@ const sb = (window.FINOS_SB && window.FINOS_SB.getClient()) || (window.supabase 
 </script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 
 <script>

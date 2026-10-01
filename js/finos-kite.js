@@ -28,7 +28,7 @@
 (function (global) {
   'use strict';
 
-  const ARYA_BASE   = 'http://localhost:7475';
+  const ARYA_BASE   = (window.FinosAPI && window.FinosAPI.base('arya')) || 'http://localhost:7475';
   const TOKEN_KEY   = 'finos_kite_access_token';
   const TOKEN_TS    = 'finos_kite_token_ts';
   const CACHE_KEY   = 'finos_kite_holdings_cache';
@@ -229,7 +229,7 @@
         .kite-btn-primary:hover { transform:translateY(-1px);box-shadow:0 4px 16px rgba(56,126,209,.4); }
         .kite-steps { display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:20px; }
         .kite-step { font-size:12px;color:#8892A4;display:flex;align-items:center;gap:6px; }
-        .kite-setup-link { font-size:12px;color:rgba(255,255,255,.3);margin-top:14px;display:block; }
+        .kite-setup-link { font-size:12px;color:rgba(255,255,255,0.58);margin-top:14px;display:block; }
       </style>
       <div class="kite-panel">
         <div class="kite-hero">
@@ -251,7 +251,7 @@
             First time? Create a Kite Connect app →
           </a>
         </div>
-        <div style="font-size:11px;color:rgba(255,255,255,.2);text-align:center;">
+        <div style="font-size:11px;color:rgba(255,255,255,0.58);text-align:center;">
           Your access token is stored locally and expires at end of trading day.
           FIN·OS never stores your credentials.
         </div>
@@ -367,7 +367,7 @@
           }
         </div>
 
-        <div style="font-size:11px;color:rgba(255,255,255,.2);text-align:right;margin-top:10px;">
+        <div style="font-size:11px;color:rgba(255,255,255,0.58);text-align:right;margin-top:10px;">
           Connected as ${userName} · Token refreshes after market day
         </div>
       </div>`;

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
@@ -12,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <title>Diagnostic Portal | FIN-OS</title>
   
   <style>
@@ -24,11 +25,7 @@
 
     /* Light Theme */
     :root[data-theme="light"] {
-      --bg-main: #F7F8FA;
-      --bg-surface: #FFFFFF;
       --bg-sidebar: #0E1117;
-      --text-primary: #0B0F19;
-      --text-secondary: #5B6475;
       --accent-primary: #4F7CFF;
       --accent-secondary: #C7F000;
       --border-soft: rgba(0,0,0,0.06);
@@ -36,11 +33,7 @@
 
     /* Dark Theme */
     :root[data-theme="dark"] {
-      --bg-main: #0B0D12;
-      --bg-surface: rgba(20,24,40,0.9);
       --bg-sidebar: #0E1117;
-      --text-primary: #F5F7FA;
-      --text-secondary: #9AA0B4;
       --accent-primary: #4F7CFF;
       --accent-secondary: #C7F000;
       --border-soft: rgba(255,255,255,0.08);
@@ -653,7 +646,7 @@
                display:flex;align-items:center;justify-content:center;font-size:16px;">🔍</div>
           <div>
             <div style="font-weight:700;font-size:12px;color:#4d7cff;letter-spacing:.6px;">ARYA • DIAGNOSTIC INTEL</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.4);">Which scan should you run first?</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.58);">Which scan should you run first?</div>
           </div>
         </div>
         <div id="arya-diag-text" style="font-size:14px;line-height:1.65;color:rgba(255,255,255,.78);">
@@ -855,6 +848,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=7" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
@@ -893,15 +887,15 @@ In 2 sentences: (1) which one they need MORE urgently based on their specific pr
     try {
       const result = await AryaAI.ask(prompt, (tok, display) => { if (display !== undefined) s.textContent = display; });
       if (result) { sessionStorage.setItem(cacheKey, result); el.textContent = result; }
-    } catch { el.innerHTML = '<span style="color:rgba(255,255,255,.3);">AI offline — run both diagnostics to discover your financial blind spots.</span>'; }
+    } catch { el.innerHTML = '<span style="color:rgba(255,255,255,0.58);">AI offline — run both diagnostics to discover your financial blind spots.</span>'; }
   })();
   </script>
   <script src="../js/ui.js" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
-  <script src="../js/finos-widget.js?v=9"></script>
+  <script src="../js/finos-widget.js?v=10"></script>
   <script src="../js/finos-mobile.js" defer></script>
-  <script src="../js/finos-search.js?v=3"></script>
+  <script src="../js/finos-search.js?v=4"></script>
   <script>
   document.addEventListener('DOMContentLoaded', function () {
     if (typeof FinosPersona === 'undefined') return;
@@ -912,7 +906,10 @@ In 2 sentences: (1) which one they need MORE urgently based on their specific pr
   </script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 </body>
 </html>

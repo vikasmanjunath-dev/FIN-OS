@@ -32,47 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     observer.observe(section);
   });
 
-  // 3. CHART.JS CONFIG (Equity Returns)
-  const ctx = document.getElementById('equityReturnChart').getContext('2d');
-  
-  // Theme check
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const textColor = isDark ? '#9CA0AB' : '#4a5568';
-
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Short Term (1Yr)', 'Medium Term (5Yr)', 'Long Term (10Yr)'],
-      datasets: [
-        {
-          label: 'Price Fluctuation (Noise)',
-          data: [80, 40, 10],
-          backgroundColor: '#ff4757',
-          borderRadius: 6
-        },
-        {
-          label: 'Business Growth (Profit)',
-          data: [20, 60, 90],
-          backgroundColor: '#C7F000',
-          borderRadius: 6
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { color: textColor } },
-        title: { display: true, text: 'What Drives Stock Prices?', color: textColor }
-      },
-      scales: {
-        y: { stacked: true, display: false },
-        x: { stacked: true, grid: { display: false }, ticks: { color: textColor } }
-      }
-    }
-  });
-
-  // 4. HORIZONTAL DRAG SCROLL (Reused from Fin-101)
+  // 3. HORIZONTAL DRAG SCROLL (Reused from Fin-101)
   const sliders = document.querySelectorAll('.scrolling-wrapper');
   let isDown = false;
   let startX;

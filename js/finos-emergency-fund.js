@@ -79,7 +79,7 @@ window.FinosEmergencyFund = (function () {
         <div style="font-weight:700;color:#F5F7FA;">${i.name}</div>
         <div style="color:#22D3A6;">${i.return}</div>
         <div style="color:rgba(255,255,255,.55);">${i.liquidity}</div>
-        <div style="color:rgba(255,255,255,.4);font-size:11px;">${i.best}</div>
+        <div style="color:rgba(255,255,255,0.58);font-size:11px;">${i.best}</div>
       </div>`).join('');
 
     container.innerHTML = `
@@ -88,27 +88,27 @@ window.FinosEmergencyFund = (function () {
 .ef-ring-wrap{position:relative;width:136px;height:136px;flex-shrink:0;}
 .ef-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .ef-ring-pct{font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:24px;font-weight:900;color:${st.color};}
-.ef-ring-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-top:2px;}
+.ef-ring-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-top:2px;}
 .ef-hero-body{flex:1;min-width:200px;}
 .ef-status-badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:800;
   background:${st.bg};border:1px solid ${st.border};color:${st.color};margin-bottom:10px;}
 .ef-hero-val{font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:36px;font-weight:900;color:${st.color};letter-spacing:-1px;line-height:1.1;}
-.ef-hero-sub{font-size:13px;color:rgba(255,255,255,.45);margin-top:6px;}
+.ef-hero-sub{font-size:13px;color:rgba(255,255,255,0.58);margin-top:6px;}
 .ef-gap-pill{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:8px 14px;border-radius:12px;font-size:13px;font-weight:700;}
 .ef-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:22px;}
 .ef-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;text-align:center;}
-.ef-stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;}
+.ef-stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;}
 .ef-stat-val{font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:18px;font-weight:800;color:#fff;}
-.ef-stat-sub{font-size:11px;color:rgba(255,255,255,.35);margin-top:3px;}
+.ef-stat-sub{font-size:11px;color:rgba(255,255,255,0.58);margin-top:3px;}
 .ef-form{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:22px;}
 .ef-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
 .ef-field{display:flex;flex-direction:column;gap:6px;}
-.ef-field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);}
+.ef-field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.58);}
 .ef-inp{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;
   color:#fff;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;
   padding:10px 14px;width:100%;box-sizing:border-box;transition:border-color .2s;outline:none;}
 .ef-inp:focus{border-color:rgba(34,211,166,.5);background:rgba(34,211,166,.05);}
-.ef-section{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin:0 0 12px;}
+.ef-section{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin:0 0 12px;}
 [data-theme="light"] .ef-hero{background:rgba(34,211,166,.05);}
 [data-theme="light"] .ef-stat,[data-theme="light"] .ef-form{background:#fff;border-color:rgba(0,0,0,.08);}
 [data-theme="light"] .ef-inp{background:#F4F6FB;border-color:rgba(0,0,0,.12);color:#0B0D12;}
@@ -189,7 +189,7 @@ window.FinosEmergencyFund = (function () {
 <div class="ef-form">
   <p class="ef-section">Where to Keep Your Emergency Fund</p>
   <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1.5fr;padding:8px 14px;font-size:10px;font-weight:700;
-    letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.35);">
+    letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,0.58);">
     <span>Instrument</span><span>Return</span><span>Liquidity</span><span>Best For</span>
   </div>
   ${instRows}
@@ -251,24 +251,24 @@ function _efSave(key, val) {
 
     container.innerHTML = `
 <div style="background:rgba(34,211,166,.06);border:1px solid rgba(34,211,166,.18);border-radius:18px;padding:22px;margin-bottom:20px;">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:8px;">Current Status</div>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:8px;">Current Status</div>
   <div style="display:flex;gap:20px;flex-wrap:wrap;">
     <div>
-      <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:3px;">Have</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.58);margin-bottom:3px;">Have</div>
       <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:22px;font-weight:900;color:#22D3A6;">${INR(fund)}</div>
     </div>
     <div>
-      <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:3px;">Need</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.58);margin-bottom:3px;">Need</div>
       <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:22px;font-weight:900;color:#00D4FF;">${monthlyExp > 0 ? INR(targetAmt) : '—'}</div>
     </div>
     <div>
-      <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:3px;">Still Short</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.58);margin-bottom:3px;">Still Short</div>
       <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:22px;font-weight:900;color:${shortfall > 0 ? '#EF4444' : '#22D3A6'};">
         ${monthlyExp > 0 ? (shortfall > 0 ? INR(shortfall) : 'Fully Funded ✓') : '—'}
       </div>
     </div>
     ${monthsToFund ? `<div>
-      <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:3px;">Auto-estimated (20% surplus)</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.58);margin-bottom:3px;">Auto-estimated (20% surplus)</div>
       <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:22px;font-weight:900;color:#FFB347;">${monthsToFund} months to complete</div>
     </div>` : ''}
   </div>
@@ -276,7 +276,7 @@ function _efSave(key, val) {
 
 ${shortfall > 0 ? `
 <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:20px;">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin-bottom:14px;">Build-Up Scenarios — How Long to Fund ${INR(shortfall)} Shortfall</div>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin-bottom:14px;">Build-Up Scenarios — How Long to Fund ${INR(shortfall)} Shortfall</div>
   ${sRows}
 </div>` : ''}
 

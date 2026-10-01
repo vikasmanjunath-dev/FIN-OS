@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
 <meta charset="UTF-8">
@@ -12,7 +13,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FIN•OS">
 <link rel="manifest" href="../manifest.json">
-<link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
 <title>My Roadmap | FIN-OS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,6 +26,7 @@
 <link rel="stylesheet" href="../css/theme.css">
 <link rel="stylesheet" href="../css/interactions.css">
 <script src="../js/supabase-config.js"></script>
+<script src="../js/finos-taxdates.js"></script>
 <script src="../js/finos-context.js?v=4" defer></script>
 <script src="../js/finos-personalization.js" defer></script>
 
@@ -124,9 +126,9 @@
   flex-wrap: wrap;
 }
 .rm-hero-text h2 { font-size: clamp(16px,2vw,22px); font-weight: 900; color: #fff; margin: 0 0 6px; }
-.rm-hero-text p  { font-size: 12.5px; color: rgba(255,255,255,.4); margin: 0; line-height: 1.6; }
+.rm-hero-text p  { font-size: 12.5px; color: rgba(255,255,255,0.58); margin: 0; line-height: 1.6; }
 .rm-hero-score   { flex-shrink: 0; text-align: center; }
-.rm-hero-score-label { font-size: 10px; color: rgba(255,255,255,.4); margin-top: 4px; font-weight: 700; text-align: center; }
+.rm-hero-score-label { font-size: 10px; color: rgba(255,255,255,0.58); margin-top: 4px; font-weight: 700; text-align: center; }
 
 /* Step grid */
 .rm-steps {
@@ -172,12 +174,12 @@
 .rm-step-body { padding: 14px 16px 10px; }
 .rm-step-cat   { font-size: 10px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; margin-bottom: 5px; }
 .rm-step-title { font-size: 15px; font-weight: 900; color: #fff; margin-bottom: 3px; }
-.rm-step-sub   { font-size: 11.5px; color: rgba(255,255,255,.4); margin-bottom: 10px; }
+.rm-step-sub   { font-size: 11.5px; color: rgba(255,255,255,0.58); margin-bottom: 10px; }
 .rm-step-progress-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .rm-step-progress-bar  { flex: 1; height: 5px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
 .rm-step-progress-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
 .rm-step-pct  { font-size: 11px; font-weight: 800; min-width: 30px; text-align: right; }
-.rm-step-stat { font-size: 11.5px; color: rgba(255,255,255,.45); }
+.rm-step-stat { font-size: 11.5px; color: rgba(255,255,255,0.58); }
 
 /* Expanded detail */
 .rm-step-detail { display: none; padding: 0 16px 16px; animation: rmFadeIn .25s ease; }
@@ -186,9 +188,9 @@
   background: rgba(255,255,255,.03); border-left: 3px solid #00d4ff;
   border-radius: 0 10px 10px 0; padding: 10px 12px; margin-bottom: 10px;
 }
-.rm-action-label { font-size: 10px; font-weight: 800; color: rgba(255,255,255,.35); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px; }
+.rm-action-label { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.58); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px; }
 .rm-action-text  { font-size: 12.5px; color: rgba(255,255,255,.8); line-height: 1.6; }
-.rm-step-why  { font-size: 11.5px; color: rgba(255,255,255,.35); line-height: 1.5; margin-bottom: 12px; font-style: italic; }
+.rm-step-why  { font-size: 11.5px; color: rgba(255,255,255,0.58); line-height: 1.5; margin-bottom: 12px; font-style: italic; }
 .rm-arya-btn {
   width: 100%; padding: 9px; border-radius: 10px;
   border: 1px solid rgba(0,212,255,.3); background: rgba(0,212,255,.06);
@@ -207,7 +209,7 @@
 }
 .mm-hint {
   text-align: center; padding: 12px 16px; font-size: 12px;
-  color: rgba(255,255,255,.3); background: rgba(0,212,255,.03);
+  color: rgba(255,255,255,0.58); background: rgba(0,212,255,.03);
   border-bottom: 1px solid rgba(255,255,255,.04); letter-spacing: .3px;
 }
 .mm-legend {
@@ -231,7 +233,7 @@
    ══════════════════════════════════════════════════════════════ */
 .tl-header { margin-bottom: 24px; }
 .tl-header h2 { font-size: clamp(18px,2.5vw,24px); font-weight: 900; color: #fff; margin: 0 0 6px; }
-.tl-header p  { font-size: 13px; color: rgba(255,255,255,.4); margin: 0 0 16px; }
+.tl-header p  { font-size: 13px; color: rgba(255,255,255,0.58); margin: 0 0 16px; }
 .tl-age-bar-wrap { display: flex; align-items: center; gap: 12px; }
 .tl-age-bar  { flex: 1; height: 6px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
 .tl-age-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
@@ -297,8 +299,8 @@
 .tl-card-icon   { font-size: 20px; margin-bottom: 4px; }
 .tl-card-title  { font-size: 12.5px; font-weight: 900; margin-bottom: 2px; }
 .tl-card-wealth { font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 4px; }
-.tl-card-detail { font-size: 11px; color: rgba(255,255,255,.4); line-height: 1.5; margin-bottom: 6px; }
-.tl-card-expand-hint { font-size: 10px; color: rgba(255,255,255,.22); margin-bottom: 6px; }
+.tl-card-detail { font-size: 11px; color: rgba(255,255,255,0.58); line-height: 1.5; margin-bottom: 6px; }
+.tl-card-expand-hint { font-size: 10px; color: rgba(255,255,255,0.58); margin-bottom: 6px; }
 .tl-card-action {
   display: none; font-size: 11px; color: rgba(255,255,255,.7); line-height: 1.6;
   border-left: 2px solid #00d4ff; padding: 7px 10px;
@@ -317,7 +319,7 @@
 .tl-expanded .tl-card-expand-hint { display: none; }
 
 .tl-legend { display: flex; gap: 20px; padding: 12px 0 0; }
-.tl-leg      { font-size: 11px; color: rgba(255,255,255,.35); font-weight: 600; }
+.tl-leg      { font-size: 11px; color: rgba(255,255,255,0.58); font-weight: 600; }
 .tl-leg.now  { color: #00d4ff; }
 .tl-leg.done { color: #00ffb3; }
 
@@ -350,7 +352,7 @@
    ══════════════════════════════════════════════════════════════ */
 .rm-path-seclabel {
   font-size: 10px; font-weight: 800; letter-spacing: .15em;
-  text-transform: uppercase; color: rgba(255,255,255,.22);
+  text-transform: uppercase; color: rgba(255,255,255,0.58);
   margin: 28px 0 14px; font-family: monospace;
   display: flex; align-items: center; gap: 12px;
 }
@@ -386,17 +388,17 @@
 .rm-path-icon { font-size: 22px; }
 .rm-path-num  { font-size: 28px; font-weight: 900; opacity: .07; line-height: 1; color: #fff; }
 .rm-path-head { font-size: 15px; font-weight: 800; color: #fff; }
-.rm-path-desc { font-size: 12px; color: rgba(255,255,255,.42); line-height: 1.6; flex: 1; }
+.rm-path-desc { font-size: 12px; color: rgba(255,255,255,0.58); line-height: 1.6; flex: 1; }
 .rm-path-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .rm-path-tag  {
   font-size: 10px; font-family: monospace;
   padding: 3px 8px; border-radius: 4px;
-  background: rgba(255,255,255,.04); color: rgba(255,255,255,.45);
+  background: rgba(255,255,255,.04); color: rgba(255,255,255,0.58);
   border: 1px solid rgba(255,255,255,.08);
 }
 .rm-path-tag--red { border-color: rgba(255,77,109,.3); color: #ff4d6d; background: rgba(255,77,109,.06); }
 .rm-path-desi {
-  font-size: 11px; color: rgba(255,255,255,.28); font-style: italic;
+  font-size: 11px; color: rgba(255,255,255,0.58); font-style: italic;
   border-top: 1px dashed rgba(255,255,255,.06); padding-top: 10px; margin-top: 2px;
 }
 .rm-path-desi strong { color: rgba(255,255,255,.55); font-style: normal; font-weight: 700; }
@@ -407,7 +409,7 @@
 [data-theme="light"] .rm-path-desc { color: var(--text-secondary); }
 [data-theme="light"] .rm-path-desi { color: var(--text-tertiary); border-color: rgba(0,0,0,.06); }
 [data-theme="light"] .rm-path-desi strong { color: var(--text-primary); }
-[data-theme="light"] .rm-path-seclabel { color: rgba(0,0,0,.3); }
+[data-theme="light"] .rm-path-seclabel { color: rgba(0,0,0,0.62); }
 [data-theme="light"] .rm-path-seclabel::after { background: rgba(0,0,0,.08); }
 [data-theme="light"] .mm-hint,
 [data-theme="light"] .mm-leg-item,
@@ -669,10 +671,13 @@
 </div><!-- .app-shell -->
 
 <!-- Core FIN-OS scripts -->
-<script src="../js/finos-widget.js?v=9"></script>
-<script src="../js/finos-search.js?v=3"></script>
+<script src="../js/finos-widget.js?v=10"></script>
+<script src="../js/finos-search.js?v=4"></script>
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 <!-- Roadmap engine (must come after context scripts) -->
 <script src="../js/arya-roadmap.js?v=2"></script>
 <script src="../js/interactions.js" defer></script>

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
   <meta name="description" content="Portfolio Rebalancer — current vs target allocation across equity, debt, gold, real estate, crypto and govt savings, with exact rupee buy/sell actions.">
   <title>Portfolio Rebalancer | FIN-OS</title>
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
@@ -23,6 +24,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-tracker-sync.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/finos-rebalancer.js?v=2" defer></script>
 
@@ -120,13 +122,13 @@
       </div>
 
       <div id="rb-overview" class="tab-panel active">
-        <div id="rb-panel-overview" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:14px;">Loading…</div>
+        <div id="rb-panel-overview" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.58);font-size:14px;">Loading…</div>
       </div>
       <div id="rb-setup" class="tab-panel">
-        <div id="rb-panel-setup" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:14px;">Loading…</div>
+        <div id="rb-panel-setup" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.58);font-size:14px;">Loading…</div>
       </div>
       <div id="rb-actions" class="tab-panel">
-        <div id="rb-panel-actions" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:14px;">Loading…</div>
+        <div id="rb-panel-actions" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.58);font-size:14px;">Loading…</div>
       </div>
     </div>
   </main>
@@ -177,11 +179,14 @@
 <script src="../js/ui.js" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=9"></script>
+<script src="../js/finos-widget.js?v=10"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=3"></script>
+<script src="../js/finos-search.js?v=4"></script>
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 <script src="../js/interactions.js" defer></script>
 </body>
 </html>

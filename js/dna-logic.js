@@ -345,10 +345,10 @@ window.runBehavioralDebrief = async function() {
         debriefEl.innerHTML = `
           <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#a78bff;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
             🧠 Arya's Behavioral Finance Debrief
-            <span style="font-size:10px;color:rgba(255,255,255,.25);">Kahneman · Thaler · Ariely</span>
+            <span style="font-size:10px;color:rgba(255,255,255,0.58);">Kahneman · Thaler · Ariely</span>
           </div>
           <div id="dna-debrief-text" style="font-size:14px;color:rgba(255,255,255,.82);line-height:1.75;min-height:60px;">
-            <span style="color:rgba(255,255,255,.35);">Arya tera behavioral profile analyse kar rahi hai…</span>
+            <span style="color:rgba(255,255,255,0.58);">Arya tera behavioral profile analyse kar rahi hai…</span>
           </div>
           <div id="dna-bias-chips" style="margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;"></div>
           <div id="dna-strategy-box" style="display:none;margin-top:16px;padding:14px;border-radius:12px;background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.15);">
@@ -371,7 +371,7 @@ window.runBehavioralDebrief = async function() {
     const stratBoxEl = document.getElementById('dna-strategy-box');
     const stratEl    = document.getElementById('dna-strategy-text');
 
-    textEl.innerHTML = '<span style="color:rgba(255,255,255,.35);">Arya analyse kar rahi hai…</span>';
+    textEl.innerHTML = '<span style="color:rgba(255,255,255,0.58);">Arya analyse kar rahi hai…</span>';
     chipsEl.innerHTML = '';
     stratBoxEl.style.display = 'none';
 
@@ -598,26 +598,26 @@ function _renderBehavioralDebt(data) {
     panel.innerHTML = `
       <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#ff6b35;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
         💸 Behavioral Debt Score
-        <span style="font-size:10px;color:rgba(255,255,255,.25);">Annual wealth leakage from cognitive biases</span>
+        <span style="font-size:10px;color:rgba(255,255,255,0.58);">Annual wealth leakage from cognitive biases</span>
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px;">
         <div style="background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.2);border-radius:12px;padding:14px;text-align:center;">
-          <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">Annual Leakage</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:4px;">Annual Leakage</div>
           <div style="font-size:1.3rem;font-weight:800;color:#ff6b35;">${INR(totalCost)}</div>
         </div>
         <div style="background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.2);border-radius:12px;padding:14px;text-align:center;">
-          <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">5-Year Compounded Loss</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:4px;">5-Year Compounded Loss</div>
           <div style="font-size:1.3rem;font-weight:800;color:#ff4757;">${INR(compoundedCost)}</div>
         </div>
         <div style="background:rgba(255,183,3,.08);border:1px solid rgba(255,183,3,.2);border-radius:12px;padding:14px;text-align:center;">
-          <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">Bias Count</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:4px;">Bias Count</div>
           <div style="font-size:1.3rem;font-weight:800;color:#ffb703;">2 active</div>
         </div>
       </div>
 
       <div style="margin-bottom:14px;">
-        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:8px;letter-spacing:.8px;text-transform:uppercase;">Breakdown by Bias</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:8px;letter-spacing:.8px;text-transform:uppercase;">Breakdown by Bias</div>
         <div style="margin-bottom:8px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
             <span style="font-size:12px;color:rgba(255,255,255,.7);">⚠ ${primaryBias.replace(/_/g, ' ')}</span>
@@ -692,7 +692,7 @@ function _renderDNAEvolution() {
             <div style="flex:1;">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                 <span style="font-size:12px;font-weight:700;color:${isLatest ? '#c7f000' : 'rgba(255,255,255,.6)'};">${entry.date}</span>
-                ${entry.archetype ? `<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.45);">${entry.archetype}</span>` : ''}
+                ${entry.archetype ? `<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.06);color:rgba(255,255,255,0.58);">${entry.archetype}</span>` : ''}
               </div>
               <div style="display:flex;gap:6px;flex-wrap:wrap;">
                 ${labels.map((l, j) => `
@@ -711,9 +711,9 @@ function _renderDNAEvolution() {
     panel.style.cssText = 'margin-top:20px;padding:24px;border-radius:18px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);font-family:-apple-system,sans-serif;';
 
     panel.innerHTML = `
-      <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+      <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
         📈 Your DNA Evolution
-        <span style="font-size:10px;color:rgba(255,255,255,.2);">${history.length} scans recorded</span>
+        <span style="font-size:10px;color:rgba(255,255,255,0.58);">${history.length} scans recorded</span>
       </div>
       <div style="position:relative;padding-left:20px;border-left:1px solid rgba(255,255,255,.08);">
         ${timelineItems}

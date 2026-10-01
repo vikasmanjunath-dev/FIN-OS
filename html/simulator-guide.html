@@ -2,6 +2,7 @@
 <html lang="en" class="dark">
 
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
@@ -13,7 +14,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
     <title>Simulator Guide | FIN-OS</title>
 
     <!-- Tailwind CSS -->
@@ -153,9 +154,8 @@
                 <div
                     class="glass-card p-2 rounded-2xl border border-[#ffffff15] shadow-2xl relative overflow-hidden group">
                     <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[#0a0a0f] z-10 opacity-60"></div>
-                    <img src="../html/FIN-OS_screenshot_placeholder.jpg" alt="Simulator Overview"
-                        class="w-full rounded-xl mix-blend-screen opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-1000"
-                        onerror="this.src='https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1600&q=80'; this.classList.remove('grayscale')">
+                    <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1600&q=80" alt="Simulator Overview" loading="lazy"
+                        class="w-full rounded-xl mix-blend-screen opacity-50 group-hover:opacity-100 transition-all duration-1000">
 
                     <div class="absolute bottom-6 left-6 z-20">
                         <span
@@ -290,10 +290,13 @@
 </style>
 <a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 
-  <script src="../js/finos-widget.js?v=9"></script>
-  <script src="../js/finos-search.js?v=3"></script>
+  <script src="../js/finos-widget.js?v=10"></script>
+  <script src="../js/finos-search.js?v=4"></script>
   <script src="../js/interactions.js" defer></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 </body>
 
 </html>

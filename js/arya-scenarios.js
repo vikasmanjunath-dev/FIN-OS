@@ -588,13 +588,13 @@ Explain in 3 Hinglish points. Compare: "that ${INR(r.extra)}/month saved you ${I
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px;">
         ${metrics.map(m => `
           <div style="background:rgba(255,255,255,.04);border:1px solid ${sc.color}25;border-radius:12px;padding:14px;text-align:center;">
-            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">${m.label}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:4px;">${m.label}</div>
             <div style="font-size:1.15rem;font-weight:800;color:${m.positive ? sc.color : '#ff6b6b'};">${m.value}</div>
           </div>`).join('')}
       </div>
       ${r.actions ? `
         <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px;margin-bottom:14px;">
-          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:8px;letter-spacing:.8px;text-transform:uppercase;">Action Plan</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:8px;letter-spacing:.8px;text-transform:uppercase;">Action Plan</div>
           ${r.actions.filter(Boolean).map(a => `
             <div style="display:flex;gap:8px;margin-bottom:6px;font-size:13px;color:rgba(255,255,255,.8);">
               <span style="color:${sc.color};flex-shrink:0;">→</span><span>${a}</span>
@@ -699,7 +699,7 @@ Explain in 3 Hinglish points. Compare: "that ${INR(r.extra)}/month saved you ${I
               <span style="font-size:24px;">${sc.icon}</span>
               <div>
                 <div style="font-weight:700;font-size:.95rem;">${sc.title}</div>
-                <div style="font-size:11px;color:rgba(255,255,255,.45);">${sc.subtitle}</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.58);">${sc.subtitle}</div>
               </div>
             </div>
             <div class="sc-inputs-${sc.id}" style="margin:12px 0;">

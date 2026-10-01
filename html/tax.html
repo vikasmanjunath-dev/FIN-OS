@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
@@ -12,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <title>Tax Protocol | FIN-OS</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -190,6 +191,7 @@
   <link rel="stylesheet" href="../chatbot/qft-hud.css?v=2">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/finos-tax-calc.js?v=2" defer></script>
   <script src="../js/arya-ai.js?v=7" defer></script>
@@ -330,7 +332,7 @@
                display:flex;align-items:center;justify-content:center;font-size:18px;">🧮</div>
           <div>
             <div style="font-weight:800;font-size:15px;color:#00d4ff;">Old vs New Regime — Tax Calculator FY 2025-26</div>
-            <div style="font-size:12px;color:rgba(255,255,255,.45);">Fill deductions → instant side-by-side comparison · no AI needed</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.58);">Fill deductions → instant side-by-side comparison · no AI needed</div>
           </div>
         </div>
         <div id="tc-planner-mount"></div>
@@ -346,7 +348,7 @@
                display:flex;align-items:center;justify-content:center;font-size:18px;">🧮</div>
           <div>
             <div style="font-weight:700;font-size:14px;color:#4d7cff;">ARYA TAX OPTIMIZER</div>
-            <div style="font-size:12px;color:rgba(255,255,255,.45);">Get a personalized tax-saving plan in seconds</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.58);">Get a personalized tax-saving plan in seconds</div>
           </div>
         </div>
         <!-- Row 1: Core inputs -->
@@ -1622,7 +1624,7 @@
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <span style="font-weight:700;font-size:13px;color:#4d7cff;">🧠 Ask Arya about Tax</span>
       <button onclick="document.getElementById('arya-tax-drawer').classList.add('hidden')"
-        style="background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:16px;">✕</button>
+        style="background:none;border:none;color:rgba(255,255,255,0.58);cursor:pointer;font-size:16px;">✕</button>
     </div>
     <textarea id="arya-tax-question" rows="3" placeholder="e.g. Should I pick old or new regime? I earn ₹12L and have home loan..."></textarea>
     <button onclick="aryaAskTax()"
@@ -1758,14 +1760,14 @@
       ].filter(c => c.amt > 0);
 
       summaryDiv.innerHTML = `
-        <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:12px;grid-column:1/-1;">
+        <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:12px;grid-column:1/-1;">
           💰 Total potential saving this FY: <strong style="color:#00ff88;font-size:16px;">₹${Math.round(total_potential).toLocaleString('en-IN')}</strong>
         </div>
         ${cards.map(c => `
           <div style="padding:14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);">
-            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.35);margin-bottom:6px;">${c.label}</div>
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,0.58);margin-bottom:6px;">${c.label}</div>
             <div style="font-size:20px;font-weight:700;color:${c.color};">₹${Math.round(c.amt).toLocaleString('en-IN')}</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:4px;">${c.tip}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">${c.tip}</div>
           </div>`).join('')}
       `;
       summaryDiv.style.display = 'grid';
@@ -1904,12 +1906,15 @@ Be direct. Use exact ₹ from above. Desi Hinglish tone. End with: "Total yeh pl
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
   <script src="../chatbot/qft-engine.js"></script>
-  <script src="../js/finos-widget.js?v=9"></script>
+  <script src="../js/finos-widget.js?v=10"></script>
   <script src="../js/finos-mobile.js" defer></script>
-  <script src="../js/finos-search.js?v=3"></script>
+  <script src="../js/finos-search.js?v=4"></script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 
 <script>
@@ -1974,7 +1979,7 @@ Be direct. Use exact ₹ from above. Desi Hinglish tone. End with: "Total yeh pl
     const totalSavings = _computeSavings(income).potentialTaxSaved;
     const prompt = `Tax optimization for someone earning ${INR(income)}/year. They can potentially save ${INR(totalSavings)} in taxes this FY through 80C, 80D, NPS, and HRA. Give ONE most impactful action in 2 Hinglish sentences. Be specific with amounts.`;
 
-    aryaEl.innerHTML = '<span style="color:rgba(255,255,255,.35);">Arya calculating…</span>';
+    aryaEl.innerHTML = '<span style="color:rgba(255,255,255,0.58);">Arya calculating…</span>';
     if (window.AryaAI?.ask) {
       window.AryaAI.ask(prompt, tok => { aryaEl.textContent = (aryaEl.textContent === 'Arya calculating…' ? '' : aryaEl.textContent) + tok; });
     } else {
@@ -2021,13 +2026,13 @@ Be direct. Use exact ₹ from above. Desi Hinglish tone. End with: "Total yeh pl
       { label: 'Effective Rate', value: ((taxWithout/income)*100).toFixed(1)+'%', color: '#4F7CFF' },
     ].map(k => `
       <div style="background:rgba(255,255,255,.04);border:1px solid ${k.color}25;border-radius:12px;padding:14px;text-align:center;">
-        <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;">${k.label}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-bottom:4px;">${k.label}</div>
         <div style="font-size:1.1rem;font-weight:800;color:${k.color};">${k.value}</div>
       </div>`).join('');
 
     // Section breakdown
     sectionsEl.innerHTML = `
-      <div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:10px;letter-spacing:.8px;text-transform:uppercase;">Deduction headroom this FY</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:10px;letter-spacing:.8px;text-transform:uppercase;">Deduction headroom this FY</div>
       ${sections.map(s => `
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
           <div style="flex:1;">
@@ -2038,7 +2043,7 @@ Be direct. Use exact ₹ from above. Desi Hinglish tone. End with: "Total yeh pl
             <div style="height:3px;background:rgba(255,255,255,.05);border-radius:2px;">
               <div style="height:100%;width:${s.headroom>0?Math.round(Math.min(100,s.headroom/s.maxDeduction*100)):0}%;background:${s.color};border-radius:2px;"></div>
             </div>
-            <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:2px;">${INR(s.headroom)} headroom left</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-top:2px;">${INR(s.headroom)} headroom left</div>
           </div>
         </div>`).join('')}`;
   }

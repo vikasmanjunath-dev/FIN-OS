@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <meta charset="UTF-8">
@@ -17,6 +18,7 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=7" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
@@ -26,7 +28,7 @@
 .ins-card-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
 .ins-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
 .ins-type { font-size:.85rem; font-weight:700; }
-.ins-provider { font-size:11px; color:rgba(255,255,255,.4); }
+.ins-provider { font-size:11px; color:rgba(255,255,255,0.58); }
 .ins-metric { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--border-soft); }
 .ins-metric:last-of-type { border:none; }
 .ins-metric-label { font-size:12px; color:rgba(255,255,255,.55); }
@@ -196,7 +198,7 @@
         <div class="add-policy-form">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
             <div>
-              <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Policy Type</label>
+              <label style="font-size:11px;color:rgba(255,255,255,0.58);display:block;margin-bottom:4px;">Policy Type</label>
               <select class="ins-input" id="polType">
                 <option value="health">Health Insurance</option>
                 <option value="life_term">Term Life Insurance</option>
@@ -208,28 +210,28 @@
               </select>
             </div>
             <div>
-              <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Insurance Company</label>
+              <label style="font-size:11px;color:rgba(255,255,255,0.58);display:block;margin-bottom:4px;">Insurance Company</label>
               <input type="text" class="ins-input" id="polProvider" placeholder="e.g. Star Health, LIC, HDFC Ergo">
             </div>
             <div>
-              <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Sum Assured (₹)</label>
+              <label style="font-size:11px;color:rgba(255,255,255,0.58);display:block;margin-bottom:4px;">Sum Assured (₹)</label>
               <input type="number" class="ins-input" id="polSumAssured" placeholder="e.g. 5000000">
             </div>
             <div>
-              <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Annual Premium (₹)</label>
+              <label style="font-size:11px;color:rgba(255,255,255,0.58);display:block;margin-bottom:4px;">Annual Premium (₹)</label>
               <input type="number" class="ins-input" id="polPremium" placeholder="e.g. 12000">
             </div>
             <div>
-              <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Renewal Date</label>
+              <label style="font-size:11px;color:rgba(255,255,255,0.58);display:block;margin-bottom:4px;">Renewal Date</label>
               <input type="date" class="ins-input" id="polRenewal">
             </div>
             <div>
-              <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Policy Number</label>
+              <label style="font-size:11px;color:rgba(255,255,255,0.58);display:block;margin-bottom:4px;">Policy Number</label>
               <input type="text" class="ins-input" id="polNumber" placeholder="Optional">
             </div>
           </div>
           <div style="margin-bottom:12px;">
-            <label style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:4px;">Notes (optional)</label>
+            <label style="font-size:11px;color:rgba(255,255,255,0.58);display:block;margin-bottom:4px;">Notes (optional)</label>
             <input type="text" class="ins-input" id="polNotes" placeholder="e.g. Family floater, covers spouse + 2 kids">
           </div>
           <div style="display:flex;gap:10px;">
@@ -252,7 +254,7 @@
             <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#7b2ff7);display:flex;align-items:center;justify-content:center;font-size:14px;">✨</div>
             <div>
               <div style="font-size:.85rem;font-weight:800;">Arya's Insurance Analysis</div>
-              <div style="font-size:10px;color:rgba(255,255,255,.4);">Personalized recommendations based on your profile</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.58);">Personalized recommendations based on your profile</div>
             </div>
             <button onclick="analyzeInsurance()" style="margin-left:auto;background:rgba(0,212,255,.15);border:1px solid rgba(0,212,255,.3);border-radius:8px;padding:6px 12px;color:#00d4ff;font-size:11px;font-weight:700;cursor:pointer;">Analyze →</button>
           </div>
@@ -264,7 +266,7 @@
   </main>
 </div>
 
-<script src="../js/finos-widget.js?v=9"></script>
+<script src="../js/finos-widget.js?v=10"></script>
 <script>
 const STORE_KEY = 'finos_insurance_policies';
 
@@ -337,7 +339,7 @@ function renderOverview(policies) {
         <div>
           <div style="font-size:13px;font-weight:700;">${meta.label}</div>
           <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:2px;">Have: ${have > 0 ? INR(have) : '—'}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.35);">Recommended: ${INR(rec)}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.58);">Recommended: ${INR(rec)}</div>
           ${have < rec ? `<div style="font-size:10px;color:${col};margin-top:3px;font-weight:700;">Gap: ${INR(rec - have)}</div>` : `<div style="font-size:10px;color:#22d3a6;margin-top:3px;font-weight:700;">✅ Covered</div>`}
         </div>
       </div>`;
@@ -389,7 +391,7 @@ function renderGapAnalysis(policies) {
 function renderPolicies(policies) {
   const el = document.getElementById('policiesGrid');
   if (!policies.length) {
-    el.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,.3);">
+    el.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.58);">
       <div style="font-size:2.5rem;margin-bottom:10px;">🛡️</div>
       <div style="font-size:14px;font-weight:700;margin-bottom:6px;">No policies added yet</div>
       <div style="font-size:12px;">Add your health, term, and vehicle insurance to see your complete picture.</div>
@@ -424,7 +426,7 @@ function renderPolicies(policies) {
           <span class="ins-metric-val" style="color:${renewalColor};">${renewalDays <= 0 ? 'EXPIRED!' : renewalDays === 0 ? 'Today' : renewalDays + 'd'}</span>
         </div>` : ''}
         ${p.policy_number ? `<div class="ins-metric"><span class="ins-metric-label">Policy No.</span><span class="ins-metric-val" style="font-size:11px;color:rgba(255,255,255,.5);">${p.policy_number}</span></div>` : ''}
-        ${p.notes ? `<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.05);">${p.notes}</div>` : ''}
+        ${p.notes ? `<div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.05);">${p.notes}</div>` : ''}
       </div>`;
   }).join('');
 }
@@ -432,7 +434,7 @@ function renderPolicies(policies) {
 /* ── Premium Calendar ─── */
 function renderPremiumCalendar(policies) {
   const el = document.getElementById('premiumCalendar');
-  if (!policies.length) { el.innerHTML = `<div style="text-align:center;font-size:12px;color:rgba(255,255,255,.3);padding:10px;">Add policies to see premium calendar.</div>`; return; }
+  if (!policies.length) { el.innerHTML = `<div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.58);padding:10px;">Add policies to see premium calendar.</div>`; return; }
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const premByMonth = new Array(12).fill(0);
   const renewalByMonth = {};
@@ -456,7 +458,7 @@ function renderPremiumCalendar(policies) {
         const renewals = renewalByMonth[i] || [];
         return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;" title="${renewals.map(r => TYPE_META[r.type]?.label).join(', ')}">
           <div style="width:100%;height:${h}px;background:${col};border-radius:4px;transition:height .3s;"></div>
-          <div style="font-size:9px;color:rgba(255,255,255,.4);">${m}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.58);">${m}</div>
           ${prem > 0 ? `<div style="font-size:9px;color:#00d4ff;font-weight:700;">${INR(prem)}</div>` : ''}
         </div>`;
       }).join('')}
@@ -525,7 +527,7 @@ Analyze in 4 Hinglish points:
 
 Be direct and honest like a good friend. Use Indian context.`;
 
-  el.innerHTML = `<span style="color:rgba(255,255,255,.4);">Analyzing…</span>`;
+  el.innerHTML = `<span style="color:rgba(255,255,255,0.58);">Analyzing…</span>`;
   el.textContent = '';
   await window.AryaAI.ask(prompt, tok => { el.textContent = (el.textContent||'') + tok; });
 }
@@ -550,7 +552,10 @@ window.addEventListener('finos-context-ready', () => {
 </script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/interactions.js" defer></script>
 <button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
@@ -572,5 +577,6 @@ window.addEventListener('finos-context-ready', () => {
 })();
 </script>
 <script src="../js/ui.js" defer></script>
+<script src="../js/pwa-init.js"></script>
 </body>
 </html>

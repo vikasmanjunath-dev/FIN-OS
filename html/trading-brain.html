@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
 <meta name="description" content="Trady — Your AI Trading Brain & Companion. Pattern recognition, live signals, chart analysis, and Trady AI for NSE/BSE.">
 <title>Trady — AI Trading Brain | FIN-OS</title>
 <link rel="manifest" href="../manifest.json">
-<link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap">
@@ -127,7 +128,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
 }
 .trady-logo-sub {
   font-size: 10px;
-  color: rgba(255,255,255,.25);
+  color: rgba(255,255,255,0.58);
   letter-spacing: 1.5px;
   text-transform: uppercase;
   margin-top: 1px;
@@ -154,7 +155,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
   white-space: nowrap;
   transition: all .15s;
   border: 1px solid transparent;
-  color: rgba(255,255,255,.45);
+  color: rgba(255,255,255,0.58);
   background: transparent;
   user-select: none;
 }
@@ -196,7 +197,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  color: rgba(255,255,255,.35);
+  color: rgba(255,255,255,0.58);
 }
 .ollama-dot {
   width: 7px; height: 7px;
@@ -316,7 +317,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
   font-size: 9px;
   letter-spacing: 2.5px;
   text-transform: uppercase;
-  color: rgba(255,255,255,.25);
+  color: rgba(255,255,255,0.58);
   padding: 0 2px;
   margin-bottom: 6px;
 }
@@ -340,7 +341,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
   font-size: 9px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(255,255,255,.25);
+  color: rgba(255,255,255,0.58);
   margin-bottom: 8px;
 }
 .regime-value {
@@ -351,7 +352,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
 }
 .regime-conf {
   font-size: 10px;
-  color: rgba(255,255,255,.35);
+  color: rgba(255,255,255,0.58);
 }
 .regime-bar {
   height: 4px;
@@ -409,8 +410,8 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
 .sig-card.watch { border-left: 3px solid var(--gold); }
 .sig-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
 .sig-sym  { font-size: 13px; font-weight: 800; color: #fff; font-family: 'Manrope', sans-serif; }
-.sig-tf   { font-size: 9px; background: rgba(255,255,255,.07); padding: 2px 7px; border-radius: 5px; color: rgba(255,255,255,.4); letter-spacing: 1px; }
-.sig-pat  { font-size: 11px; color: rgba(255,255,255,.45); margin-bottom: 6px; line-height: 1.4; }
+.sig-tf   { font-size: 9px; background: rgba(255,255,255,.07); padding: 2px 7px; border-radius: 5px; color: rgba(255,255,255,0.58); letter-spacing: 1px; }
+.sig-pat  { font-size: 11px; color: rgba(255,255,255,0.58); margin-bottom: 6px; line-height: 1.4; }
 .sig-footer { display: flex; align-items: center; justify-content: space-between; }
 .sig-grade {
   font-size: 10px;
@@ -447,7 +448,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
 .si-orange { background: rgba(255,138,0,.1);  border: 1px solid rgba(255,138,0,.2); }
 
 .section-head-text h2 { font-size: 18px; font-weight: 800; color: #fff; font-family: 'Manrope', sans-serif; }
-.section-head-text p  { font-size: 11px; color: rgba(255,255,255,.35); margin-top: 2px; }
+.section-head-text p  { font-size: 11px; color: rgba(255,255,255,0.58); margin-top: 2px; }
 
 /* ── GRID HELPERS ── */
 .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -472,8 +473,8 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
 .sb-teal::before   { background: linear-gradient(90deg, var(--teal), transparent); }
 
 .stat-val  { font-size: 26px; font-weight: 900; font-family: 'Manrope', sans-serif; line-height: 1; margin-bottom: 4px; }
-.stat-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 6px; }
-.stat-desc  { font-size: 11px; color: rgba(255,255,255,.45); line-height: 1.5; }
+.stat-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.58); margin-bottom: 6px; }
+.stat-desc  { font-size: 11px; color: rgba(255,255,255,0.58); line-height: 1.5; }
 
 /* ── PATTERN CARDS ── */
 .pattern-grid {
@@ -506,7 +507,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
 .pt-bear { background: rgba(255,77,77,.1); color: var(--red); }
 .pt-neu  { background: rgba(255,183,3,.1); color: var(--gold); }
 .pat-stars { color: var(--gold); font-size: 11px; }
-.pat-sr { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 4px; }
+.pat-sr { font-size: 11px; color: rgba(255,255,255,0.58); margin-top: 4px; }
 
 /* Pattern Detail Drawer */
 .pat-drawer {
@@ -555,13 +556,13 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
   flex-shrink: 0;
 }
 .strat-name { font-size: 14px; font-weight: 700; color: #fff; font-family: 'Manrope', sans-serif; }
-.strat-regime { font-size: 10px; color: rgba(255,255,255,.35); margin-top: 2px; }
+.strat-regime { font-size: 10px; color: rgba(255,255,255,0.58); margin-top: 2px; }
 .strat-desc { font-size: 12px; color: rgba(255,255,255,.55); line-height: 1.65; margin-bottom: 10px; }
 .strat-tags { display: flex; gap: 6px; flex-wrap: wrap; }
 .strat-tag {
   font-size: 10px; padding: 2px 9px; border-radius: 5px;
   background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
-  color: rgba(255,255,255,.4);
+  color: rgba(255,255,255,0.58);
 }
 .strat-wr { font-size: 11px; font-weight: 700; color: var(--green); margin-left: auto; }
 
@@ -585,7 +586,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
   font-size: 12px; font-weight: 800;
   flex-shrink: 0;
 }
-.sn-pending  { background: rgba(255,255,255,.06); color: rgba(255,255,255,.3); border: 1px solid rgba(255,255,255,.08); }
+.sn-pending  { background: rgba(255,255,255,.06); color: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,.08); }
 .sn-active   { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(168,85,247,.3); }
 .sn-done     { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,255,136,.3); }
 .step-title  { font-size: 14px; font-weight: 700; color: rgba(255,255,255,.85); }
@@ -617,7 +618,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
   margin-bottom: 10px;
 }
 .setup-input:focus { border-color: rgba(168,85,247,.4); }
-.setup-input::placeholder { color: rgba(255,255,255,.25); }
+.setup-input::placeholder { color: rgba(255,255,255,0.58); }
 
 .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
 
@@ -632,7 +633,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
   text-align: center;
 }
 .ro-val   { font-size: 16px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--green); }
-.ro-label { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.3); margin-top: 3px; }
+.ro-label { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.58); margin-top: 3px; }
 
 .btn-primary {
   padding: 11px 20px;
@@ -672,14 +673,14 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
   text-transform: uppercase;
 }
 .signal-input:focus { border-color: rgba(0,255,136,.35); }
-.signal-input::placeholder { color: rgba(255,255,255,.2); text-transform: none; }
+.signal-input::placeholder { color: rgba(255,255,255,0.58); text-transform: none; }
 
 .tf-pills { display: flex; gap: 6px; }
 .tf-pill {
   padding: 8px 12px; border-radius: 8px;
   background: var(--trady-card);
   border: 1px solid var(--trady-border);
-  color: rgba(255,255,255,.45);
+  color: rgba(255,255,255,0.58);
   font-size: 11px; font-weight: 600; cursor: pointer;
   transition: all .15s;
 }
@@ -706,7 +707,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
 .dir-short { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,77,77,.25); }
 .dir-watch { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(255,183,3,.25); }
 .lsc-sym  { font-size: 18px; font-weight: 900; color: #fff; font-family: 'Manrope', sans-serif; }
-.lsc-tf   { font-size: 10px; color: rgba(255,255,255,.3); background: rgba(255,255,255,.05); padding: 3px 9px; border-radius: 6px; letter-spacing: 1px; }
+.lsc-tf   { font-size: 10px; color: rgba(255,255,255,0.58); background: rgba(255,255,255,.05); padding: 3px 9px; border-radius: 6px; letter-spacing: 1px; }
 .lsc-conv { font-size: 22px; font-weight: 900; font-family: 'JetBrains Mono', monospace; margin-left: auto; }
 .lsc-body { padding: 14px 16px; }
 .lsc-what { font-size: 12px; color: rgba(255,255,255,.55); line-height: 1.7; margin-bottom: 12px; }
@@ -720,7 +721,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
   padding: 8px 10px;
   text-align: center;
 }
-.spec-l { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.25); margin-bottom: 4px; }
+.spec-l { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.58); margin-bottom: 4px; }
 .spec-v { font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
 .sv-entry  { color: var(--blue); }
 .sv-sl     { color: var(--red); }
@@ -745,7 +746,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
 .mood-btn:hover { border-color: var(--purple); background: var(--purple-dim); }
 .mood-btn.selected { border-color: var(--purple); background: var(--purple-dim); }
 .mood-emoji { font-size: 26px; margin-bottom: 5px; }
-.mood-label { font-size: 10px; color: rgba(255,255,255,.45); }
+.mood-label { font-size: 10px; color: rgba(255,255,255,0.58); }
 
 .mindset-result {
   border-radius: 14px;
@@ -822,7 +823,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
 }
 .upload-icon  { font-size: 44px; margin-bottom: 12px; opacity: .7; }
 .upload-title { font-size: 16px; font-weight: 700; color: rgba(255,255,255,.8); margin-bottom: 6px; font-family: 'Manrope', sans-serif; }
-.upload-sub   { font-size: 12px; color: rgba(255,255,255,.35); line-height: 1.6; }
+.upload-sub   { font-size: 12px; color: rgba(255,255,255,0.58); line-height: 1.6; }
 .upload-methods { display: flex; gap: 10px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
 .upload-method {
   padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 600;
@@ -883,7 +884,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
   margin-bottom: 14px;
 }
 .vision-context:focus { border-color: rgba(168,85,247,.4); }
-.vision-context::placeholder { color: rgba(255,255,255,.22); }
+.vision-context::placeholder { color: rgba(255,255,255,0.58); }
 
 /* Analysis Output */
 .analysis-output {
@@ -919,7 +920,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
 .vb-no    { background: var(--red-dim);   border: 1px solid rgba(255,77,77,.25); }
 .verdict-icon  { font-size: 30px; flex-shrink: 0; }
 .verdict-label { font-size: 18px; font-weight: 900; font-family: 'Manrope', sans-serif; }
-.verdict-conf  { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 2px; }
+.verdict-conf  { font-size: 11px; color: rgba(255,255,255,0.58); margin-top: 2px; }
 
 .what-i-see {
   background: var(--trady-bg);
@@ -938,12 +939,12 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
   border-radius: 8px; padding: 6px 10px; font-size: 11px;
 }
 .det-tag .di { font-size: 14px; }
-.det-tag .dn { font-size: 9px; color: rgba(255,255,255,.28); display: block; }
+.det-tag .dn { font-size: 9px; color: rgba(255,255,255,0.58); display: block; }
 .det-tag .dv { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.8); display: block; }
 
 .trade-specs { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
 .ts-box { background: var(--trady-bg); border: 1px solid var(--trady-border); border-radius: 8px; padding: 10px; text-align: center; }
-.ts-l { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.25); margin-bottom: 5px; }
+.ts-l { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.58); margin-bottom: 5px; }
 .ts-v { font-size: 14px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
 
 .inv-box { background: rgba(255,77,77,.04); border: 1px solid rgba(255,77,77,.12); border-radius: 10px; padding: 12px 14px; font-size: 12px; color: rgba(255,150,150,.7); line-height: 1.65; }
@@ -958,7 +959,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
 .model-pill {
   padding: 5px 12px; border-radius: 7px; font-size: 11px; font-weight: 600;
   background: var(--trady-card); border: 1px solid var(--trady-border);
-  color: rgba(255,255,255,.4); cursor: pointer; transition: all .15s;
+  color: rgba(255,255,255,0.58); cursor: pointer; transition: all .15s;
 }
 .model-pill.active { background: rgba(168,85,247,.12); border-color: rgba(168,85,247,.3); color: var(--purple); }
 
@@ -980,7 +981,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
   flex-shrink: 0;
 }
 .trady-head-name { font-size: 14px; font-weight: 800; color: #fff; font-family: 'Manrope', sans-serif; }
-.trady-head-sub  { font-size: 10px; color: rgba(255,255,255,.35); }
+.trady-head-sub  { font-size: 10px; color: rgba(255,255,255,0.58); }
 .trady-status-badge {
   margin-left: auto;
   font-size: 10px; padding: 3px 9px; border-radius: 6px;
@@ -995,7 +996,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
   background: var(--trady-bg);
   border-radius: 8px;
 }
-.eb-label { font-size: 10px; color: rgba(255,255,255,.3); flex-shrink: 0; }
+.eb-label { font-size: 10px; color: rgba(255,255,255,0.58); flex-shrink: 0; }
 .eb-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .eb-text { font-size: 11px; font-weight: 600; }
 
@@ -1077,7 +1078,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
   scrollbar-width: none;
 }
 .chat-input:focus { border-color: rgba(168,85,247,.4); }
-.chat-input::placeholder { color: rgba(255,255,255,.2); }
+.chat-input::placeholder { color: rgba(255,255,255,0.58); }
 .chat-input::-webkit-scrollbar { display: none; }
 
 .chat-send {
@@ -1097,7 +1098,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
 .quick-btn {
   padding: 4px 10px; border-radius: 7px; font-size: 10px; font-weight: 600;
   background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
-  color: rgba(255,255,255,.4); cursor: pointer; transition: all .15s;
+  color: rgba(255,255,255,0.58); cursor: pointer; transition: all .15s;
   letter-spacing: .3px;
 }
 .quick-btn:hover { background: rgba(168,85,247,.1); border-color: rgba(168,85,247,.25); color: var(--purple); }
@@ -1114,7 +1115,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
 .filter-chip {
   padding: 6px 12px; border-radius: 7px; font-size: 11px; font-weight: 600;
   background: var(--trady-card); border: 1px solid var(--trady-border);
-  color: rgba(255,255,255,.4); cursor: pointer; transition: all .15s;
+  color: rgba(255,255,255,0.58); cursor: pointer; transition: all .15s;
 }
 .filter-chip.active { background: var(--purple-dim); border-color: rgba(168,85,247,.3); color: var(--purple); }
 .filter-chip.fc-bull.active { background: var(--green-dim); border-color: rgba(0,255,136,.3); color: var(--green); }
@@ -1124,7 +1125,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
 .acc-table { width: 100%; border-collapse: collapse; }
 .acc-table th {
   font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
-  color: rgba(255,255,255,.25); padding: 8px 12px; text-align: left;
+  color: rgba(255,255,255,0.58); padding: 8px 12px; text-align: left;
   border-bottom: 1px solid var(--trady-border);
 }
 .acc-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,.03); font-size: 12px; }
@@ -1135,7 +1136,7 @@ main.trady-shell { padding: 0 !important; overflow: hidden !important; }
 /* ── SEASONAL CALENDAR ── */
 .cal-strip { display: grid; grid-template-columns: repeat(12,1fr); gap: 6px; margin-bottom: 16px; }
 .cal-month { background: var(--trady-card); border: 1px solid var(--trady-border); border-radius: 8px; padding: 8px 4px; text-align: center; }
-.cal-mname { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 5px; }
+.cal-mname { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.58); margin-bottom: 5px; }
 .cal-event { font-size: 9px; color: rgba(255,255,255,.55); line-height: 1.4; }
 .cal-month.bullish { border-color: rgba(0,255,136,.2); background: rgba(0,255,136,.04); }
 .cal-month.bearish { border-color: rgba(255,77,77,.2); background: rgba(255,77,77,.04); }
@@ -1175,7 +1176,7 @@ em.p  { color: var(--purple); font-style: normal; font-weight: 700; }
 .text-gold   { color: var(--gold); }
 .text-blue   { color: var(--blue); }
 .text-purple { color: var(--purple); }
-.text-dim    { color: rgba(255,255,255,.4); }
+.text-dim    { color: rgba(255,255,255,0.58); }
 
 hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px 0; }
 
@@ -1470,16 +1471,16 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
 
   <!-- Today's Bias Card -->
   <div id="todayBiasCard" style="background:var(--trady-card); border:1px solid var(--trady-border); border-radius:14px; padding:16px; margin-bottom:16px;">
-    <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:10px;">TODAY'S BIAS</div>
+    <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin-bottom:10px;">TODAY'S BIAS</div>
     <div id="biasContent" style="font-size:13px; color:rgba(255,255,255,.6); line-height:1.75;">
       Loading market context… <span class="skel" style="display:inline-block;width:120px;height:12px;vertical-align:middle;"></span>
     </div>
   </div>
 
   <!-- Top Signals -->
-  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:12px;">TOP ACTIVE SIGNALS</div>
+  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin-bottom:12px;">TOP ACTIVE SIGNALS</div>
   <div id="brainTopSignals">
-    <div style="text-align:center; padding:30px; color:rgba(255,255,255,.2); font-size:13px;">
+    <div style="text-align:center; padding:30px; color:rgba(255,255,255,0.58); font-size:13px;">
       Loading signals… <span class="skel" style="display:block;width:100%;height:80px;margin-top:10px;border-radius:12px;"></span>
     </div>
   </div>
@@ -1487,7 +1488,7 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
   <hr class="trady">
 
   <!-- Confluence Breakdown -->
-  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:12px;">CONFLUENCE LAYER BREAKDOWN</div>
+  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin-bottom:12px;">CONFLUENCE LAYER BREAKDOWN</div>
   <div class="g2" id="confluenceLayers">
     <div class="stat-box sb-green">
       <div class="stat-label">Layer 1 — Candlestick</div>
@@ -1524,7 +1525,7 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
   <hr class="trady">
 
   <!-- Pattern Accuracy Stats -->
-  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:12px;">NSE PATTERN WIN RATES (5Y BACKTEST)</div>
+  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin-bottom:12px;">NSE PATTERN WIN RATES (5Y BACKTEST)</div>
   <div class="g2 g2-tables">
     <div>
       <table class="acc-table" style="width:100%;">
@@ -1561,11 +1562,11 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
     <div class="filter-chip" data-pf="continuation">➡ Continue</div>
   </div>
 
-  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:10px;">CANDLESTICK PATTERNS</div>
+  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin-bottom:10px;">CANDLESTICK PATTERNS</div>
   <div class="pattern-grid" id="candlePatternGrid"></div>
 
   <hr class="trady">
-  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin:16px 0 10px;">CHART PATTERNS</div>
+  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin:16px 0 10px;">CHART PATTERNS</div>
   <div class="pattern-grid" id="chartPatternGrid"></div>
 </div>
 
@@ -1726,11 +1727,11 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
   </div>
 
   <!-- Watchlist quick-scan -->
-  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:10px;">WATCHLIST</div>
+  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin-bottom:10px;">WATCHLIST</div>
   <div id="watchlistChips" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px;"></div>
 
   <div id="signalFeedOutput">
-    <div style="text-align:center; padding:40px 20px; color:rgba(255,255,255,.25);">
+    <div style="text-align:center; padding:40px 20px; color:rgba(255,255,255,0.58);">
       Enter a symbol above and click Analyze, or tap a watchlist chip to load signals.
     </div>
   </div>
@@ -1743,8 +1744,8 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
   </div>
 
   <hr class="trady">
-  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:10px;">SIGNAL ACCURACY TRACKER</div>
-  <div id="accuracyTracker" style="color:rgba(255,255,255,.35); font-size:12px;">No outcomes logged yet. After each signal, mark it Hit or Miss.</div>
+  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin-bottom:10px;">SIGNAL ACCURACY TRACKER</div>
+  <div id="accuracyTracker" style="color:rgba(255,255,255,0.58); font-size:12px;">No outcomes logged yet. After each signal, mark it Hit or Miss.</div>
 </div>
 
 <!-- ▸▸ TAB: MINDSET ◂◂ -->
@@ -1757,7 +1758,7 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
     </div>
   </div>
 
-  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:12px;">HOW ARE YOU FEELING RIGHT NOW?</div>
+  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin-bottom:12px;">HOW ARE YOU FEELING RIGHT NOW?</div>
   <div class="mood-grid">
     <div class="mood-btn" data-mood="5" onclick="selectMood(5)"><div class="mood-emoji">😄</div><div class="mood-label">Amazing</div></div>
     <div class="mood-btn" data-mood="4" onclick="selectMood(4)"><div class="mood-emoji">😊</div><div class="mood-label">Good</div></div>
@@ -1766,7 +1767,7 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
     <div class="mood-btn" data-mood="1" onclick="selectMood(1)"><div class="mood-emoji">😡</div><div class="mood-label">Angry</div></div>
   </div>
 
-  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:10px;">ADDITIONAL QUESTIONS</div>
+  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin-bottom:10px;">ADDITIONAL QUESTIONS</div>
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
     <div class="setup-step active" style="padding:12px;">
       <div style="font-size:12px; color:rgba(255,255,255,.6); margin-bottom:8px;">How many hours did you sleep?</div>
@@ -1794,12 +1795,12 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
 
   <hr class="trady">
   <div class="rules-vault">
-    <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:12px;">YOUR TRADING RULES VAULT</div>
+    <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin-bottom:12px;">YOUR TRADING RULES VAULT</div>
     <div id="rulesVaultList"></div>
   </div>
 
   <hr class="trady">
-  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:12px;">SESSION STATS</div>
+  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin-bottom:12px;">SESSION STATS</div>
   <div class="g3">
     <div class="stat-box sb-green"><div class="stat-label">Trades Today</div><div class="stat-val text-green" id="tradesToday">0</div></div>
     <div class="stat-box sb-red"><div class="stat-label">Losses Today</div><div class="stat-val text-red" id="lossesToday">0</div></div>
@@ -1848,9 +1849,9 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
   </div>
 
   <hr class="trady">
-  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:12px;">NSE SEASONAL CALENDAR</div>
+  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin-bottom:12px;">NSE SEASONAL CALENDAR</div>
   <div class="cal-strip" id="seasonalCal"></div>
-  <div style="font-size:11px; color:rgba(255,255,255,.35); line-height:1.7;" id="seasonalDetail"></div>
+  <div style="font-size:11px; color:rgba(255,255,255,0.58); line-height:1.7;" id="seasonalDetail"></div>
 </div>
 
 <!-- ▸▸ TAB: ANALYZER ◂◂ -->
@@ -1864,7 +1865,7 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
   </div>
 
   <!-- Vision model selector -->
-  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:8px;">VISION MODEL</div>
+  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin-bottom:8px;">VISION MODEL</div>
   <div class="model-row" id="modelRow">
     <div class="model-pill active" data-model="qwen2-vl:7b">qwen2-vl:7b ⭐ Recommended</div>
     <div class="model-pill" data-model="llava:13b">llava:13b</div>
@@ -1894,7 +1895,7 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
   </div>
 
   <!-- Intent -->
-  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:10px;">TELL TRADY YOUR TRADE IDEA</div>
+  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin-bottom:10px;">TELL TRADY YOUR TRADE IDEA</div>
   <div class="intent-row">
     <button class="intent-btn" data-intent="long" onclick="selectIntent('long')"><span class="intent-emoji">🟢</span>Go Long</button>
     <button class="intent-btn" data-intent="short" onclick="selectIntent('short')"><span class="intent-emoji">🔴</span>Go Short</button>
@@ -1923,8 +1924,8 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
   </div>
 
   <!-- Previous analyses -->
-  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); margin-top:16px; margin-bottom:10px;">ANALYSIS HISTORY</div>
-  <div id="analysisHistory" style="color:rgba(255,255,255,.25); font-size:12px;">No analyses yet.</div>
+  <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.58); margin-top:16px; margin-bottom:10px;">ANALYSIS HISTORY</div>
+  <div id="analysisHistory" style="color:rgba(255,255,255,0.58); font-size:12px;">No analyses yet.</div>
 </div>
 
 </main><!-- end main-content -->
@@ -2406,7 +2407,7 @@ ${d.trady_says?`<div style="margin-top:12px;padding:12px 14px;background:rgba(16
   },
   renderRaw(raw){const out=document.getElementById('analysisOutput'),body=document.getElementById('aoBody');if(out)out.style.display='block';if(body)body.innerHTML=`<div class="what-i-see"><div class="wis-label">TRADY ANALYSIS</div>${raw}</div>`;},
   renderError(msg){const out=document.getElementById('analysisOutput'),body=document.getElementById('aoBody');if(out)out.style.display='block';if(body)body.innerHTML=`<div class="inv-box"><div class="inv-label">⚠ ERROR</div>${msg}<br><br>Make sure Ollama is running with a vision model:<br><code>ollama pull qwen2-vl:7b</code></div>`;},
-  renderHist(){const el=document.getElementById('analysisHistory');if(!el)return;if(!this.history.length){el.textContent='No analyses yet.';return;}el.innerHTML=this.history.map(h=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--trady-card);border:1px solid var(--trady-border);border-radius:8px;margin-bottom:6px;font-size:11px;"><span style="color:rgba(255,255,255,.3);">${h.ts}</span><span style="font-weight:700;color:${h.verdict?.includes('LONG')?'var(--green)':h.verdict?.includes('SHORT')?'var(--red)':'var(--gold)'};">${h.verdict}</span><span style="color:rgba(255,255,255,.35);">${h.conf}/100</span></div>`).join('');}
+  renderHist(){const el=document.getElementById('analysisHistory');if(!el)return;if(!this.history.length){el.textContent='No analyses yet.';return;}el.innerHTML=this.history.map(h=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--trady-card);border:1px solid var(--trady-border);border-radius:8px;margin-bottom:6px;font-size:11px;"><span style="color:rgba(255,255,255,0.58);">${h.ts}</span><span style="font-weight:700;color:${h.verdict?.includes('LONG')?'var(--green)':h.verdict?.includes('SHORT')?'var(--red)':'var(--gold)'};">${h.verdict}</span><span style="color:rgba(255,255,255,0.58);">${h.conf}/100</span></div>`).join('');}
 };
 
 /* ═══════════════════════════════════════════════════════════
@@ -2537,13 +2538,13 @@ function openPat(id,kind){
 </div>
 ${kind==='c'?`<div style="margin-bottom:14px;">${svgCandle(p.type,p.id)}</div>`:'<div style="font-size:44px;margin-bottom:12px;">'+(p.type==='bullish'?'📈':p.type==='bearish'?'📉':'📊')+'</div>'}
 <div style="background:var(--trady-bg);border:1px solid var(--trady-border);border-radius:10px;padding:14px;margin-bottom:10px;font-size:12px;color:rgba(255,255,255,.65);line-height:1.75;">
-  <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:6px;">DESCRIPTION</div>${p.desc}</div>
+  <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:6px;">DESCRIPTION</div>${p.desc}</div>
 <div style="background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.12);border-radius:10px;padding:14px;margin-bottom:10px;font-size:12px;color:rgba(255,255,255,.65);line-height:1.75;">
   <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(0,255,136,.5);margin-bottom:6px;">TRADE SIGNAL</div>${p.signal||p.target||''}</div>
 ${p.nse?`<div style="background:rgba(255,183,3,.04);border:1px solid rgba(255,183,3,.12);border-radius:10px;padding:14px;margin-bottom:10px;font-size:12px;color:rgba(255,183,3,.75);line-height:1.75;"><div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,183,3,.5);margin-bottom:6px;">🇮🇳 NSE CONTEXT</div>${p.nse}</div>`:''}
 <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
-  <div style="background:var(--trady-bg);border:1px solid var(--trady-border);border-radius:8px;padding:8px 12px;font-size:11px;"><span style="color:rgba(255,255,255,.3);display:block;font-size:9px;margin-bottom:3px;">Reliability</span><span style="color:${col}">${stars(p.stars)}</span></div>
-  ${p.tf?`<div style="background:var(--trady-bg);border:1px solid var(--trady-border);border-radius:8px;padding:8px 12px;font-size:11px;"><span style="color:rgba(255,255,255,.3);display:block;font-size:9px;margin-bottom:3px;">Best Timeframe</span><span style="color:#fff;font-weight:700;">${p.tf.join(' · ')}</span></div>`:''}
+  <div style="background:var(--trady-bg);border:1px solid var(--trady-border);border-radius:8px;padding:8px 12px;font-size:11px;"><span style="color:rgba(255,255,255,0.58);display:block;font-size:9px;margin-bottom:3px;">Reliability</span><span style="color:${col}">${stars(p.stars)}</span></div>
+  ${p.tf?`<div style="background:var(--trady-bg);border:1px solid var(--trady-border);border-radius:8px;padding:8px 12px;font-size:11px;"><span style="color:rgba(255,255,255,0.58);display:block;font-size:9px;margin-bottom:3px;">Best Timeframe</span><span style="color:#fff;font-weight:700;">${p.tf.join(' · ')}</span></div>`:''}
 </div>
 <button class="btn-primary" style="width:100%;" onclick="quickAsk('Explain ${p.name} in detail — entry, SL, target and when to use it on NSE')">Ask Trady About This →</button>`;
   document.getElementById('patDrawer').classList.add('open');
@@ -2571,7 +2572,7 @@ function renderStrategies(filter='all',search=''){
   <div class="strat-tags" onclick="this.closest('.strat-card').querySelector('.strat-detail').style.display=this.closest('.strat-card').querySelector('.strat-detail').style.display==='none'?'block':'none'">${s.tags.map(t=>`<span class="strat-tag">${t}</span>`).join('')}</div>
   <div class="strat-detail" style="display:none;margin-top:14px;">
     <div style="background:var(--trady-bg);border:1px solid var(--trady-border);border-radius:10px;padding:14px;margin-bottom:10px;">
-      <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:8px;">RULES</div>
+      <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:8px;">RULES</div>
       ${s.rules.map(r=>`<div style="font-size:12px;color:rgba(255,255,255,.6);padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:8px;"><span style="color:var(--purple);flex-shrink:0;">→</span>${r}</div>`).join('')}
     </div>
     <div class="g3" style="margin-bottom:10px;">
@@ -2618,7 +2619,7 @@ function gradeSetup(){
   const g=s>=75?'A+':s>=60?'A':s>=45?'B':s>=30?'C':'SKIP';
   const col=s>=60?'var(--green)':s>=45?'var(--gold)':'var(--red)';
   const msg=s>=75?'Excellent! All layers align. Fire with full size.':s>=60?'Good setup. Trade at normal size.':s>=45?'Moderate. Trade at 50% size only.':s>=30?'Weak. Wait for better setup.':'DO NOT TRADE. Risk too high.';
-  document.getElementById('setupGradeOutput').innerHTML=`<div style="font-size:72px;font-weight:900;font-family:'Manrope',sans-serif;color:${col};margin-bottom:8px;">${g}</div><div style="font-size:14px;color:rgba(255,255,255,.7);margin-bottom:12px;">${msg}</div><div style="background:var(--trady-bg);border:1px solid var(--trady-border);border-radius:8px;padding:10px;font-size:11px;color:rgba(255,255,255,.45);">Score: <strong style="color:${col}">${s}/100</strong> · ${p.pattern||'No pattern'} · Trend: ${p.trend||'—'} · Vol: ${p.volume||'—'} · Emotion: ${p.emotion||'—'}</div>`;
+  document.getElementById('setupGradeOutput').innerHTML=`<div style="font-size:72px;font-weight:900;font-family:'Manrope',sans-serif;color:${col};margin-bottom:8px;">${g}</div><div style="font-size:14px;color:rgba(255,255,255,.7);margin-bottom:12px;">${msg}</div><div style="background:var(--trady-bg);border:1px solid var(--trady-border);border-radius:8px;padding:10px;font-size:11px;color:rgba(255,255,255,0.58);">Score: <strong style="color:${col}">${s}/100</strong> · ${p.pattern||'No pattern'} · Trend: ${p.trend||'—'} · Vol: ${p.volume||'—'} · Emotion: ${p.emotion||'—'}</div>`;
   const s7=document.getElementById('setupStep7');if(s7){s7.classList.remove('skipped');s7.classList.add('active');}
   const sn7=document.getElementById('sn7');if(sn7)sn7.className='step-num sn-active';
 }
@@ -2648,7 +2649,7 @@ function loadSym(sym){document.getElementById('symbolInput').value=sym;analyzeSy
 async function analyzeSymbol(){
   const sym=document.getElementById('symbolInput')?.value.trim().toUpperCase();if(!sym)return;
   const out=document.getElementById('signalFeedOutput');
-  out.innerHTML=`<div style="text-align:center;padding:30px;color:rgba(255,255,255,.3);font-size:13px;"><div class="analysis-spinner" style="margin:0 auto 12px;"></div>Fetching ${sym}…</div>`;
+  out.innerHTML=`<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.58);font-size:13px;"><div class="analysis-spinner" style="margin:0 auto 12px;"></div>Fetching ${sym}…</div>`;
   try{
     const data=await YF.fetch(sym,activeTF,activeTF==='1mo'?'1y':'3mo');
     const sig=SignalEngine.analyze({...data,symbol:sym});
@@ -2682,8 +2683,8 @@ async function analyzeSymbol(){
   </div>
 </div>
 <div style="margin-top:12px;">
-  <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:8px;">CONFLUENCE LAYERS</div>
-  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;">${['Candle','Trend','Indicators','Volume','Multi-TF','Context'].map((lb,i)=>{const v=[sig.layers.l1,sig.layers.l2,sig.layers.l3,sig.layers.l4,sig.layers.l5,sig.layers.l6][i];const col=v>=70?'var(--green)':v>=45?'var(--gold)':'var(--red)';return `<div style="background:var(--trady-card);border:1px solid var(--trady-border);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:16px;font-weight:800;color:${col};font-family:'JetBrains Mono',monospace;">${v}</div><div style="font-size:9px;color:rgba(255,255,255,.25);margin-top:2px;">${lb}</div></div>`;}).join('')}</div>
+  <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:8px;">CONFLUENCE LAYERS</div>
+  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;">${['Candle','Trend','Indicators','Volume','Multi-TF','Context'].map((lb,i)=>{const v=[sig.layers.l1,sig.layers.l2,sig.layers.l3,sig.layers.l4,sig.layers.l5,sig.layers.l6][i];const col=v>=70?'var(--green)':v>=45?'var(--gold)':'var(--red)';return `<div style="background:var(--trady-card);border:1px solid var(--trady-border);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:16px;font-weight:800;color:${col};font-family:'JetBrains Mono',monospace;">${v}</div><div style="font-size:9px;color:rgba(255,255,255,0.58);margin-top:2px;">${lb}</div></div>`;}).join('')}</div>
 </div>`;
     updateLeftPanel(sig,sym);updateBrainTab(sig);
     sigHistory.unshift({sym,score:sig.score,grade:sig.grade.g,dir:dl,ts:new Date().toLocaleTimeString('en-IN'),outcome:null});
@@ -2692,7 +2693,7 @@ async function analyzeSymbol(){
 }
 
 function markOut(sym,out){const idx=sigHistory.findIndex(s=>s.sym===sym&&!s.outcome);if(idx>-1){sigHistory[idx].outcome=out;localStorage.setItem('trady_sighist',JSON.stringify(sigHistory));}renderAcc();}
-function renderAcc(){const el=document.getElementById('accuracyTracker');if(!el)return;const done=sigHistory.filter(s=>s.outcome);if(!done.length){el.textContent='No outcomes yet. Mark signals Hit/Miss to track accuracy.';return;}const hits=done.filter(s=>s.outcome==='hit').length,wr=Math.round(hits/done.length*100);el.innerHTML=`<div style="display:flex;gap:20px;align-items:center;"><div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:var(--green);font-family:'Manrope',sans-serif;">${wr}%</div><div style="font-size:9px;color:rgba(255,255,255,.3);">WIN RATE</div></div><div style="text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--green);">${hits}</div><div style="font-size:9px;color:rgba(255,255,255,.3);">HITS</div></div><div style="text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--red);">${done.length-hits}</div><div style="font-size:9px;color:rgba(255,255,255,.3);">MISSES</div></div><div style="text-align:center;"><div style="font-size:20px;font-weight:700;color:rgba(255,255,255,.4);">${sigHistory.length}</div><div style="font-size:9px;color:rgba(255,255,255,.3);">TOTAL</div></div></div>`;}
+function renderAcc(){const el=document.getElementById('accuracyTracker');if(!el)return;const done=sigHistory.filter(s=>s.outcome);if(!done.length){el.textContent='No outcomes yet. Mark signals Hit/Miss to track accuracy.';return;}const hits=done.filter(s=>s.outcome==='hit').length,wr=Math.round(hits/done.length*100);el.innerHTML=`<div style="display:flex;gap:20px;align-items:center;"><div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:var(--green);font-family:'Manrope',sans-serif;">${wr}%</div><div style="font-size:9px;color:rgba(255,255,255,0.58);">WIN RATE</div></div><div style="text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--green);">${hits}</div><div style="font-size:9px;color:rgba(255,255,255,0.58);">HITS</div></div><div style="text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--red);">${done.length-hits}</div><div style="font-size:9px;color:rgba(255,255,255,0.58);">MISSES</div></div><div style="text-align:center;"><div style="font-size:20px;font-weight:700;color:rgba(255,255,255,0.58);">${sigHistory.length}</div><div style="font-size:9px;color:rgba(255,255,255,0.58);">TOTAL</div></div></div>`;}
 
 function updateLeftPanel(sig,sym){
   const el=document.getElementById('leftSignalFeed');if(!el)return;
@@ -2763,7 +2764,7 @@ function renderRulesVault(){
 
 // ── PLAYBOOK ──
 function savePlaybook(type){const map={setups:'pbSetups',avoid:'pbAvoid',rules:'pbRules',edge:'pbEdge'};const v=document.getElementById(map[type])?.value.trim();if(!v)return;const k=`trady_pb_${type}`;const items=JSON.parse(localStorage.getItem(k)||'[]');items.push(v);localStorage.setItem(k,JSON.stringify(items));document.getElementById(map[type]).value='';renderPlaybook(type);}
-function renderPlaybook(type){const map={setups:'pbSetupsList',avoid:'pbAvoidList',rules:'pbRulesList',edge:'pbEdgeList'};const el=document.getElementById(map[type]);if(!el)return;const items=JSON.parse(localStorage.getItem(`trady_pb_${type}`)||'[]');el.innerHTML=items.map((it,i)=>`<div class="pb-saved-item"><span>${it}</span><button class="pb-del" onclick="delPb('${type}',${i})">×</button></div>`).join('')||'<div style="color:rgba(255,255,255,.25);font-size:12px;padding:8px 0;">Nothing saved yet.</div>';}
+function renderPlaybook(type){const map={setups:'pbSetupsList',avoid:'pbAvoidList',rules:'pbRulesList',edge:'pbEdgeList'};const el=document.getElementById(map[type]);if(!el)return;const items=JSON.parse(localStorage.getItem(`trady_pb_${type}`)||'[]');el.innerHTML=items.map((it,i)=>`<div class="pb-saved-item"><span>${it}</span><button class="pb-del" onclick="delPb('${type}',${i})">×</button></div>`).join('')||'<div style="color:rgba(255,255,255,0.58);font-size:12px;padding:8px 0;">Nothing saved yet.</div>';}
 function delPb(type,idx){const k=`trady_pb_${type}`;const items=JSON.parse(localStorage.getItem(k)||'[]');items.splice(idx,1);localStorage.setItem(k,JSON.stringify(items));renderPlaybook(type);}
 
 // ── SEASONAL CAL ──
@@ -2778,8 +2779,8 @@ function showMonthDetail(month){const m=KB.seasonal.find(s=>s.month===month);con
 // ── ACCURACY TABLE ──
 function renderAccTables(){
   const b=document.getElementById('bullAccTable'),be=document.getElementById('bearAccTable');
-  if(b)b.innerHTML=KB.accuracy.bullish.map(p=>`<tr><td style="color:rgba(255,255,255,.7);">${p.name}</td><td style="color:rgba(255,255,255,.3);font-size:10px;">${p.tf}</td><td style="color:${p.bar};font-weight:700;">${p.wr}%</td><td><div class="acc-bar"><div class="acc-fill" style="width:${p.wr}%;background:${p.bar};"></div></div></td></tr>`).join('');
-  if(be)be.innerHTML=KB.accuracy.bearish.map(p=>`<tr><td style="color:rgba(255,255,255,.7);">${p.name}</td><td style="color:rgba(255,255,255,.3);font-size:10px;">${p.tf}</td><td style="color:${p.bar};font-weight:700;">${p.wr}%</td><td><div class="acc-bar"><div class="acc-fill" style="width:${p.wr}%;background:${p.bar};"></div></div></td></tr>`).join('');
+  if(b)b.innerHTML=KB.accuracy.bullish.map(p=>`<tr><td style="color:rgba(255,255,255,.7);">${p.name}</td><td style="color:rgba(255,255,255,0.58);font-size:10px;">${p.tf}</td><td style="color:${p.bar};font-weight:700;">${p.wr}%</td><td><div class="acc-bar"><div class="acc-fill" style="width:${p.wr}%;background:${p.bar};"></div></div></td></tr>`).join('');
+  if(be)be.innerHTML=KB.accuracy.bearish.map(p=>`<tr><td style="color:rgba(255,255,255,.7);">${p.name}</td><td style="color:rgba(255,255,255,0.58);font-size:10px;">${p.tf}</td><td style="color:${p.bar};font-weight:700;">${p.wr}%</td><td><div class="acc-bar"><div class="acc-fill" style="width:${p.wr}%;background:${p.bar};"></div></div></td></tr>`).join('');
 }
 
 // ── CHART ANALYZER ──
@@ -2824,11 +2825,14 @@ document.addEventListener('DOMContentLoaded',init);
 <script src="../js/ui.js" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=9"></script>
+<script src="../js/finos-widget.js?v=10"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=3"></script>
+<script src="../js/finos-search.js?v=4"></script>
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 <script src="../js/interactions.js" defer></script>
 </body>
 </html>

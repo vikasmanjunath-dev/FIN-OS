@@ -49,8 +49,8 @@
   function selectModel(taskType) {
     return OLLAMA_MODELS[taskType] || OLLAMA_MODEL;
   }
-  const ARYA_API_BASE = 'http://localhost:7475';   // arya-ai FastAPI backend
-  const RAG_API_BASE  = 'http://localhost:7476';   // rag-engine FastAPI backend (Phase 4)
+  const ARYA_API_BASE = (window.FinosAPI && window.FinosAPI.base('arya')) || 'http://localhost:7475';   // arya-ai FastAPI backend
+  const RAG_API_BASE  = (window.FinosAPI && window.FinosAPI.base('rag')) || 'http://localhost:7476';   // rag-engine FastAPI backend (Phase 4)
   let   _activeEndpoint = null;
 
   // Phase 8: per-panel-open session UUID for multi-turn conversation memory.
@@ -1288,6 +1288,62 @@ RULES (non-negotiable):
     return nudges.slice(0, 3); // max 3 nudges to avoid overwhelming
   }
 
+  /* PULSE: render widgets in order of relevance to THIS user (js/arya-pulse-rank.js), with a short "why" on the top picks
+     and a "since your last visit" strip. Falls back to the historical fixed order if the ranking module is missing. */
+  function buildPulseHTML() {
+    const builders = {
+      crossPageHUD: buildCrossPageHUD, smartInsightCards: buildSmartInsightCards, netWorthTimeline: buildNetWorthTimeline,
+      wealthFingerprint: buildWealthFingerprint, pageActivityMatrix: buildPageActivityMatrix, behavioralDNA: buildBehavioralDNA,
+      wealthChart: buildWealthChart, goalCards: buildGoalCards, indiaFinCalendar: buildIndiaFinCalendar,
+      portfolioStressTest: buildPortfolioStressTest, compoundRace: buildCompoundRace, savingsRateMeter: buildSavingsRateMeter,
+      taxDashboard: buildTaxDashboard, debtFreedomPlanner: buildDebtFreedomPlanner, scenarioLab: buildScenarioLab,
+      inflationEroder: buildInflationEroder, monteCarlo: buildMonteCarloSection, timeMachine: buildTimeMachineSection,
+      peerBenchmark: buildPeerBenchmarkSection, transactionAnalyzer: buildTransactionAnalyzerSection,
+      wealthXRay: buildWealthXRaySection, taxOptimizer: buildTaxOptimizerSection, insuranceGap: buildInsuranceGapSection,
+      wealthVelocity: buildWealthVelocity, goalProbabilityMatrix: buildGoalProbabilityMatrix, newsWidget: buildNewsWidget,
+    };
+    const R = window.AryaPulseRank;
+    let order = Object.keys(builders), reasons = {}, sinceHTML = '';
+    if (R) {
+      try {
+        const jsonLen = k => { try { const v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) ? v.length : 0; } catch { return 0; } };
+        const _imap = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
+        const ctx = {
+          month: new Date().getMonth() + 1,
+          income: parseFloat(window.FINOS_USER_CONTEXT?.budget_tracker?.income_monthly || 0) || _imap[get('finos_income', '')] || parseFloat(get('finos_monthly_income', '0')) || 0,
+          expense: parseFloat(get('finos_expenses', '0')) || parseFloat(get('finos_monthly_expense', '0')) || 0,
+          debt: parseFloat(get('finos_debt', '0')), emergencyFund: parseFloat(get('finos_emergency_fund', '0')),
+          sip: parseFloat(get('finos_sip', '0')) || parseFloat(get('finos_sip_amount', '0')),
+          goals: jsonLen('finos_goals'), policies: jsonLen('finos_insurance_policies'), txns: jsonLen('finos_transactions'),
+          holdings: (parseFloat(get('finos_portfolio_value', '0')) || 0) + (parseFloat(get('finos_mf_import_value', '0')) || 0) + (parseFloat(get('finos_sip_value', '0')) || 0),
+          netWorth: parseFloat(get('finos_net_worth', '0')), gap80c: parseFloat(get('finos_80c_gap', '0')), age: parseInt(get('finos_age', '30'), 10),
+        };
+        const ranked = R.rank(ctx);
+        order = ranked.map(r => r.id).filter(id => builders[id]);
+        ranked.filter(r => r.reason).slice(0, 3).forEach(r => { reasons[r.id] = r.reason; });
+
+        const cur = R.snapshot(ctx);
+        let prev = null; try { prev = JSON.parse(localStorage.getItem('finos_pulse_snapshot') || 'null'); } catch {}
+        const changes = R.diff(prev, cur);
+        if (!prev || cur.at - prev.at >= 6 * 3600 * 1000) { try { localStorage.setItem('finos_pulse_snapshot', JSON.stringify(cur)); } catch {} }
+        if (changes.length) {
+          const col = { good: '#00ffb3', bad: '#ff4d6d' };
+          sinceHTML = `<div class="asp-fade-in" style="margin:10px 14px 0;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)">
+            <div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:6px">Since your last visit</div>
+            ${changes.map(c => `<div style="font-size:12px;line-height:1.7;color:${col[c.tone] || '#fff'}">${c.icon} ${c.text}</div>`).join('')}
+          </div>`;
+        }
+      } catch (e) { console.warn('[PULSE] ranking skipped:', e); order = Object.keys(builders); reasons = {}; }
+    }
+    const body = order.map(id => {
+      const html = builders[id]();
+      return reasons[id]
+        ? `<div style="margin:12px 14px -4px;font-size:11px;line-height:1.5;color:#ffd93d">⭐ <b>Recommended for you</b> — ${reasons[id]}</div>${html}`
+        : html;
+    }).join('');
+    return buildPulseView() + sinceHTML + body;
+  }
+
   /* ══ PULSE DASHBOARD VIEW ════════════════════════════════════════════════ */
   function buildPulseView() {
     const _imap  = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
@@ -1384,17 +1440,17 @@ RULES (non-negotiable):
         <div class="apl-kpi apl-kpi-card" onclick="this.querySelector('.apl-kpi-expand').style.display=this.querySelector('.apl-kpi-expand').style.display==='block'?'none':'block'">
           <div class="apl-kpi-val" style="color:#00ffb3">${inc>0?INR(inc)+'/mo':'—'}</div>
           <div class="apl-kpi-lbl">Income</div>
-          <div class="apl-kpi-expand" style="display:none;margin-top:5px;text-align:left;font-size:9px;color:rgba(255,255,255,.45);line-height:1.6;border-top:1px solid rgba(255,255,255,.07);padding-top:5px">${inc>0?`${INR(inc)} gross<br>Saves: ${INR(Math.max(0,inc-exp))}/mo<br>Rate: ${savRate}%`:'Set on Profile page'}</div>
+          <div class="apl-kpi-expand" style="display:none;margin-top:5px;text-align:left;font-size:9px;color:rgba(255,255,255,0.58);line-height:1.6;border-top:1px solid rgba(255,255,255,.07);padding-top:5px">${inc>0?`${INR(inc)} gross<br>Saves: ${INR(Math.max(0,inc-exp))}/mo<br>Rate: ${savRate}%`:'Set on Profile page'}</div>
         </div>
         <div class="apl-kpi apl-kpi-card" onclick="this.querySelector('.apl-kpi-expand').style.display=this.querySelector('.apl-kpi-expand').style.display==='block'?'none':'block'">
           <div class="apl-kpi-val" style="color:#ffd93d">${nw>0?INR(nw):'—'}</div>
           <div class="apl-kpi-lbl">Net Worth</div>
-          <div class="apl-kpi-expand" style="display:none;margin-top:5px;text-align:left;font-size:9px;color:rgba(255,255,255,.45);line-height:1.6;border-top:1px solid rgba(255,255,255,.07);padding-top:5px">${nw>0?`Total assets<br>vs FIRE target: ${INR(fireNeed)}<br>${Math.round(nw/fireNeed*100)}% of target`:'Set on Track page'}</div>
+          <div class="apl-kpi-expand" style="display:none;margin-top:5px;text-align:left;font-size:9px;color:rgba(255,255,255,0.58);line-height:1.6;border-top:1px solid rgba(255,255,255,.07);padding-top:5px">${nw>0?`Total assets<br>vs FIRE target: ${INR(fireNeed)}<br>${Math.round(nw/fireNeed*100)}% of target`:'Set on Track page'}</div>
         </div>
         <div class="apl-kpi apl-kpi-card" onclick="this.querySelector('.apl-kpi-expand').style.display=this.querySelector('.apl-kpi-expand').style.display==='block'?'none':'block'">
           <div class="apl-kpi-val" style="color:#a78bfa">${yrsLeft}yr</div>
           <div class="apl-kpi-lbl">To Retire</div>
-          <div class="apl-kpi-expand" style="display:none;margin-top:5px;text-align:left;font-size:9px;color:rgba(255,255,255,.45);line-height:1.6;border-top:1px solid rgba(255,255,255,.07);padding-top:5px">Age ${age} → ${retireAge}<br>FIRE @ ${fireNeed>0?INR(fireNeed):'?'}<br>Score: ${fireScore}/100</div>
+          <div class="apl-kpi-expand" style="display:none;margin-top:5px;text-align:left;font-size:9px;color:rgba(255,255,255,0.58);line-height:1.6;border-top:1px solid rgba(255,255,255,.07);padding-top:5px">Age ${age} → ${retireAge}<br>FIRE @ ${fireNeed>0?INR(fireNeed):'?'}<br>Score: ${fireScore}/100</div>
         </div>
       </div>
       <button class="asp-view-ask-btn" style="margin:10px 14px 0;width:calc(100% - 28px)" data-msg="Based on my financial pulse — savings rate ${savRate}%, emergency fund ${emerMo.toFixed(1)} months, debt score ${debtScore}/100, investment rate ${invRate}%, FIRE score ${fireScore}/100 — give me a personalised 90-day action plan with specific ₹ targets for each pillar.">🤖 Get my 90-day action plan</button>
@@ -1540,12 +1596,12 @@ RULES (non-negotiable):
       const m = new Date(w[0].iso).getMonth();
       if (m === prevM) return '';
       prevM = m;
-      return `<span style="position:absolute;left:${(wi*STEP).toFixed(1)}px;font-size:8px;color:rgba(255,255,255,.32);white-space:nowrap">${MONTHS[m]}</span>`;
+      return `<span style="position:absolute;left:${(wi*STEP).toFixed(1)}px;font-size:8px;color:rgba(255,255,255,0.58);white-space:nowrap">${MONTHS[m]}</span>`;
     }).join('');
 
     // Day-of-week labels (show only Mon/Wed/Fri rows to save space)
     const dayLabels = ['','M','','W','','F',''].map((d, i) =>
-      `<div style="height:${CELL}px;line-height:${CELL}px;${i > 0 ? `margin-top:${GAP}px;` : ''}font-size:7px;color:rgba(255,255,255,.28);text-align:right">${d}</div>`
+      `<div style="height:${CELL}px;line-height:${CELL}px;${i > 0 ? `margin-top:${GAP}px;` : ''}font-size:7px;color:rgba(255,255,255,0.58);text-align:right">${d}</div>`
     ).join('');
 
     // Cells — weeks[w][d] order is PERFECT for grid-auto-flow:column (fills column-by-column)
@@ -1564,7 +1620,7 @@ RULES (non-negotiable):
     return `<div class="asp-fade-in" style="padding:12px 14px 4px">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
         <div style="font-size:14px;font-weight:800;color:var(--text-primary,#fff)">Spending Heatmap</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.35)">${daysWithData} days tracked</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.58)">${daysWithData} days tracked</div>
       </div>
 
       <div style="display:flex;gap:6px;align-items:flex-start">
@@ -1577,7 +1633,7 @@ RULES (non-negotiable):
         </div>
       </div>
 
-      <div style="display:flex;gap:5px;align-items:center;margin-top:8px;font-size:10px;color:rgba(255,255,255,.3)">
+      <div style="display:flex;gap:5px;align-items:center;margin-top:8px;font-size:10px;color:rgba(255,255,255,0.58)">
         <span>Less</span>
         ${['#00ffb399','#00d4ff99','#ffb30099','#ff754399','#ff4d6d99'].map(c=>`<div style="width:10px;height:10px;border-radius:2px;background:${c}"></div>`).join('')}
         <span>More</span>
@@ -1585,12 +1641,12 @@ RULES (non-negotiable):
       </div>
 
       ${daysWithData === 0
-        ? `<div style="margin:12px 0;padding:12px;background:rgba(255,255,255,.04);border-radius:9px;text-align:center;font-size:11.5px;color:rgba(255,255,255,.4);line-height:1.7">No daily expense data yet.<br>Log spending in Budget Tracker to fill your calendar 📊</div>`
+        ? `<div style="margin:12px 0;padding:12px;background:rgba(255,255,255,.04);border-radius:9px;text-align:center;font-size:11.5px;color:rgba(255,255,255,0.58);line-height:1.7">No daily expense data yet.<br>Log spending in Budget Tracker to fill your calendar 📊</div>`
         : `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:10px">
-            <div style="background:rgba(255,255,255,.04);border-radius:8px;padding:7px;text-align:center"><div style="font-size:12px;font-weight:800;color:#00ffb3">${INR(avgDay)}</div><div style="font-size:9px;color:rgba(255,255,255,.35);margin-top:1px">Avg/day</div></div>
-            <div style="background:rgba(255,255,255,.04);border-radius:8px;padding:7px;text-align:center"><div style="font-size:12px;font-weight:800;color:#ffd93d">${INR(Math.round(totalSpend))}</div><div style="font-size:9px;color:rgba(255,255,255,.35);margin-top:1px">Total</div></div>
-            <div style="background:rgba(255,255,255,.04);border-radius:8px;padding:7px;text-align:center"><div style="font-size:12px;font-weight:800;color:#ff9500">${festDays}</div><div style="font-size:9px;color:rgba(255,255,255,.35);margin-top:1px">Festivals</div></div>
-            <div style="background:rgba(255,255,255,.04);border-radius:8px;padding:7px;text-align:center"><div style="font-size:12px;font-weight:800;color:#ff4d6d">${overBudget}</div><div style="font-size:9px;color:rgba(255,255,255,.35);margin-top:1px">Over budget</div></div>
+            <div style="background:rgba(255,255,255,.04);border-radius:8px;padding:7px;text-align:center"><div style="font-size:12px;font-weight:800;color:#00ffb3">${INR(avgDay)}</div><div style="font-size:9px;color:rgba(255,255,255,0.58);margin-top:1px">Avg/day</div></div>
+            <div style="background:rgba(255,255,255,.04);border-radius:8px;padding:7px;text-align:center"><div style="font-size:12px;font-weight:800;color:#ffd93d">${INR(Math.round(totalSpend))}</div><div style="font-size:9px;color:rgba(255,255,255,0.58);margin-top:1px">Total</div></div>
+            <div style="background:rgba(255,255,255,.04);border-radius:8px;padding:7px;text-align:center"><div style="font-size:12px;font-weight:800;color:#ff9500">${festDays}</div><div style="font-size:9px;color:rgba(255,255,255,0.58);margin-top:1px">Festivals</div></div>
+            <div style="background:rgba(255,255,255,.04);border-radius:8px;padding:7px;text-align:center"><div style="font-size:12px;font-weight:800;color:#ff4d6d">${overBudget}</div><div style="font-size:9px;color:rgba(255,255,255,0.58);margin-top:1px">Over budget</div></div>
           </div>`}
       <button class="asp-view-ask-btn" data-msg="Analyse my spending heatmap patterns. Which weeks or months do I consistently overspend? What's draining my budget most? Give me 3 concrete adjustments with ₹ impact." style="margin:10px 0 4px">🤖 Analyse my spending patterns</button>
     </div>`;
@@ -1684,7 +1740,7 @@ RULES (non-negotiable):
     } catch {
       if (bodyEl) {
         bodyEl.innerHTML = `
-          <div style="font-size:11px;color:rgba(255,255,255,.38);line-height:1.6">Arya is offline — start Ollama to get instant answers.</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.58);line-height:1.6">Arya is offline — start Ollama to get instant answers.</div>
           <div class="asp-inline-resp-ft">
             <button class="asp-inline-resp-go" data-msg="${safePmt()}">💬 Try in Chat</button>
           </div>`;
@@ -1813,6 +1869,28 @@ RULES (non-negotiable):
     return { store, search, getRecent, forget, count, buildBlock, open };
   })();
 
+  /* Lazily load shared FIN-OS modules (sibling files of this script) so tools work on any page. */
+  const _finosScriptBase = (function () {
+    const el = Array.from(document.scripts).find(x => /arya-sidebar-panel\.js/.test(x.src));
+    return el ? el.src.replace(/[^/]*$/, '') : '../js/';
+  })();
+  const _finosScriptLoads = {};
+  function _loadFinosScripts(files) {
+    const GLOBALS = { 'finos-montecarlo.js': 'FinosMC', 'finos-format.js': 'FinosFmt', 'finos-retirement-planner.js': 'FinosRetirementPlanner',
+                      'finos-taxdates.js': 'FinosTaxDates', 'finos-calendar.js': 'FinosCalendar', 'finos-reminders.js': 'FinosReminders' };
+    return Promise.all(files.map(f => {
+      if (window[GLOBALS[f]]) return Promise.resolve();
+      if (!_finosScriptLoads[f]) {
+        _finosScriptLoads[f] = new Promise(res => {
+          const sc = document.createElement('script');
+          sc.src = _finosScriptBase + f; sc.onload = sc.onerror = () => res();
+          document.head.appendChild(sc);
+        });
+      }
+      return _finosScriptLoads[f];
+    }));
+  }
+
   /* ── LAYER 2: Agent Tool Registry ────────────────────────────────────────── */
   /* ── AgentTools: 25 local financial tools — zero cloud ─────────────────── */
   const AgentTools = {
@@ -1856,6 +1934,10 @@ RULES (non-negotiable):
       { name: 'analyze_stock',  desc: 'Full technical analysis: RSI, MACD, Bollinger Bands, EMA, SMA200, ADX, Supertrend, Volume signal + BUY/HOLD/SELL verdict', args: { symbol: 'NSE symbol e.g. INFY', exchange: 'NSE or BSE (default NSE)' } },
       { name: 'generate_report', desc: 'Generate a stock or market-overview report and get a link to open — HTML or PDF. For a portfolio report use the app\'s own export button, not this (it needs your login, which this tool cannot carry)', args: { type: '"quote" or "market"', symbol: 'required if type=quote, e.g. RELIANCE', format: '"html" or "pdf" (default html)' } },
       { name: 'show_chart',     desc: 'Open a live candlestick + volume chart for a stock right in this panel — use when the user asks to see/view/plot a chart, not for text-only analysis (use analyze_stock for that)', args: { symbol: 'NSE/BSE symbol e.g. RELIANCE', exchange: 'NSE or BSE (default NSE)', period: '1mo|3mo|6mo|1y|2y (default 6mo)' } },
+      /* ── Planning tools backed by shared FIN-OS modules ───────────────── */
+      { name: 'retirement_odds', desc: 'Monte Carlo probability (0-100%) that the user\'s money lasts through retirement, using their tracked holdings — 4,000 simulated futures with varying returns and inflation. Use for "will I run out of money?", "can I retire at 55?", "how much SIP do I need?". Optional overrides.', args: { retire_age: 'optional', monthly_expense: 'optional ₹ today', monthly_invest: 'optional ₹', end_age: 'optional (default 90)', target_odds: 'optional % — also solves the monthly SIP needed to reach it' } },
+      { name: 'upcoming_dates', desc: 'Upcoming SIP debits, FD/PPF maturities, insurance renewals, goal deadlines and tax dates from the user\'s own trackers within N days', args: { days: 'default 30' } },
+      { name: 'tax_dates',      desc: 'India tax calendar: advance-tax instalments, 80C/ELSS deadline (31 Mar), Form 16, ITR due date — for any financial year', args: { days: 'default 120' } },
       /* ── RAG TOOLS (requires rag-engine backend on port 7476) ──────────── */
       { name: 'rag_query',      desc: 'Ask a question grounded in indexed SEBI/RBI regulations + FIN-OS docs, with cited answer — REAL retrieved text, not guesses', args: { query: 'the question to answer' } },
       { name: 'rag_search_regulations', desc: 'Search ONLY SEBI/RBI regulatory text (no FIN-OS content) — use for "what does the circular/notification say" questions', args: { query: 'regulation topic or keyword' } },
@@ -2598,6 +2680,56 @@ ${sigLines.join('\n')}`;
           ).join('\n\n') + '\n\n_Source: NSE/BSE corporate filings (indexed via RAG engine)_';
         }
 
+        case 'retirement_odds': {
+          await _loadFinosScripts(['finos-montecarlo.js', 'finos-format.js', 'finos-retirement-planner.js']);
+          if (!window.FinosMC || !window.FinosRetirementPlanner) return 'The simulation engine could not be loaded on this page.';
+          const c = window.FinosRetirementPlanner._compute();
+          const cfg = window.FinosRetirementPlanner._mcConfig(c);
+          if (args.retire_age)       cfg.retireAge = Math.max(+args.retire_age, cfg.startAge);
+          if (args.monthly_expense)  cfg.monthlyExpenseToday = +args.monthly_expense;
+          if (args.monthly_invest !== undefined && args.monthly_invest !== '') cfg.monthlyContribution = +args.monthly_invest;
+          if (args.end_age)          cfg.endAge = Math.max(+args.end_age, cfg.retireAge + 1);
+          const money = cfg.assets.reduce((t, a) => t + a.value, 0);
+          if (money <= 0 && !(cfg.monthlyContribution > 0)) return 'No holdings or monthly investment found in the user\'s trackers yet — ask them to add EPF/NPS/PPF/SIP/FD/gold values or a monthly investment amount first, then try again.';
+          const r = window.FinosMC.simulate(cfg);
+          const F = window.FinosFmt;
+          const atRet = r.realBands.find(b => b.age === cfg.retireAge) || r.realBands[r.realBands.length - 1];
+          let out = `RETIREMENT MONTE CARLO (${r.runs} simulated futures)\n` +
+            `Age now ${cfg.startAge} → retire at ${cfg.retireAge} → plan to ${cfg.endAge}\n` +
+            `Monthly spend in retirement: ${F.inr(cfg.monthlyExpenseToday)} (today's ₹), inflation ${(cfg.inflation * 100).toFixed(1)}%\n` +
+            `Investing now: ${F.inr(cfg.monthlyContribution)}/mo (+${(cfg.stepUp * 100).toFixed(0)}% yearly)\n` +
+            `PROBABILITY MONEY LASTS TO ${cfg.endAge}: ${Math.round(r.successRate * 100)}%\n` +
+            `Corpus at retirement (today's ₹): median ${F.compact(atRet.p50)}, range ${F.compact(atRet.p10)}–${F.compact(atRet.p90)} (10th–90th percentile)\n` +
+            (r.depletion ? `When it fails, money typically runs out around age ${Math.round(r.depletion.medianAge)}.\n` : 'No simulated future ran out of money.\n');
+          const target = (+args.target_odds || 0) / 100;
+          if (target > 0 && target < 1) {
+            const sip = window.FinosMC.solveContribution(cfg, target);
+            out += sip === null ? `Reaching ${Math.round(target * 100)}% by investing more alone is not possible in a sensible range — retire later or spend less.\n`
+                                : `Monthly investment needed for ${Math.round(target * 100)}% odds: ${F.inr(sip)}\n`;
+          }
+          return out + 'This is a probabilistic illustration from stated assumptions, not a prediction or advice.';
+        }
+
+        case 'upcoming_dates': {
+          await _loadFinosScripts(['finos-taxdates.js', 'finos-calendar.js', 'finos-reminders.js']);
+          if (!window.FinosReminders) return 'Reminders module not available on this page.';
+          const days = Math.min(Math.max(+args.days || 30, 1), 365);
+          const ev = window.FinosReminders.upcoming(days);
+          if (!ev.length) return `Nothing due in the next ${days} days in the user\'s trackers (SIPs, FDs, insurance, goals, tax dates).`;
+          return `DUE IN THE NEXT ${days} DAYS:\n` + ev.slice(0, 15).map(e => `• ${e.date} (${e.daysAway === 0 ? 'today' : 'in ' + e.daysAway + 'd'}) [${e.type}] ${e.title}${e.sub ? ' — ' + e.sub.replace(/\s*Statutory default.*$/, '') : ''}`).join('\n');
+        }
+
+        case 'tax_dates': {
+          await _loadFinosScripts(['finos-taxdates.js']);
+          if (!window.FinosTaxDates) return 'Tax calendar not available on this page.';
+          const from = new Date(); const to = new Date(Date.now() + (Math.min(Math.max(+args.days || 120, 1), 730)) * 86400000);
+          const iso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+          const ev = window.FinosTaxDates.events(iso(from), iso(to));
+          if (!ev.length) return 'No tax dates in that window.';
+          return 'INDIA TAX DATES:\n' + ev.map(e => `• ${e.date} — ${e.title}: ${e.sub.replace(/\s*Statutory default.*$/, '')}`).join('\n') +
+            '\nThese are the statutory defaults; the government sometimes extends deadlines — confirm on incometax.gov.in.';
+        }
+
         default:
           return `Unknown tool: "${name}". Available tools: ${AgentTools.schema.map(t=>t.name).join(', ')}`;
       }
@@ -2730,6 +2862,10 @@ ${ctx}`;
     }
 
     async function run(goal, onStep) {
+      if (window.AryaGuardrails) {                      // refuse clearly illegal goals before spending any model calls
+        const pre = window.AryaGuardrails.apply(goal, '');
+        if (pre.blocked) { onStep({ type: 'done', answer: pre.text, steps: 0, toolsUsed: [] }); return; }
+      }
       if (_running) return;
       _running = true;
       const sys      = buildAgentSystem();
@@ -2780,6 +2916,7 @@ ${ctx}`;
         // Detect FINAL_ANSWER
         const faMatch = raw.match(/FINAL_ANSWER:\s*([\s\S]+)/);
         lastAnswer = faMatch ? faMatch[1].trim() : raw.trim();
+        if (window.AryaGuardrails) lastAnswer = window.AryaGuardrails.apply(goal, lastAnswer).text;
         onStep({ type: 'done', answer: lastAnswer, steps, toolsUsed });
 
         // Persist run to history
@@ -2808,7 +2945,7 @@ ${ctx}`;
     <div id="agt-wrap">
       <!-- Persona Switcher -->
       <div id="agt-persona-bar" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.07)">
-        <div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.5px;width:100%;margin-bottom:4px">AI ADVISOR MODE</div>
+        <div style="font-size:9px;font-weight:700;color:rgba(255,255,255,0.58);letter-spacing:.5px;width:100%;margin-bottom:4px">AI ADVISOR MODE</div>
         ${Object.entries(ADVISOR_PERSONAS).map(([key, p]) => `
           <button class="agt-persona-btn" data-persona="${key}"
             style="flex:1;padding:6px 4px;border-radius:7px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);cursor:pointer;font-size:10px;color:rgba(255,255,255,.6);transition:all .15s;min-width:0">
@@ -2872,7 +3009,7 @@ ${ctx}`;
           <button id="agt-history-clear" style="background:none;border:none;color:rgba(255,80,80,.4);font-size:9.5px;cursor:pointer">Clear</button>
         </div>
         <div id="agt-history-list" style="display:flex;flex-direction:column;gap:5px">
-          <div style="font-size:10px;color:rgba(255,255,255,.2);text-align:center;padding:6px">Run a goal to see history here</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58);text-align:center;padding:6px">Run a goal to see history here</div>
         </div>
       </div>
 
@@ -2926,7 +3063,7 @@ ${ctx}`;
           case 'reasoning': {
             // Show condensed reasoning before tool call
             const prev = document.getElementById(`agt-think-${evt.step}`);
-            if (prev) prev.innerHTML = `<span style="font-size:9.5px;color:rgba(255,255,255,.3);font-style:italic;line-height:1.4">💭 ${evt.text.slice(0,160)}…</span>`;
+            if (prev) prev.innerHTML = `<span style="font-size:9.5px;color:rgba(255,255,255,0.58);font-style:italic;line-height:1.4">💭 ${evt.text.slice(0,160)}…</span>`;
             break;
           }
           case 'tool_call': {
@@ -3001,7 +3138,7 @@ ${ctx}`;
       if (cnt) cnt.textContent = mems.length;
       if (!ml) return;
       if (!mems.length) {
-        ml.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,.3);padding:6px 0">No memories yet. Agent runs and manual facts will appear here.</div>';
+        ml.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,0.58);padding:6px 0">No memories yet. Agent runs and manual facts will appear here.</div>';
         return;
       }
       ml.innerHTML = mems.map(m => `
@@ -3070,14 +3207,14 @@ ${ctx}`;
       const hl   = document.getElementById('agt-history-list');
       if (!hl) return;
       if (!runs.length) {
-        hl.innerHTML = '<div style="font-size:10px;color:rgba(255,255,255,.2);text-align:center;padding:6px">Run a goal to see history here</div>';
+        hl.innerHTML = '<div style="font-size:10px;color:rgba(255,255,255,0.58);text-align:center;padding:6px">Run a goal to see history here</div>';
         return;
       }
       hl.innerHTML = runs.slice(0, 8).map(r => `
         <div class="agt-hist-item" data-id="${r.id}" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:7px;padding:7px 9px;cursor:pointer">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px">
             <span style="font-size:10px;color:rgba(255,255,255,.65);flex:1;line-height:1.3">${r.goal.slice(0,70)}${r.goal.length>70?'…':''}</span>
-            <span style="font-size:8.5px;color:rgba(255,255,255,.25);white-space:nowrap">${r.ts.split(',')[0]}</span>
+            <span style="font-size:8.5px;color:rgba(255,255,255,0.58);white-space:nowrap">${r.ts.split(',')[0]}</span>
           </div>
           <div id="agt-hist-ans-${r.id}" style="display:none;font-size:9.5px;color:rgba(255,255,255,.55);margin-top:6px;line-height:1.5;border-top:1px solid rgba(255,255,255,.06);padding-top:6px">${r.answer.slice(0,300)}…</div>
         </div>`).join('');
@@ -3156,7 +3293,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
         briefBubble.innerHTML = final.replace(/<span class="asp-cursor"><\/span>/, '');
       }
     } catch {
-      if (briefBubble) briefBubble.innerHTML = '<div class="agt-brief-hd">📋 Morning brief</div><div style="font-size:11px;color:rgba(255,255,255,.35)">Start Ollama for your daily brief.</div>';
+      if (briefBubble) briefBubble.innerHTML = '<div class="agt-brief-hd">📋 Morning brief</div><div style="font-size:11px;color:rgba(255,255,255,0.58)">Start Ollama for your daily brief.</div>';
     }
   }
 
@@ -3275,7 +3412,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       <span style="font-size:14px">📊</span>
       <div>
         <div style="font-size:10.5px;font-weight:700;color:rgba(255,255,255,.7)">Cross-page data tracked</div>
-        <div style="font-size:9.5px;color:rgba(255,255,255,.35);margin-top:1px">${activityBits.join(' · ')}</div>
+        <div style="font-size:9.5px;color:rgba(255,255,255,0.58);margin-top:1px">${activityBits.join(' · ')}</div>
       </div>
     </div>` : `
     <div style="margin:10px 14px 0;padding:8px 10px;background:rgba(0,212,255,.04);border-radius:10px;border:1px dashed rgba(0,212,255,.15);text-align:center;font-size:10.5px;color:rgba(0,212,255,.5)">
@@ -3390,7 +3527,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
           <div style="font-size:19px;flex-shrink:0;line-height:1.1">${ins.icon}</div>
           <div style="flex:1;min-width:0">
             <div style="font-size:10.5px;font-weight:800;color:rgba(255,255,255,.85);margin-bottom:3px">${ins.title}</div>
-            <div style="font-size:9.5px;color:rgba(255,255,255,.42);line-height:1.5">${ins.body}</div>
+            <div style="font-size:9.5px;color:rgba(255,255,255,0.58);line-height:1.5">${ins.body}</div>
             ${ins.href ? `<a href="${ins.href}" onclick="window.location.href='${ins.href}'" style="display:inline-block;margin-top:5px;font-size:9px;color:${ins.color};text-decoration:none;border:1px solid ${ins.color}40;border-radius:5px;padding:2px 8px;cursor:pointer">${ins.cta} →</a>` : ''}
           </div>
         </div>`).join('')}
@@ -3420,7 +3557,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
           <div class="apl-section-title" style="margin:0">📊 Net Worth Timeline</div>
         </div>
-        <div style="text-align:center;padding:14px 0 6px;font-size:9.5px;color:rgba(255,255,255,.28)">
+        <div style="text-align:center;padding:14px 0 6px;font-size:9.5px;color:rgba(255,255,255,0.58)">
           Open Arya on multiple days to see your NW trend sparkline here
         </div>
       </div>`;
@@ -3459,14 +3596,14 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
           <circle cx="${lastX}" cy="${lastY}" r="3.5" fill="${clr}" stroke="#0d1117" stroke-width="1.5"/>
         </svg>
         <div style="display:flex;justify-content:space-between;font-size:9px;margin-top:3px">
-          <span style="color:rgba(255,255,255,.28)">${points[0][0]}</span>
-          <span style="color:rgba(255,255,255,.28)">${points[points.length-1][0]}</span>
+          <span style="color:rgba(255,255,255,0.58)">${points[0][0]}</span>
+          <span style="color:rgba(255,255,255,0.58)">${points[points.length-1][0]}</span>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:9.5px;margin-top:1px">
-          <span style="color:rgba(255,255,255,.4)">${INR(vals[0])}</span>
+          <span style="color:rgba(255,255,255,0.58)">${INR(vals[0])}</span>
           <span style="color:${clr};font-weight:800">${INR(vals[vals.length-1])}</span>
         </div>
-        <div style="font-size:8.5px;color:rgba(255,255,255,.22);margin-top:4px;text-align:center">${points.length} data points · updates each time you open Arya</div>
+        <div style="font-size:8.5px;color:rgba(255,255,255,0.58);margin-top:4px;text-align:center">${points.length} data points · updates each time you open Arya</div>
       </div>
     </div>`;
   }
@@ -3570,11 +3707,11 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       </div>
       <div style="margin:10px 14px 0;display:grid;grid-template-columns:1fr 1fr;gap:6px">
         <div style="background:rgba(0,255,179,.06);border:1px solid rgba(0,255,179,.15);border-radius:9px;padding:7px 9px">
-          <div style="font-size:8.5px;color:rgba(255,255,255,.35);margin-bottom:2px">💪 Strongest</div>
+          <div style="font-size:8.5px;color:rgba(255,255,255,0.58);margin-bottom:2px">💪 Strongest</div>
           <div style="font-size:11px;font-weight:800;color:#00ffb3">${strongest.label} · ${strongest.score}</div>
         </div>
         <div style="background:rgba(255,77,109,.06);border:1px solid rgba(255,77,109,.15);border-radius:9px;padding:7px 9px">
-          <div style="font-size:8.5px;color:rgba(255,255,255,.35);margin-bottom:2px">⚡ Focus area</div>
+          <div style="font-size:8.5px;color:rgba(255,255,255,0.58);margin-bottom:2px">⚡ Focus area</div>
           <div style="font-size:11px;font-weight:800;color:#ff4d6d">${weakest.label} · ${weakest.score}</div>
         </div>
       </div>
@@ -3617,7 +3754,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
     return `<div class="apl-lab-section asp-fade-in" style="border-top:1px solid rgba(255,255,255,.07);padding:14px 0 10px">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:0 14px;margin-bottom:10px">
         <div class="apl-section-title" style="margin:0">🗺️ Page Activity Matrix</div>
-        <div style="font-size:9px;color:rgba(255,255,255,.35)">${doneCount}/${pages.length} pages with data</div>
+        <div style="font-size:9px;color:rgba(255,255,255,0.58)">${doneCount}/${pages.length} pages with data</div>
       </div>
       <div style="padding:0 14px;display:grid;grid-template-columns:repeat(4,1fr);gap:5px">
         ${filled.map(p=>`
@@ -3637,7 +3774,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       <div style="margin:8px 14px 0;height:4px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden">
         <div style="height:100%;width:${Math.round(doneCount/pages.length*100)}%;background:linear-gradient(90deg,#00d4ff,#7b2ff7);border-radius:4px;transition:width 1.2s ease"></div>
       </div>
-      <div style="padding:4px 14px 0;font-size:9px;color:rgba(255,255,255,.3)">${Math.round(doneCount/pages.length*100)}% of key pages filled — tap any card to go there</div>
+      <div style="padding:4px 14px 0;font-size:9px;color:rgba(255,255,255,0.58)">${Math.round(doneCount/pages.length*100)}% of key pages filled — tap any card to go there</div>
     </div>`;
   }
 
@@ -3672,7 +3809,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
         <div class="apl-section-title">🧬 Behavioral DNA</div>
         <div style="text-align:center;padding:18px 0 10px">
           <div style="font-size:26px;margin-bottom:7px">🔬</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:12px">Take your Financial DNA assessment<br>to unlock your behavioral investing profile</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:12px">Take your Financial DNA assessment<br>to unlock your behavioral investing profile</div>
           <a href="/html/dna.html" onclick="window.location.href='/html/dna.html'" style="display:inline-block;padding:7px 18px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);border-radius:8px;color:#00d4ff;font-size:11px;font-weight:700;text-decoration:none">Take DNA Assessment →</a>
         </div>
       </div>`;
@@ -3715,13 +3852,13 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
             <circle cx="${dotX.toFixed(1)}" cy="${dotY.toFixed(1)}" r="5" fill="${profile.color}"/>
             <circle cx="${dotX.toFixed(1)}" cy="${dotY.toFixed(1)}" r="2.5" fill="white" opacity=".9"/>
           </svg>
-          <div style="font-size:7.5px;color:rgba(255,255,255,.25);text-align:center">DISC Quadrant</div>
+          <div style="font-size:7.5px;color:rgba(255,255,255,0.58);text-align:center">DISC Quadrant</div>
         </div>
         <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
           <div style="font-size:10.5px;font-weight:700;color:rgba(255,255,255,.75);line-height:1.35">${profile.desc}</div>
           ${traitNames.map((nm, i) => `<div>
             <div style="display:flex;justify-content:space-between;font-size:8.5px;margin-bottom:2px">
-              <span style="color:rgba(255,255,255,.38)">${nm}</span>
+              <span style="color:rgba(255,255,255,0.58)">${nm}</span>
               <span style="color:${traitColors[i]};font-weight:800">${traitScores[i]}</span>
             </div>
             <div style="height:3px;background:rgba(255,255,255,.06);border-radius:2px">
@@ -3732,16 +3869,16 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       </div>
       <div style="margin:10px 14px 0;display:grid;grid-template-columns:1fr 1fr;gap:6px">
         <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:7px 10px">
-          <div style="font-size:8px;color:rgba(255,255,255,.28);margin-bottom:2px">🎯 Investing style</div>
+          <div style="font-size:8px;color:rgba(255,255,255,0.58);margin-bottom:2px">🎯 Investing style</div>
           <div style="font-size:10.5px;font-weight:800;color:rgba(255,255,255,.72)">${styleLabel}</div>
         </div>
         <div style="background:rgba(255,77,109,.05);border:1px solid rgba(255,77,109,.15);border-radius:9px;padding:7px 10px">
-          <div style="font-size:8px;color:rgba(255,255,255,.28);margin-bottom:2px">⚠️ Watch for</div>
+          <div style="font-size:8px;color:rgba(255,255,255,0.58);margin-bottom:2px">⚠️ Watch for</div>
           <div style="font-size:10.5px;font-weight:800;color:#ff4d6d">${biasLabel}</div>
         </div>
       </div>
       ${investorType ? `<div style="margin:8px 14px 0;padding:7px 10px;background:rgba(123,47,247,.06);border:1px solid rgba(123,47,247,.2);border-radius:8px;display:flex;align-items:center;gap:6px">
-        <span style="font-size:8.5px;color:rgba(255,255,255,.35)">Financial archetype:</span>
+        <span style="font-size:8.5px;color:rgba(255,255,255,0.58)">Financial archetype:</span>
         <span style="font-size:10px;font-weight:800;color:#a78bfa">${investorType}</span>
       </div>` : ''}
       <button class="asp-view-ask-btn" data-msg="My DISC type is ${discKey} (${profile.label || ''}). Risk score: ${risk}/100. Investing style: ${styleLabel}. Key bias: ${biasLabel}. Give me a personalised behavioral investing plan: my top 3 blind spots, how each has cost Indians like me money, and one specific ₹ habit to fix each bias." style="margin:10px 14px 4px;width:calc(100% - 28px)">🧬 Get my behavioral investing plan</button>
@@ -3758,7 +3895,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
 
   if (!nw && !sip) return `<div class="apl-lab-section" style="padding:12px 14px 4px;border-top:1px solid rgba(255,255,255,.07)">
     <div class="apl-section-title">📈 Wealth Trajectory</div>
-    <div style="text-align:center;padding:16px 0 8px;font-size:11.5px;color:rgba(255,255,255,.3);line-height:1.7">Enter net worth &amp; SIP in profile<br>to see your 3-scenario FIRE curve.</div>
+    <div style="text-align:center;padding:16px 0 8px;font-size:11.5px;color:rgba(255,255,255,0.58);line-height:1.7">Enter net worth &amp; SIP in profile<br>to see your 3-scenario FIRE curve.</div>
   </div>`;
 
   const yrs = Math.max(5, retAge - age);
@@ -3825,7 +3962,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
         <circle cx="${xS(yrs)}" cy="${yS(base[yrs])}" r="3.5" fill="#ffd93d" stroke="#0d1117" stroke-width="1.5"/>
       </svg>
     </div>
-    <div style="display:flex;gap:8px;padding:0 14px 6px;font-size:9px;color:rgba(255,255,255,.4)">
+    <div style="display:flex;gap:8px;padding:0 14px 6px;font-size:9px;color:rgba(255,255,255,0.58)">
       <span style="display:flex;align-items:center;gap:3px"><span style="width:16px;height:2px;background:#ff6b6b;display:inline-block;border-radius:2px"></span>Conservative 8%</span>
       <span style="display:flex;align-items:center;gap:3px"><span style="width:16px;height:2px;background:#00ffb3;display:inline-block;border-radius:2px"></span>Base 12%</span>
       <span style="display:flex;align-items:center;gap:3px"><span style="width:16px;height:2px;background:#a78bfa;display:inline-block;border-radius:2px"></span>Aggressive 16%</span>
@@ -3838,7 +3975,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
         {l:'Conservative',v:INR(Math.round(conserv[yrs])),c:'#ff6b6b'}
       ].map(k=>`<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:6px;text-align:center">
         <div style="font-size:10.5px;font-weight:800;color:${k.c}">${k.v}</div>
-        <div style="font-size:8.5px;color:rgba(255,255,255,.35);margin-top:1px">${k.l}</div>
+        <div style="font-size:8.5px;color:rgba(255,255,255,0.58);margin-top:1px">${k.l}</div>
       </div>`).join('')}
     </div>
     <button class="asp-view-ask-btn" data-msg="My 3-scenario wealth projection: conservative (8%) corpus ${INR(Math.round(conserv[yrs]))}, base (12%) ${INR(Math.round(base[yrs]))}, aggressive (16%) ${INR(Math.round(aggr[yrs]))} at age ${retAge}. FIRE target ${INR(fireNeed)}, current net worth ${INR(nw)}, SIP ${INR(sip)}/mo. ${onTrack?'I\'m on track — how do I reach the aggressive scenario?':'I have a gap — what SIP increase and expense cuts close it fastest?'}" style="margin:2px 14px 4px;width:calc(100% - 28px)">🤖 Optimise across all scenarios</button>
@@ -3877,12 +4014,12 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
           </svg>
           <div style="min-width:0;flex:1">
             <div style="font-size:11.5px;font-weight:800;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${icon(g)} ${g.name || 'Goal'}</div>
-            <div style="font-size:9.5px;color:rgba(255,255,255,.38)">${INR(saved)} / ${INR(target)}</div>
+            <div style="font-size:9.5px;color:rgba(255,255,255,0.58)">${INR(saved)} / ${INR(target)}</div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;font-size:10px">
-          <div><span style="color:rgba(255,255,255,.32)">Gap </span><span style="color:${gap?'#ffb300':'#00ffb3'};font-weight:700">${gap ? INR(gap) : '✅'}</span></div>
-          <div><span style="color:rgba(255,255,255,.32)">Need </span><span style="color:#00d4ff;font-weight:700">${sipNeed ? INR(sipNeed)+'/mo' : '—'}</span></div>
+          <div><span style="color:rgba(255,255,255,0.58)">Gap </span><span style="color:${gap?'#ffb300':'#00ffb3'};font-weight:700">${gap ? INR(gap) : '✅'}</span></div>
+          <div><span style="color:rgba(255,255,255,0.58)">Need </span><span style="color:#00d4ff;font-weight:700">${sipNeed ? INR(sipNeed)+'/mo' : '—'}</span></div>
         </div>
         <button class="asp-view-ask-btn" style="margin-top:7px;padding:5px 8px;font-size:10px;width:100%" data-msg="Goal '${g.name}': target ${INR(target)}, saved ${INR(saved)} (${pct}%), ${months} months left, need ${INR(sipNeed)}/mo. Give me a step-by-step plan to hit this goal on time.">🤖 Plan this goal</button>
       </div>`;
@@ -3953,7 +4090,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
                 <span style="font-size:10px;font-weight:800;color:rgba(255,255,255,.82)">${ev.label}</span>
                 <span style="font-size:9px;font-weight:800;color:${clr};flex-shrink:0;margin-left:6px">${days === 0 ? 'TODAY' : days === 1 ? 'Tomorrow' : days + 'd'}</span>
               </div>
-              <div style="font-size:8.5px;color:rgba(255,255,255,.35);margin-top:1px">${fmtDate(ev.date)} · ${ev.desc}</div>
+              <div style="font-size:8.5px;color:rgba(255,255,255,0.58);margin-top:1px">${fmtDate(ev.date)} · ${ev.desc}</div>
             </div>
             ${act ? `<div style="font-size:8px;color:${clr};background:${clr}18;border-radius:4px;padding:2px 5px;flex-shrink:0;white-space:nowrap">Action needed</div>` : ''}
           </div>`;
@@ -3989,7 +4126,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
         <div class="apl-section-title" style="margin:0">🔥 Portfolio Stress Test</div>
         <div style="font-size:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:2px 8px;color:rgba(255,255,255,.5)">${Math.round(eqPct*100)}% equity</div>
       </div>
-      <div style="padding:4px 14px 0;font-size:9px;color:rgba(255,255,255,.3);margin-bottom:10px">How would ₹${(nw/100000).toFixed(1)}L NW hold up in historical crashes?</div>
+      <div style="padding:4px 14px 0;font-size:9px;color:rgba(255,255,255,0.58);margin-bottom:10px">How would ₹${(nw/100000).toFixed(1)}L NW hold up in historical crashes?</div>
       <div style="padding:0 14px;display:flex;flex-direction:column;gap:8px">
         ${scenarios.map(s => {
           const impact  = eqAmt * s.drop;
@@ -4002,12 +4139,12 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
                 <span style="font-size:14px">${s.icon}</span>
                 <div>
                   <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,.82)">${s.label}</div>
-                  <div style="font-size:8px;color:rgba(255,255,255,.3)">${s.note}</div>
+                  <div style="font-size:8px;color:rgba(255,255,255,0.58)">${s.note}</div>
                 </div>
               </div>
               <div style="text-align:right;flex-shrink:0;margin-left:8px">
                 <div style="font-size:11px;font-weight:800;color:${s.color}">${INR(Math.round(after))}</div>
-                <div style="font-size:8.5px;color:rgba(255,255,255,.3)">↓${Math.round(-s.drop*eqPct*100)}% NW · recovers ${s.recovery}</div>
+                <div style="font-size:8.5px;color:rgba(255,255,255,0.58)">↓${Math.round(-s.drop*eqPct*100)}% NW · recovers ${s.recovery}</div>
               </div>
             </div>
             <div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden">
@@ -4016,7 +4153,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
           </div>`;
         }).join('')}
       </div>
-      <div style="margin:12px 14px 0;padding:8px 10px;background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:9px;font-size:9.5px;color:rgba(255,255,255,.45)">
+      <div style="margin:12px 14px 0;padding:8px 10px;background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:9px;font-size:9.5px;color:rgba(255,255,255,0.58)">
         💡 Your SIP of ${sip > 0 ? INR(sip)+'/mo' : '₹0/mo'} would ${sip > 0 ? 'automatically buy more units during a crash — market dips are SIP opportunities' : 'miss the opportunity to buy at crash prices — consider starting a SIP'}.
       </div>
       <button class="asp-view-ask-btn" data-msg="My net worth is ₹${(nw/100000).toFixed(1)}L with ~${Math.round(eqPct*100)}% in equity. If a 2008-style crash hit, my equity would drop ~${Math.round(eqPct*52)}%. How should I position my portfolio to survive AND thrive in a market crash? What % should be in gold, debt, and equity for my risk profile?" style="margin:10px 14px 4px;width:calc(100% - 28px)">🔥 How do I crash-proof my portfolio?</button>
@@ -4069,7 +4206,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
         <div class="apl-section-title" style="margin:0">⏱️ Cost of Delay</div>
         <div style="font-size:9px;background:rgba(0,255,179,.1);border:1px solid rgba(0,255,179,.25);border-radius:20px;padding:2px 8px;color:#00ffb3">${INR(monthlySIP)}/mo · ${yrs}yr horizon</div>
       </div>
-      <div style="padding:4px 14px 0;font-size:9px;color:rgba(255,255,255,.3);margin-bottom:12px">Retirement corpus at ${retAge} — what each year of delay costs you</div>
+      <div style="padding:4px 14px 0;font-size:9px;color:rgba(255,255,255,0.58);margin-bottom:12px">Retirement corpus at ${retAge} — what each year of delay costs you</div>
       <div style="padding:0 14px;display:flex;flex-direction:column;gap:10px">
         ${scenarios.map(s => `<div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
@@ -4148,17 +4285,17 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
           <text x="${needleX}" y="${H+9}" text-anchor="middle" font-size="8" font-weight="900" fill="${currentTier.color}">${rate}%</text>
         </svg>
       </div>
-      <div style="padding:10px 14px 0;font-size:9.5px;color:rgba(255,255,255,.45);line-height:1.5">${currentTier.desc}</div>
+      <div style="padding:10px 14px 0;font-size:9.5px;color:rgba(255,255,255,0.58);line-height:1.5">${currentTier.desc}</div>
       <div style="margin:10px 14px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
         ${peers.map(p => {
           const ahead = rate > p.rate;
           return `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:6px 8px;text-align:center">
             <div style="font-size:10px;font-weight:800;color:${ahead?'#00ffb3':'rgba(255,255,255,.4)'}">You ${ahead?'beat':'trail'}</div>
-            <div style="font-size:8.5px;color:rgba(255,255,255,.3);margin-top:1px">${p.group} (${p.rate}%)</div>
+            <div style="font-size:8.5px;color:rgba(255,255,255,0.58);margin-top:1px">${p.group} (${p.rate}%)</div>
           </div>`;
         }).join('')}
       </div>
-      ${sip > 0 ? `<div style="margin:8px 14px 0;padding:7px 10px;background:rgba(123,47,247,.06);border:1px solid rgba(123,47,247,.15);border-radius:8px;font-size:9.5px;color:rgba(255,255,255,.45)">
+      ${sip > 0 ? `<div style="margin:8px 14px 0;padding:7px 10px;background:rgba(123,47,247,.06);border:1px solid rgba(123,47,247,.15);border-radius:8px;font-size:9.5px;color:rgba(255,255,255,0.58)">
         📈 Of your ${rate}% savings, ${sipRate}% is actively invested via SIP (${INR(sip)}/mo). The remaining ${Math.max(0,rate-sipRate)}% is in cash/savings account.
       </div>` : ''}
       <button class="asp-view-ask-btn" data-msg="My monthly savings rate is ${rate}% (₹${INR(surplus)}/mo surplus out of ₹${INR(income)} income). SIP: ₹${INR(sip)}/mo. I am in the '${currentTier.label}' tier. Give me 3 specific, actionable ways to push my savings rate to the next tier (${tiers[Math.min(tierIdx+1,4)].label}) without drastically cutting lifestyle." style="margin:10px 14px 4px;width:calc(100% - 28px)">💹 Level up my savings rate</button>
@@ -4194,7 +4331,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       return `<div style="margin-bottom:9px">
         <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">
           <span style="color:rgba(255,255,255,.55)">${label}</span>
-          <span style="color:${color};font-weight:700">${INR(used)} <span style="color:rgba(255,255,255,.28)">/ ${INR(limit)}</span></span>
+          <span style="color:${color};font-weight:700">${INR(used)} <span style="color:rgba(255,255,255,0.58)">/ ${INR(limit)}</span></span>
         </div>
         <div style="height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden">
           <div style="height:100%;width:${pct}%;background:${color};border-radius:2px;transition:width .7s ease"></div>
@@ -4215,11 +4352,11 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:0 14px;margin-top:6px">
         <div style="background:rgba(0,255,179,.06);border:1px solid rgba(0,255,179,.15);border-radius:8px;padding:8px;text-align:center">
           <div style="font-size:13px;font-weight:800;color:#00ffb3">${INR(saved)}</div>
-          <div style="font-size:9px;color:rgba(255,255,255,.38);margin-top:2px">Tax saved this FY</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.58);margin-top:2px">Tax saved this FY</div>
         </div>
         <div style="background:rgba(255,179,0,.06);border:1px solid rgba(255,179,0,.15);border-radius:8px;padding:8px;text-align:center">
           <div style="font-size:13px;font-weight:800;color:#ffb300">${INR(potential)}</div>
-          <div style="font-size:9px;color:rgba(255,255,255,.38);margin-top:2px">Still saveable</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.58);margin-top:2px">Still saveable</div>
         </div>
       </div>
       ${rem80C > 0 ? `<div style="margin:8px 14px 0;padding:7px 10px;background:rgba(255,179,0,.05);border-radius:7px;border-left:3px solid #ffb300;font-size:11px;color:rgba(255,255,255,.62)">💡 Invest ${INR(rem80C)} more in ELSS before Mar 31 → save ${INR(Math.round(rem80C * .3))} in taxes.</div>` : ''}
@@ -4255,14 +4392,14 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       <div class="apl-section-title" style="padding:0 14px;margin-bottom:10px">⛓️ Debt Freedom Planner</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 14px">
         <div style="background:rgba(255,255,255,.04);border-radius:9px;padding:10px;text-align:center">
-          <div style="font-size:10px;color:rgba(255,255,255,.38);margin-bottom:4px">Min payments only</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-bottom:4px">Min payments only</div>
           <div style="font-size:14px;font-weight:800;color:#ff7c43">${fmtMo(moMin)}</div>
-          <div style="font-size:9px;color:rgba(255,255,255,.3);margin-top:3px">Interest: ${INR(Math.round(intMin))}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.58);margin-top:3px">Interest: ${INR(Math.round(intMin))}</div>
         </div>
         <div style="background:rgba(0,255,179,.05);border:1px solid rgba(0,255,179,.18);border-radius:9px;padding:10px;text-align:center">
-          <div style="font-size:10px;color:rgba(255,255,255,.38);margin-bottom:4px">+${INR(extraPay)}/mo extra</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-bottom:4px">+${INR(extraPay)}/mo extra</div>
           <div style="font-size:14px;font-weight:800;color:#00ffb3">${fmtMo(moAccel)}</div>
-          <div style="font-size:9px;color:rgba(255,255,255,.3);margin-top:3px">Save ${INR(Math.round(saved))}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.58);margin-top:3px">Save ${INR(Math.round(saved))}</div>
         </div>
       </div>
       ${moSaved > 0 ? `<div style="margin:8px 14px 0;padding:8px 10px;background:rgba(0,255,179,.04);border-radius:8px;border-left:3px solid #00ffb3;font-size:11px;color:rgba(255,255,255,.62)">🚀 ${moSaved} months faster + ${INR(Math.round(saved))} interest saved — money redirected to investments!</div>` : ''}
@@ -4352,12 +4489,12 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
         <div style="flex:1;padding-top:6px;display:flex;flex-direction:column;gap:5px">
           <div>
             <div style="font-size:21px;font-weight:700;color:${zoneColor}">${INR(monthlyRate)}</div>
-            <div style="font-size:10px;color:rgba(255,255,255,.35)">net worth / month</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.58)">net worth / month</div>
           </div>
-          <div style="font-size:11px;color:rgba(255,255,255,.45)">Daily: <b style="color:rgba(255,255,255,.8)">${INR(dailyRate)}</b></div>
-          <div style="font-size:11px;color:rgba(255,255,255,.45)">Yearly: <b style="color:rgba(255,255,255,.8)">${INR(annualRate)}</b></div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.58)">Daily: <b style="color:rgba(255,255,255,.8)">${INR(dailyRate)}</b></div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.58)">Yearly: <b style="color:rgba(255,255,255,.8)">${INR(annualRate)}</b></div>
           <div style="background:${zoneColor}22;border:1px solid ${zoneColor}44;border-radius:5px;padding:3px 7px;font-size:10px;color:${zoneColor};font-weight:600">${zone}</div>
-          ${percentile ? `<div style="font-size:10px;color:rgba(255,255,255,.35)">${percentile} of India</div>` : ''}
+          ${percentile ? `<div style="font-size:10px;color:rgba(255,255,255,0.58)">${percentile} of India</div>` : ''}
           <div style="font-size:10px;color:${trendColor}">${trendLabel}</div>
         </div>
       </div>
@@ -4370,7 +4507,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
     if (!goals.length) {
       return `<div class="apl-lab-section">
         <div class="apl-section-title">🎯 Goal Probability Matrix</div>
-        <div style="text-align:center;padding:18px 0;color:rgba(255,255,255,.35);font-size:12px">
+        <div style="text-align:center;padding:18px 0;color:rgba(255,255,255,0.58);font-size:12px">
           No goals set — <a href="../html/goals.html" style="color:#38bdf8;text-decoration:none">add goals →</a>
         </div>
       </div>`;
@@ -4439,7 +4576,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
     return `<div class="apl-lab-section">
       <div class="apl-section-title">🎯 Goal Probability Matrix</div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div style="font-size:11px;color:rgba(255,255,255,.4)">Likelihood of hitting each goal at 12% pa</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.58)">Likelihood of hitting each goal at 12% pa</div>
         <div style="font-size:12px;font-weight:700;color:${trackColor}">${onTrackCount}/${Math.min(goals.length, 6)} on track</div>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center">${goalData.join('')}</div>
@@ -4461,7 +4598,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
     if (!box) return;
     const lines = await fetchMacroNews();
     if (!lines) {
-      box.innerHTML = `<div style="text-align:center;padding:10px;font-size:11px;color:rgba(255,255,255,.25)">News unavailable — start app.py to enable</div>`;
+      box.innerHTML = `<div style="text-align:center;padding:10px;font-size:11px;color:rgba(255,255,255,0.58)">News unavailable — start app.py to enable</div>`;
       return;
     }
     const items = lines.split('\n').filter(l => l.startsWith('•')).slice(0, 4);
@@ -4535,7 +4672,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       const pct    = ((gain / inv) * 100).toFixed(0);
       cmdMsg(`<div style="font-size:12.5px;font-weight:800;color:#00d4ff;margin-bottom:10px">⚡ SIP Result</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-          ${[['Monthly SIP',INR(amt),'#fff'],['Duration',yrs+' yrs','#fff'],['CAGR',rate+'%','#00d4ff'],['Invested',INR(inv),'#ffb300'],['Corpus',INR(Math.round(corpus)),'#00ffb3'],['Gain','+'+INR(Math.round(gain))+' ('+pct+'%)','#00ffb3']].map(([l,v,c])=>`<div style="background:rgba(255,255,255,.04);border-radius:7px;padding:7px"><div style="font-size:9.5px;color:rgba(255,255,255,.38)">${l}</div><div style="font-size:12px;font-weight:800;color:${c};margin-top:2px">${v}</div></div>`).join('')}
+          ${[['Monthly SIP',INR(amt),'#fff'],['Duration',yrs+' yrs','#fff'],['CAGR',rate+'%','#00d4ff'],['Invested',INR(inv),'#ffb300'],['Corpus',INR(Math.round(corpus)),'#00ffb3'],['Gain','+'+INR(Math.round(gain))+' ('+pct+'%)','#00ffb3']].map(([l,v,c])=>`<div style="background:rgba(255,255,255,.04);border-radius:7px;padding:7px"><div style="font-size:9.5px;color:rgba(255,255,255,0.58)">${l}</div><div style="font-size:12px;font-weight:800;color:${c};margin-top:2px">${v}</div></div>`).join('')}
         </div>
         <button class="asp-view-ask-btn" style="margin-top:8px;width:100%" data-msg="I'm planning a SIP of ${INR(amt)}/mo for ${yrs} years at ${rate}% CAGR — corpus ${INR(Math.round(corpus))}. Is this enough for my FIRE target? What fund categories should I use?">🤖 Optimise this SIP</button>`);
       wireAskBtnInEl(document.getElementById('arya-sp-messages').lastElementChild?.querySelector('.asp-msg-bubble') || document.body);
@@ -4551,7 +4688,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       const tot = emi * n;
       cmdMsg(`<div style="font-size:12.5px;font-weight:800;color:#00d4ff;margin-bottom:10px">🏠 EMI Result</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-          ${[['Loan',INR(P),'#fff'],['Rate',ann+'% p.a.','#fff'],['Tenure',yrs+' yrs','#fff'],['Monthly EMI',INR(Math.round(emi)),'#ffd93d'],['Total paid',INR(Math.round(tot)),'#ffb300'],['Total interest',INR(Math.round(tot-P)),'#ff7c43']].map(([l,v,c])=>`<div style="background:rgba(255,255,255,.04);border-radius:7px;padding:7px"><div style="font-size:9.5px;color:rgba(255,255,255,.38)">${l}</div><div style="font-size:12px;font-weight:800;color:${c};margin-top:2px">${v}</div></div>`).join('')}
+          ${[['Loan',INR(P),'#fff'],['Rate',ann+'% p.a.','#fff'],['Tenure',yrs+' yrs','#fff'],['Monthly EMI',INR(Math.round(emi)),'#ffd93d'],['Total paid',INR(Math.round(tot)),'#ffb300'],['Total interest',INR(Math.round(tot-P)),'#ff7c43']].map(([l,v,c])=>`<div style="background:rgba(255,255,255,.04);border-radius:7px;padding:7px"><div style="font-size:9.5px;color:rgba(255,255,255,0.58)">${l}</div><div style="font-size:12px;font-weight:800;color:${c};margin-top:2px">${v}</div></div>`).join('')}
         </div>
         <button class="asp-view-ask-btn" style="margin-top:8px;width:100%" data-msg="EMI of ${INR(Math.round(emi))}/mo on ${INR(P)} loan at ${ann}% for ${yrs} yrs. Is this within my budget? What's the rent vs buy comparison? My income is ${INR(resolveInc())}/mo.">🤖 Rent vs buy analysis</button>`);
       wireAskBtnInEl(document.getElementById('arya-sp-messages').lastElementChild?.querySelector('.asp-msg-bubble') || document.body);
@@ -4573,7 +4710,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       const onTrack = corpus >= fire;
       cmdMsg(`<div style="font-size:12.5px;font-weight:800;color:${onTrack?'#00ffb3':'#ffb300'};margin-bottom:10px">🔥 FIRE Calculator</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-          ${[['FIRE number',INR(fire),'#ffd93d'],['Current NW',INR(nw),'#fff'],['SIP/mo',INR(sip),'#fff'],['Projected corpus',INR(Math.round(corpus)),onTrack?'#00ffb3':'#ff7c43'],['Monthly SWP',INR(swp)+'/mo','#00d4ff'],['Gap',gap>0?INR(gap):'✅ Covered',gap>0?'#ffb300':'#00ffb3']].map(([l,v,c])=>`<div style="background:rgba(255,255,255,.04);border-radius:7px;padding:7px"><div style="font-size:9.5px;color:rgba(255,255,255,.38)">${l}</div><div style="font-size:12px;font-weight:800;color:${c};margin-top:2px">${v}</div></div>`).join('')}
+          ${[['FIRE number',INR(fire),'#ffd93d'],['Current NW',INR(nw),'#fff'],['SIP/mo',INR(sip),'#fff'],['Projected corpus',INR(Math.round(corpus)),onTrack?'#00ffb3':'#ff7c43'],['Monthly SWP',INR(swp)+'/mo','#00d4ff'],['Gap',gap>0?INR(gap):'✅ Covered',gap>0?'#ffb300':'#00ffb3']].map(([l,v,c])=>`<div style="background:rgba(255,255,255,.04);border-radius:7px;padding:7px"><div style="font-size:9.5px;color:rgba(255,255,255,0.58)">${l}</div><div style="font-size:12px;font-weight:800;color:${c};margin-top:2px">${v}</div></div>`).join('')}
         </div>
         <button class="asp-view-ask-btn" style="margin-top:8px;width:100%" data-msg="My FIRE number is ${INR(fire)} (25× expenses). Net worth ${INR(nw)}, SIP ${INR(sip)}/mo, target retire at ${ret}. Projected corpus ${INR(Math.round(corpus))}. ${onTrack?'I\'m on track. How do I retire earlier?':'I\'m behind. What specific changes to SIP and lifestyle will close the gap fastest?'}">🤖 Build my FIRE plan</button>`);
       wireAskBtnInEl(document.getElementById('arya-sp-messages').lastElementChild?.querySelector('.asp-msg-bubble') || document.body);
@@ -4619,7 +4756,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
 
     if (cmd === '/news') {
       appendMessage('user', text);
-      const bub = appendMessage('arya', '<div style="font-size:11px;color:rgba(255,255,255,.4)">Fetching latest headlines…</div>');
+      const bub = appendMessage('arya', '<div style="font-size:11px;color:rgba(255,255,255,0.58)">Fetching latest headlines…</div>');
       fetchMacroNews().then(lines => {
         if (!bub) return;
         if (!lines) { bub.textContent = 'News server unavailable — run app.py to enable market headlines.'; return; }
@@ -4667,10 +4804,10 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       <div id="lab-result" class="apl-lab-result">
         <div class="apl-lab-res-corpus" id="lab-corpus">Adjust sliders →</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-top:8px">
-          <div style="font-size:10px;color:rgba(255,255,255,.38)">FIRE score</div><div id="lab-fire-score" class="apl-lab-accent">—</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.38)">SWP @4%/mo</div><div id="lab-swp" class="apl-lab-accent">—</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.38)">Years to retire</div><div id="lab-yrs" class="apl-lab-accent">—</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.38)">Corpus gap</div><div id="lab-gap" class="apl-lab-accent">—</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58)">FIRE score</div><div id="lab-fire-score" class="apl-lab-accent">—</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58)">SWP @4%/mo</div><div id="lab-swp" class="apl-lab-accent">—</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58)">Years to retire</div><div id="lab-yrs" class="apl-lab-accent">—</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58)">Corpus gap</div><div id="lab-gap" class="apl-lab-accent">—</div>
         </div>
       </div>
       <div id="lab-ai-comment" class="apl-lab-ai-comment" style="display:none">
@@ -4816,14 +4953,14 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       ['#a8e86c','1.5–2× (moderate)'],
       ['#ffb300','1–1.5× (tight)'],
       ['#ff4d6d','<1× (expensive)']
-    ].map(([c,l])=>`<span style="display:flex;align-items:center;gap:4px;color:rgba(255,255,255,.4);font-size:9.5px"><span style="width:8px;height:8px;border-radius:50%;background:${c};flex-shrink:0;display:inline-block"></span>${l}</span>`).join('');
+    ].map(([c,l])=>`<span style="display:flex;align-items:center;gap:4px;color:rgba(255,255,255,0.58);font-size:9.5px"><span style="width:8px;height:8px;border-radius:50%;background:${c};flex-shrink:0;display:inline-block"></span>${l}</span>`).join('');
 
     return `<div class="asp-fade-in" style="padding:12px 14px 0">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
         <div style="font-size:14px;font-weight:800;color:var(--text-primary,#fff)">India Affordability Map</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.35)">${INR(income)}/mo</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.58)">${INR(income)}/mo</div>
       </div>
-      <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:6px">Bubble size = cost of life · colour = how affordable on your salary · tap to compare</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:6px">Bubble size = cost of life · colour = how affordable on your salary · tap to compare</div>
       <svg id="india-svg" viewBox="0 0 420 490" style="width:100%;max-height:340px">
         <path d="${outline}" fill="rgba(255,255,255,.025)" stroke="rgba(255,255,255,.1)" stroke-width="0.8"/>
         ${nodes}
@@ -4831,10 +4968,10 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       <div id="imap-tooltip" style="display:none;padding:10px 12px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);border-radius:10px;font-size:12px;margin-bottom:4px">
         <div id="imt-name" style="font-weight:800;color:#fff;font-size:13px;margin-bottom:6px"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px">
-          <span style="font-size:10.5px;color:rgba(255,255,255,.4)">Monthly COL</span><span id="imt-col" style="font-weight:700;color:#00d4ff;font-size:10.5px"></span>
-          <span style="font-size:10.5px;color:rgba(255,255,255,.4)">Affordability</span><span id="imt-afford" style="font-weight:700;font-size:10.5px"></span>
-          <span style="font-size:10.5px;color:rgba(255,255,255,.4)">Monthly surplus</span><span id="imt-surplus" style="font-weight:700;font-size:10.5px"></span>
-          <span style="font-size:10.5px;color:rgba(255,255,255,.4)">FIRE corpus</span><span id="imt-fire" style="font-weight:700;font-size:10.5px"></span>
+          <span style="font-size:10.5px;color:rgba(255,255,255,0.58)">Monthly COL</span><span id="imt-col" style="font-weight:700;color:#00d4ff;font-size:10.5px"></span>
+          <span style="font-size:10.5px;color:rgba(255,255,255,0.58)">Affordability</span><span id="imt-afford" style="font-weight:700;font-size:10.5px"></span>
+          <span style="font-size:10.5px;color:rgba(255,255,255,0.58)">Monthly surplus</span><span id="imt-surplus" style="font-weight:700;font-size:10.5px"></span>
+          <span style="font-size:10.5px;color:rgba(255,255,255,0.58)">FIRE corpus</span><span id="imt-fire" style="font-weight:700;font-size:10.5px"></span>
         </div>
         <button id="imt-ask-btn" class="asp-view-ask-btn" style="margin-top:8px;width:100%">🤖 Ask Arya about retiring here</button>
       </div>
@@ -4891,7 +5028,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
   function buildInflationEroder() {
     return `<div class="apl-lab-section" style="margin-top:10px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07)">
       <div class="apl-section-title">💧 Inflation Eroder</div>
-      <div style="font-size:11.5px;color:rgba(255,255,255,.45);margin-bottom:10px">Watch your money's purchasing power shrink in real time</div>
+      <div style="font-size:11.5px;color:rgba(255,255,255,0.58);margin-bottom:10px">Watch your money's purchasing power shrink in real time</div>
       <div class="apl-lab-grid">
         <div class="apl-lab-row">
           <div class="apl-lab-label">Amount today<span id="infl-amt-val" class="apl-lab-num">₹1,00,000</span></div>
@@ -4909,23 +5046,23 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       <div class="apl-lab-result" style="margin-top:10px">
         <div class="apl-lab-res-corpus" id="infl-future-val" style="color:#ff7c43">₹76,743 real value</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-top:8px">
-          <div style="font-size:10px;color:rgba(255,255,255,.38)">Purchasing power lost</div><div id="infl-loss" class="apl-lab-accent" style="color:#ff4d6d">—</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.38)">To match inflation</div><div id="infl-needed" class="apl-lab-accent" style="color:#00ffb3">—</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58)">Purchasing power lost</div><div id="infl-loss" class="apl-lab-accent" style="color:#ff4d6d">—</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58)">To match inflation</div><div id="infl-needed" class="apl-lab-accent" style="color:#00ffb3">—</div>
         </div>
       </div>
       <div style="display:flex;gap:20px;justify-content:center;align-items:flex-end;padding:14px 0 6px">
         <div style="text-align:center">
           <div id="infl-bar-now" style="width:44px;height:90px;background:linear-gradient(180deg,#ffd93d,#ffb300);border-radius:6px 6px 0 0;margin:0 auto;transition:height .4s ease"></div>
-          <div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:4px">Today</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.58);margin-top:4px">Today</div>
           <div id="infl-bar-now-lbl" style="font-size:10px;font-weight:800;color:#ffd93d"></div>
         </div>
         <div style="text-align:center">
           <div id="infl-bar-fut" style="width:44px;height:90px;background:linear-gradient(180deg,#ff7c43,#ff4d6d);border-radius:6px 6px 0 0;margin:0 auto;transition:height .4s ease"></div>
-          <div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:4px" id="infl-bar-label">In 10 yrs</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.58);margin-top:4px" id="infl-bar-label">In 10 yrs</div>
           <div id="infl-bar-fut-lbl" style="font-size:10px;font-weight:800;color:#ff7c43"></div>
         </div>
       </div>
-      <div style="font-size:10.5px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.06em;text-transform:uppercase;margin:10px 0 6px">Grocery Basket — What things cost</div>
+      <div style="font-size:10.5px;font-weight:700;color:rgba(255,255,255,0.58);letter-spacing:.06em;text-transform:uppercase;margin:10px 0 6px">Grocery Basket — What things cost</div>
       <div id="infl-basket" style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px"></div>
       <button class="asp-view-ask-btn" data-msg="Inflation is eroding my purchasing power. What investments beat 6-7% Indian inflation consistently? Rank them: equity MF, gold, FD, PPF, real estate — with real CAGR data." style="margin:12px 0 4px">🤖 What beats inflation?</button>
     </div>`;
@@ -4965,7 +5102,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
         const rise = Math.round((futP - item.price) / item.price * 100);
         return `<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:7px 5px;text-align:center">
           <div style="font-size:18px">${item.emoji}</div>
-          <div style="font-size:8.5px;color:rgba(255,255,255,.4);margin:2px 0;line-height:1.3">${item.name}</div>
+          <div style="font-size:8.5px;color:rgba(255,255,255,0.58);margin:2px 0;line-height:1.3">${item.name}</div>
           <div style="font-size:10px;font-weight:700;color:#ffd93d">${INR(item.price)}</div>
           <div style="font-size:9px;color:#ff4d6d">→${INR(futP)}</div>
           <div style="font-size:8px;color:rgba(255,100,100,.6)">+${rise}%</div>
@@ -5036,10 +5173,10 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
               <span style="width:8px;height:8px;border-radius:2px;background:${s.color};flex-shrink:0"></span>
               <span style="font-size:10px;color:rgba(255,255,255,.6);flex:1">${s.icon} ${s.label}</span>
               <span style="font-size:11px;font-weight:700;color:${s.color}">${INR(s.val)}</span>
-              <span style="font-size:9px;color:rgba(255,255,255,.3)">${s.pct}%</span>
+              <span style="font-size:9px;color:rgba(255,255,255,0.58)">${s.pct}%</span>
             </div>`).join('')}
             <div style="border-top:1px solid rgba(255,255,255,.06);margin-top:5px;padding-top:5px;display:flex;justify-content:space-between">
-              <span style="font-size:10px;color:rgba(255,255,255,.4)">Liabilities</span>
+              <span style="font-size:10px;color:rgba(255,255,255,0.58)">Liabilities</span>
               <span style="font-size:10px;font-weight:700;color:#ff4d6d">${INR(liab)}</span>
             </div>
             <div style="display:flex;justify-content:space-between;margin-top:3px">
@@ -5081,8 +5218,8 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       <div class="apl-section-title" style="padding:0 14px 8px">🧾 Tax Optimizer</div>
       <div style="padding:0 14px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:10px;color:rgba(255,255,255,.4)">Marginal rate: <span style="color:#ffd93d;font-weight:700">${rate}%</span></div>
-          <div style="font-size:10px;color:rgba(255,255,255,.4)">Potential saving: <span style="color:#4dffb4;font-weight:700">${INR(totalSave)}</span></div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58)">Marginal rate: <span style="color:#ffd93d;font-weight:700">${rate}%</span></div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58)">Potential saving: <span style="color:#4dffb4;font-weight:700">${INR(totalSave)}</span></div>
         </div>
         ${bars.map(b => {
           const used = Math.min(b.used, b.limit);
@@ -5098,8 +5235,8 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
               <div style="height:100%;width:${pct}%;background:${b.color};border-radius:7px;opacity:.8"></div>
             </div>
             <div style="display:flex;justify-content:space-between;margin-top:2px">
-              <span style="font-size:9px;color:rgba(255,255,255,.3)">${INR(used)} used</span>
-              <span style="font-size:9px;color:rgba(255,255,255,.3)">/${INR(b.limit)} limit</span>
+              <span style="font-size:9px;color:rgba(255,255,255,0.58)">${INR(used)} used</span>
+              <span style="font-size:9px;color:rgba(255,255,255,0.58)">/${INR(b.limit)} limit</span>
               ${saving > 0 ? `<span style="font-size:9px;color:#4dffb4">save ${INR(saving)}</span>` : ''}
             </div>
           </div>`;
@@ -5155,8 +5292,8 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
               <text x="32" y="35" text-anchor="middle" font-size="11" font-weight="bold" fill="white" font-family="-apple-system,sans-serif">${termPct}%</text>
             </svg>
             <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.7);margin-top:3px">Term Life</div>
-            <div style="font-size:9px;color:rgba(255,255,255,.35);margin-top:2px">Need: ${INR(lifeNeeded)}</div>
-            <div style="font-size:9px;color:rgba(255,255,255,.35)">Have: ${INR(term)}</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.58);margin-top:2px">Need: ${INR(lifeNeeded)}</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.58)">Have: ${INR(term)}</div>
             ${termGap > 0 ? `<div style="font-size:9px;color:#ff4d6d;font-weight:700;margin-top:3px">Gap: ${INR(termGap)}</div>` : `<div style="font-size:9px;color:#4dffb4;margin-top:3px">✅ Adequate</div>`}
           </div>
           <!-- Health Insurance -->
@@ -5166,8 +5303,8 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
               <text x="32" y="35" text-anchor="middle" font-size="11" font-weight="bold" fill="white" font-family="-apple-system,sans-serif">${hPct}%</text>
             </svg>
             <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.7);margin-top:3px">Health Cover</div>
-            <div style="font-size:9px;color:rgba(255,255,255,.35);margin-top:2px">Need: ${INR(hNeed)}</div>
-            <div style="font-size:9px;color:rgba(255,255,255,.35)">Have: ${INR(hcover)}</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.58);margin-top:2px">Need: ${INR(hNeed)}</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.58)">Have: ${INR(hcover)}</div>
             ${hGap > 0 ? `<div style="font-size:9px;color:#ffd93d;font-weight:700;margin-top:3px">Top up: ${INR(hGap)}</div>` : `<div style="font-size:9px;color:#4dffb4;margin-top:3px">✅ Adequate</div>`}
           </div>
         </div>
@@ -5265,10 +5402,10 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
           <div id="mc-prob-cards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px"></div>
           <svg id="mc-chart" viewBox="0 0 360 100" xmlns="http://www.w3.org/2000/svg"
                style="width:100%;height:100px;display:block"></svg>
-          <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(255,255,255,.25);margin-top:2px">
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(255,255,255,0.58);margin-top:2px">
             <span>Year 1</span><span>Year 15</span><span>Year 30</span>
           </div>
-          <div style="font-size:9px;color:rgba(255,255,255,.2);margin-top:6px;text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,0.58);margin-top:6px;text-align:center">
             1,000 Monte Carlo runs · CAGR ≈ N(12%, 6%) · results are probabilistic
           </div>
           <button class="asp-view-ask-btn" id="mc-ask-arya-btn" style="margin-top:8px"
@@ -5306,9 +5443,9 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
         const cols = ['#ffd93d', '#00d4ff', '#4dffb4'];
         document.getElementById('mc-prob-cards').innerHTML = milestones.map((m, i) => `
           <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px;text-align:center">
-            <div style="font-size:9px;color:rgba(255,255,255,.35);margin-bottom:3px">By Age ${m.age}</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.58);margin-bottom:3px">By Age ${m.age}</div>
             <div style="font-size:22px;font-weight:900;color:${cols[i]}">${m.pct}%</div>
-            <div style="font-size:8px;color:rgba(255,255,255,.3)">probability</div>
+            <div style="font-size:8px;color:rgba(255,255,255,0.58)">probability</div>
           </div>`).join('');
 
         // SVG histogram
@@ -5347,9 +5484,9 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
     <div class="apl-lab-section asp-fade-in" style="padding:14px 0 10px;border-top:1px solid rgba(255,255,255,.07)">
       <div class="apl-section-title" style="padding:0 14px 8px">⏳ Financial Time Machine</div>
       <div style="padding:0 14px">
-        <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px">If you'd started a monthly SIP earlier, here's what you'd have today:</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-bottom:8px">If you'd started a monthly SIP earlier, here's what you'd have today:</div>
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-          <span style="font-size:10px;color:rgba(255,255,255,.4);white-space:nowrap">₹/mo SIP</span>
+          <span style="font-size:10px;color:rgba(255,255,255,0.58);white-space:nowrap">₹/mo SIP</span>
           <input id="tm-sip" type="number" value="${sip}" step="500" class="agt-mc-inp" style="flex:1">
           <button id="tm-calc-btn" style="padding:5px 10px;background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.3);border-radius:6px;color:#00d4ff;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">Calculate</button>
         </div>
@@ -5387,14 +5524,14 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
             const mult = (row.corpus / row.invested).toFixed(1);
             return `<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:8px 10px">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-                <span style="font-size:10px;color:rgba(255,255,255,.5)">Started ${row.yr} <span style="color:rgba(255,255,255,.25);font-size:9px">(${yrsAgo} yrs ago)</span></span>
+                <span style="font-size:10px;color:rgba(255,255,255,.5)">Started ${row.yr} <span style="color:rgba(255,255,255,0.58);font-size:9px">(${yrsAgo} yrs ago)</span></span>
                 <span style="font-size:13px;font-weight:800;color:#00d4ff">${INR(Math.round(row.corpus))}</span>
               </div>
               <div style="height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;margin-bottom:3px">
                 <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#7b2ff7,#00d4ff);border-radius:3px"></div>
               </div>
               <div style="display:flex;justify-content:space-between">
-                <span style="font-size:9px;color:rgba(255,255,255,.3)">Invested: ${INR(Math.round(row.invested))}</span>
+                <span style="font-size:9px;color:rgba(255,255,255,0.58)">Invested: ${INR(Math.round(row.invested))}</span>
                 <span style="font-size:9px;color:#4dffb4">+${INR(Math.round(row.gain))} · ${mult}x</span>
               </div>
             </div>`;
@@ -5459,7 +5596,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
     <div class="apl-lab-section asp-fade-in" style="padding:14px 0 10px;border-top:1px solid rgba(255,255,255,.07)">
       <div class="apl-section-title" style="padding:0 14px 8px">🏆 India Peer Benchmark</div>
       <div id="peer-bm-body" style="padding:0 14px">
-        <div style="text-align:center;padding:10px;font-size:11px;color:rgba(255,255,255,.3)">Calculating your percentile…</div>
+        <div style="text-align:center;padding:10px;font-size:11px;color:rgba(255,255,255,0.58)">Calculating your percentile…</div>
       </div>
     </div>`;
   }
@@ -5483,7 +5620,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
     const box = document.getElementById('peer-bm-body');
     if (!box) return;
     box.innerHTML = `
-      <div style="font-size:9px;color:rgba(255,255,255,.25);margin-bottom:10px">Age bracket: ${bkt} · Estimated from SEBI, RBI & NCAER surveys</div>
+      <div style="font-size:9px;color:rgba(255,255,255,0.58);margin-bottom:10px">Age bracket: ${bkt} · Estimated from SEBI, RBI & NCAER surveys</div>
       ${metrics.map(m => {
         const r   = _pctRank(m.val, m.bench);
         const pct = Math.min(95, Math.max(3, r.pct));
@@ -5497,8 +5634,8 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
             <span style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:8.5px;color:#fff;font-weight:700">${pct}th</span>
           </div>
           <div style="display:flex;justify-content:space-between;margin-top:2px">
-            <span style="font-size:9px;color:rgba(255,255,255,.3)">You: ${m.fmt(m.val)}</span>
-            <span style="font-size:9px;color:rgba(255,255,255,.3)">Median: ${m.fmt(m.bench[1])}</span>
+            <span style="font-size:9px;color:rgba(255,255,255,0.58)">You: ${m.fmt(m.val)}</span>
+            <span style="font-size:9px;color:rgba(255,255,255,0.58)">Median: ${m.fmt(m.bench[1])}</span>
           </div>
         </div>`;
       }).join('')}
@@ -5515,7 +5652,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
     <div class="apl-lab-section asp-fade-in" style="padding:14px 0 10px;border-top:1px solid rgba(255,255,255,.07)">
       <div class="apl-section-title" style="padding:0 14px 6px">📋 Transaction Analyzer</div>
       <div style="padding:0 14px">
-        <div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:6px">Paste bank SMS, UPI history, or expense list — Arya auto-categorizes it</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-bottom:6px">Paste bank SMS, UPI history, or expense list — Arya auto-categorizes it</div>
         <textarea id="txn-input" rows="4" placeholder="Zomato Rs.420 debited\nSwiggy Rs.680 debited\nSBI Life Premium Rs.12500 debited\nMF SIP Rs.5000 debited\nAmazon Rs.2300 debited" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px;color:#fff;font-size:11px;resize:vertical;box-sizing:border-box;line-height:1.5"></textarea>
         <button id="txn-analyze-btn" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,rgba(0,80,110,.5),rgba(0,212,255,.08));border:1px solid rgba(0,212,255,.25);border-radius:8px;color:#00d4ff;font-size:11px;font-weight:700;cursor:pointer">
           📊 Analyze Transactions
@@ -5543,7 +5680,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       const btn = document.getElementById('txn-analyze-btn');
       const res = document.getElementById('txn-results');
       btn.disabled = true; btn.textContent = '⏳ Analyzing…';
-      res.innerHTML = '<div style="text-align:center;padding:10px;color:rgba(255,255,255,.3);font-size:11px">Categorizing transactions…</div>';
+      res.innerHTML = '<div style="text-align:center;padding:10px;color:rgba(255,255,255,0.58);font-size:11px">Categorizing transactions…</div>';
 
       const parsed = [];
       raw.split('\n').filter(l => l.trim()).forEach(line => {
@@ -5558,7 +5695,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       });
 
       if (!parsed.length) {
-        res.innerHTML = '<div style="color:rgba(255,255,255,.35);font-size:11px;text-align:center;padding:8px">No amounts found. Include ₹ or Rs. before amounts.</div>';
+        res.innerHTML = '<div style="color:rgba(255,255,255,0.58);font-size:11px;text-align:center;padding:8px">No amounts found. Include ₹ or Rs. before amounts.</div>';
         btn.disabled = false; btn.textContent = '📊 Analyze Transactions'; return;
       }
 
@@ -5571,7 +5708,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
       res.innerHTML = `
         <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:8px">
           ${parsed.length} transactions · Total: <span style="color:#ff4d6d">${INR(Math.round(grand))}</span>
-          ${income ? ` · <span style="color:rgba(255,255,255,.4)">${(grand/income*100).toFixed(0)}% of income</span>` : ''}
+          ${income ? ` · <span style="color:rgba(255,255,255,0.58)">${(grand/income*100).toFixed(0)}% of income</span>` : ''}
         </div>
         ${sorted.map(([cat, amt]) => {
           const c = CAT_MAP[cat] || { label:'📦 Other', color:'#888' };
@@ -5584,7 +5721,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
             <div style="height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden">
               <div style="height:100%;width:${pct}%;background:${c.color};border-radius:3px"></div>
             </div>
-            <div style="font-size:9px;color:rgba(255,255,255,.25);margin-top:1px">${pct}% of total</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.58);margin-top:1px">${pct}% of total</div>
           </div>`;
         }).join('')}
         <button class="asp-view-ask-btn" data-msg="Analyzed my transactions: ${JSON.stringify(Object.fromEntries(sorted.map(([k,v])=>[k,Math.round(v)])))}. Total ₹${Math.round(grand)}/month. Is this spending pattern healthy for someone with ${income?'income ₹'+Math.round(income):'my profile'}? Where am I overspending? Give me a specific budget cut plan." style="margin-top:8px;width:100%">
@@ -5686,7 +5823,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
     return `
     <div id="agt-debate" style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)">
       <div class="agt-section-label">⚖️ AI DEBATE MODE</div>
-      <div style="font-size:9.5px;color:rgba(255,255,255,.3);margin:4px 0 7px">Enter a financial dilemma — Arya argues both sides then gives a verdict</div>
+      <div style="font-size:9.5px;color:rgba(255,255,255,0.58);margin:4px 0 7px">Enter a financial dilemma — Arya argues both sides then gives a verdict</div>
       <input id="agt-debate-q" type="text" placeholder="e.g. Prepay home loan vs invest in SIP?"
         style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:7px 10px;color:#fff;font-size:11px;box-sizing:border-box;margin-bottom:6px">
       <button id="agt-debate-run" style="width:100%;padding:7px;background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.25);border-radius:7px;color:#ffa500;font-size:11px;font-weight:700;cursor:pointer">⚖️ Start Debate</button>
@@ -5734,7 +5871,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
           'Bull case for: ' + q,
           tok => { bull += tok; if (bullEl) bullEl.innerHTML = richText(bull); }, 200
         );
-      } catch { if (bullEl) bullEl.innerHTML = '<span style="color:rgba(255,255,255,.25)">Offline</span>'; }
+      } catch { if (bullEl) bullEl.innerHTML = '<span style="color:rgba(255,255,255,0.58)">Offline</span>'; }
 
       let bear = '';
       try {
@@ -5743,7 +5880,7 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
           'Bear case against: ' + q,
           tok => { bear += tok; if (bearEl) bearEl.innerHTML = richText(bear); }, 200
         );
-      } catch { if (bearEl) bearEl.innerHTML = '<span style="color:rgba(255,255,255,.25)">Offline</span>'; }
+      } catch { if (bearEl) bearEl.innerHTML = '<span style="color:rgba(255,255,255,0.58)">Offline</span>'; }
 
       const vrdBox = document.getElementById('debate-verdict');
       const vrdEl  = document.getElementById('debate-verdict-text');
@@ -5800,9 +5937,9 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 .sub{color:rgba(0,212,255,.7);font-size:12px;margin-bottom:28px;letter-spacing:.3px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:28px}
 .card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px}
-.clabel{font-size:9.5px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+.clabel{font-size:9.5px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
 .cval{font-size:20px;font-weight:900;color:#00d4ff}
-.csub{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px}
+.csub{font-size:10px;color:rgba(255,255,255,0.58);margin-top:2px}
 .sec{margin-bottom:26px}
 .sec-title{font-size:14px;font-weight:800;color:#fff;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:6px;margin-bottom:14px}
 .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
@@ -5813,7 +5950,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 .good{color:#4dffb4} .warn{color:#ffd93d} .danger{color:#ff4d6d}
 .action-list li{font-size:11.5px;margin-bottom:8px;padding-left:4px}
 .persona-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:3px 10px;font-size:11px;color:#fff;margin-left:10px}
-.footer{text-align:center;color:rgba(255,255,255,.2);font-size:9.5px;margin-top:32px;border-top:1px solid rgba(255,255,255,.05);padding-top:14px}
+.footer{text-align:center;color:rgba(255,255,255,0.58);font-size:9.5px;margin-top:32px;border-top:1px solid rgba(255,255,255,.05);padding-top:14px}
 </style>
 </head>
 <body>
@@ -5894,7 +6031,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
           ${alerts.map(a => `<div style="font-size:10px;color:${a.lvl==='danger'?'#ff6b6b':'#ffd93d'};line-height:1.55">${a.msg}</div>`).join('')}
         </div>
         <button onclick="document.getElementById('arya-monitor-bar').remove()"
-          style="background:none;border:none;color:rgba(255,255,255,.25);font-size:14px;cursor:pointer;flex-shrink:0;padding:0;line-height:1">✕</button>
+          style="background:none;border:none;color:rgba(255,255,255,0.58);font-size:14px;cursor:pointer;flex-shrink:0;padding:0;line-height:1">✕</button>
       </div>`;
     const panel = document.getElementById('arya-sp-panel');
     const tabsEl = panel?.querySelector('#arya-sp-tabs');
@@ -6000,7 +6137,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
   background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09);
   border-radius: 10px; width: 30px; height: 30px;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
-  color: rgba(255,255,255,.4); font-size: 14px; line-height: 1;
+  color: rgba(255,255,255,0.58); font-size: 14px; line-height: 1;
   flex-shrink: 0; transition: all .18s;
 }
 #arya-sp-close:hover { background: rgba(255,80,80,.12); border-color: rgba(255,80,80,.3); color: #ff6b6b; transform: scale(1.08); }
@@ -6020,11 +6157,11 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
   padding: 0 14px; height: 100%; font-size: 10.5px; font-weight: 700;
   border-right: 1px solid rgba(255,255,255,.05); flex-shrink: 0;
 }
-.arya-tick-name { color: rgba(255,255,255,.4); font-size: 10px; letter-spacing: .3px; }
+.arya-tick-name { color: rgba(255,255,255,0.58); font-size: 10px; letter-spacing: .3px; }
 .arya-tick-price { color: rgba(255,255,255,.85); }
 .arya-tick-chg.up { color: #4dffb4; }
 .arya-tick-chg.down { color: #ff4d6d; }
-.arya-tick-chg.flat { color: rgba(255,255,255,.35); }
+.arya-tick-chg.flat { color: rgba(255,255,255,0.58); }
 @keyframes arya-ticker-scroll {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -6040,12 +6177,12 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
   background: rgba(0,212,255,.02);
 }
 .asp-snap-ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.asp-snap-ring-label { font-size: 9px; color: rgba(255,255,255,.35); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+.asp-snap-ring-label { font-size: 9px; color: rgba(255,255,255,0.58); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
 .asp-snap-goal { flex: 1; min-width: 0; }
 .asp-snap-goal-name { font-size: 12px; color: rgba(255,255,255,.75); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .asp-snap-goal-track { height: 6px; background: rgba(255,255,255,.07); border-radius: 4px; margin: 6px 0 4px; overflow: hidden; }
 .asp-snap-goal-fill { height: 100%; background: linear-gradient(90deg,#00d4ff,#7b2ff7); border-radius: 4px; transition: width 1.2s cubic-bezier(.22,.61,.36,1); }
-.asp-snap-goal-meta { font-size: 10.5px; color: rgba(255,255,255,.3); }
+.asp-snap-goal-meta { font-size: 10.5px; color: rgba(255,255,255,0.58); }
 
 /* ── Context pills bar ─────────────────────────────────────────────── */
 #arya-sp-context {
@@ -6122,10 +6259,10 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 .asp-rate-btn {
   background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
   border-radius: 8px; padding: 3px 8px; font-size: 12px; cursor: pointer;
-  color: rgba(255,255,255,.4); transition: all .15s;
+  color: rgba(255,255,255,0.58); transition: all .15s;
 }
 .asp-rate-btn:hover { background: rgba(255,255,255,.1); color: #fff; transform: scale(1.1); }
-.asp-rate-text { font-size: 11px; color: rgba(255,255,255,.4); }
+.asp-rate-text { font-size: 11px; color: rgba(255,255,255,0.58); }
 
 /* ── Quick chips ───────────────────────────────────────────────────── */
 #arya-sp-chips {
@@ -6162,7 +6299,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
   min-height: 44px; max-height: 120px;
   transition: border-color .2s, background .2s, box-shadow .2s;
 }
-#arya-sp-input::placeholder { color: rgba(255,255,255,.25); }
+#arya-sp-input::placeholder { color: rgba(255,255,255,0.58); }
 #arya-sp-input:focus {
   border-color: rgba(0,212,255,.45); background: rgba(0,212,255,.04);
   box-shadow: 0 0 0 3px rgba(0,212,255,.06);
@@ -6200,7 +6337,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 /* History notice */
 #arya-sp-history-notice {
   flex-shrink: 0; padding: 6px 16px; font-size: 11px;
-  color: rgba(255,255,255,.3); text-align: center;
+  color: rgba(255,255,255,0.58); text-align: center;
   border-bottom: 1px solid rgba(255,255,255,.04);
   background: rgba(123,47,247,.04);
 }
@@ -6231,9 +6368,9 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 [data-theme="light"] #arya-sp-title { color: #0a0d15; }
 [data-theme="light"] #arya-sp-snapshot { background: rgba(0,100,200,.03); }
 [data-theme="light"] #arya-ticker-strip { background: rgba(0,0,0,.04); border-bottom-color: rgba(0,0,0,.08); }
-[data-theme="light"] .arya-tick-name { color: rgba(0,0,0,.45); }
+[data-theme="light"] .arya-tick-name { color: rgba(0,0,0,0.62); }
 [data-theme="light"] .arya-tick-price { color: rgba(0,0,0,.8); }
-[data-theme="light"] .arya-tick-chg.flat { color: rgba(0,0,0,.35); }
+[data-theme="light"] .arya-tick-chg.flat { color: rgba(0,0,0,0.62); }
 
 /* ── Tab bar ───────────────────────────────────────────────── */
 #arya-sp-tabs {
@@ -6245,7 +6382,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 .asp-tab {
   flex-shrink: 0; padding: 5px 12px 6px; border-radius: 8px 8px 0 0; border: none;
   border-bottom: 2.5px solid transparent;
-  background: transparent; color: rgba(255,255,255,.35); font-size: 11px;
+  background: transparent; color: rgba(255,255,255,0.58); font-size: 11px;
   font-weight: 700; cursor: pointer; font-family: inherit;
   transition: color .18s, background .18s, border-color .18s; white-space: nowrap;
   display: flex; flex-direction: row; align-items: center; gap: 5px; min-width: 0;
@@ -6278,7 +6415,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 #asp-view-mindmap { overflow: hidden; }
 .asp-mm-hint {
   flex-shrink: 0; padding: 8px 12px; font-size: 10.5px;
-  color: rgba(255,255,255,.3); text-align: center;
+  color: rgba(255,255,255,0.58); text-align: center;
   border-bottom: 1px solid rgba(255,255,255,.04); letter-spacing: .2px;
 }
 #arya-mm-container { flex: 1; position: relative; overflow: hidden; min-height: 360px; }
@@ -6314,7 +6451,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 
 /* Spinner for lazy-load placeholders */
 @keyframes aspSpinRm { to { transform: rotate(360deg); } }
-.asp-rm-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 280px; gap: 14px; color: rgba(255,255,255,.35); font-size: 12.5px; }
+.asp-rm-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 280px; gap: 14px; color: rgba(255,255,255,0.58); font-size: 12.5px; }
 .asp-rm-spinner { width: 38px; height: 38px; border: 3px solid rgba(0,212,255,.12); border-top-color: #00d4ff; border-radius: 50%; animation: aspSpinRm 1s linear infinite; }
 
 /* ── Goal Cards ──────────────────────────────────────────────────── */
@@ -6327,7 +6464,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 .apl-news-text { font-size: 11.5px; line-height: 1.55; color: rgba(255,255,255,.68); margin-bottom: 0; }
 
 /* ── Command Hint ─────────────────────────────────────────────────── */
-.asp-cmd-hint { padding: 6px 12px; font-size: 10.5px; color: rgba(255,255,255,.45); background: rgba(0,212,255,.06); border-top: 1px solid rgba(0,212,255,.12); letter-spacing: .01em; }
+.asp-cmd-hint { padding: 6px 12px; font-size: 10.5px; color: rgba(255,255,255,0.58); background: rgba(0,212,255,.06); border-top: 1px solid rgba(0,212,255,.12); letter-spacing: .01em; }
 .asp-cmd-hint b { color: #00d4ff; }
 
 /* ── Wealth Chart section ─────────────────────────────────────────── */
@@ -6348,19 +6485,19 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 
 /* Light theme */
 [data-theme="light"] #arya-sp-tabs { background: rgba(0,0,0,.04); border-bottom-color: rgba(0,0,0,.06); }
-[data-theme="light"] .asp-tab { color: rgba(0,0,0,.4); }
+[data-theme="light"] .asp-tab { color: rgba(0,0,0,0.62); }
 [data-theme="light"] .asp-tab.active { background: rgba(0,100,200,.08); color: #0064c8; border-bottom-color: #0064c8; }
 [data-theme="light"] .asp-view-ask-btn { background: rgba(0,100,200,.06); border-color: rgba(0,100,200,.15); color: #0064c8; }
 [data-theme="light"] .apl-goal-card { background: rgba(0,0,0,.03); border-color: rgba(0,0,0,.08); }
 [data-theme="light"] .apl-news-card { background: rgba(0,0,0,.03); border-left-color: rgba(0,100,200,.3); }
 [data-theme="light"] .apl-news-text { color: rgba(0,0,0,.7); }
-[data-theme="light"] .asp-cmd-hint { background: rgba(0,100,200,.05); border-top-color: rgba(0,100,200,.12); color: rgba(0,0,0,.5); }
+[data-theme="light"] .asp-cmd-hint { background: rgba(0,100,200,.05); border-top-color: rgba(0,100,200,.12); color: rgba(0,0,0,0.62); }
 
 /* ── Inline AI Response Box ──────────────────────────────────────── */
 .asp-inline-resp { display:none; background: rgba(0,212,255,.06); border: 1px solid rgba(0,212,255,.18); border-radius: 12px; padding: 12px 14px; margin-top: 8px; animation: aspFadeIn .25s ease forwards; }
 .asp-inline-resp-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .asp-inline-resp-who { font-size: 11px; font-weight: 800; color: #00d4ff; letter-spacing: .04em; }
-.asp-inline-resp-x { background: none; border: none; color: rgba(255,255,255,.28); cursor: pointer; font-size: 13px; padding: 0 2px; line-height: 1; transition: color .15s; }
+.asp-inline-resp-x { background: none; border: none; color: rgba(255,255,255,0.58); cursor: pointer; font-size: 13px; padding: 0 2px; line-height: 1; transition: color .15s; }
 .asp-inline-resp-x:hover { color: rgba(255,255,255,.7); }
 .asp-inline-resp-body { font-size: 12px; line-height: 1.65; }
 .asp-inline-resp-text { color: rgba(255,255,255,.82); }
@@ -6373,7 +6510,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 .asp-inline-dots span:nth-child(3) { animation-delay: .4s; }
 [data-theme="light"] .asp-inline-resp { background: rgba(0,100,200,.05); border-color: rgba(0,100,200,.15); }
 [data-theme="light"] .asp-inline-resp-who { color: #0064c8; }
-[data-theme="light"] .asp-inline-resp-x { color: rgba(0,0,0,.25); }
+[data-theme="light"] .asp-inline-resp-x { color: rgba(0,0,0,0.62); }
 [data-theme="light"] .asp-inline-resp-x:hover { color: rgba(0,0,0,.6); }
 [data-theme="light"] .asp-inline-resp-text { color: rgba(0,0,0,.78); }
 [data-theme="light"] .asp-inline-resp-go { background: rgba(0,100,200,.08); border-color: rgba(0,100,200,.2); color: #0064c8; }
@@ -6388,7 +6525,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
   background: linear-gradient(90deg, #b97dff, #7b2ff7);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.agt-intro-sub { font-size: 12px; color: rgba(255,255,255,.38); line-height: 1.6; }
+.agt-intro-sub { font-size: 12px; color: rgba(255,255,255,0.58); line-height: 1.6; }
 
 .agt-input-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
 .agt-goal-input {
@@ -6404,7 +6541,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
   border-color: rgba(185,125,255,.55); background: rgba(185,125,255,.04);
   box-shadow: 0 0 0 3px rgba(185,125,255,.07);
 }
-.agt-goal-input::placeholder { color: rgba(255,255,255,.22); }
+.agt-goal-input::placeholder { color: rgba(255,255,255,0.58); }
 .agt-run-btn {
   background: linear-gradient(135deg, #b97dff 0%, #7b2ff7 100%);
   border: none; border-radius: 14px; color: #fff; font-size: 14px; font-weight: 800;
@@ -6417,7 +6554,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 .agt-run-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
 
 .agt-steps-hd {
-  font-size: 10px; font-weight: 800; color: rgba(255,255,255,.3);
+  font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.58);
   letter-spacing: .1em; text-transform: uppercase; margin-bottom: 10px;
   display: flex; align-items: center; gap: 8px;
 }
@@ -6425,7 +6562,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 #agt-steps { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
 .agt-step-item { }
 .agt-step-goal { font-size: 12px; color: rgba(255,255,255,.5); font-style: italic; padding: 8px 12px; background: rgba(255,255,255,.04); border-radius: 10px; border-left: 2px solid rgba(255,255,255,.1); }
-.agt-step-think { font-size: 11.5px; color: rgba(255,255,255,.38); display: flex; align-items: center; gap: 8px; padding: 5px 2px; }
+.agt-step-think { font-size: 11.5px; color: rgba(255,255,255,0.58); display: flex; align-items: center; gap: 8px; padding: 5px 2px; }
 .agt-step-tool {
   font-size: 12px; color: #ffd93d; padding: 7px 12px;
   background: rgba(255,211,61,.06); border-left: 3px solid rgba(255,211,61,.5);
@@ -6480,24 +6617,24 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 .agt-mem-type.goal { background: rgba(0,255,179,.12); color: #00ffb3; }
 .agt-mem-type.preference { background: rgba(185,125,255,.15); color: #b97dff; }
 .agt-mem-type.event { background: rgba(255,211,61,.12); color: #ffd93d; }
-.agt-mem-type.chat { background: rgba(255,255,255,.08); color: rgba(255,255,255,.4); }
-.agt-mem-type.auto { background: rgba(255,255,255,.06); color: rgba(255,255,255,.3); }
+.agt-mem-type.chat { background: rgba(255,255,255,.08); color: rgba(255,255,255,0.58); }
+.agt-mem-type.auto { background: rgba(255,255,255,.06); color: rgba(255,255,255,0.58); }
 .agt-mem-text { font-size: 11px; color: rgba(255,255,255,.6); flex: 1; line-height: 1.5; }
-.agt-mem-del { background: none; border: none; color: rgba(255,255,255,.2); cursor: pointer; font-size: 12px; padding: 0; flex-shrink: 0; transition: color .15s; }
+.agt-mem-del { background: none; border: none; color: rgba(255,255,255,0.58); cursor: pointer; font-size: 12px; padding: 0; flex-shrink: 0; transition: color .15s; }
 .agt-mem-del:hover { color: #ff4d6d; }
 
 .agt-brief-hd { font-size: 10.5px; font-weight: 800; color: #ffd93d; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; }
 
 /* Light theme — agent */
 [data-theme="light"] .agt-goal-input { background: rgba(0,0,0,.04); border-color: rgba(140,60,220,.2); color: #111; }
-[data-theme="light"] .agt-goal-input::placeholder { color: rgba(0,0,0,.3); }
+[data-theme="light"] .agt-goal-input::placeholder { color: rgba(0,0,0,0.62); }
 [data-theme="light"] .agt-result-pre { background: rgba(0,0,0,.04); color: rgba(0,0,0,.7); }
 [data-theme="light"] .agt-mem-item { background: rgba(0,0,0,.03); border-color: rgba(0,0,0,.07); }
 [data-theme="light"] .agt-mem-text { color: rgba(0,0,0,.6); }
 [data-theme="light"] .agt-mem-input { background: #fff; border-color: rgba(0,0,0,.15); color: #111; }
 [data-theme="light"] .agt-step-tool { color: #b07000; background: rgba(176,112,0,.06); }
 [data-theme="light"] .agt-final-text { color: rgba(0,0,0,.8); }
-[data-theme="light"] .agt-intro-sub { color: rgba(0,0,0,.4); }
+[data-theme="light"] .agt-intro-sub { color: rgba(0,0,0,0.62); }
 
 /* ── Rich text highlights ────────────────────────────────────────── */
 .asp-hl-inr { color: #ffd93d; font-weight: 800; }
@@ -6523,15 +6660,15 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 .apl-big-ring { width: 90px; height: 90px; flex-shrink: 0; transform: rotate(-90deg); }
 .apl-header-info { flex: 1; min-width: 0; }
 .apl-header-title { font-size: 15px; font-weight: 800; color: var(--text-primary,#fff); }
-.apl-header-sub { font-size: 11.5px; color: rgba(255,255,255,.4); margin-top: 2px; }
+.apl-header-sub { font-size: 11.5px; color: rgba(255,255,255,0.58); margin-top: 2px; }
 .apl-corpus { font-size: 12px; font-weight: 700; color: #00ffb3; margin-top: 5px; }
 .apl-pillars { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; margin: 14px 0 10px; }
 .apl-pillar { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .apl-ring { width: 48px; height: 48px; transform: rotate(-90deg); }
 .apl-pillar-icon { font-size: 13px; margin-top: 2px; }
-.apl-pillar-label { font-size: 9.5px; color: rgba(255,255,255,.45); text-align: center; font-weight: 600; }
-.apl-pillar-detail { font-size: 9px; color: rgba(255,255,255,.3); text-align: center; }
-.apl-nudges-title { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.35); letter-spacing: .08em; text-transform: uppercase; margin: 10px 0 6px; }
+.apl-pillar-label { font-size: 9.5px; color: rgba(255,255,255,0.58); text-align: center; font-weight: 600; }
+.apl-pillar-detail { font-size: 9px; color: rgba(255,255,255,0.58); text-align: center; }
+.apl-nudges-title { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.58); letter-spacing: .08em; text-transform: uppercase; margin: 10px 0 6px; }
 .apl-nudges { display: flex; flex-direction: column; gap: 6px; }
 .apl-nudge { display: flex; gap: 8px; align-items: flex-start; background: rgba(255,255,255,.04); border-left: 3px solid #ffb300; border-radius: 0 8px 8px 0; padding: 8px 10px; }
 .apl-nudge-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
@@ -6540,7 +6677,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 .apl-kpi-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 12px; }
 .apl-kpi { background: rgba(255,255,255,.04); border-radius: 10px; padding: 10px 8px; text-align: center; border: 1px solid rgba(255,255,255,.07); }
 .apl-kpi-val { font-size: 13px; font-weight: 800; color: var(--text-primary,#fff); }
-.apl-kpi-lbl { font-size: 9.5px; color: rgba(255,255,255,.35); margin-top: 2px; }
+.apl-kpi-lbl { font-size: 9.5px; color: rgba(255,255,255,0.58); margin-top: 2px; }
 .apl-kpi-card { cursor:pointer; transition: background .18s, transform .18s, border-color .18s !important; }
 .apl-kpi-card:hover { background:rgba(255,255,255,.06) !important; transform:translateY(-2px); border-color:rgba(0,212,255,.2) !important; }
 .apl-kpi-card:active { transform:translateY(0); }
@@ -6553,7 +6690,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 .apl-hud-val { font-size:10.5px; font-weight:800; }
 .apl-hud-bar { height:3px; background:rgba(255,255,255,.07); border-radius:2px; overflow:hidden; margin-bottom:2px; }
 .apl-hud-fill { height:100%; border-radius:2px; transition: width 1.1s cubic-bezier(.22,.61,.36,1); }
-.apl-hud-detail { font-size:9px; color:rgba(255,255,255,.3); line-height:1.4; }
+.apl-hud-detail { font-size:9px; color:rgba(255,255,255,0.58); line-height:1.4; }
 [data-theme="light"] .apl-nudge { background: rgba(0,0,0,.03); }
 [data-theme="light"] .apl-nudge-text { color: rgba(0,0,0,.65); }
 [data-theme="light"] .apl-kpi { background: rgba(0,0,0,.03); border-color: rgba(0,0,0,.07); }
@@ -6569,7 +6706,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 [data-theme="light"] #arya-sp-panel .apl-section-title { color: rgba(255,255,255,.9) !important; }
 [data-theme="light"] #arya-sp-panel .apl-hud-label,
 [data-theme="light"] #arya-sp-panel .apl-hud-detail,
-[data-theme="light"] #arya-sp-panel .apl-lab-label { color: rgba(255,255,255,.4) !important; }
+[data-theme="light"] #arya-sp-panel .apl-lab-label { color: rgba(255,255,255,0.58) !important; }
 [data-theme="light"] #arya-sp-panel .apl-lab-result { background: rgba(255,255,255,.04) !important; }
 
 /* ── Scenario Lab & Inflation Eroder shared ─────────────────────────── */
@@ -6577,7 +6714,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 .apl-section-title { font-size: 12.5px; font-weight: 800; color: var(--text-primary,#fff); letter-spacing: .02em; margin-bottom: 12px; }
 .apl-lab-grid { display: flex; flex-direction: column; gap: 10px; }
 .apl-lab-row { display: flex; flex-direction: column; gap: 4px; }
-.apl-lab-label { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,.45); }
+.apl-lab-label { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,0.58); }
 .apl-lab-num { font-weight: 800; color: #00d4ff; font-size: 11px; }
 .apl-slider { width: 100%; -webkit-appearance: none; height: 4px; border-radius: 2px; background: rgba(255,255,255,.1); outline: none; cursor: pointer; }
 .apl-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #00d4ff; cursor: pointer; border: 2px solid #0a0d17; box-shadow: 0 0 8px rgba(0,212,255,.5); }
@@ -6586,7 +6723,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 .apl-lab-res-corpus { font-size: 20px; font-weight: 900; color: #00ffb3; letter-spacing: -.01em; }
 .apl-lab-accent { font-weight: 700; font-size: 11.5px; color: #00d4ff; }
 .apl-lab-ai-comment { background: rgba(168,85,247,.08); border: 1px solid rgba(168,85,247,.2); border-radius: 10px; padding: 10px 12px; margin-top: 8px; font-size: 11.5px; color: rgba(255,255,255,.7); }
-.apl-lab-ai-thinking { font-size: 11px; color: rgba(255,255,255,.4); }
+.apl-lab-ai-thinking { font-size: 11px; color: rgba(255,255,255,0.58); }
 [data-theme="light"] .apl-slider { background: rgba(0,0,0,.12); }
 [data-theme="light"] .apl-slider::-webkit-slider-thumb { border-color: #fff; }
 [data-theme="light"] .apl-lab-result { background: rgba(0,0,0,.03); border-color: rgba(0,0,0,.08); }
@@ -6599,7 +6736,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 }
 .agt-mc-inp:focus { outline: none; border-color: rgba(185,125,255,.5); }
 .agt-section-label {
-  font-size: 9.5px; font-weight: 800; color: rgba(255,255,255,.35);
+  font-size: 9.5px; font-weight: 800; color: rgba(255,255,255,0.58);
   letter-spacing: .6px; text-transform: uppercase;
 }
 /* Persona buttons active state is set via JS; base style only here */
@@ -6643,7 +6780,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 }
 .asp-rag-cites-label {
   font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
-  color: rgba(255,255,255,.28); margin-bottom: 3px;
+  color: rgba(255,255,255,0.58); margin-bottom: 3px;
 }
 .asp-rag-cards { display: flex; flex-wrap: wrap; gap: 5px; }
 .asp-rag-card {
@@ -6662,7 +6799,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 .asp-rag-card-title { overflow: hidden; text-overflow: ellipsis; flex: 1; }
 .asp-rag-card-type {
   font-size: 9px; padding: 1px 5px; border-radius: 4px;
-  background: rgba(255,255,255,.08); color: rgba(255,255,255,.35);
+  background: rgba(255,255,255,.08); color: rgba(255,255,255,0.58);
   flex-shrink: 0;
 }
 [data-theme="light"] .asp-rag-card {
@@ -6671,7 +6808,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 [data-theme="light"] .asp-rag-card:hover {
   background: rgba(0,100,200,.1); border-color: rgba(0,100,200,.3); color: rgba(0,0,0,.8);
 }
-[data-theme="light"] .asp-rag-cites-label { color: rgba(0,0,0,.3); }
+[data-theme="light"] .asp-rag-cites-label { color: rgba(0,0,0,0.62); }
 `;
     document.head.appendChild(s);
   }
@@ -7037,33 +7174,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
       _pulseRendered = true;
       const el = document.getElementById('arya-pulse-container');
       if (el) {
-        el.innerHTML = buildPulseView()
-          + buildCrossPageHUD()
-          + buildSmartInsightCards()
-          + buildNetWorthTimeline()
-          + buildWealthFingerprint()
-          + buildPageActivityMatrix()
-          + buildBehavioralDNA()
-          + buildWealthChart()
-          + buildGoalCards()
-          + buildIndiaFinCalendar()
-          + buildPortfolioStressTest()
-          + buildCompoundRace()
-          + buildSavingsRateMeter()
-          + buildTaxDashboard()
-          + buildDebtFreedomPlanner()
-          + buildScenarioLab()
-          + buildInflationEroder()
-          + buildMonteCarloSection()
-          + buildTimeMachineSection()
-          + buildPeerBenchmarkSection()
-          + buildTransactionAnalyzerSection()
-          + buildWealthXRaySection()
-          + buildTaxOptimizerSection()
-          + buildInsuranceGapSection()
-          + buildWealthVelocity()
-          + buildGoalProbabilityMatrix()
-          + buildNewsWidget();
+        el.innerHTML = buildPulseHTML();
         wireScenarioLab();
         wireInflationEroder();
         wireMonteCarloSection();
@@ -7132,7 +7243,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
     s.onerror = () => {
       ['arya-rm-container', 'arya-mm-container', 'arya-tl-container'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.innerHTML = '<p style="text-align:center;padding:40px 16px;color:rgba(255,255,255,.3);font-size:12px;line-height:1.6;">Roadmap engine unavailable.<br>Open roadmap.html for the full experience.</p>';
+        if (el) el.innerHTML = '<p style="text-align:center;padding:40px 16px;color:rgba(255,255,255,0.58);font-size:12px;line-height:1.6;">Roadmap engine unavailable.<br>Open roadmap.html for the full experience.</p>';
       });
     };
     document.head.appendChild(s);
@@ -7153,6 +7264,19 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
     if (!isAutoInsight) {
       appendMessage('user', userText);
       _chatHistory.push({ role: 'user', text: userText });
+    }
+
+    // Guardrail pre-check: clearly illegal requests (tax evasion, forged documents) never reach the model.
+    if (!isAutoInsight && window.AryaGuardrails) {
+      const pre = window.AryaGuardrails.apply(userText, '');
+      if (pre.blocked) {
+        appendMessage('arya', pre.text);
+        _chatHistory.push({ role: 'arya', text: pre.text });
+        _aiRunning = false;
+        if (sendBtn)  sendBtn.disabled = false;
+        if (inputEl)  { inputEl.disabled = false; inputEl.value = ''; inputEl.focus(); }
+        return;
+      }
     }
 
     const thinkEl   = showThinking();
@@ -7233,6 +7357,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
         speaker.onPartial(partialText);   // speak each sentence as it completes, not after the full answer
       }, numPredict, taskType);
       speaker.flush(finalText);           // say whatever's left (no trailing punctuation, last fragment, etc.)
+      if (window.AryaGuardrails) finalText = window.AryaGuardrails.apply(isAutoInsight ? '' : userText, finalText).text;   // adds a note on buy/sell calls, guarantees, predictions
 
       removeThinking();
       if (!bubbleEl) bubbleEl = appendMessage('arya', finalText);

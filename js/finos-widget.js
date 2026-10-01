@@ -10,10 +10,14 @@
   // and works on Vercel where pages live under /html/.
   const AGENT_URL = (function () {
     const parts = window.location.pathname.split('/').filter(Boolean);
-    // Drop the filename, then drop one directory level (e.g. "html" or "calculators")
     parts.pop();  // remove file
-    parts.pop();  // go up to project root
-    return (parts.length ? '/' + parts.join('/') : '') + '/voiceagent/index.html';
+    // Strip everything from the first known content folder onward, rather than
+    // assuming a fixed depth — calculators/<category>/page.html is two levels
+    // deep while html/page.html is one, so a fixed pop() count mis-resolves
+    // the path on calculator pages (produced ".../calculators/voiceagent/..").
+    const rootIdx = parts.findIndex((p) => p === 'html' || p === 'calculators');
+    const rootParts = rootIdx === -1 ? parts : parts.slice(0, rootIdx);
+    return (rootParts.length ? '/' + rootParts.join('/') : '') + '/voiceagent/index.html';
   }());
 
   /* ── Inject CSS ─────────────────────────────────────────────────────────── */
@@ -151,7 +155,7 @@
     #finos-popup-header .ph-sub {
       font-size: 10px;
       font-weight: 400;
-      color: rgba(255,255,255,.4);
+      color: rgba(255,255,255,0.58);
       letter-spacing: .3px;
     }
     #finos-close-btn {
@@ -295,7 +299,7 @@
       color:#fff; font-size:13px; outline:none; resize:none; min-height:42px;
       font-family:inherit;
     }
-    #finos-ql-input::placeholder { color:rgba(255,255,255,.3); }
+    #finos-ql-input::placeholder { color:rgba(255,255,255,0.58); }
     .ql-row { display:flex; gap:6px; }
     .ql-btn {
       flex:1; padding:8px; border-radius:8px; border:none; cursor:pointer;
@@ -305,7 +309,7 @@
     .ql-btn.primary:hover { filter:brightness(1.1); }
     .ql-btn.voice { background:rgba(255,255,255,.06); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.1); }
     .ql-btn.voice.listening { background:rgba(255,71,87,.12); color:#ff4757; border-color:rgba(255,71,87,.3); animation:qlPulse .7s infinite; }
-    .ql-btn.close-ql { background:transparent; color:rgba(255,255,255,.3); border:1px solid rgba(255,255,255,.08); flex:0; padding:8px 10px; }
+    .ql-btn.close-ql { background:transparent; color:rgba(255,255,255,0.58); border:1px solid rgba(255,255,255,.08); flex:0; padding:8px 10px; }
     #finos-ql-parsed { font-size:11px; padding:8px 10px; border-radius:8px; background:rgba(0,0,0,.2); color:rgba(255,255,255,.6); display:none; line-height:1.5; }
     #finos-ql-history { max-height:100px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; }
     .ql-entry { font-size:11px; padding:5px 8px; border-radius:6px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.05); color:rgba(255,255,255,.55); display:flex; justify-content:space-between; }
@@ -317,7 +321,7 @@
     [data-theme="light"] #finos-ql-parsed { background:rgba(0,0,0,.04); color:#4A5068; }
     [data-theme="light"] .ql-btn.voice { background:rgba(0,0,0,.04); color:#4A5068; border-color:rgba(0,0,0,.1); }
     [data-theme="light"] .ql-btn.close-ql { color:#4A5068; border-color:rgba(0,0,0,.1); }
-    [data-theme="light"] #finos-ql-input::placeholder { color:rgba(0,0,0,.35); }
+    [data-theme="light"] #finos-ql-input::placeholder { color:rgba(0,0,0,0.62); }
 
     /* Mobile: quick-log lives inside the "+" quick-capture flow; hiding the
        pencil keeps the corner to ONE fab above the tab bar. */

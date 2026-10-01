@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
   <meta name="description" content="Retirement Planner — unified view of your retirement corpus across EPF, NPS, PPF, SIP and all savings, with a required-corpus model and income projection.">
   <title>Retirement Planner | FIN-OS</title>
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
@@ -23,6 +24,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-tracker-sync.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/finos-retirement-planner.js?v=2" defer></script>
 
@@ -117,16 +119,20 @@
         <button class="tab-btn active" onclick="rpSwitch('overview')">Overview</button>
         <button class="tab-btn" onclick="rpSwitch('plan')">Corpus Builder</button>
         <button class="tab-btn" onclick="rpSwitch('income')">Income Model</button>
+        <button class="tab-btn" onclick="rpSwitch('odds')">Success Odds</button>
       </div>
 
       <div id="rp-overview" class="tab-panel active">
-        <div id="rp-panel-overview" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:14px;">Loading…</div>
+        <div id="rp-panel-overview" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.58);font-size:14px;">Loading…</div>
       </div>
       <div id="rp-plan" class="tab-panel">
-        <div id="rp-panel-plan" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:14px;">Loading…</div>
+        <div id="rp-panel-plan" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.58);font-size:14px;">Loading…</div>
+      </div>
+      <div id="rp-odds" class="tab-panel">
+        <div id="rp-panel-odds" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.58);font-size:14px;">Loading…</div>
       </div>
       <div id="rp-income" class="tab-panel">
-        <div id="rp-panel-income" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:14px;">Loading…</div>
+        <div id="rp-panel-income" style="min-height:120px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.58);font-size:14px;">Loading…</div>
       </div>
     </div>
   </main>
@@ -146,7 +152,7 @@
 
   function rpSwitch(tab) {
     document.querySelectorAll('.tab-btn').forEach((b, i) => {
-      const names = ['overview','plan','income'];
+      const names = ['overview','plan','income','odds'];
       b.classList.toggle('active', names[i] === tab);
     });
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -165,6 +171,7 @@
     if (tab === 'overview') window.FinosRetirementPlanner.renderOverview(el);
     else if (tab === 'plan')   window.FinosRetirementPlanner.renderPlan(el);
     else if (tab === 'income') window.FinosRetirementPlanner.renderIncome(el);
+    else if (tab === 'odds')   window.FinosRetirementPlanner.renderOdds(el);
   }
 
   function _rpInit() {
@@ -175,14 +182,19 @@
   }
   document.addEventListener('DOMContentLoaded', _rpInit);
 </script>
+<script src="../js/finos-format.js"></script>
+<script src="../js/finos-montecarlo.js"></script>
 <script src="../js/ui.js" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=9"></script>
+<script src="../js/finos-widget.js?v=10"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=3"></script>
+<script src="../js/finos-search.js?v=4"></script>
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 <script src="../js/interactions.js" defer></script>
 </body>
 </html>

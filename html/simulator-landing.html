@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
@@ -740,9 +741,10 @@
 </style>
 
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
-  <script src="../js/finos-widget.js?v=9"></script>
-  <script src="../js/finos-search.js?v=3"></script>
+  <script src="../js/finos-widget.js?v=10"></script>
+  <script src="../js/finos-search.js?v=4"></script>
 
 <!-- ── READINESS MODAL ─────────────────────────────────────────── -->
 <div id="readinessModal">
@@ -2217,6 +2219,10 @@ document.addEventListener('keydown',e=>{if((e.altKey||e.metaKey)&&e.key==='m'){e
   <script src="../js/ui.js" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/interactions.js" defer></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
+<script src="../js/pwa-init.js"></script>
 </body>
 </html>

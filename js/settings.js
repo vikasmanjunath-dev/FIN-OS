@@ -523,6 +523,178 @@ window.exportData = function () {
   toast('Data exported. ' + skipped + ' sensitive keys omitted.', 'success');
 };
 
+/* ── Due-date reminders + install (PWA) ─────────────────────────────── */
+window.toggleReminders = async function (on) {
+  const box = document.getElementById('notifRemindersToggle');
+  const hint = document.getElementById('remindersHint');
+  if (!window.FinosReminders) { toast('Reminders are unavailable on this page.', 'warn'); if (box) box.checked = false; return; }
+  if (!on) { window.FinosReminders.disableSystem(); if (hint) hint.textContent = ''; toast('Reminders off. You will still see in-app alerts.', 'info'); return; }
+  const r = await window.FinosReminders.enableSystem();
+  if (!r.ok) {
+    if (box) box.checked = false;
+    toast(r.reason === 'denied' ? 'Notifications are blocked in your browser settings for this site.' : 'This browser does not support notifications.', 'warn');
+    return;
+  }
+  const bg = await window.FinosReminders.enableBackground();
+  if (hint) hint.textContent = bg.ok ? '(also when the app is closed)' : '(while FIN•OS is open — install the app for background reminders)';
+  toast('Reminders on.', 'success');
+};
+window.installApp = async function () {
+  const out = window.FinosPWA ? await window.FinosPWA.install() : 'unavailable';
+  if (out === 'accepted') toast('Installing FIN•OS…', 'success');
+};
+document.addEventListener('DOMContentLoaded', function () {
+  const box = document.getElementById('notifRemindersToggle');
+  if (box && window.FinosReminders) box.checked = window.FinosReminders.systemEnabled();
+  const row = document.getElementById('installRow');
+  const show = () => { if (row && window.FinosPWA && window.FinosPWA.canInstall() && !window.FinosPWA.isInstalled()) row.style.display = ''; };
+  window.addEventListener('finos:installable', show);
+  window.addEventListener('finos:installed', () => { if (row) row.style.display = 'none'; });
+  show();
+});
+
+window.setUILang = async function (code) {
+  if (!window.FinosI18n) return;
+  await window.FinosI18n.setLang(code);
+  toast(code === 'en' ? 'Language: English' : 'भाषा: हिन्दी', 'success');
+};
+document.addEventListener('DOMContentLoaded', function () {
+  const sel = document.getElementById('uiLangSelect');
+  if (sel) { try { sel.value = localStorage.getItem('finos_lang') || 'en'; } catch (e) { /* private mode */ } }
+});
+
+/* ── Passcode lock + encrypted backups ──────────────────────────────── */
+function vaultDialog(opts) {
+  return new Promise((resolve) => {
+    const wrap = document.createElement('div');
+    wrap.setAttribute('role', 'dialog'); wrap.setAttribute('aria-modal', 'true'); wrap.setAttribute('aria-label', opts.title);
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px;';
+    const field = (f) => `<label style="display:block;font-size:12px;opacity:.7;margin:12px 0 4px;" for="vd-${f.id}">${f.label}</label>
+      <input id="vd-${f.id}" type="password" autocomplete="${f.autocomplete || 'new-password'}" style="width:100%;box-sizing:border-box;padding:11px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;font-size:15px;">`;
+    wrap.innerHTML = `<form style="background:var(--bg-surface,#14182a);color:var(--text-primary,#f0f2f8);border:1px solid var(--border-soft,rgba(255,255,255,.12));border-radius:18px;max-width:420px;width:100%;padding:22px;">
+      <h3 style="margin:0 0 6px;font-size:18px;">${opts.title}</h3>
+      <p style="margin:0;font-size:13px;opacity:.7;line-height:1.55;">${opts.body || ''}</p>
+      ${(opts.fields || []).map(field).join('')}
+      ${opts.confirmText ? `<label style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.5;margin-top:14px;"><input type="checkbox" id="vd-ack" style="margin-top:3px;"><span>${opts.confirmText}</span></label>` : ''}
+      <div id="vd-err" role="alert" style="min-height:18px;color:#ff6b6b;font-size:13px;margin-top:10px;"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px;">
+        <button type="button" id="vd-cancel" class="btn-outline">Cancel</button>
+        <button type="submit" class="btn-outline" style="border-color:#4f7cff;color:#4f7cff;">${opts.submit || 'OK'}</button>
+      </div></form>`;
+    document.body.appendChild(wrap);
+    const first = wrap.querySelector('input'); if (first) first.focus();
+    const done = (v) => { wrap.remove(); resolve(v); };
+    wrap.querySelector('#vd-cancel').onclick = () => done(null);
+    wrap.addEventListener('keydown', (e) => { if (e.key === 'Escape') done(null); });
+    wrap.querySelector('form').onsubmit = async (e) => {
+      e.preventDefault();
+      const vals = {}; (opts.fields || []).forEach((f) => { vals[f.id] = wrap.querySelector('#vd-' + f.id).value; });
+      const err = wrap.querySelector('#vd-err'); err.textContent = '';
+      if (opts.confirmText && !wrap.querySelector('#vd-ack').checked) { err.textContent = 'Please tick the box to continue.'; return; }
+      if (opts.validate) { const m = opts.validate(vals); if (m) { err.textContent = m; return; } }
+      done(vals);
+    };
+  });
+}
+function vaultRefresh() {
+  const V = window.FinosVault; if (!V) return;
+  const on = V.isEnabled();
+  const t = document.getElementById('vaultToggleBtn'), l = document.getElementById('vaultLockBtn'), m = document.getElementById('vaultMore'), idle = document.getElementById('vaultIdle');
+  if (t) t.textContent = on ? 'Turn off' : 'Set up';
+  if (l) l.hidden = !on;
+  if (m) m.hidden = !on;
+  if (idle && on) idle.value = String(V.idleMinutes());
+}
+window.vaultToggle = async function () {
+  const V = window.FinosVault; if (!V) return;
+  const same = (v) => (v.p1 !== v.p2 ? 'The two passcodes don\'t match.' : (v.p1.length < 6 ? 'Use at least 6 characters.' : ''));
+  if (!V.isEnabled()) {
+    const v = await vaultDialog({
+      title: 'Set a passcode', submit: 'Turn on',
+      body: 'Choose something you will remember. FIN•OS cannot reset it — there is no recovery.',
+      fields: [{ id: 'p1', label: 'Passcode (6+ characters)' }, { id: 'p2', label: 'Repeat passcode' }],
+      confirmText: 'I understand: if I forget this passcode my data on this device is gone. I have exported a backup or accept the risk.', validate: same,
+    });
+    if (!v) return;
+    try { await V.enable(v.p1); } catch (e) { toast(e.message, 'warn'); return; }
+    V.startIdleLock();
+    toast('Passcode lock is on. Use "Lock now" — or wait for auto-lock — to encrypt.', 'success');
+    vaultRefresh();
+  } else {
+    const v = await vaultDialog({ title: 'Turn off passcode lock', submit: 'Turn off', body: 'Enter your passcode. Your data will stay on this device unencrypted, as before.', fields: [{ id: 'p', label: 'Passcode', autocomplete: 'current-password' }] });
+    if (!v) return;
+    const ok = await V.disable(v.p);
+    toast(ok ? 'Passcode lock is off.' : 'Wrong passcode.', ok ? 'success' : 'warn');
+    vaultRefresh();
+  }
+};
+window.vaultLockNow = async function () {
+  try { await window.FinosVault.lock(); location.reload(); } catch (e) { toast(e.message, 'warn'); }
+};
+window.vaultSetIdle = function (n) { window.FinosVault.setIdleMinutes(n); toast('Auto-lock: ' + n + ' min', 'success'); };
+window.vaultChange = async function () {
+  const V = window.FinosVault;
+  const v = await vaultDialog({
+    title: 'Change passcode', submit: 'Change',
+    fields: [{ id: 'old', label: 'Current passcode', autocomplete: 'current-password' }, { id: 'p1', label: 'New passcode (6+ characters)' }, { id: 'p2', label: 'Repeat new passcode' }],
+    validate: (x) => (x.p1 !== x.p2 ? 'The two new passcodes don\'t match.' : (x.p1.length < 6 ? 'Use at least 6 characters.' : '')),
+  });
+  if (!v) return;
+  try { const ok = await V.changePasscode(v.old, v.p1); toast(ok ? 'Passcode changed.' : 'Current passcode is wrong.', ok ? 'success' : 'warn'); }
+  catch (e) { toast(e.message, 'warn'); }
+};
+window.exportEncryptedBackup = async function () {
+  const V = window.FinosVault; if (!V) return;
+  if (V.isEnabled() && !V.isUnlocked()) { toast('Unlock first.', 'warn'); return; }
+  const v = await vaultDialog({
+    title: 'Encrypted backup', submit: 'Download', body: 'Pick a passphrase for this file. You will need it to restore — FIN•OS cannot recover it.',
+    fields: [{ id: 'p1', label: 'Passphrase (6+ characters)' }, { id: 'p2', label: 'Repeat passphrase' }],
+    validate: (x) => (x.p1 !== x.p2 ? 'The two passphrases don\'t match.' : (x.p1.length < 6 ? 'Use at least 6 characters.' : '')),
+  });
+  if (!v) return;
+  try {
+    const file = await V.exportEncrypted(v.p1);
+    const blob = new Blob([JSON.stringify(file)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'finos-encrypted-backup-' + new Date().toLocaleDateString('en-CA') + '.json';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    toast('Encrypted backup downloaded.', 'success');
+  } catch (e) { toast(e.message, 'warn'); }
+};
+window.importEncryptedBackup = function (input) {
+  const file = input.files && input.files[0]; input.value = '';
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    let parsed; try { parsed = JSON.parse(reader.result); } catch (e) { toast('That is not a backup file.', 'warn'); return; }
+    if (!parsed.encrypted) { toast('This file is not encrypted — use "Restore From Backup" instead.', 'warn'); return; }
+    const v = await vaultDialog({ title: 'Restore encrypted backup', submit: 'Restore', body: 'Existing values are kept; only missing data is added.', fields: [{ id: 'p', label: 'Passphrase', autocomplete: 'current-password' }] });
+    if (!v) return;
+    try { const r = await window.FinosVault.importEncrypted(parsed, v.p); toast('Restored ' + r.imported + ' items (' + r.skipped + ' skipped).', 'success'); }
+    catch (e) { toast(e.message, 'warn'); }
+  };
+  reader.readAsText(file);
+};
+document.addEventListener('DOMContentLoaded', vaultRefresh);
+
+window.importData = function (input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      if (parsed && parsed.encrypted) { toast('This backup is encrypted — use "Encrypted Backup → Restore".', 'warn'); return; }
+      const res = window.FinosStore.importAll(parsed);
+      toast('Restored ' + res.imported + ' items (' + res.skipped + ' skipped).', 'success');
+    } catch (e) {
+      toast(e.message || 'Could not read that file.', 'warn');
+    }
+  };
+  reader.readAsText(file);
+};
+
 window.clearDNA = function () {
   const dnaKeys = [
     'finos-dna', 'FINOS_DNA', 'financial_dna', 'finos_dna',

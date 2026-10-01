@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
@@ -12,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <title>Shield Protocol (Insurance) | FIN-OS</title>
   
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,10 +41,6 @@
     [data-theme="light"] {
       --shield-glow:   #2d55bb;
       --neon-lime:     #2f6b00;
-      --bg-main:       #F4F7FF;
-      --bg-surface:    #FFFFFF;
-      --text-primary:  #0A0C10;
-      --text-secondary:#4A5568;
       --accent-primary:#3B82F6;
       --border-soft:   rgba(0,0,0,0.10);
       --packet-shadow: 0 8px 28px rgba(59,130,246,0.10);
@@ -299,9 +296,9 @@
       background: rgba(248,250,252,0.97) !important;
       border-left: 1px solid rgba(0,0,0,0.10) !important;
     }
-    [data-theme="light"] .kb-title  { color: rgba(0,0,0,0.45) !important; }
+    [data-theme="light"] .kb-title  { color: rgba(0,0,0,0.62) !important; }
     [data-theme="light"] .kb-name   { color: rgba(0,0,0,0.80) !important; }
-    [data-theme="light"] .kb-todo   { color: rgba(0,0,0,0.28) !important; }
+    [data-theme="light"] .kb-todo   { color: rgba(0,0,0,0.62) !important; }
     [data-theme="light"] .kb-module { border-bottom-color: rgba(0,0,0,0.07) !important; }
 
     /* ── Arya callout: light mode ── */
@@ -381,6 +378,7 @@
   <link rel="stylesheet" href="../chatbot/qft-hud.css?v=2">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=7" defer></script>
   <meta property="og:site_name" content="FIN•OS">
@@ -678,12 +676,15 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
   <script src="../chatbot/qft-engine.js"></script>
-  <script src="../js/finos-widget.js?v=9"></script>
-  <script src="../js/finos-search.js?v=3"></script>
+  <script src="../js/finos-widget.js?v=10"></script>
+  <script src="../js/finos-search.js?v=4"></script>
 <script>if(typeof AryaAI!=="undefined")AryaAI.injectLearnButton();</script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 </body>
 </html>

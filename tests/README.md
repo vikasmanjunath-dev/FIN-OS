@@ -116,3 +116,60 @@ To add to a CI pipeline:
 - run: pip install pytest
 - run: pytest tests/ --tb=short
 ```
+
+---
+
+## Front-end & platform suites (added Oct 2026)
+
+Everything below runs without a backend. Browser tests use the Chromium that Playwright installed
+(`pip install playwright && playwright install chromium`) and a throwaway local static server; they **skip** (not fail) when
+Playwright/Chromium/axe-core is missing.
+
+| Command | What it covers |
+|---|---|
+| `npm run check` | search-index freshness + the 7 static audits below (no browser, ~15 s) |
+| `npm test` | all JS unit tests + all pytest files (alerts backend + browser suites) |
+| `TZ=Asia/Kolkata node --test tests/*.test.js` | JS unit tests in the user's timezone (calendar/IST date bugs) |
+| `python3 tests/smoke_pages.py` | opens every page (≈207) in dark **and** light; fails on JS errors, 404s, failed local requests (~14 min) |
+| `npm i --no-save axe-core && python3 -m pytest tests/test_a11y.py` | axe-core accessibility gate on 16 key pages × 2 themes |
+
+### `static_audit.py` (stdlib only — `python3 tests/static_audit.py [check]`)
+
+| Check | Fails when |
+|---|---|
+| `tokens` | a page loads CSS out of canonical order, misses `design-tokens.css`/`theme.css`, or re-declares shared theme tokens locally |
+| `links` | a local `href`/`src` points at a file that doesn't exist |
+| `search` | a page in `html/` or `calculators/` is not reachable from `js/finos-search.js` (fix: `npm run index`) |
+| `js` | any `js/*.js` or inline `<script>` fails `node --check` |
+| `ids` | duplicate `id=""` within a page |
+| `routes` | a `vercel.json` rewrite/redirect destination file doesn't exist |
+| `secrets` | API keys / private keys / Supabase `service_role` JWTs in browser-shipped files |
+
+### JS unit tests (`node --test`)
+
+| File | Module |
+|---|---|
+| `store.test.js` | `finos-store.js` — safe JSON, aliases, migrations, backup/restore, quota failures |
+| `api.test.js` | `finos-api.js` — base-URL resolution, retries (never for writes), typed errors, timeouts |
+| `format.test.js` | `finos-format.js` — lakh/crore grouping, compact units, shorthand parsing, FY labels |
+| `montecarlo.test.js` | `finos-montecarlo.js` — seeded determinism, analytic cases, monotonicity, SIP solver |
+| `import.test.js` | `finos-import.js` — Zerodha / Groww / generic broker CSV parsing |
+| `taxdates.test.js` | `finos-taxdates.js` — rule-based tax calendar never runs dry |
+| `calendar.test.js` | `finos-calendar.js` — SIP events, IST-safe dates |
+| `reminders.test.js` | `finos-reminders.js` — lead times, dedupe, background snapshot merge |
+| `guardrails.test.js` | `arya-guardrails.js` — flags buy/sell calls, guarantees; no false positives on education |
+| `pulse-rank.test.js` | `arya-pulse-rank.js` — PULSE widget ranking + "since last visit" diff |
+| `i18n.test.js` | `finos-i18n.js` + Hindi table + Hindi number units |
+| `vault.test.js` | `finos-vault.js` — AES-GCM lock/unlock, wrong passcode, tampering, failed self-check loses nothing |
+
+### Browser suites (pytest + Playwright)
+
+| File | What it proves |
+|---|---|
+| `test_arya_tools_eval.py` | Arya's calculators match independent maths (SIP, EMI, inflation); retirement odds are monotonic |
+| `test_pwa_sw.py` | real `sw.js`: install, stale-while-revalidate, `periodicsync` reminders from IndexedDB, offline fallback |
+| `test_arya_lazy.py` | the 470 KB Arya panel loads after DOMContentLoaded yet works the instant it is needed |
+| `test_a11y.py` / `test_a11y_helper.py` | axe rules at zero; skip link; chart names; slider labels |
+| `test_i18n_dom.py` | Hindi UI translates, restores exactly, never touches user data |
+| `test_vault_e2e.py` | lock really empties storage and halts the page; unlock, multi-tab lock, idle lock, erase |
+

@@ -320,7 +320,7 @@ label {
 .t-title {
   font-family: var(--font-mono);
   font-size: 11px;
-  color: rgba(255,255,255,.35);
+  color: rgba(255,255,255,0.58);
   margin-left: 6px;
   letter-spacing: .06em;
 }
@@ -328,7 +328,7 @@ label {
   padding: 20px 24px 4px;
 }
 .terminal-body label {
-  color: rgba(255,255,255,.45);
+  color: rgba(255,255,255,0.58);
   font-size: 12px;
   font-family: var(--font-mono);
   letter-spacing: .06em;

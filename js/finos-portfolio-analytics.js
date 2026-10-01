@@ -182,7 +182,7 @@
 
   function renderDrawdownCard(containerEl, drawdown) {
     if (!drawdown) {
-      containerEl.innerHTML = `<div style="font-size:12px;color:rgba(255,255,255,.3);">Add price history to see drawdown analysis.</div>`;
+      containerEl.innerHTML = `<div style="font-size:12px;color:rgba(255,255,255,0.58);">Add price history to see drawdown analysis.</div>`;
       return;
     }
     const ddColor = drawdown.maxDD > 40 ? '#ff4444' : drawdown.maxDD > 20 ? '#ff9500' : '#22d3a6';
@@ -190,14 +190,14 @@
     containerEl.innerHTML = `
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
         <div style="background:rgba(255,255,255,.04);border-radius:12px;padding:14px;text-align:center;">
-          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:4px;">Max Drawdown (ever)</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:4px;">Max Drawdown (ever)</div>
           <div style="font-size:1.5rem;font-weight:900;color:${ddColor};">-${drawdown.maxDD}%</div>
-          ${drawdown.recoveryDays > 0 ? `<div style="font-size:10px;color:rgba(255,255,255,.3);">Recovered in ${drawdown.recoveryDays}d</div>` : ''}
+          ${drawdown.recoveryDays > 0 ? `<div style="font-size:10px;color:rgba(255,255,255,0.58);">Recovered in ${drawdown.recoveryDays}d</div>` : ''}
         </div>
         <div style="background:rgba(255,255,255,.04);border-radius:12px;padding:14px;text-align:center;">
-          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:4px;">Current Drawdown</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:4px;">Current Drawdown</div>
           <div style="font-size:1.5rem;font-weight:900;color:${currColor};">${drawdown.currentDD > 0 ? '-' : ''}${drawdown.currentDD}%</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.3);">${drawdown.inDrawdown ? 'In drawdown' : 'Near peak ✅'}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58);">${drawdown.inDrawdown ? 'In drawdown' : 'Near peak ✅'}</div>
         </div>
       </div>
       <div style="font-size:12px;color:rgba(255,255,255,.55);padding:8px;background:rgba(255,255,255,.03);border-radius:8px;">
@@ -250,13 +250,13 @@
       { name:'Low-Vol',  score:fe.lowvol,   desc:'Less volatile',          icon:'🛡️' }
     ];
     containerEl.innerHTML = `
-      <p style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:12px;">How your portfolio scores on institutional factors (0=low, 100=high)</p>
+      <p style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:12px;">How your portfolio scores on institutional factors (0=low, 100=high)</p>
       ${factors.map(f => {
         const col = f.score >= 70 ? '#22d3a6' : f.score >= 50 ? '#00d4ff' : '#ff9500';
         return `
           <div style="margin-bottom:10px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-              <span style="font-size:12px;">${f.icon} ${f.name} <span style="color:rgba(255,255,255,.35);font-size:10px;">${f.desc}</span></span>
+              <span style="font-size:12px;">${f.icon} ${f.name} <span style="color:rgba(255,255,255,0.58);font-size:10px;">${f.desc}</span></span>
               <span style="font-size:12px;font-weight:700;color:${col};">${Math.round(f.score)}</span>
             </div>
             <div style="height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;">
@@ -264,7 +264,7 @@
             </div>
           </div>`;
       }).join('')}
-      <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:8px;">Higher quality + low-vol = defensive. Higher momentum = growth-oriented. Ideal: balanced across all four.</div>`;
+      <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:8px;">Higher quality + low-vol = defensive. Higher momentum = growth-oriented. Ideal: balanced across all four.</div>`;
   }
 
   /* ══════════════════════════════════════════════════════════════════
@@ -290,7 +290,7 @@
 
     containerEl.innerHTML = `
       <div style="margin-bottom:14px;">
-        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:12px;">Before buying ${symbol || 'any stock'} — answer all 10 honestly. Score 8+/10 before investing.</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:12px;">Before buying ${symbol || 'any stock'} — answer all 10 honestly. Score 8+/10 before investing.</div>
         ${CONVICTION_QUESTIONS.map(q => `
           <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);">
             <input type="checkbox" id="cv_${q.id}" ${checked[q.id] ? 'checked' : ''}
@@ -298,7 +298,7 @@
               style="width:16px;height:16px;flex-shrink:0;margin-top:2px;accent-color:#00d4ff;cursor:pointer;">
             <div>
               <label for="cv_${q.id}" style="font-size:13px;color:rgba(255,255,255,.8);cursor:pointer;display:block;">${q.q}</label>
-              <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:2px;">💡 ${q.tip}</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:2px;">💡 ${q.tip}</div>
             </div>
           </div>`).join('')}
       </div>
@@ -331,7 +331,7 @@
   function renderAll(containerEl, holdings) {
     if (!holdings || !holdings.length) {
       containerEl.innerHTML = `
-        <div style="text-align:center;padding:40px;color:rgba(255,255,255,.3);">
+        <div style="text-align:center;padding:40px;color:rgba(255,255,255,0.58);">
           <div style="font-size:2.5rem;margin-bottom:10px;">📊</div>
           <div style="font-weight:700;margin-bottom:6px;">No holdings found</div>
           <div style="font-size:12px;">Add your portfolio holdings to unlock institutional analytics.</div>
@@ -344,22 +344,22 @@
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;">
 
         <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px;">
-          <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:14px;">📊 Sector Concentration</div>
+          <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:14px;">📊 Sector Concentration</div>
           <div id="sectorHeatmap"></div>
         </div>
 
         <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px;">
-          <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:14px;">⚡ Factor Exposure</div>
+          <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:14px;">⚡ Factor Exposure</div>
           <div id="factorExposure"></div>
         </div>
 
         <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px;">
-          <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:14px;">📉 Drawdown Analysis</div>
+          <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:14px;">📉 Drawdown Analysis</div>
           <div id="drawdownCard"></div>
         </div>
 
         <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px;">
-          <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:14px;">✅ Conviction Checklist</div>
+          <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:14px;">✅ Conviction Checklist</div>
           <div id="convictionChecklist"></div>
         </div>
 

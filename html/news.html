@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
@@ -12,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <title>Neural Intel Stream | FIN-OS</title>
   
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -332,7 +333,7 @@
                  display:flex;align-items:center;justify-content:center;font-size:16px;">🧠</div>
             <div>
               <div style="font-weight:700;font-size:12px;color:#00f3ff;letter-spacing:2px;">ARYA • INTEL DIGEST</div>
-              <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;">What matters for YOU today</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-top:2px;">What matters for YOU today</div>
             </div>
           </div>
           <button onclick="aryaNewsDigest(true)" id="arya-news-refresh-btn"
@@ -601,6 +602,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=7"></script>
   <script>
@@ -696,7 +698,7 @@ Tone: sharp intel-analyst. Each point = 1 sentence. Use • bullets. Reference t
             AryaAI.renderNewsSummary(data, popup);
             // Add close hint
             const hint = document.createElement('div');
-            hint.style.cssText = 'margin-top:8px;font-size:10px;color:rgba(255,255,255,.2);text-align:right;';
+            hint.style.cssText = 'margin-top:8px;font-size:10px;color:rgba(255,255,255,0.58);text-align:right;';
             hint.textContent = 'tap to close';
             popup.appendChild(hint);
           } else {
@@ -717,11 +719,14 @@ Tone: sharp intel-analyst. Each point = 1 sentence. Use • bullets. Reference t
   <script src="../js/ui.js" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
-  <script src="../js/finos-widget.js?v=9"></script>
-  <script src="../js/finos-search.js?v=3"></script>
+  <script src="../js/finos-widget.js?v=10"></script>
+  <script src="../js/finos-search.js?v=4"></script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 </body>
 </html>

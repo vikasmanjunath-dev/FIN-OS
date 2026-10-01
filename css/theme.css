@@ -162,7 +162,7 @@
   color: #4F7CFF;
 }
 :root[data-theme="light"] .tf-divider-label {
-  color: #B0B8D0;
+  color: #5E6786;
 }
 :root[data-theme="light"] .sc-icon-wrap {
   background: #F0F2F8 !important;
@@ -617,7 +617,7 @@
   box-shadow: 0 20px 60px rgba(0,0,0,.12);
 }
 :root[data-theme="light"] .fs-item-title { color: #111827; }
-:root[data-theme="light"] .fs-item-desc  { color: rgba(0,0,0,.45); }
+:root[data-theme="light"] .fs-item-desc  { color: rgba(0,0,0,0.62); }
 :root[data-theme="light"] .fs-highlight  { color: #4F7CFF; }
 :root[data-theme="light"] .fs-item:hover,
 :root[data-theme="light"] .fs-item.focused { background: rgba(0,100,255,.06); }
@@ -1106,8 +1106,8 @@ button[id="themeToggle"][style*="position:fixed"] {
 :root[data-theme="light"] [style*="color:rgba(255,255,255,.8)"],
 :root[data-theme="light"] [style*="color:rgba(255,255,255,.55)"],
 :root[data-theme="light"] [style*="color:rgba(255,255,255,.5)"],
-:root[data-theme="light"] [style*="color:rgba(255,255,255,.4)"],
-:root[data-theme="light"] [style*="color:rgba(255,255,255,.3)"] {
+:root[data-theme="light"] [style*="color:rgba(255,255,255,0.58)"],
+:root[data-theme="light"] [style*="color:rgba(255,255,255,0.58)"] {
   color: var(--text-secondary) !important;
 }
 

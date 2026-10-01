@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
   <meta name="description" content="Unified net worth dashboard — equity, SIPs, FDs, real estate, gold, crypto and liabilities in one view.">
   <title>Net Worth | FIN-OS</title>
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
@@ -23,7 +24,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-tracker-sync.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
+  <script src="../js/finos-store.js"></script>
+  <script src="../js/finos-format.js"></script>
+  <script src="../js/finos-import.js"></script>
   <script src="../js/finos-net-worth.js?v=2" defer></script>
 </head>
 <body>
@@ -130,6 +135,7 @@
           <p class="page-header-sub">Equity · SIPs · Fixed Income · Real Estate · Gold · Crypto — unified balance sheet</p>
         </div>
         <div class="page-header-actions">
+          <button type="button" onclick="FinosImport.openDialog()" style="padding:8px 16px;border-radius:12px;background:rgba(34,211,166,.12);border:1px solid rgba(34,211,166,.35);color:#22D3A6;font-size:12px;font-weight:700;cursor:pointer;">⬆ Import holdings (CSV)</button>
           <a href="dashboard.html" style="padding:8px 16px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:rgba(255,255,255,.6);font-size:12px;font-weight:700;text-decoration:none;">← Dashboard</a>
         </div>
       </header>
@@ -227,9 +233,13 @@ document.addEventListener('finos-networth-updated', () => {
 
 <!-- Arya + sidebar interactions -->
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 <script src="../js/arya-ai.js?v=7" defer></script>
 <script src="../js/arya-memory.js" defer></script>
 <script src="../js/interactions.js" defer></script>
+<script src="../js/pwa-init.js"></script>
 </body>
 </html>

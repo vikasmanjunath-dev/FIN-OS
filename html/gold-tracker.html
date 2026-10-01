@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
   <meta name="description" content="Gold Tracker — Track physical gold, Sovereign Gold Bonds (SGB), Gold ETFs and Gold MFs with live price, SGB coupon income and tax analysis.">
   <title>Gold Tracker | FIN•OS</title>
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
@@ -23,6 +24,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-tracker-sync.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/finos-gold-tracker.js" defer></script>
 
@@ -88,7 +90,7 @@
     }
     .gt-price-icon { font-size: 24px; flex-shrink: 0; }
     .gt-price-lbl  { font-size: 13px; font-weight: 700; color: #FFB347; }
-    .gt-price-sub  { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 2px; }
+    .gt-price-sub  { font-size: 11px; color: rgba(255,255,255,0.58); margin-top: 2px; }
     .gt-price-input-wrap {
       display: flex; align-items: center; gap: 6px;
       background: rgba(255,255,255,.06);
@@ -102,7 +104,7 @@
       color: #fff; font-family: var(--font-mono);
       font-size: 15px; font-weight: 700; width: 80px;
     }
-    .gt-price-unit { font-size: 11px; color: rgba(255,255,255,.4); }
+    .gt-price-unit { font-size: 11px; color: rgba(255,255,255,0.58); }
 
     /* ── Summary strip ───────────────────────────────── */
     .gt-summary-strip {
@@ -119,14 +121,14 @@
       background: rgba(255,179,71,.08);
       border-color: rgba(255,179,71,.25);
     }
-    .gt-sum-lbl  { font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 6px; }
+    .gt-sum-lbl  { font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: rgba(255,255,255,0.58); margin-bottom: 6px; }
     .gt-sum-val  { font-family: var(--font-mono); font-size: 18px; font-weight: 800; color: #FFB347; }
-    .gt-sum-note { font-size: 10px; color: rgba(255,255,255,.3); margin-top: 4px; }
+    .gt-sum-note { font-size: 10px; color: rgba(255,255,255,0.58); margin-top: 4px; }
 
     /* ── Holdings list ───────────────────────────────── */
     .gt-section-title {
       font-size: 11px; font-weight: 700; letter-spacing: .08em;
-      text-transform: uppercase; color: rgba(255,255,255,.4);
+      text-transform: uppercase; color: rgba(255,255,255,0.58);
       margin-bottom: 12px;
     }
     .gt-holdings-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
@@ -146,12 +148,12 @@
     .gt-hc-top  { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
     .gt-hc-type { font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 2px; }
     .gt-hc-name { font-size: 14px; font-weight: 700; color: rgba(255,255,255,.85); margin-bottom: 4px; }
-    .gt-hc-detail { font-size: 11px; color: rgba(255,255,255,.4); line-height: 1.5; }
+    .gt-hc-detail { font-size: 11px; color: rgba(255,255,255,0.58); line-height: 1.5; }
     .gt-hc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
     .gt-hc-val  { font-family: var(--font-mono); font-size: 17px; font-weight: 800; color: #fff; white-space: nowrap; }
     .gt-del-btn {
       background: none; border: none; cursor: pointer;
-      font-size: 14px; color: rgba(255,255,255,.25);
+      font-size: 14px; color: rgba(255,255,255,0.58);
       padding: 4px; transition: color .2s;
     }
     .gt-del-btn:hover { color: #EF4444; }
@@ -187,7 +189,7 @@
     .gt-field { display: flex; flex-direction: column; gap: 6px; }
     .gt-field label {
       font-size: 11px; font-weight: 600; letter-spacing: .05em;
-      text-transform: uppercase; color: rgba(255,255,255,.4);
+      text-transform: uppercase; color: rgba(255,255,255,0.58);
     }
     .gt-inp {
       background: rgba(255,255,255,.05);
@@ -202,7 +204,7 @@
       border-color: rgba(255,179,71,.5);
       background: rgba(255,179,71,.05);
     }
-    .gt-inp::placeholder { color: rgba(255,255,255,.25); }
+    .gt-inp::placeholder { color: rgba(255,255,255,0.58); }
     .gt-sgb-note {
       margin-top: 10px; padding: 10px 14px;
       background: rgba(34,211,166,.06);
@@ -234,7 +236,7 @@
     .gt-tax-compare { border-color: rgba(255,179,71,.2); background: rgba(255,179,71,.03); }
     .gt-tax-title { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 14px; }
     .gt-tax-desc  { font-size: 13px; color: rgba(255,255,255,.55); line-height: 1.6; margin-bottom: 10px; }
-    .gt-tax-note  { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 10px; }
+    .gt-tax-note  { font-size: 12px; color: rgba(255,255,255,0.58); margin-top: 10px; }
     .gt-tax-row   { margin-bottom: 10px; }
     .gt-tax-series{ font-size: 13px; font-weight: 700; color: rgba(255,255,255,.8); margin-bottom: 6px; }
     .gt-tax-detail{ display: flex; flex-wrap: wrap; gap: 8px; }
@@ -263,7 +265,7 @@
     /* ── Empty state ─────────────────────────────────── */
     .gt-empty {
       padding: 36px 24px; text-align: center;
-      color: rgba(255,255,255,.35); font-size: 14px; line-height: 1.6;
+      color: rgba(255,255,255,0.58); font-size: 14px; line-height: 1.6;
       background: rgba(255,255,255,.02); border-radius: 14px;
       border: 1px dashed rgba(255,255,255,.1); margin-bottom: 20px;
     }
@@ -519,11 +521,14 @@ document.addEventListener('DOMContentLoaded', function () {
 <script src="../js/ui.js" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=9"></script>
+<script src="../js/finos-widget.js?v=10"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=3"></script>
+<script src="../js/finos-search.js?v=4"></script>
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 <script src="../js/interactions.js" defer></script>
 </body>
 </html>

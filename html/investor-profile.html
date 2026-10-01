@@ -2,6 +2,7 @@
 <html lang="en" class="scroll-smooth">
 
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
@@ -13,7 +14,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
     <title>Apex Cognitive Architectures | Deep Dive | FIN-OS</title>
     <!-- Google Fonts -->
     <!-- Tailwind CSS (CDN for Django ease) -->
@@ -517,8 +518,8 @@
 </style>
 <a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 
-  <script src="../js/finos-widget.js?v=9"></script>
-  <script src="../js/finos-search.js?v=3"></script>
+  <script src="../js/finos-widget.js?v=10"></script>
+  <script src="../js/finos-search.js?v=4"></script>
   <script src="../js/interactions.js" defer></script>
 
 <script>
@@ -612,7 +613,7 @@
     btn.style.opacity = '0.7';
     btn.disabled = true;
 
-    resultEl.innerHTML = '<span style="color:rgba(255,255,255,.35);">Arya is applying ' + model.name + '\'s mental model to your portfolio…</span>';
+    resultEl.innerHTML = '<span style="color:rgba(255,255,255,0.58);">Arya is applying ' + model.name + '\'s mental model to your portfolio…</span>';
 
     const prompt = `You are Arya, applying ${model.name}'s investment philosophy (${model.lens}) to ${name}'s portfolio.
 
@@ -667,7 +668,10 @@ Give 3 specific, actionable Hinglish points. Each point: what ${model.name} woul
   });
 })();
 </script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 </body>
 
 </html>

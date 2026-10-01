@@ -1544,7 +1544,7 @@
   function injectModal() {
     if (document.getElementById('ic-modal-overlay')) return;
     const tpl = `
-    <div id="ic-modal-overlay" class="ic-modal-overlay" role="dialog" aria-modal="true">
+    <div id="ic-modal-overlay" class="ic-modal-overlay" role="dialog" aria-modal="true" aria-label="Insight details">
       <div id="ic-modal" class="ic-modal">
         <div class="ic-drag-handle"></div>
         <div class="ic-modal-border"></div>

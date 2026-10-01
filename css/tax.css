@@ -107,7 +107,7 @@
 .part-divider span {
   display: inline-block;
   padding: 4px 14px;
-  background: var(--neon-blue);
+  background: #3f68f0;        /* white text needs ≥4.5:1; --neon-blue (#4f7cff) is 3.7:1 */
   color: #fff;
   border-radius: 6px;
   font-size: 0.75rem;
@@ -860,7 +860,7 @@
   color: #6A7080;
 }
 [data-theme="light"] .part-divider span {
-  background: #4F7CFF;
+  background: #3f68f0;
   color: #fff !important;
 }
 [data-theme="light"] .part-divider::after {

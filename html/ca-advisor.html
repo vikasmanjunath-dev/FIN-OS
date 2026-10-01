@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <meta charset="UTF-8">
@@ -17,6 +18,7 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=7" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
@@ -26,7 +28,7 @@
 .ca-tabs { display:flex; gap:4px; background:var(--bg-surface); border-radius:12px; padding:4px; margin-bottom:24px; overflow-x:auto; }
 .ca-tab {
   flex:1; min-width:110px; padding:9px 10px; border-radius:9px; border:none;
-  background:transparent; color:rgba(255,255,255,.4);
+  background:transparent; color:rgba(255,255,255,0.58);
   font-size:13px; font-weight:600; cursor:pointer;
   transition:all .15s; white-space:nowrap;
 }
@@ -45,13 +47,13 @@
 .ca-card-title {
   font-size:11px; font-weight:800;
   text-transform:uppercase; letter-spacing:.08em;
-  color:rgba(255,255,255,.4); margin-bottom:18px;
+  color:rgba(255,255,255,0.58); margin-bottom:18px;
 }
 
 .ca-two-col { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
 @media(max-width:680px){ .ca-two-col { grid-template-columns:1fr; } }
 
-.ca-label { font-size:11px; color:rgba(255,255,255,.45); display:block; margin-bottom:5px; }
+.ca-label { font-size:11px; color:rgba(255,255,255,0.58); display:block; margin-bottom:5px; }
 .ca-input, .ca-select, .ca-textarea {
   width:100%; padding:10px 12px;
   background:var(--bg-surface);
@@ -108,7 +110,7 @@
   font-size:20px; flex-shrink:0;
 }
 .ca-advisor-name { font-size:14px; font-weight:700; color:#F5F7FA; }
-.ca-advisor-role { font-size:12px; color:rgba(255,255,255,.4); margin-top:2px; }
+.ca-advisor-role { font-size:12px; color:rgba(255,255,255,0.58); margin-top:2px; }
 .ca-advisor-access { font-size:11px; color:#22d3a6; margin-top:3px; }
 
 /* Toggle switches */
@@ -118,7 +120,7 @@
 }
 .ca-access-row:last-child { border-bottom:none; }
 .ca-access-label { font-size:13px; color:#F5F7FA; }
-.ca-access-sub { font-size:11px; color:rgba(255,255,255,.35); margin-top:2px; }
+.ca-access-sub { font-size:11px; color:rgba(255,255,255,0.58); margin-top:2px; }
 .ca-toggle {
   appearance:none; width:42px; height:24px;
   background:rgba(255,255,255,.1); border-radius:12px;
@@ -140,7 +142,7 @@
   font-size:13px;
 }
 .ca-log-row:last-child { border-bottom:none; }
-.ca-log-time { font-size:11px; color:rgba(255,255,255,.3); width:100px; flex-shrink:0; margin-top:2px; }
+.ca-log-time { font-size:11px; color:rgba(255,255,255,0.58); width:100px; flex-shrink:0; margin-top:2px; }
 
 /* Note cards */
 .ca-note-card {
@@ -149,11 +151,11 @@
 }
 .ca-note-header { display:flex; justify-content:space-between; margin-bottom:8px; }
 .ca-note-author { font-size:12px; font-weight:700; color:#00d4ff; }
-.ca-note-date { font-size:11px; color:rgba(255,255,255,.3); }
+.ca-note-date { font-size:11px; color:rgba(255,255,255,0.58); }
 .ca-note-text { font-size:13px; color:rgba(255,255,255,.65); line-height:1.65; }
 
 /* Dossier preview rows */
-.ca-dossier-section { font-size:12px; font-weight:700; color:rgba(255,255,255,.4); margin:14px 0 6px; text-transform:uppercase; letter-spacing:.06em; }
+.ca-dossier-section { font-size:12px; font-weight:700; color:rgba(255,255,255,0.58); margin:14px 0 6px; text-transform:uppercase; letter-spacing:.06em; }
 .ca-dossier-row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--border-soft); font-size:13px; }
 .ca-dossier-row:last-child { border-bottom:none; }
 .ca-dossier-label { color:rgba(255,255,255,.5); }
@@ -163,31 +165,31 @@
 /* Breadcrumb */
 .page-breadcrumb {
   display:flex; align-items:center; gap:8px;
-  margin-bottom:20px; font-size:13px; color:rgba(255,255,255,.4);
+  margin-bottom:20px; font-size:13px; color:rgba(255,255,255,0.58);
 }
-.page-breadcrumb a { color:rgba(255,255,255,.4); text-decoration:none; }
+.page-breadcrumb a { color:rgba(255,255,255,0.58); text-decoration:none; }
 .page-breadcrumb a:hover { color:#a78bfa; }
-.page-breadcrumb span { color:rgba(255,255,255,.2); }
+.page-breadcrumb span { color:rgba(255,255,255,0.58); }
 
 /* ── LIGHT MODE ───────────────────────────────────────────── */
-[data-theme="light"] .ca-tab { color:rgba(0,0,0,.5); }
+[data-theme="light"] .ca-tab { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .ca-tab:hover:not(.active) { color:rgba(0,0,0,.7); }
-[data-theme="light"] .ca-card-title { color:rgba(0,0,0,.45); }
-[data-theme="light"] .ca-label { color:rgba(0,0,0,.5); }
+[data-theme="light"] .ca-card-title { color:rgba(0,0,0,0.62); }
+[data-theme="light"] .ca-label { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .ca-select option { background:#ffffff; color:#0B0D12; }
 [data-theme="light"] .ca-advisor-name { color:#0B0D12; }
-[data-theme="light"] .ca-advisor-role { color:rgba(0,0,0,.45); }
+[data-theme="light"] .ca-advisor-role { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .ca-access-label { color:#0B0D12; }
-[data-theme="light"] .ca-access-sub { color:rgba(0,0,0,.4); }
+[data-theme="light"] .ca-access-sub { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .ca-toggle { background:rgba(0,0,0,.1); }
-[data-theme="light"] .ca-log-time { color:rgba(0,0,0,.35); }
-[data-theme="light"] .ca-note-date { color:rgba(0,0,0,.35); }
+[data-theme="light"] .ca-log-time { color:rgba(0,0,0,0.62); }
+[data-theme="light"] .ca-note-date { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .ca-note-text { color:rgba(0,0,0,.65); }
-[data-theme="light"] .ca-dossier-section { color:rgba(0,0,0,.45); }
-[data-theme="light"] .ca-dossier-label { color:rgba(0,0,0,.5); }
+[data-theme="light"] .ca-dossier-section { color:rgba(0,0,0,0.62); }
+[data-theme="light"] .ca-dossier-label { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .page-breadcrumb,
-[data-theme="light"] .page-breadcrumb a { color:rgba(0,0,0,.45); }
-[data-theme="light"] .page-breadcrumb span { color:rgba(0,0,0,.25); }
+[data-theme="light"] .page-breadcrumb a { color:rgba(0,0,0,0.62); }
+[data-theme="light"] .page-breadcrumb span { color:rgba(0,0,0,0.62); }
 </style>
   <link rel="stylesheet" href="../css/interactions.css">
 </head>
@@ -309,7 +311,7 @@
       <header class="header" style="margin-bottom:8px;">
         <div>
           <h1 style="margin-bottom:4px;">👔 CA / Advisor Mode</h1>
-          <p style="font-size:13px;color:rgba(255,255,255,.45);margin:0;">Share your financial overview with your CA or advisor. Read-only access — you stay in complete control.</p>
+          <p style="font-size:13px;color:rgba(255,255,255,0.58);margin:0;">Share your financial overview with your CA or advisor. Read-only access — you stay in complete control.</p>
         </div>
       </header>
 
@@ -328,9 +330,9 @@
           <div class="ca-card-title">📧 Invite Your CA or Financial Advisor</div>
 
           <div class="ca-invite-code">
-            <div style="font-size:12px;color:rgba(255,255,255,.4);">Your Advisor Access Code</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.58);">Your Advisor Access Code</div>
             <div class="ca-code-display" id="advisor-code">FINOS-8A3K-2P7M</div>
-            <div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:14px;">Share this code with your CA · Valid for 7 days</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.58);margin-bottom:14px;">Share this code with your CA · Valid for 7 days</div>
             <div class="ca-share-grid">
               <button class="ca-share-btn" style="background:rgba(37,211,102,.08);border-color:rgba(37,211,102,.3);color:#25d366;" onclick="_shareWhatsApp()">📱 WhatsApp</button>
               <button class="ca-share-btn" style="background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.3);color:#00d4ff;" onclick="_copyCode()">📋 Copy Code</button>
@@ -380,7 +382,7 @@
                 <button class="ca-btn ca-btn-danger" style="font-size:11px;padding:5px 12px;" onclick="this.closest('.ca-advisor-card').remove()">Revoke</button>
               </div>
             </div>
-            <div style="font-size:13px;color:rgba(255,255,255,.3);text-align:center;padding:12px;">Advisors you invite will appear here.</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.58);text-align:center;padding:12px;">Advisors you invite will appear here.</div>
           </div>
         </div>
 
@@ -390,7 +392,7 @@
       <div id="tab-access" class="ca-tab-content">
         <div class="ca-card">
           <div class="ca-card-title">🔐 What Your Advisor Can See</div>
-          <p style="font-size:13px;color:rgba(255,255,255,.45);margin:0 0 18px;line-height:1.6;">Your advisor has <strong style="color:#F5F7FA;">read-only</strong> access. They cannot make transactions or change any settings.</p>
+          <p style="font-size:13px;color:rgba(255,255,255,0.58);margin:0 0 18px;line-height:1.6;">Your advisor has <strong style="color:#F5F7FA;">read-only</strong> access. They cannot make transactions or change any settings.</p>
 
           <div class="ca-access-row">
             <div><div class="ca-access-label">📊 Income &amp; Expenses</div><div class="ca-access-sub">Monthly income, spending by category, savings rate</div></div>
@@ -440,7 +442,7 @@
       <div id="tab-dossier" class="ca-tab-content">
         <div class="ca-card">
           <div class="ca-card-title">📋 Auto-Generated Tax Dossier for Your CA</div>
-          <p style="font-size:13px;color:rgba(255,255,255,.45);margin:0 0 18px;line-height:1.6;">Based on your transactions and profile. Your CA gets this pre-filled — reduces prep time and errors.</p>
+          <p style="font-size:13px;color:rgba(255,255,255,0.58);margin:0 0 18px;line-height:1.6;">Based on your transactions and profile. Your CA gets this pre-filled — reduces prep time and errors.</p>
 
           <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;margin-bottom:18px;">
             <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#7b2ff7;font-weight:800;margin-bottom:14px;">FIN·OS Tax Dossier — FY 2025-26</div>
@@ -475,7 +477,7 @@
       <div id="tab-notes" class="ca-tab-content">
         <div class="ca-card">
           <div class="ca-card-title">💬 Notes from Your Advisor</div>
-          <p style="font-size:13px;color:rgba(255,255,255,.45);margin:0 0 18px;line-height:1.6;">Your CA leaves notes here. Arya reads them and incorporates advice into suggestions.</p>
+          <p style="font-size:13px;color:rgba(255,255,255,0.58);margin:0 0 18px;line-height:1.6;">Your CA leaves notes here. Arya reads them and incorporates advice into suggestions.</p>
 
           <div id="notes-list">
             <div class="ca-note-card">
@@ -486,7 +488,7 @@
               <div class="ca-note-text">Your 80C limit has ₹42,000 unused. Invest in ELSS before March 31 to maximise deductions. Also, advance tax Q3 of ₹18,500 is due December 15 — pay via Challan 280 on Income Tax portal.</div>
               <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
                 <button class="ca-btn ca-btn-primary" style="font-size:11px;padding:6px 14px;" onclick="window.AryaAI?._speak('Your CA says: ' + this.closest('.ca-note-card').querySelector('.ca-note-text').textContent)">🤖 Read to me</button>
-                <button class="ca-btn" style="font-size:11px;padding:6px 14px;background:transparent;border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.4);" onclick="this.closest('.ca-note-card').remove()">✓ Mark done</button>
+                <button class="ca-btn" style="font-size:11px;padding:6px 14px;background:transparent;border-color:rgba(255,255,255,.1);color:rgba(255,255,255,0.58);" onclick="this.closest('.ca-note-card').remove()">✓ Mark done</button>
               </div>
             </div>
           </div>
@@ -503,7 +505,7 @@
   </main>
 </div><!-- /app -->
 
-<script src="../js/finos-widget.js?v=9"></script>
+<script src="../js/finos-widget.js?v=10"></script>
 <script src="../js/mobile-nav.js" defer></script>
 
 <script>
@@ -619,7 +621,10 @@
 </script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 <button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
 <script>
@@ -640,5 +645,6 @@
 })();
 </script>
 <script src="../js/ui.js" defer></script>
+<script src="../js/pwa-init.js"></script>
 </body>
 </html>

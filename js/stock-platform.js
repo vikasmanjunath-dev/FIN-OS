@@ -514,6 +514,7 @@
     };
     if (state.charts.macd) { state.charts.macd.data = data; state.charts.macd.update('none'); return; }
     state.charts.macd = new Chart(ctx, {
+      type: 'line',
       data,
       options: {
         responsive: true, maintainAspectRatio: false, animation: false,

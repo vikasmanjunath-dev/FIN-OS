@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <meta charset="UTF-8">
@@ -17,6 +18,7 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=7" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
@@ -25,7 +27,7 @@
 .re-tabs { display:flex; gap:4px; background:var(--bg-surface); border-radius:12px; padding:4px; margin-bottom:24px; }
 .re-tab {
   flex:1; padding:9px 8px; border-radius:9px; border:none;
-  background:transparent; color:rgba(255,255,255,.4);
+  background:transparent; color:rgba(255,255,255,0.58);
   font-size:13px; font-weight:600; cursor:pointer;
   transition:all .15s; white-space:nowrap;
 }
@@ -42,7 +44,7 @@
 .re-card-title {
   font-size:11px; font-weight:800;
   text-transform:uppercase; letter-spacing:.08em;
-  color:rgba(255,255,255,.4); margin-bottom:18px;
+  color:rgba(255,255,255,0.58); margin-bottom:18px;
 }
 
 .re-two-col { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
@@ -54,7 +56,7 @@
   .re-two-col { padding-right:110px; }
 }
 
-.re-label { font-size:11px; color:rgba(255,255,255,.45); display:block; margin-bottom:5px; }
+.re-label { font-size:11px; color:rgba(255,255,255,0.58); display:block; margin-bottom:5px; }
 .re-input, .re-select {
   width:100%; padding:10px 12px;
   background:var(--bg-surface);
@@ -91,7 +93,7 @@
   border-radius:12px; padding:14px; text-align:center;
 }
 .re-metric-val { font-size:18px; font-weight:800; margin-bottom:3px; }
-.re-metric-lbl { font-size:10px; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:.05em; }
+.re-metric-lbl { font-size:10px; color:rgba(255,255,255,0.58); text-transform:uppercase; letter-spacing:.05em; }
 
 .re-result-box {
   background:var(--bg-surface);
@@ -115,7 +117,7 @@
 }
 .re-insight-icon { font-size:22px; margin-bottom:8px; }
 .re-insight-title { font-size:13px; font-weight:700; color:#F5F7FA; margin-bottom:5px; }
-.re-insight-text { font-size:12px; color:rgba(255,255,255,.45); line-height:1.6; }
+.re-insight-text { font-size:12px; color:rgba(255,255,255,0.58); line-height:1.6; }
 
 .re-tab-content { display:none; }
 .re-tab-content.active { display:block; }
@@ -123,25 +125,25 @@
 /* Breadcrumb */
 .page-breadcrumb {
   display:flex; align-items:center; gap:8px;
-  margin-bottom:20px; font-size:13px; color:rgba(255,255,255,.4);
+  margin-bottom:20px; font-size:13px; color:rgba(255,255,255,0.58);
 }
-.page-breadcrumb a { color:rgba(255,255,255,.4); text-decoration:none; }
+.page-breadcrumb a { color:rgba(255,255,255,0.58); text-decoration:none; }
 .page-breadcrumb a:hover { color:#22d3a6; }
-.page-breadcrumb span { color:rgba(255,255,255,.2); }
+.page-breadcrumb span { color:rgba(255,255,255,0.58); }
 
 /* ── LIGHT MODE ───────────────────────────────────────────── */
-[data-theme="light"] .re-tab               { color:rgba(0,0,0,.5); }
+[data-theme="light"] .re-tab               { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .re-tab:hover:not(.active) { color:rgba(0,0,0,.7); }
-[data-theme="light"] .re-card-title        { color:rgba(0,0,0,.45); }
-[data-theme="light"] .re-label             { color:rgba(0,0,0,.5); }
+[data-theme="light"] .re-card-title        { color:rgba(0,0,0,0.62); }
+[data-theme="light"] .re-label             { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .re-select option     { background:#ffffff; color:#0B0D12; }
-[data-theme="light"] .re-metric-lbl        { color:rgba(0,0,0,.4); }
-[data-theme="light"] .re-row-label         { color:rgba(0,0,0,.5); }
+[data-theme="light"] .re-metric-lbl        { color:rgba(0,0,0,0.62); }
+[data-theme="light"] .re-row-label         { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .re-insight-title     { color:#0B0D12; }
-[data-theme="light"] .re-insight-text      { color:rgba(0,0,0,.5); }
+[data-theme="light"] .re-insight-text      { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .page-breadcrumb,
-[data-theme="light"] .page-breadcrumb a    { color:rgba(0,0,0,.45); }
-[data-theme="light"] .page-breadcrumb span { color:rgba(0,0,0,.25); }
+[data-theme="light"] .page-breadcrumb a    { color:rgba(0,0,0,0.62); }
+[data-theme="light"] .page-breadcrumb span { color:rgba(0,0,0,0.62); }
 </style>
   <link rel="stylesheet" href="../css/interactions.css">
 </head>
@@ -263,7 +265,7 @@
       <header class="header" style="margin-bottom:8px;">
         <div>
           <h1 style="margin-bottom:4px;">🏠 Real Estate Intelligence</h1>
-          <p style="font-size:13px;color:rgba(255,255,255,.45);margin:0;">Buy vs Rent · True ownership cost · Rental yield · 20-year wealth comparison</p>
+          <p style="font-size:13px;color:rgba(255,255,255,0.58);margin:0;">Buy vs Rent · True ownership cost · Rental yield · 20-year wealth comparison</p>
         </div>
       </header>
 
@@ -444,7 +446,7 @@
   </main>
 </div><!-- /app -->
 
-<script src="../js/finos-widget.js?v=9"></script>
+<script src="../js/finos-widget.js?v=10"></script>
 <script src="../js/mobile-nav.js" defer></script>
 
 <script>
@@ -512,7 +514,7 @@
     el.style.display='block';
     el.innerHTML = `
       <div class="re-winner" style="background:${winCol}10;border:1px solid ${winCol}30;">
-        <div style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">20-Year Winner</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">20-Year Winner</div>
         <div style="font-size:20px;font-weight:900;color:${winCol};">${winLabel} by ${INR(diff)}</div>
       </div>
       <div class="re-two-col">
@@ -540,7 +542,7 @@
           ${breakEven>15?'Renting and investing may be better for shorter horizons.':''}
         </div>
         <div class="re-timeline"><div class="re-timeline-fill" style="width:${Math.min(100,(breakEven||21)/20*100)}%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.3);margin-top:4px;"><span>Year 0</span><span style="color:#00d4ff;">Break-even: Yr ${breakEven||'>20'}</span><span>Year 20</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,0.58);margin-top:4px;"><span>Year 0</span><span style="color:#00d4ff;">Break-even: Yr ${breakEven||'>20'}</span><span>Year 20</span></div>
       </div>
     `;
   }
@@ -562,9 +564,9 @@
     el.style.display='block';
     el.innerHTML = `
       <div style="text-align:center;padding:20px;background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.2);border-radius:14px;margin-bottom:18px;">
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.4);margin-bottom:6px;">Total All-In at Purchase</div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Total All-In at Purchase</div>
         <div style="font-size:32px;font-weight:900;color:#f0a500;">${INR(total)}</div>
-        <div style="font-size:13px;color:rgba(255,255,255,.4);margin-top:4px;">${premiumPct}% above base price · 20yr ownership total: ${INR(total20)}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.58);margin-top:4px;">${premiumPct}% above base price · 20yr ownership total: ${INR(total20)}</div>
       </div>
       <div class="re-metric-grid">
         ${_metric(INR(price),'Base Price','#F5F7FA')}
@@ -625,7 +627,10 @@
 </script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 <button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
 <script>
@@ -646,5 +651,6 @@
 })();
 </script>
 <script src="../js/ui.js" defer></script>
+<script src="../js/pwa-init.js"></script>
 </body>
 </html>

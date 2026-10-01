@@ -287,8 +287,8 @@
         .tc-input { padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#F5F7FA;font-size:14px;outline:none;transition:.2s; }
         .tc-input:focus { border-color:rgba(0,212,255,.5);background:rgba(0,212,255,.04); }
         .tc-input::-webkit-inner-spin-button { opacity:.4; }
-        .tc-hint { font-size:10px;color:rgba(255,255,255,.3); }
-        .tc-section-head { font-size:11px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.8px;padding:10px 0 4px;border-top:1px solid rgba(255,255,255,.06);margin-top:4px; }
+        .tc-hint { font-size:10px;color:rgba(255,255,255,0.58); }
+        .tc-section-head { font-size:11px;font-weight:700;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.8px;padding:10px 0 4px;border-top:1px solid rgba(255,255,255,.06);margin-top:4px; }
         .tc-compare { display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;margin-bottom:20px; }
         .tc-regime { padding:20px; }
         .tc-regime-new { background:rgba(0,212,255,.04); }
@@ -304,7 +304,7 @@
         .tc-action-high   { background:rgba(255,68,68,.06);border-color:#FF4444; }
         .tc-action-medium { background:rgba(240,165,0,.06);border-color:#F0A500; }
         .tc-action-info   { background:rgba(0,212,255,.06);border-color:#00D4FF; }
-        .tc-action-cat { font-size:9px;font-weight:800;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px; }
+        .tc-action-cat { font-size:9px;font-weight:800;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px; }
         .tc-deduction-row { display:flex;justify-content:space-between;padding:4px 0;font-size:12px; }
         .tc-btn { padding:12px 24px;border-radius:12px;background:rgba(0,212,255,.15);border:1px solid rgba(0,212,255,.3);color:#00D4FF;font-size:13px;font-weight:800;cursor:pointer;transition:.15s; }
         .tc-btn:hover { background:rgba(0,212,255,.25); }
@@ -522,7 +522,7 @@
           ${o.gaps.ltcg_free > 0 ? `<div class="tc-deduction-row"><span style="color:#8892A4;">LTCG tax-free window remaining</span><span style="font-weight:700;color:#22D3A6;">${INR(o.gaps.ltcg_free)}</span></div>` : ''}
         </div>` : ''}
 
-      <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:12px;">
+      <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:12px;">
         Rates: FY 2025-26 · Includes Health & Education Cess @4% · Surcharge for income &gt;₹50L · LTCG ₹1.25L exempt @12.5% (Budget 2024) · For professional advice consult a CA.
       </div>
     `;

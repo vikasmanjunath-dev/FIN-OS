@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
@@ -12,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <title>Portfolio Dissector | FIN-OS</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,6 +30,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=7" defer></script>
   <meta property="og:site_name" content="FIN•OS">
@@ -210,7 +212,7 @@
           <div id="ai-whatif-text" style="font-size:13px;color:rgba(255,255,255,.75);"></div>
         </div>
 
-        <div style="margin-top:12px;font-size:11px;color:rgba(255,255,255,.2);">
+        <div style="margin-top:12px;font-size:11px;color:rgba(255,255,255,0.58);">
           Powered by Arya AI · <span id="ai-analysis-ts"></span>
         </div>
       </div>
@@ -224,7 +226,7 @@
       <!-- Divider between live sync and manual CSV import -->
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
         <div style="flex:1;height:1px;background:rgba(255,255,255,.07);"></div>
-        <span style="font-size:11px;color:rgba(255,255,255,.25);font-weight:700;letter-spacing:.6px;text-transform:uppercase;">or import manually</span>
+        <span style="font-size:11px;color:rgba(255,255,255,0.58);font-weight:700;letter-spacing:.6px;text-transform:uppercase;">or import manually</span>
         <div style="flex:1;height:1px;background:rgba(255,255,255,.07);"></div>
       </div>
 
@@ -332,12 +334,13 @@
 </style>
 <a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 
-  <script src="../js/finos-widget.js?v=9"></script>
-  <script src="../js/finos-search.js?v=3"></script>
+  <script src="../js/finos-widget.js?v=10"></script>
+  <script src="../js/finos-search.js?v=4"></script>
   <script src="../js/finos-portfolio-analytics.js" defer></script>
   <script src="../js/arya-memory.js" defer></script>
   <script src="../js/arya-life-events.js" defer></script>
   <script src="../js/finos-mobile.js" defer></script>
+  <script src="../js/finos-api.js"></script>
   <script src="../js/finos-kite.js" defer></script>
   <script>
   // Mount Kite connect panel (renders immediately — no context needed)
@@ -366,7 +369,9 @@
   </script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js?v=9"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 </body>
 </html>

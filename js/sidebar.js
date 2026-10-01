@@ -180,7 +180,7 @@
       const mp = document.createElement('span');
       mp.className = 'sb-mode-pill finos-mode-badge';
       mp.style.cssText = 'display:block;font-size:10px;font-weight:700;' +
-        'color:rgba(255,255,255,.28);letter-spacing:.04em;margin-top:2px;transition:color .3s;' +
+        'color:rgba(255,255,255,0.58);letter-spacing:.04em;margin-top:2px;transition:color .3s;' +
         'background:none!important;border:none!important;padding:0!important;';
       idBody.appendChild(mp);
     }
@@ -270,9 +270,9 @@
     const s = document.createElement('style');
     s.textContent = [
       '.sb-zone-label{display:block;font-size:9px;font-weight:700;letter-spacing:.13em;',
-      'text-transform:uppercase;color:rgba(255,255,255,.22);padding:4px 10px 3px;',
+      'text-transform:uppercase;color:rgba(255,255,255,.5);padding:4px 10px 3px;',
       'pointer-events:none;user-select:none;}',
-      '[data-theme="light"] .sb-zone-label{color:rgba(0,0,0,.28);}',
+      '[data-theme="light"] .sb-zone-label{color:rgba(0,0,0,.58);}',
     ].join('');
     document.head.appendChild(s);
 

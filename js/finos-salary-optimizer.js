@@ -151,24 +151,24 @@ window.FinosSalaryOptimizer = (function () {
     container.innerHTML = `
 <style>
 .so-hero{background:linear-gradient(135deg,rgba(155,93,229,.08),rgba(79,124,255,.05));border:1px solid rgba(155,93,229,.2);border-radius:20px;padding:26px;margin-bottom:22px;display:flex;align-items:center;gap:28px;flex-wrap:wrap;}
-.so-hero-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;}
+.so-hero-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;}
 .so-hero-val{font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:40px;font-weight:900;color:#9B5DE5;letter-spacing:-1px;line-height:1;}
-.so-hero-sub{font-size:13px;color:rgba(255,255,255,.45);margin-top:7px;}
+.so-hero-sub{font-size:13px;color:rgba(255,255,255,0.58);margin-top:7px;}
 .so-regime-row{display:flex;gap:10px;margin-top:12px;}
 .so-regime-pill{flex:1;padding:10px 14px;border-radius:12px;border:1px solid;text-align:center;}
 .so-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:22px;}
 .so-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;text-align:center;}
-.so-stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;}
+.so-stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;}
 .so-stat-val{font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:17px;font-weight:800;color:#fff;}
-.so-stat-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:3px;}
+.so-stat-sub{font-size:10px;color:rgba(255,255,255,0.58);margin-top:3px;}
 .so-form{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:20px;}
-.so-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin:0 0 12px;}
+.so-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin:0 0 12px;}
 .so-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-bottom:16px;}
 .so-field{display:flex;flex-direction:column;gap:6px;}
-.so-field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);}
+.so-field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.58);}
 .so-inp{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;padding:10px 14px;width:100%;box-sizing:border-box;outline:none;transition:border-color .2s;}
 .so-inp:focus{border-color:rgba(155,93,229,.5);background:rgba(155,93,229,.05);}
-.so-note{font-size:11px;color:rgba(255,255,255,.35);margin-top:3px;line-height:1.5;}
+.so-note{font-size:11px;color:rgba(255,255,255,0.58);margin-top:3px;line-height:1.5;}
 [data-theme="light"] .so-hero,[data-theme="light"] .so-form,[data-theme="light"] .so-stat{background:#fff;border-color:rgba(0,0,0,.08);}
 [data-theme="light"] .so-inp{background:#F4F6FB;border-color:rgba(0,0,0,.12);color:#0B0D12;}
 [data-theme="light"] .so-hero{background:rgba(155,93,229,.05);}
@@ -183,12 +183,12 @@ window.FinosSalaryOptimizer = (function () {
     <div class="so-hero-sub">Gross salary ${INR(c.grossSalary/12)}/mo &nbsp;·&nbsp; Tax (annual) <span id="so-tax-chosen">${INR(c.taxChosen)}</span> &nbsp;·&nbsp; PF <span id="so-pf-emp">${INR(c.pfEmp)}</span>/yr</div>
     <div class="so-regime-row">
       <div class="so-regime-pill" style="${c.betterRegime==='new'?'background:rgba(34,211,166,.08);border-color:rgba(34,211,166,.3);':'background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.1);'}">
-        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:3px;">New Regime</div>
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:3px;">New Regime</div>
         <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:15px;font-weight:800;color:${c.betterRegime==='new'?'#22D3A6':'rgba(255,255,255,.6)'};" id="so-tax-new">${INR(c.taxNew)}</div>
         ${c.betterRegime==='new'?'<div style="font-size:9px;color:#22D3A6;margin-top:2px;">BETTER ✓</div>':''}
       </div>
       <div class="so-regime-pill" style="${c.betterRegime==='old'?'background:rgba(34,211,166,.08);border-color:rgba(34,211,166,.3);':'background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.1);'}">
-        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:3px;">Old Regime</div>
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:3px;">Old Regime</div>
         <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:15px;font-weight:800;color:${c.betterRegime==='old'?'#22D3A6':'rgba(255,255,255,.6)'};" id="so-tax-old">${INR(c.taxOld)}</div>
         ${c.betterRegime==='old'?'<div style="font-size:9px;color:#22D3A6;margin-top:2px;">BETTER ✓</div>':''}
       </div>
@@ -313,16 +313,16 @@ function _soSave(k,v){localStorage.setItem(k,v);clearTimeout(window._soT);window
 
     container.innerHTML = `
 <div style="background:rgba(34,211,166,.06);border:1px solid rgba(34,211,166,.18);border-radius:20px;padding:24px;margin-bottom:22px;">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:8px;">HRA Exemption (Section 10(13A))</div>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:8px;">HRA Exemption (Section 10(13A))</div>
   <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:38px;font-weight:900;color:#22D3A6;">${INR(exempt)}</div>
-  <div style="font-size:13px;color:rgba(255,255,255,.45);margin-top:6px;">
+  <div style="font-size:13px;color:rgba(255,255,255,0.58);margin-top:6px;">
     of ${INR(c.hraRcvd)} HRA received &nbsp;·&nbsp; ${INR(taxable)} remains taxable
   </div>
 </div>
 
 <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:20px;">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin-bottom:14px;">The Three-Way Minimum Rule</div>
-  <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:10px;">Exemption = minimum of (A, B, C):</div>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin-bottom:14px;">The Three-Way Minimum Rule</div>
+  <div style="font-size:12px;color:rgba(255,255,255,0.58);margin-bottom:10px;">Exemption = minimum of (A, B, C):</div>
   ${leg('A — Actual HRA received from employer', a, a === minVal && a > 0)}
   ${leg(`B — Rent paid (${INR(c.rentPaid)}) minus 10% of basic (${INR(c.basic * 0.1)})`, b, b === minVal && b > 0)}
   ${leg(`C — ${c.isMetro?'50%':'40%'} of basic salary (${c.isMetro?'metro':'non-metro'} city)`, cc, cc === minVal && cc > 0)}
@@ -422,14 +422,14 @@ function _soSave(k,v){localStorage.setItem(k,v);clearTimeout(window._soT);window
 
     container.innerHTML = `
 <div style="background:rgba(155,93,229,.06);border:1px solid rgba(155,93,229,.18);border-radius:20px;padding:22px;margin-bottom:22px;">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;">Potential Annual Tax Saving</div>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Potential Annual Tax Saving</div>
   <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:36px;font-weight:900;color:#9B5DE5;">
     ${INR(tips.reduce((s,t)=>s+t.saving,0))}
   </div>
-  <div style="font-size:13px;color:rgba(255,255,255,.4);margin-top:6px;">across ${tips.length} optimization${tips.length!==1?'s':''} identified for your salary structure</div>
+  <div style="font-size:13px;color:rgba(255,255,255,0.58);margin-top:6px;">across ${tips.length} optimization${tips.length!==1?'s':''} identified for your salary structure</div>
 </div>
 
-${tips.length ? tipCards : '<div style="text-align:center;padding:28px;color:rgba(255,255,255,.35);font-size:13px;">Enter your salary breakup to see personalized optimization tips.</div>'}
+${tips.length ? tipCards : '<div style="text-align:center;padding:28px;color:rgba(255,255,255,0.58);font-size:13px;">Enter your salary breakup to see personalized optimization tips.</div>'}
 
 <div style="background:rgba(255,179,71,.05);border:1px solid rgba(255,179,71,.12);border-radius:14px;padding:16px;margin-top:16px;font-size:12px;color:rgba(255,255,255,.5);line-height:1.6;">
   ⚠️ Tax estimates are approximate — based on simplified slabs without surcharge or all perquisite rules. Consult a CA for exact structuring.

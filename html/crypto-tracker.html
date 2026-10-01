@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
   <meta name="description" content="Crypto Tracker — Track Bitcoin, Ethereum and altcoin holdings with cost basis, P&L and India's 30% tax + 1% TDS impact.">
   <title>Crypto Tracker | FIN•OS</title>
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
@@ -23,6 +24,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-tracker-sync.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/finos-crypto-tracker.js" defer></script>
 
@@ -81,14 +83,14 @@
       border-radius: 14px; padding: 14px; text-align: center;
     }
     .ct-sum-total { background: rgba(155,93,229,.08); border-color: rgba(155,93,229,.25); }
-    .ct-sum-lbl { font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 6px; }
+    .ct-sum-lbl { font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: rgba(255,255,255,0.58); margin-bottom: 6px; }
     .ct-sum-val { font-family: var(--font-mono); font-size: 17px; font-weight: 800; color: #9B5DE5; }
-    .ct-sum-sub { font-size: 11px; color: rgba(255,255,255,.35); margin-top: 3px; }
+    .ct-sum-sub { font-size: 11px; color: rgba(255,255,255,0.58); margin-top: 3px; }
 
     /* Holdings */
     .ct-section-title {
       font-size: 11px; font-weight: 700; letter-spacing: .08em;
-      text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 12px;
+      text-transform: uppercase; color: rgba(255,255,255,0.58); margin-bottom: 12px;
     }
     .ct-holdings-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
     .ct-holding-card {
@@ -99,11 +101,11 @@
     .ct-holding-card:hover { border-color: rgba(155,93,229,.2); }
     .ct-hc-left { flex: 0 0 auto; min-width: 80px; }
     .ct-hc-symbol { font-family: var(--font-mono); font-size: 18px; font-weight: 900; color: #9B5DE5; }
-    .ct-hc-name { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 2px; }
-    .ct-hc-qty { font-size: 11px; color: rgba(255,255,255,.35); margin-top: 4px; }
+    .ct-hc-name { font-size: 11px; color: rgba(255,255,255,0.58); margin-top: 2px; }
+    .ct-hc-qty { font-size: 11px; color: rgba(255,255,255,0.58); margin-top: 4px; }
     .ct-hc-mid { flex: 1; }
     .ct-hc-price { font-size: 13px; color: rgba(255,255,255,.6); }
-    .ct-hc-current-lbl { font-size: 10px; color: rgba(255,255,255,.3); }
+    .ct-hc-current-lbl { font-size: 10px; color: rgba(255,255,255,0.58); }
     .ct-hc-gain { font-size: 12px; font-weight: 700; margin-top: 4px; }
     .ct-gain-pos { color: #22D3A6; }
     .ct-gain-neg { color: #EF4444; }
@@ -112,7 +114,7 @@
     .ct-hc-tds { font-size: 10px; color: #4F7CFF; margin-top: 4px; }
     .ct-del-btn {
       background: none; border: none; cursor: pointer;
-      font-size: 14px; color: rgba(255,255,255,.2); padding: 4px; transition: color .2s; display: block; margin-top: 6px;
+      font-size: 14px; color: rgba(255,255,255,0.58); padding: 4px; transition: color .2s; display: block; margin-top: 6px;
     }
     .ct-del-btn:hover { color: #EF4444; }
 
@@ -125,7 +127,7 @@
       display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 14px;
     }
     .ct-field { display: flex; flex-direction: column; gap: 6px; }
-    .ct-field label { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,.4); }
+    .ct-field label { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,0.58); }
     .ct-inp {
       background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
       border-radius: 10px; color: #fff; font-family: var(--font-mono);
@@ -133,7 +135,7 @@
       transition: border-color .2s; outline: none;
     }
     .ct-inp:focus { border-color: rgba(155,93,229,.5); background: rgba(155,93,229,.05); }
-    .ct-inp::placeholder { color: rgba(255,255,255,.25); }
+    .ct-inp::placeholder { color: rgba(255,255,255,0.58); }
     .ct-add-btn {
       display: block; width: 100%; padding: 14px; border-radius: 12px;
       background: linear-gradient(135deg, rgba(155,93,229,.18), rgba(155,93,229,.08));
@@ -152,16 +154,16 @@
       border-top: 3px solid #FF9500; border-radius: 18px; padding: 24px; margin-bottom: 24px;
     }
     .ct-tax-hero-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 16px; }
-    .ct-tax-lbl { font-size: 11px; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+    .ct-tax-lbl { font-size: 11px; color: rgba(255,255,255,0.58); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
     .ct-tax-val { font-family: var(--font-mono); font-size: 22px; font-weight: 900; color: #fff; }
     .ct-tax-orange { color: #FF9500 !important; }
     .ct-loss { color: #22D3A6 !important; }
-    .ct-tax-sub { font-size: 11px; color: rgba(255,255,255,.35); margin-top: 3px; }
+    .ct-tax-sub { font-size: 11px; color: rgba(255,255,255,0.58); margin-top: 3px; }
     .ct-tax-table { margin-bottom: 24px; }
     .ct-tax-header {
       display: grid; grid-template-columns: 1.2fr 1fr 1fr 1.2fr 1fr 1fr;
       padding: 8px 14px; font-size: 10px; font-weight: 700; letter-spacing: .07em;
-      text-transform: uppercase; color: rgba(255,255,255,.35);
+      text-transform: uppercase; color: rgba(255,255,255,0.58);
     }
     .ct-tax-row {
       display: grid; grid-template-columns: 1.2fr 1fr 1fr 1.2fr 1fr 1fr;
@@ -178,7 +180,7 @@
     .ct-rule { font-size: 13px; color: rgba(255,255,255,.65); line-height: 1.6; margin-bottom: 8px; }
 
     .ct-empty {
-      padding: 36px 24px; text-align: center; color: rgba(255,255,255,.35);
+      padding: 36px 24px; text-align: center; color: rgba(255,255,255,0.58);
       font-size: 14px; line-height: 1.6; background: rgba(255,255,255,.02);
       border-radius: 14px; border: 1px dashed rgba(255,255,255,.1); margin-bottom: 20px;
     }
@@ -329,11 +331,14 @@ document.addEventListener('DOMContentLoaded',function(){
 <script src="../js/ui.js" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=9"></script>
+<script src="../js/finos-widget.js?v=10"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=3"></script>
+<script src="../js/finos-search.js?v=4"></script>
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 <script src="../js/interactions.js" defer></script>
 </body>
 </html>

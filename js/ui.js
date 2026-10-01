@@ -35,7 +35,12 @@
     var scripts = document.getElementsByTagName('script');
     for (var i = 0; i < scripts.length; i++) {
       var s = scripts[i].src || '';
-      if (s.indexOf('ui.js') !== -1) return s.replace('ui.js', '');
+      var idx = s.indexOf('ui.js');
+      // Truncate at 'ui.js' rather than .replace()'ing it out — replace()
+      // keeps whatever comes after the match (e.g. a "?v=2" cache-bust
+      // query string), which then gets prepended to the next filename
+      // below and produces a malformed URL like ".../js/?v=2finos-toast.js".
+      if (idx !== -1) return s.slice(0, idx);
     }
     return '../js/';
   })();

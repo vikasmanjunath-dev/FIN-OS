@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 <meta charset="UTF-8">
   <meta name="description" content="AI predicts next month's spend from your own patterns — a 12-month savings and corpus forecast, not a generic budget template.">
@@ -18,20 +19,21 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
 <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
 <script src="../js/arya-ai.js?v=7"></script>
 <style>
   .forecast-wrap { max-width: 820px; margin: 0 auto; padding: 32px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
   .forecast-hero { text-align: center; margin-bottom: 36px; }
   .forecast-hero h1 { font-size: 28px; font-weight: 800; color: #fff; margin: 12px 0 6px; }
-  .forecast-hero p  { font-size: 14px; color: rgba(255,255,255,.4); }
+  .forecast-hero p  { font-size: 14px; color: rgba(255,255,255,0.58); }
 
   .config-panel {
     background: var(--bg-surface); border: 1px solid var(--border-soft);
     border-radius: 16px; padding: 20px; margin-bottom: 24px;
   }
   .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
-  .cf-label { font-size: 11px; color: rgba(255,255,255,.4); margin-bottom: 5px; display: block; }
+  .cf-label { font-size: 11px; color: rgba(255,255,255,0.58); margin-bottom: 5px; display: block; }
   .cf-input, .cf-select {
     width: 100%; padding: 10px 12px; border-radius: 10px;
     background: var(--bg-surface); border: 1px solid var(--border-soft);
@@ -67,7 +69,7 @@
     margin-bottom: 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
   }
   .total-amount { font-size: 40px; font-weight: 800; color: #00ff88; }
-  .total-label  { font-size: 13px; color: rgba(255,255,255,.4); margin-top: 2px; }
+  .total-label  { font-size: 13px; color: rgba(255,255,255,0.58); margin-top: 2px; }
   .total-meta   { flex: 1; }
   .total-meta-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 4px; }
 
@@ -86,12 +88,12 @@
   }
   .cat-card.risk { border-color: rgba(255,107,107,.25); background: rgba(255,107,107,.04); }
   .cat-card.event-boosted { border-color: rgba(255,183,3,.25); background: rgba(255,183,3,.04); }
-  .cat-name { font-size: 12px; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
+  .cat-name { font-size: 12px; color: rgba(255,255,255,0.58); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
   .cat-amount { font-size: 22px; font-weight: 700; color: #fff; }
   .cat-trend { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; }
   .trend-up   { color: #ff6b6b; }
   .trend-down { color: #00ff88; }
-  .trend-flat { color: rgba(255,255,255,.4); }
+  .trend-flat { color: rgba(255,255,255,0.58); }
 
   .chart-card {
     background: var(--bg-surface); border: 1px solid var(--border-soft);
@@ -106,7 +108,7 @@
   }
   .arya-insight-title { font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: #4d7cff; margin-bottom: 10px; }
 
-  .source-note { font-size: 11px; color: rgba(255,255,255,.25); margin-top: 8px; text-align: center; }
+  .source-note { font-size: 11px; color: rgba(255,255,255,0.58); margin-top: 8px; text-align: center; }
 
 
 /* ── Light mode text overrides (auto-generated) ── */
@@ -306,7 +308,7 @@
           </div>
           <div class="total-meta">
             <div class="total-meta-title" id="totalTitle">Calculating…</div>
-            <div id="totalSubtitle" style="font-size:13px;color:rgba(255,255,255,.4);margin-top:4px;"></div>
+            <div id="totalSubtitle" style="font-size:13px;color:rgba(255,255,255,0.58);margin-top:4px;"></div>
           </div>
         </div>
 
@@ -323,7 +325,7 @@
         </div>
 
         <!-- Category breakdown -->
-        <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:12px;">Category Breakdown</div>
+        <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:12px;">Category Breakdown</div>
         <div class="category-grid" id="categoryGrid"></div>
 
         <!-- Chart -->
@@ -717,8 +719,8 @@ document.addEventListener('DOMContentLoaded', () => {
 <script src="../js/ui.js" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=9"></script>
-<script src="../js/finos-search.js?v=3"></script>
+<script src="../js/finos-widget.js?v=10"></script>
+<script src="../js/finos-search.js?v=4"></script>
 <style>
 #floatBackBtn{position:fixed;bottom:22px;left:256px;z-index:9999;padding:8px 16px 8px 12px;border-radius:10px;background:var(--bg-surface);border:1px solid var(--border-soft);color:var(--text-secondary);font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s,color .2s,transform .2s;backdrop-filter:blur(10px);text-decoration:none;}
 #floatBackBtn:hover{background: transparent;color:var(--text-primary);transform:translateX(-3px);}
@@ -727,7 +729,10 @@ document.addEventListener('DOMContentLoaded', () => {
 <a id="floatBackBtn" onclick="history.back();return false;" href="#">‹ BACK</a>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 <button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
 <script>

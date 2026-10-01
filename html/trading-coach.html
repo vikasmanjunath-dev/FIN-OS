@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 <meta charset="UTF-8">
   <meta name="description" content="30 seconds, 3 questions, before you trade — a real-time emotional clearance check to catch fear, greed and overconfidence.">
@@ -17,6 +18,7 @@
 <link rel="stylesheet" href="../css/theme.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
 <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
 <script src="../js/arya-ai.js?v=7"></script>
 <style>
@@ -30,7 +32,7 @@
   .coach-hero h1 {
     font-size: 28px; font-weight: 800; color: #fff; margin: 12px 0 6px;
   }
-  .coach-hero p { font-size: 14px; color: rgba(255,255,255,.4); }
+  .coach-hero p { font-size: 14px; color: rgba(255,255,255,0.58); }
 
   .sebi-warning {
     background: rgba(255,107,107,.06); border: 1px solid rgba(255,107,107,.2);
@@ -54,7 +56,7 @@
   }
   .score-ring-inner { position: relative; z-index: 1; text-align: center; }
   .score-ring-num { font-size: 36px; font-weight: 800; color: #fff; }
-  .score-ring-label { font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,.4); }
+  .score-ring-label { font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.58); }
 
   .verdict-banner {
     padding: 16px 20px; border-radius: 14px; margin-bottom: 24px; text-align: center;
@@ -70,7 +72,7 @@
     transition: border-color .2s;
   }
   .question-card.answered { border-color: rgba(0,255,136,.2); }
-  .q-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 8px; }
+  .q-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.58); margin-bottom: 8px; }
   .q-text  { font-size: 15px; font-weight: 600; color: rgba(255,255,255,.9); margin-bottom: 14px; }
   .q-options { display: flex; flex-direction: column; gap: 8px; }
   .q-opt {
@@ -107,7 +109,7 @@
     border-radius: 16px; padding: 20px; margin-bottom: 20px;
   }
   .trade-input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
-  .ti-label { font-size: 11px; color: rgba(255,255,255,.4); margin-bottom: 4px; display: block; }
+  .ti-label { font-size: 11px; color: rgba(255,255,255,0.58); margin-bottom: 4px; display: block; }
   .ti-input {
     width: 100%; padding: 10px 12px; border-radius: 10px;
     background: var(--bg-surface); border: 1px solid var(--border-soft);
@@ -289,7 +291,7 @@
 
         <!-- Trade context inputs -->
         <div class="trade-input-section">
-          <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,.7);">📊 Trade Context <span style="font-size:11px;color:rgba(255,255,255,.3);font-weight:400;">(optional — improves analysis)</span></div>
+          <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,.7);">📊 Trade Context <span style="font-size:11px;color:rgba(255,255,255,0.58);font-weight:400;">(optional — improves analysis)</span></div>
           <div class="trade-input-grid">
             <div>
               <label class="ti-label">Symbol</label>
@@ -330,12 +332,12 @@
 
         <!-- Session history -->
         <div style="margin-top:32px;padding-top:24px;border-top:1px solid rgba(255,255,255,.06);">
-          <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:12px;">Today's Clearance History</div>
+          <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:12px;">Today's Clearance History</div>
           <div class="history-chips" id="historyChips"></div>
         </div>
 
         <a href="#" onclick="history.back();return false;"
-           style="display:inline-block;margin-top:24px;font-size:12px;color:rgba(255,255,255,.3);text-decoration:none;">‹ Back</a>
+           style="display:inline-block;margin-top:24px;font-size:12px;color:rgba(255,255,255,0.58);text-decoration:none;">‹ Back</a>
 
       </div>
     </div>
@@ -575,7 +577,7 @@ function renderHistory() {
   const today = new Date().toDateString();
   const hist  = JSON.parse(localStorage.getItem('tc_history_' + today) || '[]');
   const chips = document.getElementById('historyChips');
-  if (!hist.length) { chips.innerHTML = '<span style="font-size:12px;color:rgba(255,255,255,.2);">No checks today</span>'; return; }
+  if (!hist.length) { chips.innerHTML = '<span style="font-size:12px;color:rgba(255,255,255,0.58);">No checks today</span>'; return; }
   chips.innerHTML = hist.map(h => `
     <span class="h-chip ${h.score >= 70 ? 'green' : h.score >= 40 ? 'yellow' : 'red'}">
       ${h.time} ${h.symbol} — ${h.score}
@@ -605,8 +607,8 @@ document.addEventListener('DOMContentLoaded', () => {
 <script src="../js/ui.js" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=9"></script>
-<script src="../js/finos-search.js?v=3"></script>
+<script src="../js/finos-widget.js?v=10"></script>
+<script src="../js/finos-search.js?v=4"></script>
 <style>
 #floatBackBtn {
   position:fixed;bottom:22px;left:256px;z-index:9999;
@@ -623,7 +625,10 @@ document.addEventListener('DOMContentLoaded', () => {
 <a id="floatBackBtn" onclick="history.back();return false;" href="#">‹ BACK</a>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 <button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
 <script>

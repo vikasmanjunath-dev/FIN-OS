@@ -49,7 +49,8 @@
 
   /* ── Asset catalogue ─────────────────────────────────────────────── */
   const ASSETS = [
-    { key: 'finos_portfolio_value', label: 'Equity (Zerodha)',   icon: '📈', color: '#00D4FF', source: 'kite',     editable: false },
+    { key: 'finos_portfolio_value', label: 'Equity (Zerodha / import)', icon: '📈', color: '#00D4FF', source: 'kite',     editable: false },
+    { key: 'finos_mf_import_value', label: 'Mutual Funds (imported)',   icon: '📥', color: '#38BDF8', source: 'import',   editable: false },
     { key: 'finos_sip_value',       label: 'Mutual Funds (SIP)', icon: '🏦', color: '#22D3A6', source: 'sip',      editable: false },
     { key: 'finos_fd_value',        label: 'Fixed Income',       icon: '💰', color: '#7B2FF7', source: 'fd',       editable: false },
     { key: 'finos_gold_value',      label: 'Gold / SGB',         icon: '🥇', color: '#F0A500', source: 'manual',   editable: true  },
@@ -125,7 +126,7 @@
     const nwColor = netWorth >= 0 ? '#22D3A6' : '#FF4444';
 
     // Linked sources status
-    const kiteLinked = gs('finos_portfolio_value') > 0;
+    const kiteLinked = gs('finos_portfolio_value') > 0;   // Kite API or holdings CSV import
     const sipLinked  = gs('finos_sip_value') > 0;
     const fdLinked   = gs('finos_fd_value') > 0;
 
@@ -147,7 +148,7 @@
         .nw-sources { display:flex;gap:8px;flex-wrap:wrap;margin-top:16px; }
         .nw-source-badge { padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid;display:flex;align-items:center;gap:5px; }
         .nw-source-linked   { background:rgba(34,211,166,.08);border-color:rgba(34,211,166,.3);color:#22D3A6; }
-        .nw-source-unlinked { background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.4); }
+        .nw-source-unlinked { background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.1);color:rgba(255,255,255,0.58); }
       </style>
 
       <div class="nw-hero">
@@ -217,7 +218,7 @@
             <button onclick="FinosNetWorth._editAsset('${a.key}','${a.label}','${a.icon}')"
               style="padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#8892A4;font-size:11px;cursor:pointer;">
               Edit
-            </button>` : `<span style="font-size:11px;color:rgba(255,255,255,.2);">Auto</span>`}
+            </button>` : `<span style="font-size:11px;color:rgba(255,255,255,0.58);">Auto</span>`}
         </td>
       </tr>`).join('');
 
@@ -246,7 +247,7 @@
         .nw-table th { font-size:10px;font-weight:700;color:#8892A4;text-transform:uppercase;letter-spacing:.6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.07); }
         .nw-table tr:hover td { background:rgba(255,255,255,.02); }
         .nw-table tr td { border-bottom:1px solid rgba(255,255,255,.04); }
-        .nw-section-head { font-size:11px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.8px;padding:14px 0 6px;display:block; }
+        .nw-section-head { font-size:11px;font-weight:700;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.8px;padding:14px 0 6px;display:block; }
         .nw-add-row { display:flex;gap:8px;flex-wrap:wrap;margin-top:12px; }
         .nw-add-chip { padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:rgba(255,255,255,.5);font-size:12px;font-weight:700;cursor:pointer;transition:.15s; }
         .nw-add-chip:hover { background:rgba(255,255,255,.07);color:#F5F7FA; }
@@ -374,7 +375,7 @@
         </div>
       </div>
 
-      <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:8px;">
+      <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:8px;">
         Monthly expense estimated from AA data or income × 60%. Update in Settings for accurate FIRE date.
       </div>`;
   }

@@ -167,7 +167,7 @@ Format: Direct Hinglish, no preamble, no "Sure!", use ₹ amounts. Lead with the
         font-size: 13px; font-weight: 700; color: #00ff88; letter-spacing: .3px;
       }
       #arya-calc-header-sub {
-        font-size: 11px; color: rgba(255,255,255,.35); margin-top: 1px;
+        font-size: 11px; color: rgba(255,255,255,0.58); margin-top: 1px;
       }
       #arya-calc-refresh-btn {
         padding: 5px 12px; border-radius: 8px; cursor: pointer;
@@ -197,7 +197,7 @@ Format: Direct Hinglish, no preamble, no "Sure!", use ₹ amounts. Lead with the
       }
       .arya-calc-pill-orange:hover { background: rgba(255,183,3,.14); }
       .arya-calc-thinking {
-        display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,.4);
+        display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.58);
       }
       .arya-calc-dot {
         width: 6px; height: 6px; border-radius: 50%; background: #00ff88;
@@ -207,7 +207,7 @@ Format: Direct Hinglish, no preamble, no "Sure!", use ₹ amounts. Lead with the
       .arya-calc-dot:nth-child(3) { animation-delay: .3s; }
       @keyframes arya-bounce { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
       [data-theme="light"] #arya-calc-header-sub,
-      [data-theme="light"] .arya-calc-thinking { color: rgba(0,0,0,.4); }
+      [data-theme="light"] .arya-calc-thinking { color: rgba(0,0,0,0.62); }
       [data-theme="light"] #arya-calc-body { color: rgba(0,0,0,.78); }
     `;
     document.head.appendChild(s);

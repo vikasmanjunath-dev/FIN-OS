@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <meta charset="UTF-8">
@@ -17,6 +18,7 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=7" defer></script>
   <script src="../js/arya-scenarios.js" defer></script>
@@ -176,29 +178,29 @@
           <div class="how-step">
             <div class="how-step-num">1</div>
             <div style="font-size:12px;font-weight:700;">Pick a scenario</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">Job loss, house, crash…</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">Job loss, house, crash…</div>
           </div>
           <div class="how-step">
             <div class="how-step-num">2</div>
             <div style="font-size:12px;font-weight:700;">Adjust inputs</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">Uses your real data</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">Uses your real data</div>
           </div>
           <div class="how-step">
             <div class="how-step-num">3</div>
             <div style="font-size:12px;font-weight:700;">See the math</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">Exact rupee impact</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">Exact rupee impact</div>
           </div>
           <div class="how-step">
             <div class="how-step-num">4</div>
             <div style="font-size:12px;font-weight:700;">Arya narrates</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">Plain Hinglish advice</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">Plain Hinglish advice</div>
           </div>
         </div>
       </div>
 
       <!-- Scenarios Hub -->
       <div id="scenariosHub">
-        <div style="text-align:center;padding:40px;color:rgba(255,255,255,.3);">
+        <div style="text-align:center;padding:40px;color:rgba(255,255,255,0.58);">
           <div style="font-size:2rem;margin-bottom:8px;">⏳</div>
           <div>Loading scenarios…</div>
         </div>
@@ -208,7 +210,7 @@
   </main>
 </div>
 
-<script src="../js/finos-widget.js?v=9"></script>
+<script src="../js/finos-widget.js?v=10"></script>
 <script>
 function initScenarios() {
   if (window.AryaScenarios) {
@@ -222,7 +224,10 @@ document.addEventListener('DOMContentLoaded', () => setTimeout(initScenarios, 30
 </script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/interactions.js" defer></script>
 <button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
@@ -244,5 +249,6 @@ document.addEventListener('DOMContentLoaded', () => setTimeout(initScenarios, 30
 })();
 </script>
 <script src="../js/ui.js" defer></script>
+<script src="../js/pwa-init.js"></script>
 </body>
 </html>

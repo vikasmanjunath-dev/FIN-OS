@@ -47,34 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // --- 2. THE WEDDING COST VS INCOME CHART ---
-    const weddingCtx = document.getElementById('weddingCostChart').getContext('2d');
-    new Chart(weddingCtx, {
-        type: 'bar',
-        data: {
-            labels: ['2000', '2026'],
-            datasets: [{
-                label: 'Wedding Cost (Lakhs)',
-                data: [4, 25],
-                backgroundColor: '#ff4757',
-                borderRadius: 12
-            }, {
-                label: 'Avg Annual Income (Lakhs)',
-                data: [1.2, 7.5], 
-                backgroundColor: '#4F7CFF',
-                borderRadius: 12
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: '#888', font: { family: 'JetBrains Mono' } } } },
-            scales: {
-                y: { display: false },
-                x: { grid: { display: false }, ticks: { color: '#555' } }
-            }
-        }
-    });
-
     // --- 3. THE 3D SCROLL & GAUGE OBSERVER ---
     const forensicObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -153,29 +125,10 @@ document.addEventListener("DOMContentLoaded", () => {
         revealObserver.observe(section);
     });
 
-    // 2. RENDER FORENSIC CHARTS (Ensure Chart.js is loaded)
-    const renderCharts = () => {
-        const infCanvas = document.getElementById('inflationGapChart');
-        if (infCanvas) {
-            new Chart(infCanvas.getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: ['2019', '2021', '2023', '2025', '2026'],
-                    datasets: [{
-                        label: 'Real Desi Inflation (9%)',
-                        data: [100, 118, 141, 168, 185],
-                        borderColor: '#ff4757',
-                        fill: true,
-                        backgroundColor: 'rgba(255, 71, 87, 0.05)',
-                        tension: 0.4
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-    };
-
-    renderCharts();
+    // Chart rendering for #inflationGapChart happens once already, in the
+    // PROTOCOL 0X listener above — re-initializing Chart.js on the same
+    // canvas here threw "Canvas is already in use" (its own reuse guard)
+    // on every load, since that earlier chart succeeds first.
 });
 
 

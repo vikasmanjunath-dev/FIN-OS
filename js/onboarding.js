@@ -549,11 +549,11 @@
       info.style.cssText = 'flex:1;';
       info.innerHTML = `
         <div style="font-size:14px;font-weight:600;">${g.label}</div>
-        <div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:2px;">${g.desc}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.58);margin-top:2px;">${g.desc}</div>
       `;
 
       const arrow = document.createElement('div');
-      arrow.style.cssText = 'color:rgba(255,255,255,.25);font-size:18px;';
+      arrow.style.cssText = 'color:rgba(255,255,255,0.58);font-size:18px;';
       arrow.textContent = '⇅';
 
       row.appendChild(rankBadge); row.appendChild(info); row.appendChild(arrow);

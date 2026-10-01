@@ -387,11 +387,8 @@
           const ins = safeJson('finos_insurance_policies', []) || [];
           const nxt = (() => {
             try {
-              const TAX_EVENTS = [
-                '2026-03-31','2026-07-31','2026-09-15','2026-12-15','2027-03-15','2027-03-31'
-              ];
-              const todayStr = new Date().toISOString().slice(0,10);
-              return TAX_EVENTS.find(d => d >= todayStr) || null;
+              const e = window.FinosTaxDates && window.FinosTaxDates.next();   // rule-based; null only if the script failed to load
+              return e ? e.date : null;
             } catch { return null; }
           })();
           return {
@@ -436,7 +433,7 @@
             home_loan_emi:            gs('finos_home_loan_emi'),
             home_loan_total_interest: gs('finos_home_loan_total_interest'),
             windfall_allocated:       gs('finos_windfall_allocated'),
-            total_assets:     gs('finos_portfolio_value') + gs('finos_sip_value') + gs('finos_fd_value')
+            total_assets:     gs('finos_portfolio_value') + gs('finos_mf_import_value') + gs('finos_sip_value') + gs('finos_fd_value')
                             + gs('finos_gold_value')      + gs('finos_property_value') + gs('finos_crypto_value')
                             + gs('finos_cash_value')      + gs('finos_epf_value')      + gs('finos_nps_value')
                             + gs('finos_ppf_value'),

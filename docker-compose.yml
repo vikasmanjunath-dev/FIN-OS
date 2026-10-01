@@ -9,6 +9,9 @@ version: "3.9"
 #   8003 = stock-engine   → /api/stocks/*
 #   8004 = document-ai    → /api/docs/*
 #   5000 = market-intel   → /api/market/*
+#   7475 = arya-ai       → /api/arya/*
+#   7476 = rag-engine    → /api/rag/*
+#   8010 = gateway-health → /health (aggregated status of all services)
 #   8765 = voice-agent-ws → proxied as /ws/voice
 #   3000 = frontend (static)
 #   8000 = API GATEWAY (single entry point for all above)
@@ -95,6 +98,40 @@ services:
       - "5000"
     restart: unless-stopped
 
+  # ── Arya AI (FastAPI) ────────────────────────────────────────────
+  arya-ai:
+    build: ./arya-ai
+    expose:
+      - "7475"
+    env_file:
+      - path: ./arya-ai/.env
+        required: false
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── RAG engine (FastAPI + Qdrant/SQLite FTS5) ────────────────────
+  rag-engine:
+    build: ./rag-engine
+    expose:
+      - "7476"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Gateway health aggregator ────────────────────────────────────
+  gateway-health:
+    build: ./gateway
+    expose:
+      - "8010"
+    restart: unless-stopped
+
   # ── API GATEWAY (Nginx) — single entry point port 8000 ──────────
   api-gateway:
     image: nginx:alpine
@@ -107,6 +144,9 @@ services:
       - stock-engine
       - document-ai
       - market-intel
+      - arya-ai
+      - rag-engine
+      - gateway-health
     restart: unless-stopped
 
   # ── Frontend (Static) ────────────────────────────────────────────

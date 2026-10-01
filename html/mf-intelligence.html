@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,9 +17,11 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=7" defer></script>
   <script src="../js/mf-intelligence.js" defer></script>
+  <script src="../js/finos-api.js"></script>
   <script src="../js/finos-sip-tracker.js" defer></script>
   <link rel="stylesheet" href="../css/interactions.css">
 </head>
@@ -163,7 +166,7 @@
 .mf-tab.active,.mf-tab:hover { background:rgba(0,212,255,.15);border-color:rgba(0,212,255,.4);color:#00d4ff; }
 </style>
 
-<script src="../js/finos-widget.js?v=9"></script>
+<script src="../js/finos-widget.js?v=10"></script>
 <script src="../js/finos-mobile.js" defer></script>
 <script>
 // Map tab key → panel element id
@@ -214,7 +217,9 @@ document.addEventListener('DOMContentLoaded', () => setTimeout(() => _initTab('m
 </script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/interactions.js" defer></script>
 <button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
@@ -236,5 +241,6 @@ document.addEventListener('DOMContentLoaded', () => setTimeout(() => _initTab('m
 })();
 </script>
 <script src="../js/ui.js" defer></script>
+<script src="../js/pwa-init.js"></script>
 </body>
 </html>

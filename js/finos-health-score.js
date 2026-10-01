@@ -111,7 +111,7 @@
     .hs-hdr-title {
       font-size: 11px;
       font-weight: 700;
-      color: rgba(255,255,255,.45);
+      color: rgba(255,255,255,0.58);
       letter-spacing: .8px;
       text-transform: uppercase;
     }
@@ -178,7 +178,7 @@
     }
     .hs-pillar-score {
       font-size: 11px;
-      color: rgba(255,255,255,.35);
+      color: rgba(255,255,255,0.58);
       margin-left: 4px;
     }
     .hs-bar-track {
@@ -195,7 +195,7 @@
     }
     .hs-pillar-headline {
       font-size: 11px;
-      color: rgba(255,255,255,.45);
+      color: rgba(255,255,255,0.58);
       line-height: 1.4;
     }
     .hs-tip {
@@ -212,7 +212,7 @@
     .hs-loading {
       text-align: center;
       padding: 32px 0;
-      color: rgba(255,255,255,.35);
+      color: rgba(255,255,255,0.58);
       font-size: 13px;
     }
     .hs-loading .hs-spinner {
@@ -232,7 +232,7 @@
       align-items: center;
       justify-content: space-between;
     }
-    .hs-updated { font-size: 10px; color: rgba(255,255,255,.25); }
+    .hs-updated { font-size: 10px; color: rgba(255,255,255,0.58); }
     .hs-refresh {
       font-size: 10px;
       font-weight: 600;
@@ -266,29 +266,29 @@
       border-color: rgba(0,100,180,.18);
       box-shadow: 0 20px 60px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.8);
     }
-    [data-theme="light"] .hs-hdr-title { color: rgba(0,0,0,.5); }
+    [data-theme="light"] .hs-hdr-title { color: rgba(0,0,0,0.62); }
     [data-theme="light"] .hs-close {
       border-color: rgba(0,0,0,.12);
       background: rgba(0,0,0,.05);
       color: rgba(0,0,0,.5);
     }
     [data-theme="light"] .hs-close:hover { background: rgba(0,0,0,.1); color: #0b0d12; }
-    [data-theme="light"] .hs-ring-headline { color: rgba(0,0,0,.5); }
+    [data-theme="light"] .hs-ring-headline { color: rgba(0,0,0,0.62); }
     [data-theme="light"] .hs-pillar {
       background: rgba(0,0,0,.03);
       border-color: rgba(0,0,0,.08);
     }
     [data-theme="light"] .hs-pillar-name { color: #2a3a50; }
-    [data-theme="light"] .hs-pillar-score { color: rgba(0,0,0,.4); }
+    [data-theme="light"] .hs-pillar-score { color: rgba(0,0,0,0.62); }
     [data-theme="light"] .hs-bar-track { background: rgba(0,0,0,.06); }
-    [data-theme="light"] .hs-pillar-headline { color: rgba(0,0,0,.45); }
+    [data-theme="light"] .hs-pillar-headline { color: rgba(0,0,0,0.62); }
     [data-theme="light"] .hs-tip {
       color: #b87800;
       background: rgba(240,165,0,.1);
     }
-    [data-theme="light"] .hs-loading { color: rgba(0,0,0,.4); }
+    [data-theme="light"] .hs-loading { color: rgba(0,0,0,0.62); }
     [data-theme="light"] .hs-loading .hs-spinner { border-color: rgba(0,100,200,.15); border-top-color: #0078b4; }
-    [data-theme="light"] .hs-updated { color: rgba(0,0,0,.3); }
+    [data-theme="light"] .hs-updated { color: rgba(0,0,0,0.62); }
     [data-theme="light"] .hs-refresh { color: rgba(0,100,200,.75); }
     [data-theme="light"] .hs-refresh:hover { background: rgba(0,100,200,.08); color: #0064c8; }
   `;
@@ -590,7 +590,7 @@
     const _hasLife        = insurancePols.some(p => /life/i.test(p.type||p.category||''));
     const _hasHealth      = insurancePols.some(p => /health/i.test(p.type||p.category||''));
     const _assetDiversity = [
-      'finos_portfolio_value','finos_sip_value','finos_fd_value','finos_gold_value',
+      'finos_portfolio_value','finos_mf_import_value','finos_sip_value','finos_fd_value','finos_gold_value',
       'finos_property_value','finos_epf_value','finos_nps_value','finos_ppf_value','finos_crypto_value',
     ].filter(k => (Number(localStorage.getItem(k)) || 0) > 0).length;
 

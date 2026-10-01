@@ -759,7 +759,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       metricsEl.innerHTML = chips.filter(c => c.val != null).map(c => `
         <div style="padding:8px 14px;border-radius:10px;background:rgba(255,255,255,.04);
           border:1px solid rgba(255,255,255,.08);font-size:12px;white-space:nowrap;">
-          <span style="color:rgba(255,255,255,.4);">${c.label}:</span>
+          <span style="color:rgba(255,255,255,0.58);">${c.label}:</span>
           <span style="color:#fff;font-weight:600;margin-left:6px;">${c.val}</span>
         </div>`
       ).join('');

@@ -395,7 +395,7 @@
           <div style="font-size:22px;">${ins.icon}</div>
           <div>
             <h4 style="margin:0 0 4px;font-size:13.5px;line-height:1.4;color:rgba(255,255,255,.9);">${ins.title}</h4>
-            <p style="margin:0;font-size:11.5px;color:rgba(255,255,255,.45);line-height:1.5;">${ins.sub}</p>
+            <p style="margin:0;font-size:11.5px;color:rgba(255,255,255,0.58);line-height:1.5;">${ins.sub}</p>
           </div>
           <span style="font-size:11px;font-weight:700;color:${done ? '#22c55e' : '#c7f000'};margin-top:auto;">${tag}</span>
         </${ins.href ? 'a' : 'div'}>
@@ -622,7 +622,7 @@
     }
 
     /* ── Asset diversification nudge ─────────────────────────────── */
-    const _assetClasses = ['finos_portfolio_value','finos_sip_value','finos_fd_value','finos_gold_value','finos_property_value']
+    const _assetClasses = ['finos_portfolio_value','finos_mf_import_value','finos_sip_value','finos_fd_value','finos_gold_value','finos_property_value']
       .filter(k => (parseFloat(localStorage.getItem(k)) || 0) > 0).length;
     if (_assetClasses === 1 && _income > 0) {
       nudges.push({
@@ -678,7 +678,7 @@
 
       containerEl.innerHTML = `
         <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-          <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);
+          <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.58);
                font-weight:700;margin-bottom:10px;">💡 Your Action Items</div>
           <div style="display:flex;flex-direction:column;gap:10px;">
             ${nudges.map(n => {
@@ -768,7 +768,7 @@
       const healthBar = r.healthScore > 0
         ? `<div style="margin-top:12px;">
              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-               <span style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;">Financial Health</span>
+               <span style="font-size:11px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.06em;">Financial Health</span>
                <span style="font-size:12px;font-weight:700;color:${r.healthScore >= 70 ? '#22c55e' : r.healthScore >= 45 ? '#eab308' : '#ef4444'};">${Math.round(r.healthScore)}/100</span>
              </div>
              <div style="height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;">
@@ -794,7 +794,7 @@
                 ${greetByTime()}, <span style="color:#c7f000;">${r.name}</span> 👋
               </div>
               ${r.dnaTag !== 'Explorer'
-                ? `<div style="font-size:13px;color:rgba(255,255,255,.45);">DNA: <span style="color:rgba(255,255,255,.7);font-weight:600;">${r.dnaTag}</span></div>`
+                ? `<div style="font-size:13px;color:rgba(255,255,255,0.58);">DNA: <span style="color:rgba(255,255,255,.7);font-weight:600;">${r.dnaTag}</span></div>`
                 : ''}
             </div>
             ${metaRow ? `<div style="display:flex;gap:6px;flex-wrap:wrap;">${metaRow}</div>` : ''}

@@ -56,7 +56,7 @@ window.FinosRebalancer = (function () {
 
   function _compute() {
     // Current values from all trackers
-    const equity     = gs('finos_portfolio_value') + gs('finos_sip_value');
+    const equity     = gs('finos_portfolio_value') + gs('finos_mf_import_value') + gs('finos_sip_value');
     const debt       = gs('finos_fd_value');
     const gold       = gs('finos_gold_value');
     const realestate = gs('finos_property_value');

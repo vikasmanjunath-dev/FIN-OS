@@ -100,7 +100,7 @@ html {
   font-weight: 500;
   letter-spacing: .09em;
   text-transform: uppercase;
-  color: rgba(255,255,255,.18);
+  color: rgba(255,255,255,.52);   /* was .18 — failed WCAG AA (1.6:1) */
   margin-top: 1px;
 }
 
@@ -190,12 +190,12 @@ html {
 }
 .sb-cmd:hover {  border-color: rgba(var(--sb-accent-rgb),.22); }
 .sb-cmd-icon { flex-shrink: 0; opacity: .3; color: rgba(255,255,255,.9); line-height: 1; }
-.sb-cmd-label { flex: 1; font-size: 11.5px; font-weight: 500; color: rgba(255,255,255,.24); }
+.sb-cmd-label { flex: 1; font-size: 11.5px; font-weight: 500; color: rgba(255,255,255,.55); }
 .sb-cmd-kbd {
   font-size: 9px; font-weight: 700;
   padding: 1px 5px; border-radius: 4px;
   background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
-  color: rgba(255,255,255,.26);
+  color: rgba(255,255,255,.55);
   font-family: var(--font-mono, monospace); flex-shrink: 0;
 }
 
@@ -227,7 +227,7 @@ html {
   text-decoration: none;
   font-size: 13px;
   font-weight: 500;
-  color: rgba(255,255,255,.38);
+  color: rgba(255,255,255,.55);
   cursor: pointer;
   position: relative;
   overflow: hidden;
@@ -244,7 +244,7 @@ html {
   width: 22px; height: 22px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  color: rgba(255,255,255,.28);
+  color: rgba(255,255,255,0.58);
   transition: color 150ms ease, transform 150ms ease;
 }
 .sb-icon svg {
@@ -363,7 +363,7 @@ html {
 .sb-arya-body { flex: 1; min-width: 0; }
 .sb-arya-name { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.65); line-height: 1.2; }
 .sb-arya-status {
-  font-size: 9.5px; font-weight: 500; color: rgba(255,255,255,.24);
+  font-size: 9.5px; font-weight: 500; color: rgba(255,255,255,0.58);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   transition: color .3s;
 }
@@ -371,7 +371,7 @@ html {
 .sb-arya-status.offline { color: rgba(248,113,113,.5); }
 
 .sb-arya-arrow { font-size: 12px; color: rgba(255,255,255,.15); flex-shrink: 0; transition: color .15s, transform .15s; }
-.sb-arya-row:hover .sb-arya-arrow { color: rgba(255,255,255,.45); transform: translateX(2px); }
+.sb-arya-row:hover .sb-arya-arrow { color: rgba(255,255,255,0.58); transform: translateX(2px); }
 
 /* Settings row */
 .sb-settings-row {
@@ -381,7 +381,7 @@ html {
   border: 1px solid transparent;
   text-decoration: none;
   font-size: 12.5px; font-weight: 500;
-  color: rgba(255,255,255,.3);
+  color: rgba(255,255,255,.52);
   transition: background .15s, color .15s, transform .15s;
 }
 .sb-settings-row:hover {  color: rgba(255,255,255,.65); transform: translateX(1px); }
@@ -392,7 +392,7 @@ html {
   border-color: rgba(var(--sb-accent-rgb),.13);
   font-weight: 600;
 }
-.sb-settings-row .sb-icon { color: rgba(255,255,255,.22); }
+.sb-settings-row .sb-icon { color: rgba(255,255,255,0.58); }
 .sb-settings-row:hover .sb-icon { color: rgba(255,255,255,.5); }
 .sb-settings-row.active .sb-icon { color: var(--sb-accent); }
 
@@ -703,7 +703,7 @@ html {
   color: rgba(0,0,0,0.85);
 }
 [data-theme="light"] .sb-wordmark-tag {
-  color: rgba(0,0,0,0.35);
+  color: rgba(0,0,0,0.62);
 }
 
 [data-theme="light"] .sb-identity {
@@ -719,12 +719,12 @@ html {
   border-color: rgba(0,0,0,0.08);
   background: rgba(0,0,0,0.03);
 }
-[data-theme="light"] .sb-cmd-icon { color: rgba(0,0,0,0.5); }
-[data-theme="light"] .sb-cmd-label { color: rgba(0,0,0,0.4); }
+[data-theme="light"] .sb-cmd-icon { color: rgba(0,0,0,0.62); }
+[data-theme="light"] .sb-cmd-label { color: rgba(0,0,0,0.62); }
 [data-theme="light"] .sb-cmd-kbd {
   background: rgba(0,0,0,0.05);
   border-color: rgba(0,0,0,0.1);
-  color: rgba(0,0,0,0.35);
+  color: rgba(0,0,0,0.62);
 }
 
 [data-theme="light"] .sb-divider {
@@ -732,7 +732,7 @@ html {
 }
 
 [data-theme="light"] .sb-link {
-  color: rgba(0,0,0,0.5);
+  color: rgba(0,0,0,0.62);
 }
 [data-theme="light"] .sb-link:hover {
   color: #4F7CFF;
@@ -748,7 +748,7 @@ html {
   box-shadow: none;
 }
 
-[data-theme="light"] .sb-icon { color: rgba(0,0,0,0.3); }
+[data-theme="light"] .sb-icon { color: rgba(0,0,0,0.62); }
 [data-theme="light"] .sb-link.active .sb-icon,
 [data-theme="light"] .sb-link[aria-current="page"] .sb-icon { color: var(--sb-accent); }
 
@@ -757,15 +757,15 @@ html {
 }
 
 [data-theme="light"] .sb-arya-name { color: rgba(0,0,0,0.65); }
-[data-theme="light"] .sb-arya-status { color: rgba(0,0,0,0.35); }
-[data-theme="light"] .sb-arya-arrow { color: rgba(0,0,0,0.2); }
+[data-theme="light"] .sb-arya-status { color: rgba(0,0,0,0.62); }
+[data-theme="light"] .sb-arya-arrow { color: rgba(0,0,0,0.62); }
 [data-theme="light"] .sb-arya-dot { border-color: #FFFFFF; }
 
-[data-theme="light"] .sb-settings-row { color: rgba(0,0,0,0.45); }
+[data-theme="light"] .sb-settings-row { color: rgba(0,0,0,0.62); }
 [data-theme="light"] .sb-settings-row:hover { color: rgba(0,0,0,0.8); }
 [data-theme="light"] .sb-settings-row.active,
 [data-theme="light"] .sb-settings-row[aria-current="page"] { color: rgba(0,0,0,0.85); }
-[data-theme="light"] .sb-settings-row .sb-icon { color: rgba(0,0,0,0.25); }
+[data-theme="light"] .sb-settings-row .sb-icon { color: rgba(0,0,0,0.62); }
 
 [data-theme="light"] .sb-health-pill {
   background: rgba(22,163,74,0.1);

@@ -1,0 +1,36 @@
+// Run with the user's timezone: TZ=Asia/Kolkata node --test tests/calendar.test.js
+const test = require('node:test');
+const assert = require('node:assert');
+
+function boot(store) {
+  globalThis.window = globalThis;
+  globalThis.localStorage = { getItem: (k) => (k in store ? JSON.stringify(store[k]) : null) };
+  delete require.cache[require.resolve('../js/finos-calendar.js')];
+  delete require.cache[require.resolve('../js/finos-taxdates.js')];
+  globalThis.FinosTaxDates = require('../js/finos-taxdates.js');
+  require('../js/finos-calendar.js');
+  return globalThis.FinosCalendar;
+}
+
+test('SIP tracker entries ({fundName, monthlyAmount}) appear as debit events on the 1st (local date)', () => {
+  const cal = boot({ finos_sip_portfolio: [{ id: 'a', fundName: 'Parag Parikh Flexi Cap', monthlyAmount: 10000, startDate: '2026-01-01' }] });
+  const sips = cal.collectEvents(3).filter((e) => e.type === 'sip');
+  assert.ok(sips.length >= 3, 'expected ≥3 monthly SIP events, got ' + sips.length);
+  assert.ok(sips.every((e) => e.date.endsWith('-01')), 'dates must be the 1st: ' + sips.map((e) => e.date));
+  assert.strictEqual(sips[0].title, 'Parag Parikh Flexi Cap');
+  assert.strictEqual(sips[0].amount, 10000);
+});
+
+test('legacy {fund, amount} entries and a custom debitDay still work', () => {
+  const cal = boot({ finos_sip_portfolio: [{ fund: 'Old Fund', amount: 5000, startDate: '2025-01-01', debitDay: 10 }] });
+  const sips = cal.collectEvents(2).filter((e) => e.type === 'sip');
+  assert.ok(sips.length >= 2);
+  assert.ok(sips.every((e) => e.date.endsWith('-10')));
+});
+
+test('tax events keep coming far into the future (no hardcoded cut-off)', () => {
+  const cal = boot({});
+  const tax = cal.collectEvents(36).filter((e) => e.type === 'tax');
+  const last = tax[tax.length - 1].date;
+  assert.ok(last > '2028-12-01', 'tax calendar stops too early: ' + last);
+});

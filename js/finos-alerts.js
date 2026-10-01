@@ -142,7 +142,7 @@
     }
     .fad-subtitle {
       font-size: 11px;
-      color: rgba(255,255,255,.35);
+      color: rgba(255,255,255,.62);
       letter-spacing: .2px;
       margin-top: 1px;
     }
@@ -183,7 +183,7 @@
     .fad-empty {
       text-align: center;
       padding: 60px 20px;
-      color: rgba(255,255,255,.3);
+      color: rgba(255,255,255,.6);
       font-size: 13px;
       line-height: 1.7;
     }
@@ -218,7 +218,7 @@
     }
     .fad-card-time {
       font-size: 10px;
-      color: rgba(255,255,255,.3);
+      color: rgba(255,255,255,0.58);
       white-space: nowrap;
       flex-shrink: 0;
     }
@@ -261,7 +261,7 @@
       border-radius: 20px;
       border: 1px solid rgba(255,255,255,.1);
       background: transparent;
-      color: rgba(255,255,255,.4);
+      color: rgba(255,255,255,.62);
       cursor: pointer;
       transition: all .15s;
     }
@@ -281,12 +281,12 @@
       flex-shrink: 0;
     }
     .fad-settings-link {
-      font-size: 11px; color: rgba(255,255,255,.35);
+      font-size: 11px; color: rgba(255,255,255,.6);
       text-decoration: none;
       transition: color .15s;
     }
     .fad-settings-link:hover { color: rgba(0,212,255,.7); }
-    .fad-push-status { font-size: 11px; color: rgba(255,255,255,.25); }
+    .fad-push-status { font-size: 11px; color: rgba(255,255,255,.55); }
 
     /* ── Light mode — comprehensive overrides ── */
     [data-theme="light"] #finos-alert-bell {
@@ -311,9 +311,9 @@
       background: rgba(0,100,180,.04);
       border-bottom-color: rgba(0,100,180,.1);
     }
-    [data-theme="light"] .fad-title  { color: #0078b4; }
-    [data-theme="light"] .fad-subtitle { color: rgba(0,0,0,.45); }
-    [data-theme="light"] .fad-mark-all { color: rgba(0,100,200,.75); }
+    [data-theme="light"] .fad-title  { color: #00608f; }
+    [data-theme="light"] .fad-subtitle { color: rgba(0,0,0,.62); }
+    [data-theme="light"] .fad-mark-all { color: #0b57b0; }
     [data-theme="light"] .fad-mark-all:hover {
       color: #0064c8;
       background: rgba(0,100,200,.07);
@@ -331,7 +331,7 @@
     /* Filter tabs */
     [data-theme="light"] .fad-tab {
       border-color: rgba(0,0,0,.12);
-      color: rgba(0,0,0,.5);
+      color: rgba(0,0,0,.62);
       background: transparent;
     }
     [data-theme="light"] .fad-tab:hover {
@@ -348,11 +348,11 @@
     /* Alert cards */
     [data-theme="light"] .fad-card-title { color: #0b1c30; }
     [data-theme="light"] .fad-card-msg   { color: rgba(20,40,65,.72); }
-    [data-theme="light"] .fad-card-time  { color: rgba(0,0,0,.35); }
+    [data-theme="light"] .fad-card-time  { color: rgba(0,0,0,0.62); }
     [data-theme="light"] .fad-unread-dot { background: #0078b4; }
 
     /* Empty state */
-    [data-theme="light"] .fad-empty       { color: rgba(0,0,0,.4); }
+    [data-theme="light"] .fad-empty       { color: rgba(0,0,0,.62); }
     [data-theme="light"] .fad-empty-icon  { opacity: .7; }
 
     /* Scrollbar */
@@ -364,9 +364,9 @@
     [data-theme="light"] .fad-footer {
       border-top-color: rgba(0,0,0,.08);
     }
-    [data-theme="light"] .fad-settings-link { color: rgba(0,0,0,.38); }
+    [data-theme="light"] .fad-settings-link { color: rgba(0,0,0,0.62); }
     [data-theme="light"] .fad-settings-link:hover { color: #0064c8; }
-    [data-theme="light"] .fad-push-status { color: rgba(0,0,0,.28); }
+    [data-theme="light"] .fad-push-status { color: rgba(0,0,0,0.62); }
 
     @media (max-width: 480px) {
       #finos-alert-drawer { width: 100vw; }

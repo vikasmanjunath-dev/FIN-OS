@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
@@ -12,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <title>Financial Mind Mapping | FIN-OS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +52,7 @@
     <!-- Step label -->
     <div id="stepLabel" style="
       font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
-      color:rgba(255,255,255,.35);margin-bottom:8px;text-align:center;
+      color:rgba(255,255,255,0.58);margin-bottom:8px;text-align:center;
       min-height:16px;transition:opacity .3s;"></div>
 
     <h1 id="question"></h1>
@@ -102,7 +103,7 @@
     <!-- Skip link -->
     <div style="margin-top:14px;text-align:center;">
       <a id="skipLink" href="home.html"
-         style="font-size:12px;color:rgba(255,255,255,.25);text-decoration:none;">
+         style="font-size:12px;color:rgba(255,255,255,0.58);text-decoration:none;">
         Skip for now
       </a>
     </div>
@@ -151,9 +152,12 @@
 })();
 </script>
 
-  <script src="../js/finos-widget.js?v=9"></script>
-  <script src="../js/finos-search.js?v=3"></script>
+  <script src="../js/finos-widget.js?v=10"></script>
+  <script src="../js/finos-search.js?v=4"></script>
   <script src="../js/interactions.js" defer></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 </body>
 </html>

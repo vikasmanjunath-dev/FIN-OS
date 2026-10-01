@@ -73,7 +73,7 @@ window.FinosRetirementPlanner = (function () {
     const sipProjected  = _fv(gs('finos_sip_value'), portfolioR, yearsLeft);
 
     // Equity portfolio: grow at portfolioReturn
-    const equityProj    = _fv(gs('finos_portfolio_value'), portfolioR, yearsLeft);
+    const equityProj    = _fv(gs('finos_portfolio_value') + gs('finos_mf_import_value'), portfolioR, yearsLeft);
 
     // FD / Fixed Income: grow at 7%
     const fdProjected   = _fv(gs('finos_fd_value'), 0.07, yearsLeft);
@@ -169,19 +169,19 @@ window.FinosRetirementPlanner = (function () {
 .rp-ring-wrap{position:relative;width:168px;height:168px;flex-shrink:0;}
 .rp-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .rp-ring-pct{font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:28px;font-weight:900;}
-.rp-ring-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin-top:2px;}
+.rp-ring-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin-top:2px;}
 .rp-body{flex:1;min-width:200px;}
-.rp-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;}
+.rp-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;}
 .rp-val{font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:38px;font-weight:900;letter-spacing:-1px;line-height:1;}
-.rp-sub{font-size:13px;color:rgba(255,255,255,.4);margin-top:8px;line-height:1.6;}
+.rp-sub{font-size:13px;color:rgba(255,255,255,0.58);margin-top:8px;line-height:1.6;}
 .rp-gap-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:12px;font-size:13px;font-weight:700;margin-top:12px;}
 .rp-income-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:22px;}
 .rp-inc{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;text-align:center;}
-.rp-inc-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;}
+.rp-inc-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;}
 .rp-inc-val{font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:18px;font-weight:800;}
-.rp-inc-sub{font-size:11px;color:rgba(255,255,255,.35);margin-top:3px;}
+.rp-inc-sub{font-size:11px;color:rgba(255,255,255,0.58);margin-top:3px;}
 .rp-src-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:22px;}
-.rp-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin:0 0 14px;}
+.rp-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin:0 0 14px;}
 [data-theme="light"] .rp-hero{background:rgba(34,211,166,.05);}
 [data-theme="light"] .rp-val{color:#0B0D12;}
 [data-theme="light"] .rp-src-box,[data-theme="light"] .rp-inc{background:#fff;border-color:rgba(0,0,0,.08);}
@@ -239,7 +239,7 @@ window.FinosRetirementPlanner = (function () {
 
 <div class="rp-src-box">
   <p class="rp-sec">Corpus Sources at Retirement</p>
-  ${sources.length ? srcBars : '<div style="color:rgba(255,255,255,.35);font-size:13px;padding:8px 0;">Fill in EPF, NPS, SIP and other trackers to see source breakdown.</div>'}
+  ${sources.length ? srcBars : '<div style="color:rgba(255,255,255,0.58);font-size:13px;padding:8px 0;">Fill in EPF, NPS, SIP and other trackers to see source breakdown.</div>'}
 </div>
 
 <div style="background:rgba(255,179,71,.05);border:1px solid rgba(255,179,71,.12);border-radius:14px;padding:16px;">
@@ -273,8 +273,8 @@ window.FinosRetirementPlanner = (function () {
 
     const milRows = milestones.map(m => `
       <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:10px;margin-bottom:6px;">
-        <div style="font-size:12px;color:rgba(255,255,255,.45);min-width:50px;">+${m.yr} yr</div>
-        <div style="font-size:12px;color:rgba(255,255,255,.4);min-width:60px;">Age ${m.age}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.58);min-width:50px;">+${m.yr} yr</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.58);min-width:60px;">Age ${m.age}</div>
         <div style="flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;">
           <div style="height:100%;width:${Math.min((m.val/c.totalCorpus*100),100).toFixed(1)}%;background:linear-gradient(90deg,#00D4FF,#22D3A6);border-radius:3px;"></div>
         </div>
@@ -283,35 +283,35 @@ window.FinosRetirementPlanner = (function () {
 
     container.innerHTML = `
 <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:20px;">
-  <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin:0 0 14px;">Assumptions (edit to recalculate)</p>
+  <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin:0 0 14px;">Assumptions (edit to recalculate)</p>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-bottom:6px;">
     <div style="display:flex;flex-direction:column;gap:6px;">
-      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);">Current Age</label>
+      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.58);">Current Age</label>
       <input style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;padding:10px 14px;width:100%;box-sizing:border-box;outline:none;"
         type="number" min="18" max="70" value="${c.ageNow}" oninput="_rpSave('finos_retire_current_age',this.value)">
     </div>
     <div style="display:flex;flex-direction:column;gap:6px;">
-      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);">Retire at Age</label>
+      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.58);">Retire at Age</label>
       <input style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;padding:10px 14px;width:100%;box-sizing:border-box;outline:none;"
         type="number" min="40" max="80" value="${c.retireAge}" oninput="_rpSave('finos_retire_age',this.value)">
     </div>
     <div style="display:flex;flex-direction:column;gap:6px;">
-      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);">Monthly Expense in Retirement (₹ today)</label>
+      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.58);">Monthly Expense in Retirement (₹ today)</label>
       <input style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;padding:10px 14px;width:100%;box-sizing:border-box;outline:none;"
         type="number" min="0" step="5000" value="${c.expMo||''}" placeholder="50000" oninput="_rpSave('finos_retire_exp_mo',this.value)">
     </div>
     <div style="display:flex;flex-direction:column;gap:6px;">
-      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);">Inflation Rate (%)</label>
+      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.58);">Inflation Rate (%)</label>
       <input style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;padding:10px 14px;width:100%;box-sizing:border-box;outline:none;"
         type="number" min="3" max="12" step="0.5" value="${(gs('finos_retire_inflation')||6)}" oninput="_rpSave('finos_retire_inflation',this.value)">
     </div>
     <div style="display:flex;flex-direction:column;gap:6px;">
-      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);">Portfolio Return (% p.a.)</label>
+      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.58);">Portfolio Return (% p.a.)</label>
       <input style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;padding:10px 14px;width:100%;box-sizing:border-box;outline:none;"
         type="number" min="5" max="18" step="0.5" value="${(gs('finos_retire_return')||10)}" oninput="_rpSave('finos_retire_return',this.value)">
     </div>
     <div style="display:flex;flex-direction:column;gap:6px;">
-      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);">Additional Savings / Manual Corpus (₹)</label>
+      <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.58);">Additional Savings / Manual Corpus (₹)</label>
       <input style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;padding:10px 14px;width:100%;box-sizing:border-box;outline:none;"
         type="number" min="0" step="100000" value="${c.manualCorpus||''}" placeholder="0" oninput="_rpSave('finos_retire_manual_corpus',this.value)">
     </div>
@@ -319,8 +319,8 @@ window.FinosRetirementPlanner = (function () {
 </div>
 
 <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;">
-  <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin:0 0 14px;">Growth Milestones</p>
-  ${milestones.length ? milRows : '<div style="color:rgba(255,255,255,.35);font-size:13px;padding:8px 0;">Enter current age and retirement age to see milestones.</div>'}
+  <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin:0 0 14px;">Growth Milestones</p>
+  ${milestones.length ? milRows : '<div style="color:rgba(255,255,255,0.58);font-size:13px;padding:8px 0;">Enter current age and retirement age to see milestones.</div>'}
 </div>
 
 <script>
@@ -357,7 +357,7 @@ function _rpSave(k,v){localStorage.setItem(k,v);clearTimeout(window._rpT);window
         <div style="height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;margin-bottom:6px;">
           <div style="height:100%;width:${(s.mo/maxMo*100).toFixed(1)}%;background:${s.color};border-radius:3px;"></div>
         </div>
-        <div style="font-size:11px;color:rgba(255,255,255,.4);">${s.note}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.58);">${s.note}</div>
       </div>`).join('');
 
     const reqMo = c.inflatedMonthlyExp;
@@ -367,26 +367,26 @@ function _rpSave(k,v){localStorage.setItem(k,v);clearTimeout(window._rpT);window
 <div style="background:rgba(79,124,255,.07);border:1px solid rgba(79,124,255,.2);border-radius:20px;padding:24px;margin-bottom:22px;">
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;">
     <div>
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;">Total Monthly Income</div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Total Monthly Income</div>
       <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:30px;font-weight:900;color:#4F7CFF;">${INR(total)}</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">${c.expCoverage.toFixed(0)}% of expected expense</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">${c.expCoverage.toFixed(0)}% of expected expense</div>
     </div>
     <div>
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;">Expected Monthly Expense</div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Expected Monthly Expense</div>
       <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:30px;font-weight:900;color:rgba(255,255,255,.8);">${INR(reqMo)}</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">in retirement-year rupees (${c.retireAge}yr)</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">in retirement-year rupees (${c.retireAge}yr)</div>
     </div>
     <div>
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;">${surplus >= 0 ? 'Monthly Surplus' : 'Monthly Shortfall'}</div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">${surplus >= 0 ? 'Monthly Surplus' : 'Monthly Shortfall'}</div>
       <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:30px;font-weight:900;color:${surplus >= 0 ? '#22D3A6' : '#EF4444'};">${INR(Math.abs(surplus))}</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">${surplus >= 0 ? 'can be reinvested or left to heirs' : 'top up corpus to fill gap'}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">${surplus >= 0 ? 'can be reinvested or left to heirs' : 'top up corpus to fill gap'}</div>
     </div>
   </div>
 </div>
 
 <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:20px;">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin-bottom:14px;">Income Streams</div>
-  ${streams.length ? streamRows : '<div style="color:rgba(255,255,255,.35);font-size:13px;padding:8px 0;">Fill EPF, NPS trackers and portfolio data for income breakdown.</div>'}
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin-bottom:14px;">Income Streams</div>
+  ${streams.length ? streamRows : '<div style="color:rgba(255,255,255,0.58);font-size:13px;padding:8px 0;">Fill EPF, NPS trackers and portfolio data for income breakdown.</div>'}
 </div>
 
 <div style="background:rgba(34,211,166,.05);border:1px solid rgba(34,211,166,.12);border-radius:14px;padding:18px;">
@@ -403,5 +403,126 @@ function _rpSave(k,v){localStorage.setItem(k,v);clearTimeout(window._rpT);window
   }
 
   /* Public */
-  return { renderOverview, renderPlan, renderIncome, _compute };
+
+  /* ═══════════════════════════════════════════════════════
+     SUCCESS ODDS TAB — Monte Carlo (js/finos-montecarlo.js)
+  ════════════════════════════════════════════════════════ */
+  function _mcConfig(c) {
+    const A = (window.FinosMC && window.FinosMC.DEFAULT_ASSUMPTIONS) || {};
+    const eqRet  = (gs('finos_retire_eq_return') || 12) / 100;
+    const npsEq  = Math.min(Math.max(gs('finos_nps_equity_pct') || 50, 0), 100) / 100;
+    const npsVal = gs('finos_nps_value') * 0.60;                 // 60% lump sum stays in the corpus; 40% buys the annuity
+    const equity = gs('finos_sip_value') + gs('finos_portfolio_value') + gs('finos_mf_import_value') + npsVal * npsEq;
+    const debt   = gs('finos_epf_value') + gs('finos_ppf_value') + gs('finos_fd_value') + npsVal * (1 - npsEq) + gs('finos_retire_manual_corpus');
+    const gold   = gs('finos_gold_value');
+    const mk = (name, v, key, mean) => ({ name, value: v, mean: mean === undefined ? A[key].mean : mean, vol: A[key].vol, beta: A[key].beta });
+    return {
+      startAge: c.ageNow, retireAge: Math.max(c.retireAge, c.ageNow), endAge: Math.max(gs('finos_retire_end_age') || 90, c.retireAge + 1),
+      assets: [mk('Equity', equity, 'equity', eqRet), mk('Debt', debt, 'debt'), mk('Gold', gold, 'gold')],
+      monthlyContribution: gs('finos_retire_monthly_invest'),
+      stepUp: (gs('finos_retire_stepup') || 0) / 100,
+      monthlyExpenseToday: c.expMo,
+      inflation: c.inflation, inflationVol: 0.015,
+      pensionMonthlyAtRetire: c.epsPension + c.npsAnnuityMo, pensionIndexation: 0,
+      runs: 4000, seed: 2026,
+    };
+  }
+
+  function _fan(bands, retireAge) {
+    const W = 640, H = 250, pl = 54, pr = 10, pt = 10, pb = 26;
+    const maxV = Math.max(...bands.map(b => b.p90), 1);
+    const x = i => pl + (i / (bands.length - 1)) * (W - pl - pr);
+    const y = v => pt + (1 - v / maxV) * (H - pt - pb);
+    const line = k => bands.map((b, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(b[k]).toFixed(1)).join(' ');
+    const area = (hi, lo) => bands.map((b, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(b[hi]).toFixed(1)).join(' ')
+      + ' ' + bands.slice().reverse().map((b, i) => 'L' + x(bands.length - 1 - i).toFixed(1) + ' ' + y(b[lo]).toFixed(1)).join(' ') + ' Z';
+    const ri = bands.findIndex(b => b.age >= retireAge);
+    const ticks = [0, .25, .5, .75, 1].map(t => `<text x="${pl - 6}" y="${(y(maxV * t) + 3).toFixed(1)}" text-anchor="end" font-size="9" fill="currentColor" opacity=".5">${window.FinosFmt ? window.FinosFmt.compact(maxV * t, { symbol: false }) : Math.round(maxV * t)}</text>`).join('');
+    const ages = bands.filter((b, i) => i % Math.ceil(bands.length / 7) === 0 || i === bands.length - 1)
+      .map(b => `<text x="${x(b.age - bands[0].age).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="9" fill="currentColor" opacity=".5">${b.age}</text>`).join('');
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Projected corpus range by age: median with 10th to 90th percentile band" style="color:var(--text-secondary,#9AA0B4)">
+      ${ticks}${ages}
+      <path d="${area('p90', 'p10')}" fill="rgba(79,124,255,.12)"/><path d="${area('p75', 'p25')}" fill="rgba(79,124,255,.22)"/>
+      <path d="${line('p50')}" fill="none" stroke="#22D3A6" stroke-width="2.2"/>
+      ${ri > 0 ? `<line x1="${x(ri).toFixed(1)}" x2="${x(ri).toFixed(1)}" y1="${pt}" y2="${H - pb}" stroke="#FFB347" stroke-dasharray="4 3"/><text x="${(x(ri) + 4).toFixed(1)}" y="${pt + 10}" font-size="9" fill="#FFB347">retire</text>` : ''}
+    </svg>`;
+  }
+
+  function renderOdds(container) {
+    if (!container) return;
+    const c = _compute();
+    if (!window.FinosMC) { container.innerHTML = '<div style="color:#EF4444;font-size:13px;padding:20px;">Simulation engine failed to load. Please refresh.</div>'; return; }
+    container.style.cssText = 'display:block;';                // placeholder styles centre a single line of text; reset for real content
+    const cfg = _mcConfig(c);
+    const hasMoney = cfg.assets.some(a => a.value > 0) || cfg.monthlyContribution > 0;
+    const fmt = v => (window.FinosFmt ? window.FinosFmt.inr(v) : INR(v));
+    const cmp = v => (window.FinosFmt ? window.FinosFmt.compact(v) : INR(v));
+    const inp = 'background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:inherit;padding:10px 12px;width:100%;font-family:var(--font-mono,monospace);font-size:14px;';
+    const lbl = 'font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;opacity:.55;';
+    const field = (label, key, val, min, max, step, ph) => `<div style="display:flex;flex-direction:column;gap:6px;"><label style="${lbl}">${label}</label>
+      <input style="${inp}" type="number" min="${min}" max="${max}" step="${step}" value="${val || ''}" placeholder="${ph || ''}" oninput="_rpOddsSave('${key}',this.value)"></div>`;
+
+    container.innerHTML = `
+<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:20px;">
+  <p style="${lbl}margin:0 0 14px;">What goes into the simulation</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;">
+    ${field('Monthly investing today (₹)', 'finos_retire_monthly_invest', gs('finos_retire_monthly_invest'), 0, 10000000, 1000, '0')}
+    ${field('Yearly step-up (%)', 'finos_retire_stepup', gs('finos_retire_stepup'), 0, 25, 1, '0')}
+    ${field('Plan to age', 'finos_retire_end_age', cfg.endAge, 70, 110, 1, '90')}
+    ${field('Equity return (% p.a.)', 'finos_retire_eq_return', (cfg.assets[0].mean * 100).toFixed(1).replace(/\.0$/, ''), 6, 18, 0.5, '12')}
+  </div>
+  <p style="font-size:11px;opacity:.5;margin:12px 0 0;line-height:1.6;">Uses your tracked holdings (equity ${cmp(cfg.assets[0].value)} · debt ${cmp(cfg.assets[1].value)} · gold ${cmp(cfg.assets[2].value)}), expense ${fmt(c.expMo)}/mo in today's ₹, inflation ${(c.inflation * 100).toFixed(1)}% ± 1.5, and pension ${fmt(cfg.pensionMonthlyAtRetire)}/mo. Edit expense, age and inflation in <b>Corpus Builder</b>. Edit holdings in each tracker.</p>
+</div>
+<div id="rp-odds-out" style="min-height:160px;">${hasMoney ? '<div style="opacity:.5;font-size:13px;padding:20px;">Running 4,000 simulated futures…</div>' : '<div style="opacity:.6;font-size:13px;padding:20px;">Add holdings in your trackers (EPF, NPS, PPF, SIP, FD, Gold) or enter a monthly investment above to run the simulation.</div>'}</div>
+<script>
+function _rpOddsSave(k,v){localStorage.setItem(k,v);clearTimeout(window._rpOT);window._rpOT=setTimeout(function(){window.FinosRetirementPlanner.renderOdds(document.getElementById('rp-panel-odds'));},800);}
+</script>`;
+    if (!hasMoney) return;
+
+    setTimeout(() => {                                   // yield so the shell paints first
+      const out = document.getElementById('rp-odds-out');
+      if (!out) return;
+      let r;
+      try { r = window.FinosMC.simulate(cfg); }
+      catch (e) { out.innerHTML = `<div style="color:#EF4444;padding:20px;font-size:13px;">${e.message}</div>`; return; }
+      const pct = Math.round(r.successRate * 100);
+      const col = pct >= 85 ? '#22D3A6' : pct >= 65 ? '#FFB347' : '#EF4444';
+      const verdict = pct >= 85 ? 'Strong — your money very likely outlasts you.' : pct >= 65 ? 'Borderline — a bad decade could hurt. Consider saving more or spending less.' : 'At risk — most simulated futures run out of money. Act now: a small change early is cheap.';
+      const atRet = r.realBands.find(b => b.age === cfg.retireAge) || r.realBands[r.realBands.length - 1];
+      const dep = r.depletion ? `In the runs that fail, money typically runs out around age <b>${Math.round(r.depletion.medianAge)}</b> (worst 10%: ${Math.round(r.depletion.p10Age)}).` : 'No simulated run ran out of money.';
+      out.innerHTML = `
+<div style="display:flex;gap:22px;flex-wrap:wrap;align-items:center;background:rgba(255,255,255,.03);border:1px solid ${col}55;border-radius:18px;padding:22px;margin-bottom:18px;">
+  <div style="text-align:center;min-width:150px;"><div style="font-family:var(--font-mono,monospace);font-size:54px;font-weight:900;color:${col};line-height:1;">${pct}%</div>
+    <div style="${lbl}margin-top:6px;">chance money lasts to ${cfg.endAge}</div></div>
+  <div style="flex:1;min-width:220px;"><div style="font-size:15px;font-weight:700;margin-bottom:6px;">${verdict}</div>
+    <div style="font-size:12.5px;opacity:.65;line-height:1.7;">${dep}<br>At retirement (age ${cfg.retireAge}) your corpus is most likely <b>${cmp(atRet.p50)}</b> in today's ₹ — range ${cmp(atRet.p10)} to ${cmp(atRet.p90)} (10th–90th percentile).</div>
+    <button id="rp-solve" style="margin-top:12px;padding:9px 16px;border-radius:10px;border:1px solid ${col}66;background:transparent;color:inherit;font-weight:700;font-size:12.5px;cursor:pointer;">What monthly SIP gets me to 85%?</button>
+    <span id="rp-solve-out" style="font-size:13px;margin-left:10px;"></span></div>
+</div>
+<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px;margin-bottom:12px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+    <p style="${lbl}margin:0;">Corpus by age — median, 25–75% and 10–90% bands</p>
+    <div role="group" aria-label="Value basis"><button class="rp-basis" data-k="real" style="${inp}width:auto;padding:5px 10px;font-size:11px;cursor:pointer;">Today's ₹</button>
+      <button class="rp-basis" data-k="nominal" style="${inp}width:auto;padding:5px 10px;font-size:11px;cursor:pointer;opacity:.6;">Future ₹</button></div>
+  </div>
+  <div id="rp-fan">${_fan(r.realBands, cfg.retireAge)}</div>
+</div>
+<p style="font-size:11px;opacity:.45;line-height:1.7;">${r.runs.toLocaleString('en-IN')} simulated futures. Returns vary yearly (equity ${(cfg.assets[0].mean * 100).toFixed(0)}% ± 18, debt 7.5% ± 3.5, gold 8% ± 14); inflation varies; withdrawals start at ${cfg.retireAge} and the portfolio is rebalanced yearly. This is an illustration, not a prediction or investment advice.</p>`;
+
+      out.querySelectorAll('.rp-basis').forEach(b => b.addEventListener('click', () => {
+        out.querySelectorAll('.rp-basis').forEach(x => (x.style.opacity = x === b ? '1' : '.6'));
+        document.getElementById('rp-fan').innerHTML = _fan(b.dataset.k === 'real' ? r.realBands : r.bands, cfg.retireAge);
+      }));
+      document.getElementById('rp-solve').addEventListener('click', () => {
+        const o = document.getElementById('rp-solve-out'); o.textContent = 'Solving…';
+        setTimeout(() => {
+          const sip = window.FinosMC.solveContribution(cfg, 0.85);
+          o.innerHTML = sip === null ? 'Not reachable by investing more alone — try a later retirement age or lower expenses.'
+            : `<b style="color:#22D3A6;">${fmt(sip)}/month</b> (with your ${gs('finos_retire_stepup') || 0}% yearly step-up)`;
+        }, 30);
+      });
+    }, 30);
+  }
+
+  return { renderOverview, renderPlan, renderIncome, renderOdds, _compute, _mcConfig };
 })();

@@ -21,7 +21,7 @@
 (function (global) {
   'use strict';
 
-  const ARYA = 'http://localhost:7475';
+  const ARYA = (window.FinosAPI && window.FinosAPI.base('arya')) || 'http://localhost:7475';
   const STORE_KEY = 'finos_sip_portfolio';
 
   /* ── Helpers ─────────────────────────────────────────────────────── */
@@ -244,7 +244,7 @@
         ` : enriched.map(sip => _sipCard(sip)).join('')}
       </div>
 
-      <div style="font-size:11px;color:rgba(255,255,255,.2);text-align:right;margin-top:12px;">
+      <div style="font-size:11px;color:rgba(255,255,255,0.58);text-align:right;margin-top:12px;">
         NAV data from AMFI · Updated daily · Values are indicative
       </div>`;
   }
@@ -526,7 +526,7 @@
 
       <div id="nav-search-results"></div>
 
-      <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:16px;">
+      <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:16px;">
         Data sourced from AMFI NAVAll.txt · Updated daily after 5pm
       </div>`;
   }

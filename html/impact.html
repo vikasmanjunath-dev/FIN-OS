@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=7" defer></script>
     
@@ -17,7 +19,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <title>Small Changes, Big Impact | FIN-OS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -168,7 +170,7 @@
                display:flex;align-items:center;justify-content:center;font-size:18px;">🦋</div>
           <div>
             <div style="font-weight:700;font-size:13px;color: var(--accent-secondary);letter-spacing:.4px;">ARYA • YOUR COMPOUND IMPACT STORY</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.4);">Enter your numbers → get your personal compound story</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.58);">Enter your numbers → get your personal compound story</div>
           </div>
         </div>
         <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;">
@@ -331,7 +333,7 @@ Desi tone, inspiring, use their REAL numbers. No preamble.`;
       stream.appendChild(finalSpan);
     }
   } catch {
-    stream.innerHTML = '<span style="color:rgba(255,255,255,.3);">AI offline — but the math speaks for itself!</span>';
+    stream.innerHTML = '<span style="color:rgba(255,255,255,0.58);">AI offline — but the math speaks for itself!</span>';
   }
 }
 </script>
@@ -365,11 +367,14 @@ Desi tone, inspiring, use their REAL numbers. No preamble.`;
 </style>
 <a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
 
-  <script src="../js/finos-widget.js?v=9"></script>
-  <script src="../js/finos-search.js?v=3"></script>
+  <script src="../js/finos-widget.js?v=10"></script>
+  <script src="../js/finos-search.js?v=4"></script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 </body>
 </html>

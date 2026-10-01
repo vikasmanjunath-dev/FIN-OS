@@ -142,7 +142,7 @@
       .arya-quiz-title {
         font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 6px;
       }
-      .arya-quiz-sub { font-size: 13px; color: rgba(255,255,255,.4); margin-bottom: 24px; }
+      .arya-quiz-sub { font-size: 13px; color: rgba(255,255,255,0.58); margin-bottom: 24px; }
 
       /* ── Light mode: Arya callout ── */
       [data-theme="light"] .arya-callout {
@@ -150,7 +150,7 @@
         border: 1px solid rgba(0,160,90,.25);
       }
       [data-theme="light"] .arya-callout-head { color: #15803d; }
-      [data-theme="light"] .arya-callout-head span { color: rgba(0,0,0,.35) !important; }
+      [data-theme="light"] .arya-callout-head span { color: rgba(0,0,0,0.62) !important; }
       [data-theme="light"] .arya-callout-body { color: #1e293b; }
 
       /* ── Light mode: explain button ── */
@@ -163,7 +163,7 @@
       /* ── Light mode: quiz section ── */
       [data-theme="light"] .arya-quiz-section { border-top-color: rgba(0,0,0,.10); }
       [data-theme="light"] .arya-quiz-title   { color: #0A0C10; }
-      [data-theme="light"] .arya-quiz-sub     { color: rgba(0,0,0,.50); }
+      [data-theme="light"] .arya-quiz-sub     { color: rgba(0,0,0,0.62); }
       [data-theme="light"] .arya-quiz-q-text  { color: #1e293b; }
       [data-theme="light"] .arya-quiz-option  {
         background: rgba(0,0,0,.03);
@@ -242,20 +242,20 @@
         flex-direction: column; gap: 8px; max-height: 100vh; overflow-y: auto;
       }
       @media (min-width: 1200px) { .arya-knowledge-bar { display: flex; } }
-      .kb-title { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 4px; }
+      .kb-title { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.58); margin-bottom: 4px; }
       .kb-module { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 12px; }
       .kb-name { color: rgba(255,255,255,.6); }
       .kb-status { font-size: 11px; }
-      .kb-done { color: #00ff88; } .kb-todo { color: rgba(255,255,255,.25); }
+      .kb-done { color: #00ff88; } .kb-todo { color: rgba(255,255,255,0.58); }
 
       /* Light mode overrides */
       [data-theme="light"] .arya-knowledge-bar {
         background: rgba(248,250,252,0.97); border-left: 1px solid rgba(0,0,0,0.10);
       }
-      [data-theme="light"] .kb-title  { color: rgba(0,0,0,0.45); }
+      [data-theme="light"] .kb-title  { color: rgba(0,0,0,0.62); }
       [data-theme="light"] .kb-module { border-bottom-color: rgba(0,0,0,0.07); }
       [data-theme="light"] .kb-name   { color: rgba(0,0,0,0.78); }
-      [data-theme="light"] .kb-todo   { color: rgba(0,0,0,0.30); }
+      [data-theme="light"] .kb-todo   { color: rgba(0,0,0,0.62); }
       [data-theme="light"] .kb-done   { color: #15803d; }
     `;
     document.head.appendChild(s);
@@ -270,7 +270,7 @@
     box.innerHTML = `
       <div class="arya-callout-head">
         🧠 Arya says — personalised for ${prof.archetype}
-        <span style="margin-left:auto;font-size:10px;color:rgba(255,255,255,.25);">Based on your profile</span>
+        <span style="margin-left:auto;font-size:10px;color:rgba(255,255,255,0.58);">Based on your profile</span>
       </div>
       <div class="arya-callout-body">
         <span class="streaming">Thinking…</span>

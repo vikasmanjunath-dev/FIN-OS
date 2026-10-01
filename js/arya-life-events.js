@@ -320,9 +320,9 @@
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
           <div style="width:8px;height:8px;border-radius:50%;background:${col};animation:_aPulse 1.4s infinite;flex-shrink:0;"></div>
           <span style="font-size:11px;font-weight:800;color:${col};letter-spacing:1.2px;text-transform:uppercase;">Arya</span>
-          <span style="margin-left:auto;font-size:10px;color:rgba(255,255,255,.3);">${priority === 'urgent' ? '🔴 Urgent' : priority === 'high' ? '🟠 Important' : '💬 Hey'}</span>
+          <span style="margin-left:auto;font-size:10px;color:rgba(255,255,255,0.58);">${priority === 'urgent' ? '🔴 Urgent' : priority === 'high' ? '🟠 Important' : '💬 Hey'}</span>
           <button onclick="document.getElementById('arya-proactive-bubble')?.remove()"
-            style="background:none;border:none;color:rgba(255,255,255,.3);cursor:pointer;font-size:18px;line-height:1;padding:0 0 0 4px;">×</button>
+            style="background:none;border:none;color:rgba(255,255,255,0.58);cursor:pointer;font-size:18px;line-height:1;padding:0 0 0 4px;">×</button>
         </div>
         <p style="margin:0 0 14px;font-size:13.5px;color:rgba(255,255,255,.88);line-height:1.65;">${msg}</p>
         <div style="display:flex;gap:8px;">
@@ -333,7 +333,7 @@
           </button>
           <button onclick="document.getElementById('arya-proactive-bubble')?.remove()" style="
             padding:9px 14px;border:1px solid rgba(255,255,255,.1);border-radius:10px;
-            background:rgba(255,255,255,.04);color:rgba(255,255,255,.4);font-size:12px;cursor:pointer;">
+            background:rgba(255,255,255,.04);color:rgba(255,255,255,0.58);font-size:12px;cursor:pointer;">
             Later
           </button>
         </div>

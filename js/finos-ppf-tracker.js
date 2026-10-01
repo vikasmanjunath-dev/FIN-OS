@@ -101,7 +101,7 @@ window.FinosPPFTracker = (function () {
         <div style="display:flex;align-items:center;gap:8px;">
           <div style="width:8px;height:8px;border-radius:50%;background:${inst.color};"></div>
           <span style="font-size:13px;color:#F5F7FA;">${inst.name}</span>
-          <span style="font-size:11px;color:rgba(255,255,255,.35);">${inst.rate}% p.a.</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.58);">${inst.rate}% p.a.</span>
         </div>
         <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;font-weight:800;color:${inst.color};">${INR(v)}</div>
       </div>`;
@@ -120,19 +120,19 @@ window.FinosPPFTracker = (function () {
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
           <div>
             <div style="font-size:14px;font-weight:800;color:#F5F7FA;">${a.nickname || inst.name}</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">${a.type} · ${inst.rate}% p.a. · ${inst.compounding} compounding</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:2px;">${a.type} · ${inst.rate}% p.a. · ${inst.compounding} compounding</div>
           </div>
           <button onclick="window.FinosPPFTracker._delete(${a.id});window.FinosPPFTracker.renderOverview(document.getElementById('ppf-panel-overview'));"
-            style="background:none;border:none;cursor:pointer;font-size:13px;color:rgba(255,255,255,.2);transition:color .2s;" onmouseover="this.style.color='#EF4444'" onmouseout="this.style.color='rgba(255,255,255,.2)'">✕</button>
+            style="background:none;border:none;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.58);transition:color .2s;" onmouseover="this.style.color='#EF4444'" onmouseout="this.style.color='rgba(255,255,255,.2)'">✕</button>
         </div>
         <div style="display:flex;gap:20px;margin-top:12px;flex-wrap:wrap;">
-          <div><div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Current Balance</div>
+          <div><div style="font-size:10px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Current Balance</div>
             <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:18px;font-weight:900;color:${inst.color};">${INR(a.currentBalance)}</div></div>
-          ${a.annualDeposit ? `<div><div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Annual Deposit</div>
+          ${a.annualDeposit ? `<div><div style="font-size:10px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Annual Deposit</div>
             <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:18px;font-weight:900;color:rgba(255,255,255,.7);">${INR(a.annualDeposit)}</div></div>` : ''}
-          ${yearsLeft !== null ? `<div><div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Years Left</div>
+          ${yearsLeft !== null ? `<div><div style="font-size:10px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Years Left</div>
             <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:18px;font-weight:900;color:rgba(255,255,255,.7);">${yearsLeft}</div></div>` : ''}
-          <div><div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Projected Maturity</div>
+          <div><div style="font-size:10px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Projected Maturity</div>
             <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:18px;font-weight:900;color:#22D3A6;">${INR(projected)}</div></div>
         </div>
         ${inst.taxFree ? '<div style="margin-top:8px;font-size:11px;color:#22D3A6;">✓ EEE — Maturity tax-free (80C + growth exempt)</div>'
@@ -143,17 +143,17 @@ window.FinosPPFTracker = (function () {
     container.innerHTML = `
 <style>
 .ppf-hero{background:linear-gradient(135deg,rgba(0,212,255,.07),rgba(34,211,166,.04));border:1px solid rgba(0,212,255,.18);border-radius:20px;padding:24px;margin-bottom:20px;}
-.ppf-hero-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;}
+.ppf-hero-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;}
 .ppf-hero-val{font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:42px;font-weight:900;color:#00D4FF;letter-spacing:-1px;line-height:1;}
 .ppf-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin-bottom:22px;}
 .ppf-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;text-align:center;}
-.ppf-stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;}
+.ppf-stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;}
 .ppf-stat-val{font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:18px;font-weight:800;color:#fff;}
 .ppf-form{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:20px;}
-.ppf-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin:0 0 12px;}
+.ppf-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin:0 0 12px;}
 .ppf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:14px;}
 .ppf-field{display:flex;flex-direction:column;gap:6px;}
-.ppf-field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);}
+.ppf-field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.58);}
 .ppf-inp{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;padding:10px 14px;width:100%;box-sizing:border-box;outline:none;transition:border-color .2s;}
 .ppf-inp:focus{border-color:rgba(0,212,255,.5);background:rgba(0,212,255,.05);}
 .ppf-add-btn{display:block;width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,rgba(0,212,255,.12),rgba(0,212,255,.06));border:1px solid rgba(0,212,255,.3);color:#00D4FF;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .25s;}
@@ -167,7 +167,7 @@ window.FinosPPFTracker = (function () {
 <div class="ppf-hero">
   <div class="ppf-hero-lbl">Total Small Savings Corpus</div>
   <div class="ppf-hero-val">${INR(total)}</div>
-  <div style="font-size:13px;color:rgba(255,255,255,.4);margin-top:8px;">${accounts.length} account${accounts.length!==1?'s':''} tracked · ₹${Math.min(c80c,150000).toLocaleString('en-IN')} eligible for 80C this year</div>
+  <div style="font-size:13px;color:rgba(255,255,255,0.58);margin-top:8px;">${accounts.length} account${accounts.length!==1?'s':''} tracked · ₹${Math.min(c80c,150000).toLocaleString('en-IN')} eligible for 80C this year</div>
 </div>
 
 <div class="ppf-stats">
@@ -178,7 +178,7 @@ window.FinosPPFTracker = (function () {
   <div class="ppf-stat" style="border-color:rgba(34,211,166,.2);">
     <div class="ppf-stat-lbl">80C Eligible / yr</div>
     <div class="ppf-stat-val" style="color:#22D3A6;">${INR(Math.min(c80c, 150000))}</div>
-    <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:3px;">of ₹1.5L limit</div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-top:3px;">of ₹1.5L limit</div>
   </div>
   <div class="ppf-stat" style="border-color:rgba(155,93,229,.2);">
     <div class="ppf-stat-lbl">Accounts</div>
@@ -227,13 +227,13 @@ ${accounts.length ? `
 </div>
 
 <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:16px;font-size:12px;">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin-bottom:10px;">Current Interest Rates (Q1 FY 2025-26)</div>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin-bottom:10px;">Current Interest Rates (Q1 FY 2025-26)</div>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;">
     ${Object.entries(INSTRUMENTS).map(([k,v])=>`
       <div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,.02);border-radius:8px;border:1px solid rgba(255,255,255,.05);">
         <span style="color:${v.color};font-weight:700;font-size:12px;">${k}</span>
         <span style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:12px;color:rgba(255,255,255,.7);">${v.rate}%</span>
-        <span style="font-size:10px;color:rgba(255,255,255,.35);">${v.c80c?'80C':'—'} ${v.taxFree?'EEE':''}</span>
+        <span style="font-size:10px;color:rgba(255,255,255,0.58);">${v.c80c?'80C':'—'} ${v.taxFree?'EEE':''}</span>
       </div>`).join('')}
   </div>
 </div>
@@ -260,7 +260,7 @@ function _ppfAdd(){
     const accounts = _load();
 
     if (!accounts.length) {
-      container.innerHTML = '<div style="text-align:center;padding:36px;color:rgba(255,255,255,.35);font-size:13px;">Add at least one account in the Overview tab to see projections.</div>';
+      container.innerHTML = '<div style="text-align:center;padding:36px;color:rgba(255,255,255,0.58);font-size:13px;">Add at least one account in the Overview tab to see projections.</div>';
       return;
     }
 
@@ -278,7 +278,7 @@ function _ppfAdd(){
       return `<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1fr;padding:12px 14px;font-size:13px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:10px;margin-bottom:6px;align-items:center;gap:8px;flex-wrap:wrap;">
         <div>
           <div style="font-weight:700;color:#F5F7FA;">${a.nickname || inst.name}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;">${a.type} · ${inst.rate}% · matures ${maturityYr}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-top:2px;">${a.type} · ${inst.rate}% · matures ${maturityYr}</div>
         </div>
         <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);color:rgba(255,255,255,.7);">${INR(a.currentBalance)}</div>
         <div style="color:rgba(255,255,255,.5);">${yearsLeft} yr</div>
@@ -299,12 +299,12 @@ function _ppfAdd(){
 
     container.innerHTML = `
 <div style="background:rgba(34,211,166,.06);border:1px solid rgba(34,211,166,.18);border-radius:18px;padding:20px;margin-bottom:20px;">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;">Total Projected Maturity Value</div>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Total Projected Maturity Value</div>
   <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:38px;font-weight:900;color:#22D3A6;">${INR(totalProjected)}</div>
-  <div style="font-size:13px;color:rgba(255,255,255,.4);margin-top:6px;">across ${accounts.length} account${accounts.length!==1?'s':''} at respective maturity dates</div>
+  <div style="font-size:13px;color:rgba(255,255,255,0.58);margin-top:6px;">across ${accounts.length} account${accounts.length!==1?'s':''} at respective maturity dates</div>
 </div>
 
-<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1fr;padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.35);">
+<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1fr;padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,0.58);">
   <span>Account</span><span>Current</span><span>Years Left</span><span>At Maturity</span><span>Gain</span>
 </div>
 ${rows}`;
@@ -326,7 +326,7 @@ ${rows}`;
       const inst = INSTRUMENTS[a.type];
       const claimable = Math.min(a.annualDeposit || 0, inst.maxAmt || Infinity);
       return `<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;padding:11px 14px;font-size:13px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:10px;margin-bottom:5px;align-items:center;gap:8px;">
-        <div style="font-weight:700;color:#F5F7FA;">${a.nickname||inst.name}<span style="font-size:10px;color:rgba(255,255,255,.35);margin-left:6px;">${a.type}</span></div>
+        <div style="font-weight:700;color:#F5F7FA;">${a.nickname||inst.name}<span style="font-size:10px;color:rgba(255,255,255,0.58);margin-left:6px;">${a.type}</span></div>
         <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);color:rgba(255,255,255,.7);">${INR(a.annualDeposit||0)}</div>
         <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);color:#4F7CFF;">${INR(claimable)}</div>
         <div style="font-size:11px;color:${inst.taxFree?'#22D3A6':'#FFB347'};">${inst.taxFree?'EEE — full exemption':'Taxable at maturity'}</div>
@@ -336,27 +336,27 @@ ${rows}`;
     container.innerHTML = `
 <div style="background:rgba(79,124,255,.06);border:1px solid rgba(79,124,255,.18);border-radius:20px;padding:24px;margin-bottom:22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;">
   <div>
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;">Annual Deposits (80C eligible)</div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Annual Deposits (80C eligible)</div>
     <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:28px;font-weight:900;color:#4F7CFF;">${INR(c80cUsed)}</div>
-    <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:4px;">of ₹1.5L 80C limit</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">of ₹1.5L 80C limit</div>
   </div>
   <div>
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;">80C Remaining Capacity</div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">80C Remaining Capacity</div>
     <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:28px;font-weight:900;color:${remaining80c>0?'#FFB347':'#22D3A6'};">${INR(remaining80c)}</div>
-    <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:4px;">${remaining80c>0?'can still invest for deduction':'80C maxed ✓'}</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">${remaining80c>0?'can still invest for deduction':'80C maxed ✓'}</div>
   </div>
   <div>
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;">Tax Saved @30%</div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Tax Saved @30%</div>
     <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:28px;font-weight:900;color:#22D3A6;">${INR(Math.round(c80cUsed * 0.312))}</div>
-    <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:4px;">approx (30% slab + cess)</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">approx (30% slab + cess)</div>
   </div>
 </div>
 
 ${eligible.length ? `
-<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.35);">
+<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,0.58);">
   <span>Instrument</span><span>Deposit/yr</span><span>80C Claimable</span><span>Tax Treatment</span>
 </div>
-${rows}` : '<div style="color:rgba(255,255,255,.35);font-size:13px;padding:16px 0;">Add accounts in Overview tab to see tax breakdown.</div>'}
+${rows}` : '<div style="color:rgba(255,255,255,0.58);font-size:13px;padding:16px 0;">Add accounts in Overview tab to see tax breakdown.</div>'}
 
 <div style="background:rgba(255,179,71,.05);border:1px solid rgba(255,179,71,.12);border-radius:14px;padding:18px;margin-top:20px;">
   <div style="font-size:13px;font-weight:800;color:#FFB347;margin-bottom:12px;">Small Savings Tax Guide</div>

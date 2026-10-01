@@ -108,31 +108,32 @@ window.FinosNPSTracker = (function () {
     if (!container) return;
 
     const { total, t1, t2, ageNow, yearsLeft, annualR, projected, annuityCorpus, lumpSum, taxSaved, ep, cp, gp } = _compute();
+    const slab = gs('finos_nps_tax_slab') || 30;
 
     container.innerHTML = `
 <style>
 .nps-hero{background:linear-gradient(135deg,rgba(100,210,255,.07),rgba(0,212,255,.04));border:1px solid rgba(100,210,255,.18);border-radius:20px;padding:26px;margin-bottom:20px;}
-.nps-hero-lbl{font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
+.nps-hero-lbl{font-size:11px;font-weight:700;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
 .nps-hero-val{font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:42px;font-weight:900;color:#00D4FF;letter-spacing:-1px;line-height:1;}
-.nps-hero-sub{font-size:13px;color:rgba(255,255,255,.4);margin-top:8px;}
+.nps-hero-sub{font-size:13px;color:rgba(255,255,255,0.58);margin-top:8px;}
 .nps-tier-row{display:flex;gap:14px;margin-top:16px;flex-wrap:wrap;}
 .nps-tier-pill{flex:1;min-width:140px;padding:14px;border-radius:14px;border:1px solid;text-align:center;}
 .nps-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:22px;}
 .nps-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;text-align:center;}
-.nps-stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;}
+.nps-stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;}
 .nps-stat-val{font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:18px;font-weight:800;color:#fff;}
-.nps-stat-sub{font-size:11px;color:rgba(255,255,255,.35);margin-top:3px;}
+.nps-stat-sub{font-size:11px;color:rgba(255,255,255,0.58);margin-top:3px;}
 .nps-form{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;}
-.nps-section{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.4);margin:0 0 12px;}
+.nps-section{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.58);margin:0 0 12px;}
 .nps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:18px;}
 .nps-field{display:flex;flex-direction:column;gap:6px;}
-.nps-field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);}
+.nps-field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.58);}
 .nps-inp{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;padding:10px 14px;width:100%;box-sizing:border-box;transition:border-color .2s;outline:none;}
 .nps-inp:focus{border-color:rgba(0,212,255,.5);background:rgba(0,212,255,.05);}
 .nps-alloc-row{display:flex;gap:14px;align-items:flex-end;margin-bottom:8px;flex-wrap:wrap;}
-.nps-alloc-label{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.nps-alloc-label{font-size:11px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
 .nps-alloc-total{font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;margin-top:8px;display:inline-block;}
-.nps-note{font-size:11px;color:rgba(255,255,255,.35);line-height:1.6;margin-top:4px;}
+.nps-note{font-size:11px;color:rgba(255,255,255,0.58);line-height:1.6;margin-top:4px;}
 [data-theme="light"] .nps-hero{background:rgba(0,212,255,.05);}
 [data-theme="light"] .nps-hero-val{color:#0099CC;}
 [data-theme="light"] .nps-form,[data-theme="light"] .nps-stat{background:#fff;border-color:rgba(0,0,0,.08);}
@@ -146,14 +147,14 @@ window.FinosNPSTracker = (function () {
   <div class="nps-hero-sub">Age ${ageNow} &nbsp;·&nbsp; ${yearsLeft} years to retirement &nbsp;·&nbsp; ${(annualR * 100).toFixed(1)}% blended return</div>
   <div class="nps-tier-row">
     <div class="nps-tier-pill" style="background:rgba(0,212,255,.07);border-color:rgba(0,212,255,.2);">
-      <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:5px;">Tier 1</div>
+      <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.58);text-transform:uppercase;margin-bottom:5px;">Tier 1</div>
       <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:20px;font-weight:800;color:#00D4FF;" id="nps-t1-disp">${INR(t1)}</div>
-      <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:3px;">Pension · tax-saving</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-top:3px;">Pension · tax-saving</div>
     </div>
     <div class="nps-tier-pill" style="background:rgba(155,93,229,.07);border-color:rgba(155,93,229,.2);">
-      <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:5px;">Tier 2</div>
+      <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.58);text-transform:uppercase;margin-bottom:5px;">Tier 2</div>
       <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:20px;font-weight:800;color:#9B5DE5;" id="nps-t2-disp">${INR(t2)}</div>
-      <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:3px;">Voluntary · liquid</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-top:3px;">Voluntary · liquid</div>
     </div>
   </div>
 </div>
@@ -330,7 +331,7 @@ function _npsAllocSave(key, val) {
     const rows = milestones.map(m => `
       <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;margin-bottom:6px;">
         <div style="font-size:13px;color:rgba(255,255,255,.5);min-width:50px;">+${m.yr} yr</div>
-        <div style="font-size:13px;color:rgba(255,255,255,.4);min-width:60px;">Age ${m.age}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.58);min-width:60px;">Age ${m.age}</div>
         <div style="flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;">
           <div style="height:100%;width:${Math.min((m.val/projected)*100,100).toFixed(1)}%;background:linear-gradient(90deg,#00D4FF,#22D3A6);border-radius:3px;"></div>
         </div>
@@ -345,9 +346,9 @@ function _npsAllocSave(key, val) {
     container.innerHTML = `
 <style>
 .nps-proj-hero{background:linear-gradient(135deg,rgba(34,211,166,.07),rgba(0,212,255,.04));border:1px solid rgba(34,211,166,.18);border-radius:20px;padding:24px;margin-bottom:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;}
-.nps-ph-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;}
+.nps-ph-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;}
 .nps-ph-val{font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:22px;font-weight:900;}
-.nps-ph-sub{font-size:11px;color:rgba(255,255,255,.35);margin-top:3px;}
+.nps-ph-sub{font-size:11px;color:rgba(255,255,255,0.58);margin-top:3px;}
 .nps-alloc-bar{display:flex;height:8px;border-radius:6px;overflow:hidden;margin:14px 0 6px;gap:2px;}
 [data-theme="light"] .nps-ph-val{color:inherit;}
 </style>
@@ -371,7 +372,7 @@ function _npsAllocSave(key, val) {
 </div>
 
 <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:20px;">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin-bottom:12px;">Asset Allocation</div>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin-bottom:12px;">Asset Allocation</div>
   <div class="nps-alloc-bar">
     <div style="width:${ep}%;background:#00D4FF;"></div>
     <div style="width:${cp}%;background:#22D3A6;"></div>
@@ -385,8 +386,8 @@ function _npsAllocSave(key, val) {
 </div>
 
 <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin-bottom:14px;">Growth Milestones</div>
-  ${milestones.length ? rows : '<div style="color:rgba(255,255,255,.35);font-size:13px;padding:20px 0;text-align:center;">Enter your Date of Birth and corpus to see milestones.</div>'}
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin-bottom:14px;">Growth Milestones</div>
+  ${milestones.length ? rows : '<div style="color:rgba(255,255,255,0.58);font-size:13px;padding:20px 0;text-align:center;">Enter your Date of Birth and corpus to see milestones.</div>'}
 </div>`;
   }
 
@@ -411,10 +412,10 @@ function _npsAllocSave(key, val) {
       <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;padding:12px 14px;font-size:13px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:10px;margin-bottom:6px;align-items:center;gap:8px;">
         <div>
           <div style="font-weight:700;color:#F5F7FA;">${label}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;">${note}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-top:2px;">${note}</div>
         </div>
         <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);color:#9B5DE5;">${INR(deduct)}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.35);">${max}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.58);">${max}</div>
         <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);color:#22D3A6;font-weight:800;">${INR(saved)}</div>
       </div>`;
 
@@ -423,12 +424,12 @@ function _npsAllocSave(key, val) {
 [data-theme="light"] .nps-tax-hero{background:#fff;}
 </style>
 <div class="nps-tax-hero" style="background:rgba(79,124,255,.06);border:1px solid rgba(79,124,255,.18);border-radius:20px;padding:24px;margin-bottom:20px;">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.4);margin-bottom:6px;">Annual Tax Saving on NPS</div>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Annual Tax Saving on NPS</div>
   <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:40px;font-weight:900;color:#4F7CFF;">${INR(taxSave)}</div>
-  <div style="font-size:13px;color:rgba(255,255,255,.4);margin-top:6px;">At ${slab}% tax slab · Total deductible: ${INR(total)}</div>
+  <div style="font-size:13px;color:rgba(255,255,255,0.58);margin-top:6px;">At ${slab}% tax slab · Total deductible: ${INR(total)}</div>
 </div>
 
-<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.35);">
+<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,0.58);">
   <span>Section</span><span>Deductible</span><span>Max Limit</span><span>Tax Saved</span>
 </div>
 ${row('80CCD(1)', c1, '₹1.5L (within 80C)', Math.round(c1 * s), 'Your contribution — counts toward 80C ₹1.5L ceiling')}

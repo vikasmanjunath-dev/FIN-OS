@@ -476,7 +476,7 @@ Rules:
       }
       .arya-ai-header-title { font-weight: 700; font-size: 13px; color: #00ff88; letter-spacing: .4px; }
       .arya-ai-header-sub   { font-size: 11px; color: rgba(255,255,255,.5); margin-top: 1px; }
-      .arya-ai-header-chevron { margin-left: auto; font-size: 13px; color: rgba(255,255,255,.4); transition: transform .2s; }
+      .arya-ai-header-chevron { margin-left: auto; font-size: 13px; color: rgba(255,255,255,0.58); transition: transform .2s; }
       .arya-ai-panel.collapsed .arya-ai-header-chevron { transform: rotate(-90deg); }
       .arya-ai-body {
         padding: 18px 20px;
@@ -587,7 +587,7 @@ Rules:
         display: flex; align-items: center; justify-content: center; font-size: 18px;
       }
       #arya-dashboard-brief .brief-title { font-weight: 700; font-size: 13px; color: #00ff88; }
-      #arya-dashboard-brief .brief-time  { font-size: 11px; color: rgba(255,255,255,.4); }
+      #arya-dashboard-brief .brief-time  { font-size: 11px; color: rgba(255,255,255,0.58); }
       #arya-dashboard-brief .brief-text  {
         font-size: 14px; line-height: 1.7; color: rgba(255,255,255,.82);
       }
@@ -628,8 +628,8 @@ Rules:
       [data-theme="light"] .arya-ai-body { color: rgba(0,0,0,.78) !important; }
       [data-theme="light"] .arya-ai-header { background: rgba(0,150,100,.06) !important; }
       [data-theme="light"] .arya-ai-header-title { color: #007744 !important; }
-      [data-theme="light"] .arya-ai-header-sub { color: rgba(0,0,0,.5) !important; }
-      [data-theme="light"] .arya-ai-header-chevron { color: rgba(0,0,0,.4) !important; }
+      [data-theme="light"] .arya-ai-header-sub { color: rgba(0,0,0,0.62) !important; }
+      [data-theme="light"] .arya-ai-header-chevron { color: rgba(0,0,0,0.62) !important; }
       [data-theme="light"] .arya-ai-streaming { color: rgba(0,0,0,.62) !important; }
       [data-theme="light"] .arya-ai-btn-ghost {
         background: rgba(0,0,0,.06) !important;
@@ -639,7 +639,7 @@ Rules:
       [data-theme="light"] .arya-ai-thinking { color: rgba(0,120,70,.8) !important; }
       [data-theme="light"] .arya-ai-thinking-dot { background: #007744 !important; }
       [data-theme="light"] #arya-dashboard-brief .brief-title { color: #0057cc !important; }
-      [data-theme="light"] #arya-dashboard-brief .brief-time  { color: rgba(0,0,0,.45) !important; }
+      [data-theme="light"] #arya-dashboard-brief .brief-time  { color: rgba(0,0,0,0.62) !important; }
       [data-theme="light"] #arya-dashboard-brief .brief-text  { color: #1a1a2e !important; }
       [data-theme="light"] #arya-brief-refresh-btn {
         border-color: rgba(79,124,255,.4) !important;
@@ -696,7 +696,8 @@ Rules:
 
   /** Stream Ollama response into a panel's body */
   async function _streamIntoPanel(panel, system, prompt, footerHTML) {
-    const body = panel.querySelector('.arya-ai-body');
+    const body = panel && panel.querySelector('.arya-ai-body');
+    if (!body) return;
     body.innerHTML = '<span class="arya-ai-streaming arya-ai-cursor"></span>';
     const span = body.querySelector('span');
 
@@ -808,7 +809,8 @@ In 2-3 sentences of natural Hinglish, explain:
 Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
 `.trim();
 
-      const panel2 = document.getElementById('arya-calc-panel');
+      const panel2 = document.getElementById('arya-calc-panel') || panel;   // fall back to the panel we just built if the anchor was re-rendered
+      if (!panel2 || !panel2.isConnected) return;
       // Store refresh data safely to avoid inline JSON injection in onclick
       const _calcRefreshKey = '_aryaCalcData_' + Date.now();
       window[_calcRefreshKey] = { calcType, inputs, outputs };
@@ -1033,7 +1035,7 @@ Keep it conversational, use ₹ and Indian numbers (L, Cr, K).
           <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#4d7cff,#00d4ff);display:flex;align-items:center;justify-content:center;font-size:18px;">🧠</div>
           <div>
             <div style="font-weight:700;font-size:14px;color:#00ff88;">Arya Explains</div>
-            <div id="arya-learn-topic" style="font-size:11px;color:rgba(255,255,255,.4);"></div>
+            <div id="arya-learn-topic" style="font-size:11px;color:rgba(255,255,255,0.58);"></div>
           </div>
           <button onclick="document.getElementById('arya-learn-modal').style.display='none'"
             style="margin-left:auto;background:none;border:none;color:rgba(255,255,255,.5);font-size:22px;cursor:pointer;">×</button>
@@ -1358,7 +1360,7 @@ Keep it to 2-3 sentences total, natural Hinglish.
         <div style="font-size:13px;line-height:1.6;color:rgba(255,255,255,.7);">${full}</div>
       `;
     } catch {
-      wrapper.innerHTML = '<span style="font-size:12px;color:rgba(255,255,255,.4)">Sentiment offline</span>';
+      wrapper.innerHTML = '<span style="font-size:12px;color:rgba(255,255,255,0.58)">Sentiment offline</span>';
     }
   };
 
@@ -1526,7 +1528,7 @@ Keep it to 2-3 sentences total, natural Hinglish.
           background:${color}18;border:1px solid ${color}40;color:${color};">${label}</span>
       </div>
       <div style="font-size:12px;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:8px;">${bullets}</div>
-      ${data.retail_impact ? `<div style="font-size:11px;color:rgba(255,255,255,.4);border-top:1px solid rgba(255,255,255,.06);padding-top:6px;margin-top:4px;">💡 ${data.retail_impact}</div>` : ''}
+      ${data.retail_impact ? `<div style="font-size:11px;color:rgba(255,255,255,0.58);border-top:1px solid rgba(255,255,255,.06);padding-top:6px;margin-top:4px;">💡 ${data.retail_impact}</div>` : ''}
       ${stocks ? `<div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">${stocks}</div>` : ''}
     `;
   };

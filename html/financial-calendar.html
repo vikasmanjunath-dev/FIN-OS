@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
   <meta name="description" content="Financial Calendar — SIP debits, FD maturities, insurance renewals, tax deadlines and goal milestones in one view.">
   <title>Financial Calendar | FIN-OS</title>
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
@@ -23,6 +24,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-tracker-sync.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/finos-calendar.js" defer></script>
 </head>
@@ -214,14 +216,14 @@
 }
 .fc-dow {
   text-align:center;font-size:10px;font-weight:700;
-  color:rgba(255,255,255,.3);padding:6px 2px;letter-spacing:.04em;
+  color:rgba(255,255,255,0.58);padding:6px 2px;letter-spacing:.04em;
 }
 .fc-cell {
   min-height:60px;border-radius:8px;padding:6px 4px 4px;
   border:1px solid transparent;transition:all .15s;position:relative;
 }
 .fc-cell--empty { min-height:60px; }
-.fc-cell--past .fc-day-num { color:rgba(255,255,255,.2); }
+.fc-cell--past .fc-day-num { color:rgba(255,255,255,0.58); }
 .fc-cell:not(.fc-cell--empty):hover { background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);cursor:pointer; }
 .fc-cell--today { background:rgba(199,240,0,.07);border-color:rgba(199,240,0,.25); }
 .fc-cell--today .fc-day-num { color: var(--accent-secondary);font-weight:800; }
@@ -245,12 +247,12 @@
   width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0;
 }
 .fc-detail-name { font-size:13px;font-weight:600;color:var(--text-primary); }
-.fc-detail-sub  { font-size:11px;color:rgba(255,255,255,.4);margin-top:2px; }
+.fc-detail-sub  { font-size:11px;color:rgba(255,255,255,0.58);margin-top:2px; }
 
 /* Upcoming timeline */
 .fc-week-label {
   font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
-  color:rgba(255,255,255,.3);margin:16px 0 8px;
+  color:rgba(255,255,255,0.58);margin:16px 0 8px;
 }
 .fc-week-label:first-child { margin-top:0; }
 .fc-event-row {
@@ -262,13 +264,13 @@
 .fc-event-row.fc-event--urgent { border-color:rgba(239,68,68,.2);background:rgba(239,68,68,.04); }
 .fc-event-row.fc-event--soon  { border-color:rgba(249,115,22,.18);background:rgba(249,115,22,.03); }
 .fc-event-date {
-  min-width:36px;font-size:11px;font-weight:700;color:rgba(255,255,255,.45);
+  min-width:36px;font-size:11px;font-weight:700;color:rgba(255,255,255,0.58);
   padding-top:2px;
 }
 .fc-event-dot { width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0; }
 .fc-event-title { font-size:13px;font-weight:600;color:var(--text-primary); }
-.fc-event-sub   { font-size:11px;color:rgba(255,255,255,.4);margin-top:2px; }
-.fc-empty       { text-align:center;color:rgba(255,255,255,.3);padding:32px;font-size:13px; }
+.fc-event-sub   { font-size:11px;color:rgba(255,255,255,0.58);margin-top:2px; }
+.fc-empty       { text-align:center;color:rgba(255,255,255,0.58);padding:32px;font-size:13px; }
 
 /* Monthly summary cards */
 .fc-summary-grid {
@@ -279,7 +281,7 @@
   border-radius:14px;padding:14px 16px;text-align:center;
 }
 .fc-summary-icon { font-size:20px;margin-bottom:6px; }
-.fc-summary-label { font-size:10px;color:rgba(255,255,255,.4);font-weight:600;text-transform:uppercase;letter-spacing:.04em; }
+.fc-summary-label { font-size:10px;color:rgba(255,255,255,0.58);font-weight:600;text-transform:uppercase;letter-spacing:.04em; }
 .fc-summary-val { font-size:18px;font-weight:800;margin-top:4px; }
 
 /* Legend */
@@ -304,8 +306,8 @@
 [data-theme="light"] .fc-nav { border-color:rgba(0,0,0,.12);background:rgba(0,0,0,.03);color:rgba(0,0,0,.6); }
 [data-theme="light"] .fc-cell--today { background:rgba(100,160,0,.08);border-color:rgba(100,160,0,.3); }
 [data-theme="light"] .fc-cell--today .fc-day-num { color:#5a8a00; }
-[data-theme="light"] .fc-day-num { color:rgba(0,0,0,.5); }
-[data-theme="light"] .fc-cell--past .fc-day-num { color:rgba(0,0,0,.2); }
+[data-theme="light"] .fc-day-num { color:rgba(0,0,0,0.62); }
+[data-theme="light"] .fc-cell--past .fc-day-num { color:rgba(0,0,0,0.62); }
 [data-theme="light"] .fc-summary-card { background:rgba(0,0,0,.02);border-color:rgba(0,0,0,.07); }
 [data-theme="light"] .fc-event-row { background:rgba(0,0,0,.02);border-color:rgba(0,0,0,.06); }
 [data-theme="light"] .fc-day-detail { background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.08); }
@@ -368,9 +370,13 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 <script src="../js/arya-ai.js?v=7" defer></script>
 <script src="../js/arya-memory.js" defer></script>
 <script src="../js/interactions.js" defer></script>
+<script src="../js/pwa-init.js"></script>
 </body>
 </html>

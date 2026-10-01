@@ -36,3 +36,5 @@ node_modules/
 # VSCode
 .vscode/
 .vercel
+
+dist-min/

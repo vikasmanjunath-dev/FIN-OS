@@ -51,3 +51,24 @@ Place any new build/deploy utilities here. Common additions:
 | `validate-calculators.js` | Check all 88 calculator filenames match `js/calculators.js` |
 | `check-fouc.js` | Verify anti-FOUC script is present in all HTML pages |
 | `audit-tokens.js` | Check CSS token usage across all 45 stylesheets |
+
+### `build-search-index.js`
+
+Keeps `js/finos-search.js` complete. The hand-written entries stay the source of truth for titles/tags; any page the
+curated list doesn't cover is written into an `AUTO-INDEX` block from its own `<title>` and meta description.
+
+```bash
+npm run index          # rewrite the AUTO block
+npm run index:check    # exit 1 if stale (CI)
+```
+
+### `minify.js`
+
+Non-destructive: minifies `js/` and `css/` with esbuild into `dist-min/` and prints the saving (≈33% raw, ~650 KB gzipped
+for everything). Vercel does not run it; it exists to measure and as a ready output if you later serve a built bundle.
+
+### `npm run predeploy`
+
+`index` → `stamp` (SW cache version) → `check`. Note: the service worker now serves JS/CSS stale-while-revalidate, so a
+forgotten stamp no longer strands returning visitors on old code.
+

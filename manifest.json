@@ -6,26 +6,50 @@
   "id": "./html/home.html",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone"],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
   "background_color": "#0B0D12",
   "theme_color": "#0B0D12",
   "orientation": "portrait-primary",
   "lang": "en-IN",
   "dir": "ltr",
-  "categories": ["finance", "education", "productivity"],
-  "icons": [
-    { "src": "./assets/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "./assets/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "maskable" },
-    { "src": "./assets/icons/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "./assets/icons/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "maskable" }
+  "categories": [
+    "finance",
+    "education",
+    "productivity"
   ],
-  "screenshots": [
+  "icons": [
+    {
+      "src": "./assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
     {
       "src": "./assets/icons/icon-512.svg",
-      "sizes": "512x512",
+      "sizes": "any",
       "type": "image/svg+xml",
-      "form_factor": "wide",
-      "label": "FIN•OS Command Center"
+      "purpose": "any"
     }
   ],
   "shortcuts": [
@@ -34,7 +58,13 @@
       "short_name": "Dashboard",
       "url": "./html/dashboard.html",
       "description": "Net worth, health score, Arya morning brief — your full financial life at one glance",
-      "icons": [{ "src": "./assets/icons/icon-192.svg", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "./assets/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Track Finances",
