@@ -2,6 +2,7 @@
 <!-- <noreload> — tells VS Code Live Server NOT to inject HMR / auto-reload script -->
 <html lang="en">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
@@ -14,7 +15,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <title>Home | FIN-OS</title>
   <!-- Google Fonts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
@@ -28,6 +29,7 @@
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/theme.css">
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/finos-personalization.js?v=2" defer></script>
   <meta property="og:site_name" content="FIN•OS">
@@ -200,10 +202,10 @@
       }
       .js-label {
         font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
-        color:rgba(255,255,255,.22); white-space:nowrap;
+        color:rgba(255,255,255,0.58); white-space:nowrap;
       }
       .js-stage.active .js-label { color:var(--js-color,#4f7cff); }
-      .js-stage.done  .js-label { color:rgba(255,255,255,.45); }
+      .js-stage.done  .js-label { color:rgba(255,255,255,0.58); }
       .js-line {
         flex:1; height:1px; background:rgba(255,255,255,.1); margin:0 -1px;
         position:relative; top:-10px;
@@ -211,8 +213,8 @@
       .js-line.done { background:rgba(255,255,255,.28); }
       [data-theme="light"] .js-dot { border-color:rgba(0,0,0,.1); background:rgba(0,0,0,.04); }
       [data-theme="light"] .js-stage.done .js-dot { border-color:rgba(0,0,0,.25); background:rgba(0,0,0,.06); }
-      [data-theme="light"] .js-label { color:rgba(0,0,0,.25); }
-      [data-theme="light"] .js-stage.done .js-label { color:rgba(0,0,0,.5); }
+      [data-theme="light"] .js-label { color:rgba(0,0,0,0.62); }
+      [data-theme="light"] .js-stage.done .js-label { color:rgba(0,0,0,0.62); }
       [data-theme="light"] .js-line { background:rgba(0,0,0,.1); }
       [data-theme="light"] .js-line.done { background:rgba(0,0,0,.25); }
     </style>
@@ -446,7 +448,7 @@
       .ph-sub {
         font-family: var(--font-mono);
         font-size: 12px;
-        color: rgba(255,255,255,.28);
+        color: rgba(255,255,255,0.58);
         letter-spacing: .06em;
         margin-top: 2px;
       }
@@ -604,8 +606,8 @@
   </script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
-  <script src="../js/finos-widget.js?v=9"></script>
-  <script src="../js/finos-search.js?v=3"></script>
+  <script src="../js/finos-widget.js?v=10"></script>
+  <script src="../js/finos-search.js?v=4"></script>
   <script src="../js/finos-mobile.js" defer></script>
 
 <style id="home-light-theme">
@@ -635,7 +637,7 @@ a.card:focus-visible {
   color: rgba(199,240,0,0.55) !important;
 }
 [data-theme="light"] .protocol-hero .ph-sub {
-  color: rgba(255,255,255,0.28) !important;
+  color: rgba(255,255,255,0.58) !important;
 }
 [data-theme="light"] .protocol-hero .ph-badge {
   background: rgba(199,240,0,0.1) !important;
@@ -656,7 +658,7 @@ a.card:focus-visible {
 }
 [data-theme="light"] .tr-sub { color: #6A7090 !important; }
 /* Home action cards */
-[data-theme="light"] .home-actions .card-content h4 { color: #0B0D12 !important; }
+[data-theme="light"] .home-actions .card-content h4 { color: var(--text-primary) !important; }
 [data-theme="light"] .home-actions .card-content p { color: #4A5068 !important; }
 </style>
 
@@ -878,7 +880,7 @@ a.card:focus-visible {
         <input type="text" id="qft-input"
           placeholder="Analyze my SIP... or ask about EMI traps."
           autocomplete="off" maxlength="4000" />
-        <button type="button" id="qft-submit-btn" disabled>
+        <button type="button" id="qft-submit-btn" disabled aria-label="Send message">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
           </svg>
@@ -1105,7 +1107,7 @@ Give direct, data-driven financial advice for Indian professionals. Use ₹ for 
       const errDiv = appendMsg('', 'ai');
       errDiv.classList.add('qft-msg-error');
       errDiv.innerHTML = `⚠️ QFT is offline right now.<br>
-        <small style="color:rgba(255,255,255,.4)">The AI engine is not running. Please ensure the backend services are started.</small>`;
+        <small style="color:rgba(255,255,255,0.58)">The AI engine is not running. Please ensure the backend services are started.</small>`;
     } finally {
       window._aiStreamActive = false; // Release SW update guard
       unlock();
@@ -1165,12 +1167,12 @@ Give direct, data-driven financial advice for Indian professionals. Use ₹ for 
           <span style="font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:.02em">day streak</span>
         </div>
         <div class="hs-pop" style="display:none;position:absolute;bottom:calc(100% + 10px);left:0;background:rgba(20,20,28,0.97);border:1px solid rgba(199,240,0,0.2);border-radius:14px;padding:16px 18px;box-shadow:0 8px 32px rgba(0,0,0,0.65);min-width:180px;animation:hsFadeUp .18s ease;">
-          <div style="font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:8px">Daily Streak</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58);letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:8px">Daily Streak</div>
           <div style="display:flex;align-items:center;gap:10px">
             <span style="font-size:28px">${s.count >= 7 ? '🔥' : s.count >= 3 ? '✨' : '📝'}</span>
             <div>
               <div style="font-size:22px;font-weight:800;color: var(--accent-secondary);">${s.count} Day${s.count !== 1 ? 's' : ''}</div>
-              <div style="font-size:11px;color:rgba(255,255,255,0.4);">Best: ${s.best || s.count} days</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.58);">Best: ${s.best || s.count} days</div>
             </div>
           </div>
         </div>
@@ -1192,7 +1194,10 @@ Give direct, data-driven financial advice for Indian professionals. Use ₹ for 
 </style>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 </body>
 </html>

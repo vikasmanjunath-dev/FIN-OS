@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
   <meta name="description" content="EPF & PF Tracker — Track your Employees' Provident Fund balance, contributions, and retirement corpus projection.">
   <title>EPF Tracker | FIN-OS</title>
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
@@ -23,6 +24,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-tracker-sync.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/finos-epf-tracker.js" defer></script>
 
@@ -91,7 +93,7 @@
       font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 8px;
     }
     .epf-form-hint {
-      font-size: 12px; color: rgba(255,255,255,.4); margin-bottom: 22px; line-height: 1.5;
+      font-size: 12px; color: rgba(255,255,255,0.58); margin-bottom: 22px; line-height: 1.5;
     }
     .epf-field-grid {
       display: grid;
@@ -101,7 +103,7 @@
     .epf-field { display: flex; flex-direction: column; gap: 6px; }
     .epf-field label {
       font-size: 11px; font-weight: 600; letter-spacing: .05em;
-      text-transform: uppercase; color: rgba(255,255,255,.4);
+      text-transform: uppercase; color: rgba(255,255,255,0.58);
     }
     .epf-inp {
       background: rgba(255,255,255,.05);
@@ -116,7 +118,7 @@
       border-color: rgba(34,211,166,.5);
       background: rgba(34,211,166,.05);
     }
-    .epf-inp::placeholder { color: rgba(255,255,255,.25); }
+    .epf-inp::placeholder { color: rgba(255,255,255,0.58); }
     .epf-rates-box {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -127,9 +129,9 @@
       border-radius: 12px;
     }
     .epf-rate-item { display: flex; flex-direction: column; gap: 2px; }
-    .epf-rate-lbl { font-size: 10px; color: rgba(255,255,255,.4); }
+    .epf-rate-lbl { font-size: 10px; color: rgba(255,255,255,0.58); }
     .epf-rate-val { font-size: 15px; font-weight: 800; color: #22D3A6; }
-    .epf-rate-note { font-size: 10px; color: rgba(255,255,255,.3); }
+    .epf-rate-note { font-size: 10px; color: rgba(255,255,255,0.58); }
 
     /* ── Overview styles ─────────────────────────────── */
     .epf-balance-card {
@@ -145,7 +147,7 @@
       font-size: clamp(28px, 4vw, 40px); font-weight: 900;
       color: #22D3A6; margin-bottom: 8px;
     }
-    .epf-balance-sub { font-size: 13px; color: rgba(255,255,255,.45); margin-bottom: 12px; }
+    .epf-balance-sub { font-size: 13px; color: rgba(255,255,255,0.58); margin-bottom: 12px; }
     .epf-balance-badge {
       display: inline-block;
       padding: 4px 14px; border-radius: 20px;
@@ -154,7 +156,7 @@
     }
     .epf-section-title {
       font-size: 11px; font-weight: 700; letter-spacing: .08em;
-      text-transform: uppercase; color: rgba(255,255,255,.4);
+      text-transform: uppercase; color: rgba(255,255,255,0.58);
       margin-bottom: 14px;
     }
     .epf-contrib-grid {
@@ -174,8 +176,8 @@
       font-family: var(--font-mono);
       font-size: 18px; font-weight: 800; color: #fff;
     }
-    .epf-per-mo { font-size: 11px; font-weight: 400; color: rgba(255,255,255,.4); }
-    .epf-contrib-annual { font-size: 11px; color: rgba(255,255,255,.35); margin-top: 4px; }
+    .epf-per-mo { font-size: 11px; font-weight: 400; color: rgba(255,255,255,0.58); }
+    .epf-contrib-annual { font-size: 11px; color: rgba(255,255,255,0.58); margin-top: 4px; }
     .epf-interest-banner {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -184,7 +186,7 @@
       border: 1px solid rgba(255,255,255,.07);
       border-radius: 14px; margin-bottom: 20px;
     }
-    .epf-int-lbl { font-size: 10px; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    .epf-int-lbl { font-size: 10px; color: rgba(255,255,255,0.58); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
     .epf-int-val { font-size: 15px; font-weight: 700; color: #fff; }
     .epf-compare-grid {
       display: grid;
@@ -199,7 +201,7 @@
     .epf-compare-name { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.7); margin-bottom: 6px; }
     .epf-compare-rate { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
     .epf-compare-tax  { font-size: 10px; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,.06); color: rgba(255,255,255,.5); margin-bottom: 4px; display: inline-block; }
-    .epf-compare-note { font-size: 10px; color: rgba(255,255,255,.3); }
+    .epf-compare-note { font-size: 10px; color: rgba(255,255,255,0.58); }
     .epf-passbook-link {
       display: inline-block; margin-top: 8px;
       padding: 10px 18px; border-radius: 10px;
@@ -223,7 +225,7 @@
       font-size: clamp(32px, 5vw, 52px); font-weight: 900;
       color: #22D3A6; margin-bottom: 12px;
     }
-    .epf-proj-meta { font-size: 13px; color: rgba(255,255,255,.4); }
+    .epf-proj-meta { font-size: 13px; color: rgba(255,255,255,0.58); }
     .epf-proj-strip {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -233,12 +235,12 @@
       background: rgba(255,255,255,.04); border: 1px solid var(--border-soft);
       border-radius: 14px; padding: 18px; text-align: center;
     }
-    .epf-proj-lbl { font-size: 11px; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+    .epf-proj-lbl { font-size: 11px; color: rgba(255,255,255,0.58); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
     .epf-proj-num {
       font-family: var(--font-mono);
       font-size: 19px; font-weight: 800; margin-bottom: 4px;
     }
-    .epf-proj-note { font-size: 11px; color: rgba(255,255,255,.35); }
+    .epf-proj-note { font-size: 11px; color: rgba(255,255,255,0.58); }
 
     /* Milestone timeline */
     .epf-milestone-row {
@@ -262,7 +264,7 @@
     }
     .epf-milestone.current .epf-ms-dot { background: #22D3A6; border-color: #22D3A6; }
     .epf-milestone.retire .epf-ms-dot { background: #c7f000; border-color: var(--accent-secondary); box-shadow: 0 0 8px rgba(199,240,0,.4); }
-    .epf-ms-lbl { font-size: 11px; color: rgba(255,255,255,.4); }
+    .epf-ms-lbl { font-size: 11px; color: rgba(255,255,255,0.58); }
     .epf-ms-val { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: #fff; text-align: center; }
 
     /* VPF box */
@@ -275,34 +277,34 @@
     .epf-vpf-body strong { color: #4F7CFF; }
 
     .epf-assumption-note {
-      font-size: 11px; color: rgba(255,255,255,.25); line-height: 1.6;
+      font-size: 11px; color: rgba(255,255,255,0.58); line-height: 1.6;
       padding: 12px; border-radius: 10px; background: rgba(255,255,255,.02);
     }
 
     /* ── Empty state ─────────────────────────────────── */
     .epf-empty {
       padding: 40px 28px; text-align: center;
-      color: rgba(255,255,255,.35); font-size: 14px; line-height: 1.6;
+      color: rgba(255,255,255,0.58); font-size: 14px; line-height: 1.6;
       background: rgba(255,255,255,.02); border-radius: 14px;
       border: 1px dashed rgba(255,255,255,.1);
     }
 
     /* ── Light theme ─────────────────────────────────── */
     [data-theme="light"] .epf-page       { background: #F4F6FB; }
-    [data-theme="light"] .epf-page-title { color: #0B0D12; }
+    [data-theme="light"] .epf-page-title { color: var(--text-primary); }
     [data-theme="light"] .epf-page-sub   { color: #4A5068; }
     [data-theme="light"] .epf-form       { background: #fff; border-color: rgba(0,0,0,.08); }
-    [data-theme="light"] .epf-form-title { color: #0B0D12; }
+    [data-theme="light"] .epf-form-title { color: var(--text-primary); }
     [data-theme="light"] .epf-form-hint  { color: #6A7090; }
-    [data-theme="light"] .epf-inp        { background: #F4F6FB; border-color: rgba(0,0,0,.12); color: #0B0D12; }
+    [data-theme="light"] .epf-inp        { background: #F4F6FB; border-color: rgba(0,0,0,.12); color: var(--text-primary); }
     [data-theme="light"] .epf-inp:focus  { border-color: rgba(34,211,166,.5); }
     [data-theme="light"] .epf-tabs       { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.08); }
     [data-theme="light"] .epf-tab:not(.active) { color: #6A7090; }
     [data-theme="light"] .epf-proj-item,
     [data-theme="light"] .epf-compare-item,
     [data-theme="light"] .epf-interest-banner { background: #fff; border-color: rgba(0,0,0,.08); }
-    [data-theme="light"] .epf-int-val    { color: #0B0D12; }
-    [data-theme="light"] .epf-ms-val     { color: #0B0D12; }
+    [data-theme="light"] .epf-int-val    { color: var(--text-primary); }
+    [data-theme="light"] .epf-ms-val     { color: var(--text-primary); }
     [data-theme="light"] .epf-section-title { color: #6A7090; }
     [data-theme="light"] .epf-balance-sub,
     [data-theme="light"] .epf-proj-meta  { color: #6A7090; }
@@ -318,8 +320,8 @@
     [data-theme="light"] .epf-ms-lbl,
     [data-theme="light"] .epf-rate-lbl,
     [data-theme="light"] .epf-rate-note { color: #6A7090; }
-    [data-theme="light"] .epf-contrib-val { color: #0B0D12; }
-    [data-theme="light"] .epf-compare-name { color: #0B0D12; }
+    [data-theme="light"] .epf-contrib-val { color: var(--text-primary); }
+    [data-theme="light"] .epf-compare-name { color: var(--text-primary); }
     [data-theme="light"] .epf-compare-tax { background: rgba(0,0,0,.06); }
     [data-theme="light"] .epf-proj-sub,
     [data-theme="light"] .epf-vpf-body { color: #4A5068; }
@@ -548,11 +550,14 @@ document.addEventListener('DOMContentLoaded', function () {
 <script src="../js/ui.js" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=9"></script>
+<script src="../js/finos-widget.js?v=10"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=3"></script>
+<script src="../js/finos-search.js?v=4"></script>
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 <script src="../js/interactions.js" defer></script>
 </body>
 </html>

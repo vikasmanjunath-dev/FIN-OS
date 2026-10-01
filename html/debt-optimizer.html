@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
   <meta name="description" content="Debt Optimizer — Avalanche vs Snowball payoff strategies, prepayment impact, and debt-free date for Indian borrowers.">
   <title>Debt Optimizer | FIN-OS</title>
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
@@ -23,6 +24,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-tracker-sync.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/finos-debt-optimizer.js" defer></script>
 
@@ -84,7 +86,7 @@
     }
     .do-hint {
       font-size: 13px;
-      color: rgba(255,255,255,.4);
+      color: rgba(255,255,255,0.58);
       margin: 0 0 24px;
       line-height: 1.6;
     }
@@ -152,7 +154,7 @@
       font-weight: 600;
       letter-spacing: .05em;
       text-transform: uppercase;
-      color: rgba(255,255,255,.4);
+      color: rgba(255,255,255,0.58);
     }
     .do-inp {
       background: rgba(255,255,255,.05);
@@ -171,7 +173,7 @@
       border-color: rgba(239,68,68,.5);
       background: rgba(239,68,68,.06);
     }
-    .do-inp::placeholder { color: rgba(255,255,255,.25); }
+    .do-inp::placeholder { color: rgba(255,255,255,0.58); }
     .do-calc-btn {
       margin-top: 4px;
       padding: 6px 12px;
@@ -189,7 +191,7 @@
     .do-calc-btn:hover { background: rgba(239,68,68,.22); }
     .do-field-hint {
       font-size: 11px;
-      color: rgba(255,255,255,.3);
+      color: rgba(255,255,255,0.58);
       line-height: 1.4;
     }
 
@@ -243,7 +245,7 @@
       font-size: 10px;
       letter-spacing: .06em;
       text-transform: uppercase;
-      color: rgba(255,255,255,.4);
+      color: rgba(255,255,255,0.58);
       margin-bottom: 6px;
     }
     .do-summary-val {
@@ -294,7 +296,7 @@
     }
     .do-strategy-sub {
       font-size: 12px;
-      color: rgba(255,255,255,.4);
+      color: rgba(255,255,255,0.58);
       margin-bottom: 18px;
     }
     .do-strategy-stat {
@@ -325,7 +327,7 @@
     .do-strategy-order {
       margin-top: 12px;
       font-size: 11px;
-      color: rgba(255,255,255,.35);
+      color: rgba(255,255,255,0.58);
       line-height: 1.5;
     }
 
@@ -372,12 +374,12 @@
     }
     .do-prepay-arrow {
       font-size: 24px;
-      color: rgba(255,255,255,.3);
+      color: rgba(255,255,255,0.58);
       flex-shrink: 0;
     }
     .do-prepay-lbl {
       font-size: 11px;
-      color: rgba(255,255,255,.45);
+      color: rgba(255,255,255,0.58);
       margin-bottom: 8px;
       text-transform: uppercase;
       letter-spacing: .05em;
@@ -391,12 +393,12 @@
     }
     .do-prepay-sub {
       font-size: 12px;
-      color: rgba(255,255,255,.45);
+      color: rgba(255,255,255,0.58);
     }
     .do-prepay-date {
       margin-top: 6px;
       font-size: 11px;
-      color: rgba(255,255,255,.3);
+      color: rgba(255,255,255,0.58);
     }
     .do-prepay-savings {
       padding: 12px 16px;
@@ -429,38 +431,38 @@
 
     /* ── Light theme ─────────────────────────────────── */
     [data-theme="light"] .do-page       { background: #F4F6FB; }
-    [data-theme="light"] .do-page-title { color: #0B0D12; }
+    [data-theme="light"] .do-page-title { color: var(--text-primary); }
     [data-theme="light"] .do-page-sub   { color: #4A5068; }
     [data-theme="light"] .do-setup      { background: #fff; border-color: rgba(0,0,0,.08); }
     [data-theme="light"] .do-hint       { color: #4A5068; }
     [data-theme="light"] .do-loan-card  { border-color: rgba(0,0,0,.09); }
     [data-theme="light"] .do-loan-head  { background: rgba(0,0,0,.03); }
-    [data-theme="light"] .do-loan-label { color: #0B0D12; }
-    [data-theme="light"] .do-inp        { background: #F4F6FB; border-color: rgba(0,0,0,.12); color: #0B0D12; }
+    [data-theme="light"] .do-loan-label { color: var(--text-primary); }
+    [data-theme="light"] .do-inp        { background: #F4F6FB; border-color: rgba(0,0,0,.12); color: var(--text-primary); }
     [data-theme="light"] .do-inp:focus  { border-color: rgba(239,68,68,.5); background: rgba(239,68,68,.04); }
     [data-theme="light"] .do-field label { color: #6A7090; }
     [data-theme="light"] .do-field-hint { color: #6A7090; }
     [data-theme="light"] .do-summary-item { background: #fff; border-color: rgba(0,0,0,.08); }
     [data-theme="light"] .do-summary-lbl { color: #6A7090; }
-    [data-theme="light"] .do-summary-val { color: #0B0D12; }
+    [data-theme="light"] .do-summary-val { color: var(--text-primary); }
     [data-theme="light"] .do-strategy-card { background: #fff; border-color: rgba(0,0,0,.08); }
-    [data-theme="light"] .do-strategy-name { color: #0B0D12; }
+    [data-theme="light"] .do-strategy-name { color: var(--text-primary); }
     [data-theme="light"] .do-strategy-sub { color: #6A7090; }
     [data-theme="light"] .do-strategy-stat { border-bottom-color: rgba(0,0,0,.06); }
     [data-theme="light"] .do-stat-lbl  { color: #6A7090; }
-    [data-theme="light"] .do-stat-val  { color: #0B0D12; }
+    [data-theme="light"] .do-stat-val  { color: var(--text-primary); }
     [data-theme="light"] .do-strategy-order { color: #6A7090; }
     [data-theme="light"] .do-section-title { color: #6A7090; }
     [data-theme="light"] .do-insight-box { color: #4A5068; }
-    [data-theme="light"] .do-prepay-arrow { color: rgba(0,0,0,.25); }
+    [data-theme="light"] .do-prepay-arrow { color: rgba(0,0,0,0.62); }
     [data-theme="light"] .do-prepay-lbl { color: #6A7090; }
-    [data-theme="light"] .do-prepay-val { color: #0B0D12; }
+    [data-theme="light"] .do-prepay-val { color: var(--text-primary); }
     [data-theme="light"] .do-prepay-sub { color: #6A7090; }
     [data-theme="light"] .do-prepay-date { color: #6A7090; }
     [data-theme="light"] .do-prepay-savings { color: #4A5068; }
     [data-theme="light"] .do-inp::placeholder { color: #6A7090; }
-    [data-theme="light"] .do-edit-btn { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.1); color: rgba(0,0,0,.5); }
-    [data-theme="light"] .do-edit-btn:hover { background: rgba(0,0,0,.08); color: #0B0D12; }
+    [data-theme="light"] .do-edit-btn { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.1); color: rgba(0,0,0,0.62); }
+    [data-theme="light"] .do-edit-btn:hover { background: rgba(0,0,0,.08); color: var(--text-primary); }
 
     /* ── Responsive ──────────────────────────────────── */
     @media (max-width: 700px) {
@@ -652,11 +654,14 @@ document.addEventListener('DOMContentLoaded', function () {
 <script src="../js/ui.js" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=9"></script>
+<script src="../js/finos-widget.js?v=10"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=3"></script>
+<script src="../js/finos-search.js?v=4"></script>
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
 <script src="../js/interactions.js" defer></script>
 </body>
 </html>

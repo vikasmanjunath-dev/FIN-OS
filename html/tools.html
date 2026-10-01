@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
@@ -20,6 +21,7 @@
   <link rel="stylesheet" href="../css/theme.css">
   <link rel="stylesheet" href="../css/animations.css">
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/finos-personalization.js" defer></script>
 
@@ -331,8 +333,8 @@
       .tsh-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
       .tsh-label { font-size:10px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-primary); opacity:.7; }
       .tsh-stage { font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
-        color:rgba(255,255,255,.28); border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:3px 9px; }
-      [data-theme="light"] .tsh-stage { color:rgba(0,0,0,.3); border-color:rgba(0,0,0,.1); }
+        color:rgba(255,255,255,0.58); border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:3px 9px; }
+      [data-theme="light"] .tsh-stage { color:rgba(0,0,0,0.62); border-color:rgba(0,0,0,.1); }
       .tsh-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr)); gap:10px; }
       @media (max-width:768px) {
         /* Single-column on mobile; whichever card lands here gets covered
@@ -348,8 +350,8 @@
       .tsh-icon { font-size:20px; flex-shrink:0; }
       .tsh-body { min-width:0; }
       .tsh-name { font-size:12px; font-weight:700; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-      .tsh-sub  { font-size:11px; color:rgba(255,255,255,.38); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-      [data-theme="light"] .tsh-sub { color:rgba(0,0,0,.4); }
+      .tsh-sub  { font-size:11px; color:rgba(255,255,255,0.58); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      [data-theme="light"] .tsh-sub { color:rgba(0,0,0,0.62); }
     </style>
     <script>
     (function(){
@@ -710,7 +712,13 @@
         <a href="life-cover.html"           class="qc-chip"><span class="qc-chip-icon">🛡️</span> Life Cover Need</a>
         <a href="financial-calendar.html"   class="qc-chip"><span class="qc-chip-icon">📅</span> Financial Calendar</a>
         <a href="windfall.html"             class="qc-chip"><span class="qc-chip-icon">💰</span> Windfall Allocator</a>
-        <a href="track-finances.html"       class="qc-chip" style="border-style:dashed;color:var(--text-muted);"><span class="qc-chip-icon">➕</span> All 23 Trackers</a>
+        <a href="portfolio.html"            class="qc-chip"><span class="qc-chip-icon">🔎</span> Portfolio Growth Sim</a>
+        <a href="mf-intelligence.html"      class="qc-chip"><span class="qc-chip-icon">📈</span> MF Intelligence</a>
+        <a href="real-estate.html"          class="qc-chip"><span class="qc-chip-icon">🏘️</span> Real Estate</a>
+        <a href="insurance-hub.html"        class="qc-chip"><span class="qc-chip-icon">☂️</span> Insurance Hub</a>
+        <a href="life-goals-planner.html"   class="qc-chip"><span class="qc-chip-icon">🧭</span> Life Goals Planner</a>
+        <a href="budget-forecast.html"      class="qc-chip"><span class="qc-chip-icon">🔮</span> Budget Forecast</a>
+        <a href="track-finances.html"       class="qc-chip" style="border-style:dashed;color:var(--text-muted);"><span class="qc-chip-icon">➕</span> All 28 Trackers</a>
       </div>
     </section>
 
@@ -720,12 +728,15 @@
 
 <script src="../js/ui.js" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
-<script src="../js/finos-widget.js?v=9"></script>
-<script src="../js/finos-search.js?v=3"></script>
+<script src="../js/finos-widget.js?v=10"></script>
+<script src="../js/finos-search.js?v=4"></script>
 <script src="../js/pwa-init.js"></script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script src="../js/finos-vault-boot.js"></script>
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
@@ -12,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <title>Track Finances | FIN-OS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,6 +26,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-tracker-sync.js"></script>
+  <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/arya-ai.js?v=7" defer></script>
   <script src="../js/arya-memory.js" defer></script>
@@ -137,7 +139,7 @@
       font-size: 9.5px; font-weight: 500;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: rgba(255,255,255,.25);
+      color: rgba(255,255,255,.55);
     }
 
     /* ── GRID ── */
@@ -280,13 +282,13 @@
     .sc-number {
       font-family: var(--font-mono);
       font-size: 11px; font-weight: 600;
-      color: rgba(255,255,255,.2);
+      color: rgba(255,255,255,0.58);
       letter-spacing: .08em;
       transition: color .3s;
     }
     .sc-arrow {
       font-size: 18px;
-      color: rgba(255,255,255,.25);
+      color: rgba(255,255,255,0.58);
       opacity: .6;
       transition: opacity .3s, transform .3s, color .3s;
       line-height: 1;
@@ -338,7 +340,7 @@
       border-radius: 8px;
       background: var(--bg-surface);
       border: 1px solid var(--border-soft);
-      color: rgba(255,255,255,.45);
+      color: rgba(255,255,255,0.58);
       transition: background .25s, border-color .25s, color .25s;
       white-space: nowrap;
     }
@@ -517,7 +519,7 @@
           <span style="font-size:22px;">🧠</span>
           <div style="flex:1;">
             <div style="font-size:.95rem;font-weight:800;color: var(--accent-secondary);">Command Hub</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.4);">Your financial brain — Arya brief, smart nudges, insights, health score</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.58);">Your financial brain — Arya brief, smart nudges, insights, health score</div>
           </div>
           <span id="tfHubChevron" style="color: var(--accent-secondary);font-size:14px;transition:transform .3s;">▼</span>
         </div>
@@ -535,29 +537,29 @@
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:18px;" id="tf-metrics-row">
             <!-- Net Worth -->
             <div style="background:rgba(255,255,255,.04);border:1px solid var(--border-soft);border-radius:14px;padding:14px;text-align:center;">
-              <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">Net Worth</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">Net Worth</div>
               <div style="font-size:1.4rem;font-weight:900;" id="tf-nw-val">—</div>
             </div>
             <!-- Health Score -->
             <div style="background:rgba(255,255,255,.04);border:1px solid var(--border-soft);border-radius:14px;padding:14px;text-align:center;">
-              <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">Health Score</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">Health Score</div>
               <div style="font-size:1.4rem;font-weight:900;" id="tf-hs-val">—</div>
             </div>
             <!-- Savings Rate -->
             <div style="background:rgba(255,255,255,.04);border:1px solid var(--border-soft);border-radius:14px;padding:14px;text-align:center;">
-              <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">Savings Rate</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">Savings Rate</div>
               <div style="font-size:1.4rem;font-weight:900;" id="tf-sr-val">—</div>
             </div>
             <!-- FIRE Progress -->
             <div style="background:rgba(255,255,255,.04);border:1px solid var(--border-soft);border-radius:14px;padding:14px;text-align:center;">
-              <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">FIRE Progress</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;">FIRE Progress</div>
               <div style="font-size:1.4rem;font-weight:900;" id="tf-fire-val">—</div>
             </div>
           </div>
 
           <!-- Adaptive Insights -->
           <div style="margin-bottom:4px;">
-            <div style="font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:10px;">✨ Today's Insights for You</div>
+            <div style="font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:10px;">✨ Today's Insights for You</div>
             <div id="tf-adaptive-insights" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;">
               <div style="height:80px;background:rgba(255,255,255,.04);border-radius:12px;animation:sk-pulse 1.5s infinite;"></div>
               <div style="height:80px;background:rgba(255,255,255,.04);border-radius:12px;animation:sk-pulse 1.5s infinite;"></div>
@@ -1474,7 +1476,7 @@
         >
           <div style="font-size:40px;margin-bottom:12px;">📂</div>
           <p style="color:rgba(255,255,255,.7);font-weight:600;margin-bottom:4px;">Drop your document here</p>
-          <p style="color:rgba(255,255,255,.35);font-size:12px;">or click to browse — PDF, PNG, JPG supported</p>
+          <p style="color:rgba(255,255,255,0.58);font-size:12px;">or click to browse — PDF, PNG, JPG supported</p>
           <input type="file" id="docai-file-input" accept=".pdf,.png,.jpg,.jpeg" hidden
             onchange="docaiHandleFile(this.files[0])">
         </div>
@@ -1591,7 +1593,7 @@ function docaiShowResults(data) {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
         ${visibleFields.map(([k, v]) => `
           <div style="background:rgba(255,255,255,.03);border-radius:8px;padding:8px 12px;">
-            <div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;">${k.replace(/_/g,' ')}</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.08em;">${k.replace(/_/g,' ')}</div>
             <div style="font-size:13px;font-weight:600;color:#fff;margin-top:2px;">${typeof v === 'number' ? '₹'+v.toLocaleString('en-IN') : v}</div>
           </div>`).join('')}
       </div>
@@ -1778,8 +1780,8 @@ function checkExpenseEngine(e) {
 
 <style id="tf-light-theme">
 [data-theme="light"] .tf-page { background: #F4F6FB !important; }
-[data-theme="light"] .suite-card { background: #ffffff !important; border-color: rgba(0,0,0,0.08) !important; }
-[data-theme="light"] .sc-name { color: #0B0D12 !important; }
+[data-theme="light"] .suite-card { background: var(--bg-surface) !important; border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .sc-name { color: var(--text-primary) !important; }
 [data-theme="light"] .sc-sub  { color: #4A5068 !important; }
 [data-theme="light"] .sc-number { color: #C0C8DC !important; }
 [data-theme="light"] .sc-arrow { color: #C0C8DC !important; }
@@ -1798,9 +1800,9 @@ function checkExpenseEngine(e) {
 [data-theme="light"] #tf-stars { opacity: 0.04 !important; }
 </style>
 
-  <script src="../js/finos-widget.js?v=9"></script>
+  <script src="../js/finos-widget.js?v=10"></script>
   <script src="../js/finos-mobile.js" defer></script>
-  <script src="../js/finos-search.js?v=3"></script>
+  <script src="../js/finos-search.js?v=4"></script>
 
 <script>
 /* ── Track Finances: FinosPersona injection ───────────────────── */
@@ -1913,7 +1915,7 @@ window.addEventListener('finos-context-ready', async function fillTFHub(e) {
           <span style="font-size:16px;">${n.icon}</span>
           <span style="font-size:13px;color:rgba(255,255,255,.78);flex:1;line-height:1.5;">${n.text}</span>
           <a href="${n.link}" style="font-size:11px;color:${n.col};font-weight:700;text-decoration:none;flex-shrink:0;align-self:center;">Fix →</a>
-        </div>`).join('') || '<div style="font-size:12px;color:rgba(255,255,255,.3);padding:4px 0;">✅ All clear — no urgent actions.</div>';
+        </div>`).join('') || '<div style="font-size:12px;color:rgba(255,255,255,0.58);padding:4px 0;">✅ All clear — no urgent actions.</div>';
     }
   }
 
@@ -1941,7 +1943,10 @@ window.addEventListener('finos-context-ready', async function fillTFHub(e) {
 })();
 </script>
 <script src="../js/sidebar.js"></script>
-<script src="../js/arya-sidebar-panel.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
 </body>
 </html>
