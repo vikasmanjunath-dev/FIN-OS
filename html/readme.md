@@ -1,6 +1,6 @@
 # FIN-OS HTML Pages
 
-> Version: 1.6 | Date: September 29, 2026  
+> Version: 1.7 | Date: October 1, 2026  
 > Total: **117 pages** in this folder + `index.html` + `login.html` = **119 pages**
 
 ---
@@ -11,6 +11,7 @@
 | File | Purpose |
 |---|---|
 | `home.html` | App hub — navigation center |
+| `start.html` | "Zero to Master" orientation map for new users — linked from `home.html` |
 | `dashboard.html` | Main user control panel (KPI row, Arya, Portfolio access) |
 | `profile.html` | User profile and settings |
 | `settings.html` | App settings, theme, notifications, account |
@@ -26,35 +27,73 @@
 | `financial-report.html` | Comprehensive financial report |
 | `diagnostics.html` | Financial health diagnostics |
 | `tracker.html` | Expense tracker |
+| `investor-profile.html` | "Apex Cognitive Architectures" — investor personality types deep dive, linked from `diagnostics.html` |
 
-### Track Finances Suite — Command Hub Trackers (23)
+### Track Finances Suite — Command Hub Trackers (28)
 Stateful tools (localStorage-backed, feed Arya AI context) launched from `track-finances.html`. Distinct from the stateless calculators below — each has a "related tool" cross-link where a calculator covers overlapping ground. Also indexed in `js/finos-search.js` under the "Trackers" category.
 
+`track-finances.html` itself opens with **4 Core Instruments** (Expense Engine, Calculator Suite, Portfolio X-Ray, Trade Journal — flagship apps, not trackers) ahead of the 28 trackers below, then closes with a **Full Suite** gateway card (`financial-hub.html`). As of the Oct 1 2026 reorganization, the 28 trackers are grouped into 7 categories on the page itself (previously one flat 33-card list):
+
+**Net Worth & Portfolio**
 | File | Purpose |
 |---|---|
-| `credit-score.html` | CIBIL score gauge, improvement tips, loan-rate impact |
-| `crypto-tracker.html` | Crypto cost basis, P&L, India 30% tax + 1% TDS |
-| `debt-optimizer.html` | Avalanche vs Snowball payoff strategy |
-| `emergency-fund.html` | Months-covered progress, build-up scenarios |
-| `epf-tracker.html` | EPF contribution breakdown, EPS pension estimate |
-| `fd-tracker.html` | FD/RD/PPF/NSC/SCSS/Sukanya/Bond maturity calendar |
-| `financial-calendar.html` | Unified calendar of every SIP/FD/insurance/goal/tax date |
-| `financial-hub.html` | Gateway to every financial tool on FIN-OS |
-| `goal-optimizer.html` | Priority score + SIP plan across all life goals |
-| `gold-tracker.html` | Physical gold, SGB, Gold ETF/MF tracking |
-| `home-loan.html` | Amortisation schedule, Sec 24(b)/80C, PMAY, prepayment |
-| `itr-summary.html` | Auto-filled ITR prep — deductions, TDS, regime comparison |
-| `life-cover.html` | HLV + income-replacement life insurance sizing |
 | `net-worth.html` | Unified balance sheet, FIRE progress, growth timeline |
-| `nps-tracker.html` | NPS Tier 1/2 corpus and retirement annuity projection |
-| `passive-income.html` | Dividend/FD/rental/SWP income, freedom coverage ratio |
+| `portfolio.html` | Investment portfolio growth simulator |
+| `mf-intelligence.html` | Mutual fund intelligence |
 | `portfolio-rebalancer.html` | Drift detection + buy/sell/hold action plan |
+
+**Investments & Wealth**
+| File | Purpose |
+|---|---|
+| `fd-tracker.html` | FD/RD/PPF/NSC/SCSS/Sukanya/Bond maturity calendar |
+| `gold-tracker.html` | Physical gold, SGB, Gold ETF/MF tracking |
+| `crypto-tracker.html` | Crypto cost basis, P&L, India 30% tax + 1% TDS |
 | `ppf-tracker.html` | PPF/SSY/NSC/SCSS/KVP maturity + 80C summary |
-| `retirement-planner.html` | Aggregates EPF/NPS/PPF/SIP into required-corpus model |
-| `salary-optimizer.html` | CTC breakup, HRA exemption, regime comparison |
 | `sip-stepup.html` | Step-up SIP vs flat SIP corpus comparison |
+| `real-estate.html` | Real estate investment tools |
+
+**Retirement Planning**
+| File | Purpose |
+|---|---|
+| `epf-tracker.html` | EPF contribution breakdown, EPS pension estimate |
+| `nps-tracker.html` | NPS Tier 1/2 corpus and retirement annuity projection |
+| `retirement-planner.html` | Aggregates EPF/NPS/PPF/SIP into required-corpus model |
+
+**Tax & Salary**
+| File | Purpose |
+|---|---|
+| `salary-optimizer.html` | CTC breakup, HRA exemption, regime comparison |
+| `itr-summary.html` | Auto-filled ITR prep — deductions, TDS, regime comparison |
 | `tax-harvest.html` | LTCG/STCG loss/gain harvesting optimiser |
+
+**Loans, Debt & Credit**
+| File | Purpose |
+|---|---|
+| `debt-optimizer.html` | Avalanche vs Snowball payoff strategy |
+| `credit-score.html` | CIBIL score gauge, improvement tips, loan-rate impact |
+| `home-loan.html` | Amortisation schedule, Sec 24(b)/80C, PMAY, prepayment |
+
+**Insurance & Protection**
+| File | Purpose |
+|---|---|
+| `insurance-hub.html` | Insurance intelligence hub |
+| `life-cover.html` | HLV + income-replacement life insurance sizing |
+| `emergency-fund.html` | Months-covered progress, build-up scenarios |
+
+**Life Planning & Goals**
+| File | Purpose |
+|---|---|
+| `life-goals-planner.html` | AI-powered life goals |
+| `budget-forecast.html` | AI budget forecasting |
+| `financial-calendar.html` | Unified calendar of every SIP/FD/insurance/goal/tax date |
+| `goal-optimizer.html` | Priority score + SIP plan across all life goals |
+| `passive-income.html` | Dividend/FD/rental/SWP income, freedom coverage ratio |
 | `windfall.html` | 7-step priority waterfall for bonus/RSU/inheritance |
+
+**Full Suite (gateway, not counted among the 28)**
+| File | Purpose |
+|---|---|
+| `financial-hub.html` | Gateway to every financial tool on FIN-OS |
 
 ### Markets & Intelligence
 | File | Purpose |
@@ -112,13 +151,15 @@ Stateful tools (localStorage-backed, feed Arya AI context) launched from `track-
 | `ca-advisor.html` | CA / tax advisor AI |
 | `document-ai.html` | Document analysis AI |
 | `trading-coach.html` | Trading psychology AI |
+| `trading-brain.html` | "Trady" — AI Trading Brain |
+| `investor-mindset.html` | Investor mindset guide — biases, patience, conviction |
 | `mindset-sim.html` | Mindset simulator |
 | `mindset-sim-hub.html` | Simulation hub |
 | `simulator.html` | → redirects to trading-simulator.html |
 | `simulator-landing.html` | Simulator entry page |
 | `simulator-guide.html` | Simulation guide |
 | `trading-simulator.html` | Paper trading simulator |
-| `train-mindset.html` | Mindset training |
+| `train-mindset.html` | → redirects to simulator-landing.html |
 
 ### Insight Deep-Dives
 Reachable only via dynamically-injected personalization/insight cards (`js/finos-personalization.js`, `js/insight-cards.js`) on dashboard/home — no static nav links to these by design.
@@ -225,6 +266,6 @@ Reachable only via dynamically-injected personalization/insight cards (`js/finos
 | `login.html` | 1 |
 | **Total HTML pages** | **119** |
 | `calculators/*/*.html` (stateless, 9 categories) | 88 |
-| Command Hub trackers (stateful, within `html/`) | 23 |
+| Command Hub trackers (stateful, within `html/`) | 28 |
 
 Also see [markets.html](markets.html) → **Quantum Stock Engine** card and [tools.html](tools.html) Master-stage tools for `stock-platform.html` (1,163-line NSE/BSE research platform — has no dedicated readme entry above since it isn't a distinct top-level category; it lives under Markets & Intelligence).

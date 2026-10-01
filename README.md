@@ -3,7 +3,7 @@
 > India's most complete personal finance platform.  
 > Education · Intelligence · Voice AI · Calculators · Markets · Tracking — all in one place.
 
-**Last updated:** June 14, 2026 — Arya AI Sidebar Panel v2.0: 4-tab system (💬 Chat · 🗺️ Plan · 🧠 Map · 🌅 Life) embedded on all 94 pages; `arya-roadmap.js` self-contained visual engine (935 lines, `injectStyles()`, pan/zoom SVG mindmap, life-journey timeline with Unsplash cards); `roadmap.html` rebuilt as interactive 3-view page; `ensureRoadmapEngine()` lazy-loads the engine on any page without a `<script>` tag. Previous: Portfolio.AI v10 Arya deep upgrade (macro context, smart chips, enhanced aryaFormat, anti-hallucination). File: 22,570 lines. Voice agent: ws://127.0.0.1:8765.
+**Last updated:** October 1, 2026 — Sitewide JS runtime-error sweep across all 117 `html/` pages + all 88 calculators (10 real bugs found and fixed, including a systemic voice-widget path bug affecting all calculator pages); sidebar nav simplified (Goals/Household removed); `track-finances.html` reorganized from a flat 33-card grid into 9 labeled categories. Previous: Arya AI Sidebar Panel v4.0 (`js/arya-sidebar-panel.js`, 7,945 lines) — 8-tab system (💬 Chat · 🗺️ Plan · 🧠 Map · 🌅 Life · 📊 Pulse · 📅 Cal · 🇮🇳 India · 🤖 Agent) embedded on 113 pages; `arya-roadmap.js` self-contained visual engine (990 lines, `injectStyles()`, pan/zoom SVG mindmap, life-journey timeline with Unsplash cards); `roadmap.html` rebuilt as interactive 3-view page. Portfolio.AI v10 (22,570 lines). Voice agent: ws://127.0.0.1:8765.
 
 ---
 
@@ -25,11 +25,31 @@
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System map, AI pipeline, widget lifecycle, navigation engine, data flows |
 | [SETUP.md](docs/SETUP.md) | Local dev setup — voice agent, Portfolio.AI server, all services |
 | [VOICE_AGENT.md](docs/VOICE_AGENT.md) | Voice agent config, ws:// connection, navigation engine, latency tuning |
+| [VOICE_AI.md](docs/VOICE_AI.md) | Voice AI model selection, STT/TTS pipeline |
+| [ARYA_AI.md](docs/ARYA_AI.md) | Arya AI assistant architecture across the site |
+| [ARYA_UPGRADES.md](docs/ARYA_UPGRADES.md) | Arya feature upgrade history |
 | [DATABASE.md](docs/DATABASE.md) | All Supabase tables, RLS policies, migrations, env vars |
 | [DEPLOYMENT.md](docs/DEPLOYMENT.md) | Vercel deployment (no git), vercel.json, api/chat.js, checklist |
 | [API_REFERENCE.md](docs/API_REFERENCE.md) | All backend endpoints (Flask, FastAPI, Django, Portfolio.AI) |
+| [DJANGO.md](docs/DJANGO.md) | Django service reference |
 | [WEBSOCKET_PROTOCOL.md](docs/WEBSOCKET_PROTOCOL.md) | Full ws:// message schema between browser and agent.py |
 | [CONTRIBUTING.md](docs/CONTRIBUTING.md) | Adding calculators, pages, alert rules, voice intents |
+
+**RAG Engine**
+
+| Doc | What it covers |
+|---|---|
+| [RAG_SYSTEM.md](docs/RAG_SYSTEM.md) | RAG system overview |
+| [RAG_ARCHITECTURE / PHASES](docs/RAG_PHASES.md) | Build phases |
+| [RAG_PIPELINE.md](docs/RAG_PIPELINE.md) | Ingestion/retrieval pipeline |
+| [RAG_MODELS.md](docs/RAG_MODELS.md) | Embedding/LLM model choices |
+| [RAG_KNOWLEDGE_BASE.md](docs/RAG_KNOWLEDGE_BASE.md) | Knowledge base structure |
+| [RAG_API.md](docs/RAG_API.md) | RAG service API |
+| [RAG_INTEGRATION.md](docs/RAG_INTEGRATION.md) | Integration with the main app |
+| [RAG_SETUP.md](docs/RAG_SETUP.md) | Local setup |
+| [RAG_HARDWARE.md](docs/RAG_HARDWARE.md) | Hardware/resource requirements |
+| [RAG_SECURITY.md](docs/RAG_SECURITY.md) | Security considerations |
+| [RAG_EVALUATION.md](docs/RAG_EVALUATION.md) | Evaluation methodology & metrics |
 
 ---
 
@@ -37,24 +57,24 @@
 
 FIN•OS is a full-stack personal finance operating system built for Indian users. It is not a single app — it is an entire ecosystem of interconnected tools, education modules, market dashboards, AI assistants, and financial calculators running under one roof.
 
-**Platform metrics (June 10, 2026):**
+**Platform metrics (October 1, 2026):**
 
 | Dimension | Count / Value |
 |---|---|
 | HTML pages | **119** (117 in `html/` + `index.html` + `login.html`) |
 | Financial calculators | **88** across 9 categories |
-| CSS stylesheets | **45** (incl. design tokens + interaction system) |
-| JavaScript modules | **91** (incl. arya-sidebar-panel.js, arya-roadmap.js) |
-| Design tokens (CSS vars) | **133** |
+| CSS stylesheets | **44** (incl. design tokens + interaction system) |
+| JavaScript modules | **111** (incl. arya-sidebar-panel.js, arya-roadmap.js) |
+| Design tokens (CSS vars) | **137** |
 | Light-mode CSS rules | **360** |
-| React budget app pages | 11 |
+| Standalone sub-apps | `voiceagent/` (Python), `News1/` (Vite+Express), `TradeJournal/`, `Porfolio Analyser/` — each with its own dev server, not served statically from this root |
 | Python backend services | 9 |
 | Supabase tables | 10+ |
 | Voice AI WebSocket | `ws://127.0.0.1:8765` (plain, no SSL — local only) |
 | Voice AI model | qwen2.5:3b preferred / auto-selected via `_pick_ollama_model()` (Ollama, local) |
 | STT | faster-whisper tiny int8 (local, 8 threads) |
 | TTS | Edge Neural — en-IN-PrabhatNeural / hi-IN-MadhurNeural |
-| Widget coverage | ALL 119 pages + ALL 88 calculators (`finos-widget.js?v=7`) |
+| Widget coverage | ALL 119 pages + ALL 88 calculators (`finos-widget.js?v=10`) |
 | Navigation engine | 130+ routes, voice + text navigation |
 | Vercel Edge Function | `api/chat.js` — OpenRouter proxy (deployed, `CLOUD_MODE=false`) |
 | Portfolio.AI version | **v10** — **22,570 lines**, 10 pages, Arya AI on all pages, QGLP + rich macro context + smart chips, server.py :8766 |
@@ -65,9 +85,9 @@ FIN•OS is a full-stack personal finance operating system built for Indian user
 
 ```
 Browser (finos1.vercel.app — HTTPS)
-├── 119 HTML pages + 88 calculators + React budget app
+├── 119 HTML pages + 88 calculators
 │
-├── css/design-tokens.css    → 133 CSS variables — single source of truth
+├── css/design-tokens.css    → 137 CSS variables — single source of truth
 ├── css/interactions.css     → 180+ premium hover effects (zero-fill)
 ├── css/theme.css            → 360 light-mode override rules
 ├── css/base.css             → Reset, typography, focus rings
@@ -77,19 +97,19 @@ Browser (finos1.vercel.app — HTTPS)
 ├── js/theme-init.js         → Anti-FOUC: runs before first CSS paint
 ├── js/interactions.js       → Inline hover override engine
 ├── js/ui.js                 → Theme toggle, card entrance, focus tracking
-├── js/finos-widget.js?v=7   → AI overlay (ALL 184 pages)
+├── js/finos-widget.js?v=10  → AI overlay (ALL 119 pages + 88 calculators)
 │     ├─ preloads iframe 2s after page load (zero-wait on open)
 │     ├─ postMessage bridge (finos_user_context / finos_request_context)
 │     └─ navigation listener (finos_navigate → window.location.href)
 ├── js/finos-context.js      → User state collector
 ├── js/finos-alerts.js       → Real-time alert bell
 ├── js/finos-health-score.js → Live 0–100 score badge
-├── js/arya-sidebar-panel.js → Arya AI sidebar panel (all 94 pages)
-│     ├─ 4-tab system: 💬 Chat | 🗺️ Plan | 🧠 Map | 🌅 Life
+├── js/arya-sidebar-panel.js → Arya AI sidebar panel (113 pages)
+│     ├─ 8-tab system: 💬 Chat | 🗺️ Plan | 🧠 Map | 🌅 Life | 📊 Pulse | 📅 Cal | 🇮🇳 India | 🤖 Agent
 │     ├─ switchAryaTab() — lazy-renders visual views on first click
 │     ├─ ensureRoadmapEngine() — dynamic <script> injection for arya-roadmap.js
 │     └─ AryaSidebar public API: open(), close(), ask(q), clearHistory()
-└── js/arya-roadmap.js       → Self-contained visual engine (935 lines)
+└── js/arya-roadmap.js       → Self-contained visual engine (990 lines)
       ├─ injectStyles() — injects all .rm-* / .mm-* / .tl-* CSS on init
       ├─ renderRoadmap() — DNA-themed step cards with Unsplash images
       ├─ renderMindmap() — pan/zoom SVG (mousedown, wheel, touch)
@@ -101,7 +121,7 @@ Browser (finos1.vercel.app — HTTPS)
        │
        │  ws://127.0.0.1:8765  (plain WebSocket — no SSL)
        ▼
-Local Python services
+Local Python services (9 total)
 ├── voiceagent/agent.py      → faster-whisper tiny + qwen2.5:3b + edge-tts
 │     ├─ WS_HOST: "127.0.0.1", WS_PORT: 8765 (plain ws://)
 │     ├─ HISTORY_TURNS: 10, num_ctx: 8192, num_predict: 400
@@ -109,7 +129,11 @@ Local Python services
 ├── Porfolio Analyser/server.py → Arya AI HTTP :8766 (llama3.1:latest + llama3.2:3b)
 ├── alerts/alert-engine.py   → FastAPI :8001 (APScheduler, 10 rules)
 ├── app.py                   → Flask :5000 (News Intel)
-└── chatbot/brain.py         → Python :8000 (QFT engine)
+├── chatbot/brain.py         → Python :8000 (QFT engine)
+├── arya-ai/server.py        → Arya AI service (auth.py, config.py, tts.py)
+├── document-ai/server.py    → Document analysis (parser.py)
+├── market intelligence/app.py → Market data (fundamental/intraday/long/swing)
+└── rag-engine/server.py     → RAG pipeline (jobs.py, scheduler.py, metrics.py)
        │
        ▼
 Supabase  (Auth + Postgres 15 + Realtime + RLS)
@@ -262,9 +286,9 @@ N(x) via erf(|x|/√2) — Abramowitz & Stegun 7.1.26
 
 ---
 
-## Arya AI Sidebar Panel (v2.0, June 14, 2026)
+## Arya AI Sidebar Panel (v4.0 header label, internal sections go up to v6.0)
 
-`js/arya-sidebar-panel.js` (1,879 lines) is an IIFE injected on all 94 app pages. It provides a slide-in panel with a **4-tab system** so users can access AI chat, financial roadmap, mind map, and life timeline from any page without navigating away.
+`js/arya-sidebar-panel.js` (7,945 lines) is an IIFE injected on 113 app pages. It provides a slide-in panel with an **8-tab system** so users can access AI chat, financial roadmap, mind map, life timeline, financial pulse, spending calendar, India affordability map, and a standalone agent view from any page without navigating away.
 
 ### Tab System
 
@@ -274,6 +298,10 @@ N(x) via erf(|x|/√2) — Abramowitz & Stegun 7.1.26
 | 🗺️ Plan | Plan | Personalised financial roadmap — DNA-themed step cards (Unsplash images, progress badges) |
 | 🧠 Map | Map | Interactive SVG mind map — pan (drag), zoom (scroll/pinch), click-to-expand nodes |
 | 🌅 Life | Life | Life-journey timeline — horizontal scroll, milestone cards with photos, drag-scroll |
+| 📊 Pulse | Pulse | Live financial pulse/health dashboard (`#arya-pulse-container`) |
+| 📅 Cal | Cal | Spending calendar (`#arya-cal-container`) |
+| 🇮🇳 India | India | India affordability map (`#arya-map-container`) |
+| 🤖 Agent | Agent | Standalone agent view (`#arya-agent-container`) |
 
 ### Architecture
 
@@ -283,7 +311,7 @@ N(x) via erf(|x|/√2) — Abramowitz & Stegun 7.1.26
 - **"Ask Arya" buttons** — each visual view has an `.asp-view-ask-btn` that switches to the Chat tab and fires a pre-filled question via `sendMessage()`.
 - **Public API** — `AryaSidebar.open()`, `AryaSidebar.close()`, `AryaSidebar.ask(q)`, `AryaSidebar.clearHistory()`.
 
-### arya-roadmap.js Engine (935 lines)
+### arya-roadmap.js Engine (990 lines)
 
 `js/arya-roadmap.js` is a fully self-contained visual module. It can be loaded on any page (no additional CSS required):
 
@@ -310,8 +338,8 @@ Initial Deployment/
 ├── api/
 │   └── chat.js                 Vercel Edge Function — OpenRouter proxy
 ├── html/                       117 main app pages
-├── css/                        45 stylesheets
-├── js/                         91 JavaScript modules
+├── css/                        44 stylesheets
+├── js/                         111 JavaScript modules
 ├── assets/                     Images, icons, fonts
 ├── calculators/                88 standalone HTML calculators
 │   ├── investment & wealth/    sip.html, sip-optimizer.html, swp.html ...
@@ -325,21 +353,32 @@ Initial Deployment/
 │   └── core-thinking/
 ├── voiceagent/
 │   ├── agent.py                WebSocket AI server (ws://127.0.0.1:8765 — plain, no SSL)
-│   ├── index.html              Voice agent UI + navigation engine (original UI)
+│   ├── index.html              Voice agent UI + navigation engine (standalone — needs its own run.sh, 404s under a plain static server)
 │   ├── requirements.txt        faster-whisper, ollama, edge-tts, websockets, httpx
 │   ├── schema.sql              Supabase agent_memories table DDL
 │   └── .env.example            Env var template
 ├── alerts/
 │   └── alert-engine.py         FastAPI :8001 — 10 rules, VAPID push
-├── ExpenseTracker/
-│   └── finos-budget/           React 19 + Vite 5 budget app
-├── TradeJournal/               Trade journal
+├── arya-ai/                    Arya AI service — server.py, auth.py, config.py, tts.py
+├── chatbot/                    brain.py — QFT engine, Python :8000
+├── document-ai/                Document analysis — server.py, parser.py
+├── market intelligence/        Market data service — app.py, fundamental/intraday/long/swing.py
+├── rag-engine/                 RAG pipeline — server.py, jobs.py, scheduler.py, metrics.py, .venv/
+├── stock-engine/                Stock research backend
+├── mobile/                      Expo/React Native app ("finos-mobile") — separate from the web site
+├── scripts/                     Maintenance/one-off scripts
+├── tests/                       pytest suite (conftest.py, test_health_score.py, test_rules.py)
+├── supabase/                    Supabase project config/migrations
+├── News1/                       Standalone Vite+Express+Supabase news microservice — needs its own `npm run dev`, raw index.html 404s under a plain static server
+├── TradeJournal/               Trade journal (standalone, own CSS/JS, no build step)
 ├── Porfolio Analyser/          Portfolio.AI v10 (22,570-line single-file quant app)
 │   ├── portfolio-analyser-v10.html   Full institutional quant suite + Arya AI on all 10 pages
 │   └── server.py                    Arya AI backend — HTTP :8766 (llama3.1:latest + llama3.2:3b)
-├── docs/                       12 documentation files (v1.3+)
+├── docs/                       27 documentation files
 └── .vercelignore               Excludes Python backends, node_modules, SSL certs
 ```
+
+Note: the Expense Engine card on `track-finances.html` links to `http://localhost:5173/`, a standalone Vite dev server that is not currently present in this repo snapshot — run it separately if you have that project checked out elsewhere, or the card shows its own "local app offline" message.
 
 ---
 

@@ -27,14 +27,14 @@ Vercel hosts everything static — HTML, CSS, JS, assets, calculators, and Verce
 
 | Deployed to Vercel | NOT deployed (local only) |
 |---|---|
-| `html/` — 94 pages | `voiceagent/agent.py` |
+| `html/` — 117 pages | `voiceagent/agent.py` |
 | `index.html`, `login.html` | `app.py` (News Intel Flask) |
-| `css/` — 45 stylesheets | `alerts/alert-engine.py` |
-| `js/` — 88 modules | `chatbot/brain.py` |
-| `assets/` | `market intelligence/` |
-| `calculators/` — 88 tools | `stock-engine/` |
-| `manifest.json`, `sw.js` | `ExpenseTracker/finos_backend/` |
-| `Porfolio Analyser/` | Ollama, Whisper, Edge TTS |
+| `css/` — 44 stylesheets | `alerts/alert-engine.py` |
+| `js/` — 111 modules | `chatbot/brain.py` |
+| `assets/` | `market intelligence/app.py` |
+| `calculators/` — 88 tools | `stock-engine/`, `rag-engine/`, `arya-ai/`, `document-ai/` |
+| `manifest.json`, `sw.js` | Ollama, Whisper, Edge TTS |
+| `Porfolio Analyser/` | `News1/` (own Vite+Express dev server), `TradeJournal/` |
 | `api/chat.js` — Edge Function | |
 | `voiceagent/index.html` | |
 
@@ -123,15 +123,60 @@ Vercel CLI scans all files in the directory (respecting `.vercelignore`), upload
 
 ## `.vercelignore`
 
+> The block below is the actual current file content (verified Oct 1, 2026), replacing a previously-inaccurate summary here.
+
 ```
-node_modules
-ExpenseTracker/finos-budget/node_modules
-ExpenseTracker/finos_backend
-News1/node_modules
-stock-engine
-__pycache__
+# Python backends and ML models — not needed for static frontend
+voiceagent/models/
+voiceagent/piper/
+voiceagent/chroma_db/
+voiceagent/__pycache__/
+voiceagent/output/
+voiceagent/ref_audio/
+voiceagent/*.py
+voiceagent/*.env
+
+# node_modules in sub-projects
+node_modules/
+News1/node_modules/
+ExpenseTracker/finos-budget/node_modules/
+
+# Django / Python backends
+ExpenseTracker/finos_backend/
+finos 2/
+market intelligence/
+stock-engine/
+rag-engine/
+
+# Backend source files that live alongside servable frontend assets in the
+# same folder (e.g. chatbot/ also has qft-hud.css + qft-engine.js that DO
+# need to ship) — exclude only the Python/db/log files, not the whole dir.
+app.py
+alerts/*.py
+alerts/__pycache__/
+chatbot/*.py
+chatbot/__pycache__/
+document-ai/*.py
+document-ai/__pycache__/
+stock-dashboard/*.py
+stock-dashboard/__pycache__/
+*.db
+*.sqlite3
+*.log
+
+# Infra config not needed by (and not meant for) the static frontend
+docker-compose.yml
+nginx-gateway.conf
+
+# Python cache and env files
+__pycache__/
 *.pyc
-.venv
+.env
+*.env
+
+# Source files that are already built/deployed via dist/
+News1/src/
+ExpenseTracker/finos-budget/src/
 .venv3
 *.log
 chroma_db
@@ -153,7 +198,7 @@ voiceagent/agent.log
 - [ ] Calculator folder names are lowercase (will 404 on Linux/Vercel otherwise)
 - [ ] Calculator filenames match exactly what is in `js/calculators.js`
 - [ ] Anti-FOUC inline script present on all new/modified HTML pages
-- [ ] `finos-widget.js?v=7` — widget version is correct on all pages (currently v=7 across all 96 pages and 88 calculators)
+- [ ] `finos-widget.js?v=10` — widget version is correct on all pages (currently v=10 across all 117 html pages + index.html + login.html and 88 calculators)
 - [ ] No hardcoded dark hex colours in new inline `<style>` blocks
 - [ ] `api/` directory is present with `api/chat.js` (must not be in `.vercelignore`)
 - [ ] Test with `python -m http.server 3000` before deploying
@@ -183,7 +228,7 @@ Open https://finos1.vercel.app in incognito:
 - [ ] No FOUC (flash of wrong theme on load)
 - [ ] Any changed page renders correctly in both themes
 - [ ] Any changed calculator opens and renders result
-- [ ] Widget chip appears on every page (`finos-widget.js?v=7` loads)
+- [ ] Widget chip appears on every page (`finos-widget.js?v=10` loads)
 - [ ] Widget opens voice agent iframe on click
 
 ---

@@ -34,8 +34,8 @@
 - [ ] Calculator folder names lowercase (Vercel/Linux is case-sensitive)
 - [ ] Calculator filenames match entries in `js/calculators.js` exactly
 - [ ] Anti-FOUC inline `<script>` present as **first child of `<head>`** on all new HTML pages
-- [ ] `finos-widget.js?v=7` — current version; bump to `?v=8` if `finos-widget.js` changed
-- [ ] All new/modified pages include the widget: `<script src="[relative path]/js/finos-widget.js?v=7"></script>` before `</body>`
+- [ ] `finos-widget.js?v=10` — current version; bump to `?v=8` if `finos-widget.js` changed
+- [ ] All new/modified pages include the widget: `<script src="[relative path]/js/finos-widget.js?v=10"></script>` before `</body>`
 - [ ] No hardcoded dark hex colours in new inline `<style>` blocks (use CSS tokens)
 - [ ] Theme toggle present on new pages
 - [ ] `api/` directory contains `api/chat.js` and is not in `.vercelignore`
@@ -176,7 +176,7 @@ nc -z 127.0.0.1 8765 && echo "Agent online" || echo "Agent not running" # Agent 
    - `../../css/design-tokens.css`
    - `../../css/theme.css`
    - `../../css/calculator-base.css` (if it exists)
-   - `<script src="../../js/finos-widget.js?v=7"></script>` before `</body>`
+   - `<script src="../../js/finos-widget.js?v=10"></script>` before `</body>`
 4. Implement calculation logic — no external API calls (must work offline).
 5. Add an entry to `js/calculators.js` in the correct category block.
 6. Test locally: open in browser (`http://localhost:3000/calculators/[category]/[name].html`).
@@ -191,7 +191,7 @@ nc -z 127.0.0.1 8765 && echo "Agent online" || echo "Agent not running" # Agent 
 2. Use the full page boilerplate from `docs/CONTRIBUTING.md`.
 3. Anti-FOUC IIFE must be **first child of `<head>`** (before any `<link>`).
 4. Required CSS (in load order): `design-tokens.css`, `base.css`, `layout.css`, `components.css`, `theme.css`, `interactions.css`, `your-page.css`.
-5. Include widget before `</body>`: `<script src="../js/finos-widget.js?v=7"></script>`.
+5. Include widget before `</body>`: `<script src="../js/finos-widget.js?v=10"></script>`.
 6. Add sidebar link in `js/finos-personalization.js` if the page belongs in the nav.
 7. Add page to `FINOS_PAGES` array in `voiceagent/index.html` with appropriate keywords for voice navigation.
 8. Test in both dark and light mode; test voice navigation ("take me to [page name]").

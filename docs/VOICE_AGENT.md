@@ -138,7 +138,7 @@ The widget chip in `index.html` displays this URL.
 { label: "Portfolio Analyser", url: "/html/portfolio-analyser.html", keywords: ["portfolio", "holdings", "stocks"] }
 ```
 
-The array covers all 96 pages and all 88 calculators.
+The array covers all 117 pages and all 88 calculators.
 
 ### `detectNavIntent(text)`
 

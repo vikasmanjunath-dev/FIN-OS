@@ -3,6 +3,8 @@
 
 **Owner:** Vikas Manjunath | **Version:** 1.0 | **Date:** July 15, 2026 | **Status:** Active
 
+> **Not present in this repo snapshot** (verified Oct 1, 2026) — `ExpenseTracker/finos_backend/` does not exist in the current checkout, though it is still referenced in `.vercelignore`. This document describes the intended Django service if that project is checked out separately.
+
 ---
 
 ## Table of Contents

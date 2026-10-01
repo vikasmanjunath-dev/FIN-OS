@@ -16,19 +16,19 @@ Defines technical stack, performance budgets, security, accessibility, and integ
 
 | Layer | Technology | Notes |
 |---|---|---|
-| HTML | HTML5 | 96 pages, no framework overhead |
-| CSS | CSS3 + custom properties | 133-token design system |
-| JavaScript | Vanilla ES6+ | No build step; 91 modules |
-| React app | React 19 + Vite 5 + Tailwind | Budget app (`ExpenseTracker/finos-budget/`) — 11 pages |
+| HTML | HTML5 | 117 pages, no framework overhead |
+| CSS | CSS3 + custom properties | 137-token design system |
+| JavaScript | Vanilla ES6+ | No build step; 111 modules |
+| React app | React 19 + Vite 5 + Tailwind | Budget app (`ExpenseTracker/finos-budget/`) — **not present in this repo snapshot** (verified Oct 1, 2026); still referenced in `.vercelignore` and in rewrites below |
 | TypeScript | TS 5 + Vite + Express | News1 aggregator |
 | PWA | Service Worker + Web Push Level 3 | Offline + push notifications |
 | Vercel Edge Function | `api/chat.js` — ESM, compiled to CJS by Vercel | Cloud AI proxy (currently disabled) |
 
-### CSS Architecture (45 files)
+### CSS Architecture (44 files)
 
 | File | Purpose |
 |---|---|
-| `css/design-tokens.css` | 133 CSS variables — single source of truth |
+| `css/design-tokens.css` | 137 CSS variables — single source of truth |
 | `css/interactions.css` | 180+ zero-fill hover effects |
 | `css/theme.css` | 360 light-mode rules |
 | `css/base.css` | Reset, typography, WCAG focus rings |
@@ -36,21 +36,21 @@ Defines technical stack, performance budgets, security, accessibility, and integ
 | `css/components.css` | Shared UI components |
 | `css/[page].css` (38 files) | Per-page styles |
 
-### JS Architecture (91 modules)
+### JS Architecture (111 modules)
 
 | File | Purpose |
 |---|---|
 | `js/theme-init.js` | Anti-FOUC — inline IIFE, runs before first paint |
 | `js/interactions.js` | Hover override engine |
 | `js/ui.js` | Theme toggle + card animation + focus tracking |
-| `js/finos-widget.js?v=7` | AI overlay (ALL 96 pages + ALL 88 calculators) |
+| `js/finos-widget.js?v=10` | AI overlay (ALL 119 pages + ALL 88 calculators) |
 | `js/finos-context.js` | User-state collector + postMessage bridge |
 | `js/finos-alerts.js` | Alert bell |
 | `js/finos-health-score.js` | Health score badge |
 | `js/guard.js` | Auth route guard |
-| `js/arya-sidebar-panel.js` | Arya AI sidebar panel — 4-tab (Chat/Plan/Map/Life), all 94 pages; 1,879 lines; IIFE; injects own CSS; `AryaSidebar` public API |
-| `js/arya-roadmap.js` | Self-contained visual engine — 935 lines; `injectStyles()`, `renderRoadmap()`, `renderMindmap()` (pan/zoom SVG), `renderTimeline()` (drag-scroll); `AryaRoadmap` public API |
-| `js/[page].js` (81 files) | Per-page logic |
+| `js/arya-sidebar-panel.js` | Arya AI sidebar panel — 8-tab (Chat/Plan/Map/Life/Pulse/Cal/India/Agent), 113 pages; 7,945 lines; IIFE; injects own CSS; `AryaSidebar` public API |
+| `js/arya-roadmap.js` | Self-contained visual engine — 990 lines; `injectStyles()`, `renderRoadmap()`, `renderMindmap()` (pan/zoom SVG), `renderTimeline()` (drag-scroll); `AryaRoadmap` public API |
+| `js/[page].js` (101 files) | Per-page logic |
 
 ### Backend Services
 
@@ -63,8 +63,8 @@ Defines technical stack, performance budgets, security, accessibility, and integ
 | Chatbot | `chatbot/brain.py` | Python + QFT engine | http://127.0.0.1:8000 |
 | Market Intelligence | `market intelligence/app.py` | Flask + pandas + ta | varies |
 | Stock Engine (6 services) | `stock-engine/` | FastAPI + yfinance | varies |
-| Budget Backend | `ExpenseTracker/finos_backend/` | Django REST Framework 5.0+ | http://127.0.0.1:8000 |
-| Stock Dashboard API | `stock-dashboard/app.py` | Flask + yfinance | http://127.0.0.1:5001 |
+| Budget Backend | `ExpenseTracker/finos_backend/` | Django REST Framework 5.0+ | **not present in this repo snapshot** (verified Oct 1, 2026) |
+| Stock Dashboard API | `stock-dashboard/app.py` | Flask + yfinance | **not present in this repo snapshot** (verified Oct 1, 2026) |
 | Document AI Parser | `document-ai/server.py` | FastAPI + DocParser | varies |
 | RAG Engine **[Phase 1-5 LIVE]** | `rag-engine/server.py` | FastAPI (direct orchestration, no LlamaIndex) | http://127.0.0.1:7476 |
 
@@ -190,8 +190,8 @@ Rate: `+12%`, Pitch: `-3Hz`.
 
 | Parameter | Value |
 |---|---|
-| Version query string | `?v=7` (all 183 pages) |
-| Coverage | ALL 96 HTML pages + ALL 88 calculator pages |
+| Version query string | `?v=10` (all 186 pages) |
+| Coverage | ALL 117 HTML pages + ALL 88 calculator pages |
 | Iframe preload | 2 s after page load via `setTimeout(_loadIframe, 2000)` |
 | Context send delay | 200 ms after iframe `load` event (was 800 ms) |
 | Context refresh interval | Every 90 s (`setInterval(sendContextToIframe, 90_000)`) |
@@ -203,7 +203,7 @@ Rate: `+12%`, Pitch: `-3Hz`.
 
 | Spec | Value |
 |---|---|
-| `FINOS_PAGES` entries | 130+ (all 96 HTML pages + all 88 calculators) |
+| `FINOS_PAGES` entries | 130+ (all 117 HTML pages + all 88 calculators) |
 | Trigger detection | `NAV_TRIGGER` regex: English + Hindi/Hinglish trigger words |
 | Match algorithm | Longest keyword match in `FINOS_PAGES[].keys` array |
 | Min keyword score | 5 characters (to avoid accidental matches) |
@@ -217,7 +217,7 @@ Rate: `+12%`, Pitch: `-3Hz`.
 
 ### `vercel.json` Key Sections
 
-**Rewrites:** 23 path aliases (e.g. `/track` → `/html/track-finances.html`, `/budget` → `/ExpenseTracker/finos-budget/index.html`).
+**Rewrites:** 17 path aliases (verified against `vercel.json` Oct 1, 2026 — was previously miscounted as 23), plus 6 redirects (e.g. `/track` → `/html/track-finances.html`, `/budget` → `/ExpenseTracker/finos-budget/dist/index.html` — note the real destination is the built `dist/` output, and the `ExpenseTracker/` folder itself is not present in this repo snapshot).
 
 **Global headers (`/(.*)`)**:
 
@@ -267,7 +267,7 @@ Rate: `+12%`, Pitch: `-3Hz`.
 | Calculator load | <1000 ms |
 | Calculator result render | <100 ms after input |
 | JS bundle per page | <50 KB |
-| FOUC on page load | 0 (anti-FOUC on all 96 pages) |
+| FOUC on page load | 0 (anti-FOUC on all 117 pages) |
 | Theme switch | 0 ms (CSS variable update) |
 | Voice first audio | <2 s |
 | STT latency (Whisper tiny) | <150 ms |
@@ -309,7 +309,7 @@ Rate: `+12%`, Pitch: `-3Hz`.
 | Light-mode coverage | 360 rules in `theme.css` covering all component types |
 | Hover system | Zero-fill vocabulary — all effects via `interactions.css` |
 | Inline style blocks | Must not contain hardcoded dark hex or opacity surfaces |
-| Toggle coverage | Theme toggle on **all 96 pages** |
+| Toggle coverage | Theme toggle on **all 117 pages** |
 | WCAG compliance | `color-scheme` set per theme; native controls adapt automatically |
 
 ---
@@ -405,4 +405,4 @@ Status       Deployed but disabled (CLOUD_MODE=false)
 | Graceful degradation | Voice offline → widget shows OFFLINE; calculators work without any backend |
 | Offline first | All 88 calculators + all education pages fully offline |
 | No git requirement | Deploy directly via `vercel --prod --yes` (no git repo) |
-| Widget universality | `finos-widget.js?v=7` on every page — 96 HTML + 88 calculators = 184 pages |
+| Widget universality | `finos-widget.js?v=10` on every page — 117 HTML + 88 calculators = 205 pages |

@@ -61,7 +61,7 @@ js/your-page.js          (if page-specific logic needed)
   <script src="../js/finos-personalization.js" defer></script>
   <script src="../js/your-page.js" defer></script>
   <script src="../js/arya-sidebar-panel.js" defer></script>
-  <script src="../js/finos-widget.js?v=7" defer></script>
+  <script src="../js/finos-widget.js?v=10" defer></script>
 </body>
 </html>
 ```
@@ -304,7 +304,7 @@ In `voiceagent/agent.py`, add to `Brain._INTENT_RULES`:
 
 ## Adding a New Arya Panel Tab
 
-The Arya sidebar panel (`js/arya-sidebar-panel.js`) has a 4-tab system. To add a 5th tab:
+The Arya sidebar panel (`js/arya-sidebar-panel.js`) has an 8-tab system (Chat/Plan/Map/Life/Pulse/Cal/India/Agent). To add a 9th tab:
 
 ### Step 1 — Add the tab button in `buildPanel()`
 
@@ -389,35 +389,40 @@ Initial Deployment/
 ├── manifest.json            PWA manifest
 ├── sw.js                    Service worker
 ├── app.py                   News Intel API (Flask :5000)
-├── html/                    94 app pages
-├── css/                     45 stylesheets
-│   ├── design-tokens.css    133 CSS variables (single source of truth)
+├── html/                    117 app pages + index.html + login.html = 119
+├── css/                     44 stylesheets
+│   ├── design-tokens.css    137 CSS variables (single source of truth)
 │   ├── interactions.css     Hover system (zero-fill vocabulary)
 │   ├── theme.css            Light/dark overrides (360 rules)
 │   ├── base.css             Reset + typography + focus rings
 │   ├── layout.css           Sidebar + mobile nav
 │   ├── components.css       Shared UI components
 │   └── [page].css           38 per-page stylesheets
-├── js/                      91 JS modules
+├── js/                      111 JS modules
 │   ├── theme-init.js        Anti-FOUC theme applier
 │   ├── interactions.js      Hover override engine
 │   ├── ui.js                Theme toggle + animation
-│   ├── finos-widget.js      AI overlay (every page)
-│   ├── arya-sidebar-panel.js  Arya AI panel — 4-tab sidebar (all 94 pages)
+│   ├── finos-widget.js      AI overlay (every page, ?v=10)
+│   ├── arya-sidebar-panel.js  Arya AI panel — 8-tab sidebar (113 pages)
 │   ├── arya-roadmap.js      Visual engine — roadmap / mindmap / timeline
-│   └── [page].js            85 per-page modules
+│   └── [page].js            105 per-page modules
 ├── calculators/             88 standalone calculators (9 categories)
-├── voiceagent/              Voice AI (local Python, :8765)
+├── voiceagent/              Voice AI (local Python, :8765) — standalone, needs own run.sh
 ├── alerts/                  Alert Engine (FastAPI :8001)
 ├── chatbot/                 Chatbot (Python :8000)
+├── arya-ai/                 Arya AI service (server.py, auth.py, config.py, tts.py)
+├── document-ai/             Document analysis (server.py, parser.py)
 ├── market intelligence/     Trade signals (Flask)
-├── stock-engine/            Stock data (FastAPI, 6 services)
-├── stock-dashboard/         Stock research UI (Flask :5001)
-├── ExpenseTracker/
-│   ├── finos-budget/        React + Vite budget app (11 pages)
-│   └── finos_backend/       Django REST API
-├── TradeJournal/            Trade journal + Supabase sync
-├── News1/                   TypeScript/Vite news aggregator
-├── Porfolio Analyser/       Portfolio analysis tool
-└── docs/                    13 documentation files
+├── stock-engine/            Stock data backend
+├── rag-engine/              RAG pipeline (server.py, jobs.py, scheduler.py)
+├── mobile/                  Expo/React Native app ("finos-mobile")
+├── scripts/                 Maintenance/one-off scripts
+├── tests/                   pytest suite
+├── supabase/                Supabase project config/migrations
+├── TradeJournal/            Trade journal + Supabase sync (standalone, no build step)
+├── News1/                   Standalone Vite+Express news microservice — needs own `npm run dev`
+├── Porfolio Analyser/       Portfolio.AI v10 (22,570 lines) + server.py (Arya AI :8766)
+└── docs/                    27 documentation files
 ```
+
+Note: `ExpenseTracker/finos-budget/` (React budget app) and `ExpenseTracker/finos_backend/` (Django REST API), previously documented here, do **not** exist in this repo snapshot. The Expense Engine card on `track-finances.html` links to `http://localhost:5173/` and shows an "offline" message if nothing is running there.

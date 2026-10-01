@@ -78,7 +78,7 @@ FIN-OS fills this gap with a voice-first, desi-native AI that speaks the user's 
 | Uptime (frontend / Vercel) | 99.9% |
 | Memory accuracy (profile extraction) | 0 false positives in family / age detection |
 | Theme switch latency | 0ms (CSS variables, instant) |
-| FOUC on page load | 0 (anti-FOUC script on all 96 pages) |
+| FOUC on page load | 0 (anti-FOUC script on all 117 pages) |
 
 ---
 
@@ -86,7 +86,7 @@ FIN-OS fills this gap with a voice-first, desi-native AI that speaks the user's 
 
 ### Must Have (shipped)
 
-- [x] **96 HTML pages** spanning the complete finance journey
+- [x] **117 HTML pages** spanning the complete finance journey
 - [x] **88 financial calculators** across 9 categories
 - [x] Voice AI — English / Hindi / Hinglish, local LLM, real-time TTS
 - [x] Supabase auth + RLS-protected user data
@@ -98,7 +98,7 @@ FIN-OS fills this gap with a voice-first, desi-native AI that speaks the user's 
 - [x] Trade journal with Supabase sync
 - [x] 14+ education modules (equity, MF, F&O, insurance, etc.)
 - [x] PWA (installable, offline-capable, push notifications)
-- [x] **Design token system** (133 CSS variables, single source of truth)
+- [x] **Design token system** (137 CSS variables, single source of truth)
 - [x] **Premium hover system** (180+ effects, zero-fill vocabulary, `interactions.css/js`)
 - [x] **Full light/dark theme** (360 rules, 96-page coverage, FOUC-free)
 - [x] Portfolio Analyser accessible from Dashboard quick-access bar
@@ -140,7 +140,7 @@ FIN-OS fills this gap with a voice-first, desi-native AI that speaks the user's 
   - [x] **"Ask Arya" bridge** — `.asp-view-ask-btn` in each visual view switches to Chat tab and fires a pre-filled AI question via `sendMessage()`
   - [x] **`AryaSidebar` public API** — `open()`, `close()`, `ask(q)`, `clearHistory()` exposed on `window`
   - [x] **CSS injection** — panel injects `<style id="arya-sp-styles">` (tabs, views, spinner, ask-btn) at first open; idempotent guard prevents duplication
-- [x] **`arya-roadmap.js` visual engine** (935 lines, June 14 2026):
+- [x] **`arya-roadmap.js` visual engine** (990 lines, June 14 2026):
   - [x] **Self-contained** — `injectStyles()` injects all `.rm-*` / `.mm-*` / `.tl-*` CSS on `init()`; no page-level stylesheet required
   - [x] **`AryaRoadmap.init(roadmapEl, mindmapEl, timelineEl)`** public API; pass `null` to skip any view
   - [x] **DNA-personalised roadmap** — 7 archetype variants (Builder/Guardian/Explorer/Optimizer/Achiever/Visionary/Realist); Unsplash images; step cards with badges + detail text + Ask Arya button
@@ -151,9 +151,9 @@ FIN-OS fills this gap with a voice-first, desi-native AI that speaks the user's 
 ### Should Have (in progress / near-term)
 
 - [ ] Zerodha Kite API live sync — no manual CSV upload
-- [ ] Voice agent on all 96 pages (currently 1 dedicated page)
+- [ ] Voice agent on all 117 pages (currently 1 dedicated page)
 - [ ] Mobile-responsive fixes for voice agent UI
-- [ ] Supabase auth on all 96 pages (currently on ~20)
+- [ ] Supabase auth on all 117 pages (currently on ~20)
 
 ### Could Have (medium-term)
 
@@ -314,6 +314,7 @@ All interactive elements must use the zero-fill hover vocabulary (`css/interacti
 | Phase 11 — Portfolio.AI Research & UX upgrade (News Feed, Peers, Promoters, Watchlist, ⌘K, Drag, Share, 4-theme) | ✅ Done | June 8, 2026 |
 | Phase 12 — Portfolio.AI Arya AI full integration (all 10 pages, QGLP, server.py :8766) | ✅ Done | June 8–10, 2026 |
 | Phase 13 — Arya Sidebar Panel v2.0 (4-tab: Chat/Plan/Map/Life on all 94 pages + arya-roadmap.js engine + roadmap.html rebuild) | ✅ Done | June 14, 2026 |
+| Phase 13b — Arya Sidebar Panel expanded to 8 tabs (+ 📊 Pulse, 📅 Cal, 🇮🇳 India, 🤖 Agent); file grew to 7,945 lines; now injected on 113 pages | ✅ Done (verified live) | by Oct 1, 2026 |
 | Phase 14 — Kite API live sync | 🔲 Planned | Q3 2026 |
 | Phase 15 — Voice on all pages | 🔲 Planned | Q3 2026 |
 | Phase 16 — Account Aggregator | 🔲 Planned | Q4 2026 |

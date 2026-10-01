@@ -315,6 +315,8 @@ curl -X POST http://localhost:<port>/screener/natural-language \
 
 ## Stock Dashboard API — `stock-dashboard/app.py` (Flask :5001)
 
+> **Not present in this repo snapshot** (verified Oct 1, 2026) — `stock-dashboard/` does not exist in the current checkout, though it is still referenced in `.vercelignore`.
+
 ### `GET /api/stock/{symbol}`
 
 ```bash
@@ -338,6 +340,8 @@ curl "http://localhost:5001/api/stock/RELIANCE"
 ---
 
 ## Budget Backend API — `ExpenseTracker/finos_backend/` (Django REST :8000)
+
+> **Not present in this repo snapshot** (verified Oct 1, 2026) — `ExpenseTracker/finos_backend/` does not exist in the current checkout, though it is still referenced in `.vercelignore`. The endpoints below describe the intended API if that service is checked out separately.
 
 ### `GET /api/transactions/`
 

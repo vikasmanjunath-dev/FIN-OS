@@ -41,7 +41,7 @@ python -m http.server 3000
 # Open http://localhost:3000
 ```
 
-All 96 pages, 88 calculators, and education modules work with just this.
+All 117 pages, 88 calculators, and education modules work with just this.
 
 ---
 
@@ -150,6 +150,8 @@ python app.py
 ---
 
 ## 6. React Budget App (optional)
+
+> **Not present in this repo snapshot** — `ExpenseTracker/finos-budget/` does not exist in the current checkout (verified Oct 1, 2026). The "Expense Engine" card on `track-finances.html` still links to `http://localhost:5173/` and shows an "offline" message if nothing is running there, so the port below is correct if you have this project checked out separately.
 
 ```bash
 cd ExpenseTracker/finos-budget

@@ -1,7 +1,7 @@
 # Arya AI — Complete Reference
 
 > Version: 7.0 | Date: July 14, 2026  
-> File: `js/arya-sidebar-panel.js` · **7,738 lines** · IIFE `'use strict'`
+> File: `js/arya-sidebar-panel.js` · **7,945 lines** · IIFE `'use strict'`
 
 ---
 

@@ -1,19 +1,19 @@
 # FIN-OS — Architecture
 
-> Version: 3.0 | Date: July 14, 2026 | Live: https://finos1.vercel.app — Phases 15–17 complete: RAG (6 phases, 508+ chunks), Arya AI backend (8-phase plan, port 7475), openwakeword, Supertrend, multi-model routing in arya-sidebar-panel.js
+> Version: 3.1 | Date: October 1, 2026 | Live: https://finos1.vercel.app — Phases 15–17 complete: RAG (6 phases, 508+ chunks), Arya AI backend (8-phase plan, port 7475), openwakeword, Supertrend, multi-model routing in arya-sidebar-panel.js. Corrected page/module counts and the Arya panel's tab count (now 8, not 7) Oct 1, 2026.
 
 ---
 
 ## System Overview
 
-FIN-OS splits into a **static Vercel frontend** (96 pages / 91 JS modules / 88 calculators / React sub-app / Vercel Edge Function) and a **fully local Python backend**. All AI — STT, LLM, TTS, RAG — runs on the user's machine for privacy and zero inference cost.
+FIN-OS splits into a **static Vercel frontend** (119 pages / 111 JS modules / 88 calculators / Vercel Edge Function) and a **fully local Python backend**. All AI — STT, LLM, TTS, RAG — runs on the user's machine for privacy and zero inference cost.
 
 ```
 Browser  (finos1.vercel.app — HTTPS)
-  96 HTML pages + 88 calculators + React budget app
+  117 HTML pages + index.html + login.html + 88 calculators
 
   CSS LAYER
-    design-tokens.css   133 CSS variables — single source of truth
+    design-tokens.css   137 CSS variables — single source of truth
     interactions.css    180+ hover effects (zero-fill vocabulary)
     theme.css           360 light-mode override rules
     base.css            Reset + typography + WCAG focus rings
@@ -25,22 +25,22 @@ Browser  (finos1.vercel.app — HTTPS)
     theme-init.js         Anti-FOUC: runs before first CSS paint
     interactions.js       Hover-override engine
     ui.js                 Theme toggle + card entrance + focus tracking
-    finos-widget.js?v=7   AI overlay (ALL 96 pages + ALL 88 calculators)
+    finos-widget.js?v=10   AI overlay (ALL 119 pages + ALL 88 calculators)
       ├─ iframe preloads voiceagent/index.html (2 s after page load)
       ├─ postMessage bridge: finos_user_context, finos_request_context
       └─ navigation listener: finos_navigate → closeWidget() + window.location.href
     finos-context.js      User-state collector
     finos-alerts.js       Real-time alert bell
     finos-health-score.js Live 0-100 score badge
-    arya-sidebar-panel.js Arya AI panel — 7,738 lines — 7-tab sidebar (all 94 pages)
-      ├─ 💬 Chat | 🗺️ Plan | 🧠 Map | 🌅 Life | 📊 Pulse | 📅 Calendar | 🇮🇳 India
+    arya-sidebar-panel.js Arya AI panel — 7,945 lines — 8-tab sidebar (113 pages)
+      ├─ 💬 Chat | 🗺️ Plan | 🧠 Map | 🌅 Life | 📊 Pulse | 📅 Calendar | 🇮🇳 India | 🤖 Agent
       ├─ selectModel(taskType) → qwen2.5:3b/qwen3:8b/qwen3:14b routing
       ├─ RAG integration: detectRagIntent() + POST /api/retrieve → rag-engine
       ├─ AryaAgentRunner.run() — ReAct tool-calling loop (34 tools via arya-ai :7475)
-      ├─ switchAryaTab() + lazy-render flags for all 7 views
+      ├─ switchAryaTab() + lazy-render flags for all 8 views
       ├─ ensureRoadmapEngine() — dynamic <script> injection for Plan/Map/Life
       └─ AryaSidebar public API: open/close/ask/clearHistory
-    arya-roadmap.js       Self-contained visual engine (935 lines)
+    arya-roadmap.js       Self-contained visual engine (990 lines)
       ├─ injectStyles() — all .rm-* / .mm-* / .tl-* CSS injected on init
       ├─ renderRoadmap() — DNA-themed step cards
       ├─ renderMindmap() — pan/zoom SVG with touch support
@@ -63,7 +63,7 @@ Local Python
     app.py                     Flask :5000   (News Intel)
     chatbot/brain.py           Python :8000  (QFT engine)
     stock-engine/              FastAPI  (6 services, 14 endpoints)
-    stock-dashboard/app.py     Flask :5001
+    stock-dashboard/app.py     Flask :5001  [not present in this repo snapshot, verified Oct 1, 2026]
     rag-engine/server.py       FastAPI :7476 (RAG — Phase 1-6 LIVE, see RAG_SYSTEM.md)
       ├─ Qdrant :6333            local vector DB (HNSW, 1024-dim) — 508+ chunks indexed
       │                          (94 FIN-OS pages, SEBI circulars, RBI notifications)
@@ -102,14 +102,15 @@ Local Python
 
 | Component | Path | Tech | Notes |
 |---|---|---|---|
-| Main app pages | `html/` | HTML5 + CSS + JS | 94 pages |
+| Main app pages | `html/` | HTML5 + CSS + JS | 117 pages |
 | Public pages | `index.html`, `login.html` | HTML5 + CSS + JS | No auth guard |
 | Calculator suite | `calculators/` | Standalone HTML | 88 tools, 9 categories |
-| Budget app | `ExpenseTracker/finos-budget/` | React 19 + Vite 5 + Tailwind | 11 pages |
-| Voice agent UI | `voiceagent/index.html` | HTML + Vanilla JS | iframe target for widget |
+| Budget app | `ExpenseTracker/finos-budget/` | React 19 + Vite 5 + Tailwind | **Not present in this repo snapshot** (verified Oct 1, 2026) — still referenced in `.vercelignore`; Expense Engine card links to `http://localhost:5173/` |
+| Voice agent UI | `voiceagent/index.html` | HTML + Vanilla JS | iframe target for widget; standalone — needs its own `run.sh`, 404s under a plain static server |
 | Trade Journal | `TradeJournal/` | HTML + JS + Supabase | |
 | Portfolio Analyser | `Porfolio Analyser/` | HTML + JS | CSV upload + voice |
-| Stock Dashboard | `stock-dashboard/index.html` | HTML + JS | |
+| News aggregator | `News1/` | Vite + React + Express | Standalone — needs its own `npm run dev`; raw `index.html` 404s on `/src/main.tsx` under a plain static server |
+| Stock Dashboard | `stock-dashboard/index.html` | HTML + JS | **Not present in this repo snapshot** (verified Oct 1, 2026) — still referenced in `.vercelignore` |
 | Chat Edge Function | `api/chat.js` | Vercel Edge Runtime | OpenRouter proxy |
 
 ### Backend — Local Only (never deployed to Vercel)
@@ -123,8 +124,9 @@ Local Python
 | Chatbot Brain | `chatbot/brain.py` | Python (QFT engine) | http://127.0.0.1:8000 |
 | Market Intelligence | `market intelligence/app.py` | Flask + pandas + ta | varies |
 | Stock Engine | `stock-engine/` | FastAPI + yfinance | varies |
-| Stock Dashboard API | `stock-dashboard/app.py` | Flask + yfinance | http://127.0.0.1:5001 |
-| Budget Backend | `ExpenseTracker/finos_backend/` | Django REST Framework 5.0+ | http://127.0.0.1:8000 |
+| RAG Engine | `rag-engine/server.py` | Python (jobs.py, scheduler.py, metrics.py) | varies |
+| Stock Dashboard API | `stock-dashboard/app.py` | Flask + yfinance | **Not present in this repo snapshot** (verified Oct 1, 2026) — still referenced in `.vercelignore` |
+| Budget Backend | `ExpenseTracker/finos_backend/` | Django REST Framework 5.0+ | **Not present in this repo snapshot** (verified Oct 1, 2026) — still referenced in `.vercelignore` |
 | Document AI Parser | `document-ai/server.py` | FastAPI + DocParser | varies |
 | Arya AI Backend **[Phase 16-17 LIVE]** | `arya-ai/server.py` | FastAPI + yfinance/AMFI/CoinGecko/DuckDuckGo + ta + WeasyPrint + openpyxl + SQLite (L2 cache) | http://127.0.0.1:7475 |
 | RAG Engine **[Phase 15: Phases 1-6 LIVE]** | `rag-engine/server.py` + a separate `rq worker` process | FastAPI + Qdrant + SQLite FTS5 + Ollama + PyTorch MPS + RQ/Redis | http://127.0.0.1:7476 |
@@ -219,18 +221,18 @@ navigateTo(page)
 closeWidget() → setTimeout(240ms) → window.location.href = url
 ```
 
-`FINOS_PAGES` covers all 96 HTML pages and all 88 calculators.
+`FINOS_PAGES` covers all 117 HTML pages and all 88 calculators.
 Both `sendText()` (typed) and the `user_transcript` WebSocket message handler check `detectNavIntent()` and short-circuit if a match is found.
 
 ---
 
-## Widget Architecture (`js/finos-widget.js?v=7`)
+## Widget Architecture (`js/finos-widget.js?v=10`)
 
 ### Coverage
 
-`finos-widget.js?v=7` is included on **every page** of the platform:
-- All 96 HTML pages (via `../js/finos-widget.js?v=7`)
-- All 88 calculator pages (via `../../js/finos-widget.js?v=7`)
+`finos-widget.js?v=10` is included on **every page** of the platform:
+- All 117 HTML pages (via `../js/finos-widget.js?v=10`)
+- All 88 calculator pages (via `../../js/finos-widget.js?v=10`)
 
 Total: **184 pages** with the widget script.
 
@@ -265,7 +267,7 @@ Alert badge (localhost only)
 ### CSS Load Order
 
 ```
-1. design-tokens.css    133 CSS variables — all theme values defined once
+1. design-tokens.css    137 CSS variables — all theme values defined once
 2. base.css             imports design-tokens; reset + typography + focus rings
 3. layout.css           sidebar + mobile nav
 4. components.css       shared UI components
@@ -276,7 +278,7 @@ Alert badge (localhost only)
 
 ### Design Token System
 
-`css/design-tokens.css` is the single source of truth for all 133 CSS variables.
+`css/design-tokens.css` is the single source of truth for all 137 CSS variables.
 Dark mode values defined in `:root` and `:root[data-theme="dark"]`.
 Light mode values defined in `:root[data-theme="light"]`.
 
@@ -436,7 +438,7 @@ Voices pre-loaded at page load (`speechSynthesis.getVoices()`). `speak()` called
 
 ## Arya Sidebar Panel Architecture (v7.0, July 14 2026)
 
-`js/arya-sidebar-panel.js` — **7,738 lines**, IIFE pattern, injected on all 94 app pages.
+`js/arya-sidebar-panel.js` — **7,945 lines**, IIFE pattern, injected on 113 app pages.
 
 ### Panel DOM Structure
 
@@ -501,7 +503,7 @@ Both guards check `document.getElementById('*-styles')` before injecting — saf
 
 ---
 
-## arya-roadmap.js Engine Architecture (935 lines)
+## arya-roadmap.js Engine Architecture (990 lines)
 
 `js/arya-roadmap.js` — self-contained visual engine, works with no page-level CSS.
 
@@ -625,7 +627,7 @@ finos-widget.js polls http://127.0.0.1:8001/alerts/:userId
 | LLM first token (qwen2.5:3b) | <500ms |
 | LLM first token (qwen3:14b) | <1500ms |
 | Theme switch | 0ms (CSS variable update) |
-| FOUC | 0 (anti-FOUC on all 96 pages) |
+| FOUC | 0 (anti-FOUC on all 117 pages) |
 | JS bundle per page | <50KB |
 | Widget iframe preload | 2 s after page load (background) |
 | Navigation latency | ~440ms total (200ms postMessage + 240ms close animation) |
