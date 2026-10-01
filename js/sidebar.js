@@ -62,11 +62,10 @@
 
      "Mindset" (simulator-landing.html, the front door into the trading
      simulator/options-intelligence/trading-coach cluster) was swapped for
-     "Household" (couple-finance.html) once the ICP locked onto individual
-     + joint household planning as the core loop, with F&O/trading demoted
-     to a power-user feature rather than a front-door one. Mindset isn't
-     deleted — still reachable via ⌘K search and tools.html — just no
-     longer one of the 9 things every user sees on every page. */
+     "Household" (couple-finance.html), which was itself removed from the
+     canonical 9 on Sept 30 2026 at the user's request — neither Mindset
+     nor Household is deleted as a page, just no longer pinned in the
+     sidebar; both stay reachable via ⌘K search and tools.html. */
   const CANONICAL_LINKS = [
     { title: 'Home', href: 'home.html',
       icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' },
@@ -74,8 +73,6 @@
       icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>' },
     { title: 'Learn', href: 'foundations.html', divider: true,
       icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>' },
-    { title: 'Household', href: 'couple-finance.html',
-      icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' },
     { title: 'Diagnostics', href: 'diagnostics.html', divider: true,
       icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>' },
     { title: 'Track', href: 'track-finances.html',
@@ -307,36 +304,4 @@
   }
 
   onReady(_injectZoneLabels);
-
-  /* ── Goals link (injected after Track — visible on all 96 pages) ─── */
-  function _injectGoalsLink() {
-    const nav = document.querySelector('.sb-nav');
-    if (!nav) return;
-    _normalizeLinkTitles(nav);
-    if (nav.querySelector('[title="Goals"]')) return;
-
-    const trackLink = nav.querySelector('[title="Track"]');
-    if (!trackLink) return;
-
-    const isHtml = location.pathname.includes('/html/');
-    const href   = isHtml ? 'life-goals-planner.html' : 'html/life-goals-planner.html';
-    const isActive = location.pathname.includes('life-goals-planner');
-
-    const a = document.createElement('a');
-    a.href = href;
-    a.className = 'sb-link' + (isActive ? ' active' : '');
-    a.title = 'Goals';
-    if (isActive) a.setAttribute('aria-current', 'page');
-    a.innerHTML =
-      '<span class="sb-icon" aria-hidden="true">' +
-        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">' +
-          '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>' +
-        '</svg>' +
-      '</span>' +
-      '<span class="sb-label">Goals</span>';
-
-    trackLink.after(a);
-  }
-
-  onReady(_injectGoalsLink);
 })();
