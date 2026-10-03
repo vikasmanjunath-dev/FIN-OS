@@ -658,6 +658,10 @@ html {
     top: 62px !important;
     z-index: 9000 !important;
   }
+  /* search + bell bar that finos-search.js docks beside #floatThemeBtn */
+  #finos-fixed-controls {
+    top: 62px !important;
+  }
 }
 
 /* =========================

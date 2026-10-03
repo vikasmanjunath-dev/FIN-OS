@@ -398,7 +398,7 @@ html, body {
 
 /* 3. The Sidebar (Fixed Anchor) */
 .sidebar {
-  width: 260px;
+  width: 232px;
   height: 100vh; /* Full height */
   overflow-y: auto; /* Scroll inside sidebar if menu is long */
   position: fixed;
@@ -409,10 +409,10 @@ html, body {
 
 /* 4. The Content Area (The Scrollable Zone) */
 .main {
-  width: calc(100% - 260px);
+  width: calc(100% - 232px);
   min-height: 100vh;
   height: 100vh;
-  margin-left: 260px;
+  margin-left: 232px;
   overflow-y: auto; /* ONLY this part scrolls */
   overflow-x: hidden;
   position: relative;

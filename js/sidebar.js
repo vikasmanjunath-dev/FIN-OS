@@ -111,8 +111,24 @@
     nav.innerHTML = _buildNavHTML(location.pathname.split('/').pop());
   }
 
+  /* Sub-pages that aren't a nav destination themselves (the learn-* / *detail
+     readers, insight-*) declare which top-level item they belong to with
+     <body data-nav-parent="markets.html">, so that item stays highlighted. */
+  function _applyNavParent() {
+    const parent = document.body && document.body.getAttribute('data-nav-parent');
+    if (!parent) return;
+    const links = document.querySelectorAll('.sb-nav .sb-link');
+    if (![...links].some(a => a.getAttribute('href') === parent)) return;
+    links.forEach(a => {
+      const on = a.getAttribute('href') === parent;
+      a.classList.toggle('active', on);
+      if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+  }
+
   onReady(() => {
     _ensureCanonicalNav();   // must run before anything below hydrates into the nav (e.g. the streak badge)
+    _applyNavParent();
     applyVars();   // re-apply in case sidebar DOM loaded after first try
 
     /* Avatar */

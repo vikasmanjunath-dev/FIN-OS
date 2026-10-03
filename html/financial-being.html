@@ -83,52 +83,13 @@
     ══════════════════════════════════════════════════════ */
     .app { display: flex; min-height: 100vh; }
 
-    .sidebar {
-      width: var(--sidebar-w);
-      background: var(--bg2);
-      border-right: 1px solid var(--glass-border);
-      padding: 24px 0;
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      top: 0; left: 0; bottom: 0;
-      z-index: 100;
-      overflow-y: auto;
-    }
-    .sidebar .logo {
-      font-family: var(--font-mono);
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: var(--accent);
-      letter-spacing: .12em;
-      padding: 0 20px 24px;
-      border-bottom: 1px solid var(--glass-border);
-      margin-bottom: 16px;
-    }
-    .sidebar nav { display: flex; flex-direction: column; gap: 2px; padding: 0 10px; }
-    .sidebar nav a {
-      font-family: var(--font-mono);
-      font-size: .72rem;
-      letter-spacing: .08em;
-      color: var(--text-dim);
-      text-decoration: none;
-      padding: 9px 12px;
-      border-radius: 8px;
-      transition: background .15s, color .15s;
-    }
     .sidebar nav a:hover,
-    .sidebar nav a.active {
-      background: var(--accent-dim);
-      color: var(--accent);
-    }
     .user-symbol { margin-right: 4px; }
 
-    .main {
-      flex: 1;
-      margin-left: var(--sidebar-w);
-      padding: 32px 28px 80px;
-      max-width: 1100px;
-    }
+    /* page content area inherits the shared .main layout (layout.css);
+       only the readable max-width is page-specific */
+    .main { max-width: none; padding-top: 28px; }
+    .being-container { max-width: 1100px; width: 100%; margin: 0 auto; }
 
     .being-container { display: flex; flex-direction: column; gap: 20px; }
 
@@ -215,10 +176,6 @@
     }
     @media (max-width: 760px) {
       .grid-layout, .tri-grid { grid-template-columns: 1fr; }
-      .sidebar { width: 56px; }
-      .sidebar .logo { font-size: .7rem; padding: 12px 8px 16px; }
-      .sidebar nav a span:not(.user-symbol) { display: none; }
-      .main { margin-left: 56px; padding: 20px 14px 80px; }
     }
 
     /* ══════════════════════════════════════════════════════

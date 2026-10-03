@@ -1,0 +1,70 @@
+/* =========================================================
+   READER SHELL — puts the shared FIN-OS sidebar (232px, from
+   layout.css + sidebar.js) on the deep-dive "reader" pages
+   (learn-*, *detail, insight-*), whose own table-of-contents
+   column now sits beside it.
+
+   Load LAST (after the page's own CSS and theme.css).
+   ========================================================= */
+
+/* Reader body: keep it clear of the fixed sidebar */
+.deep-wrapper,
+.insight-wrapper {
+  margin-left: 232px;
+  margin-right: 0;
+  width: calc(100% - 232px);
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* Deep-dive readers: compact TOC column so the lesson text keeps its width */
+.deep-wrapper {
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 28px;
+  padding: 32px 28px;
+}
+@media (min-width: 1200px) {
+  /* room for the fixed Arya knowledge bar on the right */
+  .deep-wrapper { padding-right: 300px; }
+}
+.deep-wrapper .toc-sidebar { padding: 24px 16px; }
+
+/* Insight pages: same TOC width */
+.insight-wrapper { grid-template-columns: 220px minmax(0, 1fr); }
+.insight-wrapper .toc-sidebar { padding: 24px 16px; }
+
+/* ── ≤900px: the shared sidebar becomes a slide-out (layout.css), so
+      the reader takes the full width under the mobile top bar ───── */
+@media (max-width: 900px) {
+  .deep-wrapper,
+  .insight-wrapper {
+    margin-left: 0;
+    width: 100%;
+    padding-top: 72px;
+  }
+  .deep-wrapper {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 14px;
+    padding: 72px 14px 14px;
+  }
+  .insight-wrapper { grid-template-columns: minmax(0, 1fr); }
+
+  /* TOC collapses into a compact strip above the lesson */
+  .deep-wrapper .toc-sidebar {
+    position: static;
+    height: auto;
+    max-height: none;
+    padding: 12px 14px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .deep-wrapper .toc-header { width: 100%; margin-bottom: 0; }
+  .deep-wrapper .toc-list { flex-direction: row; flex-wrap: wrap; gap: 6px; overflow: visible; }
+  .deep-wrapper .toc-link { padding: 6px 10px; font-size: 0.85rem; }
+  .deep-wrapper .toc-sidebar .back-btn,
+  .deep-wrapper .toc-sidebar .master-btn { margin-top: 0; padding: 8px 12px; font-size: 0.85rem; }
+  .deep-wrapper .deep-content { padding-right: 0; min-width: 0; }
+}

@@ -33,7 +33,7 @@
   --text:#0A0C18;--muted:#9099B8;--muted2:#555E7A;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;overflow-x:hidden;scroll-behavior:smooth;}
+html,body{overflow-x:hidden;scroll-behavior:smooth;}
 body {background:var(--bg);color:var(--text);display:flex;}
 ::-webkit-scrollbar{width:10px;}
 ::-webkit-scrollbar-track{background:#12161d;}
@@ -41,17 +41,9 @@ body {background:var(--bg);color:var(--text);display:flex;}
 ::-webkit-scrollbar-thumb:hover{background:#6a7380;}
 
 /* ═══════════════════════════ SIDEBAR ═══════════════════════════ */
-.sidebar{width:var(--sw);min-height:100vh;background:#03050C;border-right:1px solid var(--border);
-  position:fixed;top:0;left:0;z-index:200;display:flex;flex-direction:column;overflow-y:auto;}
-[data-theme="light"] .sidebar{background:#09101E;}
 .logo{font-family:var(--font-display);font-size:1.9rem;letter-spacing:.15em;color:var(--lime);
   padding:24px 22px 20px;border-bottom:1px solid var(--border);
   text-shadow:0 0 24px rgba(199,240,0,.5);flex-shrink:0;}
-.sidebar nav{display:flex;flex-direction:column;padding:10px 0;gap:1px;}
-.sidebar nav a{padding:8px 22px;font-size:.72rem;letter-spacing:.03em;color:#2E3450;
-  text-decoration:none;border-left:2px solid transparent;transition:all .15s;}
-.sidebar nav a:hover{color:var(--muted2);background:var(--bg-surface);}
-.sidebar nav a.active{color:var(--lime);border-left-color:var(--lime);background:rgba(199,240,0,.04);}
 .nav-section{padding:12px 22px 4px;font-family:var(--font-mono);font-size:.58rem;
   letter-spacing:.2em;color:var(--muted);text-transform:uppercase;}
 
@@ -407,7 +399,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 
 /* ═══════════════════════════ MOBILE ═══════════════════════════ */
 @media(max-width:920px){
-  .sidebar{display:none;}.main{margin-left:0;}.content{padding:20px 14px 80px;}
+  .main{margin-left:0;}.content{padding:20px 14px 80px;}
   .two-col,.three-col,.four-col,.metrics-master-grid,.bias-grid-6,
   .consequence-grid,.pain-grid,.autopsy-grid,.engine-inputs-row{grid-template-columns:1fr!important;}
 }

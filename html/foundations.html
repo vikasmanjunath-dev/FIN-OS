@@ -23,7 +23,8 @@
        ========================= */
        
     *, *::before, *::after { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow-x: hidden;  }
+    /* keep page content above the fixed background canvas */
+    .app { position: relative; z-index: 10; }
 
     /* Light Theme */
     :root[data-theme="light"] {
@@ -62,79 +63,14 @@
     /* =========================
        LAYOUT
        ========================= */
-    .app {
-      display: flex;
-      width: 100%;
-      height: 100vh;
-      overflow: hidden;
-      position: relative;
-      z-index: 10;
-    }
-
-    .sidebar {
-      width: 260px;
-      min-width: 260px;
-      background: var(--bg-sidebar);
-      padding: 24px 20px;
-      display: flex;
-      flex-direction: column;
-      border-right: 1px solid var(--border-soft);
-      z-index: 20;
-    }
-
-    .sidebar .logo {
-      font-size: 22px;
-      font-weight: 800;
-      margin-bottom: 32px;
-      color: #FFFFFF;
-      font-family: var(--font-mono);
-      letter-spacing: 2px;
-    }
-
-    .sidebar nav a {
-      position: relative;
-      display: flex;
-      align-items: center;
-      padding: 12px 16px;
-      margin-bottom: 6px;
-      font-size: 15px;
-      font-weight: 500;
-      color: #A1A4AC;
-      text-decoration: none;
-      border-radius: 12px;
-      transition: all 0.3s ease;
-    }
-
-    .sidebar nav a:hover {
-      background: var(--bg-surface);
-      color: #FFFFFF;
-      transform: translateX(4px);
-    }
-
-    .sidebar nav a.active {
-      background: rgba(255, 255, 255, 0.1);
-      color: #FFFFFF;
-    }
-
-    .main {
-      flex: 1;
-      min-width: 0;
-      overflow-y: auto;
-      padding: 0 48px 48px 48px;
-    }
-
-    .content-wrapper {
-      max-width: 1300px;
-      margin: 0 auto;
-    }
 
     .header-flex {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      padding: 40px 0;
+      padding: 28px 0;
       border-bottom: 1px solid var(--border-soft);
-      margin-bottom: 40px;
+      margin-bottom: 28px;
     }
 
     .theme-btn {
@@ -163,7 +99,8 @@
     }
 
     .badge-core {
-      display: inline-block;
+      display: block;
+      width: fit-content;
       padding: 6px 12px;
       background: var(--bg-surface);
       color: #FFFFFF;
@@ -179,15 +116,15 @@
     .hero-sub {
       color: var(--text-secondary);
       margin-top: 12px;
-      font-size: 1.15rem;
+      font-size: 1rem;
       max-width: 650px;
       line-height: 1.6;
     }
 
     .portal-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 30px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
       perspective: 1200px;
     }
 
@@ -199,7 +136,7 @@
       -webkit-backdrop-filter: blur(25px);
       border: 1px solid var(--border-soft);
       border-radius: 24px;
-      padding: 40px 30px;
+      padding: 24px;
       text-decoration: none;
       color: var(--text-primary);
       overflow: hidden;
@@ -241,11 +178,11 @@
       height: 100%;
     }
 
-    .portal-card h2 { margin-bottom: 12px; font-size: 2rem; }
+    .portal-card h2 { margin-bottom: 10px; font-size: 1.4rem; }
     .portal-card p {
       color: var(--text-secondary);
       line-height: 1.7;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       font-size: 1rem;
       flex-grow: 1;
     }
@@ -320,7 +257,7 @@
 
     .visual-block {
       width: 100%;
-      height: 160px;
+      height: 120px;
       background: rgba(0,0,0,0.3);
       border-radius: 16px;
       border: 1px solid var(--border-soft);
@@ -449,15 +386,8 @@
     }
 
     @media (max-width: 900px) {
-      .app { flex-direction: column; overflow-y: auto; }
-      .sidebar { width: 100%; height: auto; min-height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 16px; border-right: none; border-bottom: 1px solid var(--border-soft); }
-      .sidebar .logo { margin-bottom: 0; }
-      .sidebar nav { display: flex; gap: 10px; flex-wrap: wrap; width: 100%; margin-top: 16px; }
-      .sidebar nav a { margin-bottom: 0; padding: 8px 12px; font-size: 13px; }
-      .main { padding: 24px; overflow: visible; }
       .portal-grid { grid-template-columns: 1fr; }
     }
-  
 
 /* ── Light mode text overrides (auto-generated) ── */
 [data-theme="light"] .glitch-text {
@@ -670,7 +600,7 @@
 
       <section class="next-phase-section">
         <div class="badge-core" style="color: var(--accent-market); border-color: var(--accent-market);">PHASE 02 UNLOCKED</div>
-        <h2 style="font-size: 2.8rem; margin: 15px 0;">The Global Markets</h2>
+        <h2 style="font-size: 1.8rem; margin: 12px 0;">The Global Markets</h2>
         <p class="hero-sub" style="margin: 0 auto 30px auto; max-width: 650px;">
           Once your foundation is secure, it is time to deploy capital. Enter the Global Markets Protocol to master Equity, Crypto, Debt, ETFs, and Derivatives.
         </p>
@@ -800,5 +730,11 @@
 <script src="../js/arya-pulse-rank.js"></script>
 <script src="../js/arya-lazy.js"></script>
   <script src="../js/interactions.js" defer></script>
+<script>
+/* Keep the glitch-overlay text in sync when personalization rewrites the heading */
+(function(){var h=document.querySelector('h1.glitch-text');if(!h)return;
+var sync=function(){var t=h.textContent.trim();if(h.getAttribute('data-text')!==t)h.setAttribute('data-text',t);};
+new MutationObserver(sync).observe(h,{childList:true,characterData:true,subtree:true});sync();})();
+</script>
 </body>
 </html>
