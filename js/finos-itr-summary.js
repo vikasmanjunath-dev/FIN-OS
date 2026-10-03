@@ -26,7 +26,7 @@ window.FinosITRSummary = (function () {
 
   /* ── Tax slabs FY 2025-26 ──────────────────────────────────────── */
   function _taxNew(income) {
-    // New regime slabs (post April 2023, updated Budget 2024)
+    // New regime slabs (FY 2025-26, Budget 2025)
     // 0-4L: 0%, 4L-8L: 5%, 8L-12L: 10%, 12L-16L: 15%, 16L-20L: 20%, 20L-24L: 25%, 24L+: 30%
     const slabs = [
       [0,       400000,  0.00],
@@ -42,8 +42,8 @@ window.FinosITRSummary = (function () {
       if (income <= lo) break;
       tax += (Math.min(income, hi) - lo) * rate;
     }
-    // Rebate 87A: if income ≤ 7L in new regime, tax = 0
-    if (income <= 700000) tax = 0;
+    // Rebate 87A (FY 2025-26): nil tax up to ₹12L taxable; just above, tax can't exceed the income over ₹12L
+    tax = income <= 1200000 ? 0 : Math.min(tax, income - 1200000);
     return Math.round(tax * 1.04); // 4% cess
   }
 

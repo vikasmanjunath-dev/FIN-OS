@@ -77,21 +77,23 @@ window.FinosSalaryOptimizer = (function () {
     const taxableOldNet = Math.max(taxableOld - c80c - c80ccd2, 0);
     const taxableNewNet = Math.max(taxableNew - c80ccd2, 0);
 
-    // Simple slab tax (no surcharge, no cess for brevity — approximate)
+    // Slab tax before cess (no surcharge — approximate). Sec 87A included, matching js/finos-taxcore.js.
     const _tax = (income, isNew) => {
       if (isNew) {
         // New regime FY 2025-26
-        if (income <= 400000)  return 0;
-        if (income <= 800000)  return (income - 400000) * 0.05;
-        if (income <= 1200000) return 20000 + (income - 800000) * 0.10;
-        if (income <= 1600000) return 60000 + (income - 1200000) * 0.15;
-        if (income <= 2000000) return 120000 + (income - 1600000) * 0.20;
-        if (income <= 2400000) return 200000 + (income - 2000000) * 0.25;
-        return 300000 + (income - 2400000) * 0.30;
+        let t;
+        if (income <= 400000)       t = 0;
+        else if (income <= 800000)  t = (income - 400000) * 0.05;
+        else if (income <= 1200000) t = 20000 + (income - 800000) * 0.10;
+        else if (income <= 1600000) t = 60000 + (income - 1200000) * 0.15;
+        else if (income <= 2000000) t = 120000 + (income - 1600000) * 0.20;
+        else if (income <= 2400000) t = 200000 + (income - 2000000) * 0.25;
+        else                        t = 300000 + (income - 2400000) * 0.30;
+        // 87A: nil tax up to ₹12L taxable; just above, tax can't exceed the income over ₹12L (marginal relief)
+        return income <= 1200000 ? 0 : Math.min(t, income - 1200000);
       } else {
-        // Old regime FY 2025-26
-        if (income <= 250000)  return 0;
-        if (income <= 500000)  return (income - 250000) * 0.05;
+        // Old regime FY 2025-26 (87A: nil up to ₹5L taxable)
+        if (income <= 500000)  return 0;
         if (income <= 1000000) return 12500 + (income - 500000) * 0.20;
         return 112500 + (income - 1000000) * 0.30;
       }

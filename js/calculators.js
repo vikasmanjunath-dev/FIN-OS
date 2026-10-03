@@ -99,6 +99,7 @@ if (document.readyState === 'loading') {
         { name: "Education Loan", file: "education.html" },
         { name: "Loan Tenure Optimizer", file: "loantenure.html" },
         { name: "EMI vs Prepayment", file: "emiprepay.html" },
+        { name: "Prepay Loan or Invest?", file: "prepayinvest.html" },
         { name: "Interest Outflow", file: "interest.html" },
         { name: "Debt Payoff Strategy", file: "debtsnow.html" },
         { name: "Credit Card Interest", file: "creditcard.html" },
@@ -125,7 +126,8 @@ if (document.readyState === 'loading') {
         { name: "Gratuity Calculator", file: "gratuity.html" },
         { name: "Leave Encashment", file: "leave.html" },
         { name: "Professional Tax", file: "professional.html" },
-        { name: "In-Hand Salary", file: "inhand.html" }
+        { name: "In-Hand Salary", file: "inhand.html" },
+        { name: "Job Offer Comparer", file: "offercompare.html" }
       ]
     },
 

@@ -35,6 +35,7 @@ PAGES = [
     "html/retirement-planner.html", "html/tax.html", "html/settings.html", "html/portfolio.html", "html/markets.html",
     "html/financial-calendar.html", "calculators/investment & wealth/sip.html", "calculators/loans, debt & emi/emi.html",
     "calculators/retirement & life planning/retirement.html", "index.html", "login.html",
+    "html/subscription-tracker.html", "calculators/loans, debt & emi/prepayinvest.html", "calculators/tax & salary/offercompare.html",
 ]
 MUST_BE_ZERO = ["label", "select-name", "button-name", "link-name", "aria-dialog-name", "image-alt", "document-title",
                 "html-has-lang", "nested-interactive", "aria-required-attr", "aria-valid-attr-value", "duplicate-id-aria"]

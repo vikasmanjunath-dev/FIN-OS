@@ -111,7 +111,9 @@
     // Only employer NPS (80CCD(2)) is deductible in new regime
     const empNps  = Math.min(p.employer_nps || 0, (p.income * (p.basic_pct || 50) / 100) * 0.14);
     const taxable = Math.max(0, p.income - std - empNps);
-    let   tax     = taxable <= NEW_REBATE_LIMIT ? 0 : _slabTax(taxable, NEW_SLABS);
+    // 87A: nil up to ₹12L; just above it tax can't exceed the income over ₹12L (marginal relief), so there is no cliff
+    const baseTax = taxable <= NEW_REBATE_LIMIT ? 0 : Math.min(_slabTax(taxable, NEW_SLABS), taxable - NEW_REBATE_LIMIT);
+    let   tax     = baseTax;
     const surCh   = _surcharge(tax, p.income);
     tax           = (tax + surCh) * (1 + CESS);
 
@@ -125,7 +127,7 @@
       std_ded:        std,
       emp_nps:        empNps,
       taxable,
-      base_tax:       taxable <= NEW_REBATE_LIMIT ? 0 : _slabTax(taxable, NEW_SLABS),
+      base_tax:       baseTax,
       surcharge:      surCh,
       cess:           (tax / 1.04) * CESS,
       income_tax:     tax,

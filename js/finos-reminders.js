@@ -1,7 +1,7 @@
 /**
  * FIN-OS reminders — "what needs my attention in the next few days?"   (v1.0)
  *
- * Reads the same events the Financial Calendar shows (SIP debits, FD/PPF maturities, insurance renewals,
+ * Reads the same events the Financial Calendar shows (SIP debits, FD/PPF maturities, insurance renewals, subscription renewals,
  * goal deadlines, tax dates) and tells you about the ones that are close — once per event per day.
  *
  *   FinosReminders.upcoming(7)         → [{date,title,sub,type,daysAway,key}]   (soonest first)
@@ -11,7 +11,7 @@
  *   FinosReminders.disableSystem()
  *   FinosReminders.select(events, todayISO, seen, opts)   pure core used by run() and the tests
  *
- * Lead times: tax & insurance 7 days (money has to be arranged), maturities 3 days, SIP debits 1 day
+ * Lead times: tax & insurance 7 days (money has to be arranged), maturities 3 days, subscriptions 3 days, SIP debits 1 day
  * (make sure the balance is there), goals 14 days. At most 3 reminders per run so nothing spams.
  * Needs finos-calendar.js (+ finos-taxdates.js); loads them on demand if the page didn't.
  */
@@ -22,7 +22,7 @@
 })(typeof window !== 'undefined' ? window : globalThis, function (root) {
   'use strict';
 
-  const LEAD = { tax: 7, insurance: 7, fd: 3, ppf: 3, sip: 1, goal: 14 };
+  const LEAD = { tax: 7, insurance: 7, fd: 3, ppf: 3, sip: 1, goal: 14, sub: 3 };
   const MAX_PER_RUN = 3;
   const SEEN_KEY = 'finos_reminders_seen';
   const SYS_KEY = 'finos_reminders_system';
@@ -45,14 +45,14 @@
       fresh.push(Object.assign({}, e, { daysAway, key }));
     });
     // soonest first; ties → money leaving the account first (tax/insurance/sip) over informational ones
-    const rank = { tax: 0, insurance: 1, sip: 2, fd: 3, ppf: 3, goal: 4 };
+    const rank = { tax: 0, insurance: 1, sip: 2, sub: 2, fd: 3, ppf: 3, goal: 4 };
     fresh.sort((a, b) => a.daysAway - b.daysAway || (rank[a.type] ?? 9) - (rank[b.type] ?? 9));
     return fresh.slice(0, o.max);
   }
 
   function when(n) { return n === 0 ? 'today' : n === 1 ? 'tomorrow' : `in ${n} days`; }
   function message(r) {
-    const label = { tax: 'Tax', insurance: 'Insurance', sip: 'SIP', fd: 'Maturity', ppf: 'Maturity', goal: 'Goal' }[r.type] || 'Reminder';
+    const label = { tax: 'Tax', insurance: 'Insurance', sip: 'SIP', fd: 'Maturity', ppf: 'Maturity', goal: 'Goal', sub: 'Subscription' }[r.type] || 'Reminder';
     return { title: `${label}: ${r.title} — ${when(r.daysAway)}`, body: (r.sub || '').replace(/\s*Statutory default.*$/, '') };
   }
 
@@ -148,6 +148,7 @@
     const need = [];
     if (!root.FinosStore) need.push('finos-store.js');
     if (!root.FinosTaxDates) need.push('finos-taxdates.js');
+    if (!root.FinosSubscriptions) need.push('finos-subscriptions.js');
     if (!root.FinosCalendar) need.push('finos-calendar.js');
     let left = need.length;
     if (!left) return run();

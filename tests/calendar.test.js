@@ -34,3 +34,20 @@ test('tax events keep coming far into the future (no hardcoded cut-off)', () => 
   const last = tax[tax.length - 1].date;
   assert.ok(last > '2028-12-01', 'tax calendar stops too early: ' + last);
 });
+
+test('subscriptions appear as typed "sub" events when finos-subscriptions.js is loaded (paused ones do not)', () => {
+  const cal = boot({
+    finos_subscriptions: [
+      { id: 'a', name: 'Netflix', category: 'ott', amount: 649, cycle: 'monthly', nextDate: '2026-01-05' },
+      { id: 'b', name: 'Old gym', category: 'fitness', amount: 999, cycle: 'monthly', nextDate: '2026-01-05', status: 'paused' },
+    ],
+  });
+  // the calendar only knows about subscriptions once the module is on the page (like FinosTaxDates)
+  assert.strictEqual(cal.collectEvents(3).filter((e) => e.type === 'sub').length, 0);
+  delete require.cache[require.resolve('../js/finos-subscriptions.js')];
+  globalThis.FinosSubscriptions = require('../js/finos-subscriptions.js');
+  const subs = cal.collectEvents(4).filter((e) => e.type === 'sub');
+  assert.ok(subs.length >= 3, 'expected ≥3 upcoming renewals, got ' + subs.length);
+  assert.ok(subs.every((e) => e.title === 'Netflix renews' && e.amount === 649));
+  delete globalThis.FinosSubscriptions;
+});

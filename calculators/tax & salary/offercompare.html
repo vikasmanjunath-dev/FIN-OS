@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script src="../../js/finos-vault-boot.js"></script>
+  <meta charset="UTF-8" />
+  <title>Job Offer Comparer • FIN-OS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Compare job offers on what actually reaches your bank account — variable pay, PF, NPS, gratuity, joining bonus and the better tax regime, year by year."/>
+  <link rel="stylesheet" href="../../css/design-tokens.css">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/layout.css?v=3">
+  <link rel="stylesheet" href="../../css/components.css">
+  <link rel="stylesheet" href="../../css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../../js/finos-context.js?v=4"></script>
+  <script src="../../js/finos-a11y.js"></script>
+  <script src="../../js/finos-format.js"></script>
+  <script src="../../js/finos-taxcore.js"></script>
+  <script src="../../js/finos-offer-compare.js"></script>
+  <script src="../../js/arya-ai.js?v=7"></script>
+  <style>
+    body { color: var(--text-primary); background: var(--bg-main); font-family: sans-serif; }
+    h1, h2, h3 { color: var(--text-primary); }
+    .page { flex: 1; padding: 0 48px 48px 48px; overflow-y: auto; }
+    .page-header { padding-top: 32px; margin-bottom: 32px; }
+    .page-header h1 { font-size: 42px; font-weight: 700; margin: 8px 0; }
+    .page-header p { color: var(--text-secondary); margin: 0; }
+    .back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .back-btn:hover { color: #06b6d4; }
+    .related-tool-link { display: block; max-width: 1100px; margin: 0 0 24px 0; padding: 14px 20px; border-radius: 14px; background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.25); color: var(--text-primary); text-decoration: none; font-size: 14px; font-weight: 500; line-height: 1.6; transition: background .2s; }
+    .related-tool-link:hover { background: rgba(6,182,212,0.14); }
+    .related-tool-link strong { color: #06b6d4; }
+    .wrap { max-width: 1100px; }
+    .offers { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .offer { padding: 20px; border-radius: 22px; background: var(--bg-surface); box-shadow: var(--card-shadow); display: flex; flex-direction: column; gap: 12px; border: 2px solid transparent; }
+    .offer.a { border-top-color: #06b6d4; } .offer.b { border-top-color: #a78bfa; } .offer.c { border-top-color: #f59e0b; }
+    .offer h2 { font-size: 15px; margin: 0; letter-spacing: .04em; text-transform: uppercase; color: var(--text-secondary); }
+    .offer label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+    .offer input, .offer select, .global input { padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border-soft); font-size: 14px; font-weight: 600; color: var(--text-primary); background: rgba(255,255,255,0.05); width: 100%; box-sizing: border-box; }
+    .offer select option { color: #0B0D12; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .global { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; margin: 20px 0; padding: 16px 20px; border-radius: 16px; background: rgba(255,255,255,0.04); }
+    .global label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 600; color: var(--text-secondary); min-width: 180px; flex: 1; }
+    .global small { color: var(--text-secondary); font-size: 12px; flex-basis: 100%; line-height: 1.5; }
+    .verdict { margin: 24px 0 16px; padding: 20px 22px; border-radius: 18px; font-size: 16px; font-weight: 600; line-height: 1.6; background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(16,185,129,0.12)); color: var(--text-primary); }
+    .verdict b { color: #22c55e; }
+    .tbl-wrap { overflow-x: auto; border-radius: 18px; background: var(--bg-surface); box-shadow: var(--card-shadow); }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 520px; }
+    th, td { padding: 13px 16px; text-align: right; border-bottom: 1px solid var(--border-soft); }
+    th:first-child, td:first-child { text-align: left; color: var(--text-secondary); font-weight: 600; }
+    thead th { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
+    td.best { color: #22c55e; font-weight: 700; }
+    td small { display: block; font-weight: 400; color: var(--text-secondary); font-size: 11px; }
+    .chart-wrap { position: relative; height: 260px; margin-top: 24px; padding: 16px; border-radius: 18px; background: var(--bg-surface); box-shadow: var(--card-shadow); }
+    .notes { margin-top: 24px; font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+    .notes summary { cursor: pointer; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+    .notes ul { margin: 8px 0 0 18px; padding: 0; }
+    [data-theme="light"] .offer input, [data-theme="light"] .offer select, [data-theme="light"] .global input { background: #fff; }
+    [data-theme="light"] .global { background: rgba(0,0,0,0.04); }
+    [data-theme="light"] td.best, [data-theme="light"] .verdict b { color: #15803d; }
+    [data-theme="light"] .related-tool-link strong { color: #0e7490; }
+    @media (max-width: 900px) { .page { padding: 0 20px 40px; } }
+  </style>
+</head>
+<body class="app">
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="../../html/home.html">Home</a>
+      <a href="../../html/dashboard.html">Dashboard</a>
+      <a href="../../html/impact.html">Impact</a>
+      <a href="../../html/calculators.html" class="active">Calculators</a>
+      <a href="../../Porfolio Analyser/portfolio-analyser-v10.html">Portfolio</a>
+      <a href="../../html/markets.html">Markets</a>
+      <a href="../../html/tax.html">Tax</a>
+      <a href="../../html/news.html">News</a>
+    </nav>
+  </aside>
+
+  <main class="page">
+    <button id="themeToggle" aria-label="Toggle theme" style="position: fixed; top: 32px; right: 32px; z-index: 100; background:none; border:none; font-size:24px; cursor:pointer;">🌙</button>
+
+    <header class="page-header">
+      <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
+      <h1>Job Offer Comparer</h1>
+      <p>CTC is not salary. See what each offer really puts in your hand — and what it quietly locks away.</p>
+    </header>
+
+    <a href="../../html/salary-optimizer.html" class="related-tool-link">🔗 Already working? <strong>Salary CTC Optimizer</strong> restructures your current CTC (HRA, NPS, flexi benefits) for maximum take-home →</a>
+
+    <div class="wrap">
+      <div class="offers" id="offers"></div>
+
+      <div class="global">
+        <label>Compare over (years)<input type="number" id="years" min="1" max="10" value="5"></label>
+        <label>Old-regime deductions you'd claim (₹/yr)<input type="number" id="oldDed" min="0" value="150000"></label>
+        <small>Each offer is taxed under whichever regime is cheaper for it. For the old regime, enter everything you'd actually claim — 80C including your PF, 80D, HRA exemption — the same for every offer. Professional tax is taken as ₹2,400 a year.</small>
+      </div>
+
+      <div class="verdict" id="verdict" aria-live="polite">Enter at least one offer's CTC.</div>
+      <div class="tbl-wrap" tabindex="0" role="region" aria-label="Offer comparison table (scrolls sideways on small screens)"><table id="tbl"></table></div>
+      <div class="chart-wrap"><canvas id="cmpChart" role="img" aria-label="Total value per offer: cash take-home plus locked-in retirement savings and gratuity"></canvas></div>
+
+      <details class="notes">
+        <summary>How this is calculated — and what it leaves out</summary>
+        <ul>
+          <li><b>Fixed pay</b> = CTC − variable. Basic is the % of fixed you enter (40% is typical). Employer PF is 12% of basic (or of the ₹15,000/month ceiling, if you pick that), gratuity accrues at 4.81% of basic, and employer NPS is the % of basic you enter. These sit <i>inside</i> the CTC, so they reduce cash pay.</li>
+          <li><b>Cash gross</b> = fixed − employer PF − gratuity − employer NPS + the variable you expect to receive (+ joining bonus in year 1). Your own PF (12%) and professional tax come out of that, then income tax — new regime with the ₹75,000 standard deduction and Sec 87A rebate (nil tax up to ₹12L taxable), or old regime with your deductions, whichever is lower.</li>
+          <li><b>Total value</b> = cash take-home + your PF + employer PF + employer NPS + gratuity accrued. It is the fairer comparison if you value the retirement money; "monthly in-hand" is the fairer one if you need the cash now. Gratuity is only paid after five years of service.</li>
+          <li>Hikes compound every year and tax is recalculated each year. Not modelled: surcharge above ₹50L, ESOPs/RSUs, relocation or notice-period costs, health insurance and perks, state-specific professional tax, and any change in job stability. Tax rules are FY 2025-26 as used across FIN-OS — verify before a decision. This is a planning aid, not financial advice.</li>
+        </ul>
+      </details>
+    </div>
+  </main>
+
+<script>
+const root = document.documentElement;
+const toggle = document.getElementById("themeToggle");
+const savedTheme = localStorage.getItem("finos-theme");
+if (savedTheme) root.setAttribute("data-theme", savedTheme);
+toggle.textContent = root.getAttribute("data-theme") === "dark" ? "🌙" : "☀️";
+toggle.onclick = () => {
+  const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("finos-theme", next);
+  toggle.textContent = next === "dark" ? "🌙" : "☀️";
+  if (chart) { chart.destroy(); chart = null; } render();
+};
+
+const $ = (id) => document.getElementById(id);
+const COLORS = ['#06b6d4', '#a78bfa', '#f59e0b'];
+const DEFAULTS = [
+  { name: 'Offer A', ctc: 1800000, variable: 0, payout: 100, basicPct: 40, pfBasis: 'actual', npsPct: 0, joiningBonus: 0, hike: 8 },
+  { name: 'Offer B', ctc: 2000000, variable: 300000, payout: 80, basicPct: 40, pfBasis: 'ceiling', npsPct: 0, joiningBonus: 100000, hike: 8 },
+  { name: 'Offer C', ctc: 0, variable: 0, payout: 100, basicPct: 40, pfBasis: 'actual', npsPct: 0, joiningBonus: 0, hike: 8 },
+];
+
+function field(i, key, label, type, extra) {
+  const v = DEFAULTS[i][key];
+  return `<label>${label}<input type="${type || 'number'}" data-i="${i}" data-k="${key}" value="${v === 0 && key !== 'payout' && key !== 'hike' ? '' : v}" ${extra || ''}></label>`;
+}
+$('offers').innerHTML = DEFAULTS.map((d, i) => `
+  <div class="offer ${'abc'[i]}">
+    <h2>${i < 2 ? 'Offer ' + 'AB'[i] : 'Offer C (optional)'}</h2>
+    ${field(i, 'name', 'Company / label', 'text', 'maxlength="30"')}
+    ${field(i, 'ctc', 'Annual CTC (₹)', 'number', 'min="0" placeholder="e.g. 1800000"')}
+    <div class="row2">
+      ${field(i, 'variable', 'Variable pay in CTC (₹)', 'number', 'min="0"')}
+      ${field(i, 'payout', 'Expected payout (%)', 'number', 'min="0" max="200"')}
+    </div>
+    <div class="row2">
+      ${field(i, 'basicPct', 'Basic % of fixed', 'number', 'min="1" max="100"')}
+      ${field(i, 'npsPct', 'Employer NPS (% of basic)', 'number', 'min="0" max="14"')}
+    </div>
+    <label>PF calculated on<select data-i="${i}" data-k="pfBasis"><option value="actual"${d.pfBasis === 'actual' ? ' selected' : ''}>Actual basic (12%)</option><option value="ceiling"${d.pfBasis === 'ceiling' ? ' selected' : ''}>₹15,000/month ceiling</option></select></label>
+    <div class="row2">
+      ${field(i, 'joiningBonus', 'Joining bonus (₹)', 'number', 'min="0"')}
+      ${field(i, 'hike', 'Yearly hike (%)', 'number', 'min="0" max="50"')}
+    </div>
+  </div>`).join('');
+
+let chart = null;
+const inr = (n) => FinosFmt.inr(Math.round(n));
+const cmp = (n) => FinosFmt.compact(n);
+
+function readOffers() {
+  const offers = DEFAULTS.map((d) => Object.assign({}, d));
+  document.querySelectorAll('[data-i]').forEach((el) => {
+    const i = +el.dataset.i, k = el.dataset.k;
+    offers[i][k] = (k === 'name' || k === 'pfBasis') ? el.value : (el.value === '' ? 0 : +el.value);
+  });
+  offers.forEach((o, i) => { if (!String(o.name).trim()) o.name = 'Offer ' + 'ABC'[i]; });
+  return offers;
+}
+
+function render() {
+  const offers = readOffers();
+  const opts = { years: +$('years').value || 5, oldDeductions: +$('oldDed').value || 0 };
+  const live = offers.map((o, i) => Object.assign({ idx: i }, o)).filter((o) => o.ctc > 0);
+  const out = FinosOfferCompare.compare(live, opts);
+  const tbl = $('tbl');
+  if (!out.results.length) {
+    $('verdict').textContent = 'Enter at least one offer\'s CTC.';
+    tbl.innerHTML = ''; if (chart) { chart.destroy(); chart = null; } return;
+  }
+  const R = out.results, N = R[0].opts.years;
+  const names = R.map((r) => r.offer.name);
+  const best = (vals) => { const m = Math.max(...vals); return R.length > 1 && vals.filter((v) => v === m).length === 1 ? vals.indexOf(m) : -1; };
+  const rows = [
+    ['Monthly in-hand (regular)', R.map((r) => r.monthlyInHand), (v) => inr(v), true],
+    ['In-hand as % of CTC', R.map((r) => r.takeHomeShare * 100), (v) => v.toFixed(1) + '%', false],
+    ['Tax regime that saves you more', R.map((r) => r.regime), (v) => (v === 'new' ? 'New' : 'Old'), false],
+    ['Year-1 income tax', R.map((r) => r.years[0].tax), (v) => inr(v), false],
+    ['Locked-in savings, year 1 (PF + NPS)', R.map((r) => r.years[0].locked), (v) => inr(v), false],
+    [`Cash take-home over ${N} years`, R.map((r) => r.totals.takeHome), (v) => cmp(v), true],
+    [`Total value over ${N} years`, R.map((r) => r.totals.totalValue), (v) => cmp(v), true, 'cash + PF + NPS + gratuity'],
+  ];
+  tbl.innerHTML = `<thead><tr><th scope="col">Measure</th>${names.map((n) => `<th>${n.replace(/[<>&]/g, '')}</th>`).join('')}</tr></thead><tbody>` +
+    rows.map(([label, vals, fmt, ranked, hint]) => {
+      const b = ranked ? best(vals) : -1;
+      return `<tr><td>${label}${hint ? `<small>${hint}</small>` : ''}</td>${vals.map((v, i) => `<td${i === b ? ' class="best"' : ''}>${fmt(v)}</td>`).join('')}</tr>`;
+    }).join('') + '</tbody>';
+
+  // verdict
+  const nm = (i) => names[i].replace(/[<>&]/g, '');
+  const v = $('verdict');
+  if (R.length === 1) {
+    v.innerHTML = `<b>${nm(0)}</b> puts about <b>${inr(R[0].monthlyInHand)}</b> in your hand every month — ${(R[0].takeHomeShare * 100).toFixed(0)}% of its CTC. Add a second offer to compare.`;
+  } else {
+    const runner = (vals, w) => Math.max(...vals.filter((_, i) => i !== w));
+    const m = out.winnerMonthly, t = out.winnerTotal;
+    const mGap = R[m].monthlyInHand - runner(R.map((r) => r.monthlyInHand), m);
+    const tGap = R[t].totals.totalValue - runner(R.map((r) => r.totals.totalValue), t);
+    v.innerHTML = m === t
+      ? `<b>${nm(m)}</b> wins on both counts: ${inr(mGap)} more in hand every month and ${cmp(tGap)} more total value over ${N} years.`
+      : `<b>${nm(m)}</b> puts more cash in your hand (${inr(mGap)}/month more), but <b>${nm(t)}</b> is worth ${cmp(tGap)} more over ${N} years once PF, NPS and gratuity are counted. Which matters more depends on whether you need the cash now.`;
+  }
+
+  // chart: stacked cash vs locked value
+  const tick = root.getAttribute('data-theme') === 'dark' ? '#94a3b8' : '#475569';
+  if (typeof Chart === 'undefined') return;
+  const data = { labels: names, datasets: [
+    { label: 'Cash take-home', data: R.map((r) => r.totals.takeHome), backgroundColor: R.map((_, i) => COLORS[live[i].idx]), borderRadius: 6 },
+    { label: 'PF + NPS', data: R.map((r) => r.totals.locked), backgroundColor: 'rgba(148,163,184,.55)', borderRadius: 6 },
+    { label: 'Gratuity accrued', data: R.map((r) => r.totals.gratuity), backgroundColor: 'rgba(148,163,184,.3)', borderRadius: 6 },
+  ] };
+  if (chart) { chart.data = data; chart.update('none'); return; }
+  chart = new Chart($('cmpChart'), {
+    type: 'bar', data,
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      scales: { x: { stacked: true, grid: { display: false }, ticks: { color: tick } }, y: { stacked: true, ticks: { color: tick, callback: (x) => FinosFmt.compact(x) }, grid: { color: 'rgba(148,163,184,.15)' } } },
+      plugins: { legend: { labels: { color: tick } }, tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + FinosFmt.compact(c.parsed.y) } } },
+    },
+  });
+}
+
+document.querySelectorAll('input, select').forEach((el) => el.addEventListener('input', render));
+render();
+</script>
+<script src="../../js/calc-explainer.js?v=2"></script>
+<script src="../../js/finos-widget.js?v=10"></script>
+</body>
+</html>

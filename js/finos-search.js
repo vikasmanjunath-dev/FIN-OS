@@ -45,6 +45,7 @@
 
     /* ── Trackers: Track Finances Suite (Command Hub) ── */
     { title:'Budget Forecast',       desc:"AI predicts next month's spend from your patterns — 12-month savings and corpus forecast", url:'../html/budget-forecast.html',      cat:'Trackers', tags:['budget','forecast','ai','predict','spend','savings','corpus'] },
+    { title:'Subscription Tracker',  desc:'Netflix, Spotify, iCloud, gym — real yearly cost, renewal reminders, free-trial alerts, cancel candidates', url:'../html/subscription-tracker.html', cat:'Trackers', tags:['subscription','netflix','ott','spotify','recurring','renewal','free trial','cancel','autopay'] },
     { title:'Credit Score Tracker',  desc:'CIBIL score gauge, improvement tips, and home loan rate impact by score band',           url:'../html/credit-score.html',         cat:'Trackers', tags:['credit score','cibil','loan rate','utilization','improve'] },
     { title:'Crypto Tracker',        desc:'Cost basis, unrealised P&L, and India 30% tax + 1% TDS per coin',                        url:'../html/crypto-tracker.html',       cat:'Trackers', tags:['crypto','bitcoin','coin','p&l','tax','tds','portfolio'] },
     { title:'Debt Optimizer',        desc:'Avalanche vs Snowball payoff strategy, debt-free date, home loan prepayment impact',      url:'../html/debt-optimizer.html',       cat:'Trackers', tags:['debt','avalanche','snowball','payoff','prepayment','emi'] },
@@ -74,6 +75,8 @@
     { title:'Bonus & Windfall Allocator', desc:'Smart 7-step priority waterfall for bonus, RSU, property sale or inheritance money',  url:'../html/windfall.html',             cat:'Trackers', tags:['windfall','bonus','rsu','inheritance','allocation'] },
 
     /* ── Calculators: Investment & Wealth ── */
+    { title:'Prepay Loan or Invest?', desc:'Prepay your home loan or start a SIP? Tax-adjusted comparison with the break-even return', url:'../calculators/loans, debt & emi/prepayinvest.html', cat:'Calculators', tags:['prepay','prepayment','home loan','invest','sip','24b','break even','surplus','bonus'] },
+    { title:'Job Offer Comparer',    desc:'Compare offers on real in-hand pay — variable, PF, NPS, gratuity, joining bonus and tax regime', url:'../calculators/tax & salary/offercompare.html', cat:'Calculators', tags:['job offer','salary','ctc','in hand','take home','compare','hike','joining bonus','switch'] },
     { title:'SIP Calculator',        desc:'Calculate SIP returns — monthly investment, expected corpus, wealth creation', url:'../calculators/investment & wealth/sip.html',          cat:'Calculators', tags:['sip','mutual fund','monthly','invest','corpus','return','compounding'] },
     { title:'Lump Sum Calculator',   desc:'One-time investment returns calculator — how much will ₹X grow to?',           url:'../calculators/investment & wealth/lupsum.html',        cat:'Calculators', tags:['lump sum','one time','investment','return','grow','amount'] },
     { title:'CAGR Calculator',       desc:'Compound Annual Growth Rate — measure true investment performance',              url:'../calculators/investment & wealth/cagr.html',          cat:'Calculators', tags:['cagr','compound','growth','rate','performance','annual'] },

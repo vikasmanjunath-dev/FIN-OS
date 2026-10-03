@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script src="../../js/finos-vault-boot.js"></script>
+  <meta charset="UTF-8" />
+  <title>Prepay Loan or Invest? • FIN-OS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Should surplus cash prepay your home loan or go into a SIP? A tax-adjusted, month-by-month comparison with the break-even return."/>
+  <link rel="stylesheet" href="../../css/design-tokens.css">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/layout.css?v=3">
+  <link rel="stylesheet" href="../../css/components.css">
+  <link rel="stylesheet" href="../../css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../../js/finos-context.js?v=4"></script>
+  <script src="../../js/finos-a11y.js"></script>
+  <script src="../../js/finos-format.js"></script>
+  <script src="../../js/finos-prepay-invest.js"></script>
+  <script src="../../js/arya-ai.js?v=7"></script>
+  <style>
+    body { color: var(--text-primary); background: var(--bg-main); font-family: sans-serif; }
+    h1, h2, h3 { color: var(--text-primary); }
+    .page { flex: 1; padding: 0 48px 48px 48px; overflow-y: auto; }
+    .page-header { padding-top: 32px; margin-bottom: 32px; }
+    .page-header h1 { font-size: 42px; font-weight: 700; margin: 8px 0; }
+    .page-header p { color: var(--text-secondary); margin: 0; }
+    .back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .back-btn:hover { color: #06b6d4; }
+    .related-tool-link { display: block; max-width: 1100px; margin: 0 auto 24px 0; padding: 14px 20px; border-radius: 14px; background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.25); color: var(--text-primary); text-decoration: none; font-size: 14px; font-weight: 500; line-height: 1.6; transition: background .2s; }
+    .related-tool-link:hover { background: rgba(6,182,212,0.14); }
+    .related-tool-link strong { color: #06b6d4; }
+    .impact-card { max-width: 1100px; display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 36px; padding: 36px; border-radius: 32px; background: var(--bg-surface); box-shadow: var(--card-shadow); }
+    .impact-inputs { display: flex; flex-direction: column; gap: 18px; }
+    .input-group { display: flex; flex-direction: column; gap: 8px; }
+    .input-group > label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+    .input-row { display: flex; gap: 12px; align-items: center; }
+    input[type="range"] { flex: 1; appearance: none; height: 6px; border-radius: 6px; background: linear-gradient(90deg, #06b6d4, #3b82f6); cursor: pointer; }
+    input[type="range"]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #ffffff; border: 3px solid #06b6d4; cursor: pointer; }
+    input[type="number"], select { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border-soft); font-size: 15px; font-weight: 600; color: var(--text-primary); background: rgba(255,255,255,0.05); }
+    input[type="number"] { width: 140px; }
+    select { width: 100%; }
+    select option { color: #0B0D12; }
+    .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+    .check { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+    .check input { margin-top: 3px; }
+    .impact-right { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+    .verdict-box { padding: 22px; border-radius: 16px; text-align: center; font-weight: 700; font-size: 18px; line-height: 1.4; }
+    .verdict-box small { display: block; margin-top: 6px; font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+    .verdict-box.invest { background: linear-gradient(135deg, rgba(34,197,94,0.16), rgba(16,185,129,0.14)); color: #22c55e; }
+    .verdict-box.prepay { background: linear-gradient(135deg, rgba(79,124,255,0.18), rgba(6,182,212,0.14)); color: #4f9dff; }
+    .verdict-box.tie { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+    .strat { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .strat-box { padding: 16px; border-radius: 16px; background: rgba(6,182,212,0.10); }
+    .strat-box.b { background: rgba(139,92,246,0.12); }
+    .strat-box span { display: block; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text-secondary); }
+    .strat-box strong { display: block; font-size: 24px; margin: 6px 0 4px; }
+    .strat-box small { color: var(--text-secondary); font-size: 12px; line-height: 1.5; display: block; }
+    .be { padding: 14px 16px; border-radius: 14px; background: rgba(255,255,255,0.05); font-size: 14px; line-height: 1.6; color: var(--text-secondary); }
+    .be b { color: var(--text-primary); }
+    .chart-wrap { position: relative; height: 240px; }
+    .notes { max-width: 1100px; margin-top: 24px; font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+    .notes summary { cursor: pointer; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+    .notes ul { margin: 8px 0 0 18px; padding: 0; }
+    [data-theme="light"] input[type="number"], [data-theme="light"] select { background: #fff; }
+    [data-theme="light"] .strat-box { background: rgba(6,182,212,0.12); }
+    [data-theme="light"] .be { background: rgba(0,0,0,0.04); }
+    [data-theme="light"] .verdict-box.invest { color: #15803d; }
+    [data-theme="light"] .verdict-box.prepay { color: #1d4ed8; }
+    [data-theme="light"] .related-tool-link strong { color: #0e7490; }
+    @media (max-width: 900px) { .impact-card { padding: 24px; } .page { padding: 0 20px 40px; } }
+  </style>
+</head>
+<body class="app">
+  <aside class="sidebar">
+    <div class="logo">FIN•OS</div>
+    <nav>
+      <a href="../../html/home.html">Home</a>
+      <a href="../../html/dashboard.html">Dashboard</a>
+      <a href="../../html/impact.html">Impact</a>
+      <a href="../../html/calculators.html" class="active">Calculators</a>
+      <a href="../../Porfolio Analyser/portfolio-analyser-v10.html">Portfolio</a>
+      <a href="../../html/markets.html">Markets</a>
+      <a href="../../html/tax.html">Tax</a>
+      <a href="../../html/news.html">News</a>
+    </nav>
+  </aside>
+
+  <main class="page">
+    <button id="themeToggle" aria-label="Toggle theme" style="position: fixed; top: 32px; right: 32px; z-index: 100; background:none; border:none; font-size:24px; cursor:pointer;">🌙</button>
+
+    <header class="page-header">
+      <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
+      <h1>Prepay Loan or Invest?</h1>
+      <p>Same cash every month, two choices — which one leaves you richer when the loan would have ended?</p>
+    </header>
+
+    <a href="../../html/home-loan.html" class="related-tool-link">🔗 Have a home loan? The <strong>Home Loan EMI Planner</strong> shows your full amortisation schedule and tax benefits →</a>
+
+    <section class="impact-card">
+      <div class="impact-left">
+        <div class="impact-inputs">
+          <div class="input-group">
+            <label for="loanNum">Loan outstanding (₹)</label>
+            <div class="input-row"><input type="range" id="loan" min="100000" max="50000000" step="50000" value="5000000" aria-label="Loan outstanding slider"><input type="number" id="loanNum" value="5000000" min="0"></div>
+          </div>
+          <div class="input-group">
+            <label for="rateNum">Loan interest rate (% p.a.)</label>
+            <div class="input-row"><input type="range" id="rate" min="5" max="16" step="0.05" value="8.5" aria-label="Loan rate slider"><input type="number" id="rateNum" value="8.5" step="0.05" min="0"></div>
+          </div>
+          <div class="input-group">
+            <label for="yearsNum">Remaining tenure (years)</label>
+            <div class="input-row"><input type="range" id="years" min="1" max="30" step="1" value="20" aria-label="Remaining tenure slider"><input type="number" id="yearsNum" value="20" min="1" max="40"></div>
+          </div>
+          <div class="input-group">
+            <label for="monthlyNum">Extra cash every month (₹)</label>
+            <div class="input-row"><input type="range" id="monthly" min="0" max="300000" step="1000" value="20000" aria-label="Extra monthly cash slider"><input type="number" id="monthlyNum" value="20000" min="0"></div>
+          </div>
+          <div class="input-group">
+            <label for="lumpNum">One-time lump sum (₹) — bonus, maturity, windfall</label>
+            <div class="input-row"><input type="range" id="lump" min="0" max="10000000" step="25000" value="0" aria-label="Lump sum slider"><input type="number" id="lumpNum" value="0" min="0"></div>
+          </div>
+          <div class="input-group">
+            <label for="retNum">Expected investment return (% p.a.)</label>
+            <div class="input-row"><input type="range" id="ret" min="3" max="20" step="0.5" value="12" aria-label="Investment return slider"><input type="number" id="retNum" value="12" step="0.5" min="0"></div>
+          </div>
+          <div class="pair">
+            <div class="input-group">
+              <label for="invType">You'd invest in</label>
+              <select id="invType"><option value="equity">Equity mutual funds</option><option value="debt">Debt funds / FD</option></select>
+            </div>
+            <div class="input-group">
+              <label for="slab">Your tax slab</label>
+              <select id="slab"><option value="0">0% (no tax)</option><option value="5">5%</option><option value="10">10%</option><option value="15">15%</option><option value="20">20%</option><option value="25">25%</option><option value="30" selected>30%</option></select>
+            </div>
+          </div>
+          <label class="check"><input type="checkbox" id="claim24b"> <span>I claim the Sec 24(b) home-loan interest deduction (old regime, self-occupied, up to ₹2L a year) — this makes the loan cheaper, so prepaying is worth less.</span></label>
+        </div>
+      </div>
+
+      <div class="impact-right" aria-live="polite">
+        <div class="verdict-box tie" id="verdict">Enter your numbers</div>
+        <div class="strat">
+          <div class="strat-box"><span>Prepay the loan</span><strong id="finalA">—</strong><small id="subA"></small></div>
+          <div class="strat-box b"><span>Invest instead</span><strong id="finalB">—</strong><small id="subB"></small></div>
+        </div>
+        <div class="be" id="be"></div>
+        <div class="chart-wrap"><canvas id="posChart" aria-label="Net position over time: investments minus loan outstanding, for each strategy" role="img"></canvas></div>
+      </div>
+    </section>
+
+    <details class="notes">
+      <summary>How this is calculated — and what it can't tell you</summary>
+      <ul>
+        <li>Both strategies spend the <b>same cash every month</b> (EMI + your extra). <b>Prepay</b> puts the extra into the loan, so it closes early and the whole EMI + extra is invested afterwards. <b>Invest</b> keeps the loan on its normal schedule and invests the extra from day one. Wealth is compared when the loan would have ended.</li>
+        <li>Prepaying is a <b>guaranteed</b> return equal to your loan rate (after tax relief, if you claim 24(b)). Investment returns are an assumption — equities can be down for years. The break-even figure is the return you must reliably beat.</li>
+        <li>Gains tax is charged once at the end: equity LTCG 12.5% above the ₹1.25L exemption, debt/FD gains at your slab, plus 4% cess. Returns compound monthly at the annual rate ÷ 12, like every FIN-OS calculator.</li>
+        <li>Sec 24(b) relief is modelled as a monthly tax saving on interest up to ₹2L a year, and is invested too. It is not available under the new tax regime.</li>
+        <li>Not modelled: prepayment charges (none on floating-rate loans per RBI), rate resets, changes in your income, and the value of liquidity — cash in a loan is hard to get back; cash in a fund is not. Keep an emergency fund before doing either. This is a planning aid, not investment advice.</li>
+      </ul>
+    </details>
+  </main>
+
+<script>
+const root = document.documentElement;
+const toggle = document.getElementById("themeToggle");
+const savedTheme = localStorage.getItem("finos-theme");
+if (savedTheme) root.setAttribute("data-theme", savedTheme);
+toggle.textContent = root.getAttribute("data-theme") === "dark" ? "🌙" : "☀️";
+toggle.onclick = () => {
+  const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("finos-theme", next);
+  toggle.textContent = next === "dark" ? "🌙" : "☀️";
+  draw();
+};
+
+const $ = (id) => document.getElementById(id);
+['loan', 'rate', 'years', 'monthly', 'lump', 'ret'].forEach((k) => {
+  const slider = $(k), num = $(k + 'Num');
+  slider.addEventListener('input', () => { num.value = slider.value; calculate(); });
+  num.addEventListener('input', () => { slider.value = num.value; calculate(); });
+});
+['invType', 'slab', 'claim24b'].forEach((k) => $(k).addEventListener('input', calculate));
+
+const money = (n) => FinosFmt.compact(n);
+const yrs = (months) => { const y = Math.floor(months / 12), m = months % 12; return y + 'y' + (m ? ' ' + m + 'm' : ''); };
+let chart = null, last = null;
+
+function params() {
+  return {
+    loan: +$('loanNum').value, rate: +$('rateNum').value, years: +$('yearsNum').value,
+    monthly: +$('monthlyNum').value, lump: +$('lumpNum').value, ret: +$('retNum').value,
+    invType: $('invType').value, slab: +$('slab').value, claim24b: $('claim24b').checked,
+  };
+}
+
+function calculate() {
+  const p = params();
+  const r = FinosPrepayInvest.simulate(p);
+  last = r;
+  const v = $('verdict');
+  if (!r.valid) {
+    v.className = 'verdict-box tie';
+    v.textContent = r.reason === 'loan' ? 'Enter a loan amount' : 'Enter an extra monthly amount or a lump sum';
+    ['finalA', 'finalB'].forEach((id) => ($(id).textContent = '—')); $('subA').textContent = $('subB').textContent = ''; $('be').textContent = '';
+    draw(); return;
+  }
+  const better = r.winner === 'prepay' ? 'Prepaying' : 'Investing';
+  v.className = 'verdict-box ' + r.winner;
+  v.innerHTML = r.winner === 'tie'
+    ? 'Too close to call<small>The two end within 0.2% of each other — choose on risk and liquidity.</small>'
+    : `${better} wins by ${money(Math.abs(r.diff))}<small>${r.winner === 'prepay' ? 'Prepaying is a guaranteed ' + r.effectiveLoanRate.toFixed(2) + '%' + (p.claim24b ? ' after Sec 24(b) relief' : '') + ' on every rupee; your assumed ' + p.ret + '% does not beat that once tax on the gains is counted.' : 'Your assumed ' + p.ret + '% return beats the loan, but it is not guaranteed.'}</small>`;
+  $('finalA').textContent = money(r.finalA);
+  $('subA').textContent = `Loan-free in ${yrs(r.closeMonthA)} (vs ${yrs(r.months)}) · interest paid ${money(r.interestA)}`;
+  $('finalB').textContent = money(r.finalB);
+  $('subB').textContent = `Loan runs ${yrs(r.months)} · interest paid ${money(r.interestB)}`;
+  const be = FinosPrepayInvest.breakEven(p);
+  $('be').innerHTML = be === null
+    ? 'Investing would not catch up with prepaying even at a 40% return.'
+    : `<b>Break-even: ${be.toFixed(1)}% a year.</b> Investing only comes out ahead if your portfolio reliably earns more than that — and prepaying earns you ${r.effectiveLoanRate.toFixed(2)}% with no market risk. EMI today: ${FinosFmt.inr(Math.round(r.emi))}.`;
+  draw();
+}
+
+function draw() {
+  if (!last || !last.valid || typeof Chart === 'undefined') return;
+  const dark = root.getAttribute('data-theme') === 'dark';
+  const tick = dark ? '#94a3b8' : '#475569';
+  const labels = last.series.map((s) => 'Y' + s.year);
+  const data = { labels, datasets: [
+    { label: 'Prepay', data: last.series.map((s) => s.a), borderColor: '#4f9dff', backgroundColor: '#4f9dff', tension: .25, pointRadius: 0, borderWidth: 2 },
+    { label: 'Invest', data: last.series.map((s) => s.b), borderColor: '#a78bfa', backgroundColor: '#a78bfa', tension: .25, pointRadius: 0, borderWidth: 2 },
+  ] };
+  if (chart) { chart.data = data; chart.options.scales.x.ticks.color = chart.options.scales.y.ticks.color = chart.options.plugins.legend.labels.color = tick; chart.update('none'); return; }
+  chart = new Chart($('posChart'), {
+    type: 'line', data,
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: tick, maxTicksLimit: 8 } },
+        y: { ticks: { color: tick, callback: (v) => FinosFmt.compact(v) }, grid: { color: 'rgba(148,163,184,.15)' } },
+      },
+      plugins: { legend: { labels: { color: tick } }, tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + FinosFmt.compact(c.parsed.y) } } },
+    },
+  });
+}
+calculate();
+</script>
+<script src="../../js/calc-explainer.js?v=2"></script>
+<script src="../../js/finos-widget.js?v=10"></script>
+</body>
+</html>

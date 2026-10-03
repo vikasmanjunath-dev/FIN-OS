@@ -192,6 +192,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
+  <script src="../js/finos-taxcore.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
   <script src="../js/finos-tax-calc.js?v=2" defer></script>
   <script src="../js/arya-ai.js?v=7" defer></script>
@@ -446,7 +447,7 @@
             <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color: var(--accent-secondary);margin-bottom:4px;">⚡ Live Tax Savings Tracker</div>
             <div style="font-size:13px;color:rgba(255,255,255,.5);">Based on your income · Updates as you plan</div>
           </div>
-          <div id="tst-fy-badge" style="padding:4px 12px;border-radius:20px;background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.2);font-size:11px;font-weight:700;color:#4F7CFF;">FY 2024–25</div>
+          <div id="tst-fy-badge" style="padding:4px 12px;border-radius:20px;background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.2);font-size:11px;font-weight:700;color:#4F7CFF;">FY 2025–26</div>
         </div>
 
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:16px;" id="tst-grid">
@@ -1908,7 +1909,7 @@ Be direct. Use exact ₹ from above. Desi Hinglish tone. End with: "Total yeh pl
   <script src="../chatbot/qft-engine.js"></script>
   <script src="../js/finos-widget.js?v=10"></script>
   <script src="../js/finos-mobile.js" defer></script>
-  <script src="../js/finos-search.js?v=4"></script>
+  <script src="../js/finos-search.js?v=5"></script>
 
 <script src="../js/sidebar.js"></script>
 <script src="../js/finos-api.js"></script>
@@ -1927,30 +1928,18 @@ Be direct. Use exact ₹ from above. Desi Hinglish tone. End with: "Total yeh pl
     return '₹'+num.toLocaleString('en-IN');
   }
 
-  // Tax sections with caps
+  // Deduction sections. Deductions exist only in the OLD regime, so everything below is measured there and compared with the new regime.
+  //   core        — anyone can act on it (counted in the total)
+  //   conditional — only if you pay rent / have a home loan (shown as a maximum, not counted)
+  //   uncapped    — equals what you actually pay, so no number can be given
   const SECTIONS = [
-    { id:'s80c',    label:'80C (ELSS/PPF/LIC)', maxDeduction:150000, color:'#4F7CFF' },
-    { id:'s80d',    label:'80D (Health Insurance)', maxDeduction:25000, color:'#22d3a6' },
-    { id:'s80ccd1b',label:'80CCD(1B) – NPS Extra', maxDeduction:50000, color:'#c7f000' },
-    { id:'s80e',    label:'80E (Education Loan)', maxDeduction:999999, color:'#a855f7' }, // no cap
-    { id:'hra',     label:'HRA Exemption', maxDeduction:200000, color:'#ff9500' },
-    { id:'s24b',    label:'24(b) Home Loan Interest', maxDeduction:200000, color:'#00d4ff' },
+    { id:'s80c',     label:'80C (ELSS/PPF/LIC)',       maxDeduction:150000, kind:'core',        color:'#4F7CFF' },
+    { id:'s80d',     label:'80D (Health Insurance)',   maxDeduction:25000,  kind:'core',        color:'#22d3a6' },
+    { id:'s80ccd1b', label:'80CCD(1B) – NPS Extra',    maxDeduction:50000,  kind:'core',        color:'#c7f000' },
+    { id:'hra',      label:'HRA Exemption',            maxDeduction:200000, kind:'conditional', note:'only if you pay rent',            color:'#ff9500' },
+    { id:'s24b',     label:'24(b) Home Loan Interest', maxDeduction:200000, kind:'conditional', note:'only if you have a home loan',   color:'#00d4ff' },
+    { id:'s80e',     label:'80E (Education Loan)',     maxDeduction:null,   kind:'uncapped',    note:'equals the interest you pay — no cap', color:'#a855f7' },
   ];
-
-  // New tax regime slabs 2024-25
-  function calcTax(taxableIncome) {
-    const slabs = [[300000,0],[300000,.05],[300000,.10],[300000,.15],[300000,.20],[Infinity,.30]];
-    let tax = 0, rem = Math.max(0, taxableIncome);
-    for (const [slab, rate] of slabs) {
-      if (rem <= 0) break;
-      const chunk = Math.min(rem, slab);
-      tax += chunk * rate;
-      rem -= chunk;
-    }
-    // Rebate 87A: tax = 0 if taxable income <= 7L
-    if (taxableIncome <= 700000) tax = 0;
-    return Math.round(tax * 1.04); // +4% cess
-  }
 
   window._tstCalculate = function() {
     const incomeEl = document.getElementById('tst-income');
@@ -1976,27 +1965,39 @@ Be direct. Use exact ₹ from above. Desi Hinglish tone. End with: "Total yeh pl
     // Ask Arya for personalized tip
     const aryaEl = document.getElementById('tst-arya');
     if (!aryaEl) return;
-    const totalSavings = _computeSavings(income).potentialTaxSaved;
-    const prompt = `Tax optimization for someone earning ${INR(income)}/year. They can potentially save ${INR(totalSavings)} in taxes this FY through 80C, 80D, NPS, and HRA. Give ONE most impactful action in 2 Hinglish sentences. Be specific with amounts.`;
+    const plan = _computeSavings(income).plan;
+    const prompt = plan.newBeatsOldEvenOptimised
+      ? `Tax advice for someone earning ${INR(income)}/year (FY 2025-26). The new regime is already cheaper by ${INR(plan.oldMinusNew)} even if they max out 80C, 80D and NPS; the old regime would need about ${INR(plan.breakEvenDeductions || 0)} of total deductions to win. Give ONE most useful action in 2 Hinglish sentences. Be specific with amounts.`
+      : `Tax optimization for someone earning ${INR(income)}/year (FY 2025-26). Using every old-regime deduction (80C, 80D, NPS) would save them ${INR(plan.potential)} more than they pay now. Give ONE most impactful action in 2 Hinglish sentences. Be specific with amounts.`;
 
     aryaEl.innerHTML = '<span style="color:rgba(255,255,255,0.58);">Arya calculating…</span>';
     if (window.AryaAI?.ask) {
-      window.AryaAI.ask(prompt, tok => { aryaEl.textContent = (aryaEl.textContent === 'Arya calculating…' ? '' : aryaEl.textContent) + tok; });
+      // Arya's backend is local-only; when it's offline the tip is simply omitted (no unhandled rejection).
+      Promise.resolve(window.AryaAI.ask(prompt, tok => { aryaEl.textContent = (aryaEl.textContent === 'Arya calculating…' ? '' : aryaEl.textContent) + tok; }))
+        .catch(() => { if (aryaEl.textContent === 'Arya calculating…') aryaEl.textContent = ''; });
     } else {
       aryaEl.textContent = '';
     }
   };
 
   function _computeSavings(income) {
-    const taxWithout = calcTax(income);
+    const plan = FinosTaxCore.savingsPlan(income, SECTIONS);
     const sections = SECTIONS.map(s => {
-      const deduction = Math.min(s.maxDeduction, income * 0.12); // assume 12% already used
-      const headroom = Math.max(0, s.maxDeduction - deduction);
-      const taxSaved = calcTax(income) - calcTax(income - headroom);
-      return { ...s, headroom, taxSaved };
+      const r = plan.sections.find(x => x.id === s.id) || {};
+      return { ...s, headroom: r.headroom, taxSaved: r.taxSaved };
     });
-    const potentialTaxSaved = sections.reduce((sum,s) => sum + s.taxSaved, 0);
-    return { taxWithout, sections, potentialTaxSaved };
+    return { plan, taxWithout: plan.current, sections, potentialTaxSaved: plan.potential };
+  }
+
+  function _tstVerdict(plan) {
+    if (plan.newTax === 0 && plan.oldNow === 0) return { icon:'🟢', color:'#00ff88', text:'No income tax is payable for you under either regime — there is nothing to save.' };
+    if (plan.newBeatsOldEvenOptimised) {
+      const be = plan.breakEvenDeductions;
+      return { icon:'🟢', color:'#00ff88', text:`The <b>new regime is cheaper by ${INR(plan.oldMinusNew)}</b> even if you max out 80C, 80D and NPS — those deductions only exist in the old regime, so claiming them won't lower this bill.`
+        + (be ? ` The old regime would only win if your <b>total</b> deductions (including HRA and home-loan interest) passed about <b>${INR(be)}</b>.` : '') };
+    }
+    if (plan.potential > 0) return { icon:'🟡', color:'#ff9500', text:`The <b>old regime wins</b> if you use every deduction below — it would save you <b>${INR(plan.potential)}</b> more than you pay now.` };
+    return { icon:'🟡', color:'#ff9500', text:'The old regime is already the cheaper option for you at your current deductions.' };
   }
 
   function _renderTST(income) {
@@ -2004,13 +2005,15 @@ Be direct. Use exact ₹ from above. Desi Hinglish tone. End with: "Total yeh pl
     const sectionsEl = document.getElementById('tst-sections');
     if (!grid || !sectionsEl) return;
 
-    const { taxWithout, sections, potentialTaxSaved } = _computeSavings(income);
+    const { plan, taxWithout, sections, potentialTaxSaved } = _computeSavings(income);
 
     // Persist tax data so finos-context.js + Arya can access it
     try {
       localStorage.setItem('finos_tax_savings', JSON.stringify({
         income, current_tax: taxWithout, potential: potentialTaxSaved,
         effective_rate: +((taxWithout/income)*100).toFixed(1),
+        regime: plan.currentRegime, new_tax: plan.newTax, old_tax: plan.oldNow, old_tax_optimised: plan.oldOpt,
+        old_regime_potential: plan.oldPotential, break_even_deductions: plan.breakEvenDeductions,
         sections: sections.map(s => ({ id: s.id, label: s.label, headroom: s.headroom, tax_saved: s.taxSaved })),
         computed_at: new Date().toISOString(),
       }));
@@ -2020,7 +2023,7 @@ Be direct. Use exact ₹ from above. Desi Hinglish tone. End with: "Total yeh pl
 
     // KPI grid
     grid.innerHTML = [
-      { label: 'Current Tax', value: INR(taxWithout), color: '#ff6b6b' },
+      { label: `Current Tax (${plan.currentRegime} regime)`, value: INR(taxWithout), color: '#ff6b6b' },
       { label: 'Potential Saving', value: INR(potentialTaxSaved), color: '#c7f000' },
       { label: 'After Optimization', value: INR(Math.max(0, taxWithout - potentialTaxSaved)), color: '#00ff88' },
       { label: 'Effective Rate', value: ((taxWithout/income)*100).toFixed(1)+'%', color: '#4F7CFF' },
@@ -2031,21 +2034,30 @@ Be direct. Use exact ₹ from above. Desi Hinglish tone. End with: "Total yeh pl
       </div>`).join('');
 
     // Section breakdown
+    const v = _tstVerdict(plan);
+    const saveText = s => s.kind === 'uncapped' ? 'Depends on interest paid'
+      : s.kind === 'conditional' ? `Up to ${INR(s.taxSaved)}` : `Save ${INR(s.taxSaved)}`;
+    const subText = s => s.kind === 'uncapped' ? s.note
+      : s.kind === 'conditional' ? `${s.note} · up to ${INR(s.headroom)} deductible`
+      : `${INR(s.headroom)} headroom left`;
+    const barPct = s => s.kind === 'uncapped' || !s.headroom ? 0 : Math.round(Math.min(100, s.headroom / s.maxDeduction * 100));
     sectionsEl.innerHTML = `
-      <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:10px;letter-spacing:.8px;text-transform:uppercase;">Deduction headroom this FY</div>
+      <div style="font-size:12px;line-height:1.6;color:rgba(255,255,255,.75);margin-bottom:14px;padding:10px 12px;border-radius:10px;background:${v.color}12;border:1px solid ${v.color}30;">${v.icon} ${v.text}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:10px;letter-spacing:.8px;text-transform:uppercase;">Deduction headroom this FY · old regime only</div>
       ${sections.map(s => `
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
           <div style="flex:1;">
             <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
               <span style="font-size:12px;color:rgba(255,255,255,.65);">${s.label}</span>
-              <span style="font-size:12px;font-weight:700;color:${s.color};">Save ${INR(s.taxSaved)}</span>
+              <span style="font-size:12px;font-weight:700;color:${s.color};">${saveText(s)}</span>
             </div>
             <div style="height:3px;background:rgba(255,255,255,.05);border-radius:2px;">
-              <div style="height:100%;width:${s.headroom>0?Math.round(Math.min(100,s.headroom/s.maxDeduction*100)):0}%;background:${s.color};border-radius:2px;"></div>
+              <div style="height:100%;width:${barPct(s)}%;background:${s.color};border-radius:2px;"></div>
             </div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-top:2px;">${INR(s.headroom)} headroom left</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-top:2px;">${subText(s)}</div>
           </div>
-        </div>`).join('')}`;
+        </div>`).join('')}
+      <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:10px;line-height:1.5;">Assumes you already use about 12% of income in 80C. HRA and home-loan interest apply only if you pay rent or have a loan, so they are not added to the total. Surcharge above ₹50L is not included.</div>`;
   }
 
   // Auto-run if income is already in localStorage
