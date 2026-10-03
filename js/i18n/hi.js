@@ -34,6 +34,13 @@ FinosI18n.register('hi', {
   'Connected Trackers': 'जुड़े हुए ट्रैकर', 'Asset Allocation': 'संपत्ति आवंटन', 'Mutual Funds (SIP)': 'म्यूचुअल फ़ंड (SIP)',
   'Mutual Funds (imported)': 'म्यूचुअल फ़ंड (इम्पोर्टेड)', 'Equity (Zerodha / import)': 'इक्विटी (Zerodha / इम्पोर्ट)',
 
+  /* budgets */
+  "This month's budgets": 'इस महीने के बजट', 'Suggest budgets from my spending': 'मेरे खर्च के आधार पर बजट सुझाएँ',
+  'Re-suggest from spending': 'खर्च से दोबारा सुझाएँ', '+ Add category': '+ श्रेणी जोड़ें', 'On track': 'ठीक चल रहा है', 'Watch': 'ध्यान दें',
+  'Over': 'सीमा से ऊपर', 'No limit set': 'कोई सीमा तय नहीं', 'Food & Dining': 'खाना-पीना', 'Groceries': 'किराना', 'Transport': 'परिवहन',
+  'Shopping': 'ख़रीदारी', 'Bills & Utilities': 'बिल और उपयोगिताएँ', 'Housing': 'आवास / किराया', 'EMI & Loans': 'EMI और ऋण',
+  'Subscriptions': 'सब्सक्रिप्शन', 'Health': 'स्वास्थ्य', 'Entertainment': 'मनोरंजन', 'Education': 'शिक्षा', 'Travel': 'यात्रा', 'Other': 'अन्य',
+
   /* settings */
   'Account & Security': 'खाता और सुरक्षा', 'Appearance': 'दिखावट', 'Complexity Mode': 'जटिलता मोड', 'AI System': 'AI सिस्टम',
   'Display Preferences': 'डिस्प्ले पसंद', 'Accessibility': 'सुलभता', 'Notifications': 'सूचनाएँ', 'Data & Privacy': 'डेटा और गोपनीयता',

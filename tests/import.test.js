@@ -77,3 +77,54 @@ test('CSV parser handles quoted commas, escaped quotes and CRLF', () => {
   const rows = I.parseCSV('a,b\r\n"x, y","he said ""hi"""\r\n');
   assert.deepStrictEqual(rows, [['a', 'b'], ['x, y', 'he said "hi"']]);
 });
+
+/* ── CAS PDF path ── */
+const SERVER = {
+  source: 'cams-kfin', as_of: '2026-09-30', warnings: ['one warning'],
+  rows: [
+    { name: 'PPFAS Flexi Cap', isin: 'INF879O01027', kind: 'mf', qty: 1234.567, price: 78.9, value: 97407, invested: 68148 },
+    { name: 'HDFC BANK', isin: 'INE040A01034', kind: 'equity', qty: 10, price: 1620.25, value: 16202.5 },
+    { name: 'GOI 2030', kind: 'bond', qty: 2, price: 1050, value: 2100 },
+  ],
+};
+
+test('fromCas: same result shape as the CSV parser; bonds/NPS listed but not totalled; totals recomputed locally', () => {
+  const r = I.fromCas(SERVER);
+  assert.strictEqual(r.format, 'cas-cams-kfin');
+  assert.strictEqual(r.asOf, '2026-09-30');
+  assert.deepStrictEqual(r.totals, { equity: 16203, mf: 97407, invested: 68148, count: 3 });      // Math.round half-up, like the server
+  assert.deepStrictEqual(r.warnings, ['one warning']);
+  assert.strictEqual(I.fromCas({ rows: [] }).warnings.length, 1);                                  // empty statement explains itself
+  assert.strictEqual(I.fromCas(null).rows.length, 0);
+});
+
+test('fromCas feeds apply() unchanged (net worth keys, replace semantics)', () => {
+  const mem = {};
+  globalThis.FinosStore = { set: (k, v) => { mem[k] = v; } };
+  I.apply(I.fromCas(SERVER));
+  assert.strictEqual(mem.finos_portfolio_value, '16203');
+  assert.strictEqual(mem.finos_mf_import_value, '97407');
+  assert.strictEqual(mem.finos_holdings_meta.asOf, '2026-09-30');
+  delete globalThis.FinosStore;
+});
+
+test('casErrorMessage: surfaces the server\'s own message, otherwise a plain explanation', () => {
+  assert.strictEqual(I.casErrorMessage(new Error('docs 400: {"detail":"Wrong PDF password."}')), 'Wrong PDF password.');
+  assert.match(I.casErrorMessage({ code: 'unavailable', message: 'x' }), /backend/);
+  assert.match(I.casErrorMessage({ code: 'offline', message: 'x' }), /document-ai/);
+  assert.strictEqual(I.casErrorMessage(new Error('boom')), 'Could not read that statement.');
+});
+
+test('readCasPdf: posts file + password to the docs service via FinosAPI and maps errors', async () => {
+  let call;
+  globalThis.FormData = class { constructor() { this.f = {}; } append(k, v) { this.f[k] = v; } };
+  globalThis.FinosAPI = { request: async (svc, path, opts) => { call = { svc, path, opts }; return SERVER; } };
+  const file = { name: 'cas.pdf' };
+  const r = await I.readCasPdf(file, 'ABCDE1234F');
+  assert.deepStrictEqual([call.svc, call.path, call.opts.method, call.opts.retries], ['docs', '/parse/cas', 'POST', 0]);
+  assert.strictEqual(call.opts.body.f.password, 'ABCDE1234F');
+  assert.strictEqual(r.totals.mf, 97407);
+  globalThis.FinosAPI = { request: async () => { throw new Error('docs 400: {"detail":"Wrong PDF password."}'); } };
+  await assert.rejects(I.readCasPdf(file, 'bad'), /Wrong PDF password\./);
+  delete globalThis.FinosAPI; delete globalThis.FormData;
+});

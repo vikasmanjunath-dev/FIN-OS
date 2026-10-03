@@ -1877,7 +1877,7 @@ RULES (non-negotiable):
   const _finosScriptLoads = {};
   function _loadFinosScripts(files) {
     const GLOBALS = { 'finos-montecarlo.js': 'FinosMC', 'finos-format.js': 'FinosFmt', 'finos-retirement-planner.js': 'FinosRetirementPlanner',
-                      'finos-taxdates.js': 'FinosTaxDates', 'finos-calendar.js': 'FinosCalendar', 'finos-reminders.js': 'FinosReminders' };
+                      'finos-taxdates.js': 'FinosTaxDates', 'finos-calendar.js': 'FinosCalendar', 'finos-reminders.js': 'FinosReminders', 'finos-budget.js': 'FinosBudget' };
     return Promise.all(files.map(f => {
       if (window[GLOBALS[f]]) return Promise.resolve();
       if (!_finosScriptLoads[f]) {
@@ -1936,6 +1936,7 @@ RULES (non-negotiable):
       { name: 'show_chart',     desc: 'Open a live candlestick + volume chart for a stock right in this panel — use when the user asks to see/view/plot a chart, not for text-only analysis (use analyze_stock for that)', args: { symbol: 'NSE/BSE symbol e.g. RELIANCE', exchange: 'NSE or BSE (default NSE)', period: '1mo|3mo|6mo|1y|2y (default 6mo)' } },
       /* ── Planning tools backed by shared FIN-OS modules ───────────────── */
       { name: 'retirement_odds', desc: 'Monte Carlo probability (0-100%) that the user\'s money lasts through retirement, using their tracked holdings — 4,000 simulated futures with varying returns and inflation. Use for "will I run out of money?", "can I retire at 55?", "how much SIP do I need?". Optional overrides.', args: { retire_age: 'optional', monthly_expense: 'optional ₹ today', monthly_invest: 'optional ₹', end_age: 'optional (default 90)', target_odds: 'optional % — also solves the monthly SIP needed to reach it' } },
+      { name: 'budget_status', desc: 'This month\'s spending vs the user\'s per-category budgets: spent, limit, % used, pace projection, which categories are on track / watch / over. Use for "how is my budget?", "where am I overspending?", "can I afford X this month?". Investing and income never count as spending.', args: {} },
       { name: 'upcoming_dates', desc: 'Upcoming SIP debits, FD/PPF maturities, insurance renewals, goal deadlines and tax dates from the user\'s own trackers within N days', args: { days: 'default 30' } },
       { name: 'tax_dates',      desc: 'India tax calendar: advance-tax instalments, 80C/ELSS deadline (31 Mar), Form 16, ITR due date — for any financial year', args: { days: 'default 120' } },
       /* ── RAG TOOLS (requires rag-engine backend on port 7476) ──────────── */
@@ -2708,6 +2709,21 @@ ${sigLines.join('\n')}`;
                                 : `Monthly investment needed for ${Math.round(target * 100)}% odds: ${F.inr(sip)}\n`;
           }
           return out + 'This is a probabilistic illustration from stated assumptions, not a prediction or advice.';
+        }
+
+        case 'budget_status': {
+          await _loadFinosScripts(['finos-budget.js']);
+          if (!window.FinosBudget) return 'Budget module not available on this page.';
+          const B = window.FinosBudget;
+          const limits = B.getLimits();
+          const st = B.status(B.transactions(), limits, new Date());
+          const inrS = n => '₹' + Math.round(n).toLocaleString('en-IN');
+          if (!st.rows.length) return 'No expenses logged this month and no budgets set. Ask the user to log expenses (Quick Capture / voice journal / bank) and set budgets on the Budget Forecast page.';
+          const head = `BUDGET — day ${st.day}/${st.daysInMonth}: ${inrS(st.total.spent)} spent` + (st.total.limit ? ` of ${inrS(st.total.limit)} budgeted (${st.total.pct}%)` : ' (no budgets set)');
+          const lines = st.rows.map(r => r.limit
+            ? `• ${r.category}: ${inrS(r.spent)} / ${inrS(r.limit)} (${r.pct}%) — ${r.state === 'over' ? 'OVER by ' + inrS(r.spent - r.limit) : r.state === 'warn' ? 'WATCH' + (r.pace ? ', pace → ' + r.projectedPct + '%' : '') : 'on track'}`
+            : `• ${r.category}: ${inrS(r.spent)} (no limit set)`);
+          return head + '\n' + lines.join('\n') + '\nInvesting/SIPs and income are excluded from spending.';
         }
 
         case 'upcoming_dates': {

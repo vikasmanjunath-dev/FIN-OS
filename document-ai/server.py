@@ -498,6 +498,27 @@ async def supported_types():
     }
 
 
+@app.post("/parse/cas")
+async def parse_cas(
+    file: UploadFile = File(...),
+    password: str = Form(""),
+):
+    """
+    Read a Consolidated Account Statement PDF (CAMS / KFintech / NSDL / CDSL) and return holdings.
+    The PDF and password are processed in memory and never stored or logged; the response carries no PAN/e-mail/address.
+    """
+    import asyncio
+    from cas_import import CasError, parse_pdf
+
+    pdf = await file.read()
+    if len(pdf) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail=f"File too large. Maximum size is {MAX_FILE_SIZE // (1024*1024)} MB.")
+    try:
+        return await asyncio.to_thread(parse_pdf, pdf, password)     # CPU-bound parse off the event loop
+    except CasError as e:
+        raise HTTPException(status_code=e.status, detail=str(e))
+
+
 @app.post("/parse/document")
 async def parse_document(
     file: UploadFile = File(...),

@@ -31,6 +31,9 @@ Known duplicate storage keys left **un-merged** because shape/units were not ver
 | Monte Carlo retirement engine + "Success Odds" tab (probability, fan chart, "what SIP gets me to 85%") | `js/finos-montecarlo.js`, `finos-retirement-planner.js`, `html/retirement-planner.html` |
 | Broker holdings CSV import (Zerodha, Groww, generic) → net worth | `js/finos-import.js`, button on `net-worth.html` |
 | Rule-based tax calendar (never expires; was hard-coded to Mar 2027, missing Q1) | `js/finos-taxdates.js` |
+| **Budgets**: per-category limits, month status with pace projection (only after day 7), "suggest from my spending", alerts at 80% / on-pace-to-overshoot / over — once per category per level per month. `finos_transactions` is written in **four different shapes** by four features; `normalize()` unifies them and never counts SIPs/investing or income as spending (the voice journal tags SIPs as `type:"income"` — handled) | `js/finos-budget.js`, `js/finos-budget-ui.js` (card on `budget-forecast.html`, one-line strip on the dashboard), reminders + Arya `budget_status` |
+| Voice journal root cause fixed: SIPs/savings were recorded as `type:"income"` (shown as "↑ Income"); they are now `type:"saving"`, and money coming in ("received dividend from stock") wins over investing keywords | `js/finos-widget.js`, `tests/test_voice_journal.py` |
+| **CAS statement import** (CAMS/KFintech + NSDL/CDSL PDFs): browser dialog → password → your own document-ai service (`POST /parse/cas`, `casparser`) → same preview/apply as the CSV path. Output carries no PAN/e-mail/address; password and file are never stored | `document-ai/cas_import.py`, `document-ai/server.py`, `js/finos-import.js` |
 | Reminders: SIP debits, maturities, renewals, goals, tax — in-app, browser notifications, and background via periodic sync | `js/finos-reminders.js`, `sw.js`, Settings → Notifications |
 | Calendar bugs fixed | SIP tracker entries (`monthlyAmount`) were skipped entirely; dates shifted a day in IST (`toISOString`) |
 
@@ -49,7 +52,10 @@ Known duplicate storage keys left **un-merged** because shape/units were not ver
 |---|---|
 | PWA: PNG + maskable icons, stale-while-revalidate for JS/CSS (**previously cache-first forever — returning users never got updates unless the cache name was bumped by hand**), offline fallback, background reminders, install button | `sw.js`, `manifest.json`, `assets/icons/`, `pwa-init.js` |
 | 18 pages that never loaded `pwa-init.js` (net-worth, financial-calendar, insurance-hub, fd-tracker…) now do | |
-| Accessibility: contrast 596 → ~100 nodes (sidebar, drawer, 756 dim-white text rules, muted token); axe-clean for naming rules; skip link; chart names; label helper | `js/finos-a11y.js`, `css/layout.css`, `design-tokens.css` |
+| Accessibility: axe contrast 596 → 29 nodes (sidebar, drawer, 756 dim-white text rules, muted token, light-theme accent overrides); axe-clean for naming rules; skip link; chart names; label helper | `js/finos-a11y.js`, `css/layout.css`, `css/theme.css`, `design-tokens.css` |
+| Mobile (375px): 9 pages scrolled sideways (5 insight pages kept a fixed 260px TOC column, goal rows, onboarding glow layers) → 0 of 207; pages with undersized tap targets 91 → 0 via shared touch-target rules (checkboxes/radios are judged by their label, as users tap them) | `css/insight.css`, `css/interactions.css`, `css/landing.css`, `tests/mobile_check.py` |
+| Performance budget gate: JS weight per page (critical = before DOMContentLoaded, total = within 3 s) vs `tests/perf_budget.json`. Today: critical 236–658 KB, total 236–1,193 KB; the 470 KB Arya panel is off the critical path. Adding weight means raising the budget in the same commit (`python3 tests/perf_budget.py --update`) | `tests/perf_budget.py`, `tests/test_perf_budget.py` |
+| Light-theme "contrast healer": light mode had ~680 invisible/near-invisible text nodes (dark-first components with white-alpha and neon text). Runtime pass nudges only failing colours (same hue), skips photos/unreadable gradients, reverts on dark, heals late-rendered UI. 683 → 12 nodes | `js/finos-contrast.js` (loaded by `pwa-init.js`; ~11 ms on a 1,500-element page). Real fix is still per-component CSS |
 | Performance: Arya panel (470 KB ≈ half of all JS) lazy-loaded; DOMContentLoaded −36% under 4× CPU + slow 4G | `js/arya-lazy.js` |
 | Hindi UI (shared vocabulary), Hindi lakh/crore units, language picker in Settings | `js/finos-i18n.js`, `js/i18n/hi.js` |
 
@@ -61,6 +67,7 @@ Known duplicate storage keys left **un-merged** because shape/units were not ver
 | Encrypted backups (passphrase) | Settings → Data & Privacy |
 | CSP: `object-src 'none'`, `manifest-src 'self'`; Permissions-Policy `browsing-topics=()` | `vercel.json` |
 | Secrets scan in CI | `static_audit.py secrets` |
+| CSP conformance: serves every page with the production policy from `vercel.json` and reports violations (local dev sends no CSP, so breakages only appeared on Vercel) | `python3 tests/csp_check.py [--drop unsafe-eval]` |
 | Dependencies: `python-multipart` 0.0.20→0.0.31 and `python-dotenv` 1.0.1→1.2.2 in `rag-engine` | see `requirements.txt` |
 
 ### Vault: what it does *not* do (shown to users too)
@@ -69,13 +76,16 @@ Known duplicate storage keys left **un-merged** because shape/units were not ver
 - Not protection against malware / malicious extensions on an unlocked session.
 - Does not cover the self-contained sub-apps (`Porfolio Analyser`, `TradeJournal`, `voiceagent`) or the `sb-*` Supabase session token.
 
+## CI
+`.github/workflows/ci.yml` runs the safety net automatically: **fast** (static audits, search-index freshness, JS unit tests, backend + CAS pytest) and **browser** (PWA/service worker, vault, axe a11y, i18n, lazy panel, budgets, voice journal, CAS dialog, CSP subset) on every push and PR; **nightly** at 03:00 IST runs the full-site smoke test (both themes) and the full CSP crawl. The workflow could not be executed from the dev machine — its commands were run locally, but the first real run on GitHub may need small adjustments (watch the browser job's apt/Playwright step). Mark the `fast` and `browser` jobs as required checks in the repo's branch protection to enforce them.
+
 ## Not done / follow-ups
-- **CAS (CAMS/KFintech) PDF import** — only CSV holdings import exists. PDF needs a server-side parser (e.g. `casparser`) and real samples to test.
-- **Budget-overrun alerts** — needs a defined budget model; reminders cover dated events only.
+- **CAS PDF import is built but unverified against a real statement.** Mapping is tested against `casparser`'s real model classes and the endpoint/dialog are tested with the parser stubbed, but no genuine CAS PDF was available. Try one of yours (`pip install -r document-ai/requirements.txt`, run document-ai, import) and report layouts that fail.
+- Budgets are browser-local (`finos_budgets`). The alert-engine's server-side `BUDGET_OVERRUN` rule reads Supabase data and doesn't see them; syncing is a later step. Entries logged before the voice-journal fix may still carry `type:"income"` for SIPs; budgets handle both.
 - **`torch` 2.5.1 / `sentence-transformers` 3.3.1** have known advisories (22 / 1). Upgrade together on a branch and re-run `rag-engine/evaluation`.
-- **CSP still allows `'unsafe-inline'`/`'unsafe-eval'` scripts** — removing them means moving every inline script to files or nonces (~hundreds of blocks).
+- **CSP still allows `'unsafe-inline'` scripts** — removing it means moving every inline script to files or nonces (~hundreds of blocks). `'unsafe-eval'` **was removed** (no first-party `eval`/`new Function`; all 207 pages load violation-free under the strict policy). If a lazy third-party feature ever breaks with a CSP error mentioning `eval`, re-add it to `vercel.json` and run `tests/csp_check.py` to see which page needs it. Also fixed: `cdnjs.cloudflare.com` was missing from `style-src`/`font-src`, so Font Awesome icons were blocked on 5 pages in production.
 - `News1` has 11 npm advisories (6 high); not part of the live site.
 - **Hindi** is a first-pass vocabulary (≈150 strings) — needs a native-speaker review; other regional languages need only a `js/i18n/<code>.js` file.
-- Remaining contrast failures are a long tail of one-off colour pairs, mostly light-theme (ceiling enforced in `test_a11y.py`; lower it as you fix).
+- Remaining contrast failures (axe: 29 nodes; healer: 12 text nodes on a couple of Tailwind-built simulator pages) are one-off pairs. Ceiling enforced in `test_a11y.py`; lower it as you fix. Note axe cannot see text over gradients — use the detector approach (computed colour vs composited background) for those.
 - `arya-sidebar-panel.js` is still one 8k-line file; splitting its 26 PULSE builders into modules would let them load on demand.
 - The "season/mood" logic mentioned in older notes (`detect_mood`, `budget_season`) is **not present** in the current `voiceagent/agent.py`; no regression test could be written for it.

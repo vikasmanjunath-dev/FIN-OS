@@ -405,8 +405,11 @@
     }
 
     // Type detection
-    const isIncome = ['salary','received','got paid','income','bonus','earned','saved','saving','sip','invest'].some(k => t.includes(k));
-    const type = isIncome ? 'income' : 'expense';
+    // Money coming IN wins ("received dividend from stock" is income, not investing). Money set aside / invested is neither
+    // income nor spending — it used to be tagged 'income', which inflated income and made a SIP look like a salary.
+    const isIncome = ['salary','received','got paid','income','bonus','earned','refund'].some(k => t.includes(k));
+    const isSaving = !isIncome && (category === 'investment' || category === 'savings' || ['saved','saving','sip','invest'].some(k => t.includes(k)));
+    const type = isIncome ? 'income' : isSaving ? 'saving' : 'expense';
 
     // Description — strip amount & filler words
     const desc = text
@@ -423,10 +426,11 @@
     const el = document.getElementById('finos-ql-parsed');
     if (!el) return;
     if (!entry || !entry.amount) { el.style.display = 'none'; return; }
-    const typeColor = entry.type === 'income' ? '#22d3a6' : '#ff6b6b';
+    const typeColor = entry.type === 'income' ? '#22d3a6' : entry.type === 'saving' ? '#4f7cff' : '#ff6b6b';
+    const typeLabel = entry.type === 'income' ? '↑ Income' : entry.type === 'saving' ? '→ Saved / invested' : '↓ Expense';
     el.style.display = 'block';
     el.innerHTML = `
-      <span style="color:${typeColor};font-weight:700;">${entry.type === 'income' ? '↑ Income' : '↓ Expense'}</span>
+      <span style="color:${typeColor};font-weight:700;">${typeLabel}</span>
       <span style="color:#c7f000;font-weight:700;margin:0 6px;">${_qlINR(entry.amount)}</span>
       <span>· ${entry.category} · "${entry.description.slice(0,30)}"</span>`;
   }
@@ -464,7 +468,7 @@
       el.innerHTML = txns.map(t => `
         <div class="ql-entry">
           <span>${t.date.slice(5)} · ${t.category} · ${t.description.slice(0,22)}</span>
-          <span class="ql-entry-amount">${t.type === 'income' ? '+' : '-'}${_qlINR(t.amount)}</span>
+          <span class="ql-entry-amount">${t.type === 'income' ? '+' : t.type === 'saving' ? '→' : '-'}${_qlINR(t.amount)}</span>
         </div>`).join('');
     } catch {}
   }

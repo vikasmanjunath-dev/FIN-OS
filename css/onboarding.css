@@ -186,3 +186,6 @@ button.enabled:hover {
     radial-gradient(circle at 20% 30%, rgba(79,124,255,0.10), transparent 40%),
     radial-gradient(circle at 70% 60%, rgba(100,130,0,0.08), transparent 45%);
 }
+
+/* decorative glow layers are wider than a phone; clip them instead of letting the page scroll sideways */
+html, body { overflow-x: clip; }

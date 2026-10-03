@@ -1020,3 +1020,9 @@ section {
     padding: 56px 0;
   }
 }
+
+/* Touch: footer links were 19–22px tall; give them a comfortable target without changing the desktop look */
+@media (pointer: coarse) {
+  .landing-footer-nav a, .landing-footer-legal a { display: inline-flex; align-items: center; min-height: 36px; }
+}
+

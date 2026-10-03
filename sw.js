@@ -52,6 +52,7 @@ const PRECACHE_ASSETS = [
   './js/finos-store.js',
   './js/finos-api.js',
   './js/finos-a11y.js',
+  './js/finos-contrast.js',
   './js/finos-i18n.js',
   './js/finos-vault-boot.js',
   './js/finos-vault.js',

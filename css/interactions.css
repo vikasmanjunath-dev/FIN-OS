@@ -463,3 +463,17 @@ a[class]:hover {
 [data-theme="light"] .foundation-btn:hover { box-shadow: 0 0 0 1px rgba(79,124,255,.12), 0 8px 24px rgba(0,0,0,.1) !important; }
 [data-theme="light"] .news-card:hover    { background: transparent !important; border-color: rgba(79,124,255,.12) !important; box-shadow: 0 0 0 1px rgba(79,124,255,.1), 0 8px 20px rgba(0,0,0,.08) !important; }
 [data-theme="light"] .dock-btn:hover     { background: transparent !important; border-color: rgba(0,0,0,.2) !important; box-shadow: 0 0 0 1px rgba(0,0,0,.1) !important; }
+
+/* ══ Touch targets (WCAG 2.2 AA 2.5.8: ≥24×24 CSS px; we aim for a comfortable 36–40) ═══════════════
+   Shared on every page. Only on touch devices, so dense desktop layouts are unchanged. */
+@media (pointer: coarse) {
+  .back-btn, .page-back-link { display: inline-flex; align-items: center; min-height: 40px; }
+  .mob-ham { min-width: 38px; min-height: 38px; display: inline-flex; align-items: center; justify-content: center; }
+  #qft-submit-btn { min-width: 36px; min-height: 36px; }
+  .tf-btn, .speed-btn, .fad-tab, .fad-mark-all, .fad-settings-link { min-height: 32px; }
+  .sb-link { min-height: 36px; }
+  .page-breadcrumb a { display: inline-flex; align-items: center; min-height: 32px; }
+  /* a checkbox/radio is tapped through its label — make that label a real target */
+  label:has(> input[type=checkbox]), label:has(> input[type=radio]) { min-height: 32px; }
+  .qs-toggle { min-height: 32px; }
+}

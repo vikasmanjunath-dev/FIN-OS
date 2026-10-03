@@ -22,7 +22,7 @@
 })(typeof window !== 'undefined' ? window : globalThis, function (root) {
   'use strict';
 
-  const LEAD = { tax: 7, insurance: 7, fd: 3, ppf: 3, sip: 1, goal: 14, sub: 3 };
+  const LEAD = { tax: 7, insurance: 7, fd: 3, ppf: 3, sip: 1, goal: 14, budget: 0, sub: 3 };
   const MAX_PER_RUN = 3;
   const SEEN_KEY = 'finos_reminders_seen';
   const SYS_KEY = 'finos_reminders_system';
@@ -40,20 +40,23 @@
     events.forEach((e) => {
       const daysAway = daysBetween(todayISO, e.date);
       if (daysAway < 0 || daysAway > (o.lead[e.type] === undefined ? 3 : o.lead[e.type])) return;
-      const key = keyOf(e);
-      if (seen && seen[key] === todayISO) return;                 // already told the user today
+      const key = e.key || keyOf(e);
+      if (e.once) { if (seen && seen[key]) return; }               // once-per-key events (budget levels): never repeat within the month
+      else if (seen && seen[key] === todayISO) return;             // already told the user today
       fresh.push(Object.assign({}, e, { daysAway, key }));
     });
     // soonest first; ties → money leaving the account first (tax/insurance/sip) over informational ones
-    const rank = { tax: 0, insurance: 1, sip: 2, sub: 2, fd: 3, ppf: 3, goal: 4 };
+    const rank = { tax: 0, insurance: 1, budget: 1, sip: 2, sub: 2, fd: 3, ppf: 3, goal: 4 };
     fresh.sort((a, b) => a.daysAway - b.daysAway || (rank[a.type] ?? 9) - (rank[b.type] ?? 9));
     return fresh.slice(0, o.max);
   }
 
   function when(n) { return n === 0 ? 'today' : n === 1 ? 'tomorrow' : `in ${n} days`; }
   function message(r) {
-    const label = { tax: 'Tax', insurance: 'Insurance', sip: 'SIP', fd: 'Maturity', ppf: 'Maturity', goal: 'Goal', sub: 'Subscription' }[r.type] || 'Reminder';
-    return { title: `${label}: ${r.title} — ${when(r.daysAway)}`, body: (r.sub || '').replace(/\s*Statutory default.*$/, '') };
+    const label = { tax: 'Tax', insurance: 'Insurance', sip: 'SIP', fd: 'Maturity', ppf: 'Maturity', goal: 'Goal', budget: 'Budget', sub: 'Subscription' }[r.type] || 'Reminder';
+    const body = (r.sub || '').replace(/\s*Statutory default.*$/, '');
+    if (r.type === 'budget') return { title: `${label}: ${r.title}`, body };                // already about "now"; no "today" suffix
+    return { title: `${label}: ${r.title} — ${when(r.daysAway)}`, body };
   }
 
   /* ── storage helpers (FinosStore if present, else localStorage) ─────── */
@@ -65,8 +68,10 @@
   }
 
   function allEvents() {
-    if (!root.FinosCalendar || !root.FinosCalendar.collectEvents) return [];
-    try { return root.FinosCalendar.collectEvents(3); } catch (_) { return []; }
+    let ev = [];
+    if (root.FinosCalendar && root.FinosCalendar.collectEvents) { try { ev = root.FinosCalendar.collectEvents(3); } catch (_) { ev = []; } }
+    if (root.FinosBudget && root.FinosBudget.alertEvents) { try { ev = ev.concat(root.FinosBudget.alertEvents()); } catch (_) { /* budgets are optional */ } }
+    return ev;
   }
 
   function upcoming(days) {
@@ -147,8 +152,9 @@
   function boot(baseUrl) {
     const need = [];
     if (!root.FinosStore) need.push('finos-store.js');
-    if (!root.FinosTaxDates) need.push('finos-taxdates.js');
+    if (!root.FinosBudget) need.push('finos-budget.js');
     if (!root.FinosSubscriptions) need.push('finos-subscriptions.js');
+    if (!root.FinosTaxDates) need.push('finos-taxdates.js');
     if (!root.FinosCalendar) need.push('finos-calendar.js');
     let left = need.length;
     if (!left) return run();

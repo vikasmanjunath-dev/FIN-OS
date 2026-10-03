@@ -138,6 +138,20 @@ if (_finosJsBase && !window.FinosI18n) {
   }
 }
 
+if (_finosJsBase && !window.FinosContrast) {
+  // Light-theme text safety net (js/finos-contrast.js). Dark-theme visitors never download it; it also reverts itself if
+  // the theme is switched to dark later, and starts if they switch to light — so load it whenever either could happen.
+  var _ct = null;
+  try { _ct = localStorage.getItem('finos-theme') || localStorage.getItem('theme'); } catch (e) { /* private mode */ }
+  var _loadContrast = function () {
+    if (window.FinosContrast) return;
+    var c = document.createElement('script'); c.src = _finosJsBase + 'finos-contrast.js'; c.async = true; document.head.appendChild(c);
+  };
+  if (_ct === 'light') _loadContrast();
+  else new MutationObserver(function (m, o) { if (document.documentElement.getAttribute('data-theme') === 'light') { o.disconnect(); _loadContrast(); } })
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+}
+
 if (_finosJsBase && !window.FinosA11y) {
   var _a11y = document.createElement('script');
   _a11y.src = _finosJsBase + 'finos-a11y.js';

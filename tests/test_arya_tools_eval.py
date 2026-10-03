@@ -8,6 +8,7 @@ and a wrong number here becomes a confidently wrong answer in chat.
 Skips cleanly if Playwright / Chromium isn't installed.
 """
 import datetime as dt
+import json
 import os
 import sys
 
@@ -137,3 +138,21 @@ def test_guardrails_loaded_and_blocking(page):
     assert r and r["blocked"] is True
     r = page.evaluate("() => window.AryaGuardrails.apply('which stock?', 'You should buy TCS shares now.')")
     assert "direct_recommendation" in r["flags"]
+
+
+def test_budget_status_reads_mixed_transaction_shapes(page):
+    today = dt.date.today()
+    d = lambda n: dt.date(today.year, today.month, min(n, 28)).isoformat()
+    txns = [
+        {"amount": 9200, "category": "need_food", "type": "need_food", "date": d(2)},
+        {"id": "a", "type": "debit", "category": "Shopping", "desc": "AMAZON", "amount": 8300, "date": d(3)},
+        {"id": "v", "type": "income", "category": "investment", "description": "SIP", "amount": 5000, "date": d(1)},
+    ]
+    seed(page, finos_transactions=json.dumps(txns), finos_budgets=json.dumps({"limits": {"Food & Dining": 10000, "Shopping": 8000}}))
+    out = tool(page, "budget_status")
+    assert "₹17,500 spent" in out, out
+    assert "Shopping: ₹8,300 / ₹8,000" in out and "OVER by ₹300" in out, out
+    assert "5,000" not in out and "SIP:" not in out, out    # the ₹5,000 SIP is never counted as spending
+    assert "pace" not in out or dt.date.today().day >= 7, out    # no meaningless pace figures in the first week
+    seed(page)
+    assert "No expenses logged" in tool(page, "budget_status")

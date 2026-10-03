@@ -1,0 +1,54 @@
+{
+  "html/home.html": {
+    "critical": 407,
+    "total": 1014
+  },
+  "html/dashboard.html": {
+    "critical": 711,
+    "total": 1289
+  },
+  "html/tax.html": {
+    "critical": 551,
+    "total": 1159
+  },
+  "html/calculators.html": {
+    "critical": 439,
+    "total": 1047
+  },
+  "html/net-worth.html": {
+    "critical": 287,
+    "total": 882
+  },
+  "html/budget-forecast.html": {
+    "critical": 443,
+    "total": 1037
+  },
+  "html/retirement-planner.html": {
+    "critical": 408,
+    "total": 1015
+  },
+  "html/settings.html": {
+    "critical": 462,
+    "total": 1033
+  },
+  "html/markets.html": {
+    "critical": 430,
+    "total": 1042
+  },
+  "html/track-finances.html": {
+    "critical": 545,
+    "total": 1152
+  },
+  "calculators/investment & wealth/sip.html": {
+    "critical": 255,
+    "total": 255
+  },
+  "calculators/loans, debt & emi/emi.html": {
+    "critical": 255,
+    "total": 255
+  },
+  "index.html": {
+    "critical": 42,
+    "total": 42
+  }
+}

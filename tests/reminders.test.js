@@ -71,3 +71,13 @@ test('mirror(): writes the 45-day horizon and merges what the service worker alr
 test('mirror(): no IndexedDB → resolves quietly', async () => {
   await R.mirror([ev('tax', '2099-01-01')], {});
 });
+
+test('budget events: lead 0, once-per-key (never repeats the same level in the month), message has no "today" suffix', () => {
+  const e = { type: 'budget', date: TODAY, title: 'Food & Dining budget 92% used', sub: '₹9,200 of ₹10,000 used.', once: true, key: 'budget|2026-10|Food & Dining|warn-90' };
+  assert.strictEqual(R.select([e], TODAY, {}).length, 1);
+  assert.strictEqual(R.select([e], TODAY, { [e.key]: '2026-10-03' }).length, 0);                // told on the 3rd → not again on the 12th
+  assert.strictEqual(R.select([{ ...e, key: 'budget|2026-10|Food & Dining|over' }], TODAY, { [e.key]: '2026-10-03' }).length, 1);   // a NEW level does alert
+  assert.strictEqual(R.select([{ ...e, date: '2026-10-02' }], TODAY, {}).length, 0);            // yesterday's budget event is stale
+  const m = R.message({ ...e, daysAway: 0 });
+  assert.strictEqual(m.title, 'Budget: Food & Dining budget 92% used');
+});

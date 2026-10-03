@@ -1,0 +1,78 @@
+# FIN-OS CI
+#   fast     every push / PR   static audits, search-index freshness, JS unit tests, backend pytest   (~2 min)
+#   browser  every push / PR   Playwright suites: PWA/service worker, vault, a11y (axe), i18n, budgets, CSP subset (~6 min)
+#   nightly  03:00 IST         full-site smoke test (every page, both themes) + full CSP crawl (~30 min)
+# The repository root is the site root (Vercel serves it directly), so no working-directory is needed.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "30 21 * * *"        # 03:00 IST
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TZ: Asia/Kolkata               # the calendar/date tests assert IST-safe behaviour
+
+jobs:
+  fast:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "24" }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - name: Python deps (backend tests + CAS import tests)
+        run: pip install pytest fastapi httpx python-multipart pdfplumber casparser -r alerts/requirements.txt
+      - name: Static audits + search index
+        run: npm run check
+      - name: JS unit tests
+        run: node --test tests/*.test.js
+      - name: Backend / audit / CAS pytest
+        run: python -m pytest tests/test_health_score.py tests/test_rules.py tests/test_static_audit.py tests/test_cas_import.py -q
+
+  browser:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "24" }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - run: pip install pytest playwright
+      - run: python -m playwright install --with-deps chromium
+      - run: npm i --no-save axe-core            # a11y gate; not shipped (Vercel ignores package.json and node_modules)
+      - name: Browser suites
+        run: >
+          python -m pytest -q
+          tests/test_pwa_sw.py tests/test_vault_e2e.py tests/test_a11y.py tests/test_a11y_helper.py
+          tests/test_i18n_dom.py tests/test_arya_lazy.py tests/test_arya_tools_eval.py
+          tests/test_budget_ui.py tests/test_voice_journal.py tests/test_import_cas_ui.py tests/test_csp.py tests/test_mobile_layout.py tests/test_perf_budget.py
+
+  nightly:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install playwright
+      - run: python -m playwright install --with-deps chromium
+      - name: Smoke every page (dark + light)
+        run: python -u tests/smoke_pages.py --theme both
+      - name: Full CSP crawl
+        run: python -u tests/csp_check.py
+      - name: Phone-width layout (all pages)
+        run: python -u tests/mobile_check.py

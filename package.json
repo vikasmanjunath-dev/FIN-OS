@@ -9,7 +9,7 @@
     "stamp": "node scripts/inject-sw-version.js",
     "audit": "python3 tests/static_audit.py",
     "smoke": "python3 tests/smoke_pages.py",
-    "test": "node --test tests/store.test.js tests/api.test.js tests/format.test.js tests/montecarlo.test.js tests/import.test.js tests/taxdates.test.js tests/reminders.test.js tests/guardrails.test.js tests/pulse-rank.test.js && python3 -m pytest tests -q",
+    "test": "node --test tests/*.test.js && python3 -m pytest tests -q",
     "check": "npm run index:check && npm run audit",
     "predeploy": "npm run index && npm run stamp && npm run check",
     "minify": "node scripts/minify.js"

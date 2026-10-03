@@ -1111,3 +1111,85 @@ button[id="themeToggle"][style*="position:fixed"] {
   color: var(--text-secondary) !important;
 }
 
+/* ══ Accessibility pass (Oct 2026): light-theme text colours ═══════════════════════════════════════════
+   Many components inject dark-theme CSS with neon accents (cyan/mint/amber/violet) and dim greys that fail
+   WCAG AA on light surfaces (1.1–3.5:1). These overrides keep the hue family but darken to ≥4.6:1 on every tinted
+   surface in use. Inline `color:` values are matched by attribute selector because the colour is in the markup. */
+:root[data-theme="light"] [style*="color:#00d4ff" i],
+:root[data-theme="light"] [style*="color: #00d4ff" i] { color: #006f8c !important; }
+:root[data-theme="light"] [style*="color:#22d3a6" i],
+:root[data-theme="light"] [style*="color: #22d3a6" i] { color: #08705a !important; }
+:root[data-theme="light"] [style*="color:#00ff88" i],
+:root[data-theme="light"] [style*="color: #00ff88" i] { color: #056b41 !important; }
+:root[data-theme="light"] [style*="color:#ffb347" i],
+:root[data-theme="light"] [style*="color: #ffb347" i] { color: #8a5000 !important; }
+:root[data-theme="light"] [style*="color:#ffb800" i],
+:root[data-theme="light"] [style*="color: #ffb800" i] { color: #8a5000 !important; }
+:root[data-theme="light"] [style*="color:#fdc069" i],
+:root[data-theme="light"] [style*="color: #fdc069" i] { color: #8a5000 !important; }
+:root[data-theme="light"] [style*="color:#f97316" i],
+:root[data-theme="light"] [style*="color: #f97316" i] { color: #a04a07 !important; }
+:root[data-theme="light"] [style*="color:#a78bfa" i],
+:root[data-theme="light"] [style*="color: #a78bfa" i] { color: #5f3fcb !important; }
+:root[data-theme="light"] [style*="color:#7b2ff7" i],
+:root[data-theme="light"] [style*="color: #7b2ff7" i] { color: #5f3fcb !important; }
+:root[data-theme="light"] [style*="color:#4f7cff" i],
+:root[data-theme="light"] [style*="color: #4f7cff" i] { color: #2a4bc2 !important; }
+:root[data-theme="light"] [style*="color:#4d7cff" i],
+:root[data-theme="light"] [style*="color: #4d7cff" i] { color: #2a4bc2 !important; }
+:root[data-theme="light"] [style*="color:#ef4444" i],
+:root[data-theme="light"] [style*="color: #ef4444" i] { color: #b71c1c !important; }
+:root[data-theme="light"] [style*="color:#8892a4" i],
+:root[data-theme="light"] [style*="color: #8892a4" i] { color: #556070 !important; }
+:root[data-theme="light"] [style*="color:#989899" i],
+:root[data-theme="light"] [style*="color: #989899" i] { color: #5f5f61 !important; }
+:root[data-theme="light"] [style*="color:#797a7d" i],
+:root[data-theme="light"] [style*="color: #797a7d" i] { color: #595b5e !important; }
+:root[data-theme="light"] [style*="color:#6a7090" i],
+:root[data-theme="light"] [style*="color: #6a7090" i] { color: #556070 !important; }
+
+/* same colours after a script re-serialises the style attribute as rgb() */
+:root[data-theme="light"] [style*="color: rgb(0, 212, 255)"],
+:root[data-theme="light"] [style*="color:rgb(0, 212, 255)"] { color: #006f8c !important; }
+:root[data-theme="light"] [style*="color: rgb(34, 211, 166)"],
+:root[data-theme="light"] [style*="color:rgb(34, 211, 166)"] { color: #08705a !important; }
+:root[data-theme="light"] [style*="color: rgb(0, 255, 136)"],
+:root[data-theme="light"] [style*="color:rgb(0, 255, 136)"] { color: #056b41 !important; }
+:root[data-theme="light"] [style*="color: rgb(255, 179, 71)"],
+:root[data-theme="light"] [style*="color:rgb(255, 179, 71)"] { color: #8a5000 !important; }
+:root[data-theme="light"] [style*="color: rgb(255, 184, 0)"],
+:root[data-theme="light"] [style*="color:rgb(255, 184, 0)"] { color: #8a5000 !important; }
+:root[data-theme="light"] [style*="color: rgb(253, 192, 105)"],
+:root[data-theme="light"] [style*="color:rgb(253, 192, 105)"] { color: #8a5000 !important; }
+:root[data-theme="light"] [style*="color: rgb(249, 115, 22)"],
+:root[data-theme="light"] [style*="color:rgb(249, 115, 22)"] { color: #a04a07 !important; }
+:root[data-theme="light"] [style*="color: rgb(167, 139, 250)"],
+:root[data-theme="light"] [style*="color:rgb(167, 139, 250)"] { color: #5f3fcb !important; }
+:root[data-theme="light"] [style*="color: rgb(123, 47, 247)"],
+:root[data-theme="light"] [style*="color:rgb(123, 47, 247)"] { color: #5f3fcb !important; }
+:root[data-theme="light"] [style*="color: rgb(79, 124, 255)"],
+:root[data-theme="light"] [style*="color:rgb(79, 124, 255)"] { color: #2a4bc2 !important; }
+:root[data-theme="light"] [style*="color: rgb(77, 124, 255)"],
+:root[data-theme="light"] [style*="color:rgb(77, 124, 255)"] { color: #2a4bc2 !important; }
+:root[data-theme="light"] [style*="color: rgb(239, 68, 68)"],
+:root[data-theme="light"] [style*="color:rgb(239, 68, 68)"] { color: #b71c1c !important; }
+:root[data-theme="light"] [style*="color: rgb(136, 146, 164)"],
+:root[data-theme="light"] [style*="color:rgb(136, 146, 164)"] { color: #556070 !important; }
+:root[data-theme="light"] [style*="color: rgb(152, 152, 153)"],
+:root[data-theme="light"] [style*="color:rgb(152, 152, 153)"] { color: #5f5f61 !important; }
+:root[data-theme="light"] [style*="color: rgb(121, 122, 125)"],
+:root[data-theme="light"] [style*="color:rgb(121, 122, 125)"] { color: #595b5e !important; }
+:root[data-theme="light"] [style*="color: rgb(106, 112, 144)"],
+:root[data-theme="light"] [style*="color:rgb(106, 112, 144)"] { color: #556070 !important; }
+
+:root[data-theme="light"] :is(.aa-sub,.aa-provider-banks,.kite-sub,.nw-hero-label,.nw-hero-sub,.nw-alloc-label,.nw-alloc-pct,.fc-summary-label,.tc-section-head,.rp-lbl,.rp-sub,.rp-sec,.rp-inc-lbl,.rp-inc-sub,.js-stage .js-label,.kite-setup-link,.copyright,.forgot-link,.mode-btn:not(.active)) { color: #556070 !important; }
+:root[data-theme="light"] :is(.aa-btn-connect,.tc-btn,.nw-tab-btn.active,.aa-info-title,.unlock-badge,.badge-core,.dash-section-link,.js-stage.active .js-label) { color: #2a4bc2 !important; }
+:root[data-theme="light"] :is(.tab-btn.active) { color: #08705a !important; }
+:root[data-theme="light"] .fc-summary-val { color: #b71c1c !important; }
+:root[data-theme="light"] .tf-divider-label { color: #5E6786 !important; }
+
+/* dark surfaces that used a dim blue/grey label (both themes) */
+.qft-fab-label { color: #9aa3b8 !important; }
+
+/* inline white-alpha text, as serialised by the browser after a script touches the style attribute */
+:root[data-theme="light"] [style*="color: rgba(255, 255, 255,"]:not([style*="background: linear-gradient"]):not(.btn):not(button.primary) { color: var(--text-secondary) !important; }

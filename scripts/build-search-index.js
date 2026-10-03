@@ -48,7 +48,7 @@ function describe(relPath) {
   const html = read(path.join(ROOT, relPath));
   const isRedirect = /http-equiv=["']refresh["']/i.test(html) && html.length < 3000;
   let title = (html.match(/<title>([\s\S]*?)<\/title>/i) || [, ''])[1];
-  title = clean(title).replace(/\s*[|\-–—]\s*FIN[•\-·]?OS.*$/i, '').replace(/^FIN[•\-·]?OS\s*[|\-–—:]\s*/i, '').trim();
+  title = clean(title).replace(/\s*[|•·\-–—]\s*FIN[•\-·]?OS.*$/i, '').replace(/^FIN[•\-·]?OS\s*[|•·\-–—:]\s*/i, '').trim();
   const slug = path.basename(relPath, '.html');
   if (!title || /^FIN[•\-·]?OS$/i.test(title)) title = slug.replace(/[-_]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   const dm = html.match(/<meta[^>]+name=["']description["'][^>]+content=(?:"([^"]*)"|'([^']*)')/i);

@@ -162,6 +162,40 @@
     return { rows: out, totals, format: detectFormat(header), warnings };
   }
 
+  /* ── CAS statement PDFs (CAMS / KFintech / NSDL / CDSL) ──────────────── */
+  const sumBy = (rows, kind) => Math.round(rows.filter((x) => x.kind === kind).reduce((s, x) => s + x.value, 0));
+  /** Server result ({rows, as_of, source, warnings}) → the same shape parseHoldings() returns. Totals are recomputed here. */
+  function fromCas(server) {
+    const rows = (server && server.rows ? server.rows : []).filter((r) => r && r.value >= 0 && r.qty > 0);
+    return {
+      rows,
+      totals: { equity: sumBy(rows, 'equity'), mf: sumBy(rows, 'mf'), invested: Math.round(rows.filter((x) => x.kind === 'equity' || x.kind === 'mf').reduce((s, x) => s + (x.invested || 0), 0)), count: rows.length },
+      format: 'cas-' + (server && server.source ? server.source : 'statement'),
+      asOf: server && server.as_of || null,
+      warnings: (server && server.warnings ? server.warnings.slice() : []).concat(rows.length ? [] : ['No holdings were found in this statement.']),
+    };
+  }
+  function casErrorMessage(e) {
+    const raw = String((e && e.message) || e || '');
+    const m = raw.match(/"detail"\s*:\s*"([^"]+)"/);                    // FastAPI {"detail": "..."} inside the client's error text
+    if (m) return m[1];
+    if (e && e.code === 'unavailable') return 'Statement import needs the FIN-OS backend (document-ai service), which isn\'t reachable here.';
+    if (e && (e.code === 'offline' || e.code === 'timeout')) return 'Could not reach the statement service. Is the document-ai backend running?';
+    return 'Could not read that statement.';
+  }
+  /** Upload a CAS PDF + its password to the user's own document-ai service and return a parseHoldings-style result. */
+  async function readCasPdf(file, password) {
+    const body = new root.FormData();
+    body.append('file', file, file.name || 'cas.pdf');
+    body.append('password', password || '');
+    try {
+      let data;
+      if (root.FinosAPI) data = await root.FinosAPI.request('docs', '/parse/cas', { method: 'POST', body, timeout: 90000, retries: 0 });
+      else { const r = await fetch('http://localhost:8004/parse/cas', { method: 'POST', body }); if (!r.ok) throw new Error(await r.text()); data = await r.json(); }
+      return fromCas(data);
+    } catch (e) { throw new Error(casErrorMessage(e)); }
+  }
+
   /* ── storage ─────────────────────────────────────────────────────────── */
   function store() { return root.FinosStore; }
   function put(k, v) {
@@ -178,7 +212,7 @@
     put('finos_portfolio_value', String(res.totals.equity));
     put('finos_mf_import_value', String(res.totals.mf));
     put('finos_holdings', res.rows);
-    put('finos_holdings_meta', { importedAt: new Date().toISOString(), format: res.format, count: res.totals.count, invested: res.totals.invested });
+    put('finos_holdings_meta', { importedAt: new Date().toISOString(), format: res.format, count: res.totals.count, invested: res.totals.invested, asOf: res.asOf || undefined });
     try { if (root.FinosContext && root.FinosContext.update) root.FinosContext.update({ portfolioValue: res.totals.equity }); } catch (_) { /* optional */ }
     if (root.dispatchEvent && root.CustomEvent) root.dispatchEvent(new root.CustomEvent('finos:holdings-imported', { detail: res.totals }));
     return res.totals;
@@ -200,10 +234,10 @@
           <h3 style="margin:0;font-size:18px;">Import holdings</h3>
           <button data-x aria-label="Close" style="background:none;border:none;color:inherit;font-size:22px;cursor:pointer;">×</button>
         </div>
-        <p style="font-size:13px;opacity:.7;line-height:1.6;margin:0 0 14px;">Upload the <b>Holdings</b> CSV from Zerodha Console, Groww or any broker. It is read in your browser — the file never leaves your device. Importing again replaces the last import.</p>
+        <p style="font-size:13px;opacity:.7;line-height:1.6;margin:0 0 14px;">Upload either the <b>Holdings CSV</b> (Zerodha Console, Groww, any broker — read in your browser, never uploaded) or a <b>CAS PDF</b> (CAMS / KFintech / NSDL / CDSL consolidated statement — sent only to your own FIN•OS statement service to be read, not stored). Importing again replaces the last import.</p>
         <label style="display:block;border:2px dashed var(--border-soft,rgba(255,255,255,.2));border-radius:14px;padding:22px;text-align:center;cursor:pointer;font-size:13px;">
-          <input type="file" accept=".csv,text/csv,text/plain" hidden id="finos-import-file">
-          <span id="finos-import-hint">Choose a CSV file or drop it here</span>
+          <input type="file" accept=".csv,text/csv,text/plain,.pdf,application/pdf" hidden id="finos-import-file">
+          <span id="finos-import-hint">Choose a CSV or CAS PDF, or drop it here</span>
         </label>
         <div id="finos-import-out" style="margin-top:14px;"></div>
       </div>`;
@@ -212,32 +246,60 @@
     wrap.addEventListener('click', (e) => { if (e.target === wrap || e.target.hasAttribute('data-x')) close(); });
     doc.addEventListener('keydown', function esc1(e) { if (e.key === 'Escape') { close(); doc.removeEventListener('keydown', esc1); } });
 
+    const showPreview = (res, out) => {
+      if (!res.rows.length) { out.innerHTML = `<p style="color:#EF4444;font-size:13px;">${esc(res.warnings.join(' '))}</p>`; return; }
+      const fmtKind = (k) => ({ mf: 'MF', equity: 'Equity', bond: 'Bond', nps: 'NPS' }[k] || k);
+      const body = res.rows.slice(0, 8).map((r) => `<tr><td style="padding:5px 8px;">${esc(r.name)}</td><td style="padding:5px 8px;opacity:.6;">${fmtKind(r.kind)}</td><td style="padding:5px 8px;text-align:right;">${r.qty}</td><td style="padding:5px 8px;text-align:right;">${fmt(r.value)}</td></tr>`).join('');
+      out.innerHTML = `
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:13px;">
+          <span style="padding:6px 10px;border-radius:10px;background:rgba(34,211,166,.12);">${res.totals.count} holdings</span>
+          <span style="padding:6px 10px;border-radius:10px;background:rgba(0,212,255,.12);">Equity ${fmt(res.totals.equity)}</span>
+          <span style="padding:6px 10px;border-radius:10px;background:rgba(255,179,71,.14);">Mutual funds ${fmt(res.totals.mf)}</span>
+          <span style="padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.07);">Detected: ${esc(res.format)}${res.asOf ? ' · as of ' + esc(res.asOf) : ''}</span>
+        </div>
+        <table style="width:100%;font-size:12px;border-collapse:collapse;"><tbody>${body}</tbody></table>
+        ${res.rows.length > 8 ? `<p style="font-size:11px;opacity:.5;">… and ${res.rows.length - 8} more</p>` : ''}
+        ${res.warnings.map((w) => `<p style="font-size:12px;color:#FFB347;margin:6px 0;">⚠ ${esc(w)}</p>`).join('')}
+        <button id="finos-import-apply" style="margin-top:12px;padding:11px 18px;border-radius:12px;border:none;background:#22D3A6;color:#06201a;font-weight:800;cursor:pointer;">Import ${res.totals.count} holdings</button>`;
+      out.querySelector('#finos-import-apply').addEventListener('click', () => {
+        apply(res);
+        out.innerHTML = '<p style="color:#22D3A6;font-weight:700;">✓ Imported. Refreshing your numbers…</p>';
+        setTimeout(() => { close(); root.location.reload(); }, 700);
+      });
+    };
+
+    const handlePdf = (file) => {
+      const out = wrap.querySelector('#finos-import-out');
+      wrap.querySelector('#finos-import-hint').textContent = file.name;
+      out.innerHTML = `<form id="finos-cas-form">
+        <label for="finos-cas-pw" style="display:block;font-size:12px;opacity:.7;margin-bottom:4px;">PDF password — usually your PAN in capital letters (some statements: PAN + date of birth)</label>
+        <input id="finos-cas-pw" type="password" autocomplete="off" style="width:100%;box-sizing:border-box;padding:11px 12px;border-radius:10px;border:1px solid var(--border-soft,rgba(255,255,255,.2));background:transparent;color:inherit;font-size:15px;">
+        <div id="finos-cas-err" role="alert" style="min-height:18px;color:#EF4444;font-size:13px;margin:8px 0;"></div>
+        <button type="submit" style="padding:11px 18px;border-radius:12px;border:none;background:#4f7cff;color:#fff;font-weight:800;cursor:pointer;">Read statement</button>
+        <p style="font-size:11.5px;opacity:.55;margin:10px 0 0;">The password and file are used once to read the statement and are not saved. Your PAN, address and e-mail are never returned.</p></form>`;
+      const pw = out.querySelector('#finos-cas-pw'); pw.focus();
+      out.querySelector('#finos-cas-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = out.querySelector('button[type=submit]'), err = out.querySelector('#finos-cas-err');
+        btn.disabled = true; btn.textContent = 'Reading…'; err.textContent = '';
+        try { showPreview(await readCasPdf(file, pw.value), out); }
+        catch (x) { err.textContent = x.message; btn.disabled = false; btn.textContent = 'Read statement'; pw.select(); }
+      });
+    };
+
     const handle = (file) => {
       if (!file) return;
+      if (/\.pdf$/i.test(file.name) || file.type === 'application/pdf') {
+        if (file.size > 10 * 1024 * 1024) { wrap.querySelector('#finos-import-out').innerHTML = '<p style="color:#EF4444;">That PDF is over 10 MB.</p>'; return; }
+        return handlePdf(file);
+      }
       if (file.size > 5 * 1024 * 1024) { wrap.querySelector('#finos-import-out').innerHTML = '<p style="color:#EF4444;">That file is over 5 MB — this looks like the wrong file.</p>'; return; }
       const reader = new root.FileReader();
       reader.onload = () => {
         const res = parseHoldings(reader.result);
         const out = wrap.querySelector('#finos-import-out');
         wrap.querySelector('#finos-import-hint').textContent = file.name;
-        if (!res.rows.length) { out.innerHTML = `<p style="color:#EF4444;font-size:13px;">${esc(res.warnings.join(' '))}</p>`; return; }
-        const body = res.rows.slice(0, 8).map((r) => `<tr><td style="padding:5px 8px;">${esc(r.name)}</td><td style="padding:5px 8px;opacity:.6;">${r.kind === 'mf' ? 'MF' : 'Equity'}</td><td style="padding:5px 8px;text-align:right;">${r.qty}</td><td style="padding:5px 8px;text-align:right;">${fmt(r.value)}</td></tr>`).join('');
-        out.innerHTML = `
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:13px;">
-            <span style="padding:6px 10px;border-radius:10px;background:rgba(34,211,166,.12);">${res.totals.count} holdings</span>
-            <span style="padding:6px 10px;border-radius:10px;background:rgba(0,212,255,.12);">Equity ${fmt(res.totals.equity)}</span>
-            <span style="padding:6px 10px;border-radius:10px;background:rgba(255,179,71,.14);">Mutual funds ${fmt(res.totals.mf)}</span>
-            <span style="padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.07);">Detected: ${esc(res.format)}</span>
-          </div>
-          <table style="width:100%;font-size:12px;border-collapse:collapse;"><tbody>${body}</tbody></table>
-          ${res.rows.length > 8 ? `<p style="font-size:11px;opacity:.5;">… and ${res.rows.length - 8} more</p>` : ''}
-          ${res.warnings.map((w) => `<p style="font-size:12px;color:#FFB347;margin:6px 0;">⚠ ${esc(w)}</p>`).join('')}
-          <button id="finos-import-apply" style="margin-top:12px;padding:11px 18px;border-radius:12px;border:none;background:#22D3A6;color:#06201a;font-weight:800;cursor:pointer;">Import ${res.totals.count} holdings</button>`;
-        out.querySelector('#finos-import-apply').addEventListener('click', () => {
-          apply(res);
-          out.innerHTML = '<p style="color:#22D3A6;font-weight:700;">✓ Imported. Refreshing your numbers…</p>';
-          setTimeout(() => { close(); root.location.reload(); }, 700);
-        });
+        showPreview(res, out);
       };
       reader.readAsText(file);
     };
@@ -246,5 +308,5 @@
     wrap.addEventListener('drop', (e) => { e.preventDefault(); handle(e.dataTransfer.files[0]); });
   }
 
-  return { parseCSV, parseHoldings, apply, openDialog, toNumber };
+  return { parseCSV, parseHoldings, fromCas, readCasPdf, casErrorMessage, apply, openDialog, toNumber };
 });

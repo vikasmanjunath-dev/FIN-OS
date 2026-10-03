@@ -58,3 +58,6 @@ dist-min/
 rag-engine/Dockerfile
 arya-ai/Dockerfile
 gateway/
+
+# CI
+.github/

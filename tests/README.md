@@ -130,6 +130,9 @@ Playwright/Chromium/axe-core is missing.
 | `npm run check` | search-index freshness + the 7 static audits below (no browser, ~15 s) |
 | `npm test` | all JS unit tests + all pytest files (alerts backend + browser suites) |
 | `TZ=Asia/Kolkata node --test tests/*.test.js` | JS unit tests in the user's timezone (calendar/IST date bugs) |
+| `python3 tests/perf_budget.py` | JS bytes per page vs `perf_budget.json` (`--update` to re-baseline) |
+| `python3 tests/mobile_check.py` | every page at 375px: horizontal overflow (fails) and tap targets under 24px (reported) |
+| `python3 tests/csp_check.py` | every page under the production CSP; lists violations (add `--drop unsafe-eval` to test a stricter policy) |
 | `python3 tests/smoke_pages.py` | opens every page (≈207) in dark **and** light; fails on JS errors, 404s, failed local requests (~14 min) |
 | `npm i --no-save axe-core && python3 -m pytest tests/test_a11y.py` | axe-core accessibility gate on 16 key pages × 2 themes |
 
@@ -160,6 +163,8 @@ Playwright/Chromium/axe-core is missing.
 | `guardrails.test.js` | `arya-guardrails.js` — flags buy/sell calls, guarantees; no false positives on education |
 | `pulse-rank.test.js` | `arya-pulse-rank.js` — PULSE widget ranking + "since last visit" diff |
 | `i18n.test.js` | `finos-i18n.js` + Hindi table + Hindi number units |
+| `budget.test.js` | `finos-budget.js` — normalizes 4 transaction shapes, status/pace states, suggestions, once-per-level alerts |
+| `contrast.test.js` | `finos-contrast.js` — AA colour maths, hue-preserving fixes, gradient estimation |
 | `vault.test.js` | `finos-vault.js` — AES-GCM lock/unlock, wrong passcode, tampering, failed self-check loses nothing |
 
 ### Browser suites (pytest + Playwright)
@@ -171,5 +176,9 @@ Playwright/Chromium/axe-core is missing.
 | `test_arya_lazy.py` | the 470 KB Arya panel loads after DOMContentLoaded yet works the instant it is needed |
 | `test_a11y.py` / `test_a11y_helper.py` | axe rules at zero; skip link; chart names; slider labels |
 | `test_i18n_dom.py` | Hindi UI translates, restores exactly, never touches user data |
+| `test_voice_journal.py` | voice/quick-log phrases → expense / saving / income |
+| `test_budget_ui.py` | budget card reads mixed-shape transactions, limits persist, alerts fire once per level |
+| `test_cas_import.py` | CAS mapping (real casparser models), error handling, `/parse/cas` endpoint — run with `casparser` + `python-multipart` installed for full coverage |
+| `test_import_cas_ui.py` | import dialog's PDF path with the statement service mocked |
 | `test_vault_e2e.py` | lock really empties storage and halts the page; unlock, multi-tab lock, idle lock, erase |
 

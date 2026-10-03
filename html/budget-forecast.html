@@ -260,6 +260,8 @@
         <p>Next month ka spending predict karo — category-wise, event-adjusted, trend-aware.</p>
       </div>
 
+      <div id="finos-budget-card"></div>
+
       <!-- Config panel -->
       <div class="config-panel">
         <div class="config-grid">
@@ -635,7 +637,7 @@ async function runForecast() {
       document.getElementById('totalAmount').textContent = '₹0';
       document.getElementById('totalTitle').textContent = 'No transaction data found';
       document.getElementById('saveBanner').style.display = 'none';
-      document.getElementById('saveMsg').textContent = 'Add transactions via the Budget Tracker app (finos-budget) or ExpenseTracker to enable forecasting.';
+      document.getElementById('saveMsg').textContent = 'Log expenses with Quick Capture, the voice journal, or a connected bank account to enable forecasting.';
       document.getElementById('saveBanner').style.display = 'flex';
       return;
     }
@@ -752,5 +754,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 })();
 </script>
+<script src="../js/finos-format.js"></script>
+<script src="../js/finos-budget.js"></script>
+<script src="../js/finos-budget-ui.js"></script>
 </body>
 </html>
