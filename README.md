@@ -17,6 +17,24 @@
 | [FRD.md](docs/FRD.md) | Functional requirements — every module's behaviour, acceptance criteria |
 | [TRD.md](docs/TRD.md) | Technical requirements — stack specs, performance budgets, security, integrations |
 | [SOP.md](docs/SOP.md) | Standard operating procedures — deploy, debug, incidents, onboarding |
+| [BRD.md](docs/BRD.md) | Business requirements — goals, stakeholders, KPIs, constraints |
+| [MRD.md](docs/MRD.md) | Market requirements — market problem, segments, competitive landscape |
+| [CRD.md](docs/CRD.md) | Customer requirements — customer needs traced to implementing modules |
+| [DRD.md](docs/DRD.md) | Design requirements — tokens, themes, hover system, accessibility, new-page checklist |
+| [ARD.md](docs/ARD.md) | Architecture requirements — hub-and-spoke system, constraints, planned evolution |
+| [NFRD.md](docs/NFRD.md) | Non-functional requirements — performance, security, reliability, compliance |
+
+The six docs added after PRD/FRD/TRD are exports of living Claude Docs; the online copies are linked at the top of each file.
+
+**Apps & Features**
+
+| Doc | What it covers |
+|---|---|
+| [MOBILE_APP.md](docs/MOBILE_APP.md) | Expo / React Native app — screens, architecture, web parity, known gaps |
+| [UPGRADES_OCT_2026.md](docs/UPGRADES_OCT_2026.md) | October 2026 six-stage upgrade pass — what was added, where, what is not done |
+| [PREPAY_OFFERS_SUBSCRIPTIONS.md](docs/PREPAY_OFFERS_SUBSCRIPTIONS.md) | Prepay-vs-Invest, Job-Offer Comparer and Subscription Tracker — pages, logic modules, tests |
+
+Component READMEs: [mobile/](mobile/README.md) · [gateway/](gateway/README.md) · [supabase/](supabase/README.md) · [TradeJournal/](TradeJournal/README.md)
 
 **Engineering Reference**
 
@@ -326,6 +344,24 @@ AryaRoadmap.init(roadmapEl, mindmapEl, timelineEl);
 
 ---
 
+## Testing & Quality Gates
+
+Everything runs without a backend. From this folder:
+
+```bash
+npm run check            # static audits (tokens, links, search coverage, JS syntax, ids, routes, secrets) + search-index freshness   (~15 s)
+npm test                 # all JS unit tests + all pytest files (browser suites need Playwright + Chromium)
+npm run index            # regenerate the auto part of js/finos-search.js after adding a page
+python3 tests/smoke_pages.py     # every page, dark + light — fails on JS errors / 404s            (~15 min)
+python3 tests/csp_check.py       # every page under the PRODUCTION Content-Security-Policy          (~10 min)
+python3 tests/mobile_check.py    # every page at 375px — horizontal overflow, tiny tap targets      (~3 min)
+python3 tests/perf_budget.py     # JS weight per page vs tests/perf_budget.json
+```
+
+`.github/workflows/ci.yml` runs the fast + browser suites on every push/PR and the full crawls nightly. Details: [tests/README.md](tests/README.md), [docs/UPGRADES_OCT_2026.md](docs/UPGRADES_OCT_2026.md).
+
+---
+
 ## Folder Structure
 
 ```
@@ -374,7 +410,7 @@ Initial Deployment/
 ├── Porfolio Analyser/          Portfolio.AI v10 (22,570-line single-file quant app)
 │   ├── portfolio-analyser-v10.html   Full institutional quant suite + Arya AI on all 10 pages
 │   └── server.py                    Arya AI backend — HTTP :8766 (llama3.1:latest + llama3.2:3b)
-├── docs/                       27 documentation files
+├── docs/                       36 documentation files
 └── .vercelignore               Excludes Python backends, node_modules, SSL certs
 ```
 

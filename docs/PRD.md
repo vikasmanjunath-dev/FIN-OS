@@ -1,8 +1,8 @@
 # FIN-OS — Product Requirements Document (PRD)
 
 **Document owner:** Vikas Manjunath  
-**Version:** 1.6  
-**Date:** June 14, 2026  
+**Version:** 1.7  
+**Date:** October 3, 2026  
 **Status:** Active  
 **Live product:** https://finos1.vercel.app  
 
@@ -78,7 +78,7 @@ FIN-OS fills this gap with a voice-first, desi-native AI that speaks the user's 
 | Uptime (frontend / Vercel) | 99.9% |
 | Memory accuracy (profile extraction) | 0 false positives in family / age detection |
 | Theme switch latency | 0ms (CSS variables, instant) |
-| FOUC on page load | 0 (anti-FOUC script on all 117 pages) |
+| FOUC on page load | 0 (anti-FOUC script on every app page) |
 
 ---
 
@@ -86,21 +86,21 @@ FIN-OS fills this gap with a voice-first, desi-native AI that speaks the user's 
 
 ### Must Have (shipped)
 
-- [x] **117 HTML pages** spanning the complete finance journey
-- [x] **88 financial calculators** across 9 categories
+- [x] **120 HTML pages** (118 in `html/` + `index.html` + `login.html`) spanning the complete finance journey
+- [x] **90 financial calculators** across 9 categories
 - [x] Voice AI — English / Hindi / Hinglish, local LLM, real-time TTS
 - [x] Supabase auth + RLS-protected user data
-- [x] Proactive alert engine (10 rules, 15-min cadence)
-- [x] Financial health score (6 pillars, 0–100)
+- [x] Proactive alert engine (14 rules, 15-min cadence)
+- [x] Financial health score (7 pillars, 0–100)
 - [x] Portfolio analyser (Zerodha CSV upload → voice-queryable)
 - [x] Persistent cross-session voice memory (Supabase)
-- [x] React budget app (FIRE calc, debt destroyer, AI war room)
+- [x] Budget and transaction tracking via the Supabase-backed Command Hub trackers (29 trackers); the standalone React budget app and Django budget backend were retired and are not in the current checkout
 - [x] Trade journal with Supabase sync
 - [x] 14+ education modules (equity, MF, F&O, insurance, etc.)
 - [x] PWA (installable, offline-capable, push notifications)
-- [x] **Design token system** (137 CSS variables, single source of truth)
+- [x] **Design token system** (95 unique CSS variables, 137 declarations including theme overrides; single source of truth)
 - [x] **Premium hover system** (180+ effects, zero-fill vocabulary, `interactions.css/js`)
-- [x] **Full light/dark theme** (360 rules, 96-page coverage, FOUC-free)
+- [x] **Full light/dark theme** (360+ light-mode rules, all app pages, FOUC-free)
 - [x] Portfolio Analyser accessible from Dashboard quick-access bar
 - [x] **Portfolio.AI v10** — full institutional-grade quant suite (June 8, 2026):
   - [x] Squarified treemap (EQ+ETF block + MF block, P&L% on every cell)
@@ -134,7 +134,7 @@ FIN-OS fills this gap with a voice-first, desi-native AI that speaks the user's 
   - [x] **Smart dynamic chips** — `_aryaDynamicChips()` auto-computes 2 most urgent chips per portfolio state (concentration, tax-harvest, VIX spike, positions underwater, single-stock overweight, Nifty sell-off)
   - [x] **Enhanced aryaFormat** — VERDICT callout box, styled ⚡ ARYA'S CALL footer, OVERWEIGHT/UNDERWEIGHT/NEUTRAL badges, bullet styling; NSE sector map + anti-hallucination rules locked in system prompt
 - [x] **Voice agent reverted** — plain `ws://127.0.0.1:8765` (no SSL); WS_HOST `"127.0.0.1"`; HISTORY_TURNS 10; original `voiceagent/index.html` UI
-- [x] **Arya AI Sidebar Panel v2.0** — 4-tab system embedded on all 94 app pages (June 14, 2026):
+- [x] **Arya AI Sidebar Panel v2.0** — 4-tab system (June 14, 2026; since grown to 8 tabs and 8,086 lines, loaded on 114 pages — see Phase 13b):
   - [x] **4-tab panel** — 💬 Chat | 🗺️ Plan | 🧠 Map | 🌅 Life; tab bar with `switchAryaTab()` and lazy-render flags (`_rmRendered`/`_mmRendered`/`_tlRendered`)
   - [x] **`ensureRoadmapEngine(cb)`** — dynamically injects `arya-roadmap.js` via `<script>` tag on any page; URL derived from panel's own `src` attribute; `s.onerror` shows graceful fallback
   - [x] **"Ask Arya" bridge** — `.asp-view-ask-btn` in each visual view switches to Chat tab and fires a pre-filled AI question via `sendMessage()`
@@ -148,16 +148,27 @@ FIN-OS fills this gap with a voice-first, desi-native AI that speaks the user's 
   - [x] **Life-journey timeline** — horizontal drag-scroll, milestone cards with Unsplash photos, decade markers, legend, Ask Arya button per milestone
 - [x] **`roadmap.html` rebuilt** (June 14 2026) — replaced static "Cyber GPS" questionnaire with interactive 3-view page; 3 tabs (Roadmap / Mind Map / Life Journey); lazy renders mindmap + timeline on first tab click; re-renders on `finos-context-ready` event
 
+- [x] **October 2026 upgrade pass** (details in `docs/UPGRADES_OCT_2026.md`):
+  - [x] Safety net — static audit, full-site smoke test (both themes), CSP crawl, CI workflow
+  - [x] Architecture — `finos-store.js` data layer, `finos-api.js` client, `finos-format.js`, nginx gateway with rate limits and aggregated `/health`
+  - [x] Planning tools — Monte Carlo retirement "Success Odds", broker CSV and CAS statement import, per-category budgets with alerts, rule-based tax calendar, reminders (in-app, browser, background), shared FY2025-26 tax core, Subscription Tracker, Job Offer Comparer, Prepay-or-Invest calculator
+  - [x] Arya — safety guardrails, relevance-ranked PULSE, `retirement_odds` / `upcoming_dates` / `tax_dates` tools, lazy-loaded panel
+  - [x] Platform quality — PWA with stale-while-revalidate caching, accessibility and 375px mobile fixes, light-theme contrast healer, Hindi UI (first-pass vocabulary)
+  - [x] Security — optional passcode lock (AES-256-GCM, PBKDF2-SHA256 600k) and encrypted backups
+- [x] **Mobile app (Expo / React Native)** in `mobile/` — dashboard, markets, Arya chat, on-device portfolio with live prices, transaction logging, recurring entries, 11 tracker screens; runs in guest mode (see `docs/MOBILE_APP.md`)
+
 ### Should Have (in progress / near-term)
 
-- [ ] Zerodha Kite API live sync — no manual CSV upload
-- [ ] Voice agent on all 117 pages (currently 1 dedicated page)
+- [ ] Zerodha Kite API live sync — client (`finos-kite.js`) and arya-ai proxy are built; needs `KITE_API_KEY` / `KITE_API_SECRET` in `arya-ai/.env` to go live
+- [ ] Voice on every page — floating mic widget (`finos-widget.js`) is on 112 of 120 pages; the dedicated voice agent page remains the full experience
 - [ ] Mobile-responsive fixes for voice agent UI
-- [ ] Supabase auth on all 117 pages (currently on ~20)
+- [ ] Supabase auth on all pages — **blocked:** the Supabase project in `js/auth.js` no longer resolves, so the site runs in guest mode until a new project is configured and `supabase/*.sql` is run
+- [ ] Real-statement test of CAS PDF import (built, verified only with a stubbed parser)
+- [ ] Verify the mobile app's Supabase login and holdings sync against a live project, and add an EAS device build
 
 ### Could Have (medium-term)
 
-- [ ] SEBI Account Aggregator (Setu/Sahamati) — auto bank sync
+- [ ] SEBI Account Aggregator (Setu/Sahamati) — auto bank sync (`finos-aa.js` scaffold exists; provider cards in the mobile app are placeholders)
 - [ ] User benchmarking — "your savings rate vs similar profiles"
 - [ ] Custom alert rules ("alert me if Nifty drops 5%")
 - [ ] Offline voice agent mode (fully local TTS)
@@ -166,7 +177,6 @@ FIN-OS fills this gap with a voice-first, desi-native AI that speaks the user's 
 ### Won't Have (this cycle)
 
 - Broker execution (buy/sell via FIN-OS) — regulatory complexity
-- React Native mobile app — scope too large for current phase
 - Fine-tuned LLM on Indian financial data — dataset curation required
 - Multi-user household view — privacy complexity
 
@@ -268,7 +278,8 @@ All interactive elements must use the zero-fill hover vocabulary (`css/interacti
 - Supabase data protected by RLS — users access only their own rows
 - `service_role` keys exist only in backend `.env` files — never in browser code
 - Voice session data cleared from RAM on disconnect
-- Context stored in `sessionStorage` only (tab-scoped) — never in `localStorage` or sent to external services
+- Voice session context is held in `sessionStorage` (tab-scoped). Tracker and profile data (`finos_*` keys) live in browser `localStorage` and are never sent to external services except the user's own Supabase rows
+- Optional passcode lock (`finos-vault.js`, AES-256-GCM) and encrypted backups protect that local data; a forgotten passcode cannot be recovered, and the lock does not cover the self-contained sub-apps (Portfolio Analyser, TradeJournal, voice agent)
 
 ---
 
@@ -307,7 +318,7 @@ All interactive elements must use the zero-fill hover vocabulary (`css/interacti
 | Phase 4 — Voice AI v1 (qwen2.5:3b) | ✅ Done | May 2026 |
 | Phase 5 — Portfolio Analyser + voice integration | ✅ Done | May 2026 |
 | Phase 6 — Upgrade to qwen3:14b | ✅ Done | May 2026 |
-| Phase 7 — Full calculator suite (88 tools) | ✅ Done | May 2026 |
+| Phase 7 — Full calculator suite (88 tools at the time; 90 today) | ✅ Done | May 2026 |
 | Phase 8 — Dashboard professional redesign | ✅ Done | June 2026 |
 | Phase 9 — UI/UX overhaul (hover + theme + 96 pages) | ✅ Done | June 2026 |
 | Phase 10 — Portfolio.AI deep overhaul (security, treemap, 5 new quant features) | ✅ Done | June 7–8, 2026 |
@@ -315,6 +326,9 @@ All interactive elements must use the zero-fill hover vocabulary (`css/interacti
 | Phase 12 — Portfolio.AI Arya AI full integration (all 10 pages, QGLP, server.py :8766) | ✅ Done | June 8–10, 2026 |
 | Phase 13 — Arya Sidebar Panel v2.0 (4-tab: Chat/Plan/Map/Life on all 94 pages + arya-roadmap.js engine + roadmap.html rebuild) | ✅ Done | June 14, 2026 |
 | Phase 13b — Arya Sidebar Panel expanded to 8 tabs (+ 📊 Pulse, 📅 Cal, 🇮🇳 India, 🤖 Agent); file grew to 7,945 lines; now injected on 113 pages | ✅ Done (verified live) | by Oct 1, 2026 |
-| Phase 14 — Kite API live sync | 🔲 Planned | Q3 2026 |
-| Phase 15 — Voice on all pages | 🔲 Planned | Q3 2026 |
-| Phase 16 — Account Aggregator | 🔲 Planned | Q4 2026 |
+| Phase 14 — October 2026 upgrade pass (safety net, data layer, planning tools, Arya guardrails, PWA/a11y, passcode vault) | ✅ Done | Oct 2026 |
+| Phase 15 — Mobile app (Expo) — guest mode, live prices, trackers; Supabase sync untested | 🟡 In progress | Started Jul 2026 |
+| Phase 16 — Kite API live sync | 🔲 Built, needs API key | Slipped from Q3 2026 |
+| Phase 17 — Voice on all pages | 🟡 Widget on 112 of 120 pages | Slipped from Q3 2026 |
+| Phase 18 — Live Supabase project + auth on all pages | 🔲 Blocked (project deleted) | Slipped from Q3 2026 |
+| Phase 19 — Account Aggregator | 🔲 Scaffold only | Q4 2026 |
