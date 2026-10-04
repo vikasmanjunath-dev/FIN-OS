@@ -104,7 +104,7 @@
 .time-stat span { color: var(--text-secondary); font-size: 0.9rem; }
 .time-stat strong { font-size: 1.5rem; color: #fff; }
 .time-stat .highlight { color: #ff4757; }
-.disclaimer { font-size: 0.7rem; color: #555; margin-top: 20px; }
+.disclaimer { font-size: 0.7rem; color: var(--text-muted); margin-top: 20px; }
 
 /* STEP LADDER (Your Issue Area) */
 .step-ladder { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }

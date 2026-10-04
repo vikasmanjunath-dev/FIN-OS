@@ -70,7 +70,7 @@ html, body {
 .chapter h1 { font-size: 3.5rem; margin-bottom: 20px; color: #FFFFFF !important; }
 .chapter h2 { font-size: 2rem; margin-bottom: 30px; color: #FFFFFF !important; border-left: 4px solid var(--accent); padding-left: 15px; }
 .chapter p { font-size: 1.15rem; line-height: 1.7; color: #A1A8B8 !important; margin-bottom: 20px; max-width: 800px; }
-.chapter-badge { display: inline-block; padding: 6px 12px; background: rgba(79, 124, 255, 0.1); color: #4F7CFF; border-radius: 100px; font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 20px; }
+.chapter-badge { display: inline-block; padding: 6px 12px; background: rgba(79, 124, 255, 0.1); color: var(--accent-ink); border-radius: 100px; font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 20px; }
 
 /* --- SEESAW ANIMATION (Rate vs Price) --- */
 .seesaw-container { width: 100%; height: 200px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; margin: 40px 0; }
@@ -242,3 +242,5 @@ html, body {
 /* ── Chart canvas fix: explicit height so Chart.js renders ── */
 .chart-container { position: relative; height: 350px; width: 100%; }
 .chart-container canvas { width: 100% !important; height: 100% !important; }
+
+[data-theme="light"] .deal-arrow { color: #4a5a00; }   /* lime-as-ink on the pale lime chip: 3.6:1 -> 6:1 */

@@ -154,7 +154,7 @@ window.FinosSalaryOptimizer = (function () {
 <style>
 .so-hero{background:linear-gradient(135deg,rgba(155,93,229,.08),rgba(79,124,255,.05));border:1px solid rgba(155,93,229,.2);border-radius:20px;padding:26px;margin-bottom:22px;display:flex;align-items:center;gap:28px;flex-wrap:wrap;}
 .so-hero-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;}
-.so-hero-val{font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:40px;font-weight:900;color:#9B5DE5;letter-spacing:-1px;line-height:1;}
+.so-hero-val{font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:40px;font-weight:900;color:var(--purple-ink);letter-spacing:-1px;line-height:1;}
 .so-hero-sub{font-size:13px;color:rgba(255,255,255,0.58);margin-top:7px;}
 .so-regime-row{display:flex;gap:10px;margin-top:12px;}
 .so-regime-pill{flex:1;padding:10px 14px;border-radius:12px;border:1px solid;text-align:center;}
@@ -201,7 +201,7 @@ window.FinosSalaryOptimizer = (function () {
 <div class="so-stats">
   <div class="so-stat" style="border-color:rgba(155,93,229,.2);">
     <div class="so-stat-lbl">Annual CTC</div>
-    <div class="so-stat-val" style="color:#9B5DE5;">${INR(c.ctc)}</div>
+    <div class="so-stat-val" style="color:var(--purple-ink);">${INR(c.ctc)}</div>
     <div class="so-stat-sub">cost to company</div>
   </div>
   <div class="so-stat" style="border-color:rgba(0,212,255,.2);">
@@ -421,7 +421,7 @@ window.FinosSalaryOptimizer = (function () {
     container.innerHTML = `
 <div style="background:rgba(155,93,229,.06);border:1px solid rgba(155,93,229,.18);border-radius:20px;padding:22px;margin-bottom:22px;">
   <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Potential Annual Tax Saving</div>
-  <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:36px;font-weight:900;color:#9B5DE5;">
+  <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:36px;font-weight:900;color:var(--purple-ink);">
     ${INR(tips.reduce((s,t)=>s+t.saving,0))}
   </div>
   <div style="font-size:13px;color:rgba(255,255,255,0.58);margin-top:6px;">across ${tips.length} optimization${tips.length!==1?'s':''} identified for your salary structure</div>

@@ -434,14 +434,14 @@
         <div class="rm-step-badge ${statusCls}">${statusIcon} ${statusLabel}</div>
       </div>
       <div class="rm-step-body">
-        <div class="rm-step-cat" style="color:${s.color}">${s.icon} ${s.category}</div>
+        <div class="rm-step-cat" style="color:color-mix(in srgb,${s.color} 45%,var(--text-primary))">${s.icon} ${s.category}</div>
         <div class="rm-step-title">${s.title}</div>
         <div class="rm-step-subtitle">${s.subtitle}</div>
         <div class="rm-step-progress-wrap">
           <div class="rm-step-progress-bar">
             <div class="rm-step-progress-fill" style="width:${s.progress}%;background:${s.color}"></div>
           </div>
-          <span class="rm-step-pct" style="color:${s.color}">${s.progress}%</span>
+          <span class="rm-step-pct" style="color:color-mix(in srgb,${s.color} 45%,var(--text-primary))">${s.progress}%</span>
         </div>
         <div class="rm-step-stat">${s.stat}</div>
       </div>

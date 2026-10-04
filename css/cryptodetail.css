@@ -202,3 +202,6 @@ html, body {
 [data-theme="light"] .chart-container { background: #F8FAFC !important; border-color: #E2E8F0 !important; }
 [data-theme="light"] .legal-card { background: #FEF2F2 !important; border-color: #FECACA !important; }
 [data-theme="light"] .book { background: #fff; border: 1px solid #ddd; }
+/* Purple accent as text: lighter on dark surfaces, darker on light (was 3.4-4.0:1) */
+.toc-header, .chapter-badge { color: #c08be0; }
+[data-theme="light"] .toc-header, [data-theme="light"] .chapter-badge { color: #7a3d99; }

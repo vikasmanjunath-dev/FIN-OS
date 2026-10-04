@@ -73,6 +73,11 @@
   <link rel="stylesheet" href="../css/interactions.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
+
+<style>
+/* dark-only page: keep the shared float back button light-on-dark in light theme */
+html:root[data-theme="light"] #floatBackBtn { color: #f0f2f8 !important; background: #1e2230 !important; border-color: rgba(255,255,255,0.22) !important; }
+</style>
 </head>
 
 <body class="bg-finosBg text-white antialiased font-sans flex overflow-hidden" data-nav-parent="diagnostics.html">

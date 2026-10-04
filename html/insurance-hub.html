@@ -372,7 +372,7 @@ function renderGapAnalysis(policies) {
     return;
   }
 
-  const SEV_COL = { critical:'#ff4444', high:'#ff9500', medium:'#00d4ff', low:'rgba(255,255,255,.3)' };
+  const SEV_COL = { critical:'#ff4444', high:'#ff9500', medium:'#00d4ff', low:'rgba(255,255,255,.7)' };
   document.getElementById('gapAnalysis').innerHTML = gaps.map(g => `
     <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);">
       <div style="font-size:22px;flex-shrink:0;">${g.icon}</div>

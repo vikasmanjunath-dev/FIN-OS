@@ -203,3 +203,4 @@
 [data-theme="light"] .action-btn { background: #0F172A !important; color: #fff !important; }
 [data-theme="light"] .chart-container { background: #F8FAFC !important; border-color: #E2E8F0 !important; }
 [data-theme="light"] .sine-wave path { stroke: #0F172A; } /* Dark wave for light mode */
+[data-theme="light"] .toc-link.active { color: #9a5b00; }   /* amber on its pale amber tint: 2.4:1 -> 5.3:1 */

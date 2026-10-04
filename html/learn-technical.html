@@ -146,7 +146,7 @@
       padding: 10px 25px;
       border: 1px solid #444;
       background: transparent;
-      color: #888;
+      color: var(--text-secondary);
       border-radius: 30px;
       cursor: pointer;
       font-family: var(--font-mono);
@@ -243,7 +243,11 @@
 /* ── Light mode text overrides (auto-generated) ── */
 [data-theme="light"] .score-val {
   color: var(--text-primary) !important;
-}</style>
+}
+[data-theme="light"] .scanner-container, [data-theme="light"] .scanner-view { background: #FFFFFF; border-color: rgba(0,0,0,0.12); color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+[data-theme="light"] .scanner-view p, [data-theme="light"] .scanner-view strong { color: var(--text-primary); }
+[data-theme="light"] .switch-btn { color: var(--text-secondary); border-color: rgba(0,0,0,0.2); }
+[data-theme="light"] .switch-btn.active { color: #000; }</style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
@@ -521,7 +525,7 @@
 
 <footer style="margin-bottom: 100px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 60px;">
   <h2 style="color: #fff;">Pulse Check Complete.</h2>
-  <p style="color: #666; font-family:var(--font-mono); margin-bottom:30px;">[ READY FOR FLIGHT ]</p>
+  <p style="color: var(--text-muted); font-family:var(--font-mono); margin-bottom:30px;">[ READY FOR FLIGHT ]</p>
   
   <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
     <button onclick="window.location.href='learn-indicators.html'" 

@@ -31,7 +31,7 @@
   <style>
     .ct-page { background: var(--bg-main); min-height: 100vh; }
     .ct-main-wrap { max-width: 900px; margin: 0 auto; padding: 40px 40px 120px; }
-    .page-back-link:hover { color: #9B5DE5; }
+    .page-back-link:hover { color: var(--purple-ink); }
     .ct-page-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 32px; }
     .ct-page-icon { font-size: 36px; line-height: 1; }
     .ct-page-title {
@@ -52,7 +52,7 @@
       font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600;
       color: rgba(255,255,255,.5); border: none; background: transparent; cursor: pointer; transition: all .2s;
     }
-    .ct-tab.active { background: rgba(155,93,229,.15); border: 1px solid rgba(155,93,229,.3); color: #9B5DE5; }
+    .ct-tab.active { background: rgba(155,93,229,.15); border: 1px solid rgba(155,93,229,.3); color: var(--purple-ink); }
     .ct-tab:hover:not(.active) { color: rgba(255,255,255,.8); }
 
     .ct-panel { display: none; }
@@ -65,7 +65,7 @@
     }
     .ct-price-grid { display: flex; flex-wrap: wrap; gap: 12px; }
     .ct-price-item { display: flex; flex-direction: column; gap: 4px; }
-    .ct-price-sym { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #9B5DE5; }
+    .ct-price-sym { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--purple-ink); }
     .ct-price-inp {
       background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
       border-radius: 8px; color: #fff; font-family: var(--font-mono);
@@ -84,7 +84,7 @@
     }
     .ct-sum-total { background: rgba(155,93,229,.08); border-color: rgba(155,93,229,.25); }
     .ct-sum-lbl { font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: rgba(255,255,255,0.58); margin-bottom: 6px; }
-    .ct-sum-val { font-family: var(--font-mono); font-size: 17px; font-weight: 800; color: #9B5DE5; }
+    .ct-sum-val { font-family: var(--font-mono); font-size: 17px; font-weight: 800; color: var(--purple-ink); }
     .ct-sum-sub { font-size: 11px; color: rgba(255,255,255,0.58); margin-top: 3px; }
 
     /* Holdings */
@@ -100,7 +100,7 @@
     }
     .ct-holding-card:hover { border-color: rgba(155,93,229,.2); }
     .ct-hc-left { flex: 0 0 auto; min-width: 80px; }
-    .ct-hc-symbol { font-family: var(--font-mono); font-size: 18px; font-weight: 900; color: #9B5DE5; }
+    .ct-hc-symbol { font-family: var(--font-mono); font-size: 18px; font-weight: 900; color: var(--purple-ink); }
     .ct-hc-name { font-size: 11px; color: rgba(255,255,255,0.58); margin-top: 2px; }
     .ct-hc-qty { font-size: 11px; color: rgba(255,255,255,0.58); margin-top: 4px; }
     .ct-hc-mid { flex: 1; }
@@ -139,7 +139,7 @@
     .ct-add-btn {
       display: block; width: 100%; padding: 14px; border-radius: 12px;
       background: linear-gradient(135deg, rgba(155,93,229,.18), rgba(155,93,229,.08));
-      border: 1px solid rgba(155,93,229,.35); color: #9B5DE5;
+      border: 1px solid rgba(155,93,229,.35); color: var(--purple-ink);
       font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 800;
       cursor: pointer; transition: all .25s;
     }
@@ -171,7 +171,7 @@
       background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.05);
       border-radius: 10px; margin-bottom: 6px; color: rgba(255,255,255,.75);
     }
-    .ct-tax-sym { font-family: var(--font-mono); font-weight: 800; color: #9B5DE5; }
+    .ct-tax-sym { font-family: var(--font-mono); font-weight: 800; color: var(--purple-ink); }
     .ct-tax-rules {
       background: rgba(255,149,0,.05); border: 1px solid rgba(255,149,0,.15);
       border-radius: 16px; padding: 20px;

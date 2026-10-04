@@ -27,7 +27,7 @@
     
     /* SIDEBAR */
     .logo { font-family: var(--font-mono); font-weight: 800; font-size: 24px; margin-bottom: 40px; }
-    .nav-item { display: block; padding: 12px 0; color: #666; text-decoration: none; font-weight: 600; }
+    .nav-item { display: block; padding: 12px 0; color: var(--text-muted); text-decoration: none; font-weight: 600; }
     .nav-item.active { color: var(--neon-lime); }
 
     /* MAIN */
@@ -36,7 +36,7 @@
     /* HEADER */
     .header { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 30px; }
     h1 { font-family: var(--font-mono); font-size: 32px; font-weight: 800; text-transform: uppercase; margin: 0; }
-    .sub { color: #666; font-size: 14px; margin-top: 5px; }
+    .sub { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
 
     /* SEARCH & CONTROLS */
     .control-panel { background: #0A0A0A; border: 1px solid var(--border); border-radius: 12px; padding: 25px; margin-bottom: 30px; }
@@ -49,7 +49,7 @@
     .toggle-group { display: flex; gap: 10px; margin-bottom: 15px; }
     .toggle-btn { 
         flex: 1; padding: 12px; border: 1px solid var(--border); background: transparent; 
-        color: #666; font-family: var(--font-mono); font-weight: 700; cursor: pointer; 
+        color: var(--text-muted); font-family: var(--font-mono); font-weight: 700; cursor: pointer; 
         border-radius: 6px; transition: 0.2s;
     }
     .toggle-btn.active { background: rgba(204, 255, 0, 0.1); border-color: var(--neon-lime); color: var(--neon-lime); }
@@ -59,7 +59,7 @@
     
     .sub-btn { 
         flex: 1; padding: 10px; border: 1px solid var(--border); background: transparent; 
-        color: #666; font-family: var(--font-mono); font-size: 12px; cursor: pointer; 
+        color: var(--text-muted); font-family: var(--font-mono); font-size: 12px; cursor: pointer; 
         border-radius: 6px; 
     }
     .sub-btn.active { background: rgba(0, 240, 255, 0.1); border-color: var(--neon-blue); color: var(--neon-blue); }
@@ -281,7 +281,7 @@
     <div id="mi-sentiment-bar" style="display:none;"></div>
 
     <div class="terminal-window" id="outputConsole">
-      <span style="color:#666">// SYSTEM READY.<br>// WAITING FOR TARGET SELECTION...</span>
+      <span style="color: var(--text-muted)">// SYSTEM READY.<br>// WAITING FOR TARGET SELECTION...</span>
     </div>
 
     <!-- Q2: AI Explain panel (appears after scan) -->

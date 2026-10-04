@@ -70,13 +70,13 @@ html, body {
 .chapter h1 { font-size: 3.5rem; margin-bottom: 20px; color: #FFFFFF !important; }
 .chapter h2 { font-size: 2rem; margin-bottom: 30px; color: #FFFFFF !important; border-left: 4px solid var(--accent); padding-left: 15px; }
 .chapter p { font-size: 1.15rem; line-height: 1.7; color: #A1A8B8 !important; margin-bottom: 20px; max-width: 800px; }
-.chapter-badge { display: inline-block; padding: 6px 12px; background: rgba(79, 124, 255, 0.1); color: #4F7CFF; border-radius: 100px; font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 20px; }
+.chapter-badge { display: inline-block; padding: 6px 12px; background: rgba(79, 124, 255, 0.1); color: var(--accent-ink); border-radius: 100px; font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 20px; }
 
 /* --- THALI VISUAL --- */
 .thali-visual { display: flex; align-items: center; gap: 40px; margin-bottom: 20px; }
 .plate { width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); position: relative; animation: spin 20s linear infinite; }
 .bowl { position: absolute; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: #000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-.bowl.n50 { top: 10px; left: 50%; transform: translateX(-50%); background: #4F7CFF; }
+.bowl.n50 { top: 10px; left: 50%; transform: translateX(-50%); background: #3556D0; color: #fff; }
 .bowl.bank { bottom: 20px; left: 15px; background: #C7F000; }
 .bowl.it { bottom: 20px; right: 15px; background: #ff4757; }
 .bowl.gold { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; background: #f1c40f; z-index: 2; }

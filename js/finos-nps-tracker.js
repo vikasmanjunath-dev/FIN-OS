@@ -263,7 +263,7 @@ window.FinosNPSTracker = (function () {
         oninput="_npsAllocSave('finos_nps_gsec_pct',this.value)">
     </div>
   </div>
-  <div id="nps-alloc-total-badge" class="nps-alloc-total" style="${(ep+cp+gp)===100?'background:rgba(34,211,166,.1);border:1px solid rgba(34,211,166,.3);color:#22D3A6;':'background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#EF4444;'}">
+  <div id="nps-alloc-total-badge" class="nps-alloc-total" style="${(ep+cp+gp)===100?'background:rgba(34,211,166,.1);border:1px solid rgba(34,211,166,.3);color:#22D3A6;':'background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#ff7d7d;'}">
     ${ep+cp+gp}% / 100% ${(ep+cp+gp)===100?'✓':'— must equal 100%'}
   </div>
   <p class="nps-note" style="margin-top:10px;">Max equity cap 75% for Active Choice (auto-reduces to 50% after age 50). Using Auto Choice (LC50) sets E:50/C:30/G:20 decreasing with age.</p>
@@ -448,7 +448,7 @@ function _npsAllocSave(key, val) {
       } else {
         badge.style.background = 'rgba(239,68,68,.1)';
         badge.style.borderColor = 'rgba(239,68,68,.3)';
-        badge.style.color = '#EF4444';
+        badge.style.color = '#ff7d7d';
       }
     }
   }, 700);

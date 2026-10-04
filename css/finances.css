@@ -44,7 +44,7 @@
 .dots { display: flex; gap: 6px; }
 .dot { width: 12px; height: 12px; border-radius: 50%; }
 .red { background: #ff5f56; } .yellow { background: #ffbd2e; } .green { background: #27c93f; }
-.term-title { font-family: var(--font-mono); font-size: 0.8rem; color: #666; letter-spacing: 1px; }
+.term-title { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); letter-spacing: 1px; }
 .term-status { font-family: var(--font-mono); font-size: 0.7rem; color: var(--neon-red); animation: pulse 2s infinite; }
 
 .wizard-content { padding: 50px; min-height: 450px; background: radial-gradient(circle at top right, rgba(255,255,255,0.03), transparent 40%); }
@@ -66,7 +66,7 @@ label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 8px; fon
 /* THE "I HAVE NOTHING" TOGGLE BUTTON */
 .zero-toggle {
   position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-  cursor: pointer; font-size: 0.7rem; color: #666; border: 1px solid #333; 
+  cursor: pointer; font-size: 0.7rem; color: var(--text-muted); border: 1px solid #333; 
   padding: 4px 8px; border-radius: 6px; background: #0a0a0a; transition: all 0.2s;
   font-family: 'Manrope', sans-serif; font-weight: 600;
 }
@@ -76,7 +76,7 @@ label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 8px; fon
     box-shadow: 0 0 10px rgba(199, 240, 0, 0.3);
 }
 
-.hint-text { display: block; margin-top: 6px; font-size: 0.75rem; color: #555; font-style: italic; }
+.hint-text { display: block; margin-top: 6px; font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
 
 .wizard-controls {
   padding: 25px; background: #0a0a0a; border-top: 1px solid #333; display: flex; align-items: center; gap: 30px;
@@ -92,7 +92,7 @@ label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 8px; fon
 }
 .live-badge { color: var(--neon-green); font-size: 0.75rem; font-family: var(--font-mono); letter-spacing: 1px; margin-bottom: 10px; display: block; }
 .net-reality-box { text-align: right; }
-.net-reality-box .label { font-size: 0.8rem; color: #666; letter-spacing: 2px; display: block; margin-bottom: 5px; }
+.net-reality-box .label { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 2px; display: block; margin-bottom: 5px; }
 .neon-text { font-size: 3.5rem; color: #fff; text-shadow: 0 0 30px rgba(255,255,255,0.1); font-family: var(--font-mono); font-weight: 700; }
 
 /* Layouts */
@@ -106,7 +106,7 @@ label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 8px; fon
   position: relative; backdrop-filter: blur(20px); transition: transform 0.3s;
 }
 .glass-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); }
-.card-head { font-family: var(--font-mono); color: #666; font-size: 0.85rem; margin-bottom: 25px; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+.card-head { font-family: var(--font-mono); color: var(--text-muted); font-size: 0.85rem; margin-bottom: 25px; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
 .card-head span { color: var(--neon-cyan); margin-right: 10px; }
 
 /* 1. Cashflow Flow */
@@ -120,7 +120,7 @@ label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 8px; fon
 .connector { align-items: center; color: #333; font-size: 1.5rem; opacity: 0.5; }
 
 .stat-row { display: flex; justify-content: space-between; border-top: 1px solid #222; padding-top: 25px; }
-.stat label { font-size: 0.7rem; color: #555; margin-bottom: 5px; }
+.stat label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 5px; }
 .stat h4 { font-size: 1.4rem; color: #fff; margin: 0; font-family: var(--font-mono); }
 
 /* 2. Signals & Leaks */

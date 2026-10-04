@@ -387,7 +387,7 @@
       border-radius: 8px; 
       padding: 40px; 
       text-align: center; 
-      color: #666; 
+      color: var(--text-muted); 
       font-family: var(--font-mono); 
       font-size: 12px; 
     } 
@@ -642,7 +642,7 @@
         <div style="color: var(--neon-pink); font-family: var(--font-mono); text-align: center;"> 
           <div style="font-size: 48px; margin-bottom: 20px;">⚠</div> 
           <div style="font-size: 16px; margin-bottom: 10px;">CONNECTION FAILED</div> 
-          <div style="font-size: 12px; color: #666;">${msg}</div> 
+          <div style="font-size: 12px; color: var(--text-muted);">${msg}</div> 
           <button class="back-btn" onclick="window.location.href='market-intel.html'" style="margin-top: 20px;"> 
             ← RETURN TO INTEL 
           </button> 
@@ -1011,7 +1011,7 @@
 
       // RENDER TABLE HELPER (With explicit VERDICT Column Styling)
       const renderTable = (rows, headers) => {
-         if (!rows || rows.length === 0) return '<div style="padding:20px; color:#666;">No Data Available</div>';
+         if (!rows || rows.length === 0) return '<div style="padding:20px; color: var(--text-muted);">No Data Available</div>';
          return `
             <table class="data-table">
                <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
@@ -1436,7 +1436,7 @@
                  <tbody> 
                    ${momentumZones.map(z => ` 
                      <tr> 
-                       <td style="color: #666; font-size: 10px;">${z.date}</td>
+                       <td style="color: var(--text-muted); font-size: 10px;">${z.date}</td>
                        <td>${z.time}</td> 
                        <td>${z.info}</td> 
                        <td><span class="tag ${z.bias.toLowerCase()}">${z.bias.toUpperCase()}</span></td> 
@@ -1454,7 +1454,7 @@
                  <tbody> 
                    ${absorptionZones.map(z => ` 
                      <tr> 
-                       <td style="color: #666; font-size: 10px;">${z.date}</td>
+                       <td style="color: var(--text-muted); font-size: 10px;">${z.date}</td>
                        <td>${z.time}</td> 
                        <td>${z.info}</td> 
                        <td><span class="tag ${z.bias.toLowerCase()}">${z.bias.toUpperCase()}</span></td> 
@@ -1869,7 +1869,7 @@
                  <tbody>
                     ${peakData.map(p => `
                        <tr>
-                          <td style="color:#666">${p.date}</td>
+                          <td style="color: var(--text-muted)">${p.date}</td>
                           <td style="color:var(--neon-cyan)">${p.vol}</td>
                           <td style="font-weight:700">${p.move}</td>
                           <td><span class="tag ${p.type === 'Breakout' || p.type === 'Ignition' ? 'bullish' : 'bearish'}">${p.type.toUpperCase()}</span></td>
@@ -2263,7 +2263,7 @@
                   ${extremeData.map(e => `
                      <tr>
                         <td>${e.period}</td>
-                        <td style="color:#666">${e.date}</td>
+                        <td style="color: var(--text-muted)">${e.date}</td>
                         <td style="font-weight:700;">${e.vol}</td>
                         <td>${e.move}%</td>
                         <td><span class="tag ${e.type === 'Green' ? 'bullish' : 'bearish'}">${e.type.toUpperCase()}</span></td>

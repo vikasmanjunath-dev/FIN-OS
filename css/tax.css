@@ -586,7 +586,7 @@
 .math-box .row.op { opacity: 0.85; }
 .math-box .row.total { font-weight: 700; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 12px; margin-top: 4px; }
 
-.math-box .red { color: var(--neon-red); }
+.math-box .red { color: #ff6b7a; }
 .math-box .green { color: var(--neon-green); }
 
 /* --- GST VISUALIZER --- */

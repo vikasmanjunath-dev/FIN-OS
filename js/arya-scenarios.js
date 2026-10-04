@@ -724,7 +724,7 @@ Explain in 3 Hinglish points. Compare: "that ${INR(r.extra)}/month saved you ${I
                 </div>`).join('')}
             </div>
             <button class="sc-btn" data-sc="${sc.id}"
-              style="width:100%;background:${sc.color}20;color:${sc.color};border:1px solid ${sc.color}40;">
+              style="width:100%;background:${sc.color}20;color:color-mix(in srgb,${sc.color} 45%,var(--text-primary));border:1px solid ${sc.color}40;">
               Run Scenario →
             </button>
             <div class="sc-result-${sc.id}" style="margin-top:14px;display:none;"></div>

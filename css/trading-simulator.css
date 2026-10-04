@@ -1051,3 +1051,6 @@ body.safety-off #safetyToggle span {
 [data-theme="dark"] .text-kred\/70 { color: #ff8591; }
 [data-theme="dark"] .explain-text strong[style*="e05260"] { color: #ff8591 !important; }
 [data-theme="dark"] .explain-text[style*="e05260aa"] { color: #ff8591 !important; }
+
+/* This page keeps its dark canvas in light theme, so the shared float back button must stay light-on-dark here */
+html:root[data-theme="light"] #floatBackBtn { color: #f0f2f8 !important; background: #1e2230 !important; border-color: rgba(255,255,255,0.22) !important; }

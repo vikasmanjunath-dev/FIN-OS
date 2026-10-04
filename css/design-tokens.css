@@ -112,6 +112,9 @@
      darkened in light mode to pass AA on white. --accent-primary
      stays raw brand blue for fills/gradients. */
   --accent:           #3D63E6;  /* 5.09:1 on white */
+  --ok-ink:           #15803D;  /* green / amber as TEXT colour on light surfaces */
+  --warn-ink:         #B45309;
+  --purple-ink:       #6D38C0;  /* purple as TEXT colour (base #9B5DE5 is 3.3:1 on white) */
   --accent-ink:       #3556D0;  /* accent as TEXT colour: 5.3:1 on tinted accent surfaces, 6.2:1 on white */
   --accent-primary:   #4F7CFF;
   --accent-secondary: #5C7300;  /* lime-as-ink: olive in light (5.37:1) */
@@ -176,6 +179,7 @@
 
   /* Brand Accent (unchanged in dark) */
   --accent:           #4F7CFF;
+  --purple-ink:       #C9A6FF;  /* purple as TEXT colour on dark tinted surfaces (base #9B5DE5 is 4.0-4.4:1) */
   --accent-ink:       #6B8FFF;  /* accent as TEXT colour: 5.5:1+ on raised dark surfaces (the base accent is 4.1–4.5:1 there) */
   --accent-primary:   #4F7CFF;
   --accent-secondary: #C7F000;

@@ -110,7 +110,7 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-secondary);
-  opacity: 0.6;
+  opacity: 1;
   margin-bottom: 14px;
 }
 

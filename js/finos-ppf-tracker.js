@@ -103,7 +103,7 @@ window.FinosPPFTracker = (function () {
           <span style="font-size:13px;color:#F5F7FA;">${inst.name}</span>
           <span style="font-size:11px;color:rgba(255,255,255,0.58);">${inst.rate}% p.a.</span>
         </div>
-        <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;font-weight:800;color:${inst.color};">${INR(v)}</div>
+        <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;font-weight:800;color:color-mix(in srgb,${inst.color} 45%,var(--text-primary));">${INR(v)}</div>
       </div>`;
     }).join('');
 
@@ -127,7 +127,8 @@ window.FinosPPFTracker = (function () {
         </div>
         <div style="display:flex;gap:20px;margin-top:12px;flex-wrap:wrap;">
           <div><div style="font-size:10px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Current Balance</div>
-            <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:18px;font-weight:900;color:${inst.color};">${INR(a.currentBalance)}</div></div>
+            <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:18px;font-weight:900;color:color-mix(in srgb,${inst.color} 45%,var(--text-primary));">${INR(a.currentBalance)}</div></div>
+          ${a.type === 'SCSS' ? `<div><div style="font-size:10px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Quarterly Interest Payout</div><div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:18px;font-weight:900;color:rgba(255,255,255,.7);">${INR(a.currentBalance * inst.rate / 400)}</div></div>` : ''}
           ${a.annualDeposit ? `<div><div style="font-size:10px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Annual Deposit</div>
             <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:18px;font-weight:900;color:rgba(255,255,255,.7);">${INR(a.annualDeposit)}</div></div>` : ''}
           ${yearsLeft !== null ? `<div><div style="font-size:10px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Years Left</div>
@@ -182,7 +183,7 @@ window.FinosPPFTracker = (function () {
   </div>
   <div class="ppf-stat" style="border-color:rgba(155,93,229,.2);">
     <div class="ppf-stat-lbl">Accounts</div>
-    <div class="ppf-stat-val" style="color:#9B5DE5;">${accounts.length}</div>
+    <div class="ppf-stat-val" style="color:var(--purple-ink);">${accounts.length}</div>
   </div>
   <div class="ppf-stat" style="border-color:rgba(255,179,71,.2);">
     <div class="ppf-stat-lbl">Annual Deposits</div>
@@ -231,7 +232,7 @@ ${accounts.length ? `
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;">
     ${Object.entries(INSTRUMENTS).map(([k,v])=>`
       <div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,.02);border-radius:8px;border:1px solid rgba(255,255,255,.05);">
-        <span style="color:${v.color};font-weight:700;font-size:12px;">${k}</span>
+        <span style="color:color-mix(in srgb,${v.color} 45%,var(--text-primary));font-weight:700;font-size:12px;">${k}</span>
         <span style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:12px;color:rgba(255,255,255,.7);">${v.rate}%</span>
         <span style="font-size:10px;color:rgba(255,255,255,0.58);">${v.c80c?'80C':'—'} ${v.taxFree?'EEE':''}</span>
       </div>`).join('')}
