@@ -58,13 +58,14 @@ Entry (`app/index.tsx`) redirects to Dashboard.
 
 | Route | File | What it does | Data source |
 | --- | --- | --- | --- |
-| Dashboard tab | `app/(tabs)/dashboard.tsx` | Net worth, portfolio, SIP, spent-this-month strip, over-budget alert, quick-log chips, tappable tracker cards, "next best step", Retirement & Protection tiles | On-device trackers + holdings |
+| Dashboard tab | `app/(tabs)/dashboard.tsx` | Net worth, portfolio, SIP, spent-this-month strip, over-budget alert, quick-log chips, tappable tracker cards, "next best step", Retirement & Protection, Recurring Costs and Money Tools tiles | On-device trackers + holdings |
 | Markets tab | `markets.tsx` | NIFTY 50 / SENSEX / NIFTY IT / NIFTY BANK, refresh every 30 s | Live: `GET :7475/api/market/overview` (falls back to demo values). **Sector tiles and FII/DII flows are hard-coded mock.** |
 | Arya tab | `arya.tsx` | Streaming chat, sends the user's profile context | Live: `POST :7475/api/chat` (SSE) |
 | Track tab | `track.tsx` | Account Aggregator provider cards | **Placeholder** — Alert dialogs only, no AA integration |
 | Portfolio tab | `portfolio.tsx` | Holdings (stocks, mutual funds, ELSS), SIP tab, computed insights, add/remove | Live prices: `/api/quotes`, `/api/quote/`, AMFI NAV via `/api/mf/search`, `/api/mf/nav/` |
 | Settings (modal) | `settings.tsx` | Name, income, backend host, account & sync, clear data | AsyncStorage |
 | Login (modal) | `login.tsx` | Supabase email/password sign in / sign up | Supabase |
+| Tool screens | `app/tools/{prepay,offers}.tsx` | **Prepay loan or invest?** (month-by-month simulation, winner, break-even return, net-position chart) and **Job offer comparer** (up to 3 offers: monthly in-hand, regime, 5-year total value). Inputs recompute live and are remembered on the device | On-device only (`finos_prepay_inputs_v1`, `finos_offers_inputs_v1`) |
 | Tracker screens | `app/tracker/*.tsx` | `networth`, `budget`, `transactions`, `recurring`, `emergency`, `goals`, `health`, `epf`, `nps`, `ppf`, `insurance`, `subscriptions` | AsyncStorage |
 
 ## 4. Architecture
@@ -87,6 +88,7 @@ checked against the website's real functions with randomised inputs (see [Verifi
 | `lib/budget.ts` | Port of `js/finos-budget.js`: record normalisation, auto-category from label, category budgets, suggested limits, savings rate |
 | `lib/retirement.ts` | EPF (`finos-epf-tracker.js`), NPS, PPF / small savings, insurance gap rules (`html/insurance-hub.html`) |
 | `lib/subscriptions.ts` | Port of `js/finos-subscriptions.js`: normalise, your-share cost, next renewal / occurrences (31 Jan → 28 Feb → 31 Mar), summary with overlap and low-value review. Parity-tested against the web file |
+| `lib/taxcore.ts`, `lib/prepayInvest.ts`, `lib/offerCompare.ts` | Ports of `js/finos-taxcore.js` (new/old regime, 87A + marginal relief, FY 2025-26), `js/finos-prepay-invest.js` and `js/finos-offer-compare.js`. Parity-tested; Prepay also checked against the golden values in `docs/PREPAY_OFFERS_SUBSCRIPTIONS.md`. The web's `savingsPlan()` is not ported |
 | `lib/quicklog.ts` | Quick-log chips: most-repeated entries by kind/category/label; "repeat last" first |
 | `lib/recurring.ts` | Monthly schedule: month-end clamp, no back-fill before start, 24-month catch-up cap, deterministic ids `rec_<item>_<YYYY-MM>` |
 | `lib/holdings.ts` | Holding model, remote mapping, `planSync` (pure last-write-wins merge with tombstones) |
@@ -100,7 +102,7 @@ All `finos_*` in AsyncStorage. Keys shared with the website (so both apps read t
 `finos_goals`, `finos_emergency_*`, `finos_epf_*`, `finos_nps_*`, `finos_ppf_portfolio`, `finos_insurance_policies`,
 `finos_subscriptions` (+ `_monthly` / `_annual` totals), `finos_80c_used`, `finos_sip_total`, `finos_health_score`, asset/liability keys (`finos_*_value`, `finos_*_loan`).
 
-Mobile-only keys: `finos_host_ip`, `finos_holdings_v1`, `finos_holdings_tombstones_v1`, `finos_holdings_owner`,
+Mobile-only keys: `finos_prepay_inputs_v1`, `finos_offers_inputs_v1`, `finos_host_ip`, `finos_holdings_v1`, `finos_holdings_tombstones_v1`, `finos_holdings_owner`,
 `finos_holdings_last_sync`, `finos_recurring_v1`.
 
 Writers are careful not to damage website records: transaction edits/deletes go by raw index so records in other
@@ -132,7 +134,7 @@ on transactions and an `id` (`idx_N`) on insurance policies.
    run `supabase/holdings.sql` (and `tracker_snapshot.sql` for the website). The email-confirmation sign-up path is untested in the UI.
 2. **Placeholders:** Markets sector tiles and FII/DII flows; Track tab AA cards.
 3. **No device build yet:** `eas.json` is in place (development / preview / production profiles) but no build has been run and no Apple/Google credentials are set up; only web/Expo Go preview has been used.
-4. **Thin committed tests.** `npm test` (Node's built-in runner, no extra dependencies) runs `__tests__/subscriptions.parity.test.mts`, which checks the subscriptions port against the website with random inputs. The earlier budget, health-score, EPF/NPS/PPF and sync checks were throwaway scripts and still need to be moved into `__tests__/` (the `@/` import alias needs a small loader first).
+4. **Thin committed tests.** `npm test` (Node's built-in runner, no extra dependencies) runs `__tests__/subscriptions.parity.test.mts` and `__tests__/tools.parity.test.mts`, which check the subscriptions, tax-core, prepay and offer-comparer ports against the website with random inputs (9 tests). The earlier budget, health-score, EPF/NPS/PPF and sync checks were throwaway scripts and still need to be moved into `__tests__/` (the `@/` import alias needs a small loader first).
 5. **`constants/endpoints.ts` port map is mostly unused.** Only `aryaAI` is called. The stock-engine / alert-engine ports were swapped relative to `docker-compose.yml`; fixed Oct 4 2026 (stock 8003, alert 8001).
 6. **Kite holdings** not wired (`KITE_API_KEY` unset).
 7. Permissions for microphone, camera and speech are declared in `app.json`, but no voice or QR feature is built yet.
@@ -140,7 +142,7 @@ on transactions and an `id` (`idx_N`) on insurance policies.
 
 ## 6. Verification
 
-Committed: `npm test` — subscriptions port vs `js/finos-subscriptions.js` (600 random records, 150 random portfolios, renewal edge cases) and `npm run typecheck`.
+Committed: `npm test` — subscriptions port vs `js/finos-subscriptions.js` (600 random records, 150 random portfolios, renewal edge cases); tax core vs `js/finos-taxcore.js` (3,000 incomes incl. the ₹12L rebate edge); prepay-vs-invest vs `js/finos-prepay-invest.js` (400 scenarios + golden values); offer comparer vs `js/finos-offer-compare.js` (300 offers, 150 comparisons); and `npm run typecheck`. Modules that import each other use explicit `.ts` extensions (`allowImportingTsExtensions`) so Node can run them.
 
 Run during the Oct 2026 build (throwaway scripts, not in the repo):
 - Health score vs. web's real `_computeLocalScore`: 300 random scenarios identical.
@@ -159,4 +161,4 @@ When changing any ported formula, re-run a parity check against the website file
 1. Provision a live Supabase project; test real login and sync.
 2. Move the remaining parity scripts into `mobile/__tests__` (needs an `@/` alias loader).
 3. Run an EAS device build (profiles exist in `eas.json`).
-4. Port more web tools (Prepay-or-Invest, Job Offer Comparer); wire Kite holdings; replace Markets mock tiles.
+4. Port the web's Tax Savings Tracker (`FinosTaxCore.savingsPlan`); wire Kite holdings; replace Markets mock tiles.

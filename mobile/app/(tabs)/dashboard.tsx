@@ -280,6 +280,29 @@ export default function DashboardScreen() {
       />
       </View>
 
+      {/* ── Money tools ── */}
+      <Text style={styles.sectionTitle}>Money Tools</Text>
+      <View style={styles.grid}>
+        <MetricCard
+          label="Prepay or invest?"
+          value="Home loan"
+          sub="which leaves you richer"
+          accent={Colors.cyan}
+          icon="🏠"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/prepay')}
+        />
+        <MetricCard
+          label="Job offer comparer"
+          value="CTC vs in-hand"
+          sub="compare up to 3 offers"
+          accent={Colors.gold}
+          icon="💼"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/offers')}
+        />
+      </View>
+
       {/* ── Quick Actions ── */}
       <Text style={styles.sectionTitle}>Quick Actions</Text>
       <View style={styles.actionRow}>
