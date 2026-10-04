@@ -215,7 +215,17 @@
         `;
         const anchor = document.querySelector(anchorSelector);
         if (anchor) anchor.insertAdjacentElement('afterend', strip);
-        else document.querySelector('.content-wrapper, main')?.prepend(strip);
+        else {
+          // No header on this page: sit inside the padded content container so the
+          // strip clears the fixed top-right controls instead of hugging the viewport edge.
+          const host = document.querySelector('.tf-wrap')
+            || document.querySelector('.content-wrapper')
+            || document.querySelector('main');
+          if (host) {
+            if (host.matches('main')) strip.style.padding = '14px 20px 0';
+            host.prepend(strip);
+          }
+        }
       }
 
       strip.innerHTML = items.map(it => `
@@ -685,7 +695,7 @@
 
   const NUDGE_COLORS = {
     warn:  { bg: 'rgba(234,179,8,.08)',  border: 'rgba(234,179,8,.25)',  text: '#eab308' },
-    alert: { bg: 'rgba(239,68,68,.08)',  border: 'rgba(239,68,68,.25)',  text: '#ef4444' },
+    alert: { bg: 'rgba(239,68,68,.08)',  border: 'rgba(239,68,68,.25)',  text: '#f87171' },
     good:  { bg: 'rgba(34,197,94,.07)',  border: 'rgba(34,197,94,.2)',   text: '#22c55e' },
   };
 
