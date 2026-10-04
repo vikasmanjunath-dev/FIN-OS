@@ -6,7 +6,9 @@
  *
  * Pure part (works in Node, unit-tested):
  *   FinosMoneyScore.normalize(raw)              → { inputs, errors }
- *   FinosMoneyScore.compute(raw)                → { ok, score, band, pillars[6], actions[≤3], inputs }  |  { ok:false, errors }
+ *   FinosMoneyScore.compute(raw, ctx)           → { ok, score, band, pillars[6], actions[≤3], inputs }  |  { ok:false, errors }
+ *                                                  ctx.leakMonthly (optional) points the savings move at the user's measured leak
+ *   FinosMoneyScore.deriveInputs(data)          → { values, sources }: answers FIN-OS can already fill in from what the user tracks
  *   FinosMoneyScore.benchmarkMultiple(age)      → invested-assets ÷ annual-income that is typical for that age
  *   FinosMoneyScore.appendHistory(hist, entry)  → one entry per day, last 24 kept
  *   FinosMoneyScore.trend(hist)                 → { delta, since } vs the previous snapshot, or null
@@ -163,7 +165,7 @@
 
   /* ── next best actions ────────────────────────────────────────────────── */
   const path = (p) => encodeURI(p);
-  function candidateActions(i, p) {
+  function candidateActions(i, p, ctx) {
     const out = [];
     const outgo = i.monthlyExpenses + i.monthlyEmi;
     const add = (id, title, detail, amount, apply, href, cta, urgent) => out.push({ id, title, detail, amount, apply, href, cta, urgent: !!urgent });
@@ -199,9 +201,12 @@
     }
     if (p.savings.score < 100) {
       const free = ceilTo(outgo - (1 - T.savingsRate) * i.monthlyIncome, 100);
+      const leak = ctx && ctx.leakMonthly > 0 ? Math.round(ctx.leakMonthly) : 0;
       add('savings', 'Free up ' + fmt(free) + ' a month',
-        'You keep ' + (p.savings.metric >= 0 ? pct(p.savings.metric) : 'nothing') + ' of your income after spending and EMIs. The target is 20% (' + fmt(T.savingsRate * i.monthlyIncome) + '). Trim the biggest flexible spends first, and subscriptions are often the easiest.',
-        free, (x) => ({ ...x, monthlyExpenses: Math.max(0, x.monthlyExpenses - free) }), '../html/subscription-tracker.html', 'Find the leaks');
+        'You keep ' + (p.savings.metric >= 0 ? pct(p.savings.metric) : 'nothing') + ' of your income after spending and EMIs. The target is 20% (' + fmt(T.savingsRate * i.monthlyIncome) + '). ' +
+          (leak ? 'Your Future Loss check already found ' + fmt(leak) + ' a month in discretionary leaks, so start there.' : 'Trim the biggest flexible spends first, and subscriptions are often the easiest.'),
+        free, (x) => ({ ...x, monthlyExpenses: Math.max(0, x.monthlyExpenses - free) }),
+        leak ? '../html/system-leak.html#radar-module' : '../html/subscription-tracker.html', leak ? 'See your leak' : 'Find the leaks');
     }
     if (p.investing.score < 100) {
       const more = ceilTo(T.investRate * i.monthlyIncome - i.monthlyInvesting, 100);
@@ -218,8 +223,8 @@
     return out;
   }
 
-  function rankActions(i, p, total) {
-    const ranked = candidateActions(i, p).map((a) => {
+  function rankActions(i, p, total, ctx) {
+    const ranked = candidateActions(i, p, ctx).map((a) => {
       const gain = totalOf(pillarScores(a.apply(i))) - total;
       return { id: a.id, title: a.title, detail: a.detail, amount: a.amount, gain: Math.round(gain), rawGain: gain, href: a.href, cta: a.cta, urgent: a.urgent };
     }).filter((a) => a.rawGain >= 0.5);
@@ -228,7 +233,7 @@
     return ranked.slice(0, 3).map(({ rawGain, ...a }) => a);
   }
 
-  function compute(raw) {
+  function compute(raw, ctx) {
     const { inputs, errors } = normalize(raw);
     if (errors.length) return { ok: false, errors };
     const p = pillarScores(inputs);
@@ -237,7 +242,7 @@
     return {
       ok: true, version: VERSION, score, band: bandOf(score), inputs,
       pillars: Object.keys(WEIGHTS).map((id) => ({ id, label: LABELS[id], weight: WEIGHTS[id], score: Math.round(p[id].score), points: +((WEIGHTS[id] * p[id].score) / 100).toFixed(1), detail: pillarDetail(id, inputs, p) })),
-      actions: rankActions(inputs, p, total),
+      actions: rankActions(inputs, p, total, ctx),
     };
   }
 
@@ -254,7 +259,53 @@
     return { delta: last.score - prev.score, since: prev.date };
   }
 
-  const api = { KEY, HKEY, WEIGHTS, LABELS, TARGETS: T, BANDS, normalize, compute, benchmarkMultiple, appendHistory, trend, fmt };
+  /* ── prefill: answers FIN-OS can already work out from what the user tracks ──────────────────────────────────────── */
+  const dayNum = (iso) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || ''); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) / 864e5 : NaN; };
+  const isoToday = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const MIN_HISTORY_DAYS = 14, HISTORY_WINDOW = 90;
+  const EMI_CATEGORY = 'EMI & Loans';
+
+  /** Monthly average per category over the last 90 days (same method as FinosLeak). Under 14 days of history is not scaled up. */
+  function monthlyByCategory(txns, now) {
+    const today = dayNum(isoToday(now instanceof Date ? now : new Date())), start = today - (HISTORY_WINDOW - 1);
+    const win = (Array.isArray(txns) ? txns : []).filter((t) => t && t.kind === 'expense' && t.amount > 0 && dayNum(t.date) >= start && dayNum(t.date) <= today);
+    const first = win.reduce((m, t) => Math.min(m, dayNum(t.date)), Infinity);
+    const days = win.length ? today - first + 1 : 0;
+    const out = { days, enough: days >= MIN_HISTORY_DAYS, byCat: {} };
+    if (out.enough) win.forEach((t) => { out.byCat[t.category] = (out.byCat[t.category] || 0) + (t.amount * 30) / days; });
+    return out;
+  }
+
+  /**
+   * data: { income, age, dependents, termCover, emergencyFund, sipMonthly, txns[normalized], now,
+   *         values: { portfolio, mfImport, sip, epf, ppf, nps, gold } }
+   * Only positive, plausible numbers are returned. Every value is a suggestion the user can edit.
+   */
+  function deriveInputs(data) {
+    data = data || {};
+    const values = {}, sources = {};
+    const set = (k, v, why) => { v = Math.round(Number(v)); if (Number.isFinite(v) && v > 0) { values[k] = v; sources[k] = why; } };
+    set('monthlyIncome', data.income, 'your income');
+    if (Number(data.age) >= 18 && Number(data.age) <= 80) { values.age = Math.round(Number(data.age)); sources.age = 'your profile'; }
+    if (Number(data.dependents) >= 1) { values.dependents = Math.min(3, Math.round(Number(data.dependents))); sources.dependents = 'your profile'; }
+    set('termCover', data.termCover, 'your insurance tracker');
+    set('liquidSavings', data.emergencyFund, 'your emergency fund');
+    set('monthlyInvesting', data.sipMonthly, 'your SIPs');
+    const v = data.values || {};
+    const n = (x) => (Number(x) > 0 ? Number(x) : 0);
+    // The SIP tracker and a CAS import can describe the same units, so take the larger rather than the sum.
+    set('investedTotal', n(v.portfolio) + Math.max(n(v.mfImport), n(v.sip)) + n(v.epf) + n(v.ppf) + n(v.nps) + n(v.gold), 'your investment trackers');
+    const m = monthlyByCategory(data.txns, data.now);
+    if (m.enough) {
+      const emi = m.byCat[EMI_CATEGORY] || 0;
+      const spend = Object.keys(m.byCat).reduce((s, c) => s + (c === EMI_CATEGORY ? 0 : m.byCat[c]), 0);
+      set('monthlyExpenses', spend, 'your last ' + Math.min(m.days, HISTORY_WINDOW) + ' days of logged spending');
+      set('monthlyEmi', emi, 'your logged EMI payments');
+    }
+    return { values, sources };
+  }
+
+  const api = { KEY, HKEY, WEIGHTS, LABELS, TARGETS: T, BANDS, normalize, compute, deriveInputs, benchmarkMultiple, appendHistory, trend, fmt };
   if (typeof root.document === 'undefined') return api;
 
   /* ═════════════════════ browser part ═════════════════════ */
@@ -284,7 +335,15 @@
   }
 
   function save(result) {
-    const entry = { inputs: result.inputs, score: result.score, band: result.band.id, pillars: result.pillars.map((p) => ({ id: p.id, score: p.score })), at: new Date().toISOString(), v: VERSION };
+    // `weakest` and `top` let PULSE and Arya show the headline and the next move without loading this module.
+    const weakest = result.pillars.slice().sort((a, b) => a.score - b.score)[0];
+    const top = result.actions[0];
+    const entry = {
+      inputs: result.inputs, score: result.score, band: result.band.id, pillars: result.pillars.map((p) => ({ id: p.id, score: p.score })),
+      weakest: weakest ? { id: weakest.id, label: weakest.label, score: weakest.score } : null,
+      top: top ? { id: top.id, title: top.title, gain: top.gain, href: top.href, cta: top.cta } : null,
+      at: new Date().toISOString(), v: VERSION,
+    };
     wr(KEY, entry);
     const hist = appendHistory(loadHistory(), { date: todayISO(), score: result.score });
     wr(HKEY, hist);
@@ -375,30 +434,50 @@
     ] },
   ];
 
-  function prefill() {
-    const saved = load();
-    if (saved && saved.inputs) return saved.inputs;
+  function gatherData() {
+    let txns = [];
+    if (root.FinosBudget && root.FinosBudget.transactions) { try { txns = root.FinosBudget.transactions(); } catch (e) { txns = []; } }
     return {
-      monthlyIncome: num('finos_monthly_income') || '', monthlyExpenses: num('finos_monthly_expense') || num('finos_expenses') || '',
-      liquidSavings: num('finos_emergency_fund') || '', monthlyInvesting: num('finos_sip_monthly') || '',
+      income: num('finos_monthly_income'), age: num('finos_age'), dependents: num('finos_dependents'), termCover: num('finos_term_insurance'),
+      emergencyFund: num('finos_emergency_fund'), sipMonthly: num('finos_sip_monthly'), txns, now: new Date(),
+      values: { portfolio: num('finos_portfolio_value'), mfImport: num('finos_mf_import_value'), sip: num('finos_sip_value'),
+                epf: num('finos_epf_value'), ppf: num('finos_ppf_value'), nps: num('finos_nps_value'), gold: num('finos_gold_value') },
     };
   }
+  const scoreCtx = () => ({ leakMonthly: num('finos_leak_monthly') });
 
-  function fieldHTML(f, v) {
+  /** Saved answers win. Otherwise fill what FIN-OS already knows and remember where each answer came from. */
+  function prefill() {
+    const saved = load();
+    if (saved && saved.inputs) return { values: saved.inputs, sources: {} };
+    const d = deriveInputs(gatherData());
+    if (!d.values.monthlyExpenses && num('finos_monthly_expense')) { d.values.monthlyExpenses = num('finos_monthly_expense'); d.sources.monthlyExpenses = 'your budget'; }
+    return d;
+  }
+
+  function hintHTML(f, src) {
+    if (src) return '<small class="ms-src">✓ From ' + esc(src) + '. Edit if it is off.</small>';
+    return f.hint ? '<small>' + esc(f.hint) + '</small>' : '';
+  }
+
+  function fieldHTML(f, v, src) {
     const val = v == null ? '' : v;
     const id = 'ms-' + f.id;
     if (f.type === 'select') {
       return '<label class="ms-f" for="' + id + '"><span>' + esc(f.label) + '</span><select id="' + id + '" name="' + f.id + '">' +
         f.opts.map(([k, t]) => '<option value="' + k + '"' + (Number(v) === k || (k === 3 && Number(v) > 3) ? ' selected' : '') + '>' + esc(t) + '</option>').join('') +
-        '</select>' + (f.hint ? '<small>' + esc(f.hint) + '</small>' : '') + '</label>';
+        '</select>' + hintHTML(f, src) + '</label>';
     }
-    return '<label class="ms-f" for="' + id + '"><span>' + esc(f.label) + '</span><input id="' + id + '" name="' + f.id + '" type="number" inputmode="numeric" min="' + (f.min || 0) + '"' + (f.max ? ' max="' + f.max + '"' : '') + ' step="1" placeholder="' + esc(f.ph) + '" value="' + esc(val) + '">' + (f.hint ? '<small>' + esc(f.hint) + '</small>' : '') + '</label>';
+    return '<label class="ms-f" for="' + id + '"><span>' + esc(f.label) + '</span><input id="' + id + '" name="' + f.id + '" type="number" inputmode="numeric" min="' + (f.min || 0) + '"' + (f.max ? ' max="' + f.max + '"' : '') + ' step="1" placeholder="' + esc(f.ph) + '" value="' + esc(val) + '">' + hintHTML(f, src) + '</label>';
   }
 
-  function formHTML(v, errors) {
+  function formHTML(v, errors, sources) {
+    sources = sources || {};
+    const filled = Object.keys(sources).length;
     return '<form class="ms-form" id="ms-form" novalidate>' +
-      '<p class="ms-lead">Answer 10 quick questions and get your score, the reasons behind it, and the three moves that would lift it most. Rough numbers are fine. Everything stays on this device.</p>' +
-      FIELDS.map((g) => '<fieldset class="ms-group"><legend>' + esc(g.group) + '</legend><div class="ms-grid">' + g.items.map((f) => fieldHTML(f, v[f.id])).join('') + '</div></fieldset>').join('') +
+      '<p class="ms-lead">Answer 10 quick questions and get your score, the reasons behind it, and the three moves that would lift it most. Rough numbers are fine. Everything stays on this device.' +
+      (filled ? ' <b class="ms-prefill">We filled in ' + filled + ' answer' + (filled === 1 ? '' : 's') + ' from what you already track in FIN-OS.</b> Check them and complete the rest.' : '') + '</p>' +
+      FIELDS.map((g) => '<fieldset class="ms-group"><legend>' + esc(g.group) + '</legend><div class="ms-grid">' + g.items.map((f) => fieldHTML(f, v[f.id], sources[f.id])).join('') + '</div></fieldset>').join('') +
       '<label class="ms-check"><input type="checkbox" id="ms-highInterestDebt" name="highInterestDebt"' + (v.highInterestDebt ? ' checked' : '') + '> <span>I carry credit-card or personal-loan balances (24%+ interest)</span></label>' +
       '<div class="ms-errors" id="ms-errors" role="alert" aria-live="polite">' + (errors && errors.length ? '<ul>' + errors.map((e) => '<li>' + esc(e) + '</li>').join('') + '</ul>' : '') + '</div>' +
       '<div class="ms-actions"><button type="submit" class="ms-btn primary" id="ms-calc">Get my Money Score</button></div>' +
@@ -434,7 +513,12 @@
   function render(el) {
     if (!el) return;
     let current = null;
-    function showForm(errors, values) { current = null; el.innerHTML = formHTML(values || prefill(), errors); const f = el.querySelector('input,select'); if (f && !errors) f.focus({ preventScroll: true }); }
+    function showForm(errors, values) {
+      current = null;
+      const pre = values ? { values, sources: {} } : prefill();
+      el.innerHTML = formHTML(pre.values, errors, pre.sources);
+      const f = el.querySelector('input,select'); if (f && !errors) f.focus({ preventScroll: true });
+    }
     function showResult(r) {
       current = r;
       el.innerHTML = resultHTML(r, loadHistory());
@@ -446,7 +530,7 @@
       const fd = new root.FormData(e.target), raw = {};
       fd.forEach((v, k) => { raw[k] = v; });
       raw.highInterestDebt = !!e.target.querySelector('#ms-highInterestDebt').checked;
-      const r = compute(raw);
+      const r = compute(raw, scoreCtx());
       if (!r.ok) { showForm(r.errors, raw); return; }
       save(r);
       showResult(r);
@@ -454,7 +538,7 @@
     el.addEventListener('click', async (e) => {
       const b = e.target.closest && e.target.closest('button');
       if (!b) return;
-      if (b.id === 'ms-edit') showForm(null, (current && current.inputs) || prefill());
+      if (b.id === 'ms-edit') showForm(null, (current && current.inputs) || prefill().values);
       if (b.id === 'ms-share' && current) {
         const st = el.querySelector('#ms-status');
         const out = await shareCard(current);
@@ -462,7 +546,7 @@
       }
     });
     const saved = load();
-    if (saved && saved.inputs) { const r = compute(saved.inputs); if (r.ok) { showResult(r); return; } }
+    if (saved && saved.inputs) { const r = compute(saved.inputs, scoreCtx()); if (r.ok) { showResult(r); return; } }
     showForm(null);
   }
 

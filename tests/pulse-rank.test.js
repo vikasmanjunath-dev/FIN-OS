@@ -85,3 +85,55 @@ test('snapshot derives rate and months from raw numbers', () => {
   assert.strictEqual(s.emergencyMonths, 3);
   assert.strictEqual(P.snapshot({}).savingsRate, null);
 });
+
+/* ── Money Score card ── */
+const withScore = (moneyScore) => ({ month: 7, income: 80000, expense: 50000, policies: 1, goals: 1, moneyScore });
+const reasonOf = (ctx, id) => P.rank(ctx).find((r) => r.id === id).reason;
+
+test('moneyScore: the card is a PULSE widget and sits right under the two pinned ones for a new user', () => {
+  assert.ok(P.DEFAULT_ORDER.includes('moneyScore'));
+  assert.strictEqual(pos(NEW_USER, 'moneyScore'), 2);                       // 50 + 26, nothing else is boosted for an empty profile
+  assert.match(reasonOf(NEW_USER, 'moneyScore'), /^You have not checked your Money Score yet\./);
+});
+
+test('moneyScore: the lower the score, the higher the card; a strong score steps out of the way', () => {
+  const p = (s) => pos(withScore(s), 'moneyScore');
+  assert.ok(p(30) <= p(50) && p(50) <= p(70) && p(70) < p(90), [p(30), p(50), p(70), p(90)].join(','));
+  assert.ok(p(90) > pos(withScore(90), 'scenarioLab'));                      // 44 sits below the neutral 50 group
+  assert.match(reasonOf(withScore(30), 'moneyScore'), /^Your Money Score is 30 out of 100\. See the three moves/);
+  assert.match(reasonOf(withScore(55), 'moneyScore'), /^Your Money Score is 55 out of 100\./);
+  assert.strictEqual(reasonOf(withScore(70), 'moneyScore'), null);          // mid-high: nudged up a little, no "recommended" tag
+  assert.strictEqual(reasonOf(withScore(90), 'moneyScore'), null);
+});
+
+test('moneyScore: junk, blanks and null mean no score; out-of-range values are clamped; decimals round', () => {
+  const none = P.rank(withScore(undefined));
+  for (const junk of [null, '', 'abc', NaN, {}, []]) assert.deepStrictEqual(P.rank(withScore(junk)), none, String(junk));
+  assert.deepStrictEqual(P.rank(withScore(150)), P.rank(withScore(100)));
+  assert.deepStrictEqual(P.rank(withScore(-5)), P.rank(withScore(0)));
+  assert.deepStrictEqual(P.rank(withScore('42.6')), P.rank(withScore(43)));
+  assert.match(reasonOf(withScore(42.6), 'moneyScore'), /is 43 out of 100/);
+  assert.notDeepStrictEqual(P.rank(withScore(0)), none);                    // a real zero is a score, not "absent"
+});
+
+test('moneyScore: every widget still appears once with the new card, for any score', () => {
+  for (const s of [undefined, 0, 39, 40, 59, 60, 79, 80, 100]) {
+    const r = ids(withScore(s));
+    assert.strictEqual(r.length, P.DEFAULT_ORDER.length);
+    assert.strictEqual(new Set(r).size, r.length);
+    assert.deepStrictEqual(r.slice(0, 2), ['crossPageHUD', 'smartInsightCards']);
+  }
+});
+
+test('moneyScore in snapshot and diff: reports a real move, ignores small ones and missing history', () => {
+  assert.strictEqual(P.snapshot({ moneyScore: 35 }).moneyScore, 35);
+  assert.strictEqual(P.snapshot({ moneyScore: 'abc' }).moneyScore, null);
+  assert.strictEqual(P.snapshot({}).moneyScore, null);
+  const up = P.diff(snap({ moneyScore: 35 }), snap({ at: T0 + 86400000, moneyScore: 48 }));
+  assert.deepStrictEqual(up.map((x) => [x.tone, x.text]), [['good', 'Money Score 35 → 48']]);
+  const down = P.diff(snap({ moneyScore: 60 }), snap({ at: T0 + 86400000, moneyScore: 52 }));
+  assert.deepStrictEqual(down.map((x) => [x.tone, x.text]), [['bad', 'Money Score 60 → 52']]);
+  assert.deepStrictEqual(P.diff(snap({ moneyScore: 50 }), snap({ at: T0 + 86400000, moneyScore: 52 })), []);              // under 3 points
+  assert.deepStrictEqual(P.diff(snap({}), snap({ at: T0 + 86400000, moneyScore: 52 })), []);                              // no earlier score
+  assert.deepStrictEqual(P.diff(snap({ moneyScore: 52 }), snap({ at: T0 + 86400000 })), []);                              // score removed
+});

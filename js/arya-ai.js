@@ -95,6 +95,19 @@ Rules:
     const savingsRate  = prof.savings_rate   || localStorage.getItem('finos_savings_rate')   || 0;
     lines.push(`Net worth: ${INR(netWorth)} | Savings rate: ${savingsRate}% | Health score: ${healthScore}/100`);
 
+    // FIN-OS Money Score (js/finos-money-score.js) and the measured leak (js/finos-leak.js): real, on-device figures Arya must quote, not re-invent.
+    try {
+      const ms = JSON.parse(localStorage.getItem('finos_money_score') || 'null');
+      const one = (v) => String(v == null ? '' : v).replace(/[\r\n]+/g, ' ').slice(0, 120);
+      if (ms && Number.isFinite(+ms.score)) {
+        const weakest = ms.weakest && ms.weakest.label ? ` Weakest area: ${one(ms.weakest.label)} (${Math.round(+ms.weakest.score) || 0}/100).` : '';
+        const next = ms.top && ms.top.title ? ` Best next move: ${one(ms.top.title)}.` : '';
+        lines.push(`FIN-OS Money Score: ${Math.round(+ms.score)}/100.${weakest}${next} Quote this score; never invent a different one.`);
+      }
+      const leak = parseFloat(localStorage.getItem('finos_leak_monthly') || '0');
+      if (leak > 0) lines.push(`Measured monthly money leak (discretionary spending): ${INR(leak)}.`);
+    } catch (_) { /* a corrupt score must never break the prompt */ }
+
     // ── Financial DNA Scores (psychographic) ─────────────────────────────
     const dnaData = ctx?.dna || (() => { try { return JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || 'null'); } catch { return null; } })();
     if (dnaData?.scores?.length >= 5) {
@@ -396,8 +409,15 @@ Rules:
     return s.trim();
   }
 
+  // Circuit breaker: several AI features start on one page load. When Ollama isn't running each of them used
+  // to make its own doomed request (and log its own console error) — after one network failure, fail the rest
+  // instantly for a while. HTTP errors and timeouts don't trip it (the server is there, just unhappy).
+  const OLLAMA_DOWN_MS = 30_000;
+  let _ollamaDownUntil = 0;
+
   /** Call Ollama HTTP API — stream tokens into onToken, resolve clean display text */
   async function _ollamaStream(system, prompt, onToken) {
+    if (Date.now() < _ollamaDownUntil) throw new Error('Ollama offline');
     const ctrl = new AbortController();
     const tid   = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
     let   full  = '';   // raw (including any think tokens)
@@ -421,11 +441,13 @@ Rules:
       if (!res.ok) throw new Error(`Ollama HTTP ${res.status}`);
       const reader = res.body.getReader();
       const dec    = new TextDecoder();
+      let   tail   = '';   // NDJSON line that straddles two network chunks
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = dec.decode(value, { stream: true });
-        for (const line of chunk.split('\n')) {
+        const parts = (tail + dec.decode(value, { stream: true })).split('\n');
+        tail = parts.pop();
+        for (const line of parts) {
           if (!line.trim()) continue;
           try {
             const obj = JSON.parse(line);
@@ -439,6 +461,9 @@ Rules:
       }
       // Return clean text — callers cache/display this
       return _stripThinking(full);
+    } catch (e) {
+      if (e instanceof TypeError && !full) _ollamaDownUntil = Date.now() + OLLAMA_DOWN_MS;   // refused / unreachable
+      throw e;
     } finally {
       clearTimeout(tid);
     }
@@ -446,10 +471,12 @@ Rules:
 
   /** Check if Ollama is reachable */
   async function _ollamaOnline() {
+    if (Date.now() < _ollamaDownUntil) return false;   // already known down — don't add another failed request
     try {
       const r = await fetch('https://127.0.0.1:8767/api/tags', { signal: AbortSignal.timeout(2000) });
+      if (r.ok) _ollamaDownUntil = 0;
       return r.ok;
-    } catch { return false; }
+    } catch { _ollamaDownUntil = Date.now() + OLLAMA_DOWN_MS; return false; }
   }
 
   /* ══════════════════════════════════════════════════════════════════════════

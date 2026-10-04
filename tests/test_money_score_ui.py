@@ -77,6 +77,10 @@ def test_result_is_saved_and_survives_reload_and_edit_prefills(env):
     pg.wait_for_selector(".ms-result")
     saved = json.loads(pg.evaluate("localStorage.getItem('finos_money_score')"))
     assert saved["score"] == 35 and saved["inputs"]["monthlyIncome"] == 100000
+    # PULSE and Arya read these two without loading the scoring code
+    assert saved["weakest"] == {"id": "insurance", "label": "Insurance cover", "score": 0}
+    assert saved["top"]["id"] == "emergency" and saved["top"]["title"] == "Build your emergency fund by ₹4.40 L" and saved["top"]["gain"] == 16
+    assert saved["top"]["href"] == "../html/emergency-fund.html" and saved["top"]["cta"] == "Open the planner"
     hist = json.loads(pg.evaluate("localStorage.getItem('finos_money_score_history')"))
     assert len(hist) == 1 and hist[0]["score"] == 35
     pg.reload(wait_until="domcontentloaded")
@@ -180,5 +184,113 @@ def test_phone_width_has_no_horizontal_scroll_in_both_themes(env, theme):
     pg.wait_for_selector(".ms-result")
     assert pg.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), "result overflows on a phone"
     assert pg.evaluate("document.documentElement.getAttribute('data-theme')") == theme
+    assert not errors
+    ctx.close()
+
+
+# ── prefill from what FIN-OS already tracks, and the link to Future Loss ───────────────────────────────────────
+def _tracked_data_script(leak=None):
+    import datetime
+    today = datetime.date.today()
+    txns = [{"amount": 1000, "category": "need_food", "type": "need_food", "label": "lunch", "date": (today - datetime.timedelta(days=i)).isoformat()} for i in range(30)]
+    txns.append({"amount": 10000, "category": "emi", "type": "emi", "label": "home loan emi", "date": (today - datetime.timedelta(days=3)).isoformat()})
+    keys = {"finos_monthly_income": "100000", "finos_age": "30", "finos_dependents": "2", "finos_emergency_fund": "200000",
+            "finos_sip_monthly": "15000", "finos_epf_value": "400000", "finos_ppf_value": "50000"}
+    if leak:
+        keys["finos_leak_monthly"] = str(leak)
+    js = "".join(f"localStorage.setItem('{k}', '{v}');" for k, v in keys.items())
+    js += f"localStorage.setItem('finos_transactions', {json.dumps(json.dumps(txns))});"
+    return "if (!sessionStorage.getItem('seeded')) {" + js + "sessionStorage.setItem('seeded','1');}"
+
+
+def test_form_is_prefilled_from_tracked_data_with_a_source_for_each_answer(env):
+    ctx, pg, errors = open_page(env, init_script=_tracked_data_script())
+    assert pg.input_value("#ms-age") == "30"
+    assert pg.input_value("#ms-monthlyIncome") == "100000"
+    assert pg.input_value("#ms-monthlyExpenses") == "30000"          # ₹1,000 × 30 days of logged spending; the EMI is not spending
+    assert pg.input_value("#ms-monthlyEmi") == "10000"
+    assert pg.input_value("#ms-liquidSavings") == "200000"
+    assert pg.input_value("#ms-monthlyInvesting") == "15000"
+    assert pg.input_value("#ms-investedTotal") == "450000"           # EPF 4,00,000 + PPF 50,000
+    assert pg.input_value("#ms-dependents") == "2"
+    assert pg.input_value("#ms-termCover") == "" and pg.input_value("#ms-healthCover") == ""   # unknown stays blank, never guessed
+    assert "We filled in 8 answers" in pg.inner_text(".ms-lead")
+    assert pg.locator(".ms-src").count() == 8
+    assert "last 30 days of logged spending" in pg.inner_text("label[for='ms-monthlyExpenses']")
+    assert "your investment trackers" in pg.inner_text("label[for='ms-investedTotal']")
+    # finish the two unknowns and score it
+    pg.fill("#ms-termCover", "10000000")
+    pg.fill("#ms-healthCover", "1000000")
+    pg.click("#ms-calc")
+    pg.wait_for_selector(".ms-result")
+    saved = json.loads(pg.evaluate("localStorage.getItem('finos_money_score')"))
+    assert saved["inputs"]["monthlyExpenses"] == 30000 and saved["inputs"]["investedTotal"] == 450000 and saved["inputs"]["termCover"] == 10000000
+    assert not errors
+    ctx.close()
+
+
+def test_saved_answers_win_over_derived_ones_and_edit_shows_no_stale_source_tags(env):
+    ctx, pg, errors = open_page(env, init_script=_tracked_data_script())
+    pg.fill("#ms-monthlyExpenses", "45000")                          # the user overrides a derived value
+    pg.click("#ms-calc")
+    pg.wait_for_selector(".ms-result")
+    pg.reload(wait_until="domcontentloaded")
+    pg.wait_for_selector(".ms-result")
+    pg.click("#ms-edit")
+    pg.wait_for_selector("#ms-form")
+    assert pg.input_value("#ms-monthlyExpenses") == "45000"          # not re-derived back to 30000
+    assert pg.locator(".ms-src").count() == 0 and "We filled in" not in pg.inner_text(".ms-lead")
+    assert not errors
+    ctx.close()
+
+
+def test_nothing_tracked_means_a_blank_form_with_no_prefill_claims(env):
+    ctx, pg, errors = open_page(env)
+    assert pg.locator(".ms-src").count() == 0
+    assert "We filled in" not in pg.inner_text(".ms-lead")
+    assert pg.input_value("#ms-monthlyIncome") == "" and pg.input_value("#ms-monthlyExpenses") == ""
+    ctx.close()
+
+
+SAVER = {"age": 30, "dependents": 1, "monthlyIncome": 100000, "monthlyExpenses": 85000, "monthlyEmi": 0, "monthlyInvesting": 15000,
+         "liquidSavings": 600000, "investedTotal": 1200000, "termCover": 12000000, "healthCover": 750000}
+
+
+def test_savings_move_points_at_the_measured_leak_and_that_page_exists(env):
+    ctx, pg, errors = open_page(env, init_script="localStorage.setItem('finos_leak_monthly', '5400');")
+    fill(pg, SAVER)
+    pg.click("#ms-calc")
+    pg.wait_for_selector(".ms-result")
+    assert pg.locator(".ms-action").count() == 1
+    assert pg.locator(".ms-action h3").inner_text() == "Free up ₹5,000 a month"
+    assert "₹5,400 a month in discretionary leaks" in pg.inner_text(".ms-action")
+    btn = pg.locator(".ms-action a.ms-btn")
+    assert btn.inner_text().startswith("See your leak")
+    href = btn.evaluate("e => e.href")
+    assert href.endswith("/html/system-leak.html#radar-module")
+    assert pg.request.get(href.split("#")[0]).status == 200
+    assert not errors
+    ctx.close()
+
+
+def test_without_a_measured_leak_the_savings_move_still_points_at_subscriptions(env):
+    ctx, pg, errors = open_page(env)
+    fill(pg, SAVER)
+    pg.click("#ms-calc")
+    pg.wait_for_selector(".ms-result")
+    assert pg.locator(".ms-action a.ms-btn").inner_text().startswith("Find the leaks")
+    assert pg.locator(".ms-action a.ms-btn").evaluate("e => e.href").endswith("/html/subscription-tracker.html")
+    ctx.close()
+
+
+@pytest.mark.parametrize("theme", ["dark", "light"])
+def test_prefilled_form_has_no_axe_violations(env, theme):
+    axe = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "node_modules", "axe-core", "axe.min.js")
+    if not os.path.exists(axe):
+        pytest.skip("axe-core not installed")
+    ctx, pg, errors = open_page(env, init_script=f"localStorage.setItem('finos-theme', '{theme}');" + _tracked_data_script())
+    pg.add_script_tag(path=axe)
+    bad = pg.evaluate("axe.run('.ms-form', {runOnly: ['wcag2a', 'wcag2aa']}).then(r => r.violations.map(v => v.id + ': ' + v.nodes.map(n => n.target.join(' ')).join(', ')))")
+    assert bad == [], bad
     assert not errors
     ctx.close()

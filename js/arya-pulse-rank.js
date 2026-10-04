@@ -10,7 +10,7 @@
  *   AryaPulseRank.diff(prev, cur)     → [{icon, text, tone}]  what moved since the last snapshot
  *
  * ctx: { month(1-12), income, expense, debt, emergencyFund, sip, goals(n), policies(n), holdings(₹),
- *        txns(n), netWorth, gap80c(₹), age, retireAge }
+ *        txns(n), netWorth, gap80c(₹), age, retireAge, moneyScore(0-100 | null/absent = not taken yet) }
  * Pure: no DOM, no storage. Scores are 0–100; `reason` is shown to the user on the top picks, so it
  * must be a plain-language sentence about THEM, never about the algorithm.
  */
@@ -26,7 +26,7 @@
 
   /** Default order = the historical order. Ties keep it, so unranked widgets never jump around. */
   const DEFAULT_ORDER = [
-    'crossPageHUD', 'smartInsightCards', 'netWorthTimeline', 'wealthFingerprint', 'pageActivityMatrix', 'behavioralDNA',
+    'crossPageHUD', 'smartInsightCards', 'moneyScore', 'netWorthTimeline', 'wealthFingerprint', 'pageActivityMatrix', 'behavioralDNA',
     'wealthChart', 'goalCards', 'indiaFinCalendar', 'portfolioStressTest', 'compoundRace', 'savingsRateMeter',
     'taxDashboard', 'debtFreedomPlanner', 'scenarioLab', 'inflationEroder', 'monteCarlo', 'timeMachine',
     'peerBenchmark', 'transactionAnalyzer', 'wealthXRay', 'taxOptimizer', 'insuranceGap', 'wealthVelocity',
@@ -35,6 +35,8 @@
 
   const taxSeason = (m) => m >= 1 && m <= 3;            // Jan–Mar: last window to invest for this FY's deductions
   const num = (v) => (isFinite(+v) ? +v : 0);
+  /** 0–100, or null when the user has no score. Junk, blanks and null all mean "no score"; nothing is guessed. */
+  const score100 = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? Math.max(0, Math.min(100, Math.round(n))) : null; };
 
   /** Each rule returns a number (delta to the base score) or {d, why}. First sentence of the strongest positive `why` wins. */
   const RULES = {
@@ -63,6 +65,14 @@
     wealthVelocity: (c) => (c.netWorth > 0 ? 6 : -10),
     indiaFinCalendar: (c) => (taxSeason(c.month) || c.month === 3 || c.month === 6 || c.month === 9 || c.month === 12 ? { d: 18, why: 'Advance-tax and filing dates are coming up this month.' } : 0),
     inflationEroder: (c) => (c.emergencyFund > 0 && c.income > 0 && c.emergencyFund / c.income > 12 ? 10 : 0),
+    // The Money Score card: an invitation for people who have not taken it, a nudge when it is low, out of the way when it is high.
+    moneyScore: (c) => {
+      const s = c.moneyScore;
+      if (s === null) return { d: 26, why: 'You have not checked your Money Score yet. It takes about a minute and shows your three best next moves.' };
+      if (s < 40) return { d: 40, why: `Your Money Score is ${s} out of 100. See the three moves that would lift it most.` };
+      if (s < 60) return { d: 28, why: `Your Money Score is ${s} out of 100. Three moves would lift it.` };
+      return s < 80 ? 8 : -6;
+    },
     peerBenchmark: () => 4,
     newsWidget:    () => -12,                      // headlines are everywhere else; keep them at the bottom
     scenarioLab:   () => 0,
@@ -74,6 +84,7 @@
       month: ctx.month || (new Date().getMonth() + 1), income: num(ctx.income), expense: num(ctx.expense), debt: num(ctx.debt),
       emergencyFund: num(ctx.emergencyFund), sip: num(ctx.sip), goals: num(ctx.goals), policies: num(ctx.policies),
       holdings: num(ctx.holdings), txns: num(ctx.txns), netWorth: num(ctx.netWorth), gap80c: num(ctx.gap80c), age: num(ctx.age),
+      moneyScore: score100(ctx.moneyScore),
     };
     const scored = DEFAULT_ORDER.map((id, i) => {
       let score = 50, reason = null;
@@ -96,7 +107,7 @@
       netWorth: num(ctx.netWorth), debt: num(ctx.debt), sip: num(ctx.sip),
       savingsRate: income > 0 ? Math.round(((income - expense) / income) * 100) : null,
       emergencyMonths: expense > 0 ? Math.round((num(ctx.emergencyFund) / expense) * 10) / 10 : null,
-      policies: num(ctx.policies), goals: num(ctx.goals),
+      policies: num(ctx.policies), goals: num(ctx.goals), moneyScore: score100(ctx.moneyScore),
     };
   }
 
@@ -107,6 +118,8 @@
     const dNW = cur.netWorth - prev.netWorth;
     if (prev.netWorth > 0 && Math.abs(dNW) >= Math.max(1000, prev.netWorth * 0.005))
       out.push({ icon: dNW > 0 ? '📈' : '📉', tone: dNW > 0 ? 'good' : 'bad', text: `Net worth ${dNW > 0 ? 'up' : 'down'} ${inr(dNW)} (${(Math.abs(dNW) / prev.netWorth * 100).toFixed(1)}%)` });
+    if (cur.moneyScore != null && prev.moneyScore != null && Math.abs(cur.moneyScore - prev.moneyScore) >= 3)
+      out.push({ icon: '🧭', tone: cur.moneyScore > prev.moneyScore ? 'good' : 'bad', text: `Money Score ${prev.moneyScore} → ${cur.moneyScore}` });
     const dDebt = cur.debt - prev.debt;
     if (Math.abs(dDebt) >= 1000) out.push({ icon: dDebt < 0 ? '💳' : '⚠️', tone: dDebt < 0 ? 'good' : 'bad', text: `Debt ${dDebt < 0 ? 'down' : 'up'} ${inr(dDebt)}` });
     if (cur.savingsRate !== null && prev.savingsRate !== null && Math.abs(cur.savingsRate - prev.savingsRate) >= 3)

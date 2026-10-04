@@ -25,6 +25,13 @@
  */
 (function AryaSidebarPanel() {
   'use strict';
+  /* NDJSON streams arrive in arbitrary chunks: keep the unfinished last line for the next read
+     (splitting each chunk on its own drops any token whose JSON line straddles two chunks). */
+  function _ndLines(dec, value) {
+    const parts = ((dec._tail || '') + dec.decode(value, { stream: true })).split('\n');
+    dec._tail = parts.pop();
+    return parts;
+  }
 
   /* ══ CONFIG ══════════════════════════════════════════════════════════════ */
   const OLLAMA_ENDPOINTS = [
@@ -1120,17 +1127,35 @@
     return style && !base.includes('RESPONSE STYLE (user setting)') ? base + style : base;
   }
 
+  /* One shared probe for "which Ollama endpoint is alive?". checkStatus() (sidebar dot) and _findEndpoint()
+     (first prompt) used to probe separately and back to back — 4 failing requests per page load when offline.
+     Now: concurrent callers share one in-flight probe, a result is reused for PROBE_FRESH_MS, and the
+     endpoints are tried in parallel (latency = slowest timeout, not the sum). Returns the first live URL
+     in OLLAMA_ENDPOINTS order, or null. */
+  const PROBE_FRESH_MS = 8000;
+  let _probeP = null, _probeAt = 0, _probeRes;
+  function _probeOllama(timeoutMs) {
+    if (_probeP) return _probeP;
+    if (_probeRes !== undefined && Date.now() - _probeAt < PROBE_FRESH_MS) return Promise.resolve(_probeRes);
+    _probeP = Promise.all(OLLAMA_ENDPOINTS.map(async (url) => {
+      try {
+        const r = await fetch(url.replace('/api/generate', '/api/tags'), { signal: AbortSignal.timeout(timeoutMs || 2000) });
+        return (r.ok || r.type === 'opaque') ? url : null;
+      } catch { return null; }
+    })).then((hits) => {
+      _probeRes = hits.find(Boolean) || null; _probeAt = Date.now(); _probeP = null;
+      return _probeRes;
+    });
+    return _probeP;
+  }
+  function _forgetProbe() { _probeRes = undefined; _probeAt = 0; }
+
   async function _findEndpoint() {
     if (_activeEndpoint) return _activeEndpoint;
-    for (const url of OLLAMA_ENDPOINTS) {
-      try {
-        const tagsUrl = url.replace('/api/generate', '/api/tags');
-        // 1500ms timeout — fail fast, don't make user wait
-        const r = await fetch(tagsUrl, { signal: AbortSignal.timeout(1500) });
-        if (r.ok || r.type === 'opaque') { _activeEndpoint = url; return url; }
-      } catch {}
-    }
-    throw new Error('Ollama offline');
+    const url = await _probeOllama(1500);   // 1500ms — fail fast, don't make user wait
+    if (!url) throw new Error('Ollama offline');
+    _activeEndpoint = url;
+    return url;
   }
 
   // numPredict: 320 for auto-insights (fast, focused), 600 for user questions (detailed)
@@ -1165,7 +1190,7 @@
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        for (const line of dec.decode(value, { stream: true }).split('\n')) {
+        for (const line of _ndLines(dec, value)) {
           if (!line.trim()) continue;
           try {
             const j = JSON.parse(line);
@@ -1181,6 +1206,7 @@
       return stripThinking(full) || '(no response)';
     } catch (err) {
       _activeEndpoint = null;
+      _forgetProbe();   // the endpoint just failed mid-request — don't serve a stale "alive" result
       throw err;
     } finally {
       clearTimeout(tid);
@@ -1312,11 +1338,59 @@ RULES (non-negotiable):
     return nudges.slice(0, 3); // max 3 nudges to avoid overwhelming
   }
 
+  /* ══ MONEY SCORE ═════════════════════════════════════════════════════════
+     Reads the result js/finos-money-score.js saves to `finos_money_score`, so PULSE never has to load the scoring code.
+     No score yet → an invitation. Links are limited to our own ../html and ../calculators pages. */
+  function buildMoneyScoreWidget() {
+    let ms = null, hist = [];
+    try { ms = JSON.parse(localStorage.getItem('finos_money_score') || 'null'); } catch {}
+    try { hist = JSON.parse(localStorage.getItem('finos_money_score_history') || '[]'); } catch {}
+    const e = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const wrap = inner => `<div class="apl-lab-section asp-fade-in" style="border-top:1px solid rgba(255,255,255,.07);padding:14px 0 10px">${inner}</div>`;
+    const safeHref = h => (/^\.\.\/(html|calculators)\/[A-Za-z0-9_%\-\/.]+(#[A-Za-z0-9_\-]+)?$/.test(String(h || '')) ? String(h).replace('../', '/') : '/html/money-score.html');
+    const score = ms && Number.isFinite(+ms.score) ? Math.max(0, Math.min(100, Math.round(+ms.score))) : null;
+    if (score === null) {
+      return wrap(`<div style="padding:0 14px">
+        <div class="apl-section-title" style="margin:0 0 8px">🧭 Money Score</div>
+        <div style="font-size:11px;line-height:1.6;color:rgba(255,255,255,.7);margin-bottom:10px">One number for your financial health, plus the 3 moves that would lift it most. Takes about a minute and stays on your device.</div>
+        <a href="/html/money-score.html" style="display:inline-block;padding:8px 16px;border-radius:10px;background:#3560E0;color:#fff;font-size:11px;font-weight:800;text-decoration:none">Get my score →</a>
+      </div>`);
+    }
+    const color = score >= 80 ? '#4f7cff' : score >= 60 ? '#00ffb3' : score >= 40 ? '#ffd93d' : '#ff4d6d';
+    const bands = { attention: 'Needs attention', building: 'Getting there', ontrack: 'On track', strong: 'Strong' };
+    const band = bands[ms.band] || (score >= 80 ? 'Strong' : score >= 60 ? 'On track' : score >= 40 ? 'Getting there' : 'Needs attention');
+    const R = 22, C = 2 * Math.PI * R;
+    const last = Array.isArray(hist) && hist.length >= 2 ? hist[hist.length - 1] : null, prev = last ? hist[hist.length - 2] : null;
+    const delta = last && prev && Number.isFinite(+last.score) && Number.isFinite(+prev.score) ? Math.round(+last.score - +prev.score) : null;
+    const trend = delta ? `<span style="font-size:9px;font-weight:800;color:${delta > 0 ? '#00ffb3' : '#ff4d6d'}">${delta > 0 ? '▲ +' : '▼ '}${delta} since ${e(prev.date)}</span>` : '';
+    const weak = ms.weakest && ms.weakest.label ? `<div style="font-size:10px;color:rgba(255,255,255,.58);margin-top:3px">Weakest area: <b style="color:#fff">${e(ms.weakest.label)}</b> (${e(Math.round(+ms.weakest.score) || 0)}/100)</div>` : '';
+    const top = ms.top && ms.top.title ? `<div style="margin:10px 14px 0;padding:9px 11px;background:rgba(53,96,224,.12);border:1px solid rgba(53,96,224,.35);border-radius:10px">
+        <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.58);margin-bottom:3px">Best next move${ms.top.gain > 0 ? ` · +${e(ms.top.gain)} points` : ''}</div>
+        <div style="font-size:11.5px;font-weight:700;color:#fff;line-height:1.5">${e(ms.top.title)}</div>
+        <a href="${e(safeHref(ms.top.href))}" style="display:inline-block;margin-top:6px;font-size:10px;font-weight:800;color:#8fb0ff;text-decoration:none">${e(ms.top.cta || 'Open')} →</a>
+      </div>` : '';
+    const ask = `My Money Score is ${score} out of 100${ms.weakest && ms.weakest.label ? ' and my weakest area is ' + ms.weakest.label : ''}. What is the single most effective thing I can do this month to raise it?`;
+    return wrap(`<div style="display:flex;justify-content:space-between;align-items:center;padding:0 14px;margin-bottom:10px">
+        <div class="apl-section-title" style="margin:0">🧭 Money Score</div>
+        <a href="/html/money-score.html" style="font-size:9px;font-weight:800;color:#8fb0ff;text-decoration:none">Full breakdown →</a>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;padding:0 14px">
+        <svg viewBox="0 0 56 56" style="width:62px;height:62px;flex:none" role="img" aria-label="Money Score ${score} out of 100">
+          <circle cx="28" cy="28" r="${R}" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="6"/>
+          <circle cx="28" cy="28" r="${R}" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${(C * score / 100).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 28 28)"/>
+          <text x="28" y="33" text-anchor="middle" font-size="15" font-weight="900" fill="#fff">${score}</text>
+        </svg>
+        <div><div style="font-size:15px;font-weight:900;color:${color}">${e(band)}</div>${trend}${weak}</div>
+      </div>
+      ${top}
+      <button class="asp-view-ask-btn" data-msg="${e(ask)}" style="margin:10px 14px 0">Ask Arya how to raise it</button>`);
+  }
+
   /* PULSE: render widgets in order of relevance to THIS user (js/arya-pulse-rank.js), with a short "why" on the top picks
      and a "since your last visit" strip. Falls back to the historical fixed order if the ranking module is missing. */
   function buildPulseHTML() {
     const builders = {
-      crossPageHUD: buildCrossPageHUD, smartInsightCards: buildSmartInsightCards, netWorthTimeline: buildNetWorthTimeline,
+      crossPageHUD: buildCrossPageHUD, smartInsightCards: buildSmartInsightCards, moneyScore: buildMoneyScoreWidget, netWorthTimeline: buildNetWorthTimeline,
       wealthFingerprint: buildWealthFingerprint, pageActivityMatrix: buildPageActivityMatrix, behavioralDNA: buildBehavioralDNA,
       wealthChart: buildWealthChart, goalCards: buildGoalCards, indiaFinCalendar: buildIndiaFinCalendar,
       portfolioStressTest: buildPortfolioStressTest, compoundRace: buildCompoundRace, savingsRateMeter: buildSavingsRateMeter,
@@ -1341,6 +1415,7 @@ RULES (non-negotiable):
           goals: jsonLen('finos_goals'), policies: jsonLen('finos_insurance_policies'), txns: jsonLen('finos_transactions'),
           holdings: (parseFloat(get('finos_portfolio_value', '0')) || 0) + (parseFloat(get('finos_mf_import_value', '0')) || 0) + (parseFloat(get('finos_sip_value', '0')) || 0),
           netWorth: parseFloat(get('finos_net_worth', '0')), gap80c: parseFloat(get('finos_80c_gap', '0')), age: parseInt(get('finos_age', '30'), 10),
+          moneyScore: (() => { try { const m = JSON.parse(localStorage.getItem('finos_money_score') || 'null'); return m && Number.isFinite(+m.score) ? +m.score : null; } catch { return null; } })(),
         };
         const ranked = R.rank(ctx);
         order = ranked.map(r => r.id).filter(id => builders[id]);
@@ -2877,7 +2952,7 @@ ${ctx}`;
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          for (const line of dec.decode(value, { stream: true }).split('\n')) {
+          for (const line of _ndLines(dec, value)) {
             if (!line.trim()) continue;
             try { const j = JSON.parse(line); if (j.response) full += j.response; } catch {}
           }
@@ -7981,15 +8056,11 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
         window.dispatchEvent(new CustomEvent('arya-status-change', { detail: { online: window._aryaOnline } }));
       };
 
-      for (const url of OLLAMA_ENDPOINTS) {
-        try {
-          const tagsUrl = url.replace('/api/generate', '/api/tags');
-          const r = await fetch(tagsUrl, { signal: AbortSignal.timeout(2500) });
-          if (r.ok || r.type === 'opaque') {
-            setState('online', 'Online · Ask anything');
-            return;
-          }
-        } catch {}
+      // A manual re-check (focus / timer) must see the live state, not a result memoised for up to 8s
+      _forgetProbe();
+      if (await _probeOllama(2500)) {
+        setState('online', 'Online · Ask anything');
+        return;
       }
       setState('offline', 'Offline · Start Ollama');
     } finally {
