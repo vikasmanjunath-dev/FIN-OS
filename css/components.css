@@ -744,12 +744,16 @@
   top: 5%;
   left: 50%;
   background: rgba(255, 224, 178, 0.9);
+  color: #1a1306;   /* pastel pill: dark text (was inherited light text at 1.8:1) */
+  opacity: 0.95;
 }
 
 .ghee {
   bottom: 8%;
   right: 15%;
   background: rgba(255, 241, 118, 0.9);
+  color: #1a1306;
+  opacity: 0.95;
   animation-delay: -6s;
 }
 
@@ -1076,6 +1080,7 @@
 }
 .page-header-actions {
   margin-left: auto;
+  margin-top: 36px; /* drop below the fixed search/bell/theme controls (top-right, ~60px tall) */
   display: flex;
   align-items: center;
   gap: 8px;

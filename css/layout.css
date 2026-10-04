@@ -448,6 +448,20 @@ html {
   padding-top: 0; /* Changed from 1px to 0 */
 }
 
+/* Top-of-page breathing room. .main / .content-wrapper have 0 top padding, so pages whose
+   first element is a breadcrumb / page-header / header-flex / intel-header (instead of
+   .header, which carries its own 32px) rendered flush against the viewport edge, level with
+   nothing and misaligned with the fixed top-right controls. :where() keeps this at zero
+   specificity: any page that already sets its own top padding wins. */
+:where(.content-wrapper) > :where(.page-breadcrumb, .page-header, .header-flex, .intel-header):first-child,
+:where(.main) > :where(.header):first-child {
+  padding-top: 32px;
+}
+
+/* Calculator headers are a stack (back link, title, subtitle), but .page-header is a flex row in
+   components.css, which put all three on one line and ran the subtitle into the fixed controls. */
+.page-header:has(> .back-btn) { display: block; }
+
 /* =====================================================
    MOBILE RESPONSIVE — FIN•OS Phase 1
    ===================================================== */
@@ -645,23 +659,41 @@ html {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   MOBILE THEME BUTTON — push below the 56 px mobile topbar
+   MOBILE THEME BUTTON + SEARCH/BELL BAR — dock into the 56 px mobile topbar
    Covers: .theme-btn--floating (ui.js-injected or class-based),
    #floatThemeBtn (IIFE pages), and any button with id="themeToggle"
    that carries an inline position:fixed.
-   z-index set to 9000 so it always renders above the topbar (500).
+   The topbar is hamburger (left) + centred logo, so its right side is free.
+   They used to sit at top:62px, i.e. just BELOW the topbar, which parked three
+   buttons on top of the first ~40px of every page's content (titles, cards,
+   status badges). Centre them on the topbar instead (28px = 56px / 2).
+   z-index 9000 so they always render above the topbar (500).
 ───────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .theme-btn--floating,
+  .fixed-theme-btn,
   #floatThemeBtn,
-  button#themeToggle[style*="position:fixed"] {
-    top: 62px !important;
+  button#themeToggle[style*="position:fixed"],
+  button#themeToggle[style*="position: fixed"] {
+    top: 10px !important;
+    right: 12px !important;
+    width: 36px !important;
+    height: 36px !important;
     z-index: 9000 !important;
   }
-  /* search + bell bar that finos-search.js docks beside #floatThemeBtn */
+  /* search + bell bar that finos-search.js docks beside the theme button
+     (12px edge + 36px button + 8px gap = 56px) */
   #finos-fixed-controls {
-    top: 62px !important;
+    top: 9px !important;
+    right: 56px !important;
+    transform: none !important;
   }
+}
+
+/* On narrow phones the centred logo (~65px wide) runs into the docked search button
+   (3px gap at 375px, overlap at 360/320px) — tuck it next to the hamburger instead. */
+@media (max-width: 400px) {
+  .mob-topbar .mob-logo-text { text-align: left !important; }
 }
 
 /* =========================

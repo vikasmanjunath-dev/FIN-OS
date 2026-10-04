@@ -372,6 +372,26 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+<button id="themeToggle" class="theme-btn theme-btn--floating" aria-label="Toggle dark/light theme">🌙</button>
+<script>
+(function(){
+  var btn=document.getElementById('themeToggle');
+  if(!btn) return;
+  var t=document.documentElement.getAttribute('data-theme')||'dark';
+  btn.textContent=t==='dark'?'🌙':'☀️';
+  btn.addEventListener('click',function(){
+    var cur=document.documentElement.getAttribute('data-theme');
+    var nxt=cur==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',nxt);
+    localStorage.setItem('finos-theme',nxt);
+    btn.textContent=nxt==='dark'?'🌙':'☀️';
+  });
+})();
+</script>
+
+<script src="../js/finos-widget.js?v=10"></script>
+<script src="../js/finos-mobile.js" defer></script>
+<script src="../js/finos-search.js?v=5"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/finos-api.js"></script>
 <script src="../js/arya-guardrails.js"></script>

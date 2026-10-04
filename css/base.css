@@ -459,3 +459,10 @@ html[data-theme="light"] {
   padding: 0 16px;
   gap: 16px;
 }
+
+/* Narrow phones: the centred logo collides with the search/bell/theme buttons docked at the
+   topbar's right edge (see layout.css) — tuck it next to the hamburger. Mirrors layout.css so it
+   also applies on pages that only load base.css. */
+@media (max-width: 400px) {
+  .mob-topbar .mob-logo-text { text-align: left !important; }
+}

@@ -623,8 +623,24 @@
        4. Fixed top-right fallback.
   ─────────────────────────────────────────────────────────── */
   function inject() {
-    // 1. Standard pages: bundle search + bell + theme in one right-side group
+    // 1a. Theme toggle is position:fixed (calculators, detail pages): wrapping it would leave the
+    //     search/bell stranded in normal flow at the top-left of the content. Use the shared fixed
+    //     bar instead, vertically centred on the toggle and sitting to its left.
     const toggle = document.getElementById('themeToggle');
+    if (toggle && toggle.parentNode && getComputedStyle(toggle).position === 'fixed') {
+      let bar = document.getElementById('finos-fixed-controls');
+      if (!bar) {
+        const r = toggle.getBoundingClientRect();
+        bar = document.createElement('div');
+        bar.id = 'finos-fixed-controls';
+        bar.style.cssText = `position:fixed;top:${Math.round(r.top + r.height / 2)}px;transform:translateY(-50%);right:${Math.round(innerWidth - r.left + 8)}px;z-index:9900;display:flex;align-items:center;gap:8px;`;
+        document.body.appendChild(bar);
+      }
+      bar.prepend(wrap);  // search goes leftmost
+      return;
+    }
+
+    // 1. Standard pages: bundle search + bell + theme in one right-side group
     if (toggle && toggle.parentNode) {
       let group = document.getElementById('finos-header-actions');
       if (!group) {
