@@ -308,7 +308,7 @@ function renderWatchlist() {
         const d = document.createElement('div');
         d.className = 'heat-cell';
         d.style.background = up ? `rgba(38,161,123,${0.15 + Math.abs(v) * 0.1})` : `rgba(224,82,96,${0.15 + Math.abs(v) * 0.1})`;
-        d.style.color = up ? '#26a17b' : '#e05260';
+        d.style.color = up ? '#3fd9a5' : '#ff8591';
         d.style.fontSize = '7px';
         d.textContent = s.substring(0, 3);
         heat.appendChild(d);
@@ -1041,7 +1041,7 @@ function renderWatchlist() {
         const d = document.createElement('div');
         d.className = 'heat-cell';
         d.style.background = up ? `rgba(38,161,123,${0.15 + Math.abs(v) * 0.1})` : `rgba(224,82,96,${0.15 + Math.abs(v) * 0.1})`;
-        d.style.color = up ? '#26a17b' : '#e05260';
+        d.style.color = up ? '#3fd9a5' : '#ff8591';
         d.style.fontSize = '7px';
         d.textContent = s.substring(0, 3);
         heat.appendChild(d);

@@ -83,13 +83,13 @@
 
 .mode-card:hover { transform: translateY(-5px); }
 .mode-card.active { border-color: var(--accent); background: rgba(199, 240, 0, 0.05); }
-.mode-card.active .status-indicator { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+.mode-card.active .status-indicator { color: var(--accent-ink); text-shadow: 0 0 10px var(--accent); }
 
 .status-indicator {
   font-family: var(--font-mono);
   font-size: 0.7rem;
   margin-top: 15px;
-  color: #555;
+  color: var(--text-muted);
   transition: all 0.3s;
 }
 
@@ -105,7 +105,7 @@
 .reaction { padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-top: 15px; }
 .reaction.hidden { display: none; }
 .outcome { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-top: 10px; font-weight: 700; }
-.outcome.bad { background: rgba(255, 71, 87, 0.2); color: #ff4757; }
+.outcome.bad { background: rgba(255, 71, 87, 0.2); color: #ff8a96; }
 .outcome.good { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
 
 /* BUG GRID */
@@ -278,3 +278,4 @@
   margin-right: 12px;
   font-size: 0.8rem;
 }
+[data-theme="light"] .outcome.bad { color: #b3202f; }

@@ -75,7 +75,7 @@
 .section-tag {
   position: absolute;
   top: 0; left: 32px;
-  background: var(--neon-blue);
+  background: #3556D0;
   color: #fff;
   padding: 5px 14px;
   font-size: 10px; font-weight: 800;
@@ -84,8 +84,8 @@
   border-radius: 0 0 10px 10px;
   font-family: var(--font-mono);
 }
-.section-tag.lime   { background: #5a6800; color: var(--neon-lime); }
-.section-tag.purple { background: rgba(155,93,229,.25); color: var(--neon-purple); }
+.section-tag.lime   { background: #4a5600; color: var(--neon-lime); }
+.section-tag.purple { background: rgba(155,93,229,.25); color: #c9a6ff; }
 .section-tag.plain  { background: rgba(255,255,255,.08); color: var(--text-secondary); }
 
 /* ── Section heading inside card ─────────────────────────────── */
@@ -123,7 +123,7 @@ label {
   transition: border-color .2s, box-shadow .2s;
   box-sizing: border-box;
 }
-.cyber-input::placeholder { color: var(--text-secondary); opacity: .5; }
+.cyber-input::placeholder { color: var(--text-muted); opacity: 1; }
 .cyber-input:focus {
   border-color: var(--neon-blue);
   box-shadow: 0 0 0 3px rgba(79,124,255,.12);
@@ -451,3 +451,10 @@ label {
   border-color: rgba(0,0,0,0.1) !important;
   color: var(--text-primary) !important;
 }
+
+/* Light theme: tag text that was tuned for dark surfaces */
+[data-theme="light"] .section-tag.purple { color: #5b2fa8; }
+[data-theme="light"] .section-tag.lime   { background: #4a5600; color: #f1ffa0; }
+
+/* The terminal header bar is dark in both themes, so its title must not follow the light text token */
+[data-theme="light"] .terminal-header .t-title { color: rgba(255,255,255,0.7) !important; }

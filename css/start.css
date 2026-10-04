@@ -381,3 +381,6 @@
 
 /* mode-switcher border in start page context */
 [data-theme="light"] .mode-switcher { border-bottom-color: rgba(0,0,0,0.08); }
+/* Reached level marker: text colour must follow the theme's accent (set by js/start.js as a class, not inline) */
+.node-marker.reached { background: var(--accent); color: #000; }
+[data-theme="light"] .node-marker.reached { background: var(--accent); color: #fff; }

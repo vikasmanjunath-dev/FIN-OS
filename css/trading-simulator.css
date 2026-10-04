@@ -1046,3 +1046,8 @@ body.safety-off #safetyToggle span {
   border-color: rgba(0,0,0,0.09) !important;
   color: #0B0D12 !important;
 }
+/* Dark theme: Tailwind accent text on tinted chips was 3.9-4.4:1 */
+[data-theme="dark"] .text-kblue\/70, [data-theme="dark"] .speed-btn.active, [data-theme="dark"] #levelBadge { color: #6ea8ff; }
+[data-theme="dark"] .text-kred\/70 { color: #ff8591; }
+[data-theme="dark"] .explain-text strong[style*="e05260"] { color: #ff8591 !important; }
+[data-theme="dark"] .explain-text[style*="e05260aa"] { color: #ff8591 !important; }

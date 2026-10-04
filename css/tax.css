@@ -1113,9 +1113,9 @@
 [data-theme="light"] .warning-text { color: #9a7c00 !important; }
 
 /* Slab table rate colors must override theme.css td color rule */
-[data-theme="light"] .slab-table .rate.nil { color: #1a8f4e !important; }
-[data-theme="light"] .slab-table .rate.low { color: #1a8f4e !important; }
-[data-theme="light"] .slab-table .rate.mid { color: #9a7c00 !important; }
+[data-theme="light"] .slab-table .rate.nil { color: #147a42 !important; }
+[data-theme="light"] .slab-table .rate.low { color: #147a42 !important; }
+[data-theme="light"] .slab-table .rate.mid { color: #7a6200 !important; }
 [data-theme="light"] .slab-table .rate.high { color: #b85c1a !important; }
 [data-theme="light"] .slab-table .rate.max { color: #cc2233 !important; }
 

@@ -61,8 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Highlight Marker
         if(marker) {
-          marker.style.background = 'var(--accent)';
-          marker.style.color = '#000';
+          marker.classList.add('reached');   // colours in css/start.css so they follow the theme
           marker.style.boxShadow = '0 0 20px var(--accent)';
         }
         

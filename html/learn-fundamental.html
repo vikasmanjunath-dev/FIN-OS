@@ -235,7 +235,12 @@
 /* ── Light mode text overrides (auto-generated) ── */
 [data-theme="light"] .scan-value {
   color: var(--text-primary) !important;
-}</style>
+}
+[data-theme="light"] .scan-item { background: #FFFFFF; border-left-color: rgba(0,0,0,0.2); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+[data-theme="light"] .scan-item:hover { background: rgba(0, 150, 170, 0.08); border-left-color: #0e7490; }
+[data-theme="light"] .scan-label { color: var(--text-secondary); }
+[data-theme="light"] .desi-tooltip { background: rgba(188, 19, 254, 0.08); color: var(--text-primary); }
+[data-theme="light"] .desi-tooltip strong { color: var(--text-primary); }</style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
@@ -457,7 +462,7 @@
 
           <div class="desi-tooltip" style="margin-top:30px;">
             <strong>The Logic:</strong> If P/E is 20, you are paying ₹20 to earn ₹1 of company profit. 
-            <br>If P/E is 80, you are paying ₹80 for that same ₹1. <span style="color:var(--neon-red);">Be careful.</span>
+            <br>If P/E is 80, you are paying ₹80 for that same ₹1. <span style="color:#ff5c85;">Be careful.</span>
           </div>
         </div>
       </div>
@@ -470,7 +475,7 @@
         <div class="grid-2" style="margin-top:30px; display:grid; grid-template-columns:1fr 1fr; gap:20px;">
           
           <div class="holo-card" style="background:rgba(255,0,0,0.1); padding:20px; border-radius:12px; border:1px solid rgba(255,0,0,0.3);">
-            <h3 style="color:var(--neon-red);">🚩 Red Flags</h3>
+            <h3 style="color:#ff5c85;">🚩 Red Flags</h3>
             <ul style="list-style:none; padding:0; color:#ddd; font-size:0.9rem; line-height:1.8;">
               <li>• Salary > Company Profit</li>
               <li>• Frequent party changes (Auditors resigning)</li>
@@ -492,7 +497,7 @@
 
       <footer style="margin-bottom: 100px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 60px;">
   <h2 style="color: #fff;">System Analysis Complete.</h2>
-  <p style="color: #666; font-family:var(--font-mono); margin-bottom:30px;">[ MINDSET INSTALLED ]</p>
+  <p style="color: var(--text-muted); font-family:var(--font-mono); margin-bottom:30px;">[ MINDSET INSTALLED ]</p>
   
   <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
     <button onclick="window.location.href='learn-metrics.html'" 

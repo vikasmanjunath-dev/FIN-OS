@@ -50,7 +50,7 @@
   .risk-btns { display: flex; gap: 8px; }
   .risk-btn {
     flex: 1; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,.1);
-    background: rgba(255,255,255,.03); color: rgba(255,255,255,.5); cursor: pointer;
+    background: rgba(255,255,255,.03); color: rgba(255,255,255,.72); cursor: pointer;
     font-size: 12px; font-weight: 600; transition: all .15s; font-family: -apple-system, sans-serif;
   }
   .risk-btn.active { border-color: rgba(0,255,136,.4); background: rgba(0,255,136,.08); color: #00ff88; }
@@ -138,6 +138,16 @@
 
   .back-link { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.58); font-size: 12px; text-decoration: none; margin-bottom: 24px; transition: color .15s; }
   .back-link:hover { color: rgba(255,255,255,.7); }
+  /* Light theme: this page was written dark-only with white-alpha text colours */
+  [data-theme="light"] .hero p, [data-theme="light"] .input-section-title, [data-theme="light"] .inp-label,
+  [data-theme="light"] .prob-label, [data-theme="light"] .prob-desc, [data-theme="light"] .alloc-amt,
+  [data-theme="light"] .sc-label, [data-theme="light"] .sc-sub, [data-theme="light"] .su-label,
+  [data-theme="light"] .tax-sub, [data-theme="light"] .chart-title, [data-theme="light"] .back-link { color: var(--text-secondary); }
+  [data-theme="light"] .back-link:hover { color: var(--text-primary); }
+  [data-theme="light"] .alloc-fund { color: var(--text-primary); }
+  [data-theme="light"] .risk-btn { color: var(--text-secondary); border-color: rgba(0,0,0,.12); background: rgba(0,0,0,.03); }
+  [data-theme="light"] .risk-btn.active { color: #00693a; border-color: rgba(0,140,70,.5); background: rgba(0,200,100,.1); }
+
 </style>
 </head>
 <body>
@@ -183,9 +193,9 @@
 
     <div class="input-section-title">Risk Profile</div>
     <div class="risk-btns" id="riskBtns" style="margin-bottom:20px;">
-      <button class="risk-btn" data-risk="conservative" onclick="setRisk(this)">🛡 Conservative<br><span style="font-weight:400;opacity:.7;">8-10% CAGR</span></button>
-      <button class="risk-btn active" data-risk="moderate" onclick="setRisk(this)">⚖️ Moderate<br><span style="font-weight:400;opacity:.7;">10-13% CAGR</span></button>
-      <button class="risk-btn" data-risk="aggressive" onclick="setRisk(this)">🚀 Aggressive<br><span style="font-weight:400;opacity:.7;">12-16% CAGR</span></button>
+      <button class="risk-btn" data-risk="conservative" onclick="setRisk(this)">🛡 Conservative<br><span style="font-weight:400;opacity:.9;">8-10% CAGR</span></button>
+      <button class="risk-btn active" data-risk="moderate" onclick="setRisk(this)">⚖️ Moderate<br><span style="font-weight:400;opacity:.9;">10-13% CAGR</span></button>
+      <button class="risk-btn" data-risk="aggressive" onclick="setRisk(this)">🚀 Aggressive<br><span style="font-weight:400;opacity:.9;">12-16% CAGR</span></button>
     </div>
 
     <button class="optimize-btn" id="optimizeBtn" onclick="runOptimizer()">
