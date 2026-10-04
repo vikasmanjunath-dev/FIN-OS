@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { ENDPOINTS } from '@/constants/endpoints';
+import { useFinosContext } from '@/hooks/useFinosContext';
 
 export interface ChatMessage {
   id: string;
@@ -20,6 +21,7 @@ export function useAryaChat() {
   ]);
   const [isStreaming, setIsStreaming] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const { ctx } = useFinosContext();
 
   const send = useCallback(async (text: string) => {
     if (!text.trim() || isStreaming) return;
@@ -39,10 +41,21 @@ export function useAryaChat() {
     abortRef.current = new AbortController();
 
     try {
-      const res = await fetch(`${ENDPOINTS.aryaAI}/chat`, {
+      const res = await fetch(`${ENDPOINTS.aryaAI}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text.trim(), stream: true }),
+        body: JSON.stringify({
+          message: text.trim(),
+          context: {
+            name: ctx.name !== 'Friend' ? ctx.name : undefined,
+            monthlyIncome: ctx.monthlyIncome,
+            monthlyExpense: ctx.monthlyExpense,
+            netWorth: ctx.netWorth,
+            portfolioValue: ctx.portfolioValue,
+            monthlySIP: ctx.sipTotal,
+            healthScore: ctx.healthScore,
+          },
+        }),
         signal: abortRef.current.signal,
       });
 
@@ -51,21 +64,25 @@ export function useAryaChat() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let accumulated = '';
+      let buffer = '';
+      let finished = false;
 
-      while (true) {
+      while (!finished) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
+        buffer += decoder.decode(value, { stream: true });
 
-        // Parse SSE lines: "data: {text}\n\n"
-        for (const line of chunk.split('\n')) {
+        // SSE events are separated by a blank line; keep any partial tail for the next chunk.
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
           if (!line.startsWith('data: ')) continue;
           const payload = line.slice(6).trim();
-          if (payload === '[DONE]') break;
+          if (payload === '[DONE]') { finished = true; break; }
           try {
             const parsed = JSON.parse(payload);
-            const token = parsed.text || parsed.content || '';
-            accumulated += token;
+            accumulated += parsed.text || parsed.content || '';
             setMessages(prev =>
               prev.map(m => m.id === aryaId ? { ...m, text: accumulated } : m)
             );
@@ -83,14 +100,14 @@ export function useAryaChat() {
       setMessages(prev =>
         prev.map(m =>
           m.id === aryaId
-            ? { ...m, text: 'I\'m having trouble reaching the backend. Make sure the arya-ai server is running on port 7475.', streaming: false }
+            ? { ...m, text: 'I\'m having trouble reaching the backend. Make sure the arya-ai server is running (port 7475) and the host in Settings is correct.', streaming: false }
             : m
         )
       );
     } finally {
       setIsStreaming(false);
     }
-  }, [isStreaming]);
+  }, [isStreaming, ctx]);
 
   const stop = useCallback(() => {
     abortRef.current?.abort();

@@ -343,7 +343,7 @@ def portfolio_summary(user_id: str = Query(...), authorization: Optional[str] = 
     except AuthError as e:
         raise HTTPException(status_code=403, detail=f"unauthorized: {e}")
 
-    result = get_portfolio_summary(user_id)
+    result = get_portfolio_summary(user_id, _bearer_token(authorization))
     if "error" in result:
         raise HTTPException(status_code=502, detail=result["error"])
     return result
@@ -362,7 +362,7 @@ def portfolio_export(user_id: str = Query(...), authorization: Optional[str] = H
     except AuthError as e:
         raise HTTPException(status_code=403, detail=f"unauthorized: {e}")
 
-    result = get_portfolio_summary(user_id)
+    result = get_portfolio_summary(user_id, _bearer_token(authorization))
     if "error" in result:
         raise HTTPException(status_code=502, detail=result["error"])
 
@@ -449,6 +449,77 @@ def tool_gateway(call: ToolCall):
         return {"tool": call.name, "result": result, "ts": int(time.time())}
     except Exception as e:
         return {"tool": call.name, "error": str(e), "ts": int(time.time())}
+
+
+# ── Chat (streaming) — used by the mobile app ─────────────────────────────────
+# POST /api/chat  body: {"message": "...", "context": {...optional FIN-OS profile...}}
+# Streams Server-Sent Events:  data: {"text": "<token>"}\n\n  ...  data: [DONE]\n\n
+
+_ARYA_SYSTEM = (
+    "You are Arya, the financial advisor inside FIN-OS, a personal finance app for India. "
+    "Answer concisely in plain language with Indian context: rupees (₹, lakh/crore), SIP/ELSS/PPF/NPS/EPF, "
+    "old vs new tax regime, SEBI/RBI rules. Use the user's profile below when relevant. "
+    "You are not a licensed advisor — for specific buy/sell calls, remind the user to verify with a SEBI-registered advisor."
+)
+
+
+class ChatRequest(BaseModel):
+    message: str
+    context: Optional[dict] = None
+    stream: bool = True
+
+
+def _pick_ollama_model() -> str:
+    """Configured model if installed, else the first installed one."""
+    import requests
+    try:
+        names = [m["name"] for m in requests.get(f"{OLLAMA_BASE}/api/tags", timeout=3).json().get("models", [])]
+    except Exception:
+        return OLLAMA_MODEL
+    if OLLAMA_MODEL in names or not names:
+        return OLLAMA_MODEL
+    return names[0]
+
+
+@app.post("/api/chat")
+def chat(req: ChatRequest):
+    import requests
+    from fastapi.responses import StreamingResponse
+
+    system = _ARYA_SYSTEM
+    if req.context:
+        facts = "; ".join(f"{k}: {v}" for k, v in req.context.items() if v not in (None, "", 0))
+        if facts:
+            system += f"\nUser profile — {facts}."
+
+    payload = {
+        "model": _pick_ollama_model(),
+        "stream": True,
+        "think": False,
+        "messages": [{"role": "system", "content": system}, {"role": "user", "content": req.message}],
+    }
+
+    def sse(obj) -> str:
+        return f"data: {json.dumps(obj) if not isinstance(obj, str) else obj}\n\n"
+
+    def gen():
+        try:
+            with requests.post(f"{OLLAMA_BASE}/api/chat", json=payload, stream=True, timeout=(5, 120)) as r:
+                r.raise_for_status()
+                for line in r.iter_lines():
+                    if not line:
+                        continue
+                    part = json.loads(line)
+                    tok = part.get("message", {}).get("content", "")
+                    if tok:
+                        yield sse({"text": tok})
+                    if part.get("done"):
+                        break
+        except Exception as e:
+            yield sse({"text": f"\n\n[Arya is offline: {e}]"})
+        yield sse("[DONE]")
+
+    return StreamingResponse(gen(), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
 
 
 # ── Cache management ──────────────────────────────────────────────────────────

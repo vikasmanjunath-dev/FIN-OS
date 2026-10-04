@@ -34,22 +34,23 @@ export function useMarketData(refreshIntervalMs = 30_000) {
   const fetch_ = useCallback(async () => {
     try {
       const res = await Promise.race([
-        fetch(`${ENDPOINTS.stockEngine}/quotes?symbols=^NSEI,^BSESN,^CNXIT,^NSEBANK`),
-        new Promise<never>((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000)),
+        fetch(`${ENDPOINTS.aryaAI}/api/market/overview`),
+        new Promise<never>((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000)),
       ]) as Response;
-      const json = await res.json();
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = (await res.json()).indices ?? {};
 
-      const toQuote = (sym: string, name: string): IndexQuote | null => {
-        const q = json[sym];
-        if (!q) return null;
-        return { symbol: sym, name, price: q.price, change: q.change, changePct: q.changePct };
+      const toQuote = (key: string, symbol: string, name: string): IndexQuote | null => {
+        const q = json[key];
+        if (!q || q.price == null) return null;
+        return { symbol, name, price: q.price, change: q.change ?? 0, changePct: q.change_pct ?? 0 };
       };
 
       setData({
-        nifty50:   toQuote('^NSEI',    'NIFTY 50'),
-        sensex:    toQuote('^BSESN',   'SENSEX'),
-        niftyIT:   toQuote('^CNXIT',   'NIFTY IT'),
-        niftyBank: toQuote('^NSEBANK', 'NIFTY BANK'),
+        nifty50:   toQuote('NIFTY 50', '^NSEI', 'NIFTY 50'),
+        sensex:    toQuote('SENSEX', '^BSESN', 'SENSEX'),
+        niftyIT:   toQuote('NIFTY IT', '^CNXIT', 'NIFTY IT'),
+        niftyBank: toQuote('NIFTY BANK', '^NSEBANK', 'NIFTY BANK'),
         lastUpdated: new Date(),
         error: null,
       });

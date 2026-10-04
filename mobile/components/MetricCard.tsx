@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
 
@@ -11,13 +11,16 @@ interface MetricCardProps {
   icon?: string;
   style?: ViewStyle;
   gradient?: readonly [string, string];
+  onPress?: () => void;
 }
 
-export function MetricCard({ label, value, sub, accent = Colors.cyan, icon, style, gradient }: MetricCardProps) {
-  return (
+export function MetricCard({ label, value, sub, accent = Colors.cyan, icon, style, gradient, onPress }: MetricCardProps) {
+  // When tappable, the layout styles (width/flex/margins) belong on the touchable and the card fills it.
+  const { width, flex, margin, marginHorizontal, marginVertical, ...inner } = (StyleSheet.flatten(style) ?? {}) as ViewStyle;
+  const card = (
     <LinearGradient
       colors={gradient ?? ['#0D1117', '#111827']}
-      style={[styles.card, style]}
+      style={[styles.card, onPress ? inner : style]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
@@ -27,6 +30,18 @@ export function MetricCard({ label, value, sub, accent = Colors.cyan, icon, styl
       <Text style={[styles.value, { color: accent }]}>{value}</Text>
       {sub && <Text style={styles.sub}>{sub}</Text>}
     </LinearGradient>
+  );
+  if (!onPress) return card;
+  return (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={onPress}
+      style={{ width, flex, margin, marginHorizontal, marginVertical }}
+      accessibilityRole="button"
+      accessibilityLabel={`${label}: ${value}`}
+    >
+      {card}
+    </TouchableOpacity>
   );
 }
 

@@ -3,6 +3,26 @@ import { View, Text, StyleSheet } from 'react-native';
 import { ChatMessage } from '@/hooks/useAryaChat';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
 
+// Minimal markdown: headings, **bold**, and -/*/1. list items. No dependency needed for chat-sized text.
+function renderInline(line: string, keyPrefix: string) {
+  return line.split(/(\*\*[^*]+\*\*)/g).filter(Boolean).map((part, i) =>
+    part.startsWith('**') && part.endsWith('**') && part.length > 4
+      ? <Text key={`${keyPrefix}-${i}`} style={styles.bold}>{part.slice(2, -2)}</Text>
+      : part,
+  );
+}
+
+function renderMarkdown(text: string) {
+  return text.split('\n').map((raw, i) => {
+    const line = raw.trimEnd();
+    const heading = line.match(/^#{1,6}\s+(.*)$/);
+    if (heading) return <Text key={i} style={styles.heading}>{renderInline(heading[1], `h${i}`)}{'\n'}</Text>;
+    const bullet = line.match(/^\s*[-*•]\s+(.*)$/);
+    if (bullet) return <Text key={i}>{'  •  '}{renderInline(bullet[1], `b${i}`)}{'\n'}</Text>;
+    return <Text key={i}>{renderInline(line, `p${i}`)}{'\n'}</Text>;
+  });
+}
+
 interface AryaBubbleProps {
   message: ChatMessage;
 }
@@ -19,7 +39,7 @@ export function AryaBubble({ message }: AryaBubbleProps) {
       )}
       <View style={[styles.bubble, isArya ? styles.bubbleArya : styles.bubbleUser]}>
         <Text style={[styles.text, isArya ? styles.textArya : styles.textUser]}>
-          {message.text}
+          {isArya ? renderMarkdown(message.text.trimEnd()) : message.text}
           {message.streaming && <Text style={styles.cursor}>▋</Text>}
         </Text>
         <Text style={styles.time}>
@@ -75,6 +95,9 @@ const styles = StyleSheet.create({
   text: { ...Typography.body, lineHeight: 20 },
   textArya: { color: Colors.textPrimary },
   textUser: { color: Colors.cyan },
+
+  bold: { fontWeight: '700', color: Colors.textPrimary },
+  heading: { fontWeight: '700', color: Colors.cyan },
 
   cursor: { color: Colors.purple, fontWeight: '100' },
 

@@ -8,6 +8,12 @@ import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useFinosContext } from '@/hooks/useFinosContext';
 import { useMarketData } from '@/hooks/useMarketData';
+import { useTrackers } from '@/hooks/useTrackers';
+import { nextBestStep } from '@/lib/trackers';
+import { inrShort, tierColor } from '@/components/TrackerUI';
+import { useQuickLog } from '@/hooks/useQuickLog';
+import { useSubscriptions } from '@/hooks/useSubscriptions';
+import { QuickLogChips } from '@/components/QuickLogChips';
 import { MetricCard } from '@/components/MetricCard';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 
@@ -35,16 +41,26 @@ function IndexPill({ symbol, price, changePct }: { symbol: string; price: number
 
 export default function DashboardScreen() {
   const { ctx, loading: ctxLoading, refresh } = useFinosContext();
+  const { data: td, computed: tc, reload: reloadTrackers } = useTrackers();
+  const quick = useQuickLog(3);
+  const { summary: subs } = useSubscriptions();
   const { data: market } = useMarketData();
   const [refreshing, setRefreshing] = React.useState(false);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await refresh();
+    await Promise.all([refresh(), reloadTrackers()]);
     setRefreshing(false);
-  }, [refresh]);
+  }, [refresh, reloadTrackers]);
 
-  const hsColor = ctx.healthScore >= 70 ? Colors.teal : ctx.healthScore >= 40 ? Colors.gold : Colors.red;
+  const health = tc.health;
+  const step = nextBestStep(health);
+  const hasBudget = tc.budget.income > 0;
+  const sp = tc.spending;
+  const rt = tc.retirement;
+  const urgentGaps = rt.coverage.gaps.filter(g => g.severity === 'critical' || g.severity === 'high').length;
+  const atRisk = sp.budget.rows.filter(r => r.limit > 0 && r.state !== 'ok').sort((a, b) => (b.pct ?? 0) - (a.pct ?? 0))[0];
+  const open = (path: string) => { Haptics.selectionAsync(); router.push(path as any); };
 
   return (
     <ScrollView
@@ -75,62 +91,193 @@ export default function DashboardScreen() {
       </ScrollView>
 
       {/* ── Net Worth Hero ── */}
-      <LinearGradient colors={['#0D1117', '#111827']} style={styles.heroCard} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-        <View style={[styles.heroTopBar, { backgroundColor: Colors.cyan }]} />
-        <Text style={styles.heroLabel}>NET WORTH</Text>
-        <Text style={styles.heroValue}>{formatINR(ctx.netWorth, true)}</Text>
-        <View style={styles.heroRow}>
-          <View>
-            <Text style={styles.heroSub}>Portfolio</Text>
-            <Text style={[styles.heroSubValue, { color: Colors.teal }]}>{formatINR(ctx.portfolioValue, true)}</Text>
+      <TouchableOpacity activeOpacity={0.85} onPress={() => open('/tracker/networth')} accessibilityRole="button" accessibilityLabel={`Net worth ${inrShort(tc.netWorth.netWorth)}. Open net worth tracker`}>
+        <LinearGradient colors={['#0D1117', '#111827']} style={styles.heroCard} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+          <View style={[styles.heroTopBar, { backgroundColor: tc.netWorth.netWorth < 0 ? Colors.red : Colors.cyan }]} />
+          <Text style={styles.heroLabel}>NET WORTH  ›</Text>
+          <Text style={[styles.heroValue, tc.netWorth.netWorth < 0 && { color: Colors.red }]}>{inrShort(tc.netWorth.netWorth)}</Text>
+          <View style={styles.heroRow}>
+            <View>
+              <Text style={styles.heroSub}>Portfolio</Text>
+              <Text style={[styles.heroSubValue, { color: Colors.teal }]}>{inrShort(td.portfolio)}</Text>
+            </View>
+            <View>
+              <Text style={styles.heroSub}>Monthly SIP</Text>
+              <Text style={[styles.heroSubValue, { color: Colors.purple }]}>{inrShort(td.monthlySip)}</Text>
+            </View>
+            <View>
+              <Text style={styles.heroSub}>Savings Rate</Text>
+              <Text style={[styles.heroSubValue, { color: !tc.budget.known ? Colors.textMuted : tc.budget.savingsRate >= 20 ? Colors.teal : Colors.gold }]}>
+                {tc.budget.known ? `${tc.budget.savingsRate}%` : '—'}
+              </Text>
+            </View>
           </View>
-          <View>
-            <Text style={styles.heroSub}>Monthly SIP</Text>
-            <Text style={[styles.heroSubValue, { color: Colors.purple }]}>{formatINR(ctx.sipTotal, true)}</Text>
-          </View>
-          <View>
-            <Text style={styles.heroSub}>Savings Rate</Text>
-            <Text style={[styles.heroSubValue, { color: ctx.savingsRate >= 20 ? Colors.teal : Colors.gold }]}>
-              {ctx.savingsRate}%
-            </Text>
-          </View>
-        </View>
-      </LinearGradient>
+        </LinearGradient>
+      </TouchableOpacity>
 
-      {/* ── Metric Grid ── */}
+      {/* ── Next best step ── */}
+      {step && (
+        <TouchableOpacity style={styles.step} activeOpacity={0.8} onPress={() => open(step.route)} accessibilityRole="button">
+          <Text style={styles.stepIcon}>💡</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.stepLabel}>NEXT BEST STEP</Text>
+            <Text style={styles.stepText}>{step.tip}</Text>
+          </View>
+          <Text style={{ color: Colors.cyan, fontSize: 18 }}>›</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* ── Spending this month ── */}
+      <View style={styles.spendCard}>
+        <TouchableOpacity style={{ flex: 1 }} activeOpacity={0.8} onPress={() => open('/tracker/transactions')} accessibilityRole="button"
+          accessibilityLabel={`Spent ${inrShort(sp.totals.spent)} this month. Open transactions`}>
+          <Text style={styles.spendLabel}>SPENT THIS MONTH</Text>
+          <Text style={styles.spendValue}>{inrShort(sp.totals.spent)}</Text>
+          <Text style={styles.spendSub}>
+            {sp.totals.count > 0 ? `${sp.totals.count} entr${sp.totals.count === 1 ? 'y' : 'ies'} logged` : 'Nothing logged yet'}
+            {sp.budget.total.limit > 0 ? ` · ${sp.budget.total.pct}% of budget` : ''}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.logBtn} onPress={() => open('/tracker/transactions')} accessibilityRole="button" accessibilityLabel="Log a transaction">
+          <Text style={styles.logBtnTxt}>＋ Log</Text>
+        </TouchableOpacity>
+      </View>
+      {(quick.chips.length > 0 || quick.undo) && (
+        <View style={styles.quickWrap}>
+          <Text style={styles.quickLabel}>QUICK LOG</Text>
+          <QuickLogChips chips={quick.chips} onLog={async c => { await quick.log(c); reloadTrackers(); }} onEdit={() => open('/tracker/transactions')} undo={quick.undo} onUndo={async () => { await quick.undoLast(); reloadTrackers(); }} />
+        </View>
+      )}
+      {atRisk && (
+        <TouchableOpacity style={[styles.alert, atRisk.state === 'over' && { borderColor: 'rgba(255,68,68,0.4)', backgroundColor: 'rgba(255,68,68,0.07)' }]}
+          onPress={() => open('/tracker/budget')} activeOpacity={0.8} accessibilityRole="button">
+          <Text style={styles.alertIcon}>{atRisk.state === 'over' ? '🚨' : '⚠️'}</Text>
+          <Text style={styles.alertTxt}>
+            {atRisk.state === 'over' ? `${atRisk.category} is over budget` : atRisk.pct! >= 80 ? `${atRisk.category} is ${atRisk.pct}% of budget` : `${atRisk.category} is on pace to overshoot`}
+            {` — ${inrShort(atRisk.spent)} of ${inrShort(atRisk.limit)}`}
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {/* ── Metric Grid (each card opens its tracker) ── */}
       <View style={styles.grid}>
         <MetricCard
           label="Health Score"
-          value={`${ctx.healthScore}/100`}
-          sub={ctx.healthScore >= 70 ? 'Good shape' : ctx.healthScore >= 40 ? 'Room to improve' : 'Needs attention'}
-          accent={hsColor}
+          value={`${health.total}/100`}
+          sub={`${health.tierEmoji} ${health.tier[0] + health.tier.slice(1).toLowerCase()}`}
+          accent={tierColor(health.tier)}
           icon="🏥"
           style={styles.gridHalf}
+          onPress={() => open('/tracker/health')}
+        />
+        <MetricCard
+          label="Emergency Fund"
+          value={tc.emergency.monthlyExpense > 0 ? `${tc.emergency.covered.toFixed(1)} mo` : '—'}
+          sub={tc.emergency.monthlyExpense > 0 ? `of ${tc.emergency.target} months · ${tc.emergency.status.label.toLowerCase()}` : 'add monthly spend'}
+          accent={tc.emergency.status.level === 'full' ? Colors.teal : tc.emergency.status.level === 'critical' ? Colors.red : Colors.gold}
+          icon="🛡️"
+          style={styles.gridHalf}
+          onPress={() => open('/tracker/emergency')}
         />
         <MetricCard
           label="Monthly Income"
-          value={formatINR(ctx.monthlyIncome, true)}
-          sub={ctx.aaIncome > 0 ? 'via Account Aggregator' : 'set in profile'}
+          value={hasBudget ? inrShort(tc.budget.income) : '—'}
+          sub={td.aaIncome > 0 && !td.income ? 'via Account Aggregator' : hasBudget ? 'tap to edit' : 'set in Budget'}
           accent={Colors.teal}
           icon="💰"
           style={styles.gridHalf}
+          onPress={() => open('/tracker/budget')}
         />
         <MetricCard
           label="Monthly Spend"
-          value={formatINR(ctx.monthlyExpense, true)}
-          sub={ctx.savingsRate > 0 ? `saving ${ctx.savingsRate}%` : undefined}
+          value={tc.budget.expense > 0 ? inrShort(tc.budget.expense) : '—'}
+          sub={tc.budget.known ? (tc.budget.saving >= 0 ? `saving ${tc.budget.savingsRate}%` : 'spending more than you earn') : 'set in Budget'}
           accent={Colors.gold}
           icon="💳"
           style={styles.gridHalf}
+          onPress={() => open('/tracker/budget')}
         />
         <MetricCard
           label="FIRE Progress"
-          value={ctx.netWorth > 0 ? `${Math.min(100, Math.round((ctx.netWorth / 30_000_000) * 100))}%` : '—'}
-          sub="of ₹3Cr target"
+          value={`${tc.netWorth.firePercent.toFixed(tc.netWorth.firePercent >= 10 ? 0 : 1)}%`}
+          sub={`of ${inrShort(tc.netWorth.fireCorpus)} target`}
           accent={Colors.purple}
           icon="🔥"
           style={styles.gridHalf}
+          onPress={() => open('/tracker/networth')}
         />
+        <MetricCard
+          label="Goals"
+          value={tc.goals.items.length ? `${Math.round(tc.goals.avgProgress)}%` : '—'}
+          sub={tc.goals.items.length ? `${tc.goals.items.length} goal${tc.goals.items.length === 1 ? '' : 's'} on track` : 'add your first goal'}
+          accent={Colors.cyan}
+          icon="🎯"
+          style={styles.gridHalf}
+          onPress={() => open('/tracker/goals')}
+        />
+      </View>
+
+      {/* ── Retirement & protection ── */}
+      <Text style={styles.sectionTitle}>Retirement & Protection</Text>
+      <View style={styles.grid}>
+        <MetricCard
+          label="EPF"
+          value={td.epf > 0 ? inrShort(td.epf) : '—'}
+          sub={rt.epf.complete ? `→ ${inrShort(rt.epf.projected)} at retirement` : 'tap to set up'}
+          accent={Colors.teal}
+          icon="🏢"
+          style={styles.gridHalf}
+          onPress={() => open('/tracker/epf')}
+        />
+        <MetricCard
+          label="NPS"
+          value={rt.nps.total > 0 ? inrShort(rt.nps.total) : '—'}
+          sub={rt.nps.projected > 0 ? `→ ${inrShort(rt.nps.projected)} at 60` : 'tap to set up'}
+          accent={Colors.cyan}
+          icon="🏛️"
+          style={styles.gridHalf}
+          onPress={() => open('/tracker/nps')}
+        />
+        <MetricCard
+          label="PPF & Small Savings"
+          value={rt.savings.total > 0 ? inrShort(rt.savings.total) : '—'}
+          sub={td.ppfAccounts.length ? `${td.ppfAccounts.length} account${td.ppfAccounts.length === 1 ? '' : 's'} · ${inrShort(Math.min(rt.savings.c80c, 150000))} 80C` : 'tap to set up'}
+          accent={Colors.gold}
+          icon="📮"
+          style={styles.gridHalf}
+          onPress={() => open('/tracker/ppf')}
+        />
+        <MetricCard
+          label="Insurance"
+          value={td.policies.length ? `${td.policies.length} polic${td.policies.length === 1 ? 'y' : 'ies'}` : '—'}
+          sub={td.policies.length ? (urgentGaps > 0 ? `${urgentGaps} gap${urgentGaps === 1 ? '' : 's'} to fix` : 'cover looks solid') : 'add your policies'}
+          accent={urgentGaps > 0 || !td.policies.length ? Colors.orange : Colors.teal}
+          icon="🛡️"
+          style={styles.gridHalf}
+          onPress={() => open('/tracker/insurance')}
+        />
+      </View>
+
+      {/* ── Recurring costs ── */}
+      <Text style={styles.sectionTitle}>Recurring Costs</Text>
+      <View style={styles.grid}>
+      <MetricCard
+        label="Subscriptions"
+        value={subs.activeCount ? `${formatINR(Math.round(subs.monthly))}/mo` : '—'}
+        sub={
+          subs.activeCount
+            ? subs.review.length
+              ? `${subs.review.length} worth a second look · save up to ${inrShort(subs.reviewSavings)}/yr`
+              : subs.upcoming[0]
+                ? `next: ${subs.upcoming[0].name} ${subs.upcoming[0].daysAway === 0 ? 'today' : `in ${subs.upcoming[0].daysAway}d`}`
+                : `${inrShort(subs.annual)} a year`
+            : 'tap to add your plans'
+        }
+        accent={subs.review.length ? Colors.orange : Colors.purple}
+        icon="🔁"
+        style={{ width: '100%' }}
+        onPress={() => open('/tracker/subscriptions')}
+      />
       </View>
 
       {/* ── Quick Actions ── */}
@@ -212,6 +359,23 @@ const styles = StyleSheet.create({
   actionBtn: { flex: 1, alignItems: 'center', paddingVertical: Spacing.md, borderRadius: Radii.lg, backgroundColor: Colors.overlay, borderWidth: 1 },
   actionIcon: { fontSize: 22, marginBottom: 4 },
   actionLabel: { fontSize: 10, fontWeight: '700', color: Colors.textMuted, textAlign: 'center' },
+
+  spendCard: { marginHorizontal: Spacing.lg, marginBottom: Spacing.md, flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.lg, padding: Spacing.md },
+  spendLabel: { ...Typography.label, marginBottom: 2 },
+  spendValue: { fontSize: 22, fontWeight: '900', color: Colors.gold },
+  spendSub: { ...Typography.caption, marginTop: 2 },
+  logBtn: { backgroundColor: Colors.gold, borderRadius: Radii.full, paddingHorizontal: 18, paddingVertical: 10 },
+  logBtnTxt: { color: Colors.bg, fontWeight: '800', fontSize: 13 },
+  quickWrap: { marginHorizontal: Spacing.lg, marginTop: -Spacing.xs, marginBottom: Spacing.md },
+  quickLabel: { ...Typography.label, marginBottom: 6 },
+  alert: { marginHorizontal: Spacing.lg, marginTop: -Spacing.sm, marginBottom: Spacing.md, flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, backgroundColor: 'rgba(240,165,0,0.07)', borderWidth: 1, borderColor: 'rgba(240,165,0,0.3)', borderRadius: Radii.md, padding: Spacing.sm + 2 },
+  alertIcon: { fontSize: 16 },
+  alertTxt: { ...Typography.caption, color: Colors.textPrimary, flex: 1, lineHeight: 17 },
+
+  step: { marginHorizontal: Spacing.lg, marginBottom: Spacing.md, flexDirection: 'row', alignItems: 'center', gap: Spacing.md, backgroundColor: 'rgba(240,165,0,0.06)', borderWidth: 1, borderColor: 'rgba(240,165,0,0.25)', borderRadius: Radii.lg, padding: Spacing.md },
+  stepIcon: { fontSize: 22 },
+  stepLabel: { ...Typography.label, color: Colors.gold, marginBottom: 2 },
+  stepText: { ...Typography.body, lineHeight: 19 },
 
   nudge: { marginHorizontal: Spacing.lg, flexDirection: 'row', alignItems: 'center', gap: Spacing.md, backgroundColor: 'rgba(0,212,255,0.05)', borderWidth: 1, borderColor: 'rgba(0,212,255,0.2)', borderRadius: Radii.lg, padding: Spacing.md },
   nudgeIcon: { fontSize: 24 },

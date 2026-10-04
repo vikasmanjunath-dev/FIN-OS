@@ -4,7 +4,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
-import { ENDPOINTS } from '@/constants/endpoints';
+import { ENDPOINTS, applyHost } from '@/constants/endpoints';
+import { useAuth } from '@/hooks/useAuth';
+import { useHoldings } from '@/hooks/useHoldings';
 
 function SettingRow({ label, sub, right }: { label: string; sub?: string; right: React.ReactNode }) {
   return (
@@ -19,22 +21,22 @@ function SettingRow({ label, sub, right }: { label: string; sub?: string; right:
 }
 
 export default function SettingsScreen() {
+  const { configured, session, signOut } = useAuth();
+  const { syncing, syncError, lastSyncedAt, syncNow } = useHoldings();
   const [name, setName]           = useState('');
   const [income, setIncome]       = useState('');
-  const [netWorth, setNetWorth]   = useState('');
-  const [hostIP, setHostIP]       = useState('127.0.0.1');
+  const [hostIP, setHostIP]       = useState('');
   const [notifications, setNotifications] = useState(true);
   const [saving, setSaving]       = useState(false);
 
   const loadValues = useCallback(async () => {
     const pairs = await AsyncStorage.multiGet([
-      'finos_user_name', 'finos_monthly_income', 'finos_net_worth', 'finos_host_ip',
+      'finos_user_name', 'finos_monthly_income', 'finos_host_ip',
     ]);
     const m = Object.fromEntries(pairs.map(([k, v]) => [k, v ?? '']));
     setName(m['finos_user_name']);
     setIncome(m['finos_monthly_income']);
-    setNetWorth(m['finos_net_worth']);
-    setHostIP(m['finos_host_ip'] || '127.0.0.1');
+    setHostIP(m['finos_host_ip']);
   }, []);
 
   React.useEffect(() => { loadValues(); }, [loadValues]);
@@ -45,9 +47,9 @@ export default function SettingsScreen() {
     await AsyncStorage.multiSet([
       ['finos_user_name',      name],
       ['finos_monthly_income', income],
-      ['finos_net_worth',      netWorth],
-      ['finos_host_ip',        hostIP],
+      ['finos_host_ip',        hostIP.trim()],
     ]);
+    applyHost(hostIP);
     setSaving(false);
     Alert.alert('Saved', 'Your settings have been saved.');
   };
@@ -73,6 +75,52 @@ export default function SettingsScreen() {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Settings</Text>
         <View style={{ width: 50 }} />
+      </View>
+
+      {/* ── Account ── */}
+      <Text style={styles.sectionLabel}>ACCOUNT & SYNC</Text>
+      <View style={styles.card}>
+        {!configured ? (
+          <SettingRow
+            label="Cloud sync not set up"
+            sub="Add Supabase credentials to mobile/.env to sign in. Your data stays on this device until then."
+            right={<Text style={{ color: Colors.textDim, fontSize: 12 }}>Off</Text>}
+          />
+        ) : !session ? (
+          <SettingRow
+            label="Sign in to sync"
+            sub="Keep your portfolio in sync with the FIN·OS website and your other devices."
+            right={
+              <TouchableOpacity style={styles.syncBtn} onPress={() => router.push('/login')}>
+                <Text style={styles.syncBtnTxt}>Sign in</Text>
+              </TouchableOpacity>
+            }
+          />
+        ) : (
+          <>
+            <SettingRow
+              label={session.user.email ?? 'Signed in'}
+              sub={syncError ? syncError
+                : syncing ? 'Syncing…'
+                : lastSyncedAt ? `Last synced ${new Date(lastSyncedAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`
+                : 'Not synced yet'}
+              right={
+                <TouchableOpacity style={styles.syncBtn} onPress={() => syncNow()} disabled={syncing}>
+                  <Text style={styles.syncBtnTxt}>{syncing ? '…' : 'Sync now'}</Text>
+                </TouchableOpacity>
+              }
+            />
+            <SettingRow
+              label="Sign out"
+              sub="Holdings stay on this device. They sync again when you sign in."
+              right={
+                <TouchableOpacity style={[styles.syncBtn, { borderColor: 'rgba(255,68,68,0.4)' }]} onPress={() => signOut()}>
+                  <Text style={[styles.syncBtnTxt, { color: Colors.red }]}>Sign out</Text>
+                </TouchableOpacity>
+              }
+            />
+          </>
+        )}
       </View>
 
       {/* ── Profile ── */}
@@ -105,20 +153,6 @@ export default function SettingsScreen() {
             />
           }
         />
-        <SettingRow
-          label="Net Worth"
-          sub="Total assets minus liabilities"
-          right={
-            <TextInput
-              style={styles.inputSmall}
-              value={netWorth}
-              onChangeText={setNetWorth}
-              placeholder="₹ amount"
-              placeholderTextColor={Colors.textDim}
-              keyboardType="numeric"
-            />
-          }
-        />
       </View>
 
       {/* ── Backend ── */}
@@ -126,13 +160,13 @@ export default function SettingsScreen() {
       <View style={styles.card}>
         <SettingRow
           label="Host IP / ngrok URL"
-          sub="Your Mac's LAN IP for physical device, or 127.0.0.1 for simulator"
+          sub="Leave blank to auto-detect (the Mac running Expo). Set your Mac's LAN IP or an ngrok host to override."
           right={
             <TextInput
               style={[styles.inputSmall, { width: 140 }]}
               value={hostIP}
               onChangeText={setHostIP}
-              placeholder="127.0.0.1"
+              placeholder="auto"
               placeholderTextColor={Colors.textDim}
               autoCapitalize="none"
               autoCorrect={false}
@@ -192,6 +226,8 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
+  syncBtn: { borderWidth: 1, borderColor: 'rgba(0,212,255,0.4)', borderRadius: Radii.full, paddingHorizontal: 14, paddingVertical: 7 },
+  syncBtnTxt: { color: Colors.cyan, fontWeight: '700', fontSize: 12 },
   root: { flex: 1, backgroundColor: Colors.bg },
   content: { paddingBottom: 60 },
 

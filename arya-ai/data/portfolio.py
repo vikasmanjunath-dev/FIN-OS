@@ -17,7 +17,9 @@ from data.market import get_quote
 _TIMEOUT = httpx.Timeout(10.0)
 
 
-def get_portfolio_summary(user_id: str) -> dict:
+def get_portfolio_summary(user_id: str, access_token: str | None = None) -> dict:
+    """access_token: the caller's verified Supabase session token. Sent as the Bearer so Row-Level
+    Security (auth.uid() = user_id) lets the query see that user's rows; falls back to the anon key."""
     if not SUPABASE_URL or not SUPABASE_ANON_KEY:
         return {"error": "Supabase not configured — set SUPABASE_URL/SUPABASE_ANON_KEY in arya-ai/.env"}
 
@@ -25,7 +27,7 @@ def get_portfolio_summary(user_id: str) -> dict:
         resp = httpx.get(
             f"{SUPABASE_URL}/rest/v1/holdings",
             params={"user_id": f"eq.{user_id}", "select": "symbol,quantity,avg_price,current_price,asset_type"},
-            headers={"apikey": SUPABASE_ANON_KEY, "Authorization": f"Bearer {SUPABASE_ANON_KEY}"},
+            headers={"apikey": SUPABASE_ANON_KEY, "Authorization": f"Bearer {access_token or SUPABASE_ANON_KEY}"},
             timeout=_TIMEOUT,
         )
         resp.raise_for_status()

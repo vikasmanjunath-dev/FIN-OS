@@ -65,7 +65,7 @@ Entry (`app/index.tsx`) redirects to Dashboard.
 | Portfolio tab | `portfolio.tsx` | Holdings (stocks, mutual funds, ELSS), SIP tab, computed insights, add/remove | Live prices: `/api/quotes`, `/api/quote/`, AMFI NAV via `/api/mf/search`, `/api/mf/nav/` |
 | Settings (modal) | `settings.tsx` | Name, income, backend host, account & sync, clear data | AsyncStorage |
 | Login (modal) | `login.tsx` | Supabase email/password sign in / sign up | Supabase |
-| Tracker screens | `app/tracker/*.tsx` | `networth`, `budget`, `transactions`, `recurring`, `emergency`, `goals`, `health`, `epf`, `nps`, `ppf`, `insurance` | AsyncStorage |
+| Tracker screens | `app/tracker/*.tsx` | `networth`, `budget`, `transactions`, `recurring`, `emergency`, `goals`, `health`, `epf`, `nps`, `ppf`, `insurance`, `subscriptions` | AsyncStorage |
 
 ## 4. Architecture
 
@@ -86,18 +86,19 @@ checked against the website's real functions with randomised inputs (see [Verifi
 | `lib/trackers.ts` | Net worth, FIRE (25× yearly spend), emergency fund, goals, 7-pillar health score (matches `_computeLocalScore` in `js/finos-health-score.js`) |
 | `lib/budget.ts` | Port of `js/finos-budget.js`: record normalisation, auto-category from label, category budgets, suggested limits, savings rate |
 | `lib/retirement.ts` | EPF (`finos-epf-tracker.js`), NPS, PPF / small savings, insurance gap rules (`html/insurance-hub.html`) |
+| `lib/subscriptions.ts` | Port of `js/finos-subscriptions.js`: normalise, your-share cost, next renewal / occurrences (31 Jan → 28 Feb → 31 Mar), summary with overlap and low-value review. Parity-tested against the web file |
 | `lib/quicklog.ts` | Quick-log chips: most-repeated entries by kind/category/label; "repeat last" first |
 | `lib/recurring.ts` | Monthly schedule: month-end clamp, no back-fill before start, 24-month catch-up cap, deterministic ids `rec_<item>_<YYYY-MM>` |
 | `lib/holdings.ts` | Holding model, remote mapping, `planSync` (pure last-write-wins merge with tombstones) |
 | `lib/holdingsStore.ts` | Shared holdings store, price refresh, debounced cloud sync |
-| `lib/trackerStorage.ts`, `txnStorage.ts`, `recurringStorage.ts` | AsyncStorage I/O |
+| `lib/trackerStorage.ts`, `txnStorage.ts`, `recurringStorage.ts`, `subscriptionsStorage.ts` | AsyncStorage I/O (serialised read-modify-write) |
 | `lib/supabase.ts` | Client factory, friendly auth error messages |
 
 ### Storage keys
 All `finos_*` in AsyncStorage. Keys shared with the website (so both apps read the same shape):
 `finos_user_name`, `finos_monthly_income`, `finos_monthly_expense`, `finos_transactions`, `finos_budgets`,
 `finos_goals`, `finos_emergency_*`, `finos_epf_*`, `finos_nps_*`, `finos_ppf_portfolio`, `finos_insurance_policies`,
-`finos_80c_used`, `finos_sip_total`, `finos_health_score`, asset/liability keys (`finos_*_value`, `finos_*_loan`).
+`finos_subscriptions` (+ `_monthly` / `_annual` totals), `finos_80c_used`, `finos_sip_total`, `finos_health_score`, asset/liability keys (`finos_*_value`, `finos_*_loan`).
 
 Mobile-only keys: `finos_host_ip`, `finos_holdings_v1`, `finos_holdings_tombstones_v1`, `finos_holdings_owner`,
 `finos_holdings_last_sync`, `finos_recurring_v1`.
@@ -130,15 +131,16 @@ on transactions and an `id` (`idx_N`) on insurance policies.
    (GoTrue + PostgREST stand-in). To enable: create a project → put URL + anon key in `mobile/.env`, `js/auth.js`, `arya-ai/.env` →
    run `supabase/holdings.sql` (and `tracker_snapshot.sql` for the website). The email-confirmation sign-up path is untested in the UI.
 2. **Placeholders:** Markets sector tiles and FII/DII flows; Track tab AA cards.
-3. **No build config:** no `eas.json`, no signed iOS/Android build; only web/Expo Go preview.
-4. **No committed tests.** Parity and sync checks were run as throwaway scripts; there is no test runner in `package.json`.
-5. **`constants/endpoints.ts` port map is unused and partly wrong.** Only `aryaAI` is called. `stockEngine: 8001` and
-   `alertEngine: 8003` are swapped relative to `docker-compose.yml` (alert-engine 8001, stock-engine 8003); fix before using either.
+3. **No device build yet:** `eas.json` is in place (development / preview / production profiles) but no build has been run and no Apple/Google credentials are set up; only web/Expo Go preview has been used.
+4. **Thin committed tests.** `npm test` (Node's built-in runner, no extra dependencies) runs `__tests__/subscriptions.parity.test.mts`, which checks the subscriptions port against the website with random inputs. The earlier budget, health-score, EPF/NPS/PPF and sync checks were throwaway scripts and still need to be moved into `__tests__/` (the `@/` import alias needs a small loader first).
+5. **`constants/endpoints.ts` port map is mostly unused.** Only `aryaAI` is called. The stock-engine / alert-engine ports were swapped relative to `docker-compose.yml`; fixed Oct 4 2026 (stock 8003, alert 8001).
 6. **Kite holdings** not wired (`KITE_API_KEY` unset).
 7. Permissions for microphone, camera and speech are declared in `app.json`, but no voice or QR feature is built yet.
-8. Only part of the website's 29 Command Hub trackers is ported: net worth/FIRE, budget + transactions + recurring, emergency fund, goals, health score, EPF, NPS, PPF, insurance.
+8. Only part of the website's 29 Command Hub trackers is ported: net worth/FIRE, budget + transactions + recurring, emergency fund, goals, health score, EPF, NPS, PPF, insurance, subscriptions.
 
 ## 6. Verification
+
+Committed: `npm test` — subscriptions port vs `js/finos-subscriptions.js` (600 random records, 150 random portfolios, renewal edge cases) and `npm run typecheck`.
 
 Run during the Oct 2026 build (throwaway scripts, not in the repo):
 - Health score vs. web's real `_computeLocalScore`: 300 random scenarios identical.
@@ -155,6 +157,6 @@ When changing any ported formula, re-run a parity check against the website file
 
 ## 8. Next steps
 1. Provision a live Supabase project; test real login and sync.
-2. Add a test runner and move the parity scripts into `mobile/__tests__`.
-3. Add `eas.json` and produce a device build.
-4. Port more web trackers; wire Kite holdings; replace Markets mock tiles.
+2. Move the remaining parity scripts into `mobile/__tests__` (needs an `@/` alias loader).
+3. Run an EAS device build (profiles exist in `eas.json`).
+4. Port more web tools (Prepay-or-Invest, Job Offer Comparer); wire Kite holdings; replace Markets mock tiles.

@@ -228,18 +228,33 @@ def _load_amfi_navs():
         r = requests.get(AMFI_NAV_URL, timeout=20)
         r.raise_for_status()
         fund_house = ""
+        # AMFI has changed its column layout before (it now includes Plan/Option) — locate NAV/date by header name.
+        i_nav, i_date, i_plan, i_opt = 4, 5, None, None
         for line in r.text.splitlines():
-            parts = line.strip().split(";")
+            parts = [p.strip() for p in line.strip().split(";")]
+            if len(parts) >= 5 and parts[0].lower().startswith("scheme code"):
+                low = [p.lower() for p in parts]
+                i_nav  = next((i for i, h in enumerate(low) if h.startswith("net asset value")), i_nav)
+                i_date = next((i for i, h in enumerate(low) if h == "date"), len(parts) - 1)
+                i_plan = next((i for i, h in enumerate(low) if h == "plan"), None)
+                i_opt  = next((i for i, h in enumerate(low) if h == "option"), None)
+                continue
             if len(parts) == 1 and parts[0] and not parts[0][0].isdigit():
                 fund_house = parts[0]
-            if len(parts) >= 5 and parts[0].isdigit():
+            if len(parts) > max(i_nav, i_date) and parts[0].isdigit():
                 code = parts[0]
+                try:
+                    nav = float(parts[i_nav])
+                except ValueError:
+                    nav = None
                 _mf_nav_store[code] = {
                     "scheme_code": code,
                     "scheme_name": parts[3],
-                    "nav":         float(parts[4]) if parts[4] not in ("N.A.", "") else None,
-                    "date":        parts[5] if len(parts) > 5 else "",
+                    "nav":         nav,
+                    "date":        parts[i_date],
                     "fund_house":  fund_house,
+                    "plan":        parts[i_plan] if i_plan is not None else "",
+                    "option":      parts[i_opt] if i_opt is not None else "",
                 }
         _mf_last_loaded = time.time()
     except Exception:
