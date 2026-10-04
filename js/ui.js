@@ -46,6 +46,8 @@
   })();
   loadScript(base + 'finos-toast.js');
   loadScript(base + 'finos-async.js');
+  // Settings runtime (AI language/persona directive + preference applier); pages without ui.js include it directly.
+  if (!(window.FINOS && window.FINOS.aiDirective)) loadScript(base + 'finos-prefs.js');
 })();
 
 /* ─── GLOBAL SETTINGS PROPAGATOR ─────────────────────────────────
@@ -58,11 +60,11 @@
   try {
     var s = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}');
     var root = document.documentElement;
-    if (s.accent)       root.style.setProperty('--accent', s.accent);
-    if (s.fontSize)     root.setAttribute('data-font-size', s.fontSize);
-    if (s.reduceMotion) root.classList.add('reduce-motion');
-    if (s.highContrast) root.classList.add('high-contrast');
-    if (s.compactUI)    root.classList.add('compact-ui');
+    if (/^#[\da-f]{6}$/i.test(s.accent || '')) root.style.setProperty('--accent', s.accent);
+    if (['small','normal','large'].includes(s.fontSize)) root.setAttribute('data-font-size', s.fontSize);
+    root.classList.toggle('reduce-motion', s.reduceMotion === true);
+    root.classList.toggle('high-contrast', s.highContrast === true);
+    root.classList.toggle('compact-ui', s.compactUI === true);
   } catch (e) { /* localStorage may be blocked in some contexts */ }
 })();
 
@@ -82,7 +84,7 @@
     var SYMBOLS = { inr: '₹', usd: '$', eur: '€', gbp: '£' };
     var sym     = SYMBOLS[curr] || '₹';
     var n       = Number(amount);
-    if (isNaN(n)) return sym + '—';
+    if (amount === null || amount === undefined || (typeof amount === 'string' && !amount.trim()) || !isFinite(n)) return sym + '—';
     if (numFmt === 'indian') {
       var abs = Math.abs(Math.round(n));
       var str = String(abs);
@@ -97,16 +99,43 @@
       }
       return sym + (n < 0 ? '-' : '') + result;
     }
-    return sym + Math.abs(Math.round(n)).toLocaleString('en-US') + (n < 0 ? ' (-)' : '');
+    return sym + (n < 0 ? '-' : '') + Math.abs(Math.round(n)).toLocaleString('en-US');
   };
   window.FINOS.fmtShort = function (amount) {
+    var cfg;
+    try { cfg = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}'); } catch (e) { cfg = {}; }
     var n = Number(amount);
-    if (isNaN(n)) return '—';
+    if (amount === null || amount === undefined || (typeof amount === 'string' && !amount.trim()) || !isFinite(n)) return '—';
     var abs = Math.abs(n);
-    if (abs >= 1e7)  return (n / 1e7).toFixed(2) + ' Cr';
-    if (abs >= 1e5)  return (n / 1e5).toFixed(2) + ' L';
-    if (abs >= 1e3)  return (n / 1e3).toFixed(1) + 'K';
+    if ((cfg.numberFormat || 'indian') === 'western') {
+      if (abs >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+      if (abs >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+      if (abs >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+    } else {
+      if (abs >= 1e7) return (n / 1e7).toFixed(2) + ' Cr';
+      if (abs >= 1e5) return (n / 1e5).toFixed(2) + ' L';
+      if (abs >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+    }
     return String(Math.round(n));
+  };
+  window.FINOS.date = function (value) {
+    if (value === null || value === undefined || (typeof value === 'string' && !value.trim())) return '—';
+    var d;
+    if (value instanceof Date) d = new Date(value.getTime());
+    else if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      var parts = value.split('-').map(Number);
+      d = new Date(parts[0], parts[1] - 1, parts[2]);
+      if (d.getFullYear() !== parts[0] || d.getMonth() !== parts[1] - 1 || d.getDate() !== parts[2]) return '—';
+    } else d = new Date(value);
+    if (!isFinite(d.getTime())) return '—';
+    var dd = String(d.getDate()).padStart(2, '0');
+    var mm = String(d.getMonth() + 1).padStart(2, '0');
+    var yyyy = String(d.getFullYear());
+    var cfg;
+    try { cfg = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}'); } catch (e) { cfg = {}; }
+    if (cfg.dateFormat === 'mdy') return mm + '/' + dd + '/' + yyyy;
+    if (cfg.dateFormat === 'ymd') return yyyy + '-' + mm + '-' + dd;
+    return dd + '/' + mm + '/' + yyyy;
   };
 })();
 
@@ -213,20 +242,37 @@ function _finosUIInit() {
     } else {
       document.documentElement.classList.remove("dark");
     }
-    localStorage.setItem("finos-theme", next);
-    localStorage.setItem("theme", next);
+    try { localStorage.setItem("finos-theme", next); localStorage.setItem("theme", next); } catch (_) {}
     try {
       var s = JSON.parse(localStorage.getItem("FINOS_SYS_SETTINGS") || "{}");
       s.theme = next;
       localStorage.setItem("FINOS_SYS_SETTINGS", JSON.stringify(s));
+      window.dispatchEvent(new CustomEvent("finos-settings-updated", { detail: { key: "theme", val: next, settings: s } }));
     } catch (_) {}
     _syncThemeBtn(next);
     // Notify Chart.js instances and any other listeners
     window.dispatchEvent(new CustomEvent("finos-theme-changed", { detail: { theme: next } }));
   }
 
-  var savedTheme = localStorage.getItem("finos-theme") || localStorage.getItem("theme") || "dark";
+  var savedTheme = "dark";
+  try {
+    var prefs = JSON.parse(localStorage.getItem("FINOS_SYS_SETTINGS") || "{}");
+    var themePref = ["dark", "light", "system"].includes(prefs.theme) ? prefs.theme : (localStorage.getItem("finos-theme") || localStorage.getItem("theme") || "dark");
+    savedTheme = themePref === "system"
+      ? (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+      : (["dark", "light"].includes(themePref) ? themePref : "dark");
+  } catch (_) { savedTheme = "dark"; }
   document.documentElement.setAttribute("data-theme", savedTheme);
+  document.documentElement.classList.toggle("dark", savedTheme === "dark");
+  try {
+    var startupPrefs = JSON.parse(localStorage.getItem("FINOS_SYS_SETTINGS") || "{}");
+    if (["small", "normal", "large"].includes(startupPrefs.fontSize)) document.documentElement.setAttribute("data-font-size", startupPrefs.fontSize);
+    ["reduce-motion", "high-contrast", "compact-ui"].forEach(function (name) {
+      var key = name.replace(/-([a-z])/g, function (_, ch) { return ch.toUpperCase(); });
+      document.documentElement.classList.toggle(name, startupPrefs[key] === true);
+    });
+    if (/^#[\da-f]{6}$/i.test(startupPrefs.accent || "")) document.documentElement.style.setProperty("--accent", startupPrefs.accent);
+  } catch (_) {}
   _syncThemeBtn(savedTheme);
 
   // Clone is always a fresh node — attach exactly one listener
@@ -237,11 +283,65 @@ function _finosUIInit() {
 
   // Sync all theme buttons on the page if settings.js fires its own event
   window.addEventListener("finos-settings-updated", function (e) {
-    if (e.detail && e.detail.key === "theme") {
+    if (e.detail && e.detail.key) {
+      var key = e.detail.key;
+      var value = e.detail.val;
+      var root = document.documentElement;
+      if (key === "theme") {
+        var resolved = value === "system"
+          ? (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+          : value;
+        if (["dark", "light"].includes(resolved)) {
+          root.setAttribute("data-theme", resolved);
+          root.classList.toggle("dark", resolved === "dark");
+          window.dispatchEvent(new CustomEvent("finos-theme-changed", { detail: { theme: resolved } }));
+        }
+      } else if (key === "accent" && /^#[\da-f]{6}$/i.test(value || "")) {
+        root.style.setProperty("--accent", value);
+        root.style.setProperty("--accent-dim", value + "20");
+      } else if (key === "fontSize" && ["small", "normal", "large"].includes(value)) {
+        root.setAttribute("data-font-size", value);
+      } else if (["reduceMotion", "highContrast", "compactUI"].includes(key) && typeof value === "boolean") {
+        var className = { reduceMotion: "reduce-motion", highContrast: "high-contrast", compactUI: "compact-ui" }[key];
+        root.classList.toggle(className, value);
+      }
       var resolved = document.documentElement.getAttribute("data-theme") || "dark";
       _syncThemeBtn(resolved);
     }
   });
+
+  window.addEventListener("storage", function (e) {
+    if (e.key !== "FINOS_SYS_SETTINGS") return;
+    var prefs;
+    try { prefs = JSON.parse(e.newValue || "{}"); } catch (_) { return; }
+    var resolved = ["dark", "light", "system"].includes(prefs.theme) ? prefs.theme : "dark";
+    if (resolved === "system") resolved = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    var root = document.documentElement;
+    root.setAttribute("data-theme", resolved);
+    root.classList.toggle("dark", resolved === "dark");
+    if (["small", "normal", "large"].includes(prefs.fontSize)) root.setAttribute("data-font-size", prefs.fontSize);
+    ["reduce-motion", "high-contrast", "compact-ui"].forEach(function (name) {
+      var key = name.replace(/-([a-z])/g, function (_, ch) { return ch.toUpperCase(); });
+      root.classList.toggle(name, prefs[key] === true);
+    });
+    if (/^#[\da-f]{6}$/i.test(prefs.accent || "")) root.style.setProperty("--accent", prefs.accent);
+    _syncThemeBtn(resolved);
+  });
+
+  var systemThemeMedia = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+  var applySystemTheme = function () {
+    try {
+      var prefs = JSON.parse(localStorage.getItem("FINOS_SYS_SETTINGS") || "{}");
+      if (prefs.theme !== "system") return;
+      var resolved = systemThemeMedia.matches ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", resolved);
+      document.documentElement.classList.toggle("dark", resolved === "dark");
+      _syncThemeBtn(resolved);
+      window.dispatchEvent(new CustomEvent("finos-theme-changed", { detail: { theme: resolved } }));
+    } catch (_) {}
+  };
+  if (systemThemeMedia?.addEventListener) systemThemeMedia.addEventListener("change", applySystemTheme);
+  else if (systemThemeMedia?.addListener) systemThemeMedia.addListener(applySystemTheme);
 
 } // end _finosUIInit
 

@@ -29,6 +29,13 @@
   const WS_URL       = 'wss://127.0.0.1:8765';
   const TIMEOUT_MS   = 45_000;
 
+  function configuredVoiceSpeed() {
+    try {
+      const speed = Number(JSON.parse(global.localStorage.getItem('FINOS_SYS_SETTINGS') || '{}').aiVoiceSpeed);
+      return Number.isFinite(speed) ? Math.min(2, Math.max(0.6, speed)) : 1;
+    } catch { return 1; }
+  }
+
   /* ══════════════════════════════════════════════════════════════════════════
      SYSTEM PROMPT — Finance AI persona
   ══════════════════════════════════════════════════════════════════════════ */
@@ -353,10 +360,14 @@ Rules:
    */
   function _systemWithContext(customSystem) {
     const base = customSystem || BASE_SYSTEM;
+    // Language + persona chosen in Settings (finos-prefs.js); '' when none chosen or module absent.
+    let style = '';
+    try { style = (global.FINOS && global.FINOS.aiDirective && global.FINOS.aiDirective()) || ''; } catch (_) {}
+    if (style && base.includes('RESPONSE STYLE (user setting)')) style = '';
     // Don't inject if the caller already has the full context (e.g. News1 which builds its own)
-    if (base.includes('══ USER CONTEXT ══')) return base;
+    if (base.includes('══ USER CONTEXT ══')) return base + style;
     const ctx = _buildContextBlock();
-    return base + '\n\n' + ctx;
+    return base + '\n\n' + ctx + style;
   }
 
   /* ══════════════════════════════════════════════════════════════════════════
@@ -744,7 +755,7 @@ Rules:
       if ('speechSynthesis' in window) {
         const utt = new SpeechSynthesisUtterance(text.slice(0, 200));
         utt.lang = 'en-IN';
-        utt.rate = 1.0;
+        utt.rate = configuredVoiceSpeed();
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utt);
       }
@@ -1377,7 +1388,7 @@ Keep it to 2-3 sentences total, natural Hinglish.
       window.speechSynthesis.cancel();
       const utt = new SpeechSynthesisUtterance(text.slice(0, 500));
       utt.lang = 'en-IN';
-      utt.rate = 1.0;
+      utt.rate = configuredVoiceSpeed();
       window.speechSynthesis.speak(utt);
     }
   };

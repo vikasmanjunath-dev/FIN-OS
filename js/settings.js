@@ -21,19 +21,49 @@ const DEFAULTS = {
   reduceMotion:    false,
   highContrast:    false,
   compactUI:       false,
-  notifDailyBrief: true,
-  notifMarket:     true,
-  notifGoal:       true,
 };
+
+const SETTING_ENUMS = {
+  theme: ['dark', 'light', 'system'],
+  fontSize: ['small', 'normal', 'large'],
+  aiLang: ['hinglish', 'english', 'hindi'],
+  aiPersona: ['bhai', 'ca_sahab', 'trader_bro', 'retirement_uncle'],
+  numberFormat: ['indian', 'western'],
+  currency: ['inr', 'usd'],
+  dateFormat: ['dmy', 'mdy', 'ymd'],
+};
+const BOOLEAN_SETTINGS = new Set(['aiMemory', 'reduceMotion', 'highContrast', 'compactUI']);
+
+function normalizeSetting(key, value) {
+  if (SETTING_ENUMS[key]) return SETTING_ENUMS[key].includes(value) ? value : undefined;
+  if (BOOLEAN_SETTINGS.has(key)) return typeof value === 'boolean' ? value : undefined;
+  if (key === 'accent') return typeof value === 'string' && /^#[\da-f]{6}$/i.test(value) ? value.toUpperCase() : undefined;
+  if (key === 'aiVoiceSpeed') {
+    const n = Number(value);
+    return Number.isFinite(n) ? Math.round(Math.min(2, Math.max(0.6, n)) * 10) / 10 : undefined;
+  }
+  return Object.prototype.hasOwnProperty.call(DEFAULTS, key) ? value : undefined;
+}
+
+function normalizeSettings(value) {
+  const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  // Keep unrelated/forward-compatible settings fields: other app surfaces may
+  // own keys that this page does not render. Validate only controls we own.
+  const clean = { ...source, ...DEFAULTS };
+  Object.keys(DEFAULTS).forEach(key => {
+    const valid = normalizeSetting(key, source[key]);
+    if (valid !== undefined) clean[key] = valid;
+  });
+  return clean;
+}
 
 /* ─── STATE ─────────────────────────────────────────────────────── */
 /* Fix [H1]: JSON.parse at module scope crashes every function if storage
    is corrupted. Catch the error and reset to defaults instead. */
 let S;
 try {
-  S = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') };
+  S = normalizeSettings(JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'));
 } catch {
-  localStorage.removeItem(SETTINGS_KEY);
   S = { ...DEFAULTS };
 }
 let supaClient = null;
@@ -56,7 +86,7 @@ window.FINOS.fmt = function (amount, currencyOverride) {
   const SYMBOLS = { inr: '₹', usd: '$', eur: '€', gbp: '£' };
   const sym     = SYMBOLS[curr] || '₹';
   const n       = Number(amount);
-  if (isNaN(n)) return sym + '—';
+  if (amount === null || amount === undefined || (typeof amount === 'string' && !amount.trim()) || !Number.isFinite(n)) return sym + '—';
   if (numFmt === 'indian') {
     const abs = Math.abs(Math.round(n));
     const str = String(abs);
@@ -82,7 +112,7 @@ window.FINOS.fmt = function (amount, currencyOverride) {
    for Western format — consistent with FINOS.fmt behaviour. */
 window.FINOS.fmtShort = function (amount) {
   const n = Number(amount);
-  if (isNaN(n)) return '—';
+  if (amount === null || amount === undefined || (typeof amount === 'string' && !amount.trim()) || !Number.isFinite(n)) return '—';
   let cfg;
   try { cfg = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}'); } catch { cfg = {}; }
   const numFmt = cfg.numberFormat || 'indian';
@@ -101,10 +131,18 @@ window.FINOS.fmtShort = function (amount) {
 
 /* ─── PERSIST + BROADCAST ───────────────────────────────────────── */
 function save(key, val) {
-  S[key] = val;
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(S));
-  applyOne(key, val);
-  window.dispatchEvent(new CustomEvent('finos-settings-updated', { detail: { key, val, settings: S } }));
+  const clean = normalizeSetting(key, val);
+  if (clean === undefined) return false;
+  S[key] = clean;
+  let persisted = false;
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(S)); persisted = true; } catch (_) { /* apply for this tab; report that it was not saved */ }
+  applyOne(key, clean);
+  try { window.dispatchEvent(new CustomEvent('finos-settings-updated', { detail: { key, val: clean, settings: { ...S } } })); } catch (_) {}
+  return persisted;
+}
+
+function reportSetting(msg, type, persisted) {
+  toast(persisted ? msg : 'Applied for this session only; browser storage is unavailable.', persisted ? type : 'warn');
 }
 
 function applyOne(key, val) {
@@ -112,11 +150,11 @@ function applyOne(key, val) {
   switch (key) {
     case 'theme': {
       const resolved = val === 'system'
-        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
         : val;
       root.setAttribute('data-theme', resolved);
-      localStorage.setItem('finos-theme', resolved);
-      localStorage.setItem('theme', resolved);
+      root.classList.toggle('dark', resolved === 'dark');
+      try { localStorage.setItem('finos-theme', resolved); localStorage.setItem('theme', resolved); } catch (_) {}
       // Update header toggle button
       const btn = document.getElementById('themeToggle');
       if (btn) {
@@ -144,6 +182,11 @@ function applyOne(key, val) {
     case 'compactUI':
       root.classList.toggle('compact-ui', !!val);
       break;
+    case 'numberFormat':
+    case 'currency':
+    case 'dateFormat':
+      root.setAttribute('data-' + key.replace(/[A-Z]/g, m => '-' + m.toLowerCase()), val);
+      break;
   }
 }
 
@@ -161,6 +204,9 @@ function toast(msg, type = 'success', duration = 2800) {
   }
   const t = document.createElement('div');
   t.className = `finos-toast finos-toast--${type}`;
+  t.setAttribute('role', type === 'error' || type === 'warn' ? 'alert' : 'status');
+  t.setAttribute('aria-live', type === 'error' || type === 'warn' ? 'assertive' : 'polite');
+  t.setAttribute('aria-atomic', 'true');
   const icons = { success: '✓', error: '✕', info: 'ℹ', warn: '⚠' };
   /* Fix [C1]: XSS — msg flowed through innerHTML unsanitised. Email values
      like <img src=x onerror=alert(1)>@x.com would execute. Use textContent. */
@@ -181,8 +227,11 @@ function toast(msg, type = 'success', duration = 2800) {
 }
 
 /* ─── MODAL SYSTEM ──────────────────────────────────────────────── */
-// Focus trap helpers
-let _trapFocusHandler = null;
+// Focus trap state is tracked per modal so closing one dialog never detaches
+// another dialog's keyboard trap or steals focus from the wrong opener.
+const _modalTrapHandlers = new WeakMap();
+const _modalTimers = new WeakMap();
+const _modalReturnFocus = new WeakMap();
 
 function _trapFocus(modal) {
   const focusable = modal.querySelectorAll(
@@ -193,9 +242,9 @@ function _trapFocus(modal) {
   const last  = focusable[focusable.length - 1];
   // Focus first focusable element
   requestAnimationFrame(() => first.focus());
-  // Remove any existing handler
-  if (_trapFocusHandler) modal.removeEventListener('keydown', _trapFocusHandler);
-  _trapFocusHandler = function (e) {
+  const previous = _modalTrapHandlers.get(modal);
+  if (previous) modal.removeEventListener('keydown', previous);
+  const handler = function (e) {
     if (e.key !== 'Tab') return;
     if (e.shiftKey) {
       if (document.activeElement === first) { e.preventDefault(); last.focus(); }
@@ -203,16 +252,16 @@ function _trapFocus(modal) {
       if (document.activeElement === last)  { e.preventDefault(); first.focus(); }
     }
   };
-  modal.addEventListener('keydown', _trapFocusHandler);
+  modal.addEventListener('keydown', handler);
+  _modalTrapHandlers.set(modal, handler);
 }
-
-// Track previously focused element so we can restore on close
-let _prevFocus = null;
 
 window.openModal = function(id) {
   const m = document.getElementById(id);
   if (!m) return;
-  _prevFocus = document.activeElement;
+  const pending = _modalTimers.get(m);
+  if (pending) { clearTimeout(pending); _modalTimers.delete(m); }
+  _modalReturnFocus.set(m, document.activeElement);
   m.style.display = 'flex'; // force visible — belt-and-suspenders over CSS display:none
   void m.offsetHeight;      // reflow so CSS animation starts from hidden state
   m.classList.add('open');
@@ -223,16 +272,24 @@ window.openModal = function(id) {
 window.closeModal = function(id) {
   const m = document.getElementById(id);
   if (!m) return;
+  const pending = _modalTimers.get(m);
+  if (pending) clearTimeout(pending);
   m.classList.add('closing');
-  setTimeout(() => {
+  const timer = setTimeout(() => {
+    _modalTimers.delete(m);
     m.style.display = 'none'; // explicitly hide — matches initial state
     m.classList.remove('open', 'closing');
-    document.body.classList.remove('modal-open');
+    if (!document.querySelector('.modal-overlay.open')) document.body.classList.remove('modal-open');
+    const handler = _modalTrapHandlers.get(m);
+    if (handler) { m.removeEventListener('keydown', handler); _modalTrapHandlers.delete(m); }
     // Clear inputs in this modal on close
     m.querySelectorAll('input').forEach(inp => { inp.value = ''; });
     // Restore focus to previously focused element
-    if (_prevFocus && _prevFocus.focus) { try { _prevFocus.focus(); } catch {} }
+    const previousFocus = _modalReturnFocus.get(m);
+    _modalReturnFocus.delete(m);
+    if (previousFocus?.isConnected && previousFocus.focus) { try { previousFocus.focus(); } catch {} }
   }, 200);
+  _modalTimers.set(m, timer);
 };
 
 /* ─── SUPABASE ──────────────────────────────────────────────────── */
@@ -240,26 +297,30 @@ async function initSupabase() {
   // If Supabase SDK didn't load (e.g. offline), fall back immediately
   if (!window.supabase) { renderGuestInfo(); return; }
 
-  const SUPA_URL = 'https://oeapcyucnduhwpgxfknb.supabase.co';
-  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
+  // Single source of truth for the project URL/anon key is supabase-config.js (window.FINOS_SB).
+  // Using its shared client also avoids a second GoTrueClient fighting over the same auth storage.
 
   // Fallback: show "Not signed in" after 3 s if the network hangs
   let settled = false;
   const fallback = setTimeout(() => {
-    if (!settled) { settled = true; renderGuestInfo(); }
+    if (!settled) renderGuestInfo();
   }, 3000);
 
   try {
-    supaClient = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+    const shared = window.FINOS_SB;
+    supaClient = (shared && typeof shared.getClient === 'function' && shared.getClient())
+      || (shared && shared.url && shared.key ? window.supabase.createClient(shared.url, shared.key) : null);
+    if (!supaClient) throw new Error('Supabase is not configured');
     const { data: { session } } = await supaClient.auth.getSession();
-    if (!settled) {
-      settled = true;
-      clearTimeout(fallback);
-      if (session) { currentUser = session.user; renderUserInfo(currentUser); }
-      else          { renderGuestInfo(); }
-    }
+    settled = true;
+    clearTimeout(fallback);
+    if (session) { currentUser = session.user; renderUserInfo(currentUser); }
+    else { currentUser = null; renderGuestInfo(); }
   } catch (e) {
-    if (!settled) { settled = true; clearTimeout(fallback); renderGuestInfo(); }
+    settled = true;
+    clearTimeout(fallback);
+    currentUser = null;
+    renderGuestInfo();
   }
 }
 
@@ -283,20 +344,21 @@ function renderGuestInfo() {
 
 /* ─── AUTH OPS ──────────────────────────────────────────────────── */
 window.doUpdateEmail = async function () {
-  const val = document.getElementById('newEmailInput')?.value?.trim();
-  if (!val || !val.includes('@')) { toast('Enter a valid email address.', 'error'); return; }
+  const input = document.getElementById('newEmailInput');
+  const val = input?.value?.trim();
+  if (!val || !input.checkValidity()) { toast('Enter a valid email address.', 'error'); input?.focus(); return; }
   if (!supaClient || !currentUser)  { toast('Not signed in.', 'error'); return; }
+  if (String(currentUser.email || '').toLowerCase() === val.toLowerCase()) { toast('That is already your email address.', 'info'); input.focus(); return; }
   const btn = document.getElementById('confirmEmailBtn');
   const origText = btn ? btn.textContent : 'Confirm';
   if (btn) { btn.textContent = 'Sending…'; btn.disabled = true; }
-  const { error } = await supaClient.auth.updateUser({ email: val });
-  if (btn) { btn.textContent = origText; btn.disabled = false; }
-  if (error) {
-    toast(error.message, 'error');
-  } else {
+  try {
+    const { error } = await supaClient.auth.updateUser({ email: val });
+    if (error) throw error;
     toast('Confirmation link sent to ' + val + '. Check your inbox.', 'info', 4000);
     window.closeModal('emailModal');
-  }
+  } catch (e) { toast(e.message || 'Could not request the email change. Try again.', 'error'); }
+  finally { if (btn) { btn.textContent = origText; btn.disabled = false; } }
 };
 
 window.doResetPassword = async function () {
@@ -304,27 +366,29 @@ window.doResetPassword = async function () {
   const btn = document.getElementById('resetPassBtn');
   const origText = btn ? btn.textContent : 'Send Reset Link';
   if (btn) { btn.textContent = 'Sending…'; btn.disabled = true; }
-  const { error } = await supaClient.auth.resetPasswordForEmail(currentUser.email, {
-    redirectTo: window.location.origin + '/html/settings.html',
-  });
-  if (btn) { btn.textContent = origText; btn.disabled = false; }
-  if (error) {
-    toast(error.message, 'error');
-  } else {
+  try {
+    const redirectTo = new URL('settings.html', window.location.href).href;
+    const { error } = await supaClient.auth.resetPasswordForEmail(currentUser.email, { redirectTo });
+    if (error) throw error;
     toast('Password reset link sent to ' + currentUser.email, 'success');
-  }
+  } catch (e) { toast(e.message || 'Could not send the reset link. Try again.', 'error'); }
+  finally { if (btn) { btn.textContent = origText; btn.disabled = false; } }
 };
 
 window.doSignOut = async function () {
-  /* Fix [H2]: No loading state — double-clicking called signOut() twice.
-     Disable the button for the duration of the async operation. */
+  if (!supaClient || !currentUser) { toast('Not signed in.', 'error'); return; }
   const btn = document.getElementById('signOutBtn');
   if (btn) { btn.textContent = 'Signing out…'; btn.disabled = true; }
-  if (supaClient) await supaClient.auth.signOut().catch(() => {});
-  const keep = ['FINOS_SYS_SETTINGS', 'finos-theme', 'theme'];
-  Object.keys(localStorage).filter(k => !keep.includes(k)).forEach(k => localStorage.removeItem(k));
-  toast('Session terminated. Redirecting…', 'warn');
-  setTimeout(() => { window.location.href = '../html/home.html'; }, 1000);
+  try {
+    const { error } = await supaClient.auth.signOut();
+    if (error) throw error;
+    currentUser = null;
+    toast('Signed out. Your FIN•OS data remains on this device.', 'info', 2500);
+    setTimeout(() => { window.location.href = 'home.html'; }, 1000);
+  } catch (e) {
+    toast(e.message || 'Could not sign out. Your data was not changed.', 'error');
+    if (btn) { btn.textContent = 'Sign Out'; btn.disabled = false; }
+  }
 };
 
 window.doDeleteAccount = async function () {
@@ -332,43 +396,36 @@ window.doDeleteAccount = async function () {
   if (confirmVal !== 'DELETE') { toast('Type DELETE (in caps) to confirm.', 'error'); return; }
   if (!supaClient || !currentUser) { toast('Not signed in.', 'error'); return; }
 
-  /* Fix [M4]: fragile querySelector('#deleteModal .btn-danger:last-child')
-     replaced with stable ID lookup added to the button in settings.html. */
   const btn = document.getElementById('deleteForeverBtn');
   if (btn) { btn.textContent = 'Deleting…'; btn.disabled = true; }
-
-  /* Fix [C2]: The original code only called signOut() — the Supabase user
-     record was never deleted (GDPR risk, misleading UI).
-     Now attempts a real server-side delete via a Supabase Edge Function.
-     Deploy at: supabase/functions/delete-account/index.ts (uses service role key).
-     Falls back honestly if the function isn't deployed yet. */
-  let serverDeleted = false;
+  let serverConfirmed = false;
   try {
-    const { error: fnError } = await supaClient.functions.invoke('delete-account');
-    if (!fnError) serverDeleted = true;
-  } catch { /* Edge Function not deployed — proceed to fallback */ }
-
-  await supaClient.auth.signOut().catch(() => {});
-  localStorage.clear();
-
-  if (serverDeleted) {
-    toast('Account permanently deleted. Goodbye.', 'warn', 2500);
-    setTimeout(() => { window.location.href = '../index.html'; }, 2000);
-  } else {
-    /* Honest fallback: local data is gone but Supabase account still exists */
-    toast('Local data cleared. Contact support to fully remove your account.', 'warn', 6000);
-    setTimeout(() => { window.location.href = '../index.html'; }, 3500);
+    if (!supaClient.functions || typeof supaClient.functions.invoke !== 'function') throw new Error('Account deletion is not available on this server. Nothing was deleted.');
+    const { data, error } = await supaClient.functions.invoke('delete-account');
+    if (error) throw error;
+    if (!data || !(data.deleted === true || data.success === true)) throw new Error(data?.error || 'The server did not explicitly confirm account deletion. Nothing on this device was erased.');
+    serverConfirmed = true;
+    try { await supaClient.auth.signOut(); } catch (_) {}
+    await clearLocalAppData({ preservePreferences: false, preserveVault: false, preserveAuth: false });
+    toast('Account deleted and local FIN•OS data cleared.', 'warn', 3000);
+    setTimeout(() => { window.location.href = '../index.html'; }, 2200);
+  } catch (e) {
+    toast(serverConfirmed
+      ? 'The account was deleted, but this browser could not clear all local data. Use Clear Local Data after resolving the storage error.'
+      : (e.message || 'Account deletion failed; no local data was erased.'), 'error', 7000);
+    if (btn) { btn.textContent = serverConfirmed ? 'Account Deleted' : 'Delete Forever'; btn.disabled = serverConfirmed; }
   }
 };
 
 /* ─── APPEARANCE ────────────────────────────────────────────────── */
 window.setTheme = function (val) {
-  save('theme', val);
-  toast('Theme updated.', 'success');
+  reportSetting('Theme updated.', 'success', save('theme', val));
 };
 
 window.setAccent = function (hex) {
-  save('accent', hex);
+  const persisted = save('accent', hex);
+  if (normalizeSetting('accent', hex) === undefined) return;
+  hex = normalizeSetting('accent', hex);
   document.querySelectorAll('.color-swatch[data-color]').forEach(s =>
     s.classList.toggle('active', s.dataset.color === hex)
   );
@@ -384,6 +441,7 @@ window.setAccent = function (hex) {
     customSwatch.querySelector('span').style.color = '';
   }
   updateAccentPreview(hex);
+  reportSetting('Accent color updated.', 'success', persisted);
 };
 
 function updateAccentPreview(hex) {
@@ -401,21 +459,22 @@ window.onAccentPicker = function (val) {
 };
 
 window.setFontSize = function (val) {
-  save('fontSize', val);
+  const persisted = save('fontSize', val);
+  if (normalizeSetting('fontSize', val) === undefined) return;
   document.querySelectorAll('.font-size-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.size === val)
   );
-  toast('Font size updated.', 'success');
+  reportSetting('Font size updated.', 'success', persisted);
 };
 
 /* ─── AI PREFS ──────────────────────────────────────────────────── */
 window.setAILang = function (val) {
-  save('aiLang', val);
-  toast('AI language → ' + val, 'success');
+  reportSetting('AI language updated.', 'success', save('aiLang', val));
 };
 
 window.setAIPersona = function (val) {
-  save('aiPersona', val);
+  const persisted = save('aiPersona', val);
+  if (normalizeSetting('aiPersona', val) === undefined) return;
   document.querySelectorAll('.persona-card').forEach(c =>
     c.classList.toggle('active', c.dataset.persona === val)
   );
@@ -425,91 +484,113 @@ window.setAIPersona = function (val) {
     trader_bro:        'Trader Bro 📈',
     retirement_uncle:  'Retirement Uncle 🧘',
   };
-  toast('AI persona → ' + (names[val] || val), 'success');
+  reportSetting('AI persona → ' + (names[val] || val), 'success', persisted);
 };
 
 window.setAIVoiceSpeed = function (val) {
   // Only update the display label — save on 'change' (when drag ends)
+  const numeric = Number(val);
+  if (!Number.isFinite(numeric)) return;
+  const displayValue = (Math.round(Math.min(2, Math.max(0.6, numeric)) * 10) / 10).toFixed(1) + '×';
   const d = document.getElementById('voiceSpeedVal');
-  if (d) d.textContent = parseFloat(val).toFixed(1) + '×';
+  if (d) d.textContent = displayValue;
   /* Fix [L1]: keep aria-valuetext in sync so screen readers announce the
      formatted value (e.g. "1.5×") not just the raw number "1.5". */
   const slider = document.getElementById('voiceSpeedSlider');
-  if (slider) slider.setAttribute('aria-valuetext', parseFloat(val).toFixed(1) + '×');
+  if (slider) slider.setAttribute('aria-valuetext', displayValue);
 };
 
 window.saveAIVoiceSpeed = function (val) {
   // Called on 'change' event — fires once when drag ends
-  save('aiVoiceSpeed', parseFloat(val));
-  toast('Voice speed → ' + parseFloat(val).toFixed(1) + '×', 'info');
+  const speed = normalizeSetting('aiVoiceSpeed', val);
+  if (speed === undefined) return;
+  reportSetting('Voice speed → ' + speed.toFixed(1) + '×', 'info', save('aiVoiceSpeed', speed));
 };
 
 window.setAIMemory = function (val) {
-  save('aiMemory', val);
-  toast('Conversation memory ' + (val ? 'enabled' : 'disabled') + '.', 'info');
+  const persisted = save('aiMemory', val);
+  if (val === false) {
+    try {
+      const keys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        // chat transcripts + Arya's long-term memory (episodes, learned facts, mood notes)
+        if (key && /^(?:finos_chat_|finos_arya_memory_v2)/i.test(key)) keys.push(key);
+      }
+      keys.forEach(key => localStorage.removeItem(key));
+    } catch (_) {}
+    try { window.AryaMemory && window.AryaMemory.clearLocal && window.AryaMemory.clearLocal(); } catch (_) {}
+  }
+  reportSetting('Arya chat history ' + (val ? 'enabled' : 'disabled') + (val ? '.' : '; saved transcripts and Arya\'s memory cleared.'), 'info', persisted);
 };
 
 /* ─── DISPLAY ───────────────────────────────────────────────────── */
-window.setNumberFormat = function (val) { save('numberFormat', val); toast('Number format updated.', 'success'); };
-window.setCurrency      = function (val) { save('currency', val);     toast('Currency display updated.', 'success'); };
-window.setDateFormat    = function (val) { save('dateFormat', val);   toast('Date format updated.', 'success'); };
+window.setNumberFormat = function (val) { reportSetting('Number format updated.', 'success', save('numberFormat', val)); };
+window.setCurrency      = function (val) { reportSetting('Currency display updated.', 'success', save('currency', val)); };
+window.setDateFormat    = function (val) { reportSetting('Date format updated.', 'success', save('dateFormat', val)); };
 
 /* ─── ACCESSIBILITY ─────────────────────────────────────────────── */
-window.toggleReduceMotion = function (v) { save('reduceMotion', v); toast('Reduce Motion ' + (v ? 'on' : 'off') + '.', 'info'); };
-window.toggleHighContrast = function (v) { save('highContrast', v); toast('High Contrast ' + (v ? 'on' : 'off') + '.', 'info'); };
-window.toggleCompactUI    = function (v) { save('compactUI', v);    toast('Compact UI ' + (v ? 'on' : 'off') + '.', 'info'); };
-
-/* ─── NOTIFICATIONS ─────────────────────────────────────────────── */
-window.toggleNotifDailyBrief = function (v) { save('notifDailyBrief', v); toast('Daily Brief ' + (v ? 'on' : 'off') + '.', 'info'); };
-window.toggleNotifMarket     = function (v) { save('notifMarket', v);     toast('Market Alerts ' + (v ? 'on' : 'off') + '.', 'info'); };
-window.toggleNotifGoal       = function (v) { save('notifGoal', v);       toast('Goal Nudges ' + (v ? 'on' : 'off') + '.', 'info'); };
+window.toggleReduceMotion = function (v) { reportSetting('Reduce Motion ' + (v ? 'on' : 'off') + '.', 'info', save('reduceMotion', v)); };
+window.toggleHighContrast = function (v) { reportSetting('High Contrast ' + (v ? 'on' : 'off') + '.', 'info', save('highContrast', v)); };
+window.toggleCompactUI    = function (v) { reportSetting('Compact UI ' + (v ? 'on' : 'off') + '.', 'info', save('compactUI', v)); };
 
 /* ─── SAVE ALL ──────────────────────────────────────────────────── */
 window.saveAllSettings = function () {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(S));
+  let persisted = false;
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(S)); persisted = true; } catch (_) {}
   applyAll();
   syncUIToSettings();
-  toast('All settings saved!', 'success');
+  toast(persisted ? 'All settings saved.' : 'Settings are applied for this session, but storage is unavailable.', persisted ? 'success' : 'warn');
 
   // Visual feedback on the save button itself
   const btn = document.getElementById('saveAllBtn');
   if (btn) {
     const orig = btn.textContent;
-    btn.textContent = '✓ Saved!';
+    btn.textContent = persisted ? '✓ Saved!' : 'Not saved';
     btn.disabled = true;
     setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
   }
 };
 
 /* ─── DATA OPS ──────────────────────────────────────────────────── */
-// Patterns for sensitive keys to exclude from export
-const SENSITIVE_KEY_PATTERNS = [
-  /^sb-.*-auth-token$/i,
-  /^supabase\./i,
-  /token/i,
-  /secret/i,
-  /password/i,
-  /^SUPABASE/,
-];
-function isSensitiveKey(k) {
-  return SENSITIVE_KEY_PATTERNS.some(p => p.test(k));
+const LOCAL_FINOS_DATA_KEY = /^(?:finos[_-]|FINOS_|trady_|tradebook_|trading_|theme$|qs_watchlist$|supabase_user_id$|financial_dna$|financeXray$|diagnostics$|dna_profile$)/i;
+const PREFERENCE_KEYS = new Set([SETTINGS_KEY, 'finos-theme', 'theme', 'finos_lang', 'supabase_user_id']);
+const LOCAL_DB_COLLECTIONS = ['transactions', 'journal', 'documents', 'snapshots'];
+const MAX_BACKUP_BYTES = 50 * 1024 * 1024;
+
+async function clearLocalAppData(options = {}) {
+  const preservePreferences = options.preservePreferences !== false;
+  const preserveVault = options.preserveVault !== false;
+  const preserveAuth = options.preserveAuth !== false;
+  if (window.indexedDB && window.FinosStore?.idb?.clear) {
+    for (const collection of LOCAL_DB_COLLECTIONS) await window.FinosStore.idb.clear(collection);
+    if (window.FinosStore.clearAryaMemory) await window.FinosStore.clearAryaMemory();
+  }
+
+  const ls = window.localStorage;
+  const remove = [];
+  for (let i = 0; i < ls.length; i++) {
+    const key = ls.key(i);
+    if (!key) continue;
+    const authToken = /^sb-.*-auth-token$/i.test(key);
+    if (!LOCAL_FINOS_DATA_KEY.test(key) && (preserveAuth || !authToken)) continue;
+    if (preservePreferences && PREFERENCE_KEYS.has(key)) continue;
+    if (preserveVault && /^finos_vault(?:_|$)/i.test(key)) continue;
+    if (preserveAuth && authToken) continue;
+    remove.push(key);
+  }
+  remove.forEach(key => ls.removeItem(key));
+  return remove.length;
 }
 
-window.exportData = function () {
-  const out = {};
-  let skipped = 0;
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (isSensitiveKey(k)) { skipped++; continue; }
-    try { out[k] = JSON.parse(localStorage.getItem(k)); }
-    catch { out[k] = localStorage.getItem(k); }
-  }
-  out._meta = {
-    exported_at:  new Date().toISOString(),
-    app_version:  '3.1.0',
-    keys_skipped: skipped + ' sensitive keys omitted',
-  };
+window.exportData = async function () {
+  let out;
+  try {
+    if (!window.FinosStore?.exportComplete) throw new Error('FIN•OS export service is unavailable.');
+    out = await window.FinosStore.exportComplete();
+  } catch (e) { toast(e.message || 'Could not prepare your export.', 'error'); return; }
   const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+  if (blob.size > MAX_BACKUP_BYTES) { toast('Backup exceeds the 50 MB restore limit. Remove older offline attachments and export again.', 'warn', 6000); return; }
   /* Fix [H3]: a.click() on a detached element is silently ignored in Firefox.
      Append to body, click, then immediately remove and revoke the object URL. */
   const url = URL.createObjectURL(blob);
@@ -519,8 +600,8 @@ window.exportData = function () {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  toast('Data exported. ' + skipped + ' sensitive keys omitted.', 'success');
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast('FIN•OS data and offline records exported. Sensitive credentials are excluded.', 'success');
 };
 
 /* ── Due-date reminders + install (PWA) ─────────────────────────────── */
@@ -528,16 +609,26 @@ window.toggleReminders = async function (on) {
   const box = document.getElementById('notifRemindersToggle');
   const hint = document.getElementById('remindersHint');
   if (!window.FinosReminders) { toast('Reminders are unavailable on this page.', 'warn'); if (box) box.checked = false; return; }
-  if (!on) { window.FinosReminders.disableSystem(); if (hint) hint.textContent = ''; toast('Reminders off. You will still see in-app alerts.', 'info'); return; }
-  const r = await window.FinosReminders.enableSystem();
-  if (!r.ok) {
-    if (box) box.checked = false;
-    toast(r.reason === 'denied' ? 'Notifications are blocked in your browser settings for this site.' : 'This browser does not support notifications.', 'warn');
-    return;
+  try {
+    if (!on) {
+      await window.FinosReminders.disableSystem();
+      if (hint) hint.textContent = '';
+      toast('Reminders off. You will still see in-app alerts.', 'info');
+      return;
+    }
+    const r = await window.FinosReminders.enableSystem();
+    if (!r?.ok) {
+      if (box) box.checked = false;
+      toast(r?.reason === 'denied' ? 'Notifications are blocked in your browser settings for this site.' : 'This browser does not support notifications.', 'warn');
+      return;
+    }
+    const bg = await window.FinosReminders.enableBackground();
+    if (hint) hint.textContent = bg?.ok ? '(also when the app is closed)' : '(while FIN•OS is open — install the app for background reminders)';
+    toast('Reminders on.', 'success');
+  } catch (e) {
+    if (box) { try { box.checked = !!window.FinosReminders.systemEnabled(); } catch (_) { box.checked = false; } }
+    toast(e.message || 'Could not update reminders.', 'error');
   }
-  const bg = await window.FinosReminders.enableBackground();
-  if (hint) hint.textContent = bg.ok ? '(also when the app is closed)' : '(while FIN•OS is open — install the app for background reminders)';
-  toast('Reminders on.', 'success');
 };
 window.installApp = async function () {
   const out = window.FinosPWA ? await window.FinosPWA.install() : 'unavailable';
@@ -554,9 +645,12 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 window.setUILang = async function (code) {
+  if (!['en', 'hi'].includes(code)) { toast('That language is not supported.', 'warn'); return; }
   if (!window.FinosI18n) return;
-  await window.FinosI18n.setLang(code);
-  toast(code === 'en' ? 'Language: English' : 'भाषा: हिन्दी', 'success');
+  try {
+    await window.FinosI18n.setLang(code);
+    toast(code === 'en' ? 'Language: English' : 'भाषा: हिन्दी', 'success');
+  } catch (e) { toast(e.message || 'Could not change language.', 'error'); }
 };
 document.addEventListener('DOMContentLoaded', function () {
   const sel = document.getElementById('uiLangSelect');
@@ -566,6 +660,7 @@ document.addEventListener('DOMContentLoaded', function () {
 /* ── Passcode lock + encrypted backups ──────────────────────────────── */
 function vaultDialog(opts) {
   return new Promise((resolve) => {
+    const returnFocus = document.activeElement;
     const wrap = document.createElement('div');
     wrap.setAttribute('role', 'dialog'); wrap.setAttribute('aria-modal', 'true'); wrap.setAttribute('aria-label', opts.title);
     wrap.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px;';
@@ -583,9 +678,23 @@ function vaultDialog(opts) {
       </div></form>`;
     document.body.appendChild(wrap);
     const first = wrap.querySelector('input'); if (first) first.focus();
-    const done = (v) => { wrap.remove(); resolve(v); };
+    let finished = false;
+    const done = (v) => {
+      if (finished) return;
+      finished = true;
+      wrap.remove();
+      if (returnFocus?.isConnected && returnFocus.focus) { try { returnFocus.focus(); } catch (_) {} }
+      resolve(v);
+    };
     wrap.querySelector('#vd-cancel').onclick = () => done(null);
-    wrap.addEventListener('keydown', (e) => { if (e.key === 'Escape') done(null); });
+    wrap.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); done(null); return; }
+      if (e.key !== 'Tab') return;
+      const focusable = [...wrap.querySelectorAll('button:not([disabled]), input:not([disabled])')];
+      if (!focusable.length) return;
+      if (e.shiftKey && document.activeElement === focusable[0]) { e.preventDefault(); focusable.at(-1).focus(); }
+      else if (!e.shiftKey && document.activeElement === focusable.at(-1)) { e.preventDefault(); focusable[0].focus(); }
+    });
     wrap.querySelector('form').onsubmit = async (e) => {
       e.preventDefault();
       const vals = {}; (opts.fields || []).forEach((f) => { vals[f.id] = wrap.querySelector('#vd-' + f.id).value; });
@@ -653,8 +762,10 @@ window.exportEncryptedBackup = async function () {
   });
   if (!v) return;
   try {
-    const file = await V.exportEncrypted(v.p1);
+    const complete = await window.FinosStore.exportComplete();
+    const file = await V.exportEncrypted(v.p1, complete);
     const blob = new Blob([JSON.stringify(file)], { type: 'application/json' });
+    if (blob.size > MAX_BACKUP_BYTES) { toast('Encrypted backup exceeds the 50 MB restore limit.', 'warn', 6000); return; }
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
     a.download = 'finos-encrypted-backup-' + new Date().toLocaleDateString('en-CA') + '.json';
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
@@ -664,6 +775,7 @@ window.exportEncryptedBackup = async function () {
 window.importEncryptedBackup = function (input) {
   const file = input.files && input.files[0]; input.value = '';
   if (!file) return;
+  if (file.size > 50 * 1024 * 1024) { toast('Backup is larger than 50 MB.', 'warn'); return; }
   const reader = new FileReader();
   reader.onload = async () => {
     let parsed; try { parsed = JSON.parse(reader.result); } catch (e) { toast('That is not a backup file.', 'warn'); return; }
@@ -673,6 +785,7 @@ window.importEncryptedBackup = function (input) {
     try { const r = await window.FinosVault.importEncrypted(parsed, v.p); toast('Restored ' + r.imported + ' items (' + r.skipped + ' skipped).', 'success'); }
     catch (e) { toast(e.message, 'warn'); }
   };
+  reader.onerror = () => toast('Could not read the selected backup file.', 'warn');
   reader.readAsText(file);
 };
 document.addEventListener('DOMContentLoaded', vaultRefresh);
@@ -681,17 +794,20 @@ window.importData = function (input) {
   const file = input.files && input.files[0];
   input.value = '';
   if (!file) return;
+  if (file.size > 50 * 1024 * 1024) { toast('Backup is larger than 50 MB.', 'warn'); return; }
   const reader = new FileReader();
-  reader.onload = () => {
+  reader.onload = async () => {
     try {
       const parsed = JSON.parse(reader.result);
       if (parsed && parsed.encrypted) { toast('This backup is encrypted — use "Encrypted Backup → Restore".', 'warn'); return; }
-      const res = window.FinosStore.importAll(parsed);
+      const res = await window.FinosStore.importComplete(parsed);
       toast('Restored ' + res.imported + ' items (' + res.skipped + ' skipped).', 'success');
+      if (res.imported) setTimeout(() => window.location.reload(), 900);
     } catch (e) {
       toast(e.message || 'Could not read that file.', 'warn');
     }
   };
+  reader.onerror = () => toast('Could not read the selected backup file.', 'warn');
   reader.readAsText(file);
 };
 
@@ -702,17 +818,36 @@ window.clearDNA = function () {
     'dna_profile', 'FINOS_PROFILE_DNA', 'finos-mindset',
     'finos-investor-profile', 'finos-financial-being',
   ];
-  dnaKeys.forEach(k => localStorage.removeItem(k));
-  toast('Financial DNA cleared.', 'warn');
-  window.closeModal('clearDNAModal');
+  try {
+    dnaKeys.forEach(k => localStorage.removeItem(k));
+    toast('Financial DNA cleared.', 'warn');
+    window.closeModal('clearDNAModal');
+  } catch (e) { toast(e.message || 'Could not clear Financial DNA. Some local data may remain.', 'error'); }
 };
 
-window.clearAllCache = function () {
-  const keep = ['FINOS_SYS_SETTINGS', 'finos-theme', 'theme'];
-  let n = 0;
-  Object.keys(localStorage).filter(k => !keep.includes(k)).forEach(k => { localStorage.removeItem(k); n++; });
-  toast(`Cleared ${n} cached items. Settings preserved.`, 'warn');
-  window.closeModal('clearCacheModal');
+window.clearAllCache = async function () {
+  const btn = document.querySelector('#clearCacheModal .btn-danger');
+  if (btn) { btn.disabled = true; btn.textContent = 'Clearing…'; }
+  const vault = window.FinosVault;
+  if (vault?.isEnabled?.() && !vault.isUnlocked()) {
+    toast('Unlock the passcode vault before clearing local data. Nothing was changed.', 'warn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Yes, Clear FIN•OS Data'; }
+    return;
+  }
+  try {
+    const count = await clearLocalAppData({ preservePreferences: true, preserveVault: true });
+    if (vault?.isEnabled?.()) {
+      await vault.lock();
+      toast(`Cleared ${count} local data keys and offline records. The vault is locked.`, 'success', 5000);
+      setTimeout(() => window.location.reload(), 900);
+      return;
+    }
+    toast(`Cleared ${count} local data keys and offline records. Account and appearance settings were preserved.`, 'success', 5000);
+    window.closeModal('clearCacheModal');
+  } catch (e) {
+    toast(e.message || 'Could not clear all local data. Some data may remain on this device.', 'error', 6000);
+    if (btn) { btn.disabled = false; btn.textContent = 'Yes, Clear FIN•OS Data'; }
+  }
 };
 
 /* ─── UI SYNC ───────────────────────────────────────────────────── */
@@ -730,7 +865,7 @@ function syncUIToSettings() {
 
   // Accent swatches
   document.querySelectorAll('.color-swatch[data-color]').forEach(s =>
-    s.classList.toggle('active', s.dataset.color === S.accent)
+    { const active = s.dataset.color === S.accent; s.classList.toggle('active', active); s.setAttribute('aria-pressed', String(active)); }
   );
   const pick = document.getElementById('accentPicker');
   if (pick) pick.value = S.accent;
@@ -738,7 +873,7 @@ function syncUIToSettings() {
 
   // Font size
   document.querySelectorAll('.font-size-btn').forEach(b =>
-    b.classList.toggle('active', b.dataset.size === S.fontSize)
+    { const active = b.dataset.size === S.fontSize; b.classList.toggle('active', active); b.setAttribute('aria-pressed', String(active)); }
   );
 
   // AI
@@ -746,7 +881,7 @@ function syncUIToSettings() {
   if (aiLangSel) aiLangSel.value = S.aiLang;
 
   document.querySelectorAll('.persona-card').forEach(c =>
-    c.classList.toggle('active', c.dataset.persona === S.aiPersona)
+    { const active = c.dataset.persona === S.aiPersona; c.classList.toggle('active', active); c.setAttribute('aria-pressed', String(active)); }
   );
 
   const slider = document.getElementById('voiceSpeedSlider');
@@ -759,10 +894,6 @@ function syncUIToSettings() {
   syncToggle('reduceMotionToggle', S.reduceMotion);
   syncToggle('highContrastToggle', S.highContrast);
   syncToggle('compactUIToggle',    S.compactUI);
-  syncToggle('notifDailyToggle',   S.notifDailyBrief);
-  syncToggle('notifMarketToggle',  S.notifMarket);
-  syncToggle('notifGoalToggle',    S.notifGoal);
-
   // Display
   const numFmt = document.getElementById('numberFormatSelect');
   if (numFmt) numFmt.value = S.numberFormat;
@@ -772,10 +903,43 @@ function syncUIToSettings() {
   if (dateFmt) dateFmt.value = S.dateFormat;
 }
 
+function labelSettingsControls() {
+  document.querySelectorAll('.setting-row').forEach(row => {
+    const label = row.querySelector(':scope > .label-group > label');
+    const control = row.querySelector('select:not([hidden]), input:not([type="file"]), .font-size-group, .persona-grid');
+    if (!label || !control) return;
+    if (control.classList.contains('font-size-group') || control.classList.contains('persona-grid')) {
+      control.setAttribute('role', 'group');
+      control.setAttribute('aria-label', label.textContent.trim());
+      return;
+    }
+    if (!control.id) control.id = 'settings-control-' + Math.random().toString(36).slice(2, 9);
+    label.htmlFor = control.id;
+  });
+}
+
 /* ─── BOOT ──────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', async () => {
+  window.addEventListener('finos-settings-updated', event => {
+    const detail = event.detail || {};
+    if (detail.settings && typeof detail.settings === 'object') S = normalizeSettings(detail.settings);
+    else if (Object.prototype.hasOwnProperty.call(DEFAULTS, detail.key)) {
+      const valid = normalizeSetting(detail.key, detail.val);
+      if (valid !== undefined) S[detail.key] = valid;
+    }
+    syncUIToSettings();
+  });
+  window.addEventListener('storage', event => {
+    if (event.key !== SETTINGS_KEY) return;
+    try {
+      S = normalizeSettings(JSON.parse(event.newValue || '{}'));
+      applyAll();
+      syncUIToSettings();
+    } catch (_) { /* Keep the current in-memory preferences if another tab wrote malformed data. */ }
+  });
   applyAll();
   syncUIToSettings();
+  labelSettingsControls();
   await initSupabase();
 
   // Header theme toggle button — deduplicate listeners and set correct icon.
@@ -811,9 +975,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // System theme watcher
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  const media = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+  if (media?.addEventListener) media.addEventListener('change', () => {
     if (S.theme === 'system') applyOne('theme', 'system');
   });
+  else if (media?.addListener) media.addListener(() => { if (S.theme === 'system') applyOne('theme', 'system'); });
 
   // Voice speed slider — split oninput (display) from onchange (save)
   const speedSlider = document.getElementById('voiceSpeedSlider');

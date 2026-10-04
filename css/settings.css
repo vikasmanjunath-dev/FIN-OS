@@ -176,6 +176,22 @@
   .setting-row select { width: 100%; }
 }
 
+/* The `hidden` attribute is how the vault UI shows/hides "Lock now" and the auto-lock / passcode /
+   backup row. Author display rules (.btn-outline, .setting-row) out-rank the UA's [hidden] style, so
+   without this they stayed visible and clickable while the vault was off. */
+.settings-view [hidden] { display: none !important; }
+
+/* Touch targets: 44px is the comfortable minimum on phones (swatches/buttons were 26-34px). */
+@media (max-width: 768px) {
+  .settings-view .color-swatch { width: 44px; height: 44px; }
+  .settings-view .btn-outline,
+  .settings-view .btn-danger,
+  .settings-view .btn-primary,
+  .settings-view .font-size-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+  .settings-view .font-size-btn { min-width: 44px; }
+  .settings-view select { min-height: 44px; }
+}
+
 .setting-row--col {
   flex-direction: column;
   align-items: flex-start;
@@ -1100,4 +1116,14 @@ body.modal-open { overflow: hidden; }
   .persona-grid { grid-template-columns: 1fr; }
   .swatch-grid  { gap: 8px; }
   .color-swatch { width: 30px; height: 30px; }
+}
+.settings-notice {
+  margin: 0 0 14px;
+  padding: 11px 13px;
+  border: 1px solid var(--border-soft, rgba(255,255,255,.12));
+  border-radius: 10px;
+  color: var(--text-secondary, #A1A8B8);
+  background: var(--bg-glass, rgba(255,255,255,.03));
+  font-size: .85rem;
+  line-height: 1.55;
 }

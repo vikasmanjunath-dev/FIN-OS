@@ -9,7 +9,7 @@
 // Cache version — bump this manually when deploying breaking CSS/JS changes.
 // Format: finos-YYYY-MM-DD-N (N = daily build counter).
 // The inject-sw-version.js build script can override this automatically.
-const CACHE_NAME = (typeof __CACHE_VERSION__ !== 'undefined') ? __CACHE_VERSION__ : 'finos-ed0283b';
+const CACHE_NAME = (typeof __CACHE_VERSION__ !== 'undefined') ? __CACHE_VERSION__ : 'finos-4ad9c8c';
 
 // Shared reminder-selection logic (pure; same file the page uses). importScripts() is only allowed during the
 // worker's initial evaluation, so it must be here and not inside the periodicsync handler. Failure is non-fatal.

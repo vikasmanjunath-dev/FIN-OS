@@ -35,6 +35,27 @@
       this._saving   = false;    // prevent concurrent saves
     }
 
+    /* Settings → "Retain Arya Chat History". When the user turns it off, nothing about their chats
+       (topics, preferences, mood notes) may be recorded or persisted. Default is on. */
+    _enabled() {
+      try { return JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}').aiMemory !== false; }
+      catch (_) { return true; }
+    }
+
+    /* Forget everything held on this device (used when the setting is turned off). */
+    clearLocal() {
+      clearTimeout(this._saveTimer);
+      this.episodes = []; this.semantic = {}; this.emotional = [];
+      try {
+        const doomed = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.indexOf(LOCAL_KEY_PREFIX) === 0) doomed.push(k);
+        }
+        doomed.forEach(k => localStorage.removeItem(k));
+      } catch (_) {}
+    }
+
     get _localKey() {
       // Per-user key to prevent data collision across accounts on shared devices
       return this.userId ? `${LOCAL_KEY_PREFIX}_${this.userId}` : LOCAL_KEY_PREFIX;
@@ -50,6 +71,7 @@
 
     /* ── Record an episode ────────────────────────────────────────── */
     async record(topic, summary, tags = [], sentiment = 'neutral') {
+      if (!this._enabled()) return;
       this.episodes.unshift({
         ts: Date.now(),
         date: new Date().toISOString().slice(0, 10),
@@ -65,6 +87,7 @@
 
     /* ── Record a semantic fact (updates count each time seen) ────── */
     async learnFact(key, value) {
+      if (!this._enabled()) return;
       const existing = this.semantic[key];
       this.semantic[key] = {
         value,
@@ -76,6 +99,7 @@
 
     /* ── Record emotional state ───────────────────────────────────── */
     async recordEmotion(trigger, state, snippet = '') {
+      if (!this._enabled()) return;
       // states: stressed · excited · confused · confident · anxious · frustrated
       this.emotional.unshift({ ts: Date.now(), trigger, state, snippet: snippet.slice(0, 120) });
       if (this.emotional.length > MAX_EMOTIONAL) this.emotional.length = MAX_EMOTIONAL;
@@ -179,17 +203,19 @@
 
     /* ── Persist to localStorage + Supabase ───────────────────────── */
     async _save() {
+      if (!this._enabled()) return;           // setting turned off after a debounce was queued
       if (this._saving) return;
       this._saving = true;
-      const payload = {
-        episodes:  this.episodes.slice(0, MAX_EPISODES),
-        semantic:  this.semantic,
-        emotional: this.emotional.slice(0, MAX_EMOTIONAL)
-      };
-      try { localStorage.setItem(this._localKey, JSON.stringify(payload)); } catch (_) {}
-      // Then sync to Supabase if logged in
-      if (!this.userId || !SB_KEY) return;
       try {
+        const payload = {
+          episodes:  this.episodes.slice(0, MAX_EPISODES),
+          semantic:  this.semantic,
+          emotional: this.emotional.slice(0, MAX_EMOTIONAL)
+        };
+        try { localStorage.setItem(this._localKey, JSON.stringify(payload)); } catch (_) {}
+        // Then sync to Supabase if logged in. (The early return used to sit OUTSIDE the try/finally, so
+        // for guests _saving stayed true after the first save and nothing was ever persisted again.)
+        if (!this.userId || !SB_KEY) return;
         await fetch(`${SB_URL}/rest/v1/agent_memories?user_id=eq.${this.userId}`, {
           method: 'PATCH',
           headers: {

@@ -39,6 +39,41 @@
   --t-shadow:    rgba(0,0,0,0.08);
 }
 
+/* Settings accessibility preferences apply across the whole application. */
+:root.high-contrast {
+  --text-primary: #FFFFFF;
+  --text-main: #FFFFFF;
+  --text-secondary: #D7DCE8;
+  --text-muted: #C2C9D8;
+  --t-text: #FFFFFF;
+  --t-text2: #D7DCE8;
+  --t-text3: #C2C9D8;
+  --t-border: rgba(255,255,255,.28);
+  --t-border2: rgba(255,255,255,.42);
+}
+:root[data-theme="dark"].high-contrast {
+  --border-soft:   rgba(255,255,255,.36);
+  --border-medium: rgba(255,255,255,.5);
+  --border-hard:   rgba(255,255,255,.7);
+}
+:root[data-theme="light"].high-contrast {
+  --border-soft:   rgba(0,0,0,.4);
+  --border-medium: rgba(0,0,0,.55);
+  --border-hard:   rgba(0,0,0,.75);
+}
+:root[data-theme="light"].high-contrast {
+  --text-primary: #080A10;
+  --text-main: #080A10;
+  --text-secondary: #30374A;
+  --text-muted: #3A4358;
+  --t-text: #080A10;
+  --t-text2: #30374A;
+  --t-text3: #3A4358;
+  --t-border: rgba(0,0,0,.28);
+  --t-border2: rgba(0,0,0,.42);
+}
+:root.high-contrast :focus-visible { outline-width: 3px; outline-offset: 3px; }
+
 /* ═══════════════════════════════════
    BODY & PAGE BACKGROUNDS
    ═══════════════════════════════════ */

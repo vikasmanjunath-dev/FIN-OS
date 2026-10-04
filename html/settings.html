@@ -8,14 +8,18 @@
      crash theme initialization and leave the page with no theme applied. */
   var s;
   try { s=JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS')||'{}'); } catch(e){ s={}; }
-  var t=s.theme||localStorage.getItem('finos-theme')||'dark';
-  var resolved=t==='system'?(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'):t;
+  var allowedThemes=['dark','light','system'];
+  var legacyTheme='dark';
+  try { legacyTheme=localStorage.getItem('finos-theme')||'dark'; } catch(e) {}
+  var t=allowedThemes.includes(s.theme)?s.theme:legacyTheme;
+  if(!allowedThemes.includes(t))t='dark';
+  var resolved=t==='system'?(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'):t;
   document.documentElement.setAttribute('data-theme',resolved);
-  if(s.accent)document.documentElement.style.setProperty('--accent',s.accent);
-  if(s.reduceMotion)document.documentElement.classList.add('reduce-motion');
-  if(s.highContrast)document.documentElement.classList.add('high-contrast');
-  if(s.compactUI)document.documentElement.classList.add('compact-ui');
-  if(s.fontSize)document.documentElement.setAttribute('data-font-size',s.fontSize);
+  if(typeof s.accent==='string'&&/^#[\da-f]{6}$/i.test(s.accent))document.documentElement.style.setProperty('--accent',s.accent);
+  if(s.reduceMotion===true)document.documentElement.classList.add('reduce-motion');
+  if(s.highContrast===true)document.documentElement.classList.add('high-contrast');
+  if(s.compactUI===true)document.documentElement.classList.add('compact-ui');
+  if(['small','normal','large'].includes(s.fontSize))document.documentElement.setAttribute('data-font-size',s.fontSize);
 })();
 </script>
   <meta charset="UTF-8" />
@@ -35,11 +39,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
-<link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css?v=3">
-  <link rel="stylesheet" href="../css/components.css">
-  <link rel="stylesheet" href="../css/settings.css?v=2">
-  <link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="../css/base.css?v=2">
+  <link rel="stylesheet" href="../css/layout.css?v=4">
+  <link rel="stylesheet" href="../css/components.css?v=2">
+  <link rel="stylesheet" href="../css/settings.css?v=3">
+  <link rel="stylesheet" href="../css/theme.css?v=2">
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
   <meta property="og:image" content="/assets/icons/icon-512.svg">
@@ -176,7 +180,7 @@
              SECTION 1 — ACCOUNT & SECURITY
         ══════════════════════════════════════════ -->
         <section class="settings-card glass-panel">
-          <h3><span class="s-icon">🔐</span> Account &amp; Security</h3>
+          <h3 role="heading" aria-level="2"><span class="s-icon">🔐</span> Account &amp; Security</h3>
 
           <div class="setting-row auth-required">
             <div class="label-group">
@@ -224,7 +228,7 @@
              SECTION 2 — APPEARANCE
         ══════════════════════════════════════════ -->
         <section class="settings-card glass-panel">
-          <h3><span class="s-icon">🎨</span> Appearance</h3>
+          <h3 role="heading" aria-level="2"><span class="s-icon">🎨</span> Appearance</h3>
 
           <!-- Theme -->
           <div class="setting-row">
@@ -273,9 +277,9 @@
               <span>Scales text across the entire app.</span>
             </div>
             <div class="font-size-group">
-              <button class="font-size-btn" data-size="small"  onclick="setFontSize('small')">S</button>
-              <button class="font-size-btn" data-size="normal" onclick="setFontSize('normal')">M</button>
-              <button class="font-size-btn" data-size="large"  onclick="setFontSize('large')">L</button>
+              <button class="font-size-btn" data-size="small" aria-label="Small text" onclick="setFontSize('small')">S</button>
+              <button class="font-size-btn" data-size="normal" aria-label="Default text size" onclick="setFontSize('normal')">M</button>
+              <button class="font-size-btn" data-size="large" aria-label="Large text" onclick="setFontSize('large')">L</button>
             </div>
           </div>
         </section>
@@ -284,7 +288,7 @@
              SECTION — COMPLEXITY MODE
         ══════════════════════════════════════════ -->
         <section class="settings-card glass-panel" id="mode">
-          <h3><span class="s-icon">⚡</span> Complexity Mode</h3>
+          <h3 role="heading" aria-level="2"><span class="s-icon">⚡</span> Complexity Mode</h3>
           <p style="font-size:13px;color:var(--text-secondary);margin:0 0 16px;line-height:1.6;">
             Controls which features and tools are visible across FIN-OS. Level up naturally as you grow, or switch manually here.
           </p>
@@ -312,7 +316,7 @@
              SECTION 3 — AI SYSTEM
         ══════════════════════════════════════════ -->
         <section class="settings-card glass-panel">
-          <h3><span class="s-icon">🤖</span> AI System</h3>
+          <h3 role="heading" aria-level="2"><span class="s-icon">🤖</span> AI System</h3>
 
           <!-- Language -->
           <div class="setting-row">
@@ -373,7 +377,7 @@
           <div class="setting-row setting-row--col">
             <div class="label-group">
               <label>Voice Speed</label>
-              <span>Controls the AI voice agent playback rate.</span>
+              <span>Controls browser speech playback speed where Arya uses text-to-speech.</span>
             </div>
             <div class="slider-row">
               <span class="slider-label">0.6×</span>
@@ -387,8 +391,8 @@
           <!-- Memory -->
           <div class="setting-row">
             <div class="label-group">
-              <label>Conversation Memory</label>
-              <span>AI remembers context between sessions.</span>
+              <label>Retain Arya Chat History</label>
+              <span>Keeps recent Arya conversations, and what Arya learns from them (topics, preferences, mood notes), on this device. Turning it off clears both and stops recording.</span>
             </div>
             <label class="toggle-wrap">
               <input type="checkbox" id="aiMemoryToggle" onchange="setAIMemory(this.checked)">
@@ -401,7 +405,7 @@
              SECTION 4 — DISPLAY PREFERENCES
         ══════════════════════════════════════════ -->
         <section class="settings-card glass-panel">
-          <h3><span class="s-icon">🌐</span> Display Preferences</h3>
+          <h3 role="heading" aria-level="2"><span class="s-icon">🌐</span> Display Preferences</h3>
 
           <div class="setting-row">
             <div class="label-group">
@@ -417,19 +421,18 @@
           <div class="setting-row">
             <div class="label-group">
               <label>Currency Display</label>
-              <span>How amounts are labeled across calculators.</span>
+              <span>Changes the symbol only; it never converts values. Only FIN•OS-formatted amounts use this setting.</span>
             </div>
             <select id="currencySelect" onchange="setCurrency(this.value)">
               <option value="inr">₹ Indian Rupee</option>
               <option value="usd">$ US Dollar</option>
-              <option value="both">Both (₹ / $)</option>
             </select>
           </div>
 
           <div class="setting-row">
             <div class="label-group">
               <label>Date Format</label>
-              <span>How dates appear in reports and insights.</span>
+              <span>Used by FIN•OS date-format helpers. Page-specific labels may retain their own format.</span>
             </div>
             <select id="dateFormatSelect" onchange="setDateFormat(this.value)">
               <option value="dmy">DD/MM/YYYY</option>
@@ -443,7 +446,7 @@
              SECTION 5 — ACCESSIBILITY
         ══════════════════════════════════════════ -->
         <section class="settings-card glass-panel">
-          <h3><span class="s-icon">♿</span> Accessibility</h3>
+          <h3 role="heading" aria-level="2"><span class="s-icon">♿</span> Accessibility</h3>
 
           <div class="setting-row">
             <div class="label-group">
@@ -483,29 +486,9 @@
              SECTION 6 — NOTIFICATIONS
         ══════════════════════════════════════════ -->
         <section class="settings-card glass-panel">
-          <h3><span class="s-icon">🔔</span> Notifications</h3>
+          <h3 role="heading" aria-level="2"><span class="s-icon">🔔</span> Notifications</h3>
 
-          <div class="setting-row">
-            <div class="label-group">
-              <label>Daily Brief</label>
-              <span>Morning summary of your PULSE score &amp; market moves.</span>
-            </div>
-            <label class="toggle-wrap">
-              <input type="checkbox" id="notifDailyToggle" onchange="toggleNotifDailyBrief(this.checked)">
-              <span class="toggle-track"><span class="toggle-thumb"></span></span>
-            </label>
-          </div>
-
-          <div class="setting-row">
-            <div class="label-group">
-              <label>Market Alerts</label>
-              <span>Notify when watchlist stocks move significantly.</span>
-            </div>
-            <label class="toggle-wrap">
-              <input type="checkbox" id="notifMarketToggle" onchange="toggleNotifMarket(this.checked)">
-              <span class="toggle-track"><span class="toggle-thumb"></span></span>
-            </label>
-          </div>
+          <p class="settings-notice">Browser notifications are currently available for due-date reminders. Daily briefs, market alerts and goal nudges are not connected to a delivery service, so they are not shown as active switches.</p>
 
           <div class="setting-row">
             <div class="label-group">
@@ -526,28 +509,18 @@
             <button class="btn-outline" onclick="installApp()">Install app</button>
           </div>
 
-          <div class="setting-row">
-            <div class="label-group">
-              <label>Goal Nudges</label>
-              <span>Weekly check-in on your savings &amp; investment goals.</span>
-            </div>
-            <label class="toggle-wrap">
-              <input type="checkbox" id="notifGoalToggle" onchange="toggleNotifGoal(this.checked)">
-              <span class="toggle-track"><span class="toggle-thumb"></span></span>
-            </label>
-          </div>
         </section>
 
         <!-- ══════════════════════════════════════════
              SECTION 7 — DATA & PRIVACY
         ══════════════════════════════════════════ -->
         <section class="settings-card glass-panel danger-zone">
-          <h3><span class="s-icon">🗄️</span> Data &amp; Privacy</h3>
+          <h3 role="heading" aria-level="2"><span class="s-icon">🗄️</span> Data &amp; Privacy</h3>
 
           <div class="setting-row">
             <div class="label-group">
               <label>Export My Data</label>
-              <span>Download all your FIN•OS data as a JSON file.</span>
+              <span>Download FIN•OS data and offline records as plain JSON. This file is not encrypted; store it securely.</span>
             </div>
             <button class="btn-outline" onclick="exportData()">Export JSON</button>
           </div>
@@ -606,10 +579,10 @@
 
           <div class="setting-row sign-out-row">
             <div class="label-group">
-              <label class="danger-text">Clear All Cache</label>
-              <span>Wipes all local data. Your UI settings are preserved.</span>
+              <label class="danger-text">Clear Local FIN•OS Data</label>
+              <span>Deletes this device's FIN•OS data and offline records. Keeps your account and appearance settings.</span>
             </div>
-            <button class="btn-danger btn-danger--ghost" onclick="openModal('clearCacheModal')">Clear Cache</button>
+            <button class="btn-danger btn-danger--ghost" onclick="openModal('clearCacheModal')">Clear Local Data</button>
           </div>
         </section>
 
@@ -618,7 +591,7 @@
         ══════════════════════════════════════════ -->
         <!-- Upgrade anchor — linked from dashboard, benchmarking, couple-finance -->
         <section id="upgrade" class="settings-card glass-panel" style="border:1px solid rgba(199,240,0,.25);">
-          <h3><span class="s-icon">⚡</span> FIN•OS Pro Features</h3>
+          <h3 role="heading" aria-level="2"><span class="s-icon">⚡</span> FIN•OS Pro Features</h3>
           <p style="font-size:.85rem;color:rgba(255,255,255,.6);margin-bottom:12px;">FIN•OS is free and open-source. All AI features run locally — no subscription needed. Pro features below are community-powered.</p>
           <div class="about-grid">
             <div class="about-item"><span class="about-label">Voice Agent</span><span class="about-val accent-text">✅ Free</span></div>
@@ -629,19 +602,11 @@
         </section>
 
         <section class="settings-card glass-panel">
-          <h3><span class="s-icon">ℹ️</span> About FIN•OS</h3>
+          <h3 role="heading" aria-level="2"><span class="s-icon">ℹ️</span> About FIN•OS</h3>
           <div class="about-grid">
             <div class="about-item">
-              <span class="about-label">Version</span>
-              <span class="about-val accent-text">3.0.0</span>
-            </div>
-            <div class="about-item">
-              <span class="about-label">Build</span>
-              <span class="about-val">2026-05-18</span>
-            </div>
-            <div class="about-item">
               <span class="about-label">Calculators</span>
-              <span class="about-val accent-text">70+</span>
+              <span class="about-val accent-text">88+</span>
             </div>
             <div class="about-item">
               <span class="about-label">AI Engine</span>
@@ -666,7 +631,7 @@
              replaced with a link to the real page instead.
         ══════════════════════════════════════════ -->
         <section class="settings-card glass-panel" id="couple-finance-section">
-          <h3><span class="s-icon">💑</span> Household &amp; Couple Finance</h3>
+          <h3 role="heading" aria-level="2"><span class="s-icon">💑</span> Household &amp; Couple Finance</h3>
           <div class="setting-row">
             <div class="label-group">
               <label>Partner Account</label>
@@ -680,7 +645,7 @@
              ACCOUNT AGGREGATOR
         ══════════════════════════════════════════ -->
         <section class="settings-card glass-panel" id="account-aggregator-section">
-          <h3><span class="s-icon">🔗</span> Account Aggregator</h3>
+          <h3 role="heading" aria-level="2"><span class="s-icon">🔗</span> Account Aggregator</h3>
           <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.55;">
             Connect your bank accounts and mutual funds via RBI-regulated Account Aggregator providers for automatic data sync in Track Finances.
           </p>
@@ -694,12 +659,12 @@
              BRAIN SYNC
         ══════════════════════════════════════════ -->
         <section class="settings-card glass-panel" id="brain-sync-section">
-          <h3><span class="s-icon">🧠</span> Financial Brain Sync</h3>
+          <h3 role="heading" aria-level="2"><span class="s-icon">🧠</span> Financial Brain Sync</h3>
 
           <div class="setting-row">
             <div class="label-group">
               <label>Export Your Financial Brain</label>
-              <span>Download a complete snapshot of your DNA, goals, behavioral profile, and preferences. Import on any device to restore Arya's full context instantly.</span>
+              <span>Download a snapshot of selected profile, goals, behavior data and preferences. The JSON is not encrypted; store it securely.</span>
             </div>
             <button class="btn-outline" style="font-size:12px;padding:6px 14px;" onclick="window._brainExport()">Export Brain →</button>
           </div>
@@ -707,7 +672,7 @@
           <div class="setting-row" style="margin-top:12px;">
             <div class="label-group">
               <label>Import Brain</label>
-              <span>Restore your financial context from a previously exported brain file.</span>
+              <span>Add missing data from a Brain export. Existing values are preserved; this JSON is not encrypted.</span>
             </div>
             <div>
               <input type="file" id="brain-import-file" accept=".json" style="display:none;" onchange="window._brainImport(this)">
@@ -754,8 +719,8 @@
     <h4 id="emailModalTitle">Change Email Address</h4>
     <p class="modal-sub">Enter your new email. We'll send a confirmation link.</p>
     <div class="modal-field">
-      <label>New Email</label>
-      <input type="email" id="newEmailInput" placeholder="new@email.com" class="modal-input">
+      <label for="newEmailInput">New Email</label>
+      <input type="email" id="newEmailInput" autocomplete="email" placeholder="new@email.com" class="modal-input">
     </div>
     <div class="modal-actions">
       <button class="btn-outline" onclick="closeModal('emailModal')">Cancel</button>
@@ -781,11 +746,11 @@
 <div id="clearCacheModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="clearCacheTitle" style="display:none">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('clearCacheModal')" aria-label="Close">✕</button>
-    <h4 id="clearCacheTitle">Clear All Local Cache?</h4>
-    <p class="modal-sub">Removes all locally stored app data — portfolios, chat history, goals, and more. Your UI settings and account are preserved.</p>
+    <h4 id="clearCacheTitle">Clear Local FIN•OS Data?</h4>
+    <p class="modal-sub">Permanently removes FIN•OS financial data and offline records from this device. Your account, sign-in and appearance settings are preserved. If the passcode lock is enabled, the updated empty-data snapshot will be encrypted and this tab will lock again.</p>
     <div class="modal-actions">
       <button class="btn-outline" onclick="closeModal('clearCacheModal')">Cancel</button>
-      <button class="btn-danger" onclick="clearAllCache()">Yes, Clear Cache</button>
+      <button class="btn-danger" onclick="clearAllCache()">Yes, Clear FIN•OS Data</button>
     </div>
   </div>
 </div>
@@ -795,9 +760,10 @@
   <div class="modal-box modal-box--danger">
     <button class="modal-close" onclick="closeModal('deleteModal')" aria-label="Close">✕</button>
     <h4 id="deleteModalTitle">⚠ Delete Account</h4>
-    <p class="modal-sub">This is permanent. All your data will be wiped and cannot be recovered. Type <strong>DELETE</strong> to confirm.</p>
+    <p class="modal-sub">This permanently deletes your account only after the server confirms deletion. FIN•OS data on this device is removed only after that confirmation. If deletion is unavailable or fails, nothing on this device will be erased. Export a backup first if you want to keep your local data.</p>
     <div class="modal-field">
-      <input type="text" id="deleteConfirmInput" placeholder="Type DELETE" class="modal-input modal-input--danger">
+      <label for="deleteConfirmInput">Type DELETE to confirm</label>
+      <input type="text" id="deleteConfirmInput" autocomplete="off" placeholder="Type DELETE" class="modal-input modal-input--danger">
     </div>
     <div class="modal-actions">
       <button class="btn-outline" onclick="closeModal('deleteModal')">Cancel</button>
@@ -809,16 +775,16 @@
 
 
 <script src="../js/finos-aa.js" defer></script>
-<script src="../js/ui.js?v=3"></script>
+<script src="../js/ui.js?v=4"></script>
 <script src="../js/finos-store.js"></script>
 <script src="../js/finos-reminders.js"></script>
 <script src="../js/finos-i18n.js"></script>
 <script src="../js/finos-vault.js"></script>
-<script src="../js/settings.js?v=3"></script>
+<script src="../js/settings.js?v=4"></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=10"></script>
-<script src="../js/finos-search.js?v=5"></script>
+<script src="../js/finos-widget.js?v=11"></script>
+<script src="../js/finos-search.js?v=6"></script>
 
 <style>
 /* ── Alert Preferences Section ─────────────────────────────────────────── */
@@ -881,122 +847,116 @@ input:checked + .toggle-slider::before { transform: translateX(20px); }
 
 <script>
 (function () {
-  const ALERT_ENGINE = (['localhost','127.0.0.1','::1'].includes(window.location.hostname)) ? 'http://localhost:8001' : null;
-const sb = (window.FINOS_SB && window.FINOS_SB.getClient()) || (window.supabase ? window.supabase.createClient(window.FINOS_SB ? window.FINOS_SB.url : 'https://oeapcyucnduhwpgxfknb.supabase.co', window.FINOS_SB ? window.FINOS_SB.key : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q') : null);
-
+  const ALERT_ENGINE = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname) ? 'http://localhost:8001' : null;
+  let sb = null;
+  try { sb = window.FINOS_SB?.getClient?.() || null; } catch (_) {}
   const RULE_META = {
-    SIP_MISSED:          { icon: '📈', desc: 'Alert when SIP date passes with no transaction',       priority: 'warning'     },
-    SALARY_CREDITED:     { icon: '💰', desc: 'Prompt budget waterfall when salary is detected',      priority: 'info'        },
-    MARKET_DROP:         { icon: '📉', desc: 'Notify when Nifty falls 3%+ in a single day',          priority: 'warning'     },
-    GOAL_BEHIND:         { icon: '🎯', desc: 'Alert when goal contribution is insufficient',         priority: 'warning'     },
-    CC_BILL_DUE:         { icon: '💳', desc: 'Remind 3 days before credit card due date',            priority: 'warning'     },
-    BUDGET_OVERRUN:      { icon: '🔴', desc: 'Alert when any category hits 90% of budget',           priority: 'warning'     },
-    EMERGENCY_FUND_LOW:  { icon: '🛡️', desc: 'Critical: emergency fund below 3 months expenses',   priority: 'critical'    },
-    TAX_SEASON:          { icon: '📋', desc: 'Context-aware tax reminders (80C, ITR, advance tax)', priority: 'info'        },
-    FNO_EXPIRY_WEEK:     { icon: '⚡', desc: 'F&O expiry week warning for options traders',          priority: 'warning'     },
-    NETWORTH_MILESTONE:  { icon: '🏆', desc: 'Celebrate ₹1L / ₹5L / ₹10L / ₹1Cr net worth hits',  priority: 'celebration' },
-    TAX_SAVE_80C:        { icon: '🎁', desc: 'Track 80C gap and remind to invest before March',     priority: 'info'        },
-    BILL_DUE_AI:         { icon: '🤖', desc: 'AI-predicted recurring bill warnings (5 days ahead)', priority: 'info'        },
-    ANOMALY_SPEND:       { icon: '🚨', desc: 'Detect statistically unusual transactions in any category', priority: 'warning' },
+    SIP_MISSED: { icon: '📈', desc: 'Alert when SIP date passes with no transaction', priority: 'warning' },
+    SALARY_CREDITED: { icon: '💰', desc: 'Prompt budget waterfall when salary is detected', priority: 'info' },
+    MARKET_DROP: { icon: '📉', desc: 'Notify when Nifty falls 3%+ in a single day', priority: 'warning' },
+    GOAL_BEHIND: { icon: '🎯', desc: 'Alert when goal contribution is insufficient', priority: 'warning' },
+    CC_BILL_DUE: { icon: '💳', desc: 'Remind 3 days before credit card due date', priority: 'warning' },
+    BUDGET_OVERRUN: { icon: '🔴', desc: 'Alert when any category hits 90% of budget', priority: 'warning' },
+    EMERGENCY_FUND_LOW: { icon: '🛡️', desc: 'Critical: emergency fund below 3 months expenses', priority: 'critical' },
+    TAX_SEASON: { icon: '📋', desc: 'Context-aware tax reminders (80C, ITR, advance tax)', priority: 'info' },
+    FNO_EXPIRY_WEEK: { icon: '⚡', desc: 'F&O expiry week warning for options traders', priority: 'warning' },
+    NETWORTH_MILESTONE: { icon: '🏆', desc: 'Celebrate net worth milestones', priority: 'celebration' },
+    TAX_SAVE_80C: { icon: '🎁', desc: 'Track 80C gap and remind to invest before March', priority: 'info' },
+    BILL_DUE_AI: { icon: '🤖', desc: 'AI-predicted recurring bill warnings (5 days ahead)', priority: 'info' },
+    ANOMALY_SPEND: { icon: '🚨', desc: 'Detect statistically unusual transactions in any category', priority: 'warning' },
   };
-
   let currentUserId = null;
-  let pendingPrefs  = {};
+  const pendingPrefs = Object.create(null);
 
   async function initAlertPrefs() {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) return;
+    if (!sb?.auth?.getSession) return;
+    let session;
+    try { ({ data: { session } = {} } = await sb.auth.getSession()); } catch (_) { return; }
+    if (!session?.user?.id) return;
     currentUserId = session.user.id;
-
-    // Inject the section into the settings page
-    const container = document.querySelector('.settings-view .content-wrapper') ||
-                      document.querySelector('.settings-view') ||
-                      document.querySelector('.content-wrapper');
+    const container = document.querySelector('.settings-view .content-wrapper') || document.querySelector('.settings-view') || document.querySelector('.content-wrapper');
     if (!container) return;
 
     const section = document.createElement('section');
     section.className = 'settings-card alert-prefs-section';
     section.id = 'alertPrefsSection';
-    section.innerHTML = `
-      <h3>🔔 Alert Preferences</h3>
-      <p class="sub">Choose which smart alerts Arya sends you. All alerts respect cooldown periods to avoid spam.</p>
-      <div id="alertPrefsList"><div style="color:var(--text-muted);font-size:.85rem;">Loading alert settings…</div></div>
-      <button class="prefs-save-btn" onclick="window._saveAlertPrefs()">Save Preferences</button>
-      <div class="prefs-status" id="prefsStatus"></div>`;
+    section.innerHTML = '<h3 role="heading" aria-level="2">🔔 Alert Preferences</h3><p class="sub">Choose which smart alerts Arya sends you. All alerts respect cooldown periods to avoid spam.</p><div id="alertPrefsList"></div><button type="button" class="prefs-save-btn">Save Preferences</button><div class="prefs-status" id="prefsStatus" role="status" aria-live="polite"></div>';
     container.appendChild(section);
-
-    loadAlertPrefs();
+    const list = section.querySelector('#alertPrefsList');
+    section.querySelector('.prefs-save-btn').addEventListener('click', saveAlertPrefs);
+    if (!ALERT_ENGINE) {
+      list.textContent = 'Smart alert preferences are available when the local alert engine is running.';
+      section.querySelector('.prefs-save-btn').disabled = true;
+      return;
+    }
+    list.textContent = 'Loading alert settings…';
+    await loadAlertPrefs(list);
   }
 
-  async function loadAlertPrefs() {
-    const list = document.getElementById('alertPrefsList');
-    if (!list || !currentUserId) return;
+  async function loadAlertPrefs(list) {
     try {
-      const res  = await fetch(`${ALERT_ENGINE}/alerts/preferences/${currentUserId}`);
-      if (!res.ok) throw new Error('Engine offline');
+      const res = await fetch(`${ALERT_ENGINE}/alerts/preferences/${encodeURIComponent(currentUserId)}`);
+      if (!res.ok) throw new Error('Alert service unavailable');
       const data = await res.json();
-
-      list.innerHTML = '';
-      (data.preferences || []).forEach(pref => {
-        const meta = RULE_META[pref.rule_id] || { icon: '🔔', desc: pref.rule_id, priority: 'info' };
-        const row  = document.createElement('div');
-        row.className = 'alert-pref-row';
-        row.innerHTML = `
-          <div class="pref-icon">${meta.icon}</div>
-          <div class="pref-info">
-            <div class="pref-name">${(pref._name || pref.rule_id).replace(/_/g,' ')}</div>
-            <div class="pref-desc">${meta.desc}</div>
-          </div>
-          <span class="pref-priority ${meta.priority}">${meta.priority}</span>
-          <div class="toggle-wrap">
-            <label class="toggle-switch">
-              <input type="checkbox" id="pref-${pref.rule_id}"
-                ${pref.enabled !== false ? 'checked' : ''}
-                onchange="window._markPrefDirty('${pref.rule_id}', this.checked)" />
-              <span class="toggle-slider"></span>
-            </label>
-          </div>`;
-        list.appendChild(row);
-        pendingPrefs[pref.rule_id] = pref.enabled !== false;
-      });
-    } catch (e) {
-      list.innerHTML = `<div style="color:var(--text-muted);font-size:.83rem;">
-        Alert engine offline — preferences unavailable. Start alert-engine.py to manage alerts.</div>`;
+      if (!Array.isArray(data.preferences)) throw new Error('Invalid preferences response');
+      if (data.preferences.length === 0) {
+        list.textContent = 'No smart alert preferences are available for this account.';
+        const saveButton = document.querySelector('#alertPrefsSection .prefs-save-btn');
+        if (saveButton) saveButton.disabled = true;
+        return;
+      }
+      list.replaceChildren();
+      for (const pref of data.preferences) {
+        const ruleId = typeof pref?.rule_id === 'string' ? pref.rule_id : '';
+        if (!/^[A-Z0-9_]{1,64}$/.test(ruleId) || typeof pref.enabled !== 'boolean' || Object.prototype.hasOwnProperty.call(pendingPrefs, ruleId)) continue;
+        const meta = RULE_META[ruleId] || { icon: '🔔', desc: ruleId.replace(/_/g, ' ').toLowerCase(), priority: 'info' };
+        const row = document.createElement('div'); row.className = 'alert-pref-row';
+        const icon = document.createElement('div'); icon.className = 'pref-icon'; icon.textContent = meta.icon;
+        const info = document.createElement('div'); info.className = 'pref-info';
+        const name = document.createElement('div'); name.className = 'pref-name'; name.textContent = ruleId.replace(/_/g, ' ');
+        const desc = document.createElement('div'); desc.className = 'pref-desc'; desc.textContent = meta.desc;
+        info.append(name, desc);
+        const priority = document.createElement('span'); priority.className = `pref-priority ${meta.priority}`; priority.textContent = meta.priority;
+        const toggleWrap = document.createElement('div'); toggleWrap.className = 'toggle-wrap';
+        const label = document.createElement('label'); label.className = 'toggle-switch';
+        const input = document.createElement('input'); input.type = 'checkbox'; input.checked = pref.enabled !== false; input.setAttribute('aria-label', `Enable ${name.textContent}`);
+        input.addEventListener('change', () => { pendingPrefs[ruleId] = input.checked; });
+        const slider = document.createElement('span'); slider.className = 'toggle-slider';
+        label.append(input, slider); toggleWrap.append(label); row.append(icon, info, priority, toggleWrap); list.appendChild(row);
+        pendingPrefs[ruleId] = input.checked;
+      }
+    } catch (_) {
+      list.textContent = 'Alert engine unavailable — preferences could not be loaded.';
+      const saveButton = document.querySelector('#alertPrefsSection .prefs-save-btn');
+      if (saveButton) saveButton.disabled = true;
     }
   }
 
-  window._markPrefDirty = function(ruleId, enabled) {
-    pendingPrefs[ruleId] = enabled;
-  };
-
-  window._saveAlertPrefs = async function() {
-    const btn    = document.querySelector('.prefs-save-btn');
+  async function saveAlertPrefs() {
+    const btn = document.querySelector('#alertPrefsSection .prefs-save-btn');
     const status = document.getElementById('prefsStatus');
-    if (!currentUserId) { status.textContent = 'Not logged in.'; return; }
+    if (!currentUserId || !ALERT_ENGINE || !btn || !status) return;
     btn.disabled = true; btn.textContent = 'Saving…';
-    let saved = 0, failed = 0;
-    for (const [ruleId, enabled] of Object.entries(pendingPrefs)) {
-      try {
-        const r = await fetch(`${ALERT_ENGINE}/alerts/preferences`, {
-          method: 'PUT', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: currentUserId, rule_id: ruleId, enabled }),
-        });
-        r.ok ? saved++ : failed++;
-      } catch { failed++; }
+    try {
+      const results = await Promise.all(Object.entries(pendingPrefs).map(async ([ruleId, enabled]) => {
+        try {
+          const response = await fetch(`${ALERT_ENGINE}/alerts/preferences`, {
+            method: 'PUT', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: currentUserId, rule_id: ruleId, enabled }),
+          });
+          return response.ok;
+        } catch (_) { return false; }
+      }));
+      const saved = results.filter(Boolean).length;
+      const failed = results.length - saved;
+      status.textContent = failed ? `⚠️ ${saved} saved, ${failed} failed — is alert engine running?` : `✅ All ${saved} preferences saved!`;
+    } finally {
+      btn.disabled = false; btn.textContent = 'Save Preferences';
     }
-    btn.disabled = false; btn.textContent = 'Save Preferences';
-    status.textContent = failed
-      ? `⚠️ ${saved} saved, ${failed} failed — is alert engine running?`
-      : `✅ All ${saved} preferences saved!`;
-    setTimeout(() => status.textContent = '', 3000);
-  };
-
-  // Run after DOM loaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAlertPrefs);
-  } else {
-    setTimeout(initAlertPrefs, 300);
   }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAlertPrefs);
+  else setTimeout(initAlertPrefs, 300);
 })();
 </script>
 
@@ -1010,71 +970,75 @@ const sb = (window.FINOS_SB && window.FINOS_SB.getClient()) || (window.supabase 
 <script>
 (function() {
   // BRAIN SYNC
+  const BRAIN_KEYS = [
+    'FINOS_CORE_DNA','finos_financial_dna','finos_display_name','finos_income',
+    'finos_net_worth','finos_savings_rate','finos_health_score','finos_health_score_detail',
+    'finos_fire_percent','finos_emergency_fund','finos_city','finos_stage','finos_mindset',
+    'finos_behavioral_debt_annual','finos_primary_bias','FINOS_DNA_HISTORY',
+    'finos_streak','finos_learned_modules','finos_learn_quiz_scores',
+    'finos_transactions','finos_goals','finos_debts','finos_subscriptions',
+    'finos_expense_total','finos_tax_savings','finos_trade_stats','tradebook_trades',
+    'finos_couple_linked','finos_partner_net_worth','finos_partner_savings_rate',
+    'FINOS_SYS_SETTINGS','finos_profile','finos_interests',
+  ];
+
   window._brainExport = function() {
-    const KEYS = [
-      // Core identity
-      'FINOS_CORE_DNA','finos_financial_dna','finos_display_name','finos_income',
-      'finos_net_worth','finos_savings_rate','finos_health_score','finos_health_score_detail',
-      'finos_fire_percent','finos_emergency_fund','finos_city','finos_stage','finos_mindset',
-      // Behavioral intelligence
-      'finos_behavioral_debt_annual','finos_primary_bias','FINOS_DNA_HISTORY',
-      // Engagement & learning
-      'finos_streak','finos_learned_modules','finos_learn_quiz_scores',
-      // Financial data
-      'finos_transactions','finos_goals','finos_debts','finos_subscriptions',
-      'finos_expense_total','finos_tax_savings',
-      // Trade journal
-      'finos_trade_stats','tradebook_trades',
-      // Household / couple
-      'finos_couple_linked','finos_partner_net_worth','finos_partner_savings_rate',
-      // Preferences
-      'FINOS_SYS_SETTINGS','finos_session_meta',
-      // Onboarding & profile
-      'finos_profile','finos_interests',
-    ];
-    const brain = { version: '1.0', exported: new Date().toISOString(), data: {} };
-    KEYS.forEach(k => {
-      const v = localStorage.getItem(k);
-      if (v) {
-        try { brain.data[k] = JSON.parse(v); } catch { brain.data[k] = v; }
-      }
-    });
-    brain.checksum = Object.keys(brain.data).length;
+    const brain = { app: 'FIN-OS', version: 1, exported: new Date().toISOString(), data: {} };
+    try {
+      BRAIN_KEYS.forEach(k => {
+        const v = localStorage.getItem(k);
+        if (v) { try { brain.data[k] = JSON.parse(v); } catch { brain.data[k] = v; } }
+      });
+    } catch (_) {
+      const statusEl = document.getElementById('brain-sync-status');
+      if (statusEl) statusEl.textContent = '✗ Browser storage is unavailable; no Brain backup was created.';
+      return;
+    }
+    brain.keyCount = Object.keys(brain.data).length;
 
     const blob = new Blob([JSON.stringify(brain, null, 2)], { type: 'application/json' });
+    if (blob.size > 10 * 1024 * 1024) {
+      const statusEl = document.getElementById('brain-sync-status');
+      if (statusEl) statusEl.textContent = '✗ Brain backup exceeds the 10 MB restore limit.';
+      return;
+    }
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `finos-brain-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
 
     const statusEl = document.getElementById('brain-sync-status');
-    if (statusEl) statusEl.textContent = `✓ Brain exported: ${brain.checksum} data keys saved.`;
+    if (statusEl) statusEl.textContent = `✓ Brain exported: ${brain.keyCount} data keys saved.`;
     _renderBrainContents();
   };
 
   window._brainImport = function(input) {
-    const file = input.files[0];
+    const file = input.files && input.files[0];
+    if (input) input.value = '';
     if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { const s = document.getElementById('brain-sync-status'); if (s) s.textContent = '✗ Brain backup is larger than 10 MB.'; return; }
     const reader = new FileReader();
     reader.onload = e => {
       try {
         const brain = JSON.parse(e.target.result);
-        if (!brain.data) throw new Error('Invalid brain file');
-        let count = 0;
-        Object.entries(brain.data).forEach(([k, v]) => {
-          localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v));
-          count++;
-        });
+        if (brain.app !== 'FIN-OS' || brain.version !== 1 || !brain.data || typeof brain.data !== 'object' || Array.isArray(brain.data)) throw new Error('Invalid brain file');
+        const allowed = new Set(BRAIN_KEYS);
+        if (Object.keys(brain.data).length > BRAIN_KEYS.length || Object.keys(brain.data).some(k => !allowed.has(k))) throw new Error('The backup contains unsupported keys.');
+        if (!window.FinosStore) throw new Error('FIN-OS storage is unavailable.');
+        const result = window.FinosStore.importAll({ app: 'FIN-OS', schema: 1, data: brain.data });
         const statusEl = document.getElementById('brain-sync-status');
-        if (statusEl) statusEl.textContent = `✓ Brain imported: ${count} keys restored. Reload the page to see your data.`;
+        if (statusEl) statusEl.textContent = `✓ Brain imported: ${result.imported} added, ${result.skipped} already present or skipped.`;
         setTimeout(() => window.location.reload(), 1500);
       } catch (err) {
         const statusEl = document.getElementById('brain-sync-status');
-        if (statusEl) statusEl.textContent = '✗ Invalid brain file. Please use a valid FIN-OS brain export.';
+        if (statusEl) statusEl.textContent = '✗ ' + (err.message || 'Invalid brain file. Use a FIN-OS Brain export.');
       }
     };
+    reader.onerror = () => { const s = document.getElementById('brain-sync-status'); if (s) s.textContent = '✗ Could not read the selected file.'; };
     reader.readAsText(file);
   };
 
@@ -1095,8 +1059,11 @@ const sb = (window.FINOS_SB && window.FINOS_SB.getClient()) || (window.supabase 
       { key: 'finos_learned_modules',        label: 'Learning',         icon: '📚' },
       { key: 'tradebook_trades',             label: 'Trade Journal',    icon: '📊' },
     ];
+    let present;
+    try { present = new Set(inventory.filter(item => !!localStorage.getItem(item.key)).map(item => item.key)); }
+    catch (_) { container.textContent = 'Browser storage is unavailable; local data status cannot be read.'; return; }
     container.innerHTML = inventory.map(item => {
-      const has = !!localStorage.getItem(item.key);
+      const has = present.has(item.key);
       return `
         <div style="padding:10px;border-radius:10px;background:${has ? 'rgba(0,255,136,.04)' : 'var(--bg-glass)'};border:1px solid ${has ? 'rgba(0,255,136,.15)' : 'var(--border-soft)'};text-align:center;">
           <div style="font-size:18px;margin-bottom:4px;">${item.icon}</div>
@@ -1113,13 +1080,14 @@ const sb = (window.FINOS_SB && window.FINOS_SB.getClient()) || (window.supabase 
 </script>
 <script>
 (function () {
+  const started = Date.now();
   function _initSettingsAA() {
     if (window.FinosAA) {
       window.FinosAA.renderDashboard('settings-aa-dashboard');
       document.addEventListener('aa-sync-complete', () => {
         window.FinosAA.renderDashboard('settings-aa-dashboard');
       });
-    } else {
+    } else if (Date.now() - started < 10000) {
       setTimeout(_initSettingsAA, 150);
     }
   }

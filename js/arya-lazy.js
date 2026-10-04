@@ -15,7 +15,7 @@
   'use strict';
   if (window.AryaSidebar || window._aryaLazy) return;
   var me = document.currentScript;
-  var src = me && me.src ? me.src.replace(/arya-lazy\.js(\?.*)?$/, 'arya-sidebar-panel.js') : '../js/arya-sidebar-panel.js';
+  var src = me && me.src ? me.src.replace(/arya-lazy\.js(\?.*)?$/, 'arya-sidebar-panel.js?v=2') : '../js/arya-sidebar-panel.js?v=2';
   var loading = null;
   var IDLE_MS = 2500;
 

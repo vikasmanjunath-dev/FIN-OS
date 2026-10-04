@@ -295,13 +295,29 @@
 
   function chatStoreKey(pageKey) { return `finos_chat_${pageKey}_v2`; }
 
+  function chatMemoryEnabled() {
+    try {
+      const prefs = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}');
+      return prefs.aiMemory !== false;
+    } catch { return true; }
+  }
+
+  function configuredVoiceSpeed() {
+    try {
+      const speed = Number(JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}').aiVoiceSpeed);
+      return Number.isFinite(speed) ? Math.min(2, Math.max(0.6, speed)) : 1;
+    } catch { return 1; }
+  }
+
   function saveChatToDisk(pageKey, history) {
+    if (!chatMemoryEnabled()) { try { localStorage.removeItem(chatStoreKey(pageKey)); } catch {} return; }
     try {
       set(chatStoreKey(pageKey), JSON.stringify({ ts: Date.now(), history: history.slice(-16) }));
     } catch {}
   }
 
   function loadChatFromDisk(pageKey) {
+    if (!chatMemoryEnabled()) return [];
     try {
       const data = JSON.parse(localStorage.getItem(chatStoreKey(pageKey)));
       if (!data) return [];
@@ -1096,6 +1112,14 @@
     calc();
   }
 
+  // Language + persona chosen in Settings (finos-prefs.js). '' when none chosen or module absent.
+  function _withUserStyle(system) {
+    let style = '';
+    try { style = (window.FINOS && window.FINOS.aiDirective && window.FINOS.aiDirective()) || ''; } catch (_) {}
+    const base = system || '';
+    return style && !base.includes('RESPONSE STYLE (user setting)') ? base + style : base;
+  }
+
   async function _findEndpoint() {
     if (_activeEndpoint) return _activeEndpoint;
     for (const url of OLLAMA_ENDPOINTS) {
@@ -1122,7 +1146,7 @@
         body:    JSON.stringify({
           model:   selectModel(taskType),
           prompt:  userPrompt,
-          system:  systemPrompt,
+          system:  _withUserStyle(systemPrompt),
           stream:  true,
           think:   false,         // disable qwen3 chain-of-thought — biggest speedup
           options: {
@@ -2840,7 +2864,7 @@ ${ctx}`;
           body: JSON.stringify({
             model:   selectModel('deep_analysis'),  // tool-calling agent loop — needs the strongest model
             prompt,
-            system,
+            system:  _withUserStyle(system),
             stream:  true,
             think:   false,
             options: { num_ctx: 6144, num_predict: 600, temperature: 0.35, top_p: 0.92, repeat_penalty: 1.1 }
@@ -7038,6 +7062,27 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
   let _aiRunning   = false;
   let _chatHistory = [];
 
+  function clearSavedChatMemory() {
+    try {
+      const keys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && /^(?:finos_chat_|finos_arya_memory_v2)/i.test(key)) keys.push(key);
+      }
+      keys.forEach(key => localStorage.removeItem(key));
+    } catch (_) {}
+    try { window.AryaMemory && window.AryaMemory.clearLocal && window.AryaMemory.clearLocal(); } catch (_) {}
+    _chatHistory = [];
+    const messages = document.getElementById('arya-sp-messages');
+    if (messages) messages.replaceChildren();
+  }
+  window.addEventListener('finos-settings-updated', e => {
+    if (e.detail?.key === 'aiMemory' && e.detail.val === false) clearSavedChatMemory();
+  });
+  window.addEventListener('storage', e => {
+    if (e.key === 'FINOS_SYS_SETTINGS' && !chatMemoryEnabled()) clearSavedChatMemory();
+  });
+
   /* ══ MESSAGE RENDERING ══════════════════════════════════════════════════ */
   function appendMessage(role, text, streaming = false) {
     const log = document.getElementById('arya-sp-messages');
@@ -7410,7 +7455,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
       updateFollowUpChips(followUps);
 
       // 5. AryaMemory integration — record this conversation
-      if (window.AryaMemory?.loaded) {
+      if (chatMemoryEnabled() && window.AryaMemory?.loaded) {
         const topic = pageInfo.name.toLowerCase();
         window.AryaMemory.record(topic, finalText.slice(0, 200), [topic], 'neutral').catch(() => {});
         if (!isAutoInsight) window.AryaMemory.detectEmotion?.(topic, userText);
@@ -7420,7 +7465,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
       saveChatToDisk(pageKey, _chatHistory);
 
       // 3. Auto-extract memory from non-trivial, non-auto exchanges
-      if (!isAutoInsight && userText.length > 20 && finalText.length > 60) {
+      if (chatMemoryEnabled() && !isAutoInsight && userText.length > 20 && finalText.length > 60) {
         autoExtractMemory(userText, finalText).catch(() => {});
       }
 
@@ -7578,7 +7623,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
     if (!window.speechSynthesis) return;
     const utter = new SpeechSynthesisUtterance(clean);
     utter.lang = 'en-IN';
-    utter.rate = 1.02;
+    utter.rate = configuredVoiceSpeed();
     const voice = _pickVoice();
     if (voice) utter.voice = voice;
     window.speechSynthesis.speak(utter);
@@ -7955,9 +8000,22 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
   /* Re-check periodically and whenever the tab regains focus (e.g. the user
      just started Ollama in a terminal and switched back). */
   function _scheduleStatusChecks() {
-    checkStatus();
-    setInterval(checkStatus, 20000);
-    window.addEventListener('focus', () => checkStatus());
+    // While Arya is offline every probe is a failed request, and the browser logs each one as a console
+    // error whether or not it is caught — a tab left open piled up ~3/min forever. So back off while
+    // offline (20s → 40s → … capped at 5 min), skip hidden tabs, and reset on focus so starting Ollama
+    // is still noticed the moment the user switches back.
+    const BASE = 20000, MAX = 300000;
+    let delay = BASE, timer = null;
+    const next = () => { clearTimeout(timer); timer = setTimeout(tick, delay); };
+    const tick = async () => {
+      if (!document.hidden) {
+        await checkStatus();
+        delay = window._aryaOnline ? BASE : Math.min(delay * 2, MAX);
+      }
+      next();
+    };
+    checkStatus().then(() => { delay = window._aryaOnline ? BASE : BASE * 2; next(); });
+    window.addEventListener('focus', () => { delay = BASE; checkStatus(); next(); });
   }
 
   /* ══ INIT ════════════════════════════════════════════════════════════════ */

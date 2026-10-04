@@ -122,12 +122,12 @@ ${resultsStr || '(read from page context)'}
 
 User archetype: ${prof.archetype}, Risk score: ${prof.riskScore}/100
 
-Write a 3-sentence Hinglish explanation for this calculator result:
+Write a 3-sentence explanation for this calculator result (language and tone per the RESPONSE STYLE if one is given, otherwise Hinglish):
 1. Sentence 1: What this number ACTUALLY means in real life (not just the number)
 2. Sentence 2: One important insight they might miss (inflation-adjusted value, total interest paid, opportunity cost, etc.)
 3. Sentence 3: One specific improvement or "pro tip" relevant to their ${prof.archetype} archetype
 
-Format: Direct Hinglish, no preamble, no "Sure!", use ₹ amounts. Lead with the insight, not the number.
+Format: Direct, no preamble, no "Sure!", use ₹ amounts. Lead with the insight, not the number.
 `.trim();
   }
 
@@ -248,13 +248,20 @@ Format: Direct Hinglish, no preamble, no "Sure!", use ₹ amounts. Lead with the
   }
 
   /* ── Ollama stream helper ─────────────────────────────────────────────────*/
+  // Language + persona chosen in Settings (finos-prefs.js); the prompt below asks for Hinglish by default.
+  function _withUserStyle(system) {
+    let style = '';
+    try { style = (window.FINOS && window.FINOS.aiDirective && window.FINOS.aiDirective()) || ''; } catch (_) {}
+    return style ? (system || '') + style : system;
+  }
+
   async function _stream(prompt, system, onTok) {
     try {
       const resp = await fetch(OLLAMA_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: OLLAMA_MODEL, prompt, system,
+          model: OLLAMA_MODEL, prompt, system: _withUserStyle(system),
           stream: true, options: { temperature: 0.6, num_predict: 250, num_ctx: 4096 },
         }),
       });
@@ -306,7 +313,7 @@ Format: Direct Hinglish, no preamble, no "Sure!", use ₹ amounts. Lead with the
 
     const prompt  = _buildPrompt(calcType, results, inputs, prof);
     const system  = `You are Arya, FIN-OS's AI financial explainer for Indian retail investors.
-Explain calculator results in plain Hinglish — like a smart IIM-educated dost.
+Explain calculator results in plain language (Hinglish unless the RESPONSE STYLE says otherwise) — like a smart IIM-educated dost.
 Be direct, use ₹ amounts, Indian context. 3 sentences max. No markdown. No preamble.
 Always give one pro tip specific to the user's archetype.`;
 
@@ -343,10 +350,10 @@ Generate 2 "What-if" scenarios for this calculator result:
 1. An OPTIMISTIC improvement (e.g. step-up, longer horizon, higher rate) with specific ₹ difference
 2. A RISK scenario (what if rate drops, or you stop early) with specific ₹ impact
 
-Format: 2 bullet points, each 1 sentence. Hinglish. Use exact ₹ numbers from calculations.
+Format: 2 bullet points, each 1 sentence. Use exact ₹ numbers from calculations.
 `.trim();
 
-    await _stream(prompt, 'Arya FIN-OS AI. Generate 2 what-if scenarios. Hinglish. Specific ₹ numbers. No preamble.', (tok, full) => {
+    await _stream(prompt, 'Arya FIN-OS AI. Generate 2 what-if scenarios. Specific ₹ numbers. No preamble.', (tok, full) => {
       bodyEl.textContent = full;
     });
   };
@@ -432,13 +439,21 @@ Format: 2 bullet points, each 1 sentence. Hinglish. Use exact ₹ numbers from c
     // Try to find injection point
     const target = _findInjectionPoint();
     if (target) {
-      target.el.insertAdjacentElement('afterend', panel);
+      // A target that is a direct child of <body>/.app (a flex row) would make the panel a sibling
+      // flex column — a full-height strip at the top-right, over the fixed search/bell/theme controls
+      // (seen on bond.html). Put it inside the target instead, at the bottom of the content.
+      const par = target.el.parentElement;
+      if (par === document.body || (par && par.classList.contains('app'))) target.el.appendChild(panel);
+      else target.el.insertAdjacentElement('afterend', panel);
       injected = true;
     }
 
     // Fallback: append to main content area
     if (!injected) {
-      const main = document.querySelector('.calc-body, .calculator-body, main, .content-wrapper, .container, body');
+      // Ordered lookup: one comma-separated querySelector returns the first match in DOCUMENT order, and
+      // <body> precedes <main>, so it always won — which made the panel a flex-row sibling of the page.
+      const main = ['.calc-body', '.calculator-body', 'main', '.content-wrapper', '.container', 'body']
+        .map(sel => document.querySelector(sel)).find(Boolean);
       if (main) { main.appendChild(panel); injected = true; }
     }
 
