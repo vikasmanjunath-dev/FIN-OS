@@ -58,3 +58,51 @@ test('gradient backgrounds: translucent tint gradients are estimated, photos / v
   assert.strictEqual(C.gradientColour('linear-gradient(90deg, red, blue)'), null);
   assert.strictEqual(C.gradientColour('none'), null);
 });
+
+// ── opacity-aware correction ────────────────────────────────────────────────
+const seenOver = (c, op, bg) => C.over({ r: c.r, g: c.g, b: c.b, a: (c.a === undefined ? 1 : c.a) * op }, bg);
+
+test('adjustWithOpacity: text that passes at its effective opacity is left alone', () => {
+  assert.strictEqual(C.adjustWithOpacity(rgb(0, 0, 0), WHITE, 0.9), null);
+  assert.strictEqual(C.adjustWithOpacity(rgb(255, 255, 255), DARK, 0.85), null);
+});
+
+test('adjustWithOpacity: opacity 1 behaves exactly like adjust()', () => {
+  const a = C.adjust(rgb(255, 255, 255, 0.58), PALE), b = C.adjustWithOpacity(rgb(255, 255, 255, 0.58), PALE, 1);
+  assert.deepStrictEqual(b.color, a);
+  assert.strictEqual(b.opacity, 1);
+});
+
+test('adjustWithOpacity: a colour that is fine on paper is judged AFTER opacity, and a darker colour fixes it when one exists', () => {
+  const fg = rgb(20, 110, 50);                                      // 5.9:1 at full opacity on PALE…
+  assert.strictEqual(C.adjust(fg, PALE), null);
+  const fix = C.adjustWithOpacity(fg, PALE, 0.85);                    // …but not at 85% opacity
+  assert.ok(fix, 'must be corrected once opacity is counted');
+  assert.strictEqual(fix.opacity, 0.85);                              // colour alone was enough → opacity untouched
+  assert.ok(C.contrast(seenOver(fix.color, 0.85, PALE), PALE) >= 4.5);
+});
+
+test('adjustWithOpacity: when no colour can reach AA at that opacity, opacity is raised minimally and the result passes', () => {
+  const fix = C.adjustWithOpacity(rgb(11, 13, 18), WHITE, 0.4);       // even black at 40% opacity is only ~2.8:1
+  assert.ok(fix.opacity > 0.4 && fix.opacity < 1, 'opacity ' + fix.opacity);
+  assert.ok(C.contrast(seenOver(fix.color, fix.opacity, WHITE), WHITE) >= 4.5);
+  const lower = C.contrast(seenOver(fix.color, fix.opacity - 0.03, WHITE), WHITE);
+  assert.ok(lower < 4.65, 'should be near-minimal, not overshoot (contrast just below: ' + lower.toFixed(2) + ')');
+});
+
+test('adjustWithOpacity: the same on a dark surface (light text, raised opacity)', () => {
+  const fix = C.adjustWithOpacity(rgb(79, 124, 255), DARK, 0.5);
+  assert.ok(fix);
+  assert.ok(C.contrast(seenOver(fix.color, fix.opacity, DARK), DARK) >= 4.5);
+});
+
+test('aim margin: corrected colours clear 4.5 even after rgb() rounding (no more 4.49)', () => {
+  for (const bg of [WHITE, PALE, rgb(240, 251, 244), rgb(232, 246, 251)]) {
+    for (const c of [rgb(34, 197, 94), rgb(0, 212, 255), rgb(255, 179, 71), rgb(167, 139, 250), rgb(255, 255, 255, 0.5)]) {
+      const fix = C.adjust(c, bg);
+      if (!fix) continue;
+      const rounded = C.parse(C._css(fix));
+      assert.ok(C.contrast(rounded, bg) >= 4.5, `${C._css(fix)} on ${bg.r},${bg.g},${bg.b}`);
+    }
+  }
+});

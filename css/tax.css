@@ -279,8 +279,7 @@
 
 .arrow-right, .arrow-left, .arrow-down {
   font-size: 0.8rem;
-  opacity: 0.7;
-  color: #aaa;
+  color: var(--text-secondary);
 }
 
 /* --- INTERACTIVE CARDS --- */
@@ -559,7 +558,7 @@
 }
 
 .tax-rate { font-family: var(--font-mono); font-weight: bold; }
-.tax-rate span { display: block; font-size: 0.7rem; font-family: var(--font-sans); font-weight: normal; opacity: 0.7; margin-top: 4px; }
+.tax-rate span { display: block; font-size: 0.7rem; font-family: var(--font-sans); font-weight: normal; color: var(--text-secondary); margin-top: 4px; }
 .tax-rate.good { color: var(--neon-green); }
 .tax-rate.bad { color: #f1c40f; }
 .tax-rate.ugly { color: #e67e22; }
@@ -723,7 +722,7 @@
 .copyright {
   margin-top: 30px;
   font-size: 0.8rem;
-  opacity: 0.4;
+  opacity: 0.75;   /* was 0.4 — footnote at 40% opacity is ~1.8:1 */
 }
 
 /* --- DESI TIP (inside regime card) --- */
@@ -1119,7 +1118,7 @@
 [data-theme="light"] .slab-table .rate.max { color: #cc2233 !important; }
 
 /* Matrix tax-rate colors preserved in light mode */
-[data-theme="light"] .tax-rate.good { color: #1a8f4e !important; }
-[data-theme="light"] .tax-rate.bad { color: #9a7c00 !important; }
+[data-theme="light"] .tax-rate.good { color: #147a42 !important; }
+[data-theme="light"] .tax-rate.bad { color: #7a6200 !important; }
 [data-theme="light"] .tax-rate.ugly { color: #b85c1a !important; }
 [data-theme="light"] .tax-rate.critical { color: #cc2233 !important; }

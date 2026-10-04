@@ -39,7 +39,7 @@ PAGES = [
 ]
 MUST_BE_ZERO = ["label", "select-name", "button-name", "link-name", "aria-dialog-name", "image-alt", "document-title",
                 "html-has-lang", "nested-interactive", "aria-required-attr", "aria-valid-attr-value", "duplicate-id-aria"]
-CONTRAST_CEILING = 45           # nodes across all pages × both themes (596 before the Oct 2026 pass, 31 after). Only ever lower this.
+CONTRAST_CEILING = 4            # nodes across all pages × both themes (596 before the Oct 2026 pass, 28 before the opacity-aware healer, 0 after). Only ever lower this.
 
 
 @pytest.fixture(scope="module")

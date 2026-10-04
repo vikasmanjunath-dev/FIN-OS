@@ -52,7 +52,7 @@ body {
 .speed-btn {
     background: transparent;
     border: none;
-    color: #6b7280;
+    color: #8b94a3;
     font-family: var(--font-mono);
     font-size: 11px;
     cursor: pointer;
@@ -72,7 +72,7 @@ body {
 .tf-btn {
     background: transparent;
     border: none;
-    color: #6b7280;
+    color: #8b94a3;
     font-family: var(--font-mono);
     font-size: 10px;
     cursor: pointer;
@@ -97,7 +97,7 @@ body {
     background: transparent;
     border: none;
     border-bottom: 2px solid transparent;
-    color: #6b7280;
+    color: #8b94a3;
     cursor: pointer;
     font-family: var(--font-sans);
     font-size: 11px;
@@ -127,7 +127,7 @@ body {
 .ptype-btn {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.07);
-    color: #6b7280;
+    color: #8b94a3;
     cursor: pointer;
     font-family: var(--font-mono);
     transition: all 0.15s;
@@ -152,7 +152,7 @@ body {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #6b7280;
+    color: #8b94a3;
     cursor: help;
 }
 
@@ -216,7 +216,7 @@ body {
 
 .wl-name {
     font-size: 9px;
-    color: #6b7280;
+    color: #8b94a3;   /* was #6b7280 (4.1:1 on the near-black panel) */
 }
 
 .wl-price {
@@ -239,7 +239,7 @@ body {
 }
 
 .sim-table th {
-    color: #6b7280;
+    color: #8b94a3;
     font-weight: 600;
     text-align: left;
     padding: 2px 4px;
@@ -428,7 +428,7 @@ body.why-on #whyThumb {
 /* ── ALWAYS-VISIBLE MICRO-DESCRIPTION TEXT ── */
 .explain-text {
     font-size: 8.5px;
-    color: #374151;
+    color: #8b94a3;   /* was #374151 — 1.9:1 */
     line-height: 1.3;
     font-family: var(--font-sans);
     font-style: italic;
@@ -438,14 +438,14 @@ body.why-on #whyThumb {
 }
 
 body.why-on .explain-text {
-    color: #6b7280;
+    color: #a1a8b8;
 }
 
 /* Tab subtitle badges */
 .tab-sub {
     display: block;
     font-size: 7.5px;
-    color: #374151;
+    color: #8b94a3;   /* was #374151 — 1.9:1 */
     font-style: italic;
     font-weight: 400;
     line-height: 1;
@@ -453,7 +453,7 @@ body.why-on .explain-text {
 }
 
 .btab-btn.active .tab-sub {
-    color: #6b7280;
+    color: #a1a8b8;
 }
 
 .btab-btn {
@@ -503,7 +503,7 @@ body.why-on .explain-text {
 
 .why-trade-btn.danger {
     border-color: rgba(224, 82, 96, 0.2);
-    color: #6b7280;
+    color: #8b94a3;
 }
 
 .why-trade-btn.danger:hover {
@@ -549,7 +549,7 @@ body.safety-off #safetyThumb {
 }
 
 body.safety-off #safetyToggle span {
-    color: #6b7280;
+    color: #8b94a3;
 }
 
 /* ── Chart Insight bar ── */
@@ -588,7 +588,7 @@ body.safety-off #safetyToggle span {
 
 .tag-low {
     background: rgba(107, 114, 128, 0.15);
-    color: #6b7280;
+    color: #8b94a3;
     border: 1px solid rgba(107, 114, 128, 0.2);
 }
 
@@ -743,7 +743,7 @@ body.safety-off #safetyToggle span {
 }
 
 .glossary-entry .example {
-    color: #6b7280;
+    color: #8b94a3;
     font-size: 8px;
     font-style: italic;
     margin-top: 3px;
@@ -847,7 +847,7 @@ body.safety-off #safetyToggle span {
     color: #0B0D12;
     border-bottom-color: var(--kblue);
 }
-[data-theme="light"] .btab-btn .tab-sub { color: #8A92A8; }
+[data-theme="light"] .btab-btn .tab-sub { color: #5A6278; }
 [data-theme="light"] .btab-btn.active .tab-sub { color: #5A6278; }
 
 [data-theme="light"] .ptype-btn {
@@ -890,7 +890,7 @@ body.safety-off #safetyToggle span {
 }
 
 [data-theme="light"] .wl-sym { color: #0B0D12; }
-[data-theme="light"] .wl-name { color: #8A92A8; }
+[data-theme="light"] .wl-name { color: #5A6278; }
 [data-theme="light"] .wl-sector { color: #A1A8B8; }
 
 [data-theme="light"] .sim-table th { color: #8A92A8; }
@@ -941,7 +941,7 @@ body.safety-off #safetyToggle span {
     background: rgba(0,0,0,0.15);
 }
 
-[data-theme="light"] .explain-text { color: #A1A8B8; }
+[data-theme="light"] .explain-text { color: #5A6278; }
 [data-theme="light"] body.why-on .explain-text { color: #5A6278; }
 
 /* ═══════════════════════════════════════════════════════
@@ -988,7 +988,11 @@ body.safety-off #safetyToggle span {
   color: #5A6278 !important;
 }
 [data-theme="light"] .text-gray-500 {
-  color: #8A92A8 !important;
+  color: #5A6278 !important;
+}
+/* Tailwind's greys 500–700 are 1.9–4.1:1 on this near-black UI; lift them to a readable grey in dark mode */
+:root:not([data-theme="light"]) :is(.text-gray-500, .text-gray-600, .text-gray-700) {
+  color: #8b94a3;
 }
 
 /* Input fields */

@@ -497,6 +497,7 @@ select:focus  { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-
 }
 
 .persona-card.active .persona-name { color: var(--accent); }
+[data-theme="dark"] .persona-card.active .persona-name { color: #6b8fff; }   /* --accent on the tinted active card is 4.25:1; this is 5.3:1 */
 
 /* Active-state checkmark indicator on persona cards */
 .persona-card {
@@ -682,7 +683,7 @@ input[type="range"]::-moz-range-thumb {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   color: var(--text-muted);
-  opacity: 0.5;
+  opacity: 0.9;
   padding-bottom: 32px;
 }
 

@@ -52,11 +52,13 @@
         .fln-btn:hover{background:rgba(255,255,255,.09);
           color:var(--text-primary,#fff);border-color:rgba(255,255,255,.18);}
         [data-theme="light"] .fln-btn:hover{background:rgba(0,0,0,.06);color:#111;}
-        .fln-btn.next{background:rgba(79,124,255,.1);border-color:rgba(79,124,255,.25);color:#4f7cff;}
-        .fln-btn.next:hover{background:rgba(79,124,255,.2);color:#4f7cff;}
+        .fln-btn.next{background:rgba(79,124,255,.1);border-color:rgba(79,124,255,.25);color:#6b8fff;}
+        .fln-btn.next:hover{background:rgba(79,124,255,.2);color:#8aa6ff;}
+        [data-theme="light"] .fln-btn.next{color:#2f4fc4;}
+        [data-theme="light"] .fln-btn.next:hover{color:#2f4fc4;}
         .fln-icon{font-size:13px;flex-shrink:0;}
         .fln-label{overflow:hidden;text-overflow:ellipsis;}
-        .fln-progress{font-size:9px;color:var(--text-tertiary,rgba(255,255,255,.22));
+        .fln-progress{font-size:9px;color:var(--text-muted,rgba(255,255,255,.6));
           letter-spacing:.06em;text-align:center;margin-top:6px;font-weight:600;}
       `;
       document.head.appendChild(s);

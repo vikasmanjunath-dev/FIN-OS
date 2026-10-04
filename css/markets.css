@@ -1094,8 +1094,13 @@
   font-size: .78rem;
   letter-spacing: 2px;
   font-weight: 700;
-  animation: mkt-dot-blink 2.5s ease-in-out infinite;
+  animation: mkt-badge-glow 2.5s ease-in-out infinite;   /* glow, not a text blink: the text stays readable (and blinking text fails WCAG 2.2.2) */
 }
+@keyframes mkt-badge-glow {
+  0%,100% { box-shadow: 0 0 0 rgba(0,243,255,0); }
+  50%     { box-shadow: 0 0 14px rgba(0,243,255,.45); }
+}
+@media (prefers-reduced-motion: reduce) { .unlock-badge { animation: none; } }
 
 .analysis-btn {
   display: inline-flex;

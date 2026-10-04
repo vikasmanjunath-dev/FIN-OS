@@ -68,7 +68,7 @@
   padding: 2px 8px;
   border-radius: 20px;
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-ink, var(--accent));
   font-weight: 700;
   margin-left: auto;
 }
@@ -331,7 +331,7 @@
       #tools-start-here:empty { display:none; }
       .tsh-wrap { background:var(--bg-surface); border:1px solid var(--border-soft); border-radius:16px; padding:20px 24px; }
       .tsh-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
-      .tsh-label { font-size:10px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-primary); opacity:.7; }
+      .tsh-label { font-size:10px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-ink); opacity:.9; }
       .tsh-stage { font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
         color:rgba(255,255,255,0.58); border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:3px 9px; }
       [data-theme="light"] .tsh-stage { color:rgba(0,0,0,0.62); border-color:rgba(0,0,0,.1); }
@@ -664,7 +664,7 @@
       <div class="tools-section-head">
         <span class="tools-section-icon">🧮</span>
         <h2 class="tools-section-title">Quick Calculators</h2>
-        <a href="calculators.html" style="font-size:12px;font-weight:700;color:var(--accent);text-decoration:none;margin-left:auto;opacity:.7;">All 88+ calculators →</a>
+        <a href="calculators.html" style="font-size:12px;font-weight:700;color:var(--accent-ink);text-decoration:none;margin-left:auto;">All 88+ calculators →</a>
       </div>
       <div class="quick-calc-strip">
         <a href="../calculators/investment%20%26%20wealth/sip.html"        class="qc-chip"><span class="qc-chip-icon">📈</span> SIP Calculator</a>
@@ -694,7 +694,7 @@
       <div class="tools-section-head">
         <span class="tools-section-icon">📌</span>
         <h2 class="tools-section-title">Command Hub Trackers</h2>
-        <a href="track-finances.html" style="font-size:12px;font-weight:700;color:var(--accent);text-decoration:none;margin-left:auto;opacity:.7;">Open Track Finances →</a>
+        <a href="track-finances.html" style="font-size:12px;font-weight:700;color:var(--accent-ink);text-decoration:none;margin-left:auto;">Open Track Finances →</a>
       </div>
       <p class="tools-sub" style="margin:-8px 0 14px;">Persistent, localStorage-backed trackers — unlike the calculators above, these remember your data and feed Arya's context.</p>
       <div class="quick-calc-strip">

@@ -860,3 +860,19 @@
   border-color: rgba(0,0,0,0.08) !important;
 }
 [data-theme="light"] .qs-hero-stat .qs-stat-label { color: var(--text-muted) !important; }
+
+/* Light-mode API contract cards, search hints and the pulse tag (were dark-only: 2.1–3.3:1) */
+[data-theme="light"] .qs-api {
+  background: #FFFFFF !important;
+  border-color: rgba(0,0,0,0.1) !important;
+}
+[data-theme="light"] .qs-api code { color: #0B0D12; }
+[data-theme="light"] .qs-api p { color: var(--text-secondary); }
+[data-theme="light"] .qs-api .m.get { color: #00693a; background: rgba(0,200,83,0.12); }
+[data-theme="light"] .qs-api .m.ws { color: #5b3ab8; background: rgba(179,136,255,0.15); }
+[data-theme="light"] .qs-search input { color: var(--text-primary); }
+[data-theme="light"] .qs-search kbd { background: rgba(0,0,0,0.05); color: var(--text-secondary); }
+[data-theme="light"] .qs-tiny.pulse { color: #4a5a00; }
+[data-theme="light"] .qs-stack-card { background: #FFFFFF !important; border-color: rgba(0,0,0,0.1) !important; }
+[data-theme="light"] .qs-stack-card b { color: #0B0D12; }
+[data-theme="light"] .qs-stack-card i { color: var(--text-secondary); }

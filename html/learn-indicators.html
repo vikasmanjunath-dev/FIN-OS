@@ -157,7 +157,7 @@
     }
 
     .s-icon { font-size: 2rem; display: block; margin-bottom: 10px; }
-    .s-label { font-family: var(--font-mono); font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px;}
+    .s-label { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;}
 
     /* =========================
        MODULE CARDS (THE CONTENT)
@@ -165,7 +165,7 @@
     .module-section {
       margin-bottom: 100px;
       scroll-margin-top: 100px;
-      opacity: 0.5;
+      opacity: 0.8;   /* dimmed, not faded: text stays AA while another module is in focus */
       transition: opacity 0.5s;
     }
 
@@ -214,7 +214,7 @@
     .t-name { color: var(--hud-cyan); font-weight: 700; font-size: 1.2rem; }
     .t-icon { font-size: 1.5rem; }
 
-    .t-desc { color: #ccc; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; }
+    .t-desc { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; }
 
     /* Desi Analogy Box */
     .desi-logic {
@@ -224,7 +224,7 @@
       border-radius: 0 8px 8px 0;
     }
     .desi-tag { color: var(--hud-orange); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 5px; }
-    .desi-text { color: #aaa; font-size: 0.9rem; font-style: italic; }
+    .desi-text { color: var(--text-secondary); font-size: 0.9rem; font-style: italic; }
 
     /* =========================
        INTERACTIVE TOYS
@@ -241,7 +241,7 @@
     .vol-toggle-box {
       display: flex; gap: 10px; margin-top: 20px; background: #111; padding: 10px; border-radius: 12px;
     }
-    .vol-btn { flex: 1; padding: 10px; border: 1px solid #333; background: transparent; color: #666; cursor: pointer; border-radius: 8px; font-family: var(--font-mono); font-size: 0.8rem; }
+    .vol-btn { flex: 1; padding: 10px; border: 1px solid #333; background: transparent; color: var(--text-muted); cursor: pointer; border-radius: 8px; font-family: var(--font-mono); font-size: 0.8rem; }
     .vol-btn.active { background: var(--hud-green); color: #000; font-weight: 800; }
 
     @media (max-width: 768px) {
@@ -252,6 +252,12 @@
   
 
 /* ── Light mode text overrides (auto-generated) ── */
+[data-theme="light"] .t-name { color: #006b73; }
+[data-theme="light"] .module-section { opacity: 0.94; }
+[data-theme="light"] .mod-badge { color: #000; }
+[data-theme="light"] .biryani-status { color: #006b73 !important; }
+[data-theme="light"] .biryani-container > span { color: var(--text-muted) !important; }
+[data-theme="light"] .desi-tag { color: #8a4b00; }
 [data-theme="light"] .mod-title {
   color: var(--text-primary) !important;
 }</style>
@@ -500,7 +506,7 @@
             <p class="t-desc">Relative Strength Index. Speed of price change. Overbought (>70) vs Oversold (<30).</p>
             
             <div class="biryani-container">
-              <span style="font-size:0.8rem; color:#888; text-transform:uppercase;">Simulation: The Biryani Limit</span>
+              <span style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase;">Simulation: The Biryani Limit</span>
               <input type="range" min="0" max="100" value="50" class="biryani-slider" id="rsiSlider" oninput="updateRSI()">
               <div class="biryani-status" id="rsiStatus" style="color:var(--hud-cyan);">Status: BALANCED (Eat More)</div>
             </div>
@@ -551,7 +557,7 @@
               <button class="vol-btn" id="volLow" onclick="setVolume('low')">Empty Hall</button>
               <button class="vol-btn active" id="volHigh" onclick="setVolume('high')">Stadium</button>
             </div>
-            <div style="margin-top:15px; font-size:0.9rem; color:#aaa; font-style:italic;" id="volText">
+            <div style="margin-top:15px; font-size:0.9rem; color:var(--text-secondary); font-style:italic;" id="volText">
               "Clapping in a stadium. The sound is REAL. The move is trusted."
             </div>
           </div>
@@ -736,7 +742,7 @@
 
       <footer style="margin-bottom: 100px; text-align: center; border-top: 1px solid var(--border); padding-top: 50px;">
         <h2 style="color: #fff;">Sensors Calibrated.</h2>
-        <p style="color: #666; font-family:var(--font-mono);">[ READY FOR FLIGHT ]</p>
+        <p style="color: var(--text-muted); font-family:var(--font-mono);">[ READY FOR FLIGHT ]</p>
         <br>
         <button onclick="window.location.href='dashboard.html'" 
         style="padding: 16px 40px; background: transparent; border: 1px solid var(--hud-orange); color: var(--hud-orange); border-radius: 4px; font-weight: 800; cursor: pointer; font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s;">

@@ -8,6 +8,9 @@
  * What it does (light theme only):
  *   for each visible text element whose colour fails WCAG AA (4.5:1) against its real, opaque background,
  *   set an inline colour with the SAME HUE but adjusted lightness (greys/whites become #556070).
+ *   If the text sits under CSS opacity (very common for "secondary" text: opacity .4–.7), the opacity is part of the maths — a
+ *   colour that passes on paper still fails once it is half-transparent. We first try a colour that passes at that opacity;
+ *   if none can (e.g. opacity .4), the nearest opacity-bearing element is raised just enough. Reverted exactly in dark theme.
  * What it never does:
  *   • touch elements over gradients / images / transparent-unknown backgrounds (can't know the real contrast)
  *   • touch gradient-clipped text, SVG, inputs' placeholder, or anything inside [data-no-contrast]
@@ -26,7 +29,11 @@
   'use strict';
 
   const TARGET = 4.5;
+  const MIN_OPACITY = 0.5;                // below this the text is decorative or mid-fade, never healed
+  const MAX_OPACITY_BUMP = 0.35;          // never raise opacity by more than this (colour-only fix is applied instead)
+  const AIM = 0.15;                       // corrections aim slightly above TARGET so rgb() rounding can't land at 4.49
   const MARK = 'data-fc-orig';            // original inline colour (value + priority) so revert is exact
+  const OPMARK = 'data-fc-op';            // original inline opacity (value + priority) of an element whose opacity we raised
 
   /* ── colour maths ─────────────────────────────────────────────────── */
   function parse(c) {
@@ -65,21 +72,56 @@
     target = target || TARGET;
     const base = fg.a < 1 ? over(fg, bg) : fg;
     if (contrast(base, bg) >= target) return null;
+    const need = target + AIM;
     const bgLight = lum(bg) > 0.35;
     const hsl = toHsl(base);
     const chroma = (Math.max(base.r, base.g, base.b) - Math.min(base.r, base.g, base.b)) / 255;
     if (chroma < 0.12) {                                  // chroma, not HSL saturation (which explodes near white)                                   // white / grey text: use the design system's muted slate
       const slate = bgLight ? { r: 0x55, g: 0x60, b: 0x70, a: 1 } : { r: 0xcb, g: 0xd2, b: 0xde, a: 1 };
-      if (contrast(slate, bg) >= target) return slate;
+      if (contrast(slate, bg) >= need) return slate;
     }
     let lo = bgLight ? 0.05 : hsl.l, hi = bgLight ? hsl.l : 0.97, best = null;
     for (let i = 0; i < 18; i++) {                        // binary search the lightness closest to the original that passes
       const mid = (lo + hi) / 2;
       const cand = fromHsl({ h: hsl.h, s: Math.min(1, hsl.s * (bgLight ? 1 : 0.9)), l: mid });
-      if (contrast(cand, bg) >= target) { best = cand; if (bgLight) lo = mid; else hi = mid; }
+      if (contrast(cand, bg) >= need) { best = cand; if (bgLight) lo = mid; else hi = mid; }
       else if (bgLight) hi = mid; else lo = mid;
     }
     return best || (bgLight ? { r: 0x1f, g: 0x24, b: 0x2e, a: 1 } : { r: 0xf5, g: 0xf7, b: 0xfa, a: 1 });
+  }
+
+  /**
+   * Like adjust(), but for text that is rendered under CSS `opacity` (0–1, the product over the element and its ancestors).
+   * Returns null if it already passes, else { color, opacity } where `opacity` is the TOTAL effective opacity needed
+   * (== `op` when a colour change alone is enough, higher when it isn't).
+   */
+  function adjustWithOpacity(fg, bg, op, target) {
+    target = target || TARGET;
+    op = Math.max(0, Math.min(1, op));
+    if (op >= 0.999) { const c = adjust(fg, bg, target); return c ? { color: c, opacity: 1 } : null; }
+    const seen = (c, o) => over({ r: c.r, g: c.g, b: c.b, a: (c.a === undefined ? 1 : c.a) * o }, bg);
+    if (contrast(seen(fg, op), bg) >= target) return null;
+    const need = target + AIM;
+    const bgLight = lum(bg) > 0.35;
+    const base = fg.a < 1 ? over(fg, bg) : fg;
+    const hsl = toHsl(base);
+    const extreme = bgLight ? { r: 0x1f, g: 0x24, b: 0x2e, a: 1 } : { r: 0xf5, g: 0xf7, b: 0xfa, a: 1 };
+    // 1) keep the hue, move lightness away from the background until the *rendered* colour passes
+    let lo = bgLight ? 0.03 : hsl.l, hi = bgLight ? hsl.l : 0.99, best = null;
+    for (let i = 0; i < 18; i++) {
+      const mid = (lo + hi) / 2;
+      const cand = fromHsl({ h: hsl.h, s: Math.min(1, hsl.s * (bgLight ? 1 : 0.9)), l: mid });
+      if (contrast(seen(cand, op), bg) >= need) { best = cand; if (bgLight) lo = mid; else hi = mid; }
+      else if (bgLight) hi = mid; else lo = mid;
+    }
+    if (best) return { color: best, opacity: op };
+    // 2) no colour is dark/light enough at this opacity: use the extreme colour and raise opacity just enough
+    let a = op, b = 1, got = 1;
+    for (let i = 0; i < 18; i++) {
+      const mid = (a + b) / 2;
+      if (contrast(seen(extreme, mid), bg) >= need) { got = mid; b = mid; } else a = mid;
+    }
+    return { color: extreme, opacity: got };
   }
 
   /* ── DOM ─────────────────────────────────────────────────────────── */
@@ -124,13 +166,33 @@
   const SKIP = /^(SCRIPT|STYLE|NOSCRIPT|SVG|CANVAS|TEXTAREA|INPUT|SELECT|OPTION|IMG|VIDEO|IFRAME|CODE|PRE)$/i;
 
   function visible(el, cs) {
-    if (cs.visibility === 'hidden' || cs.display === 'none' || parseFloat(cs.opacity) < 0.4) return false;
+    if (cs.visibility === 'hidden' || cs.display === 'none' || parseFloat(cs.opacity) < 0.25) return false;   // (own opacity only; the chain check in healElement is stricter)
     const r = el.getBoundingClientRect();
     return r.width >= 2 && r.height >= 2;
   }
 
+  /**
+   * Product of `opacity` over the element and its ancestors, the nearest element that actually sets one (< 1), and whether any
+   * element in that chain is animated (an opacity transition or a running animation). Animated opacity means a reveal / fade
+   * effect: the current value is a transient state, so we must not freeze it with an inline override.
+   */
+  function opacityChain(el) {
+    let op = 1, holder = null, animated = false;
+    for (let e = el; e && e.nodeType === 1; e = e.parentElement) {
+      const cs = root.getComputedStyle(e);
+      const o = parseFloat(cs.opacity);
+      if (o < 1) {
+        op *= o; if (!holder) holder = { el: e, o };
+        const props = String(cs.transitionProperty || ''), dur = String(cs.transitionDuration || '');
+        if (/\b(opacity|all)\b/.test(props) && /[1-9]/.test(dur.replace(/0(\.0+)?m?s/g, ''))) animated = true;
+        if (e.getAnimations && e.getAnimations().length) animated = true;
+      }
+    }
+    return { op, holder, animated };
+  }
+
   function healElement(el) {
-    if (el.hasAttribute(MARK)) return false;               // already adjusted (revert first to re-evaluate)
+    if (el.hasAttribute(MARK) || el.hasAttribute(OPMARK)) return false;   // already adjusted (revert first to re-evaluate)
     const cs = root.getComputedStyle(el);
     if (!visible(el, cs)) return false;
     if ((cs.webkitBackgroundClip || cs.backgroundClip) === 'text') return false;
@@ -138,10 +200,19 @@
     if (!fg || fg.a < 0.1) return false;
     const bg = opaqueBackground(el);
     if (!bg) return false;
-    const fix = adjust(fg, bg);
+    const { op, holder, animated } = opacityChain(el);
+    if (animated) return false;                            // reveal / fade effect: opacity is a transient state, leave it alone
+    if (op < MIN_OPACITY) return false;                    // effectively hidden or a pre-reveal start state, not text to read
+    const fix = adjustWithOpacity(fg, bg, op);
     if (!fix) return false;
     el.setAttribute(MARK, el.style.getPropertyValue('color') + '|' + el.style.getPropertyPriority('color'));
-    el.style.setProperty('color', css(fix), 'important');
+    el.style.setProperty('color', css(fix.color), 'important');
+    if (holder && fix.opacity > op + 0.005 && fix.opacity - op <= MAX_OPACITY_BUMP) {   // small nudges only; a big jump is design intent
+      const target = Math.min(1, holder.o * fix.opacity / op);
+      const h = holder.el;
+      if (!h.hasAttribute(OPMARK)) h.setAttribute(OPMARK, h.style.getPropertyValue('opacity') + '|' + h.style.getPropertyPriority('opacity'));
+      if (target > parseFloat(h.style.getPropertyValue('opacity') || '0') || !h.style.getPropertyValue('opacity')) h.style.setProperty('opacity', String(+target.toFixed(3)), 'important');
+    }
     return true;
   }
 
@@ -180,6 +251,12 @@
   function revert(scope) {
     const doc = root.document; if (!doc) return 0;
     let n = 0;
+    (scope || doc).querySelectorAll('[' + OPMARK + ']').forEach((el) => {
+      const [val, prio] = (el.getAttribute(OPMARK) || '|').split('|');
+      if (val) el.style.setProperty('opacity', val, prio || ''); else el.style.removeProperty('opacity');
+      el.removeAttribute(OPMARK);
+      if (!el.getAttribute('style')) el.removeAttribute('style');
+    });
     (scope || doc).querySelectorAll('[' + MARK + ']').forEach((el) => {
       const [val, prio] = (el.getAttribute(MARK) || '|').split('|');
       if (val) el.style.setProperty('color', val, prio || ''); else el.style.removeProperty('color');
@@ -215,5 +292,5 @@
     if (root.document.readyState === 'loading') root.document.addEventListener('DOMContentLoaded', go); else go();
   }
 
-  return { parse, contrast, adjust, over, heal, revert, start, lum, gradientColour, _css: css };
+  return { parse, contrast, adjust, adjustWithOpacity, over, heal, revert, start, lum, gradientColour, _css: css };
 });

@@ -63,7 +63,7 @@
     power: {
       label:    'Power User',
       icon:     '⚡',
-      color:    '#7b2ff7',
+      color:    '#9a6bff',
       level:    4,
       tagline:  'All features + raw data + exports',
       unlocks:  ['*'], // everything
