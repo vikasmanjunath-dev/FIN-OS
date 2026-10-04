@@ -155,7 +155,7 @@
 
       /* ── Light mode: explain button ── */
       [data-theme="light"] .arya-explain-btn {
-        color: #3B82F6;
+        color: #1d4ed8;
         border-color: rgba(59,130,246,.35);
         background: rgba(59,130,246,.08);
       }

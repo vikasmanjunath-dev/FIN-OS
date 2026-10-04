@@ -152,7 +152,8 @@
 .section-number {
   font-family: var(--font-mono);
   font-size: 4rem;
-  color: rgba(255,255,255,0.05);
+  color: transparent;   /* decorative watermark: outline only, so it is not text that has to meet contrast */
+  -webkit-text-stroke: 1px rgba(255,255,255,0.07);
   font-weight: 700;
   position: absolute;
   top: 20px;
@@ -328,7 +329,7 @@
   border-radius: 20px;
   font-size: 0.72rem;
   font-family: var(--font-mono);
-  color: var(--neon-blue);
+  color: var(--accent-ink);
   margin: 8px 0;
 }
 
@@ -868,8 +869,9 @@
 
 /* Section number watermark */
 [data-theme="light"] .section-number {
-  color: #000 !important;
-  opacity: 0.06 !important;
+  color: transparent !important;
+  -webkit-text-stroke: 1px rgba(0,0,0,0.12);
+  opacity: 1 !important;
 }
 
 /* Section header text */
@@ -1101,7 +1103,7 @@
 /* Pill in auth card */
 [data-theme="light"] .auth-card .pill {
   background: rgba(79,124,255,0.1) !important;
-  color: #4F7CFF !important;
+  color: var(--accent-ink) !important;
 }
 
 /* Scroll progress stays neon in both modes */

@@ -159,7 +159,7 @@
   color: var(--t-text2);
 }
 :root[data-theme="light"] .tf-eyebrow-text {
-  color: #4F7CFF;
+  color: var(--accent-ink);
 }
 :root[data-theme="light"] .tf-divider-label {
   color: #5E6786;
@@ -236,7 +236,7 @@
 }
 :root[data-theme="light"] .sidebar nav a.active,
 :root[data-theme="light"] .sidebar nav a[aria-current="page"] {
-  color: #4F7CFF;
+  color: var(--accent-ink);
   background: rgba(79,124,255,0.08);
 }
 :root[data-theme="light"] .sidebar nav a:hover {
@@ -358,7 +358,7 @@
 /* ── Sidebar nav link colors (canonical, all pages) ── */
 :root[data-theme="light"] .sidebar nav a { color: #4A5068; }
 :root[data-theme="light"] .sidebar nav a.active,
-:root[data-theme="light"] .sidebar nav a[aria-current="page"] { color: #4F7CFF; }
+:root[data-theme="light"] .sidebar nav a[aria-current="page"] { color: var(--accent-ink); }
 :root[data-theme="light"] .sidebar nav a:hover { color: #0B0D12 !important; }
 
 /* ── Principles / roadmap cards ── */
@@ -381,7 +381,7 @@
 /* ── Impact/foundation/decision text ── */
 :root[data-theme="light"] .page-header h1,
 :root[data-theme="light"] .page-title { color: #0B0D12; }
-:root[data-theme="light"] .eyebrow { color: #4F7CFF; }
+:root[data-theme="light"] .eyebrow { color: var(--accent-ink); }
 
 /* ── Simulators ── */
 :root[data-theme="light"] .card-body h3,
@@ -392,7 +392,7 @@
 /* ── Pills, chips, and mono labels ── */
 :root[data-theme="light"] .pill {
   background: rgba(79,124,255,0.1);
-  color: #4F7CFF;
+  color: var(--accent-ink);
 }
 :root[data-theme="light"] .nav-section { color: #8090B0; }
 
@@ -423,7 +423,7 @@
 :root[data-theme="light"] .tab.active,
 :root[data-theme="light"] .filter-btn.active {
   background: rgba(79,124,255,0.1);
-  color: #4F7CFF;
+  color: var(--accent-ink);
 }
 
 /* ── Glassmorphism panels in light mode ── */
@@ -575,7 +575,7 @@
 :root[data-theme="light"] #fs-toggle:hover {
   background: transparent;
   border-color: rgba(79,124,255,.45);
-  color: #4F7CFF;
+  color: var(--accent-ink);
   box-shadow: 0 0 0 1px rgba(79,124,255,.3), 0 2px 8px rgba(79,124,255,.15);
 }
 /* SVG stroke inherits currentColor — reinforce it explicitly */
@@ -618,7 +618,7 @@
 }
 :root[data-theme="light"] .fs-item-title { color: #111827; }
 :root[data-theme="light"] .fs-item-desc  { color: rgba(0,0,0,0.62); }
-:root[data-theme="light"] .fs-highlight  { color: #4F7CFF; }
+:root[data-theme="light"] .fs-highlight  { color: var(--accent-ink); }
 :root[data-theme="light"] .fs-item:hover,
 :root[data-theme="light"] .fs-item.focused { background: rgba(0,100,255,.06); }
 

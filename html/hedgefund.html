@@ -74,7 +74,7 @@ body {background:var(--bg);color:var(--text);display:flex;}
 
 .tag{display:inline-block;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.1em;padding:3px 10px;border-radius:20px;}
 .tag-lime{background:rgba(199,240,0,.1);color:var(--lime);}
-.tag-blue{background:rgba(79,124,255,.1);color:var(--blue);}
+.tag-blue{background:rgba(79,124,255,.1);color:var(--accent-ink);}
 .tag-red{background:rgba(255,59,59,.1);color:var(--red);}
 .tag-amber{background:rgba(255,184,0,.1);color:var(--amber);}
 .tag-pink{background:rgba(255,78,205,.1);color:var(--pink);}
@@ -326,8 +326,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 /* ═══════════════════════════ TIME HEATMAP ═══════════════════════════ */
 .time-heatmap{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:14px 0;}
 .th-cell{height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-mono);font-size:.6rem;color:rgba(255,255,255,.5);cursor:pointer;transition:transform .18s;}
+  font-family:var(--font-mono);font-size:.6rem;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.55);cursor:pointer;transition:transform .18s;}
 .th-cell:hover{transform:scale(1.08);}
+[data-theme="light"] .th-cell{color:#0B0D12;text-shadow:none;}
+[data-theme="light"] .th-cell.danger-zone{color:#000;}
 .th-cell.danger-zone{animation:throb .9s ease-in-out infinite alternate;}
 @keyframes throb{from{filter:brightness(1)}to{filter:brightness(1.35)}}
 

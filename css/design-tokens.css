@@ -112,7 +112,7 @@
      darkened in light mode to pass AA on white. --accent-primary
      stays raw brand blue for fills/gradients. */
   --accent:           #3D63E6;  /* 5.09:1 on white */
-  --accent-ink:       #3D63E6;  /* accent as TEXT colour */
+  --accent-ink:       #3556D0;  /* accent as TEXT colour: 5.3:1 on tinted accent surfaces, 6.2:1 on white */
   --accent-primary:   #4F7CFF;
   --accent-secondary: #5C7300;  /* lime-as-ink: olive in light (5.37:1) */
   --accent-soft:      rgba(61, 99, 230, 0.12);
@@ -512,7 +512,7 @@ input.is-invalid:focus { box-shadow: 0 0 0 3px var(--color-error-soft); }
   font-size: var(--fs-sm);
   font-weight: var(--fw-semi);
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-ink);
   border: 1px solid rgba(79, 124, 255, 0.20);
 }
 

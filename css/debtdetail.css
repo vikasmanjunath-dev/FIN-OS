@@ -48,7 +48,7 @@ html, body {
 .toc-header { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 2px; color: var(--accent); margin-bottom: 25px; font-weight: 700; }
 .toc-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
 .toc-link { color: var(--text-secondary); text-decoration: none; padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; display: block; transition: all 0.2s; }
-.toc-link.active { background: rgba(79, 124, 255, 0.1); color: var(--accent); font-weight: 700; border-left: 3px solid var(--accent); }
+.toc-link.active { background: rgba(79, 124, 255, 0.1); color: var(--accent-ink); font-weight: 700; border-left: 3px solid var(--accent); }
 .toc-link:hover { color: var(--text-primary); background: transparent; }
 .back-btn { margin-top: auto; padding: 12px; text-align: center; border: 1px solid var(--border-soft); border-radius: 8px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: 0.3s; }
 .back-btn:hover { border-color: var(--accent); color: var(--accent); }
