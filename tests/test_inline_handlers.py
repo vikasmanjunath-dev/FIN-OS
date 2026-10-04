@@ -37,9 +37,7 @@ PROBE = """known => {
 
 
 # Known, deliberately-tracked gaps: (page, handler) -> why. Delete the entry when the feature is built or the button removed.
-KNOWN_MISSING = {
-    ("html/system-leak.html", "syncLossData"): "'Sync Future Loss' button was never implemented; needs a product decision on what it should do",
-}
+KNOWN_MISSING = {}
 
 
 def _pages():

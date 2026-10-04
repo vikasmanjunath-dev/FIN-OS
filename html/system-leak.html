@@ -612,8 +612,9 @@
 
     <div class="radar-actions">
         <button class="footer-btn action-scan" onclick="startForensicScan()">Initialize Deep Scan</button>
-        <button class="footer-btn secondary" onclick="syncLossData()">Sync Future Loss</button>
+        <button class="footer-btn secondary" onclick="syncLossData()" aria-controls="leak-sync-panel">Sync Future Loss</button>
     </div>
+    <div id="leak-sync-panel" class="fl-panel" hidden aria-labelledby="fl-title" aria-live="polite"></div>
 </section>
 
             <footer class="fin-footer glass">
@@ -643,7 +644,9 @@
 </div>
 
 <script src="../js/ui.js" defer></script>
-<script src="../js/system-leak.js?v=2"></script>
+<script src="../js/finos-budget.js"></script>
+<script src="../js/finos-leak.js"></script>
+<script src="../js/system-leak.js?v=3"></script>
 
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>

@@ -187,7 +187,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const leakCounter = document.getElementById('live-leak-counter');
     let totalLeak = 0;
 
-    if (protocol05) {
+    // The legacy simulation needs #upi-dot-field, which the page no longer has (the particle engine below replaced it). Without
+    // this guard it threw up to 40 errors whenever the section scrolled into view.
+    if (protocol05 && dotField) {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && !entry.target.dataset.active) {
@@ -524,6 +526,8 @@ document.addEventListener("DOMContentLoaded", () => {
    ============================================================ */
 
 let leakTotal = 0;
+let scanTimer = null;              // one scan at a time: a second click used to stack another timer and another set of blips
+const countedLeaks = new Set();    // each sample leak is counted once; the sweep only re-flashes it
 const transactions = [
     { name: "Chai Scan", cost: 120, x: 30, y: 25, angle: 310 },
     { name: "Zomato Impulse", cost: 680, x: 65, y: 55, angle: 45 },
@@ -532,6 +536,7 @@ const transactions = [
 ];
 
 function startForensicScan() {
+    if (scanTimer) return;
     const blipField = document.getElementById('radar-blip-field');
     const ticker = document.getElementById('ticker-stream');
     const status = document.getElementById('scan-status');
@@ -551,7 +556,7 @@ function startForensicScan() {
 
     // Detect Angle for Ping
     let rotation = 0;
-    setInterval(() => {
+    scanTimer = setInterval(() => {
         rotation = (rotation + 1.5) % 360; // Match CSS animation speed
         
         transactions.forEach(t => {
@@ -573,7 +578,11 @@ function startForensicScan() {
 
 function triggerPing(data, element) {
     element.classList.add('detected');
-    
+    // The sweep passes every few seconds. Re-flash the blip each time, but count the leak and log it only once, or the
+    // "monthly drain" would grow by the same ₹1,389 on every rotation.
+    if (countedLeaks.has(data.name)) return;
+    countedLeaks.add(data.name);
+
     // Update Ticker
     const ticker = document.getElementById('ticker-stream');
     const entry = document.createElement('div');
@@ -586,5 +595,13 @@ function triggerPing(data, element) {
     document.getElementById('radar-total-leak').innerText = `₹${leakTotal.toLocaleString()}`;
 }
 
-
-
+/* ============================================================
+   SYNC FUTURE LOSS — the second radar button (js/finos-leak.js)
+   Reads the user's real logged spending and tracked subscriptions and shows what that leak would have grown into if
+   invested. The radar's own blips are sample values, so they are only offered as a labelled sample when the user has no data.
+   ============================================================ */
+function syncLossData() {
+    const panel = document.getElementById('leak-sync-panel');
+    if (!panel || !window.FinosLeak) return;
+    window.FinosLeak.sync(panel, transactions.map(t => t.cost));
+}
