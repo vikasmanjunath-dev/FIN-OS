@@ -100,6 +100,7 @@
   const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   function asDate(d) { const x = d instanceof Date ? d : new Date(d); return isNaN(x) ? null : x; }
   function date(d) {
+    if (root.FINOS && typeof root.FINOS.date === 'function') return root.FINOS.date(d);
     const x = asDate(d); if (!x) return DASH;
     return String(x.getDate()).padStart(2, '0') + ' ' + MONTHS[x.getMonth()] + ' ' + x.getFullYear();
   }

@@ -775,7 +775,7 @@
 
 
 <script src="../js/finos-aa.js" defer></script>
-<script src="../js/ui.js?v=4"></script>
+<script src="../js/ui.js?v=5"></script>
 <script src="../js/finos-store.js"></script>
 <script src="../js/finos-reminders.js"></script>
 <script src="../js/finos-i18n.js"></script>
@@ -895,7 +895,7 @@ input:checked + .toggle-slider::before { transform: translateX(20px); }
 
   async function loadAlertPrefs(list) {
     try {
-      const res = await fetch(`${ALERT_ENGINE}/alerts/preferences/${encodeURIComponent(currentUserId)}`);
+      const res = await fetch(`${ALERT_ENGINE}/alerts/preferences/${encodeURIComponent(currentUserId)}`, { signal: AbortSignal.timeout(8000) });
       if (!res.ok) throw new Error('Alert service unavailable');
       const data = await res.json();
       if (!Array.isArray(data.preferences)) throw new Error('Invalid preferences response');
@@ -940,7 +940,7 @@ input:checked + .toggle-slider::before { transform: translateX(20px); }
     try {
       const results = await Promise.all(Object.entries(pendingPrefs).map(async ([ruleId, enabled]) => {
         try {
-          const response = await fetch(`${ALERT_ENGINE}/alerts/preferences`, {
+          const response = await fetch(`${ALERT_ENGINE}/alerts/preferences`, { signal: AbortSignal.timeout(10000),
             method: 'PUT', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user_id: currentUserId, rule_id: ruleId, enabled }),
           });

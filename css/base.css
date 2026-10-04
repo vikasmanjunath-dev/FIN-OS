@@ -42,6 +42,10 @@ html {
   scroll-behavior: smooth;
 }
 
+html[data-font-size="small"] { font-size: 14px; --fs-xs: 9px; --fs-sm: 11px; --fs-base: 13px; --fs-lg: 15px; --fs-xl: 17px; }
+html[data-font-size="normal"] { font-size: 16px; --fs-xs: 10px; --fs-sm: 12px; --fs-base: 14px; --fs-lg: 16px; --fs-xl: 18px; }
+html[data-font-size="large"] { font-size: 18px; --fs-xs: 12px; --fs-sm: 14px; --fs-base: 16px; --fs-lg: 18px; --fs-xl: 20px; }
+
 /* Body — canonical defaults every page inherits */
 body {
   font-family:  var(--font-sans, 'Manrope', 'Space Grotesk', system-ui, sans-serif);

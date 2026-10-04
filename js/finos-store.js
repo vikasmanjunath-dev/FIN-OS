@@ -36,9 +36,9 @@
   const SCHEMA_VERSION = 1;
   const VERSION_KEY = 'finos_schema_version';
   // Keys owned by FIN-OS (what backup/restore touches). Everything else is left alone.
-  const OWNED = /^(finos[_-]|FINOS_|trady_|theme$)/;
+  const OWNED = /^(finos[_-]|FINOS_|trady_|tradebook_|theme$|qs_watchlist$)/;
   // Never exported/imported — secrets & transient session material.
-  const EXCLUDE = /^(finos_aa_key_|finos_kite_|finos_session|finos_token|finos_sb_|sb-)/i;
+  const EXCLUDE = /^(finos_aa_key_|finos_kite_|finos_session|finos_token|finos_sb_|finos_user_id$|finos_user_email$|finos_email$|finos_phone$|supabase_user_id$|sb-)/i;
 
   /**
    * canonical key → legacy keys that old code still reads. set() writes all of them.
@@ -188,7 +188,7 @@
   function importAll(obj, opts) {
     const merge = !opts || opts.merge !== false;       // default: don't clobber existing values
     const res = { imported: 0, skipped: 0 };
-    if (obj && obj._meta && !obj.app) {                // flat file from the Settings "Export JSON" button
+    if (obj && obj._meta && !obj.app) {                // legacy flat Settings export
       const flat = Object.assign({}, obj); delete flat._meta;
       obj = { app: 'FIN-OS', schema: SCHEMA_VERSION, data: flat };
     }
@@ -225,7 +225,84 @@
   const DB_NAME = 'finos';
   const COLLECTIONS = ['transactions', 'journal', 'documents', 'snapshots']; // add here + bump DB_VERSION
   const DB_VERSION = 1;
+  const ARYA_DB_NAME = 'finos_arya_memory';
+  const ARYA_STORE = 'memories';
   let dbPromise = null;
+
+  function openAryaMemoryDB() {
+    return new Promise((resolve, reject) => {
+      if (!root.indexedDB) return reject(new Error('IndexedDB unavailable'));
+      const req = root.indexedDB.open(ARYA_DB_NAME, 1);
+      req.onupgradeneeded = (event) => {
+        const db = event.target.result;
+        if (!db.objectStoreNames.contains(ARYA_STORE)) {
+          const store = db.createObjectStore(ARYA_STORE, { keyPath: 'id', autoIncrement: true });
+          store.createIndex('ts', 'ts', { unique: false });
+          store.createIndex('type', 'type', { unique: false });
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function readAryaMemories() {
+    if (!root.indexedDB) return [];
+    if (root.indexedDB.databases) {
+      try { if (!(await root.indexedDB.databases()).some((db) => db.name === ARYA_DB_NAME)) return []; }
+      catch (_) { /* Older browsers cannot list databases; open the existing schema. */ }
+    }
+    const db = await openAryaMemoryDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(ARYA_STORE, 'readonly');
+      const req = tx.objectStore(ARYA_STORE).getAll();
+      let rows = [];
+      req.onsuccess = () => { rows = req.result || []; };
+      req.onerror = () => reject(req.error);
+      tx.oncomplete = () => { db.close(); resolve(rows); };
+      tx.onerror = () => { db.close(); reject(tx.error); };
+    });
+  }
+
+  async function writeAryaMemories(rows, merge = true) {
+    if (!rows.length) return 0;
+    const db = await openAryaMemoryDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(ARYA_STORE, 'readwrite');
+      const store = tx.objectStore(ARYA_STORE);
+      let count = 0;
+      if (merge) {
+        const req = store.getAll();
+        req.onsuccess = () => {
+          const ids = new Set((req.result || []).map((item) => item.id));
+          rows.forEach((row) => { if (!ids.has(row.id)) { store.put(row); count++; } });
+        };
+        req.onerror = () => { try { tx.abort(); } catch (_) {} };
+      } else {
+        rows.forEach((row) => { store.put(row); count++; });
+      }
+      tx.oncomplete = () => { db.close(); resolve(count); };
+      tx.onerror = () => { db.close(); reject(tx.error); };
+      tx.onabort = () => { db.close(); reject(tx.error || new Error('Could not restore Arya memory.')); };
+    });
+  }
+
+  async function clearAryaMemory() {
+    if (!root.indexedDB) return;
+    if (root.indexedDB.databases) {
+      try { if (!(await root.indexedDB.databases()).some((db) => db.name === ARYA_DB_NAME)) return; }
+      catch (_) { /* Older browsers cannot list databases. */ }
+    }
+    const db = await openAryaMemoryDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(ARYA_STORE, 'readwrite');
+      tx.objectStore(ARYA_STORE).clear();
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error || new Error('Could not clear Arya memory.'));
+    });
+    db.close();
+  }
 
   function openDB() {
     if (dbPromise) return dbPromise;
@@ -258,14 +335,81 @@
     },
     get: (col, id) => tx(col, 'readonly', (s) => s.get(id)),
     getAll: (col) => tx(col, 'readonly', (s) => s.getAll()).then((r) => r || []),
+    putMany: (col, items) => tx(col, 'readwrite', (s) => {
+      items.forEach((item) => s.put(item));
+      return { result: items.length };
+    }),
     delete: (col, id) => tx(col, 'readwrite', (s) => s.delete(id)),
     clear: (col) => tx(col, 'readwrite', (s) => s.clear()),
   };
 
+  async function exportComplete() {
+    const backup = exportAll();
+    const offline = {};
+    for (const collection of COLLECTIONS) {
+      // Snapshots are derived caches (including reminder horizons), not user records.
+      if (collection === 'snapshots') continue;
+      try { offline[collection] = await idb.getAll(collection); }
+      catch (error) {
+        if (error && /IndexedDB unavailable/i.test(error.message || '')) continue;
+        throw error;
+      }
+    }
+    try { offline.aryaMemory = await readAryaMemories(); }
+    catch (error) {
+      if (!(error && /IndexedDB unavailable/i.test(error.message || ''))) throw error;
+    }
+    backup.indexedDB = offline;
+    return backup;
+  }
+
+  async function importComplete(obj, opts) {
+    const legacyFlat = !!(obj && obj._meta && !obj.app);
+    if (!legacyFlat && (!obj || obj.app !== 'FIN-OS' || !obj.data || typeof obj.data !== 'object' || Array.isArray(obj.data))) {
+      throw new Error('Not a FIN-OS backup file');
+    }
+    const offline = legacyFlat || obj.indexedDB === undefined ? {} : obj.indexedDB;
+    if (!offline || typeof offline !== 'object' || Array.isArray(offline)) throw new Error('Backup contains invalid offline data.');
+    const accepted = new Set([...COLLECTIONS.filter((name) => name !== 'snapshots'), 'aryaMemory']);
+    if (Object.keys(offline).some((name) => !accepted.has(name))) throw new Error('Backup contains an unsupported offline collection.');
+    for (const [name, records] of Object.entries(offline)) {
+      if (!Array.isArray(records) || records.length > 100000 || records.some((record) => !record || typeof record !== 'object' || Array.isArray(record) || (typeof record.id !== 'string' && typeof record.id !== 'number'))) {
+        throw new Error('Backup contains invalid offline records.');
+      }
+      const ids = new Set(records.map((record) => record.id));
+      if (ids.size !== records.length) throw new Error('Backup contains duplicate offline record IDs.');
+    }
+    if (!root.indexedDB && Object.values(offline).some((records) => records.length)) {
+      throw new Error('This browser cannot restore offline records because IndexedDB is unavailable. No data was changed.');
+    }
+
+    const result = importAll(obj, opts);
+    const merge = !opts || opts.merge !== false;
+    for (const [collection, records] of Object.entries(offline)) {
+      if (collection === 'aryaMemory') {
+        const imported = await writeAryaMemories(records, merge);
+        result.imported += imported;
+        if (merge) result.skipped += records.length - imported;
+        continue;
+      }
+      let toImport = records;
+      if (merge && records.length) {
+        const existingIds = new Set((await idb.getAll(collection)).map((record) => record.id));
+        toImport = records.filter((record) => {
+          if (existingIds.has(record.id)) { result.skipped++; return false; }
+          existingIds.add(record.id);
+          return true;
+        });
+      }
+      if (toImport.length) result.imported += await idb.putMany(collection, toImport);
+    }
+    return result;
+  }
+
   /* ── boot ──────────────────────────────────────────────────────────────── */
   const api = {
     SCHEMA_VERSION, get, set, remove, update, has, keys, subscribe,
-    exportAll, importAll, downloadBackup, usage, idb, migrate, _useBackend: useBackend,
+    exportAll, exportComplete, importAll, importComplete, downloadBackup, usage, idb, clearAryaMemory, migrate, _useBackend: useBackend,
   };
   api.ready = Promise.resolve().then(migrate);
   return api;

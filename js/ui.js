@@ -47,7 +47,12 @@
   loadScript(base + 'finos-toast.js');
   loadScript(base + 'finos-async.js');
   // Settings runtime (AI language/persona directive + preference applier); pages without ui.js include it directly.
-  if (!(window.FINOS && window.FINOS.aiDirective)) loadScript(base + 'finos-prefs.js');
+  // After `load` so it never counts against the critical path; it is only needed once an AI call is made.
+  if (!(window.FINOS && window.FINOS.aiDirective)) {
+    var loadPrefs = function () { loadScript(base + 'finos-prefs.js?v=2'); };
+    if (document.readyState === 'complete') loadPrefs();
+    else window.addEventListener('load', loadPrefs, { once: true });
+  }
 })();
 
 /* ─── GLOBAL SETTINGS PROPAGATOR ─────────────────────────────────

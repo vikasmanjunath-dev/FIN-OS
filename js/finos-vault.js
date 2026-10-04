@@ -2,7 +2,7 @@
  * FIN-OS Vault — optional passcode lock with real encryption at rest.   (v1.0)
  *
  * WHAT IT DOES
- *   Lock    all `finos_*` / `FINOS_*` / `trady_*` browser-storage values → ONE AES-256-GCM blob (`finos_vault`),
+ *   Lock    all FIN•OS localStorage values and IndexedDB records → ONE AES-256-GCM blob (`finos_vault`),
  *           key from PBKDF2-SHA256 (600k iterations) of the passcode. The blob is decrypted again and compared
  *           BEFORE any plaintext is removed, so a failed lock can never lose data.
  *   Unlock  decrypts and puts the values back. Anything NEWER already in storage (left by an unclean close) wins.
@@ -37,7 +37,8 @@
   const BLOB_KEY = 'finos_vault';
   const SESSION_KEY = 'finos_unlocked';
   const ITER = 600000;
-  const OWNED = /^(finos[_-]|FINOS_|trady_)/;
+  const OWNED = /^(finos[_-]|FINOS_|trady_|tradebook_|qs_watchlist$)/;
+  const DB_COLLECTIONS = ['transactions', 'journal', 'documents', 'snapshots'];
   // Never encrypted: the vault itself, and prefs that must be readable on the lock screen.
   const NEVER = /^(finos_vault|finos_vault_meta|finos_unlocked|finos-theme|finos_lang|finos_schema_version)$/;
   const MIN_PASS = 6;
@@ -84,6 +85,17 @@
   }
   function snapshot() { const data = {}; ownedKeys().forEach((k) => { data[k] = local().getItem(k); }); return data; }
 
+  async function completeSnapshot() {
+    const backup = root.FinosStore?.exportComplete ? await root.FinosStore.exportComplete() : null;
+    return { version: 2, localStorage: snapshot(), indexedDB: backup?.indexedDB || {} };
+  }
+
+  function unpackSnapshot(data) {
+    // Version 1 vaults stored the localStorage key map directly.
+    if (data && data.version === 2 && data.localStorage && typeof data.localStorage === 'object') return data;
+    return { version: 1, localStorage: data && typeof data === 'object' ? data : {}, indexedDB: {} };
+  }
+
   const isEnabled = () => !!metaOf();
   const isUnlocked = () => !!session().getItem(SESSION_KEY);
 
@@ -91,7 +103,7 @@
   function announce(type) { const c = channel(); if (c) { c.postMessage({ type }); c.close(); } }
 
   async function writeBlob(key) {
-    const data = snapshot();
+    const data = await completeSnapshot();
     const json = JSON.stringify(data);
     const blob = await encrypt(key, json);
     if ((await decrypt(key, blob)) !== json) throw new Error('Encryption self-check failed — nothing was changed.');   // never trust, verify
@@ -118,8 +130,11 @@
     if (!raw) return true;                                                       // already locked
     const key = await importRaw(raw);
     const data = await writeBlob(key);
-    Object.keys(data).forEach((k) => local().removeItem(k));
-    try { if (root.indexedDB && root.FinosStore && root.FinosStore.idb) await root.FinosStore.idb.clear('snapshots'); } catch (_) { /* derived data only */ }
+    if (root.indexedDB && root.FinosStore?.idb?.clear) {
+      for (const collection of DB_COLLECTIONS) await root.FinosStore.idb.clear(collection);
+      if (root.FinosStore.clearAryaMemory) await root.FinosStore.clearAryaMemory();
+    }
+    Object.keys(data.localStorage).forEach((k) => local().removeItem(k));
     session().removeItem(SESSION_KEY);
     announce('locked');
     return true;
@@ -132,9 +147,15 @@
     if (!blobText) throw new Error('The encrypted data is missing from this browser.');
     const key = await deriveKey(String(pass || ''), unb64(meta.salt), meta.iter);
     let data;
-    try { data = JSON.parse(await decrypt(key, JSON.parse(blobText))); }
+    try { data = unpackSnapshot(JSON.parse(await decrypt(key, JSON.parse(blobText)))); }
     catch (_) { return false; }                                                  // wrong passcode (GCM auth failure) — indistinguishable from tampering, by design
-    Object.keys(data).forEach((k) => { if (local().getItem(k) === null) local().setItem(k, data[k]); });   // newer leftovers win
+    if (Object.values(data.indexedDB || {}).some((rows) => Array.isArray(rows) && rows.length)) {
+      if (!root.FinosStore?.importComplete) throw new Error('Offline storage is unavailable; the vault was not unlocked.');
+      await root.FinosStore.importComplete({ app: 'FIN-OS', schema: 1, data: {}, indexedDB: data.indexedDB });
+    }
+    Object.keys(data.localStorage).forEach((k) => {
+      if (OWNED.test(k) && !NEVER.test(k) && local().getItem(k) === null) local().setItem(k, data.localStorage[k]);
+    });   // newer leftovers win
     session().setItem(SESSION_KEY, await exportRaw(key));
     return true;
   }
@@ -166,7 +187,11 @@
   }
 
   /** The only way back in without the passcode: delete everything FIN-OS keeps in this browser. */
-  function eraseEverything() {
+  async function eraseEverything() {
+    if (root.indexedDB && root.FinosStore?.idb?.clear) {
+      for (const collection of DB_COLLECTIONS) await root.FinosStore.idb.clear(collection);
+      if (root.FinosStore.clearAryaMemory) await root.FinosStore.clearAryaMemory();
+    }
     const ls = local(); const del = [];
     for (let i = 0; i < ls.length; i++) { const k = ls.key(i); if (k && OWNED.test(k)) del.push(k); }
     del.forEach((k) => ls.removeItem(k));
@@ -175,9 +200,11 @@
   }
 
   /* ── passphrase-protected backups ───────────────────────────────────── */
-  async function exportEncrypted(pass) {
+  async function exportEncrypted(pass, completeBackup) {
     if (String(pass || '').length < MIN_PASS) throw new Error(`Use at least ${MIN_PASS} characters.`);
-    const plain = root.FinosStore ? root.FinosStore.exportAll() : { app: 'FIN-OS', schema: 1, exportedAt: new Date().toISOString(), data: snapshot() };
+    const plain = completeBackup || (root.FinosStore?.exportComplete
+      ? await root.FinosStore.exportComplete()
+      : (root.FinosStore ? root.FinosStore.exportAll() : { app: 'FIN-OS', schema: 1, exportedAt: new Date().toISOString(), data: snapshot() }));
     const salt = rand(16);
     const key = await deriveKey(pass, salt, ITER);
     const blob = await encrypt(key, JSON.stringify(plain));
@@ -193,7 +220,7 @@
     const file = typeof text === 'string' ? JSON.parse(text) : text;
     const plain = await decryptBackup(file, pass);
     if (!root.FinosStore) throw new Error('Storage layer not loaded.');
-    return root.FinosStore.importAll(plain);
+    return root.FinosStore.importComplete ? root.FinosStore.importComplete(plain) : root.FinosStore.importAll(plain);
   }
 
   /* ── idle auto-lock (page-level) ────────────────────────────────────── */
@@ -257,8 +284,9 @@
     el.querySelector('#fl-forgot').addEventListener('click', () => {
       if (!root.confirm('A forgotten passcode cannot be recovered.\n\nThe only way back in is to ERASE all FIN•OS data stored in this browser (cloud-synced data and any backup you exported are not affected).\n\nErase it now?')) return;
       if (!root.confirm('Last check — this permanently deletes your FIN•OS data on this device. Continue?')) return;
-      eraseEverything();
-      root.location.reload();
+      eraseEverything().then(() => root.location.reload()).catch((error) => {
+        root.alert(`Could not erase all local data: ${error.message || 'storage unavailable'}. The encrypted vault was kept.`);
+      });
     });
   }
 
