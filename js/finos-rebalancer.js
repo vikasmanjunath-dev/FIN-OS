@@ -279,37 +279,8 @@ ${alertBanner}
   🏠 Real Estate: illiquid; include only your own property at current market value<br>
   🟣 Crypto: highly volatile; cap at 5% unless you have high risk tolerance<br>
   🏛️ Govt Savings: EPF/NPS/PPF — forced long-term savings; count toward debt/stable bucket
-</div>
-
-<script>
-(function(){
-  function _getVals(){ return ${JSON.stringify(Object.keys(CLASS_META))}.reduce((o,k)=>{ o[k]=parseInt(document.getElementById('rb-inp-'+k)?.value||0)||0; return o; }, {}); }
-  window._rbUpdateTotal = function(){
-    const vals = _getVals();
-    const total = Object.values(vals).reduce((s,v)=>s+v,0);
-    const el = document.getElementById('rb-total-display');
-    if(el){ el.textContent='Total: '+total+'%'; el.style.color = total===100?'#22D3A6':Math.abs(total-100)<=5?'#FFB347':'#EF4444'; }
-  };
-  window._rbApplyPreset = function(p){
-    Object.entries(p).forEach(([k,v])=>{
-      const inp = document.getElementById('rb-inp-'+k); const rng = document.getElementById('rb-rng-'+k);
-      if(inp) inp.value=v; if(rng) rng.value=v;
-    });
-    _rbUpdateTotal();
-  };
-  window._rbSaveTarget = function(){
-    const vals = _getVals();
-    localStorage.setItem('finos_target_alloc', JSON.stringify(vals));
-    if(window.FinosRebalancer){
-      window.FinosRebalancer.renderOverview(document.getElementById('rb-panel-overview'));
-      window.FinosRebalancer.renderActions(document.getElementById('rb-panel-actions'));
-    }
-    const btn = document.querySelector('[onclick="_rbSaveTarget()"]');
-    if(btn){ btn.textContent='✓ Saved!'; btn.style.color='#22D3A6'; setTimeout(()=>{ btn.textContent='💾 Save Target Allocation & Recompute'; btn.style.color='#4F7CFF'; },1500); }
-  };
-  _rbUpdateTotal();
-})();
-<\/script>`;
+</div>`;
+    window._rbUpdateTotal();   // needs the freshly rendered inputs
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -385,6 +356,34 @@ ${holds.map(([k,cl]) => _actionCard(k,cl,'hold')).join('')}` : ''}
   • Avoid over-rebalancing: costs (brokerage, tax, exit loads) can erode the benefit
 </div>`;
   }
+
+  /* Inline-handler functions at module scope: a <script> inside an innerHTML template is never executed by the browser. */
+  (function(){
+    function _getVals(){ return Object.keys(CLASS_META).reduce((o,k)=>{ o[k]=parseInt(document.getElementById('rb-inp-'+k)?.value||0)||0; return o; }, {}); }
+    window._rbUpdateTotal = function(){
+      const vals = _getVals();
+      const total = Object.values(vals).reduce((s,v)=>s+v,0);
+      const el = document.getElementById('rb-total-display');
+      if(el){ el.textContent='Total: '+total+'%'; el.style.color = total===100?'#22D3A6':Math.abs(total-100)<=5?'#FFB347':'#EF4444'; }
+    };
+    window._rbApplyPreset = function(p){
+      Object.entries(p).forEach(([k,v])=>{
+        const inp = document.getElementById('rb-inp-'+k); const rng = document.getElementById('rb-rng-'+k);
+        if(inp) inp.value=v; if(rng) rng.value=v;
+      });
+      _rbUpdateTotal();
+    };
+    window._rbSaveTarget = function(){
+      const vals = _getVals();
+      localStorage.setItem('finos_target_alloc', JSON.stringify(vals));
+      if(window.FinosRebalancer){
+        window.FinosRebalancer.renderOverview(document.getElementById('rb-panel-overview'));
+        window.FinosRebalancer.renderActions(document.getElementById('rb-panel-actions'));
+      }
+      const btn = document.querySelector('[onclick="_rbSaveTarget()"]');
+      if(btn){ btn.textContent='✓ Saved!'; btn.style.color='#22D3A6'; setTimeout(()=>{ btn.textContent='💾 Save Target Allocation & Recompute'; btn.style.color='#4F7CFF'; },1500); }
+    };
+  })();
 
   return { renderOverview, renderSetup, renderActions, _compute };
 })();

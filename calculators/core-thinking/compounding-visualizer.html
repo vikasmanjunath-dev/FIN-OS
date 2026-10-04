@@ -406,7 +406,7 @@ function calculate() {
   const fvLump = p * Math.pow(1 + r, n);
   
   // Future value of monthly SIP
-  const fvSIP = m > 0 ? m * (((Math.pow(1 + r, n) - 1) / r) * (1 + r)) : 0;
+  const fvSIP = m > 0 ? m * (((r === 0 ? n : (Math.pow(1 + r, n) - 1) / r)) * (1 + r)) : 0;
   
   const totalValue = fvLump + fvSIP;
   const totalContributed = p + (m * n);
@@ -424,7 +424,7 @@ function calculate() {
     labels.push(`Year ${year}`);
     const months = year * 12;
     const lump = p * Math.pow(1 + r, months);
-    const sip = m > 0 && months > 0 ? m * (((Math.pow(1 + r, months) - 1) / r) * (1 + r)) : 0;
+    const sip = m > 0 && months > 0 ? m * (((r === 0 ? months : (Math.pow(1 + r, months) - 1) / r)) * (1 + r)) : 0;
     data.push(Math.round(lump + sip));
   }
   

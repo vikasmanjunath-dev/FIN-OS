@@ -153,7 +153,7 @@ function calculate() {
   const n = +els.tN.value * 12;
 
   // PMT Formula: P * r * (1+r)^n / ((1+r)^n - 1)
-  const monthly = PV * (r * Math.pow(1+r, n)) / (Math.pow(1+r, n) - 1);
+  const monthly = r === 0 ? PV / n : PV * (r * Math.pow(1+r, n)) / (Math.pow(1+r, n) - 1);
   
   document.getElementById('monthlyVal').textContent = format(monthly);
   document.getElementById('annualVal').textContent = format(monthly * 12);

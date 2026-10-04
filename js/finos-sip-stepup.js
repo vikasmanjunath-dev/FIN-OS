@@ -189,36 +189,7 @@ window.FinosSIPStepup = (function () {
     <span>📈 Use SIP mandate with step-up instruction on your MF platform (Groww, Zerodha Coin, MFCentral)</span>
     <span>📈 Even 5% step-up (half the inflation rate) delivers ${fmt(_compute({...p, stepUpPct:5}).advantage)} extra vs flat SIP</span>
   </div>
-</div>
-
-<script>
-(function(){
-  window._ssRecalc = function() {
-    const base   = parseInt(document.getElementById('ss-base')?.value)   || 10000;
-    const stepup = parseInt(document.getElementById('ss-stepup')?.value) || 10;
-    const yrs    = parseInt(document.getElementById('ss-years')?.value)  || 20;
-    const ret    = parseFloat(document.getElementById('ss-return')?.value) || 12;
-    const p = { baseSIP: base, stepUpPct: stepup, years: yrs, returnPct: ret };
-    if (window.FinosSIPStepup) {
-      const c = window.FinosSIPStepup._compute(p);
-      const fmt = v => v >= 1e7 ? (v/1e7).toFixed(2)+' Cr' : v >= 1e5 ? (v/1e5).toFixed(1)+' L' : '₹'+Math.round(v).toLocaleString('en-IN');
-      const INR = v => '₹'+Math.abs(Math.round(v)).toLocaleString('en-IN');
-      const advPct = c.finalFlat > 0 ? Math.round((c.advantage / c.finalFlat)*100) : 0;
-      const upd = (id, v) => { const el = document.getElementById(id); if(el) el.textContent=v; };
-      upd('ss-r-step',     fmt(c.finalStep));
-      upd('ss-r-step-sip', 'Final SIP: ' + INR(c.totalStepSIP) + '/mo');
-      upd('ss-r-flat',     fmt(c.finalFlat));
-      upd('ss-r-adv',      '+' + fmt(c.advantage));
-      upd('ss-r-advpct',   advPct + '% more wealth');
-      upd('ss-r-extrainv', '+' + fmt(c.stepInvested - c.flatInvested));
-      localStorage.setItem('finos_ss_base',   String(base));
-      localStorage.setItem('finos_ss_stepup', String(stepup));
-      localStorage.setItem('finos_ss_years',  String(yrs));
-      localStorage.setItem('finos_ss_return', String(ret));
-    }
-  };
-})();
-<\/script>`;
+</div>`;
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -270,6 +241,32 @@ window.FinosSIPStepup = (function () {
 </div>
 <div style="margin-top:12px;font-size:11px;color:var(--text-muted);text-align:right;">Green bar = step-up corpus · Grey bar = flat SIP corpus · Milestones marked 🎯</div>`;
   }
+
+  /* Live recalculation for the calculator tab. Lives at module scope: a <script> inside an innerHTML string never runs. */
+  window._ssRecalc = function() {
+    const base   = parseInt(document.getElementById('ss-base')?.value)   || 10000;
+    const stepup = parseInt(document.getElementById('ss-stepup')?.value) || 10;
+    const yrs    = parseInt(document.getElementById('ss-years')?.value)  || 20;
+    const ret    = parseFloat(document.getElementById('ss-return')?.value) || 12;
+    const p = { baseSIP: base, stepUpPct: stepup, years: yrs, returnPct: ret };
+    if (window.FinosSIPStepup) {
+      const c = window.FinosSIPStepup._compute(p);
+      const fmt = v => v >= 1e7 ? (v/1e7).toFixed(2)+' Cr' : v >= 1e5 ? (v/1e5).toFixed(1)+' L' : '₹'+Math.round(v).toLocaleString('en-IN');
+      const INR = v => '₹'+Math.abs(Math.round(v)).toLocaleString('en-IN');
+      const advPct = c.finalFlat > 0 ? Math.round((c.advantage / c.finalFlat)*100) : 0;
+      const upd = (id, v) => { const el = document.getElementById(id); if(el) el.textContent=v; };
+      upd('ss-r-step',     fmt(c.finalStep));
+      upd('ss-r-step-sip', 'Final SIP: ' + INR(c.totalStepSIP) + '/mo');
+      upd('ss-r-flat',     fmt(c.finalFlat));
+      upd('ss-r-adv',      '+' + fmt(c.advantage));
+      upd('ss-r-advpct',   advPct + '% more wealth');
+      upd('ss-r-extrainv', '+' + fmt(c.stepInvested - c.flatInvested));
+      localStorage.setItem('finos_ss_base',   String(base));
+      localStorage.setItem('finos_ss_stepup', String(stepup));
+      localStorage.setItem('finos_ss_years',  String(yrs));
+      localStorage.setItem('finos_ss_return', String(ret));
+    }
+  };
 
   return { renderCalculator, renderGrowth, _compute };
 })();

@@ -259,36 +259,7 @@ window.FinosPassiveIncome = (function () {
 </div>
 <div id="pi-streams-list">
   ${streams.map((s, i) => _rowHtml(s, i)).join('')}
-</div>
-
-<script>
-(function(){
-  function _loadS(){ try { return JSON.parse(localStorage.getItem('${STREAM_KEY}') || 'null') || ${JSON.stringify(streams)}; } catch { return []; } }
-  function _saveS(arr){ localStorage.setItem('${STREAM_KEY}', JSON.stringify(arr)); if(window.FinosPassiveIncome) { window.FinosPassiveIncome.renderOverview(document.getElementById('pi-panel-overview')); } }
-  function _find(id, arr){ return arr.findIndex(x => x.id === id); }
-  window._piUpdateLabel  = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].label = v; _saveS(a); } };
-  window._piUpdateType   = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].type  = v; _saveS(a); } };
-  window._piUpdateAmount = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].monthly = parseFloat(v)||0; _saveS(a); } };
-  window._piUpdateTax    = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].taxable = v; _saveS(a); } };
-  window._piUpdateNote   = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].note  = v; _saveS(a); } };
-  window._piDeleteStream = function(id){
-    const a = _loadS(); const updated = a.filter(x => x.id !== id);
-    _saveS(updated);
-    const el = document.getElementById('pi-row-' + id); if(el) el.remove();
-  };
-  window._piAddStream = function(){
-    const a = _loadS();
-    const id = 'pi_' + Date.now();
-    a.push({ id, type:'other', label:'New Stream', monthly:0, taxable:true, note:'' });
-    _saveS(a);
-    const list = document.getElementById('pi-streams-list');
-    if(list){ const div = document.createElement('div'); div.id = 'pi-row-'+id;
-      div.innerHTML = '<div style="padding:12px 14px;background:var(--border-soft);border:1px solid var(--border-soft);border-radius:12px;">New stream added — please refresh the page to edit it.</div>';
-      list.appendChild(div);
-    }
-  };
-})();
-<\/script>`;
+</div>`;
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -387,5 +358,33 @@ ${deficit > 0 ? `<div style="background:var(--border-soft);border:1px solid var(
   }
 
   /* Public */
+  /* Inline-handler functions at module scope: a <script> inside an innerHTML template is never executed by the browser. */
+  (function(){
+    function _loadS(){ try { return JSON.parse(localStorage.getItem(STREAM_KEY) || 'null') || _loadStreams(); } catch { return []; } }
+    function _saveS(arr){ localStorage.setItem(STREAM_KEY, JSON.stringify(arr)); if(window.FinosPassiveIncome) { window.FinosPassiveIncome.renderOverview(document.getElementById('pi-panel-overview')); } }
+    function _find(id, arr){ return arr.findIndex(x => x.id === id); }
+    window._piUpdateLabel  = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].label = v; _saveS(a); } };
+    window._piUpdateType   = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].type  = v; _saveS(a); } };
+    window._piUpdateAmount = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].monthly = parseFloat(v)||0; _saveS(a); } };
+    window._piUpdateTax    = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].taxable = v; _saveS(a); } };
+    window._piUpdateNote   = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].note  = v; _saveS(a); } };
+    window._piDeleteStream = function(id){
+      const a = _loadS(); const updated = a.filter(x => x.id !== id);
+      _saveS(updated);
+      const el = document.getElementById('pi-row-' + id); if(el) el.remove();
+    };
+    window._piAddStream = function(){
+      const a = _loadS();
+      const id = 'pi_' + Date.now();
+      a.push({ id, type:'other', label:'New Stream', monthly:0, taxable:true, note:'' });
+      _saveS(a);
+      const list = document.getElementById('pi-streams-list');
+      if(list){ const div = document.createElement('div'); div.id = 'pi-row-'+id;
+        div.innerHTML = '<div style="padding:12px 14px;background:var(--border-soft);border:1px solid var(--border-soft);border-radius:12px;">New stream added — please refresh the page to edit it.</div>';
+        list.appendChild(div);
+      }
+    };
+  })();
+
   return { renderOverview, renderStreams, renderFreedom, _recompute };
 })();

@@ -450,8 +450,8 @@ function calculate() {
   const monthlyB = incB * saveB;
 
   // SIP formula
-  const wealthA = Math.round(monthlyA * (((Math.pow(1 + rate, months) - 1) / rate) * (1 + rate)));
-  const wealthB = Math.round(monthlyB * (((Math.pow(1 + rate, months) - 1) / rate) * (1 + rate)));
+  const wealthA = Math.round(monthlyA * (((rate === 0 ? months : (Math.pow(1 + rate, months) - 1) / rate)) * (1 + rate)));
+  const wealthB = Math.round(monthlyB * (((rate === 0 ? months : (Math.pow(1 + rate, months) - 1) / rate)) * (1 + rate)));
 
   document.getElementById("wealthA").textContent = `₹${(wealthA/10000000).toFixed(2)}Cr`;
   document.getElementById("wealthB").textContent = `₹${(wealthB/10000000).toFixed(2)}Cr`;

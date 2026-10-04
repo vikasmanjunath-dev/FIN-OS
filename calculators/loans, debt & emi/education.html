@@ -166,7 +166,7 @@ function calculate() {
   const accruedInterest = P * r * mor;
   const finalPrincipal = P + accruedInterest;
 
-  const emi = finalPrincipal * r * (Math.pow(1+r, n) / (Math.pow(1+r, n) - 1));
+  const emi = (r === 0 ? finalPrincipal / n : finalPrincipal * r * (Math.pow(1+r, n) / (Math.pow(1+r, n) - 1)));
   const totalPay = emi * n;
   const interest = totalPay - P; // Total interest paid over life of loan
 

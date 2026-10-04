@@ -236,20 +236,7 @@ ${accounts.length ? `
         <span style="font-size:10px;color:rgba(255,255,255,0.58);">${v.c80c?'80C':'—'} ${v.taxFree?'EEE':''}</span>
       </div>`).join('')}
   </div>
-</div>
-
-<script>
-function _ppfAdd(){
-  const t=document.getElementById('ppf-type').value;
-  const n=document.getElementById('ppf-nick').value;
-  const b=parseFloat(document.getElementById('ppf-bal').value)||0;
-  const d=parseFloat(document.getElementById('ppf-dep').value)||0;
-  const dt=document.getElementById('ppf-date').value;
-  if(!b&&!d){alert('Enter at least a balance or annual deposit.');return;}
-  window.FinosPPFTracker._add(t,n,b,d,dt);
-  window.FinosPPFTracker.renderOverview(document.getElementById('ppf-panel-overview'));
-}
-</script>`;
+</div>`;
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -374,3 +361,16 @@ ${rows}` : '<div style="color:rgba(255,255,255,0.58);font-size:13px;padding:16px
   /* Public */
   return { renderOverview, renderProjection, renderTax, _add, _delete, _recompute };
 })();
+
+/* Inline-handler functions. They used to sit in a <script> inside an innerHTML template, which the browser never executes, so
+   the oninput/onclick attributes above threw "is not defined". Top-level here so those attributes can reach them. */
+function _ppfAdd(){
+  const t=document.getElementById('ppf-type').value;
+  const n=document.getElementById('ppf-nick').value;
+  const b=parseFloat(document.getElementById('ppf-bal').value)||0;
+  const d=parseFloat(document.getElementById('ppf-dep').value)||0;
+  const dt=document.getElementById('ppf-date').value;
+  if(!b&&!d){alert('Enter at least a balance or annual deposit.');return;}
+  window.FinosPPFTracker._add(t,n,b,d,dt);
+  window.FinosPPFTracker.renderOverview(document.getElementById('ppf-panel-overview'));
+}

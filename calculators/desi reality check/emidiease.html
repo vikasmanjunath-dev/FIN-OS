@@ -160,7 +160,7 @@ function calculate() {
   
   // Opportunity Cost: FV of SIP of the EMI amount for 10 years
   const months = 120;
-  const fv = emi * ((Math.pow(1+rate, months) - 1) / rate) * (1+rate);
+  const fv = emi * ((rate === 0 ? months : (Math.pow(1+rate, months) - 1) / rate)) * (1+rate);
 
   document.getElementById('ratioVal').textContent = ratio.toFixed(1) + "%";
   document.getElementById('lostVal').textContent = format(fv);

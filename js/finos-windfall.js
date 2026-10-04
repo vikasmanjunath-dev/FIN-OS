@@ -238,29 +238,7 @@ window.FinosWindfall = (function () {
       <div id="wf-r-remain" style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:20px;font-weight:900;color:${a.remaining > 0 ? '#FFB347' : '#22D3A6'};">${fmt(a.remaining)}</div>
     </div>
   </div>
-</div>
-
-<script>
-(function(){
-  window._wfRecalc = function() {
-    const amt  = parseFloat(document.getElementById('wf-amount')?.value) || 500000;
-    const type = document.getElementById('wf-type')?.value || 'bonus';
-    localStorage.setItem('finos_windfall_amount', String(amt));
-    localStorage.setItem('finos_windfall_type',   type);
-    const TYPES = ${JSON.stringify(WINDFALL_TYPES)};
-    const wfType = TYPES.find(t => t.key===type) || TYPES[0];
-    const tn = document.getElementById('wf-tax-note');
-    if(tn) tn.textContent = wfType.taxNote;
-    if (window.FinosWindfall) {
-      const a = window.FinosWindfall._allocate(amt);
-      const fmt = v => v>=1e7?(v/1e7).toFixed(2)+' Cr':v>=1e5?(v/1e5).toFixed(1)+' L':'₹'+Math.round(v).toLocaleString('en-IN');
-      const upd = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-      upd('wf-r-alloc',  fmt(a.totalAllocated));
-      upd('wf-r-remain', fmt(a.remaining));
-    }
-  };
-})();
-<\/script>`;
+</div>`;
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -333,6 +311,27 @@ ${p.type === 'bonus' || p.type === 'rsu' ? `
   </div>
 </div>`;
   }
+
+  /* Inline-handler functions at module scope: a <script> inside an innerHTML template is never executed by the browser. */
+  (function(){
+    window._wfRecalc = function() {
+      const amt  = parseFloat(document.getElementById('wf-amount')?.value) || 500000;
+      const type = document.getElementById('wf-type')?.value || 'bonus';
+      localStorage.setItem('finos_windfall_amount', String(amt));
+      localStorage.setItem('finos_windfall_type',   type);
+      const TYPES = WINDFALL_TYPES;
+      const wfType = TYPES.find(t => t.key===type) || TYPES[0];
+      const tn = document.getElementById('wf-tax-note');
+      if(tn) tn.textContent = wfType.taxNote;
+      if (window.FinosWindfall) {
+        const a = window.FinosWindfall._allocate(amt);
+        const fmt = v => v>=1e7?(v/1e7).toFixed(2)+' Cr':v>=1e5?(v/1e5).toFixed(1)+' L':'₹'+Math.round(v).toLocaleString('en-IN');
+        const upd = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+        upd('wf-r-alloc',  fmt(a.totalAllocated));
+        upd('wf-r-remain', fmt(a.remaining));
+      }
+    };
+  })();
 
   return { renderAllocator, renderTax, _allocate, _loadInputs };
 })();

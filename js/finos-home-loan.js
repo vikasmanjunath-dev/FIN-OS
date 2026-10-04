@@ -144,14 +144,14 @@ window.FinosHomeLoan = (function () {
   }
 
   /* ── Input row ──────────────────────────────────────────────────── */
-  function _inp(id, label, val, min, max, step, unit, hint) {
+  function _inp(id, label, val, min, max, step, unit, hint, handler = '_hlRecalc') {
     return `<div style="margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
         <label style="font-size:12px;font-weight:700;color:var(--text-secondary);">${label}</label>
         <div style="display:flex;align-items:center;gap:6px;">
           <input type="number" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"
             style="width:110px;background:var(--border-soft);border:1px solid var(--border-medium);border-radius:8px;color:var(--text-primary);font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:13px;font-weight:800;padding:5px 10px;text-align:right;outline:none;"
-            oninput="_hlRecalc()">
+            oninput="${handler}()">
           <span style="font-size:11px;color:var(--text-muted);">${unit}</span>
         </div>
       </div>
@@ -229,43 +229,7 @@ window.FinosHomeLoan = (function () {
 ${c.pmayEligible ? `<div style="background:rgba(34,211,166,.05);border:1px solid rgba(34,211,166,.15);border-radius:14px;padding:14px;">
   <div style="font-size:12px;font-weight:800;color:#22D3A6;margin-bottom:6px;">🏠 PMAY-CLSS Eligibility Detected</div>
   <div style="font-size:11px;color:var(--text-secondary);line-height:1.7;">Your income may qualify for a Pradhan Mantri Awas Yojana Credit-Linked Subsidy. MIG-I (income ≤ ₹12L): 4% interest subsidy on ₹9L · MIG-II (≤₹18L): 3% on ₹12L. Apply through your bank. First-time buyer condition applies.</div>
-</div>` : ''}
-
-<script>
-(function(){
-  window._hlRecalc = function() {
-    const amt  = parseFloat(document.getElementById('hl-amount')?.value) || 5000000;
-    const rate = parseFloat(document.getElementById('hl-rate')?.value)   || 8.75;
-    const ten  = parseInt(document.getElementById('hl-tenure')?.value)   || 20;
-    const inc  = parseFloat(document.getElementById('hl-income')?.value) || 150000;
-    const p = { loanAmount:amt, interestRate:rate, tenureYears:ten, monthlyIncome:inc, grossIncome:inc*12, prepayAmount:200000, prepayYear:3 };
-    if (window.FinosHomeLoan) {
-      const c = window.FinosHomeLoan._compute(p);
-      const INR = v => '₹'+Math.abs(Math.round(v)).toLocaleString('en-IN');
-      const fmt = v => v>=1e7?(v/1e7).toFixed(2)+' Cr':v>=1e5?(v/1e5).toFixed(1)+' L':INR(v);
-      const upd = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-      const col = (id,v) => { const el=document.getElementById(id); if(el) el.style.color=v; };
-      upd('hl-r-emi',     INR(c.emi));
-      upd('hl-r-emipct',  c.emiPct+'% of income '+(c.affordable?'✓ affordable':'⚠ above 40% rule'));
-      col('hl-r-emipct',  c.affordable?'#22D3A6':'#FF6B6B');
-      upd('hl-r-int',     fmt(c.sched.totalInterest));
-      upd('hl-r-total',   fmt(c.totalCost));
-      upd('hl-r-tax',     INR(c.totalTaxDeduct));
-      upd('hl-r-maxloan', fmt(c.maxAffordLoan));
-      const prinPct = Math.round(amt / c.totalCost * 100);
-      const intPct  = 100 - prinPct;
-      const bP = document.getElementById('hl-bar-prin');
-      const bI = document.getElementById('hl-bar-int');
-      if(bP) bP.style.width = prinPct + '%';
-      upd('hl-leg-prin', 'Principal '+prinPct+'%');
-      upd('hl-leg-int',  'Interest '+intPct+'%');
-      localStorage.setItem('finos_hl_amount', String(amt));
-      localStorage.setItem('finos_hl_rate',   String(rate));
-      localStorage.setItem('finos_hl_tenure', String(ten));
-    }
-  };
-})();
-<\/script>`;
+</div>` : ''}`;
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -294,8 +258,8 @@ ${c.pmayEligible ? `<div style="background:rgba(34,211,166,.05);border:1px solid
 <div style="background:linear-gradient(135deg,rgba(34,211,166,.06),rgba(79,124,255,.03));border:1px solid rgba(34,211,166,.18);border-radius:18px;padding:22px;margin-bottom:16px;">
   <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:14px;">Prepayment Calculator</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-    ${_inp('hl-prepay',   'Prepayment Amount',    p.prepayAmount,  50000, 50000000, 50000, '₹',   'Lump-sum amount you\'d like to prepay')}
-    ${_inp('hl-prepayyr', 'At End of Year',       p.prepayYear,    1,     29,        1,    'yr',  'Year when you make the prepayment (earlier = bigger saving)')}
+    ${_inp('hl-prepay',   'Prepayment Amount',    p.prepayAmount,  50000, 50000000, 50000, '₹',   'Lump-sum amount you\'d like to prepay', '_hlPrepayRecalc')}
+    ${_inp('hl-prepayyr', 'At End of Year',       p.prepayYear,    1,     29,        1,    'yr',  'Year when you make the prepayment (earlier = bigger saving)', '_hlPrepayRecalc')}
   </div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
     <div>
@@ -335,11 +299,41 @@ ${c.pmayEligible ? `<div style="background:rgba(34,211,166,.05);border:1px solid
     <span>📋 ₹1L prepay at year 3 can save more interest than ₹2L at year 15 — time value matters</span>
     <span>📋 Tax angle: if your interest stays above ₹2L, the 24(b) deduction is maxed — prepaying reduces it</span>
   </div>
-</div>
+</div>`;
+  }
 
-<script>
-(function(){
-  const orig = window._hlRecalc;
+  /* Live recalculation handlers live at module scope: a <script> inside an innerHTML string never runs. */
+  window._hlRecalc = function() {
+    const amt  = parseFloat(document.getElementById('hl-amount')?.value) || 5000000;
+    const rate = parseFloat(document.getElementById('hl-rate')?.value)   || 8.75;
+    const ten  = parseInt(document.getElementById('hl-tenure')?.value)   || 20;
+    const inc  = parseFloat(document.getElementById('hl-income')?.value) || 150000;
+    const p = { loanAmount:amt, interestRate:rate, tenureYears:ten, monthlyIncome:inc, grossIncome:inc*12, prepayAmount:200000, prepayYear:3 };
+    if (window.FinosHomeLoan) {
+      const c = window.FinosHomeLoan._compute(p);
+      const INR = v => '₹'+Math.abs(Math.round(v)).toLocaleString('en-IN');
+      const fmt = v => v>=1e7?(v/1e7).toFixed(2)+' Cr':v>=1e5?(v/1e5).toFixed(1)+' L':INR(v);
+      const upd = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+      const col = (id,v) => { const el=document.getElementById(id); if(el) el.style.color=v; };
+      upd('hl-r-emi',     INR(c.emi));
+      upd('hl-r-emipct',  c.emiPct+'% of income '+(c.affordable?'✓ affordable':'⚠ above 40% rule'));
+      col('hl-r-emipct',  c.affordable?'#22D3A6':'#FF6B6B');
+      upd('hl-r-int',     fmt(c.sched.totalInterest));
+      upd('hl-r-total',   fmt(c.totalCost));
+      upd('hl-r-tax',     INR(c.totalTaxDeduct));
+      upd('hl-r-maxloan', fmt(c.maxAffordLoan));
+      const prinPct = Math.round(amt / c.totalCost * 100);
+      const intPct  = 100 - prinPct;
+      const bP = document.getElementById('hl-bar-prin');
+      const bI = document.getElementById('hl-bar-int');
+      if(bP) bP.style.width = prinPct + '%';
+      upd('hl-leg-prin', 'Principal '+prinPct+'%');
+      upd('hl-leg-int',  'Interest '+intPct+'%');
+      localStorage.setItem('finos_hl_amount', String(amt));
+      localStorage.setItem('finos_hl_rate',   String(rate));
+      localStorage.setItem('finos_hl_tenure', String(ten));
+    }
+  };
   window._hlPrepayRecalc = function() {
     const amt = parseFloat(document.getElementById('hl-prepay')?.value)||200000;
     const yr  = parseInt(document.getElementById('hl-prepayyr')?.value)||3;
@@ -353,11 +347,6 @@ ${c.pmayEligible ? `<div style="background:rgba(34,211,166,.05);border:1px solid
     localStorage.setItem('finos_hl_prepay',   String(amt));
     localStorage.setItem('finos_hl_prepayyr', String(yr));
   };
-  document.getElementById('hl-prepay')?.addEventListener('input', window._hlPrepayRecalc);
-  document.getElementById('hl-prepayyr')?.addEventListener('input', window._hlPrepayRecalc);
-})();
-<\/script>`;
-  }
 
   return { renderCalculator, renderPrepayment, _compute, _prepayImpact, _loadInputs };
 })();

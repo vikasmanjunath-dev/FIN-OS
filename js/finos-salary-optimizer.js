@@ -282,11 +282,7 @@ window.FinosSalaryOptimizer = (function () {
       </select>
     </div>
   </div>
-</div>
-
-<script>
-function _soSave(k,v){localStorage.setItem(k,v);clearTimeout(window._soT);window._soT=setTimeout(()=>window.FinosSalaryOptimizer&&window.FinosSalaryOptimizer._refresh(),600);}
-</script>`;
+</div>`;
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -441,3 +437,7 @@ ${tips.length ? tipCards : '<div style="text-align:center;padding:28px;color:rgb
   /* Public */
   return { renderStructure, renderHRA, renderOptimize, _refresh, _compute };
 })();
+
+/* Inline-handler functions. They used to sit in a <script> inside an innerHTML template, which the browser never executes, so
+   the oninput/onclick attributes above threw "is not defined". Top-level here so those attributes can reach them. */
+function _soSave(k,v){localStorage.setItem(k,v);clearTimeout(window._soT);window._soT=setTimeout(()=>window.FinosSalaryOptimizer&&window.FinosSalaryOptimizer._refresh(),600);}

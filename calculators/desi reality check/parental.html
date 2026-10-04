@@ -160,7 +160,7 @@ function calculate() {
   
   // Future Value of Annuity (Cost of delaying investment)
   // P * [ (1+r)^n - 1 ] / r
-  const fv = totalAnnual * ((Math.pow(1+rate, years) - 1) / rate);
+  const fv = totalAnnual * ((rate === 0 ? years : (Math.pow(1+rate, years) - 1) / rate));
 
   document.getElementById('cashVal').textContent = format(totalDirect);
   document.getElementById('corpusVal').textContent = format(fv);

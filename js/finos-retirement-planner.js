@@ -321,15 +321,7 @@ window.FinosRetirementPlanner = (function () {
 <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;">
   <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin:0 0 14px;">Growth Milestones</p>
   ${milestones.length ? milRows : '<div style="color:rgba(255,255,255,0.58);font-size:13px;padding:8px 0;">Enter current age and retirement age to see milestones.</div>'}
-</div>
-
-<script>
-function _rpSave(k,v){localStorage.setItem(k,v);clearTimeout(window._rpT);window._rpT=setTimeout(()=>{
-  if(window.FinosRetirementPlanner){
-    window.FinosRetirementPlanner.renderOverview(document.getElementById('rp-panel-overview'));
-  }
-},700);}
-</script>`;
+</div>`;
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -473,10 +465,7 @@ function _rpSave(k,v){localStorage.setItem(k,v);clearTimeout(window._rpT);window
   </div>
   <p style="font-size:11px;opacity:.5;margin:12px 0 0;line-height:1.6;">Uses your tracked holdings (equity ${cmp(cfg.assets[0].value)} · debt ${cmp(cfg.assets[1].value)} · gold ${cmp(cfg.assets[2].value)}), expense ${fmt(c.expMo)}/mo in today's ₹, inflation ${(c.inflation * 100).toFixed(1)}% ± 1.5, and pension ${fmt(cfg.pensionMonthlyAtRetire)}/mo. Edit expense, age and inflation in <b>Corpus Builder</b>. Edit holdings in each tracker.</p>
 </div>
-<div id="rp-odds-out" style="min-height:160px;">${hasMoney ? '<div style="opacity:.5;font-size:13px;padding:20px;">Running 4,000 simulated futures…</div>' : '<div style="opacity:.6;font-size:13px;padding:20px;">Add holdings in your trackers (EPF, NPS, PPF, SIP, FD, Gold) or enter a monthly investment above to run the simulation.</div>'}</div>
-<script>
-function _rpOddsSave(k,v){localStorage.setItem(k,v);clearTimeout(window._rpOT);window._rpOT=setTimeout(function(){window.FinosRetirementPlanner.renderOdds(document.getElementById('rp-panel-odds'));},800);}
-</script>`;
+<div id="rp-odds-out" style="min-height:160px;">${hasMoney ? '<div style="opacity:.5;font-size:13px;padding:20px;">Running 4,000 simulated futures…</div>' : '<div style="opacity:.6;font-size:13px;padding:20px;">Add holdings in your trackers (EPF, NPS, PPF, SIP, FD, Gold) or enter a monthly investment above to run the simulation.</div>'}</div>`;
     if (!hasMoney) return;
 
     setTimeout(() => {                                   // yield so the shell paints first
@@ -526,3 +515,13 @@ function _rpOddsSave(k,v){localStorage.setItem(k,v);clearTimeout(window._rpOT);w
 
   return { renderOverview, renderPlan, renderIncome, renderOdds, _compute, _mcConfig };
 })();
+
+/* Inline-handler functions. They used to sit in a <script> inside an innerHTML template, which the browser never executes, so
+   the oninput/onclick attributes above threw "is not defined". Top-level here so those attributes can reach them. */
+function _rpSave(k,v){localStorage.setItem(k,v);clearTimeout(window._rpT);window._rpT=setTimeout(()=>{
+  if(window.FinosRetirementPlanner){
+    window.FinosRetirementPlanner.renderOverview(document.getElementById('rp-panel-overview'));
+  }
+},700);}
+
+function _rpOddsSave(k,v){localStorage.setItem(k,v);clearTimeout(window._rpOT);window._rpOT=setTimeout(function(){window.FinosRetirementPlanner.renderOdds(document.getElementById('rp-panel-odds'));},800);}

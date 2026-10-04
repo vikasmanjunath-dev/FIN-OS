@@ -196,25 +196,7 @@ window.FinosEmergencyFund = (function () {
   <div style="margin-top:14px;padding:14px;background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:12px;font-size:12px;color:rgba(255,255,255,.6);line-height:1.7;">
     💡 <strong style="color:#00D4FF;">Recommended split:</strong> Keep 1 month in savings account for instant access + 2–3 months in a liquid fund for better returns + remaining in a short-duration FD ladder. Avoid locking the full fund in equity.
   </div>
-</div>
-
-<script>
-function _efSave(key, val) {
-  localStorage.setItem(key, val);
-  clearTimeout(window._efTimer);
-  window._efTimer = setTimeout(() => {
-    if (!window.FinosEmergencyFund) return;
-    const c = window.FinosEmergencyFund._compute();
-    const INR = v => '₹' + Math.abs(Math.round(v)).toLocaleString('en-IN');
-    const el = id => document.getElementById(id);
-    el('ef-fund-disp')   && (el('ef-fund-disp').textContent   = INR(c.fund));
-    el('ef-exp-disp')    && (el('ef-exp-disp').textContent    = c.monthlyExp > 0 ? INR(c.monthlyExp) : '—');
-    el('ef-target-disp') && (el('ef-target-disp').textContent = c.monthlyExp > 0 ? INR(c.targetAmt)  : '—');
-    el('ef-gap-disp')    && (el('ef-gap-disp').textContent    = c.monthlyExp > 0 ? INR(c.shortfall > 0 ? c.shortfall : c.surplus) : '—');
-    el('ef-cov-disp')    && (el('ef-cov-disp').textContent    = c.covered.toFixed(1));
-  }, 600);
-}
-</script>`;
+</div>`;
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -297,3 +279,21 @@ ${shortfall > 0 ? `
   /* Public */
   return { renderOverview, renderPlan, _compute };
 })();
+
+/* Inline-handler functions. They used to sit in a <script> inside an innerHTML template, which the browser never executes, so
+   the oninput/onclick attributes above threw "is not defined". Top-level here so those attributes can reach them. */
+function _efSave(key, val) {
+  localStorage.setItem(key, val);
+  clearTimeout(window._efTimer);
+  window._efTimer = setTimeout(() => {
+    if (!window.FinosEmergencyFund) return;
+    const c = window.FinosEmergencyFund._compute();
+    const INR = v => '₹' + Math.abs(Math.round(v)).toLocaleString('en-IN');
+    const el = id => document.getElementById(id);
+    el('ef-fund-disp')   && (el('ef-fund-disp').textContent   = INR(c.fund));
+    el('ef-exp-disp')    && (el('ef-exp-disp').textContent    = c.monthlyExp > 0 ? INR(c.monthlyExp) : '—');
+    el('ef-target-disp') && (el('ef-target-disp').textContent = c.monthlyExp > 0 ? INR(c.targetAmt)  : '—');
+    el('ef-gap-disp')    && (el('ef-gap-disp').textContent    = c.monthlyExp > 0 ? INR(c.shortfall > 0 ? c.shortfall : c.surplus) : '—');
+    el('ef-cov-disp')    && (el('ef-cov-disp').textContent    = c.covered.toFixed(1));
+  }, 600);
+}

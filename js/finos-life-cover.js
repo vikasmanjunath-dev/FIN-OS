@@ -222,38 +222,7 @@ window.FinosLifeCover = (function () {
     <span>📋 Add critical illness & accidental death riders for ₹200-500 extra per year</span>
     <span>📋 Best: buy before 35 · Single pay or annual pay from reputed insurers (LIC, HDFC, ICICI, Max)</span>
   </div>
-</div>
-
-<script>
-(function(){
-  window._lcRecalc = function() {
-    const read = id => parseFloat(document.getElementById(id)?.value) || 0;
-    const p = {
-      annualIncome:  read('lc-income'),
-      currentAge:    read('lc-age'),
-      retireAge:     read('lc-retire'),
-      monthlyNeed:   read('lc-need'),
-      needYears:     read('lc-yrs'),
-      existingCover: read('lc-existing'),
-      totalLiab:     read('lc-liab'),
-      discountRate:  read('lc-disc'),
-      inflationRate: 6,
-    };
-    if (window.FinosLifeCover) {
-      const c = window.FinosLifeCover._compute(p);
-      const fmt = v => v>=1e7?(v/1e7).toFixed(2)+' Cr':v>=1e5?(v/1e5).toFixed(1)+' L':'₹'+Math.round(v).toLocaleString('en-IN');
-      const upd = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-      upd('lc-r-rec',   fmt(c.withLiab));
-      upd('lc-r-exist', fmt(c.existingCover));
-      upd('lc-r-gap',   c.coverGap>0 ? fmt(c.coverGap) : 'Covered ✓');
-      upd('lc-m-hlv',   fmt(c.hlv));
-      upd('lc-m-ir',    fmt(c.irCorpus));
-      const bar = document.getElementById('lc-bar');
-      if (bar) bar.style.width = Math.min(100, c.coverageRatio) + '%';
-    }
-  };
-})();
-<\/script>`;
+</div>`;
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -322,4 +291,35 @@ window.FinosLifeCover = (function () {
   }
 
   return { renderCalculator, renderAnalysis, _compute };
+})();
+
+/* Inline-handler functions. They used to sit in a <script> inside an innerHTML template, which the browser never executes, so
+   the oninput/onclick attributes above threw "is not defined". Top-level here so those attributes can reach them. */
+(function(){
+  window._lcRecalc = function() {
+    const read = id => parseFloat(document.getElementById(id)?.value) || 0;
+    const p = {
+      annualIncome:  read('lc-income'),
+      currentAge:    read('lc-age'),
+      retireAge:     read('lc-retire'),
+      monthlyNeed:   read('lc-need'),
+      needYears:     read('lc-yrs'),
+      existingCover: read('lc-existing'),
+      totalLiab:     read('lc-liab'),
+      discountRate:  read('lc-disc'),
+      inflationRate: 6,
+    };
+    if (window.FinosLifeCover) {
+      const c = window.FinosLifeCover._compute(p);
+      const fmt = v => v>=1e7?(v/1e7).toFixed(2)+' Cr':v>=1e5?(v/1e5).toFixed(1)+' L':'₹'+Math.round(v).toLocaleString('en-IN');
+      const upd = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+      upd('lc-r-rec',   fmt(c.withLiab));
+      upd('lc-r-exist', fmt(c.existingCover));
+      upd('lc-r-gap',   c.coverGap>0 ? fmt(c.coverGap) : 'Covered ✓');
+      upd('lc-m-hlv',   fmt(c.hlv));
+      upd('lc-m-ir',    fmt(c.irCorpus));
+      const bar = document.getElementById('lc-bar');
+      if (bar) bar.style.width = Math.min(100, c.coverageRatio) + '%';
+    }
+  };
 })();

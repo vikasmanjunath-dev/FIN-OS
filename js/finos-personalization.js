@@ -428,6 +428,24 @@
       });
     }
 
+    /* ── Money Score (js/finos-money-score.js, html/money-score.html) ── */
+    let msNudge = null;
+    const ms = safeJson('finos_money_score', null);
+    if (!ms || !ms.inputs) {
+      msNudge = {
+        type: 'good', icon: '🧭', title: 'Get your Money Score in 60 seconds',
+        body: 'One number for your financial health, plus the 3 moves that would lift it most. Free, and it stays on your device.',
+        action: 'Get my score', href: 'money-score.html',
+      };
+      nudges.push(msNudge);
+    } else if (typeof ms.score === 'number' && ms.score < 60) {
+      nudges.push({
+        type: 'warn', icon: '🧭', title: `Your Money Score is ${ms.score}/100`,
+        body: 'Open your plan to see the 3 moves that would lift it most.',
+        action: 'See my plan', href: 'money-score.html',
+      });
+    }
+
     /* ── Budget nudges ─────────────────────────────────────── */
     if (r.budget) {
       const b = r.budget;
@@ -660,7 +678,9 @@
     const _PRIORITY = { alert: 0, warn: 1, good: 2 };
     nudges.sort((a, b) => (_PRIORITY[a.type] || 2) - (_PRIORITY[b.type] || 2));
 
-    return nudges.slice(0, 4);
+    const top = nudges.slice(0, 4);
+    if (msNudge && !top.includes(msNudge)) top[top.length - 1] = msNudge;   // the first-time prompt must never be crowded out
+    return top;
   }
 
   const NUDGE_COLORS = {

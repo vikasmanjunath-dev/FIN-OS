@@ -195,12 +195,12 @@ function calculate() {
   
   // 1. Gross Calculation (No Fees)
   const iGross = (r / 100) / 12;
-  const fvGross = P * ((Math.pow(1+iGross, n) - 1) / iGross) * (1+iGross);
+  const fvGross = P * ((iGross === 0 ? n : (Math.pow(1+iGross, n) - 1) / iGross)) * (1+iGross);
 
   // 2. Net Calculation (Rate - Expense Ratio)
   const netRate = Math.max(0, r - e);
   const iNet = (netRate / 100) / 12;
-  const fvNet = P * ((Math.pow(1+iNet, n) - 1) / iNet) * (1+iNet);
+  const fvNet = P * ((iNet === 0 ? n : (Math.pow(1+iNet, n) - 1) / iNet)) * (1+iNet);
 
   const loss = fvGross - fvNet;
 

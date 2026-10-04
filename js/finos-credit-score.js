@@ -216,40 +216,7 @@ window.FinosCreditScore = (function () {
       <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">extra vs 800+ score</div>
     </div>
   </div>
-</div>
-
-<script>
-(function(){
-  window._csRecalc = function() {
-    const score = parseInt(document.getElementById('cs-score')?.value)||720;
-    const util  = parseFloat(document.getElementById('cs-util')?.value)||35;
-    const late  = parseInt(document.getElementById('cs-latepmts')?.value)||0;
-    const inq   = parseInt(document.getElementById('cs-inquiries')?.value)||2;
-    const p = { score, utilization:util, latePayments:late, recentInquiries:inq,
-      creditLimit:200000, outstanding:0, oldestAgeYears:3, securedAccounts:1, unsecuredAccounts:1 };
-    if (window.FinosCreditScore) {
-      const c = window.FinosCreditScore._compute(p);
-      const INR = v => '₹'+Math.abs(Math.round(v)).toLocaleString('en-IN');
-      const upd = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-      upd('cs-score-num', score);
-      upd('cs-band-label', c.b.icon+' '+c.b.label);
-      upd('cs-band-desc',  c.b.desc);
-      upd('cs-hl-rate',    c.b.hlRate > 0 ? c.b.hlRate.toFixed(2)+'%' : 'N/A');
-      upd('cs-hl-spread',  parseFloat(c.rateSpread) > 0 ? '+'+c.rateSpread+'%' : 'Best rate ✓');
-      upd('cs-hl-extra',   c.extraInterestCost > 0 ? INR(c.extraInterestCost) : '₹0');
-      ['cs-score-num','cs-band-label'].forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.style.color = c.b.color;
-      });
-      const badge = document.getElementById('cs-score-badge');
-      const pct = ((score-300)/600*100).toFixed(1);
-      if(badge) badge.style.background = 'conic-gradient(' + c.b.color + ' 0% ' + pct + '%, var(--border-soft) ' + pct + '% 100%)';
-      localStorage.setItem('finos_cibil_score', String(score));
-      localStorage.setItem('finos_credit_util_pct', String(util));
-    }
-  };
-})();
-<\/script>`;
+</div>`;
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -320,4 +287,37 @@ window.FinosCreditScore = (function () {
   }
 
   return { renderDashboard, renderTips, _compute };
+})();
+
+/* Inline-handler functions. They used to sit in a <script> inside an innerHTML template, which the browser never executes, so
+   the oninput/onclick attributes above threw "is not defined". Top-level here so those attributes can reach them. */
+(function(){
+  window._csRecalc = function() {
+    const score = parseInt(document.getElementById('cs-score')?.value)||720;
+    const util  = parseFloat(document.getElementById('cs-util')?.value)||35;
+    const late  = parseInt(document.getElementById('cs-latepmts')?.value)||0;
+    const inq   = parseInt(document.getElementById('cs-inquiries')?.value)||2;
+    const p = { score, utilization:util, latePayments:late, recentInquiries:inq,
+      creditLimit:200000, outstanding:0, oldestAgeYears:3, securedAccounts:1, unsecuredAccounts:1 };
+    if (window.FinosCreditScore) {
+      const c = window.FinosCreditScore._compute(p);
+      const INR = v => '₹'+Math.abs(Math.round(v)).toLocaleString('en-IN');
+      const upd = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+      upd('cs-score-num', score);
+      upd('cs-band-label', c.b.icon+' '+c.b.label);
+      upd('cs-band-desc',  c.b.desc);
+      upd('cs-hl-rate',    c.b.hlRate > 0 ? c.b.hlRate.toFixed(2)+'%' : 'N/A');
+      upd('cs-hl-spread',  parseFloat(c.rateSpread) > 0 ? '+'+c.rateSpread+'%' : 'Best rate ✓');
+      upd('cs-hl-extra',   c.extraInterestCost > 0 ? INR(c.extraInterestCost) : '₹0');
+      ['cs-score-num','cs-band-label'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.color = c.b.color;
+      });
+      const badge = document.getElementById('cs-score-badge');
+      const pct = ((score-300)/600*100).toFixed(1);
+      if(badge) badge.style.background = 'conic-gradient(' + c.b.color + ' 0% ' + pct + '%, var(--border-soft) ' + pct + '% 100%)';
+      localStorage.setItem('finos_cibil_score', String(score));
+      localStorage.setItem('finos_credit_util_pct', String(util));
+    }
+  };
 })();

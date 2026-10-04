@@ -168,7 +168,7 @@ function calculate() {
   const futureCorpus = P * Math.pow(1 + rate, years);
   const defMonthly = (futureCorpus * rate) / 12;
 
-  const pctGain = ((defMonthly - immMonthly) / immMonthly) * 100;
+  const pctGain = immMonthly > 0 ? ((defMonthly - immMonthly) / immMonthly) * 100 : 0;
 
   document.getElementById('immVal').textContent = format(immMonthly);
   document.getElementById('defVal').textContent = format(defMonthly);

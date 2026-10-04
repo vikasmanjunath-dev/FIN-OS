@@ -189,7 +189,7 @@ function calculate() {
   }
 
   // Reverse EMI Formula: Loan = EMI / [ r * (1+r)^n / ((1+r)^n - 1) ]
-  const loanEligible = availableEMI / (r * Math.pow(1+r, n) / (Math.pow(1+r, n) - 1));
+  const loanEligible = r === 0 ? availableEMI * n : availableEMI / (r * Math.pow(1+r, n) / (Math.pow(1+r, n) - 1));
 
   document.getElementById('maxEmiVal').textContent = format(availableEMI);
   document.getElementById('loanVal').textContent = format(loanEligible);

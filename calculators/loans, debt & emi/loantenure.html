@@ -155,7 +155,7 @@ function calculate() {
   const r = +els.rN.value / 12 / 100;
   const n = +els.tN.value * 12;
 
-  const emi = P * r * (Math.pow(1+r, n) / (Math.pow(1+r, n) - 1));
+  const emi = (r === 0 ? P / n : P * r * (Math.pow(1+r, n) / (Math.pow(1+r, n) - 1)));
   const total = emi * n;
   const interest = total - P;
 

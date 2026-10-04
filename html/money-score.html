@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script src="../js/finos-vault-boot.js"></script>
+<script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Money Score — a free 60-second financial health score for India: where you stand on savings, emergency fund, insurance, debt, investing and wealth, plus the 3 moves that would help most. Calculated on your device.">
+  <title>Money Score | FIN-OS</title>
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css?v=3">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/interactions.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-tracker-sync.js"></script>
+  <script src="../js/finos-format.js"></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
+  <script src="../js/finos-money-score.js" defer></script>
+
+  <style>
+    .ms-page { background: var(--bg-main); min-height: 100vh; }
+    .ms-main-wrap { max-width: 900px; margin: 0 auto; padding: 40px 40px 120px; }
+    .page-back-link:hover { color: #4F7CFF; }
+    .ms-page-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 24px; }
+    .ms-page-icon { font-size: 36px; line-height: 1; }
+    .ms-page-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(22px, 3vw, 32px); font-weight: 800; color: var(--text-primary); margin: 0 0 6px; letter-spacing: -.01em; }
+    .ms-page-sub { font-size: 14px; color: var(--text-secondary); margin: 0; line-height: 1.6; max-width: 640px; }
+
+    .ms-lead { font-size: 14px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 18px; max-width: 640px; }
+    .ms-group { border: 1px solid var(--border-soft); border-radius: 16px; background: var(--bg-surface); padding: 6px 18px 18px; margin: 0 0 14px; min-width: 0; }
+    .ms-group legend { padding: 0 8px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
+    .ms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-top: 8px; }
+    .ms-f { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 600; color: var(--text-secondary); min-width: 0; }
+    .ms-f input, .ms-f select { padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-soft); font-size: 15px; color: var(--text-primary); background: rgba(255,255,255,.05); font-family: inherit; width: 100%; box-sizing: border-box; }
+    .ms-f input:focus-visible, .ms-f select:focus-visible, .ms-check input:focus-visible { outline: 2px solid #4F7CFF; outline-offset: 2px; }
+    .ms-f select option { color: #0B0D12; }
+    .ms-f small { font-size: 11px; font-weight: 500; color: var(--text-muted); }
+    .ms-check { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-secondary); margin: 4px 0 6px; cursor: pointer; }
+    .ms-check input { width: 18px; height: 18px; accent-color: #4F7CFF; }
+    .ms-errors ul { margin: 10px 0 0; padding: 12px 16px 12px 32px; border-radius: 12px; background: rgba(239,68,68,.10); border: 1px solid rgba(239,68,68,.35); color: var(--text-primary); font-size: 13px; line-height: 1.6; }
+    .ms-actions { margin-top: 16px; display: flex; gap: 10px; }
+    .ms-btn { display: inline-block; padding: 11px 18px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; border: 1px solid var(--border-soft); background: var(--bg-surface); color: var(--text-primary); font-family: inherit; text-decoration: none; line-height: 1.2; }
+    .ms-btn.primary { background: #3560E0; border-color: #3560E0; color: #fff; }
+    .ms-btn:hover { filter: brightness(1.1); }
+    .ms-btn:focus-visible { outline: 2px solid #4F7CFF; outline-offset: 2px; }
+    .ms-fine { font-size: 12px; color: var(--text-muted); margin: 16px 0 0; line-height: 1.6; }
+
+    .ms-hero { display: flex; flex-wrap: wrap; align-items: center; gap: 28px; padding: 24px; border-radius: 20px; background: var(--bg-surface); border: 1px solid var(--border-soft); }
+    .ms-ring { width: 170px; height: 170px; display: block; }
+    .ms-ring-n { font-family: 'Space Grotesk', sans-serif; font-size: 40px; font-weight: 800; fill: var(--text-primary); }
+    .ms-hero-t { flex: 1 1 260px; min-width: 0; }
+    .ms-band { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 800; }
+    .ms-hero-s { font-size: 15px; color: var(--text-secondary); margin: 6px 0 4px; outline: none; }
+    .ms-hero-s b { color: var(--text-primary); }
+    .ms-trend { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: rgba(127,127,127,.15); color: var(--text-secondary); }
+    .ms-trend.up { background: rgba(34,211,166,.15); color: var(--color-success); }
+    .ms-trend.down { background: rgba(239,68,68,.15); color: var(--color-error); }
+    .ms-hero-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .ms-status { min-height: 18px; margin-top: 10px; font-size: 12px; color: var(--text-muted); }
+
+    .ms-h { font-size: 16px; font-weight: 800; margin: 30px 0 12px; color: var(--text-primary); }
+    .ms-actions-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+    .ms-action { display: flex; gap: 14px; padding: 16px; border-radius: 16px; background: var(--bg-surface); border: 1px solid var(--border-soft); }
+    .ms-action-n { flex: 0 0 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; background: rgba(79,124,255,.18); color: #4F7CFF; }
+    .ms-action-b { min-width: 0; }
+    .ms-action-b h3 { margin: 2px 0 6px; font-size: 15px; color: var(--text-primary); }
+    .ms-action-b p { margin: 0 0 12px; font-size: 13px; line-height: 1.65; color: var(--text-secondary); }
+    .ms-action-f { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+    .ms-action-f .ms-btn { padding: 8px 14px; font-size: 13px; }
+    .ms-gain { font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: rgba(34,211,166,.14); color: var(--color-success); }
+
+    .ms-pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+    .ms-pillar { padding: 14px 16px; border-radius: 16px; background: var(--bg-surface); border: 1px solid var(--border-soft); }
+    .ms-pillar-h { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; font-weight: 700; color: var(--text-primary); }
+    .ms-pillar-h b { font-family: var(--font-mono, monospace); font-size: 18px; }
+    .ms-pillar-h small { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+    .ms-bar { height: 8px; border-radius: 99px; background: rgba(127,127,127,.2); margin: 8px 0 10px; overflow: hidden; }
+    .ms-bar i { display: block; height: 100%; border-radius: 99px; }
+    .ms-pillar p { margin: 0 0 6px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+    .ms-pillar > small { font-size: 11px; color: var(--text-muted); }
+
+    [data-theme="light"] .ms-page { background: #F4F6FB; }
+    [data-theme="light"] .ms-f input, [data-theme="light"] .ms-f select { background: #fff; }
+    @media (max-width: 700px) {
+      .ms-main-wrap { padding: 24px 16px 80px; }
+      .ms-hero { padding: 18px; gap: 18px; justify-content: center; }
+      .ms-hero-t { text-align: center; }
+      .ms-hero-btns { justify-content: center; }
+    }
+  </style>
+</head>
+<body data-nav-section="tools.html">
+<div class="app">
+  <aside class="sidebar" role="complementary" aria-label="Navigation">
+    <div class="sb-brand">
+      <div class="sb-logomark" aria-hidden="true"><span class="sb-logomark-letter">F</span></div>
+      <div class="sb-wordmark"><div class="sb-wordmark-name">FIN•OS</div><div class="sb-wordmark-tag">Financial OS</div></div>
+    </div>
+    <a href="profile.html" class="sb-identity" aria-label="Your profile">
+      <div class="sb-av" id="sb-av" aria-hidden="true">I</div>
+      <div class="sb-identity-body">
+        <div class="sb-identity-name" id="sb-name">Investor</div>
+        <div class="sb-identity-meta"><span class="sb-identity-dna" id="sb-dna">Financial DNA</span><span class="sb-health-pill" id="sb-health-pill"></span></div>
+      </div>
+      <span class="sb-identity-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </a>
+    <button class="sb-cmd" id="sb-cmd" aria-label="Search (Ctrl+K)">
+      <span class="sb-cmd-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="sb-cmd-label">Search or jump to…</span><kbd class="sb-cmd-kbd" aria-hidden="true">⌘K</kbd>
+    </button>
+    <nav class="sb-nav" aria-label="Main">
+      <a href="home.html" class="sb-link" title="Home"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="sb-label">Home</span></a>
+      <a href="dashboard.html" class="sb-link" title="Dashboard"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span><span class="sb-label">Dashboard</span><span class="sb-badge" id="sb-streak" aria-label="count"></span></a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="foundations.html" class="sb-link" title="Learn"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="sb-label">Learn</span></a>
+      <a href="simulator-landing.html" class="sb-link" title="Mindset"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span><span class="sb-label">Mindset</span></a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="diagnostics.html" class="sb-link" title="Diagnostics"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span><span class="sb-label">Diagnostics</span></a>
+      <a href="track-finances.html" class="sb-link" title="Track"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span><span class="sb-label">Track</span></a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="markets.html" class="sb-link" title="Markets"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span><span class="sb-label">Markets</span></a>
+      <a href="tools.html" class="sb-link active" aria-current="page" title="Tools"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span class="sb-label">Tools</span></a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="news.html" class="sb-link" title="News"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span><span class="sb-label">News</span></a>
+    </nav>
+    <div class="sb-footer-zone">
+      <button class="sb-arya-row" id="sb-arya-btn" aria-label="Arya AI — your financial coach" onclick="document.querySelector('.finos-fab')?.click?.();">
+        <div class="sb-arya-icon" aria-hidden="true"><span>🤖</span><span class="sb-arya-dot checking" id="sb-arya-dot"></span></div>
+        <div class="sb-arya-body"><div class="sb-arya-name">Arya AI</div><div class="sb-arya-status checking" id="sb-arya-status">Connecting…</div></div>
+        <span class="sb-arya-arrow" aria-hidden="true">›</span>
+      </button>
+      <a href="settings.html" class="sb-settings-row" title="Settings"><span class="sb-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="sb-label">Settings</span></a>
+    </div>
+  </aside>
+
+  <main class="main ms-page">
+    <div class="ms-main-wrap">
+      <a href="tools.html" class="page-back-link">← Back to Tools</a>
+      <div class="ms-page-header">
+        <div class="ms-page-icon" aria-hidden="true">🧭</div>
+        <div>
+          <h1 class="ms-page-title">Your Money Score</h1>
+          <p class="ms-page-sub">One number for your financial health, why it is what it is, and the three moves that would lift it most. Takes about a minute. Nothing leaves your device.</p>
+        </div>
+      </div>
+      <div id="ms-root"><div style="color:var(--text-muted);text-align:center;padding:48px 0;">Loading…</div></div>
+    </div>
+  </main>
+</div>
+
+<style>
+#floatThemeBtn { position:fixed;top:14px;right:18px;z-index:9999;width:36px;height:36px;border-radius:10px;background:var(--bg-surface);border:1px solid var(--border-soft);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s;backdrop-filter:blur(10px); }
+#floatThemeBtn:hover{background:transparent;transform:scale(1.08);}
+[data-theme="light"] #floatThemeBtn{color:var(--text-primary)!important;}
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){var btn=document.getElementById('floatThemeBtn'),html=document.documentElement,saved=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';html.setAttribute('data-theme',saved);btn.textContent=saved==='dark'?'🌙':'☀️';btn.addEventListener('click',function(){var cur=html.getAttribute('data-theme'),next=cur==='dark'?'light':'dark';html.setAttribute('data-theme',next);localStorage.setItem('finos-theme',next);localStorage.setItem('theme',next);btn.textContent=next==='dark'?'🌙':'☀️';});})();
+</script>
+<script>
+  (function () {
+    function init() {
+      if (!window.FinosMoneyScore) { setTimeout(init, 60); return; }
+      window.FinosMoneyScore.render(document.getElementById('ms-root'));
+    }
+    document.addEventListener('DOMContentLoaded', init);
+  })();
+</script>
+<script src="../js/ui.js" defer></script>
+<script src="../js/mobile-nav.js" defer></script>
+<script src="../js/pwa-init.js"></script>
+<script src="../js/finos-widget.js?v=10"></script>
+<script src="../js/finos-mobile.js" defer></script>
+<script src="../js/finos-search.js?v=5"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
+<script src="../js/interactions.js" defer></script>
+</body>
+</html>

@@ -189,7 +189,7 @@ function calculate() {
   const fvCorpus = Corpus * Math.pow(1 + i, n);
 
   // 2. Grow SIPs (SIP logic)
-  const fvSIP = SIP * ((Math.pow(1+i, n) - 1) / i) * (1+i);
+  const fvSIP = SIP * ((i === 0 ? n : (Math.pow(1+i, n) - 1) / i)) * (1+i);
 
   const totalFV = fvCorpus + fvSIP;
   const totalInvestedSIP = SIP * n;

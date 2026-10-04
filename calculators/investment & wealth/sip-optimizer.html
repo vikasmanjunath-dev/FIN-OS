@@ -292,7 +292,7 @@ function setRisk(btn) {
 function sipFV(monthly, months, annualRate) {
   const i = annualRate / 12;
   if (i < 1e-10) return monthly * months;
-  return monthly * ((Math.pow(1 + i, months) - 1) / i) * (1 + i);
+  return monthly * ((i === 0 ? months : (Math.pow(1 + i, months) - 1) / i)) * (1 + i);
 }
 
 /* ── Step-up SIP FV ─────────────────────────────────────────────────────── */
@@ -302,7 +302,7 @@ function stepUpSipFV(startMonthly, years, annualRate, stepUpPct) {
   const monthsPerYear = 12;
   for (let y = 0; y < years; y++) {
     const r = annualRate / 12;
-    const fvYear = monthly * ((Math.pow(1 + r, monthsPerYear) - 1) / r) * (1 + r);
+    const fvYear = monthly * ((r === 0 ? monthsPerYear : (Math.pow(1 + r, monthsPerYear) - 1) / r)) * (1 + r);
     total = total * Math.pow(1 + r, monthsPerYear) + fvYear;
     monthly *= (1 + stepUpPct / 100);
   }

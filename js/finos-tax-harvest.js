@@ -267,28 +267,7 @@ window.FinosTaxHarvest = (function () {
     <span>📅 <strong style="color:var(--text-primary);">Debt MF:</strong> Post April 2023, no LTCG benefit — taxed at slab regardless of holding period</span>
     <span>📅 <strong style="color:var(--text-primary);">SGB maturity:</strong> Capital gains at 8-year maturity are fully tax-free (Sec 47)</span>
   </div>
-</div>
-
-<script>
-(function(){
-  window._thRecalc = function() {
-    const ltcg = parseFloat(document.getElementById('th-ltcg')?.value) || 0;
-    const stcg = parseFloat(document.getElementById('th-stcg')?.value) || 0;
-    localStorage.setItem('finos_th_ltcg', String(ltcg));
-    localStorage.setItem('finos_th_stcg', String(stcg));
-    if (window.FinosTaxHarvest) {
-      const positions = window.FinosTaxHarvest._loadPositions();
-      const c = window.FinosTaxHarvest._analysePositions(positions, ltcg, stcg);
-      const fmt = v => v>=1e7?(v/1e7).toFixed(2)+' Cr':v>=1e5?(v/1e5).toFixed(1)+' L':'₹'+Math.round(v).toLocaleString('en-IN');
-      const INR = v => '₹'+Math.abs(Math.round(v)).toLocaleString('en-IN');
-      const upd = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-      upd('th-r-used',  fmt(Math.min(ltcg, 125000)));
-      upd('th-r-head',  fmt(c.headroom));
-      upd('th-r-saved', INR(c.taxSaved + c.gainHarvestSaved));
-    }
-  };
-})();
-<\/script>`;
+</div>`;
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -342,4 +321,25 @@ window.FinosTaxHarvest = (function () {
   }
 
   return { renderOverview, renderPositions, _compute: _analysePositions, _loadPositions, _analysePositions };
+})();
+
+/* Inline-handler functions. They used to sit in a <script> inside an innerHTML template, which the browser never executes, so
+   the oninput/onclick attributes above threw "is not defined". Top-level here so those attributes can reach them. */
+(function(){
+  window._thRecalc = function() {
+    const ltcg = parseFloat(document.getElementById('th-ltcg')?.value) || 0;
+    const stcg = parseFloat(document.getElementById('th-stcg')?.value) || 0;
+    localStorage.setItem('finos_th_ltcg', String(ltcg));
+    localStorage.setItem('finos_th_stcg', String(stcg));
+    if (window.FinosTaxHarvest) {
+      const positions = window.FinosTaxHarvest._loadPositions();
+      const c = window.FinosTaxHarvest._analysePositions(positions, ltcg, stcg);
+      const fmt = v => v>=1e7?(v/1e7).toFixed(2)+' Cr':v>=1e5?(v/1e5).toFixed(1)+' L':'₹'+Math.round(v).toLocaleString('en-IN');
+      const INR = v => '₹'+Math.abs(Math.round(v)).toLocaleString('en-IN');
+      const upd = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+      upd('th-r-used',  fmt(Math.min(ltcg, 125000)));
+      upd('th-r-head',  fmt(c.headroom));
+      upd('th-r-saved', INR(c.taxSaved + c.gainHarvestSaved));
+    }
+  };
 })();

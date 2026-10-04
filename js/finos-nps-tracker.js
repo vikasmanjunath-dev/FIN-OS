@@ -189,7 +189,7 @@ window.FinosNPSTracker = (function () {
       <label>PRAN Number</label>
       <input class="nps-inp" type="text" placeholder="110000123456" maxlength="12"
         value="${gss('finos_nps_pran')}"
-        oninput="_autoSave('finos_nps_pran',this.value)">
+        oninput="_npsAutoSave('finos_nps_pran',this.value)">
     </div>
     <div class="nps-field">
       <label>Date of Birth</label>
@@ -267,48 +267,7 @@ window.FinosNPSTracker = (function () {
     ${ep+cp+gp}% / 100% ${(ep+cp+gp)===100?'✓':'— must equal 100%'}
   </div>
   <p class="nps-note" style="margin-top:10px;">Max equity cap 75% for Active Choice (auto-reduces to 50% after age 50). Using Auto Choice (LC50) sets E:50/C:30/G:20 decreasing with age.</p>
-</div>
-
-<script>
-function _npsAutoSave(key, val) {
-  localStorage.setItem(key, val);
-  clearTimeout(window._npsSaveTimer);
-  window._npsSaveTimer = setTimeout(() => {
-    if (window.FinosNPSTracker) {
-      const c = window.FinosNPSTracker._compute();
-      document.getElementById('nps-total-hero') && (document.getElementById('nps-total-hero').textContent = '₹' + Math.round(c.total).toLocaleString('en-IN'));
-      document.getElementById('nps-t1-disp')    && (document.getElementById('nps-t1-disp').textContent    = '₹' + Math.round(c.t1).toLocaleString('en-IN'));
-      document.getElementById('nps-t2-disp')    && (document.getElementById('nps-t2-disp').textContent    = '₹' + Math.round(c.t2).toLocaleString('en-IN'));
-      document.getElementById('nps-proj-disp')  && (document.getElementById('nps-proj-disp').textContent  = '₹' + Math.round(c.projected).toLocaleString('en-IN'));
-      document.getElementById('nps-lump-disp')  && (document.getElementById('nps-lump-disp').textContent  = '₹' + Math.round(c.lumpSum).toLocaleString('en-IN'));
-      document.getElementById('nps-ann-disp')   && (document.getElementById('nps-ann-disp').textContent   = '₹' + Math.round(c.annuityCorpus).toLocaleString('en-IN'));
-      document.getElementById('nps-tax-disp')   && (document.getElementById('nps-tax-disp').textContent   = '₹' + Math.round(c.taxSaved).toLocaleString('en-IN'));
-    }
-  }, 600);
-}
-function _npsAllocSave(key, val) {
-  _npsAutoSave(key, val);
-  setTimeout(() => {
-    const ep = parseFloat(localStorage.getItem('finos_nps_equity_pct')) || 0;
-    const cp = parseFloat(localStorage.getItem('finos_nps_corp_pct'))   || 0;
-    const gp = parseFloat(localStorage.getItem('finos_nps_gsec_pct'))   || 0;
-    const tot = ep + cp + gp;
-    const badge = document.getElementById('nps-alloc-total-badge');
-    if (badge) {
-      badge.textContent = tot + '% / 100% ' + (tot === 100 ? '✓' : '— must equal 100%');
-      if (tot === 100) {
-        badge.style.background = 'rgba(34,211,166,.1)';
-        badge.style.borderColor = 'rgba(34,211,166,.3)';
-        badge.style.color = '#22D3A6';
-      } else {
-        badge.style.background = 'rgba(239,68,68,.1)';
-        badge.style.borderColor = 'rgba(239,68,68,.3)';
-        badge.style.color = '#EF4444';
-      }
-    }
-  }, 700);
-}
-</script>`;
+</div>`;
   }
 
   /* ══════════════════════════════════════════════════════════════════
@@ -453,3 +412,44 @@ ${row('80CCD(2)', c2, '10% of basic (no cap for new regime)', Math.round(c2 * s)
   /* Public */
   return { renderSetup, renderProjection, renderTax, _compute };
 })();
+
+/* Inline-handler functions. They used to sit in a <script> inside an innerHTML template, which the browser never executes, so
+   the oninput/onclick attributes above threw "is not defined". Top-level here so those attributes can reach them. */
+function _npsAutoSave(key, val) {
+  localStorage.setItem(key, val);
+  clearTimeout(window._npsSaveTimer);
+  window._npsSaveTimer = setTimeout(() => {
+    if (window.FinosNPSTracker) {
+      const c = window.FinosNPSTracker._compute();
+      document.getElementById('nps-total-hero') && (document.getElementById('nps-total-hero').textContent = '₹' + Math.round(c.total).toLocaleString('en-IN'));
+      document.getElementById('nps-t1-disp')    && (document.getElementById('nps-t1-disp').textContent    = '₹' + Math.round(c.t1).toLocaleString('en-IN'));
+      document.getElementById('nps-t2-disp')    && (document.getElementById('nps-t2-disp').textContent    = '₹' + Math.round(c.t2).toLocaleString('en-IN'));
+      document.getElementById('nps-proj-disp')  && (document.getElementById('nps-proj-disp').textContent  = '₹' + Math.round(c.projected).toLocaleString('en-IN'));
+      document.getElementById('nps-lump-disp')  && (document.getElementById('nps-lump-disp').textContent  = '₹' + Math.round(c.lumpSum).toLocaleString('en-IN'));
+      document.getElementById('nps-ann-disp')   && (document.getElementById('nps-ann-disp').textContent   = '₹' + Math.round(c.annuityCorpus).toLocaleString('en-IN'));
+      document.getElementById('nps-tax-disp')   && (document.getElementById('nps-tax-disp').textContent   = '₹' + Math.round(c.taxSaved).toLocaleString('en-IN'));
+    }
+  }, 600);
+}
+function _npsAllocSave(key, val) {
+  _npsAutoSave(key, val);
+  setTimeout(() => {
+    const ep = parseFloat(localStorage.getItem('finos_nps_equity_pct')) || 0;
+    const cp = parseFloat(localStorage.getItem('finos_nps_corp_pct'))   || 0;
+    const gp = parseFloat(localStorage.getItem('finos_nps_gsec_pct'))   || 0;
+    const tot = ep + cp + gp;
+    const badge = document.getElementById('nps-alloc-total-badge');
+    if (badge) {
+      badge.textContent = tot + '% / 100% ' + (tot === 100 ? '✓' : '— must equal 100%');
+      if (tot === 100) {
+        badge.style.background = 'rgba(34,211,166,.1)';
+        badge.style.borderColor = 'rgba(34,211,166,.3)';
+        badge.style.color = '#22D3A6';
+      } else {
+        badge.style.background = 'rgba(239,68,68,.1)';
+        badge.style.borderColor = 'rgba(239,68,68,.3)';
+        badge.style.color = '#EF4444';
+      }
+    }
+  }, 700);
+}

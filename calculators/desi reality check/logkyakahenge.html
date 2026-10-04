@@ -158,7 +158,7 @@ function calculate() {
   // Future Value of Annuity (investing the annual spend)
   // FV = P * [ (1+r)^n - 1 ] / r
   // Assuming investment at end of year
-  const fv = annualSpend * ((Math.pow(1+rate, years) - 1) / rate);
+  const fv = annualSpend * ((rate === 0 ? years : (Math.pow(1+rate, years) - 1) / rate));
   const totalDirectSpend = annualSpend * years;
 
   document.getElementById('spentVal').textContent = format(totalDirectSpend);

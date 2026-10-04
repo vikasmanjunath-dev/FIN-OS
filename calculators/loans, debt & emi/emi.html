@@ -170,7 +170,8 @@ function calculate() {
   const n = +els.tN.value * 12; // Months
 
   // EMI Formula: P * r * (1+r)^n / ((1+r)^n - 1)
-  const emi = P * r * (Math.pow(1+r, n) / (Math.pow(1+r, n) - 1));
+  // At 0% the formula is 0/0, so the instalment is just the loan spread over the months
+  const emi = r === 0 ? P / n : P * r * (Math.pow(1+r, n) / (Math.pow(1+r, n) - 1));
   
   const totalPay = emi * n;
   const totalInterest = totalPay - P;
