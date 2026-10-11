@@ -58,9 +58,9 @@
       control: 'Only when you open that page and look up a symbol.' },
 
     { id: 'proxy', kind: 'proxy', hosts: ['allorigins.win'], title: 'Public relay for market data (allorigins.win)',
-      purpose: 'The Trading Brain page sends its Yahoo Finance request through a free public relay when the browser blocks a direct call.',
+      purpose: 'The Trading Brain page gets prices from the Arya backend on your computer. Only if that is not running, and only if you switched it on, the request goes through a free public relay.',
       sent: 'The Yahoo Finance request (a symbol and range) passes through the relay operator\'s server, so they can see it along with your IP address.', personal: false, optional: true,
-      control: 'Only when you open that page and look up a symbol. No account data goes through it.' },
+      control: 'Off by default. Switch it on under "Use a public relay for market data" in Privacy & your data. No account data goes through it.' },
 
     { id: 'broker', kind: 'link', hosts: ['developers.kite.trade', 'kite.zerodha.com', 'kite.trade'], title: 'Zerodha Kite',
       purpose: 'The Kite page explains how to connect your own broker API app.', sent: 'Nothing, unless you click through to Zerodha.', personal: false, optional: true,
@@ -84,6 +84,8 @@
 
   /** Purposes that need an explicit yes before anything is sent. Off until the user turns them on, and withdrawable at any time. */
   const PURPOSES = [
+    { id: 'relay', title: 'Use a public relay for market data when the Arya backend is not running',
+      detail: 'The Trading Brain page normally gets prices from the Arya backend on your computer. If you switch this on and that backend is not running, the request goes through a free public relay (allorigins.win), which can see the symbol you look up and your IP address.' },
     { id: 'feedback', title: 'Share product feedback with the FIN-OS team',
       detail: 'When you choose to send feedback, your message and the page it was about leave this device. Never any amounts or personal financial data.' },
     { id: 'usage', title: 'Share anonymous usage counts',

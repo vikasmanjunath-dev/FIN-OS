@@ -23,16 +23,19 @@
 window.FinosNPSTracker = (function () {
   'use strict';
 
-  const gs  = k => parseFloat(localStorage.getItem(k)) || 0;
+  const gs  = k => { const v = Number(localStorage.getItem(k)); return Number.isFinite(v) && v > 0 ? v : 0; };
   const ss  = (k, v) => localStorage.setItem(k, v);
   const gss = k => localStorage.getItem(k) || '';
   const INR = v => '₹' + Math.abs(Math.round(v)).toLocaleString('en-IN');
+  const esc = v => String(v).replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
 
   /* ── Asset-class assumptions ─────────────────────────────────────── */
   const RATES = { E: 0.105, C: 0.085, G: 0.075 }; // equity, corp, g-sec p.a.
 
   function _weightedReturn(ep, cp, gp) {
-    return (ep / 100) * RATES.E + (cp / 100) * RATES.C + (gp / 100) * RATES.G;
+    const allocation = ep + cp + gp;
+    if (allocation !== 100) return 0.085;
+    return (ep / allocation) * RATES.E + (cp / allocation) * RATES.C + (gp / allocation) * RATES.G;
   }
 
   /* ── Core projection ─────────────────────────────────────────────── */
@@ -40,19 +43,47 @@ window.FinosNPSTracker = (function () {
     const r = annualR / 12;
     let bal = corpus;
     for (let m = 0; m < months; m++) {
-      bal += monthlyContrib;
       bal *= (1 + r);
+      bal += monthlyContrib; // monthly contribution at period end
     }
     return Math.round(bal);
   }
 
   /* ── Tax saving estimate ─────────────────────────────────────────── */
-  function _taxSaved(empAnnual, erAnnual, slab) {
-    const s = slab / 100;
-    const c1 = Math.min(empAnnual, 150000);          // within 80C bucket
-    const c1b = Math.min(Math.max(empAnnual - 150000, 0), 50000); // 80CCD(1B) extra
-    const c2  = Math.min(erAnnual, 200000);           // 80CCD(2) employer
-    return Math.round((c1 + c1b + c2) * s);
+  function _taxDeductions(empAnnual, erAnnual, basicAnnual) {
+    const regime = gss('finos_nps_tax_regime') || 'new';
+    const govtEmployer = gss('finos_nps_govt_employer') === 'yes';
+    const basic = Math.max(0, basicAnnual);
+    const oldRegime = regime === 'old';
+    const other80cUsed = Math.min(Math.max(gs('finos_nps_other_80c_used'), 0), 150000);
+    const c1Limit = oldRegime && basic > 0 ? Math.min(150000 - other80cUsed, basic * 0.10) : 0;
+    const c1 = Math.min(empAnnual, Math.max(c1Limit, 0));
+    const c1b = oldRegime ? Math.min(Math.max(empAnnual - c1, 0), 50000) : 0;
+    const employerRate = regime === 'new' || govtEmployer ? 0.14 : 0.10;
+    const c2 = basic > 0 ? Math.min(erAnnual, basic * employerRate) : 0;
+    return { c1: Math.round(c1), c1b: Math.round(c1b), c2: Math.round(c2), basic, employerRate, regime, other80cUsed };
+  }
+
+  function _taxSaved(empAnnual, erAnnual, slab, basicAnnual) {
+    const d = _taxDeductions(empAnnual, erAnnual, basicAnnual);
+    // Marginal-rate estimate only; the actual benefit depends on total taxable income and rebate eligibility.
+    return Math.round((d.c1 + d.c1b + d.c2) * slab / 100 * 1.04);
+  }
+
+  /* The exact saving, from the shared tax core (FY 2025-26), when annual income is known; null otherwise (the slab estimate is used).
+     Each section's saving is its own step down the tax curve, so the three add up to the total. Income comes from the field on the
+     Profile tab, else the tracked monthly income x 12. */
+  function _incomeAnnual() { return gs('finos_nps_income_annual') || gs('finos_monthly_income') * 12 || 0; }
+  function _taxEffect(d, income) {
+    const Core = window.FinosTaxCore;
+    if (!Core || !(income > 0)) return null;
+    const old = d.regime === 'old';
+    const tax = t => (old ? Core.taxOld(t) : Core.taxNew(t));
+    let t = Math.max(0, income - (old ? Core.STD_OLD : Core.STD_NEW) - (old ? d.other80cUsed : 0));
+    const out = { income, fromTracked: !gs('finos_nps_income_annual'), c1: 0, c1b: 0, c2: 0 };
+    [['c1', d.c1], ['c1b', d.c1b], ['c2', d.c2]].forEach(([k, amt]) => { const next = Math.max(0, t - amt); out[k] = Math.round(tax(t) - tax(next)); t = next; });
+    out.total = out.c1 + out.c1b + out.c2;
+    return out;
   }
 
   /* ── Compute snapshot ────────────────────────────────────────────── */
@@ -66,28 +97,34 @@ window.FinosNPSTracker = (function () {
     const gp    = gs('finos_nps_gsec_pct');
     const empM  = gs('finos_nps_emp_monthly');
     const erM   = gs('finos_nps_er_monthly');
-    const slab  = gs('finos_nps_tax_slab') || 30;
+    const slabValue = gss('finos_nps_tax_slab');
+    const slab = slabValue === '' ? 30 : Math.max(0, Math.min(30, parseFloat(slabValue) || 0));
+    const annuityPct = [0, 20, 40, 80].includes(parseInt(gss('finos_nps_annuity_pct'), 10)) ? parseInt(gss('finos_nps_annuity_pct'), 10) : 40;
+    const basicAnnual = gs('finos_nps_basic_annual') || gs('finos_salary_basic');
 
     let ageNow = 30, yearsLeft = 30;
-    if (dob) {
-      const birth = new Date(dob);
-      const today = new Date();
+    const birth = /^\d{4}-\d{2}-\d{2}$/.test(dob) ? new Date(dob + 'T00:00:00') : null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (birth && Number.isFinite(birth.getTime()) && birth <= today) {
       ageNow = today.getFullYear() - birth.getFullYear()
         - (today < new Date(today.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0);
       yearsLeft = Math.max(60 - ageNow, 0);
     }
 
-    const annualR   = _weightedReturn(ep, cp, gp) || 0.085;
+    const allocationValid = ep + cp + gp === 100;
+    const annualR   = _weightedReturn(ep, cp, gp);
     const projected = _projectCorpus(t1, empM + erM, Math.round(yearsLeft * 12), annualR);
-    const annuityCorpus = Math.round(projected * 0.40);
+    const annuityCorpus = Math.round(projected * annuityPct / 100);
     const lumpSum       = projected - annuityCorpus;
-    const taxSaved      = _taxSaved(empM * 12, erM * 12, slab);
+    const eff           = _taxEffect(_taxDeductions(empM * 12, erM * 12, basicAnnual), _incomeAnnual());
+    const taxSaved      = eff ? eff.total : _taxSaved(empM * 12, erM * 12, slab, basicAnnual);
 
     ss('finos_nps_value',     total);
     ss('finos_nps_projected', projected);
     ss('finos_nps_annual_tax', taxSaved);
 
-    return { t1, t2, total, ageNow, yearsLeft, annualR, projected, annuityCorpus, lumpSum, taxSaved, ep, cp, gp };
+    return { t1, t2, total, ageNow, yearsLeft, annualR, allocationValid, projected, annuityPct, lumpSumPct: 100 - annuityPct, annuityCorpus, lumpSum, taxSaved, taxExact: !!eff, ep, cp, gp };
   }
 
   /* ── Auto-save with debounce ─────────────────────────────────────── */
@@ -107,8 +144,10 @@ window.FinosNPSTracker = (function () {
   function renderSetup(container) {
     if (!container) return;
 
-    const { total, t1, t2, ageNow, yearsLeft, annualR, projected, annuityCorpus, lumpSum, taxSaved, ep, cp, gp } = _compute();
-    const slab = gs('finos_nps_tax_slab') || 30;
+    const { total, t1, t2, ageNow, yearsLeft, annualR, allocationValid, projected, annuityPct, lumpSumPct, annuityCorpus, lumpSum, taxSaved, taxExact, ep, cp, gp } = _compute();
+    const savedSlab = gss('finos_nps_tax_slab');
+    const slab = savedSlab === '' ? 30 : Math.max(0, Math.min(30, parseFloat(savedSlab) || 0));
+    const npsRegime = gss('finos_nps_tax_regime') || 'new';
 
     container.innerHTML = `
 <style>
@@ -144,7 +183,7 @@ window.FinosNPSTracker = (function () {
 <div class="nps-hero">
   <div class="nps-hero-lbl">Total NPS Corpus</div>
   <div class="nps-hero-val" id="nps-total-hero">${INR(total)}</div>
-  <div class="nps-hero-sub">Age ${ageNow} &nbsp;·&nbsp; ${yearsLeft} years to retirement &nbsp;·&nbsp; ${(annualR * 100).toFixed(1)}% blended return</div>
+  <div class="nps-hero-sub">Age ${ageNow} &nbsp;·&nbsp; ${yearsLeft} years to age 60 &nbsp;·&nbsp; ${(annualR * 100).toFixed(1)}% assumed return${allocationValid ? ' from allocation' : ' default; allocation must total 100%'}</div>
   <div class="nps-tier-row">
     <div class="nps-tier-pill" style="background:rgba(0,212,255,.07);border-color:rgba(0,212,255,.2);">
       <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.58);text-transform:uppercase;margin-bottom:5px;">Tier 1</div>
@@ -161,48 +200,99 @@ window.FinosNPSTracker = (function () {
 
 <div class="nps-stats">
   <div class="nps-stat" style="border-color:rgba(34,211,166,.2);">
-    <div class="nps-stat-lbl">Projected at 60</div>
+  <div class="nps-stat-lbl">Tier 1 Projected at 60</div>
     <div class="nps-stat-val" style="color:#22D3A6;" id="nps-proj-disp">${INR(projected)}</div>
     <div class="nps-stat-sub">${yearsLeft}yr @ ${(annualR*100).toFixed(1)}% p.a.</div>
   </div>
   <div class="nps-stat" style="border-color:rgba(255,179,71,.2);">
-    <div class="nps-stat-lbl">Lump-Sum (60%)</div>
+    <div class="nps-stat-lbl" id="nps-lump-label">Lump-Sum (${lumpSumPct}%)</div>
     <div class="nps-stat-val" style="color:#FFB347;" id="nps-lump-disp">${INR(lumpSum)}</div>
-    <div class="nps-stat-sub">Tax-free withdrawal</div>
+    <div class="nps-stat-sub">Tax treatment depends on exit eligibility and current law</div>
   </div>
   <div class="nps-stat" style="border-color:rgba(239,68,68,.2);">
-    <div class="nps-stat-lbl">Annuity (40%)</div>
+    <div class="nps-stat-lbl" id="nps-ann-label">Annuity (${annuityPct}%)</div>
     <div class="nps-stat-val" style="color:#EF4444;" id="nps-ann-disp">${INR(annuityCorpus)}</div>
-    <div class="nps-stat-sub">Mandatory buy — taxable pension</div>
+    <div class="nps-stat-sub">Annuity purchase assumed; pension is taxable</div>
   </div>
   <div class="nps-stat" style="border-color:rgba(79,124,255,.2);">
-    <div class="nps-stat-lbl">Tax Saved / yr</div>
+  <div class="nps-stat-lbl">Tax Benefit est. / yr</div>
     <div class="nps-stat-val" style="color:#4F7CFF;" id="nps-tax-disp">${INR(taxSaved)}</div>
-    <div class="nps-stat-sub">80CCD(1) + 1B + 80CCD(2)</div>
+  <div class="nps-stat-sub" id="nps-tax-basis">${taxExact ? 'Worked out on your income' : 'Marginal-rate estimate'}</div>
   </div>
 </div>
 
 <div class="nps-form">
+  <p class="nps-section">Exit Projection Assumption</p>
+  <div class="nps-field" style="margin-bottom:14px;max-width:440px;">
+    <label>Annuity share assumption at exit</label>
+    <select class="nps-inp" onchange="_npsAutoSave('finos_nps_annuity_pct',this.value)">
+      <option value="0" ${annuityPct===0?'selected':''}>0% — eligible small-corpus full withdrawal</option>
+      <option value="20" ${annuityPct===20?'selected':''}>20% — All Citizen normal exit (eligible case)</option>
+      <option value="40" ${annuityPct===40?'selected':''}>40% — Government / Corporate normal exit</option>
+      <option value="80" ${annuityPct===80?'selected':''}>80% — premature exit assumption</option>
+    </select>
+    <span style="font-size:10px;color:rgba(255,255,255,.55);">Current rules depend on subscriber model, exit type, corpus size and age. 0% is only for eligible cases (including specified small-corpus limits); verify eligibility before using it.</span>
+  </div>
+
+  <p class="nps-section">Tax Estimate Inputs</p>
+  <div class="nps-grid">
+    <div class="nps-field">
+      <label>Annual basic salary (₹)</label>
+      <input class="nps-inp" type="number" min="0" step="1000" placeholder="Required for salary-based limits"
+        value="${gs('finos_nps_basic_annual') || gs('finos_salary_basic') || ''}"
+        oninput="_npsAutoSave('finos_nps_basic_annual',this.value)">
+    </div>
+    <div class="nps-field">
+      <label>Tax regime</label>
+      <select class="nps-inp" onchange="_npsAutoSave('finos_nps_tax_regime',this.value)">
+        <option value="new" ${npsRegime==='new'?'selected':''}>New</option>
+        <option value="old" ${npsRegime==='old'?'selected':''}>Old</option>
+      </select>
+    </div>
+    <div class="nps-field">
+      <label>Government employer (old regime)</label>
+      <select class="nps-inp" onchange="_npsAutoSave('finos_nps_govt_employer',this.value)">
+        <option value="no" ${gss('finos_nps_govt_employer')!=='yes'?'selected':''}>No</option>
+        <option value="yes" ${gss('finos_nps_govt_employer')==='yes'?'selected':''}>Yes</option>
+      </select>
+    </div>
+    <div class="nps-field">
+      <label>Other 80C use (₹)</label>
+      <input class="nps-inp" type="number" min="0" max="150000" step="1000" placeholder="0"
+        value="${gs('finos_nps_other_80c_used') || ''}"
+        oninput="_npsAutoSave('finos_nps_other_80c_used',this.value)">
+    </div>
+  </div>
   <p class="nps-section">Account Details</p>
   <div class="nps-grid">
     <div class="nps-field">
       <label>PRAN Number</label>
       <input class="nps-inp" type="text" placeholder="110000123456" maxlength="12"
-        value="${gss('finos_nps_pran')}"
+        value="${esc(gss('finos_nps_pran'))}"
         oninput="_npsAutoSave('finos_nps_pran',this.value)">
     </div>
     <div class="nps-field">
       <label>Date of Birth</label>
       <input class="nps-inp" type="date"
-        value="${gss('finos_nps_dob')}"
+        value="${esc(gss('finos_nps_dob'))}"
         oninput="_npsAutoSave('finos_nps_dob',this.value)">
     </div>
     <div class="nps-field">
-      <label>Tax Slab (%)</label>
+      <label>Annual income before tax (₹)</label>
+      <input class="nps-inp" type="number" min="0" step="10000" placeholder="${gs('finos_monthly_income') ? Math.round(gs('finos_monthly_income') * 12) : 'e.g. 1200000'}"
+        value="${gs('finos_nps_income_annual') || ''}"
+        oninput="_npsAutoSave('finos_nps_income_annual',this.value)">
+      <span class="nps-note">Gives your exact tax saving for the regime chosen. Left blank, your tracked monthly income x 12 is used, else the slab below.</span>
+    </div>
+    <div class="nps-field">
+      <label>Tax Slab (%) <span style="font-weight:500;opacity:.7">(only if income is unknown)</span></label>
       <select class="nps-inp" onchange="_npsAutoSave('finos_nps_tax_slab',this.value)">
         <option value="0"  ${slab===0?'selected':''}>0% (no tax)</option>
         <option value="5"  ${slab===5?'selected':''}>5%</option>
+        <option value="10" ${slab===10?'selected':''}>10%</option>
+        <option value="15" ${slab===15?'selected':''}>15%</option>
         <option value="20" ${slab===20?'selected':''}>20%</option>
+        <option value="25" ${slab===25?'selected':''}>25%</option>
         <option value="30" ${slab===30?'selected':''}>30% (highest)</option>
       </select>
     </div>
@@ -231,14 +321,14 @@ window.FinosNPSTracker = (function () {
       <input class="nps-inp" type="number" min="500" step="100" placeholder="5000"
         value="${gs('finos_nps_emp_monthly') || ''}"
         oninput="_npsAutoSave('finos_nps_emp_monthly',this.value)">
-      <span class="nps-note">80CCD(1): deductible up to 10% of basic</span>
+      <span class="nps-note">Tax deduction estimate depends on regime, salary and eligible limits.</span>
     </div>
     <div class="nps-field">
       <label>Employer Contribution / mo (₹)</label>
       <input class="nps-inp" type="number" min="0" step="100" placeholder="0"
         value="${gs('finos_nps_er_monthly') || ''}"
         oninput="_npsAutoSave('finos_nps_er_monthly',this.value)">
-      <span class="nps-note">80CCD(2): deductible up to 10% of basic — not from 80C limit</span>
+      <span class="nps-note">Tax deduction estimate depends on regime, employer category and basic salary.</span>
     </div>
   </div>
 
@@ -266,7 +356,7 @@ window.FinosNPSTracker = (function () {
   <div id="nps-alloc-total-badge" class="nps-alloc-total" style="${(ep+cp+gp)===100?'background:rgba(34,211,166,.1);border:1px solid rgba(34,211,166,.3);color:#22D3A6;':'background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#ff7d7d;'}">
     ${ep+cp+gp}% / 100% ${(ep+cp+gp)===100?'✓':'— must equal 100%'}
   </div>
-  <p class="nps-note" style="margin-top:10px;">Max equity cap 75% for Active Choice (auto-reduces to 50% after age 50). Using Auto Choice (LC50) sets E:50/C:30/G:20 decreasing with age.</p>
+  <p class="nps-note" style="margin-top:10px;">Enter a valid allocation totaling 100%. Active Choice limits depend on subscriber model and current rules; Auto Choice allocations change with age and are not modeled here.</p>
 </div>`;
   }
 
@@ -275,7 +365,7 @@ window.FinosNPSTracker = (function () {
   ══════════════════════════════════════════════════════════════════ */
   function renderProjection(container) {
     if (!container) return;
-    const { total, projected, annuityCorpus, lumpSum, ageNow, yearsLeft, annualR, ep, cp, gp } = _compute();
+    const { t1, projected, annuityPct, lumpSumPct, annuityCorpus, lumpSum, ageNow, yearsLeft, annualR, ep, cp, gp } = _compute();
 
     // Year-by-year milestones
     const empM = gs('finos_nps_emp_monthly');
@@ -284,7 +374,7 @@ window.FinosNPSTracker = (function () {
       .map(y => ({
         yr: y,
         age: ageNow + y,
-        val: _projectCorpus(total, empM + erM, Math.round(y * 12), annualR)
+        val: _projectCorpus(t1, empM + erM, Math.round(y * 12), annualR)
       }));
 
     const rows = milestones.map(m => `
@@ -319,12 +409,12 @@ window.FinosNPSTracker = (function () {
     <div class="nps-ph-sub">${yearsLeft} years @ ${(annualR*100).toFixed(1)}% blended p.a.</div>
   </div>
   <div>
-    <div class="nps-ph-lbl">Tax-Free Lump-Sum (60%)</div>
+    <div class="nps-ph-lbl">Tax-Free Lump-Sum (${lumpSumPct}%)</div>
     <div class="nps-ph-val" style="color:#22D3A6;">${INR(lumpSum)}</div>
     <div class="nps-ph-sub">Withdraw at age 60+</div>
   </div>
   <div>
-    <div class="nps-ph-lbl">Annuity Purchase (40%)</div>
+    <div class="nps-ph-lbl">Annuity Purchase (${annuityPct}%)</div>
     <div class="nps-ph-val" style="color:#FFB347;">${INR(annuityCorpus)}</div>
     <div class="nps-ph-sub">~${INR(annuityMonthly)}/mo pension est.<br><span style="font-size:10px;opacity:.6;">(7% annuity rate assumed)</span></div>
   </div>
@@ -357,15 +447,18 @@ window.FinosNPSTracker = (function () {
     if (!container) return;
     const empM    = gs('finos_nps_emp_monthly');
     const erM     = gs('finos_nps_er_monthly');
-    const slab    = gs('finos_nps_tax_slab') || 30;
+    const savedSlab = gss('finos_nps_tax_slab');
+    const slab = savedSlab === '' ? 30 : Math.max(0, Math.min(30, parseFloat(savedSlab) || 0));
     const empA    = empM * 12;
     const erA     = erM  * 12;
-    const c1      = Math.min(empA, 150000);
-    const c1b     = Math.min(Math.max(empA - 150000, 0), 50000);
-    const c2      = Math.min(erA, 200000);
+    const basicAnnual = gs('finos_nps_basic_annual') || gs('finos_salary_basic');
+    const d = _taxDeductions(empA, erA, basicAnnual);
+    const { c1, c1b, c2 } = d;
     const total   = c1 + c1b + c2;
-    const taxSave = Math.round(total * slab / 100);
+    const eff     = _taxEffect(d, _incomeAnnual());
+    const taxSave = eff ? eff.total : Math.round(total * slab / 100 * 1.04);
     const s       = slab / 100;
+    const saved   = k => (eff ? eff[k] : Math.round(d[k] * s * 1.04));
 
     const row = (label, deduct, max, saved, note) => `
       <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;padding:12px 14px;font-size:13px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:10px;margin-bottom:6px;align-items:center;gap:8px;">
@@ -383,28 +476,27 @@ window.FinosNPSTracker = (function () {
 [data-theme="light"] .nps-tax-hero{background:#fff;}
 </style>
 <div class="nps-tax-hero" style="background:rgba(79,124,255,.06);border:1px solid rgba(79,124,255,.18);border-radius:20px;padding:24px;margin-bottom:20px;">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Annual Tax Saving on NPS</div>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">${eff ? 'Tax saved on your income' : 'Estimated Marginal Tax Benefit'}</div>
   <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:40px;font-weight:900;color:#4F7CFF;">${INR(taxSave)}</div>
-  <div style="font-size:13px;color:rgba(255,255,255,0.58);margin-top:6px;">At ${slab}% tax slab · Total deductible: ${INR(total)}</div>
+  <div style="font-size:13px;color:rgba(255,255,255,0.58);margin-top:6px;">${eff ? `On ${INR(eff.income)} a year${eff.fromTracked ? ' (your tracked monthly income x 12)' : ''}, FY 2025-26 slabs plus 4% cess` : `At ${slab}% marginal rate plus 4% cess`} · eligible amount: ${INR(total)} · ${d.regime==='old'?'old':'new'} regime</div>
 </div>
 
 <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,0.58);">
   <span>Section</span><span>Deductible</span><span>Max Limit</span><span>Tax Saved</span>
 </div>
-${row('80CCD(1)', c1, '₹1.5L (within 80C)', Math.round(c1 * s), 'Your contribution — counts toward 80C ₹1.5L ceiling')}
-${row('80CCD(1B)', c1b, '₹50,000 extra', Math.round(c1b * s), 'Additional ₹50K over 80C limit — exclusive NPS benefit')}
-${row('80CCD(2)', c2, '10% of basic (no cap for new regime)', Math.round(c2 * s), "Employer's contribution — NOT from 80C limit")}
+${row('80CCD(1)', c1, '10% basic, capped by remaining ₹1.5L 80C', saved('c1'), 'Old regime only; requires annual basic salary and shares the 80C ceiling')}
+${row('80CCD(1B)', c1b, '₹50,000', saved('c1b'), 'Old regime only; NPS employee contribution above eligible 80CCD(1) amount')}
+${row('80CCD(2)', c2, `${Math.round(d.employerRate*100)}% of basic`, saved('c2'), "Employer's contribution; salary-based limit, subject to tax rules")}
 
 <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-top:20px;">
   <div style="font-size:13px;font-weight:800;color:#4F7CFF;margin-bottom:14px;">NPS Tax Rules (India)</div>
   <div style="font-size:13px;color:rgba(255,255,255,.65);line-height:1.7;display:flex;flex-direction:column;gap:8px;">
-    <span>🟢 <b>80CCD(1B)</b>: exclusive NPS deduction of ₹50,000 above the ₹1.5L 80C bucket — unique to NPS.</span>
-    <span>🟢 <b>80CCD(2)</b>: employer contribution deductible with no upper cap under the new tax regime (10% of basic).</span>
-    <span>🟢 <b>Corpus growth</b>: fully tax-free while invested — NPS is EEE (exempt-exempt-exempt).</span>
-    <span>🟡 <b>60% lump sum</b>: at age 60, up to 60% withdrawal is tax-free.</span>
-    <span>🔴 <b>40% annuity</b>: mandatory purchase at 60; annuity income is taxable as per your slab at that time.</span>
-    <span>🔴 <b>Early exit</b>: before 60 — only 20% can be withdrawn tax-free; 80% must buy annuity (taxable).</span>
-    <span>🔴 <b>Tier 2</b>: no tax deduction available (except for central govt employees).</span>
+    <span>🟢 <b>80CCD(1)</b> and <b>80CCD(1B)</b>: generally available under the old regime, within their respective salary and overall limits; 80CCD(1) shares the 80C ceiling.</span>
+    <span>🟢 <b>80CCD(2)</b>: employer contribution limit depends on regime and employer category; the estimate uses the basic salary and selections above.</span>
+    <span>🟡 <b>Withdrawal tax</b>: only eligible lump-sum amounts receive exemption; current rules vary by subscriber type, exit reason, corpus and applicable law.</span>
+    <span>🔴 <b>Annuity income</b>: taxable under applicable rules. This page's amount is a projection, not a guaranteed pension quote.</span>
+    <span>🟡 <b>Tax benefit</b>: ${eff ? 'worked out on the annual income shown above with the FY 2025-26 slabs, the standard deduction and the Sec 87A rebate; it needs your annual basic salary for the section limits, and surcharge above ₹50L is not modelled.' : 'an estimate: it needs your annual basic salary and uses the slab you picked. Enter your annual income on the Profile tab for an exact figure.'}</span>
+    <span>🟡 <b>Tier 2</b>: tax treatment depends on subscriber category and applicable rules.</span>
   </div>
 </div>`;
   }
@@ -428,6 +520,10 @@ function _npsAutoSave(key, val) {
       document.getElementById('nps-lump-disp')  && (document.getElementById('nps-lump-disp').textContent  = '₹' + Math.round(c.lumpSum).toLocaleString('en-IN'));
       document.getElementById('nps-ann-disp')   && (document.getElementById('nps-ann-disp').textContent   = '₹' + Math.round(c.annuityCorpus).toLocaleString('en-IN'));
       document.getElementById('nps-tax-disp')   && (document.getElementById('nps-tax-disp').textContent   = '₹' + Math.round(c.taxSaved).toLocaleString('en-IN'));
+      document.getElementById('nps-tax-basis') && (document.getElementById('nps-tax-basis').textContent = c.taxExact ? 'Worked out on your income' : 'Marginal-rate estimate');
+      document.getElementById('nps-exit-share') && (document.getElementById('nps-exit-share').textContent = c.annuityPct + '% annuity assumption');
+      document.getElementById('nps-lump-label') && (document.getElementById('nps-lump-label').textContent = 'Lump-Sum (' + c.lumpSumPct + '%)');
+      document.getElementById('nps-ann-label') && (document.getElementById('nps-ann-label').textContent = 'Annuity (' + c.annuityPct + '%)');
     }
   }, 600);
 }

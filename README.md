@@ -351,7 +351,7 @@ Everything runs without a backend. From this folder:
 ```bash
 npm run check            # static audits (tokens, links, search coverage, JS syntax, ids, routes, secrets) + search-index freshness   (~15 s)
 npm test                 # all JS unit tests + all pytest files (browser suites need Playwright + Chromium)
-npm run index            # regenerate the auto part of js/finos-search.js after adding a page
+npm run index            # regenerate the auto part of js/finos-search-index.js after adding a page
 python3 tests/smoke_pages.py     # every page, dark + light — fails on JS errors / 404s            (~15 min)
 python3 tests/csp_check.py       # every page under the PRODUCTION Content-Security-Policy          (~10 min)
 python3 tests/mobile_check.py    # every page at 375px — horizontal overflow, tiny tap targets      (~3 min)

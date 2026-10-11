@@ -101,3 +101,14 @@ def test_settings_page_has_a_working_language_picker(env):
     page.wait_for_timeout(600)
     assert "सेटिंग्स" in sidebar_labels(page)
     ctx.close()
+
+
+def test_a_page_that_includes_the_engine_itself_still_applies_the_saved_language(env):
+    """settings.html loads finos-i18n.js directly; the saved language must still be applied on load."""
+    base, browser = env
+    ctx = browser.new_context()
+    ctx.add_init_script("localStorage.setItem('finos_lang', 'hi');")
+    pg = ctx.new_page()
+    pg.goto(f"{base}/html/settings.html", wait_until="load")
+    pg.wait_for_function("window.FinosI18n && FinosI18n.lang() === 'hi' && document.documentElement.lang === 'hi'", timeout=10000)
+    ctx.close()

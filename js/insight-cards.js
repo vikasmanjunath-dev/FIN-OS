@@ -233,7 +233,7 @@
     return `
     <div class="ic-card" data-insight="${ins.id}"
       style="--ic-accent:${ins.accent};--ic-accent-dim:${ins.accentDim};--ic-accent-dim2:${ins.accentDim2};--ic-shadow:${ins.shadow};--ic-glow:${ins.gradient};"
-      role="button" tabindex="0" aria-label="Open insight: ${ins.title}">
+      role="button" tabindex="0" aria-label="Open insight: ${String(ins.title).replace(/"/g, '&quot;')}">
       <div class="ic-light"></div>
       <div class="ic-badge">${ins.badge}</div>
       <div class="ic-icon">${ins.icon}</div>

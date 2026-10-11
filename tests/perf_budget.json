@@ -1,43 +1,43 @@
 {
   "html/home.html": {
-    "critical": 407,
-    "total": 1014
+    "critical": 379,
+    "total": 1021
   },
   "html/dashboard.html": {
-    "critical": 711,
-    "total": 1289
+    "critical": 696,
+    "total": 1302
   },
   "html/tax.html": {
-    "critical": 551,
-    "total": 1159
+    "critical": 548,
+    "total": 1168
   },
   "html/calculators.html": {
-    "critical": 439,
-    "total": 1047
+    "critical": 413,
+    "total": 1056
   },
   "html/net-worth.html": {
-    "critical": 287,
-    "total": 882
+    "critical": 471,
+    "total": 1090
   },
   "html/budget-forecast.html": {
-    "critical": 443,
-    "total": 1037
+    "critical": 416,
+    "total": 1046
   },
   "html/retirement-planner.html": {
-    "critical": 408,
-    "total": 1015
-  },
-  "html/settings.html": {
-    "critical": 462,
+    "critical": 390,
     "total": 1033
   },
+  "html/settings.html": {
+    "critical": 457,
+    "total": 1058
+  },
   "html/markets.html": {
-    "critical": 430,
-    "total": 1042
+    "critical": 401,
+    "total": 1047
   },
   "html/track-finances.html": {
-    "critical": 545,
-    "total": 1152
+    "critical": 537,
+    "total": 1180
   },
   "calculators/investment & wealth/sip.html": {
     "critical": 255,
@@ -48,7 +48,7 @@
     "total": 255
   },
   "index.html": {
-    "critical": 42,
-    "total": 42
+    "critical": 49,
+    "total": 53
   }
 }

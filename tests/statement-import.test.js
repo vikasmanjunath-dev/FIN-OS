@@ -277,3 +277,31 @@ test('a hostile file cannot inject markup into descriptions beyond plain text, a
   assert.strictEqual(rb.rows.length, S.MAX_ROWS);
   assert.match(rb.warnings.join(' '), /first 20000 rows/);
 });
+
+/* ── investments are saved, not spent ────────────────────────────────────────────────────────────────────────── */
+test('debits to brokers, fund houses and retirement accounts are categorised as savings, so they never count as spending', () => {
+  const debit = (desc) => ({ type: 'debit', amount: 5000, desc, date: '2025-09-02' });
+  const saved = ['UPI-ZERODHA BROKING LTD-ZERODHA@YESB', 'NACH DR-AMFI-SIP-HDFC MUTUAL FUND', 'GROWW INVEST TECH PVT LTD', 'IMPS-ICCL-UPSTOX-FUNDS', 'NEFT-PPF DEPOSIT SBI',
+    'ACH D- NPS TRUST-A/C 1234', 'UPI/PAYTM MONEY/BUY', 'SIP KFINTECH ECS'];
+  saved.forEach((d) => assert.strictEqual(S.categorize(debit(d)), 'Savings & Investments', d));
+  // and the budget module agrees: kind 'saving', so monthSpend ignores it
+  const led = S.toLedger(saved.map(debit).concat([{ type: 'debit', amount: 450, desc: 'UPI-ZOMATO-ORDER', date: '2025-09-02' }]), { batch: 'b1' });
+  const norm = B.normalizeAll(led);
+  assert.strictEqual(norm.filter((t) => t.kind === 'saving').length, saved.length);
+  assert.strictEqual(B.monthSpend(norm, '2025-09').total, 450);
+});
+
+test('names that merely contain an investment word, and ordinary spending, are not mistaken for investments', () => {
+  const cat = (d, type) => S.categorize({ type: type || 'debit', amount: 100, desc: d, date: '2025-09-02' });
+  assert.notStrictEqual(cat('UPI-STOCKHOLM CAFE-CHAI'), 'Savings & Investments');
+  assert.notStrictEqual(cat('UPI-ZOMATO-LUNCH'), 'Savings & Investments');
+  assert.notStrictEqual(cat('UPI-RAHUL S-PAID VIA PHONEPE'), 'Savings & Investments');
+  assert.notStrictEqual(cat('EMI HDFC HOME LOAN 7890'), 'Savings & Investments');
+  assert.strictEqual(cat('ZERODHA PAYOUT', 'credit'), 'Income');                    // a credit keeps its old reading
+});
+
+test('the preview\'s biggest spending leaves out money that was invested', () => {
+  const rows = [{ type: 'debit', amount: 20000, desc: 'ZERODHA', date: '2025-09-01' }, { type: 'debit', amount: 300, desc: 'UPI-ZOMATO', date: '2025-09-01' }];
+  const top = S.topCategories(rows, 5);
+  assert.deepStrictEqual(top.map((t) => t.category), ['Food & Dining']);
+});

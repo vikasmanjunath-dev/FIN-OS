@@ -58,8 +58,8 @@ def test_the_page_lists_every_registry_flow_and_only_the_data_carrying_ones_are_
 def test_consent_is_off_by_default_can_be_given_and_withdrawn_and_is_remembered(env):
     ctx, pg, errors = open_page(env)
     boxes = pg.locator("#pv-consents input[type=checkbox]")
-    assert boxes.count() == 2
-    assert not any(boxes.nth(i).is_checked() for i in range(2))
+    assert boxes.count() == 3                                        # relay, feedback, usage
+    assert not any(boxes.nth(i).is_checked() for i in range(3))
     assert "never turned this on" in pg.inner_text("#pv-consents")
     assert pg.evaluate("localStorage.getItem('finos_consents')") is None             # visiting the page records nothing
     pg.check("#pv-c-feedback")

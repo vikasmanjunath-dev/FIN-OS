@@ -54,8 +54,10 @@
 
   function register(code, table) { tables[code] = Object.assign(tables[code] || {}, table); }
 
-  function skipped(el) {
+  function skipped(el, forAttrs) {
     for (let e = el; e && e.nodeType === 1; e = e.parentElement) {
+      // A textarea's own content is the person's text and is left alone, but its placeholder is ours and is translated.
+      if (forAttrs && e === el && e.tagName === 'TEXTAREA') { if (e.hasAttribute('data-no-i18n')) return true; continue; }
       if (SKIP_TAGS.test(e.tagName) || e.hasAttribute('data-no-i18n') || e.isContentEditable) return true;
     }
     return false;
@@ -86,7 +88,7 @@
       if (node.nodeValue !== lead + hit + trail) { node.nodeValue = lead + hit + trail; changed++; }
     });
     scope.querySelectorAll && scope.querySelectorAll('[placeholder],[title],[aria-label]').forEach((el) => {
-      if (skipped(el)) return;
+      if (skipped(el, true)) return;
       const saved = attrOriginals.get(el) || {};
       ATTRS.forEach((a) => {
         if (!el.hasAttribute(a)) return;

@@ -253,9 +253,15 @@
   /* ── into the ledger ─────────────────────────────────────────────────────────────────────────────────────── */
   const APP_NAMES = /\b(phonepe|paytm|google ?pay|gpay|bhim|paid via|upi)\b/gi;     // payment-app names say how it was paid, not what for ("PhonePe" would read as a phone bill)
 
+  /* Money sent to a broker, a fund house or a retirement account is saved, not spent, so it must not count against the budget or the
+     savings rate. FinosBudget reads the category 'Savings & Investments' as kind 'saving'. Names are matched as whole words so a cafe
+     called "Stockholm" is not an investment. Insurance premiums are left as they were (an expense with no category of its own). */
+  const INVEST = /\b(zerodha|groww|upstox|angel ?(one|broking)|5paisa|icici ?direct|hdfc ?sec(urities)?|kotak ?sec(urities)?|motilal ?oswal|sharekhan|paytm ?money|smallcase|kuvera|et ?money|indmoney|iccl|indian ?clearing|nse ?clearing|bse ?star|amfi|cams|kfin ?tech|karvy|mutual ?funds?|mf ?sip|sip|nps|ppf|demat|stock ?brok\w*)\b/i;
+
   function categorize(row) {
     if (row.type === 'credit') return 'Income';
     const cleaned = row.desc.replace(APP_NAMES, ' ');
+    if (INVEST.test(row.desc)) return 'Savings & Investments';          // tested before payment-app names are removed: "Paytm Money" is a broker, "Paytm" is a wallet
     return Bud && Bud.canonicalCategory ? Bud.canonicalCategory(cleaned) : 'Other';
   }
 
@@ -298,7 +304,7 @@
   /** Spending by category for the preview: debits only, largest first. */
   function topCategories(rows, n) {
     const by = {};
-    (rows || []).filter((r) => r.type === 'debit').forEach((r) => { const c = categorize(r); by[c] = (by[c] || 0) + r.amount; });
+    (rows || []).filter((r) => r.type === 'debit').forEach((r) => { const c = categorize(r); if (c === 'Savings & Investments') return; by[c] = (by[c] || 0) + r.amount; });   // money put aside is not spending
     return Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, n || 5).map(([category, amount]) => ({ category, amount: Math.round(amount) }));
   }
 

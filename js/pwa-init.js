@@ -138,14 +138,18 @@ try {
   }
 } catch (e) { /* no consent record, or private mode: nothing to do */ }
 
-if (_finosJsBase && !window.FinosI18n) {
+if (_finosJsBase) {
   var _lang = 'en';
   try { _lang = localStorage.getItem('finos_lang') || 'en'; } catch (e) { /* private mode */ }
   if (_lang !== 'en') {                                   // English users never download the translation engine
-    var _i18n = document.createElement('script');
-    _i18n.src = _finosJsBase + 'finos-i18n.js';
-    _i18n.onload = function () { window.FinosI18n.init(); };
-    document.head.appendChild(_i18n);
+    if (!window.FinosI18n) {
+      var _i18n = document.createElement('script');
+      _i18n.src = _finosJsBase + 'finos-i18n.js';
+      _i18n.onload = function () { window.FinosI18n.init(); };
+      document.head.appendChild(_i18n);
+    } else if (window.FinosI18n.lang && window.FinosI18n.lang() === 'en') {
+      window.FinosI18n.init();                            // a page that includes the engine itself (settings) still has to apply the saved language
+    }
   }
 }
 

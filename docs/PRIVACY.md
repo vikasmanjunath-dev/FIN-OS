@@ -8,6 +8,8 @@ The privacy notice (`html/privacy.html`) is **generated from an audited registry
 
 Every outside host the app references (page assets, the account service, market data and its relay, local AI services, plain links) has a flow: what it is for, what is sent, whether it carries the user's own data (`personal`), whether it is optional, and what control the user has.
 
+**Market data relay.** The Trading Brain page gets prices from the Arya backend on the person's own machine (`GET /api/chart`). The public relay (allorigins.win), which can see every symbol looked up, now runs only when the backend is not available **and** the person switched on "Use a public relay for market data" (consent id `relay`, off by default). Tests: `tests/test_trading_brain_relay.py`, `tests/test_chart_endpoint.py`.
+
 `tests/privacy.test.js` scans `js/`, `html/`, `css/`, `index.html`, `login.html`, `sw.js` and `manifest.json` for hosts and **fails if one is not covered**. Adding a script from a new CDN, an analytics tag or a new API therefore cannot ship without updating the registry, and therefore the notice. The same test proves the scan works (it must find known hosts, lookalike hosts such as `notsupabase.co` never match, and a deliberately missing host is reported).
 
 To add a host: put it in the right flow's `hosts` (or add a flow), and be honest in `sent` and `personal`. Only `account`, `ai` and `device` may be `personal`; a test pins that list.

@@ -6,7 +6,7 @@ Checks (each returns a list of human-readable problems; empty list == pass):
   tokens   Pages must load design-tokens.css/theme.css in canonical order and must
            not re-declare the shared theme tokens in a local :root / [data-theme] block.
   links    Local href/src in every HTML file must resolve to a real file.
-  search   Every page in html/ and calculators/ must be reachable from js/finos-search.js.
+  search   Every page in html/ and calculators/ must be reachable from js/finos-search-index.js.
   js       `node --check` on every js/*.js and every inline <script> (skipped if no node).
   ids      No duplicate id="" attributes within a page.
   routes   Every vercel.json rewrite/redirect destination file exists.
@@ -119,7 +119,7 @@ def check_links():
 
 # ── search index coverage ─────────────────────────────────────────────────────
 def search_index_urls():
-    src = read(ROOT / "js" / "finos-search.js")
+    src = read(ROOT / "js" / "finos-search-index.js")      # the index, split out of finos-search.js so it loads on first use
     urls = set()
     for u in re.findall(r"url\s*:\s*['\"]([^'\"]+)['\"]", src):
         urls.add(Path(u.split("#")[0].split("?")[0]).as_posix().replace("../", ""))
@@ -143,7 +143,7 @@ def check_search():
         if 'http-equiv="refresh"' in src.lower() and len(src) < 3000:
             continue  # redirect stub; target is what must be indexed
         if r not in indexed:
-            problems.append(f"{r}: not reachable from js/finos-search.js INDEX")
+            problems.append(f"{r}: not reachable from js/finos-search-index.js")
     return problems
 
 

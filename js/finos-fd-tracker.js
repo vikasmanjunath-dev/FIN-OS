@@ -20,7 +20,7 @@
     fd:       { label: 'Fixed Deposit',                color: '#00D4FF', icon: '🏦', compoundFreq: 4  },
     rd:       { label: 'Recurring Deposit',             color: '#22D3A6', icon: '📅', compoundFreq: 4  },
     ppf:      { label: 'Public Provident Fund',         color: '#7B2FF7', icon: '🏛️', compoundFreq: 1, rate: 7.1, maxYears: 15 },
-    nsc:      { label: 'National Savings Certificate',  color: '#F0A500', icon: '📜', compoundFreq: 2, rate: 7.7, termYears: 5  },
+    nsc:      { label: 'National Savings Certificate',  color: '#F0A500', icon: '📜', compoundFreq: 1, rate: 7.7, termYears: 5  },
     scss:     { label: 'Senior Citizens Savings Scheme',color: '#FF8C42', icon: '👴', compoundFreq: 4, rate: 8.2, maxYears: 5   },
     sukanya:  { label: 'Sukanya Samriddhi Yojana',      color: '#E879F9', icon: '👧', compoundFreq: 1, rate: 8.2, maxYears: 21  },
     bond:     { label: 'Government Bond / SGB',         color: '#34D399', icon: '📊', compoundFreq: 2  },
@@ -81,6 +81,7 @@
 
     function rdValue(years) {
       const t = years;
+      if (!(r > 0)) return monthlyAmount * 12 * t;          // 0% rate: the formula is 0/0, and its limit is simply the deposits made
       return monthlyAmount * 12 / n * ((Math.pow(1 + r / n, n * t) - 1) / (r / n));
     }
 
@@ -119,19 +120,30 @@
     return { currentValue: balance, maturityValue: maturityBalance, maturityDate, interestEarned: balance - totalInvested, totalInvested };
   }
 
-  /* ── NSC: 5-year, compounded semi-annually ─────────────────────── */
+  /* ── NSC: 5-year, compounded annually; accrued interest is deemed reinvested ── */
   function calcNSC(entry) {
     const { principal, startDate } = entry;
     const rate      = (entry.rate || INSTRUMENTS.nsc.rate) / 100;
     const termYears = 5;
     const elapsed   = Math.min(yearsFrom(startDate), termYears);
-    const n         = 2;
+    const n         = 1;
 
     const currentValue  = principal * Math.pow(1 + rate / n, n * elapsed);
     const maturityValue = principal * Math.pow(1 + rate / n, n * termYears);
     const maturityDate  = addYears(startDate, termYears);
 
     return { currentValue, maturityValue, maturityDate, interestEarned: currentValue - principal };
+  }
+
+  /* ── SCSS: quarterly interest is paid out; it does not compound ── */
+  function calcSCSS(entry) {
+    const principal = Number(entry.principal) || 0;
+    const rate = (Number(entry.rate) || INSTRUMENTS.scss.rate) / 100;
+    const termYears = (entry.termMonths || INSTRUMENTS.scss.maxYears * 12) / 12;
+    const elapsed = Math.max(0, Math.min(yearsFrom(entry.startDate), termYears));
+    const maturityDate = addYears(entry.startDate, termYears);
+    const incomePaid = principal * rate * elapsed;
+    return { currentValue: principal, maturityValue: principal, maturityDate, interestEarned: incomePaid, incomePaid, quarterlyIncome: Math.round(principal * rate / 4) };
   }
 
   /* ── Generic fixed-rate compounding ─────────────────────────────── */
@@ -156,6 +168,7 @@
       case 'rd':  return calcRD(entry);
       case 'ppf': return calcPPF(entry);
       case 'nsc': return calcNSC(entry);
+      case 'scss': return calcSCSS(entry);
       default:    return entry.termMonths ? calcFD(entry) : calcGeneric(entry);
     }
   }
@@ -587,6 +600,7 @@
     _onTypeChange,
     _save,
     _deleteEntry,
+    _calcEntry: calcEntry,
   };
 
   global.FinosFD = FinosFD;

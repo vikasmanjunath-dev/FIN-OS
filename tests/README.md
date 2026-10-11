@@ -142,7 +142,7 @@ Playwright/Chromium/axe-core is missing.
 |---|---|
 | `tokens` | a page loads CSS out of canonical order, misses `design-tokens.css`/`theme.css`, or re-declares shared theme tokens locally |
 | `links` | a local `href`/`src` points at a file that doesn't exist |
-| `search` | a page in `html/` or `calculators/` is not reachable from `js/finos-search.js` (fix: `npm run index`) |
+| `search` | a page in `html/` or `calculators/` is not reachable from `js/finos-search-index.js` (fix: `npm run index`) |
 | `js` | any `js/*.js` or inline `<script>` fails `node --check` |
 | `ids` | duplicate `id=""` within a page |
 | `routes` | a `vercel.json` rewrite/redirect destination file doesn't exist |

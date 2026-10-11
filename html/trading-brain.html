@@ -16,10 +16,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="../css/design-tokens.css">
-<link rel="stylesheet" href="../css/base.css">
-<link rel="stylesheet" href="../css/layout.css?v=3">
-<link rel="stylesheet" href="../css/components.css">
-<link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="../css/base.css?v=2">
+<link rel="stylesheet" href="../css/layout.css?v=4">
+<link rel="stylesheet" href="../css/components.css?v=2">
+<link rel="stylesheet" href="../css/theme.css?v=2">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
 <script src="../js/supabase-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -2184,6 +2184,14 @@ seasonal: [
 </script>
 
 <script>
+/* NDJSON streams arrive in arbitrary chunks: keep the unfinished last line for the next read
+   (splitting each chunk on its own drops any token whose JSON line straddles two chunks). */
+function _ndLines(dec, value) {
+  const parts = ((dec._tail || '') + dec.decode(value, { stream: true })).split('\n');
+  dec._tail = parts.pop();
+  return parts;
+}
+
 'use strict';
 
 /* ═══════════════════════════════════════════════════════════
@@ -2287,7 +2295,16 @@ const SignalEngine = {
    YAHOO FINANCE
 ═══════════════════════════════════════════════════════════ */
 const YF={
-  async fetch(symbol,interval='1d',range='3mo'){
+  /* Prices come from the Arya backend on this machine (GET /api/chart), so no third party sees which symbols you look up.
+     The public relay (allorigins.win) is a fallback that only runs if you switched it on in Privacy & your data. */
+  async viaBackend(symbol,interval,range){
+    if(!window.FinosAPI||!FinosAPI.available('arya')) throw new Error('backend-unavailable');
+    const j=await FinosAPI.request('arya',`/api/chart?symbol=${encodeURIComponent(symbol)}&interval=${encodeURIComponent(interval)}&range=${encodeURIComponent(range)}`,{timeout:12000,retries:0});
+    if(!j||!Array.isArray(j.closes)) throw new Error('No data for '+symbol);
+    return {symbol,closes:j.closes,opens:j.opens||[],highs:j.highs||[],lows:j.lows||[],volumes:j.volumes||[],currentPrice:j.currentPrice||0,interval};
+  },
+  relayAllowed(){ try{ return !!(window.FinosPrivacy&&FinosPrivacy.consent.get('relay')); }catch{ return false; } },
+  async viaRelay(symbol,interval,range){
     const url=`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=${interval}&range=${range}`;
     const proxy=`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
     const r=await fetch(proxy,{signal:AbortSignal.timeout(12000)});
@@ -2297,6 +2314,13 @@ const YF={
     if(!res) throw new Error('No data for '+symbol);
     const q=res.indicators?.quote?.[0]||{};
     return {symbol,closes:q.close||[],opens:q.open||[],highs:q.high||[],lows:q.low||[],volumes:q.volume||[],currentPrice:res.meta?.regularMarketPrice||0,interval};
+  },
+  async fetch(symbol,interval='1d',range='3mo'){
+    try{ return await this.viaBackend(symbol,interval,range); }
+    catch(e){
+      if(!this.relayAllowed()) throw new Error('Market data needs the Arya backend running on this computer. You can also allow the public relay in Privacy & your data.');
+      return this.viaRelay(symbol,interval,range);
+    }
   },
   async quote(symbol){
     try{const d=await this.fetch(symbol,'1d','5d');const c=d.closes,prev=c[c.length-2]||c[c.length-1],cur=d.currentPrice||c[c.length-1];const chg=cur-prev,pct=chg/prev*100;return{price:cur,change:chg,pct,symbol};}catch{return null;}
@@ -2341,9 +2365,9 @@ Keep responses concise and actionable. No fluff.`,
     if(this.history.length>40) this.history=this.history.slice(-40);
     if(!this.online){const fb=this.fallback(userMsg);this.history.push({role:'assistant',content:fb});if(onChunk){for(const c of fb){onChunk(c);await new Promise(r=>setTimeout(r,10));}}return fb;}
     try{
-      const r=await fetch(this.OLLAMA+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:this.model,messages:[{role:'system',content:this.sys},...this.history],stream:true})});
+      const r=await fetch(this.OLLAMA+'/api/chat',{ signal: AbortSignal.timeout(180000),method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:this.model,messages:[{role:'system',content:this.sys},...this.history],stream:true})});
       let full='';const reader=r.body.getReader(),dec=new TextDecoder();
-      while(true){const{done,value}=await reader.read();if(done)break;for(const line of dec.decode(value).split('\n').filter(Boolean)){try{const o=JSON.parse(line);const ch=o?.message?.content||'';if(ch){full+=ch;if(onChunk)onChunk(ch);}}catch{}}}
+      while(true){const{done,value}=await reader.read();if(done)break;for(const line of _ndLines(dec, value).filter(Boolean)){try{const o=JSON.parse(line);const ch=o?.message?.content||'';if(ch){full+=ch;if(onChunk)onChunk(ch);}}catch{}}}
       this.history.push({role:'assistant',content:full});return full;
     }catch(e){const err='Ollama not responding. Make sure: ollama run qwen3:14b';if(onChunk)onChunk(err);return err;}
   }
@@ -2375,7 +2399,7 @@ Reply ONLY with this JSON:
     if(overlay) overlay.style.display='flex';
     const out=document.getElementById('analysisOutput'); if(out) out.style.display='none';
     try{
-      const r=await fetch('http://localhost:11434/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:this.visionModel,prompt:this.buildPrompt(this.intent,ctx),images:[this.imageBase64],stream:false}),signal:AbortSignal.timeout(90000)});
+      const r=await fetch('http://localhost:11434/api/generate',{signal:AbortSignal.timeout(180000),method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:this.visionModel,prompt:this.buildPrompt(this.intent,ctx),images:[this.imageBase64],stream:false}),signal:AbortSignal.timeout(90000)});
       const j=await r.json();const raw=j.response||'';
       const m=raw.match(/\{[\s\S]*\}/);
       if(m){try{this.renderOutput(JSON.parse(m[0]));}catch{this.renderRaw(raw);}}else{this.renderRaw(raw);}
@@ -2823,14 +2847,15 @@ document.addEventListener('DOMContentLoaded',init);
 </script>
   </main>
 </div>
-<script src="../js/ui.js" defer></script>
+<script src="../js/ui.js?v=5" defer></script>
 <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=10"></script>
+<script src="../js/finos-widget.js?v=11"></script>
 <script src="../js/finos-mobile.js" defer></script>
-<script src="../js/finos-search.js?v=5"></script>
+<script src="../js/finos-search.js?v=6"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/finos-api.js"></script>
+<script src="../js/finos-privacy.js"></script>
 <script src="../js/arya-guardrails.js"></script>
 <script src="../js/arya-pulse-rank.js"></script>
 <script src="../js/arya-lazy.js"></script>

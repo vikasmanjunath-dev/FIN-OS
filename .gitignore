@@ -38,3 +38,8 @@ node_modules/
 .vercel
 
 dist-min/
+
+# SQLite runtime files (the Arya backend writes these while it runs)
+*.db
+*.db-shm
+*.db-wal
