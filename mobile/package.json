@@ -8,7 +8,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test \"__tests__/*.test.mts\"",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./__tests__/register-aliases.mjs --test \"__tests__/*.test.mts\"",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -20,6 +20,7 @@
     "expo": "~53.0.0",
     "expo-av": "~15.1.7",
     "expo-constants": "~17.1.8",
+    "expo-document-picker": "~13.1.6",
     "expo-font": "~13.3.2",
     "expo-haptics": "~14.1.4",
     "expo-linear-gradient": "~14.1.5",

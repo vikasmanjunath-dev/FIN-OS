@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Session } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured, friendlyAuthError } from '@/lib/supabase';
 import { syncHoldings } from '@/lib/holdingsStore';
+import { syncTrackersNow } from '@/lib/trackerSyncStore';
 
 interface AuthCtx {
   /** Cloud sync credentials present in .env */
@@ -28,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(next);
       setReady(true);
       // Never await supabase calls inside this callback (auth-js can deadlock) — defer instead.
-      if (next && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) setTimeout(() => syncHoldings(), 0);
+      if (next && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) setTimeout(() => { syncHoldings(); syncTrackersNow({ force: true }); }, 0);
     });
     return () => sub.subscription.unsubscribe();
   }, []);

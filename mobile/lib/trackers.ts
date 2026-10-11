@@ -1,5 +1,5 @@
-import { IndexedTxn, monthTotals, budgetStatus, trailing30Spend, ymd } from '@/lib/budget';
-import { SavingsAccount, Policy, computeEpf, computeNps, savingsTotals, computeCoverage, hasLifeCover, hasHealthCover, EPF } from '@/lib/retirement';
+import { type IndexedTxn, monthTotals, budgetStatus, trailing30Spend, ymd } from '@/lib/budget';
+import { type SavingsAccount, type Policy, computeEpf, computeNps, savingsTotals, computeCoverage, hasLifeCover, hasHealthCover, EPF } from '@/lib/retirement';
 
 // Tracker logic ported from the website (js/finos-net-worth.js, finos-emergency-fund.js,
 // finos-health-score.js). Pure functions only — no React, no storage — so the formulas can be

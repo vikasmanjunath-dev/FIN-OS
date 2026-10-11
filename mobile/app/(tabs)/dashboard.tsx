@@ -13,6 +13,7 @@ import { nextBestStep } from '@/lib/trackers';
 import { inrShort, tierColor } from '@/components/TrackerUI';
 import { useQuickLog } from '@/hooks/useQuickLog';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
+import { useMoneyScore } from '@/hooks/useMoneyScore';
 import { QuickLogChips } from '@/components/QuickLogChips';
 import { MetricCard } from '@/components/MetricCard';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
@@ -44,6 +45,7 @@ export default function DashboardScreen() {
   const { data: td, computed: tc, reload: reloadTrackers } = useTrackers();
   const quick = useQuickLog(3);
   const { summary: subs } = useSubscriptions();
+  const { saved: moneyScore } = useMoneyScore();
   const { data: market } = useMarketData();
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -182,7 +184,7 @@ export default function DashboardScreen() {
         <MetricCard
           label="Monthly Income"
           value={hasBudget ? inrShort(tc.budget.income) : '—'}
-          sub={td.aaIncome > 0 && !td.income ? 'via Account Aggregator' : hasBudget ? 'tap to edit' : 'set in Budget'}
+          sub={td.aaIncome > 0 && !td.income ? 'from imported data' : hasBudget ? 'tap to edit' : 'set in Budget'}
           accent={Colors.teal}
           icon="💰"
           style={styles.gridHalf}
@@ -284,6 +286,24 @@ export default function DashboardScreen() {
       <Text style={styles.sectionTitle}>Money Tools</Text>
       <View style={styles.grid}>
         <MetricCard
+          label="Money Score"
+          value={moneyScore ? `${moneyScore.score}/100` : '60 seconds'}
+          sub={moneyScore ? (moneyScore.top ? `next: ${moneyScore.top.title}` : 'your whole picture, scored') : 'one number + your next 3 moves'}
+          accent={Colors.teal}
+          icon="🎯"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/score')}
+        />
+        <MetricCard
+          label="Retirement odds"
+          value="Will it last?"
+          sub="Monte Carlo on what you hold"
+          accent={Colors.purple}
+          icon="🌅"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/retirement')}
+        />
+        <MetricCard
           label="Prepay or invest?"
           value="Home loan"
           sub="which leaves you richer"
@@ -310,7 +330,7 @@ export default function DashboardScreen() {
           { icon: '✦', label: 'Ask Arya', color: Colors.purple, onPress: () => router.navigate('/(tabs)/arya') },
           { icon: '📊', label: 'Portfolio', color: Colors.cyan,   onPress: () => router.navigate('/(tabs)/portfolio') },
           { icon: '📈', label: 'Markets',   color: Colors.teal,   onPress: () => router.navigate('/(tabs)/markets') },
-          { icon: '🔗', label: 'AA Sync',   color: Colors.gold,   onPress: () => router.navigate('/(tabs)/track') },
+          { icon: '🧾', label: 'Track',     color: Colors.gold,   onPress: () => router.navigate('/(tabs)/track') },
         ].map(a => (
           <TouchableOpacity
             key={a.label}
@@ -324,17 +344,17 @@ export default function DashboardScreen() {
         ))}
       </View>
 
-      {/* ── AA Nudge (if no account linked) ── */}
-      {!ctx.hasActiveAA && (
+      {/* ── Nudge: nothing logged yet ── */}
+      {td.transactions.length === 0 && (
         <TouchableOpacity
           style={styles.nudge}
-          onPress={() => { Haptics.selectionAsync(); router.navigate('/(tabs)/track'); }}
+          onPress={() => { Haptics.selectionAsync(); open('/tracker/import'); }}
           activeOpacity={0.8}
         >
-          <Text style={styles.nudgeIcon}>🔗</Text>
+          <Text style={styles.nudgeIcon}>📄</Text>
           <View style={{ flex: 1 }}>
-            <Text style={styles.nudgeTitle}>Link your bank account</Text>
-            <Text style={styles.nudgeSub}>Connect via Account Aggregator for auto-sync of transactions and MF portfolio.</Text>
+            <Text style={styles.nudgeTitle}>Add your first transactions</Text>
+            <Text style={styles.nudgeSub}>Spending, savings and your health score get real once you add what you spend. Or import your bank statement in one go.</Text>
           </View>
           <Text style={{ color: Colors.cyan, fontSize: 18 }}>›</Text>
         </TouchableOpacity>

@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadTransactions } from '@/lib/txnStorage';
-import { INSTRUMENTS, POLICY_META, SavingsAccount, Policy, savingsTotals } from '@/lib/retirement';
+import { INSTRUMENTS, POLICY_META, type SavingsAccount, type Policy, savingsTotals } from '@/lib/retirement';
 import {
-  TrackerData, EMPTY_TRACKER_DATA, ASSET_ITEMS, LIABILITY_ITEMS, computeAll, Goal,
+  type TrackerData, EMPTY_TRACKER_DATA, ASSET_ITEMS, LIABILITY_ITEMS, computeAll, type Goal,
 } from '@/lib/trackers';
 
 // Same keys the website writes (js/finos-*.js), so the two stay compatible.

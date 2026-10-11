@@ -32,6 +32,18 @@ async function writeAll(list: Subscription[]) {
   ]);
 }
 
+/** Re-derive the two totals other modules read, from the list as it is now (e.g. after a tracker sync pulled a new list). */
+export function refreshSubscriptionTotals(): Promise<void> {
+  return exclusive(async () => {
+    const list = await loadSubscriptions();
+    const sum = summarize(list, localToday());
+    await AsyncStorage.multiSet([
+      [MONTHLY_KEY, JSON.stringify(Math.round(sum.monthly))],
+      [ANNUAL_KEY, JSON.stringify(Math.round(sum.annual))],
+    ]);
+  });
+}
+
 export type SubscriptionInput = Omit<Subscription, 'id'>;
 
 /** Returns the saved record, or null if the input is not a valid subscription. */

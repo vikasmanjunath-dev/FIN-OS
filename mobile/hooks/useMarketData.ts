@@ -18,13 +18,11 @@ export interface MarketData {
   error: string | null;
 }
 
+// No made-up prices: when the backend can't be reached the screens show "offline", not invented index levels.
 const FALLBACK: MarketData = {
-  nifty50:   { symbol: '^NSEI',  name: 'NIFTY 50',    price: 24850.50, change: 112.30,  changePct: 0.45 },
-  sensex:    { symbol: '^BSESN', name: 'SENSEX',       price: 81420.80, change: 380.50,  changePct: 0.47 },
-  niftyIT:   { symbol: '^CNXIT', name: 'NIFTY IT',     price: 38200.00, change: -145.20, changePct: -0.38 },
-  niftyBank: { symbol: '^NSEBANK', name: 'NIFTY BANK', price: 52800.00, change: 320.10,  changePct: 0.61 },
+  nifty50: null, sensex: null, niftyIT: null, niftyBank: null,
   lastUpdated: null,
-  error: 'Using demo data — backend not reachable',
+  error: "Market data unavailable — can't reach the Arya backend. Start it with arya-ai/start.sh, or set its address in Settings.",
 };
 
 export function useMarketData(refreshIntervalMs = 30_000) {

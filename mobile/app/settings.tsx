@@ -7,6 +7,7 @@ import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 import { ENDPOINTS, applyHost } from '@/constants/endpoints';
 import { useAuth } from '@/hooks/useAuth';
 import { useHoldings } from '@/hooks/useHoldings';
+import { useTrackerSync } from '@/hooks/useTrackerSync';
 
 function SettingRow({ label, sub, right }: { label: string; sub?: string; right: React.ReactNode }) {
   return (
@@ -23,6 +24,7 @@ function SettingRow({ label, sub, right }: { label: string; sub?: string; right:
 export default function SettingsScreen() {
   const { configured, session, signOut } = useAuth();
   const { syncing, syncError, lastSyncedAt, syncNow } = useHoldings();
+  const trk = useTrackerSync();
   const [name, setName]           = useState('');
   const [income, setIncome]       = useState('');
   const [hostIP, setHostIP]       = useState('');
@@ -111,8 +113,27 @@ export default function SettingsScreen() {
               }
             />
             <SettingRow
+              label="Trackers sync with the website"
+              sub={trk.error ? trk.error
+                : trk.syncing ? 'Syncing…'
+                : trk.lastSyncAt ? `Budget, goals, subscriptions and the rest — last synced ${new Date(trk.lastSyncAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`
+                : 'Budget, goals, subscriptions and the rest — not synced yet'}
+              right={
+                <TouchableOpacity style={styles.syncBtn} onPress={() => trk.syncNow()} disabled={trk.syncing}>
+                  <Text style={styles.syncBtnTxt}>{trk.syncing ? '…' : 'Sync now'}</Text>
+                </TouchableOpacity>
+              }
+            />
+            {trk.conflicts.length > 0 && (
+              <SettingRow
+                label={`${trk.conflicts.filter(c => c.kind === 'cloud-won').length} value${trk.conflicts.filter(c => c.kind === 'cloud-won').length === 1 ? '' : 's'} changed on another device`}
+                sub={`The newer copy from the cloud was kept: ${Array.from(new Set(trk.conflicts.filter(c => c.kind === 'cloud-won').map(c => c.key.replace(/^finos_/, '').replace(/_/g, ' ')))).slice(-4).join(', ') || 'none'}.`}
+                right={null}
+              />
+            )}
+            <SettingRow
               label="Sign out"
-              sub="Holdings stay on this device. They sync again when you sign in."
+              sub="Your data stays on this device. It syncs again when you sign in."
               right={
                 <TouchableOpacity style={[styles.syncBtn, { borderColor: 'rgba(255,68,68,0.4)' }]} onPress={() => signOut()}>
                   <Text style={[styles.syncBtnTxt, { color: Colors.red }]}>Sign out</Text>
@@ -199,6 +220,15 @@ export default function SettingsScreen() {
           }
         />
       </View>
+      {/* ── Privacy & terms ── */}
+      <Text style={styles.sectionLabel}>PRIVACY & TERMS</Text>
+      <View style={styles.card}>
+        <SettingRow label="Privacy & your data" sub="What is stored, what can leave your phone, export and delete"
+          right={<TouchableOpacity style={styles.syncBtn} onPress={() => router.push('/privacy' as any)}><Text style={styles.syncBtnTxt}>Open</Text></TouchableOpacity>} />
+        <SettingRow label="Terms of use" sub="The ground rules, in plain language"
+          right={<TouchableOpacity style={styles.syncBtn} onPress={() => router.push('/terms' as any)}><Text style={styles.syncBtnTxt}>Read</Text></TouchableOpacity>} />
+      </View>
+
 
       {/* ── About ── */}
       <Text style={styles.sectionLabel}>ABOUT</Text>

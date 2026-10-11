@@ -1,17 +1,13 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
 import { useMarketData, IndexQuote } from '@/hooks/useMarketData';
+import { useSectors } from '@/hooks/useSectors';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const SECTOR_INDICES = [
-  { symbol: '^CNXIT',   name: 'IT',          emoji: '💻' },
-  { symbol: '^NSEBANK', name: 'BANK',         emoji: '🏦' },
-  { symbol: '^CNXFMCG', name: 'FMCG',         emoji: '🛒' },
-  { symbol: '^CNXPHARMA', name: 'PHARMA',      emoji: '💊' },
-  { symbol: '^CNXAUTO', name: 'AUTO',          emoji: '🚗' },
-  { symbol: '^CNXMETAL', name: 'METAL',        emoji: '⚙️' },
-];
+const SECTOR_EMOJI: Record<string, string> = {
+  IT: '💻', BANK: '🏦', FMCG: '🛒', PHARMA: '💊', AUTO: '🚗', METAL: '⚙️', ENERGY: '⚡', REALTY: '🏢',
+};
 
 function IndexCard({ quote, accent = Colors.cyan }: { quote: IndexQuote; accent?: string }) {
   const up = quote.changePct >= 0;
@@ -53,19 +49,14 @@ function SectorRow({ name, emoji, changePct }: { name: string; emoji: string; ch
 
 export default function MarketsScreen() {
   const { data, loading, refresh } = useMarketData();
+  const sec = useSectors();
   const [refreshing, setRefreshing] = React.useState(false);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await refresh();
+    await Promise.all([refresh(), sec.refresh()]);
     setRefreshing(false);
   };
-
-  // Mock sector data (in production: fetch from stock-engine)
-  const sectorData = SECTOR_INDICES.map((s, i) => ({
-    ...s,
-    changePct: [1.2, -0.4, 0.8, -1.1, 2.3, -0.6][i],
-  }));
 
   const now = data.lastUpdated
     ? data.lastUpdated.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
@@ -93,26 +84,12 @@ export default function MarketsScreen() {
       {/* ── Sector heatmap ── */}
       <Text style={styles.sectionLabel}>SECTORS</Text>
       <View style={styles.sectorCard}>
-        {sectorData.map(s => (
-          <SectorRow key={s.symbol} name={s.name} emoji={s.emoji} changePct={s.changePct} />
+        {sec.sectors.map(x => (
+          <SectorRow key={x.name} name={x.label} emoji={SECTOR_EMOJI[x.label] ?? '📊'} changePct={x.changePct} />
         ))}
-      </View>
-
-      {/* ── FII/DII flows (mock) ── */}
-      <Text style={styles.sectionLabel}>FII / DII FLOWS (TODAY)</Text>
-      <View style={styles.flowCard}>
-        {[
-          { label: 'FII Buy', value: '₹4,820Cr', color: Colors.teal },
-          { label: 'FII Sell', value: '₹3,210Cr', color: Colors.red },
-          { label: 'DII Buy', value: '₹2,990Cr', color: Colors.cyan },
-          { label: 'DII Sell', value: '₹1,840Cr', color: Colors.gold },
-        ].map(f => (
-          <View key={f.label} style={styles.flowRow}>
-            <Text style={styles.flowLabel}>{f.label}</Text>
-            <Text style={[styles.flowValue, { color: f.color }]}>{f.value}</Text>
-          </View>
-        ))}
-        <Text style={styles.flowNote}>Source: NSE. Refreshes daily at market close.</Text>
+        {sec.sectors.length === 0 && (
+          <Text style={styles.flowNote}>{sec.loading ? 'Loading sector moves…' : sec.error ?? 'No sector data.'}</Text>
+        )}
       </View>
 
       {/* ── Market Status ── */}

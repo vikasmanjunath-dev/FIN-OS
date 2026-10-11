@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useFocusEffect } from 'expo-router';
+import { onTrackersPulled } from '@/lib/trackerSyncStore';
 import { IndexedTxn } from '@/lib/budget';
 import { loadTransactions, addTransaction, updateTransaction, removeTransaction, TxnInput } from '@/lib/txnStorage';
 import { loadTrackerData, persistDerived } from '@/lib/trackerStorage';
@@ -20,6 +21,7 @@ export function useTransactions() {
   }, []);
 
   useFocusEffect(useCallback(() => { reload(); }, [reload]));
+  useEffect(() => onTrackersPulled(() => { reload(); }), [reload]);
 
   const after = useCallback(async () => {
     await reload();

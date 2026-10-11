@@ -1,5 +1,6 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useFocusEffect } from 'expo-router';
+import { onTrackersPulled } from '@/lib/trackerSyncStore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Subscription, summarize, localToday } from '@/lib/subscriptions';
 import { loadSubscriptions, addSubscription, updateSubscription, removeSubscription, SubscriptionInput } from '@/lib/subscriptionsStorage';
@@ -16,6 +17,7 @@ export function useSubscriptions() {
     setLoaded(true);
   }, []);
   useFocusEffect(useCallback(() => { reload(); }, [reload]));
+  useEffect(() => onTrackersPulled(() => { reload(); }), [reload]);
 
   const summary = useMemo(() => summarize(items, localToday(), { income }), [items, income]);
 

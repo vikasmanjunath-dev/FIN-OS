@@ -1,5 +1,6 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useFocusEffect } from 'expo-router';
+import { onTrackersPulled } from '@/lib/trackerSyncStore';
 import { TrackerData, EMPTY_TRACKER_DATA, computeAll } from '@/lib/trackers';
 import { loadTrackerData, saveTracker, persistDerived } from '@/lib/trackerStorage';
 import { syncRecurring } from '@/lib/recurringStorage';
@@ -18,6 +19,7 @@ export function useTrackers() {
   }, []);
 
   useFocusEffect(useCallback(() => { reload(); }, [reload]));
+  useEffect(() => onTrackersPulled(() => { reload(); }), [reload]);
 
   const save = useCallback(async (patch: Partial<TrackerData>) => {
     setData(prev => ({ ...prev, ...patch })); // optimistic: the UI never waits on storage

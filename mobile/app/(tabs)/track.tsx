@@ -1,53 +1,10 @@
 import React, { useCallback } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, RefreshControl, Alert } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
+import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useFinosContext } from '@/hooks/useFinosContext';
 import { MetricCard } from '@/components/MetricCard';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
-import { LinearGradient } from 'expo-linear-gradient';
-
-const AA_PROVIDERS = [
-  { id: 'finvu',    name: 'Finvu',    logo: '🏦', color: Colors.cyan,   banks: 'HDFC · ICICI · SBI · 60+ banks' },
-  { id: 'onemoney', name: 'OneMoney', logo: '🔗', color: Colors.teal,   banks: 'Axis · Kotak · BOB · 40+ banks', popular: true },
-  { id: 'perfios',  name: 'Perfios',  logo: '📊', color: Colors.purple, banks: 'All banks + MF portfolio' },
-  { id: 'cams_mf',  name: 'MF Central', logo: '📈', color: Colors.gold, banks: 'CAMS · KFintech MF holdings' },
-];
-
-function AAProviderCard({ provider }: { provider: typeof AA_PROVIDERS[0] }) {
-  return (
-    <TouchableOpacity
-      style={[styles.providerCard, { borderColor: provider.color + '30' }]}
-      onPress={() => {
-        Haptics.selectionAsync();
-        Alert.alert(
-          `Connect ${provider.name}`,
-          `To connect ${provider.name}, you need to register as a Financial Information User (FIU) at their portal.\n\nDemo mode is available — tap Demo to see simulated data.`,
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Demo Mode', onPress: () => Alert.alert('Demo', 'Demo sync would populate 6 months of transactions and 3 MF holdings.') },
-          ]
-        );
-      }}
-      activeOpacity={0.8}
-    >
-      <View style={styles.providerTop}>
-        <Text style={styles.providerLogo}>{provider.logo}</Text>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.providerName}>{provider.name}</Text>
-          <Text style={styles.providerBanks}>{provider.banks}</Text>
-        </View>
-        {provider.popular && (
-          <View style={styles.popularBadge}>
-            <Text style={styles.popularText}>⭐ Popular</Text>
-          </View>
-        )}
-      </View>
-      <View style={[styles.connectBtn, { borderColor: provider.color + '50', backgroundColor: provider.color + '12' }]}>
-        <Text style={[styles.connectBtnText, { color: provider.color }]}>Connect {provider.name}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-}
 
 export default function TrackScreen() {
   const { ctx, loading, refresh } = useFinosContext();
@@ -84,7 +41,7 @@ export default function TrackScreen() {
 
       {/* ── Income vs Expense ── */}
       <View style={styles.ieRow}>
-        <MetricCard label="Income" value={formatINR(ctx.monthlyIncome)} accent={Colors.teal} icon="💰" style={{ flex: 1 }} sub={ctx.aaIncome > 0 ? 'from AA' : 'from profile'} />
+        <MetricCard label="Income" value={formatINR(ctx.monthlyIncome)} accent={Colors.teal} icon="💰" style={{ flex: 1 }} sub={ctx.aaIncome > 0 ? 'from imported data' : 'from profile'} />
         <MetricCard label="Expense" value={formatINR(ctx.monthlyExpense)} accent={Colors.gold} icon="💸" style={{ flex: 1 }} sub={`${spendPct}% of income`} />
       </View>
 
@@ -109,24 +66,28 @@ export default function TrackScreen() {
         </View>
       )}
 
-      {/* ── Account Aggregator ── */}
+      {/* ── Getting your transactions in (honest about what exists) ── */}
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Account Aggregator</Text>
-        <Text style={styles.sectionSub}>RBI-regulated · End-to-end encrypted</Text>
+        <Text style={styles.sectionTitle}>Bring in your transactions</Text>
+        <Text style={styles.sectionSub}>Nothing leaves your device unless you sign in to sync</Text>
       </View>
+
+      <TouchableOpacity style={styles.manualCard} activeOpacity={0.8}
+        onPress={() => { Haptics.selectionAsync(); router.push('/tracker/transactions' as any); }} accessibilityRole="button">
+        <Text style={styles.manualTitle}>✍️ Log them here</Text>
+        <Text style={styles.manualSub}>Add a transaction in a few taps, repeat a recent one, or set up monthly entries for rent and SIPs. Tap to open.</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.manualCard} activeOpacity={0.8}
+        onPress={() => { Haptics.selectionAsync(); router.push('/tracker/import' as any); }} accessibilityRole="button">
+        <Text style={styles.manualTitle}>📄 Import a bank statement</Text>
+        <Text style={styles.manualSub}>Pick your bank's CSV (or paste it). It is read on this phone — nothing is uploaded — with a preview first and a one-tap undo. Tap to open.</Text>
+      </TouchableOpacity>
 
       <View style={styles.aaInfoBox}>
         <Text style={styles.aaInfoText}>
-          🔒 Connect your bank accounts for automatic transaction sync. FIN·OS runs locally — your data never leaves your device.
+          🔗 Account Aggregator (automatic bank sync) is not connected yet — FIN·OS has no live provider integration, so there is nothing to link here.
         </Text>
-      </View>
-
-      {AA_PROVIDERS.map(p => <AAProviderCard key={p.id} provider={p} />)}
-
-      {/* ── Manual Entry Prompt ── */}
-      <View style={styles.manualCard}>
-        <Text style={styles.manualTitle}>📱 Manual Entry</Text>
-        <Text style={styles.manualSub}>Don't have an AA account yet? Open FIN·OS on the web to use the Document AI feature — upload your bank statement and it auto-fills your data.</Text>
       </View>
     </ScrollView>
   );

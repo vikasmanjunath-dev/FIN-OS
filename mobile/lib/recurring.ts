@@ -1,5 +1,5 @@
 // Recurring entries (rent, SIP, subscriptions, salary…): pure scheduling logic.
-import { Kind, ymd } from '@/lib/budget';
+import { type Kind, ymd } from '@/lib/budget';
 
 export interface Recurring {
   id: string;

@@ -9,6 +9,7 @@ import { loadSavedHost } from '@/constants/endpoints';
 import { AuthProvider } from '@/hooks/useAuth';
 import { touchStreak } from '@/lib/trackerStorage';
 import { syncRecurring } from '@/lib/recurringStorage';
+import { startTrackerSync } from '@/lib/trackerSyncStore';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -16,6 +17,7 @@ export default function RootLayout() {
   useEffect(() => {
     touchStreak();
     syncRecurring();
+    startTrackerSync();
     loadSavedHost().finally(() => SplashScreen.hideAsync());
   }, []);
 
@@ -27,6 +29,8 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="settings" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
+        <Stack.Screen name="privacy" options={{ presentation: 'modal', headerShown: false }} />
+        <Stack.Screen name="terms" options={{ presentation: 'modal', headerShown: false }} />
       </Stack>
       </AuthProvider>
     </View>

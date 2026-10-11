@@ -103,6 +103,13 @@ export default function LoginScreen() {
         <TouchableOpacity style={styles.guest} onPress={close}>
           <Text style={styles.guestTxt}>Continue as guest</Text>
         </TouchableOpacity>
+
+        <Text style={[styles.guestTxt, { textAlign: 'center', marginTop: Spacing.lg, lineHeight: 19 }]}>
+          By signing in you agree to the{' '}
+          <Text style={{ color: Colors.cyan, fontWeight: '700' }} onPress={() => router.push('/terms' as any)}>terms of use</Text>
+          {' '}and have seen{' '}
+          <Text style={{ color: Colors.cyan, fontWeight: '700' }} onPress={() => router.push('/privacy' as any)}>what is stored and sent</Text>.
+        </Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );

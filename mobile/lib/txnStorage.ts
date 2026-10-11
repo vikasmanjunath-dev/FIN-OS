@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { IndexedTxn, Kind, normalizeAll, toRaw } from '@/lib/budget';
+import { type IndexedTxn, type Kind, normalizeAll, toRaw } from '@/lib/budget';
+import { toLedger, mergeLedger, undoBatch } from '@/lib/statementImport';
 
 // Same key the website uses. The array can hold records from the website, bank sync and the voice
 // journal in other shapes, so edits operate on the RAW array by index and never rewrite foreign records.
@@ -79,4 +80,52 @@ export function removeTransaction(id: string): Promise<boolean> {
     await writeRaw(raw);
     return true;
   });
+}
+
+// ── Bank statement import ────────────────────────────────────────────────────
+// Imported rows are stored in the website's ledger shape ({ id, type:'credit'|'debit', desc, category, date, src:'import', batch })
+// so the website reads them unchanged. Merging never duplicates what is already there, and a batch can be undone as a whole.
+
+export interface ImportRow { date: string; desc: string; type: 'credit' | 'debit'; amount: number; balance?: number | null; ref?: string | null }
+export interface ImportBatchInfo { batch: string; count: number; from: string; to: string }
+
+/** Add statement rows. Returns how many were new and how many were already there. */
+export function importStatementRows(rows: ImportRow[], batch = `imp_${Date.now().toString(36)}`): Promise<{ added: number; duplicates: number; batch: string }> {
+  return exclusive(async () => {
+    const raw = await readRaw();
+    const { merged, added, duplicates } = mergeLedger(raw, toLedger(rows, { batch }));
+    if (added) await writeRaw(merged);
+    return { added, duplicates, batch };
+  });
+}
+
+/** Before saving: how many of these rows are new and how many are already in the list (nothing is written). */
+export async function previewImport(rows: ImportRow[]): Promise<{ added: number; duplicates: number }> {
+  const { added, duplicates } = mergeLedger(await readRaw(), toLedger(rows, { batch: 'preview' }));
+  return { added, duplicates };
+}
+
+/** Remove everything one import added. Returns how many records were removed. */
+export function undoImportBatch(batch: string): Promise<number> {
+  return exclusive(async () => {
+    const raw = await readRaw();
+    const next = undoBatch(raw, batch);
+    const removed = raw.length - next.length;
+    if (removed) await writeRaw(next);
+    return removed;
+  });
+}
+
+export async function listImportBatches(): Promise<ImportBatchInfo[]> {
+  const by = new Map<string, ImportBatchInfo>();
+  for (const t of await readRaw()) {
+    if (!t || t.src !== 'import' || typeof t.batch !== 'string') continue;
+    const day = String(t.date ?? '').slice(0, 10);
+    const b = by.get(t.batch) ?? { batch: t.batch, count: 0, from: day, to: day };
+    b.count++;
+    if (day && (!b.from || day < b.from)) b.from = day;
+    if (day && day > b.to) b.to = day;
+    by.set(t.batch, b);
+  }
+  return [...by.values()].sort((a, b) => (a.to < b.to ? 1 : -1));
 }

@@ -16,11 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.finos.mobile",
-      "infoPlist": {
-        "NSMicrophoneUsageDescription": "FIN·OS uses the microphone to power Arya AI voice commands.",
-        "NSCameraUsageDescription": "FIN·OS uses the camera to scan UPI QR codes and receipts.",
-        "NSSpeechRecognitionUsageDescription": "FIN·OS uses speech recognition for Arya AI voice input."
-      }
+      "infoPlist": {}
     },
     "android": {
       "adaptiveIcon": {
@@ -28,8 +24,6 @@
         "backgroundColor": "#080B14"
       },
       "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.CAMERA",
         "android.permission.INTERNET"
       ],
       "package": "com.finos.mobile"
@@ -41,7 +35,6 @@
     },
     "plugins": [
       "expo-router",
-      "expo-av",
       [
         "expo-splash-screen",
         {

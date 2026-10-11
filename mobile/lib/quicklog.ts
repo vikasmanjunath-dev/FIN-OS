@@ -1,5 +1,5 @@
 // Quick-log suggestions: the entries you repeat most, ready to log again in one tap. Pure functions.
-import { IndexedTxn, Kind } from '@/lib/budget';
+import type { IndexedTxn, Kind } from '@/lib/budget';
 
 export interface QuickChip {
   key: string;
