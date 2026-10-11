@@ -127,6 +127,17 @@ if (_finosJsBase) {
   }
 }
 
+/* Opt-in usage counts (Privacy & your data → 'usage'): nothing is downloaded for anyone who has not switched it on. */
+try {
+  if (_finosJsBase && !window.FinosFeedback && JSON.parse(localStorage.getItem('finos_consents') || '{}').usage.granted === true) {
+    var _pv = document.createElement('script'), _fb = document.createElement('script');
+    _pv.src = _finosJsBase + 'finos-privacy.js'; _fb.src = _finosJsBase + 'finos-feedback.js';
+    _pv.onload = function () { document.head.appendChild(_fb); };
+    _fb.onload = function () { window.FinosFeedback.Usage.count(location.pathname); };
+    document.head.appendChild(_pv);
+  }
+} catch (e) { /* no consent record, or private mode: nothing to do */ }
+
 if (_finosJsBase && !window.FinosI18n) {
   var _lang = 'en';
   try { _lang = localStorage.getItem('finos_lang') || 'en'; } catch (e) { /* private mode */ }

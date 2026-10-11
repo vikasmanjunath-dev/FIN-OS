@@ -152,7 +152,10 @@
         if (m === 2) {
           return `Tax season ka last stretch! Teri 80C mein ${INR(gap80c)} ka gap hai abhi. ELSS, PPF, NPS — kaunsa best hai teri situation ke liye? Calculate karoon?`;
         }
-        return `Advance tax deadline aa rahi hai. Teri income pe roughly ${INR(estimateQtrTax(ctx))} is quarter. Miss mat karna — 1% monthly interest lagti hai. Exact amount calculate karoon?`;
+        const qtr = estimateQtrTax(ctx);
+        if (qtr === null) return 'Advance tax deadline aa rahi hai. Agar teri tax liability ₹10,000 se zyada hai toh miss mat karna — 1% monthly interest lagti hai. Exact amount calculate karoon?';
+        if (qtr === 0) return 'Advance tax deadline aa rahi hai. Teri income pe abhi koi tax nahi banta, par agar liability ₹10,000 se zyada ho toh miss mat karna — 1% monthly interest lagti hai. Exact amount calculate karoon?';
+        return `Advance tax deadline aa rahi hai. Teri income pe roughly ${INR(qtr)} is quarter. Miss mat karna — 1% monthly interest lagti hai. Exact amount calculate karoon?`;
       }
     },
 
@@ -283,14 +286,13 @@
 
   /* ── Advance tax quarterly estimate ────────────────────────────────── */
   function estimateQtrTax(ctx) {
+    // FY 2025-26 maths comes from js/finos-taxcore.js (loaded by arya-lazy.js). Without it, or without an income, say nothing
+    // rather than guess: null means "no estimate".
+    const Core = global.FinosTaxCore;
     const annual = safeNum(ctx?.budget_tracker?.income_monthly) * 12;
-    const taxable = Math.max(0, annual - 150000);
-    let tax = 0;
-    if (taxable > 1500000) tax = 187500 + (taxable - 1500000) * 0.30;
-    else if (taxable > 1200000) tax = 112500 + (taxable - 1200000) * 0.25;
-    else if (taxable > 900000) tax = 52500 + (taxable - 900000) * 0.20;
-    else if (taxable > 600000) tax = 22500 + (taxable - 600000) * 0.10;
-    else if (taxable > 300000) tax = (taxable - 300000) * 0.05;
+    if (!Core || !(annual > 0)) return null;
+    // The cheaper of the new regime and the old regime with the ₹50,000 standard deduction plus a typical ₹1.5L of 80C.
+    const tax = Math.min(Core.taxNew(Math.max(0, annual - Core.STD_NEW)), Core.taxOld(Math.max(0, annual - Core.STD_OLD - 150000)));
     return Math.round(tax / 4);
   }
 

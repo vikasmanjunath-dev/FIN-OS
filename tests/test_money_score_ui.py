@@ -294,3 +294,104 @@ def test_prefilled_form_has_no_axe_violations(env, theme):
     assert bad == [], bad
     assert not errors
     ctx.close()
+
+
+# ── what-if explorer ──────────────────────────────────────────────────────────────────────────────────────────
+def score_thin(pg):
+    fill(pg, THIN)
+    pg.click("#ms-calc")
+    pg.wait_for_selector(".ms-result #ms-wi")
+
+
+def drag(pg, key, value):
+    pg.evaluate("([k, v]) => { const r = document.getElementById('ms-wi-' + k); r.value = v; r.dispatchEvent(new Event('input', {bubbles: true})); }", [key, str(value)])
+
+
+def test_what_if_panel_shows_the_hand_checked_effect_of_a_full_emergency_cushion(env):
+    ctx, pg, errors = open_page(env)
+    score_thin(pg)
+    assert pg.locator(".ms-wi-in").count() == 6
+    assert "Move a slider to see the effect" in pg.inner_text("#ms-wi-out")
+    drag(pg, "cashAdd", 440000)
+    assert pg.inner_text("#ms-wi-cashAdd-v") == "₹4.40 L"
+    out = pg.inner_text("#ms-wi-out")
+    assert "Your score would be 51 (now 35), +16 points" in out
+    assert "Emergency fund 19 → 100" in pg.inner_text("#ms-wi-pillars").replace("\n", " ")
+    assert "moves you from Needs attention to Getting there" in out            # 35 is below 40, 51 is in the 40-59 band
+    assert not errors
+    ctx.close()
+
+
+def test_what_if_never_touches_the_real_score_or_what_is_saved(env):
+    ctx, pg, errors = open_page(env)
+    score_thin(pg)
+    before = pg.evaluate("localStorage.getItem('finos_money_score')")
+    drag(pg, "cashAdd", 440000)
+    drag(pg, "spendLess", 20000)
+    assert pg.get_attribute(".ms-ring", "aria-label") == "Money Score 35 out of 100"
+    assert pg.evaluate("localStorage.getItem('finos_money_score')") == before
+    assert json_len(pg.evaluate("localStorage.getItem('finos_money_score_history')")) == 1
+    ctx.close()
+
+
+def json_len(raw):
+    return len(json.loads(raw)) if raw else 0
+
+
+def test_what_if_warns_when_a_plan_spends_more_than_is_earned_and_reset_clears_it(env):
+    ctx, pg, errors = open_page(env)
+    score_thin(pg)
+    drag(pg, "investMore", 20000)                                               # invest ₹20,000 more without cutting anything: 5,000 − 20,000
+    assert "spends ₹15,000 a month more than you earn" in pg.inner_text("#ms-wi-surplus")
+    assert "warn" in pg.get_attribute("#ms-wi-surplus", "class")
+    drag(pg, "spendLess", 20000)
+    assert "₹5,000 left each month" in pg.inner_text("#ms-wi-surplus")          # 1,00,000 − 50,000 − 20,000 − 25,000
+    pg.click("#ms-wi-reset")
+    assert pg.input_value("#ms-wi-investMore") == "0" and pg.input_value("#ms-wi-spendLess") == "0"
+    assert "Move a slider to see the effect" in pg.inner_text("#ms-wi-out")
+    assert pg.inner_text("#ms-wi-surplus") == ""
+    assert not errors
+    ctx.close()
+
+
+def test_what_if_sliders_work_from_the_keyboard(env):
+    ctx, pg, errors = open_page(env)
+    score_thin(pg)
+    pg.focus("#ms-wi-cashAdd")
+    pg.keyboard.press("End")
+    assert pg.input_value("#ms-wi-cashAdd") == "440000"
+    assert "would be 51" in pg.inner_text("#ms-wi-out")
+    pg.keyboard.press("Home")
+    assert "Move a slider" in pg.inner_text("#ms-wi-out")
+    assert pg.get_attribute("#ms-wi-out", "aria-live") == "polite"               # announced to screen readers
+    ctx.close()
+
+
+def test_what_if_hides_levers_that_do_not_apply(env):
+    ctx, pg, errors = open_page(env)
+    fill(pg, SAVER_PROFILE)                                                     # no EMI, full cushion, full cover
+    pg.click("#ms-calc")
+    pg.wait_for_selector("#ms-wi")
+    ids = pg.locator(".ms-wi-in").evaluate_all("els => els.map(e => e.dataset.k)")
+    assert ids == ["spendLess", "investMore"], ids
+    ctx.close()
+
+
+SAVER_PROFILE = {"age": 30, "dependents": 1, "monthlyIncome": 100000, "monthlyExpenses": 85000, "monthlyEmi": 0, "monthlyInvesting": 15000,
+                 "liquidSavings": 600000, "investedTotal": 1200000, "termCover": 12000000, "healthCover": 750000}
+
+
+@pytest.mark.parametrize("theme", ["dark", "light"])
+def test_what_if_panel_phone_layout_and_axe_with_sliders_moved(env, theme):
+    axe = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "node_modules", "axe-core", "axe.min.js")
+    ctx, pg, errors = open_page(env, width=375, init_script=f"localStorage.setItem('finos-theme', '{theme}')")
+    score_thin(pg)
+    drag(pg, "cashAdd", 440000)
+    drag(pg, "investMore", 20000)                                               # also shows the warning state
+    assert pg.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), "what-if overflows a phone"
+    if os.path.exists(axe):
+        pg.add_script_tag(path=axe)
+        bad = pg.evaluate("axe.run('#ms-wi', {runOnly: ['wcag2a', 'wcag2aa']}).then(r => r.violations.map(v => v.id + ': ' + v.nodes.map(n => n.target.join(' ')).join(', ')))")
+        assert bad == [], bad
+    assert not errors
+    ctx.close()

@@ -16,18 +16,31 @@
   if (window.AryaSidebar || window._aryaLazy) return;
   var me = document.currentScript;
   var src = me && me.src ? me.src.replace(/arya-lazy\.js(\?.*)?$/, 'arya-sidebar-panel.js?v=2') : '../js/arya-sidebar-panel.js?v=2';
+  var coreSrc = me && me.src ? me.src.replace(/arya-lazy\.js(\?.*)?$/, 'finos-taxcore.js') : '../js/finos-taxcore.js';
   var loading = null;
   var IDLE_MS = 2500;
+
+  /* The ~4 KB shared tax core goes first, so the panel's tax tools and the advance-tax nudge can rely on FinosTaxCore.
+     It never blocks the panel: on any failure the panel still loads and those features simply say nothing. */
+  function loadTaxCore(done) {
+    if (window.FinosTaxCore) return done();
+    var c = document.createElement('script');
+    c.src = coreSrc;
+    c.onload = c.onerror = function () { done(); };
+    document.head.appendChild(c);
+  }
 
   function load() {
     if (loading) return loading;
     removeTriggers();
     loading = new Promise(function (resolve) {
-      var s = document.createElement('script');
-      s.src = src;
-      s.onload = function () { resolve(window.AryaSidebar); };
-      s.onerror = function () { loading = null; resolve(null); };      // allow a retry on the next trigger
-      document.head.appendChild(s);
+      loadTaxCore(function () {
+        var s = document.createElement('script');
+        s.src = src;
+        s.onload = function () { resolve(window.AryaSidebar); };
+        s.onerror = function () { loading = null; resolve(null); };      // allow a retry on the next trigger
+        document.head.appendChild(s);
+      });
     });
     return loading;
   }

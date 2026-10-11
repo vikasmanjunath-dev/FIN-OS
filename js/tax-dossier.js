@@ -21,34 +21,12 @@
     return '₹' + Math.round(n).toLocaleString('en-IN');
   };
 
-  /* ── Tax slabs FY 2025-26 ──────────────────────────────────────── */
-  function calcOldRegimeTax(taxable) {
-    if (taxable <= 250000) return 0;
-    let tax = 0;
-    if (taxable > 1000000) tax += (taxable - 1000000) * 0.30;
-    if (taxable > 500000)  tax += (Math.min(taxable, 1000000) - 500000) * 0.20;
-    if (taxable > 250000)  tax += (Math.min(taxable, 500000) - 250000) * 0.05;
-    if (taxable <= 500000) tax = Math.max(0, tax - 12500); // 87A rebate
-    return Math.round(tax * 1.04); // + 4% cess
-  }
-
-  function calcNewRegimeTax(taxable) {
-    if (taxable <= 400000) return 0;
-    let tax = 0;
-    const slabs = [
-      [400000, 800000, 0.05],
-      [800000, 1200000, 0.10],
-      [1200000, 1600000, 0.15],
-      [1600000, 2000000, 0.20],
-      [2000000, 2400000, 0.25],
-      [2400000, Infinity, 0.30],
-    ];
-    slabs.forEach(([lo, hi, rate]) => {
-      if (taxable > lo) tax += (Math.min(taxable, hi) - lo) * rate;
-    });
-    if (taxable <= 1200000) tax = Math.max(0, tax - 60000); // 87A rebate
-    return Math.round(tax * 1.04); // + 4% cess
-  }
+  /* ── Income tax FY 2025-26 ───────────────────────────────────────
+     Slabs, Sec 87A rebate (with marginal relief above ₹12L on the new regime) and 4% cess live in ONE place, js/finos-taxcore.js.
+     This file used to carry its own copy with a flat ₹60,000 rebate, which made tax jump by ₹62,400 for a ₹1 raise at ₹12L.
+     Surcharge on income above ₹50L is not modelled. */
+  function calcOldRegimeTax(taxable) { return global.FinosTaxCore.taxOld(taxable); }
+  function calcNewRegimeTax(taxable) { return global.FinosTaxCore.taxNew(taxable); }
 
   /* ── Advance tax dates FY 2025-26 ─────────────────────────────── */
   const ADVANCE_TAX_DATES = [

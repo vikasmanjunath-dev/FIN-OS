@@ -5,15 +5,17 @@
   <meta charset="UTF-8" />
   <title>Old vs New Regime • FIN-OS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../../js/finos-prefs.js?v=2"></script>
   <link rel="stylesheet" href="../../css/design-tokens.css">
-  <link rel="stylesheet" href="../../css/base.css">
-  <link rel="stylesheet" href="../../css/layout.css?v=3">
-  <link rel="stylesheet" href="../../css/components.css">
-  <link rel="stylesheet" href="../../css/theme.css">
+  <link rel="stylesheet" href="../../css/base.css?v=2">
+  <link rel="stylesheet" href="../../css/layout.css?v=4">
+  <link rel="stylesheet" href="../../css/components.css?v=2">
+  <link rel="stylesheet" href="../../css/theme.css?v=2">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../../js/finos-taxcore.js"></script>
   <script src="../../js/finos-context.js?v=4"></script>
   <script src="../../js/finos-a11y.js"></script>
-  <script src="../../js/arya-ai.js?v=7"></script>
+  <script src="../../js/arya-ai.js?v=8"></script>
   <style>
     
     
@@ -84,7 +86,7 @@
     <header class="page-header">
       <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
       <h1>Old vs New Tax Regime</h1>
-      <p>Compare tax liability for FY 2024-25.</p>
+      <p>Compare tax liability for FY 2025-26. Surcharge on income above ₹50 lakh is not included.</p>
     </header>
 
     <a href="../../html/itr-summary.html" class="related-tool-link">🔗 Filing season? Use the <strong>ITR Filing Prep Kit</strong> — full computation, deductions, and regime comparison auto-filled from your real data →</a>
@@ -182,40 +184,15 @@ const chart = new Chart(ctx, {
 });
 
 function calculateTax(income, regime) {
-    let tax = 0;
-    
-    if (regime === 'new') {
-        // New Regime FY 24-25
-        const stdDed = 75000; 
-        let taxable = income - stdDed;
-        if (taxable <= 300000) return 0;
-        
-        // Rebate u/s 87A if income <= 7L
-        if (taxable <= 700000) return 0;
+    // FY 2025-26, from the shared tax core (js/finos-taxcore.js): slabs, Sec 87A rebate, marginal relief and 4% cess.
+    income = Math.max(0, Number(income) || 0);
+    if (regime === 'new') return FinosTaxCore.taxNew(income - FinosTaxCore.STD_NEW);
 
-        // Slabs
-        if (taxable > 300000) tax += Math.min(taxable - 300000, 400000) * 0.05; // 3-7L @ 5%
-        if (taxable > 700000) tax += Math.min(taxable - 700000, 300000) * 0.10; // 7-10L @ 10%
-        if (taxable > 1000000) tax += Math.min(taxable - 1000000, 200000) * 0.15; // 10-12L @ 15%
-        if (taxable > 1200000) tax += Math.min(taxable - 1200000, 300000) * 0.20; // 12-15L @ 20%
-        if (taxable > 1500000) tax += (taxable - 1500000) * 0.30; // >15L @ 30%
-        
-    } else {
-        // Old Regime
-        const stdDed = 50000;
-        const deductions = (+els.cN.value) + (+els.dN.value) + (+els.hN.value);
-        let taxable = income - stdDed - deductions;
-        
-        // Rebate u/s 87A if taxable <= 5L
-        if (taxable <= 500000) return 0;
-
-        if (taxable > 250000) tax += Math.min(taxable - 250000, 250000) * 0.05; // 2.5-5L
-        if (taxable > 500000) tax += Math.min(taxable - 500000, 500000) * 0.20; // 5-10L
-        if (taxable > 1000000) tax += (taxable - 1000000) * 0.30; // >10L
-    }
-    
-    // Add 4% Cess
-    return tax * 1.04;
+    // Old regime: standard deduction plus what the user claims. 80C and 80D have legal caps, whatever is typed in the box.
+    const c80 = Math.min(Math.max(0, +els.cN.value || 0), 150000);
+    const d80 = Math.min(Math.max(0, +els.dN.value || 0), 100000);
+    const other = Math.max(0, +els.hN.value || 0);
+    return FinosTaxCore.taxOld(income - FinosTaxCore.STD_OLD - c80 - d80 - other);
 }
 
 function format(num) { return "₹" + Math.round(num).toLocaleString(); }
@@ -249,7 +226,7 @@ function calculate() {
 Object.values(els).forEach(el => el.addEventListener('input', calculate));
 calculate();
 </script>
-<script src="../../js/calc-explainer.js?v=2"></script>
-<script src="../../js/finos-widget.js?v=10"></script>
+<script src="../../js/calc-explainer.js?v=3"></script>
+<script src="../../js/finos-widget.js?v=11"></script>
 </body>
 </html>

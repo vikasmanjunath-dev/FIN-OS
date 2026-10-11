@@ -65,11 +65,13 @@ def test_editing_a_limit_persists_and_updates_status(env):
     base, browser = env
     ctx, pg = page_with(browser, base, MIXED, {"Food & Dining": 10000})
     inp = pg.locator('input[data-cat="Food & Dining"]')
-    inp.fill("20000"); inp.dispatch_event("change")
+    # The limit must stay "On track" on every day of the month. From day 7 the budget projects the month's pace
+    # (₹9,200 by the 8th projects to about ₹35,000), so a ₹20,000 limit made this pass only on days 1-6.
+    inp.fill("200000"); inp.dispatch_event("change")
     pg.wait_for_function("document.querySelector('#finos-budget-card').innerText.includes('On track')")
-    assert json.loads(pg.evaluate("localStorage.getItem('finos_budgets')"))["limits"]["Food & Dining"] == 20000
+    assert json.loads(pg.evaluate("localStorage.getItem('finos_budgets')"))["limits"]["Food & Dining"] == 200000
     pg.reload(wait_until="domcontentloaded"); pg.wait_for_selector("#finos-budget-card section")
-    assert pg.locator('input[data-cat="Food & Dining"]').input_value() == "20000"
+    assert pg.locator('input[data-cat="Food & Dining"]').input_value() == "200000"
     ctx.close()
 
 

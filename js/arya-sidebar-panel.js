@@ -1338,6 +1338,24 @@ RULES (non-negotiable):
     return nudges.slice(0, 3); // max 3 nudges to avoid overwhelming
   }
 
+  /* ══ TAX PLAN (shared by the optimize_tax tool and the Tax Optimizer widget) ══════════════════════════
+     The maths is js/finos-taxcore.js (FY 2025-26). Deductions (80C, 80D, NPS 80CCD(1B)) only exist in the OLD regime, so a
+     "saving" is real only when the old regime would beat what the new regime already charges: for most incomes it would not.
+     This replaces a made-up marginal-rate ladder that promised savings regardless. Returns null if the core or the income is missing. */
+  function _taxPlan(annualIncome, c80, hi, nps) {
+    const Core = window.FinosTaxCore;
+    if (!Core || !(annualIncome > 0)) return null;
+    const usedHi = Math.min(25000, Math.max(0, hi || 0)), usedNps = Math.min(50000, Math.max(0, nps || 0));
+    const plan = Core.savingsPlan(annualIncome, [
+      { id: 's80c', maxDeduction: 150000, kind: 'core' },
+      { id: 's80d', maxDeduction: 25000 - usedHi, kind: 'core' },
+      { id: 'nps',  maxDeduction: 50000 - usedNps, kind: 'core' },
+    ], { alreadyClaimed80c: Math.min(150000, Math.max(0, c80 || 0)), alreadyClaimedOther: usedHi + usedNps });
+    const rows = {};
+    plan.sections.forEach(r => { rows[r.id] = r; });
+    return { plan, rows };
+  }
+
   /* ══ MONEY SCORE ═════════════════════════════════════════════════════════
      Reads the result js/finos-money-score.js saves to `finos_money_score`, so PULSE never has to load the scoring code.
      No score yet → an invitation. Links are limited to our own ../html and ../calculators pages. */
@@ -2234,25 +2252,25 @@ ALLOCATION CHECK (Age ${age}):
           const hi     = n(get('finos_health_insurance','0'));
           const nps    = n(get('finos_nps_amount','0'));
           const hra    = n(get('finos_hra_received','0'));
-          const taxable = Math.max(0, inc - 50000); // standard deduction
-          let rate = taxable > 1500000 ? 0.30 : taxable > 1200000 ? 0.20 : taxable > 1000000 ? 0.15 : taxable > 700000 ? 0.10 : taxable > 300000 ? 0.05 : 0;
-          const rem80c   = Math.max(0, 150000 - c80);
-          const rem80d   = Math.max(0, 25000  - hi);
-          const rem80ccd = Math.max(0, 50000  - nps);
-          const totalRem = rem80c + rem80d + rem80ccd;
-          const extraSave = Math.round(totalRem * rate);
-          const priority = rem80c > 0 ? `Fill 80C first — ${INR(rem80c)} room → invest in ELSS or PPF` : rem80ccd > 0 ? `Add NPS 80CCD(1B) — ${INR(rem80ccd)} room → save ₹${Math.round(rem80ccd*rate).toLocaleString('en-IN')}` : '🎉 You are fully tax-optimized!';
+          const tp     = _taxPlan(inc, c80, hi, nps);
+          if (!tp) return 'TAX OPTIMIZATION: I need your annual income to work this out (or the tax engine has not finished loading). Tell me your income and ask again.';
+          const { plan, rows } = tp;
+          const verdict = plan.newBeatsOldEvenOptimised
+            ? `The NEW regime is already cheaper by ${INR(plan.oldMinusNew)} even if you max out 80C, 80D and NPS, so those deductions would NOT lower your tax unless you switch regime.` + (plan.breakEvenDeductions ? ` The old regime only wins once your TOTAL deductions (HRA and home-loan interest included) pass about ${INR(plan.breakEvenDeductions)}.` : '')
+            : plan.potential > 0 ? `The OLD regime wins if you use the room below. It would save about ${INR(plan.potential)} more than you pay now.` : 'The old regime is already the cheaper option at your current deductions.';
+          const line = (label, used, limit, id) => `  ${label}: ${INR(used)} used / ${limit} limit | Room: ${INR(rows[id].headroom)}` + (plan.potential > 0 && rows[id].taxSaved > 0 ? ` → about ${INR(rows[id].taxSaved)} less tax` : '');   // a per-line saving only when the old regime would actually win
           return `TAX OPTIMIZATION (FY 2025-26):
-Annual income: ${INR(inc)} | Marginal rate: ${(rate*100).toFixed(0)}% | Std deduction: ₹50,000
+Annual income: ${INR(inc)}
+Tax now: ${INR(plan.current)} (${plan.currentRegime === 'new' ? 'new' : 'old'} regime is cheaper for you)
+  New regime: ${INR(plan.newTax)} | Old regime with what you claim: ${INR(plan.oldNow)} | Old regime with every core deduction maxed: ${INR(plan.oldOpt)}
 
-DEDUCTIONS STATUS (Old Regime):
-  80C  (ELSS/PPF/LIC): ${INR(c80)} used / ₹1.5L limit | Room: ${INR(rem80c)} → saves ${INR(Math.round(rem80c*rate))}
-  80D  (Health insur): ${INR(hi)} used / ₹25K limit    | Room: ${INR(rem80d)} → saves ${INR(Math.round(rem80d*rate))}
-  80CCD(1B) NPS extra: ${INR(nps)} used / ₹50K limit   | Room: ${INR(rem80ccd)} → saves ${INR(Math.round(rem80ccd*rate))}
-${hra > 0 ? `  HRA exempt: ${INR(hra)} (check 10(13A) exemption)` : ''}
+VERDICT: ${verdict}
 
-TOTAL ADDITIONAL TAX SAVINGS POSSIBLE: ${INR(extraSave)}
-PRIORITY ACTION: ${priority}`;
+DEDUCTIONS (these exist only in the OLD regime):
+${line('80C  (ELSS/PPF/LIC)', c80, '₹1.5L', 's80c')}
+${line('80D  (Health insur)', hi, '₹25K', 's80d')}
+${line('80CCD(1B) NPS extra', nps, '₹50K', 'nps')}
+${hra > 0 ? `  HRA received: ${INR(hra)} (check the 10(13A) exemption; it only helps in the old regime)\n` : ''}Surcharge on income above ₹50L is not included.`;
         }
 
         case 'calc_insurance': {
@@ -2413,24 +2431,30 @@ SAVINGS+INVEST (${ss}% = ${INR(SA)}):
           const contrib  = Math.min(n(args.contribution || 50000), 50000);
           const inc      = ctxInc() * 12;
           const age      = parseInt(get('finos_age','30'));
-          const rate     = inc > 1500000 ? 0.30 : inc > 1000000 ? 0.20 : inc > 700000 ? 0.10 : 0.05;
-          const taxSaved = Math.round(contrib * rate);
+          const Core     = window.FinosTaxCore;
+          const taxPlan  = Core && inc > 0 ? Core.savingsPlan(inc, [{ id: 'nps', maxDeduction: contrib, kind: 'core' }], {
+            alreadyClaimed80c: Math.min(150000, n(get('finos_investments_80c','0'))),
+            alreadyClaimedOther: Math.min(25000, n(get('finos_health_insurance','0'))) + Math.min(50000, n(get('finos_nps_amount','0'))),
+          }) : null;
+          const taxSaved = taxPlan ? taxPlan.potential : 0;          // real saving vs what you pay now, so 0 when the new regime already wins
           const yrs      = Math.max(1, 60 - age);
           const rMo      = 0.10/12;
           const mo       = yrs*12;
           const mnthly   = contrib/12;
           const corpus   = mnthly * (Math.pow(1+rMo,mo)-1)/rMo*(1+rMo);
+          const taxLine  = !taxPlan ? 'Tax saving: not calculated (income unknown or the tax engine has not loaded).'
+            : taxPlan.newBeatsOldEvenOptimised ? 'Tax saving: ₹0 for you. The NEW regime is already cheaper, and the 80CCD(1B) deduction only exists in the OLD regime. (Employer NPS under 80CCD(2) works in both regimes.)'
+            : `Annual tax saving in the old regime: about ${INR(taxSaved)}`;
           return `NPS 80CCD(1B) ANALYSIS:
 Annual contribution: ${INR(contrib)} (max ₹50,000 for this deduction)
-Marginal tax rate: ${(rate*100).toFixed(0)}%
-Annual tax saving: ${INR(taxSaved)} (instant ${(rate*100).toFixed(0)}% return!)
+${taxLine}
 
 RETIREMENT CORPUS (${yrs} years at 10% NPS return):
 Monthly NPS: ${INR(Math.round(mnthly))}/mo → Corpus at 60: ${INR(Math.round(corpus))}
 60% lump sum: ${INR(Math.round(corpus*0.60))} (tax-free)
 40% annuity: ~${INR(Math.round(corpus*0.40/12/15))}/month pension
 
-${rate >= 0.20 ? '⭐ HIGHLY RECOMMENDED for your tax bracket — effectively a risk-free 20-30% return.' : 'Good option if you are close to 30% bracket.'}`;
+${taxSaved > 0 ? 'Worth considering: the deduction lowers your tax in the old regime.' : 'Judge NPS on its retirement benefit, not on tax: the deduction does not reduce your tax in the better regime.'}`;
         }
 
         case 'assess_risk': {
@@ -5317,30 +5341,30 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
     const hi   = parseFloat(get('finos_health_insurance','0')) || 0;
     const nps  = parseFloat(get('finos_nps_amount','0'))       || 0;
     const inc  = (resolveInc() || 0) * 12;
-    const taxable = Math.max(0, inc - 50000);
-    const rate = taxable > 1500000 ? 30 : taxable > 1200000 ? 20 : taxable > 1000000 ? 15 : taxable > 700000 ? 10 : taxable > 300000 ? 5 : 0;
+    const tp = _taxPlan(inc, c80, hi, nps);                // null until the tax core and an income are available
+    const plan = tp ? tp.plan : null;
 
     const bars = [
-      { label:'80C  (ELSS/PPF/LIC)', used:c80, limit:150000, color:'#00d4ff' },
-      { label:'80D  (Health Insur)', used:hi,  limit:25000,  color:'#4dffb4' },
-      { label:'80CCD(NPS ₹50K)', used:nps, limit:50000,  color:'#b97dff' },
+      { id:'s80c', label:'80C  (ELSS/PPF/LIC)', used:c80, limit:150000, color:'#00d4ff' },
+      { id:'s80d', label:'80D  (Health Insur)', used:hi,  limit:25000,  color:'#4dffb4' },
+      { id:'nps',  label:'80CCD(NPS ₹50K)', used:nps, limit:50000,  color:'#b97dff' },
     ];
     const totalRoom = bars.reduce((s,b) => s + Math.max(0, b.limit - b.used), 0);
-    const totalSave  = Math.round(totalRoom * rate / 100);
+    const totalSave  = plan ? plan.potential : 0;           // real saving vs what you pay now: 0 when the new regime already wins
 
     return `
     <div class="apl-lab-section asp-fade-in" style="padding:14px 0 10px;border-top:1px solid rgba(255,255,255,.07)">
       <div class="apl-section-title" style="padding:0 14px 8px">🧾 Tax Optimizer</div>
       <div style="padding:0 14px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:10px;color:rgba(255,255,255,0.58)">Marginal rate: <span style="color:#ffd93d;font-weight:700">${rate}%</span></div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58)">Cheaper regime: <span style="color:#ffd93d;font-weight:700">${plan ? (plan.currentRegime === 'new' ? 'New' : 'Old') : '—'}</span></div>
           <div style="font-size:10px;color:rgba(255,255,255,0.58)">Potential saving: <span style="color:#4dffb4;font-weight:700">${INR(totalSave)}</span></div>
         </div>
         ${bars.map(b => {
           const used = Math.min(b.used, b.limit);
           const pct  = Math.round(used / b.limit * 100);
           const room = Math.max(0, b.limit - b.used);
-          const saving = Math.round(room * rate / 100);
+          const saving = plan && plan.potential > 0 && tp.rows[b.id] ? Math.round(tp.rows[b.id].taxSaved) : 0;   // only when the old regime would win
           return `<div style="margin-bottom:9px">
             <div style="display:flex;justify-content:space-between;margin-bottom:3px">
               <span style="font-size:10px;color:rgba(255,255,255,.6)">${b.label}</span>
@@ -5356,12 +5380,14 @@ Give a crisp 3-bullet morning financial brief. What's the ONE thing they should 
             </div>
           </div>`;
         }).join('')}
-        ${totalRoom > 0 ? `<div style="background:rgba(77,255,180,.06);border:1px solid rgba(77,255,180,.15);border-radius:8px;padding:7px 10px;font-size:10px;color:rgba(77,255,180,.8);margin-top:4px">
-          💡 Fill remaining ${INR(totalRoom)} in deductions to save ${INR(totalSave)} in taxes this year
+        ${plan && plan.newBeatsOldEvenOptimised ? `<div style="background:rgba(255,217,61,.06);border:1px solid rgba(255,217,61,.2);border-radius:8px;padding:7px 10px;font-size:10px;color:rgba(255,217,61,.9);margin-top:4px">
+          ℹ️ The new regime is already cheaper for you by ${INR(plan.oldMinusNew)} even with every deduction, so filling these would not lower your tax unless you switch regime.
+        </div>` : totalRoom > 0 ? `<div style="background:rgba(77,255,180,.06);border:1px solid rgba(77,255,180,.15);border-radius:8px;padding:7px 10px;font-size:10px;color:rgba(77,255,180,.8);margin-top:4px">
+          💡 Fill the remaining ${INR(totalRoom)} in deductions to save ${INR(totalSave)} in taxes this year
         </div>` : `<div style="background:rgba(77,255,180,.04);border-radius:8px;padding:7px 10px;font-size:10px;color:rgba(77,255,180,.6);margin-top:4px">
           🎉 All major deductions maxed! You're fully tax-optimized.
         </div>`}
-        <button class="asp-view-ask-btn" style="margin-top:8px" data-msg="My tax dashboard shows: 80C used ${INR(c80)}, 80D used ${INR(hi)}, NPS used ${INR(nps)}. I am in ${rate}% tax bracket. What are my top 3 moves to save maximum tax this year? Give me specific products and amounts.">
+        <button class="asp-view-ask-btn" style="margin-top:8px" data-msg="My tax dashboard shows: 80C used ${INR(c80)}, 80D used ${INR(hi)}, NPS used ${INR(nps)}. ${plan ? `The ${plan.currentRegime === 'new' ? 'new' : 'old'} regime is cheaper for me right now (tax ${INR(plan.current)}).` : ''} What are my top 3 moves to lower my tax this year? Give me specific products and amounts, and tell me honestly if the new regime means deductions will not help.">
           🤖 What's my best tax move?
         </button>
       </div>

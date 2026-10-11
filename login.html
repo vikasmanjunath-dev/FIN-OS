@@ -4,7 +4,7 @@
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);if(t==='dark')document.documentElement.classList.add('dark');else document.documentElement.classList.remove('dark');})();
 </script>
-<script src="js/ui.js"></script>
+<script src="js/ui.js?v=5"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
@@ -553,7 +553,7 @@ html[data-theme="dark"] .icon-moon { opacity: 1; transform: scale(1) rotate(0); 
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="css/design-tokens.css">
-  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/theme.css?v=2">
 
   <style>
   /* ── Skip link ────────────────────────────────────────────── */
@@ -917,7 +917,7 @@ html[data-theme="dark"] .icon-moon { opacity: 1; transform: scale(1) rotate(0); 
               </button>
               <p class="auth-terms">
                 By creating an account you agree to our
-                <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
+                <a href="html/terms.html">Terms</a> and <a href="html/privacy.html">Privacy Policy</a>.
               </p>
             </form>
           </div>

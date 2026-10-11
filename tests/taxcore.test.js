@@ -110,3 +110,33 @@ test('savingsPlan: low / junk income is safe and finds nothing to save', () => {
   for (const bad of [NaN, undefined, -1, 'x']) assert.strictEqual(T.savingsPlan(bad, SECTIONS).current, 0);
   assert.deepStrictEqual(T.savingsPlan(800000, undefined).sections, []);
 });
+
+/* ── alreadyClaimedOther: 80D / NPS already claimed lower the old-regime baseline ── */
+test('savingsPlan: alreadyClaimedOther lowers the old-regime tax you pay now, and defaults to 0 (nothing changes without it)', () => {
+  const sections = [{ id: 's80c', maxDeduction: 150000, kind: 'core' }];
+  const base = T.savingsPlan(1800000, sections, { alreadyClaimed80c: 0 });
+  assert.deepStrictEqual(T.savingsPlan(1800000, sections, { alreadyClaimed80c: 0, alreadyClaimedOther: 0 }), base);
+  assert.deepStrictEqual(T.savingsPlan(1800000, sections, { alreadyClaimed80c: 0, alreadyClaimedOther: undefined }), base);
+  assert.deepStrictEqual(T.savingsPlan(1800000, sections, { alreadyClaimed80c: 0, alreadyClaimedOther: 'junk' }), base);
+  assert.deepStrictEqual(T.savingsPlan(1800000, sections, { alreadyClaimed80c: 0, alreadyClaimedOther: -500 }), base);
+  const withOther = T.savingsPlan(1800000, sections, { alreadyClaimed80c: 0, alreadyClaimedOther: 75000 });
+  assert.strictEqual(withOther.oldNow, T.taxOld(1800000 - 50000 - 75000));              // ₹16.75L taxable in the old regime
+  assert.ok(withOther.oldNow < base.oldNow);
+  assert.strictEqual(withOther.newTax, base.newTax);                                      // the new regime ignores these deductions
+});
+
+test('savingsPlan: with other deductions claimed, maxing the core ones still lands on the same optimised tax', () => {
+  // ₹30L income, ₹75k already claimed in 80D+NPS, and ₹75k of room left in them (passed as the section maxima)
+  const sections = [{ id: 's80c', maxDeduction: 150000, kind: 'core' }, { id: 'nps', maxDeduction: 25000, kind: 'core' }, { id: 's80d', maxDeduction: 50000, kind: 'core' }];
+  const p = T.savingsPlan(3000000, sections, { alreadyClaimed80c: 0, alreadyClaimedOther: 75000 });
+  assert.strictEqual(p.oldOpt, T.taxOld(3000000 - 50000 - 75000 - 150000 - 25000 - 50000));
+  assert.ok(p.oldNow >= p.oldOpt);
+  assert.strictEqual(p.potential, p.current - Math.min(p.newTax, p.oldOpt));
+});
+
+test('savingsPlan: a ₹12L earner owes nothing in either regime, so no deduction can ever save them anything', () => {
+  const p = T.savingsPlan(1275000, [{ id: 's80c', maxDeduction: 150000, kind: 'core' }], { alreadyClaimed80c: 0, alreadyClaimedOther: 0 });
+  assert.strictEqual(p.newTax, 0);
+  assert.strictEqual(p.potential, 0);
+  assert.strictEqual(p.newBeatsOldEvenOptimised, true);
+});

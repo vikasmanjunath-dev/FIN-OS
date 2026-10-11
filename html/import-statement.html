@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script src="../js/finos-vault-boot.js"></script>
+<script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Import your bank transactions from a statement file (CSV or Account Aggregator JSON). Read on your device and never uploaded.">
+  <title>Import a Bank Statement | FIN-OS</title>
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+  <link rel="stylesheet" href="../css/base.css?v=2">
+  <link rel="stylesheet" href="../css/layout.css?v=4">
+  <link rel="stylesheet" href="../css/components.css?v=2">
+  <link rel="stylesheet" href="../css/theme.css?v=2">
+  <link rel="stylesheet" href="../css/interactions.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-tracker-sync.js"></script>
+  <script src="../js/finos-format.js"></script>
+  <script src="../js/finos-context.js?v=4" defer></script>
+  <script src="../js/finos-import.js"></script>
+  <script src="../js/finos-budget.js"></script>
+  <script src="../js/finos-statement-import.js"></script>
+
+  <style>
+    .pv-page { background: var(--bg-main); min-height: 100vh; }
+    .pv-wrap { max-width: 820px; margin: 0 auto; padding: 40px 40px 120px; }
+    .page-back-link:hover { color: #4F7CFF; }
+    .pv-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(24px, 3.4vw, 34px); font-weight: 800; color: var(--text-primary); margin: 10px 0 6px; letter-spacing: -.01em; }
+    .pv-sub { font-size: 14px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 18px; }
+    .pv-draft { padding: 14px 16px; border-radius: 14px; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.45); color: var(--text-primary); font-size: 13px; line-height: 1.65; margin: 0 0 22px; }
+    .pv-h { font-size: 19px; font-weight: 800; color: var(--text-primary); margin: 34px 0 10px; }
+    .pv-wrap p, .pv-wrap li { font-size: 14px; line-height: 1.75; color: var(--text-secondary); }
+    .pv-wrap ul { padding-left: 20px; margin: 8px 0; }
+    .pv-wrap strong { color: var(--text-primary); }
+    .pv-short { padding: 6px 18px; border-radius: 16px; background: var(--bg-surface); border: 1px solid var(--border-soft); }
+    .pv-flows { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+    .pv-flow { padding: 14px 16px; border-radius: 14px; background: var(--bg-surface); border: 1px solid var(--border-soft); }
+    .pv-flow h3 { margin: 0 0 6px; font-size: 15px; color: var(--text-primary); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .pv-tag { font-size: 11px; font-weight: 800; padding: 2px 9px; border-radius: 999px; background: rgba(127,127,127,.18); color: var(--text-secondary); }
+    .pv-tag.personal { background: rgba(239,68,68,.15); color: var(--text-primary); }
+    .pv-tag.stay { background: rgba(34,197,94,.16); color: var(--text-primary); }
+    .pv-flow dl { margin: 0; display: grid; grid-template-columns: 110px 1fr; gap: 4px 12px; font-size: 13px; line-height: 1.6; }
+    .pv-flow dt { font-weight: 700; color: var(--text-muted); }
+    .pv-flow dd { margin: 0; color: var(--text-secondary); }
+    .pv-hosts { font-family: var(--font-mono, monospace); font-size: 12px; word-break: break-word; }
+    .pv-consent { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; border-radius: 14px; background: var(--bg-surface); border: 1px solid var(--border-soft); margin-bottom: 10px; }
+    .pv-consent input { width: 22px; height: 22px; accent-color: #3560E0; flex: none; margin-top: 2px; }
+    .pv-consent b { display: block; color: var(--text-primary); font-size: 14px; margin-bottom: 3px; }
+    .pv-consent span { font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+    .pv-consent small { display: block; margin-top: 4px; font-size: 11px; color: var(--text-muted); }
+    .pv-btn { display: inline-block; padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; border: 1px solid var(--border-soft); background: var(--bg-surface); color: var(--text-primary); cursor: pointer; text-decoration: none; font-family: inherit; }
+    .pv-wrap a:not(.pv-btn):not(.page-back-link) { color: #8fb0ff; text-decoration: underline; text-underline-offset: 3px; }   /* links in text must not rely on colour alone */
+    [data-theme="light"] .pv-wrap a:not(.pv-btn):not(.page-back-link) { color: #2447b8; }
+    .si-drop { display: block; padding: 26px 18px; border: 2px dashed var(--border-medium, var(--border-soft)); border-radius: 16px; text-align: center; cursor: pointer; color: var(--text-secondary); background: var(--bg-surface); }
+    .si-drop:focus-within, .si-drop.over { border-color: #4F7CFF; }
+    .si-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    .si-sum { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 12px 0; }
+    .si-sum div { padding: 12px 14px; border-radius: 14px; background: var(--bg-surface); border: 1px solid var(--border-soft); }
+    .si-sum span { display: block; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); }
+    .si-sum b { display: block; margin-top: 4px; font-family: var(--font-mono, monospace); font-size: 18px; color: var(--text-primary); }
+    .si-note { padding: 12px 14px; border-radius: 12px; font-size: 13px; line-height: 1.6; margin: 10px 0; background: rgba(79,124,255,.10); border: 1px solid rgba(79,124,255,.35); color: var(--text-primary); }
+    .si-note.warn { background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.45); }
+    .si-note.good { background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.4); }
+    .si-tablewrap:focus-visible { outline: 2px solid #4F7CFF; outline-offset: 2px; }
+    .si-tablewrap { overflow-x: auto; margin: 10px 0; border-radius: 12px; border: 1px solid var(--border-soft); }
+    .si-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 460px; }
+    .si-table th, .si-table td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border-soft); color: var(--text-secondary); }
+    .si-table th { color: var(--text-primary); font-weight: 700; }
+    .si-table td.num { text-align: right; font-family: var(--font-mono, monospace); white-space: nowrap; color: var(--text-primary); }
+    .si-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+    .pv-btn.primary { background: #3560E0; border-color: #3560E0; color: #fff; }
+    .pv-btn[disabled] { opacity: .55; cursor: not-allowed; }
+    details.si-skip { font-size: 13px; color: var(--text-secondary); margin: 8px 0; }
+    .pv-btn:focus-visible, .pv-consent input:focus-visible { outline: 2px solid #4F7CFF; outline-offset: 2px; }
+    .pv-status { min-height: 20px; margin: 8px 0 0; font-size: 12px; color: var(--text-muted); }
+    .pv-rights { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+    .pv-rights th, .pv-rights td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border-soft); vertical-align: top; line-height: 1.6; color: var(--text-secondary); }
+    .pv-rights th { color: var(--text-primary); font-weight: 700; width: 34%; }
+    .pv-entity { padding: 14px 16px; border-radius: 14px; background: var(--bg-surface); border: 1px solid var(--border-soft); }
+    .pv-entity dl { margin: 0; display: grid; grid-template-columns: 170px 1fr; gap: 6px 12px; font-size: 13px; }
+    .pv-entity dt { font-weight: 700; color: var(--text-muted); } .pv-entity dd { margin: 0; color: var(--text-secondary); }
+    .pv-unset { font-style: italic; }
+    [data-theme="light"] .pv-page { background: #F4F6FB; }
+    @media (max-width: 700px) {
+      .pv-wrap { padding: 24px 16px 80px; }
+      .pv-flow dl, .pv-entity dl { grid-template-columns: 1fr; }
+      .pv-flow dt, .pv-entity dt { margin-top: 6px; }
+      .pv-rights th { width: auto; }
+    }
+  </style>
+
+</head>
+<body data-nav-section="settings.html">
+<div class="app">
+  <aside class="sidebar" role="complementary" aria-label="Navigation">
+    <div class="sb-brand">
+      <div class="sb-logomark" aria-hidden="true"><span class="sb-logomark-letter">F</span></div>
+      <div class="sb-wordmark"><div class="sb-wordmark-name">FIN•OS</div><div class="sb-wordmark-tag">Financial OS</div></div>
+    </div>
+    <a href="profile.html" class="sb-identity" aria-label="Your profile">
+      <div class="sb-av" id="sb-av" aria-hidden="true">I</div>
+      <div class="sb-identity-body">
+        <div class="sb-identity-name" id="sb-name">Investor</div>
+        <div class="sb-identity-meta"><span class="sb-identity-dna" id="sb-dna">Financial DNA</span><span class="sb-health-pill" id="sb-health-pill"></span></div>
+      </div>
+      <span class="sb-identity-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </a>
+    <button class="sb-cmd" id="sb-cmd" aria-label="Search (Ctrl+K)">
+      <span class="sb-cmd-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="sb-cmd-label">Search or jump to…</span><kbd class="sb-cmd-kbd" aria-hidden="true">⌘K</kbd>
+    </button>
+    <nav class="sb-nav" aria-label="Main">
+      <a href="home.html" class="sb-link" title="Home"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="sb-label">Home</span></a>
+      <a href="dashboard.html" class="sb-link" title="Dashboard"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span><span class="sb-label">Dashboard</span><span class="sb-badge" id="sb-streak" aria-label="count"></span></a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="foundations.html" class="sb-link" title="Learn"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="sb-label">Learn</span></a>
+      <a href="simulator-landing.html" class="sb-link" title="Mindset"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.66z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.66z"/></svg></span><span class="sb-label">Mindset</span></a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="diagnostics.html" class="sb-link" title="Diagnostics"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span><span class="sb-label">Diagnostics</span></a>
+      <a href="track-finances.html" class="sb-link" title="Track"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span><span class="sb-label">Track</span></a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="markets.html" class="sb-link" title="Markets"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span><span class="sb-label">Markets</span></a>
+      <a href="tools.html" class="sb-link" title="Tools"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span class="sb-label">Tools</span></a>
+      <hr class="sb-divider" aria-hidden="true"/>
+      <a href="news.html" class="sb-link" title="News"><span class="sb-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span><span class="sb-label">News</span></a>
+    </nav>
+    <div class="sb-footer-zone">
+      <button class="sb-arya-row" id="sb-arya-btn" aria-label="Arya AI — your financial coach" onclick="document.querySelector('.finos-fab')?.click?.();">
+        <div class="sb-arya-icon" aria-hidden="true"><span>🤖</span><span class="sb-arya-dot checking" id="sb-arya-dot"></span></div>
+        <div class="sb-arya-body"><div class="sb-arya-name">Arya AI</div><div class="sb-arya-status checking" id="sb-arya-status">Connecting…</div></div>
+        <span class="sb-arya-arrow" aria-hidden="true">›</span>
+      </button>
+      <a href="settings.html" class="sb-settings-row" title="Settings"><span class="sb-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="sb-label">Settings</span></a>
+    </div>
+  </aside>
+
+  <main class="main pv-page">
+    <div class="pv-wrap">
+      <a href="track-finances.html" class="page-back-link">← Back to Track Finances</a>
+      <h1 class="pv-title">Import a bank statement</h1>
+      <p class="pv-sub">Bring your transactions in from a statement file. The file is <strong>read on this device and never uploaded</strong>. Your account number and name are not read at all.</p>
+
+      <h2 class="pv-h">1. Get the file</h2>
+      <p>In your bank's net banking, download the account statement as <strong>CSV</strong> (some banks offer Excel: open it and choose Save As → CSV). Account Aggregator JSON that your provider has already decrypted also works. PDF statements cannot be read here.</p>
+
+      <h2 class="pv-h">2. Choose it</h2>
+      <label class="si-drop" id="si-drop" for="si-file">
+        <input type="file" id="si-file" accept=".csv,.txt,.json,text/csv,text/plain,application/json">
+        <span id="si-hint">Choose a statement file, or drop it here</span>
+      </label>
+      <div id="si-preview" role="status" aria-live="polite"></div>
+
+      <h2 class="pv-h">Your imports</h2>
+      <p>Each import can be undone, which removes exactly the transactions it added and nothing else.</p>
+      <ul class="pv-list" id="si-batches"></ul>
+      <p class="pv-status" id="si-status" role="status" aria-live="polite"></p>
+    </div>
+  </main>
+</div>
+
+<style>
+#floatThemeBtn { position:fixed;top:14px;right:18px;z-index:9999;width:36px;height:36px;border-radius:10px;background:var(--bg-surface);border:1px solid var(--border-soft);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s;backdrop-filter:blur(10px); }
+#floatThemeBtn:hover{background:transparent;transform:scale(1.08);}
+[data-theme="light"] #floatThemeBtn{color:var(--text-primary)!important;}
+</style>
+<button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>
+<script>
+(function(){var btn=document.getElementById('floatThemeBtn'),html=document.documentElement,saved=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';html.setAttribute('data-theme',saved);btn.textContent=saved==='dark'?'🌙':'☀️';btn.addEventListener('click',function(){var cur=html.getAttribute('data-theme'),next=cur==='dark'?'light':'dark';html.setAttribute('data-theme',next);localStorage.setItem('finos-theme',next);localStorage.setItem('theme',next);btn.textContent=next==='dark'?'🌙':'☀️';});})();
+</script>
+<script>
+  (function () {
+    var S = window.FinosStatement;
+    var KEY = 'finos_transactions', BKEY = 'finos_import_batches';
+    var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); };
+    var inr = function (n) { return '₹' + (Math.round(n * 100) / 100).toLocaleString('en-IN', { maximumFractionDigits: 2 }); };
+    var read = function (k, fb) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch (e) { return fb; } };
+    var write = function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
+    var $ = function (id) { return document.getElementById(id); };
+    var status = function (m) { $('si-status').textContent = m; };
+    var pending = null;                       // the parsed file waiting for a decision
+
+    function fail(msg) { $('si-preview').innerHTML = '<div class="si-note warn" role="alert">' + esc(msg) + '</div>'; pending = null; }
+
+    function analyse(text) {
+      var head = text.replace(/^\uFEFF/, '').trim().slice(0, 8);
+      if (/^%PDF/.test(head)) return fail('That is a PDF. PDF statements cannot be read here. Download the statement as CSV from your bank instead.');
+      if (/^PK/.test(head)) return fail('That looks like an Excel file. Open it in Excel and choose Save As → CSV, then choose the CSV here.');
+      var isJson = /^[\[{]/.test(head);
+      var res = isJson ? S.fromAA(text) : S.parseStatement(text);
+      if (!res.ok) return fail(res.warnings.join(' '));
+      var batch = 'imp_' + Date.now().toString(36);
+      var ledger = S.toLedger(res.rows, { batch: batch });
+      var merge = S.mergeLedger(read(KEY, []), ledger);
+      pending = { res: res, batch: batch, ledger: ledger };
+      var fresh = merge.merged.slice(merge.merged.length - merge.added);
+      var cats = S.topCategories(res.rows, 5);
+      var rec = res.reconciled === 'yes' ? '<div class="si-note good">The balance column adds up row by row, so nothing looks missing.</div>'
+        : res.reconciled === 'no' ? '<div class="si-note warn" role="alert"><strong>Check this file.</strong> The balance column does not add up row by row. A row may be missing or misread, or the file may be incomplete.</div>' : '';
+      $('si-preview').innerHTML =
+        '<h2 class="pv-h">3. Check it</h2>' +
+        '<div class="si-sum"><div><span>Found</span><b>' + res.totals.count + '</b></div><div><span>New</span><b>' + merge.added + '</b></div><div><span>Already here</span><b>' + merge.duplicates + '</b></div><div><span>Skipped</span><b>' + res.skipped.length + '</b></div>' +
+        '<div><span>Money in</span><b>' + inr(res.totals.credits) + '</b></div><div><span>Money out</span><b>' + inr(res.totals.debits) + '</b></div></div>' +
+        '<p>From <strong>' + esc(res.dateRange.from) + '</strong> to <strong>' + esc(res.dateRange.to) + '</strong>' + (res.format === 'aa-json' ? ' · Account Aggregator data' : '') + '.' +
+        (cats.length ? ' Biggest spending: ' + cats.map(function (c) { return esc(c.category) + ' ' + inr(c.amount); }).join(', ') + '.' : '') + '</p>' + rec +
+        res.warnings.filter(function (w) { return !/does not add up/.test(w); }).map(function (w) { return '<div class="si-note warn">' + esc(w) + '</div>'; }).join('') +
+        (fresh.length ? '<div class="si-tablewrap" tabindex="0" role="region" aria-label="Transactions that will be added. This area scrolls sideways on small screens."><table class="si-table"><caption class="sr-only" style="position:absolute;left:-9999px">First transactions that will be added</caption><thead><tr><th scope="col">Date</th><th scope="col">Description</th><th scope="col">Category</th><th scope="col" style="text-align:right">Amount</th></tr></thead><tbody>' +
+          fresh.slice(0, 8).map(function (t) { return '<tr><td>' + esc(t.date.slice(0, 10)) + '</td><td>' + esc(t.desc) + '</td><td>' + esc(t.category) + '</td><td class="num">' + (t.type === 'credit' ? '+' : '−') + inr(t.amount) + '</td></tr>'; }).join('') +
+          '</tbody></table></div>' + (fresh.length > 8 ? '<p>…and ' + (fresh.length - 8) + ' more.</p>' : '') : '') +
+        (res.skipped.length ? '<details class="si-skip"><summary>' + res.skipped.length + ' skipped row' + (res.skipped.length === 1 ? '' : 's') + '</summary><ul>' + res.skipped.slice(0, 10).map(function (s) { return '<li>Line ' + s.line + ': ' + esc(s.reason) + '</li>'; }).join('') + (res.skipped.length > 10 ? '<li>…and ' + (res.skipped.length - 10) + ' more</li>' : '') + '</ul></details>' : '') +
+        '<div class="si-actions"><button type="button" class="pv-btn primary" id="si-go"' + (merge.added ? '' : ' disabled') + '>' + (merge.added ? 'Import ' + merge.added + ' transaction' + (merge.added === 1 ? '' : 's') : 'Nothing new to import') + '</button><button type="button" class="pv-btn" id="si-cancel">Choose a different file</button></div>' +
+        (merge.added ? '' : '<div class="si-note">Everything in this file is already in FIN-OS.</div>');
+    }
+
+    function batches() {
+      var list = read(BKEY, []); if (!Array.isArray(list)) list = [];
+      $('si-batches').innerHTML = list.length ? list.slice().reverse().map(function (b) {
+        return '<li class="pv-item"><p><b>' + esc(b.at.slice(0, 10)) + '</b> · ' + b.count + ' transaction' + (b.count === 1 ? '' : 's') + ' · ' + esc(b.from) + ' to ' + esc(b.to) + '</p>' +
+          '<button type="button" class="pv-btn" data-undo="' + esc(b.id) + '" aria-label="Undo the import of ' + b.count + ' transactions from ' + esc(b.at.slice(0, 10)) + '">Undo</button></li>';
+      }).join('') : '<li class="pv-item"><p>Nothing imported yet.</p></li>';
+    }
+
+    function doImport() {
+      if (!pending) return;
+      var merge = S.mergeLedger(read(KEY, []), pending.ledger);               // merge again now, so a change since the preview is respected
+      if (!merge.added) { status('Nothing new to import.'); return; }
+      var log = read(BKEY, []); if (!Array.isArray(log)) log = [];
+      log.push({ id: pending.batch, at: new Date().toISOString(), count: merge.added, from: pending.res.dateRange.from, to: pending.res.dateRange.to, format: pending.res.format });
+      if (!write(KEY, merge.merged) || !write(BKEY, log.slice(-20))) { status('Could not save to this browser (storage is full or blocked). Nothing was imported.'); return; }
+      $('si-preview').innerHTML = '<div class="si-note good" role="status">Imported <strong>' + merge.added + '</strong> transaction' + (merge.added === 1 ? '' : 's') + ' (' + esc(pending.res.dateRange.from) + ' to ' + esc(pending.res.dateRange.to) + '). They now count in your budgets, Money Score and Future Loss. You can undo this below.</div>';
+      pending = null; $('si-file').value = ''; batches(); status('Imported.');
+    }
+
+    function undo(id) {
+      var keep = S.undoBatch(read(KEY, []), id), before = read(KEY, []).length;
+      var log = read(BKEY, []).filter(function (b) { return b.id !== id; });
+      if (!write(KEY, keep) || !write(BKEY, log)) { status('Could not save that change. Nothing was undone.'); return; }
+      batches(); status('Undone. Removed ' + (before - keep.length) + ' transaction' + (before - keep.length === 1 ? '' : 's') + '.');
+    }
+
+    function load(file) {
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) return fail('That file is over 5 MB, which is far more than a statement. Choose a statement file.');
+      status('');
+      (file.text ? file.text() : new Promise(function (res, rej) { var r = new FileReader(); r.onload = function () { res(r.result); }; r.onerror = rej; r.readAsText(file); }))
+        .then(analyse).catch(function () { fail('That file could not be read.'); });
+    }
+
+    $('si-file').addEventListener('change', function (e) { load(e.target.files && e.target.files[0]); });
+    var drop = $('si-drop');
+    ['dragenter', 'dragover'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('over'); }); });
+    ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('over'); }); });
+    drop.addEventListener('drop', function (e) { load(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]); });
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('button'); if (!b) return;
+      if (b.id === 'si-go') doImport();
+      else if (b.id === 'si-cancel') { pending = null; $('si-file').value = ''; $('si-preview').innerHTML = ''; $('si-file').focus(); }
+      else if (b.dataset.undo) undo(b.dataset.undo);
+    });
+    batches();
+  })();
+</script>
+
+
+<script src="../js/ui.js?v=5" defer></script>
+<script src="../js/mobile-nav.js" defer></script>
+<script src="../js/pwa-init.js"></script>
+<script src="../js/finos-widget.js?v=11"></script>
+<script src="../js/finos-mobile.js" defer></script>
+<script src="../js/finos-search.js?v=6"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/finos-api.js"></script>
+<script src="../js/arya-guardrails.js"></script>
+<script src="../js/arya-pulse-rank.js"></script>
+<script src="../js/arya-lazy.js"></script>
+<script src="../js/interactions.js" defer></script>
+</body>
+</html>

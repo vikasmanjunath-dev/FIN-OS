@@ -5,15 +5,17 @@
   <meta charset="UTF-8" />
   <title>Income Tax Calculator • FIN-OS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../../js/finos-prefs.js?v=2"></script>
   <link rel="stylesheet" href="../../css/design-tokens.css">
-  <link rel="stylesheet" href="../../css/base.css">
-  <link rel="stylesheet" href="../../css/layout.css?v=3">
-  <link rel="stylesheet" href="../../css/components.css">
-  <link rel="stylesheet" href="../../css/theme.css">
+  <link rel="stylesheet" href="../../css/base.css?v=2">
+  <link rel="stylesheet" href="../../css/layout.css?v=4">
+  <link rel="stylesheet" href="../../css/components.css?v=2">
+  <link rel="stylesheet" href="../../css/theme.css?v=2">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../../js/finos-taxcore.js"></script>
   <script src="../../js/finos-context.js?v=4"></script>
   <script src="../../js/finos-a11y.js"></script>
-  <script src="../../js/arya-ai.js?v=7"></script>
+  <script src="../../js/arya-ai.js?v=8"></script>
   <style>
     /* Standard Styles Reuse */
     
@@ -68,7 +70,7 @@
     <header class="page-header">
       <a href="../../html/calculators.html" class="back-btn">← Back to Calculators</a>
       <h1>Income Tax Calculator</h1>
-      <p>Simplified estimation for New Regime (FY 2024-25).</p>
+      <p>Simplified estimate under the New Regime for FY 2025-26. Tax is nil up to ₹12 lakh of taxable income (₹12.75 lakh salary). Surcharge on income above ₹50 lakh is not included.</p>
     </header>
 
     <a href="../../html/itr-summary.html" class="related-tool-link">🔗 Filing season? Use the <strong>ITR Filing Prep Kit</strong> — full computation, deductions, and regime comparison auto-filled from your real data →</a>
@@ -145,29 +147,10 @@ function format(num) {
 
 function calculate() {
   const gross = (+els.iN.value) + (+els.oN.value);
-  const stdDed = 75000; // New Regime FY25
-  
-  let taxable = Math.max(0, gross - stdDed);
-  let tax = 0;
-
-  // New Regime FY 24-25 Slabs
-  if (taxable > 300000) {
-      if (taxable <= 700000) {
-          // Rebate 87A applies, Tax is 0 if income <= 7L
-          // But slab logic exists.
-          tax = 0; 
-      } else {
-          // Normal Calculation
-          if (taxable > 300000) tax += Math.min(taxable - 300000, 400000) * 0.05;
-          if (taxable > 700000) tax += Math.min(taxable - 700000, 300000) * 0.10;
-          if (taxable > 1000000) tax += Math.min(taxable - 1000000, 200000) * 0.15;
-          if (taxable > 1200000) tax += Math.min(taxable - 1200000, 300000) * 0.20;
-          if (taxable > 1500000) tax += (taxable - 1500000) * 0.30;
-          
-          // Add Cess
-          tax = tax * 1.04;
-      }
-  }
+  // FY 2025-26 new regime, from the shared tax core: ₹75,000 standard deduction, slabs 4/8/12/16/20/24L, Sec 87A rebate
+  // (no tax up to ₹12L taxable, with marginal relief just above it) and 4% cess. Surcharge above ₹50L is not modelled.
+  const taxable = Math.max(0, gross - FinosTaxCore.STD_NEW);
+  const tax = FinosTaxCore.taxNew(taxable);
 
   const effectiveRate = gross > 0 ? (tax / gross) * 100 : 0;
 
@@ -182,7 +165,7 @@ function calculate() {
 Object.values(els).forEach(el => el.addEventListener('input', calculate));
 calculate();
 </script>
-<script src="../../js/calc-explainer.js?v=2"></script>
-<script src="../../js/finos-widget.js?v=10"></script>
+<script src="../../js/calc-explainer.js?v=3"></script>
+<script src="../../js/finos-widget.js?v=11"></script>
 </body>
 </html>

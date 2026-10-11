@@ -105,6 +105,20 @@
     const a = Math.abs(n);
     return a >= 1e7 ? '₹' + (a / 1e7).toFixed(2) + ' Cr' : a >= 1e5 ? '₹' + (a / 1e5).toFixed(2) + ' L' : '₹' + a.toLocaleString('en-IN');
   }
+  /* ── language: English templates with {params}, translated from js/i18n/hi.js when the person uses Hindi ── */
+  const lang = () => (root.FinosI18n && root.FinosI18n.lang && root.FinosI18n.lang()) || 'en';
+  const fmtL = (n) => (lang() === 'hi' ? fmt(n).replace(/(\d) Cr\b/, '$1 करोड़').replace(/(\d) L\b/, '$1 लाख') : fmt(n));
+  /** Param markers: { m: rupees } formats money for the language, { t: key } translates another template. */
+  function tr(key, params) {
+    const raw = lang() === 'en' || !root.FinosI18n || !root.FinosI18n.t ? key : root.FinosI18n.t(key, key);
+    return String(raw).replace(/\{(\w+)\}/g, (_, k) => {
+      const v = params && params[k];
+      if (v && typeof v === 'object') return 'm' in v ? fmtL(v.m) : 't' in v ? tr(v.t) : '';
+      return v == null ? '' : String(v);
+    });
+  }
+  const Mn = (n) => ({ m: n });
+
   function rd(k, fb) {
     try {
       if (root.FinosStore && root.FinosStore.get) return root.FinosStore.get(k, fb);
@@ -132,31 +146,36 @@
 
   function panelHTML(r, ctx) {
     const sample = ctx.mode === 'sample';
-    const head = '<div class="fl-head"><span class="fl-kicker">FUTURE LOSS</span><h3 id="fl-title" tabindex="-1">What this leak costs you later</h3></div>';
+    const head = '<div class="fl-head"><span class="fl-kicker">' + esc(tr('FUTURE LOSS')) + '</span><h3 id="fl-title" tabindex="-1">' + esc(tr('What this leak costs you later')) + '</h3></div>';
     if (!r.hasAnyData && !sample) {
-      return head + '<div class="fl-empty"><p>Nothing to analyse yet. This reads the expenses you log and the subscriptions you track. It never guesses.</p>' +
-        '<div class="fl-row-btns"><a class="fl-btn" href="subscription-tracker.html">Add your subscriptions</a><a class="fl-btn" href="track-finances.html">Log your spending</a>' +
-        '<button type="button" class="fl-btn ghost" id="fl-sample">Try it with sample leaks</button></div></div>';
+      return head + '<div class="fl-empty"><p>' + esc(tr('Nothing to analyse yet. This reads the expenses you log and the subscriptions you track. It never guesses.')) + '</p>' +
+        '<div class="fl-row-btns"><a class="fl-btn" href="subscription-tracker.html">' + esc(tr('Add your subscriptions')) + '</a><a class="fl-btn" href="track-finances.html">' + esc(tr('Log your spending')) + '</a>' +
+        '<button type="button" class="fl-btn ghost" id="fl-sample">' + esc(tr('Try it with sample leaks')) + '</button></div></div>';
     }
+    const days = Math.min(r.days, WINDOW_DAYS);
     const source = sample
-      ? '<p class="fl-source warn">SAMPLE values from the radar above. Not your data. Log spending or track subscriptions to see your real number.</p>'
-      : '<p class="fl-source">' + (r.enoughData
-        ? 'Based on your last ' + Math.min(r.days, WINDOW_DAYS) + ' days of logged spending' + (ctx.subs > 0 ? ' and your tracked subscriptions' : '') + ', scaled to a month.'
-        : 'Only your tracked subscriptions are counted. Log at least ' + MIN_DAYS + ' days of spending to include your other habits (you have ' + r.days + ').') + '</p>';
-    const cats = r.categories.map((c) => '<li><label class="fl-cat"><input type="checkbox" data-cat="' + esc(c.category) + '"' + (c.included ? ' checked' : '') + (sample ? ' disabled' : '') + '><span class="fl-cat-n">' + esc(c.category) + '</span><b>' + fmt(c.monthly) + '<small>/mo</small></b></label></li>').join('');
-    const hz = r.horizons.map((h) => '<div class="fl-h"><span>' + h.years + ' years</span><b>' + fmt(h.value) + '</b><small>you would put in ' + fmt(h.invested) + ', and growth adds ' + fmt(h.gain) + '</small></div>').join('');
+      ? '<p class="fl-source warn">' + esc(tr('SAMPLE values from the radar above. Not your data. Log spending or track subscriptions to see your real number.')) + '</p>'
+      : '<p class="fl-source">' + esc(r.enoughData
+        ? (ctx.subs > 0 ? tr('Based on your last {n} days of logged spending and your tracked subscriptions, scaled to a month.', { n: days }) : tr('Based on your last {n} days of logged spending, scaled to a month.', { n: days }))
+        : tr('Only your tracked subscriptions are counted. Log at least {min} days of spending to include your other habits (you have {have}).', { min: MIN_DAYS, have: r.days })) + '</p>';
+    const cats = r.categories.map((c) => '<li><label class="fl-cat"><input type="checkbox" data-cat="' + esc(c.category) + '"' + (c.included ? ' checked' : '') + (sample ? ' disabled' : '') + '><span class="fl-cat-n">' + esc(tr(c.category)) + '</span><b>' + esc(fmtL(c.monthly)) + '<small>' + esc(tr('/mo')) + '</small></b></label></li>').join('');
+    const hz = r.horizons.map((h) => '<div class="fl-h"><span>' + esc(tr('{n} years', { n: h.years })) + '</span><b>' + esc(fmtL(h.value)) + '</b><small>' + esc(tr('you would put in {invested}, and growth adds {gain}', { invested: Mn(h.invested), gain: Mn(h.gain) })) + '</small></div>').join('');
     const rh = r.redirect.horizons.find((h) => h.years === 20);
     return head + source +
-      '<div class="fl-big"><span>Monthly leak</span><b id="fl-monthly">' + fmt(r.monthly) + '</b></div>' +
-      (cats ? '<fieldset class="fl-cats"><legend>What counts as a leak (tick to include)</legend><ul>' + cats + '</ul></fieldset>' : '') +
-      '<div class="fl-controls"><label class="fl-ctl">Assumed yearly growth <input type="number" id="fl-rate" min="0" max="30" step="0.5" value="' + esc(r.rate) + '"' + (sample ? ' disabled' : '') + '>%</label></div>' +
-      '<p class="fl-label">If that money had been invested instead</p><div class="fl-horizons" id="fl-horizons">' + hz + '</div>' +
-      '<div class="fl-redirect"><label for="fl-pct">If you redirect <b id="fl-pct-v">' + r.redirect.pct + '%</b> of it (' + fmt(r.redirect.monthly) + ' a month)</label>' +
-      '<input type="range" id="fl-pct" min="0" max="100" step="5" value="' + r.redirect.pct + '" aria-label="Share of the leak to redirect into investing">' +
-      '<p class="fl-redirect-out" id="fl-redirect-out">…it becomes <b>' + fmt(rh ? rh.value : 0) + '</b> in 20 years.</p></div>' +
-      '<div class="fl-row-btns"><a class="fl-btn" href="sip-stepup.html">Plan a step-up SIP →</a><a class="fl-btn ghost" href="' + encodeURI('../calculators/investment & wealth/sip.html') + '">SIP calculator</a></div>' +
-      '<p class="fl-fine" id="fl-saved" role="status" aria-live="polite">' + (sample ? '' : 'Saved on this device, so your other FIN-OS tools can use it.') + ' An illustration using an assumed growth rate, not a promise of returns.</p>';
+      '<div class="fl-big"><span>' + esc(tr('Monthly leak')) + '</span><b id="fl-monthly">' + esc(fmtL(r.monthly)) + '</b></div>' +
+      (cats ? '<fieldset class="fl-cats"><legend>' + esc(tr('What counts as a leak (tick to include)')) + '</legend><ul>' + cats + '</ul></fieldset>' : '') +
+      '<div class="fl-controls"><label class="fl-ctl">' + esc(tr('Assumed yearly growth')) + ' <input type="number" id="fl-rate" min="0" max="30" step="0.5" value="' + esc(r.rate) + '"' + (sample ? ' disabled' : '') + '>%</label></div>' +
+      '<p class="fl-label">' + esc(tr('If that money had been invested instead')) + '</p><div class="fl-horizons" id="fl-horizons">' + hz + '</div>' +
+      '<div class="fl-redirect"><label for="fl-pct">' + redirectLabel(r) + '</label>' +
+      '<input type="range" id="fl-pct" min="0" max="100" step="5" value="' + r.redirect.pct + '" aria-label="' + esc(tr('Share of the leak to redirect into investing')) + '">' +
+      '<p class="fl-redirect-out" id="fl-redirect-out">' + redirectOut(rh ? rh.value : 0) + '</p></div>' +
+      '<div class="fl-row-btns"><a class="fl-btn" href="sip-stepup.html">' + esc(tr('Plan a step-up SIP →')) + '</a><a class="fl-btn ghost" href="' + encodeURI('../calculators/investment & wealth/sip.html') + '">' + esc(tr('SIP calculator')) + '</a></div>' +
+      '<p class="fl-fine" id="fl-saved" role="status" aria-live="polite">' + esc(sample ? tr('An illustration using an assumed growth rate, not a promise of returns.') : tr('Saved on this device, so your other FIN-OS tools can use it. An illustration using an assumed growth rate, not a promise of returns.')) + '</p>';
   }
+
+  /** Sentences with a bold figure inside. Each is one full template, so Hindi can order the words naturally. */
+  function redirectLabel(r) { return tr('If you redirect <b id="fl-pct-v">{pct}%</b> of it ({monthly} a month)', { pct: r.redirect.pct, monthly: Mn(r.redirect.monthly) }); }
+  function redirectOut(value) { return tr('…it becomes <b>{value}</b> in 20 years.', { value: Mn(value) }); }
 
   function mount(el, mode, sampleCosts) {
     if (!el) return;
@@ -199,12 +218,14 @@
       if (e.target.id === 'fl-pct') {
         pct = clamp(parseInt(e.target.value, 10) || 0, 0, 100);
         const r = calc(), rh = r.redirect.horizons.find((h) => h.years === 20);
-        el.querySelector('#fl-pct-v').textContent = pct + '%';
-        el.querySelector('#fl-redirect-out').innerHTML = '…it becomes <b>' + fmt(rh ? rh.value : 0) + '</b> in 20 years.';
-        const lab = el.querySelector('label[for="fl-pct"]'); if (lab) lab.innerHTML = 'If you redirect <b id="fl-pct-v">' + pct + '%</b> of it (' + fmt(r.redirect.monthly) + ' a month)';
+        el.querySelector('#fl-redirect-out').innerHTML = redirectOut(rh ? rh.value : 0);
+        const lab = el.querySelector('label[for="fl-pct"]'); if (lab) lab.innerHTML = redirectLabel(r);
       }
     };
     el.onclick = (e) => { if (e.target.id === 'fl-sample') mount(el, 'sample', sampleCosts); };
+    // The language can arrive after the panel is drawn, or change later: redraw in place without stealing focus.
+    el._flRedraw = () => draw(true);
+    if (!el._flLang && root.addEventListener) { el._flLang = true; root.addEventListener('finos:lang', () => { if (el.isConnected && !el.hidden && el.innerHTML && el._flRedraw) el._flRedraw(); }); }
     draw(false);
   }
 

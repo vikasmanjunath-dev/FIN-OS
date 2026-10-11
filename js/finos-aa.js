@@ -13,9 +13,12 @@
  *   3. On consent approval → fetch financial data
  *   4. Parse and push to finos-context.js / Supabase
  *
- * NOTE: AA framework requires API credentials from the AA provider.
- *   This module provides the complete UI + integration layer.
- *   Add your AA API key in Settings → Account Aggregator.
+ * STATUS: live provider connections are OFF (LIVE_ENABLED = false below). Real Account Aggregator access needs a registered
+ *   Financial Information User and a signed, encrypted request flow; the simple calls in this file are not that, and no partnered
+ *   provider exists yet. So FIN-OS contacts none of these hosts today, which is exactly what the privacy notice says
+ *   (js/finos-privacy.js, flow 'aa'; tests/privacy.test.js fails if the two disagree). Until a real integration exists,
+ *   people bring their data in with "Import a statement" (html/import-statement.html), which never touches the network.
+ *   Demo Mode no longer saves anything: it used to write random transactions into the real ledger.
  */
 (function (global) {
   'use strict';
@@ -26,6 +29,10 @@
     if (n >= 1e5) return '₹' + (n / 1e5).toFixed(1) + ' L';
     return '₹' + Math.round(n).toLocaleString('en-IN');
   };
+
+  /* Keep false until a partnered provider exists. If you turn this on you MUST first change the 'aa' flow in js/finos-privacy.js,
+     because FIN-OS would then contact these hosts (tests/privacy.test.js checks the two agree). */
+  const LIVE_ENABLED = false;
 
   /* ── AA Providers ──────────────────────────────────────────────── */
   const AA_PROVIDERS = [
@@ -101,6 +108,7 @@
   async function initiateConsent(providerId) {
     const provider = AA_PROVIDERS.find(p => p.id === providerId);
     if (!provider) throw new Error('Unknown AA provider');
+    if (!LIVE_ENABLED) { _showUnavailable(provider); return; }
 
     const apiKey = localStorage.getItem(`finos_aa_key_${providerId}`);
 
@@ -112,7 +120,7 @@
 
     /* Open consent window */
     const consentWindow = window.open(
-      `${provider.apiBase}/consent?redirect_uri=${encodeURIComponent(window.location.href)}&key=${apiKey}`,
+      `${provider.apiBase}/consent?redirect_uri=${encodeURIComponent(window.location.origin)}`,      /* never put a key in a URL */
       'aa_consent',
       'width=480,height=700,scrollbars=yes'
     );
@@ -136,15 +144,12 @@
     };
     window.addEventListener('message', handleMessage);
 
-    /* Timeout fallback (demo mode) — only fires if real consent hasn't arrived */
-    setTimeout(() => {
-      window.removeEventListener('message', handleMessage);
-      if (!_demoFired) _simulateDemoSync(providerId); /* Demo: show simulated data */
-    }, 3000);
+    /* No timeout fallback: if consent does not arrive, nothing happens. (This used to inject simulated data after 3 seconds.) */
   }
 
   /* ── Data Fetch (post-consent) ─────────────────────────────────── */
   async function startDataFetch(providerId, consentId) {
+    if (!LIVE_ENABLED) return;
     const provider = AA_PROVIDERS.find(p => p.id === providerId);
     const apiKey   = localStorage.getItem(`finos_aa_key_${providerId}`);
 
@@ -154,6 +159,7 @@
       /* 1. Fetch bank transactions */
       if (providerId !== 'cams_mf') {
         const txnRes = await fetch(`${provider.apiBase}/data/transactions`, {
+          signal: AbortSignal.timeout(20000),
           headers: { Authorization: `Bearer ${apiKey}`, 'X-Consent-ID': consentId }
         });
         const txnData = await txnRes.json();
@@ -163,6 +169,7 @@
       /* 2. Fetch MF portfolio */
       if (providerId === 'cams_mf' || providerId === 'perfios') {
         const mfRes = await fetch(`${provider.apiBase}/data/mutual-funds`, {
+          signal: AbortSignal.timeout(20000),
           headers: { Authorization: `Bearer ${apiKey}`, 'X-Consent-ID': consentId }
         });
         const mfData = await mfRes.json();
@@ -251,67 +258,74 @@
   }
 
   /* ── Demo/Simulation mode ──────────────────────────────────────── */
+  /* A preview only. It saves nothing: no transactions, no holdings, no consent record, no sync record. */
   function _simulateDemoSync(providerId) {
     const provider = AA_PROVIDERS.find(p => p.id === providerId);
     _showSyncProgress(provider, true);
-
-    setTimeout(() => {
-      /* Generate realistic demo data */
-      const demoTxns = _generateDemoTransactions();
-      _ingestTransactions(demoTxns);
-
-      if (providerId === 'cams_mf') {
-        _ingestMutualFunds(_generateDemoMF());
-      }
-
-      const syncs = getLastSync();
-      syncs[providerId] = new Date().toISOString();
-      localStorage.setItem(SYNC_KEY, JSON.stringify(syncs));
-      saveConsent(providerId, 'demo_consent_' + Date.now(), new Date(Date.now() + 365 * 86400000).toISOString());
-
-      _showSyncSuccess(provider, true);
-      document.dispatchEvent(new CustomEvent('aa-sync-complete', { detail: { providerId, demo: true } }));
-    }, 2000);
+    setTimeout(() => _showSyncSuccess(provider, true), 1500);
   }
 
-  function _generateDemoTransactions() {
-    const months = 3;
-    const txns = [];
-    const categories = [
-      { desc: 'Swiggy order', type: 'debit', range: [200, 800] },
-      { desc: 'Amazon Purchase', type: 'debit', range: [500, 5000] },
-      { desc: 'Salary Credit', type: 'credit', range: [50000, 80000] },
-      { desc: 'Netflix subscription', type: 'debit', range: [199, 649] },
-      { desc: 'Ola cab', type: 'debit', range: [80, 600] },
-      { desc: 'Paytm recharge', type: 'debit', range: [100, 500] },
-      { desc: 'SIP - Axis Bluechip', type: 'debit', range: [5000, 5000] },
-      { desc: 'EMI - Home Loan', type: 'debit', range: [15000, 25000] },
-    ];
-    for (let m = 0; m < months; m++) {
-      categories.forEach(cat => {
-        const d = new Date();
-        d.setMonth(d.getMonth() - m);
-        d.setDate(Math.floor(Math.random() * 28) + 1);
-        txns.push({
-          id:   Math.random().toString(36).slice(2),
-          date: d.toISOString(),
-          amount: cat.range[0] + Math.random() * (cat.range[1] - cat.range[0]),
-          type: cat.type,
-          desc: cat.desc,
-          category: _categorize(cat.desc),
-          source: 'aa_demo',
-        });
-      });
+  /* ── Sample data left behind by older versions ──────────────────────────────────────────────────
+     Demo Mode used to write fake transactions (and, for MF Central, fake holdings that replaced finos_mf_holdings) into the real
+     ledger. They were tagged only 'aa'. We can still recognise them: they exist only where a demo consent record exists, and
+     their descriptions and fund names come from this fixed list. We never remove anything without the person pressing the button. */
+  const DEMO_DESCS = ['Swiggy order', 'Amazon Purchase', 'Salary Credit', 'Netflix subscription', 'Ola cab', 'Paytm recharge', 'SIP - Axis Bluechip', 'EMI - Home Loan'];
+  const DEMO_FUNDS = ['Axis Bluechip Fund - Direct Growth', 'Parag Parikh Flexi Cap - Direct Growth', 'Mirae Asset Tax Saver - ELSS Direct'];
+  const isDemoConsent = c => !!c && String(c.consentId || '').startsWith('demo_consent_');
+  const readJSON = (k, fb) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch { return fb; } };
+
+  function demoFootprint() {
+    if (!Object.values(getConsents()).some(isDemoConsent)) return { txns: 0, funds: false };
+    const txns  = readJSON('finos_transactions', []);
+    const funds = readJSON('finos_mf_holdings', []);
+    return {
+      txns:  Array.isArray(txns) ? txns.filter(t => t && t.source === 'aa' && DEMO_DESCS.includes(t.desc)).length : 0,
+      funds: Array.isArray(funds) && funds.length > 0 && funds.every(h => h && DEMO_FUNDS.includes(h.fund_name)),
+    };
+  }
+
+  function removeDemoData() {
+    const fp = demoFootprint();
+    if (fp.txns) {
+      const keep = readJSON('finos_transactions', []).filter(t => !(t && t.source === 'aa' && DEMO_DESCS.includes(t.desc)));
+      localStorage.setItem('finos_transactions', JSON.stringify(keep));
+      const aa = keep.filter(t => t && t.source === 'aa');
+      if (aa.length) {
+        localStorage.setItem('finos_aa_income',  String(aa.filter(t => t.type === 'credit').reduce((s, t) => s + (Number(t.amount) || 0), 0)));
+        localStorage.setItem('finos_aa_expense', String(aa.filter(t => t.type === 'debit').reduce((s, t) => s + (Number(t.amount) || 0), 0)));
+      } else { localStorage.removeItem('finos_aa_income'); localStorage.removeItem('finos_aa_expense'); }
     }
-    return txns;
+    if (fp.funds) { localStorage.removeItem('finos_mf_holdings'); localStorage.removeItem('finos_mf_portfolio_value'); }
+    const consents = getConsents(), syncs = getLastSync();
+    Object.keys(consents).forEach(id => { if (isDemoConsent(consents[id])) { delete consents[id]; delete syncs[id]; } });
+    localStorage.setItem(CONSENT_KEY, JSON.stringify(consents));
+    localStorage.setItem(SYNC_KEY, JSON.stringify(syncs));
+    return fp;
   }
 
-  function _generateDemoMF() {
-    return [
-      { fund_name:'Axis Bluechip Fund - Direct Growth', category:'large_cap', units:245.8, nav:62.4, current_value:15337, invested:12000, is_direct:true, expense_ratio:0.43 },
-      { fund_name:'Parag Parikh Flexi Cap - Direct Growth', category:'flexi_cap', units:128.4, nav:78.9, current_value:10128, invested:8000, is_direct:true, expense_ratio:0.58 },
-      { fund_name:'Mirae Asset Tax Saver - ELSS Direct', category:'elss', units:389.2, nav:38.7, current_value:15062, invested:12000, is_direct:true, expense_ratio:0.51 },
-    ];
+  function _showUnavailable(provider) {
+    document.getElementById('finos-aa-modal')?.remove();
+    const modal = document.createElement('div');
+    modal.id = 'finos-aa-modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', provider.name + ' is not available yet');
+    modal.innerHTML = `
+      <style>
+        #finos-aa-modal { position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px; }
+        .aa-modal-box { background:#0d0f1a;border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:28px;max-width:440px;width:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#F5F7FA; }
+        .aa-modal-box a, .aa-modal-box button { display:block;width:100%;box-sizing:border-box;text-align:center;padding:12px;border-radius:12px;margin-top:10px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;font-family:inherit; }
+      </style>
+      <div class="aa-modal-box">
+        <div style="font-size:18px;font-weight:800;margin-bottom:8px;">${provider.name} is not available yet</div>
+        <p style="font-size:13px;line-height:1.7;color:#b4bccb;margin:0 0 6px;">Live bank connections need a registered provider partnership that FIN-OS does not have yet, so nothing is connected and nothing is sent anywhere.</p>
+        <p style="font-size:13px;line-height:1.7;color:#b4bccb;margin:0;">You can still bring your transactions in: download a statement from your bank (CSV) and import it here. It is read on this device and never uploaded.</p>
+        <a href="import-statement.html" style="background:#3560E0;border:1px solid #3560E0;color:#fff;">Import a statement file</a>
+        <button type="button" onclick="window.FinosAA._demoMode('${provider.id}')" style="background:transparent;border:1px solid rgba(255,255,255,.2);color:#F5F7FA;">See a sample (nothing is saved)</button>
+        <button type="button" onclick="document.getElementById('finos-aa-modal')?.remove()" style="background:none;border:none;color:#b4bccb;">Close</button>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.querySelector('a').focus();
   }
 
   /* ── UI Components ─────────────────────────────────────────────── */
@@ -381,15 +395,15 @@
       toast.innerHTML = `
         <div style="font-size:22px;">✅</div>
         <div>
-          <div style="font-size:13px;font-weight:700;color:#22d3a6;">${isDemo ? 'Demo data loaded' : provider.name + ' synced'}!</div>
-          <div style="font-size:11px;color:#8892a4;">Your financial data is up to date${isDemo ? ' (simulated)' : ''}.</div>
+          <div style="font-size:13px;font-weight:700;color:#22d3a6;">${isDemo ? 'This was a sample only' : provider.name + ' synced'}</div>
+          <div style="font-size:11px;color:#8892a4;">${isDemo ? 'Nothing was saved to your records.' : 'Your financial data is up to date.'}</div>
         </div>
       `;
       setTimeout(() => toast?.remove(), 4000);
     }
     if (window.AryaAI?._speak) {
       window.AryaAI._speak(isDemo
-        ? 'Demo data loaded! This is how Account Aggregator will work when you connect your real bank account.'
+        ? 'That was a sample of how Account Aggregator could look. Nothing was saved.'
         : `${provider.name} synced successfully! Your transactions and portfolio are now up to date.`);
     }
   }
@@ -436,13 +450,19 @@
         .aa-info-list { list-style:none;padding:0;margin:0; }
         .aa-info-list li { font-size:12px;color:#a0aec0;padding:4px 0;line-height:1.5; }
         .aa-info-list li::before { content:"✓ ";color:#7b2ff7;font-weight:700; }
+        .aa-notice { background:rgba(79,124,255,.10);border:1px solid rgba(79,124,255,.35);border-radius:14px;padding:14px 16px;margin-bottom:16px;font-size:13px;line-height:1.6;color:#d5dbe8; }
+        .aa-notice a { color:#9db8ff;font-weight:700;text-decoration:underline; }
+        .aa-notice.warn { background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.45); }
+        .aa-notice button { margin-top:8px;padding:8px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:transparent;color:#F5F7FA;font-weight:700;cursor:pointer;font-family:inherit; }
       </style>
 
       <div class="aa-wrap">
         <div class="aa-header">
           <div class="aa-title">🔗 Account Aggregator</div>
-          <div class="aa-sub">Connect your bank accounts and mutual funds for automatic data sync. RBI-regulated, 100% secure.</div>
+          <div class="aa-sub">Automatic bank and mutual-fund sync through the RBI Account Aggregator framework.</div>
         </div>
+        <div class="aa-notice" role="note"><strong>Live connections are not available yet.</strong> They need a registered provider partnership that FIN-OS does not have, so nothing is connected and nothing is sent anywhere. <a href="import-statement.html">Import a statement file</a> instead: it is read on this device and never uploaded.</div>
+        ${(() => { const fp = demoFootprint(); return (fp.txns || fp.funds) ? `<div class="aa-notice warn" role="alert">Sample data from an earlier Demo Mode is mixed into your records (${fp.txns} sample transaction${fp.txns === 1 ? '' : 's'}${fp.funds ? ' and sample mutual funds' : ''}). It is not yours and it skews your totals.<br><button type="button" onclick="window.FinosAA._removeDemoData('${containerId}')">Remove the sample data</button></div>` : ''; })()}
 
         <div class="aa-provider-grid">
           ${AA_PROVIDERS.map(p => {
@@ -468,14 +488,14 @@
                 ${connected
                   ? `<button class="aa-btn aa-btn-sync" onclick="window.FinosAA.sync('${p.id}')">🔄 Sync Now</button>
                      <button class="aa-btn aa-btn-revoke" onclick="window.FinosAA.revoke('${p.id}')">Revoke consent</button>`
-                  : `<button class="aa-btn aa-btn-connect" onclick="window.FinosAA.connect('${p.id}')">Connect ${p.name}</button>`}
+                  : `<button class="aa-btn aa-btn-connect" onclick="window.FinosAA.connect('${p.id}')">${p.name}: not available yet</button>`}
               </div>
             `;
           }).join('')}
         </div>
 
         <div class="aa-info-box">
-          <div class="aa-info-title">🔒 How AA keeps your data safe</div>
+          <div class="aa-info-title">🔒 How Account Aggregator is meant to work</div>
           <ul class="aa-info-list">
             <li>You control consent — grant, modify, or revoke any time</li>
             <li>Data flows directly from your bank to FIN-OS (AA doesn't store it)</li>
@@ -514,6 +534,9 @@
     renderDashboard,
     getConsents,
     getLastSync,
+    LIVE_ENABLED,
+    demoFootprint,
+    removeDemoData,
 
     /* Internal helpers exposed for modal buttons */
     _saveKeyAndConnect(providerId) {
@@ -522,6 +545,12 @@
       localStorage.setItem(`finos_aa_key_${providerId}`, key);
       document.getElementById('finos-aa-modal')?.remove();
       initiateConsent(providerId);
+    },
+
+    _removeDemoData(containerId) {
+      const fp = removeDemoData();
+      renderDashboard(containerId);
+      window.FinosToast?.show?.('Removed ' + fp.txns + ' sample transaction' + (fp.txns === 1 ? '' : 's') + (fp.funds ? ' and the sample funds' : '') + '.', 'info');
     },
 
     _demoMode(providerId) {

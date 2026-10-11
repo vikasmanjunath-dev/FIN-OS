@@ -73,11 +73,15 @@
    *           'uncapped' (80E: equals the interest you pay) gets no number.
    * Core savings are applied one after another so they add up exactly to the combined old-regime saving.
    * opts.alreadyClaimed80c (₹) defaults to min(₹1.5L, 12% of income) — what salaried people typically already use.
+   * opts.alreadyClaimedOther (₹, default 0) is anything else already claimed in the old regime (80D, NPS 80CCD(1B), …), so the
+   * "current" old-regime tax reflects it. Callers that pass a section's remaining room as its maxDeduction should pass what
+   * they already claim here, or the old-regime baseline is overstated.
    */
   function savingsPlan(income, sections, opts) {
     const gross = clamp(income);
     const used80c = Math.max(0, opts && opts.alreadyClaimed80c != null ? Number(opts.alreadyClaimed80c) : Math.min(150000, gross * 0.12));
-    const oldTaxableOf = (extra) => Math.max(0, gross - 50000 - used80c - extra);
+    const usedOther = Math.max(0, Number(opts && opts.alreadyClaimedOther) || 0);
+    const oldTaxableOf = (extra) => Math.max(0, gross - 50000 - used80c - usedOther - extra);
 
     const newTax = taxNew(gross - 75000);
     const oldNow = taxOld(oldTaxableOf(0));
@@ -100,7 +104,7 @@
 
     // Smallest total of old-regime deductions (above the ₹50,000 standard deduction, everything included) at which the
     // old regime costs no more than the new one.
-    const oldWith = (d) => taxOld(Math.max(0, gross - 50000 - d));
+    const oldWith = (d) => taxOld(Math.max(0, gross - 50000 - d));      // d = TOTAL old-regime deductions, so it already includes usedOther
     let breakEven = 0;
     if (oldWith(0) > newTax) {
       let lo = 0, hi = Math.max(0, gross - 50000);              // at d = hi the taxable income is 0, so tax is 0 ≤ newTax
