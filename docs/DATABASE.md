@@ -15,7 +15,8 @@ FIN-OS uses one Supabase project for all persistent storage.
 | Alert engine | alerts, push_subscriptions, alert_preferences | `alerts/schema.sql` |
 | Voice agent | agent_memories | `voiceagent/schema.sql` |
 
-All tables have **Row Level Security (RLS)** enabled. Users access only their own data.  
+Every table is meant to have **Row Level Security (RLS)** enabled with an "own rows only" policy, so users access only their own data.  
+> **Verified Oct 11 2026:** this was *not* true of the live project — `profiles` had RLS switched off (a policy existed but `ENABLE ROW LEVEL SECURITY` had never run), so every row was readable with the public anon key, and most core tables did not exist. The repo now ships the fixes: run `supabase/profiles_rls.sql`, then `core_tables.sql`, `holdings.sql`, `tracker_snapshot.sql` (order and checks in `supabase/README.md`).  
 `service_role` keys (backend `.env` only) bypass RLS.
 
 ---

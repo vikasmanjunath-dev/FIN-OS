@@ -85,6 +85,6 @@ INDEX_TICKERS = {
     "SENSEX":       "^BSESN",
     "NIFTY BANK":   "^NSEBANK",
     "NIFTY IT":     "^CNXIT",
-    "NIFTY MIDCAP": "NIFTYMIDCAP50.NS",
+    "NIFTY MIDCAP": "^NSEMDCP50",
     "INDIA VIX":    "^INDIAVIX",
 }

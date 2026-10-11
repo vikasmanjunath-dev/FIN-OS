@@ -214,6 +214,63 @@ def get_market_overview() -> dict:
     return result
 
 
+# ── Sector indices ─────────────────────────────────────────────────────────────
+
+# NSE index name -> (short label, yfinance fallback ticker)
+SECTOR_INDICES = {
+    "NIFTY IT":     ("IT",     "^CNXIT"),
+    "NIFTY BANK":   ("BANK",   "^NSEBANK"),
+    "NIFTY FMCG":   ("FMCG",   "^CNXFMCG"),
+    "NIFTY PHARMA": ("PHARMA", "^CNXPHARMA"),
+    "NIFTY AUTO":   ("AUTO",   "^CNXAUTO"),
+    "NIFTY METAL":  ("METAL",  "^CNXMETAL"),
+    "NIFTY ENERGY": ("ENERGY", "^CNXENERGY"),
+    "NIFTY REALTY": ("REALTY", "^CNXREALTY"),
+}
+
+
+def get_sector_overview() -> dict:
+    """Day change for the main NSE sector indices. NSE's allIndices first, yfinance for any it lacks.
+    Sectors that cannot be fetched are simply absent — callers must not invent numbers for them."""
+    key = "market:sectors"
+    cached = cache.get(key, TTL_INDEX)
+    if cached:
+        return cached
+
+    sectors = {}
+    nse_data = _nse.get("/api/allIndices")
+    if nse_data and "data" in nse_data:
+        for idx in nse_data["data"]:
+            name = idx.get("indexSymbol", "")
+            if name in SECTOR_INDICES and idx.get("percentChange") is not None:
+                sectors[name] = {
+                    "label":      SECTOR_INDICES[name][0],
+                    "price":      idx.get("last"),
+                    "change":     idx.get("variation"),
+                    "change_pct": idx.get("percentChange"),
+                    "source":     "nse_api",
+                }
+    for name, (label, ticker) in SECTOR_INDICES.items():
+        if name in sectors:
+            continue
+        try:
+            hist = yf.Ticker(ticker).history(period="5d")
+            if len(hist) >= 2:
+                price = float(hist["Close"].iloc[-1])
+                prev = float(hist["Close"].iloc[-2])
+                sectors[name] = {
+                    "label": label, "price": round(price, 2), "change": round(price - prev, 2),
+                    "change_pct": round((price - prev) / prev * 100, 2) if prev else 0, "source": "yfinance",
+                }
+        except Exception:
+            pass
+
+    result = {"sectors": sectors, "as_of": int(time.time())}
+    if sectors:                                   # never cache an empty answer
+        cache.set(key, result)
+    return result
+
+
 # ── Mutual Fund NAVs ───────────────────────────────────────────────────────────
 
 _mf_nav_store: dict[str, dict] = {}   # scheme_code → {nav, name, ...}
@@ -443,6 +500,49 @@ def get_historical(symbol: str, period: str = "1y", interval: str = "1d",
             ],
         }
     except Exception as e:
+        return {"error": str(e)}
+
+
+# ── Chart data in the shape the Trading Brain page reads ─────────────────────
+# The page used to fetch Yahoo Finance through a public relay (allorigins.win), which saw every symbol looked up. This serves the same
+# arrays from this machine instead. `symbol` is a Yahoo symbol exactly as the page uses it (RELIANCE.NS, ^NSEI, GC=F).
+import re as _re
+
+_CHART_SYMBOL    = _re.compile(r"^[A-Za-z0-9.^=&\-]{1,24}$")
+_CHART_INTERVALS = {"1m", "2m", "5m", "15m", "30m", "60m", "1h", "1d", "5d", "1wk", "1mo"}
+_CHART_RANGES    = {"1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"}
+TTL_CHART        = 60
+
+
+def get_chart(symbol: str, interval: str = "1d", range_: str = "3mo") -> dict:
+    if not _CHART_SYMBOL.match(symbol or ""):
+        return {"error": "Invalid symbol"}
+    if interval not in _CHART_INTERVALS or range_ not in _CHART_RANGES:
+        return {"error": "Invalid interval or range"}
+    key = f"chart:{symbol}:{interval}:{range_}".upper()
+    cached = cache.get(key, TTL_CHART)
+    if cached:
+        return cached
+    try:
+        t = yf.Ticker(symbol)
+        hist = t.history(period=range_, interval=interval, auto_adjust=False)
+        if hist is None or hist.empty:
+            return {"error": f"No data for {symbol}"}
+        hist = hist.dropna(subset=["Close"])
+        col = lambda name: [round(float(v), 2) for v in hist[name].tolist()]   # noqa: E731
+        closes = col("Close")
+        current = closes[-1]
+        try:
+            last = float(t.fast_info.last_price)
+            if last > 0:
+                current = round(last, 2)
+        except Exception:                                                     # noqa: BLE001  fast_info is optional
+            pass
+        out = {"symbol": symbol, "interval": interval, "closes": closes, "opens": col("Open"), "highs": col("High"), "lows": col("Low"),
+               "volumes": [int(v) for v in hist["Volume"].fillna(0).tolist()], "currentPrice": current}
+        cache.set(key, out)
+        return out
+    except Exception as e:                                                    # noqa: BLE001
         return {"error": str(e)}
 
 

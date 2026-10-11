@@ -49,4 +49,4 @@ India's retail investor base has grown sharply (SIP accounts, demat accounts) fa
 - **Local-only AI/backends:** Ollama, voice agent, and most Python services run locally, not on Vercel — no cloud AI inference cost today, but also no server-side AI for users unless self-hosted.
 - **Static hosting only:** Vercel serves static files; anything needing a live backend (voice, alerts, live market data) depends on the user's own machine running those services.
 - **Free tier only, no revenue today:** every business requirement above assumes a pre-revenue phase.
-- **No live cloud project today:** the Supabase project the site points to no longer resolves, so accounts and cross-device sync are unavailable until a new project is set up; the site and mobile app run in guest mode on local storage.
+- **Cloud project not fully set up:** the Supabase project the site points to is reachable again (checked Oct 11 2026) but only 5 of the tables the product uses exist, and `profiles` had row-level security off. Accounts can sign in; cross-device sync and cloud-backed features need `supabase/*.sql` run first. Until then the site and mobile app keep data on the device.

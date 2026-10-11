@@ -31,7 +31,7 @@ Covers performance, security, scalability, reliability, and usability requiremen
 - **Frontend scales for free** via Vercel's static CDN — the 120-page frontend is not the bottleneck at any realistic user count.
 - **Local backends do not scale to multiple concurrent users** by design — each runs on the individual user's/developer's machine, not as a shared multi-tenant service; this is fine for a single-founder dev workflow but is a hard blocker before any backend-dependent feature (voice, live alerts) can serve the whole user base centrally.
 - **Port conflicts:** the old chatbot-brain vs. stock-engine clash on 8000 is gone (stock engine now on 8003), and the gateway's aggregated /health endpoint reports which services are down.
-- **Supabase availability** is the single point of failure for all personalized/tracked features; calculators alone remain usable if Supabase is unreachable. Today the project the site points to no longer resolves, so the site runs in guest mode.
+- **Supabase availability** is the single point of failure for all personalized/tracked features; calculators alone remain usable if Supabase is unreachable. As of Oct 11 2026 the project is reachable but missing most tables (`transactions`, `goals`, `budgets`, `holdings`, `tracker_snapshot`…), so those features fall back to on-device storage; `profiles` also had row-level security switched off until `supabase/profiles_rls.sql` is run.
 
 ## Usability & accessibility
 

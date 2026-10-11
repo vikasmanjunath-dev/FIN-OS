@@ -162,7 +162,7 @@ FIN-OS fills this gap with a voice-first, desi-native AI that speaks the user's 
 - [ ] Zerodha Kite API live sync — client (`finos-kite.js`) and arya-ai proxy are built; needs `KITE_API_KEY` / `KITE_API_SECRET` in `arya-ai/.env` to go live
 - [ ] Voice on every page — floating mic widget (`finos-widget.js`) is on 112 of 120 pages; the dedicated voice agent page remains the full experience
 - [ ] Mobile-responsive fixes for voice agent UI
-- [ ] Supabase auth on all pages — **blocked:** the Supabase project in `js/auth.js` no longer resolves, so the site runs in guest mode until a new project is configured and `supabase/*.sql` is run
+- [ ] Supabase auth on all pages — **partly unblocked:** the project in `js/auth.js` is reachable again (Oct 11 2026) but most tables are missing and `profiles` had row-level security off; run `supabase/profiles_rls.sql` first, then `core_tables.sql`, `holdings.sql`, `tracker_snapshot.sql`
 - [ ] Real-statement test of CAS PDF import (built, verified only with a stubbed parser)
 - [ ] Verify the mobile app's Supabase login and holdings sync against a live project, and add an EAS device build
 
@@ -330,5 +330,5 @@ All interactive elements must use the zero-fill hover vocabulary (`css/interacti
 | Phase 15 — Mobile app (Expo) — guest mode, live prices, trackers; Supabase sync untested | 🟡 In progress | Started Jul 2026 |
 | Phase 16 — Kite API live sync | 🔲 Built, needs API key | Slipped from Q3 2026 |
 | Phase 17 — Voice on all pages | 🟡 Widget on 112 of 120 pages | Slipped from Q3 2026 |
-| Phase 18 — Live Supabase project + auth on all pages | 🔲 Blocked (project deleted) | Slipped from Q3 2026 |
+| Phase 18 — Live Supabase project + auth on all pages | 🟡 Project reachable; tables + RLS fix need running | Slipped from Q3 2026 |
 | Phase 19 — Account Aggregator | 🔲 Scaffold only | Q4 2026 |

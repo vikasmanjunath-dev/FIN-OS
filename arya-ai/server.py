@@ -26,9 +26,9 @@ from pydantic import BaseModel
 from config import PORT, HOST, CORS_ORIGINS, OLLAMA_BASE, OLLAMA_MODEL, TTL_QUOTE
 from db.store import init_db, delete_stale, get_recent_news
 from data.market import (
-    get_quote, get_multiple_quotes, get_market_overview,
+    get_quote, get_multiple_quotes, get_market_overview, get_sector_overview,
     get_mf_nav, search_mf, get_commodities, get_crypto,
-    get_fx_rates, get_historical, get_market_status,
+    get_fx_rates, get_historical, get_market_status, get_chart,
 )
 from data.news import fetch_news, web_search, read_url, get_announcements
 from data.portfolio import get_portfolio_summary
@@ -112,6 +112,12 @@ def market_overview():
     return get_market_overview()
 
 
+@app.get("/api/market/sectors")
+def market_sectors():
+    """Day change for the main NSE sector indices (live; a sector that can't be fetched is absent, never faked)."""
+    return get_sector_overview()
+
+
 # ── Quotes ────────────────────────────────────────────────────────────────────
 
 @app.get("/api/quote/{symbol}")
@@ -178,6 +184,17 @@ def history(symbol: str,
             interval: str = Query("1d", description="1m 5m 15m 1h 1d 1wk 1mo"),
             exchange: str = Query("NSE")):
     return get_historical(symbol.upper(), period, interval, exchange.upper())
+
+
+@app.get("/api/chart")
+def chart(symbol: str = Query(..., description="Yahoo symbol, e.g. RELIANCE.NS, ^NSEI, GC=F"),
+          interval: str = Query("1d", description="1m 5m 15m 30m 60m 1d 5d 1wk 1mo"),
+          range: str = Query("3mo", description="1d 5d 1mo 3mo 6mo 1y 2y 5y 10y ytd max")):
+    """OHLCV arrays + current price for a Yahoo symbol, served from this machine (replaces the public relay the Trading Brain page used)."""
+    out = get_chart(symbol, interval, range)
+    if "error" in out:
+        raise HTTPException(status_code=400 if out["error"].startswith("Invalid") else 502, detail=out["error"])
+    return out
 
 
 # ── Technical Analysis ────────────────────────────────────────────────────────

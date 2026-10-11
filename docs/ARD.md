@@ -52,7 +52,7 @@ flowchart TD
 ## Scalability & planned evolution
 
 - **Phase 13 (Zerodha Kite API):** adds a live brokerage data spoke — the client (finos-kite.js) and arya-ai proxy are built; it goes live once API keys are set. It follows the existing arya-ai pattern (one gateway, not per-feature endpoints).
-- **Phase 15 (Supabase auth everywhere):** currently blocked: the Supabase project the site points to no longer resolves, so pages run in guest mode. A new project is needed before a full rollout can remove the last pages relying on `guard.js` redirects without a backing session check.
+- **Phase 15 (Supabase auth everywhere):** partly unblocked: the Supabase project the site points to is reachable again (checked Oct 11 2026) but nearly empty: only `profiles`, `alerts`, `push_subscriptions`, `alert_preferences` and `agent_memories` exist, and `profiles` had row-level security switched off. Run `supabase/profiles_rls.sql` and `supabase/core_tables.sql` (plus `holdings.sql`, `tracker_snapshot.sql`) before a full rollout can remove the last pages relying on `guard.js` redirects without a backing session check.
 - **Phase 16 (SEBI Account Aggregator):** the biggest architectural shift (only a client scaffold, finos-aa.js, exists today) — introduces consented, pulled financial data from external FIPs (Finvu, OneMoney, Perfios, CAMS MF), which will need its own ingestion/normalization layer before landing in the existing Supabase schema.
 - **Phase 17 (Expo / React Native app, in progress):** the app ports the website's formulas into pure TypeScript modules (mobile/lib) and checks them for parity against the web code; sharing the logic in one platform-agnostic package instead of porting it remains the cleaner long-term option.
 

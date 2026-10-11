@@ -188,6 +188,9 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS
 
 -- ── 13. Complete RLS on core tables (run if not already applied) ──────────
 -- profiles: own row only
+-- (RLS must be ENABLED for a policy to have any effect — it was missing here, leaving `profiles` readable by anyone
+--  with the anon key; fixed Oct 2026, see supabase/profiles_rls.sql)
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 DO $$ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE tablename='profiles' AND policyname='profiles_own'
