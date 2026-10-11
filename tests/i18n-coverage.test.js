@@ -178,3 +178,35 @@ test('the importer page and the feedback page declare their templates, and every
   }
   assert.deepStrictEqual(missing, {});
 });
+
+/* ── PULSE: ranking reasons, the since-last-visit strip and the Money Score card ─────────────────────────────── */
+test('every PULSE ranking reason and change line has a translatable twin and a Hindi entry', () => {
+  const R = require('../js/arya-pulse-rank.js');
+  const keys = new Set();
+  const fillK = (k, p) => String(k).replace(/\{(\w+)\}/g, (_, n) => (p && p[n] != null ? p[n] : ''));
+  // every reason any rule can give, across a spread of people
+  const ctxs = [{}, { month: 3, gap80c: 50000, income: 80000, expense: 40000, debt: 900000, policies: 0, holdings: 1, sip: 1, goals: 1, txns: 1, netWorth: 1, moneyScore: null },
+    { month: 7, gap80c: 1000, income: 80000, expense: 79000, debt: 10, policies: 1, moneyScore: 30 }, { month: 6, income: 50000, expense: 20000, moneyScore: 50 }, { month: 9, moneyScore: 70 }, { month: 12, age: 25, moneyScore: 90 }];
+  for (const c of ctxs) for (const r of R.rank(c)) if (r.reason) {
+    assert.ok(r.reasonT && r.reasonT.key, 'reason without a twin: ' + r.reason);
+    assert.strictEqual(fillK(r.reasonT.key, r.reasonT.params), r.reason, 'the twin must reproduce the English text');
+    keys.add(r.reasonT.key);
+  }
+  assert.ok(keys.size >= 8, 'reason harvest looks too small: ' + keys.size);
+  // every literal reason in the source, so a rule the contexts above do not reach is still checked
+  const src = fs.readFileSync(path.join(ROOT, 'js', 'arya-pulse-rank.js'), 'utf8');
+  for (const m of src.matchAll(/why: '((?:[^'\\]|\\.)*)'/g)) keys.add(m[1].replace(/\\'/g, "'"));
+  for (const m of src.matchAll(/key: '((?:[^'\\]|\\.)*)'/g)) keys.add(m[1]);
+  // the change lines
+  const prev = { at: 0, netWorth: 100000, debt: 50000, sip: 0, savingsRate: 20, emergencyMonths: 2, policies: 0, goals: 0, moneyScore: 40 };
+  for (const cur of [
+    { at: 1e9, netWorth: 200000, debt: 10000, sip: 0, savingsRate: 30, emergencyMonths: 4, policies: 1, goals: 1, moneyScore: 55 },
+    { at: 1e9, netWorth: 50000, debt: 90000, sip: 0, savingsRate: 10, emergencyMonths: 1, policies: 2, goals: 3, moneyScore: 30 },
+  ]) for (const ch of R.diff(prev, cur).concat(R.diff({ ...prev, policies: 0, goals: 0 }, { ...cur, policies: 3, goals: 2 }))) {
+    assert.ok(ch.textT && ch.textT.key, 'change without a twin: ' + ch.text);
+    assert.strictEqual(fillK(ch.textT.key, ch.textT.params), ch.text);
+    keys.add(ch.textT.key);
+  }
+  ['Since your last visit', 'Recommended for you'].forEach((k) => keys.add(k));
+  assert.deepStrictEqual([...keys].filter((k) => !(k in TABLE)), []);
+});

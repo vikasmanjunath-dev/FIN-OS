@@ -432,7 +432,7 @@
     const entry = {
       inputs: result.inputs, score: result.score, band: result.band.id, pillars: result.pillars.map((p) => ({ id: p.id, score: p.score })),
       weakest: weakest ? { id: weakest.id, label: weakest.label, score: weakest.score } : null,
-      top: top ? { id: top.id, title: top.title, gain: top.gain, href: top.href, cta: top.cta } : null,
+      top: top ? { id: top.id, title: top.title, titleT: top.titleT || null, gain: top.gain, href: top.href, cta: top.cta } : null,
       at: new Date().toISOString(), v: VERSION,
     };
     wr(KEY, entry);

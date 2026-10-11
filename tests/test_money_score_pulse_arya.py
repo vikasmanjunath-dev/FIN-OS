@@ -188,3 +188,82 @@ def test_end_to_end_take_the_score_then_see_it_in_pulse_and_in_arya(env):
     block = pg.evaluate("AryaAI.getContextBlock()")
     assert "FIN-OS Money Score: 35/100." in block and "Weakest area: Insurance cover" in block
     ctx.close()
+
+
+# ── Hindi ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+HI = "localStorage.setItem('finos_lang', 'hi');"
+SAVED_T = dict(SAVED, top=dict(SAVED["top"], titleT={"key": "Build your emergency fund by {gap}", "params": {"gap": {"m": 440000}}}))
+LEFT = """(() => { const sec = document.querySelector('[data-pulse-card="moneyScore"]'); const out = [];
+  const w = document.createTreeWalker(sec, NodeFilter.SHOW_TEXT);
+  for (let n = w.nextNode(); n; n = w.nextNode()) { const t = n.nodeValue.replace(/\\s+/g, ' ').trim();
+    if (t && !/[\\u0900-\\u097F]/.test(t) && !/^[\\d\\s.,₹+−\\-:|/·%…→▲▼🧭]+$/.test(t)) out.push(t); }
+  return out; })()"""
+
+
+def open_pulse_hi(env, score=None, history=None, **kw):
+    ctx, pg, errors = open_dashboard(env, seed(score, history, extra=HI))
+    pg.wait_for_function("window.FinosI18n && FinosI18n.lang() === 'hi'", timeout=15000)
+    open_pulse(pg)
+    return ctx, pg, errors
+
+
+def test_hindi_pulse_card_shows_score_trend_weakest_area_and_next_move_in_hindi(env):
+    ctx, pg, errors = open_pulse_hi(env, SAVED_T, HISTORY)
+    card = pg.evaluate(CARD.replace("includes('Money Score')", "includes('मनी स्कोर')"))
+    text = card["text"]
+    assert "ध्यान देने की ज़रूरत" in text and "35" in text
+    assert "▲ +6" in text and "2026-09-01" in text
+    assert "सबसे कमज़ोर क्षेत्र:" in text and "(100 में से 0)" in text
+    assert "अपनी आपातकालीन निधि में ₹4.40 लाख और जोड़ें" in text, text            # titleT is translated, money in lakh
+    assert "सबसे अच्छा अगला कदम" in text and "+16 अंक" in text
+    assert "आपके लिए सुझाव" in card["recommended"] and "आपका मनी स्कोर 100 में से 35 है।" in card["recommended"]
+    assert pg.evaluate(LEFT) == []
+    assert 'aria-label="100 में से 35 मनी स्कोर"' in card["html"]
+    ask = pg.locator("#arya-pulse-container .asp-view-ask-btn[data-msg*='35']").first.get_attribute("data-msg")
+    assert ask.startswith("मेरा मनी स्कोर 100 में से 35 है और मेरा सबसे कमज़ोर क्षेत्र")
+    assert pg.locator("#arya-pulse-container a[href='/html/emergency-fund.html']").count() == 1      # links are unchanged
+    assert not errors
+    ctx.close()
+
+
+def test_hindi_invitation_when_there_is_no_score(env):
+    ctx, pg, errors = open_pulse_hi(env)
+    card = pg.evaluate(CARD.replace("includes('Money Score')", "includes('मनी स्कोर')"))
+    assert "मेरा स्कोर पाएँ →" in card["text"] and "आपके डिवाइस पर ही रहता है" in card["text"]
+    assert "आपने अभी तक अपना मनी स्कोर नहीं देखा है।" in card["recommended"]
+    assert pg.evaluate(LEFT) == []
+    ctx.close()
+
+
+def test_an_older_save_without_a_template_still_shows_and_does_not_break_hindi(env):
+    ctx, pg, errors = open_pulse_hi(env, SAVED, HISTORY)                       # SAVED has no titleT
+    card = pg.evaluate(CARD.replace("includes('Money Score')", "includes('मनी स्कोर')"))
+    assert "Build your emergency fund by ₹4.40 L" in card["text"]            # the saved English text, not a blank
+    assert "सबसे कमज़ोर क्षेत्र:" in card["text"]
+    assert not errors
+    ctx.close()
+
+
+def test_switching_language_rebuilds_pulse_in_place_and_back_restores_english(env):
+    ctx, pg, errors = open_dashboard(env, seed(SAVED_T, HISTORY))
+    open_pulse(pg)
+    english = pg.evaluate(CARD)["text"]
+    assert "Build your emergency fund by ₹4.40 L" in english
+    pg.add_script_tag(url=pg.url.rsplit("/html/", 1)[0] + "/js/finos-i18n.js") if not pg.evaluate("!!window.FinosI18n") else None
+    pg.evaluate("FinosI18n.setLang('hi')")
+    pg.wait_for_function("document.querySelector('[data-pulse-card=\"moneyScore\"]') && /[\\u0900-\\u097F]/.test(document.querySelector('[data-pulse-card=\"moneyScore\"]').innerText)", timeout=10000)
+    assert "अपनी आपातकालीन निधि में ₹4.40 लाख और जोड़ें" in pg.inner_text("[data-pulse-card='moneyScore']")
+    pg.evaluate("FinosI18n.setLang('en')")
+    pg.wait_for_function("document.querySelector('[data-pulse-card=\"moneyScore\"]') && !/[\\u0900-\\u097F]/.test(document.querySelector('[data-pulse-card=\"moneyScore\"]').innerText)", timeout=10000)
+    assert pg.inner_text("[data-pulse-card='moneyScore']") == english
+    assert not errors
+    ctx.close()
+
+
+def test_hostile_template_in_a_saved_move_cannot_inject_markup_in_hindi(env):
+    evil = dict(SAVED_T, top=dict(SAVED_T["top"], titleT={"key": "<img src=x onerror=window.__pwned=1>{x}", "params": {"x": "<script>window.__pwned=1</script>"}}))
+    ctx, pg, errors = open_pulse_hi(env, evil, HISTORY)
+    assert pg.evaluate("window.__pwned") is None
+    assert pg.locator("#arya-pulse-container [data-pulse-card='moneyScore'] img").count() == 0
+    assert "<img" in pg.inner_text("[data-pulse-card='moneyScore']")           # shown as plain text
+    ctx.close()

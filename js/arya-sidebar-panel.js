@@ -1356,6 +1356,20 @@ RULES (non-negotiable):
     return { plan, rows };
   }
 
+  /* ══ TEXT IN THE PERSON'S LANGUAGE (PULSE) ═════════════════════════════════
+     An English template (the exact key in js/i18n/hi.js, {holes} for values); with no entry the English shows. Values are escaped
+     by the caller. Money is shown as ₹4.40 L / ₹4.40 लाख like the Money Score page. */
+  function _pulseT(key, params) {
+    const I = window.FinosI18n, hi = !!(I && I.lang && I.t && I.lang() === 'hi');
+    const money = n => { n = Math.round(Number(n) || 0); const a = Math.abs(n); let m = a >= 1e7 ? '₹' + (a / 1e7).toFixed(2) + ' Cr' : a >= 1e5 ? '₹' + (a / 1e5).toFixed(2) + ' L' : '₹' + a.toLocaleString('en-IN');
+      if (hi) m = m.replace(/(\d) Cr\b/, '$1 करोड़').replace(/(\d) L\b/, '$1 लाख'); return n < 0 ? '-' + m : m; };
+    return String(hi ? I.t(key, key) : key).replace(/\{(\w+)\}/g, (_, k) => {
+      const v = params && params[k];
+      if (v && typeof v === 'object') { if ('m' in v) return money(v.m); if ('p' in v) return Math.round(v.p * 100) + '%'; if ('d' in v) return Number(v.d).toFixed(1); if ('t' in v) return _pulseT(String(v.t)); }
+      return v == null ? '' : String(v);
+    });
+  }
+
   /* ══ MONEY SCORE ═════════════════════════════════════════════════════════
      Reads the result js/finos-money-score.js saves to `finos_money_score`, so PULSE never has to load the scoring code.
      No score yet → an invitation. Links are limited to our own ../html and ../calculators pages. */
@@ -1364,36 +1378,42 @@ RULES (non-negotiable):
     try { ms = JSON.parse(localStorage.getItem('finos_money_score') || 'null'); } catch {}
     try { hist = JSON.parse(localStorage.getItem('finos_money_score_history') || '[]'); } catch {}
     const e = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    const wrap = inner => `<div class="apl-lab-section asp-fade-in" style="border-top:1px solid rgba(255,255,255,.07);padding:14px 0 10px">${inner}</div>`;
+    const wrap = inner => `<div class="apl-lab-section asp-fade-in" data-pulse-card="moneyScore" style="border-top:1px solid rgba(255,255,255,.07);padding:14px 0 10px">${inner}</div>`;
+    const T = _pulseT;
     const safeHref = h => (/^\.\.\/(html|calculators)\/[A-Za-z0-9_%\-\/.]+(#[A-Za-z0-9_\-]+)?$/.test(String(h || '')) ? String(h).replace('../', '/') : '/html/money-score.html');
     const score = ms && Number.isFinite(+ms.score) ? Math.max(0, Math.min(100, Math.round(+ms.score))) : null;
     if (score === null) {
       return wrap(`<div style="padding:0 14px">
-        <div class="apl-section-title" style="margin:0 0 8px">🧭 Money Score</div>
-        <div style="font-size:11px;line-height:1.6;color:rgba(255,255,255,.7);margin-bottom:10px">One number for your financial health, plus the 3 moves that would lift it most. Takes about a minute and stays on your device.</div>
-        <a href="/html/money-score.html" style="display:inline-block;padding:8px 16px;border-radius:10px;background:#3560E0;color:#fff;font-size:11px;font-weight:800;text-decoration:none">Get my score →</a>
+        <div class="apl-section-title" style="margin:0 0 8px">🧭 ${e(T('Money Score'))}</div>
+        <div style="font-size:11px;line-height:1.6;color:rgba(255,255,255,.7);margin-bottom:10px">${e(T('One number for your financial health, plus the 3 moves that would lift it most. Takes about a minute and stays on your device.'))}</div>
+        <a href="/html/money-score.html" style="display:inline-block;padding:8px 16px;border-radius:10px;background:#3560E0;color:#fff;font-size:11px;font-weight:800;text-decoration:none">${e(T('Get my score →'))}</a>
       </div>`);
     }
     const color = score >= 80 ? '#4f7cff' : score >= 60 ? '#00ffb3' : score >= 40 ? '#ffd93d' : '#ff4d6d';
     const bands = { attention: 'Needs attention', building: 'Getting there', ontrack: 'On track', strong: 'Strong' };
-    const band = bands[ms.band] || (score >= 80 ? 'Strong' : score >= 60 ? 'On track' : score >= 40 ? 'Getting there' : 'Needs attention');
+    const band = T(bands[ms.band] || (score >= 80 ? 'Strong' : score >= 60 ? 'On track' : score >= 40 ? 'Getting there' : 'Needs attention'));
     const R = 22, C = 2 * Math.PI * R;
     const last = Array.isArray(hist) && hist.length >= 2 ? hist[hist.length - 1] : null, prev = last ? hist[hist.length - 2] : null;
     const delta = last && prev && Number.isFinite(+last.score) && Number.isFinite(+prev.score) ? Math.round(+last.score - +prev.score) : null;
-    const trend = delta ? `<span style="font-size:9px;font-weight:800;color:${delta > 0 ? '#00ffb3' : '#ff4d6d'}">${delta > 0 ? '▲ +' : '▼ '}${delta} since ${e(prev.date)}</span>` : '';
-    const weak = ms.weakest && ms.weakest.label ? `<div style="font-size:10px;color:rgba(255,255,255,.58);margin-top:3px">Weakest area: <b style="color:#fff">${e(ms.weakest.label)}</b> (${e(Math.round(+ms.weakest.score) || 0)}/100)</div>` : '';
+    const trend = delta ? `<span style="font-size:9px;font-weight:800;color:${delta > 0 ? '#00ffb3' : '#ff4d6d'}">${e(T(delta > 0 ? '▲ +{n} since {date}' : '▼ {n} since {date}', { n: delta, date: prev.date }))}</span>` : '';
+    const weak = ms.weakest && ms.weakest.label ? `<div style="font-size:10px;color:rgba(255,255,255,.58);margin-top:3px">${T('Weakest area: {label} ({score}/100)', { label: '<b style="color:#fff">' + e(T(String(ms.weakest.label))) + '</b>', score: e(Math.round(+ms.weakest.score) || 0) })}</div>` : '';
+    /* The move's title is saved as English text and as a template + values (titleT), so it can be shown in Hindi. Older saves have only the text. */
+    const tT = ms.top && ms.top.titleT && typeof ms.top.titleT === 'object' && typeof ms.top.titleT.key === 'string' && ms.top.titleT.key.length <= 400 ? ms.top.titleT : null;
+    const topTitle = ms.top && ms.top.title ? e(tT ? T(tT.key, tT.params && typeof tT.params === 'object' ? tT.params : {}) : T(String(ms.top.title))) : '';
     const top = ms.top && ms.top.title ? `<div style="margin:10px 14px 0;padding:9px 11px;background:rgba(53,96,224,.12);border:1px solid rgba(53,96,224,.35);border-radius:10px">
-        <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.58);margin-bottom:3px">Best next move${ms.top.gain > 0 ? ` · +${e(ms.top.gain)} points` : ''}</div>
-        <div style="font-size:11.5px;font-weight:700;color:#fff;line-height:1.5">${e(ms.top.title)}</div>
-        <a href="${e(safeHref(ms.top.href))}" style="display:inline-block;margin-top:6px;font-size:10px;font-weight:800;color:#8fb0ff;text-decoration:none">${e(ms.top.cta || 'Open')} →</a>
+        <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.58);margin-bottom:3px">${e(T('Best next move'))}${ms.top.gain > 0 ? ` · ${e(T('+{n} points', { n: ms.top.gain }))}` : ''}</div>
+        <div style="font-size:11.5px;font-weight:700;color:#fff;line-height:1.5">${topTitle}</div>
+        <a href="${e(safeHref(ms.top.href))}" style="display:inline-block;margin-top:6px;font-size:10px;font-weight:800;color:#8fb0ff;text-decoration:none">${e(T(String(ms.top.cta || 'Open')))} →</a>
       </div>` : '';
-    const ask = `My Money Score is ${score} out of 100${ms.weakest && ms.weakest.label ? ' and my weakest area is ' + ms.weakest.label : ''}. What is the single most effective thing I can do this month to raise it?`;
+    const ask = ms.weakest && ms.weakest.label
+      ? T('My Money Score is {score} out of 100 and my weakest area is {label}. What is the single most effective thing I can do this month to raise it?', { score, label: T(String(ms.weakest.label)) })
+      : T('My Money Score is {score} out of 100. What is the single most effective thing I can do this month to raise it?', { score });
     return wrap(`<div style="display:flex;justify-content:space-between;align-items:center;padding:0 14px;margin-bottom:10px">
-        <div class="apl-section-title" style="margin:0">🧭 Money Score</div>
-        <a href="/html/money-score.html" style="font-size:9px;font-weight:800;color:#8fb0ff;text-decoration:none">Full breakdown →</a>
+        <div class="apl-section-title" style="margin:0">🧭 ${e(T('Money Score'))}</div>
+        <a href="/html/money-score.html" style="font-size:9px;font-weight:800;color:#8fb0ff;text-decoration:none">${e(T('Full breakdown →'))}</a>
       </div>
       <div style="display:flex;align-items:center;gap:14px;padding:0 14px">
-        <svg viewBox="0 0 56 56" style="width:62px;height:62px;flex:none" role="img" aria-label="Money Score ${score} out of 100">
+        <svg viewBox="0 0 56 56" style="width:62px;height:62px;flex:none" role="img" aria-label="${e(T('Money Score {score} out of 100', { score }))}">
           <circle cx="28" cy="28" r="${R}" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="6"/>
           <circle cx="28" cy="28" r="${R}" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${(C * score / 100).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 28 28)"/>
           <text x="28" y="33" text-anchor="middle" font-size="15" font-weight="900" fill="#fff">${score}</text>
@@ -1401,7 +1421,7 @@ RULES (non-negotiable):
         <div><div style="font-size:15px;font-weight:900;color:${color}">${e(band)}</div>${trend}${weak}</div>
       </div>
       ${top}
-      <button class="asp-view-ask-btn" data-msg="${e(ask)}" style="margin:10px 14px 0">Ask Arya how to raise it</button>`);
+      <button class="asp-view-ask-btn" data-msg="${e(ask)}" style="margin:10px 14px 0">${e(T('Ask Arya how to raise it'))}</button>`);
   }
 
   /* PULSE: render widgets in order of relevance to THIS user (js/arya-pulse-rank.js), with a short "why" on the top picks
@@ -1437,7 +1457,7 @@ RULES (non-negotiable):
         };
         const ranked = R.rank(ctx);
         order = ranked.map(r => r.id).filter(id => builders[id]);
-        ranked.filter(r => r.reason).slice(0, 3).forEach(r => { reasons[r.id] = r.reason; });
+        ranked.filter(r => r.reason).slice(0, 3).forEach(r => { reasons[r.id] = r.reasonT && r.reasonT.key ? _pulseT(r.reasonT.key, r.reasonT.params) : r.reason; });
 
         const cur = R.snapshot(ctx);
         let prev = null; try { prev = JSON.parse(localStorage.getItem('finos_pulse_snapshot') || 'null'); } catch {}
@@ -1446,8 +1466,8 @@ RULES (non-negotiable):
         if (changes.length) {
           const col = { good: '#00ffb3', bad: '#ff4d6d' };
           sinceHTML = `<div class="asp-fade-in" style="margin:10px 14px 0;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)">
-            <div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:6px">Since your last visit</div>
-            ${changes.map(c => `<div style="font-size:12px;line-height:1.7;color:${col[c.tone] || '#fff'}">${c.icon} ${c.text}</div>`).join('')}
+            <div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:6px">${_pulseT('Since your last visit')}</div>
+            ${changes.map(c => `<div style="font-size:12px;line-height:1.7;color:${col[c.tone] || '#fff'}">${c.icon} ${c.textT && c.textT.key ? _pulseT(c.textT.key, c.textT.params) : c.text}</div>`).join('')}
           </div>`;
         }
       } catch (e) { console.warn('[PULSE] ranking skipped:', e); order = Object.keys(builders); reasons = {}; }
@@ -1455,7 +1475,7 @@ RULES (non-negotiable):
     const body = order.map(id => {
       const html = builders[id]();
       return reasons[id]
-        ? `<div style="margin:12px 14px -4px;font-size:11px;line-height:1.5;color:#ffd93d">⭐ <b>Recommended for you</b> — ${reasons[id]}</div>${html}`
+        ? `<div style="margin:12px 14px -4px;font-size:11px;line-height:1.5;color:#ffd93d">⭐ <b>${_pulseT('Recommended for you')}</b> — ${reasons[id]}</div>${html}`
         : html;
     }).join('');
     return buildPulseView() + sinceHTML + body;
@@ -7300,6 +7320,14 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
   let _calRendered     = false;
   let _mapRendered     = false;
   let _agentRendered   = false;
+
+  /* A language change rebuilds PULSE: now when it is the open tab, otherwise the next time it is opened. */
+  window.addEventListener('finos:lang', () => {
+    if (!_pulseRendered) return;
+    _pulseRendered = false;
+    const active = document.querySelector('.asp-tab.active');
+    if (active && active.dataset.view === 'pulse') switchAryaTab('pulse');
+  });
 
   function switchAryaTab(name) {
     document.querySelectorAll('.asp-tab').forEach(t => {

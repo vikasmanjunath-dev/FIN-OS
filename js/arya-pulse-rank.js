@@ -41,7 +41,7 @@
   /** Each rule returns a number (delta to the base score) or {d, why}. First sentence of the strongest positive `why` wins. */
   const RULES = {
     taxDashboard:  (c) => taxSeason(c.month) ? { d: 34, why: 'Tax-saving investments for this financial year must be made by 31 March.' } : (c.gap80c > 0 ? 8 : 0),
-    taxOptimizer:  (c) => taxSeason(c.month) ? { d: 32, why: 'The 31 March tax-saving deadline is close — see what deductions you have left.' } : (c.gap80c > 0 ? { d: 12, why: `You still have ₹${Math.round(c.gap80c).toLocaleString('en-IN')} of 80C room unused.` } : 0),
+    taxOptimizer:  (c) => taxSeason(c.month) ? { d: 32, why: 'The 31 March tax-saving deadline is close — see what deductions you have left.' } : (c.gap80c > 0 ? { d: 12, why: `You still have ₹${Math.round(c.gap80c).toLocaleString('en-IN')} of 80C room unused.`, t: { key: 'You still have ₹{n} of 80C room unused.', params: { n: Math.round(c.gap80c).toLocaleString('en-IN') } } } : 0),
     debtFreedomPlanner: (c) => {
       if (!(c.debt > 0)) return -28;
       const heavy = c.income > 0 && c.debt / (c.income * 12) > 0.3;
@@ -51,7 +51,7 @@
     savingsRateMeter: (c) => {
       if (!(c.income > 0)) return -5;
       const rate = (c.income - c.expense) / c.income;
-      return rate < 0.2 ? { d: 30, why: `You are saving about ${Math.max(0, Math.round(rate * 100))}% of income; 20%+ is the usual target.` } : 0;
+      return rate < 0.2 ? { d: 30, why: `You are saving about ${Math.max(0, Math.round(rate * 100))}% of income; 20%+ is the usual target.`, t: { key: 'You are saving about {n}% of income; 20%+ is the usual target.', params: { n: Math.max(0, Math.round(rate * 100)) } } } : 0;
     },
     portfolioStressTest: (c) => (c.holdings > 0 ? { d: 24, why: 'You hold investments — see how a market fall of 20–40% would hit them.' } : -30),
     monteCarlo:    (c) => (c.sip > 0 || c.holdings > 0 ? { d: 18, why: 'You are investing — see the range of outcomes, not just one average.' } : -12),
@@ -69,8 +69,8 @@
     moneyScore: (c) => {
       const s = c.moneyScore;
       if (s === null) return { d: 26, why: 'You have not checked your Money Score yet. It takes about a minute and shows your three best next moves.' };
-      if (s < 40) return { d: 40, why: `Your Money Score is ${s} out of 100. See the three moves that would lift it most.` };
-      if (s < 60) return { d: 28, why: `Your Money Score is ${s} out of 100. Three moves would lift it.` };
+      if (s < 40) return { d: 40, why: `Your Money Score is ${s} out of 100. See the three moves that would lift it most.`, t: { key: 'Your Money Score is {n} out of 100. See the three moves that would lift it most.', params: { n: s } } };
+      if (s < 60) return { d: 28, why: `Your Money Score is ${s} out of 100. Three moves would lift it.`, t: { key: 'Your Money Score is {n} out of 100. Three moves would lift it.', params: { n: s } } };
       return s < 80 ? 8 : -6;
     },
     peerBenchmark: () => 4,
@@ -87,16 +87,16 @@
       moneyScore: score100(ctx.moneyScore),
     };
     const scored = DEFAULT_ORDER.map((id, i) => {
-      let score = 50, reason = null;
+      let score = 50, reason = null, reasonT = null;
       const r = RULES[id] ? RULES[id](c) : 0;
       if (typeof r === 'number') score += r;
-      else if (r) { score += r.d; if (r.d > 0) reason = r.why; }
+      else if (r) { score += r.d; if (r.d > 0) { reason = r.why; reasonT = r.t || { key: r.why, params: {} }; } }
       score = Math.max(0, Math.min(100, score));
       if (PINNED.includes(id)) score = 1000 - PINNED.indexOf(id);   // always first
-      return { id, score, reason: PINNED.includes(id) ? null : reason, _i: i };
+      return { id, score, reason: PINNED.includes(id) ? null : reason, reasonT: PINNED.includes(id) ? null : reasonT, _i: i };
     });
     scored.sort((a, b) => b.score - a.score || a._i - b._i);        // stable: ties keep the historical order
-    return scored.map(({ id, score, reason }) => ({ id, score, reason }));
+    return scored.map(({ id, score, reason, reasonT }) => ({ id, score, reason, reasonT }));
   }
 
   /* ── what changed since last time ────────────────────────────────────── */
@@ -117,17 +117,18 @@
     const out = [];
     const dNW = cur.netWorth - prev.netWorth;
     if (prev.netWorth > 0 && Math.abs(dNW) >= Math.max(1000, prev.netWorth * 0.005))
-      out.push({ icon: dNW > 0 ? '📈' : '📉', tone: dNW > 0 ? 'good' : 'bad', text: `Net worth ${dNW > 0 ? 'up' : 'down'} ${inr(dNW)} (${(Math.abs(dNW) / prev.netWorth * 100).toFixed(1)}%)` });
+      out.push({ icon: dNW > 0 ? '📈' : '📉', tone: dNW > 0 ? 'good' : 'bad', text: `Net worth ${dNW > 0 ? 'up' : 'down'} ${inr(dNW)} (${(Math.abs(dNW) / prev.netWorth * 100).toFixed(1)}%)`,
+        textT: { key: dNW > 0 ? 'Net worth up {amt} ({pct}%)' : 'Net worth down {amt} ({pct}%)', params: { amt: inr(dNW), pct: (Math.abs(dNW) / prev.netWorth * 100).toFixed(1) } } });
     if (cur.moneyScore != null && prev.moneyScore != null && Math.abs(cur.moneyScore - prev.moneyScore) >= 3)
-      out.push({ icon: '🧭', tone: cur.moneyScore > prev.moneyScore ? 'good' : 'bad', text: `Money Score ${prev.moneyScore} → ${cur.moneyScore}` });
+      out.push({ icon: '🧭', tone: cur.moneyScore > prev.moneyScore ? 'good' : 'bad', text: `Money Score ${prev.moneyScore} → ${cur.moneyScore}`, textT: { key: 'Money Score {a} → {b}', params: { a: prev.moneyScore, b: cur.moneyScore } } });
     const dDebt = cur.debt - prev.debt;
-    if (Math.abs(dDebt) >= 1000) out.push({ icon: dDebt < 0 ? '💳' : '⚠️', tone: dDebt < 0 ? 'good' : 'bad', text: `Debt ${dDebt < 0 ? 'down' : 'up'} ${inr(dDebt)}` });
+    if (Math.abs(dDebt) >= 1000) out.push({ icon: dDebt < 0 ? '💳' : '⚠️', tone: dDebt < 0 ? 'good' : 'bad', text: `Debt ${dDebt < 0 ? 'down' : 'up'} ${inr(dDebt)}`, textT: { key: dDebt < 0 ? 'Debt down {amt}' : 'Debt up {amt}', params: { amt: inr(dDebt) } } });
     if (cur.savingsRate !== null && prev.savingsRate !== null && Math.abs(cur.savingsRate - prev.savingsRate) >= 3)
-      out.push({ icon: '💾', tone: cur.savingsRate > prev.savingsRate ? 'good' : 'bad', text: `Savings rate ${prev.savingsRate}% → ${cur.savingsRate}%` });
+      out.push({ icon: '💾', tone: cur.savingsRate > prev.savingsRate ? 'good' : 'bad', text: `Savings rate ${prev.savingsRate}% → ${cur.savingsRate}%`, textT: { key: 'Savings rate {a}% → {b}%', params: { a: prev.savingsRate, b: cur.savingsRate } } });
     if (cur.emergencyMonths !== null && prev.emergencyMonths !== null && Math.abs(cur.emergencyMonths - prev.emergencyMonths) >= 0.5)
-      out.push({ icon: '🛟', tone: cur.emergencyMonths > prev.emergencyMonths ? 'good' : 'bad', text: `Emergency fund ${prev.emergencyMonths} → ${cur.emergencyMonths} months` });
-    if (cur.policies > prev.policies) out.push({ icon: '🛡️', tone: 'good', text: `${cur.policies - prev.policies} new insurance polic${cur.policies - prev.policies > 1 ? 'ies' : 'y'} added` });
-    if (cur.goals > prev.goals) out.push({ icon: '🎯', tone: 'good', text: `${cur.goals - prev.goals} new goal${cur.goals - prev.goals > 1 ? 's' : ''} added` });
+      out.push({ icon: '🛟', tone: cur.emergencyMonths > prev.emergencyMonths ? 'good' : 'bad', text: `Emergency fund ${prev.emergencyMonths} → ${cur.emergencyMonths} months`, textT: { key: 'Emergency fund {a} → {b} months', params: { a: prev.emergencyMonths, b: cur.emergencyMonths } } });
+    if (cur.policies > prev.policies) out.push({ icon: '🛡️', tone: 'good', text: `${cur.policies - prev.policies} new insurance polic${cur.policies - prev.policies > 1 ? 'ies' : 'y'} added`, textT: { key: cur.policies - prev.policies > 1 ? '{n} new insurance policies added' : '{n} new insurance policy added', params: { n: cur.policies - prev.policies } } });
+    if (cur.goals > prev.goals) out.push({ icon: '🎯', tone: 'good', text: `${cur.goals - prev.goals} new goal${cur.goals - prev.goals > 1 ? 's' : ''} added`, textT: { key: cur.goals - prev.goals > 1 ? '{n} new goals added' : '{n} new goal added', params: { n: cur.goals - prev.goals } } });
     return out.slice(0, 4);
   }
 
