@@ -174,42 +174,59 @@
     var F = window.FinosFeedback, P = window.FinosPrivacy;
     var LABEL = { 'money-score': 'Money Score', tax: 'Tax tools', calculators: 'Calculators', arya: 'Arya (AI)', trackers: 'Trackers', design: 'Design and layout', privacy: 'Privacy', other: 'Something else' };
     var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); };
-    var status = function (m) { document.getElementById('fb-status').textContent = m; };
+    var $ = function (id) { return document.getElementById(id); };
 
-    document.getElementById('fb-topic').innerHTML = F.TOPICS.map(function (t) { return '<option value="' + esc(t) + '">' + esc(LABEL[t] || t) + '</option>'; }).join('');
-    F.mountPrompt(document.getElementById('fb-form'), { topic: function () { return document.getElementById('fb-topic').value; }, question: 'How is FIN-OS working for you?', page: 'html/feedback.html' });
+    /* Every sentence is an English template the language table translates whole ({name} marks a value). No entry: English shows. */
+    function tr(key, params) {
+      var I = window.FinosI18n, raw = key;
+      if (I && I.t && I.lang && I.lang() !== 'en') raw = I.t(key, key);
+      return String(raw).replace(/\{(\w+)\}/g, function (_, k) { return params && params[k] != null ? params[k] : ''; });
+    }
+    var label = function (t) { return LABEL[t] ? tr(LABEL[t]) : t; };
+    var stat = null;                                                            // the status line: a template, so it follows the language
+    function status(key) { stat = key || null; paintStatus(); }
+    function paintStatus() { $('fb-status').textContent = stat ? tr(stat) : ''; }
+
+    function topics() {
+      var sel = $('fb-topic'), keep = sel.value;
+      sel.innerHTML = F.TOPICS.map(function (t) { return '<option value="' + esc(t) + '">' + esc(label(t)) + '</option>'; }).join('');
+      if (keep) sel.value = keep;
+    }
+    topics();
+    F.mountPrompt($('fb-form'), { topic: function () { return $('fb-topic').value; }, question: 'How is FIN-OS working for you?', page: 'html/feedback.html' });
 
     function sharing() {
       var on = P.consent.get('feedback'), inbox = !!F.CONFIG.endpoint;
-      document.getElementById('fb-sharing').innerHTML = '<dl>' +
-        '<dt>Share with the team</dt><dd>' + (on ? 'On' : 'Off') + '. <a href="privacy.html#pv-consents">Change this in Privacy &amp; your data</a>.</dd>' +
-        '<dt>Team inbox</dt><dd>' + (inbox ? 'Set up.' : 'Not set up yet, so nothing can be sent. You can download your feedback as a file and share it yourself.') + '</dd></dl>';
+      $('fb-sharing').innerHTML = '<dl>' +
+        '<dt>' + esc(tr('Share with the team')) + '</dt><dd>' + tr(on ? 'On. <a href="privacy.html#pv-consents">Change this in Privacy &amp; your data</a>.' : 'Off. <a href="privacy.html#pv-consents">Change this in Privacy &amp; your data</a>.') + '</dd>' +
+        '<dt>' + esc(tr('Team inbox')) + '</dt><dd>' + esc(tr(inbox ? 'Set up.' : 'Not set up yet, so nothing can be sent. You can download your feedback as a file and share it yourself.')) + '</dd></dl>';
     }
 
     function list() {
-      var items = F.Log.list(), ul = document.getElementById('fb-list');
+      var items = F.Log.list(), ul = $('fb-list');
       ul.innerHTML = items.length ? items.map(function (e, i) {
-        return '<li class="pv-item"><p><b>' + esc(e.day) + ' · ' + esc(LABEL[e.topic] || e.topic) + (e.rating ? ' · ' + (e.rating === 'up' ? '👍' : '👎') : '') + '</b><br>' + (e.comment ? esc(e.comment) : '<i>No comment</i>') + '</p>' +
-          '<button type="button" class="pv-btn" data-del="' + i + '" aria-label="Delete the feedback from ' + esc(e.day) + ' about ' + esc(LABEL[e.topic] || e.topic) + '">Delete</button></li>';
-      }).join('') : '<li class="pv-item"><p>Nothing saved yet.</p></li>';
+        return '<li class="pv-item"><p><b>' + esc(e.day) + ' · ' + esc(label(e.topic)) + (e.rating ? ' · ' + (e.rating === 'up' ? '👍' : '👎') : '') + '</b><br>' + (e.comment ? '<span data-no-i18n>' + esc(e.comment) + '</span>' : '<i>' + esc(tr('No comment')) + '</i>') + '</p>' +
+          '<button type="button" class="pv-btn" data-del="' + i + '" aria-label="' + esc(tr('Delete the feedback from {day} about {topic}', { day: e.day, topic: label(e.topic) })) + '">' + esc(tr('Delete')) + '</button></li>';
+      }).join('') : '<li class="pv-item"><p>' + esc(tr('Nothing saved yet.')) + '</p></li>';
     }
 
     function usage() {
       var on = P.consent.get('usage'), totals = F.Usage.totals(F.Usage.get()), rows = Object.entries(totals).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 10);
-      document.getElementById('fb-usage-note').innerHTML = on
+      $('fb-usage-note').innerHTML = tr(on
         ? 'Counting is <b>on</b>. FIN-OS keeps a tally of how often each page opens, on this device only, with no amounts and nothing you type. It is only shared if you choose to.'
-        : 'Counting is <b>off</b>, so nothing is being tallied. You can turn it on in <a href="privacy.html#pv-consents">Privacy &amp; your data</a>; it helps the team see which tools matter.';
-      document.getElementById('fb-usage').innerHTML = rows.length ? rows.map(function (r) { return '<li class="pv-item"><p><b>' + esc(r[1]) + '</b> opens · ' + esc(r[0]) + '</p></li>'; }).join('') : '<li class="pv-item"><p>No counts yet.</p></li>';
+        : 'Counting is <b>off</b>, so nothing is being tallied. You can turn it on in <a href="privacy.html#pv-consents">Privacy &amp; your data</a>; it helps the team see which tools matter.');
+      $('fb-usage').innerHTML = rows.length ? rows.map(function (r) { return '<li class="pv-item"><p><b>' + esc(r[1]) + '</b> ' + esc(tr('opens')) + ' · <span data-no-i18n>' + esc(r[0]) + '</span></p></li>'; }).join('') : '<li class="pv-item"><p>' + esc(tr('No counts yet.')) + '</p></li>';
     }
 
     document.addEventListener('finos-feedback-saved', list);
-    document.getElementById('fb-list').addEventListener('click', function (ev) {
+    $('fb-list').addEventListener('click', function (ev) {
       var b = ev.target.closest && ev.target.closest('[data-del]'); if (!b) return;
       F.Log.remove(Number(b.dataset.del)); list(); status('Deleted.');
     });
-    document.getElementById('fb-download').addEventListener('click', function () { F.download(); status('Downloaded. The file holds only what is listed above, plus usage counts if you turned them on.'); });
-    document.getElementById('fb-clear').addEventListener('click', function () { F.Log.clear(); list(); status('All your saved feedback was deleted.'); });
-    document.getElementById('fb-usage-clear').addEventListener('click', function () { F.Usage.clear(); usage(); status('Usage counts cleared.'); });
+    $('fb-download').addEventListener('click', function () { F.download(); status('Downloaded. The file holds only what is listed above, plus usage counts if you turned them on.'); });
+    $('fb-clear').addEventListener('click', function () { F.Log.clear(); list(); status('All your saved feedback was deleted.'); });
+    $('fb-usage-clear').addEventListener('click', function () { F.Usage.clear(); usage(); status('Usage counts cleared.'); });
+    window.addEventListener('finos:lang', function () { topics(); sharing(); list(); usage(); paintStatus(); });      // redraw what the script built, in the new language
     sharing(); list(); usage();
   })();
 </script>

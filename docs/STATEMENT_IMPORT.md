@@ -36,6 +36,10 @@ Live Account Aggregator (AA) connections are **off**. Real AA access needs a reg
 - Demo Mode is a preview only. It saves nothing, so it can no longer fabricate transactions or overwrite real mutual-fund holdings.
 - People who used the old Demo Mode get a one-click **Remove the sample data** notice. It only offers this where a `demo_consent_*` record exists, only removes records that match the fixed demo descriptions and fund names, leaves anything else alone, and never acts without the button.
 
+## Hindi
+
+The page shows Hindi when the person's language is Hindi and redraws in place when it changes. Every sentence with a number is an English template (`'{n} rows were skipped (see below).'`) that `js/i18n/hi.js` translates whole. The core returns the English `warnings` as before **and** `warningsT` (`{ key, params }`, one per warning, in step) so the page can show them in the person's language; skip reasons are fixed phrases. Guards: `tests/i18n-coverage.test.js` (every core sentence and its twin; every literal the page declares) and `tests/test_i18n_import_feedback.py` (the real engine, every state, nothing left in English). Wording is a first pass for a fluent speaker to review.
+
 ## Not done
 
 A real AA integration (needs a registered provider partnership, then a backend to hold credentials and decrypt); PDF statements; mutual-fund and other AA data types; credit-card statements (layouts differ; add them as tests-first fixtures); inter-account transfer detection (a transfer between two of your own accounts counts as spending once and income once).

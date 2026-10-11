@@ -686,7 +686,7 @@
       el.innerHTML = resultHTML(r, loadHistory());
       whatIfUpdate(el, r);
       // Optional: a one-tap check on whether the score felt right. Saved on this device; shared only with consent (see finos-feedback.js).
-      if (root.FinosFeedback && root.FinosFeedback.mountPrompt) root.FinosFeedback.mountPrompt(el.querySelector('#ms-feedback'), { topic: 'money-score', question: tr('Did your Money Score feel right?'), page: 'html/money-score.html' });
+      if (root.FinosFeedback && root.FinosFeedback.mountPrompt) root.FinosFeedback.mountPrompt(el.querySelector('#ms-feedback'), { topic: 'money-score', question: 'Did your Money Score feel right?', page: 'html/money-score.html' });
       const h = el.querySelector('.ms-hero-s'); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: false }); }
     }
     el.addEventListener('submit', (e) => {

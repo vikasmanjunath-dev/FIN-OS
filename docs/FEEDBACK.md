@@ -40,6 +40,10 @@ node scripts/summarize-feedback.js --json a.json b.json
 
 It prints positive/negative counts by topic and page, the newest comments (deduplicated), and opt-in usage by page. Invalid files are skipped with a message; it exits 1 if nothing valid was read.
 
+## Hindi
+
+The Feedback page and the prompt card show Hindi when the person's language is Hindi, and redraw in place when it changes (what was typed and which rating was picked are kept). The prompt translates the question it is given, so callers pass the English template. Guards: `tests/test_i18n_import_feedback.py` and `tests/i18n-coverage.test.js`. The comment a person writes is never translated or changed.
+
 ## Not done
 
 An actual inbox (needs a decision and a host, and then its entry in the privacy registry), a retention rule for what the team receives, and a policy for replying to people (there is no contact detail on purpose).

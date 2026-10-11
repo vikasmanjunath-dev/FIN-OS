@@ -185,73 +185,106 @@
     var read = function (k, fb) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch (e) { return fb; } };
     var write = function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
     var $ = function (id) { return document.getElementById(id); };
-    var status = function (m) { $('si-status').textContent = m; };
-    var pending = null;                       // the parsed file waiting for a decision
 
-    function fail(msg) { $('si-preview').innerHTML = '<div class="si-note warn" role="alert">' + esc(msg) + '</div>'; pending = null; }
+    /* Every sentence is an English template ({name} marks a value) that the language table translates whole, so the
+       words can move around the numbers. With no entry for the language, the English shows. */
+    function tr(key, params) {
+      var I = window.FinosI18n, raw = key;
+      if (I && I.t && I.lang && I.lang() !== 'en') raw = I.t(key, key);
+      return String(raw).replace(/\{(\w+)\}/g, function (_, k) { return params && params[k] != null ? params[k] : ''; });
+    }
+    var plural = function (n, one, many, extra) { var p = { n: n }; for (var k in (extra || {})) p[k] = extra[k]; return tr(n === 1 ? one : many, p); };
+
+    var pending = null;                       // the parsed file waiting for a decision
+    var view = null;                          // what the preview shows: { res, merge, fresh, cats }
+    var note = null;                          // a refusal shown in place of the preview: [{ key, params }]
+    var done = null;                          // the result of an import: { added, from, to }
+    var stat = null;                          // the status line: { key, params }
+
+    function setStatus(key, params) { stat = key ? { key: key, params: params } : null; paintStatus(); }
+    function paintStatus() { $('si-status').textContent = stat ? tr(stat.key, stat.params) : ''; }
+    function fail(list) { note = list; view = null; done = null; pending = null; paintPreview(); }
+    var one = function (key) { return [{ key: key, params: {} }]; };
 
     function analyse(text) {
-      var head = text.replace(/^\uFEFF/, '').trim().slice(0, 8);
-      if (/^%PDF/.test(head)) return fail('That is a PDF. PDF statements cannot be read here. Download the statement as CSV from your bank instead.');
-      if (/^PK/.test(head)) return fail('That looks like an Excel file. Open it in Excel and choose Save As → CSV, then choose the CSV here.');
+      var head = text.replace(/^﻿/, '').trim().slice(0, 8);
+      if (/^%PDF/.test(head)) return fail(one('That is a PDF. PDF statements cannot be read here. Download the statement as CSV from your bank instead.'));
+      if (/^PK/.test(head)) return fail(one('That looks like an Excel file. Open it in Excel and choose Save As → CSV, then choose the CSV here.'));
       var isJson = /^[\[{]/.test(head);
       var res = isJson ? S.fromAA(text) : S.parseStatement(text);
-      if (!res.ok) return fail(res.warnings.join(' '));
+      if (!res.ok) return fail(res.warningsT && res.warningsT.length ? res.warningsT : res.warnings.map(function (w) { return { key: w, params: {} }; }));
       var batch = 'imp_' + Date.now().toString(36);
       var ledger = S.toLedger(res.rows, { batch: batch });
       var merge = S.mergeLedger(read(KEY, []), ledger);
       pending = { res: res, batch: batch, ledger: ledger };
-      var fresh = merge.merged.slice(merge.merged.length - merge.added);
-      var cats = S.topCategories(res.rows, 5);
-      var rec = res.reconciled === 'yes' ? '<div class="si-note good">The balance column adds up row by row, so nothing looks missing.</div>'
-        : res.reconciled === 'no' ? '<div class="si-note warn" role="alert"><strong>Check this file.</strong> The balance column does not add up row by row. A row may be missing or misread, or the file may be incomplete.</div>' : '';
-      $('si-preview').innerHTML =
-        '<h2 class="pv-h">3. Check it</h2>' +
-        '<div class="si-sum"><div><span>Found</span><b>' + res.totals.count + '</b></div><div><span>New</span><b>' + merge.added + '</b></div><div><span>Already here</span><b>' + merge.duplicates + '</b></div><div><span>Skipped</span><b>' + res.skipped.length + '</b></div>' +
-        '<div><span>Money in</span><b>' + inr(res.totals.credits) + '</b></div><div><span>Money out</span><b>' + inr(res.totals.debits) + '</b></div></div>' +
-        '<p>From <strong>' + esc(res.dateRange.from) + '</strong> to <strong>' + esc(res.dateRange.to) + '</strong>' + (res.format === 'aa-json' ? ' · Account Aggregator data' : '') + '.' +
-        (cats.length ? ' Biggest spending: ' + cats.map(function (c) { return esc(c.category) + ' ' + inr(c.amount); }).join(', ') + '.' : '') + '</p>' + rec +
-        res.warnings.filter(function (w) { return !/does not add up/.test(w); }).map(function (w) { return '<div class="si-note warn">' + esc(w) + '</div>'; }).join('') +
-        (fresh.length ? '<div class="si-tablewrap" tabindex="0" role="region" aria-label="Transactions that will be added. This area scrolls sideways on small screens."><table class="si-table"><caption class="sr-only" style="position:absolute;left:-9999px">First transactions that will be added</caption><thead><tr><th scope="col">Date</th><th scope="col">Description</th><th scope="col">Category</th><th scope="col" style="text-align:right">Amount</th></tr></thead><tbody>' +
-          fresh.slice(0, 8).map(function (t) { return '<tr><td>' + esc(t.date.slice(0, 10)) + '</td><td>' + esc(t.desc) + '</td><td>' + esc(t.category) + '</td><td class="num">' + (t.type === 'credit' ? '+' : '−') + inr(t.amount) + '</td></tr>'; }).join('') +
-          '</tbody></table></div>' + (fresh.length > 8 ? '<p>…and ' + (fresh.length - 8) + ' more.</p>' : '') : '') +
-        (res.skipped.length ? '<details class="si-skip"><summary>' + res.skipped.length + ' skipped row' + (res.skipped.length === 1 ? '' : 's') + '</summary><ul>' + res.skipped.slice(0, 10).map(function (s) { return '<li>Line ' + s.line + ': ' + esc(s.reason) + '</li>'; }).join('') + (res.skipped.length > 10 ? '<li>…and ' + (res.skipped.length - 10) + ' more</li>' : '') + '</ul></details>' : '') +
-        '<div class="si-actions"><button type="button" class="pv-btn primary" id="si-go"' + (merge.added ? '' : ' disabled') + '>' + (merge.added ? 'Import ' + merge.added + ' transaction' + (merge.added === 1 ? '' : 's') : 'Nothing new to import') + '</button><button type="button" class="pv-btn" id="si-cancel">Choose a different file</button></div>' +
-        (merge.added ? '' : '<div class="si-note">Everything in this file is already in FIN-OS.</div>');
+      note = null; done = null;
+      view = { res: res, merge: merge, fresh: merge.merged.slice(merge.merged.length - merge.added), cats: S.topCategories(res.rows, 5) };
+      paintPreview();
+    }
+
+    function paintPreview() {
+      var el = $('si-preview');
+      if (note) { el.innerHTML = '<div class="si-note warn" role="alert">' + note.map(function (n) { return esc(tr(n.key, n.params)); }).join(' ') + '</div>'; return; }
+      if (done) {
+        var f = esc(done.from), t = esc(done.to);
+        el.innerHTML = '<div class="si-note good" role="status">' + plural(done.added, 'Imported <strong>1</strong> transaction ({from} to {to}). They now count in your budgets, Money Score and Future Loss. You can undo this below.', 'Imported <strong>{n}</strong> transactions ({from} to {to}). They now count in your budgets, Money Score and Future Loss. You can undo this below.', { from: f, to: t }) + '</div>';
+        return;
+      }
+      if (!view) { el.innerHTML = ''; return; }
+      var res = view.res, merge = view.merge, fresh = view.fresh, cats = view.cats;
+      var rec = res.reconciled === 'yes' ? '<div class="si-note good">' + esc(tr('The balance column adds up row by row, so nothing looks missing.')) + '</div>'
+        : res.reconciled === 'no' ? '<div class="si-note warn" role="alert"><strong>' + esc(tr('Check this file.')) + '</strong> ' + esc(tr('The balance column does not add up row by row. A row may be missing or misread, or the file may be incomplete.')) + '</div>' : '';
+      var warns = (res.warningsT || []).filter(function (w) { return !/does not add up/.test(w.key); });
+      var sk = res.skipped;
+      el.innerHTML =
+        '<h2 class="pv-h">' + esc(tr('3. Check it')) + '</h2>' +
+        '<div class="si-sum"><div><span>' + esc(tr('Found')) + '</span><b>' + res.totals.count + '</b></div><div><span>' + esc(tr('New')) + '</span><b>' + merge.added + '</b></div><div><span>' + esc(tr('Already here')) + '</span><b>' + merge.duplicates + '</b></div><div><span>' + esc(tr('Skipped')) + '</span><b>' + sk.length + '</b></div>' +
+        '<div><span>' + esc(tr('Money in')) + '</span><b>' + inr(res.totals.credits) + '</b></div><div><span>' + esc(tr('Money out')) + '</span><b>' + inr(res.totals.debits) + '</b></div></div>' +
+        '<p>' + tr('From <strong>{from}</strong> to <strong>{to}</strong>', { from: esc(res.dateRange.from), to: esc(res.dateRange.to) }) + (res.format === 'aa-json' ? ' · ' + esc(tr('Account Aggregator data')) : '') + '.' +
+        (cats.length ? ' ' + esc(tr('Biggest spending: {list}.', { list: cats.map(function (c) { return tr(c.category) + ' ' + inr(c.amount); }).join(', ') })) : '') + '</p>' + rec +
+        warns.map(function (w) { return '<div class="si-note warn">' + esc(tr(w.key, w.params)) + '</div>'; }).join('') +
+        (fresh.length ? '<div class="si-tablewrap" tabindex="0" role="region" aria-label="' + esc(tr('Transactions that will be added. This area scrolls sideways on small screens.')) + '"><table class="si-table"><caption class="sr-only" style="position:absolute;left:-9999px">' + esc(tr('First transactions that will be added')) + '</caption><thead><tr><th scope="col">' + esc(tr('Date')) + '</th><th scope="col">' + esc(tr('Description')) + '</th><th scope="col">' + esc(tr('Category')) + '</th><th scope="col" style="text-align:right">' + esc(tr('Amount')) + '</th></tr></thead><tbody>' +
+          fresh.slice(0, 8).map(function (t) { return '<tr><td data-no-i18n>' + esc(t.date.slice(0, 10)) + '</td><td data-no-i18n>' + esc(t.desc) + '</td><td>' + esc(tr(t.category)) + '</td><td class="num">' + (t.type === 'credit' ? '+' : '−') + inr(t.amount) + '</td></tr>'; }).join('') +
+          '</tbody></table></div>' + (fresh.length > 8 ? '<p>' + esc(tr('…and {n} more.', { n: fresh.length - 8 })) + '</p>' : '') : '') +
+        (sk.length ? '<details class="si-skip"><summary>' + esc(plural(sk.length, '1 skipped row', '{n} skipped rows')) + '</summary><ul>' + sk.slice(0, 10).map(function (s) { return '<li>' + esc(tr('Line {n}: {reason}', { n: s.line, reason: tr(s.reason) })) + '</li>'; }).join('') + (sk.length > 10 ? '<li>' + esc(tr('…and {n} more', { n: sk.length - 10 })) + '</li>' : '') + '</ul></details>' : '') +
+        '<div class="si-actions"><button type="button" class="pv-btn primary" id="si-go"' + (merge.added ? '' : ' disabled') + '>' + esc(merge.added ? plural(merge.added, 'Import 1 transaction', 'Import {n} transactions') : tr('Nothing new to import')) + '</button><button type="button" class="pv-btn" id="si-cancel">' + esc(tr('Choose a different file')) + '</button></div>' +
+        (merge.added ? '' : '<div class="si-note">' + esc(tr('Everything in this file is already in FIN-OS.')) + '</div>');
     }
 
     function batches() {
       var list = read(BKEY, []); if (!Array.isArray(list)) list = [];
       $('si-batches').innerHTML = list.length ? list.slice().reverse().map(function (b) {
-        return '<li class="pv-item"><p><b>' + esc(b.at.slice(0, 10)) + '</b> · ' + b.count + ' transaction' + (b.count === 1 ? '' : 's') + ' · ' + esc(b.from) + ' to ' + esc(b.to) + '</p>' +
-          '<button type="button" class="pv-btn" data-undo="' + esc(b.id) + '" aria-label="Undo the import of ' + b.count + ' transactions from ' + esc(b.at.slice(0, 10)) + '">Undo</button></li>';
-      }).join('') : '<li class="pv-item"><p>Nothing imported yet.</p></li>';
+        var day = esc(b.at.slice(0, 10));
+        return '<li class="pv-item"><p><b>' + day + '</b> · ' + esc(plural(b.count, '1 transaction', '{n} transactions')) + ' · ' + esc(tr('{from} to {to}', { from: b.from, to: b.to })) + '</p>' +
+          '<button type="button" class="pv-btn" data-undo="' + esc(b.id) + '" aria-label="' + esc(tr('Undo the import of {n} transactions from {date}', { n: b.count, date: b.at.slice(0, 10) })) + '">' + esc(tr('Undo')) + '</button></li>';
+      }).join('') : '<li class="pv-item"><p>' + esc(tr('Nothing imported yet.')) + '</p></li>';
     }
 
     function doImport() {
       if (!pending) return;
       var merge = S.mergeLedger(read(KEY, []), pending.ledger);               // merge again now, so a change since the preview is respected
-      if (!merge.added) { status('Nothing new to import.'); return; }
+      if (!merge.added) { setStatus('Nothing new to import.'); return; }
       var log = read(BKEY, []); if (!Array.isArray(log)) log = [];
       log.push({ id: pending.batch, at: new Date().toISOString(), count: merge.added, from: pending.res.dateRange.from, to: pending.res.dateRange.to, format: pending.res.format });
-      if (!write(KEY, merge.merged) || !write(BKEY, log.slice(-20))) { status('Could not save to this browser (storage is full or blocked). Nothing was imported.'); return; }
-      $('si-preview').innerHTML = '<div class="si-note good" role="status">Imported <strong>' + merge.added + '</strong> transaction' + (merge.added === 1 ? '' : 's') + ' (' + esc(pending.res.dateRange.from) + ' to ' + esc(pending.res.dateRange.to) + '). They now count in your budgets, Money Score and Future Loss. You can undo this below.</div>';
-      pending = null; $('si-file').value = ''; batches(); status('Imported.');
+      if (!write(KEY, merge.merged) || !write(BKEY, log.slice(-20))) { setStatus('Could not save to this browser (storage is full or blocked). Nothing was imported.'); return; }
+      done = { added: merge.added, from: pending.res.dateRange.from, to: pending.res.dateRange.to }; view = null; note = null;
+      pending = null; $('si-file').value = ''; paintPreview(); batches(); setStatus('Imported.');
     }
 
     function undo(id) {
       var keep = S.undoBatch(read(KEY, []), id), before = read(KEY, []).length;
       var log = read(BKEY, []).filter(function (b) { return b.id !== id; });
-      if (!write(KEY, keep) || !write(BKEY, log)) { status('Could not save that change. Nothing was undone.'); return; }
-      batches(); status('Undone. Removed ' + (before - keep.length) + ' transaction' + (before - keep.length === 1 ? '' : 's') + '.');
+      if (!write(KEY, keep) || !write(BKEY, log)) { setStatus('Could not save that change. Nothing was undone.'); return; }
+      var n = before - keep.length;
+      batches(); setStatus(n === 1 ? 'Undone. Removed 1 transaction.' : 'Undone. Removed {n} transactions.', { n: n });
     }
 
     function load(file) {
       if (!file) return;
-      if (file.size > 5 * 1024 * 1024) return fail('That file is over 5 MB, which is far more than a statement. Choose a statement file.');
-      status('');
+      if (file.size > 5 * 1024 * 1024) return fail(one('That file is over 5 MB, which is far more than a statement. Choose a statement file.'));
+      setStatus('');
       (file.text ? file.text() : new Promise(function (res, rej) { var r = new FileReader(); r.onload = function () { res(r.result); }; r.onerror = rej; r.readAsText(file); }))
-        .then(analyse).catch(function () { fail('That file could not be read.'); });
+        .then(analyse).catch(function () { fail(one('That file could not be read.')); });
     }
 
     $('si-file').addEventListener('change', function (e) { load(e.target.files && e.target.files[0]); });
@@ -262,9 +295,10 @@
     document.addEventListener('click', function (e) {
       var b = e.target.closest && e.target.closest('button'); if (!b) return;
       if (b.id === 'si-go') doImport();
-      else if (b.id === 'si-cancel') { pending = null; $('si-file').value = ''; $('si-preview').innerHTML = ''; $('si-file').focus(); }
+      else if (b.id === 'si-cancel') { pending = null; view = null; note = null; done = null; $('si-file').value = ''; paintPreview(); $('si-file').focus(); }
       else if (b.dataset.undo) undo(b.dataset.undo);
     });
+    window.addEventListener('finos:lang', function () { paintPreview(); batches(); paintStatus(); });      // redraw what the script built, in the new language
     batches();
   })();
 </script>

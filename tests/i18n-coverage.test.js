@@ -116,3 +116,65 @@ test('without a language, tr() returns the English template filled in (nothing c
   assert.strictEqual(M.tr('Build your emergency fund by {gap}', { gap: { m: 440000 } }), 'Build your emergency fund by ₹4.40 L');
   assert.strictEqual(M.tr('{cta} →', { cta: { t: 'Open the planner' } }), 'Open the planner →');
 });
+
+/* ── the statement importer ──────────────────────────────────────────────────────────────────────────────────── */
+const SI = require('../js/finos-statement-import.js');
+const fillT = (k, p) => String(k).replace(/\{(\w+)\}/g, (_, n) => (p && p[n] != null ? p[n] : ''));
+const HDR = 'Date,Narration,Withdrawal Amt.,Deposit Amt.,Closing Balance\n';
+
+function importerResults() {
+  const rows = (n, f) => Array.from({ length: n }, (_, i) => f(i + 1)).join('\n');
+  const aa = (txns, extra) => JSON.stringify(Object.assign({ type: 'deposit', transactions: { transaction: txns } }, extra || {}));
+  const ok = (o) => Object.assign({ type: 'DEBIT', amount: '10', transactionTimestamp: '2025-09-01T10:00:00', narration: 'A' }, o || {});
+  const results = [
+    SI.parseStatement(''),
+    SI.parseStatement('hello\nworld'),
+    SI.parseStatement(HDR),
+    SI.parseStatement(HDR + '13/09/25,A,5,,100\n09/13/25,B,5,,95\n'),                                                   // mixed day-first / month-first
+    SI.parseStatement(HDR + rows(20001, (i) => `01/01/25,R${i},1,,1000`)),                                              // over the row limit
+    SI.parseStatement(HDR + [                                                                                          // every skip reason, and a balance that does not add up
+      '01/09/25,Okay,10,,500', '02/09/25,Okay too,10,,1', 'Opening note,,,,', '03/09/25,BALANCE B/F,,,50', '04/09/25,Both,5,5,1', '05/09/25,Neither,,,1', 'xx/yy/zz,Bad date,5,,1',
+    ].join('\n') + '\n'),
+    SI.parseStatement('Date,Narration,Amount\n01/09/25,Signed,-50\n02/09/25,Unsigned,50\n'),
+    SI.fromAA('{ not json'), SI.fromAA('5'), SI.fromAA('{"a":1}'), SI.fromAA('{"encryptedFI":1}'),
+    SI.fromAA(aa([])), SI.fromAA(aa([ok({ type: 'BOGUS' })])),
+    SI.fromAA(aa([ok(), ok({ type: 'BOGUS' })])),
+    SI.fromAA(aa([ok(), ok({ amount: '0' }), ok({ transactionTimestamp: '' }), ok({ type: 'X' })])),
+    SI.fromAA(JSON.stringify([JSON.parse(aa([ok()])), { type: 'mutual_funds', transactions: { transaction: [] } }])),
+    SI.fromAA(JSON.stringify([JSON.parse(aa([ok()])), { type: 'equities' }, { type: 'insurance_policies' }])),
+  ];
+  return results;
+}
+
+test('every sentence the statement importer can produce has a translatable twin and a Hindi entry', () => {
+  const keys = new Set();
+  for (const r of importerResults()) {
+    assert.strictEqual(r.warningsT.length, r.warnings.length, 'each warning needs its translatable twin: ' + JSON.stringify(r.warnings));
+    r.warnings.forEach((w, i) => assert.strictEqual(fillT(r.warningsT[i].key, r.warningsT[i].params), w, 'the twin must reproduce the English text'));
+    r.warningsT.forEach((t) => keys.add(t.key));
+    r.skipped.forEach((s) => keys.add(s.reason));
+  }
+  assert.ok(keys.size >= 18, 'harvest looks too small: ' + keys.size);
+  assert.deepStrictEqual([...keys].filter((k) => !(k in TABLE)), []);
+});
+
+test('the importer page and the feedback page declare their templates, and every one has a Hindi entry', () => {
+  const missing = {};
+  for (const f of ['import-statement.html', 'feedback.html']) {
+    const html = fs.readFileSync(path.join(ROOT, 'html', f), 'utf8');
+    const from = html.indexOf(f === 'feedback.html' ? 'var F = window.FinosFeedback' : 'var S = window.FinosStatement');
+    assert.ok(from > 0, 'page script not found in ' + f);
+    const script = html.slice(from, html.indexOf('</script>', from));
+    const keys = new Set();
+    // tr('…'), plural(n, 'one', 'many'), one('…'), status('…'), setStatus('…'), key arguments in ternaries: harvest every string literal that is also a table-shaped sentence
+    for (const m of script.matchAll(/(?:tr|one|status|setStatus)\(\s*'((?:[^'\\]|\\.)*)'/g)) keys.add(m[1].replace(/\\'/g, "'"));
+    for (const m of script.matchAll(/plural\([^,]+,\s*'((?:[^'\\]|\\.)*)',\s*'((?:[^'\\]|\\.)*)'/g)) { keys.add(m[1].replace(/\\'/g, "'")); keys.add(m[2].replace(/\\'/g, "'")); }
+    for (const m of script.matchAll(/\?\s*'((?:[^'\\]|\\.)*)'\s*:\s*'((?:[^'\\]|\\.)*)'/g)) { keys.add(m[1].replace(/\\'/g, "'")); keys.add(m[2].replace(/\\'/g, "'")); }
+    assert.ok(keys.size >= 12, f + ' harvest looks too small: ' + keys.size);
+    // the page labels its topics from a map of English names
+    for (const m of script.matchAll(/'([A-Z][A-Za-z ()]+)'(?=[,}])/g)) if (/LABEL = /.test(script.slice(Math.max(0, m.index - 400), m.index))) keys.add(m[1]);
+    const gone = [...keys].filter((k) => !(k in TABLE) && !/^[\d\s/→+·%.{}:()\-]+$/.test(k) && !/^[a-z-]+$/.test(k) && !/^(<|[#.\[]|\s)/.test(k) && k.length > 2 && /[A-Za-z]{3}/.test(k));
+    if (gone.length) missing[f] = gone;
+  }
+  assert.deepStrictEqual(missing, {});
+});

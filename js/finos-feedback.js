@@ -245,12 +245,25 @@
     ensureStyles();
     const uid = 'fb' + Math.random().toString(36).slice(2, 8);
     let rating = null;
-    el.innerHTML = '<div class="fb-card" role="group" aria-labelledby="' + uid + '-q"><p class="fb-q" id="' + uid + '-q">' + esc(opts.question || tr('Was this useful?')) + '</p>' +
+    el.innerHTML = '<div class="fb-card" role="group" aria-labelledby="' + uid + '-q"><p class="fb-q" id="' + uid + '-q">' + esc(tr(opts.question || 'Was this useful?')) + '</p>' +
       '<div class="fb-rate"><button type="button" class="fb-btn" data-r="up" aria-pressed="false">' + esc(tr('👍 Yes')) + '</button><button type="button" class="fb-btn" data-r="down" aria-pressed="false">' + esc(tr('👎 Not really')) + '</button></div>' +
       '<label class="fb-l" for="' + uid + '-c">' + esc(tr('Anything to add?')) + ' <small>' + esc(tr('Please leave out amounts and personal details. We remove them anyway.')) + '</small></label>' +
       '<textarea id="' + uid + '-c" class="fb-t" maxlength="' + MAX_COMMENT + '" rows="3"></textarea>' +
       '<button type="button" class="fb-btn fb-save" data-save>' + esc(tr('Save feedback')) + '</button><p class="fb-out" role="status" aria-live="polite"></p></div>';
     const out = el.querySelector('.fb-out');
+    let outKey = null;                                                  // the message under the card, kept as a template so it follows the language
+    const say = (key) => { outKey = key; out.textContent = key ? tr(key) : ''; };
+    /* Relabel in place when the language changes: what the person typed and picked stays. */
+    const relabel = () => {
+      if (!el.isConnected) { root.removeEventListener('finos:lang', relabel); return; }
+      el.querySelector('.fb-q').textContent = tr(opts.question || 'Was this useful?');
+      el.querySelector('[data-r="up"]').textContent = tr('👍 Yes');
+      el.querySelector('[data-r="down"]').textContent = tr('👎 Not really');
+      el.querySelector('.fb-l').innerHTML = esc(tr('Anything to add?')) + ' <small>' + esc(tr('Please leave out amounts and personal details. We remove them anyway.')) + '</small>';
+      el.querySelector('[data-save]').textContent = tr('Save feedback');
+      out.textContent = outKey ? tr(outKey) : '';
+    };
+    root.addEventListener && root.addEventListener('finos:lang', relabel);
     el.addEventListener('click', async (e) => {
       const b = e.target.closest && e.target.closest('button'); if (!b) return;
       if (b.dataset.r) {
@@ -258,10 +271,10 @@
         el.querySelectorAll('[data-r]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.r === rating)));
       } else if (b.hasAttribute('data-save')) {
         const saved = Log.add({ rating, comment: el.querySelector('.fb-t').value, topic: typeof opts.topic === 'function' ? opts.topic() : opts.topic, page: opts.page || root.location.pathname });
-        if (!saved) { out.textContent = rating || el.querySelector('.fb-t').value.trim() ? tr('Could not save that on this device.') : tr('Pick Yes or Not really, or write a line, then save.'); return; }
+        if (!saved) { say(rating || el.querySelector('.fb-t').value.trim() ? 'Could not save that on this device.' : 'Pick Yes or Not really, or write a line, then save.'); return; }
         root.document.dispatchEvent(new root.CustomEvent('finos-feedback-saved'));
         const res = await shareLatest();
-        out.textContent = tr(res.ok ? OUTCOME.ok : (OUTCOME[res.reason] || OUTCOME.other));
+        say(res.ok ? OUTCOME.ok : (OUTCOME[res.reason] || OUTCOME.other));
         el.querySelector('.fb-t').value = ''; rating = null;
         el.querySelectorAll('[data-r]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
       }

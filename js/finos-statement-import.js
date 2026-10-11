@@ -136,17 +136,22 @@
   }
 
   /* ── result assembly ─────────────────────────────────────────────────────────────────────────────────────── */
+  /** A sentence: its English text now, plus { key, params } so the page can show it in the person's language. */
+  const W = (key, params) => ({ text: String(key).replace(/\{(\w+)\}/g, (_, k) => (params && params[k] != null ? params[k] : '')), key, params: params || {} });
+  /** Add a sentence to a result's warnings and, in step, its translatable twin. */
+  function addWarn(res, key, params) { const w = W(key, params); res.warnings.push(w.text); res.warningsT.push({ key: w.key, params: w.params }); }
+
   function finish(format, rows, skipped, warnings, extra) {
     const dates = rows.map((r) => r.date).sort();
     const sum = (t) => Math.round(rows.filter((r) => r.type === t).reduce((s, r) => s + r.amount, 0) * 100) / 100;
     return Object.assign({
-      ok: rows.length > 0, format, rows, skipped, warnings,
+      ok: rows.length > 0, format, rows, skipped, warnings, warningsT: [],
       dateRange: dates.length ? { from: dates[0], to: dates[dates.length - 1] } : null,
       totals: { count: rows.length, credits: sum('credit'), debits: sum('debit') },
       reconciled: reconcile(rows),
     }, extra || {});
   }
-  const fail = (format, msg) => ({ ok: false, format, rows: [], skipped: [], warnings: [msg], dateRange: null, totals: { count: 0, credits: 0, debits: 0 }, reconciled: 'unknown', dateOrder: 'dmy' });
+  const fail = (format, msg) => ({ ok: false, format, rows: [], skipped: [], warnings: [msg], warningsT: [{ key: msg, params: {} }], dateRange: null, totals: { count: 0, credits: 0, debits: 0 }, reconciled: 'unknown', dateOrder: 'dmy' });
 
   /* ── CSV ─────────────────────────────────────────────────────────────────────────────────────────────────── */
   function parseStatement(text) {
@@ -157,9 +162,9 @@
     const { map: m, index } = hdr;
     const body = rows0.slice(index + 1);
     const { order, mixed } = detectDateOrder(body.map((r) => r[m.date]));
-    const out = [], skipped = [], warnings = [];
-    if (mixed) warnings.push('The dates mix day-first and month-first forms, so some may be misread. Check the date range below.');
-    if (body.length > MAX_ROWS) warnings.push('Only the first ' + MAX_ROWS + ' rows were read.');
+    const out = [], skipped = [], warnings = [], early = [];
+    if (mixed) { warnings.push('The dates mix day-first and month-first forms, so some may be misread. Check the date range below.'); early.push({ key: 'The dates mix day-first and month-first forms, so some may be misread. Check the date range below.', params: {} }); }
+    if (body.length > MAX_ROWS) { warnings.push('Only the first ' + MAX_ROWS + ' rows were read.'); early.push({ key: 'Only the first {n} rows were read.', params: { n: MAX_ROWS } }); }
 
     body.slice(0, MAX_ROWS).forEach((r, k) => {
       const line = index + 2 + k;
@@ -194,8 +199,9 @@
 
     if (!out.length) return Object.assign(fail('bank-csv', 'I found the columns but no readable transactions.'), { skipped, dateOrder: order });
     const res = finish('bank-csv', out, skipped, warnings, { dateOrder: order });
-    if (res.reconciled === 'no') res.warnings.push('The balance column does not add up row by row. A row may be missing or misread, or the file may be incomplete. Check it before importing.');
-    if (skipped.length) res.warnings.push(skipped.length + ' row' + (skipped.length === 1 ? ' was' : 's were') + ' skipped (see below).');
+    res.warningsT.push.apply(res.warningsT, early);
+    if (res.reconciled === 'no') addWarn(res, 'The balance column does not add up row by row. A row may be missing or misread, or the file may be incomplete. Check it before importing.');
+    if (skipped.length) addWarn(res, skipped.length === 1 ? '1 row was skipped (see below).' : '{n} rows were skipped (see below).', { n: skipped.length });
     return res;
   }
 
@@ -223,7 +229,7 @@
       const encrypted = JSON.stringify(data).indexOf('encryptedFI') !== -1 || JSON.stringify(data).indexOf('encryptedfi') !== -1;
       return fail('aa-json', encrypted ? 'This data is still encrypted. Account Aggregator data can only be read by a registered provider; it has to be decrypted before it can be imported here.' : 'I could not find any deposit-account transactions in this file.');
     }
-    const out = [], skipped = [], warnings = [];
+    const out = [], skipped = [], warnings = [], wt = [];
     accounts.forEach((a) => a.txns.forEach((t, k) => {
       const o = lower(t), line = out.length + skipped.length + 1;
       const kind = String(o.type || '').toUpperCase();
@@ -236,10 +242,12 @@
       const bal = Imp.toNumber(o.currentbalance);
       out.push({ date, desc: String(o.narration || '').replace(/\s+/g, ' ').trim().slice(0, 160) || BLANK, type, amount: Math.round(amt * 100) / 100, balance: Number.isFinite(bal) ? bal : null, ref: o.txnid || o.reference ? String(o.txnid || o.reference).slice(0, 40) : null });
     }));
-    if (accounts.other) warnings.push(accounts.other + ' other account type' + (accounts.other === 1 ? ' was' : 's were') + ' ignored (only savings and current account transactions are imported here).');
+    if (accounts.other) { const w = W(accounts.other === 1 ? '1 other account type was ignored (only savings and current account transactions are imported here).' : '{n} other account types were ignored (only savings and current account transactions are imported here).', { n: accounts.other }); warnings.push(w.text); wt.push({ key: w.key, params: w.params }); }
     if (!out.length) return Object.assign(fail('aa-json', 'I found accounts but no readable transactions.'), { skipped });
-    if (skipped.length) warnings.push(skipped.length + ' transaction' + (skipped.length === 1 ? ' was' : 's were') + ' skipped (see below).');
-    return finish('aa-json', out, skipped, warnings, { dateOrder: 'dmy' });
+    if (skipped.length) { const w = W(skipped.length === 1 ? '1 transaction was skipped (see below).' : '{n} transactions were skipped (see below).', { n: skipped.length }); warnings.push(w.text); wt.push({ key: w.key, params: w.params }); }
+    const res = finish('aa-json', out, skipped, warnings, { dateOrder: 'dmy' });
+    res.warningsT = wt;
+    return res;
   }
 
   /* ── into the ledger ─────────────────────────────────────────────────────────────────────────────────────── */

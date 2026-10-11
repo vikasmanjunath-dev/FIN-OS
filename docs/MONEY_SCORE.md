@@ -70,7 +70,7 @@ The Money Score, the Future Loss panel and the feedback prompt show Hindi when t
 - **Money reads naturally.** `₹4.40 L` becomes `₹4.40 लाख` and `₹2.50 Cr` becomes `₹2.50 करोड़`.
 - **The dictionary** is the `Money Score, Future Loss and feedback` section of `js/i18n/hi.js`: the exact English template as the key. It is a first-pass translation, **so have a fluent speaker review it before a wide release**.
 - **Adding or changing text.** Write the English template, then add the Hindi entry with the same `{placeholders}` and HTML tags. Three guards enforce it: `tests/i18n-coverage.test.js` (placeholders and tags match, every key the core can produce and every literal the UI declares has an entry, mutation-checked), and `tests/test_i18n_money_features.py` (the real engine in a browser records every key requested across every state and fails if any lacks a Hindi entry).
-- **Not translated on purpose:** `privacy.html` and `terms.html` (legal drafts: translate after the English is reviewed by counsel). Not yet translated: the Import statement page, the Feedback page body, and the PULSE card.
+- **Not translated on purpose:** `privacy.html` and `terms.html` (legal drafts: translate after the English is reviewed by counsel). The Import statement page and the Feedback page are translated too (see `docs/STATEMENT_IMPORT.md` and `docs/FEEDBACK.md`). Not yet translated: the PULSE card.
 
 ## Data
 
