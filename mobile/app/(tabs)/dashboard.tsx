@@ -313,6 +313,24 @@ export default function DashboardScreen() {
           onPress={() => open('/tools/prepay')}
         />
         <MetricCard
+          label="Future loss"
+          value="Your leak"
+          sub="what small spends become"
+          accent={Colors.red}
+          icon="💧"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/leak')}
+        />
+        <MetricCard
+          label="Tax savings"
+          value="Old vs new"
+          sub="what deductions could save"
+          accent={Colors.teal}
+          icon="🧾"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/tax')}
+        />
+        <MetricCard
           label="Job offer comparer"
           value="CTC vs in-hand"
           sub="compare up to 3 offers"
