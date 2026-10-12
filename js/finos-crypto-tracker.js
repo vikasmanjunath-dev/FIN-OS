@@ -19,7 +19,7 @@
 (function (global) {
   'use strict';
 
-  const TAX_RATE = 0.30;
+  const TAX_RATE = 0.30 * 1.04;     // 30% on gains from virtual digital assets, plus 4% health & education cess = 31.2%
   const TDS_THRESHOLD = 50000;
 
   /* ── Helpers ─────────────────────────────────────────────────────── */
@@ -77,6 +77,32 @@
     return total;
   }
 
+  /**
+   * The numbers both screens show. Rules that matter:
+   *  • A coin with no price is NOT valued at zero (that read as a 100% loss); it is left out of value and gain and listed in `unpriced`.
+   *  • Tax is worked out coin by coin on gains only: a loss in one coin never reduces the tax on another, and is not carried forward.
+   *  • TDS is what the exchange would deduct (1%) if the holding were sold, so it is a "what if", not something already paid.
+   */
+  function summarize(holdings, prices) {
+    prices = prices || {};
+    let totalCost = 0, totalValue = 0, totalGain = 0, tax = 0, tds = 0;
+    const unpriced = [];
+    const rows = (holdings || []).map(h => {
+      const px = prices[h.symbol] ?? h.currentPrice ?? 0;
+      const cost = (h.quantity || 0) * (h.avgBuyPrice || 0);
+      if (!(px > 0)) { unpriced.push(h.symbol); return { ...h, px: 0, cost, val: 0, gain: 0, gainPct: 0, tax: 0, tds: 0, priced: false }; }
+      const val = Math.round((h.quantity || 0) * px);
+      const gain = val - cost;
+      const rowTax = gain > 0 ? Math.round(gain * TAX_RATE) : 0;
+      const rowTds = val >= TDS_THRESHOLD ? Math.round(val * 0.01) : 0;
+      totalCost += cost; totalValue += val; totalGain += gain; tax += rowTax; tds += rowTds;
+      return { ...h, px, cost, val, gain, gainPct: cost > 0 ? gain / cost * 100 : 0, tax: rowTax, tds: rowTds, priced: true };
+    });
+    const allCost = rows.reduce((t, r) => t + r.cost, 0);
+    return { rows, unpriced, totalCost: allCost, pricedCost: totalCost, totalValue, totalGain, tax, tds,
+      pnlPct: totalCost > 0 ? (totalValue - totalCost) / totalCost * 100 : 0 };
+  }
+
   /* ── Render: price update bar ────────────────────────────────────── */
   function _renderPriceBar(el) {
     const holdings = load();
@@ -114,20 +140,11 @@
       return;
     }
 
-    let totalCost = 0, totalValue = 0, totalGain = 0;
-    holdings.forEach(h => {
-      const px   = prices[h.symbol] ?? h.currentPrice ?? 0;
-      const cost = (h.quantity || 0) * (h.avgBuyPrice || 0);
-      const val  = (h.quantity || 0) * px;
-      totalCost  += cost;
-      totalValue += val;
-      totalGain  += val - cost;
-    });
-    totalValue = Math.round(totalValue);
-    const pnlPct = totalCost > 0 ? ((totalValue - totalCost) / totalCost * 100) : 0;
-    const taxLiab = Math.max(0, totalGain) * TAX_RATE;
+    const sum = summarize(holdings, prices);
+    const totalCost = sum.totalCost, totalValue = sum.totalValue, totalGain = sum.totalGain, pnlPct = sum.pnlPct, taxLiab = sum.tax;
 
-    let html = `
+    let html = sum.unpriced.length ? `<div class="ct-empty" role="status" style="margin-bottom:12px;">Enter a current price for ${sum.unpriced.join(', ')} above. Coins without a price are left out of the value and gain, not counted as a loss.</div>` : '';
+    html += `
       <div class="ct-summary-strip">
         <div class="ct-sum-item ct-sum-total">
           <div class="ct-sum-lbl">Portfolio Value</div>
@@ -143,7 +160,7 @@
           <div class="ct-sum-sub">${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%</div>
         </div>
         <div class="ct-sum-item">
-          <div class="ct-sum-lbl">Tax if sold (30%)</div>
+          <div class="ct-sum-lbl">Tax if sold (31.2%)</div>
           <div class="ct-sum-val" style="color:#FF9500">${INR(taxLiab)}</div>
         </div>
       </div>
@@ -151,13 +168,8 @@
       <div class="ct-section-title">Holdings</div>
       <div class="ct-holdings-list">`;
 
-    holdings.forEach(h => {
-      const px      = prices[h.symbol] ?? h.currentPrice ?? 0;
-      const cost    = (h.quantity || 0) * (h.avgBuyPrice || 0);
-      const val     = Math.round((h.quantity || 0) * px);
-      const gain    = val - cost;
-      const gainPct = cost > 0 ? (gain / cost * 100) : 0;
-      const tds     = val >= TDS_THRESHOLD ? Math.round(val * 0.01) : 0;
+    sum.rows.forEach(r => {
+      const h = r, px = r.px, val = r.val, gain = r.gain, gainPct = r.gainPct, tds = r.tds;
 
       html += `
         <div class="ct-holding-card">
@@ -172,7 +184,7 @@
           </div>
           <div class="ct-hc-right">
             <div class="ct-hc-val">${px ? INR(val) : '—'}</div>
-            ${tds > 0 ? `<div class="ct-hc-tds">1% TDS: ${INR(tds)}</div>` : ''}
+            ${tds > 0 ? `<div class="ct-hc-tds">1% TDS if sold: ${INR(tds)}</div>` : ''}
             <button class="ct-del-btn" onclick="FinosCryptoTracker._delete('${h.id}')">🗑</button>
           </div>
         </div>`;
@@ -229,19 +241,8 @@
       return;
     }
 
-    let totalGain = 0, totalTDS = 0;
-    const rows = holdings.map(h => {
-      const px   = prices[h.symbol] ?? h.currentPrice ?? 0;
-      const cost = (h.quantity || 0) * (h.avgBuyPrice || 0);
-      const val  = Math.round((h.quantity || 0) * px);
-      const gain = val - cost;
-      const tax  = gain > 0 ? Math.round(gain * TAX_RATE) : 0;
-      const tds  = val >= TDS_THRESHOLD ? Math.round(val * 0.01) : 0;
-      totalGain += gain;
-      totalTDS  += tds;
-      return { ...h, px, cost, val, gain, tax, tds };
-    });
-    const totalTax = Math.max(0, totalGain) * TAX_RATE;
+    const sum = summarize(holdings, prices);
+    const rows = sum.rows, totalGain = sum.totalGain, totalTDS = sum.tds, totalTax = sum.tax;
 
     el.innerHTML = `
       <div class="ct-tax-hero">
@@ -251,13 +252,13 @@
             <div class="ct-tax-val ${totalGain >= 0 ? '' : 'ct-loss'}">${totalGain >= 0 ? '+' : ''}${INR(totalGain)}</div>
           </div>
           <div>
-            <div class="ct-tax-lbl">Tax @30% if sold today</div>
+            <div class="ct-tax-lbl">Tax @31.2% if sold today</div>
             <div class="ct-tax-val ct-tax-orange">${INR(totalTax)}</div>
           </div>
           <div>
-            <div class="ct-tax-lbl">Accumulated 1% TDS</div>
+            <div class="ct-tax-lbl">1% TDS if sold today</div>
             <div class="ct-tax-val" style="color:#4F7CFF">${INR(totalTDS)}</div>
-            <div class="ct-tax-sub">Adjustable against tax liability</div>
+            <div class="ct-tax-sub">Deducted by the exchange on a sale; adjustable against the tax</div>
           </div>
         </div>
       </div>
@@ -265,14 +266,14 @@
       <div class="ct-section-title" style="margin-top:24px;">Per-coin tax breakdown</div>
       <div class="ct-tax-table">
         <div class="ct-tax-header">
-          <span>Coin</span><span>Cost basis</span><span>Value</span><span>Gain / Loss</span><span>Tax @30%</span><span>TDS</span>
+          <span>Coin</span><span>Cost basis</span><span>Value</span><span>Gain / Loss</span><span>Tax @31.2%</span><span>TDS</span>
         </div>
         ${rows.map(r => `
           <div class="ct-tax-row">
             <span class="ct-tax-sym">${r.symbol}</span>
             <span>${INR(r.cost)}</span>
             <span>${r.px ? INR(r.val) : '—'}</span>
-            <span class="${r.gain >= 0 ? 'ct-gain-pos' : 'ct-gain-neg'}">${r.gain >= 0 ? '+' : ''}${INR(r.gain)}</span>
+            <span class="${r.gain >= 0 ? 'ct-gain-pos' : 'ct-gain-neg'}">${r.px ? (r.gain >= 0 ? '+' : '') + INR(r.gain) : '—'}</span>
             <span class="ct-tax-orange">${r.tax > 0 ? INR(r.tax) : '—'}</span>
             <span style="color:#4F7CFF">${r.tds > 0 ? INR(r.tds) : '—'}</span>
           </div>`).join('')}
@@ -280,10 +281,10 @@
 
       <div class="ct-tax-rules">
         <div class="ct-rules-title">🇮🇳 India Crypto Tax Rules (Finance Act 2022)</div>
-        <div class="ct-rule">📌 <strong>30% flat tax</strong> on all crypto profits — no deductions except cost of acquisition</div>
+        <div class="ct-rule">📌 <strong>30% flat tax</strong> (plus 4% cess, 31.2% in all) on all crypto profits — no deductions except cost of acquisition</div>
         <div class="ct-rule">📌 <strong>1% TDS</strong> on sell/swap transactions above ₹50,000/year — deducted by exchange, adjustable in ITR</div>
         <div class="ct-rule">📌 <strong>Losses cannot</strong> be offset against other income or carried forward to next year</div>
-        <div class="ct-rule">📌 <strong>No netting</strong> — loss in BTC cannot reduce gain in ETH for tax purposes</div>
+        <div class="ct-rule">📌 <strong>No netting</strong> — loss in BTC cannot reduce gain in ETH for tax purposes (the total above adds up each coin's gain only)</div>
         <div class="ct-rule">📌 <strong>Crypto received as gift</strong> > ₹50,000 is taxable at 30% for recipient</div>
         <div class="ct-rule">📌 <strong>Wallet transfers</strong> are NOT taxable — only sell, swap, or spend events trigger tax</div>
       </div>`;
@@ -369,6 +370,6 @@
     }
   }
 
-  global.FinosCryptoTracker = { renderSetup, renderHoldings, renderTax, _onPriceInput, _add, _delete };
+  global.FinosCryptoTracker = { renderSetup, renderHoldings, renderTax, _onPriceInput, _add, _delete, _summarize: summarize, TAX_RATE };
 
 })(window);

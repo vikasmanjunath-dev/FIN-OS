@@ -80,7 +80,7 @@
   }
 
   function recomputeTotal(holdings) {
-    const pricePerG = gs('finos_gold_price_per_g') || 9500; // default MCX approx
+    const pricePerG = gs('finos_gold_price_per_g');   // 0 until the person enters today's price: grams are not valued with an invented rate
     let total = 0;
     (holdings || loadPortfolio()).forEach(h => {
       if (h.type === 'physical')    total += calcPhysicalValue(h.grams || 0, pricePerG);
@@ -120,7 +120,7 @@
   function renderHoldings(el) {
     if (!el) return;
     const holdings   = loadPortfolio();
-    const pricePerG  = gs('finos_gold_price_per_g') || 9500;
+    const pricePerG  = gs('finos_gold_price_per_g');
     const total      = recomputeTotal(holdings);
 
     if (!holdings.length) {
@@ -144,18 +144,21 @@
                      + holdings.filter(h => h.type === 'sgb').reduce((s, h) => s + (h.units || 0), 0);
     const annualCoupon = holdings.filter(h => h.type === 'sgb').reduce((s, h) => s + calcSGBAnnualCoupon(h.units || 0, h.faceValue || 0), 0);
 
+    if (!pricePerG && holdings.some(h => h.type === 'physical' || h.type === 'sgb')) {
+      html += `<div class="gt-empty" role="status" style="margin-bottom:12px;">Enter today's gold price per gram above. Physical gold and SGBs are not valued until you do, and the total below leaves them out.</div>`;
+    }
     html += `
       <div class="gt-summary-strip">
         <div class="gt-summary-item gt-sum-total">
           <div class="gt-sum-lbl">Total Gold Value</div>
           <div class="gt-sum-val">${INR(total)}</div>
-          <div class="gt-sum-note">${totalGrams.toFixed(2)} gm equiv. at ₹${pricePerG.toLocaleString('en-IN')}/gm</div>
+          <div class="gt-sum-note">${pricePerG ? `${totalGrams.toFixed(2)} gm equiv. at ₹${pricePerG.toLocaleString('en-IN')}/gm` : 'Add today\'s gold price to value grams'}</div>
         </div>
         ${physVal > 0 ? `<div class="gt-summary-item"><div class="gt-sum-lbl">Physical</div><div class="gt-sum-val" style="color:#FFB347">${INR(physVal)}</div></div>` : ''}
         ${sgbVal  > 0 ? `<div class="gt-summary-item"><div class="gt-sum-lbl">SGB</div><div class="gt-sum-val" style="color:#22D3A6">${INR(sgbVal)}</div></div>` : ''}
         ${etfVal  > 0 ? `<div class="gt-summary-item"><div class="gt-sum-lbl">Gold ETF</div><div class="gt-sum-val" style="color:#4F7CFF">${INR(Math.round(etfVal))}</div></div>` : ''}
         ${mfVal   > 0 ? `<div class="gt-summary-item"><div class="gt-sum-lbl">Gold MF</div><div class="gt-sum-val" style="color:#9B5DE5">${INR(mfVal)}</div></div>` : ''}
-        ${annualCoupon > 0 ? `<div class="gt-summary-item"><div class="gt-sum-lbl">SGB Coupon/yr</div><div class="gt-sum-val" style="color:#22D3A6">${INR(annualCoupon)}</div><div class="gt-sum-note">Tax-free interest</div></div>` : ''}
+        ${annualCoupon > 0 ? `<div class="gt-summary-item"><div class="gt-sum-lbl">SGB Coupon/yr</div><div class="gt-sum-val" style="color:#22D3A6">${INR(annualCoupon)}</div><div class="gt-sum-note">Taxable interest income</div></div>` : ''}
       </div>`;
 
     // Holdings cards
@@ -180,16 +183,17 @@
     let valueStr = '', details = '';
     if (h.type === 'physical') {
       const val = calcPhysicalValue(h.grams || 0, pricePerG);
-      valueStr = INR(val);
-      details  = `${h.grams}gm × ₹${pricePerG.toLocaleString('en-IN')}/gm`;
+      valueStr = pricePerG ? INR(val) : 'Enter price';
+      details  = pricePerG ? `${h.grams}gm × ₹${pricePerG.toLocaleString('en-IN')}/gm` : `${h.grams}gm · enter today's gold price above to value it`;
     } else if (h.type === 'sgb') {
       const val    = calcSGBCurrentValue(h.units || 0, h.faceValue || 0, pricePerG);
       const coupon = calcSGBAnnualCoupon(h.units || 0, h.faceValue || 0);
-      const maturity = addYears(h.purchaseDate, 8);
+      const maturity = addYears(h.issueDate, 8);
       const daysLeft = daysFrom(maturity);
-      valueStr = INR(val);
+      valueStr = pricePerG ? INR(val) : 'Enter price';
       details  = `${h.units} units · Issue ₹${(h.faceValue || 0).toLocaleString('en-IN')}/gm · Coupon: ${INR(coupon)}/yr`;
-      if (maturity) details += ` · Matures ${dateStr(maturity)}${daysLeft < 365 ? ` <span style="color:#c7f000">(${Math.round(daysLeft/30)} mo)</span>` : ''}`;
+      if (maturity) details += ` · Estimated maturity ${dateStr(maturity)}${daysLeft < 365 ? ` <span style="color:#c7f000">(${Math.round(daysLeft/30)} mo)</span>` : ''}`;
+      else details += ' · Enter original issue date to estimate maturity';
     } else if (h.type === 'etf') {
       const val = Math.round((h.units || 0) * (h.nav || 0));
       valueStr = INR(val);
@@ -243,9 +247,10 @@
               <div class="gt-field"><label>Series / Tranche</label><input type="text" id="gt-sgb-series" class="gt-inp" placeholder="e.g. SGB 2022-23 Series I"></div>
               <div class="gt-field"><label>Units (grams)</label><input type="number" id="gt-sgb-units" class="gt-inp" placeholder="e.g. 10" min="1" step="1"></div>
               <div class="gt-field"><label>Issue Price (₹/gm)</label><input type="number" id="gt-sgb-face" class="gt-inp" placeholder="e.g. 5409" min="1"></div>
-              <div class="gt-field"><label>Purchase Date</label><input type="date" id="gt-sgb-date" class="gt-inp"></div>
+              <div class="gt-field"><label>Original Issue Date</label><input type="date" id="gt-sgb-issue-date" class="gt-inp" required></div>
+              <div class="gt-field"><label>Your Purchase Date</label><input type="date" id="gt-sgb-date" class="gt-inp" required></div>
             </div>
-            <div class="gt-sgb-note">💡 SGB matures 8 years from purchase. Coupon = 2.5% p.a. on issue price, paid semi-annually. Capital gains EXEMPT at maturity.</div>
+              <div class="gt-sgb-note">💡 SGB tenure is 8 years from original issue. Coupon interest is taxable. Redemption exemption is conditional; an individual generally must hold from original issue through maturity. Secondary-market sale gains may be taxable.</div>
           </div>
 
           <!-- ETF -->
@@ -301,7 +306,12 @@
       holding.series       = document.getElementById('gt-sgb-series')?.value.trim() || 'SGB';
       holding.units        = units;
       holding.faceValue    = face;
-      holding.purchaseDate = document.getElementById('gt-sgb-date')?.value || '';
+      const issueDate = document.getElementById('gt-sgb-issue-date')?.value || '';
+      const purchaseDate = document.getElementById('gt-sgb-date')?.value || '';
+      if (!issueDate || !purchaseDate) { _toast('Enter both original issue date and your purchase date'); return; }
+      if (new Date(issueDate) > new Date(purchaseDate)) { _toast('Purchase date cannot be before original issue date'); return; }
+      holding.issueDate = issueDate;
+      holding.purchaseDate = purchaseDate;
     } else if (t === 'etf') {
       const units = parseFloat(document.getElementById('gt-etf-units')?.value || '0');
       const nav   = parseFloat(document.getElementById('gt-etf-nav')?.value   || '0');
@@ -369,7 +379,7 @@
   function renderTax(el) {
     if (!el) return;
     const holdings  = loadPortfolio();
-    const pricePerG = gs('finos_gold_price_per_g') || 9500;
+    const pricePerG = gs('finos_gold_price_per_g');
 
     if (!holdings.length) {
       el.innerHTML = `<div class="gt-empty">Add holdings first to see tax analysis.</div>`;
@@ -386,12 +396,10 @@
     // SGB tax
     if (sgbs.length) {
       html += `<div class="gt-tax-card gt-tax-sgb">
-        <div class="gt-tax-title">📜 Sovereign Gold Bond — Tax Benefits</div>`;
+        <div class="gt-tax-title">📜 Sovereign Gold Bond — Tax Treatment</div>`;
       sgbs.forEach(h => {
-        const maturity     = addYears(h.purchaseDate, 8);
-        const redemption5  = addYears(h.purchaseDate, 5);
+        const maturity     = addYears(h.issueDate, 8);
         const daysToMat    = daysFrom(maturity);
-        const daysTo5yr    = daysFrom(redemption5);
         const coupon       = calcSGBAnnualCoupon(h.units, h.faceValue);
         const currentVal   = calcSGBCurrentValue(h.units, h.faceValue, pricePerG);
         const cost         = (h.units || 0) * (h.faceValue || 0);
@@ -400,11 +408,11 @@
           <div class="gt-tax-row">
             <div class="gt-tax-series">${h.series || 'SGB'}</div>
             <div class="gt-tax-detail">
-              <span class="gt-tax-badge gt-tax-green">✅ Coupon ${INR(coupon)}/yr — Tax-free</span>
+              <span class="gt-tax-badge gt-tax-amber">Coupon ${INR(coupon)}/yr — taxable as interest income</span>
               ${maturity ? `<span class="gt-tax-badge ${daysToMat > 0 ? 'gt-tax-blue' : 'gt-tax-green'}">
-                ${daysToMat > 0 ? `Maturity: ${dateStr(maturity)} (${Math.ceil(daysToMat/30)} mo)` : `MATURED — Capital gain EXEMPT`}
-              </span>` : ''}
-              ${gain > 0 ? `<span class="gt-tax-badge gt-tax-amber">Unrealised gain: ${INR(gain)} — ${daysToMat > 0 ? 'EXEMPT if held to maturity' : 'EXEMPT'}</span>` : ''}
+                ${daysToMat > 0 ? `Estimated maturity: ${dateStr(maturity)} (${Math.ceil(daysToMat/30)} mo)` : `Maturity date passed — check original-issue holding condition for redemption exemption`}
+              </span>` : '<span class="gt-tax-badge gt-tax-amber">Original issue date missing — maturity and redemption treatment unavailable</span>'}
+              ${gain > 0 ? `<span class="gt-tax-badge gt-tax-amber">Market value is ${INR(gain)} above the entered issue price; this is not a tax-gain calculation for secondary-market purchases.</span>` : ''}
             </div>
           </div>`;
       });
@@ -415,7 +423,7 @@
     if (physical.length) {
       html += `<div class="gt-tax-card">
         <div class="gt-tax-title">🪙 Physical Gold — Tax on Sale</div>
-        <div class="gt-tax-desc">LTCG (held &gt; 2 years): 12.5% without indexation. STCG (≤ 2 years): added to income, taxed at slab rate.</div>
+        <div class="gt-tax-desc">For transfers on or after 23 July 2024, LTCG (held &gt; 2 years) is generally 12.5% without indexation; STCG is generally taxed at slab rates. Earlier transfers follow the prior rules.</div>
         <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font-size:12px;color:rgba(255,255,255,.6);">
           <div><strong style="color:#FFB347;">Holding period</strong></div>
           <div><strong style="color:#FFB347;">Tax type</strong></div>
@@ -431,8 +439,7 @@
     if (etfs.length) {
       html += `<div class="gt-tax-card">
         <div class="gt-tax-title">📈 Gold ETF & Gold MF — Tax</div>
-        <div class="gt-tax-desc">Post-budget 2023 amendment: LTCG after 1 year at 12.5% without indexation. STCG added to income at slab rate.</div>
-        <div class="gt-tax-note">Debt MF taxation applies to Gold MFs — gains taxed at slab regardless of holding period from FY 2023-24.</div>
+        <div class="gt-tax-desc">Tax depends on whether units are listed, holding period, and acquisition date. The tracker does not compute this liability; check the applicable rules before selling.</div>
       </div>`;
     }
 
@@ -444,7 +451,7 @@
           ${[
             { label:'Physical Gold', coupon:'None', ltcgRate:'12.5%', period:'&gt; 2 yr', status:'Taxable', col:'#FFB347' },
             { label:'Gold ETF',      coupon:'None', ltcgRate:'12.5%', period:'&gt; 1 yr', status:'Taxable', col:'#4F7CFF' },
-            { label:'SGB (maturity)',coupon:'2.5% tax-free', ltcgRate:'Exempt', period:'8 yr', status:'Best ✅', col:'#22D3A6' },
+            { label:'SGB (eligible redemption)',coupon:'2.5% taxable', ltcgRate:'Exemption may apply', period:'Original issue to maturity', status:'Conditions apply', col:'#22D3A6' },
           ].map(x => `
             <div class="gt-ctg-item" style="border-color:${x.col}20;">
               <div class="gt-ctg-name" style="color:${x.col}">${x.label}</div>
@@ -485,6 +492,9 @@
     _selectType,
     _addHolding,
     _onPriceChange,
+    // pure calculations, exposed so the mobile app's port can be tested against this file
+    _recomputeTotal: recomputeTotal,
+    _calcSGBAnnualCoupon: calcSGBAnnualCoupon,
   };
 
 })(window);

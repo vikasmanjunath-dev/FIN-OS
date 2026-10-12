@@ -66,13 +66,19 @@ window.FinosCreditScore = (function () {
 
   /* ── Load / save inputs ────────────────────────────────────────── */
   function _loadInputs() {
+    // `entered` is true only once the person has given a score. Until then nothing is worked out or saved: the 720 / 35% below are
+    // just starting values for the boxes, and must never be stored as if they were the person's.
+    const entered = /^\d{3}$/.test(gss('finos_cibil_score'));
+    const has = k => gss(k) !== '';
     return {
+      entered,
+      utilKnown: has('finos_credit_util_pct'), lateKnown: has('finos_credit_late'), inqKnown: has('finos_credit_inquiries'),
       score:           parseInt(gss('finos_cibil_score')       || '720'),
-      utilization:     parseFloat(gss('finos_credit_util_pct') || '35'),
+      utilization:     parseFloat(gss('finos_credit_util_pct') || '0'),     // unknown counts as 0, so no tip is raised from a number nobody entered
       creditLimit:     parseFloat(gss('finos_credit_limit')    || '200000'),
       outstanding:     parseFloat(gss('finos_credit_outstanding')|| '70000'),
       oldestAgeYears:  parseFloat(gss('finos_credit_age_yrs')  || '3'),
-      recentInquiries: parseInt(gss('finos_credit_inquiries')  || '2'),
+      recentInquiries: parseInt(gss('finos_credit_inquiries')  || '0'),
       latePayments:    parseInt(gss('finos_credit_late')       || '0'),
       securedAccounts: parseInt(gss('finos_credit_secured')    || '1'),
       unsecuredAccounts:parseInt(gss('finos_credit_unsecured') || '1'),
@@ -82,9 +88,11 @@ window.FinosCreditScore = (function () {
   function _compute(p) {
     const b = _band(p.score);
     const health = p.score >= 750 ? 'good' : p.score >= 650 ? 'fair' : 'poor';
-    ss('finos_cibil_score',     p.score);
-    ss('finos_credit_util_pct', p.utilization);
-    ss('finos_credit_health',   health);
+    if (p.entered !== false) {                       // never store the starting values as the person's own score
+      ss('finos_cibil_score',     p.score);
+      if (p.utilKnown !== false) ss('finos_credit_util_pct', p.utilization);
+      ss('finos_credit_health',   health);
+    }
 
     // Rate spread on ₹50L home loan over 20 years
     const baseRate = 8.50;
@@ -107,8 +115,8 @@ window.FinosCreditScore = (function () {
     const activeTips = [];
     if (p.utilization > 30) activeTips.push({ ...TIPS.utilization[0], category:'Utilization' });
     else if (p.utilization > 10) activeTips.push({ ...TIPS.utilization[1], category:'Utilization' });
-    if (p.latePayments > 0) activeTips.push({ ...TIPS.payments[0], category:'Payments' });
-    activeTips.push({ ...TIPS.payments[1], category:'Payments' });
+    activeTips.push({ ...TIPS.payments[0], category:'Payments' });                                   // "never miss one" is for everyone
+    if (p.latePayments > 0) activeTips.push({ ...TIPS.payments[1], category:'Payments' });           // "clear delinquencies" only if there are late payments
     if (p.oldestAgeYears < 5) activeTips.push({ ...TIPS.age[0], category:'Credit Age' });
     if (p.recentInquiries >= 2) activeTips.push({ ...TIPS.inquiries[0], category:'Inquiries' });
     if (p.securedAccounts === 0 || p.unsecuredAccounts === 0) activeTips.push({ ...TIPS.mix[0], category:'Credit Mix' });
@@ -142,11 +150,11 @@ window.FinosCreditScore = (function () {
     if (!container) return;
     const p = _loadInputs();
     const c = _compute(p);
-    const scorePct = ((p.score - 300) / 600) * 100;
+    const scorePct = p.entered ? ((p.score - 300) / 600) * 100 : 0;
     const INR = v => '₹' + Math.abs(Math.round(v)).toLocaleString('en-IN');
 
     const bandBars = BANDS.slice().reverse().map(b => {
-      const isActive = p.score >= b.min && p.score <= b.max;
+      const isActive = p.entered && p.score >= b.min && p.score <= b.max;
       return `<div style="display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;background:${isActive ? 'var(--border-soft)' : 'transparent'};border:1px solid ${isActive ? 'var(--border-medium)' : 'transparent'};">
         <div style="font-size:14px;">${b.icon}</div>
         <div style="flex:1;">
@@ -175,20 +183,20 @@ window.FinosCreditScore = (function () {
       <div style="display:flex;align-items:center;gap:12px;">
         <div id="cs-score-badge" style="width:90px;height:90px;border-radius:50%;background:conic-gradient(${c.b.color} 0% ${scorePct.toFixed(1)}%, var(--border-soft) ${scorePct.toFixed(1)}% 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <div style="width:70px;height:70px;border-radius:50%;background:var(--bg,#0A0B0F);display:flex;flex-direction:column;align-items:center;justify-content:center;">
-            <div id="cs-score-num" style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:22px;font-weight:900;color:${c.b.color};">${p.score}</div>
+            <div id="cs-score-num" style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:22px;font-weight:900;color:${c.b.color};">${p.entered ? p.score : '—'}</div>
           </div>
         </div>
         <div>
-          <div id="cs-band-label" style="font-size:20px;font-weight:900;color:${c.b.color};">${c.b.icon} ${c.b.label}</div>
-          <div id="cs-band-desc" style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;">${c.b.desc}</div>
-          ${c.scoreProjection > p.score ? `<div style="margin-top:8px;font-size:11px;color:#22D3A6;">With top fixes → <strong>${c.scoreProjection}</strong> possible</div>` : ''}
+          <div id="cs-band-label" style="font-size:20px;font-weight:900;color:${p.entered ? c.b.color : 'var(--text-muted)'};">${p.entered ? c.b.icon + ' ' + c.b.label : 'Enter your score'}</div>
+          <div id="cs-band-desc" style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;">${p.entered ? c.b.desc : 'Type the score from your free CIBIL report below. Nothing is assumed until you do.'}</div>
+          ${p.entered && c.scoreProjection > p.score ? `<div style="margin-top:8px;font-size:11px;color:#22D3A6;">With top fixes → <strong>${c.scoreProjection}</strong> possible</div>` : ''}
         </div>
       </div>
     </div>
-    ${_inp('cs-score', 'Enter Your CIBIL Score', p.score, 300, 900, 1, '/900', 'Get your free score at CIBIL.com, BankBazaar, Bajaj Markets, or your bank app')}
-    ${_inp('cs-util',  'Credit Utilization %',    p.utilization, 0, 100, 1, '%',  'Total outstanding / total credit limit across all cards')}
-    ${_inp('cs-latepmts', 'Late Payments (last 2yr)', p.latePayments, 0, 24, 1, 'count', '0 = all on time; each "30 DPD" entry hurts significantly')}
-    ${_inp('cs-inquiries','Recent Hard Inquiries', p.recentInquiries, 0, 20, 1, 'last 12mo', 'New loan/card applications cause hard inquiries')}
+    ${_inp('cs-score', 'Enter Your CIBIL Score', p.entered ? p.score : '', 300, 900, 1, '/900', 'Get your free score at CIBIL.com, BankBazaar, Bajaj Markets, or your bank app')}
+    ${_inp('cs-util',  'Credit Utilization %',    p.utilKnown ? p.utilization : '', 0, 100, 1, '%',  'Total outstanding / total credit limit across all cards')}
+    ${_inp('cs-latepmts', 'Late Payments (last 2yr)', p.lateKnown ? p.latePayments : '', 0, 24, 1, 'count', '0 = all on time; each "30 DPD" entry hurts significantly')}
+    ${_inp('cs-inquiries','Recent Hard Inquiries', p.inqKnown ? p.recentInquiries : '', 0, 20, 1, 'last 12mo', 'New loan/card applications cause hard inquiries')}
   </div>
 
   <!-- Band reference -->
@@ -293,17 +301,25 @@ window.FinosCreditScore = (function () {
    the oninput/onclick attributes above threw "is not defined". Top-level here so those attributes can reach them. */
 (function(){
   window._csRecalc = function() {
-    const score = parseInt(document.getElementById('cs-score')?.value)||720;
-    const util  = parseFloat(document.getElementById('cs-util')?.value)||35;
-    const late  = parseInt(document.getElementById('cs-latepmts')?.value)||0;
-    const inq   = parseInt(document.getElementById('cs-inquiries')?.value)||2;
-    const p = { score, utilization:util, latePayments:late, recentInquiries:inq,
+    const val = id => { const el = document.getElementById(id); return el && el.value.trim() !== '' ? Number(el.value) : null; };   // 0 is an answer; blank is not
+    const scoreIn = val('cs-score'), utilIn = val('cs-util'), lateIn = val('cs-latepmts'), inqIn = val('cs-inquiries');
+    const valid = Number.isInteger(scoreIn) && scoreIn >= 300 && scoreIn <= 900;
+    const upd = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+    const INR = v => '₹'+Math.abs(Math.round(v)).toLocaleString('en-IN');
+    const num = v => (Number.isFinite(v) && v >= 0 ? v : 0);
+    const badge = document.getElementById('cs-score-badge');
+    if (!valid) {                                   // nothing to work out until a real score is typed
+      upd('cs-score-num', '—'); upd('cs-band-label', 'Enter your score');
+      upd('cs-band-desc', 'Type the score from your free CIBIL report below. Nothing is assumed until you do.');
+      upd('cs-hl-rate', '—'); upd('cs-hl-spread', '—'); upd('cs-hl-extra', '—');
+      if (badge) badge.style.background = 'conic-gradient(var(--border-soft) 0% 100%)';
+      return;
+    }
+    const p = { entered: true, utilKnown: utilIn !== null, score: scoreIn, utilization: num(utilIn), latePayments: num(lateIn), recentInquiries: num(inqIn),
       creditLimit:200000, outstanding:0, oldestAgeYears:3, securedAccounts:1, unsecuredAccounts:1 };
     if (window.FinosCreditScore) {
       const c = window.FinosCreditScore._compute(p);
-      const INR = v => '₹'+Math.abs(Math.round(v)).toLocaleString('en-IN');
-      const upd = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-      upd('cs-score-num', score);
+      upd('cs-score-num', scoreIn);
       upd('cs-band-label', c.b.icon+' '+c.b.label);
       upd('cs-band-desc',  c.b.desc);
       upd('cs-hl-rate',    c.b.hlRate > 0 ? c.b.hlRate.toFixed(2)+'%' : 'N/A');
@@ -313,11 +329,12 @@ window.FinosCreditScore = (function () {
         const el = document.getElementById(id);
         if(el) el.style.color = c.b.color;
       });
-      const badge = document.getElementById('cs-score-badge');
-      const pct = ((score-300)/600*100).toFixed(1);
+      const pct = ((scoreIn-300)/600*100).toFixed(1);
       if(badge) badge.style.background = 'conic-gradient(' + c.b.color + ' 0% ' + pct + '%, var(--border-soft) ' + pct + '% 100%)';
-      localStorage.setItem('finos_cibil_score', String(score));
-      localStorage.setItem('finos_credit_util_pct', String(util));
+      localStorage.setItem('finos_cibil_score', String(scoreIn));
+      if (utilIn !== null) localStorage.setItem('finos_credit_util_pct', String(num(utilIn)));
+      if (lateIn !== null) localStorage.setItem('finos_credit_late', String(num(lateIn)));
+      if (inqIn !== null) localStorage.setItem('finos_credit_inquiries', String(num(inqIn)));
     }
   };
 })();
