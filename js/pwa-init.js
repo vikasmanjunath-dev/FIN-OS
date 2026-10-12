@@ -142,7 +142,8 @@ if (_finosJsBase) {
   var _lang = 'en';
   try { _lang = localStorage.getItem('finos_lang') || 'en'; } catch (e) { /* private mode */ }
   if (_lang !== 'en') {                                   // English users never download the translation engine
-    if (!window.FinosI18n) {
+    if (!window.FinosI18n && !window.__finosI18nLoading) {
+      window.__finosI18nLoading = true;                   // the widget can start it too; only one of them should
       var _i18n = document.createElement('script');
       _i18n.src = _finosJsBase + 'finos-i18n.js';
       _i18n.onload = function () { window.FinosI18n.init(); };

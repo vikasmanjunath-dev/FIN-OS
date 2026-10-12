@@ -112,3 +112,45 @@ def test_a_page_that_includes_the_engine_itself_still_applies_the_saved_language
     pg.goto(f"{base}/html/settings.html", wait_until="load")
     pg.wait_for_function("window.FinosI18n && FinosI18n.lang() === 'hi' && document.documentElement.lang === 'hi'", timeout=10000)
     ctx.close()
+
+
+def test_calculator_pages_apply_the_saved_language_and_load_the_engine_once(env):
+    """The calculators do not load pwa-init.js; the widget starts the engine for them. Loading it twice would double-apply."""
+    base, browser = env
+    ctx = browser.new_context()
+    ctx.add_init_script("localStorage.setItem('finos_lang', 'hi');")
+    page = ctx.new_page()
+    requests = []
+    page.on("request", lambda r: requests.append(r.url))
+    page.goto(f"{base}/calculators/investment%20%26%20wealth/sip.html", wait_until="load")
+    page.wait_for_function("window.FinosI18n && FinosI18n.lang() === 'hi' && document.documentElement.lang === 'hi'", timeout=10000)
+    assert len([u for u in requests if u.split("?")[0].endswith("/js/finos-i18n.js")]) == 1
+    assert len([u for u in requests if u.split("?")[0].endswith("/js/i18n/hi.js")]) == 1
+    ctx.close()
+
+
+def test_english_calculator_visitors_never_download_the_engine(env):
+    base, browser = env
+    ctx = browser.new_context()
+    page = ctx.new_page()
+    requests = []
+    page.on("request", lambda r: requests.append(r.url))
+    page.goto(f"{base}/calculators/investment%20%26%20wealth/sip.html", wait_until="load")
+    page.wait_for_timeout(500)
+    assert not [u for u in requests if "finos-i18n" in u or "/i18n/hi.js" in u]
+    ctx.close()
+
+
+def test_calculator_results_in_hindi_keep_their_numbers_and_translate_the_label(env):
+    base, browser = env
+    ctx = browser.new_context()
+    ctx.add_init_script("localStorage.setItem('finos_lang', 'hi');")
+    page = ctx.new_page()
+    page.goto(f"{base}/calculators/banking%20%26%20fixed%20income/fd.html", wait_until="load")
+    page.wait_for_function("window.FinosI18n && FinosI18n.lang() === 'hi'", timeout=10000)
+    page.wait_for_timeout(800)
+    texts = page.evaluate("[...document.querySelectorAll('body *')].filter(e => e.children.length === 0).map(e => e.textContent.trim()).filter(t => /परिपक्वता|Maturity:/.test(t))")
+    assert any(t.startswith("परिपक्वता: ₹") for t in texts), texts
+    assert not any(t.startswith("Maturity:") for t in texts), texts
+    assert page.evaluate("document.title.length > 0")
+    ctx.close()

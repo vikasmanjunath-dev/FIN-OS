@@ -49,3 +49,16 @@ test('every Hindi entry has a non-empty value and no accidental English-only dup
   assert.ok(Object.keys(table).length >= 100);
   global.FinosI18n = I;
 });
+
+test('"Label: value" results keep the value and translate the label, with lakh and crore in Hindi', () => {
+  const I = require('../js/finos-i18n.js');
+  I.register('hi', { 'Maturity: {v}': 'परिपक्वता: {v}', 'Quarterly Payout: {v}': 'तिमाही भुगतान: {v}' });
+  global.document = undefined;
+  return I.setLang('hi', { persist: false }).then(() => {
+    assert.strictEqual(I._lookup('Maturity: ₹1.41 L'), 'परिपक्वता: ₹1.41 लाख');
+    assert.strictEqual(I._lookup('Maturity: ₹2.40Cr'), 'परिपक्वता: ₹2.40 करोड़');
+    assert.strictEqual(I._lookup('Quarterly Payout: ₹30,750'), 'तिमाही भुगतान: ₹30,750');
+    assert.strictEqual(I._lookup('Unknown label: ₹5'), null);                 // no entry: left alone
+    assert.strictEqual(I._lookup('Maturity: '), null);
+  });
+});

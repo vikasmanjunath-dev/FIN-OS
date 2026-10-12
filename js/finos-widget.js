@@ -5,6 +5,20 @@
 (function () {
   'use strict';
 
+  /* Language. The calculator pages do not load pwa-init.js (which is what normally starts the translation engine), so without
+     this a person who chose Hindi would see every calculator in English. English visitors never download the engine. */
+  try {
+    var _lang = localStorage.getItem('finos_lang') || 'en';
+    var _me = document.currentScript;
+    if (_lang !== 'en' && _me && _me.src && !window.FinosI18n && !window.__finosI18nLoading) {
+      window.__finosI18nLoading = true;
+      var _e = document.createElement('script');
+      _e.src = _me.src.replace(/finos-widget\.js.*$/, 'finos-i18n.js');
+      _e.onload = function () { if (window.FinosI18n) window.FinosI18n.init(); };
+      document.head.appendChild(_e);
+    }
+  } catch (_) { /* private mode */ }
+
   // Resolve voiceagent path relative to the current page depth.
   // Works whether Live Server is rooted at the project folder or its parent,
   // and works on Vercel where pages live under /html/.
@@ -615,7 +629,7 @@
       iframeEl.removeEventListener('load', onLoad);
       setTimeout(sendContextToIframe, 200);   // was 800ms
       clearInterval(_ctxTimer);
-      _ctxTimer = setInterval(sendContextToIframe, 90_000);
+      _ctxTimer = setInterval(() => { if (!document.hidden) sendContextToIframe(); }, 90_000);
     });
   }
   setTimeout(_loadIframe, 2000);
@@ -679,11 +693,16 @@
       const { data: { session } } = await sb.auth.getSession();
       if (!session) return;
 
-      const r = await fetch(
-        `http://localhost:8001/alerts/${session.user.id}?unread_only=true&limit=1`
-      );
-      if (!r.ok) return;
-      const { unread_count } = await r.json();
+      const A = window.FinosAPI;
+      const q = `/alerts/${encodeURIComponent(session.user.id)}?unread_only=true&limit=1`;
+      let body;
+      if (A && A.available('alerts')) body = await A.request('alerts', q, { timeout: 5000, retries: 0 });
+      else {
+        const r = await fetch('http://localhost:8001' + q, { signal: AbortSignal.timeout(5000) });
+        if (!r.ok) return;
+        body = await r.json();
+      }
+      const unread_count = (body && body.unread_count) || 0;
 
       // Update FAB badge
       let badge = document.getElementById('finos-fab-alert-badge');
@@ -714,8 +733,9 @@
   // Alert badge poll only runs locally (localhost) — alert-engine.py is local-only
   if (/^(localhost|127\.|0\.0\.0\.0)/.test(window.location.hostname)) {
     setTimeout(() => {
-      refreshAlertBadge();
-      setInterval(refreshAlertBadge, 5 * 60 * 1000);
+      // visibility-aware + non-overlapping when FinosAPI is there; plain timer otherwise
+      if (window.FinosAPI && window.FinosAPI.poll) window.FinosAPI.poll(refreshAlertBadge, 5 * 60 * 1000, { immediate: true });
+      else { refreshAlertBadge(); setInterval(refreshAlertBadge, 5 * 60 * 1000); }
     }, 3000);
   }
 
@@ -751,7 +771,7 @@
   if (!window._finosAlertsLoaded) {
     window._finosAlertsLoaded = true;   // guard against double-inject
     const alertScript = document.createElement('script');
-    alertScript.src   = _widgetBasePath() + 'finos-alerts.js?v=2';
+    alertScript.src   = _widgetBasePath() + 'finos-alerts.js?v=3';
     alertScript.async = true;
     document.head.appendChild(alertScript);
   }

@@ -44,7 +44,17 @@
     if (Object.prototype.hasOwnProperty.call(table, n)) return table[n];
     const m = n.match(GLYPH);
     if (m && m[2] && Object.prototype.hasOwnProperty.call(table, m[2])) return (m[1] + table[m[2]] + m[3]).trim();
+    // "Label: value" results (calculators write "Maturity: ₹1.41 L"): translate the label, keep the value, with lakh/crore in Hindi.
+    const kv = n.match(/^([^:\d₹]{2,60}): (.+)$/);
+    if (kv) {
+      const key = kv[1] + ': {v}';
+      if (Object.prototype.hasOwnProperty.call(table, key)) return table[key].replace('{v}', localiseValue(kv[2]));
+    }
     return null;
+  }
+  function localiseValue(v) {
+    if (current !== 'hi') return v;
+    return v.replace(/(\d)\s?Cr\b/g, '$1 करोड़').replace(/(\d)\s?L\b/g, '$1 लाख').replace(/\/mo\b/g, '/माह').replace(/\bper month\b/g, 'प्रति माह');
   }
 
   function t(key, fallback) {
@@ -56,8 +66,9 @@
 
   function skipped(el, forAttrs) {
     for (let e = el; e && e.nodeType === 1; e = e.parentElement) {
-      // A textarea's own content is the person's text and is left alone, but its placeholder is ours and is translated.
-      if (forAttrs && e === el && e.tagName === 'TEXTAREA') { if (e.hasAttribute('data-no-i18n')) return true; continue; }
+      // A textarea's own content is the person's text and is left alone, and a canvas or svg has no text to translate, but their
+      // placeholder / aria-label / title are ours and are translated.
+      if (forAttrs && e === el && /^(TEXTAREA|CANVAS|svg|SVG)$/.test(e.tagName)) { if (e.hasAttribute('data-no-i18n')) return true; continue; }
       if (SKIP_TAGS.test(e.tagName) || e.hasAttribute('data-no-i18n') || e.isContentEditable) return true;
     }
     return false;
