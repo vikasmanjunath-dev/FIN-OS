@@ -313,6 +313,42 @@ export default function DashboardScreen() {
           onPress={() => open('/tools/prepay')}
         />
         <MetricCard
+          label="Credit score"
+          value="CIBIL"
+          sub="rate impact and tips"
+          accent={Colors.purple}
+          icon="📈"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/credit')}
+        />
+        <MetricCard
+          label="Home loan"
+          value="EMI & prepay"
+          sub="interest, tax, what prepaying saves"
+          accent={Colors.cyan}
+          icon="🏠"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/homeloan')}
+        />
+        <MetricCard
+          label="Financial calendar"
+          value="What is due"
+          sub="SIPs, renewals, tax dates"
+          accent={Colors.gold}
+          icon="📅"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/calendar')}
+        />
+        <MetricCard
+          label="Debt payoff"
+          value="Avalanche or snowball"
+          sub="clear loans cheapest"
+          accent={Colors.orange}
+          icon="⛰️"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/debt')}
+        />
+        <MetricCard
           label="Future loss"
           value="Your leak"
           sub="what small spends become"
@@ -329,6 +365,24 @@ export default function DashboardScreen() {
           icon="🧾"
           style={styles.gridHalf}
           onPress={() => open('/tools/tax')}
+        />
+        <MetricCard
+          label="SIP step-up"
+          value="Raise it yearly"
+          sub="flat vs stepped-up SIP"
+          accent={Colors.teal}
+          icon="📈"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/stepup')}
+        />
+        <MetricCard
+          label="Salary structure"
+          value="Take-home"
+          sub="HRA, regime and CTC tips"
+          accent={Colors.purple}
+          icon="🧮"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/salary')}
         />
         <MetricCard
           label="Job offer comparer"

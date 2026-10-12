@@ -94,9 +94,9 @@ export const ASSET_ITEMS: LineItem[] = [
   { field: 'nps',       key: 'finos_nps_value',       label: 'NPS', icon: '🏛️', color: '#60A5FA', editable: false, hint: 'From your NPS tracker', route: '/tracker/nps' },
   { field: 'ppf',       key: 'finos_ppf_value',       label: 'PPF & small savings', icon: '📮', color: '#A3E635', editable: false, hint: 'From your PPF tracker', route: '/tracker/ppf' },
   { field: 'fd',        key: 'finos_fd_value',        label: 'Fixed income (FD/PPF/NSC)', icon: '💰', color: '#7B2FF7', editable: true, route: '/tracker/fixed' },
-  { field: 'gold',      key: 'finos_gold_value',      label: 'Gold / SGB', icon: '🥇', color: '#F0A500', editable: true },
+  { field: 'gold',      key: 'finos_gold_value',      label: 'Gold / SGB', icon: '🥇', color: '#F0A500', editable: true, route: '/tracker/gold' },
   { field: 'property',  key: 'finos_property_value',  label: 'Real estate', icon: '🏠', color: '#34D399', editable: true },
-  { field: 'crypto',    key: 'finos_crypto_value',    label: 'Crypto', icon: '₿', color: '#F97316', editable: true },
+  { field: 'crypto',    key: 'finos_crypto_value',    label: 'Crypto', icon: '₿', color: '#F97316', editable: true, route: '/tracker/crypto' },
   { field: 'cash',      key: 'finos_cash_value',      label: 'Savings / cash', icon: '🏧', color: '#60A5FA', editable: true },
   { field: 'other',     key: 'finos_other_value',     label: 'Other assets', icon: '📦', color: '#A78BFA', editable: true },
 ];

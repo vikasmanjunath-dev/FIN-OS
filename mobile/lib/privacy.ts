@@ -42,11 +42,11 @@ export const FLOWS: Flow[] = [
     control: 'Do not open Arya, or leave the backend unset. The backend, not your phone, then fetches prices from public market-data providers (NSE, AMFI, Yahoo Finance, CoinGecko); those providers see your backend\'s computer, not your phone.',
   },
   {
-    id: 'files', kind: 'file', title: 'Files you choose (bank statements)',
-    when: 'When you import a statement.',
-    sent: 'Nothing. The file is read on the phone, shown to you as a preview, and only then saved; account numbers and names are never read.',
+    id: 'files', kind: 'file', title: 'Files you choose (bank statements, broker holdings)',
+    when: 'When you import a statement or a holdings file.',
+    sent: 'Nothing. The file is read on the phone, shown to you as a preview, and only then saved. From a bank statement, account numbers and names are never read; from a holdings file only instrument names, ISINs, quantities and prices are. If you are signed in, imported holdings sync like any holding you add yourself.',
     personal: true, optional: true,
-    control: 'Every import can be undone from Import a bank statement → Past imports.',
+    control: 'Every statement import can be undone from Import a bank statement → Past imports. Imported holdings can be removed one by one in the Portfolio tab.',
   },
   {
     id: 'share', kind: 'share', title: 'The share sheet',

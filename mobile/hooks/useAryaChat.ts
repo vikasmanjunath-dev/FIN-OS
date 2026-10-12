@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { ENDPOINTS } from '@/constants/endpoints';
 import { useFinosContext } from '@/hooks/useFinosContext';
+import { apply as applyGuardrails } from '@/lib/aryaGuardrails';
 
 export interface ChatMessage {
   id: string;
@@ -34,11 +35,25 @@ export function useAryaChat() {
     };
     setMessages(prev => [...prev, userMsg]);
 
+    // Requests to evade tax or forge documents are answered here and never leave the phone (same rule and wording as the website).
+    const pre = applyGuardrails(text.trim(), '');
+    if (pre.blocked) {
+      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'arya', text: pre.text, timestamp: new Date() }]);
+      return;
+    }
+
     const aryaId = (Date.now() + 1).toString();
     setMessages(prev => [...prev, { id: aryaId, role: 'arya', text: '', timestamp: new Date(), streaming: true }]);
     setIsStreaming(true);
 
     abortRef.current = new AbortController();
+    let accumulated = '';
+
+    // Add Arya's plain-language notes to a finished (or stopped) answer. It only ever appends; the model's words are kept as they are.
+    const finish = () => {
+      const g = applyGuardrails(text.trim(), accumulated);
+      setMessages(prev => prev.map(m => m.id === aryaId ? { ...m, text: accumulated ? g.text : m.text, streaming: false } : m));
+    };
 
     try {
       const res = await fetch(`${ENDPOINTS.aryaAI}/api/chat`, {
@@ -63,7 +78,6 @@ export function useAryaChat() {
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
-      let accumulated = '';
       let buffer = '';
       let finished = false;
 
@@ -90,12 +104,9 @@ export function useAryaChat() {
         }
       }
 
-      // Mark complete
-      setMessages(prev =>
-        prev.map(m => m.id === aryaId ? { ...m, streaming: false } : m)
-      );
+      finish();
     } catch (err: any) {
-      if (err.name === 'AbortError') return;
+      if (err.name === 'AbortError') { finish(); return; }
       // Fallback: show a graceful error message
       setMessages(prev =>
         prev.map(m =>

@@ -9,6 +9,7 @@ import {
   Holding, NewHolding, Tombstone, RemoteHolding, SYNCED_ASSET_TYPES,
   toView, toRemote, planSync, holdingKey, assetTypeOf,
 } from '@/lib/holdings';
+import { planImport } from '@/lib/holdingsImportPlan';
 
 const KEY = 'finos_holdings_v1';
 const TOMBS_KEY = 'finos_holdings_tombstones_v1';
@@ -158,6 +159,28 @@ export async function addHolding(h: NewHolding) {
   tombstones = tombstones.filter(t => t.key !== holdingKey(h)); // re-adding cancels a pending delete
   saveTombstones();
   scheduleSync();
+}
+
+/**
+ * Apply a broker-file import: units and average cost of an existing holding are replaced by the file's (it is the full position),
+ * new instruments are added, nothing is removed. Running it twice with the same file changes nothing.
+ */
+export async function importHoldings(incoming: NewHolding[]) {
+  await init();
+  const plan = planImport(state.holdings, incoming);
+  if (!plan.add.length && !plan.update.length) return { added: 0, updated: 0, unchanged: plan.unchanged };
+  editVersion++;
+  const now = new Date().toISOString();
+  const patches = new Map(plan.update.map(u => [u.id, u.patch]));
+  const next = state.holdings.map(h => (patches.has(h.id) ? { ...h, ...patches.get(h.id)!, updatedAt: now } : h));
+  plan.add.forEach(h => next.push({ ...h, id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, updatedAt: now }));
+  await persist(next);
+  const added = new Set(plan.add.map(holdingKey));
+  tombstones = tombstones.filter(t => !added.has(t.key));       // importing something deleted earlier brings it back
+  saveTombstones();
+  scheduleSync();
+  refreshPrices();
+  return { added: plan.add.length, updated: plan.update.length, unchanged: plan.unchanged };
 }
 
 export async function removeHolding(id: string) {

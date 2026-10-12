@@ -112,6 +112,9 @@ export default function PortfolioScreen() {
                 : 'Add your first holding to get started'}
             </Text>
           </View>
+          <TouchableOpacity style={[styles.addBtn, { marginRight: 8 }]} onPress={() => router.push('/tracker/holdings-import')} accessibilityRole="button" accessibilityLabel="Import holdings from a broker file">
+            <Text style={styles.addBtnTxt}>⇪ Import</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.addBtn} onPress={() => setAdding(true)}>
             <Text style={styles.addBtnTxt}>＋ Add</Text>
           </TouchableOpacity>

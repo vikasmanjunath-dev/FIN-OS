@@ -36,6 +36,7 @@ export function useHoldings() {
     ...s,
     addHolding: store.addHolding,
     removeHolding: store.removeHolding,
+    importHoldings: store.importHoldings,
     refreshPrices: store.refreshPrices,
     syncNow: () => store.syncHoldings({ force: true }),
   };

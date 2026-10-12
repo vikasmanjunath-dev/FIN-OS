@@ -69,7 +69,8 @@ test('the importer, tools and sync never contact a server: only these modules ma
     .sort();
   // Anything new that calls fetch() must be described by a flow (backend host or file read) — update the notice, then this list.
   assert.deepEqual(callers, [
-    'app/tracker/import.tsx',            // reads the chosen local file (file:// or blob:) — not a network call
+    'app/tracker/holdings-import.tsx',   // reads the chosen local file (file:// or blob:) — not a network call
+    'app/tracker/import.tsx',            // same: the chosen statement file
     'hooks/useAryaChat.ts',
     'hooks/useMarketData.ts',
     'hooks/useSectors.ts',
