@@ -152,7 +152,8 @@ function calculate() {
   let maxP = 0;
   let maxL = 0;
 
-  for(let spot = start; spot <= end; spot += step) {
+  // step is 0 when the strike is 0, which made this loop run forever and froze the tab
+  for(let spot = start; step > 0 && spot <= end; spot += step) {
       let pnlPerUnit = 0;
       
       if (type === 'longCall') pnlPerUnit = Math.max(0, spot - k) - prem;

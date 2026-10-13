@@ -187,7 +187,7 @@ function calculate() {
   const ytm = (num / den) * 100;
 
   document.getElementById('currYield').textContent = currentYield.toFixed(2) + "%";
-  document.getElementById('incomeVal').textContent = "₹" + annualCoupon;
+  document.getElementById('incomeVal').textContent = "₹" + (Math.round(annualCoupon * 100) / 100);   // 2 decimals at most: 1000 x 7.1% used to print 70.99999999999999
   
   const ytmEl = document.getElementById('ytmVal');
   ytmEl.textContent = "Approx YTM: " + ytm.toFixed(2) + "%";

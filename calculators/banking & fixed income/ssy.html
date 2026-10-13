@@ -159,36 +159,16 @@ function calculate() {
   const maturityYears = 21;
   const depositYears = 15;
   
+  // Deposits go in at the start of each of the first 15 years; interest is credited at each year end; the account
+  // matures at year 21. (This block used to run twice, which counted every deposit twice in "Invested".)
   let balance = 0;
   let invested = 0;
-
-  for(let i=1; i<=maturityYears; i++) {
-      // Add interest on opening balance
-      balance = balance * (1 + r);
-      
-      // Add deposit if within 15 years
-      if (i <= depositYears) {
-          balance += P; // Assume deposit at end of year for simplicity or adjust to beginning
-          invested += P;
-          // Re-add interest component for the deposit of this year
-          // Usually SSY compounds annually, so if deposited April 1st, it earns interest.
-          // Simplified: Balance grows, then deposit is added (so deposit earns interest next year)
-          // Or: (Balance + P) * (1+r) -> Deposit earns interest this year.
-          // Let's use: Previous Balance * Interest + New Deposit * Interest (Standard Annuity Due)
-          // Actually, precise: Balance = (Balance + P) * (1+r)
-      }
-      // Years 16-21: No deposit, just interest accumulation.
-  }
-  
-  // Correction: The loop above adds interest on the deposit in the same year.
-  // Let's refine for clarity:
-  balance = 0;
   for (let i = 1; i <= maturityYears; i++) {
      if (i <= depositYears) {
         balance += P;
         invested += P;
      }
-     balance = balance * (1 + r); // Interest applied at year end
+     balance = balance * (1 + r);
   }
 
   const interest = balance - invested;
