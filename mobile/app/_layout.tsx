@@ -37,6 +37,7 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.bg } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="settings" options={{ presentation: 'modal', headerShown: false }} />
+        <Stack.Screen name="search" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="privacy" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="terms" options={{ presentation: 'modal', headerShown: false }} />

@@ -1,3 +1,4 @@
+import { Nudges } from '@/components/Nudges';
 import React, { useCallback } from 'react';
 import {
   ScrollView, View, Text, StyleSheet, RefreshControl,
@@ -77,11 +78,18 @@ export default function DashboardScreen() {
           <Text style={styles.greeting}>Good {getTimeOfDay()}, {ctx.name.split(' ')[0]} 👋</Text>
           <Text style={styles.date}>{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</Text>
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel="Settings" onPress={() => router.push('/settings')} hitSlop={12}>
-          <View style={styles.settingsBtn}>
-            <Text style={{ fontSize: 18 }}>⚙️</Text>
-          </View>
-        </Pressable>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Search" onPress={() => router.push('/search' as any)} hitSlop={12}>
+            <View style={styles.settingsBtn}>
+              <Text style={{ fontSize: 18 }}>🔍</Text>
+            </View>
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Settings" onPress={() => router.push('/settings')} hitSlop={12}>
+            <View style={styles.settingsBtn}>
+              <Text style={{ fontSize: 18 }}>⚙️</Text>
+            </View>
+          </Pressable>
+        </View>
       </View>
 
       {/* ── Market Strip ── */}
@@ -128,6 +136,10 @@ export default function DashboardScreen() {
           <Text style={{ color: Colors.cyan, fontSize: 18 }}>›</Text>
         </TouchableOpacity>
       )}
+
+      <Nudges incomeMonthly={tc.budget.income} savingsRate={tc.budget.known ? tc.budget.savingsRate : null}
+        topCategory={(() => { const r = [...sp.budget.rows].sort((a, b) => b.spent - a.spent)[0]; return r && r.spent > 0 ? { name: r.category, spent: r.spent } : null; })()}
+        spentThisMonth={sp.totals.spent} monthlySip={td.monthlySip} />
 
       {/* ── Spending this month ── */}
       <View style={styles.spendCard}>
