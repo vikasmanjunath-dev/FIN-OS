@@ -77,14 +77,19 @@ function themeProps(props: any): any {
   return out ?? props;
 }
 
-function wrap(component: any) {
+/** Text grows with the person's system font size up to twice its size (WCAG asks for 200%); beyond that fixed-size cards would clip. */
+export const MAX_FONT_SCALE = 2;
+
+function wrap(component: any, capFont = false) {
   if (!component) return;
   const target = typeof component.render === 'function' ? component : component.type && typeof component.type.render === 'function' ? component.type : null;
   if (!target || target.__finosThemed) return;
   const orig = target.render;
   target.render = function (props: any, ref: any) {
     const m = useMode();                                  // every wrapped component redraws when the choice changes: no screen reload
-    return orig.call(this, m === 'light' ? themeProps(props) : props, ref);
+    let p = m === 'light' ? themeProps(props) : props;
+    if (capFont && p && p.maxFontSizeMultiplier == null) p = { ...p, maxFontSizeMultiplier: MAX_FONT_SCALE };
+    return orig.call(this, p, ref);
   };
   target.__finosThemed = true;
 }
@@ -92,6 +97,7 @@ function wrap(component: any) {
 export function installThemePatch() {
   if (installed) return;
   installed = true;
-  [View, Text, TextInput, ScrollView, TouchableOpacity, Pressable, ActivityIndicator, Switch, RefreshControl].forEach(c => { try { wrap(c); } catch { /* a component that is not wrappable keeps the dark palette */ } });
+  [[View, false], [Text, true], [TextInput, true], [ScrollView, false], [TouchableOpacity, false], [Pressable, false], [ActivityIndicator, false], [Switch, false], [RefreshControl, false]]
+    .forEach(([c, cap]) => { try { wrap(c, cap as boolean); } catch { /* a component that is not wrappable keeps the dark palette */ } });
 }
 void COLOR_KEYS;

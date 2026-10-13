@@ -79,6 +79,8 @@ export const DATA_ITEMS: { key: string; label: string; kind: 'list' | 'value' }[
   { key: 'finos_money_score_history', label: 'Money Score history', kind: 'list' },
   { key: 'finos_budgets', label: 'Budget limits', kind: 'value' },
   { key: 'finos_reminders_mobile', label: 'Reminder preferences', kind: 'value' },
+  { key: 'finos_watchlist', label: 'Watchlist', kind: 'list' },
+  { key: 'finos_holding_dates', label: 'Purchase dates of holdings', kind: 'value' },
   { key: 'finos_age', label: 'Your age', kind: 'value' },
   { key: 'finos_dependents', label: 'People who depend on your income', kind: 'value' },
   { key: 'finos_theme_mobile', label: 'Appearance choice', kind: 'value' },

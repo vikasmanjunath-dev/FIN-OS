@@ -1,3 +1,4 @@
+import { OFFLINE_ACTIONS, offlineReply } from '@/lib/aryaOffline';
 import { useState, useRef, useCallback } from 'react';
 import { ENDPOINTS } from '@/constants/endpoints';
 import { useFinosContext } from '@/hooks/useFinosContext';
@@ -9,6 +10,8 @@ export interface ChatMessage {
   text: string;
   timestamp: Date;
   streaming?: boolean;
+  /** shown as tappable chips under the message (used for the offline reply) */
+  actions?: { label: string; route: string }[];
 }
 
 export function useAryaChat() {
@@ -111,7 +114,7 @@ export function useAryaChat() {
       setMessages(prev =>
         prev.map(m =>
           m.id === aryaId
-            ? { ...m, text: 'I\'m having trouble reaching the backend. Make sure the arya-ai server is running (port 7475) and the host in Settings is correct.', streaming: false }
+            ? { ...m, text: offlineReply('unreachable', typeof __DEV__ !== 'undefined' && __DEV__), actions: OFFLINE_ACTIONS, streaming: false }
             : m
         )
       );

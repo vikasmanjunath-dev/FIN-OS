@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
 import { ChatMessage } from '@/hooks/useAryaChat';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
 
@@ -42,6 +43,15 @@ export function AryaBubble({ message }: AryaBubbleProps) {
           {isArya ? renderMarkdown(message.text.trimEnd()) : message.text}
           {message.streaming && <Text style={styles.cursor}>▋</Text>}
         </Text>
+        {isArya && message.actions?.length ? (
+          <View style={styles.actions}>
+            {message.actions.map(a => (
+              <TouchableOpacity key={a.route} accessibilityRole="button" accessibilityLabel={`Open ${a.label}`} style={styles.chip} onPress={() => router.push(a.route as any)}>
+                <Text style={styles.chipTxt}>{a.label} ›</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : null}
         <Text style={styles.time}>
           {message.timestamp.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
         </Text>
@@ -79,6 +89,9 @@ const styles = StyleSheet.create({
     padding: Spacing.sm + 2,
     paddingHorizontal: Spacing.md,
   },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
+  chip: { borderWidth: 1, borderColor: 'rgba(123,47,247,0.4)', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5 },
+  chipTxt: { color: Colors.purpleInk, fontSize: 12, fontWeight: '700' },
   bubbleArya: {
     backgroundColor: 'rgba(123,47,247,0.08)',
     borderWidth: 1,

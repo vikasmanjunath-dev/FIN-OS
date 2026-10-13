@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { LinearGradient } from '@/components/Gradient';
 import { useHoldings, toView, HoldingView } from '@/hooks/useHoldings';
 import { AddHoldingModal } from '@/components/AddHoldingModal';
+import { XirrCard } from '@/components/XirrCard';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 
 const inr = (n: number) => '₹' + Math.round(n).toLocaleString('en-IN');
@@ -14,8 +15,8 @@ function HoldingRow({ h, onDelete }: { h: HoldingView; onDelete: () => void }) {
   const typeColor = h.type === 'ELSS' ? Colors.purple : h.type === 'MF' ? Colors.cyan : Colors.gold;
 
   return (
-    <TouchableOpacity accessibilityRole="button" activeOpacity={0.8} onLongPress={onDelete} delayLongPress={450} style={styles.holdingRow}>
-      <View style={styles.holdingLeft}>
+    <View style={styles.holdingRow}>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel={`${h.name}. Press and hold to remove`} activeOpacity={0.8} onLongPress={onDelete} delayLongPress={450} style={styles.holdingLeft}>
         <View style={[styles.holdingType, { backgroundColor: typeColor + '18', borderColor: typeColor + '40' }]}>
           <Text style={[styles.holdingTypeTxt, { color: typeColor }]}>{h.type}</Text>
         </View>
@@ -24,7 +25,7 @@ function HoldingRow({ h, onDelete }: { h: HoldingView; onDelete: () => void }) {
           {+h.units.toFixed(3)} {h.type === 'Stock' ? 'shares' : 'units'} · {h.type === 'Stock' ? 'LTP' : 'NAV'} ₹{+(h.lastPrice ?? h.avgPrice).toFixed(2)}
           {!h.priced ? ' (cost)' : ''}
         </Text>
-      </View>
+      </TouchableOpacity>
       <View style={styles.holdingRight}>
         <Text style={styles.holdingCurrent}>{inr(h.current)}</Text>
         <Text style={[styles.holdingGain, { color: up ? Colors.teal : Colors.red }]}>
@@ -32,7 +33,7 @@ function HoldingRow({ h, onDelete }: { h: HoldingView; onDelete: () => void }) {
         </Text>
         <TouchableOpacity accessibilityRole="button" onPress={onDelete} hitSlop={10}><Text style={styles.removeTxt}>Remove</Text></TouchableOpacity>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 }
 
@@ -112,6 +113,9 @@ export default function PortfolioScreen() {
                 : 'Add your first holding to get started'}
             </Text>
           </View>
+          <TouchableOpacity style={[styles.addBtn, { marginRight: 8 }]} onPress={() => router.push('/tracker/watchlist' as any)} accessibilityRole="button" accessibilityLabel="Open your watchlist">
+            <Text style={styles.addBtnTxt}>👁 Watch</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={[styles.addBtn, { marginRight: 8 }]} onPress={() => router.push('/tracker/holdings-import')} accessibilityRole="button" accessibilityLabel="Import holdings from a broker file">
             <Text style={styles.addBtnTxt}>⇪ Import</Text>
           </TouchableOpacity>
@@ -232,6 +236,7 @@ export default function PortfolioScreen() {
                 </TouchableOpacity>
               </View>
             )}
+            {tab === 'analysis' && <XirrCard holdings={rows} />}
           </>
         )}
       </ScrollView>

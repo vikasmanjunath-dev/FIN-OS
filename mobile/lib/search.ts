@@ -37,6 +37,7 @@ export const SCREENS: Entry[] = [
   e('/tracker/crypto', 'Crypto', 'Holdings and tax', 'Trackers', 'bitcoin ethereum vda tax 30%', '₿'),
   e('/tracker/passive', 'Passive income', 'Dividends, rent, interest, SWP', 'Trackers', 'freedom income dividend rent swp', '🌴'),
   e('/tracker/harvest', 'Tax harvesting', 'Use losses, free gains', 'Trackers', 'ltcg stcg capital gains loss harvest 1.25 lakh', '🍂'),
+  e('/tracker/watchlist', 'Watchlist', 'Stocks and funds you follow', 'Trackers', 'follow track price stock fund nifty ticker', '👁️'),
   e('/tracker/import', 'Import a bank statement', 'CSV or account aggregator file', 'Trackers', 'statement csv upload bank import', '📥'),
   e('/tracker/holdings-import', 'Import holdings', 'Broker holdings file', 'Trackers', 'zerodha groww demat csv upload', '📥'),
   // tools
