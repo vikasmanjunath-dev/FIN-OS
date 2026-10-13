@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Switch, Alert, TextInput } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Alert, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
@@ -8,6 +8,7 @@ import { ENDPOINTS, applyHost } from '@/constants/endpoints';
 import { useAuth } from '@/hooks/useAuth';
 import { useHoldings } from '@/hooks/useHoldings';
 import { useTrackerSync } from '@/hooks/useTrackerSync';
+import { LANGUAGES, setLang, useLang } from '@/lib/i18n';
 
 function SettingRow({ label, sub, right }: { label: string; sub?: string; right: React.ReactNode }) {
   return (
@@ -25,10 +26,10 @@ export default function SettingsScreen() {
   const { configured, session, signOut } = useAuth();
   const { syncing, syncError, lastSyncedAt, syncNow } = useHoldings();
   const trk = useTrackerSync();
+  const lang = useLang();
   const [name, setName]           = useState('');
   const [income, setIncome]       = useState('');
   const [hostIP, setHostIP]       = useState('');
-  const [notifications, setNotifications] = useState(true);
   const [saving, setSaving]       = useState(false);
 
   const loadValues = useCallback(async () => {
@@ -72,11 +73,30 @@ export default function SettingsScreen() {
     <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       {/* ── Header ── */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} hitSlop={12}>
+        <TouchableOpacity accessibilityRole="button" onPress={() => router.back()} hitSlop={12}>
           <Text style={styles.backBtn}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Settings</Text>
         <View style={{ width: 50 }} />
+      </View>
+
+      {/* ── Language ── */}
+      <Text style={styles.sectionLabel}>LANGUAGE</Text>
+      <View style={styles.card}>
+        <SettingRow
+          label="App language"
+          sub="Menus, buttons and labels. Your numbers and notes are never translated. Some screens are still in English."
+          right={
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              {LANGUAGES.map(l => (
+                <TouchableOpacity key={l.id} accessibilityRole="button" accessibilityState={{ selected: lang === l.id }}
+                  style={[styles.syncBtn, lang === l.id && { backgroundColor: 'rgba(0,212,255,0.18)', borderColor: Colors.cyan }]} onPress={() => setLang(l.id)}>
+                  <Text style={styles.syncBtnTxt}>{l.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          }
+        />
       </View>
 
       {/* ── Account ── */}
@@ -93,7 +113,7 @@ export default function SettingsScreen() {
             label="Sign in to sync"
             sub="Keep your portfolio in sync with the FIN·OS website and your other devices."
             right={
-              <TouchableOpacity style={styles.syncBtn} onPress={() => router.push('/login')}>
+              <TouchableOpacity accessibilityRole="button" style={styles.syncBtn} onPress={() => router.push('/login')}>
                 <Text style={styles.syncBtnTxt}>Sign in</Text>
               </TouchableOpacity>
             }
@@ -107,7 +127,7 @@ export default function SettingsScreen() {
                 : lastSyncedAt ? `Last synced ${new Date(lastSyncedAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`
                 : 'Not synced yet'}
               right={
-                <TouchableOpacity style={styles.syncBtn} onPress={() => syncNow()} disabled={syncing}>
+                <TouchableOpacity accessibilityRole="button" style={styles.syncBtn} onPress={() => syncNow()} disabled={syncing}>
                   <Text style={styles.syncBtnTxt}>{syncing ? '…' : 'Sync now'}</Text>
                 </TouchableOpacity>
               }
@@ -119,7 +139,7 @@ export default function SettingsScreen() {
                 : trk.lastSyncAt ? `Budget, goals, subscriptions and the rest — last synced ${new Date(trk.lastSyncAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`
                 : 'Budget, goals, subscriptions and the rest — not synced yet'}
               right={
-                <TouchableOpacity style={styles.syncBtn} onPress={() => trk.syncNow()} disabled={trk.syncing}>
+                <TouchableOpacity accessibilityRole="button" style={styles.syncBtn} onPress={() => trk.syncNow()} disabled={trk.syncing}>
                   <Text style={styles.syncBtnTxt}>{trk.syncing ? '…' : 'Sync now'}</Text>
                 </TouchableOpacity>
               }
@@ -135,7 +155,7 @@ export default function SettingsScreen() {
               label="Sign out"
               sub="Your data stays on this device. It syncs again when you sign in."
               right={
-                <TouchableOpacity style={[styles.syncBtn, { borderColor: 'rgba(255,68,68,0.4)' }]} onPress={() => signOut()}>
+                <TouchableOpacity accessibilityRole="button" style={[styles.syncBtn, { borderColor: 'rgba(255,68,68,0.4)' }]} onPress={() => signOut()}>
                   <Text style={[styles.syncBtnTxt, { color: Colors.red }]}>Sign out</Text>
                 </TouchableOpacity>
               }
@@ -151,7 +171,7 @@ export default function SettingsScreen() {
           label="Your Name"
           sub="Used by Arya for personalized greetings"
           right={
-            <TextInput
+            <TextInput accessibilityLabel="Your name"
               style={styles.inputSmall}
               value={name}
               onChangeText={setName}
@@ -164,7 +184,7 @@ export default function SettingsScreen() {
           label="Monthly Income"
           sub="Helps calculate savings rate and FIRE"
           right={
-            <TextInput
+            <TextInput accessibilityLabel="Monthly income"
               style={styles.inputSmall}
               value={income}
               onChangeText={setIncome}
@@ -183,7 +203,7 @@ export default function SettingsScreen() {
           label="Host IP / ngrok URL"
           sub="Leave blank to auto-detect (the Mac running Expo). Set your Mac's LAN IP or an ngrok host to override."
           right={
-            <TextInput
+            <TextInput accessibilityLabel="Backend host address"
               style={[styles.inputSmall, { width: 140 }]}
               value={hostIP}
               onChangeText={setHostIP}
@@ -208,25 +228,18 @@ export default function SettingsScreen() {
       <Text style={styles.sectionLabel}>NOTIFICATIONS</Text>
       <View style={styles.card}>
         <SettingRow
-          label="Price Alerts"
-          sub="Portfolio and watchlist alerts from Arya"
-          right={
-            <Switch
-              value={notifications}
-              onValueChange={v => { Haptics.selectionAsync(); setNotifications(v); }}
-              trackColor={{ false: Colors.border, true: Colors.purple + '80' }}
-              thumbColor={notifications ? Colors.purple : Colors.textMuted}
-            />
-          }
+          label="Reminders"
+          sub="Not available yet. The app asks for no notification permission, so nothing is sent to your phone. Due dates for SIPs, renewals and tax deadlines are in the Financial calendar."
+          right={<TouchableOpacity accessibilityRole="button" style={styles.syncBtn} onPress={() => router.push('/tools/calendar' as any)}><Text style={styles.syncBtnTxt}>Calendar</Text></TouchableOpacity>}
         />
       </View>
       {/* ── Privacy & terms ── */}
       <Text style={styles.sectionLabel}>PRIVACY & TERMS</Text>
       <View style={styles.card}>
         <SettingRow label="Privacy & your data" sub="What is stored, what can leave your phone, export and delete"
-          right={<TouchableOpacity style={styles.syncBtn} onPress={() => router.push('/privacy' as any)}><Text style={styles.syncBtnTxt}>Open</Text></TouchableOpacity>} />
+          right={<TouchableOpacity accessibilityRole="button" style={styles.syncBtn} onPress={() => router.push('/privacy' as any)}><Text style={styles.syncBtnTxt}>Open</Text></TouchableOpacity>} />
         <SettingRow label="Terms of use" sub="The ground rules, in plain language"
-          right={<TouchableOpacity style={styles.syncBtn} onPress={() => router.push('/terms' as any)}><Text style={styles.syncBtnTxt}>Read</Text></TouchableOpacity>} />
+          right={<TouchableOpacity accessibilityRole="button" style={styles.syncBtn} onPress={() => router.push('/terms' as any)}><Text style={styles.syncBtnTxt}>Read</Text></TouchableOpacity>} />
       </View>
 
 
@@ -244,11 +257,11 @@ export default function SettingsScreen() {
       </View>
 
       {/* ── Save + Danger Zone ── */}
-      <TouchableOpacity style={styles.saveBtn} onPress={save} disabled={saving}>
+      <TouchableOpacity accessibilityRole="button" style={styles.saveBtn} onPress={save} disabled={saving}>
         <Text style={styles.saveBtnText}>{saving ? 'Saving…' : 'Save Settings'}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.dangerBtn} onPress={clearAll}>
+      <TouchableOpacity accessibilityRole="button" style={styles.dangerBtn} onPress={clearAll}>
         <Text style={styles.dangerBtnText}>Clear All Local Data</Text>
       </TouchableOpacity>
     </ScrollView>

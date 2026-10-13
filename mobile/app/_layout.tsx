@@ -10,6 +10,10 @@ import { AuthProvider } from '@/hooks/useAuth';
 import { touchStreak } from '@/lib/trackerStorage';
 import { syncRecurring } from '@/lib/recurringStorage';
 import { startTrackerSync } from '@/lib/trackerSyncStore';
+import { installLanguagePatch } from '@/lib/i18nPatch';
+import { loadLang } from '@/lib/i18n';
+
+installLanguagePatch();     // every <Text> shows the person's language; no screen needs editing
 
 SplashScreen.preventAutoHideAsync();
 
@@ -18,6 +22,7 @@ export default function RootLayout() {
     touchStreak();
     syncRecurring();
     startTrackerSync();
+    loadLang();
     loadSavedHost().finally(() => SplashScreen.hideAsync());
   }, []);
 
