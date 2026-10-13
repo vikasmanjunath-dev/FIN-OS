@@ -358,6 +358,15 @@ export default function DashboardScreen() {
           onPress={() => open('/tools/rebalance')}
         />
         <MetricCard
+          label="Real estate"
+          value="Buy or rent?"
+          sub="true cost and rental yield"
+          accent={Colors.gold}
+          icon="🏠"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/realestate')}
+        />
+        <MetricCard
           label="Calculators"
           value="SIP, EMI, HRA, FD…"
           sub="70+ quick calculators"

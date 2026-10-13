@@ -13,6 +13,7 @@ const DEDICATED: { label: string; sub: string; route: string }[] = [
   { label: 'Tax (both regimes)', sub: 'old vs new with surcharge', route: '/tools/taxplanner' },
   { label: 'Salary structure', sub: 'CTC to take-home', route: '/tools/salary' },
   { label: 'Prepay or invest', sub: 'loan vs market', route: '/tools/prepay' },
+  { label: 'Real estate', sub: 'buy vs rent, true cost, rental yield', route: '/tools/realestate' },
 ];
 
 export default function CalculatorsHub() {

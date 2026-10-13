@@ -55,6 +55,8 @@ Last updated: 2026-10-11. This is the working list: each item has a status. Item
 
 - **Three website calculators had real bugs, found by running each page's script against random inputs.** SSY counted every yearly deposit twice ("Invested" 2x, "Returns" understated); Options Payoff froze the tab when the strike was 0 (its loop step became 0); Bond showed `₹70.99999999999999` for a 7.1% coupon. All three fixed in `calculators/`, with regression tests in `mobile/__tests__/webCalc.parity.test.mts`.
 
+- **Real Estate buy-vs-rent compared unlike things.** Only the renter invested the monthly difference (and kept doing so after the loan ended), the buyer's stamp duty and selling costs were ignored, the break-even year used a different rent model from the winner, and the "Annual Home Loan Tax Benefit" default of ₹3.5 L was the *deduction*, not tax saved (about ₹70 K at 20%), and was never counted. Rewritten as `js/finos-real-estate.js` (tests: `tests/real-estate.test.js`, `tests/test_real_estate_ui.py`). The yield tab now counts the rent you keep on the property side, and the cost tab no longer calls maintenance alone the "20yr ownership total".
+
 ## Known quirks (not scheduled)
 
 - `js/i18n/hi.js` is now ~280 KB (about 90 KB gzipped). It loads only for Hindi users and is cached, but it should be split by page group if it grows much more.
