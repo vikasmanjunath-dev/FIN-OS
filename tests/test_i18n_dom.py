@@ -154,3 +154,20 @@ def test_calculator_results_in_hindi_keep_their_numbers_and_translate_the_label(
     assert not any(t.startswith("Maturity:") for t in texts), texts
     assert page.evaluate("document.title.length > 0")
     ctx.close()
+
+
+def test_a_calculator_verdict_with_numbers_is_translated_with_the_figures_intact(env):
+    base, browser = env
+    ctx = browser.new_context()
+    ctx.add_init_script("localStorage.setItem('finos_lang', 'hi');")
+    page = ctx.new_page()
+    page.goto(f"{base}/calculators/loans,%20debt%20%26%20emi/prepayinvest.html", wait_until="load")
+    page.wait_for_function("window.FinosI18n && FinosI18n.lang() === 'hi'", timeout=10000)
+    page.wait_for_timeout(800)
+    verdict = page.inner_text(".verdict-box")
+    assert "से जीतता है" in verdict or "बहुत क़रीब" in verdict, verdict
+    assert "wins by" not in verdict
+    assert "₹" in verdict and ("लाख" in verdict or "करोड़" in verdict or "हज़ार" in verdict or any(c.isdigit() for c in verdict))
+    sub = page.inner_text("#subA")
+    assert "लोन-मुक्त होगा" in sub and "साल" in sub and "Loan-free" not in sub, sub
+    ctx.close()

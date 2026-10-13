@@ -62,3 +62,30 @@ test('"Label: value" results keep the value and translate the label, with lakh a
     assert.strictEqual(I._lookup('Maturity: '), null);
   });
 });
+
+test('sentences with numbers are looked up by template and the figures are put back in order, in Hindi units', async () => {
+  const I = require('../js/finos-i18n.js');
+  I.register('hi', {
+    'Investing wins by {n}': 'निवेश {n} से जीतता है',
+    'Loan-free in {n} {n} (vs {n}) · interest paid {n}': 'लोन-मुक्त होगा {n} {n} में ({n} के मुक़ाबले) · चुकाया ब्याज {n}',
+    'Invest {n} more': '{n} और निवेश करें',
+  });
+  await I.setLang('hi', { persist: false });
+  assert.strictEqual(I._lookup('Investing wins by ₹33.28 L'), 'निवेश ₹33.28 लाख से जीतता है');
+  assert.strictEqual(I._lookup('Loan-free in 9y 8m (vs 20y) · interest paid ₹23.21 L'), 'लोन-मुक्त होगा 9 साल 8 महीने में (20 साल के मुक़ाबले) · चुकाया ब्याज ₹23.21 लाख');
+  assert.strictEqual(I._lookup('Invest ₹80,000 more'), '₹80,000 और निवेश करें');             // "m" in "more" is not a unit
+  assert.strictEqual(I._lookup('A sentence with 12 numbers 5'), null);                       // no template: left alone
+});
+
+test('a bare figure only has its units localised, and a plain number is left alone', async () => {
+  const I = require('../js/finos-i18n.js');
+  await I.setLang('hi', { persist: false });
+  assert.strictEqual(I._lookup('₹2.40 Cr'), '₹2.40 करोड़');
+  assert.strictEqual(I._lookup('20 Years'), '20 साल');
+  assert.strictEqual(I._lookup('61 Months'), '61 महीने');
+  assert.strictEqual(I._lookup('15 Days'), '15 दिन');
+  assert.strictEqual(I._lookup('₹5,000'), null);
+  assert.strictEqual(I._lookup('42'), null);
+  await I.setLang('en', { persist: false });
+  assert.strictEqual(I._lookup('₹2.40 Cr'), null);
+});

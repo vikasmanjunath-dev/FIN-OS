@@ -34,7 +34,7 @@
 
   const norm = (s) => String(s).replace(/\s+/g, ' ').trim();
   /* Decorative glyphs people put around labels ("← Back", "Export ⬆", "✓ Done") are kept, only the words are translated. */
-  const GLYPH = /^([\s\p{Extended_Pictographic}\uFE0F\u200D←→↑↓‹›»«⬆⬇✓✕+•·\-–—]*)(.*?)([\s\p{Extended_Pictographic}\uFE0F\u200D←→↑↓‹›»«⬆⬇✓✕+•·\-–—…]*)$/u;
+  const GLYPH = /^([\s\p{Extended_Pictographic}\uFE0F\u200D←→↑↓‹›»«⬆⬇✓✕+＋•·●▸⇪−\-–—]*)(.*?)([\s\p{Extended_Pictographic}\uFE0F\u200D←→↑↓‹›»«⬆⬇✓✕+＋•·●▸⇪−\-–—…]*)$/u;
 
   function lookup(text) {
     const table = tables[current];
@@ -50,11 +50,28 @@
       const key = kv[1] + ': {v}';
       if (Object.prototype.hasOwnProperty.call(table, key)) return table[key].replace('{v}', localiseValue(kv[2]));
     }
+    // Sentences with numbers in them ("Investing wins by ₹33.28 L"): every number-like token becomes {n}, the template is looked up,
+    // and the original tokens go back in order (with lakh, crore, years and months in Hindi).
+    const tokens = n.match(NUM);
+    if (tokens) {
+      if (tokens.length === 1 && tokens[0] === n) {        // a bare figure: "₹2.40 Cr", "20 Years" — only the units change
+        const v = localiseValue(n);
+        return v !== n ? v : null;
+      }
+      const tpl = n.replace(NUM, '{n}');
+      if (tpl !== n && Object.prototype.hasOwnProperty.call(table, tpl)) {
+        let i = 0;
+        return table[tpl].replace(/\{n\}/g, () => localiseValue(tokens[i++] || ''));
+      }
+    }
     return null;
   }
+  const NUM = /₹?\d[\d,]*(?:\.\d+)?(?:\s?(?:Cr|L|K|%|x|yrs?|years?|months?|mo|y|m|days?|lakhs?)(?![A-Za-z]))?/gi;
   function localiseValue(v) {
     if (current !== 'hi') return v;
-    return v.replace(/(\d)\s?Cr\b/g, '$1 करोड़').replace(/(\d)\s?L\b/g, '$1 लाख').replace(/\/mo\b/g, '/माह').replace(/\bper month\b/g, 'प्रति माह');
+    return v.replace(/(\d)\s?Cr\b/gi, '$1 करोड़').replace(/(\d)\s?lakhs?\b/gi, '$1 लाख').replace(/(\d)\s?L\b/g, '$1 लाख').replace(/(\d)\s?K\b/g, '$1 हज़ार')
+      .replace(/(\d)\s?(?:years?|yrs?|y)\b/gi, '$1 साल').replace(/(\d)\s?(?:months?|mo|m)\b/gi, '$1 महीने').replace(/(\d)\s?days?\b/gi, '$1 दिन')
+      .replace(/\/mo\b/g, '/माह').replace(/\bper month\b/g, 'प्रति माह');
   }
 
   function t(key, fallback) {
