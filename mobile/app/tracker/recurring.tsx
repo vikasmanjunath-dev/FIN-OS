@@ -10,7 +10,7 @@ import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 const KINDS: { kind: Kind; label: string; color: string }[] = [
   { kind: 'expense', label: 'Expense', color: Colors.gold },
   { kind: 'income', label: 'Income', color: Colors.teal },
-  { kind: 'saving', label: 'Invested', color: Colors.purple },
+  { kind: 'saving', label: 'Invested', color: Colors.purpleInk },
 ];
 
 const niceDate = (iso: string) => new Date(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -84,7 +84,7 @@ export default function RecurringScreen() {
           <Text style={Typography.label}>EVERY MONTH</Text>
           <View style={{ flexDirection: 'row', marginTop: 6 }}>
             <View style={{ flex: 1 }}><Text style={Typography.caption}>Going out</Text><Text style={[s.sum, { color: Colors.gold }]}>{inr(monthly.out)}</Text></View>
-            <View style={{ flex: 1 }}><Text style={Typography.caption}>Invested</Text><Text style={[s.sum, { color: Colors.purple }]}>{inr(monthly.invest)}</Text></View>
+            <View style={{ flex: 1 }}><Text style={Typography.caption}>Invested</Text><Text style={[s.sum, { color: Colors.purpleInk }]}>{inr(monthly.invest)}</Text></View>
             <View style={{ flex: 1 }}><Text style={Typography.caption}>Coming in</Text><Text style={[s.sum, { color: Colors.teal }]}>{inr(monthly.inc)}</Text></View>
           </View>
         </Card>
@@ -94,7 +94,7 @@ export default function RecurringScreen() {
         {editing && (
           <View style={s.editBanner}>
             <Text style={s.editTxt}>Editing a recurring entry</Text>
-            <TouchableOpacity onPress={reset} hitSlop={10}><Text style={s.cancel}>Cancel</Text></TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" onPress={reset} hitSlop={10}><Text style={s.cancel}>Cancel</Text></TouchableOpacity>
           </View>
         )}
         <View style={s.seg}>
@@ -166,7 +166,7 @@ export default function RecurringScreen() {
                 <Switch value={r.active} onValueChange={v => { void update(r.id, { active: v }); }} trackColor={{ true: Colors.cyan, false: Colors.borderMed }} accessibilityLabel={`${r.label || r.category} active`} />
                 <Text style={Typography.caption}>{r.active ? 'Active' : 'Paused'}</Text>
               </View>
-              <TouchableOpacity onPress={() => confirmDelete(r)} hitSlop={10}><Text style={s.delete}>Delete</Text></TouchableOpacity>
+              <TouchableOpacity accessibilityRole="button" onPress={() => confirmDelete(r)} hitSlop={10}><Text style={s.delete}>Delete</Text></TouchableOpacity>
             </View>
           </Card>
         );

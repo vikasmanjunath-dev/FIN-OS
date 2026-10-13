@@ -17,6 +17,7 @@ export const Colors = {
   cyan:      '#00D4FF',
   teal:      '#22D3A6',
   purple:    '#7B2FF7',
+  purpleInk: '#B28CFF',   // purple for TEXT on dark surfaces (7.6:1; #7B2FF7 is 3.4:1 and only fine for fills)
   gold:      '#F0A500',
   red:       '#FF4444',
   orange:    '#FF6B35',
@@ -24,7 +25,7 @@ export const Colors = {
   // Text
   textPrimary: '#F5F7FA',
   textMuted:   '#8892A4',
-  textDim:     'rgba(255,255,255,0.30)',
+  textDim:     'rgba(255,255,255,0.50)',   // 5.3:1 on bg; 0.30 was 2.6:1 and failed contrast for text
 
   // Gradients (as arrays for LinearGradient)
   gradientCard:  ['#0D1117', '#111827'] as const,

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel, inr } from '@/components/TrackerUI';
 import { CalcField, Collapsible, Bullet } from '@/components/CalcUI';
 import { usePersisted } from '@/hooks/usePersisted';
@@ -62,6 +63,12 @@ export default function TaxSavingsScreen() {
         <CalcField label="NPS ALREADY CLAIMED (80CCD(1B))" prefix="₹" value={f.usedNps} onChange={v => up({ usedNps: v })} />
         <Text onPress={reset} style={{ color: Colors.textMuted, fontSize: 12, fontWeight: '700' }}>Reset</Text>
       </Card>
+
+      <TouchableOpacity onPress={() => router.push('/tools/taxplanner')} accessibilityRole="button" accessibilityLabel="Open the full tax planner"
+        style={{ borderWidth: 1, borderColor: Colors.cyan, borderRadius: 12, padding: Spacing.md, marginBottom: Spacing.md }}>
+        <Text style={{ color: Colors.textPrimary, fontWeight: '800', fontSize: 13 }}>Full tax planner →</Text>
+        <Text style={Typography.caption}>Both regimes side by side with HRA, surcharge, home loan and capital gains.</Text>
+      </TouchableOpacity>
 
       <Collapsible title="How this is calculated — and what it leaves out">
         <Bullet>FY 2025-26 slabs, the standard deduction (₹75,000 new, ₹50,000 old), the Sec 87A rebate with marginal relief, and 4% cess. It is the same maths as the website's Tax Savings Tracker.</Bullet>

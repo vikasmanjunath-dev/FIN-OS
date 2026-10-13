@@ -14,7 +14,7 @@ function HoldingRow({ h, onDelete }: { h: HoldingView; onDelete: () => void }) {
   const typeColor = h.type === 'ELSS' ? Colors.purple : h.type === 'MF' ? Colors.cyan : Colors.gold;
 
   return (
-    <TouchableOpacity activeOpacity={0.8} onLongPress={onDelete} delayLongPress={450} style={styles.holdingRow}>
+    <TouchableOpacity accessibilityRole="button" activeOpacity={0.8} onLongPress={onDelete} delayLongPress={450} style={styles.holdingRow}>
       <View style={styles.holdingLeft}>
         <View style={[styles.holdingType, { backgroundColor: typeColor + '18', borderColor: typeColor + '40' }]}>
           <Text style={[styles.holdingTypeTxt, { color: typeColor }]}>{h.type}</Text>
@@ -30,7 +30,7 @@ function HoldingRow({ h, onDelete }: { h: HoldingView; onDelete: () => void }) {
         <Text style={[styles.holdingGain, { color: up ? Colors.teal : Colors.red }]}>
           {signed(h.gain)} ({up ? '+' : ''}{h.gainPct.toFixed(1)}%)
         </Text>
-        <TouchableOpacity onPress={onDelete} hitSlop={10}><Text style={styles.removeTxt}>Remove</Text></TouchableOpacity>
+        <TouchableOpacity accessibilityRole="button" onPress={onDelete} hitSlop={10}><Text style={styles.removeTxt}>Remove</Text></TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -115,7 +115,7 @@ export default function PortfolioScreen() {
           <TouchableOpacity style={[styles.addBtn, { marginRight: 8 }]} onPress={() => router.push('/tracker/holdings-import')} accessibilityRole="button" accessibilityLabel="Import holdings from a broker file">
             <Text style={styles.addBtnTxt}>⇪ Import</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.addBtn} onPress={() => setAdding(true)}>
+          <TouchableOpacity accessibilityRole="button" style={styles.addBtn} onPress={() => setAdding(true)}>
             <Text style={styles.addBtnTxt}>＋ Add</Text>
           </TouchableOpacity>
         </View>
@@ -127,10 +127,10 @@ export default function PortfolioScreen() {
             <Text style={styles.emptyText}>
               Add the stocks and mutual funds you own. FIN·OS fetches live prices and works out your value, returns, SIPs and insights on this device.
             </Text>
-            <TouchableOpacity style={styles.emptyBtn} onPress={() => setAdding(true)}>
+            <TouchableOpacity accessibilityRole="button" style={styles.emptyBtn} onPress={() => setAdding(true)}>
               <Text style={styles.emptyBtnTxt}>Add a holding</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/arya')}>
+            <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/arya')}>
               <Text style={styles.emptyLink}>Or ask Arya how to start →</Text>
             </TouchableOpacity>
           </View>
@@ -179,7 +179,7 @@ export default function PortfolioScreen() {
             {/* ── Tab Bar ── */}
             <View style={styles.tabRow}>
               {(['holdings', 'sip', 'analysis'] as Tab[]).map(t => (
-                <TouchableOpacity key={t} style={[styles.tabBtn, tab === t && styles.tabBtnActive]} onPress={() => setTab(t)}>
+                <TouchableOpacity accessibilityRole="button" key={t} style={[styles.tabBtn, tab === t && styles.tabBtnActive]} onPress={() => setTab(t)}>
                   <Text style={[styles.tabBtnText, tab === t && styles.tabBtnTextActive]}>
                     {t === 'sip' ? 'SIP' : t.charAt(0).toUpperCase() + t.slice(1)}
                   </Text>
@@ -212,7 +212,7 @@ export default function PortfolioScreen() {
                 {sips.length > 0 && (
                   <View style={styles.sipTotal}>
                     <Text style={styles.sipTotalLabel}>TOTAL MONTHLY SIP</Text>
-                    <Text style={[styles.sipTotalValue, { color: Colors.purple }]}>{inr(sipTotal)}/mo</Text>
+                    <Text style={[styles.sipTotalValue, { color: Colors.purpleInk }]}>{inr(sipTotal)}/mo</Text>
                   </View>
                 )}
               </View>
@@ -227,7 +227,7 @@ export default function PortfolioScreen() {
                     <Text style={styles.insightText}>{insight.text}</Text>
                   </View>
                 ))}
-                <TouchableOpacity style={styles.deepDiveBtn} onPress={() => router.push('/arya')}>
+                <TouchableOpacity accessibilityRole="button" style={styles.deepDiveBtn} onPress={() => router.push('/arya')}>
                   <Text style={styles.deepDiveBtnText}>Discuss this with Arya AI →</Text>
                 </TouchableOpacity>
               </View>
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   sipRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: Spacing.sm, borderBottomWidth: 1, borderBottomColor: Colors.border },
   sipFundName: { ...Typography.body, fontWeight: '600' },
   sipDate: { ...Typography.caption },
-  sipAmount: { fontSize: 13, fontWeight: '700', color: Colors.purple },
+  sipAmount: { fontSize: 13, fontWeight: '700', color: Colors.purpleInk },
   sipTotal: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: Spacing.md },
   sipTotalLabel: { ...Typography.label },
   sipTotalValue: { fontSize: 16, fontWeight: '800' },
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   insightIcon: { fontSize: 14, marginTop: 1 },
   insightText: { ...Typography.caption, flex: 1, lineHeight: 17 },
   deepDiveBtn: { marginTop: Spacing.md, paddingVertical: Spacing.sm, alignItems: 'center', backgroundColor: 'rgba(123,47,247,0.1)', borderWidth: 1, borderColor: 'rgba(123,47,247,0.25)', borderRadius: Radii.md },
-  deepDiveBtnText: { fontSize: 13, fontWeight: '700', color: Colors.purple },
+  deepDiveBtnText: { fontSize: 13, fontWeight: '700', color: Colors.purpleInk },
 
   addBtn: { backgroundColor: 'rgba(0,212,255,0.12)', borderWidth: 1, borderColor: 'rgba(0,212,255,0.35)', borderRadius: Radii.full, paddingHorizontal: Spacing.md, paddingVertical: 8 },
   addBtnTxt: { color: Colors.cyan, fontWeight: '800', fontSize: 13 },
@@ -308,5 +308,5 @@ const styles = StyleSheet.create({
   emptyText: { ...Typography.caption, textAlign: 'center', lineHeight: 18, marginBottom: Spacing.lg },
   emptyBtn: { backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 12, paddingHorizontal: Spacing.xl },
   emptyBtnTxt: { color: Colors.bg, fontWeight: '800', fontSize: 14 },
-  emptyLink: { color: Colors.purple, fontSize: 12, fontWeight: '700', marginTop: Spacing.md },
+  emptyLink: { color: Colors.purpleInk, fontSize: 12, fontWeight: '700', marginTop: Spacing.md },
 });

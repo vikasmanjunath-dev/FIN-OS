@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     marginRight: Spacing.xs,
     marginBottom: 4,
   },
-  avatarText: { fontSize: 12, color: Colors.purple },
+  avatarText: { fontSize: 12, color: Colors.purpleInk },
 
   bubble: {
     maxWidth: '80%',
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   bold: { fontWeight: '700', color: Colors.textPrimary },
   heading: { fontWeight: '700', color: Colors.cyan },
 
-  cursor: { color: Colors.purple, fontWeight: '100' },
+  cursor: { color: Colors.purpleInk, fontWeight: '100' },
 
   time: {
     ...Typography.caption,

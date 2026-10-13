@@ -52,7 +52,7 @@ export default function AryaScreen() {
             <Text style={styles.headerSub}>FIN·OS Financial AI</Text>
           </View>
         </View>
-        <Pressable onPress={() => { Haptics.selectionAsync(); clear(); }} hitSlop={12}>
+        <Pressable accessibilityRole="button" onPress={() => { Haptics.selectionAsync(); clear(); }} hitSlop={12}>
           <Text style={styles.clearBtn}>Clear</Text>
         </Pressable>
       </View>
@@ -71,9 +71,9 @@ export default function AryaScreen() {
             <View style={styles.suggestContainer}>
               <Text style={styles.suggestLabel}>Try asking</Text>
               {SUGGESTED.map(s => (
-                <TouchableOpacity key={s} style={styles.suggestBtn} onPress={() => handleSuggest(s)} activeOpacity={0.7}>
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Ask: ${s}`} key={s} style={styles.suggestBtn} onPress={() => handleSuggest(s)} activeOpacity={0.7}>
                   <Text style={styles.suggestText}>{s}</Text>
-                  <Text style={{ color: Colors.purple }}>›</Text>
+                  <Text style={{ color: Colors.purpleInk }}>›</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -83,7 +83,7 @@ export default function AryaScreen() {
 
       {/* ── Input ── */}
       <View style={styles.inputBar}>
-        <TextInput
+        <TextInput accessibilityLabel="Message to Arya"
           style={styles.input}
           placeholder="Ask Arya anything…"
           placeholderTextColor={Colors.textDim}
@@ -95,11 +95,11 @@ export default function AryaScreen() {
           maxLength={500}
         />
         {isStreaming ? (
-          <TouchableOpacity style={[styles.sendBtn, styles.stopBtn]} onPress={stop}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Stop the answer" style={[styles.sendBtn, styles.stopBtn]} onPress={stop}>
             <Text style={styles.sendIcon}>■</Text>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Send message"
             style={[styles.sendBtn, !input.trim() && styles.sendBtnDisabled]}
             onPress={handleSend}
             disabled={!input.trim()}
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(123,47,247,0.15)', borderWidth: 1.5, borderColor: Colors.purple,
     alignItems: 'center', justifyContent: 'center',
   },
-  avatarGlyph: { fontSize: 18, color: Colors.purple },
+  avatarGlyph: { fontSize: 18, color: Colors.purpleInk },
   headerName: { ...Typography.h3, fontSize: 16 },
   headerSub: { ...Typography.caption },
   clearBtn: { ...Typography.caption, color: Colors.textMuted },
@@ -173,5 +173,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(123,47,247,0.15)', borderWidth: 1, borderColor: 'rgba(123,47,247,0.3)',
     borderRadius: Radii.full, paddingHorizontal: Spacing.md, paddingVertical: 6,
   },
-  streamingText: { ...Typography.caption, color: Colors.purple, fontWeight: '700' },
+  streamingText: { ...Typography.caption, color: Colors.purpleInk, fontWeight: '700' },
 });

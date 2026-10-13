@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
+import { router } from 'expo-router';
 import { useTrackers } from '@/hooks/useTrackers';
 import { POLICY_META, PolicyType, Policy, renewalDays, validDate } from '@/lib/retirement';
 import { TrackerScreen, Card, SectionLabel, Bar, Stat, inr, inrShort } from '@/components/TrackerUI';
@@ -112,10 +113,10 @@ export default function InsuranceScreen() {
         <Text style={s.lbl}>RENEWAL DATE (OPTIONAL)</Text>
         <TextInput style={s.input} value={renewal} onChangeText={setRenewal} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textDim} autoCapitalize="none" accessibilityLabel="Renewal date" />
         <Text style={s.lbl}>POLICY NUMBER (OPTIONAL)</Text>
-        <TextInput style={s.input} value={number} onChangeText={setNumber} placeholder="For your own reference" placeholderTextColor={Colors.textDim} maxLength={40} />
+        <TextInput accessibilityLabel="Policy number" style={s.input} value={number} onChangeText={setNumber} placeholder="For your own reference" placeholderTextColor={Colors.textDim} maxLength={40} />
         {error && <Text style={s.error} accessibilityLiveRegion="polite">{error}</Text>}
         <TouchableOpacity style={s.addBtn} onPress={submit} accessibilityRole="button"><Text style={s.addTxt}>{editing ? 'Save changes' : 'Add policy'}</Text></TouchableOpacity>
-        {editing && <TouchableOpacity onPress={reset} style={{ paddingTop: Spacing.md, alignItems: 'center' }}><Text style={{ color: Colors.textMuted, fontSize: 12, fontWeight: '700' }}>Cancel</Text></TouchableOpacity>}
+        {editing && <TouchableOpacity accessibilityRole="button" onPress={reset} style={{ paddingTop: Spacing.md, alignItems: 'center' }}><Text style={{ color: Colors.textMuted, fontSize: 12, fontWeight: '700' }}>Cancel</Text></TouchableOpacity>}
       </Card>
 
       <SectionLabel>{`YOUR POLICIES · ${policies.length}`}</SectionLabel>
@@ -142,10 +143,15 @@ export default function InsuranceScreen() {
                 {days < 0 ? `Expired ${-days} day${days === -1 ? '' : 's'} ago — renew now` : days === 0 ? 'Renews today' : `Renews in ${days} day${days === 1 ? '' : 's'} (${p.renewal_date})`}
               </Text>
             )}
-            <TouchableOpacity onPress={() => remove(p)} style={{ paddingTop: Spacing.sm }}><Text style={s.del}>Delete</Text></TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" onPress={() => remove(p)} style={{ paddingTop: Spacing.sm }}><Text style={s.del}>Delete</Text></TouchableOpacity>
           </Card>
         );
       })}
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Open the life cover calculator" onPress={() => router.push('/tools/lifecover')}
+        style={{ borderWidth: 1, borderColor: Colors.cyan, borderRadius: Radii.md, padding: Spacing.md, marginTop: Spacing.md }}>
+        <Text style={{ color: Colors.textPrimary, fontWeight: '800', fontSize: 13 }}>How much life cover do you need? →</Text>
+        <Text style={Typography.caption}>Human life value and income replacement, against what you already hold.</Text>
+      </TouchableOpacity>
     </TrackerScreen>
   );
 }

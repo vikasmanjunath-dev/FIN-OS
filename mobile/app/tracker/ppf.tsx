@@ -74,7 +74,7 @@ export default function PpfScreen() {
             <Text style={[Typography.caption, { marginBottom: 2 }]}>{p.yearsLeft} year{p.yearsLeft === 1 ? '' : 's'} left · projected gain {inrShort(p.gain)}</Text>
             <MoneyField label="Current balance" value={a.currentBalance} onCommit={v => update(a.id, { currentBalance: v })} />
             <MoneyField label="Deposit each year" sub={meta.maxAmt ? `Max ₹${meta.maxAmt.toLocaleString('en-IN')}` : undefined} value={a.annualDeposit} onCommit={v => update(a.id, { annualDeposit: meta.maxAmt ? Math.min(v, meta.maxAmt) : v })} />
-            <TouchableOpacity onPress={() => remove(a)} style={{ paddingTop: Spacing.sm }}><Text style={s.del}>Delete account</Text></TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" onPress={() => remove(a)} style={{ paddingTop: Spacing.sm }}><Text style={s.del}>Delete account</Text></TouchableOpacity>
           </Card>
         );
       })}
@@ -92,19 +92,19 @@ export default function PpfScreen() {
           {inst.name} · {inst.rate}% a year, compounded {inst.compounding} · {inst.maxYrs}-year term · {inst.c80c ? 'counts for 80C' : 'no 80C benefit'}
         </Text>
         <Text style={s.lbl}>NICKNAME (OPTIONAL)</Text>
-        <TextInput style={s.input} value={nick} onChangeText={setNick} placeholder="e.g. My PPF at SBI" placeholderTextColor={Colors.textDim} maxLength={40} />
+        <TextInput accessibilityLabel="Account nickname" style={s.input} value={nick} onChangeText={setNick} placeholder="e.g. My PPF at SBI" placeholderTextColor={Colors.textDim} maxLength={40} />
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
           <View style={{ flex: 1 }}>
             <Text style={s.lbl}>BALANCE (₹)</Text>
-            <TextInput style={s.input} value={bal} onChangeText={setBal} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textDim} />
+            <TextInput accessibilityLabel="Current balance" style={s.input} value={bal} onChangeText={setBal} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textDim} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={s.lbl}>DEPOSIT / YEAR (₹)</Text>
-            <TextInput style={s.input} value={dep} onChangeText={setDep} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textDim} />
+            <TextInput accessibilityLabel="Deposited this financial year" style={s.input} value={dep} onChangeText={setDep} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textDim} />
           </View>
         </View>
         <Text style={s.lbl}>OPENED ON (OPTIONAL)</Text>
-        <TextInput style={s.input} value={open} onChangeText={setOpen} placeholder={`YYYY-MM-DD, e.g. ${isoDay(new Date(Date.now() - 5 * 365 * 864e5))}`} placeholderTextColor={Colors.textDim} autoCapitalize="none" />
+        <TextInput accessibilityLabel="Account opening date" style={s.input} value={open} onChangeText={setOpen} placeholder={`YYYY-MM-DD, e.g. ${isoDay(new Date(Date.now() - 5 * 365 * 864e5))}`} placeholderTextColor={Colors.textDim} autoCapitalize="none" />
         {error && <Text style={s.error} accessibilityLiveRegion="polite">{error}</Text>}
         <TouchableOpacity style={s.addBtn} onPress={add} accessibilityRole="button"><Text style={s.addTxt}>Add account</Text></TouchableOpacity>
       </Card>

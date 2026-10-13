@@ -34,7 +34,7 @@ export default function EmergencyScreen() {
           <Stat label={e.surplus > 0 ? 'Surplus' : 'Still needed'} value={known ? inr(e.surplus > 0 ? e.surplus : e.shortfall) : '—'} color={e.surplus > 0 ? Colors.teal : Colors.gold} />
         </View>
         {!known && (
-          <TouchableOpacity onPress={() => router.push('/tracker/budget')}>
+          <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/tracker/budget')}>
             <Text style={s.link}>Add your monthly spend in Budget to measure this →</Text>
           </TouchableOpacity>
         )}

@@ -173,7 +173,7 @@ export default function SubscriptionsScreen() {
         </View>
         {error && <Text style={s.error} accessibilityLiveRegion="polite">{error}</Text>}
         <TouchableOpacity style={s.addBtn} onPress={submit} accessibilityRole="button" accessibilityLabel={editing ? 'Save changes' : 'Add subscription'}><Text style={s.addTxt}>{editing ? 'Save changes' : 'Add subscription'}</Text></TouchableOpacity>
-        {editing && <TouchableOpacity onPress={reset} style={{ paddingTop: Spacing.md, alignItems: 'center' }}><Text style={{ color: Colors.textMuted, fontSize: 12, fontWeight: '700' }}>Cancel</Text></TouchableOpacity>}
+        {editing && <TouchableOpacity accessibilityRole="button" onPress={reset} style={{ paddingTop: Spacing.md, alignItems: 'center' }}><Text style={{ color: Colors.textMuted, fontSize: 12, fontWeight: '700' }}>Cancel</Text></TouchableOpacity>}
       </Card>
 
       <SectionLabel>{`YOUR SUBSCRIPTIONS · ${items.length}`}</SectionLabel>
@@ -199,10 +199,10 @@ export default function SubscriptionsScreen() {
             </TouchableOpacity>
             {next && days != null && <Text style={[s.renew, { color: days <= 3 ? Colors.red : days <= 14 ? Colors.orange : Colors.textMuted }]}>{sub.status === 'trial' ? 'First charge' : 'Renews'} {when(days)} ({next}) · {inr(annualCost(sub))}/yr</Text>}
             <View style={s.actions}>
-              {(sub.status === 'active' || sub.status === 'trial') && <TouchableOpacity onPress={() => update(sub.id, { status: 'paused' })}><Text style={s.act}>Pause</Text></TouchableOpacity>}
-              {(sub.status === 'paused' || sub.status === 'cancelled') && <TouchableOpacity onPress={() => update(sub.id, { status: 'active' })}><Text style={s.act}>Resume</Text></TouchableOpacity>}
-              {sub.status !== 'cancelled' && <TouchableOpacity onPress={() => update(sub.id, { status: 'cancelled' })}><Text style={s.act}>Mark cancelled</Text></TouchableOpacity>}
-              <TouchableOpacity onPress={() => confirmRemove(sub)}><Text style={[s.act, { color: Colors.red }]}>Delete</Text></TouchableOpacity>
+              {(sub.status === 'active' || sub.status === 'trial') && <TouchableOpacity accessibilityRole="button" onPress={() => update(sub.id, { status: 'paused' })}><Text style={s.act}>Pause</Text></TouchableOpacity>}
+              {(sub.status === 'paused' || sub.status === 'cancelled') && <TouchableOpacity accessibilityRole="button" onPress={() => update(sub.id, { status: 'active' })}><Text style={s.act}>Resume</Text></TouchableOpacity>}
+              {sub.status !== 'cancelled' && <TouchableOpacity accessibilityRole="button" onPress={() => update(sub.id, { status: 'cancelled' })}><Text style={s.act}>Mark cancelled</Text></TouchableOpacity>}
+              <TouchableOpacity accessibilityRole="button" onPress={() => confirmRemove(sub)}><Text style={[s.act, { color: Colors.red }]}>Delete</Text></TouchableOpacity>
             </View>
           </Card>
         );

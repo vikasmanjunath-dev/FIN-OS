@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
+import { router } from 'expo-router';
 import { useTrackers } from '@/hooks/useTrackers';
 import { Goal } from '@/lib/trackers';
 import { TrackerScreen, Card, SectionLabel, Bar, MoneyField, inr, inrShort } from '@/components/TrackerUI';
@@ -82,7 +83,7 @@ export default function GoalsScreen() {
               {g.monthlyNeeded != null ? ` · save about ${inr(g.monthlyNeeded)}/month to get there` : ''}
             </Text>
             <MoneyField label="Saved so far" value={g.current} onCommit={v => update(g.id, { current: v })} />
-            <TouchableOpacity onPress={() => remove(g)} style={{ paddingTop: Spacing.sm }}>
+            <TouchableOpacity accessibilityRole="button" onPress={() => remove(g)} style={{ paddingTop: Spacing.sm }}>
               <Text style={s.del}>Delete goal</Text>
             </TouchableOpacity>
           </Card>
@@ -92,22 +93,27 @@ export default function GoalsScreen() {
       <SectionLabel>ADD A GOAL</SectionLabel>
       <Card>
         <Text style={s.lbl}>NAME</Text>
-        <TextInput style={s.input} value={name} onChangeText={setName} placeholder="e.g. House down payment" placeholderTextColor={Colors.textDim} />
+        <TextInput accessibilityLabel="Goal name" style={s.input} value={name} onChangeText={setName} placeholder="e.g. House down payment" placeholderTextColor={Colors.textDim} />
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
           <View style={{ flex: 1 }}>
             <Text style={s.lbl}>TARGET (₹)</Text>
-            <TextInput style={s.input} value={target} onChangeText={setTarget} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textDim} />
+            <TextInput accessibilityLabel="Target amount" style={s.input} value={target} onChangeText={setTarget} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textDim} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={s.lbl}>SAVED (₹)</Text>
-            <TextInput style={s.input} value={saved} onChangeText={setSaved} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textDim} />
+            <TextInput accessibilityLabel="Saved so far" style={s.input} value={saved} onChangeText={setSaved} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textDim} />
           </View>
         </View>
         <Text style={s.lbl}>TARGET MONTH (OPTIONAL)</Text>
-        <TextInput style={s.input} value={when} onChangeText={setWhen} placeholder="YYYY-MM, e.g. 2028-03" placeholderTextColor={Colors.textDim} autoCapitalize="none" />
+        <TextInput accessibilityLabel="Target month" style={s.input} value={when} onChangeText={setWhen} placeholder="YYYY-MM, e.g. 2028-03" placeholderTextColor={Colors.textDim} autoCapitalize="none" />
         {error && <Text style={s.error}>{error}</Text>}
-        <TouchableOpacity style={s.addBtn} onPress={add}><Text style={s.addTxt}>Add goal</Text></TouchableOpacity>
+        <TouchableOpacity accessibilityRole="button" style={s.addBtn} onPress={add}><Text style={s.addTxt}>Add goal</Text></TouchableOpacity>
       </Card>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Open the goal optimizer" onPress={() => router.push('/tools/goalopt')}
+        style={{ borderWidth: 1, borderColor: Colors.cyan, borderRadius: Radii.md, padding: Spacing.md, marginTop: Spacing.md }}>
+        <Text style={{ color: Colors.textPrimary, fontWeight: '800', fontSize: 13 }}>Which goal first? →</Text>
+        <Text style={Typography.caption}>Inflation-adjusted SIP for each goal, ranked by urgency, and whether you can afford them all.</Text>
+      </TouchableOpacity>
     </TrackerScreen>
   );
 }

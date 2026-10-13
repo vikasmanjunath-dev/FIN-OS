@@ -17,7 +17,7 @@ import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 const KINDS: { kind: Kind; label: string; color: string; verb: string }[] = [
   { kind: 'expense', label: 'Expense', color: Colors.gold, verb: 'Add expense' },
   { kind: 'income', label: 'Income', color: Colors.teal, verb: 'Add income' },
-  { kind: 'saving', label: 'Invested', color: Colors.purple, verb: 'Add investment' },
+  { kind: 'saving', label: 'Invested', color: Colors.purpleInk, verb: 'Add investment' },
 ];
 
 
@@ -152,7 +152,7 @@ export default function TransactionsScreen() {
         {editing && (
           <View style={s.editBanner}>
             <Text style={s.editTxt}>Editing an entry</Text>
-            <TouchableOpacity onPress={reset} hitSlop={10}><Text style={s.cancel}>Cancel</Text></TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" onPress={reset} hitSlop={10}><Text style={s.cancel}>Cancel</Text></TouchableOpacity>
           </View>
         )}
         <View style={s.seg}>
@@ -192,7 +192,7 @@ export default function TransactionsScreen() {
         <Text style={s.lbl}>DATE</Text>
         <View style={{ flexDirection: 'row', gap: Spacing.sm, alignItems: 'center' }}>
           {[{ l: 'Today', v: today }, { l: 'Yesterday', v: yesterday }].map(x => (
-            <TouchableOpacity key={x.l} style={[s.chip, date === x.v && s.chipOn]} onPress={() => setDate(x.v)}>
+            <TouchableOpacity accessibilityRole="button" key={x.l} style={[s.chip, date === x.v && s.chipOn]} onPress={() => setDate(x.v)}>
               <Text style={[s.chipTxt, date === x.v && s.chipTxtOn]}>{x.l}</Text>
             </TouchableOpacity>
           ))}
@@ -214,7 +214,7 @@ export default function TransactionsScreen() {
           <Text style={s.submitTxt}>{editing ? 'Save changes' : k.verb}</Text>
         </TouchableOpacity>
         {editing && (
-          <TouchableOpacity onPress={() => confirmDelete(editing)} style={{ paddingTop: Spacing.md, alignItems: 'center' }}>
+          <TouchableOpacity accessibilityRole="button" onPress={() => confirmDelete(editing)} style={{ paddingTop: Spacing.md, alignItems: 'center' }}>
             <Text style={s.delete}>Delete this entry</Text>
           </TouchableOpacity>
         )}

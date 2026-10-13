@@ -48,7 +48,7 @@ export default function NetWorthScreen() {
       <Card accent={Colors.purple}>
         <Text style={Typography.label}>FIRE PROGRESS</Text>
         <View style={s.fireRow}>
-          <Text style={[s.fireValue, { color: Colors.purple }]}>{nw.firePercent.toFixed(1)}%</Text>
+          <Text style={[s.fireValue, { color: Colors.purpleInk }]}>{nw.firePercent.toFixed(1)}%</Text>
           <Text style={Typography.caption}>of {inrShort(nw.fireCorpus)} target</Text>
         </View>
         <Bar pct={nw.firePercent} color={Colors.purple} height={10} />
@@ -70,7 +70,7 @@ export default function NetWorthScreen() {
               onCommit={v => save({ [i.field]: v })}
             />
             {(i.route || i.field === 'portfolio') && (
-              <TouchableOpacity onPress={() => router.navigate((i.route ?? '/(tabs)/portfolio') as any)} style={s.linkRow}>
+              <TouchableOpacity accessibilityRole="button" onPress={() => router.navigate((i.route ?? '/(tabs)/portfolio') as any)} style={s.linkRow}>
                 <Text style={s.link}>{i.field === 'portfolio' ? 'Manage holdings in Portfolio' : `Open ${i.label.split(' ')[0]} tracker`} →</Text>
               </TouchableOpacity>
             )}

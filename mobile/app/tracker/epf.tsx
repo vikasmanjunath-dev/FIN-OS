@@ -37,7 +37,7 @@ export default function EpfScreen() {
           {[
             { l: 'You (12%)', v: c.empEPF, color: Colors.cyan },
             { l: 'Employer to EPF (3.67%)', v: c.emprEPF, color: Colors.teal },
-            { l: `Employer to EPS pension (8.33%${data.epfBasic > EPF.EPS_WAGE_CAP ? `, capped at ₹${EPF.EPS_WAGE_CAP.toLocaleString('en-IN')}` : ''})`, v: c.eps, color: Colors.purple },
+            { l: `Employer to EPS pension (8.33%${data.epfBasic > EPF.EPS_WAGE_CAP ? `, capped at ₹${EPF.EPS_WAGE_CAP.toLocaleString('en-IN')}` : ''})`, v: c.eps, color: Colors.purpleInk },
           ].map(r => (
             <View key={r.l} style={s.row}>
               <View style={[s.dot, { backgroundColor: r.color }]} />

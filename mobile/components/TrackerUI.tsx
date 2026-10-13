@@ -19,7 +19,7 @@ export function TrackerScreen({ title, subtitle, children, scrollRef }: { title:
   return (
     <ScrollView ref={scrollRef} style={ui.root} contentContainerStyle={ui.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <View style={ui.header}>
-        <TouchableOpacity onPress={() => (router.canGoBack() ? router.back() : router.replace('/dashboard'))} hitSlop={12}>
+        <TouchableOpacity accessibilityRole="button" onPress={() => (router.canGoBack() ? router.back() : router.replace('/dashboard'))} hitSlop={12}>
           <Text style={ui.back}>← Back</Text>
         </TouchableOpacity>
       </View>

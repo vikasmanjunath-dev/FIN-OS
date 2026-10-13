@@ -92,5 +92,5 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     elevation: 8,
   },
-  aryaBtnText: { fontSize: 22, color: Colors.purple },
+  aryaBtnText: { fontSize: 22, color: Colors.purpleInk },
 });

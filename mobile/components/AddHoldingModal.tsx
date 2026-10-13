@@ -96,12 +96,12 @@ export function AddHoldingModal({ visible, onClose, onAdd }: Props) {
         <View style={styles.sheet}>
           <View style={styles.sheetHeader}>
             <Text style={Typography.h3}>Add holding</Text>
-            <TouchableOpacity onPress={close} hitSlop={12}><Text style={styles.close}>✕</Text></TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" onPress={close} hitSlop={12}><Text style={styles.close}>✕</Text></TouchableOpacity>
           </View>
 
           <View style={styles.seg}>
             {(['Stock', 'MF'] as Kind[]).map(k => (
-              <TouchableOpacity key={k} style={[styles.segBtn, kind === k && styles.segBtnOn]} onPress={() => switchKind(k)}>
+              <TouchableOpacity accessibilityRole="button" key={k} style={[styles.segBtn, kind === k && styles.segBtnOn]} onPress={() => switchKind(k)}>
                 <Text style={[styles.segTxt, kind === k && styles.segTxtOn]}>{k === 'Stock' ? 'Stock (NSE)' : 'Mutual fund'}</Text>
               </TouchableOpacity>
             ))}
@@ -109,7 +109,7 @@ export function AddHoldingModal({ visible, onClose, onAdd }: Props) {
 
           <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             <View style={styles.searchRow}>
-              <TextInput
+              <TextInput accessibilityLabel="Search by name or symbol"
                 style={[styles.input, { flex: 1 }]}
                 value={query}
                 onChangeText={setQuery}
@@ -120,7 +120,7 @@ export function AddHoldingModal({ visible, onClose, onAdd }: Props) {
                 autoCorrect={false}
                 returnKeyType="search"
               />
-              <TouchableOpacity style={styles.searchBtn} onPress={search} disabled={searching}>
+              <TouchableOpacity accessibilityRole="button" style={styles.searchBtn} onPress={search} disabled={searching}>
                 {searching ? <ActivityIndicator color={Colors.bg} /> : <Text style={styles.searchBtnTxt}>Search</Text>}
               </TouchableOpacity>
             </View>
@@ -129,13 +129,13 @@ export function AddHoldingModal({ visible, onClose, onAdd }: Props) {
 
             {kind === 'MF' && funds.length > 0 && (
               <>
-                <TouchableOpacity style={styles.filterRow} onPress={() => setDirectGrowthOnly(v => !v)}>
+                <TouchableOpacity accessibilityRole="button" style={styles.filterRow} onPress={() => setDirectGrowthOnly(v => !v)}>
                   <Text style={styles.filterBox}>{directGrowthOnly ? '☑' : '☐'}</Text>
                   <Text style={Typography.caption}>Direct plan · Growth option only</Text>
                 </TouchableOpacity>
                 {shown.length === 0 && <Text style={styles.error}>No Direct-Growth match — untick the filter to see all plans.</Text>}
                 {shown.map(f => (
-                  <TouchableOpacity key={f.scheme_code} style={styles.fundRow} onPress={() => pickFund(f)}>
+                  <TouchableOpacity accessibilityRole="button" key={f.scheme_code} style={styles.fundRow} onPress={() => pickFund(f)}>
                     <Text style={styles.fundName} numberOfLines={2}>{f.scheme_name}</Text>
                     <Text style={Typography.caption}>
                       {f.fund_house} · {f.plan} · {f.option}{f.nav != null ? ` · NAV ₹${f.nav}` : ''}
@@ -154,17 +154,17 @@ export function AddHoldingModal({ visible, onClose, onAdd }: Props) {
                 </Text>
 
                 <Text style={styles.fieldLabel}>{picked.type === 'Stock' ? 'QUANTITY (SHARES)' : 'UNITS HELD'}</Text>
-                <TextInput style={styles.input} value={units} onChangeText={setUnits} keyboardType="decimal-pad"
+                <TextInput accessibilityLabel="Units held" style={styles.input} value={units} onChangeText={setUnits} keyboardType="decimal-pad"
                   placeholder="0" placeholderTextColor={Colors.textDim} />
 
                 <Text style={styles.fieldLabel}>{picked.type === 'Stock' ? 'AVG BUY PRICE (₹)' : 'AVG NAV (₹)'}</Text>
-                <TextInput style={styles.input} value={avg} onChangeText={setAvg} keyboardType="decimal-pad"
+                <TextInput accessibilityLabel="Average buy price" style={styles.input} value={avg} onChangeText={setAvg} keyboardType="decimal-pad"
                   placeholder="0" placeholderTextColor={Colors.textDim} />
 
                 {picked.type !== 'Stock' && (
                   <>
                     <Text style={styles.fieldLabel}>MONTHLY SIP (₹) — OPTIONAL</Text>
-                    <TextInput style={styles.input} value={sip} onChangeText={setSip} keyboardType="decimal-pad"
+                    <TextInput accessibilityLabel="Monthly SIP amount" style={styles.input} value={sip} onChangeText={setSip} keyboardType="decimal-pad"
                       placeholder="0" placeholderTextColor={Colors.textDim} />
                   </>
                 )}
@@ -176,7 +176,7 @@ export function AddHoldingModal({ visible, onClose, onAdd }: Props) {
                   </Text>
                 )}
 
-                <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} onPress={save} disabled={!valid || saving}>
+                <TouchableOpacity accessibilityRole="button" style={[styles.saveBtn, !valid && { opacity: 0.4 }]} onPress={save} disabled={!valid || saving}>
                   <Text style={styles.saveTxt}>{saving ? 'Saving…' : 'Add to portfolio'}</Text>
                 </TouchableOpacity>
               </View>

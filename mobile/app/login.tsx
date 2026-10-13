@@ -55,7 +55,7 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-        <TouchableOpacity onPress={close} hitSlop={12}><Text style={styles.back}>✕ Close</Text></TouchableOpacity>
+        <TouchableOpacity accessibilityRole="button" onPress={close} hitSlop={12}><Text style={styles.back}>✕ Close</Text></TouchableOpacity>
 
         <Text style={styles.logo}>⬡</Text>
         <Text style={Typography.h1}>{mode === 'signin' ? 'Welcome back' : 'Create account'}</Text>
@@ -88,11 +88,11 @@ export default function LoginScreen() {
             {notice && <Text style={styles.notice}>{notice}</Text>}
             {error && <Text style={styles.error}>{error}</Text>}
 
-            <TouchableOpacity style={[styles.primary, busy && { opacity: 0.6 }]} onPress={submit} disabled={busy}>
+            <TouchableOpacity accessibilityRole="button" style={[styles.primary, busy && { opacity: 0.6 }]} onPress={submit} disabled={busy}>
               {busy ? <ActivityIndicator color={Colors.bg} /> : <Text style={styles.primaryTxt}>{mode === 'signin' ? 'Sign in' : 'Create account'}</Text>}
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(null); setNotice(null); }}>
+            <TouchableOpacity accessibilityRole="button" onPress={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(null); setNotice(null); }}>
               <Text style={styles.switch}>
                 {mode === 'signin' ? "New to FIN·OS? Create an account" : 'Already have an account? Sign in'}
               </Text>
@@ -100,7 +100,7 @@ export default function LoginScreen() {
           </>
         )}
 
-        <TouchableOpacity style={styles.guest} onPress={close}>
+        <TouchableOpacity accessibilityRole="button" style={styles.guest} onPress={close}>
           <Text style={styles.guestTxt}>Continue as guest</Text>
         </TouchableOpacity>
 
@@ -119,7 +119,7 @@ function Field({ label, ...props }: { label: string } & React.ComponentProps<typ
   return (
     <View style={{ marginBottom: Spacing.md }}>
       <Text style={styles.label}>{label}</Text>
-      <TextInput style={styles.input} placeholderTextColor={Colors.textDim} autoCorrect={false} {...props} />
+      <TextInput style={styles.input} placeholderTextColor={Colors.textDim} autoCorrect={false} accessibilityLabel={label} {...props} />
     </View>
   );
 }

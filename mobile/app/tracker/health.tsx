@@ -29,7 +29,7 @@ export default function HealthScreen() {
       </Card>
 
       {step && (
-        <TouchableOpacity activeOpacity={0.8} onPress={() => router.push(step.route as any)} style={s.next}>
+        <TouchableOpacity accessibilityRole="button" activeOpacity={0.8} onPress={() => router.push(step.route as any)} style={s.next}>
           <View style={{ flex: 1 }}>
             <Text style={s.nextLabel}>BEST NEXT STEP · {step.pillar.toUpperCase()}</Text>
             <Text style={s.nextTip}>{step.tip}</Text>

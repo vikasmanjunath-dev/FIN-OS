@@ -206,7 +206,7 @@ export default function MoneyScoreScreen() {
                     ? <>Your score would be <Text style={{ fontWeight: '900', color: Colors.cyan }}>{what.after}</Text> ({what.delta >= 0 ? '+' : ''}{what.delta}){what.bandAfter.id !== what.bandBefore.id ? ` — ${what.bandAfter.label}` : ''}.{what.surplusAfter < 0 ? ' Heads up: this plan spends more than you earn.' : ''}</>
                     : `Your score is ${result.score}. Tap + to see the effect.`}
                 </Text>
-                {moved && <TouchableOpacity onPress={() => setLevers({})} style={{ marginTop: Spacing.sm }}><Text style={s.linkMuted}>Reset</Text></TouchableOpacity>}
+                {moved && <TouchableOpacity accessibilityRole="button" onPress={() => setLevers({})} style={{ marginTop: Spacing.sm }}><Text style={s.linkMuted}>Reset</Text></TouchableOpacity>}
               </Card>
             </>
           )}
@@ -254,7 +254,7 @@ export default function MoneyScoreScreen() {
           <TouchableOpacity style={s.primary} onPress={calculate} accessibilityRole="button">
             <Text style={s.primaryTxt}>{result ? 'Update my score' : 'Calculate my score'}</Text>
           </TouchableOpacity>
-          {result && <TouchableOpacity onPress={() => { setEditing(false); setErrors([]); }} style={{ alignItems: 'center', padding: Spacing.md }}><Text style={s.linkMuted}>Cancel</Text></TouchableOpacity>}
+          {result && <TouchableOpacity accessibilityRole="button" onPress={() => { setEditing(false); setErrors([]); }} style={{ alignItems: 'center', padding: Spacing.md }}><Text style={s.linkMuted}>Cancel</Text></TouchableOpacity>}
         </>
       )}
     </TrackerScreen>

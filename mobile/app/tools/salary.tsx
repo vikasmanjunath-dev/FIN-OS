@@ -10,7 +10,7 @@ import {
 } from '@/lib/salaryStorage';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 
-const PURPLE_INK = '#B28CFF';   // Colors.purple is too dark to read as text on the dark surface
+const PURPLE_INK = Colors.purpleInk;
 
 type NumKey = 'ctc' | 'basic' | 'hraRcvd' | 'lta' | 'special' | 'npsEr' | 'rentPaid';
 

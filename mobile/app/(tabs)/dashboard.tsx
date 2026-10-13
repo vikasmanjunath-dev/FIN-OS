@@ -77,7 +77,7 @@ export default function DashboardScreen() {
           <Text style={styles.greeting}>Good {getTimeOfDay()}, {ctx.name.split(' ')[0]} 👋</Text>
           <Text style={styles.date}>{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</Text>
         </View>
-        <Pressable onPress={() => router.push('/settings')} hitSlop={12}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Settings" onPress={() => router.push('/settings')} hitSlop={12}>
           <View style={styles.settingsBtn}>
             <Text style={{ fontSize: 18 }}>⚙️</Text>
           </View>
@@ -105,7 +105,7 @@ export default function DashboardScreen() {
             </View>
             <View>
               <Text style={styles.heroSub}>Monthly SIP</Text>
-              <Text style={[styles.heroSubValue, { color: Colors.purple }]}>{inrShort(td.monthlySip)}</Text>
+              <Text style={[styles.heroSubValue, { color: Colors.purpleInk }]}>{inrShort(td.monthlySip)}</Text>
             </View>
             <View>
               <Text style={styles.heroSub}>Savings Rate</Text>
@@ -340,6 +340,33 @@ export default function DashboardScreen() {
           onPress={() => open('/tools/calendar')}
         />
         <MetricCard
+          label="Passive income"
+          value="Freedom meter"
+          sub="dividends, rent, interest, SWP"
+          accent={Colors.teal}
+          icon="🌴"
+          style={styles.gridHalf}
+          onPress={() => open('/tracker/passive')}
+        />
+        <MetricCard
+          label="Rebalancer"
+          value="Target mix"
+          sub="drift and what to add"
+          accent={Colors.cyan}
+          icon="⚖️"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/rebalance')}
+        />
+        <MetricCard
+          label="Windfall allocator"
+          value="Bonus, RSU, sale"
+          sub="where a lump sum goes first"
+          accent={Colors.teal}
+          icon="🎁"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/windfall')}
+        />
+        <MetricCard
           label="Debt payoff"
           value="Avalanche or snowball"
           sub="clear loans cheapest"
@@ -399,12 +426,12 @@ export default function DashboardScreen() {
       <Text style={styles.sectionTitle}>Quick Actions</Text>
       <View style={styles.actionRow}>
         {[
-          { icon: '✦', label: 'Ask Arya', color: Colors.purple, onPress: () => router.navigate('/(tabs)/arya') },
+          { icon: '✦', label: 'Ask Arya', color: Colors.purpleInk, onPress: () => router.navigate('/(tabs)/arya') },
           { icon: '📊', label: 'Portfolio', color: Colors.cyan,   onPress: () => router.navigate('/(tabs)/portfolio') },
           { icon: '📈', label: 'Markets',   color: Colors.teal,   onPress: () => router.navigate('/(tabs)/markets') },
           { icon: '🧾', label: 'Track',     color: Colors.gold,   onPress: () => router.navigate('/(tabs)/track') },
         ].map(a => (
-          <TouchableOpacity
+          <TouchableOpacity accessibilityRole="button"
             key={a.label}
             style={[styles.actionBtn, { borderColor: a.color + '40' }]}
             onPress={() => { Haptics.selectionAsync(); a.onPress(); }}
@@ -418,7 +445,7 @@ export default function DashboardScreen() {
 
       {/* ── Nudge: nothing logged yet ── */}
       {td.transactions.length === 0 && (
-        <TouchableOpacity
+        <TouchableOpacity accessibilityRole="button"
           style={styles.nudge}
           onPress={() => { Haptics.selectionAsync(); open('/tracker/import'); }}
           activeOpacity={0.8}
