@@ -51,6 +51,8 @@ Last updated: 2026-10-11. This is the working list: each item has a status. Item
 
 - **Budget Forecast counted income as spending and overwrote your numbers.** It read raw `finos_transactions`, so a salary credit or a SIP row became a "spending category"; months before your first logged expense were treated as ₹0 (inventing a rising trend); and it wrote the *prediction* into `finos_monthly_expense` and `finos_savings_rate`, replacing what you or another tool had recorded. It now forecasts only expenses (through `FinosBudget.normalize`), starts at your first logged month, flags a history under 3 months, never overwrites a recorded value (the prediction has its own key `finos_forecast_next_month`), and no longer probes `localhost:8002` from a public page (`js/finos-forecast.js`, `tests/forecast.test.js`, `tests/test_budget_forecast_ui.py`).
 
+- **Financial DNA quiz had no answer for ages 36-49** (the bands went 25-35, then 50+), so a third of working adults had to pick a wrong one. Added a 36-49 band with weights between its neighbours, and moved the questions into `js/finos-dna-steps.js` so the website and the phone share one list (`tests/dna.test.js`, `mobile/__tests__/dna.parity.test.mts`). The phone's Health Score Behaviour pillar now uses the quiz instead of a fixed neutral 50.
+
 ## Known quirks (not scheduled)
 
 - `js/i18n/hi.js` is now ~280 KB (about 90 KB gzipped). It loads only for Hindi users and is cached, but it should be split by page group if it grows much more.

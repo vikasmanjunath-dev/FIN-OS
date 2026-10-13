@@ -1,3 +1,4 @@
+import { behaviourPoints } from '@/lib/dna';
 import { type IndexedTxn, monthTotals, budgetStatus, trailing30Spend, ymd } from '@/lib/budget';
 import { type SavingsAccount, type Policy, computeEpf, computeNps, savingsTotals, computeCoverage, hasLifeCover, hasHealthCover, EPF } from '@/lib/retirement';
 
@@ -60,6 +61,8 @@ export interface TrackerData {
   policies: Policy[];
   /** from the website's `finos_age`; 0 = unknown */
   age: number;
+  /** Financial DNA scores [risk, security, status, discipline, growth] once the quiz is complete; null = not taken */
+  dna: number[] | null;
 }
 
 export const EMPTY_TRACKER_DATA: TrackerData = {
@@ -69,7 +72,7 @@ export const EMPTY_TRACKER_DATA: TrackerData = {
   streak: 0, used80c: 0, monthlySip: 0, retireCorpus: 0, retireGap: 1, transactions: [], budgetLimits: {},
   epfBasic: 0, epfDoj: '', epfRetireAge: EPF.RETIRE_AGE_DEFAULT,
   npsTier1: 0, npsTier2: 0, npsDob: '', npsEmp: 0, npsEr: 0, npsEq: 0, npsCorp: 0, npsGsec: 0, npsSlab: 30,
-  ppfAccounts: [], policies: [], age: 0,
+  ppfAccounts: [], policies: [], age: 0, dna: null,
 };
 
 // ── Net worth ────────────────────────────────────────────────────────────────
@@ -264,8 +267,8 @@ export function computeHealth(d: TrackerData, now = new Date()): HealthScore {
   // 3. Goals (15)
   const goalPts = goalItems.length ? Math.min(15, Math.round(avgProgress * 0.15)) : 0;
 
-  // 4. Behavioural (15) — the DNA quiz lives on the website; without it the site assumes a neutral 50
-  const behaviorPts = Math.max(0, Math.min(15, Math.round(50 * 0.15)));
+  // 4. Behavioural (15) — the Discipline score of the Financial DNA quiz; without the quiz the website assumes a neutral 50
+  const behaviorPts = behaviourPoints(d.dna ? d.dna[3] : 50);
 
   // 5. Wealth building (15)
   const income = budget.income || 60000; // website falls back to ₹60k when income is unknown
@@ -321,7 +324,8 @@ export function computeHealth(d: TrackerData, now = new Date()): HealthScore {
       goalItems.length === 0 ? 'Set financial goals to track progress' : `${goalItems.length} goal${goalItems.length === 1 ? '' : 's'} · ${Math.round(avgProgress)}% funded on average`,
       goalItems.length === 0 ? ['Add your first goal — a house, education, retirement'] : []),
     pillar('Behaviour', '🧠', behaviorPts, 15,
-      'Neutral baseline — take the Financial DNA quiz on the website to personalise', [], true),
+      d.dna ? `Money discipline ${Math.round(d.dna[3])}/100 from your Financial DNA quiz` : 'Neutral baseline — take the Financial DNA quiz to personalise',
+      d.dna && d.dna[3] < 50 ? ['Automate saving and investing so it does not depend on mood'] : [], !d.dna),
     pillar('Wealth building', '📈', wealthPts, 15,
       nw.netWorth > 0 ? `${wealthRatio.toFixed(1)}× annual income · ${diversity} asset class${diversity === 1 ? '' : 'es'}${retireBonus ? ' · retirement on track ✓' : ''}` : 'Start building net worth',
       [

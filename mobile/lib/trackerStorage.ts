@@ -1,3 +1,4 @@
+import { loadDnaScores } from '@/lib/dnaStorage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadTransactions } from '@/lib/txnStorage';
 import { INSTRUMENTS, POLICY_META, type SavingsAccount, type Policy, savingsTotals } from '@/lib/retirement';
@@ -72,6 +73,7 @@ export async function loadTrackerData(): Promise<TrackerData> {
       d.budgetLimits = Object.fromEntries(Object.entries(lim).filter(([, v]) => Number(v) > 0).map(([k, v]) => [k, Number(v)]));
     } catch { d.budgetLimits = {}; }
     d.transactions = await loadTransactions();
+    d.dna = await loadDnaScores();
     d.ppfAccounts = parseAccounts(map[PPF_KEY]);
     d.policies = parsePolicies(map[POLICIES_KEY]);
     // Values the website derives from the details behind them

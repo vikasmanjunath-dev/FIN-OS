@@ -358,6 +358,15 @@ export default function DashboardScreen() {
           onPress={() => open('/tools/rebalance')}
         />
         <MetricCard
+          label="Financial DNA"
+          value="Your money mindset"
+          sub="9 questions, feeds Health Score"
+          accent={Colors.purple}
+          icon="🧬"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/dna')}
+        />
+        <MetricCard
           label="Tax harvesting"
           value="Use losses, free gains"
           sub="cut tax before March"

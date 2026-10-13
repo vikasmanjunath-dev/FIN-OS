@@ -50,7 +50,16 @@ export default function HealthScreen() {
           <Bar pct={p.pct} color={pillarColor(p.pct)} />
           <Text style={s.pHeadline}>{p.headline}</Text>
           {p.tips[0] && <Text style={s.pTip}>💡 {p.tips[0]}</Text>}
-          {p.untracked && <Text style={s.untracked}>Not recorded in the app yet</Text>}
+          {p.untracked && p.name === 'Behaviour' ? (
+            <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/tools/dna' as any)} style={{ marginTop: 8 }}>
+              <Text style={{ color: Colors.cyan, fontWeight: '700', fontSize: 13 }}>Take the 9-question Financial DNA quiz →</Text>
+            </TouchableOpacity>
+          ) : p.untracked && <Text style={s.untracked}>Not recorded in the app yet</Text>}
+          {p.name === 'Behaviour' && !p.untracked && (
+            <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/tools/dna' as any)} style={{ marginTop: 8 }}>
+              <Text style={{ color: Colors.cyan, fontWeight: '700', fontSize: 13 }}>See or retake your Financial DNA →</Text>
+            </TouchableOpacity>
+          )}
         </Card>
       ))}
       <Text style={[Typography.caption, { lineHeight: 17, textAlign: 'center', marginTop: Spacing.sm }]}>
