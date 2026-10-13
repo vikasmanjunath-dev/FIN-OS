@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { computeNudges, visible, dismiss, normaliseDismissed, type NudgeFacts } from '../lib/nudges.ts';
 
-const base: NudgeFacts = { moneyScore: 72, incomeMonthly: 0, savingsRate: null, topCategory: null, spentThisMonth: 0, subscriptionsMonthly: 0, subscriptionsCount: 0, hasSip: true, remindersEnabled: true, dueIn7: 0, dnaDone: true };
+const base: NudgeFacts = { moneyScore: 72, incomeMonthly: 0, savingsRate: null, topCategory: null, spentThisMonth: 0, subscriptionsMonthly: 0, subscriptionsCount: 0, hasSip: true, remindersEnabled: true, dueIn7: 0, dnaDone: true, profileFilled: 4 };
 const ids = (f: Partial<NudgeFacts>) => computeNudges({ ...base, ...f }).map(n => n.id);
 
 test('a fully set-up person with nothing wrong gets no nudges', () => {
@@ -27,6 +27,8 @@ test('rules fire on recorded facts', () => {
   assert.deepEqual(ids({ incomeMonthly: 60000, hasSip: false }), ['no-sip']);
   assert.deepEqual(ids({ incomeMonthly: 15000, hasSip: false }), []);
   assert.deepEqual(ids({ dnaDone: false }), ['dna']);
+  assert.deepEqual(ids({ profileFilled: 2 }), ['profile']);
+  assert.deepEqual(ids({ profileFilled: 3 }), []);
 });
 
 test('alerts come first, then warnings, then invitations; at most three show', () => {

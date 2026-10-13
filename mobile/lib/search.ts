@@ -14,6 +14,7 @@ export const SCREENS: Entry[] = [
   e('/markets', 'Markets', 'Indices and sectors', 'Main', 'nifty sensex bank nifty sector bazaar', '📊'),
   e('/arya', 'Arya', 'Ask the assistant', 'Main', 'ai chat assistant help sawal', '🧠'),
   e('/track', 'Track', 'Your trackers in one place', 'Main', 'trackers expenses budget kharcha', '🗂️'),
+  e('/profile', 'Your profile', 'Name, age, income, dependents', 'Account', 'age income dependents name details', '👤'),
   e('/search', 'Search', 'Find any tool or tracker', 'Account', 'find look up', '🔍'),
   e('/settings', 'Settings', 'Language, reminders, account, sync', 'Account', 'language hindi reminders notifications sign in sync backup', '⚙️'),
   e('/privacy', 'Privacy & your data', 'What is stored, export and delete', 'Account', 'export delete erase data permissions', '🔒'),
@@ -59,6 +60,7 @@ export const SCREENS: Entry[] = [
   e('/tools/windfall', 'Windfall allocator', 'Where a bonus or lump sum goes first', 'Tools', 'bonus rsu sale lump sum inheritance', '🎁'),
   e('/tools/leak', 'Future loss', 'What leaking money would have become', 'Tools', 'leak waste small spends invested', '💧'),
   e('/tools/calendar', 'Financial calendar', 'Everything that is due', 'Tools', 'due dates sip renewal tax advance tax deadline', '📅'),
+  e('/tools/report', 'Financial report', 'A one-page summary you can share', 'Tools', 'summary share advisor pdf export statement', '📄'),
   e('/tools/realestate', 'Real estate', 'Buy or rent, true cost, rental yield', 'Tools', 'property flat house stamp duty buy vs rent', '🏠'),
 ];
 

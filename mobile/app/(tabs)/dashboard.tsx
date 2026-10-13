@@ -4,7 +4,7 @@ import {
   ScrollView, View, Text, StyleSheet, RefreshControl,
   TouchableOpacity, Pressable,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from '@/components/Gradient';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useFinosContext } from '@/hooks/useFinosContext';
@@ -368,6 +368,15 @@ export default function DashboardScreen() {
           icon="⚖️"
           style={styles.gridHalf}
           onPress={() => open('/tools/rebalance')}
+        />
+        <MetricCard
+          label="Financial report"
+          value="One-page summary"
+          sub="share with an advisor"
+          accent={Colors.cyan}
+          icon="📄"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/report')}
         />
         <MetricCard
           label="Real estate"

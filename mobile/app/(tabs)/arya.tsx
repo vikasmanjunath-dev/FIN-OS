@@ -104,7 +104,7 @@ export default function AryaScreen() {
             onPress={handleSend}
             disabled={!input.trim()}
           >
-            <Text style={styles.sendIcon}>↑</Text>
+            <Text style={[styles.sendIcon, !input.trim() && styles.sendIconDisabled]}>↑</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -167,6 +167,7 @@ const styles = StyleSheet.create({
   sendBtnDisabled: { backgroundColor: 'rgba(123,47,247,0.25)' },
   stopBtn: { backgroundColor: Colors.red },
   sendIcon: { color: '#fff', fontSize: 18, fontWeight: '700' },
+  sendIconDisabled: { color: Colors.textMuted },
 
   streamingBadge: {
     position: 'absolute', bottom: 80, alignSelf: 'center',

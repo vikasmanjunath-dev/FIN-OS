@@ -14,6 +14,7 @@ export interface NudgeFacts {
   remindersEnabled: boolean;
   dueIn7: number;                      // calendar items due within a week
   dnaDone: boolean;
+  profileFilled: number;               // of name, age, income, dependents (0-4)
 }
 
 export type NudgeTone = 'alert' | 'warn' | 'good';
@@ -46,6 +47,9 @@ export function computeNudges(f: NudgeFacts): Nudge[] {
   }
   if (f.moneyScore === null) {
     out.push({ id: 'score-start', tone: 'good', icon: '🧭', title: 'Get your Money Score in 60 seconds', body: 'One number for your money picture and the three moves that would lift it. It stays on this phone.', action: 'Get my score', route: '/tools/score' });
+  }
+  if (f.profileFilled < 3) {
+    out.push({ id: 'profile', tone: 'good', icon: '👤', title: 'Add your age and dependents', body: 'Four quick facts make the Money Score, retirement and insurance numbers fit you. Nothing leaves the phone.', action: 'Open profile', route: '/profile' });
   }
   if (!f.dnaDone) {
     out.push({ id: 'dna', tone: 'good', icon: '🧬', title: 'Take the Financial DNA quiz', body: 'Nine questions. It feeds the Behaviour part of your Health Score.', action: 'Start the quiz', route: '/tools/dna' });

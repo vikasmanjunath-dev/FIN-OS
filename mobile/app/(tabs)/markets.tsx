@@ -3,7 +3,7 @@ import { ScrollView, View, Text, StyleSheet, RefreshControl, TouchableOpacity } 
 import { useMarketData, IndexQuote } from '@/hooks/useMarketData';
 import { useSectors } from '@/hooks/useSectors';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from '@/components/Gradient';
 
 const SECTOR_EMOJI: Record<string, string> = {
   IT: '💻', BANK: '🏦', FMCG: '🛒', PHARMA: '💊', AUTO: '🚗', METAL: '⚙️', ENERGY: '⚡', REALTY: '🏢',

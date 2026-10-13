@@ -49,7 +49,7 @@ export function Nudges(props: { incomeMonthly: number; savingsRate: number | nul
 }
 
 const s = StyleSheet.create({
-  wrap: { marginBottom: Spacing.md },
+  wrap: { marginBottom: Spacing.md, marginHorizontal: Spacing.lg },
   label: { color: Colors.textMuted, fontSize: 10, fontWeight: '800', letterSpacing: 1, marginBottom: 8 },
   card: { flexDirection: 'row', gap: Spacing.sm, backgroundColor: Colors.surface, borderRadius: Radii.lg, borderWidth: 1, borderColor: Colors.border, borderLeftWidth: 3, padding: 12, marginBottom: 8 },
   icon: { fontSize: 20, marginTop: 2 },

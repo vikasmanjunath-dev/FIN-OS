@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useHoldings } from '@/hooks/useHoldings';
 import { useTrackerSync } from '@/hooks/useTrackerSync';
 import { LANGUAGES, setLang, useLang } from '@/lib/i18n';
+import { getThemeChoice, setThemeChoice, useMode, type ThemeChoice } from '@/lib/theme';
 import { DEFAULT_PREFS, HOURS, type ReminderPrefs } from '@/lib/reminders';
 import { loadPrefs, savePrefs, syncReminders } from '@/lib/remindersStorage';
 import { getPermission, requestPermission, cancelAll, type Permission } from '@/lib/remindersNative';
@@ -30,8 +31,8 @@ export default function SettingsScreen() {
   const { syncing, syncError, lastSyncedAt, syncNow } = useHoldings();
   const trk = useTrackerSync();
   const lang = useLang();
-  const [name, setName]           = useState('');
-  const [income, setIncome]       = useState('');
+  useMode();                                          // redraws the selected button when the appearance changes
+  const themeChoice = getThemeChoice();
   const [hostIP, setHostIP]       = useState('');
   const [saving, setSaving]       = useState(false);
   const [rem, setRem]             = useState<ReminderPrefs>({ ...DEFAULT_PREFS });
@@ -57,11 +58,9 @@ export default function SettingsScreen() {
 
   const loadValues = useCallback(async () => {
     const pairs = await AsyncStorage.multiGet([
-      'finos_user_name', 'finos_monthly_income', 'finos_host_ip',
+      'finos_host_ip',
     ]);
     const m = Object.fromEntries(pairs.map(([k, v]) => [k, v ?? '']));
-    setName(m['finos_user_name']);
-    setIncome(m['finos_monthly_income']);
     setHostIP(m['finos_host_ip']);
   }, []);
 
@@ -71,8 +70,6 @@ export default function SettingsScreen() {
     setSaving(true);
     Haptics.selectionAsync();
     await AsyncStorage.multiSet([
-      ['finos_user_name',      name],
-      ['finos_monthly_income', income],
       ['finos_host_ip',        hostIP.trim()],
     ]);
     applyHost(hostIP);
@@ -117,6 +114,25 @@ export default function SettingsScreen() {
                 <TouchableOpacity key={l.id} accessibilityRole="button" accessibilityState={{ selected: lang === l.id }}
                   style={[styles.syncBtn, lang === l.id && { backgroundColor: 'rgba(0,212,255,0.18)', borderColor: Colors.cyan }]} onPress={() => setLang(l.id)}>
                   <Text style={styles.syncBtnTxt}>{l.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          }
+        />
+      </View>
+
+      {/* ── Appearance ── */}
+      <Text style={styles.sectionLabel}>APPEARANCE</Text>
+      <View style={styles.card}>
+        <SettingRow
+          label="Theme"
+          sub="Follow the phone, or choose dark or light."
+          right={
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              {([['system', 'Auto'], ['dark', 'Dark'], ['light', 'Light']] as [ThemeChoice, string][]).map(([id, label]) => (
+                <TouchableOpacity key={id} accessibilityRole="button" accessibilityState={{ selected: themeChoice === id }} accessibilityLabel={`Theme: ${label}`}
+                  style={[styles.syncBtn, themeChoice === id && { backgroundColor: 'rgba(0,212,255,0.18)', borderColor: Colors.cyan }]} onPress={() => setThemeChoice(id)}>
+                  <Text style={styles.syncBtnTxt}>{label}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -237,31 +253,9 @@ export default function SettingsScreen() {
       <Text style={styles.sectionLabel}>PROFILE</Text>
       <View style={styles.card}>
         <SettingRow
-          label="Your Name"
-          sub="Used by Arya for personalized greetings"
-          right={
-            <TextInput accessibilityLabel="Your name"
-              style={styles.inputSmall}
-              value={name}
-              onChangeText={setName}
-              placeholder="e.g. Vikas"
-              placeholderTextColor={Colors.textDim}
-            />
-          }
-        />
-        <SettingRow
-          label="Monthly Income"
-          sub="Helps calculate savings rate and FIRE"
-          right={
-            <TextInput accessibilityLabel="Monthly income"
-              style={styles.inputSmall}
-              value={income}
-              onChangeText={setIncome}
-              placeholder="₹ amount"
-              placeholderTextColor={Colors.textDim}
-              keyboardType="numeric"
-            />
-          }
+          label="Your profile"
+          sub="Name, age, income and dependents. They make the Money Score, retirement and insurance numbers fit you."
+          right={<TouchableOpacity accessibilityRole="button" style={styles.syncBtn} onPress={() => router.push('/profile' as any)}><Text style={styles.syncBtnTxt}>Edit</Text></TouchableOpacity>}
         />
       </View>
 

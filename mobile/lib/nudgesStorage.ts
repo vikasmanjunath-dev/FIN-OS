@@ -5,14 +5,16 @@ import { collectEvents } from '@/lib/calendar';
 import { loadCalendarSources } from '@/lib/calendarStorage';
 import { loadPrefs } from '@/lib/remindersStorage';
 import { loadDnaScores } from '@/lib/dnaStorage';
+import { loadProfile } from '@/lib/profileStorage';
+import { completeness } from '@/lib/profile';
 import { normaliseDismissed, type Dismissed, type NudgeFacts } from '@/lib/nudges';
 
 const DISMISS_KEY = 'finos_nudges_dismissed';
 const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 export async function loadFacts(input: { incomeMonthly: number; savingsRate: number | null; topCategory: NudgeFacts['topCategory']; spentThisMonth: number; monthlySip: number }, now = new Date()): Promise<NudgeFacts> {
-  const [subsRaw, scoreRaw, prefs, dna, cal] = await Promise.all([
-    AsyncStorage.getItem('finos_subscriptions'), AsyncStorage.getItem('finos_money_score'), loadPrefs(), loadDnaScores(), loadCalendarSources().catch(() => null),
+  const [subsRaw, scoreRaw, prefs, dna, cal, profile] = await Promise.all([
+    AsyncStorage.getItem('finos_subscriptions'), AsyncStorage.getItem('finos_money_score'), loadPrefs(), loadDnaScores(), loadCalendarSources().catch(() => null), loadProfile(),
   ]);
   let subs = { monthly: 0, activeCount: 0 };
   try { const s = summarize(JSON.parse(subsRaw ?? '[]'), ymd(now), { income: input.incomeMonthly }); subs = { monthly: s.monthly, activeCount: s.activeCount }; } catch { /* none */ }
@@ -25,7 +27,7 @@ export async function loadFacts(input: { incomeMonthly: number; savingsRate: num
   }
   return {
     moneyScore: score, incomeMonthly: input.incomeMonthly, savingsRate: input.savingsRate, topCategory: input.topCategory, spentThisMonth: input.spentThisMonth,
-    subscriptionsMonthly: subs.monthly, subscriptionsCount: subs.activeCount, hasSip: input.monthlySip > 0, remindersEnabled: prefs.enabled, dueIn7, dnaDone: !!dna,
+    subscriptionsMonthly: subs.monthly, subscriptionsCount: subs.activeCount, hasSip: input.monthlySip > 0, remindersEnabled: prefs.enabled, dueIn7, dnaDone: !!dna, profileFilled: completeness(profile),
   };
 }
 

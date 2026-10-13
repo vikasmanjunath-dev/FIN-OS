@@ -57,6 +57,8 @@ Last updated: 2026-10-11. This is the working list: each item has a status. Item
 
 - **Real Estate buy-vs-rent compared unlike things.** Only the renter invested the monthly difference (and kept doing so after the loan ended), the buyer's stamp duty and selling costs were ignored, the break-even year used a different rent model from the winner, and the "Annual Home Loan Tax Benefit" default of ₹3.5 L was the *deduction*, not tax saved (about ₹70 K at 20%), and was never counted. Rewritten as `js/finos-real-estate.js` (tests: `tests/real-estate.test.js`, `tests/test_real_estate_ui.py`). The yield tab now counts the rent you keep on the property side, and the cost tab no longer calls maintenance alone the "20yr ownership total".
 
+- **Phone light theme, report and profile (Oct 14).** The tracker's "Light / Bloomberg / Saffron" row overstated the website: the app itself has only dark and light (Bloomberg and Saffron exist only inside the stock platform and Arya panel), so Auto / Dark / Light on the phone is the whole app-wide set. The report is text, not PDF, until there is a device build to verify a native PDF module on.
+
 ## Known quirks (not scheduled)
 
 - `js/i18n/hi.js` is now ~280 KB (about 90 KB gzipped). It loads only for Hindi users and is cached, but it should be split by page group if it grows much more.

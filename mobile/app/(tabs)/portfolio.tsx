@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, RefreshControl, Alert, Platform } from 'react-native';
 import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from '@/components/Gradient';
 import { useHoldings, toView, HoldingView } from '@/hooks/useHoldings';
 import { AddHoldingModal } from '@/components/AddHoldingModal';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';

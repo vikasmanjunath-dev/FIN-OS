@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Switch, StyleSheet } from 'rea
 import Svg, { Polyline, Line, Text as SvgText } from 'react-native-svg';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 import { inrShort } from '@/components/TrackerUI';
+import { useThemed } from '@/lib/theme';
 
 /** Parse what a person typed into a number ("₹ 12,50,000" → 1250000); anything unreadable is 0. */
 export const toNum = (s: string) => {
@@ -87,6 +88,7 @@ export function Bullet({ children }: { children: React.ReactNode }) {
 export function TwoLineChart({ a, b, labels, colorA, colorB, nameA, nameB, height = 150 }: {
   a: number[]; b: number[]; labels: string[]; colorA: string; colorB: string; nameA: string; nameB: string; height?: number;
 }) {
+  const T = useThemed();
   const [w, setW] = useState(0);
   const padL = 8, padR = 8, padT = 10, padB = 20;
   const all = [...a, ...b];
@@ -105,11 +107,11 @@ export function TwoLineChart({ a, b, labels, colorA, colorB, nameA, nameB, heigh
       <View style={{ height }} onLayout={e => setW(e.nativeEvent.layout.width)}>
         {w > 0 && (
           <Svg width={w} height={height}>
-            {lo < 0 && <Line x1={padL} x2={w - padR} y1={y(0)} y2={y(0)} stroke={Colors.borderMed} strokeDasharray="4 4" strokeWidth={1} />}
-            <Polyline points={pts(a)} fill="none" stroke={colorA} strokeWidth={2.5} />
-            <Polyline points={pts(b)} fill="none" stroke={colorB} strokeWidth={2.5} />
-            <SvgText x={padL} y={height - 5} fill={Colors.textMuted} fontSize={10}>{labels[0]}</SvgText>
-            <SvgText x={w - padR} y={height - 5} fill={Colors.textMuted} fontSize={10} textAnchor="end">{labels[labels.length - 1]}</SvgText>
+            {lo < 0 && <Line x1={padL} x2={w - padR} y1={y(0)} y2={y(0)} stroke={T(Colors.borderMed)} strokeDasharray="4 4" strokeWidth={1} />}
+            <Polyline points={pts(a)} fill="none" stroke={T(colorA)} strokeWidth={2.5} />
+            <Polyline points={pts(b)} fill="none" stroke={T(colorB)} strokeWidth={2.5} />
+            <SvgText x={padL} y={height - 5} fill={T(Colors.textMuted)} fontSize={10}>{labels[0]}</SvgText>
+            <SvgText x={w - padR} y={height - 5} fill={T(Colors.textMuted)} fontSize={10} textAnchor="end">{labels[labels.length - 1]}</SvgText>
           </Svg>
         )}
       </View>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from '@/components/Gradient';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
 
 interface MetricCardProps {
