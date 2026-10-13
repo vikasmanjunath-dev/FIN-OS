@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 pw_api = pytest.importorskip("playwright.sync_api")
 from smoke_pages import static_server  # noqa: E402
 
-PANEL = "**/js/arya-sidebar-panel.js"
+PANEL = "**/js/arya-sidebar-panel.js*"   # trailing * : the loader appends ?v=N for cache-busting
 
 
 @pytest.fixture(scope="module")
