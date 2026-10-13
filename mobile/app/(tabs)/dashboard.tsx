@@ -358,6 +358,15 @@ export default function DashboardScreen() {
           onPress={() => open('/tools/rebalance')}
         />
         <MetricCard
+          label="Calculators"
+          value="SIP, EMI, HRA, FD…"
+          sub="70+ quick calculators"
+          accent={Colors.cyan}
+          icon="🧮"
+          style={styles.gridHalf}
+          onPress={() => open('/tools/calculators')}
+        />
+        <MetricCard
           label="Financial DNA"
           value="Your money mindset"
           sub="9 questions, feeds Health Score"

@@ -53,6 +53,8 @@ Last updated: 2026-10-11. This is the working list: each item has a status. Item
 
 - **Financial DNA quiz had no answer for ages 36-49** (the bands went 25-35, then 50+), so a third of working adults had to pick a wrong one. Added a 36-49 band with weights between its neighbours, and moved the questions into `js/finos-dna-steps.js` so the website and the phone share one list (`tests/dna.test.js`, `mobile/__tests__/dna.parity.test.mts`). The phone's Health Score Behaviour pillar now uses the quiz instead of a fixed neutral 50.
 
+- **Three website calculators had real bugs, found by running each page's script against random inputs.** SSY counted every yearly deposit twice ("Invested" 2x, "Returns" understated); Options Payoff froze the tab when the strike was 0 (its loop step became 0); Bond showed `₹70.99999999999999` for a 7.1% coupon. All three fixed in `calculators/`, with regression tests in `mobile/__tests__/webCalc.parity.test.mts`.
+
 ## Known quirks (not scheduled)
 
 - `js/i18n/hi.js` is now ~280 KB (about 90 KB gzipped). It loads only for Hindi users and is cached, but it should be split by page group if it grows much more.
