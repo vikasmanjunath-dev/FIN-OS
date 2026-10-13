@@ -1,5 +1,12 @@
 /* FIN-OS Trading Simulator — Full JavaScript Engine */
 'use strict';
+/* NDJSON streams arrive in arbitrary chunks: keep the unfinished last line for the next read
+   (splitting each chunk on its own drops any token whose JSON line straddles two chunks). */
+function _ndLines(dec, value) {
+  const parts = ((dec._tail || '') + dec.decode(value, { stream: true })).split('\n');
+  dec._tail = parts.pop();
+  return parts;
+}
 
 // ─── GLOBAL STATE ────────────────────────────────────────────────
 const STATE = {
@@ -735,6 +742,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Live watchlist price ticker
     setInterval(() => {
+        if (document.hidden) return;   // simulated prices: skip while the tab is in the background
         STOCKS.forEach(s => {
             s.price += (Math.random() - 0.49) * 3;
             s.price = Math.max(50, s.price);
@@ -777,11 +785,11 @@ document.addEventListener('DOMContentLoaded', () => {
     updateStoryBanner(STATE.scenario);
 
     // Chart insight auto-rotate
-    setInterval(rotatechartInsight, 5000);
+    setInterval(() => { if (!document.hidden) rotatechartInsight(); }, 5000);
     rotatechartInsight();
 
     // Capital used tracker
-    setInterval(updateCapitalUsed, 2000);
+    setInterval(() => { if (!document.hidden) updateCapitalUsed(); }, 2000);
 });
 
 // ╔══════════════════════════════════════════════════════════════════╗
@@ -1188,7 +1196,7 @@ const OllamaAI = (function () {
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            const lines = decoder.decode(value).split('\n').filter(Boolean);
+            const lines = _ndLines(decoder, value).filter(Boolean);
             for (const ln of lines) {
                 try {
                     const obj = JSON.parse(ln);

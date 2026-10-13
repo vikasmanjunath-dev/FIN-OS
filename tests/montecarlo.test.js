@@ -74,3 +74,25 @@ test('input validation', () => {
   assert.throws(() => MC.simulate(base({ endAge: 20 })), /endAge/);
   assert.throws(() => MC.simulate(base({ assets: [] })), /asset/);
 });
+
+// Performance refactor guard: the hot loop reuses buffers and the solver skips the percentile grids.
+// Pinned values were produced by the pre-optimisation implementation (same seed) — they must not drift.
+test('golden: optimised engine reproduces the reference run exactly', () => {
+  const A = MC.DEFAULT_ASSUMPTIONS;
+  const cfg = {
+    startAge: 30, retireAge: 60, endAge: 90, monthlyContribution: 30000, stepUp: 0.05, monthlyExpenseToday: 60000,
+    assets: [{ value: 800000, ...A.equity }, { value: 300000, ...A.debt }, { value: 100000, ...A.gold }],
+    pensionMonthlyAtRetire: 10000, pensionIndexation: 0.5, runs: 5000, seed: 7,
+  };
+  const r = MC.simulate(cfg);
+  assert.strictEqual(r.successRate, 0.7762);
+  assert.strictEqual(MC.solveContribution(cfg, 0.85), 36500);
+});
+
+test('successOnly skips the grids but returns the same success rate; the full result still has bands', () => {
+  const cfg = base({ assets: [{ value: 1e6, mean: .1, vol: .18 }], monthlyExpenseToday: 40000, runs: 400, seed: 3 });
+  const full = MC.simulate(cfg), lean = MC.simulate(Object.assign({}, cfg, { successOnly: true }));
+  assert.strictEqual(lean.successRate, full.successRate);
+  assert.strictEqual(lean.bands, null);
+  assert.strictEqual(full.bands.length, 61);
+});

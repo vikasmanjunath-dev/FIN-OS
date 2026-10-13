@@ -681,6 +681,7 @@
 
   // ============== TICK SIMULATION ==============
   function tick() {
+    if (document.hidden) return;   // simulated tick: no point repainting charts nobody can see
     const last = state.series[state.series.length - 1];
     if (!last) return;
     const vol = 0.0018;
@@ -850,7 +851,7 @@
     renderHeatmap();
     wireEvents();
     state.pollHandle = setInterval(tick, POLL_MS);
-    setInterval(renderHeatmap, 15000);
+    setInterval(() => { if (!document.hidden) renderHeatmap(); }, 15000);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

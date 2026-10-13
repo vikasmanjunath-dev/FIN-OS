@@ -34,7 +34,9 @@
       #05060A 100%
     );
 
-  animation: bgFlow 40s ease-in-out infinite alternate;
+  /* No `animation: bgFlow` here: background-position can't be GPU-composited, so animating it on this
+     page-sized layer repainted ~11,000px of gradients every frame, forever (≈95% of a core while idle).
+     The 40s, 20% drift was barely perceptible; the @keyframes below are kept for any other user. */
 }
 
 /* ===============================

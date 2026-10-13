@@ -49,6 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Simulate "Live" updates (stored for cleanup on page exit)
         _trackerIntervals.push(setInterval(() => {
+            if (document.hidden) return;   // simulated live ticker — don't animate a hidden chart
             const lastVal = dataPoints[dataPoints.length - 1];
             // Random movement between -2 and +2
             const move = (Math.random() - 0.5) * 4; 

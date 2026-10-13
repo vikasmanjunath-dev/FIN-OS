@@ -19,19 +19,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
-<link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css?v=3">
-  <link rel="stylesheet" href="../css/components.css">
-  <link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="../css/base.css?v=2">
+  <link rel="stylesheet" href="../css/layout.css?v=4">
+  <link rel="stylesheet" href="../css/components.css?v=2">
+  <link rel="stylesheet" href="../css/theme.css?v=2">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-tracker-sync.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
-  <script src="../js/arya-ai.js?v=7" defer></script>
-  <script src="../js/arya-memory.js" defer></script>
+  <script src="../js/arya-ai.js?v=8" defer></script>
+  <script src="../js/arya-memory.js?v=2" defer></script>
   <script src="../js/arya-life-events.js" defer></script>
-  <script src="../js/finos-personalization.js" defer></script>
+  <script src="../js/finos-personalization.js?v=3" defer></script>
   <script src="../js/finos-aa.js" defer></script>
   <style>
     /* ── BASE ── */
@@ -162,42 +162,12 @@
       overflow: hidden;
       transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease, border-color .3s ease;
       opacity: 0;
+      animation: fadeUp .45s .08s ease both;
       cursor: pointer;
     }
-    .suite-card:nth-child(1) { animation: fadeUp .6s .35s ease forwards; }
-    .suite-card:nth-child(2) { animation: fadeUp .6s .45s ease forwards; }
-    .suite-card:nth-child(3) { animation: fadeUp .6s .55s ease forwards; }
-    .suite-card:nth-child(4) { animation: fadeUp .6s .65s ease forwards; }
-    .suite-card:nth-child(5) { animation: fadeUp .6s .75s ease forwards; }
-    .suite-card:nth-child(6) { animation: fadeUp .6s .85s ease forwards; }
-    .suite-card:nth-child(7) { animation: fadeUp .6s .95s ease forwards; }
-    .suite-card:nth-child(8) { animation: fadeUp .6s 1.05s ease forwards; }
-    .suite-card:nth-child(9) { animation: fadeUp .6s 1.15s ease forwards; }
-    .suite-card:nth-child(10){ animation: fadeUp .6s 1.25s ease forwards; }
-    .suite-card:nth-child(11){ animation: fadeUp .6s 1.35s ease forwards; }
-    .suite-card:nth-child(12){ animation: fadeUp .6s 1.45s ease forwards; }
-    .suite-card:nth-child(13){ animation: fadeUp .6s 1.55s ease forwards; }
-    .suite-card:nth-child(14){ animation: fadeUp .6s 1.65s ease forwards; }
-    .suite-card:nth-child(15){ animation: fadeUp .6s 1.75s ease forwards; }
-    .suite-card:nth-child(16){ animation: fadeUp .6s 1.85s ease forwards; }
-    .suite-card:nth-child(17){ animation: fadeUp .6s 1.95s ease forwards; }
-    .suite-card:nth-child(18){ animation: fadeUp .6s 2.05s ease forwards; }
-    .suite-card:nth-child(19){ animation: fadeUp .6s 2.15s ease forwards; }
-    .suite-card:nth-child(20){ animation: fadeUp .6s 2.25s ease forwards; }
-    .suite-card:nth-child(21){ animation: fadeUp .6s 2.35s ease forwards; }
-    .suite-card:nth-child(22){ animation: fadeUp .6s 2.45s ease forwards; }
-    .suite-card:nth-child(23){ animation: fadeUp .6s 2.55s ease forwards; }
-    .suite-card:nth-child(24){ animation: fadeUp .6s 2.65s ease forwards; }
-    .suite-card:nth-child(25){ animation: fadeUp .6s 2.75s ease forwards; }
-    .suite-card:nth-child(26){ animation: fadeUp .6s 2.85s ease forwards; }
-    .suite-card:nth-child(27){ animation: fadeUp .6s 2.95s ease forwards; }
-    .suite-card:nth-child(28){ animation: fadeUp .6s 3.05s ease forwards; }
-    .suite-card:nth-child(29){ animation: fadeUp .6s 3.15s ease forwards; }
-    .suite-card:nth-child(30){ animation: fadeUp .6s 3.25s ease forwards; }
-    .suite-card:nth-child(31){ animation: fadeUp .6s 3.35s ease forwards; }
-    .suite-card:nth-child(32){ animation: fadeUp .6s 3.45s ease forwards; }
-    .suite-card:nth-child(33){ animation: fadeUp .6s 3.55s ease forwards; }
-    .suite-card:nth-child(34){ animation: fadeUp .6s 3.65s ease forwards; }
+    @media (prefers-reduced-motion: reduce) {
+      .suite-card { animation: none; opacity: 1; transition: none; }
+    }
 
     /* glow layer */
     .suite-card::before {
@@ -494,7 +464,7 @@
       <!-- HERO -->
       <div class="tf-hero">
         <h1 class="tf-title">Track Every<br><span>Dimension</span> of Your Money</h1>
-        <p class="tf-desc">Four precision-built tools that give you complete visibility — from daily spending to portfolio depth.</p>
+        <p class="tf-desc">Explore 34 connected tools for a clearer view of your money — from daily spending to long-term portfolio planning.</p>
       </div>
 
       <!-- ══════════════════════════════════════════════════════════
@@ -510,8 +480,9 @@
         overflow:hidden;
       ">
         <!-- Hub Header / Toggle -->
-        <div onclick="toggleTFHub()" style="
+        <button type="button" id="tfHubToggle" aria-expanded="true" aria-controls="tfHubBody" onclick="toggleTFHub()" style="
           display:flex;align-items:center;gap:14px;
+          width:100%;text-align:left;color:inherit;font:inherit;border:0;
           padding:20px 28px;cursor:pointer;
           background:rgba(199,240,0,.05);
           border-bottom:1px solid rgba(199,240,0,.12);
@@ -522,7 +493,7 @@
             <div style="font-size:11px;color:rgba(255,255,255,0.58);">Your financial brain — Arya brief, smart nudges, insights, health score</div>
           </div>
           <span id="tfHubChevron" style="color: var(--accent-secondary);font-size:14px;transition:transform .3s;">▼</span>
-        </div>
+        </button>
 
         <!-- Hub Body -->
         <div id="tfHubBody" style="padding:26px 28px;">
@@ -598,7 +569,7 @@
           <div class="sc-name">Expense Engine <span id="expenseEngineBadge" style="display:none;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(240,165,0,.15);border:1px solid rgba(240,165,0,.3);color:#f0a500;letter-spacing:.06em;vertical-align:middle;margin-left:6px;">LOCAL</span></div>
           <div class="sc-sub">Full-featured budget tracker with category breakdowns, monthly history, and visual spending pattern reports.</div>
           <div id="expenseOfflineMsg" style="display:none;margin-top:8px;padding:8px 12px;border-radius:8px;background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.2);color:#f0a500;font-size:11px;line-height:1.5;">
-            ⚠️ Expense Engine is a local app. Run <code style="font-family:monospace;background:rgba(0,0,0,.3);padding:1px 5px;border-radius:4px;">npm run dev</code> to start it.
+            ⚠️ Expense Engine is a separate local app and is not included in this deployment. Use Budget Forecast or Command Hub for the available budget tools.
           </div>
           <div class="sc-tags">
             <span class="sc-tag">Budget Tracking</span>
@@ -1491,10 +1462,12 @@
           transition:border-color .2s,background .2s;
           background:rgba(0,212,255,.02);
         "
+          role="button" tabindex="0" aria-label="Choose a PDF, PNG, or JPG financial document to parse"
           ondragover="event.preventDefault();this.style.borderColor='rgba(0,212,255,.7)';this.style.background='rgba(0,212,255,.07)'"
           ondragleave="this.style.borderColor='rgba(0,212,255,.3)';this.style.background='rgba(0,212,255,.02)'"
           ondrop="docaiHandleDrop(event)"
           onclick="document.getElementById('docai-file-input').click()"
+          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('docai-file-input').click();}"
         >
           <div style="font-size:40px;margin-bottom:12px;">📂</div>
           <p style="color:rgba(255,255,255,.7);font-weight:600;margin-bottom:4px;">Drop your document here</p>
@@ -1504,8 +1477,8 @@
         </div>
 
         <!-- Status / Results area -->
-        <div id="docai-status" style="display:none;margin-top:24px;"></div>
-        <div id="docai-results" style="display:none;margin-top:16px;"></div>
+        <div id="docai-status" role="status" aria-live="polite" style="display:none;margin-top:24px;"></div>
+        <div id="docai-results" aria-live="polite" style="display:none;margin-top:16px;"></div>
       </div>
 
       <!-- ══ ACCOUNT AGGREGATOR ══ -->
@@ -1523,7 +1496,21 @@
 
 <!-- DOCUMENT AI SCRIPT -->
 <script>
-const DOCAI_URL = 'http://localhost:8004/parse/document';
+const DOCAI_MAX_FILE_SIZE = 10 * 1024 * 1024;
+const DOCAI_PROFILE_FIELDS = new Set([
+  'monthly_income', 'gross_monthly_income', 'monthly_epf_contribution',
+  'bank_balance', 'annual_income', 'annual_80c_investment', 'annual_tds_deducted'
+]);
+let docaiRequestSequence = 0;
+
+function docaiEndpoint() {
+  const apiBase = window.FinosAPI?.base?.('docs');
+  if (apiBase) return `${apiBase}/parse/document`;
+  const host = window.location.hostname;
+  return host === 'localhost' || host === '127.0.0.1'
+    ? 'http://localhost:8004/parse/document'
+    : null;
+}
 
 function docaiHandleDrop(e) {
   e.preventDefault();
@@ -1536,10 +1523,17 @@ function docaiHandleDrop(e) {
 
 function docaiHandleFile(file) {
   if (!file) return;
+  const requestId = ++docaiRequestSequence;
+  const picker = document.getElementById('docai-file-input');
+  if (picker) picker.value = '';
 
-  const allowed = ['application/pdf','image/png','image/jpeg','image/jpg','image/webp'];
+  const allowed = ['application/pdf','image/png','image/jpeg','image/jpg'];
   if (!allowed.includes(file.type) && !file.name.match(/\.(pdf|png|jpg|jpeg)$/i)) {
     docaiShowStatus('❌ Please upload a PDF or image file.', 'error');
+    return;
+  }
+  if (file.size > DOCAI_MAX_FILE_SIZE) {
+    docaiShowStatus('❌ This file is larger than 10 MB. Choose a smaller PDF or image.', 'error');
     return;
   }
 
@@ -1548,33 +1542,51 @@ function docaiHandleFile(file) {
 
   const fd = new FormData();
   fd.append('file', file);
-  fd.append('use_llm', 'true');
+  const endpoint = docaiEndpoint();
+  if (!endpoint) {
+    docaiShowStatus('⚠️ Document AI is not configured for this site. Set the FIN-OS API gateway and try again.', 'error');
+    return;
+  }
 
-  fetch(DOCAI_URL, { method: 'POST', body: fd })
-    .then(r => r.json())
+  fetch(endpoint, { method: 'POST', body: fd, signal: AbortSignal.timeout(120000) })
+    .then(async response => {
+      let data;
+      try { data = await response.json(); } catch (_) { data = {}; }
+      if (!response.ok) {
+        throw new Error(typeof data.detail === 'string' ? data.detail : `Document parser returned HTTP ${response.status}.`);
+      }
+      return data;
+    })
     .then(data => {
+      if (requestId !== docaiRequestSequence) return;
       if (data.status === 'error') {
         docaiShowStatus('❌ ' + (data.message || 'Parse failed'), 'error');
         return;
       }
+      const rawConfidence = Number(data.confidence);
+      const confidence = Number.isFinite(rawConfidence) ? Math.max(0, Math.min(100, rawConfidence <= 1 ? rawConfidence * 100 : rawConfidence)) : null;
+      const confidenceText = confidence === null ? '' : ` — ${confidence.toFixed(0)}% confidence`;
+      if (data.doc_type === 'unknown') {
+        docaiShowStatus('⚠️ We could not identify this document. Check the parser notes and try a clearer PDF or image.', 'error');
+        docaiShowResults(data);
+        return;
+      }
       docaiShowStatus(
-        `✅ <strong>${docaiTypeLabel(data.doc_type)}</strong> detected — ${data.confidence}% confidence`,
+        `✅ ${docaiTypeLabel(data.doc_type)} detected${confidenceText}`,
         'success'
       );
       docaiShowResults(data);
     })
     .catch(err => {
-      docaiShowStatus(
-        '⚠️ Document AI service offline. <a href="https://github.com/fin-os/docs/wiki/document-ai" target="_blank" style="color:#00d4ff">Start it</a> with: <code>uvicorn document-ai/server:app --port 8004</code>',
-        'error'
-      );
+      if (requestId !== docaiRequestSequence) return;
+      docaiShowStatus(`⚠️ ${err?.message || 'Could not reach Document AI. Start the service on port 8004 and try again.'}`, 'error');
       console.error('[DocAI]', err);
     });
 }
 
 function docaiTypeLabel(t) {
-  return { salary_slip:'Salary Slip', bank_statement:'Bank Statement',
-           form16:'Form-16', unknown:'Financial Document' }[t] || t;
+  return { salary_slip:'Salary Slip', bank_statement:'Bank Statement', credit_card:'Credit Card Statement',
+           itr:'ITR / Form-16', form16:'Form-16', broker_note:'Broker Note', unknown:'Financial Document' }[t] || String(t || 'Financial Document');
 }
 
 function docaiShowStatus(html, type) {
@@ -1587,70 +1599,113 @@ function docaiShowStatus(html, type) {
   const c = colors[type] || colors.loading;
   el.style.cssText = `display:block;padding:14px 18px;border-radius:12px;font-size:13px;
     background:${c.bg};border:1px solid ${c.border};color:${c.color};line-height:1.55;`;
-  el.innerHTML = html;
+  el.textContent = html;
 }
 
 function docaiShowResults(data) {
   const r     = document.getElementById('docai-results');
-  const items = data.extracted_data || {};
-  const prof  = data.profile_updates || {};
-  const txs   = data.transactions || [];
-  const ins   = data.insights || [];
+  const items = data?.extracted_data && typeof data.extracted_data === 'object'
+    ? data.extracted_data
+    : (data?.extracted && typeof data.extracted === 'object' ? data.extracted : {});
+  const rawProfile = data?.profile_updates && typeof data.profile_updates === 'object' ? { ...data.profile_updates } : {};
+  const docType = String(data?.doc_type || '');
+  const firstNumber = (...values) => values.find(value => value !== null && value !== '' && Number.isFinite(Number(value)));
+  if (docType === 'salary_slip') {
+    const takeHome = firstNumber(items.net_take_home, items.take_home);
+    const gross = firstNumber(items.gross_salary, items.gross);
+    const epf = firstNumber(items.epf_deduction, items.monthly_epf_contribution);
+    if (takeHome !== undefined) rawProfile.monthly_income ??= takeHome;
+    if (gross !== undefined) rawProfile.gross_monthly_income ??= gross;
+    if (epf !== undefined) rawProfile.monthly_epf_contribution ??= epf;
+  } else if (docType === 'bank_statement') {
+    const balance = firstNumber(items.closing_balance, items.bank_balance);
+    if (balance !== undefined) rawProfile.bank_balance ??= balance;
+  } else if (docType === 'itr') {
+    const income = firstNumber(items.gross_total_income, items.annual_income);
+    const deductions = firstNumber(items.deductions_80c, items.annual_80c_investment);
+    const tds = firstNumber(items.tds_paid, items.annual_tds_deducted);
+    if (income !== undefined) rawProfile.annual_income ??= income;
+    if (deductions !== undefined) rawProfile.annual_80c_investment ??= deductions;
+    if (tds !== undefined) rawProfile.annual_tds_deducted ??= tds;
+  }
+  const prof = Object.fromEntries(Object.entries(rawProfile).filter(([key, value]) =>
+    DOCAI_PROFILE_FIELDS.has(key) && (typeof value === 'number' || (typeof value === 'string' && value.trim() !== '')) && Number.isFinite(Number(value)) && Number(value) >= 0 && Number(value) <= 1e12
+  ));
+  const ins = Array.isArray(data?.insights) ? data.insights : (Array.isArray(data?.warnings) ? data.warnings : []);
+  const root = document.createElement('div');
+  root.style.cssText = 'display:grid;gap:16px;';
 
-  let html = '<div style="display:grid;gap:16px;">';
-
-  // Insights first (most readable)
-  if (ins.length) {
-    html += `<div style="padding:16px;background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.15);border-radius:14px;">
-      <div style="font-size:12px;font-weight:700;color:#00ff88;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">💡 AI Insights</div>
-      ${ins.map(i => `<div style="font-size:13px;color:rgba(255,255,255,.8);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05);">${i}</div>`).join('')}
-    </div>`;
+  function addSection(title, rows, style) {
+    if (!rows.length) return;
+    const section = document.createElement('section');
+    section.style.cssText = style;
+    const heading = document.createElement('div');
+    heading.textContent = title;
+    heading.style.cssText = 'font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;';
+    section.appendChild(heading);
+    rows.forEach(([label, value]) => {
+      const row = document.createElement('div');
+      row.style.cssText = 'font-size:13px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);overflow-wrap:anywhere;';
+      const key = document.createElement('span');
+      key.textContent = label;
+      key.style.cssText = 'color:rgba(255,255,255,.58);margin-right:8px;';
+      const content = document.createElement('span');
+      content.textContent = value;
+      row.append(key, content);
+      section.appendChild(row);
+    });
+    root.appendChild(section);
   }
 
-  // Extracted fields table
-  const visibleFields = Object.entries(items).filter(([,v]) => v != null && v !== '');
-  if (visibleFields.length) {
-    html += `<div style="padding:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;">
-      <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;">📋 Extracted Fields</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        ${visibleFields.map(([k, v]) => `
-          <div style="background:rgba(255,255,255,.03);border-radius:8px;padding:8px 12px;">
-            <div style="font-size:10px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.08em;">${k.replace(/_/g,' ')}</div>
-            <div style="font-size:13px;font-weight:600;color:#fff;margin-top:2px;">${typeof v === 'number' ? '₹'+v.toLocaleString('en-IN') : v}</div>
-          </div>`).join('')}
-      </div>
-    </div>`;
+  addSection(Array.isArray(data?.insights) ? '💡 AI Insights' : 'ℹ️ Parser Notes', ins.map((value, index) => [`Note ${index + 1}`, String(value)]),
+    'padding:16px;background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.15);border-radius:14px;color:rgba(255,255,255,.8);');
+  addSection('📋 Extracted Fields', Object.entries(items).filter(([, value]) => value != null && value !== '').map(([key, value]) => [
+    key.replace(/_/g, ' '), typeof value === 'number' ? `₹${value.toLocaleString('en-IN')}`
+      : (value && typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value))
+  ]), 'padding:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;color:#fff;');
+  if (!Object.keys(items).length) {
+    const empty = document.createElement('p');
+    empty.textContent = 'No financial fields were extracted. Try a clearer PDF/image or choose a supported document type.';
+    empty.style.cssText = 'margin:0;padding:14px;border-radius:10px;background:rgba(255,184,0,.06);color:rgba(255,255,255,.75);font-size:13px;';
+    root.appendChild(empty);
   }
 
-  // Auto-fill button if we have profile updates
-  if (Object.keys(prof).length > 0) {
-    html += `<button onclick="docaiAutoFill(${JSON.stringify(prof).replace(/"/g,'&quot;')})"
-      style="width:100%;padding:14px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;
-      background:linear-gradient(135deg,rgba(0,212,255,.15),rgba(0,255,136,.1));
-      border:1px solid rgba(0,212,255,.3);color:#00d4ff;transition:all .2s;"
-      
-      onmouseover="this.style.borderColor='rgba(0,212,255,.6)';this.style.boxShadow='0 0 0 1px rgba(0,212,255,.2)'"
-      onmouseout="this.style.borderColor='rgba(0,212,255,.3)';this.style.boxShadow=''"
-    >
-      ⚡ Auto-Fill ${Object.keys(prof).length} Dashboard Fields
-    </button>`;
+  if (Object.keys(prof).length) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = `⚡ Auto-Fill ${Object.keys(prof).length} Dashboard Fields`;
+    button.style.cssText = 'width:100%;padding:14px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;background:linear-gradient(135deg,rgba(0,212,255,.15),rgba(0,255,136,.1));border:1px solid rgba(0,212,255,.3);color:#00d4ff;';
+    button.addEventListener('click', () => docaiAutoFill(prof));
+    root.appendChild(button);
   }
 
-  html += '</div>';
-  r.innerHTML = html;
+  r.replaceChildren(root);
   r.style.display = 'block';
 }
 
 function docaiAutoFill(profileUpdates) {
+  profileUpdates = Object.fromEntries(Object.entries(profileUpdates || {}).filter(([key, value]) =>
+    DOCAI_PROFILE_FIELDS.has(key) && Number.isFinite(Number(value)) && Number(value) >= 0 && Number(value) <= 1e12
+  ));
+  if (!Object.keys(profileUpdates).length) {
+    docaiShowStatus('❌ No supported numeric fields were available to auto-fill.', 'error');
+    return;
+  }
   // Save to localStorage for dashboard to pick up
-  const existing = JSON.parse(localStorage.getItem('finos_profile_updates') || '{}');
-  const merged = { ...existing, ...profileUpdates, _updated_at: new Date().toISOString() };
-  localStorage.setItem('finos_profile_updates', JSON.stringify(merged));
-
-  // Also save individual keys for direct dashboard reads
-  Object.entries(profileUpdates).forEach(([k, v]) => {
-    localStorage.setItem('finos_' + k, String(v));
-  });
+  try {
+    let existing = {};
+    try {
+      const saved = JSON.parse(localStorage.getItem('finos_profile_updates') || '{}');
+      if (saved && typeof saved === 'object' && !Array.isArray(saved)) existing = saved;
+    } catch (_) {}
+    const merged = { ...existing, ...profileUpdates, _updated_at: new Date().toISOString() };
+    localStorage.setItem('finos_profile_updates', JSON.stringify(merged));
+    Object.entries(profileUpdates).forEach(([key, value]) => localStorage.setItem('finos_' + key, String(value)));
+  } catch (err) {
+    docaiShowStatus('❌ Could not save the extracted values in this browser. Check available storage and try again.', 'error');
+    console.error('[DocAI] Could not save auto-filled profile values', err);
+    return;
+  }
 
   // Visual feedback
   docaiShowStatus(
@@ -1658,19 +1713,6 @@ function docaiAutoFill(profileUpdates) {
     'success'
   );
 
-  // If Arya AI is available, notify her
-  if (typeof AryaAI !== 'undefined' && AryaAI.ask) {
-    const income = profileUpdates.monthly_income;
-    if (income) {
-      const el = document.createElement('div');
-      document.body.appendChild(el);
-      AryaAI.dashboardBrief({
-        name: localStorage.getItem('finos_display_name') || 'Trader',
-        netWorth: 0, savingsRate: 0, healthScore: 0, anomalies: [],
-        customNote: `Just auto-filled monthly income ₹${parseInt(income).toLocaleString('en-IN')} from document.`
-      }, el);
-    }
-  }
 }
 </script>
 
@@ -1759,7 +1801,7 @@ function checkExpenseEngine(e) {
   init(); frame();
 })();
 </script>
-<script src="../js/ui.js" defer></script>
+<script src="../js/ui.js?v=5" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
 
@@ -1822,9 +1864,9 @@ function checkExpenseEngine(e) {
 [data-theme="light"] #tf-stars { opacity: 0.04 !important; }
 </style>
 
-  <script src="../js/finos-widget.js?v=10"></script>
+  <script src="../js/finos-widget.js?v=11"></script>
   <script src="../js/finos-mobile.js" defer></script>
-  <script src="../js/finos-search.js?v=5"></script>
+  <script src="../js/finos-search.js?v=6"></script>
 
 <script>
 /* ── Track Finances: FinosPersona injection ───────────────────── */
@@ -1839,9 +1881,12 @@ document.addEventListener('DOMContentLoaded', function () {
 window.toggleTFHub = function() {
   const body    = document.getElementById('tfHubBody');
   const chevron = document.getElementById('tfHubChevron');
+  const toggle  = document.getElementById('tfHubToggle');
+  if (!body) return;
   const open    = body.style.display !== 'none';
   body.style.display      = open ? 'none' : 'block';
   chevron.style.transform = open ? 'rotate(-90deg)' : 'rotate(0deg)';
+  if (toggle) toggle.setAttribute('aria-expanded', String(!open));
   localStorage.setItem('finos_tfhub_open', open ? '0' : '1');
 };
 
@@ -1851,8 +1896,10 @@ window.toggleTFHub = function() {
   if (saved === '0') {
     const body    = document.getElementById('tfHubBody');
     const chevron = document.getElementById('tfHubChevron');
+    const toggle  = document.getElementById('tfHubToggle');
     if (body)    body.style.display      = 'none';
     if (chevron) chevron.style.transform = 'rotate(-90deg)';
+    if (toggle) toggle.setAttribute('aria-expanded', 'false');
   }
 })();
 
@@ -1868,7 +1915,7 @@ function tfINR(n) {
 /* ── Command Hub: fill content on context ready ───────────────── */
 window.addEventListener('finos-context-ready', async function fillTFHub(e) {
   if (!['partial','full'].includes(e.detail?.phase)) return;
-  window.removeEventListener('finos-context-ready', fillTFHub);
+  if (e.detail.phase === 'full') window.removeEventListener('finos-context-ready', fillTFHub);
 
   const ctx = window.FINOS_USER_CONTEXT;
   if (!ctx) return;

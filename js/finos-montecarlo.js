@@ -99,49 +99,64 @@
     const rand = rng(c.seed);
     const norm = normalGen(rand);
 
+    // Everything that doesn't depend on the run is computed once. The RNG is still consumed in exactly the same
+    // order (inflation, market factor, then one idiosyncratic draw per asset), so results are unchanged.
+    const idio = betas.map((b) => Math.sqrt(1 - b * b));
+    const contribByYear = Array.from({ length: years }, (_, y) => c.monthlyContribution * 12 * Math.pow(1 + c.stepUp, y));
+    const start = c.assets.map((a) => Math.max(0, a.value));
+    const v = new Float64Array(n);            // reused across runs and years — no per-year allocation
+    const ret = new Float64Array(n);
+    const weights = new Float64Array(n);
+    const sum = () => { let t = 0; for (let i = 0; i < n; i++) t += v[i]; return t; };
+
     // terminal values per age index (0 = start, years = end), nominal and real
-    const nominal = Array.from({ length: years + 1 }, () => new Float64Array(runs));
-    const real = Array.from({ length: years + 1 }, () => new Float64Array(runs));
+    // (skipped when only the success rate is wanted — the solver's ~15 trials never read them)
+    const keep = !c.successOnly;
+    const nominal = keep ? Array.from({ length: years + 1 }, () => new Float64Array(runs)) : null;
+    const real = keep ? Array.from({ length: years + 1 }, () => new Float64Array(runs)) : null;
     const failAges = [];
     let successes = 0;
 
     for (let r = 0; r < runs; r++) {
-      const v = c.assets.map((a) => Math.max(0, a.value));
+      for (let i = 0; i < n; i++) v[i] = start[i];
       let cumInfl = 1;
       let expense = 0;                // nominal annual expense once retired
       let pension = c.pensionMonthlyAtRetire * 12;
-      let weights = null;
+      let haveWeights = false;
       let failed = false;
 
-      nominal[0][r] = v.reduce((s, x) => s + x, 0);
-      real[0][r] = nominal[0][r];
+      if (keep) { nominal[0][r] = sum(); real[0][r] = nominal[0][r]; }
 
       for (let y = 0; y < years; y++) {
         const age = c.startAge + y;
         const infl = Math.max(-0.02, c.inflation + c.inflationVol * norm());
         // Returns for this year
         const mkt = norm();
-        const ret = params.map((p, i) => Math.exp(p.mu + p.sigma * (betas[i] * mkt + Math.sqrt(1 - betas[i] * betas[i]) * norm())) - 1);
+        for (let i = 0; i < n; i++) {
+          const p = params[i];
+          ret[i] = Math.exp(p.mu + p.sigma * (betas[i] * mkt + idio[i] * norm())) - 1;
+        }
 
         if (age < c.retireAge) {
           // contribution first (start of year), allocated by current weights
-          const contrib = c.monthlyContribution * 12 * Math.pow(1 + c.stepUp, y);
-          const total = v.reduce((s, x) => s + x, 0);
+          const contrib = contribByYear[y];
+          const total = sum();
           for (let i = 0; i < n; i++) {
             const w = total > 0 ? v[i] / total : 1 / n;
             v[i] += contrib * w;
           }
         } else if (!failed) {
-          if (weights === null) {
-            const total = v.reduce((s, x) => s + x, 0);
-            weights = v.map((x) => (total > 0 ? x / total : 1 / n));
+          if (!haveWeights) {
+            const total = sum();
+            for (let i = 0; i < n; i++) weights[i] = total > 0 ? v[i] / total : 1 / n;
+            haveWeights = true;
             expense = c.monthlyExpenseToday * 12 * cumInfl;      // inflated to retirement date
           } else {
             expense *= 1 + infl;
             pension *= 1 + infl * c.pensionIndexation;
           }
           const need = Math.max(0, expense - pension);
-          const total = v.reduce((s, x) => s + x, 0);
+          const total = sum();
           if (total < need) {
             failed = true;
             failAges.push(age);
@@ -154,24 +169,28 @@
 
         if (!failed) for (let i = 0; i < n; i++) v[i] *= 1 + ret[i];
         cumInfl *= 1 + infl;
-        const t = v.reduce((s, x) => s + x, 0);
-        nominal[y + 1][r] = t;
-        real[y + 1][r] = t / cumInfl;
+        if (keep) {
+          const t = sum();
+          nominal[y + 1][r] = t;
+          real[y + 1][r] = t / cumInfl;
+        }
       }
       if (!failed) successes++;
     }
 
+    // The solver only needs the success rate; sorting 2×(years+1) arrays per trial was most of its cost.
+    // Each grid row is ours alone, so sort it in place instead of copying it first.
     const band = (grid) => grid.map((arr, i) => {
-      const s = Float64Array.from(arr).sort();
-      return { age: c.startAge + i, p10: percentile(s, 0.1), p25: percentile(s, 0.25), p50: percentile(s, 0.5), p75: percentile(s, 0.75), p90: percentile(s, 0.9) };
+      arr.sort();
+      return { age: c.startAge + i, p10: percentile(arr, 0.1), p25: percentile(arr, 0.25), p50: percentile(arr, 0.5), p75: percentile(arr, 0.75), p90: percentile(arr, 0.9) };
     });
 
     failAges.sort((a, b) => a - b);
     return {
       runs,
       successRate: successes / runs,
-      bands: band(nominal),
-      realBands: band(real),
+      bands: keep ? band(nominal) : null,
+      realBands: keep ? band(real) : null,
       depletion: failAges.length ? { p10Age: percentile(failAges, 0.1), medianAge: percentile(failAges, 0.5), count: failAges.length } : null,
       config: c,
     };
@@ -188,7 +207,7 @@
   function solveContribution(cfg, target, opts) {
     const goal = target === undefined ? 0.85 : target;
     let lo = 0, hi = Math.max(1000, (cfg.monthlyContribution || 0) * 10, (cfg.monthlyExpenseToday || 0) * 5);
-    const quick = Object.assign({}, cfg, { runs: (opts && opts.runs) || 1500 });
+    const quick = Object.assign({}, cfg, { runs: (opts && opts.runs) || 1500, successOnly: true });
     if (simulate(Object.assign({}, quick, { monthlyContribution: hi })).successRate < goal) return null;   // unreachable in range
     for (let i = 0; i < 14; i++) {
       const mid = (lo + hi) / 2;

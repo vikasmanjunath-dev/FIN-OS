@@ -79,6 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Cap at a reasonable daily max (₹14,000) so counter stays meaningful
     const MAX_DAILY_LEAK = 14000;
     const _leakInterval = setInterval(() => {
+        if (document.hidden) return;
         totalLeakValue = Math.min(totalLeakValue + 0.16, MAX_DAILY_LEAK);
         if (tickerValue) {
             tickerValue.innerText = `₹${totalLeakValue.toFixed(2)} DRAINED`;
