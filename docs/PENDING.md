@@ -43,6 +43,8 @@ Last updated: 2026-10-11. This is the working list: each item has a status. Item
 
 - **Hindi never applied on any calculator page.** The 76 calculators do not load `pwa-init.js`, which is what starts the translation engine, so a person who chose Hindi saw every calculator in English. `finos-widget.js` (on all of them) now starts it, once, and English visitors still never download it.
 
+- **Calendar showed only 2 upcoming renewals per subscription** for most of each month. `calendarEvents()` caps a subscription at 3 occurrences, and the cap was applied before the calendar dropped anything older than a week, so a passed renewal used up one of the three. The window now starts no earlier than that cut-off (`js/finos-calendar.js`). The matching test was date-dependent and failed from the 13th of any month; it now holds on any day.
+
 ## Known quirks (not scheduled)
 
 - `js/i18n/hi.js` is now ~280 KB (about 90 KB gzipped). It loads only for Hindi users and is cached, but it should be split by page group if it grows much more.

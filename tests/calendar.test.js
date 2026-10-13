@@ -46,6 +46,7 @@ test('subscriptions appear as typed "sub" events when finos-subscriptions.js is 
   assert.strictEqual(cal.collectEvents(3).filter((e) => e.type === 'sub').length, 0);
   delete require.cache[require.resolve('../js/finos-subscriptions.js')];
   globalThis.FinosSubscriptions = require('../js/finos-subscriptions.js');
+  // Whatever day this runs on, the next three monthly renewals must all be there (the cap is applied after the past-week cut-off).
   const subs = cal.collectEvents(4).filter((e) => e.type === 'sub');
   assert.ok(subs.length >= 3, 'expected ≥3 upcoming renewals, got ' + subs.length);
   assert.ok(subs.every((e) => e.title === 'Netflix renews' && e.amount === 649));

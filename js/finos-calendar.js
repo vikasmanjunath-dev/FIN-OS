@@ -157,7 +157,11 @@
   function collectSubscriptionEvents(fromDate, toDate) {
     const subs = global.FinosSubscriptions;
     if (!subs || !subs.calendarEvents) return [];
-    try { return subs.calendarEvents(subs.load(), isoDate(fromDate), isoDate(toDate)); } catch (e) { return []; }
+    // calendarEvents() caps each subscription at 3 renewals, so start no earlier than the grace window collectEvents() keeps;
+    // otherwise an already-passed renewal uses up one of the 3 and only 2 upcoming ones are left.
+    const floor = new Date(Date.now() - 7 * 86400000);
+    const start = fromDate > floor ? fromDate : floor;
+    try { return subs.calendarEvents(subs.load(), isoDate(start), isoDate(toDate)); } catch (e) { return []; }
   }
 
   /* ── Master collect ──────────────────────────────────────────────── */
