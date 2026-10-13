@@ -4085,7 +4085,7 @@ input[type=range]{accent-color:#ffb932;}
 
     <!-- Peer comparison -->
     <div class="card mb18">
-      <div class="card-h"><span class="card-ttl">🏆 Peer Comparison — vs Popular PMS / Model Portfolios</span></div>
+      <div class="card-h"><span class="card-ttl">🏆 Sector Mix Comparison</span><span style="font-size:10px;color:var(--dim)">Illustrative sample allocations only; not actual or current PMS holdings</span></div>
       <div class="card-p" id="pi-peer-grid"></div>
     </div>
 
@@ -4270,7 +4270,7 @@ input[type=range]{accent-color:#ffb932;}
         <div class="card-p" id="pi-neglected"></div>
       </div>
       <div class="card">
-        <div class="card-h"><span class="card-ttl">🔁 Redundancy Scanner</span><span style="font-size:11px;color:var(--dim)">Stocks also in your ETFs — double/triple exposure</span></div>
+        <div class="card-h"><span class="card-ttl">🔁 Redundancy Scanner</span><span style="font-size:11px;color:var(--dim)">Checks direct stocks against cached ETF top-holding lists; coverage is incomplete</span></div>
         <div class="card-p" id="pi-redundancy"></div>
       </div>
     </div>
@@ -4374,9 +4374,9 @@ input[type=range]{accent-color:#ffb932;}
       <div class="am-card" style="--card-accent:linear-gradient(90deg,#a78bfa,#6358ff)"><div class="am-metric-name">Information Ratio <span class="info-tip" title="Excess return / tracking error. >0.5 = strong">?</span></div><div class="am-val" id="qm-ir" style="color:var(--v2)">—</div><div class="am-sub" id="qm-ir-sub">Awaiting data...</div></div>
       <div class="am-card" style="--card-accent:linear-gradient(90deg,#38bdf8,#34d399)"><div class="am-metric-name">Jensen's Alpha <span class="info-tip" title="Return above CAPM expected. >0 = outperformance">?</span></div><div class="am-val" id="qm-alpha" style="color:var(--v3)">—</div><div class="am-sub" id="qm-alpha-sub">Awaiting data...</div></div>
       <div class="am-card" style="--card-accent:linear-gradient(90deg,#fbbf24,#f97316)"><div class="am-metric-name">Treynor Ratio <span class="info-tip" title="Excess return per unit of beta risk">?</span></div><div class="am-val" id="qm-treynor" style="color:var(--warn)">—</div><div class="am-sub" id="qm-treynor-sub">Awaiting data...</div></div>
-      <div class="am-card" style="--card-accent:linear-gradient(90deg,#34d399,#22d3ee)"><div class="am-metric-name">Active Share <span class="info-tip" title="% deviation from Nifty 50 benchmark weights">?</span></div><div class="am-val" id="qm-active" style="color:var(--go)">—</div><div class="am-sub" id="qm-active-sub">Awaiting data...</div></div>
+      <div class="am-card" style="--card-accent:linear-gradient(90deg,#34d399,#22d3ee)"><div class="am-metric-name">Active Share <span class="info-tip" title="Requires full portfolio weights and complete dated benchmark constituent weights">?</span></div><div class="am-val" id="qm-active" style="color:var(--go)">—</div><div class="am-sub" id="qm-active-sub">Awaiting data...</div></div>
       <div class="am-card" style="--card-accent:linear-gradient(90deg,#e879f9,#a78bfa)"><div class="am-metric-name">Tracking Error <span class="info-tip" title="Annualized std dev of portfolio - benchmark returns">?</span></div><div class="am-val" id="qm-te" style="color:#e879f9">—</div><div class="am-sub" id="qm-te-sub">Awaiting data...</div></div>
-      <div class="am-card" style="--card-accent:linear-gradient(90deg,#f43f5e,#fb7185)"><div class="am-metric-name">Beta (Realized) <span class="info-tip" title="Regression-based beta vs Nifty 50">?</span></div><div class="am-val" id="qm-beta-real" style="color:var(--stop)">—</div><div class="am-sub" id="qm-beta-sub">Awaiting data...</div></div>
+      <div class="am-card" style="--card-accent:linear-gradient(90deg,#f43f5e,#fb7185)"><div class="am-metric-name">Beta (Retrospective Proxy) <span class="info-tip" title="Regression of current largest-holding weights applied to historical price returns; not realized portfolio beta">?</span></div><div class="am-val" id="qm-beta-real" style="color:var(--stop)">—</div><div class="am-sub" id="qm-beta-sub">Awaiting data...</div></div>
       <div class="am-card" style="--card-accent:linear-gradient(90deg,#38bdf8,#6358ff)"><div class="am-metric-name">Sharpe Ratio <span class="info-tip" title="(Return - RFR) / Volatility. >1 = good">?</span></div><div class="am-val" id="qm-sharpe" style="color:var(--v3)">—</div><div class="am-sub" id="qm-sharpe-sub">Awaiting data...</div></div>
       <div class="am-card" style="--card-accent:linear-gradient(90deg,#34d399,#fbbf24)"><div class="am-metric-name">Sortino Ratio <span class="info-tip" title="Return / downside deviation only">?</span></div><div class="am-val" id="qm-sortino" style="color:var(--go)">—</div><div class="am-sub" id="qm-sortino-sub">Awaiting data...</div></div>
     </div>
@@ -4538,10 +4538,10 @@ input[type=range]{accent-color:#ffb932;}
 
     <!-- Feature 16: Rebalance Frequency Backtest -->
     <div class="card mb24">
-      <div class="card-h"><span class="card-ttl">📅 Rebalance Frequency Comparison</span><span style="font-size:11px;color:var(--dim)">Quarterly vs Annual vs Buy-and-Hold on your actual allocation — 5-year simulation</span></div>
+        <div class="card-h"><span class="card-ttl">📅 Illustrative Rebalance-Frequency Scenarios</span><span style="font-size:11px;color:var(--dim)">Quarterly vs annual vs buy-and-hold — assumption-driven simulation, not historical backtest</span></div>
       <div class="card-p">
         <div style="font-size:11px;color:var(--dim2);margin-bottom:14px;padding:10px 14px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--rim2);line-height:1.7">
-          Uses your actual portfolio holdings and target allocation. Each rebalance event incurs realistic transaction costs (STT, stamp, brokerage ≈ 0.12% per side). Drift is modelled using your holdings' realised P&L% as the expected annual return proxy.
+          Uses current weights. Reported total P&amp;L % is treated as an annual-return assumption because holding periods are unavailable; volatility uses sector-beta estimates and assumes zero correlation between holdings. NSE equity-delivery fees are estimated; BSE charges, MF exit loads, dividends, cash flows, and tax are excluded. Results are scenarios, not a historical backtest or forecast.
         </div>
         <div class="rbf-ctrl-row">
           <div class="mc-field"><label>Simulation Period</label><select class="mc-select" id="rbf-years"><option value="3">3 Years</option><option value="5" selected>5 Years</option><option value="10">10 Years</option></select></div>
@@ -4651,7 +4651,7 @@ input[type=range]{accent-color:#ffb932;}
     <!-- ② Risk Decomposition -->
     <div class="g2 mb24">
       <div class="card">
-        <div class="card-h"><span class="card-ttl">⚠️ Advanced Risk Decomposition</span><span style="font-size:11px;color:var(--dim)">Systematic · Idiosyncratic · Sector concentration</span></div>
+        <div class="card-h"><span class="card-ttl">⚠️ Risk & Exposure Inputs</span><span style="font-size:11px;color:var(--dim)">Concentration metrics are not risk-contribution percentages</span></div>
         <div class="card-p"><div class="ch" style="height:260px"><canvas id="ch-risk-decomp"></canvas></div></div>
       </div>
       <div class="card">
@@ -7737,13 +7737,13 @@ function computeSectorMap(mode){
   return {map, base, totalInvested};
 }
 
-// ══ BENCHMARK DATA — accurate as of Jan 2025 (NSE index factsheets) ══
-// Nifty50 sector weights — free-float market cap, Jan 2025
+// Approximate, dated sector-weight snapshots. Not live index factsheet data.
+// Nifty50 snapshot — free-float market cap, Jan 2025.
 const BENCH_NIFTY50 = {
-  'Financial Services':33.1,'Banking':33.1,'Insurance':3.2,'Diversified Financial':4.8,
+  'Financial Services':33.1,
   'Information Technology':12.8,
-  'Oil & Gas':10.2,'Energy':10.2,
-  'Consumer Goods':8.4,'FMCG':8.4,
+  'Oil & Gas':10.2,
+  'Consumer Goods':8.4,
   'Automobiles':6.1,'Auto Ancillary':1.8,
   'Pharmaceuticals':4.5,'Healthcare Services':1.4,
   'Engineering & Capital Goods':4.2,
@@ -7758,10 +7758,10 @@ const BENCH_NIFTY50 = {
 };
 // Nifty 500 (broader market) — approximate
 const BENCH_NIFTY500 = {
-  'Financial Services':29.5,'Banking':29.5,'Insurance':3.5,'Diversified Financial':5.0,
+  'Financial Services':29.5,
   'Information Technology':11.2,
-  'Oil & Gas':8.8,'Energy':8.8,
-  'Consumer Goods':7.2,'FMCG':7.2,
+  'Oil & Gas':8.8,
+  'Consumer Goods':7.2,
   'Automobiles':7.4,'Auto Ancillary':2.8,
   'Pharmaceuticals':6.2,'Healthcare Services':2.1,
   'Engineering & Capital Goods':6.0,
@@ -7803,10 +7803,10 @@ const SECTOR_CYCLE = {
 // Canonical sector name map for exact benchmark lookup
 const BENCH_ALIAS = {
   'banking':'Financial Services','bank':'Financial Services',
-  'nbfc':'Financial Services','finance':'Financial Services',
+  'nbfc':'Financial Services','finance':'Financial Services','insurance':'Financial Services','diversified financial':'Financial Services',
   'it':'Information Technology','tech':'Information Technology','software':'Information Technology',
   'oil':'Oil & Gas','gas':'Oil & Gas','energy':'Oil & Gas',
-  'fmcg':'FMCG','consumer staples':'Consumer Goods',
+  'fmcg':'Consumer Goods','consumer staples':'Consumer Goods',
   'auto':'Automobiles','automobile':'Automobiles','automotive':'Automobiles',
   'pharma':'Pharmaceuticals','healthcare':'Pharmaceuticals',
   'capital goods':'Engineering & Capital Goods','engineering':'Engineering & Capital Goods',
@@ -7817,7 +7817,6 @@ const BENCH_ALIAS = {
   'realty':'Real Estate','real estate':'Real Estate',
   'chemicals':'Specialty Chemicals',
   'discretionary':'Consumer Discretionary','retail':'Consumer Discretionary',
-  'insurance':'Insurance',
 };
 let ACTIVE_BENCH = 'nifty50'; // or 'nifty500'
 function getBenchData(){ return ACTIVE_BENCH==='nifty500' ? BENCH_NIFTY500 : BENCH_NIFTY50; }
@@ -7826,11 +7825,6 @@ function getBench(sec){
   if(bd[sec]!==undefined) return bd[sec];
   const sl = sec.toLowerCase().trim();
   if(BENCH_ALIAS[sl]) return bd[BENCH_ALIAS[sl]] ?? null;
-  // partial match — only exact word matches, no false positives
-  for(const [k,v] of Object.entries(bd)){
-    if(v>0 && sl.includes(k.toLowerCase())) return v;
-    if(v>0 && k.toLowerCase().includes(sl)) return v;
-  }
   return null;
 }
 // Compute HHI (Herfindahl-Hirschman Index) — 0 to 10000
@@ -7883,7 +7877,7 @@ function renderSectors(mode){
   const benchLabel = ACTIVE_BENCH==='nifty500' ? 'Nifty 500' : 'Nifty 50';
 
   document.getElementById('sec-sub').innerHTML =
-    `<span style="color:${mi.color}">${mi.icon} ${mi.label}</span> &nbsp;·&nbsp; Benchmark: <strong style="color:var(--v3)">${benchLabel}</strong>`;
+    `<span style="color:${mi.color}">${mi.icon} ${mi.label}</span> &nbsp;·&nbsp; Benchmark: <strong style="color:var(--v3)">${benchLabel}</strong> <span style="color:var(--dim)">· approximate sector weights; verify against current index factsheet</span>`;
 
   const totalInv  = Object.values(map).reduce((s,v)=>s+v.inv,0);
   const totalCurr = Object.values(map).reduce((s,v)=>s+v.curr,0);
@@ -8333,7 +8327,7 @@ function buildInsights(){
     const totalIdxInv=indexETFs.reduce((s,d)=>s+d.invested,0);
     warnings.push({level:'ylw',icon:'🔄',
       title:`ETF Overlap Detected — ${indexETFs.length} Broad Index ETFs (${fmtINR(totalIdxInv,true)})`,
-      text:`You hold ${indexETFs.map(d=>d.sym).join(', ')} — these all track similar indices (Nifty 50 / Sensex). They have 95%+ overlap! Consolidate into 1-2 best ones (lowest expense ratio). Holding multiples doesn't add diversification, just complicates taxes & tracking.`});
+      text:`You hold ${indexETFs.map(d=>d.sym).join(', ')}. These are classified as broad-market index ETFs, but constituent holdings and overlap percentages were not verified here. Compare their latest factsheets and tracking differences before consolidating; multiple funds can still track different indices.`});
   }
 
   const tips=[
@@ -9211,47 +9205,26 @@ document.addEventListener('click', function(e){
   rbApplyTemplate(tpl);
 });
 
-// ══ TRANSACTION COSTS — Zerodha Delivery ══
-// STT: 0.1% both sides | Stamp (buy only): 0.015% | DP (sell): ₹15.93 flat | SEBI: 0.0001%
-const TC_RATES = { stt:0.001, stamp_buy:0.00015, dp_sell:15.93, sebi:0.000001 };
-function txnCost(amt, side){
+// NSE equity-delivery estimate based on current published Zerodha charges.
+// BSE transaction charges differ; MF exit loads and fund-specific charges are not included.
+const TC_RATES = { stt:0.001, stamp_buy:0.00015, transaction_nse:0.0000307, dp_sell:15.34, sebi:0.000001, gst:0.18 };
+function txnCost(amt, side, holding=null){
   if(amt<=0) return 0;
+  if(holding?.source==='MF') return 0; // direct MF platform transaction fees are not modeled; exit loads excluded
   const stt   = amt * TC_RATES.stt;
   const stamp = side==='buy' ? amt * TC_RATES.stamp_buy : 0;
+  const transaction = amt * TC_RATES.transaction_nse;
   const dp    = side==='sell' ? TC_RATES.dp_sell : 0;
   const sebi  = amt * TC_RATES.sebi;
-  return +(stt + stamp + dp + sebi).toFixed(2);
+  const gst   = (transaction + sebi) * TC_RATES.gst;
+  return +(stt + stamp + dp + transaction + sebi + gst).toFixed(2);
 }
 
-// ══ TAX ENGINE (India FY2024-25 rules) ══
-// STCG: 20% if held < 12 months
-// LTCG: 12.5% above ₹1.25L if held >= 12 months
-// Heuristic: pnlPct > 30% very likely held >1yr (conservative). Labeled as estimate.
-// If pnl < 0: tax-loss harvestable (crystalise, wait 30 days, rebuy)
+// A portfolio snapshot has no acquisition lots/dates or financial-year realized gains.
+// It cannot establish holding period, cost basis by lot, or available Section 112A exemption.
 function taxImpact(d, sellAmt){
   if(!d || sellAmt<=0) return {label:'—',cost:0,type:'nobuy',harvestable:0,est:false};
-  const base = Math.max(d.currVal||d.invested, 1);
-  // Proportion of gain/loss attributable to the sell amount
-  const gainProp  = d.pnl>0 ? d.pnl/base : 0;
-  const lossProp  = d.pnl<0 ? Math.abs(d.pnl)/base : 0;
-  const pnlOnSell = gainProp  * sellAmt;
-  const lossOnSell= lossProp  * sellAmt;
-  if(pnlOnSell <= 0){
-    // Tax-loss: harvestable = full proportional loss amount
-    return {label:'Tax-loss',cost:0,type:'loss',harvestable:+lossOnSell.toFixed(0),est:false};
-  }
-  // LTCG heuristic: pnlPct > 35% → very likely >1yr; flag as estimate
-  const probLTCG = (d.pnlPct||0) > 35;
-  const rate = probLTCG ? 0.125 : 0.20;
-  const taxAmt = +(pnlOnSell * rate).toFixed(0);
-  return {
-    label:    probLTCG ? 'LTCG ~12.5%' : 'STCG ~20%',
-    cost:     taxAmt,
-    type:     probLTCG ? 'ltcg' : 'stcg',
-    harvestable: 0,
-    pnlOnSell,
-    est: true, // always flag as estimate (we don't know actual purchase date)
-  };
+  return {label:'Tax N/A · lots required',cost:null,type:'unknown',harvestable:null,est:true};
 }
 
 // ══ PRIORITY SCORE ENGINE — 0 to 100 ══
@@ -9313,8 +9286,7 @@ function applyTemplate(tpl, allData, totInv){
     _normalizeTargets(allData);
 
   } else if(tpl === 'riskparity'){
-    // Risk Parity: weight inversely proportional to sector volatility
-    // w_i ∝ 1/σ_i → equal risk contribution
+    // Inverse sector-volatility weighting heuristic; not equal risk contribution.
     const iv = allData.map(d => {
       const sec = normalizeSector(d.sector)||d.sector||'Other';
       return {sym:d.sym, v: 1/(SECTOR_VOL[sec]||25)};
@@ -9324,8 +9296,7 @@ function applyTemplate(tpl, allData, totInv){
     _normalizeTargets(allData);
 
   } else if(tpl === 'minvar'){
-    // Minimum Variance: weight ∝ 1/σ² (Markowitz-style, assuming zero correlation)
-    // Gives more weight to lowest-vol sectors — reduces portfolio variance
+    // Inverse sector variance proxy; ignores correlations and holding-level volatility.
     const iv = allData.map(d => {
       const sec = normalizeSector(d.sector)||d.sector||'Other';
       const vol = SECTOR_VOL[sec]||25;
@@ -9336,8 +9307,7 @@ function applyTemplate(tpl, allData, totInv){
     _normalizeTargets(allData);
 
   } else if(tpl === 'maxdiv'){
-    // Maximum Diversification: weight ∝ 1/(β × σ)
-    // Maximises ratio of weighted avg individual vols to portfolio vol
+    // Low beta-vol ranking proxy; not a maximum-diversification optimization.
     const iv = allData.map(d => {
       const sec  = normalizeSector(d.sector)||d.sector||'Other';
       const vol  = SECTOR_VOL[sec]||25;
@@ -9406,15 +9376,15 @@ function calcPortMetrics(holdings, targets, base){
   // Compute weight-normalized beta, vol, HHI, effective N, top sector
   let wBeta=0, wVol=0, totalW=0;
   const secW = {};
+  const base2 = targets
+    ? (Object.values(targets).reduce((s,v)=>s+v,0)||100)
+    : (base||1);
   holdings.forEach(d=>{
     const sec = normalizeSector(d.sector)||d.sector||'Other';
     const beta = SECTOR_BETA[sec]||1;
     const vol  = SECTOR_VOL[sec]||25;
     // Weight: from targets if provided, else from invested amount
     const rawW = targets ? (targets[d.sym]||0) : d.invested;
-    const base2 = targets
-      ? (Object.values(targets).reduce((s,v)=>s+v,0)||100)
-      : (base||1);
     const w = rawW / base2;
     wBeta  += beta * w;
     wVol   += vol  * w;
@@ -9432,9 +9402,6 @@ function calcPortMetrics(holdings, targets, base){
   let hhi = 0;
   holdings.forEach(d=>{
     const rawW = targets ? (targets[d.sym]||0) : d.invested;
-    const base2 = targets
-      ? (Object.values(targets).reduce((s,v)=>s+v,0)||100)
-      : (base||1);
     const w = rawW / base2;
     hhi += w * w * 10000;
   });
@@ -9457,31 +9424,36 @@ function calcPortMetrics(holdings, targets, base){
 function calcActiveShare(targets, base, benchData){
   const portSecW = {};
   const allH = [...EQ,...MF];
+  const canonical = sec => {
+    const s = (normalizeSector(sec) || sec || 'Other').trim();
+    if (['Banking','Insurance','Diversified Financial'].includes(s)) return 'Financial Services';
+    if (s === 'Energy') return 'Oil & Gas';
+    if (s === 'FMCG') return 'Consumer Goods';
+    return s;
+  };
   // Sum target weights per sector
   const totalTgt = Object.values(targets).reduce((s,v)=>s+v,0)||100;
   allH.forEach(d=>{
-    const sec = normalizeSector(d.sector)||'Other';
+    const sec = canonical(d.sector);
     portSecW[sec] = (portSecW[sec]||0) + ((targets[d.sym]||0)/totalTgt*100);
   });
   // Sum |port% - bench%| over all benchmark sectors
+  const benchmark = {};
+  Object.entries(benchData).forEach(([sec, weight]) => {
+    const key = canonical(sec);
+    benchmark[key] = (benchmark[key] || 0) + (Number(weight) || 0);
+  });
+  const benchTotal = Object.values(benchmark).reduce((s,v)=>s+v,0);
+  if (!benchTotal) return NaN;
   let sumAbsDiff = 0;
-  const allSecs = new Set([...Object.keys(benchData), ...Object.keys(portSecW)]);
+  const allSecs = new Set([...Object.keys(benchmark), ...Object.keys(portSecW)]);
   allSecs.forEach(sec=>{
     const pw = portSecW[sec] || 0;
-    const bw = benchData[sec] || 0;
+    const bw = (benchmark[sec] || 0) / benchTotal * 100;
     sumAbsDiff += Math.abs(pw - bw);
   });
   // Active Share = sumAbsDiff / 2 (overlap formula)
   return Math.min(100, sumAbsDiff / 2);
-}
-
-// Tracking Error estimate: TE ≈ ActiveShare × PortfolioVol × sqrt(252) / sqrt(252)
-// More precisely: TE ≈ σ_active where σ_active ≈ AS/100 × σ_portfolio (rough proxy)
-function calcTrackingError(activeShare, portfolioVol){
-  // portfolioVol is annual % (e.g. 25.0)
-  // ActiveShare 0–100
-  // TE (annual, %) ≈ activeShare/100 × portfolioVol × 0.8 (scaling factor for correlation)
-  return (activeShare/100 * portfolioVol * 0.8).toFixed(1);
 }
 
 // ══ DELTA BADGE HELPER ══
@@ -9512,7 +9484,8 @@ function buildRebalance(){
       RB_TARGETS[d.sym] = +(d.invested/totInv*100).toFixed(2);
   });
   // Remove stale keys
-  Object.keys(RB_TARGETS).forEach(k=>{ if(!all.find(d=>d.sym===k)) delete RB_TARGETS[k]; });
+  const currentSymbols = new Set(all.map(d=>d.sym));
+  Object.keys(RB_TARGETS).forEach(k=>{ if(!currentSymbols.has(k)) delete RB_TARGETS[k]; });
   // Normalize seed targets
   const seedTotal = all.reduce((s,d)=>s+(RB_TARGETS[d.sym]||0), 0);
   if(seedTotal > 0 && Math.abs(seedTotal-100) > 0.05)
@@ -9537,11 +9510,16 @@ function buildRebalance(){
   const curWeights  = Object.fromEntries(all.map(d=>[d.sym, +(d.invested/totInv*100).toFixed(2)]));
   const asPre   = calcActiveShare(curWeights, totInv, benchD);
   const asPost  = calcActiveShare(postTargets, effectiveBase, benchD);
-  const tePre   = calcTrackingError(asPre,  parseFloat(preMetrics.vol));
-  const tePost  = calcTrackingError(asPost, parseFloat(postMetrics.vol));
-
   // ── Calc trades ──
   function calcTrades(){
+    const buyShortfalls = all.map(d=>{
+      const rawDiff = (RB_TARGETS[d.sym]||0)/100*effectiveBase-d.invested;
+      const drift = (RB_TARGETS[d.sym]||0) - (effectiveBase>0?d.invested/effectiveBase*100:0);
+      return RB_MODE==='inject' && rawDiff>0 && drift>=0.3 ? rawDiff : 0;
+    });
+    const grossBuyGap = buyShortfalls.reduce((s,v)=>s+v,0);
+    const buyBudget = RB_MODE==='inject' ? RB_CASH/(1+txnCost(1000,'buy')/1000) : grossBuyGap;
+    const buyScale = grossBuyGap>0 ? Math.min(1,buyBudget/grossBuyGap) : 0;
     return all.map(d=>{
       const curAmt  = d.invested;
       const curPct  = effectiveBase > 0 ? curAmt/effectiveBase*100 : 0;
@@ -9554,18 +9532,18 @@ function buildRebalance(){
       const action0 = drift < 0.3 ? 'HOLD' : diff > 0 ? 'BUY' : 'SELL';
       // In inject mode: never sell — buy-only to reach targets
       const action  = (RB_MODE==='inject' && action0==='SELL') ? 'HOLD' : action0;
-      const finalDiff = (action==='HOLD' && action0==='SELL') ? 0 : diff;
+      const finalDiff = (action==='HOLD' && action0==='SELL') ? 0 : (RB_MODE==='inject' && action==='BUY' ? diff*buyScale : diff);
 
       // Skip trades below minimum size
       const absAmt  = Math.abs(finalDiff);
       const skipped = (action !== 'HOLD') && (absAmt < RB_MIN_TRADE);
       const effectiveAction = skipped ? 'HOLD' : action;
 
-      const txnC = skipped ? 0 : txnCost(absAmt, action==='BUY' ? 'buy' : 'sell');
+      const txnC = skipped ? 0 : txnCost(absAmt, action==='BUY' ? 'buy' : 'sell', d);
       const taxI = (effectiveAction==='SELL')
         ? taxImpact(d, absAmt)
         : {label:'—', cost:0, type:'nobuy', harvestable:0, est:false};
-      const netAmt = effectiveAction==='SELL' ? absAmt - txnC - taxI.cost : 0;
+      const netAmt = effectiveAction==='SELL' ? absAmt - txnC - (taxI.cost||0) : 0;
 
       const liq = (STOCK_LIQUIDITY && STOCK_LIQUIDITY[d.sym&&d.sym.toUpperCase()]) || 3;
       const t = {
@@ -9592,7 +9570,7 @@ function buildRebalance(){
     const totalBuy      = buys.reduce((s,t)=>s+t.diff, 0);
     const totalSell     = sells.reduce((s,t)=>s+Math.abs(t.diff), 0);
     const totalTxnCost  = activeTrades.reduce((s,t)=>s+t.txnC, 0);
-    const totalTaxCost  = sells.reduce((s,t)=>s+t.taxI.cost, 0);
+    const totalTaxCost  = sells.length ? null : 0;
     const totalHarvest  = sells.reduce((s,t)=>s+(t.taxI.harvestable||0), 0);
     const driftBreached = trades.filter(t=>t.drift > RB_DRIFT_BAND).length;
 
@@ -9755,8 +9733,8 @@ function buildRebalance(){
     html += `<div class="rb-strategy-card-hdr"><span>📐 Strategy Templates</span><button class="rb-tpl-reset" onclick="RB_TARGETS={};RB_TEMPLATE='custom';buildRebalance()">↺ Reset</button></div>`;
     html += '<div class="rb-tpl-row">';
     [
-      ['custom','✏ Custom'],['equal','⚖ Equal Wt'],['mktcap','📊 Mkt Value'],
-      ['riskparity','🛡 Risk Parity'],['minvar','📉 Min Variance'],['maxdiv','🌐 Max Diversif'],
+      ['custom','✏ Custom'],['equal','⚖ Equal Wt'],['mktcap','📊 Current Value'],
+      ['riskparity','🛡 Inv Sector Vol*'],['minvar','📉 Inv Sector Var*'],['maxdiv','🌐 Low β·Vol*'],
       ['6040','🏦 60/40'],['coresatellite','🎯 Core-Sat'],['nifty50bench','📈 Nifty50'],
     ].forEach(function(t){
       // SAFE: data-tpl attribute + event delegation — zero quoting issues
@@ -9765,9 +9743,9 @@ function buildRebalance(){
     html += '</div>';
     html += '<div class="rb-strategy-tips">';
     [
-      ['Risk Parity','w∝1/σ — equal marginal risk per holding'],
-      ['Min Variance','w∝1/σ² — minimises portfolio volatility (Markowitz)'],
-      ['Max Diversif','w∝1/(β·σ) — maximises diversification ratio'],
+      ['Inverse Sector Vol*','Heuristic based on sector volatility; not covariance-based risk parity.'],
+      ['Inverse Sector Variance*','Heuristic that assumes zero correlation; not an optimized minimum-variance portfolio.'],
+      ['Low Beta·Vol*','Simple ranking proxy; does not optimize the maximum-diversification ratio.'],
       ['Core-Satellite','70% index/bluechips + 30% high-conviction picks'],
       ['Nifty50 Aligned','Distribute benchmark sector weights across your stocks'],
     ].forEach(r=>{
@@ -9780,8 +9758,8 @@ function buildRebalance(){
       html += '<div class="rb-cash-panel">';
       html += '<div><div style="font-family:\'JetBrains Mono\',monospace;font-size:8px;font-weight:700;color:var(--go);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">💰 New Capital to Deploy</div>';
       html += '<div class="rb-cash-input-wrap"><span class="rb-cash-symbol">₹</span>';
-      html += `<input class="rb-cash-input" type="number" min="0" step="1000" value="${RB_CASH}" onchange="RB_CASH=parseFloat(this.value)||0;buildRebalance()" placeholder="0"></div></div>`;
-      html += `<div class="rb-cash-desc"><strong>Buy-only rebalancing</strong> — no sells = zero capital gains tax triggered.<br>Effective portfolio base: <strong style="color:var(--v2)">${fmtINR(effectiveBase,true)}</strong> = ${fmtINR(totInv,true)} + ${fmtINR(RB_CASH,true)} new capital.</div>`;
+      html += `<input class="rb-cash-input" type="number" min="0" step="1000" value="${RB_CASH}" onchange="RB_CASH=Math.max(0,Number.isFinite(parseFloat(this.value))?parseFloat(this.value):0);buildRebalance()" placeholder="0"></div></div>`;
+      html += `<div class="rb-cash-desc"><strong>Buy-only allocation</strong> — buy amounts are capped to the entered cash after estimated transaction charges; target weights remain the desired end-state.<br>Effective portfolio base: <strong style="color:var(--v2)">${fmtINR(effectiveBase,true)}</strong> = ${fmtINR(totInv,true)} + ${fmtINR(RB_CASH,true)} new capital.</div>`;
       html += '</div>';
     }
 
@@ -9866,10 +9844,10 @@ function buildRebalance(){
 
     // ── ACTIVE SHARE / TRACKING ERROR PANEL ──
     html += '<div class="rb-te-panel">';
-    html += `<div class="rb-te-card" style="--te-color:#6358ff"><div class="rb-te-lbl">Active Share — Current</div><div class="rb-te-val">${asPre.toFixed(1)}<span style="font-size:14px">%</span></div><div class="rb-te-sub">${asPre>60?'High conviction':asPre>40?'Blended':'Closet indexer'} vs Nifty50</div></div>`;
-    html += `<div class="rb-te-card" style="--te-color:#34d399"><div class="rb-te-lbl">Active Share — Proposed</div><div class="rb-te-val">${asPost.toFixed(1)}<span style="font-size:14px">%</span></div><div class="rb-te-sub">Δ ${rbDelta(asPre,asPost,null,1)} post-rebalance</div></div>`;
-    html += `<div class="rb-te-card" style="--te-color:#f97316"><div class="rb-te-lbl">Tracking Error — Current</div><div class="rb-te-val">${tePre}<span style="font-size:14px">%</span></div><div class="rb-te-sub">Est. annual active risk vs N50</div></div>`;
-    html += `<div class="rb-te-card" style="--te-color:#38bdf8"><div class="rb-te-lbl">Tracking Error — Proposed</div><div class="rb-te-val">${tePost}<span style="font-size:14px">%</span></div><div class="rb-te-sub">Δ ${rbDelta(tePre,tePost,false,1)} post-rebalance</div></div>`;
+    html += `<div class="rb-te-card" style="--te-color:#6358ff"><div class="rb-te-lbl">Sector Allocation Gap — Current</div><div class="rb-te-val">${asPre.toFixed(1)}<span style="font-size:14px">%</span></div><div class="rb-te-sub">Half the absolute sector-weight difference vs approximate Nifty50 weights.</div></div>`;
+    html += `<div class="rb-te-card" style="--te-color:#34d399"><div class="rb-te-lbl">Sector Allocation Gap — Proposed</div><div class="rb-te-val">${asPost.toFixed(1)}<span style="font-size:14px">%</span></div><div class="rb-te-sub">Sector-level proxy; ${RB_MODE==='inject'?'assumes target weights are fully reached, which cash-only buys may not achieve.':'security-level Active Share needs constituent weights.'}</div></div>`;
+    html += `<div class="rb-te-card" style="--te-color:#f97316"><div class="rb-te-lbl">Tracking Error — Current</div><div class="rb-te-val">N/A</div><div class="rb-te-sub">Requires aligned portfolio and benchmark return histories.</div></div>`;
+    html += `<div class="rb-te-card" style="--te-color:#38bdf8"><div class="rb-te-lbl">Tracking Error — Proposed</div><div class="rb-te-val">N/A</div><div class="rb-te-sub">Requires aligned portfolio and benchmark return histories.</div></div>`;
     html += '</div>';
 
     // ── SUMMARY SCORECARD ──
@@ -9878,8 +9856,8 @@ function buildRebalance(){
     html += `<div class="rb-sum-item" style="--rsc-color:var(--go)"><div class="rb-sum-lbl">Buy Needed</div><div class="rb-sum-val" style="color:var(--go)">+${fmtINR(totalBuy,true)}</div><div class="rb-sum-sub">${buys.length} position${buys.length!==1?'s':''}</div></div>`;
     if(RB_MODE==='rebalance') html += `<div class="rb-sum-item" style="--rsc-color:var(--stop)"><div class="rb-sum-lbl">Sell Needed</div><div class="rb-sum-val" style="color:var(--stop)">−${fmtINR(totalSell,true)}</div><div class="rb-sum-sub">${sells.length} position${sells.length!==1?'s':''}</div></div>`;
     html += `<div class="rb-sum-item" style="--rsc-color:${turnoverOver?'var(--stop)':'var(--warn)'}"><div class="rb-sum-lbl">1-Way Turnover</div><div class="rb-sum-val" style="color:${turnoverOver?'var(--stop)':'var(--warn)'}">${turnoverOneway.toFixed(1)}%</div><div class="rb-sum-sub">of portfolio (sells only)</div></div>`;
-    html += `<div class="rb-sum-item" style="--rsc-color:var(--warn)"><div class="rb-sum-lbl">Txn Costs</div><div class="rb-sum-val" style="color:var(--warn)">${fmtINR(totalTxnCost,true)}</div><div class="rb-sum-sub">STT · Stamp · DP · SEBI</div></div>`;
-    html += `<div class="rb-sum-item" style="--rsc-color:${totalTaxCost>0?'var(--stop)':'var(--go)'}"><div class="rb-sum-lbl">Est. Tax (≈)</div><div class="rb-sum-val" style="color:${totalTaxCost>0?'var(--stop)':'var(--go)'}">${totalTaxCost>0?fmtINR(totalTaxCost,true):'₹0'}</div><div class="rb-sum-sub">${sells.filter(t=>t.taxI.cost>0).length} taxable sell${sells.filter(t=>t.taxI.cost>0).length!==1?'s':''} (heuristic)</div></div>`;
+    html += `<div class="rb-sum-item" style="--rsc-color:var(--warn)"><div class="rb-sum-lbl">Est. Transaction Costs</div><div class="rb-sum-val" style="color:var(--warn)">${fmtINR(totalTxnCost,true)}</div><div class="rb-sum-sub">NSE equity rates; MF exit loads excluded</div></div>`;
+    html += `<div class="rb-sum-item" style="--rsc-color:${sells.length?'var(--warn)':'var(--go)'}"><div class="rb-sum-lbl">Tax Impact</div><div class="rb-sum-val" style="color:${sells.length?'var(--warn)':'var(--go)'}">${sells.length?'N/A':'₹0'}</div><div class="rb-sum-sub">${sells.length?'Purchase lots and dates required':'No sell orders'}</div></div>`;
     if(totalHarvest>0) html += `<div class="rb-sum-item" style="--rsc-color:#34d399"><div class="rb-sum-lbl">Harvestable Loss</div><div class="rb-sum-val" style="color:#34d399">${fmtINR(totalHarvest,true)}</div><div class="rb-sum-sub">est. tax saving ~₹${fmtINR(totalHarvest*0.20,true)}</div></div>`;
     html += `<div class="rb-sum-item" style="--rsc-color:${tgtOk?'var(--go)':'var(--warn)'}"><div class="rb-sum-lbl">Target Sum</div><div class="rb-sum-val" style="color:${tgtOk?'var(--go)':'var(--warn)'}">${totalTarget.toFixed(1)}%</div><div class="rb-sum-sub">${tgtOk?'✓ Balanced':'Adjust to 100%'}</div></div>`;
     html += '</div>';
@@ -9887,7 +9865,7 @@ function buildRebalance(){
     // ── ALERTS ──
     if(!tgtOk) html += `<div class="w-card ylw" style="margin-bottom:12px"><div class="w-ic">⚖</div><div><div class="w-ttl">Target Allocation ${totalTarget.toFixed(1)}% — Must Equal 100%</div><div class="w-txt">Adjust individual position targets or apply a strategy template to auto-normalize. Current deviation: ${(totalTarget-100).toFixed(1)}%.</div></div></div>`;
     if(driftBreached>0) html += `<div class="w-card ylw" style="margin-bottom:12px"><div class="w-ic">📐</div><div><div class="w-ttl">${driftBreached} Position${driftBreached!==1?'s':''} Past ±${RB_DRIFT_BAND}% Drift Band</div><div class="w-txt">${trades.filter(t=>t.drift>RB_DRIFT_BAND).map(t=>`<strong>${t.d.sym}</strong> (${t.diffPct>0?'+':''}${t.diffPct.toFixed(1)}%)`).join(' · ')}</div></div></div>`;
-    if(totalTaxCost>0) html += `<div class="w-card ylw" style="margin-bottom:12px"><div class="w-ic">💸</div><div><div class="w-ttl">Tax Alert — Est. ₹${fmtINR(totalTaxCost,true)} on ${sells.filter(t=>t.taxI.cost>0).length} sells (heuristic estimate)</div><div class="w-txt">${sells.filter(t=>t.taxI.type==='stcg').length?`<strong>STCG ~20%:</strong> ${sells.filter(t=>t.taxI.type==='stcg').map(t=>t.d.sym).join(', ')}. `:''}Switch to <strong>Deploy Cash</strong> mode to avoid triggering taxable sells.</div></div></div>`;
+    if(sells.length) html += `<div class="w-card ylw" style="margin-bottom:12px"><div class="w-ic">💸</div><div><div class="w-ttl">Tax impact unavailable for ${sells.length} proposed sale${sells.length===1?'':'s'}</div><div class="w-txt">This portfolio snapshot does not include acquisition lots, holding dates, or financial-year realized gains. Review tax impact with complete broker tax-lot data before placing sell orders.</div></div></div>`;
     if(turnoverOver) html += `<div class="w-card ylw" style="margin-bottom:12px"><div class="w-ic">⚠</div><div><div class="w-ttl">Turnover Budget Exceeded — ${turnoverTwoway.toFixed(1)}% vs ≤${RB_MAX_TURN}% limit</div><div class="w-txt">Widen the drift band or relax some targets to reduce unnecessary round-trips. High turnover increases cost drag on net returns.</div></div></div>`;
 
     // ══════════════════════════════════════
@@ -9895,7 +9873,7 @@ function buildRebalance(){
     // ══════════════════════════════════════
     if(RB_VIEW==='planner'){
       html += '<div class="rb-table-wrap">';
-      html += `<div class="rb-table-hdr"><span class="rb-table-title">📋 Position Rebalance Plan — ${all.length} holdings</span><div class="rb-table-legend"><span><span class="rb-legend-dot" style="background:rgba(99,88,255,0.65)"></span>Current</span><span><span class="rb-legend-dot" style="background:rgba(52,211,153,0.65)"></span>Target</span><span>Score = Priority 0–100</span><span style="color:var(--warn)">★Tax marked est. (no purchase date)</span></div></div>`;
+      html += `<div class="rb-table-hdr"><span class="rb-table-title">📋 Position Rebalance Plan — ${all.length} holdings</span><div class="rb-table-legend"><span><span class="rb-legend-dot" style="background:rgba(99,88,255,0.65)"></span>Current</span><span><span class="rb-legend-dot" style="background:rgba(52,211,153,0.65)"></span>Target</span><span>Priority is heuristic</span><span style="color:var(--warn)">Tax requires acquisition lots</span></div></div>`;
       html += '<div class="rb-col9 rb-head9"><div>Holding</div><div>Score</div><div>Current %</div><div>Target % ✏</div><div>Allocation Bars</div><div>Action</div><div>Drift</div><div>Tax · Liq</div><div>Amount</div></div>';
 
       sorted.forEach(t=>{
@@ -9950,7 +9928,7 @@ function buildRebalance(){
           sells.slice().sort((a,b)=>b.priority-a.priority).forEach(t=>{
             html += `<div class="rb-trade-row"><div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--v2)">${t.d.sym}</div><div style="font-size:9px;color:var(--dim)">${t.curPct.toFixed(1)}% → ${t.tgtPct.toFixed(1)}% · <span class="rb-tax ${t.taxI.type}">${t.taxI.label}${t.taxI.est?'*':''}</span></div></div><div style="text-align:right"><div style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--stop)">−${fmtINR(Math.abs(t.diff),true)}</div>${t.taxI.cost>0?`<div style="font-size:9px;color:var(--stop)">~Tax ₹${fmtINR(t.taxI.cost,true)}</div>`:''}${t.taxI.harvestable>0?`<div style="font-size:9px;color:#34d399">+Harvest ₹${fmtINR(t.taxI.harvestable,true)}</div>`:''}</div></div>`;
           });
-          html += `<div class="rb-trade-footer"><div class="rb-trade-footer-row"><span style="color:var(--dim)">Gross</span><strong style="color:var(--stop)">−${fmtINR(totalSell,true)}</strong></div><div class="rb-trade-footer-row"><span style="color:var(--dim)">Costs</span><strong style="color:var(--warn)">−${fmtINR(sells.reduce((s,t)=>s+t.txnC,0),true)}</strong></div><div class="rb-trade-footer-row"><span style="color:var(--dim)">Est. Tax</span><strong style="color:${totalTaxCost>0?'var(--stop)':'var(--go)'}">−${fmtINR(totalTaxCost,true)}*</strong></div></div>`;
+          html += `<div class="rb-trade-footer"><div class="rb-trade-footer-row"><span style="color:var(--dim)">Gross</span><strong style="color:var(--stop)">−${fmtINR(totalSell,true)}</strong></div><div class="rb-trade-footer-row"><span style="color:var(--dim)">Known transaction costs</span><strong style="color:var(--warn)">−${fmtINR(sells.reduce((s,t)=>s+t.txnC,0),true)}</strong></div><div class="rb-trade-footer-row"><span style="color:var(--dim)">Tax impact</span><strong style="color:${sells.length?'var(--warn)':'var(--go)'}">${sells.length?'N/A':'₹0'}</strong></div></div>`;
           html += '</div>';
         } else { html += '<div></div>'; }
         html += '</div>'; // g2
@@ -9977,8 +9955,8 @@ function buildRebalance(){
         ['HHI Concentration',String(preMetrics.hhi),'<1000=diversified, >2500=concentrated'],
         ['Effective N (1/HHI)',String(preMetrics.effN),'equiv. equal-weight positions'],
         ['Top Sector Weight',preMetrics.topSecPct.toFixed(1)+'%',preMetrics.topSec],
-        ['Active Share vs N50',asPre.toFixed(1)+'%',asPre>60?'High conviction':asPre>40?'Blended':'Closet indexer'],
-        ['Tracking Error',tePre+'%','est. annual active risk vs Nifty50'],
+        ['Sector Allocation Gap',asPre.toFixed(1)+'%','approximate sector-level proxy'],
+        ['Tracking Error','N/A','requires aligned return histories'],
       ].forEach(r=>{
         html += `<div class="rb-metric-row"><span class="rb-metric-lbl">${r[0]}</span><span class="rb-metric-val" style="color:var(--v2)">${r[1]} <span style="font-size:8px;color:var(--dim);font-weight:400">${r[2]}</span></span></div>`;
       });
@@ -9993,10 +9971,11 @@ function buildRebalance(){
         ['HHI Concentration',String(postMetrics.hhi),String(preMetrics.hhi),false],
         ['Effective N (1/HHI)',String(postMetrics.effN),String(preMetrics.effN),true],
         ['Top Sector Weight',postMetrics.topSecPct.toFixed(1)+'%',preMetrics.topSecPct.toFixed(1)+'%',false],
-        ['Active Share vs N50',asPost.toFixed(1)+'%',asPre.toFixed(1)+'%',null],
-        ['Tracking Error',tePost+'%',tePre+'%',false],
+        ['Sector Allocation Gap',asPost.toFixed(1)+'%',asPre.toFixed(1)+'%',null],
+        ['Tracking Error','N/A','requires aligned return histories',null],
       ].forEach(r=>{
-        html += `<div class="rb-metric-row"><span class="rb-metric-lbl">${r[0]}</span><span class="rb-metric-val" style="color:var(--go)">${r[1]} ${r[3]!==null?rbDelta(parseFloat(r[2]),parseFloat(r[1]),r[3],2):''}</span></div>`;
+        const showDelta = typeof r[3]==='boolean' && Number.isFinite(parseFloat(r[1])) && Number.isFinite(parseFloat(r[2]));
+        html += `<div class="rb-metric-row"><span class="rb-metric-lbl">${r[0]}</span><span class="rb-metric-val" style="color:var(--go)">${r[1]} ${showDelta?rbDelta(parseFloat(r[2]),parseFloat(r[1]),r[3],2):''}</span></div>`;
       });
       html += '</div>';
       html += '</div>'; // prepost
@@ -10057,34 +10036,20 @@ function buildRebalance(){
     if(RB_VIEW==='harvest'){
       const ltcgLimit = 125000;
       const ltcgUsed = sells.filter(t=>t.taxI.type==='ltcg').reduce((s,t)=>s+t.taxI.pnlOnSell,0);
-      html += '<div class="w-card blu" style="margin-bottom:16px"><div class="w-ic">🌿</div><div><div class="w-ttl">Tax-Loss Harvesting Engine</div><div class="w-txt">Identify positions with unrealised losses &#8594; sell to crystalise &#8594; offset STCG/LTCG gains this FY &#8594; rebuy after 30+ days. Harvestable: <strong style="color:#34d399">&#8377;'+fmtINR(totalHarvest,true)+'</strong> &middot; Est. STCG saving: <strong style="color:#34d399">&#8377;'+fmtINR(totalHarvest*0.20,true)+'</strong>. LTCG exemption &#8377;1.25L/FY. Current FY LTCG est: &#8377;'+fmtINR(ltcgUsed,true)+'.</div></div></div>';
-      html += '<div class="card mb18"><div class="card-h"><span class="card-ttl">🌿 Harvest Candidates — sorted by loss size</span><span style="font-size:10px;color:var(--dim)">★ All tax figures are estimates — consult a CA for exact computation</span></div><div style="overflow-x:auto"><table class="rb-harvest-tbl"><thead><tr><th>Symbol</th><th>Sector</th><th>Unrealised Loss</th><th>Loss %</th><th>Sell Amt</th><th>Est. Tax Saving (20%)</th><th>Action</th></tr></thead><tbody>';
+      html += '<div class="w-card blu" style="margin-bottom:16px"><div class="w-ic">🌿</div><div><div class="w-ttl">Tax-Loss Review — tax calculation unavailable</div><div class="w-txt">The upload contains holding-level P&amp;L but no acquisition lots, holding dates, or realized gains for this financial year. Harvestable loss and tax savings cannot be calculated safely. Use a broker tax-lot report and verify with a tax professional before selling.</div></div></div>';
+      html += '<div class="card mb18"><div class="card-h"><span class="card-ttl">🌿 Unrealized Loss Exposure — sorted by reported loss</span><span style="font-size:10px;color:var(--dim)">Snapshot P&amp;L only; no tax-saving estimate</span></div><div style="overflow-x:auto"><table class="rb-harvest-tbl"><thead><tr><th>Symbol</th><th>Sector</th><th>Reported Loss</th><th>Loss %</th><th>Proposed Sell</th><th>Tax Saving</th><th>Action</th></tr></thead><tbody>';
       if(harvestCandidates.length){
         harvestCandidates.slice(0,15).forEach(t=>{
           const lossAmt = Math.abs(t.d.pnl||0);
-          const harv = t.taxI.harvestable || (t.d.pnl<0 ? lossAmt : 0);
-          const saving = +(harv*0.20).toFixed(0);
           const inSell = t.action==='SELL';
-          html += `<tr><td><div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--v2)">${t.d.sym}</div></td><td style="font-size:9px;color:var(--dim)">${normalizeSector(t.d.sector)||'—'}</td><td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stop);font-weight:700">−${fmtINR(lossAmt,true)}</td><td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stop)">${(t.d.pnlPct||0).toFixed(1)}%</td><td style="font-family:'JetBrains Mono',monospace;font-size:11px">${inSell?`<span style="color:var(--stop)">−${fmtINR(Math.abs(t.diff||t.d.invested),true)}</span>`:'<span style="color:var(--dim)">Optional</span>'}</td><td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#34d399;font-weight:700">+₹${fmtINR(saving,true)}</td><td><div class="rb-wash">⚠ Rebuy 30+ days later. ETF substitute OK.</div></td></tr>`;
+          html += `<tr><td><div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--v2)">${t.d.sym}</div></td><td style="font-size:9px;color:var(--dim)">${normalizeSector(t.d.sector)||'—'}</td><td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stop);font-weight:700">−${fmtINR(lossAmt,true)}</td><td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--stop)">${(t.d.pnlPct||0).toFixed(1)}%</td><td style="font-family:'JetBrains Mono',monospace;font-size:11px">${inSell?`<span style="color:var(--stop)">−${fmtINR(Math.abs(t.diff||t.d.invested),true)}</span>`:'<span style="color:var(--dim)">Optional</span>'}</td><td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim)">N/A</td><td><div class="rb-wash">Review lot dates and realized gains first.</div></td></tr>`;
         });
       } else {
-        html += '<tr><td colspan="7" style="text-align:center;color:var(--dim);padding:24px;font-size:12px">🎉 No unrealised losses — portfolio fully in profit</td></tr>';
+        html += '<tr><td colspan="7" style="text-align:center;color:var(--dim);padding:24px;font-size:12px">No loss positions in the loaded portfolio snapshot.</td></tr>';
       }
       html += '</tbody></table></div></div>';
 
-      // India tax rules reference
-      html += '<div class="card mb18" style="padding:16px 20px"><div style="font-family:\'JetBrains Mono\',monospace;font-size:8px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px">📚 India Tax-Loss Harvest Rules (FY2024-25)</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">';
-      [
-        ['Step 1 — Identify','Screen unrealised losses. Sort by ₹ loss (not %). A ₹50K loss in a small position saves more tax than a 5% loss in a tiny one.'],
-        ['Step 2 — Sell','Crystalise the loss. Offsets STCG + LTCG this FY (STCL vs LTCG is allowed). Not offset against salary/business income.'],
-        ['Step 3 — Wait 30 Days','Mandatory wash-sale buffer. Buy a correlated sector ETF to maintain beta exposure during the wait.'],
-        ['Step 4 — Rebuy','Repurchase after 30+ days. New cost basis resets to current market price — permanently lowers future tax on gain.'],
-        ['LTCG Exemption ₹1.25L','Book up to ₹1.25L LTCG gains tax-free every FY. Sell+rebuy each year to "step-up" your cost basis tax-free.'],
-        ['Set-Off Rules','STCL offsets STCG + LTCG both. LTCL offsets LTCG only. Unabsorbed losses carry forward 8 years.'],
-      ].forEach(r=>{
-        html += `<div style="background:rgba(255,255,255,0.02);border:1px solid var(--rim);border-radius:10px;padding:12px 14px"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--v2);margin-bottom:6px">${r[0]}</div><div style="font-size:10px;color:var(--dim2);line-height:1.7">${r[1]}</div></div>`;
-      });
-      html += '</div></div>';
+      html += '<div class="card mb18" style="padding:16px 20px;color:var(--dim2);font-size:11px;line-height:1.7">Tax treatment depends on security type, acquisition lots, holding dates, realized gains/losses, and applicable financial-year rules. This planner does not model those inputs.</div>';
     }
 
     // ══════════════════════════════════════
@@ -10143,11 +10108,11 @@ function buildRebalance(){
         ['Gross Sell Proceeds', fmtINR(totalSell,true), 'var(--go)'],
         ['Gross Buy Required',  fmtINR(totalBuy,true),  'var(--stop)'],
         ['Transaction Costs',  fmtINR(totalTxnCost,true),'var(--warn)'],
-        ['Est. Tax (heuristic)',fmtINR(totalTaxCost,true),'var(--stop)'],
+        ['Tax Impact',sells.length?'N/A':'₹0','var(--warn)'],
         ['Harvestable Losses',  fmtINR(totalHarvest,true),'#34d399'],
-        ['Est. Tax Saving (20%)',fmtINR(totalHarvest*0.20,true),'#34d399'],
-        ['Net Portfolio Friction',fmtINR(totalTxnCost+totalTaxCost,true),'var(--dim2)'],
-        ['Friction as % of AUM', ((totalTxnCost+totalTaxCost)/(totInv||1)*100).toFixed(3)+'%','var(--dim2)'],
+        ['Tax Saving','N/A','var(--warn)'],
+        ['Known Transaction Costs',fmtINR(totalTxnCost,true),'var(--dim2)'],
+        ['Known Costs as % of AUM', (totalTxnCost/(totInv||1)*100).toFixed(3)+'%','var(--dim2)'],
       ].forEach(r=>{
         html += `<div class="rb-metric-row"><span class="rb-metric-lbl">${r[0]}</span><span class="rb-metric-val" style="color:${r[2]}">${r[1]}</span></div>`;
       });
@@ -10844,6 +10809,7 @@ async function claudeFetch(body) {
 
 let QUANT_DATA = {}; // stores fetched price histories
 let QUANT_BENCH = []; // Nifty 50 returns
+let QUANT_DATES = [];
 let QUANT_LOADED = false;
 let ACTIVE_STRAT = 'momentum';
 
@@ -10899,6 +10865,17 @@ function toReturns(prices) {
   return ret;
 }
 
+function toDatedReturns(prices) {
+  const out = [];
+  for (let i = 1; i < (prices || []).length; i++) {
+    const prev = prices[i - 1], cur = prices[i];
+    const p0 = Number(prev?.p), p1 = Number(cur?.p), t = Number(cur?.t);
+    if (Number.isFinite(p0) && p0 > 0 && Number.isFinite(p1) && Number.isFinite(t))
+      out.push([new Date(t).toISOString().slice(0, 10), (p1 - p0) / p0]);
+  }
+  return out;
+}
+
 function mean(arr) { return arr.length ? arr.reduce((s,x)=>s+x,0)/arr.length : 0; }
 function std(arr) { const m=mean(arr); return arr.length>1?Math.sqrt(arr.reduce((s,x)=>s+(x-m)**2,0)/(arr.length-1)):0; }
 function cov(a,b) { const ma=mean(a),mb=mean(b),n=Math.min(a.length,b.length); return n>1?a.slice(0,n).reduce((s,x,i)=>s+(x-ma)*(b[i]-mb),0)/(n-1):0; }
@@ -10920,10 +10897,14 @@ function toYFTicker(sym) {
 async function buildQuantIntelligence() {
   if(!EQ.length && !MF.length) return;
   try {
+  QUANT_DATA = {};
+  QUANT_BENCH = [];
+  QUANT_DATES = [];
+  QUANT_LOADED = false;
   document.getElementById('qhs-holdings').textContent = EQ.length + MF.length;
-  setFetchStatus('loading', 'Fetching real-time market data from Yahoo Finance...');
+  setFetchStatus('loading', 'Fetching live histories for the 12 largest equity holdings and Nifty 50...');
 
-  // Build ticker list: top 15 equity holdings by value + Nifty benchmark
+  // Use the 12 largest equity holdings to bound network cost; expose coverage explicitly.
   const topHoldings = [...EQ].sort((a,b)=>b.currVal-a.currVal).slice(0,12);
   const tickers = topHoldings.map(d => ({sym: d.sym, yf: toYFTicker(d.sym), holding: d}));
   const benchTicker = '^NSEI'; // Nifty 50
@@ -10939,9 +10920,7 @@ async function buildQuantIntelligence() {
     fetched++;
     setFetchStatus('loading', `Benchmark loaded. Fetching holdings...`, `${fetched}/${total}`);
   } else {
-    // Use estimated Nifty weekly returns if fetch fails
-    QUANT_BENCH = generateEstimatedBenchmarkReturns(104);
-    setFetchStatus('loading', `Using estimated benchmark. Fetching holdings...`, `0/${total}`);
+    setFetchStatus('loading', `Live benchmark unavailable. Fetching holdings...`, `0/${total}`);
   }
 
   // Fetch holdings in parallel batches — server /history first, CORS proxy fallback
@@ -10955,19 +10934,31 @@ async function buildQuantIntelligence() {
         fetched++;
         setFetchStatus('loading', `Loaded ${t.sym}...`, `${fetched}/${total}`);
       } else {
-        // Use P&L based simulation if live data unavailable
-        QUANT_DATA[t.sym] = {prices: null, returns: generateEstimatedReturns(t.holding, 104), holding: t.holding};
         fetched++;
       }
     }));
   }
 
-  QUANT_LOADED = true;
-  const dataCount = Object.values(QUANT_DATA).filter(d=>d.prices).length;
-  setFetchStatus('ok', `Live data loaded for ${dataCount} holdings. ${tickers.length-dataCount} estimated.`, `${fetched}/${total} fetched`);
-  document.getElementById('qfd-count').textContent = `${Object.keys(QUANT_DATA).length * 100}+ data points`;
-  document.getElementById('qhs-data-pts').textContent = (Object.keys(QUANT_DATA).length * 104).toLocaleString();
-  document.getElementById('qhs-proxy').textContent = dataCount > 0 ? `${dataCount} Live / ${tickers.length-dataCount} Est.` : 'Estimated';
+  const benchMap = new Map(toDatedReturns(benchData || []));
+  const dated = Object.values(QUANT_DATA).map(d=>({data:d, map:new Map(toDatedReturns(d.prices))}));
+  const sharedDates = dated.length && benchMap.size ? [...dated.reduce((set,item)=>new Set([...set].filter(date=>item.map.has(date))), new Set(benchMap.keys()))].sort() : [];
+  if (sharedDates.length < 8) {
+    QUANT_DATA = {};
+    QUANT_BENCH = [];
+    setFetchStatus('error', 'Insufficient common live benchmark and holding history. Statistical metrics are unavailable.', `${sharedDates.length} common observations`);
+    buildFullCorrelationMatrix();
+    return;
+  } else {
+    QUANT_DATES = sharedDates;
+    QUANT_BENCH = sharedDates.map(date=>benchMap.get(date));
+    dated.forEach(({data,map})=>{ data.returns=sharedDates.map(date=>map.get(date)); });
+    QUANT_LOADED = true;
+    const dataCount = dated.length;
+    setFetchStatus('ok', `Retrospective price-return proxy: current weights of the ${dataCount} largest holdings are applied across ${sharedDates.length} aligned weeks. This is not realized portfolio performance; smaller/unpriced holdings, dividends, and cash flows are excluded.`, `${fetched}/${total} fetched`);
+    document.getElementById('qfd-count').textContent = `${sharedDates.length} aligned observations`;
+    document.getElementById('qhs-data-pts').textContent = (dataCount * sharedDates.length).toLocaleString();
+    document.getElementById('qhs-proxy').textContent = `${dataCount} live · aligned`;
+  }
 
   // Run all computations
   computeAlphaMetrics();
@@ -10981,39 +10972,13 @@ async function buildQuantIntelligence() {
   renderDefaultMonteCarlo();
   } catch(err) {
     console.warn('[QuantIntelligence] Error:', err.message);
-    setFetchStatus('error', 'Live data fetch failed — using estimated data. Charts may be approximate.', '');
-    // Fallback: generate all estimated data so quant tab still shows something
-    try {
-      QUANT_BENCH = generateEstimatedBenchmarkReturns(104);
-      EQ.slice(0,12).forEach(d => {
-        QUANT_DATA[d.sym] = {prices:null, returns:generateEstimatedReturns(d, 104), holding:d};
-      });
-      QUANT_LOADED = true;
-      computeAlphaMetrics();
-      buildSignalsTab();
-      buildOptimizationTab();
-      buildStressTests();
-      buildCVaR();
-      buildFullCorrelationMatrix();
-    } catch(e2) { console.warn('[QuantIntelligence] Fallback also failed:', e2.message); }
+    QUANT_DATA = {};
+    QUANT_BENCH = [];
+    QUANT_DATES = [];
+    QUANT_LOADED = false;
+    setFetchStatus('error', 'Live data fetch failed. Statistical metrics are unavailable until verified histories load.', '');
+    buildFullCorrelationMatrix();
   }
-}
-
-// Generates estimated returns from P&L% and sector vol when live data unavailable
-function generateEstimatedReturns(holding, weeks) {
-  const annualReturn = holding.pnlPct / 100;
-  const weeklyMu = annualReturn / 52;
-  const sectorVol = SECTOR_VOL[holding.sector] || 25;
-  const weeklyVol = sectorVol / 100 / Math.sqrt(52);
-  const ret = [];
-  for(let i=0; i<weeks; i++) ret.push(weeklyMu + weeklyVol * randn());
-  return ret;
-}
-
-function generateEstimatedBenchmarkReturns(weeks) {
-  const mu = NIFTY_1Y_RET.pct/100/52; // Nifty annualized, converted to weekly
-  const vol = 18/100/Math.sqrt(52);
-  return Array.from({length:weeks}, () => mu + vol * randn());
 }
 
 // Box-Muller random normal
@@ -11084,13 +11049,6 @@ function computeAlphaMetrics() {
   // Treynor ratio (annualized)
   const treynor = betaVal ? (portMean / betaVal) * 52 * 100 : 0;
 
-  // Active Share: % portfolio weight in holdings NOT in Nifty 50 top components
-  const NIFTY50_SYMBOLS = ['RELIANCE','TCS','HDFCBANK','INFY','ICICIBANK','SBIN','KOTAKBANK','LT','AXISBANK','BAJFINANCE','ITC','HINDUNILVR','SUNPHARMA','WIPRO','BHARTIARTL','MARUTI','POWERGRID','TITAN','TECHM','NTPC'];
-  const eqHoldings = Object.values(QUANT_DATA);
-  const inNifty = eqHoldings.filter(d => NIFTY50_SYMBOLS.some(n => d.holding.sym.toUpperCase().includes(n)));
-  const notNifty = eqHoldings.filter(d => !NIFTY50_SYMBOLS.some(n => d.holding.sym.toUpperCase().includes(n)));
-  const activeSharePct = notNifty.reduce((s,d)=>s+d.holding.currVal,0)/totCurr*100;
-
   // Update UI
   const c = (v,hi,lo) => v>hi?'var(--go)':v<lo?'var(--stop)':'var(--warn)';
 
@@ -11100,23 +11058,23 @@ function computeAlphaMetrics() {
 
   document.getElementById('qm-alpha').textContent = (alphaAnn>=0?'+':'') + alphaAnn.toFixed(2) + '%';
   document.getElementById('qm-alpha').style.color = alphaAnn>0?'var(--go)':'var(--stop)';
-  document.getElementById('qm-alpha-sub').innerHTML = `R² = ${(r2*100).toFixed(0)}% | CAPM-adjusted outperformance`;
+  document.getElementById('qm-alpha-sub').innerHTML = `R² = ${(r2*100).toFixed(0)}% | retrospective current-weight price-return proxy`;
 
   document.getElementById('qm-treynor').textContent = treynor.toFixed(2) + '%';
   document.getElementById('qm-treynor').style.color = c(treynor,8,0);
   document.getElementById('qm-treynor-sub').innerHTML = `Return per unit of systematic risk (β)`;
 
-  document.getElementById('qm-active').textContent = activeSharePct.toFixed(1) + '%';
-  document.getElementById('qm-active').style.color = c(activeSharePct,60,30);
-  document.getElementById('qm-active-sub').innerHTML = activeSharePct>60?'Highly active — strong deviation from index':activeSharePct>30?'Moderately active portfolio':'Close to index — consider active bets';
+  document.getElementById('qm-active').textContent = 'N/A';
+  document.getElementById('qm-active').style.color = 'var(--dim)';
+  document.getElementById('qm-active-sub').textContent = 'Requires complete holdings and dated benchmark constituent weights.';
 
   document.getElementById('qm-te').textContent = teAnn.toFixed(2) + '%';
   document.getElementById('qm-te').style.color = teAnn<8?'var(--go)':teAnn<15?'var(--warn)':'var(--stop)';
-  document.getElementById('qm-te-sub').innerHTML = `Annualized | ${teAnn<8?'Low — near index-like':'High — very active'}`;
+  document.getElementById('qm-te-sub').innerHTML = `Annualized from aligned live histories for the largest tracked holdings only; not whole-portfolio tracking error.`;
 
   document.getElementById('qm-beta-real').textContent = betaVal.toFixed(2);
   document.getElementById('qm-beta-real').style.color = betaVal>1.3?'var(--stop)':betaVal>1.1?'var(--warn)':'var(--go)';
-  document.getElementById('qm-beta-sub').innerHTML = `OLS regression vs Nifty | R²=${(r2*100).toFixed(0)}%`;
+  document.getElementById('qm-beta-sub').innerHTML = `OLS on retrospective current-weight price returns vs Nifty | R²=${(r2*100).toFixed(0)}%`;
 
   document.getElementById('qm-sharpe').textContent = sharpeAnn.toFixed(2);
   document.getElementById('qm-sharpe').style.color = c(sharpeAnn,1,0);
@@ -12296,30 +12254,48 @@ function buildCVaR() {
 // ════ FULL CORRELATION MATRIX ════
 // ══════════════════════════════════════════════════════
 function buildFullCorrelationMatrix() {
-  const holdings = Object.values(QUANT_DATA);
-  if(holdings.length < 2) return;
+  const container = document.getElementById('corr-matrix-full');
+  const bestEl = document.getElementById('corr-best-pairs');
+  const worstEl = document.getElementById('corr-worst-pairs');
+  const holdings = Object.values(QUANT_DATA).filter(d=>d?.prices?.length>10 && d.holding?.sym);
+  if(holdings.length < 2) {
+    if(container) container.innerHTML='<div style="padding:16px;color:var(--dim)">Correlation requires at least two holdings with live price histories. Estimated series are excluded.</div>';
+    if(bestEl) bestEl.textContent='Insufficient live data.';
+    if(worstEl) worstEl.textContent='Insufficient live data.';
+    const scoreEl = document.getElementById('corr-div-score');
+    if(scoreEl) scoreEl.textContent='Diversification score unavailable — live return histories are required.';
+    return;
+  }
 
   const syms = holdings.map(d=>d.holding.sym);
   const n = syms.length;
-  const minLen = Math.min(...holdings.map(d=>d.returns.length));
+  const series = holdings.map(d=>new Map(toDatedReturns(d.prices)));
 
   // Build correlation table
   const corrMatrix = Array.from({length:n}, (_, i) =>
     Array.from({length:n}, (__, j) => {
       if(i===j) return 1;
-      return corr(holdings[i].returns.slice(0,minLen), holdings[j].returns.slice(0,minLen));
+      const dates = [...series[i].keys()].filter(date=>series[j].has(date)).sort();
+      if (dates.length < 8) return null;
+      const a = dates.map(date=>series[i].get(date)), b = dates.map(date=>series[j].get(date));
+      if (!std(a) || !std(b)) return null;
+      const value = corr(a,b);
+      return Number.isFinite(value) ? Math.max(-1, Math.min(1, value)) : null;
     })
   );
 
   // Render table
-  const shortSym = s => s.length > 10 ? s.slice(0,9)+'…' : s;
-  let html = `<table class="corr-full-table"><thead><tr><th></th>${syms.map(s=>`<th title="${s}">${shortSym(s)}</th>`).join('')}</tr></thead><tbody>`;
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const shortSym = s => esc(s.length > 10 ? s.slice(0,9)+'…' : s);
+  let html = `<table class="corr-full-table"><thead><tr><th></th>${syms.map(s=>`<th title="${esc(s)}">${shortSym(s)}</th>`).join('')}</tr></thead><tbody>`;
   corrMatrix.forEach((row, i) => {
     html += `<tr><td class="corr-row-label">${shortSym(syms[i])}</td>`;
     row.forEach((c, j) => {
+      if (!Number.isFinite(c)) {
+        html += '<td style="background:rgba(255,255,255,0.03);color:#68738f" title="Insufficient common live observations">—</td>';
+        return;
+      }
       const absC = Math.abs(c);
-      const isHigh = absC > 0.65 && i !== j;
-      const isLow  = absC < 0.30 && i !== j;
       const isDiag = i === j;
       let bg;
       if(isDiag) bg = 'rgba(99,88,255,0.25)';
@@ -12328,18 +12304,17 @@ function buildFullCorrelationMatrix() {
       else if(c > 0.2)  bg = `rgba(99,88,255,${(c*0.3).toFixed(2)})`;
       else               bg = `rgba(52,211,153,${(0.3-c*0.2).toFixed(2)})`;
       const color = (isDiag||c>0.4) ? '#fff' : '#aab4cf';
-      html += `<td style="background:${bg};color:${color}" title="${syms[i]} ↔ ${syms[j]}: ${c.toFixed(3)}">${isDiag?'1.00':c.toFixed(2)}</td>`;
+      html += `<td style="background:${bg};color:${color}" title="${esc(syms[i])} ↔ ${esc(syms[j])}: ${c.toFixed(3)}">${isDiag?'1.00':c.toFixed(2)}</td>`;
     });
     html += '</tr>';
   });
   html += '</tbody></table>';
-  const container = document.getElementById('corr-matrix-full');
   if(container) container.innerHTML = html;
 
   // Best/worst pairs
   const pairs = [];
   for(let i=0; i<n; i++) for(let j=i+1; j<n; j++) {
-    pairs.push({s1:syms[i], s2:syms[j], c:corrMatrix[i][j]});
+    if (Number.isFinite(corrMatrix[i][j])) pairs.push({s1:syms[i], s2:syms[j], c:corrMatrix[i][j]});
   }
   pairs.sort((a,b)=>a.c-b.c);
   const best  = pairs.slice(0,5);
@@ -12347,19 +12322,22 @@ function buildFullCorrelationMatrix() {
 
   const pairRow = (p, good) => `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--rim2)">
-      <div style="font-size:12px"><strong>${p.s1}</strong> <span style="color:var(--dim)">↔</span> <strong>${p.s2}</strong></div>
+      <div style="font-size:12px"><strong>${esc(p.s1)}</strong> <span style="color:var(--dim)">↔</span> <strong>${esc(p.s2)}</strong></div>
       <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:${good?'var(--go)':'var(--stop)'}">${p.c.toFixed(3)}</div>
     </div>`;
 
-  const bestEl = document.getElementById('corr-best-pairs');
-  const worstEl = document.getElementById('corr-worst-pairs');
-  if(bestEl) bestEl.innerHTML = best.length ? best.map(p=>pairRow(p,true)).join('') : '<div style="color:var(--dim);font-size:12px;padding:10px">All holdings are highly correlated.</div>';
-  if(worstEl) worstEl.innerHTML = worst.length ? worst.map(p=>pairRow(p,false)).join('') : '<div style="color:var(--go);font-size:12px;padding:10px">✅ No redundant pairs detected (all correlation &lt;0.65)</div>';
+  if(bestEl) bestEl.innerHTML = best.length ? best.map(p=>pairRow(p,true)).join('') : '<div style="color:var(--dim);font-size:12px;padding:10px">No pairs have enough overlapping live observations.</div>';
+  if(worstEl) worstEl.innerHTML = worst.length ? worst.map(p=>pairRow(p,false)).join('') : '<div style="color:var(--dim);font-size:12px;padding:10px">No qualifying live pair exceeds 0.65.</div>';
 
   // Diversification score
   const allOffDiag = pairs.map(p=>p.c);
+  if (!allOffDiag.length) {
+    const scoreEl = document.getElementById('corr-div-score');
+    if (scoreEl) scoreEl.innerHTML = '<div style="padding:18px;color:var(--dim)">No holding pairs have at least eight common live return observations; diversification score is unavailable.</div>';
+    return;
+  }
   const avgCorr = mean(allOffDiag);
-  const divScore = Math.round((1 - avgCorr) * 100);
+  const divScore = Math.max(0, Math.min(100, Math.round((1 - avgCorr) * 100)));
   const scoreColor = divScore > 60 ? 'var(--go)' : divScore > 40 ? 'var(--warn)' : 'var(--stop)';
   const scoreLabel = divScore > 70 ? 'Excellent diversification' : divScore > 50 ? 'Good diversification' : divScore > 30 ? 'Moderate — some overlap' : 'Low — high correlation risk';
   const divEl = document.getElementById('corr-div-score');
@@ -12739,44 +12717,22 @@ function frRenderFactorExposure(c) {
 
 // ── ③ Risk Decomposition ──
 function frRenderRiskDecomp(c) {
-  const {beta, stocks, totCV, secMap, fundMap} = c;
-  const {map:sm} = {map:secMap};
+  const {beta, stocks, totCV, secMap, fundMap, hasHistory} = c;
+  const chart = document.getElementById('ch-risk-decomp');
+  if (chart?.parentElement) chart.parentElement.innerHTML = '<div style="height:260px;display:flex;align-items:center;padding:12px;color:var(--dim);font-size:12px;line-height:1.7">A valid risk decomposition requires aligned live returns and a covariance model. This page does not have enough verified inputs to calculate risk contribution percentages, so no synthetic split is shown.</div>';
 
-  const systPct  = Math.round(Math.min(80, Math.max(5, beta*beta*45)));
-  const secVals  = Object.values(secMap);
-  const hhi      = secVals.reduce((s,v)=>s+Math.pow(v/totCV,2),0);
-  const secPct   = Math.round(Math.min(40, hhi*75));
-  const idioPct  = Math.max(5, 100-systPct-secPct);
-
-  mkChart('ch-risk-decomp',{
-    type:'doughnut',
-    data:{labels:['Systematic (Market Beta)','Sector Concentration','Idiosyncratic (Stock-specific)'],
-      datasets:[{data:[systPct,secPct,idioPct],
-        backgroundColor:['rgba(99,88,255,0.7)','rgba(251,191,36,0.7)','rgba(52,211,153,0.7)'],
-        borderColor:['rgba(99,88,255,0.9)','rgba(251,191,36,0.9)','rgba(52,211,153,0.9)'],
-        borderWidth:2,hoverOffset:8}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
-      plugins:{legend:{position:'bottom',labels:{color:'#8892b0',font:{size:11},padding:14}},
-        tooltip:{backgroundColor:'rgba(8,10,26,0.95)',borderWidth:1,borderColor:'rgba(99,88,255,0.3)',
-          callbacks:{label:c=>`${c.label}: ${c.raw}% of total risk`}}},
-      animation:{duration:900}}
-  });
-
-  // Live-weighted beta
+  // Exposure indicators; these are concentration statistics, not risk contributions.
   const topSec = Object.entries(secMap).sort((a,b)=>b[1]-a[1])[0];
   const stockHHI = [...EQ].reduce((s,d)=>s+Math.pow(d.currVal/totCV,2),0);
-  const avBeta = stocks.reduce((s,d)=>{const f=fundMap[d.sym];return s+(d.currVal/totCV)*(f.beta||1);},0);
   const avDE   = stocks.filter(d=>fundMap[d.sym].de!=null).reduce((s,d)=>s+(d.currVal/totCV)*(fundMap[d.sym].de||0),0);
 
   const el = document.getElementById('fr-risk-detail'); if(!el) return;
   el.innerHTML=[
-    {l:'Portfolio Beta (live-weighted)', v:avBeta.toFixed(3), sub:avBeta>1.2?'⚠️ Aggressive — high market sensitivity':avBeta>0.9?'📊 Moderate market exposure':'✅ Defensive — low market sensitivity', col:frRAG(avBeta,0.95,1.2)},
-    {l:'Systematic Risk Share',         v:systPct+'%',        sub:`β²=${(beta*beta).toFixed(3)} · R² from returns`, col:frV},
-    {l:'Sector Concentration (HHI)',    v:(hhi*100).toFixed(1), sub:hhi>0.25?'⚠️ High — top sector dominates':hhi>0.12?'Moderate spread':'✅ Well diversified across sectors', col:frRAG(hhi,0.12,0.25)},
-    {l:'Stock Concentration (HHI)',     v:(stockHHI*100).toFixed(1), sub:stockHHI>0.15?'⚠️ Top holdings dominate the portfolio':'✅ Reasonably balanced position sizes', col:frRAG(stockHHI,0.10,0.15)},
+    {l:'Portfolio Beta (historical)', v:hasHistory?beta.toFixed(3):'N/A', sub:hasHistory?'Regression estimate; see observation window in return metrics.':'Requires sufficient live aligned return history.', col:hasHistory?frRAG(beta,0.95,1.2):frV},
+    {l:'Sector Concentration (HHI)',    v:(Object.values(secMap).reduce((s,v)=>s+Math.pow(v/totCV,2),0)*100).toFixed(1), sub:'Exposure concentration indicator; not a share of total risk.', col:frV},
+    {l:'Stock Concentration (HHI)',     v:(stockHHI*100).toFixed(1), sub:'Exposure concentration indicator; not a share of total risk.', col:frV},
     {l:'Largest Sector Exposure',       v:topSec?((topSec[1]/totCV*100).toFixed(1)+'%'):'—', sub:topSec?topSec[0]:'', col:topSec&&topSec[1]/totCV>0.35?frStop:frGo},
     {l:'Avg Debt/Equity (live)',        v:avDE>0?avDE.toFixed(2)+'x':'N/A', sub:avDE>1.5?'⚠️ High leverage across holdings':avDE>0.8?'Moderate debt':'✅ Low leverage', col:avDE>0?frRAG(avDE,0.8,1.5):frV},
-    {l:'Idiosyncratic Risk',            v:idioPct+'%', sub:'Diversifiable through more holdings', col:frV3},
   ].map(r=>`<div class="fr-risk-row"><div class="fr-risk-label">${r.l}<div style="font-size:10px;color:var(--dim);margin-top:1px">${r.sub}</div></div><div class="fr-risk-val" style="color:${r.col}">${r.v}</div></div>`).join('');
 }
 
@@ -12784,18 +12740,8 @@ function frRenderRiskDecomp(c) {
 function frRenderRollingPerf(c) {
   const {portRets, benchRets, hasHistory, ddStats} = c;
   if(!hasHistory) {
-    // P&L proxy fallback
-    const eqInv=EQ.reduce((s,d)=>s+d.invested,0)||1;
-    const totalRet=(EQ.reduce((s,d)=>s+d.currVal,0)-eqInv)/eqInv*100;
-    const pts=12; const labels=Array.from({length:pts},(_,i)=>`M${i+1}`);
-    const portP=Array.from({length:pts},(_,i)=>+((totalRet/pts*(i+1))).toFixed(2));
-    const benchP=Array.from({length:pts},(_,i)=>+(14/pts*(i+1)).toFixed(2));
-    mkChart('ch-rolling-perf',{type:'line',data:{labels,datasets:[
-      {label:'Your Portfolio (P&L proxy)',data:portP,borderColor:'rgba(99,88,255,0.9)',backgroundColor:'rgba(99,88,255,0.08)',fill:true,tension:0.4,borderWidth:2.5,pointRadius:0},
-      {label:'Nifty 50 (est.)',data:benchP,borderColor:'rgba(56,189,248,0.6)',fill:false,tension:0.4,borderWidth:1.5,borderDash:[4,3],pointRadius:0}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,scales:{y:{ticks:{color:'#8892b0',font:{size:9},callback:v=>v+'%'}},x:{ticks:{color:'#8892b0',font:{size:9}}}},
-      plugins:{legend:{labels:{color:'#8892b0',font:{size:11}}},tooltip:{backgroundColor:'rgba(8,10,26,0.95)',borderWidth:1,borderColor:'rgba(99,88,255,0.3)'}}}});
+    const canvas = document.getElementById('ch-rolling-perf');
+    if(canvas?.parentElement) canvas.parentElement.innerHTML='<div style="height:260px;display:flex;align-items:center;padding:12px;color:var(--dim);font-size:12px;line-height:1.7">Rolling return and drawdown are unavailable until dated live histories are available for the tracked holdings and benchmark. A current P&amp;L snapshot is not a historical return series.</div>';
     return;
   }
 
@@ -12944,54 +12890,19 @@ function frRenderMomentumDecay(c) {
   }
 }
 
-// ── ⑧ Attribution Analysis (Brinson-Fachler, live data) ──
+// ── ⑧ Attribution Analysis ──
 function frRenderAttribution(c) {
-  const {stocks, totCV, secMap, fundMap} = c;
-  if(!stocks.length) return;
-
-  const secEntries = Object.entries(secMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  const allocEffect=[], selectEffect=[], secLabels=[];
-
-  secEntries.forEach(([sec, secCV])=>{
-    const wPort = secCV/totCV;
-    const wBench = (FR_NIFTY_SEC[sec]||2)/100;
-    // Benchmark sector return (from SECTOR_ALPHA or BENCH_RETS)
-    const rBench = frSectorBenchRet(sec);
-    const portAvgBenchRet = Object.entries(FR_NIFTY_SEC).reduce((s,[k,w])=>s+frSectorBenchRet(k)*w/100,0);
-    // Sector portfolio return = weighted-avg P&L of holdings in this sector
-    const secStocks = stocks.filter(d=>d.sector===sec);
-    const secInv = secStocks.reduce((s,d)=>s+d.invested,0)||1;
-    const rPort = secStocks.reduce((s,d)=>s+d.pnlPct*(d.invested/secInv),0);
-    const alloc = +((wPort-wBench)*(rBench-portAvgBenchRet)).toFixed(2);
-    const select= +((wPort)*(rPort-rBench)).toFixed(2);
-    allocEffect.push(alloc); selectEffect.push(select); secLabels.push(sec);
-  });
-
-  mkChart('ch-attribution',{...barCfg(secLabels,[
-    {label:'Allocation Effect',data:allocEffect,backgroundColor:'rgba(99,88,255,0.65)',borderRadius:4,borderSkipped:false},
-    {label:'Selection Effect', data:selectEffect,backgroundColor:'rgba(52,211,153,0.65)',borderRadius:4,borderSkipped:false},
-  ],{legend:true,ttCb:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y>=0?'+':''}${ctx.parsed.y.toFixed(2)}%`}}})});
-
-  const sumA=allocEffect.reduce((s,v)=>s+v,0), sumS=selectEffect.reduce((s,v)=>s+v,0);
-  const el=document.getElementById('fr-attribution-detail'); if(!el) return;
-  const bestAlloc = secLabels[allocEffect.indexOf(Math.max(...allocEffect))];
-  const bestSelect= secLabels[selectEffect.indexOf(Math.max(...selectEffect))];
-  const worstAlloc= secLabels[allocEffect.indexOf(Math.min(...allocEffect))];
-  el.innerHTML=[
-    {l:'Total Allocation Effect',v:frSign(sumA),sub:`Best: ${bestAlloc} · Worst: ${worstAlloc}`,col:sumA>=0?frGo:frStop},
-    {l:'Total Selection Effect (stock picking)',v:frSign(sumS),sub:`Best sector: ${bestSelect}`,col:sumS>=0?frGo:frStop},
-    {l:'Total Active Return vs Nifty',v:frSign(sumA+sumS),sub:'Allocation + Selection combined',col:(sumA+sumS)>=0?frGo:frStop},
-  ].map(r=>`<div class="fr-attrib-row" style="background:rgba(255,255,255,0.02);border:1px solid var(--rim2);border-radius:8px;padding:12px 16px;margin-bottom:8px;justify-content:space-between">
-    <div><div style="font-size:12px;color:var(--dim2)">${r.l}</div><div style="font-size:10px;color:var(--dim)">${r.sub}</div></div>
-    <div style="font-family:'Clash Display',sans-serif;font-size:22px;font-weight:700;color:${r.col}">${r.v}</div>
-  </div>`).join('');
+  const canvas=document.getElementById('ch-attribution');
+  if(canvas?.parentElement) canvas.parentElement.innerHTML='<div style="height:260px;display:flex;align-items:center;padding:12px;color:var(--dim);font-size:12px;line-height:1.7">Brinson-Fachler attribution is unavailable from this snapshot. It requires dated portfolio and benchmark sector weights and returns; unrealized P&amp;L and sector-level assumptions are not a valid substitute.</div>';
+  const el=document.getElementById('fr-attribution-detail');
+  if(el) el.innerHTML='<div style="padding:16px;color:var(--dim);font-size:12px">Allocation and selection effects are not calculated without aligned historical sector data.</div>';
 }
 
 // ── ⑨ Efficient Frontier ──
 function frRenderFrontier(c) {
   const {portRets, qHoldings, hasHistory, portRetAnn, beta} = c;
-  const portVol = hasHistory ? std(portRets)*Math.sqrt(52)*100 : (SECTOR_VOL[EQ[0]?.sector]||25);
-  const portRet = portRetAnn || (EQ.reduce((s,d)=>s+d.pnl,0)/Math.max(EQ.reduce((s,d)=>s+d.invested,0),1)*100);
+  const portVol = hasHistory ? std(portRets)*Math.sqrt(52)*100 : null;
+  const portRet = hasHistory ? portRetAnn : null;
 
   if(hasHistory && qHoldings.length>=3) {
     const minLen = Math.min(...qHoldings.map(d=>d.returns.length));
@@ -13037,17 +12948,9 @@ function frRenderFrontier(c) {
         <br><span style="font-size:10px;color:var(--dim)">Based on ${minLen} weeks of live return data · ${qHoldings.length} holdings</span>
       </div>`;
   } else {
-    // Fallback using live beta-vol estimate
-    const pts = EQ.filter(d=>d.type==='Stock').slice(0,15).map(d=>{const f=frFund(d.sym,d.sector);return{x:(f.beta||1)*(SECTOR_VOL[d.sector]||25),y:d.pnlPct,label:d.sym};});
-    mkChart('ch-frontier',{type:'scatter',data:{datasets:[
-      {label:'Holdings (Beta-scaled Vol)',data:pts,backgroundColor:'rgba(99,88,255,0.4)',borderColor:'rgba(99,88,255,0.7)',pointRadius:5},
-      {label:'Your Portfolio ⭐',data:[{x:portVol,y:portRet}],backgroundColor:'rgba(251,191,36,0.95)',borderColor:'#fbbf24',pointRadius:12,pointStyle:'star'},
-    ]},options:{responsive:true,maintainAspectRatio:false,
-      scales:{x:{ticks:{color:'#8892b0',font:{size:9},callback:v=>v+'%'},title:{display:true,text:'Estimated Volatility %',color:'#8892b0',font:{size:10}}},
-        y:{ticks:{color:'#8892b0',font:{size:9},callback:v=>v+'%'},title:{display:true,text:'P&L Return %',color:'#8892b0',font:{size:10}}}},
-      plugins:{legend:{labels:{color:'#8892b0',font:{size:11}}},tooltip:{backgroundColor:'rgba(8,10,26,0.95)',callbacks:{label:ctx=>{const i=ctx.dataIndex;return ctx.dataset.label==='Holdings (Beta-scaled Vol)'&&pts[i]?`${pts[i].label}: Vol ~${ctx.parsed.x.toFixed(1)}% | P&L ${ctx.parsed.y.toFixed(1)}%`:`Vol ${ctx.parsed.x.toFixed(1)}% | Ret ${ctx.parsed.y.toFixed(1)}%`;}}}},
-      animation:{duration:700}}});
-    const el=document.getElementById('fr-frontier-suggestion'); if(el) el.innerHTML=`<div style="padding:10px 14px;background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.15);border-radius:8px;font-size:11px;color:var(--dim2)">⚛️ Load live quant data for full mean-variance frontier. Showing beta-scaled estimate.</div>`;
+    const canvas=document.getElementById('ch-frontier');
+    if(canvas?.parentElement) canvas.parentElement.innerHTML='<div style="height:280px;display:flex;align-items:center;padding:12px;color:var(--dim);font-size:12px;line-height:1.7">Frontier unavailable. At least three holdings need sufficient aligned live return histories; snapshot P&amp;L and beta-scaled volatility are not substituted.</div>';
+    const el=document.getElementById('fr-frontier-suggestion'); if(el) el.textContent='No optimized frontier is shown without adequate return history.';
   }
 }
 
@@ -13294,13 +13197,12 @@ function runRebalFreqBacktest() {
     const annRet = (d.pnlPct || 0) / 100;           // actual realised return as proxy
     const annVol = beta * 0.18;                      // sector-scaled vol (18% market vol × beta)
     const wt     = (d.currVal||d.invested) / totCV;
-    return { sym: d.sym, wt, annRet, annVol, beta };
+    return { sym: d.sym, source:d.source||'EQ', wt, annRet, annVol, beta };
   });
 
   // Portfolio-level params
   const portRet = holdings.reduce((s,h) => s + h.wt * h.annRet, 0);
   const portVol = Math.sqrt(holdings.reduce((s,h) => s + (h.wt * h.annVol)**2, 0));
-  const TXNCOST = 0.0012;  // 0.12% per side (STT + stamp + brokerage)
   const STEPS_PER_YEAR = 52;  // weekly steps
   const totalSteps = years * STEPS_PER_YEAR;
   const dt = 1 / STEPS_PER_YEAR;
@@ -13332,11 +13234,14 @@ function runRebalFreqBacktest() {
       if(rebalFreqYears !== Infinity && t % stepsPerRebal === 0) {
         const targets = holdings.map(h => h.wt * val);
         let txn = 0;
-        holdingVals = holdingVals.map((v, i) => {
-          txn += Math.abs(targets[i] - v) * TXNCOST;
-          return targets[i];
+        holdingVals.forEach((v, i) => {
+          const delta = targets[i]-v;
+          if(delta>0) txn += txnCost(delta,'buy',holdings[i]);
+          else if(delta<0) txn += txnCost(-delta,'sell',holdings[i]);
         });
-        val -= txn;
+        const feeRatio = val>0 ? Math.min(0.99,txn/val) : 0;
+        holdingVals = targets.map(target=>target*(1-feeRatio));
+        val = holdingVals.reduce((s,v)=>s+v,0);
         totalTxn += txn;
         holdingVals = holdingVals.map(v => v * (val / holdingVals.reduce((s,x)=>s+x,0)));
       }
@@ -15947,12 +15852,12 @@ const SECTOR_SCENARIOS = {
   'Global Recession':{'Information Technology':-0.18,'Metals & Mining':-0.25,'Energy':-0.20,'FMCG':0.04,'Pharmaceuticals':0.02},
 };
 
-// PMS / Model portfolio sector allocation benchmarks
+// Illustrative sector allocations; not sourced from actual PMS portfolios.
 const PMS_PORTFOLIOS = [
-  {name:'Motilal Oswal PMS',color:'#38bdf8',allocs:{'Information Technology':28,'FMCG':12,'Consumer Goods':10,'Pharmaceuticals':8,'Financial Services':20,'Automobiles':10,'Others':12}},
-  {name:'HDFC AMC Model',color:'#a78bfa',allocs:{'Banking':32,'Information Technology':18,'FMCG':10,'Pharmaceuticals':8,'Energy':10,'Automobiles':8,'Others':14}},
-  {name:'Mirae Asset Growth',color:'#34d399',allocs:{'Information Technology':24,'Banking':20,'Consumer Goods':14,'Pharmaceuticals':12,'Automobiles':10,'Metals & Mining':8,'Others':12}},
-  {name:'Aggressive Growth',color:'#f97316',allocs:{'Metals & Mining':18,'Real Estate':14,'Defence & Aerospace':12,'Engineering & Capital Goods':12,'Automobiles':10,'Information Technology':14,'Others':20}},
+  {name:'Growth Mix A',color:'#38bdf8',allocs:{'Information Technology':28,'FMCG':12,'Consumer Goods':10,'Pharmaceuticals':8,'Financial Services':20,'Automobiles':10,'Others':12}},
+  {name:'Financials-Heavy Mix',color:'#a78bfa',allocs:{'Banking':32,'Information Technology':18,'FMCG':10,'Pharmaceuticals':8,'Energy':10,'Automobiles':8,'Others':14}},
+  {name:'Diversified Growth Mix',color:'#34d399',allocs:{'Information Technology':24,'Banking':20,'Consumer Goods':14,'Pharmaceuticals':12,'Automobiles':10,'Metals & Mining':8,'Others':12}},
+  {name:'High-Volatility Mix',color:'#f97316',allocs:{'Metals & Mining':18,'Real Estate':14,'Defence & Aerospace':12,'Engineering & Capital Goods':12,'Automobiles':10,'Information Technology':14,'Others':20}},
 ];
 
 // FUND_DB liquidity proxies (avg daily volume tier, 1=very liquid, 5=illiquid)
@@ -16860,18 +16765,29 @@ function piBuildBenchmarking(){
   // Peer comparison
   const peerEl=document.getElementById('pi-peer-grid');
   if(peerEl){
+    const peerSector = raw => {
+      const s=normalizeSector(raw)||raw||'Other';
+      if(['Banking','Insurance','Diversified Financial'].includes(s)) return 'Financial Services';
+      if(['FMCG','Consumer Goods'].includes(s)) return 'Consumer Goods';
+      if(s==='Energy') return 'Oil & Gas';
+      if(s==='Others') return 'Other';
+      return s;
+    };
     const mySecPct={};
     stocks.forEach(d=>{
-      const s=d.sector||'Others';
+      const s=peerSector(d.sector);
       mySecPct[s]=(mySecPct[s]||0)+d.invested/stockInv*100;
     });
     peerEl.innerHTML=`<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px">
     ${PMS_PORTFOLIOS.map(pms=>{
-      const overlapScore=Object.entries(pms.allocs).reduce((s,[sec,wgt])=>{
-        const mine=mySecPct[sec]||0;
-        return s+Math.min(mine,wgt);
-      },0);
-      const diff=Object.entries(pms.allocs).map(([sec,wgt])=>{
+      const pmsSec={};
+      Object.entries(pms.allocs).forEach(([sec,wgt])=>{const key=peerSector(sec);pmsSec[key]=(pmsSec[key]||0)+Number(wgt||0);});
+      const pmsTotal=Object.values(pmsSec).reduce((a,b)=>a+b,0)||1;
+      Object.keys(pmsSec).forEach(sec=>pmsSec[sec]=pmsSec[sec]/pmsTotal*100);
+      const sectors=new Set([...Object.keys(mySecPct),...Object.keys(pmsSec)]);
+      const overlapScore=[...sectors].reduce((s,sec)=>s+Math.min(mySecPct[sec]||0,pmsSec[sec]||0),0);
+      const diff=[...sectors].map(sec=>{
+        const wgt=pmsSec[sec]||0;
         const mine=mySecPct[sec]||0;
         const delta=mine-wgt;
         return {sec,mine:mine.toFixed(0),pms:wgt,delta};
@@ -16880,11 +16796,11 @@ function piBuildBenchmarking(){
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
           <div style="width:8px;height:8px;border-radius:50%;background:${pms.color}"></div>
           <span style="font-size:12px;font-weight:700;color:var(--txt)">${pms.name}</span>
-          <span style="margin-left:auto;padding:2px 8px;border-radius:4px;font-size:10px;background:rgba(99,88,255,0.1);color:var(--v2)">Overlap: ${overlapScore.toFixed(0)}%</span>
+          <span style="margin-left:auto;padding:2px 8px;border-radius:4px;font-size:10px;background:rgba(99,88,255,0.1);color:var(--v2)">Sector Mix Similarity: ${overlapScore.toFixed(0)}%</span>
         </div>
         ${diff.map(d=>`<div style="display:flex;align-items:center;gap:6px;margin:4px 0;font-size:11px">
           <span style="color:var(--dim2);min-width:110px">${d.sec.slice(0,16)}</span>
-          <span style="color:var(--dim)">PMS:${d.pms}%</span>
+          <span style="color:var(--dim)">Model:${d.pms.toFixed(1)}%</span>
           <span style="color:${d.delta>=0?'var(--go)':'var(--stop)'}"> Yours:${(+d.mine).toFixed(0)}% (${d.delta>=0?'+':''}${d.delta.toFixed(0)}%)</span>
         </div>`).join('')}
       </div>`;
@@ -17487,11 +17403,12 @@ function piBuildBehavioral(){
   const redEl=document.getElementById('pi-redundancy');
   if(redEl){
     const etfs=EQ.filter(d=>d.type==='ETF');
+    const knownEtfs=etfs.filter(etf=>Array.isArray(ETF_TOP_STOCKS[etf.sym])&&ETF_TOP_STOCKS[etf.sym].length);
     const redundancies=[];
     stocks.forEach(stock=>{
       etfs.forEach(etf=>{
         const etfHoldings=ETF_TOP_STOCKS[etf.sym]||[];
-        if(etfHoldings.includes(stock.sym)){
+        if(etfHoldings.includes(String(stock.sym).replace(/-EQ$/i,''))){
           redundancies.push({stock:stock.sym,etf:etf.sym,stockVal:stock.currVal,etfVal:etf.currVal});
         }
       });
@@ -17503,16 +17420,16 @@ function piBuildBehavioral(){
     });
     const unique=Object.values(byStock);
     redEl.innerHTML=unique.length?`
-      <div style="font-size:11px;color:var(--dim);margin-bottom:10px">${unique.length} stock${unique.length>1?'s':''} already present in your ETFs — you have amplified exposure.</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:10px">${unique.length} direct holding${unique.length>1?'s':''} matched the cached ETF top-holding snapshot. Coverage: ${knownEtfs.length}/${etfs.length} held ETF${etfs.length===1?'':'s'}; indirect exposure amounts are not calculated.</div>
       <div style="max-height:200px;overflow-y:auto">
       ${unique.map(r=>`<div style="padding:8px;border:1px solid rgba(251,191,36,0.2);border-radius:8px;margin-bottom:6px;background:rgba(251,191,36,0.04)">
         <div style="font-size:12px;font-weight:700;color:var(--txt)">${r.stock}</div>
         <div style="font-size:10px;color:var(--warn)">Also in ETFs: ${r.etfs.join(', ')}</div>
-        <div style="font-size:10px;color:var(--dim)">Direct: ${fmtINR(r.stockVal,true)} + indirect via ETFs = triple exposure</div>
+        <div style="font-size:10px;color:var(--dim)">Direct holding: ${fmtINR(r.stockVal,true)} · additional ETF exposure amount unavailable</div>
       </div>`).join('')}
       </div>
       <div style="margin-top:8px;font-size:11px;color:var(--dim)">💡 Not necessarily bad — but be aware of true concentration.</div>`
-      :`<div style="color:var(--go);font-size:12px">✅ No direct overlap detected between your stocks and ETF holdings.</div>`;
+      :`<div style="color:var(--dim2);font-size:12px">No overlap found in the available constituent snapshot. This is inconclusive: ${knownEtfs.length}/${etfs.length} held ETFs have cached constituent data and the lists contain only selected holdings.</div>`;
   }
 
   // Disposition effect chart (winners vs losers by bucket)
