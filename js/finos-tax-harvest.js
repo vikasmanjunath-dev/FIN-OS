@@ -38,6 +38,7 @@ window.FinosTaxHarvest = (function () {
   const LTCG_EXEMPT = 125000;  // ₹1.25L
   const LTCG_RATE   = 0.125;   // 12.5%
   const STCG_RATE   = 0.20;    // 20%
+  const CESS        = 0.04;    // health & education cess is charged on top of the tax (surcharge on these gains is capped at 15% and depends on income, so it is not guessed here)
 
   /* ── Positions storage ──────────────────────────────────────────── */
   const POSITIONS_KEY = 'finos_harvest_positions';
@@ -80,12 +81,12 @@ window.FinosTaxHarvest = (function () {
   function _taxOnGain(gainType, gain, slabRate) {
     if (gainType === 'ltcg') {
       const taxable = Math.max(0, gain - LTCG_EXEMPT);
-      return Math.round(taxable * LTCG_RATE);
+      return Math.round(taxable * LTCG_RATE * (1 + CESS));
     }
     if (gainType === 'stcg') {
-      return Math.round(Math.max(0, gain) * STCG_RATE);
+      return Math.round(Math.max(0, gain) * STCG_RATE * (1 + CESS));
     }
-    return Math.round(Math.max(0, gain) * (slabRate / 100));
+    return Math.round(Math.max(0, gain) * (slabRate / 100) * (1 + CESS));
   }
 
   function _analysePositions(positions, existingLTCG, existingSTCG) {
@@ -245,7 +246,7 @@ window.FinosTaxHarvest = (function () {
           </div>
         </div>
         <div style="margin-top:6px;padding:6px 10px;background:rgba(255,107,107,.06);border-radius:8px;font-size:11px;color:var(--text-muted);">
-          Book loss → reduce taxable ${p.isLong?'LTCG':'STCG'} by ${fmt(p.absoluteGain)} → save ${INR(Math.round(p.absoluteGain * (p.isLong ? LTCG_RATE : STCG_RATE)))}
+          Book loss → reduce taxable ${p.isLong?'LTCG':'STCG'} by ${fmt(p.absoluteGain)} → worth up to ${INR(Math.round(p.absoluteGain * (p.isLong ? LTCG_RATE : STCG_RATE) * (1 + CESS)))} in tax (only on gains above the exemption)
         </div>
       </div>`).join('')}
     <div style="margin-top:12px;padding:10px;background:rgba(255,107,107,.05);border-radius:10px;font-size:11px;color:var(--text-muted);">

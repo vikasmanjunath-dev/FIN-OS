@@ -358,6 +358,15 @@ export default function DashboardScreen() {
           onPress={() => open('/tools/rebalance')}
         />
         <MetricCard
+          label="Tax harvesting"
+          value="Use losses, free gains"
+          sub="cut tax before March"
+          accent={Colors.gold}
+          icon="🍂"
+          style={styles.gridHalf}
+          onPress={() => open('/tracker/harvest')}
+        />
+        <MetricCard
           label="Windfall allocator"
           value="Bonus, RSU, sale"
           sub="where a lump sum goes first"
