@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { View } from 'react-native';
+import { AppState, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-url-polyfill/auto';
 import { Colors } from '@/constants/theme';
@@ -12,6 +12,7 @@ import { syncRecurring } from '@/lib/recurringStorage';
 import { startTrackerSync } from '@/lib/trackerSyncStore';
 import { installLanguagePatch } from '@/lib/i18nPatch';
 import { loadLang } from '@/lib/i18n';
+import { syncReminders } from '@/lib/remindersStorage';
 
 installLanguagePatch();     // every <Text> shows the person's language; no screen needs editing
 
@@ -23,7 +24,10 @@ export default function RootLayout() {
     syncRecurring();
     startTrackerSync();
     loadLang();
+    syncReminders().catch(() => {});
+    const sub = AppState.addEventListener('change', st => { if (st === 'active') syncReminders().catch(() => {}); });
     loadSavedHost().finally(() => SplashScreen.hideAsync());
+    return () => sub.remove();
   }, []);
 
   return (

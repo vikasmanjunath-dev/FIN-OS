@@ -97,7 +97,7 @@ export default function CalendarScreen() {
         <Bullet>SIPs you track (the Portfolio tab's monthly SIP amounts sit on the 1st unless a debit day is saved), deposit maturities, insurance renewal dates, goal dates, subscription renewals and trial endings, and the income-tax calendar.</Bullet>
         <Bullet>Tax dates are the statutory defaults for individuals without an audit. The government sometimes extends them, so check the Income Tax portal before relying on a date.</Bullet>
         <Bullet>Loan EMIs are shown as a monthly total; they are not placed on a day because the app does not know your debit date.</Bullet>
-        <Bullet>There are no phone notifications yet. The app asks for no notification permission today, so dates show here when you open it. Adding reminders is a deliberate next step that would need that permission.</Bullet>
+        <Bullet>Reminders are optional and off by default. Turn them on in Settings to get a notice on this phone before things are due. They are scheduled on the device and nothing is sent to a server.</Bullet>
       </Collapsible>
     </TrackerScreen>
   );

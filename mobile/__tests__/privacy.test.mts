@@ -47,13 +47,17 @@ test('the app code references no external host the notice does not cover', () =>
   assert.deepEqual(offenders, [], 'new hosts need a flow in lib/privacy.ts');
 });
 
-test('app.json asks for no phone permission beyond the network (no mic, camera or speech)', () => {
+test('app.json asks only for the network and local notifications (no mic, camera, speech, location or push token)', () => {
   const app = JSON.parse(read('app.json')).expo;
-  assert.deepEqual(app.android.permissions, ['android.permission.INTERNET']);
+  assert.deepEqual(app.android.permissions, ['android.permission.INTERNET', 'android.permission.POST_NOTIFICATIONS']);
   assert.deepEqual(Object.keys(app.ios.infoPlist ?? {}), []);
   const plugins = (app.plugins as any[]).map(p => (Array.isArray(p) ? p[0] : p));
   assert.ok(!plugins.includes('expo-av'), 'expo-av adds a microphone permission');
-  assert.deepEqual(privacy.PERMISSIONS, ['Internet access']);
+  assert.deepEqual(privacy.PERMISSIONS, ['Internet access', 'Notifications (only if you turn reminders on)']);
+  // Reminders are scheduled on the device. Requesting a push token would send an identifier to a push service.
+  for (const f of [...sources('app'), ...sources('components'), ...sources('hooks'), ...sources('lib')]) {
+    assert.ok(!/getExpoPushTokenAsync|getDevicePushTokenAsync|addPushTokenListener/.test(read(f)), `${f} requests a push token`);
+  }
 });
 
 test('no analytics, advertising or crash-reporting SDK is a dependency', () => {

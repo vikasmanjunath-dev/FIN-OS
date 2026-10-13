@@ -9,6 +9,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useHoldings } from '@/hooks/useHoldings';
 import { useTrackerSync } from '@/hooks/useTrackerSync';
 import { LANGUAGES, setLang, useLang } from '@/lib/i18n';
+import { DEFAULT_PREFS, HOURS, type ReminderPrefs } from '@/lib/reminders';
+import { loadPrefs, savePrefs, syncReminders } from '@/lib/remindersStorage';
+import { getPermission, requestPermission, cancelAll, type Permission } from '@/lib/remindersNative';
 
 function SettingRow({ label, sub, right }: { label: string; sub?: string; right: React.ReactNode }) {
   return (
@@ -31,6 +34,26 @@ export default function SettingsScreen() {
   const [income, setIncome]       = useState('');
   const [hostIP, setHostIP]       = useState('');
   const [saving, setSaving]       = useState(false);
+  const [rem, setRem]             = useState<ReminderPrefs>({ ...DEFAULT_PREFS });
+  const [perm, setPerm]           = useState<Permission>('undetermined');
+  const [remMsg, setRemMsg]       = useState('');
+
+  React.useEffect(() => { loadPrefs().then(setRem); getPermission().then(setPerm); }, []);
+
+  const changeRem = async (next: ReminderPrefs) => {
+    setRem(next);
+    await savePrefs(next);
+    const r = await syncReminders();
+    setRemMsg(!next.enabled ? '' : r.scheduled > 0 ? `${r.scheduled} reminder${r.scheduled === 1 ? '' : 's'} scheduled on this device.` : 'Nothing is due in the next few weeks, so nothing is scheduled yet.');
+  };
+  const toggleReminders = async () => {
+    Haptics.selectionAsync();
+    if (rem.enabled) { await changeRem({ ...rem, enabled: false }); await cancelAll(); setRemMsg(''); return; }
+    const p = perm === 'granted' ? 'granted' : await requestPermission();
+    setPerm(p);
+    if (p === 'granted') { await changeRem({ ...rem, enabled: true }); return; }
+    setRemMsg(p === 'unsupported' ? 'Reminders are only available in the phone app.' : 'Notifications are turned off for FIN·OS. Turn them on in your phone\'s settings, then try again.');
+  };
 
   const loadValues = useCallback(async () => {
     const pairs = await AsyncStorage.multiGet([
@@ -63,6 +86,8 @@ export default function SettingsScreen() {
       {
         text: 'Clear', style: 'destructive', onPress: async () => {
           await AsyncStorage.clear();
+          await cancelAll();
+          setRem({ ...DEFAULT_PREFS });
           Alert.alert('Done', 'All data cleared.');
         },
       },
@@ -97,6 +122,50 @@ export default function SettingsScreen() {
             </View>
           }
         />
+      </View>
+
+      {/* ── Reminders ── */}
+      <Text style={styles.sectionLabel}>REMINDERS</Text>
+      <View style={styles.card}>
+        <SettingRow
+          label="Remind me before things are due"
+          sub="SIP debits, deposit maturities, insurance renewals, subscriptions, goal dates and tax deadlines from your Calendar. Scheduled on this device only: nothing is sent to a server."
+          right={
+            <TouchableOpacity accessibilityRole="switch" accessibilityState={{ checked: rem.enabled }} accessibilityLabel="Reminders"
+              style={[styles.syncBtn, rem.enabled && { backgroundColor: 'rgba(0,212,255,0.18)', borderColor: Colors.cyan }]} onPress={toggleReminders}>
+              <Text style={styles.syncBtnTxt}>{rem.enabled ? 'On' : 'Off'}</Text>
+            </TouchableOpacity>
+          }
+        />
+        {rem.enabled && (
+          <>
+            <SettingRow
+              label="Time of day"
+              sub="When the notice arrives."
+              right={
+                <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap', maxWidth: 190, justifyContent: 'flex-end' }}>
+                  {HOURS.map(h => (
+                    <TouchableOpacity key={h} accessibilityRole="button" accessibilityState={{ selected: rem.hour === h }} accessibilityLabel={`${h}:00`}
+                      style={[styles.syncBtn, rem.hour === h && { backgroundColor: 'rgba(0,212,255,0.18)', borderColor: Colors.cyan }]} onPress={() => changeRem({ ...rem, hour: h })}>
+                      <Text style={styles.syncBtnTxt}>{`${h}:00`}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              }
+            />
+            <SettingRow
+              label="Show details on the lock screen"
+              sub="Off: the notice says only what kind of thing is due and when. On: it names it and shows the amount."
+              right={
+                <TouchableOpacity accessibilityRole="switch" accessibilityState={{ checked: rem.details }} accessibilityLabel="Show details on the lock screen"
+                  style={[styles.syncBtn, rem.details && { backgroundColor: 'rgba(0,212,255,0.18)', borderColor: Colors.cyan }]} onPress={() => changeRem({ ...rem, details: !rem.details })}>
+                  <Text style={styles.syncBtnTxt}>{rem.details ? 'On' : 'Off'}</Text>
+                </TouchableOpacity>
+              }
+            />
+          </>
+        )}
+        {remMsg ? <Text style={[styles.rowSub, { padding: Spacing.md }]}>{remMsg}</Text> : null}
       </View>
 
       {/* ── Account ── */}
@@ -224,15 +293,6 @@ export default function SettingsScreen() {
         </View>
       </View>
 
-      {/* ── Notifications ── */}
-      <Text style={styles.sectionLabel}>NOTIFICATIONS</Text>
-      <View style={styles.card}>
-        <SettingRow
-          label="Reminders"
-          sub="Not available yet. The app asks for no notification permission, so nothing is sent to your phone. Due dates for SIPs, renewals and tax deadlines are in the Financial calendar."
-          right={<TouchableOpacity accessibilityRole="button" style={styles.syncBtn} onPress={() => router.push('/tools/calendar' as any)}><Text style={styles.syncBtnTxt}>Calendar</Text></TouchableOpacity>}
-        />
-      </View>
       {/* ── Privacy & terms ── */}
       <Text style={styles.sectionLabel}>PRIVACY & TERMS</Text>
       <View style={styles.card}>

@@ -24,7 +24,8 @@
         "backgroundColor": "#080B14"
       },
       "permissions": [
-        "android.permission.INTERNET"
+        "android.permission.INTERNET",
+        "android.permission.POST_NOTIFICATIONS"
       ],
       "package": "com.finos.mobile"
     },
@@ -45,7 +46,13 @@
         }
       ],
       "expo-web-browser",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "color": "#00D4FF"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

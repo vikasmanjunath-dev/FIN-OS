@@ -65,7 +65,7 @@ export const NOT_DOING = [
 ];
 
 /** What the app asks the phone for. Only the network: everything else is not built, so it is not requested. */
-export const PERMISSIONS = ['Internet access'];
+export const PERMISSIONS = ['Internet access', 'Notifications (only if you turn reminders on)'];
 
 /** Storage keys shown in "What is on this phone". `list` counts the entries of a JSON array; `value` just says it is set. */
 export const DATA_ITEMS: { key: string; label: string; kind: 'list' | 'value' }[] = [
@@ -78,6 +78,7 @@ export const DATA_ITEMS: { key: string; label: string; kind: 'list' | 'value' }[
   { key: 'finos_recurring_v1', label: 'Recurring entries', kind: 'list' },
   { key: 'finos_money_score_history', label: 'Money Score history', kind: 'list' },
   { key: 'finos_budgets', label: 'Budget limits', kind: 'value' },
+  { key: 'finos_reminders_mobile', label: 'Reminder preferences', kind: 'value' },
   { key: 'finos_money_score', label: 'Latest Money Score', kind: 'value' },
   { key: 'finos_user_name', label: 'Your name', kind: 'value' },
   { key: 'finos_monthly_income', label: 'Income and other profile numbers', kind: 'value' },

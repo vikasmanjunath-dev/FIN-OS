@@ -6,6 +6,7 @@ import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { useAuth } from '@/hooks/useAuth';
 import { FLOWS, NOT_DOING, PERMISSIONS, DATA_ITEMS, ENTITY, describeStored } from '@/lib/privacy';
 import { exportAllData, eraseLocalData, deleteCloudData, deleteAccount } from '@/lib/dataControls';
+import { cancelAll as cancelReminders } from '@/lib/remindersNative';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 
 /** Yes/no that works on web (window.confirm) and native (Alert). Resolves true only when the destructive button is pressed. */
@@ -45,7 +46,7 @@ export default function PrivacyScreen() {
   const wipeLocal = async () => {
     if (!(await confirmAction('Delete everything on this phone?', 'This removes your transactions, goals, holdings, scores and settings from this phone and signs you out. Anything you synced to the cloud stays there. This cannot be undone.', 'Delete'))) return;
     setBusy(true);
-    try { await signOut().catch(() => {}); await eraseLocalData(); setExportText(null); setCounts([]); setStatus({ ok: true, text: 'Everything on this phone was deleted.' }); }
+    try { await signOut().catch(() => {}); await eraseLocalData(); await cancelReminders(); setExportText(null); setCounts([]); setStatus({ ok: true, text: 'Everything on this phone was deleted.' }); }
     finally { setBusy(false); }
   };
 
