@@ -300,6 +300,7 @@
       }
 
       await fetch(`${SUPABASE_URL}/rest/v1/user_behavior`, {
+        signal:  AbortSignal.timeout(10000),
         method:  'POST',
         headers: {
           'apikey':        SUPABASE_KEY,

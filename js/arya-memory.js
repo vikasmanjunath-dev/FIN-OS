@@ -217,6 +217,7 @@
         // for guests _saving stayed true after the first save and nothing was ever persisted again.)
         if (!this.userId || !SB_KEY) return;
         await fetch(`${SB_URL}/rest/v1/agent_memories?user_id=eq.${this.userId}`, {
+          signal: AbortSignal.timeout(10000),
           method: 'PATCH',
           headers: {
             apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`,
@@ -239,7 +240,7 @@
         try {
           const r = await fetch(
             `${SB_URL}/rest/v1/agent_memories?user_id=eq.${this.userId}&select=episodes,semantic_facts,emotional_states`,
-            { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } }
+            { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }, signal: AbortSignal.timeout(10000) }
           );
           const data = await r.json();
           if (data?.[0]) {

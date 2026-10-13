@@ -75,7 +75,7 @@
     var lines = [];
     if (lang) lines.push(LANG[lang]);
     if (persona) lines.push(PERSONA[persona]);
-    lines.push('The persona changes tone only: keep every number, rule and caveat accurate, and never promise returns.');
+    lines.push('This overrides any earlier language or tone instruction. The persona changes tone only: keep every number, rule and caveat accurate, and never promise returns.');
     return '\n\nRESPONSE STYLE (user setting):\n' + lines.join('\n');
   }
 

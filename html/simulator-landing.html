@@ -325,9 +325,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
-  <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css?v=3">
-<link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/base.css?v=2">
+  <link rel="stylesheet" href="../css/layout.css?v=4">
+<link rel="stylesheet" href="../css/theme.css?v=2">
   <style id="shared-shell-offset">
     /* shared FIN-OS sidebar (fixed, 232px) to the left of the immersive page.
        This page's own .page collides with layout.css's .page, so set it explicitly. */
@@ -867,8 +867,8 @@
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
-  <script src="../js/finos-widget.js?v=10"></script>
-  <script src="../js/finos-search.js?v=5"></script>
+  <script src="../js/finos-widget.js?v=11"></script>
+  <script src="../js/finos-search.js?v=6"></script>
 
 <!-- ── READINESS MODAL ─────────────────────────────────────────── -->
 <div id="readinessModal">
@@ -880,6 +880,14 @@
 
 <!-- ── OLLAMA AI MODULE ────────────────────────────────────────── -->
 <script>
+/* NDJSON streams arrive in arbitrary chunks: keep the unfinished last line for the next read
+   (splitting each chunk on its own drops any token whose JSON line straddles two chunks). */
+function _ndLines(dec, value) {
+  const parts = ((dec._tail || '') + dec.decode(value, { stream: true })).split('\n');
+  dec._tail = parts.pop();
+  return parts;
+}
+
 const OllamaAI = (function () {
   const BASE  = 'https://127.0.0.1:8767';
   const MODEL = 'qwen2.5:3b';
@@ -905,7 +913,7 @@ const OllamaAI = (function () {
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      const lines = decoder.decode(value).split('\n').filter(Boolean);
+      const lines = _ndLines(decoder, value).filter(Boolean);
       for (const ln of lines) {
         try {
           const obj = JSON.parse(ln);
@@ -2340,7 +2348,7 @@ document.addEventListener('keydown',e=>{if((e.altKey||e.metaKey)&&e.key==='m'){e
 
 </script>
 
-  <script src="../js/ui.js" defer></script>
+  <script src="../js/ui.js?v=5" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/interactions.js" defer></script>
 <script src="../js/finos-api.js"></script>

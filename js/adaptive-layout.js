@@ -175,7 +175,7 @@
     let marketDown = false;
     try {
       if (!ALERT_ENGINE) return;
-      const res = await fetch(`${ALERT_ENGINE}/market`);
+      const res = await fetch(`${ALERT_ENGINE}/market`, { signal: AbortSignal.timeout(8000) });
       if (res.ok) {
         const mkt  = await res.json();
         marketDown = (mkt.nifty_change_pct || 0) < -1.5;

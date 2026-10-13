@@ -123,7 +123,7 @@
       // Check arya-ai has Kite credentials configured
       let loginUrl;
       try {
-        const status = await fetch(`${ARYA_BASE}/api/kite/status`).then(r => r.json());
+        const status = await fetch(`${ARYA_BASE}/api/kite/status`, { signal: AbortSignal.timeout(8000) }).then(r => r.json());
         if (!status.configured) {
           _showSetupModal();
           return;

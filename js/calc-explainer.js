@@ -255,11 +255,17 @@ Format: Direct, no preamble, no "Sure!", use ₹ amounts. Lead with the insight,
     return style ? (system || '') + style : system;
   }
 
-  async function _stream(prompt, system, onTok) {
+  // Ollama streams NDJSON; a network chunk can end mid-line, so keep the tail for the next chunk
+  // (splitting each chunk on its own silently dropped tokens at chunk boundaries).
+  async function _stream(prompt, system, onTok, signal) {
+    const ctl = new AbortController();
+    const tid = setTimeout(() => ctl.abort(), 60000);
+    if (signal) signal.addEventListener('abort', () => ctl.abort(), { once: true });
     try {
       const resp = await fetch(OLLAMA_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: ctl.signal,
         body: JSON.stringify({
           model: OLLAMA_MODEL, prompt, system: _withUserStyle(system),
           stream: true, options: { temperature: 0.6, num_predict: 250, num_ctx: 4096 },
@@ -268,21 +274,27 @@ Format: Direct, no preamble, no "Sure!", use ₹ amounts. Lead with the insight,
       if (!resp.ok || !resp.body) return '';
       const reader = resp.body.getReader();
       const dec = new TextDecoder();
-      let full = '';
+      let full = '', buf = '';
+      const eat = (line) => {
+        if (!line.trim()) return;
+        try {
+          const d = JSON.parse(line);
+          const tok = (d.response || '').replace(/<think>[\s\S]*?<\/think>/gi, '');
+          if (tok) { full += tok; onTok && onTok(tok, full); }
+        } catch {}
+      };
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        dec.decode(value).split('\n').forEach(line => {
-          if (!line.trim()) return;
-          try {
-            const d = JSON.parse(line);
-            const tok = (d.response || '').replace(/<think>[\s\S]*?<\/think>/gi, '');
-            if (tok) { full += tok; onTok && onTok(tok, full); }
-          } catch {}
-        });
+        buf += dec.decode(value, { stream: true });
+        const lines = buf.split('\n');
+        buf = lines.pop();
+        lines.forEach(eat);
       }
+      eat(buf + dec.decode());
       return full.trim();
     } catch { return ''; }
+    finally { clearTimeout(tid); }
   }
 
   /* ── Read slider/input values from calculator ───────────────────────────*/
@@ -298,9 +310,25 @@ Format: Direct, no preamble, no "Sure!", use ₹ amounts. Lead with the insight,
   }
 
   /* ── Main explain function ───────────────────────────────────────────────*/
+  // One explanation at a time, for one set of numbers:
+  //  • `_schedule()` is the single debounced entry point (the calculate() hook, the result observer, change events
+  //    and the first paint all used to start their own Ollama stream — up to 3 concurrent on page load)
+  //  • unchanged inputs+results are not re-explained; recent explanations are cached per signature
+  //  • a newer request cancels the one still streaming; a failed/offline Ollama is not hammered for 60s
+  let _timer = null, _ctl = null, _lastSig = '', _offlineUntil = 0, _seq = 0;
+  const _memo = new Map();             // signature → explanation text (bounded)
+  const MEMO_MAX = 20;
+  const OFFLINE_MSG = 'Arya offline — Ollama start karo. Tab tak: apne numbers check karo aur inflation-adjusted value calculate karo (real value = nominal / 1.06^years).';
+
+  function _schedule(delay) {
+    clearTimeout(_timer);
+    _timer = setTimeout(() => window._aryaCalcExplain(false), delay);
+  }
+
   window._aryaCalcExplain = async function(force = false) {
     const bodyEl = document.getElementById('arya-calc-body');
     if (!bodyEl) return;
+    if (document.hidden && !force) return;      // nobody is looking; the next visible change reschedules
 
     const calcType = _calcType();
     const results  = _readResults();
@@ -308,6 +336,18 @@ Format: Direct, no preamble, no "Sure!", use ₹ amounts. Lead with the insight,
     const prof     = _prof();
 
     if (!Object.keys(results).length && !force) return; // no results yet
+
+    const sig = calcType + '|' + JSON.stringify(inputs) + '|' + JSON.stringify(results) + '|' + (prof.archetype || '');
+    if (!force) {
+      if (sig === _lastSig) return;                                 // already explained / being explained
+      if (_memo.has(sig)) { _lastSig = sig; bodyEl.textContent = _memo.get(sig); return; }
+      if (Date.now() < _offlineUntil) { bodyEl.textContent = OFFLINE_MSG; return; }
+    }
+    _lastSig = sig;
+
+    if (_ctl) _ctl.abort();                     // cancel the stream for the previous numbers
+    const ctl = _ctl = new AbortController();
+    const mySeq = ++_seq;
 
     bodyEl.innerHTML = `<div class="arya-calc-thinking"><div class="arya-calc-dot"></div><div class="arya-calc-dot"></div><div class="arya-calc-dot"></div><span>Arya result analyse kar rahi hai…</span></div>`;
 
@@ -319,12 +359,19 @@ Always give one pro tip specific to the user's archetype.`;
 
     let started = false;
     const result = await _stream(prompt, system, (tok, full) => {
+      if (mySeq !== _seq) return;               // a newer request owns the panel now
       bodyEl.textContent = full;
       started = true;
-    });
+    }, ctl.signal);
 
+    if (mySeq !== _seq) return;                 // superseded: don't touch the panel or the breaker
     if (!started) {
-      bodyEl.textContent = 'Arya offline — Ollama start karo. Tab tak: apne numbers check karo aur inflation-adjusted value calculate karo (real value = nominal / 1.06^years).';
+      bodyEl.textContent = OFFLINE_MSG;
+      _offlineUntil = Date.now() + 60000;
+      _lastSig = '';                            // allow a retry once the breaker expires
+    } else if (result) {
+      if (_memo.size >= MEMO_MAX) _memo.delete(_memo.keys().next().value);
+      _memo.set(sig, result);
     }
   };
 
@@ -415,8 +462,7 @@ Format: 2 bullet points, each 1 sentence. Use exact ₹ numbers from calculation
 
     window.calculate = function(...args) {
       const ret = origCalc.apply(this, args);
-      // Delay so DOM updates first
-      setTimeout(() => window._aryaCalcExplain(false), 100);
+      _schedule(1200);   // debounced: wait for the user to stop sliding
       return ret;
     };
     return true;
@@ -466,23 +512,17 @@ Format: 2 bullet points, each 1 sentence. Use exact ₹ numbers from calculation
       .filter(Boolean);
 
     if (resultEls.length) {
-      const obs = new MutationObserver(() => {
-        clearTimeout(window._calcExplainTimer);
-        window._calcExplainTimer = setTimeout(() => window._aryaCalcExplain(false), 800);
-      });
+      const obs = new MutationObserver(() => _schedule(1200));
       resultEls.forEach(el => obs.observe(el, { childList: true, characterData: true, subtree: true }));
     }
 
     // Also hook on input events as a catch-all
     document.querySelectorAll('input[type="range"], input[type="number"]').forEach(el => {
-      el.addEventListener('change', () => {
-        clearTimeout(window._calcExplainTimer);
-        window._calcExplainTimer = setTimeout(() => window._aryaCalcExplain(false), 1200);
-      });
+      el.addEventListener('change', () => _schedule(1200));
     });
 
     // Run once for any pre-rendered result
-    setTimeout(() => window._aryaCalcExplain(false), 1500);
+    _schedule(1500);
   }
 
   if (document.readyState === 'loading') {

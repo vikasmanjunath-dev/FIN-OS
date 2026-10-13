@@ -13,11 +13,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
-<link rel="stylesheet" href="../css/base.css">
-<link rel="stylesheet" href="../css/layout.css?v=3">
-<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/base.css?v=2">
+<link rel="stylesheet" href="../css/layout.css?v=4">
+<link rel="stylesheet" href="../css/components.css?v=2">
 <link rel="stylesheet" href="../css/animations.css">
-<link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="../css/theme.css?v=2">
 <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
@@ -605,7 +605,7 @@ async function init() {
 
 async function tryLoadOverview() {
   try {
-    const res = await fetch(`${ALERT_ENGINE}/couple/overview/${currentUserId}`);
+    const res = await fetch(`${ALERT_ENGINE}/couple/overview/${currentUserId}`, { signal: AbortSignal.timeout(8000) });
     if (res.status === 404) { showSetup(); return; }
     if (res.status === 402) {
       const err = await res.json().catch(() => ({}));
@@ -690,7 +690,7 @@ async function createInvite() {
   }
   setLoading('createInviteBtn', true);
   try {
-    const res  = await fetch(`${ALERT_ENGINE}/couple/invite`, {
+    const res  = await fetch(`${ALERT_ENGINE}/couple/invite`, { signal: AbortSignal.timeout(10000),
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ user_id: currentUserId })
     });
@@ -722,7 +722,7 @@ async function acceptInvite() {
   }
   setLoading('acceptInviteBtn', true);
   try {
-    const res  = await fetch(`${ALERT_ENGINE}/couple/accept`, {
+    const res  = await fetch(`${ALERT_ENGINE}/couple/accept`, { signal: AbortSignal.timeout(10000),
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ user_id: currentUserId, invite_code: code })
     });
@@ -914,7 +914,7 @@ async function addGoal() {
   const saveBtn = document.querySelector('#goalModal .btn-purple');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
   try {
-    const res = await fetch(`${ALERT_ENGINE}/couple/goal`, {
+    const res = await fetch(`${ALERT_ENGINE}/couple/goal`, { signal: AbortSignal.timeout(10000),
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify(payload)
     });
@@ -957,7 +957,7 @@ async function addResponsibility() {
   const saveBtn = document.querySelector('#respModal .btn-purple');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
   try {
-    const res = await fetch(`${ALERT_ENGINE}/couple/responsibility`, {
+    const res = await fetch(`${ALERT_ENGINE}/couple/responsibility`, { signal: AbortSignal.timeout(10000),
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify(payload)
     });
@@ -989,7 +989,7 @@ async function confirmDissolve() {
   const confirmed = window.confirm('Are you sure you want to unlink your partner account? This cannot be undone.');
   if (!confirmed) return;
   try {
-    await fetch(`${ALERT_ENGINE}/couple/dissolve/${currentUserId}`, { method: 'DELETE' });
+    await fetch(`${ALERT_ENGINE}/couple/dissolve/${currentUserId}`, { signal: AbortSignal.timeout(10000), method: 'DELETE' });
     currentCoupleId = null;
     unbridgeFromArya();
     showSetup();
@@ -1006,7 +1006,7 @@ async function confirmDissolve() {
 
 init();
 </script>
-  <script src="../js/ui.js" defer></script>
+  <script src="../js/ui.js?v=5" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
 
 <script src="../js/sidebar.js"></script>
@@ -1033,7 +1033,7 @@ init();
   });
 })();
 </script>
-<script src="../js/finos-widget.js?v=10"></script>
+<script src="../js/finos-widget.js?v=11"></script>
 <script src="../js/pwa-init.js"></script>
 </body>
 </html>

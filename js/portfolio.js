@@ -732,6 +732,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
       const resp = await fetch('http://localhost:8766/ai-analysis', {
+        signal:  AbortSignal.timeout(90000),
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({

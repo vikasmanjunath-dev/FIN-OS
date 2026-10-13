@@ -191,7 +191,7 @@
     try {
       let data;
       if (root.FinosAPI) data = await root.FinosAPI.request('docs', '/parse/cas', { method: 'POST', body, timeout: 90000, retries: 0 });
-      else { const r = await fetch('http://localhost:8004/parse/cas', { method: 'POST', body }); if (!r.ok) throw new Error(await r.text()); data = await r.json(); }
+      else { const r = await fetch('http://localhost:8004/parse/cas', { method: 'POST', body, signal: AbortSignal.timeout(60000) }); if (!r.ok) throw new Error(await r.text()); data = await r.json(); }
       return fromCas(data);
     } catch (e) { throw new Error(casErrorMessage(e)); }
   }

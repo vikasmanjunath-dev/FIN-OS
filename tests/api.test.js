@@ -57,3 +57,65 @@ test('timeout aborts and is reported as timeout', async () => {
   globalThis.fetch = (url, { signal }) => new Promise((_, rej) => signal.addEventListener('abort', () => rej(new Error('aborted'))));
   await assert.rejects(A.request('arya', '/x', { timeout: 20, retries: 0 }), (e) => e.code === 'timeout');
 });
+
+test('concurrent identical GETs share one network call', async () => {
+  const A = load({ host: 'localhost' });
+  let n = 0; globalThis.fetch = async () => { n++; await new Promise((r) => setTimeout(r, 5)); return ok({ v: n }); };
+  const [a, b, c] = await Promise.all([A.request('alerts', '/h/1'), A.request('alerts', '/h/1'), A.request('alerts', '/h/1')]);
+  assert.strictEqual(n, 1);
+  assert.deepStrictEqual([a, b, c], [{ v: 1 }, { v: 1 }, { v: 1 }]);
+  await A.request('alerts', '/h/1');            // no ttl → a later call is a fresh request
+  assert.strictEqual(n, 2);
+});
+
+test('a failed shared GET is not cached or left in flight', async () => {
+  const A = load({ host: 'localhost' });
+  let n = 0; globalThis.fetch = async () => { n++; return n === 1 ? ok({}, 404) : ok({ ok: true }); };
+  await assert.rejects(A.request('alerts', '/x', { retries: 0 }));
+  assert.deepStrictEqual(await A.request('alerts', '/x', { retries: 0 }), { ok: true });
+});
+
+test('ttl reuses the response; a write to the same service invalidates it; other services are untouched', async () => {
+  const A = load({ host: 'localhost' });
+  let n = 0; globalThis.fetch = async () => ok({ n: ++n });
+  assert.deepStrictEqual(await A.request('alerts', '/s', { ttl: 60000 }), { n: 1 });
+  assert.deepStrictEqual(await A.request('alerts', '/s', { ttl: 60000 }), { n: 1 });
+  assert.deepStrictEqual(await A.request('arya', '/s', { ttl: 60000 }), { n: 2 });
+  await A.request('alerts', '/w', { method: 'POST', body: {} });
+  assert.deepStrictEqual(await A.request('alerts', '/s', { ttl: 60000 }), { n: 4 });   // n=3 was the POST
+  assert.deepStrictEqual(await A.request('arya', '/s', { ttl: 60000 }), { n: 2 });
+  A.invalidate();
+  assert.deepStrictEqual(await A.request('arya', '/s', { ttl: 60000 }), { n: 5 });
+});
+
+test('available() never throws; an unavailable backend is not fetched', () => {
+  assert.strictEqual(load({ host: 'localhost' }).available('alerts'), true);
+  assert.strictEqual(load().available('alerts'), false);
+  assert.strictEqual(load().available('nope'), false);
+});
+
+test('timeout also covers a body that never arrives', async () => {
+  const A = load({ host: 'localhost' });
+  globalThis.fetch = async (_u, init) => ({ ok: true, status: 200,
+    text: () => new Promise((_, rej) => init.signal.addEventListener('abort', () => rej(new Error('aborted')))) });
+  await assert.rejects(A.request('alerts', '/slow', { timeout: 20, retries: 0 }), (e) => e.code === 'timeout');
+});
+
+test('poll(): runs on the interval, never overlaps, skips while hidden, stop() ends it', async () => {
+  const A = load({ host: 'localhost' });
+  const listeners = {};
+  globalThis.document = { hidden: false, addEventListener: (t, f) => { listeners[t] = f; }, removeEventListener: (t) => { delete listeners[t]; } };
+  let calls = 0, concurrent = 0, maxConcurrent = 0;
+  const stop = A.poll(async () => { calls++; concurrent++; maxConcurrent = Math.max(maxConcurrent, concurrent); await new Promise((r) => setTimeout(r, 25)); concurrent--; }, 10, { immediate: true });
+  await new Promise((r) => setTimeout(r, 80));
+  assert.ok(calls >= 2, 'ran repeatedly');
+  assert.strictEqual(maxConcurrent, 1, 'never overlapped');
+  document.hidden = true;
+  const before = calls; await new Promise((r) => setTimeout(r, 60));
+  assert.ok(calls - before <= 1, 'paused while hidden');
+  stop();
+  assert.strictEqual(listeners.visibilitychange, undefined, 'visibility listener removed');
+  const after = calls; await new Promise((r) => setTimeout(r, 40));
+  assert.strictEqual(calls, after, 'stopped');
+  delete globalThis.document;
+});

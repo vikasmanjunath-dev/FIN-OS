@@ -38,18 +38,31 @@
     };
   }
 
-  // Patch immediately if SDK is already loaded, otherwise wait for it
-  if (window.supabase) {
-    patchSupabase();
-  } else {
-    // Poll briefly until the CDN script finishes executing
-    var _attempts = 0;
-    var _interval = setInterval(function () {
-      try {
-        if (window.supabase) { patchSupabase(); clearInterval(_interval); return; }
-      } catch (e) { clearInterval(_interval); return; }
-      if (++_attempts > 20) clearInterval(_interval);
-    }, 150);
+  // Patch immediately if the SDK is already loaded. Otherwise check again when the document finishes parsing
+  // and loading, and only poll if an SDK <script> tag is actually present but still loading — most pages never
+  // load the SDK, and polling every 150ms for 3s on all of them was pure overhead.
+  function sdkTagPresent() {
+    return !!document.querySelector('script[src*="supabase-js"], script[src*="@supabase"]');
+  }
+  function tryPatch() {
+    try { if (window.supabase) { patchSupabase(); return true; } } catch (e) { return true; }
+    return false;
+  }
+  if (!tryPatch()) {
+    // An SDK tag that already precedes us in the DOM: patch the moment it finishes executing
+    Array.prototype.forEach.call(
+      document.querySelectorAll('script[src*="supabase-js"], script[src*="@supabase"]'),
+      function (tag) { tag.addEventListener('load', tryPatch, { once: true }); });
+    var onReady = function () {
+      if (tryPatch() || !sdkTagPresent()) return;
+      var _attempts = 0;
+      var _interval = setInterval(function () {
+        if (tryPatch() || ++_attempts > 20) clearInterval(_interval);
+      }, 150);
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', onReady, { once: true });
+    else onReady();
+    window.addEventListener('load', tryPatch, { once: true });
   }
 
   window.FINOS_SB = {

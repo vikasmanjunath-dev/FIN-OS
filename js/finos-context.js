@@ -521,13 +521,15 @@
   }
 
   /* ── Phase 2 — Async Supabase enrichment ──────────────────────────────── */
+  let _sbClient = null;
   async function enrichFromSupabase(ctx) {
     try {
       /* Prefer the already-initialised client from the page, otherwise create one.
          Using window.supabase (the CDN global) if available.                       */
-      let client = null;
-      if (window.supabase && typeof window.supabase.createClient === 'function') {
-        client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      let client = _sbClient;
+      if (client) { /* reuse — createClient() per call spawns a new auth listener each time */ }
+      else if (window.supabase && typeof window.supabase.createClient === 'function') {
+        client = _sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
       } else if (window._supabaseClient) {
         // Some pages store their client instance here
         client = window._supabaseClient;
@@ -580,11 +582,11 @@
       /* Fetch transactions / goals / holdings */
       await _fetchFinancialRecords(client, user.id, ctx).catch(e => console.debug('[FIN-OS Context] Records fetch:', e.message));
 
-      /* Fetch Financial Health Score summary from alert engine */
-      await _fetchHealthScore(user.id, ctx).catch(e => console.debug('[FIN-OS Context] Health score fetch:', e.message));
-
-      /* Fetch top news headlines (high-impact only) */
-      await _fetchNewsHeadlines(ctx).catch(e => console.debug('[FIN-OS Context] News fetch:', e.message));
+      /* Health-score summary (alert engine) + top news headlines are independent — fetch together */
+      await Promise.all([
+        _fetchHealthScore(user.id, ctx).catch(e => console.debug('[FIN-OS Context] Health score fetch:', e.message)),
+        _fetchNewsHeadlines(ctx).catch(e => console.debug('[FIN-OS Context] News fetch:', e.message)),
+      ]);
 
     } catch (err) {
       // Non-fatal — page may not have Supabase loaded
@@ -658,10 +660,14 @@
 
   /* ── Fetch Financial Health Score summary ─────────────────────────────── */
   async function _fetchHealthScore(uid, ctx) {
+    // FinosAPI loads after this file on every page, so resolve it at call time. No backend (e.g. the hosted
+    // site) → skip silently instead of firing a doomed request at localhost.
+    const A = window.FinosAPI;
+    if (!A || !A.available('alerts')) return;
     try {
-      const r = await fetch(`http://localhost:8001/health-score/${uid}/summary`);
-      if (!r.ok) return;
-      const d = await r.json();
+      // ttl matches the health-score widget's own summary call, so one page = one network request
+      const d = await A.request('alerts', `/health-score/${encodeURIComponent(uid)}/summary`, { ttl: 60000, timeout: 4000, retries: 0 });
+      if (!d) return;
       if (!ctx.financial) ctx.financial = {};
       ctx.financial.health_score = {
         total:        d.total,
@@ -677,10 +683,9 @@
   /* ── Fetch top News Intel headlines ──────────────────────────────────── */
   async function _fetchNewsHeadlines(ctx) {
     try {
-      const controller = new AbortController();
-      const tid = setTimeout(() => controller.abort(), 2000);
-      const r = await fetch('http://localhost:5002/api/intel', { signal: controller.signal });
-      clearTimeout(tid);
+      // news-intel (port 5002) isn't a FinosAPI service; it only exists on a dev machine
+      if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return;
+      const r = await fetch('http://localhost:5002/api/intel', { signal: AbortSignal.timeout(2000) });
       if (!r.ok) return;
       const d = await r.json();
       const items = (d.items || []).filter(i => i.high_impact).slice(0, 5);
@@ -696,12 +701,24 @@
   }
 
   /* ── Publish context ─────────────────────────────────────────────────── */
+  // Signature ignores the always-changing collection timestamp, so "nothing changed" is detectable.
+  let _lastSig = '', _lastEventAt = 0;
+  const HEARTBEAT_MS = 10 * 60_000;   // still notify now and then so time-of-day UI (greetings) refreshes
+  function _signature(ctx) {
+    try { return JSON.stringify(ctx, (k, v) => (k === '_collected_at' ? undefined : v)); } catch { return null; }
+  }
+
   function publish(ctx) {
     window.FINOS_USER_CONTEXT = ctx;
 
+    const sig = _signature(ctx);
+    const now = Date.now();
+    if (sig !== null && sig === _lastSig && now - _lastEventAt < HEARTBEAT_MS) return;   // unchanged: no storage write, no 46-listener re-render
+    _lastSig = sig; _lastEventAt = now;
+
     /* sessionStorage: tab-scoped, cleared when browser tab closes.
        Never stored in localStorage to avoid cross-tab identity leaks.    */
-    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(ctx)); } catch {}
+    try { sessionStorage.setItem(SESSION_KEY, sig !== null ? JSON.stringify(ctx) : '{}'); } catch {}
 
     window.dispatchEvent(new CustomEvent('finos-context-ready', {
       bubbles: false,
@@ -737,6 +754,7 @@
 
   // Periodic refresh — re-reads page globals in case financial data changed
   setInterval(() => {
+    if (document.hidden) return;   // nobody is looking — catch up on the next visible tick
     const fresh = collectSync();
     // Preserve full identity from the last enriched context
     if (window.FINOS_USER_CONTEXT?._user_id) {

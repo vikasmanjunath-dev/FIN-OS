@@ -412,24 +412,30 @@
 
   async function fetchScore(userId) {
     renderLoading();
-    const controller = new AbortController();
-    const tid = setTimeout(() => controller.abort(), 5000); // 5s timeout
     try {
-      if (!ALERT_API) { clearTimeout(tid); return; }
-      const r = await fetch(`${ALERT_API}/health-score/${userId}`, { signal: controller.signal });
-      clearTimeout(tid);
-      if (!r.ok) throw new Error(`Server returned ${r.status}`);
-      const data = await r.json();
+      if (!ALERT_API) return;
+      const data = await _alertsGet(`/health-score/${encodeURIComponent(userId)}`, { ttl: 30000, timeout: 5000, retries: 0 });
       _lastData = data;
       render(data);
     } catch (e) {
-      clearTimeout(tid);
-      if (e.name === 'AbortError') {
+      if (e.code === 'timeout' || e.name === 'AbortError') {
         renderError('Score engine timed out — is the alert service running?');
+      } else if (e.code === 'offline' || e.code === 'unavailable' || /fetch/.test(e.message || '')) {
+        renderError('Alert engine offline — run the backend service.');
       } else {
-        renderError(e.message.includes('fetch') ? 'Alert engine offline — run the backend service.' : e.message);
+        renderError(e.message);
       }
     }
+  }
+
+  /* One GET path for this module: shared/cached via FinosAPI when it is loaded (it loads after this file on some
+     pages, so it is looked up per call), plain fetch with a hard timeout otherwise. */
+  async function _alertsGet(path, o) {
+    const A = window.FinosAPI;
+    if (A && A.available('alerts')) return A.request('alerts', path, o);
+    const r = await fetch(ALERT_API + path, { signal: AbortSignal.timeout(o.timeout || 5000) });
+    if (!r.ok) throw new Error(`Server returned ${r.status}`);
+    return r.json();
   }
 
   function openPanel() {
@@ -524,9 +530,8 @@
     // Try API first (when backend is running)
     if (userId && ALERT_API) {
       try {
-        const r = await fetch(`${ALERT_API}/health-score/${userId}/summary`);
-        if (r.ok) {
-          const d = await r.json();
+        const d = await _alertsGet(`/health-score/${encodeURIComponent(userId)}/summary`, { ttl: 60000, timeout: 4000, retries: 0 });
+        if (d) {
           _applyTriggerDisplay(d.total, d.tier, d.tier_emoji);
           return;
         }

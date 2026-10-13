@@ -447,7 +447,7 @@ Return JSON:
 Reply ONLY with valid JSON.`.trim();
 
     try {
-        const resp = await fetch(OLLAMA_URL, {
+        const resp = await fetch(OLLAMA_URL, { signal: AbortSignal.timeout(180000),
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

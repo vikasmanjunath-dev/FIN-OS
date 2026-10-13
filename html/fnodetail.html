@@ -19,11 +19,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/design-tokens.css">
-<link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css?v=3">
-  <link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/base.css?v=2">
+  <link rel="stylesheet" href="../css/layout.css?v=4">
+  <link rel="stylesheet" href="../css/components.css?v=2">
   <link rel="stylesheet" href="../css/derivativesdetail.css">
-  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/theme.css?v=2">
   <link rel="stylesheet" href="../css/reader-shell.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <meta property="og:site_name" content="FIN•OS">
@@ -577,6 +577,14 @@
   </div>
 
   <script>
+/* NDJSON streams arrive in arbitrary chunks: keep the unfinished last line for the next read
+   (splitting each chunk on its own drops any token whose JSON line straddles two chunks). */
+function _ndLines(dec, value) {
+  const parts = ((dec._tail || '') + dec.decode(value, { stream: true })).split('\n');
+  dec._tail = parts.pop();
+  return parts;
+}
+
   // ── Greeks estimator (Black-Scholes approximation — educational only) ────────
   function estimateGreeks(S, K, T, r, sigma) {
     // T in years, sigma = IV as decimal (e.g. 0.18 for 18%)
@@ -691,7 +699,7 @@ Include a SEBI-compliant risk reminder at the end.
     outputDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
     try {
-      const resp = await fetch('https://127.0.0.1:8767/api/generate', {
+      const resp = await fetch('https://127.0.0.1:8767/api/generate', { signal: AbortSignal.timeout(180000),
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -700,7 +708,7 @@ Include a SEBI-compliant risk reminder at the end.
 Expert in NSE derivatives — options theory, Greeks, VIX, expiry strategies.
 Respond in warm Hinglish. Always include SEBI risk disclaimer.
 Format: numbered sections, ₹ amounts, be specific about strikes and levels.
-Max 6 sentences total across all sections.`,
+Max 6 sentences total across all sections.` + (window.FINOS && window.FINOS.aiDirective ? window.FINOS.aiDirective() : ''),
           prompt:  prompt,
           stream:  true,
           options: { temperature: 0.55, num_predict: 400, num_ctx: 4096 },
@@ -717,7 +725,7 @@ Max 6 sentences total across all sections.`,
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        dec.decode(value).split('\n').forEach(line => {
+        _ndLines(dec, value).forEach(line => {
           if (!line.trim()) return;
           try {
             const d = JSON.parse(line);
@@ -743,12 +751,12 @@ Max 6 sentences total across all sections.`,
   }
   </script>
 
-  <script src="../js/ui.js" defer></script>
+  <script src="../js/ui.js?v=5" defer></script>
   <script src="../js/derivativesdetail.js"></script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
-  <script src="../js/finos-widget.js?v=10"></script>
-  <script src="../js/finos-search.js?v=5"></script>
+  <script src="../js/finos-widget.js?v=11"></script>
+  <script src="../js/finos-search.js?v=6"></script>
   <script src="../js/interactions.js" defer></script>
 <script src="../js/finos-api.js"></script>
 <script src="../js/arya-guardrails.js"></script>

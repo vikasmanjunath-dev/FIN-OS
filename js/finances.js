@@ -538,7 +538,7 @@ Assess my true wealth trajectory with brutal honesty. Use these markdown headers
     // Read brain.py SSE stream
     async function readSSEStream(response, verdictBox, isInitialLoad, source) {
         const responseId = `msg-${Date.now()}`;
-        verdictBox.innerHTML += `<div id="${responseId}" class="qft-msg" style="margin-bottom:20px;"><span style="color:#888;">Thinking...</span></div>`;
+        verdictBox.insertAdjacentHTML('beforeend', `<div id="${responseId}" class="qft-msg" style="margin-bottom:20px;"><span style="color:#888;">Thinking...</span></div>`);
         const msgDiv = document.getElementById(responseId);
 
         document.getElementById('streamLoader')?.remove();
@@ -548,12 +548,23 @@ Assess my true wealth trajectory with brutal honesty. Use these markdown headers
         const decoder = new TextDecoder('utf-8');
         let fullContent = '';
 
+        // Re-rendering the whole markdown on every token is O(n²) over a long answer: paint at most once per frame.
+        let paintQueued = false;
+        const paint = () => {
+            paintQueued = false;
+            msgDiv.innerHTML = renderMarkdown(fullContent);
+            verdictBox.scrollTop = verdictBox.scrollHeight;
+        };
+        const schedulePaint = () => { if (!paintQueued) { paintQueued = true; requestAnimationFrame(paint); } };
+        let tail = '';   // an SSE line can straddle two network chunks — keep the unfinished part
+
         try {
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-                const chunk = decoder.decode(value, { stream: true });
-                for (const line of chunk.split('\n')) {
+                const parts = (tail + decoder.decode(value, { stream: true })).split('\n');
+                tail = parts.pop();
+                for (const line of parts) {
                     if (!line.startsWith('data: ')) continue;
                     const raw = line.slice(6).trim();
                     if (!raw || raw === '[DONE]') continue;
@@ -564,8 +575,7 @@ Assess my true wealth trajectory with brutal honesty. Use these markdown headers
                         const token = data.token || data.t || '';
                         if (token) {
                             fullContent += token;
-                            msgDiv.innerHTML = renderMarkdown(fullContent);
-                            verdictBox.scrollTop = verdictBox.scrollHeight;
+                            schedulePaint();
                         }
                         if (data.done) break;
                     } catch (e) {
@@ -574,6 +584,7 @@ Assess my true wealth trajectory with brutal honesty. Use these markdown headers
                 }
             }
         } finally {
+            if (fullContent) paint();   // flush the last tokens (a queued frame may not have run yet)
             chatInputArea?.classList.remove('hidden');
             if (followUpInput && !chatInputArea?.classList.contains('hidden')) followUpInput.focus();
             verdictBox.scrollTop = verdictBox.scrollHeight;
@@ -589,7 +600,7 @@ Assess my true wealth trajectory with brutal honesty. Use these markdown headers
     // Read Ollama NDJSON stream
     async function readOllamaStream(response, verdictBox, isInitialLoad) {
         const responseId = `msg-${Date.now()}`;
-        verdictBox.innerHTML += `<div id="${responseId}" class="qft-msg" style="margin-bottom:20px;"><span style="color:#888;">Thinking via Ollama...</span></div>`;
+        verdictBox.insertAdjacentHTML('beforeend', `<div id="${responseId}" class="qft-msg" style="margin-bottom:20px;"><span style="color:#888;">Thinking via Ollama...</span></div>`);
         const msgDiv = document.getElementById(responseId);
 
         document.getElementById('streamLoader')?.remove();
@@ -636,13 +647,13 @@ Assess my true wealth trajectory with brutal honesty. Use these markdown headers
 
         const md = buildInlineVerdict(_computed);
         const responseId = `msg-${Date.now()}`;
-        verdictBox.innerHTML += `
+        verdictBox.insertAdjacentHTML('beforeend', `
             <div id="${responseId}" class="qft-msg" style="margin-bottom:20px;">
                 ${renderMarkdown(md)}
                 <div style="margin-top:16px;padding:10px 14px;background:rgba(199,240,0,.04);border:1px solid rgba(199,240,0,.15);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(199,240,0,.5);">
                     ⚡ AI OFFLINE — showing computed analysis. For personalised AI narrative, run <code>cd chatbot && uvicorn brain:app --port 8000</code> locally.
                 </div>
-            </div>`;
+            </div>`);
         verdictBox.scrollTop = verdictBox.scrollHeight;
         chatInputArea?.classList.remove('hidden');
         if (followUpInput && !chatInputArea?.classList.contains('hidden')) followUpInput.focus();
@@ -669,11 +680,11 @@ Assess my true wealth trajectory with brutal honesty. Use these markdown headers
         const verdictBox = document.getElementById('verdictGrid');
         if (!verdictBox) return;
 
-        verdictBox.innerHTML += `
+        verdictBox.insertAdjacentHTML('beforeend', `
             <div style="background:rgba(79,124,255,0.1); border-left:3px solid #4F7CFF; padding:15px; margin:20px 0;">
                 <strong style="color:#4F7CFF;">YOU:</strong> ${escapeHtml(promptText)}
             </div>
-        `;
+        `);
 
         // Enrich follow-up with computed context so AI has full picture
         const enriched = `

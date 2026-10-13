@@ -85,7 +85,7 @@
 
     try {
       if (!ALERT_ENGINE) return;
-      const res = await fetch(`${ALERT_ENGINE}/health-score/${userId}/history?days=90`);
+      const res = await fetch(`${ALERT_ENGINE}/health-score/${userId}/history?days=90`, { signal: AbortSignal.timeout(8000) });
       if (!res.ok) throw new Error('offline');
       const data = await res.json();
       const series = data.series || [];

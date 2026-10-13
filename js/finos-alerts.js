@@ -683,7 +683,7 @@
       renderAlerts();
       // Persist to local server if available
       if (ALERT_API) {
-        try { await fetch(`${ALERT_API}/alerts/${alertId}/read`, { method: 'POST' }); } catch {}
+        try { await fetch(`${ALERT_API}/alerts/${alertId}/read`, { signal: AbortSignal.timeout(10000), method: 'POST' }); } catch {}
       }
     }
   }
@@ -695,7 +695,7 @@
     updateBadge();
     renderAlerts();
     if (ALERT_API) {
-      try { await fetch(`${ALERT_API}/alerts/mark-all-read/${_userId}`, { method: 'POST' }); } catch {}
+      try { await fetch(`${ALERT_API}/alerts/mark-all-read/${_userId}`, { signal: AbortSignal.timeout(10000), method: 'POST' }); } catch {}
     }
   }
 
@@ -716,9 +716,16 @@
   async function fetchAlerts() {
     if (!_userId || !ALERT_API) return; // Gracefully skip on production
     try {
-      const r = await fetch(`${ALERT_API}/alerts/${_userId}?limit=50`);
-      if (!r.ok) return;
-      const data = await r.json();
+      const A = window.FinosAPI;
+      const q = `/alerts/${encodeURIComponent(_userId)}?limit=50`;
+      let data;
+      if (A && A.available('alerts')) data = await A.request('alerts', q, { timeout: 8000, retries: 0 });
+      else {
+        const r = await fetch(ALERT_API + q, { signal: AbortSignal.timeout(8000) });
+        if (!r.ok) return;
+        data = await r.json();
+      }
+      if (!data) return;
       _alerts  = data.alerts || [];
       _unread  = data.unread_count || 0;
       updateBadge();
@@ -827,7 +834,7 @@
     }
     let vapidKey;
     try {
-      const r = await fetch(`${ALERT_API}/vapid-public-key`);
+      const r = await fetch(`${ALERT_API}/vapid-public-key`, { signal: AbortSignal.timeout(8000) });
       if (!r.ok) throw new Error('No VAPID key');
       vapidKey = (await r.json()).public_key;
     } catch {
@@ -856,7 +863,7 @@
       // Register with alert engine
       if (_userId && sub) {
         const subJson = sub.toJSON();
-        await fetch(`${ALERT_API}/alerts/subscribe`, {
+        await fetch(`${ALERT_API}/alerts/subscribe`, { signal: AbortSignal.timeout(10000),
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -920,8 +927,14 @@
           subscribeRealtime();
           setupPush();   // async — doesn't block
           // Refresh every 5 minutes
-          const _pollInterval = setInterval(fetchAlerts, 5 * 60 * 1000);
-          window.addEventListener('beforeunload', () => clearInterval(_pollInterval), { once: true });
+          // visibility-aware + non-overlapping when FinosAPI is there; plain timer otherwise
+          if (window.FinosAPI && window.FinosAPI.poll) {
+            const _stopPoll = window.FinosAPI.poll(fetchAlerts, 5 * 60 * 1000);
+            window.addEventListener('beforeunload', _stopPoll, { once: true });
+          } else {
+            const _pollInterval = setInterval(fetchAlerts, 5 * 60 * 1000);
+            window.addEventListener('beforeunload', () => clearInterval(_pollInterval), { once: true });
+          }
         }
       }
     } catch (e) {

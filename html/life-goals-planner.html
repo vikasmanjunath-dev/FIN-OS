@@ -12,7 +12,7 @@
 <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
-<script src="../js/arya-ai.js?v=7"></script>
+<script src="../js/arya-ai.js?v=8"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body {background:var(--bg-main);color:var(--text-primary);min-height:100vh;}
@@ -162,10 +162,10 @@ body {background:var(--bg-main);color:var(--text-primary);min-height:100vh;}
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
-  <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css?v=3">
-  <link rel="stylesheet" href="../css/components.css">
-  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/base.css?v=2">
+  <link rel="stylesheet" href="../css/layout.css?v=4">
+  <link rel="stylesheet" href="../css/components.css?v=2">
+  <link rel="stylesheet" href="../css/theme.css?v=2">
   <link rel="stylesheet" href="../css/interactions.css">
 </head>
 <body data-nav-parent="tools.html">
@@ -359,13 +359,21 @@ body {background:var(--bg-main);color:var(--text-primary);min-height:100vh;}
 
 </div>
 
-<script src="../js/ui.js" defer></script>
+<script src="../js/ui.js?v=5" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
 <script src="../js/pwa-init.js"></script>
-<script src="../js/finos-widget.js?v=10"></script>
-<script src="../js/finos-search.js?v=5"></script>
+<script src="../js/finos-widget.js?v=11"></script>
+<script src="../js/finos-search.js?v=6"></script>
 
 <script>
+/* NDJSON streams arrive in arbitrary chunks: keep the unfinished last line for the next read
+   (splitting each chunk on its own drops any token whose JSON line straddles two chunks). */
+function _ndLines(dec, value) {
+  const parts = ((dec._tail || '') + dec.decode(value, { stream: true })).split('\n');
+  dec._tail = parts.pop();
+  return parts;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    AI LIFE GOALS PLANNER — pure JS math engine + Arya AI narrative
    ═══════════════════════════════════════════════════════════════════════ */
@@ -797,12 +805,12 @@ No preamble. Address the user as "tu". Be direct and motivating.
     const removeCursor = () => { document.getElementById(cursorId)?.remove(); };
 
     try {
-      const resp = await fetch(OLLAMA_URL, {
+      const resp = await fetch(OLLAMA_URL, { signal: AbortSignal.timeout(180000),
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'qwen3:14b', prompt,
-          system: 'Arya FIN-OS AI. One sentence Hinglish warm advice. Max 25 words. Direct, personal, motivating. No preamble.',
+          system: 'Arya FIN-OS AI. One sentence Hinglish warm advice. Max 25 words. Direct, personal, motivating. No preamble.' + (window.FINOS && window.FINOS.aiDirective ? window.FINOS.aiDirective() : ''),
           stream: true, options: { temperature: 0.6, num_predict: 60 },
         }),
       });
@@ -812,7 +820,7 @@ No preamble. Address the user as "tu". Be direct and motivating.
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        dec.decode(value).split('\n').forEach(line => {
+        _ndLines(dec, value).forEach(line => {
           if (!line.trim()) return;
           try {
             const d = JSON.parse(line);

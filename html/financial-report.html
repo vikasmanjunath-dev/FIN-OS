@@ -13,11 +13,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
-<link rel="stylesheet" href="../css/base.css">
-<link rel="stylesheet" href="../css/layout.css?v=3">
-<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/base.css?v=2">
+<link rel="stylesheet" href="../css/layout.css?v=4">
+<link rel="stylesheet" href="../css/components.css?v=2">
 <link rel="stylesheet" href="../css/animations.css">
-<link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="../css/theme.css?v=2">
 <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
@@ -718,13 +718,10 @@ async function loadReport() {
     const uid = session?.user?.id;
     if (!uid) throw new Error('no session');
 
-    const timeout = ms => new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms));
-    const [hsRes, benchRes] = await Promise.race([
-      Promise.all([
-        fetch(`${ALERT_ENGINE}/health-score/${uid}`),
-        fetch(`${ALERT_ENGINE}/benchmark/${uid}`)
-      ]),
-      timeout(8000).then(() => { throw new Error('timeout'); })
+    // AbortSignal.timeout() really cancels both requests; the old Promise.race only stopped waiting for them
+    const [hsRes, benchRes] = await Promise.all([
+      fetch(`${ALERT_ENGINE}/health-score/${uid}`, { signal: AbortSignal.timeout(8000) }),
+      fetch(`${ALERT_ENGINE}/benchmark/${uid}`,    { signal: AbortSignal.timeout(8000) })
     ]);
     if (!hsRes.ok || !benchRes.ok) throw new Error('fetch failed');
 
@@ -752,7 +749,7 @@ async function loadReport() {
 
 loadReport();
 </script>
-  <script src="../js/ui.js" defer></script>
+  <script src="../js/ui.js?v=5" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
 
 <script src="../js/sidebar.js"></script>
@@ -779,7 +776,7 @@ loadReport();
   });
 })();
 </script>
-<script src="../js/finos-widget.js?v=10"></script>
+<script src="../js/finos-widget.js?v=11"></script>
 <script src="../js/pwa-init.js"></script>
 </body>
 </html>

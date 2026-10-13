@@ -13,11 +13,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../css/design-tokens.css">
-<link rel="stylesheet" href="../css/base.css">
-<link rel="stylesheet" href="../css/layout.css?v=3">
-<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/base.css?v=2">
+<link rel="stylesheet" href="../css/layout.css?v=4">
+<link rel="stylesheet" href="../css/components.css?v=2">
 <link rel="stylesheet" href="../css/animations.css">
-<link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="../css/theme.css?v=2">
 <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
@@ -497,7 +497,7 @@ async function loadUserProfile() {
     const name = session.user.user_metadata?.full_name || session.user.email || lsFirst;
     document.getElementById('chipName').textContent = name.split(' ')[0];
 
-    const res = await fetch(`${ALERT_ENGINE}/health-score/${session.user.id}`);
+    const res = await fetch(`${ALERT_ENGINE}/health-score/${session.user.id}`, { signal: AbortSignal.timeout(8000) });
     if (res.ok) {
       const hs = await res.json();
       document.getElementById('chipTier').textContent = hs.tier || getTier(hs.score || 0);
@@ -596,12 +596,12 @@ function setStatus(color, text) {
 
 // ── Ollama fallback ──
 async function askOllama(userMessage) {
-  const res = await fetch(OLLAMA_URL, {
+  const res = await fetch(OLLAMA_URL, { signal: AbortSignal.timeout(180000),
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: OLLAMA_MODEL,
-      prompt: `${ARYA_SYSTEM}\n\nUser: ${userMessage}\nArya:`,
+      prompt: `${ARYA_SYSTEM}${(window.FINOS && window.FINOS.aiDirective ? window.FINOS.aiDirective() : '')}\n\nUser: ${userMessage}\nArya:`,
       stream: false
     })
   });
@@ -830,7 +830,7 @@ function restoreChatHistory() {
 // ── Boot ──
 init();
 </script>
-  <script src="../js/ui.js" defer></script>
+  <script src="../js/ui.js?v=5" defer></script>
   <script src="../js/mobile-nav.js" defer></script>
 
 <script src="../js/sidebar.js"></script>
@@ -857,7 +857,7 @@ init();
   });
 })();
 </script>
-<script src="../js/finos-widget.js?v=10"></script>
+<script src="../js/finos-widget.js?v=11"></script>
 <script src="../js/pwa-init.js"></script>
 </body>
 </html>

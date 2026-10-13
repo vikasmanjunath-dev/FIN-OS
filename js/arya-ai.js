@@ -1113,7 +1113,7 @@ Keep it friendly and conversational — like explaining to a friend at a chai st
         span.classList.remove('arya-ai-cursor');
         document.getElementById('arya-learn-more').style.display = '';
         document.getElementById('arya-learn-more').onclick = async () => {
-          resp.innerHTML += '\n\n';
+          resp.insertAdjacentHTML('beforeend', '\n\n');
           const span2 = document.createElement('span');
           resp.appendChild(span2);
           await _ollamaStream(BASE_SYSTEM,

@@ -19,6 +19,13 @@
 
 (function () {
   'use strict';
+  /* NDJSON streams arrive in arbitrary chunks: keep the unfinished last line for the next read
+     (splitting each chunk on its own drops any token whose JSON line straddles two chunks). */
+  function _ndLines(dec, value) {
+    const parts = ((dec._tail || '') + dec.decode(value, { stream: true })).split('\n');
+    dec._tail = parts.pop();
+    return parts;
+  }
 
   /* ── Config ─────────────────────────────────────────────────────────────── */
   const OLLAMA_URL   = 'https://127.0.0.1:8767/api/generate';
@@ -84,13 +91,13 @@
   /* ── Utility: call Ollama streaming ─────────────────────────────────────── */
   async function ollamaStream(prompt, system, onToken) {
     try {
-      const res = await fetch(OLLAMA_URL, {
+      const res = await fetch(OLLAMA_URL, { signal: AbortSignal.timeout(180000),
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model:  OLLAMA_MODEL,
           prompt,
-          system: system || 'You are Arya, a warm, concise Indian finance AI. Reply in 1-2 sentences max. No markdown. No preamble.',
+          system: (system || 'You are Arya, a warm, concise Indian finance AI. Reply in 1-2 sentences max. No markdown. No preamble.') + (window.FINOS && window.FINOS.aiDirective ? window.FINOS.aiDirective() : ''),
           stream: true,
           options: { temperature: 0.65, num_predict: 120, num_ctx: 4096 },
         }),
@@ -102,7 +109,7 @@
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        dec.decode(value).split('\n').forEach(line => {
+        _ndLines(dec, value).forEach(line => {
           if (!line.trim()) return;
           try {
             const d = JSON.parse(line);
