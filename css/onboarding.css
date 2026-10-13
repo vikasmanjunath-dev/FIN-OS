@@ -124,7 +124,9 @@ body {
 }
 
 /* ===== BUTTON ===== */
-button {
+/* Scoped to the page's own CTA: a bare `button` rule restyled every injected control too (hamburger,
+   search, bell, theme toggle), turning them into big olive pills with a 36px top margin. */
+#nextBtn {
   margin-top: 36px;
   padding: 14px 38px;
   border-radius: 999px;
@@ -138,12 +140,12 @@ button {
   transition: all 0.3s ease;
 }
 
-button.enabled {
+#nextBtn.enabled {
   opacity: 1;
   box-shadow: 0 24px 50px rgba(182,255,59,0.45);
 }
 
-button.enabled:hover {
+#nextBtn.enabled:hover {
   transform: translateY(-3px);
 }
 
