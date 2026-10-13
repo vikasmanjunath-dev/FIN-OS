@@ -11,6 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
 <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
+  <script src="../js/finos-life-goals.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
 <script src="../js/arya-ai.js?v=8"></script>
 <style>
@@ -311,19 +312,19 @@ body {background:var(--bg-main);color:var(--text-primary);min-height:100vh;}
     <div class="input-grid">
       <div class="inp-wrap">
         <label class="inp-label">Your Age</label>
-        <input class="inp-field" id="inAge" type="number" value="28" min="18" max="60">
+        <input class="inp-field" id="inAge" type="number" placeholder="e.g. 28" min="18" max="80">
       </div>
       <div class="inp-wrap">
         <label class="inp-label">Monthly Income ₹</label>
-        <input class="inp-field" id="inIncome" type="number" value="120000" placeholder="e.g. 120000">
+        <input class="inp-field" id="inIncome" type="number" placeholder="e.g. 120000">
       </div>
       <div class="inp-wrap">
         <label class="inp-label">Current Savings ₹</label>
-        <input class="inp-field" id="inSavings" type="number" value="320000" placeholder="e.g. 320000">
+        <input class="inp-field" id="inSavings" type="number" placeholder="e.g. 320000">
       </div>
       <div class="inp-wrap">
         <label class="inp-label">Monthly Investable ₹</label>
-        <input class="inp-field" id="inSurplus" type="number" value="35000" placeholder="e.g. 35000">
+        <input class="inp-field" id="inSurplus" type="number" placeholder="e.g. 35000">
       </div>
       <div class="inp-wrap">
         <label class="inp-label">Retirement Age</label>
@@ -389,6 +390,8 @@ const DEFAULT_GOALS = [
 
 let goalCount = 0;
 
+const esc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+
 function addGoal(preset = null) {
   const id = ++goalCount;
   const g = preset || { name: '', amount: '', years: '', inflation: 0.06 };
@@ -398,7 +401,7 @@ function addGoal(preset = null) {
   row.innerHTML = `
     <div class="inp-wrap">
       <label class="inp-label">Goal Name</label>
-      <input class="inp-field" id="g-name-${id}" value="${g.name}" placeholder="e.g. Own Home">
+      <input class="inp-field" id="g-name-${id}" value="${esc(g.name)}" placeholder="e.g. Own Home">
     </div>
     <div class="inp-wrap">
       <label class="inp-label">Target ₹</label>
@@ -420,23 +423,8 @@ function addGoal(preset = null) {
 // Seed default goals
 DEFAULT_GOALS.forEach(g => addGoal(g));
 
-/* ── Math helpers ────────────────────────────────────────────────────── */
-function sipFV(monthly, months, annualRate) {
-  const r = annualRate / 12;
-  if (r < 1e-10) return monthly * months;
-  return monthly * ((Math.pow(1 + r, months) - 1) / r) * (1 + r);
-}
-
-function findSIP(target, years, annualRate) {
-  if (target <= 0 || years <= 0) return 0;
-  const months = years * 12;
-  let lo = 100, hi = 10000000;
-  for (let i = 0; i < 60; i++) {
-    const mid = (lo + hi) / 2;
-    if (sipFV(mid, months, annualRate) < target) lo = mid; else hi = mid;
-  }
-  return Math.ceil((lo + hi) / 2 / 500) * 500;
-}
+/* ── Math helpers (shared with the tests: js/finos-life-goals.js) ───── */
+const { sipFV, findSIP } = FinosLifeGoals;
 
 function fmt(n) {
   if (n >= 1e7)  return '₹' + (n / 1e7).toFixed(1) + ' Cr';
@@ -479,30 +467,11 @@ function generateRoadmap() {
   const retireAge  = parseInt(document.getElementById('inRetireAge').value) || 58;
   const returnRate = parseFloat(document.getElementById('inReturn').value) / 100 || 0.12;
 
-  // Validate required fields
-  if (!age || age < 18 || age > 80) {
-    showValidationError('Please enter a valid age between 18 and 80.');
-    document.getElementById('inAge').focus();
-    return;
-  }
-  if (!income || income < 1000) {
-    showValidationError('Please enter a monthly income of at least ₹1,000.');
-    document.getElementById('inIncome').focus();
-    return;
-  }
-  if (!surplus || surplus <= 0) {
-    showValidationError('Please enter how much you can invest each month (must be greater than 0).');
-    document.getElementById('inSurplus').focus();
-    return;
-  }
-  if (surplus >= income) {
-    showValidationError('Monthly investable amount cannot be greater than or equal to your monthly income.');
-    document.getElementById('inSurplus').focus();
-    return;
-  }
-  if (retireAge <= age) {
-    showValidationError('Retirement age must be greater than your current age.');
-    document.getElementById('inRetireAge').focus();
+  const profileError = FinosLifeGoals.validateProfile({ age, income, surplus, retireAge });
+  if (profileError) {
+    showValidationError(profileError);
+    const bad = !age || age < 18 || age > 80 ? 'inAge' : (!income || income < 1000) ? 'inIncome' : (!surplus || surplus <= 0 || surplus >= income) ? 'inSurplus' : 'inRetireAge';
+    document.getElementById(bad).focus();
     return;
   }
 
@@ -526,28 +495,9 @@ function generateRoadmap() {
   const btn = document.getElementById('genBtn');
   btn.disabled = true; btn.textContent = '⏳ Calculating…';
 
-  // ── Core computations ──────────────────────────────────────────────
-  const monthlyExpenses = income - surplus;
-  const efTarget = monthlyExpenses * 6;
-  const efDone   = Math.min(savings, efTarget);
-  const efGap    = Math.max(0, efTarget - efDone);
-
-  // Process each goal
-  const processed = goals.map(g => {
-    const inflatedTarget = g.amount * Math.pow(1 + g.inflation, g.years);
-    const currentSavingsContrib = savings > efGap ? Math.min(savings - efGap, inflatedTarget) : 0;
-    const netTarget = Math.max(0, inflatedTarget - currentSavingsContrib * Math.pow(1 + returnRate, g.years));
-    const sipNeeded = findSIP(netTarget, g.years, returnRate);
-    const pct80c    = sipNeeded * 0.20; // ELSS portion suggestion
-    return { ...g, inflatedTarget, sipNeeded, pct80c };
-  });
-
-  const totalSIPNeeded = processed.reduce((s, g) => s + g.sipNeeded, 0);
-  const efAlloc        = efGap > 0 ? Math.min(surplus * 0.50, efGap / 6) : 0;
-  const sipAvail       = surplus - efAlloc;
-  const feasPct        = totalSIPNeeded > 0
-    ? Math.min(999, Math.round((sipAvail / totalSIPNeeded) * 100))
-    : 100;
+  // ── Core computations (js/finos-life-goals.js) ──────────────────────
+  const planned = FinosLifeGoals.plan({ age, income, savings, surplus, retireAge, returnRate, goals });
+  const { efTarget, efDone, efGap, efAlloc, processed, totalSIPNeeded, sipAvail, feasPct } = planned;
 
   const retireYears = Math.max(1, retireAge - age);
 
@@ -666,7 +616,7 @@ function generateRoadmap() {
 
   // ── Render ──────────────────────────────────────────────────────
   renderResults({ age, income, savings, surplus, returnRate, efTarget, efDone, efGap,
-                  processed, totalSIPNeeded, feasPct, phases, retireYears });
+                  processed, totalSIPNeeded, feasPct, phases, retireYears, pool: planned.pool });
 
   // Push goal data to finos context — flows to dashboard, FIRE calculator, Arya
   try {
@@ -709,7 +659,7 @@ function renderResults(data) {
   const totalSIPText = fmt(totalSIPNeeded);
   strip.innerHTML = [
     { label: 'Total Goals (inflated)', val: fmt(totalGoalAmount), sub: `${processed.length} goals`, color: '#4F7CFF' },
-    { label: 'Required Monthly SIP', val: totalSIPText, sub: `across all goals`, color: '#00ff88' },
+    { label: 'Required Monthly SIP', val: totalSIPText, sub: data.pool > 0 ? `after using ${fmt(data.pool)} of savings above your emergency fund` : `across all goals`, color: '#00ff88' },
     { label: 'Feasibility', val: feasPct + '%', sub: `of surplus covered`, color: feasPct >= 80 ? '#00ff88' : '#ffb703' },
     { label: 'Phases Defined', val: phases.length, sub: `roadmap milestones`, color: '#c7f000' },
   ].map(c => `
@@ -728,7 +678,7 @@ function renderResults(data) {
     return `
       <div class="goal-prog-row">
         <div class="goal-prog-header">
-          <span class="goal-prog-name">${g.name}</span>
+          <span class="goal-prog-name">${esc(g.name)}</span>
           <span class="goal-prog-meta">${fmt(g.sipNeeded)}/mo SIP needed</span>
         </div>
         <div class="prog-bar-track">
@@ -748,7 +698,7 @@ function renderResults(data) {
       <div class="phase-header">
         <div class="phase-dot" style="background:${p.color};box-shadow:0 0 8px ${p.color}60;"></div>
         <div>
-          <div class="phase-title">${p.title}</div>
+          <div class="phase-title">${esc(p.title)}</div>
           <div class="phase-years">${p.years}</div>
         </div>
       </div>
@@ -759,7 +709,7 @@ function renderResults(data) {
           return `
           <div class="phase-item">
             <span class="phase-item-icon">${s.icon}</span>
-            <span class="phase-item-text">${s.text}</span>
+            <span class="phase-item-text">${esc(s.text)}</span>
           </div>`;
         }).join('')}
       </div>
@@ -845,7 +795,9 @@ No preamble. Address the user as "tu". Be direct and motivating.
 document.addEventListener('DOMContentLoaded', function () {
   var INCOME_MAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
   var incomeKey  = localStorage.getItem('finos_income') || '';
-  var income     = INCOME_MAP[incomeKey] || 0;
+  // an exact monthly income (Money Score, Budget, onboarding) beats the coarse band from the profile form
+  var income     = Number(localStorage.getItem('finos_monthly_income')) || INCOME_MAP[incomeKey] || 0;
+  var knownAge   = Number(localStorage.getItem('finos_age')) || 0;
   var netWorth   = Number(localStorage.getItem('finos_net_worth')   || 0);
   var savingsRate = Number(localStorage.getItem('finos_savings_rate') || 0);
   var anyFilled  = false;
@@ -860,6 +812,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   if (netWorth > 0) {
     document.getElementById('inSavings').value = netWorth;
+    anyFilled = true;
+  }
+  if (knownAge >= 18 && knownAge <= 80) {
+    document.getElementById('inAge').value = knownAge;
     anyFilled = true;
   }
 
