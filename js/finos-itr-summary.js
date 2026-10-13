@@ -24,9 +24,9 @@ window.FinosITRSummary = (function () {
   const gss = k => localStorage.getItem(k) || '';
   const INR = v => '₹' + Math.abs(Math.round(v)).toLocaleString('en-IN');
 
-  /* ── Tax slabs FY 2025-26 ──────────────────────────────────────── */
+  /* ── Tax slabs: rates shown for Tax Year 2026-27 ───────────────── */
   function _taxNew(income) {
-    // New regime slabs (FY 2025-26, Budget 2025)
+    // New regime slabs for Tax Year 2026-27.
     // 0-4L: 0%, 4L-8L: 5%, 8L-12L: 10%, 12L-16L: 15%, 16L-20L: 20%, 20L-24L: 25%, 24L+: 30%
     const slabs = [
       [0,       400000,  0.00],
@@ -42,7 +42,7 @@ window.FinosITRSummary = (function () {
       if (income <= lo) break;
       tax += (Math.min(income, hi) - lo) * rate;
     }
-    // Rebate 87A (FY 2025-26): nil tax up to ₹12L taxable; just above, tax can't exceed the income over ₹12L
+    // Section 87A rebate and marginal relief for resident individuals.
     tax = income <= 1200000 ? 0 : Math.min(tax, income - 1200000);
     return Math.round(tax * 1.04); // 4% cess
   }
@@ -85,8 +85,12 @@ window.FinosITRSummary = (function () {
   /* ── Core computation ──────────────────────────────────────────── */
   function _compute() {
     // ── INCOME ──
-    const grossSalary    = gs('finos_salary_ctc')    || gs('finos_gross_salary');
-    const basicAnnual    = gs('finos_salary_basic')  * 12 || grossSalary * 0.40;
+    // CTC includes employer-side benefits and is not itself taxable salary. Use salary components
+    // from the Salary Optimizer when present; otherwise use an explicitly entered gross salary.
+    const salaryComponents = gs('finos_salary_basic') + gs('finos_salary_hra_received') + gs('finos_salary_lta') + gs('finos_salary_special');
+    const grossSalary    = salaryComponents || gs('finos_gross_salary') || gs('finos_salary_ctc');
+    const salaryBasis    = salaryComponents ? 'salary components' : (gs('finos_gross_salary') ? 'entered gross salary' : (gs('finos_salary_ctc') ? 'CTC proxy — verify' : 'not entered'));
+    const basicAnnual    = gs('finos_salary_basic') || grossSalary * 0.40;
     const hraReceived    = gs('finos_salary_hra')    || 0;
     const hraExempt      = _hraExempt();
 
@@ -94,8 +98,7 @@ window.FinosITRSummary = (function () {
     const rentalStdDed   = Math.round(rentalIncome * 0.30);  // 30% standard deduction
     const rentalTaxable  = Math.max(0, rentalIncome - rentalStdDed);
 
-    const fdValue        = gs('finos_fd_value');
-    const fdInterest     = gs('finos_fd_interest_annual') || Math.round(fdValue * 0.07);
+    const fdInterest     = gs('finos_fd_interest_annual');
     const dividendIncome = gs('finos_passive_dividend_annual') || 0;
     const otherIncome    = gs('finos_other_income_annual') || 0;
 
@@ -105,24 +108,26 @@ window.FinosITRSummary = (function () {
     // ── DEDUCTIONS (OLD REGIME ONLY) ──
 
     // 80C — itemised
-    const epfEmployee    = gs('finos_epf_employee_annual') || Math.round(gs('finos_salary_basic') * 12 * 0.12);
+    const epfEmployee    = gs('finos_epf_employee_annual') || Math.round(gs('finos_salary_basic') * 0.12);
     const ppf80c         = gs('finos_ppf_80c') || 0;
     const elss80c        = gs('finos_elss_invested') || 0;
     const lic80c         = gs('finos_lic_premium_annual') || 0;
-    const npsEmployee    = gs('finos_nps_employee_annual') || 0;
+    const npsEmployee    = gs('finos_nps_employee_annual') || gs('finos_nps_emp_monthly') * 12;
     const homeLoan80c    = gs('finos_home_loan_principal_annual') || 0;
     const ssy80c         = gs('finos_ssy_annual') || 0;
     const children80c    = gs('finos_school_fees_annual') || 0;  // tuition fees Sec 80C
-    const raw80c         = epfEmployee + ppf80c + elss80c + lic80c + npsEmployee + homeLoan80c + ssy80c + children80c;
+    const other80c       = epfEmployee + ppf80c + elss80c + lic80c + homeLoan80c + ssy80c + children80c;
+    const raw80c         = other80c + npsEmployee;
     const total80c       = Math.min(raw80c, 150000);
 
-    // 80CCD(1B) — NPS extra ₹50K
-    const nps80ccd1b     = Math.min(gs('finos_nps_employee_annual') || 0, 50000);
-    // If employee NPS was already counted in 80C, 80CCD(1B) is the additional beyond 80C
-    const extra80ccd1b   = Math.min(50000, Math.max(0, (gs('finos_nps_employee_annual') || 0) - 150000));
+    // A contribution cannot be claimed in both 80C and 80CCD(1B). Allocate NPS to the remaining 80C room first, then its separate ₹50K limit.
+    const npsIn80c       = Math.min(npsEmployee, Math.max(0, 150000 - other80c));
+    const extra80ccd1b   = Math.min(50000, Math.max(0, npsEmployee - npsIn80c));
 
-    // 80CCD(2) — Employer NPS contribution (no cap in new regime too)
-    const npsEmployer    = gs('finos_nps_employer_annual') || Math.round(basicAnnual * 0.10);
+    // Employer NPS cap: 10% of salary in old regime (non-government), 14% in new regime.
+    const employerContribution = gs('finos_nps_employer_annual') || gs('finos_nps_er_monthly') * 12 || gs('finos_salary_nps_er') || Math.round(basicAnnual * 0.10);
+    const npsEmployerOld = Math.round(Math.min(employerContribution, basicAnnual * 0.10));
+    const npsEmployerNew = Math.round(Math.min(employerContribution, basicAnnual * 0.14));
 
     // 80D — health insurance premiums
     const healthPremSelf  = gs('finos_health_ins_premium') || 0;
@@ -146,8 +151,8 @@ window.FinosITRSummary = (function () {
     const stdDedNew = 75000;
     const stdDedOld = 50000;
 
-    const totalDeductionsOld = stdDedOld + total80c + extra80ccd1b + total80D + sec24b + edu80E + sec80tta;
-    const totalDeductionsNew = stdDedNew + npsEmployer; // Only employer NPS + std ded in new regime
+    const totalDeductionsOld = stdDedOld + total80c + extra80ccd1b + total80D + sec24b + edu80E + sec80tta + npsEmployerOld;
+    const totalDeductionsNew = stdDedNew + npsEmployerNew; // Only employer NPS + std ded in new regime
 
     const taxableOld = Math.max(0, grossTotalIncome - totalDeductionsOld);
     const taxableNew = Math.max(0, grossTotalIncome - totalDeductionsNew);
@@ -156,11 +161,12 @@ window.FinosITRSummary = (function () {
     const taxNew = _taxNew(taxableNew);
 
     const betterRegime = taxNew <= taxOld ? 'new' : 'old';
+    const npsEmployer = betterRegime === 'new' ? npsEmployerNew : npsEmployerOld;
     const savedByRegime = Math.abs(taxOld - taxNew);
 
     // ── TDS ──
-    const tdsBySalary = gs('finos_tds_salary_annual') || Math.round(Math.min(taxNew, taxOld) * 0.95);
-    const tdsByBank   = gs('finos_tds_bank_annual')   || Math.round(fdInterest > 40000 ? fdInterest * 0.10 : 0);
+    const tdsBySalary = gs('finos_tds_salary_annual');
+    const tdsByBank   = gs('finos_tds_bank_annual')   || 0;
     const totalTDS    = tdsBySalary + tdsByBank;
 
     // ── BALANCE ──
@@ -179,12 +185,14 @@ window.FinosITRSummary = (function () {
       { label: 'Children Tuition Fees',        val: children80c,  note: '' },
     ].filter(i => i.val > 0);
 
-    const fy = `FY 2025-26 (AY 2026-27)`;
+    const now = new Date();
+    const taxYearStart = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+    const fy = `Tax Year ${taxYearStart}-${String(taxYearStart + 1).slice(-2)}`;
 
     return {
-      fy, grossSalary, hraExempt, rentalIncome, rentalTaxable, fdInterest, dividendIncome, otherIncome,
+      fy, grossSalary, salaryBasis, hraExempt, rentalIncome, rentalTaxable, fdInterest, dividendIncome, otherIncome,
       grossTotalIncome, epfEmployee, ppf80c, elss80c, lic80c, npsEmployee, homeLoan80c,
-      raw80c, total80c, extra80ccd1b, npsEmployer, total80D, sec24b, edu80E, sec80tta,
+      raw80c, total80c, extra80ccd1b, npsEmployer, npsEmployerOld, npsEmployerNew, total80D, sec24b, edu80E, sec80tta,
       totalDeductionsOld, totalDeductionsNew, taxableOld, taxableNew,
       taxOld, taxNew, betterRegime, savedByRegime, tdsBySalary, tdsByBank, totalTDS,
       liabilityFinal, balanceTax, _80cItems,
@@ -220,7 +228,7 @@ window.FinosITRSummary = (function () {
     const balColor    = c.balanceTax > 0 ? '#EF4444' : '#22D3A6';
 
     const incomeContent = [
-      _row('Gross Salary / CTC', INR(c.grossSalary)),
+      _row('Gross Salary', INR(c.grossSalary), c.salaryBasis),
       _row('Less: HRA Exemption [Sec 10(13A)]', c.hraExempt > 0 ? `(${INR(c.hraExempt)})` : '₹0'),
       c.rentalIncome > 0 ? _row('Rental Income (Net after 30% std ded)', INR(c.rentalTaxable)) : '',
       c.fdInterest > 0   ? _row('FD / Interest Income', INR(c.fdInterest)) : '',
@@ -244,7 +252,7 @@ window.FinosITRSummary = (function () {
 
     const dedNewContent = [
       _row('Standard Deduction', INR(75000), 'higher in new regime'),
-      c.npsEmployer > 0 ? _row('80CCD(2) — Employer NPS contribution', INR(c.npsEmployer), 'no cap') : '',
+      c.npsEmployer > 0 ? _row('80CCD(2) — Employer NPS contribution', INR(c.npsEmployer), 'salary-based limit') : '',
       _row('Total Deductions', `(${INR(c.totalDeductionsNew)})`),
       _row('Taxable Income', INR(c.taxableNew)),
       _row('Tax (incl. 4% cess)', INR(c.taxNew), 'new regime'),
@@ -354,7 +362,7 @@ ${_sec('D · TDS Already Deducted', '#00D4FF', tdsContent)}
 <div style="background:rgba(155,93,229,.05);border:1px solid rgba(155,93,229,.15);border-radius:16px;padding:20px;margin-bottom:16px;">
   <div style="font-size:13px;font-weight:800;color:#9B5DE5;margin-bottom:12px;">Section 80CCD — NPS</div>
   ${_row('80CCD(1B) — Extra NPS deduction', INR(c.extra80ccd1b), '₹50K over 80C limit')}
-  ${_row('80CCD(2) — Employer NPS contribution', INR(c.npsEmployer), 'no cap (new/old regime both)')}
+  ${_row('80CCD(2) — Employer NPS contribution', INR(c.npsEmployer), 'salary-based limit')}
   ${c.extra80ccd1b < 50000 ? `<div style="margin-top:10px;padding:10px 14px;background:rgba(155,93,229,.08);border:1px solid rgba(155,93,229,.2);border-radius:10px;font-size:12px;color:#9B5DE5;">
     💡 You can invest ₹${(50000 - c.extra80ccd1b).toLocaleString('en-IN')} more in NPS Tier 1 to claim full 80CCD(1B) — saves ${INR(Math.round((50000 - c.extra80ccd1b) * 0.30 * 1.04))} tax (30% bracket)
   </div>` : '<div style="margin-top:10px;padding:10px 14px;background:rgba(34,211,166,.06);border:1px solid rgba(34,211,166,.2);border-radius:10px;font-size:12px;color:#22D3A6;">✓ 80CCD(1B) fully utilised</div>'}

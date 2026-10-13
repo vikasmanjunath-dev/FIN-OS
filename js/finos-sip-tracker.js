@@ -45,30 +45,32 @@
    * cashflows: [{amount, date}] — negative for investments, positive for final value.
    * Returns annual rate (e.g. 0.14 = 14%).
    */
-  function xirr(cashflows, guess = 0.1) {
+  function xirr(cashflows) {
+    if (!Array.isArray(cashflows) || cashflows.length < 2 || !cashflows.some(cf => cf.amount < 0) || !cashflows.some(cf => cf.amount > 0)) return null;
     const dates = cashflows.map(cf => new Date(cf.date));
-    const t0    = dates[0];
-    const days  = dates.map(d => (d - t0) / (1000 * 86400));
-
+    if (dates.some(d => !Number.isFinite(d.getTime())) || cashflows.some(cf => !Number.isFinite(Number(cf.amount)))) return null;
+    const t0 = dates[0];
+    const days = dates.map(d => (d - t0) / 86400000);
     function npv(rate) {
-      return cashflows.reduce((s, cf, i) => s + cf.amount / Math.pow(1 + rate, days[i] / 365), 0);
+      if (rate <= -1) return Infinity;
+      return cashflows.reduce((sum, cf, i) => sum + cf.amount / Math.pow(1 + rate, days[i] / 365), 0);
     }
-    function dnpv(rate) {
-      return cashflows.reduce((s, cf, i) =>
-        s - (days[i] / 365) * cf.amount / Math.pow(1 + rate, days[i] / 365 + 1), 0);
-    }
-
-    let rate = guess;
+    // These tracker cash flows are contributions followed by one terminal value, so NPV is monotone.
+    // Bracket and bisect to avoid Newton-Raphson diverging or returning an unconverged rate.
+    let lo = -0.9999, hi = 1, flo = npv(lo), fhi = npv(hi);
+    while (flo * fhi > 0 && hi < 1e6) { hi = hi * 2 + 1; fhi = npv(hi); }
+    if (!Number.isFinite(flo) || !Number.isFinite(fhi) || flo * fhi > 0) return null;
     for (let i = 0; i < 100; i++) {
-      const f  = npv(rate);
-      const df = dnpv(rate);
-      if (Math.abs(df) < 1e-12) break;
-      const next = rate - f / df;
-      if (Math.abs(next - rate) < 1e-8) { rate = next; break; }
-      rate = next;
-      if (rate <= -1) rate = -0.9999;
+      const mid = (lo + hi) / 2, fmid = npv(mid);
+      if (Math.abs(fmid) < 0.01 || hi - lo < 1e-10) return mid;
+      if (flo * fmid <= 0) { hi = mid; fhi = fmid; }
+      else { lo = mid; flo = fmid; }
     }
-    return isFinite(rate) ? rate : null;
+    return null;
+  }
+
+  function localISODate(date) {
+    return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
   }
 
   /* ── Data layer ─────────────────────────────────────────────────── */
@@ -99,30 +101,34 @@
   function calcSIPMetrics(sip, currentNAV) {
     const start   = new Date(sip.startDate);
     const today   = new Date();
-    const months  = Math.max(monthsBetween(sip.startDate, today.toISOString().slice(0, 10)), 1);
-    const monthly = sip.monthlyAmount;
-    const invested = monthly * months;
+    const monthDelta = monthsBetween(sip.startDate, localISODate(today));
+    const months = Number.isFinite(start.getTime()) && start <= today ? Math.max(1, monthDelta + 1) : 0;
+    const monthly = Number(sip.monthlyAmount);
+    const invested = Number.isFinite(monthly) && monthly > 0 ? monthly * months : 0;
 
-    // Simplified unit accumulation: assume constant NAV at navAtStart for all historical
-    // purchases, then current NAV for the terminal value. This is a reasonable
-    // approximation when historical per-month NAVs are unavailable.
-    const navAtStart = sip.navAtStart || currentNAV;
-    // Each SIP instalment bought units at navAtStart (conservative simplification)
-    const totalUnits = (invested / navAtStart);
-    const currentValue = totalUnits * currentNAV;
-    const pnlAmt = currentValue - invested;
-    const pnlPct = invested > 0 ? (pnlAmt / invested) * 100 : 0;
+    // Historical purchase NAVs/units are not available from the current data
+    // source. The estimate below deliberately makes that assumption explicit;
+    // without a live NAV, do not manufacture a valuation from the old NAV or
+    // the old ₹100 fallback.
+    const nav = Number(currentNAV);
+    const navAtStart = Number(sip.navAtStart);
+    const canEstimate = months > 0 && Number.isFinite(monthly) && monthly > 0
+      && Number.isFinite(nav) && nav > 0 && Number.isFinite(navAtStart) && navAtStart > 0;
+    const totalUnits = canEstimate ? invested / navAtStart : null;
+    const currentValue = canEstimate ? totalUnits * nav : null;
+    const pnlAmt = canEstimate ? currentValue - invested : null;
+    const pnlPct = canEstimate && invested > 0 ? (pnlAmt / invested) * 100 : null;
 
     // Build monthly cash flows for XIRR
     const cfs = [];
-    for (let m = 0; m < months; m++) {
+    for (let m = 0; canEstimate && m < months; m++) {
       const d = new Date(start);
       d.setMonth(d.getMonth() + m);
-      cfs.push({ amount: -monthly, date: d.toISOString().slice(0, 10) });
+      cfs.push({ amount: -monthly, date: localISODate(d) });
     }
-    cfs.push({ amount: currentValue, date: today.toISOString().slice(0, 10) });
+    cfs.push({ amount: currentValue, date: localISODate(today) });
 
-    const xirrRate = months >= 3 ? xirr(cfs) : null;
+    const xirrRate = canEstimate && months >= 3 ? xirr(cfs) : null;
 
     return {
       months,
@@ -132,12 +138,14 @@
       pnlAmt,
       pnlPct,
       xirr: xirrRate !== null ? xirrRate * 100 : null,
+      valued: canEstimate,
     };
   }
 
   /* ── Context push ───────────────────────────────────────────────── */
   function pushToContext(portfolio, totals) {
-    localStorage.setItem('finos_sip_value', totals.currentValue.toString());
+    if (Number.isFinite(totals.currentValue)) localStorage.setItem('finos_sip_value', totals.currentValue.toString());
+    else localStorage.removeItem('finos_sip_value');
     localStorage.setItem('finos_sip_invested', totals.invested.toString());
     if (window.FinosContext?.update) {
       window.FinosContext.update({ sipPortfolio: portfolio, sipTotals: totals });
@@ -165,18 +173,21 @@
     let totalInvested = 0, totalCurrent = 0;
     const enriched = portfolio.map(sip => {
       const info = navData[sip.schemeCode];
-      const currentNAV = info?.nav ?? sip.navAtStart ?? 100;
+      const navValue = Number(info?.nav);
+      const currentNAV = Number.isFinite(navValue) && navValue > 0 ? navValue : null;
       const metrics = calcSIPMetrics(sip, currentNAV);
       totalInvested += metrics.invested;
-      totalCurrent  += metrics.currentValue;
-      return { ...sip, metrics, currentNAV, fundInfo: info };
+      if (metrics.valued) totalCurrent += metrics.currentValue;
+      return { ...sip, metrics, currentNAV, navLive: currentNAV !== null, fundInfo: info };
     });
 
-    const totalPnL   = totalCurrent - totalInvested;
-    const totalPnLPct = totalInvested > 0 ? (totalPnL / totalInvested) * 100 : 0;
-    const overallColor = totalPnL >= 0 ? '#22D3A6' : '#FF4444';
+    const valuationsComplete = enriched.every(sip => sip.metrics.valued);
+    const displayedCurrent = valuationsComplete ? totalCurrent : null;
+    const totalPnL   = valuationsComplete ? totalCurrent - totalInvested : null;
+    const totalPnLPct = valuationsComplete && totalInvested > 0 ? (totalPnL / totalInvested) * 100 : null;
+    const overallColor = totalPnL === null ? '#8892A4' : (totalPnL >= 0 ? '#22D3A6' : '#FF4444');
 
-    pushToContext(enriched, { invested: totalInvested, currentValue: totalCurrent, pnl: totalPnL });
+    pushToContext(enriched, { invested: totalInvested, currentValue: displayedCurrent, pnl: totalPnL });
 
     container.innerHTML = `
       <style>
@@ -212,12 +223,13 @@
         </div>
         <div class="sip-pill">
           <div class="sip-pill-label">Current Value</div>
-          <div class="sip-pill-value">${INR(totalCurrent)}</div>
+          <div class="sip-pill-value">${displayedCurrent === null ? '—' : INR(displayedCurrent)}</div>
+          ${!valuationsComplete ? '<div style="font-size:10px;color:#F0A500;margin-top:3px;">Live NAV missing for one or more funds</div>' : ''}
         </div>
         <div class="sip-pill">
           <div class="sip-pill-label">Total P&L</div>
-          <div class="sip-pill-value" style="color:${overallColor};">${totalPnL>=0?'+':''}${INR(Math.abs(totalPnL))}</div>
-          <div style="font-size:11px;color:${overallColor};margin-top:2px;">${pct(totalPnLPct)}</div>
+          <div class="sip-pill-value" style="color:${overallColor};">${totalPnL === null ? '—' : `${totalPnL>=0?'+':''}${INR(Math.abs(totalPnL))}`}</div>
+          ${totalPnLPct === null ? '' : `<div style="font-size:11px;color:${overallColor};margin-top:2px;">${pct(totalPnLPct)}</div>`}
         </div>
         <div class="sip-pill">
           <div class="sip-pill-label">SIPs Running</div>
@@ -245,14 +257,14 @@
       </div>
 
       <div style="font-size:11px;color:rgba(255,255,255,0.58);text-align:right;margin-top:12px;">
-        NAV data from AMFI · Updated daily · Values are indicative
+        NAV data from AMFI · Updated daily. Estimated units assume every instalment bought at the first NAV recorded for the plan; actual transaction history is needed for exact units, value, P&amp;L and XIRR. Values are withheld when live NAV is unavailable.
       </div>`;
   }
 
   function _sipCard(sip) {
     const m = sip.metrics;
-    const c = m.pnlAmt >= 0 ? '#22D3A6' : '#FF4444';
-    const barWidth = m.invested > 0 ? Math.min((m.currentValue / m.invested) * 100, 200).toFixed(1) : '0';
+    const c = m.pnlAmt === null ? '#8892A4' : (m.pnlAmt >= 0 ? '#22D3A6' : '#FF4444');
+    const barWidth = m.valued && m.invested > 0 ? Math.min((m.currentValue / m.invested) * 100, 200).toFixed(1) : '0';
     const catColors = {
       large_cap: '#00D4FF', mid_cap: '#7B2FF7', small_cap: '#F0A500',
       flexi_cap: '#22D3A6', elss: '#FF8C42', index: '#4DB8FF',
@@ -287,19 +299,19 @@
           </div>
           <div class="sip-metric">
             <div class="sip-metric-label">Current Value</div>
-            <div class="sip-metric-value">${INR(m.currentValue)}</div>
+          <div class="sip-metric-value">${m.valued ? INR(m.currentValue) : 'NAV unavailable'}</div>
           </div>
           <div class="sip-metric">
             <div class="sip-metric-label">P&L</div>
-            <div class="sip-metric-value" style="color:${c};">${m.pnlAmt>=0?'+':''}${INR(Math.abs(m.pnlAmt))}</div>
-            <div style="font-size:10px;color:${c};">${pct(m.pnlPct)}</div>
+            <div class="sip-metric-value" style="color:${c};">${m.pnlAmt === null ? '—' : `${m.pnlAmt>=0?'+':''}${INR(Math.abs(m.pnlAmt))}`}</div>
+            ${m.pnlPct === null ? '' : `<div style="font-size:10px;color:${c};">${pct(m.pnlPct)}</div>`}
           </div>
           <div class="sip-metric">
             <div class="sip-metric-label">Live NAV</div>
-            <div class="sip-metric-value">₹${sip.currentNAV?.toFixed(4) ?? '—'}</div>
+            <div class="sip-metric-value">${sip.navLive ? `₹${sip.currentNAV.toFixed(4)}` : 'Unavailable'}</div>
           </div>
           <div class="sip-metric">
-            <div class="sip-metric-label">XIRR</div>
+            <div class="sip-metric-label">Est. XIRR</div>
             <div class="sip-metric-value" style="color:${(m.xirr||0)>=12?'#22D3A6':(m.xirr||0)>=6?'#F0A500':'#FF4444'};">
               ${m.xirr !== null ? pct(m.xirr) : 'Need 3m+'}
             </div>
@@ -308,7 +320,7 @@
 
         <!-- Progress bar: invested vs current -->
         <div class="bar-invested" title="${INR(m.currentValue)} of ${INR(m.invested)} invested">
-          <div class="bar-current" style="width:${Math.min(parseFloat(barWidth),100)}%;background:${m.pnlAmt>=0?'linear-gradient(90deg,#00D4FF,#22D3A6)':'linear-gradient(90deg,#FF4444,#FF6B6B)'};"></div>
+          <div class="bar-current" style="width:${Math.min(parseFloat(barWidth),100)}%;background:${m.pnlAmt===null?'#8892A4':(m.pnlAmt>=0?'linear-gradient(90deg,#00D4FF,#22D3A6)':'linear-gradient(90deg,#FF4444,#FF6B6B)')};"></div>
         </div>
       </div>`;
   }
@@ -445,6 +457,7 @@
     if (!fundSearchVal) { if (statusEl) statusEl.textContent = '⚠️ Enter a fund name'; return; }
     if (!amountVal || amountVal < 100) { if (statusEl) statusEl.textContent = '⚠️ Enter a valid SIP amount (min ₹100)'; return; }
     if (!startVal) { if (statusEl) statusEl.textContent = '⚠️ Select a start date'; return; }
+    if (new Date(startVal + '-01') > new Date()) { if (statusEl) statusEl.textContent = '⚠️ Start month cannot be in the future'; return; }
 
     if (statusEl) statusEl.textContent = 'Fetching live NAV…';
 
@@ -468,7 +481,7 @@
       monthlyAmount: amountVal,
       startDate:     startVal + '-01',
       category:      catVal,
-      navAtStart:    navAtStart || 100,
+      navAtStart:    Number.isFinite(Number(navAtStart)) && Number(navAtStart) > 0 ? Number(navAtStart) : null,
       addedAt:       new Date().toISOString(),
     };
 
@@ -590,6 +603,7 @@
     _prefillAndOpenModal,
     _searchTimer,
     _pendingScheme,
+    _xirr: xirr,
   };
 
   global.FinosSIPTracker = FinosSIPTracker;

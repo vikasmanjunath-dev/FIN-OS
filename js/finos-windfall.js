@@ -248,10 +248,16 @@ window.FinosWindfall = (function () {
     if (!container) return;
     const p  = _loadInputs();
     const wf = WINDFALL_TYPES.find(t => t.key === p.type) || WINDFALL_TYPES[0];
-    const monthlyInc = gs('finos_monthly_income') || 150000;
-    const annualInc  = monthlyInc * 12;
+    const salaryComponents = gs('finos_salary_basic') + gs('finos_salary_hra_received') + gs('finos_salary_lta') + gs('finos_salary_special');
+    const grossAnnualSalary = salaryComponents || gs('finos_gross_salary');
+    const hasSalaryInput = grossAnnualSalary > 0;
+    const employerNPS = Math.min(gs('finos_salary_nps_er'), gs('finos_salary_basic') * 0.14);
+    const taxableIncome = Math.max(0, grossAnnualSalary - 75000 - employerNPS);
+    const now = new Date();
+    const taxYearStart = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+    const taxYearLabel = `Tax Year ${taxYearStart}-${String(taxYearStart + 1).slice(-2)}`;
 
-    // Tax slabs (new regime FY 2025-26)
+    // New-regime slabs and section 87A rebate for Tax Year 2026-27.
     function taxNew(income) {
       const slabs = [[400000,0],[800000,.05],[1200000,.10],[1600000,.15],[2000000,.20],[2400000,.25],[Infinity,.30]];
       let tax = 0, prev = 0;
@@ -260,12 +266,12 @@ window.FinosWindfall = (function () {
         tax += Math.min(income - prev, lim - prev) * rate;
         prev = lim;
       }
-      if (income <= 700000) tax = 0;
+      tax = income <= 1200000 ? 0 : Math.min(tax, income - 1200000);
       return Math.round(tax * 1.04);
     }
 
-    const taxBeforeWindfall = taxNew(annualInc);
-    const taxAfter          = p.type === 'bonus' || p.type === 'rsu' ? taxNew(annualInc + p.amount) : taxBeforeWindfall;
+    const taxBeforeWindfall = taxNew(taxableIncome);
+    const taxAfter          = p.type === 'bonus' || p.type === 'rsu' ? taxNew(taxableIncome + p.amount) : taxBeforeWindfall;
     const taxOnWindfall     = taxAfter - taxBeforeWindfall;
 
     const taxCards = WINDFALL_TYPES.map(t => {
@@ -279,7 +285,7 @@ window.FinosWindfall = (function () {
     container.innerHTML = `
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:20px;">${taxCards}</div>
 
-${p.type === 'bonus' || p.type === 'rsu' ? `
+${p.type === 'bonus' || p.type === 'rsu' ? (hasSalaryInput ? `
 <div style="background:rgba(255,107,107,.05);border:1px solid rgba(255,107,107,.15);border-radius:16px;padding:18px;margin-bottom:16px;">
   <div style="font-size:12px;font-weight:800;color:#FF6B6B;margin-bottom:12px;">⚡ Tax Impact on Your ${wf.label}</div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
@@ -297,14 +303,14 @@ ${p.type === 'bonus' || p.type === 'rsu' ? `
       <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">effective ${p.amount > 0 ? Math.round(taxOnWindfall/p.amount*100) : 0}% on windfall</div>
     </div>
   </div>
-  <div style="margin-top:12px;font-size:11px;color:var(--text-muted);">Based on ${INR(annualInc)}/yr salary · New tax regime (FY 2025-26). Employer deducts TDS — check Form 16 for actual TDS on bonus.</div>
-</div>` : ''}
+  <div style="margin-top:12px;font-size:11px;color:var(--text-muted);">Based on entered gross annual salary of ${INR(grossAnnualSalary)} less the ₹75,000 standard deduction and eligible employer NPS · New regime · ${taxYearLabel}. Bonus and RSU vesting are treated as salary income; confirm vest FMV and payroll withholding with Form 16.</div>
+</div>` : `<div style="background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.2);border-radius:14px;padding:14px;color:var(--text-secondary);font-size:12px;margin-bottom:16px;">Enter gross annual salary in the Salary Optimizer to calculate incremental bonus/RSU tax. Net take-home is not a valid taxable-income input.</div>` ) : ''}
 
 <div style="background:rgba(34,211,166,.05);border:1px solid rgba(34,211,166,.12);border-radius:14px;padding:14px;">
   <div style="font-size:12px;font-weight:800;color:#22D3A6;margin-bottom:8px;">💡 Tax-Saving Moves on Windfall</div>
   <div style="font-size:11px;color:var(--text-muted);line-height:1.8;display:flex;flex-direction:column;gap:4px;">
-    <span>📋 <strong style="color:var(--text-primary);">Bonus month NPS top-up:</strong> put bonus into NPS → full deduction at your slab (80CCD(1B) ₹50K + 80C ₹1.5L)</span>
-    <span>📋 <strong style="color:var(--text-primary);">ELSS in one shot:</strong> invest in ELSS before March 31 to claim 80C on the full ₹1.5L</span>
+    <span>📋 <strong style="color:var(--text-primary);">NPS top-up:</strong> 80CCD(1B) may allow up to ₹50K additional deduction under the old regime, subject to eligibility and available room</span>
+    <span>📋 <strong style="color:var(--text-primary);">ELSS:</strong> under the old regime, eligible ELSS investments may use remaining Section 80C limit (shared ₹1.5L cap)</span>
     <span>📋 <strong style="color:var(--text-primary);">Property sale reinvestment:</strong> reinvest in residential property within 2yr (Sec 54) or NHAI bonds within 6mo (Sec 54EC — up to ₹50L) to avoid LTCG</span>
     <span>📋 <strong style="color:var(--text-primary);">RSU strategy:</strong> sell and rebuy in a tax-advantaged vehicle (NPS, ELSS) same day to net the taxable gain with a deduction</span>
     <span>📋 <strong style="color:var(--text-primary);">Spread over years:</strong> for large FD maturities, consider reinvesting in shorter-tenure FDs spread over 2-3 FYs to stay under higher slab thresholds</span>

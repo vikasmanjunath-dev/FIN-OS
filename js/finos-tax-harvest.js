@@ -42,19 +42,34 @@ window.FinosTaxHarvest = (function () {
   /* ── Positions storage ──────────────────────────────────────────── */
   const POSITIONS_KEY = 'finos_harvest_positions';
 
-  const DEFAULT_POSITIONS = [
-    { id:'p1', name:'HDFC Bank',         type:'equity', qty:50,  buyPrice:1400, cmp:1650, holdMonths:15 },
-    { id:'p2', name:'Infosys',           type:'equity', qty:30,  buyPrice:1800, cmp:1600, holdMonths:18 },
-    { id:'p3', name:'Nippon India ETF',  type:'equity', qty:200, buyPrice:220,  cmp:265,  holdMonths:8  },
-    { id:'p4', name:'Paytm',             type:'equity', qty:100, buyPrice:950,  cmp:450,  holdMonths:20 },
-    { id:'p5', name:'ICICI Pru Bluechip MF', type:'equity', qty:500, buyPrice:80, cmp:110, holdMonths:25 },
-  ];
-
   function _loadPositions() {
     try {
       const raw = gss(POSITIONS_KEY);
-      return raw ? JSON.parse(raw) : DEFAULT_POSITIONS;
-    } catch { return DEFAULT_POSITIONS; }
+      const positions = raw ? JSON.parse(raw) : [];
+      return Array.isArray(positions) ? positions.filter(p => p && typeof p === 'object'
+        && typeof p.name === 'string' && p.name.trim()
+        && Number.isFinite(Number(p.qty)) && Number(p.qty) > 0
+        && Number.isFinite(Number(p.buyPrice)) && Number(p.buyPrice) > 0
+        && Number.isFinite(Number(p.cmp)) && Number(p.cmp) > 0) : [];
+    } catch { return []; }
+  }
+
+  const _taxYearStart = () => new Date().getMonth() >= 3 ? new Date().getFullYear() : new Date().getFullYear() - 1;
+  const _taxYearSuffix = () => `${_taxYearStart()}_${String(_taxYearStart() + 1).slice(-2)}`;
+  function _todayISODate() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  }
+  function _loadBookedGains() {
+    const suffix = _taxYearSuffix();
+    return {
+      ltcg: Number(gss(`finos_th_ltcg_${suffix}`)) || 0,
+      stcg: Number(gss(`finos_th_stcg_${suffix}`)) || 0,
+    };
+  }
+
+  function _escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
   }
 
   function _savePositions(positions) {
@@ -81,13 +96,20 @@ window.FinosTaxHarvest = (function () {
       const costBasis = pos.buyPrice * pos.qty;
       const currentVal = pos.cmp * pos.qty;
       const gain = currentVal - costBasis;
-      const isLong = pos.holdMonths >= 12;
+      const months = pos.purchaseDate ? (() => {
+        const [y, m, d] = pos.purchaseDate.split('-').map(Number);
+        const bought = new Date(y, m - 1, d), now = new Date();
+        let elapsed = (now.getFullYear() - y) * 12 + now.getMonth() - (m - 1);
+        if (now.getDate() < d) elapsed--;
+        return Math.max(0, elapsed);
+      })() : (Number(pos.holdMonths) || 0);
+      const isLong = months >= 12;
       const gainType = isLong ? 'ltcg' : 'stcg';
       const isLoss = gain < 0;
       const absoluteGain = Math.abs(gain);
 
       return {
-        ...pos,
+        ...pos, holdMonths: months,
         costBasis, currentVal, gain, isLong, gainType, isLoss, absoluteGain,
         gainPct: costBasis > 0 ? ((gain / costBasis) * 100).toFixed(1) : '0.0',
       };
@@ -116,13 +138,15 @@ window.FinosTaxHarvest = (function () {
         const canHarvest = Math.min(p.gain, harvestBudget);
         harvestBudget = Math.max(0, harvestBudget - canHarvest);
         const harvestQty = canHarvest > 0 ? Math.floor(canHarvest / (p.cmp - p.buyPrice)) : 0;
-        return { ...p, canHarvest, harvestQty, taxSaved: Math.round(canHarvest * LTCG_RATE) };
+        return { ...p, canHarvest, harvestQty };
       })
       .filter(p => p.canHarvest > 0);
 
     // Net LTCG after loss offset
-    const netLTCG = Math.max(0, usedLTCG - totalLTCGLoss);
     const netSTCG = Math.max(0, (existingSTCG || 0) - totalSTCGLoss);
+    // Short-term losses may also offset long-term gains after short-term gains are cleared.
+    const stclLeftAfterSTCG = Math.max(0, totalSTCGLoss - Math.max(0, existingSTCG || 0));
+    const netLTCG = Math.max(0, usedLTCG - totalLTCGLoss - stclLeftAfterSTCG);
 
     // Tax savings
     const ltcgTaxBefore = _taxOnGain('ltcg', usedLTCG, 0);
@@ -130,9 +154,9 @@ window.FinosTaxHarvest = (function () {
     const stcgTaxBefore = _taxOnGain('stcg', existingSTCG || 0, 0);
     const stcgTaxAfter  = _taxOnGain('stcg', netSTCG, 0);
     const taxSaved      = (ltcgTaxBefore - ltcgTaxAfter) + (stcgTaxBefore - stcgTaxAfter);
-    const gainHarvestSaved = gainHarvestCandidates.reduce((s, p) => s + p.taxSaved, 0);
+    const gainHarvestAmount = gainHarvestCandidates.reduce((s, p) => s + p.canHarvest, 0);
 
-    ss('finos_harvest_tax_saved',  taxSaved + gainHarvestSaved);
+    ss('finos_harvest_tax_saved',  taxSaved);
     ss('finos_harvest_ltcg_net',   netLTCG);
 
     return {
@@ -140,7 +164,7 @@ window.FinosTaxHarvest = (function () {
       totalLTCGLoss, totalSTCGLoss,
       netLTCG, netSTCG,
       usedLTCG, headroom,
-      taxSaved, gainHarvestSaved,
+      taxSaved, gainHarvestAmount,
       ltcgTaxBefore, ltcgTaxAfter,
       stcgTaxBefore, stcgTaxAfter,
     };
@@ -168,12 +192,11 @@ window.FinosTaxHarvest = (function () {
   function renderOverview(container) {
     if (!container) return;
 
-    const existingLTCG = parseFloat(gss('finos_th_ltcg') || '0') || 0;
-    const existingSTCG = parseFloat(gss('finos_th_stcg') || '0') || 0;
+    const { ltcg: existingLTCG, stcg: existingSTCG } = _loadBookedGains();
     const positions    = _loadPositions();
     const c            = _analysePositions(positions, existingLTCG, existingSTCG);
 
-    const totalSaved = c.taxSaved + c.gainHarvestSaved;
+    const totalSaved = c.taxSaved;
 
     container.innerHTML = `
 <style>
@@ -184,9 +207,9 @@ window.FinosTaxHarvest = (function () {
 </style>
 
 <div class="th-card" style="background:linear-gradient(135deg,rgba(34,211,166,.06),rgba(79,124,255,.04));border-color:rgba(34,211,166,.2);">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:14px;">Current Year Capital Gains</div>
-  ${_inp('th-ltcg', 'LTCG Booked So Far (this FY)', existingLTCG, 0, 10000000, 1000, '₹', 'Long-term gains already realised — from equity, MF sold after 12+ months')}
-  ${_inp('th-stcg', 'STCG Booked So Far (this FY)', existingSTCG, 0, 10000000, 1000, '₹', 'Short-term gains — equity/MF sold within 12 months')}
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:14px;">Capital Gains · Tax Year ${_taxYearStart()}-${String(_taxYearStart()+1).slice(-2)}</div>
+  ${_inp('th-ltcg', 'LTCG Booked So Far (this tax year)', existingLTCG, 0, 10000000, 1000, '₹', 'Long-term gains already realised — from eligible listed equity and equity-oriented funds')}
+  ${_inp('th-stcg', 'STCG Booked So Far (this tax year)', existingSTCG, 0, 10000000, 1000, '₹', 'Short-term gains already realised — from eligible listed equity and equity-oriented funds')}
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:10px;">
     <div class="th-stat">
       <div class="lbl">LTCG Exempt Used</div>
@@ -199,9 +222,9 @@ window.FinosTaxHarvest = (function () {
       <div style="font-size:11px;color:var(--text-muted);">available to harvest into</div>
     </div>
     <div class="th-stat">
-      <div class="lbl">Total Tax Saveable</div>
+      <div class="lbl">Est. Loss-Offset Tax Benefit</div>
       <div class="val" id="th-r-saved" style="color:#4F7CFF;">${INR(totalSaved)}</div>
-      <div style="font-size:11px;color:var(--text-muted);">loss + gain harvest</div>
+      <div style="font-size:11px;color:var(--text-muted);">based on booked gains entered</div>
     </div>
   </div>
 </div>
@@ -213,7 +236,7 @@ window.FinosTaxHarvest = (function () {
       c.losses.map(p => `<div style="padding:10px 0;border-bottom:1px solid var(--border-soft);">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;">
           <div>
-            <div style="font-size:13px;font-weight:700;color:var(--text-primary);">${p.name}</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text-primary);">${_escapeHTML(p.name)}</div>
             <div style="font-size:11px;color:var(--text-muted);">${p.isLong?'LTCG':'STCG'} · ${p.holdMonths}mo · ${p.qty} units</div>
           </div>
           <div style="text-align:right;">
@@ -239,7 +262,7 @@ window.FinosTaxHarvest = (function () {
       c.gainHarvestCandidates.map(p => `<div style="padding:10px 0;border-bottom:1px solid var(--border-soft);">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;">
           <div>
-            <div style="font-size:13px;font-weight:700;color:var(--text-primary);">${p.name}</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text-primary);">${_escapeHTML(p.name)}</div>
             <div style="font-size:11px;color:var(--text-muted);">LTCG · ${p.holdMonths}mo · Gain: ${fmt(p.gain)}</div>
           </div>
           <div style="text-align:right;">
@@ -248,12 +271,12 @@ window.FinosTaxHarvest = (function () {
           </div>
         </div>
         <div style="margin-top:6px;padding:6px 10px;background:rgba(34,211,166,.06);border-radius:8px;font-size:11px;color:var(--text-muted);">
-          Sell ${p.harvestQty} units @ ${INR(p.cmp)} → rebuy immediately → step up cost basis → ${INR(p.taxSaved)} tax avoided
+          Selling ${p.harvestQty} units @ ${INR(p.cmp)} may use exemption headroom and raise future cost basis; it does not create immediate tax savings.
         </div>
       </div>`).join('')}
     ${c.gainHarvestCandidates.length > 0 ? `<div style="margin-top:12px;padding:10px;background:rgba(34,211,166,.05);border-radius:10px;font-size:11px;color:var(--text-muted);">
-      <strong style="color:#22D3A6;">Tax shielded by gain harvesting: ${INR(c.gainHarvestSaved)}</strong><br>
-      Sell-and-rebuy same day · no wash-sale rule in India · new cost basis reduces future LTCG
+      <strong style="color:#22D3A6;">Potential gain harvested within exemption: ${INR(c.gainHarvestAmount)}</strong><br>
+      A sale and repurchase may increase future cost basis; any future tax effect depends on eligibility, transaction costs and later sale price.
     </div>` : ''}
   </div>
 </div>
@@ -265,7 +288,7 @@ window.FinosTaxHarvest = (function () {
     <span>📅 <strong style="color:var(--text-primary);">April:</strong> New FY starts — ₹1.25L LTCG exemption resets · start fresh harvest window</span>
     <span>📅 <strong style="color:var(--text-primary);">No wash-sale rule:</strong> India has no equivalent — you can sell and rebuy the same stock same day</span>
     <span>📅 <strong style="color:var(--text-primary);">Debt MF:</strong> Post April 2023, no LTCG benefit — taxed at slab regardless of holding period</span>
-    <span>📅 <strong style="color:var(--text-primary);">SGB maturity:</strong> Capital gains at 8-year maturity are fully tax-free (Sec 47)</span>
+    <span>📅 <strong style="color:var(--text-primary);">SGB:</strong> coupon interest is taxable; redemption exemption is conditional on an individual holding from original issue to maturity</span>
   </div>
 </div>`;
   }
@@ -276,8 +299,7 @@ window.FinosTaxHarvest = (function () {
   function renderPositions(container) {
     if (!container) return;
     const positions = _loadPositions();
-    const existingLTCG = parseFloat(gss('finos_th_ltcg') || '0') || 0;
-    const existingSTCG = parseFloat(gss('finos_th_stcg') || '0') || 0;
+    const { ltcg: existingLTCG, stcg: existingSTCG } = _loadBookedGains();
     const c = _analysePositions(positions, existingLTCG, existingSTCG);
 
     const rows = c.enriched.map(p => {
@@ -289,18 +311,27 @@ window.FinosTaxHarvest = (function () {
         ? `<span style="background:rgba(34,211,166,.1);color:#22D3A6;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:700;">GAIN HARVEST</span>`
         : `<span style="background:var(--border-soft);color:var(--text-muted);padding:3px 8px;border-radius:5px;font-size:11px;">HOLD</span>`;
       return `<tr style="border-bottom:1px solid var(--border-soft);">
-        <td style="padding:10px;font-size:13px;font-weight:700;color:var(--text-primary);">${p.name}</td>
+        <td style="padding:10px;font-size:13px;font-weight:700;color:var(--text-primary);">${_escapeHTML(p.name)}</td>
         <td style="padding:10px;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:12px;color:var(--text-muted);">${p.qty}</td>
         <td style="padding:10px;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:12px;color:var(--text-muted);">${INR(p.buyPrice)}</td>
         <td style="padding:10px;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:12px;color:var(--text-primary);">${INR(p.cmp)}</td>
         <td style="padding:10px;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:12px;color:${gainColor};font-weight:800;">${p.gain>=0?'+':''}${fmt(p.gain)} (${p.gainPct}%)</td>
         <td style="padding:10px;font-size:12px;color:${typeColor};font-weight:700;">${p.isLong?'LTCG':'STCG'} · ${p.holdMonths}mo</td>
-        <td style="padding:10px;">${action}</td>
+        <td style="padding:10px;">${action}<br><button type="button" onclick="window.FinosTaxHarvest._deletePosition('${_escapeHTML(p.id)}')" style="margin-top:6px;background:none;border:0;color:#FF6B6B;cursor:pointer;">Remove</button></td>
       </tr>`;
     }).join('');
 
     container.innerHTML = `
-<div style="margin-bottom:14px;font-size:12px;color:var(--text-muted);">Enter your portfolio positions below. Edit the table to match your actual holdings — default values are illustrative.</div>
+<div style="margin-bottom:14px;font-size:12px;color:var(--text-muted);">Add your listed equity or equity-oriented fund holdings. Calculations use your quantity, cost, current price and acquisition date; positions are not prefilled.</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px;">
+  <label style="font-size:11px;color:var(--text-muted);">Holding<input id="th-pos-name" type="text" maxlength="80" placeholder="Fund or stock" style="display:block;width:100%;padding:9px;margin-top:4px;border-radius:8px;border:1px solid var(--border-medium);background:var(--border-soft);color:var(--text-primary);"></label>
+  <label style="font-size:11px;color:var(--text-muted);">Quantity<input id="th-pos-qty" type="number" min="0.001" step="any" style="display:block;width:100%;padding:9px;margin-top:4px;border-radius:8px;border:1px solid var(--border-medium);background:var(--border-soft);color:var(--text-primary);"></label>
+  <label style="font-size:11px;color:var(--text-muted);">Buy price / unit<input id="th-pos-buy" type="number" min="0.01" step="any" style="display:block;width:100%;padding:9px;margin-top:4px;border-radius:8px;border:1px solid var(--border-medium);background:var(--border-soft);color:var(--text-primary);"></label>
+  <label style="font-size:11px;color:var(--text-muted);">Current price / unit<input id="th-pos-cmp" type="number" min="0.01" step="any" style="display:block;width:100%;padding:9px;margin-top:4px;border-radius:8px;border:1px solid var(--border-medium);background:var(--border-soft);color:var(--text-primary);"></label>
+  <label style="font-size:11px;color:var(--text-muted);">Acquisition date<input id="th-pos-date" type="date" max="${_todayISODate()}" style="display:block;width:100%;padding:9px;margin-top:4px;border-radius:8px;border:1px solid var(--border-medium);background:var(--border-soft);color:var(--text-primary);"></label>
+</div>
+<button type="button" onclick="window.FinosTaxHarvest._addPosition()" style="padding:9px 14px;margin-bottom:12px;border:1px solid rgba(34,211,166,.35);border-radius:9px;background:rgba(34,211,166,.1);color:#22D3A6;font-weight:700;cursor:pointer;">Add holding</button>
+<div id="th-pos-status" role="status" aria-live="polite" style="font-size:12px;margin-bottom:8px;color:var(--text-muted);"></div>
 <div style="overflow-x:auto;border-radius:14px;border:1px solid var(--border-soft);background:var(--border-soft);">
 <table style="width:100%;border-collapse:collapse;">
   <thead>
@@ -314,13 +345,41 @@ window.FinosTaxHarvest = (function () {
       <th style="padding:10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);">Action</th>
     </tr>
   </thead>
-  <tbody>${rows}</tbody>
+  <tbody>${rows || '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--text-muted);">No holdings yet. Add a real holding above to calculate candidates.</td></tr>'}</tbody>
 </table>
 </div>
-<div style="margin-top:12px;font-size:11px;color:var(--text-muted);">CMP = Current Market Price. LTCG = held &gt;12 months. STCG = held ≤12 months. Edit default positions in localStorage key <code style="font-size:10px;">finos_harvest_positions</code>.</div>`;
+<div style="margin-top:12px;font-size:11px;color:var(--text-muted);">For eligible listed equity and equity-oriented funds, holding period is calculated from acquisition date (12 months). Tax rates, set-off and exemptions are estimates; verify your realised gains and asset classification.</div>`;
   }
 
-  return { renderOverview, renderPositions, _compute: _analysePositions, _loadPositions, _analysePositions };
+  function _addPosition() {
+    const name = document.getElementById('th-pos-name')?.value?.trim() || '';
+    const qty = Number(document.getElementById('th-pos-qty')?.value);
+    const buyPrice = Number(document.getElementById('th-pos-buy')?.value);
+    const cmp = Number(document.getElementById('th-pos-cmp')?.value);
+    const purchaseDate = document.getElementById('th-pos-date')?.value || '';
+    const status = document.getElementById('th-pos-status');
+    const purchased = purchaseDate ? new Date(`${purchaseDate}T00:00:00`) : null;
+    if (!name || !Number.isFinite(qty) || qty <= 0 || !Number.isFinite(buyPrice) || buyPrice <= 0 || !Number.isFinite(cmp) || cmp <= 0 || !purchased || !Number.isFinite(purchased.getTime()) || purchased > new Date()) {
+      if (status) status.textContent = 'Enter a holding name, positive quantity and prices, and a valid acquisition date.';
+      return false;
+    }
+    const positions = _loadPositions();
+    positions.push({ id: `h_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`, name, type: 'equity', qty, buyPrice, cmp, purchaseDate });
+    _savePositions(positions);
+    renderPositions(document.getElementById('th-tab-positions'));
+    const overview = document.getElementById('th-tab-overview');
+    if (overview) renderOverview(overview);
+    return true;
+  }
+
+  function _deletePosition(id) {
+    _savePositions(_loadPositions().filter(p => String(p.id) !== String(id)));
+    renderPositions(document.getElementById('th-tab-positions'));
+    const overview = document.getElementById('th-tab-overview');
+    if (overview) renderOverview(overview);
+  }
+
+  return { renderOverview, renderPositions, _compute: _analysePositions, _loadPositions, _analysePositions, _addPosition, _deletePosition };
 })();
 
 /* Inline-handler functions. They used to sit in a <script> inside an innerHTML template, which the browser never executes, so
@@ -329,8 +388,11 @@ window.FinosTaxHarvest = (function () {
   window._thRecalc = function() {
     const ltcg = parseFloat(document.getElementById('th-ltcg')?.value) || 0;
     const stcg = parseFloat(document.getElementById('th-stcg')?.value) || 0;
-    localStorage.setItem('finos_th_ltcg', String(ltcg));
-    localStorage.setItem('finos_th_stcg', String(stcg));
+    const now = new Date();
+    const start = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+    const suffix = `${start}_${String(start + 1).slice(-2)}`;
+    localStorage.setItem(`finos_th_ltcg_${suffix}`, String(Math.max(0, ltcg)));
+    localStorage.setItem(`finos_th_stcg_${suffix}`, String(Math.max(0, stcg)));
     if (window.FinosTaxHarvest) {
       const positions = window.FinosTaxHarvest._loadPositions();
       const c = window.FinosTaxHarvest._analysePositions(positions, ltcg, stcg);
@@ -339,7 +401,7 @@ window.FinosTaxHarvest = (function () {
       const upd = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
       upd('th-r-used',  fmt(Math.min(ltcg, 125000)));
       upd('th-r-head',  fmt(c.headroom));
-      upd('th-r-saved', INR(c.taxSaved + c.gainHarvestSaved));
+      upd('th-r-saved', INR(c.taxSaved));
     }
   };
 })();

@@ -107,7 +107,8 @@
   const HISTORY_KEY = 'finos_networth_history';
   function snapshotToday() {
     const { netWorth } = compute();
-    const today  = new Date().toISOString().slice(0, 7); // YYYY-MM
+    const now = new Date();
+    const today  = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`; // local YYYY-MM
     const history = ls(HISTORY_KEY) || [];
     const existing = history.findIndex(h => h.month === today);
     if (existing >= 0) history[existing].value = netWorth;

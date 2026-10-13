@@ -44,9 +44,10 @@ window.FinosRetirementPlanner = (function () {
     // Derive current age from DOB stored by EPF or NPS tracker
     const dob  = gss('finos_epf_dob') || gss('finos_nps_dob');
     let ageNow = 30;
-    if (dob) {
-      const birth = new Date(dob);
-      const today = new Date();
+    const birth = /^\d{4}-\d{2}-\d{2}$/.test(dob) ? new Date(dob + 'T00:00:00') : null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (birth && Number.isFinite(birth.getTime()) && birth <= today) {
       ageNow = today.getFullYear() - birth.getFullYear()
         - (today < new Date(today.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0);
     } else {
@@ -60,9 +61,12 @@ window.FinosRetirementPlanner = (function () {
     const epfProjected  = gs('finos_epf_projected') || _fv(gs('finos_epf_value'), 0.0825, yearsLeft);
     const epsPension    = gs('finos_epf_pension');          // monthly EPS pension
 
-    // NPS: 60% of projected corpus is lump-sum; 40% buys annuity
-    const npsProjected  = gs('finos_nps_projected') || _fv(gs('finos_nps_value'), 0.085, yearsLeft);
-    const npsLumpSum    = Math.round(npsProjected * 0.60);
+    // Apply the selected exit share to Tier 1; Tier 2 remains separately liquid.
+    const npsProjected  = gs('finos_nps_projected') || _fv(gs('finos_nps_tier1') || gs('finos_nps_value'), 0.085, yearsLeft);
+    const npsTier2Projected = _fv(gs('finos_nps_tier2'), portfolioR, yearsLeft);
+    const savedAnnuityPct = parseInt(gss('finos_nps_annuity_pct'), 10);
+    const npsAnnuityPct = [0, 20, 40, 80].includes(savedAnnuityPct) ? savedAnnuityPct : 40;
+    const npsLumpSum    = Math.round(npsProjected * (1 - npsAnnuityPct / 100));
     const npsAnnuityC   = npsProjected - npsLumpSum;
     const npsAnnuityMo  = Math.round(npsAnnuityC * 0.07 / 12); // 7% annuity rate est.
 
@@ -84,7 +88,7 @@ window.FinosRetirementPlanner = (function () {
     // Manual override / custom savings
     const manualCorpus  = gs('finos_retire_manual_corpus');
 
-    const totalCorpus = epfProjected + npsLumpSum + ppfProjected + sipProjected
+    const totalCorpus = epfProjected + npsLumpSum + npsTier2Projected + ppfProjected + sipProjected
                       + equityProj + fdProjected + goldProjected + manualCorpus;
 
     // ── Required corpus ────────────────────────────────────────────
@@ -110,7 +114,7 @@ window.FinosRetirementPlanner = (function () {
 
     return {
       ageNow, retireAge, yearsLeft, expMo, inflatedMonthlyExp, inflatedAnnualExp, inflation, portfolioR,
-      epfProjected, epsPension, npsLumpSum, npsAnnuityMo, ppfProjected,
+      epfProjected, epsPension, npsLumpSum, npsTier2Projected, npsAnnuityMo, npsAnnuityPct, ppfProjected,
       sipProjected, equityProj, fdProjected, goldProjected, manualCorpus,
       totalCorpus, requiredCorpus, corpusGap,
       swrMonthly, totalMonthlyIncome, expCoverage, runwayYears
@@ -144,7 +148,8 @@ window.FinosRetirementPlanner = (function () {
 
     const sources = [
       { label: 'EPF Corpus',     val: c.epfProjected,  color: '#22D3A6' },
-      { label: 'NPS Lump-Sum',   val: c.npsLumpSum,    color: '#00D4FF' },
+      { label: 'NPS Tier 1 Lump-Sum', val: c.npsLumpSum, color: '#00D4FF' },
+      { label: 'NPS Tier 2',      val: c.npsTier2Projected, color: '#7DD3FC' },
       { label: 'PPF/Savings',    val: c.ppfProjected,  color: '#9B5DE5' },
       { label: 'SIP / MF',       val: c.sipProjected,  color: '#FFB347' },
       { label: 'Equity',         val: c.equityProj,    color: '#4F7CFF' },
@@ -223,7 +228,7 @@ window.FinosRetirementPlanner = (function () {
   ${c.npsAnnuityMo > 0 ? `<div class="rp-inc" style="border-color:rgba(155,93,229,.2);">
     <div class="rp-inc-lbl">NPS Annuity</div>
     <div class="rp-inc-val" style="color:#9B5DE5;">${INR(c.npsAnnuityMo)}/mo</div>
-    <div class="rp-inc-sub">40% corpus → annuity est.</div>
+    <div class="rp-inc-sub">${c.npsAnnuityPct}% corpus → annuity est.</div>
   </div>` : ''}
   <div class="rp-inc" style="border-color:rgba(79,124,255,.2);">
     <div class="rp-inc-lbl">Total Monthly Income</div>
@@ -246,7 +251,7 @@ window.FinosRetirementPlanner = (function () {
   <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,179,71,.8);margin-bottom:10px;">How projections are calculated</div>
   <div style="font-size:12px;color:rgba(255,255,255,.55);line-height:1.7;display:flex;flex-direction:column;gap:5px;">
     <span>📊 EPF projected value is pulled from your EPF Tracker (8.25% p.a.)</span>
-    <span>📊 NPS lump-sum = 60% of NPS projected corpus (40% must buy annuity)</span>
+    <span>📊 Selected annuity share applies to projected Tier 1; Tier 2 is shown separately as liquid corpus.</span>
     <span>📊 PPF / small savings grown at 7.1% p.a. from current balance</span>
     <span>📊 SIP, equity, FD and gold grown at assumed rates (editable in Plan tab)</span>
     <span>📊 Required corpus = 25× annual expense in retirement-year rupees (4% SWR rule)</span>
@@ -334,7 +339,7 @@ window.FinosRetirementPlanner = (function () {
     const streams = [
       { label: 'SWR from Portfolio (4%)',  mo: c.swrMonthly,     color: '#22D3A6', note: 'Drawdown from total corpus at 4% p.a. — sustainable 30yr' },
       { label: 'EPS Pension (EPF)',         mo: c.epsPension,     color: '#00D4FF', note: 'Guaranteed by EPFO. Based on last 60-month avg basic × yrs/70' },
-      { label: 'NPS Annuity',              mo: c.npsAnnuityMo,   color: '#9B5DE5', note: 'From 40% mandatory annuity purchase at age 60 @ 7%' },
+      { label: 'NPS Annuity',              mo: c.npsAnnuityMo,   color: '#9B5DE5', note: `From ${c.npsAnnuityPct}% annuity assumption at exit @ 7%` },
     ].filter(s => s.mo > 0);
 
     const total = streams.reduce((s, x) => s + x.mo, 0);
@@ -403,9 +408,11 @@ window.FinosRetirementPlanner = (function () {
     const A = (window.FinosMC && window.FinosMC.DEFAULT_ASSUMPTIONS) || {};
     const eqRet  = (gs('finos_retire_eq_return') || 12) / 100;
     const npsEq  = Math.min(Math.max(gs('finos_nps_equity_pct') || 50, 0), 100) / 100;
-    const npsVal = gs('finos_nps_value') * 0.60;                 // 60% lump sum stays in the corpus; 40% buys the annuity
-    const equity = gs('finos_sip_value') + gs('finos_portfolio_value') + gs('finos_mf_import_value') + npsVal * npsEq;
-    const debt   = gs('finos_epf_value') + gs('finos_ppf_value') + gs('finos_fd_value') + npsVal * (1 - npsEq) + gs('finos_retire_manual_corpus');
+    const npsPct = [0, 20, 40, 80].includes(parseInt(gss('finos_nps_annuity_pct'), 10)) ? parseInt(gss('finos_nps_annuity_pct'), 10) : 40;
+    const npsTier1Lump = gs('finos_nps_tier1') * (1 - npsPct / 100);
+    const npsTier2 = gs('finos_nps_tier2');
+    const equity = gs('finos_sip_value') + gs('finos_portfolio_value') + gs('finos_mf_import_value') + npsTier1Lump * npsEq;
+    const debt   = gs('finos_epf_value') + gs('finos_ppf_value') + gs('finos_fd_value') + npsTier1Lump * (1 - npsEq) + npsTier2 + gs('finos_retire_manual_corpus');
     const gold   = gs('finos_gold_value');
     const mk = (name, v, key, mean) => ({ name, value: v, mean: mean === undefined ? A[key].mean : mean, vol: A[key].vol, beta: A[key].beta });
     return {

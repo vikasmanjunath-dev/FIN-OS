@@ -107,7 +107,9 @@ window.FinosGoalOptimizer = (function () {
       const targetToday = Number(g.target) || Number(g.amount) || 0;
       const targetInflated = _inflatedTarget(targetToday, yearsLeft);
       const progress    = Number(g.progress) || (Number(g.current) > 0 ? Math.round(Number(g.current) / Math.max(1, targetToday) * 100) : 0);
-      const fundedAmt   = Math.round(targetInflated * progress / 100);
+      // What is already saved is a rupee amount TODAY; that is what compounds toward the (inflated) target. The old line took the same
+      // percentage of the INFLATED target, which counted inflation twice and understated the SIP needed.
+      const fundedAmt   = Number(g.current) > 0 ? Math.round(Number(g.current)) : Math.round(targetToday * progress / 100);
       const annualR     = _goalReturn(g);
       const sipNeeded   = _sip(targetInflated, annualR, monthsLeft, fundedAmt);
       const priority    = _priorityScore(g, monthsLeft, sipNeeded, income);

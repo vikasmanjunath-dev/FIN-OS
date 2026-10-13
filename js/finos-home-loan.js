@@ -113,8 +113,9 @@ window.FinosHomeLoan = (function () {
     const emiPct         = monthlyIncome > 0 ? (emi / monthlyIncome * 100).toFixed(1) : '—';
     const affordable     = parseFloat(emiPct) <= 40;
     const maxAffordEMI   = Math.round(monthlyIncome * 0.40);
-    const maxAffordLoan  = monthlyIncome > 0
-      ? Math.round(maxAffordEMI * (Math.pow(1+p.interestRate/100/12,p.tenureYears*12)-1) / (p.interestRate/100/12 * Math.pow(1+p.interestRate/100/12,p.tenureYears*12)))
+    const monthlyRate = p.interestRate / 100 / 12;
+    const maxAffordLoan = monthlyIncome > 0
+      ? Math.round(monthlyRate === 0 ? maxAffordEMI * p.tenureYears * 12 : maxAffordEMI * (Math.pow(1 + monthlyRate, p.tenureYears * 12) - 1) / (monthlyRate * Math.pow(1 + monthlyRate, p.tenureYears * 12)))
       : 0;
 
     // Tax benefit (Sec 24b interest max ₹2L, 80C principal max ₹1.5L)

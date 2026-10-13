@@ -35,6 +35,10 @@
     return (y > 0 ? y + 'yr ' : '') + (mo > 0 ? mo + 'mo' : '');
   }
 
+  function payoffText(result) { return result?.paidOff ? monthsToText(result.months) : 'Not amortizing'; }
+
+  function payoffDate(result) { return result?.paidOff ? addMonths(result.months) : 'No payoff at entered payment'; }
+
   function addMonths(months) {
     const d = new Date();
     d.setMonth(d.getMonth() + months);
@@ -43,13 +47,14 @@
 
   /* ── Financial math ──────────────────────────────────────────────── */
   function calcEMI(principal, annualRate, tenureMonths) {
-    if (!principal || !annualRate || !tenureMonths) return 0;
+    if (!Number.isFinite(principal) || principal <= 0 || !Number.isFinite(annualRate) || annualRate < 0 || !Number.isFinite(tenureMonths) || tenureMonths <= 0) return 0;
     const r = annualRate / 100 / 12;
+    if (r === 0) return Math.ceil(principal / tenureMonths);
     return Math.round(principal * r * Math.pow(1 + r, tenureMonths) / (Math.pow(1 + r, tenureMonths) - 1));
   }
 
   function calcRemainingMonths(balance, emi, annualRate) {
-    if (!balance || !emi || emi <= 0) return 0;
+    if (!Number.isFinite(balance) || balance <= 0 || !Number.isFinite(emi) || emi <= 0 || !Number.isFinite(annualRate) || annualRate < 0) return 0;
     const r = annualRate / 100 / 12;
     if (r <= 0) return Math.ceil(balance / emi);
     if (emi <= balance * r) return 999; // EMI too low — never pays off
@@ -78,7 +83,8 @@
 
     while (working.some(l => l.balance > 0.01) && months < MAX_MONTHS) {
       months++;
-      let extra = extraMonthly;
+      let extra = Math.max(0, Number(extraMonthly) || 0);
+      let freedPayments = 0;
 
       working.forEach(l => {
         if (l.balance <= 0) return;
@@ -89,9 +95,11 @@
         l.balance += interest;
         const payment = Math.min(l.balance, l.emi);
         l.balance = Math.max(0, l.balance - payment);
+        if (l.balance <= 0.01) freedPayments += Math.max(0, l.emi - payment);
       });
 
-      // Apply extra to first unpaid loan in priority order
+      // Roll freed scheduled payments into the highest-priority remaining loan.
+      extra += freedPayments;
       for (const l of working) {
         if (l.balance <= 0) continue;
         const applied = Math.min(extra, l.balance);
@@ -101,22 +109,26 @@
       }
     }
 
-    return { months, totalInterest: Math.round(totalInterest), perLoan: working };
+    const paidOff = !working.some(l => l.balance > 0.01);
+    return { months, totalInterest: Math.round(totalInterest), perLoan: working, paidOff, remainingBalance: Math.round(working.reduce((sum, l) => sum + Math.max(0, l.balance), 0)) };
   }
 
   /* ── Prepayment calculator ───────────────────────────────────────── */
   function calcPrepayment(balance, annualRate, emi, extraMonthly) {
+    if (![balance, annualRate, emi, extraMonthly].every(Number.isFinite) || balance <= 0 || annualRate < 0 || emi <= 0 || extraMonthly < 0) {
+      return { months: 0, interest: 0, paidOff: false, remainingBalance: Math.max(0, Number(balance) || 0) };
+    }
     const r = annualRate / 100 / 12;
     let b = balance, months = 0, interest = 0;
     const MAX = 600;
     while (b > 0.01 && months < MAX) {
-      months++;
       const intCharge = b * r;
+      if (emi + extraMonthly <= intCharge) break; // the balance cannot amortize
+      months++;
       interest += intCharge;
-      b += intCharge - emi;
-      if (extraMonthly > 0) b = Math.max(0, b - extraMonthly);
+      b = Math.max(0, b + intCharge - emi - extraMonthly);
     }
-    return { months, interest: Math.round(interest) };
+    return { months, interest: Math.round(interest), paidOff: b <= 0.01, remainingBalance: Math.round(Math.max(0, b)) };
   }
 
   /* ── Loan catalogue ──────────────────────────────────────────────── */
@@ -253,8 +265,8 @@
     const avRaw    = simulatePayoff(loans, extraMonthly, 'avalanche');
     const swRaw    = simulatePayoff(loans, extraMonthly, 'snowball');
 
-    const avSaved  = minOnly.totalInterest - avRaw.totalInterest;
-    const swSaved  = minOnly.totalInterest - swRaw.totalInterest;
+    const avSaved  = minOnly.paidOff && avRaw.paidOff ? minOnly.totalInterest - avRaw.totalInterest : 0;
+    const swSaved  = minOnly.paidOff && swRaw.paidOff ? minOnly.totalInterest - swRaw.totalInterest : 0;
     const avWins   = avRaw.totalInterest <= swRaw.totalInterest;
 
     const totalBalance = loans.reduce((s, l) => s + l.balance, 0);
@@ -265,24 +277,24 @@
     if (homeLoan && extraMonthly > 0) {
       const std  = calcPrepayment(homeLoan.balance, homeLoan.rate, homeLoan.emi, 0);
       const prep = calcPrepayment(homeLoan.balance, homeLoan.rate, homeLoan.emi, extraMonthly);
-      const mSaved = std.months - prep.months;
-      const iSaved = std.interest - prep.interest;
+      const mSaved = std.paidOff && prep.paidOff ? std.months - prep.months : 0;
+      const iSaved = std.paidOff && prep.paidOff ? std.interest - prep.interest : 0;
       prepayHTML = `
         <div class="do-prepay-box">
           <div class="do-section-title" style="margin-bottom:12px;">🏠 Home Loan Prepayment Impact</div>
           <div class="do-prepay-grid">
             <div class="do-prepay-card do-prepay-std">
               <div class="do-prepay-lbl">Without extra payment</div>
-              <div class="do-prepay-val">${monthsToText(std.months)}</div>
+              <div class="do-prepay-val">${payoffText(std)}</div>
               <div class="do-prepay-sub">Total interest: ${INR(std.interest)}</div>
-              <div class="do-prepay-date">Free: ${addMonths(std.months)}</div>
+              <div class="do-prepay-date">Free: ${payoffDate(std)}</div>
             </div>
             <div class="do-prepay-arrow">→</div>
             <div class="do-prepay-card do-prepay-acc">
               <div class="do-prepay-lbl">With ₹${Math.round(extraMonthly).toLocaleString('en-IN')}/mo extra</div>
-              <div class="do-prepay-val">${monthsToText(prep.months)}</div>
+              <div class="do-prepay-val">${payoffText(prep)}</div>
               <div class="do-prepay-sub">Total interest: ${INR(prep.interest)}</div>
-              <div class="do-prepay-date">Free: ${addMonths(prep.months)}</div>
+              <div class="do-prepay-date">Free: ${payoffDate(prep)}</div>
             </div>
           </div>
           <div class="do-prepay-savings">
@@ -307,7 +319,7 @@
           </div>
           <div class="do-summary-item">
             <div class="do-summary-lbl">Min-only payoff</div>
-            <div class="do-summary-val">${monthsToText(minOnly.months)}</div>
+            <div class="do-summary-val">${payoffText(minOnly)}</div>
           </div>
           <div class="do-summary-item">
             <div class="do-summary-lbl">Extra/mo</div>
@@ -323,8 +335,8 @@
             <div class="do-strategy-name">🏔️ Avalanche</div>
             <div class="do-strategy-sub">Highest interest rate first</div>
             <div class="do-strategy-stat"><span class="do-stat-lbl">Total interest</span><span class="do-stat-val" style="color:#EF4444">${INR(avRaw.totalInterest)}</span></div>
-            <div class="do-strategy-stat"><span class="do-stat-lbl">Time to debt-free</span><span class="do-stat-val">${monthsToText(avRaw.months)}</span></div>
-            <div class="do-strategy-stat"><span class="do-stat-lbl">Free by</span><span class="do-stat-val">${addMonths(avRaw.months)}</span></div>
+            <div class="do-strategy-stat"><span class="do-stat-lbl">Time to debt-free</span><span class="do-stat-val">${payoffText(avRaw)}</span></div>
+            <div class="do-strategy-stat"><span class="do-stat-lbl">Free by</span><span class="do-stat-val">${payoffDate(avRaw)}</span></div>
             ${avSaved > 0 ? `<div class="do-strategy-saving">Saves ${INR(avSaved)} vs min-only</div>` : ''}
             <div class="do-strategy-order">Payoff order: ${loans.slice().sort((a,b) => b.rate - a.rate).map(l => l.icon + ' ' + l.label).join(' → ')}</div>
           </div>
@@ -334,8 +346,8 @@
             <div class="do-strategy-name">⛄ Snowball</div>
             <div class="do-strategy-sub">Smallest balance first</div>
             <div class="do-strategy-stat"><span class="do-stat-lbl">Total interest</span><span class="do-stat-val" style="color:#EF4444">${INR(swRaw.totalInterest)}</span></div>
-            <div class="do-strategy-stat"><span class="do-stat-lbl">Time to debt-free</span><span class="do-stat-val">${monthsToText(swRaw.months)}</span></div>
-            <div class="do-strategy-stat"><span class="do-stat-lbl">Free by</span><span class="do-stat-val">${addMonths(swRaw.months)}</span></div>
+            <div class="do-strategy-stat"><span class="do-stat-lbl">Time to debt-free</span><span class="do-stat-val">${payoffText(swRaw)}</span></div>
+            <div class="do-strategy-stat"><span class="do-stat-lbl">Free by</span><span class="do-stat-val">${payoffDate(swRaw)}</span></div>
             ${swSaved > 0 ? `<div class="do-strategy-saving">Saves ${INR(swSaved)} vs min-only</div>` : ''}
             <div class="do-strategy-order">Payoff order: ${loans.slice().sort((a,b) => a.balance - b.balance).map(l => l.icon + ' ' + l.label).join(' → ')}</div>
           </div>
@@ -368,6 +380,7 @@
   global.FinosDebtOptimizer = {
     renderSetup, renderResults, runOptimizer,
     _toggleLoan, _save, _computeEMI,
+    _calcEMI: calcEMI, _calcRemainingMonths: calcRemainingMonths, _simulatePayoff: simulatePayoff, _calcPrepayment: calcPrepayment,
   };
 
 })(window);

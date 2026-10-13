@@ -3,7 +3,7 @@
  * Instruments supported:
  *   PPF  — 15-yr lock-in, 7.1% p.a. compounded annually (Apr), ₹500–₹1.5L/yr, tax-free maturity
  *   SSY  — Sukanya Samriddhi Yojana, 8.2% p.a., 21 yr / girl's marriage, ₹250–₹1.5L/yr
- *   NSC  — National Savings Certificate, 7.7% p.a. compounded half-yearly, 5-yr lock-in, taxable maturity
+ *   NSC  — National Savings Certificate, 7.7% p.a. compounded annually, 5-yr lock-in, taxable maturity
  *   SCSS — Senior Citizens Savings Scheme, 8.2% p.a. quarterly payout, 5+3 yr, age 60+
  *   KVP  — Kisan Vikas Patra, 7.5% p.a. compounded, ~115 months to double
  *
@@ -25,12 +25,23 @@ window.FinosPPFTracker = (function () {
   const ls  = k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
   const INR = v => '₹' + Math.abs(Math.round(v)).toLocaleString('en-IN');
 
+  function yearsElapsed(value) {
+    if (!value) return null;
+    const parts = String(value).split('-').map(Number);
+    if (parts.length !== 3 || parts.some(n => !Number.isFinite(n))) return null;
+    const [year, month, day] = parts;
+    const now = new Date();
+    let years = now.getFullYear() - year;
+    if (now.getMonth() + 1 < month || (now.getMonth() + 1 === month && now.getDate() < day)) years--;
+    return Math.max(0, years);
+  }
+
   /* ── Instrument metadata ─────────────────────────────────────── */
   const INSTRUMENTS = {
     PPF:  { name: 'Public Provident Fund',            rate: 7.1,  compounding: 'annual',      maxYrs: 15, minAmt: 500,    maxAmt: 150000, taxFree: true,  c80c: true,  color: '#00D4FF' },
     SSY:  { name: 'Sukanya Samriddhi Yojana',         rate: 8.2,  compounding: 'annual',      maxYrs: 21, minAmt: 250,    maxAmt: 150000, taxFree: true,  c80c: true,  color: '#9B5DE5' },
-    NSC:  { name: 'National Savings Certificate',     rate: 7.7,  compounding: 'half-yearly', maxYrs: 5,  minAmt: 1000,   maxAmt: null,   taxFree: false, c80c: true,  color: '#FFB347' },
-    SCSS: { name: 'Senior Citizens Savings Scheme',   rate: 8.2,  compounding: 'quarterly',   maxYrs: 5,  minAmt: 1000,   maxAmt: 3000000,taxFree: false, c80c: true,  color: '#22D3A6' },
+    NSC:  { name: 'National Savings Certificate',     rate: 7.7,  compounding: 'annual', maxYrs: 5,  minAmt: 1000,   maxAmt: null,   taxFree: false, c80c: true,  color: '#FFB347' },
+    SCSS: { name: 'Senior Citizens Savings Scheme',   rate: 8.2,  compounding: 'quarterly payout',   maxYrs: 5,  minAmt: 1000,   maxAmt: 3000000,taxFree: false, c80c: false, color: '#22D3A6' },
     KVP:  { name: 'Kisan Vikas Patra',                rate: 7.5,  compounding: 'annual',      maxYrs: 9.6,minAmt: 1000,   maxAmt: null,   taxFree: false, c80c: false, color: '#EF4444' },
   };
 
@@ -38,6 +49,7 @@ window.FinosPPFTracker = (function () {
   function _maturityValue(principal, ratePA, type, years) {
     const r = ratePA / 100;
     switch (type) {
+      case 'quarterly payout': return Math.round(principal); // SCSS pays interest out; principal does not compound
       case 'half-yearly': return Math.round(principal * Math.pow(1 + r / 2, years * 2));
       case 'quarterly':   return Math.round(principal * Math.pow(1 + r / 4, years * 4));
       default:            return Math.round(principal * Math.pow(1 + r, years));
@@ -45,11 +57,11 @@ window.FinosPPFTracker = (function () {
   }
 
   /* ── PPF annual-deposit projection (deposited every year, grows) */
-  function _ppfProjection(currentBalance, annualDeposit, yearsLeft, rate) {
+  function _ppfProjection(currentBalance, annualDeposit, yearsLeft, rate, depositYears = yearsLeft) {
     let bal = currentBalance;
     const r = rate / 100;
     for (let y = 0; y < yearsLeft; y++) {
-      bal = (bal + annualDeposit) * (1 + r);
+      bal = (bal + (y < depositYears ? annualDeposit : 0)) * (1 + r);
     }
     return Math.round(bal);
   }
@@ -109,18 +121,19 @@ window.FinosPPFTracker = (function () {
 
     const acctCards = accounts.map(a => {
       const inst = INSTRUMENTS[a.type] || {};
-      const openYr = a.openDate ? new Date(a.openDate).getFullYear() : null;
-      const ageYrs = openYr ? new Date().getFullYear() - openYr : null;
+      const openYr = a.openDate ? Number(a.openDate.slice(0, 4)) : null;
+      const ageYrs = yearsElapsed(a.openDate);
       const yearsLeft = inst.maxYrs && ageYrs !== null ? Math.max(inst.maxYrs - ageYrs, 0) : null;
+      const depositYearsLeft = a.type === 'SSY' && ageYrs !== null ? Math.min(yearsLeft || 0, Math.max(15 - ageYrs, 0)) : (yearsLeft || 0);
       const projected = (a.type === 'PPF' || a.type === 'SSY')
-        ? (yearsLeft > 0 ? _ppfProjection(a.currentBalance, a.annualDeposit || 0, yearsLeft, inst.rate) : a.currentBalance)
+        ? (yearsLeft > 0 ? _ppfProjection(a.currentBalance, a.annualDeposit || 0, yearsLeft, inst.rate, depositYearsLeft) : a.currentBalance)
         : _maturityValue(a.currentBalance, inst.rate, inst.compounding, yearsLeft || inst.maxYrs || 5);
 
       return `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-left:3px solid ${inst.color};border-radius:14px;padding:16px 18px;margin-bottom:10px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
           <div>
             <div style="font-size:14px;font-weight:800;color:#F5F7FA;">${a.nickname || inst.name}</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:2px;">${a.type} · ${inst.rate}% p.a. · ${inst.compounding} compounding</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:2px;">${a.type} · ${inst.rate}% p.a. · ${inst.compounding}</div>
           </div>
           <button onclick="window.FinosPPFTracker._delete(${a.id});window.FinosPPFTracker.renderOverview(document.getElementById('ppf-panel-overview'));"
             style="background:none;border:none;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.58);transition:color .2s;" onmouseover="this.style.color='#EF4444'" onmouseout="this.style.color='rgba(255,255,255,.2)'">✕</button>
@@ -228,7 +241,7 @@ ${accounts.length ? `
 </div>
 
 <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:16px;font-size:12px;">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin-bottom:10px;">Current Interest Rates (Q1 FY 2025-26)</div>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.58);margin-bottom:10px;">Current Interest Rates (Q3 FY 2026-27)</div>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;">
     ${Object.entries(INSTRUMENTS).map(([k,v])=>`
       <div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,.02);border-radius:8px;border:1px solid rgba(255,255,255,.05);">
@@ -254,12 +267,13 @@ ${accounts.length ? `
 
     const rows = accounts.map(a => {
       const inst = INSTRUMENTS[a.type] || {};
-      const openYr = a.openDate ? new Date(a.openDate).getFullYear() : null;
-      const ageYrs = openYr ? new Date().getFullYear() - openYr : null;
+      const openYr = a.openDate ? Number(a.openDate.slice(0, 4)) : null;
+      const ageYrs = yearsElapsed(a.openDate);
       const yearsLeft = inst.maxYrs && ageYrs !== null ? Math.max(inst.maxYrs - ageYrs, 0) : inst.maxYrs || 5;
+      const depositYearsLeft = a.type === 'SSY' && ageYrs !== null ? Math.min(yearsLeft, Math.max(15 - ageYrs, 0)) : yearsLeft;
       const maturityYr = openYr ? openYr + inst.maxYrs : new Date().getFullYear() + yearsLeft;
       const projected = (a.type === 'PPF' || a.type === 'SSY')
-        ? _ppfProjection(a.currentBalance, a.annualDeposit || 0, yearsLeft, inst.rate)
+        ? _ppfProjection(a.currentBalance, a.annualDeposit || 0, yearsLeft, inst.rate, depositYearsLeft)
         : _maturityValue(a.currentBalance, inst.rate, inst.compounding, yearsLeft);
       const gain = projected - a.currentBalance;
 
@@ -277,11 +291,12 @@ ${accounts.length ? `
 
     const totalProjected = accounts.reduce((s, a) => {
       const inst = INSTRUMENTS[a.type] || {};
-      const openYr = a.openDate ? new Date(a.openDate).getFullYear() : null;
-      const ageYrs = openYr ? new Date().getFullYear() - openYr : null;
+      const openYr = a.openDate ? Number(a.openDate.slice(0, 4)) : null;
+      const ageYrs = yearsElapsed(a.openDate);
       const yearsLeft = inst.maxYrs && ageYrs !== null ? Math.max(inst.maxYrs - ageYrs, 0) : inst.maxYrs || 5;
+      const depositYearsLeft = a.type === 'SSY' && ageYrs !== null ? Math.min(yearsLeft, Math.max(15 - ageYrs, 0)) : yearsLeft;
       return s + ((a.type === 'PPF' || a.type === 'SSY')
-        ? _ppfProjection(a.currentBalance, a.annualDeposit || 0, yearsLeft, inst.rate)
+        ? _ppfProjection(a.currentBalance, a.annualDeposit || 0, yearsLeft, inst.rate, depositYearsLeft)
         : _maturityValue(a.currentBalance, inst.rate, inst.compounding, yearsLeft));
     }, 0);
 
@@ -360,7 +375,7 @@ ${rows}` : '<div style="color:rgba(255,255,255,0.58);font-size:13px;padding:16px
   }
 
   /* Public */
-  return { renderOverview, renderProjection, renderTax, _add, _delete, _recompute };
+  return { renderOverview, renderProjection, renderTax, _add, _delete, _recompute, _maturityValue, _ppfProjection };
 })();
 
 /* Inline-handler functions. They used to sit in a <script> inside an innerHTML template, which the browser never executes, so

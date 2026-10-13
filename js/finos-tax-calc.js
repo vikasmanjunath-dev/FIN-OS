@@ -80,11 +80,13 @@
     return tax;
   }
 
+  // Surcharge rate follows the person's TAXABLE income (after deductions), not the gross salary. The new regime's top rate is 25% (above ₹2Cr),
+  // not 15%: Budget 2023 capped it at 25% instead of the old regime's 37%. Marginal relief just above each threshold is not modelled.
   function _surcharge(tax, income) {
     if (income <= 5000000)  return 0;
     if (income <= 10000000) return tax * 0.10;
     if (income <= 20000000) return tax * 0.15;
-    return tax * 0.15; // new regime capped at 15% (Budget 2023)
+    return tax * 0.25;
   }
 
   function _surchargeOld(tax, income) {
@@ -114,7 +116,7 @@
     // 87A: nil up to ₹12L; just above it tax can't exceed the income over ₹12L (marginal relief), so there is no cliff
     const baseTax = taxable <= NEW_REBATE_LIMIT ? 0 : Math.min(_slabTax(taxable, NEW_SLABS), taxable - NEW_REBATE_LIMIT);
     let   tax     = baseTax;
-    const surCh   = _surcharge(tax, p.income);
+    const surCh   = _surcharge(tax, taxable);
     tax           = (tax + surCh) * (1 + CESS);
 
     // LTCG & STCG (same in both regimes)
@@ -154,7 +156,7 @@
     const totalDed = std + hra + s80c + s80d + nps + empNps + sec24b + other;
     const taxable  = Math.max(0, p.income - totalDed);
     let   tax      = taxable <= OLD_REBATE_LIMIT ? 0 : _slabTax(taxable, OLD_SLABS);
-    const surCh    = _surchargeOld(tax, p.income);
+    const surCh    = _surchargeOld(tax, taxable);
     tax            = (tax + surCh) * (1 + CESS);
 
     const ltcg_taxable = Math.max(0, (p.ltcg || 0) - 125000);

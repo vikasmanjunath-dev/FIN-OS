@@ -32,13 +32,13 @@ window.FinosSIPStepup = (function () {
   const fmt = v => v >= 1e7 ? CR(v) : v >= 1e5 ? L(v) : INR(v);
 
   /* ── Core computation ──────────────────────────────────────────── */
-  function _compute(params) {
-    const {
-      baseSIP    = 10000,
-      stepUpPct  = 10,
-      years      = 20,
-      returnPct  = 12,
-    } = params || {};
+  function _compute(params, persist = true) {
+    const raw = params || {};
+    const finiteOr = (value, fallback) => Number.isFinite(Number(value)) ? Number(value) : fallback;
+    const baseSIP = Math.min(200000, Math.max(500, finiteOr(raw.baseSIP, 10000)));
+    const stepUpPct = Math.min(50, Math.max(0, finiteOr(raw.stepUpPct, 10)));
+    const years = Math.round(Math.min(40, Math.max(1, finiteOr(raw.years, 20))));
+    const returnPct = Math.min(100, Math.max(0, finiteOr(raw.returnPct, 12)));
 
     const r = returnPct / 100 / 12; // monthly rate
 
@@ -51,8 +51,11 @@ window.FinosSIPStepup = (function () {
       const monthlyStep = Math.round(baseSIP * Math.pow(1 + stepUpPct / 100, y));
 
       for (let m = 0; m < 12; m++) {
-        flatCorpus  = (flatCorpus  + monthlyFlat) * (1 + r);
-        stepCorpus  = (stepCorpus  + monthlyStep) * (1 + r);
+        // Deposits are treated as month-end SIP instalments. Applying the
+        // return after adding the deposit incorrectly gives each instalment
+        // one extra month of growth.
+        flatCorpus  = flatCorpus * (1 + r) + monthlyFlat;
+        stepCorpus  = stepCorpus * (1 + r) + monthlyStep;
         flatInvested += monthlyFlat;
         stepInvested += monthlyStep;
       }
@@ -75,10 +78,12 @@ window.FinosSIPStepup = (function () {
     const lastRow   = yearlyData[yearlyData.length - 1];
     const totalStepSIP = lastRow.sipStep;
 
-    // Persist for Retirement Planner
-    ss('finos_sip_stepup_corpus', finalStep);
-    ss('finos_sip_flat_corpus',   finalFlat);
-    ss('finos_sip_stepup_gain',   advantage);
+    // Persist only the selected scenario. Scenario cards call this as a pure calculation.
+    if (persist) {
+      ss('finos_sip_stepup_corpus', finalStep);
+      ss('finos_sip_flat_corpus',   finalFlat);
+      ss('finos_sip_stepup_gain',   advantage);
+    }
 
     return { finalFlat, finalStep, advantage, flatInvested, stepInvested, yearlyData, totalStepSIP };
   }
@@ -86,10 +91,10 @@ window.FinosSIPStepup = (function () {
   /* ── Saved inputs ──────────────────────────────────────────────── */
   function _loadInputs() {
     return {
-      baseSIP:   parseInt(gss('finos_ss_base')    || '0') || gs('finos_sip_value') > 0 ? 10000 : 10000,
-      stepUpPct: parseInt(gss('finos_ss_stepup')  || '10'),
-      years:     parseInt(gss('finos_ss_years')   || '20'),
-      returnPct: parseInt(gss('finos_ss_return')  || '12'),
+      baseSIP:   parseInt(gss('finos_ss_base') || '0', 10) || 10000,
+      stepUpPct: Number.isFinite(parseFloat(gss('finos_ss_stepup'))) ? parseFloat(gss('finos_ss_stepup')) : 10,
+      years:     Number.isFinite(parseInt(gss('finos_ss_years'), 10)) ? parseInt(gss('finos_ss_years'), 10) : 20,
+      returnPct: Number.isFinite(parseFloat(gss('finos_ss_return'))) ? parseFloat(gss('finos_ss_return')) : 12,
     };
   }
 
@@ -125,14 +130,14 @@ window.FinosSIPStepup = (function () {
     const c = _compute(p);
 
     const scenarios = [5, 10, 15, 20].map(pct => {
-      const sc = _compute({ ...p, stepUpPct: pct });
+      const sc = _compute({ ...p, stepUpPct: pct }, false);
       const isSelected = pct === p.stepUpPct;
       return `<div style="padding:14px;background:${isSelected ? 'rgba(34,211,166,.08)' : 'var(--border-soft)'};border:1px solid ${isSelected ? 'rgba(34,211,166,.25)' : 'var(--border-soft)'};border-radius:12px;text-align:center;">
         <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:20px;font-weight:900;color:${isSelected ? '#22D3A6' : 'var(--text-primary)'};">+${pct}%</div>
         <div style="font-size:11px;color:var(--text-muted);margin:3px 0 8px;">annual step-up</div>
         <div style="font-size:13px;font-weight:800;color:${isSelected ? '#22D3A6' : 'var(--text-primary)'};">${fmt(sc.finalStep)}</div>
         <div style="font-size:10px;color:var(--text-muted);">vs ${fmt(sc.finalFlat)} flat</div>
-        <div style="margin-top:6px;font-size:11px;font-weight:700;color:#4F7CFF;">+${fmt(sc.advantage)} extra</div>
+        <div style="margin-top:6px;font-size:11px;font-weight:700;color:var(--accent-ink);">+${fmt(sc.advantage)} extra</div>
       </div>`;
     }).join('');
 
@@ -187,7 +192,7 @@ window.FinosSIPStepup = (function () {
     <span>📈 A ${INR(p.baseSIP)}/mo SIP at +${p.stepUpPct}% step-up reaches ${INR(c.totalStepSIP)}/mo by year ${p.years} — natural, gradual</span>
     <span>📈 The extra ${fmt(c.advantage)} in wealth costs only ${fmt(c.stepInvested - c.flatInvested)} extra invested — compounding does the rest</span>
     <span>📈 Use SIP mandate with step-up instruction on your MF platform (Groww, Zerodha Coin, MFCentral)</span>
-    <span>📈 Even 5% step-up (half the inflation rate) delivers ${fmt(_compute({...p, stepUpPct:5}).advantage)} extra vs flat SIP</span>
+    <span>📈 Even 5% step-up (half the inflation rate) delivers ${fmt(_compute({...p, stepUpPct:5}, false).advantage)} extra vs flat SIP</span>
   </div>
 </div>`;
   }
@@ -245,7 +250,8 @@ window.FinosSIPStepup = (function () {
   /* Live recalculation for the calculator tab. Lives at module scope: a <script> inside an innerHTML string never runs. */
   window._ssRecalc = function() {
     const base   = parseInt(document.getElementById('ss-base')?.value)   || 10000;
-    const stepup = parseInt(document.getElementById('ss-stepup')?.value) || 10;
+    const stepInput = parseFloat(document.getElementById('ss-stepup')?.value);
+    const stepup = Number.isFinite(stepInput) ? stepInput : 10;
     const yrs    = parseInt(document.getElementById('ss-years')?.value)  || 20;
     const ret    = parseFloat(document.getElementById('ss-return')?.value) || 12;
     const p = { baseSIP: base, stepUpPct: stepup, years: yrs, returnPct: ret };
