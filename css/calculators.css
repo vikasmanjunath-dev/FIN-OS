@@ -35,20 +35,29 @@
   gap: 18px;
 }
 
-/* CALCULATOR CARD */
+/* CALCULATOR CARD
+   One definition. This used to be three stacked blocks that each re-declared padding, radius, background and
+   shadow; only the last of each property ever applied. tests/test_card_styles.py pins the computed result. */
 .calc-card {
-  padding: 18px 20px;
-  border-radius: 18px;
-  background: rgba(255,255,255,0.04);
+  position: relative;
+  padding: 22px 24px;
+  border-radius: 20px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 15.5px;
+  font-weight: 500;
+  line-height: 1.4;
   cursor: pointer;
-
-  transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+  box-shadow: var(--card-shadow);
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease, background 0.35s ease;
 }
 
+/* Hover: premium lift (the theme blocks below set the hover background and border per theme) */
 .calc-card:hover {
   transform: translateY(-6px);
   background: transparent;
-  box-shadow: 0 0 0 1px rgba(79,124,255,.2), 0 16px 40px rgba(0,0,0,.3);
+  box-shadow: 0 20px 48px rgba(0,0,0,0.12);
 }
 
 /* LOCKED */
@@ -58,38 +67,6 @@
 }
 
 
-
-/* =========================
-   CALCULATOR ITEM BOXES
-   ========================= */
-
-.calc-card {
-  position: relative;
-
-  padding: 22px 24px;
-  border-radius: 20px;
-
-  background: var(--bg-surface);
-  color: var(--text-primary);
-
-  font-size: 15.5px;
-  font-weight: 500;
-  line-height: 1.4;
-
-  box-shadow: var(--card-shadow);
-
-  transition:
-    transform 0.35s cubic-bezier(0.16,1,0.3,1),
-    box-shadow 0.35s ease,
-    background 0.35s ease;
-}
-
-/* Hover — premium lift */
-.calc-card:hover {
-  transform: translateY(-6px);
-  box-shadow:
-    0 20px 48px rgba(0,0,0,0.12);
-}
 
 /* =========================
    LIGHT MODE REFINEMENT
@@ -125,38 +102,4 @@
   border-color: rgba(79,124,255,0.5);
   box-shadow:
     0 24px 60px rgba(0,0,0,0.65);
-}
-
-
-
-
-/* In calculators.css */
-
-.calc-card {
-  text-decoration: none; /* Removes the underline */
-  color: var(--text-primary); /* Keeps text color consistent */
-  
-  /* ... existing styles below ... */
-  position: relative;
-  padding: 22px 24px;
-  border-radius: 20px;
-  background: var(--bg-surface);
-  font-size: 15.5px;
-  font-weight: 500;
-  line-height: 1.4;
-  box-shadow: var(--card-shadow);
-  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease, background 0.35s ease;
-}
-
-
-.user-symbol {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  background: var(--accent-soft); /* */
-  border-radius: 50%; /* Makes it a round symbol */
-  margin-right: 12px;
-  font-size: 0.8rem;
 }
