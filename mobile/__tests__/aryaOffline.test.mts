@@ -26,5 +26,8 @@ test('every offline action points at a real screen', () => {
 test('the chat hook uses this reply instead of its own string', () => {
   const src = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '../hooks/useAryaChat.ts'), 'utf8');
   assert.ok(!/port 7475/.test(src));
-  assert.match(src, /offlineReply\(/);
+  // the hook goes through localOnlyReply (lib/aryaTools.ts), which wraps offlineReply and adds the questions that work offline
+  assert.match(src, /localOnlyReply\(/);
+  const tools = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '../lib/aryaTools.ts'), 'utf8');
+  assert.match(tools, /offlineReply\(/);
 });

@@ -4,16 +4,18 @@ import {
   TouchableOpacity, KeyboardAvoidingView, Platform, Pressable,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { router } from 'expo-router';
 import { useAryaChat } from '@/hooks/useAryaChat';
 import { AryaBubble } from '@/components/AryaBubble';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 
+// The first four are answered on the phone from your own records (no connection needed); the rest go to Arya online.
 const SUGGESTED = [
-  'How much should I invest in SIP?',
+  'What is my net worth?',
+  'How many months does my emergency fund cover?',
+  'What is due this month?',
+  'SIP of 10000 at 12% for 15 years',
   'Explain ELSS vs PPF for tax saving',
-  'What is my ideal emergency fund?',
-  'Show Nifty 50 analysis',
-  'How do I start investing in MFs?',
 ];
 
 export default function AryaScreen() {
@@ -52,9 +54,17 @@ export default function AryaScreen() {
             <Text style={styles.headerSub}>FIN·OS Financial AI</Text>
           </View>
         </View>
-        <Pressable accessibilityRole="button" onPress={() => { Haptics.selectionAsync(); clear(); }} hitSlop={12}>
-          <Text style={styles.clearBtn}>Clear</Text>
-        </Pressable>
+        <View style={{ flexDirection: 'row', gap: Spacing.md }}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Open PULSE, your ranked insights" onPress={() => router.push('/pulse' as any)} hitSlop={12}>
+            <Text style={styles.clearBtn}>Pulse</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="What Arya remembers and what it will be told" onPress={() => router.push('/pulse/memory' as any)} hitSlop={12}>
+            <Text style={styles.clearBtn}>Memory</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Clear the conversation" onPress={() => { Haptics.selectionAsync(); clear(); }} hitSlop={12}>
+            <Text style={styles.clearBtn}>Clear</Text>
+          </Pressable>
+        </View>
       </View>
 
       {/* ── Messages ── */}
