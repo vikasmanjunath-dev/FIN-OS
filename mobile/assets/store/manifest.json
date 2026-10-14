@@ -1,0 +1,232 @@
+{
+  "synthetic": true,
+  "profile": "Sample User (invented)",
+  "source": "Expo web preview rendered with Playwright, not a device capture",
+  "generator": "mobile/scripts/release-screenshots.py",
+  "screens": [
+    {
+      "file": "ios-1290x2796/dark-01-home.png",
+      "route": "/dashboard",
+      "shows": "Home: net worth, spending this month, next best step",
+      "theme": "dark",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "file": "ios-1290x2796/dark-02-score.png",
+      "route": "/tools/score",
+      "shows": "Money Score: six pillars and ranked next moves",
+      "theme": "dark",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "file": "ios-1290x2796/dark-03-budget.png",
+      "route": "/tracker/budget",
+      "shows": "Monthly budget by category",
+      "theme": "dark",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "file": "ios-1290x2796/dark-04-networth.png",
+      "route": "/tracker/networth",
+      "shows": "Net worth across everything you track",
+      "theme": "dark",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "file": "ios-1290x2796/dark-05-tax.png",
+      "route": "/tools/taxplanner",
+      "shows": "Tax planner: old vs new regime",
+      "theme": "dark",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "file": "ios-1290x2796/dark-06-goals.png",
+      "route": "/tracker/goals",
+      "shows": "Goals and the SIP each one needs",
+      "theme": "dark",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "file": "ios-1290x2796/dark-07-privacy.png",
+      "route": "/privacy",
+      "shows": "Privacy & your data: what is stored, what can leave",
+      "theme": "dark",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "file": "ios-1290x2796/light-01-home.png",
+      "route": "/dashboard",
+      "shows": "Home: net worth, spending this month, next best step",
+      "theme": "light",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "file": "ios-1290x2796/light-02-score.png",
+      "route": "/tools/score",
+      "shows": "Money Score: six pillars and ranked next moves",
+      "theme": "light",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "file": "ios-1290x2796/light-03-budget.png",
+      "route": "/tracker/budget",
+      "shows": "Monthly budget by category",
+      "theme": "light",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "file": "ios-1290x2796/light-04-networth.png",
+      "route": "/tracker/networth",
+      "shows": "Net worth across everything you track",
+      "theme": "light",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "file": "ios-1290x2796/light-05-tax.png",
+      "route": "/tools/taxplanner",
+      "shows": "Tax planner: old vs new regime",
+      "theme": "light",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "file": "ios-1290x2796/light-06-goals.png",
+      "route": "/tracker/goals",
+      "shows": "Goals and the SIP each one needs",
+      "theme": "light",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "file": "ios-1290x2796/light-07-privacy.png",
+      "route": "/privacy",
+      "shows": "Privacy & your data: what is stored, what can leave",
+      "theme": "light",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "file": "android-1080x1920/dark-01-home.png",
+      "route": "/dashboard",
+      "shows": "Home: net worth, spending this month, next best step",
+      "theme": "dark",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "file": "android-1080x1920/dark-02-score.png",
+      "route": "/tools/score",
+      "shows": "Money Score: six pillars and ranked next moves",
+      "theme": "dark",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "file": "android-1080x1920/dark-03-budget.png",
+      "route": "/tracker/budget",
+      "shows": "Monthly budget by category",
+      "theme": "dark",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "file": "android-1080x1920/dark-04-networth.png",
+      "route": "/tracker/networth",
+      "shows": "Net worth across everything you track",
+      "theme": "dark",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "file": "android-1080x1920/dark-05-tax.png",
+      "route": "/tools/taxplanner",
+      "shows": "Tax planner: old vs new regime",
+      "theme": "dark",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "file": "android-1080x1920/dark-06-goals.png",
+      "route": "/tracker/goals",
+      "shows": "Goals and the SIP each one needs",
+      "theme": "dark",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "file": "android-1080x1920/dark-07-privacy.png",
+      "route": "/privacy",
+      "shows": "Privacy & your data: what is stored, what can leave",
+      "theme": "dark",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "file": "android-1080x1920/light-01-home.png",
+      "route": "/dashboard",
+      "shows": "Home: net worth, spending this month, next best step",
+      "theme": "light",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "file": "android-1080x1920/light-02-score.png",
+      "route": "/tools/score",
+      "shows": "Money Score: six pillars and ranked next moves",
+      "theme": "light",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "file": "android-1080x1920/light-03-budget.png",
+      "route": "/tracker/budget",
+      "shows": "Monthly budget by category",
+      "theme": "light",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "file": "android-1080x1920/light-04-networth.png",
+      "route": "/tracker/networth",
+      "shows": "Net worth across everything you track",
+      "theme": "light",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "file": "android-1080x1920/light-05-tax.png",
+      "route": "/tools/taxplanner",
+      "shows": "Tax planner: old vs new regime",
+      "theme": "light",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "file": "android-1080x1920/light-06-goals.png",
+      "route": "/tracker/goals",
+      "shows": "Goals and the SIP each one needs",
+      "theme": "light",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "file": "android-1080x1920/light-07-privacy.png",
+      "route": "/privacy",
+      "shows": "Privacy & your data: what is stored, what can leave",
+      "theme": "light",
+      "width": 1080,
+      "height": 1920
+    }
+  ]
+}
