@@ -1,0 +1,88 @@
+{
+ "category": "markets",
+ "id": "fno",
+ "needsReview": true,
+ "reviewReasons": [
+  "fno-stat",
+  "fno-selling"
+ ],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Weapons of Mass Destruction for the ignorant. Insurance for the wise."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 01: NOOB"
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "Spot Market: You pay ₹1 Crore and buy the flat. Simple.\nOption Market: You pay a Token Amount (Premium) of ₹1 Lakh to \"book\" the flat price at ₹1 Cr for 3 months.\n- If price goes to ₹1.5 Cr: You exercise your right. Profit!\n- If price drops to ₹80L: You walk away. You only lose the ₹1 Lakh token.",
+     "title": "🏠 Buying a Flat vs Buying an Option"
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 02: MECHANIC"
+    }
+   ],
+   "heading": "The Real Estate Analogy"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Call Option (CE): Betting the market will go UP."
+    },
+    {
+     "t": "p",
+     "text": "Put Option (PE): Betting the market will go DOWN (Insurance)."
+    },
+    {
+     "t": "p",
+     "text": "Most retailers buy Puts to gamble on crashes. Institutions buy Puts to protect their multi-crore portfolios."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 03: PRO"
+    }
+   ],
+   "heading": "Call (CE) vs Put (PE)"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "An Option contract is like an Ice Cream cone. It melts every second."
+    },
+    {
+     "t": "p",
+     "text": "This melting is called Time Decay (Theta). If the market stays flat, the Option Buyer LOSES money because the time ran out."
+    },
+    {
+     "kind": "tip",
+     "needsReview": true,
+     "reviewReasons": [
+      "fno-stat",
+      "fno-selling"
+     ],
+     "t": "callout",
+     "text": "Retailers BUY options (Lottery tickets). Institutions SELL options (The Casino).\nWhy? Because 66% of the time, markets are sideways. In sideways markets, Option Buyers lose 100% of their premium due to Theta Decay. Option Sellers keep it.\nVerdict: Buying options is playing against the House. Selling options IS the House.",
+     "title": "☠️ GOD MODE: Option Selling"
+    }
+   ],
+   "heading": "The Ice Cream Logic (Theta)"
+  }
+ ],
+ "source": "html/learn-fno.html",
+ "summary": "F&O Deep Dive — the quick version before the full Derivatives Masterclass.",
+ "title": "F&O Deep Dive",
+ "tool": null
+}

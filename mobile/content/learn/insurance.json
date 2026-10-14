@@ -1,0 +1,142 @@
+{
+ "category": "protection",
+ "id": "insurance",
+ "needsReview": true,
+ "reviewReasons": [
+  "insurance-medinf",
+  "insurance-endowment",
+  "insurance-cover"
+ ],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Transferring the risk of catastrophic system failure."
+    },
+    {
+     "t": "p",
+     "text": "System Logic 01"
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Insurance is not an investment. It is a contract where you pay a small \"Service Fee\" (Premium) to a massive entity, so that when a \"Critical Error\" (Death, Accident, Fire) occurs, they bear the financial cost instead of you."
+    },
+    {
+     "kind": "fact",
+     "t": "callout",
+     "text": "Brutal Truth: If you are buying insurance to \"get money back,\" you are doing it wrong. That is a marketing trap.",
+     "title": ""
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 02: HARDWARE PROTECTION"
+    }
+   ],
+   "heading": "What is Insurance? (Risk Transfer)"
+  },
+  {
+   "blocks": [
+    {
+     "needsReview": true,
+     "reviewReasons": [
+      "insurance-medinf"
+     ],
+     "t": "p",
+     "text": "In the Indian context, medical inflation is roughly 14%. A single bypass surgery or a 10-day ICU stay can delete years of compounding in a week."
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "🚫 No Room Rent Cap"
+    },
+    {
+     "t": "p",
+     "text": "If your policy has a cap (e.g., 1% of sum insured), and you take a better room, the company will cut your entire bill proportionally. It's a hidden kill-switch."
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "🚫 No Co-Pay"
+    },
+    {
+     "t": "p",
+     "text": "Co-pay means you pay a percentage of every bill. This is fine for small things, but catastrophic for a ₹20 Lakh bill."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 03: LIFE PROTOCOL"
+    }
+   ],
+   "heading": "Health Insurance: The \"Anti-Wipeout\" Layer"
+  },
+  {
+   "blocks": [
+    {
+     "needsReview": true,
+     "reviewReasons": [
+      "insurance-endowment"
+     ],
+     "t": "p",
+     "text": "Most Indians buy \"Endowment\" plans (LIC style) because they \"get money back.\" These plans give ~5% returns. Inflation is 6-7%. You are literally losing money to insure yourself."
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "The FIN-OS Formula"
+    },
+    {
+     "needsReview": true,
+     "reviewReasons": [
+      "insurance-cover"
+     ],
+     "t": "p",
+     "text": "Cover = (Annual Income × 20) + Total Debt"
+    },
+    {
+     "t": "p",
+     "text": "If you earn ₹10L/year and have a ₹50L Home Loan, you need a ₹2.5 Crore Term Plan. Anything less is a system vulnerability."
+    }
+   ],
+   "heading": "Term Insurance: Pure Death Benefit"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Masters of the system don't insure everything. They follow the Matrix of Transfer:"
+    },
+    {
+     "rows": [
+      [
+       "Probability",
+       "Financial Impact",
+       "Action"
+      ],
+      [
+       "High (e.g. Earphones)",
+       "Low",
+       "SELF-INSURE"
+      ],
+      [
+       "Low (e.g. Death)",
+       "Extremely High",
+       "TRANSFER (INSURE)"
+      ]
+     ],
+     "t": "table"
+    }
+   ],
+   "heading": "☠️ GOD MODE: The 1% Risk Manager"
+  }
+ ],
+ "source": "html/learn-insurance.html",
+ "summary": "Shield Protocol — health, term life, and critical illness cover explained before you shop for a policy.",
+ "title": "Shield Protocol (Insurance)",
+ "tool": "/tools/lifecover"
+}

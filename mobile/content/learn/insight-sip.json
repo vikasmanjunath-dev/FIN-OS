@@ -1,0 +1,47 @@
+{
+ "category": "insights",
+ "id": "insight-sip",
+ "needsReview": true,
+ "reviewReasons": [
+  "insight-sip-math"
+ ],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "\"I will start investing when I earn more.\" — The most expensive lie."
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "items": [
+      "Start at 25: You invest ₹18 Lakhs -> You get ₹1.7 Crores.",
+      "Start at 35: You invest ₹12 Lakhs -> You get ₹48 Lakhs."
+     ],
+     "needsReview": true,
+     "reviewReasons": [
+      "insight-sip-math"
+     ],
+     "t": "ul"
+    },
+    {
+     "t": "p",
+     "text": "Waiting 10 years cost you ₹1.2 Crores."
+    },
+    {
+     "t": "p",
+     "text": "🧮 Plan your own SIP timeline →"
+    }
+   ],
+   "heading": "The Math (₹5,000 / month @ 12%)"
+  }
+ ],
+ "source": "html/insight-sip.html",
+ "summary": "Starting a SIP at 25 vs 35 isn't a 10-year gap — it's a ₹1.2 crore one. The real cost of waiting, in numbers.",
+ "title": "SIP Power",
+ "tool": "/tools/stepup"
+}

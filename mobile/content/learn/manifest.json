@@ -1,0 +1,453 @@
+{
+ "categories": [
+  {
+   "id": "foundations",
+   "title": "Money foundations"
+  },
+  {
+   "id": "markets",
+   "title": "Markets and instruments"
+  },
+  {
+   "id": "analysis",
+   "title": "Analysing investments"
+  },
+  {
+   "id": "protection",
+   "title": "Protection"
+  },
+  {
+   "id": "insights",
+   "title": "Quick insights"
+  },
+  {
+   "id": "mindset",
+   "title": "Investor mindset"
+  }
+ ],
+ "excluded": {
+  "mindset-sim-hub.html": "interactive simulator hub",
+  "mindset-sim.html": "interactive simulator",
+  "simulator-guide.html": "manual for the website-only trading simulator UI; nothing on the phone to apply it to",
+  "train-mindset.html": "redirect stub to simulator-landing.html"
+ },
+ "lessons": [
+  {
+   "category": "foundations",
+   "hasInteractive": true,
+   "id": "finance101",
+   "kind": "lesson",
+   "minutes": 4,
+   "needsReview": true,
+   "order": 1,
+   "reviewReasons": [
+    "finance101-cc-interest",
+    "finance101-sgb-digital",
+    "finance101-epf-taxfree",
+    "finance101-cpi"
+   ],
+   "source": "html/finance101.html",
+   "summary": "Finance 101 — dismantle money myths, understand income vs wealth and EMI traps.",
+   "title": "Personal Finance 101",
+   "tool": null,
+   "words": 766
+  },
+  {
+   "category": "foundations",
+   "hasInteractive": true,
+   "id": "principles",
+   "kind": "lesson",
+   "minutes": 3,
+   "needsReview": false,
+   "order": 2,
+   "reviewReasons": [],
+   "source": "html/principles.html",
+   "summary": "Immutable laws of money — compounding, leverage, time value explained simply.",
+   "title": "The Constitution",
+   "tool": null,
+   "words": 624
+  },
+  {
+   "category": "foundations",
+   "hasInteractive": false,
+   "id": "foundations",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 0,
+   "source": "html/foundations.html",
+   "summary": "Build your financial foundation — principles, insurance, income vs wealth fundamentals.",
+   "title": "Foundation Matrix",
+   "tool": null,
+   "words": 177
+  },
+  {
+   "category": "markets",
+   "hasInteractive": false,
+   "id": "equity",
+   "kind": "lesson",
+   "minutes": 2,
+   "needsReview": true,
+   "order": 1,
+   "reviewReasons": [
+    "equity-ipo",
+    "equity-asm"
+   ],
+   "source": "html/learn-equity.html",
+   "summary": "Equity Deep Dive — what a stock is, how the market works, and market cap, in five minutes before the full Masterclass.",
+   "title": "Equity Deep Dive",
+   "tool": "/markets",
+   "words": 419
+  },
+  {
+   "category": "markets",
+   "hasInteractive": false,
+   "id": "mutual_funds",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": true,
+   "order": 2,
+   "reviewReasons": [
+    "mf-spiva",
+    "mf-direct"
+   ],
+   "source": "html/learn-mf.html",
+   "summary": "Mutual Funds Deep Dive — the quick version before the full MF Masterclass.",
+   "title": "Mutual Funds",
+   "tool": "/tools/calculators",
+   "words": 209
+  },
+  {
+   "category": "markets",
+   "hasInteractive": false,
+   "id": "etf",
+   "kind": "lesson",
+   "minutes": 2,
+   "needsReview": true,
+   "order": 3,
+   "reviewReasons": [
+    "etf-ter"
+   ],
+   "source": "html/learn-etf.html",
+   "summary": "ETF Deep Dive — the quick version before the full ETF Masterclass.",
+   "title": "ETF Deep Dive",
+   "tool": "/markets",
+   "words": 308
+  },
+  {
+   "category": "markets",
+   "hasInteractive": false,
+   "id": "debt",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": true,
+   "order": 4,
+   "reviewReasons": [
+    "debt-yields",
+    "debt-duration"
+   ],
+   "source": "html/learn-debt.html",
+   "summary": "Debt Deep Dive — the quick version before the full Debt Market Masterclass.",
+   "title": "Debt Deep Dive",
+   "tool": "/tracker/fixed",
+   "words": 229
+  },
+  {
+   "category": "markets",
+   "hasInteractive": false,
+   "id": "money_market",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": true,
+   "order": 5,
+   "reviewReasons": [
+    "moneymarket-rate",
+    "moneymarket-cp",
+    "moneymarket-arb"
+   ],
+   "source": "html/learn-money-market.html",
+   "summary": "Money Market Deep Dive — treasury bills, CPs and where short-term cash actually goes.",
+   "title": "Money Market",
+   "tool": "/tracker/fixed",
+   "words": 232
+  },
+  {
+   "category": "markets",
+   "hasInteractive": false,
+   "id": "commodity",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": true,
+   "order": 6,
+   "reviewReasons": [
+    "commodity-jewelry",
+    "commodity-digital-gold",
+    "commodity-sgb"
+   ],
+   "source": "html/learn-commodity.html",
+   "summary": "Commodity Deep Dive — the quick version before the full Commodity Masterclass.",
+   "title": "Commodity Deep Dive",
+   "tool": "/tracker/gold",
+   "words": 168
+  },
+  {
+   "category": "markets",
+   "hasInteractive": false,
+   "id": "crypto",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": false,
+   "order": 7,
+   "reviewReasons": [],
+   "source": "html/learn-crypto.html",
+   "summary": "Crypto Deep Dive — the shared-ledger concept, Bitcoin vs Ethereum, and how not to get scammed by tokenomics.",
+   "title": "Crypto Deep Dive",
+   "tool": "/tracker/crypto",
+   "words": 235
+  },
+  {
+   "category": "markets",
+   "hasInteractive": false,
+   "id": "forex",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": true,
+   "order": 8,
+   "reviewReasons": [
+    "forex-volume",
+    "forex-rate",
+    "forex-leverage",
+    "forex-carry"
+   ],
+   "source": "html/learn-forex.html",
+   "summary": "Forex Deep Dive — the quick version before the full Forex Masterclass.",
+   "title": "Forex Deep Dive",
+   "tool": null,
+   "words": 218
+  },
+  {
+   "category": "markets",
+   "hasInteractive": false,
+   "id": "fno",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": true,
+   "order": 9,
+   "reviewReasons": [
+    "fno-stat",
+    "fno-selling"
+   ],
+   "source": "html/learn-fno.html",
+   "summary": "F&O Deep Dive — the quick version before the full Derivatives Masterclass.",
+   "title": "F&O Deep Dive",
+   "tool": null,
+   "words": 228
+  },
+  {
+   "category": "analysis",
+   "hasInteractive": true,
+   "id": "fundamental",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": false,
+   "order": 1,
+   "reviewReasons": [],
+   "source": "html/learn-fundamental.html",
+   "summary": "Fundamental Analysis: God Mode — reading a balance sheet, P&L and cash flow statement like an analyst.",
+   "title": "Fundamental Analysis: God Mode",
+   "tool": null,
+   "words": 269
+  },
+  {
+   "category": "analysis",
+   "hasInteractive": false,
+   "id": "technical",
+   "kind": "lesson",
+   "minutes": 2,
+   "needsReview": false,
+   "order": 2,
+   "reviewReasons": [],
+   "source": "html/learn-technical.html",
+   "summary": "Technical Analysis: The Pulse — reading charts, patterns and momentum without the jargon.",
+   "title": "Technical Analysis: The Pulse",
+   "tool": null,
+   "words": 380
+  },
+  {
+   "category": "analysis",
+   "hasInteractive": true,
+   "id": "indicators",
+   "kind": "lesson",
+   "minutes": 4,
+   "needsReview": true,
+   "order": 3,
+   "reviewReasons": [
+    "indicators-vwap"
+   ],
+   "source": "html/learn-indicators.html",
+   "summary": "Technical Toolkit — the full indicator reference, from moving averages to RSI.",
+   "title": "Technical Toolkit (Full)",
+   "tool": null,
+   "words": 744
+  },
+  {
+   "category": "analysis",
+   "hasInteractive": false,
+   "id": "metrics",
+   "kind": "lesson",
+   "minutes": 5,
+   "needsReview": true,
+   "order": 4,
+   "reviewReasons": [
+    "metrics-thresholds",
+    "metrics-fd"
+   ],
+   "source": "html/learn-metrics.html",
+   "summary": "Metric Armory — the full reference of financial ratios and what each one actually tells you.",
+   "title": "Metric Armory (Full)",
+   "tool": null,
+   "words": 918
+  },
+  {
+   "category": "analysis",
+   "hasInteractive": false,
+   "id": "analysis",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": false,
+   "order": 5,
+   "reviewReasons": [],
+   "source": "html/learn-analysis.html",
+   "summary": "Pick your analysis protocol — fundamental or technical — before diving into the full toolkit.",
+   "title": "Select Analysis Protocol",
+   "tool": null,
+   "words": 170
+  },
+  {
+   "category": "protection",
+   "hasInteractive": true,
+   "id": "insurance",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": true,
+   "order": 1,
+   "reviewReasons": [
+    "insurance-medinf",
+    "insurance-endowment",
+    "insurance-cover"
+   ],
+   "source": "html/learn-insurance.html",
+   "summary": "Shield Protocol — health, term life, and critical illness cover explained before you shop for a policy.",
+   "title": "Shield Protocol (Insurance)",
+   "tool": "/tools/lifecover",
+   "words": 277
+  },
+  {
+   "category": "insights",
+   "hasInteractive": true,
+   "id": "insight-sip",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": true,
+   "order": 1,
+   "reviewReasons": [
+    "insight-sip-math"
+   ],
+   "source": "html/insight-sip.html",
+   "summary": "Starting a SIP at 25 vs 35 isn't a 10-year gap — it's a ₹1.2 crore one. The real cost of waiting, in numbers.",
+   "title": "SIP Power",
+   "tool": "/tools/stepup",
+   "words": 58
+  },
+  {
+   "category": "insights",
+   "hasInteractive": true,
+   "id": "insight-emi",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": true,
+   "order": 2,
+   "reviewReasons": [
+    "insight-emi-prepay"
+   ],
+   "source": "html/insight-emi.html",
+   "summary": "Why your EMI barely dents the principal in year one — and the one prepayment habit that fixes it.",
+   "title": "The EMI Trap",
+   "tool": "/tools/homeloan",
+   "words": 62
+  },
+  {
+   "category": "insights",
+   "hasInteractive": false,
+   "id": "insight-debt",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": false,
+   "order": 3,
+   "reviewReasons": [],
+   "source": "html/insight-debt.html",
+   "summary": "Good debt builds wealth, bad debt drains it — the line between leverage and chains, in two minutes.",
+   "title": "Good vs Bad Debt",
+   "tool": "/tools/debt",
+   "words": 93
+  },
+  {
+   "category": "insights",
+   "hasInteractive": true,
+   "id": "insight-inflation",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": true,
+   "order": 4,
+   "reviewReasons": [
+    "insight-inflation-cpi"
+   ],
+   "source": "html/insight-inflation.html",
+   "summary": "Your savings account is losing you 4% a year, quietly. Why inflation is the wealth killer nobody notices.",
+   "title": "Inflation Reality",
+   "tool": "/tools/calculators",
+   "words": 84
+  },
+  {
+   "category": "insights",
+   "hasInteractive": false,
+   "id": "insight-rbi",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": false,
+   "order": 5,
+   "reviewReasons": [],
+   "source": "html/insight-rbi.html",
+   "summary": "How one RBI rate decision moves your EMI, your FD returns, and the market — in that order.",
+   "title": "RBI & You",
+   "tool": null,
+   "words": 48
+  },
+  {
+   "category": "mindset",
+   "hasInteractive": true,
+   "id": "investor-mindset",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 1,
+   "source": "html/investor-mindset.html",
+   "summary": "Master the mental game of investing — biases, patience and conviction.",
+   "title": "Investor Mindset Guide",
+   "tool": "/tools/dna",
+   "words": 688
+  },
+  {
+   "category": "mindset",
+   "hasInteractive": false,
+   "id": "investor-profile",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 2,
+   "source": "html/investor-profile.html",
+   "summary": "Apex Cognitive Architectures — a deep dive into investor personality types and the decision framework that fits each one.",
+   "title": "Apex Cognitive Architectures | Deep Dive",
+   "tool": "/tools/dna",
+   "words": 171
+  }
+ ],
+ "version": 1
+}

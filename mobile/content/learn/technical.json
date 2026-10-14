@@ -1,0 +1,238 @@
+{
+ "category": "analysis",
+ "id": "technical",
+ "needsReview": false,
+ "reviewReasons": [],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "// PROTOCOL: TECHNICAL ANALYSIS"
+    },
+    {
+     "t": "p",
+     "text": "Fundamental Analysis studies the Business. Technical Analysis studies the People watching the business."
+    },
+    {
+     "t": "p",
+     "text": "CONCEPT 01: THE CROWD"
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "You don't know who these people are. You don't know their jobs. But you can tell everything just by watching their movement."
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "The \"Who\" (Ignored)"
+    },
+    {
+     "t": "p",
+     "text": "\"Is he a doctor? Is she an engineer?\" IRRELEVANT right now."
+    },
+    {
+     "kind": "tip",
+     "t": "callout",
+     "text": "The Insight: If everyone is running towards Platform 4, you know the train is coming. You don't need to check the timetable. Price Movement = Crowd Running.",
+     "title": ""
+    },
+    {
+     "t": "p",
+     "text": "CONCEPT 02: THE SIGNAL"
+    }
+   ],
+   "heading": "You are at a Railway Station 🚉"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Markets move *before* the news. Why wait for the newspaper when you can see the signal?"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Momentum"
+    },
+    {
+     "t": "p",
+     "text": "Price is rising fast. Volume is high. \"The crowd is confident.\""
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Indecision"
+    },
+    {
+     "t": "p",
+     "text": "Price is stuck. Candles are small. \"The crowd is confused.\""
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Fear"
+    },
+    {
+     "t": "p",
+     "text": "Price dropping. Panic selling. \"The crowd is running away.\""
+    },
+    {
+     "kind": "tip",
+     "t": "callout",
+     "text": "Desi Example: The traffic light is green, but you see cars slowing down ahead. Do you keep speeding? No. You prepare to brake. Technical Analysis = Seeing the brake lights.",
+     "title": ""
+    },
+    {
+     "t": "p",
+     "text": "CONCEPT 03: THE SCOREBOARD"
+    }
+   ],
+   "heading": "The Traffic Light Logic 🚦"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "A chart is just a scoreboard of Buyers vs Sellers. It shows who is winning *right now*."
+    },
+    {
+     "t": "p",
+     "text": "BUYERS"
+    },
+    {
+     "t": "p",
+     "text": "Dominance"
+    },
+    {
+     "t": "p",
+     "text": "\"Aggressive. Buying at any price.\""
+    },
+    {
+     "t": "p",
+     "text": "SELLERS"
+    },
+    {
+     "t": "p",
+     "text": "Pressure"
+    },
+    {
+     "t": "p",
+     "text": "\"Weak. Waiting for higher price.\""
+    },
+    {
+     "kind": "tip",
+     "t": "callout",
+     "text": "Cricket Logic: You don't know the batter's technique. But if the scoreboard says \"50 runs in 20 balls\", you know he is dominating. Chart = The Match Scoreboard.",
+     "title": ""
+    },
+    {
+     "t": "p",
+     "text": "CONCEPT 04: EXECUTION"
+    }
+   ],
+   "heading": "The Chart is a Visual Diary 🏏"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "We don't use this to predict the future. We use it to time our actions."
+    },
+    {
+     "t": "p",
+     "text": "ACTION 01"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Better Entry"
+    },
+    {
+     "t": "p",
+     "text": "Don't buy when price is vertical (FOMO). Buy when it cools down."
+    },
+    {
+     "t": "p",
+     "text": "🛒 Sabzi Mandi: Don't buy during peak rush. Go early morning."
+    },
+    {
+     "t": "p",
+     "text": "ACTION 02"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Clean Exit"
+    },
+    {
+     "t": "p",
+     "text": "Sell when momentum slows, not after the crash."
+    },
+    {
+     "t": "p",
+     "text": "🚪 The Wedding: Leave before the traffic jam starts at the gate."
+    },
+    {
+     "t": "p",
+     "text": "ACTION 03"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Stop Loss"
+    },
+    {
+     "t": "p",
+     "text": "Accepting a small mistake before it becomes a disaster."
+    },
+    {
+     "t": "p",
+     "text": "🚑 The Leak: Fixing a pipe leak today vs replacing the whole wall next month."
+    }
+   ],
+   "heading": "Practical Application"
+  },
+  {
+   "blocks": [
+    {
+     "level": 4,
+     "t": "h",
+     "text": "Not Magic"
+    },
+    {
+     "t": "p",
+     "text": "It deals with probabilities, not certainties."
+    },
+    {
+     "level": 4,
+     "t": "h",
+     "text": "Not Gambling"
+    },
+    {
+     "t": "p",
+     "text": "Gambling is hope. Analysis is logic."
+    },
+    {
+     "level": 4,
+     "t": "h",
+     "text": "Not Prediction"
+    },
+    {
+     "t": "p",
+     "text": "We don't predict tomorrow. We react to today."
+    }
+   ],
+   "heading": "⚠️ CRITICAL: What This Is NOT"
+  }
+ ],
+ "source": "html/learn-technical.html",
+ "summary": "Technical Analysis: The Pulse — reading charts, patterns and momentum without the jargon.",
+ "title": "Technical Analysis: The Pulse",
+ "tool": null
+}

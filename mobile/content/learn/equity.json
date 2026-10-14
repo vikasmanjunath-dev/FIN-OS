@@ -1,0 +1,135 @@
+{
+ "category": "markets",
+ "id": "equity",
+ "needsReview": true,
+ "reviewReasons": [
+  "equity-ipo",
+  "equity-asm"
+ ],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Stop treating the market like a casino. Start treating it like a partnership deed."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 01: NOOB"
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Forget the BSE screen for a second. Let's talk about Raju's Momo Stall."
+    },
+    {
+     "t": "p",
+     "text": "Raju makes the best momos in Delhi. He sells 100 plates a day. He wants to open a big shop with AC, but he needs ₹10 Lakhs. He only has ₹5 Lakhs."
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "You give Raju ₹1 Lakh.\nIn return, Raju gives you a piece of paper that says: \"You own 10% of this business forever.\"\nThat piece of paper is a STOCK.",
+     "title": "🤝 The Deal"
+    },
+    {
+     "t": "p",
+     "text": "If Raju sells 1,000 plates next year, you get 10% of the profit (Dividend). If Raju sells the shop to Haldiram's for ₹1 Crore, your ₹1 Lakh becomes ₹10 Lakhs (Capital Appreciation)."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 02: MECHANIC"
+    }
+   ],
+   "heading": "What is a Stock? (The Desi Analogy)"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Raju's paper certificate is physical. In the modern world, we use the Demat System."
+    },
+    {
+     "t": "p",
+     "text": "You (Buyer)"
+    },
+    {
+     "t": "p",
+     "text": "NSE/BSE (The Mall)"
+    },
+    {
+     "t": "p",
+     "text": "Seller (Exit)"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Critical Truth: The Secondary Market"
+    },
+    {
+     "t": "p",
+     "text": "When you buy a share of Tata Motors on Zerodha/Upstox, Tata Motors does NOT get your money."
+    },
+    {
+     "needsReview": true,
+     "reviewReasons": [
+      "equity-ipo"
+     ],
+     "t": "p",
+     "text": "You are buying it from another person (Uncle Sharma) who wants to sell it. The company only gets money once: during the IPO (Initial Public Offering). After that, it's just people exchanging ownership."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 03: PRO"
+    }
+   ],
+   "heading": "How the Engine Works"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "How do you know if a stock is cheap or expensive? You use the P/E Ratio."
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "Imagine a Shirt generates ₹10 of rent per year (Earnings).\n- Case A: Shirt Price is ₹200. (PE = 20). Fair.\n- Case B: Shirt Price is ₹1000. (PE = 100). Expensive!\nP/E = Price you pay for ₹1 of Earning.",
+     "title": "👕 The Shirt Analogy"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Market Cap (Size Matters)"
+    },
+    {
+     "t": "p",
+     "text": "Small Cap: Like a Speedboat. Fast, can turn easily, but flips over in a storm."
+    },
+    {
+     "t": "p",
+     "text": "Large Cap: Like an Oil Tanker (Titanic). Slow, stable, survives storms, but takes 5km to turn."
+    },
+    {
+     "kind": "tip",
+     "needsReview": true,
+     "reviewReasons": [
+      "equity-asm"
+     ],
+     "t": "callout",
+     "text": "This is what banks don't teach you.\n1. The Free Float Trap\nA company has a Market Cap of ₹10,000 Cr. But the Owner (Promoter) holds 90% of shares. Only 10% is available for trading. This is Low Free Float. Operators can easily manipulate the price because there is very little supply.\n2. ASM/GSM Lists (The Jail)\nIf a stock jumps 50% in a week without news, SEBI puts it in the ASM (Additional Surveillance Measure) list. Margins increase to 100%. Speculators get trapped. Never buy a stock in Stage 4 ASM.",
+     "title": "☠️ GOD MODE: The 1% Knowledge"
+    }
+   ],
+   "heading": "Valuation (The Expensive Shirt Logic)"
+  }
+ ],
+ "source": "html/learn-equity.html",
+ "summary": "Equity Deep Dive — what a stock is, how the market works, and market cap, in five minutes before the full Masterclass.",
+ "title": "Equity Deep Dive",
+ "tool": "/markets"
+}

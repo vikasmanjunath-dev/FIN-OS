@@ -1,0 +1,489 @@
+{
+ "category": "foundations",
+ "id": "finance101",
+ "needsReview": true,
+ "reviewReasons": [
+  "finance101-cc-interest",
+  "finance101-sgb-digital",
+  "finance101-epf-taxfree",
+  "finance101-cpi"
+ ],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Before money becomes numbers, it becomes behavior."
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "If your salary comes on the 1st and vanishes by the 15th, this page is for you."
+    },
+    {
+     "t": "p",
+     "text": "We are not here to sell you insurance. We are here to fix the operating system in your head."
+    },
+    {
+     "t": "p",
+     "text": "Module 01"
+    }
+   ],
+   "heading": "⚠️ The Reality Check"
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "t": "h",
+     "text": "🚫 The Lie"
+    },
+    {
+     "t": "p",
+     "text": "\"Paisa haath ka mail hai\" (Money is dirt). Yet, everyone panics when it's gone."
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "✅ The FIN-OS Truth"
+    },
+    {
+     "t": "p",
+     "text": "Money is Stored Energy. It is your time and effort frozen into a number. If you waste money, you are burning your own life hours."
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "Income: The river (Salary, Rent).\nWealth: The Dam (Assets, FD, Stocks).\nHigh Salary + Zero Assets = Poor with an iPhone.",
+     "title": "Income vs Wealth"
+    },
+    {
+     "t": "p",
+     "text": "Module 02"
+    }
+   ],
+   "heading": "What is Money?"
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "t": "h",
+     "text": "The \"Log Kya Kahenge\" Tax"
+    },
+    {
+     "t": "p",
+     "text": "Society rewards appearance, not stability. You buy things to impress people you don't even like."
+    },
+    {
+     "items": [
+      "🍔 Needs: Roti, Kapda, Makaan, Wifi.",
+      "🚗 Wants (Disguised): \"Car is required for status\", \"New phone for work\", \"Grand wedding for parents\"."
+     ],
+     "t": "ul"
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "EMI isn't affordability. It is future income spent today.\nBuying a sofa on EMI? You just sold your freedom for foam.",
+     "title": "💀 The EMI Disease"
+    },
+    {
+     "t": "p",
+     "text": "Module 03"
+    }
+   ],
+   "heading": "Spending: The Silent Killer"
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Bad Debt"
+    },
+    {
+     "t": "p",
+     "text": "The Definition"
+    },
+    {
+     "t": "p",
+     "text": "Wealth Destroyer"
+    },
+    {
+     "t": "p",
+     "text": "Any loan taken for a depreciating asset or lifestyle. It steals from your future."
+    },
+    {
+     "t": "p",
+     "text": "🚗 Car Loan 📱 iPhone EMI 💍 Personal Loan"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Good Debt"
+    },
+    {
+     "t": "p",
+     "text": "The Definition"
+    },
+    {
+     "t": "p",
+     "text": "Leverage"
+    },
+    {
+     "t": "p",
+     "text": "A loan that increases your income or net worth over time. Ideally, someone else pays it off."
+    },
+    {
+     "t": "p",
+     "text": "🎓 Education Loan 🏭 Business Loan 🏠 Rental Property"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "The Ugly Trap"
+    },
+    {
+     "t": "p",
+     "text": "The Killer"
+    },
+    {
+     "t": "p",
+     "text": "\"Minimum Due\""
+    },
+    {
+     "needsReview": true,
+     "reviewReasons": [
+      "finance101-cc-interest"
+     ],
+     "t": "p",
+     "text": "Paying only the minimum due on Credit Cards. Interest is 42% per year."
+    },
+    {
+     "t": "p",
+     "text": "💳 Revolving Credit 🎰 BNPL (Buy Now Pay Later)"
+    },
+    {
+     "t": "p",
+     "text": "Module 04"
+    }
+   ],
+   "heading": "Debt: The Good, The Bad, The Ugly"
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Why Indians Save Emotionally"
+    },
+    {
+     "t": "p",
+     "text": "We save for Marriages and Gold (Emotion), but ignore Inflation and Emergencies (Logic)."
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "This is not \"Savings\". This is Survival Money.\n- Amount: 6 Months of Expenses (Rent + Food + EMI).\n- Location: Liquid Fund or Separate Bank Account.\n- Rule: Do not touch unless you lose your job or land in a hospital.",
+     "title": "🛡️ The Emergency Fund Rule"
+    },
+    {
+     "t": "p",
+     "text": "Module 06"
+    }
+   ],
+   "heading": "Saving: The Financial Airbag"
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "t": "h",
+     "text": "The House"
+    },
+    {
+     "t": "p",
+     "text": "Is it an Asset?"
+    },
+    {
+     "t": "p",
+     "text": "NO (Mostly)"
+    },
+    {
+     "t": "p",
+     "text": "If you live in it, it takes money out of your pocket (Maintenance, Tax, EMI). It's a Liability."
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "The Car"
+    },
+    {
+     "t": "p",
+     "text": "Is it an Asset?"
+    },
+    {
+     "t": "p",
+     "text": "NEVER"
+    },
+    {
+     "t": "p",
+     "text": "It loses 20% value the moment you drive it out. It is a Depreciating Utility."
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Gold Jewelry"
+    },
+    {
+     "t": "p",
+     "text": "Is it an Asset?"
+    },
+    {
+     "t": "p",
+     "text": "EMOTIONAL"
+    },
+    {
+     "needsReview": true,
+     "reviewReasons": [
+      "finance101-sgb-digital"
+     ],
+     "t": "p",
+     "text": "Making charges (20%) eat your profit. SGB (Digital Gold) is an asset. Jewelry is fashion."
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Stocks / Mutual Funds"
+    },
+    {
+     "t": "p",
+     "text": "Is it an Asset?"
+    },
+    {
+     "t": "p",
+     "text": "YES"
+    },
+    {
+     "t": "p",
+     "text": "It puts money IN your pocket while you sleep. This is the only true wealth builder."
+    },
+    {
+     "t": "p",
+     "text": "Module 07"
+    }
+   ],
+   "heading": "Investing: Assets vs Liabilities"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Age 20-25"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "The Rookie"
+    },
+    {
+     "items": [
+      "🚫 Don't buy a car yet.",
+      "✅ Build Skills > Savings.",
+      "✅ Start a small SIP (Habit building)."
+     ],
+     "t": "ul"
+    },
+    {
+     "t": "p",
+     "text": "Age 26-35"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "The Grinder"
+    },
+    {
+     "items": [
+      "🚫 Avoid \"Lifestyle Inflation\".",
+      "✅ Buy Term Insurance (Before it gets expensive).",
+      "✅ Maximize EPF/PPF (Tax free growth)."
+     ],
+     "needsReview": true,
+     "reviewReasons": [
+      "finance101-epf-taxfree"
+     ],
+     "t": "ul"
+    },
+    {
+     "t": "p",
+     "text": "Age 36-45"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "The Family Anchor"
+    },
+    {
+     "items": [
+      "🚫 Don't raid retirement funds for kids' education.",
+      "✅ Clear bad debts (Credit cards/Personal loans).",
+      "✅ Increase Health Cover."
+     ],
+     "t": "ul"
+    },
+    {
+     "t": "p",
+     "text": "Age 46+"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "The Monk"
+    },
+    {
+     "items": [
+      "🚫 No risky bets (Crypto/F&O).",
+      "✅ Shift Equity to Debt (Protect capital).",
+      "✅ Plan Estate/Will."
+     ],
+     "t": "ul"
+    },
+    {
+     "t": "p",
+     "text": "Module 08"
+    }
+   ],
+   "heading": "Life Stages: The Roadmap"
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Your Salary grows 8%. Expenses grow 12%."
+    },
+    {
+     "t": "p",
+     "text": "You are getting poorer silently. This is called Lifestyle Inflation."
+    },
+    {
+     "needsReview": true,
+     "reviewReasons": [
+      "finance101-cpi"
+     ],
+     "t": "p",
+     "text": "Government inflation is 6%. But Desi inflation (School fees, Medical, Milk) is 10%+."
+    },
+    {
+     "t": "p",
+     "text": "💭 Think: What did a Samosa cost 10 years ago? What does it cost now?"
+    },
+    {
+     "t": "p",
+     "text": "Module 09"
+    }
+   ],
+   "heading": "Inflation: The Invisible Thief"
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "t": "h",
+     "text": "The Poor Mindset"
+    },
+    {
+     "t": "p",
+     "text": "The Belief"
+    },
+    {
+     "t": "p",
+     "text": "\"If I earn more, I will save more.\""
+    },
+    {
+     "t": "p",
+     "text": "Reality: Parkinson’s Law. As income rises, your expenses will rise to match it immediately. You stay broke at a higher level."
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "The Rich Mindset"
+    },
+    {
+     "t": "p",
+     "text": "The Habit"
+    },
+    {
+     "t": "p",
+     "text": "\"Pay Yourself First\""
+    },
+    {
+     "t": "p",
+     "text": "Reality: Invest 20% the moment salary hits. Spend whatever is left. Wealth is what you don't see (Investments), not what you show (Gadgets)."
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "The \"Sharmaji\" Trap"
+    },
+    {
+     "t": "p",
+     "text": "The Trigger"
+    },
+    {
+     "t": "p",
+     "text": "Social Comparison"
+    },
+    {
+     "t": "p",
+     "text": "Reality: You buy things you don't need, with money you don't have, to impress people you don't even like. Status games have no winners."
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "The FOMO Disease"
+    },
+    {
+     "t": "p",
+     "text": "The Trigger"
+    },
+    {
+     "t": "p",
+     "text": "\"Everyone is buying Crypto/Options\""
+    },
+    {
+     "t": "p",
+     "text": "Reality: You only hear about their wins, never their losses. Investing based on excitement is gambling. Boring is profitable."
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Retail Therapy"
+    },
+    {
+     "t": "p",
+     "text": "The Trigger"
+    },
+    {
+     "t": "p",
+     "text": "Instant Gratification"
+    },
+    {
+     "t": "p",
+     "text": "Reality: The happiness of a new purchase lasts 48 hours. The pain of the EMI lasts 12 months. Choose your pain wisely."
+    }
+   ],
+   "heading": "Psychology: The Core DNA"
+  }
+ ],
+ "source": "html/finance101.html",
+ "summary": "Finance 101 — dismantle money myths, understand income vs wealth and EMI traps.",
+ "title": "Personal Finance 101",
+ "tool": null
+}

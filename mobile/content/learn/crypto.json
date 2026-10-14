@@ -1,0 +1,117 @@
+{
+ "category": "markets",
+ "id": "crypto",
+ "needsReview": false,
+ "reviewReasons": [],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Money without Masters. Trust without People."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 01: NOOB"
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Imagine a Google Sheet that tracks who owns what money. But:"
+    },
+    {
+     "items": [
+      "❌ No Admin (No Google, No Bank).",
+      "✅ Everyone has a copy.",
+      "✅ To add a row, everyone must agree (Consensus).",
+      "🔒 Once written, it can NEVER be deleted."
+     ],
+     "t": "ul"
+    },
+    {
+     "t": "p",
+     "text": "This is Blockchain. Bitcoin is just the first app running on this system."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 02: MECHANIC"
+    }
+   ],
+   "heading": "The \"Shared Ledger\" Concept"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "Purpose: Store of Value.\nWhy: Only 21 Million will ever exist. No government can print more. It protects wealth against inflation.",
+     "title": "🥇 Bitcoin (BTC) = Digital Gold"
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "Purpose: Fuel for the Global Computer.\nWhy: You need ETH to pay \"Gas Fees\" to run apps, games, and banks (DeFi) built on the Ethereum network.",
+     "title": "🛢️ Ethereum (ETH) = Digital Oil"
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 03: PRO"
+    }
+   ],
+   "heading": "Bitcoin vs Ethereum (Gold vs Oil)"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Before buying any \"Altcoin\", check these two numbers:"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Market Cap"
+    },
+    {
+     "t": "p",
+     "text": "Current Price x Circulating Supply"
+    },
+    {
+     "t": "p",
+     "text": "\"What it's worth today\""
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "FDV"
+    },
+    {
+     "t": "p",
+     "text": "Current Price x TOTAL Supply"
+    },
+    {
+     "t": "p",
+     "text": "\"What it's worth if all tokens unlock\""
+    },
+    {
+     "t": "p",
+     "text": "⚠️ If Market Cap is $1M but FDV is $100M, run away. Massive inflation is coming."
+    },
+    {
+     "kind": "tip",
+     "t": "callout",
+     "text": "\"Not your Keys, Not your Coins.\"\nIf your crypto is on an exchange (Binance/Coinbase), you don't own it. The bank owns it. If they go bankrupt (like FTX), you lose everything.\nThe Fix: Use a Hardware Wallet (Ledger/Trezor). Become your own bank.",
+     "title": "☠️ GOD MODE: Self-Custody"
+    }
+   ],
+   "heading": "Tokenomics (Don't Get Scammed)"
+  }
+ ],
+ "source": "html/learn-crypto.html",
+ "summary": "Crypto Deep Dive — the shared-ledger concept, Bitcoin vs Ethereum, and how not to get scammed by tokenomics.",
+ "title": "Crypto Deep Dive",
+ "tool": "/tracker/crypto"
+}

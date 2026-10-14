@@ -1,0 +1,93 @@
+{
+ "category": "markets",
+ "id": "commodity",
+ "needsReview": true,
+ "reviewReasons": [
+  "commodity-jewelry",
+  "commodity-digital-gold",
+  "commodity-sgb"
+ ],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "When currency fails, rocks and oil survive."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 01: NOOB"
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Commodities are raw materials. Oil, Gold, Silver, Wheat."
+    },
+    {
+     "t": "p",
+     "text": "Unlike stocks, they don't produce earnings. A bar of gold will remain one bar of gold forever. It won't give birth to a baby gold bar (Dividend)."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 02: MECHANIC"
+    }
+   ],
+   "heading": "Real Assets"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "needsReview": true,
+     "reviewReasons": [
+      "commodity-jewelry",
+      "commodity-digital-gold"
+     ],
+     "t": "callout",
+     "text": "Jewelry: You pay 20% Making Charges + 3% GST. Resale value is lower. This is Consumption, not Investment.\nDigital Gold / ETF: Pure price exposure. Efficient.",
+     "title": "👑 Investment vs Ornament"
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 03: PRO"
+    }
+   ],
+   "heading": "The \"Jewelry\" Trap"
+  },
+  {
+   "blocks": [
+    {
+     "needsReview": true,
+     "reviewReasons": [
+      "commodity-sgb"
+     ],
+     "t": "p",
+     "text": "The only asset in the world that gives you Gold Price Appreciation + 2.5% Interest."
+    },
+    {
+     "needsReview": true,
+     "reviewReasons": [
+      "commodity-sgb"
+     ],
+     "t": "p",
+     "text": "Issued by RBI. No storage risk. Tax-free if held till maturity (8 years). It is mathematically the best way to own gold in India."
+    },
+    {
+     "kind": "tip",
+     "t": "callout",
+     "text": "Gold has a Negative Correlation with Equity.\nWhen Stock Market crashes (fear), Gold usually shoots up. Having 10% Gold in your portfolio acts as a shock absorber. It reduces portfolio volatility without killing returns.",
+     "title": "☠️ GOD MODE: The Hedge"
+    }
+   ],
+   "heading": "SGB (Sovereign Gold Bond)"
+  }
+ ],
+ "source": "html/learn-commodity.html",
+ "summary": "Commodity Deep Dive — the quick version before the full Commodity Masterclass.",
+ "title": "Commodity Deep Dive",
+ "tool": "/tracker/gold"
+}

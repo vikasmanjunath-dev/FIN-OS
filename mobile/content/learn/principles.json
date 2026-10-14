@@ -1,0 +1,392 @@
+{
+ "category": "foundations",
+ "id": "principles",
+ "needsReview": false,
+ "reviewReasons": [],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Money follows Principles, not opinions."
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "LAW 1\nEffort Conversion\nMoney is stored human effort, time, and skill.\n🧪 Lab: The Price of Life\nCost: 22 Hours of life.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "LAW 2\nFinite Income\nWhy: Income is limited; desires are not.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "LAW 3\nCash Flow Supremacy\nCash flow matters more than total income.",
+     "title": ""
+    }
+   ],
+   "heading": "01 Core Foundation"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "LAW 4\nEmotional Dominance\nMoney decisions are emotional first, logical later.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "LAW 5\nSocial Comparison\nWe measure success relative to others.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "LAW 6\nScarcity Memory\nPast pain shapes future behavior.",
+     "title": ""
+    }
+   ],
+   "heading": "02 Psychology of Money"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "LAW 7\nSurvival First\nProtection precedes growth.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "LAW 8\nGoal-Based Money\nMoney without purpose gets wasted.",
+     "title": ""
+    },
+    {
+     "kind": "warning",
+     "t": "callout",
+     "text": "LAW 9\nInflation Reality\nIf growth < inflation, you are getting poorer.",
+     "title": ""
+    }
+   ],
+   "heading": "03 Personal Finance"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "LAW 10\nOwnership\nBuying stock = Owning a business.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "LAW 11\nRisk-Reward Balance\nHigher return ALWAYS demands higher risk.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "LAW 12\nMarket Cycles\nMarkets move in cycles, not straight lines.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "LAW 13\nValuation Gravity\nPrice always returns to value eventually.",
+     "title": ""
+    }
+   ],
+   "heading": "04 Market Laws"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "warning",
+     "t": "callout",
+     "text": "LAW 14\nLeverage Destruction\nLeverage kills faster than intelligence saves.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "LAW 15\nProbability\nMarkets reward probability, not prediction.",
+     "title": ""
+    }
+   ],
+   "heading": "05 Advanced Laws"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Behavioural Supremacy"
+    },
+    {
+     "t": "p",
+     "text": "Your behaviour matters more than your knowledge. A disciplined fool beats an impulsive genius."
+    }
+   ],
+   "heading": "♾️ The Master Law"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 1\nThe 100 - Age Rule\nEquity % = 100 - Your Age.\nEquity: 70%\nDebt: 30%",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 2\nCore-Satellite\n80% Boring (Core) + 20% Risky (Satellite).",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 3\nOne Goal = One Bucket\nNever mix retirement money with wedding funds.",
+     "title": ""
+    }
+   ],
+   "heading": "A Structure & Allocation"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 4\nRule of 72\nYears to Double = 72 ÷ Interest Rate.\nDoubles in: 18 Years\n📈 Full Compounding Visualizer — year-by-year, not just the doubling point →",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 5\nTime in Market\nTime in market > Timing the market.\n⏱️ Time Value of Money Calculator — put a number on the wait →",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 6\nEarly Years Multiplier\nMoney invested early works 10x harder.",
+     "title": ""
+    }
+   ],
+   "heading": "B Time & Math"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 7\nEmergency Fund\n6-12 Months expenses in Liquid Cash.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 8\nInsurance First\nHealth & Term Insurance BEFORE investing.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 9\nSingle Asset Rule\nNever let one asset be >50% of net worth.",
+     "title": ""
+    }
+   ],
+   "heading": "C Survival Rules"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 10\nPosition Sizing\nMax 5-10% capital in one idea.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 11\n5-Year Rule\nCan't hold for 5 years? Don't buy.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 12\nDownside First\nAsk \"What can I lose?\" before \"What can I make?\".",
+     "title": ""
+    }
+   ],
+   "heading": "D Market Participation"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 13\nLifestyle Ceiling\nFix lifestyle cost even as income grows.",
+     "title": ""
+    },
+    {
+     "kind": "warning",
+     "t": "callout",
+     "text": "RULE 14\nOne Bad Year\nAssume one financial disaster per decade.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 15\nSleep Test\nIf portfolio disturbs sleep, it's too risky.",
+     "title": ""
+    }
+   ],
+   "heading": "E Behavioural Rules"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 16\nHuman Capital\nSkills > Assets (Early Life).",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 17\nDiversification\nNever rely on a single salary source.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 18\nSkill > Saving\nSpending on upskilling > Saving in FD (in 20s).",
+     "title": ""
+    }
+   ],
+   "heading": "F Income & Career"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "warning",
+     "t": "callout",
+     "text": "RULE 19\nDebt Limit\nTotal EMI < 30% of Income.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 20\nAsset Borrowing\nBorrow only for assets that appreciate.",
+     "title": ""
+    },
+    {
+     "kind": "warning",
+     "t": "callout",
+     "text": "RULE 21\nFull Payment\nCan't pay full bill? Can't afford it.",
+     "title": ""
+    }
+   ],
+   "heading": "G Debt & Credit"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 22\nRebalancing\nReset asset allocation once a year.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 23\nFewer Decisions\nAutomation (SIP) > Active decisions.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 24\nKnow What You Own\nDon't buy what you can't explain.",
+     "title": ""
+    }
+   ],
+   "heading": "H Investing Discipline"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 25\nNot a Salary\nMarkets do not owe you monthly income.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 26\nNo Prediction\nNo one predicts consistently. Stick to systems.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 27\nLosing is Normal\nSmall losses are the cost of doing business.",
+     "title": ""
+    }
+   ],
+   "heading": "I Market Reality"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 28\nHealth > Wealth\nNo plan survives poor health.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 29\nLongevity\nPlan for 30 years of retirement, not 10.",
+     "title": ""
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "RULE 30\nSimplicity\nSimple plans outperform complex ones.",
+     "title": ""
+    }
+   ],
+   "heading": "J Life & Longevity"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Self-Awareness"
+    },
+    {
+     "t": "p",
+     "text": "The best financial strategy is the one you can actually stick to."
+    }
+   ],
+   "heading": "♾️ The Master Rule"
+  }
+ ],
+ "source": "html/principles.html",
+ "summary": "Immutable laws of money — compounding, leverage, time value explained simply.",
+ "title": "The Constitution",
+ "tool": null
+}

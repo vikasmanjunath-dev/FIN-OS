@@ -1,0 +1,89 @@
+{
+ "category": "insights",
+ "id": "insight-inflation",
+ "needsReview": true,
+ "reviewReasons": [
+  "insight-inflation-cpi"
+ ],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Why earning 8% increment means you are actually getting poorer."
+    },
+    {
+     "t": "p",
+     "text": "The Reality"
+    },
+    {
+     "t": "p",
+     "text": "Government Inflation (CPI) tracks rice and wheat. Your Inflation (Lifestyle) tracks iPhones, Netflix, Private Schools, and Swiggy."
+    },
+    {
+     "needsReview": true,
+     "reviewReasons": [
+      "insight-inflation-cpi"
+     ],
+     "t": "p",
+     "text": "⚠️ While CPI is 6%, your Lifestyle costs are growing at 10-12%."
+    },
+    {
+     "t": "p",
+     "text": "The Solution"
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Savings Account: 3% Return"
+    },
+    {
+     "needsReview": true,
+     "reviewReasons": [
+      "insight-inflation-cpi"
+     ],
+     "t": "p",
+     "text": "Inflation: 7% Loss"
+    },
+    {
+     "t": "p",
+     "text": "Net Result: -4% Wealth every year."
+    }
+   ],
+   "heading": "❌ Saving in Bank"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Nifty 50: 12% Return"
+    },
+    {
+     "needsReview": true,
+     "reviewReasons": [
+      "insight-inflation-cpi"
+     ],
+     "t": "p",
+     "text": "Inflation: 7% Loss"
+    },
+    {
+     "t": "p",
+     "text": "Net Result: +5% Real Wealth."
+    },
+    {
+     "t": "p",
+     "text": "🧮 Run this with your own numbers →"
+    }
+   ],
+   "heading": "✅ Investing in Assets"
+  }
+ ],
+ "source": "html/insight-inflation.html",
+ "summary": "Your savings account is losing you 4% a year, quietly. Why inflation is the wealth killer nobody notices.",
+ "title": "Inflation Reality",
+ "tool": "/tools/calculators"
+}

@@ -1,0 +1,175 @@
+{
+ "category": "analysis",
+ "id": "fundamental",
+ "needsReview": false,
+ "reviewReasons": [],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Stop looking at stock tickers. Start x-raying businesses. // INITIATE DEEP SCAN PROTOCOL"
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 01: DNA SCAN"
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Before you check the price, check the pulse. Does this business actually make sense in the real world?"
+    },
+    {
+     "t": "p",
+     "text": "Nature of Biz"
+    },
+    {
+     "t": "p",
+     "text": "Habit vs Trend"
+    },
+    {
+     "kind": "tip",
+     "t": "callout",
+     "text": "Is it Colgate (Daily Habit) or Fidget Spinner (Short Trend)?",
+     "title": ""
+    },
+    {
+     "t": "p",
+     "text": "Pricing Power"
+    },
+    {
+     "t": "p",
+     "text": "Maggi vs Salt"
+    },
+    {
+     "kind": "tip",
+     "t": "callout",
+     "text": "If they raise price by ₹5, will you switch? If NO, they have power (Maggi).",
+     "title": ""
+    },
+    {
+     "t": "p",
+     "text": "Scalability"
+    },
+    {
+     "t": "p",
+     "text": "Software vs Steel"
+    },
+    {
+     "kind": "tip",
+     "t": "callout",
+     "text": "To sell 2x more, do they need 2x more factories (Steel) or just a click (Software)?",
+     "title": ""
+    },
+    {
+     "t": "p",
+     "text": "Dependency"
+    },
+    {
+     "t": "p",
+     "text": "Govt vs Public"
+    },
+    {
+     "kind": "tip",
+     "t": "callout",
+     "text": "Does one change in Govt policy kill them? (e.g., Alcohol/Gaming bans).",
+     "title": ""
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 02: DEFENSE SYSTEMS"
+    }
+   ],
+   "heading": "The \"Dhanda\" Check"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "How hard is it to kill this company? We visualize this using a Radar Chart."
+    },
+    {
+     "kind": "tip",
+     "t": "callout",
+     "text": "Brand Power • Switching Cost • Network Effect",
+     "title": ""
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 03: THE PRICE TAG"
+    }
+   ],
+   "heading": "The \"Moat\" Radar"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Price is what you pay. Value is what you get. Use the slider to understand P/E Ratio (Price to Earnings)."
+    },
+    {
+     "t": "p",
+     "text": "Cheap (Sale) Fair Value Expensive (Loot)"
+    },
+    {
+     "t": "p",
+     "text": "P/E Ratio: 25 // FAIR PRICE"
+    },
+    {
+     "kind": "tip",
+     "t": "callout",
+     "text": "The Logic: If P/E is 20, you are paying ₹20 to earn ₹1 of company profit. If P/E is 80, you are paying ₹80 for that same ₹1. Be careful.",
+     "title": ""
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 04: THE SARPANCH"
+    }
+   ],
+   "heading": "The \"Sabzi Mandi\" Simulator"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Numbers can be faked. Character cannot. How to spot a thief?"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "🚩 Red Flags"
+    },
+    {
+     "items": [
+      "• Salary > Company Profit",
+      "• Frequent party changes (Auditors resigning)",
+      "• Promoters selling their own shares"
+     ],
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "✅ Green Flags"
+    },
+    {
+     "items": [
+      "• Buying shares from market",
+      "• Honest in interviews about failures",
+      "• High Tax payments (Real profit pays tax)"
+     ],
+     "t": "ul"
+    }
+   ],
+   "heading": "Management Integrity"
+  }
+ ],
+ "source": "html/learn-fundamental.html",
+ "summary": "Fundamental Analysis: God Mode — reading a balance sheet, P&L and cash flow statement like an analyst.",
+ "title": "Fundamental Analysis: God Mode",
+ "tool": null
+}

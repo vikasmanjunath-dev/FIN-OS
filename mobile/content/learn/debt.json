@@ -1,0 +1,105 @@
+{
+ "category": "markets",
+ "id": "debt",
+ "needsReview": true,
+ "reviewReasons": [
+  "debt-yields",
+  "debt-duration"
+ ],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Equity makes you rich. Debt keeps you rich. Stop treating FDs as the only option."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 01: NOOB"
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "When you buy a stock, you become an Owner (Risk). When you buy a Bond, you become a Lender (Safety)."
+    },
+    {
+     "kind": "note",
+     "needsReview": true,
+     "reviewReasons": [
+      "debt-yields"
+     ],
+     "t": "callout",
+     "text": "Most Indians keep money in Savings Accounts (3%) or FDs (6.5%).\nThe Hack: Government Bonds (G-Secs) often pay 7.2% - 7.5% with higher safety than a private bank FD. Why let the bank keep the spread?",
+     "title": "🏦 The Indian Reality"
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 02: MECHANIC"
+    }
+   ],
+   "heading": "Lending vs Owning"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "It is a loan you give to the Government or a Corporation."
+    },
+    {
+     "t": "p",
+     "text": "You give ₹100 Principal"
+    },
+    {
+     "t": "p",
+     "text": "They pay ₹7 Interest (Coupon) every year"
+    },
+    {
+     "t": "p",
+     "text": "At End: You get ₹100 Back"
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 03: PRO"
+    }
+   ],
+   "heading": "What is a Bond?"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "This is the hardest concept in finance, explained simply."
+    },
+    {
+     "t": "p",
+     "text": "If Interest Rates go UP, Bond Prices go DOWN."
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "You hold an old bond paying 6%. RBI raises rates to 8%.\nNobody wants your 6% bond anymore. To sell it, you must lower the price (Sell at a discount) until the yield matches the new 8% rate.",
+     "title": "📉 Example"
+    },
+    {
+     "kind": "tip",
+     "needsReview": true,
+     "reviewReasons": [
+      "debt-duration"
+     ],
+     "t": "callout",
+     "text": "Long Duration Funds (10 Year+ Bonds): These are highly sensitive to interest rates. If RBI cuts rates, these funds can give 12-15% returns (Capital Gains). If RBI hikes rates, you lose capital.\nStrategy: Stick to Liquid Funds or Target Maturity Funds for safety.",
+     "title": "☠️ GOD MODE: Duration Risk"
+    }
+   ],
+   "heading": "The Yield Teeter-Totter"
+  }
+ ],
+ "source": "html/learn-debt.html",
+ "summary": "Debt Deep Dive — the quick version before the full Debt Market Masterclass.",
+ "title": "Debt Deep Dive",
+ "tool": "/tracker/fixed"
+}

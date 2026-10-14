@@ -1,0 +1,261 @@
+{
+ "items": [
+  {
+   "confidence": "high",
+   "current": "All-India CPI inflation averaged roughly 2-3% in FY 2025-26 (monthly prints near record lows in late 2025). The \"desi inflation 10%+\" part is the author's own estimate, not an official figure.",
+   "id": "finance101-cpi",
+   "lesson": "finance101",
+   "quote": "Government inflation is 6%. But Desi inflation (School fees, Medical, Milk) is 10%+.",
+   "why": "Quotes retail inflation (CPI) as 6%. Headline CPI ran far below that through FY 2025-26."
+  },
+  {
+   "confidence": "high",
+   "current": "EPF interest on employee contributions above Rs 2.5 lakh a year (Rs 5 lakh where there is no employer contribution) is taxable since FY 2021-22. PPF interest is fully exempt.",
+   "id": "finance101-epf-taxfree",
+   "lesson": "finance101",
+   "quote": "🚫 Avoid \"Lifestyle Inflation\". ✅ Buy Term Insurance (Before it gets expensive). ✅ Maximize EPF/PPF (Tax free growth).",
+   "why": "\"Tax free growth\" is true for PPF but not unconditionally for EPF."
+  },
+  {
+   "confidence": "high",
+   "current": "SGBs are RBI-issued government securities. \"Digital gold\" sold by apps is not an SGB and is not regulated by SEBI or RBI (SEBI cautioned investors in Nov 2025).",
+   "id": "finance101-sgb-digital",
+   "lesson": "finance101",
+   "quote": "Making charges (20%) eat your profit. SGB (Digital Gold) is an asset. Jewelry is fashion.",
+   "why": "Equates Sovereign Gold Bonds with \"Digital Gold\". They are different products."
+  },
+  {
+   "confidence": "medium",
+   "current": "Credit-card revolving interest is typically 36-48% a year depending on the issuer; check the card's own most-important-terms document.",
+   "id": "finance101-cc-interest",
+   "lesson": "finance101",
+   "quote": "Paying only the minimum due on Credit Cards. Interest is 42% per year.",
+   "why": "Single figure stated as fact."
+  },
+  {
+   "confidence": "medium",
+   "current": "Making charges vary (roughly 5-25%). GST: 3% on gold value, 5% on making charges (as applicable in FY 2025-26).",
+   "id": "commodity-jewelry",
+   "lesson": "commodity",
+   "quote": "👑 Investment vs Ornament Jewelry: You pay 20% Making Charges + 3% GST. Resale value is lower. This is Consumption, not Investment.\nDigital Gold / ETF: Pure price exposure. Efficient.",
+   "why": "Making charges are shown as a fixed 20%; GST on the making charge is 5%, on the gold value 3%."
+  },
+  {
+   "confidence": "medium",
+   "current": "The government has not opened new SGB tranches since the Feb 2024 series; today they can only be bought on the exchange (often at a premium, thin liquidity). The maturity tax exemption applies to redemption at maturity by the original investor; selling on the exchange is taxed as a capital gain. \"Mathematically the best\" is an opinion.",
+   "id": "commodity-sgb",
+   "lesson": "commodity",
+   "quote": "The only asset in the world that gives you Gold Price Appreciation + 2.5% Interest.",
+   "why": "Presents SGB as something you can buy today and as \"the best way to own gold\". New SGB tranches have not been issued since early 2024."
+  },
+  {
+   "confidence": "high",
+   "current": "Gold ETFs are SEBI-regulated; app-based \"digital gold\" is not (SEBI warning, Nov 2025).",
+   "id": "commodity-digital-gold",
+   "lesson": "commodity",
+   "quote": "👑 Investment vs Ornament Jewelry: You pay 20% Making Charges + 3% GST. Resale value is lower. This is Consumption, not Investment.\nDigital Gold / ETF: Pure price exposure. Efficient.",
+   "why": "Groups unregulated digital gold with gold ETFs."
+  },
+  {
+   "confidence": "medium",
+   "current": "Savings accounts pay about 2.5-3%. FD rates for general customers are mostly about 6-7% and the 10-year G-Sec yield has been around 6.3-6.7%, not 7.2-7.5%. Check live rates.",
+   "id": "debt-yields",
+   "lesson": "debt",
+   "quote": "🏦 The Indian Reality Most Indians keep money in Savings Accounts (3%) or FDs (6.5%).\nThe Hack: Government Bonds (G-Secs) often pay 7.2% - 7.5% with higher safety than a private bank FD. Why let the bank keep the spread?",
+   "why": "Rates are a snapshot that is out of date after the RBI repo cuts of 2025."
+  },
+  {
+   "confidence": "medium",
+   "current": "Illustrative only; returns depend on the rate cycle and can be negative. Debt-fund gains are taxed at slab rate (no indexation, no LTCG benefit) for units bought after 1 Apr 2023.",
+   "id": "debt-duration",
+   "lesson": "debt",
+   "quote": "☠️ GOD MODE: Duration Risk Long Duration Funds (10 Year+ Bonds): These are highly sensitive to interest rates. If RBI cuts rates, these funds can give 12-15% returns (Capital Gains). If RBI hikes rates, you lose capital.\nStrategy: Stick to Liquid Funds or Target Maturity Funds for safety.",
+   "why": "Quotes a return range (12-15%) as what long-duration funds \"can give\"."
+  },
+  {
+   "confidence": "medium",
+   "current": "ASM is an exchange (NSE/BSE) framework agreed with SEBI; inclusion uses several parameters, not one 50% jump, and the margins per stage are set by the exchange and have changed. Check the exchange circular.",
+   "id": "equity-asm",
+   "lesson": "equity",
+   "quote": "☠️ GOD MODE: The 1% Knowledge This is what banks don't teach you.\n1. The Free Float Trap\nA company has a Market Cap of ₹10,000 Cr. But the Owner (Promoter) holds 90% of shares. Only 10% is available for trading. This is Low Free Float. Operators can easily manipulate the price because there is very ",
+   "why": "Attributes the ASM list to SEBI and gives a single trigger and a fixed margin."
+  },
+  {
+   "confidence": "high",
+   "current": "A listed company can also raise money later through a follow-on public offer, rights issue, QIP or preferential allotment.",
+   "id": "equity-ipo",
+   "lesson": "equity",
+   "quote": "You are buying it from another person (Uncle Sharma) who wants to sell it. The company only gets money once: during the IPO (Initial Public Offering). After that, it's just people exchanging ownership.",
+   "why": "Simplification."
+  },
+  {
+   "confidence": "medium",
+   "current": "Nifty 50 ETFs charge roughly 0.03-0.10% a year depending on the fund; verify on the fund's factsheet.",
+   "id": "etf-ter",
+   "lesson": "etf",
+   "quote": "🍱 The ETF Thali An ETF (Exchange Traded Fund) is a pre-set Thali.\n- Nifty 50 ETF: You get a spoon of Reliance, a bowl of HDFC, a slice of TCS.\n- The Cost: Dirt cheap. (Expense Ratio: 0.05%).\n- The Logic: You are betting on India's Economy, not one company's CEO.",
+   "why": "A specific fee quoted for \"a Nifty 50 ETF\"."
+  },
+  {
+   "confidence": "high",
+   "current": "SEBI studies found about 9 in 10 individual F&O traders lost money in FY22-FY25 (91% in FY25, average loss about Rs 1.1 lakh). The 66% figure has no source.",
+   "id": "fno-stat",
+   "lesson": "fno",
+   "quote": "☠️ GOD MODE: Option Selling Retailers BUY options (Lottery tickets). Institutions SELL options (The Casino).\nWhy? Because 66% of the time, markets are sideways. In sideways markets, Option Buyers lose 100% of their premium due to Theta Decay. Option Sellers keep it.\nVerdict: Buying options is playin",
+   "why": "Unsourced statistic, and \"option buyers lose 100% of premium\" overstates it."
+  },
+  {
+   "confidence": "high",
+   "current": "Option writing needs margin well above the premium collected; one gap move can wipe out many months of premium. SEBI's 2024-25 measures (larger contract size, upfront premium, expiry limits) apply to index options.",
+   "id": "fno-selling",
+   "lesson": "fno",
+   "quote": "☠️ GOD MODE: Option Selling Retailers BUY options (Lottery tickets). Institutions SELL options (The Casino).\nWhy? Because 66% of the time, markets are sideways. In sideways markets, Option Buyers lose 100% of their premium due to Theta Decay. Option Sellers keep it.\nVerdict: Buying options is playin",
+   "why": "Encourages option selling without saying that sellers carry very large (for naked calls, unlimited) losses and need large margins."
+  },
+  {
+   "confidence": "high",
+   "current": "USD/INR traded around Rs 88-90 in late 2025.",
+   "id": "forex-rate",
+   "lesson": "forex",
+   "quote": "USD / INR = 83.50 This means: 1 Dollar = 83.50 Rupees.\n- If you think India will do well ➔ You BUY INR (Sell USD).\n- If you think USA will raise rates ➔ You BUY USD (Sell INR).",
+   "why": "Spot rate is stale."
+  },
+  {
+   "confidence": "high",
+   "current": "Residents may trade currency derivatives only on recognised Indian exchanges (USD/INR, EUR/INR, GBP/INR, JPY/INR); margin trading on foreign forex platforms is not permitted under FEMA (RBI keeps an alert list). Exchange margins are far below 100x.",
+   "id": "forex-leverage",
+   "lesson": "forex",
+   "quote": "The Power of 100x",
+   "why": "100x leverage for an Indian resident is not available on legal venues."
+  },
+  {
+   "confidence": "medium",
+   "current": "The BIS triennial survey of April 2025 put FX turnover at about USD 9.6 trillion a day (USD 7.5 trillion in 2022).",
+   "id": "forex-volume",
+   "lesson": "forex",
+   "quote": "The largest market on Earth ($6 Trillion/Day). Trading the health of nations.",
+   "why": "Out-of-date global turnover."
+  },
+  {
+   "confidence": "medium",
+   "current": "Policy rates are no longer about 0% (Japan) and 5% (USA): Japan has been near 0.5-0.75% and the US Fed funds range was cut to about 3.5-3.75% by Dec 2025.",
+   "id": "forex-carry",
+   "lesson": "forex",
+   "quote": "☠️ GOD MODE: The Carry Trade The Strategy: Borrow money in a country with LOW interest rates (e.g., Japan, 0%). Invest that money in a country with HIGH interest rates (e.g., USA, 5%).\nProfit: You pocket the 5% difference for free. This is how hedge funds make billions (until the currency crashes).",
+   "why": "Example interest rates are stale."
+  },
+  {
+   "confidence": "low",
+   "current": "General-category FD rates are mostly about 6-7% after the 2025 repo cuts; the 15% hurdle is a rule of thumb, not a standard.",
+   "id": "metrics-fd",
+   "lesson": "metrics",
+   "quote": " Desi Logic\nFD gives 7%. If a business takes your money and generates only 6%, why invest? Look for 15%+.",
+   "why": "Uses 7% as the FD benchmark."
+  },
+  {
+   "confidence": "low",
+   "current": "Healthy ratios differ by sector (banks and NBFCs are structurally highly leveraged; ROE and P/B norms differ). Treat as starting points, not verdicts.",
+   "id": "metrics-thresholds",
+   "lesson": "metrics",
+   "quote": "Measures how efficiently the company uses shareholders' money. >15% is excellent. <10% is poor.",
+   "why": "Rule-of-thumb thresholds stated as rules."
+  },
+  {
+   "confidence": "low",
+   "current": "Institutions often benchmark execution against VWAP, but they do not only buy near it.",
+   "id": "indicators-vwap",
+   "lesson": "indicators",
+   "quote": " Wholesale Rate\nBig dealers (FIIs) only buy near VWAP. They don't pay Retail MRP.",
+   "why": "Overclaim about institutional behaviour."
+  },
+  {
+   "confidence": "low",
+   "current": "Commonly cited estimates of Indian medical inflation range about 10-14% a year depending on the source; none is an official statistic.",
+   "id": "insurance-medinf",
+   "lesson": "insurance",
+   "quote": "In the Indian context, medical inflation is roughly 14%. A single bypass surgery or a 10-day ICU stay can delete years of compounding in a week.",
+   "why": "Single figure presented as fact."
+  },
+  {
+   "confidence": "medium",
+   "current": "Traditional endowment plans often return about 4-6% a year; CPI was about 2-3% in FY 2025-26, so \"losing money to inflation\" is weaker today. The point that insurance and investment should be kept separate still stands.",
+   "id": "insurance-endowment",
+   "lesson": "insurance",
+   "quote": "Most Indians buy \"Endowment\" plans (LIC style) because they \"get money back.\" These plans give ~5% returns. Inflation is 6-7%. You are literally losing money to insure yourself.",
+   "why": "Compares ~5% returns with a stale 6-7% inflation."
+  },
+  {
+   "confidence": "low",
+   "current": "Income multiples of 10-20x plus liabilities are common rules of thumb; the right cover depends on dependants, assets and years to retirement. Use the Life Cover tool for a worked estimate.",
+   "id": "insurance-cover",
+   "lesson": "insurance",
+   "quote": "Cover = (Annual Income × 20) + Total Debt",
+   "why": "A formula given as \"The FIN-OS Formula\" and \"anything less is a vulnerability\"."
+  },
+  {
+   "confidence": "medium",
+   "current": "T-bill and liquid-fund yields were about 5.3-6% in FY 2025-26 after the 2025 repo cuts. \"Almost zero risk\" holds for T-bills, not for every liquid fund.",
+   "id": "moneymarket-rate",
+   "lesson": "money_market",
+   "quote": "❌ Savings Account? 3% Interest. You lose money to inflation.\n✅ Money Market?\n7% Interest. Almost zero risk. Highly liquid.",
+   "why": "Quotes 7% for the money market."
+  },
+  {
+   "confidence": "medium",
+   "current": "Commercial paper has a minimum face value of Rs 5 lakh and is mainly bought by institutions; retail access is through debt/liquid funds.",
+   "id": "moneymarket-cp",
+   "lesson": "money_market",
+   "quote": "T-Bills (Treasury Bills): You lend to the Govt of India for 91, 182, or 364 days. Risk: ZERO. CP (Commercial Paper): You lend to Reliance/Tata for 3 months. Risk: Low. CD (Certificate of Deposit): You lend to HDFC Bank for 1 year. Risk: Low.",
+   "why": "Suggests an individual can lend to a corporate via commercial paper."
+  },
+  {
+   "confidence": "high",
+   "current": "Arbitrage funds are taxed as equity funds: 20% short-term (held under 12 months) and 12.5% long-term gains above Rs 1.25 lakh a year, not 12.5% from 6 months. They are low-risk, not risk-free, and typically returned about 6-7%. Liquid funds are taxed at slab rate (30% only in the top slab).",
+   "id": "moneymarket-arb",
+   "lesson": "money_market",
+   "quote": "☠️ GOD MODE: Arbitrage Funds The Tax Hack: Liquid Funds are taxed at your slab rate (30% for high earners). Arbitrage Funds are taxed as Equity (12.5% after 1 year).\nStrategy: Use Arbitrage Funds for parking cash > 6 months. It returns 7-8% risk-free but saves you massive tax compared to FDs.",
+   "why": "Tax and return claims are incomplete."
+  },
+  {
+   "confidence": "medium",
+   "current": "S&P SPIVA India shows a high underperformance rate for large-cap active funds over 10 years, but mid/small-cap categories differ a lot and the figure changes every report.",
+   "id": "mf-spiva",
+   "lesson": "mutual_funds",
+   "quote": "The Harsh Truth (SPIVA Report) Active Fund: Manager tries to beat Nifty. Charges 1-2% fee. Passive Fund: Simply copies Nifty. Charges 0.2% fee.\nFact: 80% of Active Funds FAIL to beat Passive Funds over a 10-year period.",
+   "why": "Presents an SPIVA-style statistic as a general fact."
+  },
+  {
+   "confidence": "medium",
+   "current": "The regular-vs-direct expense gap is about 0.5-1.5% depending on the scheme; the rupee gain depends on SIP size, tenure and return. Direct plans have no distributor commission; \"scam\" is the author's framing.",
+   "id": "mf-direct",
+   "lesson": "mutual_funds",
+   "quote": "☠️ GOD MODE: The \"Regular Plan\" Scam Never buy a \"Regular\" Mutual Fund from a bank or agent.\nRegular Plan: Includes 1% commission to the agent every single year from your wealth.\nDirect Plan: Zero commission. That 1% compounds. Over 20 years, a Direct plan gives you ₹30-40 Lakhs MORE on a standard S",
+   "why": "A specific rupee gain is stated without its assumptions."
+  },
+  {
+   "confidence": "high",
+   "current": "Checked: for a 20-year loan at 8-10%, one extra EMI each year closes it in about 16.3-16.9 years. \"80% of EMI is interest in year one\" is right for roughly 8-9% rates and 20 years.",
+   "id": "insight-emi-prepay",
+   "lesson": "insight-emi",
+   "quote": "The Fix: Pre-pay 1 extra EMI every year. You will close a 20-year loan in 12 years.",
+   "why": "Arithmetic is wrong: one extra EMI a year does not take a 20-year loan to 12 years."
+  },
+  {
+   "confidence": "medium",
+   "current": "The figures match a Rs 5,000 monthly SIP at 12% a year (not guaranteed) running 30 years vs 20 years (about Rs 1.75 crore vs Rs 49 lakh). Equity returns are not assured.",
+   "id": "insight-sip-math",
+   "lesson": "insight-sip",
+   "quote": "Start at 25: You invest ₹18 Lakhs -> You get ₹1.7 Crores. Start at 35: You invest ₹12 Lakhs -> You get ₹48 Lakhs.",
+   "why": "The retirement age and the return are not stated."
+  },
+  {
+   "confidence": "high",
+   "current": "CPI inflation averaged about 2-3% in FY 2025-26. \"Nifty 50: 12%\" is an assumption, not a promise.",
+   "id": "insight-inflation-cpi",
+   "lesson": "insight-inflation",
+   "quote": "⚠️ While CPI is 6%, your Lifestyle costs are growing at 10-12%.",
+   "why": "Uses 6-7% as current inflation."
+  }
+ ],
+ "version": 1
+}

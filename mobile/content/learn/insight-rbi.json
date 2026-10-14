@@ -1,0 +1,43 @@
+{
+ "category": "insights",
+ "id": "insight-rbi",
+ "needsReview": false,
+ "reviewReasons": [],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "When the RBI Governor speaks, your EMI moves."
+    },
+    {
+     "t": "p",
+     "text": "RBI"
+    },
+    {
+     "t": "p",
+     "text": "You"
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "items": [
+      "Inflation rises (Milk/Fuel gets expensive).",
+      "RBI increases Repo Rate to suck money out of the system.",
+      "Banks increase Loan Rates to match RBI.",
+      "Your Home Loan Tenure increases silently from 20 years to 25 years."
+     ],
+     "t": "ol"
+    }
+   ],
+   "heading": "The Chain Reaction"
+  }
+ ],
+ "source": "html/insight-rbi.html",
+ "summary": "How one RBI rate decision moves your EMI, your FD returns, and the market — in that order.",
+ "title": "RBI & You",
+ "tool": null
+}

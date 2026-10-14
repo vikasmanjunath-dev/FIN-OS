@@ -1,0 +1,59 @@
+{
+ "category": "insights",
+ "id": "insight-debt",
+ "needsReview": false,
+ "reviewReasons": [],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Debt is a tool. Like a knife, it can cut your food or cut your hand."
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Debt that puts money IN your pocket later."
+    },
+    {
+     "items": [
+      "Education Loan: Increases your salary potential.",
+      "Business Loan: Expands revenue.",
+      "Home Loan (Rental): Tenant pays the EMI."
+     ],
+     "t": "ul"
+    }
+   ],
+   "heading": "✅ Good Debt (Leverage)"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Debt that takes money OUT for things that lose value."
+    },
+    {
+     "items": [
+      "Car Loan: Car depreciates 20% instantly.",
+      "Credit Card EMI: Paying 18% interest on Pizza.",
+      "Personal Loan: Funding a wedding to impress others."
+     ],
+     "t": "ul"
+    },
+    {
+     "t": "p",
+     "text": "🧮 See your own debt payoff plan in the Debt Optimizer →"
+    }
+   ],
+   "heading": "❌ Bad Debt (Chains)"
+  }
+ ],
+ "source": "html/insight-debt.html",
+ "summary": "Good debt builds wealth, bad debt drains it — the line between leverage and chains, in two minutes.",
+ "title": "Good vs Bad Debt",
+ "tool": "/tools/debt"
+}

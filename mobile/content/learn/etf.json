@@ -1,0 +1,107 @@
+{
+ "category": "markets",
+ "id": "etf",
+ "needsReview": true,
+ "reviewReasons": [
+  "etf-ter"
+ ],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Don't look for the needle. Buy the haystack. It's cheaper, safer, and smarter."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 01: NOOB"
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Buying individual stocks (Reliance, TCS, HDFC) is like ordering A La Carte. It's expensive, and if the Dal is bad, your dinner is ruined."
+    },
+    {
+     "kind": "note",
+     "needsReview": true,
+     "reviewReasons": [
+      "etf-ter"
+     ],
+     "t": "callout",
+     "text": "An ETF (Exchange Traded Fund) is a pre-set Thali.\n- Nifty 50 ETF: You get a spoon of Reliance, a bowl of HDFC, a slice of TCS.\n- The Cost: Dirt cheap. (Expense Ratio: 0.05%).\n- The Logic: You are betting on India's Economy, not one company's CEO.",
+     "title": "🍱 The ETF Thali"
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 02: MECHANIC"
+    }
+   ],
+   "heading": "The \"Indian Thali\" Analogy"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Mutual Funds trade once a day (NAV). ETFs trade Live like stocks."
+    },
+    {
+     "t": "p",
+     "text": "Stock Market (NSE) ⬇️"
+    },
+    {
+     "t": "p",
+     "text": "NIFTYBEES (The ETF)"
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "The Secret Keeper: Authorized Participants (APs)"
+    },
+    {
+     "t": "p",
+     "text": "If everyone sells NiftyBees, price should crash, right? Wrong."
+    },
+    {
+     "t": "p",
+     "text": "APs (Big Banks) step in. If ETF price < True Value (NAV), they buy the ETF and sell the underlying stocks for a profit. This arbitrage keeps the price glued to the true value."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 03: PRO"
+    }
+   ],
+   "heading": "How does it actually trade?"
+  },
+  {
+   "blocks": [
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "If Nifty goes up 10%, your ETF should go up 10%. If it goes up only 9.8%, the 0.2% is Tracking Error. Lower is better.",
+     "title": "1. Tracking Error"
+    },
+    {
+     "kind": "note",
+     "t": "callout",
+     "text": "Don't just look at \"Volume\". Look at the Bid-Ask Spread. If you want to buy at ₹100 but the seller is at ₹101, you lose 1% instantly. Stick to high-volume ETFs like NIFTYBEES or BANKBEES.",
+     "title": "2. Impact Cost (Liquidity)"
+    },
+    {
+     "kind": "tip",
+     "t": "callout",
+     "text": "Beyond simple Indexing. This is how you beat the market passively.\nMomentum ETFs (MOM30)\nAutomated strategy that buys stocks that are already going up and sells losers. \"The Trend is your Friend\" coded into an algorithm.\nLow Volatility (LOWVOL)\nBuys boring, stable stocks (FMCG, Power). Performs better in market crashes. It's the \"Sleep Well\" portfolio.",
+     "title": "☠️ GOD MODE: Smart Beta & Factors"
+    }
+   ],
+   "heading": "Critical Metrics (Don't Ignore)"
+  }
+ ],
+ "source": "html/learn-etf.html",
+ "summary": "ETF Deep Dive — the quick version before the full ETF Masterclass.",
+ "title": "ETF Deep Dive",
+ "tool": "/markets"
+}

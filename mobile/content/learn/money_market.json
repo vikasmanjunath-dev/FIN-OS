@@ -1,0 +1,105 @@
+{
+ "category": "markets",
+ "id": "money_market",
+ "needsReview": true,
+ "reviewReasons": [
+  "moneymarket-rate",
+  "moneymarket-cp",
+  "moneymarket-arb"
+ ],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Where money sleeps at night. Safe, boring, and absolutely critical."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 01: NOOB"
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "You sold a house. You have ₹1 Crore. You need it in 6 months to buy a new house. Where do you put it?"
+    },
+    {
+     "kind": "note",
+     "needsReview": true,
+     "reviewReasons": [
+      "moneymarket-rate"
+     ],
+     "t": "callout",
+     "text": "3% Interest. You lose money to inflation.\n✅ Money Market?\n7% Interest. Almost zero risk. Highly liquid.",
+     "title": "❌ Savings Account?"
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 02: MECHANIC"
+    }
+   ],
+   "heading": "The \"Parking Lot\" Theory"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "This market is where Banks, Governments, and Giants borrow cash for 1 to 364 days."
+    },
+    {
+     "items": [
+      "T-Bills (Treasury Bills): You lend to the Govt of India for 91, 182, or 364 days. Risk: ZERO.",
+      "CP (Commercial Paper): You lend to Reliance/Tata for 3 months. Risk: Low.",
+      "CD (Certificate of Deposit): You lend to HDFC Bank for 1 year. Risk: Low."
+     ],
+     "needsReview": true,
+     "reviewReasons": [
+      "moneymarket-cp"
+     ],
+     "t": "ul"
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 03: PRO"
+    }
+   ],
+   "heading": "The Toolbox (T-Bills & CPs)"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "A Mutual Fund that only buys 91-day bonds. The graph is a straight line going up."
+    },
+    {
+     "level": 3,
+     "t": "h",
+     "text": "Insta-Redemption"
+    },
+    {
+     "t": "p",
+     "text": "Some Liquid Funds allow you to withdraw ₹50,000 instantly (24x7) to your bank account. It works exactly like a Savings Account but pays double the interest."
+    },
+    {
+     "kind": "tip",
+     "needsReview": true,
+     "reviewReasons": [
+      "moneymarket-arb"
+     ],
+     "t": "callout",
+     "text": "The Tax Hack: Liquid Funds are taxed at your slab rate (30% for high earners). Arbitrage Funds are taxed as Equity (12.5% after 1 year).\nStrategy: Use Arbitrage Funds for parking cash > 6 months. It returns 7-8% risk-free but saves you massive tax compared to FDs.",
+     "title": "☠️ GOD MODE: Arbitrage Funds"
+    }
+   ],
+   "heading": "Liquid Funds (The Savings Account Killer)"
+  }
+ ],
+ "source": "html/learn-money-market.html",
+ "summary": "Money Market Deep Dive — treasury bills, CPs and where short-term cash actually goes.",
+ "title": "Money Market",
+ "tool": "/tracker/fixed"
+}

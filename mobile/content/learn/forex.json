@@ -1,0 +1,118 @@
+{
+ "category": "markets",
+ "id": "forex",
+ "needsReview": true,
+ "reviewReasons": [
+  "forex-volume",
+  "forex-rate",
+  "forex-leverage",
+  "forex-carry"
+ ],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "needsReview": true,
+     "reviewReasons": [
+      "forex-volume"
+     ],
+     "t": "p",
+     "text": "The largest market on Earth ($6 Trillion/Day). Trading the health of nations."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 01: NOOB"
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "You cannot just \"Buy Dollar\". You must exchange it for something else."
+    },
+    {
+     "kind": "note",
+     "needsReview": true,
+     "reviewReasons": [
+      "forex-rate"
+     ],
+     "t": "callout",
+     "text": "This means: 1 Dollar = 83.50 Rupees.\n- If you think India will do well ➔ You BUY INR (Sell USD).\n- If you think USA will raise rates ➔ You BUY USD (Sell INR).",
+     "title": "USD / INR = 83.50"
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 02: MECHANIC"
+    }
+   ],
+   "heading": "It's Always a Pair"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Currencies move very slowly. A 1% move is huge. To make money, traders use Leverage."
+    },
+    {
+     "level": 3,
+     "needsReview": true,
+     "reviewReasons": [
+      "forex-leverage"
+     ],
+     "t": "h",
+     "text": "The Power of 100x"
+    },
+    {
+     "needsReview": true,
+     "reviewReasons": [
+      "forex-leverage"
+     ],
+     "t": "p",
+     "text": "With ₹1,000, you can control ₹1,00,000 worth of Dollars."
+    },
+    {
+     "t": "p",
+     "text": "⚠️ Danger: A 1% move against you wipes out your entire capital instantly."
+    },
+    {
+     "t": "p",
+     "text": "LEVEL 03: PRO"
+    }
+   ],
+   "heading": "PIPs and Leverage"
+  },
+  {
+   "blocks": [
+    {
+     "t": "p",
+     "text": "Forex is not about charts. It is about Central Banks."
+    },
+    {
+     "items": [
+      "Interest Rates: Higher rates attract money. If US Fed raises rates, USD goes UP.",
+      "Inflation: High inflation destroys currency value.",
+      "Geopolitics: War scares investors. They run to safe havens (USD, CHF)."
+     ],
+     "t": "ul"
+    },
+    {
+     "kind": "tip",
+     "needsReview": true,
+     "reviewReasons": [
+      "forex-carry"
+     ],
+     "t": "callout",
+     "text": "The Strategy: Borrow money in a country with LOW interest rates (e.g., Japan, 0%). Invest that money in a country with HIGH interest rates (e.g., USA, 5%).\nProfit: You pocket the 5% difference for free. This is how hedge funds make billions (until the currency crashes).",
+     "title": "☠️ GOD MODE: The Carry Trade"
+    }
+   ],
+   "heading": "What Moves Price? (Macro)"
+  }
+ ],
+ "source": "html/learn-forex.html",
+ "summary": "Forex Deep Dive — the quick version before the full Forex Masterclass.",
+ "title": "Forex Deep Dive",
+ "tool": null
+}
