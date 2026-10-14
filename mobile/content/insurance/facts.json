@@ -1,0 +1,460 @@
+{
+  "schemaVersion": 1,
+  "extractedFrom": [
+    "html/insurance-directory.html",
+    "html/insurance-hub.html",
+    "html/learn-insurance.html"
+  ],
+  "note": "Every figure the website states about insurance. None carries a date or a source on the website, so asOf is null for all of them.",
+  "facts": [
+    {
+      "id": "medical_inflation",
+      "kind": "figure",
+      "statement": "Medical inflation in India is about 14% a year.",
+      "value": 14,
+      "unit": "% a year",
+      "sources": [
+        {
+          "file": "html/insurance-directory.html",
+          "line": 164,
+          "quote": "14%"
+        },
+        {
+          "file": "html/insurance-directory.html",
+          "line": 165,
+          "quote": "Medical Inflation"
+        },
+        {
+          "file": "html/learn-insurance.html",
+          "line": 528,
+          "quote": "medical inflation is roughly 14%"
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "A market statistic. The website gives no source, year or definition (which costs, which cities)."
+    },
+    {
+      "id": "avg_icu_bill",
+      "kind": "figure",
+      "statement": "The average ICU bill is about ₹12 lakh.",
+      "value": 1200000,
+      "unit": "₹",
+      "sources": [
+        {
+          "file": "html/insurance-directory.html",
+          "line": 168,
+          "quote": "12L"
+        },
+        {
+          "file": "html/insurance-directory.html",
+          "line": 169,
+          "quote": "Avg ICU Bill (₹)"
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "A market statistic with no source, year or definition. The same figure appears in the made-up health story."
+    },
+    {
+      "id": "target_csr",
+      "kind": "rule",
+      "statement": "Look for a claim settlement ratio of 99% or more.",
+      "value": 99,
+      "unit": "%",
+      "sources": [
+        {
+          "file": "html/insurance-directory.html",
+          "line": 172,
+          "quote": "99%+"
+        },
+        {
+          "file": "html/insurance-directory.html",
+          "line": 173,
+          "quote": "Target CSR"
+        },
+        {
+          "file": "html/insurance-directory.html",
+          "line": 232,
+          "quote": "Look for 99%+ CSR for 3 consecutive years."
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "Guidance, not a measured figure. The website names no insurer, source or year, and does not say whether the ratio is by number of claims or by amount."
+    },
+    {
+      "id": "critical_illness_count",
+      "kind": "figure",
+      "statement": "A critical illness plan covers 30 or more listed illnesses.",
+      "value": 30,
+      "unit": "illnesses",
+      "sources": [
+        {
+          "file": "html/insurance-directory.html",
+          "line": 176,
+          "quote": "30+"
+        },
+        {
+          "file": "html/insurance-directory.html",
+          "line": 177,
+          "quote": "Critical Illnesses"
+        },
+        {
+          "file": "html/insurance-directory.html",
+          "line": 252,
+          "quote": "Covering 30+ major bugs in the human hardware."
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "Varies by plan and insurer; the website gives no source for the number."
+    },
+    {
+      "id": "surgery_cost_projection",
+      "kind": "figure",
+      "statement": "A major surgery costing ₹5 lakh today is shown as ₹9.6 lakh in 5 years and ₹18.5 lakh in 10 years.",
+      "value": [
+        5,
+        9.6,
+        18.5
+      ],
+      "unit": "₹ lakh (year 0, 5, 10)",
+      "sources": [
+        {
+          "file": "html/learn-insurance.html",
+          "line": 604,
+          "quote": "data: [5, 9.6, 18.5]"
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "An illustration of 14% a year growth (5 x 1.14^5 = 9.6, 5 x 1.14^10 = 18.5). Not a forecast of any hospital price."
+    },
+    {
+      "id": "endowment_return",
+      "kind": "claim",
+      "statement": "Endowment (\"money back\") plans give about 5% a year, against 6-7% inflation.",
+      "value": 5,
+      "unit": "% a year",
+      "sources": [
+        {
+          "file": "html/learn-insurance.html",
+          "line": 550,
+          "quote": "These plans give ~5% returns. Inflation is 6-7%."
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "A general claim about endowment plans. Actual returns differ by plan, term and charges; the website gives no source or year."
+    },
+    {
+      "id": "formula_income_x20",
+      "kind": "rule",
+      "statement": "Cover needed = annual income x 20 + total debt. The example: ₹10 lakh a year of income and a ₹50 lakh loan needs ₹2.5 crore.",
+      "value": 20,
+      "unit": "x annual income + debt",
+      "sources": [
+        {
+          "file": "html/learn-insurance.html",
+          "line": 554,
+          "quote": "Cover = (Annual Income × 20) + Total Debt"
+        },
+        {
+          "file": "html/learn-insurance.html",
+          "line": 555,
+          "quote": "you need a ₹2.5 Crore Term Plan."
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "A rule of thumb. It differs from the 15x rule in the insurance hub and from the human-life-value method in the life cover calculator, so treat all of them as starting points."
+    },
+    {
+      "id": "rule_health",
+      "kind": "rule",
+      "statement": "Health cover should be about 2 times annual income.",
+      "value": 2,
+      "unit": "x annual income",
+      "sources": [
+        {
+          "file": "html/insurance-hub.html",
+          "line": 308,
+          "quote": "health: income * 12 * 2"
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "A rule of thumb used by the insurance hub and by the phone tracker. Not a personal recommendation; the website gives no source."
+    },
+    {
+      "id": "rule_life_term",
+      "kind": "rule",
+      "statement": "Term life cover should be about 15 times annual income.",
+      "value": 15,
+      "unit": "x annual income",
+      "sources": [
+        {
+          "file": "html/insurance-hub.html",
+          "line": 309,
+          "quote": "life_term: income * 12 * 15"
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "A rule of thumb used by the insurance hub and by the phone tracker. Not a personal recommendation; the website gives no source."
+    },
+    {
+      "id": "rule_critical",
+      "kind": "rule",
+      "statement": "Critical illness cover should be about 5 times annual income.",
+      "value": 5,
+      "unit": "x annual income",
+      "sources": [
+        {
+          "file": "html/insurance-hub.html",
+          "line": 311,
+          "quote": "critical: income * 12 * 5"
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "A rule of thumb used by the insurance hub and by the phone tracker. Not a personal recommendation; the website gives no source."
+    },
+    {
+      "id": "rule_vehicle",
+      "kind": "rule",
+      "statement": "Vehicle cover is shown against a fixed ₹5 lakh.",
+      "value": 500000,
+      "unit": "₹",
+      "sources": [
+        {
+          "file": "html/insurance-hub.html",
+          "line": 310,
+          "quote": "vehicle: 500000"
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "A fixed number, not tied to any vehicle value. The phone does not use it; the right figure is the insured declared value of your vehicle."
+    },
+    {
+      "id": "hospitalisation_cost_range",
+      "kind": "figure",
+      "statement": "One hospitalisation can cost ₹5-25 lakh.",
+      "value": [
+        500000,
+        2500000
+      ],
+      "unit": "₹ range",
+      "sources": [
+        {
+          "file": "html/insurance-hub.html",
+          "line": 363,
+          "quote": "one hospitalization can cost ₹5-25L"
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "A range with no source, year or city; real bills depend on the treatment and hospital."
+    },
+    {
+      "id": "top_hospital_cost_range",
+      "kind": "figure",
+      "statement": "Bills at large private hospitals can be ₹15-30 lakh.",
+      "value": [
+        1500000,
+        3000000
+      ],
+      "unit": "₹ range",
+      "sources": [
+        {
+          "file": "html/insurance-hub.html",
+          "line": 364,
+          "quote": "Hospital bills at AIIMS/Apollo can be ₹15-30L"
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "A range with no source or year. AIIMS is a government institute, so the pairing with Apollo should not be read as one price band."
+    },
+    {
+      "id": "critical_treatment_cost_range",
+      "kind": "figure",
+      "statement": "Cancer, heart attack or stroke treatment can cost ₹10-50 lakh.",
+      "value": [
+        1000000,
+        5000000
+      ],
+      "unit": "₹ range",
+      "sources": [
+        {
+          "file": "html/insurance-hub.html",
+          "line": 368,
+          "quote": "treatment can cost ₹10-50L"
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "A range with no source or year."
+    },
+    {
+      "id": "critical_rider_premium",
+      "kind": "figure",
+      "statement": "A critical illness rider costs about ₹3-5 thousand a year.",
+      "value": [
+        3000,
+        5000
+      ],
+      "unit": "₹ a year",
+      "sources": [
+        {
+          "file": "html/insurance-hub.html",
+          "line": 368,
+          "quote": "rider costs ~₹3-5K/year"
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "A premium depends on age, health, cover and insurer. The website gives no age or sum assured for this figure, so it is not shown as a price."
+    },
+    {
+      "id": "third_party_mandatory",
+      "kind": "claim",
+      "statement": "Third-party vehicle insurance is legally mandatory in India.",
+      "value": null,
+      "unit": "",
+      "sources": [
+        {
+          "file": "html/insurance-hub.html",
+          "line": 367,
+          "quote": "Third-party vehicle insurance is legally mandatory in India."
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "A regulatory statement. The website does not name the law or give a date; check the current rule."
+    },
+    {
+      "id": "critical_age_threshold",
+      "kind": "rule",
+      "statement": "The hub flags missing critical illness cover from age 35.",
+      "value": 35,
+      "unit": "years",
+      "sources": [
+        {
+          "file": "html/insurance-hub.html",
+          "line": 368,
+          "quote": "if (age > 35 && !policies.some(p => p.type === 'critical'))"
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "A rule the page uses to show a prompt. It is not a medical or regulatory age."
+    },
+    {
+      "id": "room_rent_cap",
+      "kind": "claim",
+      "statement": "A room rent cap (for example 1% of the sum insured) can cut the whole bill proportionally if you take a better room.",
+      "value": null,
+      "unit": "",
+      "sources": [
+        {
+          "file": "html/learn-insurance.html",
+          "line": 532,
+          "quote": "No Room Rent Cap"
+        },
+        {
+          "file": "html/learn-insurance.html",
+          "line": 533,
+          "quote": "If your policy has a cap (e.g., 1% of sum insured), and you take a better room, the company will cut your entire bill proportionally."
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": "Describes proportionate deduction. Whether and how it applies is in each policy wording."
+    },
+    {
+      "id": "co_pay",
+      "kind": "claim",
+      "statement": "Co-pay means you pay a percentage of every bill.",
+      "value": null,
+      "unit": "",
+      "sources": [
+        {
+          "file": "html/learn-insurance.html",
+          "line": 536,
+          "quote": "No Co-Pay"
+        },
+        {
+          "file": "html/learn-insurance.html",
+          "line": 537,
+          "quote": "Co-pay means you pay a percentage of every bill."
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "id": "insurance_not_investment",
+      "kind": "claim",
+      "statement": "Insurance is not an investment; it is risk transfer for a premium.",
+      "value": null,
+      "unit": "",
+      "sources": [
+        {
+          "file": "html/learn-insurance.html",
+          "line": 518,
+          "quote": "Insurance is not an investment."
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": ""
+    },
+    {
+      "id": "self_insure_matrix",
+      "kind": "claim",
+      "statement": "Self-insure small, likely losses (earphones); transfer rare, very large ones (death).",
+      "value": null,
+      "unit": "",
+      "sources": [
+        {
+          "file": "html/learn-insurance.html",
+          "line": 571,
+          "quote": "High (e.g. Earphones)"
+        },
+        {
+          "file": "html/learn-insurance.html",
+          "line": 576,
+          "quote": "Low (e.g. Death)"
+        }
+      ],
+      "asOf": null,
+      "asOfNote": "Date not stated on the website",
+      "verified": false,
+      "note": ""
+    }
+  ]
+}

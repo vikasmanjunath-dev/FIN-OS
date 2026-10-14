@@ -1,0 +1,480 @@
+{
+  "schemaVersion": 1,
+  "extractedFrom": [
+    "html/insurance-directory.html",
+    "html/insurance-hub.html",
+    "html/learn-insurance.html"
+  ],
+  "groups": [
+    {
+      "id": "health",
+      "label": "Health"
+    },
+    {
+      "id": "life",
+      "label": "Life and income"
+    },
+    {
+      "id": "assets",
+      "label": "Property and liability"
+    }
+  ],
+  "coverTypes": [
+    {
+      "id": "health",
+      "group": "health",
+      "label": "Health insurance",
+      "policyTypes": [
+        "health"
+      ],
+      "layer": {
+        "layer": 1,
+        "tag": "LAYER_01: HEALTH",
+        "heading": "Base Hardware: Health Insurance",
+        "tagline": "Protecting the CPU from the 14% Indian medical inflation bug.",
+        "taglineSource": {
+          "file": "html/insurance-directory.html",
+          "line": 202,
+          "quote": "Protecting the CPU from the 14% Indian medical inflation bug."
+        },
+        "headingSource": {
+          "file": "html/insurance-directory.html",
+          "line": 201,
+          "quote": "Base Hardware: Health Insurance"
+        },
+        "features": [
+          {
+            "name": "Restoration",
+            "text": "Infinite refills for different illnesses.",
+            "source": {
+              "file": "html/insurance-directory.html",
+              "line": 209,
+              "quote": "Restoration: Infinite refills for different illnesses."
+            }
+          },
+          {
+            "name": "No-Claim Bonus (NCB)",
+            "text": "Boosting cover by 50% for every healthy year.",
+            "source": {
+              "file": "html/insurance-directory.html",
+              "line": 210,
+              "quote": "No-Claim Bonus (NCB): Boosting cover by 50% for every healthy year."
+            }
+          },
+          {
+            "name": "OPD Cover",
+            "text": "Handling the \"small bugs\" like doctor visits and tests.",
+            "source": {
+              "file": "html/insurance-directory.html",
+              "line": 211,
+              "quote": "OPD Cover: Handling the \"small bugs\" like doctor visits and tests."
+            }
+          }
+        ],
+        "story": {
+          "text": "Sharma Ji saved ₹15 Lakhs for his daughter's wedding. One heart blockage and a 10-day private ICU stay later, the bill is ₹12 Lakhs. Without this shield, the \"Wedding Fund\" is deleted, and he is forced to take a high-interest gold loan just to fix his own \"Hardware\".",
+          "fictional": true,
+          "source": {
+            "file": "html/insurance-directory.html",
+            "line": 215,
+            "quote": "Sharma Ji saved ₹15 Lakhs for his daughter's wedding. One he"
+          }
+        }
+      },
+      "hub": {
+        "icon": "🏥",
+        "label": "Health Insurance",
+        "color": "#22d3a6",
+        "source": {
+          "file": "html/insurance-hub.html",
+          "line": 290,
+          "quote": "health: { icon:'🏥', label:'Health Insurance'"
+        },
+        "recBaseUnused": 1000000
+      },
+      "detail": "full"
+    },
+    {
+      "id": "critical",
+      "group": "health",
+      "label": "Critical illness",
+      "policyTypes": [
+        "critical"
+      ],
+      "layer": {
+        "layer": 3,
+        "tag": "LAYER_03: CRITICAL",
+        "heading": "System Buffer: Critical Illness",
+        "tagline": "Lump-sum payout upon detection of \"System Crashes\" like Cancer or Paralysis.",
+        "taglineSource": {
+          "file": "html/insurance-directory.html",
+          "line": 244,
+          "quote": "Lump-sum payout upon detection of \"System Crashes\" like Cancer or Paralysis."
+        },
+        "headingSource": {
+          "file": "html/insurance-directory.html",
+          "line": 243,
+          "quote": "System Buffer: Critical Illness"
+        },
+        "features": [
+          {
+            "name": "Lump Sum",
+            "text": "Use it for EMI, travel, or therapy — not just hospital.",
+            "source": {
+              "file": "html/insurance-directory.html",
+              "line": 251,
+              "quote": "Lump Sum: Use it for EMI, travel, or therapy — not just hospital."
+            }
+          },
+          {
+            "name": "Disease Matrix",
+            "text": "Covering 30+ major bugs in the human hardware.",
+            "source": {
+              "file": "html/insurance-directory.html",
+              "line": 252,
+              "quote": "Disease Matrix: Covering 30+ major bugs in the human hardware."
+            }
+          }
+        ],
+        "story": {
+          "text": "Health insurance pays the hospital, but it doesn't pay for the 6 months you can't work during chemo. It doesn't pay for the organic diet, specialized travel to Mumbai, or home nursing. This buffer provides a ₹25L \"Cash Injection\" the moment you are diagnosed, so you fight the disease, not the EMI.",
+          "fictional": true,
+          "source": {
+            "file": "html/insurance-directory.html",
+            "line": 256,
+            "quote": "Health insurance pays the hospital, but it doesn't pay for t"
+          }
+        }
+      },
+      "hub": {
+        "icon": "❤️",
+        "label": "Critical Illness",
+        "color": "#ff4444",
+        "source": {
+          "file": "html/insurance-hub.html",
+          "line": 296,
+          "quote": "critical: { icon:'❤️', label:'Critical Illness'"
+        },
+        "recBaseUnused": 5000000
+      },
+      "detail": "full"
+    },
+    {
+      "id": "term",
+      "group": "life",
+      "label": "Term life insurance",
+      "policyTypes": [
+        "life_term"
+      ],
+      "layer": {
+        "layer": 2,
+        "tag": "LAYER_02: LIFE",
+        "heading": "Pure Code: Term Life Insurance",
+        "tagline": "Absolute income replacement. No money-back junk. Only pure protection.",
+        "taglineSource": {
+          "file": "html/insurance-directory.html",
+          "line": 223,
+          "quote": "Absolute income replacement. No money-back junk. Only pure protection."
+        },
+        "headingSource": {
+          "file": "html/insurance-directory.html",
+          "line": 222,
+          "quote": "Pure Code: Term Life Insurance"
+        },
+        "features": [
+          {
+            "name": "MWP Act",
+            "text": "Ensuring the money goes to wife/kids, not your creditors.",
+            "source": {
+              "file": "html/insurance-directory.html",
+              "line": 230,
+              "quote": "MWP Act: Ensuring the money goes to wife/kids, not your creditors."
+            }
+          },
+          {
+            "name": "Limited Pay",
+            "text": "Finishing premiums in 5-10 years while you're earning.",
+            "source": {
+              "file": "html/insurance-directory.html",
+              "line": 231,
+              "quote": "Limited Pay: Finishing premiums in 5-10 years while you're earning."
+            }
+          },
+          {
+            "name": "Claim Settlement",
+            "text": "Look for 99%+ CSR for 3 consecutive years.",
+            "source": {
+              "file": "html/insurance-directory.html",
+              "line": 232,
+              "quote": "Claim Settlement: Look for 99%+ CSR for 3 consecutive years."
+            }
+          }
+        ],
+        "story": {
+          "text": "Rajesh, the sole earner, has a ₹75 Lakh Home Loan for his 2BHK. If Rajesh \"goes offline\" unexpectedly, his family doesn't just lose him — they lose the house because banks don't accept grief as EMI. This layer ensures the loan is cleared instantly so his kids aren't forced to move back to the village.",
+          "fictional": true,
+          "source": {
+            "file": "html/insurance-directory.html",
+            "line": 236,
+            "quote": "Rajesh, the sole earner, has a ₹75 Lakh Home Loan for his 2B"
+          }
+        }
+      },
+      "hub": {
+        "icon": "🛡️",
+        "label": "Term Life",
+        "color": "#00d4ff",
+        "source": {
+          "file": "html/insurance-hub.html",
+          "line": 291,
+          "quote": "life_term: { icon:'🛡️', label:'Term Life'"
+        },
+        "recBaseUnused": 10000000
+      },
+      "detail": "full"
+    },
+    {
+      "id": "accident",
+      "group": "life",
+      "label": "Personal accident",
+      "policyTypes": [],
+      "layer": {
+        "layer": 4,
+        "tag": "LAYER_04: DISABILITY",
+        "heading": "I/O Protection: Personal Accident",
+        "tagline": "Covers the \"Living Death\" — when the CPU works but the limbs (I/O) fail.",
+        "taglineSource": {
+          "file": "html/insurance-directory.html",
+          "line": 264,
+          "quote": "Covers the \"Living Death\" — when the CPU works but the limbs (I/O) fail."
+        },
+        "headingSource": {
+          "file": "html/insurance-directory.html",
+          "line": 263,
+          "quote": "I/O Protection: Personal Accident"
+        },
+        "features": [
+          {
+            "name": "PTD",
+            "text": "100% payout for permanent total disability.",
+            "source": {
+              "file": "html/insurance-directory.html",
+              "line": 271,
+              "quote": "PTD: 100% payout for permanent total disability."
+            }
+          },
+          {
+            "name": "TTD",
+            "text": "Weekly salary payout if you're home-bound.",
+            "source": {
+              "file": "html/insurance-directory.html",
+              "line": 272,
+              "quote": "TTD: Weekly salary payout if you're home-bound."
+            }
+          },
+          {
+            "name": "Modification",
+            "text": "Covers home/car mods for accessibility.",
+            "source": {
+              "file": "html/insurance-directory.html",
+              "line": 273,
+              "quote": "Modification: Covers home/car mods for accessibility."
+            }
+          }
+        ],
+        "story": {
+          "text": "A bike skid on a pothole leads to a permanent knee disability. You are alive (so Term doesn't pay) and you aren't \"ill\" (so Health stops after surgery). But now, you can't do your field-sales job. This layer pays for your lost income and home modifications for accessibility.",
+          "fictional": true,
+          "source": {
+            "file": "html/insurance-directory.html",
+            "line": 277,
+            "quote": "A bike skid on a pothole leads to a permanent knee disabilit"
+          }
+        }
+      },
+      "hub": null,
+      "detail": "full"
+    },
+    {
+      "id": "ulip",
+      "group": "life",
+      "label": "ULIP",
+      "policyTypes": [
+        "life_ulip"
+      ],
+      "layer": null,
+      "hub": {
+        "icon": "📈",
+        "label": "ULIP",
+        "color": "#7b2ff7",
+        "source": {
+          "file": "html/insurance-hub.html",
+          "line": 292,
+          "quote": "life_ulip: { icon:'📈', label:'ULIP'"
+        },
+        "recBaseUnused": 5000000
+      },
+      "detail": "thin"
+    },
+    {
+      "id": "home",
+      "group": "assets",
+      "label": "Home and property",
+      "policyTypes": [
+        "home"
+      ],
+      "layer": {
+        "layer": 5,
+        "tag": "LAYER_05: ASSETS",
+        "heading": "External Shield: Home & Property",
+        "tagline": "Protecting your physical server room (House) from fire, flood, and theft.",
+        "taglineSource": {
+          "file": "html/insurance-directory.html",
+          "line": 285,
+          "quote": "Protecting your physical server room (House) from fire, flood, and theft."
+        },
+        "headingSource": {
+          "file": "html/insurance-directory.html",
+          "line": 284,
+          "quote": "External Shield: Home & Property"
+        },
+        "features": [
+          {
+            "name": "Structure",
+            "text": "Rebuilding costs at today's inflation rates.",
+            "source": {
+              "file": "html/insurance-directory.html",
+              "line": 292,
+              "quote": "Structure: Rebuilding costs at today's inflation rates."
+            }
+          },
+          {
+            "name": "Contents",
+            "text": "Insuring gadgets, gold, and tech inside.",
+            "source": {
+              "file": "html/insurance-directory.html",
+              "line": 293,
+              "quote": "Contents: Insuring gadgets, gold, and tech inside."
+            }
+          }
+        ],
+        "story": {
+          "text": "You spent ₹8 Lakhs on a premium modular kitchen and smart electronics. A short circuit while you're at Diwali dinner leads to a fire that guts the living room. Most Indians insure their ₹20k phone but ignore their ₹1 Crore home. For the cost of a few pizzas, this layer rebuilds your \"Server Room\".",
+          "fictional": true,
+          "source": {
+            "file": "html/insurance-directory.html",
+            "line": 297,
+            "quote": "You spent ₹8 Lakhs on a premium modular kitchen and smart el"
+          }
+        }
+      },
+      "hub": {
+        "icon": "🏠",
+        "label": "Home Insurance",
+        "color": "#c7f000",
+        "source": {
+          "file": "html/insurance-hub.html",
+          "line": 294,
+          "quote": "home: { icon:'🏠', label:'Home Insurance'"
+        },
+        "recBaseUnused": 3000000
+      },
+      "detail": "full"
+    },
+    {
+      "id": "vehicle",
+      "group": "assets",
+      "label": "Vehicle",
+      "policyTypes": [
+        "vehicle"
+      ],
+      "layer": null,
+      "hub": {
+        "icon": "🚗",
+        "label": "Vehicle Insurance",
+        "color": "#ff9500",
+        "source": {
+          "file": "html/insurance-hub.html",
+          "line": 293,
+          "quote": "vehicle: { icon:'🚗', label:'Vehicle Insurance'"
+        },
+        "recBaseUnused": 500000
+      },
+      "detail": "thin"
+    },
+    {
+      "id": "liability",
+      "group": "assets",
+      "label": "Liability",
+      "policyTypes": [],
+      "layer": {
+        "layer": 6,
+        "tag": "LAYER_06: FIREWALL",
+        "heading": "Legal Firewall: Liability Insurance",
+        "tagline": "Shielding you from \"Lawsuit Malware\" if you accidentally damage others.",
+        "taglineSource": {
+          "file": "html/insurance-directory.html",
+          "line": 305,
+          "quote": "Shielding you from \"Lawsuit Malware\" if you accidentally damage others."
+        },
+        "headingSource": {
+          "file": "html/insurance-directory.html",
+          "line": 304,
+          "quote": "Legal Firewall: Liability Insurance"
+        },
+        "features": [
+          {
+            "name": "Third-Party",
+            "text": "Mandatory car cover for others' damage.",
+            "source": {
+              "file": "html/insurance-directory.html",
+              "line": 312,
+              "quote": "Third-Party: Mandatory car cover for others' damage."
+            }
+          },
+          {
+            "name": "Professional",
+            "text": "Essential for Doctors/CA/Engineers against errors.",
+            "source": {
+              "file": "html/insurance-directory.html",
+              "line": 313,
+              "quote": "Professional: Essential for Doctors/CA/Engineers against errors."
+            }
+          }
+        ],
+        "story": {
+          "text": "You are a freelance architect. A small calculation error in a balcony design leads to a structural crack in a client's bungalow. They sue you for ₹50 Lakhs in damages. In a litigious India, this firewall protects your personal savings from being drained by legal \"malware\" and court settlements.",
+          "fictional": true,
+          "source": {
+            "file": "html/insurance-directory.html",
+            "line": 317,
+            "quote": "You are a freelance architect. A small calculation error in "
+          }
+        }
+      },
+      "hub": null,
+      "detail": "full"
+    },
+    {
+      "id": "travel",
+      "group": "assets",
+      "label": "Travel",
+      "policyTypes": [
+        "travel"
+      ],
+      "layer": null,
+      "hub": {
+        "icon": "✈️",
+        "label": "Travel Insurance",
+        "color": "#00d4ff",
+        "source": {
+          "file": "html/insurance-hub.html",
+          "line": 295,
+          "quote": "travel: { icon:'✈️', label:'Travel Insurance'"
+        },
+        "recBaseUnused": 1000000
+      },
+      "detail": "thin"
+    }
+  ]
+}

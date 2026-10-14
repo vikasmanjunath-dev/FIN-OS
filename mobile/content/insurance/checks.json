@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "authoredBy": "FIN·OS phone app (not extracted from the website)",
+  "note": "Plain-language questions and definitions written for the app. They contain no prices, ratios, regulatory limits or insurer names, because those go stale. Where the website says something on the same point, the item links to the website's own statement through `facts`.",
+  "cover": {
+    "health": {
+      "summary": "Pays for hospital treatment, up to the sum insured and on the terms of the policy wording.",
+      "pays": ["Hospital treatment costs that the policy lists as covered, up to the sum insured."],
+      "doesNotPay": ["Income you lose while you cannot work.", "Anything the policy excludes or only covers after a waiting period."]
+    },
+    "critical": {
+      "summary": "Pays a lump sum when a listed serious illness is diagnosed, whatever the hospital bill turns out to be.",
+      "pays": ["A fixed lump sum once a listed illness is diagnosed, as the policy defines it."],
+      "doesNotPay": ["Illnesses that are not on the policy's list.", "Hospital bills as such; those are what health insurance is for."]
+    },
+    "term": {
+      "summary": "Pays a lump sum to your nominee if you die during the policy term. A pure term plan pays nothing if you outlive the term.",
+      "pays": ["A lump sum to the nominee if the insured person dies within the term."],
+      "doesNotPay": ["Nothing on survival to the end of a pure term plan.", "Illness or disability, unless a rider adds it."]
+    },
+    "accident": {
+      "summary": "Pays when an accident leaves you disabled, and in some plans a regular income while you recover.",
+      "pays": ["A benefit for disability caused by an accident, on the schedule in the policy."],
+      "doesNotPay": ["Death or disability from illness.", "Accidents the policy excludes."]
+    },
+    "ulip": {
+      "summary": "A single product that combines life cover with market-linked investment.",
+      "pays": ["A death benefit and a fund value, on the terms of the plan."],
+      "doesNotPay": ["The website does not describe this type beyond its name."]
+    },
+    "home": {
+      "summary": "Pays for damage to the building and, if included, the contents from named events such as fire, flood or theft.",
+      "pays": ["Repair or rebuilding cost of the structure for the events the policy names.", "Contents, if the policy includes them."],
+      "doesNotPay": ["Events the policy does not name.", "Items above any limit or not declared."]
+    },
+    "vehicle": {
+      "summary": "Third-party cover pays for harm you cause to others; own-damage cover pays for your own vehicle.",
+      "pays": ["Third-party liability for injury or damage you cause with the vehicle.", "Damage to your own vehicle, if the policy is comprehensive."],
+      "doesNotPay": ["Own-damage repairs under a third-party-only policy."]
+    },
+    "liability": {
+      "summary": "Pays claims made against you by others for damage or injury you are legally responsible for.",
+      "pays": ["Legal liability to others, up to the limit, as the policy defines it."],
+      "doesNotPay": ["Your own losses.", "Liability the policy excludes."]
+    },
+    "travel": {
+      "summary": "Cover for a trip. The website names this type but does not describe it.",
+      "pays": ["The website does not describe this type beyond its name."],
+      "doesNotPay": ["The website does not describe this type beyond its name."]
+    }
+  },
+  "items": [
+    { "id": "health.sum_insured", "coverType": "health", "question": "Is the sum insured for one person, or shared by everyone on the policy?", "why": "On a family floater one claim uses up cover that the others also rely on.", "facts": [] },
+    { "id": "health.room_rent", "coverType": "health", "question": "Is there a cap on room rent, and does a cap cut the whole bill proportionally?", "why": "The website calls a room rent cap a hidden kill-switch because a better room can reduce every line of the bill.", "facts": ["room_rent_cap"] },
+    { "id": "health.co_pay", "coverType": "health", "question": "Do you pay a share of every claim (co-pay), and in which cases?", "why": "A percentage looks small on a small bill and large on a big one.", "facts": ["co_pay"] },
+    { "id": "health.waiting", "coverType": "health", "question": "How long is the wait before existing conditions, and before specific treatments, are covered?", "why": "A claim in the waiting period is refused even though the policy is active.", "facts": [] },
+    { "id": "health.network", "coverType": "health", "question": "Are the hospitals you would actually go to in the insurer's cashless network?", "why": "Outside the network you usually pay first and claim back.", "facts": [] },
+    { "id": "health.restore", "coverType": "health", "question": "Does the cover restore after a claim, and for which illnesses?", "why": "The website lists restoration as a feature; how it works differs by plan, so read the wording.", "facts": [] },
+    { "id": "health.renewal", "coverType": "health", "question": "On what terms does it renew, and how does the premium change as you age?", "why": "A policy you cannot afford or keep in later life does not help when you need it most.", "facts": [] },
+
+    { "id": "critical.list", "coverType": "critical", "question": "Which illnesses are on the list, and how does the policy define each one?", "why": "The website says plans cover 30 or more; a claim depends on the definition of the illness, not the name.", "facts": ["critical_illness_count"] },
+    { "id": "critical.survival", "coverType": "critical", "question": "Must you survive a number of days after diagnosis before it pays?", "why": "It decides whether the lump sum arrives when it is needed.", "facts": [] },
+    { "id": "critical.standalone", "coverType": "critical", "question": "Is it a standalone policy or a rider on another policy?", "why": "A rider can end or shrink when the main policy does.", "facts": [] },
+    { "id": "critical.waiting", "coverType": "critical", "question": "Is there a waiting period after you buy before a claim is accepted?", "why": "A diagnosis inside the waiting period is not paid.", "facts": [] },
+
+    { "id": "term.pure", "coverType": "term", "question": "Is it pure term (no maturity benefit), or an endowment / money-back plan?", "why": "The website says insurance is risk transfer, not an investment.", "facts": ["insurance_not_investment", "endowment_return"] },
+    { "id": "term.amount", "coverType": "term", "question": "Does the cover match what your family would need? Work it out in the life cover calculator.", "why": "The website's own rules of thumb differ (15 times income in the hub, 20 times plus debt in the lesson).", "facts": ["rule_life_term", "formula_income_x20"] },
+    { "id": "term.length", "coverType": "term", "question": "Does the term run to the age your dependants stop relying on your income, and to the end of your loans?", "why": "Cover that ends before the need does leaves the gap.", "facts": [] },
+    { "id": "term.nominee", "coverType": "term", "question": "Is the nominee current, and does that person know the policy exists?", "why": "A claim cannot be made by someone who does not know about the policy.", "facts": [] },
+    { "id": "term.disclosure", "coverType": "term", "question": "Did you disclose health, habits and income accurately when you bought it?", "why": "Wrong or missing disclosure is a common reason claims are questioned.", "facts": [] },
+    { "id": "term.claims", "coverType": "term", "question": "If you look at an insurer's claim settlement ratio, which year is it for, is it by number or by amount, and where is it published?", "why": "The website says to look for 99% or more for three years running, but a ratio without a year and a source tells you little.", "facts": ["target_csr"] },
+
+    { "id": "accident.benefits", "coverType": "accident", "question": "Which of permanent total, permanent partial and temporary disability does it pay for?", "why": "The website lists permanent total disability and a weekly payout for temporary disability as separate features.", "facts": [] },
+    { "id": "accident.exclusions", "coverType": "accident", "question": "Which activities and situations are excluded?", "why": "An accident that falls under an exclusion is not paid.", "facts": [] },
+
+    { "id": "ulip.charges", "coverType": "ulip", "question": "What share of each premium goes to charges rather than to the fund and the cover, in the first years and later?", "why": "Charges decide how much of what you pay is actually invested.", "facts": [] },
+    { "id": "ulip.lock", "coverType": "ulip", "question": "What happens if you stop paying or want to leave early?", "why": "Lock-in and surrender terms differ by plan.", "facts": [] },
+    { "id": "ulip.cover", "coverType": "ulip", "question": "Is the life cover big enough on its own, or would you need to add a term plan?", "why": "Cover and investment are paid for together here, which can make the cover small for the premium.", "facts": ["insurance_not_investment"] },
+
+    { "id": "home.rebuild", "coverType": "home", "question": "Is the sum insured based on what it would cost to rebuild today, not on the market price?", "why": "The website says to insure rebuilding cost at today's inflation rates.", "facts": [] },
+    { "id": "home.contents", "coverType": "home", "question": "Are contents (furniture, appliances, gold) included, and up to what limit?", "why": "The website lists contents as a separate part of the cover.", "facts": [] },
+    { "id": "home.events", "coverType": "home", "question": "Which events does it name (fire, flood, theft and so on) and which are left out?", "why": "Only named events are paid.", "facts": [] },
+
+    { "id": "vehicle.type", "coverType": "vehicle", "question": "Is it third-party only or comprehensive?", "why": "The website says third-party cover is mandatory and comprehensive cover protects your own vehicle.", "facts": ["third_party_mandatory"] },
+    { "id": "vehicle.idv", "coverType": "vehicle", "question": "Does the insured declared value match what the vehicle is worth now?", "why": "It limits what is paid if the vehicle is lost or written off.", "facts": [] },
+    { "id": "vehicle.renew", "coverType": "vehicle", "question": "When does it expire, and is the renewal date in your reminders?", "why": "A lapsed policy pays nothing, and the website says third-party cover is legally mandatory.", "facts": ["third_party_mandatory"] },
+
+    { "id": "liability.who", "coverType": "liability", "question": "Is it personal liability, or professional (errors in your work)?", "why": "The website separates third-party liability from professional liability.", "facts": [] },
+    { "id": "liability.limit", "coverType": "liability", "question": "What is the limit per claim and in total, and what is excluded?", "why": "Claims above the limit fall on you.", "facts": [] },
+
+    { "id": "travel.scope", "coverType": "travel", "question": "What does it cover (medical, baggage, delay, cancellation), for which countries and how long?", "why": "Trip cover is narrow and differs a lot by plan.", "facts": [] },
+    { "id": "travel.existing", "coverType": "travel", "question": "Are existing medical conditions covered?", "why": "Many plans exclude them.", "facts": [] }
+  ],
+  "guide": [
+    {
+      "id": "before-buying",
+      "title": "Before you buy",
+      "points": [
+        { "text": "Decide what you are protecting: your family's income, your health bills, your home, or others' claims against you. Each is a different product.", "facts": [] },
+        { "text": "Buy protection and investment separately unless you have a reason not to. The website's lesson is that insurance is risk transfer, not an investment.", "facts": ["insurance_not_investment"] },
+        { "text": "Read the policy wording, not the brochure. Waiting periods, sub-limits and exclusions are in the wording.", "facts": [] },
+        { "text": "Be exact about your health, habits and income when you apply.", "facts": [] }
+      ]
+    },
+    {
+      "id": "reading-numbers",
+      "title": "Reading an insurer's numbers",
+      "points": [
+        { "text": "A figure is only useful with its year, its source and what it measures. Ask: which year, which product line, by number of claims or by amount.", "facts": [] },
+        { "text": "The website gives claim settlement ratio as a target of 99% or more for three years, but names no insurer, year or source. This app therefore shows no insurer ratios.", "facts": ["target_csr"] },
+        { "text": "Insurer figures are published by the regulator and by each insurer. Check the latest release rather than a number you were quoted.", "facts": [] }
+      ]
+    },
+    {
+      "id": "every-year",
+      "title": "Every year",
+      "points": [
+        { "text": "Check that each policy is still active and when it renews. The tracker shows renewal dates.", "facts": [] },
+        { "text": "Re-check the amounts when your income, loans or family change.", "facts": [] },
+        { "text": "Keep the nominee and contact details current.", "facts": [] }
+      ]
+    },
+    {
+      "id": "claim-time",
+      "title": "When you need to claim",
+      "points": [
+        { "text": "Tell the insurer early and keep every document and bill.", "facts": [] },
+        { "text": "Ask whether the hospital is in the cashless network before a planned admission.", "facts": [] },
+        { "text": "If a claim is refused, ask for the reason in writing and the insurer's grievance process.", "facts": [] }
+      ]
+    }
+  ],
+  "insurerData": {
+    "available": false,
+    "headline": "Insurer and plan figures are not in the app yet",
+    "body": "The FIN·OS website does not hold a table of insurers or plans, so there is nothing to compare insurer by insurer. A claim settlement ratio, solvency ratio or network size is only worth showing with the year it is for and where it comes from. Until a dated, sourced feed exists, the app shows what the website actually holds: the types of cover, what to check, and your own recorded policies.",
+    "wanted": ["Claim settlement ratio, by year and by number or amount of claims", "Solvency ratio, by year", "Network hospital count, by date", "Each with its source and the date it is as of"]
+  }
+}
