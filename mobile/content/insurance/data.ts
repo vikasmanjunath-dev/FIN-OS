@@ -669,8 +669,8 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 308,
-            "quote": "health: income * 12 * 2"
+            "line": 310,
+            "quote": "income > 0 ? income * 12 * 2 : 0"
           }
         ],
         "asOf": null,
@@ -687,8 +687,8 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 309,
-            "quote": "life_term: income * 12 * 15"
+            "line": 311,
+            "quote": "income > 0 ? income * 12 * 15 : 0"
           }
         ],
         "asOf": null,
@@ -705,8 +705,8 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 311,
-            "quote": "critical: income * 12 * 5"
+            "line": 313,
+            "quote": "income > 0 ? income * 12 * 5 : 0"
           }
         ],
         "asOf": null,
@@ -723,7 +723,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 310,
+            "line": 312,
             "quote": "vehicle: 500000"
           }
         ],
@@ -744,7 +744,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 363,
+            "line": 368,
             "quote": "one hospitalization can cost ₹5-25L"
           }
         ],
@@ -765,7 +765,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 364,
+            "line": 369,
             "quote": "Hospital bills at AIIMS/Apollo can be ₹15-30L"
           }
         ],
@@ -786,7 +786,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 368,
+            "line": 373,
             "quote": "treatment can cost ₹10-50L"
           }
         ],
@@ -807,7 +807,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 368,
+            "line": 373,
             "quote": "rider costs ~₹3-5K/year"
           }
         ],
@@ -825,7 +825,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 367,
+            "line": 372,
             "quote": "Third-party vehicle insurance is legally mandatory in India."
           }
         ],
@@ -843,7 +843,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 368,
+            "line": 373,
             "quote": "if (age > 35 && !policies.some(p => p.type === 'critical'))"
           }
         ],

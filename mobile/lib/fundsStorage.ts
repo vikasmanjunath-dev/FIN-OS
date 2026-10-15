@@ -1,6 +1,7 @@
 // What the funds screens keep on this phone: the funds the person looked at (so a held or recently seen fund still shows its last NAV,
 // marked with its date, when the backend is unreachable) and the compare tray. Mobile-only keys; both ride along in the backup.
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { keepIfUnreadable } from './safeStore.ts';
 import { type FundRecord, type RecentFund, normaliseRecent, pushRecent, toggleTray, MAX_FUNDS } from './funds.ts';
 
 export const RECENT_KEY = 'finos_funds_recent_v1';
@@ -23,6 +24,7 @@ export function rememberFund(rec: FundRecord, now = new Date()): Promise<RecentF
   return exclusive(async () => {
     try {
       const next = pushRecent(await loadRecent(), rec, now);
+      await keepIfUnreadable(RECENT_KEY, 'array');
       await AsyncStorage.setItem(RECENT_KEY, JSON.stringify(next));
       return next;
     } catch { return []; }
@@ -39,7 +41,7 @@ export async function loadTray(): Promise<string[]> {
 export function toggleInTray(code: string): Promise<{ codes: string[]; full: boolean }> {
   return exclusive(async () => {
     const r = toggleTray(await loadTray(), code);
-    try { await AsyncStorage.setItem(TRAY_KEY, JSON.stringify(r.codes)); } catch { /* keep going */ }
+    try { await keepIfUnreadable(TRAY_KEY, 'array'); await AsyncStorage.setItem(TRAY_KEY, JSON.stringify(r.codes)); } catch { /* keep going */ }
     return r;
   });
 }
