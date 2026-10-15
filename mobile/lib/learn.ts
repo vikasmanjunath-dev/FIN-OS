@@ -48,7 +48,11 @@ export function parseLearned(raw: string | null | undefined): Learned {
       const out: Learned = {};
       for (const [id, e] of Object.entries(v as Record<string, any>)) {
         if (!e) continue;
-        out[id] = { ...(typeof e === 'object' ? e : {}), completed_at: typeof e?.completed_at === 'string' ? e.completed_at : null, attempts: Number(e?.attempts) || 0 };
+        const num = Number(e?.attempts);
+        const extra: Record<string, unknown> = {};
+        if (typeof e === 'object') for (const [k, v] of Object.entries(e)) if (k !== 'completed_at' && k !== 'attempts' && k !== 'last_visited' && (typeof v === 'string' || typeof v === 'boolean' || (typeof v === 'number' && Number.isFinite(v)))) extra[k] = v;
+        out[id] = { ...extra, completed_at: typeof e?.completed_at === 'string' ? e.completed_at : null, attempts: Number.isFinite(num) && num > 0 ? num : 0,
+          ...(typeof e?.last_visited === 'string' ? { last_visited: e.last_visited } : {}) };
       }
       return out;
     }

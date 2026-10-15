@@ -2,6 +2,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LEARNED_KEY, OPENED_KEY, parseLearned, parseOpened, markLearned, unmarkLearned, markOpened, type Learned, type Opened } from '@/lib/learn';
 import { saveTracker } from '@/lib/trackerStorage';
+import { keepIfUnreadable } from '@/lib/safeStore';
 
 export async function loadLearned(): Promise<Learned> {
   try { return parseLearned(await AsyncStorage.getItem(LEARNED_KEY)); } catch { return {}; }
@@ -13,6 +14,7 @@ export async function loadOpened(): Promise<Opened> {
 
 /** Writes the website's object shape (an array left by older data is converted: ids are kept, nothing is invented). */
 async function writeLearned(l: Learned) {
+  await keepIfUnreadable(LEARNED_KEY, 'any');
   await AsyncStorage.setItem(LEARNED_KEY, JSON.stringify(l));
   // the Health Score's Knowledge points depend on this: refresh the derived keys the website and Arya read
   await saveTracker({}).catch(() => undefined);

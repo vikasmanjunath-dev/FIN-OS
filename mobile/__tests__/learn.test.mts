@@ -180,14 +180,22 @@ test('search: title beats summary beats body; unknown words give nothing', () =>
 
 // ── Health Score: Knowledge & Engagement ─────────────────────────────────────
 
+/** The two statements of the website's Knowledge pillar that matter: how the stored value becomes a list, and how the list becomes points. */
+function websiteKnowledgeSnippet(src: string): string {
+  const a = src.search(/const learned\s*=\s*Array\.isArray\(learnedRaw\)/);
+  const b = src.indexOf('const tradeStats');
+  const c = src.indexOf('const moduleCount');
+  const d = src.indexOf('const streakPts');
+  assert.ok(a > 0 && b > a && c > b && d > c, 'website formula not found');
+  return src.slice(a, b) + src.slice(c, d);
+}
+
 test('knowledgePoints equals the website formula, evaluated from js/finos-health-score.js itself', () => {
   const src = fs.readFileSync(path.join(REPO, 'js', 'finos-health-score.js'), 'utf8');
-  const a = src.indexOf('const moduleCount = Array.isArray(learned)');
-  const b = src.indexOf('const streakPts');
-  assert.ok(a > 0 && b > a, 'website formula not found');
-  const snippet = src.slice(a, b);
+  // Since Oct 15 the website reads the stored value itself (`learnedRaw`) and counts either shape, then applies the same 0.43 rule.
+  const snippet = websiteKnowledgeSnippet(src);
   const web = (learned: unknown) => {
-    const ctx: any = { learned };
+    const ctx: any = { learnedRaw: learned };
     vm.createContext(ctx);
     vm.runInContext(`${snippet}; out = { moduleCount, knowledgePts };`, ctx);
     return ctx.out as { moduleCount: number; knowledgePts: number };
@@ -198,18 +206,25 @@ test('knowledgePoints equals the website formula, evaluated from js/finos-health
     assert.equal(L.knowledgePoints(L.learnedCount(JSON.stringify(arr))), w.knowledgePts, `${n} modules`);
     assert.equal(L.learnedCount(JSON.stringify(arr)), w.moduleCount);
   }
-  assert.equal(web(Array.from({ length: 14 })).knowledgePts, 6);   // "14 modules = 6 pts"
+  assert.equal(web(Array.from({ length: 14 }, (_, i) => `m${i}`)).knowledgePts, 6);   // "14 modules = 6 pts"
   assert.equal(L.knowledgePoints(14), 6);
   assert.equal(L.knowledgePoints(0), 0);
   assert.equal(L.knowledgePoints(NaN), 0);
   assert.equal(L.knowledgePoints(-3), 0);
 });
 
-test('documented divergence: the website reads the object shape as 0 modules; the phone counts its entries', () => {
-  const obj = JSON.stringify({ equity: { completed_at: 'x', attempts: 0 }, etf: { completed_at: 'y', attempts: 0 }, debt: { completed_at: 'z', attempts: 0 } });
+test('the website now counts the object shape that js/learn-ai.js writes, and the phone agrees with it', () => {
+  // History: until Oct 15 the website read finos_learned_modules with Array.isArray(...) ? length : 0, so lessons read on the website
+  // never earned Knowledge points, while the phone counted the object's entries. The website was fixed (see js/finos-health-score.js);
+  // this test pins that both now count the same, so a regression on either side shows up here.
   const src = fs.readFileSync(path.join(REPO, 'js', 'finos-health-score.js'), 'utf8');
-  assert.match(src, /const moduleCount = Array\.isArray\(learned\) \? learned\.length : 0;/);
-  assert.equal(L.learnedCount(obj), 3);
+  assert.ok(!/const moduleCount = Array\.isArray\(learned\) \? learned\.length : 0;/.test(src), 'the website went back to ignoring the object shape');
+  const snippet = websiteKnowledgeSnippet(src);
+  const web = (learnedRaw: unknown) => { const c: any = { learnedRaw }; vm.createContext(c); vm.runInContext(`${snippet}; out = { moduleCount, knowledgePts };`, c); return c.out as { moduleCount: number; knowledgePts: number }; };
+  const obj = { equity: { completed_at: 'x', attempts: 0 }, etf: { completed_at: 'y', attempts: 0 }, debt: { completed_at: 'z', attempts: 0 } };
+  assert.equal(web(obj).moduleCount, 3);
+  assert.equal(L.learnedCount(JSON.stringify(obj)), 3);
+  assert.equal(web(obj).knowledgePts, L.knowledgePoints(L.learnedCount(JSON.stringify(obj))));
   assert.equal(L.learnedCount('[]'), 0);
   assert.equal(L.learnedCount(null), 0);
   assert.equal(L.learnedCount('garbage'), 0);
