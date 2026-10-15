@@ -9,6 +9,7 @@ import {
   type MemoryItem, type AddInput, type AddResult, type EditPatch,
   normaliseStore, prune, addNote, editNote, removeNote, clearAuto, noteTopic, detectTopics,
 } from '@/lib/aryaMemory';
+import { keepIfUnreadable } from '@/lib/safeStore';
 
 export const MEMORY_KEY = 'finos_session_arya_memory_v1';
 export const PREFS_KEY = 'finos_session_arya_prefs_v1';
@@ -45,9 +46,10 @@ function exclusive<T>(fn: () => Promise<T>): Promise<T> {
   return run;
 }
 
-async function readItems(now: number): Promise<{ items: MemoryItem[]; changed: boolean }> {
+/** `failed` is true when storage itself could not be read: writers then change nothing (they must not replace what they could not see). */
+async function readItems(now: number): Promise<{ items: MemoryItem[]; changed: boolean; failed?: boolean }> {
   let raw: string | null = null;
-  try { raw = await AsyncStorage.getItem(MEMORY_KEY); } catch { return { items: [], changed: false }; }
+  try { raw = await AsyncStorage.getItem(MEMORY_KEY); } catch { return { items: [], changed: false, failed: true }; }
   if (raw == null) return { items: [], changed: false };
   const all = normaliseStore(raw, now);
   const live = prune(all, now);
@@ -55,39 +57,43 @@ async function readItems(now: number): Promise<{ items: MemoryItem[]; changed: b
 }
 
 async function write(items: MemoryItem[]) {
-  try { await AsyncStorage.setItem(MEMORY_KEY, JSON.stringify(items)); } catch { /* storage unavailable: the note is simply not kept */ }
+  try { await keepIfUnreadable(MEMORY_KEY, 'array'); await AsyncStorage.setItem(MEMORY_KEY, JSON.stringify(items)); } catch { /* storage unavailable: the note is simply not kept */ }
 }
 
 /** Everything remembered (expired topics are dropped and the cleanup is saved). */
 export async function loadMemory(now: number = Date.now()): Promise<MemoryItem[]> {
   const { items, changed } = await readItems(now);
-  if (changed) exclusive(async () => { const again = await readItems(now); await write(again.items); }).catch(() => {});
+  if (changed) exclusive(async () => { const again = await readItems(now); if (!again.failed) await write(again.items); }).catch(() => {});
   return items;
 }
 
 export const addMemoryNote = (input: AddInput, now: number = Date.now()): Promise<AddResult> => exclusive(async () => {
-  const { items } = await readItems(now);
+  const { items, failed } = await readItems(now);
+  if (failed) return { items: [], item: null, status: 'rejected', reason: 'Could not read what is saved, so nothing was changed.' } as AddResult;
   const r = addNote(items, input, now);
   if (r.status !== 'rejected') await write(r.items);
   return r;
 });
 
 export const editMemoryNote = (id: string, patch: EditPatch, now: number = Date.now()): Promise<AddResult> => exclusive(async () => {
-  const { items } = await readItems(now);
+  const { items, failed } = await readItems(now);
+  if (failed) return { items: [], item: null, status: 'rejected', reason: 'Could not read what is saved, so nothing was changed.' } as AddResult;
   const r = editNote(items, id, patch, now);
   if (r.status !== 'rejected') await write(r.items);
   return r;
 });
 
 export const deleteMemoryNote = (id: string, now: number = Date.now()): Promise<MemoryItem[]> => exclusive(async () => {
-  const { items } = await readItems(now);
+  const { items, failed } = await readItems(now);
+  if (failed) return items;
   const next = removeNote(items, id);
   await write(next);
   return next;
 });
 
 export const clearAutoMemory = (now: number = Date.now()): Promise<MemoryItem[]> => exclusive(async () => {
-  const { items } = await readItems(now);
+  const { items, failed } = await readItems(now);
+  if (failed) return items;
   const next = clearAuto(items);
   await write(next);
   return next;
@@ -112,7 +118,9 @@ export async function noteQuestionTopics(text: string, now: number = Date.now())
   const prefs = await loadPrefs();
   if (!prefs.record) return [];
   await exclusive(async () => {
-    let { items } = await readItems(now);
+    const read = await readItems(now);
+    if (read.failed) return;
+    let { items } = read;
     for (const t of topics) items = noteTopic(items, t, now);
     await write(items);
   });

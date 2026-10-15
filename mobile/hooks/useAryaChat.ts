@@ -27,7 +27,7 @@ async function postTool(call: BackendCall, signal: AbortSignal): Promise<any> {
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const j = await res.json();
-  return j.result ?? j;
+  return j && typeof j === 'object' && 'result' in j ? (j as any).result : j;
 }
 
 const DEV = typeof __DEV__ !== 'undefined' && __DEV__;
@@ -142,7 +142,8 @@ export function useAryaChat() {
           if (payload === '[DONE]') { finished = true; break; }
           try {
             const parsed = JSON.parse(payload);
-            accumulated += parsed.text || parsed.content || '';
+            const piece = typeof parsed?.text === 'string' ? parsed.text : typeof parsed?.content === 'string' ? parsed.content : '';
+            accumulated += piece;
             put({ text: accumulated });
           } catch {}
         }
