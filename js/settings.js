@@ -62,7 +62,7 @@ function normalizeSettings(value) {
    is corrupted. Catch the error and reset to defaults instead. */
 let S;
 try {
-  S = normalizeSettings(JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'));
+  S = normalizeSettings(((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}')));
 } catch {
   S = { ...DEFAULTS };
 }
@@ -80,7 +80,7 @@ let currentUser = null;
 window.FINOS = window.FINOS || {};
 window.FINOS.fmt = function (amount, currencyOverride) {
   let cfg;
-  try { cfg = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}'); } catch { cfg = {}; }
+  try { cfg = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS')||'{}')); } catch { cfg = {}; }
   const numFmt  = cfg.numberFormat || 'indian';
   const curr    = currencyOverride || cfg.currency || 'inr';
   const SYMBOLS = { inr: '₹', usd: '$', eur: '€', gbp: '£' };
@@ -114,7 +114,7 @@ window.FINOS.fmtShort = function (amount) {
   const n = Number(amount);
   if (amount === null || amount === undefined || (typeof amount === 'string' && !amount.trim()) || !Number.isFinite(n)) return '—';
   let cfg;
-  try { cfg = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}'); } catch { cfg = {}; }
+  try { cfg = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS')||'{}')); } catch { cfg = {}; }
   const numFmt = cfg.numberFormat || 'indian';
   const abs = Math.abs(n);
   if (numFmt === 'indian') {

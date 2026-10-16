@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="../../css/layout.css?v=4">
   <link rel="stylesheet" href="../../css/components.css?v=2">
   <link rel="stylesheet" href="../../css/theme.css?v=2">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
   <script src="../../js/finos-context.js?v=4"></script>
   <script src="../../js/finos-a11y.js"></script>
   <script src="../../js/arya-ai.js?v=8"></script>
@@ -186,6 +186,7 @@ const chart = new Chart(ctx, {
 });
 
 function format(num) {
+  if (typeof num === "number" && !Number.isFinite(num)) return "—";   // overflow / empty input: a dash, never Infinity or NaN
   if(num>=10000000) return "₹"+(num/10000000).toFixed(2)+" Cr";
   if(num>=100000) return "₹"+(num/100000).toFixed(2)+" L";
   return "₹"+Math.round(num).toLocaleString();
@@ -202,15 +203,16 @@ function calculate() {
 
   // Simple approximation of XIRR:
   // Weighted Average Time = (Lump * T + TotalSIP * T/2) / TotalInvested
-  const weightedTime = (lump * years + (sip * 12 * years) * (years / 2)) / totalInvested;
+  const weightedTime = totalInvested > 0 ? (lump * years + (sip * 12 * years) * (years / 2)) / totalInvested : 0;
   
   // CAGR Approx = (Final / TotalInvested) ^ (1 / WeightedTime) - 1
   let xirr = 0;
   if(weightedTime > 0 && totalInvested > 0) {
       xirr = (Math.pow(final / totalInvested, 1 / weightedTime) - 1) * 100;
   }
+  if (!Number.isFinite(xirr)) xirr = 0;
   
-  const absReturn = (profit / totalInvested) * 100;
+  const absReturn = totalInvested > 0 ? (profit / totalInvested) * 100 : 0;
 
   document.getElementById('totalInv').textContent = format(totalInvested);
   document.getElementById('absGain').textContent = absReturn.toFixed(1) + "%";

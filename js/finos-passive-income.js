@@ -30,6 +30,8 @@ window.FinosPassiveIncome = (function () {
   const ss  = (k, v) => localStorage.setItem(k, String(v));
   const gss = k => localStorage.getItem(k) || '';
   const INR = v => '₹' + Math.abs(Math.round(v)).toLocaleString('en-IN');
+  /* Stream labels and notes are typed by the person: escape them before they go into an attribute or markup. */
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 
   const STREAM_KEY = 'finos_passive_streams';
 
@@ -45,16 +47,16 @@ window.FinosPassiveIncome = (function () {
   function _loadStreams() {
     try {
       const raw = JSON.parse(gss(STREAM_KEY) || 'null');
-      if (Array.isArray(raw) && raw.length) return raw;
+      if (Array.isArray(raw) && raw.length) { const ok = raw.filter(x => x && typeof x === 'object'); if (ok.length) return ok; }
     } catch {}
     // Auto-seed from other trackers on first load
     const seeded = JSON.parse(JSON.stringify(DEFAULT_STREAMS));
     // FD interest estimate from fd tracker (simple: 7% annual / 12)
     const fdVal = gs('finos_fd_value');
-    if (fdVal > 0) seeded[1].monthly = Math.round(fdVal * 0.07 / 12);
+    if (fdVal > 0) { seeded[1].monthly = Math.round(fdVal * 0.07 / 12); seeded[1].note = 'Estimate: 7% a year on your FD value. Replace with your actual interest.'; }
     // SGB coupon estimate from gold tracker
     const sgbVal = gs('finos_gold_sgb_value');
-    if (sgbVal > 0) seeded[4].monthly = Math.round(sgbVal * 0.025 / 12);
+    if (sgbVal > 0) { seeded[4].monthly = Math.round(sgbVal * 0.025 / 12); seeded[4].note = 'Estimate: 2.5% a year on your SGB value.'; }
     return seeded;
   }
 
@@ -221,7 +223,7 @@ window.FinosPassiveIncome = (function () {
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
           <span style="font-size:18px;">${m.icon}</span>
           <input style="flex:1;background:transparent;border:none;color:var(--text-primary);font-size:14px;font-weight:700;outline:none;font-family:inherit;"
-            value="${s.label}" onchange="_piUpdateLabel('${s.id}', this.value)" placeholder="Stream label">
+            value="${esc(s.label)}" onchange="_piUpdateLabel('${s.id}', this.value)" placeholder="Stream label">
           <select style="background:var(--border-soft);border:1px solid var(--border-medium);border-radius:8px;color:var(--text-primary);font-size:12px;padding:4px 8px;outline:none;"
             onchange="_piUpdateType('${s.id}', this.value)">
             ${Object.entries(TYPE_META).map(([k, v]) => `<option value="${k}" ${k === s.type ? 'selected' : ''}>${v.label}</option>`).join('')}
@@ -246,7 +248,7 @@ window.FinosPassiveIncome = (function () {
           <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
             <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);">Note</label>
             <input style="background:var(--border-soft);border:1px solid var(--border-medium);border-radius:8px;color:var(--text-primary);font-size:12px;padding:8px 12px;width:100%;box-sizing:border-box;outline:none;font-family:inherit;"
-              value="${s.note || ''}" placeholder="e.g. HDFC Bank div" onchange="_piUpdateNote('${s.id}', this.value)">
+              value="${esc(s.note)}" placeholder="e.g. HDFC Bank div" onchange="_piUpdateNote('${s.id}', this.value)">
           </div>
         </div>
       </div>`;
@@ -365,7 +367,7 @@ ${deficit > 0 ? `<div style="background:var(--border-soft);border:1px solid var(
     function _find(id, arr){ return arr.findIndex(x => x.id === id); }
     window._piUpdateLabel  = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].label = v; _saveS(a); } };
     window._piUpdateType   = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].type  = v; _saveS(a); } };
-    window._piUpdateAmount = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].monthly = parseFloat(v)||0; _saveS(a); } };
+    window._piUpdateAmount = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].monthly = Math.max(0, parseFloat(v)||0); _saveS(a); } };
     window._piUpdateTax    = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].taxable = v; _saveS(a); } };
     window._piUpdateNote   = function(id, v){ const a = _loadS(); const i = _find(id, a); if(i >= 0){ a[i].note  = v; _saveS(a); } };
     window._piDeleteStream = function(id){
@@ -378,11 +380,9 @@ ${deficit > 0 ? `<div style="background:var(--border-soft);border:1px solid var(
       const id = 'pi_' + Date.now();
       a.push({ id, type:'other', label:'New Stream', monthly:0, taxable:true, note:'' });
       _saveS(a);
-      const list = document.getElementById('pi-streams-list');
-      if(list){ const div = document.createElement('div'); div.id = 'pi-row-'+id;
-        div.innerHTML = '<div style="padding:12px 14px;background:var(--border-soft);border:1px solid var(--border-soft);border-radius:12px;">New stream added — please refresh the page to edit it.</div>';
-        list.appendChild(div);
-      }
+      /* Draw the new row straight away (it used to say "refresh the page to edit it"). */
+      const panel = document.getElementById('pi-panel-streams');
+      if (panel && window.FinosPassiveIncome) window.FinosPassiveIncome.renderStreams(panel);
     };
   })();
 

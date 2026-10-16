@@ -134,3 +134,54 @@ test('monthSummary totals this month\'s SIPs and insurance and finds the next ta
   assert.equal(s.nextTax?.date, '2026-12-15');
   assert.equal(s.sipTotal, 0);                                  // the 1st of October has passed and is filtered out of the list
 });
+
+// ── The person's own dates (lib/financialCalendar.ts, screen plan/mydates) ride along as type 'custom'. The website has no such
+// ── event, so nothing here is compared with it; the tests above prove that leaving `custom` out changes no website-parity output.
+const own = (o: Partial<{ id: string; title: string; date: string; amount: number | null; repeat: 'none' | 'monthly' | 'yearly'; note: string }>) =>
+  ({ id: 'c1', title: 'School fee', date: '2026-11-15', amount: null, repeat: 'none' as const, note: '', ...o });
+
+test('custom dates: with none given the output is exactly what it was, and nothing of type custom appears', () => {
+  const now = new Date(2026, 9, 12);
+  const base = { goals: [{ name: 'Car', target: 500000, target_date: '2026-12-01' }] };
+  assert.deepEqual(app.collectEvents({ ...base, custom: [] }, now, 3), app.collectEvents(base, now, 3));
+  assert.ok(app.collectEvents(base, now, 3).every(e => e.type !== 'custom'));
+});
+
+test('custom dates: a one-off, a monthly and a yearly date land on the grid on the right days, with their own type and meta', () => {
+  const now = new Date(2026, 9, 12);
+  const ev = app.collectEvents({ custom: [
+    own({ id: 'a', title: 'Cheque', date: '2026-11-15', amount: 25000 }),
+    own({ id: 'b', title: 'Society dues', date: '2026-09-31'.replace('31', '30'), repeat: 'monthly' }),
+    own({ id: 'c', title: 'Club fee', date: '2025-12-20', repeat: 'yearly', note: 'renew' }),
+  ] }, now, 3).filter(e => e.type === 'custom');
+  const by = app.byDate(ev);
+  assert.deepEqual((by['2026-11-15'] || []).map(e => e.title), ['Cheque']);
+  assert.equal(by['2026-11-15'][0].sub, '₹25,000');
+  assert.equal(by['2026-11-15'][0].amount, 25000);
+  assert.deepEqual(['2026-10-30', '2026-11-30', '2026-12-30'].filter(d => by[d]?.some(e => e.title === 'Society dues')), ['2026-10-30', '2026-11-30', '2026-12-30']);
+  assert.deepEqual((by['2026-12-20'] || []).map(e => e.title), ['Club fee']);
+  assert.match(by['2026-12-20'][0].sub, /repeats every year · renew/);
+  assert.equal(app.EVENT_META.custom.label, 'Your date');
+  assert.ok(app.EVENT_META.custom.icon && /^#[0-9A-Fa-f]{6}$/.test(app.EVENT_META.custom.color));
+});
+
+test('custom dates: a past one-off is dropped like any past event, a repeat never starts before its first date, and junk is tolerated', () => {
+  const now = new Date(2026, 9, 12);
+  const ev = app.collectEvents({ custom: [
+    own({ id: 'p', title: 'Old', date: '2026-08-01' }),
+    own({ id: 'm', title: 'Starts later', date: '2027-01-10', repeat: 'monthly' }),
+    null as any, { title: 'no date' } as any, own({ id: 'x', title: 'Bad', date: '2026-02-30' }),
+  ] }, now, 12).filter(e => e.type === 'custom');
+  assert.deepEqual(ev.map(e => e.title).filter(t => t === 'Old' || t === 'Bad'), []);
+  assert.ok(ev.filter(e => e.title === 'Starts later').every(e => e.date >= '2027-01-10'));
+  assert.equal(ev.filter(e => e.title === 'Starts later')[0]?.date, '2027-01-10');
+});
+
+test('custom dates appear in upcoming() and in the nudge-style count, with the same urgency rule as the rest', () => {
+  const now = new Date(2026, 9, 12);
+  const ev = app.collectEvents({ custom: [own({ title: 'Car service', date: '2026-10-15' })] }, now, 2);
+  const up = app.upcoming(ev, now, 45).find(e => e.type === 'custom');
+  assert.equal(up?.diff, 3);
+  assert.equal(up?.urgency, 'urgent');
+  assert.equal(up?.bucket, 'This week');
+});

@@ -1,6 +1,7 @@
 // ITR prep figures on the device. They live under the website's own keys, so a tracker sync carries them both ways and the website's
 // ITR page reads what was typed here. Suggestions from other trackers are offered, never written without a tap.
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getMany } from '@/lib/safeStore';
 
 export interface ItrField { key: string; label: string; group: string; sub?: string }
 export const ITR_GROUPS = ['Salary', 'Other income', 'Section 80C', 'Other deductions', 'Tax already paid (TDS)'] as const;
@@ -36,7 +37,7 @@ const FLAG_KEYS = ['finos_parent_senior', 'finos_city_metro'];
 
 export async function loadItr(): Promise<{ vals: Record<string, string>; parentSenior: boolean; metro: boolean }> {
   const keys = [...ITR_FIELDS.map(f => f.key), ...FLAG_KEYS, 'finos_salary_ctc', 'finos_gross_salary'];
-  const got = Object.fromEntries(await AsyncStorage.multiGet(keys));
+  const got = await getMany(keys);
   const vals: Record<string, string> = {};
   keys.forEach(k => { const v = got[k]; if (v != null && v !== '') vals[k] = v; });
   return { vals, parentSenior: got.finos_parent_senior === '1', metro: (got.finos_city_metro || 'yes').toLowerCase() !== 'no' };
@@ -51,7 +52,7 @@ const list = (raw: string | null | undefined): any[] => { try { const v = JSON.p
 
 /** Figures other FIN-OS screens already know, offered for the fields still empty. */
 export async function loadSuggestions(): Promise<Record<string, number>> {
-  const g = Object.fromEntries(await AsyncStorage.multiGet(['finos_salary_hra_received', 'finos_salary_rent_paid', 'finos_insurance_policies', 'finos_passive_streams', 'finos_ppf_80c', 'finos_epf_employee_annual']));
+  const g = await getMany(['finos_salary_hra_received', 'finos_salary_rent_paid', 'finos_insurance_policies', 'finos_passive_streams', 'finos_ppf_80c', 'finos_epf_employee_annual']);
   const out: Record<string, number> = {};
   if (num(g.finos_salary_hra_received)) out.finos_hra_received = num(g.finos_salary_hra_received);
   if (num(g.finos_salary_rent_paid)) out.finos_rent_paid = num(g.finos_salary_rent_paid);

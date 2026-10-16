@@ -71,7 +71,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
 
 <style>
@@ -246,7 +246,7 @@ html:root[data-theme="light"] #floatBackBtn { color: #f0f2f8 !important; backgro
         <section id="hero"
             class="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden shrink-0 py-20 px-4">
             <!-- ThreeJS Canvas Background -->
-            <canvas id="heroCanvas" class="absolute inset-0 w-full h-full z-0 opacity-60"></canvas>
+            <canvas aria-hidden="true" id="heroCanvas" class="absolute inset-0 w-full h-full z-0 opacity-60"></canvas>
 
             <div class="relative z-10 w-full max-w-5xl flex flex-col items-center gap-16">
                 <!-- Boot Headline -->
@@ -274,7 +274,7 @@ html:root[data-theme="light"] #floatBackBtn { color: #f0f2f8 !important; backgro
                     <!-- Column 1: Identity Questions -->
                     <div class="lg:col-span-1 bg-finosCard border border-white/10 rounded-2xl p-6 backdrop-blur-lg">
                         <h3
-                            class="text-sm uppercase tracking-widest text-gray-500 font-bold mb-5 flex items-center gap-2">
+                            class="text-sm uppercase tracking-widest text-gray-500 font-bold mb-5 flex items-center gap-2" aria-level="2">
                             <i class="fa-solid fa-bolt text-neonTeal"></i> IDENTITY INIT
                         </h3>
                         <div class="space-y-5">
@@ -360,7 +360,7 @@ html:root[data-theme="light"] #floatBackBtn { color: #f0f2f8 !important; backgro
                     <!-- Column 3: 5-Layer OS Map -->
                     <div class="lg:col-span-1 bg-finosCard border border-white/10 rounded-2xl p-6 backdrop-blur-lg">
                         <h3
-                            class="text-sm uppercase tracking-widest text-gray-500 font-bold mb-5 flex items-center gap-2">
+                            class="text-sm uppercase tracking-widest text-gray-500 font-bold mb-5 flex items-center gap-2" aria-level="2">
                             <i class="fa-solid fa-sitemap text-neonBlue"></i> COGNITIVE OS
                         </h3>
                         <div class="space-y-3 cognitive-os-list">
@@ -997,7 +997,7 @@ html:root[data-theme="light"] #floatBackBtn { color: #f0f2f8 !important; backgro
                                 <label class="text-sm font-semibold tracking-wide">Risk Per Trade (%)</label>
                                 <span id="riskPerTradeVal" class="text-red-400 font-bold font-mono">2.0%</span>
                             </div>
-                            <input type="range" id="riskPerTrade" min="0.5" max="20" step="0.5" value="2.0"
+                            <input aria-label="Risk per trade, percent of capital (slider)" type="range" id="riskPerTrade" min="0.5" max="20" step="0.5" value="2.0"
                                 class="w-full h-2 rounded-lg appearance-none cursor-pointer bg-gradient-to-r from-green-500 via-yellow-500 to-red-600 mb-4">
 
                             <div
@@ -1273,7 +1273,7 @@ html:root[data-theme="light"] #floatBackBtn { color: #f0f2f8 !important; backgro
 /* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
 @media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a></nav>
 
   <script src="../js/finos-widget.js?v=11"></script>
   <script src="../js/finos-search.js?v=6"></script>

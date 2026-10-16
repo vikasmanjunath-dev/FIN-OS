@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="../../css/components.css?v=2">
   <link rel="stylesheet" href="../../css/theme.css?v=2">
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
   <script src="../../js/finos-context.js?v=4"></script>
   <script src="../../js/finos-a11y.js"></script>
   <script src="../../js/arya-ai.js?v=8"></script>
@@ -436,15 +436,25 @@ function calculate() {
   const emi = +emisNum.value;
   const age = +startAgeNum.value;
 
-  // Calculate individual scores
+  // The savings rate divides by income: without a positive income there is nothing to score.
+  if (!(inc > 0) || !Number.isFinite(sav + emerg + emi + age)) {
+    document.getElementById("score").textContent = "–";
+    document.getElementById("score").className = "";
+    document.getElementById("rating").textContent = "Enter your monthly income";
+    document.getElementById("insights").innerHTML = "";
+    return;
+  }
+
+  // Calculate individual scores (each is held between 0 and 25)
+  const clamp25 = (x) => Math.max(0, Math.min(25, x));
   const savingsRate = (sav / inc) * 100;
-  const savingsScore = Math.min(25, savingsRate * 0.8); // Max 25
+  const savingsScore = clamp25(savingsRate * 0.8); // Max 25
 
-  const emergencyScore = Math.min(25, (emerg / 6) * 25); // Max 25, ideal 6 months
+  const emergencyScore = clamp25((emerg / 6) * 25); // Max 25, ideal 6 months
 
-  const debtScore = Math.max(0, 25 - (emi * 3)); // Penalty for EMIs
+  const debtScore = clamp25(25 - (emi * 3)); // Penalty for EMIs
 
-  const startScore = Math.max(0, 25 - ((age - 20) * 1.5)); // Earlier is better
+  const startScore = clamp25(25 - ((age - 20) * 1.5)); // Earlier is better
 
   const disciplineScore = savingsRate > 20 ? 25 : (savingsRate > 10 ? 20 : 15);
 

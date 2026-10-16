@@ -106,14 +106,14 @@ export const INVEST: CalcDef[] = [
       const fvSIP = monthly * (i === 0 ? n : (Math.pow(1 + i, n) - 1) / i) * (1 + i);
       const total = fvCorpus + fvSIP;
       const cashOut = current + monthly * n;
-      return [row('investedVal', 'Total invested', moneyRaw(cashOut)), row('interestVal', 'Interest', moneyRaw(total - cashOut)), row('finalVal', '', 'Portfolio: ' + moneyRaw(total), { hero: true })];
+      return [row('investedVal', 'Total invested', money(cashOut)), row('interestVal', 'Interest', money(total - cashOut)), row('finalVal', '', 'Portfolio: ' + money(total), { hero: true })];
     },
   },
   {
     id: 'rollingreturns', group: G, title: 'Rolling Returns', blurb: 'A rough range of likely returns over a horizon.', web: 'investment & wealth/rollingreturns.html',
     inputs: [num('avg', 'Average market return', '%', 12, 5, 20, 0.5), num('vol', 'Volatility (±)', '%', 5, 1, 15, 1), num('time', 'Investment horizon', 'yrs', 5, 1, 20, 1)],
     run: ({ avg, vol, time }) => {
-      const eff = vol / Math.sqrt(time);
+      const eff = vol / Math.sqrt(time > 0 ? time : 1);   // 0 years has no spread: treated as 1 year
       return [row('minRet', 'Worst case', (avg - eff).toFixed(2) + '%', { tone: 'bad' }), row('maxRet', 'Best case', (avg + eff).toFixed(2) + '%', { tone: 'good' }), row('avgRet', '', 'Avg Likely: ' + avg + '%', { hero: true })];
     },
     notes: ['A simple rule of thumb: the swing is the volatility divided by the square root of the years. It is not a forecast or a historical rolling-return table.'],

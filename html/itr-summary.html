@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="../css/components.css?v=2">
   <link rel="stylesheet" href="../css/theme.css?v=2">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-tracker-sync.js"></script>
   <script src="../js/finos-taxdates.js"></script>
@@ -47,6 +47,15 @@
     .tab-btn { padding: 9px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); color: rgba(255,255,255,.55); font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s; font-family: var(--font-sans); }
     .tab-btn:hover { background: rgba(255,255,255,.08); color: #fff; }
     .tab-btn.active { background: rgba(79,124,255,.12); border-color: rgba(79,124,255,.3); color: #4F7CFF; }
+    /* Dark theme: raw accent / red text on tinted cards measured 3.6-4.4:1 (rendered inline by finos-itr-summary.js).
+       Use the ink tokens for text; backgrounds and borders are untouched. */
+    [data-theme="dark"] .itr-no-print [style*="color:rgba(79,124,255,.8)"],
+    [data-theme="dark"] .itr-no-print [style*="color:#4F7CFF"],
+    [data-theme="dark"] #itr-panel-summary [style*="color:#4F7CFF"],
+    [data-theme="dark"] .tab-btn.active { color: var(--accent-ink, #6B8FFF) !important; }
+    [data-theme="light"] #itr-panel-summary [style*="color:#22D3A6"] { color: var(--ok-ink, #15803D) !important; }
+    [data-theme="dark"] #itr-panel-summary [style*="color:rgba(239,68,68,.8)"],
+    [data-theme="dark"] .itr-no-print [style*="color:rgba(239,68,68,.8)"] { color: var(--color-error, #f87171) !important; }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 

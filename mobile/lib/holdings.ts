@@ -69,24 +69,74 @@ const num = (v: unknown): number | undefined => {
   return Number.isFinite(n) ? n : undefined;
 };
 
-/** Cloud row → local holding. Returns null for asset types this app doesn't manage (gold, F&O, …). */
+/** A date-time string, or undefined when it is not one. */
+const isoOrUndef = (v: unknown): string | undefined => (typeof v === 'string' && Number.isFinite(Date.parse(v)) ? v : undefined);
+const plainText = (v: unknown, max = 200): string | undefined => (typeof v === 'string' ? v.slice(0, max) : typeof v === 'number' && Number.isFinite(v) ? String(v) : undefined);
+const isRec = (v: unknown): v is Record<string, any> => v !== null && typeof v === 'object' && !Array.isArray(v);
+
+/**
+ * One stored holding made safe to compute with. Returns null for anything that is not a holding (so it is left out, not guessed):
+ * a known type, a symbol, finite non-negative units and cost. Prices that are not positive finite numbers are dropped.
+ */
+export function normaliseHolding(raw: unknown): Holding | null {
+  if (!isRec(raw)) return null;
+  const type = raw.type === 'Stock' || raw.type === 'MF' || raw.type === 'ELSS' ? raw.type : null;
+  const symbol = plainText(raw.symbol, 40);
+  const units = num(raw.units), avgPrice = num(raw.avgPrice);
+  if (!type || !symbol || units === undefined || avgPrice === undefined || units < 0 || avgPrice < 0) return null;
+  const sip = num(raw.sipMonthly), last = num(raw.lastPrice);
+  const out: Holding = {
+    id: plainText(raw.id, 80) || `${type}:${symbol}`, type, symbol, name: plainText(raw.name, 120) || symbol, units, avgPrice,
+  };
+  if (sip !== undefined && sip > 0) out.sipMonthly = sip;
+  if (last !== undefined && last > 0) out.lastPrice = last;
+  const pd = plainText(raw.priceDate, 40); if (pd) out.priceDate = pd;
+  const ua = isoOrUndef(raw.updatedAt); if (ua) out.updatedAt = ua;
+  const sa = isoOrUndef(raw.syncedAt); if (sa) out.syncedAt = sa;
+  return out;
+}
+
+/** The stored holdings list: only real holdings, one per (type, symbol). Anything else (not a list, junk entries) gives fewer or none. */
+export function normaliseHoldings(raw: unknown): Holding[] {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set<string>();
+  const out: Holding[] = [];
+  for (const x of raw) {
+    const h = normaliseHolding(x);
+    if (!h || seen.has(holdingKey(h))) continue;
+    seen.add(holdingKey(h));
+    out.push(h);
+  }
+  return out;
+}
+
+export function normaliseTombstones(raw: unknown): Tombstone[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(isRec).filter(t => typeof t.key === 'string' && t.key !== '').map(t => ({ key: t.key as string, at: isoOrUndef(t.at) ?? new Date(0).toISOString() }));
+}
+
+/** Cloud row → local holding. Returns null for asset types this app doesn't manage (gold, F&O, …) and for rows that are not rows. */
 export function fromRemote(r: RemoteHolding): Holding | null {
-  const a = (r.asset_type ?? '').toLowerCase();
+  if (!isRec(r)) return null;
+  if (typeof r.symbol !== 'string' && typeof r.symbol !== 'number') return null;
+  const a = (typeof r.asset_type === 'string' ? r.asset_type : '').toLowerCase();
   const type: HoldingType | null =
     a === 'equity' || a === 'stock' ? 'Stock' : a === 'mutual_fund' || a === 'mf' ? 'MF' : a === 'elss' ? 'ELSS' : null;
   const units = num(r.quantity);
   const avgPrice = num(r.avg_price);
-  if (!type || !r.symbol || units == null || avgPrice == null) return null;
+  const symbol = String(r.symbol).slice(0, 40);
+  if (!type || !symbol || units == null || avgPrice == null || units < 0 || avgPrice < 0) return null;
+  const sip = num(r.sip_monthly), last = num(r.current_price);
   return {
-    id: `${type}:${r.symbol}`,
+    id: `${type}:${symbol}`,
     type,
-    symbol: r.symbol,
-    name: r.name || r.symbol,
+    symbol,
+    name: (typeof r.name === 'string' && r.name ? r.name : symbol).slice(0, 120),
     units,
     avgPrice,
-    sipMonthly: num(r.sip_monthly),
-    lastPrice: num(r.current_price),
-    updatedAt: r.updated_at ?? new Date(0).toISOString(),
+    sipMonthly: sip !== undefined && sip > 0 ? sip : undefined,
+    lastPrice: last !== undefined && last > 0 ? last : undefined,
+    updatedAt: isoOrUndef(r.updated_at) ?? new Date(0).toISOString(),
   };
 }
 
@@ -131,7 +181,7 @@ const t = (iso?: string) => (iso ? Date.parse(iso) || 0 : 0);
  */
 export function planSync(local: Holding[], remote: RemoteHolding[], tombstones: Tombstone[], now: string): SyncPlan {
   const remoteMap = new Map<string, Holding>();
-  for (const r of remote) {
+  for (const r of Array.isArray(remote) ? remote : []) {
     const h = fromRemote(r);
     if (h) remoteMap.set(holdingKey(h), h);
   }

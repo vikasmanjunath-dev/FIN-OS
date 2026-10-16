@@ -14,7 +14,7 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <title>DNA Decoder | FIN-OS</title>
   
@@ -27,7 +27,7 @@
   <link rel="stylesheet" href="../css/dna-decoder.css">
   <link rel="stylesheet" href="../css/theme.css?v=2">
   
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
   <meta property="og:image" content="/assets/icons/icon-512.svg">
@@ -199,7 +199,7 @@
 /* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
 @media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a></nav>
 
   <script src="../js/finos-widget.js?v=11"></script>
   <script src="../js/finos-mobile.js" defer></script>

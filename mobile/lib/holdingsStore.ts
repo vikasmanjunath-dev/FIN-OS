@@ -6,10 +6,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ENDPOINTS } from '@/constants/endpoints';
 import { supabase } from '@/lib/supabase';
 import {
-  Holding, NewHolding, Tombstone, RemoteHolding, SYNCED_ASSET_TYPES,
-  toView, toRemote, planSync, holdingKey, assetTypeOf,
+  SYNCED_ASSET_TYPES, toView, toRemote, planSync, holdingKey, assetTypeOf, normaliseHoldings, normaliseTombstones,
+  type Holding, type NewHolding, type Tombstone, type RemoteHolding,
 } from '@/lib/holdings';
 import { planImport } from '@/lib/holdingsImportPlan';
+import { parseJSON, keepIfUnreadable } from '@/lib/safeStore';
 
 const KEY = 'finos_holdings_v1';
 const TOMBS_KEY = 'finos_holdings_tombstones_v1';
@@ -51,6 +52,7 @@ async function persist(next: Holding[]) {
   const value = next.reduce((s, h) => s + toView(h).current, 0);
   const sip = next.reduce((s, h) => s + (h.sipMonthly || 0), 0);
   try {
+    await keepIfUnreadable(KEY, 'array');
     await AsyncStorage.multiSet([
       [KEY, JSON.stringify(next)],
       [PORTFOLIO_VALUE_KEY, String(Math.round(value))],
@@ -68,15 +70,38 @@ export function init(): Promise<void> {
         const [raw, tombs, last] = await Promise.all([
           AsyncStorage.getItem(KEY), AsyncStorage.getItem(TOMBS_KEY), AsyncStorage.getItem(LAST_SYNC_KEY),
         ]);
-        tombstones = tombs ? JSON.parse(tombs) : [];
-        set({ holdings: raw ? JSON.parse(raw) : [], lastSyncedAt: last });
-      } catch { /* corrupt/blocked storage → start empty */ }
+        // each value is read on its own, and only real holdings are kept: one unreadable value must not hide the other
+        const t = parseJSON(tombs), h = parseJSON(raw);
+        tombstones = t.ok ? normaliseTombstones(t.value) : [];
+        set({ holdings: h.ok ? normaliseHoldings(h.value) : [], lastSyncedAt: typeof last === 'string' && Number.isFinite(Date.parse(last)) ? last : null });
+      } catch { /* blocked storage → start empty (nothing is written until the person changes something) */ }
       set({ loaded: true });
       refreshPrices();
       syncHoldings();
     })();
   }
   return initPromise;
+}
+
+/**
+ * "Erase everything on this phone": forget what this module holds in memory so it cannot be written back, and so a different
+ * account signing in later never inherits it. Persists nothing; the caller clears storage. (Added by the trust-platform work.)
+ */
+export function resetForErase() {
+  if (syncTimer) { clearTimeout(syncTimer); syncTimer = null; }
+  tombstones = [];
+  editVersion++;                 // a sync that is running now sees its plan as stale and writes nothing
+  initPromise = null;
+  syncQueued = false;
+  lastSyncDone = { at: 0, version: -1 };
+  state = { holdings: [], loaded: false, pricing: false, priceError: null, syncing: false, syncError: null, lastSyncedAt: null };
+  listeners.forEach(l => l());
+}
+
+/** After the account was deleted on the server: the local copy no longer belongs to anyone, and old deletions mean nothing. */
+export function resetAccountLink() {
+  tombstones = [];
+  set({ lastSyncedAt: null });
 }
 
 // ── Prices ───────────────────────────────────────────────────────────────────
@@ -106,14 +131,18 @@ export async function refreshPrices() {
     if (stocks.length) {
       jobs.push(
         fetchJSON(`${ENDPOINTS.aryaAI}/api/quotes?symbols=${stocks.join(',')}`, 20_000).then(j => {
-          for (const q of j.quotes ?? []) if (q?.price != null) prices.set(`Stock:${q.symbol}`, Math.round(q.price * 100) / 100);
+          for (const q of Array.isArray(j?.quotes) ? j.quotes : []) {
+            const p = Number(q?.price);
+            if (typeof q?.symbol === 'string' && typeof q?.price !== 'boolean' && Number.isFinite(p) && p > 0) prices.set(`Stock:${q.symbol}`, Math.round(p * 100) / 100);
+          }
         }),
       );
     }
     for (const code of new Set(current.filter(h => h.type !== 'Stock').map(h => h.symbol))) {
       jobs.push(
         fetchJSON(`${ENDPOINTS.aryaAI}/api/mf/nav/${code}`, 20_000).then(j => {
-          if (j?.nav != null) prices.set(`MF:${code}`, j.nav);
+          const nav = Number(j?.nav);
+          if (j?.nav != null && typeof j.nav !== 'boolean' && Number.isFinite(nav) && nav > 0) prices.set(`MF:${code}`, nav);
         }),
       );
     }

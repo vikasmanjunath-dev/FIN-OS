@@ -2,6 +2,7 @@
 // Unlike the website, opening the screen never writes finos_monthly_income: that happens only when the person taps "use as income"
 // (the website overwrites it with take-home on every render, which zeroes it when the form is still empty).
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getMany } from '@/lib/safeStore';
 import { SALARY_KEYS, compute, money, type SalaryInputs, type SalaryRegime } from '@/lib/salary';
 
 export type SalaryFields = Record<'ctc' | 'basic' | 'hraRcvd' | 'lta' | 'special' | 'npsEr' | 'rentPaid', string> & { isMetro: boolean; regime: SalaryRegime };
@@ -10,7 +11,7 @@ const NUM = ['ctc', 'basic', 'hraRcvd', 'lta', 'special', 'npsEr', 'rentPaid'] a
 
 export async function loadSalaryFields(): Promise<SalaryFields> {
   const keys = [...NUM.map(k => SALARY_KEYS[k]), SALARY_KEYS.city, SALARY_KEYS.regime];
-  const got = Object.fromEntries(await AsyncStorage.multiGet(keys));
+  const got = await getMany(keys);
   const out: any = {};
   NUM.forEach(k => { const v = money(got[SALARY_KEYS[k]]); out[k] = v > 0 ? String(v) : ''; });
   out.isMetro = got[SALARY_KEYS.city] !== 'non-metro';

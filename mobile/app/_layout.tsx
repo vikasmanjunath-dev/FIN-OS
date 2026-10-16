@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AppState, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
@@ -14,15 +14,30 @@ import { installLanguagePatch } from '@/lib/i18nPatch';
 import { loadLang } from '@/lib/i18n';
 import { syncReminders } from '@/lib/remindersStorage';
 import { installThemePatch, loadTheme, useMode } from '@/lib/theme';
+import { LockGate } from '@/components/LockGate';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { installCrashHandlers, setCurrentScreen } from '@/lib/diagnosticsStorage';
+import { countScreen, loadConsents } from '@/lib/feedbackStorage';
+import { useEraseEpoch } from '@/lib/eraseEpoch';
+import { sweepTempFiles } from '@/lib/tempFiles';
 
 installLanguagePatch();     // every <Text> shows the person's language; no screen needs editing
 installThemePatch();        // and every core component follows the light / dark choice the same way
+installCrashHandlers();     // uncaught errors are noted on this phone (redacted, readable and deletable in Diagnostics); nothing is sent
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const mode = useMode();
+  const epoch = useEraseEpoch();          // bumps after "delete everything": the navigator below is rebuilt from empty storage
+  const pathname = usePathname();
   useEffect(() => {
+    setCurrentScreen(pathname);
+    countScreen(pathname);                // counts only while the person switched screen counts on (default off)
+  }, [pathname]);
+  useEffect(() => {
+    loadConsents().catch(() => {});
+    sweepTempFiles().catch(() => {});     // a backup file or picked file left in the cache by an earlier run
     touchStreak();
     syncRecurring();
     startTrackerSync();
@@ -36,8 +51,10 @@ export default function RootLayout() {
   return (
     <View style={{ flex: 1, backgroundColor: Colors.bg }}>
       <StatusBar style={mode === 'light' ? 'dark' : 'light'} backgroundColor={mode === 'light' ? '#F4F6FA' : Colors.bg} />
+      <LockGate>
       <AuthProvider>
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.bg } }}>
+      <ErrorBoundary>
+      <Stack key={epoch} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.bg } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="settings" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="search" options={{ presentation: 'modal', headerShown: false }} />
@@ -45,8 +62,13 @@ export default function RootLayout() {
         <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="privacy" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="terms" options={{ presentation: 'modal', headerShown: false }} />
+        <Stack.Screen name="feedback" options={{ presentation: 'modal', headerShown: false }} />
+        <Stack.Screen name="diagnostics" options={{ presentation: 'modal', headerShown: false }} />
+        <Stack.Screen name="onboarding/welcome" options={{ headerShown: false }} />
       </Stack>
+      </ErrorBoundary>
       </AuthProvider>
+      </LockGate>
     </View>
   );
 }

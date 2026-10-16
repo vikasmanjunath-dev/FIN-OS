@@ -559,7 +559,18 @@
   ──────────────────────────────────────────────────────────────────────── */
   function _computeLocalScore() {
     function safeNum(key, fallback) { return Number(localStorage.getItem(key)) || fallback || 0; }
-    function safeJSON(key, fallback) { try { return JSON.parse(localStorage.getItem(key) || 'null') || fallback; } catch { return fallback; } }
+    // A stored value of the wrong shape (an object where a list is expected, a string, a number) is treated as
+    // missing instead of crashing the whole score on .filter / .some / .reduce.
+    function safeJSON(key, fallback) {
+      try {
+        const v = JSON.parse(localStorage.getItem(key) || 'null');
+        if (v === null || v === undefined) return fallback;
+        if (Array.isArray(fallback)) return Array.isArray(v) ? v : fallback;
+        if (fallback && typeof fallback === 'object') return (v && typeof v === 'object' && !Array.isArray(v)) ? v : fallback;
+        return v || fallback;
+      } catch { return fallback; }
+    }
+    const _rows = (a) => a.filter(x => x && typeof x === 'object');
 
     const _IMAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
     const netWorth      = safeNum('finos_net_worth', 0);
@@ -569,29 +580,33 @@
     const income        = bt.income_monthly
                         || parseFloat(localStorage.getItem('finos_monthly_income') || '0')
                         || _IMAP[localStorage.getItem('finos_income') || '']
-                        || 60000;
+                        || 0;          // unknown stays unknown: no invented income (wealth ratio is then not computed)
     const prof        = ctx?.profile || {};
 
-    const savingsRate  = bt.savings_rate      || safeNum('finos_savings_rate', 0);
+    const savingsRate  = Number(bt.savings_rate) || safeNum('finos_savings_rate', 0);
     const efRaw        = safeNum('finos_emergency_fund', 0);
     const monthlyExp   = safeNum('finos_monthly_expense', 0) || safeNum('finos_budget_expenses', 0);
     // Use pre-computed months from Emergency Fund Tracker; fall back to efRaw ÷ monthly expense
     const efMonths     = safeNum('finos_emergency_months_covered', 0) || (monthlyExp > 0 ? efRaw / monthlyExp : 0);
-    const streak      = safeJSON('finos_streak', {}).count || ctx?.engagement?.streak_days || 0;
-    const goals       = safeJSON('finos_goals', []);
-    const transactions= safeJSON('finos_transactions', []);
+    const streak      = Number(safeJSON('finos_streak', {}).count) || Number(ctx?.engagement?.streak_days) || 0;
+    const goals       = _rows(safeJSON('finos_goals', []));
+    const transactions= _rows(safeJSON('finos_transactions', []));
     const dna         = safeJSON('FINOS_CORE_DNA', {});
-    const learned     = safeJSON('finos_learned_modules', []);
+    // The website writes finos_learned_modules as an OBJECT keyed by module id ({equity: true, ...}, see learn-ai.js);
+    // older code wrote a list. Count completed modules from either shape; anything else counts as none.
+    const learnedRaw  = (function () { try { return JSON.parse(localStorage.getItem('finos_learned_modules') || 'null'); } catch { return null; } })();
+    const learned     = Array.isArray(learnedRaw) ? learnedRaw
+                      : (learnedRaw && typeof learnedRaw === 'object') ? Object.keys(learnedRaw).filter(k => learnedRaw[k]) : [];
     const tradeStats  = ctx?.trade_journal || safeJSON('finos_trade_stats', {});
     const primaryBias = localStorage.getItem('finos_primary_bias') || '';
 
     // User's own savings target (from settings or default 25%)
     const sysSettings    = safeJSON('FINOS_SYS_SETTINGS', {});
-    const savingsTarget  = sysSettings.savingsTarget || 25; // user can set target in settings
+    const savingsTarget  = Number(sysSettings.savingsTarget) > 0 ? Number(sysSettings.savingsTarget) : 25; // user can set target in settings
 
     // ── Tracker signals for Health Score v2 ───────────────────────────────
     const _80cUsed        = safeNum('finos_80c_used', 0);
-    const insurancePols   = safeJSON('finos_insurance_policies', []);
+    const insurancePols   = _rows(safeJSON('finos_insurance_policies', []));
     const _hasLife        = insurancePols.some(p => /life/i.test(p.type||p.category||''));
     const _hasHealth      = insurancePols.some(p => /health/i.test(p.type||p.category||''));
     const _assetDiversity = [
@@ -612,9 +627,9 @@
 
     // ── 3. Goal Adherence (15 pts) ─────────────────────────────────────────
     let goalPts = 0;
-    const allGoals = goals.length ? goals : (ctx?.financial?.goals || []);
+    const allGoals = goals.length ? goals : _rows(Array.isArray(ctx?.financial?.goals) ? ctx.financial.goals : []);
     if (allGoals.length > 0) {
-      const avgProgress = allGoals.reduce((s, g) => s + (Number(g.progress) || Number(g.current) / Math.max(1, Number(g.target)) * 100), 0) / allGoals.length;
+      const avgProgress = allGoals.reduce((s, g) => s + (Number(g.progress) || (Number(g.current) / Math.max(1, Number(g.target)) * 100) || 0), 0) / allGoals.length;
       goalPts = Math.min(15, Math.round(avgProgress * 0.15));
     } else {
       goalPts = 0; // 0 = no goals set — user must set goals to score here
@@ -622,9 +637,9 @@
 
     // ── 4. Behavioral Score (15 pts) ───────────────────────────────────────
     const biasPenalties = { loss_aversion: 4, overconfidence: 5, herd_mentality: 4, recency_bias: 3, sunk_cost: 3, anchoring: 2, confirmation_bias: 2 };
-    const biasPenalty = biasPenalties[primaryBias] || 0;
-    const dnaScores = dna.scores || [50, 50, 50, 50, 50];
-    const disciplineScore = dnaScores[3] || 50; // Financial Discipline dimension
+    const biasPenalty = Object.prototype.hasOwnProperty.call(biasPenalties, primaryBias) ? biasPenalties[primaryBias] : 0;
+    const dnaScores = Array.isArray(dna.scores) ? dna.scores : [50, 50, 50, 50, 50];
+    const disciplineScore = Number(dnaScores[3]) || 50; // Financial Discipline dimension
     const behaviorPts = Math.max(0, Math.min(15, Math.round(disciplineScore * 0.15) - biasPenalty));
 
     // ── 5. Wealth Building (15 pts) — wealth ratio + portfolio diversification + retirement ──
@@ -636,7 +651,8 @@
     const wealthPts      = Math.min(15, _wealthBase + _divBonus + _retireBonus);
 
     // ── 6. Knowledge & Engagement (10 pts) ─────────────────────────────────
-    const moduleCount = Array.isArray(learned) ? learned.length : 0;
+    const moduleCount = new Set(learned.filter(x => (typeof x === 'string' && x) || (typeof x === 'number' && x) || (x && typeof x === 'object'))
+                          .map(x => (x && typeof x === 'object') ? JSON.stringify(x) : String(x))).size;
     const knowledgePts = Math.min(6, Math.floor(moduleCount * 0.43)); // 14 modules = 6 pts
     const streakPts = streak >= 30 ? 4 : streak >= 14 ? 3 : streak >= 7 ? 2 : streak >= 3 ? 1 : 0;
     const engagePts = knowledgePts + streakPts;
@@ -679,7 +695,7 @@
         headline: primaryBias ? `Primary bias: ${primaryBias.replace(/_/g,' ')}` : 'Take DNA quiz to detect biases',
         tips: primaryBias ? [`Work on ${primaryBias.replace(/_/g,' ')} — biggest wealth leak`] : [] },
       { name:'Wealth Building', emoji:'📈', score:wealthPts, max_pts:15, pct:Math.round(wealthPts/15*100), grade: wealthRatio>=5?'A+':wealthRatio>=3?'A':wealthRatio>=1?'B':wealthRatio>=0.5?'C':'D',
-        headline: netWorth > 0 ? `${wealthRatio.toFixed(1)}× income · ${_assetDiversity} asset class${_assetDiversity !== 1 ? 'es' : ''}${_retireBonus > 0 ? ' · retirement on track ✓' : ''}` : 'Start building net worth',
+        headline: netWorth > 0 && annualIncome <= 0 ? 'Net worth recorded · add your income to see the ratio' : netWorth > 0 ? `${wealthRatio.toFixed(1)}× income · ${_assetDiversity} asset class${_assetDiversity !== 1 ? 'es' : ''}${_retireBonus > 0 ? ' · retirement on track ✓' : ''}` : 'Start building net worth',
         tips: [
           ...(wealthRatio < 2 ? ['Target: net worth = 5× your annual income by 40'] : []),
           ...(_assetDiversity < 3 ? ['Diversify across equity, MF, FD, EPF, NPS, gold for resilience'] : []),
@@ -704,6 +720,7 @@
 
   /* ── Expose public API ───────────────────────────────────────────────────── */
   window._finosHealthScore = {
+    computeLocal: _computeLocalScore,   // pure read of localStorage; used by tests/health-score-shapes.test.js
     open:    openPanel,
     close:   closePanel,
     refresh: refreshScore,

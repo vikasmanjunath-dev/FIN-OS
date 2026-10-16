@@ -143,12 +143,43 @@ def _tx_by_type(transactions: list[dict], types: set[str]) -> list[dict]:
     return [t for t in transactions
             if str(t.get("type", "")).lower() in types or _n(t.get("amount")) > 0]
 
+# Income classification mirrors the website's FinosBudget.normalize() in js/finos-budget.js, which is the one
+# place that decides what a stored transaction is. A positive amount is NOT income: the transactions table says
+# "amount: always positive" for every kind, so counting positives counted every expense as income.
+_SAVING_RE = re.compile(r"invest|saving|\bsip\b|mutual|\bmf\b|amfi|\bppf\b|\bnps\b|\bfd\b|stock|equity|emergency|put aside", re.I)
+_INCOME_CAT_RE = re.compile(r"salary|income|bonus|freelance|received|got paid|refund|interest credit|dividend", re.I)
+
+
+def _tx_kind(t: dict) -> str:
+    """'income' | 'saving' | 'expense' for one stored transaction row (same rules as FinosBudget.normalize)."""
+    if not isinstance(t, dict):
+        return "expense"
+    category = t.get("category")
+    cat = category if isinstance(category, str) else ""
+    typ = str(t.get("type") or "")
+    cat_text = " ".join(
+        str(t[k]) for k in ("category", "type", "label", "description", "desc", "note")
+        if isinstance(t.get(k), str)
+    ).replace("_", " ").replace("-", " ")
+    kind = "expense"
+    # "salary" as a type is an extension of the website rule: no website writer produces it, but a row that
+    # calls itself salary is income, and the old code accepted it.
+    if typ.lower() in ("credit", "income", "salary") or cat.lower() == "salary":
+        kind = "income"
+    if re.match(r"(save_|invest)", cat, re.I) or _SAVING_RE.search(cat) or typ.startswith("save_"):
+        kind = "saving"
+    if kind == "expense" and typ.lower() == "debit" and re.search("salary", cat_text, re.I):
+        kind = "income"
+    if kind == "expense" and _INCOME_CAT_RE.search(cat) and typ.lower() != "debit":
+        kind = "income"
+    return kind
+
+
 def _monthly_income(transactions: list[dict], profile: dict) -> float:
     income_txns = [
-        _n(t.get("amount"))
+        abs(_n(t.get("amount")))
         for t in transactions
-        if str(t.get("type", "")).lower() in ("income", "credit", "salary")
-        or _n(t.get("amount")) > 0
+        if _tx_kind(t) == "income"
     ]
     from_txns = sum(income_txns) / 2 if income_txns else 0
     from_prof = _n(profile.get("monthly_income") or profile.get("income_monthly"))

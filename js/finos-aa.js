@@ -83,7 +83,7 @@
   const SYNC_KEY     = 'finos_aa_last_sync_v1';
 
   function getConsents() {
-    try { return JSON.parse(localStorage.getItem(CONSENT_KEY) || '{}'); }
+    try { return ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem(CONSENT_KEY)||'{}')); }
     catch { return {}; }
   }
 
@@ -100,7 +100,7 @@
   }
 
   function getLastSync() {
-    try { return JSON.parse(localStorage.getItem(SYNC_KEY) || '{}'); }
+    try { return ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem(SYNC_KEY)||'{}')); }
     catch { return {}; }
   }
 
@@ -191,7 +191,7 @@
 
   /* ── Data Ingestion ────────────────────────────────────────────── */
   function _ingestTransactions(transactions) {
-    const existing = JSON.parse(localStorage.getItem('finos_transactions') || '[]');
+    const existing = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_transactions')||'[]'));
     const merged   = _deduplicateTxns([...existing, ...transactions.map(_normalizeTxn)]);
     localStorage.setItem('finos_transactions', JSON.stringify(merged));
 

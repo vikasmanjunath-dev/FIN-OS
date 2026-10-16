@@ -261,7 +261,7 @@
 [data-theme="light"] .mod-title {
   color: var(--text-primary) !important;
 }</style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
@@ -507,7 +507,7 @@
             
             <div class="biryani-container">
               <span style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase;">Simulation: The Biryani Limit</span>
-              <input type="range" min="0" max="100" value="50" class="biryani-slider" id="rsiSlider" oninput="updateRSI()">
+              <input aria-label="RSI value (slider)" type="range" min="0" max="100" value="50" class="biryani-slider" id="rsiSlider" oninput="updateRSI()">
               <div class="biryani-status" id="rsiStatus" style="color:var(--hud-cyan);">Status: BALANCED (Eat More)</div>
             </div>
           </div>
@@ -872,7 +872,7 @@
 /* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
 @media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a></nav>
 
 <style id="li-light-theme">
 [data-theme="light"] body {

@@ -6,7 +6,7 @@
 export const ENTITY: { name: string | null; address: string | null; grievanceOfficer: string | null; grievanceEmail: string | null } =
   { name: null, address: null, grievanceOfficer: null, grievanceEmail: null };
 
-export type FlowKind = 'device' | 'account' | 'backend' | 'file' | 'share';
+export type FlowKind = 'device' | 'account' | 'backend' | 'file' | 'share' | 'link';
 
 export interface Flow {
   id: string;
@@ -30,16 +30,16 @@ export const FLOWS: Flow[] = [
   {
     id: 'account', kind: 'account', title: 'Sign-in and sync (Supabase)',
     when: 'Only if you sign in.',
-    sent: 'Your email and password to sign in, then your holdings and your tracker data (everything except device-only settings) so they follow you to the website and your other devices.',
+    sent: 'Your email and password to sign in (or, if this build offers Continue with Google, you sign in on Google\'s own page in your phone\'s browser and the app receives only a one-time code), then your holdings and your tracker data (everything except device-only settings) so they follow you to the website and your other devices. The sign-in is kept on this phone encrypted under a key in the phone\'s secure storage.',
     personal: true, optional: true,
-    control: 'Use the app without an account and nothing is sent. Sign out any time; delete your cloud copy or your account from Privacy & your data.',
+    control: 'Use the app without an account and nothing is sent. Sign out any time (this signs out this phone only); delete your cloud copy or your account from Privacy & your data. Deleting the account also removes what the website saved for it.',
   },
   {
-    id: 'arya', kind: 'backend', title: 'Arya chat and market prices (your Arya backend)',
-    when: 'When you open Markets, look up a price, or ask Arya a question.',
-    sent: 'The symbols you look up, and with a chat message: your name, income, spending, net worth, portfolio value, SIP total and health score as context. These go to the Arya backend address in Settings — software you run yourself (by default the computer running the app\'s development server), not a FIN·OS-operated server.',
+    id: 'arya', kind: 'backend', title: 'Arya chat, market research and fund search (your Arya backend)',
+    when: 'When you open Markets or Market research, look up a price, a share or a fund, search for a mutual fund, or ask Arya a question.',
+    sent: 'The share symbols, fund scheme codes and fund-name search words you look up, as you typed them. With a chat message: the question as you typed it, and as context your name, income, spending, net worth, portfolio value, SIP total and health score, each only when recorded and only while the "figures" switch in What Arya remembers is on. Two more kinds of context go only if you turn them on there (both are off until you do): up to 3 topics and 4 notes you gave Arya, and the type and month of life events you declared. What Arya remembers shows exactly what will be sent before you ask, and you can switch the online model off entirely. A short question about your own figures (net worth, an SIP sum) is answered on the phone and not sent. These go to the Arya backend address in Settings — software you run yourself (by default the computer running the app\'s development server), not a FIN·OS-operated server.',
     personal: true, optional: true,
-    control: 'Do not open Arya, or leave the backend unset. The backend, not your phone, then fetches prices from public market-data providers (NSE, AMFI, Yahoo Finance, CoinGecko); those providers see your backend\'s computer, not your phone.',
+    control: 'Do not open Arya, Markets or fund search, or leave the backend unset; switch the online model off in What Arya remembers. The backend, not your phone, then fetches prices, fund NAVs, news and company data from public providers (NSE, AMFI, Yahoo Finance, CoinGecko, mfapi.in, which mirrors AMFI fund NAV history and receives only the scheme code, and the news publishers\' feeds); those providers see your backend\'s computer, not your phone. The last answers are kept on this phone so they can be shown offline, with their time; "Clear saved market data" in Market research removes them.',
   },
   {
     id: 'files', kind: 'file', title: 'Files you choose (bank statements, broker holdings)',
@@ -55,6 +55,20 @@ export const FLOWS: Flow[] = [
     personal: false, optional: true,
     control: 'Do not tap Share.',
   },
+  {
+    id: 'news-links', kind: 'link', title: 'News article links (a publisher\'s website)',
+    when: 'Only when you tap "Read the article" on a headline in Market news.',
+    sent: 'Nothing from your phone\'s FIN·OS data. The article\'s own address opens in your phone\'s in-app browser, so the publisher\'s website sees your phone\'s network address and anything its own page collects, as if you had opened the link yourself.',
+    personal: false, optional: true,
+    control: 'Do not tap an article. The headline and summary are readable without opening it.',
+  },
+  {
+    id: 'reports', kind: 'share', title: 'Feedback, crash notes and screen counts',
+    when: 'Only when you open Share on the Feedback or Diagnostics screen, read the text, and tap Share.',
+    sent: 'Nothing is sent automatically, and there is no crash-reporting or analytics service. If the app fails, a short note is kept on this phone (error name, a message with numbers, e-mails, links and IDs removed, a few code locations, the screen name, app version and phone system). Screen counts are kept only if you switch them on. When you share, the exact text you were shown goes where you pick in your phone\'s share sheet.',
+    personal: false, optional: true,
+    control: 'Read, delete or share them from Diagnostics and Feedback. Screen counts are off until you turn them on.',
+  },
 ];
 
 /** Things the app deliberately does not do — shown to the person, and kept true by tests. */
@@ -62,10 +76,20 @@ export const NOT_DOING = [
   'No analytics, advertising or tracking SDKs.',
   'No access to your contacts, photos, location, camera or microphone.',
   'No selling or sharing of your data.',
+  'No crash, feedback or usage data is sent automatically: it stays on this phone until you read it and choose to share it.',
 ];
 
-/** What the app asks the phone for. Only the network: everything else is not built, so it is not requested. */
-export const PERMISSIONS = ['Internet access', 'Notifications (only if you turn reminders on)'];
+/**
+ * What the app asks the phone for. Nothing here prompts you except notifications and fingerprint or face. Vibration and Run at start-up
+ * come from the haptics and notifications libraries' own Android manifests (each library's AndroidManifest.xml under node_modules; __tests__/privacy.test.mts reads them).
+ */
+export const PERMISSIONS = [
+  'Internet access',
+  'Notifications (only if you turn reminders on)',
+  'Fingerprint or face (only if you turn on app lock with it)',
+  'Vibration (haptic feedback)',
+  'Run at start-up (to keep reminders after a restart)',
+];
 
 /** Storage keys shown in "What is on this phone". `list` counts the entries of a JSON array; `value` just says it is set. */
 export const DATA_ITEMS: { key: string; label: string; kind: 'list' | 'value' }[] = [
@@ -79,8 +103,34 @@ export const DATA_ITEMS: { key: string; label: string; kind: 'list' | 'value' }[
   { key: 'finos_money_score_history', label: 'Money Score history', kind: 'list' },
   { key: 'finos_budgets', label: 'Budget limits', kind: 'value' },
   { key: 'finos_reminders_mobile', label: 'Reminder preferences', kind: 'value' },
+  { key: 'finos_applock_meta', label: 'App lock settings (the PIN itself is in the phone\'s secure storage)', kind: 'value' },
+  { key: 'finos_alerts_state', label: 'Alerts you have read or dismissed', kind: 'value' },
   { key: 'finos_watchlist', label: 'Watchlist', kind: 'list' },
   { key: 'finos_holding_dates', label: 'Purchase dates of holdings', kind: 'value' },
+  { key: 'finos_feedback_log', label: 'Feedback you saved', kind: 'list' },
+  { key: 'finos_diag_crashes', label: 'Crash notes (redacted)', kind: 'list' },
+  { key: 'finos_usage', label: 'Screen counts (only if you turned them on)', kind: 'value' },
+  { key: 'finos_consents', label: 'Your choices about sharing', kind: 'value' },
+  { key: 'finos_onboarding_mobile', label: 'Welcome tour progress', kind: 'value' },
+  { key: 'finos_learned_modules', label: 'Lessons you marked as learned (syncs with your other tracker data if you sign in)', kind: 'value' },
+  { key: 'finos_learn_opened', label: 'When you last opened each lesson (syncs like your other tracker data if you sign in)', kind: 'value' },
+  { key: 'finos_session_arya_memory_v1', label: 'What Arya remembers: notes and topics (never synced; in your own export and backup)', kind: 'list' },
+  { key: 'finos_session_arya_life_v1', label: 'Life events you declared (never synced; in your own export and backup)', kind: 'list' },
+  { key: 'finos_session_arya_prefs_v1', label: 'Arya privacy switches (never synced)', kind: 'value' },
+  { key: 'finos_pulse_snapshot', label: 'Last PULSE snapshot: net worth, debt, SIP and savings rate (syncs like your other tracker data if you sign in)', kind: 'value' },
+  { key: 'finos_insurance_checks_v1', label: 'Your answers to insurance questions (syncs like your other tracker data if you sign in)', kind: 'value' },
+  { key: 'finos_funds_recent_v1', label: 'Funds you opened recently (syncs like your other tracker data if you sign in)', kind: 'list' },
+  { key: 'finos_funds_compare_v1', label: 'Funds in your compare tray (syncs like your other tracker data if you sign in)', kind: 'list' },
+  { key: 'marketcache_v1_index', label: 'Last saved market answers, including the symbols you looked at (not exported or backed up)', kind: 'value' },
+  { key: 'finos_sync_never_couple_v1', label: 'Couple finance: your partner\'s figures, typed by you (never uploaded or synced; in your own export and backup)', kind: 'value' },
+  { key: 'finos_calendar_custom_events', label: 'Your own calendar dates', kind: 'list' },
+  { key: 'finos_life_goals_planner_v1', label: 'Life goals planner draft', kind: 'value' },
+  { key: 'finos_growth_sim_v1', label: 'Growth projection draft', kind: 'value' },
+  { key: 'finos_forecast_next_month', label: 'Latest spending forecast (derived)', kind: 'value' },
+  { key: 'finos_goals_monthly_sip', label: 'Monthly SIP the goals need (derived, saved on a tap)', kind: 'value' },
+  { key: 'finos_goals_target_total', label: 'Total of your goal targets (derived, saved on a tap)', kind: 'value' },
+  { key: 'finos_goals_count', label: 'Number of goals counted (derived, saved on a tap)', kind: 'value' },
+  { key: 'finos_life_goals_feasibility', label: 'Goals feasibility (derived, saved on a tap)', kind: 'value' },
   { key: 'finos_age', label: 'Your age', kind: 'value' },
   { key: 'finos_dependents', label: 'People who depend on your income', kind: 'value' },
   { key: 'finos_theme_mobile', label: 'Appearance choice', kind: 'value' },

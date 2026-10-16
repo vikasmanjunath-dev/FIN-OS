@@ -1,4 +1,5 @@
 import { behaviourPoints } from '@/lib/dna';
+import { knowledgePoints } from '@/lib/learn';
 import { type IndexedTxn, monthTotals, budgetStatus, trailing30Spend, ymd } from '@/lib/budget';
 import { type SavingsAccount, type Policy, computeEpf, computeNps, savingsTotals, computeCoverage, hasLifeCover, hasHealthCover, EPF } from '@/lib/retirement';
 
@@ -46,6 +47,8 @@ export interface TrackerData {
   emergencyTarget: number; // months: 3 | 6 | 12
   goals: Goal[];
   streak: number;
+  /** lessons marked learned (website key `finos_learned_modules`; see lib/learn.ts) */
+  learnedModules: number;
   used80c: number;
   monthlySip: number;
   retireCorpus: number;
@@ -69,7 +72,7 @@ export const EMPTY_TRACKER_DATA: TrackerData = {
   name: '', portfolio: 0, mfImport: 0, sipValue: 0, fd: 0, gold: 0, property: 0, crypto: 0, cash: 0, other: 0,
   epf: 0, nps: 0, ppf: 0, homeLoan: 0, carLoan: 0, personalLoan: 0, creditCard: 0, otherLiability: 0,
   income: 0, expense: 0, aaIncome: 0, aaExpense: 0, emergencyFund: 0, emergencyTarget: 6, goals: [],
-  streak: 0, used80c: 0, monthlySip: 0, retireCorpus: 0, retireGap: 1, transactions: [], budgetLimits: {},
+  streak: 0, learnedModules: 0, used80c: 0, monthlySip: 0, retireCorpus: 0, retireGap: 1, transactions: [], budgetLimits: {},
   epfBasic: 0, epfDoj: '', epfRetireAge: EPF.RETIRE_AGE_DEFAULT,
   npsTier1: 0, npsTier2: 0, npsDob: '', npsEmp: 0, npsEr: 0, npsEq: 0, npsCorp: 0, npsGsec: 0, npsSlab: 30,
   ppfAccounts: [], policies: [], age: 0, dna: null,
@@ -279,9 +282,10 @@ export function computeHealth(d: TrackerData, now = new Date()): HealthScore {
   const retireBonus = d.retireGap <= 0 && d.retireCorpus > 0 ? 3 : 0;
   const wealthPts = Math.min(15, wealthBase + divBonus + retireBonus);
 
-  // 6. Knowledge & engagement (10) — learning modules are website-only; the daily-use streak counts here
+  // 6. Knowledge & engagement (10) — same formula as js/finos-health-score.js (learn.ts: knowledgePoints), plus the streak
+  const knowledgePts = knowledgePoints(d.learnedModules);
   const streakPts = d.streak >= 30 ? 4 : d.streak >= 14 ? 3 : d.streak >= 7 ? 2 : d.streak >= 3 ? 1 : 0;
-  const engagePts = streakPts;
+  const engagePts = knowledgePts + streakPts;
 
   // 7. Spending awareness (10) — transactions logged in the last 30 days (any kind), same thresholds as the website
   const since = new Date(now); since.setDate(since.getDate() - 30);
@@ -333,7 +337,9 @@ export function computeHealth(d: TrackerData, now = new Date()): HealthScore {
         ...(diversity < 3 ? ['Spread across equity, funds, fixed income and gold'] : []),
       ]),
     pillar('Knowledge & engagement', '📚', engagePts, 10,
-      `${d.streak} day streak · learning modules are on the website`, d.streak < 7 ? ['Open FIN·OS daily — a 7-day streak earns points'] : [], true),
+      `${d.learnedModules} module${d.learnedModules === 1 ? '' : 's'} · ${d.streak} day streak`,
+      d.learnedModules < 5 ? ['Complete 5 learning modules to unlock personalized insights']
+        : d.streak < 7 ? ['Open FIN·OS daily — a 7-day streak earns points'] : []),
     pillar('Spending awareness', '🔍', spendingPts, 10,
       recentTxns > 0 ? `${recentTxns} transaction${recentTxns === 1 ? '' : 's'} logged in the last 30 days` : 'No spending data — start logging',
       recentTxns < 5 ? ['Log expenses as you spend — awareness is the first step to control'] : []),

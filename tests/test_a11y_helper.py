@@ -44,6 +44,11 @@ def test_canvas_charts_are_named(page):
 
 
 def test_running_twice_changes_nothing(page):
+    # Other scripts on the page (status chips, the lazily loaded Arya panel) keep touching the body for a while after load, so
+    # the baseline is taken after one more run and a short settle; idempotence is what is being asserted.
+    page.evaluate("window.FinosA11y.run()")
+    page.wait_for_function("""() => new Promise(r => { const a = document.body.innerHTML.length;
+        setTimeout(() => r(document.body.innerHTML.length === a), 400); })""", timeout=15000)
     before = page.evaluate("document.body.innerHTML.length")
     page.evaluate("window.FinosA11y.run(); window.FinosA11y.run();")
     assert page.evaluate("document.querySelectorAll('#finos-skip-link').length") == 1

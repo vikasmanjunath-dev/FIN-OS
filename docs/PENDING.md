@@ -1,6 +1,6 @@
 # Pending work, in order
 
-Last updated: 2026-10-11. This is the working list: each item has a status. Items under "Needs you" cannot be done from the code side.
+Last updated: 2026-10-15. This is the working list: each item has a status. Items under "Needs you" cannot be done from the code side.
 
 ## Needs you (blocked on access, a decision or a person)
 
@@ -11,7 +11,13 @@ Last updated: 2026-10-11. This is the working list: each item has a status. Item
 | U3 | Feedback inbox | Decide the endpoint and host; then add its host to `js/finos-privacy.js` FLOWS, set `FinosFeedback.CONFIG.endpoint`, write a retention rule and a reply policy |
 | U4 | Account Aggregator | Provider partnership, a backend to hold credentials and decrypt. `LIVE_ENABLED` stays false until then |
 | U5 | Hindi wording | A fluent speaker should review `js/i18n/hi.js` (about 600 entries) before a wide release |
-| U6 | Mobile on a device | EAS build config, a real device test of the file picker and sign-in |
+| U6 | Mobile on a device | `eas init` (project id, owner), Apple and Google accounts, preview builds, then `docs/DEVICE_TEST_CHECKLIST.md` on a low-end Android and an iPhone (PBKDF2 timing, notifications after a reboot, biometrics, TalkBack / VoiceOver, 200% text, airplane mode) |
+| U7 | Legal operator and links for the stores | Operator name, contact, grievance officer, and public privacy / support / account-deletion URLs (`mobile/lib/privacy.ts` `ENTITY` stays empty until then; `docs/STORE_LISTING.md` has the form answers) |
+| U8 | Backend hosting for a store build | A store build has no usable backend: the host defaults to the dev machine and the URLs are `http://`, which Android release and iOS ATS block. Live prices, fund search and Arya chat only work for someone who runs their own HTTPS backend. Decide: hosted HTTPS backend, or ship offline-only and say so |
+| U9 | Account deletion SQL | Run the replacement `supabase/delete_account.sql` (it now also deletes the rows of tables with no cascade: alerts, push_subscriptions, alert_preferences, health_score_history, memory_embeddings, user_behavior, document_ai_log, couple links). Decide whether deleting a couple link should also remove the partner's shared goals. Not yet run against any project |
+| U10 | Hindi review for the October screens | Fluent speaker over `lib/i18nHi.ts` (the block marked first-pass at the end) and the Hindi store copy in `docs/STORE_LISTING.md`; long explanatory sentences were not translated on purpose |
+| U11 | Which new phone keys should never sync | `finos_insurance_checks_v1`, `finos_funds_recent_v1`, `finos_funds_compare_v1`, `finos_learn_opened` and `finos_pulse_snapshot` sync like other tracker keys when signed in. If any should stay on the phone, add it to `NEVER_EXACT` in `mobile/lib/trackerSync.ts` (and the website twin) |
+| U12 | Fund NAV history and news sources | `GET /api/mf/history/{code}` uses api.mfapi.in (a public mirror of AMFI NAVs) and Yahoo company data; record both in the backend's sources notes. Moneycontrol and Business Standard feeds returned 403 to the backend |
 
 ## Build order
 
@@ -29,6 +35,10 @@ Last updated: 2026-10-11. This is the working list: each item has a status. Item
 | 10 | Hardening: remove CSP `unsafe-inline`; torch/sentence-transformers advisories (needs a RAG eval) | **Assessed, not done.** A strict CSP would have to remove 439 inline `<script>` blocks, 699 inline `on*=` handlers (plus those generated from JS) and 2,340 `style=` attributes across 215 pages; hashes do not cover event handlers. That is a refactor, not a fix. The torch/sentence-transformers upgrade needs the RAG evaluation run on a machine with the models (`docs/RAG_EVALUATION.md`) |
 | 11 | Design system: move `.tool-card`/`.suite-card`/`.calc-card` onto the canonical `.card` | **Assessed and partly done.** The three are far fewer than assumed (`.tool-card` on 3 pages, `.suite-card` on 1, `.calc-card` on the generated calculators list), and in light theme they already resolve to the same surface. In dark they differ per page on purpose (tool-card 3% white, suite-card with its own `::before/::after`, markets' tinted `.card`), so a blanket move would change the look and is a design decision. **Done:** a computed-style baseline `tests/test_card_styles.py` (resting + hover, dark/light, desktop/phone, 7 pages) and `.calc-card` collapsed from three stacked definitions to one with identical computed styles |
 | 12 | Guided first-run flow beyond the Money Score invitation | **Judged covered:** Home's "Your Action Items", the DNA onboarding and the Money Score invitation already walk a new person through. A checklist with progress is a product decision, not a gap |
+| 13 | Phone: Learn, PULSE + Arya memory, insurance hub, fund search, market research, planners, onboarding, feedback, crash notes, erase flow | **Done, merged Oct 15 2026** (see `docs/MOBILE_APP.md` and `docs/agent-notes/integration.md`). **Not built, on purpose or for lack of a source:** F&O, debt, money-market detail, FII/DII, market-intel (needs the separate port-5000 service), deep screener (needs the stock-engine service), ETF expense ratio and tracking error, MF expense ratio / AUM / holdings (not in AMFI NAV data), an insurer directory (the website has none; it needs a data source), peer benchmarking (no verifiable dataset) |
+| 14 | Website defects found while building the phone screens | **Open, outside the phone:** `js/finos-feedback.js` redact leaks UPI handles, spaced digits and non-ASCII digits (port the rules from `mobile/lib/redact.ts`); `html/news.html` shows invented "Ghost Protocol" headlines when the feed is offline; `js/arya-sidebar-panel.js` reads commodity key "GOLD (10g MCX)", which no longer exists, and labels FX "RBI reference"; `voiceagent/schema.sql` starts with `DROP TABLE IF EXISTS agent_memories` while `supabase/README.md` says to run it "if missing"; `alerts/schema.sql` is not re-runnable (`CREATE POLICY` without `DROP IF EXISTS`); `alerts/health_score.py _monthly_income` counts any positive amount as income |
+| 15 | Phone UI defects seen in the store captures | **Open:** right-aligned inputs clip long values on Budget and Goals; the Portfolio tab title wraps at 430 px with three header buttons. (The hard-coded Settings version was fixed Oct 15.) |
+| 16 | Supabase client weight | **Not done:** the app bundles all of `supabase-js` (about 0.8 MB of the 3.5 MB Hermes bundle; realtime and storage are unused). Importing only `@supabase/auth-js` and `postgrest-js` would save about 220 KB of source. Not worth the risk before a device build |
 
 ## Found and fixed along the way
 

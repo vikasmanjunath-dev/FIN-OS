@@ -3,7 +3,7 @@
 <head>
 <script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
@@ -556,7 +556,7 @@
         <div class="opt-card">
           <div class="opt-card-title">📋 Simulated Options Chain (Nifty)</div>
           <p style="font-size:12px;color:rgba(255,255,255,0.58);margin:0 0 14px;line-height:1.5;">Indicative data for education. ATM = closest strike to spot. <span style="color:#22d3a6;">Green = ITM calls</span> · <span style="color:rgba(255,255,255,0.58);">Grey = OTM</span></p>
-          <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+          <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;" tabindex="0">
             <table class="chain-table" id="options-chain">
               <thead>
                 <tr>
@@ -572,7 +572,7 @@
                 </tr>
                 <tr>
                   <th colspan="4" style="text-align:center;color:#22d3a6;padding:5px;font-size:10px;">← CALLS</th>
-                  <th style="background:rgba(255,255,255,.04);"></th>
+                  <th style="background:rgba(255,255,255,.04);"><span class="sr-only">Strike</span></th>
                   <th colspan="4" style="text-align:center;color:#ff6666;padding:5px;font-size:10px;">PUTS →</th>
                 </tr>
               </thead>

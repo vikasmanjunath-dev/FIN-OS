@@ -15,6 +15,7 @@
  *   MFIntelligence.renderSIPCalendar(containerEl, sipHistory)
  */
 (function (global) {
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   'use strict';
 
   function INR(n) {
@@ -113,7 +114,7 @@
               ${overlap.slice(0,12).map(h => {
                 const bg = h.count === funds.length ? 'rgba(255,68,68,.2)' : 'rgba(255,149,0,.15)';
                 const col = h.count === funds.length ? '#ff6b6b' : '#ff9500';
-                return `<span class="holding-pill" style="background:${bg};color:${col};" title="${h.funds.join(', ')}">${h.name} (${h.count}/${funds.length})</span>`;
+                return `<span class="holding-pill" style="background:${bg};color:${col};" title="${esc(h.funds.join(', '))}">${esc(h.name)} (${h.count}/${funds.length})</span>`;
               }).join('')}
             </div>
           </div>` : ''}
@@ -269,7 +270,7 @@
   function generateSIPHistoryFromTxns() {
     // Infer SIP history from transaction localStorage data
     try {
-      const txns = JSON.parse(localStorage.getItem('finos_transactions') || '[]');
+      const txns = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_transactions')||'[]'));
       const sipTxns = txns.filter(t =>
         ['sip','investment','mf','mutual fund'].some(k => (t.category||t.type||'').toLowerCase().includes(k))
       );
@@ -301,7 +302,7 @@
       <p style="font-size:11px;color:rgba(255,255,255,0.58);margin-bottom:10px;">3-year category average returns (indicative)</p>
       ${categories.map(c => `
         <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);">
-          <span style="font-size:12px;flex:1;color:rgba(255,255,255,.75);">${c.name}</span>
+          <span style="font-size:12px;flex:1;color:rgba(255,255,255,.75);">${esc(c.name)}</span>
           <span style="font-size:11px;color:rgba(255,255,255,0.58);">${c.rank}</span>
           <span style="font-size:13px;font-weight:800;color:${c.color};min-width:40px;text-align:right;">${c.return3y}%</span>
         </div>`).join('')}`;

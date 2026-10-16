@@ -100,7 +100,15 @@ def get_quote_cached(symbol: str, exchange: str, ttl: int) -> dict | None:
     if not row:
         return None
     d = dict(row)
-    d.pop("raw_json", None)
+    raw = d.pop("raw_json", None)
+    # raw_json holds the whole quote as it was served (name, source, price_to_book...); the table columns are only a subset
+    if raw:
+        try:
+            full = json.loads(raw)
+            if isinstance(full, dict) and full.get("price") is not None:
+                return full
+        except (TypeError, ValueError):
+            pass
     return d
 
 

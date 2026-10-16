@@ -61,6 +61,9 @@ test('the figures the website saves for other pages are the same numbers', () =>
   const p: app.HomeLoanParams = { loanAmount: 4500000, interestRate: 8.5, tenureYears: 25, prepayAmount: 100000, prepayYear: 5, grossIncome: 1800000, monthlyIncome: 150000 };
   Object.keys(store).forEach(k => delete store[k]);
   web._compute(p);
+  assert.equal(store.finos_home_loan_emi, undefined, 'nothing is shared until the person says it is their loan');
+  store.finos_hl_is_mine = '1';
+  web._compute(p);
   const c = app.compute(p);
   assert.equal(store.finos_home_loan_emi, String(c.emi));
   assert.equal(store.finos_home_loan_total_interest, String(c.sched.totalInterest));
@@ -87,7 +90,7 @@ test('affordability: EMI above 40% of income is flagged, no income gives no perc
   assert.equal(tight.emiPct, 44.2);
   const none = app.compute({ ...base, grossIncome: 0, monthlyIncome: 0 });
   assert.equal(none.emiPct, null);
-  assert.equal(none.affordable, false);
+  assert.equal(none.affordable, null);
 });
 
 test('sanitise keeps values in range and falls back for blanks', () => {

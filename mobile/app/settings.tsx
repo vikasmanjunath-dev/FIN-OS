@@ -9,10 +9,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { useHoldings } from '@/hooks/useHoldings';
 import { useTrackerSync } from '@/hooks/useTrackerSync';
 import { LANGUAGES, setLang, useLang } from '@/lib/i18n';
+import { eraseThisPhone } from '@/lib/eraseDeps';
+import { reopenOnboarding } from '@/lib/onboardingStorage';
+import { appInfo } from '@/lib/appInfo';
 import { getThemeChoice, setThemeChoice, useMode, type ThemeChoice } from '@/lib/theme';
 import { DEFAULT_PREFS, HOURS, type ReminderPrefs } from '@/lib/reminders';
 import { loadPrefs, savePrefs, syncReminders } from '@/lib/remindersStorage';
 import { getPermission, requestPermission, cancelAll, type Permission } from '@/lib/remindersNative';
+import { NOTIFICATIONS_COPY, enableRemindersFlow } from '@/lib/permissions';
+import { confirmPermission } from '@/lib/permissionPrompt';
 
 function SettingRow({ label, sub, right }: { label: string; sub?: string; right: React.ReactNode }) {
   return (
@@ -50,10 +55,15 @@ export default function SettingsScreen() {
   const toggleReminders = async () => {
     Haptics.selectionAsync();
     if (rem.enabled) { await changeRem({ ...rem, enabled: false }); await cancelAll(); setRemMsg(''); return; }
-    const p = perm === 'granted' ? 'granted' : await requestPermission();
-    setPerm(p);
-    if (p === 'granted') { await changeRem({ ...rem, enabled: true }); return; }
-    setRemMsg(p === 'unsupported' ? 'Reminders are only available in the phone app.' : 'Notifications are turned off for FIN·OS. Turn them on in your phone\'s settings, then try again.');
+    // Explain first; the phone's own prompt appears only after the person agrees here.
+    const r = await enableRemindersFlow({
+      confirmed: await confirmPermission(NOTIFICATIONS_COPY),
+      current: getPermission, request: requestPermission,
+      enable: async () => { await changeRem({ ...rem, enabled: true }); },
+    });
+    setPerm(await getPermission());
+    if (r === 'unsupported') setRemMsg('Reminders are only available in the phone app.');
+    else if (r === 'denied') setRemMsg('Notifications are turned off for FIN·OS. Turn them on in your phone\'s settings, then try again.');
   };
 
   const loadValues = useCallback(async () => {
@@ -78,14 +88,13 @@ export default function SettingsScreen() {
   };
 
   const clearAll = () => {
-    Alert.alert('Clear All Data', 'This will remove all locally stored FIN·OS data. Are you sure?', [
+    Alert.alert('Clear All Data', 'This removes everything FIN·OS keeps on this phone: your data, the app lock, reminders and your sign-in. Your cloud copy and any backup file you made are not touched. Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Clear', style: 'destructive', onPress: async () => {
-          await AsyncStorage.clear();
-          await cancelAll();
+          const r = await eraseThisPhone();
           setRem({ ...DEFAULT_PREFS });
-          Alert.alert('Done', 'All data cleared.');
+          Alert.alert(r.ok ? 'Done' : 'Not everything was removed', r.ok ? 'All data cleared.' : `These steps failed: ${[...r.failed, ...(r.leftover.length ? [`${r.leftover.length} stored items`] : [])].join(', ')}. Try again.`);
         },
       },
     ]);
@@ -118,6 +127,16 @@ export default function SettingsScreen() {
               ))}
             </View>
           }
+        />
+      </View>
+
+      {/* ── Security ── */}
+      <Text style={styles.sectionLabel}>SECURITY</Text>
+      <View style={styles.card}>
+        <SettingRow
+          label="App lock and backup"
+          sub="Lock the app with a PIN, and keep an encrypted backup you can restore here or on the website."
+          right={<TouchableOpacity accessibilityRole="button" style={styles.syncBtn} onPress={() => router.push('/security' as any)}><Text style={styles.syncBtnTxt}>Open</Text></TouchableOpacity>}
         />
       </View>
 
@@ -287,6 +306,28 @@ export default function SettingsScreen() {
         </View>
       </View>
 
+      {/* ── Arya, PULSE and your own dates ── */}
+      <Text style={styles.sectionLabel}>ARYA, PULSE AND YOUR DATES</Text>
+      <View style={styles.card}>
+        <SettingRow label="What Arya remembers" sub="See, edit or delete what Arya keeps, and exactly what is sent with a question. Memory and life events are off until you turn them on."
+          right={<TouchableOpacity accessibilityRole="button" style={styles.syncBtn} onPress={() => router.push('/pulse/memory' as any)}><Text style={styles.syncBtnTxt}>Open</Text></TouchableOpacity>} />
+        <SettingRow label="PULSE" sub="What matters for you today, ranked from what you have recorded."
+          right={<TouchableOpacity accessibilityRole="button" style={styles.syncBtn} onPress={() => router.push('/pulse' as any)}><Text style={styles.syncBtnTxt}>Open</Text></TouchableOpacity>} />
+        <SettingRow label="Your dates and calendar export" sub="Add your own dates (they join the calendar and reminders) and export the calendar to your phone's calendar app."
+          right={<TouchableOpacity accessibilityRole="button" style={styles.syncBtn} onPress={() => router.push('/plan/mydates' as any)}><Text style={styles.syncBtnTxt}>Open</Text></TouchableOpacity>} />
+      </View>
+
+      {/* ── Help us improve ── */}
+      <Text style={styles.sectionLabel}>FEEDBACK AND DIAGNOSTICS</Text>
+      <View style={styles.card}>
+        <SettingRow label="Feedback" sub="Tell us what to fix. Saved on this phone first; nothing is sent for you."
+          right={<TouchableOpacity accessibilityRole="button" style={styles.syncBtn} onPress={() => router.push('/feedback' as any)}><Text style={styles.syncBtnTxt}>Open</Text></TouchableOpacity>} />
+        <SettingRow label="Diagnostics and screen counts" sub="Crash notes and optional screen counts, kept on this phone. Read, delete or share them."
+          right={<TouchableOpacity accessibilityRole="button" style={styles.syncBtn} onPress={() => router.push('/diagnostics' as any)}><Text style={styles.syncBtnTxt}>Open</Text></TouchableOpacity>} />
+        <SettingRow label="Welcome tour" sub="What FIN·OS is and is not, and the optional first steps. Nothing is changed unless you answer."
+          right={<TouchableOpacity accessibilityRole="button" style={styles.syncBtn} onPress={async () => { await reopenOnboarding(); router.push('/onboarding/welcome' as any); }}><Text style={styles.syncBtnTxt}>Open</Text></TouchableOpacity>} />
+      </View>
+
       {/* ── Privacy & terms ── */}
       <Text style={styles.sectionLabel}>PRIVACY & TERMS</Text>
       <View style={styles.card}>
@@ -305,7 +346,7 @@ export default function SettingsScreen() {
           <View>
             <Text style={styles.aboutName}>FIN·OS</Text>
             <Text style={styles.aboutSub}>Financial Operating System for India</Text>
-            <Text style={styles.aboutVersion}>Mobile v1.0.0 · Web finos1.vercel.app</Text>
+            <Text style={styles.aboutVersion}>{`Mobile ${appInfo().appVersion === 'unknown' ? '(version not available)' : 'v' + appInfo().appVersion} · Web finos1.vercel.app`}</Text>
           </View>
         </View>
       </View>

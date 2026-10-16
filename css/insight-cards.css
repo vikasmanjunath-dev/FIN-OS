@@ -210,6 +210,11 @@
   pointer-events: none;
   transition: background 0.4s ease, backdrop-filter 0.4s ease;
 }
+/* closed: out of the tab order / accessibility tree (it only sat below the fold at translateY(100%)) */
+.ic-modal-overlay:not(.open) {
+  visibility: hidden;
+  transition: background 0.4s ease, backdrop-filter 0.4s ease, visibility 0s linear 0.5s;
+}
 .ic-modal-overlay.open {
   background: rgba(0,0,0,0.75);
   backdrop-filter: blur(8px);

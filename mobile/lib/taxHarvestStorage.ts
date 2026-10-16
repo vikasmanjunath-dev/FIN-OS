@@ -1,13 +1,14 @@
 // Harvest holdings and this year's booked gains on the device (the website's keys), plus the two figures other
 // surfaces read (finos_harvest_tax_saved, finos_harvest_ltcg_net).
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getMany } from '@/lib/safeStore';
 import { POSITIONS_KEY, analyse, bookedKeys, normalisePositions, type Position } from '@/lib/taxHarvest';
 
 const n = (v: string | null | undefined) => { const x = parseFloat(v ?? ''); return Number.isFinite(x) && x > 0 ? x : 0; };
 
 export async function loadHarvest(now: Date = new Date()): Promise<{ positions: Position[]; ltcg: number; stcg: number }> {
   const k = bookedKeys(now);
-  const g = Object.fromEntries(await AsyncStorage.multiGet([POSITIONS_KEY, k.ltcg, k.stcg]));
+  const g = await getMany([POSITIONS_KEY, k.ltcg, k.stcg]);
   let positions: Position[] = [];
   try { positions = normalisePositions(JSON.parse(g[POSITIONS_KEY] ?? '[]')); } catch { /* corrupt: start empty */ }
   return { positions, ltcg: n(g[k.ltcg]), stcg: n(g[k.stcg]) };

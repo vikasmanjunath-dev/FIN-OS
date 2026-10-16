@@ -46,7 +46,8 @@ export function compute(goals: GoalIn[], ctx: { income: number; savingsRate: num
   const { income, savingsRate } = ctx;
   const availableSIP = Math.round((income * savingsRate) / 100);
   const enriched = goals.map((g, i): GoalPlan => {
-    const targetDate = g.target_date ? new Date(g.target_date) : null;
+    const parsed = g.target_date ? new Date(g.target_date) : null;
+    const targetDate = parsed && Number.isFinite(parsed.getTime()) ? parsed : null;     // an unreadable date is "no date", never NaN months
     const monthsLeft = targetDate ? Math.max(0, Math.round((targetDate.getTime() - now.getTime()) / (30.44 * 24 * 3600 * 1000))) : 120;
     const yearsLeft = monthsLeft / 12;
     const targetToday = Number(g.target) || Number(g.amount) || 0;

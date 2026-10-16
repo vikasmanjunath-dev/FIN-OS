@@ -5,7 +5,7 @@
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
@@ -211,7 +211,7 @@
 
           <div class="card-image"></div>
           <div class="card-content">
-            <h4>₹500 SIP for 30 years</h4>
+            <h4 aria-level="2">₹500 SIP for 30 years</h4>
             <small>vs waiting for "more income"</small>
           </div>
         </div>
@@ -219,7 +219,7 @@
         <div class="card insight home-impact" data-impact="home-early">
           <div class="card-image"></div>
           <div class="card-content">
-            <h4>Buying a costly home early</h4>
+            <h4 aria-level="2">Buying a costly home early</h4>
             <small>vs financial flexibility</small>
           </div>
         </div>
@@ -227,7 +227,7 @@
         <div class="card insight simplicity-impact" data-impact="simplicity">
           <div class="card-image"></div>
           <div class="card-content">
-            <h4>Too many financial products</h4>
+            <h4 aria-level="2">Too many financial products</h4>
             <small>vs a simple portfolio</small>
           </div>
         </div>
@@ -235,7 +235,7 @@
         <div class="card insight delay-impact" data-impact="delay-5-years">
           <div class="card-image"></div>
           <div class="card-content">
-            <h4>Delaying investing by 5 years</h4>
+            <h4 aria-level="2">Delaying investing by 5 years</h4>
             <small>silent wealth killer</small>
           </div>
         </div>
@@ -244,7 +244,7 @@
         <div class="card insight fd-impact" data-impact="fd-vs-market">
           <div class="card-image"></div>
           <div class="card-content">
-            <h4>FD vs Market Investing</h4>
+            <h4 aria-level="2">FD vs Market Investing</h4>
             <small>safety vs real growth</small>
           </div>
         </div>
@@ -253,7 +253,7 @@
         <div class="card insight gold-impact" data-impact="gold-vs-equity">
           <div class="card-image"></div>
           <div class="card-content">
-            <h4>Gold vs Equity</h4>
+            <h4 aria-level="2">Gold vs Equity</h4>
             <small>tradition vs compounding</small>
           </div>
         </div>
@@ -262,7 +262,7 @@
         <div class="card insight lic-impact" data-impact="lic-myth">
           <div class="card-image"></div>
           <div class="card-content">
-            <h4>LIC as Investment?</h4>
+            <h4 aria-level="2">LIC as Investment?</h4>
             <small>protection vs wealth</small>
           </div>
         </div>
@@ -271,7 +271,7 @@
         <div class="card insight lifestyle-impact" data-impact="lifestyle-inflation">
           <div class="card-image"></div>
           <div class="card-content">
-            <h4>Salary Increases but Wealth Doesn’t</h4>
+            <h4 aria-level="2">Salary Increases but Wealth Doesn’t</h4>
             <small>lifestyle inflation trap</small>
           </div>
         </div>
@@ -365,7 +365,7 @@ Desi tone, inspiring, use their REAL numbers. No preamble.`;
   color: var(--text-primary) !important;
 }
 </style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a></nav>
 
   <script src="../js/finos-widget.js?v=11"></script>
   <script src="../js/finos-search.js?v=6"></script>

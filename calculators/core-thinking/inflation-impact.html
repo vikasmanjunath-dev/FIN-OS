@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="../../css/components.css?v=2">
   <link rel="stylesheet" href="../../css/theme.css?v=2">
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
   <script src="../../js/finos-context.js?v=4"></script>
   <script src="../../js/finos-a11y.js"></script>
   <script src="../../js/arya-ai.js?v=8"></script>
@@ -268,6 +268,7 @@ const chart = new Chart(ctx, {
 });
 
 function formatCurrency(num) {
+  if (typeof num === "number" && !Number.isFinite(num)) return "—";   // overflow / empty input: a dash, never Infinity or NaN
     if (num >= 10000000) return "₹" + (num / 10000000).toFixed(2) + " Cr";
     if (num >= 100000) return "₹" + (num / 100000).toFixed(2) + " L";
     return "₹" + num.toLocaleString("en-IN");
@@ -279,9 +280,20 @@ function calculate() {
   const t = +timeNum.value;
 
   // Inflation Formula: Future = Current * (1 + i/100)^t
-  const future = c * Math.pow((1 + i / 100), t);
+  // The multiplier does not depend on the cost, so it is still right when the cost box is empty or 0.
+  const growth = Math.pow((1 + i / 100), t);
+  if (!Number.isFinite(growth) || !(c >= 0)) {
+    document.getElementById("costToday").textContent = "–";
+    document.getElementById("costFuture").textContent = "–";
+    document.getElementById("verdict").textContent = "Enter a cost, an inflation rate and a period";
+    document.getElementById("message").textContent = "";
+    chart.data.datasets[0].data = [0, 0];
+    chart.update();
+    return;
+  }
+  const future = c * growth;
   const diff = future - c;
-  const multiplier = (future / c).toFixed(1);
+  const multiplier = growth.toFixed(1);
 
   document.getElementById("costToday").textContent = formatCurrency(c);
   document.getElementById("costFuture").textContent = formatCurrency(Math.round(future));
@@ -289,7 +301,7 @@ function calculate() {
   const verdictEl = document.getElementById("verdict");
   const messageEl = document.getElementById("message");
 
-  verdictEl.textContent = `Cost increases ${multiplier}x 😱`;
+  verdictEl.textContent = growth >= 1 ? `Cost increases ${multiplier}x 😱` : `Cost falls to ${multiplier}x`;
   messageEl.innerHTML = `<strong>Purchasing Power Erosion:</strong> To maintain your current lifestyle in ${t} years, you will need to spend <b>${formatCurrency(Math.round(diff))} more</b> per month than you do today.`;
 
   // Update chart

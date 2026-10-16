@@ -8,7 +8,8 @@
 
   /* ── helpers ─────────────────────────────────────────────────── */
   const get  = (k, d) => { try { return localStorage.getItem(k) || d; } catch { return d; } };
-  const getJ = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch { return d; } };
+  // shape-aware: a stored value of the wrong shape (object for a list, string, number) is treated as missing
+  const getJ = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); if (v == null) return d; if (Array.isArray(d)) return Array.isArray(v) ? v : d; if (d && typeof d === 'object') return (typeof v === 'object' && !Array.isArray(v)) ? v : d; return v || d; } catch { return d; } };
 
   /* ── data ────────────────────────────────────────────────────── */
   const name   = get('finos_display_name', '');

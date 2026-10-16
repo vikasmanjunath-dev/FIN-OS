@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="../css/components.css?v=2">
   <link rel="stylesheet" href="../css/theme.css?v=2">
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
 
   <style>
     /* =========================
@@ -248,7 +248,7 @@
 [data-theme="light"] .scanner-view p, [data-theme="light"] .scanner-view strong { color: var(--text-primary); }
 [data-theme="light"] .switch-btn { color: var(--text-secondary); border-color: rgba(0,0,0,0.2); }
 [data-theme="light"] .switch-btn.active { color: #000; }</style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
@@ -506,17 +506,17 @@
         <div style="display:flex; justify-content:center; gap:40px; margin-top:30px; flex-wrap:wrap; text-align:center;">
           <div>
             <div style="font-size:2rem; margin-bottom:10px;">🔮</div>
-            <h4 style="color:#fff;">Not Magic</h4>
+            <h4 style="color:#fff;" aria-level="3">Not Magic</h4>
             <p style="font-size:0.9rem; color:#aaa;">It deals with probabilities,<br>not certainties.</p>
           </div>
           <div>
             <div style="font-size:2rem; margin-bottom:10px;">🎰</div>
-            <h4 style="color:#fff;">Not Gambling</h4>
+            <h4 style="color:#fff;" aria-level="3">Not Gambling</h4>
             <p style="font-size:0.9rem; color:#aaa;">Gambling is hope.<br>Analysis is logic.</p>
           </div>
           <div>
             <div style="font-size:2rem; margin-bottom:10px;">📅</div>
-            <h4 style="color:#fff;">Not Prediction</h4>
+            <h4 style="color:#fff;" aria-level="3">Not Prediction</h4>
             <p style="font-size:0.9rem; color:#aaa;">We don't predict tomorrow.<br>We react to today.</p>
           </div>
         </div>
@@ -649,7 +649,7 @@
 /* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
 @media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a></nav>
 
 <style id="lt-light-theme">
 [data-theme="light"] body {

@@ -10,8 +10,10 @@
   'use strict';
 
   /* ── helpers ──────────────────────────────────────────────────── */
+  const esc  = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const get  = (k, d) => { try { return localStorage.getItem(k) || d; } catch { return d; } };
-  const getJ = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch { return d; } };
+  // shape-aware: a stored value of the wrong shape (object for a list, string, number) is treated as missing
+  const getJ = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); if (v == null) return d; if (Array.isArray(d)) return Array.isArray(v) ? v : d; if (d && typeof d === 'object') return (typeof v === 'object' && !Array.isArray(v)) ? v : d; return v || d; } catch { return d; } };
   const n    = v => Number(v) || 0;
   const INR  = v => {
     const x = n(v);
@@ -356,8 +358,8 @@
     container.innerHTML = `
       <div class="rm-hero">
         <div class="rm-hero-text">
-          <h2>${d.name}'s Financial Roadmap</h2>
-          <p>${d.dna} · ${d.stage || 'Building Wealth'} · Health ${Math.round(d.health)}/100</p>
+          <h2>${esc(d.name)}'s Financial Roadmap</h2>
+          <p>${esc(d.dna)} · ${esc(d.stage || 'Building Wealth')} · Health ${Math.round(d.health)}/100</p>
         </div>
         <div class="rm-hero-progress">
           <svg width="70" height="70" viewBox="0 0 70 70">
@@ -428,14 +430,14 @@
     <div class="rm-step ${statusCls}" data-id="${s.id}">
       <div class="rm-step-img-wrap">
         <img class="rm-step-img" src="${unsplash(s.imgKey, 320, 200)}"
-          alt="${s.title}" loading="lazy" onerror="this.style.display='none'"/>
+          alt="${esc(s.title)}" loading="lazy" onerror="this.style.display='none'"/>
         <div class="rm-step-img-overlay" style="background:linear-gradient(135deg,${s.color}22,${s.color}11)"></div>
         <div class="rm-step-num" style="background:${s.color}">${i + 1}</div>
         <div class="rm-step-badge ${statusCls}">${statusIcon} ${statusLabel}</div>
       </div>
       <div class="rm-step-body">
         <div class="rm-step-cat" style="color:color-mix(in srgb,${s.color} 45%,var(--text-primary))">${s.icon} ${s.category}</div>
-        <div class="rm-step-title">${s.title}</div>
+        <div class="rm-step-title">${esc(s.title)}</div>
         <div class="rm-step-subtitle">${s.subtitle}</div>
         <div class="rm-step-progress-wrap">
           <div class="rm-step-progress-bar">
@@ -452,8 +454,8 @@
         </div>
         <div class="rm-step-why">${s.why}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-          <button class="rm-arya-btn" data-q="Explain my ${s.title} situation in detail with my actual numbers and give me a step-by-step action plan" style="border-color:${s.color};color:${s.color}">
-            🤖 Ask Arya about ${s.title}
+          <button class="rm-arya-btn" data-q="Explain my ${esc(s.title)} situation in detail with my actual numbers and give me a step-by-step action plan" style="border-color:${s.color};color:${s.color}">
+            🤖 Ask Arya about ${esc(s.title)}
           </button>
           <button class="rm-done-btn ${manualDone ? 'rm-done-active' : ''}" data-step-id="${s.id}" data-manual="${manualDone ? '1' : '0'}">
             ${manualDone ? '✅ Marked Done' : '☑️ Mark as Done'}
@@ -857,8 +859,8 @@
 
     container.innerHTML = `
       <div class="tl-header">
-        <h2>${d.name}'s Life Journey</h2>
-        <p>Age ${currentAge} → ${retireAge} · ${d.dna} DNA · Personalized milestones</p>
+        <h2>${esc(d.name)}'s Life Journey</h2>
+        <p>Age ${currentAge} → ${retireAge} · ${esc(d.dna)} DNA · Personalized milestones</p>
         <div class="tl-age-bar-wrap">
           <div class="tl-age-bar">
             <div class="tl-age-fill" style="width:${pct(((currentAge - 20) / (retireAge - 20)) * 100)}%;background:linear-gradient(90deg,${colors[0]},${colors[1]})"></div>
@@ -941,20 +943,20 @@
       <div class="tl-milestone-dot" style="background:${dotColor};box-shadow:0 0 ${isNow ? '16px ' + colors[0] : '0px transparent'}"></div>
       <div class="tl-milestone-card">
         <div class="tl-card-img-wrap">
-          <img src="${unsplash(m.imgKey, 340, 180)}" alt="${m.title}" loading="lazy" onerror="this.style.display='none'"/>
+          <img src="${unsplash(m.imgKey, 340, 180)}" alt="${esc(m.title)}" loading="lazy" onerror="this.style.display='none'"/>
           <div class="tl-card-img-overlay" style="background:linear-gradient(to top,#0a0d15 25%,transparent)"></div>
           <div class="tl-card-age" style="background:${m.color}">Age ${m.age}</div>
           ${isNow ? `<div class="tl-now-badge">📍 NOW</div>` : ''}
         </div>
         <div class="tl-card-body">
           <div class="tl-card-icon">${m.icon}</div>
-          <div class="tl-card-title" style="color:${m.color}">${m.title}</div>
+          <div class="tl-card-title" style="color:${m.color}">${esc(m.title)}</div>
           <div class="tl-card-wealth">${m.wealth}</div>
-          <div class="tl-card-detail">${m.detail}</div>
+          <div class="tl-card-detail">${esc(m.detail)}</div>
           ${projectionHTML}
           <div class="tl-card-expand-hint">↓ Tap for action plan</div>
           <div class="tl-card-action" style="border-left-color:${m.color}">${m.action}</div>
-          <button class="tl-arya-btn" data-q="Give me a detailed action plan for my financial life at age ${m.age} — ${m.title} milestone — with my actual numbers" style="color:${m.color};border-color:${m.color}">
+          <button class="tl-arya-btn" data-q="Give me a detailed action plan for my financial life at age ${m.age} — ${esc(m.title)} milestone — with my actual numbers" style="color:${m.color};border-color:${m.color}">
             🤖 Arya's Age ${m.age} Plan
           </button>
         </div>

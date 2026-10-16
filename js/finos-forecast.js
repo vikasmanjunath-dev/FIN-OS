@@ -10,6 +10,7 @@
  *   • treat months before your first logged expense as ₹0 (that dragged the forecast down and invented a trend);
  *   • pretend a short history is solid: `confidence` is 'low' under 3 months of data.
  * Event adjustments are fixed rules of thumb the person chooses to apply, not something learned from their history.
+ *   • an empty category name never matches an event rule ("".includes() used to match every rule).
  */
 (function (root, factory) {
   const api = factory();
@@ -63,6 +64,7 @@
   function eventFactor(cat, events) {
     let f = 1;
     const c = String(cat).toLowerCase();
+    if (!c) return 1;
     (events || []).forEach((ev) => {
       const mults = EVENT_MULTIPLIERS[ev] || {};
       for (const [mCat, mult] of Object.entries(mults)) {
@@ -112,14 +114,15 @@
     });
 
     const total = Object.values(byCategory).reduce((a, b) => a + b, 0);
+    // The messages state an amount and what it is a share of; they are suggestions, not something the person's history says.
     let saveMsg = '';
     if (events.length && riskCats.length) {
       const top = riskCats.slice().sort((a, b) => byCategory[b] - byCategory[a])[0];
       const lock = Math.round(byCategory[top] * 0.3 / 100) * 100;
-      saveMsg = `Lock ₹${lock.toLocaleString('en-IN')} in FD before ${events.map((e) => e.charAt(0).toUpperCase() + e.slice(1)).join('/')} spending starts — ${top} category expected to spike.`;
+      saveMsg = `Keeping about ₹${lock.toLocaleString('en-IN')} aside (30% of the ${top} forecast) is one way to prepare for ${events.map((e) => e.charAt(0).toUpperCase() + e.slice(1)).join('/')} — ${top} is the category most likely to spike.`;
     } else if (total > 0) {
       const amt = Math.round(total * 0.20 / 100) * 100;
-      saveMsg = `Set aside ₹${amt.toLocaleString('en-IN')} before the month starts — 20% buffer on predicted ₹${total.toLocaleString('en-IN')} spend.`;
+      saveMsg = `A cushion of ₹${amt.toLocaleString('en-IN')} (20% of the predicted ₹${total.toLocaleString('en-IN')}) is a common convention — it is not something your data says.`;
     }
     const monthsWithData = usable.length;
     return {

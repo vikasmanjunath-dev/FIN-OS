@@ -565,8 +565,17 @@ Explain in 3 Hinglish points. Compare: "that ${INR(r.extra)}/month saved you ${I
     try { result = sc.compute(ctx, inputs); }
     catch (e) { console.error('[Scenarios] compute error:', e); result = {}; }
 
+    // Which of the person's own figures are missing? Scenarios fall back to placeholder values for those,
+    // so the result is a worked example, and the screen must say so.
+    const bt = ctx.budget_tracker || {}, pr = ctx.profile || {};
+    const missing = [];
+    if (!n(bt.income_monthly)) missing.push('monthly income');
+    if (!n(pr.emergency_fund)) missing.push('emergency fund');
+    if (!n(bt.savings_rate) && !n(localStorage.getItem('finos_savings_rate'))) missing.push('savings rate');
+    if (!n(pr.sip_monthly)) missing.push('monthly SIP');
+
     // Render result cards
-    renderResult(sc, result, inputs, outputEl);
+    renderResult(sc, result, inputs, outputEl, missing);
 
     // Ask Arya to narrate
     const prompt = sc.prompt(ctx, result, inputs);
@@ -582,9 +591,13 @@ Explain in 3 Hinglish points. Compare: "that ${INR(r.extra)}/month saved you ${I
   /* ──────────────────────────────────────────────────────────────────
      RESULT RENDERER
   ────────────────────────────────────────────────────────────────── */
-  function renderResult(sc, r, inp, el) {
+  function renderResult(sc, r, inp, el, missing) {
     const metrics = getMetrics(sc.id, r);
-    el.innerHTML = `
+    const note = (missing && missing.length)
+      ? `<div role="note" style="background:rgba(255,179,71,.08);border:1px solid rgba(255,179,71,.3);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:rgba(255,255,255,.8);line-height:1.6;">
+          <strong>Worked example, not your position.</strong> Not recorded yet: ${missing.join(', ')}. Where a figure is missing this scenario uses a placeholder (for instance ₹60,000 a month of income), so the numbers below show how the scenario works. Add these in your trackers for an answer based on your own data.
+        </div>` : '';
+    el.innerHTML = note + `
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px;">
         ${metrics.map(m => `
           <div style="background:rgba(255,255,255,.04);border:1px solid ${sc.color}25;border-radius:12px;padding:14px;text-align:center;">
@@ -708,17 +721,17 @@ Explain in 3 Hinglish points. Compare: "that ${INR(r.extra)}/month saved you ${I
                   <label style="font-size:11px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">${inp.label}</label>
                   ${inp.type === 'range'
                     ? `<div style="display:flex;align-items:center;gap:8px;">
-                        <input type="range" min="${inp.min}" max="${inp.max}" value="${inp.default}"
+                        <input type="range" min="${inp.min}" max="${inp.max}" value="${inp.default}" aria-label="${String(inp.label).replace(/"/g, '&quot;')}"
                           data-sc="${sc.id}" data-inp="${inp.id}"
                           oninput="this.nextElementSibling.textContent=this.value+(this.dataset.suffix||'')"
                           style="flex:1;accent-color:${sc.color};">
                         <span style="font-size:13px;font-weight:700;color:${sc.color};min-width:32px;">${inp.default}</span>
                        </div>`
                     : inp.type === 'select'
-                    ? `<select data-sc="${sc.id}" data-inp="${inp.id}" class="sc-input">
+                    ? `<select aria-label="${String(inp.label).replace(/"/g, '&quot;')}" data-sc="${sc.id}" data-inp="${inp.id}" class="sc-input">
                         ${inp.options.map(o => `<option value="${o.value}"${o.value === inp.default ? ' selected' : ''}>${o.label}</option>`).join('')}
                        </select>`
-                    : `<input type="number" value="${inp.default}" min="${inp.min}" max="${inp.max}"
+                    : `<input type="number" value="${inp.default}" min="${inp.min}" max="${inp.max}" aria-label="${String(inp.label).replace(/"/g, '&quot;')}"
                         data-sc="${sc.id}" data-inp="${inp.id}"
                         class="sc-input">`}
                 </div>`).join('')}
@@ -749,7 +762,7 @@ Explain in 3 Hinglish points. Compare: "that ${INR(r.extra)}/month saved you ${I
 
       const realEMI = (() => {
         try {
-          const txns = JSON.parse(localStorage.getItem('finos_transactions') || '[]');
+          const txns = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_transactions')||'[]'));
           const emiTx = txns.filter(t => ['emi','bills','loan'].includes(t.category) ||
                                          (t.description||'').toLowerCase().includes('emi'));
           return emiTx.length ? Math.round(emiTx.reduce((s,t) => s + (t.amount||0), 0) / emiTx.length) : null;

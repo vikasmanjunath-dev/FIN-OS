@@ -30,7 +30,7 @@
 
   function read() {
     try {
-      var o = JSON.parse(localStorage.getItem(KEY) || '{}');
+      var o = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem(KEY)||'{}'));
       return o && typeof o === 'object' && !Array.isArray(o) ? o : {};
     } catch (e) { return {}; }   // blocked storage or corrupt JSON: behave as "nothing chosen"
   }

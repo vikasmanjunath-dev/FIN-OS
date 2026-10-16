@@ -29,9 +29,15 @@
   /* ── Helpers ──────────────────────────────────────────────────────────── */
   const INCOME_MAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
 
+  // A stored value whose shape differs from the fallback's (an object where a list is expected, a string, a number) is
+  // treated as missing: callers do .slice / .some / .count on the result and a corrupt value used to crash every page.
   function safeJson(key, fallback) {
-    try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
-    catch { return fallback; }
+    let v;
+    try { v = JSON.parse(localStorage.getItem(key)); } catch { return fallback; }
+    if (v === null || v === undefined) return fallback;
+    if (Array.isArray(fallback)) return Array.isArray(v) ? v : fallback;
+    if (fallback && typeof fallback === 'object') return (v && typeof v === 'object' && !Array.isArray(v)) ? v : fallback;
+    return v;
   }
 
   function resolveIncome() {

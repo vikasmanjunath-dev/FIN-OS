@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="../css/components.css?v=2">
   <link rel="stylesheet" href="../css/theme.css?v=2">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-tracker-sync.js"></script>
   <script src="../js/finos-format.js"></script>
@@ -253,6 +253,7 @@
 
     function batches() {
       var list = read(BKEY, []); if (!Array.isArray(list)) list = [];
+      list = list.filter(function (b) { return b && typeof b === 'object' && typeof b.at === 'string' && typeof b.id !== 'undefined'; });
       $('si-batches').innerHTML = list.length ? list.slice().reverse().map(function (b) {
         var day = esc(b.at.slice(0, 10));
         return '<li class="pv-item"><p><b>' + day + '</b> · ' + esc(plural(b.count, '1 transaction', '{n} transactions')) + ' · ' + esc(tr('{from} to {to}', { from: b.from, to: b.to })) + '</p>' +
@@ -273,7 +274,8 @@
 
     function undo(id) {
       var keep = S.undoBatch(read(KEY, []), id), before = read(KEY, []).length;
-      var log = read(BKEY, []).filter(function (b) { return b.id !== id; });
+      var log = read(BKEY, []); if (!Array.isArray(log)) log = [];
+      log = log.filter(function (b) { return b && b.id !== id; });
       if (!write(KEY, keep) || !write(BKEY, log)) { setStatus('Could not save that change. Nothing was undone.'); return; }
       var n = before - keep.length;
       batches(); setStatus(n === 1 ? 'Undone. Removed 1 transaction.' : 'Undone. Removed {n} transactions.', { n: n });

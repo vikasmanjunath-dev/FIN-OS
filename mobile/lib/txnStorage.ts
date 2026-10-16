@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { type IndexedTxn, type Kind, normalizeAll, toRaw } from '@/lib/budget';
 import { toLedger, mergeLedger, undoBatch } from '@/lib/statementImport';
+import { asList, keepIfUnreadable } from '@/lib/safeStore';
 
 // Same key the website uses. The array can hold records from the website, bank sync and the voice
 // journal in other shapes, so edits operate on the RAW array by index and never rewrite foreign records.
@@ -14,15 +15,16 @@ function exclusive<T>(fn: () => Promise<T>): Promise<T> {
   return run;
 }
 
-async function readRaw(): Promise<any[]> {
-  try {
-    const v = JSON.parse((await AsyncStorage.getItem(TXN_KEY)) ?? '[]');
-    return Array.isArray(v) ? v : [];
-  } catch {
-    return [];
-  }
+/** Strict read for writers: throws only when storage itself fails, so nothing is written on a read that did not happen. */
+async function readRawStrict(): Promise<any[]> {
+  return asList(await AsyncStorage.getItem(TXN_KEY));
 }
-const writeRaw = (raw: any[]) => AsyncStorage.setItem(TXN_KEY, JSON.stringify(raw));
+/** Display read: anything unreadable is an empty ledger. */
+async function readRaw(): Promise<any[]> {
+  try { return await readRawStrict(); } catch { return []; }
+}
+/** A ledger that could not be read is kept aside (finos_sync_never_corrupt_transactions) before the next save replaces it. */
+const writeRaw = async (raw: any[]) => { await keepIfUnreadable(TXN_KEY, 'array'); await AsyncStorage.setItem(TXN_KEY, JSON.stringify(raw)); };
 
 export interface TxnInput { date: string; amount: number; kind: Kind; category: string; label: string }
 
@@ -34,7 +36,7 @@ export async function loadTransactions(): Promise<IndexedTxn[]> {
 
 export function addTransaction(e: TxnInput): Promise<string> {
   return exclusive(async () => {
-    const raw = await readRaw();
+    const raw = await readRawStrict();
     const id = newId();
     raw.push(toRaw({ id, ...e }));
     await writeRaw(raw);
@@ -46,7 +48,7 @@ export function addTransaction(e: TxnInput): Promise<string> {
 export function addTransactionsBatch(entries: (TxnInput & { id: string; source?: string })[]): Promise<number> {
   return exclusive(async () => {
     if (!entries.length) return 0;
-    const raw = await readRaw();
+    const raw = await readRawStrict();
     const have = new Set(normalizeAll(raw).map(t => t.id));
     let added = 0;
     for (const e of entries) {
@@ -62,7 +64,7 @@ export function addTransactionsBatch(entries: (TxnInput & { id: string; source?:
 
 export function updateTransaction(id: string, e: TxnInput): Promise<boolean> {
   return exclusive(async () => {
-    const raw = await readRaw();
+    const raw = await readRawStrict();
     const hit = normalizeAll(raw).find(t => t.id === id);
     if (!hit) return false;
     raw[hit.i] = toRaw({ id, ...e });
@@ -73,7 +75,7 @@ export function updateTransaction(id: string, e: TxnInput): Promise<boolean> {
 
 export function removeTransaction(id: string): Promise<boolean> {
   return exclusive(async () => {
-    const raw = await readRaw();
+    const raw = await readRawStrict();
     const hit = normalizeAll(raw).find(t => t.id === id);
     if (!hit) return false;
     raw.splice(hit.i, 1);
@@ -92,7 +94,7 @@ export interface ImportBatchInfo { batch: string; count: number; from: string; t
 /** Add statement rows. Returns how many were new and how many were already there. */
 export function importStatementRows(rows: ImportRow[], batch = `imp_${Date.now().toString(36)}`): Promise<{ added: number; duplicates: number; batch: string }> {
   return exclusive(async () => {
-    const raw = await readRaw();
+    const raw = await readRawStrict();
     const { merged, added, duplicates } = mergeLedger(raw, toLedger(rows, { batch }));
     if (added) await writeRaw(merged);
     return { added, duplicates, batch };
@@ -108,7 +110,7 @@ export async function previewImport(rows: ImportRow[]): Promise<{ added: number;
 /** Remove everything one import added. Returns how many records were removed. */
 export function undoImportBatch(batch: string): Promise<number> {
   return exclusive(async () => {
-    const raw = await readRaw();
+    const raw = await readRawStrict();
     const next = undoBatch(raw, batch);
     const removed = raw.length - next.length;
     if (removed) await writeRaw(next);

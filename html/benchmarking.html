@@ -4,7 +4,7 @@
 <head>
 <script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
 <meta charset="UTF-8">
   <meta name="description" content="How your net worth, savings rate and investments compare to your age, income and city-tier peer cohort.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -331,7 +331,7 @@
         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
           <div>
             <h1>How Do I Compare? 📊</h1>
-            <p>Anonymised peer benchmarking — your age group, city tier &amp; income bracket</p>
+            <p>Your figures against rule-of-thumb reference values for your income band</p>
             <div class="segment-badge" id="segmentBadges">
               <span class="seg-chip skeleton" style="width:70px;height:22px;">&nbsp;</span>
               <span class="seg-chip skeleton" style="width:50px;height:22px;">&nbsp;</span>
@@ -356,7 +356,7 @@
         <div class="score-card"><div class="sc-label">Above Average</div><div class="sc-val skeleton" style="height:34px;width:40px;margin:auto;">&nbsp;</div></div>
         <div class="score-card"><div class="sc-label">At Average</div><div class="sc-val skeleton" style="height:34px;width:40px;margin:auto;">&nbsp;</div></div>
         <div class="score-card"><div class="sc-label">Below Target</div><div class="sc-val skeleton" style="height:34px;width:40px;margin:auto;">&nbsp;</div></div>
-        <div class="score-card"><div class="sc-label">In Top 10%</div><div class="sc-val skeleton" style="height:34px;width:40px;margin:auto;">&nbsp;</div></div>
+        <div class="score-card"><div class="sc-label">Strong</div><div class="sc-val skeleton" style="height:34px;width:40px;margin:auto;">&nbsp;</div></div>
       </div>
 
       <!-- BENCHMARK TABLE -->
@@ -366,8 +366,8 @@
             <tr>
               <th>Category</th>
               <th>You</th>
-              <th>Avg Peer</th>
-              <th>Top 10%</th>
+              <th>Typical (rule of thumb)</th>
+              <th>Strong (rule of thumb)</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -384,8 +384,8 @@
 
       <!-- DISCLAIMER -->
       <p style="font-size:.75rem;color:var(--text-muted);text-align:center;margin-top:-10px;">
-        Benchmarks sourced from SEBI AMFI reports, RBI Household Finance Survey, and NPS Trust data.
-        Zero PII stored — only percentile segments.
+        The reference values are rule-of-thumb figures set by FIN-OS for your income band. They are not survey data and not a ranking against
+        other users, and no source dataset is behind them. Treat them as a prompt, not a verdict.
       </p>
 
     </div>
@@ -397,7 +397,7 @@ const ALERT_ENGINE = (['localhost','127.0.0.1','::1'].includes(window.location.h
 const sb = (window.FINOS_SB && window.FINOS_SB.getClient()) || (window.supabase ? window.supabase.createClient(window.FINOS_SB ? window.FINOS_SB.url : 'https://oeapcyucnduhwpgxfknb.supabase.co', window.FINOS_SB ? window.FINOS_SB.key : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q') : null);
 
 const STATUS_META = {
-  top_10:     { cls: 'badge-top10', icon: '🏆', label: 'Top 10%'      },
+  top_10:     { cls: 'badge-top10', icon: '🏆', label: 'Strong'      },
   above_avg:  { cls: 'badge-above', icon: '🟢', label: 'Above Avg'    },
   average:    { cls: 'badge-avg',   icon: '🟡', label: 'Average'      },
   below_target:{ cls:'badge-below', icon: '🔴', label: 'Below Target' },
@@ -409,6 +409,8 @@ const BAR_COLOR = {
   average:      '#f0a500',
   below_target: '#f04444',
 };
+
+const esc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 
 function barPct(user, avg, top10, lowerIsBetter) {
   if (lowerIsBetter) {
@@ -427,15 +429,15 @@ function renderTable(metrics) {
     const meta = STATUS_META[m.status] || STATUS_META.average;
     const pct  = barPct(m.user, m.avg, m.top10, m.lower_is_better).toFixed(1);
     const col  = BAR_COLOR[m.status] || '#888';
-    const userFmt = `${m.user}${m.unit}`;
-    const avgFmt  = `${m.avg}${m.unit}`;
-    const topFmt  = `${m.top10}${m.unit}`;
+    const userFmt = esc(`${m.user}${m.unit}`);
+    const avgFmt  = esc(`${m.avg}${m.unit}`);
+    const topFmt  = esc(`${m.top10}${m.unit}`);
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>
-        <div class="metric-label">${m.label}</div>
-        <div class="row-arya">${m.arya_comment}</div>
+        <div class="metric-label">${esc(m.label)}</div>
+        <div class="row-arya">${esc(m.arya_comment)}</div>
       </td>
       <td>
         <div class="user-cell">
@@ -476,7 +478,7 @@ function renderScoreCards(data) {
       <div class="sc-val sc-red">${below}</div>
     </div>
     <div class="score-card">
-      <div class="sc-label">In Top 10%</div>
+      <div class="sc-label">Strong</div>
       <div class="sc-val sc-green">${top10}</div>
     </div>`;
 }
@@ -484,9 +486,9 @@ function renderScoreCards(data) {
 function renderSegment(seg) {
   const badges = document.getElementById('segmentBadges');
   badges.innerHTML = `
-    <span class="seg-chip">👤 ${seg.age_bracket}</span>
-    <span class="seg-chip">🏙️ ${seg.city_tier}</span>
-    <span class="seg-chip">💰 ${seg.income_bracket} income</span>`;
+    <span class="seg-chip">👤 ${esc(seg.age_bracket)}</span>
+    <span class="seg-chip">🏙️ ${esc(seg.city_tier)}</span>
+    <span class="seg-chip">💰 ${esc(seg.income_bracket)} income</span>`;
 }
 
 function showUpgradeCTA(currentPlan) {
@@ -542,31 +544,11 @@ async function loadBenchmark() {
 
   } catch (err) {
     console.error(err);
-    // Fallback: show demo data so the page is useful even without backend
-    const demo = getDemoData();
-    renderTable(demo.metrics);
-    renderScoreCards(demo);
-    renderSegment(demo.segment);
-    document.getElementById('aryaText').textContent =
-      '(Demo mode — alert engine offline) ' + demo.summary;
+    // No sample figures are shown in place of yours: without the server there is simply nothing to compare.
+    document.getElementById('benchTableBody').innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);">Your comparison could not be loaded (the alert engine is not reachable). Nothing is shown rather than made-up figures.</td></tr>`;
+    document.getElementById('aryaText').textContent = 'Comparison unavailable right now. The Money Score in the app works offline.';
     document.getElementById('aryaSummary').style.display = 'flex';
   }
-}
-
-function getDemoData() {
-  return {
-    segment: { age_bracket: '30s', city_tier: 'metro', income_bracket: 'mid' },
-    summary: 'Savings rate top 25% mein hai — well done. But insurance sirf 6× income hai. Industry standard 15× hai. Teri family ke liye risk hai. Abhi fix karte hain?',
-    metrics: [
-      { key:'savings_rate', label:'Savings Rate',    user:28,  avg:19,  top10:38,  unit:'%', lower_is_better:false, status:'above_avg',    arya_comment:'Bhai, savings rate top 25% mein hai — well done 🎉' },
-      { key:'invest_pct',   label:'Investment %',    user:12,  avg:8,   top10:22,  unit:'%', lower_is_better:false, status:'above_avg',    arya_comment:'Bhai, investment % top 25% mein hai — well done 🎉' },
-      { key:'debt_pct',     label:'Debt/Income',     user:22,  avg:31,  top10:8,   unit:'%', lower_is_better:true,  status:'average',      arya_comment:'Debt ratio average ke paas hai — thoda aur push kar sakte ho.' },
-      { key:'ef_months',    label:'Emergency Fund',  user:2.1, avg:1.8, top10:6,   unit:'mo',lower_is_better:false, status:'below_target', arya_comment:'⚠️ Emergency fund below target hai. 🛡️ liquid fund bana le — abhi fix karte hain?' },
-      { key:'ins_ratio',    label:'Insurance Cover', user:6,   avg:4,   top10:15,  unit:'×', lower_is_better:false, status:'below_target', arya_comment:'⚠️ Insurance below target hai. 🏥 term plan upgrade kar — abhi fix karte hain?' },
-    ],
-    above_count: 2,
-    below_count: 2,
-  };
 }
 
 loadBenchmark();

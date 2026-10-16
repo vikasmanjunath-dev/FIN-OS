@@ -1,12 +1,13 @@
 // Credit score inputs on the device: the website's keys, written only for what the person typed.
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getMany } from '@/lib/safeStore';
 import { KEYS, type CreditResult } from '@/lib/creditScore';
 
 export interface CreditFields { score: string; util: string; late: string; inquiries: string }
 export const EMPTY: CreditFields = { score: '', util: '', late: '', inquiries: '' };
 
 export async function loadCredit(): Promise<CreditFields> {
-  const got = Object.fromEntries(await AsyncStorage.multiGet([KEYS.score, KEYS.util, KEYS.late, KEYS.inquiries]));
+  const got = await getMany([KEYS.score, KEYS.util, KEYS.late, KEYS.inquiries]);
   const s = (k: string) => { const v = got[k]; return v == null ? '' : String(v).replace(/^"|"$/g, ''); };
   return { score: s(KEYS.score), util: s(KEYS.util), late: s(KEYS.late), inquiries: s(KEYS.inquiries) };
 }

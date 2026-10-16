@@ -286,7 +286,7 @@
   function renderConvictionChecklist(containerEl, symbol) {
     const storeKey = `finos_conviction_${symbol || 'generic'}`;
     let checked = {};
-    try { checked = JSON.parse(localStorage.getItem(storeKey) || '{}'); } catch {}
+    try { checked = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem(storeKey)||'{}')); } catch {}
 
     containerEl.innerHTML = `
       <div style="margin-bottom:14px;">
@@ -306,7 +306,7 @@
 
     window.updateConviction = function(key, id, val) {
       try {
-        let data = JSON.parse(localStorage.getItem(key) || '{}');
+        let data = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem(key)||'{}'));
         data[id] = val;
         localStorage.setItem(key, JSON.stringify(data));
         const score = Object.values(data).filter(Boolean).length;

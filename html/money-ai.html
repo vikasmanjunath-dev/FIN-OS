@@ -4,7 +4,7 @@
 <head>
 <script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
 <meta charset="UTF-8">
   <meta name="description" content="Arya, your Money AI — ask anything about tax, SIPs, or markets and get a straight, Indian-context answer.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -234,6 +234,13 @@
     font-family: inherit;
     line-height: 1.5;
   }
+  /* flex items default to min-width:auto, so the textarea's own width pushed the row (and the mic / send buttons)
+     past the clipped main column, at 1280 px as well as 320 px */
+  .content-wrapper, .chat-container, .input-area, .messages-area { min-width: 0; }
+  /* .content-wrapper has margin:0 auto inside a column flex container, which switches off stretch: it shrank-to-fit the
+     nowrap quick-chip row (1185 px) instead of the 952 px column */
+  .content-wrapper { width: 100%; }
+  .chat-input { min-width: 0; }
   .chat-input:focus { border-color: rgba(0,212,255,.4); }
   .chat-input::placeholder { color: var(--text-muted); }
 
@@ -424,14 +431,14 @@
       </div>
 
       <!-- QUICK CHIPS — populated by _renderStageChips() on init -->
-      <div class="quick-chips" id="quickChips"></div>
+      <div class="quick-chips" id="quickChips" tabindex="0"></div>
 
       <!-- CHAT -->
       <div class="chat-container">
         <div class="messages-area" id="messagesArea">
           <div class="welcome-card" id="arya-welcome-card">
             <div class="wc-emoji">🤖</div>
-            <h3 id="arya-welcome-h3">Namaste! Main Arya hoon.</h3>
+            <h3 id="arya-welcome-h3" aria-level="2">Namaste! Main Arya hoon.</h3>
             <p>Ask me anything about your finances — savings, investments, tax, insurance, goals. I'll answer in plain English mixed with a bit of Hindi, just like a trusted friend.</p>
           </div>
         </div>

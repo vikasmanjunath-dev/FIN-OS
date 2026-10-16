@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
   <title>Home | FIN-OS</title>
   <!-- Google Fonts -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <!-- Design tokens must be first -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -296,7 +296,7 @@
            aria-label="Learn financial foundations — The Zero to Mastery Path">
         <div class="card-image" role="img" aria-label="Financial learning"></div>
         <div class="card-content">
-          <h3>Learn financial foundations</h3>
+          <h3 aria-level="2">Learn financial foundations</h3>
           <p>The Zero to Mastery Path ➔</p>
         </div>
       </a>
@@ -305,7 +305,7 @@
          aria-label="Improve decision thinking — Fix your mental bugs">
         <div class="card-image" role="img" aria-label="Decision thinking"></div>
         <div class="card-content">
-          <h3>Improve decision thinking</h3>
+          <h3 aria-level="2">Improve decision thinking</h3>
           <p>Fix your mental bugs ➔</p>
         </div>
       </a>
@@ -314,7 +314,7 @@
          aria-label="Understand your money clearly — View the Wealth HUD">
         <div class="card-image" role="img" aria-label="Financial clarity"></div>
         <div class="card-content">
-          <h3>Understand your money clearly</h3>
+          <h3 aria-level="2">Understand your money clearly</h3>
           <p>View the Wealth HUD ➔</p>
         </div>
       </a>
@@ -662,8 +662,8 @@ a.card:focus-visible {
 [data-theme="light"] .home-actions .card-content p { color: #4A5068 !important; }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js" integrity="sha384-948ahk4ZmxYVYOc+rxN1H2gM1EJ2Duhp7uHtZ4WSLkV4Vtx5MUqnV+l7u9B+jFv+" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.17/dist/purify.min.js" integrity="sha384-P0JNneQf81HOl9VwNXK76cQ9VMD6Nfsnepxb0cCOg8+UzEdzgPHAPV4wVQrvYQSx" crossorigin="anonymous"></script>
 
 <style>
   #qft-system {
@@ -1153,7 +1153,10 @@ Give direct, data-driven financial advice for Indian professionals. Use ₹ for 
   function _renderStreakBadge() {
     const el = document.getElementById('home-streak-badge');
     if (!el) return;
-    const s = JSON.parse(localStorage.getItem('finos_streak') || '{"count":0}');
+    let s = null;
+    try { s = JSON.parse(localStorage.getItem('finos_streak') || 'null'); } catch (_) {}
+    if (!s || typeof s !== 'object' || Array.isArray(s)) s = { count: 0 };
+    s.count = Number(s.count) || 0;
     if (s.count < 1) { el.style.display = 'none'; return; }
     el.style.display = 'block';
     el.innerHTML = `

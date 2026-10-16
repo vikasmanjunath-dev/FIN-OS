@@ -38,8 +38,8 @@
   <!-- [FIX] Removed unused @supabase/supabase-js — not referenced anywhere in finances.js,
        was adding ~150 KB to page weight for no reason. -->
   <!-- [FIX] Deferred non-critical scripts to avoid render-blocking -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" defer integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js" defer integrity="sha384-948ahk4ZmxYVYOc+rxN1H2gM1EJ2Duhp7uHtZ4WSLkV4Vtx5MUqnV+l7u9B+jFv+" crossorigin="anonymous"></script>
 
   <!-- Stylesheets -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -600,8 +600,8 @@ Tone: sharp, direct, data-driven. Each bullet = 1 sentence. Use their actual num
 <script src="../js/pwa-init.js" defer></script>
 
 <!-- [NEW] Accessible floating back button — button element instead of anchor with JS onclick -->
-<a id="floatBackBtn" href="#" onclick="history.back(); return false;"
-   role="button" aria-label="Go back to previous page">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" href="#" onclick="history.back(); return false;"
+   role="button" aria-label="Go back to previous page">‹ BACK</a></nav>
 
   <script src="../js/finos-widget.js?v=11"></script>
   <script src="../js/finos-search.js?v=6"></script>

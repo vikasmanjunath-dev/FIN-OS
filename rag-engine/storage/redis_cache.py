@@ -38,7 +38,8 @@ def bump_kb_version() -> None:
 
 def _cache_key(query: str, namespace_user_id: str | None, filters: dict | None) -> str:
     raw = json.dumps(
-        {"q": query, "user": namespace_user_id, "filters": filters or {}, "kb_version": _kb_version()},
+        {"q": query, "user": namespace_user_id, "filters": filters or {}, "kb_version": _kb_version(),
+         "pipeline": getattr(config, "PIPELINE_VERSION", "0")},
         sort_keys=True,
     )
     return "rag:query:" + hashlib.sha256(raw.encode()).hexdigest()

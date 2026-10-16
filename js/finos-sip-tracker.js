@@ -75,7 +75,7 @@
 
   /* ── Data layer ─────────────────────────────────────────────────── */
   function load() {
-    try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); } catch { return []; }
+    try { return ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem(STORE_KEY)||'[]')).filter(e => e && typeof e === 'object'); } catch { return []; }
   }
   function save(arr) { localStorage.setItem(STORE_KEY, JSON.stringify(arr)); }
 

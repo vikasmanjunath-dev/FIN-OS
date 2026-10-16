@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="../css/components.css?v=2">
   <link rel="stylesheet" href="../css/markets.css">
   <link rel="stylesheet" href="../css/theme.css?v=2">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
 
   <style>
     /* markets.css handles all styles — this block intentionally minimal */
@@ -38,7 +38,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
 </head>
 
@@ -208,9 +208,9 @@
       <section id="equity" class="market-section glass">
         <div class="section-header">
           <span class="tag">Layer 02</span>
-          <h2>Equity (Stocks)</h2>
+          <h2 aria-level="3">Equity (Stocks)</h2>
         </div>
-        <div class="scrolling-wrapper">
+        <div class="scrolling-wrapper" tabindex="0">
           <div class="info-card">
             <div class="card-icon">🏢</div>
             <h3>Ownership</h3>
@@ -284,7 +284,7 @@
           <h2>Mutual Funds</h2>
           <p class="sub-text">The "Passenger Seat" of Wealth</p>
         </div>
-        <div class="scrolling-wrapper">
+        <div class="scrolling-wrapper" tabindex="0">
           <div class="info-card mf-card">
             <div class="card-icon">🚌</div>
             <h3>The Concept</h3>
@@ -314,7 +314,7 @@
       <section id="debt" class="market-section glass">
         <div class="section-header">
           <span class="tag">Layer 05</span>
-          <h2>Debt Market</h2>
+          <h2 aria-level="3">Debt Market</h2>
         </div>
         <div class="comparison-table">
           <div class="col equity">
@@ -383,7 +383,7 @@
           <h2>Commodities</h2>
           <p class="sub-text">The Real Stuff</p>
         </div>
-        <div class="scrolling-wrapper">
+        <div class="scrolling-wrapper" tabindex="0">
           <div class="info-card gold-card">
             <div class="card-icon">🥇</div>
             <h3>Gold</h3>
@@ -476,7 +476,7 @@
           <h2>Crypto & DeFi</h2>
           <p class="sub-text">The Wild West</p>
         </div>
-        <div class="scrolling-wrapper">
+        <div class="scrolling-wrapper" tabindex="0">
           <div class="info-card crypto-card">
             <div class="card-icon">₿</div>
             <h3>Bitcoin</h3>
@@ -509,7 +509,7 @@
           <h2>Who Are You?</h2>
         </div>
         
-        <div class="scrolling-wrapper">
+        <div class="scrolling-wrapper" tabindex="0">
           <div class="persona-card">
             <div class="avatar">🦁</div>
             <h3>The Investor</h3>
@@ -602,8 +602,8 @@
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
   <!-- QFT AI Chatbot Engine -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js" integrity="sha384-948ahk4ZmxYVYOc+rxN1H2gM1EJ2Duhp7uHtZ4WSLkV4Vtx5MUqnV+l7u9B+jFv+" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.17/dist/purify.min.js" integrity="sha384-P0JNneQf81HOl9VwNXK76cQ9VMD6Nfsnepxb0cCOg8+UzEdzgPHAPV4wVQrvYQSx" crossorigin="anonymous"></script>
   <script src="../chatbot/qft-engine.js"></script>
   <script src="../js/finos-widget.js?v=11"></script>
   <script src="../js/finos-mobile.js" defer></script>

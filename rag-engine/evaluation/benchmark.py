@@ -1,7 +1,8 @@
 """
 FIN-OS RAG 100-question accuracy benchmark.
 
-Expanded from 10 → 100 questions, July 17 2026. Every question's expected answer
+Expanded from 10 → 100 questions, July 17 2026; +12 NEWPG questions Oct 15 2026
+(personalized questions live in benchmark_personal.py). Every question's expected answer
 was verified against actual FIN-OS HTML source text (via ingestion.loaders.load_html)
 or real regulatory PDFs before being written here — not assumed or hallucinated.
 The 10 original questions are preserved as-is; 90 new ones added across 8 categories.
@@ -764,6 +765,94 @@ QUESTIONS: list[dict] = [
         "expect": [["no storage", "storage risk", "safe", "RBI"]],
         "source": "learn-commodity.html: 'No storage risk. Tax-free if held till maturity'",
     },
+    # ─────────────── NEWPG: pages added after the June 21 index (Oct 15 2026) ───────────────
+    # Each expectation was copied from the page's static HTML (ingestion.loaders.load_html).
+    # These pages were NOT in the index before the Oct 15 re-ingest, so they fail on a
+    # stale index by construction — that is the point: they prove the re-ingest worked.
+    {
+        "id": "N-01", "category": "NEWPG",
+        "query": "Which small savings instruments does the FIN-OS PPF tracker cover?",
+        "doc_type": None,
+        "expect": [["SSY"], ["NSC"], ["SCSS"], ["KVP"]],
+        "source": "ppf-tracker.html: 'Track PPF, SSY, NSC, SCSS and KVP'",
+    },
+    {
+        "id": "N-02", "category": "NEWPG",
+        "query": "What interest rate does the FIN-OS EPF tracker use to project the retirement corpus?",
+        "doc_type": None,
+        "expect": [["8.25"]],
+        "source": "epf-tracker.html: '8.25% guaranteed compounding'",
+    },
+    {
+        "id": "N-03", "category": "NEWPG",
+        "query": "What annual LTCG exemption does the FIN-OS tax harvesting tool use?",
+        "doc_type": None,
+        "expect": [["1.25"]],
+        "source": "tax-harvest.html: 'the ₹1.25L annual exemption'",
+    },
+    {
+        "id": "N-04", "category": "NEWPG",
+        "query": "Which LTCG and STCG rates does the FIN-OS tax loss and gain harvesting tool apply?",
+        "doc_type": None,
+        "expect": [["12.5"], ["20"]],
+        "source": "tax-harvest.html: 'Budget 2024 rates (12.5%/20%)'",
+    },
+    {
+        "id": "N-05", "category": "NEWPG",
+        "query": "Which NPS tax sections does the FIN-OS NPS tracker help you maximise savings under?",
+        "doc_type": None,
+        "expect": [["80CCD(1B)", "1B"], ["80CCD(2)", "(2)"]],
+        "source": "nps-tracker.html: '80CCD(1), 80CCD(1B), and 80CCD(2)'",
+    },
+    {
+        "id": "N-06", "category": "NEWPG",
+        "query": "By what percentage per year does the FIN-OS SIP step-up planner increase your SIP?",
+        "doc_type": None,
+        "expect": [["10%", "10 %", "10 percent"]],
+        "source": "sip-stepup.html: 'increasing your SIP by 10% every year'",
+    },
+    {
+        "id": "N-07", "category": "NEWPG",
+        "query": "Which government housing scheme eligibility does the FIN-OS home loan EMI planner check?",
+        "doc_type": None,
+        "expect": [["PMAY"]],
+        "source": "home-loan.html: 'PMAY-CLSS eligibility check'",
+    },
+    {
+        "id": "N-08", "category": "NEWPG",
+        "query": "In the FIN-OS bonus and windfall allocator, what comes first in the priority waterfall?",
+        "doc_type": None,
+        "expect": [["emergency fund", "emergency"]],
+        "source": "windfall.html: 'emergency fund → debt → 80C → NPS → home loan prepay → goals → wealth'",
+    },
+    {
+        "id": "N-09", "category": "NEWPG",
+        "query": "What credit score level does the FIN-OS credit score tracker compare your home loan cost against?",
+        "doc_type": None,
+        "expect": [["800"]],
+        "source": "credit-score.html: 'at your current score vs 800+'",
+    },
+    {
+        "id": "N-10", "category": "NEWPG",
+        "query": "How many next moves does the FIN-OS Money Score show to lift your score?",
+        "doc_type": None,
+        "expect": [["three", "3"]],
+        "source": "money-score.html: 'the three moves that would lift it most'",
+    },
+    {
+        "id": "N-11", "category": "NEWPG",
+        "query": "Does the FIN-OS Money Score send my data off my device?",
+        "doc_type": None,
+        "expect": [["nothing leaves", "stays on", "does not", "on your device", "on-device", "not leave", "doesn't"]],
+        "source": "money-score.html: 'Nothing leaves your device.'",
+    },
+    {
+        "id": "N-12", "category": "NEWPG",
+        "query": "What does the FIN-OS emergency fund tracker measure?",
+        "doc_type": None,
+        "expect": [["months"], ["expenses", "shortfall"]],
+        "source": "emergency-fund.html: 'how many months of expenses you can cover, your shortfall'",
+    },
 ]
 
 
@@ -837,7 +926,18 @@ def run(categories: list[str] | None = None, verbose: bool = True) -> dict:
 
 
 if __name__ == "__main__":
-    cats = sys.argv[1:] if len(sys.argv) > 1 else None
+    import json
+    argv = sys.argv[1:]
+    out = None
+    if "--json" in argv:  # added Oct 15 2026: save the full result dict for before/after comparison
+        i = argv.index("--json")
+        out = argv[i + 1]
+        del argv[i:i + 2]
+    cats = argv or None
     if cats:
         print(f"Filtering to categories: {cats}")
-    run(categories=cats)
+    res = run(categories=cats)
+    if out:
+        with open(out, "w") as fh:
+            json.dump(res, fh, indent=1)
+        print("saved", out)

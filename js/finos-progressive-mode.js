@@ -119,7 +119,7 @@
 
     /* Sync to profile if possible */
     try {
-      const profile = JSON.parse(localStorage.getItem('finos_profile') || '{}');
+      const profile = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('finos_profile')||'{}'));
       profile.complexity_mode = modeKey;
       localStorage.setItem('finos_profile', JSON.stringify(profile));
     } catch (_) {}

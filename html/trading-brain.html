@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="../css/layout.css?v=4">
 <link rel="stylesheet" href="../css/components.css?v=2">
 <link rel="stylesheet" href="../css/theme.css?v=2">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
 <script src="../js/supabase-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
@@ -1333,14 +1333,14 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
   <div class="trady-logo">
     <div class="trady-logo-mark">T</div>
     <div>
-      <div class="trady-logo-name">TRADY</div>
+      <div class="trady-logo-name" role="heading" aria-level="1">TRADY</div>
       <div class="trady-logo-sub">AI Trading Brain</div>
     </div>
   </div>
 
   <div class="nav-divider"></div>
 
-  <div class="nav-tabs">
+  <div class="nav-tabs" tabindex="0">
     <div class="nav-tab active" data-tab="brain">🧠 Brain</div>
     <div class="nav-tab" data-tab="patterns">📊 Patterns</div>
     <div class="nav-tab" data-tab="strategies">📈 Strategies</div>
@@ -1368,7 +1368,7 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
 <div class="trady-body">
 
 <!-- ─────── LEFT: SIGNAL PANEL ─────── -->
-<aside class="signal-panel" id="signalPanel">
+<aside class="signal-panel" id="signalPanel" aria-label="Market signals" tabindex="0">
 
   <div class="drawer-mobhead">
     <span>Market Signals</span>
@@ -1432,7 +1432,7 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
 </aside>
 
 <!-- ─────── CENTER: MAIN CONTENT ─────── -->
-<main class="main-content" id="mainContent">
+<div class="main-content" id="mainContent" tabindex="0">
 
 <!-- ▸▸ TAB: BRAIN ◂◂ -->
 <div class="tab-panel active" id="tab-brain">
@@ -1929,10 +1929,10 @@ hr.trady { border: none; border-top: 1px solid var(--trady-border); margin: 16px
   <div id="analysisHistory" style="color:rgba(255,255,255,0.58); font-size:12px;">No analyses yet.</div>
 </div>
 
-</main><!-- end main-content -->
+</div><!-- end main-content -->
 
 <!-- ─────── RIGHT: TRADY PANEL ─────── -->
-<aside class="trady-panel" id="tradyPanel">
+<aside class="trady-panel" id="tradyPanel" aria-label="Trady AI chat">
   <div class="trady-head">
     <div class="trady-head-row">
       <div class="trady-avatar">T</div>
@@ -2184,6 +2184,8 @@ seasonal: [
 </script>
 
 <script>
+function _safeParse(raw, fb){ try { var v = JSON.parse(raw == null ? fb : raw); return v; } catch (e) { return JSON.parse(fb); } }
+
 /* NDJSON streams arrive in arbitrary chunks: keep the unfinished last line for the next read
    (splitting each chunk on its own drops any token whose JSON line straddles two chunks). */
 function _ndLines(dec, value) {
@@ -2648,7 +2650,7 @@ function gradeSetup(){
   const s7=document.getElementById('setupStep7');if(s7){s7.classList.remove('skipped');s7.classList.add('active');}
   const sn7=document.getElementById('sn7');if(sn7)sn7.className='step-num sn-active';
 }
-function saveSetupToJournal(){const setups=JSON.parse(localStorage.getItem('trady_setups')||'[]');setups.unshift({ts:new Date().toISOString(),...SS});localStorage.setItem('trady_setups',JSON.stringify(setups.slice(0,50)));appendMessage('trady','Setup saved to Playbook! ✅ Keep building your edge.');}
+function saveSetupToJournal(){const setups=((v)=>Array.isArray(v)?v:[])(_safeParse(localStorage.getItem('trady_setups'),'[]'));setups.unshift({ts:new Date().toISOString(),...SS});localStorage.setItem('trady_setups',JSON.stringify(setups.slice(0,50)));appendMessage('trady','Setup saved to Playbook! ✅ Keep building your edge.');}
 function resetSetup(){SS={step:1,pattern:'',chart:'',trend:'',indicators:[],volume:'',emotion:''};document.querySelectorAll('.setup-step').forEach((el,i)=>{el.className='setup-step '+(i===0?'active':'skipped');});document.querySelectorAll('.step-num').forEach((el,i)=>{el.className=`step-num ${i===0?'sn-active':'sn-pending'}`;el.textContent=i+1;});document.getElementById('riskOutput').style.display='none';document.getElementById('setupGradeOutput').innerHTML='';}
 function populateSetupSelects(){
   const ps=document.getElementById('setupPattern'),cs=document.getElementById('setupChart');
@@ -2657,9 +2659,9 @@ function populateSetupSelects(){
 }
 
 // ── SIGNALS TAB ──
-let watchlist=JSON.parse(localStorage.getItem('trady_watchlist')||'["^NSEI","RELIANCE.NS","HDFC.NS","INFY.NS","ICICIBANK.NS"]');
+let watchlist=(()=>{const d=["^NSEI","RELIANCE.NS","HDFC.NS","INFY.NS","ICICIBANK.NS"];try{const v=JSON.parse(localStorage.getItem('trady_watchlist')||'null');return Array.isArray(v)?v.filter(s=>typeof s==='string'&&/^[A-Za-z0-9^.&-]{1,24}$/.test(s)):d;}catch(e){return d;}})();
 let activeTF='1d';
-let sigHistory=JSON.parse(localStorage.getItem('trady_sighist')||'[]');
+let sigHistory=((v)=>Array.isArray(v)?v:[])(_safeParse(localStorage.getItem('trady_sighist'),'[]')).filter(s=>s&&typeof s==='object');
 
 document.querySelectorAll('.tf-pill').forEach(p=>{p.addEventListener('click',()=>{document.querySelectorAll('.tf-pill').forEach(x=>x.classList.remove('active'));p.classList.add('active');activeTF=p.dataset.tf;});});
 
@@ -2783,14 +2785,14 @@ function runMindsetScan(){
 function renderRulesVault(){
   const el=document.getElementById('rulesVaultList');if(!el)return;
   const defaults=['Never risk more than 1% of capital per trade.','Max 3 trades per day. Stop after 3% daily loss.','Only A/A+ grade setups — no B/C on volatile days.','No trading 9:15–9:20 AM (opening volatility).','3 consecutive losses = stop for the day. No revenge.','Volume must confirm every breakout.','Always define SL before entry.','Log every trade. Review every week.'];
-  const custom=JSON.parse(localStorage.getItem('trady_rules')||'[]');
-  [...defaults,...custom].forEach((r,i)=>{const d=document.createElement('div');d.className='rule-item';d.innerHTML=`<span class="rule-num">${i+1}.</span><span>${r}</span>`;el.appendChild(d);});
+  const custom=((v)=>Array.isArray(v)?v:[])(_safeParse(localStorage.getItem('trady_rules'),'[]')).filter(r=>typeof r==='string');
+  [...defaults,...custom].forEach((r,i)=>{const d=document.createElement('div');d.className='rule-item';const n=document.createElement('span');n.className='rule-num';n.textContent=(i+1)+'.';const t=document.createElement('span');t.textContent=r;d.appendChild(n);d.appendChild(t);el.appendChild(d);});
 }
 
 // ── PLAYBOOK ──
-function savePlaybook(type){const map={setups:'pbSetups',avoid:'pbAvoid',rules:'pbRules',edge:'pbEdge'};const v=document.getElementById(map[type])?.value.trim();if(!v)return;const k=`trady_pb_${type}`;const items=JSON.parse(localStorage.getItem(k)||'[]');items.push(v);localStorage.setItem(k,JSON.stringify(items));document.getElementById(map[type]).value='';renderPlaybook(type);}
-function renderPlaybook(type){const map={setups:'pbSetupsList',avoid:'pbAvoidList',rules:'pbRulesList',edge:'pbEdgeList'};const el=document.getElementById(map[type]);if(!el)return;const items=JSON.parse(localStorage.getItem(`trady_pb_${type}`)||'[]');el.innerHTML=items.map((it,i)=>`<div class="pb-saved-item"><span>${it}</span><button class="pb-del" onclick="delPb('${type}',${i})">×</button></div>`).join('')||'<div style="color:rgba(255,255,255,0.58);font-size:12px;padding:8px 0;">Nothing saved yet.</div>';}
-function delPb(type,idx){const k=`trady_pb_${type}`;const items=JSON.parse(localStorage.getItem(k)||'[]');items.splice(idx,1);localStorage.setItem(k,JSON.stringify(items));renderPlaybook(type);}
+function savePlaybook(type){const map={setups:'pbSetups',avoid:'pbAvoid',rules:'pbRules',edge:'pbEdge'};const v=document.getElementById(map[type])?.value.trim();if(!v)return;const k=`trady_pb_${type}`;const items=((v)=>Array.isArray(v)?v:[])(_safeParse(localStorage.getItem(k),'[]'));items.push(v);localStorage.setItem(k,JSON.stringify(items));document.getElementById(map[type]).value='';renderPlaybook(type);}
+function renderPlaybook(type){const map={setups:'pbSetupsList',avoid:'pbAvoidList',rules:'pbRulesList',edge:'pbEdgeList'};const el=document.getElementById(map[type]);if(!el)return;const items=((v)=>Array.isArray(v)?v:[])(_safeParse(localStorage.getItem(`trady_pb_${type}`),'[]'));el.innerHTML=items.map((it,i)=>`<div class="pb-saved-item"><span>${it}</span><button class="pb-del" onclick="delPb('${type}',${i})">×</button></div>`).join('')||'<div style="color:rgba(255,255,255,0.58);font-size:12px;padding:8px 0;">Nothing saved yet.</div>';}
+function delPb(type,idx){const k=`trady_pb_${type}`;const items=((v)=>Array.isArray(v)?v:[])(_safeParse(localStorage.getItem(k),'[]'));items.splice(idx,1);localStorage.setItem(k,JSON.stringify(items));renderPlaybook(type);}
 
 // ── SEASONAL CAL ──
 function renderSeasonalCal(){

@@ -204,7 +204,7 @@ window.FinosWindfall = (function () {
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:10px;">Windfall Amount</div>
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="font-size:13px;color:var(--text-muted);">₹</span>
-        <input type="number" id="wf-amount" min="10000" max="100000000" step="10000" value="${p.amount}"
+        <input type="number" id="wf-amount" aria-label="Windfall amount in rupees" min="10000" max="100000000" step="10000" value="${p.amount}"
           style="flex:1;background:var(--border-soft);border:1px solid var(--border-medium);border-radius:10px;color:var(--text-primary);font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:20px;font-weight:900;padding:10px 14px;outline:none;"
           oninput="_wfRecalc()">
       </div>
@@ -212,7 +212,7 @@ window.FinosWindfall = (function () {
     </div>
     <div>
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:10px;">Windfall Type</div>
-      <select id="wf-type" style="width:100%;background:var(--border-soft);border:1px solid var(--border-medium);border-radius:10px;color:var(--text-primary);font-size:13px;font-weight:700;padding:10px 14px;outline:none;" onchange="_wfRecalc()">
+      <select id="wf-type" aria-label="Type of windfall" style="width:100%;background:var(--border-soft);border:1px solid var(--border-medium);border-radius:10px;color:var(--text-primary);font-size:13px;font-weight:700;padding:10px 14px;outline:none;" onchange="_wfRecalc()">
         ${WINDFALL_TYPES.map(t => `<option value="${t.key}" ${t.key===p.type?'selected':''}>${t.icon} ${t.label}</option>`).join('')}
       </select>
       <div id="wf-tax-note" style="font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.5;">${wfType.taxNote}</div>
@@ -252,23 +252,13 @@ window.FinosWindfall = (function () {
     const grossAnnualSalary = salaryComponents || gs('finos_gross_salary');
     const hasSalaryInput = grossAnnualSalary > 0;
     const employerNPS = Math.min(gs('finos_salary_nps_er'), gs('finos_salary_basic') * 0.14);
-    const taxableIncome = Math.max(0, grossAnnualSalary - 75000 - employerNPS);
+    const taxableIncome = Math.max(0, grossAnnualSalary - window.FinosTaxCore.STD_NEW - employerNPS);
     const now = new Date();
     const taxYearStart = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
     const taxYearLabel = `Tax Year ${taxYearStart}-${String(taxYearStart + 1).slice(-2)}`;
 
-    // New-regime slabs and section 87A rebate for Tax Year 2026-27.
-    function taxNew(income) {
-      const slabs = [[400000,0],[800000,.05],[1200000,.10],[1600000,.15],[2000000,.20],[2400000,.25],[Infinity,.30]];
-      let tax = 0, prev = 0;
-      for (const [lim, rate] of slabs) {
-        if (income <= prev) break;
-        tax += Math.min(income - prev, lim - prev) * rate;
-        prev = lim;
-      }
-      tax = income <= 1200000 ? 0 : Math.min(tax, income - 1200000);
-      return Math.round(tax * 1.04);
-    }
+    // Slabs, the 87A rebate with marginal relief and the 4% cess live in ONE place: js/finos-taxcore.js.
+    const taxNew = (income) => window.FinosTaxCore.taxNew(income);
 
     const taxBeforeWindfall = taxNew(taxableIncome);
     const taxAfter          = p.type === 'bonus' || p.type === 'rsu' ? taxNew(taxableIncome + p.amount) : taxBeforeWindfall;

@@ -19,10 +19,12 @@ export function useSectors(refreshMs = 60_000) {
       ]) as Response;
       if (res.status === 404) throw new Error('old-backend');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = (await res.json()).sectors ?? {};
-      const list: Sector[] = Object.entries<any>(json)
-        .filter(([, v]) => v && typeof v.change_pct === 'number')
-        .map(([name, v]) => ({ name, label: String(v.label ?? name), changePct: v.change_pct, price: v.price ?? null }))
+      const body = await res.json();
+      const raw = body && typeof body === 'object' && body.sectors && typeof body.sectors === 'object' && !Array.isArray(body.sectors) ? body.sectors : {};
+      const list: Sector[] = Object.entries<any>(raw)
+        .filter(([, v]) => v && typeof v === 'object' && typeof v.change_pct === 'number' && Number.isFinite(v.change_pct))
+        .map(([name, v]) => ({ name, label: typeof v.label === 'string' && v.label ? v.label : name, changePct: v.change_pct,
+          price: typeof v.price === 'number' && Number.isFinite(v.price) && v.price > 0 ? v.price : null }))
         .sort((a, b) => (ORDER.indexOf(a.label) + 100) % 100 - (ORDER.indexOf(b.label) + 100) % 100);
       setSectors(list);
       setError(list.length ? null : 'No sector data right now.');

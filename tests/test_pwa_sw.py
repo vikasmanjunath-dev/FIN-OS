@@ -48,6 +48,26 @@ READ_SNAP_JS = """async () => {
 }"""
 
 
+def sw_registration(ctx, page, base):
+    """(cdp, registrationId) of the worker for `base`.
+
+    Root cause of the old flake: these tests used to rely on test_sw_installs_and_precaches having registered the worker
+    first (run on its own, `-k periodicsync` found no registration and died with StopIteration), and then waited a fixed
+    500 ms for the CDP registration event, which a loaded machine can miss.  Registering is idempotent, so each test
+    does it itself and polls for the registration."""
+    page.evaluate("async () => { await navigator.serviceWorker.register('/sw.js', { scope: '/' }); await navigator.serviceWorker.ready; }")
+    cdp = ctx.new_cdp_session(page)
+    regs = []
+    cdp.on("ServiceWorker.workerRegistrationUpdated", lambda e: regs.extend(e.get("registrations", [])))
+    cdp.send("ServiceWorker.enable")
+    for _ in range(100):                                                  # up to ~10 s; waiting also pumps Playwright's event loop
+        found = next((r["registrationId"] for r in regs if r["scopeURL"].rstrip("/") == base.rstrip("/")), None)
+        if found:
+            return cdp, found
+        page.wait_for_timeout(100)
+    raise AssertionError(f"no service worker registration for {base}: {regs}")
+
+
 def iso(days):
     d = dt.date.today() + dt.timedelta(days=days)
     return d.isoformat()
@@ -104,16 +124,11 @@ def test_periodicsync_fires_due_reminders_and_remembers_them(env):
     ]
     page.evaluate(SEED_IDB_JS, events)
 
-    cdp = ctx.new_cdp_session(page)
-    regs = []
-    cdp.on("ServiceWorker.workerRegistrationUpdated", lambda e: regs.extend(e.get("registrations", [])))
-    cdp.send("ServiceWorker.enable")
-    page.wait_for_timeout(500)                                            # pumps Playwright's event loop so CDP events arrive
-    reg_id = next(r["registrationId"] for r in regs if r["scopeURL"].rstrip("/") == base.rstrip("/"))
+    cdp, reg_id = sw_registration(ctx, page, base)
     cdp.send("ServiceWorker.dispatchPeriodicSyncEvent", {"origin": base, "registrationId": reg_id, "tag": "finos-reminders"})
 
     titles = []
-    for _ in range(30):                                                   # worker is async: poll up to ~6 s
+    for _ in range(75):                                                   # worker is async: poll up to ~15 s
         titles = page.evaluate("async () => (await (await navigator.serviceWorker.ready).getNotifications()).map(n => n.title)")
         if len(titles) >= 2:
             break
@@ -129,12 +144,7 @@ def test_periodicsync_fires_due_reminders_and_remembers_them(env):
 def test_worker_does_not_create_the_database_when_the_page_never_did(env):
     base, ctx, page = env
     page.evaluate("async () => new Promise(r => { const q = indexedDB.deleteDatabase('finos'); q.onsuccess = q.onerror = q.onblocked = () => r(); })")
-    cdp = ctx.new_cdp_session(page)
-    regs = []
-    cdp.on("ServiceWorker.workerRegistrationUpdated", lambda e: regs.extend(e.get("registrations", [])))
-    cdp.send("ServiceWorker.enable")
-    page.wait_for_timeout(500)                                            # pumps Playwright's event loop so CDP events arrive
-    reg_id = next(r["registrationId"] for r in regs if r["scopeURL"].rstrip("/") == base.rstrip("/"))
+    cdp, reg_id = sw_registration(ctx, page, base)
     cdp.send("ServiceWorker.dispatchPeriodicSyncEvent", {"origin": base, "registrationId": reg_id, "tag": "finos-reminders"})
     page.wait_for_timeout(1000)
     dbs = page.evaluate("async () => (await indexedDB.databases()).map(d => d.name)")

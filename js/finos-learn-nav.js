@@ -92,7 +92,7 @@
 
     /* Mark this module visited */
     try {
-      const visited = JSON.parse(localStorage.getItem('finos_learn_visited') || '[]');
+      const visited = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_learn_visited')||'[]'));
       if (!visited.includes(page)) visited.push(page);
       localStorage.setItem('finos_learn_visited', JSON.stringify(visited));
     } catch (_) {}
@@ -102,7 +102,7 @@
     /* Curriculum complete callout — only on the last module */
     if (!next) {
       const visited = (() => {
-        try { return JSON.parse(localStorage.getItem('finos_learn_visited') || '[]'); } catch { return []; }
+        try { return ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_learn_visited')||'[]')); } catch { return []; }
       })();
       const completedAll = CURRICULUM.every(m => visited.includes(m.file));
 

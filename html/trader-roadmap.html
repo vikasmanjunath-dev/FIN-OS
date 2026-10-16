@@ -259,7 +259,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
 </head>
 
@@ -374,7 +374,7 @@
 
       <section id="scanner">
         <div class="scanner-header">
-          <div class="glitch-title">Tactical Calibration</div>
+          <div class="glitch-title" role="heading" aria-level="1">Tactical Calibration</div>
           <p style="color: var(--text-muted); font-family:var(--font-mono);">// CONFIGURE MISSION PARAMETERS</p>
         </div>
 
@@ -424,7 +424,7 @@
 
         </div>
 
-        <button class="calc-btn" id="calcBtn" onclick="generateDynamicRoadmap()" style="opacity:0.5; pointer-events:none;">Initialize System ➔</button>
+        <button class="calc-btn" id="calcBtn" onclick="generateDynamicRoadmap()" disabled style="opacity:0.5; pointer-events:none;">Initialize System ➔</button>
 
       </section>
 
@@ -476,6 +476,7 @@
 
     if(Object.values(p).every(v => v > 0)) {
       const btn = document.getElementById('calcBtn');
+      btn.disabled = false;
       btn.style.opacity = '1';
       btn.style.pointerEvents = 'all';
     }
@@ -682,7 +683,7 @@
 /* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
 @media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a></nav>
 
 <style id="tr-light-theme">
 [data-theme="light"] body {

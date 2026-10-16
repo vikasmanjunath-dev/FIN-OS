@@ -76,7 +76,7 @@ export function seed(fdValue: number, sgbAnnualCoupon: number): Stream[] {
 export function normalise(raw: unknown): Stream[] | null {
   if (!Array.isArray(raw) || !raw.length) return null;
   const list = raw.filter(x => x && typeof x === 'object' && typeof (x as any).id === 'string').map((x: any): Stream => ({
-    id: x.id, type: TYPES.includes(x.type) ? x.type : 'other', label: String(x.label ?? ''), monthly: Math.max(0, Number(x.monthly) || 0), taxable: !!x.taxable, note: String(x.note ?? ''),
+    id: x.id, type: TYPES.includes(x.type) ? x.type : 'other', label: String(x.label ?? ''), monthly: Number.isFinite(Number(x.monthly)) ? Math.max(0, Number(x.monthly)) : 0, taxable: !!x.taxable, note: String(x.note ?? ''),
   }));
   return list.length ? list : null;
 }

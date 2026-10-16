@@ -116,7 +116,7 @@ window.FinosLifeCover = (function () {
   function _inp(id, label, val, min, max, step, unit, hint) {
     return `<div style="margin-bottom:16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <label style="font-size:13px;font-weight:700;color:var(--text-secondary);">${label}</label>
+        <label for="${id}" style="font-size:13px;font-weight:700;color:var(--text-secondary);">${label}</label>
         <div style="display:flex;align-items:center;gap:6px;">
           <input type="number" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"
             style="width:110px;background:var(--border-soft);border:1px solid var(--border-medium);border-radius:8px;color:var(--text-primary);font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;font-weight:800;padding:6px 10px;text-align:right;outline:none;"

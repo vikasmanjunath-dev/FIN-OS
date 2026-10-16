@@ -24,8 +24,10 @@
 
   /* ── Helpers ─────────────────────────────────────────────────────── */
   function gs(k) { return parseFloat(localStorage.getItem(k) || '0') || 0; }
-  function safeJSON(k, d) { try { return JSON.parse(localStorage.getItem(k) || 'null') || d; } catch (_) { return d; } }
+  function safeJSON(k, d) { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); if (v == null) return d; if (Array.isArray(d)) return Array.isArray(v) ? v : d; if (d && typeof d === 'object') return (typeof v === 'object' && !Array.isArray(v)) ? v : d; return v || d; } catch (_) { return d; } }
   function ss(k, v) { try { localStorage.setItem(k, typeof v === 'object' ? JSON.stringify(v) : String(v)); } catch (_) {} }
+
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   function INR(n) {
     n = Number(n) || 0;
@@ -71,7 +73,7 @@
 
   /* ── Load / save portfolio ───────────────────────────────────────── */
   function loadPortfolio() {
-    return safeJSON('finos_gold_portfolio', []);
+    return safeJSON('finos_gold_portfolio', []).filter(x => x && typeof x === 'object');
   }
 
   function savePortfolio(holdings) {
@@ -200,7 +202,7 @@
       details  = `${h.units} units × ₹${h.nav}/NAV`;
     } else if (h.type === 'goldmf') {
       valueStr = INR(h.currentValue || 0);
-      details  = h.fundName || 'Gold Mutual Fund';
+      details  = esc(h.fundName || 'Gold Mutual Fund');
     }
 
     return `
@@ -208,7 +210,7 @@
         <div class="gt-hc-top">
           <div>
             <div class="gt-hc-type" style="color:${typeColor}">${typeLabel}</div>
-            <div class="gt-hc-name">${h.name || h.series || h.fundName || 'Gold holding'}</div>
+            <div class="gt-hc-name">${esc(h.name || h.series || h.fundName || 'Gold holding')}</div>
             <div class="gt-hc-detail">${details}</div>
           </div>
           <div class="gt-hc-right">

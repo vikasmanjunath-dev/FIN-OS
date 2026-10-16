@@ -8,6 +8,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const stubs = {
   '@react-native-async-storage/async-storage': pathToFileURL(path.join(root, '__tests__/stubs/async-storage.mjs')).href,
+  // lets modules that import Platform / AppState at load time run under Node (used by corruptData.test.mts)
+  'react-native': pathToFileURL(path.join(root, '__tests__/stubs/react-native.mjs')).href,
+  'react-native-url-polyfill/auto': pathToFileURL(path.join(root, '__tests__/stubs/empty.mjs')).href,
+  'expo-constants': pathToFileURL(path.join(root, '__tests__/stubs/expo-constants.mjs')).href,
 };
 
 export async function resolve(specifier, context, next) {

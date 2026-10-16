@@ -301,25 +301,9 @@
         <canvas id="radarCanvas" class="radar-container"></canvas>
       </header>
 
-      <div class="ticker-wrap">
-        <div class="ticker">
-          <div style="display:inline-block;">
-            <span class="ticker-item up">NIFTY 50 <span>▲ +0.8%</span></span>
-            <span class="ticker-item down">BANKNIFTY <span>▼ -0.2%</span></span>
-            <span class="ticker-item up">BTC/USD <span>▲ +2.5%</span></span>
-            <span class="ticker-item down">ETH/USD <span>▼ -1.1%</span></span>
-            <span class="ticker-item up">S&P 500 <span>▲ +1.1%</span></span>
-            <span class="ticker-item up">GOLD / OZ <span>▲ +0.4%</span></span>
-          </div>
-          <div style="display:inline-block;">
-            <span class="ticker-item up">NIFTY 50 <span>▲ +0.8%</span></span>
-            <span class="ticker-item down">BANKNIFTY <span>▼ -0.2%</span></span>
-            <span class="ticker-item up">BTC/USD <span>▲ +2.5%</span></span>
-            <span class="ticker-item down">ETH/USD <span>▼ -1.1%</span></span>
-            <span class="ticker-item up">S&P 500 <span>▲ +1.1%</span></span>
-            <span class="ticker-item up">GOLD / OZ <span>▲ +0.4%</span></span>
-          </div>
-        </div>
+      <!-- Market strip: filled from the market service only when it answers; hidden otherwise (no placeholder figures). -->
+      <div class="ticker-wrap" id="tickerWrap" hidden aria-label="Market snapshot">
+        <div class="ticker" id="tickerInner"></div>
       </div>
 
       <!-- ── Arya AI News Digest ────────────────────────────────────── -->
@@ -368,7 +352,7 @@
       <div class="dock-row" style="background: rgba(0,0,0,0.2); padding: 5px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
         <button class="dock-btn impact-btn" id="impactToggle">🔥 HIGH IMPACT</button>
         <div class="divider"></div>
-        <select class="time-select" id="timeFilter">
+        <select aria-label="Filter news by time" class="time-select" id="timeFilter">
           <option value="all">🕒 ANY TIME</option>
           <option value="4">🕒 LAST 4 HOURS</option>
           <option value="12">🕒 LAST 12 HOURS</option>
@@ -477,38 +461,117 @@
   }
 
 // --- 3. FETCH FROM LOCAL PYTHON BACKEND (WITH KILL-SWITCH) ---
+  // Offline behaviour: show the last REAL answer with the time it was fetched, or say plainly that there is none.
+  // Nothing is ever invented to fill the screen.
+  const NEWS_CACHE_KEY = 'finos_news_intel_last_v1';
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // Keep only well-formed items; links must be http(s) (a stored or served "javascript:" link is dropped).
+  function cleanItems(list) {
+    if (!Array.isArray(list)) return [];
+    return list.filter((it) => it && typeof it === 'object' && typeof it.title === 'string' && it.title.trim()
+        && typeof it.link === 'string' && /^https?:\/\//i.test(it.link))
+      .map((it) => ({
+        title: it.title.trim().slice(0, 300),
+        link: it.link,
+        source: typeof it.source === 'string' ? it.source.slice(0, 80) : '',
+        type: ['stocks', 'crypto', 'macro'].includes(it.type) ? it.type : 'macro',
+        high_impact: it.high_impact === true,
+        timestamp: Number.isFinite(Number(it.timestamp)) && Number(it.timestamp) > 0 ? Number(it.timestamp) : 0,
+      }));
+  }
+  function loadCachedNews() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(NEWS_CACHE_KEY) || 'null');
+      if (!raw || typeof raw !== 'object') return null;
+      const items = cleanItems(raw.items);
+      const savedAt = Number(raw.savedAt);
+      return items.length && Number.isFinite(savedAt) && savedAt > 0 ? { items, savedAt } : null;
+    } catch (_) { return null; }
+  }
+  function saveNews(items) {
+    try { localStorage.setItem(NEWS_CACHE_KEY, JSON.stringify({ items, savedAt: Date.now() })); } catch (_) { /* quota / private mode */ }
+  }
+  function showEmptyState(message) {
+    const c = document.getElementById('streamContainer');
+    c.innerHTML = '';
+    const box = document.createElement('div');
+    box.className = 'news-empty';
+    box.setAttribute('role', 'status');
+    box.style.cssText = 'padding:28px 22px;border:1px dashed rgba(255,255,255,.25);border-radius:14px;font-family:var(--font-mono);font-size:13px;line-height:1.7;color:var(--text-muted);';
+    box.textContent = message;
+    c.appendChild(box);
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     initFetch();
+    loadMarketStrip();
   });
 
   async function initFetch() {
     // HYPER-SPEED CUTOFF: 3 Seconds.
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000); 
+    const timeout = setTimeout(() => controller.abort(), 3000);
 
     try {
       // Connects to your Flask server, but will abort if it takes > 3s
       const response = await fetch('http://localhost:5002/api/intel', {
         signal: controller.signal
       });
-      
-      clearTimeout(timeout); // Clear the kill-switch if we succeed in time
-      const data = await response.json();
 
-      if (data.status === "online" && data.items.length > 0) {
-        renderShards(data.items);
-        updateStatus(`LIVE UPLINK SECURE`, "#00F3FF");
+      clearTimeout(timeout); // Clear the kill-switch if we succeed in time
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const data = await response.json();
+      const items = cleanItems(data && data.items);
+
+      if (data && data.status === "online" && items.length > 0) {
+        renderShards(items);
+        saveNews(items);
+        updateStatus('LIVE FEED · fetched ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }), "#00F3FF");
       } else {
         throw new Error("Empty Feed from Python");
       }
     } catch (err) {
       clearTimeout(timeout);
-      console.warn("Python API Timeout or Offline. Deploying Ghost Protocol...", err);
-      deployGhostProtocol();
-      updateStatus("LIVE FEED OFFLINE. USING GHOST DATA.", "#ff4757");
+      console.warn("News service offline or empty", err);
+      showOfflineNews();
     } finally {
       document.getElementById('loader').style.display = 'none';
     }
+  }
+
+  function showOfflineNews() {
+    const cached = loadCachedNews();
+    if (cached) {
+      renderShards(cached.items);
+      const when = new Date(cached.savedAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      updateStatus('FEED OFFLINE · showing the last headlines saved on ' + when, "#ff4757");
+    } else {
+      showEmptyState('The live news feed is not reachable right now, and no earlier headlines are saved on this device. '
+        + 'Nothing is shown instead of old or made-up headlines. The feed comes from a news service that runs on this computer (port 5002); '
+        + 'start it and reload to see today\'s headlines.');
+      updateStatus('FEED OFFLINE · no saved headlines', "#ff4757");
+    }
+  }
+
+  // Market strip: real index levels from the market service, or hidden. No placeholder percentages.
+  async function loadMarketStrip() {
+    try {
+      if (!window.FinosAPI || !FinosAPI.available || !FinosAPI.available('arya')) return;
+      const d = await FinosAPI.request('arya', '/api/market/overview');
+      const idx = (d && typeof d.indices === 'object' && d.indices) || {};
+      const parts = Object.entries(idx).filter(([, v]) => v && typeof v.price === 'number' && isFinite(v.price)).slice(0, 8).map(([name, v]) => {
+        const hasChg = typeof v.change_pct === 'number' && isFinite(v.change_pct);
+        const cls = hasChg ? (v.change_pct >= 0 ? 'up' : 'down') : '';
+        const chg = hasChg ? (v.change_pct >= 0 ? '▲ +' : '▼ ') + v.change_pct.toFixed(2) + '%' : '';
+        return `<span class="ticker-item ${cls}">${esc(name)} <span>${esc(v.price.toLocaleString('en-IN'))} ${esc(chg)}</span></span>`;
+      });
+      if (!parts.length) return;
+      const asOf = d.as_of ? ' title="Fetched ' + esc(new Date(d.as_of * 1000).toLocaleString('en-IN')) + '"' : '';
+      const inner = document.getElementById('tickerInner');
+      inner.innerHTML = `<div style="display:inline-block;"${asOf}>${parts.join('')}</div><div style="display:inline-block;" aria-hidden="true">${parts.join('')}</div>`;
+      document.getElementById('tickerWrap').hidden = false;
+    } catch (_) { /* strip stays hidden */ }
   }
 
   function updateStatus(text, color) {
@@ -545,22 +608,22 @@
       const isHighImpact = item.high_impact === true;
       shard.className = `data-shard ${item.type} ${isHighImpact ? 'is-impact' : ''}`;
       shard.setAttribute('data-impact', isHighImpact);
-      shard.setAttribute('data-time', item.timestamp);
+      shard.setAttribute('data-time', String(Number(item.timestamp) || 0));
       
-      const timeStr = item.timestamp ? timeAgo(item.timestamp) : "Recently";
+      const timeStr = item.timestamp ? timeAgo(item.timestamp) : "Time not given";
 
       // 2. NO OTHER LINKS (<a href>) INSIDE THIS INNER HTML!
       shard.innerHTML = `
         <div class="shard-meta">
           <div class="tag-container">
-             <span class="shard-tag">${item.type.toUpperCase()}</span>
+             <span class="shard-tag">${esc(String(item.type).toUpperCase())}</span>
              <span class="impact-badge">🔥 HIGH IMPACT</span>
           </div>
           <span>${timeStr}</span>
         </div>
-        <h3>${item.title}</h3>
+        <h3>${esc(item.title)}</h3>
         <div class="shard-footer">
-          <span class="shard-source">${item.source}</span>
+          <span class="shard-source">${esc(item.source)}</span>
           <span class="read-arrow">DECRYPT ➔</span> </div>
       `;
       container.appendChild(shard);
@@ -580,27 +643,9 @@
       });
     });
   }
-
-  // --- 7. GHOST PROTOCOL (FIXED REAL URLS) ---
-  function deployGhostProtocol() {
-    const now = Date.now() / 1000;
-    
-    // FIX: Added real, working URLs to all the fallback data
-    const mock = [
-      { title: "Nifty hits record high amid strong global cues and FII inflows", type: "stocks", source: "Mint", link: "https://www.livemint.com/market", timestamp: now - 3600, high_impact: true },
-      { title: "RBI maintains repo rate, signals strict focus on inflation control", type: "macro", source: "MoneyControl", link: "https://www.moneycontrol.com/news/business/markets/", timestamp: now - 7200, high_impact: true },
-      { title: "Bitcoin surges past key resistance level ahead of structural halving", type: "crypto", source: "Reuters", link: "https://www.reuters.com/technology/crypto/", timestamp: now - 18000, high_impact: false },
-      { title: "Tech stocks lead rally as US inflation data cools significantly", type: "stocks", source: "Bloomberg", link: "https://www.bloomberg.com/markets", timestamp: now - 50000, high_impact: false },
-      { title: "Ethereum gas fees drop to yearly lows amid network upgrades", type: "crypto", source: "CryptoNews", link: "https://cryptonews.com/", timestamp: now - 90000, high_impact: false },
-      { title: "Global supply chains brace for new oceanic shipping delays", type: "macro", source: "WSJ", link: "https://www.wsj.com/finance", timestamp: now - 100000, high_impact: false },
-      { title: "New IPOs line up in Indian markets for the next growth quarter", type: "stocks", source: "Economic Times", link: "https://economictimes.indiatimes.com/markets/ipo", timestamp: now - 120000, high_impact: false },
-      { title: "Gold prices stabilize as government bond yields fluctuate", type: "macro", source: "Financial Times", link: "https://www.ft.com/markets", timestamp: now - 150000, high_impact: false }
-    ];
-    renderShards(mock);
-  }
 </script>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
@@ -621,30 +666,39 @@
       }
     }
 
-    // Full DB context from finos-context.js
+    // Full DB context from finos-context.js. Only recorded facts go into the prompt: an unknown net worth or savings
+    // rate is left out, never sent as 0, and no name / DNA / interests are assumed.
     const _ctx      = (typeof AryaAI !== 'undefined' && AryaAI.getContext()) || {};
-    const name      = _ctx.identity?.name          || localStorage.getItem('finos_display_name') || 'Investor';
-    const dna       = _ctx.identity?.financial_dna || localStorage.getItem('finos_financial_dna') || 'Explorer';
+    const name      = String(_ctx.identity?.name || localStorage.getItem('finos_display_name') || '').trim();
+    const dna       = String(_ctx.identity?.financial_dna || localStorage.getItem('finos_financial_dna') || '').trim();
     const rawInt    = _ctx.identity?.interests;
-    const interests = Array.isArray(rawInt) ? rawInt.join(', ') : (rawInt || localStorage.getItem('finos_interests') || 'stocks, mutual funds');
-    const netWorth  = _ctx.profile?.net_worth    || localStorage.getItem('finos_net_worth') || '0';
-    const savings   = _ctx.profile?.savings_rate || localStorage.getItem('finos_savings_rate') || '0';
+    const interests = (Array.isArray(rawInt) ? rawInt.join(', ') : String(rawInt || localStorage.getItem('finos_interests') || '')).trim();
+    const nwNum     = Number(_ctx.profile?.net_worth || localStorage.getItem('finos_net_worth'));
+    const srNum     = Number(_ctx.profile?.savings_rate || localStorage.getItem('finos_savings_rate'));
     const portfolio = _ctx.financial?.portfolio;
-    const topHoldings = portfolio?.holdings?.slice(0,4).map(h => h.symbol).join(', ') || null;
+    const topHoldings = Array.isArray(portfolio?.holdings) ? portfolio.holdings.slice(0,4).map(h => h && h.symbol).filter(Boolean).join(', ') : '';
     const today     = new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
+    const facts = [];
+    if (dna) facts.push('DNA: ' + dna);
+    if (interests) facts.push('interests: ' + interests);
+    if (nwNum > 0) facts.push('net worth: ₹' + nwNum.toLocaleString('en-IN'));
+    if (srNum > 0) facts.push('savings rate: ' + srNum + '%');
+    if (topHoldings) facts.push('portfolio: ' + topHoldings);
 
-    textEl.innerHTML = '<span style="color:rgba(0,243,255,.5);">DECRYPTING INTEL FOR ' + name.toUpperCase() + '…</span>';
+    textEl.textContent = 'DECRYPTING INTEL' + (name ? ' FOR ' + name.toUpperCase() : '') + '…';
+    textEl.style.color = 'rgba(0,243,255,.5)';
 
-    const prompt = `Today is ${today}. You are briefing ${name} (DNA: ${dna}, interests: ${interests}, net worth: ₹${Number(netWorth).toLocaleString('en-IN')}, savings rate: ${savings}%${topHoldings ? `, portfolio: ${topHoldings}` : ''}).
+    const prompt = `Today is ${today}. You are briefing ${name || 'an Indian retail investor'}${facts.length ? ' (' + facts.join(', ') + ')' : ' (no profile details are recorded, so keep it general and do not guess any)'}.
 
-Give a 4-point morning market intelligence brief PERSONALISED to their actual profile:
-1. One key macro trend affecting Indian markets today that's relevant to their interests
-2. One insight for their specific portfolio/interests (${interests})
-3. One risk or opportunity they should specifically watch given their holdings/profile
-4. One mental model or edge they should apply today based on their stage/DNA
+Give a 4-point morning market intelligence brief${facts.length ? ' PERSONALISED to the recorded profile details above only' : ''}:
+1. One key macro trend affecting Indian markets today${interests ? " that's relevant to their interests" : ''}
+2. One insight for ${interests ? 'their interests (' + interests + ')' : 'a long-term Indian retail investor'}
+3. One risk or opportunity to watch
+4. One mental model or edge to apply today
 
-Tone: sharp intel-analyst. Each point = 1 sentence. Use • bullets. Reference their real profile. No preamble.`;
+Tone: sharp intel-analyst. Each point = 1 sentence. Use • bullets. Do not invent facts about the person. No preamble.`;
 
+    textEl.style.color = '';
     textEl.innerHTML = '<span id="arya-news-stream" style="color:rgba(255,255,255,.8);"></span>';
     const streamEl = document.getElementById('arya-news-stream');
 

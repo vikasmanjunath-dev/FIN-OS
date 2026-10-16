@@ -1,5 +1,5 @@
 import { num, row, type CalcDef } from './types.ts';
-import { money, rupee } from './fmt.ts';
+import { money, rupee, fx } from './fmt.ts';
 
 const G = 'retire' as const;
 
@@ -21,7 +21,7 @@ export const RETIRE: CalcDef[] = [
     inputs: [num('cost', 'Current treatment cost', '₹', 500000, 100000, 2000000, 50000), num('inflation', 'Medical inflation (p.a.)', '%', 10, 5, 15, 0.5), num('years', 'Years from now', 'yrs', 20, 5, 40, 1)],
     run: ({ cost, inflation, years }) => {
       const future = cost * Math.pow(1 + inflation / 100, years);
-      return [row('costVal', 'Cost today', money(cost)), row('futureVal', 'Cost in the future', money(future)), row('multVal', '', `Costs jump ${(future / cost).toFixed(1)}x`, { tone: 'warn', hero: true })];
+      return [row('costVal', 'Cost today', money(cost)), row('futureVal', 'Cost in the future', money(future)), row('multVal', '', `Costs jump ${fx(future / cost, 1)}x`, { tone: 'warn', hero: true })];
     },
   },
   {

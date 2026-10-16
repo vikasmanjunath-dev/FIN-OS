@@ -45,7 +45,9 @@ STYLE_BLOCK_RE = re.compile(r'<style\b[^>]*>(.*?)</style>', re.I | re.S)
 
 def html_files():
     for p in sorted(ROOT.rglob("*.html")):
-        if any(part in SKIP_DIRS for part in p.relative_to(ROOT).parts) or p.name.startswith("."):
+        parts = p.relative_to(ROOT).parts
+        # dot-directories (.claude/worktrees/..., .git) hold copies of the site made by tooling, not pages that ship
+        if any(part in SKIP_DIRS or part.startswith(".") for part in parts):
             continue  # skip vendored/generated dirs and editor/sync temp files
         if p.exists():
             yield p

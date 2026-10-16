@@ -5,12 +5,14 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '@/hooks/useAuth';
+import { googleSignInStatus } from '@/lib/googleAuth';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 
 type Mode = 'signin' | 'signup';
 
 export default function LoginScreen() {
-  const { configured, signIn, signUp } = useAuth();
+  const { configured, signIn, signUp, signInWithGoogle } = useAuth();
+  const googleOk = googleSignInStatus({ cloudConfigured: configured, flag: process.env.EXPO_PUBLIC_GOOGLE_SIGNIN }).available;
   const [mode, setMode] = useState<Mode>('signin');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -92,6 +94,13 @@ export default function LoginScreen() {
               {busy ? <ActivityIndicator color={Colors.bg} /> : <Text style={styles.primaryTxt}>{mode === 'signin' ? 'Sign in' : 'Create account'}</Text>}
             </TouchableOpacity>
 
+            {googleOk && (
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Continue with Google" style={[styles.google, busy && { opacity: 0.6 }]} disabled={busy}
+                onPress={async () => { setError(null); setBusy(true); const r = await signInWithGoogle(); setBusy(false); if (r.ok) close(); else if (!r.cancelled) setError(r.error ?? 'Google sign-in did not work.'); }}>
+                <Text style={styles.googleTxt}>Continue with Google</Text>
+              </TouchableOpacity>
+            )}
+
             <TouchableOpacity accessibilityRole="button" onPress={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(null); setNotice(null); }}>
               <Text style={styles.switch}>
                 {mode === 'signin' ? "New to FIN·OS? Create an account" : 'Already have an account? Sign in'}
@@ -138,6 +147,8 @@ const styles = StyleSheet.create({
   notice: { color: Colors.teal, fontSize: 13, marginBottom: Spacing.md, lineHeight: 18 },
   primary: { backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: Spacing.sm },
   primaryTxt: { color: Colors.bg, fontWeight: '800', fontSize: 15 },
+  google: { borderWidth: 1, borderColor: Colors.borderHi, borderRadius: Radii.md, paddingVertical: 13, alignItems: 'center', marginTop: Spacing.md },
+  googleTxt: { color: Colors.textPrimary, fontWeight: '700', fontSize: 15 },
   switch: { color: Colors.cyan, textAlign: 'center', fontSize: 13, fontWeight: '600', marginTop: Spacing.lg },
   guest: { marginTop: Spacing.xl, alignItems: 'center' },
   guestTxt: { color: Colors.textMuted, fontSize: 13 },

@@ -7,6 +7,7 @@ import { loadPrefs } from '@/lib/remindersStorage';
 import { loadDnaScores } from '@/lib/dnaStorage';
 import { loadProfile } from '@/lib/profileStorage';
 import { completeness } from '@/lib/profile';
+import { getText } from '@/lib/safeStore';
 import { normaliseDismissed, type Dismissed, type NudgeFacts } from '@/lib/nudges';
 
 const DISMISS_KEY = 'finos_nudges_dismissed';
@@ -14,12 +15,12 @@ const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart
 
 export async function loadFacts(input: { incomeMonthly: number; savingsRate: number | null; topCategory: NudgeFacts['topCategory']; spentThisMonth: number; monthlySip: number }, now = new Date()): Promise<NudgeFacts> {
   const [subsRaw, scoreRaw, prefs, dna, cal, profile] = await Promise.all([
-    AsyncStorage.getItem('finos_subscriptions'), AsyncStorage.getItem('finos_money_score'), loadPrefs(), loadDnaScores(), loadCalendarSources().catch(() => null), loadProfile(),
+    getText('finos_subscriptions'), getText('finos_money_score'), loadPrefs(), loadDnaScores(), loadCalendarSources().catch(() => null), loadProfile(),
   ]);
   let subs = { monthly: 0, activeCount: 0 };
   try { const s = summarize(JSON.parse(subsRaw ?? '[]'), ymd(now), { income: input.incomeMonthly }); subs = { monthly: s.monthly, activeCount: s.activeCount }; } catch { /* none */ }
   let score: number | null = null;
-  try { const m = JSON.parse(scoreRaw ?? 'null'); if (m && m.inputs && typeof m.score === 'number') score = m.score; } catch { /* none */ }
+  try { const m = JSON.parse(scoreRaw ?? 'null'); if (m && m.inputs && typeof m.score === 'number' && Number.isFinite(m.score)) score = m.score; } catch { /* none */ }
   let dueIn7 = 0;
   if (cal) {
     const today = ymd(now), to = ymd(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7));

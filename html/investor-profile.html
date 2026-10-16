@@ -71,7 +71,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
 </head>
 
@@ -310,7 +310,7 @@
                         <i id="analogyIcon" class="fa-solid fa-chess-rook text-[300px] text-neonPri"></i>
                     </div>
 
-                    <h3 class="text-sm tracking-widest uppercase text-neonPri font-bold mb-4 flex items-center">
+                    <h3 class="text-sm tracking-widest uppercase text-neonPri font-bold mb-4 flex items-center" aria-level="2">
                         <i class="fa-solid fa-book-open mr-3"></i> The Beginner's Analogy
                     </h3>
                     <h2 class="text-3xl md:text-5xl font-display font-bold text-white mb-6" id="analogyTitle">Buying the
@@ -632,7 +632,7 @@
 /* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
 @media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a></nav>
 
   <script src="../js/finos-widget.js?v=11"></script>
   <script src="../js/finos-search.js?v=6"></script>

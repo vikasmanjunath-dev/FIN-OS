@@ -28,6 +28,11 @@
   --space-36: 144px;
 }
 
+/* ── READER DIM (learn-* / *detail chapters) ─────────────────
+   Chapters that are not the one being read are dimmed. 0.2 / 0.3 rendered their text at 1.3-2.5:1
+   (WCAG 1.4.3), so the dim is now a token that keeps every chapter readable at AA. */
+:root { --chapter-dim: 0.9; }
+
 /* ── BORDER RADIUS SCALE ────────────────────────────────────── */
 :root {
   --radius-sm:   6px;

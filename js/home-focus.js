@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Final guest fallback
     if (!profile) {
         const dna = (() => {
-            try { return JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || '{}'); } catch { return {}; }
+            try { return ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('FINOS_CORE_DNA')||'{}')); } catch { return {}; }
         })();
         profile = {
             dna_scores: dna.scores || [50, 50, 50, 50, 50],
@@ -52,7 +52,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         const engine = new FocusEngine(profile);
 
-        let history = JSON.parse(localStorage.getItem('finos_focus_history') || '[]');
+        let history = [];
+        try { history = ((v)=>Array.isArray(v)?v.filter(x => typeof x === 'string'):[])(JSON.parse(localStorage.getItem('finos_focus_history')||'[]')); } catch (_) {}
         let insight  = null;
         let attempts = 0;
 

@@ -85,3 +85,25 @@ test('works on real calendar output: subscriptions and tax dates become notifica
   assert.ok(p.some(x => x.type === 'tax'));
   assert.ok(p.every(x => x.at >= '2026-10-13T09:00'));
 });
+
+// ── The person's own dates (type 'custom'): lead 3 days, a notice the same day, text hidden by default like every other type.
+test('a custom date gets a notice 3 days ahead and one on the day; by default it names neither the title nor the amount', () => {
+  const p = R.plan([ev('custom', '2026-10-25', 'Paying Sharma ji', '₹25,000 · repeats every month')], NOW, on);
+  assert.deepEqual(p.map(x => x.at), ['2026-10-22T09:00', '2026-10-25T09:00']);
+  assert.deepEqual(p.map(x => x.daysBefore), [3, 0]);
+  assert.ok(p.every(x => x.type === 'custom'));
+  assert.ok(p.every(x => !/Sharma|25,000/.test(x.title + x.body)));
+  assert.match(p[0].title, /^Your date reminder/);
+  const shown = R.plan([ev('custom', '2026-10-25', 'Paying Sharma ji', '₹25,000')], NOW, { ...on, details: true })[0];
+  assert.match(shown.title, /Your date: Paying Sharma ji — in 3 days/);
+});
+
+test('custom dates honour the per-type switch, are kept by normalisePrefs, and flow through collectEvents into a plan', () => {
+  assert.deepEqual(R.plan([ev('custom', '2026-10-25')], NOW, { ...on, types: { custom: false } }), []);
+  assert.equal(R.normalisePrefs({ enabled: true, types: { custom: false, nonsense: false } }).types.custom, false);
+  const events = collectEvents({ custom: [{ id: 'c', title: 'Fee', date: '2026-10-28', amount: null, repeat: 'monthly', note: '' }] } as any, NOW, 3);
+  const p = R.plan(events.filter(e => e.type === 'custom'), NOW, on);
+  assert.ok(p.some(x => x.date === '2026-10-28'));
+  assert.ok(p.some(x => x.date === '2026-11-28'));
+  assert.equal(R.LEAD.custom, 3);
+});

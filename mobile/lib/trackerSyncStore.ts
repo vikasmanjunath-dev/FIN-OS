@@ -90,6 +90,13 @@ export async function syncTrackersNow(opts: { force?: boolean } = {}): Promise<v
   }
 }
 
+/** After "erase everything": forget the last sync time and conflict list held in memory. (Added by the trust-platform work.) */
+export function resetForErase() {
+  lastStart = 0;
+  again = false;
+  set({ syncing: false, lastSyncAt: null, error: null, conflicts: [] });
+}
+
 let started = false;
 /** Call once at app start: keeps trackers in step while the app is open and when it goes to the background. */
 export function startTrackerSync() {

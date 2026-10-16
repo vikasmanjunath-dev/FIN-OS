@@ -1,7 +1,7 @@
 # FIN-OS RAG Engine
 
 > FastAPI · Qdrant · BM25 · Redis · sentence-transformers  
-> **Port:** 7476 | **Version:** Phase 2 | **Updated:** July 2026
+> **Port:** 7476 | **Updated:** October 15 2026 (code is the authority; see the "Oct 15 2026 health pass" row under Phases)
 
 Retrieval-Augmented Generation engine that lets Arya answer questions about FIN-OS's own content (page text, calculators, documentation) rather than relying purely on the LLM's training data.
 
@@ -23,16 +23,16 @@ rag-engine/
 │
 ├── ingestion/
 │   ├── loaders.py      ← PDF + HTML text extraction
-│   ├── chunker.py      ← Recursive text splitter (512 tokens, 64 overlap)
+│   ├── chunker.py      ← Sentence-aware splitter; sizes per doc_type in config.CHUNK_SIZES (finos_page 350 tokens / 70 overlap) + 1,200-char hard cap
 │   └── pii.py          ← PII scrubber (removes names, Aadhaar, PAN, phone)
 │
 ├── embedding/
-│   └── encoder.py      ← sentence-transformers: all-MiniLM-L6-v2 (384-dim)
+│   └── encoder.py      ← Ollama /api/embed: mxbai-embed-large (1024-dim), batches of 32
 │
 ├── storage/
 │   ├── qdrant_store.py ← Qdrant vector DB operations (upsert, search, delete)
 │   ├── sqlite_fts.py   ← BM25 full-text search (SQLite FTS5)
-│   ├── redis_cache.py  ← Query result cache (5-min TTL)
+│   ├── redis_cache.py  ← Query result cache (1-hour TTL; key = query + user + kb_version + PIPELINE_VERSION)
 │   └── auth.py         ← Supabase session-token verification
 │
 ├── retrieval/
@@ -52,16 +52,16 @@ rag-engine/
 ```
 User query
     ↓
-Query cache check (Redis, 5-min TTL)  →  cache hit → return immediately
+Query cache check (Redis, 1-hour TTL)  →  cache hit → return immediately
     ↓
 Parallel retrieval
-  ├── Dense: Qdrant cosine similarity (all-MiniLM-L6-v2, top-20)
-  └── Sparse: SQLite FTS5 BM25 (top-20)
+  ├── Dense: Qdrant cosine similarity (mxbai-embed-large, top-10)
+  └── Sparse: SQLite FTS5 BM25 (top-10)
     ↓
 RRF fusion (Reciprocal Rank Fusion)
-  → Merges both ranked lists into unified top-10
+  → Merges both ranked lists (k=60)
     ↓
-Reranking (cross-encoder, if enabled)
+Reranking (BAAI/bge-reranker-v2-m3 on MPS, top-3 kept)
     ↓
 Ollama streaming generation
   → System prompt + retrieved chunks + citations
@@ -78,12 +78,14 @@ Cache result (Redis)
 | Method | Path | Description |
 |---|---|---|
 | GET | `/api/health` | Server + Qdrant + Redis status |
-| POST | `/api/ingest/finos-pages` | Crawl and ingest all 96 FIN-OS HTML pages |
+| POST | `/api/ingest/finos-pages` | Re-index every FIN-OS HTML page (123 files as of Oct 15 2026) |
 | POST | `/api/ingest/sebi-circulars` | Crawl SEBI circular listing, ingest PDFs |
 | POST | `/api/ingest/rbi-notifications` | Crawl RBI notification listing, ingest PDFs |
 | POST | `/api/ingest/irdai-circulars` | Crawl IRDAI circular listing, ingest PDFs (added July 2026) |
 | POST | `/api/ingest/pfrda-circulars` | Crawl PFRDA circular listing via detail pages (added July 2026) |
-| POST | `/api/ingest/news` | Fetch latest articles from 5 financial RSS feeds (added July 2026) |
+| POST | `/api/ingest/news` | Fetch latest articles from financial RSS feeds (added July 2026) |
+| POST | `/api/ingest/nse-filings`, `/api/ingest/bse-filings` | NSE / BSE corporate announcements (headline text, not PDFs) |
+| GET | `/api/amfi/nav` | Live AMFI NAV lookup by fund name (flat-file lookup, not chunked RAG) |
 | POST | `/api/upload` | Ingest a single uploaded PDF or HTML file (user namespace) |
 | GET | `/api/ingest/status/{job_id}` | Check background ingestion job status |
 | POST | `/api/retrieve` | Hybrid retrieve + rerank, no generation (for Arya main chat) |
@@ -119,22 +121,21 @@ data: [DONE]
 **Trigger:** `POST /api/ingest/finos-pages` enqueues a background RQ job.
 
 ```
-Fetch all 96 HTML pages (parallel, httpx)
+Read every html/*.html (BeautifulSoup, split at h2/h3 sections)
     ↓
-Extract text (BeautifulSoup, strip nav/scripts)
+PII scrub (presidio; PAN / Aadhaar / phone patterns, score_threshold 0.5)
     ↓
-PII scrub (names, Aadhaar, PAN, phone numbers removed)
+Chunk (350 tokens / 70 overlap for finos_page; 1,200-char hard cap)
     ↓
-Chunk (512 tokens, 64 token overlap, recursive splitter)
+Embed (mxbai-embed-large via Ollama, batch 32, 1024-dim)
     ↓
-Embed (all-MiniLM-L6-v2, batch=64)
+Upsert to Qdrant (content_hash stored; full re-index deletes finos_page first)
     ↓
-Upsert to Qdrant (384-dim vectors, content_hash deduplicated)
-    ↓
-Index in SQLite FTS5 (BM25 sparse index)
+Index in SQLite FTS5 (BM25 sparse index, same point ids)
 ```
 
-Total ingestion time for all 96 pages: ~3-5 minutes on CPU.
+Measured Oct 15 2026: 123 pages → 346 chunks in 18 s (Ollama warm). Pages whose body is
+rendered by JavaScript (the tracker / calculator pages) contribute only their static header text.
 
 ---
 
@@ -171,7 +172,7 @@ QDRANT_HOST=localhost
 QDRANT_PORT=6333
 REDIS_HOST=localhost
 REDIS_PORT=6379
-EMBED_MODEL=sentence-transformers/all-MiniLM-L6-v2
+EMBED_MODEL=mxbai-embed-large   # set in config.py; 1024-dim
 ```
 
 ### Start everything
@@ -201,6 +202,7 @@ uvicorn server:app --port 7476 --reload
 | Phase 6 | ✅ Done | Cold-start model warmup, async RQ ingestion for all batch endpoints |
 | Phase 7 | ✅ Done | IRDAI + PFRDA crawlers, News RSS ingestion (5 feeds), 100-question benchmark (July 2026) |
 | Phase 8 | ✅ Done | Automated scheduler (APScheduler), conversation memory (Redis TTL 2h), LLM-as-judge eval (qwen3:8b), feedback loop (POST /api/feedback), citation source cards in Arya UI (July 2026) |
+| Oct 15 2026 health pass | ✅ Done | Stack restarted; 123 pages re-indexed (297 → 346 chunks); `/api/search` + `/api/retrieve` 422 bug fixed (prometheus-client 0.25 decorator vs postponed annotations) with a regression test; query-aware context window replaces "first 500 chars"; pipeline version in cache key; worker restart loop; 12 new-page + 41 personalized benchmark questions (`evaluation/benchmark_personal.py`) |
 
 See [`docs/RAG_PHASES.md`](../docs/RAG_PHASES.md) for the full roadmap.
 

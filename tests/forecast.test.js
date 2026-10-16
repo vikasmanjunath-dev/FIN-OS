@@ -70,3 +70,10 @@ test('rows outside the window and non-expense rows are ignored; empty input give
   assert.equal(r.monthsWithData, 0);
   assert.equal(F.compute(null, { now: NOW }).total, 0);
 });
+
+test('an empty category name matches no event rule, and the save message states what the amount is a share of', () => {
+  assert.equal(F.eventFactor('', ['diwali']), 1);
+  const t = [exp('2026-07-10', 4000, 'Shopping'), exp('2026-08-10', 4000, 'Shopping'), exp('2026-09-10', 4000, 'Shopping')];
+  assert.match(F.compute(t, { monthsBack: 3, now: NOW }).saveMsg, /20% of the predicted/);
+  assert.match(F.compute(t, { monthsBack: 3, events: ['diwali'], now: NOW }).saveMsg, /30% of the Shopping forecast/);
+});

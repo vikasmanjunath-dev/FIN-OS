@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0B0D12">
 <title>AI Life Goals Planner | FIN-OS</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
 <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-life-goals.js"></script>
@@ -328,11 +328,11 @@ body {background:var(--bg-main);color:var(--text-primary);min-height:100vh;}
       </div>
       <div class="inp-wrap">
         <label class="inp-label">Retirement Age</label>
-        <input class="inp-field" id="inRetireAge" type="number" value="58" min="40" max="70">
+        <input class="inp-field" id="inRetireAge" type="number" placeholder="e.g. 58" min="40" max="70">
       </div>
       <div class="inp-wrap">
         <label class="inp-label">Expected Return %</label>
-        <input class="inp-field" id="inReturn" type="number" value="12" min="6" max="20">
+        <input class="inp-field" id="inReturn" type="number" step="any" placeholder="your assumption, e.g. 10" min="0" max="50">
       </div>
     </div>
 
@@ -381,12 +381,23 @@ function _ndLines(dec, value) {
 
 const OLLAMA_URL = 'https://127.0.0.1:8767/api/generate';
 
-// Default goals seeded for demo
-const DEFAULT_GOALS = [
-  { name: 'Own Home', amount: 8000000, years: 7, inflation: 0.06 },
-  { name: "Child's Education", amount: 2500000, years: 18, inflation: 0.08 },
-  { name: 'Retirement Corpus', amount: 50000000, years: 30, inflation: 0.06 },
-];
+// Goals start from what is recorded in the Goals tracker (finos_goals); with none recorded there is one empty row.
+// They used to be three invented demo goals (home, education, retirement) that a person could generate a plan from unawares.
+function recordedGoals() {
+  let list = [];
+  try { list = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_goals')||'[]')); } catch {}
+  if (!Array.isArray(list)) return [];
+  const out = [];
+  list.forEach(g => {
+    if (!g || typeof g.name !== 'string') return;
+    const amount = Number(g.target != null ? g.target : g.target_amount);
+    if (!(amount > 0)) return;
+    const t = Date.parse(g.target_date || g.deadline || '');
+    const years = Number.isFinite(t) && t > Date.now() ? Math.max(0.1, Math.round((t - Date.now()) / (365.25 * 864e5) * 10) / 10) : '';
+    out.push({ name: g.name.slice(0, 60), amount, years, inflation: 0.06 });
+  });
+  return out;
+}
 
 let goalCount = 0;
 
@@ -413,15 +424,15 @@ function addGoal(preset = null) {
     </div>
     <div class="inp-wrap">
       <label class="inp-label">Inflation %</label>
-      <input class="inp-field" id="g-inf-${id}" type="number" value="${Math.round(g.inflation*100)}" placeholder="6" min="0" max="15">
+      <input class="inp-field" id="g-inf-${id}" type="number" step="any" value="${Math.round(g.inflation*1000)/10}" placeholder="6" min="0" max="15">
     </div>
     <button class="goal-del" onclick="document.getElementById('goal-row-${id}').remove()">✕</button>
   `;
   document.getElementById('goalsList').appendChild(row);
 }
 
-// Seed default goals
-DEFAULT_GOALS.forEach(g => addGoal(g));
+// Seed from recorded goals
+{ const rg = recordedGoals(); if (rg.length) rg.forEach(g => addGoal(g)); else addGoal(); }
 
 /* ── Math helpers (shared with the tests: js/finos-life-goals.js) ───── */
 const { sipFV, findSIP } = FinosLifeGoals;
@@ -464,13 +475,13 @@ function generateRoadmap() {
   const income     = parseFloat(document.getElementById('inIncome').value);
   const savings    = parseFloat(document.getElementById('inSavings').value) || 0;
   const surplus    = parseFloat(document.getElementById('inSurplus').value);
-  const retireAge  = parseInt(document.getElementById('inRetireAge').value) || 58;
-  const returnRate = parseFloat(document.getElementById('inReturn').value) / 100 || 0.12;
+  const retireAge  = parseInt(document.getElementById('inRetireAge').value);       // no silent 58
+  const returnRate = parseFloat(document.getElementById('inReturn').value) / 100;    // 0% is allowed; blank is an error, not 12%
 
-  const profileError = FinosLifeGoals.validateProfile({ age, income, surplus, retireAge });
+  const profileError = FinosLifeGoals.validateProfile({ age, income, surplus, retireAge, returnRate });
   if (profileError) {
     showValidationError(profileError);
-    const bad = !age || age < 18 || age > 80 ? 'inAge' : (!income || income < 1000) ? 'inIncome' : (!surplus || surplus <= 0 || surplus >= income) ? 'inSurplus' : 'inRetireAge';
+    const bad = !age || age < 18 || age > 80 ? 'inAge' : (!income || income < 1000) ? 'inIncome' : (!surplus || surplus <= 0 || surplus >= income) ? 'inSurplus' : (Number.isFinite(retireAge) && retireAge > age) ? 'inReturn' : 'inRetireAge';
     document.getElementById(bad).focus();
     return;
   }
@@ -481,10 +492,14 @@ function generateRoadmap() {
     const id     = row.id.replace('goal-row-', '');
     const name   = document.getElementById(`g-name-${id}`)?.value?.trim() || '';
     const amount = parseFloat(document.getElementById(`g-amt-${id}`)?.value) || 0;
-    const years  = parseInt(document.getElementById(`g-yrs-${id}`)?.value)  || 0;
+    const years  = parseFloat(document.getElementById(`g-yrs-${id}`)?.value) || 0;
+    const infRaw = document.getElementById(`g-inf-${id}`)?.value;
+    const inflation = infRaw === '' || infRaw == null ? NaN : parseFloat(infRaw) / 100;
     if (name && !amount) goalError = `Goal "${name}" needs a target amount.`;
     if (name && !years) goalError = goalError || `Goal "${name}" needs a timeframe (years).`;
-    if (amount > 0) goals.push({ name: name || 'Goal', amount, years: years || 10, inflation: (parseFloat(document.getElementById(`g-inf-${id}`)?.value) || 6) / 100 });
+    if (amount > 0 && !years) goalError = goalError || `Goal "${name || 'Goal'}" needs a timeframe (years).`;
+    if (amount > 0 && !(inflation >= 0 && inflation <= 0.5)) goalError = goalError || `Goal "${name || 'Goal'}" needs a yearly inflation from 0% to 50% (0 is allowed).`;
+    if (amount > 0 && years) goals.push({ name: name || 'Goal', amount, years, inflation });
   });
   if (goalError) { showValidationError(goalError); return; }
   if (!goals.length) {
@@ -500,123 +515,19 @@ function generateRoadmap() {
   const { efTarget, efDone, efGap, efAlloc, processed, totalSIPNeeded, sipAvail, feasPct } = planned;
 
   const retireYears = Math.max(1, retireAge - age);
-
-  // ── Build phases ──────────────────────────────────────────────────
-  const phases = [];
-
-  // Phase 1: Foundation
-  const efMonths = efGap > 0 ? Math.ceil(efGap / (surplus * 0.5)) : 0;
-  const startSIP = Math.min(sipAvail * 0.6, 30000);
-  const taxSave  = Math.min(startSIP * 0.20 * 12, 150000) * 0.30;
-  phases.push({
-    id: 'foundation',
-    title: '🏗️ Foundation Phase',
-    years: `Year 1–2  (Age ${age}–${age+2})`,
-    color: PHASE_COLORS[0],
-    summary: 'Build your financial safety net before chasing returns.',
-    items: [
-      efGap > 0
-        ? `🛡️ Emergency fund: ${fmt(efTarget)} target — ${Math.round(efDone/efTarget*100)}% done. Save ${fmt(efGap/Math.max(efMonths,1))}/month for ${efMonths} months`
-        : `✅ Emergency fund: ${fmt(efTarget)} — already complete`,
-      `☂️ Term life insurance: ₹1 Cr cover ≈ ₹8,000–12,000/year — apply online today [urgent]`,
-      `📈 Start SIP: ${fmt(startSIP)}/month → 60% Nifty 50 Index, 40% FlexiCap`,
-      `💰 Tax savings: ₹${Math.round(taxSave/1000)}K+ via ELSS (80C) + NPS (80CCD1B)`,
-      `📋 Automate: SIP on 1st of month, EF on 5th — remove willpower from the equation`,
-    ]
-  });
-
-  // Phase 2: Acceleration
-  const sipY2 = Math.min(sipAvail * 0.8, 40000);
-  const sipStepUp = Math.round(sipY2 * 1.10 / 500) * 500;
-  const portfolioY5 = sipFV(sipY2, 36, returnRate);
-  phases.push({
-    id: 'acceleration',
-    title: '🚀 Acceleration Phase',
-    years: `Year 3–5  (Age ${age+2}–${age+5})`,
-    color: PHASE_COLORS[1],
-    summary: 'Emergency fund done. Now redirect that surplus into high-conviction investments.',
-    items: [
-      `📈 Step-up SIP to ${fmt(sipStepUp)}/month (10% annual step-up rule)`,
-      efGap > 0 ? `🔁 Redirect old EF instalments (${fmt(efGap/Math.max(efMonths,1))}/mo) into equity` : `🔁 Full ${fmt(surplus)}/month now deployable into goals`,
-      `📊 Portfolio at Year 5: ~${fmt(portfolioY5)} — start separate goal-specific buckets`,
-      `🎯 80C fully utilized via ELSS — ensure ₹1.5L/year invested before March 31`,
-      `🏥 Health insurance: ₹10L family floater — review coverage annually`,
-    ]
-  });
-
-  // Goal-specific phases
-  const sortedGoals = [...processed].sort((a, b) => a.years - b.years);
-  sortedGoals.forEach((g, i) => {
-    if (g.name.toLowerCase().includes('retire')) return; // handled separately
-    const phaseAge1 = age + g.years - 2;
-    const phaseAge2 = age + g.years;
-    const color = PHASE_COLORS[2 + i] || PHASE_COLORS[2];
-    const accumY = Math.max(0, g.years - 2);
-    const accumCorpus = sipFV(g.sipNeeded, accumY * 12, returnRate);
-    const downPmt  = g.name.toLowerCase().includes('home') ? g.inflatedTarget * 0.20 : 0;
-    const dpMonthly = downPmt > 0 ? Math.round(findSIP(downPmt, g.years, 0.07) / 500) * 500 : 0;
-
-    const items = [
-      `🎯 Target (inflation-adjusted): ${fmt(g.inflatedTarget)} by Year ${g.years}`,
-      `📈 Required SIP: ${fmt(g.sipNeeded)}/month at ${(returnRate*100).toFixed(0)}% CAGR`,
-    ];
-    if (downPmt > 0) {
-      items.push(`🏠 Down payment (20%): ${fmt(downPmt)} — save ${fmt(dpMonthly)}/month in debt fund`);
-      items.push(`💳 EMI capacity check: keep EMI ≤ 35% of income (${fmt(income*0.35)}/month)`);
-    }
-    items.push(`⚖️ Rebalance portfolio 2 years before goal: shift 60% to debt to protect gains`);
-    items.push(`✅ Year ${g.years} milestone: ${g.name} funded — redirect that ${fmt(g.sipNeeded)}/month to next goal`);
-
-    phases.push({
-      id: `goal-${i}`,
-      title: `🎯 ${g.name}`,
-      years: `Year ${Math.max(1, g.years-2)}–${g.years}  (Age ${Math.max(age+1, phaseAge1)}–${phaseAge2})`,
-      color,
-      summary: `${accumCorpus > g.inflatedTarget * 0.7 ? '✅ On track' : '⚠️ Needs higher SIP'} — ${fmt(accumCorpus)} projected vs ${fmt(g.inflatedTarget)} target.`,
-      items,
-    });
-  });
-
-  // Wealth milestone phases
-  if (retireYears > 10) {
-    const midAge = age + Math.round(retireYears * 0.5);
-    phases.push({
-      id: 'wealth',
-      title: '💎 Wealth Compounding Phase',
-      years: `Year ${Math.round(retireYears*0.4)}–${Math.round(retireYears*0.75)}  (Age ${age + Math.round(retireYears*0.4)}–${midAge})`,
-      color: PHASE_COLORS[5 % PHASE_COLORS.length],
-      summary: 'Portfolio now large enough to compound faster than you can save.',
-      items: [
-        `📊 Portfolio crossing ₹25L → add Small Cap satellite (15% allocation)`,
-        `📊 Portfolio crossing ₹50L → start equity rebalancing every 6 months`,
-        `🏦 NPS Tier-1: maximize ₹50,000 in 80CCD(1B) — guaranteed tax benefit`,
-        `📈 Step-up SIP every year: ₹500–1,000 per month — habit over willpower`,
-        `🔄 Review asset allocation annually: age-appropriate equity % = 100 − age`,
-      ]
-    });
-  }
-
-  // Pre-retirement phase
-  const preRetireStart = Math.max(age + 2, retireAge - 5);
-  const preRetireYearStart = Math.max(1, retireAge - age - 5);
-  phases.push({
-    id: 'preretire',
-    title: '🌅 Pre-Retirement Phase',
-    years: `Year ${preRetireYearStart}–${retireAge-age}  (Age ${preRetireStart}–${retireAge})`,
-    color: PHASE_COLORS[4],
-    summary: 'Capital preservation mode. Protect what you built.',
-    items: [
-      `⚖️ Shift equity: 60% → 40% over 5 years — systematic rebalancing`,
-      `🏦 NPS vesting: plan annuity vs lumpsum (60% lumpsum = tax-free)`,
-      `📋 Start SWP planning: ${fmt(income * 0.8)} withdrawals at 3.5% SWR`,
-      `🏥 Top up health insurance to ₹25L before retirement — premiums lower now`,
-      `📝 Review nominations, will, estate plan — the boring stuff that matters most`,
-    ]
-  });
+  // Phases come from FinosLifeGoals.roadmap(): figures worked out from these numbers, assumptions you set, and pointers to other
+  // pages. The old text carried fixed advice (premium ranges, fund names and allocations, tax saved at an assumed slab).
+  const ICON = { figure: '📊', assumption: '💭', pointer: '🔗' };
+  const PHASE_COLOR = ['#4F7CFF', '#00D4FF', '#00ff88', '#ffb703', '#c7f000', '#FF6B6B', '#9B59B6'];
+  const rec = { termCover: Number(localStorage.getItem('finos_term_insurance')) || null, dependents: localStorage.getItem('finos_dependents') === null ? null : Number(localStorage.getItem('finos_dependents')) };
+  const phases = FinosLifeGoals.roadmap({ age, income, savings, surplus, retireAge, returnRate, goals }, planned, rec).map((p, i) => ({
+    id: p.id, title: p.title, years: p.when, summary: p.summary, color: PHASE_COLOR[i % PHASE_COLOR.length],
+    items: p.items.map(it => `${ICON[it.kind] || '📊'} ${it.text}`),
+  }));
 
   // ── Render ──────────────────────────────────────────────────────
   renderResults({ age, income, savings, surplus, returnRate, efTarget, efDone, efGap,
-                  processed, totalSIPNeeded, feasPct, phases, retireYears, pool: planned.pool });
+                  processed, totalSIPNeeded, feasPct, phases, retireYears, pool: planned.pool, sipAvail });
 
   // Push goal data to finos context — flows to dashboard, FIRE calculator, Arya
   try {
@@ -624,8 +535,8 @@ function generateRoadmap() {
     localStorage.setItem('finos_goals_monthly_sip',  Math.round(totalSIPNeeded).toString());
     localStorage.setItem('finos_goals_target_total', Math.round(totalGoalAmt).toString());
     localStorage.setItem('finos_goals_count',        processed.length.toString());
-    localStorage.setItem('finos_goals_feasibility',  feasPct.toString());
-    window.FinosContext?.update?.({ goalsMonthlyRequired: totalSIPNeeded, goalsFeasibility: feasPct });
+    localStorage.setItem('finos_life_goals_feasibility',  feasPct.toString());   // its own key: finos_goals_feasibility belongs to the Goal optimizer
+    window.FinosContext?.update?.({ goalsMonthlyRequired: totalSIPNeeded });
   } catch {}
 
   btn.disabled = false; btn.textContent = '🗺️ Regenerate Roadmap';
@@ -638,19 +549,20 @@ function renderResults(data) {
   const res = document.getElementById('results');
   res.classList.add('active');
 
-  const { income, surplus, efTarget, efDone, efGap, processed, totalSIPNeeded, feasPct, phases } = data;
+  const { income, surplus, efTarget, efDone, efGap, processed, totalSIPNeeded, feasPct, phases, sipAvail } = data;
 
   // Feasibility banner
   const feas = document.getElementById('feasBanner');
-  if (feasPct >= 90) {
+  const gapPm = Math.max(0, totalSIPNeeded - sipAvail);
+  if (totalSIPNeeded === 0) {
     feas.className = 'feas-banner feas-ok';
-    feas.innerHTML = `<div class="feas-icon">✅</div><div>Your ₹${surplus.toLocaleString('en-IN')}/month surplus <strong>fully covers</strong> all goals (${feasPct}% feasibility). Stay disciplined and the roadmap delivers.</div>`;
-  } else if (feasPct >= 60) {
-    feas.className = 'feas-banner feas-warn';
-    feas.innerHTML = `<div class="feas-icon">⚠️</div><div>Surplus covers <strong>${feasPct}%</strong> of required ${fmt(totalSIPNeeded)}/month. Close the gap by extending lower-priority goals by 2–3 years OR increasing investable surplus by ${fmt(totalSIPNeeded - (surplus - Math.min(surplus*0.5, efGap/6)))}.</div>`;
+    feas.innerHTML = `<div class="feas-icon">✅</div><div>Your savings above the emergency fund cover every goal on these assumptions, so no monthly SIP is needed.</div>`;
+  } else if (feasPct >= 100) {
+    feas.className = 'feas-banner feas-ok';
+    feas.innerHTML = `<div class="feas-icon">✅</div><div>The ${fmt(sipAvail)}/month available for goals covers the ${fmt(totalSIPNeeded)}/month they need on these assumptions (${feasPct}%).</div>`;
   } else {
     feas.className = 'feas-banner feas-warn';
-    feas.innerHTML = `<div class="feas-icon">🚨</div><div>Surplus covers only <strong>${feasPct}%</strong> of goals. Prioritize retirement + nearest goal only. Defer rest. Consider increasing income streams — skills > frugality at this stage.</div>`;
+    feas.innerHTML = `<div class="feas-icon">⚠️</div><div>The ${fmt(sipAvail)}/month available covers <strong>${feasPct}%</strong> of the ${fmt(totalSIPNeeded)}/month the goals need, a gap of ${fmt(gapPm)} a month. Moving a deadline later, trimming a target or investing more closes it.</div>`;
   }
 
   // Summary strip
@@ -793,25 +705,21 @@ No preamble. Address the user as "tu". Be direct and motivating.
 
 // Auto-fill from localStorage profile (immediate, no async needed)
 document.addEventListener('DOMContentLoaded', function () {
-  var INCOME_MAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
-  var incomeKey  = localStorage.getItem('finos_income') || '';
-  // an exact monthly income (Money Score, Budget, onboarding) beats the coarse band from the profile form
-  var income     = Number(localStorage.getItem('finos_monthly_income')) || INCOME_MAP[incomeKey] || 0;
+  // Only recorded figures are used. A coarse income band is not turned into a number, the investable amount is not guessed as 30%
+  // of income, and net worth (house, EPF and all) is not savings available for goals.
+  var income     = Number(localStorage.getItem('finos_monthly_income')) || 0;
   var knownAge   = Number(localStorage.getItem('finos_age')) || 0;
-  var netWorth   = Number(localStorage.getItem('finos_net_worth')   || 0);
+  var liquid     = (Number(localStorage.getItem('finos_emergency_fund')) || 0) + (Number(localStorage.getItem('finos_cash_value')) || 0) + (Number(localStorage.getItem('finos_fd_value')) || 0);
   var savingsRate = Number(localStorage.getItem('finos_savings_rate') || 0);
   var anyFilled  = false;
 
   if (income > 0) {
     document.getElementById('inIncome').value  = income;
-    var surplus = savingsRate > 0
-      ? Math.round(income * savingsRate / 100)
-      : Math.round(income * 0.30);
-    document.getElementById('inSurplus').value = surplus;
+    if (savingsRate > 0 && savingsRate < 100) document.getElementById('inSurplus').value = Math.round(income * savingsRate / 100);
     anyFilled = true;
   }
-  if (netWorth > 0) {
-    document.getElementById('inSavings').value = netWorth;
+  if (liquid > 0) {
+    document.getElementById('inSavings').value = liquid;
     anyFilled = true;
   }
   if (knownAge >= 18 && knownAge <= 80) {
@@ -842,8 +750,6 @@ document.addEventListener('finos-context-ready', () => {
       const sr = ctx.profile?.savings_rate;
       if (sr > 0) document.getElementById('inSurplus').value = Math.round(fin.monthly_income * sr / 100);
     }
-    const nw = ctx.profile?.net_worth;
-    if (nw > 0) document.getElementById('inSavings').value = nw;
   } catch {}
 });
 </script>

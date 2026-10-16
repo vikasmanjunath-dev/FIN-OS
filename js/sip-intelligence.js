@@ -50,7 +50,7 @@
     load(ctx) {
       const rawSips = ctx?.financial?.sips
         || ctx?.sips
-        || JSON.parse(localStorage.getItem('finos_sips') || '[]');
+        || ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_sips')||'[]'));
       this.sips = rawSips.map(s => ({
         id:           s.id || Math.random().toString(36).slice(2),
         name:         s.fund_name || s.name || 'Unknown Fund',

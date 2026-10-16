@@ -9,8 +9,12 @@ export const TRADE: CalcDef[] = [
     inputs: [num('entry', 'Entry price', '₹', 500, 0, 100000, 1), num('qty', 'Quantity', '', 100, 1, 1000, 1), num('fixed', 'Fixed costs (brokerage etc.)', '₹', 40, 0, 100000, 1), num('var', 'Variable costs (STT / tax)', '%', 0.1, 0, 1, 0.01)],
     run: ({ entry, qty, fixed, var: v }) => {
       const varPct = v / 100, entryVal = entry * qty;
-      const be = (fixed + entryVal * (1 + varPct)) / (qty * (1 - varPct));
-      return [row('entryVal', 'Entry value', '₹' + Math.round(entryVal).toLocaleString()), row('costVal', 'Total costs', '₹' + Math.round(be * qty - entryVal).toLocaleString()), row('beVal', '', 'Exit Above: ₹' + be.toFixed(2), { hero: true })];
+      const den = qty * (1 - varPct);
+      if (!(qty > 0) || !(den > 0)) {   // no quantity (or costs of 100% or more): there is no break-even price
+        return [row('entryVal', 'Entry value', rupee(entryVal)), row('costVal', 'Total costs', '—'), row('beVal', '', 'Exit Above: —', { hero: true })];
+      }
+      const be = (fixed + entryVal * (1 + varPct)) / den;
+      return [row('entryVal', 'Entry value', rupee(entryVal)), row('costVal', 'Total costs', rupee(be * qty - entryVal)), row('beVal', '', 'Exit Above: ₹' + be.toFixed(2), { hero: true })];
     },
   },
   {
@@ -50,7 +54,8 @@ export const TRADE: CalcDef[] = [
     inputs: [num('price', 'Price per unit', '₹', 24000, 0, 10000000, 1), num('lot', 'Lot size', '', 25, 1, 100000, 1), num('span', 'SPAN margin (volatility risk)', '%', 10, 5, 20, 0.5), num('exp', 'Exposure margin', '%', 2, 1, 5, 0.1)],
     run: ({ price, lot, span, exp }) => {
       const contract = price * lot, margin = contract * (span / 100 + exp / 100);
-      return [row('contractVal', 'Contract value', rupee(contract)), row('marginVal', 'Blocked margin', rupee(margin)), row('leverageVal', '', (contract / margin).toFixed(1) + 'x Leverage', { hero: true })];
+      const lev = margin > 0 ? contract / margin : NaN;   // no margin % entered: no leverage figure
+      return [row('contractVal', 'Contract value', rupee(contract)), row('marginVal', 'Blocked margin', rupee(margin)), row('leverageVal', '', Number.isFinite(lev) ? lev.toFixed(1) + 'x Leverage' : '—', { hero: true })];
     },
     notes: ['Exchanges change SPAN and exposure margins daily, so use your broker\'s margin calculator before trading.'],
   },
@@ -86,7 +91,9 @@ export const TRADE: CalcDef[] = [
     id: 'riskpertrade', group: G, title: 'Risk Per Trade', blurb: 'Is your trade size safe for your account?', web: 'trading & markets/riskper.html',
     inputs: [num('capital', 'Trading capital', '₹', 100000, 10000, 5000000, 10000), num('entry', 'Entry price', '₹', 250, 0, 10000000, 1), num('sl', 'Stop-loss price', '₹', 240, 0, 10000000, 1), num('qty', 'Quantity / lots', '', 100, 1, 1000, 1)],
     run: ({ capital, entry, sl, qty }) => {
-      const risk = Math.abs(entry - sl) * qty, pct = (risk / capital) * 100;
+      const risk = Math.abs(entry - sl) * qty;
+      if (!(capital > 0)) return [row('riskAmt', 'Risk amount', rupee(risk)), row('riskPct', '% of capital', '—'), row('statusVal', '', 'Enter your trading capital', { tone: 'info', hero: true })];
+      const pct = (risk / capital) * 100;
       return [row('riskAmt', 'Risk amount', rupee(risk)), row('riskPct', '% of capital', pct.toFixed(2) + '%'),
         row('statusVal', '', pct > 2 ? 'High Risk! ⚠️' : pct > 1 ? 'Moderate Risk ⚠️' : 'Safe Trade ✅', { tone: pct > 2 ? 'bad' : pct > 1 ? 'warn' : 'good', hero: true })];
     },

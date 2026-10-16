@@ -12,7 +12,7 @@ export interface Schedule { emi: number; yearly: YearRow[]; totalInterest: numbe
 export interface PrepayImpact { newTenureMonths: number; savedMonths: number; savedInterest: number; newTotalInt: number }
 export interface HomeLoanResult {
   emi: number; sched: Schedule;
-  emiPct: number | null; affordable: boolean; maxAffordEMI: number; maxAffordLoan: number;
+  emiPct: number | null; /** null when no income is known: the website says so instead of guessing */ affordable: boolean | null; maxAffordEMI: number; maxAffordLoan: number;
   sec24bDeduct: number; sec80cDeduct: number; totalTaxDeduct: number; yr1Int: number; yr1Prin: number;
   prepay: PrepayImpact; totalCost: number;
 }
@@ -26,6 +26,7 @@ export const PREPAY_SCENARIOS = [100000, 200000, 500000, 1000000] as const;
 export function emi(principal: number, annualRate: number, tenureYears: number): number {
   const r = annualRate / 100 / 12;
   const n = tenureYears * 12;
+  if (!(n > 0) || !(principal > 0)) return 0;          // a blank or zero box has no EMI (the website returns 0, not NaN)
   if (r === 0) return Math.round(principal / n);
   return Math.round(principal * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1));
 }
@@ -75,7 +76,7 @@ export function compute(p: HomeLoanParams): HomeLoanResult {
   const e = sched.emi;
   const monthlyIncome = p.monthlyIncome || (p.grossIncome / 12);
   const emiPct = monthlyIncome > 0 ? Math.round(e / monthlyIncome * 1000) / 10 : null;     // one decimal, as the website's toFixed(1)
-  const affordable = emiPct !== null && emiPct <= 40;
+  const affordable = emiPct === null ? null : emiPct <= 40;
   const maxAffordEMI = Math.round(monthlyIncome * 0.40);
   const mr = p.interestRate / 100 / 12;
   const maxAffordLoan = monthlyIncome > 0

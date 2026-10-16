@@ -63,7 +63,7 @@
 ─────────────────────────────────────────────────────────────────── */
 (function () {
   try {
-    var s = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}');
+    var s = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS')||'{}'));
     var root = document.documentElement;
     if (/^#[\da-f]{6}$/i.test(s.accent || '')) root.style.setProperty('--accent', s.accent);
     if (['small','normal','large'].includes(s.fontSize)) root.setAttribute('data-font-size', s.fontSize);
@@ -83,7 +83,7 @@
   window.FINOS = window.FINOS || {};
   window.FINOS.fmt = function (amount, currencyOverride) {
     var cfg;
-    try { cfg = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}'); } catch (e) { cfg = {}; }
+    try { cfg = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS')||'{}')); } catch (e) { cfg = {}; }
     var numFmt  = cfg.numberFormat || 'indian';
     var curr    = currencyOverride || cfg.currency || 'inr';
     var SYMBOLS = { inr: '₹', usd: '$', eur: '€', gbp: '£' };
@@ -108,7 +108,7 @@
   };
   window.FINOS.fmtShort = function (amount) {
     var cfg;
-    try { cfg = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}'); } catch (e) { cfg = {}; }
+    try { cfg = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS')||'{}')); } catch (e) { cfg = {}; }
     var n = Number(amount);
     if (amount === null || amount === undefined || (typeof amount === 'string' && !amount.trim()) || !isFinite(n)) return '—';
     var abs = Math.abs(n);
@@ -137,7 +137,7 @@
     var mm = String(d.getMonth() + 1).padStart(2, '0');
     var yyyy = String(d.getFullYear());
     var cfg;
-    try { cfg = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}'); } catch (e) { cfg = {}; }
+    try { cfg = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS')||'{}')); } catch (e) { cfg = {}; }
     if (cfg.dateFormat === 'mdy') return mm + '/' + dd + '/' + yyyy;
     if (cfg.dateFormat === 'ymd') return yyyy + '-' + mm + '-' + dd;
     return dd + '/' + mm + '/' + yyyy;
@@ -249,7 +249,7 @@ function _finosUIInit() {
     }
     try { localStorage.setItem("finos-theme", next); localStorage.setItem("theme", next); } catch (_) {}
     try {
-      var s = JSON.parse(localStorage.getItem("FINOS_SYS_SETTINGS") || "{}");
+      var s = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem("FINOS_SYS_SETTINGS")||'{}'));
       s.theme = next;
       localStorage.setItem("FINOS_SYS_SETTINGS", JSON.stringify(s));
       window.dispatchEvent(new CustomEvent("finos-settings-updated", { detail: { key: "theme", val: next, settings: s } }));
@@ -261,7 +261,7 @@ function _finosUIInit() {
 
   var savedTheme = "dark";
   try {
-    var prefs = JSON.parse(localStorage.getItem("FINOS_SYS_SETTINGS") || "{}");
+    var prefs = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem("FINOS_SYS_SETTINGS")||'{}'));
     var themePref = ["dark", "light", "system"].includes(prefs.theme) ? prefs.theme : (localStorage.getItem("finos-theme") || localStorage.getItem("theme") || "dark");
     savedTheme = themePref === "system"
       ? (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
@@ -270,7 +270,7 @@ function _finosUIInit() {
   document.documentElement.setAttribute("data-theme", savedTheme);
   document.documentElement.classList.toggle("dark", savedTheme === "dark");
   try {
-    var startupPrefs = JSON.parse(localStorage.getItem("FINOS_SYS_SETTINGS") || "{}");
+    var startupPrefs = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem("FINOS_SYS_SETTINGS")||'{}'));
     if (["small", "normal", "large"].includes(startupPrefs.fontSize)) document.documentElement.setAttribute("data-font-size", startupPrefs.fontSize);
     ["reduce-motion", "high-contrast", "compact-ui"].forEach(function (name) {
       var key = name.replace(/-([a-z])/g, function (_, ch) { return ch.toUpperCase(); });
@@ -336,7 +336,7 @@ function _finosUIInit() {
   var systemThemeMedia = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
   var applySystemTheme = function () {
     try {
-      var prefs = JSON.parse(localStorage.getItem("FINOS_SYS_SETTINGS") || "{}");
+      var prefs = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem("FINOS_SYS_SETTINGS")||'{}'));
       if (prefs.theme !== "system") return;
       var resolved = systemThemeMedia.matches ? "dark" : "light";
       document.documentElement.setAttribute("data-theme", resolved);

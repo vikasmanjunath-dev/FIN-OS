@@ -19,6 +19,8 @@
     return '₹' + Math.round(n).toLocaleString('en-IN');
   };
 
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
   const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
   /* ── Build report data from context ─────────────────────────────── */
@@ -46,15 +48,18 @@
     const cats = (txns.top_categories || []).map(c => ({
       name: c.cat,
       amount: Number(c.amt),
-      budget: Number(c.budget || c.amt * 1.1),
+      // Only a budget the person actually set counts. (It used to be amount x 1.1, which made every category "under budget".)
+      budget: Number(c.budget) > 0 ? Number(c.budget) : null,
       pct: income > 0 ? Math.round(c.amt / income * 100) : 0,
     }));
-    const bestCat   = cats.reduce((b, c) => (!b || (c.budget - c.amount > b.budget - b.amount)) ? c : b, null);
-    const worstCat  = cats.reduce((w, c) => (!w || (c.amount - c.budget > w.amount - w.budget)) ? c : w, null);
+    const budgeted  = cats.filter(c => c.budget !== null);
+    const bestCat   = budgeted.reduce((b, c) => (!b || (c.budget - c.amount > b.budget - b.amount)) ? c : b, null);
+    const worstCat  = budgeted.reduce((w, c) => (!w || (c.amount - c.budget > w.amount - w.budget)) ? c : w, null);
 
     /* SIP growth */
     const sipTotal   = sips.reduce((s, x) => s + Number(x.amount || 0), 0);
-    const sipGrowth  = sips.reduce((s, x) => s + Number(x.gain_this_month || x.amount * 0.01 || 0), 0);
+    // Growth only where the data says so (it used to assume 1% a month, then print it as "grew").
+    const sipGrowth  = sips.reduce((s, x) => s + (Number(x.gain_this_month) || 0), 0);
 
     /* Goal highlights */
     const bestGoal   = goals.reduce((b, g) => (!b || g.progress > b.progress) ? g : b, null);
@@ -69,8 +74,9 @@
     const healthDelta = healthScore - prevHealth;
 
     /* Grade */
-    const grade = savingsRate >= 30 ? 'A' : savingsRate >= 20 ? 'B' : savingsRate >= 10 ? 'C' : 'D';
-    const gradeColor = { A: '#22d3a6', B: '#00d4ff', C: '#f0a500', D: '#ff4444' }[grade];
+    // No income recorded means no grade (it used to be an "D").
+    const grade = income <= 0 ? '–' : savingsRate >= 30 ? 'A' : savingsRate >= 20 ? 'B' : savingsRate >= 10 ? 'C' : 'D';
+    const gradeColor = { A: '#22d3a6', B: '#00d4ff', C: '#f0a500', D: '#ff4444', '–': '#8892a4' }[grade];
 
     return {
       monthName, year, grade, gradeColor,
@@ -95,7 +101,7 @@
       lines.push(`📊 You earned ${INR(r.income)}, spent ${INR(r.spent)}, and saved ${INR(r.saved)} (${r.savingsRate}% savings rate). Grade: ${r.grade}`);
     }
 
-    if (r.bestCat) {
+    if (r.bestCat && r.bestCat.amount <= r.bestCat.budget) {
       lines.push(`✅ Best category: ${r.bestCat.name} — you stayed under budget here.`);
     }
     if (r.worstCat && r.worstCat.amount > r.worstCat.budget) {
@@ -146,7 +152,7 @@
             <div>
               <div style="font-size:11px;color:#8892a4;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">Monthly Report</div>
               <div style="font-size:22px;font-weight:900;">${r.monthName} ${r.year}</div>
-              <div style="font-size:13px;color:#a0aec0;margin-top:4px;">Hey ${r.name} 👋 Here's how you did</div>
+              <div style="font-size:13px;color:#a0aec0;margin-top:4px;">Hey ${esc(r.name)} 👋 Here's how you did</div>
             </div>
             <div style="text-align:center;background:${r.gradeColor}20;border:2px solid ${r.gradeColor}40;border-radius:16px;padding:14px 24px;">
               <div style="font-size:40px;font-weight:900;color:${r.gradeColor};line-height:1;">${r.grade}</div>
@@ -172,9 +178,9 @@
             You earned <strong>${INR(r.income)}</strong>, spent <strong style="color:#ff6666">${INR(r.spent)}</strong>,
             and saved <strong style="color:${r.savingsRate>=20?'#22d3a6':'#f0a500'}">${INR(r.saved)}</strong>
             (${r.savingsRate}% savings rate).
-            ${r.bestCat ? `<br>✅ <strong>Best:</strong> ${r.bestCat.name} — stayed under budget.` : ''}
+            ${r.bestCat && r.bestCat.amount <= r.bestCat.budget ? `<br>✅ <strong>Best:</strong> ${esc(r.bestCat.name)} — stayed under budget.` : ''}
             ${r.worstCat && r.worstCat.amount > r.worstCat.budget
-              ? `<br>⚠️ <strong>Over-budget:</strong> ${r.worstCat.name} — ${INR(r.worstCat.amount - r.worstCat.budget)} extra.` : ''}
+              ? `<br>⚠️ <strong>Over-budget:</strong> ${esc(r.worstCat.name)} — ${INR(r.worstCat.amount - r.worstCat.budget)} extra.` : ''}
             ${r.sipTotal > 0 ? `<br>💰 SIPs: ${INR(r.sipTotal)} invested${r.sipGrowth > 0 ? `, grew by ${INR(r.sipGrowth)}` : ''}.` : ''}
             ${r.tradePnl !== 0 ? `<br>📓 Trading: ${sign(r.tradePnl)}${INR(r.tradePnl)} P&L.` : ''}
           </p>
@@ -185,18 +191,18 @@
         <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:18px;">
           <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#8892a4;margin-bottom:14px;">📊 Spending Breakdown</div>
           ${r.cats.slice(0,6).map(c => {
-            const over = c.amount > c.budget;
+            const over = c.budget !== null && c.amount > c.budget;
             const barPct = Math.min(100, r.income > 0 ? c.amount / r.income * 100 : c.pct);
             return `
               <div style="margin-bottom:12px;">
                 <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-                  <span style="font-size:13px;">${c.name}</span>
-                  <span style="font-size:13px;font-weight:700;color:${over?'#ff6666':'#22d3a6'}">${INR(c.amount)} ${over?'⚠️':'✅'}</span>
+                  <span style="font-size:13px;">${esc(c.name)}</span>
+                  <span style="font-size:13px;font-weight:700;color:${over?'#ff6666':'#22d3a6'}">${INR(c.amount)} ${c.budget === null ? '' : over?'⚠️':'✅'}</span>
                 </div>
                 <div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;">
                   <div style="height:100%;border-radius:3px;background:${over?'#ff4444':'#22d3a6'};width:${barPct}%;transition:width .6s ease;"></div>
                 </div>
-                <div style="font-size:10px;color:#8892a4;margin-top:3px;">${c.pct}% of income</div>
+                <div style="font-size:10px;color:#8892a4;margin-top:3px;">${r.income > 0 ? c.pct + '% of income' : 'Income not recorded'}</div>
               </div>`;
           }).join('')}
         </div>` : ''}
@@ -208,7 +214,7 @@
           ${r.goals.slice(0,4).map(g => `
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
               <div style="flex:1;">
-                <div style="font-size:13px;font-weight:600;">${g.name}</div>
+                <div style="font-size:13px;font-weight:600;">${esc(g.name)}</div>
                 <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px;margin-top:5px;">
                   <div style="height:100%;border-radius:3px;background:linear-gradient(90deg,#7b2ff7,#00d4ff);width:${Math.min(100, g.progress||0)}%;"></div>
                 </div>
@@ -289,6 +295,7 @@
     print() {
       const r = this._lastReport || buildReport(window.FINOS_USER_CONTEXT || {});
       const win = window.open('', '_blank', 'width=700,height=900');
+      if (!win) return;                                   // pop-up blocked: nothing to write into
       win.document.write(`<html><head><title>FIN·OS Report - ${r.monthName} ${r.year}</title><style>body{background:#0a0c14;padding:24px;}</style></head><body>${renderReportHTML(r)}</body></html>`);
       win.document.close();
       setTimeout(() => win.print(), 400);

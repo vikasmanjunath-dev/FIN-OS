@@ -571,13 +571,13 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
 </head> 
 <body> 
  
   <!-- LOADING OVERLAY --> 
-  <div class="loading-overlay" id="loadingOverlay"> 
+  <div class="loading-overlay" id="loadingOverlay" role="status" aria-live="polite"> 
     <div class="spinner"></div> 
     <div style="font-family: var(--font-mono); color: var(--neon-cyan); font-size: 14px;"> 
       INITIALIZING DEEP ANALYSIS... 
@@ -588,15 +588,15 @@
   <header class="top-bar"> 
     <div style="display: flex; align-items: center; gap: 15px;"> 
       <button class="back-btn" onclick="window.location.href='market-intel.html'">← EXIT</button> 
-      <div class="logo">FIN•OS | <span style="color: var(--neon-cyan);" id="modeTitle">VISUALIZER</span></div> 
+      <div class="logo" role="heading" aria-level="1">FIN•OS | <span style="color: var(--neon-cyan);" id="modeTitle">VISUALIZER</span></div> 
     </div> 
     <div class="status-badge" id="symbolBadge">LOADING...</div> 
   </header> 
  
   <!-- MAIN CONTENT --> 
-  <div class="container" id="mainContent"> 
+  <main class="container" id="mainContent"> 
     <!-- Content will be dynamically injected based on mode --> 
-  </div> 
+  </main> 
  
   <script> 
     // Get URL parameters 

@@ -243,7 +243,7 @@
   /* ── Settings Panel HTML (inject into settings page) ─────────── */
   function getSettingsHTML() {
     const reg = isRegistered();
-    const saved = reg ? JSON.parse(localStorage.getItem(CRED_KEY) || '{}') : null;
+    const saved = reg ? ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem(CRED_KEY)||'{}')) : null;
 
     return `
       <div id="finos-biometric-settings" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;font-family:-apple-system,sans-serif;">

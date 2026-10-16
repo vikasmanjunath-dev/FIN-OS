@@ -25,14 +25,14 @@
   <link rel="stylesheet" href="../css/mfdetail.css">
   <link rel="stylesheet" href="../css/theme.css?v=2">
   <link rel="stylesheet" href="../css/reader-shell.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
   <meta property="og:image" content="/assets/icons/icon-512.svg">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
 </head>
 <body data-nav-parent="markets.html">
@@ -198,7 +198,7 @@
             </div>
           </div>
           <div class="text-content">
-            <h4>The Logic:</h4>
+            <h4 aria-level="3">The Logic:</h4>
             <p>Imagine 1,000 people in your society give ₹1,000 each. You now have <strong>₹10 Lakhs</strong>. You hire one smart CA to invest it. That is a Mutual Fund.</p>
           </div>
         </div>
@@ -212,17 +212,17 @@
         <div class="grid-3-cards">
           <div class="card-box">
             <div class="icon">⏳</div>
-            <h4>No Time</h4>
+            <h4 aria-level="3">No Time</h4>
             <p>You have a job. You can't track charts 9-to-3. The Fund Manager does it for you.</p>
           </div>
           <div class="card-box">
             <div class="icon">🧠</div>
-            <h4>No Skill</h4>
+            <h4 aria-level="3">No Skill</h4>
             <p>You don't know how to read a Balance Sheet. The Research Team does.</p>
           </div>
           <div class="card-box highlight">
             <div class="icon">🎢</div>
-            <h4>No Discipline</h4>
+            <h4 aria-level="3">No Discipline</h4>
             <p>You panic when markets fall. An SIP system forces you to buy low automatically.</p>
           </div>
         </div>
@@ -262,12 +262,12 @@
         
         <div class="grid-2-mini">
           <div class="mini-card danger">
-            <h4>❌ The Myth</h4>
+            <h4 aria-level="3">❌ The Myth</h4>
             <p>"Fund A has NAV ₹10. Fund B has NAV ₹500. Fund A is cheaper!"</p>
             <p><strong>Wrong.</strong></p>
           </div>
           <div class="mini-card success">
-            <h4>✅ The Truth</h4>
+            <h4 aria-level="3">✅ The Truth</h4>
             <p>NAV is just the total value divided by units. Investing ₹10k in either fund gives you the <strong>SAME</strong> value.</p>
             <p><em>Returns depend on % growth, not the NAV number.</em></p>
           </div>
@@ -356,11 +356,11 @@
           <p class="chart-caption">SIP vs Lump Sum (Volatility Absorption)</p>
         </div>
 
-        <div class="checklist-style">
+        <ul class="checklist-style" style="margin:0;padding:0;list-style:none">
            <li>✅ <strong>Rupee Cost Averaging:</strong> When market falls, your fixed amount buys MORE units.</li>
            <li>✅ <strong>Automation:</strong> Removes "Should I buy today?" confusion.</li>
            <li>❌ <strong>Myth:</strong> SIP guarantees profit. (No, it just reduces risk).</li>
-        </div>
+        </ul>
       </section>
 
       <section class="chapter" id="sec8">
@@ -391,15 +391,15 @@
         <h2>9. Risk & Indian Mistakes</h2>
         <div class="grid-2-mini">
           <div class="mini-card danger">
-            <h4>Overlapping</h4>
+            <h4 aria-level="3">Overlapping</h4>
             <p>Buying 4 different Large Cap funds. You own HDFC Bank 4 times. You are paying 4 fees for the same portfolio.</p>
           </div>
           <div class="mini-card danger">
-            <h4>Churning</h4>
+            <h4 aria-level="3">Churning</h4>
             <p>Stopping SIP because the market fell 10%. This is exactly when you should be buying.</p>
           </div>
           <div class="mini-card danger">
-            <h4>Sector Trap</h4>
+            <h4 aria-level="3">Sector Trap</h4>
             <p>Buying "IT Fund" because IT was up 50% last year. This is "Return Chasing". Usually ends in loss.</p>
           </div>
         </div>
@@ -420,7 +420,7 @@
       <section class="chapter" id="sec16">
         <div class="pro-tip god-mode">
           <div class="god-header">
-            <h4>💎 The Final Truth</h4>
+            <h4 aria-level="3">💎 The Final Truth</h4>
           </div>
           <p>
             Mutual Funds don't protect you from losses.<br>

@@ -1,12 +1,13 @@
 // Retirement planner storage: same finos_retire_* keys the website uses, so a plan made on either side follows you.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RETIRE_KEYS, type Plan } from '@/lib/retirementPlan';
+import { getMany } from '@/lib/safeStore';
 
 /** Everything the planner reads, as a plain map (missing keys are simply absent). */
 export async function loadRetirementStore(): Promise<Record<string, string>> {
-  const pairs = await AsyncStorage.multiGet([...RETIRE_KEYS]);
+  const got = await getMany(RETIRE_KEYS);
   const out: Record<string, string> = {};
-  pairs.forEach(([k, v]) => { if (v != null && v !== '') out[k] = v; });
+  Object.entries(got).forEach(([k, v]) => { if (v != null && v !== '') out[k] = v; });
   return out;
 }
 

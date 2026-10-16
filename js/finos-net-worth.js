@@ -84,10 +84,12 @@
     // Write computed net worth back → dashboard + context pick it up
     localStorage.setItem('finos_net_worth', netWorth.toString());
     // Write FIRE % — dashboard kpi-fire reads this key (was never written by any module before v1.1)
-    const _mExp = gs('finos_monthly_expense') || gs('finos_aa_expense') || (gs('finos_monthly_income') * 0.6) || 50000;
+    // No recorded spend and no income: there is no FIRE figure to write (it used to assume ₹50,000 a month).
+    const _mExp = gs('finos_monthly_expense') || gs('finos_aa_expense') || (gs('finos_monthly_income') * 0.6) || 0;
     const _fireCorpus = _mExp * 12 * 25;
     const _firePct = _fireCorpus > 0 ? Math.min(100, (netWorth / _fireCorpus) * 100) : 0;
-    localStorage.setItem('finos_fire_percent', _firePct.toFixed(1));
+    if (_fireCorpus > 0) localStorage.setItem('finos_fire_percent', _firePct.toFixed(1));
+    else localStorage.removeItem('finos_fire_percent');
     if (window.FinosContext?.update) {
       window.FinosContext.update({ netWorth, totalAssets, totalLiabilities, firePercent: _firePct });
     }
@@ -109,7 +111,7 @@
     const { netWorth } = compute();
     const now = new Date();
     const today  = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`; // local YYYY-MM
-    const history = ls(HISTORY_KEY) || [];
+    const history = (Array.isArray(ls(HISTORY_KEY)) ? ls(HISTORY_KEY).filter(x => x && typeof x === 'object') : []);
     const existing = history.findIndex(h => h.month === today);
     if (existing >= 0) history[existing].value = netWorth;
     else history.push({ month: today, value: netWorth });
@@ -314,7 +316,13 @@
     if (!container) return;
     const { netWorth } = compute();
 
-    const monthlyExpense = gs('finos_monthly_expense') || gs('finos_aa_expense') || gs('finos_monthly_income') * 0.6 || 50000;
+    const recordedExpense = gs('finos_monthly_expense') || gs('finos_aa_expense') || 0;
+    const monthlyExpense = recordedExpense || gs('finos_monthly_income') * 0.6 || 0;
+    if (!(monthlyExpense > 0)) {
+      container.innerHTML = `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;font-size:13px;color:#8892A4;line-height:1.6;">
+        <strong style="color:#F5F7FA;">FIRE progress needs your monthly expenses.</strong> Add them in the Budget tracker (or your monthly income, for a rough 60% estimate) and this card will show how far your net worth is from 25x annual spending.</div>`;
+      return;
+    }
     const annualExpense  = monthlyExpense * 12;
     const fireCorpus     = annualExpense * 25; // 4% SWR rule
     const fireProgress   = fireCorpus > 0 ? Math.min((netWorth / fireCorpus) * 100, 100) : 0;
@@ -372,7 +380,7 @@
         <div style="margin-top:16px;font-size:12px;color:#8892A4;background:rgba(255,255,255,.03);border-radius:10px;padding:10px 14px;line-height:1.6;">
           💡 At ₹${INR(monthlyExpense)}/month expenses, you need <strong style="color:#F0A500;">${INR(fireCorpus)}</strong> invested to withdraw 4% annually and never run out.
           Grow your net worth by ${INR(remaining)} more to reach FIRE.
-          ${gs('finos_monthly_income') > 0 ? ` Saving ${Math.round((1 - monthlyExpense/gs('finos_monthly_income'))*100)}% of income.` : ''}
+          ${recordedExpense > 0 && gs('finos_monthly_income') > 0 ? ` Saving ${Math.round((1 - monthlyExpense/gs('finos_monthly_income'))*100)}% of income.` : ''}
         </div>
       </div>
 
@@ -386,7 +394,7 @@
   ══════════════════════════════════════════════════════════════════ */
   function renderTimeline(container) {
     if (!container) return;
-    const history = ls(HISTORY_KEY) || [];
+    const history = (Array.isArray(ls(HISTORY_KEY)) ? ls(HISTORY_KEY).filter(x => x && typeof x === 'object') : []);
 
     if (history.length < 2) {
       container.innerHTML = `

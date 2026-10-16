@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } 
 import { useFocusEffect } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel, Stat, inr, inrShort } from '@/components/TrackerUI';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
-import { INSTRUMENTS, buildEntry, calcEntry, totals, upcomingMaturities, type FDEntry, type InstrumentId } from '@/lib/fixedIncome';
+import { INSTRUMENTS, buildEntry, calcEntry, safeTotals, upcomingMaturities, type FDEntry, type InstrumentId } from '@/lib/fixedIncome';
 import { addFD, loadFD, removeFD } from '@/lib/fixedIncomeStorage';
 
 const TYPES = Object.keys(INSTRUMENTS) as InstrumentId[];
@@ -24,7 +24,7 @@ export default function FixedIncomeScreen() {
 
   useFocusEffect(useCallback(() => { loadFD().then(setList); }, []));
   const now = new Date();
-  const t = useMemo(() => totals(list, new Date()), [list]);
+  const t = useMemo(() => safeTotals(list, new Date()), [list]);
   const upcoming = useMemo(() => upcomingMaturities(list, new Date(), 24), [list]);
   const inst = INSTRUMENTS[type];
   const needsTerm = !FIXED_TERM.includes(type);

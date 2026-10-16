@@ -142,7 +142,7 @@
         ts: Date.now()
       };
       try {
-        const txns = JSON.parse(localStorage.getItem('finos_transactions') || '[]');
+        const txns = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_transactions')||'[]'));
         txns.push(txn);
         localStorage.setItem('finos_transactions', JSON.stringify(txns));
         window._finosRequestContext?.();

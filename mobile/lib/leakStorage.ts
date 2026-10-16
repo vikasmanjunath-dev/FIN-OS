@@ -2,11 +2,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadTransactions } from '@/lib/txnStorage';
 import { compute, type LeakOptions, type LeakResult } from '@/lib/leak';
+import { finite, getText } from '@/lib/safeStore';
 
 export async function loadLeakInputs(): Promise<{ txns: LeakOptions['txns']; subscriptionsMonthly: number }> {
-  const [txns, subsRaw] = await Promise.all([loadTransactions(), AsyncStorage.getItem('finos_subscriptions_monthly')]);
+  const [txns, subsRaw] = await Promise.all([loadTransactions(), getText('finos_subscriptions_monthly')]);
   let subs = 0;
-  try { subs = Number(JSON.parse(subsRaw ?? '0')) || 0; } catch { subs = Number(subsRaw) || 0; }
+  try { subs = finite(JSON.parse(subsRaw ?? '0')); } catch { subs = finite(subsRaw); }
+  if (subs < 0) subs = 0;
   return { txns, subscriptionsMonthly: subs };
 }
 

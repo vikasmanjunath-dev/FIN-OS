@@ -3,7 +3,7 @@
 <head>
 <script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
@@ -279,7 +279,7 @@ function INR(n) {
 }
 
 function loadPolicies() {
-  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); }
+  try { return ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem(STORE_KEY)||'[]')).filter(x => x && typeof x === 'object'); }
   catch { return []; }
 }
 function savePolicies(p) {
@@ -296,19 +296,21 @@ const TYPE_META = {
   critical:     { icon:'❤️', label:'Critical Illness',   color:'#ff4444', recBase: 5000000  }
 };
 
+const escH = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
 /* ── Coverage Overview Cards ─── */
 function renderOverview(policies) {
   const ctx = window.FINOS_USER_CONTEXT;
   const INCOME_MAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
   const lsIncome = INCOME_MAP[localStorage.getItem('finos_income') || ''] || 0;
-  const income = Number(ctx?.budget_tracker?.income_monthly || lsIncome || 50000);
+  const income = Number(ctx?.budget_tracker?.income_monthly || lsIncome || 0);   // 0 = not recorded (it used to assume ₹50,000 a month)
   const nw     = Number(ctx?.profile?.net_worth || localStorage.getItem('finos_net_worth') || 0);
 
   const RECOMMENDED = {
-    health:    income * 12 * 2,         // 2x annual income
-    life_term: income * 12 * 15,        // 15x annual income
-    vehicle:   500000,                   // static
-    critical:  income * 12 * 5          // 5x annual income
+    health:    income > 0 ? income * 12 * 2 : 0,    // 2x annual income (a rule of thumb, not advice)
+    life_term: income > 0 ? income * 12 * 15 : 0,   // 15x annual income
+    vehicle:   500000,                               // static
+    critical:  income > 0 ? income * 12 * 5 : 0     // 5x annual income
   };
 
   const byType = {};
@@ -339,8 +341,8 @@ function renderOverview(policies) {
         <div>
           <div style="font-size:13px;font-weight:700;">${meta.label}</div>
           <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:2px;">Have: ${have > 0 ? INR(have) : '—'}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.58);">Recommended: ${INR(rec)}</div>
-          ${have < rec ? `<div style="font-size:10px;color:${col};margin-top:3px;font-weight:700;">Gap: ${INR(rec - have)}</div>` : `<div style="font-size:10px;color:#22d3a6;margin-top:3px;font-weight:700;">✅ Covered</div>`}
+          <div style="font-size:11px;color:rgba(255,255,255,0.58);">${rec > 0 ? 'Rule of thumb: ' + INR(rec) : 'Add your income for a rule-of-thumb figure'}</div>
+          ${rec <= 0 ? '' : have < rec ? `<div style="font-size:10px;color:${col};margin-top:3px;font-weight:700;">Gap: ${INR(rec - have)}</div>` : `<div style="font-size:10px;color:#22d3a6;margin-top:3px;font-weight:700;">✅ Covered</div>`}
         </div>
       </div>`;
   }).join('');
@@ -349,8 +351,10 @@ function renderOverview(policies) {
 /* ── Gap Analysis ─── */
 function renderGapAnalysis(policies) {
   const ctx = window.FINOS_USER_CONTEXT;
-  const income = Number(ctx?.budget_tracker?.income_monthly || 50000);
-  const age    = Number(localStorage.getItem('finos_age') || 30);
+  const INCOME_BANDS = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
+  const income = Number(ctx?.budget_tracker?.income_monthly || INCOME_BANDS[localStorage.getItem('finos_income') || ''] || 0);   // 0 = not recorded
+  const ageRaw = Number(localStorage.getItem('finos_age'));
+  const age    = ageRaw > 0 && ageRaw < 120 ? ageRaw : 0;                                                                     // 0 = not recorded
   const hasHealth = policies.some(p => p.type === 'health');
   const hasTerm   = policies.some(p => p.type === 'life_term');
   const hasVehicle = policies.some(p => p.type === 'vehicle');
@@ -358,12 +362,13 @@ function renderGapAnalysis(policies) {
   const totalLife   = policies.filter(p => p.type === 'life_term').reduce((s,p) => s + Number(p.sum_assured||0), 0);
   const recHealth = income * 12 * 2;
   const recLife   = income * 12 * 15;
+  const incomeKnown = income > 0;
 
   const gaps = [];
-  if (!hasHealth) gaps.push({ icon:'🏥', title:'No health insurance', severity:'critical', msg:`With rising healthcare costs, one hospitalization can cost ₹5-25L. Get a ${INR(recHealth)} family floater plan.`, action:'insurance-directory.html', cta:'Find plans' });
-  else if (totalHealth < recHealth) gaps.push({ icon:'🏥', title:`Health cover is low (${INR(totalHealth)})`, severity:'high', msg:`Recommended: ${INR(recHealth)}. Hospital bills at AIIMS/Apollo can be ₹15-30L. Top-up your existing cover.`, action:'insurance-directory.html', cta:'Explore top-up' });
-  if (!hasTerm && age < 55) gaps.push({ icon:'🛡️', title:'No term life insurance', severity:'critical', msg:`A ${income * 12 * 15 > 10000000 ? INR(income*12*15) : '₹1 Cr+'} term plan at age ${age} costs just ₹${Math.round(income*0.01).toLocaleString('en-IN')}/month. Essential if anyone depends on your income.`, action:'insurance-directory.html', cta:'Get term plan' });
-  else if (totalLife < income * 12 * 10) gaps.push({ icon:'🛡️', title:`Life cover may be insufficient`, severity:'medium', msg:`Current: ${INR(totalLife)}. Ideal: 15x annual income (${INR(income*12*15)}). Review if your liabilities have grown.`, action:'insurance-directory.html', cta:'Review' });
+  if (!hasHealth) gaps.push({ icon:'🏥', title:'No health insurance', severity:'critical', msg:`With rising healthcare costs, one hospitalization can cost ₹5-25L. Get ${incomeKnown ? 'a ' + INR(recHealth) : 'a'} family floater plan.`, action:'insurance-directory.html', cta:'Find plans' });
+  else if (incomeKnown && totalHealth < recHealth) gaps.push({ icon:'🏥', title:`Health cover is low (${INR(totalHealth)})`, severity:'high', msg:`Recommended: ${INR(recHealth)}. Hospital bills at AIIMS/Apollo can be ₹15-30L. Top-up your existing cover.`, action:'insurance-directory.html', cta:'Explore top-up' });
+  if (!hasTerm && (age === 0 || age < 55)) gaps.push({ icon:'🛡️', title:'No term life insurance', severity:'critical', msg:`A ${income * 12 * 15 > 10000000 ? INR(income*12*15) : '₹1 Cr+'} term plan ${age ? 'at age ' + age : 'at your age'} costs just ₹${Math.round(income*0.01).toLocaleString('en-IN')}/month. Essential if anyone depends on your income.`, action:'insurance-directory.html', cta:'Get term plan' });
+  else if (incomeKnown && totalLife < income * 12 * 10) gaps.push({ icon:'🛡️', title:`Life cover may be insufficient`, severity:'medium', msg:`Current: ${INR(totalLife)}. Ideal: 15x annual income (${INR(income*12*15)}). Review if your liabilities have grown.`, action:'insurance-directory.html', cta:'Review' });
   if (!hasVehicle) gaps.push({ icon:'🚗', title:'Vehicle insurance status unknown', severity:'low', msg:'Third-party vehicle insurance is legally mandatory in India. Ensure comprehensive cover to protect your asset.', action:'insurance-directory.html', cta:'Check' });
   if (age > 35 && !policies.some(p => p.type === 'critical')) gaps.push({ icon:'❤️', title:'No critical illness cover', severity:'medium', msg:`Cancer, heart attack, stroke — treatment can cost ₹10-50L. A ${INR(income*12*5)} critical illness rider costs ~₹3-5K/year.`, action:'insurance-directory.html', cta:'Add rider' });
 
@@ -408,7 +413,7 @@ function renderPolicies(policies) {
           <div class="ins-icon" style="background:${meta.color}18;">${meta.icon}</div>
           <div>
             <div class="ins-type">${meta.label}</div>
-            <div class="ins-provider">${p.provider || 'Unknown provider'}</div>
+            <div class="ins-provider">${escH(p.provider || 'Unknown provider')}</div>
           </div>
           <button onclick="deletePolicy(${i})" style="margin-left:auto;background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.2);border-radius:6px;padding:4px 8px;color:#ff6b6b;font-size:11px;cursor:pointer;">✕</button>
         </div>
@@ -425,8 +430,8 @@ function renderPolicies(policies) {
           <span class="ins-metric-label">Renewal</span>
           <span class="ins-metric-val" style="color:${renewalColor};">${renewalDays <= 0 ? 'EXPIRED!' : renewalDays === 0 ? 'Today' : renewalDays + 'd'}</span>
         </div>` : ''}
-        ${p.policy_number ? `<div class="ins-metric"><span class="ins-metric-label">Policy No.</span><span class="ins-metric-val" style="font-size:11px;color:rgba(255,255,255,.5);">${p.policy_number}</span></div>` : ''}
-        ${p.notes ? `<div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.05);">${p.notes}</div>` : ''}
+        ${p.policy_number ? `<div class="ins-metric"><span class="ins-metric-label">Policy No.</span><span class="ins-metric-val" style="font-size:11px;color:rgba(255,255,255,.5);">${escH(p.policy_number)}</span></div>` : ''}
+        ${p.notes ? `<div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.05);">${escH(p.notes)}</div>` : ''}
       </div>`;
   }).join('');
 }
@@ -507,17 +512,18 @@ async function analyzeInsurance() {
   const el = document.getElementById('aryaInsuranceText');
   const policies = loadPolicies();
   const ctx = window.FINOS_USER_CONTEXT || {};
-  const income = Number(ctx?.budget_tracker?.income_monthly || 50000);
-  const age = Number(localStorage.getItem('finos_age') || 30);
+  const income = Number(ctx?.budget_tracker?.income_monthly || 0);                      // 0 = not recorded
+  const ageRaw = Number(localStorage.getItem('finos_age'));
+  const age = ageRaw > 0 && ageRaw < 120 ? ageRaw : 0;                                    // 0 = not recorded
   const name = ctx?.identity?.name?.split(' ')[0] || 'bhai';
 
   const polSummary = policies.length ? policies.map(p => `${TYPE_META[p.type]?.label}: ${INR(p.sum_assured)}`).join(', ') : 'No policies added yet';
   const totalPrem  = policies.reduce((s,p) => s + Number(p.annual_premium||0), 0);
 
-  const prompt = `Insurance analysis for ${name} (age ${age}, income ${INR(income)}/month):
+  const prompt = `Insurance analysis for ${name} (age ${age ? age : 'not recorded'}, income ${income > 0 ? INR(income) + '/month' : 'not recorded'}):
 Current policies: ${polSummary}
 Total annual premiums: ${INR(totalPrem)}
-Rule of thumb: Term life = 15x income (${INR(income*12*15)}), Health = 2x income (${INR(income*12*2)})
+${income > 0 ? `Rule of thumb: Term life = 15x income (${INR(income*12*15)}), Health = 2x income (${INR(income*12*2)})` : 'Income is not recorded, so do not assume one; say what is needed to size cover.'}
 
 Analyze in 4 Hinglish points:
 1. Overall coverage assessment (good/risky/dangerous)

@@ -130,6 +130,7 @@
     if (pr && pr.style.display !== 'none') renderProjection(pr);
   }
 
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   /* ── Render: input form ─────────────────────────────────────────── */
   function renderForm(el) {
     if (!el) return;
@@ -157,7 +158,7 @@
           </div>
           <div class="epf-field">
             <label>Date of Joining (DOJ)</label>
-            <input type="date" id="epf-doj" class="epf-inp" value="${doj}"
+            <input type="date" id="epf-doj" class="epf-inp" value="${esc(doj)}"
               onchange="FinosEPFTracker._autoSave()">
           </div>
           <div class="epf-field">
@@ -167,7 +168,7 @@
           </div>
           <div class="epf-field">
             <label>UAN (optional)</label>
-            <input type="text" id="epf-uan" class="epf-inp" value="${uan}" placeholder="100XXXXXXXXXXX" maxlength="20"
+            <input type="text" id="epf-uan" class="epf-inp" value="${esc(uan)}" placeholder="100XXXXXXXXXXX" maxlength="20"
               oninput="FinosEPFTracker._autoSave()">
           </div>
         </div>

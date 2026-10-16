@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="../css/layout.css?v=4">
 <link rel="stylesheet" href="../css/components.css?v=2">
 <link rel="stylesheet" href="../css/theme.css?v=2">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
 <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
@@ -705,7 +705,7 @@ Warm, non-judgmental, like a wise mentor. No preamble.
   }
 
   // Save score to localStorage
-  const simScores = JSON.parse(localStorage.getItem('finos_sim_scores') || '{}');
+  const simScores = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('finos_sim_scores')||'{}'));
   simScores[s.id] = { score: perfScore, choice: choiceIdx, taken_at: new Date().toISOString() };
   localStorage.setItem('finos_sim_scores', JSON.stringify(simScores));
 }
@@ -736,7 +736,7 @@ document.addEventListener('DOMContentLoaded', () => {
 #floatBackBtn:hover{background: transparent;color:var(--text-primary);transform:translateX(-3px);}
 @media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
-<a id="floatBackBtn" onclick="history.back();return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back();return false;" href="#">‹ BACK</a></nav>
 
 <script src="../js/sidebar.js"></script>
 <script src="../js/finos-api.js"></script>

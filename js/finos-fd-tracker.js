@@ -14,6 +14,8 @@
   'use strict';
 
   const STORE_KEY = 'finos_fd_portfolio';
+  /* Labels, banks and nominees are typed by the person: escape before they go into markup. */
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   /* ── Instrument definitions ────────────────────────────────────── */
   const INSTRUMENTS = {
@@ -174,7 +176,7 @@
   }
 
   /* ── Data layer ─────────────────────────────────────────────────── */
-  function load() { try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); } catch { return []; } }
+  function load() { try { return ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem(STORE_KEY)||'[]')).filter(e => e && typeof e === 'object'); } catch { return []; } }
   function save(arr) { localStorage.setItem(STORE_KEY, JSON.stringify(arr)); }
 
   function getTotals() {
@@ -287,7 +289,7 @@
     });
 
     return Object.entries(groups).map(([type, entries]) => {
-      const inst = INSTRUMENTS[type] || { label: type.toUpperCase(), color: '#8892A4', icon: '💰' };
+      const inst = INSTRUMENTS[type] || { label: String(type || 'other').toUpperCase(), color: '#8892A4', icon: '💰' };
       return `
         <div class="fd-type-group">
           <div class="fd-type-header">
@@ -321,12 +323,12 @@
           <div>
             <div class="fd-card-name">
               <span>${inst.icon}</span>
-              ${entry.label || inst.label}
-              <span class="fd-tag" style="background:${inst.color}22;color:${inst.color};">${entry.bank || entry.type.toUpperCase()}</span>
+              ${esc(entry.label || inst.label)}
+              <span class="fd-tag" style="background:${inst.color}22;color:${inst.color};">${esc(entry.bank || String(entry.type || '').toUpperCase())}</span>
             </div>
             <div class="fd-card-sub">
               Since ${fmtDate(entry.startDate)} &nbsp;·&nbsp; ${rateDisplay}
-              ${entry.nominee ? ` &nbsp;·&nbsp; Nominee: ${entry.nominee}` : ''}
+              ${entry.nominee ? ` &nbsp;·&nbsp; Nominee: ${esc(entry.nominee)}` : ''}
             </div>
           </div>
           <button class="fd-del-btn" onclick="FinosFD._deleteEntry('${entry.id}')">×</button>
@@ -395,8 +397,8 @@
             <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;margin-bottom:10px;">
               <div style="font-size:24px;">${x.inst.icon}</div>
               <div style="flex:1;">
-                <div style="font-size:13px;font-weight:700;color:#F5F7FA;">${x.entry.label || x.inst.label}</div>
-                <div style="font-size:11px;color:#8892A4;">${x.entry.bank || ''} &nbsp;·&nbsp; ${x.entry.rate || x.inst.rate || '—'}% p.a.</div>
+                <div style="font-size:13px;font-weight:700;color:#F5F7FA;">${esc(x.entry.label || x.inst.label)}</div>
+                <div style="font-size:11px;color:#8892A4;">${esc(x.entry.bank || '')} &nbsp;·&nbsp; ${x.entry.rate || x.inst.rate || '—'}% p.a.</div>
               </div>
               <div style="text-align:right;">
                 <div style="font-size:16px;font-weight:800;color:#F5F7FA;">${INR(x.maturityValue)}</div>
@@ -543,6 +545,7 @@
 
     if (!principal || principal < 100) { if (statusEl) statusEl.textContent = '⚠️ Enter a valid amount (min ₹100)'; return; }
     if (!rate && !inst.rate)           { if (statusEl) statusEl.textContent = '⚠️ Enter the interest rate'; return; }
+    if (rate < 0 || rate > 100)        { if (statusEl) statusEl.textContent = '⚠️ Interest rate must be between 0 and 100% a year'; return; }
     if (!startDate)                    { if (statusEl) statusEl.textContent = '⚠️ Select a start date'; return; }
     const termNeeded = !['ppf', 'nsc', 'scss', 'sukanya'].includes(type);
     if (termNeeded && (!termMonths || termMonths < 1)) { if (statusEl) statusEl.textContent = '⚠️ Enter the term in months'; return; }

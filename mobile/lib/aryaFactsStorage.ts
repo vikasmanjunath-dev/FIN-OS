@@ -19,7 +19,7 @@ import { computeNudges, visible } from '@/lib/nudges';
 import { loadFacts as loadNudgeFacts, loadDismissed } from '@/lib/nudgesStorage';
 import { makeFacts, type ArFacts, type LoanFact, type MoneyScoreLite } from '@/lib/aryaFacts';
 
-const digits = (s: string) => { const t = String(s ?? '').replace(/[^\d]/g, ''); return t === '' ? null : Number(t); };
+const digits = (s: string) => { const t = String(s ?? '').replace(/[^\d]/g, '').slice(0, 9); return t === '' ? null : Number(t); };
 
 async function safe<T>(p: () => Promise<T>, fallback: T): Promise<T> { try { return await p(); } catch { return fallback; } }
 

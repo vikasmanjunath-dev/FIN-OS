@@ -1,6 +1,7 @@
 // Debt optimizer inputs on the device. Balances live under the same keys as the Net Worth tracker (so they are shared), rates and EMIs
 // under the website's keys, and the three result figures the rest of FIN-OS reads are written after each plan.
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getMany } from '@/lib/safeStore';
 import { LOAN_TYPES, EXTRA_KEY, type LoanKey, type Plan } from '@/lib/debt';
 
 export interface LoanInput { balance: string; rate: string; emi: string; on: boolean }
@@ -10,7 +11,7 @@ const num = (raw: string | null) => { const n = parseFloat(raw ?? ''); return Nu
 
 export async function loadDebtInputs(): Promise<DebtInputs> {
   const keys = LOAN_TYPES.flatMap(l => [l.balKey, l.rateKey, l.emiKey]).concat(EXTRA_KEY);
-  const got = Object.fromEntries(await AsyncStorage.multiGet(keys));
+  const got = await getMany(keys);
   const out: any = { extra: num(got[EXTRA_KEY] ?? null) };
   LOAN_TYPES.forEach(l => {
     const balance = num(got[l.balKey] ?? null), emi = num(got[l.emiKey] ?? null);

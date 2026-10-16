@@ -16,8 +16,8 @@
 <link rel="stylesheet" href="../css/layout.css?v=4">
 <link rel="stylesheet" href="../css/components.css?v=2">
 <link rel="stylesheet" href="../css/theme.css?v=2">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
 <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-forecast.js"></script>
@@ -281,6 +281,7 @@
         </div>
 
         <label class="cf-label">Upcoming events (select all that apply)</label>
+        <div class="source-note" style="margin-bottom:8px;">Event adjustments are fixed rules of thumb (for example Diwali raises Shopping by 1.8×). They are not learned from your history.</div>
         <div class="event-chips" id="eventChips">
           <span class="event-chip" data-event="diwali">🪔 Diwali</span>
           <span class="event-chip" data-event="eid">🌙 Eid</span>
@@ -307,7 +308,7 @@
         <div class="total-card">
           <div>
             <div class="total-amount" id="totalAmount">₹0</div>
-            <div class="total-label">Predicted next month spend</div>
+            <div class="total-label">Predicted spend this month</div>
           </div>
           <div class="total-meta">
             <div class="total-meta-title" id="totalTitle">Calculating…</div>
@@ -370,7 +371,7 @@ const esc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<':
 /* ── Transactions, normalised (FinosBudget) so income and investing are never forecast as spending ── */
 function readLocalTransactions() {
   try {
-    const raw = JSON.parse(localStorage.getItem('finos_transactions') || '[]');
+    const raw = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_transactions')||'[]'));
     return window.FinosBudget ? FinosBudget.normalizeAll(raw) : [];
   } catch { return []; }
 }
@@ -556,25 +557,19 @@ async function runForecast() {
   // Total card
   document.getElementById('totalAmount').textContent = '₹' + forecast.total.toLocaleString('en-IN');
   const incomeLabel = income > 0 ? `${Math.round(forecast.total / income * 100)}% of income` : '';
-  document.getElementById('totalTitle').textContent   = `Next Month Predicted Spend${incomeLabel ? ' — ' + incomeLabel : ''}`;
+  document.getElementById('totalTitle').textContent   = `Predicted Spend for ${new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}${incomeLabel ? ' — ' + incomeLabel : ''}`;
   document.getElementById('totalSubtitle').textContent = `Based on last ${monthsBack} months${events.length ? ' + ' + events.map(e => e.charAt(0).toUpperCase() + e.slice(1)).join(', ') : ''}`;
 
-  // Share with the rest of FIN-OS. A prediction is not what you spent: it never replaces a monthly expense or savings
-  // rate you (or another tool) already recorded, and it is also stored under its own key.
+  // A prediction is not what you spent. It is stored under its own key only: it never fills in (or replaces) the monthly expense,
+  // the savings rate or the income that you, or another tool, record. An income typed here is yours, so it is kept only while no
+  // income has been recorded elsewhere.
   if (forecast.total > 0) {
     localStorage.setItem('finos_forecast_next_month', Math.round(forecast.total).toString());
-    const has = k => parseFloat(localStorage.getItem(k) || '0') > 0;
-    const ctx = {};
-    if (!has('finos_monthly_expense')) { localStorage.setItem('finos_monthly_expense', Math.round(forecast.total).toString()); ctx.monthlyExpense = forecast.total; }
-    if (income > 0) {
+    const recordedIncome = parseFloat(localStorage.getItem('finos_monthly_income') || '0') > 0;
+    if (income > 0 && !recordedIncome) {
       localStorage.setItem('finos_monthly_income', income.toString());
-      if (!has('finos_savings_rate')) {
-        const rate = Math.max(0, Math.round((income - forecast.total) / income * 100));
-        localStorage.setItem('finos_savings_rate', rate.toString());
-        ctx.savingsRate = rate;
-      }
+      window.FinosContext?.update?.({ monthlyIncome: income });
     }
-    if (Object.keys(ctx).length) window.FinosContext?.update?.(ctx);
   }
 
   // Save banner
@@ -616,14 +611,11 @@ async function runForecast() {
   btn.disabled = false; btn.textContent = '🔮 Regenerate Forecast';
 }
 
-// Auto-populate income from localStorage
+// Pre-fill income only from an exact recorded figure. A coarse band from the profile ("1L-2.5L") used to be turned into a made-up
+// number here and then saved as the person's income.
 document.addEventListener('DOMContentLoaded', () => {
-  const INCOME_MAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
-  // Try exact numeric value first (from Supabase context), then map range string
-  const exact   = parseFloat(localStorage.getItem('finos_monthly_income') || '0');
-  const rangeKey = localStorage.getItem('finos_income') || '';
-  const income  = exact > 0 ? exact : (INCOME_MAP[rangeKey] || 0);
-  if (income > 0) document.getElementById('incomeInput').value = Math.round(income);
+  const exact = parseFloat(localStorage.getItem('finos_monthly_income') || '0');
+  if (exact > 0) document.getElementById('incomeInput').value = Math.round(exact);
 });
 </script>
 
@@ -637,7 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
 #floatBackBtn:hover{background: transparent;color:var(--text-primary);transform:translateX(-3px);}
 @media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
-<a id="floatBackBtn" onclick="history.back();return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back();return false;" href="#">‹ BACK</a></nav>
 
 <script src="../js/sidebar.js"></script>
 <script src="../js/finos-api.js"></script>

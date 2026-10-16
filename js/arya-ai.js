@@ -82,7 +82,7 @@ Rules:
     const interests = (() => {
       if (Array.isArray(id.interests)) return id.interests.join(', ');
       if (id.interests) return id.interests;
-      try { return JSON.parse(localStorage.getItem('finos_interests') || '[]').join(', '); } catch { return 'stocks'; }
+      try { return ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_interests')||'[]')).join(', '); } catch { return 'stocks'; }
     })();
     lines.push(`Interests: ${interests}`);
     if (id.curiosity) lines.push(`Currently curious about: "${id.curiosity}"`);

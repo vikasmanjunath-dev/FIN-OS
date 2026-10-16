@@ -1287,3 +1287,10 @@
 @media (max-width: 700px) {
     .fl-panel { padding: 18px 16px; margin-top: 20px; }
 }
+
+/* Light theme: the central UPI-sinkhole counter inherited near-white text on the pale core (1.07:1), and the footnote
+   tag sat at 3.5:1. Ink tokens instead. */
+[data-theme="light"] .sinkhole-core .value.glitch-text,
+[data-theme="light"] .sinkhole-core .value.glitch-text::before,
+[data-theme="light"] .sinkhole-core .value.glitch-text::after { color: var(--text-primary, #0B0D12); }
+[data-theme="light"] .forensic-footer-tag { color: var(--text-muted, #5B6578); opacity: 1; }

@@ -30,6 +30,7 @@ window.FinosGoalOptimizer = (function () {
   const gs  = k => parseFloat(localStorage.getItem(k)) || 0;
   const ss  = (k, v) => localStorage.setItem(k, String(v));
   const gss = k => localStorage.getItem(k) || '';
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const INR = v => '₹' + Math.abs(Math.round(v)).toLocaleString('en-IN');
 
   const INFLATION = 0.06; // 6% default inflation
@@ -87,14 +88,16 @@ window.FinosGoalOptimizer = (function () {
   /* ── Core computation ──────────────────────────────────────────── */
   function _compute() {
     let goals = [];
-    try { goals = JSON.parse(gss('finos_goals') || '[]') || []; } catch {}
+    try { const _g = JSON.parse(gss('finos_goals') || '[]'); goals = Array.isArray(_g) ? _g.filter(g => g && typeof g === 'object') : []; } catch {}
     if (!goals.length) {
       // Try context goals
       try { goals = (window.FINOS_USER_CONTEXT?.financial?.goals) || []; } catch {}
     }
 
-    const income        = gs('finos_monthly_income') || gs('finos_salary_take_home') || 60000;
-    const savingsRate   = gs('finos_savings_rate') || 20;
+    // Income or savings rate that is not recorded stays 0: the plan then shows no spare SIP instead of assuming
+    // ₹60,000 a month and a 20% savings rate.
+    const income        = gs('finos_monthly_income') || gs('finos_salary_take_home') || 0;
+    const savingsRate   = gs('finos_savings_rate') || 0;
     const availableSIP  = Math.round(income * savingsRate / 100);
     const existingSIP   = gs('finos_sip_value');
 
@@ -145,7 +148,8 @@ window.FinosGoalOptimizer = (function () {
     ss('finos_goals_total_sip',  totalSIPNeeded);
     ss('finos_goals_feasibility',feasibility);
 
-    return { goals: enriched, income, savingsRate, availableSIP, existingSIP, totalSIPNeeded, feasibility, conflicts };
+    const capacityKnown = income > 0 && savingsRate > 0;
+    return { goals: enriched, income, savingsRate, capacityKnown, availableSIP, existingSIP, totalSIPNeeded, feasibility, conflicts };
   }
 
   /* ── Progress ring ───────────────────────────────────────────── */
@@ -175,7 +179,7 @@ window.FinosGoalOptimizer = (function () {
     }
 
     const goalCards = c.goals.map((g, i) => {
-      const name = g.name || g.goal || `Goal ${i+1}`;
+      const name = esc(g.name || g.goal || `Goal ${i+1}`);
       const pBadge = g.priority >= 75 ? { label:'🔴 Urgent', bg:'rgba(239,68,68,.12)', border:'rgba(239,68,68,.3)', color:'#EF4444' }
         : g.priority >= 50           ? { label:'🟡 High',   bg:'rgba(255,179,71,.10)', border:'rgba(255,179,71,.3)', color:'#FFB347' }
         : g.priority >= 25           ? { label:'🟢 Medium', bg:'rgba(34,211,166,.08)', border:'rgba(34,211,166,.25)', color:'#22D3A6' }
@@ -228,11 +232,12 @@ window.FinosGoalOptimizer = (function () {
   </div>
   <div style="text-align:center;">
     <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Available SIP</div>
-    <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:24px;font-weight:900;color:#22D3A6;">${INR(c.availableSIP)}</div>
+    <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:24px;font-weight:900;color:#22D3A6;">${c.capacityKnown ? INR(c.availableSIP) : 'Not recorded'}</div>
   </div>
   <div style="text-align:center;">
     <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Feasibility</div>
-    <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:24px;font-weight:900;color:${c.feasibility >= 80 ? '#22D3A6' : c.feasibility >= 50 ? '#FFB347' : '#EF4444'};">${c.feasibility}%</div>
+    <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:24px;font-weight:900;color:${c.feasibility >= 80 ? '#22D3A6' : c.feasibility >= 50 ? '#FFB347' : '#EF4444'};">${c.capacityKnown ? c.feasibility + '%' : '—'}</div>
+    ${c.capacityKnown ? '' : '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">Add your income and savings rate to see this</div>'}
   </div>
 </div>
 
@@ -257,7 +262,7 @@ ${goalCards}`;
     const maxBar     = Math.max(...c.goals.map(g => g.sipNeeded), c.availableSIP, 1);
 
     const sipRows = c.goals.map((g, i) => {
-      const name   = g.name || g.goal || `Goal ${i+1}`;
+      const name   = esc(g.name || g.goal || `Goal ${i+1}`);
       const barW   = Math.round((g.sipNeeded / maxBar) * 100);
       const colors = ['#4F7CFF','#22D3A6','#FFB347','#9B5DE5','#00D4FF','#EF4444'];
       const color  = colors[i % colors.length];
@@ -344,7 +349,7 @@ ${goalCards}`;
     const maxMonths = Math.max(...sorted.map(g => g.monthsLeft), 12);
 
     const timelineRows = sorted.map((g, i) => {
-      const name   = g.name || g.goal || `Goal ${i+1}`;
+      const name   = esc(g.name || g.goal || `Goal ${i+1}`);
       const left   = 0;
       const width  = Math.max(2, Math.round((g.monthsLeft / maxMonths) * 100));
       const colors = ['#4F7CFF','#22D3A6','#FFB347','#9B5DE5','#00D4FF','#EF4444'];
@@ -353,7 +358,7 @@ ${goalCards}`;
       return `<div style="margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
           <div style="font-size:13px;font-weight:700;color:#F5F7FA;">${name}</div>
-          <div style="font-size:12px;color:var(--text-muted);">${label} · ${INR(g.sipNeeded)}/mo SIP · ${g.targetDate || ''}</div>
+          <div style="font-size:12px;color:var(--text-muted);">${label} · ${INR(g.sipNeeded)}/mo SIP · ${esc(g.targetDate || '')}</div>
         </div>
         <div style="height:16px;background:var(--border-soft);border-radius:4px;overflow:hidden;position:relative;">
           <div style="position:absolute;left:0;top:0;height:100%;width:${width}%;background:${color};border-radius:4px;opacity:.85;"></div>

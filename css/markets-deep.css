@@ -114,15 +114,17 @@ html, body {
 /* --- 4. CONTENT TYPOGRAPHY (ADAPTIVE) --- */
 .chapter {
   margin-bottom: 100px;
-  opacity: 0.3; /* Focus Mode */
+  opacity: var(--chapter-dim, 0.9); /* Focus Mode: dimmed, still AA-readable */
   transition: opacity 0.5s ease;
 }
 .chapter.active { opacity: 1; }
+/* markets-deep.js dims the non-current chapters with an inline opacity 0.3 */
+.chapter[style*="opacity: 0.3"] { opacity: var(--chapter-dim, 0.9) !important; }
 
 .chapter-badge {
   display: inline-block;
   background: rgba(79, 124, 255, 0.1);
-  color: #4F7CFF;
+  color: var(--accent-ink, #4F7CFF);   /* raw accent was 4.07:1 on the tinted badge in dark */
   padding: 6px 12px;
   border-radius: 6px;
   font-family: var(--font-mono);

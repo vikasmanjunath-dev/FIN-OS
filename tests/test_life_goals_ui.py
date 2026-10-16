@@ -1,4 +1,5 @@
 """html/life-goals-planner.html: no invented profile, shared savings, escaped goal names, results + saved totals."""
+import json
 import os
 import sys
 
@@ -20,9 +21,19 @@ def env():
         browser.close()
 
 
-def open_page(env, storage=None):
+THREE = [
+    {"name": "Own Home", "target": 8000000, "target_date": "2100-01-01"},
+    {"name": "Education", "target": 2500000, "target_date": "2100-01-01"},
+    {"name": "Retirement Corpus", "target": 50000000, "target_date": "2100-01-01"},
+]
+
+
+def open_page(env, storage=None, goals=THREE):
     base, browser = env
     ctx = browser.new_context(viewport={"width": 1280, "height": 900})
+    storage = dict(storage or {})
+    if goals is not None:
+        storage["finos_goals"] = json.dumps(goals)
     if storage:
         items = ";".join(f"localStorage.setItem({k!r},{v!r})" for k, v in storage.items())
         ctx.add_init_script(f"try{{{items}}}catch(e){{}}")
@@ -34,7 +45,9 @@ def open_page(env, storage=None):
     return page, errors
 
 
-def fill_profile(page, age="30", income="100000", savings="0", surplus="40000"):
+def fill_profile(page, age="30", income="100000", savings="0", surplus="40000", retire="58", ret="12"):
+    page.fill("#inRetireAge", retire)
+    page.fill("#inReturn", ret)
     page.fill("#inAge", age)
     page.fill("#inIncome", income)
     page.fill("#inSavings", savings)
@@ -99,3 +112,49 @@ def test_goal_names_are_escaped_everywhere(env):
     assert page.locator("#phasesContainer img").count() == 0
     assert "<img" in page.inner_text("#goalsOverview")
     assert not errors, errors
+
+
+def test_no_goals_recorded_means_one_empty_row_not_demo_goals(env):
+    page, _ = open_page(env, goals=None)
+    assert page.locator(".goal-row").count() == 1
+    assert page.input_value("#g-name-1") == ""
+    assert page.input_value("#g-amt-1") == ""
+
+
+def test_return_and_retirement_age_are_never_assumed(env):
+    page, _ = open_page(env)
+    assert page.input_value("#inReturn") == ""
+    assert page.input_value("#inRetireAge") == ""
+    fill_profile(page, savings="0", ret="")
+    page.click("#genBtn")
+    assert "return" in page.inner_text("#validationError").lower()
+    assert not page.locator("#results.active").count()
+
+
+def test_zero_return_and_zero_inflation_are_honoured(env):
+    page, errors = open_page(env, goals=[{"name": "Car", "target": 1200000, "target_date": "2100-01-01"}])
+    page.fill("#g-yrs-1", "10")
+    page.fill("#g-inf-1", "0")
+    fill_profile(page, savings="0", ret="0")
+    page.click("#genBtn")
+    page.wait_for_selector("#results.active")
+    # 12 lakh over 120 months with nothing earned: 10,000 a month
+    assert int(page.evaluate("localStorage.getItem('finos_goals_monthly_sip')")) == 10000
+    assert not errors, errors
+
+
+def test_income_band_savings_and_net_worth_are_not_guessed(env):
+    page, _ = open_page(env, {"finos_income": "1L-2.5L", "finos_net_worth": "9000000"})
+    assert page.input_value("#inIncome") == ""
+    assert page.input_value("#inSurplus") == ""
+    assert page.input_value("#inSavings") == ""
+
+
+def test_roadmap_has_no_fixed_advice(env):
+    page, _ = open_page(env)
+    fill_profile(page, savings="900000")
+    page.click("#genBtn")
+    page.wait_for_selector("#results.active")
+    text = page.inner_text("#phasesContainer")
+    for banned in ("Nifty", "FlexiCap", "ELSS", "8,000", "Small Cap", "floater", "SWR"):
+        assert banned not in text, banned

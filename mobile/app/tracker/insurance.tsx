@@ -64,9 +64,9 @@ export default function InsuranceScreen() {
           <View key={b.label} style={{ marginTop: Spacing.md }}>
             <View style={s.barHead}>
               <Text style={s.barLabel}>{b.label}</Text>
-              <Text style={Typography.caption}>{inrShort(b.have)} of {inrShort(b.rec)}</Text>
+              <Text style={Typography.caption}>{cov.incomeKnown ? `${inrShort(b.have)} of ${inrShort(b.rec)}` : `${inrShort(b.have)} recorded`}</Text>
             </View>
-            <Bar pct={(b.have / b.rec) * 100} color={b.have >= b.rec ? Colors.teal : b.color} height={8} />
+            <Bar pct={cov.incomeKnown && b.rec > 0 ? (b.have / b.rec) * 100 : 0} color={cov.incomeKnown && b.have >= b.rec ? Colors.teal : b.color} height={8} />
           </View>
         ))}
         <View style={{ flexDirection: 'row', marginTop: Spacing.md }}>
@@ -74,7 +74,7 @@ export default function InsuranceScreen() {
           <Stat label="Premiums / year" value={inr(cov.annualPremium)} color={Colors.gold} />
         </View>
         <Text style={[Typography.caption, { marginTop: Spacing.sm, lineHeight: 16 }]}>
-          Rules of thumb: health 2×, term life 15× and critical illness 5× your annual income{computed.budget.income > 0 ? '' : ' (using ₹50,000/month until you add your income in Budget)'}.
+          Rules of thumb: health 2×, term life 15× and critical illness 5× your annual income{cov.incomeKnown ? '' : '. Your income is not recorded, so no guide figure is shown until you add it in Budget'}.
         </Text>
       </Card>
 

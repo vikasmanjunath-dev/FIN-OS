@@ -1,5 +1,6 @@
 // What the windfall allocator reads from the device, and the two figures it saves (the website's keys).
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getMany } from '@/lib/safeStore';
 import type { WindfallContext } from '@/lib/windfall';
 
 const KEYS = ['finos_monthly_expense', 'finos_budget_expenses', 'finos_emergency_fund', 'finos_80c_gap', 'finos_credit_card_debt', 'finos_personal_loan',
@@ -8,7 +9,7 @@ const KEYS = ['finos_monthly_expense', 'finos_budget_expenses', 'finos_emergency
 const n = (v: string | null | undefined) => { const x = parseFloat(v ?? ''); return Number.isFinite(x) && x > 0 ? x : 0; };
 
 export async function loadWindfallContext(): Promise<{ ctx: WindfallContext; salary: number; employerNps: number; basic: number; salaryFrom: 'salary' | 'income' | 'none' }> {
-  const g = Object.fromEntries(await AsyncStorage.multiGet(KEYS));
+  const g = await getMany(KEYS);
   const comp = n(g.finos_salary_basic) + n(g.finos_salary_hra_received) + n(g.finos_salary_lta) + n(g.finos_salary_special);
   const salary = comp || n(g.finos_gross_salary) || n(g.finos_monthly_income) * 12;
   return {

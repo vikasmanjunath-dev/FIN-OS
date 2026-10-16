@@ -109,6 +109,7 @@ export default function SecurityScreen() {
       let text: string;
       try { text = Platform.OS === 'web' ? await (a.file as File).text() : await require('expo-file-system').readAsStringAsync(a.uri); }
       finally { if (Platform.OS !== 'web') await deleteTempFile(a.uri); }       // the picker's cache copy holds the whole backup: remove it now
+      if (text.length > 60_000_000) throw new Error('too large');          // far bigger than any backup this app makes
       const obj = JSON.parse(text);
       if (isEncryptedBackup(obj)) { setFile(obj); setBmsg('Enter the passphrase this backup was made with.'); }
       else { const sm = summarise(obj); if (!sm) throw new Error('not a backup'); setPlain(obj); setFound(sm); }

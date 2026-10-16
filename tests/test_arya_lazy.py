@@ -64,16 +64,28 @@ def test_calls_made_before_load_are_forwarded(env):
 
 
 def test_failed_load_can_be_retried(env):
+    """Root cause of the old flake: the test slept 3.5 s and ASSUMED the idle-time load had already been attempted (and
+    aborted) by then.  On a loaded machine the idle callback (timeout 2.5 s) can fire later, so the test's own
+    `_aryaLazy.load()` became the first, aborted, attempt and nothing ever retried; or it joined an in-flight attempt that
+    then failed.  Now the test waits for the first request to be seen AND for the loader to have given up on it, and only
+    then triggers the retry."""
     base, browser = env
     pg = browser.new_page()
     state = {"n": 0}
+
     def handler(route):
         state["n"] += 1
         route.abort() if state["n"] == 1 else route.continue_()
     pg.route(PANEL, handler)
     pg.goto(f"{base}/html/dashboard.html", wait_until="load")
-    pg.wait_for_timeout(3500)                                             # first (aborted) attempt happens at idle
+    for _ in range(300):                                                  # up to 30 s for the idle/first-touch load attempt
+        if state["n"] >= 1:
+            break
+        pg.wait_for_timeout(100)
+    assert state["n"] >= 1, "the loader never asked for the panel"
+    pg.wait_for_timeout(400)                                              # let onerror run: it clears `loading` so a retry is possible
     assert pg.evaluate("window._aryaLazy.isLoaded()") is False
     pg.evaluate("window._aryaLazy.load()")                                # a later trigger retries
-    pg.wait_for_function("window._aryaLazy.isLoaded()", timeout=10000)
+    pg.wait_for_function("window._aryaLazy.isLoaded()", timeout=15000)
+    assert state["n"] >= 2
     pg.close()

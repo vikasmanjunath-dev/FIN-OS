@@ -1,8 +1,9 @@
 import { num, row, type CalcDef } from './types.ts';
+import { fx } from './fmt.ts';
 
 const G = 'think' as const;
 /** The core-thinking pages' own format helper. */
-const cur = (n: number) => (n >= 10000000 ? '₹' + (n / 10000000).toFixed(2) + ' Cr' : n >= 100000 ? '₹' + (n / 100000).toFixed(2) + ' L' : '₹' + n.toLocaleString('en-IN'));
+const cur = (n: number) => (typeof n === 'number' && !Number.isFinite(n) ? '—' : n >= 10000000 ? '₹' + (n / 10000000).toFixed(2) + ' Cr' : n >= 100000 ? '₹' + (n / 100000).toFixed(2) + ' L' : '₹' + n.toLocaleString('en-IN'));
 const loc = (n: number) => '₹' + n.toLocaleString();
 
 export const THINK: CalcDef[] = [
@@ -14,7 +15,7 @@ export const THINK: CalcDef[] = [
       const lump = principal * Math.pow(1 + r, n);
       const sip = monthly > 0 ? monthly * (((r === 0 ? n : (Math.pow(1 + r, n) - 1) / r)) * (1 + r)) : 0;
       const total = lump + sip, contributed = principal + monthly * n;
-      return [row('finalWealth', 'Final wealth', `₹${(total / 10000000).toFixed(2)} Cr`, { hero: true }), row('contributed', 'You put in', `₹${(contributed / 100000).toFixed(2)}L`), row('multiplier', 'Multiple', `${(total / contributed).toFixed(2)}x`)];
+      return [row('finalWealth', 'Final wealth', `₹${(total / 10000000).toFixed(2)} Cr`, { hero: true }), row('contributed', 'You put in', `₹${(contributed / 100000).toFixed(2)}L`), row('multiplier', 'Multiple', `${contributed > 0 && Number.isFinite(total / contributed) ? (total / contributed).toFixed(2) : '—'}x`)];
     },
   },
   {
@@ -22,6 +23,10 @@ export const THINK: CalcDef[] = [
     inputs: [num('age', 'Your age', 'yrs', 30, 18, 65, 1), num('netWorth', 'Net worth', '₹', 10, 0, 500, 5, { hint: 'in lakhs' }), num('income', 'Monthly income', '₹', 50000, 20000, 500000, 5000), num('debt', 'Monthly debt / EMI', '₹', 10000, 0, 200000, 5000), num('investing', 'Years investing', 'yrs', 5, 0, 30, 1)],
     run: ({ age, netWorth, income, debt, investing }) => {
       const nw = netWorth * 100000, annual = income * 12;
+      // The benchmark divides by (income x years since 20): without both there is nothing to compare against.
+      if (!(income > 0) || !(age > 20) || !Number.isFinite(nw + debt + investing)) {
+        return [row('actualAge', 'Your age', age > 0 ? String(age) : '–'), row('finAge', 'Financial age', '–', { hero: true }), row('verdict', '', 'Enter your age (over 20) and monthly income', { tone: 'info' })];
+      }
       const expected = annual * ((age - 20) / 10);
       let fin = 20;
       fin += (nw / expected) * (age - 20) * 0.4;
@@ -42,9 +47,14 @@ export const THINK: CalcDef[] = [
     id: 'inflationimpact', group: G, title: 'Inflation Impact', blurb: 'What today\'s expense will cost later.', web: 'core-thinking/inflation-impact.html',
     inputs: [num('currentCost', 'Current expense', '₹', 50000, 1000, 500000, 1000), num('inflation', 'Inflation rate', '%', 6, 1, 15, 0.5), num('time', 'Time period', 'yrs', 20, 1, 50, 1)],
     run: ({ currentCost, inflation, time }) => {
-      const future = currentCost * Math.pow(1 + inflation / 100, time), diff = future - currentCost;
+      // The multiplier does not depend on the cost, so it is still right when the cost box is empty or 0.
+      const growth = Math.pow(1 + inflation / 100, time);
+      if (!Number.isFinite(growth) || !(currentCost >= 0)) {
+        return [row('costToday', 'Cost today', '–'), row('costFuture', 'Cost then', '–'), row('verdict', '', 'Enter a cost, an inflation rate and a period', { tone: 'warn', hero: true })];
+      }
+      const future = currentCost * growth, diff = future - currentCost;
       return [row('costToday', 'Cost today', cur(currentCost)), row('costFuture', 'Cost then', cur(Math.round(future))),
-        row('verdict', '', `Cost increases ${(future / currentCost).toFixed(1)}x 😱`, { tone: 'warn', hero: true }),
+        row('verdict', '', growth >= 1 ? `Cost increases ${growth.toFixed(1)}x 😱` : `Cost falls to ${growth.toFixed(1)}x`, { tone: 'warn', hero: true }),
         row('message', '', `Purchasing Power Erosion: To maintain your current lifestyle in ${time} years, you will need to spend ${cur(Math.round(diff))} more per month than you do today.`)];
     },
   },
@@ -52,8 +62,13 @@ export const THINK: CalcDef[] = [
     id: 'moneybehavior', group: G, title: 'Money Behavior Analyzer', blurb: 'A quick score for your money habits.', web: 'core-thinking/money-behavior-analyzer.html',
     inputs: [num('income', 'Monthly income', '₹', 50000, 20000, 500000, 5000), num('savings', 'Monthly savings', '₹', 10000, 0, 200000, 1000), num('emergency', 'Emergency fund', 'months', 3, 0, 12, 1), num('emis', 'Active EMIs', '', 2, 0, 10, 1), num('startAge', 'Investment start age', 'yrs', 25, 18, 45, 1)],
     run: ({ income, savings, emergency, emis, startAge }) => {
+      // The savings rate divides by income: without a positive income there is nothing to score.
+      if (!(income > 0) || !Number.isFinite(savings + emergency + emis + startAge)) {
+        return [row('score', 'Score', '–', { hero: true }), row('rating', 'Rating', 'Enter your monthly income', { tone: 'info' })];
+      }
+      const c25 = (x: number) => Math.max(0, Math.min(25, x));
       const rate = (savings / income) * 100;
-      const total = Math.round(Math.min(25, rate * 0.8) + Math.min(25, (emergency / 6) * 25) + Math.max(0, 25 - emis * 3) + Math.max(0, 25 - (startAge - 20) * 1.5) + (rate > 20 ? 25 : rate > 10 ? 20 : 15));
+      const total = Math.round(c25(rate * 0.8) + c25((emergency / 6) * 25) + c25(25 - emis * 3) + c25(25 - (startAge - 20) * 1.5) + (rate > 20 ? 25 : rate > 10 ? 20 : 15));
       const rating = total >= 81 ? 'Excellent' : total >= 61 ? 'Good' : total >= 41 ? 'Fair' : 'Poor';
       const lines: string[] = [];
       if (rate < 20) lines.push('⚠️Savings rate below 20%. Try to increase gradually.'); else if (rate >= 30) lines.push('✅Excellent savings discipline!');
@@ -80,7 +95,7 @@ export const THINK: CalcDef[] = [
       const s = savings / 100, i = inflation / 100;
       const nominal = cash * Math.pow(1 + s, years), real = cash * Math.pow((1 + s) / (1 + i), years), loss = nominal - real;
       return [row('realValue', 'Real value', `₹${Math.round(real).toLocaleString()}`, { hero: true }), row('lossAmount', 'Lost to inflation', `₹${Math.round(loss).toLocaleString()}`, { tone: 'bad' }),
-        row('lossPercent', 'Loss', `${((loss / nominal) * 100).toFixed(1)}%`), row('yearDisplay', 'Years', String(years))];
+        row('lossPercent', 'Loss', `${nominal > 0 ? ((loss / nominal) * 100).toFixed(1) : '0.0'}%`), row('yearDisplay', 'Years', String(years))];
     },
   },
   {
@@ -100,7 +115,7 @@ export const THINK: CalcDef[] = [
       const r = returns / 100, v = risk / 100;
       const worst = Math.round(amount * (1 + r - 1.65 * v));
       return [row('expected', 'Expected', `₹${Math.round(amount * (1 + r)).toLocaleString()}`), row('bestCase', 'Best case', `₹${Math.round(amount * (1 + r + 1.65 * v)).toLocaleString()}`, { tone: 'good' }),
-        row('worstCase', 'Worst case', `₹${Math.max(0, worst).toLocaleString()}`, { tone: 'bad' }), row('ratio', 'Return per unit of risk', (r / v).toFixed(2)),
+        row('worstCase', 'Worst case', `₹${Math.max(0, worst).toLocaleString()}`, { tone: 'bad' }), row('ratio', 'Return per unit of risk', Number.isFinite(r / v) ? (r / v).toFixed(2) : '—'),
         row('riskLevel', '', v < 0.1 ? 'Low Risk' : v < 0.2 ? 'Medium Risk' : 'High Risk', { tone: v < 0.1 ? 'good' : v < 0.2 ? 'info' : 'warn', hero: true })];
     },
     notes: ['Best and worst are the expected return plus or minus 1.65 times the volatility, a one-year rule of thumb. Real markets can fall further.'],
@@ -109,7 +124,7 @@ export const THINK: CalcDef[] = [
     id: 'timevalue', group: G, title: 'Time Value of Money', blurb: 'Growth of a present amount over time.', web: 'core-thinking/time-value-of-money.html',
     inputs: [num('pv', 'Present value', '₹', 100000, 1000, 10000000, 5000), num('rate', 'Annual interest rate', '%', 12, 1, 30, 0.5), num('time', 'Time period', 'yrs', 10, 1, 50, 1)],
     run: ({ pv, rate, time }) => {
-      const fv = pv * Math.pow(1 + rate / 100, time), interest = fv - pv, mult = (fv / pv).toFixed(1);
+      const fv = pv * Math.pow(1 + rate / 100, time), interest = fv - pv, mult = fx(fv / pv, 1);
       const msg = Number(mult) >= 5 ? `Compound Effect: Your money has grown ${mult} times! This is the power of long-term investing.`
         : `Steady Growth: You earned ${cur(Math.round(interest))} in pure interest. Keep letting it compound.`;
       return [row('investedResult', 'Invested', cur(pv)), row('fvResult', 'Future value', cur(Math.round(fv))), row('verdict', '', `${mult}x Growth 🚀`, { tone: 'good', hero: true }), row('message', '', msg)];

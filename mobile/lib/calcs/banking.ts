@@ -44,8 +44,9 @@ export const BANKING: CalcDef[] = [
       const annualCoupon = face * (coupon / 100);
       const currentYield = (annualCoupon / price) * 100;
       const ytm = ((annualCoupon + (face - price) / years) / ((face + price) / 2)) * 100;
-      return [row('currYield', 'Current yield', currentYield.toFixed(2) + '%'), row('incomeVal', 'Annual income', '₹' + (Math.round(annualCoupon * 100) / 100)),
-        row('ytmVal', '', 'Approx YTM: ' + ytm.toFixed(2) + '%', { tone: ytm > coupon ? 'good' : ytm < coupon ? 'warn' : 'info', hero: true })];
+      const pct = (x: number) => (Number.isFinite(x) ? x.toFixed(2) + '%' : '—');
+      return [row('currYield', 'Current yield', pct(currentYield)), row('incomeVal', 'Annual income', '₹' + (Math.round(annualCoupon * 100) / 100)),
+        row('ytmVal', '', 'Approx YTM: ' + pct(ytm), { tone: !Number.isFinite(ytm) ? 'info' : ytm > coupon ? 'good' : ytm < coupon ? 'warn' : 'info', hero: true })];
     },
     notes: ['The yield to maturity here is the usual quick approximation, not a solved internal rate of return.'],
   },

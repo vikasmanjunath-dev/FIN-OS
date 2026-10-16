@@ -217,7 +217,7 @@
         <div class="life-line grow"></div>
         <div class="life-node">Freedom</div>
         <div class="life-line grow"></div>
-        <div class="life-node end">₹3.2 Cr+ Corpus</div>
+        <div class="life-node end">A corpus that keeps growing</div>
       </div>
 
       <p class="life-note">
@@ -227,6 +227,10 @@
     </div>
 
   </div>
+
+  <p class="illustration-note" style="font-size:12px;opacity:.7;text-align:center;margin:18px auto 0;max-width:640px;">
+    An illustration of two habits, not a forecast of anyone’s finances.
+  </p>
 
   <button class="primary-btn" id="runLifeSim">
     Play the full life
@@ -344,6 +348,10 @@
 
   </div>
 
+  <p class="illustration-note" style="font-size:12px;opacity:.7;text-align:center;margin:18px auto 0;max-width:640px;">
+    The bars are a visual illustration, not survey data.
+  </p>
+
   <button class="primary-btn" id="runLiteracy">
     Break the inherited cycle
   </button>
@@ -365,13 +373,14 @@
   </h2>
 
   <p class="section-sub">
-    Most Indian households earn well — but end every month with nothing left.
+    Many households end every month with nothing left. An example household:
+    ₹50,000 comes in, and the usual bills take all of it.
   </p>
 
   <div class="paycheck-simulator">
 
     <div class="income-bar">
-      <span>Monthly Income</span>
+      <span>Example monthly income</span>
       <div class="bar">
         <div class="fill income-fill"></div>
       </div>
@@ -380,11 +389,11 @@
 
     <div class="expenses">
 
-      <div class="expense" data-cut="20">🏠 Rent</div>
+      <div class="expense" data-cut="25">🏠 Rent</div>
       <div class="expense" data-cut="15">🍲 Groceries</div>
-      <div class="expense" data-cut="25">💳 EMIs</div>
-      <div class="expense" data-cut="10">🚗 Transport</div>
-      <div class="expense" data-cut="10">📱 Misc</div>
+      <div class="expense" data-cut="30">💳 EMIs</div>
+      <div class="expense" data-cut="15">🚗 Transport</div>
+      <div class="expense" data-cut="15">📱 Misc</div>
 
     </div>
 
@@ -397,7 +406,7 @@
     </button>
 
     <div class="paycheck-message" id="paycheckMessage">
-      Nothing left. Again.
+      In this example, nothing is left. Again.
     </div>
 
   </div>
@@ -457,9 +466,8 @@
   </button>
 
   <div class="solution-message" id="solutionMessage">
-    ₹2,000 redirected before spending.<br>
-    ₹24,000 saved in one year.<br>
-    Time starts working for you.
+    Example: ₹2,000 redirected before spending is ₹24,000 saved in one year,<br>
+    before any returns. Time starts working for you.
   </div>
 
 </section>
@@ -515,6 +523,10 @@
                   Most people don’t lose money by bad decisions —
                   they lose it by repeating small ones.
                 </p>
+                <p class="illustration-note" style="font-size:12px;opacity:.75;">
+                  Illustration: ₹500 invested every month from age 25, growing at an assumed 12% a year
+                  (compounded monthly, before tax, costs and inflation). Returns are never guaranteed.
+                </p>
               </div>
 
               <div class="timeline-track">
@@ -528,19 +540,19 @@
 
                 <div class="timeline-card highlight">
                   <span class="year">Age 35</span>
-                  <h4>₹7.5 Lakhs</h4>
+                  <h4>about ₹1.2 Lakh</h4>
                   <p>₹500/month started early</p>
                 </div>
 
                 <div class="timeline-card">
                   <span class="year">Age 45</span>
-                  <h4>₹38 Lakhs</h4>
+                  <h4>about ₹5 Lakh</h4>
                   <p>Consistency beats intensity</p>
                 </div>
 
                 <div class="timeline-card glow">
                   <span class="year">Age 60</span>
-                  <h4>₹1.2 Crore</h4>
+                  <h4>about ₹32 Lakh</h4>
                   <p>Time did the heavy lifting</p>
                 </div>
 
@@ -629,7 +641,7 @@
       <span class="label">REALITY</span>
       <h3>Time matters more than income</h3>
       <p>
-        ₹500 started early beats ₹5,000 started late.
+        In the example above, ₹500 a month from age 25 (about ₹32 lakh at 60) ends ahead of ₹5,000 a month started at 45 (about ₹25 lakh), at the same assumed 12% a year.
       </p>
     </div>
 
@@ -853,7 +865,7 @@
     <div class="landing-footer-legal">
       <a href="html/privacy.html">Privacy Policy</a>
       <a href="html/terms.html">Terms of Use</a>
-      <span>© 2025 FIN-OS. Not SEBI registered. Not financial advice.</span>
+      <span>© 2026 FIN-OS. Not SEBI registered. Not financial advice.</span>
     </div>
   </div>
 </footer>
@@ -1147,7 +1159,6 @@
   (function personalizeForReturningUser() {
     try {
       const displayName = localStorage.getItem('finos_display_name');
-      const income      = parseFloat(localStorage.getItem('finos_income') || '0');
       const dna         = localStorage.getItem('finos_financial_dna');
       const savingsRate = parseFloat(localStorage.getItem('finos_savings_rate') || '0');
 
@@ -1166,19 +1177,8 @@
         }
       }
 
-      // 2. Personalise the paycheck simulator with real income
-      if (income >= 5000) {
-        const incomeDisplay = document.querySelector('.income-bar strong');
-        const balanceEl     = document.getElementById('balanceAmount');
-        if (incomeDisplay) {
-          incomeDisplay.textContent = '₹' + income.toLocaleString('en-IN');
-        }
-        if (balanceEl) {
-          balanceEl.textContent = '₹' + income.toLocaleString('en-IN');
-        }
-        // Also store on window so landing.js run-month animation uses real income
-        window._finosUserIncome = income;
-      }
+      // (The paycheck simulator is a fixed, labelled example household. It must not show the person's own income next to
+      //  invented expense shares, so it is not personalised.)
 
       // 3. Show a returning-user DNA badge near the bottom CTA
       if (dna && dna !== 'Explorer') {

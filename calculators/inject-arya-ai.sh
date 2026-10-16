@@ -29,7 +29,8 @@ print(rel)
 
   # Inject <script> tag after first Chart.js or after </style> or before </head>
   if grep -q "chart.js" "$file"; then
-    sed -i '' "s|<script src=\"https://cdn.jsdelivr.net/npm/chart.js\"></script>|<script src=\"https://cdn.jsdelivr.net/npm/chart.js\"></script>\n  <script src=\"$rel\"></script>|g" "$file"
+    # chart.js is pinned with a version and an integrity hash now, so match any chart.js <script> tag
+    sed -i '' -E "s|(<script src=\"https://cdn.jsdelivr.net/npm/chart.js[^\"]*\"[^>]*></script>)|\1\n  <script src=\"$rel\"></script>|g" "$file"
   elif grep -q "</style>" "$file"; then
     sed -i '' "s|</style>|</style>\n  <script src=\"$rel\"></script>|" "$file"
   else

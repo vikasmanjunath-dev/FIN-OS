@@ -4,7 +4,7 @@
 <head>
 <script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
 <meta charset="UTF-8">
   <meta name="description" content="Upload a salary slip or bank statement — Document AI extracts the numbers and auto-fills your financial profile.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -773,7 +773,7 @@
       <!-- ── STATE: done ────────────────────────────── -->
       <div class="state-panel" id="stateDone">
         <div class="done-panel" id="donePanelInner">
-          <canvas class="confetti-canvas" id="confettiCanvas"></canvas>
+          <canvas aria-hidden="true" class="confetti-canvas" id="confettiCanvas"></canvas>
           <span class="done-icon">✅</span>
           <div class="done-title" id="doneTitle">Done! Fields updated in FIN•OS.</div>
           <div class="done-sub">Your financial data has been auto-filled.</div>
@@ -806,7 +806,7 @@
       <!-- HISTORY -->
       <div class="history-section">
         <div class="history-toggle" id="historyToggle" onclick="toggleHistory()">
-          <h3>🕐 Recently Processed</h3>
+          <h3 aria-level="2">🕐 Recently Processed</h3>
           <span class="toggle-caret">▼</span>
         </div>
         <div class="history-body" id="historyBody" style="display:none;">
@@ -820,6 +820,8 @@
 </div><!-- /app -->
 
 <script>
+function _safeParse(raw, fb){ try { var v = JSON.parse(raw == null ? fb : raw); return v; } catch (e) { return JSON.parse(fb); } }
+
 // ─── Constants ──────────────────────────────────────────
 const DOC_AI       = 'http://localhost:8004';
 const sb = (window.FINOS_SB && window.FINOS_SB.getClient()) || (window.supabase ? window.supabase.createClient(window.FINOS_SB ? window.FINOS_SB.url : 'https://oeapcyucnduhwpgxfknb.supabase.co', window.FINOS_SB ? window.FINOS_SB.key : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q') : null);
@@ -1174,7 +1176,7 @@ async function applyAction(action) {
     const userId = user?.id;
     if (!userId) {
       // Not logged in — save to localStorage
-      const profile = JSON.parse(localStorage.getItem('finos-profile') || '{}');
+      const profile = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(_safeParse(localStorage.getItem('finos-profile'),'{}'));
       profile[field] = action.value;
       localStorage.setItem('finos-profile', JSON.stringify(profile));
       return;
@@ -1192,7 +1194,7 @@ async function applyAction(action) {
     }
   } else {
     // Generic: save to localStorage as fallback
-    const store = JSON.parse(localStorage.getItem(`finos-${table}`) || '{}');
+    const store = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(_safeParse(localStorage.getItem(`finos-${table}`),'{}'));
     store[field] = action.value;
     localStorage.setItem(`finos-${table}`, JSON.stringify(store));
   }
@@ -1226,13 +1228,13 @@ function reupload() {
 
 // ─── History ─────────────────────────────────────────────
 function saveHistory(entry) {
-  const hist = JSON.parse(localStorage.getItem('finos-doc-history') || '[]');
+  const hist = ((v)=>Array.isArray(v)?v:[])(_safeParse(localStorage.getItem('finos-doc-history'),'[]')).filter(x => x && typeof x === 'object');
   hist.unshift(entry);
   localStorage.setItem('finos-doc-history', JSON.stringify(hist.slice(0, 10)));
 }
 
 function renderHistory() {
-  const hist = JSON.parse(localStorage.getItem('finos-doc-history') || '[]');
+  const hist = ((v)=>Array.isArray(v)?v:[])(_safeParse(localStorage.getItem('finos-doc-history'),'[]')).filter(x => x && typeof x === 'object');
   const list  = document.getElementById('historyList');
   const empty = document.getElementById('historyEmpty');
 

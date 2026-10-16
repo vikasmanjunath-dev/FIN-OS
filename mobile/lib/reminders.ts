@@ -1,11 +1,11 @@
 // Reminder planning: which phone notifications to schedule for the dated obligations the calendar already knows about.
 // Pure (data and "now" are parameters) so it can be tested; lib/remindersNative.ts hands the result to the OS.
 // Same lead times as the website's js/finos-reminders.js (tax and insurance 7 days, goals 14, maturities and subscriptions 3,
-// SIP debits 1). The website tells you once a day while you have the site open; a phone must be told in advance, so each event
+// SIP debits 1; the person's own dates 3, which the website does not have). The website tells you once a day while you have the site open; a phone must be told in advance, so each event
 // gets a first notice at its lead time and a last one on the day when the lead is more than one day.
 import type { CalEvent, EventType } from './calendar.ts';
 
-export const LEAD: Record<EventType, number> = { tax: 7, insurance: 7, fd: 3, ppf: 3, sip: 1, goal: 14, sub: 3 };
+export const LEAD: Record<EventType, number> = { tax: 7, insurance: 7, fd: 3, ppf: 3, sip: 1, goal: 14, sub: 3, custom: 3 };
 /** iOS keeps at most 64 pending local notifications; stay well under it. */
 export const MAX_PENDING = 40;
 export const HOURS = [8, 9, 10, 12, 18, 20] as const;
@@ -35,7 +35,7 @@ export function normalisePrefs(raw: unknown): ReminderPrefs {
   return { enabled: r.enabled === true, hour: Number.isInteger(hour) && hour >= 6 && hour <= 22 ? hour : DEFAULT_HOUR, details: r.details === true, types };
 }
 
-const LABEL: Record<EventType, string> = { tax: 'Tax', insurance: 'Insurance', sip: 'SIP', fd: 'Maturity', ppf: 'Maturity', goal: 'Goal', sub: 'Subscription' };
+const LABEL: Record<EventType, string> = { tax: 'Tax', insurance: 'Insurance', sip: 'SIP', fd: 'Maturity', ppf: 'Maturity', goal: 'Goal', sub: 'Subscription', custom: 'Your date' };
 const when = (n: number) => (n === 0 ? 'today' : n === 1 ? 'tomorrow' : `in ${n} days`);
 
 /** Notification text. Without `details` it names the kind of event and when, never the amount or the provider. */

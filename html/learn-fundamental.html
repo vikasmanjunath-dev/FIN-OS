@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="../css/components.css?v=2">
   <link rel="stylesheet" href="../css/theme.css?v=2">
   
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
 
   <style>
     /* =========================
@@ -241,7 +241,7 @@
 [data-theme="light"] .scan-label { color: var(--text-secondary); }
 [data-theme="light"] .desi-tooltip { background: rgba(188, 19, 254, 0.08); color: var(--text-primary); }
 [data-theme="light"] .desi-tooltip strong { color: var(--text-primary); }</style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
@@ -454,7 +454,7 @@
             <span>Expensive (Loot)</span>
           </div>
           
-          <input type="range" min="10" max="100" value="25" id="peSlider" oninput="updateValuation()">
+          <input aria-label="Price to earnings ratio (slider)" type="range" min="10" max="100" value="25" id="peSlider" oninput="updateValuation()">
           
           <div class="simulation-result" id="peResult">
             P/E Ratio: 25 <span style="color:var(--neon-green);">// FAIR PRICE</span>
@@ -654,7 +654,7 @@
 /* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
 @media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a></nav>
 
 <style id="lf-light-theme">
 [data-theme="light"] body {

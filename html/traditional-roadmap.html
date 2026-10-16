@@ -231,7 +231,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
 </head>
 
@@ -347,7 +347,7 @@
       <section id="scanner">
         
         <div class="vault-header">
-          <div class="vault-title">The Fortress Strategy</div>
+          <div class="vault-title" role="heading" aria-level="1">The Fortress Strategy</div>
           <p class="vault-subtitle">// FOR THOSE WHO VALUE SAFETY ABOVE ALL</p>
         </div>
 
@@ -672,7 +672,7 @@
 /* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
 @media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a></nav>
 
 <style id="trad-light-theme">
 [data-theme="light"] body {

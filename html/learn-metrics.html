@@ -250,7 +250,7 @@
 [data-theme="light"] .m-title {
   color: var(--text-primary) !important;
 }</style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
@@ -394,7 +394,7 @@
 
         <div class="metric-card cat-business" data-cat="business">
           <span class="m-icon">💰</span>
-          <h3 class="m-title">Revenue (Sales)</h3>
+          <h3 class="m-title" aria-level="2">Revenue (Sales)</h3>
           <span class="m-tag" style="color:var(--neon-cyan);">// Top Line</span>
           <p class="m-desc">The raw money a company receives from selling goods. It is the fuel. No revenue = No business.</p>
           <div class="desi-box">
@@ -405,7 +405,7 @@
 
         <div class="metric-card cat-business" data-cat="business">
           <span class="m-icon">⚙️</span>
-          <h3 class="m-title">Operating Income (EBIT)</h3>
+          <h3 class="m-title" aria-level="2">Operating Income (EBIT)</h3>
           <span class="m-tag" style="color:var(--neon-cyan);">// Core Profit</span>
           <p class="m-desc">Earnings Before Interest & Tax. Shows if the actual business model is profitable before paying bankers or government.</p>
           <div class="desi-box">
@@ -416,7 +416,7 @@
 
         <div class="metric-card cat-business" data-cat="business">
           <span class="m-icon">💎</span>
-          <h3 class="m-title">Net Profit (PAT)</h3>
+          <h3 class="m-title" aria-level="2">Net Profit (PAT)</h3>
           <span class="m-tag" style="color:var(--neon-cyan);">// Bottom Line</span>
           <p class="m-desc">The final money left after paying EVERYONE (Staff, Govt, Bank). This is what shareholders own.</p>
           <div class="desi-box">
@@ -427,7 +427,7 @@
 
         <div class="metric-card cat-business" data-cat="business">
           <span class="m-icon">📊</span>
-          <h3 class="m-title">EPS (Earning Per Share)</h3>
+          <h3 class="m-title" aria-level="2">EPS (Earning Per Share)</h3>
           <span class="m-tag" style="color:var(--neon-cyan);">// Your Share</span>
           <p class="m-desc">Total Profit divided by total number of shares. It tells you how much profit *your* one share earned.</p>
           <div class="desi-box">
@@ -438,7 +438,7 @@
 
         <div class="metric-card cat-profit" data-cat="profit">
           <span class="m-icon">🚀</span>
-          <h3 class="m-title">ROE (Return on Equity)</h3>
+          <h3 class="m-title" aria-level="2">ROE (Return on Equity)</h3>
           <span class="m-tag" style="color:var(--neon-green);">// The Gold Standard</span>
           <p class="m-desc">Measures how efficiently the company uses shareholders' money. >15% is excellent. <10% is poor.</p>
           <div class="desi-box">
@@ -449,7 +449,7 @@
 
         <div class="metric-card cat-profit" data-cat="profit">
           <span class="m-icon">🏭</span>
-          <h3 class="m-title">ROCE</h3>
+          <h3 class="m-title" aria-level="2">ROCE</h3>
           <span class="m-tag" style="color:var(--neon-green);">// Total Efficiency</span>
           <p class="m-desc">Return on Capital Employed. It considers both Equity AND Debt. Crucial for heavy industries (Factories, Telecom).</p>
           <div class="desi-box">
@@ -460,7 +460,7 @@
 
         <div class="metric-card cat-profit" data-cat="profit">
           <span class="m-icon">📉</span>
-          <h3 class="m-title">Operating Margin</h3>
+          <h3 class="m-title" aria-level="2">Operating Margin</h3>
           <span class="m-tag" style="color:var(--neon-green);">// Pricing Power</span>
           <p class="m-desc">Percentage of revenue left after covering operating costs. High margin = Moat.</p>
           <div class="desi-box">
@@ -471,7 +471,7 @@
         
         <div class="metric-card cat-profit" data-cat="profit">
           <span class="m-icon">📦</span>
-          <h3 class="m-title">Inventory Turnover</h3>
+          <h3 class="m-title" aria-level="2">Inventory Turnover</h3>
           <span class="m-tag" style="color:var(--neon-green);">// Sales Speed</span>
           <p class="m-desc">How many times a company sells its stock in a year. Higher is better.</p>
           <div class="desi-box">
@@ -482,7 +482,7 @@
 
         <div class="metric-card cat-profit" data-cat="profit">
           <span class="m-icon">🧾</span>
-          <h3 class="m-title">Receivable Days (DSO)</h3>
+          <h3 class="m-title" aria-level="2">Receivable Days (DSO)</h3>
           <span class="m-tag" style="color:var(--neon-green);">// Collection Power</span>
           <p class="m-desc">How many days it takes to collect money from customers. Rising days = Bad.</p>
           <div class="desi-box">
@@ -494,7 +494,7 @@
 
         <div class="metric-card cat-strength" data-cat="strength">
           <span class="m-icon">💣</span>
-          <h3 class="m-title">Debt-to-Equity</h3>
+          <h3 class="m-title" aria-level="2">Debt-to-Equity</h3>
           <span class="m-tag" style="color:var(--neon-yellow);">// Leverage</span>
           <p class="m-desc">Ratio of total debt to shareholder equity. >2 is dangerous. <0.5 is safe.</p>
           <div class="desi-box">
@@ -505,7 +505,7 @@
 
         <div class="metric-card cat-strength" data-cat="strength">
           <span class="m-icon">⏱️</span>
-          <h3 class="m-title">Current Ratio</h3>
+          <h3 class="m-title" aria-level="2">Current Ratio</h3>
           <span class="m-tag" style="color:var(--neon-yellow);">// Short Term Safety</span>
           <p class="m-desc">Current Assets / Current Liabilities. Can the company pay bills due in 12 months?</p>
           <div class="desi-box">
@@ -516,7 +516,7 @@
 
         <div class="metric-card cat-strength" data-cat="strength">
           <span class="m-icon">🛡️</span>
-          <h3 class="m-title">Interest Coverage</h3>
+          <h3 class="m-title" aria-level="2">Interest Coverage</h3>
           <span class="m-tag" style="color:var(--neon-yellow);">// EMI Capacity</span>
           <p class="m-desc">Operating Profit / Interest Expense. Should be > 3.</p>
           <div class="desi-box">
@@ -527,7 +527,7 @@
 
         <div class="metric-card cat-strength" data-cat="strength">
           <span class="m-icon">💧</span>
-          <h3 class="m-title">Free Cash Flow (FCF)</h3>
+          <h3 class="m-title" aria-level="2">Free Cash Flow (FCF)</h3>
           <span class="m-tag" style="color:var(--neon-yellow);">// Real Money</span>
           <p class="m-desc">Operating Cash Flow minus Capex (Factory maintenance). The cash actually available to owners.</p>
           <div class="desi-box">
@@ -539,7 +539,7 @@
 
         <div class="metric-card cat-val" data-cat="val">
           <span class="m-icon">⚖️</span>
-          <h3 class="m-title">P/E Ratio</h3>
+          <h3 class="m-title" aria-level="2">P/E Ratio</h3>
           <span class="m-tag" style="color:#ff00ff;">// Popularity Meter</span>
           <p class="m-desc">Price to Earnings. Price you pay for ₹1 of profit. High P/E = High Expectation.</p>
           <div class="desi-box">
@@ -550,7 +550,7 @@
 
         <div class="metric-card cat-val" data-cat="val">
           <span class="m-icon">📘</span>
-          <h3 class="m-title">P/B Ratio</h3>
+          <h3 class="m-title" aria-level="2">P/B Ratio</h3>
           <span class="m-tag" style="color:#ff00ff;">// Scrap Value</span>
           <p class="m-desc">Price to Book Value. Crucial for Banks & Finance companies. <1 means cheaper than assets.</p>
           <div class="desi-box">
@@ -561,7 +561,7 @@
 
         <div class="metric-card cat-val" data-cat="val">
           <span class="m-icon">🌱</span>
-          <h3 class="m-title">PEG Ratio</h3>
+          <h3 class="m-title" aria-level="2">PEG Ratio</h3>
           <span class="m-tag" style="color:#ff00ff;">// Growth Adjusted</span>
           <p class="m-desc">P/E divided by Growth Rate. <1 is undervalued. >2 is overvalued.</p>
           <div class="desi-box">
@@ -572,7 +572,7 @@
         
         <div class="metric-card cat-val" data-cat="val">
           <span class="m-icon">🍇</span>
-          <h3 class="m-title">Dividend Yield</h3>
+          <h3 class="m-title" aria-level="2">Dividend Yield</h3>
           <span class="m-tag" style="color:#ff00ff;">// Rent Income</span>
           <p class="m-desc">Dividend per share / Stock Price. The % return you get just by holding.</p>
           <div class="desi-box">
@@ -583,7 +583,7 @@
         
         <div class="metric-card cat-val" data-cat="val">
           <span class="m-icon">🏢</span>
-          <h3 class="m-title">EV / EBITDA</h3>
+          <h3 class="m-title" aria-level="2">EV / EBITDA</h3>
           <span class="m-tag" style="color:#ff00ff;">// Takeover Price</span>
           <p class="m-desc">Enterprise Value / Earnings. Better than P/E for debt-heavy companies. It includes Debt in price.</p>
           <div class="desi-box">
@@ -595,7 +595,7 @@
 
         <div class="metric-card cat-mgmt" data-cat="mgmt">
           <span class="m-icon">🤝</span>
-          <h3 class="m-title">Promoter Holding</h3>
+          <h3 class="m-title" aria-level="2">Promoter Holding</h3>
           <span class="m-tag" style="color:var(--neon-purple);">// Skin in Game</span>
           <p class="m-desc">Percentage owned by founders. High is good (>50%). Decreasing is bad.</p>
           <div class="desi-box">
@@ -606,7 +606,7 @@
 
         <div class="metric-card cat-mgmt" data-cat="mgmt">
           <span class="m-icon">🚩</span>
-          <h3 class="m-title">Pledged Shares</h3>
+          <h3 class="m-title" aria-level="2">Pledged Shares</h3>
           <span class="m-tag" style="color:var(--neon-purple);">// Danger Signal</span>
           <p class="m-desc">% of promoter shares mortgaged to take loans. High pledging is a ticking time bomb.</p>
           <div class="desi-box">
@@ -617,7 +617,7 @@
 
         <div class="metric-card cat-mgmt" data-cat="mgmt">
           <span class="m-icon">🕵️</span>
-          <h3 class="m-title">Contingent Liability</h3>
+          <h3 class="m-title" aria-level="2">Contingent Liability</h3>
           <span class="m-tag" style="color:var(--neon-purple);">// Hidden Bombs</span>
           <p class="m-desc">Potential debt not on balance sheet (e.g., pending court cases). If they lose, they pay.</p>
           <div class="desi-box">
@@ -629,7 +629,7 @@
 
         <div class="metric-card cat-risk" data-cat="risk">
           <span class="m-icon">⚠️</span>
-          <h3 class="m-title">Client Concentration</h3>
+          <h3 class="m-title" aria-level="2">Client Concentration</h3>
           <span class="m-tag" style="color:var(--neon-red);">// Fragility</span>
           <p class="m-desc">Does 80% revenue come from 1 client? If yes, high risk.</p>
           <div class="desi-box">
@@ -640,7 +640,7 @@
 
         <div class="metric-card cat-risk" data-cat="risk">
           <span class="m-icon">🏛️</span>
-          <h3 class="m-title">Regulatory Risk</h3>
+          <h3 class="m-title" aria-level="2">Regulatory Risk</h3>
           <span class="m-tag" style="color:var(--neon-red);">// Govt Mood</span>
           <p class="m-desc">Can one law kill the business? (Alcohol, Mining, Gaming).</p>
           <div class="desi-box">
@@ -651,7 +651,7 @@
         
         <div class="metric-card cat-risk" data-cat="risk">
           <span class="m-icon">💸</span>
-          <h3 class="m-title">Forex Risk</h3>
+          <h3 class="m-title" aria-level="2">Forex Risk</h3>
           <span class="m-tag" style="color:var(--neon-red);">// Currency Swing</span>
           <p class="m-desc">For export/import companies. If Dollar moves 5%, profit can vanish.</p>
           <div class="desi-box">
@@ -750,7 +750,7 @@
 /* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
 @media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a></nav>
 
 <style id="lm-light-theme">
 [data-theme="light"] body {

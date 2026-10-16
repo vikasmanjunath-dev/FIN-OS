@@ -1,11 +1,12 @@
 import { Nudges } from '@/components/Nudges';
+import { AlertBell } from '@/components/AlertBell';
 import React, { useCallback } from 'react';
 import {
   ScrollView, View, Text, StyleSheet, RefreshControl,
   TouchableOpacity, Pressable,
 } from 'react-native';
 import { LinearGradient } from '@/components/Gradient';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useFinosContext } from '@/hooks/useFinosContext';
 import { useMarketData } from '@/hooks/useMarketData';
@@ -16,6 +17,9 @@ import { useQuickLog } from '@/hooks/useQuickLog';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
 import { useMoneyScore } from '@/hooks/useMoneyScore';
 import { QuickLogChips } from '@/components/QuickLogChips';
+import { MANIFEST } from '@/lib/learnContent';
+import { overallProgress } from '@/lib/learn';
+import { loadLearned } from '@/lib/learnStorage';
 import { MetricCard } from '@/components/MetricCard';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 
@@ -28,14 +32,16 @@ function formatINR(n: number, compact = false): string {
   return '₹' + n.toLocaleString('en-IN');
 }
 
-function IndexPill({ symbol, price, changePct }: { symbol: string; price: number; changePct: number }) {
-  const up = changePct >= 0;
+function IndexPill({ symbol, price, changePct }: { symbol: string; price: number; changePct: number | null }) {
+  const known = changePct != null;
+  const up = known && changePct >= 0;
+  const tone = !known ? Colors.textMuted : up ? Colors.teal : Colors.red;
   return (
-    <View style={[styles.pill, { borderColor: up ? 'rgba(34,211,166,0.3)' : 'rgba(255,68,68,0.3)' }]}>
+    <View style={[styles.pill, { borderColor: !known ? 'rgba(128,128,128,0.3)' : up ? 'rgba(34,211,166,0.3)' : 'rgba(255,68,68,0.3)' }]}>
       <Text style={styles.pillSymbol}>{symbol}</Text>
       <Text style={[styles.pillPrice]}>{price.toLocaleString('en-IN')}</Text>
-      <Text style={[styles.pillChange, { color: up ? Colors.teal : Colors.red }]}>
-        {up ? '▲' : '▼'} {Math.abs(changePct).toFixed(2)}%
+      <Text style={[styles.pillChange, { color: tone }]}>
+        {known ? `${up ? '▲' : '▼'} ${Math.abs(changePct).toFixed(2)}%` : '—'}
       </Text>
     </View>
   );
@@ -49,6 +55,13 @@ export default function DashboardScreen() {
   const { saved: moneyScore } = useMoneyScore();
   const { data: market } = useMarketData();
   const [refreshing, setRefreshing] = React.useState(false);
+  // Learn tile: lessons marked learned on this phone (a count from the bundled lesson list; nothing is fetched)
+  const [learnSub, setLearnSub] = React.useState<string | null>(null);
+  useFocusEffect(useCallback(() => {
+    let live = true;
+    loadLearned().then(l => { const p = overallProgress(MANIFEST, l); if (live) setLearnSub(`${p.done} of ${p.total} lessons`); }).catch(() => {});
+    return () => { live = false; };
+  }, []));
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -79,6 +92,7 @@ export default function DashboardScreen() {
           <Text style={styles.date}>{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</Text>
         </View>
         <View style={{ flexDirection: 'row', gap: 10 }}>
+          <AlertBell data={td} computed={tc} style={styles.settingsBtn} />
           <Pressable accessibilityRole="button" accessibilityLabel="Search" onPress={() => router.push('/search' as any)} hitSlop={12}>
             <View style={styles.settingsBtn}>
               <Text style={{ fontSize: 18 }}>🔍</Text>
@@ -476,6 +490,101 @@ export default function DashboardScreen() {
           icon="💼"
           style={styles.gridHalf}
           onPress={() => open('/tools/offers')}
+        />
+      </View>
+
+      {/* ── Plan, learn and research ── */}
+      <Text style={styles.sectionTitle}>Plan, Learn & Research</Text>
+      <View style={styles.grid}>
+        <MetricCard
+          label="Learn"
+          value={learnSub ?? 'Lessons'}
+          sub="money, markets and insurance, on this phone"
+          accent={Colors.cyan}
+          icon="📚"
+          style={styles.gridHalf}
+          onPress={() => open('/learn')}
+        />
+        <MetricCard
+          label="PULSE"
+          value="What matters today"
+          sub="ranked from what you recorded"
+          accent={Colors.purple}
+          icon="🧭"
+          style={styles.gridHalf}
+          onPress={() => open('/pulse')}
+        />
+        <MetricCard
+          label="Spending forecast"
+          value="This month"
+          sub="from your own logged spending"
+          accent={Colors.gold}
+          icon="🔮"
+          style={styles.gridHalf}
+          onPress={() => open('/plan/forecast')}
+        />
+        <MetricCard
+          label="Life goals"
+          value="Roadmap"
+          sub="the SIP each goal needs"
+          accent={Colors.teal}
+          icon="🗺️"
+          style={styles.gridHalf}
+          onPress={() => open('/plan/lifegoals')}
+        />
+        <MetricCard
+          label="Growth projection"
+          value="At a return you set"
+          sub="your holdings and SIPs"
+          accent={Colors.teal}
+          icon="🌱"
+          style={styles.gridHalf}
+          onPress={() => open('/plan/growth')}
+        />
+        <MetricCard
+          label="Couple finance"
+          value="Two incomes"
+          sub="shared bills, joint goals"
+          accent={Colors.purple}
+          icon="👫"
+          style={styles.gridHalf}
+          onPress={() => open('/plan/couple')}
+        />
+        <MetricCard
+          label="Benchmarks"
+          value="Rules of thumb"
+          sub="not a comparison with others"
+          accent={Colors.cyan}
+          icon="📏"
+          style={styles.gridHalf}
+          onPress={() => open('/plan/benchmark')}
+        />
+        <MetricCard
+          label="Insurance hub"
+          value="Cover guide"
+          sub="what to ask, compare policies"
+          accent={Colors.orange}
+          icon="🛡️"
+          style={styles.gridHalf}
+          onPress={() => open('/insurance')}
+        />
+        <MetricCard
+          label="Mutual funds"
+          value="Search and compare"
+          sub="NAV, Direct vs Regular"
+          accent={Colors.gold}
+          icon="📈"
+          style={styles.gridHalf}
+          onPress={() => open('/funds')}
+        />
+        <MetricCard
+          label="Market research"
+          value="News and prices"
+          sub="shares, funds, gold, currency"
+          accent={Colors.cyan}
+          icon="🔭"
+          style={styles.gridHalf}
+          onPress={() => open('/market')}
         />
       </View>
 

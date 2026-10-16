@@ -25,14 +25,14 @@
   <link rel="stylesheet" href="../css/derivativesdetail.css">
   <link rel="stylesheet" href="../css/theme.css?v=2">
   <link rel="stylesheet" href="../css/reader-shell.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
   <meta property="og:image" content="/assets/icons/icon-512.svg">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
 </head>
 <body data-nav-parent="markets.html">
@@ -216,11 +216,11 @@
         <p>They were created to <strong>Hedge Risk</strong> (Protection), not for gambling.</p>
         <div class="grid-2-mini">
           <div class="mini-card success">
-            <h4>🛡️ Hedging</h4>
+            <h4 aria-level="3">🛡️ Hedging</h4>
             <p>A farmer locks the price to protect against price crashes.</p>
           </div>
           <div class="mini-card highlight">
-            <h4>🎲 Speculation</h4>
+            <h4 aria-level="3">🎲 Speculation</h4>
             <p>Traders bet on price direction to make profit from risk.</p>
           </div>
         </div>
@@ -274,13 +274,13 @@
         <div class="grid-2-mini">
           <div class="card-box">
             <div class="icon">📈</div>
-            <h4>Call Option (CE)</h4>
+            <h4 aria-level="3">Call Option (CE)</h4>
             <p>Right to <strong>BUY</strong>.</p>
             <p class="sub">Use when you think market will go UP.</p>
           </div>
           <div class="card-box">
             <div class="icon">📉</div>
-            <h4>Put Option (PE)</h4>
+            <h4 aria-level="3">Put Option (PE)</h4>
             <p>Right to <strong>SELL</strong>.</p>
             <p class="sub">Use when you think market will go DOWN.</p>
           </div>
@@ -339,15 +339,15 @@
         <p>Ignoring Greeks = Flying a plane blind.</p>
         <div class="grid-3-cards">
           <div class="card-box">
-            <h4>Δ Delta</h4>
+            <h4 aria-level="3">Δ Delta</h4>
             <p>Price Sensitivity. How much option moves vs stock.</p>
           </div>
           <div class="card-box highlight">
-            <h4>θ Theta</h4>
+            <h4 aria-level="3">θ Theta</h4>
             <p>Time Decay. The enemy of the buyer.</p>
           </div>
           <div class="card-box">
-            <h4>ν Vega</h4>
+            <h4 aria-level="3">ν Vega</h4>
             <p>Volatility. Impact of fear/greed.</p>
           </div>
         </div>
@@ -395,7 +395,7 @@
         <span class="chapter-badge">LEVEL 11: SURVIVAL</span>
         <h2>11. Risk Management Rules</h2>
         <div class="concept-box glass">
-           <h4>The Golden Rules</h4>
+           <h4 aria-level="3">The Golden Rules</h4>
            <ul class="checklist-style">
              <li>✅ <strong>Stop Loss:</strong> Define it BEFORE entering the trade.</li>
              <li>✅ <strong>Position Size:</strong> Never risk more than 2% of capital on one trade.</li>
@@ -418,7 +418,7 @@
         <span class="chapter-badge">LEVEL 13: MINDSET</span>
         <h2>13. The FIN-OS Mental Model</h2>
         <div class="concept-box glass">
-           <h4>"The Power Tool"</h4>
+           <h4 aria-level="3">"The Power Tool"</h4>
            <p>Think of Derivatives as a chainsaw.</p>
            <p>In trained hands, it cuts trees efficiently (Hedging).<br>
            In untrained hands, it cuts off your leg (Bankruptcy).</p>
@@ -428,7 +428,7 @@
       <section class="chapter" id="sec18">
         <div class="pro-tip god-mode">
           <div class="god-header">
-            <h4>💎 The Final Truth</h4>
+            <h4 aria-level="3">💎 The Final Truth</h4>
           </div>
           <p>
             Derivatives don't create wealth. They <strong>transfer</strong> wealth.<br>

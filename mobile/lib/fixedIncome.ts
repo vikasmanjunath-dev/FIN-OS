@@ -127,6 +127,12 @@ export function totals(portfolio: FDEntry[], now: Date = new Date()): Totals {
   return { principal, currentValue, interest, yld: principal > 0 ? (currentValue / principal - 1) * 100 : 0 };
 }
 
+/** totals() for what is shown and saved: an entry whose date or amount cannot be read adds nothing, so a total is never NaN.
+ *  (totals() itself stays identical to the website's, which turns the whole total into NaN in that case.) */
+export function safeTotals(portfolio: FDEntry[], now: Date = new Date()): Totals {
+  return totals(portfolio.filter(e => Number.isFinite(calcEntry(e, now).currentValue)), now);
+}
+
 export interface NewEntryForm { type: InstrumentId; label: string; bank: string; amount: number; rate: number; startDate: string; termMonths: number; nominee: string }
 
 /** The website's _save(): same checks, same entry shape. Returns the entry, or the reason it was refused. */
@@ -154,6 +160,6 @@ export function upcomingMaturities(portfolio: FDEntry[], now: Date = new Date(),
   const horizon = new Date(now); horizon.setMonth(horizon.getMonth() + months);
   return portfolio
     .map(entry => ({ entry, result: calcEntry(entry, now) }))
-    .filter(x => x.result.maturityDate.getTime() <= horizon.getTime())
+    .filter(x => Number.isFinite(x.result.currentValue) && Number.isFinite(x.result.maturityDate.getTime()) && x.result.maturityDate.getTime() <= horizon.getTime())
     .sort((a, b) => a.result.maturityDate.getTime() - b.result.maturityDate.getTime());
 }

@@ -121,7 +121,7 @@ runBtn?.addEventListener("click", () => {
       const percentLeft = (remaining / income) * 100;
 
       incomeFill.style.width = `${percentLeft}%`;
-      balanceText.textContent = `₹${Math.max(0, Math.round(remaining))}`;
+      balanceText.textContent = `₹${Math.max(0, Math.round(remaining)).toLocaleString('en-IN')}`;
       expense.style.opacity = 1;
     }, delay);
 
@@ -129,9 +129,11 @@ runBtn?.addEventListener("click", () => {
   });
 
   setTimeout(() => {
-    incomeFill.style.width = "0%";
-    balanceText.textContent = "₹0";
-    message.classList.add("show");
+    // the example's expense shares add up to 100% of the income, so what is left is the real remainder (0), not a forced value
+    const left = Math.max(0, Math.round(remaining));
+    incomeFill.style.width = `${Math.max(0, (remaining / income) * 100)}%`;
+    balanceText.textContent = `₹${left.toLocaleString('en-IN')}`;
+    message.classList.toggle("show", left === 0);
   }, delay + 600);
 });
 

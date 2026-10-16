@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="../../css/layout.css?v=4">
   <link rel="stylesheet" href="../../css/components.css?v=2">
   <link rel="stylesheet" href="../../css/theme.css?v=2">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
   <script src="../../js/finos-context.js?v=4"></script>
   <script src="../../js/finos-a11y.js"></script>
   <script src="../../js/arya-ai.js?v=8"></script>
@@ -186,18 +186,22 @@ function calculate() {
   const den = (F + P) / 2;
   const ytm = (num / den) * 100;
 
-  document.getElementById('currYield').textContent = currentYield.toFixed(2) + "%";
+  // A price, term or face value of 0 (or an empty box) has no yield: show a dash, never NaN / Infinity.
+  const pct = (x) => Number.isFinite(x) ? x.toFixed(2) + "%" : "—";
+  const safe = (x) => Number.isFinite(x) ? x : 0;
+  document.getElementById('currYield').textContent = pct(currentYield);
   document.getElementById('incomeVal').textContent = "₹" + (Math.round(annualCoupon * 100) / 100);   // 2 decimals at most: 1000 x 7.1% used to print 70.99999999999999
   
   const ytmEl = document.getElementById('ytmVal');
-  ytmEl.textContent = "Approx YTM: " + ytm.toFixed(2) + "%";
+  ytmEl.textContent = "Approx YTM: " + pct(ytm);
   
   // Color coding YTM
-  if (ytm > C) ytmEl.className = "verdict-box ahead"; // Discount Bond
+  if (!Number.isFinite(ytm)) ytmEl.className = "verdict-box";
+  else if (ytm > C) ytmEl.className = "verdict-box ahead"; // Discount Bond
   else if (ytm < C) ytmEl.className = "verdict-box behind"; // Premium Bond
   else ytmEl.className = "verdict-box on-track"; // Par
 
-  chart.data.datasets[0].data = [C, currentYield, ytm];
+  chart.data.datasets[0].data = [safe(C), safe(currentYield), safe(ytm)];
   chart.update();
 }
 

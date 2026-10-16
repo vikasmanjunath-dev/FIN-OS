@@ -1,9 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getMany } from '@/lib/safeStore';
 import { EMPTY_PROFILE, PROFILE_KEYS, type Profile } from '@/lib/profile';
 
 export async function loadProfile(): Promise<Profile> {
   try {
-    const g = Object.fromEntries(await AsyncStorage.multiGet(Object.values(PROFILE_KEYS)));
+    const g = await getMany(Object.values(PROFILE_KEYS));
     return { name: g[PROFILE_KEYS.name] ?? '', age: g[PROFILE_KEYS.age] ?? '', income: g[PROFILE_KEYS.income] ?? '', dependents: g[PROFILE_KEYS.dependents] ?? '' };
   } catch { return { ...EMPTY_PROFILE }; }
 }

@@ -1,5 +1,6 @@
 // Life-cover inputs on the device: what to prefill from what is tracked, and the three figures the website saves.
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getMany } from '@/lib/safeStore';
 import type { CoverResult } from '@/lib/lifeCover';
 
 export interface CoverFields { annualIncome: string; currentAge: string; retireAge: string; monthlyNeed: string; needYears: string; existingCover: string; totalLiab: string; discountRate: string; inflationRate: string }
@@ -10,8 +11,8 @@ const n = (v: unknown) => { const x = parseFloat(String(v ?? '')); return Number
 const list = (raw: string | null | undefined): any[] => { try { const v = JSON.parse(raw ?? '[]'); return Array.isArray(v) ? v : []; } catch { return []; } };
 
 export async function loadCoverPrefill(): Promise<Partial<CoverFields>> {
-  const g = Object.fromEntries(await AsyncStorage.multiGet(['finos_salary_ctc', 'finos_gross_income', 'finos_monthly_income', 'finos_monthly_expense', 'finos_budget_expenses',
-    'finos_insurance_policies', 'finos_total_liabilities', 'finos_home_loan', 'finos_car_loan', 'finos_personal_loan', 'finos_credit_card_debt']));
+  const g = await getMany(['finos_salary_ctc', 'finos_gross_income', 'finos_monthly_income', 'finos_monthly_expense', 'finos_budget_expenses',
+    'finos_insurance_policies', 'finos_total_liabilities', 'finos_home_loan', 'finos_car_loan', 'finos_personal_loan', 'finos_credit_card_debt']);
   const out: Partial<CoverFields> = {};
   const income = n(g.finos_salary_ctc) || n(g.finos_gross_income) || n(g.finos_monthly_income) * 12;
   if (income) out.annualIncome = String(Math.round(income));

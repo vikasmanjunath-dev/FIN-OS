@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="../../css/components.css?v=2">
   <link rel="stylesheet" href="../../css/theme.css?v=2">
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
   <script src="../../js/finos-context.js?v=4"></script>
   <script src="../../js/finos-a11y.js"></script>
   <script src="../../js/arya-ai.js?v=8"></script>
@@ -275,6 +275,7 @@ const chart = new Chart(ctx, {
 });
 
 function formatCurrency(num) {
+  if (typeof num === "number" && !Number.isFinite(num)) return "—";   // overflow / empty input: a dash, never Infinity or NaN
     if (num >= 10000000) return "₹" + (num / 10000000).toFixed(2) + " Cr";
     if (num >= 100000) return "₹" + (num / 100000).toFixed(2) + " L";
     return "₹" + num.toLocaleString("en-IN");
@@ -288,7 +289,8 @@ function calculate() {
   // TVM Formula: FV = PV * (1 + r/100)^n
   const fv = p * Math.pow((1 + r / 100), n);
   const interest = fv - p;
-  const multiplier = (fv / p).toFixed(1);
+  const fx = (x, d) => Number.isFinite(x) ? x.toFixed(d) : "—";   // empty / zero boxes: a dash, never NaN
+  const multiplier = fx(fv / p, 1);
 
   document.getElementById("investedResult").textContent = formatCurrency(p);
   document.getElementById("fvResult").textContent = formatCurrency(Math.round(fv));

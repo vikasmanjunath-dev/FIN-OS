@@ -3,7 +3,7 @@
 <head>
 <script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
@@ -612,7 +612,7 @@
   /* ── Load saved access state ───────────────────────────── */
   document.addEventListener('DOMContentLoaded',function(){
     try {
-      const saved=JSON.parse(localStorage.getItem('finos_advisor_access')||'{}');
+      const saved=((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('finos_advisor_access')||'{}'));
       Object.entries(saved).forEach(([k,v])=>{
         const el=document.getElementById('acc-'+k);
         if(el) el.checked=v;

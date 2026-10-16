@@ -71,3 +71,15 @@ test('website regression: Bond annual income is never a long floating-point stri
   page.set('face', 1000); page.set('coupon', 7.1); page.set('price', 950); page.set('years', 5);
   assert.equal(page.run().incomeVal, '₹71');
 });
+
+// The Growth Simulator rounds amounts under 1 lakh to whole rupees (the phone used to show decimals there).
+test('growth: amounts under 1 lakh are whole rupees, as on the website', () => {
+  const def = CALCS.find(c => c.id === 'growth')!;
+  const page = loadWebCalc(def.web);
+  const v = { current: 1234, monthly: 0, rate: 7.3, time: 1 };
+  Object.entries(v).forEach(([k, x]) => page.set(def.inputs.find(i => i.key === k)!.id ?? k, x));
+  const web = page.run();
+  const mine = Object.fromEntries(def.run(v).map(r => [r.id, r.text]));
+  assert.deepEqual(mine, web);
+  assert.match(mine.finalVal, /^Portfolio: ₹[\d,]+$/);
+});

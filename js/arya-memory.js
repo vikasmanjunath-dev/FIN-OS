@@ -38,7 +38,7 @@
     /* Settings → "Retain Arya Chat History". When the user turns it off, nothing about their chats
        (topics, preferences, mood notes) may be recorded or persisted. Default is on. */
     _enabled() {
-      try { return JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}').aiMemory !== false; }
+      try { return ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS')||'{}')).aiMemory !== false; }
       catch (_) { return true; }
     }
 

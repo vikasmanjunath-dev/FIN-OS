@@ -76,11 +76,30 @@ def test_prediction_does_not_overwrite_recorded_expense_and_has_its_own_key(env)
     assert page.evaluate("localStorage.getItem('finos_forecast_next_month')") == "5000"
 
 
-def test_prediction_fills_blank_expense_only(env):
+def test_prediction_never_fills_a_blank_expense_or_savings_rate(env):
+    # a prediction used to be saved as the "recorded" monthly expense when none existed, and then froze there
     page, _ = open_page(env, {"finos_transactions": rows([1, 2, 3])})
     page.click("#runBtn")
     page.wait_for_function("document.getElementById('runBtn').textContent.includes('Regenerate')")
-    assert page.evaluate("localStorage.getItem('finos_monthly_expense')") == "5000"
+    assert page.evaluate("localStorage.getItem('finos_monthly_expense')") is None
+    assert page.evaluate("localStorage.getItem('finos_savings_rate')") is None
+    assert page.evaluate("localStorage.getItem('finos_forecast_next_month')") == "5000"
+
+
+def test_income_band_is_not_turned_into_a_number(env):
+    page, _ = open_page(env, {"finos_transactions": rows([1, 2, 3]), "finos_income": "1L-2.5L"})
+    assert page.input_value("#incomeInput") == ""
+    page.click("#runBtn")
+    page.wait_for_function("document.getElementById('runBtn').textContent.includes('Regenerate')")
+    assert page.evaluate("localStorage.getItem('finos_monthly_income')") is None
+
+
+def test_typed_income_does_not_replace_a_recorded_one(env):
+    page, _ = open_page(env, {"finos_transactions": rows([1, 2, 3]), "finos_monthly_income": "90000"})
+    page.fill("#incomeInput", "10")
+    page.click("#runBtn")
+    page.wait_for_function("document.getElementById('runBtn').textContent.includes('Regenerate')")
+    assert page.evaluate("localStorage.getItem('finos_monthly_income')") == "90000"
 
 
 def test_short_history_is_flagged_not_hidden(env):

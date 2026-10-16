@@ -53,6 +53,13 @@ CHUNK_SIZES = {
     "corporate_filing":  {"size": 200, "overlap": 40},
 }
 
+# ── Pipeline version ─────────────────────────────────────────────────────
+# Bump whenever prompt construction, chunk selection or generation settings change.
+# It is part of the Redis cache key (storage/redis_cache.py): before Oct 15 2026 the key
+# held only the query, the user and the kb_version, so a prompt fix kept serving the
+# previous prompt's cached answers for up to an hour.
+PIPELINE_VERSION = "2026-10-15.1-query-window"
+
 # ── Namespaces ───────────────────────────────────────────────────────────
 PUBLIC_NAMESPACE = "public"
 

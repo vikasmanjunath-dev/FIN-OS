@@ -23,9 +23,10 @@
   const TDS_THRESHOLD = 50000;
 
   /* ── Helpers ─────────────────────────────────────────────────────── */
-  function safeJSON(k, d) { try { return JSON.parse(localStorage.getItem(k) || 'null') || d; } catch (_) { return d; } }
+  function safeJSON(k, d) { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); if (v == null) return d; if (Array.isArray(d)) return Array.isArray(v) ? v : d; if (d && typeof d === 'object') return (typeof v === 'object' && !Array.isArray(v)) ? v : d; return v || d; } catch (_) { return d; } }
   function ss(k, v) { try { localStorage.setItem(k, typeof v === 'object' ? JSON.stringify(v) : String(v)); } catch (_) {} }
 
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   function INR(n) {
     n = Number(n) || 0;
     if (n >= 1e7) return '₹' + (n / 1e7).toFixed(2) + ' Cr';
@@ -56,7 +57,7 @@
   ];
 
   /* ── Portfolio I/O ───────────────────────────────────────────────── */
-  function load() { return safeJSON('finos_crypto_portfolio', []); }
+  function load() { return safeJSON('finos_crypto_portfolio', []).filter(x => x && typeof x === 'object'); }
   function loadPrices() { return safeJSON('finos_crypto_prices', {}); }
 
   function savePortfolio(holdings, prices) {
@@ -174,9 +175,9 @@
       html += `
         <div class="ct-holding-card">
           <div class="ct-hc-left">
-            <div class="ct-hc-symbol">${h.symbol}</div>
-            <div class="ct-hc-name">${h.name || COINS.find(c => c.symbol === h.symbol)?.name || ''}</div>
-            <div class="ct-hc-qty">${h.quantity} coins · Avg ₹${(h.avgBuyPrice || 0).toLocaleString('en-IN')}</div>
+            <div class="ct-hc-symbol">${esc(h.symbol)}</div>
+            <div class="ct-hc-name">${esc(h.name || COINS.find(c => c.symbol === h.symbol)?.name || '')}</div>
+            <div class="ct-hc-qty">${esc(h.quantity)} coins · Avg ₹${(h.avgBuyPrice || 0).toLocaleString('en-IN')}</div>
           </div>
           <div class="ct-hc-mid">
             <div class="ct-hc-price">₹${px ? px.toLocaleString('en-IN') : '—'} <span class="ct-hc-current-lbl">current</span></div>
@@ -270,7 +271,7 @@
         </div>
         ${rows.map(r => `
           <div class="ct-tax-row">
-            <span class="ct-tax-sym">${r.symbol}</span>
+            <span class="ct-tax-sym">${esc(r.symbol)}</span>
             <span>${INR(r.cost)}</span>
             <span>${r.px ? INR(r.val) : '—'}</span>
             <span class="${r.gain >= 0 ? 'ct-gain-pos' : 'ct-gain-neg'}">${r.px ? (r.gain >= 0 ? '+' : '') + INR(r.gain) : '—'}</span>

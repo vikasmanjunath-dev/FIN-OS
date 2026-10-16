@@ -4,7 +4,7 @@
 <head>
 <script src="../js/finos-vault-boot.js"></script>
 <script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
 <meta charset="UTF-8">
   <meta name="description" content="Your monthly financial health report in plain English — income, spend and savings, WhatsApp-shareable, print-ready.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -459,7 +459,7 @@
 
       <!-- SECTION 3: BENCHMARK -->
       <div class="rep-section" id="sec3">
-        <div class="rep-section-title">Peer Benchmark</div>
+        <div class="rep-section-title">Rule-of-thumb reference</div>
         <div style="height:120px;" class="skeleton"></div>
       </div>
 
@@ -516,6 +516,8 @@ function getPillarColor(score) {
   return '#f04444';
 }
 
+const esc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+
 function formatDate(d) {
   return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
 }
@@ -544,10 +546,10 @@ function renderSec1(hs) {
       </div>
       <div class="score-details">
         <div class="score-headline">
-          ${hs.headline || 'Your financial health at a glance'}
+          ${esc(hs.headline || 'Your financial health at a glance')}
           <span class="tier-badge tier-${tier}" style="margin-left:10px;">${tier}</span>
         </div>
-        <div class="score-subtext">${hs.summary || hs.description || 'Comprehensive analysis of your 8 financial pillars.'}</div>
+        <div class="score-subtext">${esc(hs.summary || hs.description || '')}</div>
       </div>
     </div>`;
 }
@@ -558,7 +560,7 @@ function renderSec2(pillars) {
     const color = getPillarColor(p.score);
     return `
       <div class="pillar-card">
-        <div class="pillar-name">${p.name}</div>
+        <div class="pillar-name">${esc(p.name)}</div>
         <div class="pillar-score-row">
           <div class="pillar-score-val" style="color:${color}">${p.score}</div>
           <span class="pillar-grade grade-${grade}">${grade}</span>
@@ -566,7 +568,7 @@ function renderSec2(pillars) {
         <div class="pillar-bar-bg">
           <div class="pillar-bar" style="width:${p.score}%;background:${color};"></div>
         </div>
-        <div class="pillar-narrative">${p.narrative || p.description || '—'}</div>
+        <div class="pillar-narrative">${esc(p.narrative || p.description || '—')}</div>
       </div>`;
   }).join('');
   document.getElementById('sec2').innerHTML = `
@@ -576,7 +578,7 @@ function renderSec2(pillars) {
 
 function renderSec3(bench) {
   const STATUS_META = {
-    top_10:       { cls: 'badge-top10', icon: '🏆', label: 'Top 10%'      },
+    top_10:       { cls: 'badge-top10', icon: '🏆', label: 'Strong'      },
     above_avg:    { cls: 'badge-above', icon: '🟢', label: 'Above Avg'    },
     average:      { cls: 'badge-avg',   icon: '🟡', label: 'Average'      },
     below_target: { cls: 'badge-below', icon: '🔴', label: 'Below Target' },
@@ -584,18 +586,18 @@ function renderSec3(bench) {
   const rows = bench.metrics.map(m => {
     const meta = STATUS_META[m.status] || STATUS_META.average;
     return `<tr>
-      <td>${m.label}</td>
-      <td><strong>${m.user}${m.unit}</strong></td>
-      <td style="color:var(--text-muted)">${m.avg}${m.unit}</td>
-      <td style="color:#22d3a6">${m.top10}${m.unit}</td>
+      <td>${esc(m.label)}</td>
+      <td><strong>${esc(m.user)}${esc(m.unit)}</strong></td>
+      <td style="color:var(--text-muted)">${esc(m.avg)}${esc(m.unit)}</td>
+      <td style="color:#22d3a6">${esc(m.top10)}${esc(m.unit)}</td>
       <td><span class="status-badge ${meta.cls}">${meta.icon} ${meta.label}</span></td>
     </tr>`;
   }).join('');
   document.getElementById('sec3').innerHTML = `
-    <div class="rep-section-title">Peer Benchmark</div>
+    <div class="rep-section-title">Rule-of-thumb reference</div>
     <table class="bench-table">
       <thead><tr>
-        <th>Category</th><th>You</th><th>Avg Peer</th><th>Top 10%</th><th>Status</th>
+        <th>Category</th><th>You</th><th>Typical (rule of thumb)</th><th>Strong (rule of thumb)</th><th>Status</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
@@ -606,7 +608,7 @@ function renderSec4(tips) {
   const items = top3.map((t, i) => `
     <div class="action-item">
       <div class="action-num">${i + 1}</div>
-      <div class="action-text">${t.text || t.tip || t}</div>
+      <div class="action-text">${esc(t.text || t.tip || t)}</div>
     </div>`).join('');
   document.getElementById('sec4').innerHTML = `
     <div class="rep-section-title">Top 3 Action Items</div>
@@ -620,8 +622,8 @@ function renderSec5(hs) {
       <div class="arya-avatar">🤖</div>
       <div class="arya-inner">
         <div class="arya-name">ARYA — Your Money AI</div>
-        <div class="arya-headline">${hs.headline || 'Your finances are on track.'}</div>
-        <div class="arya-win">${hs.quick_win || hs.tip || 'Keep building on your current habits. Small consistent actions compound into major results.'}</div>
+        <div class="arya-headline">${esc(hs.headline || '')}</div>
+        <div class="arya-win">${esc(hs.quick_win || hs.tip || '')}</div>
       </div>
     </div>`;
 }
@@ -658,45 +660,6 @@ function handleShare() {
   }
 }
 
-// ── Demo data ──
-function getDemoHealthScore() {
-  return {
-    score: 64,
-    tier: 'GOOD',
-    headline: 'Solid foundation — a few targeted fixes will push you to GREAT',
-    summary: 'Your savings discipline is strong and debt levels are manageable. Focus on building emergency reserves and boosting insurance cover.',
-    quick_win: 'Start a ₹5,000/month liquid fund SIP today — it builds your emergency buffer in 6 months with zero effort.',
-    tips: [
-      { text: 'Build emergency fund to 6 months of expenses (currently at 2.1 months).' },
-      { text: 'Increase term insurance cover to at least 15× annual income.' },
-      { text: 'Automate ₹3,000/month into an index fund SIP to boost investment pillar.' },
-    ],
-    pillars: [
-      { name: 'Savings',      score: 74, narrative: 'Savings rate of 28% — above peer average. Keep it up!' },
-      { name: 'Investments',  score: 58, narrative: 'Equity allocation is low. Increase SIP contributions.' },
-      { name: 'Debt',         score: 70, narrative: 'Debt-to-income at 22% — manageable. Avoid new EMIs.' },
-      { name: 'Insurance',    score: 38, narrative: 'Insurance gap: only 6× income covered vs 15× recommended.' },
-      { name: 'Emergency',    score: 35, narrative: 'Only 2.1 months of reserves. Target: 6 months minimum.' },
-      { name: 'Tax Planning', score: 62, narrative: '80C utilised. Explore NPS and HRA optimisations.' },
-      { name: 'Goals',        score: 68, narrative: 'Home goal on track. Retirement corpus needs attention.' },
-      { name: 'Net Worth',    score: 72, narrative: 'Net worth growing steadily at ~12% YoY.' },
-    ]
-  };
-}
-
-function getDemoBenchmark() {
-  return {
-    segment: { age_bracket: '30s', city_tier: 'metro', income_bracket: 'mid' },
-    metrics: [
-      { key:'savings_rate', label:'Savings Rate',    user:28,  avg:19,  top10:38,  unit:'%', status:'above_avg'    },
-      { key:'invest_pct',   label:'Investment %',    user:12,  avg:8,   top10:22,  unit:'%', status:'above_avg'    },
-      { key:'debt_pct',     label:'Debt/Income',     user:22,  avg:31,  top10:8,   unit:'%', status:'average'      },
-      { key:'ef_months',    label:'Emergency Fund',  user:2.1, avg:1.8, top10:6,   unit:'mo',status:'below_target' },
-      { key:'ins_ratio',    label:'Insurance Cover', user:6,   avg:4,   top10:15,  unit:'×', status:'below_target' },
-    ]
-  };
-}
-
 async function loadReport() {
   const now = new Date();
   let userName = 'FIN•OS User';
@@ -709,7 +672,7 @@ async function loadReport() {
   } catch (_) {}
 
   document.getElementById('repSubline').innerHTML =
-    `<strong>${userName}</strong> &nbsp;|&nbsp; Generated on ${formatDate(now)}`;
+    `<strong>${esc(userName)}</strong> &nbsp;|&nbsp; Generated on ${formatDate(now)}`;
 
   let hsData, benchData;
 
@@ -729,15 +692,19 @@ async function loadReport() {
     benchData = await benchRes.json();
 
   } catch (err) {
-    console.warn('[Report] Demo mode:', err.message);
-    document.getElementById('demoBanner').style.display = 'block';
-    hsData    = getDemoHealthScore();
-    benchData = getDemoBenchmark();
+    // No sample report is shown in place of yours.
+    console.warn('[Report] unavailable:', err.message);
+    const b = document.getElementById('demoBanner');
+    b.textContent = 'Your report could not be loaded: sign in and make sure the alert engine is running. The Money Score in the app works offline.';
+    b.style.display = 'block';
+    ['sec1', 'sec2', 'sec3', 'sec4', 'sec5'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+    renderFooter();
+    return;
   }
 
   // Normalise pillars
-  const pillars = hsData.pillars || hsData.components || getDemoHealthScore().pillars;
-  const tips    = hsData.tips    || hsData.action_items || getDemoHealthScore().tips;
+  const pillars = hsData.pillars || hsData.components || [];
+  const tips    = hsData.tips    || hsData.action_items || [];
 
   renderSec1(hsData);
   renderSec2(pillars);

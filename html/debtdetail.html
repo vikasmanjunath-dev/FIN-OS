@@ -25,14 +25,14 @@
   <link rel="stylesheet" href="../css/debtdetail.css">
   <link rel="stylesheet" href="../css/theme.css?v=2">
   <link rel="stylesheet" href="../css/reader-shell.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
   <meta property="og:image" content="/assets/icons/icon-512.svg">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
 </head>
 <body data-nav-parent="markets.html">
@@ -251,7 +251,7 @@
         <div class="visual-box glass center-text">
           <div class="skeleton-visual">
             <span style="font-size:3rem;">🦴</span>
-            <h4>The Skeleton of Economy</h4>
+            <h4 aria-level="3">The Skeleton of Economy</h4>
             <p>Equity is the muscle (growth). Debt is the bone (structure).</p>
           </div>
         </div>
@@ -291,19 +291,19 @@
         <h2>5. Types of Instruments (Indian Context)</h2>
         <div class="grid-2-mini">
           <div class="mini-card success">
-            <h4>1. G-Secs (Sovereign)</h4>
+            <h4 aria-level="3">1. G-Secs (Sovereign)</h4>
             <p>Issued by Govt of India. <strong>Risk: Zero.</strong> Returns: Moderate. The safest place for money.</p>
           </div>
           <div class="mini-card">
-            <h4>2. Corporate Bonds</h4>
+            <h4 aria-level="3">2. Corporate Bonds</h4>
             <p>Issued by companies (Reliance, Tata). <strong>Risk: Low to High.</strong> Returns: Higher than Govt.</p>
           </div>
           <div class="mini-card">
-            <h4>3. Fixed Deposits (FD)</h4>
+            <h4 aria-level="3">3. Fixed Deposits (FD)</h4>
             <p>Issued by Banks. Safe but tax-inefficient. Comfort food, not superfood.</p>
           </div>
           <div class="mini-card danger">
-            <h4>4. NCDs / Debentures</h4>
+            <h4 aria-level="3">4. NCDs / Debentures</h4>
             <p>High interest corporate debt. Watch out for credit rating.</p>
           </div>
         </div>
@@ -348,17 +348,17 @@
         <p>Will the borrower run away? That is Credit Risk.</p>
         <div class="grid-3-cards">
           <div class="card-box">
-            <h4>AAA</h4>
+            <h4 aria-level="3">AAA</h4>
             <p class="sub">Safest</p>
             <p>HDFC, Govt, TCS. Lowest risk, lower return.</p>
           </div>
           <div class="card-box highlight">
-            <h4>AA / A</h4>
+            <h4 aria-level="3">AA / A</h4>
             <p class="sub">Moderate</p>
             <p>Good companies, slight risk. Better returns.</p>
           </div>
           <div class="card-box">
-            <h4>D (Default)</h4>
+            <h4 aria-level="3">D (Default)</h4>
             <p class="sub">Danger</p>
             <p>Companies that failed to pay back (e.g. DHFL, IL&FS).</p>
           </div>
@@ -396,7 +396,7 @@
       <section class="chapter" id="sec11">
         <span class="chapter-badge">LEVEL 11: MYTH BUSTING</span>
         <h2>11. How Indians Misunderstand Debt</h2>
-        <div class="scrolling-wrapper">
+        <div class="scrolling-wrapper" tabindex="0">
           <div class="scrolling-card glass">
             <h3>"Debt is Risk Free"</h3>
             <p class="answer no">FALSE</p>
@@ -458,17 +458,17 @@
         <h2>14. Debt Allocation by Life Stage</h2>
         <div class="grid-3-cards">
           <div class="card-box">
-            <h4>Young (20-30)</h4>
+            <h4 aria-level="3">Young (20-30)</h4>
             <p class="sub">10-20% Debt</p>
             <p>Focus on growth. Debt is just for emergencies.</p>
           </div>
           <div class="card-box">
-            <h4>Family (30-50)</h4>
+            <h4 aria-level="3">Family (30-50)</h4>
             <p class="sub">30-40% Debt</p>
             <p>Need stability for kids' fees and loans.</p>
           </div>
           <div class="card-box highlight">
-            <h4>Retired (60+)</h4>
+            <h4 aria-level="3">Retired (60+)</h4>
             <p class="sub">60-80% Debt</p>
             <p>Capital protection is priority #1. Income focus.</p>
           </div>
@@ -506,7 +506,7 @@
         <span class="chapter-badge">LEVEL 16: MINDSET</span>
         <h2>16. The FIN-OS Mental Model</h2>
         <div class="concept-box glass">
-           <h4>The Airbag Philosophy</h4>
+           <h4 aria-level="3">The Airbag Philosophy</h4>
            <p>You don't buy an airbag expecting to crash. You buy it so you survive <strong>IF</strong> you crash.</p>
            <p class="highlight" style="margin-top:10px;">"Debt is the price you pay for sleeping well at night."</p>
         </div>
@@ -515,7 +515,7 @@
       <section class="chapter" id="sec17">
         <div class="pro-tip god-mode">
           <div class="god-header">
-            <h4>💎 The Final Truth</h4>
+            <h4 aria-level="3">💎 The Final Truth</h4>
           </div>
           <p>
             Debt market is quiet, complex, and powerful.<br>

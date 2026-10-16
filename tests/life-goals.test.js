@@ -89,3 +89,49 @@ test('profile validation messages', () => {
   assert.match(L.validateProfile({ ...ok, surplus: 100000 }), /greater than or equal/);
   assert.match(L.validateProfile({ ...ok, retireAge: 30 }), /Retirement age/);
 });
+
+test('a 0% return is honoured, not replaced by 12%; only a missing or unusable rate falls back, and says so', () => {
+  const g = [goal('Home', 1000000, 10)];
+  const zero = L.plan({ ...base, returnRate: 0, savings: 0, goals: g });
+  assert.equal(zero.returnRate, 0);
+  assert.equal(zero.returnAssumed, false);
+  assert.ok(Math.abs(zero.processed[0].inflatedTarget - 1000000 * Math.pow(1.06, 10)) < 1e-6);
+  assert.equal(zero.processed[0].sipNeeded, Math.ceil(zero.processed[0].inflatedTarget / 120 / 500) * 500);   // deposits only, nothing earned
+  for (const bad of [undefined, null, '', NaN, -0.2, 3]) {
+    const r = L.plan({ ...base, returnRate: bad, savings: 0, goals: g });
+    assert.equal(r.returnRate, 0.12, String(bad));
+    assert.equal(r.returnAssumed, true, String(bad));
+  }
+  assert.equal(L.plan({ ...base, returnRate: 0.08, savings: 0, goals: g }).returnAssumed, false);
+  assert.match(L.validateProfile({ age: 30, income: 100000, surplus: 30000, retireAge: 58, returnRate: NaN }), /return/i);
+  assert.equal(L.validateProfile({ age: 30, income: 100000, surplus: 30000, retireAge: 58, returnRate: 0 }), null);
+});
+
+test('a goal the savings fully fund needs no SIP, whatever the floating point leaves behind', () => {
+  let n = 0;
+  for (let amount = 25000; amount < 6e7; amount = Math.round(amount * 1.37) + 11) {
+    for (const years of [1, 3, 7, 12, 25]) {
+      for (const inflation of [0, 0.06, 0.085]) {
+        for (const returnRate of [0.07, 0.1, 0.123]) {
+          const useful = amount * Math.pow(1 + inflation, years) / Math.pow(1 + returnRate, years);
+          const r = L.plan({ ...base, returnRate, savings: 360000 + useful + 1000, goals: [goal('G', amount, years, inflation)] });
+          assert.equal(r.processed[0].netTarget, 0, `${amount}/${years}/${inflation}/${returnRate}`);
+          assert.equal(r.processed[0].sipNeeded, 0, `${amount}/${years}/${inflation}/${returnRate}`);
+          n++;
+        }
+      }
+    }
+  }
+  assert.ok(n > 200);
+});
+
+test('findSIP has no ₹1 crore a month ceiling and is exact for tiny and huge targets', () => {
+  const big = L.findSIP(5e11, 2, 0.12);
+  assert.ok(big > 1e7, String(big));
+  assert.ok(L.sipFV(big, 24, 0.12) >= 5e11);
+  assert.ok(L.sipFV(big - 500, 24, 0.12) < 5e11);
+  assert.equal(L.findSIP(1, 5, 0.1), 500);                         // any positive need is at least one ₹500 step
+  assert.equal(L.findSIP(1e6, 10, 0), Math.ceil(1e6 / 120 / 500) * 500);
+  assert.equal(L.findSIP(1e6, 10, -13), Infinity);                 // a monthly rate of -100% or worse cannot be solved
+  assert.ok(Number.isFinite(L.findSIP(1e6, 10, -0.05)));            // a mildly negative return still can
+});

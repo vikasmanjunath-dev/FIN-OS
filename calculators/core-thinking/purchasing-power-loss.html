@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="../../css/components.css?v=2">
   <link rel="stylesheet" href="../../css/theme.css?v=2">
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
   <script src="../../js/finos-context.js?v=4"></script>
   <script src="../../js/finos-a11y.js"></script>
   <script src="../../js/arya-ai.js?v=8"></script>
@@ -433,7 +433,7 @@ function calculate() {
   const realValue = p * Math.pow((1 + s) / (1 + i), t);
   
   const loss = nominalValue - realValue;
-  const lossPercent = ((loss / nominalValue) * 100).toFixed(1);
+  const lossPercent = nominalValue > 0 ? ((loss / nominalValue) * 100).toFixed(1) : "0.0";
 
   document.getElementById("realValue").textContent = `₹${Math.round(realValue).toLocaleString()}`;
   document.getElementById("lossAmount").textContent = `₹${Math.round(loss).toLocaleString()}`;
@@ -445,7 +445,7 @@ function calculate() {
   const nominalData = [];
   const realData = [];
   
-  for (let year = 0; year <= t; year++) {
+  for (let year = 0; year <= Math.min(t, 100); year++) {   // chart is capped at 100 years
     labels.push(`Year ${year}`);
     nominalData.push(Math.round(p * Math.pow(1 + s, year)));
     realData.push(Math.round(p * Math.pow((1 + s) / (1 + i), year)));

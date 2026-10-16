@@ -7,6 +7,7 @@ cancels the one still streaming, and recent explanations are memoised. Ollama is
 (no network in the test), the rest is the real page.
 """
 import json
+import re
 import os
 import sys
 
@@ -46,6 +47,11 @@ def _open(env):
     def other(route):
         url = route.request.url
         if url.startswith(base):
+            if url.split("?")[0].endswith(".html"):
+                # The stub below is not the real library, so it cannot match the page's integrity hash: drop it here.
+                resp = route.fetch()
+                body = re.sub(r'\s+integrity="[^"]*"', "", resp.text())
+                return route.fulfill(response=resp, body=body)
             return route.continue_()
         if "chart" in url.lower():
             return route.fulfill(status=200, content_type="application/javascript", body=CHART_STUB)

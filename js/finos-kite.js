@@ -263,7 +263,7 @@
   function _renderHoldingsTable(container) {
     const holdings = FinosKite.getHoldings() || [];
     const userName = localStorage.getItem('finos_kite_user_name') || 'You';
-    const margins  = JSON.parse(localStorage.getItem(MARGINS_KEY) || '{}');
+    const margins  = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem(MARGINS_KEY)||'{}'));
     const equity   = margins.equity || {};
     const lastSync = localStorage.getItem(CACHE_TS)
       ? new Date(parseInt(localStorage.getItem(CACHE_TS))).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })

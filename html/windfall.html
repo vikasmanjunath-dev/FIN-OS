@@ -21,12 +21,13 @@
   <link rel="stylesheet" href="../css/components.css?v=2">
   <link rel="stylesheet" href="../css/theme.css?v=2">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-tracker-sync.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
-  <script src="../js/finos-windfall.js?v=2" defer></script>
+  <script src="../js/finos-taxcore.js" defer></script>
+  <script src="../js/finos-windfall.js?v=3" defer></script>
 
   <style>
     .wf-page { background: var(--bg-main); min-height: 100vh; }
@@ -129,6 +130,8 @@
 <style>
 #floatThemeBtn { position:fixed;top:14px;right:18px;z-index:9999;width:36px;height:36px;border-radius:10px;background:var(--bg-surface);border:1px solid var(--border-soft);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s;backdrop-filter:blur(10px); }
 #floatThemeBtn:hover{background:transparent;transform:scale(1.08);}
+/* raw #4F7CFF text on the raised dark cards measured 4.38:1 (inline colour from finos-windfall.js) */
+[data-theme="dark"] #wf-tab-alloc [style*="color:#4F7CFF"], [data-theme="dark"] #wf-tab-tax [style*="color:#4F7CFF"] { color: var(--accent-ink, #6B8FFF) !important; }
 [data-theme="light"] #floatThemeBtn{color:var(--text-primary)!important;}
 </style>
 <button id="floatThemeBtn" aria-label="Toggle theme">🌙</button>

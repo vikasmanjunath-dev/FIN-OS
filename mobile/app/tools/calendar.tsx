@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, router } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel, inr } from '@/components/TrackerUI';
 import { Collapsible, Bullet } from '@/components/CalcUI';
 import { collectEvents, byDate, monthCells, upcoming, monthSummary, isoDate, EVENT_META, type CalEvent, type Sources } from '@/lib/calendar';
@@ -93,7 +93,13 @@ export default function CalendarScreen() {
         </Card>
       )}
 
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add your own dates or export the calendar" onPress={() => router.push('/plan/mydates' as any)}
+        style={{ marginTop: Spacing.md, marginBottom: Spacing.sm }}>
+        <Text style={{ color: Colors.cyan, fontWeight: '700', fontSize: 13 }}>Add your own dates, or export this calendar →</Text>
+      </TouchableOpacity>
+
       <Collapsible title="What is included, and what is not">
+        <Bullet>Dates you add yourself on Your dates and export (a fee, a cheque, an EMI day), once or repeating. They show with a pin and are your own words; the app does not check them.</Bullet>
         <Bullet>SIPs you track (the Portfolio tab's monthly SIP amounts sit on the 1st unless a debit day is saved), deposit maturities, insurance renewal dates, goal dates, subscription renewals and trial endings, and the income-tax calendar.</Bullet>
         <Bullet>Tax dates are the statutory defaults for individuals without an audit. The government sometimes extends them, so check the Income Tax portal before relying on a date.</Bullet>
         <Bullet>Loan EMIs are shown as a monthly total; they are not placed on a day because the app does not know your debit date.</Bullet>

@@ -451,7 +451,7 @@
 
   function _qlSaveEntry(entry) {
     try {
-      const txns = JSON.parse(localStorage.getItem('finos_transactions') || '[]');
+      const txns = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_transactions')||'[]'));
       txns.push({
         id: Date.now(),
         date: new Date().toISOString().slice(0, 10),
@@ -475,7 +475,7 @@
     const el = document.getElementById('finos-ql-history');
     if (!el) return;
     try {
-      const txns = JSON.parse(localStorage.getItem('finos_transactions') || '[]')
+      const txns = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_transactions')||'[]'))
         .filter(t => t.source === 'voice_journal')
         .slice(-5).reverse();
       if (!txns.length) { el.innerHTML = ''; return; }

@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrollView, View, Text, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
 import { useMarketData, IndexQuote } from '@/hooks/useMarketData';
 import { useSectors } from '@/hooks/useSectors';
+import { router } from 'expo-router';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 import { LinearGradient } from '@/components/Gradient';
 
@@ -10,8 +11,9 @@ const SECTOR_EMOJI: Record<string, string> = {
 };
 
 function IndexCard({ quote, accent = Colors.cyan }: { quote: IndexQuote; accent?: string }) {
-  const up = quote.changePct >= 0;
-  const color = up ? Colors.teal : Colors.red;
+  const known = quote.changePct !== null;
+  const up = (quote.changePct ?? 0) >= 0;
+  const color = !known ? Colors.textMuted : up ? Colors.teal : Colors.red;
   return (
     <LinearGradient colors={['#0D1117', '#111827']} style={[styles.indexCard, { borderColor: color + '30' }]}>
       <View style={[styles.indexBar, { backgroundColor: color }]} />
@@ -20,13 +22,18 @@ function IndexCard({ quote, accent = Colors.cyan }: { quote: IndexQuote; accent?
         {quote.price.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
       </Text>
       <View style={styles.indexChangeRow}>
-        <Text style={[styles.indexChange, { color }]}>
-          {up ? '▲' : '▼'} {Math.abs(quote.change).toFixed(2)}
-        </Text>
-        <Text style={[styles.indexChangePct, { color }]}>
-          {up ? '+' : ''}{quote.changePct.toFixed(2)}%
-        </Text>
+        {known ? (
+          <>
+            <Text style={[styles.indexChange, { color }]}>
+              {up ? '▲' : '▼'} {quote.change !== null ? Math.abs(quote.change).toFixed(2) : ''}
+            </Text>
+            <Text style={[styles.indexChangePct, { color }]}>
+              {up ? '+' : ''}{quote.changePct!.toFixed(2)}%
+            </Text>
+          </>
+        ) : <Text style={[styles.indexChange, { color }]}>Change not available</Text>}
       </View>
+      {quote.pe !== null ? <Text style={styles.indexMeta}>{`P/E ${quote.pe.toFixed(1)}${quote.pb !== null ? ` · P/B ${quote.pb.toFixed(2)}` : ''} (NSE)`}</Text> : null}
     </LinearGradient>
   );
 }
@@ -61,6 +68,7 @@ export default function MarketsScreen() {
   const now = data.lastUpdated
     ? data.lastUpdated.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
     : 'offline';
+  const stale = data.stale && data.lastUpdated !== null;
 
   return (
     <ScrollView
@@ -72,7 +80,7 @@ export default function MarketsScreen() {
       {/* ── Header ── */}
       <View style={styles.header}>
         <Text style={Typography.h2}>Markets</Text>
-        <Text style={styles.updated}>Updated {now}</Text>
+        <Text style={styles.updated}>{stale ? `Last saved ${now}, not live` : `Updated ${now}`}</Text>
       </View>
 
       {/* ── Main indices ── */}
@@ -80,6 +88,23 @@ export default function MarketsScreen() {
         {data.nifty50 && <IndexCard quote={data.nifty50} accent={Colors.cyan} />}
         {data.sensex  && <IndexCard quote={data.sensex}  accent={Colors.gold} />}
       </View>
+
+      {/* ── Research: news, screener, prices, lookups ── */}
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Open market research: news, screener, prices, funds" style={styles.researchBtn} onPress={() => router.push('/market' as any)}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.researchTitle}>Market research</Text>
+          <Text style={Typography.caption}>News, share and fund look-up, screener, gold, currency, crypto</Text>
+        </View>
+        <Text style={{ color: Colors.cyan, fontSize: 18 }}>›</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Open mutual fund search: find a fund, Direct vs Regular, compare" style={styles.researchBtn} onPress={() => router.push('/funds' as any)}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.researchTitle}>Mutual fund search</Text>
+          <Text style={Typography.caption}>Find a fund, see its NAV with the date, Direct vs Regular, compare</Text>
+        </View>
+        <Text style={{ color: Colors.cyan, fontSize: 18 }}>›</Text>
+      </TouchableOpacity>
 
       {/* ── Sector heatmap ── */}
       <Text style={styles.sectionLabel}>SECTORS</Text>
@@ -136,6 +161,9 @@ const styles = StyleSheet.create({
   indexChangeRow: { flexDirection: 'row', gap: 6, alignItems: 'center' },
   indexChange: { fontSize: 12, fontWeight: '700' },
   indexChangePct: { fontSize: 12, fontWeight: '700' },
+  indexMeta: { ...Typography.caption, marginTop: 4 },
+  researchBtn: { marginHorizontal: Spacing.lg, flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.surface, borderRadius: Radii.lg, borderWidth: 1, borderColor: Colors.border, padding: Spacing.md, marginBottom: Spacing.md },
+  researchTitle: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
 
   sectionLabel: { ...Typography.label, marginHorizontal: Spacing.lg, marginBottom: Spacing.sm },
   sectorCard: { marginHorizontal: Spacing.lg, backgroundColor: Colors.surface, borderRadius: Radii.lg, borderWidth: 1, borderColor: Colors.border, padding: Spacing.md, marginBottom: Spacing.lg, gap: Spacing.sm },

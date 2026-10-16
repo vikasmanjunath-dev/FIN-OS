@@ -7,8 +7,9 @@
 // to the provider name the phone's policy form saves.
 import { normalizeAll, isLive, occurrences, CYCLES } from './subscriptions.ts';
 import { calcEntry, INSTRUMENTS, type FDEntry } from './fixedIncome.ts';
+import { customToEvents, normaliseCustom, type CustomEvent } from './financialCalendar.ts';   // dates the person adds themselves (plan/mydates)
 
-export type EventType = 'sip' | 'fd' | 'ppf' | 'insurance' | 'goal' | 'tax' | 'sub';
+export type EventType = 'sip' | 'fd' | 'ppf' | 'insurance' | 'goal' | 'tax' | 'sub' | 'custom';
 export interface CalEvent { date: string; title: string; sub: string; type: EventType; amount?: number }
 
 export const EVENT_META: Record<EventType, { icon: string; color: string; label: string }> = {
@@ -19,6 +20,7 @@ export const EVENT_META: Record<EventType, { icon: string; color: string; label:
   goal: { icon: '🎯', color: '#C7F000', label: 'Goal deadline' },
   tax: { icon: '🧾', color: '#EF4444', label: 'Tax deadline' },
   sub: { icon: '🔁', color: '#A78BFA', label: 'Subscription' },
+  custom: { icon: '📌', color: '#38BDF8', label: 'Your date' },
 };
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -63,6 +65,8 @@ export function taxDates(from: string, to: string): CalEvent[] {
 /* ── Collectors ──────────────────────────────────────────────────────────────────────────────────────── */
 export interface Sources {
   sip?: any[]; fd?: FDEntry[]; insurance?: any[]; goals?: any[]; subscriptions?: unknown;
+  /** dates the person added on the "Your dates" screen (once, monthly or yearly). Not on the website, so not in the parity test. */
+  custom?: CustomEvent[];
 }
 
 function addYearsFrac(startDate: string, years: number) {
@@ -144,6 +148,11 @@ export function subscriptionEvents(subs: unknown, fromISO: string, toISO: string
   return out.sort((a, b) => a.date.localeCompare(b.date));
 }
 
+/** The person's own dates falling in [from, to], as calendar events of type 'custom'. Their title and note are their own words. */
+export function customEvents(list: CustomEvent[] | undefined, fromISO: string, toISO: string): CalEvent[] {
+  return customToEvents(normaliseCustom(list), fromISO, toISO).map(e => ({ date: e.date, title: e.title, sub: e.sub, type: 'custom' as const, ...(e.amount !== undefined ? { amount: e.amount } : {}) }));
+}
+
 /** Everything from a week ago to `monthsAhead` months out, soonest first. */
 export function collectEvents(src: Sources, now: Date, monthsAhead = 12): CalEvent[] {
   const from = new Date(now); from.setDate(1);
@@ -157,6 +166,7 @@ export function collectEvents(src: Sources, now: Date, monthsAhead = 12): CalEve
     ...insuranceEvents(src.insurance || []),
     ...goalEvents(src.goals || []),
     ...subscriptionEvents(src.subscriptions, isoDate(from), isoDate(to)),
+    ...customEvents(src.custom, isoDate(from), isoDate(to)),
     ...taxDates(isoDate(taxFrom), isoDate(taxTo)),
   ].filter(e => e.date >= floor);
   all.sort((a, b) => a.date.localeCompare(b.date));

@@ -33,7 +33,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
 </head>
 
@@ -42,6 +42,7 @@
     <!-- ═══════════════════════ TOP NAV BAR ═══════════════════════ -->
     <header class="bg-[#0d0d12] border-b border-[#ffffff0a] flex items-center px-4 gap-3 shrink-0 z-50 h-auto py-1.5" style="padding-right:64px;flex-wrap:wrap">
 
+        <h1 class="sr-only">FIN-OS Trading Simulator</h1>
         <!-- Logo -->
         <div class="flex items-center gap-2 mr-2 shrink-0">
             <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-kgreen to-kblue flex items-center justify-center">
@@ -58,7 +59,7 @@
         <div class="flex flex-col shrink-0">
             <div class="flex items-center gap-1 bg-[#141418] border border-[#ffffff0a] rounded-lg px-2 py-1">
                 <i class="fa-solid fa-film text-kgold text-[10px] mr-1"></i>
-                <select id="scenarioSelect"
+                <select aria-label="Market scenario" id="scenarioSelect"
                     class="bg-transparent text-[11px] text-gray-300 outline-none cursor-pointer">
                     <option value="breakout">📈 Opening Breakout</option>
                     <option value="trend">📊 Trend Day</option>
@@ -160,7 +161,7 @@
     </header>
 
     <!-- SCENARIO STORY BANNER -->
-    <div id="storyBanner"
+    <div role="region" aria-label="Scenario story" id="storyBanner"
         class="shrink-0 bg-[#0d0d12] border-b border-[#ffffff07] px-4 py-1.5 flex items-center gap-4 overflow-hidden">
         <div class="flex items-center gap-2 shrink-0">
             <div class="w-1.5 h-1.5 rounded-full bg-kgold animate-pulse"></div>
@@ -181,7 +182,7 @@
     <!-- ╔═══════════════════════════════════════════════════╗ -->
     <!-- ║     XP + LEVEL PROGRESS BAR                     ║ -->
     <!-- ╚═══════════════════════════════════════════════════╝ -->
-    <div id="xpBar" class="shrink-0 bg-[#08080e] border-b border-[#ffffff06] px-4 py-1.5 flex items-center gap-4">
+    <div role="region" aria-label="Experience and streak" id="xpBar" class="shrink-0 bg-[#08080e] border-b border-[#ffffff06] px-4 py-1.5 flex items-center gap-4">
         <div class="flex items-center gap-2 shrink-0">
             <span id="levelBadge"
                 class="text-[9px] font-black bg-kblue/20 text-kblue border border-kblue/30 px-2 py-0.5 rounded-full">LVL
@@ -219,7 +220,7 @@
     <!-- ╔═══════════════════════════════════════════════════╗ -->
     <!-- ║     GUIDED FIRST TRADE STRIP                    ║ -->
     <!-- ╚═══════════════════════════════════════════════════╝ -->
-    <div id="guidedStrip"
+    <div role="region" aria-label="First trade guide" id="guidedStrip"
         class="shrink-0 bg-gradient-to-r from-[#0d0d1a] to-[#0a0d12] border-b border-kblue/20 px-4 py-2 flex items-center gap-4">
         <div class="flex items-center gap-2 shrink-0">
             <div
@@ -297,7 +298,7 @@
 
 
         <!-- ─── LEFT: WATCHLIST ─── -->
-        <aside class="w-52 bg-[#0a0a0f] border-r border-[#ffffff07] flex flex-col shrink-0">
+        <aside aria-label="Watchlist" class="w-52 bg-[#0a0a0f] border-r border-[#ffffff07] flex flex-col shrink-0">
             <div class="px-3 py-1.5 border-b border-[#ffffff07] flex items-center justify-between">
                 <div>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Watchlist</span>
@@ -316,7 +317,7 @@
                 <p class="explain-text mt-0.5 px-1">Find any NSE stock by name or ticker</p>
             </div>
             <!-- Stock List -->
-            <div class="flex-1 overflow-y-auto watchlist-scroll" id="watchlistBody"></div>
+            <div class="flex-1 overflow-y-auto watchlist-scroll" id="watchlistBody" tabindex="0"></div>
             <!-- Sector Heatmap -->
             <div class="p-2 border-t border-[#ffffff05]">
                 <div class="flex items-center justify-between mb-1">
@@ -400,7 +401,7 @@
                                 Simulator. Press PLAY to start the scenario. Observe price movement before placing any
                                 trade."</p>
                         </div>
-                        <button id="dismissMentor" class="text-gray-600 hover:text-gray-400 text-xs"><i
+                        <button aria-label="Dismiss mentor tip" id="dismissMentor" class="text-gray-600 hover:text-gray-400 text-xs"><i
                                 class="fa-solid fa-xmark"></i></button>
                     </div>
                 </div>
@@ -446,7 +447,7 @@
         </main>
 
         <!-- ─── RIGHT: ORDER PANEL ─── -->
-        <aside class="w-64 bg-[#0a0a0f] border-l border-[#ffffff07] flex flex-col shrink-0">
+        <aside aria-label="Trade panel" class="w-64 bg-[#0a0a0f] border-l border-[#ffffff07] flex flex-col shrink-0">
 
             <!-- BUY / SELL Header -->
             <div class="flex border-b border-[#ffffff07] shrink-0">
@@ -516,7 +517,7 @@
                     </div>
                     <div class="flex items-center gap-1 mt-1">
                         <button class="qty-ctrl" id="qtyMinus">−</button>
-                        <input type="number" id="qtyInput" value="1" min="1"
+                        <input aria-label="Quantity" type="number" id="qtyInput" value="1" min="1"
                             class="flex-1 bg-[#141418] border border-[#ffffff0a] rounded-lg px-2 py-1.5 text-[11px] text-center text-white outline-none font-mono">
                         <button class="qty-ctrl" id="qtyPlus">+</button>
                     </div>
@@ -791,7 +792,7 @@
 /* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
 @media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a></nav>
 
   <script src="../js/finos-widget.js?v=11"></script>
   <script src="../js/finos-search.js?v=6"></script>

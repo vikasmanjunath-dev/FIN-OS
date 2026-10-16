@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const lsQuery   = localStorage.getItem('finos_query')        || '';
     const lsMindset = localStorage.getItem('finos_mindset')      || '';
     const lsInterests = (() => {
-        try { return JSON.parse(localStorage.getItem('finos_interests') || '[]'); } catch { return []; }
+        try { return ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_interests')||'[]')); } catch { return []; }
     })();
 
     const name      = dbProfile?.full_name    || lsName;
@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (incomeEl && income) incomeEl.value = income;
 
     if (mindset) {
-        const radio = document.querySelector(`input[name="mindset"][value="${mindset}"]`);
+        const radio = [...document.querySelectorAll('input[name="mindset"]')].find(r => r.value === String(mindset));
         if (radio) {
             radio.checked = true;
             radio.parentElement.style.borderColor = "#C7F000";

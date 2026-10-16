@@ -14,7 +14,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon-180.png">
   <title>Sign In | FIN-OS</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <style>
 
 
@@ -957,6 +957,21 @@ html[data-theme="dark"] .icon-moon { opacity: 1; transform: scale(1) rotate(0); 
     if (el) el.style.display = 'none';
   }
 
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // The forms have no action/method. If the Supabase library could not load (offline, blocked CDN, integrity mismatch) the
+  // real handlers below are never attached and a submit would navigate to login.html?email=...&password=... , putting the
+  // password in the address bar and history. This handler is attached first and always cancels the native submit.
+  document.addEventListener('DOMContentLoaded', () => {
+    ['identityForm', 'genesisForm'].forEach((id) => {
+      const f = document.getElementById(id);
+      if (f) f.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!window.__finosAuthReady) showFeedback('The sign-in service could not be reached. Check your connection and reload the page.');
+      });
+    });
+  });
+
   function setButtonState(btn, loading, loadingText, idleText) {
     btn.disabled = loading;
     btn.textContent = loading ? loadingText : idleText;
@@ -1057,6 +1072,7 @@ html[data-theme="dark"] .icon-moon { opacity: 1; transform: scale(1) rotate(0); 
     const supabaseUrl = 'https://oeapcyucnduhwpgxfknb.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYXBjeXVjbmR1aHdwZ3hma25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNjE1NjgsImV4cCI6MjA4MzgzNzU2OH0.kyuz385hM4X3j8CMBFfI83ZerorvlXrUDOipAHKDC7Q';
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    window.__finosAuthReady = true;
     const buildAppUrl = (page) => `${window.location.origin}/html/${page}`;
 
     // Sign-in handler
@@ -1120,7 +1136,7 @@ html[data-theme="dark"] .icon-moon { opacity: 1; transform: scale(1) rotate(0); 
               <div class="signup-success" role="status">
                 <div class="signup-success-icon" aria-hidden="true">✅</div>
                 <h3>Account created!</h3>
-                <p>We've sent a confirmation link to <strong>${email}</strong>.</p>
+                <p>We've sent a confirmation link to <strong>${esc(email)}</strong>.</p>
                 <p>Check your inbox (and spam folder) — click the link to activate your account, then come back to sign in.</p>
                 <button class="glow-btn" onclick="document.querySelector('[data-target=identity]').click()"
                         style="margin-top:16px;">Back to Sign In</button>

@@ -1,6 +1,7 @@
 // One pull → merge → push cycle for tracker sync, written against two tiny interfaces (local key-value store and
 // the cloud row) so it runs unchanged in the app (AsyncStorage + Supabase) and in Node tests (in-memory fakes).
 import { META_KEY, isSyncKey, planSync, type KV, type Conflict } from './trackerSync.ts';
+import { shapeProblem } from './keyShapes.ts';
 
 export interface LocalStore {
   /** Every key/value currently stored (the engine filters to sync keys itself). */
@@ -42,8 +43,27 @@ export interface SyncResult {
 const MAX_CONFLICT_LOG = 20;
 const fail = (error: string): SyncResult => ({ ok: false, pulled: 0, pushed: false, conflicts: 0, error });
 
+const isObj = (v: unknown): v is Record<string, unknown> => v !== null && typeof v === 'object' && !Array.isArray(v);
+const fin = (v: unknown): number | undefined => (typeof v === 'number' && Number.isFinite(v) ? v : undefined);
+
+/** The sync bookkeeping, read defensively: anything of the wrong shape counts as "never synced" (the next run then re-plans from scratch). */
+export function normaliseMeta(raw: unknown): SyncMeta {
+  if (!isObj(raw)) return {};
+  const out: SyncMeta = {};
+  if (typeof raw.owner === 'string' && raw.owner) out.owner = raw.owner;
+  if (isObj(raw.base)) { const b: KV = {}; for (const k of Object.keys(raw.base)) if (typeof raw.base[k] === 'string') b[k] = raw.base[k] as string; out.base = b; }
+  if (Array.isArray(raw.conflicts)) {
+    out.conflicts = raw.conflicts.filter(isObj).filter(c => typeof c.key === 'string' && (c.kind === 'merged' || c.kind === 'cloud-won'))
+      .map(c => ({ key: c.key as string, kind: c.kind as 'merged' | 'cloud-won', ...(typeof c.lost === 'string' ? { lost: c.lost.slice(0, 2000) } : {}), at: fin(c.at) ?? 0 })).slice(-MAX_CONFLICT_LOG);
+  }
+  const a = fin(raw.lastSyncAt), b = fin(raw.lastPushedAt);
+  if (a !== undefined) out.lastSyncAt = a;
+  if (b !== undefined) out.lastPushedAt = b;
+  return out;
+}
+
 async function readMeta(store: LocalStore): Promise<SyncMeta> {
-  try { return JSON.parse((await store.get(META_KEY)) || '{}') || {}; } catch { return {}; }
+  try { return normaliseMeta(JSON.parse((await store.get(META_KEY)) || '{}')); } catch { return {}; }
 }
 
 export async function runSync(store: LocalStore, cloud: Cloud, userId: string, now: () => number = Date.now): Promise<SyncResult> {
@@ -53,7 +73,9 @@ export async function runSync(store: LocalStore, cloud: Cloud, userId: string, n
 
     const remote: KV = {};
     if (row?.data && typeof row.data === 'object') {
-      Object.keys(row.data).forEach(k => { const v = row.data[k]; if (typeof v === 'string') remote[k] = v; });
+      // A value of the wrong kind under a structured key (a list that is not a list, an unreadable one) is not taken from the cloud:
+      // the local copy stays and the next push replaces the bad cloud value with it.
+      Object.keys(row.data).forEach(k => { const v = row.data[k]; if (typeof v === 'string' && !(isSyncKey(k) && shapeProblem(k, v))) remote[k] = v; });
     }
 
     const all = await store.readAll();

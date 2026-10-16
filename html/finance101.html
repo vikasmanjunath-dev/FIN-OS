@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="../css/base.css?v=2">
   <link rel="stylesheet" href="../css/layout.css?v=4">
   <link rel="stylesheet" href="../css/components.css?v=2">
-  <link rel="stylesheet" href="../css/finance101.css"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="../css/finance101.css"> <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="../css/theme.css?v=2">
   <!-- QFT AI Chatbot CSS -->
   <link rel="stylesheet" href="../chatbot/qft-hud.css?v=2">
@@ -33,7 +33,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
 </head>
 
@@ -227,7 +227,7 @@
           <p class="sub-text">Swipe to judge your loans ⮕</p>
         </div>
 
-        <div class="scrolling-wrapper">
+        <div class="scrolling-wrapper" tabindex="0">
           
           <div class="scrolling-card debt-card bad">
             <div class="card-icon">🧨</div>
@@ -306,7 +306,7 @@
           <p class="sub-text">Swipe to reveal the truth about your "Assets" ⮕</p>
         </div>
         
-        <div class="scrolling-wrapper">
+        <div class="scrolling-wrapper" tabindex="0">
           
           <div class="scrolling-card glass">
             <div class="card-icon">🏠</div>
@@ -349,7 +349,7 @@
           <h2>Life Stages: The Roadmap</h2>
         </div>
 
-        <div class="scrolling-wrapper">
+        <div class="scrolling-wrapper" tabindex="0">
           
           <div class="scrolling-card phase-card">
             <div class="phase-badge">Age 20-25</div>
@@ -422,7 +422,7 @@
           <p class="sub-text">Swipe to see why smart people do stupid things ⮕</p>
         </div>
 
-        <div class="scrolling-wrapper">
+        <div class="scrolling-wrapper" tabindex="0">
           
           <div class="scrolling-card psych-card">
             <div class="card-icon">🧠</div>
@@ -514,11 +514,11 @@
 /* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
 @media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a></nav>
 
   <!-- QFT AI Chatbot Engine -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js" integrity="sha384-948ahk4ZmxYVYOc+rxN1H2gM1EJ2Duhp7uHtZ4WSLkV4Vtx5MUqnV+l7u9B+jFv+" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.17/dist/purify.min.js" integrity="sha384-P0JNneQf81HOl9VwNXK76cQ9VMD6Nfsnepxb0cCOg8+UzEdzgPHAPV4wVQrvYQSx" crossorigin="anonymous"></script>
   <script src="../chatbot/qft-engine.js"></script>
   <script src="../js/finos-widget.js?v=11"></script>
   <script src="../js/finos-search.js?v=6"></script>

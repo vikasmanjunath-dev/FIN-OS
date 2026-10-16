@@ -252,6 +252,7 @@
       opacity: 0; pointer-events: none; transition: opacity .3s;
     }
     #readinessModal.open { opacity: 1; pointer-events: all; }
+    #readinessModal:not(.open) { visibility: hidden; transition: opacity .3s, visibility 0s linear .3s; }
     .rm-box {
       width: 100%; max-width: 500px; padding: 2.5rem; margin: 1rem;
       background: var(--s1); border: 1px solid var(--border-soft);
@@ -305,7 +306,7 @@
       letter-spacing: 2px; position: relative; z-index: 2;
       animation: fade-up .6s .45s ease both;
     }
-    .bottom-note a { color: rgba(167,139,255,.6); text-decoration: none; transition: color .2s; }
+    .bottom-note a { color: rgba(167,139,255,.6); text-decoration: underline; transition: color .2s; }
     .bottom-note a:hover { color: #a78bff; }
 
     /* ── ANIMATIONS ── */
@@ -506,7 +507,7 @@
 
     <div class="badge"><span class="bdot"></span>SIMULATOR ZONE — CHOOSE YOUR ENTRY POINT</div>
 
-    <div class="hl-wrap">
+    <div class="hl-wrap" role="heading" aria-level="1">
       <div class="hl1">READY TO FLY THE</div>
       <div class="hl2">COCKPIT?</div>
     </div>
@@ -735,7 +736,7 @@
 /* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
 @media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a></nav>
 
 
 <style id="sl-light-theme">
@@ -871,7 +872,7 @@
   <script src="../js/finos-search.js?v=6"></script>
 
 <!-- ── READINESS MODAL ─────────────────────────────────────────── -->
-<div id="readinessModal">
+<div id="readinessModal" role="dialog" aria-modal="true" aria-label="Cognitive readiness check">
   <div class="rm-box">
     <div class="rm-header">FIN•OS — COGNITIVE READINESS CHECK</div>
     <div id="rmContent"></div>
@@ -934,7 +935,7 @@ const OllamaAI = (function () {
 const SimAI = (function () {
 
   function load() {
-    try { return JSON.parse(localStorage.getItem('finos_sim_sessions') || '[]'); }
+    try { return ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_sim_sessions')||'[]')).filter(x => x && typeof x === 'object'); }
     catch (e) { return []; }
   }
 
@@ -1363,6 +1364,7 @@ SimAI.init();
   display: flex; flex-direction: column; overflow: hidden;
 }
 #arya-panel.open { transform: translateX(0); }
+#arya-panel:not(.open) { visibility: hidden; transition: transform .28s ease, visibility 0s linear .28s; }
 
 /* Panel header */
 .arya-head { display:flex;align-items:flex-start;justify-content:space-between;padding:18px 18px 14px;border-bottom:1px solid var(--border-soft); }

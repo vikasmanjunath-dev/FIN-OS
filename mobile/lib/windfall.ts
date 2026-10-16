@@ -2,7 +2,7 @@
 // (emergency fund → card debt → personal loan → 80C gap → NPS → home-loan prepayment → goals / long-term wealth), with the
 // figures it reads passed in instead of taken from localStorage. __tests__/windfall.parity.test.mts compares the two.
 // Divergences: the property-sale tax note follows the July 2024 rules (the website still quotes 20% with indexation for everyone).
-import { taxNew } from './taxcore.ts';
+import { taxNew, STD_NEW } from './taxcore.ts';
 
 export type WindfallType = 'bonus' | 'rsu' | 'property' | 'fd' | 'inheritance' | 'other';
 export const WINDFALL_TYPES: { key: WindfallType; label: string; icon: string; taxNote: string }[] = [
@@ -66,7 +66,7 @@ export interface TaxImpact { taxableIncome: number; before: number; after: numbe
 /** New-regime tax before and after a bonus or RSU vest, on the salary the person entered (Standard deduction ₹75,000 and employer NPS taken off). */
 export function taxImpact(type: WindfallType, amount: number, grossAnnualSalary: number, employerNps: number, basic: number): TaxImpact {
   const nps = Math.min(employerNps, basic * 0.14);
-  const taxableIncome = Math.max(0, grossAnnualSalary - 75000 - nps);
+  const taxableIncome = Math.max(0, grossAnnualSalary - STD_NEW - nps);
   const before = taxNew(taxableIncome);
   const applies = type === 'bonus' || type === 'rsu';
   const after = applies ? taxNew(taxableIncome + amount) : before;

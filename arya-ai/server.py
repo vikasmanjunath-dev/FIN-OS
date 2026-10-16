@@ -29,7 +29,9 @@ from data.market import (
     get_quote, get_multiple_quotes, get_market_overview, get_sector_overview,
     get_mf_nav, search_mf, get_commodities, get_crypto,
     get_fx_rates, get_historical, get_market_status, get_chart,
+    get_fundamentals, get_mf_history, MAX_BULK,
 )
+import data.news as news_mod
 from data.news import fetch_news, web_search, read_url, get_announcements
 from data.portfolio import get_portfolio_summary
 import data.kite as kite
@@ -129,9 +131,17 @@ def quote(symbol: str, exchange: str = Query("NSE")):
 @app.get("/api/quotes")
 def bulk_quotes(symbols: str = Query(..., description="Comma-separated symbols"),
                 exchange: str = Query("NSE")):
-    """Bulk quotes. e.g. /api/quotes?symbols=RELIANCE,INFY,TCS"""
+    """Bulk quotes. e.g. /api/quotes?symbols=RELIANCE,INFY,TCS  (at most MAX_BULK symbols per call; a symbol that cannot be quoted
+    comes back as {"error", "symbol"} in its place, never as a made-up price)."""
     syms = [s.strip().upper() for s in symbols.split(",") if s.strip()]
-    return {"quotes": get_multiple_quotes(syms, exchange)}
+    return {"quotes": get_multiple_quotes(syms[:MAX_BULK], exchange.upper()), "truncated": len(syms) > MAX_BULK}
+
+
+@app.get("/api/fundamentals/{symbol}")
+def fundamentals(symbol: str, exchange: str = Query("NSE")):
+    """Trailing P/E, P/B, EPS, market cap and sector from Yahoo's company info (third-party figures, labelled as such).
+    Each ratio is None when it is not available or fails a sanity check; the response says why."""
+    return get_fundamentals(symbol.upper(), exchange.upper())
 
 
 # ── Live price WebSocket ──────────────────────────────────────────────────────
@@ -223,6 +233,17 @@ def mf_search(q: str = Query(..., description="Fund name or house"), limit: int 
     return {"results": search_mf(q, limit)}
 
 
+@app.get("/api/mf/history/{scheme_code}")
+def mf_history(scheme_code: str, years: float = Query(6, description="How many years back (max 30)")):
+    """Daily NAV history of one scheme (AMFI NAVs, served via a public mirror and cross-checked against AMFI's daily file).
+    Returns {"history": [[YYYY-MM-DD, nav], ...]} oldest first. No returns are computed here."""
+    out = get_mf_history(scheme_code, years)
+    if "error" in out:
+        raise HTTPException(status_code=400 if out["error"].startswith("Invalid") else 404 if out["error"].startswith("No NAV") else 502,
+                            detail=out["error"])
+    return out
+
+
 # ── Commodities & FX ─────────────────────────────────────────────────────────
 
 @app.get("/api/commodities")
@@ -230,9 +251,15 @@ def commodities():
     return get_commodities()
 
 
+def _fx_payload() -> dict:
+    """{"USD_INR": rate, ...} for the pairs that could be fetched; {"error": ...} when none could (no rate is ever filled in)."""
+    rates = get_fx_rates()
+    return rates if rates else {"error": "FX rates unavailable: the rate source could not be reached"}
+
+
 @app.get("/api/fx")
 def fx_rates():
-    return get_fx_rates()
+    return _fx_payload()
 
 
 # ── Crypto ────────────────────────────────────────────────────────────────────
@@ -246,13 +273,17 @@ def crypto(coins: str = Query("bitcoin,ethereum,ripple,dogecoin,matic-network"))
 # ── News ─────────────────────────────────────────────────────────────────────
 
 @app.get("/api/news")
-def news(limit: int = Query(20), force: bool = Query(False)):
+def news(limit: int = Query(20, ge=1, le=100), force: bool = Query(False)):
     articles = fetch_news(force=force)
     sentiment = aggregate_sentiment(articles)
     return {
         "articles": articles[:limit],
         "sentiment": sentiment,
         "count": len(articles),
+        "as_of": int(time.time()),
+        # how the sentiment was produced and how many sources answered, so the app can say so instead of implying more
+        "sentiment_method": news_mod.SENTIMENT_METHOD,
+        "sources": dict(news_mod.last_fetch_status),
     }
 
 
@@ -403,7 +434,7 @@ _TOOL_MAP = {
     "get_market":       lambda a: get_market_overview(),
     "get_commodities":  lambda a: get_commodities(),
     "get_crypto":       lambda a: get_crypto(a.get("coins")),
-    "get_fx":           lambda a: get_fx_rates(),
+    "get_fx":           lambda a: _fx_payload(),
     "get_mf_nav":       lambda a: get_mf_nav(a.get("scheme_code","")),
     "search_mf":        lambda a: {"results": search_mf(a.get("query",""), a.get("limit",10))},
     "get_history":      lambda a: get_historical(

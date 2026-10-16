@@ -25,14 +25,14 @@
   <link rel="stylesheet" href="../css/moneydetail.css">
   <link rel="stylesheet" href="../css/theme.css?v=2">
   <link rel="stylesheet" href="../css/reader-shell.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
   <meta property="og:image" content="/assets/icons/icon-512.svg">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
 </head>
 <body data-nav-parent="markets.html">
@@ -290,22 +290,22 @@
         
         <div class="grid-2-mini">
           <div class="mini-card success">
-            <h4>1. Treasury Bills (T-Bills)</h4>
+            <h4 aria-level="3">1. Treasury Bills (T-Bills)</h4>
             <p>Issued by <strong>Govt of India</strong>. Zero default risk.
             <br><em>Maturity: 91, 182, 364 Days.</em></p>
           </div>
           <div class="mini-card">
-            <h4>2. Commercial Paper (CP)</h4>
+            <h4 aria-level="3">2. Commercial Paper (CP)</h4>
             <p>Issued by <strong>Companies</strong> for working capital.
             <br><em>Risk: Depends on company rating. Higher return.</em></p>
           </div>
           <div class="mini-card">
-            <h4>3. Certificate of Deposit (CD)</h4>
+            <h4 aria-level="3">3. Certificate of Deposit (CD)</h4>
             <p>Issued by <strong>Banks</strong>. Tradable FDs essentially.
             <br><em>Risk: Very Low (Bank backed).</em></p>
           </div>
           <div class="mini-card highlight">
-            <h4>4. Call Money</h4>
+            <h4 aria-level="3">4. Call Money</h4>
             <p>Overnight lending between banks.
             <br><em>The pulse of the banking system.</em></p>
           </div>
@@ -317,7 +317,7 @@
         <span class="chapter-badge">LEVEL 06: CORE LINK</span>
         <h2>6. Interest Rates & RBI</h2>
         <div class="concept-box glass">
-           <h4>The Transmission Channel</h4>
+           <h4 aria-level="3">The Transmission Channel</h4>
            <p>Money market is the first to react when RBI changes the Repo Rate.</p>
            <ul class="checklist-style">
              <li>📈 <strong>RBI Hikes Rate:</strong> Money market returns jump immediately.</li>
@@ -385,17 +385,17 @@
         <div class="grid-3-cards">
           <div class="card-box danger">
             <div class="icon">💔</div>
-            <h4>Credit Risk</h4>
+            <h4 aria-level="3">Credit Risk</h4>
             <p>A company issuing CP might default (e.g., IL&FS crisis).</p>
           </div>
           <div class="card-box danger">
             <div class="icon">🛑</div>
-            <h4>Liquidity Freeze</h4>
+            <h4 aria-level="3">Liquidity Freeze</h4>
             <p>In panic, no one wants to buy corporate paper.</p>
           </div>
           <div class="card-box">
             <div class="icon">📉</div>
-            <h4>Reinvestment</h4>
+            <h4 aria-level="3">Reinvestment</h4>
             <p>If rates fall, your returns drop instantly upon maturity.</p>
           </div>
         </div>
@@ -455,7 +455,7 @@
         <span class="chapter-badge">LEVEL 13: THE SIGNAL</span>
         <h2>13. The Crisis Signal</h2>
         <div class="concept-box glass">
-           <h4>The Canary in the Coal Mine</h4>
+           <h4 aria-level="3">The Canary in the Coal Mine</h4>
            <p>Before the stock market crashes, the money market usually freezes.</p>
            <p>If banks stop lending to each other overnight (Call Money rates spike), it means <strong>Trust has broken</strong>.</p>
            <p class="moral">Watch liquidity, not just Nifty levels.</p>
@@ -466,7 +466,7 @@
         <span class="chapter-badge">LEVEL 14: MINDSET</span>
         <h2>14. The FIN-OS Mental Model</h2>
         <div class="concept-box glass">
-           <h4>"The Optionality Fund"</h4>
+           <h4 aria-level="3">"The Optionality Fund"</h4>
            <p>Money in the money market is not "Idle".  "Ready".</p>
            <p class="highlight" style="margin-top:10px;">It preserves your ability to buy assets when they become cheap.</p>
         </div>
@@ -475,7 +475,7 @@
       <section class="chapter" id="sec15">
         <div class="pro-tip god-mode">
           <div class="god-header">
-            <h4>💎 The Final Truth</h4>
+            <h4 aria-level="3">💎 The Final Truth</h4>
           </div>
           <p>
             The Money Market will never make you rich.<br>

@@ -7,7 +7,7 @@
 <script>
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <meta charset="UTF-8">
   <meta name="description" content="Your FIN•OS financial command centre — DNA score, health metrics, goals and adaptive insights.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -734,7 +734,7 @@
   });
 
   try {
-    const streak = JSON.parse(localStorage.getItem('finos_streak') || '{}');
+    const streak = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('finos_streak')||'{}'));
     if (streak.count > 1) {
       const el = document.getElementById('streakBadge');
       if (el) { el.textContent = '🔥 ' + streak.count + '-day streak'; el.style.display = 'inline-flex'; }

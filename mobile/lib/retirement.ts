@@ -30,6 +30,7 @@ export function epfContributions(basic: number) {
 export function epfAgeAt(doj: string, retireAge: number, now = new Date()) {
   if (!doj) return { yearsService: 0, monthsToRetire: 0, totalServiceYears: 0 };
   const dojDate = new Date(doj);
+  if (!Number.isFinite(dojDate.getTime())) return { yearsService: 0, monthsToRetire: 0, totalServiceYears: 0 };   // an unreadable date is "not recorded", never NaN
   const birthEstimate = new Date(dojDate);
   birthEstimate.setFullYear(dojDate.getFullYear() - 22);
   const yearsService = (now.getTime() - dojDate.getTime()) / (365.25 * 24 * 3600 * 1000);
@@ -122,8 +123,10 @@ export function computeNps(i: NpsInput, now = new Date()): NpsResult {
   let ageNow = 30, yearsLeft = 30;
   if (i.dob) {
     const birth = new Date(i.dob);
+    if (!Number.isFinite(birth.getTime())) { /* an unreadable date of birth is "not recorded": keep the defaults, never NaN */ } else {
     ageNow = now.getFullYear() - birth.getFullYear() - (now < new Date(now.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0);
     yearsLeft = Math.max(60 - ageNow, 0);
+    }
   }
   const annualR = npsWeightedReturn(i.equityPct, i.corpPct, i.gsecPct) || 0.085;
   // Only Tier-1 is projected: Tier-2 is freely withdrawable, so it isn't pension money
@@ -239,7 +242,8 @@ const rupeeShort = (n: number) => {
 
 export interface Coverage {
   totalHealth: number; totalLife: number; totalCritical: number;
-  recHealth: number; recLife: number; recCritical: number;
+  /** 0 when the income is not recorded: the website no longer assumes ₹50,000 a month, so no income-based guide is shown */
+  recHealth: number; recLife: number; recCritical: number; incomeKnown: boolean;
   hasHealth: boolean; hasTerm: boolean; hasVehicle: boolean;
   annualPremium: number;
   gaps: Gap[];
@@ -247,7 +251,8 @@ export interface Coverage {
 
 /** Coverage vs the website's rules of thumb: health 2× annual income, term life 15×, critical illness 5×. */
 export function computeCoverage(policies: Policy[], monthlyIncome: number, age: number): Coverage {
-  const income = monthlyIncome > 0 ? monthlyIncome : 50000; // the website assumes ₹50k when income is unknown
+  const incomeKnown = monthlyIncome > 0;                 // unknown stays unknown: the website no longer assumes ₹50,000 a month
+  const income = incomeKnown ? monthlyIncome : 0;
   const sum = (t: PolicyType) => policies.filter(p => p.type === t).reduce((s, p) => s + num(p.sum_assured), 0);
   const totalHealth = sum('health'), totalLife = sum('life_term'), totalCritical = sum('critical');
   const recHealth = income * 12 * 2, recLife = income * 12 * 15, recCritical = income * 12 * 5;
@@ -256,14 +261,14 @@ export function computeCoverage(policies: Policy[], monthlyIncome: number, age: 
   const hasVehicle = policies.some(p => p.type === 'vehicle');
 
   const gaps: Gap[] = [];
-  if (!hasHealth) gaps.push({ icon: '🏥', title: 'No health insurance', severity: 'critical', msg: `One hospitalisation can cost ₹5–25L. Get a ${rupeeShort(recHealth)} family floater plan.` });
-  else if (totalHealth < recHealth) gaps.push({ icon: '🏥', title: `Health cover is low (${rupeeShort(totalHealth)})`, severity: 'high', msg: `Recommended: ${rupeeShort(recHealth)}. Consider a top-up on your existing cover.` });
-  if (!hasTerm && age < 55) gaps.push({ icon: '🛡️', title: 'No term life insurance', severity: 'critical', msg: `If others depend on your income, aim for about ${recLife > 10000000 ? rupeeShort(recLife) : '₹1 Cr+'} of pure term cover.` });
-  else if (hasTerm && totalLife < income * 12 * 10) gaps.push({ icon: '🛡️', title: `Life cover may be insufficient (${rupeeShort(totalLife)})`, severity: 'medium', msg: `Ideal is about 15× annual income (${rupeeShort(recLife)}). Review it if your liabilities have grown.` });
+  if (!hasHealth) gaps.push({ icon: '🏥', title: 'No health insurance', severity: 'critical', msg: `One hospitalisation can cost ₹5–25L. Get ${incomeKnown ? `a ${rupeeShort(recHealth)}` : 'a'} family floater plan.` });
+  else if (incomeKnown && totalHealth < recHealth) gaps.push({ icon: '🏥', title: `Health cover is low (${rupeeShort(totalHealth)})`, severity: 'high', msg: `Recommended: ${rupeeShort(recHealth)}. Consider a top-up on your existing cover.` });
+  if (!hasTerm && age < 55) gaps.push({ icon: '🛡️', title: 'No term life insurance', severity: 'critical', msg: incomeKnown ? `If others depend on your income, aim for about ${recLife > 10000000 ? rupeeShort(recLife) : '₹1 Cr+'} of pure term cover.` : 'If others depend on your income, term cover is the first thing to look at. Add your income to see a guide figure.' });
+  else if (hasTerm && incomeKnown && totalLife < income * 12 * 10) gaps.push({ icon: '🛡️', title: `Life cover may be insufficient (${rupeeShort(totalLife)})`, severity: 'medium', msg: `Ideal is about 15× annual income (${rupeeShort(recLife)}). Review it if your liabilities have grown.` });
   if (!hasVehicle) gaps.push({ icon: '🚗', title: 'Vehicle insurance not recorded', severity: 'low', msg: 'Third-party vehicle cover is legally mandatory in India. Skip this if you do not own a vehicle.' });
-  if (age > 35 && !policies.some(p => p.type === 'critical')) gaps.push({ icon: '❤️', title: 'No critical illness cover', severity: 'medium', msg: `Cancer, heart attack or stroke treatment can cost ₹10–50L. A ${rupeeShort(recCritical)} cover is a sensible target.` });
+  if (age > 35 && !policies.some(p => p.type === 'critical')) gaps.push({ icon: '❤️', title: 'No critical illness cover', severity: 'medium', msg: `Cancer, heart attack or stroke treatment can cost ₹10–50L. ${incomeKnown ? `A ${rupeeShort(recCritical)} cover is a sensible target.` : 'Add your income to see a guide figure.'}` });
 
-  return { totalHealth, totalLife, totalCritical, recHealth, recLife, recCritical, hasHealth, hasTerm, hasVehicle, annualPremium: policies.reduce((s, p) => s + num(p.annual_premium), 0), gaps };
+  return { totalHealth, totalLife, totalCritical, recHealth, recLife, recCritical, hasHealth, hasTerm, hasVehicle, incomeKnown, annualPremium: policies.reduce((s, p) => s + num(p.annual_premium), 0), gaps };
 }
 
 /** Days until renewal (negative = expired), or null when no date is set. */

@@ -8,12 +8,15 @@ import { fileURLToPath } from 'node:url';
 import * as app from '../lib/windfall.ts';
 
 const SRC = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '../../js/finos-windfall.js'), 'utf8');
+// The page reads window.FinosTaxCore (one tax core for every page), so the sandbox loads that file first, as the HTML does.
+const TAXCORE = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '../../js/finos-taxcore.js'), 'utf8');
 const store: Record<string, string> = {};
 function loadWeb(): any {
   const win: any = {};
   const ls = { getItem: (k: string) => (k in store ? store[k] : null), setItem: (k: string, v: unknown) => { store[k] = String(v); } };
   const sandbox: any = { window: win, Math, JSON, Number, parseFloat, parseInt, String, console, Date, localStorage: ls, document: { getElementById: () => null } };
   vm.createContext(sandbox);
+  vm.runInContext(TAXCORE, sandbox);
   vm.runInContext(SRC, sandbox);
   return win.FinosWindfall;
 }

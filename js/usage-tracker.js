@@ -66,7 +66,7 @@
   // ── Storage helpers ────────────────────────────────────────────────────────
   function _load() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      return ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'));
     } catch {
       return {};
     }

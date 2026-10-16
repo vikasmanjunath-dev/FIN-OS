@@ -157,7 +157,7 @@
             <span class="do-loan-icon">${l.icon}</span>
             <span class="do-loan-label">${l.label}</span>
             <label class="do-toggle" title="Include this loan">
-              <input type="checkbox" class="do-loan-toggle" data-key="${l.key}"${show ? ' checked' : ''}
+              <input type="checkbox" class="do-loan-toggle" aria-label="Include ${l.label} in the payoff plan" data-key="${l.key}"${show ? ' checked' : ''}
                 onchange="FinosDebtOptimizer._toggleLoan('${l.key}', this.checked)">
               <span class="do-toggle-knob"></span>
             </label>

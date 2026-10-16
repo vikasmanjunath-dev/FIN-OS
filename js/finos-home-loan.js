@@ -8,10 +8,12 @@
  *   — Affordability check: EMI ≤ 40% of gross monthly income
  *   — PMAY-CLSS eligibility: first-time buyer, income < ₹18L
  *
- * localStorage written:
+ * localStorage written, ONLY after the person ticks "This is my actual home loan" (finos_hl_is_mine = '1'):
  *   finos_home_loan_emi            — monthly EMI
  *   finos_home_loan_total_interest — total interest over full tenure
- *   finos_home_loan_outstanding    — current outstanding (reads finos_total_liabilities as seed)
+ *   finos_home_loan_outstanding    — the loan amount entered here (the sanctioned amount, not today's balance)
+ * Opening the page, or trying out numbers, writes nothing to those keys: they feed the calendar, the debt optimizer,
+ * the windfall planner and Arya, and a what-if loan must not appear there as a debt the person does not have.
  *
  * Reads:
  *   finos_gross_income, finos_monthly_income, finos_80c_used, finos_s80c_gap
@@ -33,6 +35,7 @@ window.FinosHomeLoan = (function () {
   function _emi(principal, annualRate, tenureYears) {
     const r = annualRate / 100 / 12;
     const n = tenureYears * 12;
+    if (!(n > 0) || !(principal > 0)) return 0;          // a blank or zero box has no EMI (it used to be NaN / Infinity)
     if (r === 0) return Math.round(principal / n);
     return Math.round(principal * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1));
   }
@@ -91,13 +94,16 @@ window.FinosHomeLoan = (function () {
 
   /* ── Load inputs ───────────────────────────────────────────────── */
   function _loadInputs() {
-    const grossIncome = gs('finos_gross_income') || gs('finos_monthly_income') * 12 || 1800000;
+    // Income the app does not know stays 0: the affordability check then says so instead of using a made-up salary.
+    const grossIncome = gs('finos_gross_income') || gs('finos_monthly_income') * 12 || 0;
+    // Stored what-if inputs: a missing, corrupt or negative value falls back to the example value, never NaN.
+    const num = (k, d) => { const v = parseFloat(gss(k)); return Number.isFinite(v) && v >= 0 ? v : d; };
     return {
-      loanAmount:   parseFloat(gss('finos_hl_amount')   || '5000000'),
-      interestRate: parseFloat(gss('finos_hl_rate')     || '8.75'),
-      tenureYears:  parseInt(gss('finos_hl_tenure')     || '20'),
-      prepayAmount: parseFloat(gss('finos_hl_prepay')   || '200000'),
-      prepayYear:   parseInt(gss('finos_hl_prepayyr')   || '3'),
+      loanAmount:   num('finos_hl_amount', 5000000),
+      interestRate: num('finos_hl_rate', 8.75),
+      tenureYears:  Math.round(num('finos_hl_tenure', 20)),
+      prepayAmount: num('finos_hl_prepay', 200000),
+      prepayYear:   Math.round(num('finos_hl_prepayyr', 3)),
       grossIncome,
       monthlyIncome: gs('finos_monthly_income') || grossIncome / 12,
     };
@@ -110,8 +116,9 @@ window.FinosHomeLoan = (function () {
     const monthlyIncome = p.monthlyIncome || (p.grossIncome / 12);
 
     // Affordability
-    const emiPct         = monthlyIncome > 0 ? (emi / monthlyIncome * 100).toFixed(1) : '—';
-    const affordable     = parseFloat(emiPct) <= 40;
+    const incomeKnown    = monthlyIncome > 0;
+    const emiPct         = incomeKnown ? (emi / monthlyIncome * 100).toFixed(1) : '—';
+    const affordable     = incomeKnown ? parseFloat(emiPct) <= 40 : null;
     const maxAffordEMI   = Math.round(monthlyIncome * 0.40);
     const monthlyRate = p.interestRate / 100 / 12;
     const maxAffordLoan = monthlyIncome > 0
@@ -130,11 +137,9 @@ window.FinosHomeLoan = (function () {
 
     // PMAY eligibility (income check — simplified)
     const grossAnnual = p.grossIncome || (monthlyIncome * 12);
-    const pmayEligible = grossAnnual <= 1800000; // MIG-I ≤ ₹12L, MIG-II ≤ ₹18L
+    const pmayEligible = grossAnnual > 0 && grossAnnual <= 1800000; // income check only; unknown income is never "eligible"
 
-    ss('finos_home_loan_emi',            emi);
-    ss('finos_home_loan_total_interest', sched.totalInterest);
-    ss('finos_home_loan_outstanding',    p.loanAmount);
+    if (gss('finos_hl_is_mine') === '1') _shareWithOtherTools(emi, sched.totalInterest, p.loanAmount);
 
     return {
       emi, sched, emiPct, affordable, maxAffordEMI, maxAffordLoan,
@@ -144,11 +149,24 @@ window.FinosHomeLoan = (function () {
     };
   }
 
+  function _affordText(c) {
+    if (c.affordable === null) return 'Enter your monthly income to check affordability';
+    return c.emiPct + '% of income ' + (c.affordable ? '✓ within the 40% rule' : '⚠ above the 40% rule');
+  }
+
+  /* Only called for a loan the person has said is theirs. */
+  function _shareWithOtherTools(emi, totalInterest, loanAmount) {
+    if (!(emi > 0)) return;
+    ss('finos_home_loan_emi',            emi);
+    ss('finos_home_loan_total_interest', totalInterest);
+    ss('finos_home_loan_outstanding',    loanAmount);
+  }
+
   /* ── Input row ──────────────────────────────────────────────────── */
   function _inp(id, label, val, min, max, step, unit, hint, handler = '_hlRecalc') {
     return `<div style="margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
-        <label style="font-size:12px;font-weight:700;color:var(--text-secondary);">${label}</label>
+        <label for="${id}" style="font-size:12px;font-weight:700;color:var(--text-secondary);">${label}</label>
         <div style="display:flex;align-items:center;gap:6px;">
           <input type="number" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"
             style="width:110px;background:var(--border-soft);border:1px solid var(--border-medium);border-radius:8px;color:var(--text-primary);font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:13px;font-weight:800;padding:5px 10px;text-align:right;outline:none;"
@@ -167,7 +185,8 @@ window.FinosHomeLoan = (function () {
     if (!container) return;
     const p = _loadInputs();
     const c = _compute(p);
-    const emiColor = c.affordable ? '#22D3A6' : '#FF6B6B';
+    const emiColor = c.affordable === null ? 'var(--text-muted)' : c.affordable ? '#22D3A6' : '#FF6B6B';
+    const isMine = gss('finos_hl_is_mine') === '1';
 
     container.innerHTML = `
 <style>
@@ -181,7 +200,11 @@ window.FinosHomeLoan = (function () {
     ${_inp('hl-amount',  'Loan Amount',         p.loanAmount,   100000, 100000000, 100000, '₹',     'Sanctioned loan amount (property value × 80%)')}
     ${_inp('hl-rate',    'Interest Rate',        p.interestRate, 6,      18,        0.05,   '% p.a.','Current HDFC: 8.75% · SBI: 8.50% · ICICI: 8.75%')}
     ${_inp('hl-tenure',  'Loan Tenure',          p.tenureYears,  5,      30,        1,      'yr',    'Max 30 years; longer = lower EMI but more total interest')}
-    ${_inp('hl-income',  'Gross Monthly Income', p.monthlyIncome,0,      1000000,   1000,   '₹/mo',  'Used for EMI affordability check (40% rule)')}
+    ${_inp('hl-income',  'Gross Monthly Income', p.monthlyIncome || '',0,      1000000,   1000,   '₹/mo',  'Used for EMI affordability check (40% rule). Left blank, no check is made.')}
+    <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--text-secondary);margin-top:6px;cursor:pointer;">
+      <input type="checkbox" id="hl-is-mine" ${isMine ? 'checked' : ''} onchange="_hlMine(this.checked)" style="margin-top:2px;">
+      <span>This is my actual home loan. Share its EMI and amount with my Calendar, Debt Optimizer and Arya. Leave unticked to just try numbers.</span>
+    </label>
   </div>
 
   <!-- Results -->
@@ -189,7 +212,7 @@ window.FinosHomeLoan = (function () {
     <div class="hl-box" style="background:linear-gradient(135deg,rgba(79,124,255,.07),rgba(34,211,166,.04));border-color:rgba(79,124,255,.2);">
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:12px;">Monthly EMI</div>
       <div id="hl-r-emi" style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:36px;font-weight:900;color:#4F7CFF;">${INR(c.emi)}</div>
-      <div id="hl-r-emipct" style="font-size:12px;margin-top:6px;color:${emiColor};font-weight:700;">${c.emiPct}% of income ${c.affordable ? '✓ affordable' : '⚠ above 40% rule'}</div>
+      <div id="hl-r-emipct" style="font-size:12px;margin-top:6px;color:${emiColor};font-weight:700;">${_affordText(c)}</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
       <div class="hl-box" style="padding:14px;">
@@ -201,14 +224,14 @@ window.FinosHomeLoan = (function () {
         <div id="hl-r-total" style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:20px;font-weight:900;color:var(--text-primary);">${fmt(c.totalCost)}</div>
       </div>
       <div class="hl-box" style="padding:14px;">
-        <div style="font-size:10px;color:var(--text-muted);">Yr-1 Tax Saving</div>
+        <div style="font-size:10px;color:var(--text-muted);">Yr-1 Tax Deductions</div>
         <div id="hl-r-tax" style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:20px;font-weight:900;color:#22D3A6;">${INR(c.totalTaxDeduct)}</div>
-        <div style="font-size:10px;color:var(--text-muted);">24(b)+80C deductions</div>
+        <div style="font-size:10px;color:var(--text-muted);">Year-1 24(b) + 80C deductions (old regime); the tax saved depends on your slab</div>
       </div>
       <div class="hl-box" style="padding:14px;">
         <div style="font-size:10px;color:var(--text-muted);">Max Affordable Loan</div>
-        <div id="hl-r-maxloan" style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:20px;font-weight:900;color:${c.affordable?'var(--text-secondary)':'#22D3A6'};">${fmt(c.maxAffordLoan)}</div>
-        <div style="font-size:10px;color:var(--text-muted);">at 40% EMI/income</div>
+        <div id="hl-r-maxloan" style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:20px;font-weight:900;color:${c.affordable?'var(--text-secondary)':'#22D3A6'};">${c.affordable === null ? '—' : fmt(c.maxAffordLoan)}</div>
+        <div id="hl-r-maxloan-note" style="font-size:10px;color:var(--text-muted);">${c.affordable === null ? 'Enter your income to see this' : 'at 40% EMI/income'}</div>
       </div>
     </div>
   </div>
@@ -218,18 +241,18 @@ window.FinosHomeLoan = (function () {
 <div class="hl-box">
   <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:10px;">Principal vs Interest Split</div>
   <div style="display:flex;height:16px;border-radius:8px;overflow:hidden;margin-bottom:10px;">
-    <div id="hl-bar-prin" style="height:100%;background:#4F7CFF;width:${Math.round(p.loanAmount/c.totalCost*100)}%;transition:width .5s;"></div>
+    <div id="hl-bar-prin" style="height:100%;background:#4F7CFF;width:${(c.totalCost > 0 ? Math.round(p.loanAmount/c.totalCost*100) : 0)}%;transition:width .5s;"></div>
     <div id="hl-bar-int"  style="height:100%;background:#FF6B6B;flex:1;"></div>
   </div>
   <div style="display:flex;gap:20px;">
-    <div style="display:flex;align-items:center;gap:6px;"><div style="width:10px;height:10px;border-radius:2px;background:#4F7CFF;"></div><span id="hl-leg-prin" style="font-size:11px;color:var(--text-secondary);">Principal ${Math.round(p.loanAmount/c.totalCost*100)}%</span></div>
-    <div style="display:flex;align-items:center;gap:6px;"><div style="width:10px;height:10px;border-radius:2px;background:#FF6B6B;"></div><span id="hl-leg-int" style="font-size:11px;color:var(--text-secondary);">Interest ${Math.round(c.sched.totalInterest/c.totalCost*100)}%</span></div>
+    <div style="display:flex;align-items:center;gap:6px;"><div style="width:10px;height:10px;border-radius:2px;background:#4F7CFF;"></div><span id="hl-leg-prin" style="font-size:11px;color:var(--text-secondary);">Principal ${(c.totalCost > 0 ? Math.round(p.loanAmount/c.totalCost*100) : 0)}%</span></div>
+    <div style="display:flex;align-items:center;gap:6px;"><div style="width:10px;height:10px;border-radius:2px;background:#FF6B6B;"></div><span id="hl-leg-int" style="font-size:11px;color:var(--text-secondary);">Interest ${(c.totalCost > 0 ? Math.round(c.sched.totalInterest/c.totalCost*100) : 0)}%</span></div>
   </div>
 </div>
 
 ${c.pmayEligible ? `<div style="background:rgba(34,211,166,.05);border:1px solid rgba(34,211,166,.15);border-radius:14px;padding:14px;">
-  <div style="font-size:12px;font-weight:800;color:#22D3A6;margin-bottom:6px;">🏠 PMAY-CLSS Eligibility Detected</div>
-  <div style="font-size:11px;color:var(--text-secondary);line-height:1.7;">Your income may qualify for a Pradhan Mantri Awas Yojana Credit-Linked Subsidy. MIG-I (income ≤ ₹12L): 4% interest subsidy on ₹9L · MIG-II (≤₹18L): 3% on ₹12L. Apply through your bank. First-time buyer condition applies.</div>
+  <div style="font-size:12px;font-weight:800;color:#22D3A6;margin-bottom:6px;">🏠 You may be worth checking for a PMAY subsidy</div>
+  <div style="font-size:11px;color:var(--text-secondary);line-height:1.7;">Your household income is within ₹18L a year, a common upper limit for Pradhan Mantri Awas Yojana housing-loan subsidies. Scheme terms, loan caps and who qualifies change; ask your bank or check the current PMAY notice. First-time buyer and other conditions apply.</div>
 </div>` : ''}`;
   }
 
@@ -305,10 +328,11 @@ ${c.pmayEligible ? `<div style="background:rgba(34,211,166,.05);border:1px solid
 
   /* Live recalculation handlers live at module scope: a <script> inside an innerHTML string never runs. */
   window._hlRecalc = function() {
-    const amt  = parseFloat(document.getElementById('hl-amount')?.value) || 5000000;
-    const rate = parseFloat(document.getElementById('hl-rate')?.value)   || 8.75;
-    const ten  = parseInt(document.getElementById('hl-tenure')?.value)   || 20;
-    const inc  = parseFloat(document.getElementById('hl-income')?.value) || 150000;
+    // A blank box is 0, not a silent default: the results then show nothing instead of a loan the person never typed.
+    const amt  = Math.max(0, parseFloat(document.getElementById('hl-amount')?.value) || 0);
+    const rate = Math.max(0, parseFloat(document.getElementById('hl-rate')?.value)   || 0);
+    const ten  = Math.max(0, parseInt(document.getElementById('hl-tenure')?.value)   || 0);
+    const inc  = Math.max(0, parseFloat(document.getElementById('hl-income')?.value) || 0);   // blank = unknown, never a made-up salary
     const p = { loanAmount:amt, interestRate:rate, tenureYears:ten, monthlyIncome:inc, grossIncome:inc*12, prepayAmount:200000, prepayYear:3 };
     if (window.FinosHomeLoan) {
       const c = window.FinosHomeLoan._compute(p);
@@ -317,14 +341,15 @@ ${c.pmayEligible ? `<div style="background:rgba(34,211,166,.05);border:1px solid
       const upd = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
       const col = (id,v) => { const el=document.getElementById(id); if(el) el.style.color=v; };
       upd('hl-r-emi',     INR(c.emi));
-      upd('hl-r-emipct',  c.emiPct+'% of income '+(c.affordable?'✓ affordable':'⚠ above 40% rule'));
-      col('hl-r-emipct',  c.affordable?'#22D3A6':'#FF6B6B');
+      upd('hl-r-emipct',  window.FinosHomeLoan._affordText(c));
+      col('hl-r-emipct',  c.affordable === null ? '' : c.affordable ? '#22D3A6' : '#FF6B6B');
       upd('hl-r-int',     fmt(c.sched.totalInterest));
       upd('hl-r-total',   fmt(c.totalCost));
       upd('hl-r-tax',     INR(c.totalTaxDeduct));
-      upd('hl-r-maxloan', fmt(c.maxAffordLoan));
-      const prinPct = Math.round(amt / c.totalCost * 100);
-      const intPct  = 100 - prinPct;
+      upd('hl-r-maxloan', c.affordable === null ? '—' : fmt(c.maxAffordLoan));
+      upd('hl-r-maxloan-note', c.affordable === null ? 'Enter your income to see this' : 'at 40% EMI/income');
+      const prinPct = c.totalCost > 0 ? Math.round(amt / c.totalCost * 100) : 0;
+      const intPct  = c.totalCost > 0 ? 100 - prinPct : 0;
       const bP = document.getElementById('hl-bar-prin');
       const bI = document.getElementById('hl-bar-int');
       if(bP) bP.style.width = prinPct + '%';
@@ -349,5 +374,10 @@ ${c.pmayEligible ? `<div style="background:rgba(34,211,166,.05);border:1px solid
     localStorage.setItem('finos_hl_prepayyr', String(yr));
   };
 
-  return { renderCalculator, renderPrepayment, _compute, _prepayImpact, _loadInputs };
+  window._hlMine = function(on) {
+    localStorage.setItem('finos_hl_is_mine', on ? '1' : '0');
+    if (on && window.FinosHomeLoan) window.FinosHomeLoan._compute(window.FinosHomeLoan._loadInputs());
+  };
+
+  return { renderCalculator, renderPrepayment, _compute, _prepayImpact, _loadInputs, _affordText };
 })();

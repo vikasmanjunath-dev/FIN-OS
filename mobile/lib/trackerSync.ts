@@ -33,8 +33,11 @@ const NEVER_EXACT = new Set([
   // mobile-only device settings / separate sync channels
   'finos_host_ip', 'finos_holdings_v1', 'finos_holdings_tombstones_v1', 'finos_holdings_owner',
   'finos_holdings_last_sync', 'finos_recurring_v1', 'finos_prepay_inputs_v1', 'finos_offers_inputs_v1',
+  // phone-only settings and records that must stay on the device they were made on (a reminder switch that said "on" on a phone
+  // that never granted notifications, a theme, the first-run state, the crash notes)
+  'finos_theme_mobile', 'finos_reminders_mobile', 'finos_onboarding_mobile', 'finos_diag_crashes',
 ]);
-const NEVER_PREFIX = /^finos_(sessions?_|session$|sessions$|sync_|reminders_seen|reminders_system)/;
+const NEVER_PREFIX = /^finos_(sessions?_|session$|sessions$|sync_|reminders_seen|reminders_system|applock)/;
 
 /** Tracker data that travels between devices (device-private keys such as the encrypted vault never do). */
 export function isSyncKey(k: unknown): k is string {

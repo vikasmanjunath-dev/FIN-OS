@@ -30,11 +30,11 @@
   /* ── Read user profile from localStorage ────────────────────────────────── */
   function _profile() {
     try {
-      const archetype = localStorage.getItem('finos_financial_dna') || 'Growth Optimizer';
+      const archetype = localStorage.getItem('finos_financial_dna') || '';   // unknown stays unknown (it used to claim "Growth Optimizer")
       const riskScore = parseInt(localStorage.getItem('finos_risk_score') || '50');
       const disc      = localStorage.getItem('finos_disc_type') || 'C';
-      const goalRank  = JSON.parse(localStorage.getItem('finos_goal_rank') || '[]');
-      const profile   = JSON.parse(localStorage.getItem('finos_profile') || '{}');
+      const goalRank  = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_goal_rank')||'[]'));
+      const profile   = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('finos_profile')||'{}'));
 
       // Infer learning style from DISC
       const styleMap = {
@@ -75,7 +75,7 @@
   /* ── Mark module as completed ────────────────────────────────────────────── */
   function _markCompleted(moduleId) {
     try {
-      const mods = JSON.parse(localStorage.getItem(MOD_STORAGE) || '{}');
+      const mods = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem(MOD_STORAGE)||'{}'));
       if (!mods[moduleId]) {
         mods[moduleId] = { completed_at: new Date().toISOString(), attempts: 0 };
       }
@@ -276,8 +276,8 @@
     box.className = 'arya-callout';
     box.innerHTML = `
       <div class="arya-callout-head">
-        🧠 Arya says — personalised for ${prof.archetype}
-        <span style="margin-left:auto;font-size:10px;color:rgba(255,255,255,0.58);">Based on your profile</span>
+        🧠 Arya says${prof.archetype ? ' — personalised for ' + String(prof.archetype).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) : ''}
+        <span style="margin-left:auto;font-size:10px;color:rgba(255,255,255,0.58);">${prof.archetype ? 'Based on your profile' : 'Take the DNA quiz to personalise this'}</span>
       </div>
       <div class="arya-callout-body">
         <span class="streaming">Thinking…</span>
@@ -311,7 +311,7 @@ Example start: "Tere liye specifically..." or "As a ${prof.archetype}..." or "Gi
       bodyEl.textContent = full;
       started = true;
     }).then(result => {
-      if (!started) bodyEl.textContent = `This section is especially relevant for your "${prof.archetype}" profile — focus on the practical application, not just the theory.`;
+      if (!started) bodyEl.textContent = (prof.archetype ? `This section is especially relevant for your "${prof.archetype}" profile — focus on the practical application, not just the theory.` : 'Focus on the practical application, not just the theory.');
     });
 
     return box;
@@ -472,7 +472,7 @@ Use a real Indian example. Max 3 sentences. Hinglish. No preamble.
 
       // Save score
       try {
-        const scores = JSON.parse(localStorage.getItem(QUIZ_STORAGE) || '{}');
+        const scores = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem(QUIZ_STORAGE)||'{}'));
         scores[moduleId] = { score: pct, taken_at: new Date().toISOString(), attempts: (scores[moduleId]?.attempts || 0) + 1 };
         localStorage.setItem(QUIZ_STORAGE, JSON.stringify(scores));
       } catch {}
@@ -523,8 +523,8 @@ Their archetype: ${prof.archetype}. Give one warm Hinglish sentence of feedback 
     ];
 
     try {
-      const scores  = JSON.parse(localStorage.getItem(QUIZ_STORAGE) || '{}');
-      const learned = JSON.parse(localStorage.getItem(MOD_STORAGE) || '{}');
+      const scores  = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem(QUIZ_STORAGE)||'{}'));
+      const learned = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem(MOD_STORAGE)||'{}'));
       const current = _moduleFromPath();
 
       allModules.forEach(([id, label]) => {
@@ -586,7 +586,7 @@ Their archetype: ${prof.archetype}. Give one warm Hinglish sentence of feedback 
         `User archetype: ${prof.archetype}. Module: ${moduleId}. Write a 2-sentence Hinglish insight connecting this topic to their goals. Direct, no preamble.`,
         'Arya FIN-OS AI. 2-sentence warm Hinglish. No markdown.',
         (tok, full) => { bodyEl.textContent = full; }
-      ).then(r => { if (!r) bodyEl.textContent = `This module is especially useful for your "${prof.archetype}" archetype — focus on how each concept applies to your specific situation.`; });
+      ).then(r => { if (!r) bodyEl.textContent = (prof.archetype ? `This module is especially useful for your "${prof.archetype}" archetype — focus on how each concept applies to your specific situation.` : 'Focus on how each concept applies to your specific situation.'); });
     }
 
     // Add explain buttons

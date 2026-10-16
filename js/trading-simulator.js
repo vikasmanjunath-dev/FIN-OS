@@ -1293,7 +1293,7 @@ function saveSimSession() {
         capital: parseFloat(STATE.capital.toFixed(2)),
     };
 
-    const existing = JSON.parse(localStorage.getItem('finos_sim_sessions') || '[]');
+    const existing = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_sim_sessions')||'[]'));
     // Replace last entry if same session (same ts within 60s) else push
     const lastEntry = existing[existing.length - 1];
     if (lastEntry && (session.ts - lastEntry.ts) <= 60000 && lastEntry.scenario === session.scenario) {

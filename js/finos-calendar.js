@@ -18,6 +18,8 @@
 
   /* ── Helpers ─────────────────────────────────────────────────────── */
   function ls(key) { try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; } }
+  // a stored list of the wrong shape (object, string, number, junk rows) is treated as an empty list
+  const rows = (v) => Array.isArray(v) ? v.filter(x => x && typeof x === 'object') : [];
 
   function addYears(startDate, years) {
     const d = new Date(startDate);
@@ -67,7 +69,7 @@
   /* ── Event collectors ────────────────────────────────────────────── */
 
   function collectSIPEvents(fromDate, toDate) {
-    const portfolio = ls('finos_sip_portfolio') || [];
+    const portfolio = rows(ls('finos_sip_portfolio'));
     const events = [];
     portfolio.forEach(sip => {
       // The SIP tracker saves {fundName, monthlyAmount, startDate}; older entries used {fund|name, amount}.
@@ -98,7 +100,7 @@
   }
 
   function collectFDEvents() {
-    const portfolio = ls('finos_fd_portfolio') || [];
+    const portfolio = rows(ls('finos_fd_portfolio'));
     const events = [];
     portfolio.forEach(entry => {
       if (!entry.startDate) return;
@@ -121,7 +123,7 @@
   }
 
   function collectInsuranceEvents() {
-    const policies = ls('finos_insurance_policies') || [];
+    const policies = rows(ls('finos_insurance_policies'));
     const events = [];
     policies.forEach(p => {
       if (!p.renewal_date) return;
@@ -137,7 +139,7 @@
   }
 
   function collectGoalEvents() {
-    const goals = ls('finos_goals') || [];
+    const goals = rows(ls('finos_goals'));
     const events = [];
     goals.forEach(g => {
       const deadline = g.deadline || g.target_date;

@@ -25,14 +25,14 @@
   <link rel="stylesheet" href="../css/etfdetail.css">
   <link rel="stylesheet" href="../css/theme.css?v=2">
   <link rel="stylesheet" href="../css/reader-shell.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
   <meta property="og:site_name" content="FIN•OS">
   <meta property="og:type" content="website">
   <meta property="og:image" content="/assets/icons/icon-512.svg">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
 </head>
 <body data-nav-parent="markets.html">
@@ -191,7 +191,7 @@
               <div class="bowl gold">Gold</div>
             </div>
             <div class="label-box">
-              <h4>🍱 The ETF Thali</h4>
+              <h4 aria-level="3">🍱 The ETF Thali</h4>
               <p>You buy 1 Unit. You get a small spoon of everything.</p>
             </div>
           </div>
@@ -288,31 +288,31 @@
         <div class="grid-3-cards">
           <div class="card-box">
             <div class="icon">🇮🇳</div>
-            <h4>1. Index ETFs</h4>
+            <h4 aria-level="3">1. Index ETFs</h4>
             <p class="sub">Nifty 50, Sensex, Next 50</p>
             <p><strong>The Foundation.</strong> These track the main market indices exactly. If Nifty goes up, your money goes up. Core wealth builder.</p>
           </div>
           <div class="card-box">
             <div class="icon">🏦</div>
-            <h4>2. Sectoral ETFs</h4>
+            <h4 aria-level="3">2. Sectoral ETFs</h4>
             <p class="sub">BankBees, ITBees, Pharma</p>
             <p><strong>Focused Bet.</strong> You buy the entire banking sector or IT sector. Higher return potential, but if that sector fails, you lose.</p>
           </div>
           <div class="card-box highlight">
             <div class="icon">🥇</div>
-            <h4>3. Gold ETFs</h4>
+            <h4 aria-level="3">3. Gold ETFs</h4>
             <p class="sub">GoldBees</p>
             <p><strong>Digital Gold.</strong> Tracks domestic gold prices. No locker fees, no making charges, no theft risk. High liquidity.</p>
           </div>
           <div class="card-box">
             <div class="icon">🌎</div>
-            <h4>4. International ETFs</h4>
+            <h4 aria-level="3">4. International ETFs</h4>
             <p class="sub">Nasdaq 100, S&P 500</p>
             <p><strong>Global Growth.</strong> Own Apple, Microsoft, and Google using Indian Rupees. Also acts as a dollar hedge.</p>
           </div>
           <div class="card-box">
             <div class="icon">🌱</div>
-            <h4>5. Thematic ETFs</h4>
+            <h4 aria-level="3">5. Thematic ETFs</h4>
             <p class="sub">ESG, Consumption, PSU</p>
             <p><strong>Story Based.</strong> Investing in a theme (e.g., "India Consumption"). Warning: Themes die faster than indices.</p>
           </div>
@@ -338,15 +338,15 @@
         <h2>6. ETF Risks (Yes, They Exist)</h2>
         <div class="grid-2-mini">
           <div class="mini-card danger">
-            <h4>1. Market Risk</h4>
+            <h4 aria-level="3">1. Market Risk</h4>
             <p>There is no protection. If Nifty falls 50%, your ETF falls 50%. You are fully exposed to the market.</p>
           </div>
           <div class="mini-card danger">
-            <h4>2. Liquidity Risk</h4>
+            <h4 aria-level="3">2. Liquidity Risk</h4>
             <p>Some niche ETFs have low volume. If you want to sell 10,000 units, there might be no buyers, forcing you to sell at a loss (Slippage).</p>
           </div>
           <div class="mini-card danger">
-            <h4>3. Tracking Error</h4>
+            <h4 aria-level="3">3. Tracking Error</h4>
             <p>The ETF might return 9.8% when Nifty gave 10%. The difference is lost to friction, cash holdings, and expenses.</p>
           </div>
         </div>
@@ -370,12 +370,12 @@
         <h2>8. ETF vs Mutual Fund (Indian Reality)</h2>
         <div class="grid-2-mini">
            <div class="mini-card">
-             <h4>Mutual Funds</h4>
+             <h4 aria-level="3">Mutual Funds</h4>
              <p><strong>Good For:</strong> Beginners who want SIP automation and don't want to open a Demat account.</p>
              <p class="sub">Cons: High cost, NAV transparency only at day end.</p>
            </div>
            <div class="mini-card">
-             <h4>ETFs</h4>
+             <h4 aria-level="3">ETFs</h4>
              <p><strong>Good For:</strong> Investors who want control, lower costs, and can place buy orders themselves.</p>
              <p class="sub">Pros: Real-time price, ultra-low cost.</p>
            </div>
@@ -408,7 +408,7 @@
         <span class="chapter-badge">LEVEL 10: TIMING</span>
         <h2>10. SIP vs Lump Sum in ETFs</h2>
         <div class="concept-box glass">
-           <h4>Strategy: The Hybrid Approach</h4>
+           <h4 aria-level="3">Strategy: The Hybrid Approach</h4>
            <p><strong>SIP (Manual):</strong> Buy ETFs consistently on the 1st of every month regardless of price. This averages your cost.</p>
            <p><strong>Lump Sum (Sniper):</strong> Keep cash ready. When the market falls 5-10%, deploy bulk cash into your Core ETFs.</p>
            <p class="highlight">Note: Most brokers now offer "SIP in ETF" features automatically.</p>
@@ -420,22 +420,22 @@
         <h2>11. ETFs for Your Personality</h2>
         <div class="grid-2-mini">
            <div class="mini-card">
-             <h4>🧘 The Conservative</h4>
+             <h4 aria-level="3">🧘 The Conservative</h4>
              <p><strong>Buy:</strong> Nifty 50 ETF + Gold ETF.</p>
              <p><strong>Goal:</strong> Beat inflation, sleep peacefully.</p>
            </div>
            <div class="mini-card">
-             <h4>🏎️ The Aggressive</h4>
+             <h4 aria-level="3">🏎️ The Aggressive</h4>
              <p><strong>Buy:</strong> Nifty Next 50 + Midcap ETF.</p>
              <p><strong>Goal:</strong> Maximize growth, willing to see volatility.</p>
            </div>
            <div class="mini-card">
-             <h4>👔 The Busy Pro</h4>
+             <h4 aria-level="3">👔 The Busy Pro</h4>
              <p><strong>Buy:</strong> 1 single Index ETF.</p>
              <p><strong>Goal:</strong> Zero maintenance wealth.</p>
            </div>
            <div class="mini-card">
-             <h4>😰 The Anxious</h4>
+             <h4 aria-level="3">😰 The Anxious</h4>
              <p><strong>Buy:</strong> Low Volatility ETF.</p>
              <p><strong>Goal:</strong> Reduce market swings.</p>
            </div>
@@ -445,7 +445,7 @@
       <section class="chapter" id="sec12">
         <span class="chapter-badge">LEVEL 12: MYTH BUSTING</span>
         <h2>12. Common ETF Myths</h2>
-        <div class="scrolling-wrapper">
+        <div class="scrolling-wrapper" tabindex="0">
           <div class="scrolling-card glass">
             <h3>"ETFs are Boring"</h3>
             <p class="answer yes">TRUE</p>
@@ -496,7 +496,7 @@
         <span class="chapter-badge">LEVEL 14: MINDSET</span>
         <h2>14. The FIN-OS Mental Model</h2>
         <div class="concept-box glass">
-           <h4>Humility-Based Investing</h4>
+           <h4 aria-level="3">Humility-Based Investing</h4>
            <p>Think of ETFs as saying:</p>
            <p class="highlight" style="font-size:1.2rem; margin:15px 0;">"I don't know which specific company will win, but I know India as a country will grow."</p>
            <p>This mindset removes the ego of "Stock Picking" and focuses on the certainty of "Economic Growth".</p>
@@ -506,7 +506,7 @@
       <section class="chapter" id="sec15">
         <div class="pro-tip god-mode">
           <div class="god-header">
-            <h4>💎 The Final Truth</h4>
+            <h4 aria-level="3">💎 The Final Truth</h4>
           </div>
           <p>
             ETFs don't create heroes. They don't excite Telegram groups.<br>

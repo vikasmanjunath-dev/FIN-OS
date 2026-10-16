@@ -372,8 +372,15 @@ def ingest_status(job_id: str):
     return response
 
 
+# NOTE: no @metrics.REQUEST_LATENCY...time() decorator on /api/search or /api/retrieve.
+# This module uses `from __future__ import annotations`, so FastAPI resolves `req: SearchRequest`
+# from the endpoint's own module globals. prometheus-client 0.25.0 (pinned Oct 4 2026) wraps with a
+# plain functools.wraps wrapper that lives in ITS module, so the annotation could not be resolved,
+# `req` became a required *query* parameter, and both endpoints returned HTTP 422 for every call
+# (found Oct 15 2026 while benchmarking; the Arya main-chat grounding call to /api/retrieve was
+# failing silently because the frontend degrades gracefully). Time inside the body instead,
+# as /api/query already does.
 @app.post("/api/search")
-@metrics.REQUEST_LATENCY.labels(endpoint="search").time()
 def search_endpoint(req: SearchRequest, authorization: str | None = Header(None)):
     """Raw vector search — no rerank, no HyDE, no generation. Phase 1 scope.
     Auth check added Phase 3 — this endpoint accepts user_id same as /api/query and
@@ -383,8 +390,10 @@ def search_endpoint(req: SearchRequest, authorization: str | None = Header(None)
     except AuthError as e:
         raise HTTPException(status_code=403, detail=f"namespace_violation: {e}")
 
+    _started = time.time()
     query_vec = embed_batch([req.query])[0]
     results = search(query_vec, user_id=req.user_id, top_k=req.top_k)
+    metrics.REQUEST_LATENCY.labels(endpoint="search").observe(time.time() - _started)
     return {"query": req.query, "results": results}
 
 
@@ -404,7 +413,6 @@ def _retrieve_and_rerank(
 
 
 @app.post("/api/retrieve")
-@metrics.REQUEST_LATENCY.labels(endpoint="retrieve").time()
 def retrieve_endpoint(req: QueryRequest, authorization: str | None = Header(None)):
     """
     Phase 4 — hybrid retrieve + rerank with NO generation step. Built for
@@ -421,7 +429,9 @@ def retrieve_endpoint(req: QueryRequest, authorization: str | None = Header(None
     except AuthError as e:
         raise HTTPException(status_code=403, detail=f"namespace_violation: {e}")
 
+    _started = time.time()
     ranked_chunks, _ = _retrieve_and_rerank(req.query, req.user_id, req.top_k, use_hyde=req.use_hyde, doc_type=req.doc_type)
+    metrics.REQUEST_LATENCY.labels(endpoint="retrieve").observe(time.time() - _started)
     return {
         "query": req.query,
         "chunks": [

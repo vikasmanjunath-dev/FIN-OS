@@ -10,7 +10,7 @@ export const HEALTH: CalcDef[] = [
     run: ({ income, needs, wants }) => {
       const spend = needs + wants, savings = Math.max(0, income - spend), ratio = (spend / income) * 100;
       return [row('spendVal', 'Total spend', rupee(spend)), row('saveVal', 'Savings', rupee(savings)),
-        row('ratioVal', '', 'Burn Rate: ' + ratio.toFixed(1) + '%', { tone: ratio < 50 ? 'good' : ratio < 75 ? 'info' : 'bad', hero: true })];
+        row('ratioVal', '', 'Burn Rate: ' + (Number.isFinite(ratio) ? ratio.toFixed(1) + '%' : '—'), { tone: ratio < 50 ? 'good' : ratio < 75 ? 'info' : 'bad', hero: true })];
     },
   },
   {

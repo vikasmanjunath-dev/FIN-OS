@@ -33,9 +33,15 @@
   window.FinosPersona = window.FinosPersona || {};
 
   /* ── Helpers ── */
+  // A stored value whose shape differs from the fallback's (an object where a list is expected, a string, a number) is
+  // treated as missing: callers do .slice / .some / .count on the result and a corrupt value used to crash every page.
   function safeJson(key, fallback) {
-    try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
-    catch { return fallback; }
+    let v;
+    try { v = JSON.parse(localStorage.getItem(key)); } catch { return fallback; }
+    if (v === null || v === undefined) return fallback;
+    if (Array.isArray(fallback)) return Array.isArray(v) ? v : fallback;
+    if (fallback && typeof fallback === 'object') return (v && typeof v === 'object' && !Array.isArray(v)) ? v : fallback;
+    return v;
   }
 
   function INR(n) {
@@ -613,7 +619,7 @@
     }
 
     /* ── Insurance gap nudge ─────────────────────────────────────── */
-    const _insurPols = (() => { try { return JSON.parse(localStorage.getItem('finos_insurance_policies') || '[]'); } catch { return []; } })();
+    const _insurPols = safeJson('finos_insurance_policies', []).filter(p => p && typeof p === 'object');
     const _hasHealthIns = _insurPols.some(p => /health/i.test(p.type||p.category||''));
     const _hasLifeIns   = _insurPols.some(p => /life|term/i.test(p.type||p.category||''));
     if (!_hasHealthIns) {

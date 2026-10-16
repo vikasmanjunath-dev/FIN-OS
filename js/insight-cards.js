@@ -394,7 +394,7 @@
           </div>
           <div class="ic-callout warn">
             <div class="ic-callout-title">⚠️ Tax Note</div>
-            <div class="ic-callout-body">Equity MF gains above ₹1 Lakh/year are taxed at 10% (LTCG after 1 year). Still beats FD post-tax significantly. Track annual gains and plan redemptions smartly.</div>
+            <div class="ic-callout-body">Equity MF gains above ₹1.25 Lakh/year are taxed at 12.5% (LTCG after 1 year, for sales on or after 23 July 2024). Still beats FD post-tax significantly. Track annual gains and plan redemptions smartly.</div>
           </div>
         </div>`
       ]

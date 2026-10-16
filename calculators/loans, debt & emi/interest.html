@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="../../css/layout.css?v=4">
   <link rel="stylesheet" href="../../css/components.css?v=2">
   <link rel="stylesheet" href="../../css/theme.css?v=2">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
   <script src="../../js/finos-context.js?v=4"></script>
   <script src="../../js/finos-a11y.js"></script>
   <script src="../../js/arya-ai.js?v=8"></script>
@@ -160,6 +160,7 @@ const chart = new Chart(ctx, {
 });
 
 function format(num) {
+  if (typeof num === "number" && !Number.isFinite(num)) return "—";   // overflow / empty input: a dash, never Infinity or NaN
   if(num>=10000000) return "₹"+(num/10000000).toFixed(2)+" Cr";
   if(num>=100000) return "₹"+(num/100000).toFixed(2)+" L";
   return "₹"+Math.round(num).toLocaleString();
@@ -168,7 +169,8 @@ function format(num) {
 function calculate() {
   const P = +els.lN.value;
   const r = +els.rN.value / 12 / 100;
-  const n = +els.tN.value * 12;
+  const yrs = Math.min(+els.tN.value, 100);     // a 100-year ceiling: a typo such as 2025 years must not freeze the tab
+  const n = yrs * 12;
 
   const emi = (r === 0 ? P / n : P * r * (Math.pow(1+r, n) / (Math.pow(1+r, n) - 1)));
   
@@ -181,7 +183,7 @@ function calculate() {
   const labels = [];
   
   // Year-wise aggregation
-  for (let year = 1; year <= els.tN.value; year++) {
+  for (let year = 1; year <= yrs; year++) {
       let yearlyInt = 0;
       let yearlyPrin = 0;
       
@@ -207,7 +209,7 @@ function calculate() {
   document.getElementById('totalInt').textContent = format(totalInterest);
   
   const ratio = (totalInterest / P) * 100;
-  document.getElementById('ratioVal').textContent = `Interest is ${Math.round(ratio)}% of Loan`;
+  document.getElementById('ratioVal').textContent = (Number.isFinite(ratio) ? `Interest is ${Math.round(ratio)}% of Loan` : "Interest is — of Loan");
 
   chart.data.labels = labels;
   chart.data.datasets[0].data = intData;

@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
         // Guest: restore from localStorage if available
         try {
-            const cached = JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || '{}');
+            const cached = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('FINOS_CORE_DNA')||'{}'));
             if (cached.scores) {
                 userData.scores = cached.scores;
                 window.dnaChart.data.datasets[0].data = userData.scores;
@@ -410,7 +410,7 @@ function _renderDebrief(data) {
 
     // Save to localStorage
     try {
-        const existing = JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || '{}');
+        const existing = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('FINOS_CORE_DNA')||'{}'));
         existing.behavioral_analysis = data;
         localStorage.setItem('FINOS_CORE_DNA', JSON.stringify(existing));
         localStorage.setItem('finos_primary_bias', data.primary_bias || '');
@@ -560,7 +560,7 @@ function _saveDNASnapshot() {
     try {
         const dna = JSON.parse(raw);
         if (!dna.scores) return;
-        const history = JSON.parse(localStorage.getItem('FINOS_DNA_HISTORY') || '[]');
+        const history = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('FINOS_DNA_HISTORY')||'[]'));
         const today = new Date().toISOString().slice(0, 10);
         const entry = { date: today, scores: dna.scores, archetype: localStorage.getItem('finos_financial_dna') || '' };
         if (history.length && history[history.length - 1].date === today) {
@@ -575,7 +575,7 @@ window._saveDNASnapshot = _saveDNASnapshot;
 
 function _renderDNAEvolution() {
     _saveDNASnapshot();
-    const history = JSON.parse(localStorage.getItem('FINOS_DNA_HISTORY') || '[]');
+    const history = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('FINOS_DNA_HISTORY')||'[]'));
     if (history.length < 2) return;
 
     const existing = document.getElementById('dna-evolution');
@@ -635,7 +635,7 @@ function _renderDNAEvolution() {
 }
 
 window._dnaVoiceDebrief = function() {
-    const data = JSON.parse(localStorage.getItem('FINOS_CORE_DNA') || '{}');
+    const data = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('FINOS_CORE_DNA')||'{}'));
     const debrief = data.behavioral_analysis?.debrief || data.debrief || 'Analysis not available yet — run the quiz first.';
     try {
         const ws = new WebSocket('wss://127.0.0.1:8765');

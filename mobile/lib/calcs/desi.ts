@@ -1,5 +1,5 @@
 import { num, row, type CalcDef } from './types.ts';
-import { money, rupee } from './fmt.ts';
+import { money, rupee, fx } from './fmt.ts';
 
 const G = 'desi' as const;
 
@@ -9,7 +9,7 @@ export const DESI: CalcDef[] = [
     inputs: [num('cost', 'Current cost of degree', '₹', 2500000, 500000, 10000000, 50000), num('inf', 'Education inflation (p.a.)', '%', 10, 6, 15, 0.5), num('time', 'Years until college', 'yrs', 15, 1, 25, 1)],
     run: ({ cost, inf, time }) => {
       const future = cost * Math.pow(1 + inf / 100, time);
-      return [row('nowVal', 'Cost today', money(cost)), row('laterVal', 'Cost later', money(future)), row('multVal', '', 'Costs Increase ' + (future / cost).toFixed(1) + 'x', { tone: 'warn', hero: true })];
+      return [row('nowVal', 'Cost today', money(cost)), row('laterVal', 'Cost later', money(future)), row('multVal', '', 'Costs Increase ' + fx(future / cost, 1) + 'x', { tone: 'warn', hero: true })];
     },
   },
   {
@@ -54,7 +54,7 @@ export const DESI: CalcDef[] = [
     run: ({ incOld, expOld, incNew, expNew }) => {
       const ig = ((incNew - incOld) / incOld) * 100, eg = ((expNew - expOld) / expOld) * 100;
       const v = eg > ig + 10 ? row('verdictVal', '', 'Lifestyle Creep! ⚠️', { tone: 'bad', hero: true }) : eg < ig ? row('verdictVal', '', 'Wealth Building ✅', { tone: 'good', hero: true }) : row('verdictVal', '', 'Breaking Even ⚖️', { tone: 'info', hero: true });
-      return [row('incGrowthVal', 'Income growth', ig.toFixed(1) + '%'), row('expGrowthVal', 'Expense growth', eg.toFixed(1) + '%'), v];
+      return [row('incGrowthVal', 'Income growth', Number.isFinite(ig) ? ig.toFixed(1) + '%' : '—'), row('expGrowthVal', 'Expense growth', Number.isFinite(eg) ? eg.toFixed(1) + '%' : '—'), v];
     },
   },
   {
@@ -85,7 +85,7 @@ export const DESI: CalcDef[] = [
     run: ({ support, med, years }) => {
       const annual = support * 12 + med, direct = annual * years, rate = 0.12;
       const fv = annual * ((Math.pow(1 + rate, years) - 1) / rate);
-      return [row('cashVal', 'Total cash flow', money(direct)), row('corpusVal', 'Corpus impact', money(fv)), row('msgVal', '', 'Impact: ' + (fv / direct).toFixed(1) + 'x Multiplier', { hero: true })];
+      return [row('cashVal', 'Total cash flow', money(direct)), row('corpusVal', 'Corpus impact', money(fv)), row('msgVal', '', 'Impact: ' + fx(fv / direct, 1) + 'x Multiplier', { hero: true })];
     },
     notes: ['This shows what the same money would grow to at 12% a year. It is not an argument against supporting family.'],
   },
@@ -94,7 +94,7 @@ export const DESI: CalcDef[] = [
     inputs: [num('cost', 'Wedding cost', '₹', 2000000, 200000, 10000000, 100000), num('rate', 'Investment return (p.a.)', '%', 12, 8, 15, 0.5), num('time', 'Years to retirement', 'yrs', 30, 10, 40, 1)],
     run: ({ cost, rate, time }) => {
       const lost = cost * Math.pow(1 + rate / 100, time);
-      return [row('costVal', 'Wedding cost', money(cost)), row('lostVal', 'Lost wealth (future value)', money(lost), { tone: 'bad' }), row('delayVal', '', `Cost Multiplies ${(lost / cost).toFixed(1)}x`, { hero: true })];
+      return [row('costVal', 'Wedding cost', money(cost)), row('lostVal', 'Lost wealth (future value)', money(lost), { tone: 'bad' }), row('delayVal', '', `Cost Multiplies ${fx(lost / cost, 1)}x`, { hero: true })];
     },
   },
 ];

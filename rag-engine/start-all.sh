@@ -44,7 +44,11 @@ echo "[5/5] Starting ingestion worker (Phase 6 — async ingestion, see jobs.py)
 # Confirmed by hitting this crash for real before adding the flag. SimpleWorker
 # runs jobs in the same process instead of forking — no per-job isolation, but
 # fine for a handful of solo-dev ingestion jobs.
-nohup rq worker rag-ingestion --worker-class rq.worker.SimpleWorker --url "redis://localhost:6379" > worker.log 2>&1 &
+# Restart loop (Oct 15 2026): RQ's worker exits on "Redis connection timeout" — which happens
+# after the Mac sleeps or Redis is briefly unreachable — and nothing restarted it, so
+# /api/health silently showed ingest_workers_running: 0 and queued jobs sat forever.
+# The loop brings it back within 3 seconds; `pkill -f rag-worker-loop` stops it.
+nohup zsh -c 'exec -a rag-worker-loop zsh -c "while true; do rq worker rag-ingestion --worker-class rq.worker.SimpleWorker --url redis://localhost:6379 >> worker.log 2>&1; sleep 3; done"' > /dev/null 2>&1 &
 disown
 
 sleep 3

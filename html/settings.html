@@ -7,7 +7,7 @@
   /* Fix [H3]: wrap JSON.parse in try-catch — corrupted storage must not
      crash theme initialization and leave the page with no theme applied. */
   var s;
-  try { s=JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS')||'{}'); } catch(e){ s={}; }
+  try { s=((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS')||'{}')); } catch(e){ s={}; }
   var allowedThemes=['dark','light','system'];
   var legacyTheme='dark';
   try { legacyTheme=localStorage.getItem('finos-theme')||'dark'; } catch(e) {}
@@ -32,7 +32,7 @@
   <link rel="manifest" href="../manifest.json">
   <title>Settings | FIN-OS</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">

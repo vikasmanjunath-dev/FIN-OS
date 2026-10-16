@@ -105,6 +105,50 @@
     }
   }
 
+  /* @pure-start market-format
+     Shapes come from arya-ai/server.py: GET /api/commodities ->
+       {commodities:{"GOLD (10g, global equiv.)":{price,unit:"₹/10g",change_pct|null,note,price_usd,usd_unit,usd_inr,price_date}, ...},
+        unavailable:{label:{reason,price_usd,usd_unit,change_pct,price_date}}, as_of}
+     GET /api/fx -> {USD_INR:83.1,...} or {error}. Gold/silver are world futures prices converted at the live USD/INR
+     rate (NOT MCX quotes); FX are Yahoo Finance rates (NOT the RBI reference rate). Keys are matched by prefix because
+     the labels have changed before. */
+  function _commodityEntry(d, prefix) {
+    const c = (d && typeof d.commodities === 'object' && d.commodities) || {};
+    const k = Object.keys(c).find(n => n.toUpperCase().startsWith(prefix));
+    return k ? Object.assign({ name: k }, c[k]) : null;
+  }
+  function _commodityUnavailable(d, prefix) {
+    const c = (d && typeof d.unavailable === 'object' && d.unavailable) || {};
+    const k = Object.keys(c).find(n => n.toUpperCase().startsWith(prefix));
+    return k ? Object.assign({ name: k }, c[k]) : null;
+  }
+  function _fmtChg(v) {
+    return (typeof v === 'number' && isFinite(v)) ? `${v >= 0 ? '▲' : '▼'}${Math.abs(v).toFixed(2)}%` : '';
+  }
+  function _commodityLines(d) {
+    const lines = [];
+    const comm = (d && typeof d.commodities === 'object' && d.commodities) || {};
+    Object.entries(comm).forEach(([name, c]) => {
+      if (!c || typeof c !== 'object') return;
+      const price = (typeof c.price === 'number' && isFinite(c.price)) ? c.price.toLocaleString('en-IN') : '—';
+      lines.push(`• ${name}: ${price} ${c.unit || ''} ${_fmtChg(c.change_pct)}`.replace(/\s+$/, ''));
+    });
+    const un = (d && typeof d.unavailable === 'object' && d.unavailable) || {};
+    Object.entries(un).forEach(([name, u]) => {
+      if (!u || typeof u !== 'object') return;
+      const usd = (typeof u.price_usd === 'number') ? ` World price: ${u.price_usd.toLocaleString('en-US')} ${u.usd_unit || 'USD'}.` : '';
+      lines.push(`• ${name}: rupee price not available (the USD/INR rate could not be fetched).${usd}`);
+    });
+    return lines;
+  }
+  function _fxLines(fx) {
+    return Object.entries(fx || {}).filter(([k, v]) => k !== 'error' && typeof v === 'number' && isFinite(v))
+      .map(([pair, rate]) => `• ${pair.replace('_', '/')}: ${rate}`);
+  }
+  var _COMMODITY_NOTE = 'Gold and silver are world futures prices converted to rupees at the current USD/INR rate. They are not MCX quotes and will differ from the price a jeweller or the exchange shows.';
+  var _FX_LABEL = 'Forex (market rates from Yahoo Finance, not the RBI reference rate)';
+  /* @pure-end market-format */
+
   async function aryaAPILive(path) {
     try {
       const r = await fetch(`${ARYA_API_BASE}${path}`, { signal: AbortSignal.timeout(10000) });
@@ -247,7 +291,8 @@
 
   /* ══ HELPERS ═════════════════════════════════════════════════════════════ */
   const get  = (k, d) => { try { return localStorage.getItem(k) || d; } catch { return d; } };
-  const getJ = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch { return d; } };
+  // shape-aware: a stored value of the wrong shape (object for a list, string, number) is treated as missing
+  const getJ = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); if (v == null) return d; if (Array.isArray(d)) return Array.isArray(v) ? v : d; if (d && typeof d === 'object') return (typeof v === 'object' && !Array.isArray(v)) ? v : d; return v || d; } catch { return d; } };
   const set  = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
   const _INCOME_MAP = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
   const resolveInc = () =>
@@ -304,14 +349,14 @@
 
   function chatMemoryEnabled() {
     try {
-      const prefs = JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}');
+      const prefs = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS')||'{}'));
       return prefs.aiMemory !== false;
     } catch { return true; }
   }
 
   function configuredVoiceSpeed() {
     try {
-      const speed = Number(JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS') || '{}').aiVoiceSpeed);
+      const speed = Number(((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem('FINOS_SYS_SETTINGS')||'{}')).aiVoiceSpeed);
       return Number.isFinite(speed) ? Math.min(2, Math.max(0.6, speed)) : 1;
     } catch { return 1; }
   }
@@ -1376,7 +1421,7 @@ RULES (non-negotiable):
   function buildMoneyScoreWidget() {
     let ms = null, hist = [];
     try { ms = JSON.parse(localStorage.getItem('finos_money_score') || 'null'); } catch {}
-    try { hist = JSON.parse(localStorage.getItem('finos_money_score_history') || '[]'); } catch {}
+    try { hist = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_money_score_history')||'[]')); } catch {}
     const e = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const wrap = inner => `<div class="apl-lab-section asp-fade-in" data-pulse-card="moneyScore" style="border-top:1px solid rgba(255,255,255,.07);padding:14px 0 10px">${inner}</div>`;
     const T = _pulseT;
@@ -1442,7 +1487,7 @@ RULES (non-negotiable):
     let order = Object.keys(builders), reasons = {}, sinceHTML = '';
     if (R) {
       try {
-        const jsonLen = k => { try { const v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) ? v.length : 0; } catch { return 0; } };
+        const jsonLen = k => { try { const v = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem(k)||'[]')); return Array.isArray(v) ? v.length : 0; } catch { return 0; } };
         const _imap = { '0-25k': 15000, '25k-1L': 50000, '1L-2.5L': 150000, '2.5L+': 300000 };
         const ctx = {
           month: new Date().getMonth() + 1,
@@ -2639,16 +2684,11 @@ Market Cap: ${d.market_cap ? INR(d.market_cap) : '—'}`;
           const d = await aryaAPI('get_commodities', {});
           if (d.error) return `Commodity data unavailable: ${d.error}`;
           const fx   = await aryaAPI('get_fx', {});
-          const comm = d.commodities || {};
-          const lines = Object.entries(comm).map(([name, c]) => {
-            const chg = (c.change_pct || 0).toFixed(2);
-            const dir = c.change_pct >= 0 ? '▲' : '▼';
-            return `• ${name}: ${c.price?.toLocaleString('en-IN') || '—'} ${c.unit || ''} ${dir}${Math.abs(chg)}%`;
-          });
-          const fxLines = Object.entries(fx).filter(([k]) => k !== 'error').map(
-            ([pair, rate]) => `• ${pair.replace('_','/')}: ${rate}`
-          );
-          return `Commodities:\n${lines.join('\n')}\n\nForex (RBI reference):\n${fxLines.join('\n')}`;
+          const lines = _commodityLines(d);
+          const fxLines = _fxLines(fx);
+          const asOf = d.as_of ? ` (fetched ${new Date(d.as_of * 1000).toLocaleString('en-IN')})` : '';
+          return `Commodities${asOf}:\n${lines.length ? lines.join('\n') : '• none available right now'}\n${_COMMODITY_NOTE}\n\n`
+               + `${_FX_LABEL}:\n${fxLines.length ? fxLines.join('\n') : '• not available right now'}`;
         }
 
         case 'live_crypto': {
@@ -2911,7 +2951,7 @@ ${sigLines.join('\n')}`;
   /* ── LAYER 3: ReAct Agent Runner v6.0 ───────────────────────────────────── */
   const AryaRunHistory = (() => {
     const KEY = 'arya_run_history_v2';
-    function load() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } }
+    function load() { try { return ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem(KEY)||'[]')); } catch { return []; } }
     function save(runs) { try { localStorage.setItem(KEY, JSON.stringify(runs.slice(-20))); } catch {} }
     return {
       push(goal, answer, steps, toolsUsed) {
@@ -7054,12 +7094,12 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
             <span class="arya-tick-chg" id="tick-banknifty-chg">—</span>
           </div>
           <div class="arya-tick-item">
-            <span class="arya-tick-name">USD/INR</span>
+            <span class="arya-tick-name" title="Market rate from Yahoo Finance; not the RBI reference rate">USD/INR</span>
             <span class="arya-tick-price" id="tick-usdinr">—</span>
             <span class="arya-tick-chg flat">—</span>
           </div>
           <div class="arya-tick-item">
-            <span class="arya-tick-name">GOLD/10g</span>
+            <span class="arya-tick-name" title="World gold price converted to rupees per 10 g; not an MCX quote">GOLD/10g (world)</span>
             <span class="arya-tick-price" id="tick-gold">—</span>
             <span class="arya-tick-chg" id="tick-gold-chg">—</span>
           </div>
@@ -7249,7 +7289,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
       const val = parseInt(btn.dataset.v);
       const vote = val > 0 ? 'up' : 'down';
       try {
-        const fb = JSON.parse(localStorage.getItem('finos_arya_ratings') || '[]');
+        const fb = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_arya_ratings')||'[]'));
         fb.push({ ts: Date.now(), page: pageKey, val, preview: responseText.slice(0, 80) });
         set('finos_arya_ratings', JSON.stringify(fb.slice(-100)));
       } catch {}
@@ -8178,7 +8218,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 
     try {
       const fx = await aryaAPILive('/api/fx');
-      if (fx.USD_INR) {
+      if (typeof fx.USD_INR === 'number' && isFinite(fx.USD_INR)) {
         const p = document.getElementById('tick-usdinr');
         if (p) p.textContent = '₹' + fx.USD_INR.toFixed(2);
       }
@@ -8186,8 +8226,14 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 
     try {
       const comm = await aryaAPILive('/api/commodities');
-      const g = comm.commodities?.['GOLD (10g MCX)'];
-      if (g) upd('tick-gold', '₹' + (g.price||0).toLocaleString('en-IN'), 'tick-gold-chg', g.change_pct);
+      const g = _commodityEntry(comm, 'GOLD');
+      if (g && typeof g.price === 'number' && isFinite(g.price)) {
+        upd('tick-gold', '₹' + g.price.toLocaleString('en-IN'), 'tick-gold-chg', g.change_pct);
+      } else {
+        // no rupee conversion without a live USD/INR rate: show the world price in dollars, labelled, never a guess
+        const gu = _commodityUnavailable(comm, 'GOLD');
+        if (gu && typeof gu.price_usd === 'number') upd('tick-gold', '$' + gu.price_usd.toLocaleString('en-US') + '/oz', 'tick-gold-chg', gu.change_pct);
+      }
     } catch (_) {}
 
     try {

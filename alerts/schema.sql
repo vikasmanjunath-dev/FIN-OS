@@ -62,16 +62,20 @@ ALTER TABLE push_subscriptions  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE alert_preferences   ENABLE ROW LEVEL SECURITY;
 
 -- Users can only read their own alerts
+DROP POLICY IF EXISTS "user_read_own_alerts" ON alerts;
 CREATE POLICY "user_read_own_alerts"        ON alerts
   FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "user_update_own_alerts" ON alerts;
 CREATE POLICY "user_update_own_alerts"      ON alerts
   FOR UPDATE USING (auth.uid() = user_id);
 
 -- Users manage their own push subs
+DROP POLICY IF EXISTS "user_manage_push" ON push_subscriptions;
 CREATE POLICY "user_manage_push"            ON push_subscriptions
   FOR ALL USING (auth.uid() = user_id);
 
 -- Users manage their own alert prefs
+DROP POLICY IF EXISTS "user_manage_alert_prefs" ON alert_preferences;
 CREATE POLICY "user_manage_alert_prefs"     ON alert_preferences
   FOR ALL USING (auth.uid() = user_id);
 
@@ -132,9 +136,11 @@ ALTER TABLE couple_links            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE couple_goals            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE couple_responsibilities ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "couple_members_only" ON couple_links;
 CREATE POLICY "couple_members_only" ON couple_links
   FOR ALL USING (auth.uid() = user_a OR auth.uid() = user_b);
 
+DROP POLICY IF EXISTS "couple_goals_members" ON couple_goals;
 CREATE POLICY "couple_goals_members" ON couple_goals
   FOR ALL USING (
     couple_id IN (
@@ -143,6 +149,7 @@ CREATE POLICY "couple_goals_members" ON couple_goals
     )
   );
 
+DROP POLICY IF EXISTS "couple_resp_members" ON couple_responsibilities;
 CREATE POLICY "couple_resp_members" ON couple_responsibilities
   FOR ALL USING (
     couple_id IN (
@@ -176,6 +183,7 @@ CREATE INDEX IF NOT EXISTS idx_hs_history_user
   ON health_score_history (user_id, computed_at DESC);
 
 ALTER TABLE health_score_history ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "hs_history_own" ON health_score_history;
 CREATE POLICY "hs_history_own" ON health_score_history
   FOR ALL USING (auth.uid() = user_id);
 
@@ -264,6 +272,7 @@ CREATE INDEX IF NOT EXISTS idx_mem_emb_user
 -- CREATE INDEX ON memory_embeddings USING ivfflat (embedding vector_cosine_ops) WITH (lists = 50);
 
 ALTER TABLE memory_embeddings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "memory_own" ON memory_embeddings;
 CREATE POLICY "memory_own" ON memory_embeddings
   FOR ALL USING (auth.uid() = user_id);
 
@@ -307,6 +316,7 @@ CREATE TABLE IF NOT EXISTS user_behavior (
 );
 
 ALTER TABLE user_behavior ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "behavior_own" ON user_behavior;
 CREATE POLICY "behavior_own" ON user_behavior
   FOR ALL USING (auth.uid() = user_id);
 
@@ -322,6 +332,7 @@ CREATE TABLE IF NOT EXISTS document_ai_log (
 );
 
 ALTER TABLE document_ai_log ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "doc_ai_own" ON document_ai_log;
 CREATE POLICY "doc_ai_own" ON document_ai_log
   FOR ALL USING (auth.uid() = user_id);
 

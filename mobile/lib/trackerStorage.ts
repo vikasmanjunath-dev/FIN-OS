@@ -1,6 +1,8 @@
 import { loadDnaScores } from '@/lib/dnaStorage';
+import { LEARNED_KEY, learnedCount } from '@/lib/learn';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadTransactions } from '@/lib/txnStorage';
+import { asList, asRecord, isPlainObject, finite, text, scalarsOnly, keepIfUnreadable } from '@/lib/safeStore';
 import { INSTRUMENTS, POLICY_META, type SavingsAccount, type Policy, savingsTotals } from '@/lib/retirement';
 import {
   type TrackerData, EMPTY_TRACKER_DATA, ASSET_ITEMS, LIABILITY_ITEMS, computeAll, type Goal,
@@ -56,7 +58,7 @@ const n = (v: string | null | undefined, fallback = 0) => {
 export async function loadTrackerData(): Promise<TrackerData> {
   const d: TrackerData = { ...EMPTY_TRACKER_DATA };
   try {
-    const keys = [...Object.values(FIELD_KEY) as string[], GOALS_KEY, STREAK_KEY, BUDGETS_KEY, PPF_KEY, POLICIES_KEY];
+    const keys = [...Object.values(FIELD_KEY) as string[], GOALS_KEY, STREAK_KEY, BUDGETS_KEY, PPF_KEY, POLICIES_KEY, LEARNED_KEY];
     const map = Object.fromEntries(await AsyncStorage.multiGet(keys));
     for (const [field, key] of Object.entries(FIELD_KEY) as [keyof TrackerData, string][]) {
       if (STRING_FIELDS.has(field)) (d as any)[field] = map[key] ?? '';
@@ -66,12 +68,15 @@ export async function loadTrackerData(): Promise<TrackerData> {
       else if (field === 'npsSlab') d.npsSlab = n(map[key], 30);
       else (d as any)[field] = n(map[key]);
     }
-    try { const g = JSON.parse(map[GOALS_KEY] ?? '[]'); d.goals = Array.isArray(g) ? g.filter(isGoal) : []; } catch { d.goals = []; }
-    try { d.streak = Number(JSON.parse(map[STREAK_KEY] ?? '{}')?.count) || 0; } catch { d.streak = 0; }
-    try {
-      const lim = JSON.parse(map[BUDGETS_KEY] ?? 'null')?.limits ?? {};
-      d.budgetLimits = Object.fromEntries(Object.entries(lim).filter(([, v]) => Number(v) > 0).map(([k, v]) => [k, Number(v)]));
-    } catch { d.budgetLimits = {}; }
+    d.goals = asList(map[GOALS_KEY]).map(cleanGoal).filter((g): g is Goal => g !== null);
+    d.streak = Math.max(0, Math.floor(finite(asRecord(map[STREAK_KEY])?.count, 0)));
+    d.learnedModules = learnedCount(map[LEARNED_KEY]);
+    {
+      const lim = asRecord(map[BUDGETS_KEY])?.limits;
+      d.budgetLimits = isPlainObject(lim)
+        ? Object.fromEntries(Object.entries(lim).map(([k, v]) => [k, finite(v, 0)] as const).filter(([k, v]) => v > 0 && k !== '__proto__'))
+        : {};
+    }
     d.transactions = await loadTransactions();
     d.dna = await loadDnaScores();
     d.ppfAccounts = parseAccounts(map[PPF_KEY]);
@@ -84,33 +89,29 @@ export async function loadTrackerData(): Promise<TrackerData> {
 }
 
 function parseAccounts(raw: string | null | undefined): SavingsAccount[] {
-  try {
-    const v = JSON.parse(raw ?? '[]');
-    if (!Array.isArray(v)) return [];
-    return v.filter(a => a && a.type in INSTRUMENTS).map((a, i) => ({
-      ...a, // keep anything else the website stored on the account
-      id: a.id ?? `acct_${i}`, type: a.type, nickname: String(a.nickname ?? ''),
-      currentBalance: Math.max(0, Number(a.currentBalance) || 0), annualDeposit: Math.max(0, Number(a.annualDeposit) || 0), openDate: String(a.openDate ?? ''),
-    }));
-  } catch { return []; }
+  return asList(raw).filter((a): a is Record<string, any> => isPlainObject(a) && typeof a.type === 'string' && a.type in INSTRUMENTS).map((a, i) => ({
+    ...scalarsOnly(a), // keep anything else the website stored on the account
+    id: text(a.id, `acct_${i}`), type: a.type, nickname: text(a.nickname),
+    currentBalance: Math.max(0, finite(a.currentBalance)), annualDeposit: Math.max(0, finite(a.annualDeposit)), openDate: text(a.openDate),
+  })) as SavingsAccount[];
 }
 
 function parsePolicies(raw: string | null | undefined): Policy[] {
-  try {
-    const v = JSON.parse(raw ?? '[]');
-    if (!Array.isArray(v)) return [];
-    // Keep every policy the website wrote (even unknown types) so nothing is lost on save; the website's policies have no id
-    return v.filter(p => p && typeof p === 'object').map((p, i) => ({
-      ...p, // keep anything else the website stored on the policy
-      id: String(p.id ?? `idx_${i}`), type: (p.type in POLICY_META ? p.type : p.type ?? 'health') as Policy['type'],
-      provider: String(p.provider ?? ''), sum_assured: Number(p.sum_assured) || 0, annual_premium: Number(p.annual_premium) || 0,
-      renewal_date: String(p.renewal_date ?? ''), policy_number: String(p.policy_number ?? ''), notes: String(p.notes ?? ''), added_at: String(p.added_at ?? ''),
-    }));
-  } catch { return []; }
+  // Keep every policy the website wrote (even unknown types) so nothing is lost on save; the website's policies have no id
+  return asList(raw).filter(isPlainObject).map((p: Record<string, any>, i) => ({
+    ...scalarsOnly(p), // keep anything else the website stored on the policy
+    id: text(p.id, `idx_${i}`), type: (typeof p.type === 'string' && p.type ? p.type : 'health') as Policy['type'],
+    provider: text(p.provider), sum_assured: Math.max(0, finite(p.sum_assured)), annual_premium: Math.max(0, finite(p.annual_premium)),
+    renewal_date: text(p.renewal_date), policy_number: text(p.policy_number), notes: text(p.notes, '', 2000), added_at: text(p.added_at),
+  })) as Policy[];
 }
 
-function isGoal(g: any): g is Goal {
-  return g && typeof g.name === 'string' && (g.target != null || g.target_amount != null);
+/** A stored goal made safe to show and sum: text as text, amounts finite. Needs a name and some target (website records say target or target_amount). */
+function cleanGoal(g: unknown): Goal | null {
+  if (!isPlainObject(g) || typeof g.name !== 'string' || (g.target == null && g.target_amount == null)) return null;
+  const target = finite(g.target ?? g.target_amount, 0);
+  return { ...scalarsOnly(g), id: text(g.id, `goal_${g.name}`), name: g.name.slice(0, 200), target: Math.max(0, target), current: Math.max(0, finite(g.current ?? g.saved ?? g.current_amount, 0)),
+    target_date: typeof g.target_date === 'string' ? g.target_date : null } as Goal;
 }
 
 function retirementDerived(d: TrackerData): [string, string][] {
@@ -157,7 +158,11 @@ export async function saveTracker(patch: Partial<TrackerData>): Promise<TrackerD
     else if (field === 'streak') continue; // owned by touchStreak()
     else if (FIELD_KEY[field]) pairs.push([FIELD_KEY[field]!, STRING_FIELDS.has(field) ? String(value ?? '') : String(Number(value) || 0)]);
   }
-  try { if (pairs.length) await AsyncStorage.multiSet(pairs); } catch { /* storage unavailable */ }
+  try {
+    for (const [k] of pairs) if (k === GOALS_KEY || k === PPF_KEY || k === POLICIES_KEY) await keepIfUnreadable(k, 'array');
+    if (pairs.some(([k]) => k === BUDGETS_KEY)) await keepIfUnreadable(BUDGETS_KEY, 'object');
+    if (pairs.length) await AsyncStorage.multiSet(pairs);
+  } catch { /* storage unavailable */ }
   await persistDerived(next);
   return next;
 }
@@ -167,11 +172,11 @@ const dayKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padSt
 /** Daily-use streak (same `finos_streak` {count,last} the website uses). Call once per app launch. */
 export async function touchStreak(now = new Date()) {
   try {
-    const raw = JSON.parse((await AsyncStorage.getItem(STREAK_KEY)) ?? '{}') || {};
+    const raw = asRecord(await AsyncStorage.getItem(STREAK_KEY)) ?? {};
     const today = dayKey(now);
     if (raw.last === today) return;
     const y = new Date(now); y.setDate(y.getDate() - 1);
-    const count = raw.last === dayKey(y) ? (Number(raw.count) || 0) + 1 : 1;
+    const count = raw.last === dayKey(y) ? Math.max(0, Math.floor(finite(raw.count, 0))) + 1 : 1;
     await AsyncStorage.setItem(STREAK_KEY, JSON.stringify({ count, last: today }));
   } catch { /* non-fatal */ }
 }

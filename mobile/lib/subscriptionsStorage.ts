@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SUBSCRIPTIONS_KEY, Subscription, normalize, normalizeAll, summarize, localToday } from '@/lib/subscriptions';
+import { asList, keepIfUnreadable } from '@/lib/safeStore';
+import { SUBSCRIPTIONS_KEY, normalize, normalizeAll, summarize, localToday, type Subscription } from '@/lib/subscriptions';
 
 // Same key and shape as the website (js/finos-subscriptions.js), so a list built on either side is readable on the other.
 // The website also writes two derived totals for the rest of FIN·OS; we keep them in step.
@@ -14,17 +15,19 @@ function exclusive<T>(fn: () => Promise<T>): Promise<T> {
   return run;
 }
 
+/** Strict read for writers: throws only when storage itself fails, so nothing is written on a read that did not happen. */
+async function readStrict(): Promise<Subscription[]> {
+  return normalizeAll(asList(await AsyncStorage.getItem(SUBSCRIPTIONS_KEY)));
+}
+
 export async function loadSubscriptions(): Promise<Subscription[]> {
-  try {
-    return normalizeAll(JSON.parse((await AsyncStorage.getItem(SUBSCRIPTIONS_KEY)) ?? '[]'));
-  } catch {
-    return [];
-  }
+  try { return await readStrict(); } catch { return []; }
 }
 
 async function writeAll(list: Subscription[]) {
   const clean = normalizeAll(list);
   const sum = summarize(clean, localToday());
+  await keepIfUnreadable(SUBSCRIPTIONS_KEY, 'array');
   await AsyncStorage.multiSet([
     [SUBSCRIPTIONS_KEY, JSON.stringify(clean)],
     [MONTHLY_KEY, JSON.stringify(Math.round(sum.monthly))],
@@ -51,14 +54,14 @@ export function addSubscription(input: SubscriptionInput): Promise<Subscription 
   return exclusive(async () => {
     const rec = normalize(input);
     if (!rec) return null;
-    await writeAll([...(await loadSubscriptions()), rec]);
+    await writeAll([...(await readStrict()), rec]);
     return rec;
   });
 }
 
 export function updateSubscription(id: string, patch: Partial<SubscriptionInput>): Promise<boolean> {
   return exclusive(async () => {
-    const list = await loadSubscriptions();
+    const list = await readStrict();
     const i = list.findIndex(s => s.id === id);
     if (i < 0) return false;
     const next = normalize({ ...list[i], ...patch, id });
@@ -71,7 +74,7 @@ export function updateSubscription(id: string, patch: Partial<SubscriptionInput>
 
 export function removeSubscription(id: string): Promise<boolean> {
   return exclusive(async () => {
-    const list = await loadSubscriptions();
+    const list = await readStrict();
     const next = list.filter(s => s.id !== id);
     if (next.length === list.length) return false;
     await writeAll(next);

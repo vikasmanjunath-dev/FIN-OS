@@ -16,6 +16,7 @@
 (function (global) {
   'use strict';
 
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const INR = n => {
     n = Number(n) || 0;
     if (n >= 1e7) return '₹' + (n / 1e7).toFixed(2) + ' Cr';
@@ -47,7 +48,8 @@
     load(ctx) {
       const rawGoals = ctx?.financial?.goals
         || ctx?.goals
-        || JSON.parse(localStorage.getItem('finos_goals') || '[]');
+        || ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_goals')||'[]'));
+      // (rows of the wrong shape are dropped below)
 
       const income    = Number(ctx?.budget_tracker?.income_monthly || localStorage.getItem('finos_monthly_income') || 0);
       const expenses  = Number(ctx?.budget_tracker?.spent_total || localStorage.getItem('finos_monthly_expenses') || 0);
@@ -55,7 +57,7 @@
       this.surplus    = Math.max(0, income - expenses - sipTotal);
 
       this.goals = rawGoals
-        .filter(g => (g.progress || 0) < 100)
+        .filter(g => g && typeof g === 'object' && typeof g.name === 'string' && (g.progress || 0) < 100)
         .map(g => ({
           id:          g.id || (g.name.replace(/\s+/g, '_').toLowerCase() + '_' + (g.target_date || g.target || Math.random().toString(36).slice(2,7))),
           name:        g.name,
@@ -201,9 +203,9 @@
 
         ${plan.map(item => `
           <div class="gaf-goal-row">
-            <div class="gaf-icon">${item.goal.icon}</div>
+            <div class="gaf-icon">${esc(item.goal.icon)}</div>
             <div class="gaf-info">
-              <div class="gaf-goal-name">${item.goal.name}</div>
+              <div class="gaf-goal-name">${esc(item.goal.name)}</div>
               <div class="gaf-goal-meta">${item.months_left} months left · ${INR(item.gap)} gap</div>
               <div class="gaf-progress-bar">
                 <div class="gaf-progress-fill" style="width:${item.goal.progress}%"></div>
@@ -254,9 +256,9 @@
         </div>
         ${guide.map(g => `
           <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.03);border-radius:12px;margin-bottom:8px;">
-            <span style="font-size:20px;">${g.icon}</span>
+            <span style="font-size:20px;">${esc(g.icon)}</span>
             <div style="flex:1;">
-              <div style="font-size:13px;font-weight:600;color:#F5F7FA;">${g.name}</div>
+              <div style="font-size:13px;font-weight:600;color:#F5F7FA;">${esc(g.name)}</div>
               <div style="font-size:11px;color:#8892a4;">${g.months_left} months · ${g.progress.toFixed(0)}% funded</div>
             </div>
             <div style="text-align:right;">
@@ -298,7 +300,7 @@
 
       /* Update localStorage goals */
       try {
-        const goals = JSON.parse(localStorage.getItem('finos_goals') || '[]');
+        const goals = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_goals')||'[]'));
         plan.plan.forEach(item => {
           const g = goals.find(g => g.id === item.goal.id || g.name === item.goal.name);
           if (g) g.current = (Number(g.current) || 0) + item.allocated;

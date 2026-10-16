@@ -35,9 +35,9 @@
       || ctx?.profile?.emergency_fund_months
       || localStorage.getItem('finos_emergency_fund'));
     const monthly = safeNum(ctx?.budget_tracker?.income_monthly) * (1 - safeNum(ctx?.budget_tracker?.savings_rate) / 100)
-      || safeNum(localStorage.getItem('finos_monthly_expenses'))
-      || 30000;
-    return ef > 0 ? (ef / monthly).toFixed(1) : 0;
+      || safeNum(localStorage.getItem('finos_monthly_expenses'));
+    // Without a recorded monthly spend there is no runway to state (it used to assume ₹30,000 a month).
+    return ef > 0 && monthly > 0 ? (ef / monthly).toFixed(1) : 0;
   }
 
   function getName(ctx) {
@@ -216,7 +216,10 @@
       },
       message(ctx) {
         const months = monthsOfRunway(ctx);
-        const income = safeNum(ctx?.budget_tracker?.income_monthly) || 50000;
+        const income = safeNum(ctx?.budget_tracker?.income_monthly);
+        if (!(income > 0)) {   // without a recorded income there is no honest rupee gap to quote
+          return `Emergency fund sirf ${months} months ka cover kar raha hai — minimum 6 chahiye. Income add karo to exact gap bata sakta hoon. Isko pehla goal banate hain?`;
+        }
         const target = income * 6;
         const curr = income * parseFloat(months);
         const gap = target - curr;
@@ -271,14 +274,14 @@
 
   function onCooldown(id, hrs) {
     try {
-      const cd = JSON.parse(localStorage.getItem(CD_KEY) || '{}');
+      const cd = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem(CD_KEY)||'{}'));
       return (Date.now() - (cd[id] || 0)) < hrs * 3600000;
     } catch { return false; }
   }
 
   function setCooldown(id) {
     try {
-      const cd = JSON.parse(localStorage.getItem(CD_KEY) || '{}');
+      const cd = ((v)=>v&&typeof v==='object'&&!Array.isArray(v)?v:{})(JSON.parse(localStorage.getItem(CD_KEY)||'{}'));
       cd[id] = Date.now();
       localStorage.setItem(CD_KEY, JSON.stringify(cd));
     } catch {}

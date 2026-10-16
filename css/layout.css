@@ -536,6 +536,15 @@ html {
     transform: translateX(0);
     box-shadow: 8px 0 60px rgba(0,0,0,0.6);
   }
+  /* Closed drawer: out of the tab order and the accessibility tree until it is opened
+     (it only sits off-screen; Tab used to walk into 12 invisible links). The
+     visibility flip waits for the slide-out; on open it applies immediately. */
+  .sidebar:not(.mob-open) {
+    visibility: hidden;
+    transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.38s ease,
+                visibility 0s linear 0.38s;
+  }
 
   /* Main content: full width, shifted for topbar */
   .main, .page {

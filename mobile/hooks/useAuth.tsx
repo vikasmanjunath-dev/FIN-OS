@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Session } from '@supabase/supabase-js';
-import { supabase, isSupabaseConfigured, friendlyAuthError } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured, friendlyAuthError, googleStatus } from '@/lib/supabase';
+import { GOOGLE_REDIRECT_PATH, signInWithGoogle as runGoogle } from '@/lib/googleAuth';
 import { syncHoldings } from '@/lib/holdingsStore';
 import { syncTrackersNow } from '@/lib/trackerSyncStore';
 
@@ -15,6 +16,9 @@ interface AuthCtx {
   /** Returns 'confirm' when the project requires email confirmation before first sign-in. */
   signUp(name: string, email: string, password: string): Promise<'signed-in' | 'confirm'>;
   signOut(): Promise<void>;
+  /** Google through Supabase OAuth. */
+  signInWithGoogle(): Promise<{ ok: boolean; cancelled?: boolean; error?: string }>;
+  googleAvailable: boolean;
 }
 
 const Ctx = createContext<AuthCtx | null>(null);
@@ -63,11 +67,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async () => {
     // Local holdings stay on the device; they're only replaced if a *different* account signs in later.
-    await supabase?.auth.signOut();
+    // scope 'local': sign out THIS phone only. The default ('global') would also end the person's sessions on the website and other phones.
+    await supabase?.auth.signOut({ scope: 'local' });
+  }, []);
+
+  const signInWithGoogle = useCallback(async (): Promise<{ ok: boolean; cancelled?: boolean; error?: string }> => {
+    if (!supabase || !googleStatus.available) return { ok: false, error: 'Google sign-in is not set up for this app yet.' };
+    try {
+      const WebBrowser = require('expo-web-browser');
+      const Linking = require('expo-linking');
+      WebBrowser.maybeCompleteAuthSession?.();
+      const r = await runGoogle({
+        redirectTo: Linking.createURL(GOOGLE_REDIRECT_PATH),
+        client: supabase as any,
+        openAuthSession: (url, to) => WebBrowser.openAuthSessionAsync(url, to),
+      });
+      return r.ok ? { ok: true } : { ok: false, cancelled: r.cancelled, error: r.error };
+    } catch (e) { return { ok: false, error: friendlyAuthError(e) }; }
   }, []);
 
   return (
-    <Ctx.Provider value={{ configured: isSupabaseConfigured, ready, session, signIn, signUp, signOut }}>
+    <Ctx.Provider value={{ configured: isSupabaseConfigured, ready, session, signIn, signUp, signOut, signInWithGoogle, googleAvailable: googleStatus.available }}>
       {children}
     </Ctx.Provider>
   );

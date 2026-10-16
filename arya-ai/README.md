@@ -48,7 +48,7 @@ API docs: http://localhost:7475/docs
 
 ## Dependencies
 
-- Data: **none** — NSE, AMFI, CoinGecko, RBI all have free public endpoints
+- Data: **none** — NSE, AMFI (daily NAV file, plus the api.mfapi.in mirror for NAV history), Yahoo Finance (quotes, FX, commodities, company fundamentals), CoinGecko and public news RSS feeds are free public endpoints. The RBI reference rate is **not** used: FX comes from Yahoo Finance.
 - AI: **none** — Ollama runs separately; this backend only handles data
 - Cloud: **Supabase, portfolio endpoints only** — same project the rest of FIN-OS
   uses; set `SUPABASE_URL`/`SUPABASE_ANON_KEY` in `.env` (see `.env.example`).
@@ -62,20 +62,37 @@ API docs: http://localhost:7475/docs
 
 | Endpoint | Description |
 |----------|-------------|
-| `GET /api/quote/{symbol}` | Live NSE/BSE quote |
-| `GET /api/market/overview` | Nifty, Sensex, Bank Nifty indices |
-| `GET /api/mf/nav/{scheme_code}` | Mutual fund NAV (AMFI) |
-| `GET /api/commodities` | Gold, silver, crude, FX rates |
-| `GET /api/crypto` | Bitcoin, ETH, XRP in INR |
-| `GET /api/news` | Financial news + sentiment |
+| `GET /api/quote/{symbol}` | Live NSE/BSE quote. `pe_ratio` and `price_to_book` are `null` here (the quote source has neither); use `/api/fundamentals`. |
+| `GET /api/quotes?symbols=A,B,C` | Bulk quotes, at most 60 symbols per call (`truncated: true` when more were sent). A symbol that cannot be quoted comes back as `{error, symbol}`, never a made-up price. |
+| `GET /api/fundamentals/{symbol}?exchange=NSE` | Company info from Yahoo: `pe_ratio` (trailing, cross-checked against price / EPS within 15%, else `null` with `pe_note`), `price_to_book`, `eps_ttm`, `market_cap`, `sector`, `industry`, `name`. Third-party figures; every field is `null` when unavailable. Returns `{error}` when nothing is available. |
+| `GET /api/market/status` | Whether the Indian market is open now |
+| `GET /api/market/overview` | Nifty, Sensex, Bank Nifty and other indices: `price`, `change`, `change_pct` (`null` when no previous close), year high/low, index P/E, P/B, dividend yield where NSE supplies them, `as_of`. An empty answer is never cached. |
+| `GET /api/market/sectors` | Day change for the main NSE sector indices (a sector that cannot be fetched is absent) |
+| `GET /api/history/{symbol}?period=&interval=` | OHLCV rows |
+| `GET /api/chart?symbol=&interval=&range=` | OHLCV arrays for any Yahoo symbol (`RELIANCE.NS`, `^NSEI`, `GC=F`); `closes`, `opens`, `highs`, `lows`, `volumes` and `dates` (one per close, same order: `YYYY-MM-DD` for daily and longer intervals, an ISO timestamp for intraday; `[]` when the source gave no usable dates) |
+| `GET /api/mf/nav/{scheme_code}` | Mutual fund NAV (AMFI daily file) |
+| `GET /api/mf/search?q=...&limit=10` | Scheme search; every word of `q` must match the scheme name, house, plan or option, in any order. Returns `{results: [...]}`. |
+| `GET /api/mf/history/{scheme_code}?years=6` | Daily NAV history, oldest first: `{history: [[YYYY-MM-DD, nav], ...], first_date, last_date, earliest_available, amfi_check, source, as_of}`. NAVs are AMFI's, served through the public mirror api.mfapi.in (backend only; the scheme code is the only thing sent) and checked against AMFI's own daily file (`amfi_check`). `years` is capped at 30. No returns are computed here. Errors: 400 invalid code, 404 no NAV data, 502 source unreachable. |
+| `GET /api/commodities` | `{commodities, unavailable, as_of}`. Keys: `GOLD (10g, global equiv.)` (₹/10g), `SILVER (1kg, global equiv.)` (₹/kg), `CRUDE OIL (bbl)` (USD/bbl), `NATURAL GAS` (USD/MMBtu). Gold and silver are **world futures prices converted to rupees at the live USD/INR rate, not MCX quotes**; each carries `price_usd`, `usd_inr`, `price_date`, `change_pct` (`null` when unknown). With no USD/INR rate they move to `unavailable` (with the USD price) rather than use a guessed rate. A partial answer is returned but not cached. FX is not in this response. |
+| `GET /api/fx` | `{USD_INR, EUR_INR, GBP_INR, JPY_INR, AED_INR}` for the pairs that could be fetched (Yahoo Finance market rates, **not** the RBI reference rate), or `{error}` when none could; a rate that could not be fetched is absent, never filled in. |
+| `GET /api/crypto?coins=bitcoin,ethereum` | Prices in INR and USD with 24 h change, from CoinGecko; ids are validated; `{error}` when the source is unreachable (retried after 30 s) |
+| `GET /api/news?limit=20&force=false` | Headlines from public RSS feeds fetched in parallel with timeouts, newest first (`published_ts`), plus `sentiment` (whole-word keyword rules on headline + summary, `sentiment_method` says so), `count`, `as_of` and `sources` (`feeds_ok`, `feeds_failed`, `feeds_total`, `at`: how many feeds answered). Some publishers refuse the backend; the answer still arrives from the others. |
+| `GET /api/news/announcements?symbol=` | Corporate announcements |
 | `GET /api/search?q=...` | DuckDuckGo web search |
 | `GET /api/analyze/{symbol}` | Full technical analysis |
+| `GET /api/analyze/{symbol}/multi` | Short / medium / long-term summary |
 | `GET /api/report/quote/{symbol}?format=html\|pdf` | Stock report, HTML or PDF |
 | `GET /api/report/market?format=html\|pdf` | Market overview report, HTML or PDF |
 | `GET /api/portfolio/summary?user_id=...` | **Requires `Authorization: Bearer <supabase_token>`.** Live-valued holdings summary — see Auth below. |
 | `GET /api/portfolio/export?user_id=...` | **Same auth.** Downloads the summary as `.xlsx` — holdings + unrealized P&L, two sheets (Holdings, Notes). Not a tax/capital-gains computation, see caveat in Auth section below. |
 | `WS /ws/prices?symbols=...&exchange=NSE` | Live tick stream, pushes every `TTL_QUOTE` seconds. Resubscribe anytime by sending `{"symbols":[...]}` as a text frame, no reconnect needed. |
 | `POST /api/tool` | Universal tool gateway (used by JS agent) |
+| `GET /api/read?url=&max_chars=` | Clean text extracted from a URL (the agent's `read_url` tool) |
+| `POST /api/chat` | Streams a reply from the local Ollama model, with optional profile `context` |
+| `POST /api/tts` | Text to speech (MP3) for the voice features |
+| `GET /api/kite/status`, `/login`, `/callback`, `/holdings`, `/positions`, `/orders`, `/margins` | Optional Zerodha Kite connection (needs `KITE_API_KEY` / `KITE_API_SECRET` in `.env`); read-only, no orders are placed |
+| `POST /api/cache/clear`, `GET /api/cache/stats` | In-memory cache housekeeping |
+| `GET /health` | Liveness: `{status, ts}` |
 
 ## Auth (portfolio endpoints only)
 

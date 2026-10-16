@@ -5,8 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { useAuth } from '@/hooks/useAuth';
 import { FLOWS, NOT_DOING, PERMISSIONS, DATA_ITEMS, ENTITY, describeStored } from '@/lib/privacy';
-import { exportAllData, eraseLocalData, deleteCloudData, deleteAccount } from '@/lib/dataControls';
-import { cancelAll as cancelReminders } from '@/lib/remindersNative';
+import { exportAllData, deleteCloudData, deleteAccount } from '@/lib/dataControls';
+import { eraseThisPhone, detachFromAccount } from '@/lib/eraseDeps';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 
 /** Yes/no that works on web (window.confirm) and native (Alert). Resolves true only when the destructive button is pressed. */
@@ -21,7 +21,7 @@ function confirmAction(title: string, message: string, destructive: string): Pro
 }
 
 export default function PrivacyScreen() {
-  const { session, configured, signOut } = useAuth();
+  const { session, configured } = useAuth();
   const [counts, setCounts] = useState<{ label: string; value: string }[]>([]);
   const [exportText, setExportText] = useState<string | null>(null);
   const [exportKeys, setExportKeys] = useState(0);
@@ -46,21 +46,26 @@ export default function PrivacyScreen() {
   const wipeLocal = async () => {
     if (!(await confirmAction('Delete everything on this phone?', 'This removes your transactions, goals, holdings, scores and settings from this phone and signs you out. Anything you synced to the cloud stays there. This cannot be undone.', 'Delete'))) return;
     setBusy(true);
-    try { await signOut().catch(() => {}); await eraseLocalData(); await cancelReminders(); setExportText(null); setCounts([]); setStatus({ ok: true, text: 'Everything on this phone was deleted.' }); }
-    finally { setBusy(false); }
+    try {
+      const r = await eraseThisPhone();
+      setExportText(null); setCounts([]);
+      setStatus(r.ok
+        ? { ok: true, text: 'Everything on this phone was deleted, and you are signed out.' }
+        : { ok: false, text: `Most of it was deleted, but ${r.failed.length ? `these steps failed: ${r.failed.join(', ')}` : `${r.leftover.length} items could not be removed`}. Try again, or remove the app's data in your phone's settings.` });
+    } finally { setBusy(false); }
   };
 
   const wipeCloud = async () => {
-    if (!(await confirmAction('Delete your cloud copy?', 'This removes your synced holdings and tracker data from the server. The copy on this phone and on the website\'s browser is not touched. Your sign-in account stays.', 'Delete cloud copy'))) return;
+    if (!(await confirmAction('Delete your cloud copy?', 'This removes the holdings and tracker data this app synced to the server. The copy on this phone and in the website\'s browser is not touched. Anything else the website saved for your account (profile, transactions, goals, alerts) stays: Delete my account removes all of it. Your sign-in stays.', 'Delete cloud copy'))) return;
     setBusy(true);
     try { const r = await deleteCloudData(); setStatus({ ok: r.ok, text: r.ok ? 'Your cloud copy was deleted.' : r.error ?? 'Could not delete.' }); }
     finally { setBusy(false); }
   };
 
   const removeAccount = async () => {
-    if (!(await confirmAction('Delete your account?', 'This permanently deletes your sign-in account and everything stored for it on the server. Data on this phone is kept unless you also delete it. This cannot be undone.', 'Delete account'))) return;
+    if (!(await confirmAction('Delete your account?', 'This permanently deletes your sign-in account and everything stored for it on the server, including what the website saved. Data on this phone is kept unless you also delete it. This cannot be undone.', 'Delete account'))) return;
     setBusy(true);
-    try { const r = await deleteAccount(); setStatus({ ok: r.ok, text: r.ok ? 'Your account was deleted.' : r.error ?? 'Could not delete the account.' }); }
+    try { const r = await deleteAccount(undefined, detachFromAccount); setStatus({ ok: r.ok, text: r.ok ? 'Your account was deleted.' : r.error ?? 'Could not delete the account.' }); }
     finally { setBusy(false); }
   };
 
@@ -120,12 +125,12 @@ export default function PrivacyScreen() {
       </Card>
       <Card>
         <TouchableOpacity style={[s.action, s.danger]} onPress={wipeLocal} disabled={busy} accessibilityRole="button"><Text style={[s.actionTxt, { color: Colors.red }]}>Delete everything on this phone</Text></TouchableOpacity>
-        <Text style={s.help}>Removes all FIN·OS data and your sign-in from this phone.</Text>
+        <Text style={s.help}>Removes all FIN·OS data, the app lock, scheduled reminders, backup files in the cache and your sign-in from this phone.</Text>
       </Card>
       {session && (
         <Card>
           <TouchableOpacity style={[s.action, s.danger]} onPress={wipeCloud} disabled={busy} accessibilityRole="button"><Text style={[s.actionTxt, { color: Colors.red }]}>Delete my cloud copy</Text></TouchableOpacity>
-          <Text style={s.help}>Removes your synced holdings and tracker data from the server. Your account stays.</Text>
+          <Text style={s.help}>Removes the holdings and tracker data this app synced. Your account, and anything the website saved, stays.</Text>
           <TouchableOpacity style={[s.action, s.danger, { marginTop: Spacing.md }]} onPress={removeAccount} disabled={busy} accessibilityRole="button"><Text style={[s.actionTxt, { color: Colors.red }]}>Delete my account</Text></TouchableOpacity>
           <Text style={s.help}>Permanently deletes your sign-in and everything stored for it on the server.</Text>
         </Card>
@@ -145,6 +150,8 @@ export default function PrivacyScreen() {
           This notice describes what the app does today. It is a draft and has not been reviewed by a lawyer.
         </Text>
         <TouchableOpacity onPress={() => router.push('/terms' as any)} style={{ marginTop: Spacing.md }} accessibilityRole="button"><Text style={s.link}>Read the terms of use →</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/diagnostics' as any)} style={{ marginTop: Spacing.md }} accessibilityRole="button"><Text style={s.link}>Diagnostics and screen counts →</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/feedback' as any)} style={{ marginTop: Spacing.md }} accessibilityRole="button"><Text style={s.link}>Give feedback →</Text></TouchableOpacity>
       </Card>
     </TrackerScreen>
   );

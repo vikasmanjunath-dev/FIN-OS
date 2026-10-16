@@ -235,6 +235,8 @@
     localStorage.setItem('finos_tax_new_tax',     result.newRegime.total_tax.toString());
     localStorage.setItem('finos_tax_liability',   Math.min(result.oldRegime.total_tax, result.newRegime.total_tax).toString());
     localStorage.setItem('finos_80c_used',        Math.min((result.params.inv_80c || 0) + (result.params.home_loan_pri || 0), 150000).toString());
+    // the "PPF / NSC / 5yr FD" box on its own, so the PPF tracker does not add the same deposits to finos_80c_used a second time
+    if (result.params.inv_80c_ppf_nsc_fd != null) localStorage.setItem('finos_80c_ppf_nsc_fd', String(result.params.inv_80c_ppf_nsc_fd));
     localStorage.setItem('finos_80c_gap',         (result.oldRegime.gaps?.s80c || 0).toString());
     if (window.FinosContext?.update) {
       window.FinosContext.update({
@@ -254,14 +256,14 @@
     // PPF from FD tracker → 80C
     let ppf80c = 0;
     try {
-      const fdPortfolio = JSON.parse(localStorage.getItem('finos_fd_portfolio') || '[]');
+      const fdPortfolio = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_fd_portfolio')||'[]'));
       fdPortfolio.filter(e => e.type === 'ppf').forEach(e => { ppf80c += Number(e.annualAmount || 0); });
     } catch {}
 
     // Health premium from insurance-hub → 80D
     let healthPremium = 0, parentPremium = 0;
     try {
-      const policies = JSON.parse(localStorage.getItem('finos_insurance_policies') || '[]');
+      const policies = ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem('finos_insurance_policies')||'[]'));
       policies.filter(p => p.type === 'health').forEach(p => {
         healthPremium += Number(p.premium || 0);
       });
@@ -420,6 +422,7 @@
       basic_pct:     50,
       monthly_rent:  parseFloat(document.getElementById('tc-rent')?.value   || '0'),
       city:          document.getElementById('tc-city')?.value || 'metro',
+      inv_80c_ppf_nsc_fd: parseFloat(document.getElementById('tc-ppf')?.value || '0') || 0,
       inv_80c:       (parseFloat(document.getElementById('tc-ppf')?.value    || '0') +
                       parseFloat(document.getElementById('tc-elss')?.value   || '0') +
                       parseFloat(document.getElementById('tc-lic')?.value    || '0')),

@@ -2,6 +2,7 @@
 // its default ₹50L loan's EMI into finos_home_loan_emi on every render, which the debt optimizer then treats as a real loan);
 // the figures other trackers read are written only when the person taps "Save as my home loan".
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getMany } from '@/lib/safeStore';
 import { HL_KEYS, type HomeLoanResult } from '@/lib/homeLoan';
 
 export type HomeLoanFields = Record<keyof typeof HL_KEYS, string> & { income: string };
@@ -11,7 +12,7 @@ const clean = (raw: string | null | undefined) => { const n = parseFloat(raw ?? 
 
 export async function loadHomeLoanFields(): Promise<HomeLoanFields & { incomeDefault: string }> {
   const keys = [...Object.values(HL_KEYS), INCOME_KEY, 'finos_monthly_income', 'finos_gross_income'];
-  const got = Object.fromEntries(await AsyncStorage.multiGet(keys));
+  const got = await getMany(keys);
   const monthly = parseFloat(got.finos_monthly_income ?? '') || (parseFloat(got.finos_gross_income ?? '') / 12) || 0;
   return {
     loanAmount: clean(got[HL_KEYS.loanAmount]), interestRate: clean(got[HL_KEYS.interestRate]), tenureYears: clean(got[HL_KEYS.tenureYears]),
@@ -33,5 +34,6 @@ export function saveAsMyHomeLoan(loanAmount: number, rate: number, r: HomeLoanRe
     ['finos_home_loan_emi', String(r.emi)],
     ['finos_home_loan_total_interest', String(r.sched.totalInterest)],
     ['finos_home_loan_outstanding', String(Math.round(loanAmount))],
+    ['finos_hl_is_mine', '1'],                       // the website writes the keys above only when this is '1'
   ]);
 }

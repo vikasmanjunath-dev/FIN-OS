@@ -660,6 +660,10 @@ input[type="range"]::-moz-range-thumb {
 .toggle-wrap:focus-within .toggle-track {
   box-shadow: 0 0 0 3px var(--accent-dim);
 }
+.toggle-wrap input:focus-visible ~ .toggle-track {
+  outline: 2px solid var(--accent, #4F7CFF);
+  outline-offset: 3px;
+}
 
 /* ─── ABOUT GRID ────────────────────────────────────────────────── */
 .about-grid {

@@ -111,7 +111,9 @@ window.FinosSalaryOptimizer = (function () {
 
     ss('finos_salary_pf',        pfEmp);
     ss('finos_salary_take_home', takeHomeMo);
-    ss('finos_monthly_income',   takeHomeMo);
+    // The take-home of a what-if CTC is not a recorded income: keep it under its own key, and only seed the shared
+    // income when nothing has been recorded (it used to overwrite what the person or another tool had entered).
+    if (!(parseFloat(localStorage.getItem('finos_monthly_income')) > 0)) ss('finos_monthly_income', takeHomeMo);
 
     return {
       ctc, basic, hraRcvd, lta, special, npsEr, rentPaid, isMetro, regime,

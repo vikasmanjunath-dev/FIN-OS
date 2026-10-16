@@ -1,6 +1,7 @@
 // Tax Planner on the device: what to prefill from the trackers, and the figures the rest of FIN-OS reads after a plan.
 // The same keys as the website's pushToContext: finos_tax_best_regime / _old_tax / _new_tax / _liability, finos_80c_used, finos_80c_gap.
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getMany } from '@/lib/safeStore';
 
 export interface PlannerFields {
   income: string; basic_pct: string; hra_received: string; monthly_rent: string; city: 'metro' | 'non_metro';
@@ -18,7 +19,7 @@ const list = (raw: string | null | undefined): any[] => { try { const v = JSON.p
 
 /** Starting figures from what the person already tracks (only used for fields they have not filled in). */
 export async function loadPrefill(): Promise<Partial<PlannerFields>> {
-  const got = Object.fromEntries(await AsyncStorage.multiGet(['finos_monthly_income', 'finos_gross_income', 'finos_fd_portfolio', 'finos_insurance_policies', 'finos_salary_ctc']));
+  const got = await getMany(['finos_monthly_income', 'finos_gross_income', 'finos_fd_portfolio', 'finos_insurance_policies', 'finos_salary_ctc']);
   const out: Partial<PlannerFields> = {};
   const income = num(got.finos_salary_ctc) || num(got.finos_gross_income) || num(got.finos_monthly_income) * 12;
   if (income > 0) out.income = String(Math.round(income));

@@ -9,7 +9,7 @@
 // Cache version — bump this manually when deploying breaking CSS/JS changes.
 // Format: finos-YYYY-MM-DD-N (N = daily build counter).
 // The inject-sw-version.js build script can override this automatically.
-const CACHE_NAME = (typeof __CACHE_VERSION__ !== 'undefined') ? __CACHE_VERSION__ : 'finos-0d42db6';
+const CACHE_NAME = (typeof __CACHE_VERSION__ !== 'undefined') ? __CACHE_VERSION__ : 'finos-2026-10-14-1';
 
 // Shared reminder-selection logic (pure; same file the page uses). importScripts() is only allowed during the
 // worker's initial evaluation, so it must be here and not inside the periodicsync handler. Failure is non-fatal.
@@ -193,8 +193,18 @@ self.addEventListener('fetch', function (event) {
   const req = event.request;
   const url = new URL(req.url);
 
-  // Only handle same-origin GET requests
   if (req.method !== 'GET') return;
+
+  // The one cross-origin case: a version-PINNED library from jsDelivr (Chart.js, marked, DOMPurify, supabase-js).
+  // Pages load these with an integrity hash, so a cached copy cannot be poisoned (a wrong byte fails the hash and the
+  // browser refuses it), and caching them keeps every calculator working offline after the first visit. Unpinned
+  // URLs, other hosts and non-CORS (opaque) responses are never cached.
+  if (url.origin === 'https://cdn.jsdelivr.net' && PINNED_CDN_RE.test(url.pathname)) {
+    event.respondWith(cacheFirstPinnedCdn(req));
+    return;
+  }
+
+  // Only handle same-origin GET requests
   if (url.origin !== self.location.origin) return;
 
   const path = url.pathname;
@@ -228,6 +238,23 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 });
+
+/* ── Strategy: cache-first for version-pinned CDN libraries ────── */
+// Exactly "/npm/<package>@<major.minor.patch>/<file>": a floating tag such as "@2" or none at all is excluded.
+const PINNED_CDN_RE = /^(?!.*\.\.)\/npm\/(?:@[\w.-]+\/)?[\w.-]+@\d+\.\d+\.\d+\/[\w./-]+\.js$/;
+function cacheFirstPinnedCdn(req) {
+  return caches.match(req).then(function (cached) {
+    if (cached) return cached;
+    return fetch(req).then(function (response) {
+      // Only a readable, successful CORS response is worth keeping (an opaque one could be an error page).
+      if (response && response.status === 200 && response.type === 'cors') {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then(function (cache) { cache.put(req, clone); });
+      }
+      return response;
+    });
+  });
+}
 
 /* ── Strategy: Network-first (HTML) ────────────────────────────── */
 function networkFirstHTML(req) {

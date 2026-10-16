@@ -24,6 +24,7 @@ window.FinosPPFTracker = (function () {
   const ss  = (k, v) => localStorage.setItem(k, v);
   const ls  = k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
   const INR = v => '₹' + Math.abs(Math.round(v)).toLocaleString('en-IN');
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 
   function yearsElapsed(value) {
     if (!value) return null;
@@ -67,7 +68,7 @@ window.FinosPPFTracker = (function () {
   }
 
   /* ── Load/save accounts ──────────────────────────────────────── */
-  function _load() { return ls('finos_ppf_portfolio') || []; }
+  function _load() { const v = ls('finos_ppf_portfolio'); return Array.isArray(v) ? v.filter(a => a && typeof a === 'object' && INSTRUMENTS[a.type]) : []; }
   function _save(accounts) {
     localStorage.setItem('finos_ppf_portfolio', JSON.stringify(accounts));
     _recompute(accounts);
@@ -132,7 +133,7 @@ window.FinosPPFTracker = (function () {
       return `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-left:3px solid ${inst.color};border-radius:14px;padding:16px 18px;margin-bottom:10px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
           <div>
-            <div style="font-size:14px;font-weight:800;color:#F5F7FA;">${a.nickname || inst.name}</div>
+            <div style="font-size:14px;font-weight:800;color:#F5F7FA;">${esc(a.nickname || inst.name)}</div>
             <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:2px;">${a.type} · ${inst.rate}% p.a. · ${inst.compounding}</div>
           </div>
           <button onclick="window.FinosPPFTracker._delete(${a.id});window.FinosPPFTracker.renderOverview(document.getElementById('ppf-panel-overview'));"
@@ -279,7 +280,7 @@ ${accounts.length ? `
 
       return `<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1fr;padding:12px 14px;font-size:13px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:10px;margin-bottom:6px;align-items:center;gap:8px;flex-wrap:wrap;">
         <div>
-          <div style="font-weight:700;color:#F5F7FA;">${a.nickname || inst.name}</div>
+          <div style="font-weight:700;color:#F5F7FA;">${esc(a.nickname || inst.name)}</div>
           <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-top:2px;">${a.type} · ${inst.rate}% · matures ${maturityYr}</div>
         </div>
         <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);color:rgba(255,255,255,.7);">${INR(a.currentBalance)}</div>
@@ -316,25 +317,48 @@ ${rows}`;
   /* ══════════════════════════════════════════════════════════════
      TAX TAB
   ══════════════════════════════════════════════════════════════ */
+  /* 80C room left. The tax planner stores its whole 80C figure in finos_80c_used, and its "PPF / NSC / 5yr FD" box is part of it:
+     adding this tracker's deposits on top counted the same PPF money twice. The planner also stores that one box in
+     finos_80c_ppf_nsc_fd, so only the overlap with this tracker's deposits is taken out of its total.
+     Older saved data has no breakdown: then the larger of the two figures is used, never their sum. */
+  function _remaining80c(used, plannerPpfRaw, deposits) {
+    const LIMIT = 150000;
+    const u = Math.max(0, Number(used) || 0);
+    const d = Math.max(0, Number(deposits) || 0);
+    const cap = Math.min(d, LIMIT);
+    const hasBreakdown = plannerPpfRaw !== null && plannerPpfRaw !== undefined && plannerPpfRaw !== '' && Number.isFinite(Number(plannerPpfRaw));
+    if (hasBreakdown) {
+      const overlap = Math.min(Math.max(0, Number(plannerPpfRaw)), d, u);
+      const otherUsed = Math.max(0, u - overlap);
+      return { remaining: Math.max(LIMIT - otherUsed - cap, 0), otherUsed, overlap, basis: 'breakdown' };
+    }
+    const used80 = Math.max(u, cap);
+    return { remaining: Math.max(LIMIT - used80, 0), otherUsed: Math.max(0, u - cap), overlap: 0, basis: 'max' };
+  }
+
   function renderTax(container) {
     if (!container) return;
     const accounts = _load();
     const eligible = accounts.filter(a => INSTRUMENTS[a.type]?.c80c);
     const totalDeposits = eligible.reduce((s, a) => s + (a.annualDeposit || 0), 0);
     const c80cUsed = Math.min(totalDeposits, 150000);
-    const existingC80c = gs('finos_80c_used') || 0;
-    const remaining80c = Math.max(150000 - existingC80c - c80cUsed, 0);
+    const room = _remaining80c(gs('finos_80c_used'), localStorage.getItem('finos_80c_ppf_nsc_fd'), totalDeposits);
+    const remaining80c = room.remaining;
 
     const rows = eligible.map(a => {
       const inst = INSTRUMENTS[a.type];
       const claimable = Math.min(a.annualDeposit || 0, inst.maxAmt || Infinity);
       return `<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;padding:11px 14px;font-size:13px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:10px;margin-bottom:5px;align-items:center;gap:8px;">
-        <div style="font-weight:700;color:#F5F7FA;">${a.nickname||inst.name}<span style="font-size:10px;color:rgba(255,255,255,0.58);margin-left:6px;">${a.type}</span></div>
+        <div style="font-weight:700;color:#F5F7FA;">${esc(a.nickname||inst.name)}<span style="font-size:10px;color:rgba(255,255,255,0.58);margin-left:6px;">${a.type}</span></div>
         <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);color:rgba(255,255,255,.7);">${INR(a.annualDeposit||0)}</div>
         <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);color:#4F7CFF;">${INR(claimable)}</div>
         <div style="font-size:11px;color:${inst.taxFree?'#22D3A6':'#FFB347'};">${inst.taxFree?'EEE — full exemption':'Taxable at maturity'}</div>
       </div>`;
     }).join('');
+
+    const room80cNote = room.otherUsed > 0
+      ? `Counted: ${INR(c80cUsed)} deposits here + ${INR(room.otherUsed)} other 80C from the tax planner${room.overlap > 0 ? ` (its PPF/NSC/FD figure of ${INR(room.overlap)} is the same money as these deposits, so it is not added twice)` : (room.basis === 'max' ? ' (the planner does not say how much of its total is PPF, so the larger of the two figures is used rather than their sum)' : '')}. Old tax regime only.`
+      : 'Old tax regime only. Add your other 80C (ELSS, LIC, home-loan principal) in the Tax planner to see the room left.';
 
     container.innerHTML = `
 <div style="background:rgba(79,124,255,.06);border:1px solid rgba(79,124,255,.18);border-radius:20px;padding:24px;margin-bottom:22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;">
@@ -347,6 +371,7 @@ ${rows}`;
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">80C Remaining Capacity</div>
     <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:28px;font-weight:900;color:${remaining80c>0?'#FFB347':'#22D3A6'};">${INR(remaining80c)}</div>
     <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">${remaining80c>0?'can still invest for deduction':'80C maxed ✓'}</div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-top:6px;line-height:1.5;">${room80cNote}</div>
   </div>
   <div>
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Tax Saved @30%</div>
@@ -375,7 +400,7 @@ ${rows}` : '<div style="color:rgba(255,255,255,0.58);font-size:13px;padding:16px
   }
 
   /* Public */
-  return { renderOverview, renderProjection, renderTax, _add, _delete, _recompute, _maturityValue, _ppfProjection };
+  return { renderOverview, renderProjection, renderTax, _add, _delete, _recompute, _maturityValue, _ppfProjection, _remaining80c };
 })();
 
 /* Inline-handler functions. They used to sit in a <script> inside an innerHTML template, which the browser never executes, so
@@ -383,8 +408,8 @@ ${rows}` : '<div style="color:rgba(255,255,255,0.58);font-size:13px;padding:16px
 function _ppfAdd(){
   const t=document.getElementById('ppf-type').value;
   const n=document.getElementById('ppf-nick').value;
-  const b=parseFloat(document.getElementById('ppf-bal').value)||0;
-  const d=parseFloat(document.getElementById('ppf-dep').value)||0;
+  const b=Math.max(0,parseFloat(document.getElementById('ppf-bal').value)||0);
+  const d=Math.max(0,parseFloat(document.getElementById('ppf-dep').value)||0);
   const dt=document.getElementById('ppf-date').value;
   if(!b&&!d){alert('Enter at least a balance or annual deposit.');return;}
   window.FinosPPFTracker._add(t,n,b,d,dt);

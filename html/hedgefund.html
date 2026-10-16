@@ -15,7 +15,7 @@
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
 <title>Decision Engine — Hedge Fund Metrics + Behavioral OS | FIN-OS</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
 <style>
 /* ═══════════════════════════ TOKENS ═══════════════════════════ */
 :root{
@@ -431,7 +431,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@finos_app">
   <link rel="stylesheet" href="../css/interactions.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
 </head>
 <body>
@@ -552,9 +552,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 
 <!-- INTRO CARDS -->
 <div class="three-col fade d1" style="margin-bottom:46px">
-  <div class="card"><div style="font-family:var(--font-display);font-size:2.6rem;color:transparent;-webkit-text-stroke:1px var(--border2);line-height:1;margin-bottom:9px">01</div><h4 style="font-size:.86rem;font-weight:700;margin-bottom:5px">15 Hedge Fund Metrics</h4><p style="font-size:.78rem;color:var(--muted2);line-height:1.62">Every ratio and metric that professional quant funds use — each with formula, desi example, live calculator, and benchmarks.</p></div>
-  <div class="card"><div style="font-family:var(--font-display);font-size:2.6rem;color:transparent;-webkit-text-stroke:1px var(--border2);line-height:1;margin-bottom:9px">02</div><h4 style="font-size:.86rem;font-weight:700;margin-bottom:5px">Behavioral Control Layer</h4><p style="font-size:.78rem;color:var(--muted2);line-height:1.62">Trade Permission System, Bias Detector, Consequence Simulator and Pain Visualizer — predicting mistakes before they happen.</p></div>
-  <div class="card"><div style="font-family:var(--font-display);font-size:2.6rem;color:transparent;-webkit-text-stroke:1px var(--border2);line-height:1;margin-bottom:9px">03</div><h4 style="font-size:.86rem;font-weight:700;margin-bottom:5px">Master Decision Score</h4><p style="font-size:.78rem;color:var(--muted2);line-height:1.62">All metrics fused into one weighted score: TRADE / CAUTION / BLOCKED. The final word before any financial decision.</p></div>
+  <div class="card"><div style="font-family:var(--font-display);font-size:2.6rem;color:transparent;-webkit-text-stroke:1px var(--border2);line-height:1;margin-bottom:9px">01</div><h4 style="font-size:.86rem;font-weight:700;margin-bottom:5px" aria-level="2">15 Hedge Fund Metrics</h4><p style="font-size:.78rem;color:var(--muted2);line-height:1.62">Every ratio and metric that professional quant funds use — each with formula, desi example, live calculator, and benchmarks.</p></div>
+  <div class="card"><div style="font-family:var(--font-display);font-size:2.6rem;color:transparent;-webkit-text-stroke:1px var(--border2);line-height:1;margin-bottom:9px">02</div><h4 style="font-size:.86rem;font-weight:700;margin-bottom:5px" aria-level="2">Behavioral Control Layer</h4><p style="font-size:.78rem;color:var(--muted2);line-height:1.62">Trade Permission System, Bias Detector, Consequence Simulator and Pain Visualizer — predicting mistakes before they happen.</p></div>
+  <div class="card"><div style="font-family:var(--font-display);font-size:2.6rem;color:transparent;-webkit-text-stroke:1px var(--border2);line-height:1;margin-bottom:9px">03</div><h4 style="font-size:.86rem;font-weight:700;margin-bottom:5px" aria-level="2">Master Decision Score</h4><p style="font-size:.78rem;color:var(--muted2);line-height:1.62">All metrics fused into one weighted score: TRADE / CAUTION / BLOCKED. The final word before any financial decision.</p></div>
 </div>
 
 <div class="ticker-wrap"><div class="ticker-inner" id="ticker"></div></div>
@@ -601,9 +601,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       <div>
         <div class="card">
           <div class="metric-sim-title">// LIVE EXPECTANCY CALCULATOR</div>
-          <div class="slider-group"><div class="slider-label">Win Rate <strong id="wr-v">40%</strong></div><input type="range" min="10" max="90" value="40" id="wr" oninput="calcExp()"></div>
-          <div class="slider-group"><div class="slider-label">Avg Win (₹) <strong id="aw-v">₹4,000</strong></div><input type="range" min="500" max="20000" step="250" value="4000" id="aw" oninput="calcExp()"></div>
-          <div class="slider-group"><div class="slider-label">Avg Loss (₹) <strong id="al-v">₹900</strong></div><input type="range" min="200" max="10000" step="100" value="900" id="al" oninput="calcExp()"></div>
+          <div class="slider-group"><div class="slider-label">Win Rate <strong id="wr-v">40%</strong></div><input aria-label="Win rate, percent (slider)" type="range" min="10" max="90" value="40" id="wr" oninput="calcExp()"></div>
+          <div class="slider-group"><div class="slider-label">Avg Win (₹) <strong id="aw-v">₹4,000</strong></div><input aria-label="Average win, rupees (slider)" type="range" min="500" max="20000" step="250" value="4000" id="aw" oninput="calcExp()"></div>
+          <div class="slider-group"><div class="slider-label">Avg Loss (₹) <strong id="al-v">₹900</strong></div><input aria-label="Average loss, rupees (slider)" type="range" min="200" max="10000" step="100" value="900" id="al" oninput="calcExp()"></div>
           <div class="result-box"><div style="font-family:var(--font-mono);font-size:.61rem;letter-spacing:.1em;color:var(--muted2);margin-bottom:3px">PER TRADE EXPECTANCY</div><div class="result-val" id="exp-val">₹1,060</div><div id="exp-verdict" class="result-verdict rv-good">✅ PROFITABLE SYSTEM</div></div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">
             <div class="stat-item"><div class="si-val lime" id="exp-annual">₹1.06L</div><div class="si-label">100 TRADES/YR</div></div>
@@ -659,7 +659,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       <div>
         <div class="card">
           <div class="metric-sim-title">// DRAWDOWN IMPACT SIMULATOR</div>
-          <div class="slider-group"><div class="slider-label">Current Drawdown % <strong id="dd-v">10%</strong></div><input type="range" min="1" max="50" value="10" id="ddRange" oninput="updateDD(this.value)"></div>
+          <div class="slider-group"><div class="slider-label">Current Drawdown % <strong id="dd-v">10%</strong></div><input aria-label="Drawdown, percent (slider)" type="range" min="1" max="50" value="10" id="ddRange" oninput="updateDD(this.value)"></div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0">
             <div class="stat-item"><div class="si-val red" id="dd-port">₹9.0L</div><div class="si-label">FROM ₹10L</div></div>
             <div class="stat-item"><div class="si-val amber" id="dd-rec">11.1%</div><div class="si-label">TO RECOVER</div></div>
@@ -703,10 +703,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       <div>
         <div class="card" style="margin-bottom:14px">
           <div class="metric-sim-title">// SIMULATE YOUR CURRENT STATE</div>
-          <div class="slider-group"><div class="slider-label">Expectancy Score <strong id="ps-exp-v">78</strong></div><input type="range" min="0" max="100" value="78" id="ps-exp" oninput="updatePermission()"></div>
-          <div class="slider-group"><div class="slider-label">Emotional State (0=panic, 100=calm) <strong id="ps-emo-v">45</strong></div><input type="range" min="0" max="100" value="45" id="ps-emo" oninput="updatePermission()"></div>
-          <div class="slider-group"><div class="slider-label">Current Drawdown % <strong id="ps-dd-v">7%</strong></div><input type="range" min="0" max="30" value="7" id="ps-dd" oninput="updatePermission()"></div>
-          <div class="slider-group"><div class="slider-label">Checklist Completion <strong id="ps-chk-v">60%</strong></div><input type="range" min="0" max="100" value="60" id="ps-chk" oninput="updatePermission()"></div>
+          <div class="slider-group"><div class="slider-label">Expectancy Score <strong id="ps-exp-v">78</strong></div><input aria-label="Experience level (slider)" type="range" min="0" max="100" value="78" id="ps-exp" oninput="updatePermission()"></div>
+          <div class="slider-group"><div class="slider-label">Emotional State (0=panic, 100=calm) <strong id="ps-emo-v">45</strong></div><input aria-label="Emotional state (slider)" type="range" min="0" max="100" value="45" id="ps-emo" oninput="updatePermission()"></div>
+          <div class="slider-group"><div class="slider-label">Current Drawdown % <strong id="ps-dd-v">7%</strong></div><input aria-label="Current drawdown, percent (slider)" type="range" min="0" max="30" value="7" id="ps-dd" oninput="updatePermission()"></div>
+          <div class="slider-group"><div class="slider-label">Checklist Completion <strong id="ps-chk-v">60%</strong></div><input aria-label="Checklist completion, percent (slider)" type="range" min="0" max="100" value="60" id="ps-chk" oninput="updatePermission()"></div>
         </div>
         <div class="card">
           <div class="metric-sim-title">// OVERRIDE COST TRACKER</div>
@@ -752,10 +752,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     <div class="two-col">
       <div class="card">
         <div class="metric-sim-title">// TRADE PARAMETERS</div>
-        <div class="slider-group"><div class="slider-label">Trade Size <strong id="cs-size-v">₹25,000</strong></div><input type="range" min="5000" max="200000" step="5000" value="25000" id="cs-size" oninput="updateConsequence()"></div>
-        <div class="slider-group"><div class="slider-label">System Win Rate <strong id="cs-wr-v">45%</strong></div><input type="range" min="20" max="80" value="45" id="cs-wr" oninput="updateConsequence()"></div>
-        <div class="slider-group"><div class="slider-label">Reward:Risk Ratio <strong id="cs-rr-v">2.2×</strong></div><input type="range" min="0.5" max="5" step="0.1" value="2.2" id="cs-rr" oninput="updateConsequence()"></div>
-        <div class="slider-group"><div class="slider-label">Revenge Trade Tendency (0=none, 100=always) <strong id="cs-rev-v">68</strong></div><input type="range" min="0" max="100" value="68" id="cs-rev" oninput="updateConsequence()"></div>
+        <div class="slider-group"><div class="slider-label">Trade Size <strong id="cs-size-v">₹25,000</strong></div><input aria-label="Position size, rupees (slider)" type="range" min="5000" max="200000" step="5000" value="25000" id="cs-size" oninput="updateConsequence()"></div>
+        <div class="slider-group"><div class="slider-label">System Win Rate <strong id="cs-wr-v">45%</strong></div><input aria-label="Win rate, percent (slider)" type="range" min="20" max="80" value="45" id="cs-wr" oninput="updateConsequence()"></div>
+        <div class="slider-group"><div class="slider-label">Reward:Risk Ratio <strong id="cs-rr-v">2.2×</strong></div><input aria-label="Reward to risk ratio (slider)" type="range" min="0.5" max="5" step="0.1" value="2.2" id="cs-rr" oninput="updateConsequence()"></div>
+        <div class="slider-group"><div class="slider-label">Revenge Trade Tendency (0=none, 100=always) <strong id="cs-rev-v">68</strong></div><input aria-label="Revenge trade urge (slider)" type="range" min="0" max="100" value="68" id="cs-rev" oninput="updateConsequence()"></div>
         <div class="result-box">
           <div style="font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;color:var(--muted2);margin-bottom:3px">EXPECTED VALUE THIS TRADE</div>
           <div class="result-val" id="cs-ev">₹990</div>
@@ -838,9 +838,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     <div class="two-col">
       <div class="card">
         <div class="metric-sim-title">// YOUR CONTEXT</div>
-        <div class="slider-group"><div class="slider-label">Monthly Take-Home Salary <strong id="pv-sal-v">₹60,000</strong></div><input type="range" min="15000" max="500000" step="5000" value="60000" id="pv-sal" oninput="updatePain()"></div>
-        <div class="slider-group"><div class="slider-label">Monthly SIP Amount <strong id="pv-sip-v">₹5,000</strong></div><input type="range" min="500" max="50000" step="500" value="5000" id="pv-sip" oninput="updatePain()"></div>
-        <div class="slider-group"><div class="slider-label">Loss / Drawdown Amount <strong id="pv-loss-v">₹1,20,000</strong></div><input type="range" min="5000" max="1000000" step="5000" value="120000" id="pv-loss" oninput="updatePain()"></div>
+        <div class="slider-group"><div class="slider-label">Monthly Take-Home Salary <strong id="pv-sal-v">₹60,000</strong></div><input aria-label="Monthly salary, rupees (slider)" type="range" min="15000" max="500000" step="5000" value="60000" id="pv-sal" oninput="updatePain()"></div>
+        <div class="slider-group"><div class="slider-label">Monthly SIP Amount <strong id="pv-sip-v">₹5,000</strong></div><input aria-label="Monthly SIP, rupees (slider)" type="range" min="500" max="50000" step="500" value="5000" id="pv-sip" oninput="updatePain()"></div>
+        <div class="slider-group"><div class="slider-label">Loss / Drawdown Amount <strong id="pv-loss-v">₹1,20,000</strong></div><input aria-label="Trading loss, rupees (slider)" type="range" min="5000" max="1000000" step="5000" value="120000" id="pv-loss" oninput="updatePain()"></div>
         <div class="danger-box" style="margin-top:12px"><div class="db-label">// THE REAL COST</div><p id="pain-verdict"></p></div>
       </div>
       <div class="pain-grid" id="painGrid">
@@ -944,9 +944,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
         <div class="card">
           <div class="metric-sim-title">// WHY CHECKLISTS WORK</div>
           <div style="display:flex;flex-direction:column;gap:9px">
-            <div class="step"><div class="step-num">1</div><div class="step-body"><h5>Forces Slow Thinking (System 2)</h5><p>Written checklist forces your deliberate rational brain to activate. Inserts a pause between emotional impulse ("BUY NOW!") and action.</p></div></div>
-            <div class="step"><div class="step-num">2</div><div class="step-body"><h5>Creates Learnable Failure Records</h5><p>When trade goes wrong, you can review: which checklist item did I skip? Converts every loss into structured learning instead of frustration.</p></div></div>
-            <div class="step"><div class="step-num">3</div><div class="step-body"><h5>Eliminates FOMO Trades</h5><p>FOMO trades almost always fail Question 4 (documented expectancy) and Question 6 (bear case). The checklist catches them before they become expensive.</p></div></div>
+            <div class="step"><div class="step-num">1</div><div class="step-body"><h5 aria-level="4">Forces Slow Thinking (System 2)</h5><p>Written checklist forces your deliberate rational brain to activate. Inserts a pause between emotional impulse ("BUY NOW!") and action.</p></div></div>
+            <div class="step"><div class="step-num">2</div><div class="step-body"><h5 aria-level="4">Creates Learnable Failure Records</h5><p>When trade goes wrong, you can review: which checklist item did I skip? Converts every loss into structured learning instead of frustration.</p></div></div>
+            <div class="step"><div class="step-num">3</div><div class="step-body"><h5 aria-level="4">Eliminates FOMO Trades</h5><p>FOMO trades almost always fail Question 4 (documented expectancy) and Question 6 (bear case). The checklist catches them before they become expensive.</p></div></div>
           </div>
         </div>
         <div class="insight-box"><div class="ib-label">// REAL-WORLD VALIDATION</div><p>Atul Gawande: surgical checklists cut deaths by 47%. Ray Dalio's Bridgewater: every investment decision needs a written decision log. Warren Buffett: strict criteria checklist before any investment considered. The principle: <strong>systematic verification beats expert intuition in high-stakes irreversible decisions.</strong></p></div>
@@ -1504,7 +1504,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 /* Mobile: browser back + bottom tab bar cover navigation; corner is reserved */
 @media (max-width: 768px) { #floatBackBtn { display: none; } }
 </style>
-<a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a>
+<nav aria-label="Back"><a id="floatBackBtn" onclick="history.back(); return false;" href="#">‹ BACK</a></nav>
 
 <style id="hf-light-theme">
 [data-theme="light"] body {

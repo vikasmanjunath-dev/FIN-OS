@@ -22,7 +22,8 @@ export default function ReportScreen() {
     loadSavedScore().then((s: any) => setScore(s && typeof s.score === 'number' ? { score: s.score, band: s.band?.label ?? s.bandLabel } : null)).catch(() => setScore(null));
     loadCalendarSources().then(c => {
       const now = new Date(), to = ymd(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 30));
-      setDue(collectEvents(c.sources, now, 2).filter(e => e.date >= ymd(now) && e.date <= to).slice(0, 8).map(e => ({ date: e.date, title: e.title })));
+      // the person's own dates carry their own words (a payee, an amount in the title): they stay out of a report meant to be shared
+      setDue(collectEvents(c.sources, now, 2).filter(e => e.type !== 'custom' && e.date >= ymd(now) && e.date <= to).slice(0, 8).map(e => ({ date: e.date, title: e.title })));
     }).catch(() => setDue([]));
   }, []);
 

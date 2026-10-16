@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="../../css/components.css?v=2">
   <link rel="stylesheet" href="../../css/theme.css?v=2">
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
   <script src="../../js/finos-context.js?v=4"></script>
   <script src="../../js/finos-a11y.js"></script>
   <script src="../../js/arya-ai.js?v=8"></script>
@@ -434,6 +434,19 @@ function calculate() {
   const inc = +incomeNum.value;
   const dbt = +debtNum.value;
   const inv = +investingNum.value;
+
+  // The benchmark divides by (income x years since 20): without both there is nothing to compare against.
+  if (!(inc > 0) || !(actualAge > 20) || !Number.isFinite(nw + dbt + inv)) {
+    document.getElementById("actualAge").textContent = actualAge > 0 ? actualAge : "–";
+    document.getElementById("finAge").textContent = "–";
+    const v = document.getElementById("verdict");
+    v.className = "verdict-box";
+    v.textContent = "Enter your age (over 20) and monthly income";
+    document.getElementById("message").textContent = "";
+    chart.data.datasets[0].data = [0, 0];
+    chart.update();
+    return;
+  }
 
   // Expected net worth formula (rough benchmark)
   // Rule: By age 30, you should have 1x your annual salary saved

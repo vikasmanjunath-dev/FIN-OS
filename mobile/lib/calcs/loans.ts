@@ -88,10 +88,10 @@ export const LOANS: CalcDef[] = [
     id: 'interestoutflow', group: G, title: 'Interest Outflow', blurb: 'How much of a loan goes to the bank as interest.', web: 'loans, debt & emi/interest.html',
     inputs: [num('loan', 'Loan amount', '₹', 3000000, 100000, 10000000, 100000), num('rate', 'Interest rate (p.a.)', '%', 9, 6, 15, 0.1), num('time', 'Tenure', 'yrs', 15, 1, 30, 1)],
     run: ({ loan, rate, time }) => {
-      const P = loan, r = rate / 12 / 100, n = time * 12;
+      const P = loan, r = rate / 12 / 100, yrs = Math.min(time, 100), n = yrs * 12;   // a 100-year ceiling, as on the website
       const emi = emiOf(P, r, n);
       let bal = P, totalInterest = 0, firstYear = 0;
-      for (let year = 1; year <= time; year++) {
+      for (let year = 1; year <= yrs; year++) {
         let yi = 0;
         for (let m = 0; m < 12; m++) {
           if (bal <= 0) break;
@@ -102,7 +102,7 @@ export const LOANS: CalcDef[] = [
         if (year === 1) firstYear = yi;
       }
       const ratio = (totalInterest / P) * 100;
-      return [row('firstYearInt', 'First-year interest', money(firstYear)), row('totalInt', 'Total interest', money(totalInterest)), row('ratioVal', '', `Interest is ${Math.round(ratio)}% of Loan`, { hero: true })];
+      return [row('firstYearInt', 'First-year interest', money(firstYear)), row('totalInt', 'Total interest', money(totalInterest)), row('ratioVal', '', Number.isFinite(ratio) ? `Interest is ${Math.round(ratio)}% of Loan` : 'Interest is — of Loan', { hero: true })];
     },
   },
   {
