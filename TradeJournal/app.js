@@ -39,10 +39,10 @@ window.trades = getTrades();
 ──────────────────────────────────────────────────────────── */
 /* ── PRECISE FORMATTING — never abbreviates, always full decimal precision ── */
 function fmt(v) {
-  if (v === null || v === undefined || isNaN(v)) return '₹0.00';
+  if (v === null || v === undefined || !Number.isFinite(Number(v))) return '₹0.00';
   const n = Number(v);
   // Always show 2 decimal places, use Indian locale for comma grouping
-  return '₹' + Math.abs(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return (n < 0 ? '−' : '') + '₹' + Math.abs(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 function fmtS(v) {
   if (v === null || v === undefined || isNaN(v)) return '+₹0.00';
@@ -150,8 +150,8 @@ function updateDashboard() {
   const wtBar = document.getElementById('wt-bar');
   const wtCur = document.getElementById('wt-current');
   const wtTgt = document.getElementById('wt-target');
-  const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
-  const weekStr = weekStart.toISOString().split('T')[0];
+  const weekStart = new Date(); weekStart.setHours(0, 0, 0, 0); weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
+  const weekStr = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
   const weekPnl = trades.filter(t => t.date >= weekStr).reduce((s, t) => s + net(t), 0);
   const wTarget = parseFloat(settings.weeklyTarget) || 1000;
   if (wtBar) wtBar.style.width = Math.min(100, Math.max(0, weekPnl / wTarget * 100)) + '%';
@@ -406,16 +406,19 @@ function toggleTradeTag(id, btn) {
 }
 
 function updateFormCalc() {
-  const entry = parseFloat(document.getElementById('f-entry')?.value) || 0;
-  const exit  = parseFloat(document.getElementById('f-exit')?.value)  || 0;
+  const entryRaw = document.getElementById('f-entry')?.value ?? '';
+  const exitRaw = document.getElementById('f-exit')?.value ?? '';
+  const entry = parseFloat(entryRaw) || 0;
+  const exit  = parseFloat(exitRaw)  || 0;
   const sl    = parseFloat(document.getElementById('f-sl')?.value)    || 0;
   const target= parseFloat(document.getElementById('f-target')?.value)|| 0;
-  const qty   = parseFloat(document.getElementById('f-qty')?.value)   || 1;
+  const qtyRaw = document.getElementById('f-qty')?.value ?? '';
+  const qty   = parseFloat(qtyRaw) || 0;
   const lotSz = parseFloat(document.getElementById('f-lotsize')?.value)|| 1;
   const totalQty = qty * lotSz;
   const dir = _direction === 'Short' ? -1 : 1;
 
-  if (entry && exit) {
+  if (entryRaw.trim() !== '' && exitRaw.trim() !== '' && entry > 0 && qtyRaw.trim() !== '' && qty > 0 && Number.isFinite(qty * lotSz)) {
     const points = (exit - entry) * dir;
     const gross = points * totalQty;
     const pctMove = entry ? ((exit - entry) / entry * 100 * dir) : 0;
@@ -609,8 +612,11 @@ function saveTrade() {
   const indicatorsCustom = gv('f-indicators-custom');
   const regime = _regime || gv('f-regime') || gv('f-regime-custom') || '';
 
+  const editId = gv('edit-trade-id');
+  const priorTrade = editId ? tradesSnapshot().find(t => t.id === editId) : null;
   const trade = {
-    id: gv('edit-trade-id') || Date.now().toString(),
+    ...(priorTrade || {}),
+    id: editId || Date.now().toString(),
     // Core
     date, symbol,
     entryTime: gv('f-entry-time'),
@@ -700,6 +706,8 @@ function saveTrade() {
   updateXP(100 + Math.abs(n) > 0 ? 50 : 0);
 }
 
+function tradesSnapshot() { return getTrades(); }
+
 function editTrade(id) {
   const trade = getTrades().find(t => t.id === id);
   if (!trade) return;
@@ -713,6 +721,14 @@ function editTrade(id) {
     set('f-exit', trade.exit);
     set('f-qty', trade.qty);
     set('f-gross', trade.gross);
+    set('f-brokerage', trade.brokerage);
+    set('f-stt', trade.stt);
+    set('f-exchange-charges', trade.exchange ?? trade.exchangeCharges);
+    set('f-sebi', trade.sebi);
+    set('f-gst', trade.gst);
+    set('f-slippage', trade.slippage);
+    set('f-other-charges', trade.other ?? trade.otherCharges);
+    set('f-notes', trade.notes);
     set('f-tax', trade.tax);
     set('f-strategy', trade.strategy);
     set('f-reason', trade.reason);
@@ -1628,9 +1644,9 @@ function renderStratChart(trades) {
   const entries = Object.entries(byStrat).sort((a,b) => b[1]-a[1]).slice(0, 8);
   const COLORS = ['#00ffa3','#06d6f5','#ffd166','#ff4466','#b388ff','#ff9f43','#ff6bcd','#26de81'];
   mkChart('stratChart', {
-    type: 'doughnut',
-    data: { labels: entries.map(e=>e[0]), datasets: [{ data: entries.map(e=>Math.abs(e[1])), backgroundColor: COLORS, borderWidth: 0 }] },
-    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:LEGEND, tooltip:{callbacks:{label:c=>`${c.label}: ${fmtS(entries[c.dataIndex][1])}`}}} }
+    type: 'bar',
+    data: { labels: entries.map(e=>e[0]), datasets: [{ data: entries.map(e=>e[1]), backgroundColor: entries.map(e=>e[1] < 0 ? 'rgba(255,68,102,0.7)' : 'rgba(0,255,163,0.7)'), borderRadius: 4 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>`${c.label}: ${fmtS(entries[c.dataIndex][1])}`}}}, scales:{x:{grid:GRID,ticks:TICK},y:{grid:GRID,ticks:{...TICK,callback:v=>fmt(v)}}} }
   });
 }
 
@@ -3070,16 +3086,17 @@ function exportCSV() {
     'Indicators','Exit Reason','Mistakes','Notes','Tags'
   ];
 
+  const value = v => v === null || v === undefined ? '' : v;
   const rows = trades.map(t => [
     t.date, t.symbol, t.direction, t.instrumentType || '', t.timeframe || '',
-    t.entry || '', t.exit || '', t.qty || '', t.lotSize || '',
-    t.gross || '', t.brokerage || '', t.stt || '', t.exchangeCharges || '',
-    t.sebi || '', t.gst || '', t.slippage || '', t.otherCharges || '', t.tax || '', t.net || '',
-    t.capitalDeployed || '', t.returnPct || '',
-    t.strategy || '', t.setupGrade || '', t.tradeType || '', t.entryType || '', t.exitType || '',
-    t.sl || '', t.target || '', t.plannedRR || '', t.actualRR || '', t.mae || '', t.mfe || '',
-    t.regime || '', t.emotion || '', t.qualityScore || '', t.discipline || '', t.planAdherence || '',
-    t.indicators || '', t.exitReason || '', t.mistakes || '', t.reason || '', (t.tags || []).join('; ')
+    value(t.entry), value(t.exit), value(t.qty), value(t.lotSize),
+    value(t.gross), value(t.brokerage), value(t.stt), value(t.exchange ?? t.exchangeCharges),
+    value(t.sebi), value(t.gst), value(t.slippage), value(t.other ?? t.otherCharges), value(t.tax), value(t.net),
+    value(t.capitalDeployed), value(t.returnPct),
+    value(t.strategy), value(t.setupGrade), value(t.tradeType), value(t.entryType), value(t.exitType),
+    value(t.sl), value(t.target), value(t.plannedRR), value(t.actualRR), value(t.mae), value(t.mfe),
+    value(t.regime), value(t.emotion), value(t.qualityScore), value(t.discipline), value(t.planAdherence),
+    value(t.indicators), value(t.exitReason), value(t.mistakes), value(t.notes ?? t.reason), (t.tags || []).join('; ')
   ].map(csvCell));
 
   // UTF-8 BOM (﻿) makes Excel auto-detect encoding for ₹ and Unicode

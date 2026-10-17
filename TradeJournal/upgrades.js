@@ -573,54 +573,132 @@
     reader.readAsText(file);
   };
 
+  function parseCSVRows(text) {
+    const rows = []; let row = [], cell = '', quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (quoted && ch === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+      else if (ch === '"') quoted = !quoted;
+      else if (!quoted && ch === ',') { row.push(cell); cell = ''; }
+      else if (!quoted && (ch === '\n' || ch === '\r')) {
+        if (ch === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell); cell = '';
+        if (row.some(v => v.trim())) rows.push(row);
+        row = [];
+      } else cell += ch;
+    }
+    row.push(cell);
+    if (row.some(v => v.trim())) rows.push(row);
+    return rows;
+  }
+
+  function csvDate(value) {
+    const s = String(value || '').trim();
+    let y, m, d;
+    let hit = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/.exec(s);
+    if (hit) { y = +hit[1]; m = +hit[2]; d = +hit[3]; }
+    else {
+      hit = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/.exec(s);
+      if (!hit) return null;
+      // FIN-OS serves Indian users: slash dates are day/month/year.
+      d = +hit[1]; m = +hit[2]; y = +hit[3];
+    }
+    const date = new Date(Date.UTC(y, m - 1, d));
+    return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d
+      ? `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}` : null;
+  }
+
   window._parseAndImportCSV = function () {
     const raw = document.getElementById('csv-paste-area').value.trim();
     if (!raw) { showToast('Paste CSV data first', 'error'); return; }
-    const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
-    const headers = lines[0].toLowerCase().split(',').map(h => h.replace(/[^a-z_]/g, '').trim());
-    const rows = lines.slice(1);
+    const table = parseCSVRows(raw);
+    if (table.length < 2) { showToast('CSV needs a header and at least one row', 'error'); return; }
+    const headerKey = h => String(h).toLowerCase().replace(/[^a-z0-9_ ]/g, '').trim().replace(/\s+/g, '_');
+    const headers = table[0].map(headerKey);
+    const rows = table.slice(1);
     const parsed = [];
+    let rejectedCount = 0, openFillCount = 0;
     const colMap = {};
     // Map known column patterns
     const mappings = {
-      date: ['trade_date','tradedate','date','trade date','order_date'],
+      date: ['trade_date','tradedate','date','order_date'],
       symbol: ['tradingsymbol','symbol','scrip','instrument','scripname'],
-      direction: ['transaction_type','buy_sell','side','trade type','buysell'],
-      qty: ['quantity','qty','order qty'],
-      entry: ['price','avg_price','rate','trade_price'],
+      direction: ['transaction_type','buy_sell','side','trade_type','buysell','action'],
+      qty: ['quantity','qty','order_qty'],
+      entry: ['entry_price','entry','price','avg_price','rate','trade_price'],
+      exit: ['exit_price','exit','sell_price','sell_rate'],
+      gross: ['gross_pnl','gross_profit','gross'],
       net: ['net_amt','net','p&l','profit_loss','pnl','netamount'],
     };
     Object.entries(mappings).forEach(([field, alts]) => {
-      alts.forEach(a => { if (headers.includes(a) && !colMap[field]) colMap[field] = headers.indexOf(a); });
+      alts.forEach(a => { const index = headers.indexOf(headerKey(a)); if (index >= 0 && colMap[field] === undefined) colMap[field] = index; });
     });
 
-    rows.forEach(row => {
-      const cells = row.split(',').map(c => c.replace(/"/g,'').trim());
-      const trade = {
-        id: Date.now() + Math.random(),
-        date: cells[colMap.date] || new Date().toISOString().split('T')[0],
-        symbol: (cells[colMap.symbol] || 'UNKNOWN').toUpperCase(),
-        direction: (cells[colMap.direction] || 'BUY').toUpperCase().includes('BUY') ? 'BUY' : 'SELL',
-        qty: parseFloat(cells[colMap.qty]) || 1,
-        entry: parseFloat(cells[colMap.entry]) || 0,
-        exit: parseFloat(cells[colMap.exit]) || 0,
-        net: parseFloat(cells[colMap.net]) || 0,
-        strategy: 'Imported', emotion: 'Neutral', tags: [], notes: 'CSV Import',
-        setup: 7, execution: 7, management: 7,
-      };
-      if (trade.net > 0) trade.outcome = 'win'; else if (trade.net < 0) trade.outcome = 'loss'; else trade.outcome = 'be';
-      if (trade.date.includes('/')) {
-        const parts = trade.date.split('/');
-        if (parts[2] && parts[2].length === 4) trade.date = `${parts[2]}-${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}`;
+    const cell = (r, k) => colMap[k] === undefined ? '' : String(r[colMap[k]] ?? '').trim();
+    const isFills = colMap.direction !== undefined && colMap.entry !== undefined && colMap.exit === undefined && colMap.net === undefined && colMap.gross === undefined;
+    const fills = [];
+    rows.forEach((cells, rowIndex) => {
+      const date = csvDate(cell(cells, 'date'));
+      const symbol = cell(cells, 'symbol').replace(/[<>]/g, '').toUpperCase();
+      const qty = Number(cell(cells, 'qty'));
+      const price = Number(cell(cells, 'entry'));
+      const sideText = cell(cells, 'direction').toLowerCase();
+      const side = /^(b|buy|bought|long|purchase)$/.test(sideText) ? 'buy' : /^(s|sell|sold|short)$/.test(sideText) ? 'sell' : '';
+      if (!date || !symbol || !(qty > 0) || !(price >= 0) || !Number.isFinite(qty * price)) { rejectedCount++; return; }
+      if (isFills) {
+        if (side && price > 0) fills.push({ date, symbol, qty, price, side, seq: rowIndex });
+        else rejectedCount++;
+        return;
       }
+      const exitText = cell(cells, 'exit'), grossText = cell(cells, 'gross'), netText = cell(cells, 'net');
+      if ([exitText, grossText, netText].some(v => v !== '' && !Number.isFinite(Number(v)))) { rejectedCount++; return; }
+      const exitValue = exitText !== '' && Number.isFinite(Number(exitText)) ? Number(exitText) : undefined;
+      const grossValue = grossText !== '' && Number.isFinite(Number(grossText))
+        ? Number(grossText)
+        : exitValue !== undefined ? (exitValue - price) * qty * (side === 'sell' ? -1 : 1) : undefined;
+      const netValue = netText !== '' && Number.isFinite(Number(netText)) ? Number(netText) : grossValue;
+      const trade = {
+        id: `${Date.now()}_${rowIndex}_${Math.random().toString(36).slice(2, 7)}`, date, symbol,
+        direction: side === 'sell' ? 'Short' : 'Long', qty, entry: price,
+        ...(exitValue !== undefined ? { exit: exitValue } : {}),
+        ...(grossValue !== undefined ? { gross: grossValue } : {}),
+        ...(netValue !== undefined ? { net: netValue } : {}),
+        strategy: 'Imported', emotion: 'Neutral', tags: [], notes: 'CSV Import', setup: 7, execution: 7, management: 7,
+      };
+      if (trade.net !== undefined) trade.outcome = trade.net > 0 ? 'win' : trade.net < 0 ? 'loss' : 'be';
       parsed.push(trade);
     });
+    if (isFills) {
+      const pending = new Map();
+      fills.forEach(fill => {
+        let qty = fill.qty, queue = pending.get(fill.symbol) || [];
+        while (qty > 0) {
+          const opposite = queue.findIndex(x => x.side !== fill.side);
+          if (opposite < 0) { queue.push({ ...fill, qty }); break; }
+          const prior = queue[opposite], matched = Math.min(qty, prior.qty);
+          const long = prior.side === 'buy';
+          const entry = long ? prior.price : fill.price, exit = long ? fill.price : prior.price;
+          const gross = (exit - entry) * matched * (long ? 1 : -1);
+          const trade = { id: `${Date.now()}_${fill.seq}_${Math.random().toString(36).slice(2, 7)}`, date: fill.date, symbol: fill.symbol, direction: long ? 'Long' : 'Short', entry, exit, qty: matched, gross, net: gross, strategy: 'Imported', emotion: 'Neutral', tags: [], notes: 'CSV fill import', setup: 7, execution: 7, management: 7, outcome: gross > 0 ? 'win' : gross < 0 ? 'loss' : 'be' };
+          parsed.push(trade);
+          qty -= matched; prior.qty -= matched;
+          if (prior.qty <= 0) queue.splice(opposite, 1);
+        }
+        if (queue.length) pending.set(fill.symbol, queue); else pending.delete(fill.symbol);
+      });
+      openFillCount = [...pending.values()].reduce((n, queue) => n + queue.length, 0);
+    }
 
     const preview = document.getElementById('csv-preview');
-    if (!parsed.length) { preview.innerHTML = '<p style="color:var(--red);font-size:13px">Could not parse CSV. Check format.</p>'; return; }
+    if (!parsed.length) {
+      const notes = [rejectedCount ? `${rejectedCount} invalid row${rejectedCount === 1 ? '' : 's'} skipped.` : '', openFillCount ? `${openFillCount} unmatched open fill${openFillCount === 1 ? '' : 's'} not imported; only completed round trips are supported.` : ''].filter(Boolean).join(' ');
+      preview.innerHTML = `<p style="color:var(--red);font-size:13px">No completed trades found. Check the CSV format.${notes ? ` ${notes}` : ''}</p>`;
+      return;
+    }
 
     preview.innerHTML = `
       <div style="font-size:13px;color:var(--text2);margin-bottom:8px">Found <strong style="color:var(--accent)">${parsed.length}</strong> trades to import:</div>
+      ${rejectedCount || openFillCount ? `<p style="font-size:12px;color:var(--gold)">${rejectedCount ? `${rejectedCount} invalid row${rejectedCount === 1 ? '' : 's'} skipped. ` : ''}${openFillCount ? `${openFillCount} unmatched open fill${openFillCount === 1 ? '' : 's'} not imported; only completed round trips are supported.` : ''}</p>` : ''}
       <div style="background:var(--bg4);border-radius:var(--radius-sm);max-height:160px;overflow-y:auto;padding:10px">
         <table style="width:100%;font-size:11px;border-collapse:collapse">
           <thead><tr style="color:var(--text3)">${['Date','Symbol','Dir','Qty','Net P&L'].map(h=>`<th style="text-align:left;padding:4px 8px">${h}</th>`).join('')}</tr></thead>
@@ -643,8 +721,9 @@
     if (typeof parsed === 'string') parsed = JSON.parse(parsed);
     const existing = getTrades();
     // Dedup by date+symbol+net
-    const keys = new Set(existing.map(t => `${t.date}|${t.symbol}|${t.net}`));
-    const newTrades = parsed.filter(t => !keys.has(`${t.date}|${t.symbol}|${t.net}`));
+    const identity = t => [t.date, t.symbol, t.direction, t.entry, t.exit, t.qty, t.gross, t.net].map(v => v ?? '').join('|');
+    const keys = new Set(existing.map(identity));
+    const newTrades = parsed.filter(t => { const key = identity(t); if (keys.has(key)) return false; keys.add(key); return true; });
     const merged = [...existing, ...newTrades];
     localStorage.setItem('tradebook_trades', JSON.stringify(merged));
     window.trades = merged;
