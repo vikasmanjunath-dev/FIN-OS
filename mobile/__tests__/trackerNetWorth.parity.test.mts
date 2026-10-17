@@ -28,8 +28,9 @@ test('mobile net-worth and cash-flow ignore malformed and non-finite persisted a
   const data = {
     ...EMPTY_TRACKER_DATA,
     cash: Number.POSITIVE_INFINITY,
-    gold: Number.NaN,
-    property: Number.NEGATIVE_INFINITY,
+    gold: Number.MAX_VALUE,
+    property: Number.NaN,
+    crypto: Number.MAX_SAFE_INTEGER,
     homeLoan: -100,
     expense: Number.NaN,
     aaExpense: Number.POSITIVE_INFINITY,
@@ -45,4 +46,6 @@ test('mobile net-worth and cash-flow ignore malformed and non-finite persisted a
   assert.equal(budget.income, 100_000);
   assert.equal(budget.expense, 0);
   assert.equal(budget.savingsRate, 0);
+  const fallbackBudget = computeBudget({ ...EMPTY_TRACKER_DATA, income: Number.MAX_VALUE, aaIncome: 50_000, expense: 20_000 });
+  assert.equal(fallbackBudget.income, 50_000);
 });

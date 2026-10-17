@@ -1,4 +1,5 @@
 import { behaviourPoints } from '@/lib/dna';
+import { MAX_TRACKER_RUPEES } from '@/lib/trackerInput';
 import { knowledgePoints } from '@/lib/learn';
 import { type IndexedTxn, monthTotals, budgetStatus, trailing30Spend, ymd } from '@/lib/budget';
 import { type SavingsAccount, type Policy, computeEpf, computeNps, savingsTotals, computeCoverage, hasLifeCover, hasHealthCover, EPF } from '@/lib/retirement';
@@ -131,7 +132,7 @@ export interface NetWorth {
 
 const val = (d: TrackerData, f: keyof TrackerData) => {
   const value = d[f];
-  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 0;
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 && value <= MAX_TRACKER_RUPEES ? value : 0;
 };
 
 export function computeNetWorth(d: TrackerData): NetWorth {
@@ -167,7 +168,7 @@ export interface Budget {
 }
 
 export function computeBudget(d: TrackerData): Budget {
-  const positiveFinite = (value: number) => Number.isFinite(value) && value > 0 ? value : 0;
+  const positiveFinite = (value: number) => Number.isFinite(value) && value > 0 && value <= MAX_TRACKER_RUPEES ? value : 0;
   const income = positiveFinite(d.income) || positiveFinite(d.aaIncome);
   const expense = positiveFinite(d.expense) || positiveFinite(d.aaExpense);
   const saving = income - expense;

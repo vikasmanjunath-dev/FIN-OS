@@ -41,7 +41,7 @@
     if (raw == null || raw.trim() === '') return fallback;
     if (!/^\+?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(raw.trim())) return 0;
     const value = Number(raw);
-    return Number.isFinite(value) && value >= 0 ? value : 0;
+    return Number.isFinite(value) && value >= 0 && value <= Number.MAX_SAFE_INTEGER / 100 ? value : 0;
   }
   function ls(key) { try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; } }
 

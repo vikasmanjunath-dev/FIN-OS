@@ -43,3 +43,10 @@ test('website net-worth ignores malformed and non-finite persisted money values'
   assert.equal(actual.netWorth, 0);
   assert.equal(actual.firePercent, 0); // invalid spend must not fall through to invalid data or poison FIRE
 });
+
+test('website net-worth rejects finite values outside paise-safe rupee precision', () => {
+  const actual = createWebNetWorth({ finos_cash_value: '1e308', finos_home_loan: '90071992547409.93' });
+  assert.equal(actual.totalAssets, 0);
+  assert.equal(actual.totalLiabilities, 0);
+  assert.equal(actual.netWorth, 0);
+});
