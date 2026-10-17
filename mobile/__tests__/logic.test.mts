@@ -68,6 +68,29 @@ test('budget: an app-written category sticks; savings and income never count as 
   assert.equal(budget.monthSpend(txns, '2026-10').total, 800);
 });
 
+test('budget: web and mobile reject partially numeric imported amounts consistently', () => {
+  for (const amount of ['1200oops', '1,2,00', '₹1,20,00', '1.2.3', '--200', '1e3']) {
+    const raw = { amount, date: '2026-10-05', category: 'transport' };
+    assert.equal(budget.normalize(raw), null, `mobile accepted ${amount}`);
+    assert.equal(webBudget.normalize(raw), null, `web accepted ${amount}`);
+  }
+  for (const amount of ['1,200.50', '-1,200', '  ₹ 1,200  ']) {
+    const raw = { amount, date: '2026-10-05', category: 'transport' };
+    assert.deepEqual(budget.normalize(raw), webBudget.normalize(raw), `valid parse diverged for ${amount}`);
+  }
+});
+
+test('budget: web and mobile reject impossible calendar days and accept leap days', () => {
+  for (const date of ['2026-02-30', '2026-13-01', '2026-04-31', '2025-02-29', '2026-02-30T10:30:00+05:30']) {
+    const raw = { amount: 500, date, category: 'transport' };
+    assert.equal(budget.normalize(raw), null, `mobile accepted ${date}`);
+    assert.equal(webBudget.normalize(raw), null, `web accepted ${date}`);
+  }
+  const leap = { amount: 500, date: '2024-02-29', category: 'transport' };
+  assert.equal(budget.normalize(leap)?.date, leap.date);
+  assert.deepEqual(budget.normalize(leap), webBudget.normalize(leap));
+});
+
 /* ── holdings sync: last-write-wins with tombstones ───────────────────── */
 const H = (symbol: string, over: Partial<holdings.Holding> = {}): holdings.Holding => ({
   id: `Stock:${symbol}`, type: 'Stock', symbol, name: symbol, units: 10, avgPrice: 100, ...over,
@@ -160,32 +183,70 @@ test('insurance: 2× health, 15× life, 5× critical illness of annual income', 
   assert.ok(cov.gaps.length > 0, 'no policies → gaps reported');
 });
 
-test('health score: 7 pillars, 0–100, and a person with nothing recorded scores lower than a well-set-up one', () => {
+test('health score: 7 pillars, 0–100, and a phone with nothing recorded has no score at all', () => {
   const empty = trackers.computeAll(trackers.EMPTY_TRACKER_DATA).health;
-  assert.ok(empty.total >= 0 && empty.total <= 100);
+  assert.equal(empty.total, null);
+  assert.equal(empty.tier, null);
+  assert.equal(empty.measured.length, 0);
+  assert.equal(empty.missing.length, 7);
+  assert.ok(empty.pillars.every(p => !p.hasData && p.score === 0 && p.grade === '—'), 'no pillar scores points from nothing');
+  assert.match(empty.headline, /^Not enough data/);
   const good = trackers.computeAll({
     ...trackers.EMPTY_TRACKER_DATA, income: 100000, expense: 50000, emergencyFund: 400000, emergencyTarget: 6, used80c: 150000, monthlySip: 20000,
   }).health;
-  assert.ok(good.total > empty.total, `${good.total} should beat ${empty.total}`);
-});
-test('budget: web and mobile reject partially numeric imported amounts consistently', () => {
-  for (const amount of ['1200oops', '1,2,00', '₹1,20,00', '1.2.3', '--200', '1e3']) {
-    const raw = { amount, date: '2026-10-05', category: 'transport' };
-    assert.equal(budget.normalize(raw), null, `mobile accepted ${amount}`);
-    assert.equal(webBudget.normalize(raw), null, `web accepted ${amount}`);
-  }
-  for (const amount of ['1,200.50', '-1,200', '  ₹ 1,200  ']) {
-    const raw = { amount, date: '2026-10-05', category: 'transport' };
-    assert.deepEqual(budget.normalize(raw), webBudget.normalize(raw), `valid parse diverged for ${amount}`);
-  }
+  assert.ok(good.total != null && good.total >= 0 && good.total <= 100);
+  assert.deepEqual(good.measured, ['Savings discipline', 'Emergency fund']);
+  assert.ok(good.missing.includes('Goals') && good.missing.includes('Behaviour') && good.missing.includes('Spending awareness'));
+  assert.equal(good.maxPoints, 35);
+  assert.equal(good.total, Math.round((good.points / good.maxPoints) * 100));
 });
 
-test('budget: web and mobile reject impossible calendar days and accept leap days', () => {
-  for (const date of ['2026-02-30', '2026-13-01', '2026-04-31', '2025-02-29']) {
-    const raw = { amount: 500, date, category: 'transport' };
-    assert.equal(budget.normalize(raw), null, `mobile accepted ${date}`);
-    assert.equal(webBudget.normalize(raw), null, `web accepted ${date}`);
+test('health score: partial data scores only the areas that have data; one area alone is not a score; no assumed DNA, income or lessons', () => {
+  const E = trackers.EMPTY_TRACKER_DATA;
+  const one = trackers.computeAll({ ...E, goals: [{ id: 'g', name: 'Car', target: 100000, current: 50000, target_date: '2030-01-01', monthly_sip: 0 } as any] }).health;
+  assert.equal(one.total, null, 'a single recorded area is below the minimum');
+  assert.deepEqual(one.measured, ['Goals']);
+  const two = trackers.computeAll({ ...E, income: 100000, expense: 50000 }).health;
+  assert.equal(two.total, null, 'income + spend is one area (savings); wealth building also needs assets or loans');
+  // an income-only phone: the website's 60,000 stand-in is not used, so wealth building is not measured
+  const wealthNoIncome = trackers.computeAll({ ...E, portfolio: 500000 }).health.pillars.find(p => p.name === 'Wealth building')!;
+  assert.equal(wealthNoIncome.hasData, false);
+  const wealth = trackers.computeAll({ ...E, income: 100000, expense: 50000, portfolio: 600000 }).health;
+  assert.deepEqual(wealth.measured, ['Savings discipline', 'Wealth building']);
+  assert.ok(wealth.total != null);
+  // the Financial DNA baseline of 50 is gone: without the quiz Behaviour is not recorded
+  assert.equal(trackers.computeAll(E).health.pillars.find(p => p.name === 'Behaviour')!.hasData, false);
+  const withDna = trackers.computeAll({ ...E, dna: [50, 50, 50, 100, 50, 50] as any, income: 100000, expense: 50000 }).health;
+  assert.ok(withDna.measured.includes('Behaviour') && withDna.total != null);
+  // the streak alone (the app being opened) is not a recorded fact
+  assert.equal(trackers.computeAll({ ...E, streak: 30 }).health.pillars.find(p => p.name === 'Knowledge & engagement')!.hasData, false);
+});
+
+test('health score is never written to storage from no data, and an earlier stale value is removed', async () => {
+  const { default: AS } = await import('@react-native-async-storage/async-storage');
+  await AS.clear();
+  await AS.multiSet([['finos_health_score', '8'], ['finos_health_score_detail', '{}']]);
+  const { persistDerived } = await import('../lib/trackerStorage.ts');
+  await persistDerived(trackers.EMPTY_TRACKER_DATA);
+  assert.equal(await AS.getItem('finos_health_score'), null);
+  assert.equal(await AS.getItem('finos_health_score_detail'), null);
+  await persistDerived({ ...trackers.EMPTY_TRACKER_DATA, income: 100000, expense: 50000, emergencyFund: 300000 });
+  const written = Number(await AS.getItem('finos_health_score'));
+  assert.ok(written > 0 && written <= 100);
+  assert.deepEqual(JSON.parse((await AS.getItem('finos_health_score_detail'))!).missing.includes('Goals'), true);
+});
+
+test('insurance gaps: an age that is not recorded is not replaced by a guess, and no source file falls back to a made-up age', async () => {
+  const none = retirement.computeCoverage([], 100000, 0);
+  const nul = retirement.computeCoverage([], 100000, null);
+  assert.deepEqual(none.gaps, nul.gaps);
+  assert.ok(none.gaps.some(g => g.title === 'No term life insurance'), 'the term gap is worded for "if others depend on you", so it stays');
+  assert.ok(!none.gaps.some(g => g.title === 'No critical illness cover'), 'the 35+ critical-illness gap needs a known age');
+  assert.ok(retirement.computeCoverage([], 100000, 40).gaps.some(g => g.title === 'No critical illness cover'));
+  assert.ok(!retirement.computeCoverage([], 100000, 60).gaps.some(g => g.title === 'No term life insurance'));
+  const { readFileSync } = await import('node:fs');
+  for (const f of ['lib/pulseCards.ts', 'lib/aryaTools.ts', 'lib/aryaToolbox.ts', 'lib/moneyScoreStorage.ts', 'lib/trackers.ts', 'lib/lifeEvents.ts']) {
+    assert.ok(!/(ageOf\([^)]*\)|\bfinos_age|\bd\.age)\s*(\|\||\?\?|:)\s*30\b/.test(readFileSync(new URL(`../${f}`, import.meta.url), 'utf8')), `${f} assumes an age of 30`);
   }
-  const leap = { amount: 500, date: '2024-02-29', category: 'transport' };
-  assert.equal(budget.normalize(leap)?.date, leap.date);
-  assert.deepEqual(budget.normalize(leap), webBudget.normalize(leap));
+  assert.ok(!/computeCoverage\([^)]*,\s*30\)/.test(readFileSync(new URL('../lib/lifeEvents.ts', import.meta.url), 'utf8')));
+});

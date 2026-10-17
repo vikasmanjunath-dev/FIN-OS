@@ -3,6 +3,7 @@ import { useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadTrackerData } from '@/lib/trackerStorage';
 import { computeAll } from '@/lib/trackers';
+import { getTrackerStorageStatus, setTrackerStorageStatus } from '@/lib/trackerStorageStatus';
 
 export interface FinosContext {
   name: string;
@@ -10,7 +11,8 @@ export interface FinosContext {
   monthlyIncome: number;
   monthlyExpense: number;
   savingsRate: number;
-  healthScore: number;
+  /** null when too little is recorded for a score */
+  healthScore: number | null;
   sipTotal: number;
   portfolioValue: number;
   aaIncome: number;
@@ -19,7 +21,7 @@ export interface FinosContext {
 }
 
 const DEFAULTS: FinosContext = {
-  name: 'Friend', netWorth: 0, monthlyIncome: 0, monthlyExpense: 0, savingsRate: 0, healthScore: 0,
+  name: 'Friend', netWorth: 0, monthlyIncome: 0, monthlyExpense: 0, savingsRate: 0, healthScore: null,
   sipTotal: 0, portfolioValue: 0, aaIncome: 0, aaExpense: 0, hasActiveAA: false,
 };
 
@@ -27,10 +29,13 @@ const DEFAULTS: FinosContext = {
 export function useFinosContext() {
   const [ctx, setCtx] = useState<FinosContext>(DEFAULTS);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   const load = useCallback(async () => {
     try {
       const d = await loadTrackerData();
+      if (getTrackerStorageStatus()?.kind === 'load') throw new Error('Tracker data could not be loaded.');
+      setLoadError(false);
       const c = computeAll(d);
       let hasActiveAA = false;
       try {
@@ -52,7 +57,8 @@ export function useFinosContext() {
         hasActiveAA,
       });
     } catch {
-      // keep defaults
+      setLoadError(true);
+      setTrackerStorageStatus({ kind: 'load', message: 'Could not load your saved tracker data. No empty values have been substituted; retry before editing.' });
     } finally {
       setLoading(false);
     }
@@ -61,5 +67,5 @@ export function useFinosContext() {
   // Reload whenever the screen regains focus, so edits made on other tabs show up.
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
-  return { ctx, loading, refresh: load };
+  return { ctx, loading, loadError, refresh: load };
 }

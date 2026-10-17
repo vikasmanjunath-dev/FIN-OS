@@ -17,7 +17,7 @@ export function CalcField({ label, sub, value, onChange, prefix, suffix, text, p
 }) {
   const [focused, setFocused] = useState(false);
   return (
-    <View style={{ flex: 1, marginBottom: Spacing.md }}>
+    <View style={{ flexGrow: 1, flexShrink: 1, flexBasis: 'auto', minWidth: 140, marginBottom: Spacing.md }}>
       <Text style={s.label}>{label}</Text>
       <View style={[s.inputWrap, focused && { borderColor: Colors.cyan }]}>
         {prefix ? <Text style={s.affix}>{prefix}</Text> : null}
@@ -61,10 +61,13 @@ export function Segmented<T extends string>({ label, options, value, onChange }:
 
 export function CheckRow({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
-    <View style={s.checkRow}>
-      <Text style={[Typography.caption, { flex: 1, lineHeight: 17, color: Colors.textPrimary }]}>{label}</Text>
-      <Switch value={value} onValueChange={onChange} trackColor={{ true: Colors.cyan, false: Colors.borderMed }} accessibilityLabel={label} />
-    </View>
+    // The whole row is the control (a 40 x 20 switch alone is far below the 44 pt target); the Switch is just its picture.
+    <TouchableOpacity activeOpacity={0.8} onPress={() => onChange(!value)} accessibilityRole="switch" accessibilityState={{ checked: value }} accessibilityLabel={label} style={s.checkRow}>
+      <Text style={[Typography.caption, { flex: 1, color: Colors.textPrimary }]}>{label}</Text>
+      <View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+        <Switch value={value} trackColor={{ true: Colors.cyan, false: Colors.borderMed }} />
+      </View>
+    </TouchableOpacity>
   );
 }
 
@@ -72,7 +75,7 @@ export function Collapsible({ title, children }: { title: string; children: Reac
   const [open, setOpen] = useState(false);
   return (
     <View style={{ marginBottom: Spacing.md }}>
-      <TouchableOpacity onPress={() => setOpen(o => !o)} accessibilityRole="button" accessibilityState={{ expanded: open }}>
+      <TouchableOpacity onPress={() => setOpen(o => !o)} accessibilityRole="button" accessibilityState={{ expanded: open }} style={{ minHeight: 44, justifyContent: 'center' }}>
         <Text style={{ color: Colors.cyan, fontWeight: '700', fontSize: 13 }}>{open ? '▾' : '▸'} {title}</Text>
       </TouchableOpacity>
       {open ? <View style={{ marginTop: Spacing.sm }}>{children}</View> : null}
@@ -85,6 +88,9 @@ export function Bullet({ children }: { children: React.ReactNode }) {
 }
 
 /** Two series over the same x values (e.g. net position by year). Zero line is drawn when the data crosses it. */
+/** The theme's purple is a fill colour (3.4:1 on dark); as small text it uses the lighter ink. Other colours are unchanged. */
+const textInk = (c: string) => (c === Colors.purple ? Colors.purpleInk : c);
+
 export function TwoLineChart({ a, b, labels, colorA, colorB, nameA, nameB, height = 150 }: {
   a: number[]; b: number[]; labels: string[]; colorA: string; colorB: string; nameA: string; nameB: string; height?: number;
 }) {
@@ -101,8 +107,8 @@ export function TwoLineChart({ a, b, labels, colorA, colorB, nameA, nameB, heigh
   return (
     <View>
       <View style={{ flexDirection: 'row', gap: Spacing.lg, marginBottom: 4 }}>
-        <Text style={{ color: colorA, fontSize: 11, fontWeight: '700' }}>● {nameA}</Text>
-        <Text style={{ color: colorB, fontSize: 11, fontWeight: '700' }}>● {nameB}</Text>
+        <Text style={{ color: textInk(colorA), fontSize: 11, fontWeight: '700' }}>● {nameA}</Text>
+        <Text style={{ color: textInk(colorB), fontSize: 11, fontWeight: '700' }}>● {nameB}</Text>
       </View>
       <View style={{ height }} onLayout={e => setW(e.nativeEvent.layout.width)}>
         {w > 0 && (
@@ -125,14 +131,14 @@ export function TwoLineChart({ a, b, labels, colorA, colorB, nameA, nameB, heigh
 
 const s = StyleSheet.create({
   label: { ...Typography.label, marginBottom: 6 },
-  sub: { ...Typography.caption, marginTop: 4, lineHeight: 15 },
-  inputWrap: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md },
+  sub: { ...Typography.caption, marginTop: 4 },
+  inputWrap: { minHeight: 44, flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md },
   affix: { color: Colors.textMuted, fontSize: 14, marginHorizontal: 2 },
-  input: { flex: 1, color: Colors.textPrimary, fontSize: 15, paddingVertical: 10, minWidth: 0 },
+  input: { flex: 1, color: Colors.textPrimary, fontSize: 15, paddingVertical: 10, minHeight: 44, minWidth: 0 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: { borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 12, paddingVertical: 8, backgroundColor: Colors.bg },
+  chip: { maxWidth: '100%', minHeight: 44, minWidth: 44, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 12, paddingVertical: 8, backgroundColor: Colors.bg },
   chipOn: { borderColor: Colors.cyan + 'BB', backgroundColor: Colors.cyan + '22' },
-  chipTxt: { fontSize: 12, color: Colors.textMuted, fontWeight: '600' },
+  chipTxt: { flexShrink: 1, fontSize: 12, color: Colors.textMuted, fontWeight: '600' },
   chipTxtOn: { color: Colors.cyan, fontWeight: '800' },
-  checkRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: Spacing.md },
+  checkRow: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: Spacing.md },
 });

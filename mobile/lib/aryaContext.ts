@@ -50,8 +50,8 @@ export function buildChatContext(f: ArFacts, prefs: AryaPrefs, memory: MemoryIte
   const hv = holdingsValue(f);
   fig('portfolio', 'Portfolio value', 'portfolioValue', hv > 0 ? Math.round(hv) : null, rupees(hv));
   fig('sip', 'Monthly SIPs', 'monthlySIP', f.data.monthlySip > 0 ? Math.round(f.data.monthlySip) : null, rupees(f.data.monthlySip));
-  const tracked = (netWorthKnown(f) || c.budget.income > 0 || c.budget.expense > 0 || c.emergency.fund > 0 || c.goals.items.length > 0) && c.health.pillars.some(p => !p.untracked);
-  fig('health', 'Health score', 'healthScore', tracked ? c.health.total : null, `${c.health.total} out of 100`);
+  const hs = c.health.total;      // null unless at least two of the seven areas have recorded data
+  fig('health', 'Health score', 'healthScore', hs, `${hs} out of 100`);
 
   // memory
   const sel = selectForPrompt(prune(memory, nowMs), msg, nowMs);

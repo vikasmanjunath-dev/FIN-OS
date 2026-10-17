@@ -42,7 +42,7 @@ export function buildReport(i: ReportInput): Report {
     nwLines.push(`Assets: ${m(nw.totalAssets)}   Liabilities: ${m(nw.totalLiabilities)}`);
     nw.assets.slice(0, 5).forEach(a => nwLines.push(`  ${a.label}: ${m(a.value)} (${Math.round(a.pct)}%)`));
     nw.liabilities.slice(0, 4).forEach(l => nwLines.push(`  Owed: ${l.label}: ${m(l.value)}`));
-    if (nw.fireSource !== 'default') {
+    if (nw.fireSource !== 'unknown') {
       const basis = nw.fireSource === 'expense' ? 'your recorded spending' : nw.fireSource === 'bank' ? 'your bank-statement spending' : 'an assumed 60% of your income';
       nwLines.push(`Financial-independence progress: ${Math.round(nw.firePercent)}% (25 times yearly spending, based on ${basis})`);
     }
@@ -73,8 +73,8 @@ export function buildReport(i: ReportInput): Report {
 
   // 4. Scores
   const h = c.health;
-  const sc: string[] = [`Health score: ${h.total}/100 (${h.tier.charAt(0) + h.tier.slice(1).toLowerCase()})`];
-  h.pillars.forEach(p => sc.push(`  ${p.name}: ${p.untracked ? 'neutral, not recorded' : `${p.score}/${p.max}`}`));
+  const sc: string[] = [h.total == null || !h.tier ? 'Health score: not enough data recorded' : `Health score: ${h.total}/100 (${h.tier.charAt(0) + h.tier.slice(1).toLowerCase()}), from ${h.measured.length} of 7 areas`];
+  h.pillars.forEach(p => sc.push(`  ${p.name}: ${p.hasData ? `${p.score}/${p.max}` : 'not recorded'}`));
   if (i.moneyScore) sc.push(`Money Score: ${i.moneyScore.score}/100${i.moneyScore.band ? ` (${i.moneyScore.band})` : ''}`);
   else sc.push(`Money Score: not taken`);
   sections.push({ title: 'Scores', lines: sc });

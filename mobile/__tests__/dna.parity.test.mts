@@ -49,16 +49,18 @@ test('quiz progress: next unanswered question and completion', () => {
   assert.ok(app.isComplete(all));
 });
 
-test('Health Score behaviour points follow the Discipline score, and stay neutral (8) without the quiz', () => {
+test('Health Score behaviour points follow the Discipline score, and, without the quiz, are not recorded (the neutral 8 of the website is not used)', () => {
   const without = computeHealth({ ...EMPTY_TRACKER_DATA, dna: null });
   const neutral = without.pillars.find(p => p.name === 'Behaviour')!;
-  assert.equal(neutral.score, 8);
+  assert.equal(neutral.score, 0);
+  assert.equal(neutral.hasData, false);
   assert.equal(neutral.untracked, true);
   for (const disc of [0, 20, 50, 73, 100]) {
     const h = computeHealth({ ...EMPTY_TRACKER_DATA, dna: [50, 50, 50, disc, 50] });
     const p = h.pillars.find(x => x.name === 'Behaviour')!;
     assert.equal(p.score, Math.round(disc * 0.15));          // the website: round(discipline * 0.15)
     assert.equal(p.untracked, false);
+    assert.equal(p.hasData, true);
   }
   assert.equal(app.behaviourPoints(100), 15);
   assert.equal(app.behaviourPoints(-5), 0);

@@ -23,7 +23,8 @@ const DEFAULTS = {
   years: '5',
   oldDed: '150000',
 };
-const COLORS = [Colors.cyan, Colors.purple, Colors.gold];
+const COLORS = [Colors.cyan, Colors.purple, Colors.gold];                 // fills (bars, card edges)
+const INK = [Colors.cyan, Colors.purpleInk, Colors.gold];                 // the same three as text: purple text needs the lighter ink to reach 4.5:1 on dark
 
 export default function OffersScreen() {
   const { value: f, setValue: set, reset } = usePersisted('finos_offers_inputs_v1', DEFAULTS);
@@ -84,14 +85,14 @@ export default function OffersScreen() {
         <>
           <Card>
             <View style={s.tr}>
-              <Text style={[s.th, { flex: 1.5 }]}>Measure</Text>
-              {R.map((r, i) => <Text key={i} style={[s.th, s.cell, { color: COLORS[live[i].idx] }]} numberOfLines={1}>{r.offer.name}</Text>)}
+              <Text style={[s.th, { flexGrow: 1.5, flexShrink: 1, flexBasis: 110 }]}>Measure</Text>
+              {R.map((r, i) => <Text key={i} style={[s.th, s.cell, { color: INK[live[i].idx] }]}>{r.offer.name}</Text>)}
             </View>
             {rows.map(row => {
               const b = row.ranked ? best(row.vals as number[]) : -1;
               return (
                 <View key={row.label} style={s.tr}>
-                  <View style={{ flex: 1.5, paddingRight: 6 }}>
+                  <View style={{ flexGrow: 1.5, flexShrink: 1, flexBasis: 110, paddingRight: 6 }}>
                     <Text style={s.rowLabel}>{row.label}</Text>
                     {row.hint ? <Text style={s.hint}>{row.hint}</Text> : null}
                   </View>
@@ -106,7 +107,7 @@ export default function OffersScreen() {
             {R.map((r, i) => (
               <View key={i} style={{ marginTop: Spacing.md }}>
                 <View style={s.barHead}>
-                  <Text style={[s.rowLabel, { color: COLORS[live[i].idx] }]}>{r.offer.name}</Text>
+                  <Text style={[s.rowLabel, { color: INK[live[i].idx] }]}>{r.offer.name}</Text>
                   <Text style={Typography.caption}>{inrShort(r.totals.totalValue)}</Text>
                 </View>
                 <View style={s.stack}>
@@ -171,10 +172,10 @@ export default function OffersScreen() {
 }
 
 const s = StyleSheet.create({
-  row: { flexDirection: 'row' },
-  tr: { flexDirection: 'row', alignItems: 'center', paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  row: { flexDirection: 'row', flexWrap: 'wrap', columnGap: Spacing.sm },
+  tr: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: Colors.border },
   th: { ...Typography.label },
-  cell: { flex: 1, textAlign: 'right' },
+  cell: { flexGrow: 1, flexBasis: 72, textAlign: 'right' },
   rowLabel: { ...Typography.body, fontSize: 12, fontWeight: '700' },
   hint: { ...Typography.caption, fontSize: 10 },
   val: { fontSize: 12, fontWeight: '700', color: Colors.textPrimary },

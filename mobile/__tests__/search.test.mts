@@ -38,9 +38,11 @@ test('every indexed screen route exists', () => {
 });
 
 test('the Learn lessons in the index are exactly the bundled manifest (id, title, summary), and each opens the lesson screen', () => {
-  const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/learn/manifest.json'), 'utf8')) as { lessons: { id: string; title: string; summary: string }[] };
-  const inIndex = SCREENS.filter(s => /^\/learn\/[^/]+$/.test(s.route));
-  assert.deepEqual(inIndex.map(s => [s.route.slice(7), s.title, s.sub]), manifest.lessons.map(l => [l.id, l.title, l.summary]));
+  const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/learn/manifest.json'), 'utf8')) as { lessons: { id: string; title: string; summary: string; kind?: string }[] };
+  const lessonPages = manifest.lessons.filter(l => l.kind === 'lesson');
+  const lessonIds = new Set(lessonPages.map(l => l.id));
+  const inIndex = SCREENS.filter(s => /^\/learn\/[^/]+$/.test(s.route) && lessonIds.has(s.route.slice(7)));
+  assert.deepEqual(inIndex.map(s => [s.route.slice(7), s.title, s.sub]), lessonPages.map(l => [l.id, l.title, l.summary]));
   assert.ok(SCREENS.some(s => s.route === '/learn'));
   assert.ok(fs.existsSync(path.join(APP, 'learn/[id].tsx')));
 });
@@ -96,4 +98,18 @@ test('case, punctuation and accents do not matter', () => {
 
 test('the popular list only points at real entries', () => {
   assert.equal(popularEntries().length, 8);
+});
+
+test('every plain screen file in the feature folders is in the index (dynamic [param] screens and the journal entry form are the only exceptions)', () => {
+  const have = new Set(SCREENS.map(s => s.route));
+  const FORM_ONLY = new Set(['/journal/trade']);                      // "Add a trade" form: opened from the journal, needs no entry of its own
+  const missing: string[] = [];
+  for (const dir of ['arya', 'journal', 'portfolio', 'pulse', 'market', 'plan', 'funds', 'insurance']) {
+    for (const f of fs.readdirSync(path.join(APP, dir))) {
+      if (!f.endsWith('.tsx') || f.startsWith('[')) continue;
+      const r = '/' + dir + (f === 'index.tsx' ? '' : '/' + f.replace('.tsx', ''));
+      if (!have.has(r) && !FORM_ONLY.has(r)) missing.push(r);
+    }
+  }
+  assert.deepEqual(missing, []);
 });

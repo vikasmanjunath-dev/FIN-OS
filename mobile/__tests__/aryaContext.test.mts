@@ -39,7 +39,7 @@ test('defaults: figures go, memory and life events do not (they are off until tu
 
 test('an unrecorded figure is left out, not sent as zero, and the preview says so', () => {
   const b = buildChatContext(facts({ income: 50000 }), DEFAULT_PREFS, [], [], 'hi', T);
-  assert.deepEqual(Object.keys(b.body!.context).sort(), ['healthScore', 'monthlyIncome']);   // the health score is the tracker's own, shown on the Health screen
+  assert.deepEqual(Object.keys(b.body!.context).sort(), ['monthlyIncome']);   // one recorded figure is not enough for a health score, so none is sent
   const d = b.disclosures.filter(x => x.group === 'figures');
   assert.ok(d.find(x => x.id === 'expense')!.value.includes('Not recorded'));
   assert.equal(d.find(x => x.id === 'expense')!.sent, false);

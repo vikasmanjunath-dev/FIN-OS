@@ -12,7 +12,7 @@ const DEFAULTS = {
 };
 const SLABS = ['0', '5', '10', '15', '20', '25', '30'];
 const yrs = (months: number) => { const y = Math.floor(months / 12), m = months % 12; return `${y}y${m ? ` ${m}m` : ''}`; };
-const A = Colors.cyan, B = Colors.purple;
+const A = Colors.cyan, B = Colors.purple, B_INK = Colors.purpleInk;      // B_INK for text on dark surfaces (B alone is 3.4:1)
 
 export default function PrepayScreen() {
   const { value: f, setValue: set, reset } = usePersisted('finos_prepay_inputs_v1', DEFAULTS);
@@ -26,6 +26,7 @@ export default function PrepayScreen() {
   const be = useMemo(() => (r.valid ? breakEven(params) : null), [r, params]);
 
   const verdictColor = !r.valid ? Colors.textMuted : r.winner === 'prepay' ? A : r.winner === 'invest' ? B : Colors.gold;
+  const verdictInk = r.valid && r.winner === 'invest' ? B_INK : verdictColor;       // text version of the same colour
 
   return (
     <TrackerScreen title="Prepay loan or invest?" subtitle="Same cash every month, two choices — which one leaves you richer when the loan would have ended?">
@@ -34,7 +35,7 @@ export default function PrepayScreen() {
           <Text style={Typography.body}>{r.reason === 'loan' ? 'Enter a loan amount.' : 'Enter an extra monthly amount or a lump sum.'}</Text>
         ) : (
           <>
-            <Text style={[s.verdict, { color: verdictColor }]}>
+            <Text style={[s.verdict, { color: verdictInk }]}>
               {r.winner === 'tie' ? 'Too close to call' : `${r.winner === 'prepay' ? 'Prepaying' : 'Investing'} wins by ${inrShort(Math.abs(r.diff))}`}
             </Text>
             <Text style={[Typography.caption, { lineHeight: 17, marginTop: 4, color: Colors.textPrimary }]}>
@@ -52,7 +53,7 @@ export default function PrepayScreen() {
                 <Text style={s.small}>Interest paid {inrShort(r.interestA)}</Text>
               </View>
               <View style={[s.box, { borderColor: B + '55' }]}>
-                <Text style={[Typography.label, { color: B }]}>INVEST INSTEAD</Text>
+                <Text style={[Typography.label, { color: B_INK }]}>INVEST INSTEAD</Text>
                 <Text style={s.big}>{inrShort(r.finalB)}</Text>
                 <Text style={s.small}>Loan runs {yrs(r.months)}</Text>
                 <Text style={s.small}>Interest paid {inrShort(r.interestB)}</Text>
@@ -109,7 +110,7 @@ export default function PrepayScreen() {
 
 const s = StyleSheet.create({
   verdict: { fontSize: 22, fontWeight: '900' },
-  row: { flexDirection: 'row' },
+  row: { flexDirection: 'row', flexWrap: 'wrap', columnGap: Spacing.sm },
   two: { flexDirection: 'row', gap: Spacing.sm, marginVertical: Spacing.md },
   box: { flex: 1, borderWidth: 1, borderRadius: 12, padding: Spacing.md },
   big: { fontSize: 20, fontWeight: '900', color: Colors.textPrimary, marginVertical: 4 },
