@@ -117,7 +117,97 @@
     return true;
   }
 
-  function run(rootEl) { return { controls: labelControls(rootEl), dialogs: nameDialogs(rootEl), charts: nameCharts(rootEl), skip: addSkipLink() }; }
+  /* Floating widgets other scripts append to <body> sit outside every landmark (axe "region", ~2,400 nodes): give each a role + name. */
+  const WIDGET_LANDMARKS = [
+    ['#finos-alert-drawer', 'complementary', 'Alerts'],
+    ['#finos-hs-panel', 'region', 'Financial health score details'],
+    ['.finos-quick-capture', 'region', 'Quick expense capture'],
+    ['#finos-fixed-controls', 'region', 'Page tools'],
+    ['.arya-knowledge-bar', 'complementary', 'Arya knowledge'],
+    ['#qft-system', 'complementary', 'Ask Q'],
+    ['.xp-toast', 'status', 'Experience points'],
+    ['#arya-calc-header-left', 'region', 'Arya assistant'],
+    ['#arya-calc-body', 'region', 'Arya assistant answer']
+  ];
+  function landmarkWidgets(rootEl) {
+    let n = 0;
+    const scope = rootEl || root.document;
+    WIDGET_LANDMARKS.forEach(([sel, role, label]) => {
+      scope.querySelectorAll(sel).forEach((el) => {
+        if (el.closest('main,aside,nav,header,footer,[role=main],[role=complementary],[role=navigation],[role=banner],[role=region],[role=search]')) return;
+        if (!el.hasAttribute('role')) el.setAttribute('role', role);
+        if (!clean(el.getAttribute('aria-label')) && !clean(el.getAttribute('aria-labelledby'))) el.setAttribute('aria-label', label);
+        n++;
+      });
+    });
+    return n;
+  }
+
+  /* Slide-in panels / modals (all toggle `open` or `mob-open`): focus in on open, Tab wraps, focus back to the opener on close. */
+  const PANELS = ['#arya-sp-panel', '#finos-popup', '#finos-alert-drawer', '#ic-modal-overlay', '#finos-hs-panel',
+                  '#readinessModal', '.sidebar', '#fs-bar'];
+  const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]):not([type=hidden]),select:not([disabled]),' +
+                    'textarea:not([disabled]),iframe,[tabindex]:not([tabindex="-1"])';
+  function shown(el) {
+    for (let e = el; e && e !== root.document.body; e = e.parentElement) {
+      const c = root.getComputedStyle(e);
+      if (c.display === 'none' || c.visibility === 'hidden') return false;
+    }
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0;
+  }
+  const isOpen = (el) => el.classList.contains('open') || el.classList.contains('mob-open') ||
+                         (el.id === 'fs-bar' && el.classList.contains('active'));
+  function managePanels() {
+    const d = root.document, was = new WeakMap(), opener = new WeakMap();
+    const panels = () => PANELS.map((s) => d.querySelector(s)).filter(Boolean);
+    const check = () => panels().forEach((el) => {
+      const now = isOpen(el);
+      if (now === !!was.get(el)) return;
+      was.set(el, now);
+      if (now) {
+        const a = d.activeElement;
+        opener.set(el, a && a !== d.body && !el.contains(a) ? a : null);
+        setTimeout(() => {
+          if (!isOpen(el) || el.contains(d.activeElement)) return;
+          const f = Array.from(el.querySelectorAll(FOCUSABLE)).find(shown);
+          if (f) f.focus({ preventScroll: true });
+        }, 120);
+      } else {
+        const o = opener.get(el); opener.delete(el);
+        const a = d.activeElement;
+        if (o && d.contains(o) && (a === d.body || el.contains(a))) o.focus({ preventScroll: true });
+      }
+    });
+    new root.MutationObserver(check).observe(d.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
+    d.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const el = panels().find((p) => was.get(p) && p.contains(d.activeElement));
+      if (!el || el.id === 'fs-bar') return;          // the search bar is a combobox, not a trap
+      const list = Array.from(el.querySelectorAll(FOCUSABLE)).filter(shown);
+      if (!list.length) return;
+      const first = list[0], last = list[list.length - 1];
+      if (e.shiftKey && d.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && d.activeElement === last) { e.preventDefault(); first.focus(); }
+    }, true);
+  }
+
+  /* <div> controls that only listen for click: reachable and operable from the keyboard */
+  function keyboardWidgets(rootEl) {
+    let n = 0;
+    (rootEl || root.document).querySelectorAll('#finos-hs-trigger').forEach((el) => {
+      if (el.getAttribute('data-kbd')) return;
+      el.setAttribute('data-kbd', '1');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!clean(el.getAttribute('aria-label'))) el.setAttribute('aria-label', 'Financial health score');
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); } });
+      n++;
+    });
+    return n;
+  }
+
+  function run(rootEl) { return { controls: labelControls(rootEl), dialogs: nameDialogs(rootEl), charts: nameCharts(rootEl), widgets: landmarkWidgets(rootEl), keyboard: keyboardWidgets(rootEl), skip: addSkipLink() }; }
 
   let started = false;
   function start() {
@@ -125,6 +215,7 @@
     started = true;
     const go = () => {
       run();
+      if (root.MutationObserver) managePanels();
       if (!root.MutationObserver || !root.document.body) return;
       let t = null;
       new root.MutationObserver(() => { clearTimeout(t); t = setTimeout(run, 400); })
@@ -134,5 +225,5 @@
     else go();
   }
 
-  return { run, labelControls, nameDialogs, nameCharts, addSkipLink, start };
+  return { run, labelControls, nameDialogs, nameCharts, landmarkWidgets, addSkipLink, start };
 });

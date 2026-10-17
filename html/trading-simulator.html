@@ -256,7 +256,7 @@
     <!-- ╔═══════════════════════════════════════════════════╗ -->
     <!-- ║     DAILY MISSION BANNER                        ║ -->
     <!-- ╚═══════════════════════════════════════════════════╝ -->
-    <div id="missionBanner" class="shrink-0 bg-[#0a0d08] border-b border-kgreen/15 px-4 py-1.5 flex items-center gap-3">
+    <div role="region" aria-label="Daily mission" id="missionBanner" class="shrink-0 bg-[#0a0d08] border-b border-kgreen/15 px-4 py-1.5 flex items-center gap-3">
         <div
             class="w-4 h-4 rounded-full bg-kgreen/20 border border-kgreen/30 flex items-center justify-center shrink-0">
             <i class="fa-solid fa-trophy text-kgreen text-[7px]"></i>
@@ -651,7 +651,7 @@
     </div>
 
     <!-- AI Risk Assessment -->
-    <div class="p-3 border-t border-[#ffffff07] shrink-0">
+    <div role="region" aria-label="AI risk assessment" class="p-3 border-t border-[#ffffff07] shrink-0">
         <div class="flex items-center justify-between mb-1">
             <p class="text-[9px] text-gray-600 uppercase tracking-widest font-bold">AI RISK ASSESSMENT</p>
             <span class="text-[8px] text-gray-600">Auto-calculates trade risk</span>
@@ -728,7 +728,7 @@
     </div>
 
     <!-- Onboarding Overlay -->
-    <div id="onboardOverlay" class="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex items-center justify-center">
+    <div role="dialog" aria-modal="true" aria-label="Welcome to the simulator" id="onboardOverlay" class="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex items-center justify-center">
         <div class="max-w-lg w-full mx-4">
             <div id="onboardStep" class="text-center"></div>
         </div>

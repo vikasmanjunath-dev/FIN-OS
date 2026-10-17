@@ -120,3 +120,22 @@ test('heading levels never skip downwards in the static markup of the pages that
   assert.ok(h3.length >= 20);
   for (const t of h3) assert.match(t, /aria-level="2"/);
 });
+
+test('finos-a11y.js landmarks the injected widgets and manages focus for panels', () => {
+  const js = read('js/finos-a11y.js');
+  for (const sel of ['#finos-alert-drawer', '.finos-quick-capture', '#finos-hs-trigger', '#finos-fixed-controls']) assert.ok(js.includes(sel), sel);
+  for (const fn of ['landmarkWidgets', 'managePanels', 'keyboardWidgets']) assert.match(js, new RegExp('function ' + fn));
+  for (const sel of ['#arya-sp-panel', '#finos-popup', '#ic-modal-overlay', '.sidebar']) assert.ok(js.includes("'" + sel + "'"), sel);
+});
+
+test('onboarding and the trading simulator keep their own content inside landmarks', () => {
+  assert.match(read('html/onboarding.html'), /<main class="onboard">[\s\S]*<\/main>/);
+  const ts = read('html/trading-simulator.html');
+  for (const frag of ['role="region" aria-label="Daily mission" id="missionBanner"', 'role="dialog" aria-modal="true" aria-label="Welcome to the simulator" id="onboardOverlay"',
+                      'role="region" aria-label="AI risk assessment"']) assert.ok(ts.includes(frag), frag);
+});
+
+test('every page with the sidebar loads mobile-nav.js (otherwise the off-canvas menu has no way to open at <=900px)', () => {
+  const missing = htmlPages().filter((f) => /class="sidebar"/.test(read(f)) && !/mobile-nav\.js/.test(read(f)));
+  assert.deepEqual(missing, []);
+});
