@@ -26,9 +26,26 @@
 window.FinosRetirementPlanner = (function () {
   'use strict';
 
-  const gs  = k => parseFloat(localStorage.getItem(k)) || 0;
+  const gs  = k => {
+    const raw = String(localStorage.getItem(k) || '').trim();
+    if (!/^(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(raw)) return 0;
+    const value = Number(raw.replace(/,/g, ''));
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  };
   const ss  = (k, v) => localStorage.setItem(k, v);
   const gss = k => localStorage.getItem(k) || '';
+  const wholeAge = (raw, min, max) => {
+    const value = String(raw || '').trim();
+    if (!/^\d{1,3}$/.test(value)) return 0;
+    const age = Number(value);
+    return age >= min && age <= max ? age : 0;
+  };
+  const validDob = value => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const [year, month, day] = value.split('-').map(Number);
+    const dim = [31, ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
+    return month >= 1 && month <= 12 && day >= 1 && day <= dim;
+  };
   const INR = v => '₹' + Math.abs(Math.round(v)).toLocaleString('en-IN');
 
   /* ── Future value of a lump sum ──────────────────────────────── */
@@ -36,7 +53,7 @@ window.FinosRetirementPlanner = (function () {
 
   /* ── Core computation ─────────────────────────────────────────── */
   function _compute() {
-    const retireAge   = parseInt(gss('finos_retire_age'))       || 60;
+    const retireAge   = wholeAge(gss('finos_retire_age'), 40, 80) || 60;
     const expMo       = gs('finos_retire_exp_mo')              || 50000; // today's rupees
     const inflation   = (gs('finos_retire_inflation')          || 6) / 100;
     const portfolioR  = (gs('finos_retire_return')             || 10) / 100;
@@ -44,7 +61,7 @@ window.FinosRetirementPlanner = (function () {
     // Derive current age from DOB stored by EPF or NPS tracker
     const dob  = gss('finos_epf_dob') || gss('finos_nps_dob');
     let ageNow = 30;
-    const birth = /^\d{4}-\d{2}-\d{2}$/.test(dob) ? new Date(dob + 'T00:00:00') : null;
+    const birth = validDob(dob) ? new Date(dob + 'T00:00:00') : null;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (birth && Number.isFinite(birth.getTime()) && birth <= today) {
@@ -52,7 +69,7 @@ window.FinosRetirementPlanner = (function () {
         - (today < new Date(today.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0);
     } else {
       // fall back to NPS tracker age logic
-      ageNow = parseInt(gss('finos_retire_current_age')) || 30;
+      ageNow = wholeAge(gss('finos_retire_current_age'), 18, 100) || 30;
     }
     const yearsLeft = Math.max(retireAge - ageNow, 0);
 

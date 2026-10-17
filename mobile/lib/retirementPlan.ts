@@ -7,9 +7,26 @@ import { DEFAULT_ASSUMPTIONS } from '@/lib/montecarlo';
 
 export type Reader = (key: string) => string | null | undefined;
 
-const gs = (read: Reader, k: string) => parseFloat(String(read(k) ?? '')) || 0;
+const gs = (read: Reader, k: string) => {
+  const raw = String(read(k) ?? '').trim();
+  if (!/^(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(raw)) return 0;
+  const value = Number(raw.replace(/,/g, ''));
+  return Number.isFinite(value) && value > 0 ? value : 0;
+};
 const gss = (read: Reader, k: string) => String(read(k) ?? '');
 const fv = (pv: number, r: number, n: number) => Math.round(pv * Math.pow(1 + r, n));
+const wholeAge = (raw: string, min: number, max: number) => {
+  const value = raw.trim();
+  if (!/^\d{1,3}$/.test(value)) return 0;
+  const age = Number(value);
+  return age >= min && age <= max ? age : 0;
+};
+const validDob = (value: string) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const dim = [31, ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
+  return month >= 1 && month <= 12 && day >= 1 && day <= dim;
+};
 
 export const RETIRE_KEYS = [
   'finos_retire_age', 'finos_retire_exp_mo', 'finos_retire_inflation', 'finos_retire_return', 'finos_epf_dob', 'finos_nps_dob',
@@ -29,7 +46,7 @@ export interface Plan {
 }
 
 export function computePlan(read: Reader, now: Date = new Date()): Plan {
-  const retireAge = parseInt(gss(read, 'finos_retire_age')) || 60;
+  const retireAge = wholeAge(gss(read, 'finos_retire_age'), 40, 80) || 60;
   const expMo = gs(read, 'finos_retire_exp_mo') || 50000;                 // today's rupees
   const inflation = (gs(read, 'finos_retire_inflation') || 6) / 100;
   const portfolioR = (gs(read, 'finos_retire_return') || 10) / 100;
@@ -37,14 +54,14 @@ export function computePlan(read: Reader, now: Date = new Date()): Plan {
   // Current age from the date of birth the EPF or NPS tracker holds
   const dob = gss(read, 'finos_epf_dob') || gss(read, 'finos_nps_dob');
   let ageNow = 30;
-  const birth = /^\d{4}-\d{2}-\d{2}$/.test(dob) ? new Date(dob + 'T00:00:00') : null;
+  const birth = validDob(dob) ? new Date(dob + 'T00:00:00') : null;
   const today = new Date(now.getTime());
   today.setHours(0, 0, 0, 0);
   if (birth && Number.isFinite(birth.getTime()) && birth <= today) {
     ageNow = today.getFullYear() - birth.getFullYear()
       - (today < new Date(today.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0);
   } else {
-    ageNow = parseInt(gss(read, 'finos_retire_current_age')) || 30;
+    ageNow = wholeAge(gss(read, 'finos_retire_current_age'), 18, 100) || 30;
   }
   const yearsLeft = Math.max(retireAge - ageNow, 0);
 
