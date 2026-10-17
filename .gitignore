@@ -47,3 +47,9 @@ dist-min/
 # Expo local state (machine-specific)
 .expo/
 mobile/.expo/
+
+# Build output and local export folders
+mobile/dist/
+mobile/.release-export-tmp/
+mobile/.audit-insurance-export/
+.claude/worktrees/
