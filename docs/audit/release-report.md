@@ -21,7 +21,7 @@ This is a verification report for the changes made in this audit. It is not a pr
 
 ## Verification completed
 
-- Root Node regression: `node --test tests/*.test.js` — **505 passed, 0 failed** (`# tests 505`, `# pass 505`, `# fail 0`).
+- Root Node regression: `node --test tests/*.test.js` — **506 passed, 0 failed** (`# tests 506`, `# pass 506`, `# fail 0`).
 - Root static validation: `npm run check` — passed; tokens, links, search, JS, IDs, routes, and secrets checks each reported `0 problem(s)`.
 - Python tracker-adjacent security and health-income tests — **42 passed**. The full root Python suite remains unverified; an earlier full run stalled without visible progress and was interrupted.
 - Focused web tracker hub, net-worth golden, and sync regressions — passed; latest root Node run includes the final sync ownership regression.
@@ -29,7 +29,7 @@ This is a verification report for the changes made in this audit. It is not a pr
 - Mobile storage-failure and corrupt-data suites — previously **174 passed**; included again in the final full suite.
 - Full mobile Node 24 suite, serial worker execution with loopback access: **1,036 passed, 0 failed, 0 cancelled, 0 skipped, 0 TODO** (45.0s).
 - Transfer budget parity — **3 passed**; explicit internal transfers are excluded from expense totals on both platforms, survive mobile storage round-trip, and a purchase memo alone does not change transaction kind.
-- Latest budget regressions: web budget suite **13/13 passed**; mobile shared logic suite **15/15 passed**, including malformed normalized records, runtime-invalid limits, strict imported amount parsing, Gregorian date validation/leap days and impossible ISO timestamp dates, with web/mobile parity. Mobile TypeScript check passed.
+- Latest budget regressions: web budget suite **13/13 passed**; dedicated mobile rollup parity **1/1 passed**; mobile shared logic **15/15 passed**, including malformed normalized records, runtime-invalid limits, strict imported amount parsing, Gregorian date validation/leap days and impossible ISO timestamp dates, with web/mobile parity. Mobile TypeScript check passed.
 - A package-wide mobile test invocation was attempted but interrupted after it reached the loopback-dependent mock Supabase test; this attempt is inconclusive and is not counted as a pass. The last completed full mobile suite remains 1,036/1,036 from before these parsing/date changes.
 - Mobile TypeScript: `PATH=/Users/vkm/.nvm/versions/node/v24.15.0/bin:$PATH npm run typecheck` — passed.
 - Updated `/tracker/transactions` browser smoke — **1 screen × 4 states**, 0 problems after adding transfer entry and display support.
