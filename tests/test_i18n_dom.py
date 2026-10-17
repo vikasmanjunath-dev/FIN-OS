@@ -20,6 +20,25 @@ def env():
         browser.close()
 
 
+def settle(page, quiet_ms=700, timeout_ms=20000):
+    """Wait until the page has stopped changing its own DOM (late widgets, chips, charts), judged by two readings of the body
+    HTML length `quiet_ms` apart that agree and a finished load. Without this the round-trip test below compared a length taken
+    mid-load with one taken after the page had finished growing, which only differed when the machine was busy."""
+    page.wait_for_load_state("load", timeout=timeout_ms)
+    # finos-widget.js preloads the voice-assistant iframe 2 s after load (src about:blank -> /voiceagent/index.html). That is page
+    # behaviour, not translation, and it is the 11-character difference the old version of this test tripped over under load.
+    page.wait_for_function("(() => { const f = document.getElementById('finos-iframe'); return !f || f.getAttribute('src') !== 'about:blank'; })()", timeout=timeout_ms)
+    waited, last = 0, -1
+    while waited < timeout_ms:
+        now = page.evaluate("document.body.innerHTML.length")
+        if now == last:
+            return now
+        last = now
+        page.wait_for_timeout(quiet_ms)
+        waited += quiet_ms
+    raise AssertionError("the page never stopped changing its DOM")
+
+
 def sidebar_labels(page):
     return page.evaluate("[...document.querySelectorAll('.sb-label')].map(e => e.textContent.trim())")
 
@@ -45,7 +64,7 @@ def test_switching_back_restores_english_exactly(env):
     page = ctx.new_page()
     page.goto(f"{base}/html/net-worth.html", wait_until="domcontentloaded")
     page.add_script_tag(url=f"{base}/js/finos-i18n.js")
-    original = page.evaluate("document.body.innerHTML.length")
+    original = settle(page)
     page.evaluate("FinosI18n.setLang('hi')")
     page.wait_for_function("FinosI18n.lang() === 'hi'")
     assert "होम" in sidebar_labels(page)
@@ -53,7 +72,7 @@ def test_switching_back_restores_english_exactly(env):
     page.wait_for_function("FinosI18n.lang() === 'en'")
     assert "Home" in sidebar_labels(page)
     assert page.evaluate("document.documentElement.lang") == "en"
-    assert page.evaluate("document.body.innerHTML.length") == original
+    assert settle(page) == original, "switching to Hindi and back must restore the page exactly"
     ctx.close()
 
 
