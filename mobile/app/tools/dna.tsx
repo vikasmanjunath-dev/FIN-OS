@@ -112,7 +112,7 @@ const s = StyleSheet.create({
   q: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary, marginVertical: Spacing.md, lineHeight: 25 },
   opt: { borderWidth: 1, borderColor: Colors.border, borderRadius: 12, padding: 14, marginBottom: 10 },
   nav: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.sm, paddingHorizontal: 4 },
-  navTxt: { color: Colors.cyan, fontWeight: '700', fontSize: 13, paddingVertical: 8 },
+  navTxt: { color: Colors.cyan, fontWeight: '700', fontSize: 13, minHeight: 44, lineHeight: 44 },
   big: { fontSize: 28, fontWeight: '900', color: Colors.textPrimary, marginVertical: 4 },
   rowTop: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
   name: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },

@@ -162,10 +162,13 @@ export default function RecurringScreen() {
               <Text style={[s.amt, { color }]}>{r.kind === 'income' ? '+' : ''}{inr(r.amount)}</Text>
             </TouchableOpacity>
             <View style={s.actions}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Switch value={r.active} onValueChange={v => { void update(r.id, { active: v }); }} trackColor={{ true: Colors.cyan, false: Colors.borderMed }} accessibilityLabel={`${r.label || r.category} active`} />
+              <TouchableOpacity activeOpacity={0.8} onPress={() => { void update(r.id, { active: !r.active }); }} accessibilityRole="switch" accessibilityState={{ checked: r.active }}
+                accessibilityLabel={`${r.label || r.category} active`} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44 }}>
+                <View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+                  <Switch value={r.active} trackColor={{ true: Colors.cyan, false: Colors.borderMed }} />
+                </View>
                 <Text style={Typography.caption}>{r.active ? 'Active' : 'Paused'}</Text>
-              </View>
+              </TouchableOpacity>
               <TouchableOpacity accessibilityRole="button" onPress={() => confirmDelete(r)} hitSlop={10}><Text style={s.delete}>Delete</Text></TouchableOpacity>
             </View>
           </Card>
@@ -181,15 +184,15 @@ const s = StyleSheet.create({
   editTxt: { color: Colors.cyan, fontWeight: '700', fontSize: 12 },
   cancel: { color: Colors.textMuted, fontWeight: '700', fontSize: 12 },
   seg: { flexDirection: 'row', backgroundColor: Colors.bg, borderRadius: Radii.md, padding: 3, borderWidth: 1, borderColor: Colors.border, gap: 3 },
-  segBtn: { flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: Radii.sm, borderWidth: 1, borderColor: 'transparent' },
+  segBtn: { minHeight: 44, justifyContent: 'center', flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: Radii.sm, borderWidth: 1, borderColor: 'transparent' },
   segTxt: { fontSize: 12, fontWeight: '600', color: Colors.textMuted },
   lbl: { ...Typography.label, marginTop: Spacing.md, marginBottom: 6 },
   amountWrap: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md },
   rupee: { color: Colors.textMuted, fontSize: 22, marginRight: 6 },
-  amountInput: { flex: 1, color: Colors.textPrimary, fontSize: 26, fontWeight: '800', paddingVertical: 10 },
-  input: { backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 10, color: Colors.textPrimary, fontSize: 14 },
+  amountInput: { minHeight: 44, flex: 1, color: Colors.textPrimary, fontSize: 26, fontWeight: '800', paddingVertical: 10 },
+  input: { minHeight: 44, backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 10, color: Colors.textPrimary, fontSize: 14 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: { borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 11, paddingVertical: 6, backgroundColor: Colors.bg },
+  chip: { minHeight: 44, justifyContent: 'center', borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 11, paddingVertical: 6, backgroundColor: Colors.bg },
   chipOn: { borderColor: 'rgba(240,165,0,0.7)', backgroundColor: 'rgba(240,165,0,0.12)' },
   chipTxt: { fontSize: 11, color: Colors.textMuted, fontWeight: '600' },
   chipTxtOn: { color: Colors.gold, fontWeight: '800' },
@@ -197,7 +200,7 @@ const s = StyleSheet.create({
   submit: { borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: Spacing.md },
   submitTxt: { color: Colors.bg, fontWeight: '800', fontSize: 15 },
   row: { flexDirection: 'row', alignItems: 'center' },
-  icon: { fontSize: 22, width: 36 },
+  icon: { fontSize: 22, minWidth: 36, flexShrink: 0 },
   name: { ...Typography.body, fontWeight: '700' },
   amt: { fontSize: 15, fontWeight: '900', marginLeft: Spacing.sm },
   actions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: Spacing.sm, paddingTop: Spacing.sm, borderTopWidth: 1, borderTopColor: Colors.border },

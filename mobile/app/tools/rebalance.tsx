@@ -146,6 +146,6 @@ const s = StyleSheet.create({
   mark: { position: 'absolute', top: 0, bottom: 0, width: 2, backgroundColor: Colors.textPrimary, opacity: 0.8 },
   row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: Spacing.md },
-  chip: { borderWidth: 1, borderColor: Colors.borderMed, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8 },
+  chip: { minHeight: 44, justifyContent: 'center', borderWidth: 1, borderColor: Colors.borderMed, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8 },
   chipTxt: { fontSize: 12, fontWeight: '700', color: Colors.cyan },
 });

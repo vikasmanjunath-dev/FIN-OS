@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
-import { parseStatement, fromAA, toLedger, mergeLedger, topCategories } from '@/lib/statementImport';
+import { parseStatement, fromAA, topCategories } from '@/lib/statementImport';
 import { importStatementRows, undoImportBatch, listImportBatches, previewImport, type ImportBatchInfo } from '@/lib/txnStorage';
 import { loadTrackerData, persistDerived } from '@/lib/trackerStorage';
 import { TrackerScreen, Card, SectionLabel, Stat, inr } from '@/components/TrackerUI';
@@ -163,7 +163,7 @@ export default function ImportStatementScreen() {
             {preview.rows.slice(0, 8).map((r, i) => (
               <View key={i} style={s.row}>
                 <View style={{ flex: 1, paddingRight: Spacing.sm }}>
-                  <Text style={Typography.body} numberOfLines={1}>{r.desc}</Text>
+                  <Text style={Typography.body}>{r.desc}</Text>
                   <Text style={Typography.caption}>{day(r.date)}</Text>
                 </View>
                 <Text style={[Typography.body, { fontWeight: '800', color: r.type === 'credit' ? Colors.teal : Colors.textPrimary }]}>
@@ -226,9 +226,9 @@ export default function ImportStatementScreen() {
 }
 
 const s = StyleSheet.create({
-  primary: { backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center' },
+  primary: { minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center' },
   primaryTxt: { color: Colors.bg, fontWeight: '800', fontSize: 14 },
-  secondary: { borderWidth: 1, borderColor: Colors.cyan + '66', borderRadius: Radii.md, paddingVertical: 12, alignItems: 'center', marginTop: Spacing.sm },
+  secondary: { minHeight: 44, justifyContent: 'center', borderWidth: 1, borderColor: Colors.cyan + '66', borderRadius: Radii.md, paddingVertical: 12, alignItems: 'center', marginTop: Spacing.sm },
   secondaryTxt: { color: Colors.cyan, fontWeight: '800', fontSize: 14 },
   paste: {
     backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, padding: Spacing.md,

@@ -75,7 +75,7 @@ export default function ReportScreen() {
 }
 
 const s = StyleSheet.create({
-  btn: { backgroundColor: Colors.cyan, borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: Spacing.sm },
+  btn: { minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cyan, borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: Spacing.sm },
   btnTxt: { color: '#000', fontWeight: '900', fontSize: 14 },
   title: { fontSize: 18, fontWeight: '900', color: Colors.textPrimary },
 });

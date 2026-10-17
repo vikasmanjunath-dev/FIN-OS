@@ -164,13 +164,13 @@ function Kpi({ label, value, sub, color }: { label: string; value: string; sub?:
   );
 }
 function Line({ k, v }: { k: string; v: string }) {
-  return (<View style={s0.line}><Text style={[Typography.body, { flex: 1 }]}>{k}</Text><Text style={s0.val}>{v}</Text></View>);
+  return (<View style={s0.line}><Text style={[Typography.body, { flexGrow: 1, flexShrink: 1 }]}>{k}</Text><Text style={s0.val}>{v}</Text></View>);
 }
 
 const s0 = StyleSheet.create({
   hero: { fontSize: 24, fontWeight: '900', marginVertical: 4 },
   cols: { flexDirection: 'row', gap: Spacing.md, marginVertical: Spacing.md },
   kpi: { fontSize: 20, fontWeight: '900', marginTop: 2 },
-  line: { flexDirection: 'row', paddingVertical: 5 },
-  val: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
+  line: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 8, paddingVertical: 5 },   // a long value drops under its label instead of running off the screen
+  val: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary, marginLeft: 'auto' },
 });

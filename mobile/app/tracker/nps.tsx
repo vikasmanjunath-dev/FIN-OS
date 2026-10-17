@@ -87,7 +87,7 @@ const s = StyleSheet.create({
   hero: { fontSize: 34, fontWeight: '900', color: Colors.textPrimary, letterSpacing: -1, marginVertical: 4 },
   lbl: { ...Typography.body, fontWeight: '600', marginBottom: 8 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: { borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 14, paddingVertical: 7, backgroundColor: Colors.bg },
+  chip: { minHeight: 44, justifyContent: 'center', borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 14, paddingVertical: 7, backgroundColor: Colors.bg },
   chipOn: { borderColor: 'rgba(0,212,255,0.7)', backgroundColor: 'rgba(0,212,255,0.12)' },
   chipTxt: { fontSize: 12, color: Colors.textMuted, fontWeight: '600' },
   chipTxtOn: { color: Colors.cyan, fontWeight: '800' },

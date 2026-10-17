@@ -146,9 +146,9 @@ export default function HoldingsImportScreen() {
 }
 
 const s = StyleSheet.create({
-  primary: { backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center' },
+  primary: { minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center' },
   primaryTxt: { color: Colors.bg, fontWeight: '800', fontSize: 14 },
-  secondary: { borderWidth: 1, borderColor: Colors.cyan + '66', borderRadius: Radii.md, paddingVertical: 12, alignItems: 'center', marginTop: Spacing.sm },
+  secondary: { minHeight: 44, justifyContent: 'center', borderWidth: 1, borderColor: Colors.cyan + '66', borderRadius: Radii.md, paddingVertical: 12, alignItems: 'center', marginTop: Spacing.sm },
   secondaryTxt: { color: Colors.cyan, fontWeight: '800', fontSize: 14 },
   paste: {
     backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, padding: Spacing.md,

@@ -52,7 +52,7 @@ export default function ItrScreen() {
           <Text style={[Typography.caption, { marginTop: 4, lineHeight: 17 }]}>
             {open.map(k => `${ITR_FIELDS.find(f => f.key === k)?.label.replace(/ \(a year\)/, '') ?? k}: ${inr(sugg[k])}`).join(' · ')}
           </Text>
-          <TouchableOpacity onPress={applyAll} style={{ marginTop: Spacing.sm }} accessibilityRole="button"><Text style={s.link}>Use these figures</Text></TouchableOpacity>
+          <TouchableOpacity onPress={applyAll} style={{ marginTop: Spacing.sm, minHeight: 44, justifyContent: 'center' }} accessibilityRole="button"><Text style={s.link}>Use these figures</Text></TouchableOpacity>
         </Card>
       )}
 

@@ -126,7 +126,7 @@ export default function TaxPlannerScreen() {
 }
 
 function Row({ k, v }: { k: string; v: string }) {
-  return <View style={s.row}><Text style={Typography.caption}>{k}</Text><Text style={s.rowV}>{v}</Text></View>;
+  return <View style={s.row}><Text style={[Typography.caption, { flexShrink: 1 }]}>{k}</Text><Text style={s.rowV}>{v}</Text></View>;
 }
 
 const s = StyleSheet.create({
@@ -134,7 +134,7 @@ const s = StyleSheet.create({
   reg: { flexBasis: '47%', flexGrow: 1, borderWidth: 1, borderColor: Colors.border, borderRadius: 14, padding: Spacing.md, backgroundColor: Colors.surface },
   badge: { fontSize: 9, fontWeight: '900', letterSpacing: 0.8, marginBottom: 6 },
   total: { fontSize: 24, fontWeight: '900', color: Colors.textPrimary },
-  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3, gap: 6 },
-  rowV: { fontSize: 12, fontWeight: '800', color: Colors.textPrimary },
-  reset: { color: Colors.cyan, fontWeight: '800', fontSize: 13, paddingVertical: 8 },
+  row: { flexDirection: 'row', flexWrap: 'wrap', paddingVertical: 3, columnGap: 6 },
+  rowV: { fontSize: 12, fontWeight: '800', color: Colors.textPrimary, marginLeft: 'auto' },
+  reset: { color: Colors.cyan, fontWeight: '800', fontSize: 13, minHeight: 44, lineHeight: 44 },
 });

@@ -79,7 +79,7 @@ const s = StyleSheet.create({
   link: { color: Colors.cyan, fontSize: 12, fontWeight: '700', marginTop: Spacing.md },
   fieldLabel: { ...Typography.body, fontWeight: '600', marginBottom: 8 },
   seg: { flexDirection: 'row', backgroundColor: Colors.bg, borderRadius: Radii.md, padding: 3, borderWidth: 1, borderColor: Colors.border },
-  segBtn: { flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: Radii.sm },
+  segBtn: { minHeight: 44, justifyContent: 'center', flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: Radii.sm },
   segOn: { backgroundColor: 'rgba(0,212,255,0.12)', borderWidth: 1, borderColor: 'rgba(0,212,255,0.3)' },
   segTxt: { fontSize: 12, fontWeight: '600', color: Colors.textMuted },
   segTxtOn: { color: Colors.cyan, fontWeight: '800' },

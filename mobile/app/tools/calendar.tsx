@@ -41,7 +41,7 @@ export default function CalendarScreen() {
         <Sum icon="🧾" label="Next tax date" value={sum.nextTax ? fmt(sum.nextTax.date, { day: 'numeric', month: 'short' }) : '—'} color={EVENT_META.tax.color} />
       </View>
 
-      <Card>
+      <Card style={{ paddingHorizontal: 0 }}>{/* the 7-column grid gets the full width: cells are 44.5 px at 360 px and wider */}
         <View style={s.monthHead}>
           <TouchableOpacity onPress={() => go(-1)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Previous month"><Text style={s.nav}>‹</Text></TouchableOpacity>
           <Text style={s.month}>{`${MONTHS[ym.m]} ${ym.y}`}</Text>
@@ -94,7 +94,7 @@ export default function CalendarScreen() {
       )}
 
       <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add your own dates or export the calendar" onPress={() => router.push('/plan/mydates' as any)}
-        style={{ marginTop: Spacing.md, marginBottom: Spacing.sm }}>
+        style={{ marginTop: Spacing.md, marginBottom: Spacing.sm, minHeight: 44, justifyContent: 'center' }}>
         <Text style={{ color: Colors.cyan, fontWeight: '700', fontSize: 13 }}>Add your own dates, or export this calendar →</Text>
       </TouchableOpacity>
 
@@ -133,9 +133,9 @@ const s = StyleSheet.create({
   sumGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.md },
   sum: { flexBasis: '47%', flexGrow: 1, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, padding: Spacing.sm, backgroundColor: Colors.surface },
   sumVal: { fontSize: 17, fontWeight: '900', marginTop: 2 },
-  monthHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.sm },
+  monthHead: { paddingHorizontal: Spacing.sm, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.sm },
   month: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary },
-  nav: { fontSize: 28, color: Colors.cyan, paddingHorizontal: Spacing.md, minWidth: 44, textAlign: 'center' },
+  nav: { fontSize: 28, color: Colors.cyan, paddingHorizontal: Spacing.md, minWidth: 44, minHeight: 44, lineHeight: 44, textAlign: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   dow: { width: `${100 / 7}%`, textAlign: 'center', fontSize: 10, color: Colors.textMuted, fontWeight: '700', paddingVertical: 4 },
   cell: { width: `${100 / 7}%`, height: 46, alignItems: 'center', justifyContent: 'center', borderRadius: 10 },

@@ -289,7 +289,7 @@ export default function TransactionsScreen() {
                   accessibilityRole="button" accessibilityLabel={`${t.kind} ${inr(t.amount)} ${t.label || t.category}. Tap to edit`}>
                   <Text style={s.txnIcon}>{CAT_ICON[t.category] ?? '📦'}</Text>
                   <View style={{ flex: 1 }}>
-                    <Text style={s.txnLabel} numberOfLines={1}>{t.label || t.category}</Text>
+                    <Text style={s.txnLabel}>{t.label || t.category}</Text>
                     <Text style={Typography.caption}>{t.category}</Text>
                   </View>
                   <Text style={[s.txnAmt, { color }]}>{sign}{inr(t.amount)}</Text>
@@ -316,16 +316,16 @@ const s = StyleSheet.create({
   editBanner: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(0,212,255,0.08)', borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 8, marginBottom: Spacing.md },
   editTxt: { color: Colors.cyan, fontWeight: '700', fontSize: 12 },
   cancel: { color: Colors.textMuted, fontWeight: '700', fontSize: 12 },
-  seg: { flexDirection: 'row', backgroundColor: Colors.bg, borderRadius: Radii.md, padding: 3, borderWidth: 1, borderColor: Colors.border, gap: 3 },
-  segBtn: { flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: Radii.sm, borderWidth: 1, borderColor: 'transparent' },
+  seg: { flexDirection: 'row', flexWrap: 'wrap', backgroundColor: Colors.bg, borderRadius: Radii.md, padding: 3, borderWidth: 1, borderColor: Colors.border, gap: 3 },
+  segBtn: { minHeight: 44, justifyContent: 'center', flexGrow: 1, flexBasis: '22%', minWidth: 72, paddingHorizontal: 4, paddingVertical: 9, alignItems: 'center', borderRadius: Radii.sm, borderWidth: 1, borderColor: 'transparent' },
   segTxt: { fontSize: 12, fontWeight: '600', color: Colors.textMuted },
   lbl: { ...Typography.label, marginTop: Spacing.md, marginBottom: 6 },
   amountWrap: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md },
   rupee: { color: Colors.textMuted, fontSize: 22, marginRight: 6 },
-  amountInput: { flex: 1, color: Colors.textPrimary, fontSize: 26, fontWeight: '800', paddingVertical: 10 },
-  input: { backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 10, color: Colors.textPrimary, fontSize: 14 },
+  amountInput: { minHeight: 44, flex: 1, color: Colors.textPrimary, fontSize: 26, fontWeight: '800', paddingVertical: 10 },
+  input: { minHeight: 44, backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 10, color: Colors.textPrimary, fontSize: 14 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: { borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 11, paddingVertical: 6, backgroundColor: Colors.bg },
+  chip: { minHeight: 44, justifyContent: 'center', borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 11, paddingVertical: 6, backgroundColor: Colors.bg },
   chipOn: { borderColor: 'rgba(240,165,0,0.7)', backgroundColor: 'rgba(240,165,0,0.12)' },
   chipTxt: { fontSize: 11, color: Colors.textMuted, fontWeight: '600' },
   chipTxtOn: { color: Colors.gold, fontWeight: '800' },
@@ -334,13 +334,13 @@ const s = StyleSheet.create({
   submit: { borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: Spacing.md },
   submitTxt: { color: Colors.bg, fontWeight: '800', fontSize: 15 },
   delete: { color: Colors.red, fontSize: 12, fontWeight: '700' },
-  repeatRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: Spacing.md },
-  repeatBox: { fontSize: 18, color: Colors.textMuted },
+  repeatRow: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: Spacing.md },
+  repeatBox: { minHeight: 44, fontSize: 18, color: Colors.textMuted },
   repeatTxt: { ...Typography.caption, color: Colors.textPrimary, flex: 1 },
   recLink: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,212,255,0.06)', borderWidth: 1, borderColor: 'rgba(0,212,255,0.25)', borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
   recTitle: { ...Typography.body, fontWeight: '700', marginBottom: 2 },
   monthRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginVertical: Spacing.sm },
-  arrow: { color: Colors.cyan, fontSize: 30, paddingHorizontal: Spacing.md },
+  arrow: { color: Colors.cyan, fontSize: 30, paddingHorizontal: Spacing.md, minHeight: 44, minWidth: 44, textAlign: 'center', lineHeight: 44 },
   monthTxt: { ...Typography.h3 },
   catRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
   catName: { ...Typography.caption, color: Colors.textPrimary },
@@ -348,7 +348,7 @@ const s = StyleSheet.create({
   dayLabel: { ...Typography.label, marginBottom: 6, marginTop: 4 },
   txnRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 11 },
   txnBorder: { borderBottomWidth: 1, borderBottomColor: Colors.border },
-  txnIcon: { fontSize: 20, width: 34 },
+  txnIcon: { fontSize: 20, minWidth: 34, flexShrink: 0 },
   txnLabel: { ...Typography.body, fontWeight: '600' },
   txnAmt: { fontSize: 14, fontWeight: '800', marginLeft: Spacing.sm },
 });

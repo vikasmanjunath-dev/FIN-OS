@@ -68,7 +68,7 @@ export default function LeakScreen() {
             {r.categories.map(c => (
               <TouchableOpacity key={c.category} style={s.catRow} onPress={() => toggle(c.category)} accessibilityRole="checkbox" accessibilityState={{ checked: c.included }} accessibilityLabel={`${c.category}, ${inr(c.monthly)} a month`}>
                 <View style={[s.box, c.included && s.boxOn]}>{c.included && <Text style={s.tick}>✓</Text>}</View>
-                <Text style={[Typography.body, { flex: 1 }]}>{c.category}</Text>
+                <Text style={[Typography.body, { flexGrow: 1, flexShrink: 1, flexBasis: 100 }]}>{c.category}</Text>
                 <Text style={s.amt}>{inr(c.monthly)}</Text>
               </TouchableOpacity>
             ))}
@@ -101,7 +101,7 @@ const s = StyleSheet.create({
   hzBox: { flex: 1, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, padding: Spacing.sm },
   hzVal: { fontSize: 16, fontWeight: '900', color: Colors.textPrimary, marginVertical: 2 },
   redirect: { padding: Spacing.md, borderRadius: 12, backgroundColor: 'rgba(34,211,166,0.10)', borderWidth: 1, borderColor: 'rgba(34,211,166,0.35)' },
-  catRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingVertical: 10, minHeight: 44 },
+  catRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: Spacing.sm, paddingVertical: 10, minHeight: 44 },
   box: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, borderColor: Colors.borderHi, alignItems: 'center', justifyContent: 'center' },
   boxOn: { backgroundColor: Colors.teal, borderColor: Colors.teal },
   tick: { color: '#000', fontWeight: '900', fontSize: 14 },

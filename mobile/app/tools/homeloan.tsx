@@ -141,8 +141,8 @@ const s = StyleSheet.create({
   legend: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
   save: { borderWidth: 1, borderColor: Colors.cyan, borderRadius: 12, padding: Spacing.md, minHeight: 44 },
   saveTxt: { color: Colors.textPrimary, fontSize: 13, fontWeight: '800', marginBottom: 2 },
-  row: { flexDirection: 'row', paddingVertical: 5, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: Colors.border },
-  cell: { flex: 1, fontSize: 12, color: Colors.textPrimary },
+  row: { flexDirection: 'row', flexWrap: 'wrap', paddingVertical: 5, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: Colors.border },
+  cell: { flexGrow: 1, flexBasis: '22%', fontSize: 12, color: Colors.textPrimary },   // wraps to two lines of cells when text is large
   head: { color: Colors.textMuted, fontWeight: '800', fontSize: 10 },
   tipHead: { fontSize: 13, fontWeight: '800', color: Colors.cyan, marginBottom: Spacing.sm },
 });

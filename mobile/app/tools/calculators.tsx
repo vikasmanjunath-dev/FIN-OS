@@ -59,7 +59,7 @@ export default function CalculatorsHub() {
 
 const s = StyleSheet.create({
   search: { marginBottom: Spacing.sm },
-  searchInput: { backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.lg, color: Colors.textPrimary, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14 },
+  searchInput: { minHeight: 44, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.lg, color: Colors.textPrimary, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, gap: Spacing.sm },
   name: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
   chev: { color: Colors.textMuted, fontSize: 22 },
