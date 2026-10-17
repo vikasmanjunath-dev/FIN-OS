@@ -13,7 +13,7 @@ The backend that powers `portfolio-analyser-v10.html` — the flagship Portfolio
 Porfolio Analyser/
 ├── server.py                   ← FastAPI server (entry point)
 ├── portfolio-analyser-v10.html ← Current production UI (21,691 lines)
-├── portfolio-analyser-v9.html  ← Previous version (archived)
+├── portfolio-analyser-v9.html  ← Previous version (archived; forwards to v10)
 └── server.log                  ← Runtime log file
 ```
 

@@ -27,7 +27,7 @@
   <link rel="stylesheet" href="../css/theme.css?v=2">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha512-r22gChDnGvBylk90+2e/ycr3RVrDi8DIOkIGNhJlKfuyQM4tIRAI062MaV8sfjQKYVGjOBaZBOA87z+IhZE9DA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/finos-taxdates.js"></script>
@@ -190,7 +190,7 @@
         <div id="ai-metrics-row" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;"></div>
 
         <!-- Analysis text (streaming) -->
-        <div id="ai-analysis-text"
+        <div id="ai-analysis-text" role="status" aria-live="polite" aria-atomic="true"
           style="font-size:14px;line-height:1.75;color:rgba(255,255,255,.85);
                  white-space:pre-wrap;font-family:-apple-system,sans-serif;">
         </div>
@@ -200,9 +200,10 @@
           background:rgba(255,180,0,.04);border:1px solid rgba(255,180,0,.15);
           border-radius:12px;padding:14px;">
           <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#ffb400;margin-bottom:10px;">
-            📋 Tax-Loss Harvesting Candidates
+            📋 Unrealised Loss Rows to Review
           </div>
           <div id="ai-tax-table"></div>
+          <p style="font-size:11px;color:rgba(255,255,255,.58);line-height:1.5;margin:10px 0 0;">An unrealised loss does not establish tax eligibility or savings. Tax treatment depends on current rules and your complete tax position.</p>
         </div>
 
         <!-- What-if scenario -->
@@ -213,7 +214,7 @@
         </div>
 
         <div style="margin-top:12px;font-size:11px;color:rgba(255,255,255,0.58);">
-          Powered by Arya AI · <span id="ai-analysis-ts"></span>
+          Educational analysis only; not investment or tax advice · <span id="ai-analysis-ts"></span>
         </div>
       </div>
 
@@ -306,12 +307,23 @@
         <button class="reset-btn" onclick="location.reload()">Upload New File</button>
       </div>
 
+      <section class="portfolio-analytics-section" aria-labelledby="portfolio-analytics-title">
+        <div class="portfolio-analytics-heading">
+          <h2 id="portfolio-analytics-title">Portfolio snapshot analytics</h2>
+          <p>Allocation from your saved holdings or uploaded snapshot. Prices are not refreshed here; historical performance and factor exposure need dated source data.</p>
+        </div>
+        <div id="portfolio-analytics-mount" role="status" aria-live="polite" aria-atomic="true" aria-busy="true">
+          Loading portfolio analytics…
+        </div>
+      </section>
+
     </div>
   </main>
 </div>
 
 
 <script src="../js/ui.js?v=5" defer></script>
+<script src="../js/finos-portfolio-import.js"></script>
 <script src="../js/portfolio.js"></script>
   <script src="../js/mobile-nav.js" defer></script>
   <script src="../js/pwa-init.js"></script>
@@ -336,7 +348,7 @@
 
   <script src="../js/finos-widget.js?v=11"></script>
   <script src="../js/finos-search.js?v=6"></script>
-  <script src="../js/finos-portfolio-analytics.js" defer></script>
+  <script src="../js/finos-portfolio-analytics.js"></script>
   <script src="../js/arya-memory.js?v=2" defer></script>
   <script src="../js/arya-life-events.js" defer></script>
   <script src="../js/finos-mobile.js" defer></script>
@@ -356,15 +368,27 @@
   });
 
   // Mount portfolio analytics after context loads
-  window.addEventListener('finos-context-ready', e => {
-    if (e.detail?.phase !== 'full') return;
-    // Kite: render panel now that FinosKite is loaded (defer fires after DOMContentLoaded)
-    if (window.FinosKite) FinosKite.renderConnectPanel('kite-connect-panel');
-    const holdings = window.FINOS_USER_CONTEXT?.financial?.portfolio?.holdings || [];
-    const analyticsEl = document.getElementById('portfolio-analytics-mount');
+  let uploadedPortfolioSnapshot = null;
+  const analyticsEl = document.getElementById('portfolio-analytics-mount');
+  window.addEventListener('finos-portfolio-file-ready', e => {
+    const rows = Array.isArray(e.detail?.holdings) ? e.detail.holdings : [];
+    uploadedPortfolioSnapshot = rows;
     if (analyticsEl && window.PortfolioAnalytics) {
-      PortfolioAnalytics.renderAll(analyticsEl, holdings);
+      PortfolioAnalytics.renderAll(analyticsEl, rows, { source: 'upload' });
     }
+  });
+  window.addEventListener('finos-context-ready', e => {
+    // Kite: render panel now that FinosKite is loaded (defer fires after DOMContentLoaded)
+    if (e.detail?.phase === 'full' && window.FinosKite) FinosKite.renderConnectPanel('kite-connect-panel');
+    if (!analyticsEl || !window.PortfolioAnalytics || uploadedPortfolioSnapshot) return;
+    if (e.detail?.phase !== 'full') {
+      const hasSessionIdentity = Boolean(e.detail?.user_id || window.FINOS_USER_CONTEXT?._user_id);
+      PortfolioAnalytics.renderAll(analyticsEl, [], { status: hasSessionIdentity ? 'loading' : 'unauthenticated' });
+      return;
+    }
+    const holdings = window.FINOS_PORTFOLIO_ANALYTICS_HOLDINGS || window.FINOS_USER_CONTEXT?.financial?.portfolio?.holdings || [];
+    const status = window.FINOS_PORTFOLIO_ANALYTICS_STATUS?.status || 'ready';
+    PortfolioAnalytics.renderAll(analyticsEl, holdings, { status, source: 'saved' });
   });
   </script>
 

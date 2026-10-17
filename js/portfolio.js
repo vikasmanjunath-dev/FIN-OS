@@ -287,14 +287,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function handleFile(file) {
     if(!file) return;
+    const MAX_FILE_BYTES = 10 * 1024 * 1024;
+    if (file.size > MAX_FILE_BYTES) return alert('File is too large. Please upload a CSV or Excel file smaller than 10 MB.');
     const fName = file.name.toLowerCase();
     const reader = new FileReader();
-    
+    reader.onerror = () => alert('Could not read this file. Please try another CSV or Excel export.');
     if (fName.endsWith('.csv')) {
-      reader.onload = (e) => parseCSV(e.target.result);
+      reader.onload = (e) => {
+        try { parseCSV(String(e.target.result || '')); }
+        catch (error) { console.error('Portfolio CSV import failed:', error); alert(error.message || 'Could not read this CSV file.'); }
+      };
       reader.readAsText(file);
     } else if (fName.endsWith('.xlsx') || fName.endsWith('.xls')) {
-      reader.onload = (e) => parseExcel(e.target.result);
+      reader.onload = (e) => {
+        try { parseExcel(e.target.result); }
+        catch (error) { console.error('Portfolio spreadsheet import failed:', error); alert(error.message || 'Error reading Excel file.'); }
+      };
       reader.readAsArrayBuffer(file);
     } else {
       alert("Please upload a valid CSV or Excel file.");
@@ -302,20 +310,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function parseCSV(text) {
-    const rows = text.split(/\r\n|\n/).map(line => line.split(','));
-    processData(rows);
+    processData(FinosPortfolioImport.parseCSV(text));
   }
   
   function parseExcel(buffer) {
-    try {
-      const wb = XLSX.read(buffer, { type: 'array' });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      processData(json);
-    } catch(e) {
-      console.error(e);
-      alert("Error reading Excel file.");
-    }
+    if (!window.XLSX) throw new Error('Excel support did not load. Refresh the page or upload a CSV file.');
+    const wb = XLSX.read(buffer, { type: 'array', sheetRows: 50002 });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    if (!ws) throw new Error('The spreadsheet does not contain a readable worksheet.');
+    const range = ws['!ref'] || 'A1';
+    const end = XLSX.utils.decode_range(range);
+    if (end.e.r >= 50000 || end.e.c >= 200) throw new Error('This worksheet exceeds the 50,000 row or 200 column import limit.');
+    processData(XLSX.utils.sheet_to_json(ws, { header: 1, blankrows: false, raw: true }));
   }
 
   // =========================================================================
@@ -323,77 +329,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   // =========================================================================
 
   function processData(rows) {
-    if (!rows || rows.length < 2) return alert("File appears empty.");
-
-    // Detect Header
-    let headerIdx = -1;
-    const symbolTerms = ['symbol', 'scrip', 'instrument', 'security', 'stock name'];
-    
-    for(let i=0; i<Math.min(rows.length, 25); i++) {
-      const rowStr = rows[i].map(c => c ? c.toString().toLowerCase().trim() : '').join(' ');
-      if (symbolTerms.some(term => rowStr.includes(term))) {
-        headerIdx = i;
-        break;
-      }
-    }
-
-    if (headerIdx === -1) return alert("Could not find a 'Symbol' column. Check your file headers.");
-
-    const headers = rows[headerIdx].map(c => c ? c.toString().toLowerCase().trim() : '');
-    
-    // Column Mapping
-    const findCol = (terms) => {
-        for (let term of terms) {
-            const idx = headers.findIndex(h => h.includes(term));
-            if (idx !== -1) return idx;
-        }
-        return -1;
-    };
-    
-    const symbolIdx = findCol(['symbol', 'scrip', 'instrument', 'stock name']);
-    const qtyIdx = findCol(['quantity available', 'quantity', 'qty', 'units', 'shares']);
-    const priceIdx = findCol(['previous closing', 'closing price', 'ltp', 'current price', 'market price', 'last price', 'average price']);
-    const valueIdx = findCol(['current value', 'market value', 'present value', 'net value']);
-
-    if (symbolIdx === -1) return alert("Header found, but 'Symbol' column is missing.");
-
-    let portfolio = [];
-    
-    for(let i = headerIdx + 1; i < rows.length; i++) {
-      const row = rows[i];
-      if(!row || !row[symbolIdx]) continue;
-
-      let rawSymbol = row[symbolIdx].toString().toUpperCase();
-      // CLEAN SYMBOL LOGIC (Crucial for matching)
-      let symbol = rawSymbol
-        .replace(/NSE:|BSE:|ISIN:|INE[0-9A-Z]+|"/g, '')
-        .replace(/-EQ|-BE|-SM/g, '') // Remove Zerodha suffixes
-        .trim();
-        
-      if(symbol.includes('.')) symbol = symbol.split('.')[0].trim();
-
-      const cleanNum = (val) => {
-        if (!val) return 0;
-        if (typeof val === 'number') return val;
-        const str = val.toString().replace(/,/g, '').replace(/₹/g, '').trim();
-        return parseFloat(str) || 0;
-      };
-
-      let val = 0;
-      if (valueIdx !== -1 && row[valueIdx]) {
-        val = cleanNum(row[valueIdx]);
-      } else if (qtyIdx !== -1 && priceIdx !== -1) {
-        const q = cleanNum(row[qtyIdx]);
-        const p = cleanNum(row[priceIdx]);
-        if (q > 0 && p > 0) val = q * p;
-      }
-
-      if (val > 10) { 
-        portfolio.push({ symbol, value: val });
-      }
-    }
+    const portfolio = FinosPortfolioImport.rowsToHoldings(rows);
 
     if (portfolio.length > 0) {
+      // Feed the snapshot analytics panel without persisting or transmitting the uploaded file.
+      window.dispatchEvent(new CustomEvent('finos-portfolio-file-ready', {
+        detail: { holdings: portfolio.filter(item => item && typeof item.symbol === 'string' && Number.isFinite(item.value) && item.value >= 0)
+          .map(item => ({ symbol: item.symbol, current_value: item.value })) }
+      }));
       analyze(portfolio);
     } else {
       alert("Found symbols but could not calculate values.");
@@ -690,113 +633,104 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Safe span text extractor — returns '' if missing
       const spanText = (idx) => (row.querySelectorAll('span')[idx]?.textContent || '').trim();
 
-      const sym    = (row.dataset.symbol || spanText(0)).replace(/[📈🛡️🧈]/g, '').trim();
+      const sym    = (row.dataset.symbol || spanText(0)).replace(/[📈🛡️🧈]/g, '').trim().slice(0, 40);
       const valStr = (row.dataset.value  || spanText(1)).replace(/[₹,\s]/g, '');
       const pnlStr = (row.dataset.pnl    || spanText(2)).replace(/[₹,%\s]/g, '');
-      const val    = parseFloat(valStr);
-      const pnl    = parseFloat(pnlStr);
+      const val    = Number(valStr);
+      const pnl    = Number(pnlStr);
 
-      if (sym && !isNaN(val) && val > 0) {
+      if (sym && Number.isFinite(val) && val > 0 && holdings.length < 500) {
         holdings.push({
           symbol:         sym,
           value:          val,
-          pnl_pct:        isNaN(pnl) ? 0 : pnl,
-          unrealised_pnl: parseFloat(row.dataset.pnlAbs || '0') || 0,
-          sector:         row.dataset.sector || null,
-          beta:           parseFloat(row.dataset.beta || '1') || 1.0,
+          pnl_pct:        Number.isFinite(pnl) ? pnl : 0,
+          unrealised_pnl: Number.isFinite(Number(row.dataset.pnlAbs)) ? Number(row.dataset.pnlAbs) : 0,
+          sector:         (row.dataset.sector || '').slice(0, 80) || null,
+          beta:           Number.isFinite(Number(row.dataset.beta)) ? Number(row.dataset.beta) : 1.0,
         });
       }
     });
 
-    // Fallback: use summary stats as synthetic input
+    // Summary insight text is not a valid substitute for structured holdings.
     if (!holdings.length) {
-      const good    = document.getElementById('goodInsight')?.textContent || '';
-      const bad     = document.getElementById('badInsight')?.textContent || '';
-      if (!good && !bad) {
-        alert('Pehle portfolio file upload karo, phir AI Analysis karo!');
-        return;
-      }
-      alert('File uploaded — AI analysis starting with available data. For best results, re-upload with a Zerodha/Groww CSV that includes sector tags.');
-      holdings.push(
-        { symbol: 'Portfolio', value: 100000, sector: 'Mixed', beta: 1.0 }
-      );
+      panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      textEl.textContent = 'The portfolio summary is not enough to calculate a reliable analysis. Upload a file with holding symbols and values.';
+      return;
     }
 
     panel.style.display = 'block';
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     textEl.textContent  = '🧠 Arya portfolio analyse kar rahi hai…';
-    metricsEl.innerHTML = '';
+    metricsEl.replaceChildren();
     taxSec.style.display = 'none';
     wifSec.style.display = 'none';
     if (btn) { btn.disabled = true; btn.textContent = '⏳ Analysing…'; }
 
     try {
-      const resp = await fetch('http://localhost:8766/ai-analysis', {
+      if (!['localhost', '127.0.0.1', '::1', '[::1]'].includes(location.hostname)) {
+        textEl.textContent = 'Deep AI analysis is unavailable on this deployment because no authenticated production Portfolio Analyser endpoint is configured. The snapshot analytics above remain available.';
+        return;
+      }
+      const resp = await fetch('http://127.0.0.1:8766/ai-analysis', {
         signal:  AbortSignal.timeout(90000),
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'omit',
         body:    JSON.stringify({
           holdings,
-          risk_profile:       localStorage.getItem('finos_risk_score') > 65 ? 'aggressive'
-                              : localStorage.getItem('finos_risk_score') > 35 ? 'moderate' : 'conservative',
           what_if_drop_pct:   15,
         }),
       });
 
       if (!resp.ok) throw new Error(`Server error ${resp.status}`);
       const data = await resp.json();
+      if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Invalid response');
 
       // Render analysis text
-      textEl.textContent = data.analysis || 'Analysis unavailable';
+      textEl.textContent = typeof data.analysis === 'string' ? data.analysis.slice(0, 20000) : 'Analysis unavailable';
 
       // Render metrics chips
-      const m = data.metrics || {};
+      const m = data.metrics && typeof data.metrics === 'object' && !Array.isArray(data.metrics) ? data.metrics : {};
       const chips = [
         { label: 'Holdings',     val: m.total_holdings  },
         { label: 'HHI',          val: m.sector_hhi      },
         { label: 'Concentration',val: m.concentration   },
         { label: 'Dominant',     val: m.dominant_sector },
       ];
-      metricsEl.innerHTML = chips.filter(c => c.val != null).map(c => `
-        <div style="padding:8px 14px;border-radius:10px;background:rgba(255,255,255,.04);
-          border:1px solid rgba(255,255,255,.08);font-size:12px;white-space:nowrap;">
-          <span style="color:rgba(255,255,255,0.58);">${c.label}:</span>
-          <span style="color:#fff;font-weight:600;margin-left:6px;">${c.val}</span>
-        </div>`
-      ).join('');
+      metricsEl.replaceChildren();
+      chips.filter(c => ['string', 'number'].includes(typeof c.val) && String(c.val).length <= 100).forEach(c => {
+        const chip = document.createElement('div');
+        chip.style.cssText = 'padding:8px 14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:12px;white-space:nowrap;';
+        const label = document.createElement('span'); label.style.color = 'rgba(255,255,255,0.58)'; label.textContent = `${c.label}:`;
+        const value = document.createElement('span'); value.style.cssText = 'color:#fff;font-weight:600;margin-left:6px;'; value.textContent = String(c.val);
+        chip.append(label, value); metricsEl.append(chip);
+      });
 
       // Tax-loss harvesting section
-      const tax = m.tax_candidates || [];
+      const tax = Array.isArray(m.tax_candidates) ? m.tax_candidates.slice(0, 100).filter(t => t && typeof t === 'object' && typeof t.symbol === 'string' && Number.isFinite(Number(t.pnl)) && Number.isFinite(Number(t.tax_save_estimate)) && Number(t.tax_save_estimate) >= 0) : [];
       if (tax.length) {
         taxSec.style.display  = 'block';
-        taxTable.innerHTML = tax.map(t => `
-          <div style="display:flex;justify-content:space-between;padding:8px 0;
-            border-bottom:1px solid rgba(255,255,255,.06);font-size:13px;">
-            <span style="color:#fff;font-weight:600;">${t.symbol}</span>
-            <span style="color:#ff6b6b;">Loss: ₹${Math.abs(t.pnl).toLocaleString('en-IN')}</span>
-            <span style="color:#ffb400;">Save ~₹${t.tax_save_estimate.toLocaleString('en-IN')} tax</span>
-          </div>`
-        ).join('');
+        taxTable.replaceChildren();
+        tax.forEach(t => {
+          const row = document.createElement('div'); row.style.cssText = 'display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px;';
+          const values = [String(t.symbol).slice(0, 40), `Unrealised loss: ₹${Math.abs(Number(t.pnl)).toLocaleString('en-IN')}`, 'Tax impact varies'];
+          values.forEach((value, i) => { const span = document.createElement('span'); span.style.color = ['#fff', '#ff6b6b', '#ffb400'][i]; if (i === 0) span.style.fontWeight = '600'; span.textContent = value; row.append(span); });
+          taxTable.append(row);
+        });
       }
 
       // What-if scenario
       const wi = m.what_if_scenario;
-      if (wi) {
+      if (wi && typeof wi === 'object' && Number.isFinite(Number(wi.estimated_loss)) && Number.isFinite(Number(wi.portfolio_value)) && Number.isFinite(Number(wi.loss_pct))) {
         wifSec.style.display = 'block';
-        wifText.innerHTML = `
-          <span style="color:#ff6b6b;font-weight:700;">⚠ ${wi.scenario}</span>
-          → Portfolio loses <strong style="color:#ff6b6b;">₹${wi.estimated_loss.toLocaleString('en-IN')}</strong>
-          (${wi.loss_pct}% of ₹${wi.portfolio_value.toLocaleString('en-IN')}).
-          Consider a Nifty PUT hedge or increase debt allocation to cushion this.`;
+        wifText.textContent = `⚠ ${String(wi.scenario || 'Illustrative market decline').slice(0, 160)} → portfolio value change ₹${Number(wi.estimated_loss).toLocaleString('en-IN')} (${Number(wi.loss_pct).toFixed(2)}% of ₹${Number(wi.portfolio_value).toLocaleString('en-IN')}). Illustrative scenario only; this is not a forecast or investment recommendation.`;
       }
 
       if (tsEl) tsEl.textContent = new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
 
     } catch (err) {
-      textEl.innerHTML = `<span style="color:rgba(255,100,100,.8);">
-        ⚠️ Portfolio Analyser server offline — start server.py on port 8766.<br>
-        <code style="font-size:11px;">cd "Portfolio Analyser" && python server.py</code>
-      </span>`;
+      textEl.textContent = 'Portfolio Analyser could not complete this request. Check that its local service is running and try again.';
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = '🧠 Analyse Portfolio (AI)'; }
     }

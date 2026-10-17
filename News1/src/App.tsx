@@ -60,7 +60,7 @@ const App = () => {
                 <NavItem href={getRoute("html/foundations.html")} icon={<Library size={18} />} label="Foundations" />
                 <NavItem href={getRoute("html/diagnostics.html")} icon={<Activity size={18} />} label="Diagnostics" />
                 <NavItem href={getRoute("html/calculators.html")} icon={<Calculator size={18} />} label="Calculators" />
-                <NavItem href={getRoute("Porfolio Analyser/portfolio-analyser-v9.html")} icon={<PieChart size={18} />} label="Portfolio Disector" />
+                <NavItem href={getRoute("Porfolio Analyser/portfolio-analyser-v10.html")} icon={<PieChart size={18} />} label="Portfolio Disector" />
                 <NavItem href={getRoute("stock-dashboard/index.html")} icon={<TrendingUp size={18} />} label="Live Tracker" />
                 <NavItem href={getRoute("html/simulator-guide.html")} icon={<Target size={18} />} label="Trading Simulator" />
                 <NavItem href={getRoute("News1/index.html")} icon={<Globe size={18} />} label="News" active />

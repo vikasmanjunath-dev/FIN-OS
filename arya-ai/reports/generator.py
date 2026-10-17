@@ -12,6 +12,8 @@ sets this; if you're running uvicorn directly, set it yourself.
 """
 import time
 import json
+import re
+import uuid
 from pathlib import Path
 from config import REPORTS_DIR
 
@@ -59,8 +61,13 @@ def portfolio_excel(summary: dict) -> str:
         cell.alignment = Alignment(horizontal="center")
 
     for h in summary.get("holdings", []):
+        symbol = str(h.get("symbol", ""))
+        # A symbol comes from a user-editable holdings row. Force potentially formula-like
+        # values to literal text before Excel opens the file.
+        if symbol.lstrip().startswith(("=", "+", "-", "@", "\t", "\r")):
+            symbol = "'" + symbol
         row = [
-            h["symbol"], h["quantity"], h["avg_price"], h["current_price"], h["price_source"],
+            symbol, h["quantity"], h["avg_price"], h["current_price"], h["price_source"],
             h["invested_value"], h["current_value"], h["pnl"], h["pnl_pct"],
         ]
         ws.append(row)
@@ -82,8 +89,8 @@ def portfolio_excel(summary: dict) -> str:
     # Honest caveat sheet — not buried in fine print
     notes = wb.create_sheet("Notes")
     notes.append(["What this is"])
-    notes.append(["Holdings and unrealized profit/loss, with each position's price",
-                  "refreshed live at export time (see 'Price Source' column)."])
+    notes.append(["Holdings and unrealized profit/loss. 'Price Source' identifies whether",
+                  "a market quote (which may be cached), AMFI NAV, saved price, or average-cost fallback was used."])
     notes.append([])
     notes.append(["What this is NOT"])
     notes.append(["A capital-gains tax computation. STCG (<12mo) vs LTCG (>=12mo)",
@@ -92,7 +99,8 @@ def portfolio_excel(summary: dict) -> str:
                   "split without a real date would mean guessing — not done here."])
     notes.column_dimensions["A"].width = 70
 
-    fname = REPORTS_DIR / f"portfolio_{summary.get('user_id','unknown')[:8]}_{int(time.time())}.xlsx"
+    safe_id = re.sub(r"[^A-Za-z0-9]", "", str(summary.get("user_id", "unknown")))[:8] or "unknown"
+    fname = REPORTS_DIR / f"portfolio_{safe_id}_{uuid.uuid4().hex}.xlsx"
     wb.save(str(fname))
     return str(fname)
 

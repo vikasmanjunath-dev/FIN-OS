@@ -27,18 +27,21 @@ INSTALL & RUN:
 """
 
 import asyncio
+import threading
 import time
 import re
 import logging
 import os
-from datetime import datetime
+import math
+import json
+from datetime import datetime, timezone
 
 import httpx
 import yfinance as yf
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from cachetools import TTLCache
 
 # ── Config ────────────────────────────────────────────────────────────────────
@@ -77,12 +80,16 @@ NSE_API_HEADERS = {
 
 # ── App + caches ──────────────────────────────────────────────────────────────
 app = FastAPI(title="Portfolio.AI Live API", version="2.1.0")
+_cors_origins = [origin.strip() for origin in os.getenv(
+    "PORTFOLIO_ANALYSER_CORS", "https://finos1.vercel.app"
+).split(",") if origin.strip() and origin.strip() != "*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_cors_origins,
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1|\[::1\])(:[0-9]{1,5})?$",
     allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["*"],
-    expose_headers=["Access-Control-Allow-Private-Network"],
+    allow_headers=["Accept", "Content-Type", "X-Requested-With"],
+    expose_headers=["Access-Control-Allow-Private-Network", "Retry-After"],
 )
 
 # Chrome's Private Network Access policy requires this header when a public
@@ -106,6 +113,46 @@ price_cache = TTLCache(maxsize=500, ttl=PRICE_TTL)
 fund_cache  = TTLCache(maxsize=500, ttl=FUND_TTL)
 hist_cache  = TTLCache(maxsize=200, ttl=HISTORY_TTL)
 
+# ── Upstream protection ───────────────────────────────────────────────────────
+# A 60 s refresh of a ~80 holding portfolio used to cost ~500 upstream requests a minute (NSE x3, Screener x2, Yahoo x3+ per
+# symbol, fundamentals re-fetched although cached for 6 h, unknown symbols retried forever). Yahoo/NSE answered 429/403 and the
+# browser console filled with 502/429. These pieces keep the request count proportional to what actually changed:
+NEG_TTL        = 600          # a symbol every source rejected is not asked about again for 10 minutes
+STALE_TTL      = 24 * 3600    # the last good price/fundamentals are served (flagged stale) while a provider is backing off
+BACKOFF_SECS   = {"nse": 180, "yahoo": 120, "screener": 900}   # how long a provider is left alone after 429/403
+MAX_YF_CONCURRENT  = 4        # Yahoo is the provider that rate-limits; keep its parallelism small
+MAX_NSE_CONCURRENT = 6
+NSE_SESSION_TTL    = 300      # one cookie handshake per 5 minutes instead of two extra requests per symbol
+
+neg_cache   = TTLCache(maxsize=2000, ttl=NEG_TTL)
+scr_cache   = TTLCache(maxsize=1000, ttl=FUND_TTL)     # Screener results, {} included, so a miss is not retried every minute
+stale_price = TTLCache(maxsize=2000, ttl=STALE_TTL)
+stale_fund  = TTLCache(maxsize=2000, ttl=STALE_TTL)
+
+_backoff_until: dict = {"nse": 0.0, "yahoo": 0.0, "screener": 0.0}
+upstream_calls: dict = {"nse": 0, "yahoo": 0, "screener": 0, "rate_limited": 0}
+_inflight: dict = {}                                    # symbol -> task: concurrent callers share one fetch
+_yf_sem  = threading.BoundedSemaphore(MAX_YF_CONCURRENT)
+_nse_state: dict = {"client": None, "ready_at": 0.0, "lock": None, "sem": None}
+
+def backing_off(provider: str) -> bool:
+    return time.time() < _backoff_until.get(provider, 0.0)
+
+def backoff_remaining() -> int:
+    return max(0, int(max(_backoff_until.values()) - time.time() + 0.999))
+
+def trip_backoff(provider: str, why: str = "") -> None:
+    now = time.time()
+    if now >= _backoff_until[provider]:
+        log.warning(f"{provider}: rate limited ({why}) — pausing it for {BACKOFF_SECS[provider]}s, serving cached data")
+    _backoff_until[provider] = now + BACKOFF_SECS[provider]
+    upstream_calls["rate_limited"] += 1
+
+def is_rate_limit(exc: Exception) -> bool:
+    name = type(exc).__name__.lower()
+    text = str(exc).lower()
+    return "ratelimit" in name or "too many requests" in text or "429" in text
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s  %(levelname)-8s  %(message)s",
@@ -122,8 +169,15 @@ _YF_OVERRIDES = {
     "LTIM":       "LTIM.NS",
 }
 
+# Broker exports mark some listings with a series suffix (-EQ, -BE, and -E on ETFs such as "GOLDBEES-E"). The exchange symbol
+# has none of them: "GOLDBEES-E" is a guaranteed miss on NSE and Yahoo, and used to be re-requested on every refresh.
+_SERIES_SUFFIX = re.compile(r"-(?:EQ|BE|E)$")
+
+def _strip_series(symbol: str) -> str:
+    return _SERIES_SUFFIX.sub("", symbol.upper().strip().replace("-EQ", "").replace("-BE", ""))
+
 def to_yf_ticker(symbol: str) -> str:
-    s = symbol.upper().strip().replace("-EQ", "").replace("-BE", "")
+    s = _strip_series(symbol)
     if s in _YF_OVERRIDES:
         return _YF_OVERRIDES[s]
     # Index tickers (^NSEI, ^BSESN, etc.) must not get the .NS suffix
@@ -132,42 +186,70 @@ def to_yf_ticker(symbol: str) -> str:
     return f"{s}.NS"
 
 def clean_sym(symbol: str) -> str:
-    s = symbol.upper().strip().replace("-EQ", "").replace("-BE", "")
+    s = _strip_series(symbol)
     # Preserve index prefix (^) — don't normalise away leading caret
     return s
 
 # ── NSE live price ────────────────────────────────────────────────────────────
-async def fetch_nse_price(symbol: str, client: httpx.AsyncClient) -> dict:
+async def _nse_session() -> "httpx.AsyncClient | None":
+    """One shared, cookie-bearing NSE client, re-established at most every NSE_SESSION_TTL seconds.
+    NSE wants a browser-like session; doing that handshake (two extra requests) for every symbol is what got it blocked."""
+    st = _nse_state
+    if st["lock"] is None:
+        st["lock"] = asyncio.Lock()
+        st["sem"] = asyncio.Semaphore(MAX_NSE_CONCURRENT)
+    async with st["lock"]:
+        if backing_off("nse"):
+            return None
+        if st["client"] is not None and time.time() - st["ready_at"] < NSE_SESSION_TTL:
+            return st["client"]
+        old = st["client"]
+        st["client"] = None
+        if old is not None:
+            try: await old.aclose()
+            except Exception: pass
+        client = httpx.AsyncClient(headers=NSE_HEADERS, follow_redirects=True)
+        try:
+            upstream_calls["nse"] += 1
+            home = await client.get("https://www.nseindia.com/", headers=NSE_HEADERS, timeout=6.0)
+            if home.status_code in (403, 429):
+                await client.aclose()
+                trip_backoff("nse", f"homepage HTTP {home.status_code}")
+                return None
+            await client.get("https://www.nseindia.com/get-quotes/equity?symbol=RELIANCE",
+                             headers={**NSE_HEADERS, "Referer": "https://www.nseindia.com/"}, timeout=5.0)
+        except Exception as e:
+            await client.aclose()
+            log.debug(f"NSE session failed: {e}")
+            return None
+        st["client"], st["ready_at"] = client, time.time()
+        return client
+
+
+async def fetch_nse_price(symbol: str, client=None) -> dict:
     """
-    Fetches real-time price from NSE's official equity quote API.
-    NSE requires a full browser-like session (cookies + proper headers).
-    Falls back silently — yfinance covers price if NSE blocks.
+    Real-time price from NSE's official equity quote API: ONE request per symbol over the shared session.
+    Falls back silently (empty dict): yfinance covers the price while NSE is blocked or backing off.
+    `client` is accepted for backward compatibility and ignored.
     """
     sym = clean_sym(symbol)
     try:
-        # Step 1 — hit the main page to pick up cookies (NSE bot-detection)
-        home = await client.get(
-            "https://www.nseindia.com/",
-            headers=NSE_HEADERS,
-            timeout=6.0,
-        )
-        if home.status_code == 403:
-            log.debug(f"NSE homepage 403 for {sym} — skipping NSE, using YF price only")
+        session = await _nse_session()
+        if session is None:
             return {}
-
-        # Step 2 — hit the equity-quote page to refresh session
-        await client.get(
-            f"https://www.nseindia.com/get-quotes/equity?symbol={sym}",
-            headers={**NSE_HEADERS, "Referer": "https://www.nseindia.com/"},
-            timeout=5.0,
-        )
-
-        # Step 3 — actual API call
-        r = await client.get(
-            f"https://www.nseindia.com/api/quote-equity?symbol={sym}",
-            headers=NSE_API_HEADERS,
-            timeout=8.0,
-        )
+        async with _nse_state["sem"]:
+            upstream_calls["nse"] += 1
+            r = await session.get(
+                f"https://www.nseindia.com/api/quote-equity?symbol={sym}",
+                headers=NSE_API_HEADERS,
+                timeout=8.0,
+            )
+        if r.status_code in (401, 403, 429):
+            if r.status_code == 401:
+                _nse_state["ready_at"] = 0.0          # cookies expired: re-handshake next time, no backoff
+            else:
+                trip_backoff("nse", f"{sym} HTTP {r.status_code}")
+            return {}
         if r.status_code != 200:
             log.debug(f"NSE API {sym}: HTTP {r.status_code}")
             return {}
@@ -231,6 +313,7 @@ def fetch_yf_fundamentals(symbol: str) -> dict:
             return None
 
     def _fetch_ticker(ticker_str: str) -> dict:
+        upstream_calls["yahoo"] += 1
         ticker = yf.Ticker(ticker_str)
 
         # fast_info: reliable, fast (~50ms), gets price even when .info fails
@@ -249,15 +332,19 @@ def fetch_yf_fundamentals(symbol: str) -> dict:
             dma50   = _pos(getattr(fi, "fifty_day_average",          None))
             dma200  = _pos(getattr(fi, "two_hundred_day_average",    None))
             mktcap  = _pos(getattr(fi, "market_cap",                 None))
-        except Exception:
-            pass
+        except Exception as e:
+            if is_rate_limit(e):
+                trip_backoff("yahoo", f"fast_info {ticker_str}")
 
         # .info: fundamentals (PE, ROE, margins) — can fail for some tickers
         info = {}
-        try:
-            info = ticker.info or {}
-        except Exception as e:
-            log.debug(f"YF .info failed for {ticker_str}: {e}")
+        if not backing_off("yahoo"):                   # .info is the heavy call; skip it once Yahoo has said "slow down"
+            try:
+                info = ticker.info or {}
+            except Exception as e:
+                if is_rate_limit(e):
+                    trip_backoff("yahoo", f".info {ticker_str}")
+                log.debug(f"YF .info failed for {ticker_str}: {e}")
 
         def g(key):
             v = info.get(key)
@@ -326,21 +413,31 @@ def fetch_yf_fundamentals(symbol: str) -> dict:
 
     # Run .NS with 20s timeout (increased — YF can be slow)
     result = {}
+    if backing_off("yahoo"):
+        return result                                   # callers fall back to cached/stale data
     def _run_ns():
-        try: result.update(_fetch_ticker(yft))
-        except Exception as e: log.debug(f"{sym} .NS failed: {e}")
+        try:
+            with _yf_sem:
+                result.update(_fetch_ticker(yft))
+        except Exception as e:
+            if is_rate_limit(e): trip_backoff("yahoo", f"{sym}")
+            log.debug(f"{sym} .NS failed: {e}")
     t = threading.Thread(target=_run_ns, daemon=True)
     t.start()
     t.join(timeout=20)
 
     # If no price from .NS, try .BO (BSE) with 10s timeout
-    if not result.get("price"):
+    if not result.get("price") and not backing_off("yahoo"):
         bse = sym + ".BO"
         if bse != yft:
             bo_result = {}
             def _run_bo():
-                try: bo_result.update(_fetch_ticker(bse))
-                except Exception as e: log.debug(f"{sym} .BO failed: {e}")
+                try:
+                    with _yf_sem:
+                        bo_result.update(_fetch_ticker(bse))
+                except Exception as e:
+                    if is_rate_limit(e): trip_backoff("yahoo", f"{sym}.BO")
+                    log.debug(f"{sym} .BO failed: {e}")
             t2 = threading.Thread(target=_run_bo, daemon=True)
             t2.start()
             t2.join(timeout=10)
@@ -352,9 +449,11 @@ def fetch_yf_fundamentals(symbol: str) -> dict:
 
     # Last-resort: use .history() to get the most recent close price
     # Reliable even when .info and .fast_info are rate-limited or return None
-    if not result.get("price"):
+    if not result.get("price") and not backing_off("yahoo"):
         try:
-            hist_df = yf.Ticker(yft).history(period="5d", interval="1d")
+            upstream_calls["yahoo"] += 1
+            with _yf_sem:
+                hist_df = yf.Ticker(yft).history(period="5d", interval="1d")
             if not hist_df.empty:
                 last_close = float(hist_df["Close"].iloc[-1])
                 if last_close > 0:
@@ -365,6 +464,7 @@ def fetch_yf_fundamentals(symbol: str) -> dict:
                     result.setdefault("_ts", time.time())
                     log.info(f"{sym}: history fallback price={last_close:.2f}")
         except Exception as e:
+            if is_rate_limit(e): trip_backoff("yahoo", f"{sym} history")
             log.debug(f"{sym} history fallback failed: {e}")
 
     if result.get("price"):
@@ -374,8 +474,56 @@ def fetch_yf_fundamentals(symbol: str) -> dict:
     return result
 
 
+def fetch_yf_price(symbol: str) -> dict:
+    """Price-only Yahoo lookup (fast_info, no .info / fallbacks). Used for the 60 s refresh when NSE is unavailable and the
+    fundamentals are already cached — the heavy fetch_yf_fundamentals() is for the 6 h fundamentals refresh only."""
+    sym = clean_sym(symbol)
+    if backing_off("yahoo"):
+        return {}
+    try:
+        upstream_calls["yahoo"] += 1
+        with _yf_sem:
+            fi = yf.Ticker(to_yf_ticker(sym)).fast_info
+            def pv(name):
+                try:
+                    v = float(getattr(fi, name, None))
+                    return v if v > 0 else None
+                except (TypeError, ValueError):
+                    return None
+            price, prev, op = pv("last_price"), pv("previous_close"), pv("open")
+            high, low = pv("day_high"), pv("day_low")
+        if not price:
+            return {}
+        out = {"price": price, "open": op, "high": high, "low": low, "prevClose": prev,
+               "source": "Yahoo Finance", "_ts": time.time()}
+        if prev:
+            out["change"] = round(price - prev, 2)
+            out["changePct"] = round((price - prev) / prev * 100, 2)
+        return out
+    except Exception as e:
+        if is_rate_limit(e):
+            trip_backoff("yahoo", f"{sym} fast_info")
+        log.debug(f"YF price failed for {sym}: {e}")
+        return {}
+
+
 # ── Screener.in scraper ───────────────────────────────────────────────────────
 async def fetch_screener_data(symbol: str, client: httpx.AsyncClient) -> dict:
+    """Cached wrapper: Screener ratios change quarterly, so one result (even an empty one) is kept for 6 h, and the site is left
+    alone for a while after it answers 429/403."""
+    sym = clean_sym(symbol)
+    if sym in scr_cache:
+        return scr_cache[sym]
+    if backing_off("screener"):
+        return {}
+    res = await _fetch_screener_uncached(sym, client)
+    if res is not None:                       # None = blocked/failed: do not remember it as "no data"
+        scr_cache[sym] = res
+        return res
+    return {}
+
+
+async def _fetch_screener_uncached(symbol: str, client: httpx.AsyncClient) -> "dict | None":
     """
     Scrapes screener.in for additional ratio data (D/E, CR, ROCE).
     Used to fill gaps in Yahoo Finance data — especially for smaller NSE stocks.
@@ -384,11 +532,15 @@ async def fetch_screener_data(symbol: str, client: httpx.AsyncClient) -> dict:
     sym = clean_sym(symbol)
     for path in [f"company/{sym}/consolidated/", f"company/{sym}/"]:
         try:
+            upstream_calls["screener"] += 1
             r = await client.get(
                 f"https://www.screener.in/{path}",
                 timeout=8.0,
                 follow_redirects=True,
             )
+            if r.status_code in (403, 429):
+                trip_backoff("screener", f"{sym} HTTP {r.status_code}")
+                return None
             if r.status_code != 200:
                 continue
 
@@ -421,6 +573,7 @@ async def fetch_screener_data(symbol: str, client: httpx.AsyncClient) -> dict:
             return res
         except Exception as e:
             log.debug(f"Screener.in {sym} ({path}): {e}")
+            return None                       # transient failure: not remembered as "no data"
 
     return {}
 
@@ -443,6 +596,8 @@ async def fetch_ohlcv_history_direct(symbol: str, period: str, interval: str) ->
     sym = clean_sym(symbol)
     yft = to_yf_ticker(sym)
     period1, period2 = _period_to_unix(period)
+    if backing_off("yahoo"):
+        return []
 
     for base in [
         f"https://query1.finance.yahoo.com/v8/finance/chart/{yft}",
@@ -458,6 +613,9 @@ async def fetch_ohlcv_history_direct(symbol: str, period: str, interval: str) ->
                     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
                     "Accept": "application/json",
                 })
+            if r.status_code == 429:
+                trip_backoff("yahoo", f"history {sym}")
+                return []                       # query2 is the same service: do not double the request
             if r.status_code != 200:
                 continue
             d = r.json()
@@ -497,8 +655,12 @@ def fetch_ohlcv_history(symbol: str, period: str, interval: str) -> list:
     """yfinance fallback — used only when direct HTTP fetch fails."""
     sym = clean_sym(symbol)
     yft = to_yf_ticker(sym)
+    if backing_off("yahoo"):
+        return []
     try:
-        df = yf.Ticker(yft).history(period=period, interval=interval, auto_adjust=True)
+        upstream_calls["yahoo"] += 1
+        with _yf_sem:
+            df = yf.Ticker(yft).history(period=period, interval=interval, auto_adjust=True)
         if df.empty:
             return []
         rows = []
@@ -620,67 +782,117 @@ def merge_quote(nse: dict, yf_d: dict, scr: dict) -> dict:
     return {k: v for k, v in out.items() if v is not None}
 
 # ── Core orchestrator ─────────────────────────────────────────────────────────
-async def get_full_quote(symbol: str, force_refresh: bool = False) -> dict:
-    sym = clean_sym(symbol)
+def _price_snapshot(yf_data: dict) -> dict:
+    """The price fields of a Yahoo result, in the shape price_cache holds."""
+    return {
+        "price":     yf_data["price"],
+        "open":      yf_data.get("open"),
+        "high":      yf_data.get("high"),
+        "low":       yf_data.get("low"),
+        "prevClose": yf_data.get("prevClose"),
+        "change":    yf_data.get("change"),
+        "changePct": yf_data.get("changePct"),
+        "volume":    yf_data.get("volume"),
+        "weekHigh52":yf_data.get("weekHigh52"),
+        "weekLow52": yf_data.get("weekLow52"),
+        "source":    "Yahoo Finance",
+        "_ts":       time.time(),
+    }
 
+
+async def _empty() -> dict:
+    return {}
+
+
+async def get_full_quote(symbol: str, force_refresh: bool = False) -> dict:
+    """One shared fetch per symbol at a time: concurrent callers (several browser tabs, /bulk plus /quote) await the same task."""
+    sym = clean_sym(symbol)
+    task = _inflight.get(sym)
+    if task is None:
+        task = asyncio.ensure_future(_load_quote(sym, force_refresh))
+        _inflight[sym] = task
+        task.add_done_callback(lambda _t, _s=sym: _inflight.pop(_s, None))
+    return await asyncio.shield(task)
+
+
+async def _load_quote(sym: str, force_refresh: bool) -> dict:
     cached_price = price_cache.get(sym)
     cached_fund  = fund_cache.get(sym)
 
     # Full cache hit — both price (60s) and fundamentals (6h) are fresh
     if not force_refresh and cached_price and cached_fund:
-        result = merge_quote(cached_price, cached_fund, {})
+        result = merge_quote(cached_price, cached_fund, scr_cache.get(sym, {}))
         result.setdefault("_freshness", {})["cached"] = True
         return result
 
-    # Partial hit — fundamentals cached but price expired → refresh price only
-    if not force_refresh and cached_fund and not cached_price:
-        log.debug(f"{sym}: price cache miss, fund cache hit — refreshing price only")
-        # Fall through to fetch; yfinance price will be re-fetched and re-cached below
+    # A symbol every source rejected recently is answered from memory, not asked about again.
+    if not force_refresh and sym in neg_cache:
+        return {"error": "no data found for this symbol", "negative": True}
 
-    # Run all 3 sources concurrently
-    loop = asyncio.get_running_loop()
-    async with httpx.AsyncClient(headers=NSE_HEADERS, follow_redirects=True) as client:
-        nse_task      = fetch_nse_price(sym, client)
-        screener_task = fetch_screener_data(sym, client)
-        yf_task       = loop.run_in_executor(None, fetch_yf_fundamentals, sym)
+    need_fund  = force_refresh or not cached_fund
+    yf_fresh   = False
+    nse_data: dict = {}
+    yf_data: dict = {}
 
-        nse_data, screener_data, yf_data = await asyncio.gather(
-            nse_task, screener_task, yf_task, return_exceptions=True
-        )
+    if need_fund:
+        # Fundamentals (6 h): Yahoo full lookup + Screener, with the NSE price alongside. The only path that touches all three.
+        loop = asyncio.get_running_loop()
+        async with httpx.AsyncClient(headers=NSE_HEADERS, follow_redirects=True) as client:
+            nse_task      = fetch_nse_price(sym)
+            screener_task = fetch_screener_data(sym, client)
+            yf_task       = (loop.run_in_executor(None, fetch_yf_fundamentals, sym) if not backing_off("yahoo")
+                             else _empty())     # Yahoo is paused: do not even queue a worker thread for it
+            nse_data, screener_data, yf_data = await asyncio.gather(
+                nse_task, screener_task, yf_task, return_exceptions=True)
+        nse_data      = nse_data      if isinstance(nse_data, dict)      else {}
+        screener_data = screener_data if isinstance(screener_data, dict) else {}
+        yf_data       = yf_data       if isinstance(yf_data, dict)       else {}
+        yf_fresh = bool(yf_data)
+        if yf_data:
+            fund_cache[sym] = yf_data
+            stale_fund[sym] = yf_data
+        elif sym in stale_fund:
+            yf_data = stale_fund[sym]          # Yahoo is backing off: keep the last good fundamentals (their price is not current)
+    else:
+        # Price-only refresh (60 s): fundamentals and Screener ratios come from cache. NSE first (1 request), then a light Yahoo
+        # price, and only if both fail the last good price, flagged stale.
+        yf_data = cached_fund
+        screener_data = scr_cache.get(sym, {})
+        nse_data = await fetch_nse_price(sym)
+        if not nse_data:
+            loop = asyncio.get_running_loop()
+            light = await loop.run_in_executor(None, fetch_yf_price, sym)
+            if light.get("price"):
+                price_cache[sym] = light
+                stale_price[sym] = light
+                return merge_quote(light, yf_data, screener_data)
 
-    # Handle exceptions from gather
-    nse_data      = nse_data      if isinstance(nse_data, dict)      else {}
-    screener_data = screener_data if isinstance(screener_data, dict) else {}
-    yf_data       = yf_data       if isinstance(yf_data, dict)       else {}
-
-    # ── Populate price_cache (60s TTL) ──────────────────────────────────────
-    # NSE wins; when NSE is blocked (403) yfinance provides the price —
-    # cache it the same way so subsequent calls within 60s avoid re-fetching.
+    # ── Populate price_cache (60s TTL): NSE wins, otherwise the price Yahoo returned with the fundamentals ──
     if nse_data:
         price_cache[sym] = nse_data
-    elif yf_data.get("price"):
-        # Store a minimal price snapshot in price_cache so the 60s TTL applies
-        price_cache[sym] = {
-            "price":     yf_data["price"],
-            "open":      yf_data.get("open"),
-            "high":      yf_data.get("high"),
-            "low":       yf_data.get("low"),
-            "prevClose": yf_data.get("prevClose"),
-            "change":    yf_data.get("change"),
-            "changePct": yf_data.get("changePct"),
-            "volume":    yf_data.get("volume"),
-            "weekHigh52":yf_data.get("weekHigh52"),
-            "weekLow52": yf_data.get("weekLow52"),
-            "source":    "Yahoo Finance",
-            "_ts":       time.time(),
-        }
+        stale_price[sym] = nse_data
+    elif yf_data.get("price") and need_fund and yf_fresh:
+        price_cache[sym] = _price_snapshot(yf_data)
+        stale_price[sym] = price_cache[sym]
 
-    # ── Populate fund_cache (6h TTL) — fundamentals only ────────────────────
-    if yf_data:
-        fund_cache[sym] = yf_data
+    price_src = nse_data if nse_data else price_cache.get(sym, {})
 
-    return merge_quote(nse_data if nse_data else price_cache.get(sym, {}),
-                       yf_data, screener_data)
+    if not price_src.get("price"):
+        if sym in stale_price:
+            out = merge_quote(stale_price[sym], yf_data, screener_data)
+            out.setdefault("_freshness", {})["stale"] = True
+            return out
+        if yf_data and (yf_data.get("pe") or yf_data.get("mktCapCr")):
+            return merge_quote({}, yf_data, screener_data)
+        if backing_off("yahoo"):
+            # NSE blocking bots says nothing about the symbol, but Yahoo being paused means it was never really asked:
+            # do not mark the symbol unknown
+            return {"error": "market data providers are rate-limited, try again shortly",
+                    "rateLimited": True, "retryAfter": backoff_remaining()}
+        neg_cache[sym] = True
+        return {"error": "no data found for this symbol", "negative": True}
+
+    return merge_quote(price_src, yf_data, screener_data)
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
@@ -780,9 +992,13 @@ def health():
         "price_cache":   len(price_cache),
         "fund_cache":    len(fund_cache),
         "hist_cache":    len(hist_cache),
-        "server_time":   datetime.utcnow().isoformat() + "Z",
+        "server_time":   datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "price_ttl_sec": PRICE_TTL,
         "fund_ttl_hr":   FUND_TTL // 3600,
+        "unknown_symbols": len(neg_cache),
+        "upstream_calls":  dict(upstream_calls),
+        "backing_off":     {k: backing_off(k) for k in _backoff_until},
+        "retry_after_sec": backoff_remaining(),
     }
 
 @app.get("/quote/{symbol}")
@@ -798,6 +1014,9 @@ async def quote(symbol: str, refresh: bool = False):
     """
     try:
         data = await get_full_quote(symbol, force_refresh=refresh)
+        if data.get("rateLimited"):
+            raise HTTPException(503, detail="Market data providers are rate-limited; retry shortly.",
+                                headers={"Retry-After": str(max(1, int(data.get("retryAfter") or backoff_remaining() or 30)))})
         if not data or (not data.get("price") and not data.get("pe") and not data.get("mktCapCr")):
             raise HTTPException(404, detail=f"No live data found for symbol: {symbol}. Check if it's a valid NSE ticker.")
         return data
@@ -832,8 +1051,14 @@ async def bulk_quote(
                 log.warning(f"Bulk: {sym} failed: {e}")
                 return sym, {"error": str(e)}
 
-    results = await asyncio.gather(*[fetch_one(s) for s in sym_list])
-    return {sym: data for sym, data in results}
+    # Duplicates in the request collapse to one fetch (and the answer is keyed by the symbol as asked).
+    uniq = list(dict.fromkeys(sym_list))
+    results = await asyncio.gather(*[fetch_one(s) for s in uniq])
+    headers = {}
+    wait = backoff_remaining()
+    if wait:
+        headers["Retry-After"] = str(wait)      # the page paces its next refresh from this instead of hammering a paused provider
+    return JSONResponse({sym: data for sym, data in results}, headers=headers)
 
 @app.get("/history/{symbol}")
 async def history(
@@ -850,17 +1075,23 @@ async def history(
       /history/INFY?period=3mo&interval=1h
     """
     cache_key = f"{clean_sym(symbol)}|{period}|{interval}"
+    if cache_key in neg_cache:
+        raise HTTPException(404, detail=f"No history found for {symbol} (period={period}, interval={interval})")
     if cache_key in hist_cache:
         return {"symbol": symbol, "period": period, "interval": interval,
                 "rows": hist_cache[cache_key], "cached": True, "count": len(hist_cache[cache_key])}
 
     # Try direct HTTP first (no yfinance rate limit); fall back to yfinance
     rows = await fetch_ohlcv_history_direct(symbol, period, interval)
-    if not rows:
+    if not rows and not backing_off("yahoo"):
         loop = asyncio.get_running_loop()
         rows = await loop.run_in_executor(None, fetch_ohlcv_history, symbol, period, interval)
 
     if not rows:
+        if backing_off("yahoo"):
+            raise HTTPException(503, detail="Market data provider is rate-limited; retry shortly.",
+                                headers={"Retry-After": str(backoff_remaining() or 30)})
+        neg_cache[cache_key] = True
         raise HTTPException(404, detail=f"No history found for {symbol} (period={period}, interval={interval})")
 
     hist_cache[cache_key] = rows
@@ -925,12 +1156,11 @@ OLLAMA_ARYA_FAST_MODEL = "llama3.2:3b"       # 3B — fast chat replies
 # Larger model kept for heavy /ai-analysis endpoint (better reasoning)
 OLLAMA_MODEL_PA   = "qwen3:14b"
 
-_PORT_AI_SYSTEM = """You are Arya, FIN·OS's AI portfolio strategist for Indian retail investors.
-Analyse portfolios like a SEBI-registered investment advisor.
-Use ₹, Indian market context (NSE/BSE, Nifty, sector indices).
-Be specific — name actual stocks, cite exact percentages.
-Hinglish — like a smart IIM friend over chai. Direct, warm, zero jargon.
-Max 4-5 sentences per section. Always end with ONE concrete action."""
+_PORT_AI_SYSTEM = """You are Arya, an educational portfolio-analysis assistant for Indian retail investors.
+You are not a SEBI-registered investment adviser and must not present yourself as one.
+Explain portfolio arithmetic and uncertainty in plain Hinglish. Do not recommend buying, selling,
+hedging, or changing allocations, and do not promise tax savings or returns. Make clear that
+scenario analysis is illustrative, and direct tax or suitability questions to a qualified adviser."""
 
 
 def _ollama_messages(system: str, prompt: str) -> list[dict]:
@@ -1115,7 +1345,7 @@ def _compute_sector_hhi(holdings: list[dict]) -> tuple[float, str]:
 
 
 def _find_tax_loss_candidates(holdings: list[dict]) -> list[dict]:
-    """Find holdings with negative unrealised P&L — candidates for tax-loss harvesting."""
+    """Find holdings with negative unrealised P&L for review; this is not tax advice."""
     candidates = []
     for h in holdings:
         pnl = float(h.get("unrealised_pnl") or h.get("pnl") or h.get("gain") or 0)
@@ -1123,7 +1353,6 @@ def _find_tax_loss_candidates(holdings: list[dict]) -> list[dict]:
             candidates.append({
                 "symbol": h.get("symbol") or h.get("name") or "?",
                 "pnl":    round(pnl),
-                "tax_save_estimate": round(abs(pnl) * 0.20),  # rough 20% LTCG/STCG saving
             })
     return sorted(candidates, key=lambda x: x["pnl"])[:5]
 
@@ -1147,7 +1376,7 @@ def _compute_what_if(holdings: list[dict], drop_pct: float = 15.0) -> dict:
     }
 
 
-def _portfolio_ai_prompt(holdings: list[dict], risk_profile: str, what_if: dict,
+def _portfolio_ai_prompt(holdings: list[dict], what_if: dict,
                           tax_candidates: list[dict], hhi: float, dominant_sector: str) -> str:
     total_val    = sum(float(h.get("value") or h.get("current_value") or 0) for h in holdings)
     n_holdings   = len(holdings)
@@ -1163,8 +1392,8 @@ def _portfolio_ai_prompt(holdings: list[dict], risk_profile: str, what_if: dict,
 
     tax_str = ""
     if tax_candidates:
-        tax_str = "Tax-loss candidates:\n" + "\n".join(
-            f"  {c['symbol']}: loss ₹{abs(c['pnl']):,} → potential tax save ~₹{c['tax_save_estimate']:,}"
+        tax_str = "Unrealised loss rows to review (do not estimate tax impact):\n" + "\n".join(
+            f"  {c['symbol']}: unrealised loss ₹{abs(c['pnl']):,}"
             for c in tax_candidates
         )
 
@@ -1177,8 +1406,6 @@ Holdings count:   {n_holdings}
 Avg P&L:          {avg_pnl_pct:.1f}%
 Sector HHI:       {hhi:.3f} ({hhi_label})
 Dominant sector:  {dominant_sector}
-Risk profile:     {risk_profile or 'moderate'}
-
 Top 5 holdings by value:
 {top5_str}
 
@@ -1189,13 +1416,14 @@ What-if scenario:
 
 Provide a structured AI portfolio analysis in this format:
 
-1. CONCENTRATION RISK: [identify the biggest concentration issue with numbers]
-2. REBALANCING SUGGESTION: [specific action — what to sell/reduce, what to add]
-3. TAX-LOSS HARVESTING: [which stocks to consider selling before Mar 31 and why]
-4. DOWNSIDE PROTECTION: [based on the what-if scenario, recommend one hedge]
-5. QUICK WIN: [single highest-impact action this week]
+1. CONCENTRATION OBSERVATION: [describe the measured weights, without a suitability verdict]
+2. DATA LIMITS: [state missing or stale inputs]
+3. LOSS REVIEW: [identify unrealised losses only; tax treatment depends on current rules and the investor's facts]
+4. SCENARIO: [explain the arithmetic and state that it is not a forecast]
+5. NEXT QUESTION: [suggest a neutral question to discuss with a qualified adviser]
 
-Each section: 2-3 sentences max. Use ₹ amounts. Name specific stocks. End with concrete action.
+Each section: at most two short sentences. Use supplied figures only. Never direct a buy, sell,
+rebalance, or hedge action. Do not infer current prices, tax eligibility, or suitability.
 """.strip()
 
 
@@ -1205,22 +1433,72 @@ async def ai_portfolio_analysis(request: Request):
     POST /ai-analysis
     Body: {
       holdings: [{symbol, value, sector, beta, pnl_pct, unrealised_pnl}, ...],
-      risk_profile: "conservative|moderate|aggressive",
       what_if_drop_pct: 15
     }
     Returns: structured AI analysis with streaming support via /ai-analysis/stream.
     """
     try:
-        body         = await request.json()
+        declared_length = request.headers.get("content-length")
+        if declared_length and int(declared_length) > 65536:
+            raise HTTPException(413, "Request body is too large")
+        raw_body = bytearray()
+        async for chunk in request.stream():
+            raw_body.extend(chunk)
+            if len(raw_body) > 65536:
+                raise HTTPException(413, "Request body is too large")
+        body = json.loads(raw_body)
+    except HTTPException:
+        raise
     except Exception:
         raise HTTPException(400, "Invalid JSON body")
 
-    holdings     = body.get("holdings", [])
-    risk_profile = body.get("risk_profile", "moderate")
-    drop_pct     = float(body.get("what_if_drop_pct", 15))
+    if not isinstance(body, dict):
+        raise HTTPException(400, "JSON body must be an object")
+    raw_holdings = body.get("holdings")
+    if not isinstance(raw_holdings, list) or not raw_holdings:
+        raise HTTPException(400, "holdings must be a non-empty array")
+    if len(raw_holdings) > 30:
+        raise HTTPException(400, "At most 30 holdings are supported")
 
-    if not holdings:
-        raise HTTPException(400, "holdings array is required")
+    def _number(record: dict, key: str, default: float, low: float, high: float) -> float:
+        value = record.get(key, default)
+        if isinstance(value, bool):
+            raise HTTPException(400, f"Invalid {key} value")
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            raise HTTPException(400, f"Invalid {key} value")
+        if not math.isfinite(number) or number < low or number > high:
+            raise HTTPException(400, f"Invalid {key} value")
+        return number
+
+    holdings = []
+    for source in raw_holdings:
+        if not isinstance(source, dict):
+            raise HTTPException(400, "Each holding must be an object")
+        symbol = str(source.get("symbol") or "").strip().upper()
+        if not re.fullmatch(r"[A-Z0-9][A-Z0-9.&_-]{0,39}", symbol):
+            raise HTTPException(400, "Each holding needs a valid symbol")
+        value = _number(source, "value", source.get("current_value"), 0.01, 1e15)
+        holding = {
+            "symbol": symbol,
+            "value": value,
+            "beta": _number(source, "beta", 1.0, 0.0, 10.0),
+            "pnl_pct": _number(source, "pnl_pct", 0.0, -10000.0, 10000.0),
+            "unrealised_pnl": _number(source, "unrealised_pnl", 0.0, -1e15, 1e15),
+        }
+        sector = source.get("sector")
+        if sector is not None:
+            if not isinstance(sector, str) or len(sector) > 80:
+                raise HTTPException(400, "Invalid sector value")
+            # Limit model prompt input to plain sector labels; do not pass arbitrary user text through.
+            holding["sector"] = re.sub(r"[^A-Za-z0-9 &./()_-]", " ", sector).strip()
+        holdings.append(holding)
+
+    total_value = sum(item["value"] for item in holdings)
+    if not math.isfinite(total_value) or total_value > 1e16:
+        raise HTTPException(400, "Total portfolio value is outside the supported range")
+    drop_pct = _number(body, "what_if_drop_pct", 15.0, 0.0, 100.0)
 
     loop = asyncio.get_running_loop()
 
@@ -1247,7 +1525,7 @@ async def ai_portfolio_analysis(request: Request):
     hhi, dominant_sector = _compute_sector_hhi(list(holdings))
     tax_candidates       = _find_tax_loss_candidates(list(holdings))
     what_if              = _compute_what_if(list(holdings), drop_pct)
-    prompt               = _portfolio_ai_prompt(list(holdings), risk_profile, what_if,
+    prompt               = _portfolio_ai_prompt(list(holdings), what_if,
                                                 tax_candidates, hhi, dominant_sector)
 
     # Call Ollama via chat endpoint using the larger model for deeper analysis
@@ -1255,7 +1533,8 @@ async def ai_portfolio_analysis(request: Request):
         try:
             return _ollama_generate(_PORT_AI_SYSTEM, prompt, max_tokens=600, model=OLLAMA_MODEL_PA)
         except Exception as e:
-            return f"AI analysis unavailable — Ollama offline? ({e})"
+            log.warning("Portfolio analysis model call failed: %s", type(e).__name__)
+            return "AI text analysis is temporarily unavailable. Numeric portfolio metrics are still shown above."
 
     analysis_text = await loop.run_in_executor(None, _ollama_call)
 
@@ -1283,7 +1562,7 @@ if __name__ == "__main__":
     log.info("=" * 60)
     uvicorn.run(
         "server:app",
-        host="0.0.0.0",
+        host="127.0.0.1",
         port=PORT,
         reload=False,
         log_level="warning",  # suppress uvicorn noise; our logger handles it

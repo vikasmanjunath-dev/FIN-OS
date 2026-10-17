@@ -4,12 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Portfolio.AI — Zerodha Analyser 🇮🇳</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<!-- TradingView Lightweight Charts — Research page candlestick/line charts -->
-<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha384-bs/nf9FbdNouRbMiFcrcZfLXYPKiPaGVGplVbv7dLGECccEXDW+S3zjqSKR5ZEaD" crossorigin="anonymous"></script>
+<!-- xlsx (880 KB, upload only) and TradingView Lightweight Charts (Research page only) are loaded on demand: see loadLib() -->
 <!-- Supabase — Arya cross-session memory -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
+<script src="../js/supabase-config.js"></script><!-- one shared Supabase client: finos-context.js and finos-widget.js each created their own, each with its own 30 s token timer -->
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 /* ── DARK THEME (default) ── */
@@ -5525,7 +5524,97 @@ let EQ_FILTER='all';
 let SEC_FILTER='all';
 window.LIVE_DATA = {}; // Track live fundamentals
 
+// ── MARKET REQUEST LAYER ───────────────────────────────────────────────────────────────────────────────────────
+// Every request to a third-party market provider (Yahoo, Stooq, the public CORS proxies, FX APIs) goes through mktFetch():
+//   * a provider that answered 429 / 5xx / timed out is left alone (circuit breaker: 1 min, doubling to 30 min; 429 honours
+//     Retry-After, default 5 min) instead of being retried for every ticker, which is what filled the console with 502/429;
+//   * identical in-flight requests share one network call, successful GETs are cached for `ttl` ms;
+//   * at most MKT_MAX requests are in flight at once.
+// Local backend calls (server.py on :8766) do not use this: that server has its own cache and rate-limit handling.
+const MKT = { cache: new Map(), inflight: new Map(), brk: {}, active: 0, waiters: [], MAX: 3, stats: { net: 0, cached: 0, shortCircuited: 0 } };
+// A page restart must not re-test a provider that has just said no: breaker state survives reloads for the browser session.
+try { const saved = JSON.parse(sessionStorage.getItem('finos_mkt_brk') || '{}'); Object.keys(saved).forEach(h => { if(saved[h] && saved[h].until > Date.now()) MKT.brk[h] = saved[h]; }); } catch(e) {}
+function mktSave(){ try { sessionStorage.setItem('finos_mkt_brk', JSON.stringify(MKT.brk)); } catch(e) {} }
+function mktHost(u){ try { return new URL(u).host; } catch(e){ return String(u); } }
+function mktPaused(host){ const b = MKT.brk[host]; return !!b && Date.now() < b.until; }
+function mktTrip(host, why, retryAfterMs){
+  const b = MKT.brk[host] || { strikes: 0, until: 0 };
+  b.strikes++;
+  const wait = retryAfterMs || Math.min(30*60e3, 60e3 * Math.pow(2, b.strikes - 1));
+  if(Date.now() >= b.until) console.warn(`[Market] ${host} ${why} — pausing it for ${Math.round(wait/1000)}s`);
+  b.until = Date.now() + wait; MKT.brk[host] = b; mktSave();
+}
+async function mktSlot(){
+  if(MKT.active < MKT.MAX){ MKT.active++; return; }
+  await new Promise(res => MKT.waiters.push(res)); MKT.active++;
+}
+function mktRelease(){ MKT.active--; const n = MKT.waiters.shift(); if(n) n(); }
+async function mktFetch(url, opts = {}){
+  const host = mktHost(url), ttl = opts.ttl || 0, timeout = opts.timeout || 10000;
+  const hit = ttl && MKT.cache.get(url);
+  if(hit && Date.now() < hit.exp){ MKT.stats.cached++; return new Response(hit.text, { status: 200 }); }
+  if(mktPaused(host)){ MKT.stats.shortCircuited++; throw new Error('provider paused: ' + host); }
+  let p = MKT.inflight.get(url);
+  if(!p){
+    p = (async () => {
+      await mktSlot();
+      try {
+        if(mktPaused(host)){ MKT.stats.shortCircuited++; throw new Error('provider paused: ' + host); }
+        MKT.stats.net++;
+        const res = await fetch(url, { signal: AbortSignal.timeout(timeout) });
+        const text = await res.text();
+        if(res.status === 429){ const ra = Number(res.headers.get('retry-after')); mktTrip(host, 'HTTP 429', ra > 0 ? ra*1000 : 5*60e3); }
+        else if(res.status >= 500) mktTrip(host, 'HTTP ' + res.status);
+        else if(res.ok){ if(MKT.brk[host]){ delete MKT.brk[host]; mktSave(); } if(ttl){ MKT.cache.set(url, { text, exp: Date.now() + ttl }); if(MKT.cache.size > 300) MKT.cache.delete(MKT.cache.keys().next().value); } }
+        return { status: res.status, text };
+      } catch(e){
+        if(!/paused/.test(String(e && e.message))) mktTrip(host, e && e.name === 'TimeoutError' ? 'timed out' : 'unreachable');
+        throw e;
+      } finally { mktRelease(); }
+    })().finally(() => MKT.inflight.delete(url));
+    MKT.inflight.set(url, p);
+  }
+  const r = await p;
+  return new Response(r.text, { status: r.status });
+}
+
 // ── NAV ──
+// ── ON-DEMAND LIBRARIES ────────────────────────────────────────────────────────────────────────────────────────
+// xlsx.full.min.js (880 KB) is only needed once a file is uploaded and lightweight-charts only on the Research page; both used to
+// block parsing in <head> on every load. Pinned versions with integrity hashes; xlsx is fetched in idle time so the first upload
+// is not delayed.
+const _LIBS = {
+  xlsx: { url: 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js', sri: 'sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw', ready: () => typeof XLSX !== 'undefined' },
+  lwc:  { url: 'https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js', sri: 'sha384-JZigAjwiaZtkUbA44CWkPaT3iBb/mU5pO6QOANp+OqHd4q+1+7MG1kzp2OOP9ZfP', ready: () => typeof LightweightCharts !== 'undefined' },
+};
+const _libPromises = {};
+function loadLib(name) {
+  const lib = _LIBS[name];
+  if(!lib) return Promise.reject(new Error('unknown library ' + name));
+  if(lib.ready()) return Promise.resolve();
+  if(_libPromises[name]) return _libPromises[name];
+  _libPromises[name] = new Promise((resolve, reject) => {
+    const sc = document.createElement('script');
+    sc.src = lib.url; sc.integrity = lib.sri; sc.crossOrigin = 'anonymous';
+    sc.onload = () => resolve();
+    sc.onerror = () => { delete _libPromises[name]; reject(new Error('Could not load ' + name)); };
+    document.head.appendChild(sc);
+  });
+  return _libPromises[name];
+}
+(window.requestIdleCallback || (f => setTimeout(f, 1500)))(() => { loadLib('xlsx').catch(() => {}); });
+
+function loadQuantPageOnce(){
+  if(!window._quantPending) return;
+  window._quantPending = false;
+  buildQuantIntelligence().catch(e => {
+    console.warn('[buildQuantIntelligence] Network/data fetch failed (expected in offline env):', e.message);
+    const el = document.getElementById('quant-status');
+    if(el) el.textContent = 'Live data unavailable — working with estimated data';
+  });
+  refreshMacroDashboard().catch(e => console.warn('[Macro] fetch failed:', e.message));
+}
+
 function go(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
@@ -5533,6 +5622,9 @@ function go(id){
   const nb=document.getElementById('nb-'+id);
   if(nb) nb.classList.add('on');
   else document.querySelectorAll('.nav-btn')[0].classList.add('on');
+  if(id==='research') loadLib('lwc').catch(() => {});
+  if(id==='quant' && EQ && (EQ.length || MF.length)) loadQuantPageOnce();
+  if(_stalePages.has(id) && PRICE_PAGES[id]) { _stalePages.delete(id); try { PRICE_PAGES[id](); } catch(e) { console.error('[go:'+id+']', e); } }
   // Initialize research hub on first visit
   if(id==='research'&&window._riNeedsPopulate&&EQ&&EQ.length){
     window._riNeedsPopulate=false;
@@ -5563,8 +5655,9 @@ function processFile(file){
   const loader=document.getElementById('loader');
   loader.classList.add('show');
   const reader=new FileReader();
-  reader.onload=e=>{
+  reader.onload=async e=>{
     try{
+      await loadLib('xlsx');
       const wb=XLSX.read(e.target.result,{type:'array'});
       parseZerodha(wb);
     }catch(err){
@@ -6013,28 +6106,9 @@ async function fetchLiveFundamentalsAsync(callback) {
   let liveCount = 0;
 
   try {
-    // Use shared batched fetcher — fetches ALL symbols, no 50-cap
     const data = await fetchAllLivePrices(5000);
     window.LIVE_DATA = {};
-
-    EQ.forEach(h => {
-      const live = data[h.sym.toUpperCase().replace(/-EQ$|-BE$/,'')];
-      if(live && !live.error) {
-        if(live.price) {
-          h.cmp = live.price;
-          liveCount++; // only count if we actually got a real price
-        }
-        if(live.changePct !== undefined) h.changePct = live.changePct;
-        window.LIVE_DATA[h.sym] = live;
-      }
-    });
-
-    // Recalculate derived fields for all holdings
-    EQ.forEach(h => {
-      h.currVal = h.qty * h.cmp;
-      h.pnl     = h.currVal - h.invested;
-      h.pnlPct  = h.invested > 0 ? (h.pnl / h.invested) * 100 : 0;
-    });
+    ({ live: liveCount } = applyLivePrices(data));
 
     _lastRefreshTime = new Date();
     const ts = _lastRefreshTime.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -6061,34 +6135,99 @@ let _refreshing = false;
 
 
 // ── Shared live price fetcher — fetches ALL symbols in one request (server cap: 200) ──
+let _livePricesInflight = null;
+let _liveRetryAfterMs = 0;      // set from the backend's Retry-After header while its market providers are paused
 async function fetchAllLivePrices(timeoutMs = 15000) {
-  const allSyms = [...new Set(EQ.map(e => e.sym.toUpperCase().replace(/-EQ$|-BE$/,'')))];
-  if(!allSyms.length) return {};
+  // Concurrent callers (auto refresh, the Refresh button, the Equity tab button) share one request.
+  if(_livePricesInflight) return _livePricesInflight;
+  _livePricesInflight = (async () => {
+    const allSyms = [...new Set(EQ.map(e => e.sym.toUpperCase().replace(/-EQ$|-BE$/,'')))];
+    if(!allSyms.length) return {};
 
-  const BATCH = 200; // server /bulk now supports up to 200 symbols per request
-  const batches = [];
-  for(let i = 0; i < allSyms.length; i += BATCH) batches.push(allSyms.slice(i, i + BATCH));
+    const BATCH = 200; // server /bulk supports up to 200 symbols per request
+    const batches = [];
+    for(let i = 0; i < allSyms.length; i += BATCH) batches.push(allSyms.slice(i, i + BATCH));
 
-  // Fire all batches in parallel (for most portfolios this is just 1 request)
-  const results = await Promise.allSettled(
-    batches.map(batch =>
-      fetch(`${LIVE_API_BASE}/bulk?symbols=${batch.join(',')}`, {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' },
-        signal: AbortSignal.timeout(timeoutMs),
-        mode: 'cors'
-      }).then(r => r.ok ? r.json() : Promise.reject(`HTTP ${r.status}`))
-    )
-  );
+    _liveRetryAfterMs = 0;
+    const results = await Promise.allSettled(
+      batches.map(batch =>
+        fetch(`${LIVE_API_BASE}/bulk?symbols=${batch.join(',')}`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+          signal: AbortSignal.timeout(timeoutMs),
+          mode: 'cors'
+        }).then(r => {
+          const ra = Number(r.headers.get('Retry-After'));
+          if(ra > 0) _liveRetryAfterMs = Math.max(_liveRetryAfterMs, ra * 1000);
+          return r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`));
+        })
+      )
+    );
 
-  const merged = {};
-  results.forEach(r => {
-    if(r.status === 'fulfilled' && r.value) Object.assign(merged, r.value);
+    const merged = {};
+    let failed = 0;
+    results.forEach(r => {
+      if(r.status === 'fulfilled' && r.value) Object.assign(merged, r.value);
+      else failed++;
+    });
+    if(failed === results.length && results.length) throw new Error('price service unavailable');
+    return merged;
+  })().finally(() => { _livePricesInflight = null; });
+  return _livePricesInflight;
+}
+
+// One place that merges live quotes into the holdings. Returns {live, changed}: how many holdings got a real price, and how many
+// of those prices actually differ from what was on screen (so an unchanged refresh does not rebuild the whole page).
+function applyLivePrices(data) {
+  let live = 0, changed = 0;
+  EQ.forEach(h => {
+    const q = data[h.sym.toUpperCase().replace(/-EQ$|-BE$/,'')];
+    if(q && !q.error) {
+      if(q.price) {
+        if(h.cmp !== q.price) changed++;
+        h.cmp = q.price; live++;
+      }
+      if(q.changePct !== undefined) {
+        if(h.changePct !== q.changePct) changed++;
+        h.changePct = q.changePct;
+      }
+      window.LIVE_DATA[h.sym] = q;
+    }
   });
-  return merged;
+  EQ.forEach(h => {
+    h.currVal = h.qty * h.cmp;
+    h.pnl     = h.currVal - h.invested;
+    h.pnlPct  = h.invested > 0 ? (h.pnl / h.invested) * 100 : 0;
+  });
+  return { live, changed };
+}
+
+// Which pages show prices, and how to rebuild each. Only the page on screen is rebuilt after a refresh; the rest are marked
+// stale and rebuilt when opened (go()).
+const PRICE_PAGES = {
+  overview:  () => buildOverview(),
+  equity:    () => { buildEquity(); if(_etfBuilt) buildETF(); if(_mfBuilt) buildMF(); },
+  sectors:   () => buildSectors(),
+  insights:  () => buildInsights(),
+  tax:       () => buildTaxPlanner(),
+  rebalance: () => buildRebalance(),
+  analytics: () => { buildAnalytics(); if(!window._piBuilt) { window._piBuilt = true; buildPortfolioIntelligence(); } },
+};
+const _stalePages = new Set();
+function currentPageId() {
+  const el = document.querySelector('.page.on');
+  return el ? el.id.replace(/^page-/, '') : '';
+}
+function rebuildPricePages() {
+  const here = currentPageId();
+  Object.keys(PRICE_PAGES).forEach(id => {
+    if(id === here) { try { PRICE_PAGES[id](); } catch(e) {} _stalePages.delete(id); }
+    else _stalePages.add(id);
+  });
 }
 
 // Core fetch — pulls fresh prices for ALL EQ symbols, rebuilds every page
+let _liveFailStreak = 0;   // consecutive failed refreshes: drives the back-off in liveRefreshDelay()
 async function globalRefresh(silent = false) {
   if(_refreshing) return;
   if(!EQ || !EQ.length) return;
@@ -6102,50 +6241,21 @@ async function globalRefresh(silent = false) {
     b.disabled = true;
   });
 
-  let liveCount = 0;
+  let liveCount = 0, changed = 0, ok = false;
 
   try {
-    // Fetch ALL symbols in parallel batches — no 50-symbol cap
     const data = await fetchAllLivePrices(15000);
-
-    // Merge live prices into EQ — only count as "live" if a real price was actually received
-    EQ.forEach(h => {
-      const live = data[h.sym.toUpperCase().replace(/-EQ$|-BE$/,'')];
-      if(live && !live.error) {
-        if(live.price) {
-          h.cmp = live.price;
-          liveCount++; // real price confirmed
-        }
-        if(live.changePct !== undefined) h.changePct = live.changePct;
-        window.LIVE_DATA[h.sym] = live;
-      }
-    });
-
-    // Recalculate all derived fields
-    EQ.forEach(h => {
-      h.currVal = h.qty * h.cmp;
-      h.pnl     = h.currVal - h.invested;
-      h.pnlPct  = h.invested > 0 ? (h.pnl / h.invested) * 100 : 0;
-    });
-
+    ({ live: liveCount, changed } = applyLivePrices(data));
+    ok = true;
     _lastRefreshTime = new Date();
-    _refreshCountdown = 60;
-    console.log(`[Refresh] ✅ ${liveCount}/${EQ.length} live prices updated (${Object.keys(data).length} returned by server)`);
-
+    console.log(`[Refresh] ✅ ${liveCount}/${EQ.length} live prices (${changed} changed, ${Object.keys(data).length} returned by server)`);
   } catch(err) {
     console.warn('[Refresh]', err.message);
   }
+  _liveFailStreak = ok ? 0 : _liveFailStreak + 1;
 
-  // Rebuild ALL pages with fresh data
-  try { buildOverview();   } catch(e){}
-  try { buildEquity();     } catch(e){}
-  try { if(_etfBuilt)  buildETF(); } catch(e){}
-  try { if(_mfBuilt)   buildMF();  } catch(e){}
-  try { buildSectors();   } catch(e){}
-  try { buildInsights();  } catch(e){}
-  try { buildTaxPlanner();} catch(e){}
-  try { buildRebalance(); } catch(e){}
-  try { buildAnalytics(); } catch(e){}
+  // Rebuild only when something moved (or the user asked), and only the page on screen; other pages rebuild when opened.
+  if(changed > 0 || !silent) rebuildPricePages();
 
   // Update all timestamps
   const ts = _lastRefreshTime
@@ -6162,6 +6272,7 @@ async function globalRefresh(silent = false) {
   });
   if(_backendOnline) updateSidebarLiveChip(true);
   _refreshing = false;
+  scheduleLiveRefresh();
 }
 
 function updateAllTimestamps(liveCount, totalHoldings, ts) {
@@ -6179,60 +6290,74 @@ function updateAllTimestamps(liveCount, totalHoldings, ts) {
   });
 }
 
-// Auto-refresh every 60s with countdown
-function startLiveRefresh() {
-  if(LIVE_REFRESH_INTERVAL) clearInterval(LIVE_REFRESH_INTERVAL);
-  _refreshCountdown = 60;
+// ── Auto refresh ────────────────────────────────────────────────────────────────────────────
+// One timer chain instead of a 1-second interval: 60 s while the Indian market is open, 5 min otherwise (prices cannot change),
+// exponential back-off (up to 5 min) after failures, never faster than the backend's Retry-After, and paused in a background tab.
+let _liveTimer = null, _countTimer = null, _nextRefreshAt = 0;
 
-  LIVE_REFRESH_INTERVAL = setInterval(() => {
-    _refreshCountdown--;
-
-    // Update countdown in all visible last-update labels
-    if(_lastRefreshTime && _refreshCountdown > 0 && _refreshCountdown <= 10) {
-      document.querySelectorAll('[id^="lu-"]').forEach(el => {
-        if(el.innerHTML.includes('live')) {
-          const lines = el.innerHTML.split('<br>');
-          if(lines.length >= 2) el.innerHTML = lines[0] + `<br>Refresh in ${_refreshCountdown}s`;
-        }
-      });
-    }
-
-    if(_refreshCountdown <= 0) {
-      _refreshCountdown = 60;
-      globalRefresh(true); // silent auto-refresh
-    }
-  }, 1000);
+function marketOpenIST(now = Date.now()) {
+  const t = new Date(now + (330 + new Date(now).getTimezoneOffset()) * 60000);   // wall clock in IST
+  const mins = t.getHours() * 60 + t.getMinutes();
+  return t.getDay() >= 1 && t.getDay() <= 5 && mins >= 9 * 60 && mins <= 15 * 60 + 45;
 }
+function liveRefreshDelay(now = Date.now()) {
+  let d = marketOpenIST(now) ? 60000 : 5 * 60000;
+  if(_liveFailStreak) d = Math.max(d, Math.min(5 * 60000, 60000 * Math.pow(2, _liveFailStreak)));
+  return Math.max(d, _liveRetryAfterMs || 0);
+}
+function scheduleLiveRefresh() {
+  clearTimeout(_liveTimer); clearTimeout(_countTimer);
+  if(document.hidden || !EQ || !EQ.length) return;
+  const delay = liveRefreshDelay();
+  _nextRefreshAt = Date.now() + delay;
+  _liveTimer = setTimeout(() => globalRefresh(true), delay);
+  // "Refresh in Ns" label for the last 10 seconds only
+  if(delay > 11000) _countTimer = setTimeout(function tick() {
+    const left = Math.round((_nextRefreshAt - Date.now()) / 1000);
+    if(left <= 0 || document.hidden) return;
+    document.querySelectorAll('[id^="lu-"]').forEach(el => {
+      if(el.innerHTML.includes('live')) {
+        const lines = el.innerHTML.split('<br>');
+        if(lines.length >= 2) el.innerHTML = lines[0] + `<br>Refresh in ${left}s`;
+      }
+    });
+    _countTimer = setTimeout(tick, 1000);
+  }, delay - 10000);
+}
+function startLiveRefresh() {
+  _liveFailStreak = 0;
+  scheduleLiveRefresh();
+}
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden) { clearTimeout(_liveTimer); clearTimeout(_countTimer); return; }
+  if(!EQ || !EQ.length || !_liveTimer) return;
+  // back in the foreground: refresh now if the next one is overdue, otherwise just resume the schedule
+  if(Date.now() >= _nextRefreshAt) globalRefresh(true); else scheduleLiveRefresh();
+});
 
 // ── BUILD ALL ──
 function buildAll(){
   // Reset lazy-load flags for fresh file uploads
   _etfBuilt = false;
   _mfBuilt  = false;
+  _stalePages.clear();
   // Run synchronous builds first — these are the core of the app
   try { buildOverview();     } catch(e){ console.error('[buildOverview]', e); }
   try { buildEquity();       } catch(e){ console.error('[buildEquity]', e); }
-  // ETF + MF sections are lazy-loaded on first tab click,
-  // but we pre-build here so they're ready if user navigates directly
-  try { _etfBuilt=true; buildETF(); } catch(e){ console.error('[buildETF]', e); }
-  try { _mfBuilt=true;  buildMF();  } catch(e){ console.error('[buildMF]', e); }
-  try { buildSectors();      } catch(e){ console.error('[buildSectors]', e); }
-  try { buildInsights();     } catch(e){ console.error('[buildInsights]', e); }
-  try { buildTaxPlanner();   } catch(e){ console.error('[buildTaxPlanner]', e); }
-  try { buildRebalance();    } catch(e){ console.error('[buildRebalance]', e); }
-  try { buildAnalytics();    } catch(e){ console.error('[buildAnalytics]', e); }
-  try { buildPortfolioIntelligence(); } catch(e){ console.error('[buildPortfolioIntelligence]', e); }
+  // Only the pages on screen are built now. ETF / MF sub-tabs, Sectors, Insights, Tax, Rebalance and Analytics (about two thirds of
+  // the page's DOM and 20 of its 24 charts) are built the first time they are opened: go() / eqPageTab() do it. Their data is
+  // already in EQ / MF, so nothing is lost; an upload no longer pays for pages that may never be looked at.
+  window._piBuilt = false;
+  ['sectors','insights','tax','rebalance','analytics'].forEach(id => _stalePages.add(id));
+  const here = currentPageId();
+  if(_stalePages.has(here)) { _stalePages.delete(here); try { PRICE_PAGES[here](); } catch(e) { console.error('['+here+']', e); } }
   try { showAlertBanner();   } catch(e){ console.error('[showAlertBanner]', e); }
-  // Quant Intelligence is async (network calls) — runs independently, never blocks core
-  buildQuantIntelligence().catch(e => {
-    console.warn('[buildQuantIntelligence] Network/data fetch failed (expected in offline env):', e.message);
-    const el = document.getElementById('quant-status');
-    if(el) el.textContent = 'Live data unavailable — working with estimated data';
-  });
-  // Macro dashboard auto-loads (independent of portfolio data)
-  refreshMacroDashboard().catch(e => console.warn('[Macro] fetch failed:', e.message));
-  
-  // Start real-time fundamentals refresh every 60 seconds
+  // Quant Intelligence (12 history downloads + Monte Carlo) and the macro tiles (6 market tickers) are on the Quant page only:
+  // they load the first time that page is opened, not on every upload (used to be ~30 third-party requests per load).
+  window._quantPending = true;
+  if(document.getElementById('page-quant')?.classList.contains('on')) loadQuantPageOnce();
+
+  // Real-time price refresh (paced, pauses in background tabs, backs off when the backend is rate-limited)
   startLiveRefresh();
 }
 
@@ -6884,21 +7009,7 @@ async function refreshCurrentEqTab() {
   try {
     // Fetch fresh prices first
     const data = await fetchAllLivePrices(12000);
-    if(data && Object.keys(data).length > 0) {
-      EQ.forEach(h => {
-        const live = data[h.sym.toUpperCase().replace(/-EQ$|-BE$/,'')];
-        if(live && !live.error && live.price) {
-          h.cmp = live.price;
-          if(live.changePct !== undefined) h.changePct = live.changePct;
-          window.LIVE_DATA[h.sym] = live;
-        }
-      });
-      EQ.forEach(h => {
-        h.currVal = h.qty * h.cmp;
-        h.pnl     = h.currVal - h.invested;
-        h.pnlPct  = h.invested > 0 ? (h.pnl / h.invested) * 100 : 0;
-      });
-    }
+    if(data && Object.keys(data).length > 0) applyLivePrices(data);
   } catch(e) {}
 
   // Rebuild the active sub-tab
@@ -8207,6 +8318,35 @@ function renderSectors(mode){
   }
 
   renderSectorInsights(mode,map,secK,base,totalInvested);
+}
+
+// Sector insights card (#sec-insights-box). renderSectors() has always called this but it was never defined, so the Sectors page
+// threw a ReferenceError on every build and every price refresh. Facts about the current mix only; nothing here is advice.
+function renderSectorInsights(mode, map, secK, base, totalInvested){
+  const box = document.getElementById('sec-insights-box');
+  if(!box) return;
+  const denom = base > 0 ? base : (totalInvested || 0);
+  if(!secK || !secK.length || !(denom > 0)){ box.innerHTML = ''; return; }
+  const rows = secK.map(k => ({ k, share: map[k].inv / denom * 100, pnl: map[k].pnl }));
+  const named = rows.filter(r => r.k !== 'Diversified');
+  const top = (named[0] || rows[0]);
+  const heavy = named.filter(r => r.share >= 25);
+  const hhi = rows.reduce((t, r) => t + Math.pow(r.share / 100, 2), 0);
+  const spread = hhi < 0.10 ? 'well spread' : hhi < 0.18 ? 'moderately concentrated' : 'concentrated';
+  const best = [...named].sort((a, b) => b.pnl - a.pnl)[0];
+  const worst = [...named].sort((a, b) => a.pnl - b.pnl)[0];
+  const li = t => `<li style="margin:5px 0;color:var(--dim);font-size:12px;line-height:1.5">${t}</li>`;
+  const items = [
+    li(`Largest sector: <strong style="color:var(--txt,#e6e8f5)">${top.k}</strong> at ${top.share.toFixed(1)}% of the amount invested in this view.`),
+    heavy.length ? li(`${heavy.length} sector${heavy.length > 1 ? 's' : ''} hold 25% or more each: ${heavy.map(r => `${r.k} (${r.share.toFixed(0)}%)`).join(', ')}.`)
+                 : li('No single sector holds 25% or more of the amount invested.'),
+    li(`Across ${rows.length} sector bucket${rows.length > 1 ? 's' : ''} the mix is <strong>${spread}</strong> (Herfindahl index ${hhi.toFixed(2)}).`),
+  ];
+  if(best && worst && best.k !== worst.k && (best.pnl !== 0 || worst.pnl !== 0))
+    items.push(li(`Unrealised P&L is highest in ${best.k} (${fmtINR(best.pnl, true)}) and lowest in ${worst.k} (${fmtINR(worst.pnl, true)}).`));
+  box.innerHTML = `<div class="card mb20"><div class="card-h"><span class="card-ttl">🧭 Sector Insights</span>` +
+    `<span style="font-size:10px;color:var(--dim)">About the mix shown above, not a recommendation</span></div>` +
+    `<div class="card-p"><ul style="margin:0;padding-left:18px">${items.join('')}</ul></div></div>`;
 }
 
 function buildInsights(){
@@ -10823,7 +10963,7 @@ async function fetchYF(ticker, period='1y', interval='1wk') {
   for(const makeProxy of PROXY_LIST) {
     for(const raw of [baseUrl, baseUrl2]) {
       try {
-        const res = await fetch(makeProxy(raw), {signal: AbortSignal.timeout(10000)});
+        const res = await mktFetch(makeProxy(raw), {timeout: 10000, ttl: 30*60e3});
         if(!res.ok) continue;
         const data = await res.json();
         const result = data?.chart?.result?.[0];
@@ -11883,7 +12023,7 @@ async function fetchYFDirect(ticker) {
   const yfUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=2d`;
   for (const makeProxy of PROXY_LIST) {
     try {
-      const res = await fetch(makeProxy(yfUrl), { signal: AbortSignal.timeout(6000) });
+      const res = await mktFetch(makeProxy(yfUrl), { timeout: 6000, ttl: 5*60e3 });
       if (!res.ok) continue;
       const json = await res.json();
       const q = json?.chart?.result?.[0]?.indicators?.quote?.[0];
@@ -11906,7 +12046,7 @@ async function fetchForexDirect() {
   ];
   for (const url of apis) {
     try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+      const res = await mktFetch(url, { timeout: 5000, ttl: 10*60e3 });
       if (!res.ok) continue;
       const data = await res.json();
       const inr = data?.rates?.INR || data?.rates?.inr;
@@ -13913,16 +14053,8 @@ function riSetFetchStatus(state,txt){
 
 // Safe fetch with AbortController timeout
 async function riFetchWithTimeout(url, timeoutMs = 12000) {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
-  try {
-    const res = await fetch(url, { signal: ctrl.signal });
-    clearTimeout(timer);
-    return res;
-  } catch(e) {
-    clearTimeout(timer);
-    throw e;
-  }
+  // third-party market data: guarded (breaker, cache, in-flight sharing) — see MARKET REQUEST LAYER
+  return mktFetch(url, { timeout: timeoutMs, ttl: 10*60e3 });
 }
 
 async function riFetchJSON(url, timeoutMs = 12000) {
@@ -14083,6 +14215,18 @@ async function riLoadData() {
       rows   = riMakeDailyRowsFromAI(aiData, fakeHolding);
       source = `⚛️ Live price ₹${aiData.price} via AI`;
     }
+  }
+
+  // ── SOURCE 0.5: local backend (server.py) — cached server-side, no third-party proxy involved ─────
+  if (!rows && _backendOnline) {
+    try {
+      riSetFetchStatus('loading', `Loading ${sym} from the local backend…`);
+      const sr = await liveFetchHistory(sym, '5y', '1d');
+      if (sr && sr.length >= 20) {
+        rows = sr.map(r => ({ date: r.date, o: r.open, h: r.high, l: r.low, c: r.close, v: r.volume }));
+        source = 'Local backend (Yahoo Finance)';
+      }
+    } catch(e) { /* fall through to the browser-side sources */ }
   }
 
   // ── SOURCE 1: Direct Yahoo Finance query2 ─────────────────────────
@@ -15759,23 +15903,30 @@ let NIFTY_1Y_RET=(function(){
 })();
 
 // ── Live 1Y return: exact (today − 1Y) → today via Yahoo Finance ──
-// Tries query1 → query2 → CORS proxy in order; whichever responds first wins.
+// Yahoo sends no CORS headers, so a direct browser request to query1/query2 can only fail (and logs a console error each page
+// load): it goes through a CORS proxy via mktFetch(), and the result is kept for an hour so reloads do not ask again.
 // Updates NIFTY_1Y_RET globally so every function that reads it gets live data.
 (async function _loadLiveNifty(){
   try{
+    try{
+      const c=JSON.parse(localStorage.getItem('finos_nifty1y')||'null');
+      if(c && Date.now()-c.at < 3600e3 && c.v && c.v.live){
+        NIFTY_1Y_RET=c.v; BENCH_RETS['Nifty 50'].ret1y=c.v.pct/100; _patchNiftyDisplays();
+        return;
+      }
+    }catch(e){}
     const now=new Date();
     const yr=new Date(now.getFullYear()-1,now.getMonth(),now.getDate());
     const t1=Math.floor(yr.getTime()/1000);
     const t2=Math.floor(now.getTime()/1000)+86400;
     const base=`https://query1.finance.yahoo.com/v8/finance/chart/%5ENSEI?period1=${t1}&period2=${t2}&interval=1d`;
     const endpoints=[
-      base,
-      base.replace('query1','query2'),
-      `https://corsproxy.io/?${encodeURIComponent(base)}`
+      `https://corsproxy.io/?${encodeURIComponent(base)}`,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(base)}`
     ];
     let js=null;
     for(const url of endpoints){
-      try{const r=await fetch(url);if(r.ok){js=await r.json();break;}}catch(e){}
+      try{const r=await mktFetch(url,{timeout:10000,ttl:60*60e3});if(r.ok){js=await r.json();break;}}catch(e){}
     }
     if(!js) throw new Error('all endpoints failed');
     const r=js?.chart?.result?.[0];
@@ -15789,6 +15940,7 @@ let NIFTY_1Y_RET=(function(){
     const pct=parseFloat(((lc/fc-1)*100).toFixed(1));
     const fromD=new Date(ts[fi]*1000),toD=new Date(ts[li]*1000);
     NIFTY_1Y_RET={pct,from:_niftyFmtD(fromD),to:_niftyFmtD(toD),cv:lc,pv:fc,live:true};
+    try{localStorage.setItem('finos_nifty1y',JSON.stringify({at:Date.now(),v:NIFTY_1Y_RET}));}catch(e){}
     BENCH_RETS['Nifty 50'].ret1y=pct/100;
     _patchNiftyDisplays();
     console.log('[Nifty Live] '+pct+'% · '+NIFTY_1Y_RET.from+' → '+NIFTY_1Y_RET.to+' · close '+fc+'→'+lc);
@@ -20254,7 +20406,11 @@ riRenderPriceChart = function() {
   // Destroy existing
   if (_tvChart) { try { _tvChart.remove(); } catch(e){} _tvChart = null; }
 
-  // Ensure LightweightCharts loaded
+  // Ensure LightweightCharts loaded (fetched on demand; re-render once it arrives)
+  if (typeof LightweightCharts === 'undefined' && !window._lwcTried) {
+    window._lwcTried = true;
+    loadLib('lwc').then(() => { window._lwcTried = false; riRenderPriceChart(); }).catch(() => { window._lwcTried = false; });
+  }
   if (typeof LightweightCharts === 'undefined') {
     container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--dim);font-size:13px;padding:20px">⏳ Loading TradingView Charts…</div>';
     return;
@@ -22162,9 +22318,12 @@ const _OV_SECTIONS = [
 const _OV_LAYOUT_KEY = 'pa_ov_layout';
 let _ovDragSrc = null;
 
-function initOverviewDrag(){
+function initOverviewDrag(force){
   const page = document.getElementById('page-overview');
   if(!page) return;
+  // Already wrapped: the wrappers survive price refreshes (only the boxes inside them are re-rendered), so opening the Overview
+  // again must not tear the sections down and rebuild them. Only the reset button forces a fresh layout.
+  if(!force && page.querySelector('.ov-drag-section')) return;
 
   // Assign ID to the charts g2 div if not already done
   if(!document.getElementById('ov-charts-box')){
@@ -22185,6 +22344,10 @@ function initOverviewDrag(){
     if(!firstEl || !firstEl.parentNode) return;
 
     const wrapper = document.createElement('div');
+    // Put the wrapper where the section starts BEFORE moving anything into it. (It used to be inserted relative to firstEl
+    // after firstEl had been moved inside the wrapper, which threw NotFoundError, aborted the setup after the first section and
+    // left that section's wrapper at the end of the page.)
+    firstEl.parentNode.insertBefore(wrapper, firstEl);
     wrapper.className  = 'ov-drag-section';
     wrapper.dataset.sid = sec.id;
     wrapper.draggable  = true;
@@ -22202,11 +22365,6 @@ function initOverviewDrag(){
       if(el) wrapper.appendChild(el);
     });
 
-    firstEl.parentNode === page
-      ? page.appendChild(wrapper)      // fallback
-      : null;
-    page.insertBefore(wrapper, firstEl.parentNode === page ? firstEl.nextSibling : page.lastChild);
-    page.insertBefore(wrapper, firstEl);
   });
 
   // Restore saved order
@@ -22300,7 +22458,7 @@ function _ovLoadLayout(){
 
 function ovResetLayout(){
   localStorage.removeItem(_OV_LAYOUT_KEY);
-  initOverviewDrag();
+  initOverviewDrag(true);
   _showFlash('Overview layout reset to default');
 }
 
