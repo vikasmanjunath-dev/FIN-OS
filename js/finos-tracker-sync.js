@@ -168,6 +168,16 @@
   /* ── browser runtime ───────────────────────────────────────────────────── */
   function ls() { try { return root.localStorage; } catch (_) { return null; } }
   function readMeta() { try { return JSON.parse(ls().getItem(META_KEY)) || {}; } catch (_) { return {}; } }
+  function readMetaForSync(s) {
+    const raw = s.getItem(META_KEY);
+    if (raw == null) return {};
+    let meta;
+    try { meta = JSON.parse(raw); } catch (_) { throw new Error('Tracker sync paused because local ownership metadata is unreadable. Local data was preserved.'); }
+    if (!meta || typeof meta !== 'object' || Array.isArray(meta) || (meta.owner !== undefined && (typeof meta.owner !== 'string' || !meta.owner))) {
+      throw new Error('Tracker sync paused because local ownership metadata is invalid. Local data was preserved.');
+    }
+    return meta;
+  }
   function writeMeta(m) { try { ls().setItem(META_KEY, JSON.stringify(m)); } catch (_) {} }
 
   function getClient() {
@@ -201,7 +211,7 @@
     try {
       const s = ls();
       if (!s) return { ok: false };
-      const meta = readMeta();
+      const meta = readMetaForSync(s);
 
       const { data: row, error } = await client.from(TABLE).select('data,updated_at').eq('user_id', userId).maybeSingle();
       if (error) return { ok: false, error: error.message };

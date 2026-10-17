@@ -261,6 +261,20 @@ test('a different account never merges into this one', async () => {
   assert.equal(metaOf(phone).owner, 'user-B');
 });
 
+test('unreadable ownership metadata pauses sync without moving local data between accounts', async () => {
+  const cloud = new FakeCloud();
+  cloud.row = { data: { finos_monthly_income: 'B-only' }, updated_at: 'b1' };
+  const phone = new MemStore();
+  phone.m.set(mobile.META_KEY, '{broken');
+  phone.m.set('finos_monthly_income', 'A-private');
+  const before = JSON.stringify(cloud.row);
+  const result = await phoneSync(phone, cloud, 'user-B');
+  assert.equal(result.ok, false);
+  assert.match(result.error ?? '', /ownership metadata is unreadable/);
+  assert.equal(phone.m.get('finos_monthly_income'), 'A-private');
+  assert.equal(JSON.stringify(cloud.row), before);
+});
+
 test('conflicts keep the displaced value in a short log', async () => {
   const cloud = new FakeCloud();
   const phone = new MemStore(), site = new MemStore();

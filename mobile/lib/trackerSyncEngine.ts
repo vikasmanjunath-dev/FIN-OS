@@ -62,13 +62,20 @@ export function normaliseMeta(raw: unknown): SyncMeta {
   return out;
 }
 
-async function readMeta(store: LocalStore): Promise<SyncMeta> {
-  try { return normaliseMeta(JSON.parse((await store.get(META_KEY)) || '{}')); } catch { return {}; }
+async function readMetaStrict(store: LocalStore): Promise<SyncMeta> {
+  const raw = await store.get(META_KEY);
+  if (raw === null) return {};
+  let parsed: unknown;
+  try { parsed = JSON.parse(raw); } catch { throw new Error('Tracker sync paused because local ownership metadata is unreadable. Local data was preserved.'); }
+  if (!isObj(parsed) || (parsed.owner !== undefined && (typeof parsed.owner !== 'string' || !parsed.owner))) {
+    throw new Error('Tracker sync paused because local ownership metadata is invalid. Local data was preserved.');
+  }
+  return normaliseMeta(parsed);
 }
 
 export async function runSync(store: LocalStore, cloud: Cloud, userId: string, now: () => number = Date.now): Promise<SyncResult> {
   try {
-    const meta = await readMeta(store);
+    const meta = await readMetaStrict(store);
     const row = await cloud.fetch(userId);
 
     const remote: KV = {};
@@ -116,5 +123,5 @@ export async function runSync(store: LocalStore, cloud: Cloud, userId: string, n
 }
 
 export async function readSyncMeta(store: LocalStore): Promise<SyncMeta> {
-  return readMeta(store);
+  try { return await readMetaStrict(store); } catch { return {}; }
 }

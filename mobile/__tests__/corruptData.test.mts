@@ -432,16 +432,25 @@ test('a good backup still restores', async () => {
 });
 
 // ── 5. the cloud sync's received data and its own bookkeeping ──────────────────────────────────────────────────────────────────
-test('sync: a cloud value of the wrong kind is not taken, and damaged bookkeeping does not stop sync', async () => {
+test('sync: cloud shape errors are ignored; bad ownership metadata blocks safely, other damaged bookkeeping recovers', async () => {
   const { runSync } = await importMod('trackerSyncEngine');
   for (const meta of ['{"base":"x","conflicts":{"a":1}}', '[1,2]', '"text"', '123', 'null', '{"base":{"finos_goals":5},"conflicts":[null,5,{"key":3}],"lastSyncAt":"x","owner":7}', '{not json']) {
     const local = new Map<string, string>([['finos_tracker_sync_meta', meta], ['finos_goals', '[{"id":"mine","name":"Car","target":5}]']]);
     let stored: Record<string, unknown> | null = { finos_goals: '{"id":"cloud-object-not-list"}', finos_transactions: 'oops', finos_age: '41' };
     const store = { readAll: async () => Object.fromEntries(local), get: async (k: string) => local.get(k) ?? null, set: async (e: Record<string, string>) => { Object.entries(e).forEach(([k, v]) => local.set(k, v)); }, remove: async (ks: string[]) => { ks.forEach(k => local.delete(k)); } };
     const cloud = { fetch: async () => ({ data: stored!, updatedAt: 't1' }), store: async (_u: string, d: Record<string, unknown>) => { stored = d; return 'ok' as const; } };
+    const cloudBefore = JSON.stringify(stored);
     const res = await runSync(store, cloud, 'user-1');
-    assert.equal(res.ok, true, `meta ${meta}: ${res.error}`);
+    let parsed: any = null;
+    try { parsed = JSON.parse(meta); } catch { /* unreadable owner metadata must fail closed */ }
+    const safeForSync = !!parsed && typeof parsed === 'object' && !Array.isArray(parsed) &&
+      (parsed.owner === undefined || (typeof parsed.owner === 'string' && parsed.owner.length > 0));
+    assert.equal(res.ok, safeForSync, `meta ${meta}: ${res.error}`);
     assert.equal(local.get('finos_goals'), '[{"id":"mine","name":"Car","target":5}]', 'the local list was replaced by a bad cloud value');
+    if (!safeForSync) {
+      assert.equal(JSON.stringify(stored), cloudBefore, 'cloud was changed while ownership metadata was unsafe');
+      continue;
+    }
     assert.equal(local.get('finos_age'), '41');
     assert.equal(local.has('finos_transactions'), false);
   }

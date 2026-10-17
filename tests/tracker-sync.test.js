@@ -67,3 +67,18 @@ test('syncOnce: seeds the cloud, picks up another device\'s edit, and leaves pri
     assert.equal(ls.getItem('finos_vault'), 'ciphertext');
   } finally { delete globalThis.localStorage; }
 });
+
+test('syncOnce pauses on unreadable ownership metadata without moving local data between accounts', async () => {
+  const state = { row: { data: { finos_monthly_income: 'B-only' }, updated_at: 'b1' }, n: 0 };
+  const client = fakeClient(state);
+  const ls = fakeLS({ finos_tracker_sync_meta: '{broken', finos_monthly_income: 'A-private' });
+  globalThis.localStorage = ls;
+  const before = JSON.stringify(state.row);
+  try {
+    const result = await Sync.syncOnce(client, 'uB');
+    assert.equal(result.ok, false);
+    assert.match(result.error || '', /ownership metadata is unreadable/);
+    assert.equal(ls.getItem('finos_monthly_income'), 'A-private');
+    assert.equal(JSON.stringify(state.row), before);
+  } finally { delete globalThis.localStorage; }
+});
