@@ -43,3 +43,7 @@ dist-min/
 *.db
 *.db-shm
 *.db-wal
+
+# Expo local state (machine-specific)
+.expo/
+mobile/.expo/
