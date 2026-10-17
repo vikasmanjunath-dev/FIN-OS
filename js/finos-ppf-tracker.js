@@ -26,15 +26,54 @@ window.FinosPPFTracker = (function () {
   const INR = v => '₹' + Math.abs(Math.round(v)).toLocaleString('en-IN');
   const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 
-  function yearsElapsed(value) {
+  function yearsElapsed(value, now = new Date()) {
     if (!value) return null;
-    const parts = String(value).split('-').map(Number);
-    if (parts.length !== 3 || parts.some(n => !Number.isFinite(n))) return null;
-    const [year, month, day] = parts;
-    const now = new Date();
+    const parsed = parseLocalDate(value);
+    if (!parsed) return null;
+    const { year, month, day } = parsed;
     let years = now.getFullYear() - year;
     if (now.getMonth() + 1 < month || (now.getMonth() + 1 === month && now.getDate() < day)) years--;
     return Math.max(0, years);
+  }
+
+  function parseLocalDate(value) {
+    if (typeof value !== 'string' || value.length !== 10 || value[4] !== '-' || value[7] !== '-') return null;
+    if (![...value.slice(0, 4), ...value.slice(5, 7), ...value.slice(8)].every(c => c >= '0' && c <= '9')) return null;
+    const [year, month, day] = value.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day ? { year, month, day, date } : null;
+  }
+
+  function accountTerm(a, inst, now = new Date()) {
+    const opened = parseLocalDate(a.openDate);
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const invalidDate = !!a.openDate && (!opened || opened.date > today);
+    const ageYrs = opened ? yearsElapsed(a.openDate, now) : null;
+    let yearsLeft = invalidDate ? 0 : inst.maxYrs && ageYrs !== null ? Math.max(inst.maxYrs - ageYrs, 0) : inst.maxYrs || 5;
+    let maturityYear = invalidDate ? null : opened ? Math.floor(opened.year + inst.maxYrs) : now.getFullYear() + Math.floor(yearsLeft);
+    if (a.type === 'PPF' && !invalidDate) {
+      // PPF matures 15 years after the end of the financial year of its first subscription.
+      const currentFY = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+      const openingFY = opened ? (opened.month >= 4 ? opened.year : opened.year - 1) : currentFY;
+      const maturityFY = openingFY + 15;
+      yearsLeft = Math.max(0, maturityFY - currentFY);
+      maturityYear = maturityFY + 1;
+    }
+    return { ageYrs, yearsLeft, maturityYear, invalidDate };
+  }
+
+  function taxNote(type) {
+    if (type === 'PPF' || type === 'SSY') return 'Interest and eligible maturity proceeds are generally exempt; 80C deductions are conditional.';
+    if (type === 'NSC') return 'Accrued interest is taxable; eligible deductions depend on regime and limits.';
+    if (type === 'SCSS') return 'Quarterly interest is taxable; verify current reporting and withholding rules.';
+    return 'Interest is taxable under applicable rules; this estimate excludes tax.';
+  }
+
+  function taxNote(type) {
+    if (type === 'PPF' || type === 'SSY') return 'Interest and eligible maturity proceeds are generally exempt; 80C deductions are conditional.';
+    if (type === 'NSC') return 'Accrued interest is taxable; eligible deductions depend on regime and limits.';
+    if (type === 'SCSS') return 'Quarterly interest is taxable; verify current reporting and withholding rules.';
+    return 'Interest is taxable under applicable rules; this estimate excludes tax.';
   }
 
   /* ── Instrument metadata ─────────────────────────────────────── */
@@ -122,11 +161,10 @@ window.FinosPPFTracker = (function () {
 
     const acctCards = accounts.map(a => {
       const inst = INSTRUMENTS[a.type] || {};
-      const openYr = a.openDate ? Number(a.openDate.slice(0, 4)) : null;
-      const ageYrs = yearsElapsed(a.openDate);
-      const yearsLeft = inst.maxYrs && ageYrs !== null ? Math.max(inst.maxYrs - ageYrs, 0) : null;
+      const term = accountTerm(a, inst);
+      const { ageYrs, yearsLeft } = term;
       const depositYearsLeft = a.type === 'SSY' && ageYrs !== null ? Math.min(yearsLeft || 0, Math.max(15 - ageYrs, 0)) : (yearsLeft || 0);
-      const projected = (a.type === 'PPF' || a.type === 'SSY')
+      const projected = term.invalidDate ? a.currentBalance : (a.type === 'PPF' || a.type === 'SSY')
         ? (yearsLeft > 0 ? _ppfProjection(a.currentBalance, a.annualDeposit || 0, yearsLeft, inst.rate, depositYearsLeft) : a.currentBalance)
         : _maturityValue(a.currentBalance, inst.rate, inst.compounding, yearsLeft || inst.maxYrs || 5);
 
@@ -147,11 +185,11 @@ window.FinosPPFTracker = (function () {
             <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:18px;font-weight:900;color:rgba(255,255,255,.7);">${INR(a.annualDeposit)}</div></div>` : ''}
           ${yearsLeft !== null ? `<div><div style="font-size:10px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Years Left</div>
             <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:18px;font-weight:900;color:rgba(255,255,255,.7);">${yearsLeft}</div></div>` : ''}
+          ${!a.openDate ? '<div style="font-size:10px;color:rgba(255,255,255,0.5);">Opening date not recorded; assumes a new term from this year.</div>' : term.invalidDate ? '<div style="font-size:10px;color:#FFB347;">Opening date is invalid; maturity projection is withheld.</div>' : ''}
           <div><div style="font-size:10px;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Projected Maturity</div>
             <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:18px;font-weight:900;color:#22D3A6;">${INR(projected)}</div></div>
         </div>
-        ${inst.taxFree ? '<div style="margin-top:8px;font-size:11px;color:#22D3A6;">✓ EEE — Maturity tax-free (80C + growth exempt)</div>'
-          : '<div style="margin-top:8px;font-size:11px;color:#FFB347;">⚠ Maturity taxable as per income slab</div>'}
+        <div style="margin-top:8px;font-size:11px;color:${inst.taxFree?'#22D3A6':'#FFB347'};">${taxNote(a.type)}</div>
       </div>`;
     }).join('');
 
@@ -248,7 +286,7 @@ ${accounts.length ? `
       <div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,.02);border-radius:8px;border:1px solid rgba(255,255,255,.05);">
         <span style="color:color-mix(in srgb,${v.color} 45%,var(--text-primary));font-weight:700;font-size:12px;">${k}</span>
         <span style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:12px;color:rgba(255,255,255,.7);">${v.rate}%</span>
-        <span style="font-size:10px;color:rgba(255,255,255,0.58);">${v.c80c?'80C':'—'} ${v.taxFree?'EEE':''}</span>
+        <span style="font-size:10px;color:rgba(255,255,255,0.58);">${v.c80c?'80C eligible rules apply':'—'}</span>
       </div>`).join('')}
   </div>
 </div>`;
@@ -268,12 +306,11 @@ ${accounts.length ? `
 
     const rows = accounts.map(a => {
       const inst = INSTRUMENTS[a.type] || {};
-      const openYr = a.openDate ? Number(a.openDate.slice(0, 4)) : null;
-      const ageYrs = yearsElapsed(a.openDate);
-      const yearsLeft = inst.maxYrs && ageYrs !== null ? Math.max(inst.maxYrs - ageYrs, 0) : inst.maxYrs || 5;
+      const term = accountTerm(a, inst);
+      const { ageYrs, yearsLeft } = term;
       const depositYearsLeft = a.type === 'SSY' && ageYrs !== null ? Math.min(yearsLeft, Math.max(15 - ageYrs, 0)) : yearsLeft;
-      const maturityYr = openYr ? openYr + inst.maxYrs : new Date().getFullYear() + yearsLeft;
-      const projected = (a.type === 'PPF' || a.type === 'SSY')
+      const maturityYr = term.maturityYear;
+      const projected = term.invalidDate ? a.currentBalance : (a.type === 'PPF' || a.type === 'SSY')
         ? _ppfProjection(a.currentBalance, a.annualDeposit || 0, yearsLeft, inst.rate, depositYearsLeft)
         : _maturityValue(a.currentBalance, inst.rate, inst.compounding, yearsLeft);
       const gain = projected - a.currentBalance;
@@ -281,7 +318,8 @@ ${accounts.length ? `
       return `<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1fr;padding:12px 14px;font-size:13px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:10px;margin-bottom:6px;align-items:center;gap:8px;flex-wrap:wrap;">
         <div>
           <div style="font-weight:700;color:#F5F7FA;">${esc(a.nickname || inst.name)}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-top:2px;">${a.type} · ${inst.rate}% · matures ${maturityYr}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-top:2px;">${a.type} · ${inst.rate}% · matures ${maturityYr ?? 'opening date needed'}</div>
+          ${!a.openDate ? '<div style="font-size:10px;color:rgba(255,255,255,0.5);">Opening date not recorded; assumes a new term from this year.</div>' : ''}
         </div>
         <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);color:rgba(255,255,255,.7);">${INR(a.currentBalance)}</div>
         <div style="color:rgba(255,255,255,.5);">${yearsLeft} yr</div>
@@ -292,20 +330,20 @@ ${accounts.length ? `
 
     const totalProjected = accounts.reduce((s, a) => {
       const inst = INSTRUMENTS[a.type] || {};
-      const openYr = a.openDate ? Number(a.openDate.slice(0, 4)) : null;
-      const ageYrs = yearsElapsed(a.openDate);
-      const yearsLeft = inst.maxYrs && ageYrs !== null ? Math.max(inst.maxYrs - ageYrs, 0) : inst.maxYrs || 5;
+      const term = accountTerm(a, inst);
+      const { ageYrs, yearsLeft } = term;
       const depositYearsLeft = a.type === 'SSY' && ageYrs !== null ? Math.min(yearsLeft, Math.max(15 - ageYrs, 0)) : yearsLeft;
-      return s + ((a.type === 'PPF' || a.type === 'SSY')
+      return s + (term.invalidDate ? a.currentBalance : (a.type === 'PPF' || a.type === 'SSY')
         ? _ppfProjection(a.currentBalance, a.annualDeposit || 0, yearsLeft, inst.rate, depositYearsLeft)
         : _maturityValue(a.currentBalance, inst.rate, inst.compounding, yearsLeft));
     }, 0);
 
     container.innerHTML = `
 <div style="background:rgba(34,211,166,.06);border:1px solid rgba(34,211,166,.18);border-radius:18px;padding:20px;margin-bottom:20px;">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Total Projected Maturity Value</div>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Combined nominal projections at separate maturity dates</div>
   <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:38px;font-weight:900;color:#22D3A6;">${INR(totalProjected)}</div>
   <div style="font-size:13px;color:rgba(255,255,255,0.58);margin-top:6px;">across ${accounts.length} account${accounts.length!==1?'s':''} at respective maturity dates</div>
+  <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:6px;">Estimates hold displayed rates constant and place annual deposits at the start of each projection year. PPF interest is credited annually using monthly qualifying balances, so actual values differ. <a href="https://www.indiapost.gov.in/VAS/DOP_PDFFiles/POSB_CBS_Manual_2021.pdf" target="_blank" rel="noopener">India Post PPF rules</a>.</div>
 </div>
 
 <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1fr;padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,0.58);">
@@ -344,6 +382,7 @@ ${rows}`;
     const c80cUsed = Math.min(totalDeposits, 150000);
     const room = _remaining80c(gs('finos_80c_used'), localStorage.getItem('finos_80c_ppf_nsc_fd'), totalDeposits);
     const remaining80c = room.remaining;
+    const potentialDeduction = Math.min(c80cUsed, Math.max(150000 - room.otherUsed, 0));
 
     const rows = eligible.map(a => {
       const inst = INSTRUMENTS[a.type];
@@ -352,7 +391,7 @@ ${rows}`;
         <div style="font-weight:700;color:#F5F7FA;">${esc(a.nickname||inst.name)}<span style="font-size:10px;color:rgba(255,255,255,0.58);margin-left:6px;">${a.type}</span></div>
         <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);color:rgba(255,255,255,.7);">${INR(a.annualDeposit||0)}</div>
         <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);color:#4F7CFF;">${INR(claimable)}</div>
-        <div style="font-size:11px;color:${inst.taxFree?'#22D3A6':'#FFB347'};">${inst.taxFree?'EEE — full exemption':'Taxable at maturity'}</div>
+        <div style="font-size:11px;color:${inst.taxFree?'#22D3A6':'#FFB347'};">${inst.taxFree?'Interest/maturity generally exempt; 80C limited':'Interest/maturity taxation depends on scheme rules'}</div>
       </div>`;
     }).join('');
 
@@ -363,38 +402,38 @@ ${rows}`;
     container.innerHTML = `
 <div style="background:rgba(79,124,255,.06);border:1px solid rgba(79,124,255,.18);border-radius:20px;padding:24px;margin-bottom:22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;">
   <div>
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Annual Deposits (80C eligible)</div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Tracker deposits potentially eligible</div>
     <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:28px;font-weight:900;color:#4F7CFF;">${INR(c80cUsed)}</div>
     <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">of ₹1.5L 80C limit</div>
   </div>
   <div>
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">80C Remaining Capacity</div>
     <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:28px;font-weight:900;color:${remaining80c>0?'#FFB347':'#22D3A6'};">${INR(remaining80c)}</div>
-    <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">${remaining80c>0?'can still invest for deduction':'80C maxed ✓'}</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">${remaining80c>0?'possible room under old-regime limit':'limit reached ✓'}</div>
     <div style="font-size:10px;color:rgba(255,255,255,0.58);margin-top:6px;line-height:1.5;">${room80cNote}</div>
   </div>
   <div>
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Tax Saved @30%</div>
-    <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:28px;font-weight:900;color:#22D3A6;">${INR(Math.round(c80cUsed * 0.312))}</div>
-    <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">approx (30% slab + cess)</div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.58);margin-bottom:6px;">Potential tax reduction</div>
+    <div style="font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:28px;font-weight:900;color:#22D3A6;">${INR(Math.round(potentialDeduction * 0.312))}</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:4px;">illustration at 30% + cess; old regime and eligible only</div>
   </div>
 </div>
 
 ${eligible.length ? `
 <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,0.58);">
-  <span>Instrument</span><span>Deposit/yr</span><span>80C Claimable</span><span>Tax Treatment</span>
+  <span>Instrument</span><span>Deposit/yr</span><span>Potentially eligible before combined limit</span><span>Tax Treatment</span>
 </div>
 ${rows}` : '<div style="color:rgba(255,255,255,0.58);font-size:13px;padding:16px 0;">Add accounts in Overview tab to see tax breakdown.</div>'}
 
 <div style="background:rgba(255,179,71,.05);border:1px solid rgba(255,179,71,.12);border-radius:14px;padding:18px;margin-top:20px;">
   <div style="font-size:13px;font-weight:800;color:#FFB347;margin-bottom:12px;">Small Savings Tax Guide</div>
   <div style="display:flex;flex-direction:column;gap:7px;font-size:13px;color:rgba(255,255,255,.65);line-height:1.65;">
-    <span>🟢 <b>PPF & SSY</b>: Triple exempt (EEE) — 80C deduction, corpus growth tax-free, maturity tax-free.</span>
-    <span>🟡 <b>NSC</b>: 80C on deposit; interest accrues and is also deemed re-invested (80C eligible); maturity proceeds taxable.</span>
+    <span>🟢 <b>PPF & SSY</b>: Interest and eligible maturity proceeds are generally exempt; 80C deduction depends on eligibility, old-regime selection and the combined limit.</span>
+    <span>🟡 <b>NSC</b>: interest is taxable; reinvested accrued interest may qualify under 80C when eligible and within the old-regime limit.</span>
     <span>🟡 <b>SCSS</b>: 80C on deposit; quarterly interest is taxable as income; TDS if interest > ₹50,000/yr.</span>
     <span>🔴 <b>KVP</b>: No 80C benefit; maturity proceeds taxable as income.</span>
-    <span>💡 PPF contribution deadline: <b>April 5</b> each year — deposit before April 5 to earn interest for the full month of April.</span>
-    <span>💡 NSC interest for years 1–4 is <b>eligible for 80C</b> as deemed reinvestment — claim it even if no fresh investment.</span>
+    <span>💡 Contribution timing and tax treatment depend on scheme rules; check the account statement and current official guidance before filing.</span>
+    <span>Official guidance: <a href="https://www.incometaxindia.gov.in/w/deductions-allowable-to-tax-payer" target="_blank" rel="noopener">deductions</a> · <a href="https://www.incometaxindia.gov.in/w/reporting-of-interest-payments-1" target="_blank" rel="noopener">exempt interest</a>.</span>
   </div>
 </div>`;
   }
