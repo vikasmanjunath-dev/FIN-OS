@@ -209,21 +209,29 @@ export function computeEmergency(d: TrackerData): Emergency {
 export interface GoalView extends Goal { progress: number; remaining: number; monthsLeft: number | null; monthlyNeeded: number | null }
 
 export function monthsUntil(date: string | null | undefined, now = new Date()): number | null {
-  if (!date) return null;
-  const t = Date.parse(date);
-  if (!Number.isFinite(t)) return null;
-  const d = new Date(t);
-  return (d.getFullYear() - now.getFullYear()) * 12 + (d.getMonth() - now.getMonth());
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+  const [year, month, day] = date.split('-').map(Number);
+  const dim = [31, ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
+  if (month < 1 || month > 12 || day < 1 || day > dim) return null;
+  const months = (year - now.getFullYear()) * 12 + (month - 1 - now.getMonth());
+  if (months !== 0) return months;
+  // The Goals form stores a month-only deadline as day 1. Treat the current month as
+  // still available; exact day-based imported dates earlier than today are overdue.
+  if (day === 1) return 0;
+  const deadline = new Date(year, month - 1, day);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return deadline < today ? -1 : 0;
 }
 
 export function computeGoals(goals: Goal[], now = new Date()): { items: GoalView[]; avgProgress: number } {
   const items = goals.map(g => {
-    const target = Math.max(0, Number(g.target) || 0);
-    const current = Math.max(0, Number(g.current) || 0);
+    const rawTarget = Number(g.target), rawCurrent = Number(g.current);
+    const target = Number.isFinite(rawTarget) && rawTarget > 0 ? rawTarget : 0;
+    const current = Number.isFinite(rawCurrent) && rawCurrent > 0 ? rawCurrent : 0;
     const progress = target > 0 ? Math.min(100, (current / target) * 100) : 0;
     const remaining = Math.max(0, target - current);
     const monthsLeft = monthsUntil(g.target_date, now);
-    const monthlyNeeded = monthsLeft != null && monthsLeft > 0 && remaining > 0 ? remaining / monthsLeft : null;
+    const monthlyNeeded = monthsLeft != null && monthsLeft >= 0 && remaining > 0 ? remaining / Math.max(1, monthsLeft) : null;
     return { ...g, target, current, progress, remaining, monthsLeft, monthlyNeeded };
   });
   const avgProgress = items.length ? items.reduce((s, g) => s + g.progress, 0) / items.length : 0;

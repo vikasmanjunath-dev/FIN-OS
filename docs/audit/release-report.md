@@ -17,6 +17,7 @@ This is a verification report for the changes made in this audit. It is not a pr
 - Corrected shared web/mobile transaction normalization so malformed imported currency strings and impossible calendar days are rejected instead of silently changing budget totals.
 - Hardened monthly spend aggregation against poisoned normalized rows and runtime-invalid budget limits; invalid amounts, dates, categories and limits can no longer leak `NaN`, prototype-backed categories or string totals into budget UI data.
 - Hardened retirement planner persisted-input parsing on web, mobile, and Arya's readiness gate: malformed, infinite, negative, out-of-range age, and impossible DOB values no longer enter retirement corpus or Monte Carlo calculations.
+- Fixed goal amount validation and deadline semantics: the current target month remains available, exact overdue dates are identified, impossible dates do not become valid deadlines, and web/mobile goal optimizer monthly horizons agree.
 - Corrected Trade Journal signed-loss display, zero exit/blank quantity handling, edit preservation, Monday week boundaries, CSV charge/zero export, and supported broker-fill pairing/preview behavior.
 - Bounded the mobile transaction history's initial render to 50 rows and added incremental loading.
 
@@ -32,6 +33,7 @@ This is a verification report for the changes made in this audit. It is not a pr
 - Transfer budget parity — **3 passed**; explicit internal transfers are excluded from expense totals on both platforms, survive mobile storage round-trip, and a purchase memo alone does not change transaction kind.
 - Latest budget regressions: web budget suite **13/13 passed**; dedicated mobile rollup parity **1/1 passed**; mobile shared logic **15/15 passed**, including malformed normalized records, runtime-invalid limits, strict imported amount parsing, Gregorian date validation/leap days and impossible ISO timestamp dates, with web/mobile parity. Mobile TypeScript check passed.
 - Retirement verification: `retirement.parity.test.mts` plus input-safety regressions — **7/7 passed**, including web/mobile parity for 400 stored profiles and corrupted-value/DOB cases; mobile TypeScript check passed.
+- Goal verification: deadline/goal safety **4/4 passed**; goal optimizer parity **4/4 passed**, including 800 randomized goal sets; mobile TypeScript check passed.
 - A package-wide mobile test invocation was attempted but interrupted after it reached the loopback-dependent mock Supabase test; this attempt is inconclusive and is not counted as a pass. The last completed full mobile suite remains 1,036/1,036 from before these parsing/date changes.
 - Mobile TypeScript: `PATH=/Users/vkm/.nvm/versions/node/v24.15.0/bin:$PATH npm run typecheck` — passed.
 - Updated `/tracker/transactions` browser smoke — **1 screen × 4 states**, 0 problems after adding transfer entry and display support.

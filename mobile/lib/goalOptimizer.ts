@@ -42,13 +42,34 @@ export function goalReturn(goal: GoalIn): number {
   return GOAL_RETURNS.default;
 }
 
+function deadline(value: string | null | undefined, now: Date): { month: string | null; monthsLeft: number } {
+  if (!value) return { month: null, monthsLeft: 120 };
+  const text = String(value);
+  let year: number, month: number, day: number, monthOnly = false;
+  if (/^\d{4}-\d{2}$/.test(text)) {
+    [year, month] = text.split('-').map(Number); day = 1; monthOnly = true;
+  } else if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    [year, month, day] = text.split('-').map(Number); monthOnly = day === 1;
+  } else {
+    const date = new Date(text);
+    if (!Number.isFinite(date.getTime())) return { month: null, monthsLeft: 120 };
+    year = date.getFullYear(); month = date.getMonth() + 1; day = date.getDate();
+  }
+  const dim = [31, ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
+  if (month < 1 || month > 12 || day < 1 || day > dim) return { month: null, monthsLeft: 120 };
+  const monthDelta = (year - now.getFullYear()) * 12 + month - 1 - now.getMonth();
+  const due = new Date(year, month - 1, day);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const monthsLeft = monthOnly ? Math.max(0, monthDelta + 1) : (due < today ? 0 : Math.max(1, monthDelta + 1));
+  return { month: `${year}-${String(month).padStart(2, '0')}`, monthsLeft };
+}
+
 export function compute(goals: GoalIn[], ctx: { income: number; savingsRate: number }, now: Date = new Date()): OptimizerResult {
   const { income, savingsRate } = ctx;
   const availableSIP = Math.round((income * savingsRate) / 100);
   const enriched = goals.map((g, i): GoalPlan => {
-    const parsed = g.target_date ? new Date(g.target_date) : null;
-    const targetDate = parsed && Number.isFinite(parsed.getTime()) ? parsed : null;     // an unreadable date is "no date", never NaN months
-    const monthsLeft = targetDate ? Math.max(0, Math.round((targetDate.getTime() - now.getTime()) / (30.44 * 24 * 3600 * 1000))) : 120;
+    const target = deadline(g.target_date, now);
+    const monthsLeft = target.monthsLeft;
     const yearsLeft = monthsLeft / 12;
     const targetToday = Number(g.target) || Number(g.amount) || 0;
     const targetInflated = inflatedTarget(targetToday, yearsLeft);
@@ -60,7 +81,7 @@ export function compute(goals: GoalIn[], ctx: { income: number; savingsRate: num
     const onTrack = progress >= Math.max(0, 100 - (monthsLeft / 120) * 100);
     return {
       ...g, id: g.id || `g${i}`, monthsLeft, yearsLeft, targetInflated, progress, fundedAmt, annualR, sipNeeded, priority, onTrack,
-      targetDate: targetDate && !Number.isNaN(targetDate.getTime()) ? targetDate.toISOString().slice(0, 7) : null,
+      targetDate: target.month,
     };
   }).sort((a, b) => b.priority - a.priority);
 

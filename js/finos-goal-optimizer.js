@@ -85,6 +85,28 @@ window.FinosGoalOptimizer = (function () {
     return GOAL_RETURNS.default;
   }
 
+  function _deadline(value, today) {
+    if (!value) return { month: null, monthsLeft: 120 };
+    const text = String(value);
+    let year, month, day, monthOnly = false;
+    if (/^\d{4}-\d{2}$/.test(text)) {
+      [year, month] = text.split('-').map(Number); day = 1; monthOnly = true;
+    } else if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+      [year, month, day] = text.split('-').map(Number); monthOnly = day === 1;
+    } else {
+      const date = new Date(text);
+      if (!Number.isFinite(date.getTime())) return { month: null, monthsLeft: 120 };
+      year = date.getFullYear(); month = date.getMonth() + 1; day = date.getDate();
+    }
+    const dim = [31, ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
+    if (month < 1 || month > 12 || day < 1 || day > dim) return { month: null, monthsLeft: 120 };
+    const monthDelta = (year - today.getFullYear()) * 12 + month - 1 - today.getMonth();
+    const due = new Date(year, month - 1, day);
+    const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const monthsLeft = monthOnly ? Math.max(0, monthDelta + 1) : (due < todayLocal ? 0 : Math.max(1, monthDelta + 1));
+    return { month: `${year}-${String(month).padStart(2, '0')}`, monthsLeft };
+  }
+
   /* ── Core computation ──────────────────────────────────────────── */
   function _compute() {
     let goals = [];
@@ -104,8 +126,8 @@ window.FinosGoalOptimizer = (function () {
     const today = new Date();
 
     const enriched = goals.map((g, i) => {
-      const targetDate  = g.target_date ? new Date(g.target_date) : null;
-      const monthsLeft  = targetDate ? Math.max(0, Math.round((targetDate - today) / (30.44 * 24 * 3600 * 1000))) : 120;
+      const deadline = _deadline(g.target_date, today);
+      const monthsLeft = deadline.monthsLeft;
       const yearsLeft   = monthsLeft / 12;
       const targetToday = Number(g.target) || Number(g.amount) || 0;
       const targetInflated = _inflatedTarget(targetToday, yearsLeft);
@@ -123,7 +145,7 @@ window.FinosGoalOptimizer = (function () {
         id: g.id || `g${i}`,
         monthsLeft, yearsLeft, targetInflated, progress, fundedAmt,
         annualR, sipNeeded, priority, onTrack,
-        targetDate: targetDate ? targetDate.toISOString().slice(0, 7) : null,
+        targetDate: deadline.month,
       };
     }).sort((a, b) => b.priority - a.priority);
 

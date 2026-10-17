@@ -5,6 +5,7 @@ import { useTrackers } from '@/hooks/useTrackers';
 import { Goal } from '@/lib/trackers';
 import { TrackerScreen, Card, SectionLabel, Bar, MoneyField, inr, inrShort } from '@/components/TrackerUI';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { MAX_TRACKER_RUPEES, parseTrackerMoney } from '@/lib/trackerInput';
 
 const GOAL_ICONS: [RegExp, string][] = [
   [/house|home|flat|property/i, '🏠'], [/car|bike|vehicle/i, '🚗'], [/educ|school|college|mba|study/i, '🎓'],
@@ -31,11 +32,14 @@ export default function GoalsScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const add = () => {
-    const t = parseFloat(target.replace(/,/g, '')), c = saved ? parseFloat(saved.replace(/,/g, '')) : 0;
+    const targetResult = parseTrackerMoney(target);
+    const savedResult = parseTrackerMoney(saved);
+    const t = targetResult.ok ? targetResult.value : NaN;
+    const c = savedResult.ok ? savedResult.value : NaN;
     const d = parseMonth(when);
     if (!name.trim()) return setError('Give the goal a name.');
-    if (!(t > 0)) return setError('Enter the target amount.');
-    if (!(c >= 0)) return setError('Saved amount must be zero or more.');
+    if (!targetResult.ok || !(t > 0) || t > MAX_TRACKER_RUPEES) return setError('Enter a valid target amount greater than zero.');
+    if (!savedResult.ok || c > MAX_TRACKER_RUPEES) return setError('Enter a valid saved amount (zero or more).');
     if (d === undefined) return setError('Target month should look like 2028-03 (or leave it blank).');
     setError(null);
     const goal: Goal = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, name: name.trim(), target: t, current: c, target_date: d };
@@ -71,7 +75,7 @@ export default function GoalsScreen() {
                 <Text style={s.name}>{g.name}</Text>
                 <Text style={Typography.caption}>
                   {done ? 'Goal reached 🎉' : g.monthsLeft != null
-                    ? g.monthsLeft > 0 ? `${g.monthsLeft} month${g.monthsLeft === 1 ? '' : 's'} left` : 'Target date has passed'
+                    ? g.monthsLeft > 0 ? `${g.monthsLeft} month${g.monthsLeft === 1 ? '' : 's'} left` : g.monthsLeft === 0 ? 'Target month is this month' : 'Target date has passed'
                     : 'No target date'}
                 </Text>
               </View>
