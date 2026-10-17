@@ -14,7 +14,7 @@
   <meta name="apple-mobile-web-app-title" content="FIN•OS">
   <link rel="manifest" href="../manifest.json">
   <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
-  <title>Live Tracker | FIN-OS</title>
+  <title>Tracker — Sample Market Display | FIN-OS</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -147,12 +147,13 @@
       <header class="header header-flex">
         <div>
           <h1 class="glitch-header" data-text="MARKET PULSE">MARKET PULSE</h1>
-          <p class="hero-sub">Real-time noise vs. Long-term signal.</p>
+          <p class="hero-sub">A sample market display. No live market feed is connected.</p>
         </div>
         <button id="themeToggle" class="theme-btn">🌙</button>
       </header>
 
-      <div class="ticker-wrap">
+      <div class="ticker-wrap" aria-label="Illustrative sample ticker; not live market data">
+        <p role="note" style="margin:0;padding:6px 14px;text-align:center;font-size:11px;font-weight:700;letter-spacing:.06em;color:#f0a500;">SAMPLE DATA · NOT LIVE MARKET PRICES</p>
         <div class="ticker">
           <div class="ticker__item">NIFTY 50 <span class="up">▲ 0.45%</span></div>
           <div class="ticker__item">SENSEX <span class="down">▼ 0.12%</span></div>
@@ -171,7 +172,7 @@
         <div class="holo-card nifty-card">
           <div class="holo-header">
             <h3 aria-level="2">NIFTY 50</h3>
-            <span class="badge live-badge">LIVE</span>
+            <span class="badge">SAMPLE</span>
           </div>
           <div class="holo-body">
             <h2 id="niftyPrice">24,850.55</h2>
@@ -188,7 +189,7 @@
         <div class="holo-card sensex-card">
           <div class="holo-header">
             <h3>SENSEX</h3>
-            <span class="badge live-badge">LIVE</span>
+            <span class="badge">SAMPLE</span>
           </div>
           <div class="holo-body">
             <h2 id="sensexPrice">81,400.20</h2>

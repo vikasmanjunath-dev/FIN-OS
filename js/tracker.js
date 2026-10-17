@@ -1,19 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    // --- 1. SIMULATED LIVE CHARTS (NIFTY & SENSEX) ---
-    // We create a "heartbeat" chart that updates every few seconds to look like live trading data.
-
-    const _trackerIntervals = [];
-    window.addEventListener('beforeunload', () => _trackerIntervals.forEach(clearInterval), { once: true });
-
-    const createLiveChart = (ctxId, color) => {
+    // These fixed points are a visual example only. This page has no market-data provider.
+    const createSampleChart = (ctxId, color) => {
         const canvasEl = document.getElementById(ctxId);
         if (!canvasEl) return;
         const ctx = canvasEl.getContext('2d');
         if (!ctx) return;
         
-        // Initial fake data
-        let dataPoints = [100, 102, 101, 104, 103, 105, 108, 107, 109, 110];
+        const dataPoints = [100, 102, 101, 104, 103, 105, 108, 107, 109, 110];
         
         const chart = new Chart(ctx, {
             type: 'line',
@@ -47,37 +41,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // Simulate "Live" updates (stored for cleanup on page exit)
-        _trackerIntervals.push(setInterval(() => {
-            if (document.hidden) return;   // simulated live ticker — don't animate a hidden chart
-            const lastVal = dataPoints[dataPoints.length - 1];
-            // Random movement between -2 and +2
-            const move = (Math.random() - 0.5) * 4; 
-            const newVal = lastVal + move;
-
-            // Update Chart Data
-            dataPoints.shift(); // Remove first
-            dataPoints.push(newVal); // Add new
-            
-            chart.data.datasets[0].data = dataPoints;
-            chart.update();
-
-            // Update Text Price Number briefly to match direction
-            const priceId = ctxId === 'niftyChart' ? 'niftyPrice' : 'sensexPrice';
-            const priceEl = document.getElementById(priceId);
-            if (priceEl) {
-                const currentPrice = parseFloat(priceEl.innerText.replace(/,/g, '')) || 0;
-                const newPrice = currentPrice + (move * 10);
-                priceEl.innerText = newPrice.toLocaleString('en-IN', {maximumFractionDigits: 2});
-                priceEl.style.color = move > 0 ? '#C7F000' : '#ff4757';
-                setTimeout(() => { if (priceEl) priceEl.style.color = '#fff'; }, 500);
-            }
-
-        }, 2000)); // Update every 2 seconds — stored in _trackerIntervals for cleanup
+        return chart;
     };
 
     // Initialize Charts
-    createLiveChart('niftyChart', 'rgba(79, 124, 255, 1)'); // Blue
-    createLiveChart('sensexChart', 'rgba(199, 240, 0, 1)'); // Lime
+    createSampleChart('niftyChart', 'rgba(79, 124, 255, 1)'); // Blue
+    createSampleChart('sensexChart', 'rgba(199, 240, 0, 1)'); // Lime
 
 });

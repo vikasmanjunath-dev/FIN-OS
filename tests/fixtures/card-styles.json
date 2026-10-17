@@ -314,8 +314,8 @@
    "border-top-style": "solid",
    "border-top-width": "1px",
    "box-shadow": "rgba(0, 0, 0, 0.5) 0px 16px 48px 0px, rgba(199, 240, 0, 0.12) 0px 0px 0px 1px",
-   "color": "rgb(79, 124, 255)",
-   "cursor": "pointer",
+   "color": "rgb(240, 242, 248)",
+   "cursor": "default",
    "display": "flex",
    "font-size": "14px",
    "font-weight": "400",
@@ -328,7 +328,7 @@
    "text-decoration-line": "none",
    "transform": "matrix(1, 0, 0, 1, 0, -4)",
    "transition-duration": "1e-05s",
-   "transition-property": "color, opacity, transform, box-shadow, border-color"
+   "transition-property": "none"
   },
   "rest": {
    "background-color": "rgba(0, 0, 0, 0)",
@@ -338,8 +338,8 @@
    "border-top-style": "solid",
    "border-top-width": "1px",
    "box-shadow": "none",
-   "color": "rgb(79, 124, 255)",
-   "cursor": "pointer",
+   "color": "rgb(240, 242, 248)",
+   "cursor": "default",
    "data-theme": "dark",
    "display": "flex",
    "font-size": "14px",
@@ -353,7 +353,7 @@
    "text-decoration-line": "none",
    "transform": "none",
    "transition-duration": "1e-05s",
-   "transition-property": "color, opacity, transform, box-shadow, border-color"
+   "transition-property": "none"
   }
  },
  "dark|390|html/calculators.html|.calc-card": {
@@ -527,8 +527,8 @@
    "border-top-style": "solid",
    "border-top-width": "1px",
    "box-shadow": "none",
-   "color": "rgb(79, 124, 255)",
-   "cursor": "pointer",
+   "color": "rgb(240, 242, 248)",
+   "cursor": "default",
    "data-theme": "dark",
    "display": "flex",
    "font-size": "14px",
@@ -542,7 +542,7 @@
    "text-decoration-line": "none",
    "transform": "none",
    "transition-duration": "1e-05s",
-   "transition-property": "color, opacity, transform, box-shadow, border-color"
+   "transition-property": "none"
   }
  },
  "light|1280|html/calculators.html|.calc-card": {
@@ -860,8 +860,8 @@
    "border-top-style": "solid",
    "border-top-width": "1px",
    "box-shadow": "rgba(0, 0, 0, 0.5) 0px 16px 48px 0px, rgba(199, 240, 0, 0.12) 0px 0px 0px 1px",
-   "color": "rgb(61, 99, 230)",
-   "cursor": "pointer",
+   "color": "rgb(11, 13, 18)",
+   "cursor": "default",
    "display": "flex",
    "font-size": "14px",
    "font-weight": "400",
@@ -874,7 +874,7 @@
    "text-decoration-line": "none",
    "transform": "matrix(1, 0, 0, 1, 0, -4)",
    "transition-duration": "1e-05s",
-   "transition-property": "color, opacity, transform, box-shadow, border-color"
+   "transition-property": "none"
   },
   "rest": {
    "background-color": "rgb(255, 255, 255)",
@@ -884,8 +884,8 @@
    "border-top-style": "solid",
    "border-top-width": "1px",
    "box-shadow": "rgba(0, 0, 0, 0.08) 0px 2px 12px 0px",
-   "color": "rgb(61, 99, 230)",
-   "cursor": "pointer",
+   "color": "rgb(11, 13, 18)",
+   "cursor": "default",
    "data-theme": "light",
    "display": "flex",
    "font-size": "14px",
@@ -899,7 +899,7 @@
    "text-decoration-line": "none",
    "transform": "none",
    "transition-duration": "1e-05s",
-   "transition-property": "color, opacity, transform, box-shadow, border-color"
+   "transition-property": "none"
   }
  },
  "light|390|html/calculators.html|.calc-card": {
@@ -1073,8 +1073,8 @@
    "border-top-style": "solid",
    "border-top-width": "1px",
    "box-shadow": "rgba(0, 0, 0, 0.08) 0px 2px 12px 0px",
-   "color": "rgb(61, 99, 230)",
-   "cursor": "pointer",
+   "color": "rgb(11, 13, 18)",
+   "cursor": "default",
    "data-theme": "light",
    "display": "flex",
    "font-size": "14px",
@@ -1088,7 +1088,7 @@
    "text-decoration-line": "none",
    "transform": "none",
    "transition-duration": "1e-05s",
-   "transition-property": "color, opacity, transform, box-shadow, border-color"
+   "transition-property": "none"
   }
  }
 }
