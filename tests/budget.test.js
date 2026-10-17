@@ -82,6 +82,17 @@ test('status: categories with spend but no limit are listed (limit 0), unlimited
   assert.deepStrictEqual([st.rows[0].category, st.rows[0].limit, st.rows[0].state, st.rows[0].pct], ['Shopping', 0, 'ok', null]);
 });
 
+test('status: contaminated pre-normalized records and nonnumeric limits cannot poison totals', () => {
+  const st = B.status([
+    { kind: 'expense', date: '2026-10-01', amount: NaN, category: 'Food & Dining' },
+    { kind: 'expense', date: '2026-02-30', amount: 9999, category: 'Food & Dining' },
+    { kind: 'expense', date: '2026-10-01', amount: 100, category: '__proto__' },
+    { kind: 'expense', date: '2026-10-01', amount: 500, category: 'Groceries' },
+  ], { Groceries: '1000', 'Food & Dining': Infinity }, NOW);
+  assert.deepStrictEqual(st.total, { spent: 500, limit: 0, pct: null });
+  assert.deepStrictEqual(st.rows.map(r => [r.category, r.spent, r.limit]), [['Groceries', 500, 0], ['Food & Dining', 0, 0]]);
+});
+
 test('suggest: uses the last complete months (avg + 5% headroom, ₹500 steps), else income-based defaults', () => {
   const hist = [
     { amount: 9000, category: 'need_food', date: '2026-09-10' }, { amount: 11000, category: 'need_food', date: '2026-08-10' },

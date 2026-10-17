@@ -118,7 +118,11 @@
   /* ── month maths ─────────────────────────────────────────────────── */
   function monthSpend(txns, month) {
     const byCat = {}; let total = 0;
-    txns.forEach((t) => { if (t.kind === 'expense' && monthOf(t.date) === month) { byCat[t.category] = (byCat[t.category] || 0) + t.amount; total += t.amount; } });
+    txns.forEach((t) => {
+      if (!t || t.kind !== 'expense' || !validCalendarDay(t.date) || monthOf(t.date) !== month || !Number.isFinite(t.amount) || !(t.amount > 0) || !CATEGORIES.includes(t.category)) return;
+      byCat[t.category] = (byCat[t.category] || 0) + t.amount;
+      total += t.amount;
+    });
     return { byCat, total };
   }
   const daysIn = (y, m0) => new Date(y, m0 + 1, 0).getDate();
@@ -141,7 +145,8 @@
     const cats = Array.from(new Set([...Object.keys(lim), ...Object.keys(byCat)]));
     const rows = cats.map((category) => {
       const spent = Math.round(byCat[category] || 0);
-      const limit = lim[category] > 0 ? lim[category] : 0;
+      const rawLimit = lim[category];
+      const limit = typeof rawLimit === 'number' && Number.isFinite(rawLimit) && rawLimit > 0 ? rawLimit : 0;
       const projected = day >= 1 ? Math.round((spent / day) * dim) : spent;
       const pct = limit ? Math.round((spent / limit) * 100) : null;
       const projectedPct = limit ? Math.round((projected / limit) * 100) : null;
@@ -152,7 +157,7 @@
       }
       return { category, spent, limit, pct, projected, projectedPct, pace: day >= 7, state, left: limit ? Math.max(0, limit - spent) : null };   // pace is only meaningful after a week of data
     }).sort((a, b) => (b.pct === null ? -1 : b.pct) - (a.pct === null ? -1 : a.pct) || b.spent - a.spent);
-    const totalLimit = Object.values(lim).reduce((s, v) => s + (v > 0 ? v : 0), 0);
+    const totalLimit = Object.values(lim).reduce((s, v) => s + (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : 0), 0);
     return { month, day, daysInMonth: dim, daysLeft: dim - day, rows, total: { spent: Math.round(total), limit: totalLimit, pct: totalLimit ? Math.round((total / totalLimit) * 100) : null } };
   }
 
