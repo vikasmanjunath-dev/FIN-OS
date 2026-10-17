@@ -124,7 +124,9 @@ def _get_wake_word_model() -> _OWWModel:
     return _oww_model
 
 
-WS_HOST    = "127.0.0.1"
+import security_policy as _sec
+
+WS_HOST    = os.getenv("VOICE_WS_HOST", "127.0.0.1")   # loopback unless the container sets it; compose publishes the port to 127.0.0.1 only
 WS_PORT    = 8765
 PROXY_PORT = 8767          # HTTPS Ollama proxy — allows Vercel (HTTPS) to reach local Ollama
 
@@ -133,6 +135,8 @@ _CERT = os.path.join(os.path.dirname(__file__), ".finos_cert.pem")
 _KEY  = os.path.join(os.path.dirname(__file__), ".finos_key.pem")
 
 def _build_ssl_ctx() -> ssl.SSLContext:
+    if _sec.ensure_dev_cert(_CERT, _KEY):       # the key is per machine, generated here, never committed
+        log.warning("Created a new local TLS certificate (%s). Re-accept it in your browser once.", _CERT)
     ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     ctx.load_cert_chain(_CERT, _KEY)
     return ctx
@@ -155,14 +159,20 @@ _TRUST_PAGE = (
 
 async def _proxy_handler(request: _aiohttp_web.Request) -> _aiohttp_web.StreamResponse:
     """Stream-proxy any request to Ollama on localhost:11434."""
+    origin = request.headers.get("Origin")
+    allow = _sec.cors_origin_for(origin)
+    cors = {"Access-Control-Allow-Origin": allow, "Vary": "Origin"} if allow else {}
+    # a page from any other site gets nothing, not even a preflight answer
+    if origin and not allow:
+        return _aiohttp_web.Response(status=403, text="origin not allowed")
     # CORS preflight
     if request.method == "OPTIONS":
         return _aiohttp_web.Response(
             status=204,
             headers={
-                "Access-Control-Allow-Origin":  "*",
+                **cors,
                 "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+                "Access-Control-Allow-Headers": "Content-Type",
                 "Access-Control-Max-Age":        "86400",
             },
         )
@@ -170,6 +180,9 @@ async def _proxy_handler(request: _aiohttp_web.Request) -> _aiohttp_web.StreamRe
     if request.path in ("/", ""):
         return _aiohttp_web.Response(body=_TRUST_PAGE, content_type="text/html")
 
+    # only the model-use endpoints: not /api/pull, /api/create, /api/copy, /api/delete, /api/push ...
+    if not _sec.proxy_request_allowed(request.method, request.path):
+        return _aiohttp_web.Response(status=403, text="path not allowed", headers=cors)
     target = f"http://127.0.0.1:11434{request.path}"
     if request.query_string:
         target += "?" + request.query_string
@@ -177,7 +190,7 @@ async def _proxy_handler(request: _aiohttp_web.Request) -> _aiohttp_web.StreamRe
     body = await request.read()
     fwd_headers = {
         k: v for k, v in request.headers.items()
-        if k.lower() not in ("host", "content-length", "transfer-encoding")
+        if k.lower() in ("content-type", "accept")
     }
 
     try:
@@ -192,8 +205,7 @@ async def _proxy_handler(request: _aiohttp_web.Request) -> _aiohttp_web.StreamRe
                     status=upstream.status,
                     headers={
                         "Content-Type":                  upstream.headers.get("Content-Type", "application/json"),
-                        "Access-Control-Allow-Origin":   "*",
-                        "Access-Control-Allow-Headers":  "Content-Type",
+                        **cors,
                         "Cache-Control":                 "no-cache",
                     },
                 )
@@ -204,10 +216,10 @@ async def _proxy_handler(request: _aiohttp_web.Request) -> _aiohttp_web.StreamRe
                 return resp
     except Exception as exc:
         log.warning("HTTPS proxy error: %s", exc)
-        err = json.dumps({"error": str(exc)}).encode()
+        err = json.dumps({"error": "local model unavailable"}).encode()
         return _aiohttp_web.Response(
             body=err, status=502, content_type="application/json",
-            headers={"Access-Control-Allow-Origin": "*"},
+            headers=cors,
         )
 
 async def _start_https_proxy(ssl_ctx: ssl.SSLContext) -> None:
@@ -2452,7 +2464,8 @@ async def _execute_tool(tool_name: str, tool_args: dict, user_id: str) -> str:
                         if r.status_code in (200, 201) else f"Budget failed: {r.text[:80]}")
 
             elif tool_name == "get_health_score":
-                r = await c.get(f"http://localhost:8001/health-score/{user_id}", timeout=5.0)
+                r = await c.get(f"http://localhost:8001/health-score/{user_id}", timeout=5.0,
+                                headers={"X-Admin-Key": os.getenv("ADMIN_API_KEY", "")} if os.getenv("ADMIN_API_KEY") else {})
                 if r.status_code == 200:
                     data = r.json()
                     return f"Health Score: {data['total']}/100 ({data['tier']}) — {data['quick_win']}"
@@ -2629,6 +2642,15 @@ class Server:
         log.info("Session memory saved for user %s", user_id[:8])
 
     async def handler(self, ws):
+        # Cross-site WebSocket hijacking: a browser lets any web page open this socket, so the page's Origin is checked.
+        try:
+            origin = ws.request.headers.get("Origin")
+        except AttributeError:                      # older websockets versions
+            origin = getattr(ws, "request_headers", {}).get("Origin")
+        if not _sec.origin_allowed(origin):
+            log.warning("Rejected WebSocket from origin %r", str(origin)[:80])
+            await ws.close(1008, "Origin not allowed")
+            return
         # Single-client mode — reject extra connections, never close the live one
         if self.clients:
             log.info("Extra connection rejected (already have 1 client)")
@@ -3282,6 +3304,9 @@ Reply ONLY with valid JSON. No markdown.
             await self._send({"type": "state", "state": "idle"})
 
     async def _from_audio(self, data: bytes):
+        if _sec.audio_kind(data) is None:           # empty, over the size cap, or not a recognised audio container
+            await self._send({"type": "status", "text": "Audio not accepted (too large or unsupported format)."})
+            return
         await self._send({"type": "state", "state": "transcribing"})
         tmp_in = tmp_wav = None
         try:
@@ -3295,7 +3320,7 @@ Reply ONLY with valid JSON. No markdown.
                     tmp_wav = f.name
                 loop = asyncio.get_event_loop()
                 r = await loop.run_in_executor(None, lambda: subprocess.run(
-                    ['ffmpeg', '-y', '-i', tmp_in,
+                    ['ffmpeg', '-y', *_sec.FFMPEG_INPUT_FLAGS, '-i', tmp_in,
                      '-ar', '16000', '-ac', '1', '-f', 'wav', tmp_wav],
                     capture_output=True, timeout=15))
                 if r.returncode != 0:
@@ -3344,7 +3369,7 @@ Reply ONLY with valid JSON. No markdown.
                                "text": "ffmpeg not found — brew install ffmpeg"})
         except Exception as e:
             log.error("Audio: %s", e)
-            await self._send({"type": "status", "text": f"Audio error: {e}"})
+            await self._send({"type": "status", "text": "Audio error - please try again."})
         finally:
             await self._send({"type": "state", "state": "idle"})
             for p in (tmp_in, tmp_wav):
@@ -3366,7 +3391,7 @@ Reply ONLY with valid JSON. No markdown.
         self._daily_brief_task = asyncio.ensure_future(self._daily_briefing_loop())
         async with websockets.serve(self.handler, WS_HOST, WS_PORT,
                                     ssl=ssl_ctx,
-                                    max_size=50_000_000,
+                                    max_size=_sec.MAX_WS_MESSAGE_BYTES,
                                     ping_interval=None):
             log.info("Ready — wss://127.0.0.1:%d  |  https proxy: 127.0.0.1:%d", WS_PORT, PROXY_PORT)
             await asyncio.Future()

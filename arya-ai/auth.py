@@ -18,6 +18,7 @@ _TIMEOUT = httpx.Timeout(5.0)
 
 _cache: dict[str, tuple[str, float]] = {}  # token -> (verified_user_id, expires_at)
 _CACHE_TTL = 60.0
+_CACHE_MAX = 2000
 
 
 class AuthError(Exception):
@@ -28,6 +29,8 @@ def verify_session_token(token: str) -> str:
     """Returns the verified user_id for a valid access token, or raises AuthError."""
     if not token:
         raise AuthError("missing bearer token")
+    if len(token) > 4096:
+        raise AuthError("invalid session token")
 
     cached = _cache.get(token)
     if cached and cached[1] > time.time():
@@ -43,7 +46,7 @@ def verify_session_token(token: str) -> str:
             timeout=_TIMEOUT,
         )
     except httpx.HTTPError as e:
-        raise AuthError(f"Supabase Auth unreachable: {e}")
+        raise AuthError(f"Supabase Auth unreachable ({type(e).__name__})")
 
     if resp.status_code != 200:
         raise AuthError(f"invalid or expired session token (Supabase returned {resp.status_code})")
@@ -52,7 +55,13 @@ def verify_session_token(token: str) -> str:
     if not user_id:
         raise AuthError("Supabase Auth response missing user id")
 
-    _cache[token] = (user_id, time.time() + _CACHE_TTL)
+    now = time.time()
+    if len(_cache) >= _CACHE_MAX:
+        for k in [k for k, v in _cache.items() if v[1] <= now]:
+            del _cache[k]
+        if len(_cache) >= _CACHE_MAX:
+            _cache.clear()
+    _cache[token] = (user_id, now + _CACHE_TTL)
     return user_id
 
 
@@ -62,4 +71,4 @@ def verify_user_matches(token: str | None, claimed_user_id: str) -> None:
     no "claimed_user_id is None" escape hatch here."""
     verified_user_id = verify_session_token(token or "")
     if verified_user_id != claimed_user_id:
-        raise AuthError(f"user_id mismatch: token belongs to {verified_user_id}, request claimed {claimed_user_id}")
+        raise AuthError("user_id does not match the session token")

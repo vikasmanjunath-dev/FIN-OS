@@ -12,6 +12,9 @@
 -- A couple link is removed entirely, which also removes the shared goals and responsibilities under it: the partner loses those
 -- shared rows. That is a product decision for the owner; the alternative is to keep the link and anonymise the departing side.
 --
+-- search_path: public, auth, pg_temp (decided Oct 2026 after the release-pack proposal). The body only uses schema-qualified tables and
+-- pg_catalog functions, so nothing depends on the order; pg_temp is listed explicitly and LAST so a temp table cannot shadow a real one.
+--
 -- Idempotent. Run once in the Supabase SQL editor. A test (mobile/__tests__/deleteAccountSql.test.mts) fails if a repo schema file
 -- adds a table with a user_id column that is not handled here.
 
@@ -19,7 +22,7 @@ CREATE OR REPLACE FUNCTION public.delete_my_account()
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public, auth
+SET search_path = public, auth, pg_temp   -- pg_temp last: a SECURITY DEFINER function must never resolve a name to a temp object the caller created
 AS $$
 DECLARE
   uid   uuid := auth.uid();

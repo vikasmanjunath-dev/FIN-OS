@@ -26,14 +26,17 @@ Dependencies (install via requirements.txt):
 """
 
 import asyncio
+import hmac
 import json
 import logging
 import os
-import random
+import re
+import secrets
 import string
 import time
 import uuid
-from datetime import datetime, timedelta, timezone
+from urllib.parse import urlsplit
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
 import httpx
@@ -41,7 +44,7 @@ import yfinance as yf
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from cachetools import TTLCache
 from dotenv import load_dotenv
-from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
@@ -50,11 +53,11 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 from supabase import create_client, Client
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 from rules import ALL_RULES, RULES_BY_ID
 from health_score import (
-    compute_health_score, benchmark_comparison,
+    compute_health_score, benchmark_comparison, window_start, _monthly_window,
     _n, _monthly_income, _monthly_expenses,
 )
 
@@ -90,9 +93,28 @@ VAPID_PRIVATE_KEY    = os.getenv("VAPID_PRIVATE_KEY", "")
 VAPID_PUBLIC_KEY     = os.getenv("VAPID_PUBLIC_KEY",  "")
 VAPID_CLAIMS         = {"sub": "mailto:admin@fin-os.app"}
 
-HOST      = "0.0.0.0"
+HOST      = os.getenv("ALERTS_HOST", "127.0.0.1")   # the container CMD binds 0.0.0.0 itself; a dev run stays on this machine
 PORT      = 8001
 ADMIN_KEY = os.getenv("ADMIN_API_KEY", "")
+
+# ── Authentication ───────────────────────────────────────────────────────────
+# This service reads and writes with the SERVICE ROLE key (it bypasses row-level security), so every route that takes a user id
+# must prove the caller is that user: "Authorization: Bearer <Supabase access token>", verified against Supabase Auth. A server-to-
+# server caller (the voice agent) may use "X-Admin-Key: <ADMIN_API_KEY>" instead.
+#   ALERTS_AUTH=required (default)  enforce as above
+#   ALERTS_AUTH=off                 local development only: no check at all (logged loudly at start-up)
+AUTH_MODE = os.getenv("ALERTS_AUTH", "required").strip().lower()
+_UUID_RE  = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+_ZERO_UUID = "00000000-0000-0000-0000-000000000000"
+
+# Browser origins allowed to call this API (never "*"); localhost on any port is always allowed for development.
+CORS_ORIGINS = [o.strip() for o in os.getenv("ALERTS_CORS", "https://finos1.vercel.app").split(",") if o.strip() and o.strip() != "*"]
+CORS_LOCAL_REGEX = r"^https?://(localhost|127\.0\.0\.1|\[::1\])(:[0-9]{1,5})?$"
+
+# Web Push endpoints are URLs the browser vendor gave the visitor, and this service POSTs to them. Without a host check anyone
+# could register http://169.254.169.254/... or an internal service as "their push endpoint" (blind SSRF).
+PUSH_HOST_SUFFIXES = ("fcm.googleapis.com", "updates.push.services.mozilla.com", "push.services.mozilla.com",
+                      "notify.windows.com", "push.apple.com", "web.push.apple.com")
 
 # ── Supabase client (service role — bypasses RLS for scheduled checks) ──────
 def _get_supabase() -> Client:
@@ -172,6 +194,28 @@ def get_market_data() -> dict:
     return _market_cache
 
 
+TX_PAGE_ROWS = 1000
+TX_MAX_ROWS = 5000
+
+
+def _fetch_transactions(sb, user_id: str, since: "date") -> tuple[list[dict], bool]:
+    """(rows dated on/after `since`, newest first; True if the TX_MAX_ROWS cap cut the list short)."""
+    rows: list[dict] = []
+    while len(rows) < TX_MAX_ROWS:
+        r = (sb.table("transactions")
+               .select("*")
+               .eq("user_id", user_id)
+               .gte("date", since.isoformat())
+               .order("date", desc=True)
+               .range(len(rows), len(rows) + TX_PAGE_ROWS - 1)
+               .execute())
+        page = r.data or []
+        rows.extend(page)
+        if len(page) < TX_PAGE_ROWS:
+            return rows, False
+    return rows[:TX_MAX_ROWS], True
+
+
 # ── User data fetcher ─────────────────────────────────────────────────────────
 def fetch_user_data(sb: Client, user_id: str) -> dict:
     """
@@ -200,16 +244,14 @@ def fetch_user_data(sb: Client, user_id: str) -> dict:
         log.debug("Profile fetch for %s: %s", user_id[:8], e)
 
     try:
-        # Transactions (last 60 days)
-        cutoff = (datetime.now() - timedelta(days=60)).date().isoformat()
-        r = (sb.table("transactions")
-               .select("*")
-               .eq("user_id", user_id)
-               .gte("date", cutoff)
-               .order("date", desc=True)
-               .limit(100)
-               .execute())
-        result["transactions"] = r.data or []
+        # Transactions: every row from the first day of the oldest month in the health-score window (health_score.window_start),
+        # filtered by date in the database and read page by page. This used to be "last 60 days, LIMIT 100": busy accounts were
+        # silently cut off and the monthly figures were then halved as if the rows covered two months.
+        rows, truncated = _fetch_transactions(sb, user_id, window_start())
+        result["transactions"] = rows
+        if truncated:
+            result["transactions_truncated"] = True
+            log.warning("Transactions for %s hit the %d-row cap; monthly figures use the newest rows only", user_id[:8], TX_MAX_ROWS)
 
     except Exception as e:
         log.debug("Transactions fetch for %s: %s", user_id[:8], e)
@@ -533,18 +575,23 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # restrict to your domain in production
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=CORS_ORIGINS,
+    allow_origin_regex=CORS_LOCAL_REGEX,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-Admin-Key", "X-Trace-ID"],
 )
 
 @app.middleware("http")
 async def trace_and_metrics(request: Request, call_next):
-    trace_id = request.headers.get("X-Trace-ID", str(uuid.uuid4())[:8])
+    trace_id = re.sub(r"[^A-Za-z0-9._-]", "", request.headers.get("X-Trace-ID", ""))[:32] or str(uuid.uuid4())[:8]
     request.state.trace_id = trace_id
-    _api_requests.labels(method=request.method, path=request.url.path).inc()
     start = time.monotonic()
     response = await call_next(request)
+    # label with the route TEMPLATE ("/alerts/{user_id}"), not the URL: a user id in the label leaks ids to /metrics and makes
+    # the number of time series grow without bound
+    route = request.scope.get("route")
+    _api_requests.labels(method=request.method, path=getattr(route, "path", "unmatched")).inc()
     elapsed = time.monotonic() - start
     response.headers["X-Trace-ID"]    = trace_id
     response.headers["X-Response-Time"] = f"{elapsed*1000:.1f}ms"
@@ -553,37 +600,44 @@ async def trace_and_metrics(request: Request, call_next):
 
 # ── Pydantic models ───────────────────────────────────────────────────────────
 class PushSubscription(BaseModel):
-    user_id:    str
-    endpoint:   str
-    p256dh:     str
-    auth_key:   str
-    user_agent: str = ""
+    user_id:    str = Field(max_length=64)
+    endpoint:   str = Field(max_length=1024)
+    p256dh:     str = Field(max_length=256)
+    auth_key:   str = Field(max_length=128)
+    user_agent: str = Field("", max_length=300)
 
 
 class AlertPreference(BaseModel):
-    user_id:  str
-    rule_id:  str
+    user_id:  str = Field(max_length=64)
+    rule_id:  str = Field(max_length=64)
     enabled:  bool = True
-    channels: list[str] = ["in_app", "push"]
+    channels: list[str] = Field(["in_app", "push"], max_length=3)
+
+    @field_validator("channels")
+    @classmethod
+    def known_channels(cls, v: list[str]) -> list[str]:
+        if any(c not in ("in_app", "push", "voice") for c in v):
+            raise ValueError("channels must be in_app | push | voice")
+        return v
 
 
 class CoupleLinkRequest(BaseModel):
-    user_id: str
+    user_id: str = Field(max_length=64)
 
 class CoupleLinkAccept(BaseModel):
-    user_id:     str
+    user_id:     str = Field(max_length=64)
     invite_code: str
 
     @field_validator("invite_code")
     @classmethod
     def code_format(cls, v: str) -> str:
         v = v.strip().upper()
-        if len(v) < 6:
-            raise ValueError("Invite code must be at least 6 characters")
+        if len(v) < 6 or len(v) > 16 or not v.isalnum():
+            raise ValueError("Invite code must be 6-16 letters or digits")
         return v
 
 class CoupleGoal(BaseModel):
-    couple_id:     str
+    couple_id:     str = Field(max_length=64)
     title:         str
     target_amount: float
     target_date:   str | None = None
@@ -619,7 +673,7 @@ class CoupleGoal(BaseModel):
         return v
 
 class CoupleResponsibility(BaseModel):
-    couple_id:    str
+    couple_id:    str = Field(max_length=64)
     label:        str
     assigned_to:  str
     amount:       float | None = None
@@ -657,6 +711,94 @@ class CoupleResponsibility(BaseModel):
         return v
 
 
+# ── Authentication helpers ────────────────────────────────────────────────────
+
+class Caller:
+    def __init__(self, user_id: str | None, is_admin: bool = False):
+        self.user_id, self.is_admin = user_id, is_admin
+
+
+_token_cache: dict[str, tuple[str, float]] = {}
+_TOKEN_TTL, _TOKEN_CACHE_MAX = 60.0, 2000
+
+
+def _server_error(e: Exception, what: str = "request") -> HTTPException:
+    """500 without the exception text: Supabase/PostgREST errors name tables, columns and the project URL. Logged instead."""
+    log.error("%s failed: %s", what, e)
+    return HTTPException(500, "Internal error")
+
+
+def _admin_ok(key: str | None) -> bool:
+    return bool(ADMIN_KEY and key and hmac.compare_digest(key.encode(), ADMIN_KEY.encode()))
+
+
+async def _verify_token(token: str) -> str:
+    """The user id a Supabase access token belongs to (asks Supabase Auth; cached for a minute). Raises 401."""
+    if not token or len(token) > 4096:
+        raise HTTPException(401, "Missing or invalid session token")
+    hit = _token_cache.get(token)
+    if hit and hit[1] > time.time():
+        return hit[0]
+    api_key = SUPABASE_ANON_KEY or SUPABASE_SERVICE_KEY
+    if not api_key:
+        raise HTTPException(503, "Authentication is not configured")
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            r = await client.get(f"{SUPABASE_URL}/auth/v1/user",
+                                 headers={"Authorization": f"Bearer {token}", "apikey": api_key})
+    except httpx.HTTPError:
+        raise HTTPException(503, "Authentication service unreachable")
+    uid = r.json().get("id") if r.status_code == 200 else None
+    if not uid:
+        raise HTTPException(401, "Missing or invalid session token")
+    if len(_token_cache) >= _TOKEN_CACHE_MAX:
+        _token_cache.clear()
+    _token_cache[token] = (uid, time.time() + _TOKEN_TTL)
+    return uid
+
+
+async def authenticate(authorization: str | None = Header(None), x_admin_key: str | None = Header(None)) -> Caller:
+    if AUTH_MODE == "off":
+        return Caller(None, is_admin=True)
+    if _admin_ok(x_admin_key):
+        return Caller(None, is_admin=True)
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(401, "Authorization: Bearer <session token> is required")
+    return Caller(await _verify_token(authorization[7:].strip()))
+
+
+def _own(caller: Caller, user_id: str) -> None:
+    """403 unless the caller is `user_id` (or an operator)."""
+    if caller.is_admin:
+        return
+    if not isinstance(user_id, str) or not _UUID_RE.match(user_id) or caller.user_id.lower() != user_id.lower():
+        raise HTTPException(403, "Forbidden")
+
+
+def _valid_push_endpoint(url: str) -> bool:
+    try:
+        parts = urlsplit(url)
+        host = (parts.hostname or "").lower()
+        if parts.scheme != "https" or parts.username or parts.password or parts.port not in (None, 443):
+            return False
+    except ValueError:
+        return False
+    return any(host == suf or host.endswith("." + suf) for suf in PUSH_HOST_SUFFIXES)
+
+
+def _is_member(sb, couple_id: str, caller: Caller) -> dict:
+    """The active couple_links row `couple_id` if the caller belongs to it; 403/404 otherwise."""
+    if not isinstance(couple_id, str) or not _UUID_RE.match(couple_id):
+        raise HTTPException(404, "Couple not found")
+    r = sb.table("couple_links").select("*").eq("id", couple_id).eq("status", "active").limit(1).execute()
+    row = r.data[0] if r.data else None
+    if not row:
+        raise HTTPException(404, "Couple not found")
+    if not caller.is_admin and caller.user_id not in (row["user_a"], row["user_b"]):
+        raise HTTPException(403, "Forbidden")
+    return row
+
+
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
 @app.get("/metrics")
@@ -667,8 +809,11 @@ async def metrics():
 
 @app.post("/alerts/subscribe")
 @limiter.limit("30/minute")
-async def subscribe_push(request: Request, sub: PushSubscription):
+async def subscribe_push(request: Request, sub: PushSubscription, caller: Caller = Depends(authenticate)):
     """Browser registers its push subscription here."""
+    _own(caller, sub.user_id)
+    if not _valid_push_endpoint(sub.endpoint):
+        raise HTTPException(400, "endpoint must be an https URL of a known browser push service")
     try:
         sb = _get_supabase()
         sb.table("push_subscriptions").upsert({
@@ -680,28 +825,34 @@ async def subscribe_push(request: Request, sub: PushSubscription):
         }, on_conflict="endpoint").execute()
         return {"ok": True}
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.delete("/alerts/subscribe")
 @limiter.limit("20/minute")
-async def unsubscribe_push(request: Request, endpoint: str):
-    """Browser unregisters push subscription."""
+async def unsubscribe_push(request: Request, endpoint: str, caller: Caller = Depends(authenticate)):
+    """Browser unregisters push subscription (only the caller's own)."""
     try:
         sb = _get_supabase()
-        sb.table("push_subscriptions").delete().eq("endpoint", endpoint).execute()
+        q = sb.table("push_subscriptions").delete().eq("endpoint", endpoint[:1024])
+        if not caller.is_admin:
+            q = q.eq("user_id", caller.user_id)
+        q.execute()
         return {"ok": True}
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.get("/alerts/{user_id}")
 @limiter.limit("60/minute")
-async def get_alerts(request: Request, user_id: str, limit: int = 30, unread_only: bool = False):
+async def get_alerts(request: Request, user_id: str, limit: int = 30, unread_only: bool = False,
+                     caller: Caller = Depends(authenticate)):
     """
     Fetch pending alerts for a user.
     Called by: voice agent (on connect), frontend notification center.
     """
+    _own(caller, user_id)
+    limit = max(1, min(limit, 100))
     try:
         sb = _get_supabase()
         q  = (sb.table("alerts")
@@ -716,26 +867,30 @@ async def get_alerts(request: Request, user_id: str, limit: int = 30, unread_onl
             1 for a in (r.data or []) if not a.get("read")
         )}
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.post("/alerts/{alert_id}/read")
-async def mark_read(alert_id: str):
-    """Mark a single alert as read."""
+async def mark_read(alert_id: str, caller: Caller = Depends(authenticate)):
+    """Mark a single alert as read (only the caller's own)."""
     try:
         sb = _get_supabase()
-        sb.table("alerts").update({
+        q = sb.table("alerts").update({
             "read": True,
             "read_at": datetime.now(timezone.utc).isoformat(),
-        }).eq("id", alert_id).execute()
+        }).eq("id", alert_id)
+        if not caller.is_admin:
+            q = q.eq("user_id", caller.user_id)
+        q.execute()
         return {"ok": True}
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.post("/alerts/mark-all-read/{user_id}")
-async def mark_all_read(user_id: str):
+async def mark_all_read(user_id: str, caller: Caller = Depends(authenticate)):
     """Mark all alerts for a user as read."""
+    _own(caller, user_id)
     try:
         sb = _get_supabase()
         sb.table("alerts").update({
@@ -744,12 +899,15 @@ async def mark_all_read(user_id: str):
         }).eq("user_id", user_id).eq("read", False).execute()
         return {"ok": True}
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.put("/alerts/preferences")
-async def update_preferences(pref: AlertPreference):
+async def update_preferences(pref: AlertPreference, caller: Caller = Depends(authenticate)):
     """User enables/disables a specific alert rule."""
+    _own(caller, pref.user_id)
+    if pref.rule_id not in RULES_BY_ID:
+        raise HTTPException(400, "Unknown rule_id")
     try:
         sb = _get_supabase()
         sb.table("alert_preferences").upsert({
@@ -760,12 +918,13 @@ async def update_preferences(pref: AlertPreference):
         }, on_conflict="user_id,rule_id").execute()
         return {"ok": True}
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.get("/alerts/preferences/{user_id}")
-async def get_preferences(user_id: str):
+async def get_preferences(user_id: str, caller: Caller = Depends(authenticate)):
     """Get all alert preferences for a user."""
+    _own(caller, user_id)
     try:
         sb = _get_supabase()
         r  = (sb.table("alert_preferences")
@@ -786,7 +945,7 @@ async def get_preferences(user_id: str):
             }))
         return {"preferences": result}
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.get("/vapid-public-key")
@@ -807,7 +966,9 @@ async def get_market():
 @limiter.limit("5/minute")
 async def run_manual(request: Request, x_admin_key: str = Header(None)):
     """Manually trigger full alert check. Requires ADMIN_API_KEY header."""
-    if ADMIN_KEY and x_admin_key != ADMIN_KEY:
+    if not ADMIN_KEY:
+        raise HTTPException(403, "Disabled — set ADMIN_API_KEY to enable manual runs")
+    if not _admin_ok(x_admin_key):
         raise HTTPException(403, "Forbidden — invalid or missing X-Admin-Key header")
     # Invalidate caches so fresh data is computed
     _health_cache.clear()
@@ -818,11 +979,12 @@ async def run_manual(request: Request, x_admin_key: str = Header(None)):
 
 @app.get("/health-score/{user_id}")
 @limiter.limit("20/minute")
-async def get_health_score(request: Request, user_id: str, force: bool = False):
+async def get_health_score(request: Request, user_id: str, force: bool = False, caller: Caller = Depends(authenticate)):
     """
     Compute (or return cached) Financial Health Score.
     TTL: 5 min. Pass ?force=true to bust cache.
     """
+    _own(caller, user_id)
     if not force and user_id in _health_cache:
         _cache_hits.labels(endpoint="health_score").inc()
         return _health_cache[user_id]
@@ -880,17 +1042,18 @@ async def get_health_score(request: Request, user_id: str, force: bool = False):
         return result_dict
     except Exception as e:
         log.error("Health score for %s: %s", user_id[:8], e)
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.get("/health-score/{user_id}/history")
 @limiter.limit("20/minute")
-async def get_health_score_history(request: Request, user_id: str, days: int = 90):
+async def get_health_score_history(request: Request, user_id: str, days: int = 90, caller: Caller = Depends(authenticate)):
     """
     Returns health score time series for sparkline/trend chart.
     Default: last 90 days. Max: 365 days.
     """
-    days = min(days, 365)
+    _own(caller, user_id)
+    days = max(1, min(days, 365))
     try:
         sb     = _get_supabase()
         cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
@@ -923,16 +1086,17 @@ async def get_health_score_history(request: Request, user_id: str, days: int = 9
             "delta":  (rows[-1]["total"] - rows[0]["total"]) if len(rows) >= 2 else 0,
         }
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.get("/health-score/{user_id}/summary")
 @limiter.limit("30/minute")
-async def get_health_score_summary(request: Request, user_id: str):
+async def get_health_score_summary(request: Request, user_id: str, caller: Caller = Depends(authenticate)):
     """
     Lightweight score summary — just total + tier + top 2 tips.
     Used by the voice agent to inject a 1-line health status into LLM context.
     """
+    _own(caller, user_id)
     try:
         sb        = _get_supabase()
         user_data = fetch_user_data(sb, user_id)
@@ -958,7 +1122,7 @@ async def get_health_score_summary(request: Request, user_id: str):
             "worst_pillar": sorted_pillars[0].name if sorted_pillars else None,
         }
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.get("/health")
@@ -977,12 +1141,13 @@ async def health():
 
 @app.get("/benchmark/{user_id}")
 @limiter.limit("10/minute")
-async def get_benchmark(request: Request, user_id: str, force: bool = False):
+async def get_benchmark(request: Request, user_id: str, force: bool = False, caller: Caller = Depends(authenticate)):
     """
     Compare user's financial metrics against anonymised peer percentiles.
     Peer segment = (age_bracket, city_tier, income_bracket) — zero PII stored.
     TTL: 5 min. Pass ?force=true to bust cache.
     """
+    _own(caller, user_id)
     if not force and user_id in _benchmark_cache:
         _cache_hits.labels(endpoint="benchmark").inc()
         return _benchmark_cache[user_id]
@@ -994,9 +1159,11 @@ async def get_benchmark(request: Request, user_id: str, force: bool = False):
             result = benchmark_comparison(user_data)
         _benchmark_cache[user_id] = result
         return result
+    except HTTPException:
+        raise                       # the 402 "upgrade required" used to be swallowed and turned into a 500
     except Exception as e:
         log.error("Benchmark for %s: %s", user_id[:8], e)
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1004,7 +1171,8 @@ async def get_benchmark(request: Request, user_id: str, force: bool = False):
 # ══════════════════════════════════════════════════════════════════════════════
 
 def _gen_invite_code() -> str:
-    return "".join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    # secrets, not random: an invite code links two people's finances, so it must not be predictable
+    return "".join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(10))
 
 
 def _get_user_plan(sb, user_id: str) -> str:
@@ -1034,6 +1202,10 @@ def _require_plan(sb, user_id: str, min_plans: list[str]) -> None:
 
 def _get_couple(sb, user_id: str, status: str = "active") -> dict | None:
     """Return a couple_links row for a user by status, or None."""
+    # user_id is placed inside a PostgREST "or=(...)" filter string, where a comma or parenthesis changes the filter itself:
+    # only a plain UUID is allowed through.
+    if not isinstance(user_id, str) or not _UUID_RE.match(user_id):
+        return None
     try:
         r = (sb.table("couple_links")
                .select("*")
@@ -1047,10 +1219,11 @@ def _get_couple(sb, user_id: str, status: str = "active") -> dict | None:
 
 
 @app.post("/couple/invite")
-async def couple_invite(req: CoupleLinkRequest):
+async def couple_invite(req: CoupleLinkRequest, caller: Caller = Depends(authenticate)):
     """
     Inviter creates an invite code.  Share this code with partner to link.
     """
+    _own(caller, req.user_id)
     try:
         sb = _get_supabase()
         # B5 fix: check for existing active link
@@ -1070,7 +1243,7 @@ async def couple_invite(req: CoupleLinkRequest):
         code = _gen_invite_code()
         r = sb.table("couple_links").insert({
             "user_a":      req.user_id,
-            "user_b":      "00000000-0000-0000-0000-000000000000",  # placeholder until accepted
+            "user_b":      _ZERO_UUID,  # placeholder until accepted
             "status":      "pending",
             "invite_code": code,
         }).execute()
@@ -1078,12 +1251,14 @@ async def couple_invite(req: CoupleLinkRequest):
         return {"ok": True, "invite_code": code, "couple_id": couple_id,
                 "message": "Share this code with your partner to link accounts"}
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.post("/couple/accept")
-async def couple_accept(req: CoupleLinkAccept):
-    """Partner accepts invite by entering the invite code."""
+@limiter.limit("10/minute")
+async def couple_accept(request: Request, req: CoupleLinkAccept, caller: Caller = Depends(authenticate)):
+    """Partner accepts invite by entering the invite code (rate-limited: the code is the only thing protecting the link)."""
+    _own(caller, req.user_id)
     try:
         sb = _get_supabase()
         r  = (sb.table("couple_links")
@@ -1115,16 +1290,17 @@ async def couple_accept(req: CoupleLinkAccept):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.get("/couple/overview/{user_id}")
-async def couple_overview(user_id: str):
+async def couple_overview(user_id: str, caller: Caller = Depends(authenticate)):
     """
     Combined financial overview for both partners.
     Returns merged income/savings, joint goals, responsibilities, and
     spending conflict signals.
     """
+    _own(caller, user_id)
     try:
         sb = _get_supabase()
         _require_plan(sb, user_id, ["family", "pro"])
@@ -1149,12 +1325,13 @@ async def couple_overview(user_id: str):
         # ── Spending category breakdown for conflict detection ─────────────
         def _cat_spend(txns):
             cats: dict[str, float] = {}
+            txns, months = _monthly_window(txns)
             for t in txns:
                 if str(t.get("type", "")).lower() not in ("expense", "debit"):
                     continue
                 cat = str(t.get("category") or "Other").title()
                 cats[cat] = cats.get(cat, 0) + abs(_n(t.get("amount")))
-            return {k: round(v / 2, 0) for k, v in cats.items()}
+            return {k: round(v / months, 0) for k, v in cats.items()} if months else {}
 
         cats_a = _cat_spend(data_a["transactions"])
         cats_b = _cat_spend(data_b["transactions"])
@@ -1228,14 +1405,15 @@ async def couple_overview(user_id: str):
         raise
     except Exception as e:
         log.error("Couple overview for %s: %s", user_id[:8], e)
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.post("/couple/goal")
-async def add_couple_goal(goal: CoupleGoal):
-    """Create a shared financial goal for a linked couple."""
+async def add_couple_goal(goal: CoupleGoal, caller: Caller = Depends(authenticate)):
+    """Create a shared financial goal for a linked couple (the caller must be one of the two partners)."""
     try:
         sb = _get_supabase()
+        _is_member(sb, goal.couple_id, caller)
         r  = sb.table("couple_goals").insert({
             "couple_id":      goal.couple_id,
             "title":          goal.title,
@@ -1248,18 +1426,25 @@ async def add_couple_goal(goal: CoupleGoal):
             "category":       goal.category,
         }).execute()
         return {"ok": True, "goal": r.data[0] if r.data else None}
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.put("/couple/goal/{goal_id}/contribute")
-async def update_goal_contribution(goal_id: str, amount: float):
-    """Add money towards a joint goal."""
+async def update_goal_contribution(goal_id: str, amount: float, caller: Caller = Depends(authenticate)):
+    """Add money towards a joint goal (the caller must be one of the two partners)."""
+    if not (0 < amount <= 1_00_00_00_000):          # also rejects NaN
+        raise HTTPException(400, "amount must be greater than 0 and at most ₹100 Cr")
+    if not _UUID_RE.match(goal_id or ""):
+        raise HTTPException(404, "Goal not found")
     try:
         sb = _get_supabase()
-        r  = sb.table("couple_goals").select("current_amount").eq("id", goal_id).single().execute()
+        r  = sb.table("couple_goals").select("current_amount,couple_id").eq("id", goal_id).single().execute()
         if not r.data:
             raise HTTPException(404, "Goal not found")
+        _is_member(sb, r.data["couple_id"], caller)
         new_amount = _n(r.data["current_amount"]) + amount
         sb.table("couple_goals").update({
             "current_amount": new_amount,
@@ -1269,14 +1454,15 @@ async def update_goal_contribution(goal_id: str, amount: float):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.post("/couple/responsibility")
-async def add_responsibility(resp: CoupleResponsibility):
-    """Assign a financial responsibility (e.g. EMI, SIP) to a partner."""
+async def add_responsibility(resp: CoupleResponsibility, caller: Caller = Depends(authenticate)):
+    """Assign a financial responsibility (e.g. EMI, SIP) to a partner (the caller must be one of the two)."""
     try:
         sb = _get_supabase()
+        _is_member(sb, resp.couple_id, caller)
         r  = sb.table("couple_responsibilities").insert({
             "couple_id":    resp.couple_id,
             "label":        resp.label,
@@ -1285,13 +1471,16 @@ async def add_responsibility(resp: CoupleResponsibility):
             "reminder_day": resp.reminder_day,
         }).execute()
         return {"ok": True, "responsibility": r.data[0] if r.data else None}
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 @app.delete("/couple/dissolve/{user_id}")
-async def dissolve_couple(user_id: str):
+async def dissolve_couple(user_id: str, caller: Caller = Depends(authenticate)):
     """Unlink a couple (requires confirmation from client side)."""
+    _own(caller, user_id)
     try:
         sb = _get_supabase()
         couple = _get_couple(sb, user_id)
@@ -1302,7 +1491,7 @@ async def dissolve_couple(user_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise _server_error(e)
 
 
 # ── Startup: launch scheduler ─────────────────────────────────────────────────
@@ -1324,8 +1513,10 @@ async def startup():
         )
 
     if not ADMIN_KEY:
-        log.warning("ADMIN_API_KEY not set — /alerts/run endpoint is unprotected. "
-                    "Set ADMIN_API_KEY in .env to secure it.")
+        log.warning("ADMIN_API_KEY not set — /alerts/run is disabled. Set ADMIN_API_KEY in .env to enable it.")
+    if AUTH_MODE == "off":
+        log.critical("ALERTS_AUTH=off — NO AUTHENTICATION: any caller can read and change any user's alerts, health score and "
+                     "couple data using the service-role key. Local development only.")
 
     # ── Scheduler ─────────────────────────────────────────────────────────────
     scheduler = AsyncIOScheduler(timezone="Asia/Kolkata")

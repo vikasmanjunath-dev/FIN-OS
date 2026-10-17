@@ -115,6 +115,11 @@ def _n(v, default: float = 0.0) -> float:
 def _parse_dt(raw) -> datetime:
     """Parse ISO datetime string safely — strips Z/timezone suffix for Python <3.11."""
     s = str(raw or "").strip()
+    if re.match(r"\d{4}-\d{2}-\d{2}", s):          # date part first: the stripping below cut '2026-10-01T10:00' at its first '-'
+        try:
+            return datetime(int(s[0:4]), int(s[5:7]), int(s[8:10]))
+        except ValueError:
+            return datetime(2000, 1, 1)
     # Remove timezone info so fromisoformat works on Python 3.9/3.10
     s = s.replace("Z", "").split("+")[0].split("-")[0] if "T" in s else s
     # Fallback for date-only strings
@@ -175,33 +180,80 @@ def _tx_kind(t: dict) -> str:
     return kind
 
 
-def _monthly_income(transactions: list[dict], profile: dict) -> float:
-    income_txns = [
-        abs(_n(t.get("amount")))
-        for t in transactions
-        if _tx_kind(t) == "income"
-    ]
-    from_txns = sum(income_txns) / 2 if income_txns else 0
+# ── Monthly averages: a real calendar-month window ────────────────────────────
+# PRODUCT DECISION (documented in docs/agent-notes/backend-security.md; change the constant to change the rule):
+# every "monthly" figure is the total over the last MONTHLY_WINDOW_MONTHS COMPLETED calendar months divided by the number of those
+# months that fall on or after the month of the person's first transaction in the window. The current, part-finished month is left
+# out so the figure does not wobble through the month. Only when there is no completed month with data does it fall back to the
+# current month so far (divisor 1; an under-estimate early in the month). Rows with no readable date cannot be placed in a month
+# and are not counted. This replaces "sum / 2", which assumed the rows spanned exactly 60 days and (because of a 100-row fetch
+# limit) often did not.
+MONTHLY_WINDOW_MONTHS = 3
+
+
+def _tx_date(t) -> date | None:
+    """The calendar date of a transaction row ('2026-10-01' or an ISO timestamp), or None."""
+    if not isinstance(t, dict):
+        return None
+    raw = str(t.get("date") or "").strip()[:10]
+    try:
+        return date.fromisoformat(raw)
+    except ValueError:
+        return None
+
+
+def _month_index(d: date) -> int:
+    return d.year * 12 + d.month - 1
+
+
+def window_start(today: date | None = None) -> date:
+    """First day of the oldest month in the window; use it as the lower date bound when fetching transactions."""
+    today = today or date.today()
+    idx = _month_index(today) - MONTHLY_WINDOW_MONTHS
+    return date(idx // 12, idx % 12 + 1, 1)
+
+
+def _monthly_window(transactions: list[dict], today: date | None = None) -> tuple[list[dict], int]:
+    """(rows to average, number of months to divide by); ([], 0) when there is nothing usable."""
+    today = today or date.today()
+    this_month = today.replace(day=1)
+    start = window_start(today)
+    dated = [(d, t) for t in (transactions or []) if (d := _tx_date(t)) is not None]
+    done = [(d, t) for d, t in dated if start <= d < this_month]
+    if done:
+        months = _month_index(this_month) - _month_index(min(d for d, _ in done))
+        return [t for _, t in done], max(1, min(months, MONTHLY_WINDOW_MONTHS))
+    current = [t for d, t in dated if this_month <= d <= today]
+    return (current, 1) if current else ([], 0)
+
+
+def _monthly_income(transactions: list[dict], profile: dict, today: date | None = None) -> float:
+    rows, months = _monthly_window(transactions, today)
+    total = sum(abs(_n(t.get("amount"))) for t in rows if _tx_kind(t) == "income")
+    from_txns = total / months if months and total else 0
     from_prof = _n(profile.get("monthly_income") or profile.get("income_monthly"))
     return max(from_txns, from_prof)
 
-def _monthly_expenses(transactions: list[dict]) -> float:
-    expense = [
+def _monthly_expenses(transactions: list[dict], today: date | None = None) -> float:
+    rows, months = _monthly_window(transactions, today)
+    total = sum(
         abs(_n(t.get("amount")))
-        for t in transactions
+        for t in rows
         if str(t.get("type", "")).lower() in ("expense", "debit")
         or _n(t.get("amount")) < 0
-    ]
-    total = sum(expense)
-    return total / 2 if total else 0
+    )
+    return total / months if months and total else 0
 
-def _monthly_emi(transactions: list[dict]) -> float:
+def _monthly_emi(transactions: list[dict], today: date | None = None) -> float:
+    rows, months = _monthly_window(transactions, today)
+    if not months:
+        return 0
     return sum(
         abs(_n(t.get("amount")))
-        for t in transactions
+        for t in rows
         if any(kw in str(t.get("category", "")).lower()
                for kw in ("emi", "loan", "mortgage", "repayment"))
-    ) / 2
+    ) / months
 
 def _liquid_savings(profile: dict, holdings: dict) -> float:
     return (
@@ -1128,13 +1180,14 @@ def benchmark_comparison(user_data: dict) -> dict:
     expense_mo = _monthly_expenses(txns)
     savings_rate = max(0.0, (income_mo - expense_mo) / income_mo) if income_mo else 0
 
-    invest_mo = sum(
+    w_rows, w_months = _monthly_window(txns)
+    invest_mo = (sum(
         abs(_n(t.get("amount")))
-        for t in txns
+        for t in w_rows
         if str(t.get("type", "")).lower() == "investment"
         or any(kw in str(t.get("category", "")).lower()
                for kw in ("sip", "mutual fund", "stock", "nps", "ppf", "elss"))
-    ) / 2
+    ) / w_months) if w_months else 0
     invest_pct = (invest_mo / income_mo) if income_mo else 0
 
     emi_mo    = _monthly_emi(txns)

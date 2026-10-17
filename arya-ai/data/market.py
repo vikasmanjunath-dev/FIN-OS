@@ -12,6 +12,7 @@ import concurrent.futures
 from datetime import datetime, timedelta
 from urllib.parse import quote as _urlquote
 
+import logging
 import requests
 import yfinance as yf
 import feedparser
@@ -27,6 +28,14 @@ from config import (
     AMFI_NAV_URL, COINGECKO_BASE, INDEX_TICKERS,
     TTL_QUOTE, TTL_INDEX, TTL_MF_NAV, TTL_GOLD, TTL_CRYPTO, TTL_FX,
 )
+
+log = logging.getLogger("arya.market")
+
+
+def _upstream_msg(e: Exception) -> str:
+    """Yahoo/yfinance's own message ("No data found, symbol may be delisted", "Too Many Requests") on one line and capped; these
+    are public-library messages, not stack traces. Routes that can reach internal hosts (read_url, the chat model) do not use this."""
+    return " ".join(str(e).split())[:200] or type(e).__name__
 
 # ── NSE Session Manager ────────────────────────────────────────────────────────
 # This custom session, not the `nsepy` library originally specified — checked,
@@ -496,7 +505,7 @@ def get_mf_nav(scheme_code: str) -> dict:
 def search_mf(query: str, limit: int = 10) -> list[dict]:
     """Every word of the query must appear in the scheme name, fund house, plan or option (any order)."""
     _load_amfi_navs()
-    words = [w for w in (query or "").lower().split() if w]
+    words = [w for w in str(query or "")[:100].lower().split() if w][:8]      # a query is a few words; bounds the scan below
     if not words:
         return []
     limit = max(1, min(int(limit or 10), 100))
@@ -773,10 +782,24 @@ def get_fx_rates() -> dict:
 
 # ── Historical OHLCV ──────────────────────────────────────────────────────────
 
+_HIST_PERIODS   = {"1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"}
+_HIST_INTERVALS = {"1m", "2m", "5m", "15m", "30m", "60m", "90m", "1h", "1d", "5d", "1wk", "1mo", "3mo"}
+
+
 def get_historical(symbol: str, period: str = "1y", interval: str = "1d",
                    exchange: str = "NSE") -> dict:
-    suffix = NSE_SUFFIX if exchange.upper() == "NSE" else BSE_SUFFIX
-    ticker_sym = f"{symbol.upper()}{suffix}"
+    # symbol, period and interval come straight from the request (query string or tool arguments): checked here, in one place,
+    # before they reach Yahoo. An unknown ticker / odd period is an input error, not an upstream failure.
+    symbol = str(symbol or "").strip().upper()
+    exchange = str(exchange or "NSE").strip().upper()
+    if not _SYMBOL_OK.match(symbol):
+        return {"error": "Invalid symbol", "symbol": symbol[:20]}
+    if exchange not in _EXCHANGES:
+        return {"error": "Exchange must be NSE or BSE", "symbol": symbol}
+    if period not in _HIST_PERIODS or interval not in _HIST_INTERVALS:
+        return {"error": "Invalid period or interval", "symbol": symbol}
+    suffix = NSE_SUFFIX if exchange == "NSE" else BSE_SUFFIX
+    ticker_sym = f"{symbol}{suffix}"
     try:
         t    = yf.Ticker(ticker_sym)
         hist = t.history(period=period, interval=interval)
@@ -799,7 +822,8 @@ def get_historical(symbol: str, period: str = "1y", interval: str = "1d",
             ],
         }
     except Exception as e:
-        return {"error": str(e)}
+        log.warning("history for %s failed: %s", symbol, e)
+        return {"error": _upstream_msg(e)}
 
 
 # ── Chart data in the shape the Trading Brain page reads ─────────────────────
@@ -848,7 +872,8 @@ def get_chart(symbol: str, interval: str = "1d", range_: str = "3mo") -> dict:
         cache.set(key, out)
         return out
     except Exception as e:                                                    # noqa: BLE001
-        return {"error": str(e)}
+        log.warning("chart for %s failed: %s", symbol, e)
+        return {"error": _upstream_msg(e)}
 
 
 # ── Market status ─────────────────────────────────────────────────────────────

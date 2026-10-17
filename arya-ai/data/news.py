@@ -16,6 +16,7 @@ import requests
 from bs4 import BeautifulSoup
 
 import data.cache as cache
+import netguard
 from db.store import cache_news, get_recent_news, cache_search, get_search_cached
 from config import NEWS_FEEDS, DDGO_URL, SEARCH_TIMEOUT, TTL_NEWS, TTL_SEARCH
 from intelligence.sentiment import score_headline  # noqa: F401  (kept importable; score_text() below is what headlines use)
@@ -35,12 +36,23 @@ _HEADERS = {
 }
 
 FEED_TIMEOUT = 8
+MAX_READ_CHARS = 20000          # read_url never returns more than this, whatever max_chars the caller asks for
+MAX_QUERY_CHARS = 300           # web_search query length
 
 # What the last live fetch did, so the API can say "3 of 5 sources answered" instead of a silent shorter list.
 last_fetch_status: dict = {"at": None, "feeds_ok": 0, "feeds_failed": 0, "feeds_total": 0}
 
 SENTIMENT_METHOD = ("Keyword rules applied to the headline and summary (not an AI model and not a reading of the full "
                     "article). It can misread context, sarcasm and negation.")
+
+
+def _clamp_int(v, default: int, lo: int, hi: int) -> int:
+    """An int in [lo, hi] from whatever the caller sent (tool arguments arrive untyped); the default for junk."""
+    try:
+        n = int(v)
+    except (TypeError, ValueError, OverflowError):
+        n = default
+    return max(lo, min(n, hi))
 
 
 def _is_finance_relevant(title: str, summary: str = "") -> bool:
@@ -224,6 +236,10 @@ def web_search(query: str, max_results: int = 5) -> list[dict]:
     DuckDuckGo HTML search — no API key, no rate-limit header required.
     Returns list of {title, url, snippet}.
     """
+    query = str(query or "").strip()[:MAX_QUERY_CHARS]
+    if not query:
+        return []
+    max_results = _clamp_int(max_results, 5, 1, 10)
     cached = get_search_cached(query, TTL_SEARCH)
     if cached:
         return cached[:max_results]
@@ -269,7 +285,7 @@ def web_search(query: str, max_results: int = 5) -> list[dict]:
             cache_search(query, results, "ddg")
         return results
     except Exception as e:
-        return [{"error": str(e), "title": "", "url": "", "snippet": ""}]
+        return [{"error": f"Search failed ({type(e).__name__})", "title": "", "url": "", "snippet": ""}]
 
 
 # ── URL Content Extraction ────────────────────────────────────────────────────
@@ -303,7 +319,9 @@ def read_url(url: str, max_chars: int = 3000) -> str:
     blog posts), with the old method as a safety net if trafilatura comes back
     empty or suspiciously short.
     """
-    key = f"url:{hashlib.md5(url.encode()).hexdigest()[:12]}"
+    max_chars = _clamp_int(max_chars, 3000, 200, MAX_READ_CHARS)
+    url = url if isinstance(url, str) else ""
+    key = f"url:{hashlib.md5(url.encode()).hexdigest()[:12]}:{max_chars}"
     cached = cache.get(key, 1800)
     if cached:
         return cached
@@ -313,19 +331,22 @@ def read_url(url: str, max_chars: int = 3000) -> str:
         "Accept": "text/html,application/xhtml+xml,*/*",
     }
     try:
-        r = requests.get(url, headers=headers, timeout=10, allow_redirects=True)
-        r.raise_for_status()
+        # The URL comes from the caller (GET /api/read, the read_url tool): public hosts only, redirects re-checked, size capped.
+        final_url, page = netguard.fetch_text(url, headers=headers, timeout=10)
 
         import trafilatura
-        text = trafilatura.extract(r.text, url=url)
+        text = trafilatura.extract(page, url=final_url)
         if not text or len(text) < 200:
-            text = _extract_with_bs4(r.text)
+            text = _extract_with_bs4(page)
 
         result = text[:max_chars]
         cache.set(key, result)
         return result
-    except Exception as e:
+    except netguard.BlockedURL as e:
         return f"Could not read URL: {e}"
+    except Exception as e:
+        # no exception text: it can carry internal host names, addresses or ports (a port-scanning oracle)
+        return f"Could not read URL ({type(e).__name__})"
 
 
 # ── NSE Corporate Announcements ───────────────────────────────────────────────
@@ -333,6 +354,8 @@ def read_url(url: str, max_chars: int = 3000) -> str:
 def get_announcements(symbol: str | None = None, limit: int = 10) -> list[dict]:
     """Fetch BSE/NSE corporate action announcements from NSE."""
     try:
+        limit = _clamp_int(limit, 10, 1, 50)
+        symbol = (str(symbol).strip()[:20] or None) if symbol else None
         from data.market import _nse
         path = "/api/home-corporate-announcements"
         data = _nse.get(path) or []

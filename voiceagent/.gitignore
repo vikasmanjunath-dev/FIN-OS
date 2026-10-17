@@ -1,0 +1,6 @@
+*.pem
+*.key
+.env
+.arya_daily_brief.json
+*.pid
+*.log

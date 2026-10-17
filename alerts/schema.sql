@@ -136,13 +136,17 @@ ALTER TABLE couple_links            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE couple_goals            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE couple_responsibilities ENABLE ROW LEVEL SECURITY;
 
+-- SELECT only. These policies used to be FOR ALL, which let any signed-in user INSERT or UPDATE a couple_links row naming ANY other
+-- user as their partner (user_b) with status 'active' straight through the public API; the alert engine's /couple/overview then
+-- returned that person's income, spending and goals. All writes go through the alert engine (service role, which checks the
+-- caller and the invite code), so members only need to read. (Security review, Oct 2026.)
 DROP POLICY IF EXISTS "couple_members_only" ON couple_links;
 CREATE POLICY "couple_members_only" ON couple_links
-  FOR ALL USING (auth.uid() = user_a OR auth.uid() = user_b);
+  FOR SELECT USING (auth.uid() = user_a OR auth.uid() = user_b);
 
 DROP POLICY IF EXISTS "couple_goals_members" ON couple_goals;
 CREATE POLICY "couple_goals_members" ON couple_goals
-  FOR ALL USING (
+  FOR SELECT USING (
     couple_id IN (
       SELECT id FROM couple_links
       WHERE user_a = auth.uid() OR user_b = auth.uid()
@@ -151,7 +155,7 @@ CREATE POLICY "couple_goals_members" ON couple_goals
 
 DROP POLICY IF EXISTS "couple_resp_members" ON couple_responsibilities;
 CREATE POLICY "couple_resp_members" ON couple_responsibilities
-  FOR ALL USING (
+  FOR SELECT USING (
     couple_id IN (
       SELECT id FROM couple_links
       WHERE user_a = auth.uid() OR user_b = auth.uid()
@@ -159,11 +163,13 @@ CREATE POLICY "couple_resp_members" ON couple_responsibilities
   );
 
 -- ── 10. Helper function: unread alert count ───────────────────────────────────
+-- Was SECURITY DEFINER with no search_path and executable by anyone: any caller could count any user's unread alerts. Now it runs as
+-- the caller, so row-level security limits it to their own rows, and it pins its search_path.
 CREATE OR REPLACE FUNCTION get_unread_alert_count(p_user_id uuid)
 RETURNS integer AS $$
   SELECT COUNT(*)::integer FROM alerts
   WHERE user_id = p_user_id AND read = false;
-$$ LANGUAGE sql SECURITY DEFINER;
+$$ LANGUAGE sql SECURITY INVOKER STABLE SET search_path = public, pg_temp;
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- SPRINT 2 & 3 ADDITIONS — Run after initial schema is applied
@@ -193,6 +199,31 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS
 
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS
   plan_expires_at timestamptz;
+
+-- A person must not be able to grant themselves a paid plan. The "profiles_own" policy lets a signed-in user write their whole row
+-- (and INSERT their own), so anyone holding the public anon key and their own login could run
+--   PATCH /rest/v1/profiles?id=eq.<me>  {"plan":"pro"}
+-- and pass the alert engine's plan checks. This trigger keeps `plan` / `plan_expires_at` as they were (or 'free' on insert) for
+-- ordinary signed-in requests; the service role (billing, the alert engine) and SQL-editor sessions are unaffected.
+CREATE OR REPLACE FUNCTION protect_profile_plan()
+RETURNS trigger LANGUAGE plpgsql SET search_path = public, pg_temp AS $$
+BEGIN
+  IF coalesce(auth.role(), '') IN ('authenticated', 'anon') THEN
+    IF TG_OP = 'INSERT' THEN
+      NEW.plan := 'free';
+      NEW.plan_expires_at := NULL;
+    ELSE
+      NEW.plan := OLD.plan;
+      NEW.plan_expires_at := OLD.plan_expires_at;
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+DROP TRIGGER IF EXISTS profiles_protect_plan ON profiles;
+CREATE TRIGGER profiles_protect_plan
+  BEFORE INSERT OR UPDATE ON profiles
+  FOR EACH ROW EXECUTE FUNCTION protect_profile_plan();
 
 -- ── 13. Complete RLS on core tables (run if not already applied) ──────────
 -- profiles: own row only

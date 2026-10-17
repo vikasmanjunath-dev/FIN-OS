@@ -110,7 +110,7 @@ Set this in: Vercel Dashboard → Project → Settings → Environment Variables
 
 ## CORS
 
-The function returns permissive CORS headers (`Access-Control-Allow-Origin: *`) to allow calls from `finos1.vercel.app`, local dev servers (`localhost:3000`, `:5173`), and the voice agent iframe.
+CORS is an allow-list (`https://finos1.vercel.app` and `localhost` / `127.0.0.1` on any port), not `*`. Other browser origins get 403. This is not authentication (curl ignores CORS): the function also fixes the model (`google/gemini-2.0-flash-001` only), caps `max_tokens` at 1024, limits the message count and size, forwards only `role`/`content`, and applies a best-effort per-address rate limit per Edge instance. Provider error text is never passed to the caller. A real spending quota needs Vercel WAF rate limiting or a shared store; see `docs/agent-notes/backend-security.md`.
 
 ---
 

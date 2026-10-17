@@ -9,6 +9,10 @@ from typing import Any
 
 
 class TTLCache:
+    # Keys include caller-chosen text (symbols, URLs, query strings), so the number of entries is capped: when it is exceeded the
+    # oldest tenth is dropped. Without a cap a client could grow memory by asking for endless distinct symbols.
+    MAX_ENTRIES = 5000
+
     def __init__(self):
         self._store: dict[str, tuple[Any, float]] = {}
         self._lock  = threading.Lock()
@@ -23,6 +27,10 @@ class TTLCache:
     def set(self, key: str, value: Any):
         with self._lock:
             self._store[key] = (value, time.time())
+            if len(self._store) > self.MAX_ENTRIES:
+                oldest = sorted(self._store.items(), key=lambda kv: kv[1][1])[: max(1, self.MAX_ENTRIES // 10)]
+                for k, _ in oldest:
+                    del self._store[k]
 
     def delete(self, key: str):
         with self._lock:

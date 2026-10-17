@@ -14,22 +14,27 @@ sys.path.insert(0, os.path.dirname(__file__))   # allow sibling imports
 
 import time
 import json
+import hmac
+import html as _html
+import logging
+import re
 import asyncio
 import threading
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query, BackgroundTasks, Header, WebSocket, WebSocketDisconnect, Depends
+from fastapi import FastAPI, HTTPException, Query, BackgroundTasks, Header, WebSocket, WebSocketDisconnect, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from starlette.background import BackgroundTask
 
-from config import PORT, HOST, CORS_ORIGINS, OLLAMA_BASE, OLLAMA_MODEL, TTL_QUOTE
+from config import PORT, HOST, CORS_ORIGINS, CORS_LOCAL_REGEX, ADMIN_TOKEN, OLLAMA_BASE, OLLAMA_MODEL, TTL_QUOTE, REPORTS_DIR
 from db.store import init_db, delete_stale, get_recent_news
 from data.market import (
     get_quote, get_multiple_quotes, get_market_overview, get_sector_overview,
     get_mf_nav, search_mf, get_commodities, get_crypto,
     get_fx_rates, get_historical, get_market_status, get_chart,
-    get_fundamentals, get_mf_history, MAX_BULK,
+    get_fundamentals, get_mf_history, MAX_BULK, _SYMBOL_OK,
 )
 import data.news as news_mod
 from data.news import fetch_news, web_search, read_url, get_announcements
@@ -41,6 +46,11 @@ from reports.generator import quote_report, market_overview_report, portfolio_ex
 from auth import verify_user_matches, AuthError
 from tts import synthesize as tts_synthesize
 import data.cache as cache
+import ratelimit
+from ratelimit import limit
+from secmw import SecurityMiddleware
+
+log = logging.getLogger("arya.server")
 
 # ── App setup ─────────────────────────────────────────────────────────────────
 
@@ -52,13 +62,22 @@ app = FastAPI(
     redoc_url=None,
 )
 
+# CORS: an explicit allow-list (config.CORS_ORIGINS, set with ARYA_CORS) plus localhost / 127.0.0.1 on any port for dev servers.
+# Never "*" - and no credentials: this API authenticates with an Authorization header, not cookies, so a page on another site
+# gains nothing from being allowed to send them. (A "*" with credentials made Starlette echo ANY origin back as allowed.)
+_cors_origins = [o for o in CORS_ORIGINS if o != "*"]
+if len(_cors_origins) != len(CORS_ORIGINS):
+    log.warning("ARYA_CORS contained '*': ignored. List the origins explicitly.")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS + ["*"],   # dev: open; restrict in prod
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_cors_origins,
+    allow_origin_regex=CORS_LOCAL_REGEX,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-Kite-Token", "X-Admin-Token"],
 )
+# added last = outermost: the size and rate limits apply before anything else (CORS preflights are exempt inside it)
+app.add_middleware(SecurityMiddleware)
 
 
 @app.on_event("startup")
@@ -66,7 +85,7 @@ async def startup():
     init_db()
     # Warm cache in background
     threading.Thread(target=_warm_cache, daemon=True).start()
-    # Schedule stale-row cleanup every hour
+    # Schedule stale-row cleanup every hour (it re-arms itself: it used to run once, an hour after start-up, and never again)
     asyncio.get_event_loop().call_later(3600, _cleanup_stale)
 
 
@@ -85,7 +104,30 @@ def _cleanup_stale():
         delete_stale("search_cache",  3600)
         delete_stale("technical_cache", 3600)
         cache.purge(3600)
+        _purge_old_reports()
     except Exception:
+        pass
+    try:
+        asyncio.get_event_loop().call_later(3600, _cleanup_stale)
+    except Exception:
+        pass
+
+
+def _purge_old_reports(max_age: int = 3600):
+    """Generated report files are deleted after they are sent; this removes any that were left behind (a crash, an aborted download)."""
+    cutoff = time.time() - max_age
+    for f in REPORTS_DIR.glob("*"):
+        try:
+            if f.is_file() and f.stat().st_mtime < cutoff:
+                f.unlink()
+        except OSError:
+            pass
+
+
+def _remove_file(path: str):
+    try:
+        os.remove(path)
+    except OSError:
         pass
 
 
@@ -124,12 +166,12 @@ def market_sectors():
 
 @app.get("/api/quote/{symbol}")
 def quote(symbol: str, exchange: str = Query("NSE")):
-    """Live quote for any NSE/BSE symbol. e.g. /api/quote/RELIANCE?exchange=NSE"""
+    """Market quote for an NSE/BSE symbol (may be served from the backend quote cache)."""
     return get_quote(symbol.upper(), exchange.upper())
 
 
 @app.get("/api/quotes")
-def bulk_quotes(symbols: str = Query(..., description="Comma-separated symbols"),
+def bulk_quotes(symbols: str = Query(..., max_length=2000, description="Comma-separated symbols"),
                 exchange: str = Query("NSE")):
     """Bulk quotes. e.g. /api/quotes?symbols=RELIANCE,INFY,TCS  (at most MAX_BULK symbols per call; a symbol that cannot be quoted
     comes back as {"error", "symbol"} in its place, never as a made-up price)."""
@@ -151,25 +193,46 @@ def fundamentals(symbol: str, exchange: str = Query("NSE")):
 # cache freshness — pushing faster wouldn't return fresher data, just re-serve
 # the same cached quote).
 
+WS_MAX_PER_CLIENT = 8          # open price streams per client address
+WS_MAX_FRAME = 4096            # a re-subscribe message is a short list of tickers
+_ws_open: dict[str, int] = {}
+
+
 @app.websocket("/ws/prices")
 async def ws_prices(websocket: WebSocket,
-                    symbols: str = Query(""),
-                    exchange: str = Query("NSE")):
+                    symbols: str = Query("", max_length=2000),
+                    exchange: str = Query("NSE", max_length=8)):
+    who = ratelimit.client_id(websocket)
+    if _ws_open.get(who, 0) >= WS_MAX_PER_CLIENT:
+        await websocket.close(code=1008)          # policy violation: too many open streams from one address
+        return
+    _ws_open[who] = _ws_open.get(who, 0) + 1
+    try:
+        await _ws_prices_session(websocket, symbols, exchange)
+    finally:
+        _ws_open[who] = max(0, _ws_open.get(who, 1) - 1)
+        if not _ws_open[who]:
+            _ws_open.pop(who, None)
+
+
+async def _ws_prices_session(websocket: WebSocket, symbols: str, exchange: str):
     await websocket.accept()
-    watched = [s.strip().upper() for s in symbols.split(",") if s.strip()]
+    watched = [s.strip().upper() for s in symbols.split(",") if s.strip()][:MAX_BULK]
     exch = exchange.upper()
 
     async def _recv_resubscribe():
         nonlocal watched, exch
         while True:
             raw = await websocket.receive_text()
+            if len(raw) > WS_MAX_FRAME:
+                continue
             try:
                 msg = json.loads(raw)
                 new_symbols = msg.get("symbols")
                 if isinstance(new_symbols, list):
-                    watched = [str(s).strip().upper() for s in new_symbols if str(s).strip()]
+                    watched = [str(s).strip().upper() for s in new_symbols if str(s).strip()][:MAX_BULK]
                 if isinstance(msg.get("exchange"), str):
-                    exch = msg["exchange"].upper()
+                    exch = msg["exchange"].upper()[:8]
             except (json.JSONDecodeError, AttributeError):
                 pass  # ignore malformed frames rather than dropping the connection
 
@@ -193,7 +256,10 @@ def history(symbol: str,
             period: str   = Query("1y", description="1d 5d 1mo 3mo 6mo 1y 2y 5y"),
             interval: str = Query("1d", description="1m 5m 15m 1h 1d 1wk 1mo"),
             exchange: str = Query("NSE")):
-    return get_historical(symbol.upper(), period, interval, exchange.upper())
+    out = get_historical(symbol.upper(), period, interval, exchange.upper())
+    if isinstance(out.get("error"), str) and out["error"].startswith(("Invalid", "Exchange must")):
+        raise HTTPException(status_code=400, detail=out["error"])
+    return out
 
 
 @app.get("/api/chart")
@@ -229,7 +295,7 @@ def mf_nav(scheme_code: str):
 
 
 @app.get("/api/mf/search")
-def mf_search(q: str = Query(..., description="Fund name or house"), limit: int = Query(10)):
+def mf_search(q: str = Query(..., max_length=100, description="Fund name or house"), limit: int = Query(10, ge=1, le=100)):
     return {"results": search_mf(q, limit)}
 
 
@@ -265,7 +331,7 @@ def fx_rates():
 # ── Crypto ────────────────────────────────────────────────────────────────────
 
 @app.get("/api/crypto")
-def crypto(coins: str = Query("bitcoin,ethereum,ripple,dogecoin,matic-network")):
+def crypto(coins: str = Query("bitcoin,ethereum,ripple,dogecoin,matic-network", max_length=600)):
     coin_list = [c.strip() for c in coins.split(",") if c.strip()]
     return get_crypto(coin_list)
 
@@ -288,23 +354,24 @@ def news(limit: int = Query(20, ge=1, le=100), force: bool = Query(False)):
 
 
 @app.get("/api/news/announcements")
-def announcements(symbol: Optional[str] = Query(None), limit: int = Query(10)):
+def announcements(symbol: Optional[str] = Query(None, max_length=20), limit: int = Query(10, ge=1, le=50)):
     return {"announcements": get_announcements(symbol, limit)}
 
 
 # ── Web Search ────────────────────────────────────────────────────────────────
 
-@app.get("/api/search")
-def search(q: str = Query(..., description="Search query"),
-           max_results: int = Query(5)):
+@app.get("/api/search", dependencies=[Depends(limit("fetch"))])
+def search(q: str = Query(..., max_length=300, description="Search query"),
+           max_results: int = Query(5, ge=1, le=10)):
     """DuckDuckGo web search — no API key needed."""
     results = web_search(q, max_results)
     return {"query": q, "results": results}
 
 
-@app.get("/api/read")
-def read_page(url: str = Query(...), max_chars: int = Query(3000)):
-    """Extract clean text from any URL. Used by the agent's read_url tool."""
+@app.get("/api/read", dependencies=[Depends(limit("fetch"))])
+def read_page(url: str = Query(..., max_length=2048), max_chars: int = Query(3000, ge=200, le=20000)):
+    """Extract clean text from a public web page. Used by the agent's read_url tool.
+    Only public http(s) hosts are fetched (see netguard.py); localhost, private and link-local addresses are refused."""
     return {"url": url, "content": read_url(url, max_chars)}
 
 
@@ -316,22 +383,25 @@ def read_page(url: str = Query(...), max_chars: int = Query(3000)):
 _REPORT_MEDIA = {"html": "text/html", "pdf": "application/pdf"}
 
 
-@app.get("/api/report/quote/{symbol}")
+@app.get("/api/report/quote/{symbol}", dependencies=[Depends(limit("report"))])
 def report_quote(symbol: str, exchange: str = Query("NSE"), format: str = Query("html")):
     """Generate and return a stock report (HTML or PDF)."""
     fmt = format.lower()
     if fmt not in _REPORT_MEDIA:
         raise HTTPException(status_code=400, detail=f"format must be one of {list(_REPORT_MEDIA)}")
     q  = get_quote(symbol.upper(), exchange.upper())
-    ta = analyze(symbol.upper(), exchange.upper())
     if "error" in q:
-        raise HTTPException(status_code=404, detail=q["error"])
+        raise HTTPException(status_code=404 if not str(q["error"]).startswith(("Invalid", "Exchange")) else 400, detail=q["error"])
+    ta = analyze(symbol.upper(), exchange.upper())
     path = quote_report(q, ta, fmt=fmt)
-    return FileResponse(path, media_type=_REPORT_MEDIA[fmt],
-                        headers={"Content-Disposition": f"inline; filename={symbol}_report.{fmt}"})
+    # the file name is built from the validated symbol (letters, digits, & and -), never from the raw path text; the file is
+    # deleted once it has been sent
+    safe = re.sub(r"[^A-Za-z0-9_-]", "_", str(q.get("symbol") or "stock"))[:24]
+    return FileResponse(path, media_type=_REPORT_MEDIA[fmt], background=BackgroundTask(_remove_file, path),
+                        headers={"Content-Disposition": f"inline; filename={safe}_report.{fmt}"})
 
 
-@app.get("/api/report/market")
+@app.get("/api/report/market", dependencies=[Depends(limit("report"))])
 def report_market(format: str = Query("html")):
     """Generate market overview report (HTML or PDF)."""
     fmt = format.lower()
@@ -342,7 +412,7 @@ def report_market(format: str = Query("html")):
     cry   = get_crypto()
     news  = fetch_news()
     path  = market_overview_report(ov, comm, cry, news, fmt=fmt)
-    return FileResponse(path, media_type=_REPORT_MEDIA[fmt],
+    return FileResponse(path, media_type=_REPORT_MEDIA[fmt], background=BackgroundTask(_remove_file, path),
                         headers={"Content-Disposition": f"inline; filename=market_overview.{fmt}"})
 
 
@@ -353,11 +423,11 @@ def report_market(format: str = Query("html")):
 # file — unlike the report endpoints above, there's nothing here worth
 # persisting to disk.
 class TTSRequest(BaseModel):
-    text: str
-    lang: str = "english"
+    text: str = Field(..., max_length=20000)
+    lang: str = Field("english", max_length=20)
 
 
-@app.post("/api/tts")
+@app.post("/api/tts", dependencies=[Depends(limit("tts"))])
 async def text_to_speech(req: TTSRequest):
     text = req.text.strip()[:2000]   # edge-tts has no hard limit, but cap to keep latency sane
     if not text:
@@ -365,7 +435,8 @@ async def text_to_speech(req: TTSRequest):
     try:
         audio = await tts_synthesize(text, req.lang)
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"TTS failed: {e}")
+        log.warning("TTS failed: %s", e)
+        raise HTTPException(status_code=502, detail="TTS is unavailable right now")
     return Response(content=audio, media_type="audio/mpeg")
 
 
@@ -377,12 +448,12 @@ def _bearer_token(authorization: Optional[str]) -> Optional[str]:
     return authorization[7:].strip()
 
 
-@app.get("/api/portfolio/summary")
-def portfolio_summary(user_id: str = Query(...), authorization: Optional[str] = Header(None)):
+@app.get("/api/portfolio/summary", dependencies=[Depends(limit("portfolio"))])
+def portfolio_summary(user_id: str = Query(..., max_length=64), authorization: Optional[str] = Header(None)):
     """
     Aggregated portfolio summary for one user — holdings pulled from Supabase,
-    each position's price refreshed live via get_quote() (so this is real
-    valuation, not a stale current_price column). Requires a Supabase session
+    share prices refreshed where available, AMFI NAV for funds, and an explicit
+    cached-price/cost fallback where a fresh price is unavailable. Requires a Supabase session
     token belonging to user_id — every other endpoint in this file is public
     market data with no namespace, this is the one that needed real auth.
     """
@@ -397,8 +468,8 @@ def portfolio_summary(user_id: str = Query(...), authorization: Optional[str] = 
     return result
 
 
-@app.get("/api/portfolio/export")
-def portfolio_export(user_id: str = Query(...), authorization: Optional[str] = Header(None)):
+@app.get("/api/portfolio/export", dependencies=[Depends(limit("portfolio"))])
+def portfolio_export(user_id: str = Query(..., max_length=64), authorization: Optional[str] = Header(None)):
     """
     Same data as /api/portfolio/summary, as a downloadable .xlsx — holdings +
     unrealized P&L. NOT a capital-gains tax computation (no purchase-date
@@ -415,8 +486,11 @@ def portfolio_export(user_id: str = Query(...), authorization: Optional[str] = H
         raise HTTPException(status_code=502, detail=result["error"])
 
     path = portfolio_excel(result)
+    # holdings are personal data: the generated file is removed as soon as it has been sent
+    safe_id = re.sub(r"[^A-Za-z0-9]", "", user_id)[:8]
     return FileResponse(path, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        headers={"Content-Disposition": f"attachment; filename=portfolio_{user_id[:8]}.xlsx"})
+                        background=BackgroundTask(_remove_file, path),
+                        headers={"Content-Disposition": f"attachment; filename=portfolio_{safe_id}.xlsx"})
 
 
 # ── Agent Tool Gateway ────────────────────────────────────────────────────────
@@ -424,8 +498,11 @@ def portfolio_export(user_id: str = Query(...), authorization: Optional[str] = H
 # This decouples the JS agent from knowing each individual endpoint.
 
 class ToolCall(BaseModel):
-    name: str
-    args: dict = {}
+    name: str = Field(..., max_length=64)
+    args: dict = Field(default_factory=dict)
+
+# tools that cost more than a cached market lookup are counted against the stricter route groups as well
+_TOOL_GROUPS = {"read_url": "fetch", "search_web": "fetch", "generate_report": "report"}
 
 _TOOL_MAP = {
     "get_quote":        lambda a: get_quote(a.get("symbol","NIFTY"), a.get("exchange","NSE")),
@@ -475,7 +552,10 @@ def _generate_report_tool(args: dict) -> dict:
         symbol = args.get("symbol")
         if not symbol:
             return {"error": "type=quote requires a symbol"}
-        url = f"{base}/api/report/quote/{symbol.upper()}?format={fmt}"
+        symbol = str(symbol).strip().upper()
+        if not _SYMBOL_OK.match(symbol):          # the symbol is put into a URL below
+            return {"error": "Invalid symbol"}
+        url = f"{base}/api/report/quote/{symbol}?format={fmt}"
     elif report_type == "market":
         url = f"{base}/api/report/market?format={fmt}"
     else:
@@ -484,19 +564,24 @@ def _generate_report_tool(args: dict) -> dict:
     return {"report_url": url, "opens_in": "new_tab", "format": fmt}
 
 @app.post("/api/tool")
-def tool_gateway(call: ToolCall):
+def tool_gateway(call: ToolCall, request: Request):
     """
     Universal tool gateway for arya-sidebar-panel.js agent.
     POST /api/tool  body: {"name": "get_quote", "args": {"symbol": "RELIANCE"}}
     """
     fn = _TOOL_MAP.get(call.name)
     if not fn:
-        raise HTTPException(status_code=404, detail=f"Unknown tool: {call.name}")
+        raise HTTPException(status_code=404, detail="Unknown tool")
+    ratelimit.enforce("tool", request)
+    if call.name in _TOOL_GROUPS:
+        ratelimit.enforce(_TOOL_GROUPS[call.name], request)
     try:
         result = fn(call.args)
         return {"tool": call.name, "result": result, "ts": int(time.time())}
     except Exception as e:
-        return {"tool": call.name, "error": str(e), "ts": int(time.time())}
+        # the exception text can carry internal detail (hosts, paths, library messages): log it, return its type only
+        log.warning("tool %s failed: %s", call.name, e)
+        return {"tool": call.name, "error": f"Tool failed ({type(e).__name__})", "ts": int(time.time())}
 
 
 # ── Chat (streaming) — used by the mobile app ─────────────────────────────────
@@ -511,10 +596,32 @@ _ARYA_SYSTEM = (
 )
 
 
+_chat_slots = threading.BoundedSemaphore(max(1, int(os.getenv("ARYA_CHAT_CONCURRENCY", "4"))))
+CHAT_MAX_MESSAGE = 4000          # characters
+CHAT_MAX_CONTEXT_KEYS = 40
+CHAT_MAX_CONTEXT_VALUE = 200     # characters per profile value
+
+
 class ChatRequest(BaseModel):
-    message: str
+    message: str = Field(..., max_length=CHAT_MAX_MESSAGE)
     context: Optional[dict] = None
     stream: bool = True
+
+
+def _clean_context(ctx: Optional[dict]) -> str:
+    """The optional profile the app sends is pasted into the system prompt, so it is reduced to short 'key: value' facts:
+    at most 40 keys, simple keys, scalar values only, no line breaks (a value must not be able to start a new instruction line)."""
+    if not isinstance(ctx, dict):
+        return ""
+    facts = []
+    for k, v in list(ctx.items())[:CHAT_MAX_CONTEXT_KEYS]:
+        if v in (None, "", 0) or isinstance(v, (dict, list, tuple, set)):
+            continue
+        key = re.sub(r"[^A-Za-z0-9_ ]", "", str(k))[:40].strip()
+        val = re.sub(r"\s+", " ", str(v))[:CHAT_MAX_CONTEXT_VALUE].strip()
+        if key and val:
+            facts.append(f"{key}: {val}")
+    return "; ".join(facts)
 
 
 def _pick_ollama_model() -> str:
@@ -529,28 +636,36 @@ def _pick_ollama_model() -> str:
     return names[0]
 
 
-@app.post("/api/chat")
+@app.post("/api/chat", dependencies=[Depends(limit("chat"))])
 def chat(req: ChatRequest):
     import requests
     from fastapi.responses import StreamingResponse
 
+    message = req.message.strip()
+    if not message:
+        raise HTTPException(status_code=400, detail="message is required")
     system = _ARYA_SYSTEM
-    if req.context:
-        facts = "; ".join(f"{k}: {v}" for k, v in req.context.items() if v not in (None, "", 0))
-        if facts:
-            system += f"\nUser profile — {facts}."
+    facts = _clean_context(req.context)
+    if facts:
+        system += f"\nUser profile — {facts}."
 
     payload = {
         "model": _pick_ollama_model(),
         "stream": True,
         "think": False,
-        "messages": [{"role": "system", "content": system}, {"role": "user", "content": req.message}],
+        "messages": [{"role": "system", "content": system}, {"role": "user", "content": message}],
     }
 
     def sse(obj) -> str:
         return f"data: {json.dumps(obj) if not isinstance(obj, str) else obj}\n\n"
 
     def gen():
+        # At most a few model generations at once on this machine, whoever asks; taken here (not in the route) so a client that
+        # disconnects before the stream starts cannot leave a slot held.
+        if not _chat_slots.acquire(blocking=False):
+            yield sse({"text": "Arya is busy with other requests. Please try again in a moment."})
+            yield sse("[DONE]")
+            return
         try:
             with requests.post(f"{OLLAMA_BASE}/api/chat", json=payload, stream=True, timeout=(5, 120)) as r:
                 r.raise_for_status()
@@ -564,7 +679,11 @@ def chat(req: ChatRequest):
                     if part.get("done"):
                         break
         except Exception as e:
-            yield sse({"text": f"\n\n[Arya is offline: {e}]"})
+            # not the exception text: it names the model host and port
+            log.warning("chat stream failed: %s", e)
+            yield sse({"text": "\n\n[Arya is offline: the local model could not be reached]"})
+        finally:
+            _chat_slots.release()
         yield sse("[DONE]")
 
     return StreamingResponse(gen(), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
@@ -576,6 +695,32 @@ def chat(req: ChatRequest):
 # Credentials (KITE_API_KEY / KITE_API_SECRET) live in .env.
 # The browser stores the per-day access_token in localStorage and passes it
 # via the X-Kite-Token header on every /api/kite/* call.
+
+def _js_json(obj) -> str:
+    """JSON that is safe to put inside an inline <script>: '<' (so '</script>' cannot appear) and the two JS line separators are escaped."""
+    return json.dumps(obj).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
+
+
+# The popup hands the access token to the page that opened it. postMessage with target "*" would deliver it to whatever page
+# opened the popup; instead it is sent to each origin this server trusts: config.CORS_ORIGINS plus localhost / 127.0.0.1 on the
+# usual dev-server ports (ARYA_KITE_OPENER_PORTS). A message to an origin that is not the opener's is dropped by the browser.
+_KITE_OPENER_PORTS = [p.strip() for p in os.getenv("ARYA_KITE_OPENER_PORTS", "3000,5173,7474,8000,8080,8081,8082").split(",") if p.strip().isdigit()]
+
+
+def _kite_opener_origins() -> list:
+    out = [o for o in CORS_ORIGINS if o != "*"]
+    out += [f"http://{h}:{p}" for h in ("localhost", "127.0.0.1") for p in _KITE_OPENER_PORTS]
+    return list(dict.fromkeys(out))
+
+
+_POST_TO_OPENER = """
+  if (window.opener) {
+    const targets = %s;
+    targets.forEach(function (o) { try { window.opener.postMessage(payload, o); } catch (e) {} });
+  }""" % _js_json(_kite_opener_origins())
+
+_KITE_PAGE_HEADERS = {"Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff"}
+
 
 def _kite_token(x_kite_token: Optional[str] = Header(None)) -> str:
     if not x_kite_token:
@@ -622,15 +767,17 @@ def kite_callback(request_token: str = Query(...)):
     try:
         session_data = kite.exchange_token(request_token)
     except Exception as exc:
+        log.warning("Kite token exchange failed: %s", exc)
+        message = "Zerodha login could not be completed"
         html_error = f"""<!doctype html><html><body>
 <script>
-  window.opener && window.opener.postMessage(
-    {{type:'kite_auth_error', error:{repr(str(exc))}}}, '*');
+  const payload = {_js_json({"type": "kite_auth_error", "error": message})};
+  {_POST_TO_OPENER}
   window.close();
 </script>
-<p>Auth failed: {exc}. You can close this window.</p>
+<p>{_html.escape(message)}. You can close this window.</p>
 </body></html>"""
-        return Response(content=html_error, media_type="text/html")
+        return Response(content=html_error, media_type="text/html", headers=_KITE_PAGE_HEADERS)
 
     access_token  = session_data.get("access_token", "")
     user_name     = session_data.get("user_name", "")
@@ -646,24 +793,17 @@ def kite_callback(request_token: str = Query(...)):
 <div style="text-align:center;color:#F5F7FA;">
   <div style="font-size:48px;margin-bottom:16px;">✅</div>
   <div style="font-size:20px;font-weight:700;margin-bottom:8px;">Connected!</div>
-  <div style="font-size:14px;color:#8892A4;">Welcome, {user_name or user_shortname}. Closing window…</div>
+  <div style="font-size:14px;color:#8892A4;">Welcome, {_html.escape(str(user_name or user_shortname))}. Closing window…</div>
 </div>
 <script>
-  const payload = {{
-    type:         'kite_auth_success',
-    access_token: {repr(access_token)},
-    user_name:    {repr(user_name)},
-    email:        {repr(email)},
-    login_time:   {repr(login_time)},
-  }};
-  if (window.opener) {{
-    window.opener.postMessage(payload, '*');
-  }}
+  const payload = {_js_json({"type": "kite_auth_success", "access_token": access_token, "user_name": user_name,
+                             "email": email, "login_time": login_time})};
+  {_POST_TO_OPENER}
   setTimeout(() => window.close(), 1200);
 </script>
 </body>
 </html>"""
-    return Response(content=html, media_type="text/html")
+    return Response(content=html, media_type="text/html", headers=_KITE_PAGE_HEADERS)
 
 
 @app.get("/api/kite/holdings")
@@ -710,7 +850,13 @@ def kite_margins(token: str = Depends(_kite_token)):
 
 
 @app.post("/api/cache/clear")
-def clear_cache():
+def clear_cache(x_admin_token: Optional[str] = Header(None)):
+    """Empties the in-memory cache. Operator-only: every following request goes back to the upstream data sources, so an
+    anonymous caller could use this to multiply the load on them. Disabled unless ARYA_ADMIN_TOKEN is set."""
+    if not ADMIN_TOKEN:
+        raise HTTPException(status_code=403, detail="Disabled: set ARYA_ADMIN_TOKEN to enable cache clearing")
+    if not x_admin_token or not hmac.compare_digest(x_admin_token.encode(), ADMIN_TOKEN.encode()):
+        raise HTTPException(status_code=403, detail="Forbidden")
     cache.purge(0)
     return {"cleared": True}
 

@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+__pycache__/
+*.pyc
+db/*.db
+db/*.db-*
+reports/output/
+*.log

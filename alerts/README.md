@@ -115,7 +115,9 @@ print('PUBLIC:', v.public_pem().decode())
 cp .env.example .env
 # Fill in:
 SUPABASE_URL=https://oeapcyucnduhwpgxfknb.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
+SUPABASE_SERVICE_KEY=eyJ...      # the name alert-engine.py reads (not SUPABASE_SERVICE_ROLE_KEY)
+ADMIN_API_KEY=...                # operator key: enables POST /alerts/run, lets the voice agent call as a server
+ALERTS_AUTH=required             # user routes need 'Authorization: Bearer <Supabase session token>'; 'off' = local dev only
 VAPID_PRIVATE_KEY=-----BEGIN EC PRIVATE KEY-----...
 VAPID_PUBLIC_KEY=-----BEGIN PUBLIC KEY-----...
 VAPID_CLAIMS_EMAIL=your@email.com

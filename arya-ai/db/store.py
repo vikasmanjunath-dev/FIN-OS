@@ -2,6 +2,7 @@
 Arya AI — SQLite store.
 Thread-safe read/write helpers. All other modules import from here.
 """
+import re
 import sqlite3
 import time
 import json
@@ -28,6 +29,26 @@ def init_db():
 
 # ── Generic helpers ────────────────────────────────────────────────────────────
 
+# Table and column names are interpolated into SQL text (they cannot be bound as parameters). Every caller passes a constant today,
+# but these helpers are public, so a name is checked before it is used: tables must be ones db/schema.sql creates, columns and
+# ORDER BY clauses must look like plain identifiers. Values are always bound with "?".
+_TABLES = frozenset({"quote_cache", "mf_nav_cache", "commodity_cache", "news_cache", "search_cache", "technical_cache", "alert_log"})
+_IDENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,40}$")
+_ORDER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,40}( (ASC|DESC))?$", re.I)
+
+
+def _table(name: str) -> str:
+    if name not in _TABLES:
+        raise ValueError(f"unknown table: {name!r}")
+    return name
+
+
+def _col(name: str) -> str:
+    if not isinstance(name, str) or not _IDENT.match(name):
+        raise ValueError(f"invalid column name: {name!r}")
+    return name
+
+
 def _now() -> int:
     return int(time.time())
 
@@ -36,7 +57,7 @@ def get_cached(table: str, pk_col: str, pk_val: str, ttl: int) -> dict | None:
     """Return row as dict if fresh, else None."""
     with _lock, _conn() as c:
         row = c.execute(
-            f"SELECT * FROM {table} WHERE {pk_col}=? AND fetched_at>?",
+            f"SELECT * FROM {_table(table)} WHERE {_col(pk_col)}=? AND fetched_at>?",
             (pk_val, _now() - ttl)
         ).fetchone()
     return dict(row) if row else None
@@ -45,18 +66,20 @@ def get_cached(table: str, pk_col: str, pk_val: str, ttl: int) -> dict | None:
 def upsert(table: str, data: dict):
     """Insert or replace a row. data must include all columns."""
     data.setdefault("fetched_at", _now())
-    cols = ", ".join(data.keys())
+    cols = ", ".join(_col(k) for k in data.keys())
     placeholders = ", ".join("?" * len(data))
-    sql = f"INSERT OR REPLACE INTO {table} ({cols}) VALUES ({placeholders})"
+    sql = f"INSERT OR REPLACE INTO {_table(table)} ({cols}) VALUES ({placeholders})"
     with _lock, _conn() as c:
         c.execute(sql, list(data.values()))
         c.commit()
 
 
 def fetch_all(table: str, order_by: str = "fetched_at DESC", limit: int = 50) -> list[dict]:
+    if not _ORDER.match(order_by or ""):
+        raise ValueError(f"invalid ORDER BY: {order_by!r}")
     with _lock, _conn() as c:
         rows = c.execute(
-            f"SELECT * FROM {table} ORDER BY {order_by} LIMIT ?", (limit,)
+            f"SELECT * FROM {_table(table)} ORDER BY {order_by} LIMIT ?", (limit,)
         ).fetchall()
     return [dict(r) for r in rows]
 
@@ -64,7 +87,7 @@ def fetch_all(table: str, order_by: str = "fetched_at DESC", limit: int = 50) ->
 def delete_stale(table: str, ttl: int):
     cutoff = _now() - ttl
     with _lock, _conn() as c:
-        c.execute(f"DELETE FROM {table} WHERE fetched_at<?", (cutoff,))
+        c.execute(f"DELETE FROM {_table(table)} WHERE fetched_at<?", (cutoff,))
         c.commit()
 
 

@@ -10,7 +10,13 @@ BASE_DIR = Path(__file__).parent
 # ── Server ────────────────────────────────────────────────────────────────────
 PORT          = int(os.getenv("ARYA_PORT", 7475))
 HOST          = os.getenv("ARYA_HOST", "0.0.0.0")
-CORS_ORIGINS  = os.getenv("ARYA_CORS", "http://localhost:7474,http://127.0.0.1:7474").split(",")
+# Browser origins allowed to call this API from a page. An explicit list: never "*" (server.py also drops a "*" entry).
+# Pages served from localhost / 127.0.0.1 on any port are always allowed (dev servers use many ports); see CORS_LOCAL_REGEX.
+CORS_ORIGINS  = [o.strip() for o in os.getenv(
+    "ARYA_CORS", "http://localhost:7474,http://127.0.0.1:7474,https://finos1.vercel.app").split(",") if o.strip()]
+CORS_LOCAL_REGEX = r"^https?://(localhost|127\.0\.0\.1|\[::1\])(:[0-9]{1,5})?$"
+# Needed for POST /api/cache/clear. Unset = that route is disabled (403). Never commit a value.
+ADMIN_TOKEN   = os.getenv("ARYA_ADMIN_TOKEN", "")
 
 # ── Ollama ────────────────────────────────────────────────────────────────────
 OLLAMA_BASE   = os.getenv("OLLAMA_BASE", "http://localhost:11434")

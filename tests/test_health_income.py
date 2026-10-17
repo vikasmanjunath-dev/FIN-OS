@@ -6,6 +6,7 @@ FinosBudget.normalize() (js/finos-budget.js); the parity test below runs that re
 """
 import json
 import os
+from datetime import date
 import random
 import shutil
 import subprocess
@@ -16,7 +17,8 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-from alerts.health_score import _monthly_income, _tx_kind  # noqa: E402
+from alerts.health_score import (  # noqa: E402
+    MONTHLY_WINDOW_MONTHS, _monthly_emi, _monthly_expenses, _monthly_income, _monthly_window, _parse_dt, _tx_kind, window_start)
 
 
 def row(amount, type_="expense", category="food", **kw):
@@ -28,9 +30,10 @@ def test_expenses_with_positive_amounts_are_not_income():
     assert _monthly_income(txns, {}) == 0
 
 
-def test_income_rows_are_halved_over_the_60_day_window():
-    txns = [row(50000, "income", "salary"), row(50000, "income", "salary"), row(7000, "expense", "food")]
-    assert _monthly_income(txns, {}) == 50000
+def test_income_is_averaged_over_real_calendar_months_not_halved():
+    # two completed months (Aug, Sep) of 50,000 each -> 50,000 a month; the old "sum / 2" gave the same only by luck
+    txns = [row(50000, "income", "salary", date="2026-08-31"), row(50000, "income", "salary", date="2026-09-30"), row(7000, "expense", "food")]
+    assert _monthly_income(txns, {}, today=date(2026, 10, 16)) == 50000
 
 
 def test_credit_rows_count_and_investments_do_not():
@@ -43,7 +46,7 @@ def test_credit_rows_count_and_investments_do_not():
     assert _tx_kind(txns[0]) == "income"
     assert _tx_kind(txns[1]) == "saving"
     assert _tx_kind(txns[2]) == "saving"
-    assert _monthly_income(txns, {}) == 20000
+    assert _monthly_income(txns, {}, today=date(2026, 10, 16)) == 40000      # only the credit counts; first month of data, divisor 1
 
 
 def test_profile_income_still_wins_when_larger():
@@ -84,3 +87,63 @@ def test_kind_matches_the_website_normalize_on_a_random_corpus():
         if py != w:
             diffs.append((r, py, w))
     assert not diffs, diffs[:5]
+
+
+# ── calendar-month window (replaces the assumed 60-day / 100-row "sum / 2") ─────────────────────────────────────────
+
+TODAY = date(2026, 10, 16)
+
+
+def test_window_start_is_the_first_day_of_the_oldest_month():
+    assert MONTHLY_WINDOW_MONTHS == 3
+    assert window_start(date(2026, 10, 16)) == date(2026, 7, 1)
+    assert window_start(date(2026, 2, 3)) == date(2025, 11, 1)          # crosses a year boundary
+
+
+def test_three_full_months_divide_by_three_and_the_current_month_is_left_out():
+    txns = [row(30000, "income", "salary", date=d) for d in ("2026-07-31", "2026-08-31", "2026-09-30")]
+    txns.append(row(90000, "income", "bonus", date="2026-10-05"))        # part-finished month: not in the average
+    assert _monthly_income(txns, {}, today=TODAY) == 30000
+
+
+def test_a_person_who_started_mid_window_is_not_diluted_by_months_before_their_first_row():
+    txns = [row(30000, "income", "salary", date="2026-08-31"), row(30000, "income", "salary", date="2026-09-30")]
+    assert _monthly_income(txns, {}, today=TODAY) == 30000              # 2 months (Aug, Sep), not 3
+    assert _monthly_window(txns, TODAY)[1] == 2
+
+
+def test_a_gap_month_inside_the_span_counts_as_zero():
+    txns = [row(30000, "income", "salary", date="2026-07-31"), row(30000, "income", "salary", date="2026-09-30")]
+    assert _monthly_income(txns, {}, today=TODAY) == 20000              # Jul, Aug (none), Sep
+
+
+def test_rows_older_than_the_window_future_rows_and_undated_rows_are_ignored():
+    txns = [row(99999, "income", "salary", date="2026-06-30"), row(30000, "income", "salary", date="2026-09-10"),
+            row(88888, "income", "salary", date="2027-01-01"), row(77777, "income", "salary", date="not a date"),
+            {"amount": 5, "type": "income"}]
+    assert _monthly_income(txns, {}, today=TODAY) == 30000
+
+
+def test_only_the_current_month_falls_back_to_that_month_so_far():
+    txns = [row(25000, "income", "salary", date="2026-10-01"), row(4000, "expense", "food", date="2026-10-10")]
+    assert _monthly_income(txns, {}, today=TODAY) == 25000
+    assert _monthly_expenses(txns, today=TODAY) == 4000
+
+
+def test_expenses_and_emi_use_the_same_window_and_empty_input_is_zero():
+    txns = [row(12000, "expense", "emi", date="2026-08-05"), row(6000, "expense", "food", date="2026-09-05")]
+    assert _monthly_expenses(txns, today=TODAY) == 9000                  # 18,000 over Aug and Sep
+    assert _monthly_emi(txns, today=TODAY) == 6000
+    assert _monthly_expenses([], today=TODAY) == _monthly_emi([], today=TODAY) == _monthly_income([], {}, today=TODAY) == 0
+
+
+def test_timestamps_are_placed_in_the_right_month():
+    assert _parse_dt("2026-09-30T23:59:00+05:30") == _parse_dt("2026-09-30")
+    txns = [row(30000, "income", "salary", date="2026-09-30T23:59:00+05:30")]
+    assert _monthly_income(txns, {}, today=TODAY) == 30000
+
+
+def test_no_fixed_two_month_assumption_is_left_in_the_source():
+    import re
+    src = open(os.path.join(ROOT, "alerts", "health_score.py"), encoding="utf-8").read()
+    assert not re.search(r"sum\([^\n]*\) / 2|\) / 2\s*$", src, re.M), "a '/ 2' monthly halving is back"
