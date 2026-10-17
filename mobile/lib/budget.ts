@@ -64,12 +64,19 @@ const pad = (n: number) => String(n).padStart(2, '0');
 export const ymd = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 export const monthOf = (isoDay: string) => isoDay.slice(0, 7);
 
+function validCalendarDay(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const dim = [31, ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
+  return month >= 1 && month <= 12 && day >= 1 && day <= dim;
+}
+
 function toDay(v: unknown): string | null {
   if (!v) return null;
-  if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) {
-    const [year, month, day] = v.split('-').map(Number);
-    const dim = [31, ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
-    return month >= 1 && month <= 12 && day >= 1 && day <= dim ? v : null; // validate calendar dates without timezone conversion
+  if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v)) {
+    const day = v.slice(0, 10);
+    if (!validCalendarDay(day)) return null; // reject impossible date-only values and ISO timestamps
+    if (v.length === 10) return v; // already a calendar day: don't reinterpret
   }
   const d = new Date(v as any);
   return Number.isNaN(d.getTime()) ? null : ymd(d); // timestamps → the user's LOCAL day
