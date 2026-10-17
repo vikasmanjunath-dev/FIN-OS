@@ -37,6 +37,7 @@ export const RETIRE_KEYS = [
 ] as const;
 
 export interface Plan {
+  ready: boolean;
   ageNow: number; retireAge: number; yearsLeft: number; expMo: number; inflatedMonthlyExp: number; inflatedAnnualExp: number;
   inflation: number; portfolioR: number;
   epfProjected: number; epsPension: number; npsLumpSum: number; npsTier2Projected: number; npsAnnuityMo: number; npsAnnuityPct: number;
@@ -47,13 +48,13 @@ export interface Plan {
 
 export function computePlan(read: Reader, now: Date = new Date()): Plan {
   const retireAge = wholeAge(gss(read, 'finos_retire_age'), 40, 80) || 60;
-  const expMo = gs(read, 'finos_retire_exp_mo') || 50000;                 // today's rupees
+  const expMo = gs(read, 'finos_retire_exp_mo');                         // today's rupees; omitted means unknown
   const inflation = (gs(read, 'finos_retire_inflation') || 6) / 100;
   const portfolioR = (gs(read, 'finos_retire_return') || 10) / 100;
 
   // Current age from the date of birth the EPF or NPS tracker holds
   const dob = gss(read, 'finos_epf_dob') || gss(read, 'finos_nps_dob');
-  let ageNow = 30;
+  let ageNow = 0;
   const birth = validDob(dob) ? new Date(dob + 'T00:00:00') : null;
   const today = new Date(now.getTime());
   today.setHours(0, 0, 0, 0);
@@ -61,9 +62,11 @@ export function computePlan(read: Reader, now: Date = new Date()): Plan {
     ageNow = today.getFullYear() - birth.getFullYear()
       - (today < new Date(today.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0);
   } else {
-    ageNow = wholeAge(gss(read, 'finos_retire_current_age'), 18, 100) || 30;
+    ageNow = wholeAge(gss(read, 'finos_retire_current_age'), 18, 100);
   }
-  const yearsLeft = Math.max(retireAge - ageNow, 0);
+  // No age means no projection horizon. Missing personal data is never replaced by an assumed age.
+  const yearsLeft = ageNow > 0 ? Math.max(retireAge - ageNow, 0) : 0;
+  const ready = ageNow > 0 && expMo > 0;
 
   const epfProjected = gs(read, 'finos_epf_projected') || fv(gs(read, 'finos_epf_value'), 0.0825, yearsLeft);
   const epsPension = gs(read, 'finos_epf_pension');                       // monthly EPS pension
@@ -99,7 +102,7 @@ export function computePlan(read: Reader, now: Date = new Date()): Plan {
   const runwayYears = totalCorpus > 0 && inflatedMonthlyExp > 0 ? totalCorpus / (inflatedMonthlyExp * 12) : 0;
 
   return {
-    ageNow, retireAge, yearsLeft, expMo, inflatedMonthlyExp, inflatedAnnualExp, inflation, portfolioR,
+    ready, ageNow, retireAge, yearsLeft, expMo, inflatedMonthlyExp, inflatedAnnualExp, inflation, portfolioR,
     epfProjected, epsPension, npsLumpSum, npsTier2Projected, npsAnnuityMo, npsAnnuityPct, ppfProjected,
     sipProjected, equityProj, fdProjected, goldProjected, manualCorpus,
     totalCorpus, requiredCorpus, corpusGap, swrMonthly, totalMonthlyIncome, expCoverage, runwayYears,

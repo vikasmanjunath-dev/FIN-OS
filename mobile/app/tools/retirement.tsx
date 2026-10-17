@@ -12,8 +12,8 @@ const TONE = { good: Colors.teal, warn: Colors.gold, bad: Colors.red } as const;
 
 const FIELDS: { key: string; label: string; suffix?: string; prefix?: string; sub?: string; ph: string }[] = [
   { key: 'finos_retire_age', label: 'RETIRE AT AGE', ph: '60' },
-  { key: 'finos_retire_exp_mo', label: 'MONTHLY SPENDING IN RETIREMENT (TODAY\'S ₹)', prefix: '₹', ph: '50000' },
-  { key: 'finos_retire_current_age', label: 'YOUR AGE', sub: 'Used when your EPF or NPS tracker has no date of birth', ph: '30' },
+  { key: 'finos_retire_exp_mo', label: 'MONTHLY SPENDING IN RETIREMENT (TODAY\'S ₹)', prefix: '₹', ph: '' },
+  { key: 'finos_retire_current_age', label: 'YOUR AGE', sub: 'Required if EPF/NPS has no valid date of birth. No age is assumed.', ph: '' },
   { key: 'finos_retire_inflation', label: 'INFLATION', suffix: '% a year', ph: '6' },
   { key: 'finos_retire_return', label: 'RETURN BEFORE RETIREMENT', suffix: '% a year', ph: '10' },
   { key: 'finos_retire_monthly_invest', label: 'YOU INVEST EACH MONTH', prefix: '₹', ph: '0' },
@@ -36,7 +36,7 @@ export default function RetirementScreen() {
 
   const read = (k: string) => (store ? store[k] ?? null : null);
   const plan: Plan | null = useMemo(() => (store ? computePlan(read) : null), [store]);   // eslint-disable-line react-hooks/exhaustive-deps
-  const cfg = useMemo(() => (plan && store ? mcConfig(plan, read) : null), [plan, store]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const cfg = useMemo(() => (plan?.ready && store ? mcConfig(plan, read) : null), [plan, store]);   // eslint-disable-line react-hooks/exhaustive-deps
   const hasMoney = !!cfg && (cfg.assets.some((a: any) => a.value > 0) || cfg.monthlyContribution > 0);
 
   useEffect(() => { if (plan) persistRetirementOutputs(plan).catch(() => {}); }, [plan]);
@@ -74,7 +74,7 @@ export default function RetirementScreen() {
     }, 30);
   };
 
-  if (!store || !plan || !cfg) return <TrackerScreen title="Retirement planner" subtitle="Loading what you already track…"><ActivityIndicator color={Colors.cyan} /></TrackerScreen>;
+  if (!store || !plan) return <TrackerScreen title="Retirement planner" subtitle="Loading what you already track…"><ActivityIndicator color={Colors.cyan} /></TrackerScreen>;
 
   const surplus = plan.corpusGap <= 0;
   const covered = Math.max(0, Math.min(100, plan.requiredCorpus > 0 ? (plan.totalCorpus / plan.requiredCorpus) * 100 : 0));
@@ -87,7 +87,10 @@ export default function RetirementScreen() {
 
   return (
     <TrackerScreen title="Retirement planner" subtitle="What your EPF, NPS, PPF, SIPs and savings add up to by retirement, whether it covers your spending, and the odds it lasts. Uses what you already track; nothing is uploaded.">
-      <Card accent={surplus ? Colors.teal : Colors.orange}>
+      <Card accent={!plan.ready ? Colors.gold : surplus ? Colors.teal : Colors.orange}>
+        {!plan.ready ? (
+          <Text accessibilityRole="alert" style={[Typography.body, { color: Colors.gold, lineHeight: 20 }]}>{plan.ageNow <= 0 ? 'Add your current age below, or record a valid date of birth in your EPF or NPS tracker.' : 'Enter your expected monthly retirement spending below, in today’s rupees.'} Projections and simulations stay hidden until both are recorded.</Text>
+        ) : <>
         <Text style={Typography.label}>PROJECTED CORPUS AT {plan.retireAge}</Text>
         <Text style={s.big}>{inrShort(plan.totalCorpus)}</Text>
         <Bar pct={covered} color={surplus ? Colors.teal : Colors.orange} height={8} />
@@ -112,13 +115,14 @@ export default function RetirementScreen() {
             <Text style={Typography.caption}>corpus = {plan.runwayYears.toFixed(1)} yrs of spending</Text>
           </View>
         </View>
+        </>}
       </Card>
 
       <SectionLabel>WILL IT LAST? (4,000 SIMULATED FUTURES)</SectionLabel>
       <Card accent={verdict ? TONE[verdict.tone] : undefined}>
-        {!hasMoney && <Text style={Typography.body}>Add your EPF, NPS, PPF or investments in their trackers, or enter what you invest each month below, to see the odds.</Text>}
+        {!hasMoney && <Text style={Typography.body}>{!plan.ready ? (plan.ageNow <= 0 ? 'Record your age in the assumptions below (or a date of birth in EPF/NPS) before running the simulation.' : 'Enter monthly spending in the assumptions below before running the simulation.') : 'Add your EPF, NPS, PPF or investments in their trackers, or enter what you invest each month below, to see the odds.'}</Text>}
         {hasMoney && running && !odds && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}><ActivityIndicator color={Colors.cyan} /><Text style={Typography.caption}>Running 4,000 simulated futures…</Text></View>}
-        {odds && verdict && (
+        {odds && verdict && cfg && (
           <>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={[s.pct, { color: TONE[verdict.tone] }]}>{odds.pct}%</Text>
@@ -137,7 +141,7 @@ export default function RetirementScreen() {
         )}
       </Card>
 
-      {odds && (
+      {odds && cfg && (
         <Card>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm }}>
             <Text style={Typography.label}>CORPUS BY AGE</Text>
@@ -158,7 +162,7 @@ export default function RetirementScreen() {
 
       <SectionLabel>WHERE THE CORPUS COMES FROM</SectionLabel>
       <Card>
-        {sources.filter(([, v]) => v > 0).map(([label, v]) => (
+        {!plan.ready ? <Text style={Typography.caption}>Corpus projections appear after you record your age and expected monthly spending.</Text> : sources.filter(([, v]) => v > 0).map(([label, v]) => (
           <View key={label} style={s.row}>
             <Text style={Typography.body}>{label}</Text>
             <Text style={[Typography.body, { fontWeight: '800' }]}>{inrShort(v)}</Text>

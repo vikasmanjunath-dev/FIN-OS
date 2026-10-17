@@ -54,13 +54,13 @@ window.FinosRetirementPlanner = (function () {
   /* ── Core computation ─────────────────────────────────────────── */
   function _compute() {
     const retireAge   = wholeAge(gss('finos_retire_age'), 40, 80) || 60;
-    const expMo       = gs('finos_retire_exp_mo')              || 50000; // today's rupees
+    const expMo       = gs('finos_retire_exp_mo'); // today's rupees; an omitted value is unknown, never ₹50,000 by default
     const inflation   = (gs('finos_retire_inflation')          || 6) / 100;
     const portfolioR  = (gs('finos_retire_return')             || 10) / 100;
 
     // Derive current age from DOB stored by EPF or NPS tracker
     const dob  = gss('finos_epf_dob') || gss('finos_nps_dob');
-    let ageNow = 30;
+    let ageNow = 0;
     const birth = validDob(dob) ? new Date(dob + 'T00:00:00') : null;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -69,9 +69,11 @@ window.FinosRetirementPlanner = (function () {
         - (today < new Date(today.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0);
     } else {
       // fall back to NPS tracker age logic
-      ageNow = wholeAge(gss('finos_retire_current_age'), 18, 100) || 30;
+      ageNow = wholeAge(gss('finos_retire_current_age'), 18, 100);
     }
-    const yearsLeft = Math.max(retireAge - ageNow, 0);
+    // No age means no projection horizon. Do not turn missing personal data into an assumed age.
+    const yearsLeft = ageNow > 0 ? Math.max(retireAge - ageNow, 0) : 0;
+    const ready = ageNow > 0 && expMo > 0;
 
     // ── Source data (from other trackers) ────────────────────────
     // EPF: use projected value; fall back to growing current value
@@ -124,13 +126,17 @@ window.FinosRetirementPlanner = (function () {
     const runwayYears    = totalCorpus > 0 && inflatedMonthlyExp > 0 ? (totalCorpus / (inflatedMonthlyExp * 12)) : 0;
 
     // Persist key metrics
-    ss('finos_retire_corpus',         totalCorpus);
-    ss('finos_retire_required',        requiredCorpus);
-    ss('finos_retire_gap',             corpusGap);
-    ss('finos_retire_monthly_income',  totalMonthlyIncome);
+    if (ready) {
+      ss('finos_retire_corpus',         totalCorpus);
+      ss('finos_retire_required',        requiredCorpus);
+      ss('finos_retire_gap',             corpusGap);
+      ss('finos_retire_monthly_income',  totalMonthlyIncome);
+    } else {
+      ['finos_retire_corpus', 'finos_retire_required', 'finos_retire_gap', 'finos_retire_monthly_income'].forEach(k => localStorage.removeItem(k));
+    }
 
     return {
-      ageNow, retireAge, yearsLeft, expMo, inflatedMonthlyExp, inflatedAnnualExp, inflation, portfolioR,
+      ageNow, retireAge, yearsLeft, expMo, ready, inflatedMonthlyExp, inflatedAnnualExp, inflation, portfolioR,
       epfProjected, epsPension, npsLumpSum, npsTier2Projected, npsAnnuityMo, npsAnnuityPct, ppfProjected,
       sipProjected, equityProj, fdProjected, goldProjected, manualCorpus,
       totalCorpus, requiredCorpus, corpusGap,
@@ -159,6 +165,10 @@ window.FinosRetirementPlanner = (function () {
   function renderOverview(container) {
     if (!container) return;
     const c = _compute();
+    if (!c.ready) {
+      container.innerHTML = `<div role="status" style="padding:20px;border:1px solid rgba(255,179,71,.3);border-radius:14px;color:#FFB347;line-height:1.6">${!c.ageNow ? 'Add your current age in the Corpus Builder, or record a valid date of birth in your EPF or NPS tracker.' : 'Enter your expected monthly retirement spending in today’s rupees in the Corpus Builder.'} Projections stay hidden until both are recorded.</div>`;
+      return;
+    }
     const readyPct = c.requiredCorpus > 0 ? Math.min((c.totalCorpus / c.requiredCorpus) * 100, 100) : 0;
     const onTrack  = c.corpusGap <= 0;
     const mainColor = readyPct >= 80 ? '#22D3A6' : readyPct >= 50 ? '#FFB347' : '#EF4444';
@@ -310,7 +320,7 @@ window.FinosRetirementPlanner = (function () {
     <div style="display:flex;flex-direction:column;gap:6px;">
       <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.58);">Current Age</label>
       <input style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;padding:10px 14px;width:100%;box-sizing:border-box;outline:none;"
-        type="number" min="18" max="70" value="${c.ageNow}" oninput="_rpSave('finos_retire_current_age',this.value)">
+        type="number" min="18" max="100" value="${c.ageNow || ''}" oninput="_rpSave('finos_retire_current_age',this.value)">
     </div>
     <div style="display:flex;flex-direction:column;gap:6px;">
       <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.58);">Retire at Age</label>
@@ -320,7 +330,7 @@ window.FinosRetirementPlanner = (function () {
     <div style="display:flex;flex-direction:column;gap:6px;">
       <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.58);">Monthly Expense in Retirement (₹ today)</label>
       <input style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:14px;padding:10px 14px;width:100%;box-sizing:border-box;outline:none;"
-        type="number" min="0" step="5000" value="${c.expMo||''}" placeholder="50000" oninput="_rpSave('finos_retire_exp_mo',this.value)">
+        type="number" min="0" step="5000" value="${c.expMo||''}" placeholder="Enter amount" oninput="_rpSave('finos_retire_exp_mo',this.value)">
     </div>
     <div style="display:flex;flex-direction:column;gap:6px;">
       <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.58);">Inflation Rate (%)</label>
@@ -352,6 +362,10 @@ window.FinosRetirementPlanner = (function () {
   function renderIncome(container) {
     if (!container) return;
     const c = _compute();
+    if (!c.ready) {
+      container.innerHTML = `<div role="status" style="padding:20px;border:1px solid rgba(255,179,71,.3);border-radius:14px;color:#FFB347;line-height:1.6">${!c.ageNow ? 'Add your current age in the Corpus Builder (or record a valid EPF/NPS birth date)' : 'Enter your expected monthly retirement spending in today’s rupees in the Corpus Builder'} to calculate retirement income.</div>`;
+      return;
+    }
 
     const streams = [
       { label: 'SWR from Portfolio (4%)',  mo: c.swrMonthly,     color: '#22D3A6', note: 'Drawdown from total corpus at 4% p.a. — sustainable 30yr' },
@@ -467,6 +481,10 @@ window.FinosRetirementPlanner = (function () {
   function renderOdds(container) {
     if (!container) return;
     const c = _compute();
+    if (!c.ready) {
+      container.innerHTML = `<div role="status" style="padding:20px;border:1px solid rgba(255,179,71,.3);border-radius:14px;color:#FFB347;line-height:1.6">${!c.ageNow ? 'Add your current age in the Corpus Builder, or record a valid date of birth in your EPF or NPS tracker.' : 'Enter your expected monthly retirement spending in today’s rupees in the Corpus Builder.'} Both values are needed before running retirement simulations.</div>`;
+      return;
+    }
     if (!window.FinosMC) { container.innerHTML = '<div style="color:#EF4444;font-size:13px;padding:20px;">Simulation engine failed to load. Please refresh.</div>'; return; }
     container.style.cssText = 'display:block;';                // placeholder styles centre a single line of text; reset for real content
     const cfg = _mcConfig(c);

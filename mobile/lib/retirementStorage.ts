@@ -18,6 +18,10 @@ export async function saveRetirementInput(key: string, value: string): Promise<v
 
 /** The four totals other screens read (health score, Arya, the website). The website writes the same keys from its planner. */
 export async function persistRetirementOutputs(p: Plan): Promise<void> {
+  if (!p.ready) {
+    await AsyncStorage.multiRemove(['finos_retire_corpus', 'finos_retire_required', 'finos_retire_gap', 'finos_retire_monthly_income']);
+    return;
+  }
   await AsyncStorage.multiSet([
     ['finos_retire_corpus', String(p.totalCorpus)],
     ['finos_retire_required', String(p.requiredCorpus)],

@@ -12,7 +12,7 @@ const require_ = createRequire(import.meta.url);
 const webMC = require_('../../js/finos-montecarlo.js');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const webPlanner = (store: Record<string, string>) => {
-  const ls = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: unknown) => { store[k] = String(v); } };
+  const ls = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: unknown) => { store[k] = String(v); }, removeItem: (k: string) => { delete store[k]; } };
   const sandbox: any = { window: { FinosMC: webMC }, localStorage: ls, console };
   vm.createContext(sandbox);
   vm.runInContext(readFileSync(path.join(root, 'js/finos-retirement-planner.js'), 'utf8'), sandbox);
@@ -32,14 +32,49 @@ test('web and mobile retirement projections ignore malformed, infinite, negative
   const web = webPlanner({ ...store })._compute();
   const plain = JSON.parse(JSON.stringify(app));
   assert.deepEqual(plain, JSON.parse(JSON.stringify(web)));
-  assert.ok(Object.values(app).every(value => typeof value === 'number' && Number.isFinite(value)));
+  assert.ok(Object.entries(app).filter(([key]) => key !== 'ready').every(([, value]) => typeof value === 'number' && Number.isFinite(value)));
+  assert.equal(app.ready, false);
   assert.equal(app.retireAge, 60);
-  assert.equal(app.ageNow, 30); // legacy no-age fallback remains explicit follow-up work
+  assert.equal(app.ageNow, 0); // missing age has no assumed projection horizon
+  assert.equal(app.yearsLeft, 0);
   assert.equal(app.epfProjected, 0);
   assert.equal(app.npsLumpSum, 0);
   assert.equal(app.ppfProjected, 0);
   assert.equal(app.sipProjected, 0);
   assert.ok(Number.isFinite(mcConfig(app, read).assets.reduce((sum, asset) => sum + asset.value, 0)));
+});
+
+test('retirement projection requires a recorded age and clears stale website outputs', () => {
+  const store: Record<string, string> = {
+    finos_epf_value: '100000',
+    finos_retire_corpus: '999999999',
+    finos_retire_required: '999999999',
+    finos_retire_gap: '999999999',
+    finos_retire_monthly_income: '999999999',
+  };
+  const app = computePlan(key => store[key] ?? null, new Date(2026, 9, 12));
+  assert.equal(app.ageNow, 0);
+  assert.equal(app.yearsLeft, 0);
+  assert.equal(app.expMo, 0);
+  assert.equal(app.ready, false);
+  assert.equal(app.epfProjected, 100_000); // current balance only; UI does not label it a projection
+  const web = webPlanner(store);
+  const result = web._compute();
+  assert.equal(result.ageNow, 0);
+  assert.equal(result.yearsLeft, 0);
+  for (const key of ['finos_retire_corpus', 'finos_retire_required', 'finos_retire_gap', 'finos_retire_monthly_income']) {
+    assert.equal(store[key], undefined, `${key} should not retain stale projected outputs`);
+  }
+
+  const ageWithoutSpend: Record<string, string> = {
+    finos_retire_current_age: '42', finos_epf_value: '100000', finos_retire_corpus: '999',
+  };
+  const noSpend = computePlan(key => ageWithoutSpend[key] ?? null, new Date(2026, 9, 12));
+  assert.equal(noSpend.ageNow, 42);
+  assert.equal(noSpend.expMo, 0);
+  assert.equal(noSpend.ready, false);
+  webPlanner(ageWithoutSpend)._compute();
+  assert.equal(ageWithoutSpend.finos_retire_corpus, undefined);
 });
 
 test('retirement odds require fully valid ages, dates and finite stored inputs', () => {

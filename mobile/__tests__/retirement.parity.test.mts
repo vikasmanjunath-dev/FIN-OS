@@ -68,7 +68,7 @@ test('behaves as a retirement model should: more saved means better odds; failur
 
 // Load the website's planner (a browser IIFE that reads localStorage) in a sandbox, so its real code is the reference.
 function webPlanner(store: Record<string, string>) {
-  const ls = { getItem: (k: string) => (k in store ? store[k] : null), setItem: (k: string, v: any) => { store[k] = String(v); } };
+  const ls = { getItem: (k: string) => (k in store ? store[k] : null), setItem: (k: string, v: any) => { store[k] = String(v); }, removeItem: (k: string) => { delete store[k]; } };
   const sandbox: any = { window: { FinosMC: webMC }, localStorage: ls, console };
   vm.createContext(sandbox);
   vm.runInContext(readFileSync(path.join(root, 'js/finos-retirement-planner.js'), 'utf8'), sandbox);
@@ -122,7 +122,7 @@ test('retirement plan + Monte Carlo configuration equal the website\'s on 400 ra
 
 test('a worked example, derived by hand', () => {
   // Age 30 (set directly), retire 60, ₹50,000/month today, inflation 6%, nothing saved except ₹1L EPF balance.
-  const store: Record<string, string> = { finos_retire_current_age: '30', finos_epf_value: '100000' };
+  const store: Record<string, string> = { finos_retire_current_age: '30', finos_retire_exp_mo: '50000', finos_epf_value: '100000' };
   const p = plan.computePlan(k => store[k] ?? null, new Date(2026, 9, 12));
   assert.equal(p.yearsLeft, 30);
   assert.equal(p.inflatedMonthlyExp, Math.round(50000 * Math.pow(1.06, 30)));            // 287,175
