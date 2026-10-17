@@ -2275,9 +2275,11 @@ const ALERT_API = 'http://localhost:8001';
 let _pendingAlerts = [];
 
 async function fetchPendingAlerts(userId) {
-  if (!userId) return;
+  // The alert engine needs a Supabase session token matching userId. This page has no Supabase session,
+  // so it does not call the engine (never a bare user_id). The voice server reads alerts with X-Admin-Key.
+  if (!userId || !window.FINOS_ALERT_TOKEN) return;
   try {
-    const r = await fetch(`${ALERT_API}/alerts/${userId}?unread_only=true&limit=10`);
+    const r = await fetch(`${ALERT_API}/alerts/${userId}?unread_only=true&limit=10`, { headers: { Authorization: 'Bearer ' + window.FINOS_ALERT_TOKEN } });
     if (!r.ok) return;
     const data = await r.json();
     _pendingAlerts = data.alerts || [];

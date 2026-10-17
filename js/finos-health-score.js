@@ -418,7 +418,9 @@
       _lastData = data;
       render(data);
     } catch (e) {
-      if (e.code === 'timeout' || e.name === 'AbortError') {
+      if (e.code === 'signed_out') {
+        renderError('Sign in to see your Financial Health Score.');
+      } else if (e.code === 'timeout' || e.name === 'AbortError') {
         renderError('Score engine timed out — is the alert service running?');
       } else if (e.code === 'offline' || e.code === 'unavailable' || /fetch/.test(e.message || '')) {
         renderError('Alert engine offline — run the backend service.');
@@ -433,9 +435,7 @@
   async function _alertsGet(path, o) {
     const A = window.FinosAPI;
     if (A && A.available('alerts')) return A.request('alerts', path, o);
-    const r = await fetch(ALERT_API + path, { signal: AbortSignal.timeout(o.timeout || 5000) });
-    if (!r.ok) throw new Error(`Server returned ${r.status}`);
-    return r.json();
+    throw new Error('alerts backend unavailable');   // never call the token-only engine without the shared client
   }
 
   function openPanel() {

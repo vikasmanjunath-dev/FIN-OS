@@ -697,11 +697,7 @@
       const q = `/alerts/${encodeURIComponent(session.user.id)}?unread_only=true&limit=1`;
       let body;
       if (A && A.available('alerts')) body = await A.request('alerts', q, { timeout: 5000, retries: 0 });
-      else {
-        const r = await fetch('http://localhost:8001' + q, { signal: AbortSignal.timeout(5000) });
-        if (!r.ok) return;
-        body = await r.json();
-      }
+      else return; // no shared client (or backend unavailable): no unauthenticated call
       const unread_count = (body && body.unread_count) || 0;
 
       // Update FAB badge

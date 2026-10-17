@@ -7,6 +7,8 @@ function load(env = {}) {
   Object.assign(globalThis, { location: { hostname: env.host || 'finos1.vercel.app' } });
   globalThis.localStorage = { getItem: (k) => (env.ls || {})[k] || null };
   delete globalThis.FINOS_API_GATEWAY;
+  // the alerts service is token-only, so tests run signed in unless one sets its own FINOS_SB
+  globalThis.FINOS_SB = { getClient: () => ({ auth: { getSession: async () => ({ data: { session: { access_token: 't0' } } }) } }) };
   return require('../js/finos-api.js');
 }
 const ok = (obj, status = 200) => ({ ok: status < 400, status, text: async () => JSON.stringify(obj) });
@@ -118,4 +120,23 @@ test('poll(): runs on the interval, never overlaps, skips while hidden, stop() e
   const after = calls; await new Promise((r) => setTimeout(r, 40));
   assert.strictEqual(calls, after, 'stopped');
   delete globalThis.document;
+});
+
+test('alerts service: bearer token on every call; no session means no fetch and a signed_out error', async () => {
+  const A = load({ host: 'localhost' });
+  let calls = [];
+  globalThis.fetch = async (url, init) => { calls.push({ url, init }); return ok({ a: 1 }); };
+  globalThis.window = globalThis;
+  globalThis.FINOS_SB = { getClient: () => ({ auth: { getSession: async () => ({ data: { session: null } }) } }) };
+  await assert.rejects(A.request('alerts', '/health-score/u1'), (e) => e.code === 'signed_out');
+  await assert.rejects(A.request('alerts', '/health-score/u1', { auth: false }), (e) => e.code === 'signed_out');
+  await assert.rejects(A.alertsFetch('/benchmark/u1'), (e) => e.code === 'signed_out');
+  assert.strictEqual(calls.length, 0);
+  globalThis.FINOS_SB = { getClient: () => ({ auth: { getSession: async () => ({ data: { session: { access_token: 'tok-1' } } }) } }) };
+  await A.request('alerts', '/health-score/u1');
+  await A.alertsFetch('/couple/invite', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+  assert.strictEqual(calls.length, 2);
+  for (const c of calls) { assert.strictEqual(c.init.headers.Authorization, 'Bearer tok-1'); assert.ok(!c.url.includes('tok-1')); }
+  assert.strictEqual(calls[1].init.headers['Content-Type'], 'application/json');
+  delete globalThis.FINOS_SB;
 });

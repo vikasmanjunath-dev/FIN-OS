@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="../css/animations.css">
 <link rel="stylesheet" href="../css/theme.css?v=2">
 <script src="../js/supabase-config.js"></script>
+<script src="../js/finos-api.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
 <style>
@@ -526,7 +527,7 @@ async function loadBenchmark() {
     }
 
     const uid = session.user.id;
-    const res  = await fetch(`${ALERT_ENGINE}/benchmark/${uid}`, { signal: AbortSignal.timeout(8000) });
+    const res  = await FinosAPI.alertsFetch(`/benchmark/${uid}`, { signal: AbortSignal.timeout(8000) });
     if (res.status === 402) {
       const err = await res.json();
       showUpgradeCTA(err.detail?.current_plan);
@@ -557,7 +558,6 @@ loadBenchmark();
   <script src="../js/mobile-nav.js" defer></script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/finos-api.js"></script>
 <script src="../js/arya-guardrails.js"></script>
 <script src="../js/arya-pulse-rank.js"></script>
 <script src="../js/arya-lazy.js"></script>

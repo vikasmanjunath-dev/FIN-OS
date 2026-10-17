@@ -33,7 +33,7 @@
   const SERVICES = {
     arya:   { seg: 'arya',   port: 7475, health: '/health' },
     rag:    { seg: 'rag',    port: 7476, health: '/api/health' },
-    alerts: { seg: 'alerts', port: 8001, health: '/health' },
+    alerts: { seg: 'alerts', port: 8001, health: '/health', auth: 'required' },
     stocks: { seg: 'stocks', port: 8003, health: '/api/health' },
     docs:   { seg: 'docs',   port: 8004, health: '/health' },
     market: { seg: 'market', port: 5000, health: '/' },
@@ -151,6 +151,12 @@
       try {
         const headers = Object.assign({ Accept: 'application/json', 'X-Request-Id': requestId() },
           o.auth === false ? {} : await authHeader(), o.headers);
+        if (SERVICES[service].auth === 'required' && !headers.Authorization) {
+          // Never call a token-only backend without a session, and never fall back to a bare user_id.
+          const ah = await authHeader();
+          if (!ah.Authorization) throw new FinosApiError(`${service}: sign in to use this`, { code: 'signed_out', service });
+          Object.assign(headers, ah);
+        }
         let body;
         if (o.body !== undefined) {
           if (typeof o.body === 'string' || (root.FormData && o.body instanceof root.FormData)) body = o.body;
@@ -182,6 +188,18 @@
       }
     }
     throw lastErr;
+  }
+
+  /** Raw fetch to the alert engine for callers that need the Response (status handling). `path` starts with '/'.
+      Adds the Supabase session bearer token; with no session it rejects with code 'signed_out' and makes no call. */
+  async function alertsFetch(path, init) {
+    const b = base('alerts');
+    if (!b) throw new FinosApiError('alerts backend is not available here', { code: 'unavailable', service: 'alerts' });
+    const ah = await authHeader();
+    if (!ah.Authorization) throw new FinosApiError('alerts: sign in to use this', { code: 'signed_out', service: 'alerts' });
+    const i = Object.assign({}, init);
+    i.headers = Object.assign({}, i.headers, ah);
+    return fetch(b + path, i);
   }
 
   /** POST and read a streamed response (SSE `data:` lines or plain chunks). Resolves with the full text. */
@@ -253,5 +271,5 @@
     };
   }
 
-  return { SERVICES, FinosApiError, base, available, request, stream, health, poll, invalidate };
+  return { SERVICES, FinosApiError, base, available, request, alertsFetch, stream, health, poll, invalidate };
 });

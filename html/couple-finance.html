@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="../css/animations.css">
 <link rel="stylesheet" href="../css/theme.css?v=2">
 <script src="../js/supabase-config.js"></script>
+<script src="../js/finos-api.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
 <style>
@@ -605,7 +606,7 @@ async function init() {
 
 async function tryLoadOverview() {
   try {
-    const res = await fetch(`${ALERT_ENGINE}/couple/overview/${currentUserId}`, { signal: AbortSignal.timeout(8000) });
+    const res = await FinosAPI.alertsFetch(`/couple/overview/${currentUserId}`, { signal: AbortSignal.timeout(8000) });
     if (res.status === 404) { showSetup(); return; }
     if (res.status === 402) {
       const err = await res.json().catch(() => ({}));
@@ -690,7 +691,7 @@ async function createInvite() {
   }
   setLoading('createInviteBtn', true);
   try {
-    const res  = await fetch(`${ALERT_ENGINE}/couple/invite`, { signal: AbortSignal.timeout(10000),
+    const res  = await FinosAPI.alertsFetch(`/couple/invite`, { signal: AbortSignal.timeout(10000),
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ user_id: currentUserId })
     });
@@ -722,7 +723,7 @@ async function acceptInvite() {
   }
   setLoading('acceptInviteBtn', true);
   try {
-    const res  = await fetch(`${ALERT_ENGINE}/couple/accept`, { signal: AbortSignal.timeout(10000),
+    const res  = await FinosAPI.alertsFetch(`/couple/accept`, { signal: AbortSignal.timeout(10000),
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ user_id: currentUserId, invite_code: code })
     });
@@ -914,7 +915,7 @@ async function addGoal() {
   const saveBtn = document.querySelector('#goalModal .btn-purple');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
   try {
-    const res = await fetch(`${ALERT_ENGINE}/couple/goal`, { signal: AbortSignal.timeout(10000),
+    const res = await FinosAPI.alertsFetch(`/couple/goal`, { signal: AbortSignal.timeout(10000),
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify(payload)
     });
@@ -957,7 +958,7 @@ async function addResponsibility() {
   const saveBtn = document.querySelector('#respModal .btn-purple');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
   try {
-    const res = await fetch(`${ALERT_ENGINE}/couple/responsibility`, { signal: AbortSignal.timeout(10000),
+    const res = await FinosAPI.alertsFetch(`/couple/responsibility`, { signal: AbortSignal.timeout(10000),
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify(payload)
     });
@@ -989,7 +990,7 @@ async function confirmDissolve() {
   const confirmed = window.confirm('Are you sure you want to unlink your partner account? This cannot be undone.');
   if (!confirmed) return;
   try {
-    await fetch(`${ALERT_ENGINE}/couple/dissolve/${currentUserId}`, { signal: AbortSignal.timeout(10000), method: 'DELETE' });
+    await FinosAPI.alertsFetch(`/couple/dissolve/${currentUserId}`, { signal: AbortSignal.timeout(10000), method: 'DELETE' });
     currentCoupleId = null;
     unbridgeFromArya();
     showSetup();
@@ -1010,7 +1011,6 @@ init();
   <script src="../js/mobile-nav.js" defer></script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/finos-api.js"></script>
 <script src="../js/arya-guardrails.js"></script>
 <script src="../js/arya-pulse-rank.js"></script>
 <script src="../js/arya-lazy.js"></script>

@@ -34,6 +34,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/finos-api.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -919,7 +920,7 @@ input:checked + .toggle-slider::before { transform: translateX(20px); }
 
   async function loadAlertPrefs(list) {
     try {
-      const res = await fetch(`${ALERT_ENGINE}/alerts/preferences/${encodeURIComponent(currentUserId)}`, { signal: AbortSignal.timeout(8000) });
+      const res = await FinosAPI.alertsFetch(`/alerts/preferences/${encodeURIComponent(currentUserId)}`, { signal: AbortSignal.timeout(8000) });
       if (!res.ok) throw new Error('Alert service unavailable');
       const data = await res.json();
       if (!Array.isArray(data.preferences)) throw new Error('Invalid preferences response');
@@ -964,7 +965,7 @@ input:checked + .toggle-slider::before { transform: translateX(20px); }
     try {
       const results = await Promise.all(Object.entries(pendingPrefs).map(async ([ruleId, enabled]) => {
         try {
-          const response = await fetch(`${ALERT_ENGINE}/alerts/preferences`, { signal: AbortSignal.timeout(10000),
+          const response = await FinosAPI.alertsFetch(`/alerts/preferences`, { signal: AbortSignal.timeout(10000),
             method: 'PUT', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user_id: currentUserId, rule_id: ruleId, enabled }),
           });
@@ -985,7 +986,6 @@ input:checked + .toggle-slider::before { transform: translateX(20px); }
 </script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/finos-api.js"></script>
 <script src="../js/arya-guardrails.js"></script>
 <script src="../js/arya-pulse-rank.js"></script>
 <script src="../js/arya-lazy.js"></script>

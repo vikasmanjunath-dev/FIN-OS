@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="../css/animations.css">
 <link rel="stylesheet" href="../css/theme.css?v=2">
 <script src="../js/supabase-config.js"></script>
+<script src="../js/finos-api.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -542,7 +543,7 @@ async function loadTimeline() {
 
     if (uid === 'demo') throw new Error('no session');
 
-    const res = await fetch(`${ALERT_ENGINE}/health-score/${uid}/history?days=90`, { signal: AbortSignal.timeout(8000) });
+    const res = await FinosAPI.alertsFetch(`/health-score/${uid}/history?days=90`, { signal: AbortSignal.timeout(8000) });
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
 
@@ -569,7 +570,6 @@ loadTimeline();
   <script src="../js/mobile-nav.js" defer></script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/finos-api.js"></script>
 <script src="../js/arya-guardrails.js"></script>
 <script src="../js/arya-pulse-rank.js"></script>
 <script src="../js/arya-lazy.js"></script>

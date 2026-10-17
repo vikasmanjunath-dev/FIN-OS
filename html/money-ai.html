@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="../css/animations.css">
 <link rel="stylesheet" href="../css/theme.css?v=2">
 <script src="../js/supabase-config.js"></script>
+<script src="../js/finos-api.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
 <script src="../js/upi-execute.js"></script>
@@ -504,7 +505,7 @@ async function loadUserProfile() {
     const name = session.user.user_metadata?.full_name || session.user.email || lsFirst;
     document.getElementById('chipName').textContent = name.split(' ')[0];
 
-    const res = await fetch(`${ALERT_ENGINE}/health-score/${session.user.id}`, { signal: AbortSignal.timeout(8000) });
+    const res = await FinosAPI.alertsFetch(`/health-score/${session.user.id}`, { signal: AbortSignal.timeout(8000) });
     if (res.ok) {
       const hs = await res.json();
       document.getElementById('chipTier').textContent = hs.tier || getTier(hs.score || 0);
@@ -841,7 +842,6 @@ init();
   <script src="../js/mobile-nav.js" defer></script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/finos-api.js"></script>
 <script src="../js/arya-guardrails.js"></script>
 <script src="../js/arya-pulse-rank.js"></script>
 <script src="../js/arya-lazy.js"></script>

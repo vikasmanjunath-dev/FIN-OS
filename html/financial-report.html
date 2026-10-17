@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="../css/animations.css">
 <link rel="stylesheet" href="../css/theme.css?v=2">
 <script src="../js/supabase-config.js"></script>
+<script src="../js/finos-api.js"></script>
   <script src="../js/finos-taxdates.js"></script>
   <script src="../js/finos-context.js?v=4" defer></script>
 <script src="../js/share-card.js"></script>
@@ -683,8 +684,8 @@ async function loadReport() {
 
     // AbortSignal.timeout() really cancels both requests; the old Promise.race only stopped waiting for them
     const [hsRes, benchRes] = await Promise.all([
-      fetch(`${ALERT_ENGINE}/health-score/${uid}`, { signal: AbortSignal.timeout(8000) }),
-      fetch(`${ALERT_ENGINE}/benchmark/${uid}`,    { signal: AbortSignal.timeout(8000) })
+      FinosAPI.alertsFetch(`/health-score/${uid}`, { signal: AbortSignal.timeout(8000) }),
+      FinosAPI.alertsFetch(`/benchmark/${uid}`,    { signal: AbortSignal.timeout(8000) })
     ]);
     if (!hsRes.ok || !benchRes.ok) throw new Error('fetch failed');
 
@@ -720,7 +721,6 @@ loadReport();
   <script src="../js/mobile-nav.js" defer></script>
 
 <script src="../js/sidebar.js"></script>
-<script src="../js/finos-api.js"></script>
 <script src="../js/arya-guardrails.js"></script>
 <script src="../js/arya-pulse-rank.js"></script>
 <script src="../js/arya-lazy.js"></script>

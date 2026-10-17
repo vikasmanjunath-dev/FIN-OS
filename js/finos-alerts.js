@@ -683,7 +683,7 @@
       renderAlerts();
       // Persist to local server if available
       if (ALERT_API) {
-        try { await fetch(`${ALERT_API}/alerts/${alertId}/read`, { signal: AbortSignal.timeout(10000), method: 'POST' }); } catch {}
+        try { await window.FinosAPI.alertsFetch(`/alerts/${alertId}/read`, { signal: AbortSignal.timeout(10000), method: 'POST' }); } catch {}
       }
     }
   }
@@ -695,7 +695,7 @@
     updateBadge();
     renderAlerts();
     if (ALERT_API) {
-      try { await fetch(`${ALERT_API}/alerts/mark-all-read/${_userId}`, { signal: AbortSignal.timeout(10000), method: 'POST' }); } catch {}
+      try { await window.FinosAPI.alertsFetch(`/alerts/mark-all-read/${_userId}`, { signal: AbortSignal.timeout(10000), method: 'POST' }); } catch {}
     }
   }
 
@@ -720,11 +720,7 @@
       const q = `/alerts/${encodeURIComponent(_userId)}?limit=50`;
       let data;
       if (A && A.available('alerts')) data = await A.request('alerts', q, { timeout: 8000, retries: 0 });
-      else {
-        const r = await fetch(ALERT_API + q, { signal: AbortSignal.timeout(8000) });
-        if (!r.ok) return;
-        data = await r.json();
-      }
+      else return; // no shared client (or backend unavailable): no unauthenticated call
       if (!data) return;
       _alerts  = data.alerts || [];
       _unread  = data.unread_count || 0;
@@ -863,7 +859,7 @@
       // Register with alert engine
       if (_userId && sub) {
         const subJson = sub.toJSON();
-        await fetch(`${ALERT_API}/alerts/subscribe`, { signal: AbortSignal.timeout(10000),
+        await window.FinosAPI.alertsFetch(`/alerts/subscribe`, { signal: AbortSignal.timeout(10000),
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
