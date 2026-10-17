@@ -45,6 +45,9 @@ export default function PpfScreen() {
 
   const now = new Date();
   const projected = accounts.reduce((sum, a) => sum + accountProjection(a, now).projected, 0);
+  const taxDescription = (type: SmallSavingsType) => type === 'PPF' || type === 'SSY'
+    ? 'interest and maturity generally exempt; 80C limits apply'
+    : type === 'NSC' ? 'interest taxable; rules vary by year' : 'tax treatment depends on scheme rules';
 
   return (
     <TrackerScreen title="PPF & small savings" subtitle="PPF, Sukanya, NSC, Senior Citizens and Kisan Vikas Patra: balances, maturity projections and your 80C deposits.">
@@ -54,10 +57,15 @@ export default function PpfScreen() {
         <View style={{ flexDirection: 'row', marginTop: Spacing.sm }}>
           <Stat label="80C eligible / yr" value={inr(Math.min(t.c80c, 150000))} color={Colors.teal} />
           <Stat label="Deposits / yr" value={inrShort(t.annualDeposits)} color={Colors.gold} />
-          <Stat label="At maturity" value={accounts.length ? inrShort(projected) : '—'} color={Colors.cyan} />
+          <Stat label="Combined projections" value={accounts.length ? inrShort(projected) : '—'} color={Colors.cyan} />
         </View>
-        {t.c80c > 150000 && <Text style={s.warn}>Your deposits add up to more than the ₹1.5L 80C limit — the extra earns interest but no tax deduction.</Text>}
+        {t.c80c > 150000 && <Text style={s.warn}>Eligible deposits exceed the combined ₹1.5L Section 80C limit. A deduction is available only when eligible under the old tax regime.</Text>}
+        {accounts.length > 1 && <Text style={[Typography.caption, { marginTop: 4 }]}>Combined nominal amounts at different account maturity dates; they are not a value on one common date.</Text>}
       </Card>
+
+      <Text style={[Typography.caption, { lineHeight: 17, marginTop: -Spacing.sm, marginBottom: Spacing.md }]}>
+        These are estimates at the displayed rates. Future rates may change; annual deposits are modeled at the start of each projection year. PPF credits interest using each month’s qualifying balance, so actual results can differ. Tax deductions depend on eligibility and tax regime.
+      </Text>
 
       {accounts.map(a => {
         const meta = INSTRUMENTS[a.type];
@@ -67,7 +75,7 @@ export default function PpfScreen() {
             <View style={s.head}>
               <View style={{ flex: 1 }}>
                 <Text style={s.name}>{a.nickname || meta.name}</Text>
-                <Text style={Typography.caption}>{a.type} · {meta.rate}% · {meta.taxFree ? 'tax-free' : 'interest is taxable'} · matures {p.maturityYear}</Text>
+                <Text style={Typography.caption}>{a.type} · {meta.rate}% · {taxDescription(a.type)} · matures {p.maturityYear ?? 'date needed'}</Text>
               </View>
               <Text style={[s.proj, { color: meta.color }]}>{inrShort(p.projected)}</Text>
             </View>
@@ -89,7 +97,7 @@ export default function PpfScreen() {
           ))}
         </View>
         <Text style={[Typography.caption, { marginTop: 8, lineHeight: 17 }]}>
-          {inst.name} · {inst.rate}% a year, compounded {inst.compounding} · {inst.maxYrs}-year term · {inst.c80c ? 'counts for 80C' : 'no 80C benefit'}
+          {inst.name} · {inst.rate}% a year, compounded {inst.compounding} · {inst.maxYrs}-year term · {type === 'PPF' ? 'maturity is based on the financial year of first subscription' : inst.c80c ? 'may count within the old-regime 80C limit' : 'no 80C benefit'}
         </Text>
         <Text style={s.lbl}>NICKNAME (OPTIONAL)</Text>
         <TextInput accessibilityLabel="Account nickname" style={s.input} value={nick} onChangeText={setNick} placeholder="e.g. My PPF at SBI" placeholderTextColor={Colors.textDim} maxLength={40} />
@@ -132,12 +140,12 @@ const s = StyleSheet.create({
   proj: { fontSize: 16, fontWeight: '900', marginLeft: Spacing.sm },
   del: { color: Colors.red, fontSize: 12, fontWeight: '700' },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: { borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 16, paddingVertical: 8, backgroundColor: Colors.bg },
+  chip: { minHeight: 44, justifyContent: 'center', borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 16, paddingVertical: 8, backgroundColor: Colors.bg },
   chipTxt: { fontSize: 12, color: Colors.textMuted, fontWeight: '700' },
   lbl: { ...Typography.label, marginTop: Spacing.md, marginBottom: 6 },
-  input: { backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 10, color: Colors.textPrimary, fontSize: 14 },
+  input: { minHeight: 44, backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 10, color: Colors.textPrimary, fontSize: 14 },
   error: { color: Colors.red, fontSize: 12, marginTop: Spacing.md, lineHeight: 17 },
-  addBtn: { backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 13, alignItems: 'center', marginTop: Spacing.md },
+  addBtn: { minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 13, alignItems: 'center', marginTop: Spacing.md },
   addTxt: { color: Colors.bg, fontWeight: '800', fontSize: 14 },
   rateRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6 },
   rateK: { width: 52, fontWeight: '800', fontSize: 13 },

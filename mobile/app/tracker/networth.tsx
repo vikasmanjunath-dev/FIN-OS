@@ -14,7 +14,7 @@ export default function NetWorthScreen() {
     nw.fireSource === 'expense' ? 'Based on your monthly spend'
     : nw.fireSource === 'bank' ? 'Based on spend from your linked accounts'
     : nw.fireSource === 'income-60%' ? 'Assuming you spend 60% of income — add your real spend in Budget'
-    : 'Using a default ₹50,000/month — add your income and spend in Budget';
+    : 'Add your monthly expenses or income in Budget to estimate your FIRE target.';
 
   return (
     <TrackerScreen title="Net worth" subtitle="Everything you own minus everything you owe. Updates your Dashboard and FIRE progress.">
@@ -38,7 +38,7 @@ export default function NetWorthScreen() {
           {nw.assets.map(a => (
             <View key={a.field} style={s.legendRow}>
               <View style={[s.dot, { backgroundColor: a.color }]} />
-              <Text style={s.legendLabel} numberOfLines={1}>{a.label}</Text>
+              <Text style={s.legendLabel}>{a.label}</Text>
               <Text style={s.legendPct}>{a.pct.toFixed(0)}%</Text>
             </View>
           ))}
@@ -47,14 +47,20 @@ export default function NetWorthScreen() {
 
       <Card accent={Colors.purple}>
         <Text style={Typography.label}>FIRE PROGRESS</Text>
-        <View style={s.fireRow}>
-          <Text style={[s.fireValue, { color: Colors.purpleInk }]}>{nw.firePercent.toFixed(1)}%</Text>
-          <Text style={Typography.caption}>of {inrShort(nw.fireCorpus)} target</Text>
-        </View>
-        <Bar pct={nw.firePercent} color={Colors.purple} height={10} />
-        <Text style={[Typography.caption, { marginTop: Spacing.sm, lineHeight: 17 }]}>
-          FIRE target = 25× yearly spend (the 4% rule) — {inrShort(nw.fireMonthlyExpense)}/month. {fireNote}.
-        </Text>
+        {nw.fireSource === 'unknown' ? (
+          <Text style={[Typography.caption, { marginTop: Spacing.sm, lineHeight: 17 }]} accessibilityRole="text">FIRE progress needs your monthly expenses. {fireNote}</Text>
+        ) : (
+          <>
+            <View style={s.fireRow}>
+              <Text style={[s.fireValue, { color: Colors.purpleInk }]}>{nw.firePercent.toFixed(1)}%</Text>
+              <Text style={Typography.caption}>of {inrShort(nw.fireCorpus)} target</Text>
+            </View>
+            <Bar pct={nw.firePercent} color={Colors.purple} height={10} />
+            <Text style={[Typography.caption, { marginTop: Spacing.sm, lineHeight: 17 }]}>
+              FIRE target = 25× yearly spend (the 4% rule) — {inrShort(nw.fireMonthlyExpense)}/month. {fireNote}.
+            </Text>
+          </>
+        )}
       </Card>
 
       <SectionLabel>ASSETS</SectionLabel>
@@ -94,9 +100,9 @@ const s = StyleSheet.create({
   legendRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 4 },
   dot: { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
   legendLabel: { ...Typography.caption, flex: 1, color: Colors.textPrimary },
-  legendPct: { fontSize: 12, fontWeight: '700', color: Colors.textPrimary },
+  legendPct: { marginLeft: 8, flexShrink: 0, fontSize: 12, fontWeight: '700', color: Colors.textPrimary },
   fireRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginVertical: 6 },
   fireValue: { fontSize: 28, fontWeight: '900' },
   linkRow: { paddingVertical: 8 },
-  link: { color: Colors.cyan, fontSize: 12, fontWeight: '700' },
+  link: { color: Colors.cyan, fontSize: 12, fontWeight: '700', minHeight: 44, textAlignVertical: 'center', lineHeight: 44 },
 });

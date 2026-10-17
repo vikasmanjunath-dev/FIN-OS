@@ -25,10 +25,18 @@ export function XirrCard({ holdings }: { holdings: HoldingView[] }) {
     const iso = parseBoughtOn(draft[k] ?? '', today);
     if (!iso) { setErr(p => ({ ...p, [k]: 'Use YYYY-MM-DD, a real day that is not in the future.' })); return; }
     const next = { ...dates, [k]: iso };
-    setDates(next); setErr(p => ({ ...p, [k]: '' })); setDraft(p => ({ ...p, [k]: '' }));
-    await saveDates(next);
+    try {
+      await saveDates(next);
+      setDates(next); setErr(p => ({ ...p, [k]: '' })); setDraft(p => ({ ...p, [k]: '' }));
+    } catch {
+      setErr(p => ({ ...p, [k]: 'Could not save this date on the device. Check available storage and try again.' }));
+    }
   };
-  const clear = async (h: HoldingView) => { const next = { ...dates }; delete next[holdingKey(h)]; setDates(next); await saveDates(next); };
+  const clear = async (h: HoldingView) => {
+    const k = holdingKey(h), next = { ...dates }; delete next[k];
+    try { await saveDates(next); setDates(next); setErr(p => ({ ...p, [k]: '' })); }
+    catch { setErr(p => ({ ...p, [k]: 'Could not clear this date on the device. Check available storage and try again.' })); }
+  };
 
   const priced = holdings.filter(h => h.priced);
   if (!holdings.length) return null;
@@ -43,7 +51,7 @@ export function XirrCard({ holdings }: { holdings: HoldingView[] }) {
       ) : (
         <Text style={Typography.caption}>Add when you bought a holding and this works out how fast it has grown each year. Without a date there is no honest answer, so none is guessed.</Text>
       )}
-      {priced.length < holdings.length && <Text style={[Typography.caption, { marginTop: 6 }]}>{`${holdings.length - priced.length} holding${holdings.length - priced.length === 1 ? ' has' : 's have'} no live price yet and are left out.`}</Text>}
+      {priced.length < holdings.length && <Text style={[Typography.caption, { marginTop: 6 }]}>{`${holdings.length - priced.length} holding${holdings.length - priced.length === 1 ? ' has' : 's have'} no saved market price yet and are left out.`}</Text>}
       {priced.map(h => {
         const k = holdingKey(h);
         const has = dates[k];

@@ -4,10 +4,11 @@ import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useFinosContext } from '@/hooks/useFinosContext';
 import { MetricCard } from '@/components/MetricCard';
+import { TrackerStorageNotice } from '@/components/TrackerUI';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 
 export default function TrackScreen() {
-  const { ctx, loading, refresh } = useFinosContext();
+  const { ctx, loading, loadError, refresh } = useFinosContext();
   const [refreshing, setRefreshing] = React.useState(false);
 
   const onRefresh = useCallback(async () => {
@@ -33,6 +34,9 @@ export default function TrackScreen() {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.cyan} />}
       showsVerticalScrollIndicator={false}
     >
+      {loading ? <Text style={[Typography.caption, { padding: Spacing.lg }]}>Loading your saved tracker data…</Text>
+        : loadError ? <View style={{ padding: Spacing.lg }}><TrackerStorageNotice /></View>
+        : <>
       {/* ── Header ── */}
       <View style={styles.header}>
         <Text style={Typography.h2}>Track Finances</Text>
@@ -65,6 +69,7 @@ export default function TrackScreen() {
           </Text>
         </View>
       )}
+      </>}
 
       {/* ── Getting your transactions in (honest about what exists) ── */}
       <View style={styles.sectionHeader}>

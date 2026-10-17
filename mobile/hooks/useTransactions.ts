@@ -12,12 +12,17 @@ export function useTransactions() {
   const [loaded, setLoaded] = useState(false);
 
   const reload = useCallback(async () => {
-    await syncRecurring(); // create any recurring entries that have come due
-    const list = await loadTransactions();
-    // newest day first; within a day, later-logged entries first
-    list.sort((a, b) => (a.date === b.date ? b.i - a.i : a.date < b.date ? 1 : -1));
-    setTxns(list);
-    setLoaded(true);
+    try {
+      await syncRecurring(); // create any recurring entries that have come due
+      const list = await loadTransactions();
+      // newest day first; within a day, later-logged entries first
+      list.sort((a, b) => (a.date === b.date ? b.i - a.i : a.date < b.date ? 1 : -1));
+      setTxns(list);
+      setLoaded(true);
+    } catch {
+      // Preserve the last loaded list; TrackerScreen displays the storage failure notice.
+      setLoaded(true);
+    }
   }, []);
 
   useFocusEffect(useCallback(() => { reload(); }, [reload]));

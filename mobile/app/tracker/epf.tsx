@@ -23,11 +23,11 @@ export default function EpfScreen() {
               <Stat label="EPS pension / month" value={inr(e.pension)} color={Colors.cyan} />
             </View>
             <Text style={[Typography.caption, { marginTop: Spacing.sm, lineHeight: 17 }]}>
-              {e.monthsToRetire > 0 ? `${yrs} year${yrs === 1 ? '' : 's'}${mo ? ` ${mo} month${mo === 1 ? '' : 's'}` : ''} to go` : 'Retirement age reached'} · {e.yearsService} years of service so far · interest at {EPF.INTEREST}% a year.
+              {e.monthsToRetire > 0 ? `${yrs} year${yrs === 1 ? '' : 's'}${mo ? ` ${mo} month${mo === 1 ? '' : 's'}` : ''} to go` : 'Retirement age reached'} · {e.yearsService} years of service so far · {EPF.INTEREST}% annual rate assumed (FY 2025-26).
             </Text>
           </>
         ) : (
-          <Text style={[Typography.caption, { marginTop: Spacing.sm, lineHeight: 17 }]}>Add your monthly basic pay and joining date below to see your projected corpus and pension.</Text>
+          <Text style={[Typography.caption, { marginTop: Spacing.sm, lineHeight: 17 }]}>Add your monthly basic pay, date of birth, and joining date below to see your projected corpus and pension.</Text>
         )}
       </Card>
 
@@ -57,12 +57,14 @@ export default function EpfScreen() {
         <MoneyField icon="🏢" label="EPF balance" sub="From the EPFO passbook or UMANG app" value={data.epf} onCommit={v => save({ epf: v })} />
         <MoneyField icon="💼" label="Monthly basic + DA" sub="Used for contributions and pension" value={data.epfBasic} onCommit={v => save({ epfBasic: v })} />
         <TextField icon="📅" label="Date of joining" sub="First job in the EPF system" value={data.epfDoj} placeholder="YYYY-MM-DD"
-          validate={t => (validDate(t, { optional: true }) ? null : 'Use a real past date like 2016-07-01')} onCommit={v => save({ epfDoj: v })} />
-        <NumberField icon="🎯" label="Retirement age" sub="EPS pension starts at 58" value={data.epfRetireAge || EPF.RETIRE_AGE_DEFAULT} min={40} max={70} onCommit={v => save({ epfRetireAge: v })} />
+          validate={t => !validDate(t, { optional: true }) ? 'Use a real past date like 2016-07-01' : (t && data.epfDob && data.epfDob > t ? 'Joining date must be on or after your date of birth' : null)} onCommit={v => save({ epfDoj: v })} />
+        <TextField icon="🎂" label="Date of birth" sub="Used to calculate your retirement date; no joining age is assumed" value={data.epfDob} placeholder="YYYY-MM-DD"
+          validate={t => !validDate(t, { optional: true }) ? 'Use a real past date like 1990-05-17' : (t && data.epfDoj && t > data.epfDoj ? 'Date of birth must be on or before your joining date' : null)} onCommit={v => save({ epfDob: v })} />
+        <NumberField icon="🎯" label="Retirement age" sub="Use a whole age between 50 and 65; EPS pension normally starts at 58" value={data.epfRetireAge || EPF.RETIRE_AGE_DEFAULT} min={50} max={65} onCommit={v => save({ epfRetireAge: v })} />
       </Card>
 
       <Text style={[Typography.caption, { lineHeight: 17 }]}>
-        Same method as the FIN·OS website: it assumes you started work at 22 to work out your retirement date, and credits {EPF.INTEREST}% interest once a year. Your UAN is never stored here. This is an estimate, not an EPFO statement.
+        Your retirement date uses the date of birth you provide. The {EPF.INTEREST}% rate is an annual assumption based on FY 2025-26 and can change; actual EPFO crediting can differ. Your UAN is never stored here. This is an estimate, not an EPFO statement.
       </Text>
     </TrackerScreen>
   );

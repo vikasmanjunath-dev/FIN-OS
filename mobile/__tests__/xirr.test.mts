@@ -24,6 +24,9 @@ test('a loss gives a negative rate; no sign change or a single day gives null', 
   assert.equal(xirr([{ date: '2025-01-01', amount: -1000 }, { date: '2025-01-01', amount: 1100 }]), null);
   assert.equal(xirr([]), null);
   assert.equal(xirr([{ date: 'soon', amount: -1 }, { date: '2026-01-01', amount: 2 }]), null);
+  assert.equal(xirr([{ date: '2024-02-30', amount: -100 }, { date: '2025-02-28', amount: 110 }]), null);
+  assert.equal(xirr([{ date: '2020-01-01', amount: -100 }, { date: '2021-01-01', amount: 230 }, { date: '2022-01-01', amount: -132 }]), null);
+  assert.equal(xirr([{ date: '2025-01-01', amount: -100 }, { date: '2025-01-01', amount: 50 }, { date: '2026-01-01', amount: 60 }]) !== null, true);
 });
 
 test('portfolio: only dated holdings count; undated ones are left out, not assumed', () => {
