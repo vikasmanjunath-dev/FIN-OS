@@ -1701,6 +1701,29 @@ RULES (non-negotiable):
     return _RAG_INTENT_RE.test(userText || '');
   }
 
+  /* ── SML helpers (Oct 2026): personal-facts gaps + numeric check ─────────────────────────────────────────
+     js/finos-facts.js, js/sml/normalizer.js and js/sml/numeric-check.js are loaded on first use, not with the page.
+     Everything that uses them is fail-open: if they do not load, Arya behaves exactly as before. */
+  const _SML_BASE = (() => {
+    try {
+      const me = Array.from(document.scripts).find(x => /arya-sidebar-panel\.js/.test(x.src || ''));
+      return me ? me.src.replace(/arya-sidebar-panel\.js.*$/, '') : '../js/';
+    } catch (e) { return '../js/'; }
+  })();
+  let _smlLoading = null;
+  function ensureSml() {
+    if (window.SmlNumericCheck && window.FinosFacts) return Promise.resolve();
+    if (_smlLoading) return _smlLoading;
+    const files = ['finos-facts.js', 'sml/normalizer.js', 'sml/numeric-check.js'];
+    _smlLoading = files.reduce((p, f) => p.then(() => new Promise(res => {
+      const sc = document.createElement('script');
+      sc.src = _SML_BASE + f + '?v=1';
+      sc.onload = sc.onerror = () => res();
+      document.head.appendChild(sc);
+    })), Promise.resolve());
+    return _smlLoading;
+  }
+
   async function fetchRagContext(userText) {
     try {
       // 4500ms not 2500ms: measured retrieve+rerank baseline alone is 1.1-2.5s on
@@ -2123,7 +2146,7 @@ RULES (non-negotiable):
       { name: 'tax_dates',      desc: 'India tax calendar: advance-tax instalments, 80C/ELSS deadline (31 Mar), Form 16, ITR due date — for any financial year', args: { days: 'default 120' } },
       /* ── RAG TOOLS (requires rag-engine backend on port 7476) ──────────── */
       { name: 'rag_query',      desc: 'Ask a question grounded in indexed SEBI/RBI regulations + FIN-OS docs, with cited answer — REAL retrieved text, not guesses', args: { query: 'the question to answer' } },
-      { name: 'rag_search_regulations', desc: 'Search ONLY SEBI/RBI regulatory text (no FIN-OS content) — use for "what does the circular/notification say" questions', args: { query: 'regulation topic or keyword' } },
+      { name: 'rag_search_regulations', desc: 'Search ONLY regulatory text from SEBI, RBI, IRDAI and PFRDA (no FIN-OS content) — use for "what does the circular/notification say" questions', args: { query: 'regulation topic or keyword' } },
       { name: 'rag_upload_doc', desc: 'Let the user upload a personal financial document (PDF/TXT/HTML — e.g. Form 16, bank statement, salary slip) so it can be queried. Opens a file picker immediately.', args: { category: '(optional) tax|bank|insurance|investment|other' } },
       { name: 'rag_explain_statement', desc: 'Explain a financial statement, transaction line, or document excerpt — looks it up in the knowledge base and adds regulatory/FIN-OS context', args: { statement: 'the text or transaction to explain' } },
       { name: 'amfi_nav_lookup', desc: 'Look up the current NAV (Net Asset Value) of any Indian mutual fund from live AMFI data — use for "what is the NAV of X fund?" questions', args: { fund_name: 'mutual fund name, e.g. "SBI Bluechip" or "Mirae Asset Large Cap"' } },
@@ -7554,7 +7577,21 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
 
     // Full system prompt with user context (includes session, memory, bias)
     const userCtx   = buildUserContext(pageKey);
-    const systemPmt = `${BASE_SYSTEM}${getPersonaAppend()}${_emotionAppend}${newsSection}${ragSection}\n\nCurrent page: ${pageInfo.name}\n\n${userCtx}`;
+    // Tell the model what it does NOT know about this person so it says so instead of inventing it
+    // (js/finos-facts.js `gaps`; no defaults are ever substituted). Fail-open and capped at 1.5 s.
+    let factsNote = '';
+    if (!isAutoInsight) {
+      try {
+        await Promise.race([ensureSml(), new Promise(r => setTimeout(r, 1500))]);
+        if (window.FinosFacts) {
+          const rec = window.FinosFacts.build();
+          if (rec && Array.isArray(rec.gaps) && rec.gaps.length) {
+            factsNote = `\n\nNOT KNOWN ABOUT THIS USER (never assume or invent these; if asked, say you do not have them yet): ${rec.gaps.join(', ')}.`;
+          }
+        }
+      } catch (e) { /* optional */ }
+    }
+    const systemPmt = `${BASE_SYSTEM}${getPersonaAppend()}${_emotionAppend}${newsSection}${ragSection}${factsNote}\n\nCurrent page: ${pageInfo.name}\n\n${userCtx}`;
 
     // Build prompt with recent chat history for follow-ups
     let fullPrompt = userText;
@@ -7588,6 +7625,19 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
       }, numPredict, taskType);
       speaker.flush(finalText);           // say whatever's left (no trailing punctuation, last fragment, etc.)
       if (window.AryaGuardrails) finalText = window.AryaGuardrails.apply(isAutoInsight ? '' : userText, finalText).text;   // adds a note on buy/sell calls, guarantees, predictions
+      // Numeric check (js/sml/numeric-check.js): when the answer leans on retrieved sources, any figure that appears in
+      // neither those sources, the user's own context nor their question is flagged. We ADD a caution; we never edit or
+      // remove the model's text. Skipped when nothing was retrieved (nothing to verify against) and fail-open.
+      if (!isAutoInsight && ragChunks.length && window.SmlNumericCheck) {
+        try {
+          const evidence = ragChunks.map(c => c.text).concat([userCtx, userText]);
+          const chk = window.SmlNumericCheck.check(finalText, evidence);
+          if (chk && chk.unmatched && chk.unmatched.length) {
+            const shown = chk.unmatched.slice(0, 4).map(n => n.raw).join(', ');
+            finalText += `\n\n⚠️ I could not find ${shown} in the sources I looked up. Please check ${chk.unmatched.length > 1 ? 'these figures' : 'this figure'} before relying on ${chk.unmatched.length > 1 ? 'them' : 'it'}.`;
+          }
+        } catch (e) { /* optional */ }
+      }
 
       removeThinking();
       if (!bubbleEl) bubbleEl = appendMessage('arya', finalText);
