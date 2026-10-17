@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { ChatMessage } from '@/hooks/useAryaChat';
+import { AryaToolCalls } from '@/components/AryaToolCalls';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
 
 // Minimal markdown: headings, **bold**, and -/*/1. list items. No dependency needed for chat-sized text.
@@ -26,9 +27,11 @@ function renderMarkdown(text: string) {
 
 interface AryaBubbleProps {
   message: ChatMessage;
+  /** a chip that carries a question ("Which did you mean?") sends it through this */
+  onAsk?: (question: string) => void;
 }
 
-export function AryaBubble({ message }: AryaBubbleProps) {
+export function AryaBubble({ message, onAsk }: AryaBubbleProps) {
   const isArya = message.role === 'arya';
 
   return (
@@ -43,10 +46,12 @@ export function AryaBubble({ message }: AryaBubbleProps) {
           {isArya ? renderMarkdown(message.text.trimEnd()) : message.text}
           {message.streaming && <Text style={styles.cursor}>▋</Text>}
         </Text>
+        {isArya && message.steps?.length ? <AryaToolCalls steps={message.steps} /> : null}
         {isArya && message.actions?.length ? (
           <View style={styles.actions}>
             {message.actions.map(a => (
-              <TouchableOpacity key={a.route} accessibilityRole="button" accessibilityLabel={`Open ${a.label}`} style={styles.chip} onPress={() => router.push(a.route as any)}>
+              <TouchableOpacity key={a.route ?? a.ask ?? a.label} accessibilityRole="button" accessibilityLabel={a.ask ? `Ask: ${a.ask}` : `Open ${a.label}`} style={styles.chip}
+                onPress={() => { if (a.ask) onAsk?.(a.ask); else if (a.route) router.push(a.route as any); }}>
                 <Text style={styles.chipTxt}>{a.label} ›</Text>
               </TouchableOpacity>
             ))}

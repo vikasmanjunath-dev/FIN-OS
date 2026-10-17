@@ -3,6 +3,10 @@ import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'rea
 import { router, useFocusEffect } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { PulseCardView } from '@/components/PulseCard';
+import { AryaTabs } from '@/components/AryaTabs';
+import { recordNetWorth } from '@/lib/pulseHistoryStorage';
+import { netWorthKnown } from '@/lib/aryaFacts';
+import { isoDate } from '@/lib/calendar';
 import { Collapsible } from '@/components/CalcUI';
 import { loadArFacts } from '@/lib/aryaFactsStorage';
 import { buildFeed, SECTIONS, type Feed } from '@/lib/pulseCards';
@@ -19,7 +23,10 @@ export default function PulseScreen() {
     let alive = true;
     (async () => {
       try {
-        const [facts, prev] = await Promise.all([loadArFacts(new Date()), loadSnapshot()]);
+        const [facts0, prev] = await Promise.all([loadArFacts(new Date()), loadSnapshot()]);
+        // one net-worth point a day (the website's rule), recorded only when a net worth is really known
+        const nwHistory = await recordNetWorth(isoDate(facts0.now), netWorthKnown(facts0) ? facts0.computed.netWorth.netWorth : null);
+        const facts = { ...facts0, nwHistory };
         const f = buildFeed(facts, prev);
         if (!alive) return;
         setFeed(f);
@@ -37,6 +44,7 @@ export default function PulseScreen() {
 
   return (
     <TrackerScreen title="PULSE" subtitle="What matters for you today, ranked from your own records. Each card says where its numbers come from. Estimates for planning, not advice.">
+      <AryaTabs current="pulse" />
       {!feed && !failed ? <ActivityIndicator color={Colors.cyan} style={{ marginTop: Spacing.xl }} /> : null}
       {failed ? (
         <Card><Text style={Typography.body}>I could not read your records just now. Pull back and open this screen again.</Text></Card>

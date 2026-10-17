@@ -13,6 +13,8 @@ import { DIMENSIONS } from '@/lib/dna';
 import { computeCoverage } from '@/lib/retirement';
 import { simulatePayoff, type DebtLoan } from '@/lib/debt';
 import { monthSpend } from '@/lib/budget';
+import { trend as nwTrend } from '@/lib/pulseHistory';
+import { retirementOdds } from '@/lib/aryaRetirement';
 
 export type Tone = 'good' | 'warn' | 'bad' | 'neutral';
 export interface PulseRow { label: string; value: string }
@@ -40,7 +42,7 @@ export const SECTIONS: SectionInfo[] = [
   { id: 'crossPageHUD', web: 'Cross-page HUD', status: 'ported', why: 'Card "Your money today": net worth, savings rate, emergency months, health score, only the ones recorded.' },
   { id: 'smartInsightCards', web: 'Smart insight cards', status: 'ported', why: 'Card "Worth acting on": the alerts (lib/alerts) and nudges (lib/nudges) that fire from recorded data.' },
   { id: 'moneyScore', web: 'Money Score', status: 'ported', why: 'Card from the saved score; an invitation when it has not been taken (that is the app\'s own feature, not data).' },
-  { id: 'netWorthTimeline', web: 'Net worth timeline', status: 'not-ported', why: 'The phone keeps no net-worth history to plot (only the last value for the milestone alert). "Since your last visit" covers the change.' },
+  { id: 'netWorthTimeline', web: 'Net worth timeline', status: 'ported', why: 'Card from the net-worth values this phone records, one a day, when PULSE is opened (same key and rule as the website). Needs two different days; says how many points it has.' },
   { id: 'wealthFingerprint', web: 'Wealth fingerprint', status: 'not-ported', why: 'A radar of composite scores with invented weights and defaults (age 30); there is no recorded input behind most axes.' },
   { id: 'pageActivityMatrix', web: 'Page activity matrix', status: 'not-ported', why: 'Counts which website pages were visited. The phone does not track screen visits, and will not start only to fill a card.' },
   { id: 'behavioralDNA', web: 'Behavioural DNA', status: 'ported', why: 'Card with the five Financial DNA scores, only once the quiz is taken.' },
@@ -54,14 +56,14 @@ export const SECTIONS: SectionInfo[] = [
   { id: 'debtFreedomPlanner', web: 'Debt freedom planner', status: 'ported', why: 'Card from the loans recorded in the Debt optimizer; payoff time only when every loan has balance, rate and EMI.' },
   { id: 'scenarioLab', web: 'Scenario lab', status: 'not-ported', why: 'Sliders over assumed rates; the calculators hub is the phone\'s scenario tool.' },
   { id: 'inflationEroder', web: 'Inflation eroder', status: 'not-ported', why: 'A slider toy with a ₹1 lakh default and a 6% rate; the inflation calculator in the hub does it with chosen inputs.' },
-  { id: 'monteCarlo', web: 'Monte Carlo', status: 'not-ported', why: 'Needs age, retire age and a corpus target; the Retirement planner runs the seeded simulation with the person\'s own values.' },
+  { id: 'monteCarlo', web: 'Monte Carlo', status: 'ported', why: 'Card from the Retirement planner\'s own stored inputs and the same seeded simulation; it runs only when the retire age, retirement spending and your age are really stored (the planner\'s on-screen defaults of 60, ₹50,000 and 30 are not used).' },
   { id: 'timeMachine', web: 'Time machine', status: 'not-ported', why: 'Replays an assumed past return series; no recorded input.' },
   { id: 'peerBenchmark', web: 'Peer benchmark', status: 'not-ported', why: 'Compares with a hard-coded peer table (estimated survey figures); not the person\'s data and not verifiable.' },
   { id: 'transactionAnalyzer', web: 'Transaction analyzer', status: 'ported', why: 'Card from transactions logged this month: total and the biggest categories.' },
   { id: 'wealthXRay', web: 'Wealth X-ray', status: 'ported', why: 'Card of where recorded assets sit, from the Net Worth tracker.' },
   { id: 'taxOptimizer', web: 'Tax optimizer', status: 'ported', why: 'Card for the 80C room, only when the 80C already used is recorded.' },
   { id: 'insuranceGap', web: 'Insurance gap', status: 'ported', why: 'Card from the Insurance tracker against the 2x / 15x income guides (the same coverage rule as the tracker).' },
-  { id: 'wealthVelocity', web: 'Wealth velocity', status: 'not-ported', why: 'Needs a net-worth history, which the phone does not keep.' },
+  { id: 'wealthVelocity', web: 'Wealth velocity', status: 'ported', why: 'Card from the same recorded net-worth points: the average change a month, once the points span two weeks. No "top 1% of India" label (the website\'s had no source) and no estimate when there is no history.' },
   { id: 'goalProbabilityMatrix', web: 'Goal probability matrix', status: 'not-ported', why: 'Probabilities need a return model and a volatility assumption; the Goals card shows the monthly amount needed instead.' },
   { id: 'newsWidget', web: 'News widget', status: 'not-ported', why: 'Headlines are live and online-only; the Markets tab already has them. The ranker puts it last anyway.' },
 ];
@@ -105,7 +107,7 @@ function hud(f: ArFacts): Built {
   if (c.emergency.monthlyExpense > 0 && c.emergency.fund > 0) rows.push({ label: 'Emergency fund', value: `${c.emergency.covered.toFixed(1)} months of spending` });
   // the health score needs something recorded behind it: an empty phone must not open with "8 out of 100"
   const anything = netWorthKnown(f) || c.budget.income > 0 || c.budget.expense > 0 || c.emergency.fund > 0 || c.goals.items.length > 0;
-  if (anything && c.health.pillars.some(p => !p.untracked)) rows.push({ label: 'Health score', value: `${c.health.total} out of 100` });
+  if (anything && c.health.total != null) rows.push({ label: 'Health score', value: `${c.health.total} out of 100 (${c.health.measured.length} of 7 areas)` });
   if (!rows.length) return wait('crossPageHUD', 'Your money today', 'Record income and spending, or add assets, to see the basics here.', '/tracker/networth', 'Net worth tracker');
   return { id: 'crossPageHUD', icon: '🧭', title: 'Your money today', headline: `Where you stand: ${rows.length} figure${rows.length === 1 ? '' : 's'} from your records`, rows,
     note: null, source: 'Net worth, Budget and Emergency fund trackers (only what you have recorded).', tone: 'neutral', route: '/tracker/networth', routeLabel: 'Open net worth' };
@@ -252,7 +254,7 @@ function insurance(f: ArFacts): Built {
   if (!ps.length && !(income > 0)) return null;
   if (!ps.length) return { id: 'insuranceGap', icon: '🛡️', title: 'Insurance', headline: 'No policy is recorded', rows: [], note: 'This means none is recorded here. If you have cover, add it so the gaps can be worked out.',
     source: 'Insurance tracker (no policies recorded).', tone: 'warn', route: '/tracker/insurance', routeLabel: 'Open insurance' };
-  const cov = computeCoverage(ps, income, ageOf(f) || 30);
+  const cov = computeCoverage(ps, income, ageOf(f));
   const rows: PulseRow[] = [
     { label: 'Health cover', value: cov.hasHealth ? inrShort(cov.totalHealth) : 'None recorded' },
     { label: 'Term life cover', value: cov.hasTerm ? inrShort(cov.totalLife) : 'None recorded' },
@@ -270,10 +272,52 @@ function insurance(f: ArFacts): Built {
     source: 'Insurance tracker, with the same cover guides the tracker uses.', tone, route: '/tracker/insurance', routeLabel: 'Open insurance' };
 }
 
+function timeline(f: ArFacts): Built {
+  if (!netWorthKnown(f)) return null;
+  const t = nwTrend(f.nwHistory);
+  const n = f.nwHistory.length;
+  if (!t) return { id: 'netWorthTimeline', icon: '📈', title: 'Net worth over time', headline: n === 0 ? 'No points recorded yet' : 'One point recorded so far',
+    rows: n ? [{ label: f.nwHistory[0].date, value: inrShort(f.nwHistory[0].value) }] : [],
+    note: 'This phone records your net worth once a day, when you open PULSE. A line needs two different days.',
+    source: 'Net-worth values recorded on this phone (one a day, newest 90).', tone: 'neutral', route: '/tracker/networth', routeLabel: 'Open net worth' };
+  const rows: PulseRow[] = [
+    { label: `First (${t.first.date})`, value: inrShort(t.first.value) },
+    { label: `Latest (${t.last.date})`, value: inrShort(t.last.value) },
+    { label: `Change over ${t.spanDays} day${t.spanDays === 1 ? '' : 's'}`, value: `${t.change >= 0 ? '+' : '−'}${inrShort(Math.abs(t.change))}${t.changePct !== null ? ` (${t.changePct >= 0 ? '+' : ''}${t.changePct}%)` : ''}` },
+  ];
+  return { id: 'netWorthTimeline', icon: '📈', title: 'Net worth over time', headline: `${t.change >= 0 ? 'Up' : 'Down'} ${inrShort(Math.abs(t.change))} across ${t.points} recorded day${t.points === 1 ? '' : 's'}`, rows,
+    note: 'A change here is the market moving AND what you added, edited or removed in your records; it cannot tell them apart.',
+    source: 'Net-worth values recorded on this phone, one a day when PULSE is opened.', tone: t.change >= 0 ? 'good' : 'warn', route: '/tracker/networth', routeLabel: 'Open net worth' };
+}
+
+function velocity(f: ArFacts): Built {
+  if (!netWorthKnown(f)) return null;
+  const t = nwTrend(f.nwHistory);
+  if (!t || t.perMonth === null) return null;
+  const rows: PulseRow[] = [{ label: 'Average change a month', value: `${t.perMonth >= 0 ? '+' : '−'}${inrShort(Math.abs(t.perMonth))}` }];
+  if (t.direction) rows.push({ label: 'Second half versus first half', value: `moving ${t.direction}` });
+  return { id: 'wealthVelocity', icon: '⚡', title: 'How fast it is moving', headline: `About ${t.perMonth >= 0 ? '+' : '−'}${inrShort(Math.abs(t.perMonth))} a month`, rows,
+    note: `Worked out from ${t.points} points over ${t.spanDays} days. Short spans are noisy; there is no comparison with other people because there is no source for one.`,
+    source: 'Net-worth values recorded on this phone.', tone: t.perMonth >= 0 ? 'good' : 'warn', route: '/tracker/networth', routeLabel: 'Open net worth' };
+}
+
+function monteCarlo(f: ArFacts): Built {
+  const r = retirementOdds(f.retirementStore, f.now, 1000);
+  if (!r.ok) return wait('monteCarlo', 'Will your money last?', `Needs ${r.missing.join(', ')} in the Retirement planner. It is not worked out from a default age or spending.`, '/tools/retirement', 'Open the Retirement planner');
+  const rows: PulseRow[] = [
+    { label: 'Retire at', value: `${r.plan.retireAge} (you are ${r.plan.ageNow})` },
+    { label: 'Spending in retirement', value: `${inr(r.plan.expMo)} a month in today\'s rupees` },
+    { label: 'Simulated', value: `${r.runs.toLocaleString('en-IN')} futures` },
+  ];
+  return { id: 'monteCarlo', icon: '🎲', title: 'Will your money last?', headline: `${r.pct}% of simulated futures last`, rows,
+    note: `${r.verdict.label} ${r.assumptions}${r.assumed.length ? ` Not set by you: ${r.assumed.join('; ')}.` : ''} An illustration, not a forecast or advice.`,
+    source: 'Retirement planner inputs stored on this phone and the app\'s seeded Monte Carlo engine (same as the planner).', tone: r.verdict.tone, route: '/tools/retirement', routeLabel: 'Open the Retirement planner' };
+}
+
 const BUILDERS: Record<string, (f: ArFacts) => Built> = {
   crossPageHUD: hud, smartInsightCards: insights, moneyScore: score, behavioralDNA: dna, goalCards: goals, indiaFinCalendar: calendar,
   portfolioStressTest: stress, savingsRateMeter: savings, taxDashboard: tax, debtFreedomPlanner: debt, transactionAnalyzer: txns,
-  wealthXRay: xray, taxOptimizer: opt80c, insuranceGap: insurance,
+  wealthXRay: xray, taxOptimizer: opt80c, insuranceGap: insurance, netWorthTimeline: timeline, wealthVelocity: velocity, monteCarlo,
 };
 export const PORTED_IDS = Object.keys(BUILDERS);
 

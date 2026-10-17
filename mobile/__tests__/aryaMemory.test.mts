@@ -168,7 +168,7 @@ test('two quick saves do not lose one another', async () => {
 });
 
 test('the switches default to the conservative side: memory and life events are OFF until the person turns them on', async () => {
-  assert.deepEqual(await store.loadPrefs(), { online: true, figures: true, memory: false, lifeEvents: false, record: true });
+  assert.deepEqual(await store.loadPrefs(), { online: true, figures: true, memory: false, lifeEvents: false, record: true, tools: true });
   assert.deepEqual(store.normalisePrefs('garbage'), store.DEFAULT_PREFS);
   assert.equal(store.normalisePrefs({ memory: 'yes' }).memory, false);
   const next = await store.savePrefs({ memory: true });

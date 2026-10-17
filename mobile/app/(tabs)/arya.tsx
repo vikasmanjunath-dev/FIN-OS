@@ -1,12 +1,14 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TextInput,
   TouchableOpacity, KeyboardAvoidingView, Platform, Pressable,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useAryaChat } from '@/hooks/useAryaChat';
 import { AryaBubble } from '@/components/AryaBubble';
+import { AryaTabs } from '@/components/AryaTabs';
+import { loadPrefs, savePrefs } from '@/lib/aryaMemoryStorage';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 
 // The first four are answered on the phone from your own records (no connection needed); the rest go to Arya online.
@@ -15,6 +17,7 @@ const SUGGESTED = [
   'How many months does my emergency fund cover?',
   'What is due this month?',
   'SIP of 10000 at 12% for 15 years',
+  'How is the Nifty today?',
   'Explain ELSS vs PPF for tax saving',
 ];
 
@@ -22,6 +25,12 @@ export default function AryaScreen() {
   const { messages, isStreaming, send, stop, clear } = useAryaChat();
   const [input, setInput] = React.useState('');
   const listRef = useRef<FlatList>(null);
+  const [toolsOn, setToolsOn] = useState(true);
+  useFocusEffect(useCallback(() => { loadPrefs().then(p => setToolsOn(p.tools)).catch(() => {}); }, []));
+  const toggleTools = useCallback(() => {
+    Haptics.selectionAsync();
+    setToolsOn(v => { savePrefs({ tools: !v }).catch(() => {}); return !v; });
+  }, []);
 
   const handleSend = useCallback(() => {
     const text = input.trim();
@@ -55,9 +64,6 @@ export default function AryaScreen() {
           </View>
         </View>
         <View style={{ flexDirection: 'row', gap: Spacing.md }}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Open PULSE, your ranked insights" onPress={() => router.push('/pulse' as any)} hitSlop={12}>
-            <Text style={styles.clearBtn}>Pulse</Text>
-          </Pressable>
           <Pressable accessibilityRole="button" accessibilityLabel="What Arya remembers and what it will be told" onPress={() => router.push('/pulse/memory' as any)} hitSlop={12}>
             <Text style={styles.clearBtn}>Memory</Text>
           </Pressable>
@@ -67,12 +73,20 @@ export default function AryaScreen() {
         </View>
       </View>
 
+      <View style={styles.tabsWrap}>
+        <AryaTabs current="chat" />
+        <Pressable accessibilityRole="switch" accessibilityState={{ checked: toolsOn }} accessibilityLabel={toolsOn ? 'Arya tools are on. Switch them off' : 'Arya tools are off. Switch them on'} onPress={toggleTools} style={styles.toolsRow}>
+          <Text style={styles.toolsTxt}>{toolsOn ? '🔧 Tools on: Arya may read your records or look up public prices, and shows every call.' : '🔧 Tools off: Arya answers in words only and reads nothing.'}</Text>
+          <Text style={styles.toolsLink}>{toolsOn ? 'Turn off' : 'Turn on'}</Text>
+        </Pressable>
+      </View>
+
       {/* ── Messages ── */}
       <FlatList
         ref={listRef}
         data={messages}
         keyExtractor={m => m.id}
-        renderItem={({ item }) => <AryaBubble message={item} />}
+        renderItem={({ item }) => <AryaBubble message={item} onAsk={handleSuggest} />}
         contentContainerStyle={styles.messageList}
         onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
         showsVerticalScrollIndicator={false}
@@ -147,6 +161,10 @@ const styles = StyleSheet.create({
   headerName: { ...Typography.h3, fontSize: 16 },
   headerSub: { ...Typography.caption },
   clearBtn: { ...Typography.caption, color: Colors.textMuted },
+  tabsWrap: { paddingHorizontal: Spacing.md, paddingTop: Spacing.sm },
+  toolsRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.sm },
+  toolsTxt: { ...Typography.caption, flex: 1, lineHeight: 16 },
+  toolsLink: { ...Typography.caption, color: Colors.purpleInk, fontWeight: '700' },
 
   messageList: { paddingTop: Spacing.md, paddingBottom: Spacing.lg },
 

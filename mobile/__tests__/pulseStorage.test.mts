@@ -3,7 +3,9 @@ import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SNAPSHOT_KEY, normaliseSnapshot, shouldSave, loadSnapshot, saveSnapshot, SNAPSHOT_MIN_GAP_MS } from '../lib/pulseStorage.ts';
-import { localOnlyReply, answerLocally, HELP_EXAMPLES, matchIntent } from '../lib/aryaTools.ts';
+import { localOnlyReply } from '../lib/aryaTools.ts';
+import { runDeviceTool, HELP_EXAMPLES } from '../lib/aryaToolbox.ts';
+import { matchIntent } from '../lib/aryaIntent.ts';
 import { OFFLINE_ACTIONS } from '../lib/aryaOffline.ts';
 import { makeFacts } from '../lib/aryaFacts.ts';
 import { SCREENS } from '../lib/search.ts';
@@ -33,7 +35,7 @@ test('saved only when there is none or the last is six hours old, as on the webs
 
 test('offline: a question the phone can answer is answered; otherwise plain language and a list of what still works', () => {
   const f = makeFacts({ data: { income: 100000, expense: 60000 } });
-  const local = answerLocally('what is my savings rate', f)!;
+  const local = runDeviceTool('savings_rate', {}, { facts: f });
   const t1 = localOnlyReply(local, null);
   assert.match(t1, /your own records answer this/);
   assert.match(t1, /saving 40%/);
@@ -55,12 +57,12 @@ test('every route the local tools point at is a real screen', () => {
   const known = new Set(SCREENS.map(s => s.route));
   const f = makeFacts({ now: new Date(2026, 9, 14), data: { income: 100000, expense: 60000, emergencyFund: 1000, goals: [{ id: 'g', name: 'x', target: 10, current: 1 }] } });
   const routes = new Set<string>();
-  for (const q of HELP_EXAMPLES) { const r = answerLocally(q, f); if (r?.route) routes.add(r.route); }
+  for (const q of HELP_EXAMPLES) { const m = matchIntent(q); if (m.kind === 'tool') { const r = runDeviceTool(m.tool, m.args, { facts: f }); if (r.route) routes.add(r.route); } }
   ['/tracker/networth', '/tracker/budget', '/tracker/emergency', '/tracker/goals', '/tools/calendar', '/tools/score', '/tracker/insurance', '/tools/debt', '/tools/taxplanner', '/tracker/transactions'].forEach(r => routes.add(r));
   for (const r of routes) {
     // calculator pages are dynamic: /tools/calc/<id>
     if (/^\/tools\/calc\//.test(r)) continue;
     assert.ok(known.has(r), `${r} is not in the search index`);
   }
-  assert.ok(matchIntent('help'));
+  assert.equal(matchIntent('help').kind, 'tool');
 });

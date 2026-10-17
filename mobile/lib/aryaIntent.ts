@@ -18,7 +18,7 @@ export type ToolId =
   | 'money_score' | 'budget' | 'spending_month' | 'subscriptions' | 'insurance' | 'upcoming' | 'tax_dates' | 'tax_estimate'
   | 'tax_80c' | 'advance_tax' | 'sip_calc' | 'emi_calc' | 'fd_calc' | 'rd_calc' | 'lumpsum_calc' | 'inflation_calc' | 'fire'
   | 'retirement_odds' | 'alerts' | 'life_plan' | 'trend' | 'memory_show' | 'memory_add' | 'memory_forget'
-  | 'quote' | 'market' | 'commodities' | 'crypto' | 'technical' | 'mf_nav' | 'open_screen';
+  | 'quote' | 'market' | 'commodities' | 'crypto' | 'fx' | 'technical' | 'mf_nav' | 'news' | 'announcements' | 'open_screen';
 
 export interface Args {
   amount?: number; rate?: number; years?: number; months?: number; days?: number; income?: number;
@@ -97,7 +97,7 @@ class Q {
   /** short, command-like: "net worth", "savings rate?" */
   get short() { return this.words <= 4; }
   /** asking for a definition, not a figure */
-  get definition() { return /^(what is|what's|what are|define|meaning of|explain|tell me about|how does|how do|why is|why do)\b/.test(this.t) && !this.self; }
+  get definition() { return /^(what is|what's|what are|define|meaning of|explain|tell me about|how does|how do|why is|why do|why did|why are|difference between|differences between|compare|which is better|pros and cons|how to|how can i|what happens|is there a)\b/.test(this.t) && !this.self; }
   get money() { return this.nums.filter(n => n.kind === 'money'); }
   get pct() { return this.nums.filter(n => n.kind === 'pct'); }
   get years() { return this.nums.filter(n => n.kind === 'years'); }
@@ -157,6 +157,16 @@ export function symbolIn(raw: string): string | null {
   return null;
 }
 
+const LOOSE_STOP = new Set(['my', 'the', 'a', 'an', 'gold', 'silver', 'crude', 'oil', 'bitcoin', 'btc', 'ethereum', 'eth', 'nifty', 'sensex', 'today', 'now', 'dollar', 'usd',
+  'house', 'flat', 'home', 'car', 'land', 'property', 'it', 'this', 'that', 'sip', 'emi', 'fd', 'rd', 'ppf', 'nps', 'epf', 'tax', 'fund', 'mutual', 'petrol', 'diesel']);
+/** A symbol typed in lower case right after a price word ("price of zomato", "zomato share price"), for the price tool only. null when it could be anything else. */
+export function looseSymbol(raw: string): string | null {
+  const t = normalise(raw);
+  const m = /\b(?:price|quote|ltp|cmp|rate)\s+(?:of|for)\s+([a-z][a-z0-9&-]{1,14})\b/.exec(t) || /\b([a-z][a-z0-9&-]{1,14})\s+(?:share|stock)\s+price\b/.exec(t) || /\bquote\s+([a-z][a-z0-9&-]{1,14})\b/.exec(t);
+  if (!m || LOOSE_STOP.has(m[1]) || /^\d+$/.test(m[1])) return null;
+  return m[1].toUpperCase();
+}
+
 /* ── the matchers ──────────────────────────────────────────────────────────────────────────────────────────── */
 type Matcher = (q: Q) => { score: number; args?: Args } | null;
 const hit = (score: number, args?: Args) => ({ score, args });
@@ -173,10 +183,10 @@ const MATCHERS: Partial<Record<ToolId, Matcher>> = {
 
   snapshot: q => (/\b(how am i doing|how are my (finances|money)|where do i stand|financial (picture|position|status|summary)|money summary|my (finances|money situation)|overview|snapshot|quick summary|give me a summary)\b/.test(q.t) ? hit(0.85) : null),
 
-  net_worth: READ(/\bnet ?worth\b/, { needSelf: true }),
+  net_worth: q => (/\b(trend|growing|growth|moving|changed?|velocity|history|over time|since last|progress)\b/.test(q.t) ? null : /\bhow much am i worth\b|\btotal assets\b/.test(q.t) ? hit(0.88) : READ(/\bnet ?worth\b/, { needSelf: true })(q)),
   assets: q => (/\b(asset allocation|where is my money|my allocation|what do i (own|hold)|my assets|asset mix|breakdown of my|how is my money (split|spread|divided))\b/.test(q.t) ? hit(0.88) : null),
   debt: q => {
-    if (!/\b(debts?|liabilit(y|ies)|loans?|owe|dues?|outstanding|my emis?)\b/.test(q.t)) return null;
+    if (!/\b(debts?|liabilit(y|ies)|loans?|owe|credit card dues|outstanding|my emis?)\b/.test(q.t)) return null;
     if (!q.self && !q.short) return null;
     if (q.money.length || q.pct.length) return null;               // "emi on 50 lakh at 8%" is the calculator
     if (/\b(prepay|pay off|payoff|clear|close|foreclose|take|get|apply|eligib)/.test(q.t)) return null;
@@ -200,7 +210,7 @@ const MATCHERS: Partial<Record<ToolId, Matcher>> = {
   budget: q => (/\bbudget(s)?\b/.test(q.t) && !q.definition && (q.self || q.short) && !/\b(create|make|build|plan|set up|prepare|generate)\b/.test(q.t) ? hit(0.82) : null),
   spending_month: q => ((/\b(spen[dt]|spending|expenses?|expenditure)\b/.test(q.t) && /\b(this month|today|so far|current month|month)\b/.test(q.t) && (q.self || /\bhow much\b/.test(q.t)))
     || /\b(top|biggest|highest|largest|most) (spending )?(categor(y|ies)|expense)s?\b/.test(q.t) ? hit(0.87) : null),
-  subscriptions: q => (/\b(subscriptions?|renewals?|netflix|spotify|ott)\b/.test(q.t) && !q.definition && (q.self || q.short || /\bhow much\b/.test(q.t)) ? hit(0.84) : null),
+  subscriptions: q => (/\b(subscriptions?|netflix|spotify|ott)\b/.test(q.t) && !q.definition && (q.self || q.short || /\bhow much\b/.test(q.t)) ? hit(0.84) : null),
   insurance: q => {
     if (!/\b(insurance|insured|term (plan|policy|cover|insurance)|health (policy|cover|insurance)|policies|policy|cover(age)?)\b/.test(q.t)) return null;
     if (q.definition) return null;
@@ -230,10 +240,14 @@ const MATCHERS: Partial<Record<ToolId, Matcher>> = {
   sip_calc: q => {
     const monthly = /\b(sip|per month|a month|monthly|every month|each month|\/mo|pm)\b/.test(q.t);
     const grows = /\b(grow|become|worth|corpus|returns?|maturity|will (it|i|my)|how much|calculate|end up|accumulate|get|have|reach|build)\b/.test(q.t);
-    if (!monthly || !grows) return null;
-    if (/\b(emi|loan|fd|fixed deposit|rd|recurring|lump ?sum|inflation|goal|goals)\b/.test(q.t)) return null;
+    if (!monthly) return null;
+    if (/\b(emi|loan|fd|fixed deposit|rd|recurring|lump ?sum|inflation|goal|goals|step[- ]?up)\b/.test(q.t)) return null;
     const a = calcArgs(q, ['amount', 'years', 'rate']);
     if (a.amount === undefined || a.years === undefined) return null;     // no numbers, no calculation: "what is a SIP?" falls through
+    // "SIP of 10000 at 12% for 15 years" is a complete sum even without a verb; with a verb two numbers are enough (the rate is then asked for)
+    const complete = a.rate !== undefined;
+    if (!grows && !complete) return null;
+    if (q.definition && !complete) return null;
     return hit(0.9, a);
   },
   lumpsum_calc: q => {
@@ -276,7 +290,7 @@ const MATCHERS: Partial<Record<ToolId, Matcher>> = {
   retirement_odds: q => (/\b(retire|retirement)\b/.test(q.t) && /\b(odds|chance|probability|will my money last|run out|outlast|enough|on track)\b/.test(q.t) ? hit(0.88) : null),
   alerts: q => (/\b(alerts?|notifications?|anything (urgent|wrong|i should know)|what needs (my )?attention|needs attention|any warnings?)\b/.test(q.t) && !q.definition ? hit(0.84) : null),
   life_plan: q => (/\b(life events?|life plan|having a (baby|child)|new baby|expecting a|getting married|my marriage|buying a (home|house|flat)|changing jobs?|new job|lost my job|job loss|windfall)\b/.test(q.t) && (q.self || q.short) ? hit(0.8) : null),
-  trend: q => (/\b(net ?worth|wealth|money)\b/.test(q.t) && /\b(trend|growing|growth|changed?|velocity|pace|history|since last|over time|progress)\b/.test(q.t) && (q.self || q.short) ? hit(0.82) : null),
+  trend: q => (/\b(net ?worth|wealth|money)\b/.test(q.t) && /\b(trend|growing|growth|moving|changed?|velocity|pace|history|since last|over time|progress)\b/.test(q.t) && (q.self || q.short) ? hit(0.82) : null),
 
   memory_add: q => {
     const m = /^(?:please |pls |arya,? )?(?:remember|note|keep in mind|make a note|save this)(?: that| this)?[:,]? +(.{3,})$/.exec(q.t);
@@ -293,13 +307,17 @@ const MATCHERS: Partial<Record<ToolId, Matcher>> = {
   quote: q => {
     if (!/\b(price|quote|ltp|trading at|share price|stock price|how much is|what is .* (at|trading)|current price|cmp|rate of)\b/.test(q.t)) return null;
     if (/\b(gold|silver|crude|bitcoin|btc|ethereum|crypto|nifty|sensex|nav|mutual fund|fund)\b/.test(q.t) && !symbolIn(q.raw)) return null;
-    const sym = symbolIn(q.raw);
+    if (q.self) return null;                                              // "price of my house" is not a share price
+    const sym = symbolIn(q.raw) ?? looseSymbol(q.raw);
     if (sym) return hit(0.88, { symbol: sym });
-    return hit(0.5, {});                                                  // asked for a price, named nothing: ask which
+    return /\b(shares?|stocks?|quote|ltp|cmp|trading at)\b/.test(q.t) ? hit(0.5, {}) : null;   // a share price with no share named: ask which; any other "price of ..." is not ours
   },
   market: q => (/\b(nifty( ?50| bank)?|sensex|bank ?nifty|indices|indexes|stock market|markets?)\b/.test(q.t) && /\b(today|now|how is|how'?s|level|doing|status|open|close|closed|live|up|down|trading)\b/.test(q.t) && !symbolIn(q.raw) && !q.definition ? hit(0.84) : null),
   commodities: q => (/\b(gold|silver|crude( oil)?|oil|natural gas)\b/.test(q.t) && /\b(price|rate|today|now|per gram|per 10|how much is)\b/.test(q.t) && !/\b(my|i have|i own|holding)\b/.test(q.t) ? hit(0.82) : null),
   crypto: q => (/\b(bitcoin|btc|ethereum|eth|dogecoin|xrp|ripple|crypto)\b/.test(q.t) && /\b(price|rate|today|now|how much|trading|worth)\b/.test(q.t) && !/\b(my|i have|i own|holding|tax)\b/.test(q.t) ? hit(0.82, { query: /\bethereum|\beth\b/.test(q.t) ? 'ethereum' : /\bdoge/.test(q.t) ? 'dogecoin' : /\bxrp|ripple/.test(q.t) ? 'ripple' : 'bitcoin' }) : null),
+  fx: q => (/\b(dollar|usd|euro|eur|pound|gbp|yen|jpy|dirham|aed)\b/.test(q.t) && /\b(rate|inr|rupee|price|worth|exchange|today|now)\b/.test(q.t) && !q.self ? hit(0.84) : null),
+  news: q => (/\b(news|headlines?)\b/.test(q.t) && /\b(market|financ|business|stock|latest|today|top|economy|india)\b|^(latest |top )?(news|headlines)\b/.test(q.t) && !q.definition && !symbolIn(q.raw) ? hit(0.8) : null),
+  announcements: q => (/\b(announcements?|filings?|board meeting|results? announcement|corporate actions?)\b/.test(q.t) && !!symbolIn(q.raw) && !q.definition ? hit(0.84, { symbol: symbolIn(q.raw) as string }) : null),
   technical: q => (/\b(technical|rsi|macd|indicators?|analy[sz]e|analysis|chart|support|resistance|moving average)\b/.test(q.t) && !!symbolIn(q.raw) ? hit(0.86, { symbol: symbolIn(q.raw) as string }) : null),
   mf_nav: q => {
     if (!/\b(nav|net asset value)\b/.test(q.t)) return null;
