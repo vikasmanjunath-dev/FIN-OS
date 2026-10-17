@@ -118,11 +118,11 @@ function retirementDerived(d: TrackerData): [string, string][] {
   const r = c0(d);
   const out: [string, string][] = [
     ['finos_nps_value', String(r.nps.total)],
-    ['finos_nps_projected', String(r.nps.projected)],
     ['finos_nps_annual_tax', String(r.nps.taxSaved)],
     ['finos_ppf_value', String(r.savings.total)],
     ['finos_ppf_80c', String(r.savings.c80c)],
   ];
+  out.push(['finos_nps_projected', String(r.nps.ageNow > 0 ? r.nps.projected : 0)]);
   if (r.epf.complete) out.push(['finos_epf_projected', String(r.epf.projected)], ['finos_epf_pension', String(r.epf.pension)]);
   return out;
 }

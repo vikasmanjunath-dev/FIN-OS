@@ -49,6 +49,15 @@ window.FinosNPSTracker = (function () {
     return Math.round(bal);
   }
 
+  function validDob(value, today) {
+    const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) return false;
+    const year = Number(match[1]), month = Number(match[2]), day = Number(match[3]);
+    const date = new Date(year, month - 1, day);
+    return year >= 1900 && date.getFullYear() === year && date.getMonth() === month - 1
+      && date.getDate() === day && date <= today;
+  }
+
   /* ── Tax saving estimate ─────────────────────────────────────────── */
   function _taxDeductions(empAnnual, erAnnual, basicAnnual) {
     const regime = gss('finos_nps_tax_regime') || 'new';
@@ -102,13 +111,13 @@ window.FinosNPSTracker = (function () {
     const annuityPct = [0, 20, 40, 80].includes(parseInt(gss('finos_nps_annuity_pct'), 10)) ? parseInt(gss('finos_nps_annuity_pct'), 10) : 40;
     const basicAnnual = gs('finos_nps_basic_annual') || gs('finos_salary_basic');
 
-    let ageNow = 30, yearsLeft = 30;
-    const birth = /^\d{4}-\d{2}-\d{2}$/.test(dob) ? new Date(dob + 'T00:00:00') : null;
+    let ageNow = 0, yearsLeft = 0;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (birth && Number.isFinite(birth.getTime()) && birth <= today) {
-      ageNow = today.getFullYear() - birth.getFullYear()
-        - (today < new Date(today.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0);
+    if (validDob(dob, today)) {
+      const [year, month, day] = dob.split('-').map(Number);
+      ageNow = today.getFullYear() - year
+        - (today < new Date(today.getFullYear(), month - 1, day) ? 1 : 0);
       yearsLeft = Math.max(60 - ageNow, 0);
     }
 
@@ -121,7 +130,8 @@ window.FinosNPSTracker = (function () {
     const taxSaved      = eff ? eff.total : _taxSaved(empM * 12, erM * 12, slab, basicAnnual);
 
     ss('finos_nps_value',     total);
-    ss('finos_nps_projected', projected);
+    if (ageNow > 0) ss('finos_nps_projected', projected);
+    else localStorage.removeItem('finos_nps_projected');
     ss('finos_nps_annual_tax', taxSaved);
 
     return { t1, t2, total, ageNow, yearsLeft, annualR, allocationValid, projected, annuityPct, lumpSumPct: 100 - annuityPct, annuityCorpus, lumpSum, taxSaved, taxExact: !!eff, ep, cp, gp };
@@ -183,7 +193,7 @@ window.FinosNPSTracker = (function () {
 <div class="nps-hero">
   <div class="nps-hero-lbl">Total NPS Corpus</div>
   <div class="nps-hero-val" id="nps-total-hero">${INR(total)}</div>
-  <div class="nps-hero-sub">Age ${ageNow} &nbsp;·&nbsp; ${yearsLeft} years to age 60 &nbsp;·&nbsp; ${(annualR * 100).toFixed(1)}% assumed return${allocationValid ? ' from allocation' : ' default; allocation must total 100%'}</div>
+  <div class="nps-hero-sub">${ageNow > 0 ? `Age ${ageNow} · ${yearsLeft} years to age 60` : 'Add a valid date of birth to calculate your timeline — no age is assumed'} &nbsp;·&nbsp; ${(annualR * 100).toFixed(1)}% assumed return${allocationValid ? ' from allocation' : ' default; allocation must total 100%'}</div>
   <div class="nps-tier-row">
     <div class="nps-tier-pill" style="background:rgba(0,212,255,.07);border-color:rgba(0,212,255,.2);">
       <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.58);text-transform:uppercase;margin-bottom:5px;">Tier 1</div>
@@ -201,17 +211,17 @@ window.FinosNPSTracker = (function () {
 <div class="nps-stats">
   <div class="nps-stat" style="border-color:rgba(34,211,166,.2);">
   <div class="nps-stat-lbl">Tier 1 Projected at 60</div>
-    <div class="nps-stat-val" style="color:#22D3A6;" id="nps-proj-disp">${INR(projected)}</div>
-    <div class="nps-stat-sub">${yearsLeft}yr @ ${(annualR*100).toFixed(1)}% p.a.</div>
+    <div class="nps-stat-val" style="color:#22D3A6;" id="nps-proj-disp">${ageNow > 0 ? INR(projected) : '—'}</div>
+    <div class="nps-stat-sub">${ageNow > 0 ? `${yearsLeft}yr @ ${(annualR*100).toFixed(1)}% p.a.` : 'Date of birth required'}</div>
   </div>
   <div class="nps-stat" style="border-color:rgba(255,179,71,.2);">
     <div class="nps-stat-lbl" id="nps-lump-label">Lump-Sum (${lumpSumPct}%)</div>
-    <div class="nps-stat-val" style="color:#FFB347;" id="nps-lump-disp">${INR(lumpSum)}</div>
+    <div class="nps-stat-val" style="color:#FFB347;" id="nps-lump-disp">${ageNow > 0 ? INR(lumpSum) : '—'}</div>
     <div class="nps-stat-sub">Tax treatment depends on exit eligibility and current law</div>
   </div>
   <div class="nps-stat" style="border-color:rgba(239,68,68,.2);">
     <div class="nps-stat-lbl" id="nps-ann-label">Annuity (${annuityPct}%)</div>
-    <div class="nps-stat-val" style="color:#EF4444;" id="nps-ann-disp">${INR(annuityCorpus)}</div>
+    <div class="nps-stat-val" style="color:#EF4444;" id="nps-ann-disp">${ageNow > 0 ? INR(annuityCorpus) : '—'}</div>
     <div class="nps-stat-sub">Annuity purchase assumed; pension is taxable</div>
   </div>
   <div class="nps-stat" style="border-color:rgba(79,124,255,.2);">
@@ -366,6 +376,10 @@ window.FinosNPSTracker = (function () {
   function renderProjection(container) {
     if (!container) return;
     const { t1, projected, annuityPct, lumpSumPct, annuityCorpus, lumpSum, ageNow, yearsLeft, annualR, ep, cp, gp } = _compute();
+    if (!ageNow) {
+      container.innerHTML = '<div role="status" style="padding:20px;border:1px solid rgba(255,179,71,.3);border-radius:14px;color:#FFB347;line-height:1.6">Add a valid date of birth in the Setup tab to project your NPS corpus to age 60.</div>';
+      return;
+    }
 
     // Year-by-year milestones
     const empM = gs('finos_nps_emp_monthly');
@@ -516,9 +530,9 @@ function _npsAutoSave(key, val) {
       document.getElementById('nps-total-hero') && (document.getElementById('nps-total-hero').textContent = '₹' + Math.round(c.total).toLocaleString('en-IN'));
       document.getElementById('nps-t1-disp')    && (document.getElementById('nps-t1-disp').textContent    = '₹' + Math.round(c.t1).toLocaleString('en-IN'));
       document.getElementById('nps-t2-disp')    && (document.getElementById('nps-t2-disp').textContent    = '₹' + Math.round(c.t2).toLocaleString('en-IN'));
-      document.getElementById('nps-proj-disp')  && (document.getElementById('nps-proj-disp').textContent  = '₹' + Math.round(c.projected).toLocaleString('en-IN'));
-      document.getElementById('nps-lump-disp')  && (document.getElementById('nps-lump-disp').textContent  = '₹' + Math.round(c.lumpSum).toLocaleString('en-IN'));
-      document.getElementById('nps-ann-disp')   && (document.getElementById('nps-ann-disp').textContent   = '₹' + Math.round(c.annuityCorpus).toLocaleString('en-IN'));
+      document.getElementById('nps-proj-disp')  && (document.getElementById('nps-proj-disp').textContent  = c.ageNow > 0 ? '₹' + Math.round(c.projected).toLocaleString('en-IN') : '—');
+      document.getElementById('nps-lump-disp')  && (document.getElementById('nps-lump-disp').textContent  = c.ageNow > 0 ? '₹' + Math.round(c.lumpSum).toLocaleString('en-IN') : '—');
+      document.getElementById('nps-ann-disp')   && (document.getElementById('nps-ann-disp').textContent   = c.ageNow > 0 ? '₹' + Math.round(c.annuityCorpus).toLocaleString('en-IN') : '—');
       document.getElementById('nps-tax-disp')   && (document.getElementById('nps-tax-disp').textContent   = '₹' + Math.round(c.taxSaved).toLocaleString('en-IN'));
       document.getElementById('nps-tax-basis') && (document.getElementById('nps-tax-basis').textContent = c.taxExact ? 'Worked out on your income' : 'Marginal-rate estimate');
       document.getElementById('nps-exit-share') && (document.getElementById('nps-exit-share').textContent = c.annuityPct + '% annuity assumption');

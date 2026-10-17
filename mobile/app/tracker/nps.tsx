@@ -12,7 +12,7 @@ export default function NpsScreen() {
   const n = computed.retirement.nps;
   const alloc = data.npsEq + data.npsCorp + data.npsGsec;
   const hasPlan = data.npsTier1 > 0 || data.npsEmp + data.npsEr > 0;
-  const dobKnown = !!data.npsDob;
+  const dobKnown = n.ageNow > 0;
 
   return (
     <TrackerScreen title="NPS" subtitle="National Pension System: your corpus, what it could be at 60, and the tax you save by contributing.">
@@ -21,13 +21,13 @@ export default function NpsScreen() {
         <Text style={s.hero}>{inr(n.total)}</Text>
         {hasPlan && (
           <>
-            <View style={{ flexDirection: 'row', marginTop: Spacing.sm }}>
+            {dobKnown ? <View style={{ flexDirection: 'row', marginTop: Spacing.sm }}>
               <Stat label="Projected at 60" value={inrShort(n.projected)} color={Colors.cyan} />
               <Stat label="Lump sum (60%)" value={inrShort(n.lumpSum)} color={Colors.teal} />
               <Stat label="Annuity (40%)" value={inrShort(n.annuityCorpus)} color={Colors.purple} />
-            </View>
+            </View> : <Text accessibilityRole="alert" style={[Typography.caption, { marginTop: Spacing.sm, color: Colors.gold }]}>Add a valid date of birth below to show projections. No retirement age is assumed.</Text>}
             <Text style={[Typography.caption, { marginTop: Spacing.sm, lineHeight: 17 }]}>
-              {dobKnown ? `${n.yearsLeft} year${n.yearsLeft === 1 ? '' : 's'} to 60 (you are ${n.ageNow})` : 'Add your date of birth for a real timeline — assuming 30 years to go'} · expected return {(n.annualR * 100).toFixed(1)}% a year · Tier 1 only (Tier 2 can be withdrawn freely).
+              {dobKnown ? `${n.yearsLeft} year${n.yearsLeft === 1 ? '' : 's'} to 60 (you are ${n.ageNow})` : 'Timeline unavailable until date of birth is recorded'} · expected return {(n.annualR * 100).toFixed(1)}% a year · Tier 1 only (Tier 2 can be withdrawn freely).
             </Text>
           </>
         )}

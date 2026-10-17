@@ -260,7 +260,7 @@ export default function DashboardScreen() {
         <MetricCard
           label="NPS"
           value={rt.nps.total > 0 ? inrShort(rt.nps.total) : '—'}
-          sub={rt.nps.projected > 0 ? `→ ${inrShort(rt.nps.projected)} at 60` : 'tap to set up'}
+          sub={rt.nps.total <= 0 ? 'tap to set up' : rt.nps.ageNow > 0 ? `→ ${inrShort(rt.nps.projected)} at 60` : 'add date of birth for projection'}
           accent={Colors.cyan}
           icon="🏛️"
           style={styles.gridHalf}

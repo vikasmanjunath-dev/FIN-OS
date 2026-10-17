@@ -94,7 +94,9 @@ export const npsWeightedReturn = (ep: number, cp: number, gp: number) =>
 export function npsProjectCorpus(corpus: number, monthlyContrib: number, months: number, annualR: number) {
   const r = annualR / 12;
   let bal = corpus;
-  for (let m = 0; m < months; m++) { bal += monthlyContrib; bal *= 1 + r; }
+  // NPS tracker assumes contributions are deposited at month-end: the opening balance
+  // earns that month's return, then the contribution is added.
+  for (let m = 0; m < months; m++) { bal *= 1 + r; bal += monthlyContrib; }
   return Math.round(bal);
 }
 
@@ -120,22 +122,20 @@ export interface NpsResult {
 
 export function computeNps(i: NpsInput, now = new Date()): NpsResult {
   const total = i.tier1 + i.tier2;
-  let ageNow = 30, yearsLeft = 30;
-  if (i.dob) {
-    const birth = new Date(i.dob);
-    if (!Number.isFinite(birth.getTime())) { /* an unreadable date of birth is "not recorded": keep the defaults, never NaN */ } else {
-    ageNow = now.getFullYear() - birth.getFullYear() - (now < new Date(now.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0);
+  let ageNow = 0, yearsLeft = 0;
+  if (validDate(i.dob, {}, now)) {
+    const [year, month, day] = i.dob.split('-').map(Number);
+    ageNow = now.getFullYear() - year - (now < new Date(now.getFullYear(), month - 1, day) ? 1 : 0);
     yearsLeft = Math.max(60 - ageNow, 0);
-    }
   }
-  const annualR = npsWeightedReturn(i.equityPct, i.corpPct, i.gsecPct) || 0.085;
+  const allocationTotal = i.equityPct + i.corpPct + i.gsecPct;
+  const annualR = allocationTotal === 100 ? npsWeightedReturn(i.equityPct, i.corpPct, i.gsecPct) : 0.085;
   // Only Tier-1 is projected: Tier-2 is freely withdrawable, so it isn't pension money
   const projected = npsProjectCorpus(i.tier1, i.emp + i.er, Math.round(yearsLeft * 12), annualR);
   const annuityCorpus = Math.round(projected * 0.4); // at least 40% must buy an annuity
   const lumpSum = projected - annuityCorpus;
   const taxSaved = npsTaxSaved(i.emp * 12, i.er * 12, i.slab || 30);
-  const sum = i.equityPct + i.corpPct + i.gsecPct;
-  return { tier1: i.tier1, tier2: i.tier2, total, ageNow, yearsLeft, annualR, projected, annuityCorpus, lumpSum, taxSaved, allocationOk: sum === 0 || Math.abs(sum - 100) < 0.5 };
+  return { tier1: i.tier1, tier2: i.tier2, total, ageNow, yearsLeft, annualR, projected, annuityCorpus, lumpSum, taxSaved, allocationOk: allocationTotal === 100 };
 }
 
 // ═══ PPF & small savings ═════════════════════════════════════════════════════
