@@ -20,7 +20,7 @@ arya-ai/
 │   ├── market.py       ← NSE/BSE quotes, AMFI NAVs, gold, crypto, FX
 │   ├── news.py         ← RSS news scraper + DuckDuckGo search + URL reader
 │   │                     (trafilatura primary extractor, BS4 heuristic fallback)
-│   ├── portfolio.py    ← Supabase holdings lookup + live price refresh
+│   ├── portfolio.py    ← Supabase holdings lookup + quote/NAV refresh and explicit fallbacks
 │   └── cache.py        ← In-memory TTL cache (L1, sits above SQLite L2)
 │
 ├── intelligence/
@@ -83,8 +83,8 @@ API docs: http://localhost:7475/docs
 | `GET /api/analyze/{symbol}/multi` | Short / medium / long-term summary |
 | `GET /api/report/quote/{symbol}?format=html\|pdf` | Stock report, HTML or PDF |
 | `GET /api/report/market?format=html\|pdf` | Market overview report, HTML or PDF |
-| `GET /api/portfolio/summary?user_id=...` | **Requires `Authorization: Bearer <supabase_token>`.** Live-valued holdings summary — see Auth below. |
-| `GET /api/portfolio/export?user_id=...` | **Same auth.** Downloads the summary as `.xlsx` — holdings + unrealized P&L, two sheets (Holdings, Notes). Not a tax/capital-gains computation, see caveat in Auth section below. |
+| `GET /api/portfolio/summary?user_id=...` | **Requires `Authorization: Bearer <supabase_token>`.** Share quotes and AMFI NAV where available (quotes may be cached), with saved-price/cost fallbacks identified per holding; malformed rows are counted and excluded. |
+| `GET /api/portfolio/export?user_id=...` | **Same auth.** Downloads the summary as `.xlsx` — holdings + unrealized P&L, two sheets (Holdings, Notes), with the price source shown. Not a tax/capital-gains computation, see caveat in Auth section below. |
 | `WS /ws/prices?symbols=...&exchange=NSE` | Live tick stream, pushes every `TTL_QUOTE` seconds. Resubscribe anytime by sending `{"symbols":[...]}` as a text frame, no reconnect needed. |
 | `POST /api/tool` | Universal tool gateway (used by JS agent) |
 | `GET /api/read?url=&max_chars=` | Clean text extracted from a URL (the agent's `read_url` tool) |
@@ -108,8 +108,8 @@ curl -H "Authorization: Bearer <supabase_access_token>" \
 Verification calls Supabase's own `GET /auth/v1/user` (same pattern as
 `rag-engine/storage/auth.py`) — no JWT secret needed, just the anon key. A
 missing/garbage/mismatched token returns `403`. If Supabase itself is
-unreachable or the holdings query fails, returns `502` with the real error
-message, not a silent empty result.
+unreachable or the holdings query fails, returns `502` with a bounded error
+description, not a silent empty result.
 
 **The Excel export is holdings + unrealized P&L, not a capital-gains tax
 computation.** STCG (<12mo) vs LTCG (≥12mo) classification needs a lot-level

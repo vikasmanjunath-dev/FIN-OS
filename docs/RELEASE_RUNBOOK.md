@@ -1,7 +1,9 @@
 # FIN·OS mobile: release runbook (owner steps, in order)
 
 Everything marked **OWNER** needs your accounts, money, or a legal decision: an agent cannot do it. Everything else is
-already in the repository and has a command that checks it. Written 14 Oct 2026 against Expo SDK 53 / EAS CLI 16.
+already in the repository and has a command that checks it. Written 14 Oct 2026 against Expo SDK 53 / EAS CLI 16; brought in line
+with the code on 17 Oct 2026 (after the October merges: onboarding, crash notes, feedback, erase flow, `expo-av` removed,
+Settings reads the real version). Nothing in this file has been run on a device or against a Supabase project.
 
 Read `docs/STORE_LISTING.md` section 0 first: it lists the product problems (no hosted backend, cleartext HTTP, account
 deletion incomplete) that decide *what* you are shipping. This runbook is *how*.
@@ -10,7 +12,9 @@ deletion incomplete) that decide *what* you are shipping. This runbook is *how*.
 
 A guest-first app. All trackers and calculators work offline on the phone. Sign-in/sync is built, but needs a live
 Supabase project with the SQL below applied. Live prices and Arya need a backend the person runs themselves, so they are
-not a store feature today. There is **no over-the-air update channel** (`expo-updates` is not installed; asserted by
+not a store feature today. Feedback has no inbox (`FinosFeedback` endpoint is `null`): it is saved on the phone and shared through
+the share sheet only, and crash notes are kept on the phone (Settings > Diagnostics), never sent. Google sign-in is built but
+hidden unless `EXPO_PUBLIC_GOOGLE_SIGNIN=1` (step 5 item 2). There is **no over-the-air update channel** (`expo-updates` is not installed; asserted by
 `mobile/__tests__/releaseConfig.test.mts`): every fix is a new store build and review.
 
 ## 0. Decisions only you can make (do these first; each blocks a step below)
@@ -71,10 +75,12 @@ npx expo-doctor                               # SDK/package compatibility
 npx expo prebuild --no-install --clean        # then inspect android/app/src/main/AndroidManifest.xml and ios/*/*.entitlements
 ```
 
-Expected after prebuild (verified 14 Oct 2026): Android permissions INTERNET, POST_NOTIFICATIONS, USE_BIOMETRIC,
-USE_FINGERPRINT, VIBRATE and `tools:node="remove"` for RECORD_AUDIO, MODIFY_AUDIO_SETTINGS, SYSTEM_ALERT_WINDOW,
-READ/WRITE_EXTERNAL_STORAGE; iOS entitlements file empty (no `aps-environment`), `NSFaceIDUsageDescription` present,
-`NSAllowsArbitraryLoads=false`. `prebuild` creates `android/` and `ios/`: delete them afterwards (the project is managed
+Expected after prebuild (verified 14 Oct 2026; `expo-av` was removed from the project on 15 Oct, which only removes
+RECORD_AUDIO / MODIFY_AUDIO_SETTINGS from what libraries add): Android permissions INTERNET, POST_NOTIFICATIONS,
+USE_BIOMETRIC, USE_FINGERPRINT, VIBRATE, RECEIVE_BOOT_COMPLETED (the last three come from the libraries' own manifests and are
+named in the privacy notice, `lib/privacy.ts` PERMISSIONS, which `__tests__/privacy.test.mts` checks against those manifests) and
+`tools:node="remove"` for RECORD_AUDIO, MODIFY_AUDIO_SETTINGS, SYSTEM_ALERT_WINDOW, READ/WRITE_EXTERNAL_STORAGE; `android:allowBackup="false"`;
+iOS entitlements file empty (no `aps-environment`), `NSFaceIDUsageDescription` present, `NSAllowsArbitraryLoads=false`. `prebuild` creates `android/` and `ios/`: delete them afterwards (the project is managed
 workflow; they are not committed).
 
 ## 4. Build and test
@@ -97,6 +103,9 @@ eas submit --profile production --platform ios     # TestFlight first
 Versioning: `app.json` `version` is the human version (1.0.0). The iOS build number and Android version code are
 created and incremented by EAS on each production build; do not add `buildNumber` / `versionCode` (a test fails if you
 do). To release 1.0.1, bump `version` only. To set the first number explicitly: `eas build:version:set`.
+Settings > About shows the `version` from `app.json` through `expo-constants` (`lib/appInfo.ts`; it was hard-coded until 15 Oct), so
+the number on screen cannot drift from the config. Confirm it on the preview build (device checklist D-6): it is read from the
+native config at run time, which the web preview cannot prove.
 
 ## 5. Supabase SQL (only if sign-in ships) (OWNER, ~20 min)
 
@@ -183,7 +192,8 @@ There is no OTA channel, so rollback is a store action:
 ## 9. After release
 
 - Record the build number, git commit and date in `docs/PENDING.md` (shared file; give the integrator the line).
-- Watch Play Console "Android vitals" and App Store Connect crash reports: these are the only crash signals, because the
-  app has no crash reporter by design. Users can send the redacted note from Diagnostics.
+- Watch Play Console "Android vitals" and App Store Connect crash reports: these are the only automatic crash signals, because
+  the app has no crash reporter by design. Users can share the redacted note from Settings > Diagnostics (a JS error is caught
+  by the error boundary and noted on the phone; a fatal native crash can kill the process before the note is written).
 - Calendar items: tax-slab changes each February budget (`docs/TAX_RULES.md`), store policy deadlines (Play target-SDK
   rule each August), certificate expiry (EAS shows it).
