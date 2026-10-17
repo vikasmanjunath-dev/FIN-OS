@@ -46,6 +46,7 @@
   ];
   const SAVING = /invest|saving|\bsip\b|mutual|\bmf\b|amfi|\bppf\b|\bnps\b|\bfd\b|stock|equity|emergency|put aside/i;
   const INCOME = /salary|income|bonus|freelance|received|got paid|refund|interest credit|dividend/i;
+  const TRANSFER = /^(?:transfer|transfers|internal transfer|own account transfer)$/i;
 
   const num = (v) => { const n = typeof v === 'string' ? parseFloat(v.replace(/[₹,\s]/g, '')) : Number(v); return isFinite(n) ? n : NaN; };
   const pad = (n) => String(n).padStart(2, '0');
@@ -74,8 +75,10 @@
 
     const catText = [raw.category, raw.type, raw.label, raw.description, raw.desc].filter((x) => typeof x === 'string').join(' ');
     const typeText = String(raw.type || '');
-    let kind = 'expense';
-    if (/^credit$/i.test(typeText) || /^income$/i.test(typeText) || /^salary$/i.test(String(raw.category || ''))) kind = 'income';
+    const categoryText = String(raw.category || '').replace(/[_-]+/g, ' ').trim();
+    const isTransfer = raw.isTransfer === true || /^transfer$/i.test(typeText) || TRANSFER.test(categoryText);
+    let kind = isTransfer ? 'transfer' : 'expense';
+    if (kind !== 'transfer' && (/^credit$/i.test(typeText) || /^income$/i.test(typeText) || /^salary$/i.test(String(raw.category || '')))) kind = 'income';
     if (/^save_|^invest/i.test(String(raw.category || '')) || SAVING.test(String(raw.category || '')) || /^save_/.test(typeText)) kind = 'saving';
     // voice journal tags "SIP / invested / saved" as type:'income' — that is money going OUT to savings, not income
     if (kind === 'income' && SAVING.test(String(raw.category || '')) ) kind = 'saving';
@@ -86,7 +89,7 @@
     return {
       id: String(raw.id !== undefined ? raw.id : `${date}|${amount}|${label}`),
       date, amount, kind,
-      category: kind === 'expense' ? canonicalCategory(catText) : (kind === 'saving' ? 'Savings & Investments' : 'Income'),
+      category: kind === 'expense' ? canonicalCategory(catText) : (kind === 'saving' ? 'Savings & Investments' : kind === 'transfer' ? 'Transfers' : 'Income'),
       label,
     };
   }

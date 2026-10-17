@@ -12,7 +12,7 @@ export const CATEGORIES = [
 ] as const;
 export type Category = (typeof CATEGORIES)[number];
 
-export type Kind = 'expense' | 'income' | 'saving';
+export type Kind = 'expense' | 'income' | 'saving' | 'transfer';
 
 export interface Txn {
   id: string;
@@ -28,6 +28,7 @@ export interface IndexedTxn extends Txn { i: number }
 
 export const SAVINGS_CATEGORY = 'Savings & Investments';
 export const INCOME_CATEGORY = 'Income';
+export const TRANSFER_CATEGORY = 'Transfers';
 
 // Order matters: first match wins.
 const CATEGORY_RULES: [Category, RegExp][] = [
@@ -78,8 +79,10 @@ export function normalize(raw: any): Txn | null {
 
   const catText = [raw.category, raw.type, raw.label, raw.description, raw.desc].filter(x => typeof x === 'string').join(' ');
   const typeText = String(raw.type || '');
-  let kind: Kind = 'expense';
-  if (/^credit$/i.test(typeText) || /^income$/i.test(typeText) || /^salary$/i.test(String(raw.category || ''))) kind = 'income';
+  const categoryText = String(raw.category || '').replace(/[_-]+/g, ' ').trim();
+  const isTransfer = raw.isTransfer === true || /^transfer$/i.test(typeText) || /^(?:transfer|transfers|internal transfer|own account transfer)$/i.test(categoryText);
+  let kind: Kind = isTransfer ? 'transfer' : 'expense';
+  if (kind !== 'transfer' && (/^credit$/i.test(typeText) || /^income$/i.test(typeText) || /^salary$/i.test(String(raw.category || '')))) kind = 'income';
   if (/^save_|^invest/i.test(String(raw.category || '')) || SAVING.test(String(raw.category || '')) || /^save_/.test(typeText)) kind = 'saving';
   // voice journal tags "SIP / invested / saved" as type:'income' — that is money going OUT to savings, not income
   if (kind === 'income' && SAVING.test(String(raw.category || ''))) kind = 'saving';
@@ -92,7 +95,7 @@ export function normalize(raw: any): Txn | null {
   return {
     id: String(raw.id !== undefined ? raw.id : `${date}|${amount}|${label}`),
     date, amount, kind,
-    category: kind === 'expense' ? (pinned ?? canonicalCategory(catText)) : kind === 'saving' ? SAVINGS_CATEGORY : INCOME_CATEGORY,
+    category: kind === 'expense' ? (pinned ?? canonicalCategory(catText)) : kind === 'saving' ? SAVINGS_CATEGORY : kind === 'transfer' ? TRANSFER_CATEGORY : INCOME_CATEGORY,
     label,
   };
 }
@@ -113,8 +116,8 @@ export function toRaw(t: { id: string; date: string; amount: number; kind: Kind;
     date: t.date,
     amount: t.amount,
     // type/category are what the website's normalize() reads; kept consistent with `kind`
-    type: t.kind === 'expense' ? 'expense' : t.kind === 'income' ? 'income' : 'saving',
-    category: t.kind === 'expense' ? t.category : t.kind === 'saving' ? SAVINGS_CATEGORY : 'Income',
+    type: t.kind === 'expense' ? 'expense' : t.kind === 'income' ? 'income' : t.kind === 'saving' ? 'saving' : 'transfer',
+    category: t.kind === 'expense' ? t.category : t.kind === 'saving' ? SAVINGS_CATEGORY : t.kind === 'transfer' ? TRANSFER_CATEGORY : 'Income',
     label: t.label,
     cat: t.kind === 'expense' ? t.category : undefined,
     source: t.source ?? 'mobile',
@@ -142,7 +145,7 @@ export function monthTotals(txns: Txn[], month: string) {
     count++;
     if (t.kind === 'expense') spent += t.amount;
     else if (t.kind === 'income') income += t.amount;
-    else saved += t.amount;
+    else if (t.kind === 'saving') saved += t.amount;
   }
   return { spent, income, saved, count };
 }

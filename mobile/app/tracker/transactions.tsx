@@ -9,15 +9,17 @@ import { QuickChip } from '@/lib/quicklog';
 import { describeSchedule, ordinal } from '@/lib/recurring';
 import { useTrackers } from '@/hooks/useTrackers';
 import {
-  CATEGORIES, IndexedTxn, Kind, SAVINGS_CATEGORY, INCOME_CATEGORY, canonicalCategory, monthTotals, monthSpend, validateEntry, ymd,
+  CATEGORIES, IndexedTxn, Kind, SAVINGS_CATEGORY, INCOME_CATEGORY, TRANSFER_CATEGORY, canonicalCategory, monthTotals, monthSpend, validateEntry, ymd,
 } from '@/lib/budget';
 import { TrackerScreen, Card, SectionLabel, Bar, Stat, inr, inrShort } from '@/components/TrackerUI';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { TRANSACTION_PAGE_SIZE, visibleTransactions } from '@/lib/transactionPage';
 
 const KINDS: { kind: Kind; label: string; color: string; verb: string }[] = [
   { kind: 'expense', label: 'Expense', color: Colors.gold, verb: 'Add expense' },
   { kind: 'income', label: 'Income', color: Colors.teal, verb: 'Add income' },
   { kind: 'saving', label: 'Invested', color: Colors.purpleInk, verb: 'Add investment' },
+  { kind: 'transfer', label: 'Transfer', color: Colors.textDim, verb: 'Record transfer' },
 ];
 
 
@@ -40,6 +42,7 @@ export default function TransactionsScreen() {
   const thisMonth = today.slice(0, 7);
 
   const [month, setMonth] = useState(thisMonth);
+  const [visibleCount, setVisibleCount] = useState(TRANSACTION_PAGE_SIZE);
 
   // form state
   const [kind, setKind] = useState<Kind>('expense');
@@ -70,7 +73,7 @@ export default function TransactionsScreen() {
     if (!v.ok) return setError(v.error);
     setError(null); setBusy(true);
     try {
-      const entry = { date: v.date, amount: v.amount, kind, category: kind === 'expense' ? category : kind === 'saving' ? SAVINGS_CATEGORY : INCOME_CATEGORY, label: v.label };
+      const entry = { date: v.date, amount: v.amount, kind, category: kind === 'expense' ? category : kind === 'saving' ? SAVINGS_CATEGORY : kind === 'transfer' ? TRANSFER_CATEGORY : INCOME_CATEGORY, label: v.label };
       if (editing) {
         const ok = await update(editing.id, entry);
         setNotice(ok ? 'Changes saved' : 'That entry no longer exists');
@@ -87,8 +90,8 @@ export default function TransactionsScreen() {
             extra = ` · repeats on the ${ordinal(day)}${day > 28 ? ' (or last day)' : ''} each month`;
           }
         }
-        setNotice(`Added ${inr(v.amount)}${kind === 'expense' ? ` · ${category}` : kind === 'income' ? ' income' : ' invested'}${extra}`);
-        setMonth(v.date.slice(0, 7)); // jump to where the new entry lives
+        setNotice(`Added ${inr(v.amount)}${kind === 'expense' ? ` · ${category}` : kind === 'income' ? ' income' : kind === 'saving' ? ' invested' : ' transfer'}${extra}`);
+        setMonth(v.date.slice(0, 7)); setVisibleCount(TRANSACTION_PAGE_SIZE); // jump to where the new entry lives
       }
       reset();
       setTimeout(() => setNotice(null), 2500);
@@ -101,7 +104,7 @@ export default function TransactionsScreen() {
 
   const prefill = (c: QuickChip) => {
     reset(); setKind(c.kind); setAmount(String(c.amount)); setLabel(c.label); setDate(today);
-    setCategory(c.kind === 'expense' ? c.category : 'Other'); setCatTouched(true);
+    setCategory(c.kind === 'expense' ? c.category : c.kind === 'transfer' ? TRANSFER_CATEGORY : 'Other'); setCatTouched(true);
     scroller.current?.scrollTo?.({ y: 0, animated: true });
   };
 
@@ -124,15 +127,19 @@ export default function TransactionsScreen() {
     const { byCat: c, total } = monthSpend(txns, month);
     return { rows: Object.entries(c).sort((a, b) => b[1] - a[1]), total };
   }, [txns, month]);
+  const visibleInMonth = useMemo(() => visibleTransactions(inMonth, visibleCount), [inMonth, visibleCount]);
   const groups = useMemo(() => {
     const m = new Map<string, IndexedTxn[]>();
-    inMonth.forEach(t => m.set(t.date, [...(m.get(t.date) ?? []), t]));
+    visibleInMonth.forEach(t => {
+      const day = m.get(t.date);
+      if (day) day.push(t); else m.set(t.date, [t]);
+    });
     return [...m.entries()];
-  }, [inMonth]);
+  }, [visibleInMonth]);
 
   const k = KINDS.find(x => x.kind === kind)!;
   // "repeat monthly" only makes sense for a new entry dated this month (the schedule starts next month — no back-filling)
-  const canRepeat = !editing && date.slice(0, 7) === thisMonth && validateEntry({ amount: '1', date, label: '' }).ok;
+  const canRepeat = !editing && kind !== 'transfer' && date.slice(0, 7) === thisMonth && validateEntry({ amount: '1', date, label: '' }).ok;
   const limits = td.budgetLimits;
 
   return (
@@ -171,8 +178,8 @@ export default function TransactionsScreen() {
             placeholderTextColor={Colors.textDim} accessibilityLabel="Amount" onSubmitEditing={submit} />
         </View>
 
-        <Text style={s.lbl}>{kind === 'expense' ? 'WHAT FOR (OPTIONAL)' : kind === 'income' ? 'SOURCE (OPTIONAL)' : 'INVESTED IN (OPTIONAL)'}</Text>
-        <TextInput style={s.input} value={label} onChangeText={onLabel} placeholder={kind === 'expense' ? 'e.g. Zomato dinner' : kind === 'income' ? 'e.g. Salary' : 'e.g. SIP — Parag Parikh'}
+        <Text style={s.lbl}>{kind === 'expense' ? 'WHAT FOR (OPTIONAL)' : kind === 'income' ? 'SOURCE (OPTIONAL)' : kind === 'saving' ? 'INVESTED IN (OPTIONAL)' : 'TRANSFER NOTE (OPTIONAL)'}</Text>
+        <TextInput style={s.input} value={label} onChangeText={onLabel} placeholder={kind === 'expense' ? 'e.g. Zomato dinner' : kind === 'income' ? 'e.g. Salary' : kind === 'saving' ? 'e.g. SIP — Parag Parikh' : 'e.g. To savings account'}
           placeholderTextColor={Colors.textDim} maxLength={60} onSubmitEditing={submit} accessibilityLabel="Description" />
 
         {kind === 'expense' && (
@@ -234,9 +241,9 @@ export default function TransactionsScreen() {
 
       {/* ── Month ── */}
       <View style={s.monthRow}>
-        <TouchableOpacity onPress={() => setMonth(shiftMonth(month, -1))} hitSlop={12} accessibilityLabel="Previous month"><Text style={s.arrow}>‹</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => { setMonth(shiftMonth(month, -1)); setVisibleCount(TRANSACTION_PAGE_SIZE); }} hitSlop={12} accessibilityLabel="Previous month"><Text style={s.arrow}>‹</Text></TouchableOpacity>
         <Text style={s.monthTxt}>{monthLabel(month)}</Text>
-        <TouchableOpacity onPress={() => setMonth(shiftMonth(month, 1))} disabled={month >= thisMonth} hitSlop={12} accessibilityLabel="Next month">
+        <TouchableOpacity onPress={() => { setMonth(shiftMonth(month, 1)); setVisibleCount(TRANSACTION_PAGE_SIZE); }} disabled={month >= thisMonth} hitSlop={12} accessibilityLabel="Next month">
           <Text style={[s.arrow, month >= thisMonth && { opacity: 0.25 }]}>›</Text>
         </TouchableOpacity>
       </View>
@@ -275,8 +282,8 @@ export default function TransactionsScreen() {
           <Text style={s.dayLabel}>{dayLabel(day, today, yesterday)}</Text>
           <Card style={{ paddingVertical: 4 }}>
             {list.map((t, idx) => {
-              const sign = t.kind === 'income' ? '+' : t.kind === 'saving' ? '→' : '−';
-              const color = t.kind === 'income' ? Colors.teal : t.kind === 'saving' ? Colors.purple : Colors.textPrimary;
+              const sign = t.kind === 'income' ? '+' : t.kind === 'saving' ? '→' : t.kind === 'transfer' ? '↔' : '−';
+              const color = t.kind === 'income' ? Colors.teal : t.kind === 'saving' ? Colors.purple : t.kind === 'transfer' ? Colors.textDim : Colors.textPrimary;
               return (
                 <TouchableOpacity key={`${t.id}-${t.i}`} style={[s.txnRow, idx < list.length - 1 && s.txnBorder]} onPress={() => startEdit(t)} onLongPress={() => confirmDelete(t)}
                   accessibilityRole="button" accessibilityLabel={`${t.kind} ${inr(t.amount)} ${t.label || t.category}. Tap to edit`}>
@@ -292,6 +299,14 @@ export default function TransactionsScreen() {
           </Card>
         </View>
       ))}
+      {visibleInMonth.length < inMonth.length && (
+        <TouchableOpacity accessibilityRole="button" onPress={() => setVisibleCount(n => n + TRANSACTION_PAGE_SIZE)}
+          style={{ alignSelf: 'center', minHeight: 44, justifyContent: 'center', paddingHorizontal: Spacing.lg }}>
+          <Text style={[Typography.caption, { color: Colors.cyan, fontWeight: '700' }]}>
+            Show {Math.min(TRANSACTION_PAGE_SIZE, inMonth.length - visibleInMonth.length)} more entries
+          </Text>
+        </TouchableOpacity>
+      )}
       {groups.length > 0 && <Text style={[Typography.caption, { textAlign: 'center' }]}>Tap an entry to edit · long-press to delete</Text>}
     </TrackerScreen>
   );

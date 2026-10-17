@@ -22,7 +22,7 @@ export function useQuickLog(limit = 6) {
     try {
       const id = await add({ date: ymd(new Date()), amount: c.amount, kind: c.kind, category: c.category, label: c.label });
       const what = c.label || c.category;
-      setUndo({ id, text: `${c.kind === 'income' ? 'Income' : c.kind === 'saving' ? 'Invested' : 'Added'} ${inr(c.amount)} · ${what}` });
+      setUndo({ id, text: `${c.kind === 'income' ? 'Income' : c.kind === 'saving' ? 'Invested' : c.kind === 'transfer' ? 'Transferred' : 'Added'} ${inr(c.amount)} · ${what}` });
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => setUndo(null), 6000);
     } finally {

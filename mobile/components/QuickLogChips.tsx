@@ -8,10 +8,10 @@ import { inr } from '@/components/TrackerUI';
 export const CAT_ICON: Record<string, string> = {
   'Food & Dining': '🍽️', Groceries: '🛒', Transport: '🚕', Shopping: '🛍️', 'Bills & Utilities': '💡', Housing: '🏠',
   'EMI & Loans': '🏦', Subscriptions: '📺', Health: '🩺', Entertainment: '🎬', Education: '🎓', Travel: '✈️', Other: '📦',
-  'Savings & Investments': '📈', Income: '💰',
+  'Savings & Investments': '📈', Income: '💰', Transfers: '↔️',
 };
 
-const KIND_COLOR = { expense: Colors.gold, income: Colors.teal, saving: Colors.purple } as const;
+const KIND_COLOR = { expense: Colors.gold, income: Colors.teal, saving: Colors.purple, transfer: Colors.textDim } as const;
 
 /** One-tap chips for the entries you repeat, plus the Undo bar shown right after logging one. */
 export function QuickLogChips({ chips, onLog, onEdit, undo, onUndo, hint }: {
