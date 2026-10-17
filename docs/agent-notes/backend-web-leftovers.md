@@ -31,7 +31,7 @@ No SQL was run against any project.
 - No change to `sw.js CACHE_NAME`: HTML is network-first, JS/CSS stale-while-revalidate, and the pinned supabase URL matches the existing pinned-CDN rule.
 
 ## What I did not do / could not verify
-- Full 430-load `smoke_pages.py` was not re-run after the shape-guard codemod (it touches 41 files). Covered instead by: the full 10-shape fuzz over every page (it loads each page and fails on any new console/page error), `node --test`, static audit, perf budget and the pytest suite (see below).
+- Full 430-load `smoke_pages.py` was not re-run after the shape-guard codemod (it touches 41 files); the 70 loads listed under Verification were. Also covered by: the full 10-shape fuzz over every page (it loads each page and fails on any new console/page error), `node --test`, static audit, perf budget and the pytest suite (see below).
 - The 82-site codemod wraps list/object reads only; code that reads a list of the right shape but with rows of the wrong shape is guarded only in the loaders named above. A row-level fuzz of every tab interaction was not run.
 - `alerts/health_score.py`: still halves sums (`/ 2`) assuming a 60-day window, and `fetch_user_data` limits to 100 rows (noted by planners); a "monthly" figure is therefore approximate. Not changed (separate decision about the window).
 - Account-deletion SQL never executed here. `supabase/delete_account.sql` lacks `pg_temp` in `search_path` (release-pack's proposal has it): owner call.
@@ -49,7 +49,8 @@ No SQL was run against any project.
 - `python3 tests/static_audit.py`: 7/7; `python3 tests/perf_budget.py`: exit 0.
 - `python3 -m pytest tests/test_health_income.py tests/test_health_score.py tests/test_sql_safety.py tests/test_arya_readme.py tests/test_market_data_backend.py tests/test_chart_endpoint.py`: 80 pass.
 - Playwright: `test_news_page.py` 4, `test_landing_pages.py` 7, `test_corrupt_json_fuzz.py` 1, `test_arya_lazy.py` 4 (x3 runs), `test_pwa_sw.py` 5 (x3 runs, and `-k periodicsync` alone).
-- Full `python3 -m pytest tests/test_*.py`: see the final report (run last, results appended there).
+- Full `python3 -m pytest tests/test_*.py` (after all edits, including the a11y-helper settle fix): 598 passed, 2 skipped, 5 xfailed, 0 failed (28 min, run alongside another agent's browser tests).
+- `python3 tests/smoke_pages.py` on the 33 page groups I edited or that load edited scripts (news, index, login, trading-brain, document-ai, insurance-hub, simulator-landing, home, import-statement, ca-advisor, mindset-sim, dashboard, budget-forecast, life-goals-planner, settings, track-finances, trading-coach, ppf / fd / gold / crypto trackers, goal-optimizer, passive-income, financial-calendar, profile, tax, net-worth, sip-tracker, train-mindset, learn-crypto, and the ppf, goalbased and buyhouse calculators), dark and light: 70/70 loads clean. The full 430-load smoke was not run.
 
 ## Commit (explicit lists; many of these files also carry earlier agents' uncommitted edits, so commit after web-qa's commits 1-4 or accept that the diff includes theirs)
 
