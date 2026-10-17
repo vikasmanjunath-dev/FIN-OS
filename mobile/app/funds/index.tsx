@@ -153,9 +153,9 @@ export default function FundsHome() {
 }
 
 const s = StyleSheet.create({
-  searchRow: { flexDirection: 'row', marginBottom: Spacing.md },
-  input: { flex: 1, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, padding: 12, color: Colors.textPrimary, fontSize: 14 },
-  go: { backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingHorizontal: 16, justifyContent: 'center', marginLeft: 8 },
+  searchRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: Spacing.md },
+  input: { flexGrow: 1, flexShrink: 1, flexBasis: 160, minHeight: 44, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, padding: 12, color: Colors.textPrimary, fontSize: 14 },
+  go: { backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingHorizontal: 16, justifyContent: 'center', minHeight: 44, minWidth: 44 },
   goTxt: { color: '#001018', fontWeight: '800', fontSize: 13 },
   body: { color: Colors.textPrimary, fontSize: 13, lineHeight: 19, marginTop: 4 },
   name: { color: Colors.textPrimary, fontSize: 14, fontWeight: '700' },

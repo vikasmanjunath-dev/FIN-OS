@@ -32,7 +32,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
     return (
       <View style={s.root} accessibilityRole="alert">
         <Text style={s.logo}>⬡</Text>
-        <Text style={Typography.h2}>Something went wrong on this screen</Text>
+        <Text accessibilityRole="header" style={Typography.h2}>Something went wrong on this screen</Text>
         <Text style={s.body}>The rest of FIN·OS is fine and your data is safe on this phone. A short note about the problem, with numbers and personal details removed, was kept on this phone only. Nothing was sent anywhere.</Text>
         <TouchableOpacity style={s.primary} accessibilityRole="button" onPress={this.retry}><Text style={s.primaryTxt}>Try again</Text></TouchableOpacity>
         <TouchableOpacity style={s.secondary} accessibilityRole="button" onPress={() => { this.retry(); try { router.replace('/dashboard'); } catch { /* router not ready */ } }}><Text style={s.secondaryTxt}>Go to Home</Text></TouchableOpacity>

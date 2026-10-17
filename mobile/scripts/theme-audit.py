@@ -7,16 +7,26 @@
 For every visible text node it composites the text colour and the nearest backgrounds, and reports pairs under WCAG AA
 (4.5:1, or 3:1 for large / bold text). Exits 1 if anything is found. Screenshots go to $THEME_AUDIT_SHOTS (default /tmp/theme-audit).
 """
-import os, sys
+import os, sys, re, json, importlib.util
 from playwright.sync_api import sync_playwright
+
+# Same route discovery and the same populated data as smoke-routes.py
+_spec = importlib.util.spec_from_file_location('smoke_routes', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'smoke-routes.py'))
+_smoke = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(_smoke)
+# A pass on a 404 page checks nothing, so a page that is the "Unmatched Route" screen (or nearly empty) is a FAILURE, not a pass.
+UNMATCHED = _smoke.UNMATCHED
 
 BASE = os.environ.get('BASE', 'http://localhost:8082')
 SHOTS = os.environ.get('THEME_AUDIT_SHOTS', '/tmp/theme-audit')
 MODE = os.environ.get('THEME', 'light')
-ROUTES = sys.argv[1:] or ['/dashboard', '/markets', '/portfolio', '/arya', '/track', '/settings', '/search', '/profile', '/tools/score', '/tools/calculators',
+POPULATED = os.environ.get('POPULATED') == '1'      # POPULATED=1: audit with the smoke test's populated phone
+TEXT_SCALE = float(os.environ.get('TEXT_SCALE', '1'))
+VIEW_W = int(os.environ.get('VIEW_W', '430'))
+LEGACY = ['/dashboard', '/markets', '/portfolio', '/arya', '/track', '/settings', '/search', '/profile', '/tools/score', '/tools/calculators',
     '/tools/calc/sip', '/tools/calc/hra', '/tools/realestate', '/tools/report', '/tools/retirement', '/tools/taxplanner', '/tools/dna', '/tools/calendar',
     '/tracker/health', '/tracker/budget', '/tracker/networth', '/tracker/transactions', '/tracker/insurance', '/tracker/harvest', '/tracker/emergency',
     '/tools/homeloan', '/tools/debt']
+ROUTES = sys.argv[1:] or ([] if os.environ.get('LEGACY_ROUTES') else _smoke.routes()) or LEGACY      # default: EVERY route in app/
 
 JS = r"""
 () => {
@@ -41,25 +51,37 @@ JS = r"""
 }
 """
 
+COUNT_JS = "() => { let n = 0; const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); let x; while (x = w.nextNode()) { if (x.textContent.trim() && x.parentElement && x.parentElement.getBoundingClientRect().width > 0) n++; } return n; }"
+
 
 def main():
     os.makedirs(SHOTS, exist_ok=True)
-    total = 0
+    total, not_loaded, checked_total = 0, [], 0
     with sync_playwright() as pw:
         b = pw.chromium.launch(channel='chromium')
-        ctx = b.new_context(viewport={'width': 430, 'height': 900})
-        ctx.add_init_script(f"localStorage.setItem('finos_theme_mobile','{MODE}')")
+        ctx = b.new_context(viewport={'width': VIEW_W, 'height': 900})
+        init = f"localStorage.setItem('finos_theme_mobile','{MODE}');"
+        if POPULATED:
+            for k, v in _smoke.populated().items():
+                init += f"localStorage.setItem({k!r},{json.dumps(v if isinstance(v, str) else json.dumps(v))});"
+        ctx.add_init_script(init)
+        ctx.route(re.compile(r'^https?://(?!localhost|127\.0\.0\.1).*'), lambda r: r.abort())
         pg = ctx.new_page()
         for r in ROUTES:
             pg.goto(BASE + r, wait_until='domcontentloaded'); pg.wait_for_timeout(2500)
+            text = pg.inner_text('body')
+            n_text = pg.evaluate(COUNT_JS)
+            if UNMATCHED.search(text) or len(text.strip()) < 15 or n_text < 3:
+                print(r, 'NOT A REAL SCREEN (404 / empty), nothing was checked:', repr(text[:60]))
+                not_loaded.append(r); continue
             bad = pg.evaluate(JS)
             pg.screenshot(path=os.path.join(SHOTS, MODE + r.replace('/', '_') + '.png'))
-            print(r, 'low-contrast:', len(bad))
+            print(r, f'text nodes checked: {n_text}, low-contrast:', len(bad))
             for x in bad[:6]: print('   ', x)
-            total += len(bad)
+            total += len(bad); checked_total += n_text
         b.close()
-    print('TOTAL', total)
-    return 1 if total else 0
+    print(f'TOTAL low-contrast {total}; screens not loaded {len(not_loaded)}; {len(ROUTES) - len(not_loaded)} screens, {checked_total} text nodes checked ({MODE}{", populated" if POPULATED else ", empty"})')
+    return 1 if (total or not_loaded) else 0
 
 if __name__ == '__main__':
     sys.exit(main())

@@ -14,6 +14,19 @@ from playwright.sync_api import sync_playwright
 BASE = os.environ.get('BASE', 'http://localhost:8082')
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'app')
 
+# One real value for every dynamic segment, so the route is a real screen and not the screen's "unknown id" branch.
+SAMPLES = {
+    'tools/calc/[id]': ['/tools/calc/sip', '/tools/calc/hra', '/tools/calc/optionspayoff'],
+    'insurance/[type]': ['/insurance/health', '/insurance/term'],
+    'funds/[code]': ['/funds/120503'],
+    'learn/[id]': ['/learn/finance101'],
+    'market/fund/[code]': ['/market/fund/120503'],
+    'market/stock/[symbol]': ['/market/stock/RELIANCE'],
+    'market/crypto/[id]': ['/market/crypto/bitcoin', '/market/crypto/matic-network'],
+    'market/commodity/[key]': ['/market/commodity/gold'],
+    'market/fx/[pair]': ['/market/fx/USD_INR'],
+}
+
 def routes():
     out = []
     for d, _, files in os.walk(ROOT):
@@ -21,8 +34,10 @@ def routes():
             if not f.endswith('.tsx') or f.startswith('_'): continue
             rel = os.path.relpath(os.path.join(d, f), ROOT)[:-4].replace(os.sep, '/')
             rel = rel.replace('(tabs)/', '')
-            if rel == 'index': continue
-            if rel == 'tools/calc/[id]': out += ['/tools/calc/sip', '/tools/calc/hra', '/tools/calc/optionspayoff']; continue
+            if rel == 'index': continue                       # the launch redirect, not a screen
+            if rel.endswith('/index'): rel = rel[:-6]         # folder/index.tsx is served at /folder (not /folder/index)
+            if rel in SAMPLES: out += SAMPLES[rel]; continue
+            if '[' in rel: out.append('/' + rel + '  <-- add a sample value to SAMPLES'); continue
             out.append('/' + rel)
     return sorted(set(out))
 
@@ -40,8 +55,8 @@ def populated():
                                 {'id': 's2', 'name': 'Gym', 'category': 'fitness', 'amount': 6000, 'cycle': 'quarterly', 'nextDate': (today + dt.timedelta(days=40)).isoformat()}],
         'finos_insurance_policies': [{'id': 'p1', 'type': 'health', 'provider': 'Star', 'sum_assured': 500000, 'premium': 14000, 'renewal_date': (today + dt.timedelta(days=20)).isoformat()},
                                      {'id': 'p2', 'type': 'life_term', 'provider': 'LIC', 'sum_assured': 10000000, 'premium': 12000, 'renewal_date': (today + dt.timedelta(days=200)).isoformat()}],
-        'finos_holdings_v1': [{'id': 'h1', 'type': 'stock', 'symbol': 'INFY', 'name': 'Infosys', 'units': 20, 'avgPrice': 1500, 'lastPrice': 1620},
-                              {'id': 'h2', 'type': 'mf', 'symbol': '120503', 'name': 'Index fund', 'units': 400, 'avgPrice': 150, 'lastPrice': 180, 'sipMonthly': 10000}],
+        'finos_holdings_v1': [{'id': 'h1', 'type': 'Stock', 'symbol': 'INFY', 'name': 'Infosys', 'units': 20, 'avgPrice': 1500, 'lastPrice': 1620},
+                              {'id': 'h2', 'type': 'MF', 'symbol': '120503', 'name': 'Index fund', 'units': 400, 'avgPrice': 150, 'lastPrice': 180, 'sipMonthly': 10000}],
         'finos_harvest_positions': [{'id': 'x', 'name': 'Zomato', 'type': 'equity', 'qty': 100, 'buyPrice': 250, 'cmp': 200, 'purchaseDate': '2025-12-01'}],
         'finos_sip_portfolio': [{'fundName': 'Index fund', 'monthlyAmount': 10000, 'startDate': '2024-01-01'}],
         'finos_fd_portfolio': [{'id': 'f1', 'name': 'HDFC FD', 'type': 'fd', 'principal': 200000, 'rate': 7, 'start': '2025-01-01', 'tenureMonths': 36}],
@@ -50,6 +65,9 @@ def populated():
     }
 
 NOISE = re.compile(r'ERR_CONNECTION|ERR_NAME|Failed to load resource|WebSocket|net::|localhost:\d+|favicon|AbortError|Network request failed|Failed to fetch|NetworkError|Load failed|status of 4\d\d|ECONNREFUSED|fetch', re.I)
+# What expo-router renders for a route that does not exist. A pass on this page proves nothing (a stale dev server serves it for every
+# new route), so it is a failure here, and so are the "unknown id" fallbacks of the dynamic screens.
+UNMATCHED = re.compile(r'Unmatched Route|Page could not be found|There is no cover type called', re.I)
 BAD_TEXT = re.compile(r'\bNaN\b|\bundefined\b|Infinity|\[object Object\]')
 
 def main():
@@ -77,6 +95,7 @@ def main():
                         failures.append((theme, label, r, f'navigation: {str(e)[:120]}')); continue
                     problems = list(errs)
                     if len(text.strip()) < 15: problems.append('empty screen')
+                    if UNMATCHED.search(text): problems.append('UNMATCHED ROUTE (404 page or unknown-id fallback), not a real screen')
                     m = BAD_TEXT.search(text)
                     if m: problems.append(f'shows "{m.group(0)}": ...{text[max(0, m.start() - 40): m.end() + 30]!r}'.replace('\n', ' '))
                     for p in dict.fromkeys(problems): failures.append((theme, label, r, p))

@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 
 import { router, useFocusEffect } from 'expo-router';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 import {
-  STEPS, back as stepBack, finish, goto, markDid, next as stepNext, resumeStep, skipAll, stepIndex, summaryLines,
+  STEPS, back as stepBack, finish, markDid, next as stepNext, resumeStep, skipAll, stepIndex, summaryLines,
   type OnboardingState, type StepId,
 } from '@/lib/onboarding';
 import { currentProfileValues, loadOnboarding, saveOnboarding, saveProfileAnswers } from '@/lib/onboardingStorage';
@@ -53,7 +53,6 @@ export default function Onboarding() {
 
   if (!state) return <View style={s.root} />;
 
-  const close = () => (router.canGoBack() ? router.back() : router.replace('/dashboard'));
   const leave = (final: OnboardingState) => { persist(final); router.replace('/dashboard'); };
   const step = state.step;
   const idx = stepIndex(step);
@@ -81,7 +80,7 @@ export default function Onboarding() {
       {step === 'welcome' && (
         <>
           <Text style={s.logo}>⬡</Text>
-          <Text style={Typography.h1}>Welcome to FIN·OS</Text>
+          <Text accessibilityRole="header" style={Typography.h1}>Welcome to FIN·OS</Text>
           <Text style={s.lead}>One place to see where your money stands, plan what comes next, and understand the rules that apply to you in India.</Text>
           <View style={s.card}>
             <Text style={s.cardTitle}>What it is</Text>
@@ -102,7 +101,7 @@ export default function Onboarding() {
 
       {step === 'profile' && (
         <>
-          <Text style={Typography.h1}>A little about you</Text>
+          <Text accessibilityRole="header" style={Typography.h1}>A little about you</Text>
           <Text style={s.lead}>These make the Money Score, retirement and insurance numbers fit you. Leave out anything you would rather not say: nothing is filled in for you.</Text>
           {(['name', 'age', 'income', 'dependents'] as (keyof Profile)[]).map(k => (
             <View key={k} style={{ marginBottom: Spacing.md }}>
@@ -126,7 +125,7 @@ export default function Onboarding() {
 
       {step === 'dna' && (
         <>
-          <Text style={Typography.h1}>Your money personality</Text>
+          <Text accessibilityRole="header" style={Typography.h1}>Your money personality</Text>
           <Text style={s.lead}>A short quiz about how you save, spend and handle risk. It shapes the Health Score. About two minutes, and you can do it any time from Tools.</Text>
           {facts.dnaDone && <Text style={s.ok}>You have already completed it.</Text>}
           <TouchableOpacity accessibilityRole="button" style={s.primary} onPress={() => { persist(markDid(state, 'dna')); router.push('/tools/dna' as any); }}><Text style={s.primaryTxt}>{facts.dnaDone ? 'See my result' : 'Take the quiz'}</Text></TouchableOpacity>
@@ -136,7 +135,7 @@ export default function Onboarding() {
 
       {step === 'reminders' && (
         <>
-          <Text style={Typography.h1}>{NOTIFICATIONS_COPY.title}</Text>
+          <Text accessibilityRole="header" style={Typography.h1}>{NOTIFICATIONS_COPY.title}</Text>
           <Text style={s.lead}>{NOTIFICATIONS_COPY.why}</Text>
           <View style={s.card}>
             <Text style={s.line}>{NOTIFICATIONS_COPY.whatHappens}</Text>
@@ -156,7 +155,7 @@ export default function Onboarding() {
 
       {step === 'lock' && (
         <>
-          <Text style={Typography.h1}>Keep it private</Text>
+          <Text accessibilityRole="header" style={Typography.h1}>Keep it private</Text>
           <Text style={s.lead}>An app lock asks for a 6-digit PIN when FIN·OS opens, so someone who picks up your phone cannot read your numbers.</Text>
           <View style={s.card}>
             <Text style={s.line}>• A forgotten PIN cannot be recovered; the way back is to erase the app's data on this phone and restore a backup or your cloud copy.</Text>
@@ -171,7 +170,7 @@ export default function Onboarding() {
 
       {step === 'look' && (
         <>
-          <Text style={Typography.h1}>Language and look</Text>
+          <Text accessibilityRole="header" style={Typography.h1}>Language and look</Text>
           <Text style={s.lead}>Tap to choose. If you do not, the app keeps its defaults.</Text>
           <Text style={Typography.label}>LANGUAGE</Text>
           <View style={s.chips}>
@@ -195,7 +194,7 @@ export default function Onboarding() {
       {step === 'done' && (
         <>
           <Text style={s.logo}>⬡</Text>
-          <Text style={Typography.h1}>You are set</Text>
+          <Text accessibilityRole="header" style={Typography.h1}>You are set</Text>
           {(() => {
             const lines = summaryLines(state, { profileFields: completeness(profile), ...facts });
             return lines.length

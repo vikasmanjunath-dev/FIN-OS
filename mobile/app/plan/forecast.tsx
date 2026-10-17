@@ -70,6 +70,11 @@ export default function ForecastScreen() {
           <Text style={[Typography.caption, { marginTop: 4 }]}>{`Without the events you chose: ${inr(base.total)}.`}</Text>
         ) : null}
         {soFar > 0 ? <Text style={[Typography.caption, { marginTop: 4 }]}>{`Logged so far this month: ${inr(soFar)}.`}</Text> : null}
+        {soFar > r.total ? (
+          <Text style={[Typography.caption, { marginTop: 4, color: Colors.gold, lineHeight: 17 }]} accessibilityRole="alert">
+            {`You have already logged more than this forecast (${inr(soFar - r.total)} more). The forecast is built from earlier months, so this month is running above them; read it as a typical month, not as a limit for the rest of this one.`}
+          </Text>
+        ) : null}
       </Card>
 
       {low ? (

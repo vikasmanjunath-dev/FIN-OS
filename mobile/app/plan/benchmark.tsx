@@ -77,8 +77,8 @@ export default function BenchmarkScreen() {
 }
 
 const s = StyleSheet.create({
-  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.sm },
-  label: { flex: 1, fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
+  head: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.sm },
+  label: { flex: 1, flexBasis: 140, fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   badge: { fontSize: 10, fontWeight: '800', borderWidth: 1, borderRadius: 12, paddingHorizontal: 8, paddingVertical: 3 },
   value: { fontSize: 24, fontWeight: '900', color: Colors.textPrimary, marginVertical: 4 },
   link: { color: Colors.cyan, fontWeight: '800', marginVertical: Spacing.md },
