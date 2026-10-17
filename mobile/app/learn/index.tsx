@@ -6,7 +6,7 @@ import { LText } from '@/components/LearnBlocks';
 import { MANIFEST, LESSONS } from '@/lib/learnContent';
 import { loadLearned, loadOpened } from '@/lib/learnStorage';
 import {
-  categoryProgress, continueLesson, lessonBodyText, lessonsOf, nextLesson, overallProgress, searchLessons,
+  categoryProgress, continueLesson, rowMeta, lessonBodyText, lessonsOf, nextLesson, overallProgress, searchLessons,
   type Learned, type ManifestEntry, type Opened,
 } from '@/lib/learn';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
@@ -17,7 +17,7 @@ const openLesson = (id: string) => router.push(`/learn/${id}` as any);
 
 function Row({ e, learned }: { e: ManifestEntry; learned: Learned }) {
   const done = !!learned[e.id];
-  const meta = e.kind === 'interactive' ? 'Interactive on the website' : `${e.minutes} min read`;
+  const meta = rowMeta(e);
   return (
     <TouchableOpacity
       style={s.row} onPress={() => openLesson(e.id)} accessibilityRole="button"
@@ -38,6 +38,7 @@ export default function LearnHome() {
   const [learned, setLearned] = useState<Learned>({});
   const [opened, setOpened] = useState<Opened>({});
   const [q, setQ] = useState('');
+  const [openWeb, setOpenWeb] = useState(false);
 
   useFocusEffect(useCallback(() => {
     let live = true;
@@ -87,7 +88,17 @@ export default function LearnHome() {
           {cats.map(c => (
             <View key={c.id}>
               <SectionLabel>{c.total ? `${c.title.toUpperCase()}  ·  ${c.learned}/${c.total}` : c.title.toUpperCase()}</SectionLabel>
-              {lessonsOf(MANIFEST, c.id).map(e => <Row key={e.id} e={e} learned={learned} />)}
+              {c.total === 0 ? (
+                <TouchableOpacity style={s.row} onPress={() => setOpenWeb(v => !v)} accessibilityRole="button" accessibilityState={{ expanded: openWeb }}
+                  accessibilityLabel={`${lessonsOf(MANIFEST, c.id).length} interactive pages on the website. ${openWeb ? 'Hide' : 'Show'} the list.`}>
+                  <View style={{ flex: 1 }}>
+                    <LText style={s.title}>{`${lessonsOf(MANIFEST, c.id).length} pages that are interactive, menus or website only`}</LText>
+                    <LText style={Typography.caption}>Each has a page here that says what it is and what the phone has instead.</LText>
+                  </View>
+                  <Text style={s.chev}>{openWeb ? '⌄' : '›'}</Text>
+                </TouchableOpacity>
+              ) : null}
+              {c.total === 0 && !openWeb ? null : lessonsOf(MANIFEST, c.id).map(e => <Row key={e.id} e={e} learned={learned} />)}
             </View>
           ))}
         </>

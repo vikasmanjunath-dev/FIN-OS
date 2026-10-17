@@ -1,19 +1,18 @@
 {
  "category": "analysis",
  "id": "metrics",
- "needsReview": true,
- "reviewReasons": [
-  "metrics-thresholds",
-  "metrics-fd"
- ],
+ "needsReview": false,
+ "reviewReasons": [],
  "sections": [
   {
    "blocks": [
     {
+     "line": 376,
      "t": "p",
      "text": "// SYSTEM ACCESS: LEVEL 100"
     },
     {
+     "line": 379,
      "t": "p",
      "text": "The complete diagnostic toolkit. Every metric used by institutional investors, decoded."
     }
@@ -23,478 +22,577 @@
   {
    "blocks": [
     {
+     "line": 398,
      "t": "p",
      "text": "// Top Line"
     },
     {
+     "line": 399,
      "t": "p",
      "text": "The raw money a company receives from selling goods. It is the fuel. No revenue = No business."
     },
     {
      "kind": "note",
+     "line": 401,
      "t": "callout",
      "text": "Desi Logic\nThe \"Galla\" (Cashbox). A Kirana shop earning ₹1 Lakh vs ₹5 Lakh. More sales = More activity.",
      "title": ""
     }
    ],
-   "heading": "Revenue (Sales)"
+   "heading": "Revenue (Sales)",
+   "line": 397
   },
   {
    "blocks": [
     {
+     "line": 409,
      "t": "p",
      "text": "// Core Profit"
     },
     {
+     "line": 410,
      "t": "p",
      "text": "Earnings Before Interest & Tax. Shows if the actual business model is profitable before paying bankers or government."
     },
     {
      "kind": "note",
+     "line": 412,
      "t": "callout",
      "text": "Desi Logic\nRestaurant earnings minus vegetables & chef salary. If this is zero, shut the shop.",
      "title": ""
     }
    ],
-   "heading": "Operating Income (EBIT)"
+   "heading": "Operating Income (EBIT)",
+   "line": 408
   },
   {
    "blocks": [
     {
+     "line": 420,
      "t": "p",
      "text": "// Bottom Line"
     },
     {
+     "line": 421,
      "t": "p",
      "text": "The final money left after paying EVERYONE (Staff, Govt, Bank). This is what shareholders own."
     },
     {
      "kind": "note",
+     "line": 423,
      "t": "callout",
      "text": "Desi Logic\n\"Haath mein kitna aaya?\" Huge sales mean nothing if rent and interest eat everything.",
      "title": ""
     }
    ],
-   "heading": "Net Profit (PAT)"
+   "heading": "Net Profit (PAT)",
+   "line": 419
   },
   {
    "blocks": [
     {
+     "line": 431,
      "t": "p",
      "text": "// Your Share"
     },
     {
+     "line": 432,
      "t": "p",
      "text": "Total Profit divided by total number of shares. It tells you how much profit *your* one share earned."
     },
     {
      "kind": "note",
+     "line": 434,
      "t": "callout",
      "text": "Desi Logic\nIf family profit is ₹100 and there are 4 brothers, EPS is ₹25. If EPS grows, you grow.",
      "title": ""
     }
    ],
-   "heading": "EPS (Earning Per Share)"
+   "heading": "EPS (Earning Per Share)",
+   "line": 430
   },
   {
    "blocks": [
     {
+     "line": 442,
      "t": "p",
      "text": "// The Gold Standard"
     },
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "metrics-thresholds"
-     ],
+     "line": 443,
      "t": "p",
-     "text": "Measures how efficiently the company uses shareholders' money. >15% is excellent. <10% is poor."
+     "text": "Measures profit relative to shareholders’ equity. Interpret it against the company’s history, business model, leverage, accounting, and sector; no single threshold is excellent or poor for every company."
     },
     {
      "kind": "note",
-     "needsReview": true,
-     "reviewReasons": [
-      "metrics-fd"
-     ],
+     "line": 445,
      "t": "callout",
-     "text": "Desi Logic\nFD gives 7%. If a business takes your money and generates only 6%, why invest? Look for 15%+.",
+     "text": "Desi Logic\nCompare returns on capital with the company’s cost of capital, reinvestment opportunities, risk, and sector economics. Deposit rates change and are not a universal hurdle rate for businesses.",
      "title": ""
     }
    ],
-   "heading": "ROE (Return on Equity)"
+   "heading": "ROE (Return on Equity)",
+   "line": 441
   },
   {
    "blocks": [
     {
+     "line": 453,
      "t": "p",
      "text": "// Total Efficiency"
     },
     {
+     "line": 454,
      "t": "p",
      "text": "Return on Capital Employed. It considers both Equity AND Debt. Crucial for heavy industries (Factories, Telecom)."
     },
     {
      "kind": "note",
+     "line": 456,
      "t": "callout",
      "text": "Desi Logic\nIf you borrow money at 10% interest but your business only earns 8% ROCE, you are destroying wealth.",
      "title": ""
     }
    ],
-   "heading": "ROCE"
+   "heading": "ROCE",
+   "line": 452
   },
   {
    "blocks": [
     {
+     "line": 464,
      "t": "p",
      "text": "// Pricing Power"
     },
     {
+     "line": 465,
      "t": "p",
      "text": "Percentage of revenue left after covering operating costs. High margin = Moat."
     },
     {
      "kind": "note",
+     "line": 467,
      "t": "callout",
-     "text": "Desi Logic\nSelling water for ₹20 (cost ₹2) vs selling wheat for ₹20 (cost ₹18). High margin is safer.",
+     "text": "Desi Logic\nA product sold for ₹20 with a ₹2 direct cost has a higher gross margin than one sold for ₹20 with an ₹18 direct cost. Margin alone does not show durability, business risk, or whether overheads are covered.",
      "title": ""
     }
    ],
-   "heading": "Operating Margin"
+   "heading": "Operating Margin",
+   "line": 463
   },
   {
    "blocks": [
     {
+     "line": 475,
      "t": "p",
      "text": "// Sales Speed"
     },
     {
+     "line": 476,
      "t": "p",
      "text": "How many times a company sells its stock in a year. Higher is better."
     },
     {
      "kind": "note",
+     "line": 478,
      "t": "callout",
      "text": "Desi Logic\nFresh Samosas sold every hour vs Stale bread sitting for a week. Fast movement = Fresh Cash.",
      "title": ""
     }
    ],
-   "heading": "Inventory Turnover"
+   "heading": "Inventory Turnover",
+   "line": 474
   },
   {
    "blocks": [
     {
+     "line": 486,
      "t": "p",
      "text": "// Collection Power"
     },
     {
+     "line": 487,
      "t": "p",
      "text": "How many days it takes to collect money from customers. Rising days = Bad."
     },
     {
      "kind": "note",
+     "line": 489,
      "t": "callout",
      "text": "Desi Logic\n\"Udhaari\". If customers pay after 90 days, your cash is stuck. If they pay in 0 days (Cash), you win.",
      "title": ""
     }
    ],
-   "heading": "Receivable Days (DSO)"
+   "heading": "Receivable Days (DSO)",
+   "line": 485
   },
   {
    "blocks": [
     {
+     "line": 498,
      "t": "p",
      "text": "// Leverage"
     },
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "metrics-thresholds"
-     ],
+     "line": 499,
      "t": "p",
-     "text": "Ratio of total debt to shareholder equity. >2 is dangerous. <0.5 is safe."
+     "text": "Compares debt with shareholder equity. What is sustainable depends on cash-flow stability, collateral, sector, and debt terms; a ratio alone does not establish safety."
     },
     {
      "kind": "note",
+     "line": 501,
      "t": "callout",
-     "text": "Desi Logic\nBuying a house with 90% loan vs 10% loan. In a crisis, the guy with 90% loan loses the house.",
+     "text": "Desi Logic\nA larger loan relative to property value leaves less equity as a buffer if prices fall. The outcome also depends on repayments, the borrower’s income, lender terms, and the size of any price change.",
      "title": ""
     }
    ],
-   "heading": "Debt-to-Equity"
+   "heading": "Debt-to-Equity",
+   "line": 497
   },
   {
    "blocks": [
     {
+     "line": 509,
      "t": "p",
      "text": "// Short Term Safety"
     },
     {
+     "line": 510,
      "t": "p",
      "text": "Current Assets / Current Liabilities. Can the company pay bills due in 12 months?"
     },
     {
      "kind": "note",
+     "line": 512,
      "t": "callout",
      "text": "Desi Logic\nPocket money vs Immediate Bills. You have ₹500, bill is ₹400 (Safe). Bill is ₹600 (Danger).",
      "title": ""
     }
    ],
-   "heading": "Current Ratio"
+   "heading": "Current Ratio",
+   "line": 508
   },
   {
    "blocks": [
     {
+     "line": 520,
      "t": "p",
      "text": "// EMI Capacity"
     },
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "metrics-thresholds"
-     ],
+     "line": 521,
      "t": "p",
-     "text": "Operating Profit / Interest Expense. Should be > 3."
+     "text": "Operating profit divided by interest expense indicates capacity to service interest. Consider earnings stability, debt maturity, cash flow, and sector context rather than a universal cutoff."
     },
     {
      "kind": "note",
+     "line": 523,
      "t": "callout",
      "text": "Desi Logic\nIf salary is ₹50k and EMI is ₹45k, you are dead. If EMI is ₹10k, you are alive.",
      "title": ""
     }
    ],
-   "heading": "Interest Coverage"
+   "heading": "Interest Coverage",
+   "line": 519
   },
   {
    "blocks": [
     {
+     "line": 531,
      "t": "p",
      "text": "// Real Money"
     },
     {
+     "line": 532,
      "t": "p",
      "text": "Operating Cash Flow minus Capex (Factory maintenance). The cash actually available to owners."
     },
     {
      "kind": "note",
+     "line": 534,
      "t": "callout",
      "text": "Desi Logic\nProfit on paper is vanity. Cash in bank is sanity.",
      "title": ""
     }
    ],
-   "heading": "Free Cash Flow (FCF)"
+   "heading": "Free Cash Flow (FCF)",
+   "line": 530
   },
   {
    "blocks": [
     {
+     "line": 543,
      "t": "p",
      "text": "// Popularity Meter"
     },
     {
+     "line": 544,
      "t": "p",
      "text": "Price to Earnings. Price you pay for ₹1 of profit. High P/E = High Expectation."
     },
     {
      "kind": "note",
+     "line": 546,
      "t": "callout",
-     "text": "Desi Logic\nBuying a shirt at ₹999 vs same shirt at ₹499 during Sale. Low P/E (usually) means Sale.",
+     "text": "Desi Logic\nA low P/E means a lower price relative to current earnings, but it can also reflect weaker growth prospects or higher risk. Compare businesses and their outlook before calling a share a bargain.",
      "title": ""
     }
    ],
-   "heading": "P/E Ratio"
+   "heading": "P/E Ratio",
+   "line": 542
   },
   {
    "blocks": [
     {
+     "line": 554,
      "t": "p",
      "text": "// Scrap Value"
     },
     {
+     "line": 555,
      "t": "p",
      "text": "Price to Book Value. Crucial for Banks & Finance companies. <1 means cheaper than assets."
     },
     {
      "kind": "note",
+     "line": 557,
      "t": "callout",
      "text": "Desi Logic\nIf you close the shop and sell all furniture, what do you get? That is Book Value.",
      "title": ""
     }
    ],
-   "heading": "P/B Ratio"
+   "heading": "P/B Ratio",
+   "line": 553
   },
   {
    "blocks": [
     {
+     "line": 565,
      "t": "p",
      "text": "// Growth Adjusted"
     },
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "metrics-thresholds"
-     ],
+     "line": 566,
      "t": "p",
-     "text": "P/E divided by Growth Rate. <1 is undervalued. >2 is overvalued."
+     "text": "PEG compares a valuation multiple with an estimated growth rate. Results depend on the growth measure and forecast; the ratio cannot establish that a share is under- or overvalued by itself."
     },
     {
      "kind": "note",
+     "line": 568,
      "t": "callout",
      "text": "Desi Logic\nPaying ₹1000 for a ticket is fine if it's a Flight (High Speed). Bad if it's a Bullock Cart (Low Speed).",
      "title": ""
     }
    ],
-   "heading": "PEG Ratio"
+   "heading": "PEG Ratio",
+   "line": 564
   },
   {
    "blocks": [
     {
+     "line": 576,
      "t": "p",
      "text": "// Rent Income"
     },
     {
+     "line": 577,
      "t": "p",
      "text": "Dividend per share / Stock Price. The % return you get just by holding."
     },
     {
      "kind": "note",
+     "line": 579,
      "t": "callout",
      "text": "Desi Logic\nLike rent from a house. Even if house price doesn't go up, you get monthly cash.",
      "title": ""
     }
    ],
-   "heading": "Dividend Yield"
+   "heading": "Dividend Yield",
+   "line": 575
   },
   {
    "blocks": [
     {
+     "line": 587,
      "t": "p",
      "text": "// Takeover Price"
     },
     {
+     "line": 588,
      "t": "p",
      "text": "Enterprise Value / Earnings. Better than P/E for debt-heavy companies. It includes Debt in price."
     },
     {
      "kind": "note",
+     "line": 590,
      "t": "callout",
      "text": "Desi Logic\nBuying a house for ₹50L looks cheap, until you realize it comes with a ₹2 Cr unpaid loan.",
      "title": ""
     }
    ],
-   "heading": "EV / EBITDA"
+   "heading": "EV / EBITDA",
+   "line": 586
   },
   {
    "blocks": [
     {
+     "line": 599,
      "t": "p",
      "text": "// Skin in Game"
     },
     {
+     "line": 600,
      "t": "p",
-     "text": "Percentage owned by founders. High is good (>50%). Decreasing is bad."
+     "text": "Promoter ownership and changes in it need context. Consider pledges, dilution, governance, public float, and the company’s disclosures; high or rising ownership is not automatically good."
     },
     {
      "kind": "note",
+     "line": 602,
      "t": "callout",
      "text": "Desi Logic\nWould you eat at a restaurant where the owner refuses to eat? Same logic.",
      "title": ""
     }
    ],
-   "heading": "Promoter Holding"
+   "heading": "Promoter Holding",
+   "line": 598
   },
   {
    "blocks": [
     {
+     "line": 610,
      "t": "p",
      "text": "// Danger Signal"
     },
     {
+     "line": 611,
      "t": "p",
      "text": "% of promoter shares mortgaged to take loans. High pledging is a ticking time bomb."
     },
     {
      "kind": "note",
+     "line": 613,
      "t": "callout",
      "text": "Desi Logic\nThe owner has mortgaged his own jewelry (shares) to survive. One crash, and he loses everything.",
      "title": ""
     }
    ],
-   "heading": "Pledged Shares"
+   "heading": "Pledged Shares",
+   "line": 609
   },
   {
    "blocks": [
     {
+     "line": 621,
      "t": "p",
      "text": "// Hidden Bombs"
     },
     {
+     "line": 622,
      "t": "p",
      "text": "Potential debt not on balance sheet (e.g., pending court cases). If they lose, they pay."
     },
     {
      "kind": "note",
+     "line": 624,
      "t": "callout",
      "text": "Desi Logic\nYou look rich, but you have a court case worth ₹10 Cr pending. You are risky.",
      "title": ""
     }
    ],
-   "heading": "Contingent Liability"
+   "heading": "Contingent Liability",
+   "line": 620
   },
   {
    "blocks": [
     {
+     "line": 633,
      "t": "p",
      "text": "// Fragility"
     },
     {
+     "line": 634,
      "t": "p",
      "text": "Does 80% revenue come from 1 client? If yes, high risk."
     },
     {
      "kind": "note",
+     "line": 636,
      "t": "callout",
      "text": "Desi Logic\nA tailor who stitches uniforms for only ONE school. If school changes tailor, he is finished.",
      "title": ""
     }
    ],
-   "heading": "Client Concentration"
+   "heading": "Client Concentration",
+   "line": 632
   },
   {
    "blocks": [
     {
+     "line": 644,
      "t": "p",
      "text": "// Govt Mood"
     },
     {
+     "line": 645,
      "t": "p",
      "text": "Can one law kill the business? (Alcohol, Mining, Gaming)."
     },
     {
      "kind": "note",
+     "line": 647,
      "t": "callout",
      "text": "Desi Logic\nPlastic ban killed plastic bag factories overnight. Don't fight the Government.",
      "title": ""
     }
    ],
-   "heading": "Regulatory Risk"
+   "heading": "Regulatory Risk",
+   "line": 643
   },
   {
    "blocks": [
     {
+     "line": 655,
      "t": "p",
      "text": "// Currency Swing"
     },
     {
+     "line": 656,
      "t": "p",
-     "text": "For export/import companies. If Dollar moves 5%, profit can vanish."
+     "text": "For a business with foreign-currency exposure, exchange-rate changes can materially affect revenue, costs, or reported earnings. The effect depends on the exposure, currency, timing, and any hedges."
     },
     {
      "kind": "note",
+     "line": 658,
      "t": "callout",
      "text": "Desi Logic\nYou earn in Rupees but pay loan in Dollars. If Rupee falls, your loan amount increases automatically.",
      "title": ""
     }
    ],
-   "heading": "Forex Risk"
+   "heading": "Forex Risk",
+   "line": 654
+  },
+  {
+   "blocks": [
+    {
+     "line": 666,
+     "t": "p",
+     "text": "// Context Before Verdict"
+    },
+    {
+     "line": 667,
+     "t": "p",
+     "text": "A single ratio cannot describe a whole business. Compare profitability with cash generation, debt with repayment capacity, and valuation with growth and risk. Use the same definitions and periods when comparing companies."
+    },
+    {
+     "kind": "note",
+     "line": 668,
+     "t": "callout",
+     "text": "Desi Logic\nA high score in one subject does not tell you whether a student is ready to graduate. Look at the full report card, the trend, and the context.",
+     "title": ""
+    }
+   ],
+   "heading": "Read Metrics Together",
+   "line": 665
   }
  ],
  "source": "html/learn-metrics.html",

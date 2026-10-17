@@ -1,0 +1,408 @@
+{
+ "category": "mindset",
+ "figures": true,
+ "files": [
+  "html/life-wealth.html"
+ ],
+ "id": "life-wealth",
+ "needsReview": false,
+ "notShown": [
+  {
+   "file": "html/life-wealth.html",
+   "line": 771,
+   "quote": "The Trap (Typical)",
+   "what": "A radar chart comparing \"The Trap (Typical)\" with \"True Wealth (Goal)\" on five dimensions.",
+   "why": "Its scores are fixed numbers written into the page script, not measurements of anyone, so they are not shown."
+  },
+  {
+   "file": "html/life-wealth.html",
+   "line": 811,
+   "quote": "function runRace",
+   "what": "An animation, \"Run the Race\", in which the finish line moves away.",
+   "why": "It is a visual; its one-line message is kept above."
+  }
+ ],
+ "notes": [
+  "This lesson is about how to think about money, not a calculation. There is nothing to act on or to check against a rule."
+ ],
+ "reviewReasons": [],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "line": 486,
+     "t": "p",
+     "text": "Money is a Tool. Not a Master."
+    },
+    {
+     "line": 487,
+     "t": "p",
+     "text": "PROTOCOL: HUMAN RESTORATION"
+    },
+    {
+     "level": 3,
+     "line": 525,
+     "t": "h",
+     "text": "True Wealth is 5-Dimensional"
+    },
+    {
+     "line": 526,
+     "t": "p",
+     "text": "Most Indians optimize for only ONE dimension (Financial). The other 4 collapse, leading to a \"Rich but Miserable\" life."
+    },
+    {
+     "line": 528,
+     "t": "p",
+     "text": "🧠 Mental Wealth: Can you sleep without pills?"
+    },
+    {
+     "line": 529,
+     "t": "p",
+     "text": "❤️ Emotional Wealth: Does anyone actually know you?"
+    },
+    {
+     "line": 530,
+     "t": "p",
+     "text": "🕰️ Time Wealth: Do you own your morning?"
+    },
+    {
+     "line": 531,
+     "t": "p",
+     "text": "🏃 Physical Wealth: Can you climb 4 floors?"
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "items": [
+      "Single AC Private Room",
+      "Top Specialist Doctors",
+      "Imported Medicines",
+      "Zero Waiting Time"
+     ],
+     "label": "What money can buy: VIP Care",
+     "line": 673,
+     "t": "ul"
+    },
+    {
+     "label": "What it cannot buy: The Will to Live",
+     "line": 677,
+     "t": "p",
+     "text": "Money buys the ventilator, but it cannot buy the breath. It buys the bed, but not sleep. It buys the nurse, but not the hand of a loved one holding yours in the final moment."
+    },
+    {
+     "label": "The page's one-line summary",
+     "line": 678,
+     "t": "p",
+     "text": "Wealth stops at the hospital reception."
+    }
+   ],
+   "heading": "🏥 The Hospital",
+   "line": 494
+  },
+  {
+   "blocks": [
+    {
+     "items": [
+      "Sabyasachi Lehenga",
+      "5-Star Venue",
+      "1000 Guests",
+      "Exotic Buffet"
+     ],
+     "label": "What money can buy: The Grand Event",
+     "line": 684,
+     "t": "ul"
+    },
+    {
+     "label": "What it cannot buy: The Happy Marriage",
+     "line": 688,
+     "t": "p",
+     "text": "Money buys the applause of relatives who won't even remember the food next week. It cannot buy the laughter in the bedroom, the patience during fights, or the loyalty in tough times."
+    },
+    {
+     "label": "The page's one-line summary",
+     "line": 689,
+     "t": "p",
+     "text": "A wedding is a day. Marriage is a lifetime."
+    }
+   ],
+   "heading": "💍 The Wedding",
+   "line": 495
+  },
+  {
+   "blocks": [
+    {
+     "items": [
+      "Italian Marble Flooring",
+      "Gated Community",
+      "Sea Facing View",
+      "Home Automation"
+     ],
+     "label": "What money can buy: The Luxury 4BHK",
+     "line": 695,
+     "t": "ul"
+    },
+    {
+     "label": "What it cannot buy: The Home",
+     "line": 699,
+     "t": "p",
+     "text": "Money buys the address. It cannot buy the warmth at the dinner table. A 4000 sqft house feels like a prison if the people inside it don't talk to each other."
+    },
+    {
+     "label": "The page's one-line summary",
+     "line": 700,
+     "t": "p",
+     "text": "Peace does not require square footage."
+    }
+   ],
+   "heading": "🏠 The Dream Home",
+   "line": 496
+  },
+  {
+   "blocks": [
+    {
+     "items": [
+      "Corner Office",
+      "Business Class Travel",
+      "Power & Status",
+      "Huge Salary"
+     ],
+     "label": "What money can buy: The CEO Title",
+     "line": 706,
+     "t": "ul"
+    },
+    {
+     "label": "What it cannot buy: The Purpose",
+     "line": 710,
+     "t": "p",
+     "text": "Money buys the envy of your peers. It cannot buy the feeling of meaning when you wake up. It cannot fix the anxiety of imposter syndrome or the loneliness at the top."
+    },
+    {
+     "label": "The page's one-line summary",
+     "line": 711,
+     "t": "p",
+     "text": "Your resume is not your eulogy."
+    }
+   ],
+   "heading": "💼 The Promotion",
+   "line": 497
+  },
+  {
+   "blocks": [
+    {
+     "items": [
+      "Foreign Trips",
+      "Farmhouse",
+      "Golf Membership",
+      "Passive Income"
+     ],
+     "label": "What money can buy: The 10 Crore Corpus",
+     "line": 717,
+     "t": "ul"
+    },
+    {
+     "label": "What it cannot buy: The Vitality",
+     "line": 721,
+     "t": "p",
+     "text": "Money buys the ticket to Europe. It cannot buy the knees to walk the streets of Paris. It buys the best food, but not the digestion to enjoy it."
+    },
+    {
+     "label": "The page's one-line summary",
+     "line": 722,
+     "t": "p",
+     "text": "Don't save joy for a time when you can't digest it."
+    }
+   ],
+   "heading": "🌅 The Retirement",
+   "line": 498
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "line": 545,
+     "t": "h",
+     "text": "The Hustle Begins"
+    },
+    {
+     "line": 546,
+     "t": "p",
+     "text": "\"Let me work hard now. I'll travel later.\" You skip family functions. You eat at your desk. You trade health for a promotion."
+    },
+    {
+     "level": 3,
+     "line": 554,
+     "t": "h",
+     "text": "The Golden Handcuffs"
+    },
+    {
+     "line": 555,
+     "t": "p",
+     "text": "You have the money now. But now you have EMIs. And kids. And stress. \"Let me pay off the house, then I'll relax.\""
+    },
+    {
+     "level": 3,
+     "line": 563,
+     "t": "h",
+     "text": "The Wake Up Call"
+    },
+    {
+     "line": 564,
+     "t": "p",
+     "text": "Parents are gone. Kids are busy. Health gives the first warning shot (BP/Sugar). \"I wish I spent more time when they were around.\""
+    }
+   ],
+   "heading": "The \"I'll Live Later\" Trap",
+   "line": 539
+  },
+  {
+   "blocks": [
+    {
+     "line": 573,
+     "t": "p",
+     "text": "Your accountant tracks money. Who tracks your soul?"
+    },
+    {
+     "line": 577,
+     "t": "p",
+     "text": "ASSETS (Peace Sources) VALUE"
+    },
+    {
+     "illustration": "The ratings and percentages are the page author's own illustration. They are not measurements of anything.",
+     "line": 578,
+     "t": "p",
+     "text": "Deep Sleep (7hrs) High"
+    },
+    {
+     "illustration": "The ratings and percentages are the page author's own illustration. They are not measurements of anything.",
+     "line": 579,
+     "t": "p",
+     "text": "Evening Tea w/ Family Priceless"
+    },
+    {
+     "line": 580,
+     "t": "p",
+     "text": "No EMI Stress Critical"
+    },
+    {
+     "line": 581,
+     "t": "p",
+     "text": "A Hobby (Just for fun) High"
+    },
+    {
+     "line": 585,
+     "t": "p",
+     "text": "LIABILITIES (Soul Drainers) COST"
+    },
+    {
+     "illustration": "The ratings and percentages are the page author's own illustration. They are not measurements of anything.",
+     "line": 586,
+     "t": "p",
+     "text": "Toxic Boss -50% Peace"
+    },
+    {
+     "line": 587,
+     "t": "p",
+     "text": "Checking Portfolio Daily -20% Focus"
+    },
+    {
+     "illustration": "The ratings and percentages are the page author's own illustration. They are not measurements of anything.",
+     "line": 588,
+     "t": "p",
+     "text": "Comparing w/ Sharmaji -80% Joy"
+    },
+    {
+     "line": 589,
+     "t": "p",
+     "text": "\"Log Kya Kahenge\" Bankruptcy"
+    }
+   ],
+   "heading": "The Sukoon (Peace) Balance Sheet",
+   "line": 572
+  },
+  {
+   "blocks": [
+    {
+     "line": 596,
+     "t": "p",
+     "text": "The finish line moves every time you get close to it."
+    },
+    {
+     "line": 603,
+     "t": "p",
+     "text": "You ran faster. But the line moved further."
+    }
+   ],
+   "heading": "The Comparison Paradox",
+   "line": 595
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "line": 614,
+     "t": "h",
+     "text": "The Busy Executive"
+    },
+    {
+     "level": 3,
+     "line": 618,
+     "t": "h",
+     "text": "\"I wish I hadn't worked so hard.\""
+    },
+    {
+     "line": 619,
+     "t": "p",
+     "text": "I missed my children's childhood for a promotion nobody remembers now."
+    },
+    {
+     "level": 3,
+     "line": 628,
+     "t": "h",
+     "text": "The People Pleaser"
+    },
+    {
+     "level": 3,
+     "line": 632,
+     "t": "h",
+     "text": "\"I wish I lived for myself.\""
+    },
+    {
+     "line": 633,
+     "t": "p",
+     "text": "I bought a big house to impress relatives who didn't even like me."
+    },
+    {
+     "level": 3,
+     "line": 642,
+     "t": "h",
+     "text": "The Worrier"
+    },
+    {
+     "level": 3,
+     "line": 646,
+     "t": "h",
+     "text": "\"I wish I let myself be happier.\""
+    },
+    {
+     "line": 647,
+     "t": "p",
+     "text": "I saved joy for 'later'. Later never came the way I imagined."
+    },
+    {
+     "line": 657,
+     "t": "p",
+     "text": "\"If a decision gives you more money, but less peace, less connection, and less health... It is a bad trade.\""
+    }
+   ],
+   "heading": "Words from the End",
+   "line": 607
+  }
+ ],
+ "source": "html/life-wealth.html",
+ "summary": "Life milestones and wealth map — marriage, home, children and retirement planning.",
+ "title": "The Soul (Ultimate)",
+ "tool": "/plan/lifegoals"
+}

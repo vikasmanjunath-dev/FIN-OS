@@ -1,19 +1,18 @@
 {
  "category": "markets",
  "id": "mutual_funds",
- "needsReview": true,
- "reviewReasons": [
-  "mf-spiva",
-  "mf-direct"
- ],
+ "needsReview": false,
+ "reviewReasons": [],
  "sections": [
   {
    "blocks": [
     {
+     "line": 162,
      "t": "p",
      "text": "Outsourcing your wealth management. The good, the bad, and the hidden fees."
     },
     {
+     "line": 166,
      "t": "p",
      "text": "LEVEL 01: NOOB"
     }
@@ -23,61 +22,92 @@
   {
    "blocks": [
     {
+     "line": 168,
      "t": "p",
      "text": "Driving a car (Stocks) requires skill. If you don't know how to drive, you take a Bus (Mutual Fund)."
     },
     {
+     "line": 169,
      "t": "p",
      "text": "The Fund Manager is the driver. You and 10,000 others are passengers. You pool your money, and the driver decides the route."
     },
     {
+     "kind": "note",
+     "line": 171,
+     "t": "callout",
+     "text": "A mutual fund pools money from many investors and follows a stated mandate. Your units represent a proportional interest in the fund portfolio, not a promise of a particular return. Check the scheme objective and risk level before investing.",
+     "title": "🧺 What You Own"
+    },
+    {
+     "line": 175,
      "t": "p",
      "text": "LEVEL 02: MECHANIC"
     }
    ],
-   "heading": "The Bus Driver Analogy"
+   "heading": "The Bus Driver Analogy",
+   "line": 167
   },
   {
    "blocks": [
     {
+     "line": 177,
      "t": "p",
      "text": "NAV (Net Asset Value): The price of one ticket on the bus."
     },
     {
+     "line": 178,
      "t": "p",
-     "text": "AUM (Assets Under Management): The total cash the bus is carrying. Warning: If AUM is too huge (₹50,000 Cr+), the bus becomes slow and hard to turn (hard to find new stock ideas)."
+     "text": "AUM (Assets Under Management): The total cash the bus is carrying. Large assets under management do not automatically make a fund less nimble. Consider the strategy, liquidity of its holdings, portfolio capacity, and how the manager handles flows."
     },
     {
+     "kind": "note",
+     "line": 180,
+     "t": "callout",
+     "text": "If you invest ₹1,000 when a fund’s NAV is ₹50, you receive 20 units before applicable charges. If the portfolio value changes, the NAV changes too. A lower NAV does not mean the fund is cheaper or better.",
+     "title": "🧮 Unit Example"
+    },
+    {
+     "line": 184,
      "t": "p",
      "text": "LEVEL 03: PRO"
     }
    ],
-   "heading": "NAV & Units"
+   "heading": "NAV & Units",
+   "line": 176
   },
   {
    "blocks": [
     {
      "kind": "note",
-     "needsReview": true,
-     "reviewReasons": [
-      "mf-spiva"
-     ],
+     "line": 188,
      "t": "callout",
-     "text": "Active Fund: Manager tries to beat Nifty. Charges 1-2% fee. Passive Fund: Simply copies Nifty. Charges 0.2% fee.\nFact: 80% of Active Funds FAIL to beat Passive Funds over a 10-year period.",
+     "text": "Active Fund: Manager tries to beat Nifty. Fees vary by fund and plan. Compare the latest total expense ratio and all other costs. Passive Fund: Simply copies Nifty. Passive-fund costs vary by scheme and plan. Check the latest factsheet and tracking difference.\nWhether an active fund outperforms depends on its category, benchmark, period, and comparison method. Consult a dated SPIVA report for category-specific results; past performance does not predict future returns.",
      "title": "The Harsh Truth (SPIVA Report)"
     },
     {
-     "kind": "tip",
-     "needsReview": true,
-     "reviewReasons": [
-      "mf-direct"
-     ],
+     "kind": "note",
+     "line": 193,
      "t": "callout",
-     "text": "Never buy a \"Regular\" Mutual Fund from a bank or agent.\nRegular Plan: Includes 1% commission to the agent every single year from your wealth.\nDirect Plan: Zero commission. That 1% compounds. Over 20 years, a Direct plan gives you ₹30-40 Lakhs MORE on a standard SIP portfolio.",
-     "title": "☠️ GOD MODE: The \"Regular Plan\" Scam"
+     "text": "Compare funds in the same category over several periods and against an appropriate benchmark. Include fees, risk, portfolio concentration, and consistency. Past performance describes the past; it does not establish future outperformance.",
+     "title": "📋 Compare Like With Like"
+    },
+    {
+     "kind": "tip",
+     "line": 199,
+     "t": "callout",
+     "text": "A regular plan may include distributor services and a higher expense ratio than its direct counterpart. Decide whether that service is worth the cost for you.\nRegular Plan: The regular-plan expense ratio includes distribution-related costs as described in the scheme documents; the amount varies by scheme and is not a fixed percentage.\nDirect Plan: A direct plan has no distributor commission paid from the plan, while its expense ratio can still include other costs. The impact of an expense difference depends on the scheme, investment amount, returns, and holding period.",
+     "title": "☠️ GOD MODE: Direct vs regular plans"
+    },
+    {
+     "kind": "note",
+     "line": 204,
+     "t": "callout",
+     "text": "Read the scheme information document, check the direct or regular plan and growth or distribution option, understand exit loads and tax treatment, and make sure the fund matches your time horizon and ability to accept losses.",
+     "title": "✅ Before You Invest"
     }
    ],
-   "heading": "Active vs Passive"
+   "heading": "Active vs Passive",
+   "line": 185
   }
  ],
  "source": "html/learn-mf.html",

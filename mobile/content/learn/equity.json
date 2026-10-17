@@ -1,19 +1,18 @@
 {
  "category": "markets",
  "id": "equity",
- "needsReview": true,
- "reviewReasons": [
-  "equity-ipo",
-  "equity-asm"
- ],
+ "needsReview": false,
+ "reviewReasons": [],
  "sections": [
   {
    "blocks": [
     {
+     "line": 164,
      "t": "p",
      "text": "Stop treating the market like a casino. Start treating it like a partnership deed."
     },
     {
+     "line": 168,
      "t": "p",
      "text": "LEVEL 01: NOOB"
     }
@@ -23,112 +22,160 @@
   {
    "blocks": [
     {
+     "line": 171,
      "t": "p",
      "text": "Forget the BSE screen for a second. Let's talk about Raju's Momo Stall."
     },
     {
+     "line": 172,
      "t": "p",
      "text": "Raju makes the best momos in Delhi. He sells 100 plates a day. He wants to open a big shop with AC, but he needs ₹10 Lakhs. He only has ₹5 Lakhs."
     },
     {
      "kind": "note",
+     "line": 176,
      "t": "callout",
-     "text": "You give Raju ₹1 Lakh.\nIn return, Raju gives you a piece of paper that says: \"You own 10% of this business forever.\"\nThat piece of paper is a STOCK.",
+     "text": "You give Raju ₹1 Lakh.\nIn this simplified example, the share represents 10% of the company’s current shares. Your percentage can change if the company issues more shares or restructures its capital.\nThat piece of paper is a STOCK.",
      "title": "🤝 The Deal"
     },
     {
+     "line": 181,
      "t": "p",
-     "text": "If Raju sells 1,000 plates next year, you get 10% of the profit (Dividend). If Raju sells the shop to Haldiram's for ₹1 Crore, your ₹1 Lakh becomes ₹10 Lakhs (Capital Appreciation)."
+     "text": "If the business earns a profit, it may retain that money or declare a dividend; shareholders do not automatically receive a share of each year’s profit. If the business is sold, the value received by shareholders depends on the sale terms, liabilities, and ownership at that time."
     },
     {
+     "kind": "note",
+     "line": 183,
+     "t": "callout",
+     "text": "Suppose a company has 1,000 shares and you own 10. You own 1% of the company. Your return depends on what the company does and what buyers later pay for that ownership; the share price is not a guaranteed claim on a fixed amount of cash.",
+     "title": "🔎 Ownership Check"
+    },
+    {
+     "line": 187,
      "t": "p",
      "text": "LEVEL 02: MECHANIC"
     }
    ],
-   "heading": "What is a Stock? (The Desi Analogy)"
+   "heading": "What is a Stock? (The Desi Analogy)",
+   "line": 169
   },
   {
    "blocks": [
     {
+     "line": 189,
      "t": "p",
      "text": "Raju's paper certificate is physical. In the modern world, we use the Demat System."
     },
     {
+     "line": 193,
      "t": "p",
      "text": "You (Buyer)"
     },
     {
+     "line": 195,
      "t": "p",
      "text": "NSE/BSE (The Mall)"
     },
     {
+     "line": 197,
      "t": "p",
      "text": "Seller (Exit)"
     },
     {
      "level": 3,
+     "line": 201,
      "t": "h",
      "text": "Critical Truth: The Secondary Market"
     },
     {
+     "line": 202,
      "t": "p",
      "text": "When you buy a share of Tata Motors on Zerodha/Upstox, Tata Motors does NOT get your money."
     },
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "equity-ipo"
-     ],
+     "line": 203,
      "t": "p",
-     "text": "You are buying it from another person (Uncle Sharma) who wants to sell it. The company only gets money once: during the IPO (Initial Public Offering). After that, it's just people exchanging ownership."
+     "text": "You are buying it from another person (Uncle Sharma) who wants to sell it. In the secondary market, investors trade existing shares with one another. A company can also raise capital later through offers such as a follow-on issue, rights issue, or other permitted issuance."
     },
     {
+     "kind": "note",
+     "line": 205,
+     "t": "callout",
+     "text": "When a company issues new shares, it can raise capital. When investors trade existing shares with one another, ownership changes hands. Before investing, ask which event is happening and whether new shares may dilute existing ownership.",
+     "title": "🧾 Primary vs Secondary"
+    },
+    {
+     "line": 209,
      "t": "p",
      "text": "LEVEL 03: PRO"
     }
    ],
-   "heading": "How the Engine Works"
+   "heading": "How the Engine Works",
+   "line": 188
   },
   {
    "blocks": [
     {
+     "line": 211,
      "t": "p",
      "text": "How do you know if a stock is cheap or expensive? You use the P/E Ratio."
     },
     {
      "kind": "note",
+     "line": 215,
      "t": "callout",
-     "text": "Imagine a Shirt generates ₹10 of rent per year (Earnings).\n- Case A: Shirt Price is ₹200. (PE = 20). Fair.\n- Case B: Shirt Price is ₹1000. (PE = 100). Expensive!\nP/E = Price you pay for ₹1 of Earning.",
+     "text": "Imagine a Shirt generates ₹10 of rent per year (Earnings).\n- Case A: At ₹200 per share and ₹10 earnings per share, P/E is 20.\n- Case B: At ₹1,000 per share and the same ₹10 earnings per share, P/E is 100. The multiple is higher; whether that price is justified depends on growth, risk, and other evidence.\nP/E = Price you pay for ₹1 of Earning.",
      "title": "👕 The Shirt Analogy"
     },
     {
      "level": 3,
+     "line": 223,
      "t": "h",
      "text": "Market Cap (Size Matters)"
     },
     {
+     "line": 224,
      "t": "p",
      "text": "Small Cap: Like a Speedboat. Fast, can turn easily, but flips over in a storm."
     },
     {
+     "line": 225,
      "t": "p",
      "text": "Large Cap: Like an Oil Tanker (Titanic). Slow, stable, survives storms, but takes 5km to turn."
     },
     {
-     "kind": "tip",
-     "needsReview": true,
-     "reviewReasons": [
-      "equity-asm"
-     ],
+     "kind": "note",
+     "line": 227,
      "t": "callout",
-     "text": "This is what banks don't teach you.\n1. The Free Float Trap\nA company has a Market Cap of ₹10,000 Cr. But the Owner (Promoter) holds 90% of shares. Only 10% is available for trading. This is Low Free Float. Operators can easily manipulate the price because there is very little supply.\n2. ASM/GSM Lists (The Jail)\nIf a stock jumps 50% in a week without news, SEBI puts it in the ASM (Additional Surveillance Measure) list. Margins increase to 100%. Speculators get trapped. Never buy a stock in Stage 4 ASM.",
+     "text": "Compare companies with similar business models, growth prospects, and risks. A lower P/E can reflect slower growth or higher uncertainty; a higher P/E can reflect optimism. The ratio is a starting question, not a buy or sell signal.",
+     "title": "🧠 Valuation Check"
+    },
+    {
+     "kind": "tip",
+     "line": 233,
+     "t": "callout",
+     "text": "This is what banks don't teach you.\n1. The Free Float Trap\nA company may have a large market capitalisation but a small free float if insiders hold most shares. A smaller free float can mean less trading liquidity and more price sensitivity to orders; it does not by itself prove price manipulation.\n2. ASM/GSM Lists (The Jail)\nExchanges apply surveillance measures using multiple, changing criteria. Inclusion is a market-surveillance action, not a finding of wrongdoing. Applicable trading restrictions depend on the current exchange framework; check the latest NSE ASM information before trading.",
      "title": "☠️ GOD MODE: The 1% Knowledge"
+    },
+    {
+     "kind": "note",
+     "line": 242,
+     "t": "callout",
+     "text": "Write down the business you think you are buying, why its earnings could grow, what could prove your view wrong, and how much loss you could tolerate. Revisit the reasons when the business changes, not only when the price moves.",
+     "title": "✅ Before You Buy"
     }
    ],
-   "heading": "Valuation (The Expensive Shirt Logic)"
+   "heading": "Valuation (The Expensive Shirt Logic)",
+   "line": 210
   }
  ],
  "source": "html/learn-equity.html",
+ "sources": [
+  {
+   "label": "NSE ASM information",
+   "url": "https://www.nseindia.com/regulations/additional-surveillance-measure"
+  }
+ ],
  "summary": "Equity Deep Dive — what a stock is, how the market works, and market cap, in five minutes before the full Masterclass.",
  "title": "Equity Deep Dive",
  "tool": "/markets"

@@ -1,34 +1,33 @@
 {
  "category": "insights",
  "id": "insight-inflation",
- "needsReview": true,
- "reviewReasons": [
-  "insight-inflation-cpi"
- ],
+ "needsReview": false,
+ "reviewReasons": [],
  "sections": [
   {
    "blocks": [
     {
+     "line": 150,
      "t": "p",
      "text": "Why earning 8% increment means you are actually getting poorer."
     },
     {
+     "line": 154,
      "t": "p",
      "text": "The Reality"
     },
     {
+     "line": 156,
      "t": "p",
-     "text": "Government Inflation (CPI) tracks rice and wheat. Your Inflation (Lifestyle) tracks iPhones, Netflix, Private Schools, and Swiggy."
+     "text": "CPI measures price changes across a defined consumer basket. Your personal inflation depends on your household’s spending mix and may differ from headline CPI."
     },
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "insight-inflation-cpi"
-     ],
+     "line": 160,
      "t": "p",
-     "text": "⚠️ While CPI is 6%, your Lifestyle costs are growing at 10-12%."
+     "text": "⚠️ Your household’s costs can rise at a different pace from headline CPI; track your own spending to estimate your personal inflation."
     },
     {
+     "line": 165,
      "t": "p",
      "text": "The Solution"
     }
@@ -38,52 +37,53 @@
   {
    "blocks": [
     {
+     "line": 169,
      "t": "p",
-     "text": "Savings Account: 3% Return"
+     "text": "Savings-account rates vary by bank and account. Use your current rate."
     },
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "insight-inflation-cpi"
-     ],
+     "line": 170,
      "t": "p",
-     "text": "Inflation: 7% Loss"
+     "text": "Inflation varies by period and by household spending mix. Use a stated assumption in the calculator."
     },
     {
+     "line": 171,
      "t": "p",
-     "text": "Net Result: -4% Wealth every year."
+     "text": "Real return depends on the account rate, inflation period, taxes, and fees."
     }
    ],
-   "heading": "❌ Saving in Bank"
+   "heading": "❌ Saving in Bank",
+   "line": 168
   },
   {
    "blocks": [
     {
+     "line": 175,
      "t": "p",
-     "text": "Nifty 50: 12% Return"
+     "text": "Equity returns are uncertain. Use a clearly labelled assumption, not a promised index return."
     },
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "insight-inflation-cpi"
-     ],
+     "line": 176,
      "t": "p",
-     "text": "Inflation: 7% Loss"
+     "text": "Inflation: use the same stated assumption"
     },
     {
+     "line": 177,
      "t": "p",
-     "text": "Net Result: +5% Real Wealth."
+     "text": "Investment outcomes vary, and a positive real return is not guaranteed."
     },
     {
+     "line": 180,
      "t": "p",
      "text": "🧮 Run this with your own numbers →"
     }
    ],
-   "heading": "✅ Investing in Assets"
+   "heading": "✅ Investing in Assets",
+   "line": 174
   }
  ],
  "source": "html/insight-inflation.html",
- "summary": "Your savings account is losing you 4% a year, quietly. Why inflation is the wealth killer nobody notices.",
+ "summary": "Learn how inflation affects purchasing power, why personal costs differ from headline CPI, and how to compare savings and investment assumptions.",
  "title": "Inflation Reality",
  "tool": "/tools/calculators"
 }

@@ -7,10 +7,12 @@
   {
    "blocks": [
     {
+     "line": 372,
      "t": "p",
      "text": "Stop looking at stock tickers. Start x-raying businesses. // INITIATE DEEP SCAN PROTOCOL"
     },
     {
+     "line": 381,
      "t": "p",
      "text": "LEVEL 01: DNA SCAN"
     }
@@ -20,126 +22,153 @@
   {
    "blocks": [
     {
+     "line": 383,
      "t": "p",
      "text": "Before you check the price, check the pulse. Does this business actually make sense in the real world?"
     },
     {
+     "line": 389,
      "t": "p",
      "text": "Nature of Biz"
     },
     {
+     "line": 390,
      "t": "p",
      "text": "Habit vs Trend"
     },
     {
      "kind": "tip",
+     "line": 392,
      "t": "callout",
      "text": "Is it Colgate (Daily Habit) or Fidget Spinner (Short Trend)?",
      "title": ""
     },
     {
+     "line": 398,
      "t": "p",
      "text": "Pricing Power"
     },
     {
+     "line": 399,
      "t": "p",
      "text": "Maggi vs Salt"
     },
     {
      "kind": "tip",
+     "line": 401,
      "t": "callout",
      "text": "If they raise price by ₹5, will you switch? If NO, they have power (Maggi).",
      "title": ""
     },
     {
+     "line": 407,
      "t": "p",
      "text": "Scalability"
     },
     {
+     "line": 408,
      "t": "p",
      "text": "Software vs Steel"
     },
     {
      "kind": "tip",
+     "line": 410,
      "t": "callout",
      "text": "To sell 2x more, do they need 2x more factories (Steel) or just a click (Software)?",
      "title": ""
     },
     {
+     "line": 416,
      "t": "p",
      "text": "Dependency"
     },
     {
+     "line": 417,
      "t": "p",
      "text": "Govt vs Public"
     },
     {
      "kind": "tip",
+     "line": 419,
      "t": "callout",
      "text": "Does one change in Govt policy kill them? (e.g., Alcohol/Gaming bans).",
      "title": ""
     },
     {
+     "line": 427,
      "t": "p",
      "text": "LEVEL 02: DEFENSE SYSTEMS"
     }
    ],
-   "heading": "The \"Dhanda\" Check"
+   "heading": "The \"Dhanda\" Check",
+   "line": 382
   },
   {
    "blocks": [
     {
+     "line": 429,
      "t": "p",
      "text": "How hard is it to kill this company? We visualize this using a Radar Chart."
     },
     {
      "kind": "tip",
+     "line": 441,
      "t": "callout",
      "text": "Brand Power • Switching Cost • Network Effect",
      "title": ""
     },
     {
+     "line": 446,
      "t": "p",
      "text": "LEVEL 03: THE PRICE TAG"
     }
    ],
-   "heading": "The \"Moat\" Radar"
+   "heading": "The \"Moat\" Radar",
+   "line": 428
   },
   {
    "blocks": [
     {
+     "line": 448,
      "t": "p",
      "text": "Price is what you pay. Value is what you get. Use the slider to understand P/E Ratio (Price to Earnings)."
     },
     {
+     "line": 452,
      "t": "p",
      "text": "Cheap (Sale) Fair Value Expensive (Loot)"
     },
     {
+     "line": 460,
      "t": "p",
      "text": "P/E Ratio: 25 // FAIR PRICE"
     },
     {
      "kind": "tip",
+     "line": 464,
      "t": "callout",
      "text": "The Logic: If P/E is 20, you are paying ₹20 to earn ₹1 of company profit. If P/E is 80, you are paying ₹80 for that same ₹1. Be careful.",
      "title": ""
     },
     {
+     "line": 471,
      "t": "p",
      "text": "LEVEL 04: THE SARPANCH"
     }
    ],
-   "heading": "The \"Sabzi Mandi\" Simulator"
+   "heading": "The \"Sabzi Mandi\" Simulator",
+   "line": 447
   },
   {
    "blocks": [
     {
+     "line": 473,
      "t": "p",
      "text": "Numbers can be faked. Character cannot. How to spot a thief?"
     },
     {
      "level": 3,
+     "line": 478,
      "t": "h",
      "text": "🚩 Red Flags"
     },
@@ -149,10 +178,12 @@
       "• Frequent party changes (Auditors resigning)",
       "• Promoters selling their own shares"
      ],
+     "line": 480,
      "t": "ul"
     },
     {
      "level": 3,
+     "line": 487,
      "t": "h",
      "text": "✅ Green Flags"
     },
@@ -162,10 +193,35 @@
       "• Honest in interviews about failures",
       "• High Tax payments (Real profit pays tax)"
      ],
+     "line": 489,
      "t": "ul"
+    },
+    {
+     "line": 499,
+     "t": "p",
+     "text": "LEVEL 05: THE CROSS-CHECK"
     }
    ],
-   "heading": "Management Integrity"
+   "heading": "Management Integrity",
+   "line": 472
+  },
+  {
+   "blocks": [
+    {
+     "line": 501,
+     "t": "p",
+     "text": "Accounting profit and cash generated can differ because of credit sales, inventory, working capital, and capital spending. Compare operating cash flow with reported profit across several periods and ask what explains any persistent gap."
+    },
+    {
+     "kind": "tip",
+     "line": 502,
+     "t": "callout",
+     "text": "A shop can show strong sales on credit while its cash drawer stays empty. Check whether customers pay on time and whether growth requires more cash tied up in stock or receivables.",
+     "title": ""
+    }
+   ],
+   "heading": "Follow the Cash",
+   "line": 500
   }
  ],
  "source": "html/learn-fundamental.html",

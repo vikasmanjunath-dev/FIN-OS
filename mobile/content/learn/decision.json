@@ -1,0 +1,239 @@
+{
+ "category": "mindset",
+ "figures": true,
+ "files": [
+  "html/decision.html"
+ ],
+ "id": "decision",
+ "needsReview": true,
+ "notShown": [
+  {
+   "file": "js/decision.js",
+   "line": 29,
+   "quote": "data: [20, 50, 30]",
+   "what": "A doughnut chart for \"Probability Thinking\" (Success / Failure / Neutral).",
+   "why": "Its slices are fixed example numbers in the page script (js/decision.js), not a measurement, so they are not shown."
+  },
+  {
+   "file": "html/decision.html",
+   "line": 269,
+   "quote": "hedgefund.html",
+   "what": "A link to another website page: \"Active trader? See the trading-desk version, with a live bias detector\".",
+   "why": "That page is not on the phone."
+  }
+ ],
+ "notes": [
+  "Outcomes such as \"Result: Permanent Loss\" are the page's way of making a point; real outcomes depend on the situation."
+ ],
+ "reviewReasons": [
+  "decision-certain",
+  "decision-loss-2x"
+ ],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "line": 148,
+     "t": "p",
+     "text": "Fix the Processor, and the Output fixes itself."
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "line": 160,
+     "t": "p",
+     "text": "They are Thinking errors."
+    }
+   ],
+   "heading": "Most financial mistakes are not Math errors.",
+   "line": 159
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "line": 170,
+     "t": "h",
+     "text": "⚡ Fast Thinking"
+    },
+    {
+     "line": 171,
+     "t": "p",
+     "text": "Emotional. Instant. Survival-based."
+    },
+    {
+     "level": 3,
+     "line": 175,
+     "t": "h",
+     "text": "🐢 Slow Thinking"
+    },
+    {
+     "line": 176,
+     "t": "p",
+     "text": "Logical. Deliberate. Wealth-based."
+    },
+    {
+     "level": 4,
+     "line": 182,
+     "t": "h",
+     "text": "Scenario: Stock Market Crashes 10%"
+    },
+    {
+     "line": 186,
+     "t": "p",
+     "text": "😱 Fast Brain: \"Sell everything! Run! The world is ending!\""
+    },
+    {
+     "line": 187,
+     "needsReview": true,
+     "reviewReasons": [
+      "decision-certain"
+     ],
+     "t": "p",
+     "text": "Result: Permanent Loss"
+    },
+    {
+     "line": 191,
+     "t": "p",
+     "text": "🧐 Slow Brain: \"Fundamentals are same. Price is cheap. Buy more?\""
+    },
+    {
+     "line": 192,
+     "needsReview": true,
+     "reviewReasons": [
+      "decision-certain"
+     ],
+     "t": "p",
+     "text": "Result: Wealth Creation"
+    }
+   ],
+   "heading": "The Dual Processor",
+   "line": 166
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "line": 207,
+     "t": "h",
+     "text": "Loss Aversion"
+    },
+    {
+     "line": 208,
+     "needsReview": true,
+     "reviewReasons": [
+      "decision-loss-2x"
+     ],
+     "t": "p",
+     "text": "\"Loss hurts 2x more than gain feels good.\""
+    },
+    {
+     "kind": "note",
+     "line": 210,
+     "t": "callout",
+     "text": "🇮🇳 Reality\nHolding a losing stock (Zomato/Paytm at IPO price) praying for \"Break Even\".",
+     "title": ""
+    },
+    {
+     "level": 3,
+     "line": 217,
+     "t": "h",
+     "text": "Confirmation Bias"
+    },
+    {
+     "line": 218,
+     "t": "p",
+     "text": "\"Seeking only what agrees with you.\""
+    },
+    {
+     "kind": "note",
+     "line": 220,
+     "t": "callout",
+     "text": "🇮🇳 Reality\nBuying a stock, then watching only YouTubers who say \"It will go to the moon!\"",
+     "title": ""
+    },
+    {
+     "level": 3,
+     "line": 227,
+     "t": "h",
+     "text": "Anchoring"
+    },
+    {
+     "line": 228,
+     "t": "p",
+     "text": "\"Getting stuck on the first number.\""
+    },
+    {
+     "kind": "note",
+     "line": 230,
+     "t": "callout",
+     "text": "🇮🇳 Reality\n\"I bought at ₹500. I will sell only at ₹500.\" (Even if it's worth ₹200 now).",
+     "title": ""
+    }
+   ],
+   "heading": "Detecting \"Bugs\" in Your Logic",
+   "line": 201
+  },
+  {
+   "blocks": [
+    {
+     "level": 4,
+     "line": 247,
+     "t": "h",
+     "text": "🎲 Probability Thinking"
+    },
+    {
+     "line": 252,
+     "t": "p",
+     "text": "Don't ask \"Will this happen?\". Ask \"What are the odds?\""
+    },
+    {
+     "level": 4,
+     "line": 257,
+     "t": "h",
+     "text": "📝 The Pre-Decision Checklist"
+    },
+    {
+     "items": [
+      "Am I emotional right now?",
+      "What is the downside?",
+      "Can I afford to lose this?",
+      "Will this matter in 5 years?"
+     ],
+     "line": 260,
+     "t": "ul"
+    },
+    {
+     "line": 265,
+     "t": "p",
+     "text": "If you can't tick all, STOP."
+    }
+   ],
+   "heading": "Install: Better Thinking Tools",
+   "line": 241
+  },
+  {
+   "blocks": [
+    {
+     "line": 274,
+     "t": "p",
+     "text": "> You don't need better predictions."
+    },
+    {
+     "line": 275,
+     "t": "p",
+     "text": "> You need better thinking habits."
+    }
+   ],
+   "heading": "System Message",
+   "line": 273
+  }
+ ],
+ "source": "html/decision.html",
+ "summary": "Debug your own decision-making — loss aversion, confirmation bias, and anchoring, with tools to catch them before you act.",
+ "title": "Decision Core",
+ "tool": null
+}

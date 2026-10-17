@@ -35,7 +35,8 @@ test('manifest: unique ids, known categories, real source pages, real phone rout
     assert.ok(['lesson', 'interactive'].includes(e.kind));
     if (e.tool) {
       const p = e.tool.replace(/^\//, '');
-      const hit = [`app/${p}.tsx`, `app/${p}/index.tsx`, `app/(tabs)/${p}.tsx`].some(f => fs.existsSync(path.join(MOBILE, f)));
+      const parent = path.dirname(p);
+      const hit = [`app/${p}.tsx`, `app/${p}/index.tsx`, `app/(tabs)/${p}.tsx`, `app/${parent}/[id].tsx`].some(f => fs.existsSync(path.join(MOBILE, f)));
       assert.ok(hit, `${e.id}: tool route ${e.tool} has no screen`);
     }
     if (e.kind === 'lesson') {
@@ -76,9 +77,23 @@ test('lesson files: well-formed blocks, no markup leaking through, no empty sect
   }
 });
 
+test('external web references stay available in the phone lesson reader as labelled HTTPS links', () => {
+  for (const [id, lesson] of Object.entries(lessons)) {
+    for (const source of lesson.sources ?? []) {
+      assert.ok(source.label.trim(), `${id}: source has a label`);
+      const url = new URL(source.url);
+      assert.equal(url.protocol, 'https:', `${id}: source should use HTTPS`);
+      assert.ok(url.hostname.includes('.'), `${id}: source has a hostname`);
+    }
+  }
+  assert.ok(lessons.forex.sources?.some(s => s.url.includes('bis.org')));
+  assert.ok(lessons.forex.sources?.some(s => s.url.includes('rbi.org.in')));
+  assert.ok(lessons.commodity.sources?.some(s => s.url.includes('sebi.gov.in')));
+  assert.ok(lessons.crypto.sources?.some(s => s.url.includes('incometax.gov.in')));
+});
+
 test('review: every doubt is flagged in a lesson, every flag has a documented reason, and the notes file lists them all', () => {
   const known = new Set(review.items.map(i => i.id));
-  assert.ok(review.items.length >= 25);
   for (const i of review.items) {
     assert.ok(i.quote && i.why && i.current, i.id);
     assert.ok(['high', 'medium', 'low'].includes(i.confidence), i.id);
@@ -101,13 +116,14 @@ test('review: every doubt is flagged in a lesson, every flag has a documented re
   for (const i of review.items) assert.ok(md.includes(i.why.replace(/\|/g, '/')), `learn-review.md is missing ${i.id}`);
 });
 
-test('review: the known-wrong passages are flagged (stale CPI, 83.50 USD/INR, 100x forex, the 12-year prepayment claim)', () => {
-  const flaggedText = (id: string) => lessons[id].sections.flatMap(s => s.blocks).filter(b => b.needsReview).map(b => JSON.stringify(b)).join(' ');
-  assert.match(flaggedText('finance101'), /Government inflation is 6%/);
-  assert.match(flaggedText('forex'), /83\.50/);
-  assert.match(flaggedText('forex'), /100x/);
-  assert.match(flaggedText('insight-emi'), /12 years/);
-  assert.match(flaggedText('money_market'), /12\.5%/);
+test('previously flagged stale claims are corrected in the website and extracted phone lessons', () => {
+  const text = (id: string) => JSON.stringify(lessons[id].sections);
+  assert.doesNotMatch(text('finance101'), /Government inflation is 6%/);
+  assert.doesNotMatch(text('forex'), /83\.50|100x|Power of 100x/);
+  assert.doesNotMatch(text('insight-emi'), /close a 20-year loan in 12 years/);
+  assert.doesNotMatch(text('money_market'), /12\.5% after 1 year|risk-free but saves you/);
+  assert.doesNotMatch(text('crypto'), /If Market Cap is \$1M but FDV is \$100M, run away/);
+  assert.doesNotMatch(text('fno'), /66% of the time, markets are sideways/);
 });
 
 test('learnContent.ts requires every lesson file (generated, so Metro bundles all of them)', () => {
@@ -241,8 +257,9 @@ test('the Health Score pillar adds Knowledge points to the streak points (cap 10
   assert.match(pillar({ learnedModules: 1, streak: 4 }).headline, /^1 module · 4 day streak$/);
   assert.equal(pillar({ learnedModules: 3 }).untracked, false);
   assert.deepEqual(pillar({ learnedModules: 3 }).tips, ['Complete 5 learning modules to unlock personalized insights']);
-  const total = (m: number) => T.computeAll({ ...base, learnedModules: m }).health.total;
-  assert.equal(total(14) - total(0), 6);
+  // raw points over the measured areas: marking lessons as learned adds exactly the Knowledge points (the other area is held fixed)
+  const pts = (m: number) => T.computeAll({ ...base, income: 100000, expense: 50000, learnedModules: m }).health.points;
+  assert.equal(pts(14) - pts(1), 6 - 0);
 });
 
 // ── reader guards ────────────────────────────────────────────────────────────

@@ -23,13 +23,14 @@
   {
    "id": "mindset",
    "title": "Investor mindset"
+  },
+  {
+   "id": "website",
+   "title": "Interactive pages on the website"
   }
  ],
  "excluded": {
-  "mindset-sim-hub.html": "interactive simulator hub",
-  "mindset-sim.html": "interactive simulator",
-  "simulator-guide.html": "manual for the website-only trading simulator UI; nothing on the phone to apply it to",
-  "train-mindset.html": "redirect stub to simulator-landing.html"
+  "simulator-guide.html": "manual for the website-only trading simulator UI; nothing on the phone to apply it to"
  },
  "lessons": [
   {
@@ -38,19 +39,14 @@
    "id": "finance101",
    "kind": "lesson",
    "minutes": 4,
-   "needsReview": true,
+   "needsReview": false,
    "order": 1,
-   "reviewReasons": [
-    "finance101-cc-interest",
-    "finance101-sgb-digital",
-    "finance101-epf-taxfree",
-    "finance101-cpi"
-   ],
+   "reviewReasons": [],
    "source": "html/finance101.html",
    "summary": "Finance 101 — dismantle money myths, understand income vs wealth and EMI traps.",
    "title": "Personal Finance 101",
    "tool": null,
-   "words": 766
+   "words": 875
   },
   {
    "category": "foundations",
@@ -69,185 +65,237 @@
   },
   {
    "category": "foundations",
-   "hasInteractive": false,
+   "hasInteractive": true,
    "id": "foundations",
    "kind": "interactive",
    "minutes": 0,
    "order": 0,
    "source": "html/foundations.html",
+   "status": "hub",
+   "stub": {
+    "about": [
+     {
+      "line": 9,
+      "text": "Build your financial foundation — principles, insurance, income vs wealth fundamentals."
+     },
+     {
+      "line": 534,
+      "text": "You cannot build wealth on a broken operating system. Unlearn the myths, rewrite your behavior, and master the immutable laws of money."
+     }
+    ],
+    "entries": [
+     {
+      "href": "finance101.html",
+      "line": 551,
+      "target": {
+       "id": "finance101",
+       "match": "same",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "Dismantle toxic money scripts. Understand the difference between income and wealth, decode the EMI disease, and learn why your brain is hardwired to keep you poor.",
+      "title": "Personal Finance 101"
+     },
+     {
+      "href": "principles.html",
+      "line": 571,
+      "target": {
+       "id": "principles",
+       "match": "same",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "The constitution of money. Master the immutable laws of cash flow, compounding, leverage destruction, and the absolute mathematics of financial freedom.",
+      "title": "Principles n Laws"
+     },
+     {
+      "href": "learn-insurance.html",
+      "line": 590,
+      "target": {
+       "id": "insurance",
+       "match": "same",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "Stop treating insurance as an investment. Deploy the anti-wipeout layer, calculate your true term cover, and transfer catastrophic risk away from your system.",
+      "title": "Shield Protocol"
+     },
+     {
+      "href": "markets.html",
+      "line": 603,
+      "target": {
+       "label": "Markets",
+       "match": "same",
+       "note": "",
+       "route": "/markets",
+       "type": "route"
+      },
+      "text": "Once your foundation is secure, it is time to deploy capital. Enter the Global Markets Protocol to master Equity, Crypto, Debt, ETFs, and Derivatives.",
+      "title": "The Global Markets"
+     },
+     {
+      "href": "tax.html",
+      "line": 623,
+      "target": {
+       "label": "Tax planner",
+       "match": "close",
+       "note": "The website page is a tax lesson and tool; the phone has the planner.",
+       "route": "/tools/taxplanner",
+       "type": "route"
+      },
+      "text": "Understand the silent partner in your wealth creation. Learn how to legally optimize your tax footprint, differentiate between tax evasion and planning, and keep more of what you earn.",
+      "title": "Tax Architecture"
+     }
+    ],
+    "status": "hub",
+    "why": "A menu page: five cards that open other pages. Each card is listed below with what the phone has for it. \"PHASE 02 UNLOCKED\" on the page is a fixed label, not your progress."
+   },
    "summary": "Build your financial foundation — principles, insurance, income vs wealth fundamentals.",
    "title": "Foundation Matrix",
    "tool": null,
-   "words": 177
+   "words": 0
   },
   {
    "category": "markets",
    "hasInteractive": false,
    "id": "equity",
    "kind": "lesson",
-   "minutes": 2,
-   "needsReview": true,
+   "minutes": 3,
+   "needsReview": false,
    "order": 1,
-   "reviewReasons": [
-    "equity-ipo",
-    "equity-asm"
-   ],
+   "reviewReasons": [],
    "source": "html/learn-equity.html",
    "summary": "Equity Deep Dive — what a stock is, how the market works, and market cap, in five minutes before the full Masterclass.",
    "title": "Equity Deep Dive",
    "tool": "/markets",
-   "words": 419
+   "words": 656
   },
   {
    "category": "markets",
    "hasInteractive": false,
    "id": "mutual_funds",
    "kind": "lesson",
-   "minutes": 1,
-   "needsReview": true,
+   "minutes": 2,
+   "needsReview": false,
    "order": 2,
-   "reviewReasons": [
-    "mf-spiva",
-    "mf-direct"
-   ],
+   "reviewReasons": [],
    "source": "html/learn-mf.html",
    "summary": "Mutual Funds Deep Dive — the quick version before the full MF Masterclass.",
    "title": "Mutual Funds",
    "tool": "/tools/calculators",
-   "words": 209
+   "words": 456
   },
   {
    "category": "markets",
    "hasInteractive": false,
    "id": "etf",
    "kind": "lesson",
-   "minutes": 2,
-   "needsReview": true,
+   "minutes": 3,
+   "needsReview": false,
    "order": 3,
-   "reviewReasons": [
-    "etf-ter"
-   ],
+   "reviewReasons": [],
    "source": "html/learn-etf.html",
    "summary": "ETF Deep Dive — the quick version before the full ETF Masterclass.",
    "title": "ETF Deep Dive",
    "tool": "/markets",
-   "words": 308
+   "words": 552
   },
   {
    "category": "markets",
    "hasInteractive": false,
    "id": "debt",
    "kind": "lesson",
-   "minutes": 1,
-   "needsReview": true,
+   "minutes": 2,
+   "needsReview": false,
    "order": 4,
-   "reviewReasons": [
-    "debt-yields",
-    "debt-duration"
-   ],
+   "reviewReasons": [],
    "source": "html/learn-debt.html",
    "summary": "Debt Deep Dive — the quick version before the full Debt Market Masterclass.",
    "title": "Debt Deep Dive",
    "tool": "/tracker/fixed",
-   "words": 229
+   "words": 489
   },
   {
    "category": "markets",
    "hasInteractive": false,
    "id": "money_market",
    "kind": "lesson",
-   "minutes": 1,
-   "needsReview": true,
+   "minutes": 2,
+   "needsReview": false,
    "order": 5,
-   "reviewReasons": [
-    "moneymarket-rate",
-    "moneymarket-cp",
-    "moneymarket-arb"
-   ],
+   "reviewReasons": [],
    "source": "html/learn-money-market.html",
    "summary": "Money Market Deep Dive — treasury bills, CPs and where short-term cash actually goes.",
    "title": "Money Market",
    "tool": "/tracker/fixed",
-   "words": 232
+   "words": 492
   },
   {
    "category": "markets",
    "hasInteractive": false,
    "id": "commodity",
    "kind": "lesson",
-   "minutes": 1,
-   "needsReview": true,
+   "minutes": 2,
+   "needsReview": false,
    "order": 6,
-   "reviewReasons": [
-    "commodity-jewelry",
-    "commodity-digital-gold",
-    "commodity-sgb"
-   ],
+   "reviewReasons": [],
    "source": "html/learn-commodity.html",
    "summary": "Commodity Deep Dive — the quick version before the full Commodity Masterclass.",
    "title": "Commodity Deep Dive",
    "tool": "/tracker/gold",
-   "words": 168
+   "words": 415
   },
   {
    "category": "markets",
    "hasInteractive": false,
    "id": "crypto",
    "kind": "lesson",
-   "minutes": 1,
+   "minutes": 3,
    "needsReview": false,
    "order": 7,
    "reviewReasons": [],
    "source": "html/learn-crypto.html",
-   "summary": "Crypto Deep Dive — the shared-ledger concept, Bitcoin vs Ethereum, and how not to get scammed by tokenomics.",
+   "summary": "Learn how blockchains record transactions, compare Bitcoin and Ethereum, and assess token supply, custody, and market risks.",
    "title": "Crypto Deep Dive",
    "tool": "/tracker/crypto",
-   "words": 235
+   "words": 516
   },
   {
    "category": "markets",
    "hasInteractive": false,
    "id": "forex",
    "kind": "lesson",
-   "minutes": 1,
-   "needsReview": true,
+   "minutes": 2,
+   "needsReview": false,
    "order": 8,
-   "reviewReasons": [
-    "forex-volume",
-    "forex-rate",
-    "forex-leverage",
-    "forex-carry"
-   ],
+   "reviewReasons": [],
    "source": "html/learn-forex.html",
    "summary": "Forex Deep Dive — the quick version before the full Forex Masterclass.",
    "title": "Forex Deep Dive",
    "tool": null,
-   "words": 218
+   "words": 476
   },
   {
    "category": "markets",
    "hasInteractive": false,
    "id": "fno",
    "kind": "lesson",
-   "minutes": 1,
-   "needsReview": true,
+   "minutes": 2,
+   "needsReview": false,
    "order": 9,
-   "reviewReasons": [
-    "fno-stat",
-    "fno-selling"
-   ],
+   "reviewReasons": [],
    "source": "html/learn-fno.html",
    "summary": "F&O Deep Dive — the quick version before the full Derivatives Masterclass.",
    "title": "F&O Deep Dive",
    "tool": null,
-   "words": 228
+   "words": 496
   },
   {
    "category": "analysis",
    "hasInteractive": true,
    "id": "fundamental",
    "kind": "lesson",
-   "minutes": 1,
+   "minutes": 2,
    "needsReview": false,
    "order": 1,
    "reviewReasons": [],
@@ -255,7 +303,7 @@
    "summary": "Fundamental Analysis: God Mode — reading a balance sheet, P&L and cash flow statement like an analyst.",
    "title": "Fundamental Analysis: God Mode",
    "tool": null,
-   "words": 269
+   "words": 342
   },
   {
    "category": "analysis",
@@ -270,42 +318,37 @@
    "summary": "Technical Analysis: The Pulse — reading charts, patterns and momentum without the jargon.",
    "title": "Technical Analysis: The Pulse",
    "tool": null,
-   "words": 380
+   "words": 440
   },
   {
    "category": "analysis",
    "hasInteractive": true,
    "id": "indicators",
    "kind": "lesson",
-   "minutes": 4,
-   "needsReview": true,
+   "minutes": 5,
+   "needsReview": false,
    "order": 3,
-   "reviewReasons": [
-    "indicators-vwap"
-   ],
+   "reviewReasons": [],
    "source": "html/learn-indicators.html",
    "summary": "Technical Toolkit — the full indicator reference, from moving averages to RSI.",
    "title": "Technical Toolkit (Full)",
    "tool": null,
-   "words": 744
+   "words": 1060
   },
   {
    "category": "analysis",
    "hasInteractive": false,
    "id": "metrics",
    "kind": "lesson",
-   "minutes": 5,
-   "needsReview": true,
+   "minutes": 6,
+   "needsReview": false,
    "order": 4,
-   "reviewReasons": [
-    "metrics-thresholds",
-    "metrics-fd"
-   ],
+   "reviewReasons": [],
    "source": "html/learn-metrics.html",
    "summary": "Metric Armory — the full reference of financial ratios and what each one actually tells you.",
    "title": "Metric Armory (Full)",
    "tool": null,
-   "words": 918
+   "words": 1142
   },
   {
    "category": "analysis",
@@ -320,26 +363,22 @@
    "summary": "Pick your analysis protocol — fundamental or technical — before diving into the full toolkit.",
    "title": "Select Analysis Protocol",
    "tool": null,
-   "words": 170
+   "words": 219
   },
   {
    "category": "protection",
    "hasInteractive": true,
    "id": "insurance",
    "kind": "lesson",
-   "minutes": 1,
-   "needsReview": true,
+   "minutes": 2,
+   "needsReview": false,
    "order": 1,
-   "reviewReasons": [
-    "insurance-medinf",
-    "insurance-endowment",
-    "insurance-cover"
-   ],
+   "reviewReasons": [],
    "source": "html/learn-insurance.html",
    "summary": "Shield Protocol — health, term life, and critical illness cover explained before you shop for a policy.",
    "title": "Shield Protocol (Insurance)",
    "tool": "/tools/lifecover",
-   "words": 277
+   "words": 465
   },
   {
    "category": "insights",
@@ -347,16 +386,14 @@
    "id": "insight-sip",
    "kind": "lesson",
    "minutes": 1,
-   "needsReview": true,
+   "needsReview": false,
    "order": 1,
-   "reviewReasons": [
-    "insight-sip-math"
-   ],
+   "reviewReasons": [],
    "source": "html/insight-sip.html",
-   "summary": "Starting a SIP at 25 vs 35 isn't a 10-year gap — it's a ₹1.2 crore one. The real cost of waiting, in numbers.",
+   "summary": "An illustrative comparison of two monthly SIP timelines. See how contribution duration and an assumed return affect a projected corpus. Actual returns vary.",
    "title": "SIP Power",
    "tool": "/tools/stepup",
-   "words": 58
+   "words": 84
   },
   {
    "category": "insights",
@@ -364,16 +401,14 @@
    "id": "insight-emi",
    "kind": "lesson",
    "minutes": 1,
-   "needsReview": true,
+   "needsReview": false,
    "order": 2,
-   "reviewReasons": [
-    "insight-emi-prepay"
-   ],
+   "reviewReasons": [],
    "source": "html/insight-emi.html",
    "summary": "Why your EMI barely dents the principal in year one — and the one prepayment habit that fixes it.",
    "title": "The EMI Trap",
    "tool": "/tools/homeloan",
-   "words": 62
+   "words": 111
   },
   {
    "category": "insights",
@@ -388,7 +423,7 @@
    "summary": "Good debt builds wealth, bad debt drains it — the line between leverage and chains, in two minutes.",
    "title": "Good vs Bad Debt",
    "tool": "/tools/debt",
-   "words": 93
+   "words": 118
   },
   {
    "category": "insights",
@@ -396,16 +431,14 @@
    "id": "insight-inflation",
    "kind": "lesson",
    "minutes": 1,
-   "needsReview": true,
+   "needsReview": false,
    "order": 4,
-   "reviewReasons": [
-    "insight-inflation-cpi"
-   ],
+   "reviewReasons": [],
    "source": "html/insight-inflation.html",
-   "summary": "Your savings account is losing you 4% a year, quietly. Why inflation is the wealth killer nobody notices.",
+   "summary": "Learn how inflation affects purchasing power, why personal costs differ from headline CPI, and how to compare savings and investment assumptions.",
    "title": "Inflation Reality",
    "tool": "/tools/calculators",
-   "words": 84
+   "words": 146
   },
   {
    "category": "insights",
@@ -420,7 +453,7 @@
    "summary": "How one RBI rate decision moves your EMI, your FD returns, and the market — in that order.",
    "title": "RBI & You",
    "tool": null,
-   "words": 48
+   "words": 61
   },
   {
    "category": "mindset",
@@ -430,23 +463,1263 @@
    "minutes": 0,
    "order": 1,
    "source": "html/investor-mindset.html",
+   "status": "related-tool",
+   "stub": {
+    "about": [
+     {
+      "line": 10,
+      "text": "Master the mental game of investing — biases, patience and conviction."
+     }
+    ],
+    "notCarried": [
+     {
+      "file": "html/investor-mindset.html",
+      "line": 1124,
+      "quote": "Simulated sector momentum scores",
+      "what": "A \"Simulated sector momentum scores\" panel and a narrative tracker that marks sectors HOT or AVOID.",
+      "why": "Example values written into the page; not market readings."
+     },
+     {
+      "file": "html/investor-mindset.html",
+      "line": 1035,
+      "quote": "revenge trading drops 73%",
+      "what": "A claim that \"revenge trading drops 73%\" when users see capital decline.",
+      "why": "No source is given."
+     }
+    ],
+    "status": "related-tool",
+    "toolLabel": "Financial DNA",
+    "why": "An animated guide with selectors for time horizon, risk and goal, ten investor \"nodes\" and demonstration panels (a \"Decision Engine\" verdict, a \"blow-up simulator\", a \"momentum scanner\"). The panels show example numbers typed into the page, not your data or real market readings (the page itself labels one block \"Simulated sector momentum scores\"), so they are not copied. The closest phone tool is Financial DNA, which is a different thing: a nine-question quiz about how you think about money."
+   },
    "summary": "Master the mental game of investing — biases, patience and conviction.",
    "title": "Investor Mindset Guide",
    "tool": "/tools/dna",
-   "words": 688
+   "words": 0
   },
   {
    "category": "mindset",
-   "hasInteractive": false,
+   "hasInteractive": true,
    "id": "investor-profile",
    "kind": "interactive",
    "minutes": 0,
    "order": 2,
    "source": "html/investor-profile.html",
+   "status": "related-tool",
+   "stub": {
+    "about": [
+     {
+      "line": 10,
+      "text": "Apex Cognitive Architectures — a deep dive into investor personality types and the decision framework that fits each one."
+     },
+     {
+      "line": 299,
+      "text": "Warren Buffett"
+     }
+    ],
+    "notCarried": [
+     {
+      "file": "js/investor-profile.js",
+      "line": 36,
+      "quote": "Buffett in India is NOT buying flashy startups",
+      "what": "\"Buffett in India is NOT buying flashy startups. He is buying HDFC Bank, Asian Paints, Nestle India.\"",
+      "why": "An imagined translation presented in the present tense; not a statement of anyone's holdings."
+     }
+    ],
+    "status": "related-tool",
+    "toolLabel": "Financial DNA",
+    "why": "Ten long profiles of famous investors (held in the page's script), each with an animated diagram, a sandbox of canned replies shown under an \"AI Response Matrix\" heading, and an \"Indian market translation\" that names Indian companies the investor would supposedly buy. That translation is the page author's imagination, not a record of anyone's holdings, so none of it is copied as lesson text. The closest phone tool is Financial DNA."
+   },
    "summary": "Apex Cognitive Architectures — a deep dive into investor personality types and the decision framework that fits each one.",
    "title": "Apex Cognitive Architectures | Deep Dive",
    "tool": "/tools/dna",
-   "words": 171
+   "words": 0
+  },
+  {
+   "category": "mindset",
+   "hasInteractive": true,
+   "id": "mindset-sim",
+   "kind": "lesson",
+   "minutes": 19,
+   "needsReview": true,
+   "order": 5,
+   "reviewReasons": [
+    "mindsim-2008-drawdown",
+    "mindsim-2008-gain",
+    "mindsim-2020-sip",
+    "mindsim-2024-budget",
+    "mindsim-zomato",
+    "mindsim-sgb",
+    "mindsim-jobloss-tax",
+    "mindsim-friend-loans",
+    "mindsim-endowment"
+   ],
+   "source": "html/mindset-sim.html",
+   "summary": "Market crashes, FOMO traps, life crises — immersive financial scenarios where Arya plays the market and you make the call.",
+   "title": "AI Mindset Simulator",
+   "tool": null,
+   "words": 3811
+  },
+  {
+   "category": "mindset",
+   "hasInteractive": true,
+   "id": "impact-detail",
+   "kind": "lesson",
+   "minutes": 3,
+   "needsReview": true,
+   "order": 8,
+   "reviewReasons": [
+    "impact-sip-crore",
+    "impact-delay",
+    "impact-fd-inflation"
+   ],
+   "source": "html/impact-detail.html",
+   "summary": "Eight short five-step stories behind the cards on the Small Changes, Big Impact page: a very Indian beginning, time vs money, an analogy, a reality check and the real insight.",
+   "title": "Impact stories",
+   "tool": "/tools/calc/sip",
+   "words": 596
+  },
+  {
+   "category": "mindset",
+   "hasInteractive": true,
+   "id": "decision",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": true,
+   "order": 3,
+   "reviewReasons": [
+    "decision-certain",
+    "decision-loss-2x"
+   ],
+   "source": "html/decision.html",
+   "summary": "Debug your own decision-making — loss aversion, confirmation bias, and anchoring, with tools to catch them before you act.",
+   "title": "Decision Core",
+   "tool": null,
+   "words": 207
+  },
+  {
+   "category": "mindset",
+   "hasInteractive": true,
+   "id": "clarity",
+   "kind": "lesson",
+   "minutes": 1,
+   "needsReview": true,
+   "order": 4,
+   "reviewReasons": [
+    "clarity-cover"
+   ],
+   "source": "html/clarity.html",
+   "summary": "FIN•OS Clarity — structured thinking to cut through financial confusion.",
+   "title": "Clarity HUD",
+   "tool": "/tracker/networth",
+   "words": 215
+  },
+  {
+   "category": "mindset",
+   "hasInteractive": true,
+   "id": "life-wealth",
+   "kind": "lesson",
+   "minutes": 3,
+   "needsReview": false,
+   "order": 6,
+   "reviewReasons": [],
+   "source": "html/life-wealth.html",
+   "summary": "Life milestones and wealth map — marriage, home, children and retirement planning.",
+   "title": "The Soul (Ultimate)",
+   "tool": "/plan/lifegoals",
+   "words": 577
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "simulator-landing",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 1,
+   "source": "html/simulator-landing.html",
+   "status": "hub",
+   "stub": {
+    "about": [
+     {
+      "line": 9,
+      "text": "Train your investor mindset — simulators for psychology, bias and decision making."
+     }
+    ],
+    "entries": [
+     {
+      "href": "trading-simulator.html",
+      "line": 530,
+      "target": {
+       "id": "trading-simulator",
+       "match": "note",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "Candle by candle. Real OHLC charts. Buy, sell, and feel your P&L swing — with zero real money on the line.",
+      "title": "TRADING SIMULATOR"
+     },
+     {
+      "href": "simulator-guide.html",
+      "line": 553,
+      "target": {
+       "match": "none",
+       "note": "Website only: the manual for the website's trading simulator.",
+       "type": "none"
+      },
+      "text": "New to the cockpit? Read the full breakdown — every button, chart, and module explained before you trade a single candle.",
+      "title": "SIMULATOR GUIDE"
+     },
+     {
+      "href": "trading-coach.html",
+      "line": 576,
+      "target": {
+       "id": "trading-coach",
+       "match": "note",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "Your real-time emotion-aware trading coach — detects fear, greed, and overconfidence patterns before they destroy your trades.",
+      "title": "EMOTION COACH"
+     },
+     {
+      "line": 599,
+      "target": {
+       "match": "none",
+       "note": "The \"behavioral fingerprint\" is built from sessions in the website's trading simulator. The phone has no simulator, so there is nothing to build it from.",
+       "type": "none"
+      },
+      "text": "Complete your first simulation to unlock your behavioral fingerprint.",
+      "title": "BEHAVIORAL DNA"
+     },
+     {
+      "href": "trading-brain.html",
+      "line": 620,
+      "target": {
+       "id": "trading-brain",
+       "match": "note",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "Signals, pattern recognition, chart vision and a trading playbook — with its own mindset check built in.",
+      "title": "TRADY — TRADING BRAIN"
+     },
+     {
+      "href": "investor-mindset.html",
+      "line": 635,
+      "target": {
+       "id": "investor-mindset",
+       "match": "note",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "The mental game of long-term investing — biases, patience and conviction, explained.",
+      "title": "INVESTOR MINDSET"
+     },
+     {
+      "href": "mindset-sim.html",
+      "line": 650,
+      "target": {
+       "id": "mindset-sim",
+       "match": "same",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "Market crashes, FOMO traps, life crises — Arya plays the scenario, you make the call.",
+      "title": "AI MINDSET SIMULATOR"
+     }
+    ],
+    "notCarried": [
+     {
+      "file": "html/simulator-landing.html",
+      "line": 476,
+      "quote": "NIFTY 50 <strong class=\"up\">▲ 24,213",
+      "what": "A scrolling ticker with fixed prices (\"NIFTY 50 24,213\", \"RELIANCE 2,847\") and a default \"CALM WIN RATE\" of 74%.",
+      "why": "They are typed into the page, not live data or anyone's record."
+     }
+    ],
+    "status": "hub",
+    "why": "A menu page for the simulators and mind-training pages. The scrolling strip at its top shows fixed index and share prices typed into the page (for example Nifty 50 24,213) and a default \"calm win rate\" of 74% when no session exists; none of it is live or recorded, so it is not shown. Each card is listed below with what the phone has for it."
+   },
+   "summary": "Train your investor mindset — simulators for psychology, bias and decision making.",
+   "title": "Simulator Hub",
+   "tool": null,
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "roadmap",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 2,
+   "source": "html/roadmap.html",
+   "status": "hub",
+   "stub": {
+    "about": [
+     {
+      "line": 9,
+      "text": "FIN·OS — Your personalized financial roadmap, mindmap and life journey."
+     },
+     {
+      "line": 536,
+      "text": "Your Financial Roadmap"
+     }
+    ],
+    "entries": [
+     {
+      "extra": "For: Anyone with real goals and a number to hit. Exact rupees, not generic advice.",
+      "href": "life-goals-planner.html",
+      "line": 603,
+      "target": {
+       "label": "Life goals planner",
+       "match": "same",
+       "note": "",
+       "route": "/plan/lifegoals",
+       "type": "route"
+      },
+      "text": "Enter your income, goals and timeline — get a year-by-year roadmap with exact SIP amounts, phases and Arya's guidance.",
+      "title": "AI Life Goals Planner"
+     },
+     {
+      "extra": "For: The person who wants to sleep peacefully while money grows.",
+      "line": 610,
+      "target": {
+       "match": "none",
+       "note": "The \"Investor GPS\" path is built inside the roadmap page by a website script from the profile stored there. The phone has no such screen.",
+       "type": "none"
+      },
+      "text": "For those who want wealth, not excitement. A dynamic path from Survival to Legacy based on your age and income.",
+      "title": "The Investor GPS"
+     },
+     {
+      "extra": "For: The aspiring trader who needs discipline, not just tips.",
+      "href": "trader-roadmap.html",
+      "line": 617,
+      "target": {
+       "id": "trader-roadmap",
+       "match": "note",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "A tactical system to protect you from self-destruction. Strict risk checks before you are allowed to fly.",
+      "title": "The Trader Command"
+     },
+     {
+      "extra": "For: \"My uncle lost money in the market, so I stay away.\"",
+      "href": "fear-roadmap.html",
+      "line": 629,
+      "target": {
+       "id": "fear-roadmap",
+       "match": "note",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "For those who think the market is \"Satta\" (Gambling). Unlearn trauma and social conditioning safely.",
+      "title": "Mindset Repair"
+     },
+     {
+      "extra": "For: Parents who say \"Property is real, Stocks are paper.\"",
+      "href": "traditional-roadmap.html",
+      "line": 636,
+      "target": {
+       "id": "traditional-roadmap",
+       "match": "note",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "For the believers of FD, Gold, and Land. We don't break your fortress; we upgrade its walls against inflation.",
+      "title": "The Fortress"
+     },
+     {
+      "extra": "For: The high earner who feels empty. \"I earn, but I don't live.\"",
+      "href": "life-wealth.html",
+      "line": 648,
+      "target": {
+       "id": "life-wealth",
+       "match": "same",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "Money is a tool, not a master. Align your wealth with health, time, and relationships.",
+      "title": "The Soul Protocol"
+     },
+     {
+      "extra": "For: When you want to trade to fix a bad mood.",
+      "href": "mindset-sim.html",
+      "line": 660,
+      "target": {
+       "id": "mindset-sim",
+       "match": "same",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "Are you angry? Revenge trading? Feeling left out? Stop immediately. This is not a money problem.",
+      "title": "System Intervention"
+     }
+    ],
+    "status": "hub",
+    "toolLabel": "Money Score (ranked next moves, the nearest thing)",
+    "why": "On the website this page builds a roadmap, a mind map and a \"life journey\" from the profile and numbers stored there, and recommends a path. None of that is on the phone. Its \"All Paths\" tab is a menu of seven paths; they are listed below with what exists on the phone."
+   },
+   "summary": "FIN·OS — Your personalized financial roadmap, mindmap and life journey.",
+   "title": "My Roadmap",
+   "tool": "/tools/score",
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "diagnostics",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 3,
+   "source": "html/diagnostics.html",
+   "status": "hub",
+   "stub": {
+    "about": [
+     {
+      "line": 9,
+      "text": "Run a deep financial health scan — find leaks, blind spots and risks in your money system."
+     },
+     {
+      "line": 548,
+      "text": "Before we fix the system, we must map the system. Select a protocol to begin your analysis."
+     }
+    ],
+    "entries": [
+     {
+      "href": "know-your-finances.html",
+      "line": 585,
+      "target": {
+       "id": "know-your-finances",
+       "match": "note",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "Digitize your net reality. Map your cashflow, detect leaks, calculate your true burn rate, and measure your survival runway in hard numbers.",
+      "title": "Financial X-Ray"
+     },
+     {
+      "href": "financial-being.html",
+      "line": 607,
+      "target": {
+       "id": "financial-being",
+       "match": "note",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "Calibrate the mirror. Uncover your hidden money scripts, emotional triggers, and behavioral archetypes that silently drive your financial decisions.",
+      "title": "Financial Being"
+     },
+     {
+      "href": "dna.html",
+      "line": 624,
+      "target": {
+       "label": "Financial DNA",
+       "match": "same",
+       "note": "",
+       "route": "/tools/dna",
+       "type": "route"
+      },
+      "text": "Decode your investor DNA — behavioral profile, risk tolerance, and cognitive biases mapped to an archetype.",
+      "title": "DNA Decoder"
+     },
+     {
+      "href": "benchmarking.html",
+      "line": 629,
+      "target": {
+       "label": "Benchmarks",
+       "match": "same",
+       "note": "",
+       "route": "/plan/benchmark",
+       "type": "route"
+      },
+      "text": "See exactly how your financial health stacks up against your peer cohort by age, income, and city tier.",
+      "title": "Peer Benchmarking"
+     },
+     {
+      "href": "investor-profile.html",
+      "line": 634,
+      "target": {
+       "id": "investor-profile",
+       "match": "note",
+       "note": "",
+       "type": "lesson"
+      },
+      "text": "Deep-dive into Apex Cognitive Architectures — discover your investor type and the decision framework that fits it.",
+      "title": "Investor Archetype"
+     },
+     {
+      "href": "system-leak.html",
+      "line": 639,
+      "target": {
+       "label": "Future loss",
+       "match": "close",
+       "note": "The phone has the \"what the leak would have become\" part, and a Subscriptions tracker.",
+       "route": "/tools/leak",
+       "type": "route"
+      },
+      "text": "Forensic audit of where your money actually drains — subscriptions, lifestyle creep, and hidden recurring costs.",
+      "title": "The System Leak"
+     }
+    ],
+    "status": "hub",
+    "why": "A menu page for the website's two big scans (Financial X-Ray, Financial Being) and four smaller tools. It also has an \"Arya diagnostic intel\" line written by the website's AI, which is not shown. Not to be confused with the phone's own Diagnostics screen in Settings, which is about crash notes."
+   },
+   "summary": "Run a deep financial health scan — find leaks, blind spots and risks in your money system.",
+   "title": "Diagnostic Portal",
+   "tool": null,
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "scenarios",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 4,
+   "source": "html/scenarios.html",
+   "status": "hub",
+   "stub": {
+    "about": [
+     {
+      "line": 175,
+      "text": "Run real financial simulations on your actual data. See exactly what happens to your wealth, goals, and FIRE date — before you make any decision."
+     }
+    ],
+    "entries": [
+     {
+      "file": "js/arya-scenarios.js",
+      "key": "job_loss",
+      "line": 30,
+      "target": {
+       "label": "Emergency fund",
+       "match": "close",
+       "note": "",
+       "route": "/tracker/emergency",
+       "type": "route"
+      },
+      "text": "Survival timeline & goal strategy",
+      "title": "What if I lose my job?"
+     },
+     {
+      "file": "js/arya-scenarios.js",
+      "key": "house_purchase",
+      "line": 79,
+      "target": {
+       "label": "Real estate",
+       "match": "close",
+       "note": "",
+       "route": "/tools/realestate",
+       "type": "route"
+      },
+      "text": "True cost vs. renting + investing",
+      "title": "What if I buy a house?"
+     },
+     {
+      "file": "js/arya-scenarios.js",
+      "key": "market_crash",
+      "line": 153,
+      "target": {
+       "match": "none",
+       "note": "No phone tool runs a market fall on your holdings.",
+       "type": "none"
+      },
+      "text": "Portfolio impact + SIP opportunity",
+      "title": "What if Nifty falls 30%?"
+     },
+     {
+      "file": "js/arya-scenarios.js",
+      "key": "sip_delay",
+      "line": 213,
+      "target": {
+       "label": "SIP calculator",
+       "match": "close",
+       "note": "Work it out twice, with the two periods, to compare.",
+       "route": "/tools/calc/sip",
+       "type": "route"
+      },
+      "text": "The cost of waiting — in rupees",
+      "title": "Start SIP now vs. 1 year later?"
+     },
+     {
+      "file": "js/arya-scenarios.js",
+      "key": "fire_shift",
+      "line": 268,
+      "target": {
+       "label": "Retirement planner",
+       "match": "close",
+       "note": "",
+       "route": "/tools/retirement",
+       "type": "route"
+      },
+      "text": "See how each lever moves retirement",
+      "title": "What changes my FIRE date?"
+     },
+     {
+      "file": "js/arya-scenarios.js",
+      "key": "extra_payment",
+      "line": 324,
+      "target": {
+       "label": "Home loan",
+       "match": "close",
+       "note": "",
+       "route": "/tools/homeloan",
+       "type": "route"
+      },
+      "text": "Interest saved + years cut",
+      "title": "What if I pay extra EMI?"
+     },
+     {
+      "file": "js/arya-scenarios.js",
+      "key": "time_machine",
+      "line": 383,
+      "target": {
+       "match": "none",
+       "note": "The page uses historical FD, Nifty and gold series held on the website side; the phone has no such comparison.",
+       "type": "none"
+      },
+      "text": "FD vs Nifty vs Gold — real historical data",
+      "title": "What if I'd invested ₹X in 2015?"
+     },
+     {
+      "file": "js/arya-scenarios.js",
+      "key": "monte_carlo",
+      "line": 437,
+      "target": {
+       "label": "Retirement planner",
+       "match": "close",
+       "note": "The retirement planner runs a seeded Monte Carlo on the figures you enter.",
+       "route": "/tools/retirement",
+       "type": "route"
+      },
+      "text": "Probability engine — runs scenarios on your actual data",
+      "title": "Will I reach my goals? (1000 simulations)"
+     },
+     {
+      "file": "js/arya-scenarios.js",
+      "key": "generational",
+      "line": 496,
+      "target": {
+       "match": "none",
+       "note": "",
+       "type": "none"
+      },
+      "text": "Generational wealth multiplier — decisions you make today",
+      "title": "What does my child inherit?"
+     }
+    ],
+    "status": "hub",
+    "why": "On the website nine what-if simulations run on the numbers stored there, and Arya (the website's AI) narrates the result. The simulations and the narration are not on the phone. For each scenario the phone has a tool that does a similar job with its own inputs; these are close, not the same."
+   },
+   "summary": "Run real financial simulations on your actual data. See exactly what happens to your wealth, goals, and FIRE date — before you make any decision.",
+   "title": "What-If Scenarios",
+   "tool": null,
+   "words": 0
+  },
+  {
+   "category": "mindset",
+   "hasInteractive": true,
+   "id": "impact",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 7,
+   "source": "html/impact.html",
+   "status": "hub",
+   "stub": {
+    "about": [
+     {
+      "line": 15,
+      "text": "ESG and social impact investing — align your money with your values."
+     },
+     {
+      "line": 155,
+      "text": "Minor decisions today shape decades of outcomes."
+     }
+    ],
+    "entries": [
+     {
+      "line": 172,
+      "target": {
+       "label": "SIP calculator",
+       "match": "same",
+       "note": "Same sum as the page (monthly amount, years, return; instalments at the start of each month). The page's written \"story\" is made by the website's AI and is not on the phone.",
+       "route": "/tools/calc/sip",
+       "type": "route"
+      },
+      "text": "Enter your numbers → get your personal compound story",
+      "title": "ARYA • YOUR COMPOUND IMPACT STORY"
+     },
+     {
+      "key": "sip-500",
+      "line": 214,
+      "target": {
+       "id": "impact-detail",
+       "match": "same",
+       "note": "The story behind this card is in Impact stories.",
+       "type": "lesson"
+      },
+      "text": "vs waiting for \"more income\"",
+      "title": "₹500 SIP for 30 years"
+     },
+     {
+      "key": "home-early",
+      "line": 222,
+      "target": {
+       "id": "impact-detail",
+       "match": "same",
+       "note": "The story behind this card is in Impact stories.",
+       "type": "lesson"
+      },
+      "text": "vs financial flexibility",
+      "title": "Buying a costly home early"
+     },
+     {
+      "key": "simplicity",
+      "line": 230,
+      "target": {
+       "id": "impact-detail",
+       "match": "same",
+       "note": "The story behind this card is in Impact stories.",
+       "type": "lesson"
+      },
+      "text": "vs a simple portfolio",
+      "title": "Too many financial products"
+     },
+     {
+      "key": "delay-5-years",
+      "line": 238,
+      "target": {
+       "id": "impact-detail",
+       "match": "same",
+       "note": "The story behind this card is in Impact stories.",
+       "type": "lesson"
+      },
+      "text": "silent wealth killer",
+      "title": "Delaying investing by 5 years"
+     },
+     {
+      "key": "fd-vs-market",
+      "line": 247,
+      "target": {
+       "id": "impact-detail",
+       "match": "same",
+       "note": "The story behind this card is in Impact stories.",
+       "type": "lesson"
+      },
+      "text": "safety vs real growth",
+      "title": "FD vs Market Investing"
+     },
+     {
+      "key": "gold-vs-equity",
+      "line": 256,
+      "target": {
+       "id": "impact-detail",
+       "match": "same",
+       "note": "The story behind this card is in Impact stories.",
+       "type": "lesson"
+      },
+      "text": "tradition vs compounding",
+      "title": "Gold vs Equity"
+     },
+     {
+      "key": "lic-myth",
+      "line": 265,
+      "target": {
+       "id": "impact-detail",
+       "match": "same",
+       "note": "The story behind this card is in Impact stories.",
+       "type": "lesson"
+      },
+      "text": "protection vs wealth",
+      "title": "LIC as Investment?"
+     },
+     {
+      "key": "lifestyle-inflation",
+      "line": 274,
+      "target": {
+       "id": "impact-detail",
+       "match": "same",
+       "note": "The story behind this card is in Impact stories.",
+       "type": "lesson"
+      },
+      "text": "lifestyle inflation trap",
+      "title": "Salary Increases but Wealth Doesn’t"
+     }
+    ],
+    "status": "hub",
+    "toolLabel": "SIP calculator",
+    "why": "A menu page: a compound-growth box and eight cards that open short stories. The phone has the same sum in the SIP calculator and the stories in Impact stories. (The page's own description says \"ESG and social impact investing\"; it does not match the page.)"
+   },
+   "summary": "ESG and social impact investing — align your money with your values.",
+   "title": "Small Changes, Big Impact",
+   "tool": "/tools/calc/sip",
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "timeline",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 10,
+   "source": "html/timeline.html",
+   "status": "no-equivalent",
+   "stub": {
+    "about": [
+     {
+      "line": 9,
+      "text": "Your financial life on one chronological line — past milestones and the ones still ahead."
+     },
+     {
+      "line": 299,
+      "text": "Health score trajectory over time — milestones, dips & comebacks"
+     }
+    ],
+    "notCarried": [
+     {
+      "file": "html/timeline.html",
+      "line": 362,
+      "quote": "function generateDemoData",
+      "what": "Generated sample scores for the last 90 days (about 52 rising to 71) and milestones built from them.",
+      "why": "The page invents them whenever it cannot get real history."
+     }
+    ],
+    "status": "no-equivalent",
+    "toolLabel": "Money Score",
+    "why": "On the website this page draws a 90-day line of your Health Score from the website's alert service. When it cannot reach that service (it only tries when the page is opened from a developer's own computer) it draws generated sample scores and sample milestones under a \"Demo mode\" banner. The phone does not make up a history. The nearest real thing on the phone is the Money Score, which keeps its own history of the scores it has worked out."
+   },
+   "summary": "Your financial life on one chronological line — past milestones and the ones still ahead.",
+   "title": "Financial Timeline",
+   "tool": "/tools/score",
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "fear-roadmap",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 11,
+   "source": "html/fear-roadmap.html",
+   "status": "no-equivalent",
+   "stub": {
+    "about": [
+     {
+      "line": 9,
+      "text": "The Diagnosis — a roadmap outcome for the fear-driven investor archetype, one of three persona paths from your Roadmap quiz."
+     },
+     {
+      "line": 407,
+      "text": "1. What is your instant reaction when you hear \"Stock Market\"?"
+     },
+     {
+      "line": 425,
+      "text": "2. Where is your money hiding right now?"
+     },
+     {
+      "line": 440,
+      "text": "3. What would make you sleep better?"
+     }
+    ],
+    "notCarried": [
+     {
+      "file": "html/fear-roadmap.html",
+      "line": 576,
+      "quote": "Buy 1 share of an ETF",
+      "what": "A step that tells the reader to buy one share of an ETF for about Rs 250 and to set up a Rs 500 SIP.",
+      "why": "Specific amounts offered as a prescription to people who gave certain answers; not general lesson text."
+     }
+    ],
+    "status": "no-equivalent",
+    "why": "A three-question quiz. Your answers pick one of several written diagnoses and a step list. The page calls itself \"one of three persona paths from your Roadmap quiz\": the text is written for the answers you pick, not as a lesson for everyone, so it is not copied here. The phone has no equivalent quiz."
+   },
+   "summary": "The Diagnosis — a roadmap outcome for the fear-driven investor archetype, one of three persona paths from your Roadmap quiz.",
+   "title": "Mindset Repair",
+   "tool": null,
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "trader-roadmap",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 12,
+   "source": "html/trader-roadmap.html",
+   "status": "no-equivalent",
+   "stub": {
+    "about": [
+     {
+      "line": 9,
+      "text": "The Kamikaze — a roadmap outcome for the high-risk trader archetype, one of three persona paths from your Roadmap quiz."
+     },
+     {
+      "line": 384,
+      "text": "01 Income Dependency"
+     },
+     {
+      "line": 391,
+      "text": "02 Capital Source"
+     },
+     {
+      "line": 398,
+      "text": "03 Emotional Baseline"
+     },
+     {
+      "line": 405,
+      "text": "04 Market Hours"
+     },
+     {
+      "line": 412,
+      "text": "05 Current Process"
+     },
+     {
+      "line": 419,
+      "text": "06 Driver (Goal)"
+     }
+    ],
+    "notCarried": [
+     {
+      "file": "html/trader-roadmap.html",
+      "line": 510,
+      "quote": "Close all active trading accounts",
+      "what": "A persona, \"THE HOSTAGE\", that says \"Close all active trading accounts. Withdraw remaining funds immediately.\"",
+      "why": "A strong instruction chosen by a few answers; it is not advice for everyone."
+     }
+    ],
+    "status": "no-equivalent",
+    "why": "A six-question quiz about a trader's income, capital, mood, time, process and goal. The answers pick one of five \"personas\" and a five-step plan. The text is written for those answers (for one of them it says to close all trading accounts and withdraw the money), so it is not general lesson text and is not copied here. The phone has no equivalent quiz."
+   },
+   "summary": "The Kamikaze — a roadmap outcome for the high-risk trader archetype, one of three persona paths from your Roadmap quiz.",
+   "title": "Trader GPS (God Mode)",
+   "tool": null,
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "traditional-roadmap",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 13,
+   "source": "html/traditional-roadmap.html",
+   "status": "no-equivalent",
+   "stub": {
+    "about": [
+     {
+      "line": 9,
+      "text": "You Are Not Wrong — a roadmap outcome for the safety-first saver archetype, one of three persona paths from your Roadmap quiz."
+     },
+     {
+      "line": 358,
+      "text": "Where is the majority of your wealth stored?"
+     },
+     {
+      "line": 380,
+      "text": "What are you most afraid of?"
+     }
+    ],
+    "notCarried": [
+     {
+      "file": "html/traditional-roadmap.html",
+      "line": 521,
+      "quote": "better tax efficiency if held long term",
+      "what": "\"Debt Funds give similar safety but better tax efficiency if held long term.\"",
+      "why": "Out of date for units bought on or after 1 April 2023; see the debt lesson review."
+     },
+     {
+      "file": "html/traditional-roadmap.html",
+      "line": 500,
+      "quote": "TODAY: ₹10 Lakhs",
+      "what": "A bar showing Rs 10 lakh losing value to Rs 6 lakh over 10 years \"@ 6% Inflation\".",
+      "why": "A fixed illustration; 6% for 10 years would leave about Rs 5.6 lakh, and 6% is the out-of-date inflation figure flagged in the Finance 101 review."
+     }
+    ],
+    "status": "no-equivalent",
+    "why": "A two-question quiz (where most of your wealth is; what you fear most). Your answers pick one of three personas and a step list. Parts of the step list are out of date, so it is not copied: it says debt funds held long are more tax-efficient than FDs, which no longer holds for units bought on or after 1 April 2023 (gains are taxed at your slab rate), and it uses 6% inflation. The phone has no equivalent quiz."
+   },
+   "summary": "You Are Not Wrong — a roadmap outcome for the safety-first saver archetype, one of three persona paths from your Roadmap quiz.",
+   "title": "The Fortress",
+   "tool": null,
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "trading-simulator",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 14,
+   "source": "html/trading-simulator.html",
+   "status": "website-only",
+   "stub": {
+    "about": [
+     {
+      "line": 10,
+      "text": "India's first thinking trading OS — candle-by-candle simulation with real OHLC data and zero real money at risk."
+     }
+    ],
+    "notCarried": [
+     {
+      "file": "js/trading-simulator.js",
+      "line": 139,
+      "quote": "function generateCandles",
+      "what": "Price candles for each scenario.",
+      "why": "They are generated by the page (generateCandles uses random numbers), so they are not market history."
+     }
+    ],
+    "status": "website-only",
+    "why": "A practice trading screen with a candle chart that replays pre-built days (\"Opening Breakout\", \"Market Crash\" and so on) with virtual money. The candles are generated for the exercise, the screen is built for a wide desktop layout, and the phone has no trading features. It is website only."
+   },
+   "summary": "India's first thinking trading OS — candle-by-candle simulation with real OHLC data and zero real money at risk.",
+   "title": "Trading Simulator | India's First Thinking Trading OS",
+   "tool": null,
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "trading-coach",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 15,
+   "source": "html/trading-coach.html",
+   "status": "no-equivalent",
+   "stub": {
+    "about": [
+     {
+      "line": 7,
+      "text": "30 seconds, 3 questions, before you trade — a real-time emotional clearance check to catch fear, greed and overconfidence."
+     }
+    ],
+    "status": "no-equivalent",
+    "why": "Three questions (last trade, mood, trades today) that give a \"clearance\" score, then a short assessment written by Arya (the website's AI service, with a fixed fallback text). The score part is simple arithmetic but it is built for traders and the phone has no trading features, and the assessment needs the website's AI service, which the phone does not use. The phone has no equivalent quiz."
+   },
+   "summary": "30 seconds, 3 questions, before you trade — a real-time emotional clearance check to catch fear, greed and overconfidence.",
+   "title": "Emotion-Aware Trading Coach",
+   "tool": null,
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "trading-brain",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 16,
+   "source": "html/trading-brain.html",
+   "status": "no-equivalent",
+   "stub": {
+    "about": [
+     {
+      "line": 11,
+      "text": "Trady — Your AI Trading Brain & Companion. Pattern recognition, live signals, chart analysis, and Trady AI for NSE/BSE."
+     }
+    ],
+    "notCarried": [
+     {
+      "file": "html/trading-brain.html",
+      "line": 1529,
+      "quote": "NSE PATTERN WIN RATES (5Y BACKTEST)",
+      "what": "A table headed \"NSE PATTERN WIN RATES (5Y BACKTEST)\" and tags such as \"% WIN RATE NSE\".",
+      "why": "No method, data source or date is given for these rates."
+     }
+    ],
+    "status": "no-equivalent",
+    "why": "\"Trady\" is a trading workbench: live market signals fetched from data services, a pattern encyclopedia, a strategy library and a setup builder. The signals need those live services, and the pattern tables quote \"win rates\" from a \"5Y backtest\" without saying how they were made, so they are not copied. The phone has no equivalent quiz."
+   },
+   "summary": "Trady — Your AI Trading Brain & Companion. Pattern recognition, live signals, chart analysis, and Trady AI for NSE/BSE.",
+   "title": "Trady — AI Trading Brain",
+   "tool": null,
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "know-your-finances",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 17,
+   "source": "html/know-your-finances.html",
+   "status": "no-equivalent",
+   "stub": {
+    "about": [
+     {
+      "line": 23,
+      "text": "FIN•OS God Mode X-Ray — Precision financial analysis for Indian professionals. Understand your cashflow, FIRE horizon, and net worth in minutes."
+     },
+     {
+      "line": 345,
+      "text": "God Mode X-Ray: Financial Input"
+     }
+    ],
+    "status": "no-equivalent",
+    "toolLabel": "Net worth tracker",
+    "why": "The \"Financial X-Ray\": you type in many figures over six steps and a scan (with a chat box that uses the website's AI, called QFT on the page) works out cashflow, ratios, net worth and a FIRE horizon. The phone has no single equivalent; its closest parts are the Net worth tracker, the Money Score and the Retirement planner, which use what you have recorded instead of a long form."
+   },
+   "summary": "FIN•OS God Mode X-Ray — Precision financial analysis for Indian professionals. Understand your cashflow, FIRE horizon, and net worth in minutes.",
+   "title": "Financial X-Ray (God Mode Scan)",
+   "tool": "/tracker/networth",
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "financial-being",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 18,
+   "source": "html/financial-being.html",
+   "status": "no-equivalent",
+   "stub": {
+    "about": [
+     {
+      "line": 9,
+      "text": "Holistic financial wellness — stress, behaviour and your life money score."
+     },
+     {
+      "line": 1004,
+      "text": "To reflect your true financial soul, we need to know the person behind the wallet."
+     }
+    ],
+    "status": "no-equivalent",
+    "toolLabel": "Financial DNA (a different, shorter quiz)",
+    "why": "A long self-assessment (\"calibrate the mirror\") that ends in an archetype, fifteen report sections and an AI report from the website's local AI service. The report and the chat need that service. The phone has a shorter, different quiz, Financial DNA."
+   },
+   "summary": "Holistic financial wellness — stress, behaviour and your life money score.",
+   "title": "Financial Being",
+   "tool": "/tools/dna",
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "mindset-sim-hub",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 30,
+   "source": "html/mindset-sim-hub.html",
+   "status": "redirect",
+   "stub": {
+    "about": [
+     {
+      "line": 17,
+      "text": "Redirecting to Simulator Hub…"
+     }
+    ],
+    "redirectLine": 7,
+    "redirectTo": "simulator-landing",
+    "status": "redirect",
+    "why": "On the website this address only forwards you to the Simulator Hub."
+   },
+   "summary": "Redirecting to Simulator Hub…",
+   "title": "Redirecting…",
+   "tool": null,
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "train-mindset",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 31,
+   "source": "html/train-mindset.html",
+   "status": "redirect",
+   "stub": {
+    "about": [
+     {
+      "line": 17,
+      "text": "Redirecting to Simulator Hub…"
+     }
+    ],
+    "redirectLine": 7,
+    "redirectTo": "simulator-landing",
+    "status": "redirect",
+    "why": "On the website this address only forwards you to the Simulator Hub."
+   },
+   "summary": "Redirecting to Simulator Hub…",
+   "title": "Redirecting…",
+   "tool": null,
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "not-money",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 32,
+   "source": "html/not-money.html",
+   "status": "redirect",
+   "stub": {
+    "about": [
+     {
+      "line": 29,
+      "text": "Redirecting to Mindset Simulator…"
+     }
+    ],
+    "redirectLine": 10,
+    "redirectTo": "mindset-sim",
+    "status": "redirect",
+    "why": "On the website this address only forwards you to the AI Mindset Simulator."
+   },
+   "summary": "FIN•OS — Your AI-powered Financial Operating System for Indian investors.",
+   "title": "Redirecting…",
+   "tool": null,
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "roadmaps",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 33,
+   "source": "html/roadmaps.html",
+   "status": "redirect",
+   "stub": {
+    "about": [
+     {
+      "line": 17,
+      "text": "Redirecting to Roadmap…"
+     }
+    ],
+    "redirectLine": 7,
+    "redirectTo": "roadmap",
+    "status": "redirect",
+    "why": "On the website this address only forwards you to the Roadmap page."
+   },
+   "summary": "Redirecting to Roadmap…",
+   "title": "Redirecting…",
+   "tool": null,
+   "words": 0
+  },
+  {
+   "category": "website",
+   "hasInteractive": true,
+   "id": "simulator",
+   "kind": "interactive",
+   "minutes": 0,
+   "order": 34,
+   "source": "html/simulator.html",
+   "status": "redirect",
+   "stub": {
+    "about": [
+     {
+      "line": 34,
+      "text": "Redirecting to Trading Simulator…"
+     }
+    ],
+    "redirectLine": 10,
+    "redirectTo": "trading-simulator",
+    "status": "redirect",
+    "why": "On the website this address only forwards you to the Trading Simulator."
+   },
+   "summary": "FIN•OS — Your AI-powered Financial Operating System for Indian investors.",
+   "title": "Redirecting…",
+   "tool": null,
+   "words": 0
   }
  ],
  "version": 1

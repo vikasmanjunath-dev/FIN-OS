@@ -7,14 +7,17 @@
   {
    "blocks": [
     {
+     "line": 376,
      "t": "p",
      "text": "// PROTOCOL: TECHNICAL ANALYSIS"
     },
     {
+     "line": 379,
      "t": "p",
      "text": "Fundamental Analysis studies the Business. Technical Analysis studies the People watching the business."
     },
     {
+     "line": 390,
      "t": "p",
      "text": "CONCEPT 01: THE CROWD"
     }
@@ -24,211 +27,281 @@
   {
    "blocks": [
     {
+     "line": 392,
      "t": "p",
      "text": "You don't know who these people are. You don't know their jobs. But you can tell everything just by watching their movement."
     },
     {
      "level": 3,
+     "line": 402,
      "t": "h",
      "text": "The \"Who\" (Ignored)"
     },
     {
+     "line": 403,
      "t": "p",
      "text": "\"Is he a doctor? Is she an engineer?\" IRRELEVANT right now."
     },
     {
      "kind": "tip",
+     "line": 408,
      "t": "callout",
      "text": "The Insight: If everyone is running towards Platform 4, you know the train is coming. You don't need to check the timetable. Price Movement = Crowd Running.",
      "title": ""
     },
     {
+     "line": 414,
      "t": "p",
      "text": "CONCEPT 02: THE SIGNAL"
     }
    ],
-   "heading": "You are at a Railway Station 🚉"
+   "heading": "You are at a Railway Station 🚉",
+   "line": 391
   },
   {
    "blocks": [
     {
+     "line": 416,
      "t": "p",
      "text": "Markets move *before* the news. Why wait for the newspaper when you can see the signal?"
     },
     {
      "level": 3,
+     "line": 422,
      "t": "h",
      "text": "Momentum"
     },
     {
+     "line": 423,
      "t": "p",
      "text": "Price is rising fast. Volume is high. \"The crowd is confident.\""
     },
     {
      "level": 3,
+     "line": 428,
      "t": "h",
      "text": "Indecision"
     },
     {
+     "line": 429,
      "t": "p",
      "text": "Price is stuck. Candles are small. \"The crowd is confused.\""
     },
     {
      "level": 3,
+     "line": 434,
      "t": "h",
      "text": "Fear"
     },
     {
+     "line": 435,
      "t": "p",
      "text": "Price dropping. Panic selling. \"The crowd is running away.\""
     },
     {
      "kind": "tip",
+     "line": 441,
      "t": "callout",
      "text": "Desi Example: The traffic light is green, but you see cars slowing down ahead. Do you keep speeding? No. You prepare to brake. Technical Analysis = Seeing the brake lights.",
      "title": ""
     },
     {
+     "line": 447,
      "t": "p",
      "text": "CONCEPT 03: THE SCOREBOARD"
     }
    ],
-   "heading": "The Traffic Light Logic 🚦"
+   "heading": "The Traffic Light Logic 🚦",
+   "line": 415
   },
   {
    "blocks": [
     {
+     "line": 449,
      "t": "p",
      "text": "A chart is just a scoreboard of Buyers vs Sellers. It shows who is winning *right now*."
     },
     {
+     "line": 449,
      "t": "p",
      "text": "BUYERS"
     },
     {
+     "line": 454,
      "t": "p",
      "text": "Dominance"
     },
     {
+     "line": 456,
      "t": "p",
      "text": "\"Aggressive. Buying at any price.\""
     },
     {
+     "line": 460,
      "t": "p",
      "text": "SELLERS"
     },
     {
+     "line": 461,
      "t": "p",
      "text": "Pressure"
     },
     {
+     "line": 463,
      "t": "p",
      "text": "\"Weak. Waiting for higher price.\""
     },
     {
      "kind": "tip",
+     "line": 468,
      "t": "callout",
      "text": "Cricket Logic: You don't know the batter's technique. But if the scoreboard says \"50 runs in 20 balls\", you know he is dominating. Chart = The Match Scoreboard.",
      "title": ""
     },
     {
+     "line": 474,
      "t": "p",
      "text": "CONCEPT 04: EXECUTION"
     }
    ],
-   "heading": "The Chart is a Visual Diary 🏏"
+   "heading": "The Chart is a Visual Diary 🏏",
+   "line": 448
   },
   {
    "blocks": [
     {
+     "line": 476,
      "t": "p",
      "text": "We don't use this to predict the future. We use it to time our actions."
     },
     {
+     "line": 481,
      "t": "p",
      "text": "ACTION 01"
     },
     {
      "level": 3,
+     "line": 482,
      "t": "h",
      "text": "Better Entry"
     },
     {
+     "line": 483,
      "t": "p",
      "text": "Don't buy when price is vertical (FOMO). Buy when it cools down."
     },
     {
+     "line": 484,
      "t": "p",
      "text": "🛒 Sabzi Mandi: Don't buy during peak rush. Go early morning."
     },
     {
+     "line": 488,
      "t": "p",
      "text": "ACTION 02"
     },
     {
      "level": 3,
+     "line": 489,
      "t": "h",
      "text": "Clean Exit"
     },
     {
+     "line": 490,
      "t": "p",
      "text": "Sell when momentum slows, not after the crash."
     },
     {
+     "line": 491,
      "t": "p",
      "text": "🚪 The Wedding: Leave before the traffic jam starts at the gate."
     },
     {
+     "line": 495,
      "t": "p",
      "text": "ACTION 03"
     },
     {
      "level": 3,
+     "line": 496,
      "t": "h",
      "text": "Stop Loss"
     },
     {
+     "line": 497,
      "t": "p",
      "text": "Accepting a small mistake before it becomes a disaster."
     },
     {
+     "line": 498,
      "t": "p",
      "text": "🚑 The Leak: Fixing a pipe leak today vs replacing the whole wall next month."
     }
    ],
-   "heading": "Practical Application"
+   "heading": "Practical Application",
+   "line": 475
   },
   {
    "blocks": [
     {
      "level": 4,
+     "line": 509,
      "t": "h",
      "text": "Not Magic"
     },
     {
+     "line": 510,
      "t": "p",
      "text": "It deals with probabilities, not certainties."
     },
     {
      "level": 4,
+     "line": 514,
      "t": "h",
      "text": "Not Gambling"
     },
     {
+     "line": 515,
      "t": "p",
      "text": "Gambling is hope. Analysis is logic."
     },
     {
      "level": 4,
+     "line": 519,
      "t": "h",
      "text": "Not Prediction"
     },
     {
+     "line": 520,
      "t": "p",
      "text": "We don't predict tomorrow. We react to today."
+    },
+    {
+     "line": 527,
+     "t": "p",
+     "text": "CONCEPT 05: RISK PLAN"
     }
    ],
-   "heading": "⚠️ CRITICAL: What This Is NOT"
+   "heading": "⚠️ CRITICAL: What This Is NOT",
+   "line": 505
+  },
+  {
+   "blocks": [
+    {
+     "line": 529,
+     "t": "p",
+     "text": "A chart setup is incomplete until you know what would prove it wrong and how much you could lose if it does."
+    },
+    {
+     "kind": "tip",
+     "line": 530,
+     "t": "callout",
+     "text": "Before acting: define the setup, invalidation level, position size, and exit plan. Account for gaps, slippage, and costs. Never assume a stop order guarantees the exact exit price.",
+     "title": ""
+    }
+   ],
+   "heading": "Plan the Exit Before the Entry",
+   "line": 528
   }
  ],
  "source": "html/learn-technical.html",

@@ -1,0 +1,466 @@
+{
+ "category": "mindset",
+ "figures": true,
+ "files": [
+  "html/impact.html",
+  "js/impact-detail.js"
+ ],
+ "id": "impact-detail",
+ "needsReview": true,
+ "notShown": [
+  {
+   "file": "html/impact.html",
+   "line": 195,
+   "quote": "aryaImpactStory()",
+   "what": "A \"Show My Impact\" box that turns your own monthly amount, years and return into a story written by Arya.",
+   "why": "The story part needs the website's AI. The sum itself is the SIP calculator on this phone (it uses the same formula)."
+  }
+ ],
+ "notes": [
+  "Each story is short and is told through an everyday example. The people in them (Ravi, Ankit, Rohit) are made up.",
+  "Rupee and percentage figures in these stories are statements from the website page. The page gives no source and no date for them."
+ ],
+ "reviewReasons": [
+  "impact-sip-crore",
+  "impact-delay",
+  "impact-fd-inflation"
+ ],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "file": "html/impact.html",
+     "line": 215,
+     "t": "p",
+     "text": "vs waiting for \"more income\""
+    },
+    {
+     "file": "js/impact-detail.js",
+     "illustration": "A made-up person. Any amounts in this story are illustrations, not data.",
+     "kind": "note",
+     "line": 19,
+     "t": "callout",
+     "text": "Ravi earns ₹25,000 per month.\nHis friend says:\n\"Abhi mat invest kar, salary badhne de.\"\n₹500 feels too small.\n30 years feels too far.",
+     "title": "A very Indian beginning"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 30,
+     "t": "callout",
+     "text": "Money is visible.\nTime is invisible.\nBut time does the heavy lifting.\nThe earlier you start, the less you need.",
+     "title": "Time vs Money"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 40,
+     "t": "callout",
+     "text": "Compounding is like a pressure cooker.\nFirst 10 minutes — nothing.\nNext 10 — steam.\nLast 5 — explosion.\nMost people turn off the stove too early.",
+     "title": "Pressure Cooker Analogy"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 52,
+     "needsReview": true,
+     "reviewReasons": [
+      "impact-sip-crore",
+      "impact-delay"
+     ],
+     "t": "callout",
+     "text": "₹500 × 12 × 30 = ₹1.8 lakh invested\nFinal value ≈ ₹1 crore+\nWaiting 5 years can cost 30–40% of final wealth.",
+     "title": "Reality Check"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 61,
+     "t": "callout",
+     "text": "Small money + long time\nbeats\nbig money + short time.\nAlways.",
+     "title": "The real insight"
+    }
+   ],
+   "heading": "₹500 SIP for 30 years",
+   "line": 214
+  },
+  {
+   "blocks": [
+    {
+     "file": "html/impact.html",
+     "line": 223,
+     "t": "p",
+     "text": "vs financial flexibility"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "illustration": "A made-up person. Any amounts in this story are illustrations, not data.",
+     "kind": "note",
+     "line": 75,
+     "t": "callout",
+     "text": "Ankit is 27.\nFamily says:\n“Rent is waste. Buy a house.”\nLoan starts.\nFreedom pauses.",
+     "title": "A very Indian beginning"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 86,
+     "t": "callout",
+     "text": "A house locks money in one place.\nLife needs money in many places.",
+     "title": "Time vs Money"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 93,
+     "t": "callout",
+     "text": "A big EMI is like golden handcuffs.\nLooks safe.\nLimits movement.",
+     "title": "The Handcuffs Analogy"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 101,
+     "t": "callout",
+     "text": "High EMI = low savings.\nLow savings = high stress.",
+     "title": "Reality Check"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 108,
+     "t": "callout",
+     "text": "A house is shelter.\nFlexibility is wealth.",
+     "title": "The real insight"
+    }
+   ],
+   "heading": "Buying a costly home early",
+   "line": 222
+  },
+  {
+   "blocks": [
+    {
+     "file": "html/impact.html",
+     "line": 231,
+     "t": "p",
+     "text": "vs a simple portfolio"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "illustration": "A made-up person. Any amounts in this story are illustrations, not data.",
+     "kind": "note",
+     "line": 119,
+     "t": "callout",
+     "text": "LIC, ULIP, FD, ELSS, Stocks, Crypto.\nRohit owns everything.\nUnderstands nothing.",
+     "title": "A very Indian beginning"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 128,
+     "t": "callout",
+     "text": "More products need more tracking.\nTime leaks silently.",
+     "title": "Time vs Money"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 135,
+     "t": "callout",
+     "text": "Too many masalas spoil the sabzi.",
+     "title": "Kitchen Analogy"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 141,
+     "t": "callout",
+     "text": "Simple portfolios often outperform\ncomplex ones.",
+     "title": "Reality Check"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 148,
+     "t": "callout",
+     "text": "Discipline beats complexity.",
+     "title": "The real insight"
+    }
+   ],
+   "heading": "Too many financial products",
+   "line": 230
+  },
+  {
+   "blocks": [
+    {
+     "file": "html/impact.html",
+     "line": 239,
+     "t": "p",
+     "text": "silent wealth killer"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 158,
+     "t": "callout",
+     "text": "“Next year pakka.”\nLife keeps happening.\nYears pass.",
+     "title": "A very Indian beginning"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 166,
+     "t": "callout",
+     "text": "Money can be increased.\nTime cannot.",
+     "title": "Time vs Money"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 173,
+     "t": "callout",
+     "text": "Miss the first train,\nreach much later.",
+     "title": "Train Analogy"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 180,
+     "needsReview": true,
+     "reviewReasons": [
+      "impact-delay"
+     ],
+     "t": "callout",
+     "text": "5 year delay =\n30–40% less wealth.",
+     "title": "Reality Check"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 187,
+     "t": "callout",
+     "text": "Delay is expensive.",
+     "title": "The real insight"
+    }
+   ],
+   "heading": "Delaying investing by 5 years",
+   "line": 238
+  },
+  {
+   "blocks": [
+    {
+     "file": "html/impact.html",
+     "line": 248,
+     "t": "p",
+     "text": "safety vs real growth"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 196,
+     "t": "callout",
+     "text": "Parents say:\n“FD safest hai. Market risky hai.”\nMoney feels protected.\nBut it quietly loses power.",
+     "title": "A very Indian beginning"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 206,
+     "t": "callout",
+     "text": "FD protects money.\nMarket grows money.\nInflation eats safety silently.",
+     "title": "Time vs Money"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 215,
+     "t": "callout",
+     "text": "FD is a bucket with a small hole.\nMoney stays.\nValue leaks every year.",
+     "title": "The Leaking Bucket Analogy"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 223,
+     "needsReview": true,
+     "reviewReasons": [
+      "impact-fd-inflation"
+     ],
+     "t": "callout",
+     "text": "FD return: 5–6%\nInflation: 6–7%\nReal growth = zero or negative.",
+     "title": "Reality Check"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 232,
+     "t": "callout",
+     "text": "Safety without growth\nis slow financial decline.",
+     "title": "The real insight"
+    }
+   ],
+   "heading": "FD vs Market Investing",
+   "line": 247
+  },
+  {
+   "blocks": [
+    {
+     "file": "html/impact.html",
+     "line": 257,
+     "t": "p",
+     "text": "tradition vs compounding"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 243,
+     "t": "callout",
+     "text": "Gold means security.\nWeddings, festivals, lockers.\nStocks feel uncertain.",
+     "title": "A very Indian beginning"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 252,
+     "t": "callout",
+     "text": "Gold preserves value.\nEquity multiplies value.",
+     "title": "Time vs Money"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 259,
+     "t": "callout",
+     "text": "Gold is land.\nEquity is crops.\nLand sits.\nCrops grow every season.",
+     "title": "The Farm Analogy"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 269,
+     "t": "callout",
+     "text": "Gold: protects purchasing power.\nEquity: creates new purchasing power.",
+     "title": "Reality Check"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 276,
+     "t": "callout",
+     "text": "Gold protects wealth.\nEquity builds wealth.",
+     "title": "The real insight"
+    }
+   ],
+   "heading": "Gold vs Equity",
+   "line": 256
+  },
+  {
+   "blocks": [
+    {
+     "file": "html/impact.html",
+     "line": 266,
+     "t": "p",
+     "text": "protection vs wealth"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 287,
+     "t": "callout",
+     "text": "LIC feels guaranteed.\nAgents are trusted.\nReturns are misunderstood.",
+     "title": "A very Indian beginning"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 295,
+     "t": "callout",
+     "text": "Insurance is protection.\nInvestment is growth.\nMixing both weakens both.",
+     "title": "Time vs Money"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 304,
+     "t": "callout",
+     "text": "Umbrella saves you from rain.\nIt doesn’t grow crops.",
+     "title": "The Umbrella Analogy"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 311,
+     "t": "callout",
+     "text": "LIC returns ≈ 4–6%\nMarket investing historically higher.",
+     "title": "Reality Check"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 318,
+     "t": "callout",
+     "text": "Insurance is for safety.\nInvestments are for wealth.",
+     "title": "The real insight"
+    }
+   ],
+   "heading": "LIC as Investment?",
+   "line": 265
+  },
+  {
+   "blocks": [
+    {
+     "file": "html/impact.html",
+     "line": 275,
+     "t": "p",
+     "text": "lifestyle inflation trap"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 329,
+     "t": "callout",
+     "text": "Salary increases.\nPhone upgrades.\nBigger car.\nBetter house.\nSavings stay the same.",
+     "title": "A very Indian beginning"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 340,
+     "t": "callout",
+     "text": "Income rises fast.\nExpenses rise faster.",
+     "title": "Time vs Money"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 347,
+     "t": "callout",
+     "text": "More food on a bigger plate\nstill feels insufficient.",
+     "title": "The Bigger Plate Analogy"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 354,
+     "t": "callout",
+     "text": "No investment increase\nmeans no future freedom.",
+     "title": "Reality Check"
+    },
+    {
+     "file": "js/impact-detail.js",
+     "kind": "note",
+     "line": 361,
+     "t": "callout",
+     "text": "Wealth grows only when\nexpenses grow slower than income.",
+     "title": "The real insight"
+    }
+   ],
+   "heading": "Salary Increases but Wealth Doesn’t",
+   "line": 274
+  }
+ ],
+ "source": "html/impact-detail.html",
+ "summary": "Eight short five-step stories behind the cards on the Small Changes, Big Impact page: a very Indian beginning, time vs money, an analogy, a reality check and the real insight.",
+ "title": "Impact stories",
+ "tool": "/tools/calc/sip"
+}

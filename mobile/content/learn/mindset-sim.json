@@ -1,0 +1,1784 @@
+{
+ "category": "mindset",
+ "figures": true,
+ "files": [
+  "html/mindset-sim.html"
+ ],
+ "id": "mindset-sim",
+ "language": "hinglish",
+ "needsReview": true,
+ "notShown": [
+  {
+   "file": "html/mindset-sim.html",
+   "line": 625,
+   "quote": "const perfScore",
+   "what": "Picking an option first, then seeing the outcome, with a score (\"Optimal Decision\", \"Costly Mistake\", \"Acceptable\").",
+   "why": "The website hides the outcome until you choose and scores your choice. Here every scenario is plain reading."
+  },
+  {
+   "file": "html/mindset-sim.html",
+   "line": 656,
+   "quote": "Arya debrief likh rahi hai",
+   "what": "A short Hinglish debrief written by Arya (the website's AI) after you choose.",
+   "why": "It needs the website's local AI service, which the phone does not use. The website falls back to the outcome text when that service is not running."
+  },
+  {
+   "file": "html/mindset-sim.html",
+   "line": 708,
+   "quote": "finos_sim_scores",
+   "what": "A saved score for each scenario (the website keeps them in its finos_sim_scores key).",
+   "why": "Nothing is scored here, so nothing is saved about how you would have chosen."
+  }
+ ],
+ "notes": [
+  "Everything on this page is in Hinglish (Hindi written in English letters), exactly as on the website.",
+  "These are 20 case studies from the website's Mindset Simulator. The portfolio sizes, outcomes and \"best / worst\" labels are the website author's own, written with hindsight, and the page gives no sources or dates for its figures."
+ ],
+ "reviewReasons": [
+  "mindsim-2008-drawdown",
+  "mindsim-2008-gain",
+  "mindsim-2020-sip",
+  "mindsim-2024-budget",
+  "mindsim-zomato",
+  "mindsim-sgb",
+  "mindsim-jobloss-tax",
+  "mindsim-friend-loans",
+  "mindsim-endowment"
+ ],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "line": 281,
+     "t": "p",
+     "text": "Immersive financial scenarios. Arya plays the market. You make the call."
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "line": 344,
+     "t": "h",
+     "text": "2008 — Lehman Collapse"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 345,
+     "rows": [
+      [
+       "Date on the page",
+       "Oct 10, 2008"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐⭐⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹2.75L"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 344,
+     "t": "p",
+     "text": "Nifty -52%. ₹5L portfolio down 45% in 6 weeks."
+    },
+    {
+     "label": "The situation",
+     "line": 346,
+     "needsReview": true,
+     "reviewReasons": [
+      "mindsim-2008-drawdown"
+     ],
+     "t": "p",
+     "text": "Market khul gaya. Nifty 2,500 pe aa gaya — all-time high 6,357 se 60% neeche. CNBC pe breaking news: \"Lehman Brothers bankrupt.\" WhatsApp pe sab bol rahe hain \"bech do, aur giregi.\" Teri ₹5L ki equity portfolio abhi ₹2.75L ki reh gayi hai. Agle 3 mahine aur gir sakti hai. Tu kya karega?"
+    },
+    {
+     "items": [
+      "🔴 Sab bech do — aur loss se bachna hai",
+      "🟡 Aadha bech do — kuch capital bachao",
+      "🟢 Hold karo — fundamentals nahi badle",
+      "💪 Aur kharido — yeh buying opportunity hai"
+     ],
+     "label": "Options the page offers",
+     "line": 347,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 347,
+     "t": "p",
+     "text": "💪 Aur kharido — yeh buying opportunity hai"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 347,
+     "t": "p",
+     "text": "🔴 Sab bech do — aur loss se bachna hai"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 349,
+     "needsReview": true,
+     "reviewReasons": [
+      "mindsim-2008-gain"
+     ],
+     "t": "p",
+     "text": "Jo investors held kiye ya buy kiye, unhe 2010 tak ₹8.2L mila (64% gain from bottom). Long-term Nifty ne 2015 tak 15,000 cross kiya."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 350,
+     "t": "p",
+     "text": "Jo bech gaye, wo sirf ₹2.1L ke saath baahar aaye — 58% permanent loss. Zyaatar market recover hone ke baad waapis nahi aa paaye (anchoring bias)."
+    },
+    {
+     "items": [
+      "loss aversion",
+      "panic selling",
+      "anchoring"
+     ],
+     "label": "Biases the page names",
+     "line": 351,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 353,
+     "t": "h",
+     "text": "2020 — COVID Crash"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 354,
+     "rows": [
+      [
+       "Date on the page",
+       "Mar 23, 2020"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹3.2L"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 353,
+     "t": "p",
+     "text": "Nifty -38% in 40 days. Fastest crash in history."
+    },
+    {
+     "label": "The situation",
+     "line": 355,
+     "t": "p",
+     "text": "Lockdown announce hua. Stock markets worldwide circuit breaker. Nifty 7,511 pe. Airlines, hotels, restaurants — sab band. Log bol rahe hain \"recession aayegi, 2-3 saal lagenge recover hone mein.\" Teri portfolio 36% down. Tu kya karega abhi?"
+    },
+    {
+     "items": [
+      "🔴 SIP band karo, sab bech do",
+      "🟡 SIP rokke hold karo",
+      "🟢 SIP jaari rakho normal",
+      "💪 SIP double karo — massive dip hai"
+     ],
+     "label": "Options the page offers",
+     "line": 356,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 356,
+     "t": "p",
+     "text": "💪 SIP double karo — massive dip hai"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 356,
+     "t": "p",
+     "text": "🔴 SIP band karo, sab bech do"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 358,
+     "needsReview": true,
+     "reviewReasons": [
+      "mindsim-2020-sip"
+     ],
+     "t": "p",
+     "text": "Nifty ne Dec 2020 tak old highs recover kiye. Jo SIP double kiya, unhe 24 months mein 90%+ returns mile. COVID dip proved to be the best SIP opportunity of the decade."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 359,
+     "t": "p",
+     "text": "Jo March mein bech ke nikle, unhe average entry milti 11,000+ pe waapas ane ke liye — 40% higher. Most never re-entered and permanently missed the recovery."
+    },
+    {
+     "items": [
+      "panic selling",
+      "recency bias",
+      "herd mentality"
+     ],
+     "label": "Biases the page names",
+     "line": 360,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 362,
+     "t": "h",
+     "text": "2000 — Dot-com Bust"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 363,
+     "rows": [
+      [
+       "Date on the page",
+       "Mar 2000"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐⭐⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹2L"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 362,
+     "t": "p",
+     "text": "Tech stocks -80%. Sensex -55% over 2 years."
+    },
+    {
+     "label": "The situation",
+     "line": 364,
+     "t": "p",
+     "text": "\"Internet is the future\" — aur teri portfolio tech stocks se bhar gayi. Infosys 900x gayi. Ab crash shuru hua hai. IT index -20% in a week. Kuch log bol rahe hain bounce aayega. Kuch bol rahe hain bubble tha. Tera IT exposure 70% hai."
+    },
+    {
+     "items": [
+      "🔴 IT stocks immediately becho",
+      "🟡 Thoda diversify karo gradually",
+      "🟢 Hold karo — IT ka future bright hai",
+      "💪 Aur IT kharido — discount pe milegi"
+     ],
+     "label": "Options the page offers",
+     "line": 365,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 365,
+     "t": "p",
+     "text": "🟡 Thoda diversify karo gradually"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 365,
+     "t": "p",
+     "text": "💪 Aur IT kharido — discount pe milegi"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 367,
+     "t": "p",
+     "text": "Quality stocks like Infosys/TCS ne 2003-2004 mein recover kiya. But diversifying during crash ke baad better risk-adjusted returns mile."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 368,
+     "t": "p",
+     "text": "Panic selling ke baad most investors 2003 recovery miss kiya. However, some IT stocks took 7+ years to recover to 2000 highs."
+    },
+    {
+     "items": [
+      "overconfidence",
+      "anchoring",
+      "sunk cost"
+     ],
+     "label": "Biases the page names",
+     "line": 369,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 371,
+     "t": "h",
+     "text": "2024 Budget Shock"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 372,
+     "rows": [
+      [
+       "Date on the page",
+       "Jul 23, 2024"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹4.5L"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 371,
+     "needsReview": true,
+     "reviewReasons": [
+      "mindsim-2024-budget"
+     ],
+     "t": "p",
+     "text": "Nifty -3% single day after Union Budget capital gains tax hike."
+    },
+    {
+     "label": "The situation",
+     "line": 373,
+     "needsReview": true,
+     "reviewReasons": [
+      "mindsim-2024-budget"
+     ],
+     "t": "p",
+     "text": "Budget mein LTCG tax 10% se 12.5% ho gaya. STCG 15% se 20% ho gayi. Market ne instantly react kiya — Nifty 700 points neeche. Social media pe \"sell everything\" trending. Tera LTCG eligible portfolio bhi neeche hai. Real impact kitna hai?"
+    },
+    {
+     "items": [
+      "🔴 Sab bech do pehle aur tax se bachao",
+      "🟡 Only loss-making stocks becho (tax loss harvesting)",
+      "🟢 Hold karo — tax change temporary market reaction hai",
+      "📊 Calculate actual impact and then decide"
+     ],
+     "label": "Options the page offers",
+     "line": 374,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 374,
+     "t": "p",
+     "text": "📊 Calculate actual impact and then decide"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 374,
+     "t": "p",
+     "text": "🔴 Sab bech do pehle aur tax se bachao"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 376,
+     "t": "p",
+     "text": "Nifty ne 45 days mein budget shock recover kiya. Tax change ka actual impact 2.5% extra tax on GAINS only — panic sellers ne bade returns miss kiye."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 377,
+     "t": "p",
+     "text": "Budget day pe bechne walon ne market recovery miss kiya. Plus: selling mein STCG trigger hua jo new higher rate pe tha — double loss."
+    },
+    {
+     "items": [
+      "recency bias",
+      "loss aversion",
+      "news trading"
+     ],
+     "label": "Biases the page names",
+     "line": 378,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 380,
+     "t": "h",
+     "text": "Smallcap 40% Correction"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 381,
+     "rows": [
+      [
+       "Date on the page",
+       "2018-2019"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹1.8L"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 380,
+     "t": "p",
+     "text": "Small & midcap funds -40% while large cap flat."
+    },
+    {
+     "label": "The situation",
+     "line": 382,
+     "t": "p",
+     "text": "Smallcap index 40% down. Tera smallcap fund NAV ₹28 se ₹17 aa gayi. Large cap flat hai. SEBI ne recategorisation rule change kiya — kuch funds forced sellers bane. Kya yeh structural breakdown hai ya temporary?"
+    },
+    {
+     "items": [
+      "🔴 Smallcap se niklo completely",
+      "🟡 Shift to large cap gradually",
+      "🟢 Hold and wait — small cap cycles hain",
+      "💪 STP kar ke aur smallcap kharido"
+     ],
+     "label": "Options the page offers",
+     "line": 383,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 383,
+     "t": "p",
+     "text": "🟢 Hold and wait — small cap cycles hain"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 383,
+     "t": "p",
+     "text": "🔴 Smallcap se niklo completely"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 385,
+     "t": "p",
+     "text": "2020-2021 mein smallcap mania aayi — jo held kiya unhe 3-4x returns mile. But 2018-19 mein holding required real conviction in fundamentals."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 386,
+     "t": "p",
+     "text": "Jo 2018-19 correction mein bech ke nikle, unhe 2020-2021 bull run miss hua. Average miss: 120% returns over 2 years."
+    },
+    {
+     "items": [
+      "recency bias",
+      "category switching"
+     ],
+     "label": "Biases the page names",
+     "line": 387,
+     "t": "ul"
+    }
+   ],
+   "heading": "📉 Market Crashes",
+   "line": 288
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "line": 391,
+     "t": "h",
+     "text": "Bitcoin 2021 Mania"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 392,
+     "rows": [
+      [
+       "Date on the page",
+       "Nov 2021"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹5L savings"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 391,
+     "t": "p",
+     "text": "BTC at ₹42L. \"It will hit 1 crore\" everywhere."
+    },
+    {
+     "label": "The situation",
+     "line": 393,
+     "t": "p",
+     "text": "Bitcoin ₹42 lakh pe hai. Tera colleague 5x return le chuka hai. Elon Musk tweet kar raha hai. \"Decentralised future is coming.\" Tu sochta hai ₹2L invest karta hoon. Chart dekha — straight line up. Kya yeh is the right time?"
+    },
+    {
+     "items": [
+      "🔴 All in — ₹5L Bitcoin mein daal do",
+      "🟡 ₹50K small bet lagao — FOMO se bachne ke liye",
+      "🟢 Analysis karo pehle — market cycle samjho",
+      "❌ Kuch nahi karo — apna plan stick karo"
+     ],
+     "label": "Options the page offers",
+     "line": 394,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 394,
+     "t": "p",
+     "text": "❌ Kuch nahi karo — apna plan stick karo"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 394,
+     "t": "p",
+     "text": "🔴 All in — ₹5L Bitcoin mein daal do"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 396,
+     "t": "p",
+     "text": "Nov 2021 ATH ke baad BTC ne 74% crash kiya. Jo ₹42L pe baith gaye, unhe 2022 mein ₹10L se bhi neeche dekha. 2024 mein ₹60L tak recovery aayi — but 2.5 saal ka psychological torture."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 397,
+     "t": "p",
+     "text": "Jo early 2022 mein sold kiya and moved to index funds — better risk-adjusted returns mile. Time in market vs timing market."
+    },
+    {
+     "items": [
+      "fomo",
+      "herd mentality",
+      "overconfidence"
+     ],
+     "label": "Biases the page names",
+     "line": 391,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 400,
+     "t": "h",
+     "text": "IPO Listing Mania"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 401,
+     "rows": [
+      [
+       "Date on the page",
+       "2021 Zomato IPO"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹50K cash"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 400,
+     "needsReview": true,
+     "reviewReasons": [
+      "mindsim-zomato"
+     ],
+     "t": "p",
+     "text": "Hot IPO listing at 80% premium. Should you buy on listing day?"
+    },
+    {
+     "label": "The situation",
+     "line": 402,
+     "needsReview": true,
+     "reviewReasons": [
+      "mindsim-zomato"
+     ],
+     "t": "p",
+     "text": "Zomato listed at ₹128 vs ₹76 issue price — 68% gain in a day. Tu allotment nahi mila. Sab log \"it will hit ₹200\" bol rahe hain. Listing day pe secondary market se kharidna chahiye? ₹50K cash hai."
+    },
+    {
+     "items": [
+      "🔴 Listing day pe hi ₹50K invest karo",
+      "🟡 Aadha kharido — ₹25K",
+      "🟢 Wait karo — listing euphoria fade hogi",
+      "📊 Fundamentals check karo pehle (P/S ratio, profitability)"
+     ],
+     "label": "Options the page offers",
+     "line": 403,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 403,
+     "t": "p",
+     "text": "📊 Fundamentals check karo pehle (P/S ratio, profitability)"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 403,
+     "t": "p",
+     "text": "🔴 Listing day pe hi ₹50K invest karo"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 405,
+     "t": "p",
+     "text": "Zomato ₹128 pe buy karne walon ko 2022 mein ₹40 dekha — 69% loss. Fundamentally it was trading at 40x sales with no profitability path clear."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 406,
+     "t": "p",
+     "text": "Jo listing day pe bech ke nikle with 68% gain (allottees) — brilliant. But secondary buyers had no margin of safety at listing premium."
+    },
+    {
+     "items": [
+      "fomo",
+      "anchoring",
+      "narrative bias"
+     ],
+     "label": "Biases the page names",
+     "line": 400,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 409,
+     "t": "h",
+     "text": "Friend's 'Sure Shot' Tip"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 410,
+     "rows": [
+      [
+       "Date on the page",
+       "Any time"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹1L savings"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 409,
+     "t": "p",
+     "text": "Your friend made 200% on a penny stock. \"Next one\" upcoming."
+    },
+    {
+     "label": "The situation",
+     "line": 411,
+     "t": "p",
+     "text": "Tera dost bolta hai: \"Yaar, mere paas insider info hai. XYZ pharma stock mein daalo — drug approval announcement aane wala hai. Abhi ₹8 pe hai, ₹80 jayegi. Maine ₹50K daale hain.\" WhatsApp group pe bhi sab bol rahe hain. Kya karega tu?"
+    },
+    {
+     "items": [
+      "🔴 All in — ₹1L daal do, friend ne trust kiya",
+      "🟡 Small bet — ₹10K dalo just in case",
+      "🟢 Politely decline — no due diligence",
+      "📊 Ask for proof: SEBI filing, annual report, management track record"
+     ],
+     "label": "Options the page offers",
+     "line": 412,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 412,
+     "t": "p",
+     "text": "🟢 Politely decline — no due diligence"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 412,
+     "t": "p",
+     "text": "🔴 All in — ₹1L daal do, friend ne trust kiya"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 414,
+     "t": "p",
+     "text": "Penny stocks tip stories almost always end badly — stock typically already pumped. \"Insider info\" is usually illegal, unverifiable, or planted. ₹8 stocks can go to ₹0.80 easily."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 415,
+     "t": "p",
+     "text": "Not investing in unverified tips = 100% capital preserved. Opportunity cost: near zero for verified good alternatives."
+    },
+    {
+     "items": [
+      "herd mentality",
+      "authority bias",
+      "overconfidence"
+     ],
+     "label": "Biases the page names",
+     "line": 416,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 418,
+     "t": "h",
+     "text": "NFT Monkey FOMO"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 419,
+     "rows": [
+      [
+       "Date on the page",
+       "Jan 2022"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹2L savings"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 418,
+     "t": "p",
+     "text": "JPEG se ₹50L? 2022 NFT mania."
+    },
+    {
+     "label": "The situation",
+     "line": 420,
+     "t": "p",
+     "text": "NFTs everywhere. Boring Ape Yacht Club — ₹50L per image. Influencers bol rahe hain \"digital real estate.\" Tu samajh nahi pa raha lekin sab invest kar rahe hain. ₹2L daalega NFT mein? \"Miss mat kar yeh opportunity.\""
+    },
+    {
+     "items": [
+      "🔴 ₹2L ki NFT kharido",
+      "🟡 Small bet — ₹20K NFT experiment",
+      "🟢 Samajh nahi aata toh nahi",
+      "📊 Research karo — cash flows, utility, market depth"
+     ],
+     "label": "Options the page offers",
+     "line": 421,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 421,
+     "t": "p",
+     "text": "🟢 Samajh nahi aata toh nahi"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 421,
+     "t": "p",
+     "text": "🔴 ₹2L ki NFT kharido"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 423,
+     "t": "p",
+     "text": "NFT market ne 2022-2023 mein 95%+ value khoyi. Most NFTs went to literally zero — no buyers, no market. \"Digital art\" without utility = speculation pure."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 424,
+     "t": "p",
+     "text": "Capital preservation beats FOMO every time when you don't understand the investment."
+    },
+    {
+     "items": [
+      "fomo",
+      "narrative bias",
+      "herding"
+     ],
+     "label": "Biases the page names",
+     "line": 418,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 427,
+     "t": "h",
+     "text": "Gold at Record High"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 428,
+     "rows": [
+      [
+       "Date on the page",
+       "2024"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹3L"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 427,
+     "t": "p",
+     "text": "Gold ₹70,000/10g. \"It will hit ₹1L\" by end of year."
+    },
+    {
+     "label": "The situation",
+     "line": 429,
+     "t": "p",
+     "text": "Gold ₹70,000 per 10g — all-time high. Jewellers bhare hain. Media reports \"safe haven demand.\" Tu sochta hai inflation hedge ke liye khareedna chahiye. Lekin yeh ATH pe hai. Should you buy?"
+    },
+    {
+     "items": [
+      "🔴 All in gold now — ATH = momentum play",
+      "🟡 SGB (Sovereign Gold Bond) with 2.5% interest",
+      "🟢 Already have 5-10% gold — don't add more",
+      "💡 Rebalance: if gold >15% portfolio, trim it"
+     ],
+     "label": "Options the page offers",
+     "line": 430,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 430,
+     "t": "p",
+     "text": "🟡 SGB (Sovereign Gold Bond) with 2.5% interest"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 430,
+     "t": "p",
+     "text": "🔴 All in gold now — ATH = momentum play"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 432,
+     "needsReview": true,
+     "reviewReasons": [
+      "mindsim-sgb"
+     ],
+     "t": "p",
+     "text": "SGB gives gold price appreciation + 2.5% interest annually — better than physical gold. Buying at ATH is fine if it's portfolio allocation, not speculation."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 433,
+     "t": "p",
+     "text": "Selling at ATH anticipating crash often wrong — gold can stay elevated longer than expected."
+    },
+    {
+     "items": [
+      "momentum bias",
+      "anchoring"
+     ],
+     "label": "Biases the page names",
+     "line": 434,
+     "t": "ul"
+    }
+   ],
+   "heading": "🚀 FOMO Traps",
+   "line": 289
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "line": 438,
+     "t": "h",
+     "text": "Sudden Job Loss"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 439,
+     "rows": [
+      [
+       "Date on the page",
+       "Your future"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹2L portfolio"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 438,
+     "t": "p",
+     "text": "Layoff. 3 months salary as severance. ₹2L portfolio, ₹50K monthly expenses."
+    },
+    {
+     "label": "The situation",
+     "line": 440,
+     "t": "p",
+     "text": "Layoff hua. HR ne 3 months ka severance diya — ₹1.5L. Emergency fund sirf ₹60K hai. Monthly expenses ₹50K. Portfolio mein ₹2L equity hai. Job search minimum 3-4 months lagegi. Tu kya karega?"
+    },
+    {
+     "items": [
+      "🔴 Sab portfolio immediately becho — security chahiye",
+      "🟡 50% portfolio becho — ₹1L liquidate karo",
+      "🟢 Expense cut karo, emergency fund use karo, portfolio touch mat karo",
+      "💡 Part-time work + expense cuts, portfolio absolutely last resort"
+     ],
+     "label": "Options the page offers",
+     "line": 441,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 441,
+     "t": "p",
+     "text": "💡 Part-time work + expense cuts, portfolio absolutely last resort"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 441,
+     "t": "p",
+     "text": "🔴 Sab portfolio immediately becho — security chahiye"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 443,
+     "t": "p",
+     "text": "Cutting expenses to ₹30K + part-time income stretches runway to 6+ months. Portfolio compounds untouched. Post-job re-employment accelerates recovery dramatically."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 444,
+     "needsReview": true,
+     "reviewReasons": [
+      "mindsim-jobloss-tax"
+     ],
+     "t": "p",
+     "text": "Selling equity at distress timing often coincides with market lows. ₹2L ke ₹1.4L milenge post-tax after STCG. Mental accounting loss + actual loss."
+    },
+    {
+     "items": [
+      "loss aversion",
+      "short term thinking",
+      "fear"
+     ],
+     "label": "Biases the page names",
+     "line": 445,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 447,
+     "t": "h",
+     "text": "Medical Emergency"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 448,
+     "rows": [
+      [
+       "Date on the page",
+       "Your future"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐⭐⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹5L stocks"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 447,
+     "t": "p",
+     "text": "Parent hospitalised. ₹8L bill. Only ₹3L savings. No insurance."
+    },
+    {
+     "label": "The situation",
+     "line": 449,
+     "t": "p",
+     "text": "Ghar mein medical emergency. Bill ₹8L. Insurance nahi hai (just cancelled for \"saving money\"). Savings ₹3L. Portfolio mein ₹5L stocks hain — kuch profit mein, kuch loss mein. Tu kya karega?"
+    },
+    {
+     "items": [
+      "🔴 Sab portfolio becho immediately at any price",
+      "🟡 Pehle profitable stocks becho, phir loss wale",
+      "🟢 Medical loan at 14% vs selling losing stocks — calculate",
+      "💡 Sell losing stocks (STCG harvest) + take medical loan for rest"
+     ],
+     "label": "Options the page offers",
+     "line": 450,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 450,
+     "t": "p",
+     "text": "💡 Sell losing stocks (STCG harvest) + take medical loan for rest"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 450,
+     "t": "p",
+     "text": "🔴 Sab portfolio becho immediately at any price"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 452,
+     "t": "p",
+     "text": "Tax-loss harvesting while selling + medical loan is mathematically optimal. 14% loan < missed returns if quality stocks sold at temporary low."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 453,
+     "t": "p",
+     "text": "Panic selling all at market price often means selling at temporary low PLUS triggering capital gains tax unnecessarily."
+    },
+    {
+     "label": "Note added by the page",
+     "line": 455,
+     "t": "p",
+     "text": "THIS IS WHY HEALTH INSURANCE IS NON-NEGOTIABLE. ₹15K/year health insurance > this entire scenario."
+    },
+    {
+     "items": [
+      "panic",
+      "loss aversion"
+     ],
+     "label": "Biases the page names",
+     "line": 453,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 457,
+     "t": "h",
+     "text": "Wedding Pressure"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 458,
+     "rows": [
+      [
+       "Date on the page",
+       "Your future"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹5L + ₹8L retirement SIP"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 457,
+     "t": "p",
+     "text": "₹15L wedding budget \"expected\". Savings only ₹5L."
+    },
+    {
+     "label": "The situation",
+     "line": 459,
+     "t": "p",
+     "text": "\"Log kya kahenge\" pressure. Teri shaadi mein ₹15L expected hai family ko. Tera savings ₹5L. Retirement SIP mein ₹8L jo 10+ saal se chal rahi hai. Kuch relatives bol rahe hain \"ek hi baar hoti hai shaadi — YOLO.\""
+    },
+    {
+     "items": [
+      "🔴 Retirement SIP withdraw karo + loan lo for full ₹15L wedding",
+      "🟡 ₹8L wedding karo — apna savings + small loan",
+      "🟢 ₹5L wedding — affordable, meaningful",
+      "💡 Destination wedding with 30 close people — ₹4L budget"
+     ],
+     "label": "Options the page offers",
+     "line": 460,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 460,
+     "t": "p",
+     "text": "💡 Destination wedding with 30 close people — ₹4L budget"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 460,
+     "t": "p",
+     "text": "🔴 Retirement SIP withdraw karo + loan lo for full ₹15L wedding"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 462,
+     "t": "p",
+     "text": "SIP withdrawal at ₹8L after 10 years means losing years of compounding. ₹8L in SIP at 12% CAGR for 10 more years = ₹24L. Wedding cost: 10 years of memories vs ₹16L opportunity cost."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 463,
+     "t": "p",
+     "text": "₹15L spent on single day = ₹50L+ opportunity cost at retirement. A meaningful small wedding is a better financial decision and often equally memorable."
+    },
+    {
+     "items": [
+      "social pressure",
+      "status bias",
+      "present bias"
+     ],
+     "label": "Biases the page names",
+     "line": 464,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 466,
+     "t": "h",
+     "text": "EMI Upgrade Temptation"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 467,
+     "rows": [
+      [
+       "Date on the page",
+       "Your future"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹3L"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 466,
+     "t": "p",
+     "text": "New ₹18L car. Current salary ₹70K. ₹40K existing EMIs."
+    },
+    {
+     "label": "The situation",
+     "line": 468,
+     "t": "p",
+     "text": "Promotion mili. Salary ₹60K se ₹70K ho gayi. Showroom mein naya ₹18L car — \"life change ho jayegi.\" EMI ₹28,000/month hogi. Current EMIs (home loan) ₹40K. Total: ₹68K = 97% salary. Dealership bol raha hai \"easy finance available.\""
+    },
+    {
+     "items": [
+      "🔴 Buy now — EMI ho jayegi, salary hai",
+      "🟡 ₹10L ka car lo — compromise karo",
+      "🟢 Second-hand 3-year-old car ₹8L — same utility",
+      "💡 Public transport 2 more years, then buy with 50% cash"
+     ],
+     "label": "Options the page offers",
+     "line": 469,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 469,
+     "t": "p",
+     "text": "💡 Public transport 2 more years, then buy with 50% cash"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 469,
+     "t": "p",
+     "text": "🔴 Buy now — EMI ho jayegi, salary hai"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 471,
+     "t": "p",
+     "text": "97% salary in EMIs = zero financial buffer. One medical expense or job loss = default. Cars depreciate 15-20% annually. ₹18L car worth ₹9L in 4 years."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 472,
+     "t": "p",
+     "text": "Second-hand car + savings invested: difference of ₹10L invested at 12% CAGR for 10 years = ₹31L."
+    },
+    {
+     "items": [
+      "status bias",
+      "lifestyle inflation",
+      "present bias"
+     ],
+     "label": "Biases the page names",
+     "line": 473,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 475,
+     "t": "h",
+     "text": "Friend Needs ₹2L Loan"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 476,
+     "rows": [
+      [
+       "Date on the page",
+       "Your future"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹2L emergency fund"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 475,
+     "t": "p",
+     "text": "Close friend needs urgent ₹2L. Your entire emergency fund."
+    },
+    {
+     "label": "The situation",
+     "line": 477,
+     "t": "p",
+     "text": "Tera best friend ne phone kiya — \"Yaar mujhe ₹2L chahiye, 2 mahine mein wapas kar dunga. Business mein problem hai.\" Yeh tera poora emergency fund hai. Tu kya karega?"
+    },
+    {
+     "items": [
+      "🔴 De do — yaar hai, trust karte hain",
+      "🟡 ₹50K de do — help kar aur emergency fund rakhho",
+      "🟢 Politely say no — explain your own financial situation",
+      "💡 Help find alternatives — NBFC loan, crowdfunding, family"
+     ],
+     "label": "Options the page offers",
+     "line": 478,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 478,
+     "t": "p",
+     "text": "🟢 Politely say no — explain your own financial situation"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 478,
+     "t": "p",
+     "text": "🔴 De do — yaar hai, trust karte hain"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 480,
+     "t": "p",
+     "text": "Friendships survive honest financial conversations better than they survive unpaid loans. Your emergency fund exists for YOUR emergencies."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 481,
+     "needsReview": true,
+     "reviewReasons": [
+      "mindsim-friend-loans"
+     ],
+     "t": "p",
+     "text": "Giving away emergency fund creates YOUR financial vulnerability. Statistics: 40% of friend loans never fully returned — strains relationships anyway."
+    },
+    {
+     "items": [
+      "social pressure",
+      "authority bias",
+      "empathy trap"
+     ],
+     "label": "Biases the page names",
+     "line": 482,
+     "t": "ul"
+    }
+   ],
+   "heading": "🏠 Life Crises",
+   "line": 290
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "line": 486,
+     "t": "h",
+     "text": "Pump & Dump Penny Stock"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 487,
+     "rows": [
+      [
+       "Date on the page",
+       "Any time"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹1L"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 486,
+     "t": "p",
+     "text": "WhatsApp group: \"Next multibagger — ₹2 se ₹100 jayegi.\""
+    },
+    {
+     "label": "The situation",
+     "line": 488,
+     "t": "p",
+     "text": "WhatsApp pe viral: \"XYZABC Ltd — promoters bada contract sign karne wale hain. Abhi ₹2 pe hai. ₹100 target. Limited seats.\" Group mein 500+ members hain, sab bol rahe hain \"maine daala.\" Stock kal se upper circuit lagna wali hai."
+    },
+    {
+     "items": [
+      "🔴 All in — ₹1L daal do",
+      "🟡 ₹10K small bet",
+      "🟢 Research karo — BSE/NSE pe company dekho",
+      "❌ Block the group — yeh classic pump & dump hai"
+     ],
+     "label": "Options the page offers",
+     "line": 489,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 489,
+     "t": "p",
+     "text": "❌ Block the group — yeh classic pump & dump hai"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 489,
+     "t": "p",
+     "text": "🔴 All in — ₹1L daal do"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 491,
+     "t": "p",
+     "text": "Classic pump-and-dump: organizers already bought at ₹0.50. Retail buyers at ₹2-5. When they sell, price crashes to ₹0.10. Circuit down for weeks. 95% permanent loss."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 492,
+     "t": "p",
+     "text": "Not investing = 100% capital preserved. These schemes specifically target retail investors who fear missing out."
+    },
+    {
+     "items": [
+      "fomo",
+      "authority bias",
+      "herd mentality"
+     ],
+     "label": "Biases the page names",
+     "line": 493,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 495,
+     "t": "h",
+     "text": "Broker's 'Hot Stock' Call"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 496,
+     "rows": [
+      [
+       "Date on the page",
+       "Any time"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹3L"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 495,
+     "t": "p",
+     "text": "Sub-broker recommends F&O position. Guaranteed 50% in 2 weeks."
+    },
+    {
+     "label": "The situation",
+     "line": 497,
+     "t": "p",
+     "text": "Tera sub-broker call karta hai: \"Sir, ek guaranteed trade hai — NIFTY 22,500 CE. 2 weeks mein ₹50K se ₹1.5L ho jayega. Sirf ₹50K chahiye, baaki mein leverage dunga.\" Professional laga, confident laga. Kya karega?"
+    },
+    {
+     "items": [
+      "🔴 \"Guaranteed\" hai — ₹3L invest karo",
+      "🟡 ₹50K dalo — risk limit karo",
+      "🟢 Iska track record maango, SEBI registered number check karo",
+      "❌ Koi bhi \"guaranteed\" return ki baat kare — fraud hai, disconnect karo"
+     ],
+     "label": "Options the page offers",
+     "line": 498,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 498,
+     "t": "p",
+     "text": "❌ Koi bhi \"guaranteed\" return ki baat kare — fraud hai, disconnect karo"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 498,
+     "t": "p",
+     "text": "🔴 \"Guaranteed\" hai — ₹3L invest karo"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 500,
+     "t": "p",
+     "text": "SEBI regulations: no one can guarantee returns. F&O leverage losses can exceed capital. Many \"sub-brokers\" are unregistered and simply pocket the money."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 501,
+     "t": "p",
+     "text": "Verified registered advisors (RIA number on SEBI website) + verified track record = minimum due diligence."
+    },
+    {
+     "items": [
+      "authority bias",
+      "greed",
+      "overconfidence"
+     ],
+     "label": "Biases the page names",
+     "line": 502,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 504,
+     "t": "h",
+     "text": "LIC Endowment vs ELSS"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 505,
+     "rows": [
+      [
+       "Date on the page",
+       "Any time"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹1L/year savings"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 504,
+     "t": "p",
+     "text": "Agent pressures: \"Family ke liye karo, ₹5L return guaranteed.\""
+    },
+    {
+     "label": "The situation",
+     "line": 506,
+     "needsReview": true,
+     "reviewReasons": [
+      "mindsim-endowment"
+     ],
+     "t": "p",
+     "text": "Tera relative (insurance agent) ₹50K/year LIC endowment plan recommend karta hai. \"20 saal mein ₹18L milenge. Life cover bhi.\" Calculation karte hain: ₹50K × 20 = ₹10L invested → ₹18L return = 3% CAGR. Alternatively: ₹50K ELSS + ₹8K term plan separately."
+    },
+    {
+     "items": [
+      "🔴 LIC endowment lo — relative ka trust hai",
+      "🟡 ULIP lo — at least market exposure milega",
+      "🟢 Term + ELSS — pure insurance + pure investment",
+      "📊 Calculate exact returns both ways before deciding"
+     ],
+     "label": "Options the page offers",
+     "line": 507,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 507,
+     "t": "p",
+     "text": "🟢 Term + ELSS — pure insurance + pure investment"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 507,
+     "t": "p",
+     "text": "🔴 LIC endowment lo — relative ka trust hai"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 509,
+     "needsReview": true,
+     "reviewReasons": [
+      "mindsim-endowment"
+     ],
+     "t": "p",
+     "text": "₹50K in ELSS for 20 years at 12% CAGR = ₹48L. ₹8K term plan gives ₹1Cr cover. Total: ₹48L + ₹1Cr cover vs ₹18L endowment. Difference: ₹30L lost to bad product."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 510,
+     "t": "p",
+     "text": "ELSS + term = mathematically superior in almost all scenarios for working-age investors."
+    },
+    {
+     "items": [
+      "authority bias",
+      "loss aversion",
+      "complexity aversion"
+     ],
+     "label": "Biases the page names",
+     "line": 511,
+     "t": "ul"
+    }
+   ],
+   "heading": "⚠️ Manipulation",
+   "line": 291
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "line": 515,
+     "t": "h",
+     "text": "2016 Demonetization"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 516,
+     "rows": [
+      [
+       "Date on the page",
+       "Nov 8, 2016"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹2L"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 515,
+     "t": "p",
+     "text": "₹500 and ₹1000 notes invalid overnight. Cash economy shock."
+    },
+    {
+     "label": "The situation",
+     "line": 517,
+     "t": "p",
+     "text": "PM Modi announced: ₹500 and ₹1000 notes invalid midnight. Nifty futures circuit down. Real estate stocks crashed. Bank stocks fell. Tu sochta hai market collapse hoga. Kya equity portfolio bechna chahiye?"
+    },
+    {
+     "items": [
+      "🔴 Sab bech do — economy crash aayega",
+      "🟡 50% cash karo",
+      "🟢 Hold — short-term disruption, not structural damage",
+      "📊 Analyse which sectors win (banks, digital payments) vs lose (real estate, cash economy)"
+     ],
+     "label": "Options the page offers",
+     "line": 518,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 518,
+     "t": "p",
+     "text": "📊 Analyse which sectors win (banks, digital payments) vs lose (real estate, cash economy)"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 518,
+     "t": "p",
+     "text": "🔴 Sab bech do — economy crash aayega"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 520,
+     "t": "p",
+     "text": "Nifty ne 6 months mein pre-demonetization highs recover kiye. Digital payment stocks like Paytm (pre-IPO investors) saw massive gains. Sector rotation mattered more than panic."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 521,
+     "t": "p",
+     "text": "Selling on demonetization night locked in temporary losses. Economy adjusted faster than expected."
+    },
+    {
+     "items": [
+      "overreaction",
+      "news trading",
+      "herd mentality"
+     ],
+     "label": "Biases the page names",
+     "line": 522,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 524,
+     "t": "h",
+     "text": "RBI Rate Hike Cycle"
+    },
+    {
+     "illustration": "The portfolio sizes in these scenarios are hypothetical amounts chosen by the page, not anyone's record.",
+     "line": 525,
+     "rows": [
+      [
+       "Date on the page",
+       "2022-2023"
+      ],
+      [
+       "Difficulty (stars on the page)",
+       "⭐⭐"
+      ],
+      [
+       "Portfolio at this point (hypothetical)",
+       "₹4L (30% bonds)"
+      ]
+     ],
+     "t": "kv"
+    },
+    {
+     "label": "Summary on the scenario card",
+     "line": 524,
+     "t": "p",
+     "text": "RBI raises rates 6 times in 8 months. Bond market chaos."
+    },
+    {
+     "label": "The situation",
+     "line": 526,
+     "t": "p",
+     "text": "RBI ne repo rate 4% se 6.5% kar di. Teri long-duration debt fund NAV ne 8% diya. Equity flat hai. Long bond funds -12% in 1 year. Sab keh rahe hain \"bonds mein mat raho.\""
+    },
+    {
+     "items": [
+      "🔴 Debt funds immediately becho — loss cut karo",
+      "🟡 Short-duration funds mein shift karo",
+      "🟢 Hold — rate cycle ends eventually",
+      "📊 Duration match with investment horizon"
+     ],
+     "label": "Options the page offers",
+     "line": 527,
+     "t": "ol"
+    },
+    {
+     "label": "The page marks this option as best",
+     "line": 527,
+     "t": "p",
+     "text": "🟡 Short-duration funds mein shift karo"
+    },
+    {
+     "label": "The page marks this option as worst",
+     "line": 527,
+     "t": "p",
+     "text": "🔴 Debt funds immediately becho — loss cut karo"
+    },
+    {
+     "label": "What the page says happened to those who held or took the best option",
+     "line": 529,
+     "t": "p",
+     "text": "Short-duration debt funds provided stability while long-duration suffered. Smart shift preserved capital AND earned reasonable returns."
+    },
+    {
+     "label": "What the page says happened to those who sold or took the worst option",
+     "line": 530,
+     "t": "p",
+     "text": "Panic selling debt at rate-hike bottom locked in losses. Debt markets recovered as RBI paused hiking cycle."
+    },
+    {
+     "items": [
+      "recency bias",
+      "loss aversion"
+     ],
+     "label": "Biases the page names",
+     "line": 531,
+     "t": "ul"
+    }
+   ],
+   "heading": "📰 Major Events",
+   "line": 292
+  }
+ ],
+ "source": "html/mindset-sim.html",
+ "summary": "Market crashes, FOMO traps, life crises — immersive financial scenarios where Arya plays the market and you make the call.",
+ "title": "AI Mindset Simulator",
+ "tool": null
+}

@@ -1,25 +1,18 @@
 {
  "category": "markets",
  "id": "forex",
- "needsReview": true,
- "reviewReasons": [
-  "forex-volume",
-  "forex-rate",
-  "forex-leverage",
-  "forex-carry"
- ],
+ "needsReview": false,
+ "reviewReasons": [],
  "sections": [
   {
    "blocks": [
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "forex-volume"
-     ],
+     "line": 162,
      "t": "p",
-     "text": "The largest market on Earth ($6 Trillion/Day). Trading the health of nations."
+     "text": "Foreign exchange is a global market. The BIS reported average OTC FX turnover of about $9.5 trillion per day in April 2025; this is a dated survey estimate, not a current daily quote. BIS survey summary."
     },
     {
+     "line": 166,
      "t": "p",
      "text": "LEVEL 01: NOOB"
     }
@@ -29,63 +22,76 @@
   {
    "blocks": [
     {
+     "line": 168,
      "t": "p",
      "text": "You cannot just \"Buy Dollar\". You must exchange it for something else."
     },
     {
      "kind": "note",
-     "needsReview": true,
-     "reviewReasons": [
-      "forex-rate"
-     ],
+     "line": 172,
      "t": "callout",
-     "text": "This means: 1 Dollar = 83.50 Rupees.\n- If you think India will do well ➔ You BUY INR (Sell USD).\n- If you think USA will raise rates ➔ You BUY USD (Sell INR).",
-     "title": "USD / INR = 83.50"
+     "text": "This means: one US dollar is quoted in Indian rupees. The live rate changes.\n- If you think India will do well ➔ You BUY INR (Sell USD).\n- If you think USA will raise rates ➔ You BUY USD (Sell INR).",
+     "title": "USD / INR example"
     },
     {
+     "kind": "note",
+     "line": 179,
+     "t": "callout",
+     "text": "In a currency pair, the first currency is the base and the second is the quote. A quoted price tells you how many units of the quote currency buy one unit of the base currency. A rising quote therefore has different implications for each side.",
+     "title": "🔁 Read the Pair"
+    },
+    {
+     "line": 183,
      "t": "p",
      "text": "LEVEL 02: MECHANIC"
     }
    ],
-   "heading": "It's Always a Pair"
+   "heading": "It's Always a Pair",
+   "line": 167
   },
   {
    "blocks": [
     {
+     "line": 185,
      "t": "p",
-     "text": "Currencies move very slowly. A 1% move is huge. To make money, traders use Leverage."
+     "text": "Exchange rates can move sharply around economic news, policy changes, or market stress. Because some currency pairs often move by smaller percentages than individual shares, traders may use leverage—but leverage magnifies losses as well as gains."
     },
     {
      "level": 3,
-     "needsReview": true,
-     "reviewReasons": [
-      "forex-leverage"
-     ],
+     "line": 189,
      "t": "h",
-     "text": "The Power of 100x"
+     "text": "Leverage Magnifies Exposure"
     },
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "forex-leverage"
-     ],
+     "line": 190,
      "t": "p",
-     "text": "With ₹1,000, you can control ₹1,00,000 worth of Dollars."
+     "text": "Leverage can make a small price move large relative to the money posted as margin."
     },
     {
+     "line": 191,
      "t": "p",
-     "text": "⚠️ Danger: A 1% move against you wipes out your entire capital instantly."
+     "text": "⚠️ Danger: A move against a leveraged position can cause a large loss, and the actual loss depends on exposure, margin, fees, and price gaps."
     },
     {
+     "kind": "note",
+     "line": 195,
+     "t": "callout",
+     "text": "If a position controls ₹1,00,000 of exposure using ₹10,000 of your own capital, a 1% move in the underlying is about ₹1,000 before costs—10% of that capital. Leverage magnifies losses as well as gains, and gaps can exceed planned stop levels.",
+     "title": "🧮 Exposure Example"
+    },
+    {
+     "line": 199,
      "t": "p",
      "text": "LEVEL 03: PRO"
     }
    ],
-   "heading": "PIPs and Leverage"
+   "heading": "PIPs and Leverage",
+   "line": 184
   },
   {
    "blocks": [
     {
+     "line": 201,
      "t": "p",
      "text": "Forex is not about charts. It is about Central Banks."
     },
@@ -95,23 +101,46 @@
       "Inflation: High inflation destroys currency value.",
       "Geopolitics: War scares investors. They run to safe havens (USD, CHF)."
      ],
+     "line": 203,
      "t": "ul"
     },
     {
-     "kind": "tip",
-     "needsReview": true,
-     "reviewReasons": [
-      "forex-carry"
-     ],
+     "kind": "note",
+     "line": 208,
      "t": "callout",
-     "text": "The Strategy: Borrow money in a country with LOW interest rates (e.g., Japan, 0%). Invest that money in a country with HIGH interest rates (e.g., USA, 5%).\nProfit: You pocket the 5% difference for free. This is how hedge funds make billions (until the currency crashes).",
+     "text": "Exchange rates can respond to interest-rate expectations, inflation, trade flows, capital flows, political events, and risk appetite. These forces can point in different directions, so a single headline rarely explains the full move.",
+     "title": "🌍 Macro Drivers"
+    },
+    {
+     "kind": "tip",
+     "line": 214,
+     "t": "callout",
+     "text": "The Strategy: A carry trade borrows in a lower-yielding currency and invests in a higher-yielding one. The interest-rate difference is not a free profit: exchange-rate moves, financing costs, and execution can outweigh it.\nProfit: The return is uncertain. A currency move can erase the yield difference or create a loss; the trade also involves funding, liquidity, and counterparty risks.",
      "title": "☠️ GOD MODE: The Carry Trade"
+    },
+    {
+     "kind": "note",
+     "line": 218,
+     "t": "callout",
+     "text": "Before trading, verify that the product and venue are permitted for you under current Indian rules. Check the contract specification, margin, expiry, costs, and counterparty. Avoid offshore platforms that promise extreme leverage or guaranteed returns. Check RBI’s forex FAQ and authorised platform lists.",
+     "title": "✅ India Rules and Risk"
     }
    ],
-   "heading": "What Moves Price? (Macro)"
+   "heading": "What Moves Price? (Macro)",
+   "line": 200
   }
  ],
  "source": "html/learn-forex.html",
+ "sources": [
+  {
+   "label": "BIS survey summary",
+   "url": "https://www.bis.org/publications/qr-202512/global-fx-markets-when-hedging-takes-centre-stage"
+  },
+  {
+   "label": "Check RBI’s forex FAQ and authorised platform lists",
+   "url": "https://www.rbi.org.in/commonperson/english/Scripts/FAQs.aspx?Id=146"
+  }
+ ],
  "summary": "Forex Deep Dive — the quick version before the full Forex Masterclass.",
  "title": "Forex Deep Dive",
  "tool": null

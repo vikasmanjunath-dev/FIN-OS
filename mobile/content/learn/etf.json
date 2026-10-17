@@ -1,18 +1,18 @@
 {
  "category": "markets",
  "id": "etf",
- "needsReview": true,
- "reviewReasons": [
-  "etf-ter"
- ],
+ "needsReview": false,
+ "reviewReasons": [],
  "sections": [
   {
    "blocks": [
     {
+     "line": 162,
      "t": "p",
      "text": "Don't look for the needle. Buy the haystack. It's cheaper, safer, and smarter."
     },
     {
+     "line": 166,
      "t": "p",
      "text": "LEVEL 01: NOOB"
     }
@@ -22,82 +22,122 @@
   {
    "blocks": [
     {
+     "line": 169,
      "t": "p",
      "text": "Buying individual stocks (Reliance, TCS, HDFC) is like ordering A La Carte. It's expensive, and if the Dal is bad, your dinner is ruined."
     },
     {
      "kind": "note",
-     "needsReview": true,
-     "reviewReasons": [
-      "etf-ter"
-     ],
+     "line": 173,
      "t": "callout",
-     "text": "An ETF (Exchange Traded Fund) is a pre-set Thali.\n- Nifty 50 ETF: You get a spoon of Reliance, a bowl of HDFC, a slice of TCS.\n- The Cost: Dirt cheap. (Expense Ratio: 0.05%).\n- The Logic: You are betting on India's Economy, not one company's CEO.",
+     "text": "An ETF (Exchange Traded Fund) is a pre-set Thali.\n- Nifty 50 ETF: You get a spoon of Reliance, a bowl of HDFC, a slice of TCS.\n- The Cost: Costs vary by scheme and can include the expense ratio, bid-ask spread, brokerage, and tracking difference. Check the fund’s latest factsheet and trading liquidity.\n- The Logic: You are betting on India's Economy, not one company's CEO.",
      "title": "🍱 The ETF Thali"
     },
     {
+     "kind": "note",
+     "line": 181,
+     "t": "callout",
+     "text": "An ETF unit gives exposure to a basket according to the fund’s mandate. A broad index ETF spreads exposure across its constituents, but it can still fall when the market falls. Diversification reduces single-company exposure; it does not remove market risk.",
+     "title": "🧺 Basket Example"
+    },
+    {
+     "line": 185,
      "t": "p",
      "text": "LEVEL 02: MECHANIC"
     }
    ],
-   "heading": "The \"Indian Thali\" Analogy"
+   "heading": "The \"Indian Thali\" Analogy",
+   "line": 167
   },
   {
    "blocks": [
     {
+     "line": 187,
      "t": "p",
      "text": "Mutual Funds trade once a day (NAV). ETFs trade Live like stocks."
     },
     {
+     "line": 191,
      "t": "p",
      "text": "Stock Market (NSE) ⬇️"
     },
     {
+     "line": 194,
      "t": "p",
      "text": "NIFTYBEES (The ETF)"
     },
     {
      "level": 3,
+     "line": 201,
      "t": "h",
      "text": "The Secret Keeper: Authorized Participants (APs)"
     },
     {
+     "line": 202,
      "t": "p",
-     "text": "If everyone sells NiftyBees, price should crash, right? Wrong."
+     "text": "ETF units trade between investors on an exchange, while authorised participants can create or redeem units. This mechanism can help keep market prices near portfolio value, but it does not prevent premiums, discounts, or temporary dislocations."
     },
     {
+     "line": 203,
      "t": "p",
      "text": "APs (Big Banks) step in. If ETF price < True Value (NAV), they buy the ETF and sell the underlying stocks for a profit. This arbitrage keeps the price glued to the true value."
     },
     {
+     "kind": "note",
+     "line": 205,
+     "t": "callout",
+     "text": "The exchange price is the price at which buyers and sellers trade. NAV is the estimated per-unit value of the underlying portfolio. Supply, demand, spreads, and liquidity can make the traded price differ from NAV during the day.",
+     "title": "🔄 Two Values to Watch"
+    },
+    {
+     "line": 209,
      "t": "p",
      "text": "LEVEL 03: PRO"
     }
    ],
-   "heading": "How does it actually trade?"
+   "heading": "How does it actually trade?",
+   "line": 186
   },
   {
    "blocks": [
     {
      "kind": "note",
+     "line": 214,
      "t": "callout",
-     "text": "If Nifty goes up 10%, your ETF should go up 10%. If it goes up only 9.8%, the 0.2% is Tracking Error. Lower is better.",
+     "text": "An ETF’s return may differ from its benchmark because of expenses, cash holdings, trading, and portfolio replication. The return gap over a period is tracking difference; tracking error describes how variable those gaps are over time.",
      "title": "1. Tracking Error"
     },
     {
      "kind": "note",
+     "line": 219,
      "t": "callout",
-     "text": "Don't just look at \"Volume\". Look at the Bid-Ask Spread. If you want to buy at ₹100 but the seller is at ₹101, you lose 1% instantly. Stick to high-volume ETFs like NIFTYBEES or BANKBEES.",
+     "text": "Check the bid-ask spread, displayed depth, and trading activity before placing an order. A wide spread can raise your entry or exit cost. Consider limit orders, and compare the ETF’s actual liquidity rather than relying on its name or past volume.",
      "title": "2. Impact Cost (Liquidity)"
     },
     {
+     "kind": "note",
+     "line": 222,
+     "t": "callout",
+     "text": "If an ETF’s best buy quote is ₹101 and its best sell quote is ₹99, the ₹2 gap is a trading cost you may face when entering or exiting. Check liquidity and use limit orders where appropriate; a low expense ratio alone does not guarantee a low total cost.",
+     "title": "🧮 Cost of a Wide Spread"
+    },
+    {
      "kind": "tip",
+     "line": 228,
      "t": "callout",
      "text": "Beyond simple Indexing. This is how you beat the market passively.\nMomentum ETFs (MOM30)\nAutomated strategy that buys stocks that are already going up and sells losers. \"The Trend is your Friend\" coded into an algorithm.\nLow Volatility (LOWVOL)\nBuys boring, stable stocks (FMCG, Power). Performs better in market crashes. It's the \"Sleep Well\" portfolio.",
      "title": "☠️ GOD MODE: Smart Beta & Factors"
+    },
+    {
+     "kind": "note",
+     "line": 237,
+     "t": "callout",
+     "text": "Read the index methodology, holdings, tracking difference, bid-ask spread, and trading volume. For factor or “smart beta” products, understand the rules that select and weight securities, and consider how that factor may behave in different markets.",
+     "title": "✅ ETF Checklist"
     }
    ],
-   "heading": "Critical Metrics (Don't Ignore)"
+   "heading": "Critical Metrics (Don't Ignore)",
+   "line": 210
   }
  ],
  "source": "html/learn-etf.html",

@@ -1,46 +1,53 @@
 {
  "category": "analysis",
  "id": "indicators",
- "needsReview": true,
- "reviewReasons": [
-  "indicators-vwap"
- ],
+ "needsReview": false,
+ "reviewReasons": [],
  "sections": [
   {
    "blocks": [
     {
+     "line": 392,
      "t": "p",
      "text": "The complete flight control deck. Every indicator in the world. // CALIBRATE YOUR INSTRUMENTS"
     },
     {
+     "line": 400,
      "t": "p",
      "text": "🧭 Trend"
     },
     {
+     "line": 404,
      "t": "p",
      "text": "🏎️ Momentum"
     },
     {
+     "line": 408,
      "t": "p",
      "text": "📊 Volume"
     },
     {
+     "line": 412,
      "t": "p",
      "text": "🧱 Support"
     },
     {
+     "line": 416,
      "t": "p",
      "text": "🧩 Patterns"
     },
     {
+     "line": 420,
      "t": "p",
      "text": "🌊 Volatility"
     },
     {
+     "line": 424,
      "t": "p",
      "text": "🕯️ Action"
     },
     {
+     "line": 428,
      "t": "p",
      "text": "⏳ Time"
     }
@@ -50,396 +57,556 @@
   {
    "blocks": [
     {
+     "line": 441,
      "t": "p",
      "text": "Trend Lines 📏"
     },
     {
+     "line": 442,
      "t": "p",
      "text": "Visual lines connecting highs or lows. They simplify chaos into a direction."
     },
     {
      "kind": "note",
+     "line": 444,
      "t": "callout",
      "text": "Highway Logic\nUphill road = Effort required. Trend line shows the slope of the hill.",
      "title": ""
     },
     {
+     "line": 450,
      "t": "p",
      "text": "Simple Moving Average (SMA) 〰️"
     },
     {
+     "line": 451,
      "t": "p",
      "text": "The average price over X days. Smooths out daily noise to show the path."
     },
     {
      "kind": "note",
+     "line": 453,
      "t": "callout",
      "text": "Crowd Logic\nA drunk man walks erratically (Price). His sober friend walks straight (SMA). Follow the friend.",
      "title": ""
     },
     {
+     "line": 459,
      "t": "p",
      "text": "Exponential MA (EMA) ⚡"
     },
     {
+     "line": 460,
      "t": "p",
      "text": "Gives more weight to recent prices. Reacts faster than SMA."
     },
     {
      "kind": "note",
+     "line": 462,
      "t": "callout",
      "text": "News Logic\nToday's newspaper is more important than last month's. EMA cares about Today.",
      "title": ""
     },
     {
+     "line": 468,
      "t": "p",
      "text": "ADX 💪"
     },
     {
+     "line": 469,
      "t": "p",
      "text": "Average Directional Index. Measures the STRENGTH of a trend, not direction."
     },
     {
      "kind": "note",
+     "line": 471,
      "t": "callout",
      "text": "Speedometer\nIt shows 100kmph. It doesn't care if you are going North or South, just that you are Fast.",
      "title": ""
     },
     {
+     "line": 477,
      "t": "p",
      "text": "Ichimoku Cloud ☁️"
     },
     {
+     "line": 478,
      "t": "p",
      "text": "Japanese \"One Glance\" chart. Shows support, resistance, and trend all at once."
     },
     {
      "kind": "note",
+     "line": 480,
      "t": "callout",
      "text": "Weather Forecast\nIf Price is above the Cloud, it is a Sunny Day (Buy). Below Cloud = Rainy Day (Sell).",
      "title": ""
     },
     {
+     "line": 486,
      "t": "p",
      "text": "Parabolic SAR ✨"
     },
     {
+     "line": 487,
      "t": "p",
      "text": "Stop and Reverse. Dots below candle = Bullish. Dots above = Bearish."
     },
     {
      "kind": "note",
+     "line": 489,
      "t": "callout",
      "text": "Chasing Dog\nThe dots chase the price. If price stops or turns, the dots catch up and flip signal.",
      "title": ""
+    },
+    {
+     "line": 495,
+     "t": "p",
+     "text": "🧭 Trend Check"
+    },
+    {
+     "line": 495,
+     "t": "p",
+     "text": "A moving average describes recent price history; it does not forecast the next move. Sideways markets can produce repeated false crossovers. Check the broader price structure and the time frame you are using."
     }
    ],
-   "heading": "Trend Indicators"
+   "heading": "Trend Indicators",
+   "line": 436
   },
   {
    "blocks": [
     {
+     "line": 507,
      "t": "p",
      "text": "RSI ⚡"
     },
     {
+     "line": 508,
      "t": "p",
      "text": "Relative Strength Index. Speed of price change. Overbought (>70) vs Oversold (<30)."
     },
     {
+     "line": 511,
      "t": "p",
      "text": "Simulation: The Biryani Limit"
     },
     {
+     "line": 513,
      "t": "p",
      "text": "Status: BALANCED (Eat More)"
     },
     {
+     "line": 518,
      "t": "p",
      "text": "MACD 🏎️"
     },
     {
+     "line": 519,
      "t": "p",
      "text": "Moving Average Convergence Divergence. Detects trend reversals early."
     },
     {
      "kind": "note",
+     "line": 521,
      "t": "callout",
      "text": "Gear Shift\nYou feel the engine rev (MACD) before the car actually speeds up.",
      "title": ""
     },
     {
+     "line": 527,
      "t": "p",
      "text": "Stochastic Oscillator 🎢"
     },
     {
+     "line": 528,
      "t": "p",
      "text": "Compares closing price to price range. Very sensitive."
     },
     {
      "kind": "note",
+     "line": 530,
      "t": "callout",
      "text": "Rocket Fuel\nA rocket slows down at the top before falling. Stochastic spots that slowdown.",
      "title": ""
     },
     {
+     "line": 536,
      "t": "p",
      "text": "CCI 🌡️"
     },
     {
+     "line": 537,
      "t": "p",
      "text": "Commodity Channel Index. Measures deviation from statistical average."
     },
     {
      "kind": "note",
+     "line": 539,
      "t": "callout",
      "text": "Fever Check\nNormal body temp is 37°C. If CCI hits +100, the market has a fever (Overheated).",
      "title": ""
+    },
+    {
+     "line": 545,
+     "t": "p",
+     "text": "🧭 Momentum Check"
+    },
+    {
+     "line": 545,
+     "t": "p",
+     "text": "An overbought reading can persist during a strong trend, and an oversold reading can persist during a decline. Treat thresholds as context and look for confirmation rather than assuming an automatic reversal."
     }
    ],
-   "heading": "Momentum"
+   "heading": "Momentum",
+   "line": 502
   },
   {
    "blocks": [
     {
+     "line": 557,
      "t": "p",
      "text": "Volume Bars 📶"
     },
     {
+     "line": 558,
      "t": "p",
      "text": "Shows participation. Price moving without volume is a trap."
     },
     {
+     "line": 565,
      "t": "p",
      "text": "\"Clapping in a stadium. The sound is REAL. The move is trusted.\""
     },
     {
+     "line": 570,
      "t": "p",
      "text": "VWAP ⚖️"
     },
     {
+     "line": 571,
      "t": "p",
      "text": "Volume Weighted Average Price. Used by Institutions. The \"Fair Price\" of the day."
     },
     {
      "kind": "note",
-     "needsReview": true,
-     "reviewReasons": [
-      "indicators-vwap"
-     ],
+     "line": 573,
      "t": "callout",
-     "text": "Wholesale Rate\nBig dealers (FIIs) only buy near VWAP. They don't pay Retail MRP.",
+     "text": "Wholesale Rate\nTraders may use VWAP as an execution benchmark, but institutions do not only buy near it. VWAP is one reference for comparing execution with traded volume and price.",
      "title": ""
     },
     {
+     "line": 579,
      "t": "p",
      "text": "On-Balance Volume (OBV) 💧"
     },
     {
+     "line": 580,
      "t": "p",
      "text": "Cumulative volume flow. Helps spot smart money accumulation."
     },
     {
      "kind": "note",
+     "line": 582,
      "t": "callout",
      "text": "Water Tank\nIf water (volume) keeps filling the tank, pressure (price) will eventually burst up.",
      "title": ""
     },
     {
+     "line": 588,
      "t": "p",
      "text": "Money Flow Index (MFI) 💸"
     },
     {
+     "line": 589,
      "t": "p",
      "text": "Like RSI, but includes Volume. Known as Volume-weighted RSI."
     },
     {
      "kind": "note",
+     "line": 591,
      "t": "callout",
      "text": "Cash Count\nAre people putting money IN or taking money OUT? MFI tracks the cash.",
      "title": ""
+    },
+    {
+     "line": 597,
+     "t": "p",
+     "text": "🧭 Volume Check"
+    },
+    {
+     "line": 597,
+     "t": "p",
+     "text": "Volume is most useful relative to the instrument’s own history and trading session. Compare like periods and remember that reported volume does not reveal every participant’s intent."
     }
    ],
-   "heading": "Volume"
+   "heading": "Volume",
+   "line": 552
   },
   {
    "blocks": [
     {
+     "line": 604,
      "t": "p",
      "text": "Support & Resistance 🪜"
     },
     {
+     "line": 610,
      "t": "p",
      "text": "Price floors (Support) and ceilings (Resistance) based on history."
     },
     {
      "kind": "note",
+     "line": 612,
      "t": "callout",
      "text": "Psychology\nSupport = \"Cheap, Buy Now\". Resistance = \"Expensive, Sell Now\".",
      "title": ""
     },
     {
+     "line": 618,
      "t": "p",
      "text": "Fibonacci Retracement 🌀"
     },
     {
+     "line": 619,
      "t": "p",
-     "text": "Mathematical ratios (38%, 50%, 61%) where price naturally pulls back."
+     "text": "Commonly watched retracement levels include about 38%, 50%, and 62%. Traders use them as reference points; price does not have to reverse at any of these levels."
     },
     {
      "kind": "note",
+     "line": 621,
      "t": "callout",
-     "text": "Rubber Band\nStretch a rubber band and let go slightly. It snaps back to a natural point (50%).",
+     "text": "Rubber Band\nA retracement is a partial move against a prior price move. A percentage level can help mark a chart, but it does not create a force that makes price reverse.",
      "title": ""
     },
     {
+     "line": 627,
      "t": "p",
      "text": "Pivot Points 📍"
     },
     {
+     "line": 628,
      "t": "p",
      "text": "Calculated levels based on yesterday's High, Low, and Close."
     },
     {
      "kind": "note",
+     "line": 630,
      "t": "callout",
      "text": "Building Floors\nPrice moves from Floor 1 (R1) to Floor 2 (R2). Pivots are the concrete slabs.",
      "title": ""
+    },
+    {
+     "line": 636,
+     "t": "p",
+     "text": "🧭 Support and Resistance Check"
+    },
+    {
+     "line": 636,
+     "t": "p",
+     "text": "Mark zones rather than treating a single price as an exact barrier. A level that breaks can change role, but confirmation and risk planning matter more than the label."
     }
    ],
-   "heading": "Support & Resistance"
+   "heading": "Support & Resistance",
+   "line": 604
   },
   {
    "blocks": [
     {
+     "line": 648,
      "t": "p",
      "text": "Reversal Patterns ↩️"
     },
     {
+     "line": 649,
      "t": "p",
      "text": "Head & Shoulders, Double Top. Signals a U-Turn in trend."
     },
     {
      "kind": "note",
+     "line": 651,
      "t": "callout",
      "text": "U-Turn\nLike a car slowing down, turning wheels, and reversing.",
      "title": ""
     },
     {
+     "line": 657,
      "t": "p",
      "text": "Continuation Patterns ⏯️"
     },
     {
+     "line": 658,
      "t": "p",
      "text": "Flags, Pennants. Signals a pause before continuing same direction."
     },
     {
      "kind": "note",
+     "line": 660,
      "t": "callout",
      "text": "Chai Break\nWorkers stop for 10 mins (Flag), then resume working (Trend continues).",
      "title": ""
+    },
+    {
+     "line": 666,
+     "t": "p",
+     "text": "🧭 Pattern Check"
+    },
+    {
+     "line": 666,
+     "t": "p",
+     "text": "Patterns are interpretations of past price action, not guarantees. Decide in advance what would invalidate the pattern and avoid selecting only examples that worked."
     }
    ],
-   "heading": "Patterns"
+   "heading": "Patterns",
+   "line": 643
   },
   {
    "blocks": [
     {
+     "line": 678,
      "t": "p",
      "text": "Bollinger Bands 🌊"
     },
     {
+     "line": 679,
      "t": "p",
-     "text": "Bands expand when wild, contract when quiet. Price stays inside 95% of time."
+     "text": "Bollinger Bands widen as recent volatility rises and narrow as it falls. Price can remain outside the bands for extended periods; a touch is not, by itself, a reversal signal."
     },
     {
      "kind": "note",
+     "line": 681,
      "t": "callout",
      "text": "River Width\nNarrow river = Calm. Wide river = Flood. Don't swim during a flood.",
      "title": ""
     },
     {
+     "line": 687,
      "t": "p",
      "text": "ATR 📏"
     },
     {
+     "line": 688,
      "t": "p",
      "text": "Average True Range. Measures the average daily move size."
     },
     {
      "kind": "note",
+     "line": 690,
      "t": "callout",
      "text": "Road Conditions\nHighway (High ATR) vs Gully (Low ATR). Determines your Stop Loss size.",
      "title": ""
     },
     {
+     "line": 696,
      "t": "p",
      "text": "Donchian Channels 🛣️"
     },
     {
+     "line": 697,
      "t": "p",
      "text": "Plots the Highest High and Lowest Low over X days. Breakout indicator."
     },
     {
      "kind": "note",
+     "line": 699,
      "t": "callout",
      "text": "The Box\nPrice is trapped in a box. When it breaks the lid (Upper Channel), it flies.",
      "title": ""
+    },
+    {
+     "line": 705,
+     "t": "p",
+     "text": "🧭 Volatility Check"
+    },
+    {
+     "line": 705,
+     "t": "p",
+     "text": "Volatility measures the size of price movement, not its direction. A wider expected range can mean position sizing and stop placement need more room."
     }
    ],
-   "heading": "Volatility"
+   "heading": "Volatility",
+   "line": 673
   },
   {
    "blocks": [
     {
+     "line": 716,
      "t": "p",
      "text": "Candlesticks 🕯️"
     },
     {
+     "line": 717,
      "t": "p",
      "text": "Doji, Hammer, Engulfing. Visual representation of buyer/seller war."
     },
     {
      "kind": "note",
+     "line": 719,
      "t": "callout",
      "text": "Boxing Match\nBig Green Candle = Knockout punch by Buyer. Small Candle = Just a jab.",
      "title": ""
     },
     {
+     "line": 725,
      "t": "p",
      "text": "Market Structure 📈"
     },
     {
+     "line": 726,
      "t": "p",
      "text": "Higher Highs (Uptrend) vs Lower Lows (Downtrend)."
     },
     {
      "kind": "note",
+     "line": 728,
      "t": "callout",
      "text": "Staircase\nAs long as you are stepping UP, you are going to the roof.",
      "title": ""
+    },
+    {
+     "line": 734,
+     "t": "p",
+     "text": "🧭 Price Action Check"
+    },
+    {
+     "line": 734,
+     "t": "p",
+     "text": "A candle summarizes open, high, low, and close for one interval. The same candle can mean different things depending on where it appears and what happens next."
     }
    ],
-   "heading": "Price Action"
+   "heading": "Price Action",
+   "line": 711
   },
   {
    "blocks": [
     {
+     "line": 746,
      "t": "p",
      "text": "Context Zoom 🔍"
     },
     {
+     "line": 747,
      "t": "p",
      "text": "Monthly (Trend) > Daily (Setup) > 15-min (Entry)."
     },
     {
      "kind": "note",
+     "line": 749,
      "t": "callout",
      "text": "Google Maps\nZoom Out = City View (Direction). Zoom In = Street View (Potholes). You need both.",
      "title": ""
+    },
+    {
+     "line": 755,
+     "t": "p",
+     "text": "🧭 Time Frame Check"
+    },
+    {
+     "line": 755,
+     "t": "p",
+     "text": "Signals can disagree across time frames. Choose the time frame that matches your decision horizon and avoid switching time frames only to find support for a preferred trade."
     }
    ],
-   "heading": "Time Frames"
+   "heading": "Time Frames",
+   "line": 741
   }
  ],
  "source": "html/learn-indicators.html",

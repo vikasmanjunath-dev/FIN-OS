@@ -1,19 +1,18 @@
 {
  "category": "markets",
  "id": "fno",
- "needsReview": true,
- "reviewReasons": [
-  "fno-stat",
-  "fno-selling"
- ],
+ "needsReview": false,
+ "reviewReasons": [],
  "sections": [
   {
    "blocks": [
     {
+     "line": 162,
      "t": "p",
-     "text": "Weapons of Mass Destruction for the ignorant. Insurance for the wise."
+     "text": "Derivatives can magnify exposure or hedge defined risks. Understand the contract, costs, and possible loss before trading."
     },
     {
+     "line": 166,
      "t": "p",
      "text": "LEVEL 01: NOOB"
     }
@@ -24,61 +23,96 @@
    "blocks": [
     {
      "kind": "note",
+     "line": 171,
      "t": "callout",
-     "text": "Spot Market: You pay ₹1 Crore and buy the flat. Simple.\nOption Market: You pay a Token Amount (Premium) of ₹1 Lakh to \"book\" the flat price at ₹1 Cr for 3 months.\n- If price goes to ₹1.5 Cr: You exercise your right. Profit!\n- If price drops to ₹80L: You walk away. You only lose the ₹1 Lakh token.",
+     "text": "Spot Market: You pay ₹1 Crore and buy the flat. Simple.\nOption Market: You pay a Token Amount (Premium) of ₹1 Lakh to \"book\" the flat price at ₹1 Cr for 3 months.\n- If the assumed value at expiry is ₹1.5 crore, the option has ₹50 lakh of gross intrinsic value before subtracting the ₹1 lakh premium and other costs.\n- If the assumed value at expiry is ₹80 lakh, the option may expire unused; the buyer loses the ₹1 lakh premium and any other costs.",
      "title": "🏠 Buying a Flat vs Buying an Option"
     },
     {
+     "kind": "note",
+     "line": 179,
+     "t": "callout",
+     "text": "An option is a contract with a defined underlying, strike, expiry, and lot size. The buyer pays a premium for a right; the seller takes on an obligation. Understand the contract terms and maximum possible loss before placing any trade.",
+     "title": "🧾 Contract Before View"
+    },
+    {
+     "line": 183,
      "t": "p",
      "text": "LEVEL 02: MECHANIC"
     }
    ],
-   "heading": "The Real Estate Analogy"
+   "heading": "The Real Estate Analogy",
+   "line": 167
   },
   {
    "blocks": [
     {
+     "line": 185,
      "t": "p",
      "text": "Call Option (CE): Betting the market will go UP."
     },
     {
+     "line": 186,
      "t": "p",
      "text": "Put Option (PE): Betting the market will go DOWN (Insurance)."
     },
     {
+     "line": 187,
      "t": "p",
-     "text": "Most retailers buy Puts to gamble on crashes. Institutions buy Puts to protect their multi-crore portfolios."
+     "text": "A put option can be used to express a view on falling prices or to hedge an existing exposure. Both individuals and institutions may use options for different purposes."
     },
     {
+     "kind": "note",
+     "line": 189,
+     "t": "callout",
+     "text": "A call generally gains intrinsic value when the underlying finishes above its strike; a put generally gains intrinsic value when it finishes below its strike. The buyer must also recover the premium and costs to make a net profit.",
+     "title": "📍 Payoff at Expiry"
+    },
+    {
+     "line": 193,
      "t": "p",
      "text": "LEVEL 03: PRO"
     }
    ],
-   "heading": "Call (CE) vs Put (PE)"
+   "heading": "Call (CE) vs Put (PE)",
+   "line": 184
   },
   {
    "blocks": [
     {
+     "line": 195,
      "t": "p",
      "text": "An Option contract is like an Ice Cream cone. It melts every second."
     },
     {
+     "line": 196,
      "t": "p",
      "text": "This melting is called Time Decay (Theta). If the market stays flat, the Option Buyer LOSES money because the time ran out."
     },
     {
-     "kind": "tip",
-     "needsReview": true,
-     "reviewReasons": [
-      "fno-stat",
-      "fno-selling"
-     ],
+     "kind": "note",
+     "line": 198,
      "t": "callout",
-     "text": "Retailers BUY options (Lottery tickets). Institutions SELL options (The Casino).\nWhy? Because 66% of the time, markets are sideways. In sideways markets, Option Buyers lose 100% of their premium due to Theta Decay. Option Sellers keep it.\nVerdict: Buying options is playing against the House. Selling options IS the House.",
+     "text": "An option’s premium can include time value as well as intrinsic value. As expiry approaches, time value can shrink, especially when the underlying does not move as expected. Volatility and rates also affect option prices.",
+     "title": "⏳ Time Is Part of the Price"
+    },
+    {
+     "kind": "tip",
+     "line": 204,
+     "t": "callout",
+     "text": "Both individuals and institutions may buy or sell options for different reasons. An option’s outcome depends on the position, price movement, volatility, time, and costs.\nWhy? An option buyer can lose the premium paid if the option expires worthless, but not every buyer loses the full premium. Time decay is one factor; direction, volatility, expiry, and costs also matter. An option seller can face losses much larger than the premium received.\nVerdict: Neither buying nor selling is automatically superior. Selling options carries substantial risk and may require significant margin; understand the maximum loss and contract rules before considering a position.",
      "title": "☠️ GOD MODE: Option Selling"
+    },
+    {
+     "kind": "note",
+     "line": 209,
+     "t": "callout",
+     "text": "Option sellers collect premium but may face large or theoretically unlimited losses depending on the position. Margin can rise as markets move. Define risk in advance, understand assignment and expiry rules, and never treat collected premium as guaranteed income.",
+     "title": "⚠️ Selling Has Uneven Risk"
     }
    ],
-   "heading": "The Ice Cream Logic (Theta)"
+   "heading": "The Ice Cream Logic (Theta)",
+   "line": 194
   }
  ],
  "source": "html/learn-fno.html",

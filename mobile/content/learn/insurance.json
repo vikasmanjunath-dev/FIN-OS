@@ -1,20 +1,18 @@
 {
  "category": "protection",
  "id": "insurance",
- "needsReview": true,
- "reviewReasons": [
-  "insurance-medinf",
-  "insurance-endowment",
-  "insurance-cover"
- ],
+ "needsReview": false,
+ "reviewReasons": [],
  "sections": [
   {
    "blocks": [
     {
+     "line": 503,
      "t": "p",
      "text": "Transferring the risk of catastrophic system failure."
     },
     {
+     "line": 516,
      "t": "p",
      "text": "System Logic 01"
     }
@@ -24,94 +22,133 @@
   {
    "blocks": [
     {
+     "line": 518,
      "t": "p",
      "text": "Insurance is not an investment. It is a contract where you pay a small \"Service Fee\" (Premium) to a massive entity, so that when a \"Critical Error\" (Death, Accident, Fire) occurs, they bear the financial cost instead of you."
     },
     {
      "kind": "fact",
+     "line": 520,
      "t": "callout",
      "text": "Brutal Truth: If you are buying insurance to \"get money back,\" you are doing it wrong. That is a marketing trap.",
      "title": ""
     },
     {
+     "level": 3,
+     "line": 524,
+     "t": "h",
+     "text": "🧾 Read the Contract"
+    },
+    {
+     "line": 524,
+     "t": "p",
+     "text": "Insurance pays according to the policy wording and claim conditions. Check who is covered, what events are covered, exclusions, waiting periods, claim steps, and renewal terms before relying on a policy."
+    },
+    {
+     "line": 528,
      "t": "p",
      "text": "LEVEL 02: HARDWARE PROTECTION"
     }
    ],
-   "heading": "What is Insurance? (Risk Transfer)"
+   "heading": "What is Insurance? (Risk Transfer)",
+   "line": 517
   },
   {
    "blocks": [
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "insurance-medinf"
-     ],
+     "line": 530,
      "t": "p",
-     "text": "In the Indian context, medical inflation is roughly 14%. A single bypass surgery or a 10-day ICU stay can delete years of compounding in a week."
+     "text": "Healthcare costs and medical inflation estimates vary by service, location, and source. A serious illness can create large costs; review policy limits and your ability to meet exclusions and out-of-pocket expenses."
     },
     {
      "level": 3,
+     "line": 534,
      "t": "h",
      "text": "🚫 No Room Rent Cap"
     },
     {
+     "line": 535,
      "t": "p",
      "text": "If your policy has a cap (e.g., 1% of sum insured), and you take a better room, the company will cut your entire bill proportionally. It's a hidden kill-switch."
     },
     {
      "level": 3,
+     "line": 538,
      "t": "h",
      "text": "🚫 No Co-Pay"
     },
     {
+     "line": 539,
      "t": "p",
      "text": "Co-pay means you pay a percentage of every bill. This is fine for small things, but catastrophic for a ₹20 Lakh bill."
     },
     {
+     "level": 3,
+     "line": 548,
+     "t": "h",
+     "text": "🏥 Compare the Hospital Bill"
+    },
+    {
+     "line": 548,
+     "t": "p",
+     "text": "For a health policy, examine room eligibility, co-payment, deductibles, sub-limits, pre-existing condition waiting periods, network hospitals, and restoration benefits. A large sum insured does not remove restrictions elsewhere in the contract."
+    },
+    {
+     "line": 552,
      "t": "p",
      "text": "LEVEL 03: LIFE PROTOCOL"
     }
    ],
-   "heading": "Health Insurance: The \"Anti-Wipeout\" Layer"
+   "heading": "Health Insurance: The \"Anti-Wipeout\" Layer",
+   "line": 529
   },
   {
    "blocks": [
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "insurance-endowment"
-     ],
+     "line": 554,
      "t": "p",
-     "text": "Most Indians buy \"Endowment\" plans (LIC style) because they \"get money back.\" These plans give ~5% returns. Inflation is 6-7%. You are literally losing money to insure yourself."
+     "text": "Traditional savings-linked insurance policies combine insurance and savings features, with benefits defined by the contract. Compare guaranteed and non-guaranteed benefits, charges, cover, surrender terms, and tax treatment; avoid assuming one return or inflation rate applies to every policy."
     },
     {
      "level": 3,
+     "line": 557,
      "t": "h",
      "text": "The FIN-OS Formula"
     },
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "insurance-cover"
-     ],
+     "line": 558,
      "t": "p",
-     "text": "Cover = (Annual Income × 20) + Total Debt"
+     "text": "A life-cover estimate should consider dependants’ needs, liabilities, existing assets and insurance, future goals, and the years of support required. Use the linked calculator as an estimate, not a universal formula."
     },
     {
+     "line": 559,
      "t": "p",
-     "text": "If you earn ₹10L/year and have a ₹50L Home Loan, you need a ₹2.5 Crore Term Plan. Anything less is a system vulnerability."
+     "text": "A sample calculation is only a starting point. The appropriate cover depends on household circumstances and should be reviewed as income, debt, dependants, and assets change."
+    },
+    {
+     "level": 3,
+     "line": 562,
+     "t": "h",
+     "text": "👪 Estimate the Need"
+    },
+    {
+     "line": 562,
+     "t": "p",
+     "text": "Think through the income your dependants would need, outstanding debts, existing assets, other cover, and how long support may be required. Treat any income multiple as a starting estimate, not a universal answer."
     }
    ],
-   "heading": "Term Insurance: Pure Death Benefit"
+   "heading": "Term Insurance: Pure Death Benefit",
+   "line": 553
   },
   {
    "blocks": [
     {
+     "line": 568,
      "t": "p",
      "text": "Masters of the system don't insure everything. They follow the Matrix of Transfer:"
     },
     {
+     "line": 572,
      "rows": [
       [
        "Probability",
@@ -130,9 +167,21 @@
       ]
      ],
      "t": "table"
+    },
+    {
+     "level": 3,
+     "line": 589,
+     "t": "h",
+     "text": "✅ Claim-Ready Checklist"
+    },
+    {
+     "line": 589,
+     "t": "p",
+     "text": "Keep policy details and insurer contact information accessible, understand how to notify a claim, and retain bills and records. Recheck cover when dependants, debt, income, or employer benefits change. Confirm current tax treatment with an authoritative source."
     }
    ],
-   "heading": "☠️ GOD MODE: The 1% Risk Manager"
+   "heading": "☠️ GOD MODE: The 1% Risk Manager",
+   "line": 567
   }
  ],
  "source": "html/learn-insurance.html",

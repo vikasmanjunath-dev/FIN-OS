@@ -1,17 +1,13 @@
 {
  "category": "foundations",
  "id": "finance101",
- "needsReview": true,
- "reviewReasons": [
-  "finance101-cc-interest",
-  "finance101-sgb-digital",
-  "finance101-epf-taxfree",
-  "finance101-cpi"
- ],
+ "needsReview": false,
+ "reviewReasons": [],
  "sections": [
   {
    "blocks": [
     {
+     "line": 151,
      "t": "p",
      "text": "Before money becomes numbers, it becomes behavior."
     }
@@ -21,61 +17,74 @@
   {
    "blocks": [
     {
+     "line": 159,
      "t": "p",
      "text": "If your salary comes on the 1st and vanishes by the 15th, this page is for you."
     },
     {
+     "line": 160,
      "t": "p",
      "text": "We are not here to sell you insurance. We are here to fix the operating system in your head."
     },
     {
+     "line": 169,
      "t": "p",
      "text": "Module 01"
     }
    ],
-   "heading": "⚠️ The Reality Check"
+   "heading": "⚠️ The Reality Check",
+   "line": 158
   },
   {
    "blocks": [
     {
      "level": 3,
+     "line": 174,
      "t": "h",
      "text": "🚫 The Lie"
     },
     {
+     "line": 175,
      "t": "p",
      "text": "\"Paisa haath ka mail hai\" (Money is dirt). Yet, everyone panics when it's gone."
     },
     {
      "level": 3,
+     "line": 176,
      "t": "h",
      "text": "✅ The FIN-OS Truth"
     },
     {
+     "line": 177,
      "t": "p",
      "text": "Money is Stored Energy. It is your time and effort frozen into a number. If you waste money, you are burning your own life hours."
     },
     {
      "kind": "note",
+     "line": 181,
      "t": "callout",
      "text": "Income: The river (Salary, Rent).\nWealth: The Dam (Assets, FD, Stocks).\nHigh Salary + Zero Assets = Poor with an iPhone.",
      "title": "Income vs Wealth"
     },
     {
+     "line": 195,
      "t": "p",
      "text": "Module 02"
     }
    ],
-   "heading": "What is Money?"
+   "heading": "What is Money?",
+   "line": 170
   },
   {
    "blocks": [
     {
      "level": 3,
+     "line": 206,
      "t": "h",
      "text": "The \"Log Kya Kahenge\" Tax"
     },
     {
+     "line": 207,
      "t": "p",
      "text": "Society rewards appearance, not stability. You buy things to impress people you don't even like."
     },
@@ -84,210 +93,248 @@
       "🍔 Needs: Roti, Kapda, Makaan, Wifi.",
       "🚗 Wants (Disguised): \"Car is required for status\", \"New phone for work\", \"Grand wedding for parents\"."
      ],
+     "line": 210,
      "t": "ul"
     },
     {
      "kind": "note",
+     "line": 216,
      "t": "callout",
      "text": "EMI isn't affordability. It is future income spent today.\nBuying a sofa on EMI? You just sold your freedom for foam.",
      "title": "💀 The EMI Disease"
     },
     {
+     "line": 225,
      "t": "p",
      "text": "Module 03"
     }
    ],
-   "heading": "Spending: The Silent Killer"
+   "heading": "Spending: The Silent Killer",
+   "line": 196
   },
   {
    "blocks": [
     {
      "level": 3,
+     "line": 234,
      "t": "h",
      "text": "Bad Debt"
     },
     {
+     "line": 235,
      "t": "p",
      "text": "The Definition"
     },
     {
+     "line": 236,
      "t": "p",
      "text": "Wealth Destroyer"
     },
     {
+     "line": 237,
      "t": "p",
      "text": "Any loan taken for a depreciating asset or lifestyle. It steals from your future."
     },
     {
+     "line": 239,
      "t": "p",
      "text": "🚗 Car Loan 📱 iPhone EMI 💍 Personal Loan"
     },
     {
      "level": 3,
+     "line": 247,
      "t": "h",
      "text": "Good Debt"
     },
     {
+     "line": 248,
      "t": "p",
      "text": "The Definition"
     },
     {
+     "line": 249,
      "t": "p",
      "text": "Leverage"
     },
     {
+     "line": 250,
      "t": "p",
      "text": "A loan that increases your income or net worth over time. Ideally, someone else pays it off."
     },
     {
+     "line": 252,
      "t": "p",
      "text": "🎓 Education Loan 🏭 Business Loan 🏠 Rental Property"
     },
     {
      "level": 3,
+     "line": 260,
      "t": "h",
      "text": "The Ugly Trap"
     },
     {
+     "line": 261,
      "t": "p",
      "text": "The Killer"
     },
     {
+     "line": 262,
      "t": "p",
      "text": "\"Minimum Due\""
     },
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "finance101-cc-interest"
-     ],
+     "line": 263,
      "t": "p",
-     "text": "Paying only the minimum due on Credit Cards. Interest is 42% per year."
+     "text": "Paying only the minimum due lets interest continue to accrue. The rate and charges depend on the card issuer and your agreement; check the card’s current terms and try to pay the full statement balance."
     },
     {
+     "line": 265,
      "t": "p",
      "text": "💳 Revolving Credit 🎰 BNPL (Buy Now Pay Later)"
     },
     {
+     "line": 275,
      "t": "p",
      "text": "Module 04"
     }
    ],
-   "heading": "Debt: The Good, The Bad, The Ugly"
+   "heading": "Debt: The Good, The Bad, The Ugly",
+   "line": 226
   },
   {
    "blocks": [
     {
      "level": 3,
+     "line": 280,
      "t": "h",
      "text": "Why Indians Save Emotionally"
     },
     {
+     "line": 281,
      "t": "p",
      "text": "We save for Marriages and Gold (Emotion), but ignore Inflation and Emergencies (Logic)."
     },
     {
      "kind": "note",
+     "line": 285,
      "t": "callout",
      "text": "This is not \"Savings\". This is Survival Money.\n- Amount: 6 Months of Expenses (Rent + Food + EMI).\n- Location: Liquid Fund or Separate Bank Account.\n- Rule: Do not touch unless you lose your job or land in a hospital.",
      "title": "🛡️ The Emergency Fund Rule"
     },
     {
+     "line": 304,
      "t": "p",
      "text": "Module 06"
     }
    ],
-   "heading": "Saving: The Financial Airbag"
+   "heading": "Saving: The Financial Airbag",
+   "line": 276
   },
   {
    "blocks": [
     {
      "level": 3,
+     "line": 313,
      "t": "h",
      "text": "The House"
     },
     {
+     "line": 314,
      "t": "p",
      "text": "Is it an Asset?"
     },
     {
+     "line": 315,
      "t": "p",
      "text": "NO (Mostly)"
     },
     {
+     "line": 316,
      "t": "p",
      "text": "If you live in it, it takes money out of your pocket (Maintenance, Tax, EMI). It's a Liability."
     },
     {
      "level": 3,
+     "line": 321,
      "t": "h",
      "text": "The Car"
     },
     {
+     "line": 322,
      "t": "p",
      "text": "Is it an Asset?"
     },
     {
+     "line": 323,
      "t": "p",
      "text": "NEVER"
     },
     {
+     "line": 324,
      "t": "p",
-     "text": "It loses 20% value the moment you drive it out. It is a Depreciating Utility."
+     "text": "A car is a useful asset that usually depreciates over time. The rate depends on the model, condition, use, and resale market; it is not a fixed immediate loss."
     },
     {
      "level": 3,
+     "line": 329,
      "t": "h",
      "text": "Gold Jewelry"
     },
     {
+     "line": 330,
      "t": "p",
      "text": "Is it an Asset?"
     },
     {
+     "line": 331,
      "t": "p",
      "text": "EMOTIONAL"
     },
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "finance101-sgb-digital"
-     ],
+     "line": 332,
      "t": "p",
-     "text": "Making charges (20%) eat your profit. SGB (Digital Gold) is an asset. Jewelry is fashion."
+     "text": "Jewellery can include making charges and resale deductions. Compare the full purchase and resale terms. A Sovereign Gold Bond, a gold ETF, and app-based digital gold are different products with different risks."
     },
     {
      "level": 3,
+     "line": 337,
      "t": "h",
      "text": "Stocks / Mutual Funds"
     },
     {
+     "line": 338,
      "t": "p",
      "text": "Is it an Asset?"
     },
     {
+     "line": 339,
      "t": "p",
      "text": "YES"
     },
     {
+     "line": 340,
      "t": "p",
-     "text": "It puts money IN your pocket while you sleep. This is the only true wealth builder."
+     "text": "Some assets may generate income or appreciate over time, but each has costs and risks. Choose based on your goals, time horizon, and ability to absorb losses."
     },
     {
+     "line": 348,
      "t": "p",
      "text": "Module 07"
     }
    ],
-   "heading": "Investing: Assets vs Liabilities"
+   "heading": "Investing: Assets vs Liabilities",
+   "line": 305
   },
   {
    "blocks": [
     {
+     "line": 355,
      "t": "p",
      "text": "Age 20-25"
     },
     {
      "level": 3,
+     "line": 356,
      "t": "h",
      "text": "The Rookie"
     },
@@ -297,14 +344,17 @@
       "✅ Build Skills > Savings.",
       "✅ Start a small SIP (Habit building)."
      ],
+     "line": 358,
      "t": "ul"
     },
     {
+     "line": 365,
      "t": "p",
      "text": "Age 26-35"
     },
     {
      "level": 3,
+     "line": 366,
      "t": "h",
      "text": "The Grinder"
     },
@@ -312,20 +362,19 @@
      "items": [
       "🚫 Avoid \"Lifestyle Inflation\".",
       "✅ Buy Term Insurance (Before it gets expensive).",
-      "✅ Maximize EPF/PPF (Tax free growth)."
+      "✅ Review EPF and PPF as separate products; their contribution, withdrawal, and tax rules differ. Check the current rules before choosing."
      ],
-     "needsReview": true,
-     "reviewReasons": [
-      "finance101-epf-taxfree"
-     ],
+     "line": 368,
      "t": "ul"
     },
     {
+     "line": 375,
      "t": "p",
      "text": "Age 36-45"
     },
     {
      "level": 3,
+     "line": 376,
      "t": "h",
      "text": "The Family Anchor"
     },
@@ -335,14 +384,17 @@
       "✅ Clear bad debts (Credit cards/Personal loans).",
       "✅ Increase Health Cover."
      ],
+     "line": 378,
      "t": "ul"
     },
     {
+     "line": 385,
      "t": "p",
      "text": "Age 46+"
     },
     {
      "level": 3,
+     "line": 386,
      "t": "h",
      "text": "The Monk"
     },
@@ -352,134 +404,165 @@
       "✅ Shift Equity to Debt (Protect capital).",
       "✅ Plan Estate/Will."
      ],
+     "line": 388,
      "t": "ul"
     },
     {
+     "line": 400,
      "t": "p",
      "text": "Module 08"
     }
    ],
-   "heading": "Life Stages: The Roadmap"
+   "heading": "Life Stages: The Roadmap",
+   "line": 349
   },
   {
    "blocks": [
     {
      "level": 3,
+     "line": 405,
      "t": "h",
      "text": "Your Salary grows 8%. Expenses grow 12%."
     },
     {
+     "line": 406,
      "t": "p",
      "text": "You are getting poorer silently. This is called Lifestyle Inflation."
     },
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "finance101-cpi"
-     ],
+     "line": 407,
      "t": "p",
-     "text": "Government inflation is 6%. But Desi inflation (School fees, Medical, Milk) is 10%+."
+     "text": "CPI tracks a defined basket of household goods and services. Your personal cost changes depend on your own spending mix; school, healthcare, and food costs may move differently."
     },
     {
+     "line": 409,
      "t": "p",
      "text": "💭 Think: What did a Samosa cost 10 years ago? What does it cost now?"
     },
     {
+     "line": 414,
+     "t": "p",
+     "text": "Illustrative index only; these values are not official CPI data or a measured household sample."
+    },
+    {
+     "line": 421,
      "t": "p",
      "text": "Module 09"
     }
    ],
-   "heading": "Inflation: The Invisible Thief"
+   "heading": "Inflation: The Invisible Thief",
+   "line": 401
   },
   {
    "blocks": [
     {
      "level": 3,
+     "line": 430,
      "t": "h",
      "text": "The Poor Mindset"
     },
     {
+     "line": 431,
      "t": "p",
      "text": "The Belief"
     },
     {
+     "line": 432,
      "t": "p",
      "text": "\"If I earn more, I will save more.\""
     },
     {
+     "line": 433,
      "t": "p",
      "text": "Reality: Parkinson’s Law. As income rises, your expenses will rise to match it immediately. You stay broke at a higher level."
     },
     {
      "level": 3,
+     "line": 438,
      "t": "h",
      "text": "The Rich Mindset"
     },
     {
+     "line": 439,
      "t": "p",
      "text": "The Habit"
     },
     {
+     "line": 440,
      "t": "p",
      "text": "\"Pay Yourself First\""
     },
     {
+     "line": 441,
      "t": "p",
      "text": "Reality: Invest 20% the moment salary hits. Spend whatever is left. Wealth is what you don't see (Investments), not what you show (Gadgets)."
     },
     {
      "level": 3,
+     "line": 446,
      "t": "h",
      "text": "The \"Sharmaji\" Trap"
     },
     {
+     "line": 447,
      "t": "p",
      "text": "The Trigger"
     },
     {
+     "line": 448,
      "t": "p",
      "text": "Social Comparison"
     },
     {
+     "line": 449,
      "t": "p",
      "text": "Reality: You buy things you don't need, with money you don't have, to impress people you don't even like. Status games have no winners."
     },
     {
      "level": 3,
+     "line": 454,
      "t": "h",
      "text": "The FOMO Disease"
     },
     {
+     "line": 455,
      "t": "p",
      "text": "The Trigger"
     },
     {
+     "line": 456,
      "t": "p",
      "text": "\"Everyone is buying Crypto/Options\""
     },
     {
+     "line": 457,
      "t": "p",
      "text": "Reality: You only hear about their wins, never their losses. Investing based on excitement is gambling. Boring is profitable."
     },
     {
      "level": 3,
+     "line": 462,
      "t": "h",
      "text": "Retail Therapy"
     },
     {
+     "line": 463,
      "t": "p",
      "text": "The Trigger"
     },
     {
+     "line": 464,
      "t": "p",
      "text": "Instant Gratification"
     },
     {
+     "line": 465,
      "t": "p",
      "text": "Reality: The happiness of a new purchase lasts 48 hours. The pain of the EMI lasts 12 months. Choose your pain wisely."
     }
    ],
-   "heading": "Psychology: The Core DNA"
+   "heading": "Psychology: The Core DNA",
+   "line": 422
   }
  ],
  "source": "html/finance101.html",

@@ -1,20 +1,18 @@
 {
  "category": "markets",
  "id": "money_market",
- "needsReview": true,
- "reviewReasons": [
-  "moneymarket-rate",
-  "moneymarket-cp",
-  "moneymarket-arb"
- ],
+ "needsReview": false,
+ "reviewReasons": [],
  "sections": [
   {
    "blocks": [
     {
+     "line": 162,
      "t": "p",
      "text": "Where money sleeps at night. Safe, boring, and absolutely critical."
     },
     {
+     "line": 166,
      "t": "p",
      "text": "LEVEL 01: NOOB"
     }
@@ -24,78 +22,107 @@
   {
    "blocks": [
     {
+     "line": 168,
      "t": "p",
      "text": "You sold a house. You have ₹1 Crore. You need it in 6 months to buy a new house. Where do you put it?"
     },
     {
      "kind": "note",
-     "needsReview": true,
-     "reviewReasons": [
-      "moneymarket-rate"
-     ],
+     "line": 172,
      "t": "callout",
-     "text": "3% Interest. You lose money to inflation.\n✅ Money Market?\n7% Interest. Almost zero risk. Highly liquid.",
+     "text": "Savings-account rates and inflation vary over time. Compare the actual rate, access terms, fees, and tax treatment.\n✅ Money Market?\nMoney-market products have different yields, credit risks, price risks, and redemption terms. Do not treat a fund as risk-free or assume immediate access.",
      "title": "❌ Savings Account?"
     },
     {
+     "kind": "note",
+     "line": 177,
+     "t": "callout",
+     "text": "If money is earmarked for a known expense, first match the instrument’s maturity and withdrawal terms to the date you need the cash. A higher expected yield may come with credit, price, or access risk that matters more than the headline rate.",
+     "title": "🗓️ Match the Parking Period"
+    },
+    {
+     "line": 181,
      "t": "p",
      "text": "LEVEL 02: MECHANIC"
     }
    ],
-   "heading": "The \"Parking Lot\" Theory"
+   "heading": "The \"Parking Lot\" Theory",
+   "line": 167
   },
   {
    "blocks": [
     {
+     "line": 183,
      "t": "p",
      "text": "This market is where Banks, Governments, and Giants borrow cash for 1 to 364 days."
     },
     {
      "items": [
-      "T-Bills (Treasury Bills): You lend to the Govt of India for 91, 182, or 364 days. Risk: ZERO.",
-      "CP (Commercial Paper): You lend to Reliance/Tata for 3 months. Risk: Low.",
-      "CD (Certificate of Deposit): You lend to HDFC Bank for 1 year. Risk: Low."
+      "T-Bills (Treasury Bills): You lend to the Govt of India for 91, 182, or 364 days. Sovereign credit risk is generally low, but market-price, liquidity, reinvestment, and inflation risks can still matter when you sell or hold a security.",
+      "CP (Commercial Paper): Companies issue commercial paper for short-term funding. The investor faces issuer credit and liquidity risk; access and minimum investment depend on the instrument and venue.",
+      "CD (Certificate of Deposit): Banks issue certificates of deposit under instrument-specific terms. Check issuer, maturity, credit and liquidity risks; deposits and certificates of deposit are not identical products."
      ],
-     "needsReview": true,
-     "reviewReasons": [
-      "moneymarket-cp"
-     ],
+     "line": 186,
      "t": "ul"
     },
     {
+     "kind": "note",
+     "line": 191,
+     "t": "callout",
+     "text": "A T-bill is a short-term government borrowing instrument. Commercial paper and certificates of deposit are issued by companies and banks, so their credit and liquidity risks differ. Identify the issuer before treating two short-term products as equivalent.",
+     "title": "🧾 Read the Borrower"
+    },
+    {
+     "line": 195,
      "t": "p",
      "text": "LEVEL 03: PRO"
     }
    ],
-   "heading": "The Toolbox (T-Bills & CPs)"
+   "heading": "The Toolbox (T-Bills & CPs)",
+   "line": 182
   },
   {
    "blocks": [
     {
+     "line": 197,
      "t": "p",
-     "text": "A Mutual Fund that only buys 91-day bonds. The graph is a straight line going up."
+     "text": "A liquid fund invests in short-term debt and money-market instruments under its mandate. Its NAV can fluctuate and returns are not guaranteed."
     },
     {
      "level": 3,
+     "line": 201,
      "t": "h",
      "text": "Insta-Redemption"
     },
     {
+     "line": 202,
      "t": "p",
-     "text": "Some Liquid Funds allow you to withdraw ₹50,000 instantly (24x7) to your bank account. It works exactly like a Savings Account but pays double the interest."
+     "text": "Redemption timing and any instant-access facility depend on the scheme, platform, cut-off time, limits, and settlement rules. A liquid fund is not a bank savings account and does not promise a higher return."
+    },
+    {
+     "kind": "note",
+     "line": 206,
+     "t": "callout",
+     "text": "Fund redemption timing, cut-off times, settlement, and instant-access limits depend on the scheme and service. A fund’s portfolio value can fluctuate, and a straight-looking historical chart does not make the investment a bank deposit.",
+     "title": "💧 Liquidity Is a Condition"
     },
     {
      "kind": "tip",
-     "needsReview": true,
-     "reviewReasons": [
-      "moneymarket-arb"
-     ],
+     "line": 212,
      "t": "callout",
-     "text": "The Tax Hack: Liquid Funds are taxed at your slab rate (30% for high earners). Arbitrage Funds are taxed as Equity (12.5% after 1 year).\nStrategy: Use Arbitrage Funds for parking cash > 6 months. It returns 7-8% risk-free but saves you massive tax compared to FDs.",
+     "text": "Tax treatment depends on the product, holding period, and current tax law. Check the latest official guidance before investing; do not choose a fund on an assumed tax advantage alone.\nStrategy: Arbitrage funds carry market, execution, liquidity, and return risk. Their suitability depends on your time horizon, access needs, costs, and current tax treatment.",
      "title": "☠️ GOD MODE: Arbitrage Funds"
+    },
+    {
+     "kind": "note",
+     "line": 216,
+     "t": "callout",
+     "text": "Confirm the investment horizon, access rules, credit quality, interest-rate exposure, expense ratio, and tax treatment. Compare the after-tax outcome and the chance of delayed access, not just the advertised or recent yield.",
+     "title": "✅ Cash Parking Check"
     }
    ],
-   "heading": "Liquid Funds (The Savings Account Killer)"
+   "heading": "Liquid Funds (The Savings Account Killer)",
+   "line": 196
   }
  ],
  "source": "html/learn-money-market.html",

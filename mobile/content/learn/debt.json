@@ -1,19 +1,18 @@
 {
  "category": "markets",
  "id": "debt",
- "needsReview": true,
- "reviewReasons": [
-  "debt-yields",
-  "debt-duration"
- ],
+ "needsReview": false,
+ "reviewReasons": [],
  "sections": [
   {
    "blocks": [
     {
+     "line": 162,
      "t": "p",
-     "text": "Equity makes you rich. Debt keeps you rich. Stop treating FDs as the only option."
+     "text": "Debt can add income and diversification to a portfolio, but it brings credit, interest-rate, inflation, and liquidity risks. Compare products with your goals and time horizon."
     },
     {
+     "line": 166,
      "t": "p",
      "text": "LEVEL 01: NOOB"
     }
@@ -23,79 +22,114 @@
   {
    "blocks": [
     {
+     "line": 168,
      "t": "p",
      "text": "When you buy a stock, you become an Owner (Risk). When you buy a Bond, you become a Lender (Safety)."
     },
     {
      "kind": "note",
-     "needsReview": true,
-     "reviewReasons": [
-      "debt-yields"
-     ],
+     "line": 172,
      "t": "callout",
-     "text": "Most Indians keep money in Savings Accounts (3%) or FDs (6.5%).\nThe Hack: Government Bonds (G-Secs) often pay 7.2% - 7.5% with higher safety than a private bank FD. Why let the bank keep the spread?",
+     "text": "Savings-account and deposit rates vary by institution, tenure, customer category, and date. Check current terms before comparing them with bonds.\nThe Hack: A G-Sec is a government borrowing instrument, but its market price can change before maturity. Compare its yield at your purchase price, maturity, liquidity, and risks with a deposit; the products are not interchangeable.",
      "title": "🏦 The Indian Reality"
     },
     {
+     "kind": "note",
+     "line": 176,
+     "t": "callout",
+     "text": "A lender receives contractual interest and repayment terms, while an owner participates in uncertain business outcomes. Debt may rank ahead of equity in a default, but recovery is not guaranteed. Check who owes the money and what backs the obligation.",
+     "title": "⚖️ Lender’s Trade-Off"
+    },
+    {
+     "line": 180,
      "t": "p",
      "text": "LEVEL 02: MECHANIC"
     }
    ],
-   "heading": "Lending vs Owning"
+   "heading": "Lending vs Owning",
+   "line": 167
   },
   {
    "blocks": [
     {
+     "line": 182,
      "t": "p",
      "text": "It is a loan you give to the Government or a Corporation."
     },
     {
+     "line": 186,
      "t": "p",
      "text": "You give ₹100 Principal"
     },
     {
+     "line": 188,
      "t": "p",
-     "text": "They pay ₹7 Interest (Coupon) every year"
+     "text": "Illustration: a ₹100 bond with a 7% annual coupon pays ₹7 per year if the issuer pays as promised"
     },
     {
+     "line": 190,
      "t": "p",
      "text": "At End: You get ₹100 Back"
     },
     {
+     "kind": "note",
+     "line": 194,
+     "t": "callout",
+     "text": "A bond’s key terms include issuer, face value, coupon, maturity, repayment priority, and any security or covenants. A stated coupon is not the same as your total return if you buy at a premium or discount, sell early, or face default.",
+     "title": "🧾 Bond Checklist"
+    },
+    {
+     "line": 198,
      "t": "p",
      "text": "LEVEL 03: PRO"
     }
    ],
-   "heading": "What is a Bond?"
+   "heading": "What is a Bond?",
+   "line": 181
   },
   {
    "blocks": [
     {
+     "line": 200,
      "t": "p",
      "text": "This is the hardest concept in finance, explained simply."
     },
     {
+     "line": 201,
      "t": "p",
      "text": "If Interest Rates go UP, Bond Prices go DOWN."
     },
     {
      "kind": "note",
+     "line": 205,
      "t": "callout",
-     "text": "You hold an old bond paying 6%. RBI raises rates to 8%.\nNobody wants your 6% bond anymore. To sell it, you must lower the price (Sell at a discount) until the yield matches the new 8% rate.",
+     "text": "Suppose a bond pays a fixed 6% coupon and market yields for comparable bonds rise to about 8%.\nAll else equal, the bond’s market price may fall so its yield is more competitive. The actual price also depends on time to maturity, credit risk, and market conditions.",
      "title": "📉 Example"
     },
     {
-     "kind": "tip",
-     "needsReview": true,
-     "reviewReasons": [
-      "debt-duration"
-     ],
+     "kind": "note",
+     "line": 209,
      "t": "callout",
-     "text": "Long Duration Funds (10 Year+ Bonds): These are highly sensitive to interest rates. If RBI cuts rates, these funds can give 12-15% returns (Capital Gains). If RBI hikes rates, you lose capital.\nStrategy: Stick to Liquid Funds or Target Maturity Funds for safety.",
+     "text": "Imagine an existing bond pays a fixed coupon while newly issued bonds begin offering higher rates. Buyers may require a lower price for the older bond to match the new yield. Longer-maturity bonds usually respond more to rate changes, all else equal.",
+     "title": "📉 Price and Yield Example"
+    },
+    {
+     "kind": "tip",
+     "line": 215,
+     "t": "callout",
+     "text": "Long Duration Funds (10 Year+ Bonds): These are highly sensitive to interest rates. Long-duration funds can be sensitive to interest-rate changes. Falling yields may lift bond prices and rising yields may reduce them; the result depends on the portfolio, timing, credit events, and your holding period.\nStrategy: Choose a fund by matching its duration, credit quality, liquidity, and redemption terms to your needs. Neither a fund name nor a target maturity removes investment risk.",
      "title": "☠️ GOD MODE: Duration Risk"
+    },
+    {
+     "kind": "note",
+     "line": 219,
+     "t": "callout",
+     "text": "Read the issuer’s financial position, rating rationale, security, seniority, and maturity. A credit rating is an opinion that can change; it is not a guarantee. Avoid concentrating money you may need soon in a single issuer or hard-to-sell instrument.",
+     "title": "✅ Credit Risk Check"
     }
    ],
-   "heading": "The Yield Teeter-Totter"
+   "heading": "The Yield Teeter-Totter",
+   "line": 199
   }
  ],
  "source": "html/learn-debt.html",

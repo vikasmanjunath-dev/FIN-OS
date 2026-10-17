@@ -7,6 +7,7 @@
   {
    "blocks": [
     {
+     "line": 147,
      "t": "p",
      "text": "Debt is a tool. Like a knife, it can cut your food or cut your hand."
     }
@@ -16,6 +17,7 @@
   {
    "blocks": [
     {
+     "line": 154,
      "t": "p",
      "text": "Debt that puts money IN your pocket later."
     },
@@ -25,31 +27,37 @@
       "Business Loan: Expands revenue.",
       "Home Loan (Rental): Tenant pays the EMI."
      ],
+     "line": 156,
      "t": "ul"
     }
    ],
-   "heading": "✅ Good Debt (Leverage)"
+   "heading": "✅ Good Debt (Leverage)",
+   "line": 153
   },
   {
    "blocks": [
     {
+     "line": 163,
      "t": "p",
      "text": "Debt that takes money OUT for things that lose value."
     },
     {
      "items": [
-      "Car Loan: Car depreciates 20% instantly.",
-      "Credit Card EMI: Paying 18% interest on Pizza.",
+      "Car Loan: A car generally loses value over time; the pace varies by model, condition, use, and resale demand.",
+      "Credit Card EMI: Credit-card and loan rates vary by issuer and agreement. Check the current terms and total borrowing cost.",
       "Personal Loan: Funding a wedding to impress others."
      ],
+     "line": 165,
      "t": "ul"
     },
     {
+     "line": 171,
      "t": "p",
      "text": "🧮 See your own debt payoff plan in the Debt Optimizer →"
     }
    ],
-   "heading": "❌ Bad Debt (Chains)"
+   "heading": "❌ Bad Debt (Chains)",
+   "line": 162
   }
  ],
  "source": "html/insight-debt.html",

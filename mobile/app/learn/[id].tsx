@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { TrackerScreen, Card } from '@/components/TrackerUI';
-import { LText, LessonBody, ReviewBanner } from '@/components/LearnBlocks';
+import { LText, LessonBody, LessonNotes, ReviewBanner, StubView } from '@/components/LearnBlocks';
 import { MANIFEST, LESSONS, REVIEW_ITEMS } from '@/lib/learnContent';
 import { loadLearned, noteOpened, setLearned } from '@/lib/learnStorage';
 import { nextLesson, type Learned } from '@/lib/learn';
@@ -11,7 +11,7 @@ import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 const TOOL_LABEL: Record<string, string> = {
   '/markets': 'Open Markets', '/tools/calculators': 'Open the calculators', '/tracker/fixed': 'Open Fixed income',
   '/tracker/gold': 'Open the Gold tracker', '/tracker/crypto': 'Open the Crypto tracker', '/tools/lifecover': 'Open Life cover',
-  '/tools/stepup': 'Open SIP step-up', '/tools/homeloan': 'Open Home loan', '/tools/debt': 'Open Debt payoff', '/tools/dna': 'Open Financial DNA',
+  '/tools/stepup': 'Open SIP step-up', '/tools/calc/sip': 'Open the SIP calculator', '/plan/lifegoals': 'Open the Life goals planner', '/tracker/networth': 'Open the Net worth tracker', '/tools/homeloan': 'Open Home loan', '/tools/debt': 'Open Debt payoff', '/tools/dna': 'Open Financial DNA',
 };
 
 export default function LessonScreen() {
@@ -21,6 +21,7 @@ export default function LessonScreen() {
   const lesson = LESSONS[lessonId];
   const [learned, setLearnedState] = useState<Learned>({});
   const [busy, setBusy] = useState(false);
+  const [showSrc, setShowSrc] = useState(false);
 
   useFocusEffect(useCallback(() => {
     let live = true;
@@ -50,14 +51,14 @@ export default function LessonScreen() {
 
   if (entry.kind === 'interactive' || !lesson) {
     return (
-      <TrackerScreen title={entry.title} subtitle="An interactive page on the FIN·OS website.">
-        <Card accent={Colors.cyan}>
-          <LText style={Typography.body}>
-            {`This page on the website is a quiz or an interactive explorer, so it is not shown as text here.${tool ? ' The phone has a matching tool:' : ' Open it on the website to use it.'}`}
-          </LText>
-          {entry.summary ? <LText style={[Typography.caption, { marginTop: Spacing.sm }]}>{entry.summary}</LText> : null}
-          {toolBtn}
-        </Card>
+      <TrackerScreen title={entry.title} subtitle="A page on the FIN·OS website, and what the phone has for it.">
+        {entry.stub ? <StubView entry={entry} /> : (
+          <Card accent={Colors.cyan}>
+            <LText style={Typography.body}>{`This page on the website is interactive, so it is not shown as text here.${tool ? ' The phone has a matching tool:' : ' Open it on the website to use it.'}`}</LText>
+            {entry.summary ? <LText style={[Typography.caption, { marginTop: Spacing.sm }]}>{entry.summary}</LText> : null}
+            {toolBtn}
+          </Card>
+        )}
       </TrackerScreen>
     );
   }
@@ -68,7 +69,11 @@ export default function LessonScreen() {
       {entry.hasInteractive ? (
         <Card><LText style={Typography.caption}>The website version of this lesson has interactive charts or sliders that are not shown here.</LText></Card>
       ) : null}
-      <LessonBody lesson={lesson} reviews={REVIEW_ITEMS} />
+      <LessonNotes lesson={lesson} />
+      <TouchableOpacity style={s.srcBtn} onPress={() => setShowSrc(v => !v)} accessibilityRole="button" accessibilityState={{ expanded: showSrc }} accessibilityLabel={showSrc ? 'Hide where each passage comes from' : 'Show where each passage comes from'}>
+        <Text style={s.srcTxt}>{showSrc ? 'Hide sources of each passage' : 'Show where each passage comes from'}</Text>
+      </TouchableOpacity>
+      <LessonBody lesson={lesson} reviews={REVIEW_ITEMS} showSource={showSrc} />
       {toolBtn}
       <TouchableOpacity
         style={[s.learnBtn, done && s.learnBtnDone]} onPress={toggle} accessibilityRole="button" accessibilityState={{ checked: done, busy }}
@@ -88,6 +93,8 @@ export default function LessonScreen() {
 }
 
 const s = StyleSheet.create({
+  srcBtn: { marginBottom: Spacing.md, padding: Spacing.sm, alignItems: 'flex-start' },
+  srcTxt: { color: Colors.cyan, fontWeight: '700', fontSize: 13 },
   toolBtn: { marginTop: Spacing.md, borderWidth: 1, borderColor: Colors.cyan, borderRadius: Radii.md, padding: Spacing.md, alignItems: 'center' },
   toolTxt: { color: Colors.cyan, fontWeight: '700', fontSize: 15 },
   learnBtn: { marginTop: Spacing.md, backgroundColor: Colors.teal, borderRadius: Radii.md, padding: Spacing.md, alignItems: 'center', borderWidth: 1, borderColor: Colors.teal },

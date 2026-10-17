@@ -1,20 +1,18 @@
 {
  "category": "markets",
  "id": "commodity",
- "needsReview": true,
- "reviewReasons": [
-  "commodity-jewelry",
-  "commodity-digital-gold",
-  "commodity-sgb"
- ],
+ "needsReview": false,
+ "reviewReasons": [],
  "sections": [
   {
    "blocks": [
     {
+     "line": 162,
      "t": "p",
      "text": "When currency fails, rocks and oil survive."
     },
     {
+     "line": 166,
      "t": "p",
      "text": "LEVEL 01: NOOB"
     }
@@ -24,69 +22,101 @@
   {
    "blocks": [
     {
+     "line": 168,
      "t": "p",
      "text": "Commodities are raw materials. Oil, Gold, Silver, Wheat."
     },
     {
+     "line": 169,
      "t": "p",
      "text": "Unlike stocks, they don't produce earnings. A bar of gold will remain one bar of gold forever. It won't give birth to a baby gold bar (Dividend)."
     },
     {
+     "kind": "note",
+     "line": 171,
+     "t": "callout",
+     "text": "Commodity prices can reflect supply, demand, inventories, weather, transport, currency movements, and geopolitical events. Unlike a productive company, a physical commodity may not generate cash flows while you hold it.",
+     "title": "🏭 What Moves a Commodity?"
+    },
+    {
+     "line": 175,
      "t": "p",
      "text": "LEVEL 02: MECHANIC"
     }
    ],
-   "heading": "Real Assets"
+   "heading": "Real Assets",
+   "line": 167
   },
   {
    "blocks": [
     {
      "kind": "note",
-     "needsReview": true,
-     "reviewReasons": [
-      "commodity-jewelry",
-      "commodity-digital-gold"
-     ],
+     "line": 179,
      "t": "callout",
-     "text": "Jewelry: You pay 20% Making Charges + 3% GST. Resale value is lower. This is Consumption, not Investment.\nDigital Gold / ETF: Pure price exposure. Efficient.",
+     "text": "Jewelry: Making charges, taxes, and resale deductions affect the full cost of jewellery. Compare the invoice and likely resale terms; jewellery can have personal value as well as a commodity value.\nGold ETFs and app-based digital gold: Different products with different risks. ETFs are securities regulated by SEBI; app-based digital gold is outside SEBI’s securities-market framework and carries counterparty and operational risks. Read SEBI’s caution.",
      "title": "👑 Investment vs Ornament"
     },
     {
+     "kind": "note",
+     "line": 183,
+     "t": "callout",
+     "text": "Jewellery combines metal value with making charges, design, and retail margins. An investment product may track a reference price but has its own fees, liquidity, issuer, and tax treatment. Compare what you own and how you can exit.",
+     "title": "💍 Ownership Is Not the Same"
+    },
+    {
+     "line": 187,
      "t": "p",
      "text": "LEVEL 03: PRO"
     }
    ],
-   "heading": "The \"Jewelry\" Trap"
+   "heading": "The \"Jewelry\" Trap",
+   "line": 176
   },
   {
    "blocks": [
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "commodity-sgb"
-     ],
+     "line": 189,
      "t": "p",
-     "text": "The only asset in the world that gives you Gold Price Appreciation + 2.5% Interest."
+     "text": "A Sovereign Gold Bond is a government security linked to gold prices and carries the terms set out in its issue notification. Its market price can move, and the bond may trade at a premium or discount."
     },
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "commodity-sgb"
-     ],
+     "line": 190,
      "t": "p",
-     "text": "Issued by RBI. No storage risk. Tax-free if held till maturity (8 years). It is mathematically the best way to own gold in India."
+     "text": "SGBs are issued on behalf of the Government of India. They avoid physical storage, but carry price, liquidity, and issuer-term considerations. Check the specific issue’s redemption and current tax rules before investing."
+    },
+    {
+     "kind": "note",
+     "line": 192,
+     "t": "callout",
+     "text": "For any government-backed or exchange-traded product, verify current issuance or trading availability, eligibility, redemption terms, secondary-market liquidity, and tax rules. Product names that mention the same commodity can represent very different claims.",
+     "title": "📜 Read the Instrument"
     },
     {
      "kind": "tip",
+     "line": 198,
      "t": "callout",
-     "text": "Gold has a Negative Correlation with Equity.\nWhen Stock Market crashes (fear), Gold usually shoots up. Having 10% Gold in your portfolio acts as a shock absorber. It reduces portfolio volatility without killing returns.",
+     "text": "Gold can behave differently from equities, but the relationship changes over time and is not reliably negative.\nWhen Stock Market crashes (fear), Gold usually shoots up. A gold allocation may diversify a portfolio, but its size and effect depend on the assets, period, and investor. It can also fall in value.",
      "title": "☠️ GOD MODE: The Hedge"
+    },
+    {
+     "kind": "note",
+     "line": 202,
+     "t": "callout",
+     "text": "A hedge is useful only if it offsets a risk you actually have. Consider whether the instrument tracks that exposure, how much it can move, and what it costs to hold. A hedge can lose value or fail to offset the underlying risk.",
+     "title": "✅ Hedge Check"
     }
    ],
-   "heading": "SGB (Sovereign Gold Bond)"
+   "heading": "SGB (Sovereign Gold Bond)",
+   "line": 188
   }
  ],
  "source": "html/learn-commodity.html",
+ "sources": [
+  {
+   "label": "Read SEBI’s caution",
+   "url": "https://www.sebi.gov.in/media-and-notifications/press-releases/nov-2025/caution-to-public-regarding-dealing-in-digital-gold-_97676.html"
+  }
+ ],
  "summary": "Commodity Deep Dive — the quick version before the full Commodity Masterclass.",
  "title": "Commodity Deep Dive",
  "tool": "/tracker/gold"

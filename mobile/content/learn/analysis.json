@@ -7,6 +7,7 @@
   {
    "blocks": [
     {
+     "line": 348,
      "t": "p",
      "text": "Analysis is simply making sense of uncertainty. There are two ways to do this. Choose the lens that fits your mind."
     }
@@ -16,11 +17,13 @@
   {
    "blocks": [
     {
+     "line": 358,
      "t": "p",
      "text": "// THE BUSINESS VIEW"
     },
     {
      "kind": "note",
+     "line": 361,
      "t": "callout",
      "text": "Desi Logic: Like checking the engine, mileage, and service history before buying a second-hand car. You care about the quality.",
      "title": ""
@@ -32,19 +35,30 @@
       "⏳ Speed: Slow, deep, and calm",
       "❓ Asks: \"Is this company worth trusting?\""
      ],
+     "line": 365,
      "t": "ul"
+    },
+    {
+     "kind": "note",
+     "line": 371,
+     "t": "callout",
+     "text": "Use it well: Start with the company’s business, financial statements, competitive position, and valuation. Record what evidence would change your view.",
+     "title": ""
     }
    ],
-   "heading": "Fundamental Analysis"
+   "heading": "Fundamental Analysis",
+   "line": 357
   },
   {
    "blocks": [
     {
+     "line": 378,
      "t": "p",
      "text": "// THE CROWD VIEW"
     },
     {
      "kind": "note",
+     "line": 381,
      "t": "callout",
      "text": "Desi Logic: Like checking Google Maps traffic before driving. You don't care why the jam exists, you just want to know when to move.",
      "title": ""
@@ -56,19 +70,30 @@
       "🏎️ Speed: Fast, visual, and reactive",
       "❓ Asks: \"Is now the right time to buy?\""
      ],
+     "line": 385,
      "t": "ul"
     },
     {
+     "kind": "note",
+     "line": 391,
+     "t": "callout",
+     "text": "Use it well: Define the chart, time frame, entry condition, invalidation point, and position risk before acting. A chart can support a plan but cannot guarantee an outcome.",
+     "title": ""
+    },
+    {
      "level": 3,
+     "line": 398,
      "t": "h",
      "text": "⚠️ System Note: No Wrong Choice"
     },
     {
+     "line": 400,
      "t": "p",
      "text": "You do not have to choose forever. Most successful investors use Fundamental to choose what to buy, and Technical to decide when to buy. Start with the one that feels less scary. You can switch anytime."
     }
    ],
-   "heading": "Technical Analysis"
+   "heading": "Technical Analysis",
+   "line": 377
   }
  ],
  "source": "html/learn-analysis.html",

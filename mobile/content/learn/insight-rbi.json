@@ -7,14 +7,17 @@
   {
    "blocks": [
     {
+     "line": 147,
      "t": "p",
      "text": "When the RBI Governor speaks, your EMI moves."
     },
     {
+     "line": 147,
      "t": "p",
      "text": "RBI"
     },
     {
+     "line": 147,
      "t": "p",
      "text": "You"
     }
@@ -28,12 +31,14 @@
       "Inflation rises (Milk/Fuel gets expensive).",
       "RBI increases Repo Rate to suck money out of the system.",
       "Banks increase Loan Rates to match RBI.",
-      "Your Home Loan Tenure increases silently from 20 years to 25 years."
+      "Your loan’s tenure or EMI may change after a rate reset, depending on the loan terms, lender, and repayment instructions. Check the revised amortisation schedule."
      ],
+     "line": 161,
      "t": "ol"
     }
    ],
-   "heading": "The Chain Reaction"
+   "heading": "The Chain Reaction",
+   "line": 159
   }
  ],
  "source": "html/insight-rbi.html",

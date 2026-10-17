@@ -7,10 +7,12 @@
   {
    "blocks": [
     {
+     "line": 167,
      "t": "p",
      "text": "Money without Masters. Trust without People."
     },
     {
+     "line": 171,
      "t": "p",
      "text": "LEVEL 01: NOOB"
     }
@@ -20,98 +22,151 @@
   {
    "blocks": [
     {
+     "line": 174,
      "t": "p",
      "text": "Imagine a Google Sheet that tracks who owns what money. But:"
     },
     {
      "items": [
-      "❌ No Admin (No Google, No Bank).",
-      "✅ Everyone has a copy.",
-      "✅ To add a row, everyone must agree (Consensus).",
-      "🔒 Once written, it can NEVER be deleted."
+      "✅ No single spreadsheet owner; network participants follow shared rules.",
+      "✅ Many participants keep copies or verify the shared record.",
+      "✅ Network rules determine which proposed updates are accepted (consensus).",
+      "🔒 Confirmed records can be difficult to alter, though network reorganisations and protocol changes are possible."
      ],
+     "line": 176,
      "t": "ul"
     },
     {
+     "line": 181,
      "t": "p",
      "text": "This is Blockchain. Bitcoin is just the first app running on this system."
     },
     {
+     "kind": "note",
+     "line": 183,
+     "t": "callout",
+     "text": "A public ledger can make transfers visible and difficult to alter, but it does not guarantee that a token has useful rights, stable value, safe software, or an honest operator. Separate the technology claim from the investment claim.",
+     "title": "🧾 Ledger Is Not the Whole Story"
+    },
+    {
+     "line": 187,
      "t": "p",
      "text": "LEVEL 02: MECHANIC"
     }
    ],
-   "heading": "The \"Shared Ledger\" Concept"
+   "heading": "The \"Shared Ledger\" Concept",
+   "line": 172
   },
   {
    "blocks": [
     {
      "kind": "note",
+     "line": 192,
      "t": "callout",
-     "text": "Purpose: Store of Value.\nWhy: Only 21 Million will ever exist. No government can print more. It protects wealth against inflation.",
+     "text": "Common comparison: Some people view Bitcoin as a scarce digital asset; its price and purchasing power can still fall.\nSupply: Bitcoin’s current protocol rules cap issuance near 21 million coins. The network enforces those rules, but scarcity does not guarantee price appreciation or protection from inflation.",
      "title": "🥇 Bitcoin (BTC) = Digital Gold"
     },
     {
      "kind": "note",
+     "line": 198,
      "t": "callout",
-     "text": "Purpose: Fuel for the Global Computer.\nWhy: You need ETH to pay \"Gas Fees\" to run apps, games, and banks (DeFi) built on the Ethereum network.",
+     "text": "Purpose: Fuel for the Global Computer.\nTransactions: On Ethereum mainnet, ETH is generally used to pay transaction fees (gas). Smart contracts support apps and financial services, each with its own technical and market risks.",
      "title": "🛢️ Ethereum (ETH) = Digital Oil"
     },
     {
+     "kind": "note",
+     "line": 202,
+     "t": "callout",
+     "text": "Bitcoin and Ethereum have different design goals, security assumptions, and ecosystems. A simple analogy can help you remember a distinction, but it cannot replace understanding how a network validates transactions and what its token is used for.",
+     "title": "🧩 Different Networks, Different Roles"
+    },
+    {
+     "line": 206,
      "t": "p",
      "text": "LEVEL 03: PRO"
     }
    ],
-   "heading": "Bitcoin vs Ethereum (Gold vs Oil)"
+   "heading": "Bitcoin vs Ethereum (Gold vs Oil)",
+   "line": 188
   },
   {
    "blocks": [
     {
+     "line": 208,
      "t": "p",
      "text": "Before buying any \"Altcoin\", check these two numbers:"
     },
     {
      "level": 3,
+     "line": 213,
      "t": "h",
      "text": "Market Cap"
     },
     {
+     "line": 214,
      "t": "p",
      "text": "Current Price x Circulating Supply"
     },
     {
+     "line": 215,
      "t": "p",
      "text": "\"What it's worth today\""
     },
     {
      "level": 3,
+     "line": 218,
      "t": "h",
      "text": "FDV"
     },
     {
+     "line": 219,
      "t": "p",
      "text": "Current Price x TOTAL Supply"
     },
     {
+     "line": 220,
      "t": "p",
      "text": "\"What it's worth if all tokens unlock\""
     },
     {
+     "line": 224,
      "t": "p",
-     "text": "⚠️ If Market Cap is $1M but FDV is $100M, run away. Massive inflation is coming."
+     "text": "⚠️ A large gap between market capitalisation and fully diluted valuation can signal substantial potential future supply. Check the unlock schedule, who holds those tokens, and whether demand could absorb them; the ratio alone does not predict price."
+    },
+    {
+     "kind": "note",
+     "line": 226,
+     "t": "callout",
+     "text": "Check circulating supply, maximum or planned supply, unlock schedules, concentration among large holders, and the rights attached to a token. Fully diluted valuation can highlight future supply, but it does not predict whether demand will exist.",
+     "title": "🔍 Supply Questions"
     },
     {
      "kind": "tip",
+     "line": 232,
      "t": "callout",
-     "text": "\"Not your Keys, Not your Coins.\"\nIf your crypto is on an exchange (Binance/Coinbase), you don't own it. The bank owns it. If they go bankrupt (like FTX), you lose everything.\nThe Fix: Use a Hardware Wallet (Ledger/Trezor). Become your own bank.",
+     "text": "\"Not your Keys, Not your Coins.\"\nWhen a platform holds assets for you, you depend on its custody, security, solvency, and legal terms. If it fails, access or recovery may be delayed and is not assured. Self-custody removes that intermediary but makes you responsible for securing the keys.\nTrade-off: A hardware wallet can keep signing keys offline, but it does not remove software, user, recovery, or market risks. Understand the recovery process before moving assets.",
      "title": "☠️ GOD MODE: Self-Custody"
+    },
+    {
+     "kind": "note",
+     "line": 237,
+     "t": "callout",
+     "text": "With self-custody, losing the recovery phrase can mean losing access permanently; sharing it can let someone take the assets. With a platform, you depend on its security, controls, and solvency. Virtual digital assets have specific tax and reporting rules; check current Income Tax Department guidance before transacting.",
+     "title": "🔐 Custody Check"
     }
    ],
-   "heading": "Tokenomics (Don't Get Scammed)"
+   "heading": "Tokenomics (Don't Get Scammed)",
+   "line": 207
   }
  ],
  "source": "html/learn-crypto.html",
- "summary": "Crypto Deep Dive — the shared-ledger concept, Bitcoin vs Ethereum, and how not to get scammed by tokenomics.",
+ "sources": [
+  {
+   "label": "check current Income Tax Department guidance",
+   "url": "https://www.incometax.gov.in/iec/foportal/help/all-topics/e-filing-services/form-141-faqs"
+  }
+ ],
+ "summary": "Learn how blockchains record transactions, compare Bitcoin and Ethereum, and assess token supply, custody, and market risks.",
  "title": "Crypto Deep Dive",
  "tool": "/tracker/crypto"
 }

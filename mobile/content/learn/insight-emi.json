@@ -1,14 +1,13 @@
 {
  "category": "insights",
  "id": "insight-emi",
- "needsReview": true,
- "reviewReasons": [
-  "insight-emi-prepay"
- ],
+ "needsReview": false,
+ "reviewReasons": [],
  "sections": [
   {
    "blocks": [
     {
+     "line": 147,
      "t": "p",
      "text": "Why you pay EMI for 5 years but your loan amount barely drops."
     }
@@ -18,35 +17,38 @@
   {
    "blocks": [
     {
+     "line": 153,
      "t": "p",
-     "text": "In the early years, 80% of your EMI is just Interest. You pay the Principal last."
+     "text": "For a fully amortising loan, the interest and principal shares of each EMI depend on the rate, balance, and remaining term. Early payments often contain more interest, but there is no universal percentage."
     },
     {
+     "line": 157,
      "t": "p",
-     "text": "Interest"
+     "text": "Illustrative interest"
     },
     {
+     "line": 158,
      "t": "p",
-     "text": "Principal"
+     "text": "Illustrative principal"
     },
     {
+     "line": 161,
      "t": "p",
-     "text": "Year: 1"
+     "text": "Illustration: ₹10 lakh loan, 9% annual rate, 20-year term"
     },
     {
-     "needsReview": true,
-     "reviewReasons": [
-      "insight-emi-prepay"
-     ],
+     "line": 164,
      "t": "p",
-     "text": "The Fix: Pre-pay 1 extra EMI every year. You will close a 20-year loan in 12 years."
+     "text": "The Fix: Making an extra payment can reduce principal and may shorten the loan or lower future EMIs, depending on the lender’s rules and how the payment is applied. Use the calculator with your actual rate, balance, and payment schedule."
     },
     {
+     "line": 165,
      "t": "p",
      "text": "🧮 Run your own prepayment numbers →"
     }
    ],
-   "heading": "How Banks Trick Your Brain"
+   "heading": "How EMI Changes Over Time",
+   "line": 152
   }
  ],
  "source": "html/insight-emi.html",

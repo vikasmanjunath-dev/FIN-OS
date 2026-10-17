@@ -1,0 +1,247 @@
+{
+ "category": "mindset",
+ "figures": true,
+ "files": [
+  "html/clarity.html"
+ ],
+ "id": "clarity",
+ "needsReview": true,
+ "notShown": [
+  {
+   "file": "js/clarity.js",
+   "line": 10,
+   "quote": "DETECTED",
+   "what": "A strip at the top that says NET WORTH \"CALCULATING...\" and DEBT LOAD \"SCANNING...\", then \"DETECTED\" and \"ANALYZED\" two seconds later.",
+   "why": "It never shows a net worth or debt figure: js/clarity.js only swaps the words after a timer. Your real figures are in the Net worth tracker, linked below."
+  },
+  {
+   "file": "js/clarity.js",
+   "line": 31,
+   "quote": "Rough multiplier",
+   "what": "The \"EMI Time Machine\" slider (\"Future Wealth Lost\", 12% over 10 years).",
+   "why": "The page does not compound the money: it multiplies the EMI by 120 and then by 1.8, a rough rule. For an EMI of Rs 10,000 it shows Rs 21.6 lakh, whereas Rs 10,000 a month for 10 years at 12% (SIP formula) comes to about Rs 23.2 lakh. The phone has the real calculators (SIP, Opportunity Cost), so the rough slider is not copied."
+  }
+ ],
+ "notes": [
+  "The website's order-of-operations list marks Step 1 \"DONE\" and Step 2 \"CURRENT\" for everyone. That is the page's example, not your progress, so those labels are left out."
+ ],
+ "reviewReasons": [
+  "clarity-cover"
+ ],
+ "sections": [
+  {
+   "blocks": [
+    {
+     "line": 147,
+     "t": "p",
+     "text": "Confusion creates fear. Clarity creates calm."
+    }
+   ],
+   "heading": ""
+  },
+  {
+   "blocks": [
+    {
+     "level": 3,
+     "line": 170,
+     "t": "h",
+     "text": "Income"
+    },
+    {
+     "items": [
+      "Salary",
+      "Bonus",
+      "Side Hustle"
+     ],
+     "line": 177,
+     "t": "ul"
+    },
+    {
+     "level": 3,
+     "line": 189,
+     "t": "h",
+     "text": "Expenses"
+    },
+    {
+     "items": [
+      "Fixed (Rent/EMI)",
+      "Variable (Food)",
+      "Invisible (Subs)"
+     ],
+     "line": 191,
+     "t": "ul"
+    }
+   ],
+   "heading": "Income vs Outflow",
+   "line": 170
+  },
+  {
+   "blocks": [
+    {
+     "level": 4,
+     "line": 207,
+     "t": "h",
+     "text": "✅ ASSETS (Friends)"
+    },
+    {
+     "line": 210,
+     "t": "p",
+     "text": "Things that put money IN your pocket."
+    },
+    {
+     "line": 212,
+     "t": "p",
+     "text": "📈 Equity 🏠 Real Estate (Rented) 🥇 Gold"
+    },
+    {
+     "level": 4,
+     "line": 220,
+     "t": "h",
+     "text": "❌ LIABILITIES (Enemies)"
+    },
+    {
+     "line": 223,
+     "t": "p",
+     "text": "Things that take money OUT of your pocket."
+    },
+    {
+     "line": 225,
+     "t": "p",
+     "text": "🚗 Car Loan 💳 Credit Card 📱 iPhone EMI"
+    }
+   ],
+   "heading": "What You Own vs What You Owe",
+   "line": 202
+  },
+  {
+   "blocks": [
+    {
+     "line": 260,
+     "t": "p",
+     "text": "Don't jump to Step 5 (Investing) before fixing Step 3 (Emergency Fund)."
+    },
+    {
+     "level": 3,
+     "line": 267,
+     "t": "h",
+     "text": "Income Clarity"
+    },
+    {
+     "line": 271,
+     "t": "p",
+     "text": "Know exactly what hits your bank account vs what is \"CTC\"."
+    },
+    {
+     "line": 272,
+     "t": "p",
+     "text": "Rule: You cannot manage what you do not measure."
+    },
+    {
+     "level": 3,
+     "line": 279,
+     "t": "h",
+     "text": "Expense Control"
+    },
+    {
+     "line": 283,
+     "t": "p",
+     "text": "The Leak: \"Chalta Hai\" spending on weekends."
+    },
+    {
+     "line": 284,
+     "t": "p",
+     "text": "The Fix: Track \"Needs\" vs \"Wants\" for 30 days. Kill 2 subscriptions you don't use."
+    },
+    {
+     "kind": "fact",
+     "line": 285,
+     "t": "callout",
+     "text": "Target: Save at least 20% of Income.",
+     "title": ""
+    },
+    {
+     "level": 3,
+     "line": 292,
+     "t": "h",
+     "text": "Emergency Fund"
+    },
+    {
+     "line": 296,
+     "t": "p",
+     "text": "Before buying stocks, keep 6 Months of Expenses in a Liquid Fund/FD."
+    },
+    {
+     "line": 297,
+     "t": "p",
+     "text": "Why? So you don't sell your investments when life hits you."
+    },
+    {
+     "level": 3,
+     "line": 304,
+     "t": "h",
+     "text": "Insurance (Protection)"
+    },
+    {
+     "line": 308,
+     "needsReview": true,
+     "reviewReasons": [
+      "clarity-cover"
+     ],
+     "t": "p",
+     "text": "Health: 5L Base + 20L Super Top-up."
+    },
+    {
+     "line": 309,
+     "needsReview": true,
+     "reviewReasons": [
+      "clarity-cover"
+     ],
+     "t": "p",
+     "text": "Life: Term Insurance (20x Annual Income). Do not mix insurance with investment (ULIP)."
+    },
+    {
+     "level": 3,
+     "line": 316,
+     "t": "h",
+     "text": "Investing (Growth)"
+    },
+    {
+     "line": 320,
+     "t": "p",
+     "text": "Now you are ready to beat inflation."
+    },
+    {
+     "items": [
+      "Start Nifty 50 SIP.",
+      "Buy Gold (SGB).",
+      "Explore Stocks."
+     ],
+     "line": 322,
+     "t": "ul"
+    }
+   ],
+   "heading": "Your Financial Order of Operations",
+   "line": 259
+  },
+  {
+   "blocks": [
+    {
+     "line": 334,
+     "t": "p",
+     "text": "> Once you see your money clearly,"
+    },
+    {
+     "line": 335,
+     "t": "p",
+     "text": "> Decisions stop being scary."
+    }
+   ],
+   "heading": "System Message",
+   "line": 333
+  }
+ ],
+ "source": "html/clarity.html",
+ "summary": "FIN•OS Clarity — structured thinking to cut through financial confusion.",
+ "title": "Clarity HUD",
+ "tool": "/tracker/networth"
+}
