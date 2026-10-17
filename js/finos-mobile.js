@@ -218,6 +218,7 @@
     const ptr = document.createElement('div');
     ptr.className = 'finos-ptr';
     ptr.id = 'finos-ptr';
+    ptr.setAttribute('aria-hidden', 'true');
     ptr.textContent = '↻';
     document.body.appendChild(ptr);
 

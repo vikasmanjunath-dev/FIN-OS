@@ -165,6 +165,8 @@
       animation: fadeUp .45s .08s ease both;
       cursor: pointer;
     }
+    .suite-card[role="note"] { cursor: default; }
+    .suite-card[role="note"]:hover { transform: none; box-shadow: none; }
     @media (prefers-reduced-motion: reduce) {
       .suite-card { animation: none; opacity: 1; transition: none; }
     }
@@ -553,9 +555,8 @@
       <div class="suite-grid">
 
         <!-- EXPENSE ENGINE -->
-        <a class="suite-card" id="expenseEngineCard" href="http://localhost:5173/"
-           style="--cc:#c7f000;--cr:199,240,0"
-           onclick="return checkExpenseEngine(event)">
+        <div class="suite-card" id="expenseEngineCard" role="note" aria-label="Expense Engine is a separate local app and is not included in this deployment"
+           style="--cc:#c7f000;--cr:199,240,0">
           <div class="sc-top">
             <div class="sc-icon-wrap">
               <div class="sc-icon-bg"></div>
@@ -563,12 +564,11 @@
             </div>
             <div class="sc-meta">
               <span class="sc-number">01</span>
-              <span class="sc-arrow">→</span>
             </div>
           </div>
-          <div class="sc-name">Expense Engine <span id="expenseEngineBadge" style="display:none;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(240,165,0,.15);border:1px solid rgba(240,165,0,.3);color:#f0a500;letter-spacing:.06em;vertical-align:middle;margin-left:6px;">LOCAL</span></div>
+          <div class="sc-name">Expense Engine <span id="expenseEngineBadge" style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(240,165,0,.15);border:1px solid rgba(240,165,0,.3);color:#f0a500;letter-spacing:.06em;vertical-align:middle;margin-left:6px;">LOCAL ONLY</span></div>
           <div class="sc-sub">Full-featured budget tracker with category breakdowns, monthly history, and visual spending pattern reports.</div>
-          <div id="expenseOfflineMsg" style="display:none;margin-top:8px;padding:8px 12px;border-radius:8px;background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.2);color:#f0a500;font-size:11px;line-height:1.5;">
+          <div id="expenseOfflineMsg" role="status" style="display:block;margin-top:8px;padding:8px 12px;border-radius:8px;background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.2);color:#f0a500;font-size:11px;line-height:1.5;">
             ⚠️ Expense Engine is a separate local app and is not included in this deployment. Use Budget Forecast or Command Hub for the available budget tools.
           </div>
           <div class="sc-tags">
@@ -577,7 +577,7 @@
             <span class="sc-tag">Monthly Reports</span>
             <span class="sc-tag">Savings Rate</span>
           </div>
-        </a>
+        </div>
 
         <!-- CALCULATOR SUITE -->
         <a class="suite-card" href="calculators.html"
@@ -1717,37 +1717,6 @@ function docaiAutoFill(profileUpdates) {
 </script>
 
 <script>
-// Probe local Expense Engine — show badge + offline message if unreachable
-(function probeExpenseEngine() {
-  const badge   = document.getElementById('expenseEngineBadge');
-  const offMsg  = document.getElementById('expenseOfflineMsg');
-  const card    = document.getElementById('expenseEngineCard');
-
-  // Always show the LOCAL badge so users know it's a local service
-  if (badge) badge.style.display = 'inline';
-
-  fetch('http://localhost:5173/', { method: 'HEAD', mode: 'no-cors', cache: 'no-store', signal: AbortSignal.timeout(2000) })
-    .catch(() => {
-      // Service is offline — show offline hint and disable navigation
-      if (offMsg) offMsg.style.display = 'block';
-      if (card) {
-        card.style.cursor = 'default';
-        card.style.opacity = '.7';
-      }
-    });
-})();
-
-function checkExpenseEngine(e) {
-  const offMsg = document.getElementById('expenseOfflineMsg');
-  if (offMsg && offMsg.style.display === 'block') {
-    e.preventDefault();
-    return false;
-  }
-  return true;
-}
-</script>
-
-<script>
 (function(){
   const c = document.getElementById('tf-stars');
   const ctx = c.getContext('2d');
@@ -1978,7 +1947,7 @@ window.addEventListener('finos-context-ready', async function fillTFHub(e) {
       }
       const bg = goals.find(g => { const d = g.target_date ? Math.floor((new Date(g.target_date)-Date.now())/86400000) : Infinity; return d > 0 && d < 60 && Number(g.progress||0) < 60; });
       if (bg) nudges.push({ col:'#ff9500', icon:'🎯', text:`"${bg.name}" goal is behind — ${bg.progress||0}% funded with ${Math.floor((new Date(bg.target_date)-Date.now())/86400000)}d left.`, link:'life-goals-planner.html' });
-      if (sr > 0 && sr < 15) nudges.push({ col:'#00d4ff', icon:'💡', text:`${sr.toFixed(1)}% savings rate — target 30% for financial independence.`, link:'../ExpenseTracker/finos-budget/index.html' });
+      if (sr > 0 && sr < 15) nudges.push({ col:'#00d4ff', icon:'💡', text:`${sr.toFixed(1)}% savings rate — target 30% for financial independence.`, link:'budget-forecast.html' });
       nudgeEl.innerHTML = nudges.map(n => `
         <div style="display:flex;gap:10px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.03);border-left:3px solid ${n.col};margin-bottom:8px;">
           <span style="font-size:16px;">${n.icon}</span>

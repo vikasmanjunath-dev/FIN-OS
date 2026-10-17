@@ -605,11 +605,16 @@
   /* ── Fetch additional financial records from Supabase ─────────────────── */
   async function _fetchFinancialRecords(client, uid, ctx) {
     /* These are best-effort — if the table doesn't exist we just skip it */
+    // Clear the page-local analytics data before starting a new account lookup. Without
+    // this, a successful empty result (or a query failure) could leave the previous
+    // account's holdings visible in a long-lived tab.
+    window.FINOS_PORTFOLIO_ANALYTICS_HOLDINGS = [];
+    window.FINOS_PORTFOLIO_ANALYTICS_STATUS = { status: 'loading', userId: uid };
     const [txResult, goalsResult, holdingsResult] = await Promise.allSettled([
       client.from('transactions').select('category,amount,date,type').eq('user_id', uid)
             .order('date', { ascending: false }).limit(50),
       client.from('goals').select('*').eq('user_id', uid),
-      client.from('holdings').select('symbol,quantity,avg_price,current_price').eq('user_id', uid),
+      client.from('holdings').select('symbol,asset_type,name,quantity,avg_price,current_price').eq('user_id', uid),
     ]);
 
     if (!ctx.financial) ctx.financial = {};
@@ -647,12 +652,27 @@
       }));
     }
 
-    if (holdingsResult.status === 'fulfilled' && holdingsResult.value.data?.length) {
+    if (holdingsResult.status === 'fulfilled' && !holdingsResult.value.error && Array.isArray(holdingsResult.value.data)) {
       const holdings = holdingsResult.value.data;
+      // Keep the full, page-local set for the authenticated portfolio analytics view. The
+      // compact user context below remains capped because it is also consumed by Arya.
+      window.FINOS_PORTFOLIO_ANALYTICS_HOLDINGS = holdings;
+      window.FINOS_PORTFOLIO_ANALYTICS_STATUS = { status: 'ready', userId: uid };
       let totalValue = 0, totalCost = 0;
       holdings.forEach(h => {
-        totalValue += (h.quantity || 0) * (h.current_price || 0);
-        totalCost  += (h.quantity || 0) * (h.avg_price    || 0);
+        if (!h || typeof h !== 'object' || typeof h.quantity === 'boolean') return;
+        const quantity = Number(h.quantity);
+        const currentPrice = h.current_price == null || h.current_price === '' || typeof h.current_price === 'boolean' ? NaN : Number(h.current_price);
+        const avgPrice = h.avg_price == null || h.avg_price === '' || typeof h.avg_price === 'boolean' ? NaN : Number(h.avg_price);
+        if (!Number.isFinite(quantity) || quantity < 0) return;
+        if (Number.isFinite(currentPrice) && currentPrice >= 0) {
+          const currentValue = quantity * currentPrice;
+          if (Number.isFinite(currentValue) && Number.isFinite(totalValue + currentValue)) totalValue += currentValue;
+        }
+        if (Number.isFinite(avgPrice) && avgPrice >= 0) {
+          const costValue = quantity * avgPrice;
+          if (Number.isFinite(costValue) && Number.isFinite(totalCost + costValue)) totalCost += costValue;
+        }
       });
       ctx.financial.portfolio = {
         total_value: Math.round(totalValue),
@@ -661,6 +681,8 @@
         pnl_pct:     totalCost ? +(((totalValue - totalCost) / totalCost) * 100).toFixed(2) : 0,
         holdings:    holdings.slice(0, 10),
       };
+    } else {
+      window.FINOS_PORTFOLIO_ANALYTICS_STATUS = { status: 'error', userId: uid };
     }
   }
 
