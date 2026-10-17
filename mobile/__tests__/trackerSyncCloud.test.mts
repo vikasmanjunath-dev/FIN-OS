@@ -60,7 +60,12 @@ before(async () => {
   await new Promise<void>(r => server.listen(0, '127.0.0.1', r));
   url = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
 });
-after(() => { server.close(); });
+after(async () => {
+  // Supabase's fetch client can leave keep-alive sockets open after the last
+  // assertion. Close those sockets so Node's test worker can terminate.
+  server.closeAllConnections?.();
+  await new Promise<void>(resolve => server.close(() => resolve()));
+});
 
 const mkClient = () => createClient(url, 'anon-key-for-tests', { auth: { persistSession: false, autoRefreshToken: false } });
 class Mem implements LocalStore {
