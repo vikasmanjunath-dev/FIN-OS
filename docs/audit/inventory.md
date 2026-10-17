@@ -71,12 +71,13 @@ The mobile Track tab is `mobile/app/(tabs)/track.tsx`. It displays monthly incom
 | `/tracker/ppf` | PPF/small-savings accounts | retirement logic tests |
 | `/tracker/recurring` | recurring income/expense records | partial |
 | `/tracker/subscriptions` | subscription lifecycle and costs | parity tests |
-| `/tracker/transactions` | add/edit/delete and monthly browsing | transaction CRUD/storage tests; 50-row bounded paging; route smoke passed in empty and populated themes; native interaction/performance pending |
+| `/tracker/transactions` | add/edit/delete and monthly browsing; explicit transfers | transaction CRUD/storage tests; transfer excluded from budgets and round-trips storage; 50-row bounded paging; route smoke passed after transfer UI change in all 4 empty/populated × dark/light states; native interaction/performance pending |
 | `/tracker/watchlist` | stock/fund watchlist and price refresh | watchlist tests |
 
 ## Shared dependencies and test surfaces
 
 - **Calculations:** `js/finos-*.js` on web; `mobile/lib/trackers.ts`, `mobile/lib/budget.ts`, `mobile/lib/retirement.ts`, and tracker-specific libraries on mobile. Several mobile tests are explicitly parity tests against website implementations.
+- **Budget transaction rules:** only `expense` records count toward category budgets; `income`, `saving`, and explicitly typed `transfer` records do not. Transfer parity regression is in `mobile/__tests__/transactionTransfers.test.mts`; generic purchase memos containing the word “transfer” remain expenses.
 - **Persistence:** website localStorage and `js/finos-tracker-sync.js`; mobile AsyncStorage via `mobile/lib/trackerStorage.ts`, transaction-specific stores, `mobile/lib/trackerStorageStatus.ts`, and `mobile/lib/trackerSync*.ts`. Mobile storage failures now have explicit load/save status and do not masquerade as empty or successfully saved data.
 - **Cloud:** `supabase/tracker_snapshot.sql` creates the per-user JSONB snapshot with RLS; additional transaction/goal/budget tables are defined in `supabase/core_tables.sql`. Root and mobile sync tests cover malformed owner metadata; mobile has a local Supabase/PostgREST mock integration (3 tests). Real RLS remains unverified against a disposable database.
 - **Existing relevant tests:** root `tests/{budget,crypto-tracker,fd-tracker,ppf-80c,subscriptions,tracker-sync,import,statement-import}.test.js`, web tracker UI tests, `tests/test_security_sql.py`, `tests/test_corrupt_json_fuzz.py`, `tests/test_a11y*.py`, and performance-budget checks. Mobile includes tracker sync/cloud, logic, corrupt data, and gold/crypto/fixed-income/life-goal/passive/subscription parity tests.
