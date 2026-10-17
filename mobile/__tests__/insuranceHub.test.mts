@@ -8,7 +8,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import * as hub from '../lib/insuranceHub.ts';
 import { INSURANCE_CONTENT } from '../content/insurance/data.ts';
-import type { Policy } from '../lib/retirement.ts';
+import { renewalDays, type Policy } from '../lib/retirement.ts';
 
 const MOBILE = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const REPO = path.join(MOBILE, '..');
@@ -182,13 +182,23 @@ test('comparing policies: premium per lakh only when both numbers exist; mixed t
   assert.equal(same.columns[0].premiumPerLakh, 1500);
   assert.equal(same.columns[1].premiumPerLakh, null);
   assert.equal(same.columns[1].annualPremium, null);
-  assert.equal(same.columns[0].renewalDays, 30);
+  assert.equal(same.columns[0].renewalDays, 31);
   const mixed = hub.comparePolicies([a, c], NOW);
   assert.equal(mixed.sameType, false);
   assert.equal(mixed.columns[1].renewalDays, null);
   assert.ok(mixed.notes.some(n => /not like for like/.test(n)));
   assert.equal(hub.comparePolicies([a, b, c, pol({ id: 'd' })], NOW).columns.length, 3);
   assert.deepEqual(Object.keys(same.columns[0]).filter(k => /rank|score|best|better/i.test(k)), []);
+});
+
+test('renewal countdown compares real calendar days and rejects malformed or impossible dates', () => {
+  const now = new Date(2026, 10, 1, 23, 55); // late on the local day; no time-of-day rounding
+  assert.equal(renewalDays(pol({ renewal_date: '2026-11-02' }), now), 1);
+  assert.equal(renewalDays(pol({ renewal_date: '2026-11-01' }), now), 0);
+  assert.equal(renewalDays(pol({ renewal_date: '2026-10-31' }), now), -1);
+  assert.equal(renewalDays(pol({ renewal_date: '2026-02-30' }), now), null);
+  assert.equal(renewalDays(pol({ renewal_date: '2026-11-1' }), now), null);
+  assert.equal(renewalDays(pol({ renewal_date: '' }), now), null);
 });
 
 test('checklist answers: unknown ids and values are dropped, clearing works, progress counts only real checks', () => {

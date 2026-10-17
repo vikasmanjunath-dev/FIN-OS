@@ -87,7 +87,7 @@
         "color": "#22d3a6",
         "source": {
           "file": "html/insurance-hub.html",
-          "line": 290,
+          "line": 316,
           "quote": "health: { icon:'🏥', label:'Health Insurance'"
         },
         "recBaseUnused": 1000000
@@ -152,7 +152,7 @@
         "color": "#ff4444",
         "source": {
           "file": "html/insurance-hub.html",
-          "line": 296,
+          "line": 322,
           "quote": "critical: { icon:'❤️', label:'Critical Illness'"
         },
         "recBaseUnused": 5000000
@@ -226,7 +226,7 @@
         "color": "#00d4ff",
         "source": {
           "file": "html/insurance-hub.html",
-          "line": 291,
+          "line": 317,
           "quote": "life_term: { icon:'🛡️', label:'Term Life'"
         },
         "recBaseUnused": 10000000
@@ -309,7 +309,7 @@
         "color": "#7b2ff7",
         "source": {
           "file": "html/insurance-hub.html",
-          "line": 292,
+          "line": 318,
           "quote": "life_ulip: { icon:'📈', label:'ULIP'"
         },
         "recBaseUnused": 5000000
@@ -374,7 +374,7 @@
         "color": "#c7f000",
         "source": {
           "file": "html/insurance-hub.html",
-          "line": 294,
+          "line": 320,
           "quote": "home: { icon:'🏠', label:'Home Insurance'"
         },
         "recBaseUnused": 3000000
@@ -395,7 +395,7 @@
         "color": "#ff9500",
         "source": {
           "file": "html/insurance-hub.html",
-          "line": 293,
+          "line": 319,
           "quote": "vehicle: { icon:'🚗', label:'Vehicle Insurance'"
         },
         "recBaseUnused": 500000
@@ -469,7 +469,7 @@
         "color": "#00d4ff",
         "source": {
           "file": "html/insurance-hub.html",
-          "line": 295,
+          "line": 321,
           "quote": "travel: { icon:'✈️', label:'Travel Insurance'"
         },
         "recBaseUnused": 1000000

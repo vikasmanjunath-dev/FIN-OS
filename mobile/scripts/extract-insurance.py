@@ -81,7 +81,7 @@ def parse_layers():
             t = re.search(r'<span class="layer-tag">(.*?)</span>', raw)
             if t:
                 L['tag'] = plain(t.group(1))
-            h = re.search(r'<h3>(.*?)</h3>', raw)
+            h = re.search(r'<h3(?:\s[^>]*)?>(.*?)</h3>', raw)
             if h:
                 L['heading'] = plain(h.group(1))
                 L['headingSource'] = src(DIRECTORY, k + 1, L['heading'])

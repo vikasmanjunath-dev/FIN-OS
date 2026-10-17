@@ -55,9 +55,9 @@ export const checksFor = (coverTypeId: string): Check[] => CHECKS.filter(c => c.
 export const FACTS_BY_TYPE: Record<string, string[]> = {
   health: ['medical_inflation', 'avg_icu_bill', 'hospitalisation_cost_range', 'top_hospital_cost_range', 'surgery_cost_projection', 'rule_health', 'room_rent_cap', 'co_pay'],
   critical: ['critical_illness_count', 'critical_treatment_cost_range', 'critical_rider_premium', 'critical_age_threshold', 'rule_critical'],
-  term: ['rule_life_term', 'formula_income_x20', 'target_csr', 'endowment_return', 'insurance_not_investment'],
+  term: ['rule_life_term', 'target_csr', 'insurance_not_investment'],
   accident: [],
-  ulip: ['insurance_not_investment', 'endowment_return'],
+  ulip: ['insurance_not_investment'],
   home: [],
   vehicle: ['rule_vehicle', 'third_party_mandatory'],
   liability: ['third_party_mandatory'],

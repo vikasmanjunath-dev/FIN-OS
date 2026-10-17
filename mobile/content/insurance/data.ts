@@ -90,7 +90,7 @@ export const INSURANCE_CONTENT = {
           "color": "#22d3a6",
           "source": {
             "file": "html/insurance-hub.html",
-            "line": 290,
+            "line": 316,
             "quote": "health: { icon:'🏥', label:'Health Insurance'"
           },
           "recBaseUnused": 1000000
@@ -155,7 +155,7 @@ export const INSURANCE_CONTENT = {
           "color": "#ff4444",
           "source": {
             "file": "html/insurance-hub.html",
-            "line": 296,
+            "line": 322,
             "quote": "critical: { icon:'❤️', label:'Critical Illness'"
           },
           "recBaseUnused": 5000000
@@ -229,7 +229,7 @@ export const INSURANCE_CONTENT = {
           "color": "#00d4ff",
           "source": {
             "file": "html/insurance-hub.html",
-            "line": 291,
+            "line": 317,
             "quote": "life_term: { icon:'🛡️', label:'Term Life'"
           },
           "recBaseUnused": 10000000
@@ -312,7 +312,7 @@ export const INSURANCE_CONTENT = {
           "color": "#7b2ff7",
           "source": {
             "file": "html/insurance-hub.html",
-            "line": 292,
+            "line": 318,
             "quote": "life_ulip: { icon:'📈', label:'ULIP'"
           },
           "recBaseUnused": 5000000
@@ -377,7 +377,7 @@ export const INSURANCE_CONTENT = {
           "color": "#c7f000",
           "source": {
             "file": "html/insurance-hub.html",
-            "line": 294,
+            "line": 320,
             "quote": "home: { icon:'🏠', label:'Home Insurance'"
           },
           "recBaseUnused": 3000000
@@ -398,7 +398,7 @@ export const INSURANCE_CONTENT = {
           "color": "#ff9500",
           "source": {
             "file": "html/insurance-hub.html",
-            "line": 293,
+            "line": 319,
             "quote": "vehicle: { icon:'🚗', label:'Vehicle Insurance'"
           },
           "recBaseUnused": 500000
@@ -472,7 +472,7 @@ export const INSURANCE_CONTENT = {
           "color": "#00d4ff",
           "source": {
             "file": "html/insurance-hub.html",
-            "line": 295,
+            "line": 321,
             "quote": "travel: { icon:'✈️', label:'Travel Insurance'"
           },
           "recBaseUnused": 1000000
@@ -506,11 +506,6 @@ export const INSURANCE_CONTENT = {
             "file": "html/insurance-directory.html",
             "line": 165,
             "quote": "Medical Inflation"
-          },
-          {
-            "file": "html/learn-insurance.html",
-            "line": 528,
-            "quote": "medical inflation is roughly 14%"
           }
         ],
         "asOf": null,
@@ -610,7 +605,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/learn-insurance.html",
-            "line": 604,
+            "line": 612,
             "quote": "data: [5, 9.6, 18.5]"
           }
         ],
@@ -618,47 +613,6 @@ export const INSURANCE_CONTENT = {
         "asOfNote": "Date not stated on the website",
         "verified": false,
         "note": "An illustration of 14% a year growth (5 x 1.14^5 = 9.6, 5 x 1.14^10 = 18.5). Not a forecast of any hospital price."
-      },
-      {
-        "id": "endowment_return",
-        "kind": "claim",
-        "statement": "Endowment (\"money back\") plans give about 5% a year, against 6-7% inflation.",
-        "value": 5,
-        "unit": "% a year",
-        "sources": [
-          {
-            "file": "html/learn-insurance.html",
-            "line": 550,
-            "quote": "These plans give ~5% returns. Inflation is 6-7%."
-          }
-        ],
-        "asOf": null,
-        "asOfNote": "Date not stated on the website",
-        "verified": false,
-        "note": "A general claim about endowment plans. Actual returns differ by plan, term and charges; the website gives no source or year."
-      },
-      {
-        "id": "formula_income_x20",
-        "kind": "rule",
-        "statement": "Cover needed = annual income x 20 + total debt. The example: ₹10 lakh a year of income and a ₹50 lakh loan needs ₹2.5 crore.",
-        "value": 20,
-        "unit": "x annual income + debt",
-        "sources": [
-          {
-            "file": "html/learn-insurance.html",
-            "line": 554,
-            "quote": "Cover = (Annual Income × 20) + Total Debt"
-          },
-          {
-            "file": "html/learn-insurance.html",
-            "line": 555,
-            "quote": "you need a ₹2.5 Crore Term Plan."
-          }
-        ],
-        "asOf": null,
-        "asOfNote": "Date not stated on the website",
-        "verified": false,
-        "note": "A rule of thumb. It differs from the 15x rule in the insurance hub and from the human-life-value method in the life cover calculator, so treat all of them as starting points."
       },
       {
         "id": "rule_health",
@@ -669,7 +623,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 310,
+            "line": 336,
             "quote": "income > 0 ? income * 12 * 2 : 0"
           }
         ],
@@ -687,7 +641,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 311,
+            "line": 337,
             "quote": "income > 0 ? income * 12 * 15 : 0"
           }
         ],
@@ -705,7 +659,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 313,
+            "line": 339,
             "quote": "income > 0 ? income * 12 * 5 : 0"
           }
         ],
@@ -723,7 +677,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 312,
+            "line": 338,
             "quote": "vehicle: 500000"
           }
         ],
@@ -744,7 +698,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 368,
+            "line": 391,
             "quote": "one hospitalization can cost ₹5-25L"
           }
         ],
@@ -765,7 +719,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 369,
+            "line": 392,
             "quote": "Hospital bills at AIIMS/Apollo can be ₹15-30L"
           }
         ],
@@ -786,7 +740,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 373,
+            "line": 396,
             "quote": "treatment can cost ₹10-50L"
           }
         ],
@@ -807,7 +761,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 373,
+            "line": 396,
             "quote": "rider costs ~₹3-5K/year"
           }
         ],
@@ -825,7 +779,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 372,
+            "line": 395,
             "quote": "Third-party vehicle insurance is legally mandatory in India."
           }
         ],
@@ -843,7 +797,7 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/insurance-hub.html",
-            "line": 373,
+            "line": 396,
             "quote": "if (age > 35 && !policies.some(p => p.type === 'critical'))"
           }
         ],
@@ -861,12 +815,12 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/learn-insurance.html",
-            "line": 532,
+            "line": 534,
             "quote": "No Room Rent Cap"
           },
           {
             "file": "html/learn-insurance.html",
-            "line": 533,
+            "line": 535,
             "quote": "If your policy has a cap (e.g., 1% of sum insured), and you take a better room, the company will cut your entire bill proportionally."
           }
         ],
@@ -884,12 +838,12 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/learn-insurance.html",
-            "line": 536,
+            "line": 538,
             "quote": "No Co-Pay"
           },
           {
             "file": "html/learn-insurance.html",
-            "line": 537,
+            "line": 539,
             "quote": "Co-pay means you pay a percentage of every bill."
           }
         ],
@@ -925,12 +879,12 @@ export const INSURANCE_CONTENT = {
         "sources": [
           {
             "file": "html/learn-insurance.html",
-            "line": 571,
+            "line": 577,
             "quote": "High (e.g. Earphones)"
           },
           {
             "file": "html/learn-insurance.html",
-            "line": 576,
+            "line": 582,
             "quote": "Low (e.g. Death)"
           }
         ],
@@ -1126,18 +1080,16 @@ export const INSURANCE_CONTENT = {
         "question": "Is it pure term (no maturity benefit), or an endowment / money-back plan?",
         "why": "The website says insurance is risk transfer, not an investment.",
         "facts": [
-          "insurance_not_investment",
-          "endowment_return"
+          "insurance_not_investment"
         ]
       },
       {
         "id": "term.amount",
         "coverType": "term",
         "question": "Does the cover match what your family would need? Work it out in the life cover calculator.",
-        "why": "The website's own rules of thumb differ (15 times income in the hub, 20 times plus debt in the lesson).",
+        "why": "Treat the calculator as an estimate based on your dependants, liabilities, existing assets, and other cover.",
         "facts": [
-          "rule_life_term",
-          "formula_income_x20"
+          "rule_life_term"
         ]
       },
       {
