@@ -61,4 +61,4 @@ The initial sandboxed root `npm test` reported 4 failures, 320 passes, 6 skips, 
 
 The repository contained extensive pre-existing modifications before this audit. They were preserved; this report does not claim those unrelated changes were reviewed or production-ready.
 
-The isolated Trade Journal fix is committed as `7d4bd95`, tracker ownership fail-closed sync as `44f6c78`, deterministic mock sync server teardown as `b8fcd2e`, and the inventory/findings/plan/release report as `86ec1a4`. Other code changes remain in the working tree because the repository was already extensively dirty and safe hunk-level separation is still required before making additional commits.
+The isolated Trade Journal fix is committed as `7d4bd95`, tracker ownership fail-closed sync as `44f6c78`, transaction transfer and paging fixes as `2aecc6c`, deterministic mock sync server teardown as `b8fcd2e`, and the inventory/findings/plan/release report as `86ec1a4` and `a477159`. Other code changes remain in the working tree because the repository was already extensively dirty and safe hunk-level separation is still required before making additional commits.

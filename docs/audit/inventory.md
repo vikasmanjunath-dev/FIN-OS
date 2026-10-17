@@ -71,7 +71,7 @@ The mobile Track tab is `mobile/app/(tabs)/track.tsx`. It displays monthly incom
 | `/tracker/ppf` | PPF/small-savings accounts | retirement logic tests |
 | `/tracker/recurring` | recurring income/expense records | partial |
 | `/tracker/subscriptions` | subscription lifecycle and costs | parity tests |
-| `/tracker/transactions` | add/edit/delete and monthly browsing; explicit transfers | transaction CRUD/storage tests; transfer excluded from budgets and round-trips storage; 50-row bounded paging; route smoke passed after transfer UI change in all 4 empty/populated × dark/light states; native interaction/performance pending |
+| `/tracker/transactions` | add/edit/delete and monthly browsing; explicit transfers | transaction CRUD/storage tests; transfer excluded from budgets and round-trips storage; 50-row bounded paging; route smoke passed after transfer UI change in all 4 empty/populated × dark/light states; native interaction/performance pending; commit `2aecc6c` |
 | `/tracker/watchlist` | stock/fund watchlist and price refresh | watchlist tests |
 
 ## Shared dependencies and test surfaces
