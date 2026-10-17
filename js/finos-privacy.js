@@ -74,7 +74,7 @@
       purpose: 'Share buttons open WhatsApp or X with text you can edit first.', sent: 'Only the text you choose to share, and only when you press Share.', personal: false, optional: true,
       control: 'You see and can edit the message before anything is sent.' },
 
-    { id: 'references', kind: 'link', hosts: ['groww.in', 'kuvera.in', 'coin.zerodha.com', 'moneycontrol.com', 'livemint.com', 'economictimes.indiatimes.com', 'reuters.com', 'bloomberg.com', 'wsj.com', 'ft.com', 'cryptonews.com', 'streamlit.app', 'incometax.gov.in', 'sebi.gov.in', 'rbi.org.in', 'finos.app'],
+    { id: 'references', kind: 'link', hosts: ['groww.in', 'kuvera.in', 'coin.zerodha.com', 'moneycontrol.com', 'livemint.com', 'economictimes.indiatimes.com', 'reuters.com', 'bloomberg.com', 'wsj.com', 'ft.com', 'cryptonews.com', 'streamlit.app', 'incometax.gov.in', 'incometaxindia.gov.in', 'indiapost.gov.in', 'sebi.gov.in', 'rbi.org.in', 'nseindia.com', 'bis.org', 'finos.app'],
       title: 'Links to other sites', purpose: 'Reading lists, news sources, regulators and partner tools that open in a new tab when you click them.',
       sent: 'Nothing is sent by FIN-OS. Once you click, that site\'s own privacy rules apply.', personal: false, optional: true, control: 'You choose whether to follow a link.' },
 

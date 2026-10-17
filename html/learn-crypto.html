@@ -6,7 +6,7 @@
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
   <meta charset="UTF-8">
-  <meta name="description" content="Crypto Deep Dive — the shared-ledger concept, Bitcoin vs Ethereum, and how not to get scammed by tokenomics.">
+  <meta name="description" content="Learn how blockchains record transactions, compare Bitcoin and Ethereum, and assess token supply, custody, and market risks.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -173,12 +173,14 @@
         
         <p>Imagine a Google Sheet that tracks who owns what money. But:</p>
         <ul style="color:var(--text-secondary); margin-bottom:20px; line-height:1.6;">
-          <li>❌ No Admin (No Google, No Bank).</li>
-          <li>✅ Everyone has a copy.</li>
-          <li>✅ To add a row, everyone must agree (Consensus).</li>
-          <li>🔒 Once written, it can NEVER be deleted.</li>
+          <li>✅ No single spreadsheet owner; network participants follow shared rules.</li>
+          <li>✅ Many participants keep copies or verify the shared record.</li>
+          <li>✅ Network rules determine which proposed updates are accepted (consensus).</li>
+          <li>🔒 Confirmed records can be difficult to alter, though network reorganisations and protocol changes are possible.</li>
         </ul>
         <p>This is <strong>Blockchain</strong>. Bitcoin is just the first app running on this system.</p>
+
+        <div class="concept-card"><h3>🧾 Ledger Is Not the Whole Story</h3><p>A public ledger can make transfers visible and difficult to alter, but it does not guarantee that a token has useful rights, stable value, safe software, or an honest operator. Separate the technology claim from the investment claim.</p></div>
       </section>
 
       <section class="chapter" id="lvl2">
@@ -186,16 +188,18 @@
         <h2>Bitcoin vs Ethereum (Gold vs Oil)</h2>
         
         <div class="concept-card" style="border-left-color:#f39c12;">
-          <h4 aria-level="3">🥇 Bitcoin (BTC) = Digital Gold</h4>
-          <p><strong>Purpose:</strong> Store of Value.</p>
-          <p><strong>Why:</strong> Only 21 Million will ever exist. No government can print more. It protects wealth against inflation.</p>
+          <h3>🥇 Bitcoin (BTC) = Digital Gold</h3>
+          <p><strong>Common comparison:</strong> Some people view Bitcoin as a scarce digital asset; its price and purchasing power can still fall.</p>
+          <p><strong>Supply:</strong> Bitcoin’s current protocol rules cap issuance near 21 million coins. The network enforces those rules, but scarcity does not guarantee price appreciation or protection from inflation.</p>
         </div>
 
         <div class="concept-card" style="border-left-color:#8e44ad;">
-          <h4 aria-level="3">🛢️ Ethereum (ETH) = Digital Oil</h4>
+          <h3>🛢️ Ethereum (ETH) = Digital Oil</h3>
           <p><strong>Purpose:</strong> Fuel for the Global Computer.</p>
-          <p><strong>Why:</strong> You need ETH to pay "Gas Fees" to run apps, games, and banks (DeFi) built on the Ethereum network.</p>
+          <p><strong>Transactions:</strong> On Ethereum mainnet, ETH is generally used to pay transaction fees (gas). Smart contracts support apps and financial services, each with its own technical and market risks.</p>
         </div>
+
+        <div class="concept-card"><h3>🧩 Different Networks, Different Roles</h3><p>Bitcoin and Ethereum have different design goals, security assumptions, and ecosystems. A simple analogy can help you remember a distinction, but it cannot replace understanding how a network validates transactions and what its token is used for.</p></div>
       </section>
 
       <section class="chapter" id="lvl3">
@@ -217,16 +221,20 @@
             </div>
           </div>
         </div>
-        <p class="highlight" style="text-align:center; margin-top:20px;">⚠️ If Market Cap is $1M but FDV is $100M, run away. Massive inflation is coming.</p>
+        <p class="highlight" style="text-align:center; margin-top:20px;">⚠️ A large gap between market capitalisation and fully diluted valuation can signal substantial potential future supply. Check the unlock schedule, who holds those tokens, and whether demand could absorb them; the ratio alone does not predict price.</p>
+
+        <div class="concept-card"><h3>🔍 Supply Questions</h3><p>Check circulating supply, maximum or planned supply, unlock schedules, concentration among large holders, and the rights attached to a token. Fully diluted valuation can highlight future supply, but it does not predict whether demand will exist.</p></div>
       </section>
 
       <section class="chapter" id="godmode">
         <div class="pro-tip" style="border-color:#9b59b6; background:linear-gradient(135deg, rgba(155,89,182,0.1), rgba(0,0,0,0));">
           <h4 style="color:#9b59b6;">☠️ GOD MODE: Self-Custody</h4>
           <p><strong>"Not your Keys, Not your Coins."</strong></p>
-          <p>If your crypto is on an exchange (Binance/Coinbase), you don't own it. The bank owns it. If they go bankrupt (like FTX), you lose everything.</p>
-          <p><strong>The Fix:</strong> Use a Hardware Wallet (Ledger/Trezor). Become your own bank.</p>
+          <p>When a platform holds assets for you, you depend on its custody, security, solvency, and legal terms. If it fails, access or recovery may be delayed and is not assured. Self-custody removes that intermediary but makes you responsible for securing the keys.</p>
+          <p><strong>Trade-off:</strong> A hardware wallet can keep signing keys offline, but it does not remove software, user, recovery, or market risks. Understand the recovery process before moving assets.</p>
         </div>
+
+        <div class="concept-card"><h3>🔐 Custody Check</h3><p>With self-custody, losing the recovery phrase can mean losing access permanently; sharing it can let someone take the assets. With a platform, you depend on its security, controls, and solvency. Virtual digital assets have specific tax and reporting rules; <a href="https://www.incometax.gov.in/iec/foportal/help/all-topics/e-filing-services/form-141-faqs" target="_blank" rel="noopener noreferrer">check current Income Tax Department guidance</a> before transacting.</p></div>
       </section>
 
       <footer style="margin-top:100px; text-align:center; opacity:0.5; font-size:0.8rem;">

@@ -6,7 +6,7 @@
 (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
 </script>
   <meta charset="UTF-8">
-  <meta name="description" content="Your savings account is losing you 4% a year, quietly. Why inflation is the wealth killer nobody notices."><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn how inflation affects purchasing power, why personal costs differ from headline CPI, and how to compare savings and investment assumptions."><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0B0D12">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -153,11 +153,11 @@
     <section class="insight-section">
       <div class="section-title">The Reality</div>
       <div class="glass-panel">
-        <p>Government Inflation (CPI) tracks rice and wheat. <strong>Your Inflation (Lifestyle)</strong> tracks iPhones, Netflix, Private Schools, and Swiggy.</p>
+        <p>CPI measures price changes across a defined consumer basket. Your personal inflation depends on your household’s spending mix and may differ from headline CPI.</p>
         <div class="visual-container" style="height: 400px;">
           <canvas id="inflationChart"></canvas>
         </div>
-        <p style="margin-top:20px; text-align:center; color:#ff4757;">⚠️ While CPI is 6%, your Lifestyle costs are growing at 10-12%.</p>
+        <p style="margin-top:20px; text-align:center; color:#ff4757;">⚠️ Your household’s costs can rise at a different pace from headline CPI; track your own spending to estimate your personal inflation.</p>
       </div>
     </section>
 
@@ -166,15 +166,15 @@
       <div class="comparison-grid">
         <div class="comp-card bad">
           <h3 aria-level="2">❌ Saving in Bank</h3>
-          <p>Savings Account: 3% Return</p>
-          <p>Inflation: 7% Loss</p>
-          <p><strong>Net Result: -4% Wealth every year.</strong></p>
+          <p>Savings-account rates vary by bank and account. Use your current rate.</p>
+          <p>Inflation varies by period and by household spending mix. Use a stated assumption in the calculator.</p>
+          <p><strong>Real return depends on the account rate, inflation period, taxes, and fees.</strong></p>
         </div>
         <div class="comp-card good">
           <h3 aria-level="2">✅ Investing in Assets</h3>
-          <p>Nifty 50: 12% Return</p>
-          <p>Inflation: 7% Loss</p>
-          <p><strong>Net Result: +5% Real Wealth.</strong></p>
+          <p>Equity returns are uncertain. Use a clearly labelled assumption, not a promised index return.</p>
+          <p>Inflation: use the same stated assumption</p>
+          <p><strong>Investment outcomes vary, and a positive real return is not guaranteed.</strong></p>
         </div>
       </div>
       <p style="text-align:center;margin-top:24px;"><a href="../calculators/core-thinking/inflation-impact.html" style="font-size:13px;font-weight:600;color:var(--accent-ink);">🧮 Run this with your own numbers →</a></p>

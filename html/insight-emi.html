@@ -149,19 +149,19 @@
 
     <section class="insight-section">
       <div class="glass-panel">
-        <h3 aria-level="2">How Banks Trick Your Brain</h3>
-        <p>In the early years, 80% of your EMI is just Interest. You pay the Principal last.</p>
+        <h3 aria-level="2">How EMI Changes Over Time</h3>
+        <p>For a fully amortising loan, the interest and principal shares of each EMI depend on the rate, balance, and remaining term. Early payments often contain more interest, but there is no universal percentage.</p>
         
         <div class="visual-container" style="flex-direction:column; padding: 20px;">
           <div class="emi-bar">
-            <div class="emi-interest" style="width:90%">Interest</div>
-            <div class="emi-principal" style="width:10%">Principal</div>
+            <div class="emi-interest" style="width:70%">Illustrative interest</div>
+            <div class="emi-principal" style="width:30%">Illustrative principal</div>
           </div>
-          <input aria-label="Extra EMI per month (slider)" type="range" id="emiSlider" min="0" max="100" value="0" style="width:80%; margin-top:20px;">
-          <p id="emiYear" style="margin-top:10px; color:#fff;">Year: 1</p>
+          <input aria-label="Loan year to inspect (slider)" type="range" id="emiSlider" min="1" max="20" value="1" style="width:80%; margin-top:20px;">
+          <p id="emiYear" aria-live="polite" style="margin-top:10px; color:#fff;">Illustration: ₹10 lakh loan, 9% annual rate, 20-year term</p>
         </div>
         
-        <p class="moral" style="margin-top:20px;"><strong>The Fix:</strong> Pre-pay 1 extra EMI every year. You will close a 20-year loan in 12 years.</p>
+        <p class="moral" style="margin-top:20px;"><strong>The Fix:</strong> Making an extra payment can reduce principal and may shorten the loan or lower future EMIs, depending on the lender’s rules and how the payment is applied. Use the calculator with your actual rate, balance, and payment schedule.</p>
         <p style="text-align:center;margin-top:20px;"><a href="../calculators/loans%2C%20debt%20%26%20emi/emiprepay.html" style="font-size:13px;font-weight:600;color:var(--accent-ink);">🧮 Run your own prepayment numbers →</a></p>
       </div>
     </section>

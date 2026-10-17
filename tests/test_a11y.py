@@ -37,6 +37,15 @@ PAGES = [
     "calculators/retirement & life planning/retirement.html", "index.html", "login.html",
     "html/subscription-tracker.html", "html/money-score.html", "html/privacy.html", "html/terms.html", "html/feedback.html", "html/import-statement.html", "calculators/loans, debt & emi/prepayinvest.html", "calculators/tax & salary/offercompare.html",
 ]
+LEARNING_PAGES = [
+    "html/finance101.html", "html/learn-analysis.html", "html/learn-commodity.html", "html/learn-debt.html",
+    "html/learn-equity.html", "html/learn-etf.html", "html/learn-fno.html", "html/learn-forex.html",
+    "html/learn-fundamental.html", "html/learn-indicators.html", "html/learn-insurance.html", "html/learn-metrics.html",
+    "html/learn-money-market.html", "html/learn-mf.html", "html/learn-crypto.html", "html/learn-technical.html",
+    "html/insight-emi.html", "html/insight-sip.html", "html/insight-inflation.html", "html/insight-rbi.html",
+    "html/insight-debt.html",
+]
+PAGES.extend(LEARNING_PAGES)
 MUST_BE_ZERO = ["label", "select-name", "button-name", "link-name", "aria-dialog-name", "image-alt", "document-title",
                 "html-has-lang", "nested-interactive", "aria-required-attr", "aria-valid-attr-value", "duplicate-id-aria"]
 CONTRAST_CEILING = 4            # nodes across all pages × both themes (596 before the Oct 2026 pass, 28 before the opacity-aware healer, 0 after). Only ever lower this.
@@ -77,3 +86,10 @@ def test_rule_has_no_violations(results, rule):
 def test_contrast_stays_under_ceiling(results):
     n = sum(v["n"] for res in results.values() for v in res if v["id"] == "color-contrast")
     assert n <= CONTRAST_CEILING, f"{n} low-contrast nodes (ceiling {CONTRAST_CEILING})"
+
+
+@pytest.mark.parametrize("rule", ["heading-order", "link-in-text-block"])
+def test_learning_pages_have_clear_structure_and_inline_links(results, rule):
+    bad = [((theme, path), v) for (theme, path), res in results.items()
+           if path in LEARNING_PAGES for v in res if v["id"] == rule]
+    assert not bad, f"{rule}: " + "; ".join(f"{k[0]}/{k[1]} → {v['t']}" for k, v in bad[:6])

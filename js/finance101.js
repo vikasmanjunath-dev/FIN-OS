@@ -1,16 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
-  
+
   // --- INTELLIGENT THEME DETECTION ---
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  
+
   // Dynamic Colors
   const textColor = isDark ? '#9CA0AB' : '#4a5568'; // Grey vs Dark Grey
   const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-  
+
   // Set Defaults
   Chart.defaults.color = textColor;
   Chart.defaults.font.family = "'Inter', sans-serif";
-  
+
   const neonGreen = '#C7F000';
   const electricBlue = '#4F7CFF';
   const dangerRed = '#ff4757';
@@ -48,12 +48,12 @@ document.addEventListener("DOMContentLoaded", () => {
         legend: { position: 'bottom', labels: { color: textColor } }
       },
       scales: {
-        y: { 
-          grid: { color: gridColor }, 
+        y: {
+          grid: { color: gridColor },
           ticks: { color: textColor },
-          title: { display: true, text: 'Amount (₹ Lakhs)', color: textColor } 
+          title: { display: true, text: 'Amount (₹ Lakhs)', color: textColor }
         },
-        x: { 
+        x: {
           grid: { display: false },
           ticks: { color: textColor }
         }
@@ -105,13 +105,13 @@ document.addEventListener("DOMContentLoaded", () => {
       labels: ['2014', '2024'],
       datasets: [
         {
-          label: 'Salary (Growth)',
+          label: 'Illustrative salary index',
           data: [100, 180],
           backgroundColor: electricBlue,
           borderRadius: 8
         },
         {
-          label: 'Cost of Living',
+          label: 'Illustrative household-cost index',
           data: [100, 220],
           backgroundColor: dangerRed,
           borderRadius: 8
@@ -174,5 +174,3 @@ document.addEventListener("DOMContentLoaded", () => {
     el.style.transform = 'none';
     });
   });
-
-  

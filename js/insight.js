@@ -8,10 +8,10 @@ document.addEventListener("DOMContentLoaded", () => {
     new Chart(inflCtx, {
       type: 'line',
       data: {
-        labels: ['2014', '2016', '2018', '2020', '2022', '2024'],
+        labels: ['Start', 'Year 2', 'Year 4', 'Year 6', 'Year 8', 'Year 10'],
         datasets: [
-          { label: 'Official Inflation (CPI)', data: [100, 112, 125, 140, 155, 172], borderColor: '#4F7CFF', borderWidth: 2 },
-          { label: 'Lifestyle Inflation (Real)', data: [100, 120, 145, 175, 210, 250], borderColor: '#ff4757', borderWidth: 3 }
+          { label: 'Illustrative price index (not CPI data)', data: [100, 112, 125, 140, 155, 172], borderColor: '#4F7CFF', borderWidth: 2 },
+          { label: 'Illustrative household basket (not measured)', data: [100, 120, 145, 175, 210, 250], borderColor: '#ff4757', borderWidth: 3 }
         ]
       },
       options: { responsive: true, plugins: { legend: { labels: { color: textColor } } }, scales: { x: { ticks: { color: textColor } }, y: { ticks: { color: textColor } } } }
@@ -27,25 +27,44 @@ document.addEventListener("DOMContentLoaded", () => {
         labels: ['Start at 25', 'Start at 35 (Delay)'],
         datasets: [{
           label: 'Corpus at Age 55 (₹)',
-          data: [1.8, 0.6], // Crores approx for 5k SIP
+          data: [1.75, 0.495], // ₹ crore; assumed ₹5,000 monthly SIP at 12% annual return
           backgroundColor: ['#2ecc71', '#ff4757'],
           borderRadius: 8
         }]
       },
-      options: { plugins: { title: { display: true, text: 'Cost of Waiting 10 Years (₹ Crores)', color: textColor } } }
+      options: { plugins: { title: { display: true, text: 'Illustration: ₹5,000/month at an assumed 12% annual return (₹ crore)', color: textColor } } }
     });
   }
 
-  // --- 3. EMI ANIMATION LOGIC ---
+  // --- 3. EMI AMORTISATION EXAMPLE ---
   const emiSlider = document.getElementById('emiSlider');
   if (emiSlider) {
-    emiSlider.addEventListener('input', (e) => {
-      const val = e.target.value; // 0 to 100 (Timeline)
-      const interestWidth = Math.max(10, 90 - val); // Interest starts high, drops
+    const principal = 1000000;
+    const annualRate = 0.09;
+    const months = 20 * 12;
+    const monthlyRate = annualRate / 12;
+    const emi = principal * monthlyRate * Math.pow(1 + monthlyRate, months) /
+      (Math.pow(1 + monthlyRate, months) - 1);
+    const updateEmiSplit = () => {
+      const year = Number(emiSlider.value);
+      let balance = principal;
+      let interestInYear = 0;
+      let paymentsInYear = 0;
+      for (let month = 1; month <= year * 12; month += 1) {
+        const interest = balance * monthlyRate;
+        const principalPaid = Math.min(balance, emi - interest);
+        if (month > (year - 1) * 12) {
+          interestInYear += interest;
+          paymentsInYear += interest + principalPaid;
+        }
+        balance = Math.max(0, balance - principalPaid);
+      }
+      const interestWidth = Math.max(0, Math.min(100, interestInYear / paymentsInYear * 100));
       document.querySelector('.emi-interest').style.width = interestWidth + '%';
       document.querySelector('.emi-principal').style.width = (100 - interestWidth) + '%';
-      
-      document.getElementById('emiYear').innerText = `Year: ${Math.floor(val/10) + 1}`;
-    });
+      document.getElementById('emiYear').innerText = `Illustrative year ${year}: ${interestWidth.toFixed(0)}% interest / ${(100 - interestWidth).toFixed(0)}% principal`;
+    };
+    emiSlider.addEventListener('input', updateEmiSplit);
+    updateEmiSplit();
   }
 });

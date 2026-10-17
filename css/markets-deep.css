@@ -165,10 +165,16 @@ html, body {
   margin: 40px 0;
   transition: background 0.3s ease;
 }
+.concept-card h3,
 .concept-card h4 { 
   font-size: 1.2rem; 
   color: var(--text-primary, #fff); 
   margin-bottom: 12px; 
+}
+.intro-text a,
+.deep-content p a {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 .concept-card .highlight { color: var(--accent); font-weight: 700; }
 
@@ -238,6 +244,7 @@ html, body {
 [data-theme="light"] .chapter h1,
 [data-theme="light"] .chapter h2,
 [data-theme="light"] .chapter h3,
+[data-theme="light"] .concept-card h3,
 [data-theme="light"] .concept-card h4 {
   color: #1a202c !important; /* Solid Black/Grey */
 }
