@@ -3,10 +3,14 @@ import { useState, useRef, useCallback } from 'react';
 import { ENDPOINTS } from '@/constants/endpoints';
 import { apply as applyGuardrails, applyFigures } from '@/lib/aryaGuardrails';
 import { loadArFacts } from '@/lib/aryaFactsStorage';
-import { loadPrefs, loadMemory, noteQuestionTopics } from '@/lib/aryaMemoryStorage';
+import { loadPrefs, loadMemory, noteQuestionTopics, addMemoryNote } from '@/lib/aryaMemoryStorage';
 import { loadLifeEvents } from '@/lib/lifeEventsStorage';
 import { buildChatContext } from '@/lib/aryaContext';
-import { answerLocally, backendCallFor, formatBackend, withSource, knownFigureSet, localOnlyReply, BACKEND_SOURCE, type ToolReply, type BackendCall } from '@/lib/aryaTools';
+import { knownFigureSet, localOnlyReply } from '@/lib/aryaTools';
+import { planTurn, runCalls, composeAnswer, type ToolStep, type PlannedCall, type AgentEnv } from '@/lib/aryaAgent';
+import { TOOL_SPECS } from '@/lib/aryaToolbox';
+import type { ServerCall } from '@/lib/aryaServerTools';
+import { logSteps } from '@/lib/aryaAgentLog';
 import type { ArFacts } from '@/lib/aryaFacts';
 
 export interface ChatMessage {
@@ -15,23 +19,33 @@ export interface ChatMessage {
   text: string;
   timestamp: Date;
   streaming?: boolean;
-  /** shown as tappable chips under the message (the offline reply, and the screen a local answer came from) */
-  actions?: { label: string; route: string }[];
+  /** shown as tappable chips under the message: a screen to open, or a question to ask (an "ask" chip sends that question) */
+  actions?: { label: string; route?: string; ask?: string }[];
+  /** the tool calls behind this answer, shown under it: which tool, what it was given, what left the phone, when */
+  steps?: ToolStep[];
 }
 
-/** One public-market call to the Arya server's tool gateway (same endpoint and tool names as the website). Nothing about the person is sent. */
-async function postTool(call: BackendCall, signal: AbortSignal): Promise<any> {
-  const res = await fetch(`${ENDPOINTS.aryaAI}/api/tool`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: call.name, args: call.args }), signal,
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const j = await res.json();
-  return j && typeof j === 'object' && 'result' in j ? (j as any).result : j;
+/** One public-market call to the Arya server's tool gateway (same endpoint and tool names as the website). Only what the call lists is sent. */
+export async function postTool(call: ServerCall, signal?: AbortSignal): Promise<{ result: unknown; ts: number | null }> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 12000);
+  const onAbort = () => ctrl.abort();
+  signal?.addEventListener('abort', onAbort);
+  try {
+    const res = await fetch(`${ENDPOINTS.aryaAI}/api/tool`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: call.name, args: call.args }), signal: ctrl.signal,
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const j: any = await res.json();
+    if (j && typeof j === 'object' && 'result' in j) return { result: j.result, ts: typeof j.ts === 'number' ? j.ts : null };
+    if (j && typeof j === 'object' && typeof j.error === 'string') return { result: { error: j.error }, ts: typeof j.ts === 'number' ? j.ts : null };
+    return { result: j, ts: null };
+  } finally { clearTimeout(timer); signal?.removeEventListener('abort', onAbort); }
 }
 
 const DEV = typeof __DEV__ !== 'undefined' && __DEV__;
-const actionFor = (r: ToolReply) => (r.route && r.routeLabel ? [{ label: r.routeLabel, route: r.route }] : undefined);
+const isServerTool = (t: PlannedCall['tool']) => TOOL_SPECS.find(s => s.id === t)?.where === 'server';
 
 export function useAryaChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -67,50 +81,60 @@ export function useAryaChat() {
     const signal = abortRef.current.signal;
     let accumulated = '';
     let facts: ArFacts | null = null;
-    let marketAsked = false;
+    let deferred: PlannedCall[] | null = null;      // phone tools held back because the model gets a long question first
+    let toolsOff = false;
+    let events: Awaited<ReturnType<typeof loadLifeEvents>> = [];
+    let memory: Awaited<ReturnType<typeof loadMemory>> = [];
+
+    // Run tool calls, showing each one while it runs (and in the session log). Returns true when the reply is complete.
+    const runTools = async (calls: PlannedCall[], prefs: Awaited<ReturnType<typeof loadPrefs>>): Promise<boolean> => {
+      const needsFacts = calls.some(c => !isServerTool(c.tool));
+      if (needsFacts && !facts) return false;
+      const env: AgentEnv = {
+        ctx: { facts: facts as ArFacts, events, memory },
+        prefs, nowMs: () => Date.now(), signal,
+        callServer: postTool,
+        addMemory: async (note: string) => {
+          const r = await addMemoryNote({ text: note });
+          if (r.status === 'rejected') return { ok: false, message: r.reason ?? 'I could not keep that.' };
+          return { ok: true, message: `${r.status === 'updated' ? 'I already had that and have noted it again' : 'Noted'}: "${r.item?.text ?? note}". It is kept on this phone only${prefs.memory ? ', and may be sent with a question because your memory switch is on' : '. Your memory switch is off, so it is not sent to the online model'}.` };
+        },
+        onSteps: steps => { put({ steps }); logSteps(steps, 'chat', q); },
+      };
+      const steps = await runCalls(calls, env);
+      const a = composeAnswer(steps);
+      put({ text: a.text, actions: a.actions.length ? a.actions : undefined, steps, streaming: false });
+      logSteps(steps, 'chat', q);
+      return true;
+    };
 
     try {
       // What the phone holds, and the person's switches. Any of these can be missing; the chat still answers.
-      const [prefs, memory, events] = await Promise.all([
-        loadPrefs(), loadMemory().catch(() => []), loadLifeEvents().catch(() => []),
-      ]);
+      const [prefs, mem, ev] = await Promise.all([loadPrefs(), loadMemory().catch(() => []), loadLifeEvents().catch(() => [])]);
+      memory = mem; events = ev;
       try { facts = await loadArFacts(new Date()); } catch { facts = null; }
       noteQuestionTopics(q).catch(() => {});
 
-      // 1. Questions about the person's own money, and plain SIP / EMI sums: answered here, from the same cores as the screens.
-      const local = facts ? answerLocally(q, facts) : null;
-      const short = q.split(/\s+/).length <= 12;
-      if (local && (short || !prefs.online)) {
-        put({ text: withSource(local), actions: actionFor(local), streaming: false });
+      // 1. Tools: the question is matched to tool calls on the phone (words only, no model). Every call is shown while it runs.
+      const plan = planTurn(q, prefs);
+      toolsOff = plan.kind === 'off';
+      if (plan.kind === 'ask') {
+        put({ text: plan.text, actions: plan.options.length ? plan.options.map(o => ({ label: o.label, ask: o.ask })) : undefined, streaming: false });
         return;
       }
-
-      // 2. Public market data through the Arya server's tool gateway (only when online is allowed).
-      const call = prefs.online ? backendCallFor(q) : null;
-      if (call) {
-        marketAsked = true;
-        try {
-          const ctrl = new AbortController();
-          const timer = setTimeout(() => ctrl.abort(), 12000);
-          signal.addEventListener('abort', () => ctrl.abort());
-          let result: any;
-          try { result = await postTool(call, ctrl.signal); } finally { clearTimeout(timer); }
-          const line = formatBackend(call.name, result);
-          if (line) {
-            put({ text: `${line}\n\nFrom: ${BACKEND_SOURCE} Fetched ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}. Not advice.`, streaming: false });
-            return;
-          }
-        } catch (e: any) {
-          if (e?.name === 'AbortError' && signal.aborted) { put({ streaming: false }); return; }
-          // fall through to the model, then to the offline reply
-        }
+      if (plan.kind === 'calls') {
+        const short = q.split(/\s+/).length <= 12;
+        const server = plan.calls.some(c => isServerTool(c.tool));
+        // A long question about your own money is better answered by the model, with the tool answer as the fallback if it cannot be reached.
+        if (!server && !short && prefs.online) deferred = plan.calls;
+        else if (await runTools(plan.calls, prefs)) return;
       }
 
-      // 3. The model. What is sent is built in lib/aryaContext.ts, the same function the "What Arya will be told" screen shows.
+      // 2. The model. What is sent is built in lib/aryaContext.ts, the same function the "What Arya will be told" screen shows.
       const built = facts ? buildChatContext(facts, prefs, memory, events, q) : null;
       if (!prefs.online || !built || !built.body) {
         const why = !prefs.online ? 'Arya is set to stay on this phone, so I did not send this question anywhere.' : null;
-        put({ text: localOnlyReply(local, why, DEV), actions: local ? actionFor(local) : OFFLINE_ACTIONS, streaming: false });
+        put({ text: localOnlyReply(null, why, DEV, toolsOff), actions: OFFLINE_ACTIONS, streaming: false });
         return;
       }
 
@@ -152,9 +176,9 @@ export function useAryaChat() {
     } catch (err: any) {
       if (err?.name === 'AbortError') { finishAnswer(); return; }
       // The server cannot be reached. If the question was one the phone can answer, answer it; otherwise say what still works.
-      const local = facts ? answerLocally(q, facts) : null;
-      const why = marketAsked && !local ? 'Live prices need a connection to Arya, and I cannot reach it right now.' : null;
-      put({ text: localOnlyReply(local, why, DEV), actions: local ? actionFor(local) : OFFLINE_ACTIONS, streaming: false });
+      const prefs = await loadPrefs();
+      if (deferred && (await runTools(deferred, prefs))) return;
+      put({ text: localOnlyReply(null, null, DEV, toolsOff), actions: OFFLINE_ACTIONS, streaming: false });
     } finally {
       setIsStreaming(false);
     }

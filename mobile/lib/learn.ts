@@ -8,24 +8,46 @@ export const LEARNED_KEY = 'finos_learned_modules';
 /** Text scale cap of the reader (200% like the rest of the app's accessibility rule). */
 export const MAX_FONT_SCALE = 2;
 
+/** Provenance and labels carried by every block: `line` is the line of the source file where the text starts (the lesson's
+ *  `source`, or `file` when the block comes from another file); `label` is a caption written by the app, never part of the quote. */
+export interface BlockMeta { needsReview?: boolean; reviewReasons?: string[]; line?: number; file?: string; label?: string; illustration?: string }
 export type Block =
-  | { t: 'p'; text: string; needsReview?: boolean; reviewReasons?: string[] }
-  | { t: 'h'; level: number; text: string; needsReview?: boolean; reviewReasons?: string[] }
-  | { t: 'ul' | 'ol'; items: string[]; needsReview?: boolean; reviewReasons?: string[] }
-  | { t: 'table'; rows: string[][]; needsReview?: boolean; reviewReasons?: string[] }
-  | { t: 'callout'; kind: 'tip' | 'warning' | 'fact' | 'note'; title: string; text: string; needsReview?: boolean; reviewReasons?: string[] };
+  | ({ t: 'p'; text: string } & BlockMeta)
+  | ({ t: 'h'; level: number; text: string } & BlockMeta)
+  | ({ t: 'ul' | 'ol'; items: string[] } & BlockMeta)
+  | ({ t: 'table'; rows: string[][] } & BlockMeta)
+  | ({ t: 'kv'; rows: string[][] } & BlockMeta)
+  | ({ t: 'callout'; kind: 'tip' | 'warning' | 'fact' | 'note'; title: string; text: string } & BlockMeta);
 
-export interface Section { heading: string; kicker?: string; blocks: Block[]; needsReview?: boolean }
+export interface Section { heading: string; kicker?: string; line?: number; blocks: Block[]; needsReview?: boolean }
+
+export interface SourceLink { label: string; url: string }
+/** Something on the website page that the phone deliberately does not show, with where it is on the page. */
+export interface NotShown { what: string; why: string; file: string; line: number; quote: string }
 
 export interface Lesson {
   id: string; title: string; summary: string; category: string; source: string; tool: string | null;
-  sections: Section[]; needsReview: boolean; reviewReasons: string[];
+  sections: Section[]; sources?: SourceLink[]; needsReview: boolean; reviewReasons: string[];
+  files?: string[]; notes?: string[]; notShown?: NotShown[]; figures?: boolean; language?: string;
+}
+
+/** What the phone has for a thing the website page links to or does. same = the phone has it; close = something similar with its own inputs;
+ *  note = only an explanatory page; none = nothing. */
+export type PhoneTarget =
+  | { type: 'lesson'; id: string; match: 'same' | 'close' | 'note'; note: string }
+  | { type: 'route'; route: string; label: string; match: 'same' | 'close'; note: string }
+  | { type: 'none'; match: 'none'; note: string };
+export interface HubEntry { title: string; text: string; extra?: string; line: number; file?: string; href?: string; key?: string; target: PhoneTarget }
+export type StubStatus = 'hub' | 'redirect' | 'no-equivalent' | 'related-tool' | 'website-only';
+export interface Stub {
+  status: StubStatus; why: string; about: { text: string; line: number }[]; entries?: HubEntry[]; notCarried?: NotShown[];
+  redirectTo?: string; redirectLine?: number; toolLabel?: string;
 }
 
 export interface ManifestEntry {
   id: string; title: string; summary: string; category: string; order: number; kind: 'lesson' | 'interactive';
   source: string; tool: string | null; minutes: number; words: number; hasInteractive: boolean;
-  needsReview?: boolean; reviewReasons?: string[];
+  needsReview?: boolean; reviewReasons?: string[]; status?: StubStatus; stub?: Stub;
 }
 
 export interface Manifest { version: number; categories: { id: string; title: string }[]; lessons: ManifestEntry[]; excluded: Record<string, string> }
@@ -62,8 +84,9 @@ export function parseLearned(raw: string | null | undefined): Learned {
 
 /**
  * Number of modules learned. Array form: its length, exactly as the website's health score reads it.
- * Object form (what js/learn-ai.js writes): the number of entries. The website's health score returns 0 for that
- * shape (it only accepts arrays) so, on the website, learning never earns Knowledge points; see docs/agent-notes/learn.md.
+ * Object form (what js/learn-ai.js writes): the number of entries. Since Oct 15 2026 the website's health score counts that
+ * shape too (js/finos-health-score.js, keys with a truthy value), so lessons read on either side earn Knowledge points;
+ * __tests__/learn.test.mts pins that both agree. Before then the website counted 0 for the object form (docs/agent-notes/learn.md).
  */
 export function learnedCount(raw: string | null | undefined): number {
   try {
@@ -150,6 +173,16 @@ export function nextLesson(m: Manifest, learned: Learned): ManifestEntry | null 
   return null;
 }
 
+export const STATUS_LABEL: Record<StubStatus, string> = {
+  hub: 'A menu page on the website', redirect: 'A redirect on the website', 'no-equivalent': 'Not on the phone',
+  'related-tool': 'Not on the phone (closest tool below)', 'website-only': 'Website only',
+};
+/** Short line under a title in the lesson list. */
+export function rowMeta(e: ManifestEntry): string {
+  if (e.kind === 'lesson') return `${e.minutes} min read`;
+  return e.status ? STATUS_LABEL[e.status] : 'Interactive on the website';
+}
+
 // ── search ──────────────────────────────────────────────────────────────────
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9ऀ-ॿ ]+/g, ' ').replace(/\s+/g, ' ').trim();
@@ -182,7 +215,7 @@ export function lessonBodyText(l: Lesson): string {
       if (b.t === 'p' || b.t === 'h') out.push(b.text);
       else if (b.t === 'ul' || b.t === 'ol') out.push(...b.items);
       else if (b.t === 'callout') out.push(b.title, b.text);
-      else if (b.t === 'table') out.push(...b.rows.map(r => r.join(' ')));
+      else if (b.t === 'table' || b.t === 'kv') out.push(...b.rows.map(r => r.join(' ')));
     }
   }
   return norm(out.join(' '));

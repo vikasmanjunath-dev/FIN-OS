@@ -85,6 +85,7 @@ export function normaliseHolding(raw: unknown): Holding | null {
   const units = num(raw.units), avgPrice = num(raw.avgPrice);
   if (!type || !symbol || units === undefined || avgPrice === undefined || units < 0 || avgPrice < 0) return null;
   const sip = num(raw.sipMonthly), last = num(raw.lastPrice);
+  if (!Number.isFinite(units * avgPrice) || (last !== undefined && last > 0 && !Number.isFinite(units * last))) return null;
   const out: Holding = {
     id: plainText(raw.id, 80) || `${type}:${symbol}`, type, symbol, name: plainText(raw.name, 120) || symbol, units, avgPrice,
   };
@@ -127,6 +128,7 @@ export function fromRemote(r: RemoteHolding): Holding | null {
   const symbol = String(r.symbol).slice(0, 40);
   if (!type || !symbol || units == null || avgPrice == null || units < 0 || avgPrice < 0) return null;
   const sip = num(r.sip_monthly), last = num(r.current_price);
+  if (!Number.isFinite(units * avgPrice) || (last !== undefined && last > 0 && !Number.isFinite(units * last))) return null;
   return {
     id: `${type}:${symbol}`,
     type,

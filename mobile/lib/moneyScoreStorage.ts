@@ -7,7 +7,7 @@ import { loadTransactions } from '@/lib/txnStorage';
 import { loadTrackerData } from '@/lib/trackerStorage';
 import { computeCoverage } from '@/lib/retirement';
 import { ymd } from '@/lib/budget';
-import { parseJSON, isPlainObject, asRecord, asList, finite, text, scalarsOnly, getMany, keepIfUnreadable } from '@/lib/safeStore';
+import { parseJSON, isPlainObject, finite, text, getMany, keepIfUnreadable } from '@/lib/safeStore';
 
 const VERSION = 1;
 
@@ -80,7 +80,7 @@ export async function gatherScoreData() {
 
   const [txns, tracked] = await Promise.all([loadTransactions(), loadTrackerData()]);
   // Cover the person has written down in the insurance tracker; the website only has a single "term insurance" number.
-  const cov = computeCoverage(tracked.policies, n.finos_monthly_income || 0, n.finos_age || 30);
+  const cov = computeCoverage(tracked.policies, n.finos_monthly_income || 0, n.finos_age);
 
   return {
     data: {

@@ -3,10 +3,11 @@ import { LEARNED_KEY, learnedCount } from '@/lib/learn';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadTransactions } from '@/lib/txnStorage';
 import { asList, asRecord, isPlainObject, finite, text, scalarsOnly, keepIfUnreadable } from '@/lib/safeStore';
-import { INSTRUMENTS, POLICY_META, type SavingsAccount, type Policy, savingsTotals } from '@/lib/retirement';
+import { INSTRUMENTS, type SavingsAccount, type Policy, savingsTotals } from '@/lib/retirement';
 import {
   type TrackerData, EMPTY_TRACKER_DATA, ASSET_ITEMS, LIABILITY_ITEMS, computeAll, type Goal,
 } from '@/lib/trackers';
+import { clearTrackerStorageStatus, getTrackerStorageStatus, setTrackerStorageStatus } from '@/lib/trackerStorageStatus';
 
 // Same keys the website writes (js/finos-*.js), so the two stay compatible.
 const SIMPLE_KEYS: Partial<Record<keyof TrackerData, string>> = {
@@ -26,6 +27,7 @@ const SIMPLE_KEYS: Partial<Record<keyof TrackerData, string>> = {
   ppf: 'finos_ppf_value',
   epfBasic: 'finos_epf_basic',
   epfDoj: 'finos_epf_doj',
+  epfDob: 'finos_epf_dob',
   epfRetireAge: 'finos_epf_retire_age',
   npsTier1: 'finos_nps_tier1',
   npsTier2: 'finos_nps_tier2',
@@ -38,12 +40,13 @@ const SIMPLE_KEYS: Partial<Record<keyof TrackerData, string>> = {
   npsSlab: 'finos_nps_tax_slab',
   age: 'finos_age',
 };
-const STRING_FIELDS = new Set<keyof TrackerData>(['name', 'epfDoj', 'npsDob']);
+const STRING_FIELDS = new Set<keyof TrackerData>(['name', 'epfDoj', 'epfDob', 'npsDob']);
 const PPF_KEY = 'finos_ppf_portfolio';
 const POLICIES_KEY = 'finos_insurance_policies';
 const GOALS_KEY = 'finos_goals';
 const STREAK_KEY = 'finos_streak';
 const BUDGETS_KEY = 'finos_budgets';
+const BUDGET_EXPENSES_KEY = 'finos_budget_expenses';
 
 const FIELD_KEY: Partial<Record<keyof TrackerData, string>> = {
   ...SIMPLE_KEYS,
@@ -58,8 +61,9 @@ const n = (v: string | null | undefined, fallback = 0) => {
 export async function loadTrackerData(): Promise<TrackerData> {
   const d: TrackerData = { ...EMPTY_TRACKER_DATA };
   try {
-    const keys = [...Object.values(FIELD_KEY) as string[], GOALS_KEY, STREAK_KEY, BUDGETS_KEY, PPF_KEY, POLICIES_KEY, LEARNED_KEY];
+    const keys = [...Object.values(FIELD_KEY) as string[], GOALS_KEY, STREAK_KEY, BUDGETS_KEY, BUDGET_EXPENSES_KEY, PPF_KEY, POLICIES_KEY, LEARNED_KEY];
     const map = Object.fromEntries(await AsyncStorage.multiGet(keys));
+    clearTrackerStorageStatus();
     for (const [field, key] of Object.entries(FIELD_KEY) as [keyof TrackerData, string][]) {
       if (STRING_FIELDS.has(field)) (d as any)[field] = map[key] ?? '';
       else if (field === 'emergencyTarget') d.emergencyTarget = n(map[key], 6);
@@ -71,6 +75,7 @@ export async function loadTrackerData(): Promise<TrackerData> {
     d.goals = asList(map[GOALS_KEY]).map(cleanGoal).filter((g): g is Goal => g !== null);
     d.streak = Math.max(0, Math.floor(finite(asRecord(map[STREAK_KEY])?.count, 0)));
     d.learnedModules = learnedCount(map[LEARNED_KEY]);
+    d.budgetExpense = n(map[BUDGET_EXPENSES_KEY]);
     {
       const lim = asRecord(map[BUDGETS_KEY])?.limits;
       d.budgetLimits = isPlainObject(lim)
@@ -84,7 +89,9 @@ export async function loadTrackerData(): Promise<TrackerData> {
     // Values the website derives from the details behind them
     if (d.ppfAccounts.length) d.ppf = savingsTotals(d.ppfAccounts).total;
     if (d.npsTier1 + d.npsTier2 > 0) d.nps = d.npsTier1 + d.npsTier2;
-  } catch { /* storage unavailable → defaults */ }
+  } catch {
+    setTrackerStorageStatus({ kind: 'load', message: 'Could not load your saved tracker data. No empty values have been substituted; retry before editing.' });
+  }
   return d;
 }
 
@@ -101,7 +108,7 @@ function parsePolicies(raw: string | null | undefined): Policy[] {
   return asList(raw).filter(isPlainObject).map((p: Record<string, any>, i) => ({
     ...scalarsOnly(p), // keep anything else the website stored on the policy
     id: text(p.id, `idx_${i}`), type: (typeof p.type === 'string' && p.type ? p.type : 'health') as Policy['type'],
-    provider: text(p.provider), sum_assured: Math.max(0, finite(p.sum_assured)), annual_premium: Math.max(0, finite(p.annual_premium)),
+    provider: text(p.provider), sum_assured: Math.min(Number.MAX_SAFE_INTEGER / 100, Math.max(0, finite(p.sum_assured))), annual_premium: Math.min(Number.MAX_SAFE_INTEGER / 100, Math.max(0, finite(p.annual_premium))),
     renewal_date: text(p.renewal_date), policy_number: text(p.policy_number), notes: text(p.notes, '', 2000), added_at: text(p.added_at),
   })) as Policy[];
 }
@@ -123,7 +130,8 @@ function retirementDerived(d: TrackerData): [string, string][] {
     ['finos_ppf_80c', String(r.savings.c80c)],
   ];
   out.push(['finos_nps_projected', String(r.nps.ageNow > 0 ? r.nps.projected : 0)]);
-  if (r.epf.complete) out.push(['finos_epf_projected', String(r.epf.projected)], ['finos_epf_pension', String(r.epf.pension)]);
+  // Clear previously derived values when age inputs are absent/invalid; otherwise stale retirement projections survive edits.
+  out.push(['finos_epf_projected', String(r.epf.complete ? r.epf.projected : 0)], ['finos_epf_pension', String(r.epf.complete ? r.epf.pension : 0)]);
   return out;
 }
 const c0 = (d: TrackerData) => computeAll(d).retirement;
@@ -137,16 +145,24 @@ export async function persistDerived(d: TrackerData) {
       ['finos_fire_percent', c.netWorth.firePercent.toFixed(1)],
       ['finos_emergency_months_covered', String(c.emergency.covered)],
       ['finos_savings_rate', String(c.budget.savingsRate)],
-      ['finos_health_score', String(c.health.total)],
       ...retirementDerived(d),
-      ['finos_health_score_detail', JSON.stringify({ total: c.health.total, tier: c.health.tier, headline: c.health.headline })],
+      // a score is written only when it was worked out from recorded data; otherwise any earlier value is removed (no "8 out of 100" from nothing)
+      ...(c.health.total != null ? [
+        ['finos_health_score', String(c.health.total)],
+        ['finos_health_score_detail', JSON.stringify({ total: c.health.total, tier: c.health.tier, headline: c.health.headline, measured: c.health.measured, missing: c.health.missing })],
+      ] as [string, string][] : []),
     ]);
-  } catch { /* non-fatal */ }
+    if (c.health.total == null) await AsyncStorage.multiRemove(['finos_health_score', 'finos_health_score_detail']);
+    clearTrackerStorageStatus();
+  } catch {
+    setTrackerStorageStatus({ kind: 'derived', message: 'Your change was saved, but summary totals could not be refreshed. Reopen the tracker to retry.' });
+  }
 }
 
 /** Persist a partial update, then refresh the derived keys. Returns the merged data. */
 export async function saveTracker(patch: Partial<TrackerData>): Promise<TrackerData> {
   const current = await loadTrackerData();
+  if (getTrackerStorageStatus()?.kind === 'load') throw new Error('Could not load tracker data before saving.');
   const next: TrackerData = { ...current, ...patch };
   const pairs: [string, string][] = [];
   for (const [field, value] of Object.entries(patch) as [keyof TrackerData, any][]) {
@@ -162,7 +178,10 @@ export async function saveTracker(patch: Partial<TrackerData>): Promise<TrackerD
     for (const [k] of pairs) if (k === GOALS_KEY || k === PPF_KEY || k === POLICIES_KEY) await keepIfUnreadable(k, 'array');
     if (pairs.some(([k]) => k === BUDGETS_KEY)) await keepIfUnreadable(BUDGETS_KEY, 'object');
     if (pairs.length) await AsyncStorage.multiSet(pairs);
-  } catch { /* storage unavailable */ }
+  } catch {
+    setTrackerStorageStatus({ kind: 'save', message: 'Could not save that tracker change. Your last saved values are still in place; try again.' });
+    throw new Error('Could not save tracker data.');
+  }
   await persistDerived(next);
   return next;
 }

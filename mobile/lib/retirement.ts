@@ -14,8 +14,11 @@ const num = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : 0);
 // interest 8.25% p.a., compounded annually.
 
 export const EPF = { EMP_RATE: 0.12, EMPR_RATE: 0.0367, EPS_RATE: 0.0833, EPS_WAGE_CAP: 15000, INTEREST: 8.25, RETIRE_AGE_DEFAULT: 58 } as const;
+const EPF_RETIRE_AGE_MIN = 50;
+const EPF_RETIRE_AGE_MAX = 65;
+const safeEpfMoney = (v: number) => Number.isFinite(v) && v >= 0 && v <= Number.MAX_SAFE_INTEGER / 100;
 
-export interface EpfInput { balance: number; basic: number; doj: string; retireAge: number }
+export interface EpfInput { balance: number; basic: number; doj: string; dob: string; retireAge: number }
 
 export function epfContributions(basic: number) {
   const empEPF = Math.round(basic * EPF.EMP_RATE);
@@ -26,30 +29,37 @@ export function epfContributions(basic: number) {
   return { empEPF, eps, emprEPF, totalEPF, total: empEPF + eps + emprEPF };
 }
 
-/** The website assumes you joined at 22 when working out when you retire — kept identical so numbers match. */
-export function epfAgeAt(doj: string, retireAge: number, now = new Date()) {
-  if (!doj) return { yearsService: 0, monthsToRetire: 0, totalServiceYears: 0 };
-  const dojDate = new Date(doj);
-  if (!Number.isFinite(dojDate.getTime())) return { yearsService: 0, monthsToRetire: 0, totalServiceYears: 0 };   // an unreadable date is "not recorded", never NaN
-  const birthEstimate = new Date(dojDate);
-  birthEstimate.setFullYear(dojDate.getFullYear() - 22);
+/** Retirement horizon is based on the user's recorded DOB; joining age is never inferred. */
+export function epfAgeAt(doj: string, dob: string, retireAge: number, now = new Date()) {
+  if (!validDate(doj, {}, now) || !validDate(dob, {}, now) || !Number.isInteger(retireAge) || retireAge < EPF_RETIRE_AGE_MIN || retireAge > EPF_RETIRE_AGE_MAX) return { yearsService: 0, monthsToRetire: 0, totalServiceYears: 0 };
+  const [dy, dm, dd] = doj.split('-').map(Number);
+  const dojDate = new Date(dy, dm - 1, dd);
+  const [by, bm, bd] = dob.split('-').map(Number);
+  const birthDate = new Date(by, bm - 1, bd);
+  if (birthDate > dojDate) return { yearsService: 0, monthsToRetire: 0, totalServiceYears: 0 };
+  const localNow = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const yearsService = (now.getTime() - dojDate.getTime()) / (365.25 * 24 * 3600 * 1000);
-  const retireDate = new Date(birthEstimate);
-  retireDate.setFullYear(birthEstimate.getFullYear() + retireAge);
-  const monthsToRetire = Math.max(0, Math.round((retireDate.getTime() - now.getTime()) / (30.44 * 24 * 3600 * 1000)));
+  const targetYear = by + Math.floor(retireAge);
+  const targetMonth = bm - 1;
+  const targetDay = Math.min(bd, new Date(targetYear, targetMonth + 1, 0).getDate());
+  const retireDate = new Date(targetYear, targetMonth, targetDay);
+  const monthsToRetire = Math.max(0, Math.round((retireDate.getTime() - localNow.getTime()) / (30.44 * 24 * 3600 * 1000)));
   const totalServiceYears = yearsService + monthsToRetire / 12;
   return { yearsService: Math.round(yearsService * 10) / 10, monthsToRetire, totalServiceYears };
 }
 
-export function epfProjectedCorpus(currentBalance: number, monthlyEPFContrib: number, monthsToRetire: number) {
+export function epfProjectedCorpus(currentBalance: number, monthlyEPFContrib: number, monthsToRetire: number): number | null {
+  if (!safeEpfMoney(currentBalance) || !safeEpfMoney(monthlyEPFContrib) || !Number.isInteger(monthsToRetire) || monthsToRetire < 0 || monthsToRetire > 1200) return null;
   const r = EPF.INTEREST / 100;
   let balance = currentBalance;
   for (let m = 0; m < monthsToRetire; m++) {
     balance += monthlyEPFContrib;
     if ((m + 1) % 12 === 0) balance *= 1 + r; // interest credited once a year
+    if (!safeEpfMoney(balance)) return null;
   }
   const partialMonths = monthsToRetire % 12;
   if (partialMonths > 0) balance += balance * r * (partialMonths / 12);
+  if (!safeEpfMoney(balance)) return null;
   return Math.round(balance);
 }
 
@@ -67,13 +77,17 @@ export interface EpfResult {
 }
 
 export function computeEpf(i: EpfInput, now = new Date()): EpfResult {
-  const contributions = epfContributions(i.basic);
-  const age = epfAgeAt(i.doj, i.retireAge, now);
-  const complete = i.balance >= 0 && i.basic > 0 && !!i.doj && !Number.isNaN(Date.parse(i.doj));
+  const amountsValid = safeEpfMoney(i.balance) && safeEpfMoney(i.basic) && i.basic > 0;
+  const contributions = epfContributions(amountsValid ? i.basic : 0);
+  const age = epfAgeAt(i.doj, i.dob, i.retireAge, now);
+  const inputComplete = amountsValid && validDate(i.doj, {}, now) && validDate(i.dob, {}, now) && new Date(i.dob) <= new Date(i.doj)
+    && Number.isInteger(i.retireAge) && i.retireAge >= EPF_RETIRE_AGE_MIN && i.retireAge <= EPF_RETIRE_AGE_MAX;
+  const projected = inputComplete ? epfProjectedCorpus(i.balance, contributions.totalEPF, age.monthsToRetire) : null;
+  const complete = inputComplete && projected !== null;
   return {
-    balance: i.balance, basic: i.basic, contributions,
+    balance: safeEpfMoney(i.balance) ? i.balance : 0, basic: safeEpfMoney(i.basic) ? i.basic : 0, contributions,
     yearsService: age.yearsService, monthsToRetire: age.monthsToRetire,
-    projected: complete ? epfProjectedCorpus(i.balance, contributions.totalEPF, age.monthsToRetire) : 0,
+    projected: complete ? projected! : 0,
     pension: complete ? epsPension(age.totalServiceYears, i.basic) : 0,
     complete,
   };
@@ -193,11 +207,22 @@ export function savingsTotals(accounts: SavingsAccount[]) {
 
 export function accountProjection(a: SavingsAccount, now = new Date()) {
   const inst = INSTRUMENTS[a.type];
-  const openYr = a.openDate ? new Date(a.openDate).getFullYear() : null;
-  const ageYrs = openYr ? now.getFullYear() - openYr : null;
-  const yearsLeft = inst.maxYrs && ageYrs !== null ? Math.max(inst.maxYrs - ageYrs, 0) : inst.maxYrs || 5;
-  const maturityYear = openYr ? Math.floor(openYr + inst.maxYrs) : now.getFullYear() + Math.floor(yearsLeft);
-  const projected = a.type === 'PPF' || a.type === 'SSY'
+  const parts = a.openDate && validDate(a.openDate, {}, now) ? a.openDate.split('-').map(Number) : null;
+  const invalidOpenDate = !!a.openDate && !parts;
+  const openDate = parts ? new Date(parts[0], parts[1] - 1, parts[2]) : null;
+  const openYr = openDate?.getFullYear() ?? null;
+  const ageYrs = openDate ? Math.max(0, now.getFullYear() - openDate.getFullYear() - (now < new Date(now.getFullYear(), openDate.getMonth(), openDate.getDate()) ? 1 : 0)) : null;
+  let yearsLeft = invalidOpenDate ? 0 : inst.maxYrs && ageYrs !== null ? Math.max(inst.maxYrs - ageYrs, 0) : inst.maxYrs || 5;
+  let maturityYear: number | null = invalidOpenDate ? null : openYr !== null ? Math.floor(openYr + inst.maxYrs) : now.getFullYear() + Math.floor(yearsLeft);
+  if (a.type === 'PPF' && !invalidOpenDate) {
+    // PPF matures 15 years after the end of the financial year of its first subscription.
+    const currentFY = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+    const openingFY = openDate ? (openDate.getMonth() >= 3 ? openDate.getFullYear() : openDate.getFullYear() - 1) : currentFY;
+    const maturityFY = openingFY + 15;
+    yearsLeft = Math.max(0, maturityFY - currentFY);
+    maturityYear = maturityFY + 1; // FY ends on 31 March of the following calendar year.
+  }
+  const projected = invalidOpenDate ? a.currentBalance : a.type === 'PPF' || a.type === 'SSY'
     ? ppfProjection(a.currentBalance, a.annualDeposit || 0, yearsLeft, inst.rate)
     : maturityValue(a.currentBalance, inst.rate, inst.compounding, yearsLeft);
   return { yearsLeft, maturityYear, projected, gain: projected - a.currentBalance };
@@ -250,7 +275,10 @@ export interface Coverage {
 }
 
 /** Coverage vs the website's rules of thumb: health 2× annual income, term life 15×, critical illness 5×. */
-export function computeCoverage(policies: Policy[], monthlyIncome: number, age: number): Coverage {
+/** `age` is the person's recorded age; 0 / null / NaN = not recorded. An unknown age is never replaced by a guess: the term-cover gap is shown
+ *  (it is worded for "if others depend on you") and the age-35+ critical-illness gap is simply not raised. */
+export function computeCoverage(policies: Policy[], monthlyIncome: number, ageIn: number | null | undefined): Coverage {
+  const age = typeof ageIn === 'number' && Number.isFinite(ageIn) && ageIn > 0 ? ageIn : 0;
   const incomeKnown = monthlyIncome > 0;                 // unknown stays unknown: the website no longer assumes ₹50,000 a month
   const income = incomeKnown ? monthlyIncome : 0;
   const sum = (t: PolicyType) => policies.filter(p => p.type === t).reduce((s, p) => s + num(p.sum_assured), 0);
@@ -274,9 +302,17 @@ export function computeCoverage(policies: Policy[], monthlyIncome: number, age: 
 /** Days until renewal (negative = expired), or null when no date is set. */
 export function renewalDays(p: Pick<Policy, 'renewal_date'>, now = new Date()): number | null {
   if (!p.renewal_date) return null;
-  const t = Date.parse(p.renewal_date);
-  if (!Number.isFinite(t)) return null;
-  return Math.floor((t - now.getTime()) / 86400000);
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(p.renewal_date);
+  if (!match) return null;
+  const [, ys, ms, ds] = match;
+  const y = Number(ys), m = Number(ms), d = Number(ds);
+  const check = new Date(Date.UTC(y, m - 1, d));
+  if (y < 1900 || check.getUTCFullYear() !== y || check.getUTCMonth() !== m - 1 || check.getUTCDate() !== d) return null;
+  // Renewal dates are calendar dates, not instants. Compare UTC day ordinals
+  // built from each local calendar date so DST and time-of-day cannot shift the result.
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  const renewal = Date.UTC(y, m - 1, d);
+  return Math.round((renewal - today) / 86400000);
 }
 
 /** Same matching rule the website's health score uses to spot life / health cover. */

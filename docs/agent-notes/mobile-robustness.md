@@ -5,6 +5,13 @@ in `mobile/`. Goal: a value of the wrong shape (null, string, number, array wher
 NaN / Infinity / negatives, very long strings, JSON that does not parse) never crashes a screen, never turns into NaN on screen, and a failed
 read is never saved over the person's data.
 
+## Status
+
+`npx tsc --noEmit` clean. `npm test`: 846 tests, 845 pass; the one failure is `insuranceHub.test.mts` "committed JSON is what the extraction script
+produces" (`extract-insurance.py` KeyError 'heading', another agent's area). `__tests__/corruptData.test.mts`: 170/170. `smoke-routes.py` on 14 screens
+that use the changed hooks/stores: 0 problems (Metro on port 8137, stopped afterwards). Corrupt-data web smoke over every route x 5 corrupt
+variants: 0 problems.
+
 ## What was built
 
 * `mobile/lib/safeStore.ts` (new): `parseJSON` (never throws; rejects overflow numbers such as `1e999` and nesting deeper than 64),
@@ -13,7 +20,7 @@ read is never saved over the person's data.
   old text is kept under `finos_sync_never_corrupt_<key>`.
 * `mobile/lib/keyShapes.ts` (new): the top-level kind (list / object) of the structured keys, and a size cap. Used by the backup restore and
   the cloud-sync pull so a wrong-kind value is refused at the door.
-* `mobile/__tests__/corruptData.test.mts` (new, 170 tests, ~45 s) with `helpers/corpus.mts` and three Node stubs
+* `mobile/__tests__/corruptData.test.mts` (new, 170 tests, 15-45 s depending on machine load) with `helpers/corpus.mts` and three Node stubs
   (`stubs/react-native.mjs`, `expo-constants.mjs`, `empty.mjs`, registered in `alias-hooks.mjs`) so modules that import `Platform` /
   `AppState` / the Supabase client can be loaded under Node:
   1. 62 storage readers x ~75 corrupt raw values (`rawCorpus`): no throw, expected shape, no NaN/Infinity, **no write at all** (the only
@@ -83,7 +90,7 @@ unloadable under Node; fixed with `import type` (no runtime change).
 * A `null` leaking into a string-typed field is not flagged by the drift check (null is "unknown" there); the readers coerce text with
   `text()` so this does not occur in the fuzz, but it is a limit of the check.
 * The mutation matrix runs heavy aggregators (`loadArFacts`, `loadFacts`, `loadBenchInput`, `gatherScoreData`, `loadTrackerData`) on every
-  20th world only, to keep the file at ~45 s.
+  20th world only, to keep the file short.
 * `__tests__/insuranceHub.test.mts` "committed JSON is what the extraction script produces" fails because `extract-insurance.py` raises
   `KeyError: 'heading'` (another agent's area, not touched).
 

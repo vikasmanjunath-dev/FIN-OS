@@ -26,8 +26,13 @@ export interface AryaPrefs {
   lifeEvents: boolean;
   /** note the topic of a question in memory ("Asked about tax saving"). */
   record: boolean;
+  /**
+   * Arya may call tools: read your records on this phone, run a calculator, look up a public price. Every call is shown. Off: Arya
+   * answers in words only (to the online model when that is allowed) and never reads your records or looks anything up.
+   */
+  tools: boolean;
 }
-export const DEFAULT_PREFS: AryaPrefs = { online: true, figures: true, memory: false, lifeEvents: false, record: true };
+export const DEFAULT_PREFS: AryaPrefs = { online: true, figures: true, memory: false, lifeEvents: false, record: true, tools: true };
 
 export function normalisePrefs(raw: unknown): AryaPrefs {
   let o: any = raw;
@@ -35,7 +40,7 @@ export function normalisePrefs(raw: unknown): AryaPrefs {
   const b = (v: unknown, d: boolean) => (typeof v === 'boolean' ? v : d);
   if (!o || typeof o !== 'object') return { ...DEFAULT_PREFS };
   return { online: b(o.online, DEFAULT_PREFS.online), figures: b(o.figures, DEFAULT_PREFS.figures), memory: b(o.memory, DEFAULT_PREFS.memory),
-    lifeEvents: b(o.lifeEvents, DEFAULT_PREFS.lifeEvents), record: b(o.record, DEFAULT_PREFS.record) };
+    lifeEvents: b(o.lifeEvents, DEFAULT_PREFS.lifeEvents), record: b(o.record, DEFAULT_PREFS.record), tools: b(o.tools, DEFAULT_PREFS.tools) };
 }
 
 // Read-modify-write on one key: serialise so two quick taps cannot lose a change.

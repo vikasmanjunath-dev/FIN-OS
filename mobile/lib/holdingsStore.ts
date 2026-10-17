@@ -1,4 +1,4 @@
-// Single shared store for the user's holdings: local persistence (AsyncStorage), live prices,
+// Single shared store for the user's holdings: local persistence (AsyncStorage), market prices,
 // and optional cloud sync to Supabase. A module-level store (not per-component state) so the
 // Portfolio screen, Settings and the auth listener all see and mutate the same data.
 

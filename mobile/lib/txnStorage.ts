@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { type IndexedTxn, type Kind, normalizeAll, toRaw } from '@/lib/budget';
 import { toLedger, mergeLedger, undoBatch } from '@/lib/statementImport';
 import { asList, keepIfUnreadable } from '@/lib/safeStore';
+import { clearTrackerStorageStatus, setTrackerStorageStatus } from '@/lib/trackerStorageStatus';
 
 // Same key the website uses. The array can hold records from the website, bank sync and the voice
 // journal in other shapes, so edits operate on the RAW array by index and never rewrite foreign records.
@@ -17,21 +18,39 @@ function exclusive<T>(fn: () => Promise<T>): Promise<T> {
 
 /** Strict read for writers: throws only when storage itself fails, so nothing is written on a read that did not happen. */
 async function readRawStrict(): Promise<any[]> {
-  return asList(await AsyncStorage.getItem(TXN_KEY));
+  try {
+    const raw = await AsyncStorage.getItem(TXN_KEY);
+    clearTrackerStorageStatus();
+    return asList(raw);
+  } catch {
+    setTrackerStorageStatus({ kind: 'load', message: 'Could not load your saved transactions. No empty ledger has been substituted; retry before editing.' });
+    throw new Error('Could not load transactions.');
+  }
 }
-/** Display read: anything unreadable is an empty ledger. */
+/** Read used for previews and history; storage failures remain failures instead of appearing as an empty ledger. */
 async function readRaw(): Promise<any[]> {
-  try { return await readRawStrict(); } catch { return []; }
+  try { return await readRawStrict(); }
+  catch { return []; } // callers keep the documented non-throwing reader contract; the screen shows the shared load error
 }
 /** A ledger that could not be read is kept aside (finos_sync_never_corrupt_transactions) before the next save replaces it. */
-const writeRaw = async (raw: any[]) => { await keepIfUnreadable(TXN_KEY, 'array'); await AsyncStorage.setItem(TXN_KEY, JSON.stringify(raw)); };
+const writeRaw = async (raw: any[]) => {
+  try {
+    await keepIfUnreadable(TXN_KEY, 'array');
+    await AsyncStorage.setItem(TXN_KEY, JSON.stringify(raw));
+    clearTrackerStorageStatus();
+  } catch {
+    setTrackerStorageStatus({ kind: 'save', message: 'Could not save your transaction change. Your last saved ledger is still in place; try again.' });
+    throw new Error('Could not save transactions.');
+  }
+};
 
 export interface TxnInput { date: string; amount: number; kind: Kind; category: string; label: string }
 
 const newId = () => `t_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 
 export async function loadTransactions(): Promise<IndexedTxn[]> {
-  return normalizeAll(await readRaw());
+  try { return normalizeAll(await readRawStrict()); }
+  catch { return []; } // status is set by readRawStrict; the screens render the shared storage notice instead of this empty fallback
 }
 
 export function addTransaction(e: TxnInput): Promise<string> {

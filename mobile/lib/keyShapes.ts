@@ -9,6 +9,7 @@ export const ARRAY_KEYS: ReadonlySet<string> = new Set([
   'finos_goals', 'finos_insurance_policies', 'finos_ppf_portfolio', 'finos_sip_portfolio', 'finos_passive_streams', 'finos_money_score_history',
   'finos_calendar_custom_events', 'finos_watchlist', 'finos_funds_recent_v1', 'finos_funds_compare_v1', 'finos_holdings_v1',
   'finos_session_arya_life_v1', 'finos_session_arya_memory_v1', 'finos_harvest_positions',
+  'finos_sync_never_trade_journal_v1', 'finos_sync_never_trade_journal_tags_v1',
 ]);
 export const OBJECT_KEYS: ReadonlySet<string> = new Set([
   'finos_budgets', 'finos_crypto_prices', 'finos_money_score', 'finos_streak', 'finos_target_alloc', 'finos_holding_dates', 'finos_nudges_dismissed',

@@ -17,6 +17,7 @@ import { loadAlerts } from '@/lib/alertsStorage';
 import { visibleAlerts } from '@/lib/alerts';
 import { computeNudges, visible } from '@/lib/nudges';
 import { loadFacts as loadNudgeFacts, loadDismissed } from '@/lib/nudgesStorage';
+import { loadNwHistory } from '@/lib/pulseHistoryStorage';
 import { makeFacts, type ArFacts, type LoanFact, type MoneyScoreLite } from '@/lib/aryaFacts';
 
 const digits = (s: string) => { const t = String(s ?? '').replace(/[^\d]/g, '').slice(0, 9); return t === '' ? null : Number(t); };
@@ -28,7 +29,7 @@ export async function loadArFacts(now: Date = new Date()): Promise<ArFacts> {
   const computed = computeAll(data, now);
   const today = isoDate(now);
 
-  const [profile, saved, history, subsRaw, cal, debt, plannerRaw, retireRaw, alertPack, dismissed] = await Promise.all([
+  const [profile, saved, history, subsRaw, cal, debt, plannerRaw, retireRaw, alertPack, dismissed, nwHistory] = await Promise.all([
     safe(loadProfile, { name: '', age: '', income: '', dependents: '' }),
     safe(loadSavedScore, null),
     safe(loadScoreHistory, []),
@@ -39,6 +40,7 @@ export async function loadArFacts(now: Date = new Date()): Promise<ArFacts> {
     safe(() => AsyncStorage.multiGet([...RETIRE_KEYS]), [] as readonly [string, string | null][]),
     safe(() => loadAlerts(data, computed, now), null),
     safe(loadDismissed, {}),
+    safe(loadNwHistory, []),
   ]);
 
   let moneyScore: MoneyScoreLite | null = null;
@@ -77,7 +79,7 @@ export async function loadArFacts(now: Date = new Date()): Promise<ArFacts> {
   const alerts = alertPack ? visibleAlerts(alertPack.alerts, alertPack.state) : [];
 
   const base = makeFacts({
-    now, data, dependents: digits(profile.dependents), moneyScore, scoreHistory: history, subs, events, taxInputs, loans, alerts, retirementStore,
+    now, data, dependents: digits(profile.dependents), moneyScore, scoreHistory: history, subs, events, taxInputs, loans, alerts, retirementStore, nwHistory,
   });
 
   // Nudges are worked out from the same facts the home screen uses.
