@@ -42,7 +42,7 @@ M5's unified memory architecture (UMA) means CPU, GPU (Metal), and Neural Engine
 | **Total (corrected)** | | **~34.2 GB** (was ~32 GB before the reranker size correction above) |
 | **Free after install** | | **~966 GB** |
 
-The "Vector + index store" and "Raw documents" rows above are still sized for a **future, much larger corpus** (1M chunks, full regulatory backfill) — the actual current corpus is 508 chunks (a few MB, not GB) across Qdrant + SQLite combined (see [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md) for why this grew from 398 with zero new source documents — a global chunking change, not new content). Even tripling the *eventual* knowledge base (3 years of news, full NSE annual report archive, complete AMFI history) keeps total disk under 150 GB — no storage risk on a 1 TB drive, the original conclusion still holds even with the corrected model sizes.
+The "Vector + index store" and "Raw documents" rows above are still sized for a **future, much larger corpus** (1M chunks, full regulatory backfill) — the actual current corpus is on the order of a thousand chunks (a few MB, not GB) across Qdrant + SQLite combined; exact count in [RAG_STATUS.md](RAG_STATUS.md) (corrected Oct 2026: this said 508, the June 2026 figure; see [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md) for why counts moved with zero new source documents earlier). Even tripling the *eventual* knowledge base (3 years of news, full NSE annual report archive, complete AMFI history) keeps total disk under 150 GB — no storage risk on a 1 TB drive, the original conclusion still holds even with the corrected model sizes.
 
 Qdrant uses memory-mapped storage for segments that exceed configured RAM limits — on M5's SSD (≥5 GB/s sequential read) this is effectively transparent, with cold-start index load under 2 seconds.
 
@@ -63,7 +63,7 @@ The figures below (prefill/decode speed, P95 target) were **pre-build estimates*
 **Root causes found and fixed along the way:**
 1. **qwen3 "thinking" mode was on by default** — generated ~135 hidden reasoning tokens even for trivial prompts. Fixed: `think: false` in every Ollama call (matches the existing convention already used in `arya-ai.js`). This alone cut a trivial-prompt round trip from 11.9s to 0.58s.
 2. **sentence-transformers' `CrossEncoder(device="mps")` silently did not move the model to MPS** — `model.model.device` reported `cpu` despite the constructor argument. Fixed with an explicit `.model.to("mps")` call after construction. Confirmed via `next(model.parameters()).device`.
-3. **Prefill, not decode, is the dominant cost for a RAG prompt** — a ~2000-token context (system prompt + 5 chunks + history) costs 6-10 seconds of prefill alone at this hardware's real ~200-260 tok/s prefill rate. Mitigated by trimming context: `top_k` default reduced 8→3, each chunk truncated to 500 chars in the prompt, system prompt shortened. This dropped typical full-pipeline latency from ~12-16s to ~6-8s.
+3. **Prefill, not decode, is the dominant cost for a RAG prompt** — a ~2000-token context (system prompt + 5 chunks + history) costs 6-10 seconds of prefill alone at this hardware's real ~200-260 tok/s prefill rate. Mitigated by trimming context: `top_k` default reduced 8→3, each chunk limited to 500 chars in the prompt (corrected Oct 2026: a query-aware 500-char window, not the first 500 chars), system prompt shortened. This dropped typical full-pipeline latency from ~12-16s to ~6-8s.
 4. **Generation model switched from `qwen3:14b` to `qwen3:8b` by default** for the RAG pipeline — roughly 2x faster decode with acceptable quality for grounded, citation-constrained answers. `qwen3:14b` remains available for harder synthesis (e.g. Phase 3 multi-hop) where quality matters more than speed.
 5. **Output length capped** — `num_predict: 120` in Ollama options, plus an explicit "3-4 sentences max" rule in the system prompt. Since decode is the one truly linear cost (~20 tok/s, very consistent), bounding output length is the most reliable lever for latency.
 
@@ -76,14 +76,14 @@ The figures below (prefill/decode speed, P95 target) were **pre-build estimates*
 ### Embedding throughput
 | Task | Throughput |
 |---|---|
-| `mxbai-embed-large` (Ollama, Metal, batch 32) | ~1,500 chunks/sec — **confirmed accurate**: 187 chunks embedded in the 18-19s full ingestion runs |
-| FIN-OS 94 pages, cold index | ~45 sec estimate → **measured 18-19 sec actual** |
+| `mxbai-embed-large` (Ollama, Metal, batch 32) | ~1,500 chunks/sec (June 2026 claim, corrected Oct 2026: not re-measured, and the supporting evidence does not match it, since 187 chunks in an 18-19 s full ingestion run is roughly 10 chunks/s end to end including parsing, PII scrub and indexing; treat the figure as unverified) |
+| FIN-OS pages (94 at the time), cold index | ~45 sec estimate → **measured 18-19 sec actual** (June 2026; the Oct 15 2026 re-index of 123 files took about 18 s per RAG_PHASES.md Phase 9) |
 
 ### Query latency (P50 / P95) — retrieval only, excludes generation
 | Stage | Original estimate | Measured |
 |---|---|---|
 | Query embed | <5 ms / 10 ms | ~130 ms (includes httpx connection setup per call) |
-| Qdrant HNSW search (187 vectors) | <10 ms / 25 ms | ~60 ms |
+| Qdrant HNSW search (187 vectors, June 2026; not re-measured at the current size) | <10 ms / 25 ms | ~60 ms |
 | SQLite BM25 search | <5 ms / 15 ms | <10 ms — accurate |
 | Reranker (10+10 fused → top 3-5) | ~120 ms / 200 ms | **~1.1-2.5 sec** at max_length=256 (was ~5-13s at max_length=512 before the device fix + length cap) |
 | Redis cache hit | <2 ms | confirmed <5ms |
@@ -135,48 +135,7 @@ Verified via `ps eww -p $(pgrep -x ollama) | grep OLLAMA` that neither variable 
 
 `rag-engine/start-all.sh` (verified — this is what's actually on disk, corrected from an earlier, stale version of this doc that showed `brew services start ollama`/`qdrant`, neither of which is real):
 
-```bash
-#!/bin/zsh
-# FIN-OS RAG Stack — M5 24GB startup script (Phase 1)
-# Run: chmod +x start-all.sh && ./start-all.sh
-set -e
-
-export PYTORCH_ENABLE_MPS_FALLBACK=1
-export OLLAMA_NUM_PARALLEL=2     # exported for completeness — does not actually reach
-export OLLAMA_KEEP_ALIVE="-1"    # Ollama.app, see §6. Harmless to keep exporting.
-
-echo "[1/4] Checking Ollama..."
-if ! curl -s http://localhost:11434/api/tags > /dev/null; then
-  open -a Ollama
-  until curl -s http://localhost:11434/api/tags > /dev/null; do sleep 1; done
-fi
-echo "      ✓ Ollama up"
-
-echo "[2/4] Checking Qdrant (binary at ~/qdrant-bin)..."
-if ! curl -s http://localhost:6333/healthz > /dev/null; then
-  cd ~/qdrant-bin
-  nohup ./qdrant --config-path config.yaml > qdrant.log 2>&1 &
-  disown
-  cd - > /dev/null
-  until curl -s http://localhost:6333/healthz > /dev/null; do sleep 1; done
-fi
-echo "      ✓ Qdrant up"
-
-echo "[3/4] Checking Redis..."
-brew services start redis 2>/dev/null || true
-until redis-cli ping > /dev/null 2>&1; do sleep 1; done
-echo "      ✓ Redis up"
-
-echo "[4/4] Starting rag-engine on port 7476..."
-cd "$(dirname "$0")"
-source .venv/bin/activate
-nohup uvicorn server:app --host 127.0.0.1 --port 7476 --log-level info > server.log 2>&1 &
-disown
-
-sleep 3
-echo "✓ RAG stack running — http://localhost:7476/api/health"
-curl -s http://localhost:7476/api/health && echo
-```
+(Corrected Oct 2026: the script listing that used to be pasted here had drifted from the file, so it was removed; read `rag-engine/start-all.sh` itself.) What it does, in order: sets `PYTORCH_ENABLE_MPS_FALLBACK`, starts Ollama if needed (then runs `ensure-ollama-env.sh`, added Oct 17 2026, an attempt to make `OLLAMA_NUM_PARALLEL`/`OLLAMA_KEEP_ALIVE` reach Ollama; whether it takes effect on this machine is not verified here), starts Qdrant from `~/qdrant-bin`, starts Redis via `brew services`, starts `uvicorn server:app` on :7476, and starts the `rq worker rag-ingestion` (SimpleWorker) inside a restart loop (`rag-worker-loop`, restarts within 3 s if the worker exits; added Oct 15 2026).
 
 Note: no `--workers 2` — confirmed (via `ps aux`) the server runs single-process in practice; that flag from an earlier draft was never actually load-bearing. **An explicit model warmup step was added in Phase 6** (the original plan's step 2, finally built) — `server.py`'s `@app.on_event("startup")` handler now calls both the reranker's and faithfulness model's `_get_model()` before the server reports healthy, so the ~8.4s combined cold-load cost lands on startup, not on a random user's first query. See §8 below.
 
@@ -193,4 +152,4 @@ Run once: `chmod +x rag-engine/start-all.sh`. Add to login items or a launchd pl
 | TTFT inconsistent, sometimes fast sometimes slow | `OLLAMA_KEEP_ALIVE` doesn't actually apply on this machine (§6) — Ollama uses its real default (~5 min idle unload), so TTFT depends on how recently each model was used | Expected, not generally fixable without Ollama's own Settings UI (not pursued). Send a throwaway warmup query before anything latency-sensitive. |
 | ~~First `/api/query` call after a `rag-engine` restart takes 15-25s~~ | **Fixed, Phase 6** — was: reranker + NLI faithfulness model both lazy-loading on first use, Python-side, unrelated to the Ollama issue above. Now: both are explicitly warmed in `server.py`'s startup handler before the server accepts traffic. | If you still see this, check the startup log for `[startup] reranker + faithfulness models warmed in ...s` — if that line is missing, you're running an older `server.py` without the fix. |
 | Qdrant slow on cold start | Index larger than available mmap cache | Increase `qdrant`'s `optimizers.memmap_threshold` or accept ~2s cold load — it's one-time per restart |
-| Ingestion stalls live queries | Batch embedding job competing for Ollama's single embedding queue | Not actually mitigated — the originally-planned "lower-priority Redis/RQ worker" for ingestion was never built; all ingestion is currently synchronous and will compete with live traffic. Acceptable for now since the corpus is small (508 chunks) and ingestion runs are infrequent/manual. |
+| Ingestion stalls live queries | Batch embedding job competing for Ollama's single embedding queue | Partly mitigated (corrected Oct 2026; this row said ingestion was synchronous): ingestion runs as async RQ jobs in a separate worker process (Phase 6), which keeps API requests from blocking, but the worker and live queries still share Ollama's embedding queue and GPU, so they can still compete. Acceptable for now since the corpus is small (see RAG_STATUS.md) and ingestion runs are infrequent. |

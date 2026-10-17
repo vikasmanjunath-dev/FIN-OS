@@ -18,13 +18,13 @@ Each layer is a separate module under `rag-engine/` so it can be tested, swapped
 ## Layer 1 — Ingestion (`ingestion/`)
 
 ### Sources
-PDF, HTML built and in production use. Pulled from: **SEBI crawler and RBI crawler (✅ both built, Phase 3 — see `ingestion/regulatory.py`)**, FIN-OS's own 94 HTML pages, user file uploads. Not built: AMFI crawler (investigated, found infeasible — JS-rendered site), RSS news feeds (not attempted), Supabase tables for metadata (schema written, never applied) — see [RAG_PHASES.md](RAG_PHASES.md) Phase 3 for the full feasibility writeup.
+PDF, HTML built and in production use. Pulled from: **SEBI crawler and RBI crawler (✅ both built, Phase 3 — see `ingestion/regulatory.py`)**, FIN-OS's own HTML pages, user file uploads. Corrected Oct 2026: also built since — IRDAI and PFRDA crawlers (same `regulatory.py`, `doc_type=regulation`), news RSS (`ingestion/news.py`, 5 feeds, `doc_type=news`), NSE/BSE corporate announcements (`ingestion/corporate.py`, `doc_type=corporate_filing`) and a live AMFI NAV lookup (`ingestion/amfi.py`). Current page/chunk counts are in [RAG_STATUS.md](RAG_STATUS.md). Not built: AMFI document crawler (investigated, found infeasible — JS-rendered site), Supabase tables for metadata (schema written, never applied) — see [RAG_PHASES.md](RAG_PHASES.md) Phase 3 for the full feasibility writeup.
 
 **SEBI crawler mechanics (verified against the live site, June 20, 2026):** listing page (`https://www.sebi.gov.in/sebiweb/...`) → plain `<a href>` links to circular detail pages (no JS rendering needed) → each detail page embeds the actual circular body as a PDF inside an `<iframe src="...?file=<pdf_url>">` → download PDF → `load_pdf()`. A real circular extracted 18,125 characters of text from a 14-page PDF.
 
 **RBI crawler mechanics (✅ also built, verified against the live site):** listing page (`https://www.rbi.org.in/Scripts/NotificationUser.aspx`) → each notification is a `<tr>` with a title link (`<a class="link2">`) and a sibling `<a>` whose href is a *direct* PDF link — no intermediate detail page needed, simpler than SEBI. 58 real notification rows matched in one fetch. Fetched 4 real "Kisan Credit Card Scheme" directions (181 chunks).
 
-**AMFI — investigated, not built:** homepage/FAQ pages are genuinely JS-rendered (confirmed via raw HTML: 221KB, only 17 static `<a>` tags, none to real content) — infeasible without a headless browser. Found a better-fitting alternative instead: `https://www.amfiindia.com/spages/NAVAll.txt`, a real working flat-file NAV endpoint (1.6MB, no JS), not yet ingested since it's structured tabular data rather than prose.
+**AMFI — documents investigated, not built (corrected Oct 2026: the NAV file is now used as a live lookup, `GET /api/amfi/nav`, not indexed):** homepage/FAQ pages are genuinely JS-rendered (confirmed via raw HTML: 221KB, only 17 static `<a>` tags, none to real content) — infeasible without a headless browser. Found a better-fitting alternative instead: `https://www.amfiindia.com/spages/NAVAll.txt`, a real working flat-file NAV endpoint (1.6MB, no JS), not yet ingested since it's structured tabular data rather than prose.
 
 ### Loaders (`ingestion/loaders.py`)
 | Format | Library | Status |
@@ -37,11 +37,11 @@ PDF, HTML built and in production use. Pulled from: **SEBI crawler and RBI crawl
 | JSON | native + jsonpath | ❌ Not built |
 | DOCX | python-docx | ❌ Not built |
 
-### De-duplication — ❌ not built
-This was planned as a SHA-256 content hash checked against a `rag_documents.content_hash` column in Supabase. Since that table was never created (schema written, never applied — see [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md) §3), there is no de-dup check at all today. Re-running an ingest endpoint (e.g. `/api/ingest/sebi-circulars`) will re-embed and re-insert the same documents as new chunks rather than detecting and skipping duplicates. Not a problem yet at 508 chunks with manual, infrequent ingestion triggers — would need addressing before any scheduled/automatic re-crawl.
+### De-duplication — ✅ built in Qdrant (corrected Oct 2026; the Supabase `rag_documents` version described in earlier drafts was never built)
+Each chunk payload carries a `content_hash`. The regulatory crawls (SEBI, RBI, IRDAI, PFRDA) now always skip chunks whose `content_hash` is already stored, for manual API triggers as well as scheduled runs (`jobs._ingest_regulatory_docs`; before Oct 15 2026 only scheduled runs skipped, so a manual re-crawl inserted duplicate chunks). News and the incremental FIN-OS page run use the same hash check; the manual FIN-OS page trigger instead deletes prior `finos_page` chunks and re-embeds.
 
-### Incremental re-ingestion — ❌ not built
-Same root cause as above — versioning (`rag_documents.version`, `is_current` flag) depends on the Supabase table that doesn't exist. There is currently no concept of "this chunk superseded that older chunk" anywhere in the system.
+### Incremental re-ingestion — 🟡 partly built
+Hash-based incremental ingestion exists (`incremental=True`, used by the scheduler). Document versioning (`rag_documents.version`, `is_current` flag, "this chunk superseded that older chunk") is still not built, because it depended on the unapplied Supabase table.
 
 ### PII Scrubbing (`ingestion/pii.py`)
 Runs **before** any chunk is persisted:
@@ -49,16 +49,21 @@ Runs **before** any chunk is persisted:
 - Detected PII replaced with typed placeholders: `<PAN>`, `<AADHAAR>`, `<ACCOUNT_NO>` — preserves semantic structure for the LLM without exposing raw values
 - User-uploaded documents (ITR, Form 16, bank statements) get the **strictest** scrub pass; public regulatory documents get a lighter pass (mostly irrelevant, but defensive)
 
-### Scheduler — ❌ not built, `ingestion/scheduler.py` does not exist
-No APScheduler (or any scheduler) job exists. Every ingestion endpoint is manually triggered via an HTTP call:
+### Scheduler — ✅ built (corrected Oct 2026; this section previously said no scheduler exists)
+`rag-engine/scheduler.py` (not `ingestion/scheduler.py`) runs an APScheduler `BackgroundScheduler` in IST with 6 jobs: `sched_news` every 2 hours, `sched_sebi` and `sched_rbi` Sundays 02:00, `sched_irdai` and `sched_pfrda` Sundays 02:30, `sched_finos_pages` Sundays 03:00. Job defaults are `misfire_grace_time` 6 hours, `coalesce=True`, `max_instances=1`, so a run missed while the laptop slept still fires on wake. The job list and next run times are in `GET /api/health` and [RAG_STATUS.md](RAG_STATUS.md). Ingestion endpoints (all async RQ jobs; poll `GET /api/ingest/status/{job_id}`):
 
 | Endpoint | What it does | Trigger |
 |---|---|---|
-| `POST /api/ingest/finos-pages` | Re-index all 94 FIN-OS pages | Manual |
-| `POST /api/ingest/sebi-circulars` | Crawl live SEBI circulars | Manual, `limit` param |
-| `POST /api/ingest/rbi-notifications` | Crawl live RBI notifications | Manual, `limit` param |
+| `POST /api/ingest/finos-pages` | Re-index the FIN-OS HTML pages | Manual (full re-index) + weekly scheduled (incremental) |
+| `POST /api/ingest/sebi-circulars` | Crawl SEBI circulars | Manual (`limit`) + weekly scheduled |
+| `POST /api/ingest/rbi-notifications` | Crawl RBI notifications | Manual (`limit`) + weekly scheduled |
+| `POST /api/ingest/irdai-circulars` | Crawl IRDAI circulars | Manual (`limit`) + weekly scheduled |
+| `POST /api/ingest/pfrda-circulars` | Crawl PFRDA circulars | Manual (`limit`) + weekly scheduled |
+| `POST /api/ingest/nse-filings` | NSE corporate announcements (`corporate_filing`) | Manual only |
+| `POST /api/ingest/bse-filings` | BSE corporate announcements (`corporate_filing`) | Manual only |
+| `POST /api/ingest/news` | 5 RSS news feeds (`news`) | Manual + every 2 hours scheduled |
 
-News RSS ingestion and AMFI NAV refresh were planned and never built at all (no code exists for either, scheduled or otherwise).
+AMFI NAV is not an ingestion job; it is a live lookup (`GET /api/amfi/nav`).
 
 ---
 
@@ -69,8 +74,9 @@ News RSS ingestion and AMFI NAV refresh were planned and never built at all (no 
 ### Chunk sizes by document type — this table now matches `config.CHUNK_SIZES` exactly (verified)
 | `doc_type` | Chunk size | Overlap | Strategy |
 |---|---|---|---|
-| `regulation` (SEBI/RBI) | 400 tokens (capped at 1200 chars, see above) | 80 tokens | Sentence-boundary aware + hard char ceiling |
-| `news` | 200 tokens | 40 tokens | Configured, but no news source is ever ingested — this row is unused in practice |
+| `regulation` (SEBI/RBI/IRDAI/PFRDA) | 400 tokens (capped at 1200 chars, see above) | 80 tokens | Sentence-boundary aware + hard char ceiling |
+| `news` | 200 tokens | 40 tokens | Used by the news RSS ingestion (corrected Oct 2026; this row previously said it was unused) |
+| `corporate_filing` | 200 tokens | 40 tokens | NSE/BSE announcements (added Oct 2026 to this table; matches `config.CHUNK_SIZES`) |
 | `user_doc` (ITR, statements, etc.) | 150 tokens | 30 tokens | Smaller — tighter precision for personal data |
 | `finos_page` | 350 tokens | 70 tokens | Same sentence-boundary chunker — **not** actually split on `<h2>`/`<h3>` boundaries first, that html-structure-aware step was planned and never built; calculator explainer text and other page content all fall under this one type, no separate handling |
 
@@ -125,8 +131,8 @@ Dense embeddings capture semantic meaning ("how much tax do I save on retirement
 The `rag_documents`/`rag_feedback` tables and Storage bucket described in the original plan were never created — `schema.sql` exists as a file (written Phase 3) but was never applied to the live database (no DB credentials available). There is currently no document registry, no feedback table, and no raw-file storage at all — uploaded files are parsed from a temp file that's deleted immediately after (see [RAG_SECURITY.md](RAG_SECURITY.md)). Full planned schema in [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md) §3, clearly marked there as written-not-applied. Supabase **is** used elsewhere in the real system — for session-token verification only (`storage/auth.py`, Phase 3), a module that wasn't in this original plan at all.
 
 ### Tier 4 — Redis cache (`storage/redis_cache.py`)
-- Key: hash of (query text + namespace + filters), value: final assembled answer + citations
-- TTL: 1 hour
+- Key: hash of (query text + user/namespace + filters + `kb_version` + `config.PIPELINE_VERSION`), value: final assembled answer + citations (corrected Oct 2026: `PIPELINE_VERSION` was added to the key so a prompt or pipeline change no longer serves old answers)
+- TTL: 1 hour (`_TTL_SECONDS = 3600`)
 - Invalidated early if the underlying document set changes (re-ingestion bumps a `kb_version` counter; cache keys include it)
 
 ---
@@ -144,7 +150,7 @@ This is the highest-leverage layer — it determines whether RAG actually beats 
 4. **Reranking** (`retrieval/reranker.py`) — `BGE-reranker-v2-m3` cross-encoder scores each (query, chunk) pair directly, selects top-3 (reduced from top-8). `max_length=256` (reduced from 512 — real ~300-token chunks at full length measured 2.33s for just 14 pairs; halving sequence length roughly halves the cost)
 
 **Built in Phase 3, both opt-in (not default — see docs/RAG_HARDWARE.md §4 on why):**
-5. **HyDE** (`retrieval/hyde.py`) — ✅ Built. `qwen3:8b` generates a plausible *answer* to the query (not necessarily factually correct — only used to improve search), and that answer is embedded instead of the raw query for the dense leg only (sparse/BM25 still matches literal query text). Costs +4-7s. Measured: changes the candidate pool (3/18 candidates differed on a test query) but did not improve final top-3 ranking after reranking on the corpus size tested (187 chunks). Opt-in via `use_hyde: true` on `/api/query`.
+5. **HyDE** (`retrieval/hyde.py`) — ✅ Built. `qwen3:8b` generates a plausible *answer* to the query (not necessarily factually correct — only used to improve search), and that answer is embedded instead of the raw query for the dense leg only (sparse/BM25 still matches literal query text). Costs +4-7s. Measured: changes the candidate pool (3/18 candidates differed on a test query) but did not improve final top-3 ranking after reranking on the corpus size tested (187 chunks in June 2026; the corpus is much larger now, see RAG_STATUS.md). Opt-in via `use_hyde: true` on `/api/query`.
 6. **Multi-hop expansion** (`retrieval/multi_hop.py`) — ✅ Built, direct Python (no LlamaIndex `SubQuestionQueryEngine` — dropped per design decisions in [RAG_SYSTEM.md](RAG_SYSTEM.md)). Decomposes a compound question into up to **2** sub-questions (not 2-4 as originally planned — each hop costs a full retrieve+rerank cycle), runs steps 1-4 independently for each, merges and dedupes by chunk id. Verified on a real compound question — correctly split it and found highly relevant chunks for both halves (0.969 rerank score on one). Costs +2-5s even for simple questions routed through it. Opt-in via `multi_hop: true`.
 
 **Not built — separate "query rewrite" (synonym expansion) step:** the original plan had this as distinct from HyDE. Not implemented; HyDE covers a similar need by a different mechanism (generating answer-shaped text rather than expanding query terms).
@@ -163,16 +169,18 @@ Every retrieval call requires a `user_id` (or `None` for anonymous/public-only).
 Final prompt sent to **`qwen3:8b`** (changed from the originally-planned `qwen3:14b` — see [RAG_MODELS.md](RAG_MODELS.md) for why):
 ```
 [SYSTEM] Indian finance persona, citation + conciseness rules — short-form, see prompt.py
-[RETRIEVED CONTEXT] Top-3 reranked chunks (reduced from top-8), each capped at 500 chars,
+[RETRIEVED CONTEXT] Top-3 reranked chunks (reduced from top-8), each capped at 500 chars
+                     chosen as the query-aware 500-char window of the chunk that best matches
+                     the query terms (`select_window()`, corrected Oct 2026 — not the first 500 chars),
                      labeled [SOURCE_1]...[SOURCE_N] with doc title
-[CONVERSATION HISTORY] build_prompt() accepts a history param (last 6 turns) — but Phase 4
-                        shipped without ever calling it with real history. /api/query's
-                        request schema has no history field, and the frontend never sends
-                        one. This is dead capability: present in the function signature,
-                        unreachable from any real request path.
+[CONVERSATION HISTORY] build_prompt() accepts a history param (last 6 turns). Corrected
+                        Oct 2026: it is now reachable — /api/query takes an optional
+                        `session_id`, and history is loaded from Redis (2 h TTL,
+                        storage/conversation.py) and appended after each answer. A request
+                        without a session_id still has no history.
 [USER QUERY] The current question
 ```
-**Still not built:** `[USER PROFILE]` injection from `window.FINOS_USER_CONTEXT`. Phase 4 (Arya integration) happened and didn't add this — it built a different, simpler integration instead (direct retrieval-context injection into the main chat's existing prompt, plus 2 Agent tools — see [RAG_INTEGRATION.md](RAG_INTEGRATION.md)), bypassing `build_prompt()`'s history/profile design entirely for that path. Context size (chunk count + char cap) was deliberately trimmed in Phase 2 because prompt prefill, not decode, turned out to be the dominant latency cost on this hardware — see [RAG_HARDWARE.md](RAG_HARDWARE.md) §4.
+**Still not built:** `[USER PROFILE]` injection from `window.FINOS_USER_CONTEXT`. Phase 4 (Arya integration) happened and didn't add this — it built a different, simpler integration instead (direct retrieval-context injection into the main chat's existing prompt, plus the Agent tools (2 then, 6 now) — see [RAG_INTEGRATION.md](RAG_INTEGRATION.md)), bypassing `build_prompt()`'s history/profile design entirely for that path. Context size (chunk count + char cap) was deliberately trimmed in Phase 2 because prompt prefill, not decode, turned out to be the dominant latency cost on this hardware — see [RAG_HARDWARE.md](RAG_HARDWARE.md) §4.
 
 ### Streaming (`generation/streamer.py` — built, Phase 2)
 FastAPI `StreamingResponse` with `text/event-stream`, verified working end-to-end. **The frontend consumer is built** (Phase 4) — but it's not the planned `js/arya-rag-ui.js`; that separate file was never created. The real integration reuses `arya-sidebar-panel.js`'s existing chat rendering for the Agent-tool path, and a plain context-injection (no streaming UI of its own) for the main-chat path. `think: false` is set on every call — qwen3 reasons-by-default and this was a real, measured bug (see [RAG_PHASES.md](RAG_PHASES.md) Phase 2). `num_predict: 120` caps output length, since decode rate (~20 tok/s, stable) makes output length the most reliable latency lever on this hardware.

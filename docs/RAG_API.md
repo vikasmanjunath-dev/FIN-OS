@@ -62,10 +62,11 @@ Note: citation objects carry `doc_type`, `page_key`, `source_path` — **not** `
 | Field | Type | Implemented? | Description |
 |---|---|---|---|
 | `query` | string | ✅ | User's natural-language question |
-| `user_id` | string \| null | ✅ (filter only, unauthenticated) | Restricts retrieval to `public` + `user:{user_id}` namespace — but anyone can pass any value, see Auth gap |
+| `user_id` | string \| null | ✅ (corrected Oct 2026: auth-checked) | Restricts retrieval to `public` + `user:{user_id}` namespace; a `user_id` needs a matching Supabase bearer token (Phase 3, see Server Configuration), otherwise `403 namespace_violation` |
 | `top_k` | int | ✅ | Default 3 (was 8) |
 | `stream` | bool | ✅ | If false, returns a single JSON response |
 | `doc_type` | string \| null | ✅ Built (Phase 4) | e.g. `"regulation"` — restricts retrieval to that doc_type only. Replaces the originally-planned generic `filters` object (`finance_category`/`date_from`/`date_to` still not built) — added specifically so Arya's `rag_search_regulations` tool is a genuine filter, not a same-results rename of `rag_query` |
+| `session_id` | string \| null | ✅ Built (Phase 7; added to this table Oct 2026) | Optional. Enables short multi-turn conversation memory in Redis (2 h TTL, `storage/conversation.py`) |
 | `use_hyde` | bool | ✅ Built (Phase 3) | Default `false`. +4-7s; measured no ranking improvement at this corpus size — see [RAG_PHASES.md](RAG_PHASES.md) Phase 3 |
 | `multi_hop` | bool | ✅ Built (Phase 3) | Default `false`. +2-5s even for simple questions; genuinely helps compound questions (verified) — response includes a `sub_questions` field when it actually decomposed the query |
 
@@ -87,7 +88,7 @@ Note: citation objects carry `doc_type`, `page_key`, `source_path` — **not** `
 }
 ```
 `flagged_sentences` (Phase 5, built) — non-empty entries look like `{"sentence": "...", "cited_sources": ["SOURCE_1"], "label": "neutral", "score": 4.25}`. See the honest reliability caveat in [RAG_PHASES.md](RAG_PHASES.md) Phase 5 before treating a non-empty list as proof of a hallucination.
-This is real captured output, not a mockup. `latency_ms` of 6-8 seconds for a cache miss is the honest measured baseline on this hardware — see [RAG_HARDWARE.md](RAG_HARDWARE.md) §4. Repeat queries return in <5ms with `"cache_hit": true`.
+This is real captured output, not a mockup. `latency_ms` of 6-8 seconds for a cache miss is the honest measured baseline on this hardware — see [RAG_HARDWARE.md](RAG_HARDWARE.md) §4. Repeat queries return in <5ms with `"cache_hit": true`. (Corrected Oct 2026: cached answers live for 1 hour; the Redis cache key includes the query, user, filters, the `kb_version` counter bumped on re-ingestion, and `config.PIPELINE_VERSION`, so a prompt or pipeline change no longer serves old cached answers.)
 
 ---
 
@@ -116,7 +117,7 @@ curl -X POST http://localhost:7476/api/retrieve \
 }
 ```
 
-Same auth and `doc_type` filtering as `/api/query` (reuses `_retrieve_and_rerank`). **Verified live from a real browser** via CORS — confirmed in the network tab as `POST http://localhost:7476/api/retrieve → 200 OK` triggered by `arya-sidebar-panel.js`'s `fetchRagContext()`.
+Same auth and `doc_type` filtering as `/api/query` (reuses `_retrieve_and_rerank`). (Corrected Oct 2026: `/api/retrieve` and `/api/search` returned HTTP 422 from Oct 4 to Oct 15 2026; that bug is fixed and both endpoints work — see RAG_PHASES.md Phase 9.) **Verified live from a real browser** via CORS — confirmed in the network tab as `POST http://localhost:7476/api/retrieve → 200 OK` triggered by `arya-sidebar-panel.js`'s `fetchRagContext()`.
 
 ---
 
@@ -151,9 +152,9 @@ curl -X POST http://localhost:7476/api/upload \
 
 ---
 
-## 🔜 `POST /api/search-regulations` — PLANNED, not built (Phase 3)
+## 🔜 `POST /api/search-regulations` — PLANNED, never built as a separate endpoint
 
-Depends on the SEBI/RBI/AMFI crawler (Phase 3) actually having ingested regulatory documents — there's no `doc_type=regulation` content in the index yet, so this endpoint has nothing to search even once built.
+(Corrected Oct 2026) Superseded: regulation-only search is done with `doc_type: "regulation"` on `/api/query` or `/api/retrieve`, which is what Arya's `rag_search_regulations` tool calls. The index now holds `regulation` chunks from SEBI, RBI, IRDAI and PFRDA; per-regulator counts are in [RAG_STATUS.md](RAG_STATUS.md).
 
 ---
 
@@ -163,15 +164,15 @@ Depends on `/api/upload` existing first (needs a `doc_id` to explain a passage f
 
 ---
 
-## 🔜 `POST /api/feedback` — PLANNED, not built (Phase 5)
+## ✅ `POST /api/feedback` and `GET /api/feedback/summary` — BUILT (Phase 7; corrected Oct 2026, this section previously said "not built")
 
-Depends on the `rag_feedback` Supabase table, which doesn't exist yet (Phase 1 gap).
+`POST /api/feedback` takes `{query, answer, vote: "up"|"down", session_id?, comment?}` (any other `vote` value returns 400), stores a record with a 200-char answer excerpt in Redis under `rag:feedback:{ts}:{session_id}` with a 30-day TTL, and returns `{"status": "recorded"}`. `GET /api/feedback/summary` aggregates the stored records into `{total, up, down, approval_rate, recent}` (20 most recent). It does not use the `rag_feedback` Supabase table, which is still unapplied.
 
 ---
 
 ## ✅ `POST /api/ingest/finos-pages` — BUILT, verified — ⚠️ shape changed in Phase 6, now async
 
-Re-indexes all FIN-OS HTML pages (`html/*.html` — 94 files; `index.html`/`login.html` not yet included) into the `public` namespace, in both Qdrant and SQLite FTS5. Idempotent — clears prior `finos_page` chunks first, so repeat calls don't duplicate.
+Re-indexes the FIN-OS HTML pages in `html/` (corrected Oct 2026: 123 `.html` files at the Oct 17 2026 refresh, 122 distinct pages indexed; current counts in [RAG_STATUS.md](RAG_STATUS.md)) into the `public` namespace, in both Qdrant and SQLite FTS5. Idempotent — the manual trigger clears prior `finos_page` chunks first, so repeat calls don't duplicate (the weekly `sched_finos_pages` run is incremental instead and skips chunks whose `content_hash` is already stored).
 
 **Phase 6 change: this now enqueues a job and returns immediately** instead of blocking the request for ~18-21s. The actual ingestion logic is unchanged, just moved to `jobs.py` and run by a separate `rq worker rag-ingestion` process — see [RAG_PHASES.md](RAG_PHASES.md) Phase 6 for why (a real macOS fork-crash bug was found and fixed along the way).
 
@@ -184,7 +185,7 @@ curl -X POST http://localhost:7476/api/ingest/finos-pages
 { "job_id": "d26f82b6-6a44-4568-b5fa-0dd28389cd7c", "status": "queued" }
 ```
 
-Poll `GET /api/ingest/status/{job_id}` (below) for the result. **Real captured result once finished:** `{"pages_processed": 94, "chunks_created": 297, "pii_redactions": 0, "duration_sec": 21.26}` — same fields as the old synchronous response, just delivered via the status endpoint now. `chunks_created` is 297, not the originally-captured 187 — see [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md) for why a Phase 3 chunker fix quietly changed this with zero content change.
+Poll `GET /api/ingest/status/{job_id}` (below) for the result. **Real captured result once finished (June 2026, historical — 94 pages then; current counts are in RAG_STATUS.md):** `{"pages_processed": 94, "chunks_created": 297, "pii_redactions": 0, "duration_sec": 21.26}` — same fields as the old synchronous response, just delivered via the status endpoint now. `chunks_created` is 297, not the originally-captured 187 — see [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md) for why a Phase 3 chunker fix quietly changed this with zero content change.
 
 **If this just returns `queued` forever:** check `GET /api/health`'s `ingest_workers_running` field — if it's `0`, no worker process is running to pick up the job. Start one: `rq worker rag-ingestion --worker-class rq.worker.SimpleWorker --url redis://localhost:6379` (the `--worker-class` flag is required on macOS, not optional — see [RAG_PHASES.md](RAG_PHASES.md) Phase 6).
 
@@ -192,7 +193,7 @@ Poll `GET /api/ingest/status/{job_id}` (below) for the result. **Real captured r
 
 ## ✅ `POST /api/ingest/sebi-circulars` — BUILT, verified against the live SEBI website (Phase 3) — ⚠️ now async (Phase 6)
 
-Crawls SEBI's circular listing, downloads each circular's embedded PDF, extracts text, chunks, embeds, and indexes into the `public` namespace as `doc_type: "regulation"`. Not a scheduled job (the original plan was APScheduler) — manual trigger, since nobody's watching to debug an unattended scheduler if the site structure changes. See `ingestion/regulatory.py` for the crawl mechanics (listing page → detail page → embedded PDF iframe → download → `load_pdf()`).
+Crawls SEBI's circular listing, downloads each circular's embedded PDF, extracts text, chunks, embeds, and indexes into the `public` namespace as `doc_type: "regulation"`. (Corrected Oct 2026: it can be triggered manually here and is also run weekly by APScheduler as `sched_sebi`, Sundays 02:00 IST. Crawls skip chunks whose `content_hash` is already stored, for manual triggers as well as scheduled ones.) See `ingestion/regulatory.py` for the crawl mechanics (listing page → detail page → embedded PDF iframe → download → `load_pdf()`).
 
 ```bash
 curl -X POST http://localhost:7476/api/ingest/sebi-circulars \
@@ -256,13 +257,13 @@ curl -X POST http://localhost:7476/api/ingest/rbi-notifications \
 
 **Verified end-to-end:** queried about the Kisan Credit Card scheme — the answer correctly cited the real directions document and stated its actual future effective date (January 1, 2027), not hallucinated.
 
-**AMFI not built:** investigated properly (not guessed) — AMFI's homepage/FAQ pages are genuinely JS-rendered (221KB HTML, only 17 static links, none to real content), infeasible without a headless browser. Found a better fit instead: `https://www.amfiindia.com/spages/NAVAll.txt` is a real, working flat-file NAV endpoint (1.6MB, no JS needed) — not ingested this pass since it's structured tabular data, a different shape than the document-RAG pattern.
+**AMFI documents not ingested (corrected Oct 2026: NAV is served by a live lookup, `GET /api/amfi/nav?q=...&top_k=...`, see below):** investigated properly (not guessed) — AMFI's homepage/FAQ pages are genuinely JS-rendered (221KB HTML, only 17 static links, none to real content), infeasible without a headless browser. Found a better fit instead: `https://www.amfiindia.com/spages/NAVAll.txt` is a real, working flat-file NAV endpoint (1.6MB, no JS needed) — not ingested this pass since it's structured tabular data, a different shape than the document-RAG pattern.
 
 ---
 
 ## ✅ `GET /api/ingest/status/{job_id}` — BUILT, Phase 6
 
-Polls the status of a job enqueued by any of the three ingest endpoints above.
+Polls the status of a job enqueued by any of the ingest endpoints (corrected Oct 2026: the full set is `/api/ingest/finos-pages`, `sebi-circulars`, `rbi-notifications`, `irdai-circulars`, `pfrda-circulars`, `nse-filings`, `bse-filings` and `news` — the last six are described just below).
 
 ```bash
 curl http://localhost:7476/api/ingest/status/d26f82b6-6a44-4568-b5fa-0dd28389cd7c
@@ -274,6 +275,15 @@ curl http://localhost:7476/api/ingest/status/d26f82b6-6a44-4568-b5fa-0dd28389cd7
 { "job_id": "d26f82b6-...", "status": "finished", "result": {"pages_processed": 94, "chunks_created": 297, "pii_redactions": 0, "duration_sec": 21.26} }
 ```
 A failed job (e.g., the real fork-crash bug hit during this build, see [RAG_PHASES.md](RAG_PHASES.md) Phase 6) returns `{"status": "failed", "error": "..."}`. An unknown `job_id` returns `404`.
+
+---
+
+## ✅ Additional ingest and lookup endpoints (corrected Oct 2026: these were missing from this document)
+
+- `POST /api/ingest/irdai-circulars` and `POST /api/ingest/pfrda-circulars` — body `{"limit": N}` (default 10), `doc_type: "regulation"`, async job, same shape as the SEBI/RBI endpoints. Scheduled weekly as `sched_irdai` / `sched_pfrda`, Sundays 02:30 IST.
+- `POST /api/ingest/nse-filings` and `POST /api/ingest/bse-filings` — body `{"limit": N}` (default 50), index corporate announcement text as `doc_type: "corporate_filing"` (`ingestion/corporate.py`). Manual trigger only; no scheduler job.
+- `POST /api/ingest/news` — no body; fetches the five RSS feeds in `ingestion/news.py` (Mint Markets, Mint Money, MoneyControl, NDTV Profit, Hindu Business Line), up to 20 articles per feed, deduplicated by title, `doc_type: "news"`. Scheduled every 2 hours as `sched_news`.
+- `GET /api/amfi/nav?q=<fund name>&top_k=5` — live fuzzy NAV lookup against AMFI's `NAVAll.txt` (cached 1 hour), no auth; exposed to Arya as `amfi_nav_lookup`.
 
 ---
 
@@ -305,6 +315,7 @@ curl http://localhost:7476/api/health
   "ingest_workers_running": 1
 }
 ```
+(Corrected Oct 2026: the sample above is the June 2026 capture. The live response also carries a `scheduler` object, `{"running": true, "next_runs": {"sched_news": ..., "sched_sebi": ..., ...}}`, and `collection_size` is now much larger; see [RAG_STATUS.md](RAG_STATUS.md) for the current value rather than this one.)
 `collection_size` was `187` in earlier captures of this doc, then `508`, now `534` after a real SEBI crawl ran during Phase 6 testing — see [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md) for the 187→508 jump (a chunking fix, zero new content) and [RAG_PHASES.md](RAG_PHASES.md) Phase 6 for the 508→534 one (genuinely new SEBI chunks). `status` becomes `"degraded"` if either `ollama` or `qdrant` is down — **`ingest_workers_running` does NOT affect `status`**, by design: a missing worker breaks ingestion, not query serving, so it's surfaced as its own field rather than degrading the whole service. Redis is still not health-checked despite being a dependency of both `/api/query`'s caching and the Phase 6 job queue — a gap worth fixing before relying on this for monitoring.
 
 ---

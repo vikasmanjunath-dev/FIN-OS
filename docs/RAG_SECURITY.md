@@ -111,8 +111,9 @@ Proceed with namespace_filter(user_id=verified_id)
 |---|---|---|---|
 | User-uploaded raw files | **None** — never persisted at all (see above: temp file deleted immediately after parsing) | N/A | ✅ Actually simpler than planned — there's no raw file to delete |
 | Indexed chunks (Qdrant + SQLite) | Indefinite — no expiry, no cleanup job | None exists | ❌ Not built — `delete_by_doc_type()` exists and is used for idempotent re-ingestion, but there's no per-user "delete all my data" path yet |
-| `rag_feedback` | N/A | N/A | ❌ Table doesn't exist |
-| Redis query cache | 1 hour TTL | Automatic expiry | ✅ Built, real |
+| `rag_feedback` (Supabase table) | N/A | N/A | ❌ Table doesn't exist. Corrected Oct 2026: answer feedback is stored in Redis instead (`POST /api/feedback`, key `rag:feedback:*`, 30-day TTL, query text and a 200-char answer excerpt) |
+| Redis query cache | 1 hour TTL (key includes kb_version and `PIPELINE_VERSION`) | Automatic expiry | ✅ Built, real |
+| Redis conversation history (`session_id`) | 2 hour TTL, reset on each turn (`storage/conversation.py`; added Oct 2026 to this table) | Automatic expiry | ✅ Built |
 
 **Account deletion does not yet cascade into RAG data.** If a FIN-OS user deletes their account today, any chunks they uploaded under `namespace: user:{uuid}` remain in Qdrant/SQLite indefinitely — there is no hook from the existing account-deletion flow into `delete_by_doc_type()` or an equivalent per-user purge. This is a real, currently-open gap, not a "Phase 4 requirement" that got met — Phase 4 happened (Arya integration) and this was not part of it. Needs a `delete_by_namespace(user_id)` function (not built) wired into account deletion before this matters in practice — i.e., before real users have real private documents.
 

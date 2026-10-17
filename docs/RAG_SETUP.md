@@ -29,9 +29,9 @@ If Ollama is already running for the existing voice agent / Arya backend (it's a
 ollama pull qwen3:8b            # primary RAG generation (changed from 14b — see RAG_MODELS.md), ~4.7 GB
 ollama pull qwen3:14b           # available for harder synthesis later, ~8.5 GB (may already be pulled)
 ollama pull mxbai-embed-large   # primary embedding, ~670 MB
-ollama pull nomic-embed-text    # fallback embedding, ~274 MB — pulled but not yet exercised
+ollama pull nomic-embed-text    # fallback embedding, ~274 MB — optional; no code uses it and it is not installed on the reference machine (corrected Oct 2026)
 
-ollama list   # confirm all 4 are present
+ollama list   # confirm qwen3:8b and mxbai-embed-large are present (config.py needs only these two)
 ```
 
 **Critical, easy to miss:** qwen3 models reason-by-default ("thinking" mode), generating hidden chain-of-thought tokens before the visible answer. Every Ollama call in this build passes `"think": false` — without it, a trivial prompt that should take <1s took 11.9s in testing. This isn't optional for usable latency.
@@ -106,31 +106,8 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-`requirements.txt` — **this is the actual file as built through Phase 5** (verified working, pinned versions). LlamaIndex, `bm25s`, `pdfminer.six`, and Supabase were in the original plan but turned out unnecessary for this scope — see [RAG_SYSTEM.md](RAG_SYSTEM.md) design decisions table for why LlamaIndex specifically was dropped. **No separate package was needed for the SEBI/RBI crawler (Phase 3) or the faithfulness guard (Phase 5)** — both reuse `httpx`/`beautifulsoup4` and `sentence-transformers` already in the file:
-```
-# Phase 1
-fastapi==0.115.6
-uvicorn[standard]==0.34.0
-httpx==0.28.1
-qdrant-client==1.12.1
-pymupdf==1.25.1
-beautifulsoup4==4.12.3
-presidio-analyzer==2.2.358
-presidio-anonymizer==2.2.358
-python-dotenv==1.0.1
-pydantic==2.10.4
-
-# Phase 2 — Hybrid retrieval, reranking, generation
-sentence-transformers==3.3.1
-torch==2.5.1
-redis==5.2.1
-
-# Phase 3 — User document upload, Supabase auth
-python-multipart==0.0.20
-
-# Phase 5 — Evaluation
-pytest==8.3.4
-```
+`requirements.txt` — **originally the actual file as built through Phase 5**. LlamaIndex, `bm25s`, `pdfminer.six`, and Supabase were in the original plan but turned out unnecessary for this scope — see [RAG_SYSTEM.md](RAG_SYSTEM.md) design decisions table for why LlamaIndex specifically was dropped. **No separate package was needed for the SEBI/RBI crawler (Phase 3) or the faithfulness guard (Phase 5)** — both reuse `httpx`/`beautifulsoup4` and `sentence-transformers` already in the file:
+(Corrected Oct 2026: the pinned-version listing that used to be pasted here was the June 2026 file and has drifted: torch, sentence-transformers, python-dotenv, python-multipart, pytest and prometheus-client were upgraded, and `redis`, `rq`, `feedparser`, `apscheduler` and `pytz` were added for the async jobs, news RSS and scheduler. `rag-engine/requirements.txt` is the authority; install from it.)
 
 ```bash
 pip install -r requirements.txt
@@ -144,9 +121,9 @@ The faithfulness guard's NLI model (`cross-encoder/nli-deberta-v3-base`) and the
 **Still genuinely not needed — add only when you reach the phase that uses them:**
 - `pandas`, `openpyxl`, `python-docx` — table/Excel/DOCX loaders (not built yet)
 - `easyocr` — scanned PDF OCR (not built yet)
-- `apscheduler` — was planned for SEBI/RBI crawler scheduling, but the crawler that got built (Phase 3) uses a manual `POST /api/ingest/{sebi-circulars,rbi-notifications}` trigger instead — no scheduler exists or is currently planned to be added
+- `apscheduler` — (corrected Oct 2026) no longer "not needed": `rag-engine/scheduler.py` uses it for the 6 scheduled jobs (news every 2 h; SEBI, RBI, IRDAI, PFRDA and FIN-OS pages weekly on Sundays) and it is in `requirements.txt`
 - `supabase` — once the `rag_documents`/`rag_feedback` schema migration actually happens (Phase 1 gap, still open — see [RAG_PHASES.md](RAG_PHASES.md))
-- `ragas`, `prometheus-client` — evaluation tooling (Phase 5 — RAGAS suite and metrics endpoint still not built; only the faithfulness guard and namespace isolation pytest are)
+- `ragas` — evaluation tooling, abandoned (see RAG_EVALUATION.md §7a). (Corrected Oct 2026: `prometheus-client` is installed and the `/api/metrics` endpoint is built.)
 - `langdetect` — multilingual routing (not yet needed; current corpus is English-only — RBI's Devanagari headers are stripped, not translated, see [RAG_PHASES.md](RAG_PHASES.md) Phase 3)
 
 > **MPS note for `sentence-transformers`/`torch`:** Apple Silicon wheels include MPS support by default via `pip install torch` (no special index needed as of current PyTorch releases). Verify with:
@@ -200,18 +177,18 @@ curl -X POST http://localhost:7476/api/ingest/finos-pages
 ```bash
 curl http://localhost:7476/api/ingest/status/d26f82b6-6a44-4568-b5fa-0dd28389cd7c
 ```
-**Real result once finished:** `{"pages_processed": 94, "chunks_created": 297, "pii_redactions": 0, "duration_sec": 21.26}` — pages_processed is 94 (the count of `html/*.html`; `index.html`/`login.html` aren't included by this endpoint yet). `chunks_created` was originally measured at 187 in earlier Phase 1+2 testing — grew to 297 after a Phase 3 chunking fix applied globally with zero content change, see [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md).
+**Real result once finished:** `{"pages_processed": 94, "chunks_created": 297, "pii_redactions": 0, "duration_sec": 21.26}` — this is the June 2026 capture (94 pages, 297 chunks; 187 chunks in the earlier Phase 1+2 testing before a global chunking fix, see [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md)). Corrected Oct 2026: the current numbers differ (123 `html/*.html` files, 346 `finos_page` chunks after the Oct 15 re-index); see [RAG_STATUS.md](RAG_STATUS.md).
 
 ---
 
-## 8a. Optional — Ingest Real Regulatory Content (Phase 3, async since Phase 6)
+## 8a. Optional — Ingest Real Regulatory Content (Phase 3, async since Phase 6; corrected Oct 2026: IRDAI, PFRDA, NSE, BSE and news endpoints also exist, see RAG_API.md)
 
 ```bash
 curl -X POST http://localhost:7476/api/ingest/sebi-circulars -H "Content-Type: application/json" -d '{"limit": 5}'
 curl -X POST http://localhost:7476/api/ingest/rbi-notifications -H "Content-Type: application/json" -d '{"limit": 4}'
 ```
 
-Both return `{"job_id", "status": "queued"}` immediately and crawl the **live** SEBI/RBI websites in the background — real network calls, not fixtures. Poll `GET /api/ingest/status/{job_id}` for results. **Real measured results once finished:** SEBI returned `{"circulars_fetched": 5, "chunks_created": 30, "duration_sec": 9.11}`; RBI returned `{"chunks_created": 181, "duration_sec": 16.09}` (after a chunking bug fix — see [RAG_PHASES.md](RAG_PHASES.md) Phase 3 if you hit a 400 error from Ollama's embed endpoint in the job's `error` field, that's the same issue, already fixed in `ingestion/chunker.py`'s `_MAX_CHUNK_CHARS` cap). AMFI is not implemented — their site is JS-rendered.
+Both return `{"job_id", "status": "queued"}` immediately and crawl the **live** SEBI/RBI websites in the background — real network calls, not fixtures. Poll `GET /api/ingest/status/{job_id}` for results. **Real measured results once finished:** SEBI returned `{"circulars_fetched": 5, "chunks_created": 30, "duration_sec": 9.11}`; RBI returned `{"chunks_created": 181, "duration_sec": 16.09}` (after a chunking bug fix — see [RAG_PHASES.md](RAG_PHASES.md) Phase 3 if you hit a 400 error from Ollama's embed endpoint in the job's `error` field, that's the same issue, already fixed in `ingestion/chunker.py`'s `_MAX_CHUNK_CHARS` cap). AMFI documents are not ingested — their site is JS-rendered (corrected Oct 2026: NAV is a live lookup at `GET /api/amfi/nav`). The `sched_*` scheduler jobs also run these crawls weekly; the worker must be running for either path.
 
 ---
 

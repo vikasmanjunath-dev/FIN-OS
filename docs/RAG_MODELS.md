@@ -14,7 +14,7 @@
 | `qwen3:8b` | **Primary generation LLM (Phase 2 default — see note below)** | Ollama / Metal | 4.7 GB | ~20 tok/s decode |
 | `qwen3:14b` | Available for harder synthesis where quality > speed | Ollama / Metal | 8.5 GB | ~7-11 tok/s decode |
 | `mxbai-embed-large` | Primary dense embedding | Ollama / Metal | 1.2 GB | confirmed ~1,500 embed/s (matches estimate) |
-| `nomic-embed-text` | Fallback/batch embedding | Ollama / Metal | 0.27 GB | not yet load-tested |
+| `nomic-embed-text` | Fallback/batch embedding (planned) | Ollama / Metal | 0.27 GB | not used by any code, and not among the installed Ollama models as of the Oct 17 2026 RAG_STATUS.md refresh (corrected Oct 2026) |
 
 **Generation model default changed from `qwen3:14b` to `qwen3:8b` during Phase 2.** Decode speed roughly doubles (~20 vs ~7-11 tok/s) with acceptable quality loss for grounded, citation-constrained RAG answers — the model isn't doing open-ended reasoning, it's synthesizing from retrieved context, where `qwen3:8b` holds up well. `config.GENERATION_MODEL` controls this; switch back to `qwen3:14b` per-request for cases needing deeper synthesis (e.g. Phase 3 multi-hop).
 
@@ -25,7 +25,7 @@
 
 ---
 
-## 1. `qwen3:14b` — Primary Generation
+## 1. `qwen3:14b` — Heavier-synthesis option (corrected Oct 2026: not the rag-engine default; `config.GENERATION_MODEL` and `UTILITY_MODEL` are both `qwen3:8b`)
 
 ```bash
 ollama pull qwen3:14b
@@ -37,14 +37,14 @@ ollama pull qwen3:14b
 | Context window | 32,768 tokens |
 | Temperature (factual RAG mode) | 0.1 |
 | Top-p | 0.9 |
-| Used for | Final RAG answer generation, multi-hop synthesis |
-| Keep-alive | `-1` (never unload — see [RAG_HARDWARE.md](RAG_HARDWARE.md) §6) |
+| Used for | Not used by `rag-engine` by default (Arya's main chat in `arya-sidebar-panel.js` uses it); swap `GENERATION_MODEL` to use it for harder synthesis |
+| Keep-alive | The originally planned `-1` does not take effect on this machine; see [RAG_HARDWARE.md](RAG_HARDWARE.md) §6 |
 
 Already present in the FIN-OS stack (used by `arya-ai.js` / voice agent). No new download needed if already pulled — verify with `ollama list`.
 
 ---
 
-## 2. `qwen3:8b` — Fast Utility Model
+## 2. `qwen3:8b` — Generation and Utility Model (corrected Oct 2026: this is also the default generation model)
 
 ```bash
 ollama pull qwen3:8b
@@ -54,11 +54,12 @@ ollama pull qwen3:8b
 |---|---|
 | Quantization | Q4_K_M |
 | Context window | 32,768 tokens |
-| Temperature (query rewrite) | 0.3 |
-| Temperature (HyDE generation) | 0.4 |
-| Used for | Query rewriting, HyDE hypothetical-answer generation, sub-question decomposition, follow-up chip generation |
+| Temperature (final answer generation) | 0.1 (`generation/streamer.py`, `num_predict` 120) |
+| Temperature (HyDE generation) | 0.4 (`retrieval/hyde.py`) |
+| Temperature (multi-hop decomposition) | 0.1 (`retrieval/multi_hop.py`) |
+| Used for | Final answer generation, HyDE hypothetical-answer generation, sub-question decomposition. Separate query rewriting is not implemented. |
 
-Rationale for a separate small model: keeping `qwen3:14b` reserved for final-answer quality while routing every "helper" LLM call through the faster, lighter `qwen3:8b` keeps total latency down and avoids ever loading two large models concurrently.
+Rationale (corrected Oct 2026): the original plan was `qwen3:14b` for final answers and `qwen3:8b` for helper calls; measured decode speed on this machine made `qwen3:8b` the default for both, so `rag-engine` loads one LLM.
 
 ---
 
@@ -81,6 +82,8 @@ Chosen over BGE-M3 specifically because it runs through Ollama's native Metal pa
 ---
 
 ## 4. `nomic-embed-text` — Fallback/Batch Embedding
+
+> Corrected Oct 2026: planned only. No code in `rag-engine` calls this model (`config.EMBED_MODEL` is `mxbai-embed-large`) and it is not among the installed Ollama models in RAG_STATUS.md. The table below is the design, not current behavior.
 
 ```bash
 ollama pull nomic-embed-text

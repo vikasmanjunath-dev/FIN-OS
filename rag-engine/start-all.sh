@@ -13,6 +13,8 @@ if ! curl -s http://localhost:11434/api/tags > /dev/null; then
   until curl -s http://localhost:11434/api/tags > /dev/null; do sleep 1; done
 fi
 echo "      ✓ Ollama up"
+# Oct 17 2026: make sure Ollama really has OLLAMA_NUM_PARALLEL / OLLAMA_KEEP_ALIVE (exports above never reach a brew-managed Ollama).
+zsh "${0:A:h}/ensure-ollama-env.sh" || true
 
 echo "[2/4] Checking Qdrant (binary at ~/qdrant-bin)..."
 if ! curl -s http://localhost:6333/healthz > /dev/null; then

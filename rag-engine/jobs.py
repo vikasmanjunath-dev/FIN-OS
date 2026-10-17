@@ -138,10 +138,10 @@ def _ingest_regulatory_docs(docs: list, regulator: str, incremental: bool = Fals
         return {"fetched": 0, "chunks_created": 0, "chunks_skipped": 0,
                 "duration_sec": round(time.time() - started, 2)}
 
-    existing_hashes = (
-        get_existing_hashes(doc_type="regulation", namespace=config.PUBLIC_NAMESPACE)
-        if incremental else set()
-    )
+    # Always skip chunks already stored (by content_hash). Before Oct 15 2026 this ran only when
+    # incremental=True, so every MANUAL crawl trigger (the API endpoints) re-inserted a second copy
+    # of every chunk under a fresh point id and silently doubled retrieval candidates.
+    existing_hashes = get_existing_hashes(doc_type="regulation", namespace=config.PUBLIC_NAMESPACE)
 
     size_cfg = config.CHUNK_SIZES["regulation"]
     all_chunk_texts: list[str] = []
@@ -235,10 +235,10 @@ def _ingest_corporate_docs(filings: list[CorporateFiling], exchange: str, increm
         return {"fetched": 0, "chunks_created": 0, "chunks_skipped": 0,
                 "duration_sec": round(time.time() - started, 2)}
 
-    existing_hashes = (
-        get_existing_hashes(doc_type="corporate_filing", namespace=config.PUBLIC_NAMESPACE)
-        if incremental else set()
-    )
+    # Always skip chunks already stored (by content_hash). Before Oct 15 2026 this ran only when
+    # incremental=True, so every MANUAL crawl trigger (the API endpoints) re-inserted a second copy
+    # of every chunk under a fresh point id and silently doubled retrieval candidates.
+    existing_hashes = get_existing_hashes(doc_type="corporate_filing", namespace=config.PUBLIC_NAMESPACE)
 
     size_cfg = config.CHUNK_SIZES["corporate_filing"]
     all_chunk_texts: list[str] = []

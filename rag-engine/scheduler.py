@@ -73,7 +73,14 @@ def start_scheduler() -> None:
     if _scheduler and _scheduler.running:
         return
 
-    _scheduler = BackgroundScheduler(timezone=IST)
+    # job_defaults (Oct 15 2026): APScheduler's default misfire_grace_time is 1 second. On a laptop that
+    # sleeps, a job whose fire time passes during sleep is then silently SKIPPED when the Mac wakes, so the
+    # Sunday 2am regulator refreshes essentially never ran. Allow a 6-hour grace window and coalesce any
+    # backlog into a single run; max_instances=1 stops overlapping runs of the same job.
+    _scheduler = BackgroundScheduler(
+        timezone=IST,
+        job_defaults={"coalesce": True, "misfire_grace_time": 6 * 3600, "max_instances": 1},
+    )
 
     # News every 2 hours — financial news is meaningfully stale after a few hours.
     # No immediate first-run: boot is already slow (~15-25s for model warmup);

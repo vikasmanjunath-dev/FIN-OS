@@ -72,6 +72,12 @@ def chunk_text(text: str, size_tokens: int, overlap_tokens: int, base_metadata: 
                     break
                 overlap.insert(0, s)
                 overlap_count += t
+            # Infinite-loop guard (found Oct 15 2026 on PFRDA PDFs): if this sentence cannot fit
+            # beside the overlap window either, keeping the overlap makes the `continue` below
+            # re-flush the identical overlap chunk forever (and grow memory). Drop the overlap so
+            # the oversized sentence is added alone; _enforce_max_chars splits it by characters.
+            if overlap_count + sent_tokens > size_tokens:
+                overlap, overlap_count = [], 0
             current = overlap
             current_tokens = overlap_count
             continue  # re-evaluate this sentence against the reset window

@@ -1,7 +1,7 @@
 # FIN-OS RAG — Evaluation & Benchmarking Reference
 
-> Version: 1.4 | Date: June 21, 2026 (Phase 5: the Indian finance benchmark is now built — 10 real questions, 90% passing, see §7. RAGAS was attempted and genuinely abandoned, not just deferred — see §7a for why. Grafana remains not built by deliberate choice, not an open gap)
-> Tooling: a real namespace isolation pytest + a 10-question Indian finance benchmark + Prometheus metrics (no RAGAS — tried, hit an upstream packaging bug; no Grafana — deliberate)
+> Version: 1.4 | Date: June 21, 2026 (Phase 5: the Indian finance benchmark was built — 10 real questions, 90% passing in June 2026; corrected Oct 2026: it is now 112 public + 41 personalized questions, see §7 and RAG_PHASES.md Phase 9. RAGAS was attempted and genuinely abandoned, not just deferred — see §7a for why. Grafana remains not built by deliberate choice, not an open gap)
+> Tooling: a real namespace isolation pytest + the Indian finance benchmark (112 public + 41 personalized questions as of Oct 2026, originally 10) + Prometheus metrics (no RAGAS — tried, hit an upstream packaging bug; no Grafana — deliberate)
 
 **Latency targets below were pre-build estimates.** Phase 2 implementation measured this M5's real prefill/decode throughput at roughly 7-10x slower than generically assumed (likely a base M5, not Pro/Max — see [RAG_HARDWARE.md](RAG_HARDWARE.md) §4 for the full measured comparison). Revised, hardware-honest targets: **retrieval ≤2.5 sec P95** (was 400ms), **E2E ≤8 sec P95 cache-miss / <50ms cache-hit** (was 2 sec). Streaming TTFT (2.6-8 sec measured) is the more meaningful smoothness metric than total E2E time on this hardware.
 
@@ -32,7 +32,7 @@
 
 ## 3. Indian Finance Accuracy Benchmark
 
-A curated 100-question test set spanning the domains FIN-OS actually serves, run after every retrieval/prompt change.
+A curated question set spanning the domains FIN-OS actually serves, run after every retrieval/prompt change (corrected Oct 2026: `benchmark.py` has 112 questions in categories DEBT, EQUITY, INS, MACRO, MF, NEWPG, PRINCIPLE, REG, TAX, and `benchmark_personal.py` adds 41; sizes and per-category counts are in RAG_STATUS.md, results in RAG_PHASES.md Phase 9). The table below is the original target design, not the current category list.
 
 | Category | Target accuracy | Example question |
 |---|---|---|
@@ -43,7 +43,7 @@ A curated 100-question test set spanning the domains FIN-OS actually serves, run
 | ₹ number format (L/Cr/K) | 100% | Any answer containing a rupee amount must render in L/Cr/K, never raw digits |
 | Outdated circular detection | ≥ 85% | Questions deliberately referencing a superseded regulation — system must flag it |
 
-The 100-question set is versioned in `rag-engine/evaluation/benchmark.py` and re-run as a regression gate before any change to chunking strategy, retrieval parameters, or prompt templates ships.
+The question set is versioned in `rag-engine/evaluation/benchmark.py` (and `benchmark_personal.py`) and re-run as a regression gate before any change to chunking strategy, retrieval parameters, or prompt templates ships.
 
 ## 4. System Reliability Metrics
 
@@ -59,7 +59,7 @@ The 100-question set is versioned in `rag-engine/evaluation/benchmark.py` and re
 ## 5. Tooling
 
 - **RAGAS** (`pip install ragas`) — computes faithfulness, answer relevancy, context precision/recall against the benchmark set
-- **Custom benchmark runner** (`rag-engine/evaluation/benchmark.py`) — runs the 100-question Indian finance set, diffs against the last passing run, fails CI-equivalent local check on regression
+- **Custom benchmark runner** (`rag-engine/evaluation/benchmark.py`) — runs the Indian finance set (112 public questions as of Oct 2026, plus 41 personalized in `benchmark_personal.py`), diffs against the last passing run, fails CI-equivalent local check on regression
 - **Prometheus** — `rag-engine` exposes `/api/metrics`; tracks request latency histograms (per pipeline stage), cache hit/miss counters, ingestion job success/failure counters
 - **Grafana** — local dashboard reading from Prometheus; panels for P50/P95/P99 latency per stage, daily ingestion volume, error rate, cache hit rate trend
 - **`rag_feedback` review** — weekly manual pass over all thumbs-down entries (see [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md) §3); patterns in feedback notes drive targeted fixes (e.g., repeated "wrong tax regime" feedback → prompt template fix)
@@ -92,19 +92,19 @@ def test_anonymous_cannot_retrieve_it(seeded_private_chunk):
     assert _marker_present(None) is False
 ```
 
-**Real run output:** `pytest evaluation/test_namespace_isolation.py -v` → `3 passed in 1.39s`. Confirmed self-cleaning: collection size unchanged before/after (`398` chunks both times, at the point this test was run — re-running it today would show `508` before/after instead, see [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md) for why the total moved with zero new content; the test's self-cleaning guarantee is unaffected either way, since it asserts "unchanged," not a specific number).
+**Real run output:** `pytest evaluation/test_namespace_isolation.py -v` → `3 passed in 1.39s`. Confirmed self-cleaning: collection size unchanged before/after (`398` chunks both times, at the point this test was run in June 2026 — re-running it today would show the current `collection_size` from RAG_STATUS.md before/after instead, see [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md) for why totals move; the test's self-cleaning guarantee is unaffected either way, since it asserts "unchanged," not a specific number).
 
 Run it: `cd rag-engine && source .venv/bin/activate && pytest evaluation/test_namespace_isolation.py -v`
 
 This is treated as a security regression test, not a normal unit test — a failure here blocks all other work until fixed.
 
-## 7. Indian Finance Benchmark — ✅ Built, scoped to 10 real questions (not the originally-planned 100)
+## 7. Indian Finance Benchmark — ✅ Built (corrected Oct 2026: started as 10 real questions in June 2026; now 112 public + 41 personalized)
 
-`rag-engine/evaluation/benchmark.py`. The originally-planned 100-question set was never authored at that size — instead, every question here was built by first retrieving real source text via `storage.sqlite_fts.search()`, confirming an exact fact in it, then writing a question whose answer is checked by substring match against that confirmed fact. No question's ground truth was assumed from memory or fabricated. Covers both `finos_page` (FIN-OS's own tax/insurance content) and `regulation` (real SEBI/RBI text) sources, plus one deliberately compound question.
+`rag-engine/evaluation/benchmark.py`. (Corrected Oct 2026: the set grew to 100 and then 112 questions, plus the separate personalized set in `benchmark_personal.py`; the current sizes are in RAG_STATUS.md and the measured results in the RAG_PHASES.md Phase 9 table. The rest of this section describes the original 10-question June 2026 version.) Originally the 100-question set was not authored at that size — instead, every question was built by first retrieving real source text via `storage.sqlite_fts.search()`, confirming an exact fact in it, then writing a question whose answer is checked by substring match against that confirmed fact. No question's ground truth was assumed from memory or fabricated. Covers both `finos_page` (FIN-OS's own tax/insurance content) and `regulation` (real SEBI/RBI text) sources, plus one deliberately compound question.
 
 Run: `cd rag-engine && source .venv/bin/activate && python3 evaluation/benchmark.py`
 
-**Real measured result: 9/10 (90%).** The one failure is a genuine, informative finding, not benchmark noise:
+**Real measured result in June 2026 (superseded by the Phase 9 table): 9/10 (90%).** The one failure is a genuine, informative finding, not benchmark noise:
 
 > *"How is insurance cover calculated, and what is the NPS 80CCD(1B) deduction limit?"* — expected the answer to mention both "Total Debt" (the term-cover formula) and "₹50,000" (the NPS deduction). Got the NPS part right but answered the insurance-cover part from the wrong source: it described the ₹1L Section 80D *health insurance tax deduction* instead of the `Cover = (Annual Income × 20) + Total Debt` term-insurance-sizing formula.
 
@@ -127,7 +127,7 @@ Reverted everything: uninstalled ragas and the full transitive chain it pulled i
 **Metrics exposed:**
 | Metric | Type | Labels | What it tracks |
 |---|---|---|---|
-| `rag_request_latency_seconds` | Histogram | `endpoint` (`query`, `query_cached`, `query_stream`, `retrieve`, `search`, `upload`, `ingest_finos_pages`, `ingest_sebi_circulars`, `ingest_rbi_notifications`) | End-to-end latency. Streaming and async endpoints are timed manually rather than via the `.time()` decorator — see the code comments in `server.py` for why (the decorator would record near-zero time for both, for different reasons) |
+| `rag_request_latency_seconds` | Histogram | `endpoint` (`query`, `query_cached`, `query_stream`, `retrieve`, `search`, `upload` and the ingestion endpoints; June 2026 list, see `metrics.py` for the current labels) | End-to-end latency. Streaming and async endpoints are timed manually rather than via the `.time()` decorator — see the code comments in `server.py` for why (the decorator would record near-zero time for both, for different reasons) |
 | `rag_cache_hits_total` / `rag_cache_misses_total` | Counter | — | Redis cache hit/miss on `/api/query` (non-streaming only — the streaming path doesn't check cache) |
 | `rag_ingestion_total` | Counter | `source`, `outcome` | Ingestion attempts by source (`finos_pages`, `sebi`, `rbi`, `user_upload`) and outcome (`success`/`failure`) |
 | `rag_faithfulness_flagged_sentences_total` | Counter | — | Running count of sentences flagged by the NLI guard — an operational signal, not a quality score given the guard's known domain-reliability gap (see [RAG_PHASES.md](RAG_PHASES.md) Phase 5) |
@@ -151,4 +151,4 @@ The cache-hit/cache-miss latency gap above (17.1s vs. 2ms) is the same finding d
 | Indian finance benchmark | Every change to chunking, retrieval params, or prompts |
 | Full RAGAS suite | Weekly, once built — see [RAG_PHASES.md](RAG_PHASES.md) Phase 5 for current status |
 | `/api/metrics` check | Anytime — it's a live endpoint, not a scheduled job. No dashboard automates this; `curl`/a Prometheus scraper if you want it polled |
-| `rag_feedback` manual review | Blocked — table doesn't exist, see [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md) §3 |
+| Feedback review | The Supabase `rag_feedback` table still doesn't exist (see [RAG_KNOWLEDGE_BASE.md](RAG_KNOWLEDGE_BASE.md) §3), but votes are stored in Redis (`POST /api/feedback`, `GET /api/feedback/summary`; corrected Oct 2026), so a manual review is possible |

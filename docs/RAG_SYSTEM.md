@@ -7,7 +7,7 @@
 
 ## What This Is
 
-A fully local Retrieval-Augmented Generation engine that gives Arya grounded, cited answers with a (measurably imperfect) hallucination check, over: live SEBI circulars and RBI notifications, the user's own uploaded financial documents, and all 94 FIN-OS pages' content. AMFI, fund fact sheets, and daily news are not built — see Status below. No cloud API dependency at all, not just "by default" — there is no fallback path to one.
+A fully local Retrieval-Augmented Generation engine that gives Arya grounded, cited answers with a (measurably imperfect) hallucination check, over (corrected Oct 2026): regulatory circulars and notifications from SEBI, RBI, IRDAI and PFRDA, news from five RSS feeds, NSE/BSE corporate announcements, the user's own uploaded financial documents, and the FIN-OS pages' content (current counts in [RAG_STATUS.md](RAG_STATUS.md)). AMFI fact sheets are not indexed (NAV is a live lookup); see Status below. No cloud API dependency at all, not just "by default" — there is no fallback path to one.
 
 This document is the master index. Each subsystem has its own detailed reference:
 
@@ -64,7 +64,7 @@ RAG fixes all five by grounding generation in retrieved, indexed, namespace-isol
 
 ```
 1. INGESTION    PDF/HTML loaders (PyMuPDF/BeautifulSoup) → PII scrub (presidio + PAN/Aadhaar regex)
-                Sources: 94 FIN-OS pages, live SEBI circulars, live RBI notifications
+                Sources (corrected Oct 2026): FIN-OS pages, SEBI/RBI/IRDAI/PFRDA circulars, news RSS, NSE/BSE announcements, user uploads
 2. CHUNKING     Sentence-boundary packing + a hard 1200-char ceiling backstop
                 (added after dense regulatory tables broke the embedding model's token limit)
 3. EMBEDDING    mxbai-embed-large (dense, 1024-dim) via Ollama — no separate BM25s package;
@@ -75,7 +75,7 @@ RAG fixes all five by grounding generation in retrieved, indexed, namespace-isol
                 Optional: HyDE (use_hyde), multi-hop decomposition (multi_hop) — both built, opt-in
 6. GENERATION   Context assembly → qwen3:8b streaming → citation tagging → faithfulness/NLI check
 ```
-Phases 1-5 built and verified — every stage above is real, running code, not a plan. The faithfulness check (step 6) works but is measurably unreliable on Indian regulatory text specifically; HyDE (step 5) works but didn't improve final ranking at this corpus's current size (508 chunks) — both caveats are detailed in [RAG_PHASES.md](RAG_PHASES.md).
+Phases 1-5 built and verified — every stage above is real, running code, not a plan. The faithfulness check (step 6) works but is measurably unreliable on Indian regulatory text specifically; HyDE (step 5) works but didn't improve final ranking at the corpus size it was tested on (a few hundred chunks in June 2026; current size in RAG_STATUS.md) — both caveats are detailed in [RAG_PHASES.md](RAG_PHASES.md).
 
 ---
 
@@ -87,23 +87,28 @@ Initial Deployment/
 │   ├── server.py
 │   ├── config.py
 │   ├── schema.sql               written (Phase 3), never applied — see Design Decisions above
-│   ├── ingestion/{loaders,chunker,pii,regulatory}.py
-│   │                            no pipeline.py or scheduler.py — ingestion is endpoint-triggered,
-│   │                            not a scheduled job; regulatory.py is the real SEBI+RBI crawler
+│   ├── jobs.py, scheduler.py, metrics.py   (corrected Oct 2026: RQ ingestion jobs; APScheduler
+│   │                            with 6 jobs, 6 h misfire grace + coalesce; Prometheus metrics)
+│   ├── ingestion/{loaders,chunker,pii,regulatory,news,corporate,amfi}.py
+│   │                            (corrected Oct 2026) regulatory.py crawls SEBI, RBI, IRDAI, PFRDA;
+│   │                            news.py = RSS; corporate.py = NSE/BSE announcements; amfi.py = NAV lookup
 │   ├── embedding/encoder.py     dense only — no separate bm25.py; sparse lives in storage/sqlite_fts.py
-│   ├── storage/{qdrant_store,sqlite_fts,redis_cache,auth}.py
+│   ├── storage/{qdrant_store,sqlite_fts,redis_cache,auth,conversation}.py
 │   │                            no supabase_meta.py (never built); auth.py wasn't in the original
 │   │                            plan at all — added in Phase 3 for live Supabase session verification
 │   ├── retrieval/{hybrid,reranker,hyde,multi_hop}.py    — all real, all built
 │   ├── generation/{prompt,streamer,citations,faithfulness}.py
 │   │                            no separate assembler.py — prompt.py covers context assembly
-│   ├── evaluation/test_namespace_isolation.py
-│   │                            no ragas_eval.py or benchmark.py — neither was built
+│   ├── evaluation/{benchmark,benchmark_personal,llm_judge}.py + test_*.py
+│   │                            (corrected Oct 2026) benchmark.py = 112 public questions,
+│   │                            benchmark_personal.py = 41 personalized; no RAGAS suite
 │   ├── start-all.sh
 │   └── requirements.txt
 ├── js/
-│   └── arya-sidebar-panel.js    updated in place: +2 RAG agent tools (rag_query,
-│                                rag_search_regulations) + direct /api/retrieve injection
+│   └── arya-sidebar-panel.js    updated in place: 6 RAG agent tools (rag_query,
+│                                rag_search_regulations, rag_upload_doc, rag_explain_statement,
+│                                amfi_nav_lookup, rag_search_filings; corrected Oct 2026, originally 2)
+│                                + direct /api/retrieve injection
 │                                into the main chat. No separate arya-rag-ui.js was built —
 │                                turned out unnecessary, plain-text tool results sufficed.
 └── (no rag-explorer.html — an admin/debug page for inspecting indexed chunks was
@@ -129,8 +134,8 @@ Note: `arya-ai/` and `document-ai/` (existing services) were originally planned 
 
 ## Status
 
-**Phases 1-5 built and verified.** Qdrant, Redis, and `rag-engine` (port 7476) are running locally; 508 chunks indexed (94 FIN-OS pages + live SEBI circulars + live RBI notifications) into both Qdrant and SQLite FTS5; hybrid retrieval + HyDE + multi-hop + reranking + streaming generation with citations + a faithfulness check are all confirmed working end-to-end against real queries. User document upload (PII-scrubbed, namespace-isolated), live Supabase session-token verification, and a Prometheus `/api/metrics` endpoint are built. Direct browser integration into Arya's sidebar chat, plus 2 Agent tool-calling functions, are built and verified in a real browser session.
+**Phases 1-5 built and verified.** Qdrant, Redis, and `rag-engine` (port 7476) are running locally; the index holds `finos_page`, `regulation` (SEBI, RBI, IRDAI, PFRDA) and `news` chunks in Qdrant and SQLite FTS5 (corrected Oct 2026; 508 chunks was the June 2026 figure — live counts are in [RAG_STATUS.md](RAG_STATUS.md)); hybrid retrieval + HyDE + multi-hop + reranking + streaming generation with citations + a faithfulness check are all confirmed working end-to-end against real queries. User document upload (PII-scrubbed, namespace-isolated), live Supabase session-token verification, and a Prometheus `/api/metrics` endpoint are built. Direct browser integration into Arya's sidebar chat, plus 6 Agent tool-calling functions (2 at the time of Phase 4), are built and verified in a real browser session.
 
 Several real bugs were found and fixed along the way: qwen3's default "thinking" mode bloating generation; `sentence-transformers`' MPS device flag being silently ignored (twice — once for the reranker, again for the faithfulness model); a chunking gap that broke on dense regulatory tables and bilingual PDF headers; a fabricated PDF URL that 404'd before being replaced with a real crawled link. Real hardware measurement also revealed this M5's prefill/decode throughput is ~7-10x slower than generic estimates assumed (likely a base M5, not Pro/Max), and that the reranker's disk footprint (2.1GB) and the faithfulness model's throughput (~16 pairs/sec) were both significantly mis-estimated in earlier drafts of this documentation. See [RAG_PHASES.md](RAG_PHASES.md) for the full per-phase writeup.
 
-**What's genuinely still open** (not "next phase," just open): broader regulatory sources (AMFI investigated and found infeasible — JS-rendered site; IT Act, IRDAI, PFRDA, NSE/BSE never attempted), the Supabase metadata registry (`schema.sql` written, never applied), an account-deletion cascade into RAG data, the RAGAS evaluation suite and 100-question benchmark, Prometheus/Grafana metrics, and the faithfulness guard's domain-reliability gap. None of these block current functionality — they're real gaps, not blockers.
+**What's genuinely still open** (not "next phase," just open): broader regulatory sources (AMFI documents infeasible — JS-rendered site, though NAV is a live lookup; IT Act and Finance Act never attempted; corrected Oct 2026: IRDAI, PFRDA, NSE/BSE announcements and news RSS are now built), the Supabase metadata registry (`schema.sql` written, never applied), an account-deletion cascade into RAG data, the RAGAS evaluation suite (the benchmark itself is now 112 public + 41 personalized questions, see RAG_PHASES.md Phase 9), Grafana dashboards (the Prometheus `/api/metrics` endpoint exists), and the faithfulness guard's domain-reliability gap. None of these block current functionality — they're real gaps, not blockers.
