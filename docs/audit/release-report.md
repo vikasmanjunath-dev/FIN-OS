@@ -28,7 +28,7 @@ This is a verification report for the changes made in this audit. It is not a pr
 - Mobile storage-failure and corrupt-data suites — previously **174 passed**; included again in the final full suite.
 - Full mobile Node 24 suite, serial worker execution with loopback access: **1,036 passed, 0 failed, 0 cancelled, 0 skipped, 0 TODO** (45.0s).
 - Transfer budget parity — **3 passed**; explicit internal transfers are excluded from expense totals on both platforms, survive mobile storage round-trip, and a purchase memo alone does not change transaction kind.
-- Latest normalization regressions: web budget suite **12/12 passed**; mobile shared logic suite **15/15 passed**, including strict malformed amount parsing, Gregorian date validation/leap days, and web/mobile parity. Mobile TypeScript check passed.
+- Latest normalization regressions: web budget suite **12/12 passed**; mobile shared logic suite **14/14 passed**, including strict malformed amount parsing, Gregorian date validation/leap days and impossible ISO timestamp dates, and web/mobile parity. Mobile TypeScript check passed.
 - A package-wide mobile test invocation was attempted but interrupted after it reached the loopback-dependent mock Supabase test; this attempt is inconclusive and is not counted as a pass. The last completed full mobile suite remains 1,036/1,036 from before these parsing/date changes.
 - Mobile TypeScript: `PATH=/Users/vkm/.nvm/versions/node/v24.15.0/bin:$PATH npm run typecheck` — passed.
 - Updated `/tracker/transactions` browser smoke — **1 screen × 4 states**, 0 problems after adding transfer entry and display support.
