@@ -93,7 +93,7 @@ export async function restoreBackup(plain: any, store: KV, opts: { replace: bool
   try { for (const [k, v] of await store.multiGet(pairs.map(p => p[0]))) before.set(k, v); } catch { /* cannot snapshot: still try, and report honestly below */ }
   try {
     await store.multiSet(pairs);
-  } catch (e) {
+  } catch {
     try {
       const put = [...before].filter(([, v]) => v !== null) as [string, string][];
       const gone = [...before].filter(([, v]) => v === null).map(([k]) => k);

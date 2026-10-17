@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { MarketScreen, Freshness, KV, Chip, RangeBar, changeColor } from '@/components/MarketUI';
@@ -24,7 +24,8 @@ export default function StockDetail() {
   const rangeParam = CHART_RANGES.find(x => x.id === range)!.range;
   const c = useMarketResource(() => (symbol ? loadChart(symbol, rangeParam) : Promise.resolve({ data: null, savedAt: null, fromCache: false, error: null })), [symbol, range]);
 
-  const reloadAll = useCallback(async () => { await Promise.all([q.reload(), f.reload(), c.reload()]); }, [q.reload, f.reload, c.reload]);
+  const { reload: reloadQuote } = q, { reload: reloadFundamentals } = f, { reload: reloadChart } = c;
+  const reloadAll = useCallback(async () => { await Promise.all([reloadQuote(), reloadFundamentals(), reloadChart()]); }, [reloadQuote, reloadFundamentals, reloadChart]);
 
   const quote = q.data;
   const stats = c.data ? chartStats(c.data) : null;

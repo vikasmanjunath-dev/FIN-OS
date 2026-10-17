@@ -1,5 +1,4 @@
 // Reads the figures the benchmark needs the same way the Money Score prefills (recorded data only, nothing guessed).
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { gatherScoreData } from '@/lib/moneyScoreStorage';
 import { deriveInputs } from '@/lib/moneyScore';
 import type { BenchInput } from '@/lib/benchmark';

@@ -17,7 +17,6 @@ export const MAX_GAP_DAYS = 7;
 const DAY = 86400000;
 const pad = (n: number) => String(n).padStart(2, '0');
 const t = (iso: string) => { const [y, m, d] = iso.split('-').map(Number); return Date.UTC(y, m - 1, d); };
-const iso = (ms: number) => { const d = new Date(ms); return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`; };
 
 /** Same day-of-month `months` earlier, clamped to the month's last day (31 Mar - 1 month = 28/29 Feb). */
 export function monthsBefore(isoDate: string, months: number): string {

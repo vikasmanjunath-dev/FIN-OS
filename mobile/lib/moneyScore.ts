@@ -364,8 +364,6 @@ const root: any = {};   // the website reads an optional i18n global from here; 
     const raw = lang() === 'en' || !root.FinosI18n || !root.FinosI18n.t ? key : root.FinosI18n.t(key, key);
     return fill(raw, params, { money: fmtL, pct, t: (k) => tr(k) });
   }
-  /** A {key, params} pair that the core attached to a sentence, shown in the current language. */
-  const trT = (t) => tr(t.key, t.params);
 
 
 

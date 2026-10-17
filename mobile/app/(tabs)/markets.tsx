@@ -55,7 +55,7 @@ function SectorRow({ name, emoji, changePct }: { name: string; emoji: string; ch
 }
 
 export default function MarketsScreen() {
-  const { data, loading, refresh } = useMarketData();
+  const { data, refresh } = useMarketData();
   const sec = useSectors();
   const [refreshing, setRefreshing] = React.useState(false);
 

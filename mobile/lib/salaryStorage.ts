@@ -39,6 +39,6 @@ export async function saveSalaryResults(f: SalaryFields): Promise<void> {
 }
 
 /** The one place take-home becomes the income the Budget tracker uses. */
-export function useTakeHomeAsIncome(monthly: number): Promise<void> {
+export function applyTakeHomeAsIncome(monthly: number): Promise<void> {
   return AsyncStorage.setItem('finos_monthly_income', String(Math.max(0, Math.round(monthly))));
 }

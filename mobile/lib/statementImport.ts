@@ -241,7 +241,7 @@ const MAX_ROWS_VALUE = 20000;
 
   function fromAA(input) {
     let data = input;
-    if (typeof input === 'string') { try { data = JSON.parse(input); } catch (e) { return fail('aa-json', 'This is not valid JSON.'); } }
+    if (typeof input === 'string') { try { data = JSON.parse(input); } catch { return fail('aa-json', 'This is not valid JSON.'); } }
     if (!data || typeof data !== 'object') return fail('aa-json', 'This does not look like Account Aggregator data.');
     const accounts = collectAccounts(data, [], 0);
     if (!accounts.length) {

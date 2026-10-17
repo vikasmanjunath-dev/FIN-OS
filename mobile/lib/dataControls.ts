@@ -1,6 +1,7 @@
 // Export and erase: the person's own controls over what the app holds, on the phone and in the cloud.
 // Takes the storage / Supabase client as arguments so the logic is testable without React Native.
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NEVER_EXPORT } from '@/lib/storageKeys';
 
 export interface KeyValueStore {
   getAllKeys(): Promise<readonly string[]>;
@@ -8,7 +9,6 @@ export interface KeyValueStore {
   clear(): Promise<void>;
 }
 
-import { NEVER_EXPORT } from '@/lib/storageKeys';
 
 const isAppKey = (k: string) => /^finos_/.test(k) && !NEVER_EXPORT.test(k);   // the lock's verifier and the session key are secrets, not records
 

@@ -180,7 +180,6 @@
       actions.push({ priority: 'high', category: '80CCD', text: `Invest ${INR(oldR.gaps.nps)} in NPS (80CCD 1B) — save ${INR(taxSaving)} extra tax` });
     }
     if (oldR.gaps.ltcg_free > 0) {
-      const taxSaving = Math.round(oldR.gaps.ltcg_free * 0.125 * 1.04);
       actions.push({ priority: 'medium', category: 'LTCG', text: `Book up to ${INR(oldR.gaps.ltcg_free)} equity gains before Apr 1 — tax-free under ₹1.25L limit` });
     }
     if (!p.health_self && best === 'old') {

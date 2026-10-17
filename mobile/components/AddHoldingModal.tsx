@@ -50,7 +50,7 @@ export function AddHoldingModal({ visible, onClose, onAdd }: Props) {
         if (!r.length) setError('No funds found. Try the fund house or a shorter name.');
         setFunds(r);
       }
-    } catch (e: any) {
+    } catch {
       setError(kind === 'Stock'
         ? `Couldn't find "${query.trim().toUpperCase()}" on NSE. Use the ticker, e.g. RELIANCE or HDFCBANK.`
         : 'Search failed — is the backend running?');

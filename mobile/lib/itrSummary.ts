@@ -6,7 +6,6 @@
 export function compute(read: (key: string) => string | null, nowArg: Date = new Date()) {
   const gs = (k: string) => parseFloat(read(k) as string) || 0;
   const gss = (k: string) => read(k) || '';
-  const INR = (v: number) => '₹' + Math.abs(Math.round(v)).toLocaleString('en-IN');
   /* ── Tax slabs: rates shown for Tax Year 2026-27 ───────────────── */
   function _taxNew(income) {
     // New regime slabs for Tax Year 2026-27.
@@ -74,7 +73,6 @@ export function compute(read: (key: string) => string | null, nowArg: Date = new
     const grossSalary    = salaryComponents || gs('finos_gross_salary') || gs('finos_salary_ctc');
     const salaryBasis    = salaryComponents ? 'salary components' : (gs('finos_gross_salary') ? 'entered gross salary' : (gs('finos_salary_ctc') ? 'CTC proxy — verify' : 'not entered'));
     const basicAnnual    = gs('finos_salary_basic') || grossSalary * 0.40;
-    const hraReceived    = gs('finos_salary_hra')    || 0;
     const hraExempt      = _hraExempt();
 
     const rentalIncome   = gs('finos_passive_rental_annual') || gs('finos_rental_income_annual');

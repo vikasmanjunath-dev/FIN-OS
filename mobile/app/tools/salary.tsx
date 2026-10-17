@@ -6,7 +6,7 @@ import { TrackerScreen, Card, SectionLabel, inr, inrShort } from '@/components/T
 import { CalcField, Segmented, Collapsible, Bullet } from '@/components/CalcUI';
 import { compute, hraBreakdown, tips } from '@/lib/salary';
 import {
-  loadSalaryFields, toInputs, saveSalaryField, saveSalaryCity, saveSalaryRegime, saveSalaryResults, useTakeHomeAsIncome, type SalaryFields,
+  loadSalaryFields, toInputs, saveSalaryField, saveSalaryCity, saveSalaryRegime, saveSalaryResults, applyTakeHomeAsIncome, type SalaryFields,
 } from '@/lib/salaryStorage';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 
@@ -48,7 +48,7 @@ export default function SalaryScreen() {
 
   const apply = async () => {
     await saveSalaryResults(f);
-    await useTakeHomeAsIncome(c.takeHomeMo);
+    await applyTakeHomeAsIncome(c.takeHomeMo);
     setIncome(c.takeHomeMo);
     setApplied(true);
   };
