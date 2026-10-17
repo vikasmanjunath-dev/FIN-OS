@@ -20,17 +20,16 @@ function randomBytes(n: number): Uint8Array {
   if (rand) return rand(n);
   const c: any = (globalThis as any).crypto;
   if (c?.getRandomValues) return c.getRandomValues(new Uint8Array(n));
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   return new Uint8Array(require('expo-crypto').getRandomBytes(n));
 }
 
 export function b64(u: Uint8Array): string {
   let s = '';
   for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode(...u.subarray(i, i + 0x8000));
-  return (globalThis as any).btoa ? (globalThis as any).btoa(s) : Buffer.from(u).toString('base64');
+  return (globalThis as any).btoa ? (globalThis as any).btoa(s) : (globalThis as any).Buffer.from(u).toString('base64');
 }
 export function unb64(str: string): Uint8Array {
-  const bin = (globalThis as any).atob ? (globalThis as any).atob(str) : Buffer.from(str, 'base64').toString('binary');
+  const bin = (globalThis as any).atob ? (globalThis as any).atob(str) : (globalThis as any).Buffer.from(str, 'base64').toString('binary');
   const u = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
   return u;

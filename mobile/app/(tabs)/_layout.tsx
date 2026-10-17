@@ -1,4 +1,5 @@
 import { Tabs } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, View, StyleSheet } from 'react-native';
 import { Colors, Radii } from '@/constants/theme';
 
@@ -12,11 +13,12 @@ function TabIcon({ emoji, label, focused }: { emoji: string; label: string; focu
 }
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();      // the home indicator / gesture bar: the bar grows by it instead of drawing labels underneath
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [styles.tabBar, { height: 60 + Math.max(insets.bottom, 12), paddingBottom: Math.max(insets.bottom, 12) }],
         tabBarShowLabel: false,
       }}
     >

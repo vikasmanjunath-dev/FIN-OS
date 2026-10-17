@@ -59,6 +59,7 @@ export function LockGate({ children }: { children: React.ReactNode }) {
   useEffect(() => { if (phase !== 'locked' || secondsLeft(fail, now) === 0) return; const t = setInterval(() => setNow(Date.now()), 500); return () => clearInterval(t); }, [phase, fail, now]);
 
   const wait = secondsLeft(fail, now);
+  useEffect(() => { if (phase === 'locked' && fail.lockedUntil > 0 && wait === 0) setMsg(''); }, [phase, fail.lockedUntil, wait]);   // a finished wait leaves no stale message
 
   const submit = async (p: string) => {
     if (verifying.current) return;
@@ -69,7 +70,7 @@ export function LockGate({ children }: { children: React.ReactNode }) {
       setFail(r.fail); setNow(Date.now()); setPin('');
       if (r.ok) { setMsg(''); setPhase('open'); return; }
       if (r.refused) return;
-      setMsg(r.waitSec > 0 ? `Wrong PIN. Wait ${r.waitSec} seconds.` : `Wrong PIN. ${Math.max(0, 5 - r.fail.count)} tries before a wait.`);
+      setMsg(r.waitSec > 0 ? 'Wrong PIN.' : `Wrong PIN. ${Math.max(0, 5 - r.fail.count)} tries before a wait.`);   // the countdown is the line above: one counter, not two that disagree
     } finally { verifying.current = false; }
   };
   const press = (d: string) => {
@@ -101,7 +102,7 @@ export function LockGate({ children }: { children: React.ReactNode }) {
           {phase === 'locked' && (
             <>
               <Text style={s.logo}>⬡</Text>
-              <Text style={s.title}>FIN·OS is locked</Text>
+              <Text accessibilityRole="header" style={s.title}>FIN·OS is locked</Text>
               <Text style={s.sub}>{unreadable ? 'The lock settings could not be read. Try again.' : wait > 0 ? `Too many wrong tries. Wait ${wait} second${wait === 1 ? '' : 's'}.` : 'Enter your PIN'}</Text>
               {unreadable && <TouchableOpacity accessibilityRole="button" onPress={() => { lock(); }} style={{ marginBottom: Spacing.md }}><Text style={s.forgot}>Try again</Text></TouchableOpacity>}
               <View style={s.dots} accessibilityLabel={`${pin.length} of ${PIN_LENGTH} digits entered`}>
@@ -127,7 +128,7 @@ export function LockGate({ children }: { children: React.ReactNode }) {
 }
 
 const s = StyleSheet.create({
-  cover: { ...StyleSheet.absoluteFillObject, backgroundColor: Colors.bg, alignItems: 'center', justifyContent: 'center', padding: Spacing.lg },
+  cover: { ...StyleSheet.absoluteFill as object, backgroundColor: Colors.bg, alignItems: 'center', justifyContent: 'center', padding: Spacing.lg },
   logo: { fontSize: 40, color: Colors.cyan },
   title: { ...Typography.h2, marginTop: Spacing.sm },
   sub: { ...Typography.caption, marginTop: 6, marginBottom: Spacing.lg, textAlign: 'center' },

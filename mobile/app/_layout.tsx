@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Stack, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AppState, View } from 'react-native';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-url-polyfill/auto';
 import { Colors } from '@/constants/theme';
@@ -27,6 +28,13 @@ installCrashHandlers();     // uncaught errors are noted on this phone (redacted
 
 SplashScreen.preventAutoHideAsync();
 
+/** Keeps every screen below the status bar / notch / Dynamic Island (and Android's edge-to-edge bar). The bottom inset is handled by the tab bar
+ *  and by the scrolling screens, so it is not applied here (it would be counted twice). Modal sheets on iOS are placed by the system. */
+function Shell({ children }: { children: React.ReactNode }) {
+  const insets = useSafeAreaInsets();
+  return <View style={{ flex: 1, backgroundColor: Colors.bg, paddingTop: insets.top }}>{children}</View>;
+}
+
 export default function RootLayout() {
   const mode = useMode();
   const epoch = useEraseEpoch();          // bumps after "delete everything": the navigator below is rebuilt from empty storage
@@ -49,8 +57,9 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.bg }}>
-      <StatusBar style={mode === 'light' ? 'dark' : 'light'} backgroundColor={mode === 'light' ? '#F4F6FA' : Colors.bg} />
+    <SafeAreaProvider>
+    <Shell>
+      <StatusBar style={mode === 'light' ? 'dark' : 'light'} />
       <LockGate>
       <AuthProvider>
       <ErrorBoundary>
@@ -69,6 +78,7 @@ export default function RootLayout() {
       </ErrorBoundary>
       </AuthProvider>
       </LockGate>
-    </View>
+    </Shell>
+    </SafeAreaProvider>
   );
 }
