@@ -129,7 +129,7 @@ export function suggestionsFor(events: DeclaredEvent[], f: ArFacts, now: Date = 
   const push = (s: Suggestion) => { if (!seen.has(s.id)) { seen.add(s.id); out.push(s); } };
 
   const income = incomeMonthly(f);
-  const cov = income > 0 ? computeCoverage(f.data.policies, income, 30) : null;
+  const cov = income > 0 ? computeCoverage(f.data.policies, income, null) : null;
   const hasHealth = f.data.policies.some(p => p.type === 'health');
   const hasTerm = f.data.policies.some(p => p.type === 'life_term');
   const em = emergencyLine(f);

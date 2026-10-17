@@ -4,7 +4,7 @@ import { router, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { useAuth } from '@/hooks/useAuth';
-import { FLOWS, NOT_DOING, PERMISSIONS, DATA_ITEMS, ENTITY, describeStored } from '@/lib/privacy';
+import { FLOWS, NOT_DOING, PERMISSIONS, DATA_ITEMS, ENTITY, KEPT_ASIDE_NOTE, describeStored } from '@/lib/privacy';
 import { exportAllData, deleteCloudData, deleteAccount } from '@/lib/dataControls';
 import { eraseThisPhone, detachFromAccount } from '@/lib/eraseDeps';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
@@ -99,6 +99,7 @@ export default function PrivacyScreen() {
             <Text style={[Typography.body, { fontWeight: '800' }]}>{c.value}</Text>
           </View>
         ))}
+        <Text style={[Typography.caption, { marginTop: Spacing.sm, lineHeight: 16 }]}>{KEPT_ASIDE_NOTE}</Text>
       </Card>
 
       <SectionLabel>WHAT CAN LEAVE YOUR PHONE, AND WHEN</SectionLabel>

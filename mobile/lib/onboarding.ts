@@ -50,7 +50,7 @@ export function normalise(raw: unknown): OnboardingState {
 }
 
 /** Keys that exist on a phone that has never been used: written by the app itself, not by the person. */
-const NOT_USER_DATA = /^(finos_(streak|lang|theme_mobile|host_ip|tracker_sync_meta|session|onboarding_mobile|consents|usage|feedback_log|diag_|applock|search_recent|holdings_last_sync|holdings_owner|holdings_tombstones_v1|reminders_mobile|alerts_state|nudges_dismissed))/;
+const NOT_USER_DATA = /^(finos_(streak|lang|theme_mobile|host_ip|tracker_sync_meta|session|onboarding_mobile|persona_mobile|consents|usage|feedback_log|diag_|applock|search_recent|holdings_last_sync|holdings_owner|holdings_tombstones_v1|reminders_mobile|alerts_state|nudges_dismissed))/;
 
 /** Does the phone already hold something the person entered? Then the welcome flow is not for them. */
 export function isEstablished(keys: readonly string[]): boolean {

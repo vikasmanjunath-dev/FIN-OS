@@ -55,11 +55,19 @@ export default function BudgetScreen() {
       </Card>
 
       <TouchableOpacity activeOpacity={0.85} style={st.logCard} onPress={() => router.push('/tracker/transactions')} accessibilityRole="button">
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, paddingRight: Spacing.sm }}>
           <Text style={st.logTitle}>Log transactions</Text>
           <Text style={Typography.caption}>
             {sp.totals.count > 0 ? `${sp.totals.count} logged this month · ${inr(sp.totals.spent)} spent` : 'Track every rupee to see where your money goes'}
           </Text>
+        </View>
+        <Text style={{ color: Colors.cyan, fontSize: 20 }}>›</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity activeOpacity={0.85} style={st.logCard} onPress={() => router.push('/plan/forecast' as any)} accessibilityRole="button" accessibilityLabel="Open the spending forecast. Worked out from the expenses you log">
+        <View style={{ flex: 1 }}>
+          <Text style={st.logTitle}>Spending forecast</Text>
+          <Text style={Typography.caption}>What this month is likely to cost, category by category, from your own logged expenses</Text>
         </View>
         <Text style={{ color: Colors.cyan, fontSize: 20 }}>›</Text>
       </TouchableOpacity>
@@ -150,11 +158,11 @@ const st = StyleSheet.create({
   logCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,212,255,0.06)', borderWidth: 1, borderColor: 'rgba(0,212,255,0.25)', borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.md },
   logTitle: { ...Typography.body, fontWeight: '700', marginBottom: 2 },
   t30: { fontSize: 26, fontWeight: '900', color: Colors.gold, marginVertical: 4 },
-  useBtn: { marginTop: Spacing.md, borderWidth: 1, borderColor: 'rgba(0,212,255,0.4)', backgroundColor: 'rgba(0,212,255,0.08)', borderRadius: Radii.md, paddingVertical: 11, alignItems: 'center' },
+  useBtn: { minHeight: 44, justifyContent: 'center', marginTop: Spacing.md, borderWidth: 1, borderColor: 'rgba(0,212,255,0.4)', backgroundColor: 'rgba(0,212,255,0.08)', borderRadius: Radii.md, paddingVertical: 11, alignItems: 'center' },
   useTxt: { color: Colors.cyan, fontWeight: '800', fontSize: 13 },
   addLabel: { ...Typography.label, marginBottom: 8 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: { borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 11, paddingVertical: 6, backgroundColor: Colors.bg },
+  chip: { minHeight: 44, justifyContent: 'center', borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 11, paddingVertical: 6, backgroundColor: Colors.bg },
   chipTxt: { fontSize: 11, color: Colors.textMuted, fontWeight: '600' },
 });
 

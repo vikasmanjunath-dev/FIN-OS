@@ -12,10 +12,11 @@ import { LANGUAGES, setLang, useLang } from '@/lib/i18n';
 import { eraseThisPhone } from '@/lib/eraseDeps';
 import { reopenOnboarding } from '@/lib/onboardingStorage';
 import { appInfo } from '@/lib/appInfo';
+import { loadPersonaPrefs, savePersonaPrefs } from '@/lib/personaStorage';
 import { getThemeChoice, setThemeChoice, useMode, type ThemeChoice } from '@/lib/theme';
 import { DEFAULT_PREFS, HOURS, type ReminderPrefs } from '@/lib/reminders';
 import { loadPrefs, savePrefs, syncReminders } from '@/lib/remindersStorage';
-import { getPermission, requestPermission, cancelAll, type Permission } from '@/lib/remindersNative';
+import { getPermission, requestPermission, cancelAll } from '@/lib/remindersNative';
 import { NOTIFICATIONS_COPY, enableRemindersFlow } from '@/lib/permissions';
 import { confirmPermission } from '@/lib/permissionPrompt';
 
@@ -41,10 +42,11 @@ export default function SettingsScreen() {
   const [hostIP, setHostIP]       = useState('');
   const [saving, setSaving]       = useState(false);
   const [rem, setRem]             = useState<ReminderPrefs>({ ...DEFAULT_PREFS });
-  const [perm, setPerm]           = useState<Permission>('undetermined');
   const [remMsg, setRemMsg]       = useState('');
 
-  React.useEffect(() => { loadPrefs().then(setRem); getPermission().then(setPerm); }, []);
+  const [stripHidden, setStripHidden] = useState(false);
+  React.useEffect(() => { loadPrefs().then(setRem); loadPersonaPrefs().then(p => setStripHidden(p.stripHidden)).catch(() => {}); }, []);
+  const toggleStrip = () => { const next = !stripHidden; setStripHidden(next); savePersonaPrefs({ stripHidden: next }); };
 
   const changeRem = async (next: ReminderPrefs) => {
     setRem(next);
@@ -61,7 +63,6 @@ export default function SettingsScreen() {
       current: getPermission, request: requestPermission,
       enable: async () => { await changeRem({ ...rem, enabled: true }); },
     });
-    setPerm(await getPermission());
     if (r === 'unsupported') setRemMsg('Reminders are only available in the phone app.');
     else if (r === 'denied') setRemMsg('Notifications are turned off for FIN·OS. Turn them on in your phone\'s settings, then try again.');
   };
@@ -155,6 +156,19 @@ export default function SettingsScreen() {
                 </TouchableOpacity>
               ))}
             </View>
+          }
+        />
+      </View>
+
+      <View style={[styles.card, { marginTop: Spacing.md }]}>
+        <SettingRow
+          label="Facts strip on Home"
+          sub="Savings rate, net worth and Money Score, shown only when you have recorded them. Hide it with the cross on Home, or here."
+          right={
+            <TouchableOpacity accessibilityRole="switch" accessibilityState={{ checked: !stripHidden }} accessibilityLabel="Show the facts strip on Home"
+              style={[styles.syncBtn, !stripHidden && { backgroundColor: 'rgba(0,212,255,0.18)', borderColor: Colors.cyan }]} onPress={toggleStrip}>
+              <Text style={styles.syncBtnTxt}>{stripHidden ? 'Off' : 'On'}</Text>
+            </TouchableOpacity>
           }
         />
       </View>

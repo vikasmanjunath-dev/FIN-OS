@@ -43,6 +43,7 @@ export interface TrackerData {
   expense: number;
   aaIncome: number;
   aaExpense: number;
+  budgetExpense: number;
   // safety net / planning
   emergencyFund: number;
   emergencyTarget: number; // months: 3 | 6 | 12
@@ -58,7 +59,7 @@ export interface TrackerData {
   transactions: IndexedTxn[];
   budgetLimits: Record<string, number>;
   // retirement & protection (details behind the epf / nps / ppf values above)
-  epfBasic: number; epfDoj: string; epfRetireAge: number;
+  epfBasic: number; epfDoj: string; epfDob: string; epfRetireAge: number;
   npsTier1: number; npsTier2: number; npsDob: string; npsEmp: number; npsEr: number;
   npsEq: number; npsCorp: number; npsGsec: number; npsSlab: number;
   ppfAccounts: SavingsAccount[];
@@ -72,9 +73,9 @@ export interface TrackerData {
 export const EMPTY_TRACKER_DATA: TrackerData = {
   name: '', portfolio: 0, mfImport: 0, sipValue: 0, fd: 0, gold: 0, property: 0, crypto: 0, cash: 0, other: 0,
   epf: 0, nps: 0, ppf: 0, homeLoan: 0, carLoan: 0, personalLoan: 0, creditCard: 0, otherLiability: 0,
-  income: 0, expense: 0, aaIncome: 0, aaExpense: 0, emergencyFund: 0, emergencyTarget: 6, goals: [],
+  income: 0, expense: 0, aaIncome: 0, aaExpense: 0, budgetExpense: 0, emergencyFund: 0, emergencyTarget: 6, goals: [],
   streak: 0, learnedModules: 0, used80c: 0, monthlySip: 0, retireCorpus: 0, retireGap: 1, transactions: [], budgetLimits: {},
-  epfBasic: 0, epfDoj: '', epfRetireAge: EPF.RETIRE_AGE_DEFAULT,
+  epfBasic: 0, epfDoj: '', epfDob: '', epfRetireAge: EPF.RETIRE_AGE_DEFAULT,
   npsTier1: 0, npsTier2: 0, npsDob: '', npsEmp: 0, npsEr: 0, npsEq: 0, npsCorp: 0, npsGsec: 0, npsSlab: 30,
   ppfAccounts: [], policies: [], age: 0, dna: null,
 };
@@ -195,8 +196,9 @@ export interface Emergency {
 
 export function computeEmergency(d: TrackerData): Emergency {
   const target = [3, 6, 12].includes(d.emergencyTarget) ? d.emergencyTarget : 6;
-  const monthlyExpense = d.expense || d.aaExpense || 0;
-  const fund = Math.max(0, d.emergencyFund);
+  const positiveFinite = (value: number) => Number.isFinite(value) && value > 0 ? value : 0;
+  const monthlyExpense = positiveFinite(d.expense) || positiveFinite(d.aaExpense) || positiveFinite(d.budgetExpense);
+  const fund = positiveFinite(d.emergencyFund);
   const targetAmount = monthlyExpense * target;
   const pct = targetAmount > 0 ? Math.min((fund / targetAmount) * 100, 100) : 0;
   const covered = monthlyExpense > 0 ? Math.round((fund / monthlyExpense) * 10) / 10 : 0;
@@ -248,17 +250,29 @@ export function computeGoals(goals: Goal[], now = new Date()): { items: GoalView
 export interface Pillar {
   name: string; emoji: string; score: number; max: number; pct: number; grade: string;
   headline: string; tips: string[];
-  /** true when the app has no way to record this signal yet (so a low score isn't the user's fault) */
+  /** true when nothing is recorded for this area: it adds no points and is left out of the total (same as `!hasData`) */
   untracked?: boolean;
+  /** true when the person has recorded what this area needs; false means "Not recorded", never a guessed value */
+  hasData: boolean;
 }
 
 export interface HealthScore {
-  total: number;
-  tier: 'ELITE' | 'GREAT' | 'GOOD' | 'FAIR' | 'DANGER';
+  /** 0-100 over the areas that have recorded data only; null when fewer than HEALTH_MIN_AREAS are recorded ("not enough data") */
+  total: number | null;
+  tier: 'ELITE' | 'GREAT' | 'GOOD' | 'FAIR' | 'DANGER' | null;
   tierEmoji: string;
   headline: string;
   pillars: Pillar[];
+  /** names of the areas that have data, and of those left out because nothing is recorded */
+  measured: string[];
+  missing: string[];
+  /** raw points and maximum over the measured areas (total = points / maxPoints x 100) */
+  points: number;
+  maxPoints: number;
 }
+
+/** A score is shown only when at least this many of the seven areas have recorded data (one area alone would read as "your whole picture"). */
+export const HEALTH_MIN_AREAS = 2;
 
 const SAVINGS_TARGET = 25; // % — the website's default
 
@@ -283,12 +297,13 @@ export function computeHealth(d: TrackerData, now = new Date()): HealthScore {
   // 3. Goals (15)
   const goalPts = goalItems.length ? Math.min(15, Math.round(avgProgress * 0.15)) : 0;
 
-  // 4. Behavioural (15) — the Discipline score of the Financial DNA quiz; without the quiz the website assumes a neutral 50
-  const behaviorPts = behaviourPoints(d.dna ? d.dna[3] : 50);
+  // 4. Behavioural (15) — the Discipline score of the Financial DNA quiz. The website assumes a neutral 50 without the quiz; the phone
+  //    does not: no quiz, no points, and the area is left out of the score.
+  const behaviorPts = d.dna ? behaviourPoints(d.dna[3]) : 0;
 
-  // 5. Wealth building (15)
-  const income = budget.income || 60000; // website falls back to ₹60k when income is unknown
-  const wealthRatio = nw.netWorth > 0 ? nw.netWorth / (income * 12) : 0;
+  // 5. Wealth building (15) — needs a recorded income; the website's 60,000 stand-in is not used
+  const income = budget.income;
+  const wealthRatio = nw.netWorth > 0 && income > 0 ? nw.netWorth / (income * 12) : 0;
   const wealthBase = Math.max(0, Math.min(8, Math.round(wealthRatio * 2)));
   const diversity = [d.portfolio, d.mfImport, d.sipValue, d.fd, d.gold, d.property, d.epf, d.nps, d.ppf, d.crypto].filter(v => v > 0).length;
   const divBonus = diversity >= 5 ? 4 : diversity >= 4 ? 3 : diversity >= 3 ? 2 : diversity >= 2 ? 1 : 0;
@@ -305,23 +320,42 @@ export function computeHealth(d: TrackerData, now = new Date()): HealthScore {
   const recentTxns = d.transactions.filter(t => t.date >= ymd(since) && t.date <= ymd(now)).length;
   const spendingPts = recentTxns > 10 ? 10 : recentTxns > 4 ? 7 : recentTxns > 0 ? 4 : 0;
 
-  const total = savingsPts + efPts + goalPts + behaviorPts + wealthPts + engagePts + spendingPts;
-  const tier: HealthScore['tier'] = total >= 80 ? 'ELITE' : total >= 65 ? 'GREAT' : total >= 50 ? 'GOOD' : total >= 35 ? 'FAIR' : 'DANGER';
-  const tierEmoji = { ELITE: '🏆', GREAT: '🌟', GOOD: '✅', FAIR: '⚠️', DANGER: '🚨' }[tier];
-  const headline = {
+  // Which areas have anything recorded. An area with nothing recorded adds no points and is not counted out of its maximum.
+  const has = {
+    savings: budget.known,
+    emergency: ef.monthlyExpense > 0 && ef.fund > 0,
+    goals: goalItems.length > 0,
+    behaviour: !!d.dna,
+    wealth: income > 0 && (nw.totalAssets > 0 || nw.totalLiabilities > 0),
+    engage: d.learnedModules > 0,          // the streak counts the app being opened, not something recorded about money
+    spending: recentTxns > 0,
+  };
+  const raw = { savings: savingsPts, emergency: efPts, goals: goalPts, behaviour: behaviorPts, wealth: wealthPts, engage: engagePts, spending: spendingPts };
+  const maxOf = { savings: 20, emergency: 15, goals: 15, behaviour: 15, wealth: 15, engage: 10, spending: 10 };
+  const keys = Object.keys(raw) as (keyof typeof raw)[];
+  const measuredKeys = keys.filter(k => has[k]);
+  const points = measuredKeys.reduce((a, k) => a + raw[k], 0);
+  const maxPoints = measuredKeys.reduce((a, k) => a + maxOf[k], 0);
+  const enough = measuredKeys.length >= HEALTH_MIN_AREAS;
+  const total = enough ? Math.round((points / maxPoints) * 100) : null;
+  const tier: HealthScore['tier'] = total == null ? null : total >= 80 ? 'ELITE' : total >= 65 ? 'GREAT' : total >= 50 ? 'GOOD' : total >= 35 ? 'FAIR' : 'DANGER';
+  const tierEmoji = tier ? { ELITE: '🏆', GREAT: '🌟', GOOD: '✅', FAIR: '⚠️', DANGER: '🚨' }[tier] : '';
+  const headline = tier ? {
     ELITE: 'Exceptional wealth behaviour — top 10% of Indian investors',
     GREAT: 'Strong financial discipline — keep building momentum',
     GOOD: 'Solid foundation — a few tweaks can make a big difference',
     FAIR: 'Room to grow — focus on savings rate and emergency fund',
     DANGER: 'Critical gaps — start with your emergency fund this month',
-  }[tier];
+  }[tier] : 'Not enough data yet. Record your income and spending, or a goal or what you own, and a score appears.';
 
   const grade = (pts: number, max: number) => { const r = pts / max; return r >= 0.8 ? 'A+' : r >= 0.6 ? 'A' : r >= 0.4 ? 'B' : r >= 0.2 ? 'C' : 'D'; };
-  const pillar = (name: string, emoji: string, score: number, max: number, headline: string, tips: string[], untracked = false): Pillar =>
-    ({ name, emoji, score, max, pct: Math.round((score / max) * 100), grade: grade(score, max), headline, tips: tips.slice(0, 1), untracked });
+  const pillar = (name: string, emoji: string, score: number, max: number, hasData: boolean, headline: string, tips: string[]): Pillar =>
+    hasData
+      ? { name, emoji, score, max, pct: Math.round((score / max) * 100), grade: grade(score, max), headline, tips: tips.slice(0, 1), untracked: false, hasData }
+      : { name, emoji, score: 0, max, pct: 0, grade: '—', headline, tips: tips.slice(0, 1), untracked: true, hasData };
 
   const pillars: Pillar[] = [
-    pillar('Savings discipline', '💰', savingsPts, 20,
+    pillar('Savings discipline', '💰', savingsPts, 20, has.savings,
       !budget.known ? 'Add your monthly income and spend'
         : budget.savingsRate >= 25 ? `Saving ${budget.savingsRate}% — excellent${s80c ? ' + 80C ✓' : ''}`
         : budget.savingsRate >= 15 ? `Saving ${budget.savingsRate}% — good${s80c ? ' + 80C invested' : ', push to 25%'}`
@@ -330,35 +364,39 @@ export function computeHealth(d: TrackerData, now = new Date()): HealthScore {
         ...(!budget.known ? ['Enter your monthly income and spend in the Budget tracker'] : budget.savingsRate < 20 ? ['Automate a SIP on salary day — pay yourself first'] : []),
         ...(d.used80c < 150000 ? [`80C gap: ₹${Math.round(150000 - d.used80c).toLocaleString('en-IN')} — ELSS/PPF can save tax`] : []),
       ]),
-    pillar('Emergency fund', '🛡️', efPts, 15,
-      (ef.monthlyExpense <= 0 ? 'Add monthly spend to measure cover' : efMonths >= 6 ? 'Full 6-month cover' : `${efMonths.toFixed(1)} months of expenses covered`)
-        + (insBonus > 0 ? ' · insurance ✓' : ' · no insurance'),
-      [
+    pillar('Emergency fund', '🛡️', efPts, 15, has.emergency,
+      !has.emergency ? 'Not recorded: add your monthly spend and emergency savings'
+        : (efMonths >= 6 ? 'Full 6-month cover' : `${efMonths.toFixed(1)} months of expenses covered`) + (insBonus > 0 ? ' · insurance ✓' : ' · no insurance'),
+      !has.emergency ? ['Record your monthly spend and what you keep aside for emergencies'] : [
         ...(efMonths < 3 ? ['Build 3 months of expenses before investing more'] : efMonths < 6 ? ['Extend your fund to 6 months of expenses'] : []),
         ...(!hasHealth ? ['Get health insurance — the biggest protection gap for Indian families'] : []),
       ]),
-    pillar('Goals', '🎯', goalPts, 15,
+    pillar('Goals', '🎯', goalPts, 15, has.goals,
       goalItems.length === 0 ? 'Set financial goals to track progress' : `${goalItems.length} goal${goalItems.length === 1 ? '' : 's'} · ${Math.round(avgProgress)}% funded on average`,
       goalItems.length === 0 ? ['Add your first goal — a house, education, retirement'] : []),
-    pillar('Behaviour', '🧠', behaviorPts, 15,
-      d.dna ? `Money discipline ${Math.round(d.dna[3])}/100 from your Financial DNA quiz` : 'Neutral baseline — take the Financial DNA quiz to personalise',
-      d.dna && d.dna[3] < 50 ? ['Automate saving and investing so it does not depend on mood'] : [], !d.dna),
-    pillar('Wealth building', '📈', wealthPts, 15,
-      nw.netWorth > 0 ? `${wealthRatio.toFixed(1)}× annual income · ${diversity} asset class${diversity === 1 ? '' : 'es'}${retireBonus ? ' · retirement on track ✓' : ''}` : 'Start building net worth',
-      [
+    pillar('Behaviour', '🧠', behaviorPts, 15, has.behaviour,
+      d.dna ? `Money discipline ${Math.round(d.dna[3])}/100 from your Financial DNA quiz` : 'Not recorded: take the Financial DNA quiz',
+      d.dna && d.dna[3] < 50 ? ['Automate saving and investing so it does not depend on mood'] : []),
+    pillar('Wealth building', '📈', wealthPts, 15, has.wealth,
+      !has.wealth ? 'Not recorded: add your income and what you own or owe'
+        : nw.netWorth > 0 ? `${wealthRatio.toFixed(1)}× annual income · ${diversity} asset class${diversity === 1 ? '' : 'es'}${retireBonus ? ' · retirement on track ✓' : ''}` : 'Start building net worth',
+      !has.wealth ? ['Add your income and your assets and loans in Net worth'] : [
         ...(wealthRatio < 2 ? ['Aim for net worth of 5× annual income by 40'] : []),
         ...(diversity < 3 ? ['Spread across equity, funds, fixed income and gold'] : []),
       ]),
-    pillar('Knowledge & engagement', '📚', engagePts, 10,
+    pillar('Knowledge & engagement', '📚', engagePts, 10, has.engage,
       `${d.learnedModules} module${d.learnedModules === 1 ? '' : 's'} · ${d.streak} day streak`,
       d.learnedModules < 5 ? ['Complete 5 learning modules to unlock personalized insights']
         : d.streak < 7 ? ['Open FIN·OS daily — a 7-day streak earns points'] : []),
-    pillar('Spending awareness', '🔍', spendingPts, 10,
+    pillar('Spending awareness', '🔍', spendingPts, 10, has.spending,
       recentTxns > 0 ? `${recentTxns} transaction${recentTxns === 1 ? '' : 's'} logged in the last 30 days` : 'No spending data — start logging',
       recentTxns < 5 ? ['Log expenses as you spend — awareness is the first step to control'] : []),
   ];
 
-  return { total, tier, tierEmoji, headline, pillars };
+  return {
+    total, tier, tierEmoji, headline, pillars, points, maxPoints,
+    measured: pillars.filter(p => p.hasData).map(p => p.name), missing: pillars.filter(p => !p.hasData).map(p => p.name),
+  };
 }
 
 /** The single most useful next action: the tracked pillar with the most room to improve. */
@@ -394,10 +432,10 @@ function ageFromDob(dob: string, now: Date): number | null {
 }
 
 export function computeRetirement(d: TrackerData, now = new Date()) {
-  const epf = computeEpf({ balance: d.epf, basic: d.epfBasic, doj: d.epfDoj, retireAge: d.epfRetireAge || EPF.RETIRE_AGE_DEFAULT }, now);
+  const epf = computeEpf({ balance: d.epf, basic: d.epfBasic, doj: d.epfDoj, dob: d.epfDob, retireAge: d.epfRetireAge || EPF.RETIRE_AGE_DEFAULT }, now);
   const nps = computeNps({ tier1: d.npsTier1, tier2: d.npsTier2, dob: d.npsDob, emp: d.npsEmp, er: d.npsEr, equityPct: d.npsEq, corpPct: d.npsCorp, gsecPct: d.npsGsec, slab: d.npsSlab }, now);
   const savings = savingsTotals(d.ppfAccounts);
-  const age = ageFromDob(d.npsDob, now) ?? (d.age > 0 ? d.age : 30);
+  const age = ageFromDob(d.npsDob, now) ?? (d.age > 0 ? d.age : 0);   // 0 = not recorded; never an assumed age
   const coverage = computeCoverage(d.policies, d.income || d.aaIncome || 0, age);
   // Your own 80C so far, estimated from trackers: PPF-type deposits (capped) + the employee EPF share
   const suggested80c = Math.min(150000, Math.min(savings.c80c, 150000) + epfContributionsAnnual(d));

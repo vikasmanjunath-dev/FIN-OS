@@ -71,7 +71,7 @@ export default function GoalsScreen() {
           <Card key={g.id} accent={done ? Colors.teal : Colors.purple}>
             <View style={s.head}>
               <Text style={s.icon}>{iconFor(g.name)}</Text>
-              <View style={{ flex: 1 }}>
+              <View style={{ flex: 1, paddingRight: Spacing.sm }}>
                 <Text style={s.name}>{g.name}</Text>
                 <Text style={Typography.caption}>
                   {done ? 'Goal reached 🎉' : g.monthsLeft != null
@@ -118,6 +118,11 @@ export default function GoalsScreen() {
         <Text style={{ color: Colors.textPrimary, fontWeight: '800', fontSize: 13 }}>Which goal first? →</Text>
         <Text style={Typography.caption}>Inflation-adjusted SIP for each goal, ranked by urgency, and whether you can afford them all.</Text>
       </TouchableOpacity>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Open the life goals planner" onPress={() => router.push('/plan/lifegoals' as any)}
+        style={{ borderWidth: 1, borderColor: Colors.cyan, borderRadius: Radii.md, padding: Spacing.md, marginTop: Spacing.md }}>
+        <Text style={{ color: Colors.textPrimary, fontWeight: '800', fontSize: 13 }}>Plan your life goals →</Text>
+        <Text style={Typography.caption}>Plan several goals together from the amounts and years you enter, with what you have recorded filled in.</Text>
+      </TouchableOpacity>
     </TrackerScreen>
   );
 }
@@ -128,10 +133,10 @@ const s = StyleSheet.create({
   icon: { fontSize: 24, marginRight: Spacing.sm },
   name: { ...Typography.body, fontWeight: '700' },
   pct: { fontSize: 18, fontWeight: '900' },
-  del: { color: Colors.red, fontSize: 12, fontWeight: '700' },
+  del: { color: Colors.red, fontSize: 12, fontWeight: '700', minHeight: 44, minWidth: 44, textAlignVertical: 'center', lineHeight: 44 },
   lbl: { ...Typography.label, marginTop: Spacing.md, marginBottom: 6 },
-  input: { backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 10, color: Colors.textPrimary, fontSize: 14 },
+  input: { minHeight: 44, backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 10, color: Colors.textPrimary, fontSize: 14 },
   error: { color: Colors.gold, fontSize: 12, marginTop: Spacing.sm },
-  addBtn: { backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 13, alignItems: 'center', marginTop: Spacing.md },
+  addBtn: { minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 13, alignItems: 'center', marginTop: Spacing.md },
   addTxt: { color: Colors.bg, fontWeight: '800', fontSize: 14 },
 });

@@ -18,7 +18,7 @@ Mark each failing line with the screen, device model and OS version. Start a fre
 | D-3 | Themed icon (Android 13+) | Wallpaper & style > Themed icons | A single-colour hexagon, recognisable |
 | D-4 | Splash | Cold start from killed state | Dark #080B14 background, mark centred, no white flash before it, no stretched image. Android 12+: the system splash shows the icon in a circle |
 | D-5 | Notification icon | Trigger a reminder (see C-1) | A white hexagon outline in the status bar, tinted by the system, not a solid white square |
-| D-6 | App name and version | Home screen label; Settings > About | "FIN·OS" renders the middle dot; Settings shows v1.0.0 (hard-coded: expected to match `app.json`) |
+| D-6 | App name and version | Home screen label; Settings > About | "FIN·OS" renders the middle dot; Settings shows the version read from the native config (`lib/appInfo.ts`, `expo-constants`): v1.0.0 for this build, not "(version not available)". Bump `app.json` `version` for a test build and confirm the number follows |
 | D-7 | Install size and first-launch time | Play / App Store size; stopwatch cold start to dashboard | Record both. Bundle is about 3.5 MB of Hermes bytecode (measured 14 Oct); cold start under 3 s on the low-end phone is the target, write the real number |
 
 ## B. Files, share, links
@@ -64,7 +64,7 @@ Mark each failing line with the screen, device model and OS version. Start a fre
 
 | ID | Check | How | Expected |
 | --- | --- | --- | --- |
-| D-40 | Largest text | Android Settings > Display size and text > Font size max and Display size max; iOS Larger Accessibility Sizes max (about 310%) | Every screen scrolls; no clipped buttons; amounts do not overlap labels. **Known**: right-aligned inputs on Budget and Goals clip long values in the web preview: check them first |
+| D-40 | Largest text | Android Settings > Display size and text > Font size max and Display size max; iOS Larger Accessibility Sizes max (about 310%) | Every screen scrolls; no clipped buttons; amounts do not overlap labels. Right-aligned inputs on Budget and Goals used to clip long values; fixed 17 Oct (`minWidth: 0` in `TrackerUI`, checked in the web preview at 430 px with 7-digit amounts): confirm on a device at the largest font, and check the Portfolio title no longer breaks mid-word beside its three buttons |
 | D-41 | TalkBack (Android) | Settings > Accessibility > TalkBack; swipe through Home, Budget, Money Score, Tax planner | Every control has a spoken name and role; order is sensible; charts have a text equivalent; no "unlabelled button" |
 | D-42 | VoiceOver (iOS) | Same screens | Same; the tab bar announces the selected tab; the Arya button has a name |
 | D-43 | Switch access / keyboard | Bluetooth keyboard: Tab through a form | Focus order is logical; Enter submits |
@@ -107,6 +107,24 @@ Mark each failing line with the screen, device model and OS version. Start a fre
 | D-75 | Locale and numbers | System language Hindi/English-US/English-IN: Indian digit grouping (1,23,456) is used, not the system grouping |
 | D-76 | Install over an older build | Update from the previous preview build: data kept, no migration crash |
 | D-77 | Restore from phone-to-phone backup | Android auto-backup is off (`allowBackup: false`); iCloud backup of app data: check what is included (AsyncStorage is) and whether that matches the privacy statement |
+
+## I. Screens and flows added after 14 Oct (built and web-preview checked only; nothing here has run on a device)
+
+| ID | Check | How | Expected |
+| --- | --- | --- | --- |
+| D-80 | Welcome tour | Fresh install, first launch; then Settings > Welcome tour | Opens by itself at most twice, never on a phone that already holds data; Skip leaves nothing written; answers write only what was answered |
+| D-81 | Crash note | Settings > Diagnostics after forcing an error (debug build) or a real one | A redacted note (no amounts, e-mails, links); Share sends exactly the text shown; screen counts are off until switched on. A fatal native crash may leave no note: record whether one appeared |
+| D-82 | Feedback | Money Score result and Settings > Feedback: Yes, write a line, Save | "Saved on this phone. Nothing was sent."; Share opens the share sheet with the redacted text; Delete removes it |
+| D-83 | Home facts strip | Home with income and spending recorded, a Money Score worked out, two days in a row | Greeting with the first name only when a name is recorded (no stand-in name), "N-day streak" from day two, chips only for recorded facts; the cross hides the strip, Settings > Facts strip on Home brings it back |
+| D-84 | Learn | Learn tile: open a lesson, mark it learned, kill and relaunch | Progress kept; offline works (lessons are bundled); Home tile count matches |
+| D-85 | PULSE and Arya memory | PULSE, then Settings > What Arya remembers: add a note, turn memory off, delete all | Memory and life events are off until switched on; "what is sent" matches what is shown; delete empties it; offline Arya still answers a question about your own figures |
+| D-86 | Insurance hub | Insurance tracker > Insurance guides; record a policy first | Hub lists it against the cover types; answering questions persists; nothing ranks or recommends a product |
+| D-87 | Funds and market research (needs an HTTPS backend) | Markets > Mutual fund search, Market research, Watchlist row > Research | With a reachable backend: results with the date of the data; without one: a plain offline message and the last saved answer marked with its time; no spinner that never ends |
+| D-88 | Calendar export | Settings > Your dates: add a monthly date, Export | Share sheet gets an .ics; the phone's calendar app imports it with the repeat; on Android the file is removed at the next launch |
+| D-89 | Planners | Spending forecast, Life goals, Growth projection, Couple finance, Benchmarks | Each shows "Not recorded" where data is missing, never a default; couple figures are not synced (they are in your own export and backup) |
+| D-90 | Erase everything | Privacy > erase after setting reminders, a lock, and signing in | Signed out first, scheduled and delivered notifications cleared, cache files gone, lock removed, first-run state back |
+| D-91 | Unreadable stored value | Not testable on a device without a corrupted store: covered by `corruptData.test.mts` (170 tests) | Listed so nobody looks for it on a device |
+| D-92 | Hindi first pass | Settings > Language > Hindi, open the screens above | No clipped text; the new strings are a **first pass**: a native reader must sign them off (PENDING U10) |
 
 ## Sign-off
 

@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } 
 import { router } from 'expo-router';
 import { useTrackers } from '@/hooks/useTrackers';
 import { POLICY_META, PolicyType, Policy, renewalDays, validDate } from '@/lib/retirement';
+import { parseTrackerMoney } from '@/lib/trackerInput';
 import { TrackerScreen, Card, SectionLabel, Bar, Stat, inr, inrShort } from '@/components/TrackerUI';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 
@@ -26,13 +27,13 @@ export default function InsuranceScreen() {
   const reset = () => { setProvider(''); setSum(''); setPremium(''); setRenewal(''); setNumber(''); setEditing(null); setError(null); setType('health'); };
 
   const submit = () => {
-    const s = parseFloat(sum.replace(/,/g, '')), p = premium ? parseFloat(premium.replace(/,/g, '')) : 0;
+    const cover = parseTrackerMoney(sum), annual = parseTrackerMoney(premium);
     if (!provider.trim()) return setError('Enter the insurance company name.');
-    if (!(s > 0)) return setError('Enter the sum assured (cover amount).');
-    if (!(p >= 0)) return setError('Premium cannot be negative.');
+    if (!cover.ok || !(cover.value > 0)) return setError(cover.ok ? 'Enter the sum assured (cover amount).' : `Sum assured: ${cover.error}`);
+    if (!annual.ok) return setError(`Annual premium: ${annual.error}`);
     if (!validDate(renewal, { optional: true, allowFuture: true })) return setError('Renewal date should look like 2027-03-15 (or leave it blank).');
     setError(null);
-    const base = { type, provider: provider.trim().slice(0, 60), sum_assured: s, annual_premium: p, renewal_date: renewal.trim(), policy_number: number.trim().slice(0, 40) };
+    const base = { type, provider: provider.trim().slice(0, 60), sum_assured: cover.value, annual_premium: annual.value, renewal_date: renewal.trim(), policy_number: number.trim().slice(0, 40) };
     if (editing) save({ policies: policies.map(x => (x.id === editing.id ? { ...x, ...base } : x)) });
     else save({ policies: [...policies, { id: `p_${Date.now().toString(36)}`, notes: '', added_at: new Date().toISOString(), ...base }] });
     reset();
@@ -152,6 +153,11 @@ export default function InsuranceScreen() {
         <Text style={{ color: Colors.textPrimary, fontWeight: '800', fontSize: 13 }}>How much life cover do you need? →</Text>
         <Text style={Typography.caption}>Human life value and income replacement, against what you already hold.</Text>
       </TouchableOpacity>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Open the insurance hub" onPress={() => router.push('/insurance' as any)}
+        style={{ borderWidth: 1, borderColor: Colors.cyan, borderRadius: Radii.md, padding: Spacing.md, marginTop: Spacing.md }}>
+        <Text style={{ color: Colors.textPrimary, fontWeight: '800', fontSize: 13 }}>Insurance guides and checks →</Text>
+        <Text style={Typography.caption}>What each kind of cover is for, and questions to ask about the policies you recorded.</Text>
+      </TouchableOpacity>
     </TrackerScreen>
   );
 }
@@ -163,17 +169,17 @@ const s = StyleSheet.create({
   gapIcon: { fontSize: 20 },
   gapTitle: { fontSize: 13, fontWeight: '800', marginBottom: 2 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: { borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 11, paddingVertical: 7, backgroundColor: Colors.bg },
+  chip: { minHeight: 44, justifyContent: 'center', borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 11, paddingVertical: 7, backgroundColor: Colors.bg },
   chipTxt: { fontSize: 11, color: Colors.textMuted, fontWeight: '600' },
   lbl: { ...Typography.label, marginTop: Spacing.md, marginBottom: 6 },
-  input: { backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 10, color: Colors.textPrimary, fontSize: 14 },
+  input: { minHeight: 44, backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 10, color: Colors.textPrimary, fontSize: 14 },
   error: { color: Colors.red, fontSize: 12, marginTop: Spacing.md, lineHeight: 17 },
-  addBtn: { backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 13, alignItems: 'center', marginTop: Spacing.md },
+  addBtn: { minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 13, alignItems: 'center', marginTop: Spacing.md },
   addTxt: { color: Colors.bg, fontWeight: '800', fontSize: 14 },
-  row: { flexDirection: 'row', alignItems: 'center' },
-  icon: { fontSize: 24, width: 38 },
+  row: { minHeight: 44, flexDirection: 'row', alignItems: 'center' },
+  icon: { fontSize: 24, minWidth: 38, flexShrink: 0 },
   name: { ...Typography.body, fontWeight: '700' },
   sum: { fontSize: 15, fontWeight: '900', color: Colors.textPrimary },
   renew: { fontSize: 12, fontWeight: '700', marginTop: Spacing.sm },
-  del: { color: Colors.red, fontSize: 12, fontWeight: '700' },
+  del: { color: Colors.red, fontSize: 12, fontWeight: '700', minHeight: 44, minWidth: 44, textAlignVertical: 'center', lineHeight: 44 },
 });

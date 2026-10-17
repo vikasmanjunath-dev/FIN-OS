@@ -103,13 +103,13 @@ export default function PortfolioScreen() {
       >
         {/* ── Header ── */}
         <View style={styles.header}>
-          <View style={{ flex: 1 }}>
+          <View style={styles.headerTitle}>
             <Text style={Typography.h2}>Portfolio</Text>
             <Text style={Typography.caption}>
               {!loaded ? 'Loading…'
-                : pricing ? 'Refreshing live prices…'
+                : pricing ? 'Refreshing market prices…'
                 : priceError ? priceError
-                : rows.length ? `Live prices${priceDate ? ` · ${priceDate}` : ''} · pull to refresh`
+                : rows.length ? `Prices last checked${priceDate ? ` · ${priceDate}` : ''} · pull to refresh`
                 : 'Add your first holding to get started'}
             </Text>
           </View>
@@ -129,7 +129,7 @@ export default function PortfolioScreen() {
             <Text style={styles.emptyIcon}>📊</Text>
             <Text style={styles.emptyTitle}>No holdings yet</Text>
             <Text style={styles.emptyText}>
-              Add the stocks and mutual funds you own. FIN·OS fetches live prices and works out your value, returns, SIPs and insights on this device.
+              Add the stocks and mutual funds you own. FIN·OS fetches market prices and works out your value, returns, SIPs and insights on this device. Prices may be delayed or unavailable.
             </Text>
             <TouchableOpacity accessibilityRole="button" style={styles.emptyBtn} onPress={() => setAdding(true)}>
               <Text style={styles.emptyBtnTxt}>Add a holding</Text>
@@ -234,6 +234,14 @@ export default function PortfolioScreen() {
                 <TouchableOpacity accessibilityRole="button" style={styles.deepDiveBtn} onPress={() => router.push('/arya')}>
                   <Text style={styles.deepDiveBtnText}>Discuss this with Arya AI →</Text>
                 </TouchableOpacity>
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel="Open the growth projection. What your holdings could grow to at a return you choose" style={styles.growthBtn} onPress={() => router.push('/plan/growth' as any)}>
+                  <Text style={styles.growthBtnText}>Project how this could grow →</Text>
+                  <Text style={styles.growthBtnSub}>A projection at a return you choose, not a forecast</Text>
+                </TouchableOpacity>
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel="Open portfolio analytics. Sectors, risk, simulation and research for your holdings" style={styles.growthBtn} onPress={() => router.push('/portfolio/analytics' as any)}>
+                  <Text style={styles.growthBtnText}>Portfolio analytics →</Text>
+                  <Text style={styles.growthBtnSub}>Sectors, risk, simulation and research, from real price history</Text>
+                </TouchableOpacity>
               </View>
             )}
             {tab === 'analysis' && <XirrCard holdings={rows} />}
@@ -249,7 +257,9 @@ export default function PortfolioScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bg },
   content: { paddingBottom: 80 },
-  header: { padding: Spacing.lg, paddingTop: Spacing.xxl, flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  // Wraps on narrow phones so the title never breaks mid-word ("Portfoli/o") beside the three buttons
+  header: { padding: Spacing.lg, paddingTop: Spacing.xxl, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: Spacing.sm },
+  headerTitle: { flex: 1, flexBasis: 150, minWidth: 150 },
 
   summaryCard: { marginHorizontal: Spacing.lg, borderRadius: Radii.xl, padding: Spacing.lg, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden', marginBottom: Spacing.md },
   summaryBar: { position: 'absolute', top: 0, left: 0, right: 0, height: 2 },
@@ -301,6 +311,9 @@ const styles = StyleSheet.create({
   insightIcon: { fontSize: 14, marginTop: 1 },
   insightText: { ...Typography.caption, flex: 1, lineHeight: 17 },
   deepDiveBtn: { marginTop: Spacing.md, paddingVertical: Spacing.sm, alignItems: 'center', backgroundColor: 'rgba(123,47,247,0.1)', borderWidth: 1, borderColor: 'rgba(123,47,247,0.25)', borderRadius: Radii.md },
+  growthBtn: { marginTop: Spacing.sm, paddingVertical: Spacing.sm, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,212,255,0.3)', backgroundColor: 'rgba(0,212,255,0.06)', borderRadius: Radii.md },
+  growthBtnText: { fontSize: 13, fontWeight: '700', color: Colors.cyan },
+  growthBtnSub: { ...Typography.caption, marginTop: 2 },
   deepDiveBtnText: { fontSize: 13, fontWeight: '700', color: Colors.purpleInk },
 
   addBtn: { backgroundColor: 'rgba(0,212,255,0.12)', borderWidth: 1, borderColor: 'rgba(0,212,255,0.35)', borderRadius: Radii.full, paddingHorizontal: Spacing.md, paddingVertical: 8 },

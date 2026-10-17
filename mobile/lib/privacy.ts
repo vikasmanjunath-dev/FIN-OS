@@ -37,23 +37,23 @@ export const FLOWS: Flow[] = [
   {
     id: 'arya', kind: 'backend', title: 'Arya chat, market research and fund search (your Arya backend)',
     when: 'When you open Markets or Market research, look up a price, a share or a fund, search for a mutual fund, or ask Arya a question.',
-    sent: 'The share symbols, fund scheme codes and fund-name search words you look up, as you typed them. With a chat message: the question as you typed it, and as context your name, income, spending, net worth, portfolio value, SIP total and health score, each only when recorded and only while the "figures" switch in What Arya remembers is on. Two more kinds of context go only if you turn them on there (both are off until you do): up to 3 topics and 4 notes you gave Arya, and the type and month of life events you declared. What Arya remembers shows exactly what will be sent before you ask, and you can switch the online model off entirely. A short question about your own figures (net worth, an SIP sum) is answered on the phone and not sent. These go to the Arya backend address in Settings — software you run yourself (by default the computer running the app\'s development server), not a FIN·OS-operated server.',
+    sent: 'The share symbols, fund scheme codes and fund-name search words you look up, as you typed them. With a chat message: the question as you typed it, and as context your name, income, spending, net worth, portfolio value, SIP total and health score, each only when recorded and only while the "figures" switch in What Arya remembers is on. Two more kinds of context go only if you turn them on there (both are off until you do): up to 3 topics and 4 notes you gave Arya, and the type and month of life events you declared. What Arya remembers shows exactly what will be sent before you ask, and you can switch the online model off entirely. A short question about your own figures (net worth, an SIP sum) is answered on the phone and not sent. When Arya looks something up with a tool, only a public lookup term goes: a share symbol, a coin name or fund-name words; each call is listed under the answer and in the Arya Agent tab, where tools can be switched off. The portfolio analysis screens (sectors, risk, simulation, research) and the market detail screens send the tickers and fund codes you hold, or the symbol you opened, to the same backend to fetch price history, fund NAV history and company figures. These go to the Arya backend address in Settings — software you run yourself (by default the computer running the app\'s development server), not a FIN·OS-operated server.',
     personal: true, optional: true,
-    control: 'Do not open Arya, Markets or fund search, or leave the backend unset; switch the online model off in What Arya remembers. The backend, not your phone, then fetches prices, fund NAVs, news and company data from public providers (NSE, AMFI, Yahoo Finance, CoinGecko, mfapi.in, which mirrors AMFI fund NAV history and receives only the scheme code, and the news publishers\' feeds); those providers see your backend\'s computer, not your phone. The last answers are kept on this phone so they can be shown offline, with their time; "Clear saved market data" in Market research removes them.',
+    control: 'Do not open Arya, Markets or fund search, or leave the backend unset; switch the online model off in What Arya remembers. The backend, not your phone, then fetches prices, fund NAVs, news and company data from public providers (NSE, AMFI, Yahoo Finance, CoinGecko, mfapi.in, which mirrors AMFI fund NAV history and receives only the scheme code, and the news publishers\' feeds); those providers see your backend\'s computer, not your phone. The last answers are kept on this phone so they can be shown offline, with their time; "Clear saved market data" in Market research removes them. The saved answers include price histories, fund NAV series, sector and fundamentals look-ups for the symbols you opened or hold.',
   },
   {
-    id: 'files', kind: 'file', title: 'Files you choose (bank statements, broker holdings)',
-    when: 'When you import a statement or a holdings file.',
+    id: 'files', kind: 'file', title: 'Files you choose (bank statements, broker holdings, trade files)',
+    when: 'When you import a statement, a holdings file or a trade file (Trade journal), or export your trades.',
     sent: 'Nothing. The file is read on the phone, shown to you as a preview, and only then saved. From a bank statement, account numbers and names are never read; from a holdings file only instrument names, ISINs, quantities and prices are. If you are signed in, imported holdings sync like any holding you add yourself.',
     personal: true, optional: true,
-    control: 'Every statement import can be undone from Import a bank statement → Past imports. Imported holdings can be removed one by one in the Portfolio tab.',
+    control: 'Every statement import can be undone from Import a bank statement → Past imports. Imported holdings can be removed one by one in the Portfolio tab. An imported trade file can be undone from Trade journal → Import and export → Past imports.',
   },
   {
     id: 'share', kind: 'share', title: 'The share sheet',
-    when: 'Only when you tap Share.',
-    sent: 'A short text with your Money Score and pillar scores — no rupee amounts. It goes wherever you pick in your phone\'s share sheet.',
+    when: 'Only when you tap Share, or Export CSV in the Trade journal.',
+    sent: 'Money Score Share: a short text with your Money Score and pillar scores — no rupee amounts. It goes wherever you pick in your phone\'s share sheet. Trade journal Export CSV shares your trades (with their notes) the same way, as text, and only where you choose.',
     personal: false, optional: true,
-    control: 'Do not tap Share.',
+    control: 'Do not tap Share or Export CSV.',
   },
   {
     id: 'news-links', kind: 'link', title: 'News article links (a publisher\'s website)',
@@ -61,6 +61,13 @@ export const FLOWS: Flow[] = [
     sent: 'Nothing from your phone\'s FIN·OS data. The article\'s own address opens in your phone\'s in-app browser, so the publisher\'s website sees your phone\'s network address and anything its own page collects, as if you had opened the link yourself.',
     personal: false, optional: true,
     control: 'Do not tap an article. The headline and summary are readable without opening it.',
+  },
+  {
+    id: 'lesson-links', kind: 'link', title: 'Reference links in lessons (third-party websites)',
+    when: 'Only when you tap a cited source at the bottom of a lesson.',
+    sent: 'Nothing from your phone\'s FIN·OS data. The selected source address opens in your phone\'s browser; that website can see your phone\'s network address and anything its own page collects.',
+    personal: false, optional: true,
+    control: 'Do not tap a source link. Lesson text remains available in the app.',
   },
   {
     id: 'reports', kind: 'share', title: 'Feedback, crash notes and screen counts',
@@ -123,6 +130,9 @@ export const DATA_ITEMS: { key: string; label: string; kind: 'list' | 'value' }[
   { key: 'finos_funds_compare_v1', label: 'Funds in your compare tray (syncs like your other tracker data if you sign in)', kind: 'list' },
   { key: 'marketcache_v1_index', label: 'Last saved market answers, including the symbols you looked at (not exported or backed up)', kind: 'value' },
   { key: 'finos_sync_never_couple_v1', label: 'Couple finance: your partner\'s figures, typed by you (never uploaded or synced; in your own export and backup)', kind: 'value' },
+  { key: 'finos_sync_never_trade_journal_v1', label: 'Trade journal: your trades, charges, feelings and notes (never uploaded or synced; in your own export and backup)', kind: 'list' },
+  { key: 'finos_sync_never_trade_journal_tags_v1', label: 'Trade journal tags (never uploaded or synced; in your own export and backup)', kind: 'list' },
+  { key: 'finos_nw_history', label: 'Net worth points PULSE recorded, one a day (syncs like your other tracker data if you sign in)', kind: 'value' },
   { key: 'finos_calendar_custom_events', label: 'Your own calendar dates', kind: 'list' },
   { key: 'finos_life_goals_planner_v1', label: 'Life goals planner draft', kind: 'value' },
   { key: 'finos_growth_sim_v1', label: 'Growth projection draft', kind: 'value' },
@@ -134,10 +144,17 @@ export const DATA_ITEMS: { key: string; label: string; kind: 'list' | 'value' }[
   { key: 'finos_age', label: 'Your age', kind: 'value' },
   { key: 'finos_dependents', label: 'People who depend on your income', kind: 'value' },
   { key: 'finos_theme_mobile', label: 'Appearance choice', kind: 'value' },
+  { key: 'finos_persona_mobile', label: 'Whether the facts strip on Home is hidden (never synced; not exported or backed up)', kind: 'value' },
   { key: 'finos_money_score', label: 'Latest Money Score', kind: 'value' },
   { key: 'finos_user_name', label: 'Your name', kind: 'value' },
   { key: 'finos_monthly_income', label: 'Income and other profile numbers', kind: 'value' },
 ];
+
+/**
+ * One line shown under "On this phone right now". The prefix is lib/safeStore.ts QUARANTINE_PREFIX; __tests__/privacy.test.mts checks
+ * the claims in it (never uploaded, in your own export and backup, removed by erase).
+ */
+export const KEPT_ASIDE_NOTE = 'If a saved value cannot be read, the app keeps the unreadable text on this phone instead of overwriting it, until you erase your data (never uploaded; it is part of your own export and backup).';
 
 /** How many entries a stored value holds (lists) or whether it is set (values). */
 export function describeStored(raw: string | null, kind: 'list' | 'value'): string | null {

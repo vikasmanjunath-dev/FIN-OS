@@ -116,7 +116,8 @@ test('every flow that opens another party\'s site or file is described: news lin
   // the only places that open a web page outside the app
   const openers = [...sources('app'), ...sources('components'), ...sources('hooks'), ...sources('lib')]
     .filter(f => /openBrowserAsync|Linking\.openURL/.test(read(f))).map(f => f.replace(/\\/g, '/')).sort();
-  assert.deepEqual(openers, ['app/market/news.tsx']);
+  assert.deepEqual(openers, ['app/market/news.tsx', 'components/LearnBlocks.tsx']);
+  assert.ok(privacy.FLOWS.some(f => f.id === 'lesson-links' && /browser/.test(f.sent)));
 });
 
 test('the Arya flow names what goes with a question, what is off by default, and the fund search term', () => {
@@ -140,4 +141,23 @@ test('terms: operator details are not invented, and the draft status is stated',
   assert.match(privacy.TERMS_STATUS, /Draft for legal review/);
   assert.ok(privacy.TERMS.some(s => /not SEBI registered/.test(s.body.join(' '))));
   assert.ok(privacy.TERMS.some(s => /Operator: not set yet/.test(s.body.join(' '))));
+});
+
+test('the kept-aside note is true: an unreadable value stays on the phone, is never synced, is in the export and backup, and erase removes it', async () => {
+  const { QUARANTINE_PREFIX } = await import('@/lib/safeStore');
+  const { eraseEverything } = await import('@/lib/dataControls');
+  const key = `${QUARANTINE_PREFIX}transactions`;
+  assert.match(privacy.KEPT_ASIDE_NOTE, /erase your data/);
+  assert.match(privacy.KEPT_ASIDE_NOTE, /never uploaded/);
+  assert.match(privacy.KEPT_ASIDE_NOTE, /export and backup/);
+  assert.equal(isSyncKey(key), false, 'a kept-aside copy must never be uploaded');
+  assert.equal(isBackupKey(key), true, 'the note says it is part of the export and backup');
+  const store = new Map<string, string>([[key, '{not json'], ['finos_transactions', '[]']]);
+  const r = await eraseEverything({
+    signOutLocal: async () => {}, resetMemory: async () => {}, cancelNotifications: async () => {}, clearFiles: async () => {}, clearSecure: async () => {},
+    store: { getAllKeys: async () => [...store.keys()], clear: async () => { store.clear(); }, multiRemove: async (ks: readonly string[]) => { ks.forEach(k => store.delete(k)); } },
+    finish: () => {}, wait: async () => {},
+  } as any);
+  assert.equal(r.ok, true);
+  assert.equal(store.has(key), false, 'erase must remove the kept-aside copy');
 });

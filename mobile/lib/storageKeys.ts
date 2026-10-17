@@ -11,7 +11,7 @@ export const SECURE_KEYS = ['finos_applock_verifier', 'finos_applock_meta', 'fin
 export const DEVICE_ONLY_KEYS = [
   'finos_applock_verifier', 'finos_applock_meta', 'finos_applock_fail',        // on the web preview the lock lives here
   'finos_vault', 'finos_vault_meta', 'finos_unlocked',                          // the website's encrypted vault
-  'finos_host_ip', 'finos_theme_mobile', 'finos_reminders_mobile', 'finos_onboarding_mobile',
+  'finos_host_ip', 'finos_theme_mobile', 'finos_reminders_mobile', 'finos_onboarding_mobile', 'finos_persona_mobile',
   'finos_consents', 'finos_feedback_log', 'finos_usage', 'finos_usage_v1', 'finos_diag_crashes',
   'finos_tracker_sync_meta', 'finos_holdings_owner', 'finos_holdings_last_sync', 'finos_holdings_tombstones_v1',   // links this phone to an account
   'finos_schema_version', 'finos_session_key',

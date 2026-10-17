@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Share } from 'react-native';
 import { router } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel, Bar, inr, inrShort } from '@/components/TrackerUI';
 import { CalcField, Segmented, CheckRow, Collapsible, Bullet, toNum } from '@/components/CalcUI';
 import { compute, deriveInputs, leverRanges, whatIf, trend as scoreTrend } from '@/lib/moneyScore';
 import { gatherScoreData, loadSavedScore, loadScoreHistory, saveScoreResult } from '@/lib/moneyScoreStorage';
+import { FeedbackPrompt } from '@/components/FeedbackPrompt';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 
 type Form = Record<'age' | 'monthlyIncome' | 'monthlyExpenses' | 'monthlyEmi' | 'monthlyInvesting' | 'liquidSavings' | 'investedTotal' | 'termCover' | 'healthCover', string>;
@@ -210,6 +211,8 @@ export default function MoneyScoreScreen() {
               </Card>
             </>
           )}
+
+          <FeedbackPrompt topic="money-score" page="/tools/score" question="Did your Money Score feel right?" />
 
           <Collapsible title="How the score is worked out">
             <Bullet>Six parts, each 0–100, weighted: savings rate 20, emergency fund 20, insurance 20, debt load 15, investing habit 15, wealth for your age 10.</Bullet>

@@ -21,6 +21,9 @@ import { MANIFEST } from '@/lib/learnContent';
 import { overallProgress } from '@/lib/learn';
 import { loadLearned } from '@/lib/learnStorage';
 import { MetricCard } from '@/components/MetricCard';
+import { PersonaStrip } from '@/components/PersonaStrip';
+import { GREETING, buildStrip, dayPart, firstName, streakLine, type PersonaPrefs } from '@/lib/persona';
+import { loadPersonaPrefs, savePersonaPrefs } from '@/lib/personaStorage';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 
 function formatINR(n: number, compact = false): string {
@@ -48,7 +51,7 @@ function IndexPill({ symbol, price, changePct }: { symbol: string; price: number
 }
 
 export default function DashboardScreen() {
-  const { ctx, loading: ctxLoading, refresh } = useFinosContext();
+  const { refresh } = useFinosContext();
   const { data: td, computed: tc, reload: reloadTrackers } = useTrackers();
   const quick = useQuickLog(3);
   const { summary: subs } = useSubscriptions();
@@ -63,6 +66,11 @@ export default function DashboardScreen() {
     return () => { live = false; };
   }, []));
 
+  // Greeting and status strip: recorded facts only (lib/persona.ts). Hiding the strip is remembered on this phone; Settings brings it back.
+  const [persona, setPersona] = React.useState<PersonaPrefs>({ stripHidden: false });
+  useFocusEffect(useCallback(() => { let live = true; loadPersonaPrefs().then(p => { if (live) setPersona(p); }).catch(() => {}); return () => { live = false; }; }, []));
+  const hideStrip = () => { const next = { stripHidden: true }; setPersona(next); savePersonaPrefs(next); };
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await Promise.all([refresh(), reloadTrackers()]);
@@ -76,6 +84,13 @@ export default function DashboardScreen() {
   const rt = tc.retirement;
   const urgentGaps = rt.coverage.gaps.filter(g => g.severity === 'critical' || g.severity === 'high').length;
   const atRisk = sp.budget.rows.filter(r => r.limit > 0 && r.state !== 'ok').sort((a, b) => (b.pct ?? 0) - (a.pct ?? 0))[0];
+  const myName = firstName(td.name);
+  const streak = streakLine(td.streak);
+  const strip = buildStrip({
+    savingsRate: tc.budget.known ? tc.budget.savingsRate : null,
+    netWorth: tc.netWorth.totalAssets > 0 || tc.netWorth.totalLiabilities > 0 ? tc.netWorth.netWorth : null,
+    moneyScore: moneyScore ? { score: moneyScore.score, at: moneyScore.at } : null,
+  });
   const open = (path: string) => { Haptics.selectionAsync(); router.push(path as any); };
 
   return (
@@ -87,9 +102,10 @@ export default function DashboardScreen() {
     >
       {/* ── Header ── */}
       <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>Good {getTimeOfDay()}, {ctx.name.split(' ')[0]} 👋</Text>
+        <View style={{ flexShrink: 1, paddingRight: Spacing.sm }}>
+          <Text style={styles.greeting}><Text>{GREETING[dayPart(new Date().getHours())]}</Text><Text>{myName ? `, ${myName} 👋` : ' 👋'}</Text></Text>
           <Text style={styles.date}>{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</Text>
+          {streak ? <Text style={styles.streak}>{streak}</Text> : null}
         </View>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <AlertBell data={td} computed={tc} style={styles.settingsBtn} />
@@ -105,6 +121,8 @@ export default function DashboardScreen() {
           </Pressable>
         </View>
       </View>
+
+      {!persona.stripHidden && <View style={{ paddingHorizontal: Spacing.lg }}><PersonaStrip items={strip} onHide={hideStrip} /></View>}
 
       {/* ── Market Strip ── */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillRow} contentContainerStyle={styles.pillContent}>
@@ -191,9 +209,9 @@ export default function DashboardScreen() {
       <View style={styles.grid}>
         <MetricCard
           label="Health Score"
-          value={`${health.total}/100`}
-          sub={`${health.tierEmoji} ${health.tier[0] + health.tier.slice(1).toLowerCase()}`}
-          accent={tierColor(health.tier)}
+          value={health.total == null || !health.tier ? 'Not enough data' : `${health.total}/100`}
+          sub={health.total == null || !health.tier ? 'record income and spending' : `${health.tierEmoji} ${health.tier[0] + health.tier.slice(1).toLowerCase()} · ${health.measured.length} of 7 areas`}
+          accent={health.tier ? tierColor(health.tier) : Colors.cyan}
           icon="🏥"
           style={styles.gridHalf}
           onPress={() => open('/tracker/health')}
@@ -456,6 +474,33 @@ export default function DashboardScreen() {
           onPress={() => open('/tools/leak')}
         />
         <MetricCard
+          label="Trade journal"
+          value="Log your trades"
+          sub="totals after charges"
+          accent={Colors.cyan}
+          icon="📒"
+          style={styles.gridHalf}
+          onPress={() => open('/journal')}
+        />
+        <MetricCard
+          label="Portfolio analytics"
+          value="Sectors and risk"
+          sub="from real price history"
+          accent={Colors.purple}
+          icon="🧮"
+          style={styles.gridHalf}
+          onPress={() => open('/portfolio/analytics')}
+        />
+        <MetricCard
+          label="Arya money steps"
+          value="Your plan"
+          sub="done, open or needs a figure"
+          accent={Colors.teal}
+          icon="🗺️"
+          style={styles.gridHalf}
+          onPress={() => open('/arya/plan')}
+        />
+        <MetricCard
           label="Tax savings"
           value="Old vs new"
           sub="what deductions could save"
@@ -628,13 +673,6 @@ export default function DashboardScreen() {
   );
 }
 
-function getTimeOfDay() {
-  const h = new Date().getHours();
-  if (h < 12) return 'morning';
-  if (h < 17) return 'afternoon';
-  return 'evening';
-}
-
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bg },
   content: { paddingBottom: Spacing.xxl },
@@ -642,6 +680,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', padding: Spacing.lg, paddingTop: Spacing.xxl },
   greeting: { ...Typography.h2, fontSize: 20 },
   date: { ...Typography.caption, marginTop: 2 },
+  streak: { color: Colors.gold, fontSize: 12, fontWeight: '700', marginTop: 4 },
   settingsBtn: { width: 36, height: 36, borderRadius: Radii.full, backgroundColor: Colors.overlay, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.border },
 
   pillRow: { marginHorizontal: Spacing.lg, marginBottom: Spacing.md },
