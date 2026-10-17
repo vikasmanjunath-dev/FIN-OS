@@ -13,7 +13,10 @@ const LINKS: { route: string; icon: string; title: string; sub: string }[] = [
   { route: '/market/screener', icon: '🔎', title: 'Stock screener', sub: 'Sort 50 large companies, or your own list, by day move and 52-week range' },
   { route: '/market/commodities', icon: '🪙', title: 'Gold, silver and oil', sub: 'World prices; gold and silver are not MCX quotes' },
   { route: '/market/fx', icon: '💱', title: 'Currency rates', sub: 'USD, EUR, GBP, JPY, AED in rupees' },
-  { route: '/market/crypto', icon: '₿', title: 'Crypto prices', sub: 'Bitcoin, Ethereum and a few more' },
+  { route: '/market/crypto', icon: '₿', title: 'Crypto prices', sub: 'Bitcoin, Ethereum and a few more, with price history' },
+  { route: '/market/map', icon: '🗺️', title: 'Market map', sub: 'Indices, sectors and 50 large companies as colours' },
+  { route: '/market/options', icon: '🧮', title: 'Options calculator', sub: 'Price, Greeks and strategy payoff from your own numbers' },
+  { route: '/portfolio/analytics', icon: '📊', title: 'Portfolio analytics', sub: 'Sectors, risk, simulation and research on your holdings' },
 ];
 
 export default function MarketHub() {
@@ -86,7 +89,7 @@ export default function MarketHub() {
       <Card>
         <Text style={Typography.label}>WHAT IS NOT HERE</Text>
         <Text style={[Typography.caption, { marginTop: 4, lineHeight: 17 }]}>
-          Futures and options chains, bond and money-market yields, and FII/DII flows have no live data source behind the app yet, so they are not shown rather than filled with example numbers.
+          Option chains and live option prices, futures, bond and money-market yields, and FII/DII flows have no live data source behind the app yet, so they are not shown rather than filled with example numbers.
         </Text>
       </Card>
 

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
 import { MarketScreen, Freshness, KV, changeColor } from '@/components/MarketUI';
 import { Card } from '@/components/TrackerUI';
 import { useMarketResource } from '@/hooks/useMarketResource';
@@ -23,6 +24,9 @@ export default function CryptoScreen() {
           <KV label="Price in US dollars" value={c.priceUsd === null ? 'Not available' : `$${c.priceUsd.toLocaleString('en-US', { maximumFractionDigits: c.priceUsd < 1 ? 4 : 2 })}`} />
           <KV label="Change in 24 hours" value={fmtPct(c.change24h)} color={changeColor(c.change24h)} />
           <KV label="Market value" value={fmtMarketCap(c.marketCapInr)} />
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="{`Price history for ${c.name}`}" onPress={() => router.push(`/market/crypto/${encodeURIComponent(c.id)}` as any)} style={{ marginTop: 8 }}>
+            <Text style={{ color: Colors.cyan, fontWeight: '700' }}>Price history ›</Text>
+          </TouchableOpacity>
           {c.updatedMs !== null ? <Text style={[Typography.caption, { marginTop: 6 }]}>{`Source updated ${relativeTime(c.updatedMs, now)}`}</Text> : null}
         </Card>
       ))}

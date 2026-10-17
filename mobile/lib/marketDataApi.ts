@@ -3,6 +3,8 @@
 import { ENDPOINTS } from '@/constants/endpoints';
 import { fetchJSON } from '@/lib/holdingsStore';
 import { loadWithCache, type Loaded } from '@/lib/marketDataStorage';
+import { normaliseSectorIndices, pointsOf, type SectorIndex } from '@/lib/marketDataMap';
+import type { PricePoint } from '@/lib/portfolioHistory';
 import {
   normaliseQuote, normaliseQuotes, normaliseFundamentals, normaliseNews, normaliseCommodities, normaliseFx, normaliseCrypto,
   normaliseChart, normaliseFundNav, normaliseFundSearch, normaliseFundHistory, normaliseOverview, batches,
@@ -64,4 +66,59 @@ export function loadQuotesBatched(symbols: string[], key: string): Promise<Loade
     normalise: raw => { const r = normaliseQuotes(raw, symbols); return { quotes: r.quotes, failed: r.failed }; },
     usable: v => v.quotes.length > 0,
   });
+}
+
+// ── additions for the detail, map, screener and portfolio screens ───────────────────────────────────────────────────────
+
+/** Daily or weekly closes for any Yahoo symbol the backend's /api/chart accepts (BTC-USD, GC=F, USDINR=X, ^NSEI, RELIANCE.NS). */
+export const loadYahooChart = (yahoo: string, range: string, interval = '1d'): Promise<Loaded<Chart>> =>
+  loadWithCache({
+    key: `ychart:${yahoo}:${range}:${interval}`,
+    fetcher: () => get(`/api/chart?symbol=${encodeURIComponent(yahoo)}&interval=${encodeURIComponent(interval)}&range=${encodeURIComponent(range)}`, 25_000),
+    normalise: normaliseChart,
+  });
+
+/** Just the dated closes (a slimmer thing to keep on the phone than a full chart): for the portfolio's one-year history. */
+export const loadPriceSeries = (yahoo: string, range = '1y'): Promise<Loaded<PricePoint[]>> =>
+  loadWithCache({
+    key: `series:${yahoo}:${range}`,
+    fetcher: () => get(`/api/chart?symbol=${encodeURIComponent(yahoo)}&interval=1d&range=${encodeURIComponent(range)}`, 25_000),
+    normalise: raw => { const c = normaliseChart(raw); return c ? pointsOf(c.dates, c.closes) : null; },
+    usable: v => v.length >= 2,
+  });
+
+/** A mutual fund's NAV history for about the last two years, as dated points (the fund screen asks for six). */
+export const loadFundSeries = (code: string): Promise<Loaded<PricePoint[]>> =>
+  loadWithCache({
+    key: `fundseries:${code}`,
+    fetcher: () => get(`/api/mf/history/${encodeURIComponent(code)}?years=2`, 30_000),
+    normalise: raw => { const h = normaliseFundHistory(raw); return h ? h.points.map(p => ({ date: p.date, close: p.nav })) : null; },
+    usable: v => v.length >= 2,
+  });
+
+export const loadSectorIndices = (): Promise<Loaded<{ sectors: SectorIndex[]; asOf: number | null }>> =>
+  loadWithCache({ key: 'sectorindices', fetcher: () => get('/api/market/sectors', 30_000), normalise: normaliseSectorIndices, usable: v => v.sectors.length > 0 });
+
+/**
+ * Fundamentals for many symbols, a few at a time (the backend asks Yahoo once per symbol and remembers it for six hours).
+ * Each symbol is cached on its own, so a second visit is quick and a failed one can be retried alone. `onProgress` is called after each.
+ */
+export async function loadFundamentalsMany(
+  symbols: string[], opts: { concurrency?: number; onProgress?: (done: number, total: number, symbol: string, r: Loaded<Fundamentals>) => void } = {},
+): Promise<Record<string, Loaded<Fundamentals>>> {
+  const out: Record<string, Loaded<Fundamentals>> = {};
+  const queue = [...new Set(symbols)];
+  let done = 0;
+  const worker = async () => {
+    for (;;) {
+      const s = queue.shift();
+      if (s === undefined) return;
+      let r: Loaded<Fundamentals>;
+      try { r = await loadFundamentals(s); } catch { r = { data: null, savedAt: null, fromCache: false, error: 'Could not load.' }; }
+      out[s] = r; done++;
+      opts.onProgress?.(done, symbols.length, s, r);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.max(1, Math.min(opts.concurrency ?? 4, 8)) }, worker));
+  return out;
 }

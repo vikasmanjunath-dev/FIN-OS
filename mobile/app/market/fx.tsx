@@ -1,5 +1,6 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
 import { MarketScreen, Freshness, KV } from '@/components/MarketUI';
 import { Card } from '@/components/TrackerUI';
 import { useMarketResource } from '@/hooks/useMarketResource';
@@ -20,8 +21,10 @@ export default function FxScreen() {
       {rates.length > 0 && (
         <Card>
           {rates.map(x => (
-            <KV key={x.pair} label={`${x.base} to ${x.quote}`} sub={`1 ${NAMES[x.base] ?? x.base}`}
-              value={`₹${x.rate.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: x.rate < 10 ? 4 : 2 })}`} />
+            <TouchableOpacity key={x.pair} accessibilityRole="button" accessibilityLabel={`${NAMES[x.base] ?? x.base} to rupee, ${x.rate} rupees. Open price history.`} onPress={() => router.push(`/market/fx/${x.pair}` as any)}>
+              <KV label={`${x.base} to ${x.quote}  ›`} sub={`1 ${NAMES[x.base] ?? x.base}. Tap for history`}
+                value={`₹${x.rate.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: x.rate < 10 ? 4 : 2 })}`} />
+            </TouchableOpacity>
           ))}
         </Card>
       )}

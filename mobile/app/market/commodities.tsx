@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
 import { MarketScreen, Freshness, KV, changeColor } from '@/components/MarketUI';
 import { Card, SectionLabel } from '@/components/TrackerUI';
 import { useMarketResource } from '@/hooks/useMarketResource';
 import { loadCommodities } from '@/lib/marketDataApi';
 import { FRESH_MS, fmtPct, fmtPrice } from '@/lib/marketData';
+import { commoditySlug } from '@/lib/marketDataDetail';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 
 export default function CommoditiesScreen() {
@@ -35,6 +37,9 @@ export default function CommoditiesScreen() {
           {c.priceUsd !== null ? <KV label="World price" value={`$${fmtPrice(c.priceUsd)} per ${c.usdUnit === 'USD/oz' ? 'troy oz' : c.usdUnit ?? ''}`} /> : null}
           {c.usdInr !== null ? <KV label="USD/INR used" value={fmtPrice(c.usdInr)} /> : null}
           {c.priceDate ? <Text style={[Typography.caption, { marginTop: 6 }]}>{`Latest price from ${c.priceDate} (front-month futures).`}</Text> : null}
+          {commoditySlug(c.key) ? <TouchableOpacity accessibilityRole="button" accessibilityLabel="{`Price history for ${c.label}`}" onPress={() => router.push(`/market/commodity/${commoditySlug(c.key)}` as any)} style={{ marginTop: 8 }}>
+            <Text style={{ color: Colors.cyan, fontWeight: '700' }}>Price history ›</Text>
+          </TouchableOpacity> : null}
         </Card>
       ))}
 
@@ -42,6 +47,9 @@ export default function CommoditiesScreen() {
       {d?.unavailable.map(u => (
         <Card key={u.key}>
           <Text style={Typography.body}>{u.label}</Text>
+          {commoditySlug(u.key) ? <TouchableOpacity accessibilityRole="button" accessibilityLabel="{`Price history for ${u.label}`}" onPress={() => router.push(`/market/commodity/${commoditySlug(u.key)}` as any)} style={{ marginTop: 8 }}>
+            <Text style={{ color: Colors.cyan, fontWeight: '700' }}>Price history ›</Text>
+          </TouchableOpacity> : null}
           <Text style={[Typography.caption, { color: Colors.gold, marginTop: 4 }]}>{u.reason}</Text>
           {u.priceUsd !== null ? <View style={{ marginTop: Spacing.sm }}><KV label="World price" value={`$${fmtPrice(u.priceUsd)} per troy oz`} /></View> : null}
         </Card>

@@ -3,10 +3,11 @@ import { View, Text } from 'react-native';
 import Svg, { Path, Line, Text as SvgText } from 'react-native-svg';
 import { Colors, Typography } from '@/constants/theme';
 import { useThemed } from '@/lib/theme';
-import { chartStats, fmtPrice, type Chart } from '@/lib/marketData';
+import { chartStats, type Chart } from '@/lib/marketData';
 
 /** Closing-price line for a range, with the high / low of the period and the first and last date. Colour follows the period's change. */
-export function PriceChart({ chart, height = 190 }: { chart: Chart; height?: number }) {
+export function PriceChart({ chart, height = 190, prefix = '', digits = 2 }: { chart: Chart; height?: number; prefix?: string; digits?: number }) {
+  const fp = (n: number) => prefix + n.toLocaleString('en-IN', { minimumFractionDigits: digits, maximumFractionDigits: digits });
   const T = useThemed();
   const [w, setW] = useState(0);
   const st = chartStats(chart);
@@ -25,21 +26,21 @@ export function PriceChart({ chart, height = 190 }: { chart: Chart; height?: num
   return (
     <View>
       <View style={{ height }} onLayout={e => setW(e.nativeEvent.layout.width)} accessible accessibilityRole="image"
-        accessibilityLabel={`Closing price chart, ${n} days, from ${fmtPrice(st.first)} to ${fmtPrice(st.last)}, ${up ? 'up' : 'down'} ${Math.abs(st.changePct).toFixed(1)} percent`}>
+        accessibilityLabel={`Closing price chart, ${n} days, from ${fp(st.first)} to ${fp(st.last)}, ${up ? 'up' : 'down'} ${Math.abs(st.changePct).toFixed(1)} percent`}>
         {w > 0 && (
           <Svg width={w} height={height}>
             <Line x1={pl} x2={w - pr} y1={y(hi)} y2={y(hi)} stroke={T(Colors.borderMed)} strokeDasharray="3 4" strokeWidth={1} />
             <Line x1={pl} x2={w - pr} y1={y(lo)} y2={y(lo)} stroke={T(Colors.borderMed)} strokeDasharray="3 4" strokeWidth={1} />
             <Path d={area} fill={col} fillOpacity={0.12} />
             <Path d={line} fill="none" stroke={col} strokeWidth={2} strokeLinejoin="round" />
-            <SvgText x={pl} y={y(hi) - 3} fill={T(Colors.textMuted)} fontSize={10}>{fmtPrice(hi)}</SvgText>
-            <SvgText x={pl} y={y(lo) - 4} fill={T(Colors.textMuted)} fontSize={10}>{fmtPrice(lo)}</SvgText>
+            <SvgText x={pl} y={y(hi) - 3} fill={T(Colors.textMuted)} fontSize={10}>{fp(hi)}</SvgText>
+            <SvgText x={pl} y={y(lo) - 4} fill={T(Colors.textMuted)} fontSize={10}>{fp(lo)}</SvgText>
             <SvgText x={pl} y={height - 6} fill={T(Colors.textMuted)} fontSize={10}>{fmtD(st.startDate)}</SvgText>
             <SvgText x={w - pr} y={height - 6} fill={T(Colors.textMuted)} fontSize={10} textAnchor="end">{fmtD(st.endDate)}</SvgText>
           </Svg>
         )}
       </View>
-      <Text style={[Typography.caption, { marginTop: 4 }]}>Daily closing prices. Dashed lines are the highest and lowest close in the period.</Text>
+      <Text style={[Typography.caption, { marginTop: 4 }]}>Closing prices. Dashed lines are the highest and lowest close in the period.</Text>
     </View>
   );
 }

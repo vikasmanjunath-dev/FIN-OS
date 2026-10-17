@@ -1,8 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, RefreshControl, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
-import { formatAsOf, staleness, relativeTime } from '@/lib/marketData';
+import { formatAsOf, staleness, relativeTime, fmtPct } from '@/lib/marketData';
+import { PriceChart } from '@/components/PriceChart';
+import { Card } from '@/components/TrackerUI';
+import { useMarketResource } from '@/hooks/useMarketResource';
+import { loadYahooChart } from '@/lib/marketDataApi';
+import { DETAIL_RANGES, periodsFor, summariseSeries, type DetailAsset, type DetailRangeId } from '@/lib/marketDataDetail';
 
 /** Screen shell for the market screens: back link, title, pull to refresh. */
 export function MarketScreen({ title, subtitle, children, refreshing, onRefresh }: {
@@ -100,3 +105,44 @@ const s = StyleSheet.create({
   track: { height: 6, backgroundColor: Colors.border, borderRadius: 3, marginVertical: 8, justifyContent: 'center' },
   marker: { position: 'absolute', width: 12, height: 12, borderRadius: 6, backgroundColor: Colors.cyan, marginLeft: -6 },
 });
+
+// ── price history block shared by the crypto, commodity and currency detail screens ───────────────────────────────────
+
+const fmtP = (n: number, prefix: string, digits: number) => prefix + n.toLocaleString('en-IN', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+
+/** Range chips, chart, and figures computed from the closes (change, range, worst fall, volatility), with the unit and the source said. */
+export function HistoryBlock({ asset }: { asset: DetailAsset }) {
+  const [range, setRange] = useState<DetailRangeId>('3M');
+  const def = DETAIL_RANGES.find(r => r.id === range)!;
+  const r = useMarketResource(() => (asset.yahoo ? loadYahooChart(asset.yahoo, def.range, def.interval) : Promise.resolve({ data: null, savedAt: null, fromCache: false, error: asset.noChartReason ?? null })), [asset.yahoo, range]);
+  const sum = r.data ? summariseSeries(r.data, periodsFor(asset, def.interval)) : null;
+  const digits = sum && sum.low < 5 ? 4 : 2;
+  const weekly = def.interval === '1wk';
+  return (
+    <Card>
+      <Text style={Typography.label}>PRICE HISTORY</Text>
+      {!asset.yahoo ? <Text style={[Typography.body, { marginTop: 6 }]}>{asset.noChartReason ?? 'No price history is available.'}</Text> : (
+        <>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginVertical: Spacing.sm }}>
+            {DETAIL_RANGES.map(x => <Chip key={x.id} label={x.label} active={range === x.id} onPress={() => setRange(x.id)} accessibilityLabel={`Chart range ${x.label}`} />)}
+          </View>
+          <Freshness savedAt={r.savedAt} fromCache={r.fromCache} error={r.error} freshMs={15 * 60_000} loading={r.loading} />
+          {r.data && sum ? (
+            <>
+              <PriceChart chart={r.data} prefix={asset.chartPrefix} digits={digits} />
+              <Text style={[Typography.caption, { marginVertical: 4 }]}>{`In ${asset.chartUnit}. ${weekly ? 'Weekly' : 'Daily'} closes, ${sum.startDate} to ${sum.endDate}. Source: Yahoo Finance via your Arya backend.`}</Text>
+              <KV label={`Change over ${range}`} value={fmtPct(sum.changePct)} color={changeColor(sum.changePct)} sub="First close to last close in the range" />
+              <KV label="Highest and lowest close" value={`${fmtP(sum.high, asset.chartPrefix, digits)} / ${fmtP(sum.low, asset.chartPrefix, digits)}`} />
+              <KV label="Latest vs highest close" value={fmtPct(sum.fromHighPct, 1)} color={changeColor(sum.fromHighPct)} />
+              <KV label="Worst fall from a peak in this range" value={fmtPct(sum.maxDrawdownPct, 1)} color={changeColor(sum.maxDrawdownPct)} sub="Largest drop from a running high to a later low" />
+              <KV label={`Typical ${weekly ? 'weekly' : 'daily'} swing, per year`} value={sum.volatilityPct === null ? 'Not enough data' : `${sum.volatilityPct.toFixed(1)}%`}
+                sub={`Standard deviation of ${weekly ? 'weekly' : 'daily'} moves scaled to a year. Computed from these closes. A past measure, not a forecast.`} />
+              {sum.coarse ? <Text style={[Typography.caption, { color: Colors.gold }]}>Prices under 5 are rounded by the backend to 2 decimals, so small moves look like steps and the figures above are approximate.</Text> : null}
+            </>
+          ) : null}
+          {!r.loading && !r.data ? <Text style={Typography.caption}>{`No history to show right now. ${r.error ?? ''}`}</Text> : null}
+        </>
+      )}
+    </Card>
+  );
+}
