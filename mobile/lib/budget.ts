@@ -49,7 +49,15 @@ const SAVING = /invest|saving|\bsip\b|mutual|\bmf\b|amfi|\bppf\b|\bnps\b|\bfd\b|
 const INCOME = /salary|income|bonus|freelance|received|got paid|refund|interest credit|dividend/i;
 
 const num = (v: unknown): number => {
-  const n = typeof v === 'string' ? parseFloat(v.replace(/[₹,\s]/g, '')) : Number(v);
+  if (typeof v !== 'string') {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : NaN;
+  }
+  // Reject partially numeric imports (e.g. "1200oops" or "1,2,00") instead of
+  // silently turning them into a valid but incorrect budget amount.
+  const text = v.replace(/[₹\s]/g, '');
+  if (!/^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(text)) return NaN;
+  const n = Number(text.replace(/,/g, ''));
   return Number.isFinite(n) ? n : NaN;
 };
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -58,7 +66,11 @@ export const monthOf = (isoDay: string) => isoDay.slice(0, 7);
 
 function toDay(v: unknown): string | null {
   if (!v) return null;
-  if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v; // already a calendar day: don't reinterpret
+  if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) {
+    const [year, month, day] = v.split('-').map(Number);
+    const dim = [31, ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
+    return month >= 1 && month <= 12 && day >= 1 && day <= dim ? v : null; // validate calendar dates without timezone conversion
+  }
   const d = new Date(v as any);
   return Number.isNaN(d.getTime()) ? null : ymd(d); // timestamps → the user's LOCAL day
 }

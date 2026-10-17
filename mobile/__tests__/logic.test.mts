@@ -168,3 +168,24 @@ test('health score: 7 pillars, 0–100, and a person with nothing recorded score
   }).health;
   assert.ok(good.total > empty.total, `${good.total} should beat ${empty.total}`);
 });
+test('budget: web and mobile reject partially numeric imported amounts consistently', () => {
+  for (const amount of ['1200oops', '1,2,00', '₹1,20,00', '1.2.3', '--200', '1e3']) {
+    const raw = { amount, date: '2026-10-05', category: 'transport' };
+    assert.equal(budget.normalize(raw), null, `mobile accepted ${amount}`);
+    assert.equal(webBudget.normalize(raw), null, `web accepted ${amount}`);
+  }
+  for (const amount of ['1,200.50', '-1,200', '  ₹ 1,200  ']) {
+    const raw = { amount, date: '2026-10-05', category: 'transport' };
+    assert.deepEqual(budget.normalize(raw), webBudget.normalize(raw), `valid parse diverged for ${amount}`);
+  }
+});
+
+test('budget: web and mobile reject impossible calendar days and accept leap days', () => {
+  for (const date of ['2026-02-30', '2026-13-01', '2026-04-31', '2025-02-29']) {
+    const raw = { amount: 500, date, category: 'transport' };
+    assert.equal(budget.normalize(raw), null, `mobile accepted ${date}`);
+    assert.equal(webBudget.normalize(raw), null, `web accepted ${date}`);
+  }
+  const leap = { amount: 500, date: '2024-02-29', category: 'transport' };
+  assert.equal(budget.normalize(leap)?.date, leap.date);
+  assert.deepEqual(budget.normalize(leap), webBudget.normalize(leap));

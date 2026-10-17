@@ -31,9 +31,17 @@ test('normalize: voice-journal shape — savings tagged type:"income" are NOT in
 });
 
 test('normalize rejects junk and never throws', () => {
-  for (const bad of [null, undefined, 5, 'x', {}, { amount: 0, date: '2026-10-01' }, { amount: 'abc', date: '2026-10-01' }, { amount: 10 }, { amount: 10, date: 'not-a-date' }]) assert.strictEqual(B.normalize(bad), null);
+  for (const bad of [null, undefined, 5, 'x', {}, { amount: 0, date: '2026-10-01' }, { amount: 'abc', date: '2026-10-01' }, { amount: 10 }, { amount: 10, date: 'not-a-date' }, { amount: 10, date: '2026-02-30' }, { amount: 10, date: '2026-13-01' }]) assert.strictEqual(B.normalize(bad), null);
+  assert.strictEqual(B.normalize({ amount: 10, date: '2024-02-29' }).date, '2024-02-29');
+  assert.strictEqual(B.normalize({ amount: 10, date: '2025-02-29' }), null);
   assert.deepStrictEqual(B.normalizeAll('nope'), []);
   assert.strictEqual(B.normalize({ amount: '₹1,200', date: '2026-10-01', category: 'transport' }).amount, 1200);
+  for (const amount of ['1200oops', '1,2,00', '₹1,20,00', '1.2.3', '--200', '1e3']) {
+    assert.strictEqual(B.normalize({ amount, date: '2026-10-01', category: 'transport' }), null, `reject malformed amount ${amount}`);
+  }
+  for (const amount of ['1,200.50', '-1,200', '  ₹ 1,200  ']) {
+    assert.ok(B.normalize({ amount, date: '2026-10-01', category: 'transport' }), `accept valid amount ${amount}`);
+  }
   assert.strictEqual(B.normalize({ amount: -300, date: '2026-10-01', category: 'transport' }).amount, 300);      // sign is not meaning
 });
 
