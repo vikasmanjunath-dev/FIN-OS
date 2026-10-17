@@ -28,10 +28,16 @@ export interface FDResult {
   totalInvested?: number; incomePaid?: number; quarterlyIncome?: number;
 }
 
-const yearsFrom = (startDate: string, now: Date) => (now.getTime() - new Date(startDate).getTime()) / (365.25 * 86400000);
+/** Date-only strings ("2026-01-10") parse as UTC midnight, the previous local day west of UTC; read them as local days. */
+export function localDay(s: string): Date {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s));
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(s);
+}
+
+const yearsFrom = (startDate: string, now: Date) => (now.getTime() - localDay(startDate).getTime()) / (365.25 * 86400000);
 
 function addYears(startDate: string, years: number): Date {
-  const d = new Date(startDate);
+  const d = localDay(startDate);
   d.setFullYear(d.getFullYear() + Math.floor(years));
   d.setMonth(d.getMonth() + Math.round((years % 1) * 12));
   return d;

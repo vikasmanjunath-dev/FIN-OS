@@ -16,6 +16,7 @@ export default function LifeEventsScreen() {
   const [events, setEvents] = useState<DeclaredEvent[]>([]);
   const [facts, setFacts] = useState<ArFacts | null>(null);
   const [sharing, setSharing] = useState(false);
+  const [now, setNow] = useState(() => new Date());
   const [type, setType] = useState<LifeEventType>('marriage');
   const [date, setDate] = useState('');
   const [err, setErr] = useState<string | null>(null);
@@ -23,11 +24,11 @@ export default function LifeEventsScreen() {
   const reload = useCallback(async () => {
     setEvents(await loadLifeEvents());
     setSharing((await loadPrefs()).lifeEvents);
+    setNow(new Date());                       // phases and prompts are judged against the moment of the reload
     try { setFacts(await loadArFacts(new Date())); } catch { setFacts(makeFacts()); }
   }, []);
   useFocusEffect(useCallback(() => { reload().catch(() => {}); }, [reload]));
 
-  const now = useMemo(() => new Date(), [facts]);
   const prompts = useMemo(() => (facts ? suggestionsFor(events, facts, now) : []), [events, facts, now]);
 
   const add = async () => {

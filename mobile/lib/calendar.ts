@@ -6,7 +6,7 @@
 // tracker shows; the website's calendar guessed 12 months for Sukanya, bonds and post-office deposits), and insurance titles fall back
 // to the provider name the phone's policy form saves.
 import { normalizeAll, isLive, occurrences, CYCLES } from './subscriptions.ts';
-import { calcEntry, INSTRUMENTS, type FDEntry } from './fixedIncome.ts';
+import { calcEntry, INSTRUMENTS, localDay, type FDEntry } from './fixedIncome.ts';
 import { customToEvents, normaliseCustom, type CustomEvent } from './financialCalendar.ts';   // dates the person adds themselves (plan/mydates)
 
 export type EventType = 'sip' | 'fd' | 'ppf' | 'insurance' | 'goal' | 'tax' | 'sub' | 'custom';
@@ -38,7 +38,7 @@ export function short(n: unknown): string {
 
 /* ── Indian tax dates (from js/finos-taxdates.js; statutory defaults, never tied to one year) ───────────── */
 const NOTE = ' Statutory default — verify on incometax.gov.in (deadlines are sometimes extended).';
-export const fyOf = (dateStr: string) => { const d = new Date(dateStr); return d.getMonth() >= 3 ? d.getFullYear() : d.getFullYear() - 1; };
+export const fyOf = (dateStr: string) => { const d = localDay(dateStr); return d.getMonth() >= 3 ? d.getFullYear() : d.getFullYear() - 1; };
 export const fyLabel = (y: number) => `FY ${y}-${pad((y + 1) % 100)}`;
 const iso = (y: number, m: number, d: number) => `${y}-${pad(m)}-${pad(d)}`;
 
@@ -70,7 +70,7 @@ export interface Sources {
 }
 
 function addYearsFrac(startDate: string, years: number) {
-  const d = new Date(startDate);
+  const d = localDay(startDate);
   d.setFullYear(d.getFullYear() + Math.floor(years));
   d.setMonth(d.getMonth() + Math.round((years % 1) * 12));
   return d;

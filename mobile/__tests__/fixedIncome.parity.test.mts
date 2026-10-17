@@ -36,8 +36,8 @@ function rng(seed: number) {
 }
 const R = rng(20261012);
 const pick = <T,>(a: readonly T[]) => a[Math.floor(R() * a.length)];
-const NOW = Date.UTC(2026, 9, 11, 8, 0, 0);
-const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+const NOW = new Date(2026, 9, 11, 8, 0, 0).getTime();   // local 08:00: the reference instant must sit at the same local time in every time zone
+const iso = (ms: number) => { const d = new Date(ms); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };   // the local calendar day, as the app reads dates
 
 function randomEntry(i: number): app.FDEntry {
   const type = pick(['fd', 'rd', 'ppf', 'nsc', 'scss', 'sukanya', 'bond', 'post_td'] as const);

@@ -4,7 +4,6 @@
 // The website's calendar (js/finos-calendar.js) has no custom events and no export, so there is no website key to stay compatible
 // with: custom dates are stored under finos_calendar_custom_events as an array of {id, title, date, amount, repeat, note}.
 // Pure: the clock and the data are parameters.
-import type { CalEvent } from './calendar.ts';
 
 export type Repeat = 'none' | 'monthly' | 'yearly';
 export interface CustomEvent { id: string; title: string; date: string; amount: number | null; repeat: Repeat; note: string }
@@ -67,7 +66,7 @@ export function validateCustom(i: { title: string; date: string; amount: string 
 /** Dates this event falls on within [from, to] (inclusive, YYYY-MM-DD). Monthly repeats clamp to the month's last day. */
 export function occurrences(e: CustomEvent, from: string, to: string): string[] {
   if (!isRealDay(e.date) || from > to) return [];
-  const [y0, m0, d0] = e.date.split('-').map(Number);
+  const [, m0, d0] = e.date.split('-').map(Number);
   const out: string[] = [];
   if (e.repeat === 'none') return e.date >= from && e.date <= to ? [e.date] : [];
   const [fy, fm] = from.split('-').map(Number), [ty, tm] = to.split('-').map(Number);
