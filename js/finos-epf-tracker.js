@@ -16,6 +16,7 @@
  *   finos_epf_value       — current EPF balance (number)
  *   finos_epf_basic       — monthly basic + DA (number)
  *   finos_epf_doj         — date of joining ISO string
+ *   finos_epf_dob         — date of birth ISO string
  *   finos_epf_uan         — UAN (string, not displayed back to Arya)
  *   finos_epf_retire_age  — retirement age (default 58)
  *   finos_epf_projected   — projected EPF corpus at retirement
@@ -33,9 +34,30 @@
   const RETIRE_AGE_DEF = 58;
 
   /* ── Helpers ─────────────────────────────────────────────────────── */
-  function gs(k) { return parseFloat(localStorage.getItem(k) || '0') || 0; }
+  const MAX_TRACKED_RUPEES = Number.MAX_SAFE_INTEGER / 100;
+  function gs(k) {
+    const raw = localStorage.getItem(k);
+    if (raw == null || raw === '') return 0;
+    if (!/^(?:\d+|\d{1,2}(?:,\d{2})*,\d{3})(?:\.\d{1,2})?$/.test(raw)) return 0;
+    const digits = raw.replace(/,/g, ''), [whole, fraction = ''] = digits.split('.');
+    try {
+      const paise = BigInt(whole) * 100n + BigInt((fraction + '00').slice(0, 2));
+      return paise <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(paise) / 100 : 0;
+    } catch (_) { return 0; }
+  }
   function gss(k) { return localStorage.getItem(k) || ''; }
   function ss(k, v) { try { localStorage.setItem(k, String(v)); } catch (_) {} }
+
+  function readMoneyInput(id) {
+    const raw = document.getElementById(id)?.value?.trim() || '';
+    if (!raw) return 0;
+    if (!/^(?:\d+|\d{1,2}(?:,\d{2})*,\d{3})(?:\.\d{1,2})?$/.test(raw)) return null;
+    const digits = raw.replace(/,/g, ''), [whole, fraction = ''] = digits.split('.');
+    try {
+      const paise = BigInt(whole) * 100n + BigInt((fraction + '00').slice(0, 2));
+      return paise <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(paise) / 100 : null;
+    } catch (_) { return null; }
+  }
 
   function INR(n) {
     n = Number(n) || 0;
@@ -50,16 +72,30 @@
     return (y > 0 ? y + ' yr ' : '') + (m > 0 ? m + ' mo' : '');
   }
 
-  function ageAt(doj, retireAge) {
-    if (!doj) return { yearsService: 0, monthsToRetire: 0 };
-    const dojDate = new Date(doj);
+  function validPastDate(value) {
+    if (typeof value !== 'string' || value.length !== 10 || value[4] !== '-' || value[7] !== '-') return false;
+    if (![...value.slice(0, 4), ...value.slice(5, 7), ...value.slice(8)].every(c => c >= '0' && c <= '9')) return false;
+    const [y, m, d] = value.split('-').map(Number);
+    const date = new Date(y, m - 1, d), today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return y >= 1900 && date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d && date <= today;
+  }
+
+  function ageAt(doj, dob, retireAge) {
+    if (!validPastDate(doj) || !Number.isInteger(retireAge) || retireAge < 50 || retireAge > 65) return { yearsService: 0, monthsToRetire: 0, totalServiceYears: 0 };
+    const [dy, dm, dd] = doj.split('-').map(Number);
+    const dojDate = new Date(dy, dm - 1, dd);
     const now = new Date();
-    const birthEstimate = new Date(dojDate);
-    birthEstimate.setFullYear(dojDate.getFullYear() - 22); // assume joined at 22
     const yearsService = (now - dojDate) / (365.25 * 24 * 3600 * 1000);
-    const retireDate = new Date(birthEstimate);
-    retireDate.setFullYear(birthEstimate.getFullYear() + retireAge);
-    const monthsToRetire = Math.max(0, Math.round((retireDate - now) / (30.44 * 24 * 3600 * 1000)));
+    if (!validPastDate(dob)) return { yearsService: Math.round(yearsService * 10) / 10, monthsToRetire: 0, totalServiceYears: 0 };
+    const [by, bm, bd] = dob.split('-').map(Number);
+    const birthDate = new Date(by, bm - 1, bd);
+    if (birthDate > dojDate) return { yearsService: Math.round(yearsService * 10) / 10, monthsToRetire: 0, totalServiceYears: 0 };
+    const targetYear = by + Math.floor(retireAge);
+    const targetDay = Math.min(bd, new Date(targetYear, bm, 0).getDate());
+    const retireDate = new Date(targetYear, bm - 1, targetDay);
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const monthsToRetire = Math.max(0, Math.round((retireDate - today) / (30.44 * 24 * 3600 * 1000)));
     const totalServiceYears = yearsService + monthsToRetire / 12;
     return { yearsService: Math.round(yearsService * 10) / 10, monthsToRetire, totalServiceYears };
   }
@@ -75,6 +111,8 @@
   }
 
   function calcProjectedCorpus(currentBalance, monthlyEPFContrib, monthsToRetire) {
+    if (![currentBalance, monthlyEPFContrib].every(n => Number.isFinite(n) && n >= 0 && n <= MAX_TRACKED_RUPEES)
+      || !Number.isInteger(monthsToRetire) || monthsToRetire < 0 || monthsToRetire > 1200) return null;
     // Monthly contributions, interest compounded annually in April
     const r = EPF_INTEREST / 100;
     let balance = currentBalance;
@@ -83,12 +121,14 @@
       if ((m + 1) % 12 === 0) {
         balance *= (1 + r);
       }
+      if (!Number.isFinite(balance) || balance > MAX_TRACKED_RUPEES) return null;
     }
     // Apply remaining partial-year interest
     const partialMonths = monthsToRetire % 12;
     if (partialMonths > 0) {
       balance += balance * r * (partialMonths / 12);
     }
+    if (!Number.isFinite(balance) || balance > MAX_TRACKED_RUPEES) return null;
     return Math.round(balance);
   }
 
@@ -100,27 +140,48 @@
 
   /* ── Save data from form ─────────────────────────────────────────── */
   function saveAll() {
-    const bal     = parseFloat(document.getElementById('epf-balance')?.value  || '0') || 0;
-    const basic   = parseFloat(document.getElementById('epf-basic')?.value    || '0') || 0;
+    const bal     = readMoneyInput('epf-balance');
+    const basic   = readMoneyInput('epf-basic');
     const doj     = document.getElementById('epf-doj')?.value  || '';
+    const dob     = document.getElementById('epf-dob')?.value  || '';
     const uan     = document.getElementById('epf-uan')?.value  || '';
     const retAge  = parseFloat(document.getElementById('epf-retire-age')?.value || RETIRE_AGE_DEF) || RETIRE_AGE_DEF;
+
+    if (bal === null || basic === null) {
+      for (const id of ['epf-balance', 'epf-basic']) {
+        const field = document.getElementById(id);
+        if (field) { field.setAttribute('aria-invalid', 'true'); field.reportValidity?.(); }
+      }
+      return;
+    }
+    for (const id of ['epf-balance', 'epf-basic']) document.getElementById(id)?.removeAttribute('aria-invalid');
 
     ss('finos_epf_value', bal);
     ss('finos_epf_basic', basic);
     ss('finos_epf_doj', doj);
+    ss('finos_epf_dob', dob);
     ss('finos_epf_uan', uan);
     ss('finos_epf_retire_age', retAge);
 
     // Compute projections
-    if (bal >= 0 && basic > 0 && doj) {
+    if (bal >= 0 && basic > 0 && validPastDate(doj) && validPastDate(dob) && dob <= doj && Number.isInteger(retAge) && retAge >= 50 && retAge <= 65) {
       const c   = calcContributions(basic);
-      const age = ageAt(doj, retAge);
+      const age = ageAt(doj, dob, retAge);
       const proj = calcProjectedCorpus(bal, c.totalEPF, age.monthsToRetire);
       const pen  = calcEPSPension(age.totalServiceYears, basic);
-      ss('finos_epf_projected', proj);
-      ss('finos_epf_pension', pen);
-      window.FinosContext?.update?.({ epfValue: bal, epfProjected: proj });
+      if (proj === null) {
+        ss('finos_epf_projected', 0);
+        ss('finos_epf_pension', 0);
+        window.FinosContext?.update?.({ epfValue: bal, epfProjected: 0 });
+      } else {
+        ss('finos_epf_projected', proj);
+        ss('finos_epf_pension', pen);
+        window.FinosContext?.update?.({ epfValue: bal, epfProjected: proj });
+      }
+    } else {
+      ss('finos_epf_projected', 0);
+      ss('finos_epf_pension', 0);
+      window.FinosContext?.update?.({ epfValue: bal, epfProjected: 0 });
     }
 
     // Refresh both panels
@@ -137,6 +198,7 @@
     const bal    = gs('finos_epf_value');
     const basic  = gs('finos_epf_basic');
     const doj    = gss('finos_epf_doj');
+    const dob    = gss('finos_epf_dob');
     const uan    = gss('finos_epf_uan');
     const ret    = gs('finos_epf_retire_age') || RETIRE_AGE_DEF;
 
@@ -148,12 +210,12 @@
         <div class="epf-field-grid">
           <div class="epf-field">
             <label>Current EPF Balance (₹)</label>
-            <input type="number" id="epf-balance" class="epf-inp" value="${bal || ''}" placeholder="e.g. 850000"
+            <input type="number" id="epf-balance" class="epf-inp" value="${bal || ''}" placeholder="e.g. 850000" min="0" step="0.01"
               oninput="FinosEPFTracker._autoSave()">
           </div>
           <div class="epf-field">
             <label>Monthly Basic + DA (₹)</label>
-            <input type="number" id="epf-basic" class="epf-inp" value="${basic || ''}" placeholder="e.g. 45000"
+            <input type="number" id="epf-basic" class="epf-inp" value="${basic || ''}" placeholder="e.g. 45000" min="0" step="0.01"
               oninput="FinosEPFTracker._autoSave()">
           </div>
           <div class="epf-field">
@@ -162,8 +224,13 @@
               onchange="FinosEPFTracker._autoSave()">
           </div>
           <div class="epf-field">
+            <label>Date of Birth</label>
+            <input type="date" id="epf-dob" class="epf-inp" value="${esc(dob)}" onchange="FinosEPFTracker._autoSave()" aria-describedby="epf-dob-help">
+            <small id="epf-dob-help">Used to calculate your retirement date; no joining-age assumption is made.</small>
+          </div>
+          <div class="epf-field">
             <label>Retirement Age</label>
-            <input type="number" id="epf-retire-age" class="epf-inp" value="${ret}" placeholder="58" min="50" max="65"
+            <input type="number" id="epf-retire-age" class="epf-inp" value="${ret}" placeholder="58" min="50" max="65" step="1"
               onchange="FinosEPFTracker._autoSave()">
           </div>
           <div class="epf-field">
@@ -201,9 +268,7 @@
     }
 
     const c    = basic > 0 ? calcContributions(basic) : { empEPF: 0, eps: 0, emprEPF: 0, totalEPF: 0, total: 0 };
-    const age  = doj ? ageAt(doj, gs('finos_epf_retire_age') || RETIRE_AGE_DEF) : { yearsService: 0 };
-    const ytdInterest = Math.round(bal * (EPF_INTEREST / 100) * Math.min(1, age.yearsService > 0 ? 1 : 0.5));
-
+    const age  = doj ? ageAt(doj, gss('finos_epf_dob'), gs('finos_epf_retire_age') || RETIRE_AGE_DEF) : { yearsService: 0 };
     const annualEmp  = c.empEPF  * 12;
     const annualEmpr = c.emprEPF * 12;
     const annualEPS  = c.eps     * 12;
@@ -217,7 +282,7 @@
           <div class="epf-balance-lbl">Current EPF Corpus</div>
           <div class="epf-balance-val">${INR(bal)}</div>
           ${doj ? `<div class="epf-balance-sub">Service: ${age.yearsService} years</div>` : ''}
-          <div class="epf-balance-badge">🔒 8.25% guaranteed</div>
+          <div class="epf-balance-badge">Projection assumption: 8.25% p.a. for FY 2025-26</div>
         </div>
 
         <!-- Contribution breakdown -->
@@ -252,23 +317,24 @@
             <div class="epf-int-val">${INR(bal * EPF_INTEREST / 100)}</div>
           </div>
           <div>
-            <div class="epf-int-lbl">Effective interest (on contributions)</div>
-            <div class="epf-int-val">${INR(annualTotal * EPF_INTEREST / 100)}</div>
+            <div class="epf-int-lbl">Annual amount added to EPF</div>
+            <div class="epf-int-val">${INR(annualTotal)}</div>
           </div>
           <div>
             <div class="epf-int-lbl">Tax status</div>
-            <div class="epf-int-val" style="color:#22D3A6;">EEE — Fully exempt</div>
+            <div class="epf-int-val">Conditional — tax limits and withdrawal rules apply</div>
           </div>
         </div>
+        <p class="epf-assumption-note">Tax treatment depends on your circumstances. Interest attributable to employee contributions above ₹2.5 lakh in a year may be taxable (₹5 lakh in specified cases where the employer does not contribute); withdrawal exemptions have service conditions. <a href="https://wmstatic-prd.incometaxindia.gov.in/web/guest/w/taxability-of-retirement-benefits" target="_blank" rel="noopener">See Income Tax Department rules</a>.</p>
 
         <!-- EPF vs alternatives -->
-        <div class="epf-section-title" style="margin-top:24px;">How EPF Compares</div>
+        <div class="epf-section-title" style="margin-top:24px;">Compare the account rules</div>
         <div class="epf-compare-grid">
           ${[
-            { label: 'EPF', rate: '8.25%', tax: 'EEE', col: '#22D3A6', note: 'Guaranteed, risk-free' },
-            { label: 'PPF', rate: '7.10%', tax: 'EEE', col: '#4F7CFF', note: '15-yr lock-in' },
-            { label: 'FD (SBI)', rate: '7.00%', tax: 'Taxable', col: '#FFB347', note: 'Flexible tenure' },
-            { label: 'NPS Tier I', rate: '~10%', tax: 'EET', col: '#9B5DE5', note: 'Partial at 60' },
+            { label: 'EPF', rate: 'Annual rate', tax: 'Conditional tax treatment', col: '#22D3A6', note: 'Rate is declared for each financial year' },
+            { label: 'PPF', rate: 'Quarterly rate', tax: 'Scheme rules apply', col: '#4F7CFF', note: '15-year scheme tenure' },
+            { label: 'Bank FD', rate: 'Bank and tenure vary', tax: 'Interest is taxable', col: '#FFB347', note: 'Check the bank’s current offer' },
+            { label: 'NPS Tier I', rate: 'Market-linked', tax: 'Withdrawal rules apply', col: '#9B5DE5', note: 'Returns are not guaranteed' },
           ].map(x => `
             <div class="epf-compare-item">
               <div class="epf-compare-name">${x.label}</div>
@@ -290,17 +356,29 @@
     const bal    = gs('finos_epf_value');
     const basic  = gs('finos_epf_basic');
     const doj    = gss('finos_epf_doj');
+    const dob    = gss('finos_epf_dob');
     const retAge = gs('finos_epf_retire_age') || RETIRE_AGE_DEF;
 
-    if (!bal || !basic || !doj) {
-      el.innerHTML = `<div class="epf-empty">Enter EPF balance, Basic salary, and Date of Joining to see your retirement projection.</div>`;
+    if (!basic || !validPastDate(doj) || !validPastDate(dob) || dob > doj || !Number.isInteger(retAge) || retAge < 50 || retAge > 65) {
+      ss('finos_epf_projected', 0);
+      ss('finos_epf_pension', 0);
+      window.FinosContext?.update?.({ epfValue: bal, epfProjected: 0 });
+      el.innerHTML = `<div class="epf-empty">Enter EPF balance, Basic salary, Date of Joining, and a valid Date of Birth on or before joining to see your retirement projection.</div>`;
       return;
     }
 
     const c    = calcContributions(basic);
-    const age  = ageAt(doj, retAge);
+    const age  = ageAt(doj, dob, retAge);
     const proj = calcProjectedCorpus(bal, c.totalEPF, age.monthsToRetire);
     const pen  = calcEPSPension(age.totalServiceYears, basic);
+
+    if (proj === null) {
+      ss('finos_epf_projected', 0);
+      ss('finos_epf_pension', 0);
+      window.FinosContext?.update?.({ epfValue: bal, epfProjected: 0 });
+      el.innerHTML = `<div class="epf-empty">These inputs produce a projection outside the supported calculation range. Reduce the balance or monthly basic pay and try again.</div>`;
+      return;
+    }
 
     ss('finos_epf_projected', proj);
     ss('finos_epf_pension', pen);
@@ -324,7 +402,7 @@
           <div class="epf-proj-meta">
             ${yearsMonths(age.monthsToRetire)} to go
             · ${INR(c.totalEPF)}/mo contribution
-            · 8.25% compounded
+            · 8.25% assumed annual rate (FY 2025-26)
           </div>
         </div>
 
@@ -373,15 +451,15 @@
         <div class="epf-vpf-box">
           <div class="epf-vpf-title">💡 Voluntary PF (VPF) — Boost Your Corpus</div>
           <p class="epf-vpf-body">
-            VPF lets you contribute <strong>up to 100% of basic</strong> at the same 8.25% EPF rate —
-            fully tax-free under Section 80C. Even ₹2,000/mo extra compounds to
+            Ask your payroll team about voluntary PF contributions and limits. Any 80C deduction depends on eligibility,
+            the chosen tax regime and the shared annual limit; interest tax rules can also apply. Even ₹2,000/mo extra compounds to
             <strong>${INR(calcProjectedCorpus(0, 2000, age.monthsToRetire))} more</strong> at retirement.
           </p>
         </div>
 
         <!-- Assumption note -->
         <div class="epf-assumption-note">
-          Assumptions: 8.25% interest p.a. compounded annually · Current salary · Continuous employment till retirement.
+          Assumptions: 8.25% annual rate for FY 2025-26 used as a future estimate · Current salary · Continuous employment till retirement.
           EPS pension capped at 35 years pensionable service · Statutory formula.
         </div>
       </div>`;

@@ -19,10 +19,12 @@ window.FinosEmergencyFund = (function () {
 
   /* ── Core computation ─────────────────────────────────────────── */
   function _compute() {
-    const fund   = gs('finos_emergency_fund');
-    const target = parseInt(gss('finos_emergency_months_target')) || 6;
+    const positive = key => { const v = gs(key); return Number.isFinite(v) && v > 0 ? v : 0; };
+    const fund   = positive('finos_emergency_fund');
+    const requestedTarget = parseInt(gss('finos_emergency_months_target'), 10);
+    const target = [3, 6, 12].includes(requestedTarget) ? requestedTarget : 6;
     // Pull monthly expense from budget tracker if available
-    const monthlyExp = gs('finos_monthly_expense') || gs('finos_budget_expenses') || 0;
+    const monthlyExp = positive('finos_monthly_expense') || positive('finos_aa_expense') || positive('finos_budget_expenses');
     const targetAmt  = monthlyExp * target;
     const pct        = targetAmt > 0 ? Math.min((fund / targetAmt) * 100, 100) : 0;
     const covered    = monthlyExp > 0 ? Math.round((fund / monthlyExp) * 10) / 10 : 0;

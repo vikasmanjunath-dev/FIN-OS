@@ -27,7 +27,9 @@
   const NOTE = ' Statutory default — verify on incometax.gov.in (deadlines are sometimes extended).';
 
   function fyOf(dateStr) {
-    const d = new Date(dateStr);
+    // a date-only string is a calendar day, not a UTC instant (new Date('2026-04-01') is still 31 March west of UTC)
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dateStr));
+    const d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(dateStr);
     return d.getMonth() >= 3 ? d.getFullYear() : d.getFullYear() - 1;
   }
   const fyLabel = (y) => `FY ${y}-${pad((y + 1) % 100)}`;

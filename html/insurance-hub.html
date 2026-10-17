@@ -278,6 +278,32 @@ function INR(n) {
   return '₹' + Math.round(num).toLocaleString('en-IN');
 }
 
+function policyAmount(value) {
+  const n = typeof value === 'number' ? value : (typeof value === 'string' && value.trim() ? Number(value) : 0);
+  return Number.isFinite(n) && n >= 0 && n <= Number.MAX_SAFE_INTEGER / 100 ? n : 0;
+}
+
+function sumPolicyAmount(policies, field, type) {
+  return policies.reduce((sum, policy) => sum + policyAmount(policy[field]) * (type == null || policy.type === type ? 1 : 0), 0);
+}
+
+function policyRenewalParts(value) {
+  const m = typeof value === 'string' && /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!m) return null;
+  const y = Number(m[1]), month = Number(m[2]), day = Number(m[3]);
+  const check = new Date(Date.UTC(y, month - 1, day));
+  return y >= 1900 && check.getUTCFullYear() === y && check.getUTCMonth() === month - 1 && check.getUTCDate() === day
+    ? { year: y, month, day }
+    : null;
+}
+
+function policyRenewalDays(value, now = new Date()) {
+  const d = policyRenewalParts(value);
+  if (!d) return null;
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((Date.UTC(d.year, d.month - 1, d.day) - today) / 86400000);
+}
+
 function loadPolicies() {
   try { return ((v)=>Array.isArray(v)?v:[])(JSON.parse(localStorage.getItem(STORE_KEY)||'[]')).filter(x => x && typeof x === 'object'); }
   catch { return []; }
@@ -313,11 +339,8 @@ function renderOverview(policies) {
     critical:  income > 0 ? income * 12 * 5 : 0     // 5x annual income
   };
 
-  const byType = {};
-  policies.forEach(p => {
-    if (!byType[p.type]) byType[p.type] = 0;
-    byType[p.type] += Number(p.sum_assured || 0);
-  });
+  const byType = Object.create(null);
+  for (const type of Object.keys(TYPE_META)) byType[type] = sumPolicyAmount(policies, 'sum_assured', type);
 
   const types = ['health','life_term','vehicle','critical'];
   document.getElementById('coverageOverview').innerHTML = types.map(t => {
@@ -358,8 +381,8 @@ function renderGapAnalysis(policies) {
   const hasHealth = policies.some(p => p.type === 'health');
   const hasTerm   = policies.some(p => p.type === 'life_term');
   const hasVehicle = policies.some(p => p.type === 'vehicle');
-  const totalHealth = policies.filter(p => p.type === 'health').reduce((s,p) => s + Number(p.sum_assured||0), 0);
-  const totalLife   = policies.filter(p => p.type === 'life_term').reduce((s,p) => s + Number(p.sum_assured||0), 0);
+  const totalHealth = sumPolicyAmount(policies, 'sum_assured', 'health');
+  const totalLife   = sumPolicyAmount(policies, 'sum_assured', 'life_term');
   const recHealth = income * 12 * 2;
   const recLife   = income * 12 * 15;
   const incomeKnown = income > 0;
@@ -405,8 +428,8 @@ function renderPolicies(policies) {
   }
   el.innerHTML = policies.map((p, i) => {
     const meta = TYPE_META[p.type] || TYPE_META.health;
-    const renewalDays = p.renewal_date ? Math.floor((new Date(p.renewal_date) - Date.now()) / 86400000) : null;
-    const renewalColor = renewalDays !== null ? (renewalDays <= 30 ? '#ff4444' : renewalDays <= 90 ? '#ff9500' : '#22d3a6') : 'rgba(255,255,255,.3)';
+    const days = policyRenewalDays(p.renewal_date);
+    const renewalColor = days !== null ? (days < 0 ? '#ff4444' : days <= 30 ? '#ff4444' : days <= 90 ? '#ff9500' : '#22d3a6') : 'rgba(255,255,255,.3)';
     return `
       <div class="ins-card" style="border-top:3px solid ${meta.color};">
         <div class="ins-card-header">
@@ -419,16 +442,16 @@ function renderPolicies(policies) {
         </div>
         <div class="ins-metric">
           <span class="ins-metric-label">Sum Assured</span>
-          <span class="ins-metric-val" style="color:${meta.color};">${INR(p.sum_assured)}</span>
+          <span class="ins-metric-val" style="color:${meta.color};">${INR(policyAmount(p.sum_assured))}</span>
         </div>
         <div class="ins-metric">
           <span class="ins-metric-label">Annual Premium</span>
-          <span class="ins-metric-val">${p.annual_premium ? INR(p.annual_premium) : '—'}</span>
+          <span class="ins-metric-val">${policyAmount(p.annual_premium) ? INR(policyAmount(p.annual_premium)) : '—'}</span>
         </div>
-        ${renewalDays !== null ? `
+        ${days !== null ? `
         <div class="ins-metric">
           <span class="ins-metric-label">Renewal</span>
-          <span class="ins-metric-val" style="color:${renewalColor};">${renewalDays <= 0 ? 'EXPIRED!' : renewalDays === 0 ? 'Today' : renewalDays + 'd'}</span>
+          <span class="ins-metric-val" style="color:${renewalColor};">${days < 0 ? `Expired ${-days}d ago` : days === 0 ? 'Today' : days + 'd'}</span>
         </div>` : ''}
         ${p.policy_number ? `<div class="ins-metric"><span class="ins-metric-label">Policy No.</span><span class="ins-metric-val" style="font-size:11px;color:rgba(255,255,255,.5);">${escH(p.policy_number)}</span></div>` : ''}
         ${p.notes ? `<div style="font-size:11px;color:rgba(255,255,255,0.58);margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.05);">${escH(p.notes)}</div>` : ''}
@@ -443,12 +466,15 @@ function renderPremiumCalendar(policies) {
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const premByMonth = new Array(12).fill(0);
   const renewalByMonth = {};
+  let annualTotal = 0;
 
   policies.forEach(p => {
-    if (!p.renewal_date) return;
-    const d = new Date(p.renewal_date);
-    const m = d.getMonth();
-    premByMonth[m] += Number(p.annual_premium || 0);
+    const premium = policyAmount(p.annual_premium);
+    annualTotal += premium;
+    const d = policyRenewalParts(p.renewal_date);
+    if (!d) return;
+    const m = d.month - 1;
+    premByMonth[m] += premium;
     if (!renewalByMonth[m]) renewalByMonth[m] = [];
     renewalByMonth[m].push(p);
   });
@@ -469,7 +495,8 @@ function renderPremiumCalendar(policies) {
       }).join('')}
     </div>
     <div style="font-size:12px;color:rgba(255,255,255,.5);">
-      Total annual premiums: <strong style="color:#fff;">${INR(premByMonth.reduce((a,b)=>a+b,0))}</strong>
+      Annual premiums for all recorded policies: <strong style="color:#fff;">${INR(annualTotal)}</strong>
+      <span style="display:block;margin-top:4px;font-size:10px;">The monthly chart groups dated policies by renewal month; policies without a valid renewal date are included only in the total.</span>
     </div>`;
 }
 
@@ -478,12 +505,20 @@ function openAddPolicy()  { document.getElementById('addPolicySection').style.di
 function closeAddPolicy() { document.getElementById('addPolicySection').style.display = 'none'; }
 
 function savePolicy() {
+  const sumRaw = document.getElementById('polSumAssured').value.trim();
+  const premiumRaw = document.getElementById('polPremium').value.trim();
+  const sumAssured = sumRaw === '' ? NaN : Number(sumRaw);
+  const annualPremium = premiumRaw === '' ? 0 : Number(premiumRaw);
+  const renewalDate = document.getElementById('polRenewal').value;
+  if (!Number.isFinite(sumAssured) || sumAssured <= 0 || sumAssured > Number.MAX_SAFE_INTEGER / 100) { alert('Enter a valid positive sum assured amount.'); return; }
+  if (!Number.isFinite(annualPremium) || annualPremium < 0 || annualPremium > Number.MAX_SAFE_INTEGER / 100) { alert('Enter a valid non-negative annual premium.'); return; }
+  if (renewalDate && !policyRenewalParts(renewalDate)) { alert('Enter a valid renewal date or leave it blank.'); return; }
   const p = {
     type:          document.getElementById('polType').value,
     provider:      document.getElementById('polProvider').value.trim(),
-    sum_assured:   Number(document.getElementById('polSumAssured').value) || 0,
-    annual_premium:Number(document.getElementById('polPremium').value)    || 0,
-    renewal_date:  document.getElementById('polRenewal').value,
+    sum_assured:   sumAssured,
+    annual_premium:annualPremium,
+    renewal_date:  renewalDate,
     policy_number: document.getElementById('polNumber').value.trim(),
     notes:         document.getElementById('polNotes').value.trim(),
     added_at:      new Date().toISOString()
@@ -517,8 +552,8 @@ async function analyzeInsurance() {
   const age = ageRaw > 0 && ageRaw < 120 ? ageRaw : 0;                                    // 0 = not recorded
   const name = ctx?.identity?.name?.split(' ')[0] || 'bhai';
 
-  const polSummary = policies.length ? policies.map(p => `${TYPE_META[p.type]?.label}: ${INR(p.sum_assured)}`).join(', ') : 'No policies added yet';
-  const totalPrem  = policies.reduce((s,p) => s + Number(p.annual_premium||0), 0);
+  const polSummary = policies.length ? policies.map(p => `${TYPE_META[p.type]?.label || 'Insurance'}: ${INR(policyAmount(p.sum_assured))}`).join(', ') : 'No policies added yet';
+  const totalPrem  = sumPolicyAmount(policies, 'annual_premium');
 
   const prompt = `Insurance analysis for ${name} (age ${age ? age : 'not recorded'}, income ${income > 0 ? INR(income) + '/month' : 'not recorded'}):
 Current policies: ${polSummary}

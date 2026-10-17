@@ -215,8 +215,9 @@
 
     const months12 = [];
     for (let i = 11; i >= 0; i--) {
-      const d = new Date(); d.setMonth(d.getMonth() - i);
-      months12.push(d.toISOString().slice(0,7));
+      // local calendar months, built from day 1 (setMonth on today's date overflows on the 29th-31st; toISOString is UTC)
+      const t = new Date(), d = new Date(t.getFullYear(), t.getMonth() - i, 1);
+      months12.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'));
     }
 
     const streak = calcSIPStreak(sipHistory, months12);
@@ -237,7 +238,7 @@
             const entry = sipHistory.find(s => s.month === m);
             const paid  = entry?.paid !== false && entry;
             const bg    = paid ? 'rgba(34,211,166,.5)' : 'rgba(255,68,68,.25)';
-            const label = new Date(m+'-01').toLocaleDateString('en-IN',{month:'short'}).slice(0,3);
+            const label = new Date(+m.slice(0,4), +m.slice(5,7) - 1, 1).toLocaleDateString('en-IN',{month:'short'}).slice(0,3);
             return `<div title="${label} ${m.slice(0,4)}: ${paid ? '✅ Paid' : '❌ Missed'}" style="height:32px;border-radius:4px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:8px;color:rgba(255,255,255,.7);">${label}</div>`;
           }).join('')}
         </div>

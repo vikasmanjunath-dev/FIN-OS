@@ -35,10 +35,11 @@ test('Fixed-income tracker instruments and rate table use the canonical rates', 
   assert.equal(row('Post Office MIS'), RATES.POST_OFFICE_MIS);
 });
 
-test('EPF tracker and retirement planner use the canonical EPF and PPF rates', () => {
+test('EPF tracker states the EPF rate period and avoids stale comparison rates', () => {
   const epf = read('js/finos-epf-tracker.js');
   assert.equal(Number(epf.match(/EPF_INTEREST\s*=\s*([0-9.]+)/)[1]), RATES.EPF);
-  assert.ok(epf.includes("{ label: 'PPF', rate: '7.10%'"), 'EPF comparison table PPF rate');
+  assert.ok(epf.includes('FY 2025-26'), 'EPF rate must carry its financial-year label');
+  assert.ok(epf.includes("{ label: 'PPF', rate: 'Quarterly rate'"), 'comparison must not hard-code a rate that changes quarterly');
   const plan = read('js/finos-retirement-planner.js');
   assert.ok(plan.includes('_fv(gs(\'finos_epf_value\'), ' + RATES.EPF / 100));
   assert.ok(plan.includes("_fv(gs('finos_ppf_value'), " + RATES.PPF / 100));

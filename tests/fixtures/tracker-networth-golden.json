@@ -1,0 +1,22 @@
+[
+  {
+    "name": "empty account has no assumed FIRE target",
+    "values": {},
+    "expected": { "totalAssets": 0, "totalLiabilities": 0, "netWorth": 0, "fireMonthlyExpense": 0, "fireCorpus": 0, "firePercent": 0, "fireSource": "unknown" }
+  },
+  {
+    "name": "manual monthly expense is the FIRE source",
+    "values": { "finos_cash_value": 12345.67, "finos_gold_value": 20000, "finos_home_loan": 10000, "finos_monthly_income": 100000, "finos_monthly_expense": 40000 },
+    "expected": { "totalAssets": 32345.67, "totalLiabilities": 10000, "netWorth": 22345.67, "fireMonthlyExpense": 40000, "fireCorpus": 12000000, "firePercent": 0.18621391666666665, "fireSource": "expense" }
+  },
+  {
+    "name": "income fallback is explicit and capped at full FIRE progress",
+    "values": { "finos_cash_value": 20000000, "finos_monthly_income": 100000 },
+    "expected": { "totalAssets": 20000000, "totalLiabilities": 0, "netWorth": 20000000, "fireMonthlyExpense": 60000, "fireCorpus": 18000000, "firePercent": 100, "fireSource": "income-60%" }
+  },
+  {
+    "name": "linked-account expenses are used when manual spending is absent",
+    "values": { "finos_cash_value": 1000000, "finos_aa_expense": 30000 },
+    "expected": { "totalAssets": 1000000, "totalLiabilities": 0, "netWorth": 1000000, "fireMonthlyExpense": 30000, "fireCorpus": 9000000, "firePercent": 11.11111111111111, "fireSource": "bank" }
+  }
+]
