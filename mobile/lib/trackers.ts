@@ -123,13 +123,16 @@ export interface NetWorth {
   netWorth: number;
   /** monthly expense the FIRE target is based on, and where that number came from */
   fireMonthlyExpense: number;
-  fireSource: 'expense' | 'bank' | 'income-60%' | 'default';
+  fireSource: 'expense' | 'bank' | 'income-60%' | 'unknown';
   fireCorpus: number;
   /** 0–100 */
   firePercent: number;
 }
 
-const val = (d: TrackerData, f: keyof TrackerData) => Math.max(0, Number(d[f]) || 0);
+const val = (d: TrackerData, f: keyof TrackerData) => {
+  const value = d[f];
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 0;
+};
 
 export function computeNetWorth(d: TrackerData): NetWorth {
   const assetRows = ASSET_ITEMS.map(a => ({ ...a, value: val(d, a.field) })).filter(a => a.value > 0);
@@ -141,10 +144,10 @@ export function computeNetWorth(d: TrackerData): NetWorth {
 
   // FIRE = 25× annual expenses (the 4% rule), same fallbacks as the website
   let fireMonthlyExpense: number, fireSource: NetWorth['fireSource'];
-  if (d.expense > 0) { fireMonthlyExpense = d.expense; fireSource = 'expense'; }
-  else if (d.aaExpense > 0) { fireMonthlyExpense = d.aaExpense; fireSource = 'bank'; }
-  else if (d.income > 0) { fireMonthlyExpense = d.income * 0.6; fireSource = 'income-60%'; }
-  else { fireMonthlyExpense = 50000; fireSource = 'default'; }
+  if (val(d, 'expense') > 0) { fireMonthlyExpense = val(d, 'expense'); fireSource = 'expense'; }
+  else if (val(d, 'aaExpense') > 0) { fireMonthlyExpense = val(d, 'aaExpense'); fireSource = 'bank'; }
+  else if (val(d, 'income') > 0) { fireMonthlyExpense = val(d, 'income') * 0.6; fireSource = 'income-60%'; }
+  else { fireMonthlyExpense = 0; fireSource = 'unknown'; }
   const fireCorpus = fireMonthlyExpense * 12 * 25;
   const firePercent = fireCorpus > 0 ? Math.max(0, Math.min(100, (netWorth / fireCorpus) * 100)) : 0;
 
@@ -164,8 +167,9 @@ export interface Budget {
 }
 
 export function computeBudget(d: TrackerData): Budget {
-  const income = d.income || d.aaIncome || 0;
-  const expense = d.expense || d.aaExpense || 0;
+  const positiveFinite = (value: number) => Number.isFinite(value) && value > 0 ? value : 0;
+  const income = positiveFinite(d.income) || positiveFinite(d.aaIncome);
+  const expense = positiveFinite(d.expense) || positiveFinite(d.aaExpense);
   const saving = income - expense;
   const known = income > 0 && expense > 0;
   const savingsRate = known ? Math.max(-100, Math.min(100, Math.round((saving / income) * 100))) : 0;

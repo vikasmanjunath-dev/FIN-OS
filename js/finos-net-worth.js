@@ -34,7 +34,15 @@
   'use strict';
 
   /* ── Helpers ─────────────────────────────────────────────────────── */
-  function gs(key, fallback = 0) { return parseFloat(localStorage.getItem(key) || fallback) || 0; }
+  // Persisted tracker values are numeric strings written by tracker forms. Do not
+  // accept parseFloat prefixes (for example "5000oops") or non-finite values.
+  function gs(key, fallback = 0) {
+    const raw = localStorage.getItem(key);
+    if (raw == null || raw.trim() === '') return fallback;
+    if (!/^\+?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(raw.trim())) return 0;
+    const value = Number(raw);
+    return Number.isFinite(value) && value >= 0 ? value : 0;
+  }
   function ls(key) { try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; } }
 
   function INR(n) {

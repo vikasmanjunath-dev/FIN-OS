@@ -34,6 +34,7 @@ This is a verification report for the changes made in this audit. It is not a pr
 - Latest budget regressions: web budget suite **13/13 passed**; dedicated mobile rollup parity **1/1 passed**; mobile shared logic **15/15 passed**, including malformed normalized records, runtime-invalid limits, strict imported amount parsing, Gregorian date validation/leap days and impossible ISO timestamp dates, with web/mobile parity. Mobile TypeScript check passed.
 - Retirement verification: `retirement.parity.test.mts` plus input-safety regressions — **7/7 passed**, including web/mobile parity for 400 stored profiles and corrupted-value/DOB cases; mobile TypeScript check passed.
 - Goal verification: deadline/goal safety **4/4 passed**; goal optimizer parity **4/4 passed**, including 800 randomized goal sets; mobile TypeScript check passed.
+- Net-worth/FIRE verification: web persisted-number regressions and shared golden cases **2/2 passed**; mobile malformed-state and golden parity **2/2 passed**; mobile TypeScript check passed.
 - A package-wide mobile test invocation was attempted but interrupted after it reached the loopback-dependent mock Supabase test; this attempt is inconclusive and is not counted as a pass. The last completed full mobile suite remains 1,036/1,036 from before these parsing/date changes.
 - Mobile TypeScript: `PATH=/Users/vkm/.nvm/versions/node/v24.15.0/bin:$PATH npm run typecheck` — passed.
 - Updated `/tracker/transactions` browser smoke — **1 screen × 4 states**, 0 problems after adding transfer entry and display support.
