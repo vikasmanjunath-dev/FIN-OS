@@ -2,7 +2,7 @@
 
 Audit branch: `audit/track-finances-production`
 Inventory status: Phase 1 initial mapping
-Coverage status key: **partial** = at least one unit/UI test exists, not end-to-end audited; **none known** = no focused test located in the initial scan; **baseline pending** = browser/device execution is still pending.
+Coverage status key: **partial** = at least one unit/UI test exists, not end-to-end audited; **none known** = no focused test located in the initial scan; **baseline pending** = browser/device execution is still pending.  **covered** = a web/app known-answer parity suite exists and passes (updated at release sign-off; the initial "none known" scan missed these suites).
 
 ## Website hub and linked routes
 
@@ -17,19 +17,19 @@ Entry page: `html/track-finances.html`. It contains the summary hub (net worth, 
 | Net Worth Aggregator `net-worth.html` | `js/finos-net-worth.js` | partial; mobile logic/parity coverage exists |
 | Portfolio Dissector `portfolio.html` | `js/portfolio.js`, portfolio data services | partial, portfolio suite |
 | SIP & MF Tracker `mf-intelligence.html` | `js/finos-sip-tracker.js` and MF modules | partial |
-| Portfolio Rebalancer `portfolio-rebalancer.html` | page module | none known |
+| Portfolio Rebalancer `portfolio-rebalancer.html` | page module | covered (web-vs-app known-answer parity: `mobile/__tests__/rebalancer.parity.test.mts`, passes in the 1,066-test mobile suite) |
 | Fixed Income `fd-tracker.html` | `js/finos-fd-tracker.js` | partial (`tests/fd-tracker.test.js`) |
 | Gold `gold-tracker.html` | `js/finos-gold-tracker.js` | partial (`tests/test_gold_tracker_ui.py`) |
 | Crypto `crypto-tracker.html` | `js/finos-crypto-tracker.js` | partial (`tests/crypto-tracker.test.js`) |
 | PPF & Small Savings `ppf-tracker.html` | `js/finos-ppf-tracker.js` | partial (`tests/ppf-80c.test.js`) |
-| SIP Step-Up Planner `sip-stepup.html` | page-specific calculation module | none known |
-| Real Estate Tools `real-estate.html` | page-specific calculation module | none known |
+| SIP Step-Up Planner `sip-stepup.html` | page-specific calculation module | covered (web-vs-app known-answer parity: `mobile/__tests__/sipStepup.parity.test.mts`, passes in the 1,066-test mobile suite) |
+| Real Estate Tools `real-estate.html` | page-specific calculation module | covered (web-vs-app known-answer parity: `mobile/__tests__/realEstate.parity.test.mts`, passes in the 1,066-test mobile suite) |
 | EPF & PF `epf-tracker.html` | `js/finos-epf-tracker.js` | partial |
 | NPS `nps-tracker.html` | `js/finos-nps-tracker.js` | partial (`tests/test_nps_tax.py`) |
 | Retirement Planner `retirement-planner.html` | retirement calculation modules | partial |
 | Salary Optimizer `salary-optimizer.html` | salary/tax modules | partial |
 | ITR Filing Prep `itr-summary.html` | tax summary modules | partial |
-| Tax Loss / Gain Harvesting `tax-harvest.html` | `js/finos-tax-harvest.js` | none known in initial scan |
+| Tax Loss / Gain Harvesting `tax-harvest.html` | `js/finos-tax-harvest.js` | covered (web-vs-app known-answer parity: `mobile/__tests__/taxHarvest.parity.test.mts`, passes in the 1,066-test mobile suite) |
 | Debt Optimizer `debt-optimizer.html` | debt planner modules | partial |
 | Credit Score `credit-score.html` | credit score modules | partial |
 | Home Loan EMI Planner `home-loan.html` | loan calculator modules | partial |
@@ -40,8 +40,8 @@ Entry page: `html/track-finances.html`. It contains the summary hub (net worth, 
 | Budget Forecast `budget-forecast.html` | `js/finos-budget.js`, `js/finos-budget-ui.js` | partial (`tests/budget.test.js`, UI tests) |
 | Financial Calendar `financial-calendar.html` | calendar and tracker modules | partial |
 | Goal Optimizer `goal-optimizer.html` | `js/finos-goal-optimizer.js` | partial |
-| Passive Income `passive-income.html` | `js/finos-passive-income.js` | none known in initial scan |
-| Bonus & Windfall `windfall.html` | page-specific planner | none known |
+| Passive Income `passive-income.html` | `js/finos-passive-income.js` | covered (web-vs-app known-answer parity: `mobile/__tests__/passive.parity.test.mts`, passes in the 1,066-test mobile suite) |
+| Bonus & Windfall `windfall.html` | page-specific planner | covered (web-vs-app known-answer parity: `mobile/__tests__/windfall.parity.test.mts`, passes in the 1,066-test mobile suite) |
 | Subscription Tracker `subscription-tracker.html` | `js/finos-subscriptions.js` | partial (`tests/subscriptions.test.js`) |
 | Command Hub `financial-hub.html` | hub/context modules | partial, broad UI tests |
 
@@ -60,7 +60,7 @@ The mobile Track tab is `mobile/app/(tabs)/track.tsx`. It displays monthly incom
 | `/tracker/fixed` | fixed income | fixed-income parity/storage tests |
 | `/tracker/goals` | goals | goal optimizer parity tests |
 | `/tracker/gold` | gold holdings | gold parity tests |
-| `/tracker/harvest` | tax harvesting | none known in initial scan |
+| `/tracker/harvest` | tax harvesting | covered (`mobile/__tests__/taxHarvest.parity.test.mts`) |
 | `/tracker/health` | financial health score and actions | health logic tests |
 | `/tracker/holdings-import` | portfolio holdings import | import/portfolio tests, flow coverage pending |
 | `/tracker/import` | statement import, preview, undo | import tests, flow coverage pending |
