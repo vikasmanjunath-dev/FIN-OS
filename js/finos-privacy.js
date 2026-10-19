@@ -70,6 +70,11 @@
       purpose: 'FIN-OS names these providers and links to them where you could fetch consented bank, mutual-fund or EPF data. FIN-OS does not connect to them today. You can bring your own transactions in by importing a statement file, which is read on your device and never uploaded.',
       sent: 'Nothing is sent by FIN-OS.', personal: false, optional: true, control: 'You choose whether to follow a link. Statement import runs entirely on your device.' },
 
+    { id: 'appdownload', kind: 'link', hosts: ['github.com'], title: 'Android app download (GitHub)',
+      purpose: 'The download page links to the Android app file, which is hosted on GitHub Releases.',
+      sent: 'Nothing is sent by FIN-OS. If you tap Download, GitHub sees your IP address and the file you ask for.', personal: false, optional: true,
+      control: 'You choose whether to tap the link.' },
+
     { id: 'share', kind: 'link', hosts: ['wa.me', 'twitter.com', 'x.com'], title: 'Sharing',
       purpose: 'Share buttons open WhatsApp or X with text you can edit first.', sent: 'Only the text you choose to share, and only when you press Share.', personal: false, optional: true,
       control: 'You see and can edit the message before anything is sent.' },

@@ -53,3 +53,8 @@ mobile/dist/
 mobile/.release-export-tmp/
 mobile/.audit-insurance-export/
 .claude/worktrees/
+
+# App builds: host these elsewhere, never commit them
+*.apk
+*.aab
+mobile/release/
