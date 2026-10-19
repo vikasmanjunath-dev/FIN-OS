@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>(function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B0D12">
+  <meta name="description" content="Download the FIN-OS Android app (APK) and install it in a few steps. Free, works offline for trackers and calculators.">
+  <title>Download the Android App | FIN-OS</title>
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../css/design-tokens.css">
+  <link rel="stylesheet" href="../css/base.css?v=2">
+  <link rel="stylesheet" href="../css/layout.css?v=4">
+  <link rel="stylesheet" href="../css/components.css?v=2">
+  <link rel="stylesheet" href="../css/theme.css?v=2">
+  <link rel="stylesheet" href="../css/interactions.css">
+
+  <style>
+    .dl-page { background: var(--bg-main); min-height: 100vh; }
+    .dl-wrap { max-width: 820px; margin: 0 auto; padding: 40px 24px 120px; }
+    .dl-back { display: inline-block; font-size: 13px; font-weight: 600; color: var(--text-secondary); text-decoration: none; }
+    .dl-back:hover { color: #4F7CFF; }
+    .dl-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(26px, 4vw, 38px); font-weight: 800; color: var(--text-primary); margin: 14px 0 8px; letter-spacing: -.01em; }
+    .dl-sub { font-size: 15px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 22px; }
+    .dl-card { padding: 20px 22px; border-radius: 18px; background: var(--bg-surface); border: 1px solid var(--border-soft); display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center; justify-content: space-between; }
+    .dl-card h2 { margin: 0 0 4px; font-size: 18px; color: var(--text-primary); }
+    .dl-meta { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
+    .dl-btn { display: inline-block; padding: 14px 24px; border-radius: 14px; font-size: 15px; font-weight: 800; background: #3560E0; color: #fff; text-decoration: none; border: 1px solid #3560E0; }
+    .dl-btn:hover { background: #2a4fc4; }
+    .dl-btn:focus-visible, .dl-wrap a:focus-visible { outline: 2px solid #4F7CFF; outline-offset: 2px; }
+    .dl-h { font-size: 20px; font-weight: 800; color: var(--text-primary); margin: 36px 0 12px; }
+    .dl-wrap p, .dl-wrap li { font-size: 14px; line-height: 1.75; color: var(--text-secondary); }
+    .dl-wrap strong { color: var(--text-primary); }
+    .dl-steps { counter-reset: s; list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+    .dl-steps li { counter-increment: s; position: relative; padding: 14px 16px 14px 56px; border-radius: 14px; background: var(--bg-surface); border: 1px solid var(--border-soft); }
+    .dl-steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 28px; height: 28px; border-radius: 50%; background: #3560E0; color: #fff; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+    .dl-note { padding: 14px 16px; border-radius: 14px; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.45); color: var(--text-primary); font-size: 13px; line-height: 1.65; margin: 14px 0; }
+    .dl-list { padding-left: 20px; margin: 8px 0; }
+    .dl-hash { font-family: 'JetBrains Mono', monospace; font-size: 12px; word-break: break-all; padding: 10px 12px; border-radius: 10px; background: var(--bg-surface); border: 1px solid var(--border-soft); color: var(--text-primary); }
+    .dl-wrap a:not(.dl-btn):not(.dl-back) { color: #8fb0ff; text-decoration: underline; text-underline-offset: 3px; }
+    [data-theme="light"] .dl-wrap a:not(.dl-btn):not(.dl-back) { color: #2447b8; }
+    [data-theme="light"] .dl-page { background: #F4F6FB; }
+    @media (max-width: 520px) { .dl-wrap { padding: 28px 16px 100px; } .dl-btn { width: 100%; text-align: center; } }
+  </style>
+</head>
+<body class="dl-page">
+<main class="dl-wrap" id="main">
+  <a class="dl-back" href="../index.html">&larr; Back to FIN-OS</a>
+  <h1 class="dl-title">FIN-OS for Android</h1>
+  <p class="dl-sub">Track your money, run the calculators and see your Money Score on your phone. Your tracker data stays on your device.</p>
+
+  <section class="dl-card" aria-labelledby="dl-card-h">
+    <div>
+      <h2 id="dl-card-h">FIN-OS 1.0.0</h2>
+      <p class="dl-meta">Android 7.0 or newer &middot; 62 MB &middot; Updated 17 Oct 2026</p>
+    </div>
+    <a class="dl-btn" id="dl-apk" href="../downloads/FIN-OS-1.0.0.apk" download>Download APK</a>
+  </section>
+
+  <div class="dl-note"><strong>This app is not on the Play Store.</strong> You install it straight from this page, so Android will ask you to allow it once. The steps below take about a minute.</div>
+
+  <h2 class="dl-h">Install in 5 steps</h2>
+  <ol class="dl-steps">
+    <li><strong>Open this page on your Android phone</strong> and tap <strong>Download APK</strong>. If Chrome says &ldquo;This type of file can harm your device&rdquo;, tap <strong>Download anyway</strong>.</li>
+    <li>When the download finishes, tap <strong>Open</strong> on the notification, or open <strong>Files &rarr; Downloads</strong> and tap <strong>FIN-OS-1.0.0.apk</strong>.</li>
+    <li>Android will say it can&rsquo;t install apps from this source. Tap <strong>Settings</strong> and switch on <strong>Allow from this source</strong> for your browser (Chrome or Files).</li>
+    <li>Go back and tap <strong>Install</strong>. If Play Protect shows a warning, tap <strong>More details &rarr; Install anyway</strong>.</li>
+    <li>Tap <strong>Open</strong>. You can switch the &ldquo;Install unknown apps&rdquo; permission off again afterwards.</li>
+  </ol>
+
+  <h2 class="dl-h">What works today</h2>
+  <ul class="dl-list">
+    <li><strong>Works with no internet:</strong> net worth, budget and transaction log, goals, emergency fund, EPF / NPS / PPF, insurance, subscriptions, the Money Score, tax tools, retirement and loan planners, and statement import (read on your phone, never uploaded).</li>
+    <li><strong>Not available yet for most people:</strong> live market data, stock quotes and Arya chat. They need the FIN-OS server, which isn&rsquo;t open to the public yet. These screens will show as unavailable.</li>
+    <li><strong>Optional sign-in</strong> lets you sync your trackers with the website. You can use the app without an account.</li>
+  </ul>
+
+  <h2 class="dl-h">Check the file is genuine</h2>
+  <p>If you want to be sure the file wasn&rsquo;t changed on the way to you, compare its SHA-256 checksum with this one. On a computer, run <code>shasum -a 256 FIN-OS-1.0.0.apk</code>.</p>
+  <p class="dl-hash" id="dl-sha">5a3ef6556af4b26570e96556b1c323b21dff7cf7b231bc97f81fbb335dd17e8b</p>
+  <p>Only install the app from this page. A copy from anywhere else may not be the real one.</p>
+
+  <h2 class="dl-h">Updating</h2>
+  <p>New versions are posted on this page. Download the new APK and install it over the old one. Your data stays on the phone. There is no automatic update, so check back now and then.</p>
+
+  <h2 class="dl-h">Your data and the rules</h2>
+  <p>FIN-OS is an educational tool, not financial advice. Read what the app stores and every address it contacts on the <a href="privacy.html">Privacy &amp; Your Data</a> page, and the <a href="terms.html">Terms of Use</a>.</p>
+  <p>Found a problem? <a href="feedback.html">Tell us here</a>.</p>
+</main>
+</body>
+</html>
