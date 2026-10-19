@@ -45,6 +45,10 @@ export const SCREENS: Entry[] = [
   // tools
   e('/tools/score', 'Money Score', 'One number for your money picture', 'Tools', 'score rating check next moves', '⭐'),
   e('/tools/dna', 'Financial DNA', 'Nine questions about your money mindset', 'Tools', 'quiz personality behaviour mindset', '🧬'),
+  e('/learn/reels', 'Money reels', 'Short animated lessons with Mitra the owl', 'Learn', 'reels videos animated lessons shorts sip inflation emi emergency fund rule of 72 mitra owl', '🎬'),
+  e('/learn/map', 'Money Map', 'Nine topics by four rungs, filling as you watch reels', 'Learn', 'money map topics ladder myth concept decision action progress reels', '🗺️'),
+  e('/learn/series', 'Story series', 'Six short runs of reels that follow one person to one real move', 'Learn', 'story series first salary safety net scam proof tax ready home loan retire number episodes', '📖'),
+  e('/tools/all', 'All tools', 'Every tracker, calculator and guide in one place', 'Tools', 'all tools menu everything trackers calculators guides more', '🧰'),
   e('/tools/calculators', 'Calculators', 'SIP, EMI, HRA and more', 'Tools', 'calculator sip emi fd rd hra gratuity', '🧮'),
   e('/tools/retirement', 'Retirement planner', 'Corpus, spending and odds', 'Tools', 'fire retire monte carlo pension corpus', '🌅'),
   e('/tools/tax', 'Tax savings', 'Deductions, old vs new regime', 'Tools', '80c 80d regime deduction save tax', '🧾'),
