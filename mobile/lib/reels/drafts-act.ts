@@ -1,0 +1,41 @@
+// Tool links for the draft reels. Scam reels have none. They join the app's links only when a draft is live (lib/reels/review.ts).
+import type { Act } from '@/lib/reels/journey';
+
+const a = (href: string, en: string, hi: string): Act => ({ href, label: { en, hi } });
+
+export const DRAFT_ACT: Record<string, Act> = {
+  'path-loan-tenure': a('/tools/calc/loantenure', 'Compare tenures', 'अवधियों की तुलना करें'),
+  'path-cover-or-sip': a('/insurance', 'Review your insurance', 'अपना बीमा देखें'),
+  'path-festival-bonus': a('/tools/windfall', 'Plan a windfall', 'अचानक आई रकम की योजना बनाएँ'),
+  'path-education-loan': a('/tools/calc/educationloan', 'Work out an education loan', 'एजुकेशन लोन का हिसाब लगाएँ'),
+  'path-parents-help': a('/tracker/budget', 'Add it to your budget', 'इसे अपने बजट में जोड़ें'),
+  'path-limit-increase': a('/tools/credit', 'Check your credit habits', 'अपनी क्रेडिट आदतें जाँचें'),
+  'path-side-income': a('/tracker/budget', 'Add it to your budget', 'इसे अपने बजट में जोड़ें'),
+  'path-health-top-up': a('/insurance/compare', 'Compare health plans', 'हेल्थ प्लान की तुलना करें'),
+  'guess-edu-cost-15y': a('/tools/goalopt', 'Work out the monthly amount', 'महीने की रकम निकालें'),
+  'guess-lump-10y': a('/tools/calc/lumpsum', 'Try a lump sum', 'एकमुश्त रकम आज़माएँ'),
+  'guess-first-year-interest': a('/tools/homeloan', 'Check your home loan', 'अपना होम लोन जाँचें'),
+  'guess-rate-two-points': a('/tools/calc/loantenure', 'Compare tenures and rates', 'अवधि और दरों की तुलना करें'),
+  'slide-home-rate': a('/tools/homeloan', 'Check your home loan', 'अपना होम लोन जाँचें'),
+  'slide-child-goal': a('/tools/goalopt', 'Work out the monthly amount', 'महीने की रकम निकालें'),
+  'slide-pension-spend': a('/tools/calc/swp', 'Try a withdrawal plan', 'निकासी योजना आज़माएँ'),
+  'slide-sip-thousand': a('/tools/calc/sip', 'Try your own SIP', 'अपनी SIP आज़माएँ'),
+  'slide-tax-big-deductions': a('/tools/tax', 'Compare the two regimes', 'दोनों रिजीम की तुलना करें'),
+  'slide-step-up-small': a('/tools/stepup', 'Try a step-up SIP', 'स्टेप-अप SIP आज़माएँ'),
+  'sort-fixed-or-variable': a('/tracker/budget', 'Set up your budget', 'अपना बजट बनाएँ'),
+  'sort-own-or-owe': a('/tracker/networth', 'See your net worth', 'अपनी कुल संपत्ति देखें'),
+  'sort-credit-habits': a('/tools/credit', 'Check your credit habits', 'अपनी क्रेडिट आदतें जाँचें'),
+  'sort-steady-or-moving': a('/tools/retirement', 'Check your retirement odds', 'अपनी रिटायरमेंट की संभावना जाँचें'),
+  'sort-keep-or-review': a('/tracker/subscriptions', 'Review your subscriptions', 'अपनी सब्सक्रिप्शन देखें'),
+  'order-first-sip-steps': a('/tools/calc/sip', 'Plan your first SIP', 'अपनी पहली SIP की योजना बनाएँ'),
+  'order-monthly-budget': a('/tracker/budget', 'Set up your budget', 'अपना बजट बनाएँ'),
+  'order-buying-a-home': a('/tools/homeloan', 'Plan your home loan', 'अपना होम लोन प्लान करें'),
+  'myths-stocks': a('/tracker/watchlist', 'Start a watchlist', 'वॉचलिस्ट बनाएँ'),
+  'myths-emi-cards': a('/tools/calc/creditcard', 'See what a card balance costs', 'देखें कार्ड की बकाया रकम की लागत'),
+  'myths-budgeting': a('/tracker/budget', 'Set up your budget', 'अपना बजट बनाएँ'),
+  'myths-inflation': a('/tools/calc/inflationimpact', 'See what your costs become', 'देखें आपका ख़र्च क्या बनेगा'),
+  'myths-ppf-nps': a('/tracker/ppf', 'Track your PPF', 'अपना PPF ट्रैक करें'),
+  'myths-credit-cards-use': a('/tools/credit', 'Check your credit habits', 'अपनी क्रेडिट आदतें जाँचें'),
+  'couples-money-talk': a('/tracker/budget', 'Set up a shared budget', 'साझा बजट बनाएँ'),
+  'new-baby-costs': a('/tracker/goals', 'Start a child fund', 'बच्चे का फ़ंड शुरू करें'),
+};

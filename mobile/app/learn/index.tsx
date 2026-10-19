@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
-import { TrackerScreen, Card, SectionLabel, Bar } from '@/components/TrackerUI';
+import { TrackerScreen, Card, SectionLabel, Bar, NavCard } from '@/components/TrackerUI';
 import { LText } from '@/components/LearnBlocks';
 import { MANIFEST, LESSONS } from '@/lib/learnContent';
 import { loadLearned, loadOpened } from '@/lib/learnStorage';
@@ -54,6 +54,11 @@ export default function LearnHome() {
 
   return (
     <TrackerScreen title="Learn" subtitle="Short lessons from FIN·OS, on your phone. For education, not advice; check rates and rules against official sources.">
+      <NavCard title="🎬 Money reels" sub="Short animated lessons with Mitra the owl: SIP, inflation, EMI and more. 30 seconds each, with a quick question." accent={Colors.purple} onPress={() => router.push('/learn/reels' as any)} />
+      <NavCard title="🗺️ Money Map" sub="Nine topics by four rungs: myth, concept, decision, action. See where you are strong and what to watch next." accent={Colors.teal} onPress={() => router.push('/learn/map' as any)} />
+      <NavCard title="✅ 7-day challenges" sub="One small task a day: find your money leak, or scam-proof your phone. You tick each one; a missed day costs nothing." accent={Colors.cyan} onPress={() => router.push('/learn/challenges' as any)} />
+      <NavCard title="📖 Story series" sub="Six short runs of reels, each following one person to one real move: first salary, a safety net, scams, tax, a home loan, retirement." accent={Colors.gold} onPress={() => router.push('/learn/series' as any)} />
+
       <Card accent={Colors.teal}>
         <Text style={Typography.label}>YOUR PROGRESS</Text>
         <Text style={s.big}>{`${overall.done} of ${overall.total} lessons learned`}</Text>
